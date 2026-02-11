@@ -1,0 +1,24 @@
+{
+  "name": "HmarePanditJi — Pandit App",
+  "short_name": "Pandit Ji",
+  "description": "Manage your bookings, earnings, and profile on HmarePanditJi.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f8f7f6",
+  "theme_color": "#f09942",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

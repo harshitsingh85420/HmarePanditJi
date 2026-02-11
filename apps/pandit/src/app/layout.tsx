@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import ClientNav from "../components/ClientNav";
 
 export const metadata: Metadata = {
   title: "HmarePanditJi — Pandit Dashboard",
   description: "Manage your bookings, profile, and earnings on HmarePanditJi.",
+  manifest: "/manifest.json",
 };
 
 export default function RootLayout({
@@ -15,67 +17,65 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <link
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
           rel="stylesheet"
         />
         <link
           href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
           rel="stylesheet"
         />
+        <meta name="theme-color" content="#f09942" />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, viewport-fit=cover"
+        />
       </head>
       <body className="min-h-screen bg-background-light font-display antialiased">
-        {/* Glassmorphism Header */}
-        <header className="sticky top-0 z-50 border-b border-slate-100 bg-white/80 backdrop-blur-md dark:border-slate-800 dark:bg-background-dark/80">
+
+        {/* ── Sticky Glassmorphism Header ─────────────────────────────────── */}
+        <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-primary/20">
           <div className="mx-auto flex h-16 max-w-[960px] items-center justify-between px-4 sm:px-6">
-            <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-2xl text-primary">
-                temple_hindu
+
+            {/* Logo */}
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                className="text-primary flex-shrink-0"
+                aria-hidden="true"
+              >
+                <path
+                  d="M12 2l2.929 6.472L22 9.549l-5 4.951 1.18 6.999L12 18.272l-6.18 3.227L7 15.5 2 10.549l7.071-1.077L12 2z"
+                  fill="currentColor"
+                />
+              </svg>
+              <span className="text-lg font-bold text-slate-900 leading-none">
+                HmarePanditJi
               </span>
-              <div>
-                <span className="text-base font-bold text-slate-900 dark:text-white">
-                  HmarePanditJi
-                </span>
-                <span className="ml-2 rounded bg-primary/10 px-1.5 py-0.5 text-xs font-medium text-primary">
-                  Pandit
-                </span>
+            </div>
+
+            {/* Center Nav — rendered by ClientNav (dynamic active state) */}
+            <ClientNav />
+
+            {/* Right: Namaste greeting + Avatar */}
+            <div className="flex items-center gap-3">
+              <button className="hidden sm:flex items-center gap-2 bg-primary/10 hover:bg-primary/20 transition-colors rounded-lg px-3 py-2 text-sm font-medium text-slate-800">
+                <span aria-hidden="true">🙏</span>
+                <span>Namaste, Pandit Ram Ji</span>
+              </button>
+              <div className="w-10 h-10 rounded-full bg-primary border-2 border-primary/70 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                R
               </div>
             </div>
-            <nav className="flex items-center gap-5">
-              <a
-                href="#"
-                className="flex items-center gap-1 text-sm font-medium text-slate-600 hover:text-primary dark:text-slate-300"
-              >
-                <span className="material-symbols-outlined text-base">
-                  event_note
-                </span>
-                Bookings
-              </a>
-              <a
-                href="#"
-                className="flex items-center gap-1 text-sm font-medium text-slate-600 hover:text-primary dark:text-slate-300"
-              >
-                <span className="material-symbols-outlined text-base">
-                  currency_rupee
-                </span>
-                Earnings
-              </a>
-              <a
-                href="#"
-                className="flex items-center gap-1 text-sm font-medium text-slate-600 hover:text-primary dark:text-slate-300"
-              >
-                <span className="material-symbols-outlined text-base">
-                  person
-                </span>
-                Profile
-              </a>
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
-                P
-              </div>
-            </nav>
           </div>
         </header>
 
-        <main className="mx-auto max-w-[960px] px-4 sm:px-6">{children}</main>
+        {/* ── Page Content ────────────────────────────────────────────────── */}
+        <main className="mx-auto max-w-[960px] px-4 sm:px-6 pb-28 md:pb-10">
+          {children}
+        </main>
+
       </body>
     </html>
   );
