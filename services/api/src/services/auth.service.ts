@@ -5,6 +5,7 @@ import { OTP as OTP_CONFIG, JWT } from "../config/constants";
 import { AppError } from "../middleware/errorHandler";
 import { logger } from "../utils/logger";
 import { formatPhoneE164, maskPhone } from "../utils/helpers";
+import { notifyOtp } from "./notification.service";
 
 // ─── Token helpers ────────────────────────────────────────────────────────────
 
@@ -49,12 +50,22 @@ export async function requestOtp(phone: string): Promise<void> {
     data: { isUsed: true },
   });
 
-  await prisma.oTP.create({
+  const otpRecord = await prisma.oTP.create({
     data: { phone: e164Phone, otp: otpCode, expiresAt },
   });
 
-  // TODO: replace with Twilio SMS in production
-  logger.info(`[DEV] OTP for ${maskPhone(e164Phone)}: ${otpCode}`);
+  // Find or create a placeholder user for notification (phone may not have an account yet)
+  const user = await prisma.user.findUnique({ where: { phone: e164Phone } });
+
+  if (user && env.TWILIO_ACCOUNT_SID && env.TWILIO_AUTH_TOKEN) {
+    // Send via Twilio SMS (non-blocking — don't fail OTP request if SMS fails)
+    notifyOtp(e164Phone, user.id, otpCode).catch((err) =>
+      logger.error(`[OTP] SMS delivery failed for ${maskPhone(e164Phone)}: ${err.message}`),
+    );
+  } else {
+    // Dev fallback: log to console
+    logger.info(`[DEV] OTP for ${maskPhone(e164Phone)}: ${otpCode} (id: ${otpRecord.id})`);
+  }
 }
 
 /**
