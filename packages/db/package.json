@@ -9,14 +9,19 @@
     "push": "prisma db push",
     "migrate": "prisma migrate dev",
     "studio": "prisma studio",
+    "seed": "tsx prisma/seed.ts",
     "lint": "eslint src/",
     "test": "echo \"No tests yet\""
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.12.0"
   },
   "devDependencies": {
     "prisma": "^5.12.0",
+    "tsx": "^4.7.0",
     "typescript": "^5.4.0"
   }
 }
