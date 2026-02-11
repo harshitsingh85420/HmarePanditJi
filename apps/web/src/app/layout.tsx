@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import LandingHeader from "../components/landing-header";
+import AuthModal from "../components/auth-modal";
+import { AuthProvider } from "../context/auth-context";
+import { ToastProvider } from "@hmarepanditji/ui";
 import { Footer } from "@hmarepanditji/ui";
 
 export const metadata: Metadata = {
@@ -53,9 +56,14 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen bg-[#f8f7f5] dark:bg-[#221a10] antialiased" style={{ fontFamily: "Inter, sans-serif" }}>
-        <LandingHeader />
-        <main>{children}</main>
-        <Footer />
+        <ToastProvider>
+          <AuthProvider>
+            <LandingHeader />
+            <main>{children}</main>
+            <Footer />
+            <AuthModal />
+          </AuthProvider>
+        </ToastProvider>
       </body>
     </html>
   );
