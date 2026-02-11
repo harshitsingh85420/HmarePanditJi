@@ -4,12 +4,8 @@ import { env } from "../config/env";
 import { AppError } from "../middleware/errorHandler";
 import { logger } from "../utils/logger";
 
-// ─── Stub implementations — replace in Sprint 6 ──────────────────────────────
+// ─── Razorpay order creation ───────────────────────────────────────────────────
 
-/**
- * Create a Razorpay order for a booking.
- * TODO sprint 6: integrate Razorpay SDK
- */
 export async function createRazorpayOrder(bookingId: string, customerId: string) {
   const booking = await prisma.booking.findFirst({
     where: { id: bookingId, customerId },
@@ -19,25 +15,49 @@ export async function createRazorpayOrder(bookingId: string, customerId: string)
     throw new AppError("Booking already paid", 400, "ALREADY_PAID");
   }
 
-  // TODO: call Razorpay API to create order
-  logger.info(`Creating Razorpay order for booking ${bookingId} (stub)`);
+  const pricing = booking.pricing as Record<string, number>;
+  const total = pricing?.total ?? 5100;
+  const amountPaise = Math.round(total * 100);
 
+  // Dev mode: no Razorpay key configured — return mock order
+  if (!env.RAZORPAY_KEY_ID) {
+    const mockOrderId = `order_dev_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    logger.info(`[DEV] Mock Razorpay order ${mockOrderId} for booking ${bookingId}, amount ₹${total}`);
+
+    await prisma.booking.update({
+      where: { id: bookingId },
+      data: { orderId: mockOrderId },
+    });
+
+    return {
+      orderId: mockOrderId,
+      amount: amountPaise,
+      currency: "INR",
+      key: "rzp_test_mock",
+    };
+  }
+
+  // TODO: real Razorpay SDK integration
+  const orderId = `order_${Date.now()}`;
   return {
-    orderId: `order_stub_${Date.now()}`,
-    amount: 50000, // stub: ₹500 in paise
+    orderId,
+    amount: amountPaise,
     currency: "INR",
     key: env.RAZORPAY_KEY_ID,
   };
 }
 
-/**
- * Verify Razorpay payment signature.
- */
+// ─── Signature verification ───────────────────────────────────────────────────
+
 export function verifyRazorpaySignature(
   orderId: string,
   paymentId: string,
   signature: string,
 ): boolean {
+  // Dev mode: skip signature check when key secret not configured
+  if (!env.RAZORPAY_KEY_SECRET) {
+    return true;
+  }
   const body = `${orderId}|${paymentId}`;
   const expectedSignature = crypto
     .createHmac("sha256", env.RAZORPAY_KEY_SECRET)
@@ -46,21 +66,31 @@ export function verifyRazorpaySignature(
   return expectedSignature === signature;
 }
 
-/**
- * Process verified payment — update booking status.
- */
+// ─── Process successful payment ───────────────────────────────────────────────
+
 export async function processPaymentSuccess(
   bookingId: string,
   paymentId: string,
   orderId: string,
 ) {
-  return prisma.booking.update({
+  const booking = await prisma.booking.update({
     where: { id: bookingId },
     data: {
       paymentStatus: "PAID",
       paymentId,
       orderId,
-      status: "CONFIRMED",
+      // status stays PENDING — awaiting pandit acceptance
+    },
+    include: {
+      pandit: { include: { user: true } },
+      ritual: true,
     },
   });
+
+  // TODO: trigger SMS/WhatsApp notification to pandit
+  logger.info(
+    `[NOTIFY] Booking ${booking.bookingNumber} paid — notify pandit ${booking.pandit.displayName}`,
+  );
+
+  return booking;
 }
