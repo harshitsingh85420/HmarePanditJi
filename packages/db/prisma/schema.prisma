@@ -9,14 +9,70 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum UserRole { CUSTOMER PANDIT ADMIN }
-enum GenderEnum { MALE FEMALE OTHER }
-enum AddressLabel { HOME OFFICE OTHER }
-enum RitualCategory { WEDDING PUJA GRIHA SHANTI FESTIVAL DEATH_RITES OTHER }
-enum BookingStatus { PENDING CONFIRMED IN_PROGRESS COMPLETED CANCELLED REFUNDED }
-enum PaymentStatus { PENDING PAID REFUNDED FAILED }
-enum NotificationType { BOOKING_CREATED BOOKING_CONFIRMED BOOKING_CANCELLED PAYMENT_SUCCESS REVIEW_REMINDER OTP GENERAL }
-enum NotificationChannel { SMS WHATSAPP EMAIL IN_APP }
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
+enum UserRole {
+  CUSTOMER
+  PANDIT
+  ADMIN
+}
+
+enum GenderEnum {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum AddressLabel {
+  HOME
+  OFFICE
+  OTHER
+}
+
+enum RitualCategory {
+  WEDDING
+  GRIHA
+  PUJA
+  SHANTI
+  FESTIVAL
+  DEATH_RITES
+  OTHER
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  REFUNDED
+  FAILED
+}
+
+enum NotificationType {
+  BOOKING_CREATED
+  BOOKING_CONFIRMED
+  BOOKING_CANCELLED
+  PAYMENT_SUCCESS
+  REVIEW_REMINDER
+  OTP
+  GENERAL
+}
+
+enum NotificationChannel {
+  SMS
+  WHATSAPP
+  EMAIL
+  IN_APP
+}
+
+// ─── Models ──────────────────────────────────────────────────────────────────
 
 model User {
   id                String   @id @default(cuid())
@@ -31,10 +87,12 @@ model User {
   firebaseUid       String?  @unique
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+
   customer      Customer?
   pandit        Pandit?
   notifications Notification[]
   adminLogs     AdminLog[]
+
   @@index([phone])
   @@index([email])
   @@map("users")
@@ -49,9 +107,11 @@ model Customer {
   gender      GenderEnum?
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
+
   addresses Address[]
   bookings  Booking[]
   reviews   Review[]
+
   @@index([userId])
   @@map("customers")
 }
@@ -72,6 +132,7 @@ model Address {
   isPrimary    Boolean      @default(false)
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
+
   @@index([customerId])
   @@index([city])
   @@map("addresses")
@@ -106,8 +167,10 @@ model Pandit {
   bankDetails          Json?
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
+
   bookings Booking[]
   reviews  Review[]
+
   @@index([userId])
   @@index([city])
   @@index([isVerified, isActive])
@@ -128,7 +191,9 @@ model Ritual {
   iconUrl          String?
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
+
   bookings Booking[]
+
   @@index([category])
   @@index([isActive])
   @@map("rituals")
@@ -165,10 +230,13 @@ model Booking {
   adminNotes           String?
   createdAt            DateTime      @default(now())
   updatedAt            DateTime      @updatedAt
+
   review Review?
+
   @@index([bookingNumber])
   @@index([customerId])
   @@index([panditId])
+  @@index([status])
   @@index([eventDate])
   @@index([customerId, status])
   @@index([panditId, status])
@@ -190,6 +258,7 @@ model Review {
   comment         String?  @db.VarChar(500)
   isAnonymous     Boolean  @default(false)
   createdAt       DateTime @default(now())
+
   @@index([panditId])
   @@index([bookingId])
   @@map("reviews")
@@ -206,6 +275,7 @@ model Notification {
   isRead   Boolean             @default(false)
   metadata Json?
   sentAt   DateTime            @default(now())
+
   @@index([userId])
   @@index([type])
   @@index([isRead])
@@ -220,6 +290,7 @@ model OTP {
   isUsed    Boolean  @default(false)
   attempts  Int      @default(0)
   createdAt DateTime @default(now())
+
   @@index([phone])
   @@index([expiresAt])
   @@index([phone, isUsed])
@@ -235,6 +306,7 @@ model AdminLog {
   targetId    String
   metadata    Json?
   createdAt   DateTime @default(now())
+
   @@index([adminUserId])
   @@index([targetType])
   @@index([createdAt])
