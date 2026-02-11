@@ -7,8 +7,12 @@ import {
   createRazorpayOrder,
   verifyRazorpaySignature,
   processPaymentSuccess,
+  verifyWebhookSignature,
+  initiateRefund,
 } from "../services/payment.service";
 import { AppError } from "../middleware/errorHandler";
+import { prisma } from "@hmarepanditji/db";
+import { logger } from "../utils/logger";
 
 const router = Router();
 
@@ -19,6 +23,11 @@ const verifySchema = z.object({
   razorpay_order_id: z.string().min(1),
   razorpay_payment_id: z.string().min(1),
   razorpay_signature: z.string().min(1),
+});
+
+const refundSchema = z.object({
+  bookingId: z.string().min(1),
+  reason: z.string().optional(),
 });
 
 // ── Routes ────────────────────────────────────────────────────────────────────
@@ -34,7 +43,6 @@ router.post("/create-order", authenticate, roleGuard("CUSTOMER"), async (req, re
       res.status(400).json({ success: false, message: "bookingId is required" });
       return;
     }
-    const { prisma } = await import("@hmarepanditji/db");
     const customer = await prisma.customer.findUnique({
       where: { userId: req.user!.id },
     });
@@ -51,7 +59,7 @@ router.post("/create-order", authenticate, roleGuard("CUSTOMER"), async (req, re
 
 /**
  * POST /payments/verify
- * Verify Razorpay payment and mark booking as paid.
+ * Verify Razorpay payment signature and mark booking as paid.
  */
 router.post("/verify", authenticate, roleGuard("CUSTOMER"), async (req, res, next) => {
   try {
@@ -80,19 +88,97 @@ router.post("/verify", authenticate, roleGuard("CUSTOMER"), async (req, res, nex
 
 /**
  * POST /payments/webhook
- * Razorpay webhook (no auth, verified via X-Razorpay-Signature).
+ * Razorpay webhook — raw body required for signature verification.
+ * Register this URL in Razorpay dashboard: https://api.hmarepanditji.com/api/v1/payments/webhook
  */
-router.post("/webhook", (_req, res) => {
-  // TODO: verify X-Razorpay-Signature and process payment.captured events
-  res.status(200).json({ received: true });
+router.post("/webhook", async (req, res) => {
+  try {
+    const signature = req.headers["x-razorpay-signature"] as string | undefined;
+    const rawBody = JSON.stringify(req.body); // express.json() already parsed it
+
+    if (signature && !verifyWebhookSignature(rawBody, signature)) {
+      logger.warn("Razorpay webhook: invalid signature");
+      res.status(400).json({ success: false, message: "Invalid webhook signature" });
+      return;
+    }
+
+    const event = req.body as { event?: string; payload?: Record<string, unknown> };
+    logger.info(`Razorpay webhook event: ${event.event}`);
+
+    switch (event.event) {
+      case "payment.captured": {
+        const payment = (event.payload as any)?.payment?.entity;
+        if (payment?.notes?.bookingId) {
+          const booking = await prisma.booking.findUnique({
+            where: { id: payment.notes.bookingId as string },
+          });
+          if (booking && booking.paymentStatus !== "PAID") {
+            await processPaymentSuccess(
+              payment.notes.bookingId as string,
+              payment.id as string,
+              payment.order_id as string,
+            );
+            logger.info(`Webhook: payment.captured processed for booking ${payment.notes.bookingId}`);
+          }
+        }
+        break;
+      }
+
+      case "payment.failed": {
+        const payment = (event.payload as any)?.payment?.entity;
+        if (payment?.notes?.bookingId) {
+          await prisma.booking.updateMany({
+            where: {
+              id: payment.notes.bookingId as string,
+              paymentStatus: "PENDING",
+            },
+            data: { paymentStatus: "FAILED" },
+          });
+          logger.info(`Webhook: payment.failed for booking ${payment.notes.bookingId}`);
+          // TODO: notify customer via SMS
+        }
+        break;
+      }
+
+      case "refund.processed": {
+        const refund = (event.payload as any)?.refund?.entity;
+        if (refund?.notes?.bookingId) {
+          await prisma.booking.updateMany({
+            where: { id: refund.notes.bookingId as string },
+            data: {
+              paymentStatus: "REFUNDED",
+              status: "REFUNDED",
+              refundId: refund.id as string,
+            },
+          });
+          logger.info(`Webhook: refund.processed for booking ${refund.notes.bookingId}`);
+        }
+        break;
+      }
+
+      default:
+        logger.info(`Razorpay webhook: unhandled event ${event.event}`);
+    }
+
+    res.status(200).json({ received: true });
+  } catch (err) {
+    logger.error("Razorpay webhook error:", err);
+    res.status(200).json({ received: true }); // Always 200 to Razorpay
+  }
 });
 
 /**
  * POST /payments/refund
- * Admin only.
+ * Admin only — initiate a refund based on cancellation policy.
  */
-router.post("/refund", authenticate, roleGuard("ADMIN"), (_req, res) => {
-  sendSuccess(res, null, "Refund initiated (stub)");
+router.post("/refund", authenticate, roleGuard("ADMIN"), async (req, res, next) => {
+  try {
+    const { bookingId, reason } = refundSchema.parse(req.body);
+    const result = await initiateRefund(bookingId, reason);
+    sendSuccess(res, result, "Refund initiated");
+  } catch (err) {
+    next(err);
+  }
 });
 
 export default router;

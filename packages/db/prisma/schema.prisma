@@ -219,6 +219,7 @@ model Booking {
   paymentStatus        PaymentStatus @default(PENDING)
   paymentId            String?
   orderId              String?
+  refundId             String?
   travelMode           String?       @default("manual")
   travelNotes          String?
   panditAcceptedAt     DateTime?

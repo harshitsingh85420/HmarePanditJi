@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Card, StepIndicator, Badge } from "@hmarepanditji/ui";
 import { useAuth, API_BASE } from "../../context/auth-context";
+import RazorpayCheckout from "../../components/RazorpayCheckout";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -46,6 +47,15 @@ interface BookingResult {
   pandit: { displayName: string };
   ritual: { name: string };
   pricing: Record<string, number>;
+}
+
+interface BookingOrder {
+  bookingId: string;
+  bookingNumber: string;
+  orderId: string;
+  amount: number; // in paisa
+  currency: string;
+  key: string;
 }
 
 // ── Constants ─────────────────────────────────────────────────────────────────
@@ -526,16 +536,28 @@ function StepPricing({
 
 function StepPayment({
   pricing,
+  bookingOrder,
   loading,
   error,
   onPay,
   onBack,
+  customerName,
+  customerEmail,
+  customerPhone,
+  accessToken,
+  onPaySuccess,
 }: {
   pricing: { dakshina: number; platformFee: number; total: number };
+  bookingOrder: BookingOrder | null;
   loading: boolean;
   error: string;
   onPay: () => void;
   onBack: () => void;
+  customerName: string;
+  customerEmail?: string;
+  customerPhone?: string;
+  accessToken: string;
+  onPaySuccess: (confirmedBooking: unknown) => void;
 }) {
   return (
     <div className="space-y-5">
@@ -561,47 +583,66 @@ function StepPayment({
           </div>
         </div>
 
-        {/* Dev mode notice */}
-        <div className="flex items-start gap-2 p-3 rounded-lg bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800/30 mb-4">
-          <span className="material-symbols-outlined text-yellow-500 text-base flex-shrink-0">info</span>
-          <p className="text-xs text-yellow-700 dark:text-yellow-300">
-            <strong>Test mode:</strong> No real payment is charged. Click "Pay Now" to simulate a successful payment.
-          </p>
-        </div>
+        {/* Once booking is created, hand off to RazorpayCheckout */}
+        {bookingOrder ? (
+          <RazorpayCheckout
+            orderId={bookingOrder.orderId}
+            amount={bookingOrder.amount}
+            currency={bookingOrder.currency}
+            razorpayKey={bookingOrder.key}
+            bookingId={bookingOrder.bookingId}
+            bookingNumber={bookingOrder.bookingNumber}
+            customerName={customerName}
+            customerEmail={customerEmail}
+            customerPhone={customerPhone}
+            accessToken={accessToken}
+            onSuccess={onPaySuccess}
+          />
+        ) : (
+          <>
+            {/* Dev mode notice */}
+            <div className="flex items-start gap-2 p-3 rounded-lg bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800/30 mb-4">
+              <span className="material-symbols-outlined text-yellow-500 text-base flex-shrink-0">info</span>
+              <p className="text-xs text-yellow-700 dark:text-yellow-300">
+                <strong>Test mode:</strong> Razorpay test keys. Use card 4111 1111 1111 1111 or UPI success@razorpay.
+              </p>
+            </div>
 
-        {error && (
-          <div className="flex items-start gap-2 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 mb-4">
-            <span className="material-symbols-outlined text-red-500 text-base flex-shrink-0">error</span>
-            <p className="text-xs text-red-600 dark:text-red-400">{error}</p>
-          </div>
-        )}
-
-        <div className="flex gap-3">
-          <button
-            onClick={onBack}
-            disabled={loading}
-            className="h-12 px-6 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-semibold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors disabled:opacity-50"
-          >
-            Back
-          </button>
-          <button
-            onClick={onPay}
-            disabled={loading}
-            className="flex-1 h-12 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                Processing…
-              </>
-            ) : (
-              <>
-                <span className="material-symbols-outlined text-base" style={{ fontVariationSettings: "'FILL' 1" }}>payments</span>
-                Pay {rupees(pricing.total)}
-              </>
+            {error && (
+              <div className="flex items-start gap-2 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 mb-4">
+                <span className="material-symbols-outlined text-red-500 text-base flex-shrink-0">error</span>
+                <p className="text-xs text-red-600 dark:text-red-400">{error}</p>
+              </div>
             )}
-          </button>
-        </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={onBack}
+                disabled={loading}
+                className="h-12 px-6 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-semibold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors disabled:opacity-50"
+              >
+                Back
+              </button>
+              <button
+                onClick={onPay}
+                disabled={loading}
+                className="flex-1 h-12 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Creating booking…
+                  </>
+                ) : (
+                  <>
+                    <span className="material-symbols-outlined text-base" style={{ fontVariationSettings: "'FILL' 1" }}>payments</span>
+                    Pay {rupees(pricing.total)}
+                  </>
+                )}
+              </button>
+            </div>
+          </>
+        )}
       </Card>
     </div>
   );
@@ -725,6 +766,7 @@ export default function BookClient() {
   // Payment state
   const [payLoading, setPayLoading] = useState(false);
   const [payError, setPayError] = useState("");
+  const [bookingOrder, setBookingOrder] = useState<BookingOrder | null>(null);
   const [confirmedBooking, setConfirmedBooking] = useState<BookingResult | null>(null);
 
   // ── Fetch pandit + ritual ────────────────────────────────────────────────────
@@ -816,7 +858,7 @@ export default function BookClient() {
     }
   }, []);
 
-  // ── Pay handler: POST /bookings → POST /payments/verify ──────────────────────
+  // ── Create booking handler: POST /bookings → get order → open RazorpayCheckout ─
 
   const handlePay = useCallback(async () => {
     if (!user || !accessToken) {
@@ -828,7 +870,6 @@ export default function BookClient() {
     setPayError("");
 
     try {
-      // 1. Create booking
       const bookingRes = await fetch(`${API_BASE}/bookings`, {
         method: "POST",
         headers: {
@@ -858,46 +899,21 @@ export default function BookClient() {
 
       if (!bookingRes.ok) {
         const errJson = await bookingRes.json().catch(() => ({}));
-        throw new Error(errJson.message ?? "Failed to create booking");
+        throw new Error((errJson as { message?: string }).message ?? "Failed to create booking");
       }
 
-      const bookingJson = await bookingRes.json();
+      const bookingJson = await bookingRes.json() as { data: { booking: { id: string; bookingNumber: string }; order: { orderId: string; amount: number; currency: string; key: string } } };
       const { booking, order } = bookingJson.data;
 
-      // 2. Simulate Razorpay payment → verify
-      const verifyRes = await fetch(`${API_BASE}/payments/verify`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify({
-          bookingId: booking.id,
-          razorpay_order_id: order.orderId,
-          razorpay_payment_id: `pay_mock_${Date.now()}`,
-          razorpay_signature: "mock_signature_dev",
-        }),
-        signal: AbortSignal.timeout(15000),
+      // Hand off to RazorpayCheckout — it will open the modal and verify
+      setBookingOrder({
+        bookingId: booking.id,
+        bookingNumber: booking.bookingNumber,
+        orderId: order.orderId,
+        amount: order.amount,
+        currency: order.currency,
+        key: order.key,
       });
-
-      if (!verifyRes.ok) {
-        const errJson = await verifyRes.json().catch(() => ({}));
-        throw new Error(errJson.message ?? "Payment verification failed");
-      }
-
-      const verifyJson = await verifyRes.json();
-      const confirmedBk = verifyJson.data?.booking ?? booking;
-
-      setConfirmedBooking({
-        id: confirmedBk.id,
-        bookingNumber: confirmedBk.bookingNumber,
-        eventDate: confirmedBk.eventDate,
-        eventTime: confirmedBk.eventTime,
-        pandit: { displayName: resolvedPandit.displayName },
-        ritual: { name: resolvedRitual.name },
-        pricing,
-      });
-      setStep(4);
     } catch (err) {
       setPayError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
     } finally {
@@ -909,6 +925,22 @@ export default function BookClient() {
     venue, specialRequirements, numberOfAttendees, pricing,
     openLoginModal,
   ]);
+
+  // ── RazorpayCheckout success handler ─────────────────────────────────────────
+
+  const handlePaySuccess = useCallback((confirmedBk: unknown) => {
+    const bk = confirmedBk as { id?: string; bookingNumber?: string; eventDate?: string; eventTime?: string } | null;
+    setConfirmedBooking({
+      id: bk?.id ?? bookingOrder?.bookingId ?? "",
+      bookingNumber: bk?.bookingNumber ?? bookingOrder?.bookingNumber ?? "",
+      eventDate: bk?.eventDate ?? new Date(`${date}T${time}:00`).toISOString(),
+      eventTime: bk?.eventTime ?? time,
+      pandit: { displayName: resolvedPandit.displayName },
+      ritual: { name: resolvedRitual.name },
+      pricing,
+    });
+    setStep(4);
+  }, [bookingOrder, date, time, resolvedPandit, resolvedRitual, pricing]);
 
   // ── Auth guard ───────────────────────────────────────────────────────────────
 
@@ -1024,10 +1056,16 @@ export default function BookClient() {
         {step === 3 && (
           <StepPayment
             pricing={pricing}
+            bookingOrder={bookingOrder}
             loading={payLoading}
             error={payError}
             onPay={handlePay}
             onBack={() => setStep(2)}
+            customerName={user?.fullName ?? user?.phone ?? "Customer"}
+            customerEmail={user?.email ?? undefined}
+            customerPhone={user?.phone}
+            accessToken={accessToken ?? ""}
+            onPaySuccess={handlePaySuccess}
           />
         )}
         {step === 4 && confirmedBooking && (
