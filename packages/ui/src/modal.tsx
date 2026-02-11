@@ -1,66 +1,90 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useCallback } from "react";
 
 export interface ModalProps {
-  isOpen: boolean;
+  open: boolean;
   onClose: () => void;
   title?: string;
   children: React.ReactNode;
-  className?: string;
+  size?: "sm" | "md" | "lg" | "xl";
+  /** Prevent closing by clicking the backdrop */
+  persistent?: boolean;
 }
 
 export function Modal({
-  isOpen,
+  open,
   onClose,
   title,
   children,
-  className = "",
+  size = "md",
+  persistent = false,
 }: ModalProps) {
-  const overlayRef = useRef<HTMLDivElement>(null);
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === "Escape" && !persistent) onClose();
+    },
+    [onClose, persistent],
+  );
 
   useEffect(() => {
-    function handleEscape(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
-    }
-    if (isOpen) {
-      document.addEventListener("keydown", handleEscape);
+    if (open) {
+      document.addEventListener("keydown", handleKeyDown);
       document.body.style.overflow = "hidden";
     }
     return () => {
-      document.removeEventListener("keydown", handleEscape);
+      document.removeEventListener("keydown", handleKeyDown);
       document.body.style.overflow = "";
     };
-  }, [isOpen, onClose]);
+  }, [open, handleKeyDown]);
 
-  if (!isOpen) return null;
+  if (!open) return null;
+
+  const sizes: Record<string, string> = {
+    sm: "max-w-sm",
+    md: "max-w-md",
+    lg: "max-w-lg",
+    xl: "max-w-2xl",
+  };
 
   return (
     <div
-      ref={overlayRef}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
-      onClick={(e) => {
-        if (e.target === overlayRef.current) onClose();
-      }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-label={title}
     >
+      {/* Backdrop */}
       <div
-        className={`mx-4 w-full max-w-lg rounded-2xl border border-slate-100 bg-white p-6 shadow-xl dark:border-slate-800 dark:bg-slate-900 ${className}`}
-        role="dialog"
-        aria-modal="true"
-        aria-label={title}
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={persistent ? undefined : onClose}
+        aria-hidden="true"
+      />
+
+      {/* Panel */}
+      <div
+        className={`relative w-full ${sizes[size]} bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-800`}
       >
+        {/* Header */}
         {title && (
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+            <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
               {title}
             </h2>
-            <button
-              onClick={onClose}
-              className="rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800"
-            >
-              <span className="material-symbols-outlined text-xl">close</span>
-            </button>
+            {!persistent && (
+              <button
+                onClick={onClose}
+                className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                aria-label="Close modal"
+              >
+                <span className="material-symbols-outlined text-slate-500 text-xl">
+                  close
+                </span>
+              </button>
+            )}
           </div>
         )}
-        {children}
+
+        {/* Body */}
+        <div className="p-6">{children}</div>
       </div>
     </div>
   );
