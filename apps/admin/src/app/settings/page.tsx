@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api/v1";
 
 const SMS_TEMPLATES = [
   { id: "booking_confirmed", label: "Booking Confirmed", body: "Namaste {pandit_name} ji! Aapki puja booking confirm ho gayi hai. Booking #{booking_id} — {ceremony} on {date} at {address}. Please confirm receipt." },

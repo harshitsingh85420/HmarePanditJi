@@ -196,7 +196,7 @@ const MOCK_PANDITS: PanditResult[] = [
 
 // ── API helpers ───────────────────────────────────────────────────────────
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api/v1";
 
 async function fetchPandits(params: URLSearchParams): Promise<{
   pandits: PanditResult[];
