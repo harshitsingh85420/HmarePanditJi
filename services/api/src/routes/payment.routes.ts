@@ -13,6 +13,7 @@ import {
 import { AppError } from "../middleware/errorHandler";
 import { prisma } from "@hmarepanditji/db";
 import { logger } from "../utils/logger";
+import { sendNotification } from "../services/notification.service";
 
 const router = Router();
 
@@ -135,7 +136,27 @@ router.post("/webhook", async (req, res) => {
             data: { paymentStatus: "FAILED" },
           });
           logger.info(`Webhook: payment.failed for booking ${payment.notes.bookingId}`);
-          // TODO: notify customer via SMS
+          // Notify customer via SMS (non-blocking)
+          const booking = await prisma.booking.findUnique({
+            where: { id: payment.notes.bookingId as string },
+            include: {
+              customer: { include: { user: { select: { id: true, phone: true, fullName: true } } } },
+            },
+          });
+          if (booking?.customer?.user) {
+            const { id: userId, phone, fullName } = booking.customer.user;
+            sendNotification({
+              userId,
+              type: "GENERAL",
+              title: "Payment Failed",
+              message:
+                `⚠️ ${fullName ?? "Customer"} जी, आपकी booking #${booking.bookingNumber} का payment fail हो गया। ` +
+                `Kripya dobara try karein ya support se contact karein। — HmarePanditJi`,
+              channel: "SMS",
+              phone,
+              metadata: { bookingNumber: booking.bookingNumber },
+            }).catch((err) => logger.error("Failed to send payment.failed SMS:", err));
+          }
         }
         break;
       }
