@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from "react";
 
 export type AppType = "web" | "pandit" | "admin";
