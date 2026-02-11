@@ -4,6 +4,7 @@ import { prisma } from "@hmarepanditji/db";
 import { env } from "../config/env";
 import { AppError } from "../middleware/errorHandler";
 import { logger } from "../utils/logger";
+import { notifyPaymentSuccess, notifyNewBooking } from "./notification.service";
 
 // ─── Razorpay singleton (lazy-init when keys are set) ─────────────────────────
 
@@ -139,10 +140,39 @@ export async function processPaymentSuccess(
     },
   });
 
-  // TODO: trigger SMS/WhatsApp via Twilio to pandit + customer
-  logger.info(
-    `[NOTIFY] Booking ${booking.bookingNumber} paid — notify pandit ${booking.pandit.displayName}`,
-  );
+  const pricing = booking.pricing as Record<string, number>;
+  const totalAmount = pricing?.total ?? 0;
+  const customerPhone = booking.customer.user.phone;
+  const panditPhone = booking.pandit.user.phone;
+  const venueAddress = booking.venueAddress as Record<string, string> | null;
+  const city = venueAddress?.city ?? "Delhi";
+
+  // Notify customer — payment received
+  if (customerPhone) {
+    notifyPaymentSuccess({
+      customerUserId: booking.customer.userId,
+      customerPhone,
+      bookingNumber: booking.bookingNumber,
+      amount: totalAmount,
+    }).catch((err) => logger.error("notifyPaymentSuccess failed:", err));
+  }
+
+  // Notify pandit — new booking awaiting acceptance
+  if (panditPhone) {
+    const dakshinaAmount = pricing?.dakshina ?? totalAmount;
+    notifyNewBooking({
+      panditUserId: booking.pandit.userId,
+      panditPhone,
+      bookingNumber: booking.bookingNumber,
+      ritualName: booking.ritual.name,
+      eventDate: booking.eventDate,
+      eventTime: booking.eventTime,
+      city,
+      dakshina: dakshinaAmount,
+    }).catch((err) => logger.error("notifyNewBooking failed:", err));
+  }
+
+  logger.info(`Booking ${booking.bookingNumber} paid — notifications dispatched`);
 
   return booking;
 }

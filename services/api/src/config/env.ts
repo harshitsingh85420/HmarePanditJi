@@ -30,6 +30,7 @@ const envSchema = z.object({
   TWILIO_ACCOUNT_SID: z.string().default(""),
   TWILIO_AUTH_TOKEN: z.string().default(""),
   TWILIO_PHONE_NUMBER: z.string().default(""),
+  TWILIO_WHATSAPP_NUMBER: z.string().default(""),
 
   FIREBASE_ADMIN_SERVICE_ACCOUNT_KEY: z.string().default(""),
 });
