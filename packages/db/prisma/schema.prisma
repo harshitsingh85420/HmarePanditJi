@@ -1,0 +1,242 @@
+// HmarePanditJi — Prisma Schema (Phase 1, PostgreSQL 16)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole { CUSTOMER PANDIT ADMIN }
+enum GenderEnum { MALE FEMALE OTHER }
+enum AddressLabel { HOME OFFICE OTHER }
+enum RitualCategory { WEDDING PUJA GRIHA SHANTI FESTIVAL DEATH_RITES OTHER }
+enum BookingStatus { PENDING CONFIRMED IN_PROGRESS COMPLETED CANCELLED REFUNDED }
+enum PaymentStatus { PENDING PAID REFUNDED FAILED }
+enum NotificationType { BOOKING_CREATED BOOKING_CONFIRMED BOOKING_CANCELLED PAYMENT_SUCCESS REVIEW_REMINDER OTP GENERAL }
+enum NotificationChannel { SMS WHATSAPP EMAIL IN_APP }
+
+model User {
+  id                String   @id @default(cuid())
+  phone             String   @unique
+  email             String?  @unique
+  fullName          String?
+  role              UserRole
+  isPhoneVerified   Boolean  @default(false)
+  profileCompleted  Boolean  @default(false)
+  preferredLanguage String   @default("hindi")
+  avatarUrl         String?
+  firebaseUid       String?  @unique
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  customer      Customer?
+  pandit        Pandit?
+  notifications Notification[]
+  adminLogs     AdminLog[]
+  @@index([phone])
+  @@index([email])
+  @@map("users")
+}
+
+model Customer {
+  id          String      @id @default(cuid())
+  userId      String      @unique
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  gotra       String?
+  dateOfBirth DateTime?
+  gender      GenderEnum?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  addresses Address[]
+  bookings  Booking[]
+  reviews   Review[]
+  @@index([userId])
+  @@map("customers")
+}
+
+model Address {
+  id           String       @id @default(cuid())
+  customerId   String
+  customer     Customer     @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  label        AddressLabel @default(HOME)
+  addressLine1 String
+  addressLine2 String?
+  landmark     String?
+  city         String
+  state        String       @default("Delhi")
+  postalCode   String
+  latitude     Float?
+  longitude    Float?
+  isPrimary    Boolean      @default(false)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  @@index([customerId])
+  @@index([city])
+  @@map("addresses")
+}
+
+model Pandit {
+  id                   String   @id @default(cuid())
+  userId               String   @unique
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  displayName          String
+  bio                  String?  @db.VarChar(500)
+  experienceYears      Int      @default(0)
+  specializations      String[] @default([])
+  languages            String[] @default([])
+  sect                 String?
+  gotra                String?
+  city                 String   @default("Delhi")
+  state                String   @default("Delhi")
+  isVerified           Boolean  @default(false)
+  isActive             Boolean  @default(true)
+  profilePhotoUrl      String?
+  galleryImages        String[] @default([])
+  averageRating        Float    @default(0)
+  totalReviews         Int      @default(0)
+  totalBookings        Int      @default(0)
+  basePricing          Json     @default("{}")
+  availableDays        String[] @default([])
+  aadhaarVerified      Boolean  @default(false)
+  certificatesVerified Boolean  @default(false)
+  bankAccountAdded     Boolean  @default(false)
+  panNumber            String?
+  bankDetails          Json?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  bookings Booking[]
+  reviews  Review[]
+  @@index([userId])
+  @@index([city])
+  @@index([isVerified, isActive])
+  @@map("pandits")
+}
+
+model Ritual {
+  id               String         @id @default(cuid())
+  name             String         @unique
+  nameHindi        String
+  description      String?
+  descriptionHindi String?
+  category         RitualCategory
+  basePriceMin     Int
+  basePriceMax     Int
+  durationHours    Float
+  isActive         Boolean        @default(true)
+  iconUrl          String?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  bookings Booking[]
+  @@index([category])
+  @@index([isActive])
+  @@map("rituals")
+}
+
+model Booking {
+  id                   String        @id @default(cuid())
+  bookingNumber        String        @unique
+  customerId           String
+  customer             Customer      @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  panditId             String
+  pandit               Pandit        @relation(fields: [panditId], references: [id])
+  ritualId             String
+  ritual               Ritual        @relation(fields: [ritualId], references: [id])
+  status               BookingStatus @default(PENDING)
+  eventDate            DateTime
+  eventTime            String?
+  muhurat              String?
+  venueAddress         Json
+  specialRequirements  String?
+  numberOfAttendees    Int?
+  pricing              Json
+  paymentStatus        PaymentStatus @default(PENDING)
+  paymentId            String?
+  orderId              String?
+  travelMode           String?       @default("manual")
+  travelNotes          String?
+  panditAcceptedAt     DateTime?
+  panditRejectedReason String?
+  completedAt          DateTime?
+  cancelledAt          DateTime?
+  cancellationReason   String?
+  customerNotes        String?
+  adminNotes           String?
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+  review Review?
+  @@index([bookingNumber])
+  @@index([customerId])
+  @@index([panditId])
+  @@index([eventDate])
+  @@index([customerId, status])
+  @@index([panditId, status])
+  @@map("bookings")
+}
+
+model Review {
+  id              String   @id @default(cuid())
+  bookingId       String   @unique
+  booking         Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  customerId      String
+  customer        Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  panditId        String
+  pandit          Pandit   @relation(fields: [panditId], references: [id])
+  overallRating   Int
+  ritualKnowledge Int?
+  punctuality     Int?
+  communication   Int?
+  comment         String?  @db.VarChar(500)
+  isAnonymous     Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  @@index([panditId])
+  @@index([bookingId])
+  @@map("reviews")
+}
+
+model Notification {
+  id       String              @id @default(cuid())
+  userId   String
+  user     User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type     NotificationType
+  title    String
+  message  String
+  channel  NotificationChannel
+  isRead   Boolean             @default(false)
+  metadata Json?
+  sentAt   DateTime            @default(now())
+  @@index([userId])
+  @@index([type])
+  @@index([isRead])
+  @@map("notifications")
+}
+
+model OTP {
+  id        String   @id @default(cuid())
+  phone     String
+  otp       String
+  expiresAt DateTime
+  isUsed    Boolean  @default(false)
+  attempts  Int      @default(0)
+  createdAt DateTime @default(now())
+  @@index([phone])
+  @@index([expiresAt])
+  @@index([phone, isUsed])
+  @@map("otps")
+}
+
+model AdminLog {
+  id          String   @id @default(cuid())
+  adminUserId String
+  adminUser   User     @relation(fields: [adminUserId], references: [id], onDelete: Cascade)
+  action      String
+  targetType  String
+  targetId    String
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  @@index([adminUserId])
+  @@index([targetType])
+  @@index([createdAt])
+  @@map("admin_logs")
+}
