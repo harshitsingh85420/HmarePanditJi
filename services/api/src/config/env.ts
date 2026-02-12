@@ -25,10 +25,12 @@ const envSchema = z.object({
 
   RAZORPAY_KEY_ID: z.string().default(""),
   RAZORPAY_KEY_SECRET: z.string().default(""),
+  RAZORPAY_WEBHOOK_SECRET: z.string().default(""),
 
   TWILIO_ACCOUNT_SID: z.string().default(""),
   TWILIO_AUTH_TOKEN: z.string().default(""),
   TWILIO_PHONE_NUMBER: z.string().default(""),
+  TWILIO_WHATSAPP_NUMBER: z.string().default(""),
 
   FIREBASE_ADMIN_SERVICE_ACCOUNT_KEY: z.string().default(""),
 });

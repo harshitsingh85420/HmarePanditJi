@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import AdminNav from "../components/AdminNav";
 
 export const metadata: Metadata = {
   title: "HmarePanditJi — Admin Panel",
@@ -13,10 +14,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <head>
         <link
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
           rel="stylesheet"
         />
         <link
@@ -24,70 +25,53 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="min-h-screen bg-background-light font-display antialiased">
-        {/* Glassmorphism Header */}
-        <header className="sticky top-0 z-50 border-b border-slate-100 bg-white/80 backdrop-blur-md dark:border-slate-800 dark:bg-background-dark/80">
-          <div className="mx-auto flex h-16 max-w-[1440px] items-center justify-between px-4 sm:px-6">
-            <div className="flex items-center gap-3">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-                <span className="material-symbols-outlined text-lg text-white">
-                  admin_panel_settings
-                </span>
-              </div>
-              <div>
-                <span className="text-base font-bold text-slate-900 dark:text-white">
-                  HmarePanditJi
-                </span>
-                <span className="ml-2 rounded bg-primary/10 px-1.5 py-0.5 text-xs font-medium text-primary">
-                  Admin
-                </span>
-              </div>
+      <body className="min-h-screen bg-background-light font-display antialiased dark:bg-background-dark">
+
+        {/* ── Header ────────────────────────────────────────────────────── */}
+        <header className="h-16 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between px-6 sticky top-0 z-50">
+
+          {/* Left: Branding */}
+          <div className="flex items-center gap-3 flex-shrink-0">
+            <div className="bg-primary p-2 rounded-lg text-white flex items-center justify-center">
+              <span className="material-symbols-outlined text-xl leading-none">account_balance</span>
             </div>
-            <nav className="flex items-center gap-6">
-              <a
-                href="#"
-                className="flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-primary dark:text-slate-300"
-              >
-                <span className="material-symbols-outlined text-base">
-                  dashboard
-                </span>
-                Dashboard
-              </a>
-              <a
-                href="#"
-                className="flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-primary dark:text-slate-300"
-              >
-                <span className="material-symbols-outlined text-base">
-                  groups
-                </span>
-                Pandits
-              </a>
-              <a
-                href="#"
-                className="flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-primary dark:text-slate-300"
-              >
-                <span className="material-symbols-outlined text-base">
-                  event_note
-                </span>
-                Bookings
-              </a>
-              <a
-                href="#"
-                className="flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-primary dark:text-slate-300"
-              >
-                <span className="material-symbols-outlined text-base">
-                  bar_chart
-                </span>
-                Analytics
-              </a>
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
+            <div>
+              <p className="text-lg font-bold text-slate-900 dark:text-white leading-tight">
+                HmarePanditJi Admin
+              </p>
+              <p className="text-xs text-slate-500 leading-tight">
+                Centralized Operations &amp; Vetting
+              </p>
+            </div>
+          </div>
+
+          {/* Center: Navigation */}
+          <AdminNav />
+
+          {/* Right: Status + Profile */}
+          <div className="flex items-center gap-4 flex-shrink-0">
+            {/* System status */}
+            <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 rounded-full px-3 py-1.5">
+              <span className="w-2 h-2 rounded-full bg-green-500 flex-shrink-0" />
+              <span className="text-xs font-medium text-slate-600 dark:text-slate-300">System Online</span>
+            </div>
+
+            {/* Admin profile */}
+            <div className="flex items-center gap-2">
+              <div className="text-right hidden sm:block">
+                <p className="text-sm font-semibold text-slate-900 dark:text-white leading-tight">Arjun Verma</p>
+                <p className="text-xs text-slate-500 leading-tight">Super Admin</p>
+              </div>
+              <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm border-2 border-primary/20 flex-shrink-0">
                 A
               </div>
-            </nav>
+            </div>
           </div>
         </header>
 
-        <main className="mx-auto max-w-[1440px] px-4 sm:px-6">{children}</main>
+        {/* ── Page Content ────────────────────────────────────────────────── */}
+        {children}
+
       </body>
     </html>
   );

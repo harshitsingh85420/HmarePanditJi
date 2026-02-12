@@ -58,3 +58,16 @@ export type { HeaderProps, AppType, NavLink } from "./header";
 
 export { Footer } from "./footer";
 export type { FooterProps } from "./footer";
+
+// ── New components ──────────────────────────────────────────────────────────────
+export { PriceBreakdown } from "./price-breakdown";
+export type { PriceBreakdownProps, PriceBreakdownData } from "./price-breakdown";
+
+export { StatusTimeline } from "./status-timeline";
+export type { StatusTimelineProps, TimelineStep } from "./status-timeline";
+
+export { Tabs } from "./tabs";
+export type { TabsProps, TabItem } from "./tabs";
+
+export { GuestBanner } from "./guest-banner";
+export type { GuestBannerProps } from "./guest-banner";

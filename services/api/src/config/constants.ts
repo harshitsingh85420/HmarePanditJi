@@ -47,3 +47,37 @@ export const ALLOWED_ORIGINS = [
   `http://localhost:${PORTS.PANDIT}`,
   `http://localhost:${PORTS.ADMIN}`,
 ];
+
+// ── Pricing constants ──────────────────────────────────────────────────────────
+export const PLATFORM_FEE_PERCENT = 15;
+export const TRAVEL_SERVICE_FEE_PERCENT = 5;
+export const GST_PERCENT = 18;
+export const FOOD_ALLOWANCE_PER_DAY = 1000; // ₹1,000 per day
+export const SELF_DRIVE_RATE_PER_KM = 12;   // ₹12 per km
+
+// ── Domain constants ───────────────────────────────────────────────────────────
+export const SUPPORTED_PUJA_TYPES = [
+  "Vivah",
+  "Griha Pravesh",
+  "Satyanarayan Katha",
+  "Mundan",
+  "Annaprashan",
+  "Naamkaran",
+  "Havan",
+  "Ganesh Puja",
+  "Lakshmi Puja",
+  "Vastu Shanti",
+  "Shradh",
+  "Pitra Puja",
+  "Rudrabhishek",
+  "Sunderkand Path",
+] as const;
+
+export const SUPPORTED_LANGUAGES = [
+  "Hindi",
+  "English",
+  "Sanskrit",
+  "Bhojpuri",
+  "Maithili",
+  "Awadhi",
+] as const;

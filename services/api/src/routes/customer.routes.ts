@@ -1,53 +1,193 @@
 import { Router } from "express";
+import { z } from "zod";
+import { prisma } from "@hmarepanditji/db";
 import { authenticate } from "../middleware/auth";
 import { roleGuard } from "../middleware/roleGuard";
+import { validate } from "../middleware/validator";
 import { sendSuccess } from "../utils/response";
+import { AppError } from "../middleware/errorHandler";
 
 const router = Router();
 
 // All customer routes require authentication
 router.use(authenticate);
 
+// ─── Validation schemas ───────────────────────────────────────────────────────
+
+const updateCustomerSchema = z.object({
+  fullName: z.string().min(2).max(100).optional(),
+  email: z.string().email().optional().nullable(),
+  gotra: z.string().max(100).optional(),
+  dateOfBirth: z.string().datetime().optional().nullable(),
+  gender: z.enum(["MALE", "FEMALE", "OTHER"]).optional(),
+});
+
+const addAddressSchema = z.object({
+  label: z.enum(["HOME", "OFFICE", "OTHER"]).default("HOME"),
+  addressLine1: z.string().min(5, "Address is required"),
+  addressLine2: z.string().optional(),
+  landmark: z.string().optional(),
+  city: z.string().min(2),
+  state: z.string().min(2).default("Delhi"),
+  postalCode: z.string().regex(/^\d{6}$/, "Invalid pincode"),
+  latitude: z.number().optional(),
+  longitude: z.number().optional(),
+  isPrimary: z.boolean().optional(),
+});
+
+// ─── Routes ───────────────────────────────────────────────────────────────────
+
 /**
  * GET /customers/me
- * Get the authenticated customer's profile
+ * Get the authenticated customer's profile (with addresses)
  */
-router.get("/me", roleGuard("CUSTOMER"), (_req, res) => {
-  sendSuccess(res, null, "Customer profile (stub — sprint 3)");
+router.get("/me", roleGuard("CUSTOMER"), async (req, res, next) => {
+  try {
+    const customer = await prisma.customer.findUnique({
+      where: { userId: req.user!.id },
+      include: {
+        user: {
+          select: {
+            id: true,
+            phone: true,
+            email: true,
+            fullName: true,
+            avatarUrl: true,
+            preferredLanguage: true,
+            profileCompleted: true,
+            createdAt: true,
+          },
+        },
+        addresses: { orderBy: [{ isPrimary: "desc" }, { createdAt: "asc" }] },
+      },
+    });
+
+    if (!customer) throw new AppError("Customer profile not found", 404, "NOT_FOUND");
+    sendSuccess(res, customer);
+  } catch (err) {
+    next(err);
+  }
 });
 
 /**
  * PUT /customers/me
  * Update the authenticated customer's profile
- * Body: { fullName?, gotra?, dateOfBirth?, gender? }
+ * Body: { fullName?, email?, gotra?, dateOfBirth?, gender? }
  */
-router.put("/me", roleGuard("CUSTOMER"), (_req, res) => {
-  sendSuccess(res, null, "Customer profile updated (stub)");
-});
+router.put(
+  "/me",
+  roleGuard("CUSTOMER"),
+  validate(updateCustomerSchema),
+  async (req, res, next) => {
+    try {
+      const { fullName, email, gotra, dateOfBirth, gender } = req.body as z.infer<
+        typeof updateCustomerSchema
+      >;
+
+      // Update User fields (fullName, email) + profileCompleted flag
+      const userUpdate: Record<string, unknown> = {};
+      if (fullName !== undefined) { userUpdate.fullName = fullName; userUpdate.profileCompleted = true; }
+      if (email !== undefined) userUpdate.email = email;
+
+      const [user, customer] = await prisma.$transaction([
+        prisma.user.update({ where: { id: req.user!.id }, data: userUpdate }),
+        prisma.customer.upsert({
+          where: { userId: req.user!.id },
+          create: {
+            userId: req.user!.id,
+            gotra: gotra,
+            dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : undefined,
+            gender: gender,
+          },
+          update: {
+            ...(gotra !== undefined && { gotra }),
+            ...(dateOfBirth !== undefined && { dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null }),
+            ...(gender !== undefined && { gender }),
+          },
+        }),
+      ]);
+
+      sendSuccess(res, { ...customer, user }, "Profile updated successfully");
+    } catch (err) {
+      next(err);
+    }
+  },
+);
 
 /**
  * GET /customers/me/addresses
- * List all saved addresses
+ * List all saved addresses (primary first)
  */
-router.get("/me/addresses", roleGuard("CUSTOMER"), (_req, res) => {
-  sendSuccess(res, [], "Customer addresses (stub)");
+router.get("/me/addresses", roleGuard("CUSTOMER"), async (req, res, next) => {
+  try {
+    const customer = await prisma.customer.findUnique({ where: { userId: req.user!.id } });
+    if (!customer) throw new AppError("Customer profile not found", 404, "NOT_FOUND");
+
+    const addresses = await prisma.address.findMany({
+      where: { customerId: customer.id },
+      orderBy: [{ isPrimary: "desc" }, { createdAt: "asc" }],
+    });
+
+    sendSuccess(res, addresses);
+  } catch (err) {
+    next(err);
+  }
 });
 
 /**
  * POST /customers/me/addresses
- * Add a new address
- * Body: { label, addressLine1, city, state, postalCode, isPrimary? }
+ * Add a new address. If isPrimary=true, demote all others first.
+ * Body: { label, addressLine1, addressLine2?, landmark?, city, state, postalCode, isPrimary? }
  */
-router.post("/me/addresses", roleGuard("CUSTOMER"), (_req, res) => {
-  sendSuccess(res, null, "Address added (stub)", 201);
-});
+router.post(
+  "/me/addresses",
+  roleGuard("CUSTOMER"),
+  validate(addAddressSchema),
+  async (req, res, next) => {
+    try {
+      const customer = await prisma.customer.findUnique({ where: { userId: req.user!.id } });
+      if (!customer) throw new AppError("Customer profile not found", 404, "NOT_FOUND");
+
+      const data = req.body as z.infer<typeof addAddressSchema>;
+
+      // If new address is primary, demote all existing primary addresses
+      if (data.isPrimary) {
+        await prisma.address.updateMany({
+          where: { customerId: customer.id, isPrimary: true },
+          data: { isPrimary: false },
+        });
+      }
+
+      const address = await prisma.address.create({
+        data: { ...data, customerId: customer.id },
+      });
+
+      sendSuccess(res, address, "Address added successfully", 201);
+    } catch (err) {
+      next(err);
+    }
+  },
+);
 
 /**
  * DELETE /customers/me/addresses/:addressId
- * Delete a saved address
+ * Delete a saved address (only own addresses)
  */
-router.delete("/me/addresses/:addressId", roleGuard("CUSTOMER"), (_req, res) => {
-  sendSuccess(res, null, "Address deleted (stub)");
+router.delete("/me/addresses/:addressId", roleGuard("CUSTOMER"), async (req, res, next) => {
+  try {
+    const customer = await prisma.customer.findUnique({ where: { userId: req.user!.id } });
+    if (!customer) throw new AppError("Customer profile not found", 404, "NOT_FOUND");
+
+    const address = await prisma.address.findFirst({
+      where: { id: req.params.addressId, customerId: customer.id },
+    });
+    if (!address) throw new AppError("Address not found", 404, "NOT_FOUND");
+
+    await prisma.address.delete({ where: { id: address.id } });
+    sendSuccess(res, null, "Address deleted successfully");
+  } catch (err) {
+    next(err);
+  }
 });
 
 export default router;
