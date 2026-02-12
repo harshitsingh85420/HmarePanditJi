@@ -57,8 +57,9 @@ export default function BookingRequestPage({
   useEffect(() => {
     async function fetchBooking() {
       try {
+        const token = localStorage.getItem("hpj_pandit_access_token");
         const res = await fetch(`${API_BASE}/bookings/${params.id}`, {
-          credentials: "include",
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
         });
         if (!res.ok) throw new Error("Failed to fetch booking");
         const json = await res.json();
@@ -76,10 +77,13 @@ export default function BookingRequestPage({
   const handleAutoReject = useCallback(async () => {
     setIsExpired(true);
     try {
+      const token = localStorage.getItem("hpj_pandit_access_token");
       await fetch(`${API_BASE}/bookings/${params.id}/status`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({
           status: "CANCELLED",
           reason: "Auto-rejected: response timer expired",
@@ -117,10 +121,13 @@ export default function BookingRequestPage({
     setIsAccepting(true);
     setError(null);
     try {
+      const token = localStorage.getItem("hpj_pandit_access_token");
       const res = await fetch(`${API_BASE}/bookings/${params.id}/status`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({ status: "CONFIRMED" }),
       });
       if (!res.ok) throw new Error("Failed to accept booking");
@@ -138,10 +145,13 @@ export default function BookingRequestPage({
     setIsRejecting(true);
     setError(null);
     try {
+      const token = localStorage.getItem("hpj_pandit_access_token");
       const res = await fetch(`${API_BASE}/bookings/${params.id}/status`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({ status: "CANCELLED", reason: rejectReason }),
       });
       if (!res.ok) throw new Error("Failed to reject booking");

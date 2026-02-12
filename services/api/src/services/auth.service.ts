@@ -38,8 +38,11 @@ function signRefreshToken(userId: string): string {
 
 /**
  * Generate a 6-digit OTP, save to DB, and send via Twilio (dev: log only).
+ * Returns the OTP code in development mode for easy testing.
  */
-export async function requestOtp(phone: string): Promise<void> {
+export async function requestOtp(
+  phone: string,
+): Promise<{ devOtp?: string }> {
   const e164Phone = formatPhoneE164(phone);
   const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
   const expiresAt = new Date(Date.now() + OTP_CONFIG.EXPIRY_MINUTES * 60 * 1000);
@@ -66,6 +69,12 @@ export async function requestOtp(phone: string): Promise<void> {
     // Dev fallback: log to console
     logger.info(`[DEV] OTP for ${maskPhone(e164Phone)}: ${otpCode} (id: ${otpRecord.id})`);
   }
+
+  // In development, return the OTP so the UI can display it without checking logs
+  if (env.NODE_ENV === "development") {
+    return { devOtp: otpCode };
+  }
+  return {};
 }
 
 /**

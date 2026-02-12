@@ -11,6 +11,13 @@ export interface ListPanditsQuery {
   search?: string;
   page?: number;
   limit?: number;
+  // Distance / location filtering
+  maxDistanceKm?: number;
+  lat?: number;
+  lng?: number;
+  // Travel & availability
+  onlineOnly?: boolean;
+  sort?: string;
 }
 
 export async function listPandits(query: ListPanditsQuery) {
@@ -19,6 +26,7 @@ export async function listPandits(query: ListPanditsQuery) {
   const where = {
     isVerified: true,
     isActive: true,
+    ...(query.onlineOnly ? { isOnline: true } : {}),
     ...(query.city ? { city: { contains: query.city, mode: "insensitive" as const } } : {}),
     ...(query.minRating ? { averageRating: { gte: query.minRating } } : {}),
     ...(query.search
@@ -29,7 +37,18 @@ export async function listPandits(query: ListPanditsQuery) {
           ],
         }
       : {}),
+    // Only return pandits whose maxTravelDistance covers the requested km
+    ...(query.maxDistanceKm
+      ? { maxTravelDistance: { gte: query.maxDistanceKm } }
+      : {}),
   };
+
+  // Sort order
+  const orderByMap: Record<string, object> = {
+    rating_desc:  { averageRating: "desc" },
+    reviews_desc: { totalReviews: "desc" },
+  };
+  const orderBy = orderByMap[query.sort ?? ""] ?? { averageRating: "desc" };
 
   const [pandits, total] = await Promise.all([
     prisma.pandit.findMany({
@@ -48,8 +67,11 @@ export async function listPandits(query: ListPanditsQuery) {
         languages: true,
         profilePhotoUrl: true,
         basePricing: true,
+        maxTravelDistance: true,
+        isOnline: true,
+        travelPreferences: true,
       },
-      orderBy: { averageRating: "desc" },
+      orderBy: orderBy as never,
     }),
     prisma.pandit.count({ where }),
   ]);

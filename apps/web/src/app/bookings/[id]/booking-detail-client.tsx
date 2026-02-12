@@ -84,7 +84,7 @@ interface BookingDetail {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
+const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api/v1";
 const WA = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "919999999999";
 
 const STATUS_LABEL: Record<BookingStatus, string> = {
@@ -558,7 +558,7 @@ export default function BookingDetailClient({ bookingId }: { bookingId: string }
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(`${API}/api/v1/bookings/${bookingId}`, {
+      const res = await fetch(`${API}/bookings/${bookingId}`, {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
       if (res.status === 404) {
@@ -587,7 +587,7 @@ export default function BookingDetailClient({ bookingId }: { bookingId: string }
     if (!booking || !accessToken) return;
     setCancelLoading(true);
     try {
-      const res = await fetch(`${API}/api/v1/bookings/${booking.id}/cancel`, {
+      const res = await fetch(`${API}/bookings/${booking.id}/cancel`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -613,7 +613,7 @@ export default function BookingDetailClient({ bookingId }: { bookingId: string }
     if (!booking || !accessToken) return;
     setReviewLoading(true);
     try {
-      const res = await fetch(`${API}/api/v1/bookings/${booking.id}/review`, {
+      const res = await fetch(`${API}/bookings/${booking.id}/review`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

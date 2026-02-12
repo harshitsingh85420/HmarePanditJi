@@ -118,10 +118,13 @@ export default function OnboardingPage() {
     if (currentStep.id === "bank") {
       setSaving(true);
       try {
+        const token = localStorage.getItem("hpj_pandit_access_token");
         await fetch(`${API_BASE}/profile/onboard`, {
           method: "POST",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
           body: JSON.stringify({
             displayName: data.displayName,
             bio: data.bio,

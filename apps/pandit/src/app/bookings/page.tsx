@@ -109,7 +109,10 @@ export default function BookingsPage() {
     const load = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`${API_BASE}/bookings/mine`, { credentials: "include" });
+        const token = localStorage.getItem("hpj_pandit_access_token");
+        const res = await fetch(`${API_BASE}/bookings/mine`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
         if (res.ok) {
           const data = await res.json();
           setBookings(data.data?.bookings ?? data.bookings ?? MOCK_BOOKINGS);
@@ -134,10 +137,13 @@ export default function BookingsPage() {
   const handleMarkComplete = async (id: string) => {
     setCompleting(true);
     try {
+      const token = localStorage.getItem("hpj_pandit_access_token");
       const res = await fetch(`${API_BASE}/bookings/${id}/status`, {
         method: "PATCH",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({ status: "COMPLETED" }),
       });
       if (res.ok) {

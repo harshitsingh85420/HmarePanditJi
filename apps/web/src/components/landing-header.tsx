@@ -10,6 +10,7 @@ const navLinks = [
   { label: "How it Works", href: "/#how-it-works" },
   { label: "For Families", href: "/#families" },
   { label: "For Pandits", href: "/pandits/join" },
+  { label: "Search Pandits", href: "/search" },
 ];
 
 // ── User Avatar / Dropdown ────────────────────────────────────────────────────

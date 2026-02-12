@@ -4,6 +4,30 @@ import { AppError } from "../middleware/errorHandler";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
+export interface BookingFinancials {
+  dakshina: number;
+  travelCost?: number;
+  platformFee: number;        // 15% of dakshina
+  travelServiceFee?: number;  // 5% of travelCost
+  gstAmount: number;          // 18% GST on platformFee + travelServiceFee
+  grandTotal: number;         // customer pays
+  panditPayout: number;       // dakshina (travel reimbursed separately)
+}
+
+/** Calculate all derived fee columns from first principles. */
+export function calculateBookingFinancials(
+  dakshina: number,
+  travelCost = 0,
+): BookingFinancials {
+  const platformFee      = Math.round(dakshina * 0.15);
+  const travelServiceFee = travelCost > 0 ? Math.round(travelCost * 0.05) : undefined;
+  const taxableAmount    = platformFee + (travelServiceFee ?? 0);
+  const gstAmount        = Math.round(taxableAmount * 0.18);
+  const grandTotal       = dakshina + travelCost + platformFee + (travelServiceFee ?? 0) + gstAmount;
+  const panditPayout     = dakshina; // travel & accommodation reimbursed outside platform
+  return { dakshina, travelCost: travelCost || undefined, platformFee, travelServiceFee, gstAmount, grandTotal, panditPayout };
+}
+
 export interface CreateBookingInput {
   customerId: string;
   panditId: string;
@@ -11,10 +35,26 @@ export interface CreateBookingInput {
   eventDate: Date;
   eventTime?: string;
   muhurat?: string;
+  muhuratSuggested?: string;
   venueAddress: Record<string, unknown>;
   specialRequirements?: string;
   numberOfAttendees?: number;
   pricing: Record<string, unknown>;
+  // Travel & logistics
+  travelMode?: string;
+  travelCost?: number;
+  foodArrangement?: string;
+  foodAllowance?: number;
+  accommodationPref?: string;
+  // Samagri
+  samagriPreference?: string;
+  samagriNotes?: string;
+  // Financials (auto-calculated if not provided)
+  platformFee?: number;
+  travelServiceFee?: number;
+  gstAmount?: number;
+  grandTotal?: number;
+  panditPayout?: number;
 }
 
 // ─── Service functions ────────────────────────────────────────────────────────
@@ -53,6 +93,10 @@ export async function createBooking(input: CreateBookingInput) {
   });
   if (!ritual) throw new AppError("Ritual not found", 404, "NOT_FOUND");
 
+  // Auto-calculate financials when not explicitly provided
+  const dakshina = (input.pricing as Record<string, number>).dakshina ?? 0;
+  const fin = calculateBookingFinancials(dakshina, input.travelCost ?? 0);
+
   const booking = await prisma.booking.create({
     data: {
       bookingNumber: generateBookingNumber(),
@@ -62,10 +106,27 @@ export async function createBooking(input: CreateBookingInput) {
       eventDate: input.eventDate,
       eventTime: input.eventTime,
       muhurat: input.muhurat,
+      muhuratSuggested: input.muhuratSuggested,
       venueAddress: input.venueAddress as never,
       specialRequirements: input.specialRequirements,
       numberOfAttendees: input.numberOfAttendees,
       pricing: input.pricing as never,
+      // Travel & logistics
+      travelMode: input.travelMode,
+      travelCost: input.travelCost,
+      foodArrangement: input.foodArrangement,
+      foodAllowance: input.foodAllowance,
+      accommodationPref: input.accommodationPref,
+      travelStatus: input.travelMode ? "PENDING" : "NOT_NEEDED",
+      // Samagri
+      samagriPreference: input.samagriPreference,
+      samagriNotes: input.samagriNotes,
+      // Financials
+      platformFee:      input.platformFee      ?? fin.platformFee,
+      travelServiceFee: input.travelServiceFee ?? fin.travelServiceFee,
+      gstAmount:        input.gstAmount        ?? fin.gstAmount,
+      grandTotal:       input.grandTotal       ?? fin.grandTotal,
+      panditPayout:     input.panditPayout     ?? fin.panditPayout,
       status: "PENDING",
       paymentStatus: "PENDING",
     },

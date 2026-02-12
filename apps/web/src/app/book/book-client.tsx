@@ -307,8 +307,8 @@ function StepEventDetails({
               muhuratEnabled ? "bg-primary" : "bg-slate-200 dark:bg-slate-700"
             }`}
           >
-            <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${
-              muhuratEnabled ? "translate-x-5" : "translate-x-0.5"
+            <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${
+              muhuratEnabled ? "translate-x-5" : "translate-x-0"
             }`} />
           </button>
           <label className="text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer" onClick={() => onChange("muhuratEnabled", !muhuratEnabled)}>

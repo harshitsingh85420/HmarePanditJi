@@ -42,15 +42,19 @@ export default function HomePage() {
             {/* CTAs */}
             <div className="flex flex-wrap gap-4">
               <a
-                href="/pandits"
+                href="/search"
                 className="h-12 px-8 inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-white font-bold rounded-lg shadow-xl shadow-primary/30 transition-all text-sm"
               >
                 <span className="material-symbols-outlined text-xl">calendar_add_on</span>
                 Book Now
               </a>
-              <button className="h-12 px-8 inline-flex items-center gap-2 border-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 font-bold rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-all text-sm">
+              <button
+                disabled
+                title="Mobile app coming soon"
+                className="h-12 px-8 inline-flex items-center gap-2 border-2 border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500 font-bold rounded-lg cursor-not-allowed text-sm"
+              >
                 <span className="material-symbols-outlined text-xl">download</span>
-                Download App
+                App Coming Soon
               </button>
             </div>
 
@@ -309,7 +313,7 @@ export default function HomePage() {
           ].map((ritual) => (
             <a
               key={ritual.name}
-              href={`/rituals/${ritual.name.toLowerCase().replace(/\s+/g, "-")}`}
+              href={`/search?ritual=${encodeURIComponent(ritual.category)}`}
               className="group bg-white dark:bg-slate-900 rounded-2xl p-5 shadow-sm border border-slate-100 dark:border-slate-800 hover:shadow-md hover:border-primary/30 transition-all cursor-pointer"
             >
               <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-3">
@@ -341,7 +345,7 @@ export default function HomePage() {
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <a
-              href="/pandits"
+              href="/search"
               className="h-12 px-8 inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-white font-bold rounded-lg shadow-lg shadow-primary/20 transition-all text-sm"
             >
               <span className="material-symbols-outlined text-xl">calendar_add_on</span>

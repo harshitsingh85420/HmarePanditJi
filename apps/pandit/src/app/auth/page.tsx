@@ -18,6 +18,7 @@ export default function AuthPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [resendTimer, setResendTimer] = useState(0);
+  const [devOtp, setDevOtp] = useState("");
 
   const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
 
@@ -45,6 +46,7 @@ export default function AuthPage() {
       });
       const data = await res.json();
       if (res.ok) {
+        if (data.data?.devOtp) setDevOtp(data.data.devOtp);
         setStep("otp");
         setResendTimer(RESEND_SECONDS);
         setTimeout(() => otpRefs.current[0]?.focus(), 100);
@@ -105,7 +107,12 @@ export default function AuthPage() {
       });
       const data = await res.json();
       if (res.ok) {
-        const isNew = data.data?.isNew ?? data.isNew;
+        // Save tokens to localStorage for subsequent API calls
+        const accessToken: string | undefined = data.data?.accessToken;
+        const refreshToken: string | undefined = data.data?.refreshToken;
+        if (accessToken) localStorage.setItem("hpj_pandit_access_token", accessToken);
+        if (refreshToken) localStorage.setItem("hpj_pandit_refresh_token", refreshToken);
+        const isNew = data.data?.isNewUser ?? data.data?.isNew ?? data.isNew;
         router.push(isNew ? "/onboarding" : "/");
       } else {
         setError(data.message ?? "OTP galat hai. Dobara koshish karein.");
@@ -286,6 +293,22 @@ export default function AuthPage() {
                     </button>
                   )}
                 </div>
+
+                {/* Dev OTP display */}
+                {process.env.NODE_ENV === "development" && devOtp && (
+                  <div className="text-center bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
+                    <p className="text-xs font-semibold text-amber-700 mb-1">DEV MODE — Your OTP</p>
+                    <button
+                      type="button"
+                      onClick={() => setOtp(devOtp.split(""))}
+                      className="text-2xl font-black tracking-[0.3em] text-amber-800 hover:text-primary transition-colors"
+                      title="Click to auto-fill"
+                    >
+                      {devOtp}
+                    </button>
+                    <p className="text-[10px] text-amber-500 mt-1">Click to auto-fill</p>
+                  </div>
+                )}
               </form>
             </>
           )}

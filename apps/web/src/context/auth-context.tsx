@@ -38,7 +38,7 @@ interface AuthContextValue {
 const STORAGE_KEY_ACCESS = "hpj_access_token";
 const STORAGE_KEY_REFRESH = "hpj_refresh_token";
 export const API_BASE =
-  (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000") + "/api/v1";
+  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api/v1";
 
 // ── Context ───────────────────────────────────────────────────────────────────
 

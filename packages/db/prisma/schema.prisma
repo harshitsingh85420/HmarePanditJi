@@ -11,21 +11,85 @@ datasource db {
 
 // ─── Enums ───────────────────────────────────────────────────────────────────
 
-enum UserRole {
+enum Role {
   CUSTOMER
   PANDIT
   ADMIN
 }
 
+enum VerificationStatus {
+  PENDING
+  DOCUMENTS_SUBMITTED
+  VIDEO_KYC_DONE
+  VERIFIED
+  REJECTED
+}
+
+enum BookingStatus {
+  CREATED
+  PANDIT_REQUESTED
+  CONFIRMED
+  TRAVEL_BOOKED
+  PANDIT_EN_ROUTE
+  PANDIT_ARRIVED
+  PUJA_IN_PROGRESS
+  COMPLETED
+  CANCELLATION_REQUESTED
+  CANCELLED
+  REFUNDED
+}
+
+enum TravelStatus {
+  NOT_REQUIRED
+  PENDING
+  BOOKED
+  IN_TRANSIT
+  ARRIVED
+}
+
+enum FoodArrangement {
+  CUSTOMER_PROVIDES
+  PLATFORM_ALLOWANCE
+}
+
+enum AccommodationArrangement {
+  NOT_NEEDED
+  CUSTOMER_ARRANGES
+  PLATFORM_BOOKS
+}
+
+enum SamagriPreference {
+  PANDIT_BRINGS
+  CUSTOMER_ARRANGES
+  NEED_HELP
+}
+
+enum PayoutStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum RefundStatus {
+  NONE
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum PaymentStatus {
+  PENDING
+  AUTHORIZED
+  CAPTURED
+  FAILED
+  REFUNDED
+}
+
 enum GenderEnum {
   MALE
   FEMALE
-  OTHER
-}
-
-enum AddressLabel {
-  HOME
-  OFFICE
   OTHER
 }
 
@@ -37,22 +101,6 @@ enum RitualCategory {
   FESTIVAL
   DEATH_RITES
   OTHER
-}
-
-enum BookingStatus {
-  PENDING
-  CONFIRMED
-  IN_PROGRESS
-  COMPLETED
-  CANCELLED
-  REFUNDED
-}
-
-enum PaymentStatus {
-  PENDING
-  PAID
-  REFUNDED
-  FAILED
 }
 
 enum NotificationType {
@@ -77,10 +125,11 @@ enum NotificationChannel {
 model User {
   id                String   @id @default(cuid())
   phone             String   @unique
+  name              String?
   email             String?  @unique
-  fullName          String?
-  role              UserRole
-  isPhoneVerified   Boolean  @default(false)
+  role              Role
+  isVerified        Boolean  @default(false)
+  isActive          Boolean  @default(true)
   profileCompleted  Boolean  @default(false)
   preferredLanguage String   @default("hindi")
   avatarUrl         String?
@@ -88,10 +137,15 @@ model User {
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
-  customer      Customer?
-  pandit        Pandit?
-  notifications Notification[]
-  adminLogs     AdminLog[]
+  customer             Customer?
+  pandit               Pandit?
+  notifications        Notification[]
+  adminLogs            AdminLog[]
+  favoritedPandits     FavoritePandit[]     @relation("CustomerFavorites")
+  favoritedBy          FavoritePandit[]     @relation("PanditFavoritedBy")
+  bookingStatusUpdates BookingStatusUpdate[]
+  reviewsGiven         Review[]             @relation("ReviewsGiven")
+  reviewsReceived      Review[]             @relation("ReviewsReceived")
 
   @@index([phone])
   @@index([email])
@@ -99,39 +153,36 @@ model User {
 }
 
 model Customer {
-  id          String      @id @default(cuid())
-  userId      String      @unique
-  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  gotra       String?
-  dateOfBirth DateTime?
-  gender      GenderEnum?
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  id                 String      @id @default(cuid())
+  userId             String      @unique
+  user               User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  preferredLanguages String[]    @default([])
+  gotra              String?
+  gender             GenderEnum?
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
 
   addresses Address[]
   bookings  Booking[]
-  reviews   Review[]
 
   @@index([userId])
   @@map("customers")
 }
 
 model Address {
-  id           String       @id @default(cuid())
-  customerId   String
-  customer     Customer     @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  label        AddressLabel @default(HOME)
-  addressLine1 String
-  addressLine2 String?
-  landmark     String?
-  city         String
-  state        String       @default("Delhi")
-  postalCode   String
-  latitude     Float?
-  longitude    Float?
-  isPrimary    Boolean      @default(false)
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
+  id          String   @id @default(cuid())
+  customerId  String
+  customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  label       String   @default("Home")
+  fullAddress String
+  city        String
+  state       String   @default("Delhi")
+  pincode     String
+  landmark    String?
+  latitude    Float?
+  longitude   Float?
+  isDefault   Boolean  @default(false)
+  createdAt   DateTime @default(now())
 
   @@index([customerId])
   @@index([city])
@@ -139,42 +190,92 @@ model Address {
 }
 
 model Pandit {
-  id                   String   @id @default(cuid())
-  userId               String   @unique
-  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                   String             @id @default(cuid())
+  userId               String             @unique
+  user                 User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   displayName          String
-  bio                  String?  @db.VarChar(500)
-  experienceYears      Int      @default(0)
-  specializations      String[] @default([])
-  languages            String[] @default([])
+  bio                  String?            @db.VarChar(500)
+  experienceYears      Int                @default(0)
+  specializations      String[]           @default([])
+  languages            String[]           @default([])
   sect                 String?
   gotra                String?
-  city                 String   @default("Delhi")
-  state                String   @default("Delhi")
-  isVerified           Boolean  @default(false)
-  isActive             Boolean  @default(true)
+  location             String             @default("Delhi")
+  city                 String             @default("Delhi")
+  state                String             @default("Delhi")
+  fullAddress          String?
+  verificationStatus   VerificationStatus @default(PENDING)
+  isVerified           Boolean            @default(false)
+  isActive             Boolean            @default(true)
+  aadhaarVerified      Boolean            @default(false)
+  videoKycCompleted    Boolean            @default(false)
+  certificateUrls      String[]           @default([])
+  certificatesVerified Boolean            @default(false)
   profilePhotoUrl      String?
-  galleryImages        String[] @default([])
-  averageRating        Float    @default(0)
-  totalReviews         Int      @default(0)
-  totalBookings        Int      @default(0)
-  basePricing          Json     @default("{}")
-  availableDays        String[] @default([])
-  aadhaarVerified      Boolean  @default(false)
-  certificatesVerified Boolean  @default(false)
-  bankAccountAdded     Boolean  @default(false)
-  panNumber            String?
+  galleryImages        String[]           @default([])
+  rating               Float              @default(0.0)
+  averageRating        Float              @default(0.0)
+  totalReviews         Int                @default(0)
+  completedBookings    Int                @default(0)
+  totalBookings        Int                @default(0)
+  basePricing          Json               @default("{}")
+  availableDays        String[]           @default([])
+  travelPreferences    Json?
+  maxTravelDistance    Int                @default(50)
+  bankAccountName      String?
+  bankAccountNumber    String?
+  bankIfscCode         String?
+  bankVerified         Boolean            @default(false)
+  bankAccountAdded     Boolean            @default(false)
   bankDetails          Json?
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
+  panNumber            String?
+  isOnline             Boolean            @default(false)
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
 
-  bookings Booking[]
-  reviews  Review[]
+  bookings     Booking[]
+  reviews      Review[]            @relation("PanditReviews")
+  pujaServices PujaService[]
+  blockedDates PanditBlockedDate[]
 
   @@index([userId])
   @@index([city])
+  @@index([verificationStatus])
   @@index([isVerified, isActive])
+  @@index([rating])
   @@map("pandits")
+}
+
+model PujaService {
+  id             String   @id @default(cuid())
+  panditId       String
+  pandit         Pandit   @relation(fields: [panditId], references: [id], onDelete: Cascade)
+  pujaType       String
+  dakshinaAmount Int
+  durationHours  Float
+  description    String?
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([panditId])
+  @@index([pujaType])
+  @@map("puja_services")
+}
+
+model PanditBlockedDate {
+  id            String   @id @default(cuid())
+  panditId      String
+  pandit        Pandit   @relation(fields: [panditId], references: [id], onDelete: Cascade)
+  date          DateTime
+  reason        String?
+  isRecurring   Boolean  @default(false)
+  recurringRule String?
+  createdAt     DateTime @default(now())
+
+  @@index([panditId])
+  @@index([date])
+  @@map("pandit_blocked_dates")
 }
 
 model Ritual {
@@ -200,39 +301,82 @@ model Ritual {
 }
 
 model Booking {
-  id                   String        @id @default(cuid())
-  bookingNumber        String        @unique
-  customerId           String
-  customer             Customer      @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  panditId             String
-  pandit               Pandit        @relation(fields: [panditId], references: [id])
-  ritualId             String
-  ritual               Ritual        @relation(fields: [ritualId], references: [id])
-  status               BookingStatus @default(PENDING)
-  eventDate            DateTime
-  eventTime            String?
-  muhurat              String?
-  venueAddress         Json
-  specialRequirements  String?
-  numberOfAttendees    Int?
-  pricing              Json
-  paymentStatus        PaymentStatus @default(PENDING)
-  paymentId            String?
-  orderId              String?
-  refundId             String?
-  travelMode           String?       @default("manual")
-  travelNotes          String?
+  id            String        @id @default(cuid())
+  bookingNumber String        @unique
+  customerId    String
+  customer      Customer      @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  panditId      String?
+  pandit        Pandit?       @relation(fields: [panditId], references: [id])
+  ritualId      String?
+  ritual        Ritual?       @relation(fields: [ritualId], references: [id])
+  status        BookingStatus @default(CREATED)
+
+  eventType           String
+  eventDate           DateTime
+  eventEndDate        DateTime?
+  muhuratTime         String?
+  muhuratSuggested    Boolean   @default(false)
+  venueAddress        String
+  venueCity           String
+  venuePincode        String
+  venueLatitude       Float?
+  venueLongitude      Float?
+  attendees           Int?
+  specialInstructions String?
+
+  travelRequired   Boolean      @default(false)
+  travelMode       String?
+  travelDistanceKm Float?
+  travelStatus     TravelStatus @default(NOT_REQUIRED)
+  travelBookingRef String?
+  travelNotes      String?
+
+  foodArrangement          FoodArrangement          @default(CUSTOMER_PROVIDES)
+  foodAllowanceDays        Int                      @default(0)
+  accommodationArrangement AccommodationArrangement @default(NOT_NEEDED)
+  accommodationNotes       String?
+
+  samagriPreference SamagriPreference @default(CUSTOMER_ARRANGES)
+  samagriNotes      String?
+
+  dakshinaAmount      Int @default(0)
+  travelCost          Int @default(0)
+  foodAllowanceAmount Int @default(0)
+  accommodationCost   Int @default(0)
+  platformFee         Int @default(0)
+  travelServiceFee    Int @default(0)
+  platformFeeGst      Int @default(0)
+  travelServiceFeeGst Int @default(0)
+  grandTotal          Int @default(0)
+
+  panditPayout      Int          @default(0)
+  payoutStatus      PayoutStatus @default(PENDING)
+  payoutReference   String?
+  payoutCompletedAt DateTime?
+
+  paymentStatus     PaymentStatus @default(PENDING)
+  razorpayOrderId   String?
+  razorpayPaymentId String?
+
+  cancelledBy             String?
+  cancellationReason      String?
+  cancellationRequestedAt DateTime?
+  refundAmount            Int        @default(0)
+  refundStatus            RefundStatus @default(NONE)
+  refundReference         String?
+
   panditAcceptedAt     DateTime?
   panditRejectedReason String?
   completedAt          DateTime?
   cancelledAt          DateTime?
-  cancellationReason   String?
   customerNotes        String?
   adminNotes           String?
-  createdAt            DateTime      @default(now())
-  updatedAt            DateTime      @updatedAt
 
-  review Review?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  review        Review?
+  statusUpdates BookingStatusUpdate[]
 
   @@index([bookingNumber])
   @@index([customerId])
@@ -244,25 +388,86 @@ model Booking {
   @@map("bookings")
 }
 
-model Review {
-  id              String   @id @default(cuid())
-  bookingId       String   @unique
-  booking         Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-  customerId      String
-  customer        Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  panditId        String
-  pandit          Pandit   @relation(fields: [panditId], references: [id])
-  overallRating   Int
-  ritualKnowledge Int?
-  punctuality     Int?
-  communication   Int?
-  comment         String?  @db.VarChar(500)
-  isAnonymous     Boolean  @default(false)
-  createdAt       DateTime @default(now())
+model BookingStatusUpdate {
+  id         String        @id @default(cuid())
+  bookingId  String
+  booking    Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  fromStatus BookingStatus
+  toStatus   BookingStatus
+  updatedBy  String
+  updater    User          @relation(fields: [updatedBy], references: [id])
+  note       String?
+  latitude   Float?
+  longitude  Float?
+  createdAt  DateTime      @default(now())
 
-  @@index([panditId])
+  @@index([bookingId])
+  @@map("booking_status_updates")
+}
+
+model Review {
+  id                  String   @id @default(cuid())
+  bookingId           String   @unique
+  booking             Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  reviewerId          String
+  reviewer            User     @relation("ReviewsGiven", fields: [reviewerId], references: [id], onDelete: Cascade)
+  revieweeId          String
+  reviewee            User     @relation("ReviewsReceived", fields: [revieweeId], references: [id])
+  panditId            String?
+  pandit              Pandit?  @relation("PanditReviews", fields: [panditId], references: [id])
+  overallRating       Float
+  knowledgeRating     Float?
+  punctualityRating   Float?
+  communicationRating Float?
+  comment             String?  @db.VarChar(500)
+  isAnonymous         Boolean  @default(false)
+  createdAt           DateTime @default(now())
+
+  @@index([revieweeId])
   @@index([bookingId])
   @@map("reviews")
+}
+
+model FavoritePandit {
+  id         String   @id @default(cuid())
+  customerId String
+  customer   User     @relation("CustomerFavorites", fields: [customerId], references: [id], onDelete: Cascade)
+  panditId   String
+  pandit     User     @relation("PanditFavoritedBy", fields: [panditId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@unique([customerId, panditId])
+  @@index([customerId])
+  @@index([panditId])
+  @@map("favorite_pandits")
+}
+
+model MuhuratDate {
+  id           String   @id @default(cuid())
+  date         DateTime
+  pujaType     String
+  timeWindow   String
+  significance String?
+  source       String   @default("DrikPanchang")
+  createdAt    DateTime @default(now())
+
+  @@index([date])
+  @@index([pujaType])
+  @@index([date, pujaType])
+  @@map("muhurat_dates")
+}
+
+model CityDistance {
+  id                  String  @id @default(cuid())
+  fromCity            String
+  toCity              String
+  distanceKm          Float
+  estimatedDriveHours Float?
+
+  @@unique([fromCity, toCity])
+  @@index([fromCity])
+  @@index([toCity])
+  @@map("city_distances")
 }
 
 model Notification {

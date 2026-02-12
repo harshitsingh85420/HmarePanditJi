@@ -17,6 +17,8 @@ import paymentRoutes from "./routes/payment.routes";
 import reviewRoutes from "./routes/review.routes";
 import adminRoutes from "./routes/admin.routes";
 import notificationRoutes from "./routes/notification.routes";
+import travelRoutes from "./routes/travel.routes";
+import muhuratRoutes from "./routes/muhurat.routes";
 
 const app = express();
 
@@ -83,6 +85,8 @@ app.get(API_PREFIX, (_req, res) => {
         reviews: `${API_PREFIX}/reviews`,
         admin: `${API_PREFIX}/admin`,
         notifications: `${API_PREFIX}/notifications`,
+        travel: `${API_PREFIX}/travel`,
+        muhurat: `${API_PREFIX}/muhurat`,
       },
     },
   });
@@ -98,6 +102,8 @@ app.use(`${API_PREFIX}/payments`, paymentRoutes);
 app.use(`${API_PREFIX}/reviews`, reviewRoutes);
 app.use(`${API_PREFIX}/admin`, adminRoutes);
 app.use(`${API_PREFIX}/notifications`, notificationRoutes);
+app.use(`${API_PREFIX}/travel`, travelRoutes);
+app.use(`${API_PREFIX}/muhurat`, muhuratRoutes);
 
 // ── 404 ───────────────────────────────────────────────────────────────────────
 app.use(notFoundHandler);

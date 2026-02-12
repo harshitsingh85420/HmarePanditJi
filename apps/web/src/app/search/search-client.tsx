@@ -41,6 +41,9 @@ interface SearchFilters {
   minRating: string;
   languages: string[];
   sort: string;
+  maxDistanceKm: number;  // 0 = Any
+  userLat?: number;
+  userLng?: number;
 }
 
 // ── Constants ────────────────────────────────────────────────────────────────
@@ -202,6 +205,8 @@ async function fetchPandits(params: URLSearchParams): Promise<{
   pandits: PanditResult[];
   total: number;
 }> {
+  const maxDistanceKm = Number(params.get("maxDistanceKm") ?? 0);
+
   try {
     const res = await fetch(`${API_URL}/pandits?${params.toString()}`, {
       cache: "no-store",
@@ -237,8 +242,12 @@ async function fetchPandits(params: URLSearchParams): Promise<{
     );
     return { pandits, total: data.total ?? pandits.length };
   } catch {
-    // Graceful fallback to mock data
-    return { pandits: MOCK_PANDITS, total: MOCK_PANDITS.length };
+    // Graceful fallback to mock data — apply distance filter client-side
+    let fallback = MOCK_PANDITS;
+    if (maxDistanceKm > 0) {
+      fallback = fallback.filter((p) => (p.distanceKm ?? 9999) <= maxDistanceKm);
+    }
+    return { pandits: fallback, total: fallback.length };
   }
 }
 
@@ -252,14 +261,26 @@ function buildMockTravelModes(base: number): TravelModePrice[] {
 
 // ── Sidebar ───────────────────────────────────────────────────────────────
 
+const DISTANCE_OPTIONS = [
+  { label: "Any", value: 0 },
+  { label: "10 km", value: 10 },
+  { label: "25 km", value: 25 },
+  { label: "50 km", value: 50 },
+  { label: "100 km", value: 100 },
+];
+
 function Sidebar({
   filters,
   onChange,
   onReset,
+  onDetectLocation,
+  locationStatus,
 }: {
   filters: SearchFilters;
   onChange: (patch: Partial<SearchFilters>) => void;
   onReset: () => void;
+  onDetectLocation: () => void;
+  locationStatus: "idle" | "detecting" | "detected" | "denied";
 }) {
   return (
     <div className="space-y-8">
@@ -320,6 +341,72 @@ function Sidebar({
               </option>
             ))}
           </select>
+        </div>
+      </div>
+
+      {/* Distance */}
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+            Max Distance
+          </label>
+          <span className="text-xs text-primary font-bold">
+            {filters.maxDistanceKm ? `Within ${filters.maxDistanceKm} km` : "Any"}
+          </span>
+        </div>
+
+        {/* Detect location button */}
+        <button
+          type="button"
+          onClick={onDetectLocation}
+          disabled={locationStatus === "detecting"}
+          className={[
+            "w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border text-xs font-semibold transition-all mb-3",
+            locationStatus === "detected"
+              ? "border-green-400 bg-green-50 text-green-700 dark:bg-green-900/20 dark:border-green-700 dark:text-green-400"
+              : locationStatus === "denied"
+              ? "border-red-300 bg-red-50 text-red-600 dark:bg-red-900/20 dark:border-red-700 dark:text-red-400"
+              : "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-primary hover:text-primary",
+          ].join(" ")}
+        >
+          <span className="material-symbols-outlined text-sm">
+            {locationStatus === "detecting"
+              ? "sync"
+              : locationStatus === "detected"
+              ? "my_location"
+              : locationStatus === "denied"
+              ? "location_off"
+              : "near_me"}
+          </span>
+          {locationStatus === "detecting"
+            ? "Detecting…"
+            : locationStatus === "detected"
+            ? "Location Detected"
+            : locationStatus === "denied"
+            ? "Location Denied"
+            : "Use My Location"}
+        </button>
+
+        {/* Quick-pick km buttons */}
+        <div className="flex flex-wrap gap-2">
+          {DISTANCE_OPTIONS.map((opt) => {
+            const active = filters.maxDistanceKm === opt.value;
+            return (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => onChange({ maxDistanceKm: opt.value })}
+                className={[
+                  "px-3 py-1.5 rounded-xl border text-xs font-semibold transition-all",
+                  active
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-primary hover:text-primary",
+                ].join(" ")}
+              >
+                {opt.label}
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -520,6 +607,9 @@ function defaultFilters(
     minRating: params.minRating ?? "",
     languages: params.languages ? params.languages.split(",") : [],
     sort: params.sort ?? "best_match",
+    maxDistanceKm: Number(params.maxDistanceKm ?? 0),
+    userLat: params.lat ? Number(params.lat) : undefined,
+    userLng: params.lng ? Number(params.lng) : undefined,
   };
 }
 
@@ -534,6 +624,9 @@ function filtersToParams(f: SearchFilters): URLSearchParams {
   if (f.minRating) p.set("minRating", f.minRating);
   if (f.languages.length) p.set("languages", f.languages.join(","));
   if (f.sort && f.sort !== "best_match") p.set("sort", f.sort);
+  if (f.maxDistanceKm) p.set("maxDistanceKm", String(f.maxDistanceKm));
+  if (f.userLat != null) p.set("lat", String(f.userLat));
+  if (f.userLng != null) p.set("lng", String(f.userLng));
   p.set("limit", "10");
   return p;
 }
@@ -555,6 +648,7 @@ export default function SearchClient({
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [locationStatus, setLocationStatus] = useState<"idle" | "detecting" | "detected" | "denied">("idle");
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -593,11 +687,30 @@ export default function SearchClient({
       minRating: "",
       languages: [],
       sort: "best_match",
+      maxDistanceKm: 0,
     };
     setFilters(def);
     applyFilters(def);
     setPage(1);
   }, [applyFilters]);
+
+  const handleDetectLocation = useCallback(() => {
+    if (!("geolocation" in navigator)) return;
+    setLocationStatus("detecting");
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setLocationStatus("detected");
+        updateFilters({
+          userLat: pos.coords.latitude,
+          userLng: pos.coords.longitude,
+        });
+      },
+      () => {
+        setLocationStatus("denied");
+      },
+      { timeout: 8000 },
+    );
+  }, [updateFilters]);
 
   // Fetch pandits whenever URL searchParams change
   useEffect(() => {
@@ -670,6 +783,8 @@ export default function SearchClient({
               filters={filters}
               onChange={updateFilters}
               onReset={resetFilters}
+              onDetectLocation={handleDetectLocation}
+              locationStatus={locationStatus}
             />
           </div>
         </div>
@@ -735,6 +850,7 @@ export default function SearchClient({
                   <option value="price_desc">Price: High to Low</option>
                   <option value="rating_desc">Rating: High to Low</option>
                   <option value="reviews_desc">Most Reviewed</option>
+                  <option value="distance_asc">Nearest First</option>
                 </select>
               </div>
             </div>
@@ -745,7 +861,8 @@ export default function SearchClient({
               filters.date ||
               filters.travel ||
               filters.minRating ||
-              filters.languages.length > 0) && (
+              filters.languages.length > 0 ||
+              filters.maxDistanceKm > 0) && (
               <div className="flex flex-wrap gap-2 mb-6">
                 {filters.ritual && (
                   <FilterPill
@@ -801,6 +918,13 @@ export default function SearchClient({
                     }
                   />
                 ))}
+                {filters.maxDistanceKm > 0 && (
+                  <FilterPill
+                    label={`Within ${filters.maxDistanceKm} km`}
+                    icon="near_me"
+                    onRemove={() => updateFilters({ maxDistanceKm: 0 })}
+                  />
+                )}
               </div>
             )}
 

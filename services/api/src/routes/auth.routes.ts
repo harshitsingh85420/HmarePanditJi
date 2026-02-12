@@ -59,8 +59,8 @@ router.post(
   async (req, res, next) => {
     try {
       const { phone } = req.body as z.infer<typeof requestOtpSchema>;
-      await requestOtp(phone);
-      sendSuccess(res, null, "OTP sent successfully");
+      const result = await requestOtp(phone);
+      sendSuccess(res, result.devOtp ? { devOtp: result.devOtp } : null, "OTP sent successfully");
     } catch (err) {
       next(err);
     }

@@ -83,7 +83,10 @@ export default function TravelPage() {
     const load = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`${API_BASE}/travel`, { credentials: "include" });
+        const token = localStorage.getItem("hpj_pandit_access_token");
+        const res = await fetch(`${API_BASE}/travel`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
         if (res.ok) {
           const data = await res.json();
           setLogs(data.data?.logs ?? MOCK_TRAVEL_LOGS);

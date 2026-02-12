@@ -17,6 +17,17 @@ const updatePanditSchema = z.object({
   availableDays: z.array(z.string()).optional(),
   basePricing: z.record(z.unknown()).optional(),
   displayName: z.string().min(2).optional(),
+  // Travel preferences
+  maxTravelDistance: z.number().int().min(0).max(5000).optional(),
+  isOnline: z.boolean().optional(),
+  travelPreferences: z.object({
+    maxDistance: z.number().optional(),
+    preferredModes: z.array(z.string()).optional(),
+    selfDriveRate: z.number().optional(),   // ₹/km
+    vehicleType: z.string().optional(),
+    hotelPref: z.enum(["budget", "standard", "premium"]).optional(),
+    advanceNotice: z.number().int().optional(), // days
+  }).optional(),
 });
 
 // ─── /me routes MUST be registered before /:id to avoid route collision ──────
@@ -75,17 +86,22 @@ router.put(
 /**
  * GET /pandits
  * Public list with search + filter.
- * Query: { city?, category?, minRating?, page?, limit?, search? }
+ * Query: { city?, category?, minRating?, page?, limit?, search?, maxDistanceKm?, lat?, lng?, onlineOnly?, sort? }
  */
 router.get("/", async (req, res, next) => {
   try {
     const { pandits, total, page, limit } = await listPandits({
-      city: req.query.city as string | undefined,
-      category: req.query.category as string | undefined,
-      minRating: req.query.minRating ? Number(req.query.minRating) : undefined,
-      search: req.query.search as string | undefined,
-      page: req.query.page ? Number(req.query.page) : undefined,
-      limit: req.query.limit ? Number(req.query.limit) : undefined,
+      city:            req.query.city as string | undefined,
+      category:        req.query.category as string | undefined,
+      minRating:       req.query.minRating    ? Number(req.query.minRating)    : undefined,
+      search:          req.query.search as string | undefined,
+      page:            req.query.page         ? Number(req.query.page)         : undefined,
+      limit:           req.query.limit        ? Number(req.query.limit)        : undefined,
+      maxDistanceKm:   req.query.maxDistanceKm ? Number(req.query.maxDistanceKm) : undefined,
+      lat:             req.query.lat          ? Number(req.query.lat)          : undefined,
+      lng:             req.query.lng          ? Number(req.query.lng)          : undefined,
+      onlineOnly:      req.query.onlineOnly === "true",
+      sort:            req.query.sort as string | undefined,
     });
     sendPaginated(res, pandits, total, page, limit);
   } catch (err) {

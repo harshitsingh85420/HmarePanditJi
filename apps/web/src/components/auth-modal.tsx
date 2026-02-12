@@ -91,6 +91,7 @@ export default function AuthModal() {
   const [countdown, setCountdown] = useState(0);
   const [accessTokenTemp, setAccessTokenTemp] = useState("");
   const [isNewUser, setIsNewUser] = useState(false);
+  const [devOtp, setDevOtp] = useState("");
 
   const phoneRef = useRef<HTMLInputElement>(null);
   const nameRef = useRef<HTMLInputElement>(null);
@@ -107,6 +108,7 @@ export default function AuthModal() {
       setError("");
       setLoading(false);
       setCountdown(0);
+      setDevOtp("");
       setTimeout(() => phoneRef.current?.focus(), 50);
     }
   }, [loginModalOpen]);
@@ -164,6 +166,7 @@ export default function AuthModal() {
         setError(json.message ?? "Failed to send OTP. Please try again.");
         return;
       }
+      if (json.data?.devOtp) setDevOtp(json.data.devOtp);
       setStep("otp");
       startCountdown(60);
     } catch (err) {
@@ -460,10 +463,26 @@ export default function AuthModal() {
               )}
             </div>
 
-            {/* Dev hint */}
-            {process.env.NODE_ENV === "development" && (
+            {/* Dev OTP display */}
+            {process.env.NODE_ENV === "development" && devOtp && (
+              <div className="mt-4 text-center bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl px-4 py-3">
+                <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 mb-1">
+                  DEV MODE — Your OTP
+                </p>
+                <button
+                  type="button"
+                  onClick={() => { setOtp(devOtp); }}
+                  className="text-2xl font-black tracking-[0.3em] text-amber-800 dark:text-amber-300 hover:text-primary transition-colors"
+                  title="Click to auto-fill"
+                >
+                  {devOtp}
+                </button>
+                <p className="text-[10px] text-amber-500 mt-1">Click the code to auto-fill</p>
+              </div>
+            )}
+            {process.env.NODE_ENV === "development" && !devOtp && (
               <p className="mt-4 text-center text-xs text-amber-600 bg-amber-50 dark:bg-amber-900/20 rounded-lg px-3 py-2">
-                Dev mode: Check API server logs for OTP
+                Dev mode: OTP will appear here after sending
               </p>
             )}
           </div>

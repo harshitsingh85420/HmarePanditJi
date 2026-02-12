@@ -95,7 +95,10 @@ export default function EarningsPage() {
     const load = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`${API_BASE}/earnings`, { credentials: "include" });
+        const token = localStorage.getItem("hpj_pandit_access_token");
+        const res = await fetch(`${API_BASE}/earnings`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
         if (res.ok) {
           const data = await res.json();
           setTransactions(data.data?.transactions ?? MOCK_TRANSACTIONS);

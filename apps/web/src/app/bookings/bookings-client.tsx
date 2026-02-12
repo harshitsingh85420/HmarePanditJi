@@ -51,7 +51,7 @@ type Tab = "upcoming" | "past" | "cancelled";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
+const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api/v1";
 const WA = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "919999999999";
 
 const TAB_STATUSES: Record<Tab, BookingStatus[]> = {
@@ -655,7 +655,7 @@ export default function BookingsClient() {
     setError("");
     try {
       const statuses = TAB_STATUSES[tab].join(",");
-      const res = await fetch(`${API}/api/v1/bookings/my?status=${statuses}&limit=20`, {
+      const res = await fetch(`${API}/bookings/my?status=${statuses}&limit=20`, {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
       if (!res.ok) throw new Error("Failed to load bookings");
@@ -683,7 +683,7 @@ export default function BookingsClient() {
     if (!cancelTarget || !accessToken) return;
     setCancelLoading(true);
     try {
-      const res = await fetch(`${API}/api/v1/bookings/${cancelTarget.id}/cancel`, {
+      const res = await fetch(`${API}/bookings/${cancelTarget.id}/cancel`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -710,7 +710,7 @@ export default function BookingsClient() {
     if (!rateTarget || !accessToken) return;
     setRateLoading(true);
     try {
-      const res = await fetch(`${API}/api/v1/bookings/${rateTarget.id}/review`, {
+      const res = await fetch(`${API}/bookings/${rateTarget.id}/review`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -4,7 +4,7 @@ import { prisma } from "@hmarepanditji/db";
 import { authenticate } from "../middleware/auth";
 import { roleGuard } from "../middleware/roleGuard";
 import { sendSuccess, sendPaginated } from "../utils/response";
-import { createBooking, getBookingById, listMyBookings } from "../services/booking.service";
+import { createBooking, getBookingById, listMyBookings, calculateBookingFinancials } from "../services/booking.service";
 import { createRazorpayOrder } from "../services/payment.service";
 import { parsePagination } from "../utils/helpers";
 import {
@@ -27,6 +27,7 @@ const createBookingSchema = z.object({
   eventDate: z.string().datetime(),
   eventTime: z.string().optional(),
   muhurat: z.string().optional(),
+  muhuratSuggested: z.string().optional(),
   venueAddress: z.object({
     addressLine1: z.string().min(1, "Address is required"),
     addressLine2: z.string().optional(),
@@ -39,9 +40,25 @@ const createBookingSchema = z.object({
   numberOfAttendees: z.number().int().positive().max(500).optional(),
   pricing: z.object({
     dakshina: z.number().positive(),
-    platformFee: z.number().nonnegative(),
-    total: z.number().positive(),
+    platformFee: z.number().nonnegative().optional(),
+    total: z.number().positive().optional(),
   }),
+  // Travel & logistics
+  travelMode: z.enum(["self_drive", "train", "flight"]).optional(),
+  travelCost: z.number().nonnegative().optional(),
+  foodArrangement: z.enum(["customer_provides", "platform_allowance"]).optional(),
+  foodAllowance: z.number().nonnegative().optional(),
+  accommodationPref: z.enum(["customer_arranges", "platform_helps"]).optional(),
+  // Samagri
+  samagriPreference: z.enum(["pandit_brings", "customer_arranges", "need_help"]).optional(),
+  samagriNotes: z.string().max(500).optional(),
+});
+
+// ── Financials endpoint schema ─────────────────────────────────────────────
+
+const calculateFinancialsSchema = z.object({
+  dakshina: z.number().positive(),
+  travelCost: z.number().nonnegative().optional(),
 });
 
 // ── Routes ────────────────────────────────────────────────────────────────────
@@ -71,15 +88,38 @@ router.post("/", roleGuard("CUSTOMER"), async (req, res, next) => {
       eventDate: new Date(body.eventDate),
       eventTime: body.eventTime,
       muhurat: body.muhurat,
+      muhuratSuggested: body.muhuratSuggested,
       venueAddress: body.venueAddress as Record<string, unknown>,
       specialRequirements: body.specialRequirements,
       numberOfAttendees: body.numberOfAttendees,
       pricing: body.pricing as Record<string, unknown>,
+      travelMode: body.travelMode,
+      travelCost: body.travelCost,
+      foodArrangement: body.foodArrangement,
+      foodAllowance: body.foodAllowance,
+      accommodationPref: body.accommodationPref,
+      samagriPreference: body.samagriPreference,
+      samagriNotes: body.samagriNotes,
     });
 
     const order = await createRazorpayOrder(booking.id, customer.id);
 
     sendSuccess(res, { booking, order }, "Booking created", 201);
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * POST /bookings/calculate-fees
+ * Returns a fee breakdown (platformFee, travelServiceFee, gstAmount, grandTotal, panditPayout)
+ * given a dakshina amount and optional travelCost. No auth required.
+ */
+router.post("/calculate-fees", async (req, res, next) => {
+  try {
+    const { dakshina, travelCost } = calculateFinancialsSchema.parse(req.body);
+    const financials = calculateBookingFinancials(dakshina, travelCost ?? 0);
+    sendSuccess(res, { financials }, "Fee breakdown calculated");
   } catch (err) {
     next(err);
   }

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import ClientNav from "../components/ClientNav";
+import PanditAuthGuard from "../components/PanditAuthGuard";
 
 export const metadata: Metadata = {
   title: "HmarePanditJi — Pandit Dashboard",
@@ -73,7 +74,7 @@ export default function RootLayout({
 
         {/* ── Page Content ────────────────────────────────────────────────── */}
         <main className="mx-auto max-w-[960px] px-4 sm:px-6 pb-28 md:pb-10">
-          {children}
+          <PanditAuthGuard>{children}</PanditAuthGuard>
         </main>
 
       </body>
