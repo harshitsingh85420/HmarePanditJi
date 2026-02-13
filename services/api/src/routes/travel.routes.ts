@@ -5,7 +5,7 @@ import {
   getTravelCities,
 } from "../controllers/travel.controller";
 
-const router = Router();
+const router: Router = Router();
 
 /** POST /travel/calculate — Calculate travel costs (single mode or all options) */
 router.post("/calculate", calculateTravel);

@@ -14,7 +14,7 @@ import {
 } from "../services/pandit.service";
 import { AppError } from "../middleware/errorHandler";
 
-const router = Router();
+const router: Router = Router();
 
 const updatePanditSchema = z.object({
   bio: z.string().max(500).optional(),
@@ -48,7 +48,7 @@ router.get("/me", authenticate, roleGuard("PANDIT"), async (req, res, next) => {
       where: { userId: req.user!.id },
       include: {
         user: {
-          select: { phone: true, email: true, fullName: true, avatarUrl: true, createdAt: true },
+          select: { phone: true, email: true, name: true, avatarUrl: true, createdAt: true },
         },
       },
     });
@@ -265,22 +265,22 @@ router.delete("/me/block-dates/:id", authenticate, roleGuard("PANDIT"), async (r
 router.get("/", async (req, res, next) => {
   try {
     const { pandits, total, page, limit } = await listPandits({
-      city:            req.query.city as string | undefined,
-      category:        req.query.category as string | undefined,
-      ritual:          req.query.ritual as string | undefined,
-      minRating:       req.query.minRating    ? Number(req.query.minRating)    : undefined,
-      search:          req.query.search as string | undefined,
-      page:            req.query.page         ? Number(req.query.page)         : undefined,
-      limit:           req.query.limit        ? Number(req.query.limit)        : undefined,
-      maxDistanceKm:   req.query.maxDistanceKm ? Number(req.query.maxDistanceKm) : undefined,
-      lat:             req.query.lat          ? Number(req.query.lat)          : undefined,
-      lng:             req.query.lng          ? Number(req.query.lng)          : undefined,
-      onlineOnly:      req.query.onlineOnly === "true",
-      sort:            req.query.sort as string | undefined,
-      languages:       req.query.languages as string | undefined,
-      minPrice:        req.query.minPrice     ? Number(req.query.minPrice)     : undefined,
-      maxPrice:        req.query.maxPrice     ? Number(req.query.maxPrice)     : undefined,
-      travel:          req.query.travel as string | undefined,
+      city: req.query.city as string | undefined,
+      category: req.query.category as string | undefined,
+      ritual: req.query.ritual as string | undefined,
+      minRating: req.query.minRating ? Number(req.query.minRating) : undefined,
+      search: req.query.search as string | undefined,
+      page: req.query.page ? Number(req.query.page) : undefined,
+      limit: req.query.limit ? Number(req.query.limit) : undefined,
+      maxDistanceKm: req.query.maxDistanceKm ? Number(req.query.maxDistanceKm) : undefined,
+      lat: req.query.lat ? Number(req.query.lat) : undefined,
+      lng: req.query.lng ? Number(req.query.lng) : undefined,
+      onlineOnly: req.query.onlineOnly === "true",
+      sort: req.query.sort as string | undefined,
+      languages: req.query.languages as string | undefined,
+      minPrice: req.query.minPrice ? Number(req.query.minPrice) : undefined,
+      maxPrice: req.query.maxPrice ? Number(req.query.maxPrice) : undefined,
+      travel: req.query.travel as string | undefined,
     });
     sendPaginated(res, pandits, total, page, limit);
   } catch (err) {

@@ -35,12 +35,11 @@ export async function createRazorpayOrder(bookingId: string, customerId: string)
     },
   });
   if (!booking) throw new AppError("Booking not found", 404, "NOT_FOUND");
-  if (booking.paymentStatus === "PAID") {
+  if (booking.paymentStatus === "CAPTURED") {
     throw new AppError("Booking already paid", 400, "ALREADY_PAID");
   }
 
-  const pricing = booking.pricing as Record<string, number>;
-  const total = pricing?.total ?? 5100;
+  const total = booking.grandTotal || 5100;
   const amountPaise = Math.round(total * 100);
 
   // Dev mode: no Razorpay keys configured → return mock order
@@ -50,7 +49,7 @@ export async function createRazorpayOrder(bookingId: string, customerId: string)
 
     await prisma.booking.update({
       where: { id: bookingId },
-      data: { orderId: mockOrderId },
+      data: { razorpayOrderId: mockOrderId },
     });
 
     return {
@@ -69,15 +68,15 @@ export async function createRazorpayOrder(bookingId: string, customerId: string)
     receipt: booking.bookingNumber,
     notes: {
       bookingId: booking.id,
-      customerName: booking.customer.user.fullName ?? "Customer",
-      panditName: booking.pandit.displayName,
-      ceremony: booking.ritual.name,
+      customerName: booking.customer.user.name ?? "Customer",
+      panditName: booking.pandit?.displayName ?? "Unassigned",
+      ceremony: booking.ritual?.name ?? "Puja",
     },
   });
 
   await prisma.booking.update({
     where: { id: bookingId },
-    data: { orderId: order.id },
+    data: { razorpayOrderId: order.id },
   });
 
   return {
@@ -128,10 +127,10 @@ export async function processPaymentSuccess(
   const booking = await prisma.booking.update({
     where: { id: bookingId },
     data: {
-      paymentStatus: "PAID",
-      paymentId,
-      orderId,
-      // status stays PENDING — awaiting pandit acceptance
+      paymentStatus: "CAPTURED",
+      razorpayPaymentId: paymentId,
+      razorpayOrderId: orderId,
+      // status stays CREATED — awaiting pandit acceptance
     },
     include: {
       pandit: { include: { user: true } },
@@ -140,12 +139,10 @@ export async function processPaymentSuccess(
     },
   });
 
-  const pricing = booking.pricing as Record<string, number>;
-  const totalAmount = pricing?.total ?? 0;
+  const totalAmount = booking.grandTotal || 0;
   const customerPhone = booking.customer.user.phone;
-  const panditPhone = booking.pandit.user.phone;
-  const venueAddress = booking.venueAddress as Record<string, string> | null;
-  const city = venueAddress?.city ?? "Delhi";
+  const panditPhone = booking.pandit?.user?.phone;
+  const city = booking.venueCity ?? "Delhi";
 
   // Notify customer — payment received
   if (customerPhone) {
@@ -158,15 +155,15 @@ export async function processPaymentSuccess(
   }
 
   // Notify pandit — new booking awaiting acceptance
-  if (panditPhone) {
-    const dakshinaAmount = pricing?.dakshina ?? totalAmount;
+  if (panditPhone && booking.pandit) {
+    const dakshinaAmount = booking.dakshinaAmount || totalAmount;
     notifyNewBooking({
       panditUserId: booking.pandit.userId,
       panditPhone,
       bookingNumber: booking.bookingNumber,
-      ritualName: booking.ritual.name,
+      ritualName: booking.ritual?.name ?? "Puja",
       eventDate: booking.eventDate,
-      eventTime: booking.eventTime,
+      eventTime: booking.muhuratTime,
       city,
       dakshina: dakshinaAmount,
     }).catch((err) => logger.error("notifyNewBooking failed:", err));
@@ -185,16 +182,15 @@ export async function initiateRefund(bookingId: string, reason?: string) {
   });
 
   if (!booking) throw new AppError("Booking not found", 404, "NOT_FOUND");
-  if (booking.paymentStatus !== "PAID") {
+  if (booking.paymentStatus !== "CAPTURED") {
     throw new AppError("Booking is not eligible for refund", 400, "NOT_REFUNDABLE");
   }
-  if (!booking.paymentId) {
+  if (!booking.razorpayPaymentId) {
     throw new AppError("No payment ID on record", 400, "NO_PAYMENT_ID");
   }
 
-  const pricing = booking.pricing as Record<string, number>;
-  const totalPaid = pricing?.total ?? 0;
-  const platformFee = pricing?.platformFee ?? 0;
+  const totalPaid = booking.grandTotal || 0;
+  const platformFeeAmount = booking.platformFee || 0;
 
   // Refund policy based on days until event
   const now = new Date();
@@ -212,7 +208,7 @@ export async function initiateRefund(bookingId: string, reason?: string) {
     refundNote = "50% refund (3-7 days notice)";
   } else {
     // < 3 days: only platform fee refunded
-    refundAmount = platformFee;
+    refundAmount = platformFeeAmount;
     refundNote = "Platform fee refund only (<3 days notice)";
   }
 
@@ -229,7 +225,9 @@ export async function initiateRefund(bookingId: string, reason?: string) {
       data: {
         status: "REFUNDED",
         paymentStatus: "REFUNDED",
-        refundId: mockRefundId,
+        refundStatus: "COMPLETED",
+        refundReference: mockRefundId,
+        refundAmount,
         adminNotes: noteText,
       },
     });
@@ -239,7 +237,7 @@ export async function initiateRefund(bookingId: string, reason?: string) {
 
   // Production: call Razorpay refund API
   const razorpay = getRazorpay();
-  const refund = await (razorpay.payments.refund as Function)(booking.paymentId, {
+  const refund = await (razorpay.payments.refund as Function)(booking.razorpayPaymentId, {
     amount: refundAmountPaise,
     notes: { reason: noteText, bookingId },
   });
@@ -249,7 +247,9 @@ export async function initiateRefund(bookingId: string, reason?: string) {
     data: {
       status: "REFUNDED",
       paymentStatus: "REFUNDED",
-      refundId: refund.id,
+      refundStatus: "COMPLETED",
+      refundReference: refund.id,
+      refundAmount,
       adminNotes: `${noteText}. Razorpay refund ID: ${refund.id}`,
     },
   });

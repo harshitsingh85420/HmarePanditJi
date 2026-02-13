@@ -14,7 +14,7 @@ import {
 } from "../services/notification.service";
 import { logger } from "../utils/logger";
 
-const router = Router();
+const router: Router = Router();
 
 // All booking routes require authentication
 router.use(authenticate);
@@ -25,32 +25,25 @@ const createBookingSchema = z.object({
   panditId: z.string().min(1),
   ritualId: z.string().min(1),
   eventDate: z.string().datetime(),
-  eventTime: z.string().optional(),
-  muhurat: z.string().optional(),
-  muhuratSuggested: z.string().optional(),
-  venueAddress: z.object({
-    addressLine1: z.string().min(1, "Address is required"),
-    addressLine2: z.string().optional(),
-    landmark: z.string().optional(),
-    city: z.string().min(1, "City is required"),
-    state: z.string().default("Delhi"),
-    postalCode: z.string().length(6, "Enter a valid 6-digit PIN code"),
-  }),
-  specialRequirements: z.string().optional(),
-  numberOfAttendees: z.number().int().positive().max(500).optional(),
-  pricing: z.object({
-    dakshina: z.number().positive(),
-    platformFee: z.number().nonnegative().optional(),
-    total: z.number().positive().optional(),
-  }),
+  eventType: z.string().min(1),
+  muhuratTime: z.string().optional(),
+  muhuratSuggested: z.boolean().optional(),
+  venueAddress: z.string().min(5, "Venue address is required"),
+  venueCity: z.string().min(1, "City is required"),
+  venuePincode: z.string().length(6, "Enter a valid 6-digit PIN code"),
+  venueLatitude: z.number().optional(),
+  venueLongitude: z.number().optional(),
+  specialInstructions: z.string().optional(),
+  attendees: z.number().int().positive().max(500).optional(),
+  dakshinaAmount: z.number().int().positive(),
   // Travel & logistics
-  travelMode: z.enum(["self_drive", "train", "flight"]).optional(),
+  travelMode: z.string().optional(),
   travelCost: z.number().nonnegative().optional(),
-  foodArrangement: z.enum(["customer_provides", "platform_allowance"]).optional(),
-  foodAllowance: z.number().nonnegative().optional(),
-  accommodationPref: z.enum(["customer_arranges", "platform_helps"]).optional(),
+  foodArrangement: z.enum(["CUSTOMER_PROVIDES", "PLATFORM_ALLOWANCE"]).optional(),
+  foodAllowanceDays: z.number().int().nonnegative().optional(),
+  accommodationArrangement: z.enum(["NOT_NEEDED", "CUSTOMER_ARRANGES", "PLATFORM_BOOKS"]).optional(),
   // Samagri
-  samagriPreference: z.enum(["pandit_brings", "customer_arranges", "need_help"]).optional(),
+  samagriPreference: z.enum(["PANDIT_BRINGS", "CUSTOMER_ARRANGES", "NEED_HELP"]).optional(),
   samagriNotes: z.string().max(500).optional(),
 });
 
@@ -86,19 +79,23 @@ router.post("/", roleGuard("CUSTOMER"), async (req, res, next) => {
       panditId: body.panditId,
       ritualId: body.ritualId,
       eventDate: new Date(body.eventDate),
-      eventTime: body.eventTime,
-      muhurat: body.muhurat,
+      eventType: body.eventType,
+      muhuratTime: body.muhuratTime,
       muhuratSuggested: body.muhuratSuggested,
-      venueAddress: body.venueAddress as Record<string, unknown>,
-      specialRequirements: body.specialRequirements,
-      numberOfAttendees: body.numberOfAttendees,
-      pricing: body.pricing as Record<string, unknown>,
+      venueAddress: body.venueAddress,
+      venueCity: body.venueCity,
+      venuePincode: body.venuePincode,
+      venueLatitude: body.venueLatitude,
+      venueLongitude: body.venueLongitude,
+      specialInstructions: body.specialInstructions,
+      attendees: body.attendees,
+      dakshinaAmount: body.dakshinaAmount,
       travelMode: body.travelMode,
       travelCost: body.travelCost,
-      foodArrangement: body.foodArrangement,
-      foodAllowance: body.foodAllowance,
-      accommodationPref: body.accommodationPref,
-      samagriPreference: body.samagriPreference,
+      foodArrangement: body.foodArrangement as any,
+      foodAllowanceDays: body.foodAllowanceDays,
+      accommodationArrangement: body.accommodationArrangement,
+      samagriPreference: body.samagriPreference as any,
       samagriNotes: body.samagriNotes,
     });
 
@@ -196,7 +193,7 @@ router.patch("/:id/accept", roleGuard("PANDIT"), async (req, res, next) => {
     });
     if (!existing) return res.status(404).json({ success: false, message: "Booking not found" });
     if (existing.panditId !== pandit.id) return res.status(403).json({ success: false, message: "Not your booking" });
-    if (existing.status !== "PENDING") return res.status(400).json({ success: false, message: `Cannot accept booking in ${existing.status} status` });
+    if (existing.status !== "CREATED" && existing.status !== "PANDIT_REQUESTED") return res.status(400).json({ success: false, message: `Cannot accept booking in ${existing.status} status` });
 
     const booking = await prisma.booking.update({
       where: { id: req.params.id },
@@ -205,7 +202,7 @@ router.patch("/:id/accept", roleGuard("PANDIT"), async (req, res, next) => {
 
     // Notify customer (non-blocking)
     const customerPhone = existing.customer.user.phone;
-    const customerName = existing.customer.user.fullName ?? existing.customer.user.phone;
+    const customerName = existing.customer.user.name ?? existing.customer.user.phone;
     if (customerPhone) {
       notifyBookingAccepted({
         customerUserId: existing.customer.userId,
@@ -239,7 +236,7 @@ router.patch("/:id/reject", roleGuard("PANDIT"), async (req, res, next) => {
     });
     if (!existing) return res.status(404).json({ success: false, message: "Booking not found" });
     if (existing.panditId !== pandit.id) return res.status(403).json({ success: false, message: "Not your booking" });
-    if (existing.status !== "PENDING") return res.status(400).json({ success: false, message: `Cannot reject booking in ${existing.status} status` });
+    if (existing.status !== "CREATED" && existing.status !== "PANDIT_REQUESTED") return res.status(400).json({ success: false, message: `Cannot reject booking in ${existing.status} status` });
 
     const { reason } = req.body as { reason?: string };
 
@@ -255,7 +252,7 @@ router.patch("/:id/reject", roleGuard("PANDIT"), async (req, res, next) => {
 
     // Notify customer (non-blocking)
     const customerPhone = existing.customer.user.phone;
-    const customerName = existing.customer.user.fullName ?? existing.customer.user.phone;
+    const customerName = existing.customer.user.name ?? existing.customer.user.phone;
     if (customerPhone) {
       notifyBookingRejected({
         customerUserId: existing.customer.userId,
@@ -362,9 +359,9 @@ router.patch("/:id/status", roleGuard("PANDIT", "ADMIN"), async (req, res, next)
     });
 
     // Fire notifications (non-blocking)
-    if (existing) {
+    if (existing && existing.pandit) {
       const customerPhone = existing.customer.user.phone;
-      const customerName = existing.customer.user.fullName ?? existing.customer.user.phone;
+      const customerName = existing.customer.user.name ?? existing.customer.user.phone;
       const panditName = existing.pandit.displayName;
 
       if (status === "CONFIRMED" && customerPhone) {
@@ -418,7 +415,7 @@ router.post("/:id/cancel", roleGuard("CUSTOMER", "ADMIN"), async (req, res, next
     });
 
     // Notify pandit (non-blocking)
-    if (existing) {
+    if (existing && existing.pandit) {
       const panditPhone = existing.pandit.user.phone;
       if (panditPhone) {
         notifyBookingCancelledToPandit({

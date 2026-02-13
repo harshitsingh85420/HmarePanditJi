@@ -1,4 +1,4 @@
-import { UserRole } from "@hmarepanditji/db";
+import { Role } from "@hmarepanditji/db";
 
 declare global {
   namespace Express {
@@ -6,8 +6,8 @@ declare global {
       user?: {
         id: string;
         phone: string;
-        role: UserRole;
-        isPhoneVerified: boolean;
+        role: Role;
+        isVerified: boolean;
       };
     }
   }

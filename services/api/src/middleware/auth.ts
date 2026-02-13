@@ -2,13 +2,13 @@ import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { env } from "../config/env";
 import { sendUnauthorized } from "../utils/response";
-import { UserRole } from "@hmarepanditji/db";
+import { Role } from "@hmarepanditji/db";
 
 interface JwtPayload {
   id: string;
   phone: string;
-  role: UserRole;
-  isPhoneVerified: boolean;
+  role: Role;
+  isVerified: boolean;
 }
 
 export function authenticate(
@@ -31,7 +31,7 @@ export function authenticate(
       id: payload.id,
       phone: payload.phone,
       role: payload.role,
-      isPhoneVerified: payload.isPhoneVerified,
+      isVerified: payload.isVerified,
     };
     next();
   } catch (err) {
@@ -67,7 +67,7 @@ export function optionalAuth(
       id: payload.id,
       phone: payload.phone,
       role: payload.role,
-      isPhoneVerified: payload.isPhoneVerified,
+      isVerified: payload.isVerified,
     };
   } catch {
     // Token invalid or expired — continue as guest

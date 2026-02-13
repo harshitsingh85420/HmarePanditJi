@@ -20,7 +20,7 @@ import notificationRoutes from "./routes/notification.routes";
 import travelRoutes from "./routes/travel.routes";
 import muhuratRoutes from "./routes/muhurat.routes";
 
-const app = express();
+const app: express.Application = express();
 
 // ── Security ──────────────────────────────────────────────────────────────────
 app.use(helmet());

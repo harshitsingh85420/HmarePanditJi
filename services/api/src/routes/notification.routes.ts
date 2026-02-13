@@ -5,7 +5,7 @@ import { sendSuccess, sendPaginated } from "../utils/response";
 import { getUnreadCount, markAsRead, markAllAsRead } from "../services/notification.service";
 import { parsePagination } from "../utils/helpers";
 
-const router = Router();
+const router: Router = Router();
 
 // All notification routes require authentication
 router.use(authenticate);

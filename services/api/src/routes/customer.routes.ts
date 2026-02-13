@@ -7,7 +7,7 @@ import { validate } from "../middleware/validator";
 import { sendSuccess } from "../utils/response";
 import { AppError } from "../middleware/errorHandler";
 
-const router = Router();
+const router: Router = Router();
 
 // All customer routes require authentication
 router.use(authenticate);
@@ -15,24 +15,22 @@ router.use(authenticate);
 // ─── Validation schemas ───────────────────────────────────────────────────────
 
 const updateCustomerSchema = z.object({
-  fullName: z.string().min(2).max(100).optional(),
+  name: z.string().min(2).max(100).optional(),
   email: z.string().email().optional().nullable(),
   gotra: z.string().max(100).optional(),
-  dateOfBirth: z.string().datetime().optional().nullable(),
   gender: z.enum(["MALE", "FEMALE", "OTHER"]).optional(),
 });
 
 const addAddressSchema = z.object({
-  label: z.enum(["HOME", "OFFICE", "OTHER"]).default("HOME"),
-  addressLine1: z.string().min(5, "Address is required"),
-  addressLine2: z.string().optional(),
+  label: z.string().default("Home"),
+  fullAddress: z.string().min(5, "Address is required"),
   landmark: z.string().optional(),
   city: z.string().min(2),
   state: z.string().min(2).default("Delhi"),
-  postalCode: z.string().regex(/^\d{6}$/, "Invalid pincode"),
+  pincode: z.string().regex(/^\d{6}$/, "Invalid pincode"),
   latitude: z.number().optional(),
   longitude: z.number().optional(),
-  isPrimary: z.boolean().optional(),
+  isDefault: z.boolean().optional(),
 });
 
 // ─── Routes ───────────────────────────────────────────────────────────────────
@@ -51,14 +49,14 @@ router.get("/me", roleGuard("CUSTOMER"), async (req, res, next) => {
             id: true,
             phone: true,
             email: true,
-            fullName: true,
+            name: true,
             avatarUrl: true,
             preferredLanguage: true,
             profileCompleted: true,
             createdAt: true,
           },
         },
-        addresses: { orderBy: [{ isPrimary: "desc" }, { createdAt: "asc" }] },
+        addresses: { orderBy: [{ isDefault: "desc" }, { createdAt: "asc" }] },
       },
     });
 
@@ -72,7 +70,7 @@ router.get("/me", roleGuard("CUSTOMER"), async (req, res, next) => {
 /**
  * PUT /customers/me
  * Update the authenticated customer's profile
- * Body: { fullName?, email?, gotra?, dateOfBirth?, gender? }
+ * Body: { name?, email?, gotra?, gender? }
  */
 router.put(
   "/me",
@@ -80,13 +78,13 @@ router.put(
   validate(updateCustomerSchema),
   async (req, res, next) => {
     try {
-      const { fullName, email, gotra, dateOfBirth, gender } = req.body as z.infer<
+      const { name, email, gotra, gender } = req.body as z.infer<
         typeof updateCustomerSchema
       >;
 
-      // Update User fields (fullName, email) + profileCompleted flag
+      // Update User fields (name, email) + profileCompleted flag
       const userUpdate: Record<string, unknown> = {};
-      if (fullName !== undefined) { userUpdate.fullName = fullName; userUpdate.profileCompleted = true; }
+      if (name !== undefined) { userUpdate.name = name; userUpdate.profileCompleted = true; }
       if (email !== undefined) userUpdate.email = email;
 
       const [user, customer] = await prisma.$transaction([
@@ -96,12 +94,10 @@ router.put(
           create: {
             userId: req.user!.id,
             gotra: gotra,
-            dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : undefined,
             gender: gender,
           },
           update: {
             ...(gotra !== undefined && { gotra }),
-            ...(dateOfBirth !== undefined && { dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null }),
             ...(gender !== undefined && { gender }),
           },
         }),
@@ -116,7 +112,7 @@ router.put(
 
 /**
  * GET /customers/me/addresses
- * List all saved addresses (primary first)
+ * List all saved addresses (default first)
  */
 router.get("/me/addresses", roleGuard("CUSTOMER"), async (req, res, next) => {
   try {
@@ -125,7 +121,7 @@ router.get("/me/addresses", roleGuard("CUSTOMER"), async (req, res, next) => {
 
     const addresses = await prisma.address.findMany({
       where: { customerId: customer.id },
-      orderBy: [{ isPrimary: "desc" }, { createdAt: "asc" }],
+      orderBy: [{ isDefault: "desc" }, { createdAt: "asc" }],
     });
 
     sendSuccess(res, addresses);
@@ -136,8 +132,8 @@ router.get("/me/addresses", roleGuard("CUSTOMER"), async (req, res, next) => {
 
 /**
  * POST /customers/me/addresses
- * Add a new address. If isPrimary=true, demote all others first.
- * Body: { label, addressLine1, addressLine2?, landmark?, city, state, postalCode, isPrimary? }
+ * Add a new address. If isDefault=true, demote all others first.
+ * Body: { label, fullAddress, landmark?, city, state, pincode, isDefault? }
  */
 router.post(
   "/me/addresses",
@@ -150,11 +146,11 @@ router.post(
 
       const data = req.body as z.infer<typeof addAddressSchema>;
 
-      // If new address is primary, demote all existing primary addresses
-      if (data.isPrimary) {
+      // If new address is default, demote all existing default addresses
+      if (data.isDefault) {
         await prisma.address.updateMany({
-          where: { customerId: customer.id, isPrimary: true },
-          data: { isPrimary: false },
+          where: { customerId: customer.id, isDefault: true },
+          data: { isDefault: false },
         });
       }
 

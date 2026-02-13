@@ -5,7 +5,7 @@ import {
   getSuggestedMuhurat,
 } from "../controllers/muhurat.controller";
 
-const router = Router();
+const router: Router = Router();
 
 /** GET /muhurat/dates — auspicious dates by month/year or date range */
 router.get("/dates", getMuhuratDates);

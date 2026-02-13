@@ -12,7 +12,7 @@ import {
   getFullUser,
 } from "../services/auth.service";
 
-const router = Router();
+const router: Router = Router();
 
 // ── Schemas ───────────────────────────────────────────────────────────────────
 
@@ -38,7 +38,7 @@ const refreshSchema = z.object({
 });
 
 const updateProfileSchema = z.object({
-  fullName: z
+  name: z
     .string()
     .min(2, "Name must be at least 2 characters")
     .max(100)
