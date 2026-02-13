@@ -1,6 +1,7 @@
 import { z } from "zod";
 import dotenv from "dotenv";
 import path from "path";
+import process from "process";
 
 // Load .env from monorepo root (gracefully skip if not found — e.g. Render/Vercel)
 try {
@@ -47,5 +48,5 @@ if (!parsed.success) {
   process.exit(1);
 }
 
-export const env = parsed.data;
+export const env = parsed.data!;
 export type Env = typeof env;
