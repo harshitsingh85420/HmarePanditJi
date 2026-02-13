@@ -2,15 +2,13 @@ import { prisma } from "@hmarepanditji/db";
 import { AppError } from "../middleware/errorHandler";
 import { parsePagination } from "../utils/helpers";
 
-// ─── Stub implementations — replace in Sprint 7 ──────────────────────────────
-
 export interface CreateReviewInput {
   bookingId: string;
-  customerId: string;
+  reviewerId: string;
   overallRating: number;
-  ritualKnowledge?: number;
-  punctuality?: number;
-  communication?: number;
+  knowledgeRating?: number;
+  punctualityRating?: number;
+  communicationRating?: number;
   comment?: string;
   isAnonymous?: boolean;
 }
@@ -20,9 +18,10 @@ export async function createReview(input: CreateReviewInput) {
   const booking = await prisma.booking.findFirst({
     where: {
       id: input.bookingId,
-      customerId: input.customerId,
+      customer: { userId: input.reviewerId },
       status: "COMPLETED",
     },
+    include: { pandit: true },
   });
   if (!booking) {
     throw new AppError(
@@ -38,34 +37,43 @@ export async function createReview(input: CreateReviewInput) {
   });
   if (existing) throw new AppError("Review already submitted", 409, "REVIEW_EXISTS");
 
+  const revieweeId = booking.pandit?.userId;
+  if (!revieweeId) {
+    throw new AppError("No pandit assigned to this booking", 400, "NO_PANDIT");
+  }
+
   const review = await prisma.review.create({
     data: {
       bookingId: input.bookingId,
-      customerId: input.customerId,
-      panditId: booking.panditId,
+      reviewerId: input.reviewerId,
+      revieweeId,
+      panditId: booking.panditId ?? undefined,
       overallRating: input.overallRating,
-      ritualKnowledge: input.ritualKnowledge,
-      punctuality: input.punctuality,
-      communication: input.communication,
+      knowledgeRating: input.knowledgeRating,
+      punctualityRating: input.punctualityRating,
+      communicationRating: input.communicationRating,
       comment: input.comment,
       isAnonymous: input.isAnonymous ?? false,
     },
   });
 
   // Recalculate pandit's average rating
-  const stats = await prisma.review.aggregate({
-    where: { panditId: booking.panditId },
-    _avg: { overallRating: true },
-    _count: true,
-  });
+  if (booking.panditId) {
+    const stats = await prisma.review.aggregate({
+      where: { panditId: booking.panditId },
+      _avg: { overallRating: true },
+      _count: true,
+    });
 
-  await prisma.pandit.update({
-    where: { id: booking.panditId },
-    data: {
-      averageRating: stats._avg.overallRating ?? 0,
-      totalReviews: stats._count,
-    },
-  });
+    await prisma.pandit.update({
+      where: { id: booking.panditId },
+      data: {
+        averageRating: stats._avg.overallRating ?? 0,
+        rating: stats._avg.overallRating ?? 0,
+        totalReviews: stats._count,
+      },
+    });
+  }
 
   return review;
 }
@@ -84,18 +92,14 @@ export async function getPanditReviews(
       orderBy: { createdAt: "desc" },
       select: {
         overallRating: true,
-        ritualKnowledge: true,
-        punctuality: true,
-        communication: true,
+        knowledgeRating: true,
+        punctualityRating: true,
+        communicationRating: true,
         comment: true,
         isAnonymous: true,
         createdAt: true,
-        customer: {
-          select: {
-            user: {
-              select: { fullName: true, avatarUrl: true },
-            },
-          },
+        reviewer: {
+          select: { name: true, avatarUrl: true },
         },
       },
     }),

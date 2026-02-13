@@ -3,7 +3,7 @@ import { prisma } from "@hmarepanditji/db";
 import { sendSuccess } from "../utils/response";
 import { AppError } from "../middleware/errorHandler";
 
-const router = Router();
+const router: Router = Router();
 
 /**
  * GET /rituals

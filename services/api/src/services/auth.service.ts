@@ -13,14 +13,14 @@ function signAccessToken(user: {
   id: string;
   phone: string;
   role: string;
-  isPhoneVerified: boolean;
+  isVerified: boolean;
 }): string {
   return jwt.sign(
     {
       id: user.id,
       phone: user.phone,
       role: user.role,
-      isPhoneVerified: user.isPhoneVerified,
+      isVerified: user.isVerified,
     },
     env.JWT_SECRET,
     { expiresIn: JWT.EXPIRY, algorithm: JWT.ALGORITHM },
@@ -125,9 +125,9 @@ export async function verifyOtp(
     create: {
       phone: e164Phone,
       role: "CUSTOMER",
-      isPhoneVerified: true,
+      isVerified: true,
     },
-    update: { isPhoneVerified: true },
+    update: { isVerified: true },
   });
 
   const accessToken = signAccessToken(user);
@@ -174,9 +174,9 @@ export async function getFullUser(userId: string): Promise<object> {
       id: true,
       phone: true,
       email: true,
-      fullName: true,
+      name: true,
       role: true,
-      isPhoneVerified: true,
+      isVerified: true,
       profileCompleted: true,
       avatarUrl: true,
       preferredLanguage: true,
@@ -192,19 +192,19 @@ export async function getFullUser(userId: string): Promise<object> {
  */
 export async function updateUserProfile(
   userId: string,
-  data: { fullName?: string; email?: string | null },
+  data: { name?: string; email?: string | null },
 ): Promise<object> {
   const updateData: {
-    fullName?: string;
+    name?: string;
     email?: string | null;
     profileCompleted?: boolean;
   } = {};
 
-  if (data.fullName !== undefined) updateData.fullName = data.fullName;
+  if (data.name !== undefined) updateData.name = data.name;
   if (data.email !== undefined) updateData.email = data.email;
 
   // Mark profile complete if name is being set
-  if (data.fullName) updateData.profileCompleted = true;
+  if (data.name) updateData.profileCompleted = true;
 
   const user = await prisma.user.update({
     where: { id: userId },
@@ -213,9 +213,9 @@ export async function updateUserProfile(
       id: true,
       phone: true,
       email: true,
-      fullName: true,
+      name: true,
       role: true,
-      isPhoneVerified: true,
+      isVerified: true,
       profileCompleted: true,
       avatarUrl: true,
     },

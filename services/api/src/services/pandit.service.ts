@@ -26,7 +26,7 @@ export interface ListPanditsQuery {
 // ── List pandits with search + filters ───────────────────────────────────────
 
 export async function listPandits(query: ListPanditsQuery) {
-  const { page, limit, skip } = parsePagination(query);
+  const { page, limit, skip } = parsePagination(query as Record<string, unknown>);
 
   const pujaType = query.ritual || query.category;
 

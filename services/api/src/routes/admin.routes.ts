@@ -8,7 +8,7 @@ import { sendSuccess, sendPaginated } from "../utils/response";
 import { AppError } from "../middleware/errorHandler";
 import { initiateRefund } from "../services/payment.service";
 
-const router = Router();
+const router: Router = Router();
 
 // All admin routes require ADMIN role
 router.use(authenticate, roleGuard("ADMIN"));
@@ -22,7 +22,7 @@ const verifyPanditSchema = z.object({
 
 const updateBookingSchema = z.object({
   status: z
-    .enum(["PENDING", "CONFIRMED", "IN_PROGRESS", "COMPLETED", "CANCELLED", "REFUNDED"])
+    .enum(["CREATED", "PANDIT_REQUESTED", "CONFIRMED", "TRAVEL_BOOKED", "PANDIT_EN_ROUTE", "PANDIT_ARRIVED", "PUJA_IN_PROGRESS", "COMPLETED", "CANCELLATION_REQUESTED", "CANCELLED", "REFUNDED"])
     .optional(),
   adminNotes: z.string().max(500).optional(),
 });
@@ -41,24 +41,20 @@ router.get("/stats", async (_req, res, next) => {
       totalCustomers,
       totalBookings,
       pendingBookings,
-      paidBookings,
+      revenueStats,
     ] = await Promise.all([
       prisma.pandit.count(),
       prisma.pandit.count({ where: { isVerified: true } }),
       prisma.customer.count(),
       prisma.booking.count(),
-      prisma.booking.count({ where: { status: "PENDING" } }),
-      prisma.booking.findMany({
-        where: { paymentStatus: "PAID" },
-        select: { pricing: true },
+      prisma.booking.count({ where: { status: "CREATED" } }),
+      prisma.booking.aggregate({
+        where: { paymentStatus: "CAPTURED" },
+        _sum: { grandTotal: true },
       }),
     ]);
 
-    // Sum pricing.total from JSON field across all paid bookings
-    const totalRevenue = (paidBookings as Array<{ pricing: unknown }>).reduce((sum, b) => {
-      const pricing = b.pricing as Record<string, number> | null;
-      return sum + (pricing?.total ?? 0);
-    }, 0);
+    const totalRevenue = revenueStats._sum.grandTotal ?? 0;
 
     sendSuccess(res, {
       totalPandits,
@@ -95,7 +91,7 @@ router.get("/pandits", async (req, res, next) => {
         take: limit,
         orderBy: { createdAt: "desc" },
         include: {
-          user: { select: { phone: true, email: true, fullName: true, createdAt: true } },
+          user: { select: { phone: true, email: true, name: true, createdAt: true } },
         },
       }),
       prisma.pandit.count({ where }),
@@ -179,7 +175,7 @@ router.get("/bookings", async (req, res, next) => {
         include: {
           pandit: { select: { displayName: true, city: true } },
           customer: {
-            include: { user: { select: { phone: true, fullName: true } } },
+            include: { user: { select: { phone: true, name: true } } },
           },
           ritual: { select: { name: true, nameHindi: true } },
         },
@@ -331,7 +327,7 @@ router.get("/travel-queue", async (req, res, next) => {
           status: true,
           pandit: { select: { displayName: true, city: true, id: true } },
           customer: {
-            include: { user: { select: { fullName: true, phone: true } } },
+            include: { user: { select: { name: true, phone: true } } },
           },
         },
       }),
@@ -358,7 +354,7 @@ router.get("/payouts", async (req, res, next) => {
     const skip = (page - 1) * limit;
 
     const where: Record<string, unknown> = {
-      paymentStatus: "PAID",
+      paymentStatus: "CAPTURED",
       status: { in: ["COMPLETED", "CONFIRMED", "TRAVEL_BOOKED"] },
     };
     if (req.query.status) {
@@ -400,13 +396,13 @@ router.get("/payouts", async (req, res, next) => {
 
     // Aggregate payout stats
     const stats = await prisma.booking.aggregate({
-      where: { paymentStatus: "PAID", status: "COMPLETED" },
+      where: { paymentStatus: "CAPTURED", status: "COMPLETED" },
       _sum: { panditPayout: true, grandTotal: true },
       _count: true,
     });
 
     const pendingPayoutCount = await prisma.booking.count({
-      where: { paymentStatus: "PAID", status: "COMPLETED", payoutStatus: "PENDING" },
+      where: { paymentStatus: "CAPTURED", status: "COMPLETED", payoutStatus: "PENDING" },
     });
 
     sendSuccess(res, {
@@ -518,7 +514,7 @@ router.get("/cancellations", async (req, res, next) => {
           paymentStatus: true,
           pandit: { select: { displayName: true, city: true } },
           customer: {
-            include: { user: { select: { fullName: true, phone: true } } },
+            include: { user: { select: { name: true, phone: true } } },
           },
         },
       }),

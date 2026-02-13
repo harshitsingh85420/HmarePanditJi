@@ -15,7 +15,7 @@ import { prisma } from "@hmarepanditji/db";
 import { logger } from "../utils/logger";
 import { sendNotification } from "../services/notification.service";
 
-const router = Router();
+const router: Router = Router();
 
 // ── Validation ────────────────────────────────────────────────────────────────
 
@@ -113,7 +113,7 @@ router.post("/webhook", async (req, res) => {
           const booking = await prisma.booking.findUnique({
             where: { id: payment.notes.bookingId as string },
           });
-          if (booking && booking.paymentStatus !== "PAID") {
+          if (booking && booking.paymentStatus !== "CAPTURED") {
             await processPaymentSuccess(
               payment.notes.bookingId as string,
               payment.id as string,
@@ -140,17 +140,17 @@ router.post("/webhook", async (req, res) => {
           const booking = await prisma.booking.findUnique({
             where: { id: payment.notes.bookingId as string },
             include: {
-              customer: { include: { user: { select: { id: true, phone: true, fullName: true } } } },
+              customer: { include: { user: { select: { id: true, phone: true, name: true } } } },
             },
           });
           if (booking?.customer?.user) {
-            const { id: userId, phone, fullName } = booking.customer.user;
+            const { id: userId, phone, name } = booking.customer.user;
             sendNotification({
               userId,
               type: "GENERAL",
               title: "Payment Failed",
               message:
-                `⚠️ ${fullName ?? "Customer"} जी, आपकी booking #${booking.bookingNumber} का payment fail हो गया। ` +
+                `⚠️ ${name ?? "Customer"} जी, आपकी booking #${booking.bookingNumber} का payment fail हो गया। ` +
                 `Kripya dobara try karein ya support se contact karein। — HmarePanditJi`,
               channel: "SMS",
               phone,
@@ -169,7 +169,7 @@ router.post("/webhook", async (req, res) => {
             data: {
               paymentStatus: "REFUNDED",
               status: "REFUNDED",
-              refundId: refund.id as string,
+              refundReference: refund.id as string,
             },
           });
           logger.info(`Webhook: refund.processed for booking ${refund.notes.bookingId}`);

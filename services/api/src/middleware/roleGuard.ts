@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { UserRole } from "@hmarepanditji/db";
+import { Role } from "@hmarepanditji/db";
 import { sendForbidden, sendUnauthorized } from "../utils/response";
 
 /**
@@ -11,7 +11,7 @@ import { sendForbidden, sendUnauthorized } from "../utils/response";
  *   router.patch("/pandits/me", authenticate, roleGuard("PANDIT"), handler)
  *   router.post("/bookings", authenticate, roleGuard("CUSTOMER", "ADMIN"), handler)
  */
-export function roleGuard(...roles: UserRole[]) {
+export function roleGuard(...roles: Role[]) {
   return (req: Request, res: Response, next: NextFunction): void => {
     if (!req.user) {
       sendUnauthorized(res);

@@ -8,7 +8,7 @@ import { sendSuccess, sendPaginated } from "../utils/response";
 import { createReview, getPanditReviews } from "../services/review.service";
 import { AppError } from "../middleware/errorHandler";
 
-const router = Router();
+const router: Router = Router();
 
 const createReviewSchema = z.object({
   bookingId: z.string().min(1, "bookingId is required"),
