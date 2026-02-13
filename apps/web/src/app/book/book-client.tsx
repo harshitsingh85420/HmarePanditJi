@@ -710,7 +710,7 @@ function StepConfirmation({ booking }: { booking: BookingResult }) {
       <div className="flex items-start gap-2.5 p-3 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/30">
         <span className="material-symbols-outlined text-blue-500 text-lg flex-shrink-0 mt-0.5">notifications</span>
         <p className="text-xs text-blue-600 dark:text-blue-300">
-          The pandit has been notified. You'll receive an SMS once the booking is confirmed (typically within 2 hours).
+          The pandit has been notified. You&apos;ll receive an SMS once the booking is confirmed (typically within 2 hours).
         </p>
       </div>
 

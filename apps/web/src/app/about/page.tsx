@@ -25,7 +25,7 @@ export default function AboutPage() {
           About HmarePanditJi
         </h1>
         <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed">
-          India's first platform for booking Aadhaar-verified Hindu priests with integrated travel logistics and a zero-cancellation guarantee.
+          India&apos;s first platform for booking Aadhaar-verified Hindu priests with integrated travel logistics and a zero-cancellation guarantee.
         </p>
       </div>
 

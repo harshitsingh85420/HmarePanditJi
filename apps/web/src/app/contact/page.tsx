@@ -21,7 +21,7 @@ export default function ContactPage() {
       <div className="text-center mb-12">
         <h1 className="text-4xl font-black text-slate-900 dark:text-slate-100 mb-3">Contact Us</h1>
         <p className="text-slate-500 dark:text-slate-400">
-          हम यहाँ हैं — We're here to help. Reach us via WhatsApp or the form below.
+          हम यहाँ हैं — We&apos;re here to help. Reach us via WhatsApp or the form below.
         </p>
       </div>
 
@@ -91,7 +91,7 @@ export default function ContactPage() {
                 <span className="material-symbols-outlined text-3xl text-green-500" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
               </div>
               <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">Message Sent!</h3>
-              <p className="text-slate-500 text-sm">We've opened WhatsApp with your message. We'll reply within minutes.</p>
+              <p className="text-slate-500 text-sm">We&apos;ve opened WhatsApp with your message. We&apos;ll reply within minutes.</p>
               <button onClick={() => setSent(false)} className="mt-6 text-sm text-primary hover:underline">Send another message</button>
             </div>
           ) : (

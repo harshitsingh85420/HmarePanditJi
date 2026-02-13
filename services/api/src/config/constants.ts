@@ -42,11 +42,15 @@ export const BOOKING = {
   CANCELLATION_WINDOW_HOURS: 24,
 } as const;
 
-export const ALLOWED_ORIGINS = [
-  `http://localhost:${PORTS.WEB}`,
-  `http://localhost:${PORTS.PANDIT}`,
-  `http://localhost:${PORTS.ADMIN}`,
-];
+// Read from ALLOWED_ORIGINS env var (comma-separated) for production,
+// fallback to localhost for development
+export const ALLOWED_ORIGINS: string[] = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(",").map((s) => s.trim()).filter(Boolean)
+  : [
+    `http://localhost:${PORTS.WEB}`,
+    `http://localhost:${PORTS.PANDIT}`,
+    `http://localhost:${PORTS.ADMIN}`,
+  ];
 
 // ── Pricing constants ──────────────────────────────────────────────────────────
 export const PLATFORM_FEE_PERCENT = 15;

@@ -2,8 +2,12 @@ import { z } from "zod";
 import dotenv from "dotenv";
 import path from "path";
 
-// Load .env from monorepo root
-dotenv.config({ path: path.resolve(__dirname, "../../../../.env") });
+// Load .env from monorepo root (gracefully skip if not found — e.g. Render/Vercel)
+try {
+  dotenv.config({ path: path.resolve(__dirname, "../../../../.env") });
+} catch {
+  // env vars already set by hosting platform
+}
 
 const envSchema = z.object({
   NODE_ENV: z
