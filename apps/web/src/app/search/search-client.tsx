@@ -797,6 +797,8 @@ export default function SearchClient({
             filters={filters}
             onChange={updateFilters}
             onReset={resetFilters}
+            onDetectLocation={handleDetectLocation}
+            locationStatus={locationStatus}
           />
         </aside>
 
@@ -969,8 +971,12 @@ export default function SearchClient({
                       badges={pandit.badges}
                       overallRating={pandit.overallRating}
                       totalReviews={pandit.totalReviews}
+                      city={pandit.city}
                       distanceKm={pandit.distanceKm}
+                      experienceYears={pandit.experienceYears}
+                      specializations={pandit.specializations}
                       travelModes={pandit.travelModes}
+                      onViewProfile={(id) => router.push(`/pandit/${id}`)}
                       onBook={handleBook}
                     />
                   ))}

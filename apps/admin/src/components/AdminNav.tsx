@@ -9,6 +9,8 @@ const navLinks = [
   { href: "/pandits", icon: "groups", label: "Pandits" },
   { href: "/customers", icon: "people", label: "Customers" },
   { href: "/operations", icon: "local_shipping", label: "Operations" },
+  { href: "/travel-queue", icon: "flight", label: "Travel" },
+  { href: "/payouts", icon: "payments", label: "Payouts" },
   { href: "/settings", icon: "settings", label: "Settings" },
 ] as const;
 

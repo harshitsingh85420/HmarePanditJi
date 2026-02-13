@@ -170,6 +170,14 @@ router.post(
 );
 
 /**
+ * PUT /customers/me/addresses/:addressId
+ * Update an existing address.
+ */
+router.put("/me/addresses/:addressId", roleGuard("CUSTOMER"), async (_req, res) => {
+  res.status(501).json({ success: true, message: "Not implemented yet", endpoint: "PUT /customers/me/addresses/:addressId" });
+});
+
+/**
  * DELETE /customers/me/addresses/:addressId
  * Delete a saved address (only own addresses)
  */
@@ -188,6 +196,33 @@ router.delete("/me/addresses/:addressId", roleGuard("CUSTOMER"), async (req, res
   } catch (err) {
     next(err);
   }
+});
+
+// ─── Favorites ───────────────────────────────────────────────────────────────
+
+/**
+ * GET /customers/me/favorites
+ * Get customer's favorite pandits.
+ */
+router.get("/me/favorites", roleGuard("CUSTOMER"), async (_req, res) => {
+  res.status(501).json({ success: true, message: "Not implemented yet", endpoint: "GET /customers/me/favorites" });
+});
+
+/**
+ * POST /customers/me/favorites
+ * Add a pandit to favorites.
+ * Body: { panditId }
+ */
+router.post("/me/favorites", roleGuard("CUSTOMER"), async (_req, res) => {
+  res.status(501).json({ success: true, message: "Not implemented yet", endpoint: "POST /customers/me/favorites" });
+});
+
+/**
+ * DELETE /customers/me/favorites/:panditId
+ * Remove a pandit from favorites.
+ */
+router.delete("/me/favorites/:panditId", roleGuard("CUSTOMER"), async (_req, res) => {
+  res.status(501).json({ success: true, message: "Not implemented yet", endpoint: "DELETE /customers/me/favorites/:panditId" });
 });
 
 export default router;

@@ -9,23 +9,24 @@ export interface FooterProps {
 }
 
 const quickLinks = [
-  { label: "Find Pandits", href: "/pandits" },
-  { label: "Browse Rituals", href: "/rituals" },
-  { label: "Pricing", href: "/pricing" },
-  { label: "How it Works", href: "/how-it-works" },
+  { label: "About", href: "/about" },
+  { label: "Search Pandits", href: "/search" },
+  { label: "Muhurat Calendar", href: "/muhurat" },
+  { label: "How it Works", href: "/#how-it-works" },
 ];
 
 const supportLinks = [
-  { label: "Help Center", href: "/help" },
   { label: "Contact Us", href: "/contact" },
-  { label: "Privacy Policy", href: "/privacy" },
   { label: "Terms of Service", href: "/terms" },
+  { label: "Privacy Policy", href: "/privacy" },
+  { label: "Refund Policy", href: "/refund" },
+  { label: "Disclaimer", href: "/disclaimer" },
 ];
 
 const socialLinks: { icon: string; href: string; label: string }[] = [
-  { icon: "language", href: "#", label: "Website" },
-  { icon: "mail", href: "#", label: "Email" },
-  { icon: "call", href: "#", label: "Phone" },
+  { icon: "chat", href: "https://wa.me/919999999999", label: "WhatsApp" },
+  { icon: "mail", href: "mailto:support@hmarepanditji.com", label: "Email" },
+  { icon: "call", href: "tel:+919999999999", label: "Phone" },
 ];
 
 export function Footer({ LinkComponent }: FooterProps) {
@@ -70,9 +71,12 @@ export function Footer({ LinkComponent }: FooterProps) {
               </span>
               <span className="text-lg font-bold">HmarePanditJi</span>
             </div>
-            <p className="text-sm text-slate-400 leading-relaxed">
+            <p className="text-sm text-slate-400 italic leading-relaxed">
+              Sanskriti ko Digital Disha
+            </p>
+            <p className="text-xs text-slate-500 mt-2 leading-relaxed">
               India&rsquo;s first platform for booking verified Hindu priests.
-              Authentic rituals, trusted pandits — Delhi-NCR Phase 1.
+              Delhi-NCR Phase 1.
             </p>
             {/* Social icons */}
             <div className="flex gap-2 mt-5">

@@ -1,42 +1,90 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 
 export interface RatingProps {
   value: number;
-  reviewCount?: number;
-  showCount?: boolean;
+  onChange?: (value: number) => void;
   size?: "sm" | "md" | "lg";
+  showValue?: boolean;
   className?: string;
 }
 
 export function Rating({
   value,
-  reviewCount,
-  showCount = true,
+  onChange,
   size = "md",
+  showValue = true,
   className = "",
 }: RatingProps) {
+  const [hoverValue, setHoverValue] = useState(0);
+  const isInput = !!onChange;
+  const displayValue = hoverValue || value;
+
   const sizes: Record<string, { star: string; text: string }> = {
-    sm: { star: "text-sm", text: "text-xs" },
-    md: { star: "text-base", text: "text-sm" },
-    lg: { star: "text-lg", text: "text-base" },
+    sm: { star: "text-base", text: "text-xs" },
+    md: { star: "text-xl", text: "text-sm" },
+    lg: { star: "text-2xl", text: "text-base" },
   };
 
   const { star, text } = sizes[size];
 
+  if (!isInput) {
+    return (
+      <span className={`inline-flex items-center gap-0.5 ${className}`}>
+        {[1, 2, 3, 4, 5].map((i) => (
+          <span
+            key={i}
+            className={`material-symbols-outlined ${star} ${
+              i <= Math.round(value)
+                ? "text-amber-400"
+                : "text-slate-200 dark:text-slate-600"
+            }`}
+            style={{ fontVariationSettings: "'FILL' 1" }}
+            aria-hidden="true"
+          >
+            star
+          </span>
+        ))}
+        {showValue && (
+          <span
+            className={`${text} font-bold text-slate-900 dark:text-slate-100 ml-1`}
+          >
+            {value.toFixed(1)}
+          </span>
+        )}
+      </span>
+    );
+  }
+
   return (
-    <span className={`inline-flex items-center gap-1 ${className}`}>
-      <span
-        className={`material-symbols-outlined ${star} text-orange-500`}
-        style={{ fontVariationSettings: "'FILL' 1" }}
-        aria-hidden="true"
-      >
-        star
-      </span>
-      <span className={`${text} font-bold text-slate-900 dark:text-slate-100`}>
-        {value.toFixed(1)}
-      </span>
-      {showCount && reviewCount !== undefined && (
-        <span className={`${text} text-slate-400`}>({reviewCount})</span>
+    <span
+      className={`inline-flex items-center gap-0.5 ${className}`}
+      onMouseLeave={() => setHoverValue(0)}
+    >
+      {[1, 2, 3, 4, 5].map((i) => (
+        <button
+          key={i}
+          type="button"
+          onClick={() => onChange(i)}
+          onMouseEnter={() => setHoverValue(i)}
+          className={`material-symbols-outlined ${star} transition-colors cursor-pointer ${
+            i <= displayValue
+              ? "text-amber-400"
+              : "text-slate-200 dark:text-slate-600"
+          }`}
+          style={{ fontVariationSettings: "'FILL' 1" }}
+          aria-label={`Rate ${i} out of 5`}
+        >
+          star
+        </button>
+      ))}
+      {showValue && displayValue > 0 && (
+        <span
+          className={`${text} font-bold text-slate-900 dark:text-slate-100 ml-1`}
+        >
+          {displayValue.toFixed(1)}
+        </span>
       )}
     </span>
   );

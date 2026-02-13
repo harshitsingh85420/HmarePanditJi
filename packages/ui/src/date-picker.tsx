@@ -2,6 +2,12 @@
 
 import React, { useState, useRef, useEffect } from "react";
 
+export interface HighlightedDate {
+  date: Date;
+  color?: string;
+  label?: string;
+}
+
 export interface DatePickerProps {
   value?: Date | null;
   onChange: (date: Date | null) => void;
@@ -9,6 +15,7 @@ export interface DatePickerProps {
   placeholder?: string;
   minDate?: Date;
   maxDate?: Date;
+  highlightedDates?: HighlightedDate[];
   disabled?: boolean;
   error?: string;
   className?: string;
@@ -42,6 +49,7 @@ export function DatePicker({
   placeholder = "DD/MM/YYYY",
   minDate,
   maxDate,
+  highlightedDates = [],
   disabled = false,
   error,
   className = "",
@@ -183,6 +191,9 @@ export function DatePicker({
               const isSelected = value ? isSameDay(date, value) : false;
               const isToday = isSameDay(date, today);
               const isOff = isDisabledDay(day);
+              const highlight = highlightedDates.find((h) =>
+                isSameDay(h.date, date),
+              );
 
               return (
                 <button
@@ -190,18 +201,27 @@ export function DatePicker({
                   onClick={() => pickDay(day)}
                   disabled={isOff}
                   className={[
-                    "flex items-center justify-center h-8 w-full text-sm rounded-lg transition-colors",
+                    "relative flex items-center justify-center h-8 w-full text-sm rounded-lg transition-colors",
                     isSelected
                       ? "bg-primary text-white font-bold"
                       : isToday
-                      ? "border border-primary text-primary font-bold"
-                      : "hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300",
+                        ? "border border-primary text-primary font-bold"
+                        : "hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300",
                     isOff ? "opacity-30 cursor-not-allowed" : "",
                   ]
                     .filter(Boolean)
                     .join(" ")}
+                  title={highlight?.label}
                 >
                   {day}
+                  {highlight && (
+                    <span
+                      className="absolute bottom-0.5 w-1 h-1 rounded-full"
+                      style={{
+                        backgroundColor: highlight.color ?? "#f59e0b",
+                      }}
+                    />
+                  )}
                 </button>
               );
             })}

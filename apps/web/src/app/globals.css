@@ -8,6 +8,15 @@
   --background-dark: #221a10;
 }
 
+/* Hide scrollbar for carousel/scroll containers */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 body {
   font-family: "Inter", sans-serif;
   background-color: var(--background-light);

@@ -804,9 +804,115 @@ async function main() {
     ],
   });
 
-  console.log("Bookings created: 5");
+  // Booking 6: COMPLETED — Satyanarayan Katha (45 days ago, local pandit from Mathura visited NCR)
+  const b6Dakshina = 4500;
+  const b6TravelCost = 2160; // Self-drive 180km * 12/km
+  const b6PlatformFee = Math.round(b6Dakshina * 0.15);
+  const b6TravelServiceFee = Math.round(b6TravelCost * 0.05);
+  const b6PlatformFeeGst = Math.round(b6PlatformFee * 0.18);
+  const b6TravelServiceFeeGst = Math.round(b6TravelServiceFee * 0.18);
+  const b6GrandTotal = b6Dakshina + b6TravelCost + b6PlatformFee + b6TravelServiceFee + b6PlatformFeeGst + b6TravelServiceFeeGst;
+
+  const booking6 = await prisma.booking.create({
+    data: {
+      bookingNumber: "HPJ-2026-10006",
+      customerId: cMap["+919810002002"]!.customerId,
+      panditId: pMap["+919810001005"]!.panditId,
+      ritualId: ritualSatyanarayan?.id,
+      status: BookingStatus.COMPLETED,
+      eventType: "Satyanarayan Katha",
+      eventDate: daysAgo(45),
+      venueAddress: "Flat 302, Lotus Heights, Sector 18, Noida",
+      venueCity: "Noida",
+      venuePincode: "201301",
+      attendees: 25,
+      muhuratTime: "10:00 AM - 1:00 PM",
+      travelRequired: true,
+      travelMode: "SELF_DRIVE",
+      travelDistanceKm: 180,
+      travelStatus: TravelStatus.ARRIVED,
+      foodArrangement: FoodArrangement.CUSTOMER_PROVIDES,
+      samagriPreference: SamagriPreference.PANDIT_BRINGS,
+      dakshinaAmount: b6Dakshina,
+      travelCost: b6TravelCost,
+      platformFee: b6PlatformFee,
+      travelServiceFee: b6TravelServiceFee,
+      platformFeeGst: b6PlatformFeeGst,
+      travelServiceFeeGst: b6TravelServiceFeeGst,
+      grandTotal: b6GrandTotal,
+      panditPayout: b6Dakshina + b6TravelCost,
+      payoutStatus: PayoutStatus.COMPLETED,
+      paymentStatus: PaymentStatus.CAPTURED,
+      razorpayOrderId: "order_mock_006",
+      razorpayPaymentId: "pay_mock_006",
+      panditAcceptedAt: daysAgo(50),
+      completedAt: daysAgo(45),
+    },
+  });
+
+  await prisma.bookingStatusUpdate.createMany({
+    data: [
+      { bookingId: booking6.id, fromStatus: BookingStatus.CREATED, toStatus: BookingStatus.CONFIRMED, updatedBy: admin.id, note: "Pandit confirmed", createdAt: daysAgo(50) },
+      { bookingId: booking6.id, fromStatus: BookingStatus.CONFIRMED, toStatus: BookingStatus.PANDIT_EN_ROUTE, updatedBy: pMap["+919810001005"]!.userId, note: "Driving from Mathura", createdAt: daysAgo(45) },
+      { bookingId: booking6.id, fromStatus: BookingStatus.PANDIT_EN_ROUTE, toStatus: BookingStatus.PANDIT_ARRIVED, updatedBy: pMap["+919810001005"]!.userId, note: "Arrived at Noida venue", createdAt: daysAgo(45) },
+      { bookingId: booking6.id, fromStatus: BookingStatus.PANDIT_ARRIVED, toStatus: BookingStatus.PUJA_IN_PROGRESS, updatedBy: pMap["+919810001005"]!.userId, note: "Katha started", createdAt: daysAgo(45) },
+      { bookingId: booking6.id, fromStatus: BookingStatus.PUJA_IN_PROGRESS, toStatus: BookingStatus.COMPLETED, updatedBy: pMap["+919810001005"]!.userId, note: "Katha completed, prasad distributed", createdAt: daysAgo(45) },
+    ],
+  });
+
+  // Booking 7: COMPLETED — Ganesh Puja (20 days ago, local Noida pandit)
+  const b7Dakshina = 2100;
+  const b7PlatformFee = Math.round(b7Dakshina * 0.15);
+  const b7PlatformFeeGst = Math.round(b7PlatformFee * 0.18);
+  const b7GrandTotal = b7Dakshina + b7PlatformFee + b7PlatformFeeGst;
+
+  const booking7 = await prisma.booking.create({
+    data: {
+      bookingNumber: "HPJ-2026-10007",
+      customerId: cMap["+919810002003"]!.customerId,
+      panditId: pMap["+919810001006"]!.panditId,
+      ritualId: await prisma.ritual.findUnique({ where: { name: "Ganesh Puja" } }).then(r => r?.id),
+      status: BookingStatus.COMPLETED,
+      eventType: "Ganesh Puja",
+      eventDate: daysAgo(20),
+      venueAddress: "A-12, DLF Phase 2, Sector 25, Gurgaon",
+      venueCity: "Gurgaon",
+      venuePincode: "122002",
+      attendees: 12,
+      muhuratTime: "9:00 AM - 10:30 AM",
+      travelRequired: false,
+      travelStatus: TravelStatus.NOT_REQUIRED,
+      foodArrangement: FoodArrangement.CUSTOMER_PROVIDES,
+      samagriPreference: SamagriPreference.NEED_HELP,
+      samagriNotes: "Pandit ji suggested samagri list, we arranged",
+      dakshinaAmount: b7Dakshina,
+      platformFee: b7PlatformFee,
+      platformFeeGst: b7PlatformFeeGst,
+      grandTotal: b7GrandTotal,
+      panditPayout: b7Dakshina,
+      payoutStatus: PayoutStatus.COMPLETED,
+      paymentStatus: PaymentStatus.CAPTURED,
+      razorpayOrderId: "order_mock_007",
+      razorpayPaymentId: "pay_mock_007",
+      panditAcceptedAt: daysAgo(25),
+      completedAt: daysAgo(20),
+    },
+  });
+
+  await prisma.bookingStatusUpdate.createMany({
+    data: [
+      { bookingId: booking7.id, fromStatus: BookingStatus.CREATED, toStatus: BookingStatus.CONFIRMED, updatedBy: admin.id, note: "Pandit confirmed", createdAt: daysAgo(25) },
+      { bookingId: booking7.id, fromStatus: BookingStatus.CONFIRMED, toStatus: BookingStatus.PANDIT_EN_ROUTE, updatedBy: pMap["+919810001006"]!.userId, note: "On the way", createdAt: daysAgo(20) },
+      { bookingId: booking7.id, fromStatus: BookingStatus.PANDIT_EN_ROUTE, toStatus: BookingStatus.PANDIT_ARRIVED, updatedBy: pMap["+919810001006"]!.userId, note: "Reached", createdAt: daysAgo(20) },
+      { bookingId: booking7.id, fromStatus: BookingStatus.PANDIT_ARRIVED, toStatus: BookingStatus.PUJA_IN_PROGRESS, updatedBy: pMap["+919810001006"]!.userId, note: "Ganesh puja started", createdAt: daysAgo(20) },
+      { bookingId: booking7.id, fromStatus: BookingStatus.PUJA_IN_PROGRESS, toStatus: BookingStatus.COMPLETED, updatedBy: pMap["+919810001006"]!.userId, note: "Puja completed", createdAt: daysAgo(20) },
+    ],
+  });
+
+  console.log("Bookings created: 7");
 
   // ── 9. Reviews ────────────────────────────────────────────────────────────
+  // Review 1: Booking 1 — Griha Pravesh by Rahul Sharma for Pt. Ramesh Shastri
   await prisma.review.create({
     data: {
       bookingId: booking1.id,
@@ -822,13 +928,53 @@ async function main() {
     },
   });
 
+  // Review 2: Booking 6 — Satyanarayan Katha by Priya Gupta for Pt. Gopal Krishna Das
+  await prisma.review.create({
+    data: {
+      bookingId: booking6.id,
+      reviewerId: cMap["+919810002002"]!.userId,
+      revieweeId: pMap["+919810001005"]!.userId,
+      panditId: pMap["+919810001005"]!.panditId,
+      overallRating: 4.5,
+      knowledgeRating: 5.0,
+      punctualityRating: 4.0,
+      communicationRating: 4.5,
+      comment: "Gopal ji ne bahut achhi katha sunaayi. Mathura se drive karke aaye, thoda late ho gaye but puja mein koi kami nahi thi. Prasad bhi bahut achha tha. Family was very happy with the ceremony. Would recommend for Satyanarayan puja.",
+      isAnonymous: false,
+    },
+  });
+
+  // Review 3: Booking 7 — Ganesh Puja by Amit Singh for Pt. Shiv Narayan Upadhyay
+  await prisma.review.create({
+    data: {
+      bookingId: booking7.id,
+      reviewerId: cMap["+919810002003"]!.userId,
+      revieweeId: pMap["+919810001006"]!.userId,
+      panditId: pMap["+919810001006"]!.panditId,
+      overallRating: 4.0,
+      knowledgeRating: 4.5,
+      punctualityRating: 3.5,
+      communicationRating: 4.0,
+      comment: "Decent experience overall. Pandit ji ka knowledge achha hai but time pe aana thoda improve kar sakte hain. Ganesh puja properly ki gayi thi. Samagri list pehle se share karna helpful tha. Good for small pujas.",
+      isAnonymous: false,
+    },
+  });
+
   // Update pandit review stats
   await prisma.pandit.update({
     where: { id: pMap["+919810001001"]!.panditId },
     data: { totalReviews: { increment: 1 } },
   });
+  await prisma.pandit.update({
+    where: { id: pMap["+919810001005"]!.panditId },
+    data: { totalReviews: { increment: 1 } },
+  });
+  await prisma.pandit.update({
+    where: { id: pMap["+919810001006"]!.panditId },
+    data: { totalReviews: { increment: 1 } },
+  });
 
-  console.log("Reviews created: 1");
+  console.log("Reviews created: 3");
 
   // ── 10. Favorites ─────────────────────────────────────────────────────────
   await prisma.favoritePandit.createMany({

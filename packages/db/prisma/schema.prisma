@@ -247,17 +247,20 @@ model Pandit {
 }
 
 model PujaService {
-  id             String   @id @default(cuid())
-  panditId       String
-  pandit         Pandit   @relation(fields: [panditId], references: [id], onDelete: Cascade)
-  pujaType       String
-  dakshinaAmount Int
-  durationHours  Float
-  description    String?
-  isActive       Boolean  @default(true)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id              String   @id @default(cuid())
+  panditId        String
+  pandit          Pandit   @relation(fields: [panditId], references: [id], onDelete: Cascade)
+  pujaType        String
+  dakshinaAmount  Int
+  durationHours   Float
+  description     String?
+  includesSamagri Boolean  @default(false)
+  samagriCost     Int      @default(0)
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
+  @@unique([panditId, pujaType])
   @@index([panditId])
   @@index([pujaType])
   @@map("puja_services")
@@ -273,6 +276,7 @@ model PanditBlockedDate {
   recurringRule String?
   createdAt     DateTime @default(now())
 
+  @@unique([panditId, date])
   @@index([panditId])
   @@index([date])
   @@map("pandit_blocked_dates")

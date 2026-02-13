@@ -7,13 +7,11 @@ import { useAuth } from "../context/auth-context";
 
 const navLinks = [
   { label: "Home", href: "/" },
-  { label: "How it Works", href: "/#how-it-works" },
-  { label: "For Families", href: "/#families" },
-  { label: "For Pandits", href: "/pandits/join" },
   { label: "Search Pandits", href: "/search" },
+  { label: "Muhurat Calendar", href: "/muhurat" },
 ];
 
-// ── User Avatar / Dropdown ────────────────────────────────────────────────────
+// ── User Menu / Guest Pill ───────────────────────────────────────────────────
 
 function UserMenu() {
   const { user, logout, openLoginModal } = useAuth();
@@ -31,18 +29,27 @@ function UserMenu() {
     return () => document.removeEventListener("mousedown", handler);
   }, [open]);
 
+  /* ── Guest state ── */
   if (!user) {
     return (
-      <button
-        onClick={openLoginModal}
-        className="h-10 px-5 text-sm font-bold bg-primary hover:bg-primary/90 text-white rounded-lg shadow-lg shadow-primary/20 transition-all inline-flex items-center gap-2"
-      >
-        <span className="material-symbols-outlined text-base">login</span>
-        Login
-      </button>
+      <div className="flex items-center gap-2">
+        {/* Guest pill badge — desktop only */}
+        <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 text-amber-700 dark:text-amber-300 text-xs font-semibold rounded-full">
+          <span className="material-symbols-outlined text-xs">explore</span>
+          Exploring as Guest
+        </span>
+        <button
+          onClick={openLoginModal}
+          className="h-9 px-4 text-sm font-bold bg-primary hover:bg-primary/90 text-white rounded-lg shadow-lg shadow-primary/20 transition-all inline-flex items-center gap-1.5"
+        >
+          <span className="material-symbols-outlined text-base">login</span>
+          Login
+        </button>
+      </div>
     );
   }
 
+  /* ── Authenticated state ── */
   const initials = user.fullName
     ? user.fullName
         .split(" ")
@@ -83,7 +90,7 @@ function UserMenu() {
         <div className="absolute right-0 top-full mt-2 w-52 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-100 dark:border-slate-800 py-2 z-50">
           <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800">
             <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">
-              {user.fullName ?? "Guest User"}
+              {user.fullName ?? "User"}
             </p>
             <p className="text-xs text-slate-400 mt-0.5">{user.phone}</p>
           </div>
@@ -95,6 +102,14 @@ function UserMenu() {
           >
             <span className="material-symbols-outlined text-base">calendar_month</span>
             My Bookings
+          </Link>
+          <Link
+            href="/favorites"
+            className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+            onClick={() => setOpen(false)}
+          >
+            <span className="material-symbols-outlined text-base">favorite</span>
+            My Favorites
           </Link>
           <Link
             href="/profile"
@@ -123,15 +138,15 @@ function UserMenu() {
   );
 }
 
-// ── Header ────────────────────────────────────────────────────────────────────
+// ── Header ───────────────────────────────────────────────────────────────────
 
 export default function LandingHeader() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
-  const { openLoginModal } = useAuth();
+  const { user, openLoginModal } = useAuth();
 
   return (
-    <header className="sticky top-0 z-50 bg-[#f8f7f5]/80 dark:bg-[#221a10]/80 backdrop-blur-md border-b border-slate-200/60 dark:border-slate-800/60">
+    <header className="sticky top-0 z-50 bg-white/70 dark:bg-[#221a10]/70 backdrop-blur-xl border-b border-slate-200/60 dark:border-slate-800/60">
       <div className="max-w-[1280px] mx-auto px-4 sm:px-6 h-16 flex items-center gap-6">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 flex-shrink-0">
@@ -141,7 +156,7 @@ export default function LandingHeader() {
           >
             temple_hindu
           </span>
-          <span className="text-xl font-bold text-slate-900 dark:text-slate-100 hidden sm:block">
+          <span className="text-xl font-bold text-primary hidden sm:block">
             HmarePanditJi
           </span>
         </Link>
@@ -188,22 +203,37 @@ export default function LandingHeader() {
             <Link
               key={l.href}
               href={l.href}
-              className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-primary px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              className={[
+                "text-sm font-medium px-3 py-2 rounded-lg transition-colors",
+                pathname === l.href
+                  ? "text-primary bg-primary/10 font-bold"
+                  : "text-slate-600 dark:text-slate-300 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800",
+              ].join(" ")}
               onClick={() => setOpen(false)}
             >
               {l.label}
             </Link>
           ))}
-          <button
-            className="mt-2 h-10 flex items-center justify-center gap-2 text-sm font-bold bg-primary text-white rounded-lg shadow-lg shadow-primary/20"
-            onClick={() => {
-              setOpen(false);
-              openLoginModal();
-            }}
-          >
-            <span className="material-symbols-outlined text-base">login</span>
-            Login / Register
-          </button>
+          {!user && (
+            <>
+              <div className="mt-2 px-3 py-2">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 text-amber-700 dark:text-amber-300 text-xs font-semibold rounded-full">
+                  <span className="material-symbols-outlined text-xs">explore</span>
+                  Exploring as Guest
+                </span>
+              </div>
+              <button
+                className="mt-1 h-10 flex items-center justify-center gap-2 text-sm font-bold bg-primary text-white rounded-lg shadow-lg shadow-primary/20"
+                onClick={() => {
+                  setOpen(false);
+                  openLoginModal();
+                }}
+              >
+                <span className="material-symbols-outlined text-base">login</span>
+                Login / Register
+              </button>
+            </>
+          )}
         </div>
       )}
     </header>

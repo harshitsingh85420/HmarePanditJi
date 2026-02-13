@@ -214,10 +214,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-// ── Hook ──────────────────────────────────────────────────────────────────────
+// ── Hooks ─────────────────────────────────────────────────────────────────────
 
 export function useAuth() {
   return useContext(AuthContext);
+}
+
+/**
+ * Hook that requires authentication.
+ * If user is not logged in, opens the login modal and returns null user.
+ * Optionally redirects to login page for hard requirement.
+ */
+export function useRequireAuth(options?: { redirectTo?: string }) {
+  const ctx = useContext(AuthContext);
+  const { user, loading, openLoginModal } = ctx;
+
+  useEffect(() => {
+    if (loading) return;
+    if (!user) {
+      if (options?.redirectTo && typeof window !== "undefined") {
+        window.location.href = options.redirectTo;
+      } else {
+        openLoginModal();
+      }
+    }
+  }, [user, loading, openLoginModal, options?.redirectTo]);
+
+  return { ...ctx, isAuthenticated: !!user };
 }
 
 // ── Token helpers exported for auth modal ─────────────────────────────────────

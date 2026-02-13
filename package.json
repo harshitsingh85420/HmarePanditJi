@@ -13,6 +13,7 @@
     "db:generate": "pnpm --filter @hmarepanditji/db generate",
     "db:push": "pnpm --filter @hmarepanditji/db push",
     "db:migrate": "pnpm --filter @hmarepanditji/db migrate",
+    "db:seed": "pnpm --filter @hmarepanditji/db seed",
     "db:studio": "pnpm --filter @hmarepanditji/db studio"
   },
   "devDependencies": {

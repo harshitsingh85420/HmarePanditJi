@@ -1,9 +1,13 @@
-// ── Core primitives ────────────────────────────────────────────────────────────
+// ── Design Tokens ─────────────────────────────────────────────────────────────
+export { colors, typography, spacing, borderRadius, shadows } from "./tokens";
+export type { AppTheme } from "./tokens";
+
+// ── Core Primitives ──────────────────────────────────────────────────────────
 export { Button } from "./button";
 export type { ButtonProps } from "./button";
 
 export { Input } from "./input";
-export type { InputProps } from "./input";
+export type { InputProps, InputVariant } from "./input";
 
 export { Select } from "./select";
 export type { SelectProps, SelectOption } from "./select";
@@ -26,7 +30,7 @@ export type { AvatarProps } from "./avatar";
 export { Modal } from "./modal";
 export type { ModalProps } from "./modal";
 
-// ── Display & Feedback ─────────────────────────────────────────────────────────
+// ── Display & Feedback ───────────────────────────────────────────────────────
 export { Skeleton } from "./skeleton";
 export type { SkeletonProps } from "./skeleton";
 
@@ -42,7 +46,7 @@ export type { EmptyStateProps } from "./empty-state";
 export { StatsCard } from "./stats-card";
 export type { StatsCardProps } from "./stats-card";
 
-// ── Complex / Composite ────────────────────────────────────────────────────────
+// ── Complex / Composite ──────────────────────────────────────────────────────
 export { PanditCard } from "./pandit-card";
 export type { PanditCardProps, TravelMode, TravelModePrice } from "./pandit-card";
 
@@ -50,16 +54,8 @@ export { StepIndicator } from "./step-indicator";
 export type { StepIndicatorProps, Step } from "./step-indicator";
 
 export { DatePicker } from "./date-picker";
-export type { DatePickerProps } from "./date-picker";
+export type { DatePickerProps, HighlightedDate } from "./date-picker";
 
-// ── Layout ─────────────────────────────────────────────────────────────────────
-export { Header } from "./header";
-export type { HeaderProps, AppType, NavLink } from "./header";
-
-export { Footer } from "./footer";
-export type { FooterProps } from "./footer";
-
-// ── New components ──────────────────────────────────────────────────────────────
 export { PriceBreakdown } from "./price-breakdown";
 export type { PriceBreakdownProps, PriceBreakdownData } from "./price-breakdown";
 
@@ -71,3 +67,10 @@ export type { TabsProps, TabItem } from "./tabs";
 
 export { GuestBanner } from "./guest-banner";
 export type { GuestBannerProps } from "./guest-banner";
+
+// ── Layout ───────────────────────────────────────────────────────────────────
+export { Header } from "./header";
+export type { HeaderProps, AppType, NavLink } from "./header";
+
+export { Footer } from "./footer";
+export type { FooterProps } from "./footer";

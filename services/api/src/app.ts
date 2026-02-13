@@ -57,11 +57,9 @@ app.use(generalLimiter);
 // ── Health Check (no versioning, no auth) ────────────────────────────────────
 app.get("/health", (_req, res) => {
   res.json({
-    success: true,
-    message: "HmarePanditJi API is healthy",
+    status: "ok",
     timestamp: new Date().toISOString(),
-    environment: env.NODE_ENV,
-    version: "0.1.0",
+    version: "1.0.0",
   });
 });
 

@@ -17,6 +17,9 @@ const config: Config = {
       },
       borderRadius: {
         DEFAULT: "0.25rem",
+        btn: "8px",
+        card: "12px",
+        pill: "24px",
         lg: "0.5rem",
         xl: "0.75rem",
         full: "9999px",

@@ -42,3 +42,36 @@ export function authenticate(
     }
   }
 }
+
+/**
+ * Optional authentication — same as authenticate but doesn't fail.
+ * Attaches user to req if a valid token is present, otherwise continues as guest.
+ */
+export function optionalAuth(
+  req: Request,
+  _res: Response,
+  next: NextFunction,
+): void {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader?.startsWith("Bearer ")) {
+    next();
+    return;
+  }
+
+  const token = authHeader.slice(7);
+
+  try {
+    const payload = jwt.verify(token, env.JWT_SECRET) as JwtPayload;
+    req.user = {
+      id: payload.id,
+      phone: payload.phone,
+      role: payload.role,
+      isPhoneVerified: payload.isPhoneVerified,
+    };
+  } catch {
+    // Token invalid or expired — continue as guest
+  }
+
+  next();
+}

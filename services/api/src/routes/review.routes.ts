@@ -69,4 +69,12 @@ router.get("/pandit/:panditId", async (req, res, next) => {
   }
 });
 
+/**
+ * GET /reviews/booking/:bookingId
+ * Get the review for a specific booking (public).
+ */
+router.get("/booking/:bookingId", async (_req, res) => {
+  res.status(501).json({ success: true, message: "Not implemented yet", endpoint: "GET /reviews/booking/:bookingId" });
+});
+
 export default router;

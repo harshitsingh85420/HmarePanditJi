@@ -85,3 +85,24 @@ export function getApiUrl(path: string): string {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
   return `${baseUrl}${path}`;
 }
+
+/** Alias for formatPrice — matches the spec naming convention */
+export const formatCurrency = formatPrice;
+
+/**
+ * Calculate travel cost based on distance and travel mode.
+ * Rates are approximate Delhi-NCR market rates.
+ */
+export function calculateTravelCost(
+  distanceKm: number,
+  mode: "auto" | "train" | "bus" | "cab" = "cab",
+): number {
+  const rates: Record<string, number> = {
+    auto: 12,
+    bus: 2,
+    train: 1.5,
+    cab: 15,
+  };
+  const ratePerKm = rates[mode] ?? rates.cab;
+  return Math.round(distanceKm * ratePerKm);
+}
