@@ -259,7 +259,6 @@ export default function OnboardingPage() {
               <div className="flex flex-col items-center gap-4">
                 <div className="w-28 h-28 rounded-full border-4 border-primary/20 bg-primary/5 flex items-center justify-center overflow-hidden">
                   {data.photoUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
                     <img src={data.photoUrl} alt="Profile" className="w-full h-full object-cover" />
                   ) : (
                     <span className="material-symbols-outlined text-primary text-5xl">

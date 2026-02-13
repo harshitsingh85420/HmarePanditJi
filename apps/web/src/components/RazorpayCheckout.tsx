@@ -232,7 +232,7 @@ export default function RazorpayCheckout({
       <div className="flex flex-col items-center gap-3 py-8">
         <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
         <p className="text-sm text-slate-500">Verifying payment…</p>
-        <p className="text-xs text-slate-400">Please don't close this page.</p>
+        <p className="text-xs text-slate-400">Please don&apos;t close this page.</p>
       </div>
     );
   }

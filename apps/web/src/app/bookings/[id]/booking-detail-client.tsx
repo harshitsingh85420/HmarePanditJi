@@ -477,7 +477,7 @@ function ReviewModal({
             </div>
             <div>
               <p className="text-sm font-medium text-slate-700">Post anonymously</p>
-              <p className="text-xs text-slate-400">Your name won't appear on the review</p>
+              <p className="text-xs text-slate-400">Your name won&apos;t appear on the review</p>
             </div>
           </button>
         </div>
@@ -531,7 +531,7 @@ function ReviewDisplay({ review }: { review: NonNullable<BookingDetail["review"]
           </div>
         </div>
         {review.comment && (
-          <p className="text-sm text-slate-600 italic">"{review.comment}"</p>
+          <p className="text-sm text-slate-600 italic">&quot;{review.comment}&quot;</p>
         )}
       </div>
     </Card>

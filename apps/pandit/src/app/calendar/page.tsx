@@ -43,7 +43,7 @@ export default function PanditCalendarPage() {
           const json = await res.json();
           setPanditId(json.data?.id ?? "");
         }
-      } catch {}
+      } catch { /* ignore */ }
     }
     fetchMe();
   }, []);

@@ -611,7 +611,7 @@ function ReviewModal({
             </div>
             <div>
               <p className="text-sm font-medium text-slate-700">Post anonymously</p>
-              <p className="text-xs text-slate-400">Your name won't be shown on the review</p>
+              <p className="text-xs text-slate-400">Your name won&apos;t be shown on the review</p>
             </div>
           </button>
         </div>

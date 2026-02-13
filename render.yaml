@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: hmarepanditji-api
+    runtime: node
+    plan: free
+    buildCommand: cd services/api && npm install && npx prisma generate --schema=../../packages/db/prisma/schema.prisma && npm run build
+    startCommand: node services/api/dist/index.js
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false # set manually in Render dashboard
+      - key: JWT_SECRET
+        sync: false
+      - key: WEB_URL
+        sync: false
+      - key: PANDIT_URL
+        sync: false
+      - key: ADMIN_URL
+        sync: false
+      - key: ALLOWED_ORIGINS
+        sync: false

@@ -33,7 +33,7 @@ export default function NotFound() {
           यह पेज नहीं मिला — यह शायद हटा दिया गया है या URL गलत है।
         </p>
         <p className="text-slate-400 text-sm mb-8">
-          This page doesn't exist or has been moved.
+          This page doesn&apos;t exist or has been moved.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center mb-8">

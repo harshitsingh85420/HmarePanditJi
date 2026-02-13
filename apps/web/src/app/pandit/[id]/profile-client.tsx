@@ -458,8 +458,8 @@ function ReviewCard({ review }: { review: ReviewItem }) {
               {review.isAnonymous ? "Anonymous" : review.customerName}
             </div>
             <div className="flex items-center gap-2 mt-0.5">
-              <Rating value={review.overallRating} showCount={false} size="sm" />
-              <Badge variant="primary">{review.ceremony}</Badge>
+              <Rating value={review.overallRating} showValue={false} size="sm" />
+              <Badge variant="info">{review.ceremony}</Badge>
             </div>
           </div>
         </div>
@@ -756,8 +756,7 @@ export default function ProfileClient({
                 src={profile.profilePhotoUrl}
                 alt={profile.displayName}
                 size="xl"
-                shape="rounded"
-                verified={profile.isVerified}
+                verifiedBadge={profile.isVerified}
               />
             </div>
 
@@ -772,7 +771,7 @@ export default function ProfileClient({
                   <Badge variant="success" icon="badge">Aadhaar Verified</Badge>
                 )}
                 {profile.certificatesVerified && (
-                  <Badge variant="primary" icon="school">Certified Shastri</Badge>
+                  <Badge variant="info" icon={<span className="material-symbols-outlined text-[10px]">school</span>}>Certified Shastri</Badge>
                 )}
                 {profile.availableDays.length >= 6 && (
                   <Badge variant="neutral" icon="directions_car">Self-Drive Available</Badge>
@@ -791,9 +790,9 @@ export default function ProfileClient({
               >
                 <Rating
                   value={profile.averageRating}
-                  reviewCount={profile.totalReviews}
                   size="md"
                 />
+                <span className="text-sm text-slate-500">({profile.totalReviews} reviews)</span>
               </button>
 
               {/* Meta row */}
@@ -837,7 +836,7 @@ export default function ProfileClient({
                   <Button
                     size="lg"
                     onClick={() => handleBook()}
-                    icon="calendar_add_on"
+                    leftIcon={<span className="material-symbols-outlined text-base">calendar_add_on</span>}
                   >
                     Book Now
                   </Button>
@@ -941,7 +940,7 @@ export default function ProfileClient({
                   <Button
                     size="sm"
                     onClick={() => handleBook(service.name)}
-                    icon="calendar_add_on"
+                    leftIcon={<span className="material-symbols-outlined text-sm">calendar_add_on</span>}
                   >
                     Book
                   </Button>
