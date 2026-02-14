@@ -31,3 +31,21 @@ body {
     color: #f1f5f9;
   }
 }
+
+.spiritual-pattern {
+  background-image: radial-gradient(#f49d25 0.5px, transparent 0.5px),
+    radial-gradient(#f49d25 0.5px, #f8f7f5 0.5px);
+  background-size: 20px 20px;
+  background-position: 0 0, 10px 10px;
+  opacity: 0.05;
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.dark .spiritual-pattern {
+  background-image: radial-gradient(#f49d25 0.5px, transparent 0.5px),
+    radial-gradient(#f49d25 0.5px, #221a10 0.5px);
+  opacity: 0.1;
+}

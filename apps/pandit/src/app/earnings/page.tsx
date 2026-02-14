@@ -1,281 +1,187 @@
 "use client";
 
-import { useState, useEffect } from "react";
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api/v1";
-
-interface Transaction {
-  id: string;
-  bookingNumber: string;
-  date: string;
-  ceremony: string;
-  amount: number;
-  status: "PAID" | "PENDING" | "PROCESSING";
-}
-
-const MOCK_TRANSACTIONS: Transaction[] = [
-  {
-    id: "t1",
-    bookingNumber: "HPJ-003",
-    date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-    ceremony: "Vivah Puja",
-    amount: 52750,
-    status: "PAID",
-  },
-  {
-    id: "t2",
-    bookingNumber: "HPJ-004",
-    date: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString(),
-    ceremony: "Namkaran Puja",
-    amount: 8500,
-    status: "PAID",
-  },
-  {
-    id: "t3",
-    bookingNumber: "HPJ-006",
-    date: new Date(Date.now() - 18 * 24 * 60 * 60 * 1000).toISOString(),
-    ceremony: "Satyanarayan Puja",
-    amount: 11000,
-    status: "PROCESSING",
-  },
-  {
-    id: "t4",
-    bookingNumber: "HPJ-007",
-    date: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000).toISOString(),
-    ceremony: "Griha Pravesh",
-    amount: 21000,
-    status: "PAID",
-  },
-  {
-    id: "t5",
-    bookingNumber: "HPJ-008",
-    date: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-    ceremony: "Maha Mrityunjay Jaap",
-    amount: 15000,
-    status: "PENDING",
-  },
-];
-
-const MOCK_MONTHLY = {
-  totalEarnings: 108250,
-  pendingPayout: 15000,
-  completedBookings: 5,
-  avgPerBooking: 21650,
-  change: 12,
-};
-
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("en-IN", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-}
-function fmt(n: number) {
-  return n.toLocaleString("en-IN");
-}
-
-const statusStyle: Record<string, string> = {
-  PAID: "bg-green-100 text-green-700",
-  PENDING: "bg-yellow-100 text-yellow-700",
-  PROCESSING: "bg-blue-100 text-blue-700",
-};
-const statusLabel: Record<string, string> = {
-  PAID: "Paid",
-  PENDING: "Pending",
-  PROCESSING: "Processing",
-};
+import { useState } from "react";
 
 export default function EarningsPage() {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [monthly, setMonthly] = useState(MOCK_MONTHLY);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const load = async () => {
-      setLoading(true);
-      try {
-        const token = localStorage.getItem("hpj_pandit_access_token");
-        const res = await fetch(`${API_BASE}/earnings`, {
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setTransactions(data.data?.transactions ?? MOCK_TRANSACTIONS);
-          if (data.data?.monthly) setMonthly(data.data.monthly);
-        } else {
-          setTransactions(MOCK_TRANSACTIONS);
-        }
-      } catch {
-        setTransactions(MOCK_TRANSACTIONS);
-      } finally {
-        setLoading(false);
-      }
-    };
-    load();
-  }, []);
+  const [filter, setFilter] = useState("This Month");
 
   return (
-    <div className="py-8 space-y-6">
-      {/* ── Page Title ───────────────────────────────────────────────────── */}
-      <div>
-        <h1 className="text-[32px] font-bold text-slate-900 leading-tight">Earnings</h1>
-        <p className="mt-1 text-base text-slate-500">Aapki kamai ka pura hisaab</p>
+    <div className="flex flex-col gap-6 py-6">
+      {/* Page Title & Subtitle */}
+      <div className="flex flex-col gap-2">
+        <h1 className="text-4xl font-black leading-tight tracking-[-0.033em] text-[#181511] dark:text-[#f8f7f5]">Earnings & Wallet</h1>
+        <p className="text-[#8a7b60] dark:text-[#a89980] text-base font-normal">Manage your professional dakshina, reimbursements and tax compliance.</p>
       </div>
 
-      {/* ── Monthly Summary Cards ─────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-
-        {/* Total Earnings */}
-        <div className="bg-white rounded-xl p-6 border border-primary/10 shadow-sm">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="material-symbols-outlined text-primary text-[22px]">payments</span>
-            <span className="text-sm font-medium text-slate-500">Monthly Earnings</span>
+      {/* Balance Card Section */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="col-span-2 flex flex-col justify-between gap-6 rounded-xl p-8 bg-white dark:bg-[#2d2418] border border-[#e6e2db] dark:border-[#3d3428] shadow-sm">
+          <div className="flex flex-col gap-2">
+            <p className="text-[#8a7b60] dark:text-[#a89980] text-sm font-semibold uppercase tracking-wider">Available Balance</p>
+            <p className="text-5xl font-black text-[#181511] dark:text-[#f4a825]">₹52,000</p>
           </div>
-          <p className="text-2xl font-bold text-slate-900">₹{fmt(monthly.totalEarnings)}</p>
-          <div className="flex items-center gap-1 mt-2">
-            <span className="material-symbols-outlined text-green-600 text-base leading-none">
-              trending_up
-            </span>
-            <span className="text-sm text-green-600 font-medium">
-              +{monthly.change}% vs last month
-            </span>
-          </div>
-        </div>
-
-        {/* Pending Payout */}
-        <div className="bg-white rounded-xl p-6 border border-primary/10 shadow-sm">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="material-symbols-outlined text-primary text-[22px]">
-              account_balance_wallet
-            </span>
-            <span className="text-sm font-medium text-slate-500">Pending Payout</span>
-          </div>
-          <p className="text-2xl font-bold text-slate-900">₹{fmt(monthly.pendingPayout)}</p>
-          <div className="flex items-center gap-1 mt-2">
-            <span className="material-symbols-outlined text-slate-400 text-base leading-none">
-              schedule
-            </span>
-            <span className="text-sm text-slate-500 font-medium">3–5 business days</span>
+          <div className="flex gap-4">
+            <button className="flex-1 min-w-[140px] cursor-pointer items-center justify-center rounded-lg h-14 px-6 bg-[#f4a825] text-[#181511] text-lg font-bold transition-all hover:scale-[1.02] active:scale-95 shadow-lg shadow-[#f4a825]/20">
+              <span className="flex items-center gap-2 justify-center">
+                <span className="material-symbols-outlined">account_balance_wallet</span>
+                Withdraw to Bank
+              </span>
+            </button>
+            <button className="flex items-center justify-center rounded-lg w-14 h-14 bg-[#f4a825]/10 text-[#f4a825] border border-[#f4a825]/20 hover:bg-[#f4a825]/20 transition-colors">
+              <span className="material-symbols-outlined">settings</span>
+            </button>
           </div>
         </div>
 
-        {/* Completed Bookings */}
-        <div className="bg-white rounded-xl p-6 border border-primary/10 shadow-sm">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="material-symbols-outlined text-primary text-[22px]">task_alt</span>
-            <span className="text-sm font-medium text-slate-500">Completed</span>
+        {/* Tax Summary Mini Card */}
+        <div className="flex flex-col gap-4 rounded-xl p-6 bg-[#fef7e7] dark:bg-[#342a1a] border border-[#f4a825]/20">
+          <div className="flex items-center gap-3 text-[#f4a825]">
+            <span className="material-symbols-outlined">description</span>
+            <p className="font-bold">Tax Summary</p>
           </div>
-          <p className="text-2xl font-bold text-slate-900">{monthly.completedBookings}</p>
-          <div className="flex items-center gap-1 mt-2">
-            <span className="material-symbols-outlined text-primary text-base leading-none">
-              auto_stories
-            </span>
-            <span className="text-sm text-slate-500 font-medium">Pujas this month</span>
-          </div>
+          <p className="text-sm text-[#8a7b60] dark:text-[#a89980]">View your TDS certificates and annual tax statements for the current financial year.</p>
+          <a className="mt-auto flex items-center gap-2 text-sm font-bold text-[#181511] dark:text-[#f8f7f5] hover:underline underline-offset-4" href="#">
+            View Documents
+            <span className="material-symbols-outlined text-sm">arrow_forward</span>
+          </a>
         </div>
+      </div>
 
-        {/* Average Per Booking */}
-        <div className="bg-white rounded-xl p-6 border border-primary/10 shadow-sm">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="material-symbols-outlined text-primary text-[22px]">
-              calculate
-            </span>
-            <span className="text-sm font-medium text-slate-500">Avg / Booking</span>
-          </div>
-          <p className="text-2xl font-bold text-slate-900">₹{fmt(monthly.avgPerBooking)}</p>
-          <div className="flex items-center gap-1 mt-2">
-            <span
-              className="material-symbols-outlined text-green-600 text-base leading-none"
-              style={{ fontVariationSettings: "'FILL' 1" }}
+      {/* Breakdown & Analytics */}
+      <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
+        <div className="flex flex-col gap-6 rounded-xl border border-[#e6e2db] dark:border-[#3d3428] p-8 bg-white dark:bg-[#181511]">
+          <div className="flex items-center justify-between">
+            <p className="text-[#181511] dark:text-[#f8f7f5] text-xl font-bold">Earnings Breakdown</p>
+            <select
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+              className="bg-[#f8f7f5] dark:bg-[#2d2418] border-none rounded-lg text-sm font-medium py-1 px-3 text-[#181511] dark:text-white focus:ring-0"
             >
-              verified
-            </span>
-            <span className="text-sm text-green-600 font-medium">Top 10% pandits</span>
+              <option>This Month</option>
+              <option>Last 3 Months</option>
+              <option>Yearly</option>
+            </select>
           </div>
-        </div>
-      </div>
 
-      {/* ── Payment Transfer Notice ───────────────────────────────────────── */}
-      <div className="flex items-center gap-3 bg-blue-50 border border-blue-100 rounded-xl px-5 py-4">
-        <span className="material-symbols-outlined text-blue-500 text-[22px] flex-shrink-0">
-          info
-        </span>
-        <p className="text-sm text-blue-700">
-          <span className="font-semibold">Payment Transfer:</span> Completed puja payments are
-          processed within <span className="font-semibold">3–5 business days</span> to your
-          registered bank account.
-        </p>
-      </div>
-
-      {/* ── Transaction List ─────────────────────────────────────────────── */}
-      <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-slate-100">
-          <h2 className="text-base font-semibold text-slate-900">Transaction History</h2>
-        </div>
-
-        {loading ? (
-          <div className="p-6 space-y-4">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-14 rounded-lg bg-slate-100 animate-pulse" />
-            ))}
-          </div>
-        ) : transactions.length === 0 ? (
-          <div className="p-12 flex flex-col items-center gap-3 text-center">
-            <span className="material-symbols-outlined text-slate-300 text-[64px]">
-              receipt_long
-            </span>
-            <p className="text-base font-medium text-slate-500">Koi transaction nahi mila</p>
-          </div>
-        ) : (
-          <>
-            {/* Desktop table header */}
-            <div className="hidden sm:grid grid-cols-[1fr_auto_2fr_auto_auto] gap-4 px-6 py-3 bg-slate-50 border-b border-slate-100 text-xs font-semibold uppercase tracking-wide text-slate-400">
-              <span>Date</span>
-              <span>Booking #</span>
-              <span>Ceremony</span>
-              <span className="text-right">Amount</span>
-              <span className="text-center">Status</span>
+          <div className="flex flex-col md:flex-row items-center gap-10">
+            {/* Chart Area */}
+            <div className="relative size-48 flex items-center justify-center shrink-0">
+              {/* Simple CSS-based Donut placeholder */}
+              <div className="absolute inset-0 rounded-full border-[16px] border-[#f5f3f0] dark:border-[#2d2418]"></div>
+              <div className="absolute inset-0 rounded-full border-[16px] border-[#f4a825] border-r-transparent border-b-transparent rotate-[30deg]"></div>
+              <div className="flex flex-col items-center">
+                <p className="text-3xl font-black text-[#181511] dark:text-[#f8f7f5]">100%</p>
+                <p className="text-[10px] text-[#8a7b60] font-bold uppercase">Total</p>
+              </div>
             </div>
 
-            <div className="divide-y divide-slate-100">
-              {transactions.map((t) => (
-                <div
-                  key={t.id}
-                  className="grid grid-cols-1 sm:grid-cols-[1fr_auto_2fr_auto_auto] gap-1 sm:gap-4 px-6 py-4 items-center hover:bg-slate-50 transition-colors"
-                >
-                  {/* Date */}
-                  <span className="text-sm text-slate-500">{formatDate(t.date)}</span>
-
-                  {/* Booking number */}
-                  <span className="text-xs font-mono text-slate-400 hidden sm:block">
-                    #{t.bookingNumber}
+            {/* Legends & Bars */}
+            <div className="flex-1 w-full flex flex-col gap-6">
+              <div className="flex flex-col gap-2">
+                <div className="flex justify-between items-end">
+                  <span className="text-sm font-bold flex items-center gap-2 text-[#181511] dark:text-white">
+                    <span className="size-3 rounded-full bg-[#f4a825]"></span> Dakshina
                   </span>
-
-                  {/* Ceremony */}
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-0.5 sm:gap-2">
-                    <span className="text-sm font-semibold text-slate-900">{t.ceremony}</span>
-                    <span className="text-xs font-mono text-slate-400 sm:hidden">
-                      #{t.bookingNumber}
-                    </span>
-                  </div>
-
-                  {/* Amount */}
-                  <span className="text-base font-bold text-slate-900 sm:text-right">
-                    ₹{fmt(t.amount)}
-                  </span>
-
-                  {/* Status badge */}
-                  <span
-                    className={`text-xs font-bold px-3 py-1 rounded-full w-fit sm:mx-auto ${statusStyle[t.status]}`}
-                  >
-                    {statusLabel[t.status]}
-                  </span>
+                  <span className="text-sm font-black text-[#181511] dark:text-white">81%</span>
                 </div>
-              ))}
+                <div className="h-2 w-full bg-[#f5f3f0] dark:bg-[#2d2418] rounded-full overflow-hidden">
+                  <div className="h-full bg-[#f4a825] rounded-full" style={{ width: "81%" }}></div>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <div className="flex justify-between items-end">
+                  <span className="text-sm font-bold flex items-center gap-2 text-[#181511] dark:text-white">
+                    <span className="size-3 rounded-full bg-[#fcd581]"></span> Travel Reimbursement
+                  </span>
+                  <span className="text-sm font-black text-[#181511] dark:text-white">15%</span>
+                </div>
+                <div className="h-2 w-full bg-[#f5f3f0] dark:bg-[#2d2418] rounded-full overflow-hidden">
+                  <div className="h-full bg-[#fcd581] rounded-full" style={{ width: "15%" }}></div>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <div className="flex justify-between items-end">
+                  <span className="text-sm font-bold flex items-center gap-2 text-[#181511] dark:text-white">
+                    <span className="size-3 rounded-full bg-[#e6e2db]"></span> Food Allowance
+                  </span>
+                  <span className="text-sm font-black text-[#181511] dark:text-white">4%</span>
+                </div>
+                <div className="h-2 w-full bg-[#f5f3f0] dark:bg-[#2d2418] rounded-full overflow-hidden">
+                  <div className="h-full bg-[#e6e2db] rounded-full" style={{ width: "4%" }}></div>
+                </div>
+              </div>
             </div>
-          </>
-        )}
+          </div>
+        </div>
+      </div>
+
+      {/* Recent Transactions */}
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center justify-between px-2">
+          <h3 className="text-xl font-bold text-[#181511] dark:text-white">Recent Transactions</h3>
+          <a className="text-[#f4a825] text-sm font-bold" href="#">View All</a>
+        </div>
+
+        <div className="flex flex-col gap-3">
+          {/* Transaction Item 1 */}
+          <div className="flex items-center justify-between p-4 rounded-xl bg-white dark:bg-[#2d2418] border border-[#e6e2db] dark:border-[#3d3428] hover:border-[#f4a825]/50 transition-colors cursor-pointer shadow-sm">
+            <div className="flex items-center gap-4">
+              <div className="size-12 rounded-lg bg-[#f4a825]/10 text-[#f4a825] flex items-center justify-center">
+                <span className="material-symbols-outlined">celebration</span>
+              </div>
+              <div>
+                <p className="font-bold text-[#181511] dark:text-[#f8f7f5]">Delhi Wedding - Grand Hyatt</p>
+                <p className="text-xs text-[#8a7b60] dark:text-[#a89980]">Oct 24, 2023 • Vivah Sanskar</p>
+              </div>
+            </div>
+            <div className="text-right flex flex-col items-end gap-1">
+              <p className="font-black text-[#181511] dark:text-[#f8f7f5]">₹52,750</p>
+              <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-[#078810]/10 text-[#078810] uppercase">
+                <span className="size-1.5 rounded-full bg-[#078810] mr-1.5"></span> Paid
+              </span>
+            </div>
+          </div>
+
+          {/* Transaction Item 2 */}
+          <div className="flex items-center justify-between p-4 rounded-xl bg-white dark:bg-[#2d2418] border border-[#e6e2db] dark:border-[#3d3428] hover:border-[#f4a825]/50 transition-colors cursor-pointer shadow-sm">
+            <div className="flex items-center gap-4">
+              <div className="size-12 rounded-lg bg-[#f4a825]/10 text-[#f4a825] flex items-center justify-center">
+                <span className="material-symbols-outlined">home</span>
+              </div>
+              <div>
+                <p className="font-bold text-[#181511] dark:text-[#f8f7f5]">Griha Pravesh - Noida Sec 150</p>
+                <p className="text-xs text-[#8a7b60] dark:text-[#a89980]">Oct 22, 2023 • Puja Services</p>
+              </div>
+            </div>
+            <div className="text-right flex flex-col items-end gap-1">
+              <p className="font-black text-[#181511] dark:text-[#f8f7f5]">₹12,500</p>
+              <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-[#078810]/10 text-[#078810] uppercase">
+                <span className="size-1.5 rounded-full bg-[#078810] mr-1.5"></span> Paid
+              </span>
+            </div>
+          </div>
+
+          {/* Transaction Item 3 */}
+          <div className="flex items-center justify-between p-4 rounded-xl bg-white dark:bg-[#2d2418] border border-[#e6e2db] dark:border-[#3d3428] hover:border-[#f4a825]/50 transition-colors cursor-pointer shadow-sm">
+            <div className="flex items-center gap-4">
+              <div className="size-12 rounded-lg bg-[#f4a825]/10 text-[#f4a825] flex items-center justify-center">
+                <span className="material-symbols-outlined">flight</span>
+              </div>
+              <div>
+                <p className="font-bold text-[#181511] dark:text-[#f8f7f5]">Travel Reimbursement - Mumbai</p>
+                <p className="text-xs text-[#8a7b60] dark:text-[#a89980]">Oct 20, 2023 • Airfare & Taxi</p>
+              </div>
+            </div>
+            <div className="text-right flex flex-col items-end gap-1">
+              <p className="font-black text-[#181511] dark:text-[#f8f7f5]">₹8,400</p>
+              <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-[#078810]/10 text-[#078810] uppercase">
+                <span className="size-1.5 rounded-full bg-[#078810] mr-1.5"></span> Paid
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

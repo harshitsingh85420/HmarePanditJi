@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>NRI 4K Live-Streaming Ritual View - HmarePanditJi</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0f49bd",
+                        "primary-light": "#3b72e8", 
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                        "gold-accent": "#E6B800", // Gold accent for premium feel
+                    },
+                    fontFamily: {
+                        "display": ["Public Sans", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for chat */
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .video-gradient {
+            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 40%, rgba(0,0,0,0) 70%, rgba(0,0,0,0.6) 100%);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-800 dark:text-slate-200 font-display min-h-screen flex flex-col overflow-hidden">
+<!-- Top Navigation Bar -->
+<nav class="h-16 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0b0f19] flex items-center justify-between px-6 z-20 shrink-0">
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white">
+<span class="material-icons text-xl">temple_hindu</span>
+</div>
+<span class="text-xl font-bold tracking-tight dark:text-white">HmarePanditJi</span>
+</div>
+<div class="h-6 w-px bg-slate-300 dark:bg-slate-700 mx-2"></div>
+<h1 class="text-sm font-medium text-slate-500 dark:text-slate-400 hidden md:block">Aditi &amp; Rahul's Wedding Ceremony</h1>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-500/10 border border-red-500/20">
+<span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+<span class="text-xs font-semibold text-red-500 uppercase tracking-wide">Live 4K</span>
+</div>
+<div class="flex items-center gap-3">
+<button class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+<span class="material-icons text-slate-500 dark:text-slate-400">notifications_none</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-gradient-to-tr from-primary to-blue-400 p-[2px]">
+<img class="w-full h-full rounded-full object-cover border-2 border-white dark:border-[#0b0f19]" data-alt="User profile avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD-DRHShYodWIj1P8yHDrb5f-d2VqDp5IaivqJKx8CJlEGWJYSAmtXv6kDtx0eV646I_8TTOPayrs8M8yRb7YJWl2bbNV8Fhb6o3lcn-NX5wBBX9nmdLvLTqpv8JtKIIPKgKV4VGidto1BK-oat-4J2yiBj_tkQpjX-b_QAzx9EN-yqaKUTQpxkkcadz0zDLPKx7v8QqGCzL6TG1OqKyroGceGxLpIG1WQGpYhXbNjvEXW4aroCJeBdVh4nMGcHkzE4a_AwvWUo5yA"/>
+</div>
+</div>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 flex overflow-hidden relative">
+<!-- Left: Video Stage -->
+<div class="flex-1 relative bg-black flex flex-col justify-center group">
+<!-- Video Placeholder -->
+<div class="absolute inset-0 z-0">
+<img class="w-full h-full object-cover opacity-90" data-alt="Indian wedding havan ceremony with fire" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBPcRHety6hZpMkwwiy78ZBdpSdJ6fziSXcjNg360xL-Xrw9clFIy2FeRhWQBe3r-ZsuRVcUscFkqjkakMl-aUebpJdNLFWdxOJS0oK01DeT_AZ7sBxCv0J4cW-YdYO4hIbQAkPunhZlBhbDPPr1TJlZ6rzuruiQoTJJ4LSgbfvtIeu3GbOoVKD-hqNAoMUKbjKwNus_jTLtbP3-ghAqhsDKUFiLTC_Dqml_jkmr9kPibUB9JZ66b5InE0gRiqOsdVMyeElijg1xeQ"/>
+<!-- Video Overlay Gradient -->
+<div class="absolute inset-0 video-gradient"></div>
+</div>
+<!-- Top Overlays (Time & Muhurat) -->
+<div class="absolute top-6 left-6 right-6 flex justify-between items-start z-10 pointer-events-none">
+<!-- World Clocks -->
+<div class="flex gap-2 pointer-events-auto">
+<div class="bg-black/40 backdrop-blur-md border border-white/10 px-3 py-1.5 rounded-lg flex flex-col items-center">
+<span class="text-[10px] text-slate-300 font-bold tracking-wider">IST (INDIA)</span>
+<span class="text-sm font-mono text-white">10:45 AM</span>
+</div>
+<div class="bg-black/40 backdrop-blur-md border border-white/10 px-3 py-1.5 rounded-lg flex flex-col items-center opacity-70">
+<span class="text-[10px] text-slate-300 font-bold tracking-wider">EST (USA)</span>
+<span class="text-sm font-mono text-white">12:15 AM</span>
+</div>
+<div class="bg-black/40 backdrop-blur-md border border-white/10 px-3 py-1.5 rounded-lg flex flex-col items-center opacity-70">
+<span class="text-[10px] text-slate-300 font-bold tracking-wider">GMT (UK)</span>
+<span class="text-sm font-mono text-white">05:15 AM</span>
+</div>
+</div>
+<!-- Muhurat Timer -->
+<div class="bg-primary/90 backdrop-blur-md border border-gold-accent/30 px-4 py-2 rounded-lg flex items-center gap-3 shadow-lg shadow-primary/20 pointer-events-auto">
+<div class="text-gold-accent">
+<span class="material-icons animate-spin-slow">timelapse</span>
+</div>
+<div>
+<div class="text-[10px] uppercase text-slate-200 font-bold tracking-wider">Shubh Muhurat Ends In</div>
+<div class="text-lg font-mono font-bold text-white tabular-nums">00:45:20</div>
+</div>
+</div>
+</div>
+<!-- Bottom Video Controls (Minimal) -->
+<div class="absolute bottom-0 left-0 right-0 p-6 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+<div class="flex items-center gap-4 text-white">
+<button class="material-icons hover:text-primary transition-colors">play_arrow</button>
+<div class="flex-1 h-1 bg-white/20 rounded-full cursor-pointer overflow-hidden">
+<div class="w-[98%] h-full bg-primary relative">
+<div class="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 bg-white rounded-full shadow"></div>
+</div>
+</div>
+<span class="text-xs font-medium">LIVE</span>
+<button class="material-icons hover:text-primary transition-colors">volume_up</button>
+<button class="material-icons hover:text-primary transition-colors">settings</button>
+<button class="material-icons hover:text-primary transition-colors">fullscreen</button>
+</div>
+</div>
+<!-- Connection Quality Indicator -->
+<div class="absolute bottom-20 right-6 z-10 flex items-center gap-2 bg-black/40 px-2 py-1 rounded backdrop-blur-sm">
+<span class="material-icons text-green-400 text-sm">signal_cellular_alt</span>
+<span class="text-[10px] font-medium text-slate-300">4K HDR • 60fps</span>
+</div>
+</div>
+<!-- Right: Interaction Sidebar -->
+<aside class="w-96 bg-background-light dark:bg-[#0f1521] border-l border-slate-200 dark:border-slate-800 flex flex-col shrink-0 relative z-20">
+<!-- Sidebar Tabs -->
+<div class="flex border-b border-slate-200 dark:border-slate-800">
+<button class="flex-1 py-4 text-sm font-medium text-primary border-b-2 border-primary bg-primary/5 dark:bg-primary/10">
+                    Live Interactions
+                </button>
+<button class="flex-1 py-4 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors">
+                    Family Chat
+                </button>
+</div>
+<div class="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-6">
+<!-- Digital Puja Thali Section -->
+<div class="bg-white dark:bg-[#151b2b] rounded-xl border border-slate-200 dark:border-slate-800 p-4 shadow-sm">
+<div class="flex items-center justify-between mb-4">
+<h3 class="text-sm font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+<span class="material-icons text-gold-accent text-lg">spa</span>
+                            Digital Puja Thali
+                        </h3>
+<span class="text-[10px] text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded">Tap to offer</span>
+</div>
+<div class="grid grid-cols-3 gap-3">
+<button class="aspect-square rounded-lg border border-slate-100 dark:border-slate-700 hover:border-gold-accent/50 hover:bg-gold-accent/5 transition-all flex flex-col items-center justify-center gap-1 group">
+<div class="w-10 h-10 rounded-full bg-orange-100 dark:bg-orange-500/20 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">🌼</div>
+<span class="text-[10px] font-medium text-slate-500 dark:text-slate-400">Flowers</span>
+</button>
+<button class="aspect-square rounded-lg border border-slate-100 dark:border-slate-700 hover:border-gold-accent/50 hover:bg-gold-accent/5 transition-all flex flex-col items-center justify-center gap-1 group">
+<div class="w-10 h-10 rounded-full bg-red-100 dark:bg-red-500/20 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">🍚</div>
+<span class="text-[10px] font-medium text-slate-500 dark:text-slate-400">Akshat</span>
+</button>
+<button class="aspect-square rounded-lg border border-slate-100 dark:border-slate-700 hover:border-gold-accent/50 hover:bg-gold-accent/5 transition-all flex flex-col items-center justify-center gap-1 group">
+<div class="w-10 h-10 rounded-full bg-yellow-100 dark:bg-yellow-500/20 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">🕯️</div>
+<span class="text-[10px] font-medium text-slate-500 dark:text-slate-400">Diya</span>
+</button>
+<button class="aspect-square rounded-lg border border-slate-100 dark:border-slate-700 hover:border-gold-accent/50 hover:bg-gold-accent/5 transition-all flex flex-col items-center justify-center gap-1 group">
+<div class="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-500/20 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">🔔</div>
+<span class="text-[10px] font-medium text-slate-500 dark:text-slate-400">Bell</span>
+</button>
+<button class="aspect-square rounded-lg border border-slate-100 dark:border-slate-700 hover:border-gold-accent/50 hover:bg-gold-accent/5 transition-all flex flex-col items-center justify-center gap-1 group">
+<div class="w-10 h-10 rounded-full bg-teal-100 dark:bg-teal-500/20 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">🥥</div>
+<span class="text-[10px] font-medium text-slate-500 dark:text-slate-400">Coconut</span>
+</button>
+<button class="aspect-square rounded-lg border border-slate-100 dark:border-slate-700 hover:border-gold-accent/50 hover:bg-gold-accent/5 transition-all flex flex-col items-center justify-center gap-1 group">
+<div class="w-10 h-10 rounded-full bg-pink-100 dark:bg-pink-500/20 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">🙏</div>
+<span class="text-[10px] font-medium text-slate-500 dark:text-slate-400">Pranam</span>
+</button>
+</div>
+</div>
+<!-- Dakshina / Donation Card -->
+<div class="bg-gradient-to-br from-primary/10 to-transparent rounded-xl border border-primary/20 p-4">
+<div class="flex items-center justify-between mb-3">
+<h3 class="text-sm font-bold text-primary dark:text-blue-400 flex items-center gap-2">
+<span class="material-icons text-lg">volunteer_activism</span>
+                            Send Dakshina
+                        </h3>
+</div>
+<p class="text-xs text-slate-500 dark:text-slate-400 mb-4 leading-relaxed">
+                        Offer your blessings directly to the Pandit Ji performing the ceremony.
+                    </p>
+<div class="grid grid-cols-2 gap-2 mb-3">
+<button class="px-3 py-2 rounded-lg bg-white dark:bg-[#151b2b] border border-slate-200 dark:border-slate-700 text-sm font-medium hover:border-primary hover:text-primary transition-all">₹ 501</button>
+<button class="px-3 py-2 rounded-lg bg-white dark:bg-[#151b2b] border border-slate-200 dark:border-slate-700 text-sm font-medium hover:border-primary hover:text-primary transition-all">₹ 1100</button>
+<button class="px-3 py-2 rounded-lg bg-white dark:bg-[#151b2b] border border-slate-200 dark:border-slate-700 text-sm font-medium hover:border-primary hover:text-primary transition-all">$ 21</button>
+<button class="px-3 py-2 rounded-lg bg-white dark:bg-[#151b2b] border border-slate-200 dark:border-slate-700 text-sm font-medium hover:border-primary hover:text-primary transition-all">$ 51</button>
+</div>
+<button class="w-full py-2.5 bg-primary hover:bg-primary-light text-white rounded-lg text-sm font-bold shadow-lg shadow-primary/20 transition-all flex items-center justify-center gap-2">
+                        Offer Custom Amount
+                        <span class="material-icons text-sm">arrow_forward</span>
+</button>
+</div>
+<!-- Recent Activity / Mini Chat -->
+<div class="flex flex-col gap-4">
+<h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 px-1">Recent Blessings</h3>
+<div class="space-y-3">
+<!-- Chat Message 1 -->
+<div class="flex gap-3 items-start group">
+<img class="w-8 h-8 rounded-full object-cover border border-slate-200 dark:border-slate-700" data-alt="User avatar 1" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA6ToA2xlxDvrlpvMMfm2K4znfqu8HjCtcYKjg3sQ4upR6UrsrP6bsetbBwFvLxFdD_7SAUmQNSVQJSP5iUAlm9XRDEYFoyT_AcP9_AjxkUi6pxPcitEhBRobYRI0-ILALZrM1N_mx-6Ozdh_qy6i85m8hdu8joCm9v3awzrRg9C6vi4h-6No4d-tghIVLB9BlLpHUvtZBLBtm2W24kSOTqqAtN7fuzWaQKLGtRJyc4iwAeHBGw4riloocEE1KE3yoqerKmKbPCPxk"/>
+<div class="flex-1">
+<div class="flex items-baseline justify-between">
+<span class="text-xs font-bold text-slate-700 dark:text-slate-300">Priya (UK)</span>
+<span class="text-[10px] text-slate-400">2m ago</span>
+</div>
+<div class="bg-white dark:bg-[#151b2b] p-2.5 rounded-lg rounded-tl-none border border-slate-100 dark:border-slate-800 mt-1 shadow-sm">
+<p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">Such a beautiful setup! The havan kund looks divine. 🙏✨</p>
+</div>
+<div class="flex gap-1 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="text-[10px] text-slate-400 cursor-pointer hover:text-primary">Reply</span>
+</div>
+</div>
+</div>
+<!-- System Message / Activity -->
+<div class="flex gap-3 items-center justify-center my-1">
+<div class="h-px bg-slate-200 dark:bg-slate-800 flex-1"></div>
+<span class="text-[10px] text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full flex items-center gap-1">
+<span class="material-icons text-[10px] text-gold-accent">star</span>
+                                Rohan offered ₹1100 Dakshina
+                            </span>
+<div class="h-px bg-slate-200 dark:bg-slate-800 flex-1"></div>
+</div>
+<!-- Chat Message 2 -->
+<div class="flex gap-3 items-start group">
+<div class="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-white text-xs font-bold border border-white/10">R</div>
+<div class="flex-1">
+<div class="flex items-baseline justify-between">
+<span class="text-xs font-bold text-slate-700 dark:text-slate-300">Rohan (USA)</span>
+<span class="text-[10px] text-slate-400">Just now</span>
+</div>
+<div class="bg-white dark:bg-[#151b2b] p-2.5 rounded-lg rounded-tl-none border border-slate-100 dark:border-slate-800 mt-1 shadow-sm">
+<p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">Listening to the mantras clearly. Great quality stream!</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Chat Input Area -->
+<div class="p-4 bg-white dark:bg-[#0f1521] border-t border-slate-200 dark:border-slate-800">
+<div class="relative">
+<input class="w-full pl-4 pr-10 py-3 bg-slate-100 dark:bg-[#151b2b] border-none rounded-lg text-sm focus:ring-1 focus:ring-primary text-slate-800 dark:text-slate-200 placeholder-slate-400" placeholder="Send blessings..." type="text"/>
+<button class="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-primary text-white rounded-md hover:bg-primary-light transition-colors shadow-sm">
+<span class="material-icons text-sm">send</span>
+</button>
+</div>
+</div>
+</aside>
+</main>
+</body></html>

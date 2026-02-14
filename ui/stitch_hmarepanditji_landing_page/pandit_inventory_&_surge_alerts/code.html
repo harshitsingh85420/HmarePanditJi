@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Pandit Inventory &amp; Surge Alerts</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ec7f13",
+                        "background-light": "#f8f7f6",
+                        "background-dark": "#221910",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .filled-icon {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-100 min-h-screen flex flex-col">
+<!-- Navbar -->
+<nav class="bg-white dark:bg-[#2a2018] border-b border-primary/10 dark:border-primary/20 sticky top-0 z-50">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex justify-between h-16">
+<div class="flex items-center gap-4">
+<div class="flex-shrink-0 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-3xl filled-icon">temple_hindu</span>
+<span class="text-xl font-bold tracking-tight text-gray-900 dark:text-white">HmarePanditJi</span>
+</div>
+<div class="hidden md:flex ml-8 space-x-8">
+<a class="inline-flex items-center px-1 pt-1 border-b-2 border-primary text-sm font-medium text-gray-900 dark:text-white" href="#">
+                            Market Watch
+                        </a>
+<a class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300" href="#">
+                            My Inventory
+                        </a>
+<a class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300" href="#">
+                            Bookings
+                        </a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="hidden md:flex items-center px-3 py-1 bg-background-light dark:bg-background-dark rounded-full border border-gray-200 dark:border-gray-700 text-sm">
+<span class="material-symbols-outlined text-gray-400 text-lg mr-2">location_on</span>
+<span class="font-medium">Region: Patna, BR</span>
+<span class="material-symbols-outlined text-gray-400 text-lg ml-1">expand_more</span>
+</div>
+<button class="p-2 rounded-full text-gray-400 hover:text-gray-500 relative">
+<span class="absolute top-2 right-2 block h-2 w-2 rounded-full bg-primary ring-2 ring-white dark:ring-[#2a2018]"></span>
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden border border-primary/30">
+<img alt="Pandit Profile" class="h-full w-full object-cover" data-alt="Portrait of a smiling man" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDORUtRMWTRb_nPZGi5sUzn3XQYeus3zmNjkRmeEikVy_bnnO_4lynLNsO-_hMT8f-7PIVECP87yQJziLhUOsTIXQcJy6NoNyFEamohy8bzMuhuaWrEVAk86dOMgeb84UkjR1afFS_zspQOg3G-KNihlMHT0mV2uEk9lwCa-sdvqKtOHYjmCvr35-tX_eMn_wvE_qTfkeusxdyV0JI4tSrhySNTw7dyO_AOqUIISu4lh9YkNSPrx_FbM2RCA7iR9luTVssaFhUEqaw"/>
+</div>
+</div>
+</div>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="flex-1 py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+<!-- Header Section -->
+<div class="md:flex md:items-center md:justify-between mb-8">
+<div class="min-w-0 flex-1">
+<h2 class="text-2xl font-bold leading-7 text-gray-900 dark:text-white sm:truncate sm:text-3xl sm:tracking-tight">
+                    Market Intelligence Dashboard
+                </h2>
+<p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                    Real-time Samagri prices and inventory alerts for your upcoming rituals.
+                </p>
+</div>
+<div class="mt-4 flex md:ml-4 md:mt-0">
+<button class="inline-flex items-center rounded-md bg-white dark:bg-[#2a2018] px-3 py-2 text-sm font-semibold text-gray-900 dark:text-gray-200 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800" type="button">
+<span class="material-symbols-outlined text-lg mr-2">download</span>
+                    Export Report
+                </button>
+<button class="ml-3 inline-flex items-center rounded-md bg-primary px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary" type="button">
+<span class="material-symbols-outlined text-lg mr-2">add</span>
+                    New Purchase Log
+                </button>
+</div>
+</div>
+<!-- Dashboard Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Left Column: Alerts Feed (Takes up 2/3 space on large screens) -->
+<div class="lg:col-span-2 space-y-8">
+<!-- Critical Alerts Card -->
+<div class="bg-white dark:bg-[#2a2018] rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden">
+<div class="border-b border-gray-200 dark:border-gray-800 px-6 py-4 flex items-center justify-between bg-primary/5">
+<h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+<span class="material-symbols-outlined text-primary filled-icon">warning</span>
+                            Urgent Market Alerts
+                        </h3>
+<span class="inline-flex items-center rounded-full bg-red-50 dark:bg-red-900/30 px-2 py-1 text-xs font-medium text-red-700 dark:text-red-400 ring-1 ring-inset ring-red-600/10">3 New</span>
+</div>
+<ul class="divide-y divide-gray-100 dark:divide-gray-800" role="list">
+<!-- Alert 1: Surge -->
+<li class="relative flex gap-x-6 py-5 px-6 hover:bg-gray-50 dark:hover:bg-[#322820] transition-colors">
+<div class="flex h-12 w-12 flex-none items-center justify-center rounded-lg bg-red-50 dark:bg-red-900/20 ring-1 ring-red-600/20">
+<span class="material-symbols-outlined text-red-600 dark:text-red-400 text-2xl">trending_up</span>
+</div>
+<div class="flex-auto">
+<div class="flex items-baseline justify-between gap-x-4">
+<p class="text-sm font-semibold leading-6 text-gray-900 dark:text-white">Ghee Price Surge (Patna)</p>
+<p class="flex-none text-xs text-gray-500 dark:text-gray-400">1h ago</p>
+</div>
+<p class="mt-1 line-clamp-2 text-sm leading-6 text-gray-600 dark:text-gray-300">
+                                    Prices have surged by <span class="font-bold text-red-600 dark:text-red-400">+15%</span> due to local festival demand. Consider stocking up now or adjusting package rates.
+                                </p>
+</div>
+</li>
+<!-- Alert 2: Availability -->
+<li class="relative flex gap-x-6 py-5 px-6 hover:bg-gray-50 dark:hover:bg-[#322820] transition-colors">
+<div class="flex h-12 w-12 flex-none items-center justify-center rounded-lg bg-green-50 dark:bg-green-900/20 ring-1 ring-green-600/20">
+<span class="material-symbols-outlined text-green-600 dark:text-green-400 text-2xl">inventory_2</span>
+</div>
+<div class="flex-auto">
+<div class="flex items-baseline justify-between gap-x-4">
+<p class="text-sm font-semibold leading-6 text-gray-900 dark:text-white">Marigold Availability High</p>
+<p class="flex-none text-xs text-gray-500 dark:text-gray-400">3h ago</p>
+</div>
+<p class="mt-1 line-clamp-2 text-sm leading-6 text-gray-600 dark:text-gray-300">
+                                    Market supply is high. Prices dropping by <span class="font-bold text-green-600 dark:text-green-400">-5%</span>. Good time for bulk purchase for decoration contracts.
+                                </p>
+</div>
+</li>
+<!-- Alert 3: Delay -->
+<li class="relative flex gap-x-6 py-5 px-6 hover:bg-gray-50 dark:hover:bg-[#322820] transition-colors">
+<div class="flex h-12 w-12 flex-none items-center justify-center rounded-lg bg-orange-50 dark:bg-orange-900/20 ring-1 ring-orange-600/20">
+<span class="material-symbols-outlined text-orange-600 dark:text-orange-400 text-2xl">local_shipping</span>
+</div>
+<div class="flex-auto">
+<div class="flex items-baseline justify-between gap-x-4">
+<p class="text-sm font-semibold leading-6 text-gray-900 dark:text-white">Rice Supply Delay (Delhi Route)</p>
+<p class="flex-none text-xs text-gray-500 dark:text-gray-400">5h ago</p>
+</div>
+<p class="mt-1 line-clamp-2 text-sm leading-6 text-gray-600 dark:text-gray-300">
+                                    Transport strike affecting supply chain. Expect 2-3 day delays for premium Basmati stocks.
+                                </p>
+</div>
+</li>
+</ul>
+</div>
+<!-- Price Trends Graph Area -->
+<div class="bg-white dark:bg-[#2a2018] rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-6">
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-lg font-semibold text-gray-900 dark:text-white">Samagri Price Trends (30 Days)</h3>
+<div class="flex gap-2">
+<span class="inline-flex items-center rounded-md bg-gray-50 dark:bg-gray-800 px-2 py-1 text-xs font-medium text-gray-600 dark:text-gray-400 ring-1 ring-inset ring-gray-500/10 cursor-pointer">Ghee</span>
+<span class="inline-flex items-center rounded-md bg-white dark:bg-[#2a2018] px-2 py-1 text-xs font-medium text-gray-400 ring-1 ring-inset ring-gray-300 dark:ring-gray-700 cursor-pointer">Rice</span>
+<span class="inline-flex items-center rounded-md bg-white dark:bg-[#2a2018] px-2 py-1 text-xs font-medium text-gray-400 ring-1 ring-inset ring-gray-300 dark:ring-gray-700 cursor-pointer">Flowers</span>
+</div>
+</div>
+<!-- Chart Placeholder -->
+<div class="relative h-64 w-full bg-gradient-to-b from-primary/5 to-transparent rounded-lg border border-primary/10 p-4 flex items-end justify-between gap-2 overflow-hidden">
+<!-- Grid Lines -->
+<div class="absolute inset-0 flex flex-col justify-between pointer-events-none p-4 opacity-30">
+<div class="w-full h-px bg-gray-300 dark:bg-gray-700"></div>
+<div class="w-full h-px bg-gray-300 dark:bg-gray-700"></div>
+<div class="w-full h-px bg-gray-300 dark:bg-gray-700"></div>
+<div class="w-full h-px bg-gray-300 dark:bg-gray-700"></div>
+</div>
+<!-- Trend Line (Visualized as CSS bars/path approximation for demonstration) -->
+<div class="absolute inset-0 flex items-end px-4 pb-4">
+<!-- Simple SVG Path for a trend line -->
+<svg class="w-full h-full overflow-visible" preserveaspectratio="none">
+<defs>
+<lineargradient id="gradientPrimary" x1="0%" x2="0%" y1="0%" y2="100%">
+<stop offset="0%" style="stop-color:#ec7f13;stop-opacity:0.5"></stop>
+<stop offset="100%" style="stop-color:#ec7f13;stop-opacity:0"></stop>
+</lineargradient>
+</defs>
+<path class="opacity-40" d="M0,200 C50,180 100,210 150,150 C200,90 250,120 300,100 C350,80 400,40 450,60 C500,80 550,30 600,20 L600,250 L0,250 Z" fill="url(#gradientPrimary)"></path>
+<path d="M0,200 C50,180 100,210 150,150 C200,90 250,120 300,100 C350,80 400,40 450,60 C500,80 550,30 600,20" fill="none" stroke="#ec7f13" stroke-width="3" vector-effect="non-scaling-stroke"></path>
+<!-- Alert Dots -->
+<circle cx="450" cy="60" fill="white" r="4" stroke="#ec7f13" stroke-width="2"></circle>
+</svg>
+</div>
+</div>
+<div class="flex justify-between mt-2 text-xs text-gray-500 dark:text-gray-400 px-2">
+<span>1 Nov</span>
+<span>8 Nov</span>
+<span>15 Nov</span>
+<span>22 Nov</span>
+<span>Today</span>
+</div>
+</div>
+</div>
+<!-- Right Column: Quick Actions & Status (Takes up 1/3 space) -->
+<div class="space-y-8">
+<!-- Action Card -->
+<div class="bg-gradient-to-br from-primary to-orange-600 rounded-xl shadow-lg p-6 text-white relative overflow-hidden">
+<div class="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-2xl"></div>
+<h3 class="text-xl font-bold mb-2">Margins impacted!</h3>
+<p class="text-orange-100 text-sm mb-6">Recent price surges in Ghee and Camphor might reduce your puja package margin by <span class="font-bold text-white">₹250</span> per booking.</p>
+<button class="w-full bg-white text-primary font-bold py-3 px-4 rounded-lg shadow-sm hover:bg-orange-50 transition flex items-center justify-center gap-2">
+<span class="material-symbols-outlined filled-icon">currency_rupee</span>
+                        Update Package Prices
+                    </button>
+<div class="mt-4 text-xs text-orange-200 text-center">
+                        Last updated: 14 days ago
+                    </div>
+</div>
+<!-- Inventory Quick Status -->
+<div class="bg-white dark:bg-[#2a2018] rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-6">
+<h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-gray-400">inventory</span>
+                        My Stock Watch
+                    </h3>
+<div class="space-y-4">
+<!-- Item 1 -->
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="h-10 w-10 rounded-lg bg-gray-100 dark:bg-gray-800 p-1">
+<img alt="Ghee Jar" class="h-full w-full object-cover rounded-md" data-alt="A jar of ghee with golden liquid" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCf4EbEKPRCi3o1iYHD5saXQRIohhhLF-v0J31lmiRpDkW01egJm7fBzPn9A7wArHB-uosCEzF5O4uF4j1jRRvbQVFXNbCD8x9VDQbkTqmur6BzWyRxbF7L8IqaZkVkIh5bvzMy0LM0nlf-7L_H4aWJ2SfX8e7hzrABfVEIv3Lw7XFIj9hZgWEfZfe4ZokatlhWDijHV9BPYUd1QygyLgdGgaCmLhHmjEdT2Mv2kMQsC2fP3RcMGfItuUImk9MTnyAsAYHEjct5Nrs"/>
+</div>
+<div>
+<p class="text-sm font-medium text-gray-900 dark:text-white">Pure Ghee</p>
+<p class="text-xs text-gray-500">2 kg in stock</p>
+</div>
+</div>
+<div class="text-right">
+<span class="inline-flex items-center rounded-full bg-red-50 dark:bg-red-900/20 px-2 py-1 text-xs font-medium text-red-700 dark:text-red-400">Low</span>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="h-10 w-10 rounded-lg bg-gray-100 dark:bg-gray-800 p-1">
+<img alt="Rice Bowl" class="h-full w-full object-cover rounded-md" data-alt="White rice grains in a wooden bowl" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCcmv5N7b3sxp8C-GnwOzHA2T5llgJaIwCS7HtGdssZhKghdCyWzc40llzp6A84KGOxudTHaJz-bVY77UBowQJTyOSk4BNYUQcd_cnHQIJfcuBa922isPjFKkoM3QkoHvdZ-WOuiFkmE9K3zvA6CwMsKJ33020ORuftxKQfnc_w3MYh-gwbBsAuqVIhrgflNFGb9A2NlMQItFn6mGjB_6XnbSjGWZiHUleQaG-9DBmxSQ_IBH-X4SG2s_lXevzpKT-MrQXvEsBTu4A"/>
+</div>
+<div>
+<p class="text-sm font-medium text-gray-900 dark:text-white">Basmati Rice</p>
+<p class="text-xs text-gray-500">15 kg in stock</p>
+</div>
+</div>
+<div class="text-right">
+<span class="inline-flex items-center rounded-full bg-green-50 dark:bg-green-900/20 px-2 py-1 text-xs font-medium text-green-700 dark:text-green-400">Good</span>
+</div>
+</div>
+<!-- Item 3 -->
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="h-10 w-10 rounded-lg bg-gray-100 dark:bg-gray-800 p-1">
+<img alt="Incense Sticks" class="h-full w-full object-cover rounded-md" data-alt="Incense sticks burning with smoke" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCvRl8maMc7xS2CJEb7rCkvSdPmCoK1IbJ5H11QJrykp1PLkYaBlZ7wqmcz-dbhHbUwq8Z0LcEIH4cw5cP9LAi2Ar9is5v8Cpwa9XDbM2SJbDgWBZd6IF_V0fC0dL5DYNRGTXj9WHVZm9wksv_lHG_u9PM6z5JMi3kaK5uxUe4cV53bYW_sUFhULcYA4ozV9quRJ9wQqlJuCN96Cz5FKG5bBkdPnJEdZ3ZXc5GriI7J8bMCdPLdJm3QoMgSWT9iJeXQSuYatPJWHto"/>
+</div>
+<div>
+<p class="text-sm font-medium text-gray-900 dark:text-white">Agarbatti</p>
+<p class="text-xs text-gray-500">5 pkts in stock</p>
+</div>
+</div>
+<div class="text-right">
+<span class="inline-flex items-center rounded-full bg-yellow-50 dark:bg-yellow-900/20 px-2 py-1 text-xs font-medium text-yellow-700 dark:text-yellow-400">Medium</span>
+</div>
+</div>
+</div>
+<button class="w-full mt-6 text-primary text-sm font-medium hover:text-orange-700 dark:hover:text-orange-400 flex items-center justify-center gap-1">
+                        View Full Inventory 
+                        <span class="material-symbols-outlined text-lg">arrow_forward</span>
+</button>
+</div>
+<!-- Regional Map Widget -->
+<div class="bg-white dark:bg-[#2a2018] rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-6">
+<h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Supply Hub Status</h3>
+<div class="aspect-video w-full rounded-lg bg-gray-100 dark:bg-gray-800 overflow-hidden relative">
+<!-- Placeholder for map -->
+<img alt="Map of India showing regions" class="w-full h-full object-cover opacity-80" data-alt="Abstract map of India with highlighted regions" data-location="India Map" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDBo2MUSpqd6WhrNVIQovRfSn2FK2DivZWg1XMetiXKtrYifNgpuuIMUptnKm5U0bOtThmmtHI_i-0SaxX9ZRV8DgeCMnh_mfa6mtpbxC1EsGcHlCmQnIF4sVY4UbpmEmp_96TnGJN6xRxTfF1fony2MtRku8D2Dsuj_VfVoIvMyHbwAX2Xufd4ZfI3t5lplbsBcKaSd6Hehj51i_CRSZ8_sLZF4L1isd2sxUP8dp6_vaZrzK4sf1zHF97UXjOuWH0fX0JHOLDCCHQ"/>
+<!-- Map Markers Overlay -->
+<div class="absolute top-1/4 left-1/3 h-3 w-3 bg-red-500 rounded-full border-2 border-white animate-pulse" title="High Demand"></div>
+<div class="absolute bottom-1/3 right-1/4 h-3 w-3 bg-green-500 rounded-full border-2 border-white" title="Stable Supply"></div>
+<div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-3">
+<p class="text-xs text-white font-medium">Patna Region: <span class="text-red-300">High Demand</span></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Simple Footer -->
+<footer class="bg-white dark:bg-[#2a2018] border-t border-primary/10 dark:border-primary/20 mt-auto">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+<p class="text-center text-sm text-gray-500 dark:text-gray-400">
+                © 2023 HmarePanditJi App. Serving the spiritual community.
+            </p>
+</div>
+</footer>
+<script>
+        // Simple script to toggle dark mode for demonstration
+        // In a real app, this would check system preference or local storage
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
+</body></html>

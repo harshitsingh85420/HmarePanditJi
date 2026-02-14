@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { VoiceButton } from "../components/VoiceButton";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api/v1";
 
@@ -216,20 +217,35 @@ export default function OnboardingPage() {
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">
                   Display Name <span className="text-red-500">*</span>
+                  <span className="text-xs text-primary ml-2">🎤 Voice enabled</span>
                 </label>
-                <input
-                  type="text"
-                  placeholder="Pandit Ram Sharma Ji"
-                  value={data.displayName}
-                  onChange={(e) => set("displayName", e.target.value)}
-                  className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
-                  autoFocus
-                />
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="Pandit Ram Sharma Ji"
+                    value={data.displayName}
+                    onChange={(e) => set("displayName", e.target.value)}
+                    className="flex-1 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                    autoFocus
+                  />
+                  <VoiceButton
+                    lang="hi-IN"
+                    prompt="Apna naam boliye"
+                    onTranscript={(text: string) => set("displayName", text)}
+                  />
+                </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                  Bio <span className="text-slate-400">(optional)</span>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5 flex items-center justify-between">
+                  <span>
+                    Bio <span className="text-slate-400">(optional)</span>
+                  </span>
+                  <VoiceButton
+                    lang="hi-IN"
+                    prompt="Apne experience ke baare mein boliye"
+                    onTranscript={(text: string) => set("bio", data.bio + (data.bio ? " " : "") + text)}
+                  />
                 </label>
                 <textarea
                   rows={3}
@@ -315,11 +331,10 @@ export default function OnboardingPage() {
                     <button
                       key={s}
                       onClick={() => toggleSpec(s)}
-                      className={`text-sm font-medium rounded-full px-4 py-2 border transition-all ${
-                        selected
-                          ? "bg-primary text-white border-primary shadow-sm shadow-primary/20"
-                          : "bg-white text-slate-600 border-slate-200 hover:border-primary/40"
-                      }`}
+                      className={`text-sm font-medium rounded-full px-4 py-2 border transition-all ${selected
+                        ? "bg-primary text-white border-primary shadow-sm shadow-primary/20"
+                        : "bg-white text-slate-600 border-slate-200 hover:border-primary/40"
+                        }`}
                     >
                       {s}
                     </button>
@@ -402,40 +417,69 @@ export default function OnboardingPage() {
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">
                   Bank Name <span className="text-red-500">*</span>
                 </label>
-                <input
-                  type="text"
-                  placeholder="State Bank of India"
-                  value={data.bankName}
-                  onChange={(e) => set("bankName", e.target.value)}
-                  className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
-                />
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="State Bank of India"
+                    value={data.bankName}
+                    onChange={(e) => set("bankName", e.target.value)}
+                    className="flex-1 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                  />
+                  <VoiceButton
+                    lang="hi-IN"
+                    prompt="Bank ka naam boliye"
+                    onTranscript={(text: string) => set("bankName", text)}
+                  />
+                </div>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">
                   Account Number <span className="text-red-500">*</span>
                 </label>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  placeholder="123456789012"
-                  value={data.bankAccount}
-                  onChange={(e) => set("bankAccount", e.target.value.replace(/\D/g, ""))}
-                  className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
-                />
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    placeholder="123456789012"
+                    value={data.bankAccount}
+                    onChange={(e) => set("bankAccount", e.target.value.replace(/\D/g, ""))}
+                    className="flex-1 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                  />
+                  <VoiceButton
+                    lang="hi-IN"
+                    prompt="Account number boliye"
+                    onTranscript={(text: string) => {
+                      // Extract digits from spoken text
+                      const digits = text.replace(/\D/g, "");
+                      set("bankAccount", digits);
+                    }}
+                  />
+                </div>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">
                   IFSC Code <span className="text-red-500">*</span>
                 </label>
-                <input
-                  type="text"
-                  placeholder="SBIN0001234"
-                  value={data.bankIfsc}
-                  onChange={(e) => set("bankIfsc", e.target.value.toUpperCase())}
-                  className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary font-mono"
-                />
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="SBIN0001234"
+                    value={data.bankIfsc}
+                    onChange={(e) => set("bankIfsc", e.target.value.toUpperCase())}
+                    className="flex-1 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary font-mono"
+                  />
+                  <VoiceButton
+                    lang="en-IN"
+                    prompt="IFSC code boliye"
+                    onTranscript={(text: string) => {
+                      // Convert to uppercase and remove spaces
+                      const ifsc = text.replace(/\s/g, "").toUpperCase();
+                      set("bankIfsc", ifsc);
+                    }}
+                  />
+                </div>
               </div>
 
               <div className="flex items-start gap-2 bg-green-50 border border-green-100 rounded-xl p-3">

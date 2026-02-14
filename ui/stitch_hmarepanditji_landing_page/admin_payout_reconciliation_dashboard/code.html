@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Admin Payout Reconciliation Dashboard - HmarePanditJi</title>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#0f49bd",
+              "primary-dark": "#0a3690",
+              "background-light": "#f6f6f8",
+              "background-dark": "#101622",
+            },
+            fontFamily: {
+              "display": ["Public Sans", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            font-family: 'Public Sans', sans-serif;
+        }
+        /* Custom scrollbar for table */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-800 dark:text-slate-100 h-screen flex flex-col overflow-hidden font-display">
+<!-- Top Navigation -->
+<header class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 h-16 flex items-center justify-between px-6 shrink-0 z-20">
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2 text-primary font-bold text-xl tracking-tight">
+<span class="material-icons-round">temple_hindu</span>
+                HmarePanditJi
+            </div>
+<div class="h-6 w-px bg-slate-300 dark:bg-slate-700 mx-2"></div>
+<nav class="flex items-center gap-6 text-sm font-medium text-slate-500 dark:text-slate-400">
+<a class="hover:text-primary transition-colors" href="#">Bookings</a>
+<a class="hover:text-primary transition-colors" href="#">Pandits</a>
+<a class="text-primary" href="#">Finance</a>
+<a class="hover:text-primary transition-colors" href="#">Reports</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 relative">
+<span class="material-icons-round">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></span>
+</button>
+<div class="flex items-center gap-3 pl-4 border-l border-slate-200 dark:border-slate-700">
+<div class="text-right hidden md:block">
+<p class="text-sm font-semibold text-slate-800 dark:text-white">Amit V.</p>
+<p class="text-xs text-slate-500">Finance Manager</p>
+</div>
+<img class="w-9 h-9 rounded-full border border-slate-200 dark:border-slate-700" data-alt="User Avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAKYbLobganSvOnfh7Qj3qfM7GBwuO12tpM8J0PAl1JXy18fID4y5uzWdsHBpCYMNRkbAuWWzWSK7NAGIu4PnPlkBb3hdAdsbcRqHKb-QaF8_biNSREVi9fRILfncSI5vJUtkVtbi_-LxviZvQ4cfC5ucUYddVhd_wt11vMVMgh2egoCtkWIR6EmMaehySwt79m2T_2NgJX4Q0uzABqV3TIM1UTXVWgh335LcLfwQhd_sre-LrI7ZLyT8v0bVqSs2XEWHLoGvJAik4"/>
+</div>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col min-h-0 overflow-hidden relative">
+<!-- Header & KPI Section -->
+<div class="p-6 pb-2 space-y-6 shrink-0">
+<!-- Title & Batch Date -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div>
+<h1 class="text-2xl font-bold text-slate-900 dark:text-white">Payout Reconciliation</h1>
+<p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Review pending claims and approve batch payments.</p>
+</div>
+<div class="flex items-center gap-3 bg-white dark:bg-slate-800 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">
+<span class="material-icons-round text-primary text-xl">event</span>
+<div>
+<p class="text-xs text-slate-500 dark:text-slate-400 uppercase font-semibold">Next Scheduled Batch</p>
+<p class="text-sm font-bold text-slate-800 dark:text-white">Tue, 24 Oct 2023</p>
+</div>
+</div>
+</div>
+<!-- KPI Cards -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+<div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-start justify-between group hover:border-primary/30 transition-colors">
+<div>
+<p class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Payable</p>
+<h3 class="text-2xl font-bold text-slate-900 dark:text-white mt-1">₹1,24,500</h3>
+<p class="text-xs text-slate-500 mt-1">45 Bookings Pending</p>
+</div>
+<div class="p-2 bg-primary/10 rounded-lg text-primary">
+<span class="material-icons-round">account_balance_wallet</span>
+</div>
+</div>
+<div class="bg-white dark:bg-slate-800 p-4 rounded-xl border-l-4 border-l-red-500 border-y border-r border-slate-200 dark:border-slate-700 shadow-sm flex items-start justify-between group">
+<div>
+<p class="text-xs font-semibold text-red-600 dark:text-red-400 uppercase tracking-wider">Discrepancies</p>
+<h3 class="text-2xl font-bold text-slate-900 dark:text-white mt-1">3 <span class="text-sm font-normal text-slate-500">Bookings</span></h3>
+<p class="text-xs text-red-600 dark:text-red-400 mt-1 font-medium">Action Required</p>
+</div>
+<div class="p-2 bg-red-50 dark:bg-red-900/20 rounded-lg text-red-500">
+<span class="material-icons-round">priority_high</span>
+</div>
+</div>
+<div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-start justify-between group hover:border-primary/30 transition-colors">
+<div>
+<p class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Processed (Oct)</p>
+<h3 class="text-2xl font-bold text-slate-900 dark:text-white mt-1">₹4,50,000</h3>
+<p class="text-xs text-green-600 mt-1 flex items-center gap-1">
+<span class="material-icons-round text-xs">trending_up</span>
+                            +12% vs Sep
+                        </p>
+</div>
+<div class="p-2 bg-green-50 dark:bg-green-900/20 rounded-lg text-green-600">
+<span class="material-icons-round">check_circle</span>
+</div>
+</div>
+<div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-center gap-3">
+<button class="w-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-white py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 border border-slate-200 dark:border-slate-600">
+<span class="material-icons-round text-lg">file_download</span>
+                        Export for Tally
+                    </button>
+</div>
+</div>
+<!-- Toolbar -->
+<div class="flex flex-wrap items-center justify-between gap-4 mt-2">
+<!-- Tabs -->
+<div class="bg-slate-100 dark:bg-slate-800 p-1 rounded-lg flex gap-1 border border-slate-200 dark:border-slate-700">
+<button class="px-4 py-1.5 rounded-md bg-white dark:bg-slate-700 shadow-sm text-primary font-semibold text-sm transition-all">Pending Reconciliation</button>
+<button class="px-4 py-1.5 rounded-md text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-sm font-medium transition-all">Payout History</button>
+</div>
+<!-- Filters -->
+<div class="flex items-center gap-3 flex-1 justify-end">
+<label class="flex items-center gap-2 cursor-pointer bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-2 rounded-lg hover:bg-slate-50 transition-colors">
+<input class="form-checkbox rounded text-red-500 border-slate-300 focus:ring-red-500 w-4 h-4" type="checkbox"/>
+<span class="text-sm font-medium text-slate-700 dark:text-slate-300">Show Discrepancies Only</span>
+</label>
+<div class="relative">
+<span class="material-icons-round absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+<input class="pl-10 pr-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-primary focus:border-primary w-64 dark:text-white" placeholder="Search ID or Pandit..." type="text"/>
+</div>
+<button class="flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 text-sm font-medium">
+<span class="material-icons-round text-lg">filter_list</span>
+                        Filter
+                    </button>
+</div>
+</div>
+</div>
+<!-- Table Container -->
+<div class="flex-1 px-6 pb-6 overflow-hidden flex flex-col">
+<div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col h-full overflow-hidden relative">
+<!-- Table Header -->
+<div class="overflow-x-auto custom-scrollbar flex-1">
+<table class="w-full text-left border-collapse">
+<thead class="bg-slate-50 dark:bg-slate-900/50 sticky top-0 z-10 border-b border-slate-200 dark:border-slate-700">
+<tr>
+<th class="py-3 px-4 w-12">
+<input class="form-checkbox rounded text-primary border-slate-300 focus:ring-primary w-4 h-4" type="checkbox"/>
+</th>
+<th class="py-3 px-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider w-32">Status</th>
+<th class="py-3 px-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Booking ID</th>
+<th class="py-3 px-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Pandit Name</th>
+<th class="py-3 px-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-right">Dakshina</th>
+<th class="py-3 px-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-right">Travel Reimb.</th>
+<th class="py-3 px-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-right">Food Allw.</th>
+<th class="py-3 px-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-right text-red-500">Plat. Fee</th>
+<th class="py-3 px-4 text-xs font-bold text-primary dark:text-blue-400 uppercase tracking-wider text-right bg-primary/5 dark:bg-primary/10 border-l border-primary/10">Net Payout</th>
+<th class="py-3 px-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider w-24">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+<!-- Row 1: Verified -->
+<tr class="group hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+<td class="py-3 px-4">
+<input class="form-checkbox rounded text-primary border-slate-300 focus:ring-primary w-4 h-4" type="checkbox"/>
+</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-800">
+<span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                                        Verified
+                                    </span>
+</td>
+<td class="py-3 px-4 text-sm font-medium text-slate-700 dark:text-slate-300 font-mono">#HPJ-9921</td>
+<td class="py-3 px-4">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-600 flex items-center justify-center text-xs font-bold text-slate-600 dark:text-slate-200">S</div>
+<span class="text-sm font-medium text-slate-900 dark:text-white">Pt. Sharma</span>
+</div>
+</td>
+<td class="py-3 px-4 text-sm text-slate-600 dark:text-slate-400 text-right font-mono">₹2,100</td>
+<td class="py-3 px-4 text-sm text-slate-600 dark:text-slate-400 text-right font-mono">₹500</td>
+<td class="py-3 px-4 text-sm text-slate-600 dark:text-slate-400 text-right font-mono">₹200</td>
+<td class="py-3 px-4 text-sm text-red-500 text-right font-mono">-₹200</td>
+<td class="py-3 px-4 text-sm font-bold text-primary dark:text-blue-400 text-right font-mono bg-primary/5 dark:bg-primary/10 border-l border-primary/10 group-hover:bg-primary/10 dark:group-hover:bg-primary/20">₹2,600</td>
+<td class="py-3 px-4">
+<button class="p-1 text-slate-400 hover:text-primary transition-colors" title="View Details">
+<span class="material-icons-round text-lg">visibility</span>
+</button>
+</td>
+</tr>
+<!-- Row 2: Discrepancy -->
+<tr class="bg-red-50/50 dark:bg-red-900/10 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+<td class="py-3 px-4">
+<input class="form-checkbox rounded text-primary border-slate-300 focus:ring-primary w-4 h-4" disabled="" type="checkbox"/>
+</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400 border border-red-200 dark:border-red-800 animate-pulse">
+<span class="material-icons-round text-[14px]">warning</span>
+                                        Discrepancy
+                                    </span>
+</td>
+<td class="py-3 px-4 text-sm font-medium text-slate-700 dark:text-slate-300 font-mono">#HPJ-9945</td>
+<td class="py-3 px-4">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-600 flex items-center justify-center text-xs font-bold text-slate-600 dark:text-slate-200">V</div>
+<span class="text-sm font-medium text-slate-900 dark:text-white">Pt. Verma</span>
+</div>
+</td>
+<td class="py-3 px-4 text-sm text-slate-600 dark:text-slate-400 text-right font-mono">₹5,100</td>
+<td class="py-3 px-4 text-right font-mono">
+<div class="flex flex-col items-end">
+<span class="text-sm text-red-600 font-bold">₹800</span>
+<span class="text-[10px] text-slate-400 line-through">Claim: ₹1200</span>
+</div>
+</td>
+<td class="py-3 px-4 text-sm text-slate-600 dark:text-slate-400 text-right font-mono">₹200</td>
+<td class="py-3 px-4 text-sm text-red-500 text-right font-mono">-₹500</td>
+<td class="py-3 px-4 text-sm font-bold text-slate-400 text-right font-mono bg-primary/5 dark:bg-primary/10 border-l border-primary/10 opacity-50">₹5,600</td>
+<td class="py-3 px-4 flex items-center gap-2">
+<button class="p-1 text-primary hover:text-primary-dark transition-colors bg-white dark:bg-slate-700 rounded shadow-sm border border-slate-200 dark:border-slate-600" title="Resolve Discrepancy">
+<span class="material-icons-round text-lg">receipt_long</span>
+</button>
+</td>
+</tr>
+<!-- Row 3: Verified -->
+<tr class="group hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+<td class="py-3 px-4">
+<input class="form-checkbox rounded text-primary border-slate-300 focus:ring-primary w-4 h-4" type="checkbox"/>
+</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-800">
+<span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                                        Verified
+                                    </span>
+</td>
+<td class="py-3 px-4 text-sm font-medium text-slate-700 dark:text-slate-300 font-mono">#HPJ-9952</td>
+<td class="py-3 px-4">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-600 flex items-center justify-center text-xs font-bold text-slate-600 dark:text-slate-200">T</div>
+<span class="text-sm font-medium text-slate-900 dark:text-white">Pt. Tiwari</span>
+</div>
+</td>
+<td class="py-3 px-4 text-sm text-slate-600 dark:text-slate-400 text-right font-mono">₹1,100</td>
+<td class="py-3 px-4 text-sm text-slate-600 dark:text-slate-400 text-right font-mono">₹150</td>
+<td class="py-3 px-4 text-sm text-slate-600 dark:text-slate-400 text-right font-mono">₹100</td>
+<td class="py-3 px-4 text-sm text-red-500 text-right font-mono">-₹100</td>
+<td class="py-3 px-4 text-sm font-bold text-primary dark:text-blue-400 text-right font-mono bg-primary/5 dark:bg-primary/10 border-l border-primary/10 group-hover:bg-primary/10 dark:group-hover:bg-primary/20">₹1,250</td>
+<td class="py-3 px-4">
+<button class="p-1 text-slate-400 hover:text-primary transition-colors" title="View Details">
+<span class="material-icons-round text-lg">visibility</span>
+</button>
+</td>
+</tr>
+<!-- Row 4: Verified -->
+<tr class="group hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+<td class="py-3 px-4">
+<input class="form-checkbox rounded text-primary border-slate-300 focus:ring-primary w-4 h-4" type="checkbox"/>
+</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-800">
+<span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                                        Verified
+                                    </span>
+</td>
+<td class="py-3 px-4 text-sm font-medium text-slate-700 dark:text-slate-300 font-mono">#HPJ-9960</td>
+<td class="py-3 px-4">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-600 flex items-center justify-center text-xs font-bold text-slate-600 dark:text-slate-200">J</div>
+<span class="text-sm font-medium text-slate-900 dark:text-white">Pt. Joshi</span>
+</div>
+</td>
+<td class="py-3 px-4 text-sm text-slate-600 dark:text-slate-400 text-right font-mono">₹3,500</td>
+<td class="py-3 px-4 text-sm text-slate-600 dark:text-slate-400 text-right font-mono">₹800</td>
+<td class="py-3 px-4 text-sm text-slate-600 dark:text-slate-400 text-right font-mono">₹250</td>
+<td class="py-3 px-4 text-sm text-red-500 text-right font-mono">-₹350</td>
+<td class="py-3 px-4 text-sm font-bold text-primary dark:text-blue-400 text-right font-mono bg-primary/5 dark:bg-primary/10 border-l border-primary/10 group-hover:bg-primary/10 dark:group-hover:bg-primary/20">₹4,200</td>
+<td class="py-3 px-4">
+<button class="p-1 text-slate-400 hover:text-primary transition-colors" title="View Details">
+<span class="material-icons-round text-lg">visibility</span>
+</button>
+</td>
+</tr>
+<!-- Row 5: Verified -->
+<tr class="group hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+<td class="py-3 px-4">
+<input class="form-checkbox rounded text-primary border-slate-300 focus:ring-primary w-4 h-4" type="checkbox"/>
+</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-800">
+<span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                                        Verified
+                                    </span>
+</td>
+<td class="py-3 px-4 text-sm font-medium text-slate-700 dark:text-slate-300 font-mono">#HPJ-9968</td>
+<td class="py-3 px-4">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-600 flex items-center justify-center text-xs font-bold text-slate-600 dark:text-slate-200">M</div>
+<span class="text-sm font-medium text-slate-900 dark:text-white">Pt. Mishra</span>
+</div>
+</td>
+<td class="py-3 px-4 text-sm text-slate-600 dark:text-slate-400 text-right font-mono">₹2,100</td>
+<td class="py-3 px-4 text-sm text-slate-600 dark:text-slate-400 text-right font-mono">₹300</td>
+<td class="py-3 px-4 text-sm text-slate-600 dark:text-slate-400 text-right font-mono">₹200</td>
+<td class="py-3 px-4 text-sm text-red-500 text-right font-mono">-₹200</td>
+<td class="py-3 px-4 text-sm font-bold text-primary dark:text-blue-400 text-right font-mono bg-primary/5 dark:bg-primary/10 border-l border-primary/10 group-hover:bg-primary/10 dark:group-hover:bg-primary/20">₹2,400</td>
+<td class="py-3 px-4">
+<button class="p-1 text-slate-400 hover:text-primary transition-colors" title="View Details">
+<span class="material-icons-round text-lg">visibility</span>
+</button>
+</td>
+</tr>
+<!-- Row 6: Processing -->
+<tr class="group hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+<td class="py-3 px-4">
+<input class="form-checkbox rounded text-primary border-slate-300 focus:ring-primary w-4 h-4" disabled="" type="checkbox"/>
+</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-800">
+<span class="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse"></span>
+                                        Processing
+                                    </span>
+</td>
+<td class="py-3 px-4 text-sm font-medium text-slate-700 dark:text-slate-300 font-mono">#HPJ-9975</td>
+<td class="py-3 px-4">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-600 flex items-center justify-center text-xs font-bold text-slate-600 dark:text-slate-200">G</div>
+<span class="text-sm font-medium text-slate-900 dark:text-white">Pt. Gupta</span>
+</div>
+</td>
+<td class="py-3 px-4 text-sm text-slate-600 dark:text-slate-400 text-right font-mono">₹1,500</td>
+<td class="py-3 px-4 text-sm text-slate-600 dark:text-slate-400 text-right font-mono">--</td>
+<td class="py-3 px-4 text-sm text-slate-600 dark:text-slate-400 text-right font-mono">--</td>
+<td class="py-3 px-4 text-sm text-red-500 text-right font-mono">-₹150</td>
+<td class="py-3 px-4 text-sm font-bold text-slate-400 text-right font-mono bg-primary/5 dark:bg-primary/10 border-l border-primary/10 opacity-50">₹1,350</td>
+<td class="py-3 px-4">
+<button class="p-1 text-slate-400 hover:text-primary transition-colors" title="View Details">
+<span class="material-icons-round text-lg">visibility</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Footer Pagination & Action -->
+<div class="border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 flex items-center justify-between shrink-0 z-20 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+<div class="text-sm text-slate-500 dark:text-slate-400">
+                        Showing 1-6 of 45 items
+                    </div>
+<div class="flex items-center gap-6">
+<div class="text-right flex flex-col justify-center">
+<span class="text-xs text-slate-500 dark:text-slate-400">Selected for Payment</span>
+<span class="text-lg font-bold text-primary dark:text-blue-400">₹10,450</span>
+</div>
+<button class="bg-primary hover:bg-primary-dark text-white px-6 py-2.5 rounded-lg shadow-md shadow-primary/20 flex items-center gap-2 font-medium transition-all transform active:scale-95">
+<span class="material-icons-round">payments</span>
+                            Approve Batch (4)
+                        </button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Optional: Receipt Modal Drawer overlay mock (visual only) -->
+<div class="absolute inset-y-0 right-0 w-96 bg-white dark:bg-slate-800 shadow-2xl transform translate-x-full border-l border-slate-200 dark:border-slate-700 z-50 flex flex-col transition-transform duration-300" id="receipt-drawer">
+<!-- Content of drawer would go here -->
+</div>
+</body></html>

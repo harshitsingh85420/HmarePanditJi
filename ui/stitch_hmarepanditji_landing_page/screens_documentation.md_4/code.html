@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>HmarePanditJi - Voice-Enabled Search Interface</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<style type="text/tailwindcss">
+        :root {
+            --primary-color: #f49d25;
+            --primary-dark: #d97f0a;
+            --secondary-color: #fff8ed;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .voice-pulse {
+            animation: pulse-orange 2s infinite;
+        }
+        @keyframes pulse-orange {
+            0% {
+                box-shadow: 0 0 0 0 rgba(244, 157, 37, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(244, 157, 37, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(244, 157, 37, 0);
+            }
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-gray-50 text-gray-900">
+<nav class="bg-white shadow-sm sticky top-0 z-50">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex justify-between h-16">
+<div class="flex items-center">
+<div class="flex-shrink-0 flex items-center gap-2 cursor-pointer">
+<span class="material-symbols-outlined text-[var(--primary-color)] text-3xl">temple_hindu</span>
+<span class="font-bold text-xl tracking-tight text-gray-900">Hmare<span class="text-[var(--primary-color)]">PanditJi</span></span>
+</div>
+<div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+<a class="border-[var(--primary-color)] text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" href="#">Home</a>
+<a class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" href="#">Muhurat</a>
+<a class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" href="#">Pujas</a>
+<a class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium" href="#">Pandits</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="bg-white p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none">
+<span class="sr-only">View notifications</span>
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="flex items-center gap-3">
+<a class="text-sm font-medium text-gray-700 hover:text-gray-900 hidden sm:block" href="#">Login</a>
+<a class="bg-[var(--primary-color)] hover:bg-[var(--primary-dark)] text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition-colors" href="#">Book Now</a>
+</div>
+</div>
+</div>
+</div>
+</nav>
+<div class="relative bg-[var(--secondary-color)] overflow-hidden">
+<div class="max-w-7xl mx-auto">
+<div class="relative z-10 pb-8 bg-[var(--secondary-color)] sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32">
+<main class="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
+<div class="sm:text-center lg:text-left">
+<h1 class="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
+<span class="block xl:inline">Authentic Vedic</span>
+<span class="block text-[var(--primary-color)] xl:inline">Pandits for your Home</span>
+</h1>
+<p class="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
+                            Connect with verified pandits for Griha Pravesh, Vivah, Satyanarayan Katha, and all Vedic rituals. Experience spirituality delivered with trust.
+                        </p>
+<div class="mt-8 sm:max-w-xl sm:mx-auto lg:mx-0 bg-white p-2 rounded-2xl shadow-lg border border-gray-100 relative">
+<div class="absolute -top-3 right-4 bg-green-100 text-green-800 text-xs font-semibold px-2 py-0.5 rounded-full border border-green-200 flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">mic</span> Voice Enabled
+                            </div>
+<form class="flex flex-col sm:flex-row gap-2">
+<div class="flex-1 relative flex items-center">
+<span class="absolute left-3 text-gray-400 material-symbols-outlined">search</span>
+<input aria-label="Search Puja" class="w-full pl-10 pr-12 py-3 rounded-xl border-gray-200 focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)] text-gray-900 placeholder-gray-400 bg-gray-50 focus:bg-white transition-colors" placeholder="Search for puja (e.g. Satyanarayan)" type="text"/>
+<button aria-label="Use Voice Search" class="absolute right-2 p-2 rounded-full text-[var(--primary-color)] hover:bg-orange-50 focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] focus:ring-offset-2 transition-all group" title="Speak to Search" type="button">
+<div class="relative">
+<span class="material-symbols-outlined text-3xl group-hover:scale-110 transition-transform">mic</span>
+<span class="absolute top-0 right-0 -mt-1 -mr-1 flex h-3 w-3">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+<span class="relative inline-flex rounded-full h-3 w-3 bg-[var(--primary-color)]"></span>
+</span>
+</div>
+</button>
+</div>
+<div class="sm:w-32">
+<div class="relative">
+<span class="absolute left-3 top-3 text-gray-400 material-symbols-outlined">location_on</span>
+<select class="w-full pl-10 py-3 rounded-xl border-gray-200 focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)] text-gray-900 bg-gray-50 focus:bg-white cursor-pointer appearance-none">
+<option>Delhi</option>
+<option>Mumbai</option>
+<option>Bangalore</option>
+<option>Varanasi</option>
+</select>
+</div>
+</div>
+<button class="bg-[var(--primary-color)] hover:bg-[var(--primary-dark)] text-white px-6 py-3 rounded-xl font-medium shadow-md transition-colors flex items-center justify-center gap-2" type="submit">
+<span>Find</span>
+</button>
+</form>
+<div class="mt-2 px-2 flex items-center gap-2 text-xs text-gray-500">
+<span class="bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded border border-gray-200">Tip</span>
+<span>Press the <span class="font-bold text-[var(--primary-color)]">mic button</span> to speak in Hindi or English</span>
+</div>
+</div>
+<div class="mt-6 flex items-center gap-4 text-sm text-gray-500">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-green-500 filled text-lg" style="font-variation-settings: 'FILL' 1;">verified</span>
+<span>100% Verified Pandits</span>
+</div>
+<div class="hidden sm:flex items-center gap-1">
+<span class="material-symbols-outlined text-yellow-500 filled text-lg" style="font-variation-settings: 'FILL' 1;">star</span>
+<span>4.8/5 Average Rating</span>
+</div>
+</div>
+</div>
+</main>
+</div>
+</div>
+<div class="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2 bg-cover bg-center" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBB9iSrTDDoRQBD42vUgOe8V26Svx_ndyxLzmYoBye2uw72oCmn8Yss5M2hwGlj2DIWYMn8oa8_U5qOWqa17zzk0OZN-wG35JA71-NQ7__LHhRjSeDBWdcl-dvs_WkHsK5VEga8gyLLkscHgMEnnKy5HrXXpO-ULhfG9mtAgvhLMRLBBGHC4RJfzVjdS_e5aPjkbQa4OKqYxvSZOivimgvpznRbUrM8xDegZl6k1b3XR0DwQL7mn_NMikGBwShDMdfn6RmMcG4315Y');">
+<div class="absolute inset-0 bg-gradient-to-r from-[var(--secondary-color)] to-transparent lg:via-[var(--secondary-color)]/20"></div>
+</div>
+</div>
+<div class="bg-white py-12">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex flex-col md:flex-row gap-8">
+<div class="w-full md:w-1/3">
+<div class="bg-orange-50 rounded-2xl p-6 border border-orange-100 h-full">
+<div class="flex items-center justify-between mb-4">
+<h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+<span class="material-symbols-outlined text-[var(--primary-color)]">calendar_month</span>
+                                Auspicious Dates
+                            </h3>
+<span class="text-xs font-medium bg-white px-2 py-1 rounded text-[var(--primary-color)] border border-orange-100">Feb 2026</span>
+</div>
+<div class="space-y-3">
+<div class="flex items-center justify-between bg-white p-3 rounded-xl shadow-sm border border-gray-100 cursor-pointer hover:border-[var(--primary-color)] transition-colors group">
+<div class="flex items-center gap-3">
+<div class="bg-orange-100 text-[var(--primary-color)] w-10 h-10 rounded-lg flex flex-col items-center justify-center font-bold leading-none">
+<span class="text-xs">FEB</span>
+<span class="text-lg">15</span>
+</div>
+<div>
+<p class="text-sm font-semibold text-gray-900">Vivah Muhurat</p>
+<p class="text-xs text-gray-500">Shubh Lagna Available</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-gray-400 group-hover:text-[var(--primary-color)]">chevron_right</span>
+</div>
+<div class="flex items-center justify-between bg-white p-3 rounded-xl shadow-sm border border-gray-100 cursor-pointer hover:border-[var(--primary-color)] transition-colors group">
+<div class="flex items-center gap-3">
+<div class="bg-orange-100 text-[var(--primary-color)] w-10 h-10 rounded-lg flex flex-col items-center justify-center font-bold leading-none">
+<span class="text-xs">FEB</span>
+<span class="text-lg">18</span>
+</div>
+<div>
+<p class="text-sm font-semibold text-gray-900">Griha Pravesh</p>
+<p class="text-xs text-gray-500">Amrit Siddhi Yoga</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-gray-400 group-hover:text-[var(--primary-color)]">chevron_right</span>
+</div>
+</div>
+<a class="mt-4 text-sm text-[var(--primary-color)] font-medium flex items-center hover:underline" href="#">
+                            View Full Calendar <span class="material-symbols-outlined text-sm ml-1">arrow_forward</span>
+</a>
+</div>
+</div>
+<div class="w-full md:w-2/3">
+<h2 class="text-2xl font-bold text-gray-900 mb-6">Popular Puja Services</h2>
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+<div class="group cursor-pointer">
+<div class="bg-gray-50 rounded-xl p-4 flex flex-col items-center text-center hover:bg-orange-50 hover:shadow-md transition-all border border-transparent hover:border-orange-100 h-full">
+<div class="bg-white p-3 rounded-full shadow-sm mb-3 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-3xl text-[var(--primary-color)]">home_work</span>
+</div>
+<h3 class="font-medium text-gray-900">Griha Pravesh</h3>
+<p class="text-xs text-gray-500 mt-1">Starting ₹2100</p>
+</div>
+</div>
+<div class="group cursor-pointer">
+<div class="bg-gray-50 rounded-xl p-4 flex flex-col items-center text-center hover:bg-orange-50 hover:shadow-md transition-all border border-transparent hover:border-orange-100 h-full">
+<div class="bg-white p-3 rounded-full shadow-sm mb-3 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-3xl text-[var(--primary-color)]">diversity_3</span>
+</div>
+<h3 class="font-medium text-gray-900">Vivah Sanskar</h3>
+<p class="text-xs text-gray-500 mt-1">Starting ₹11000</p>
+</div>
+</div>
+<div class="group cursor-pointer">
+<div class="bg-gray-50 rounded-xl p-4 flex flex-col items-center text-center hover:bg-orange-50 hover:shadow-md transition-all border border-transparent hover:border-orange-100 h-full">
+<div class="bg-white p-3 rounded-full shadow-sm mb-3 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-3xl text-[var(--primary-color)]">menu_book</span>
+</div>
+<h3 class="font-medium text-gray-900">Satyanarayan</h3>
+<p class="text-xs text-gray-500 mt-1">Starting ₹1500</p>
+</div>
+</div>
+<div class="group cursor-pointer">
+<div class="bg-gray-50 rounded-xl p-4 flex flex-col items-center text-center hover:bg-orange-50 hover:shadow-md transition-all border border-transparent hover:border-orange-100 h-full">
+<div class="bg-white p-3 rounded-full shadow-sm mb-3 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-3xl text-[var(--primary-color)]">local_fire_department</span>
+</div>
+<h3 class="font-medium text-gray-900">Havan</h3>
+<p class="text-xs text-gray-500 mt-1">Starting ₹2500</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-gray-50 py-12">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex justify-between items-end mb-8">
+<div>
+<h2 class="text-2xl font-bold text-gray-900">Verified Pandits Near You</h2>
+<p class="mt-1 text-sm text-gray-500">Experienced Vedic scholars ready to visit your home</p>
+</div>
+<a class="text-[var(--primary-color)] font-medium text-sm hover:underline hidden sm:block" href="#">View All Pandits</a>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+<div class="bg-white rounded-xl shadow-sm hover:shadow-lg transition-shadow border border-gray-100 overflow-hidden">
+<div class="p-6">
+<div class="flex items-start gap-4">
+<img alt="Pandit Ji" class="w-16 h-16 rounded-full object-cover border-2 border-[var(--primary-color)]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCvOYUbvoCqLhczardoP4jaq3NjY-m1_CIr5V8igZ_HH_zqv3sx0MXgdT1EXyhT5FPGbWE48Tg68aRvFBrXffzsEXiR5Y13tS-DSn5DvC20TaNFE6UUYsnf9BO4iXIsOvI0dpR3EgCaoFHSi2JkdJgsxnceaprOeOe7jm9ybY7VHN_rnIkGyPf8DT7c1XE8hsykPrhktaZxOm3NYpOtyo4YwM6UqRl84qwMQnLQBCsEVgfEiCneqv7tBk_pojQVNVvQESxgY1aq32w"/>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<h3 class="font-bold text-lg text-gray-900">Pt. Rajesh Sharma</h3>
+<span class="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] filled" style="font-variation-settings: 'FILL' 1;">verified</span> Verified
+                                    </span>
+</div>
+<p class="text-sm text-gray-500 mt-0.5">Varanasi • 15 Yrs Exp</p>
+<div class="flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-yellow-400 text-sm filled" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-sm font-bold text-gray-900">4.9</span>
+<span class="text-xs text-gray-400">(124 reviews)</span>
+</div>
+</div>
+</div>
+<div class="mt-4 flex flex-wrap gap-2">
+<span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-md">Hindi</span>
+<span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-md">Sanskrit</span>
+<span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-md">English</span>
+</div>
+<div class="mt-4 pt-4 border-t border-gray-100 grid grid-cols-2 gap-4">
+<div>
+<p class="text-xs text-gray-500">Dakshina from</p>
+<p class="font-bold text-gray-900">₹2,100</p>
+</div>
+<button class="w-full bg-orange-50 hover:bg-orange-100 text-[var(--primary-color)] font-medium py-2 rounded-lg text-sm transition-colors">
+                                View Profile
+                            </button>
+</div>
+</div>
+</div>
+<div class="bg-white rounded-xl shadow-sm hover:shadow-lg transition-shadow border border-gray-100 overflow-hidden">
+<div class="p-6">
+<div class="flex items-start gap-4">
+<img alt="Pandit Ji" class="w-16 h-16 rounded-full object-cover border-2 border-gray-200" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDYfGNFBwChxST0_xNEcGReyPs-Zf-yWlCvvKI3f5LPK9El7PZ_Q9SdRr83VrmjEwr9k-Bg8l-bNAgxEidsErOkvjKsRLiHORgLjXSOwy00l0t79gYBHvTiGTCKrF8ck9jelQ6fd8jv7gNmpGtj4rVsTk1itOuGptBzXzkw45DUVQlBSogbv3-orQi4Sv4QdKEtwBOjhk0qTyaN3pZ5QPM9XhHS0idqE8XnJLlGH6MqVZvXpceXwwUg2oP-JFf_OHsj28kJHDbm9SM"/>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<h3 class="font-bold text-lg text-gray-900">Acharya Vivek</h3>
+<span class="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] filled" style="font-variation-settings: 'FILL' 1;">verified</span> Verified
+                                    </span>
+</div>
+<p class="text-sm text-gray-500 mt-0.5">Delhi NCR • 8 Yrs Exp</p>
+<div class="flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-yellow-400 text-sm filled" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-sm font-bold text-gray-900">4.7</span>
+<span class="text-xs text-gray-400">(89 reviews)</span>
+</div>
+</div>
+</div>
+<div class="mt-4 flex flex-wrap gap-2">
+<span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-md">Hindi</span>
+<span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-md">Maithili</span>
+</div>
+<div class="mt-4 pt-4 border-t border-gray-100 grid grid-cols-2 gap-4">
+<div>
+<p class="text-xs text-gray-500">Dakshina from</p>
+<p class="font-bold text-gray-900">₹1,500</p>
+</div>
+<button class="w-full bg-orange-50 hover:bg-orange-100 text-[var(--primary-color)] font-medium py-2 rounded-lg text-sm transition-colors">
+                                View Profile
+                            </button>
+</div>
+</div>
+</div>
+<div class="bg-white rounded-xl shadow-sm hover:shadow-lg transition-shadow border border-gray-100 overflow-hidden hidden lg:block">
+<div class="p-6">
+<div class="flex items-start gap-4">
+<img alt="Pandit Ji" class="w-16 h-16 rounded-full object-cover border-2 border-gray-200" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCfbLJVipeUqgr90zPMWyzN-RamO_tQrWsGjCzrtyIPYVjni8cJ8rGwPt2_HestoVK6lxljthJiwENKoUcd1ymDA2Xv1sW0Dd8X_q7OpnCT6K82rj58Vxt0gj7dwllp0YYOFLwbJEnw9BqvHH61HkCmnHYr9J-2KvaVucBrRPZRRnWglfCi8qs8U4289fuG6x64wxRxx1k7JyF10Y50B2DO-wgU7vnTgtjvyWEgkJyS3A8BRx3QuKCO4o5QCVAPPTUPIKXQ8FQh4yo"/>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<h3 class="font-bold text-lg text-gray-900">Shastri Mohan</h3>
+<span class="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] filled" style="font-variation-settings: 'FILL' 1;">verified</span> Verified
+                                    </span>
+</div>
+<p class="text-sm text-gray-500 mt-0.5">Bangalore • 22 Yrs Exp</p>
+<div class="flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-yellow-400 text-sm filled" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-sm font-bold text-gray-900">5.0</span>
+<span class="text-xs text-gray-400">(210 reviews)</span>
+</div>
+</div>
+</div>
+<div class="mt-4 flex flex-wrap gap-2">
+<span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-md">Hindi</span>
+<span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-md">Kannada</span>
+<span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-md">Tamil</span>
+</div>
+<div class="mt-4 pt-4 border-t border-gray-100 grid grid-cols-2 gap-4">
+<div>
+<p class="text-xs text-gray-500">Dakshina from</p>
+<p class="font-bold text-gray-900">₹3,100</p>
+</div>
+<button class="w-full bg-orange-50 hover:bg-orange-100 text-[var(--primary-color)] font-medium py-2 rounded-lg text-sm transition-colors">
+                                View Profile
+                            </button>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-8 text-center sm:hidden">
+<a class="btn-primary-outline w-full py-3 rounded-lg border border-[var(--primary-color)] text-[var(--primary-color)] font-medium block" href="#">View All Pandits</a>
+</div>
+</div>
+</div>
+<div class="bg-white border-t border-gray-200 py-12">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<h2 class="text-2xl font-bold text-gray-900 mb-6">Search Results Layout (Context Demo)</h2>
+<div class="flex flex-col lg:flex-row gap-8">
+<div class="w-full lg:w-64 flex-shrink-0 hidden lg:block">
+<div class="bg-white border border-gray-200 rounded-xl p-4 sticky top-24">
+<h3 class="font-semibold text-gray-900 mb-4">Filters</h3>
+<div class="space-y-4">
+<div>
+<label class="text-sm font-medium text-gray-700">Puja Type</label>
+<select class="mt-1 w-full rounded-md border-gray-300 text-sm"><option>All Pujas</option></select>
+</div>
+<div>
+<label class="text-sm font-medium text-gray-700">Budget</label>
+<input class="w-full mt-2 accent-[var(--primary-color)]" type="range"/>
+</div>
+</div>
+</div>
+</div>
+<div class="flex-1">
+<div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 mb-6">
+<form class="flex gap-2">
+<div class="flex-1 relative flex items-center">
+<span class="absolute left-3 text-gray-400 material-symbols-outlined">search</span>
+<input aria-label="Search Puja" class="w-full pl-10 pr-12 py-2.5 rounded-lg border-gray-300 focus:border-[var(--primary-color)] focus:ring-[var(--primary-color)] text-gray-900" type="text" value="Satyanarayan Katha"/>
+<button aria-label="Voice Search" class="absolute right-2 p-1.5 rounded-full text-gray-500 hover:text-[var(--primary-color)] hover:bg-orange-50 focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] transition-colors" title="Voice Search" type="button">
+<span class="material-symbols-outlined text-2xl">mic</span>
+</button>
+</div>
+<button class="bg-[var(--primary-color)] text-white px-6 py-2 rounded-lg font-medium hover:bg-[var(--primary-dark)]" type="submit">
+                                Update
+                            </button>
+</form>
+</div>
+<div class="space-y-4">
+<div class="bg-blue-50 border border-blue-100 rounded-lg p-4 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="bg-white p-2 rounded-full shadow-sm text-blue-600 material-symbols-outlined">info</span>
+<p class="text-sm text-blue-800">Showing results for <strong>"Satyanarayan Katha"</strong></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<footer class="bg-gray-900 text-white py-12">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8">
+<div class="col-span-1 md:col-span-2">
+<div class="flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-[var(--primary-color)] text-3xl">temple_hindu</span>
+<span class="font-bold text-xl">Hmare<span class="text-[var(--primary-color)]">PanditJi</span></span>
+</div>
+<p class="text-gray-400 text-sm max-w-sm">Bringing the sanctity of Vedic rituals to your doorstep. Verified pandits, transparent pricing, and managed logistics for a divine experience.</p>
+</div>
+<div>
+<h3 class="text-lg font-semibold mb-4">Company</h3>
+<ul class="space-y-2 text-gray-400 text-sm">
+<li><a class="hover:text-white" href="#">About Us</a></li>
+<li><a class="hover:text-white" href="#">Contact</a></li>
+<li><a class="hover:text-white" href="#">Careers</a></li>
+</ul>
+</div>
+<div>
+<h3 class="text-lg font-semibold mb-4">Legal</h3>
+<ul class="space-y-2 text-gray-400 text-sm">
+<li><a class="hover:text-white" href="#">Terms of Service</a></li>
+<li><a class="hover:text-white" href="#">Privacy Policy</a></li>
+<li><a class="hover:text-white" href="#">Refund Policy</a></li>
+</ul>
+</div>
+</div>
+</footer>
+
+</body></html>

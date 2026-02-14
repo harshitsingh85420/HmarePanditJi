@@ -19,6 +19,7 @@ import adminRoutes from "./routes/admin.routes";
 import notificationRoutes from "./routes/notification.routes";
 import travelRoutes from "./routes/travel.routes";
 import muhuratRoutes from "./routes/muhurat.routes";
+import samagriRoutes from "./routes/samagri.routes";
 
 const app: express.Application = express();
 
@@ -85,6 +86,7 @@ app.get(API_PREFIX, (_req, res) => {
         notifications: `${API_PREFIX}/notifications`,
         travel: `${API_PREFIX}/travel`,
         muhurat: `${API_PREFIX}/muhurat`,
+        samagri: `${API_PREFIX}/samagri`,
       },
     },
   });
@@ -102,6 +104,7 @@ app.use(`${API_PREFIX}/admin`, adminRoutes);
 app.use(`${API_PREFIX}/notifications`, notificationRoutes);
 app.use(`${API_PREFIX}/travel`, travelRoutes);
 app.use(`${API_PREFIX}/muhurat`, muhuratRoutes);
+app.use(API_PREFIX, samagriRoutes);
 
 // ── 404 ───────────────────────────────────────────────────────────────────────
 app.use(notFoundHandler);

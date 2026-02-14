@@ -14,6 +14,7 @@ const config: Config = {
       },
       fontFamily: {
         display: ["Inter", "sans-serif"],
+        serif: ["Noto Serif", "serif"],
       },
       borderRadius: {
         DEFAULT: "0.25rem",

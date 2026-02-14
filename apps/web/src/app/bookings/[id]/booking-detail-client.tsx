@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
 import { useAuth } from "../../../context/auth-context";
 
@@ -85,61 +86,12 @@ interface BookingDetail {
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api/v1";
-const WA = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "919999999999";
-
-const STATUS_LABEL: Record<BookingStatus, string> = {
-  PENDING: "Pending",
-  CONFIRMED: "Confirmed",
-  IN_PROGRESS: "Ceremony in Progress",
-  COMPLETED: "Completed",
-  CANCELLED: "Cancelled",
-  REFUNDED: "Refunded",
-};
-
-const STATUS_COLORS: Record<BookingStatus, string> = {
-  PENDING: "bg-amber-100 text-amber-700 border-amber-200",
-  CONFIRMED: "bg-blue-100 text-blue-700 border-blue-200",
-  IN_PROGRESS: "bg-purple-100 text-purple-700 border-purple-200",
-  COMPLETED: "bg-green-100 text-green-700 border-green-200",
-  CANCELLED: "bg-red-100 text-red-700 border-red-200",
-  REFUNDED: "bg-slate-100 text-slate-600 border-slate-200",
-};
-
-// Timeline steps: which statuses unlock which steps
-const TIMELINE_STEPS: {
-  key: BookingStatus | "booked";
-  label: string;
-  icon: string;
-}[] = [
-  { key: "booked", label: "Booking Placed", icon: "receipt" },
-  { key: "CONFIRMED", label: "Confirmed", icon: "verified" },
-  { key: "IN_PROGRESS", label: "Ceremony Started", icon: "self_improvement" },
-  { key: "COMPLETED", label: "Completed", icon: "celebration" },
-];
-
-const STATUS_ORDER: Record<BookingStatus | "booked", number> = {
-  booked: 0,
-  PENDING: 0,
-  CONFIRMED: 1,
-  IN_PROGRESS: 2,
-  COMPLETED: 3,
-  CANCELLED: -1,
-  REFUNDED: -1,
-};
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-IN", {
     weekday: "long",
     day: "numeric",
     month: "long",
-    year: "numeric",
-  });
-}
-
-function formatShortDate(iso: string) {
-  return new Date(iso).toLocaleDateString("en-IN", {
-    day: "numeric",
-    month: "short",
     year: "numeric",
   });
 }
@@ -152,389 +104,21 @@ function formatTime(t?: string) {
   return `${hour}:${m.toString().padStart(2, "0")} ${ampm}`;
 }
 
-function formatDatetime(iso: string) {
-  return new Date(iso).toLocaleString("en-IN", {
-    day: "numeric",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
 // ── Skeleton ──────────────────────────────────────────────────────────────────
 
-function Skeleton() {
+function DashboardSkeleton() {
   return (
-    <div className="min-h-screen bg-[#f8f7f5]">
-      <div className="bg-white border-b border-slate-100 px-4 py-5 flex items-center gap-3">
-        <div className="w-8 h-8 bg-slate-200 rounded-full animate-pulse" />
-        <div className="h-5 w-40 bg-slate-200 rounded animate-pulse" />
-      </div>
-      <div className="max-w-2xl mx-auto px-4 py-6 space-y-4">
-        {[140, 200, 180, 160].map((h, i) => (
-          <div
-            key={i}
-            className="bg-white rounded-2xl border border-slate-100 animate-pulse"
-            style={{ height: h }}
-          />
-        ))}
-      </div>
+    <div className="flex flex-col lg:flex-row max-w-[1440px] mx-auto w-full gap-6 p-6 min-h-screen">
+      <aside className="w-full lg:w-72 flex flex-col gap-6">
+        <div className="h-64 bg-slate-100 rounded-xl animate-pulse" />
+        <div className="h-48 bg-slate-100 rounded-xl animate-pulse" />
+      </aside>
+      <main className="flex-1 flex flex-col gap-6">
+        <div className="h-20 bg-slate-100 rounded-xl animate-pulse" />
+        <div className="h-48 bg-slate-100 rounded-xl animate-pulse" />
+        <div className="h-96 bg-slate-100 rounded-xl animate-pulse" />
+      </main>
     </div>
-  );
-}
-
-// ── Section Card ──────────────────────────────────────────────────────────────
-
-function Card({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  return (
-    <div className={`bg-white rounded-2xl border border-slate-100 overflow-hidden ${className}`}>
-      {children}
-    </div>
-  );
-}
-
-function CardHeader({ icon, title }: { icon: string; title: string }) {
-  return (
-    <div className="flex items-center gap-2.5 px-5 py-4 border-b border-slate-100">
-      <span className="material-symbols-outlined text-base text-[#f49d25]">{icon}</span>
-      <h2 className="text-sm font-semibold text-slate-700">{title}</h2>
-    </div>
-  );
-}
-
-// ── Cancel Modal ──────────────────────────────────────────────────────────────
-
-function CancelModal({
-  booking,
-  onClose,
-  onConfirm,
-  loading,
-}: {
-  booking: BookingDetail;
-  onClose: () => void;
-  onConfirm: (reason: string) => void;
-  loading: boolean;
-}) {
-  const [reason, setReason] = useState("");
-  const REASONS = [
-    "Change of plans",
-    "Found another pandit",
-    "Family emergency",
-    "Rescheduling required",
-    "Other",
-  ];
-
-  const hoursUntil = (new Date(booking.eventDate).getTime() - Date.now()) / 36e5;
-  let refundPct = 100;
-  if (hoursUntil < 24) refundPct = 0;
-  else if (hoursUntil < 48) refundPct = 75;
-  else if (hoursUntil < 72) refundPct = 90;
-
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm p-4"
-      onClick={onClose}
-    >
-      <div
-        className="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-center gap-3 mb-5">
-          <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
-            <span className="material-symbols-outlined text-red-500">cancel</span>
-          </div>
-          <div>
-            <h2 className="font-semibold text-slate-800">Cancel Booking</h2>
-            <p className="text-xs text-slate-400">{booking.bookingNumber}</p>
-          </div>
-        </div>
-
-        <div
-          className={`rounded-xl p-4 mb-5 ${refundPct > 0 ? "bg-green-50 border border-green-200" : "bg-red-50 border border-red-200"}`}
-        >
-          <div className="flex items-center gap-2 mb-1">
-            <span
-              className={`material-symbols-outlined text-base ${refundPct > 0 ? "text-green-600" : "text-red-500"}`}
-            >
-              {refundPct > 0 ? "payments" : "money_off"}
-            </span>
-            <span
-              className={`text-sm font-semibold ${refundPct > 0 ? "text-green-700" : "text-red-600"}`}
-            >
-              {refundPct > 0 ? `${refundPct}% refund eligible` : "No refund available"}
-            </span>
-          </div>
-          <p className="text-xs text-slate-500">
-            {refundPct > 0
-              ? `₹${Math.round((booking.pricing.total * refundPct) / 100).toLocaleString("en-IN")} will be refunded within 5–7 business days.`
-              : "Cancellations within 24 hours of the event are non-refundable per our policy."}
-          </p>
-        </div>
-
-        <p className="text-sm font-medium text-slate-700 mb-2">Reason for cancellation</p>
-        <div className="space-y-2 mb-5">
-          {REASONS.map((r) => (
-            <button
-              key={r}
-              onClick={() => setReason(r)}
-              className={`w-full text-left text-sm px-3.5 py-2.5 rounded-xl border transition-colors ${
-                reason === r
-                  ? "bg-[#f49d25]/10 border-[#f49d25] text-[#c47c0e] font-medium"
-                  : "border-slate-200 text-slate-600 hover:bg-slate-50"
-              }`}
-            >
-              {r}
-            </button>
-          ))}
-        </div>
-
-        <div className="flex gap-3">
-          <button
-            onClick={onClose}
-            className="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 transition-colors"
-          >
-            Keep Booking
-          </button>
-          <button
-            onClick={() => onConfirm(reason)}
-            disabled={!reason || loading}
-            className="flex-1 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 disabled:opacity-50 text-white text-sm font-semibold transition-colors"
-          >
-            {loading ? "Cancelling…" : "Confirm Cancel"}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ── Review Modal ──────────────────────────────────────────────────────────────
-
-const SUB_RATINGS = [
-  { key: "punctuality", label: "Punctuality", labelHi: "समय पर पहुंचे", icon: "schedule" },
-  { key: "knowledge", label: "Knowledge", labelHi: "विद्वत्ता", icon: "menu_book" },
-  { key: "conduct", label: "Conduct", labelHi: "व्यवहार", icon: "handshake" },
-  { key: "accuracy", label: "Ritual Accuracy", labelHi: "शुद्धता", icon: "verified" },
-  { key: "samagri", label: "Samagri Quality", labelHi: "सामग्री", icon: "inventory_2" },
-] as const;
-
-type SubRatingKey = (typeof SUB_RATINGS)[number]["key"];
-
-function StarRow({ value, onChange }: { value: number; onChange: (v: number) => void }) {
-  const [hover, setHover] = useState(0);
-  return (
-    <div className="flex gap-0.5">
-      {[1, 2, 3, 4, 5].map((s) => (
-        <button
-          key={s}
-          onClick={() => onChange(s)}
-          onMouseEnter={() => setHover(s)}
-          onMouseLeave={() => setHover(0)}
-          className="transition-transform hover:scale-110"
-          aria-label={`${s} stars`}
-        >
-          <span
-            className={`material-symbols-outlined text-2xl ${
-              s <= (hover || value) ? "text-[#f49d25]" : "text-slate-200"
-            }`}
-            style={{ fontVariationSettings: "'FILL' 1" }}
-          >
-            star
-          </span>
-        </button>
-      ))}
-    </div>
-  );
-}
-
-function ReviewModal({
-  booking,
-  onClose,
-  onSubmit,
-  loading,
-}: {
-  booking: BookingDetail;
-  onClose: () => void;
-  onSubmit: (data: {
-    ratings: Record<SubRatingKey, number>;
-    comment: string;
-    anonymous: boolean;
-  }) => void;
-  loading: boolean;
-}) {
-  const [ratings, setRatings] = useState<Record<SubRatingKey, number>>({
-    punctuality: 0,
-    knowledge: 0,
-    conduct: 0,
-    accuracy: 0,
-    samagri: 0,
-  });
-  const [comment, setComment] = useState("");
-  const [anonymous, setAnonymous] = useState(false);
-
-  const overall =
-    Object.values(ratings).every((v) => v > 0)
-      ? Math.round(
-          (Object.values(ratings).reduce((a, b) => a + b, 0) / SUB_RATINGS.length) * 10
-        ) / 10
-      : 0;
-
-  const canSubmit = Object.values(ratings).every((v) => v > 0) && comment.trim().length >= 10;
-
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm p-4"
-      onClick={onClose}
-    >
-      <div
-        className="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="sticky top-0 bg-white border-b border-slate-100 px-6 py-4 flex items-center justify-between">
-          <div>
-            <h2 className="font-semibold text-slate-800">Rate Your Experience</h2>
-            <p className="text-xs text-slate-400 mt-0.5">{booking.pandit.displayName}</p>
-          </div>
-          <button
-            onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors"
-          >
-            <span className="material-symbols-outlined text-slate-400">close</span>
-          </button>
-        </div>
-
-        <div className="p-6 space-y-5">
-          {overall > 0 && (
-            <div className="bg-[#f49d25]/5 border border-[#f49d25]/20 rounded-xl p-4 flex items-center gap-4">
-              <div className="text-4xl font-bold text-[#f49d25]">{overall}</div>
-              <div>
-                <div className="flex gap-0.5">
-                  {[1, 2, 3, 4, 5].map((s) => (
-                    <span
-                      key={s}
-                      className={`material-symbols-outlined text-lg ${s <= Math.round(overall) ? "text-[#f49d25]" : "text-slate-200"}`}
-                      style={{ fontVariationSettings: "'FILL' 1" }}
-                    >
-                      star
-                    </span>
-                  ))}
-                </div>
-                <p className="text-xs text-slate-500 mt-0.5">Overall rating</p>
-              </div>
-            </div>
-          )}
-
-          <div className="space-y-4">
-            {SUB_RATINGS.map(({ key, label, labelHi, icon }) => (
-              <div key={key} className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-2 min-w-0">
-                  <span className="material-symbols-outlined text-base text-[#f49d25] shrink-0">
-                    {icon}
-                  </span>
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium text-slate-700">{label}</p>
-                    <p className="text-xs text-slate-400">{labelHi}</p>
-                  </div>
-                </div>
-                <StarRow
-                  value={ratings[key]}
-                  onChange={(v) => setRatings((prev) => ({ ...prev, [key]: v }))}
-                />
-              </div>
-            ))}
-          </div>
-
-          <div>
-            <label className="text-sm font-medium text-slate-700 block mb-1.5">
-              Your Review
-              <span className="text-slate-400 font-normal ml-1">(min. 10 characters)</span>
-            </label>
-            <textarea
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              placeholder="Share your experience with future customers…"
-              rows={3}
-              maxLength={500}
-              className="w-full border border-slate-200 rounded-xl p-3 text-sm text-slate-700 placeholder-slate-400 resize-none focus:outline-none focus:ring-2 focus:ring-[#f49d25]/40 focus:border-[#f49d25] transition"
-            />
-            <p className="text-xs text-slate-400 mt-1">{comment.length} / 500 characters</p>
-          </div>
-
-          <button
-            onClick={() => setAnonymous((v) => !v)}
-            className={`flex items-center gap-3 w-full p-3.5 rounded-xl border transition-colors text-left ${
-              anonymous ? "border-slate-300 bg-slate-50" : "border-slate-200 bg-white hover:bg-slate-50"
-            }`}
-          >
-            <div
-              className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors shrink-0 ${
-                anonymous ? "bg-[#f49d25] border-[#f49d25]" : "border-slate-300"
-              }`}
-            >
-              {anonymous && (
-                <span className="material-symbols-outlined text-white text-sm">check</span>
-              )}
-            </div>
-            <div>
-              <p className="text-sm font-medium text-slate-700">Post anonymously</p>
-              <p className="text-xs text-slate-400">Your name won&apos;t appear on the review</p>
-            </div>
-          </button>
-        </div>
-
-        <div className="sticky bottom-0 bg-white border-t border-slate-100 px-6 py-4">
-          <button
-            onClick={() => onSubmit({ ratings, comment, anonymous })}
-            disabled={!canSubmit || loading}
-            className="w-full py-3 rounded-xl bg-[#f49d25] hover:bg-[#e08c14] disabled:opacity-50 text-white font-semibold text-sm transition-colors"
-          >
-            {loading ? "Submitting…" : "Submit Review"}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ── Review Display ────────────────────────────────────────────────────────────
-
-function ReviewDisplay({ review }: { review: NonNullable<BookingDetail["review"]> }) {
-  const overall =
-    Math.round(
-      (Object.values(review.ratings).reduce((a: number, b: unknown) => a + (b as number), 0) /
-        Object.keys(review.ratings).length) *
-        10
-    ) / 10;
-
-  return (
-    <Card>
-      <CardHeader icon="star" title="Your Review" />
-      <div className="p-5 space-y-4">
-        <div className="flex items-center gap-3">
-          <span className="text-3xl font-bold text-[#f49d25]">{overall}</span>
-          <div>
-            <div className="flex gap-0.5">
-              {[1, 2, 3, 4, 5].map((s) => (
-                <span
-                  key={s}
-                  className={`material-symbols-outlined text-lg ${s <= Math.round(overall) ? "text-[#f49d25]" : "text-slate-200"}`}
-                  style={{ fontVariationSettings: "'FILL' 1" }}
-                >
-                  star
-                </span>
-              ))}
-            </div>
-            <p className="text-xs text-slate-400 mt-0.5">
-              {review.anonymous ? "Posted anonymously" : "Posted by you"} ·{" "}
-              {formatShortDate(review.createdAt)}
-            </p>
-          </div>
-        </div>
-        {review.comment && (
-          <p className="text-sm text-slate-600 italic">&quot;{review.comment}&quot;</p>
-        )}
-      </div>
-    </Card>
   );
 }
 
@@ -547,11 +131,6 @@ export default function BookingDetailClient({ bookingId }: { bookingId: string }
   const [booking, setBooking] = useState<BookingDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
-  const [showCancel, setShowCancel] = useState(false);
-  const [cancelLoading, setCancelLoading] = useState(false);
-  const [showReview, setShowReview] = useState(false);
-  const [reviewLoading, setReviewLoading] = useState(false);
 
   const fetchBooking = useCallback(async () => {
     if (!accessToken) return;
@@ -583,536 +162,296 @@ export default function BookingDetailClient({ bookingId }: { bookingId: string }
     if (user && accessToken) fetchBooking();
   }, [user, accessToken, fetchBooking]);
 
-  const handleCancel = async (reason: string) => {
-    if (!booking || !accessToken) return;
-    setCancelLoading(true);
-    try {
-      const res = await fetch(`${API}/bookings/${booking.id}/cancel`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify({ reason }),
-      });
-      if (!res.ok) throw new Error();
-      setShowCancel(false);
-      fetchBooking();
-    } catch {
-      alert("Could not cancel. Please contact support via WhatsApp.");
-    } finally {
-      setCancelLoading(false);
-    }
-  };
+  if (authLoading || loading) return <DashboardSkeleton />;
 
-  const handleReview = async (data: {
-    ratings: Record<SubRatingKey, number>;
-    comment: string;
-    anonymous: boolean;
-  }) => {
-    if (!booking || !accessToken) return;
-    setReviewLoading(true);
-    try {
-      const res = await fetch(`${API}/bookings/${booking.id}/review`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify(data),
-      });
-      if (!res.ok) throw new Error();
-      setShowReview(false);
-      fetchBooking();
-    } catch {
-      alert("Could not submit review. Please try again.");
-    } finally {
-      setReviewLoading(false);
-    }
-  };
-
-  if (authLoading || loading) return <Skeleton />;
-
-  if (error) {
+  if (error || !booking) {
     return (
-      <div className="min-h-screen bg-[#f8f7f5] flex items-center justify-center">
-        <div className="text-center px-4">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-100 flex items-center justify-center">
-            <span className="material-symbols-outlined text-3xl text-red-400">error</span>
-          </div>
-          <h2 className="text-slate-700 font-semibold text-lg mb-2">{error}</h2>
-          <div className="flex gap-3 justify-center mt-4">
-            <button
-              onClick={fetchBooking}
-              className="px-4 py-2 text-sm bg-[#f49d25] text-white rounded-xl font-medium hover:bg-[#e08c14] transition-colors"
-            >
-              Try Again
-            </button>
-            <Link
-              href="/bookings"
-              className="px-4 py-2 text-sm bg-white border border-slate-200 text-slate-600 rounded-xl font-medium hover:bg-slate-50 transition-colors"
-            >
-              My Bookings
-            </Link>
-          </div>
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="text-center">
+          <h2 className="text-xl font-bold text-slate-800 mb-2">{error || "Booking not found"}</h2>
+          <button
+            onClick={() => router.push("/bookings")}
+            className="text-primary hover:underline font-medium"
+          >
+            Back to Bookings
+          </button>
         </div>
       </div>
     );
   }
 
-  if (!booking) return null;
-
-  const isCancellable = ["PENDING", "CONFIRMED"].includes(booking.status);
-  const isRateable = booking.status === "COMPLETED" && !booking.review;
+  // Derived State
+  const isConfirmed = booking.status === "CONFIRMED";
+  const isInProgress = booking.status === "IN_PROGRESS";
+  const isCompleted = booking.status === "COMPLETED";
   const isCancelled = ["CANCELLED", "REFUNDED"].includes(booking.status);
-  const whatsappMsg = encodeURIComponent(
-    `Namaste! I have a booking #${booking.bookingNumber} for ${booking.ritual.name} on ${formatDate(booking.eventDate)}. I need assistance.`
-  );
 
-  // Compute timeline current step
-  const currentStepIdx = isCancelled
-    ? -1
-    : STATUS_ORDER[booking.status] ?? 0;
+  // Design-specific mock data for timeline (since backend might not have full GPS tracking yet)
+  const timelineEvents = [
+    {
+      status: "done",
+      title: "Booking Confirmed",
+      location: "Online",
+      time: formatDate(booking.createdAt),
+      icon: "check_circle",
+    },
+    {
+      status: isConfirmed || isInProgress || isCompleted ? "done" : "future",
+      title: "Pandit Assigned",
+      location: `${booking.pandit.displayName} accepted request`,
+      time: booking.panditAcceptedAt ? formatTime(booking.panditAcceptedAt.split("T")[1]) : "Pending",
+      icon: "person_check",
+    },
+    {
+      status: isInProgress ? "current" : isCompleted ? "done" : "future",
+      title: isInProgress ? "En Route / In Progress" : "Ceremony Started",
+      location: `Transit to ${booking.venueAddress.city}`,
+      time: "Live Status",
+      icon: "directions_car",
+    },
+    {
+      status: isCompleted ? "done" : "future",
+      title: "Ceremony Completion",
+      location: booking.venueAddress.city,
+      time: "Scheduled",
+      icon: "temple_hindu",
+    }
+  ];
 
   return (
-    <>
-      <div className="min-h-screen bg-[#f8f7f5] pb-24">
-        {/* Top Nav */}
-        <div className="bg-white border-b border-slate-100 sticky top-0 z-10">
-          <div className="max-w-2xl mx-auto px-4 py-4 flex items-center gap-3">
-            <button
-              onClick={() => router.back()}
-              className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors"
-              aria-label="Go back"
-            >
-              <span className="material-symbols-outlined text-slate-500">arrow_back</span>
-            </button>
-            <div className="flex-1 min-w-0">
-              <h1 className="text-base font-semibold text-slate-800 truncate">
-                {booking.ritual.name}
-              </h1>
-              <p className="text-xs text-slate-400 font-mono">{booking.bookingNumber}</p>
-            </div>
-            <span
-              className={`text-xs font-medium px-2.5 py-1 rounded-full border ${STATUS_COLORS[booking.status]}`}
-            >
-              {STATUS_LABEL[booking.status]}
-            </span>
+    <div className="bg-[#f8f7f6] dark:bg-[#101922] min-h-screen">
+
+      <div className="flex flex-col lg:flex-row max-w-[1440px] mx-auto w-full gap-6 p-6">
+
+        {/* Sidebar: Navigation & Documents */}
+        <aside className="w-full lg:w-72 flex flex-col gap-6">
+          <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <h3 className="text-slate-900 dark:text-white font-bold text-lg mb-4">Booking Details</h3>
+            <p className="text-primary font-bold text-sm mb-1 uppercase tracking-wider">Booking ID</p>
+            <p className="text-slate-500 dark:text-slate-400 text-lg font-mono mb-6">{booking.bookingNumber}</p>
+
+            <nav className="flex flex-col gap-1">
+              <button className="flex items-center gap-3 px-4 py-3 rounded-lg bg-primary/10 text-primary font-bold text-left w-full">
+                <span className="material-symbols-outlined">dashboard</span> Overview
+              </button>
+              <button className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors font-medium text-left w-full">
+                <span className="material-symbols-outlined">chat</span> Messages
+              </button>
+              <button className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors font-medium text-left w-full">
+                <span className="material-symbols-outlined">payments</span> Payments
+              </button>
+              <button className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors font-medium text-left w-full">
+                <span className="material-symbols-outlined">settings</span> Settings
+              </button>
+            </nav>
           </div>
-        </div>
 
-        <div className="max-w-2xl mx-auto px-4 py-5 space-y-4">
-          {/* ── Cancelled Banner ── */}
-          {isCancelled && (
-            <div className="bg-red-50 border border-red-200 rounded-2xl p-4 flex gap-3">
-              <span className="material-symbols-outlined text-red-400 shrink-0">cancel</span>
+          <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <h3 className="text-slate-900 dark:text-white font-bold text-lg mb-4">Documents</h3>
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-slate-800 group cursor-pointer hover:bg-primary/5 transition-colors">
+                <div className="flex items-center gap-3">
+                  <span className="material-symbols-outlined text-red-500">picture_as_pdf</span>
+                  <div className="flex flex-col">
+                    <span className="text-sm font-semibold text-slate-900 dark:text-white">Booking Receipt</span>
+                    <span className="text-xs text-slate-500">1.2 MB</span>
+                  </div>
+                </div>
+                <span className="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">download</span>
+              </div>
+              <div className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-slate-800 group cursor-pointer hover:bg-primary/5 transition-colors">
+                <div className="flex items-center gap-3">
+                  <span className="material-symbols-outlined text-red-500">picture_as_pdf</span>
+                  <div className="flex flex-col">
+                    <span className="text-sm font-semibold text-slate-900 dark:text-white">Muhurat Patrika</span>
+                    <span className="text-xs text-slate-500">2.4 MB</span>
+                  </div>
+                </div>
+                <span className="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">download</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Pandit Quick Profile */}
+          <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <h3 className="text-slate-900 dark:text-white font-bold text-lg mb-4">Your Pandit</h3>
+            <div className="flex items-center gap-4">
+              <div className="relative size-12 rounded-full overflow-hidden bg-slate-100">
+                {booking.pandit.profilePhotoUrl ? (
+                  <Image src={booking.pandit.profilePhotoUrl} alt="Pandit" fill className="object-cover" />
+                ) : (
+                  <span className="material-symbols-outlined text-2xl text-slate-400 w-full h-full flex items-center justify-center">person</span>
+                )}
+              </div>
               <div>
-                <p className="text-sm font-semibold text-red-700">Booking Cancelled</p>
-                {booking.cancellationReason && (
-                  <p className="text-xs text-red-500 mt-0.5">
-                    Reason: {booking.cancellationReason}
-                  </p>
-                )}
-                {booking.cancelledAt && (
-                  <p className="text-xs text-red-400 mt-0.5">
-                    On {formatDatetime(booking.cancelledAt)}
-                  </p>
-                )}
-                {booking.paymentStatus === "REFUNDED" && (
-                  <p className="text-xs text-green-600 mt-1 font-medium">
-                    Refund processed · {booking.refundId}
-                  </p>
-                )}
+                <p className="font-bold text-slate-900 dark:text-white">{booking.pandit.displayName}</p>
+                <div className="flex items-center text-amber-500 text-xs">
+                  <span className="material-symbols-outlined text-sm font-fill">star</span>
+                  <span className="ml-1 font-semibold">{booking.pandit.averageRating || "New"}</span>
+                </div>
               </div>
             </div>
-          )}
+            <button
+              onClick={() => router.push(`/pandit/${booking.pandit.id}`)}
+              className="mt-4 w-full py-2 border border-slate-200 rounded-lg text-sm text-slate-600 font-medium hover:bg-slate-50 transition-colors"
+            >
+              View Profile
+            </button>
+          </div>
+        </aside>
 
-          {/* ── Timeline ── */}
+        {/* Main Content Area */}
+        <main className="flex-1 flex flex-col gap-6">
+          {/* Main Header & Status */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white leading-tight">
+                {isCancelled ? "Booking Cancelled" : "Booking Confirmed"}
+              </h1>
+              <p className="text-slate-600 dark:text-slate-400 text-lg mt-1">
+                {booking.ritual.name} · {formatDate(booking.eventDate)}
+              </p>
+            </div>
+            <div className={`px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2 w-fit ${isCancelled ? "bg-red-100 text-red-700" : "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
+              }`}>
+              <span className="material-symbols-outlined text-base">
+                {isCancelled ? "cancel" : "check_circle"}
+              </span>
+              {booking.status}
+            </div>
+          </div>
+
+          {/* Pandit Status Banner */}
           {!isCancelled && (
-            <Card>
-              <CardHeader icon="timeline" title="Booking Progress" />
-              <div className="px-5 py-4">
-                <div className="relative">
-                  {/* Connector line */}
-                  <div className="absolute left-4 top-4 bottom-4 w-px bg-slate-100" />
-
-                  <div className="space-y-5">
-                    {TIMELINE_STEPS.map(({ key, label, icon }, idx) => {
-                      const done = idx <= currentStepIdx;
-                      const active = idx === currentStepIdx;
-                      return (
-                        <div key={key} className="flex items-start gap-4 relative">
-                          <div
-                            className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 z-10 transition-colors ${
-                              done
-                                ? "bg-[#f49d25] shadow-sm"
-                                : "bg-white border-2 border-slate-200"
-                            }`}
-                          >
-                            <span
-                              className={`material-symbols-outlined text-sm ${done ? "text-white" : "text-slate-300"}`}
-                              style={done ? { fontVariationSettings: "'FILL' 1" } : undefined}
-                            >
-                              {icon}
-                            </span>
-                          </div>
-                          <div className="pt-1">
-                            <p
-                              className={`text-sm font-medium ${
-                                active
-                                  ? "text-[#c47c0e]"
-                                  : done
-                                  ? "text-slate-700"
-                                  : "text-slate-300"
-                              }`}
-                            >
-                              {label}
-                            </p>
-                            {active && (
-                              <p className="text-xs text-slate-400 mt-0.5">Current status</p>
-                            )}
-                            {key === "CONFIRMED" && booking.panditAcceptedAt && (
-                              <p className="text-xs text-slate-400 mt-0.5">
-                                {formatDatetime(booking.panditAcceptedAt)}
-                              </p>
-                            )}
-                            {key === "COMPLETED" && booking.completedAt && (
-                              <p className="text-xs text-slate-400 mt-0.5">
-                                {formatDatetime(booking.completedAt)}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
+            <div className="bg-gradient-to-r from-primary to-orange-500 rounded-xl p-6 shadow-lg relative overflow-hidden text-white">
+              <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="flex items-center gap-5">
+                  <div className="relative hidden md:block">
+                    <div className="size-16 rounded-full border-4 border-white/30 bg-white/10 flex items-center justify-center overflow-hidden">
+                      {booking.pandit.profilePhotoUrl ? (
+                        <Image src={booking.pandit.profilePhotoUrl} alt="Pandit" width={64} height={64} className="object-cover w-full h-full" />
+                      ) : (
+                        <span className="material-symbols-outlined text-3xl">person</span>
+                      )}
+                    </div>
+                    <div className="absolute bottom-0 right-0 size-5 bg-green-500 border-2 border-white rounded-full"></div>
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold">
+                      {booking.pandit.displayName} is assigned
+                    </h2>
+                    <p className="text-white/80">
+                      {isInProgress ? "Currently en route to your location." : "Scheduled to arrive on time."}
+                    </p>
                   </div>
                 </div>
+                <button
+                  onClick={() => router.push(`/bookings/${bookingId}/track`)}
+                  className="bg-white text-primary hover:bg-slate-50 px-8 py-3 rounded-xl font-bold transition-all transform hover:scale-105 active:scale-95 shadow-sm"
+                >
+                  Track Now
+                </button>
               </div>
-            </Card>
+              {/* Abstract Background Pattern */}
+              <div className="absolute top-0 right-0 h-full w-1/3 opacity-10 pointer-events-none">
+                <svg className="h-full w-full fill-white" viewBox="0 0 100 100">
+                  <circle cx="80" cy="50" r="40"></circle>
+                  <circle cx="100" cy="20" r="30"></circle>
+                </svg>
+              </div>
+            </div>
           )}
 
-          {/* ── Event Details ── */}
-          <Card>
-            <CardHeader icon="event" title="Ceremony Details" />
-            <div className="divide-y divide-slate-100">
-              <div className="flex items-start gap-3 px-5 py-3.5">
-                <span className="material-symbols-outlined text-base text-[#f49d25] mt-0.5 shrink-0">
-                  auto_awesome
-                </span>
-                <div>
-                  <p className="text-xs text-slate-400 mb-0.5">Ritual</p>
-                  <p className="text-sm font-medium text-slate-700">
-                    {booking.ritual.name}
-                    {booking.ritual.nameHindi && (
-                      <span className="ml-1.5 text-slate-400 font-normal">
-                        ({booking.ritual.nameHindi})
+          {/* Central Timeline */}
+          <div className="bg-white dark:bg-slate-900 p-8 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <h3 className="text-slate-900 dark:text-white font-bold text-xl mb-8 flex items-center gap-2">
+              <span className="material-symbols-outlined text-primary">route</span> Transit Timeline
+            </h3>
+            <div className="relative flex flex-col gap-0">
+              {/* Connecting Line */}
+              <div className="absolute left-[27px] top-6 bottom-6 w-1 bg-slate-100 dark:bg-slate-800"></div>
+
+              {timelineEvents.map((step, idx) => {
+                let bgColor = "bg-slate-100";
+                let textColor = "text-slate-400";
+                let ring = "";
+
+                if (step.status === "done") {
+                  bgColor = "bg-primary/20";
+                  textColor = "text-primary";
+                } else if (step.status === "current") {
+                  bgColor = "bg-primary";
+                  textColor = "text-white";
+                  ring = "ring-4 ring-primary/20";
+                }
+
+                return (
+                  <div key={idx} className={`flex items-start gap-6 pb-10 relative ${idx === timelineEvents.length - 1 ? "pb-0" : ""}`}>
+                    <div className={`z-10 size-14 flex items-center justify-center rounded-full border-4 border-white dark:border-slate-900 ${bgColor} ${textColor} ${ring}`}>
+                      <span className="material-symbols-outlined" style={step.status !== 'future' ? { fontVariationSettings: "'FILL' 1" } : {}}>
+                        {step.icon}
                       </span>
-                    )}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3 px-5 py-3.5">
-                <span className="material-symbols-outlined text-base text-[#f49d25] mt-0.5 shrink-0">
-                  calendar_month
-                </span>
-                <div>
-                  <p className="text-xs text-slate-400 mb-0.5">Date &amp; Time</p>
-                  <p className="text-sm font-medium text-slate-700">
-                    {formatDate(booking.eventDate)}
-                    {booking.eventTime && (
-                      <span className="text-slate-500 font-normal">
-                        {" "}at {formatTime(booking.eventTime)}
-                      </span>
-                    )}
-                  </p>
-                  {booking.muhurat && (
-                    <p className="text-xs text-[#c47c0e] mt-0.5">
-                      Muhurat: {booking.muhurat}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3 px-5 py-3.5">
-                <span className="material-symbols-outlined text-base text-[#f49d25] mt-0.5 shrink-0">
-                  location_on
-                </span>
-                <div>
-                  <p className="text-xs text-slate-400 mb-0.5">Venue</p>
-                  <p className="text-sm font-medium text-slate-700">
-                    {booking.venueAddress.line1}
-                    {booking.venueAddress.line2 && `, ${booking.venueAddress.line2}`}
-                  </p>
-                  {booking.venueAddress.landmark && (
-                    <p className="text-xs text-slate-500">Near {booking.venueAddress.landmark}</p>
-                  )}
-                  <p className="text-xs text-slate-500">
-                    {booking.venueAddress.city}
-                    {booking.venueAddress.pincode && ` — ${booking.venueAddress.pincode}`}
-                  </p>
-                </div>
-              </div>
-
-              {booking.numberOfAttendees && (
-                <div className="flex items-start gap-3 px-5 py-3.5">
-                  <span className="material-symbols-outlined text-base text-[#f49d25] mt-0.5 shrink-0">
-                    groups
-                  </span>
-                  <div>
-                    <p className="text-xs text-slate-400 mb-0.5">Attendees</p>
-                    <p className="text-sm font-medium text-slate-700">
-                      {booking.numberOfAttendees} people
-                    </p>
+                    </div>
+                    <div className="flex flex-col pt-1">
+                      <p className={`font-bold text-lg leading-none ${step.status === 'future' ? "text-slate-400" : "text-slate-900 dark:text-white"}`}>
+                        {step.title}
+                      </p>
+                      <p className="text-slate-500 dark:text-slate-400 mt-2 flex items-center gap-1">
+                        <span className="material-symbols-outlined text-sm">calendar_today</span> {step.time}
+                      </p>
+                      <p className="text-slate-400 text-sm mt-1">Location: {step.location}</p>
+                    </div>
                   </div>
-                </div>
-              )}
-
-              {booking.specialRequirements && (
-                <div className="flex items-start gap-3 px-5 py-3.5">
-                  <span className="material-symbols-outlined text-base text-[#f49d25] mt-0.5 shrink-0">
-                    note
-                  </span>
-                  <div>
-                    <p className="text-xs text-slate-400 mb-0.5">Special Requirements</p>
-                    <p className="text-sm text-slate-700">{booking.specialRequirements}</p>
-                  </div>
-                </div>
-              )}
+                );
+              })}
             </div>
-          </Card>
+          </div>
 
-          {/* ── Pandit Card ── */}
-          <Card>
-            <CardHeader icon="person" title="Your Pandit Ji" />
-            <div className="p-5">
-              <div className="flex items-start gap-4">
-                <div className="w-14 h-14 rounded-full bg-[#f49d25]/10 border border-[#f49d25]/20 flex items-center justify-center shrink-0 overflow-hidden">
-                  {booking.pandit.profilePhotoUrl ? (
-                    <img
-                      src={booking.pandit.profilePhotoUrl}
-                      alt={booking.pandit.displayName}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <span className="material-symbols-outlined text-2xl text-[#f49d25]">
-                      person
-                    </span>
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-slate-800">{booking.pandit.displayName}</h3>
-                  <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1">
-                    {booking.pandit.averageRating && (
-                      <span className="flex items-center gap-1 text-xs text-slate-500">
-                        <span
-                          className="material-symbols-outlined text-sm text-[#f49d25]"
-                          style={{ fontVariationSettings: "'FILL' 1" }}
-                        >
-                          star
-                        </span>
-                        {booking.pandit.averageRating.toFixed(1)}
-                      </span>
-                    )}
-                    {booking.pandit.experienceYears && (
-                      <span className="text-xs text-slate-500">
-                        {booking.pandit.experienceYears}+ yrs exp
-                      </span>
-                    )}
-                    {booking.pandit.totalBookings && (
-                      <span className="text-xs text-slate-500">
-                        {booking.pandit.totalBookings} ceremonies
-                      </span>
-                    )}
-                  </div>
-                  {booking.pandit.languages && booking.pandit.languages.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      {booking.pandit.languages.slice(0, 3).map((l) => (
-                        <span
-                          key={l}
-                          className="text-xs px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full"
-                        >
-                          {l}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
+          {/* Quick Action Cards Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Track Pandit */}
+            <button
+              onClick={() => router.push(`/bookings/${bookingId}/track`)}
+              className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all group cursor-pointer text-left"
+            >
+              <div className="size-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary mb-4 group-hover:bg-primary group-hover:text-white transition-colors">
+                <span className="material-symbols-outlined">my_location</span>
               </div>
+              <h4 className="text-slate-900 dark:text-white font-bold mb-1">Track Pandit</h4>
+              <p className="text-slate-500 dark:text-slate-400 text-sm">Real-time GPS tracking</p>
+            </button>
 
-              <div className="flex gap-2 mt-4">
-                <a
-                  href={`https://wa.me/${WA}?text=${whatsappMsg}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#128C4C] rounded-xl text-sm font-medium transition-colors"
-                >
-                  <span className="material-symbols-outlined text-base">chat</span>
-                  Contact Support
-                </a>
-                <Link
-                  href={`/pandit/${booking.pandit.id}`}
-                  className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-medium transition-colors"
-                >
-                  <span className="material-symbols-outlined text-base">open_in_new</span>
-                  View Profile
-                </Link>
+            {/* Chat */}
+            <button className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all group cursor-pointer text-left">
+              <div className="size-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary mb-4 group-hover:bg-primary group-hover:text-white transition-colors">
+                <span className="material-symbols-outlined">forum</span>
               </div>
-            </div>
-          </Card>
+              <h4 className="text-slate-900 dark:text-white font-bold mb-1">Chat</h4>
+              <p className="text-slate-500 dark:text-slate-400 text-sm">Discuss ritual details</p>
+            </button>
 
-          {/* ── Payment Receipt ── */}
-          <Card>
-            <CardHeader icon="receipt_long" title="Payment Receipt" />
-            <div className="p-5 space-y-3">
-              {/* Breakdown */}
-              <div className="space-y-2 text-sm">
-                {[
-                  { label: "Base Price", value: booking.pricing.basePrice },
-                  { label: "Travel Charge", value: booking.pricing.travelCharge },
-                  { label: "Samagri", value: booking.pricing.samagriCharge },
-                  { label: "Platform Fee", value: booking.pricing.platformFee },
-                ]
-                  .filter((row) => row.value)
-                  .map((row) => (
-                    <div key={row.label} className="flex justify-between text-slate-600">
-                      <span>{row.label}</span>
-                      <span>₹{row.value!.toLocaleString("en-IN")}</span>
-                    </div>
-                  ))}
-
-                {booking.pricing.discount && (
-                  <div className="flex justify-between text-green-600">
-                    <span>Discount</span>
-                    <span>−₹{booking.pricing.discount.toLocaleString("en-IN")}</span>
-                  </div>
-                )}
+            {/* View Samagri */}
+            <button className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all group cursor-pointer text-left">
+              <div className="size-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary mb-4 group-hover:bg-primary group-hover:text-white transition-colors">
+                <span className="material-symbols-outlined">inventory_2</span>
               </div>
+              <h4 className="text-slate-900 dark:text-white font-bold mb-1">Samagri List</h4>
+              <p className="text-slate-500 dark:text-slate-400 text-sm">Required items checklist</p>
+            </button>
 
-              <div className="h-px bg-slate-100" />
-
-              <div className="flex justify-between font-semibold text-slate-800">
-                <span>Total Paid</span>
-                <span>₹{booking.pricing.total.toLocaleString("en-IN")}</span>
+            {/* Support */}
+            <button className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all group cursor-pointer text-left">
+              <div className="size-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary mb-4 group-hover:bg-primary group-hover:text-white transition-colors">
+                <span className="material-symbols-outlined">support_agent</span>
               </div>
+              <h4 className="text-slate-900 dark:text-white font-bold mb-1">Support</h4>
+              <p className="text-slate-500 dark:text-slate-400 text-sm">24/7 Concierge help</p>
+            </button>
+          </div>
 
-              {/* Status badges */}
-              <div className="flex items-center gap-2 flex-wrap">
-                <span
-                  className={`text-xs font-medium px-2.5 py-1 rounded-full ${
-                    booking.paymentStatus === "PAID"
-                      ? "bg-green-100 text-green-700"
-                      : booking.paymentStatus === "REFUNDED"
-                      ? "bg-blue-100 text-blue-700"
-                      : booking.paymentStatus === "FAILED"
-                      ? "bg-red-100 text-red-600"
-                      : "bg-amber-100 text-amber-700"
-                  }`}
-                >
-                  {booking.paymentStatus === "PAID"
-                    ? "Payment Successful"
-                    : booking.paymentStatus === "REFUNDED"
-                    ? "Refunded"
-                    : booking.paymentStatus === "FAILED"
-                    ? "Payment Failed"
-                    : "Payment Pending"}
-                </span>
-              </div>
-
-              {/* Transaction IDs */}
-              {(booking.paymentId || booking.orderId) && (
-                <div className="bg-slate-50 rounded-xl p-3 space-y-1.5 text-xs text-slate-500 font-mono">
-                  {booking.orderId && (
-                    <div className="flex justify-between gap-2">
-                      <span className="text-slate-400">Order ID</span>
-                      <span className="truncate text-right">{booking.orderId}</span>
-                    </div>
-                  )}
-                  {booking.paymentId && (
-                    <div className="flex justify-between gap-2">
-                      <span className="text-slate-400">Payment ID</span>
-                      <span className="truncate text-right">{booking.paymentId}</span>
-                    </div>
-                  )}
-                  {booking.refundId && (
-                    <div className="flex justify-between gap-2">
-                      <span className="text-slate-400">Refund ID</span>
-                      <span className="truncate text-right">{booking.refundId}</span>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Booking meta */}
-              <div className="text-xs text-slate-400 space-y-0.5 pt-1">
-                <p>Booked on {formatShortDate(booking.createdAt)}</p>
-                <p>
-                  Travel: {booking.travelMode ?? "Arranged by platform"}
-                  {booking.travelNotes && ` · ${booking.travelNotes}`}
-                </p>
-              </div>
-            </div>
-          </Card>
-
-          {/* ── Review (if submitted) ── */}
-          {booking.review && <ReviewDisplay review={booking.review} />}
-        </div>
+        </main>
       </div>
 
-      {/* ── Sticky Bottom Actions ── */}
-      {(isCancellable || isRateable) && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 px-4 py-4 z-10">
-          <div className="max-w-2xl mx-auto flex gap-3">
-            {isCancellable && (
-              <button
-                onClick={() => setShowCancel(true)}
-                className="flex-1 flex items-center justify-center gap-2 py-3 border border-red-200 text-red-600 rounded-xl font-medium text-sm hover:bg-red-50 transition-colors"
-              >
-                <span className="material-symbols-outlined text-base">cancel</span>
-                Cancel Booking
-              </button>
-            )}
-            {isRateable && (
-              <button
-                onClick={() => setShowReview(true)}
-                className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#f49d25] hover:bg-[#e08c14] text-white rounded-xl font-semibold text-sm transition-colors"
-              >
-                <span className="material-symbols-outlined text-base">star</span>
-                Rate Experience
-              </button>
-            )}
-            {!isRateable && isCancellable && (
-              <a
-                href={`https://wa.me/${WA}?text=${whatsappMsg}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#f49d25] hover:bg-[#e08c14] text-white rounded-xl font-semibold text-sm transition-colors"
-              >
-                <span className="material-symbols-outlined text-base">chat</span>
-                Contact Support
-              </a>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Modals */}
-      {showCancel && booking && (
-        <CancelModal
-          booking={booking}
-          onClose={() => setShowCancel(false)}
-          onConfirm={handleCancel}
-          loading={cancelLoading}
-        />
-      )}
-      {showReview && booking && (
-        <ReviewModal
-          booking={booking}
-          onClose={() => setShowReview(false)}
-          onSubmit={handleReview}
-          loading={reviewLoading}
-        />
-      )}
-    </>
+    </div>
   );
 }

@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Admin: Pandit Application Review</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ec5b13",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#1a120e",
+                        "card-dark": "#2a1e17",
+                        "border-dark": "#3d2b21",
+                    },
+                    fontFamily: {
+                        "display": ["Public Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Public Sans', sans-serif;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #2a1e17;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #4d3a2f;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen">
+<!-- Top Navigation Bar -->
+<header class="sticky top-0 z-50 w-full border-b border-slate-200 dark:border-border-dark bg-white/80 dark:bg-background-dark/80 backdrop-blur-md">
+<div class="px-6 flex h-16 items-center justify-between gap-4">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-3 text-primary">
+<span class="material-symbols-outlined text-3xl font-bold">account_balance</span>
+<h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-tight">VedaAdmin</h2>
+</div>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors text-sm font-medium" href="#">Dashboard</a>
+<a class="text-primary text-sm font-semibold border-b-2 border-primary py-5" href="#">Applications</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors text-sm font-medium" href="#">Verification</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-primary transition-colors text-sm font-medium" href="#">Settings</a>
+</nav>
+</div>
+<div class="flex items-center gap-4 flex-1 justify-end">
+<div class="relative max-w-sm w-full hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
+<input class="w-full bg-slate-100 dark:bg-card-dark border-none rounded-xl pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-primary/50 text-white placeholder:text-slate-500" placeholder="Search Pandit ID, Name..." type="text"/>
+</div>
+<button class="p-2 text-slate-400 hover:bg-slate-100 dark:hover:bg-card-dark rounded-xl transition-all">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="h-10 w-10 rounded-full border-2 border-primary overflow-hidden">
+<img class="h-full w-full object-cover" data-alt="Administrator profile picture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDdQcQrZxGwyU9rt4x9dsWMJgitzeFNbMm0UGdez7eie7N_Semjh1ksZDM_bARkI1uR4tOz8vusCu1734igwGnDACJSYNyPM8tG3P74zKrT6_W3pHrcj_8xeZMt6OQhL_jMV1ZlkO7WkDVZUCIyYL-pwUyOBwSNb96PbOqKrH-M0tDtK0ZHgSIvAz-LwfNw_0wH9NwR6WXHOzEdSS-JWNHUhdj5ED2jNt3EoPwsalw3XbzOAj1a9G6RqdF2ZYHOmXTRR4nFqvchpGY"/>
+</div>
+</div>
+</div>
+</header>
+<main class="max-w-[1440px] mx-auto p-4 lg:p-6 space-y-6">
+<!-- Breadcrumb & Header Profile -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+<div>
+<div class="flex items-center gap-2 text-sm text-slate-500 mb-2">
+<a class="hover:text-primary" href="#">Applications</a>
+<span class="material-symbols-outlined text-xs">chevron_right</span>
+<span class="text-slate-900 dark:text-slate-300">Review: Pandit Vishnu Shastri</span>
+</div>
+<div class="flex items-center gap-4">
+<div class="h-20 w-20 rounded-2xl overflow-hidden border-2 border-primary/20 bg-card-dark">
+<img class="h-full w-full object-cover" data-alt="Pandit Vishnu Shastri portrait" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9Fg7lwZv6h2O4pMPrvHuNP9knpRCmthrMN6R07haJzRIrPS8_wrumEBqo43xkwsmleAgrhpHBrLJRcZwPk5jxpZEbG_1wji8IsNZszWjrML55ZcOky3bSGZjtsi_g1oKblUY4gWd7-x_z7xGBUcwqrNKQQlI4l8I6pOas-vgU3KXRhNRkQpQsNKTdZBC5N8ue4X6oCF_jiZ1RwsL-ifZWCakh6-lPeq74oxHYDN3nwTLYUqqkKa_GPkpJiRJcfHUKIIUgm8HCWEc"/>
+</div>
+<div>
+<h1 class="text-2xl font-bold dark:text-white">Pandit Vishnu Shastri</h1>
+<p class="text-slate-500 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">location_on</span> Varanasi, UP • Joined Oct 2023 • ID: #VET-9921
+                        </p>
+</div>
+</div>
+</div>
+<div class="flex flex-wrap gap-4 items-center w-full md:w-auto">
+<div class="bg-primary/10 dark:bg-primary/20 border border-primary/30 p-4 rounded-xl flex items-center gap-4">
+<div class="relative flex items-center justify-center">
+<svg class="w-14 h-14 transform -rotate-90">
+<circle class="text-primary/20" cx="28" cy="28" fill="transparent" r="24" stroke="currentColor" stroke-width="4"></circle>
+<circle class="text-primary" cx="28" cy="28" fill="transparent" r="24" stroke="currentColor" stroke-dasharray="150.8" stroke-dashoffset="150.8" stroke-width="4" style="stroke-dashoffset: calc(150.8 - (150.8 * 94) / 100)"></circle>
+</svg>
+<span class="absolute text-sm font-bold text-primary">94</span>
+</div>
+<div>
+<p class="text-xs uppercase tracking-wider font-bold text-primary/80">Expertise Score</p>
+<p class="text-xl font-bold text-slate-900 dark:text-white">Superior Rank</p>
+</div>
+</div>
+<button class="flex-1 md:flex-none px-6 py-3 bg-card-dark hover:bg-border-dark border border-border-dark text-white rounded-xl font-semibold transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">download</span> Dossier
+                </button>
+</div>
+</div>
+<!-- Verification Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<!-- Left Column: Identity & Video -->
+<div class="lg:col-span-8 space-y-6">
+<!-- Aadhaar Verification -->
+<section class="bg-white dark:bg-card-dark rounded-xl border border-slate-200 dark:border-border-dark overflow-hidden">
+<div class="p-4 border-b border-slate-200 dark:border-border-dark flex justify-between items-center">
+<h3 class="font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">fingerprint</span> Aadhaar Verification
+                        </h3>
+<span class="px-2.5 py-1 bg-green-500/10 text-green-500 text-xs font-bold rounded-full border border-green-500/20">98% Match</span>
+</div>
+<div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+<div class="space-y-4">
+<div class="bg-slate-50 dark:bg-background-dark p-3 rounded-lg border border-dashed border-slate-300 dark:border-border-dark">
+<img class="w-full h-40 object-cover rounded-md opacity-50 grayscale" data-alt="Abstract identity card representation" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBdpvLRdldDAKo7Qcm5gNVBnKHDAEUS7WJfUd7_An9AIJjSUNLJtp5zWXgUR2hhC3mVPMNHQXCK4iGXC540DR4RbT0bRfvmaMh4pMBFXp6u08m6dQ8oHgTuIi4fxfcKsIVY53H-ScEv_95Z30EpYF_0hOgCCfcCwcKb2uj4yQfugSxwCHtmQtIhVyFsX5DUQN9Tyt9_aGWh2qPCf27vnWOuSfecvwzrBTROfLG4Xuj6cC2S4PzyrQwpgp7DyJ68amYgKMAEbj1pKJ8"/>
+<button class="w-full mt-3 py-2 bg-primary/10 text-primary text-sm font-bold rounded-lg hover:bg-primary/20 transition-all">View Full Scan</button>
+</div>
+</div>
+<div class="space-y-3">
+<div class="grid grid-cols-2 gap-4 pb-2 border-b border-slate-200 dark:border-border-dark">
+<span class="text-slate-500 text-sm font-medium">Field</span>
+<span class="text-slate-500 text-sm font-medium">OCR Extraction</span>
+</div>
+<div class="grid grid-cols-2 gap-4 items-center">
+<span class="text-xs font-bold uppercase text-slate-400">Full Name</span>
+<span class="text-sm font-semibold dark:text-white">Vishnu Kant Shastri</span>
+</div>
+<div class="grid grid-cols-2 gap-4 items-center">
+<span class="text-xs font-bold uppercase text-slate-400">Date of Birth</span>
+<span class="text-sm font-semibold dark:text-white">15/05/1978</span>
+</div>
+<div class="grid grid-cols-2 gap-4 items-center">
+<span class="text-xs font-bold uppercase text-slate-400">Aadhaar No.</span>
+<span class="text-sm font-semibold dark:text-white">XXXX-XXXX-9901</span>
+</div>
+<div class="grid grid-cols-2 gap-4 items-center">
+<span class="text-xs font-bold uppercase text-slate-400">Address Match</span>
+<span class="text-sm font-semibold text-green-500 flex items-center gap-1">
+<span class="material-symbols-outlined text-base">check_circle</span> Verified
+                                </span>
+</div>
+</div>
+</div>
+</section>
+<!-- Video KYC & Phonetics -->
+<section class="bg-white dark:bg-card-dark rounded-xl border border-slate-200 dark:border-border-dark overflow-hidden">
+<div class="p-4 border-b border-slate-200 dark:border-border-dark flex justify-between items-center bg-slate-50/50 dark:bg-background-dark/20">
+<h3 class="font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">videocam</span> Video KYC &amp; Phonetics Analysis
+                        </h3>
+<div class="flex gap-2">
+<span class="px-2 py-1 bg-slate-200 dark:bg-border-dark text-slate-600 dark:text-slate-300 text-[10px] font-bold uppercase rounded">Ritual Speed: 1.2x</span>
+<span class="px-2 py-1 bg-primary/10 text-primary text-[10px] font-bold uppercase rounded">AI Verified</span>
+</div>
+</div>
+<div class="flex flex-col md:flex-row h-[400px]">
+<div class="flex-1 bg-black relative group">
+<img class="w-full h-full object-cover opacity-60" data-alt="Still frame from video KYC recording" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDpOWV3umqysaumJNwHlSP4guVk9rRv3uQf48JuDL3OMLdV5xgtJI072H8kCE3nHCnBRf8w0GHGOAVosDNz0zwXrrwSv-OfsqxdPFmTSq73L634ZlQvH6cWGHYDVVlpbxIAqjBt_s85MtRqxKxlR62hDkGTCnD87E4DKgQMynGHKztkniggQUvMCDnmUydL_4yKapZW6J42G1nPvb_e8s-IWFZsZWY6zN5CUt0l1UAEr5o_iUGDxJNfXh6ZZVt09aH3xxBieLb9010"/>
+<div class="absolute inset-0 flex items-center justify-center">
+<button class="h-16 w-16 bg-primary text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-4xl fill-1">play_arrow</span>
+</button>
+</div>
+<div class="absolute bottom-4 left-4 right-4 h-1.5 bg-white/20 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-1/3"></div>
+</div>
+</div>
+<div class="w-full md:w-72 bg-slate-50 dark:bg-background-dark border-l border-slate-200 dark:border-border-dark flex flex-col">
+<div class="p-3 border-b border-slate-200 dark:border-border-dark font-bold text-xs uppercase text-slate-500">AI Phonetic Notes</div>
+<div class="p-4 space-y-4 overflow-y-auto custom-scrollbar">
+<div class="space-y-1">
+<div class="flex justify-between text-[10px] font-bold text-primary">
+<span>00:45</span>
+<span>High Confidence</span>
+</div>
+<p class="text-xs dark:text-slate-300 leading-relaxed italic">"Gayatri Mantra recital clarity is exceptionally high. Phoneme 'bhargo' pronounced correctly."</p>
+</div>
+<div class="space-y-1">
+<div class="flex justify-between text-[10px] font-bold text-slate-400">
+<span>01:22</span>
+<span>Standard</span>
+</div>
+<p class="text-xs dark:text-slate-300 leading-relaxed italic">"Sanskrit diction flow is consistent with traditional Varanasi school of thought."</p>
+</div>
+<div class="space-y-1">
+<div class="flex justify-between text-[10px] font-bold text-slate-400">
+<span>02:15</span>
+<span>Note</span>
+</div>
+<p class="text-xs dark:text-slate-300 leading-relaxed italic">"Visual presence: Calm and professional. Background matches reported location."</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Column: Academic & Background -->
+<div class="lg:col-span-4 space-y-6">
+<!-- Academic Credentials -->
+<section class="bg-white dark:bg-card-dark rounded-xl border border-slate-200 dark:border-border-dark">
+<div class="p-4 border-b border-slate-200 dark:border-border-dark">
+<h3 class="font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">school</span> Academic Credentials
+                        </h3>
+</div>
+<div class="p-4 space-y-4">
+<div class="aspect-[4/5] bg-background-light dark:bg-background-dark rounded-lg overflow-hidden border border-slate-200 dark:border-border-dark group relative">
+<img class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" data-alt="Degree certificate scan" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCIuWIQrhaYKLYY6FHF2esqN0iJZiMCS7VLiKZI65EEG8yFDfi8t3-H2AvqMolrVCWoLyeoIzbAiaplFLv_W8RovDlHuaMfnnHKnllwLbM6ErwvNkQZbZaogYQI6YOsH39mu0f7epBtvwb9GtUQavf1D7o1M5t2pZYVDb2Av5ebl16H4bce04EDbrLJf9l65i-GB37-LAWPE_7A1mh5Qs8rAcEiUcpgdeMVBOoDVNuDY5UT7F2nXP0lwXtqp5AZwVq7dxQevzemNIQ"/>
+<div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+<span class="px-4 py-2 bg-white text-black text-sm font-bold rounded-lg cursor-pointer">View High Res</span>
+</div>
+</div>
+<div class="space-y-3">
+<div>
+<p class="text-[10px] font-bold uppercase text-slate-500">Qualification</p>
+<p class="text-sm font-semibold dark:text-white">Acharya (Masters in Vedic Studies)</p>
+</div>
+<div>
+<p class="text-[10px] font-bold uppercase text-slate-500">Institution</p>
+<p class="text-sm font-semibold dark:text-white">Sampurnanand Sanskrit Vishwavidyalaya</p>
+</div>
+<div class="flex items-center justify-between p-3 bg-green-500/5 rounded-lg border border-green-500/10">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-green-500">verified</span>
+<span class="text-xs font-bold text-green-600 dark:text-green-500 uppercase">Degree Verified</span>
+</div>
+<span class="text-[10px] text-slate-400">June 2022</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Background Check -->
+<section class="bg-white dark:bg-card-dark rounded-xl border border-slate-200 dark:border-border-dark">
+<div class="p-4 border-b border-slate-200 dark:border-border-dark">
+<h3 class="font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">gavel</span> Background Check
+                        </h3>
+</div>
+<div class="p-4 space-y-4">
+<div class="space-y-4">
+<div class="flex gap-4">
+<div class="flex flex-col items-center">
+<div class="h-6 w-6 rounded-full bg-green-500 flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-sm">check</span>
+</div>
+<div class="w-0.5 h-8 bg-green-500/30 my-1"></div>
+</div>
+<div>
+<p class="text-sm font-bold dark:text-white">Criminal Record Clear</p>
+<p class="text-xs text-slate-500">No matches found in CCTNS national database.</p>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="flex flex-col items-center">
+<div class="h-6 w-6 rounded-full bg-green-500 flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-sm">check</span>
+</div>
+<div class="w-0.5 h-8 bg-green-500/30 my-1"></div>
+</div>
+<div>
+<p class="text-sm font-bold dark:text-white">Residential Verification</p>
+<p class="text-xs text-slate-500">Physical address verified via third-party agent.</p>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="flex flex-col items-center">
+<div class="h-6 w-6 rounded-full bg-primary flex items-center justify-center text-white animate-pulse">
+<span class="material-symbols-outlined text-sm">sync</span>
+</div>
+</div>
+<div>
+<p class="text-sm font-bold dark:text-white">Social Media Scan</p>
+<p class="text-xs text-slate-500">AI currently processing public profiles...</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+<!-- Sticky Decision Bar -->
+<div class="sticky bottom-6 left-0 right-0 z-40">
+<div class="bg-white/80 dark:bg-card-dark/95 backdrop-blur-md border border-slate-200 dark:border-border-dark p-4 rounded-2xl shadow-2xl flex flex-col md:flex-row items-center justify-between gap-4 max-w-6xl mx-auto">
+<div class="flex items-center gap-4">
+<div class="h-10 w-10 bg-primary/10 rounded-full flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">verified_user</span>
+</div>
+<div>
+<p class="text-xs font-bold uppercase text-slate-500">Vetting Recommendation</p>
+<p class="text-sm font-bold dark:text-white">Highly Recommended for Premium Category</p>
+</div>
+</div>
+<div class="flex items-center gap-3 w-full md:w-auto">
+<button class="flex-1 md:flex-none px-6 py-3 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-xl font-bold transition-all border border-red-500/20">Reject</button>
+<button class="flex-1 md:flex-none px-6 py-3 bg-slate-200 dark:bg-border-dark hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl font-bold transition-all">Request Info</button>
+<button class="flex-1 md:flex-none px-8 py-3 bg-primary hover:bg-primary/90 text-white rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(236,91,19,0.3)]">Approve Pandit</button>
+<button class="hidden lg:flex p-3 bg-slate-100 dark:bg-background-dark text-slate-500 rounded-xl hover:text-primary transition-colors">
+<span class="material-symbols-outlined">skip_next</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Spacing for sticky bar -->
+<div class="h-20"></div>
+</main>
+</body></html>

@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>HmarePanditJi - Search All India</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#f2a20d",
+                        "background-light": "#f8f7f5",
+                        "background-dark": "#221c10",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .active-glow { box-shadow: 0 0 15px rgba(242, 162, 13, 0.4); }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-gray-900 dark:text-gray-100 min-h-screen">
+<div class="layout-container flex flex-col">
+<header class="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-background-dark px-6 py-4 sticky top-0 z-50">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-3">
+<div class="size-8 bg-primary rounded-lg flex items-center justify-center text-white">
+<span class="material-symbols-outlined">auto_awesome</span>
+</div>
+<h2 class="text-xl font-bold tracking-tight">HmarePanditJi</h2>
+</div>
+<div class="hidden md:flex items-center bg-gray-100 dark:bg-gray-800 rounded-lg px-3 py-2 w-96">
+<span class="material-symbols-outlined text-gray-500 mr-2">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-full placeholder:text-gray-500" placeholder="Search for Pujas, Pandits, or Rituals" type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<nav class="hidden lg:flex items-center gap-6 text-sm font-medium">
+<a class="hover:text-primary" href="#">Home</a>
+<a class="hover:text-primary text-primary" href="#">Book Puja</a>
+<a class="hover:text-primary" href="#">Astrology</a>
+<a class="hover:text-primary" href="#">Shop</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="bg-primary text-white px-5 py-2 rounded-lg font-bold text-sm">Sign In</button>
+<div class="size-10 rounded-full bg-gray-300 overflow-hidden border-2 border-primary/20" data-alt="User profile placeholder">
+<img alt="Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDEQnhY1wB1DAz_bAC9o3mz2G7n8mqRnfvvG3Xmm0kAjTF-dYjTz3oc4eY90iStZ4JcBUi8-MmkEt6GmuvKWYv5q7-WkYbfnUxv9UqXPQHz1ZEOxkZdIJv4C_EmguMpaK4-L_ajoQRlesa80NqDbd98qZTGTQJ_-Z3Mymg-hCAk4bD0CwFAWsByJ82s-IVJsHyknRe3zBFm7td0cFWUZnNbukfpi3oB1A_96DPD5GdgZFwL9HI5mMaUiQ_jkLQeMMwL78A7ihEMNhw"/>
+</div>
+</div>
+</div>
+</header>
+<main class="flex flex-1 max-w-7xl mx-auto w-full p-6 gap-8">
+<aside class="w-72 flex-shrink-0 space-y-6">
+<div class="bg-white dark:bg-gray-900 rounded-xl p-5 border border-gray-100 dark:border-gray-800 shadow-sm">
+<div class="flex items-center justify-between mb-6">
+<h3 class="font-bold text-lg">Filters</h3>
+<button class="text-primary text-xs font-bold uppercase tracking-wider">Clear All</button>
+</div>
+<div class="space-y-6">
+<div class="bg-primary/10 border border-primary/30 rounded-lg p-4 active-glow">
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<span class="text-sm font-bold text-primary">Search All India</span>
+<span class="text-xs text-gray-500">Broaden your search</span>
+</div>
+<div class="relative inline-flex items-center cursor-pointer">
+<div class="w-11 h-6 bg-primary rounded-full transition-colors"></div>
+<div class="absolute left-6 top-1 bg-white w-4 h-4 rounded-full transition-transform"></div>
+</div>
+</div>
+</div>
+<div>
+<h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Regions Coverage</h4>
+<div class="space-y-2">
+<label class="flex items-center gap-3 cursor-pointer group">
+<input checked="" class="rounded border-gray-300 text-primary focus:ring-primary h-5 w-5" type="checkbox"/>
+<span class="text-sm group-hover:text-primary transition-colors">Varanasi (Kashi)</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<input checked="" class="rounded border-gray-300 text-primary focus:ring-primary h-5 w-5" type="checkbox"/>
+<span class="text-sm group-hover:text-primary transition-colors">Ujjain (Avantika)</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<input checked="" class="rounded border-gray-300 text-primary focus:ring-primary h-5 w-5" type="checkbox"/>
+<span class="text-sm group-hover:text-primary transition-colors">Haridwar &amp; Rishikesh</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<input class="rounded border-gray-300 text-primary focus:ring-primary h-5 w-5" type="checkbox"/>
+<span class="text-sm group-hover:text-primary transition-colors">Prayagraj</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<input class="rounded border-gray-300 text-primary focus:ring-primary h-5 w-5" type="checkbox"/>
+<span class="text-sm group-hover:text-primary transition-colors">Mathura</span>
+</label>
+</div>
+</div>
+<div class="pt-4 border-t border-gray-100 dark:border-gray-800">
+<h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Experience</h4>
+<div class="space-y-2">
+<label class="flex items-center gap-3 cursor-pointer">
+<input class="text-primary focus:ring-primary" name="exp" type="radio"/>
+<span class="text-sm">15+ Years</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer">
+<input checked="" class="text-primary focus:ring-primary" name="exp" type="radio"/>
+<span class="text-sm">10+ Years</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer">
+<input class="text-primary focus:ring-primary" name="exp" type="radio"/>
+<span class="text-sm">5+ Years</span>
+</label>
+</div>
+</div>
+<button class="w-full bg-primary text-white py-3 rounded-lg font-bold text-sm shadow-md hover:bg-primary/90">Update Results</button>
+</div>
+</div>
+<div class="bg-gray-900 text-white rounded-xl p-5 relative overflow-hidden h-48 flex items-end">
+<div class="absolute inset-0 opacity-40" data-alt="Spiritual pattern in gold on dark background">
+<div class="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent z-10"></div>
+<img alt="Pattern" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAPpajs1ZJSDja4G2roqmtrNh5NDoazPTZnEfuCulskcZTIN0bGGs8covXPXSoY-VGXOpn0WCtC0_kBF2KhG5N_sRYPsxtSXCnpFsrbW1if67c-ZUC-Wuz6wQkFX6K83TMrPbI0TTiBv4_RI7rpPmfDZjdgNb1Q3fQTg70FSMRaWZY1N5BlK5HZQKaMoclEW3k8KzKyT5J-XKUcH8EMH6AjaVBilMI3aRByPA3I5AmXwivZg8iPV0YeqW8ERbEUXY9tfiwdxBFshX4"/>
+</div>
+<div class="relative z-20">
+<p class="text-xs font-medium text-primary mb-1">Upcoming Events</p>
+<h4 class="font-bold leading-tight">Ganga Aarti Special<br/>Varanasi</h4>
+</div>
+</div>
+</aside>
+<section class="flex-1">
+<div class="flex flex-col gap-6">
+<div class="flex items-center justify-between">
+<div>
+<h1 class="text-2xl font-bold">Top-tier Pandits in India</h1>
+<p class="text-gray-500 text-sm mt-1">Showing verified scholars willing to travel to <span class="text-primary font-bold">Delhi</span></p>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-sm text-gray-500">Sort by:</span>
+<select class="bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 rounded-lg text-sm font-medium focus:ring-primary focus:border-primary">
+<option>Best Match</option>
+<option>Rating</option>
+<option>Experience</option>
+</select>
+</div>
+</div>
+<div class="flex flex-wrap gap-2">
+<span class="inline-flex items-center px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold border border-primary/20">
+<span class="material-symbols-outlined text-sm mr-1">check_circle</span> Search All India: ON
+                        </span>
+<span class="inline-flex items-center px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs font-bold border border-gray-200 dark:border-gray-700">
+<span class="material-symbols-outlined text-sm mr-1">flight_takeoff</span> Willing to Travel
+                        </span>
+<span class="inline-flex items-center px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs font-bold border border-gray-200 dark:border-gray-700">
+<span class="material-symbols-outlined text-sm mr-1">star</span> Rating 4.8+
+                        </span>
+</div>
+<div class="grid grid-cols-1 gap-6">
+<div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-5 flex flex-col md:flex-row gap-6 hover:shadow-lg transition-shadow">
+<div class="w-full md:w-48 h-48 rounded-lg overflow-hidden bg-gray-200 flex-shrink-0" data-alt="Professional portrait of a Pandit in traditional attire">
+<img alt="Pandit" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-pMZI-ZRFS4v1tAMP4AEzhHOFT332aZlT9KLZu0sdBnT1UOQcp4j6egofHAH-vrwvZZIK9MjDtd5VZyp79LSDnf3dHDmAKFjrr7EK_Ge4QdUAzX-0X55Xy39dMp6nlzF-XgZgnJh7HkbLJn-pg8fjnwpkHk82ax_PjqfXwC6iHhxPokIdAzNu4UIqM7vf8wASY81Uv0vOAyNqkSfLnpfckN2aERchp-5sI4bDlA0FxtvtcCEdNXXlgzIGES-s-XxRNEkWc7aRxK0"/>
+</div>
+<div class="flex-1 flex flex-col">
+<div class="flex justify-between items-start">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<h3 class="text-xl font-bold">Acharya Ved Vyas</h3>
+<span class="material-symbols-outlined text-blue-500 text-lg" title="Verified">verified</span>
+</div>
+<p class="text-gray-600 dark:text-gray-400 text-sm mb-3">Veda Scholar from <span class="font-bold text-gray-900 dark:text-white">Varanasi</span></p>
+</div>
+<div class="text-right">
+<div class="flex items-center justify-end text-primary mb-1">
+<span class="material-symbols-outlined fill-1">star</span>
+<span class="material-symbols-outlined fill-1">star</span>
+<span class="material-symbols-outlined fill-1">star</span>
+<span class="material-symbols-outlined fill-1">star</span>
+<span class="material-symbols-outlined fill-1">star</span>
+<span class="ml-2 font-bold">4.9</span>
+</div>
+<span class="text-xs text-gray-500">(128 reviews)</span>
+</div>
+</div>
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-2">
+<div class="bg-background-light dark:bg-gray-800 p-2 rounded-lg text-center">
+<p class="text-[10px] text-gray-500 uppercase font-bold">Experience</p>
+<p class="text-sm font-bold">22 Years</p>
+</div>
+<div class="bg-background-light dark:bg-gray-800 p-2 rounded-lg text-center">
+<p class="text-[10px] text-gray-500 uppercase font-bold">Travel Cost</p>
+<p class="text-sm font-bold text-green-600">₹3,400 est.</p>
+</div>
+<div class="bg-background-light dark:bg-gray-800 p-2 rounded-lg text-center">
+<p class="text-[10px] text-gray-500 uppercase font-bold">Next Slot</p>
+<p class="text-sm font-bold">Tomorrow</p>
+</div>
+<div class="bg-background-light dark:bg-gray-800 p-2 rounded-lg text-center">
+<p class="text-[10px] text-gray-500 uppercase font-bold">Willing to Travel</p>
+<span class="material-symbols-outlined text-primary text-lg">check_circle</span>
+</div>
+</div>
+<div class="mt-4 flex items-center justify-between">
+<p class="text-sm text-gray-600 dark:text-gray-400">Specializes in Mahamrityunjay Path and Griha Pravesh.</p>
+<div class="flex gap-3">
+<button class="px-4 py-2 text-sm font-bold text-primary border border-primary rounded-lg">View Profile</button>
+<button class="px-6 py-2 text-sm font-bold text-white bg-primary rounded-lg shadow-md">Book Now</button>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-5 flex flex-col md:flex-row gap-6 hover:shadow-lg transition-shadow">
+<div class="w-full md:w-48 h-48 rounded-lg overflow-hidden bg-gray-200 flex-shrink-0" data-alt="Sanskrit scholar portrait with traditional background">
+<img alt="Pandit" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCT83bFpy6y4kjUD66hHkeiO79nT2KcEkNMkseZzGz80hqBjK-Ha3V3sXLIDM-dMlQkXXueO4DZYUYKFcUrN8xLVkMtkCuKjPIs3nSqFORldqbiztJrH0oc0VNAuuShX_sTN1G5qUGX2QIeFZ6I7SJ9GGDiSLIcPMCvoGxIZnotiwXOJNYXpL7uK80KXbtnkhhDfwNedcBQk5Wu7ntyddV3qSQEInXmTRM2l0eBojOwMr5IGJHEfVbOb8Mv4VU-a7CnMBjo6m7l6T0"/>
+</div>
+<div class="flex-1 flex flex-col">
+<div class="flex justify-between items-start">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<h3 class="text-xl font-bold">Pandit Rajesh Shastri</h3>
+<span class="material-symbols-outlined text-blue-500 text-lg" title="Verified">verified</span>
+</div>
+<p class="text-gray-600 dark:text-gray-400 text-sm mb-3">Ritual Specialist from <span class="font-bold text-gray-900 dark:text-white">Ujjain</span></p>
+</div>
+<div class="text-right">
+<div class="flex items-center justify-end text-primary mb-1">
+<span class="material-symbols-outlined fill-1">star</span>
+<span class="material-symbols-outlined fill-1">star</span>
+<span class="material-symbols-outlined fill-1">star</span>
+<span class="material-symbols-outlined fill-1">star</span>
+<span class="material-symbols-outlined">star</span>
+<span class="ml-2 font-bold">4.7</span>
+</div>
+<span class="text-xs text-gray-500">(94 reviews)</span>
+</div>
+</div>
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-2">
+<div class="bg-background-light dark:bg-gray-800 p-2 rounded-lg text-center">
+<p class="text-[10px] text-gray-500 uppercase font-bold">Experience</p>
+<p class="text-sm font-bold">16 Years</p>
+</div>
+<div class="bg-background-light dark:bg-gray-800 p-2 rounded-lg text-center">
+<p class="text-[10px] text-gray-500 uppercase font-bold">Travel Cost</p>
+<p class="text-sm font-bold text-green-600">₹2,800 est.</p>
+</div>
+<div class="bg-background-light dark:bg-gray-800 p-2 rounded-lg text-center">
+<p class="text-[10px] text-gray-500 uppercase font-bold">Next Slot</p>
+<p class="text-sm font-bold">Oct 12</p>
+</div>
+<div class="bg-background-light dark:bg-gray-800 p-2 rounded-lg text-center">
+<p class="text-[10px] text-gray-500 uppercase font-bold">Willing to Travel</p>
+<span class="material-symbols-outlined text-primary text-lg">check_circle</span>
+</div>
+</div>
+<div class="mt-4 flex items-center justify-between">
+<p class="text-sm text-gray-600 dark:text-gray-400">Expert in Kal Sarp Dosh Puja and Mangal Dosh Nivaran.</p>
+<div class="flex gap-3">
+<button class="px-4 py-2 text-sm font-bold text-primary border border-primary rounded-lg">View Profile</button>
+<button class="px-6 py-2 text-sm font-bold text-white bg-primary rounded-lg shadow-md">Book Now</button>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-5 flex flex-col md:flex-row gap-6 hover:shadow-lg transition-shadow">
+<div class="w-full md:w-48 h-48 rounded-lg overflow-hidden bg-gray-200 flex-shrink-0" data-alt="Spiritual scholar portrait with religious symbols">
+<img alt="Pandit" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCH1uekG07zKe4JgHJ7OBkal07HGN6iUTi6tN0Ngx_OYs9vQgrtj740TmtPf_rELkD7mDxUqGnxk31jyGK9BjuKHROMTPLB2dp-tI3gscAkNpemJy4D7O15-2YASnzUzRtUE8Wkplwzl4xc_27KfIF2m2ANUBwYz8IP97tlm9oN45jCV8A-8aVFUX2_6nt1jRzoq7k6gVFEQptXolqjMUNf144_rFpZC2gC49wvRbqnSonw4DyLkUKSjsv0fXhjFwzHmQFl5Fw3uWQ"/>
+</div>
+<div class="flex-1 flex flex-col">
+<div class="flex justify-between items-start">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<h3 class="text-xl font-bold">Shastri Anand Maharaj</h3>
+<span class="material-symbols-outlined text-blue-500 text-lg" title="Verified">verified</span>
+</div>
+<p class="text-gray-600 dark:text-gray-400 text-sm mb-3">Ritual Expert from <span class="font-bold text-gray-900 dark:text-white">Haridwar</span></p>
+</div>
+<div class="text-right">
+<div class="flex items-center justify-end text-primary mb-1">
+<span class="material-symbols-outlined fill-1">star</span>
+<span class="material-symbols-outlined fill-1">star</span>
+<span class="material-symbols-outlined fill-1">star</span>
+<span class="material-symbols-outlined fill-1">star</span>
+<span class="material-symbols-outlined fill-1">star</span>
+<span class="ml-2 font-bold">5.0</span>
+</div>
+<span class="text-xs text-gray-500">(215 reviews)</span>
+</div>
+</div>
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-2">
+<div class="bg-background-light dark:bg-gray-800 p-2 rounded-lg text-center">
+<p class="text-[10px] text-gray-500 uppercase font-bold">Experience</p>
+<p class="text-sm font-bold">30 Years</p>
+</div>
+<div class="bg-background-light dark:bg-gray-800 p-2 rounded-lg text-center">
+<p class="text-[10px] text-gray-500 uppercase font-bold">Travel Cost</p>
+<p class="text-sm font-bold text-green-600">₹2,100 est.</p>
+</div>
+<div class="bg-background-light dark:bg-gray-800 p-2 rounded-lg text-center">
+<p class="text-[10px] text-gray-500 uppercase font-bold">Next Slot</p>
+<p class="text-sm font-bold">Oct 10</p>
+</div>
+<div class="bg-background-light dark:bg-gray-800 p-2 rounded-lg text-center">
+<p class="text-[10px] text-gray-500 uppercase font-bold">Willing to Travel</p>
+<span class="material-symbols-outlined text-primary text-lg">check_circle</span>
+</div>
+</div>
+<div class="mt-4 flex items-center justify-between">
+<p class="text-sm text-gray-600 dark:text-gray-400">Master of Vedic Astrology and Satyanarayan Katha.</p>
+<div class="flex gap-3">
+<button class="px-4 py-2 text-sm font-bold text-primary border border-primary rounded-lg">View Profile</button>
+<button class="px-6 py-2 text-sm font-bold text-white bg-primary rounded-lg shadow-md">Book Now</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-8 flex justify-center">
+<button class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 px-8 py-3 rounded-lg font-bold text-sm hover:bg-gray-50">Load More Experts</button>
+</div>
+</div>
+</section>
+</main>
+<footer class="bg-white dark:bg-background-dark border-t border-gray-200 dark:border-gray-800 p-10 mt-12">
+<div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
+<div class="col-span-1">
+<div class="flex items-center gap-3 mb-6">
+<div class="size-6 bg-primary rounded flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-xs">auto_awesome</span>
+</div>
+<h2 class="text-lg font-bold tracking-tight">HmarePanditJi</h2>
+</div>
+<p class="text-sm text-gray-500 leading-relaxed">Connecting you with the most learned scholars and spiritual services across India. Authentic, verified, and accessible.</p>
+</div>
+<div>
+<h4 class="font-bold mb-4">Services</h4>
+<ul class="text-sm text-gray-500 space-y-3">
+<li><a class="hover:text-primary" href="#">E-Puja Solutions</a></li>
+<li><a class="hover:text-primary" href="#">Pandit at Home</a></li>
+<li><a class="hover:text-primary" href="#">Temple Bookings</a></li>
+<li><a class="hover:text-primary" href="#">Astrology Consult</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-bold mb-4">Information</h4>
+<ul class="text-sm text-gray-500 space-y-3">
+<li><a class="hover:text-primary" href="#">About Us</a></li>
+<li><a class="hover:text-primary" href="#">Contact Support</a></li>
+<li><a class="hover:text-primary" href="#">Terms of Service</a></li>
+<li><a class="hover:text-primary" href="#">Privacy Policy</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-bold mb-4">Newsletter</h4>
+<div class="flex gap-2">
+<input class="flex-1 bg-gray-100 dark:bg-gray-800 border-none rounded-lg text-sm focus:ring-primary" placeholder="Email address" type="email"/>
+<button class="bg-primary text-white p-2 rounded-lg"><span class="material-symbols-outlined">send</span></button>
+</div>
+<div class="flex gap-4 mt-6">
+<a class="text-gray-400 hover:text-primary" href="#"><span class="material-symbols-outlined">public</span></a>
+<a class="text-gray-400 hover:text-primary" href="#"><span class="material-symbols-outlined">groups</span></a>
+<a class="text-gray-400 hover:text-primary" href="#"><span class="material-symbols-outlined">alternate_email</span></a>
+</div>
+</div>
+</div>
+<div class="max-w-7xl mx-auto mt-12 pt-8 border-t border-gray-100 dark:border-gray-800 flex justify-between items-center text-xs text-gray-400">
+<p>© 2024 HmarePanditJi Spiritual Services Private Limited. All rights reserved.</p>
+<div class="flex gap-6">
+<span>Designed with ❤️ in Bharat</span>
+</div>
+</div>
+</footer>
+</div>
+</body></html>

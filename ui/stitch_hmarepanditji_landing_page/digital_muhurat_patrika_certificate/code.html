@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Digital Muhurat Patrika - HmarePanditJi</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,600;0,700;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#ec7f13",
+              "primary-dark": "#d16d0c",
+              "background-light": "#f8f7f6",
+              "background-dark": "#221910",
+              "surface-light": "#ffffff",
+              "surface-dark": "#2d241b",
+            },
+            fontFamily: {
+              "display": ["Noto Serif", "serif"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+            backgroundImage: {
+                'pattern-mandala': "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ec7f13' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")",
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        /* Print Styles */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #printable-certificate, #printable-certificate * {
+                visibility: visible;
+            }
+            #printable-certificate {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                margin: 0;
+                padding: 0;
+                box-shadow: none;
+                border: none;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+        
+        .ornamental-border {
+            border: 2px solid #ec7f13;
+            outline: 1px solid #ec7f13;
+            outline-offset: -6px;
+        }
+
+        .corner-decoration {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border: 2px solid #ec7f13;
+            z-index: 10;
+        }
+        
+        .corner-tl { top: 12px; left: 12px; border-right: none; border-bottom: none; }
+        .corner-tr { top: 12px; right: 12px; border-left: none; border-bottom: none; }
+        .corner-bl { bottom: 12px; left: 12px; border-right: none; border-top: none; }
+        .corner-br { bottom: 12px; right: 12px; border-left: none; border-top: none; }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ec7f13; 
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-100 min-h-screen flex flex-col transition-colors duration-300">
+<!-- Navbar -->
+<nav class="sticky top-0 z-50 bg-white/80 dark:bg-surface-dark/90 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 shadow-sm no-print">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex justify-between h-16 items-center">
+<div class="flex items-center gap-2">
+<div class="h-8 w-8 bg-primary/20 rounded-full flex items-center justify-center text-primary">
+<span class="material-icons text-xl">temple_hindu</span>
+</div>
+<span class="font-bold text-xl tracking-tight text-gray-900 dark:text-white">HmarePanditJi</span>
+</div>
+<div class="flex items-center gap-4">
+<span class="text-sm text-gray-500 dark:text-gray-400 hidden sm:block">Order #HPJ-2024-88</span>
+<button class="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 shadow-lg shadow-primary/30 transition-all" onclick="window.print()">
+<span class="material-icons text-sm">download</span>
+<span class="hidden sm:inline">Download PDF</span>
+</button>
+<div class="h-8 w-8 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden border border-gray-300 dark:border-gray-600">
+<img class="h-full w-full object-cover" data-alt="User profile picture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDzY9_RSVN5mBYneBKm7O3LaXQ6QmDm5Fc7O12weoJ06GEj8D0f58OZb3KQZKXsY8aeIYgZqroQFtJntpxchYPTlqUue-zx21h8rDU7z6QweUk34f2lxCDFg9d-KqM-vK6O1Tqfjv8D_yL-TtDQOttEi1zASV6Ms8CT_iGgIgzYSh4MlmpgW-vXXv-DZrdR-j2WuB6Bdt4GbdCbV3R0PooBDu2vFy2X2_kzv4orE_Jz3zII5h_uAQYc6TrTzF6d1834HBHz2rOKagQ"/>
+</div>
+</div>
+</div>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="flex-grow py-8 px-4 sm:px-6 lg:px-8 bg-pattern-mandala">
+<div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Left Column: Certificate Preview -->
+<div class="lg:col-span-8 flex justify-center">
+<!-- Certificate Container -->
+<div class="relative bg-white text-gray-900 w-full max-w-[800px] aspect-[1/1.414] sm:aspect-[1.414/1] shadow-2xl rounded-sm overflow-hidden flex flex-col" id="printable-certificate">
+<!-- Decorative Background Layer -->
+<div class="absolute inset-0 opacity-5 pointer-events-none">
+<img class="w-full h-full object-cover" data-alt="Subtle ornamental mandala background pattern" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBrSi67UAHj157DAtzx-OlLttpvVtmRnRhUl7zTcEsGPeO9_zBAQ6BoNIhAAi31u8Opm63vOxfj9xLmKjA9Tu-NShfJfwdwhYVpZYJFdZ-5pUvKXncl-ag9y9ZMOMInMMLDG5j_ImA5seDjH-lu82EHvePLDm8oOEfXfZmE4IleNGwaoOG2waC6vEbS5PuX46HAOBxqzmm0Vi15hWKZwQWCggMP69Se2O698h_H-z2CjLmOy9Wz1XGxHGJk-ilRnlV9BvV80IzetNw"/>
+</div>
+<!-- Inner Border Container -->
+<div class="absolute inset-4 sm:inset-6 border-[3px] border-primary border-double flex flex-col items-center justify-between p-6 sm:p-10 z-10">
+<!-- Corner Ornaments (CSS shapes) -->
+<div class="absolute top-2 left-2 w-12 h-12 border-t-4 border-l-4 border-primary rounded-tl-xl opacity-80"></div>
+<div class="absolute top-2 right-2 w-12 h-12 border-t-4 border-r-4 border-primary rounded-tr-xl opacity-80"></div>
+<div class="absolute bottom-2 left-2 w-12 h-12 border-b-4 border-l-4 border-primary rounded-bl-xl opacity-80"></div>
+<div class="absolute bottom-2 right-2 w-12 h-12 border-b-4 border-r-4 border-primary rounded-br-xl opacity-80"></div>
+<!-- Certificate Header -->
+<div class="text-center w-full">
+<div class="text-primary text-4xl sm:text-5xl mb-2 font-serif opacity-90">ॐ</div>
+<h1 class="text-3xl sm:text-4xl font-bold text-primary uppercase tracking-widest mb-1" style="font-variant: small-caps;">Shubh Muhurat Patrika</h1>
+<div class="h-px w-32 bg-primary/40 mx-auto my-3"></div>
+<p class="text-lg sm:text-xl text-gray-600 italic">Auspicious Timing for Vivah Sanskar</p>
+</div>
+<!-- Main Content Body -->
+<div class="flex-grow flex flex-col justify-center w-full my-4">
+<!-- Names -->
+<div class="text-center mb-8">
+<p class="text-gray-500 mb-2 uppercase text-xs tracking-widest">Blessed Union Of</p>
+<h2 class="text-2xl sm:text-3xl font-semibold text-gray-800">
+                                    Vikram Sharma <span class="text-primary mx-2">&amp;</span> Anjali Gupta
+                                </h2>
+</div>
+<!-- Grid Details -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full max-w-2xl mx-auto">
+<div class="border border-primary/20 bg-primary/5 p-4 rounded text-center">
+<span class="material-icons text-primary mb-1 text-xl">event</span>
+<p class="text-sm text-gray-500 uppercase tracking-wide">Date</p>
+<p class="text-xl font-bold text-gray-800">16 December 2024</p>
+<p class="text-xs text-gray-500">Monday, Margashirsha Shukla Paksha</p>
+</div>
+<div class="border border-primary/20 bg-primary/5 p-4 rounded text-center">
+<span class="material-icons text-primary mb-1 text-xl">schedule</span>
+<p class="text-sm text-gray-500 uppercase tracking-wide">Muhurat Time</p>
+<p class="text-xl font-bold text-gray-800">10:00 AM - 12:45 PM</p>
+<p class="text-xs text-gray-500">Abhijit Muhurat Included</p>
+</div>
+</div>
+<!-- Planetary Details -->
+<div class="mt-8 text-center max-w-2xl mx-auto">
+<h3 class="text-primary font-bold text-sm uppercase tracking-wider mb-2">Planetary Alignment</h3>
+<p class="text-gray-600 text-sm leading-relaxed">
+                                    Sun in Sagittarius, Moon in Rohini Nakshatra. Jupiter (Guru) aspecting the 7th house ensures long-term prosperity. Venus is exalted, signifying strong affection and harmony.
+                                </p>
+</div>
+</div>
+<!-- Footer / Verification -->
+<div class="w-full flex flex-col sm:flex-row justify-between items-end border-t border-primary/20 pt-6 mt-4">
+<div class="text-center sm:text-left mb-4 sm:mb-0">
+<p class="text-xs text-gray-400 mb-1">Prepared by</p>
+<div class="font-display text-2xl text-primary font-bold italic" style="font-family: cursive;">Pandit R.K. Shastri</div>
+<p class="text-xs text-gray-500 mt-1">Certified Astrologer, Varanasi</p>
+</div>
+<div class="flex items-center gap-3 bg-white p-2 rounded border border-gray-100 shadow-sm">
+<div class="bg-gray-900 p-1 rounded-sm">
+<!-- Using a gradient to simulate a QR code visually without base64 -->
+<div class="w-16 h-16 bg-white flex items-center justify-center overflow-hidden relative">
+<div class="absolute inset-0 bg-[url('https://api.qrserver.com/v1/create-qr-code/?size=150x150&amp;data=HmarePanditJi-Cert-88')] bg-cover bg-center opacity-90"></div>
+</div>
+</div>
+<div class="text-left">
+<p class="text-[10px] text-gray-400 uppercase tracking-wider">Scan to Verify</p>
+<p class="text-xs font-bold text-gray-800">ID: HPJ-88</p>
+</div>
+</div>
+</div>
+<!-- Watermark Logo -->
+<div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-[10px] text-primary/40 uppercase tracking-[0.3em]">
+                            HmarePanditJi Official Document
+                        </div>
+</div>
+</div>
+</div>
+<!-- Right Column: Actions & Details (Hidden in print) -->
+<div class="lg:col-span-4 space-y-6 no-print">
+<!-- Status Card -->
+<div class="bg-white dark:bg-surface-dark rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 p-6">
+<div class="flex items-center justify-between mb-4">
+<h3 class="font-bold text-lg text-gray-900 dark:text-white">Certificate Status</h3>
+<span class="px-3 py-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-xs font-bold rounded-full uppercase tracking-wide">Ready</span>
+</div>
+<div class="space-y-4">
+<div class="flex justify-between items-center text-sm">
+<span class="text-gray-500 dark:text-gray-400">Generated On</span>
+<span class="text-gray-900 dark:text-gray-200 font-medium">14 Oct 2024</span>
+</div>
+<div class="flex justify-between items-center text-sm">
+<span class="text-gray-500 dark:text-gray-400">Validity</span>
+<span class="text-gray-900 dark:text-gray-200 font-medium">Lifetime Digital</span>
+</div>
+<div class="flex justify-between items-center text-sm">
+<span class="text-gray-500 dark:text-gray-400">Astrologer</span>
+<span class="text-primary font-medium cursor-pointer hover:underline">Pt. R.K. Shastri</span>
+</div>
+</div>
+</div>
+<!-- Actions -->
+<div class="bg-white dark:bg-surface-dark rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 p-6">
+<h3 class="font-bold text-lg text-gray-900 dark:text-white mb-4">Actions</h3>
+<div class="space-y-3">
+<button class="w-full flex items-center justify-center gap-2 bg-primary hover:bg-primary-dark text-white p-3 rounded-lg transition-colors font-medium">
+<span class="material-icons text-sm">share</span>
+                            Share via WhatsApp
+                        </button>
+<button class="w-full flex items-center justify-center gap-2 bg-white dark:bg-surface-dark border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 p-3 rounded-lg transition-colors font-medium">
+<span class="material-icons text-sm">email</span>
+                            Email to Client
+                        </button>
+<button class="w-full flex items-center justify-center gap-2 bg-white dark:bg-surface-dark border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 p-3 rounded-lg transition-colors font-medium">
+<span class="material-icons text-sm">edit</span>
+                            Request Modification
+                        </button>
+</div>
+<p class="text-xs text-gray-400 mt-4 text-center">Need help? <a class="text-primary underline" href="#">Contact Support</a></p>
+</div>
+<!-- Additional Info -->
+<div class="bg-primary/5 dark:bg-primary/10 rounded-xl p-6 border border-primary/20">
+<div class="flex items-start gap-3">
+<span class="material-icons text-primary mt-1">info</span>
+<div>
+<h4 class="font-bold text-primary mb-1">Did you know?</h4>
+<p class="text-sm text-gray-600 dark:text-gray-300">
+                                This Muhurat includes the <span class="font-semibold">Abhijit Muhurat</span>, which is considered highly auspicious for removing all obstacles (doshas).
+                            </p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Mobile Sticky Action Bar (Visible only on small screens) -->
+<div class="lg:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-surface-dark border-t border-gray-200 dark:border-gray-700 p-4 z-40 no-print safe-area-pb">
+<div class="flex gap-3">
+<button class="flex-1 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white py-3 rounded-lg font-medium text-sm flex items-center justify-center gap-2">
+<span class="material-icons text-sm">share</span> Share
+            </button>
+<button class="flex-1 bg-primary text-white py-3 rounded-lg font-medium text-sm flex items-center justify-center gap-2 shadow-lg shadow-primary/30" onclick="window.print()">
+<span class="material-icons text-sm">download</span> Download
+            </button>
+</div>
+</div>
+</body></html>

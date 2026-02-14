@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfeat: complete platform build — booking flow, muhurat, admin, pandit dashboard\n\n- Web: booking flow \\(new + detail\\), dashboard, muhurat explorer, login, disclaimer pages\n- Web: home components \\(featured pandits, muhurat explorer, quick search\\), auth context\n- Admin: login, bookings detail, pandit detail, payouts, travel-queue pages; nav updates\n- Pandit: login, bookings detail, calendar pages\n- API: muhurat + travel controllers/routes/services, booking number util, prisma lib\n- API: updated auth middleware + all route files \\(admin, booking, customer, pandit, review\\)\n- UI: updated all shared components + tokens; utils updates\n- DB: schema + seed updated\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
+    ]
+  }
+}

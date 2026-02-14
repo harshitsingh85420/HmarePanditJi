@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>NRI &amp; International Booking Flow - HmarePanditJi</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#f29e0d",
+                        "background-light": "#f8f7f5",
+                        "background-dark": "#221b10",
+                        "navy": "#1a2b4b",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined { font-size: 20px; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-navy dark:text-white font-display">
+<div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<!-- Top Navigation Bar -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-navy/10 dark:border-white/10 px-6 py-4 bg-white dark:bg-navy/20 sticky top-0 z-50">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-3 text-primary">
+<span class="material-symbols-outlined !text-3xl">temple_hindu</span>
+<h2 class="text-navy dark:text-white text-xl font-extrabold leading-tight tracking-[-0.015em]">HmarePanditJi</h2>
+</div>
+<div class="hidden md:flex items-center gap-6">
+<a class="text-navy/70 dark:text-white/70 hover:text-primary text-sm font-semibold transition-colors" href="#">Ceremonies</a>
+<a class="text-navy/70 dark:text-white/70 hover:text-primary text-sm font-semibold transition-colors" href="#">Muhurat Finders</a>
+<a class="text-navy/70 dark:text-white/70 hover:text-primary text-sm font-semibold transition-colors" href="#">Global Logistics</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex bg-navy/5 dark:bg-white/10 p-1 rounded-lg">
+<button class="px-3 py-1.5 text-xs font-bold rounded-md bg-white dark:bg-navy shadow-sm text-navy dark:text-white">USD</button>
+<button class="px-3 py-1.5 text-xs font-bold text-navy/60 dark:text-white/60">GBP</button>
+<button class="px-3 py-1.5 text-xs font-bold text-navy/60 dark:text-white/60">INR</button>
+</div>
+<button class="flex items-center justify-center rounded-lg h-10 px-4 bg-primary text-navy text-sm font-bold shadow-md hover:bg-primary/90 transition-all">
+<span class="material-symbols-outlined mr-2">public</span>
+                    International Booking
+                </button>
+<button class="flex items-center justify-center rounded-lg h-10 w-10 bg-navy/5 dark:bg-white/10 text-navy dark:text-white">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</header>
+<main class="flex flex-1 justify-center py-10 px-4">
+<div class="layout-content-container flex flex-col max-w-[1200px] flex-1">
+<!-- Hero Section for NRI -->
+<div class="mb-10 p-8 rounded-2xl bg-gradient-to-r from-navy to-navy/80 text-white relative overflow-hidden">
+<div class="relative z-10 max-w-2xl">
+<span class="inline-block px-3 py-1 bg-primary/20 text-primary border border-primary/30 rounded-full text-xs font-bold uppercase tracking-wider mb-4">Exclusively for Global Families</span>
+<h1 class="text-4xl md:text-5xl font-black leading-tight tracking-tight mb-4">Premium NRI Ceremony Booking</h1>
+<p class="text-white/80 text-lg mb-6 leading-relaxed">Bridge the distance between your home and heritage. Seamless coordination for sacred rituals across time zones.</p>
+<div class="flex flex-wrap gap-4">
+<div class="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-lg backdrop-blur-sm">
+<span class="material-symbols-outlined text-primary">currency_exchange</span>
+<span class="text-sm font-medium">Forex Payments Supported</span>
+</div>
+<div class="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-lg backdrop-blur-sm">
+<span class="material-symbols-outlined text-primary">videocam</span>
+<span class="text-sm font-medium">Live 4K HDR Streaming Included</span>
+</div>
+</div>
+</div>
+<!-- Decorative Element -->
+<div class="absolute right-0 top-0 h-full w-1/3 opacity-20 hidden lg:block">
+<img alt="Sacred fire ritual" class="h-full w-full object-cover" data-alt="Traditional Indian spiritual ceremony with sacred fire and ritual objects" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDUeFzEE5FeUu8xkg2hnNh4D5Q1MnO9XHnUcj4PBy3MIRwuuGfIciR5Lg1CuqFTYZF4oYwiyH2LjlO1ENhJw4uuP_lqskuqQX6xNBZ0xseWU9ht-c75yCPr7GppMUdlrAJWapUb--i5seYJuTctFDEgq9dKdTbtQJYvAMqBe1ggJuRL80gMIsxjnEFRW1ljJX6zNmqM4BO8FKlh9BhlFAZMPntZ6uX2a-C6-8hTjUu15_-z5T-yWNHIhm5D-aldM8AoPfg_GKkC2Es"/>
+</div>
+</div>
+<!-- Scheduling & Logistics Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
+<!-- Time Management Card -->
+<div class="lg:col-span-2 bg-white dark:bg-navy/30 rounded-2xl p-6 border border-navy/10 dark:border-white/10 shadow-sm">
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-xl font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">schedule</span>
+                                Smart Muhurat Timing
+                            </h3>
+<button class="text-primary text-sm font-bold flex items-center">
+                                Change Date <span class="material-symbols-outlined ml-1">calendar_month</span>
+</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="p-6 rounded-xl bg-background-light dark:bg-background-dark border border-navy/5">
+<p class="text-navy/50 dark:text-white/50 text-xs font-bold uppercase mb-1">Standard Time (IST)</p>
+<p class="text-3xl font-black text-navy dark:text-white">10:00 AM</p>
+<p class="text-sm font-medium text-navy/60 dark:text-white/60">New Delhi, India</p>
+</div>
+<div class="p-6 rounded-xl bg-primary/10 border border-primary/20">
+<p class="text-primary text-xs font-bold uppercase mb-1">Your Local Time (GMT)</p>
+<p class="text-3xl font-black text-navy dark:text-white">04:30 AM</p>
+<p class="text-sm font-medium text-navy/60 dark:text-white/60">London, United Kingdom</p>
+</div>
+</div>
+<div class="mt-6 flex items-start gap-4 p-4 rounded-lg bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-900/30">
+<span class="material-symbols-outlined text-yellow-600">info</span>
+<p class="text-sm text-yellow-800 dark:text-yellow-200 leading-snug">We will automatically send calendar invites with localized meeting links to all family members globally.</p>
+</div>
+</div>
+<!-- Travel Management Card -->
+<div class="bg-white dark:bg-navy/30 rounded-2xl p-6 border border-navy/10 dark:border-white/10 shadow-sm">
+<h3 class="text-xl font-bold flex items-center gap-2 mb-6">
+<span class="material-symbols-outlined text-primary">flight_takeoff</span>
+                            Pandit Logistics
+                        </h3>
+<div class="space-y-6">
+<div class="flex flex-col gap-3">
+<label class="text-sm font-bold text-navy/70 dark:text-white/70">International Flight Booking</label>
+<div class="flex items-center justify-between p-3 rounded-lg border border-navy/10 dark:border-white/10">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-navy/50">luggage</span>
+<span class="text-sm font-medium">Business Class Req.</span>
+</div>
+<input checked="" class="text-primary focus:ring-primary rounded" type="checkbox"/>
+</div>
+</div>
+<div class="flex flex-col gap-3">
+<label class="text-sm font-bold text-navy/70 dark:text-white/70">Visa Processing</label>
+<div class="p-4 bg-navy/5 dark:bg-white/5 rounded-lg border-l-4 border-primary">
+<p class="text-xs font-bold mb-1">Visa Status: Required</p>
+<p class="text-xs text-navy/60 dark:text-white/60">Express sponsorship assistance will be added to your invoice.</p>
+</div>
+</div>
+<button class="w-full py-3 bg-navy text-white dark:bg-white dark:text-navy rounded-xl font-bold text-sm shadow-lg">
+                                Add Travel Package
+                            </button>
+</div>
+</div>
+</div>
+<!-- Family & Local Contacts -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+<div class="bg-white dark:bg-navy/30 rounded-2xl p-6 border border-navy/10 dark:border-white/10">
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-xl font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">group</span>
+                                Family Coordination in India
+                            </h3>
+</div>
+<div class="space-y-4">
+<div class="flex flex-col gap-1.5">
+<label class="text-xs font-bold text-navy/50 dark:text-white/50 uppercase tracking-wider">Local Point of Contact</label>
+<input class="w-full h-12 bg-background-light dark:bg-background-dark border-none rounded-xl focus:ring-2 focus:ring-primary text-sm" placeholder="Full Name in India" type="text"/>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="flex flex-col gap-1.5">
+<label class="text-xs font-bold text-navy/50 dark:text-white/50 uppercase tracking-wider">Contact Number</label>
+<input class="w-full h-12 bg-background-light dark:bg-background-dark border-none rounded-xl focus:ring-2 focus:ring-primary text-sm" placeholder="+91 00000 00000" type="tel"/>
+</div>
+<div class="flex flex-col gap-1.5">
+<label class="text-xs font-bold text-navy/50 dark:text-white/50 uppercase tracking-wider">Relationship</label>
+<select class="w-full h-12 bg-background-light dark:bg-background-dark border-none rounded-xl focus:ring-2 focus:ring-primary text-sm">
+<option>Brother</option>
+<option>Father</option>
+<option>Local Organizer</option>
+</select>
+</div>
+</div>
+<button class="w-full py-2 border-2 border-dashed border-navy/10 dark:border-white/10 rounded-xl text-sm font-bold text-navy/40 dark:text-white/40 flex items-center justify-center gap-2 hover:border-primary/50 hover:text-primary transition-all">
+<span class="material-symbols-outlined">add_circle</span> Add Another Contact
+                            </button>
+</div>
+</div>
+<!-- Trust & Checkout Summary -->
+<div class="bg-white dark:bg-navy/30 rounded-2xl p-6 border border-navy/10 dark:border-white/10 flex flex-col justify-between">
+<div>
+<h3 class="text-xl font-bold flex items-center gap-2 mb-6">
+<span class="material-symbols-outlined text-primary">account_balance_wallet</span>
+                                Premium Summary
+                            </h3>
+<div class="space-y-3">
+<div class="flex justify-between text-sm">
+<span class="text-navy/60 dark:text-white/60">Global Service Fee</span>
+<span class="font-bold">$849.00</span>
+</div>
+<div class="flex justify-between text-sm">
+<span class="text-navy/60 dark:text-white/60">Travel &amp; Visa Mgmt</span>
+<span class="font-bold">$220.00</span>
+</div>
+<div class="flex justify-between text-sm">
+<span class="text-navy/60 dark:text-white/60">4K Streaming Setup</span>
+<span class="text-primary font-bold">INCLUDED</span>
+</div>
+<div class="h-px bg-navy/10 dark:bg-white/10 my-4"></div>
+<div class="flex justify-between items-end">
+<div>
+<p class="text-xs font-bold text-navy/50 dark:text-white/50 uppercase">Total Booking Amount</p>
+<p class="text-3xl font-black text-navy dark:text-white">$1,069.00</p>
+</div>
+<img alt="PayPal" class="h-6 mb-2" data-alt="PayPal logo for secure payments" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBpRIRGu9IbVfgybFc_sMs_933VeD575LvgUSZkS8ZdZkPZ6nFPListazxpk_0Bh8V7fYaz34twg4Ajd6tWg8tmK_HvC7F9FitAeKH-Dh-Awt3x1-D-4Q3qf76F77dYps725_5VxVr4JaNrBEvBbWAgska8WdzGD16uKT9wZGod9o5OrD3rR4QM1dNZELTih3iwlkTdWVaPBRD5rqQXJZW8o-LvQOyzPznsn38OtYcyNFPnqtgLCDmhsewpf8Zjr-od0Cm6a4V0LwQ"/>
+</div>
+</div>
+</div>
+<button class="w-full h-14 bg-primary text-navy text-lg font-black rounded-xl shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all mt-6">
+                            Confirm &amp; Secure Payment
+                        </button>
+</div>
+</div>
+<!-- Footer High Trust Badges -->
+<div class="mt-12 flex flex-wrap justify-center gap-8 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined">security</span>
+<span class="text-sm font-bold">SSL Secure Checkout</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined">verified_user</span>
+<span class="text-sm font-bold">Certified Pandits Only</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined">sentiment_very_satisfied</span>
+<span class="text-sm font-bold">5000+ Global Families</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined">language</span>
+<span class="text-sm font-bold">Multi-lingual Support</span>
+</div>
+</div>
+</div>
+</main>
+<footer class="mt-auto border-t border-navy/10 dark:border-white/10 py-8 bg-white dark:bg-navy/50">
+<div class="max-w-[1200px] mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4">
+<div class="flex items-center gap-2 opacity-70">
+<span class="material-symbols-outlined text-primary">temple_hindu</span>
+<p class="text-xs font-medium">© 2024 HmarePanditJi International Services. All rights reserved.</p>
+</div>
+<div class="flex gap-6">
+<a class="text-xs font-bold text-navy/60 dark:text-white/60" href="#">Privacy Policy</a>
+<a class="text-xs font-bold text-navy/60 dark:text-white/60" href="#">NRI Support Center</a>
+<a class="text-xs font-bold text-navy/60 dark:text-white/60" href="#">Refund Policy</a>
+</div>
+</div>
+</footer>
+</div>
+</div>
+</body></html>

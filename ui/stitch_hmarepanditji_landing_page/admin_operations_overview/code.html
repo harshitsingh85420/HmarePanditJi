@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>HmarePanditJi | Admin Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#f49d25",
+                        "background-light": "#f8f7f5",
+                        "background-dark": "#181511",
+                        "surface-dark": "#221a10",
+                        "danger": "#fa3f38",
+                        "success": "#0bda19",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined { font-size: 24px; vertical-align: middle; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display transition-colors duration-200">
+<div class="flex h-screen overflow-hidden">
+<!-- Sidebar Navigation -->
+<aside class="w-64 flex-shrink-0 border-r border-slate-200 dark:border-white/10 bg-white dark:bg-surface-dark flex flex-col">
+<div class="p-6 flex items-center gap-3">
+<div class="bg-primary rounded-lg p-1.5 flex items-center justify-center">
+<span class="material-symbols-outlined text-white">temple_hindu</span>
+</div>
+<div class="flex flex-col">
+<h1 class="text-base font-bold leading-tight">HmarePanditJi</h1>
+<p class="text-xs text-slate-500 dark:text-slate-400">Admin Control Center</p>
+</div>
+</div>
+<nav class="flex-1 px-4 space-y-1 overflow-y-auto">
+<div class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary">
+<span class="material-symbols-outlined">dashboard</span>
+<p class="text-sm font-semibold">Metrics</p>
+</div>
+<div class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 cursor-pointer">
+<span class="material-symbols-outlined">map</span>
+<p class="text-sm font-medium">Travel Ops</p>
+</div>
+<div class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 cursor-pointer">
+<span class="material-symbols-outlined">verified_user</span>
+<p class="text-sm font-medium">Verification Queue</p>
+</div>
+<div class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 cursor-pointer">
+<span class="material-symbols-outlined">support_agent</span>
+<p class="text-sm font-medium">Support</p>
+</div>
+<div class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 cursor-pointer">
+<span class="material-symbols-outlined">settings</span>
+<p class="text-sm font-medium">Settings</p>
+</div>
+</nav>
+<div class="p-4 mt-auto border-t border-slate-200 dark:border-white/10">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-slate-300 dark:bg-slate-700" data-alt="Avatar of current admin user" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBkJeM4bp7-b69T0WKHdObPjzrK26BUsn3jUHt3NAOv7VTJ5kVCxT9OsfC4LYr9tnpdFmv33ijoHxNFYL0L3cjQfWc5wgfeJKYeXbiRQgRLoS_JJJ5GWB0ciJPiFYNPLUM7JrNxYoC16Dwg7k5-vVpxddRuVIcReKAANPgbSBDkpELbW3FVACpE-nemMj5IumaD5L6y_XKLIr6-MXAWBv2bjjQdlpRRjcszBg9jj8aAgV10_AaHjSjJLQBo3mlJpfow4PORavGTpE4')"></div>
+<div class="flex flex-col">
+<p class="text-sm font-semibold">Rajesh Kumar</p>
+<p class="text-xs text-slate-500">Super Admin</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+<!-- Header -->
+<header class="h-16 flex items-center justify-between px-8 border-b border-slate-200 dark:border-white/10 bg-white/50 dark:bg-background-dark/50 backdrop-blur-md sticky top-0 z-10">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">analytics</span>
+<h2 class="text-xl font-bold">Operations Overview</h2>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+<input class="w-64 pl-10 pr-4 py-1.5 bg-slate-100 dark:bg-white/5 border-none rounded-lg text-sm focus:ring-2 focus:ring-primary/50" placeholder="Search Pandit or Service ID..." type="text"/>
+</div>
+<button class="p-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 size-2 bg-danger rounded-full border-2 border-white dark:border-background-dark"></span>
+</button>
+<button class="p-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg">
+<span class="material-symbols-outlined">dark_mode</span>
+</button>
+</div>
+</header>
+<div class="p-8 space-y-8">
+<!-- Stats Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+<div class="p-6 rounded-xl bg-white dark:bg-surface-dark border border-slate-200 dark:border-white/10 shadow-sm">
+<div class="flex items-center justify-between mb-2">
+<p class="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Bookings</p>
+<span class="material-symbols-outlined text-primary">calendar_month</span>
+</div>
+<div class="flex items-end gap-2">
+<p class="text-3xl font-bold">1,245</p>
+<p class="text-success text-sm font-medium mb-1">+12%</p>
+</div>
+</div>
+<div class="p-6 rounded-xl bg-white dark:bg-surface-dark border border-slate-200 dark:border-white/10 shadow-sm">
+<div class="flex items-center justify-between mb-2">
+<p class="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Active Pandits</p>
+<span class="material-symbols-outlined text-primary">groups</span>
+</div>
+<div class="flex items-end gap-2">
+<p class="text-3xl font-bold">512</p>
+<p class="text-success text-sm font-medium mb-1">+5%</p>
+</div>
+</div>
+<div class="p-6 rounded-xl bg-white dark:bg-surface-dark border border-slate-200 dark:border-white/10 shadow-sm">
+<div class="flex items-center justify-between mb-2">
+<p class="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Live Travels</p>
+<span class="material-symbols-outlined text-primary">commute</span>
+</div>
+<div class="flex items-end gap-2">
+<p class="text-3xl font-bold">42</p>
+<p class="text-danger text-sm font-medium mb-1">-2%</p>
+</div>
+</div>
+<div class="p-6 rounded-xl bg-white dark:bg-surface-dark border border-slate-200 dark:border-white/10 shadow-sm">
+<div class="flex items-center justify-between mb-2">
+<p class="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Revenue</p>
+<span class="material-symbols-outlined text-primary">payments</span>
+</div>
+<div class="flex items-end gap-2">
+<p class="text-3xl font-bold">₹82.4L</p>
+<p class="text-success text-sm font-medium mb-1">+18%</p>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+<!-- Live Map Section -->
+<div class="xl:col-span-2 space-y-6">
+<div class="p-6 rounded-xl bg-white dark:bg-surface-dark border border-slate-200 dark:border-white/10 shadow-sm flex flex-col h-[500px]">
+<div class="flex items-center justify-between mb-4">
+<h3 class="text-lg font-bold">Live Pandit Journeys (Central India)</h3>
+<div class="flex gap-2 text-xs font-medium">
+<span class="flex items-center gap-1"><span class="size-2 rounded-full bg-success"></span> On Time</span>
+<span class="flex items-center gap-1"><span class="size-2 rounded-full bg-primary"></span> Minor Delay</span>
+<span class="flex items-center gap-1"><span class="size-2 rounded-full bg-danger"></span> Critical</span>
+</div>
+</div>
+<div class="flex-1 bg-slate-200 dark:bg-background-dark rounded-lg relative overflow-hidden">
+<div class="absolute inset-0 bg-cover bg-center opacity-70 grayscale dark:invert" data-alt="Map of Central India showing movement of service providers" data-location="Central India" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuArYc-NYBn0ZSmRgE81MgTYrqJJqmIsoeJtOzaCY4hjIlJzW9uwMlW5wsdeZUlfuVp1Ltak3RlElDkmhZZRcnDm5zkMZLMpb4RQy1gHG9E8F155ebog-TZK7AXtykBw4UkWPAebiWunudSRZKqnSm7txLVqIiP9AoeVQaD5HzUm-jLGLPGHmIM0xxkNRg4ji429cZ-YRNg-VLPPD_E7Z4HQBVJz8Id8nLFXvHMm9YNkzWAnXy092mYA3Xhnd2YV5WaIOZwLKiVZgrQ')">
+</div>
+<!-- Interactive Elements Simulation -->
+<div class="absolute top-1/4 left-1/3 size-4 bg-success rounded-full ring-4 ring-success/20 animate-pulse"></div>
+<div class="absolute top-1/2 left-1/2 size-4 bg-primary rounded-full ring-4 ring-primary/20 animate-pulse"></div>
+<div class="absolute top-2/3 left-1/4 size-4 bg-danger rounded-full ring-4 ring-danger/20 animate-pulse"></div>
+<div class="absolute top-1/3 right-1/4 size-4 bg-success rounded-full ring-4 ring-success/20 animate-pulse"></div>
+</div>
+</div>
+</div>
+<!-- Red Alert Section -->
+<div class="space-y-6">
+<div class="p-6 rounded-xl bg-danger/5 border-2 border-danger/20 flex flex-col h-full">
+<div class="flex items-center gap-2 mb-6 text-danger">
+<span class="material-symbols-outlined">warning</span>
+<h3 class="text-lg font-black uppercase tracking-tighter">Red Alert Monitor</h3>
+</div>
+<div class="space-y-4 flex-1">
+<!-- Delayed Item 1 -->
+<div class="p-4 rounded-lg bg-white dark:bg-surface-dark border border-danger/30 shadow-sm">
+<div class="flex justify-between items-start mb-2">
+<h4 class="font-bold text-sm">Pandit Sharma Ji</h4>
+<span class="px-2 py-0.5 rounded bg-danger text-white text-[10px] font-bold">45m DELAY</span>
+</div>
+<p class="text-xs text-slate-500 dark:text-slate-400 mb-3">Route: Indore -&gt; Ujjain (Mahakal Puja)</p>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="text-[10px] font-bold text-primary uppercase">Backup Status:</span>
+<span class="px-2 py-0.5 rounded bg-success/20 text-success text-[10px] font-bold">READY</span>
+</div>
+<button class="bg-primary text-white text-xs font-bold px-3 py-1 rounded">REASSIGN</button>
+</div>
+</div>
+<!-- Delayed Item 2 -->
+<div class="p-4 rounded-lg bg-white dark:bg-surface-dark border border-danger/30 shadow-sm opacity-90">
+<div class="flex justify-between items-start mb-2">
+<h4 class="font-bold text-sm">Pandit Dubey Ji</h4>
+<span class="px-2 py-0.5 rounded bg-danger text-white text-[10px] font-bold">20m DELAY</span>
+</div>
+<p class="text-xs text-slate-500 dark:text-slate-400 mb-3">Route: Bhopal -&gt; Vidisha (Havan)</p>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="text-[10px] font-bold text-primary uppercase">Backup Status:</span>
+<span class="px-2 py-0.5 rounded bg-slate-200 dark:bg-white/10 text-slate-500 text-[10px] font-bold">PENDING</span>
+</div>
+<button class="bg-primary text-white text-xs font-bold px-3 py-1 rounded">CONTACT</button>
+</div>
+</div>
+</div>
+<button class="w-full mt-6 py-3 bg-danger text-white rounded-lg font-bold text-sm hover:bg-danger/90 transition-colors">
+                                VIEW ALL CRITICAL ALERTS (4)
+                            </button>
+</div>
+</div>
+</div>
+<!-- Recent Activity Table -->
+<div class="p-6 rounded-xl bg-white dark:bg-surface-dark border border-slate-200 dark:border-white/10 shadow-sm overflow-hidden">
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-lg font-bold">Live Travel Operations Log</h3>
+<button class="text-sm font-semibold text-primary">Export CSV</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead class="border-b border-slate-200 dark:border-white/10">
+<tr class="text-xs text-slate-500 uppercase tracking-wider">
+<th class="px-4 py-3 font-medium">Pandit ID</th>
+<th class="px-4 py-3 font-medium">Service Type</th>
+<th class="px-4 py-3 font-medium">Current Location</th>
+<th class="px-4 py-3 font-medium">ETA to Destination</th>
+<th class="px-4 py-3 font-medium">Risk Status</th>
+<th class="px-4 py-3 font-medium">Action</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-200 dark:divide-white/10">
+<tr class="text-sm">
+<td class="px-4 py-4 font-medium">#PJ-4512</td>
+<td class="px-4 py-4">Griha Pravesh Puja</td>
+<td class="px-4 py-4 text-slate-500">Dewas Bypass</td>
+<td class="px-4 py-4">12 mins</td>
+<td class="px-4 py-4"><span class="px-2 py-1 rounded-full bg-success/10 text-success text-[10px] font-bold">LOW</span></td>
+<td class="px-4 py-4"><button class="text-slate-400 hover:text-primary"><span class="material-symbols-outlined">visibility</span></button></td>
+</tr>
+<tr class="text-sm">
+<td class="px-4 py-4 font-medium">#PJ-9821</td>
+<td class="px-4 py-4">Satyanarayan Katha</td>
+<td class="px-4 py-4 text-slate-500">Raisen Road</td>
+<td class="px-4 py-4">34 mins</td>
+<td class="px-4 py-4"><span class="px-2 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-bold">MEDIUM</span></td>
+<td class="px-4 py-4"><button class="text-slate-400 hover:text-primary"><span class="material-symbols-outlined">visibility</span></button></td>
+</tr>
+<tr class="text-sm">
+<td class="px-4 py-4 font-medium">#PJ-1102</td>
+<td class="px-4 py-4">Vastu Shanti</td>
+<td class="px-4 py-4 text-slate-500">MP Nagar Ph-II</td>
+<td class="px-4 py-4">5 mins</td>
+<td class="px-4 py-4"><span class="px-2 py-1 rounded-full bg-success/10 text-success text-[10px] font-bold">LOW</span></td>
+<td class="px-4 py-4"><button class="text-slate-400 hover:text-primary"><span class="material-symbols-outlined">visibility</span></button></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

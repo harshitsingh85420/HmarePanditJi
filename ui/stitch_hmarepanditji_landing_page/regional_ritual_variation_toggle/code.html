@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Regional Ritual Variation Toggle - HmarePanditJi</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0f49bd",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        "display": ["Public Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom radio logic for visual selection */
+        .peer:checked ~ .selection-card {
+            border-color: #0f49bd;
+            background-color: #eff6ff; /* blue-50 */
+            box-shadow: 0 4px 6px -1px rgba(15, 73, 189, 0.1), 0 2px 4px -1px rgba(15, 73, 189, 0.06);
+        }
+        .peer:checked ~ .selection-card .check-icon {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .dark .peer:checked ~ .selection-card {
+            background-color: rgba(15, 73, 189, 0.15);
+            border-color: #0f49bd;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-100 min-h-screen flex flex-col transition-colors duration-200">
+<!-- Navbar -->
+<nav class="sticky top-0 z-50 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex justify-between h-16 items-center">
+<div class="flex items-center gap-2">
+<div class="h-8 w-8 bg-primary rounded-lg flex items-center justify-center text-white font-bold text-lg">H</div>
+<span class="font-bold text-xl tracking-tight text-primary dark:text-white">HmarePanditJi</span>
+</div>
+<div class="hidden md:flex items-center space-x-8 text-sm font-medium text-gray-600 dark:text-gray-300">
+<a class="hover:text-primary transition-colors" href="#">Pandits</a>
+<a class="hover:text-primary transition-colors" href="#">Puja Services</a>
+<a class="hover:text-primary transition-colors" href="#">Astrology</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-gray-500 hover:text-primary transition-colors">
+<span class="material-icons">help_outline</span>
+</button>
+<div class="h-8 w-8 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden border border-gray-300 dark:border-gray-600">
+<img alt="User Avatar" class="h-full w-full object-cover" data-alt="Portrait of a user" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD_28v5kEX1L7RY-9sEhclPA6j5aZ6_EflrMm5Yvg_MmKU6lpNxVqP3-T6TuZtNaf5QHNa4YZZVDGIuQHoVgK9CP6LW8eD7EzCoMGMP_uMrNExLaOPb26vV_MupiGiY-LSm2MjGchRg9oXK1gLYR97TS23bUAIvCPZJuAbHJI0qgFi329K3y3RglmWYgyLhcDReXU0vDz0j_gJhgPpG1sKUe4EkgvfoKzIeQOEMUMicRbT-ksQCHtQJKExpFruASr-ZjyBNau0o_R8"/>
+</div>
+</div>
+</div>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-grow flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+<div class="w-full max-w-4xl mx-auto">
+<!-- Progress Steps -->
+<div class="mb-12">
+<div class="flex items-center justify-center space-x-4">
+<div class="flex flex-col items-center">
+<div class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-sm font-semibold">1</div>
+<span class="text-xs mt-1 font-medium text-primary">Details</span>
+</div>
+<div class="w-16 h-0.5 bg-primary"></div>
+<div class="flex flex-col items-center">
+<div class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-sm font-semibold ring-4 ring-blue-100 dark:ring-blue-900/30">2</div>
+<span class="text-xs mt-1 font-bold text-primary">Tradition</span>
+</div>
+<div class="w-16 h-0.5 bg-gray-300 dark:bg-gray-700"></div>
+<div class="flex flex-col items-center">
+<div class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 flex items-center justify-center text-sm font-semibold">3</div>
+<span class="text-xs mt-1 font-medium text-gray-500 dark:text-gray-400">Samagri</span>
+</div>
+<div class="w-16 h-0.5 bg-gray-300 dark:bg-gray-700"></div>
+<div class="flex flex-col items-center">
+<div class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 flex items-center justify-center text-sm font-semibold">4</div>
+<span class="text-xs mt-1 font-medium text-gray-500 dark:text-gray-400">Review</span>
+</div>
+</div>
+</div>
+<!-- Header Text -->
+<div class="text-center mb-10">
+<h1 class="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-3">Which tradition does your family follow?</h1>
+<p class="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                    We match you with Pandits experienced in your specific regional customs and generate the correct Samagri (materials) list.
+                </p>
+</div>
+<!-- Selection Grid -->
+<form class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+<!-- Option 1: North Indian -->
+<label class="relative group cursor-pointer h-full">
+<input class="peer sr-only" name="ritual_style" type="radio" value="north"/>
+<div class="selection-card h-full p-6 sm:p-8 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 transition-all duration-300 hover:border-blue-300 dark:hover:border-blue-700 relative overflow-hidden flex flex-col">
+<!-- Check Icon -->
+<div class="check-icon absolute top-4 right-4 w-6 h-6 bg-primary rounded-full text-white flex items-center justify-center opacity-0 transform scale-75 transition-all duration-300 z-10">
+<span class="material-icons text-sm">check</span>
+</div>
+<!-- Image / Visual -->
+<div class="mb-6 rounded-lg overflow-hidden h-48 bg-gradient-to-br from-orange-50 to-amber-100 dark:from-gray-700 dark:to-gray-600 relative">
+<img alt="Ceremonial fire pit or Havan Kund with flames" class="w-full h-full object-cover opacity-90 mix-blend-multiply dark:mix-blend-normal" data-alt="Close up of a Havan Kund with sacred fire ritual" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCfaQeeQyHpn9EcENiorGs83Pjw8zo6UR_g4lvkXzhS84hCRf4qZKaKYjO4wbOw0wE8qMO6bzAk52YWCKrfkPra_DSW4WtGF-opRx6BfgI7ogtOwmTeD9a3dwvjAXvq3-moi7zlvvXLucwoDKC2Zwgy-T6fsdtZEU8YyOvGVUViW-iglzLZGtZb6ZXpQjMXbJblV1F_a0cGVLRFsZiF0r9_27aApxUKsl_wbjEtjGtVf9Y9BJE47gpsfFNGOxSZ5E6T2bspY3S_-hs"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+<div class="absolute bottom-3 left-3 text-white font-medium text-sm flex items-center gap-1">
+<span class="material-icons text-base">local_fire_department</span> Vedic Focus
+                            </div>
+</div>
+<!-- Content -->
+<div class="flex-grow">
+<div class="flex items-center gap-2 mb-2">
+<span class="px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300">Popular in North</span>
+</div>
+<h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">North Indian / Vedic Style</h3>
+<p class="text-sm text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">
+                                Primarily follows Vedic mantras and procedures. Central focus is often on the <strong>Havan (Fire Ritual)</strong>.
+                            </p>
+<!-- Detailed features list -->
+<ul class="space-y-2">
+<li class="flex items-start text-xs text-gray-500 dark:text-gray-400">
+<span class="material-icons text-green-500 text-sm mr-2 mt-0.5">check_circle</span>
+<span>Focus on 16 Sanskars &amp; Vedic chanting</span>
+</li>
+<li class="flex items-start text-xs text-gray-500 dark:text-gray-400">
+<span class="material-icons text-green-500 text-sm mr-2 mt-0.5">check_circle</span>
+<span>Havan Kund setup required</span>
+</li>
+<li class="flex items-start text-xs text-gray-500 dark:text-gray-400">
+<span class="material-icons text-green-500 text-sm mr-2 mt-0.5">check_circle</span>
+<span>Includes items like Ghee, Havan Samagri, Mango wood</span>
+</li>
+</ul>
+</div>
+</div>
+</label>
+<!-- Option 2: South Indian -->
+<label class="relative group cursor-pointer h-full">
+<input class="peer sr-only" name="ritual_style" type="radio" value="south"/>
+<div class="selection-card h-full p-6 sm:p-8 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 transition-all duration-300 hover:border-blue-300 dark:hover:border-blue-700 relative overflow-hidden flex flex-col">
+<!-- Check Icon -->
+<div class="check-icon absolute top-4 right-4 w-6 h-6 bg-primary rounded-full text-white flex items-center justify-center opacity-0 transform scale-75 transition-all duration-300 z-10">
+<span class="material-icons text-sm">check</span>
+</div>
+<!-- Image / Visual -->
+<div class="mb-6 rounded-lg overflow-hidden h-48 bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-gray-700 dark:to-gray-600 relative">
+<img alt="Brass oil lamp or Kuthu Vilakku with flowers" class="w-full h-full object-cover opacity-90 mix-blend-multiply dark:mix-blend-normal" data-alt="Traditional brass lamp with floral decorations" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCS4c3VLTdqJrvOfBH9Jy__V0XulV0QRSMurtY11X-MNQgY5l6526lqP63UT1ffGIwWxjAHY9gEoR4FnO8lntU709eX5OD43TWJULnu-4VxUJr-922aO-zLXviDRXA2Fy8dGjiKQRsSkMO4COfBZMwzDlvtpqWOPMzQ8cSfRiPT0dI5nhmfwV76cbcEwTvw7LPxy1yFrW0pnOhuO8mzbcRwro-jo7U-9RCDiflvf1Wb6WERc6WqZ0T4gEuUJe3qq_Qmzt0e0Fc83wI"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+<div class="absolute bottom-3 left-3 text-white font-medium text-sm flex items-center gap-1">
+<span class="material-icons text-base">spa</span> Agamic Focus
+                            </div>
+</div>
+<!-- Content -->
+<div class="flex-grow">
+<div class="flex items-center gap-2 mb-2">
+<span class="px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300">Popular in South</span>
+</div>
+<h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors">South Indian / Agamic Style</h3>
+<p class="text-sm text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">
+                                Follows Agamic scriptures and temple traditions. Strong emphasis on <strong>Alankaram (Decoration)</strong> and Pujas.
+                            </p>
+<!-- Detailed features list -->
+<ul class="space-y-2">
+<li class="flex items-start text-xs text-gray-500 dark:text-gray-400">
+<span class="material-icons text-green-500 text-sm mr-2 mt-0.5">check_circle</span>
+<span>Extensive Mantras &amp; intricate rituals</span>
+</li>
+<li class="flex items-start text-xs text-gray-500 dark:text-gray-400">
+<span class="material-icons text-green-500 text-sm mr-2 mt-0.5">check_circle</span>
+<span>Lamp (Vilakku) &amp; Kalasham setup required</span>
+</li>
+<li class="flex items-start text-xs text-gray-500 dark:text-gray-400">
+<span class="material-icons text-green-500 text-sm mr-2 mt-0.5">check_circle</span>
+<span>Includes items like Betel leaves, specific flowers, oils</span>
+</li>
+</ul>
+</div>
+</div>
+</label>
+</form>
+<!-- Info / Context Block -->
+<div class="bg-blue-50 dark:bg-primary/10 border border-blue-100 dark:border-primary/20 rounded-lg p-4 mb-8 flex items-start gap-3">
+<span class="material-icons text-primary mt-0.5">info</span>
+<div>
+<h4 class="text-sm font-semibold text-gray-900 dark:text-gray-100">Why do we ask this?</h4>
+<p class="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                        Ensures Pandit expertise matches your family tradition. Selecting the correct style customizes the <strong>Samagri List</strong> you will receive in the next step, preventing last-minute hassles.
+                    </p>
+</div>
+</div>
+<!-- Action Bar -->
+<div class="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6 border-t border-gray-200 dark:border-gray-800">
+<button class="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white font-medium text-sm transition-colors flex items-center gap-2 order-2 sm:order-1" type="button">
+<span class="material-icons text-sm">arrow_back</span> Back
+                </button>
+<button class="w-full sm:w-auto bg-primary hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg shadow-lg shadow-blue-500/30 transition-all duration-200 flex items-center justify-center gap-2 order-1 sm:order-2 group" type="button">
+                    Continue to Samagri
+                    <span class="material-icons text-sm transform group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+</div>
+</div>
+</main>
+<!-- Footer Simplified -->
+<footer class="bg-white dark:bg-background-dark border-t border-gray-200 dark:border-gray-800 py-8">
+<div class="max-w-7xl mx-auto px-4 text-center text-sm text-gray-500 dark:text-gray-400">
+<p>© 2023 HmarePanditJi. Respecting traditions, simplifying rituals.</p>
+</div>
+</footer>
+</body></html>

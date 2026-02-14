@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Wedding Planner B2B Dashboard - HmarePanditJi</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1152d4", // Navy Blue
+                        "gold": "#D4AF37",
+                        "saffron": "#FF9933",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .sidebar-active {
+            background-color: rgba(17, 82, 212, 0.1);
+            border-left: 4px solid #1152d4;
+        }
+        .metric-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100">
+<div class="flex h-screen overflow-hidden">
+<!-- Sidebar Navigation -->
+<aside class="w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col">
+<div class="p-6 flex items-center gap-3">
+<div class="size-10 rounded-lg bg-primary flex items-center justify-center text-white">
+<span class="material-symbols-outlined">temple_hindu</span>
+</div>
+<div>
+<h1 class="text-sm font-bold leading-none text-primary">HmarePanditJi</h1>
+<p class="text-[10px] uppercase tracking-wider font-semibold text-gold">B2B Planner Portal</p>
+</div>
+</div>
+<nav class="flex-1 px-4 space-y-1 mt-4">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg sidebar-active text-primary font-medium" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                    Dashboard
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined">groups</span>
+                    Client Lists
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined">calendar_month</span>
+                    Wedding Calendar
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined">verified</span>
+                    Preferred Pandits
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined">receipt_long</span>
+                    Bulk Invoices
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+                    Samagri Inventory
+                </a>
+</nav>
+<div class="p-4 border-t border-slate-200 dark:border-slate-800">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors mb-4" href="#">
+<span class="material-symbols-outlined">settings</span>
+                    Account Settings
+                </a>
+<button class="w-full bg-saffron hover:bg-orange-500 text-white font-bold py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-md">
+<span class="material-symbols-outlined">add_circle</span>
+                    New Booking
+                </button>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col overflow-y-auto">
+<!-- Header -->
+<header class="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-8 flex items-center justify-between sticky top-0 z-10">
+<div class="flex items-center gap-4">
+<h2 class="text-xl font-bold text-slate-800 dark:text-white">Professional Planner Portal</h2>
+<div class="flex items-center bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700">
+<span class="material-symbols-outlined text-slate-400 text-xl">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-64" placeholder="Search events or Pandits..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 size-2 bg-red-500 rounded-full border-2 border-white dark:border-slate-900"></span>
+</button>
+<div class="h-8 w-px bg-slate-200 dark:border-slate-700"></div>
+<div class="flex items-center gap-3">
+<div class="text-right">
+<p class="text-sm font-semibold leading-none">Wedding Artistry Co.</p>
+<p class="text-[10px] text-slate-500 font-medium">Gold Member</p>
+</div>
+<div class="size-10 rounded-full bg-slate-200 bg-cover bg-center" data-alt="User profile avatar of the wedding planner" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDrqJ-5KPlAfISQm50DAsdrDemuPl2GjW8diG9x5vYi0NiAsQ_mpH0PMjm2m8qOLd-A_CEE6iNrVIVSv6P7Lc12uw1q_5FDcNQcjZbypq2mq6DkNRjrYNomsjHbpWcUCfYYZxIYHHazW7vsNgyILGJh7ZvbYJaYNmtGu1tjhi_F4DV0TcMzHS7_FH58IHY3dGwGPzJU2oDt3jRLN_kSycmByjBZ5mLKjHOSpLqDI7wSMS3W_Wz-7p3Az2Z2HYsd6OVK9-mlXsVMte8')"></div>
+</div>
+</div>
+</header>
+<!-- Dashboard Content -->
+<div class="p-8 space-y-8">
+<!-- Metrics Section -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="metric-card p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="flex justify-between items-start mb-4">
+<span class="p-2 bg-primary/10 text-primary rounded-lg material-symbols-outlined">celebration</span>
+<span class="text-xs font-bold text-green-600 bg-green-100 px-2 py-0.5 rounded-full">+12%</span>
+</div>
+<p class="text-slate-500 text-sm font-medium">Total Weddings</p>
+<h3 class="text-3xl font-bold mt-1">24</h3>
+</div>
+<div class="metric-card p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="flex justify-between items-start mb-4">
+<span class="p-2 bg-gold/10 text-gold rounded-lg material-symbols-outlined">person_check</span>
+<span class="text-xs font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">Stable</span>
+</div>
+<p class="text-slate-500 text-sm font-medium">Confirmed Pandits</p>
+<h3 class="text-3xl font-bold mt-1">22</h3>
+</div>
+<div class="metric-card p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+<div class="flex justify-between items-start mb-4">
+<span class="p-2 bg-saffron/10 text-saffron rounded-lg material-symbols-outlined">hourglass_top</span>
+<span class="text-xs font-bold text-red-600 bg-red-100 px-2 py-0.5 rounded-full">Action Required</span>
+</div>
+<p class="text-slate-500 text-sm font-medium">Pending Muhurat</p>
+<h3 class="text-3xl font-bold mt-1">02</h3>
+</div>
+</div>
+<div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+<!-- Main Table: Upcoming Weddings -->
+<div class="xl:col-span-2 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+<div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
+<h3 class="font-bold text-slate-800 dark:text-white">Upcoming Weddings</h3>
+<button class="text-sm font-semibold text-primary hover:underline">View All</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead class="bg-slate-50 dark:bg-slate-800/50 text-slate-500 text-xs uppercase tracking-wider">
+<tr>
+<th class="px-6 py-3 font-semibold">Client Name</th>
+<th class="px-6 py-3 font-semibold">Wedding Date</th>
+<th class="px-6 py-3 font-semibold">Venue</th>
+<th class="px-6 py-3 font-semibold">Assigned Pandit</th>
+<th class="px-6 py-3 font-semibold text-center">Status</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+<td class="px-6 py-4">
+<p class="font-semibold text-sm">Aditi &amp; Rahul</p>
+<p class="text-xs text-slate-400">ID: HP-9021</p>
+</td>
+<td class="px-6 py-4 text-sm">Oct 12, 2023</td>
+<td class="px-6 py-4 text-sm">Taj Palace, Delhi</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<div class="size-6 rounded-full bg-slate-200 bg-cover bg-center" data-alt="Portrait of Pt. Rajesh Sharma" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA-F7u_fcyGTg7oZhWGwcREIiWDDx9X4vPyTmWtHFjyMrY9snI-GhlBN8GbrJJZPqq1qpQCZWKImBloo5uUFcZN5phpbsM80vZbil0O0GawREOylMnjATDrqe1TcteHTfBzJ7DY9gAxL3-sjojvtQCyIrAZRsfOZHAOQqiJmQViJB34VU6JN9dI1WZC9fPKdBPPl1ITTQ0Vo8pajXlu7mah8OoXEwFAgjLD_N0R0IavZc1l96cg5QztNWfGJApfhKm7jPmZP9n2k_o')"></div>
+<span class="text-sm font-medium">Pt. Rajesh Sharma</span>
+</div>
+</td>
+<td class="px-6 py-4 text-center">
+<span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-green-100 text-green-700">Confirmed</span>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+<td class="px-6 py-4">
+<p class="font-semibold text-sm">Priya &amp; Amit</p>
+<p class="text-xs text-slate-400">ID: HP-9044</p>
+</td>
+<td class="px-6 py-4 text-sm">Oct 18, 2023</td>
+<td class="px-6 py-4 text-sm">The Leela, Mumbai</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<div class="size-6 rounded-full bg-slate-200 bg-cover bg-center" data-alt="Portrait of Pt. Vishnu Kant" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCvPMX1gNaiQwi7KYXTcvqaut7n9NqH6Xhot6aImt9Mm85QKZkmMibkzPG9l9SIJDofS9D4rwIpY_uFJAcQaol0madsMJKexmlO-vYHB45x7h0DgaFcxt-3HIg6aaNeC5J7RTKgnwVORALRV-akJ_lHZ8JPHFY3BupmJHhG_Hmuf1paEryZ2DDx5YfHYoeCgf1ftaNNmld3hgAnMdprF0lFEcEIBuBlyDA8eryUcDfTZ-pAPBXtRYWpgdqelYXDfnDHH4FBrGnV-L8')"></div>
+<span class="text-sm font-medium">Pt. Vishnu Kant</span>
+</div>
+</td>
+<td class="px-6 py-4 text-center">
+<span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-orange-100 text-orange-700">Pending</span>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+<td class="px-6 py-4">
+<p class="font-semibold text-sm">Sanya &amp; Vikram</p>
+<p class="text-xs text-slate-400">ID: HP-9088</p>
+</td>
+<td class="px-6 py-4 text-sm">Nov 05, 2023</td>
+<td class="px-6 py-4 text-sm">ITC Rajputana, Jaipur</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<div class="size-6 rounded-full bg-slate-200 bg-cover bg-center" data-alt="Portrait of Pt. G.N. Shastri" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDcfTz9jUqvFrHV264f1xH3_FHhI0wkFuIb4XaiE_XSr3nnHUI7Uxc2Clz5q54nBg1iqFHejphW9mLAKVwN73yY0k2P_uS1iIvj0qaaqBA2CZOeEusnldMmotmXt1wssfx71U50iG6AGy33De7KOmX-laO2jap-al76hqJaUgy9DateH4U8731Fu1nkAw0PH1XIDvxuG6HA2JvlXhQNxGw0Qn1TXMxGiKeRqN_UuFEJq7CFaUiDpc1nPOHubCJ8nC-pMC6MLpYNKbA')"></div>
+<span class="text-sm font-medium">Pt. G.N. Shastri</span>
+</div>
+</td>
+<td class="px-6 py-4 text-center">
+<span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-green-100 text-green-700">Confirmed</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Side Features -->
+<div class="space-y-8">
+<!-- Quick Booking Feature -->
+<div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
+<div class="flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-gold">bolt</span>
+<h3 class="font-bold">Quick Booking</h3>
+</div>
+<p class="text-xs text-slate-500 mb-4">Saved frequent Pandit + Samagri combinations</p>
+<div class="space-y-3">
+<button class="w-full text-left p-3 rounded-lg border border-slate-100 dark:border-slate-800 hover:border-gold transition-all group">
+<p class="text-sm font-semibold group-hover:text-gold">Vedic Vivah Special</p>
+<p class="text-[10px] text-slate-400">Senior Pandit + Full Havan Kit + GST</p>
+</button>
+<button class="w-full text-left p-3 rounded-lg border border-slate-100 dark:border-slate-800 hover:border-gold transition-all group">
+<p class="text-sm font-semibold group-hover:text-gold">Sangeet Sandhya Kit</p>
+<p class="text-[10px] text-slate-400">Bhajan Group + Basic Samagri</p>
+</button>
+</div>
+</div>
+<!-- Bulk Invoices Feature -->
+<div class="bg-primary text-white rounded-xl shadow-lg p-6 relative overflow-hidden">
+<div class="relative z-10">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined">receipt_long</span>
+<h3 class="font-bold">Bulk Invoicing</h3>
+</div>
+<p class="text-sm text-blue-100 mb-4">Manage GST compliant invoices for all active events.</p>
+<button class="bg-white text-primary text-xs font-bold py-2 px-4 rounded-lg hover:bg-blue-50 transition-colors">Generate Batch</button>
+</div>
+<span class="material-symbols-outlined absolute -bottom-4 -right-4 text-blue-400/20 text-9xl">account_balance_wallet</span>
+</div>
+</div>
+</div>
+<!-- Preferred Pandit List -->
+<div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+<div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-gold">star</span>
+<h3 class="font-bold">Preferred Pandit List</h3>
+</div>
+<span class="text-xs text-slate-400 italic">Priority booking access enabled</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 divide-x divide-slate-100 dark:divide-slate-800">
+<!-- Pandit Card 1 -->
+<div class="p-6 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+<div class="flex items-center gap-3 mb-3">
+<div class="size-12 rounded-lg bg-cover bg-center" data-alt="Vedic Pandit profile picture" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD4dSQ6ZOzOPi1BVup4WOyjdggnYyb6ifu0u0BEz8J09HBgZkjscVZ_SyL3YEcvHKdAldXcsKfaslr5Dlk4kgmWo_SY4lf4NakIlxPq-vJEB8pIG66z0O78jlLd6EcRAQGhHkVvkAXnan34Tp67cn01LHiAGxr_uc3kkXEAzX-KrRtx_2ROWBanC05i4rNRGGcV30QZ8a2N-25vl8_CnEyn7RxnIgxPDBhfSgbIBRw-8ajGaVNdRkospuciSUkwkf7KOCeQ4R_e5lY')"></div>
+<div>
+<p class="font-bold text-sm">Pt. Rajesh Sharma</p>
+<div class="flex items-center gap-1 text-gold">
+<span class="material-symbols-outlined text-xs">star</span>
+<span class="text-xs font-bold">4.9</span>
+</div>
+</div>
+</div>
+<p class="text-[10px] text-slate-500 mb-4">Specialization: Vedic Rituals, North Indian Weddings</p>
+<button class="w-full border border-primary text-primary text-[10px] font-bold py-1.5 rounded uppercase hover:bg-primary hover:text-white transition-all">Instant Book</button>
+</div>
+<!-- Pandit Card 2 -->
+<div class="p-6 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+<div class="flex items-center gap-3 mb-3">
+<div class="size-12 rounded-lg bg-cover bg-center" data-alt="South Indian Pandit profile picture" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCVCjmq-ujZXvZuy7VHtqbDm5kXoH25dewrdMtytV08uRjP3e1dVwwg0vpBWAo22uB9fJZ-vMBzeHpq7eDe_R6OugTfotRjgQmB3ItDTy4TRfx4fwKd9eUlcnnoTgMWCCYvAaJTlRbi1fuuRjLk1iPKIv6cQF-aFvVekb4edxkUdrHTQq7_OJD26IBGsS2B94kLk6vKsCBth0VXGLojjU6cdks6nTCwILyyXm898HwRz6WZ5jFCfxNCvq9Y4AITZ3xoXyXBoKzLx6Q')"></div>
+<div>
+<p class="font-bold text-sm">Pt. K. Srinivasan</p>
+<div class="flex items-center gap-1 text-gold">
+<span class="material-symbols-outlined text-xs">star</span>
+<span class="text-xs font-bold">4.8</span>
+</div>
+</div>
+</div>
+<p class="text-[10px] text-slate-500 mb-4">Specialization: Tamil/Telugu Brahmin Traditions</p>
+<button class="w-full border border-primary text-primary text-[10px] font-bold py-1.5 rounded uppercase hover:bg-primary hover:text-white transition-all">Instant Book</button>
+</div>
+<!-- Pandit Card 3 -->
+<div class="p-6 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+<div class="flex items-center gap-3 mb-3">
+<div class="size-12 rounded-lg bg-cover bg-center" data-alt="Senior Pandit profile picture" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC1SyGQeh3HqUmVyWi4Z39olmoxvuV9UFAqB8IA0uPveYyE3ehGRSFX3R4rCBCpJmDtp6452ObOJ8NjIHob1wrZKMogv8wrea-WF_U7KVtWLuw9Qf5Z9PG5AuuGKJUETc_VlwNOEN0aMhnYj0q2Yweg5jxCAXsf7DnwjZqaLgiGDZdgxMgP7Ar3t3b559yah7LWDpxKWBwBWqf2354cUl4a2W3HvWl5hLoCIQhMpkhwrXJMsNm0Sni7iu-DQxiTGaG1ZjGSaoKhX3E')"></div>
+<div>
+<p class="font-bold text-sm">Pt. G.N. Shastri</p>
+<div class="flex items-center gap-1 text-gold">
+<span class="material-symbols-outlined text-xs">star</span>
+<span class="text-xs font-bold">5.0</span>
+</div>
+</div>
+</div>
+<p class="text-[10px] text-slate-500 mb-4">Specialization: Maharashtrian &amp; Marwari Rituals</p>
+<button class="w-full border border-primary text-primary text-[10px] font-bold py-1.5 rounded uppercase hover:bg-primary hover:text-white transition-all">Instant Book</button>
+</div>
+<!-- Pandit Card 4 -->
+<div class="p-6 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+<div class="flex items-center gap-3 mb-3">
+<div class="size-12 rounded-lg bg-cover bg-center" data-alt="Pandit profile picture" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDtCPqy7vi96f7UefWAdolE6IJYW68DRe4V0ekv0GNAs8nO1EEeYmkr79r9Q5O_TWVOf5UBMhhE391qClVnAPRgP7vh9V5UUYqmn_NbD-O9pdi8SWG0irSGT8GcmBHfHcNVDDg5ZBQaDC04OWgXdmjkyRMJ7U9p-rn1sJMvf9XqTvnBGY3v_jdSkD52L9mrCc2AoDP2pXGUi55MotYvjsmZhnMtODVh_mPGkCotOo-sGhiQ9uHjn94jw-D3f39BmM-FSxRYTZhONGo')"></div>
+<div>
+<p class="font-bold text-sm">Pt. Vishnu Kant</p>
+<div class="flex items-center gap-1 text-gold">
+<span class="material-symbols-outlined text-xs">star</span>
+<span class="text-xs font-bold">4.7</span>
+</div>
+</div>
+</div>
+<p class="text-[10px] text-slate-500 mb-4">Specialization: Destination Weddings, Modern Rituals</p>
+<button class="w-full border border-primary text-primary text-[10px] font-bold py-1.5 rounded uppercase hover:bg-primary hover:text-white transition-all">Instant Book</button>
+</div>
+</div>
+</div>
+</div>
+<footer class="p-8 mt-auto text-center border-t border-slate-200 dark:border-slate-800">
+<p class="text-xs text-slate-400">© 2023 HmarePanditJi B2B Solutions. All rights reserved. GST Registered.</p>
+</footer>
+</main>
+</div>
+</body></html>

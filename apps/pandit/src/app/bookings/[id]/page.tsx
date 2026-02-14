@@ -165,6 +165,50 @@ export default function PanditBookingDetailPage() {
     }
   }, [id]);
 
+  const acceptBooking = useCallback(async () => {
+    setStatusLoading(true);
+    try {
+      const token = localStorage.getItem("hpj_pandit_access_token");
+      const res = await fetch(`${API_BASE}/bookings/${id}/accept`, {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const json = await res.json();
+        setBooking((prev) => prev ? { ...prev, ...json.data.booking } : prev);
+      }
+    } catch {
+      alert("Failed to accept booking");
+    } finally {
+      setStatusLoading(false);
+    }
+  }, [id]);
+
+  const rejectBooking = useCallback(async () => {
+    if (!confirm("Are you sure you want to reject this booking?")) return;
+    setStatusLoading(true);
+    try {
+      const token = localStorage.getItem("hpj_pandit_access_token");
+      const res = await fetch(`${API_BASE}/bookings/${id}/reject`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ reason: "Pandit unavailable" }),
+      });
+      if (res.ok) {
+        const json = await res.json();
+        setBooking((prev) => prev ? { ...prev, ...json.data.booking } : prev);
+        router.push("/bookings");
+      }
+    } catch {
+      alert("Failed to reject booking");
+    } finally {
+      setStatusLoading(false);
+    }
+  }, [id, router]);
+
   if (loading) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
@@ -228,6 +272,22 @@ export default function PanditBookingDetailPage() {
           <span className="material-symbols-outlined text-base">arrow_back</span>
           Back to Bookings
         </Link>
+
+        {/* Urgent Banner for Requests */}
+        {booking.status === "PANDIT_REQUESTED" && (
+          <div className="bg-orange-50 border border-orange-200 rounded-xl overflow-hidden mb-6">
+            <div className="bg-[#f49d25]/10 px-4 py-3 border-b border-[#f49d25]/20 flex items-center justify-between">
+              <p className="text-[#f49d25] text-xs font-bold uppercase tracking-wider">New Booking Request</p>
+              <div className="flex items-center gap-1.5 bg-white px-2 py-1 rounded shadow-sm">
+                <span className="material-symbols-outlined text-sm text-[#f49d25]">timer</span>
+                <p className="text-[#f49d25] text-sm font-bold font-mono leading-none">EXPIRING SOON</p>
+              </div>
+            </div>
+            <div className="px-4 py-3">
+              <p className="text-sm text-orange-800 font-medium">Please accept or reject this request within 4 hours.</p>
+            </div>
+          </div>
+        )}
 
         {/* Header */}
         <div className="flex items-start justify-between mb-6">
@@ -382,6 +442,27 @@ export default function PanditBookingDetailPage() {
                 ))}
               </div>
             )}
+
+            {/* Accept/Reject Actions */}
+            {booking.status === "PANDIT_REQUESTED" && !statusLoading && (
+              <div className="flex flex-col gap-3 mt-4">
+                <button
+                  onClick={acceptBooking}
+                  className="w-full bg-[#f49d25] hover:bg-[#e08c14] text-white font-bold py-4 rounded-xl shadow-lg shadow-orange-200 transition-all active:scale-95 flex items-center justify-center gap-2"
+                >
+                  <span className="material-symbols-outlined">check_circle</span>
+                  ACCEPT BOOKING
+                </button>
+                <button
+                  onClick={rejectBooking}
+                  className="w-full bg-transparent hover:bg-red-50 text-red-500 font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 border border-red-100"
+                >
+                  <span className="material-symbols-outlined">cancel</span>
+                  REJECT REQUEST
+                </button>
+              </div>
+            )}
+
             {statusLoading && (
               <div className="flex items-center justify-center h-12">
                 <div className="w-6 h-6 border-3 border-primary border-t-transparent rounded-full animate-spin" />

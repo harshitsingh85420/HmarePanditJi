@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Admin Helpline Agent Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0f49bd",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        "display": ["Public Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for cleaner look in dense dashboards */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: #334155;
+        }
+        .map-pattern {
+            background-color: #e5e7eb;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239ca3af' fill-opacity='0.2'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        .dark .map-pattern {
+            background-color: #1f2937;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%234b5563' fill-opacity='0.2'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-800 dark:text-slate-100 font-display h-screen flex flex-col overflow-hidden">
+<!-- Top Navigation -->
+<header class="bg-white dark:bg-[#1e293b] border-b border-slate-200 dark:border-slate-700 h-16 shrink-0 px-6 flex items-center justify-between z-20 shadow-sm">
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded bg-primary flex items-center justify-center text-white font-bold text-lg">H</div>
+<span class="font-bold text-lg tracking-tight text-slate-900 dark:text-white">HmarePanditJi <span class="text-primary font-normal">Admin</span></span>
+</div>
+<div class="h-6 w-px bg-slate-300 dark:bg-slate-600 mx-2"></div>
+<div class="flex items-center gap-2 px-3 py-1.5 bg-green-100 dark:bg-green-900/30 rounded-full border border-green-200 dark:border-green-800">
+<div class="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse"></div>
+<span class="text-xs font-semibold text-green-700 dark:text-green-400 uppercase tracking-wider">System Operational</span>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative w-64">
+<span class="material-icons-round absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+<input class="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-lg pl-9 pr-4 py-2 text-sm focus:ring-2 focus:ring-primary/50 text-slate-700 dark:text-slate-200 placeholder-slate-400" placeholder="Search Ticket ID, Pandit, or Region..." type="text"/>
+</div>
+<div class="flex items-center gap-4">
+<button class="relative p-2 text-slate-500 hover:text-primary transition-colors">
+<span class="material-icons-round">notifications</span>
+<span class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-[#1e293b]"></span>
+</button>
+<div class="flex items-center gap-3 pl-4 border-l border-slate-200 dark:border-slate-700">
+<div class="text-right hidden md:block">
+<div class="text-sm font-semibold">Agent Rajesh</div>
+<div class="text-xs text-green-600 dark:text-green-400 font-medium">Online</div>
+</div>
+<img class="w-9 h-9 rounded-full object-cover border-2 border-white dark:border-slate-600 shadow-sm" data-alt="Agent profile picture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDaPMR7k_V3ahGKm50BXggr-UCWOGkmmV1aZXy4hduragviAySDttVK4VcPQ-OMsoLrwNFZva5JPNT5epjlupQpuaYUpQJRYDsfyux1cwgEWwVADsUHUzu4xn78gw-vGyqMXmydN1JAl2Q4CDTtXUqcte2DkwNwSXWN5VZ5ykI3IFSHukH4OYAYiNaLYbZ9xU-I14QpAGxiz3BKs7kOtNVMSXgpV3i7cF3RzLkXbrEXu1BtzSq4-B8KJAfSQpMdcZVdf3rcr01GKIg"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content Grid -->
+<main class="flex-1 flex overflow-hidden">
+<!-- Left Panel: Queue -->
+<aside class="w-80 bg-white dark:bg-[#1a2234] border-r border-slate-200 dark:border-slate-700 flex flex-col shrink-0 z-10">
+<div class="p-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+<h2 class="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+<span class="material-icons-round text-primary">headset_mic</span>
+                    Active Queue
+                </h2>
+<span class="bg-primary/10 text-primary px-2 py-0.5 rounded text-xs font-bold">12 Live</span>
+</div>
+<!-- Filters -->
+<div class="px-4 py-3 flex gap-2 border-b border-slate-100 dark:border-slate-800">
+<button class="flex-1 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-xs font-medium py-1.5 rounded transition-colors text-slate-600 dark:text-slate-300">All</button>
+<button class="flex-1 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 text-xs font-medium py-1.5 rounded transition-colors text-red-600 dark:text-red-400 border border-transparent hover:border-red-200">Urgent</button>
+<button class="flex-1 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-xs font-medium py-1.5 rounded transition-colors text-slate-600 dark:text-slate-300">Logistic</button>
+</div>
+<!-- List -->
+<div class="flex-1 overflow-y-auto p-2 space-y-2">
+<!-- Active Item -->
+<div class="bg-primary/5 dark:bg-primary/10 border border-primary/30 rounded-lg p-3 cursor-pointer relative group">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-primary rounded-l-lg"></div>
+<div class="flex justify-between items-start mb-1">
+<span class="text-xs font-bold text-slate-500 dark:text-slate-400">#LOG-4092</span>
+<span class="bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 text-[10px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wide">High Urgency</span>
+</div>
+<h3 class="text-sm font-bold text-slate-800 dark:text-white mb-0.5">Pandit Delayed - Mumbai</h3>
+<div class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1 mb-2">
+<span class="material-icons-round text-[14px]">location_on</span>
+                        Ganesh Puja • Andheri West
+                    </div>
+<div class="flex items-center justify-between mt-2 pt-2 border-t border-primary/10">
+<div class="flex items-center gap-1 text-xs text-orange-600 font-medium">
+<span class="material-icons-round text-[14px]">timer</span>
+                            +15m Late
+                        </div>
+<span class="text-[10px] text-slate-400">Updated: Just now</span>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 rounded-lg p-3 cursor-pointer transition-all">
+<div class="flex justify-between items-start mb-1">
+<span class="text-xs font-bold text-slate-500 dark:text-slate-400">#SUP-3921</span>
+<span class="bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 text-[10px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wide">Medium</span>
+</div>
+<h3 class="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-0.5">Samagri Kit Incomplete</h3>
+<div class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1 mb-2">
+<span class="material-icons-round text-[14px]">inventory_2</span>
+                        Satyanarayan • Delhi
+                    </div>
+</div>
+<!-- Item 3 -->
+<div class="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 rounded-lg p-3 cursor-pointer transition-all opacity-70">
+<div class="flex justify-between items-start mb-1">
+<span class="text-xs font-bold text-slate-500 dark:text-slate-400">#GEN-1102</span>
+<span class="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 text-[10px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wide">Low</span>
+</div>
+<h3 class="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-0.5">Booking Modification</h3>
+<div class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1 mb-2">
+<span class="material-icons-round text-[14px]">edit_calendar</span>
+                        Griha Pravesh • Pune
+                    </div>
+</div>
+</div>
+</aside>
+<!-- Center Panel: Operational View -->
+<section class="flex-1 flex flex-col min-w-0 bg-background-light dark:bg-background-dark relative">
+<!-- Ticket Header -->
+<div class="bg-white dark:bg-[#1a2234] border-b border-slate-200 dark:border-slate-700 px-6 py-4 shadow-sm z-10">
+<div class="flex justify-between items-start">
+<div>
+<div class="flex items-center gap-3 mb-1">
+<h1 class="text-xl font-bold text-slate-900 dark:text-white">Pandit Delayed - Mumbai</h1>
+<span class="px-2 py-0.5 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 text-xs font-bold rounded border border-red-200 dark:border-red-800 uppercase">Critical Delay</span>
+</div>
+<div class="flex items-center gap-4 text-sm text-slate-500 dark:text-slate-400">
+<span class="flex items-center gap-1"><span class="material-icons-round text-base">event</span> 14 Oct, 2023</span>
+<span class="flex items-center gap-1"><span class="material-icons-round text-base">schedule</span> Puja Time: 10:00 AM</span>
+<span class="flex items-center gap-1 text-primary dark:text-blue-400 font-medium"><span class="material-icons-round text-base">person</span> Cust: Mr. Rahul Kapoor</span>
+</div>
+</div>
+<div class="text-right">
+<div class="text-3xl font-mono font-bold text-slate-800 dark:text-white tabular-nums">09:45 AM</div>
+<div class="text-xs text-red-500 font-medium mt-1">15 mins to Puja Start</div>
+</div>
+</div>
+</div>
+<!-- Map Area -->
+<div class="flex-1 relative bg-slate-200 dark:bg-slate-900 overflow-hidden">
+<!-- Map Background Placeholder -->
+<div class="absolute inset-0 map-pattern opacity-60"></div>
+<img class="w-full h-full object-cover mix-blend-multiply dark:mix-blend-overlay opacity-30 dark:opacity-40 grayscale" data-alt="Stylized map of Mumbai city streets" data-location="Mumbai" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCLwNY028QG3E7cdJn5nfYwO_BQes3gAqeTTPof_rjTqrez4yUHOg_iAQNTRjrGlBt-h1QP4N6gsszeoR6K7Ug66PSb-NWKhElPUkwjMAgROZlqjOzaJ0kVdFuxQsWxdHCtAI-lFuPgCtlwaCJd1b0SWg5TBDGln1_23XBvpvklLpH48dQFQ7WRg4mjLjMnvQN8zD4ulVIsI4ZJ3W1H4fnEJZ4xMfQpZigUf7VIYWt_KEDqd72YCU-7Cq1CJyWrZw8S2yNZRQz2U50"/>
+<!-- Map UI Elements Overlay -->
+<div class="absolute inset-0 p-6 pointer-events-none">
+<!-- Pandit Marker (Delayed) -->
+<div class="absolute top-[40%] left-[35%] pointer-events-auto group">
+<div class="relative">
+<div class="w-12 h-12 rounded-full bg-red-500/20 animate-ping absolute inset-0"></div>
+<div class="w-12 h-12 bg-white dark:bg-slate-800 rounded-full shadow-lg p-1 border-2 border-red-500 flex items-center justify-center relative z-10 transform transition hover:scale-110">
+<img class="w-full h-full rounded-full object-cover" data-alt="Portrait of Pandit Sharma" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCeuRFjcZeIwwYs7HWxkDRjaessPx3cQJhDNitRFPlyh4IDxPK9d0JLwzACozNoeieUp2mSlokGz_X8yPxGK0-fzYSQbn3Jga3P-EPcr0mI39DHwBXgjsHTClKw1CkXiNIT3kiB_X5CkHXR7O_9bGwZB5A05pHdNDEc_48Xa4R85opTQWWqYzRSgiTYGFaL6mviWwmyKAhsaj2rfDiRRpjZSo40HAaibBanYUi93HgiW30OAoMoY4fCRuBdL_2zBwTO-CfTBMy23XM"/>
+<div class="absolute -bottom-1 -right-1 bg-red-500 text-white rounded-full p-1 border-2 border-white dark:border-slate-800">
+<span class="material-icons-round text-[10px] block">warning</span>
+</div>
+</div>
+<!-- Tooltip -->
+<div class="absolute top-14 left-1/2 -translate-x-1/2 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs px-3 py-2 rounded shadow-xl whitespace-nowrap border border-slate-200 dark:border-slate-700">
+<p class="font-bold">Pandit Sharma (Assigned)</p>
+<p class="text-red-500">Stuck in traffic • 15km away</p>
+<p class="text-slate-400">ETA: 45 mins</p>
+</div>
+</div>
+</div>
+<!-- Backup Pandit Marker -->
+<div class="absolute top-[55%] left-[55%] pointer-events-auto group">
+<div class="relative">
+<div class="w-10 h-10 bg-white dark:bg-slate-800 rounded-full shadow-lg p-1 border-2 border-green-500 flex items-center justify-center transform transition hover:scale-110">
+<img class="w-full h-full rounded-full object-cover" data-alt="Portrait of Pandit Verma" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBI2yUWvSvXPKZ5ufTS4tmnGB7yDYrCLz0p0YpVdnKm_P1wUdDld1YbYG1z38yheetMuL9qdM1SLa0H_x5robTmHbXqW0To9evYo_aFoN_UcqH7Xo54sMZV2VJ_m6jr-u0QkD6RgkeaCwW9GwYevAHsx1kL_fNP_C2oQ9WQCd_ULn05_kkQZk71AWGCqO-ZCCHu408Cutm15ot9Hd6z1a-PQnhAuFuj88Sq9cb0WUsDQRO1CxgMP9EZB_Mg162Ct3rH8Yek9d-3gJI"/>
+<div class="absolute -bottom-1 -right-1 bg-green-500 text-white rounded-full p-0.5 border-2 border-white dark:border-slate-800">
+<span class="material-icons-round text-[10px] block">check</span>
+</div>
+</div>
+<!-- Tooltip -->
+<div class="absolute top-12 left-1/2 -translate-x-1/2 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs px-3 py-2 rounded shadow-xl whitespace-nowrap border border-slate-200 dark:border-slate-700 opacity-90">
+<p class="font-bold">Pandit Verma (Backup)</p>
+<p class="text-green-600">Available • 3km away</p>
+<p class="text-slate-400">ETA: 10 mins</p>
+</div>
+</div>
+</div>
+<!-- Destination Marker -->
+<div class="absolute top-[50%] left-[50%] -translate-x-1/2 -translate-y-1/2 pointer-events-auto">
+<div class="flex flex-col items-center">
+<div class="bg-primary text-white px-3 py-1 rounded-lg text-xs font-bold shadow-lg mb-1 whitespace-nowrap">
+                                Customer Location
+                            </div>
+<span class="material-icons-round text-4xl text-primary drop-shadow-lg">location_on</span>
+</div>
+</div>
+<!-- Route Lines (SVG Overlay) -->
+<svg class="absolute inset-0 w-full h-full pointer-events-none" style="z-index: 0;">
+<!-- Path from Stuck Pandit -->
+<path d="M 35% 40% Q 40% 45% 50% 50%" fill="none" stroke="#ef4444" stroke-dasharray="5,5" stroke-width="3"></path>
+<!-- Path from Backup -->
+<path d="M 55% 55% Q 52% 52% 50% 50%" fill="none" stroke="#22c55e" stroke-width="3"></path>
+</svg>
+</div>
+<!-- Floating Logistics Card -->
+<div class="absolute bottom-6 left-6 right-6 md:left-6 md:right-auto md:w-80 bg-white/95 dark:bg-[#1a2234]/95 backdrop-blur shadow-xl border border-slate-200 dark:border-slate-700 rounded-xl p-4 pointer-events-auto">
+<h3 class="text-xs font-bold uppercase text-slate-500 tracking-wider mb-3">Live Logistics Data</h3>
+<div class="space-y-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-red-500"></div>
+<span class="text-sm font-medium text-slate-700 dark:text-slate-300">Traffic Delay</span>
+</div>
+<span class="text-sm font-bold text-red-600">+25 min surge</span>
+</div>
+<div class="h-px bg-slate-200 dark:bg-slate-700"></div>
+<div class="grid grid-cols-2 gap-2">
+<div class="bg-slate-50 dark:bg-slate-800 p-2 rounded text-center">
+<div class="text-[10px] text-slate-500 mb-0.5">Assigned ETA</div>
+<div class="text-lg font-bold text-slate-800 dark:text-slate-200">10:45</div>
+</div>
+<div class="bg-green-50 dark:bg-green-900/20 p-2 rounded text-center border border-green-100 dark:border-green-800/30">
+<div class="text-[10px] text-green-700 dark:text-green-400 mb-0.5">Backup ETA</div>
+<div class="text-lg font-bold text-green-700 dark:text-green-400">10:10</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Right Panel: Communication & Actions -->
+<aside class="w-96 bg-white dark:bg-[#1a2234] border-l border-slate-200 dark:border-slate-700 flex flex-col shrink-0 z-10">
+<!-- Tabs -->
+<div class="flex border-b border-slate-200 dark:border-slate-700">
+<button class="flex-1 py-3 text-sm font-medium text-primary border-b-2 border-primary bg-primary/5 dark:bg-primary/10">
+                    Communication
+                </button>
+<button class="flex-1 py-3 text-sm font-medium text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300">
+                    Timeline &amp; Notes
+                </button>
+</div>
+<!-- Comm Context -->
+<div class="p-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
+<div class="flex gap-2 mb-3">
+<button class="flex-1 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg p-2 flex items-center justify-center gap-2 shadow-sm hover:border-primary transition-colors text-slate-700 dark:text-slate-200">
+<span class="material-icons-round text-sm text-blue-500">sms</span>
+<span class="text-xs font-bold">Pandit (SMS)</span>
+</button>
+<button class="flex-1 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-2 flex items-center justify-center gap-2 shadow-sm text-green-800 dark:text-green-400">
+<span class="material-icons-round text-sm">whatsapp</span>
+<span class="text-xs font-bold">Customer (WA)</span>
+</button>
+</div>
+<div class="text-xs text-center text-slate-500">Currently viewing: <span class="font-bold">Customer Chat</span></div>
+</div>
+<!-- Chat Area -->
+<div class="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50 dark:bg-[#1a2234]">
+<!-- Message received -->
+<div class="flex gap-3">
+<div class="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-indigo-700 dark:text-indigo-300 font-bold text-xs shrink-0">RK</div>
+<div class="bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-2xl rounded-tl-none p-3 shadow-sm max-w-[85%]">
+<p class="text-sm text-slate-700 dark:text-slate-200">Is the Pandit ji coming? It is almost 10 AM.</p>
+<span class="text-[10px] text-slate-400 mt-1 block">09:52 AM</span>
+</div>
+</div>
+<!-- Message Sent -->
+<div class="flex gap-3 flex-row-reverse">
+<div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-xs shrink-0">You</div>
+<div class="bg-primary text-white rounded-2xl rounded-tr-none p-3 shadow-md max-w-[85%]">
+<p class="text-sm">Namaste Mr. Kapoor. We are tracking the Pandit's location. He is stuck in heavy traffic. We are arranging a backup.</p>
+<span class="text-[10px] text-blue-100 mt-1 block">09:54 AM</span>
+</div>
+</div>
+<!-- System Notice -->
+<div class="flex justify-center">
+<span class="bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[10px] px-2 py-1 rounded-full">System: Location request sent to Pandit Sharma</span>
+</div>
+</div>
+<!-- Quick Actions & Input -->
+<div class="p-4 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-[#1a2234]">
+<!-- Quick Chips -->
+<div class="flex gap-2 mb-3 overflow-x-auto pb-1 scrollbar-hide">
+<button class="whitespace-nowrap px-3 py-1 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-full text-xs text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600 transition-colors">Confirm Location</button>
+<button class="whitespace-nowrap px-3 py-1 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-full text-xs text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600 transition-colors">Apology &amp; Delay</button>
+<button class="whitespace-nowrap px-3 py-1 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-full text-xs text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600 transition-colors">Send Backup Details</button>
+</div>
+<!-- Input -->
+<div class="relative mb-4">
+<input class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg pl-4 pr-12 py-3 text-sm focus:ring-2 focus:ring-primary focus:border-transparent text-slate-700 dark:text-slate-200" placeholder="Type message..." type="text"/>
+<button class="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-primary text-white rounded hover:bg-blue-700 transition-colors">
+<span class="material-icons-round text-sm block">send</span>
+</button>
+</div>
+<!-- Critical Actions -->
+<div class="grid grid-cols-2 gap-3 pt-4 border-t border-slate-100 dark:border-slate-700">
+<button class="flex flex-col items-center justify-center p-3 rounded-lg border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors group">
+<span class="material-icons-round text-slate-600 dark:text-slate-400 mb-1 group-hover:text-primary">alt_route</span>
+<span class="text-xs font-bold text-slate-700 dark:text-slate-300">Manual Override</span>
+</button>
+<button class="flex flex-col items-center justify-center p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors group">
+<span class="material-icons-round text-red-500 mb-1 animate-pulse">sos</span>
+<span class="text-xs font-bold text-red-700 dark:text-red-400">Emergency SOS</span>
+</button>
+</div>
+</div>
+</aside>
+</main>
+<!-- Global Toast/Alert (Example) -->
+<div class="fixed bottom-6 right-[400px] bg-slate-800 text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-3 z-50 animate-bounce" style="animation-iteration-count: 1;">
+<span class="material-icons-round text-green-400">check_circle</span>
+<div class="text-sm">
+<span class="font-bold">Backup Pandit</span> accepted the request.
+        </div>
+</div>
+</body></html>

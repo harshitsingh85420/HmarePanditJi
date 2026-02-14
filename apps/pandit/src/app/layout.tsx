@@ -59,8 +59,17 @@ export default function RootLayout({
             {/* Center Nav — rendered by ClientNav (dynamic active state) */}
             <ClientNav />
 
-            {/* Right: Namaste greeting + Avatar */}
+            {/* Right: Customer Portal Link + Namaste greeting + Avatar */}
             <div className="flex items-center gap-3">
+              <a
+                href={process.env.NEXT_PUBLIC_WEB_URL || "http://localhost:3000"}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hidden md:flex items-center gap-1.5 text-xs font-medium text-slate-600 hover:text-primary transition-colors"
+              >
+                <span className="material-symbols-outlined text-sm">storefront</span>
+                Customer Portal
+              </a>
               <button className="hidden sm:flex items-center gap-2 bg-primary/10 hover:bg-primary/20 transition-colors rounded-lg px-3 py-2 text-sm font-medium text-slate-800">
                 <span aria-hidden="true">🙏</span>
                 <span>Namaste, Pandit Ram Ji</span>

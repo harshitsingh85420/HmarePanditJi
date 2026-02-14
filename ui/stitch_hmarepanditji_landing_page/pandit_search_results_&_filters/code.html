@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Pandit Search Results &amp; Filters - HmarePanditJi</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#f49d25",
+                        "background-light": "#f8f7f5",
+                        "background-dark": "#221a10",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .spiritual-pattern {
+            background-image: radial-gradient(#f49d25 0.5px, transparent 0.5px), radial-gradient(#f49d25 0.5px, #f8f7f5 0.5px);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
+            opacity: 0.05;
+        }
+        .dark .spiritual-pattern {
+            background-image: radial-gradient(#f49d25 0.5px, transparent 0.5px), radial-gradient(#f49d25 0.5px, #221a10 0.5px);
+            opacity: 0.1;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
+<!-- Top Navigation Bar -->
+<header class="sticky top-0 z-50 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+<div class="max-w-[1440px] mx-auto px-6 h-16 flex items-center justify-between">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-3xl">temple_hindu</span>
+<h1 class="text-xl font-bold tracking-tight">HmarePanditJi</h1>
+</div>
+<div class="hidden lg:flex items-center bg-slate-100 dark:bg-slate-800 rounded-full px-4 py-1.5 w-80">
+<span class="material-symbols-outlined text-slate-400 text-sm">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-full placeholder:text-slate-400" placeholder="Search for Pujs, Pandits..." type="text"/>
+</div>
+</div>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#">Muhurat</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#">Services</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#">E-Puja</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#">Registration</a>
+<button class="bg-primary hover:bg-orange-500 text-white px-5 py-2 rounded-lg text-sm font-bold transition-all">Sign In</button>
+</nav>
+</div>
+</header>
+<main class="max-w-[1440px] mx-auto flex flex-col lg:flex-row min-h-[calc(100vh-64px)] relative">
+<!-- Sidebar Filters -->
+<aside class="w-full lg:w-[320px] lg:sticky lg:top-16 h-fit p-6 border-r border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-background-dark/50 overflow-y-auto">
+<div class="flex items-center justify-between mb-6">
+<h2 class="text-lg font-bold">Advanced Filters</h2>
+<button class="text-primary text-xs font-semibold uppercase tracking-wider">Reset</button>
+</div>
+<div class="space-y-8">
+<!-- Location -->
+<div>
+<label class="block text-sm font-semibold mb-3">Location</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">location_on</span>
+<select class="w-full pl-10 pr-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-primary focus:border-primary">
+<option>Varanasi, Uttar Pradesh</option>
+<option>Haridwar, Uttarakhand</option>
+<option>Rishikesh, Uttarakhand</option>
+<option>Ujjain, Madhya Pradesh</option>
+</select>
+</div>
+</div>
+<!-- Date/Muhurat -->
+<div>
+<label class="block text-sm font-semibold mb-3">Muhurat Date</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">calendar_month</span>
+<input class="w-full pl-10 pr-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-primary focus:border-primary" type="text" value="Oct 24, 2023"/>
+</div>
+</div>
+<!-- Budget -->
+<div>
+<div class="flex justify-between items-center mb-3">
+<label class="text-sm font-semibold">Budget (₹)</label>
+<span class="text-xs text-slate-500 font-medium">₹5k - ₹50k</span>
+</div>
+<input class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-primary" type="range"/>
+</div>
+<!-- Travel Preferences -->
+<div>
+<label class="block text-sm font-semibold mb-3">Travel Preferences</label>
+<div class="grid grid-cols-2 gap-2">
+<button class="flex items-center gap-2 px-3 py-2.5 rounded-xl border border-primary bg-primary/10 text-primary text-xs font-medium">
+<span class="material-symbols-outlined text-sm">directions_car</span> Self-Drive
+                        </button>
+<button class="flex items-center gap-2 px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-xs font-medium hover:border-primary hover:text-primary transition-all">
+<span class="material-symbols-outlined text-sm">flight</span> Flight
+                        </button>
+<button class="flex items-center gap-2 px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-xs font-medium hover:border-primary hover:text-primary transition-all">
+<span class="material-symbols-outlined text-sm">train</span> Train
+                        </button>
+<button class="flex items-center gap-2 px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-xs font-medium hover:border-primary hover:text-primary transition-all">
+<span class="material-symbols-outlined text-sm">all_inclusive</span> Any
+                        </button>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<section class="flex-1 p-6 lg:p-10 spiritual-pattern relative">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+<div>
+<h2 class="text-2xl font-bold">8 Pandits match your search</h2>
+<p class="text-slate-500 text-sm mt-1">Found in Varanasi region for Griha Pravesh</p>
+</div>
+<div class="flex items-center gap-3">
+<span class="text-sm text-slate-500">Sort by:</span>
+<select class="bg-white dark:bg-slate-800 border-none rounded-lg text-sm font-semibold focus:ring-primary shadow-sm">
+<option>Best Match</option>
+<option>Price: Low to High</option>
+<option>Rating: High to Low</option>
+</select>
+</div>
+</div>
+<!-- Results Grid -->
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+<!-- Pandit Card 1 -->
+<div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden flex flex-col">
+<div class="p-5 flex gap-5">
+<div class="relative flex-shrink-0">
+<div class="w-24 h-24 rounded-2xl bg-slate-200 overflow-hidden">
+<img alt="Pandit Profile" class="w-full h-full object-cover" data-alt="Portrait of a smiling traditional Indian Pandit" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAcE5W6qLFYQoyVOYJMbS39rGvOMpa-2ZfeNehopFjSyAissxcOPPq6NPPunilKYV0oi_dXrQUTazsPTkD2_viZHS7mnYMxxkDa97_cCf5ZuTFUAE5qS7as2-mhRSd2LPtHg9cqiyoCE7Rta6_3pFYnvXNF36TxGjDaKzSBYiBTYDUwy1qHugIVI0Ko_sD4uz1NVDra69QgrdRlk93u-BRa2EoNIHFSp309YnMzwT6Y_-iYD8Ckmu2t3UjGWMPudJB0q7SNZh708YU"/>
+</div>
+<div class="absolute -bottom-2 -right-2 bg-green-500 text-white rounded-full p-1 border-4 border-white dark:border-slate-900">
+<span class="material-symbols-outlined text-xs block">verified</span>
+</div>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-2">
+<div class="flex flex-wrap gap-2">
+<span class="bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded">Verified Vedic</span>
+<span class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">directions_car</span> Self-Drive Available
+                                    </span>
+</div>
+</div>
+<h3 class="text-lg font-bold text-slate-900 dark:text-white">Acharya Rajesh Shastri</h3>
+<div class="flex items-center gap-4 mt-1 text-sm">
+<div class="flex items-center gap-1 text-orange-500 font-bold">
+<span class="material-symbols-outlined text-sm fill-1">star</span> 4.9 <span class="text-slate-400 font-normal">(124)</span>
+</div>
+<div class="flex items-center gap-1 text-slate-500">
+<span class="material-symbols-outlined text-sm">map</span> 12.5 km away
+                                </div>
+</div>
+</div>
+</div>
+<!-- Travel Tabs -->
+<div class="mt-auto border-t border-slate-100 dark:border-slate-800">
+<div class="flex px-5 pt-4 gap-4 text-xs font-bold text-slate-400 border-b border-slate-50 dark:border-slate-800">
+<button class="pb-3 border-b-2 border-primary text-primary flex flex-col items-center gap-1">
+<span>SELF-DRIVE</span>
+<span class="text-sm font-black">₹22k</span>
+</button>
+<button class="pb-3 border-b-2 border-transparent hover:text-slate-600 flex flex-col items-center gap-1">
+<span>TRAIN</span>
+<span class="text-sm">₹18k</span>
+</button>
+<button class="pb-3 border-b-2 border-transparent hover:text-slate-600 flex flex-col items-center gap-1">
+<span>FLIGHT</span>
+<span class="text-sm">₹27k</span>
+</button>
+</div>
+<div class="p-5 flex items-center justify-between gap-4">
+<div class="text-xs text-slate-500 leading-tight max-w-[200px]">
+<p>Self-drive includes fuel and tolls. Estimated time: 45 mins.</p>
+</div>
+<button class="bg-primary hover:bg-orange-500 text-white font-bold py-3 px-8 rounded-xl transition-all shadow-md shadow-orange-500/20">
+                                Book Now
+                            </button>
+</div>
+</div>
+</div>
+<!-- Pandit Card 2 -->
+<div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden flex flex-col">
+<div class="p-5 flex gap-5">
+<div class="relative flex-shrink-0">
+<div class="w-24 h-24 rounded-2xl bg-slate-200 overflow-hidden">
+<img alt="Pandit Profile" class="w-full h-full object-cover" data-alt="Portrait of an experienced Indian elder priest" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAO48XDin4p67038Uhrvr5Ucf81Aw36kv_nZ2iQOuaf1pjIzPv1GZobNe5PqmQnnqt-0NayR7ocA7ZiHMjWuUNkZno00E2ST_26vjNZRDuVDLjUoFVXmRtEGEeosI3JnbljPltDdDxRQPq9Tfs5zUQ_3Z8-ixCw5jWNJ4jHDh4k68qLJzAxXjx09WfHyeWB0JjkEhneYRJCPsnr2i7yo8LT7Ccry_R-TYF136HjW6WU9Ok7kArj03ULZ7M7gMKXDD6ln6EVOz-6AhA"/>
+</div>
+<div class="absolute -bottom-2 -right-2 bg-green-500 text-white rounded-full p-1 border-4 border-white dark:border-slate-900">
+<span class="material-symbols-outlined text-xs block">verified</span>
+</div>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-2">
+<div class="flex flex-wrap gap-2">
+<span class="bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded">Verified Vedic</span>
+<span class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">flight</span> Expert Traveler
+                                    </span>
+</div>
+</div>
+<h3 class="text-lg font-bold text-slate-900 dark:text-white">Pandit Vishwanath Misra</h3>
+<div class="flex items-center gap-4 mt-1 text-sm">
+<div class="flex items-center gap-1 text-orange-500 font-bold">
+<span class="material-symbols-outlined text-sm fill-1">star</span> 4.7 <span class="text-slate-400 font-normal">(89)</span>
+</div>
+<div class="flex items-center gap-1 text-slate-500">
+<span class="material-symbols-outlined text-sm">map</span> 4.2 km away
+                                </div>
+</div>
+</div>
+</div>
+<!-- Travel Tabs -->
+<div class="mt-auto border-t border-slate-100 dark:border-slate-800">
+<div class="flex px-5 pt-4 gap-4 text-xs font-bold text-slate-400 border-b border-slate-50 dark:border-slate-800">
+<button class="pb-3 border-b-2 border-transparent hover:text-slate-600 flex flex-col items-center gap-1">
+<span>SELF-DRIVE</span>
+<span class="text-sm">₹15k</span>
+</button>
+<button class="pb-3 border-b-2 border-primary text-primary flex flex-col items-center gap-1">
+<span>TRAIN</span>
+<span class="text-sm font-black">₹12k</span>
+</button>
+<button class="pb-3 border-b-2 border-transparent hover:text-slate-600 flex flex-col items-center gap-1">
+<span>FLIGHT</span>
+<span class="text-sm">₹21k</span>
+</button>
+</div>
+<div class="p-5 flex items-center justify-between gap-4">
+<div class="text-xs text-slate-500 leading-tight max-w-[200px]">
+<p>Standard train fare. Pandit prefers local transit from station.</p>
+</div>
+<button class="bg-primary hover:bg-orange-500 text-white font-bold py-3 px-8 rounded-xl transition-all shadow-md shadow-orange-500/20">
+                                Book Now
+                            </button>
+</div>
+</div>
+</div>
+<!-- Pandit Card 3 -->
+<div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden flex flex-col">
+<div class="p-5 flex gap-5">
+<div class="relative flex-shrink-0">
+<div class="w-24 h-24 rounded-2xl bg-slate-200 overflow-hidden">
+<img alt="Pandit Profile" class="w-full h-full object-cover" data-alt="Portrait of a young Vedic scholar in traditional attire" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCb_ytuPc3VMLSkGtlJbNK7edHWa32y082BfR_dm755RIz6mZfqZy99INi0cToeveA2zCqaJyfKaaMs40rQbPNLlBoXnasCItX6Zn6ZfAHBC3o2Vr64JkUXLPSOiJ5jmhIF4pwuZE-e5FTsbMNlqCxcng3Dxf_C1_WFautRb9OmlW1ZhPWZpD1iB8ruTPggz0kpCr7D68DimnAE8chOTdHaH-3jPGu8wZSQDXvj6c3Mf6XMFcGab24l8croqKnCQbDx5KE8_MPGBrE"/>
+</div>
+<div class="absolute -bottom-2 -right-2 bg-green-500 text-white rounded-full p-1 border-4 border-white dark:border-slate-900">
+<span class="material-symbols-outlined text-xs block">verified</span>
+</div>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-2">
+<div class="flex flex-wrap gap-2">
+<span class="bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded">Verified Vedic</span>
+</div>
+</div>
+<h3 class="text-lg font-bold text-slate-900 dark:text-white">Shree Krishna Dwivedi</h3>
+<div class="flex items-center gap-4 mt-1 text-sm">
+<div class="flex items-center gap-1 text-orange-500 font-bold">
+<span class="material-symbols-outlined text-sm fill-1">star</span> 5.0 <span class="text-slate-400 font-normal">(56)</span>
+</div>
+<div class="flex items-center gap-1 text-slate-500">
+<span class="material-symbols-outlined text-sm">map</span> 21.0 km away
+                                </div>
+</div>
+</div>
+</div>
+<!-- Travel Tabs -->
+<div class="mt-auto border-t border-slate-100 dark:border-slate-800">
+<div class="flex px-5 pt-4 gap-4 text-xs font-bold text-slate-400 border-b border-slate-50 dark:border-slate-800">
+<button class="pb-3 border-b-2 border-transparent hover:text-slate-600 flex flex-col items-center gap-1">
+<span>SELF-DRIVE</span>
+<span class="text-sm">₹28k</span>
+</button>
+<button class="pb-3 border-b-2 border-transparent hover:text-slate-600 flex flex-col items-center gap-1">
+<span>TRAIN</span>
+<span class="text-sm">₹24k</span>
+</button>
+<button class="pb-3 border-b-2 border-primary text-primary flex flex-col items-center gap-1">
+<span>FLIGHT</span>
+<span class="text-sm font-black">₹32k</span>
+</button>
+</div>
+<div class="p-5 flex items-center justify-between gap-4">
+<div class="text-xs text-slate-500 leading-tight max-w-[200px]">
+<p>Flight bookings include airport lounge access for Pandit's rituals.</p>
+</div>
+<button class="bg-primary hover:bg-orange-500 text-white font-bold py-3 px-8 rounded-xl transition-all shadow-md shadow-orange-500/20">
+                                Book Now
+                            </button>
+</div>
+</div>
+</div>
+<!-- Pandit Card 4 -->
+<div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden flex flex-col opacity-90">
+<div class="p-5 flex gap-5">
+<div class="relative flex-shrink-0">
+<div class="w-24 h-24 rounded-2xl bg-slate-200 overflow-hidden">
+<img alt="Pandit Profile" class="w-full h-full object-cover" data-alt="Portrait of a senior Pandit in Varanasi" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCOSh_t8egsPEzS7KaNwHwYznV6X_zT3XGPyhZyz1Z4Otye41HJ9kSB6vJj7E0mJkz3thURzgLYDrwaA5N8kS3lFmQ7m20JUWpFIU17GRZrPgpHs-hZrxKYQG2L52NJ3FiE-ZX8W66Fyb4cLrVoAm_pxyUInJyGEnLyhw8kD4j6KlknkjosvBZZTrWPQdjWFusEHuIBSavE89SED_QOB3nNoTZyiK810nhmK02GpUZ1shmSPDgBAMc1x7aRRXU7_eUwYsKvY7iGAIs"/>
+</div>
+<div class="absolute -bottom-2 -right-2 bg-green-500 text-white rounded-full p-1 border-4 border-white dark:border-slate-900">
+<span class="material-symbols-outlined text-xs block">verified</span>
+</div>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-2">
+<div class="flex flex-wrap gap-2">
+<span class="bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded">Verified Vedic</span>
+<span class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">directions_car</span> Self-Drive Available
+                                    </span>
+</div>
+</div>
+<h3 class="text-lg font-bold text-slate-900 dark:text-white">Acharya Om Prakash</h3>
+<div class="flex items-center gap-4 mt-1 text-sm">
+<div class="flex items-center gap-1 text-orange-500 font-bold">
+<span class="material-symbols-outlined text-sm fill-1">star</span> 4.8 <span class="text-slate-400 font-normal">(212)</span>
+</div>
+<div class="flex items-center gap-1 text-slate-500">
+<span class="material-symbols-outlined text-sm">map</span> 0.5 km away
+                                </div>
+</div>
+</div>
+</div>
+<!-- Travel Tabs -->
+<div class="mt-auto border-t border-slate-100 dark:border-slate-800">
+<div class="flex px-5 pt-4 gap-4 text-xs font-bold text-slate-400 border-b border-slate-50 dark:border-slate-800">
+<button class="pb-3 border-b-2 border-primary text-primary flex flex-col items-center gap-1">
+<span>SELF-DRIVE</span>
+<span class="text-sm font-black">₹19k</span>
+</button>
+<button class="pb-3 border-b-2 border-transparent hover:text-slate-600 flex flex-col items-center gap-1">
+<span>TRAIN</span>
+<span class="text-sm">₹14k</span>
+</button>
+<button class="pb-3 border-b-2 border-transparent hover:text-slate-600 flex flex-col items-center gap-1">
+<span>FLIGHT</span>
+<span class="text-sm">₹25k</span>
+</button>
+</div>
+<div class="p-5 flex items-center justify-between gap-4">
+<div class="text-xs text-slate-500 leading-tight max-w-[200px]">
+<p>Local neighborhood discount applied for travel under 2km.</p>
+</div>
+<button class="bg-primary hover:bg-orange-500 text-white font-bold py-3 px-8 rounded-xl transition-all shadow-md shadow-orange-500/20">
+                                Book Now
+                            </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Pagination or Load More -->
+<div class="mt-12 flex justify-center">
+<button class="flex items-center gap-2 border border-slate-200 dark:border-slate-700 px-6 py-3 rounded-xl font-bold text-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                    Load More Results
+                    <span class="material-symbols-outlined text-sm">expand_more</span>
+</button>
+</div>
+</section>
+</main>
+<!-- Footer - Simple -->
+<footer class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-8">
+<div class="max-w-[1440px] mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-xl">temple_hindu</span>
+<span class="text-sm font-bold">HmarePanditJi</span>
+</div>
+<div class="text-xs text-slate-500">
+                © 2023 HmarePanditJi Services. All rights reserved.
+            </div>
+<div class="flex gap-6 text-xs font-medium text-slate-600 dark:text-slate-400">
+<a href="#">Privacy</a>
+<a href="#">Terms</a>
+<a href="#">Help Center</a>
+</div>
+</div>
+</footer>
+</body></html>

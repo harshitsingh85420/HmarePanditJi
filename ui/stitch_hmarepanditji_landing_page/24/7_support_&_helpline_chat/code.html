@@ -1,0 +1,299 @@
+<html class="light"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#f48525",
+            "background-light": "#f8f7f5",
+            "background-dark": "#221810",
+          },
+          fontFamily: {
+            "display": ["Inter"]
+          },
+          borderRadius: {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+  </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-[#181411] dark:text-white min-h-screen">
+<div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
+<!-- Top Nav Bar -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-[#e5e1dc] dark:border-[#3d2c1e] bg-white dark:bg-background-dark px-6 py-3 lg:px-20">
+<div class="flex items-center gap-4 text-primary">
+<div class="size-6">
+<svg fill="currentColor" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M24 4C25.7818 14.2173 33.7827 22.2182 44 24C33.7827 25.7818 25.7818 33.7827 24 44C22.2182 33.7827 14.2173 25.7818 4 24C14.2173 22.2182 22.2182 14.2173 24 4Z"></path>
+</svg>
+</div>
+<h2 class="text-[#181411] dark:text-white text-xl font-bold leading-tight tracking-[-0.015em]">HmarePanditJi</h2>
+</div>
+<div class="flex flex-1 justify-end gap-6 items-center">
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-[#181411] dark:text-white text-sm font-medium hover:text-primary transition-colors" href="#">My Bookings</a>
+<a class="text-[#181411] dark:text-white text-sm font-medium hover:text-primary transition-colors" href="#">Services</a>
+<a class="text-[#181411] dark:text-white text-sm font-medium hover:text-primary transition-colors" href="#">Pandits</a>
+<a class="text-[#181411] dark:text-white text-sm font-medium hover:text-primary transition-colors" href="#">Help</a>
+</nav>
+<button class="flex min-w-[120px] cursor-pointer items-center justify-center rounded-lg h-10 px-4 bg-red-600 text-white text-sm font-bold shadow-lg hover:bg-red-700 transition-all">
+<span class="material-symbols-outlined mr-2 text-sm">emergency</span>
+<span class="truncate">SOS Emergency</span>
+</button>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-primary" data-alt="User profile avatar placeholder" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC-hBoVjHgqMBenA3kRoyqBADZ8SpOgY5O11FoYW2JlOzmIW0yFnbjIxzhKPx7wrRfE92zd8RBTa_cMNgL2coaAh6LauLnhY9s_UGTIVIf8rhEQ-NUyCclhBoAbQmoV5HkMesOY-Jyi2NKuMjHV8o2pQ51jWmXNl6VNwvCkidgwoovwLo9LKN9Yl_NF-KjsJTh_wpZoXv04nFJIVoSCBRV-VsyQViotccNkIr6hcD8NDMlurRueIse7UWqJN1KXcGQd1cAmBPow_FE");'></div>
+</div>
+</header>
+<main class="flex flex-1 overflow-hidden h-[calc(100vh-64px)]">
+<!-- Left Sidebar: Context & Navigation -->
+<aside class="w-80 border-r border-[#e5e1dc] dark:border-[#3d2c1e] bg-white dark:bg-[#1a120b] p-6 hidden lg:flex flex-col gap-8">
+<div class="flex flex-col gap-2">
+<div class="flex items-center gap-2 text-[#8a7460] text-sm">
+<span class="material-symbols-outlined text-sm">arrow_back</span>
+<a class="hover:underline" href="#">Support Center</a>
+</div>
+<h1 class="text-2xl font-bold mt-2">Active Help</h1>
+<p class="text-[#8a7460] text-sm">Assigned Expert: Rahul Sharma</p>
+</div>
+<nav class="flex flex-col gap-1">
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-background-light dark:hover:bg-primary/10 transition-colors" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary text-white shadow-md" href="#">
+<span class="material-symbols-outlined">chat_bubble</span>
+<span class="font-medium">Live Chat</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-background-light dark:hover:bg-primary/10 transition-colors" href="#">
+<span class="material-symbols-outlined">history</span>
+<span class="font-medium">History</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-background-light dark:hover:bg-primary/10 transition-colors" href="#">
+<span class="material-symbols-outlined">account_circle</span>
+<span class="font-medium">My Profile</span>
+</a>
+</nav>
+<div class="mt-auto p-4 rounded-xl bg-primary/5 border border-primary/20">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-primary">verified_user</span>
+<span class="text-xs font-bold uppercase tracking-wider text-primary">Trust Guard</span>
+</div>
+<p class="text-xs text-[#8a7460] leading-relaxed">Your ceremony is our priority. Our logistics team handles all travel and samagri delays in real-time.</p>
+</div>
+</aside>
+<!-- Main Content Area: Split View -->
+<div class="flex-1 flex flex-col md:flex-row bg-background-light dark:bg-background-dark overflow-hidden">
+<!-- Left Side: Booking Context & Tracking -->
+<div class="flex-1 p-6 md:p-10 overflow-y-auto">
+<div class="max-w-2xl mx-auto space-y-8">
+<section>
+<div class="flex items-center gap-3 mb-4">
+<span class="px-3 py-1 bg-primary text-white text-xs font-bold rounded-full">ACTIVE BOOKING</span>
+<span class="text-[#8a7460] text-sm font-medium">#HPJ-9921</span>
+</div>
+<h2 class="text-3xl font-bold mb-2">Grand Wedding Ceremony</h2>
+<div class="flex items-center gap-4 text-[#8a7460] font-medium">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">calendar_today</span>
+<span>Dec 16, 2024</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">location_on</span>
+<span>New Delhi, India</span>
+</div>
+</div>
+</section>
+<!-- Status Card -->
+<div class="bg-white dark:bg-[#2d2218] p-6 rounded-2xl shadow-sm border border-[#e5e1dc] dark:border-[#3d2c1e]">
+<div class="flex flex-col gap-4">
+<div class="flex items-start justify-between">
+<div>
+<h3 class="text-lg font-bold">Logistics Tracking</h3>
+<p class="text-[#8a7460] text-sm mt-1">Real-time update for Pandit Ji's travel</p>
+</div>
+<div class="flex items-center gap-2 text-green-600 bg-green-50 dark:bg-green-900/20 px-3 py-1 rounded-full">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+</span>
+<span class="text-xs font-bold">LIVE</span>
+</div>
+</div>
+<div class="flex items-center gap-4 p-4 bg-background-light dark:bg-background-dark rounded-xl">
+<div class="size-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-3xl">flight_takeoff</span>
+</div>
+<div>
+<p class="font-bold text-[#181411] dark:text-white">Flight AI-102 (Mumbai → Delhi)</p>
+<p class="text-sm text-[#8a7460]">Our team is tracking the flight. Status: On Time.</p>
+</div>
+</div>
+<div class="relative w-full h-48 rounded-xl overflow-hidden bg-[#e5e1dc]" data-location="New Delhi" style="">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="Map showing flight path from Mumbai to Delhi" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD6GvMUFfVAGe0O563Li11zGmMZH-mYUqVqNLa1MnvAggT37-XkuNrN81dnDscQPK8VoLql_4ThnPBV9d-7t3agUi31FGHlYf-oluqD-PNksYVo5Zi1Fwu6WDpC_EmFvCOTGiTNXxQv1aPd0C3CVAJ-3-2UDHWrxoBz1lb37wuDqCSBIYTtrOlYc_ZNCOsbsBsESUcsGyH118xgjIN6v5NnRg2qDcc_Z0PkUKo6ArevMJqchP2U2AUMG2oE1Rc3b6bgcXSBjd22cB0');"></div>
+<div class="absolute bottom-4 left-4 bg-white dark:bg-background-dark p-2 rounded-lg shadow-md border border-primary/20">
+<p class="text-[10px] font-bold uppercase text-primary">Current Location</p>
+<p class="text-xs font-medium">Approaching Delhi Airspace</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Quick Assistance Buttons -->
+<div>
+<p class="text-sm font-bold text-[#8a7460] uppercase tracking-widest mb-4">Quick Assistance</p>
+<div class="grid grid-cols-2 gap-3">
+<button class="flex items-center justify-start gap-3 p-4 rounded-xl border border-[#e5e1dc] dark:border-[#3d2c1e] hover:border-primary hover:bg-primary/5 transition-all text-left">
+<span class="material-symbols-outlined text-primary">schedule_send</span>
+<div>
+<p class="font-bold text-sm">Pandit Delayed</p>
+<p class="text-xs text-[#8a7460]">Report travel delay</p>
+</div>
+</button>
+<button class="flex items-center justify-start gap-3 p-4 rounded-xl border border-[#e5e1dc] dark:border-[#3d2c1e] hover:border-primary hover:bg-primary/5 transition-all text-left">
+<span class="material-symbols-outlined text-primary">inventory_2</span>
+<div>
+<p class="font-bold text-sm">Samagri Missing</p>
+<p class="text-xs text-[#8a7460]">Urgent delivery request</p>
+</div>
+</button>
+<button class="flex items-center justify-start gap-3 p-4 rounded-xl border border-[#e5e1dc] dark:border-[#3d2c1e] hover:border-primary hover:bg-primary/5 transition-all text-left">
+<span class="material-symbols-outlined text-primary">commute</span>
+<div>
+<p class="font-bold text-sm">Travel Issue</p>
+<p class="text-xs text-[#8a7460]">Local transport help</p>
+</div>
+</button>
+<button class="flex items-center justify-start gap-3 p-4 rounded-xl border border-[#e5e1dc] dark:border-[#3d2c1e] hover:border-primary hover:bg-primary/5 transition-all text-left">
+<span class="material-symbols-outlined text-primary">support_agent</span>
+<div>
+<p class="font-bold text-sm">Emergency Backup</p>
+<p class="text-xs text-[#8a7460]">Request backup Pandit</p>
+</div>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Side: Chat Window -->
+<div class="w-full md:w-[450px] border-l border-[#e5e1dc] dark:border-[#3d2c1e] bg-white dark:bg-[#1f160e] flex flex-col shadow-2xl relative">
+<!-- Chat Header -->
+<div class="p-4 border-b border-[#e5e1dc] dark:border-[#3d2c1e] flex items-center justify-between bg-white dark:bg-[#1f160e] sticky top-0 z-10">
+<div class="flex items-center gap-3">
+<div class="relative">
+<div class="size-10 rounded-full bg-primary/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">person</span>
+</div>
+<div class="absolute bottom-0 right-0 size-3 rounded-full bg-green-500 border-2 border-white dark:border-[#1f160e]"></div>
+</div>
+<div>
+<p class="font-bold leading-tight">Pandit Logistics Expert</p>
+<p class="text-xs text-green-600 font-medium">Online • Active tracking enabled</p>
+</div>
+</div>
+<button class="text-[#8a7460] hover:text-[#181411] transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<!-- Chat Messages -->
+<div class="flex-1 p-4 overflow-y-auto space-y-6 flex flex-col">
+<!-- System Timestamp -->
+<div class="flex justify-center">
+<span class="text-[10px] font-bold text-[#8a7460] bg-[#f5f2f0] dark:bg-[#2d2218] px-3 py-1 rounded-full uppercase tracking-tighter">Today, 10:24 AM</span>
+</div>
+<!-- Assistant Message -->
+<div class="flex gap-3 max-w-[85%]">
+<div class="size-8 rounded-full bg-primary/10 flex-shrink-0 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-sm">support_agent</span>
+</div>
+<div class="bg-[#f5f2f0] dark:bg-[#2d2218] p-4 rounded-2xl rounded-tl-none">
+<p class="text-sm leading-relaxed">Namaste! I am your Logistics Expert for the upcoming wedding. I can see Pandit Ji is currently at Mumbai Airport.</p>
+<span class="text-[10px] text-[#8a7460] mt-2 block">10:25 AM</span>
+</div>
+</div>
+<!-- Assistant Message -->
+<div class="flex gap-3 max-w-[85%]">
+<div class="size-8 rounded-full bg-primary/10 flex-shrink-0 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-sm">support_agent</span>
+</div>
+<div class="bg-[#f5f2f0] dark:bg-[#2d2218] p-4 rounded-2xl rounded-tl-none">
+<p class="text-sm leading-relaxed">Our team is tracking Pandit Ji's flight (AI-102). He is expected to land at T3 New Delhi at 12:45 PM. A private cab has been pre-booked for the venue transfer.</p>
+<span class="text-[10px] text-[#8a7460] mt-2 block">10:26 AM</span>
+</div>
+</div>
+<!-- User Message -->
+<div class="flex gap-3 max-w-[85%] self-end flex-row-reverse">
+<div class="size-8 rounded-full bg-primary flex-shrink-0 flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-sm">person</span>
+</div>
+<div class="bg-primary text-white p-4 rounded-2xl rounded-tr-none">
+<p class="text-sm leading-relaxed">Thank you. Can we ensure the special Havana samagri kit is already at the venue before he arrives?</p>
+<span class="text-[10px] text-white/70 mt-2 block text-right">10:28 AM</span>
+</div>
+</div>
+<!-- Assistant Message -->
+<div class="flex gap-3 max-w-[85%]">
+<div class="size-8 rounded-full bg-primary/10 flex-shrink-0 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-sm">support_agent</span>
+</div>
+<div class="bg-[#f5f2f0] dark:bg-[#2d2218] p-4 rounded-2xl rounded-tl-none">
+<p class="text-sm leading-relaxed">Yes, I've confirmed with our inventory team. The Premium Kit #A102 was delivered at the venue at 9:00 AM. Would you like me to send the receipt photo?</p>
+<span class="text-[10px] text-[#8a7460] mt-2 block">10:30 AM</span>
+</div>
+</div>
+<!-- Typing Indicator (Simulated) -->
+<div class="flex gap-3 max-w-[85%] animate-pulse">
+<div class="size-8 rounded-full bg-primary/10 flex-shrink-0 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-sm">edit</span>
+</div>
+<div class="bg-[#f5f2f0] dark:bg-[#2d2218] px-4 py-2 rounded-2xl rounded-tl-none flex items-center gap-1">
+<div class="size-1.5 bg-[#8a7460] rounded-full"></div>
+<div class="size-1.5 bg-[#8a7460] rounded-full"></div>
+<div class="size-1.5 bg-[#8a7460] rounded-full"></div>
+</div>
+</div>
+</div>
+<!-- Chat Input Area -->
+<div class="p-4 border-t border-[#e5e1dc] dark:border-[#3d2c1e] bg-white dark:bg-[#1f160e]">
+<div class="flex flex-col gap-3">
+<!-- Action Row -->
+<div class="flex gap-2">
+<button class="p-2 text-[#8a7460] hover:text-primary transition-colors">
+<span class="material-symbols-outlined">attach_file</span>
+</button>
+<button class="p-2 text-[#8a7460] hover:text-primary transition-colors">
+<span class="material-symbols-outlined">image</span>
+</button>
+<button class="p-2 text-[#8a7460] hover:text-primary transition-colors">
+<span class="material-symbols-outlined">location_on</span>
+</button>
+<div class="flex-1"></div>
+</div>
+<!-- Input -->
+<div class="relative flex items-center gap-2">
+<input class="w-full bg-[#f5f2f0] dark:bg-[#2d2218] border-none rounded-xl py-3 px-4 focus:ring-2 focus:ring-primary text-sm" placeholder="Type your concern here..." type="text"/>
+<button class="absolute right-2 size-8 bg-primary text-white rounded-lg flex items-center justify-center hover:bg-primary/90">
+<span class="material-symbols-outlined text-base">send</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+
+```</body></html>

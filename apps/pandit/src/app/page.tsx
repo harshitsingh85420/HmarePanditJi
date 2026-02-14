@@ -8,54 +8,32 @@ export default function PanditDashboard() {
   return (
     <div className="py-8 space-y-6">
 
-      {/* ── 1. Title Row ──────────────────────────────────────────────────── */}
-      <div className="flex items-start justify-between gap-4">
-        {/* Left: Page title */}
-        <div>
-          <h1 className="text-[32px] font-bold text-slate-900 leading-tight">
-            Pandit Dashboard
-          </h1>
-          <p className="mt-1 text-base text-slate-500">
-            Aaj ka schedule aur updates
-          </p>
-        </div>
+      {/* ── 1. Title Row & Status Toggle ──────────────────────────────────── */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <h1 className="text-[#181411] tracking-tight text-[32px] font-bold leading-tight">
+          Pandit Dashboard
+        </h1>
 
-        {/* Right: Online / Offline Toggle card */}
-        <div className="flex-shrink-0 bg-white border border-primary/10 rounded-xl px-4 py-3 shadow-sm flex items-center gap-3 min-w-[160px]">
+        {/* Large Status Toggle */}
+        <div className="flex items-center gap-4 bg-white p-3 rounded-xl border border-primary/20 shadow-sm self-start md:self-auto">
           <div className="flex flex-col">
-            <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">
-              Status
-            </span>
+            <span className="text-xs uppercase font-bold text-gray-500 tracking-wider">Status</span>
             <div className="flex items-center gap-1.5 mt-0.5">
-              {isOnline ? (
-                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse inline-block" />
-              ) : (
-                <span className="w-2 h-2 rounded-full bg-slate-400 inline-block" />
-              )}
-              <span
-                className={`text-sm font-bold ${
-                  isOnline ? "text-green-600" : "text-slate-500"
-                }`}
-              >
+              {isOnline && <span className="w-2 h-2 rounded-full bg-green-600 animate-pulse"></span>}
+              <span className={`text-sm font-bold ${isOnline ? "text-green-600" : "text-gray-400"}`}>
                 {isOnline ? "ONLINE" : "OFFLINE"}
               </span>
             </div>
           </div>
-          {/* Toggle switch */}
-          <button
-            role="switch"
-            aria-checked={isOnline}
-            onClick={() => setIsOnline((v) => !v)}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
-              isOnline ? "bg-primary" : "bg-slate-300"
-            }`}
-          >
-            <span
-              className={`inline-block h-4 w-4 rounded-full bg-white shadow-sm transform transition-transform ${
-                isOnline ? "translate-x-6" : "translate-x-1"
-              }`}
+          <label className={`relative flex h-[31px] w-[51px] cursor-pointer items-center rounded-full border-none p-0.5 transition-colors ${isOnline ? "bg-primary justify-end" : "bg-gray-200 justify-start"}`}>
+            <div className="h-full w-[27px] rounded-full bg-white shadow-md"></div>
+            <input
+              type="checkbox"
+              checked={isOnline}
+              onChange={() => setIsOnline(!isOnline)}
+              className="invisible absolute"
             />
-          </button>
+          </label>
         </div>
       </div>
 
@@ -63,224 +41,135 @@ export default function PanditDashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
 
         {/* Monthly Earnings */}
-        <div className="bg-white rounded-xl p-6 border border-primary/10 shadow-sm">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="material-symbols-outlined text-primary text-[22px]">
-              payments
-            </span>
-            <span className="text-sm font-medium text-slate-500">
-              Monthly Earnings
-            </span>
+        <div className="flex flex-col gap-2 rounded-xl p-6 bg-white border border-primary/10 shadow-sm">
+          <div className="flex items-center justify-between">
+            <p className="text-gray-500 text-sm font-medium leading-normal">Monthly Earnings</p>
+            <span className="material-symbols-outlined text-primary">payments</span>
           </div>
-          <p className="text-2xl font-bold text-slate-900">₹52,000</p>
-          <div className="flex items-center gap-1 mt-2">
-            <span className="material-symbols-outlined text-green-600 text-base leading-none">
-              trending_up
-            </span>
-            <span className="text-sm text-green-600 font-medium">
-              +12% vs last month
-            </span>
+          <p className="text-[#181411] tracking-tight text-2xl font-bold leading-tight">₹52,000</p>
+          <div className="flex items-center gap-1">
+            <span className="material-symbols-outlined text-xs text-green-600">trending_up</span>
+            <p className="text-green-600 text-sm font-bold">+12% vs last month</p>
           </div>
         </div>
 
         {/* Average Rating */}
-        <div className="bg-white rounded-xl p-6 border border-primary/10 shadow-sm">
-          <div className="flex items-center gap-2 mb-3">
-            <span
-              className="material-symbols-outlined text-primary text-[22px]"
-              style={{ fontVariationSettings: "'FILL' 1" }}
-            >
-              star
-            </span>
-            <span className="text-sm font-medium text-slate-500">
-              Average Rating
-            </span>
+        <div className="flex flex-col gap-2 rounded-xl p-6 bg-white border border-primary/10 shadow-sm">
+          <div className="flex items-center justify-between">
+            <p className="text-gray-500 text-sm font-medium leading-normal">Average Rating</p>
+            <span className="material-symbols-outlined text-primary">star</span>
           </div>
-          <p className="text-2xl font-bold text-slate-900">4.9/5</p>
-          <div className="flex items-center gap-1 mt-2">
-            <span
-              className="material-symbols-outlined text-green-600 text-base leading-none"
-              style={{ fontVariationSettings: "'FILL' 1" }}
-            >
-              verified
-            </span>
-            <span className="text-sm text-green-600 font-medium">
-              Top Professional
-            </span>
+          <p className="text-[#181411] tracking-tight text-2xl font-bold leading-tight">4.9/5</p>
+          <div className="flex items-center gap-1">
+            <span className="material-symbols-outlined text-xs text-green-600">verified</span>
+            <p className="text-green-600 text-sm font-bold">Top Professional</p>
           </div>
         </div>
 
         {/* Travel Distance */}
-        <div className="bg-white rounded-xl p-6 border border-primary/10 shadow-sm">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="material-symbols-outlined text-primary text-[22px]">
-              distance
-            </span>
-            <span className="text-sm font-medium text-slate-500">
-              Travel Distance
-            </span>
+        <div className="flex flex-col gap-2 rounded-xl p-6 bg-white border border-primary/10 shadow-sm">
+          <div className="flex items-center justify-between">
+            <p className="text-gray-500 text-sm font-medium leading-normal">Travel Distance</p>
+            <span className="material-symbols-outlined text-primary">distance</span>
           </div>
-          <p className="text-2xl font-bold text-slate-900">1,200 km</p>
-          <div className="flex items-center gap-1 mt-2">
-            <span className="material-symbols-outlined text-slate-500 text-base leading-none">
-              route
-            </span>
-            <span className="text-sm text-slate-500 font-medium">
-              8 trips completed
-            </span>
+          <p className="text-[#181411] tracking-tight text-2xl font-bold leading-tight">1,200 km</p>
+          <div className="flex items-center gap-1">
+            <span className="material-symbols-outlined text-xs text-primary">route</span>
+            <p className="text-gray-500 text-sm font-medium">8 trips completed</p>
           </div>
         </div>
+
       </div>
 
-      {/* ── 3. Today's Schedule ───────────────────────────────────────────── */}
-      <div className="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
-        {/* Section header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-          <h2 className="text-base font-semibold text-slate-900">
-            Today&apos;s Schedule
-          </h2>
-          <a
-            href="/bookings"
-            className="flex items-center gap-1 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
-          >
-            <span className="material-symbols-outlined text-base leading-none">
-              calendar_month
-            </span>
-            View Calendar
-          </a>
-        </div>
-
-        <div className="p-4 space-y-4">
-
-          {/* ACTIVE EVENT — border-l-4 border-primary */}
-          <div className="border-l-4 border-primary bg-white rounded-xl p-5 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-start gap-4">
-              {/* Time block */}
-              <div className="min-w-[60px] flex flex-col items-center justify-center bg-primary/5 border border-primary/10 rounded-lg py-2 px-1 text-center">
-                <span className="text-base font-bold text-slate-900 leading-none">
-                  10:00
-                </span>
-                <span className="text-xs font-semibold text-primary uppercase leading-none mt-0.5">
-                  AM
-                </span>
-              </div>
-              {/* Event details */}
-              <div className="flex-1 min-w-0">
-                <p className="text-lg font-bold text-slate-900 leading-tight">
-                  Satyanarayan Puja
-                </p>
-                <div className="flex items-center gap-1 mt-1 text-sm text-slate-500">
-                  <span className="material-symbols-outlined text-base leading-none">
-                    location_on
-                  </span>
-                  <span className="truncate">Sector 62, Noida — 201301</span>
-                </div>
-                <div className="flex items-center gap-1 mt-0.5 text-sm text-slate-500">
-                  <span className="material-symbols-outlined text-base leading-none">
-                    person
-                  </span>
-                  <span>Rajesh Kumar Ji</span>
-                </div>
-              </div>
-            </div>
-            {/* Action buttons */}
-            <div className="flex items-center gap-2 flex-shrink-0">
-              <button className="flex items-center gap-1.5 bg-primary hover:bg-primary/90 text-white text-sm font-semibold rounded-lg px-4 py-2.5 min-h-[44px] transition-colors shadow-sm shadow-primary/20">
-                <span className="material-symbols-outlined text-base leading-none">
-                  directions
-                </span>
-                Directions
-              </button>
-              <button className="flex items-center gap-1.5 border border-slate-200 hover:border-primary/30 text-slate-700 text-sm font-semibold rounded-lg px-4 py-2.5 min-h-[44px] transition-colors">
-                Details
-              </button>
-            </div>
-          </div>
-
-          {/* UPCOMING EVENT — border-l-4 border-gray-300 */}
-          <div className="border-l-4 border-gray-300 bg-white rounded-xl p-5 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-start gap-4">
-              {/* Grayed time block */}
-              <div className="min-w-[60px] flex flex-col items-center justify-center bg-slate-50 border border-slate-200 rounded-lg py-2 px-1 text-center">
-                <span className="text-base font-bold text-slate-400 leading-none">
-                  03:00
-                </span>
-                <span className="text-xs font-semibold text-slate-400 uppercase leading-none mt-0.5">
-                  PM
-                </span>
-              </div>
-              {/* Event details */}
-              <div className="flex-1 min-w-0">
-                <p className="text-lg font-bold text-slate-700 leading-tight">
-                  Griha Pravesh
-                </p>
-                <div className="flex items-center gap-1 mt-1 text-sm text-slate-400">
-                  <span className="material-symbols-outlined text-base leading-none">
-                    location_on
-                  </span>
-                  <span className="truncate">Indirapuram, Ghaziabad</span>
-                </div>
-                <div className="flex items-center gap-1 mt-0.5 text-sm text-slate-400">
-                  <span className="material-symbols-outlined text-base leading-none">
-                    person
-                  </span>
-                  <span>Sunita Sharma Ji</span>
-                </div>
-              </div>
-            </div>
-            {/* Action buttons */}
-            <div className="flex items-center gap-2 flex-shrink-0">
-              <button className="flex items-center gap-1.5 border border-slate-200 text-slate-500 text-sm font-semibold rounded-lg px-4 py-2.5 min-h-[44px] transition-colors cursor-default">
-                <span className="material-symbols-outlined text-base leading-none">
-                  schedule
-                </span>
-                Wait
-              </button>
-              <button className="flex items-center gap-1.5 border border-slate-200 hover:border-primary/30 text-slate-700 text-sm font-semibold rounded-lg px-4 py-2.5 min-h-[44px] transition-colors">
-                Details
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ── 4. Travel Insight Card ────────────────────────────────────────── */}
-      <div className="bg-white rounded-xl border border-primary/10 shadow-sm overflow-hidden">
-        {/* Card header */}
-        <div className="flex items-start justify-between px-6 py-4 border-b border-slate-100">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-primary text-[22px]">
-                map
-              </span>
-              <h2 className="text-base font-semibold text-slate-900">
-                Travel Insight
-              </h2>
-            </div>
-            <p className="mt-1 text-sm text-slate-500">
-              Saving 15% travel time with optimized routing
-            </p>
-          </div>
-        </div>
-
-        {/* Map preview area */}
-        <div className="relative h-40 bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center">
-          {/* Subtle map grid pattern */}
-          <div
-            className="absolute inset-0 opacity-20"
-            style={{
-              backgroundImage:
-                "linear-gradient(#94a3b8 1px, transparent 1px), linear-gradient(90deg, #94a3b8 1px, transparent 1px)",
-              backgroundSize: "32px 32px",
-            }}
-          />
-          {/* Open Travel View button */}
-          <button className="relative z-10 flex items-center gap-2 bg-white/90 backdrop-blur-sm border border-slate-200 rounded-full px-5 py-2.5 text-primary font-bold text-sm shadow-md hover:bg-white transition-colors">
-            <span className="material-symbols-outlined text-base leading-none">
-              open_in_new
-            </span>
-            Open Travel View
+      {/* ── 3. Schedule Section ───────────────────────────────────────────── */}
+      <div className="pt-2">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-[#181411] text-[22px] font-bold leading-tight tracking-[-0.015em]">Today&apos;s Schedule</h2>
+          <button className="text-primary text-sm font-bold flex items-center gap-1 hover:underline">
+            View Calendar <span className="material-symbols-outlined text-sm">calendar_month</span>
           </button>
+        </div>
+
+        <div className="space-y-4">
+          {/* Event 1 */}
+          <div className="bg-white border-l-4 border-primary rounded-xl p-5 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div className="flex gap-4">
+              <div className="flex flex-col items-center justify-center min-w-[60px] h-full py-1 bg-primary/5 rounded-lg border border-primary/10">
+                <span className="text-primary font-bold text-lg">10:00</span>
+                <span className="text-xs font-medium text-gray-500">AM</span>
+              </div>
+              <div>
+                <h3 className="font-bold text-lg text-[#181411]">Vivaha Puja (Wedding)</h3>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-1">
+                  <p className="text-sm text-gray-500 flex items-center gap-1">
+                    <span className="material-symbols-outlined text-sm">location_on</span> Delhi (South)
+                  </p>
+                  <p className="text-sm text-gray-500 flex items-center gap-1">
+                    <span className="material-symbols-outlined text-sm">person</span> Mr. Sharma&apos;s Family
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="flex gap-2 w-full md:w-auto">
+              <button className="flex-1 md:flex-none px-4 py-2 bg-primary hover:bg-[#e08e1f] text-white text-sm font-bold rounded-lg flex items-center justify-center gap-2 transition-colors">
+                <span className="material-symbols-outlined text-sm">directions</span> Directions
+              </button>
+              <button className="flex-1 md:flex-none px-4 py-2 bg-white border border-gray-200 hover:bg-gray-50 text-[#181411] text-sm font-bold rounded-lg transition-colors">
+                Details
+              </button>
+            </div>
+          </div>
+
+          {/* Event 2 */}
+          <div className="bg-white border-l-4 border-gray-300 rounded-xl p-5 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div className="flex gap-4">
+              <div className="flex flex-col items-center justify-center min-w-[60px] h-full py-1 bg-gray-50 rounded-lg border border-gray-100">
+                <span className="text-gray-700 font-bold text-lg">04:00</span>
+                <span className="text-xs font-medium text-gray-500">PM</span>
+              </div>
+              <div>
+                <h3 className="font-bold text-lg text-[#181411]">Griha Pravesh</h3>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-1">
+                  <p className="text-sm text-gray-500 flex items-center gap-1">
+                    <span className="material-symbols-outlined text-sm">location_on</span> Local (2km away)
+                  </p>
+                  <p className="text-sm text-gray-500 flex items-center gap-1">
+                    <span className="material-symbols-outlined text-sm">person</span> Mrs. Verma
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="flex gap-2 w-full md:w-auto">
+              <button className="flex-1 md:flex-none px-4 py-2 bg-gray-100 text-gray-700 text-sm font-bold rounded-lg flex items-center justify-center gap-2 cursor-not-allowed opacity-70">
+                <span className="material-symbols-outlined text-sm">schedule</span> Wait
+              </button>
+              <button className="flex-1 md:flex-none px-4 py-2 bg-white border border-gray-200 hover:bg-gray-50 text-[#181411] text-sm font-bold rounded-lg transition-colors">
+                Details
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── 4. Travel Insight Map Preview ─────────────────────────────────── */}
+      <div className="bg-white rounded-xl border border-primary/10 overflow-hidden shadow-sm mt-6">
+        <div className="p-5 flex items-center justify-between border-b border-gray-100">
+          <div>
+            <p className="text-base font-bold text-[#181411]">Travel Insight</p>
+            <p className="text-sm text-gray-500">You are saving 15% travel time today with optimized routing</p>
+          </div>
+          <span className="material-symbols-outlined text-primary">map</span>
+        </div>
+        <div className="h-40 bg-gray-100 relative group cursor-pointer overflow-hidden">
+          <div
+            className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105 opacity-80"
+            style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuCxcuzjnSOjS4750BM-hmC5vBd4UiSzGki7WnmwjquP07PjfEBTqpXvCRyZon_Rgrppbut58NgqZWgM2LdCMKjHu3a2iC4_3mGVMv8Dn-ZHZzm6-D9DAMbIMSjcXgFIay0PlymmSqoliFpBOjc8IPwuyQSGWmPLIRV0RUUCaoPJPSOg37FLacQw_h3q1EPM3537XcD1HdSxUqUzwTWavdFww5TJ1LISdAbXO9LvuJCAJpt5jesvaWqxydkwpQE7dw9c8e7taEsWzpE')" }}
+          ></div>
+          <div className="absolute inset-0 flex items-center justify-center bg-black/10 group-hover:bg-black/20 transition-colors">
+            <button className="bg-white/90 backdrop-blur px-6 py-2 rounded-full text-primary font-bold shadow-lg flex items-center gap-2 hover:bg-white transition-all transform hover:scale-105 active:scale-95">
+              <span className="material-symbols-outlined text-sm">navigation</span> Open Travel View
+            </button>
+          </div>
         </div>
       </div>
 

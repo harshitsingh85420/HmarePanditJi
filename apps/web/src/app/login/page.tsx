@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth, saveTokens, API_BASE } from "../../context/auth-context";
 
@@ -16,6 +16,8 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [devOtp, setDevOtp] = useState("");
   const [countdown, setCountdown] = useState(0);
+
+  const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   // Redirect if already logged in
   useEffect(() => {
@@ -124,213 +126,231 @@ export default function LoginPage() {
     next[index] = value.slice(-1);
     setOtp(next);
     if (value && index < 5) {
-      const el = document.getElementById(`otp-${index + 1}`);
-      el?.focus();
+      otpRefs.current[index + 1]?.focus();
     }
   };
 
   const handleOtpKeyDown = (index: number, e: React.KeyboardEvent) => {
     if (e.key === "Backspace" && !otp[index] && index > 0) {
-      const el = document.getElementById(`otp-${index - 1}`);
-      el?.focus();
+      otpRefs.current[index - 1]?.focus();
     }
   };
 
   return (
-    <main className="min-h-screen bg-[#f8f7f5] dark:bg-[#221a10] flex items-center justify-center px-4 py-12">
-      {/* Background pattern */}
-      <div
-        className="pointer-events-none fixed inset-0 z-0 opacity-[0.03]"
-        style={{
-          backgroundImage: "radial-gradient(circle, #f49d25 1px, transparent 1px)",
-          backgroundSize: "28px 28px",
-        }}
-      />
-
-      <div className="relative z-10 w-full max-w-md">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 mb-3">
-            <span className="text-3xl">🙏</span>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-              Hmare<span className="text-primary">PanditJi</span>
+    <div className="min-h-screen bg-[#f6f7f8] dark:bg-[#101922] flex items-center justify-center p-6 md:p-12 transition-colors duration-200">
+      <div className="w-full max-w-[1000px] grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+        {/* Left Side: Trust Section */}
+        <div className="hidden lg:flex flex-col gap-8 py-10">
+          <div className="space-y-4">
+            <h1 className="text-4xl font-bold tracking-tight text-slate-900 dark:text-white">
+              Begin Your Spiritual Journey
             </h1>
+            <p className="text-lg text-slate-600 dark:text-slate-400">
+              Join HmarePanditJi to access certified Pandits, personalized rituals, and seamless religious services for your family.
+            </p>
           </div>
-          <p className="text-slate-500 dark:text-slate-400 text-sm">
-            {step === "phone" && "Enter your phone number to get started"}
-            {step === "otp" && `We sent a 6-digit OTP to +91 ${phone}`}
-            {step === "profile" && "Almost there! Complete your profile"}
-          </p>
+
+          <div className="space-y-6">
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-[#137fec]/10 text-[#137fec] flex items-center justify-center">
+                <span className="material-symbols-outlined">verified_user</span>
+              </div>
+              <div>
+                <h3 className="font-semibold text-slate-900 dark:text-white">Secure & Private</h3>
+                <p className="text-sm text-slate-600 dark:text-slate-400">
+                  Your personal data is encrypted and never shared with third parties.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-[#137fec]/10 text-[#137fec] flex items-center justify-center">
+                <span className="material-symbols-outlined">group_add</span>
+              </div>
+              <div>
+                <h3 className="font-semibold text-slate-900 dark:text-white">Family Profiles</h3>
+                <p className="text-sm text-slate-600 dark:text-slate-400">
+                  Easily manage bookings for parents, spouse, and children in one place.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-[#137fec]/10 text-[#137fec] flex items-center justify-center">
+                <span className="material-symbols-outlined">history</span>
+              </div>
+              <div>
+                <h3 className="font-semibold text-slate-900 dark:text-white">Quick History</h3>
+                <p className="text-sm text-slate-600 dark:text-slate-400">
+                  Access your past poojas, receipts, and Pandit feedback anytime.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-8 p-6 rounded-xl bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
+            <div className="flex items-center gap-3 mb-2">
+              <span className="material-symbols-outlined text-yellow-500">lock</span>
+              <span className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">End-to-End Encryption</span>
+            </div>
+            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+              We comply with global data privacy standards. Your phone number is only used for authentication and service updates.
+            </p>
+          </div>
         </div>
 
-        {/* Card */}
-        <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-800 p-8">
-          {/* Error */}
-          {error && (
-            <div className="mb-4 px-4 py-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-red-700 dark:text-red-400 text-sm">
-              {error}
-            </div>
-          )}
-
-          {/* Dev OTP indicator */}
-          {devOtp && step === "otp" && (
-            <div className="mb-4 px-4 py-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl text-amber-700 dark:text-amber-400 text-xs">
-              Dev OTP: <span className="font-mono font-bold text-base">{devOtp}</span>
-            </div>
-          )}
-
-          {/* Phone Step */}
-          {step === "phone" && (
-            <div className="space-y-5">
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                  Mobile Number
-                </label>
-                <div className="flex">
-                  <span className="flex items-center px-4 bg-slate-100 dark:bg-slate-800 border border-r-0 border-slate-200 dark:border-slate-700 rounded-l-xl text-sm font-semibold text-slate-600 dark:text-slate-400">
-                    +91
-                  </span>
-                  <input
-                    type="tel"
-                    inputMode="numeric"
-                    maxLength={10}
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
-                    onKeyDown={(e) => e.key === "Enter" && handleRequestOtp()}
-                    placeholder="98765 43210"
-                    autoFocus
-                    className="flex-1 px-4 py-3 text-lg border border-slate-200 dark:border-slate-700 rounded-r-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary"
-                  />
-                </div>
-              </div>
-
-              <button
-                onClick={handleRequestOtp}
-                disabled={loading || phone.length !== 10}
-                className="w-full py-3.5 bg-primary text-white font-bold rounded-xl text-sm hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-primary/20"
-              >
-                {loading ? "Sending OTP…" : "Send OTP"}
-              </button>
-
-              <p className="text-[11px] text-slate-400 dark:text-slate-500 text-center leading-relaxed">
-                By continuing, you agree to our Terms of Service and Privacy Policy
-              </p>
-            </div>
-          )}
-
-          {/* OTP Step */}
-          {step === "otp" && (
-            <div className="space-y-5">
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
-                  Enter OTP
-                </label>
-                <div className="flex justify-center gap-2">
-                  {otp.map((digit, i) => (
-                    <input
-                      key={i}
-                      id={`otp-${i}`}
-                      type="text"
-                      inputMode="numeric"
-                      maxLength={1}
-                      value={digit}
-                      onChange={(e) => handleOtpChange(i, e.target.value)}
-                      onKeyDown={(e) => handleOtpKeyDown(i, e)}
-                      autoFocus={i === 0}
-                      className="w-12 h-14 text-center text-xl font-bold border-2 border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors"
-                    />
-                  ))}
-                </div>
-              </div>
-
-              <button
-                onClick={handleVerifyOtp}
-                disabled={loading || otp.join("").length !== 6}
-                className="w-full py-3.5 bg-primary text-white font-bold rounded-xl text-sm hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-primary/20"
-              >
-                {loading ? "Verifying…" : "Verify OTP"}
-              </button>
-
-              <div className="flex items-center justify-between text-xs">
-                <button
-                  onClick={() => {
-                    setStep("phone");
-                    setOtp(["", "", "", "", "", ""]);
-                    setError("");
-                  }}
-                  className="text-primary font-semibold hover:underline"
-                >
-                  Change Number
-                </button>
-                <button
-                  onClick={handleRequestOtp}
-                  disabled={countdown > 0}
-                  className="text-primary font-semibold hover:underline disabled:text-slate-400 disabled:no-underline disabled:cursor-not-allowed"
-                >
-                  {countdown > 0 ? `Resend in ${countdown}s` : "Resend OTP"}
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Profile Step */}
-          {step === "profile" && (
-            <div className="space-y-5">
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                  Full Name <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  placeholder="Your full name"
-                  autoFocus
-                  className="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                  Email <span className="text-slate-400">(optional)</span>
-                </label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@example.com"
-                  className="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-              </div>
-
-              <button
-                onClick={handleCompleteProfile}
-                disabled={loading || !fullName.trim()}
-                className="w-full py-3.5 bg-primary text-white font-bold rounded-xl text-sm hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-primary/20"
-              >
-                {loading ? "Saving…" : "Complete & Continue"}
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* Step indicator */}
-        <div className="flex justify-center gap-2 mt-6">
-          {["phone", "otp", "profile"].map((s, i) => (
+        {/* Right Side: Form */}
+        <div className="bg-white dark:bg-[#1c2127] rounded-2xl shadow-xl border border-slate-200 dark:border-[#283039] overflow-hidden">
+          {/* Progress Bar */}
+          <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800 flex">
             <div
-              key={s}
-              className={[
-                "w-2 h-2 rounded-full transition-all",
-                step === s
-                  ? "bg-primary w-6"
-                  : i < ["phone", "otp", "profile"].indexOf(step)
-                  ? "bg-primary/60"
-                  : "bg-slate-300 dark:bg-slate-700",
-              ].join(" ")}
+              className="h-full bg-[#137fec] transition-all duration-500"
+              style={{ width: step === "phone" ? "33%" : step === "otp" ? "66%" : "100%" }}
             />
-          ))}
+          </div>
+
+          <div className="p-8 md:p-10">
+            {/* Step 1: Phone */}
+            {step === "phone" && (
+              <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
+                <div>
+                  <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Create your account</h2>
+                  <p className="text-slate-600 dark:text-slate-400 mt-1">Join HmarePanditJi for seamless religious services</p>
+                </div>
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Phone Number</label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <span className="text-slate-500 text-sm font-medium">+91</span>
+                      </div>
+                      <input
+                        className="block w-full pl-12 pr-4 py-4 rounded-lg bg-slate-50 dark:bg-[#111418] border border-slate-200 dark:border-[#3b4754] text-slate-900 dark:text-white focus:ring-2 focus:ring-[#137fec] focus:border-transparent transition-all outline-none"
+                        placeholder="99999 99999"
+                        type="tel"
+                        maxLength={10}
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
+                        onKeyDown={(e) => e.key === "Enter" && handleRequestOtp()}
+                        autoFocus
+                      />
+                    </div>
+                  </div>
+                  {error && <p className="text-sm text-red-500">{error}</p>}
+                  <button
+                    onClick={handleRequestOtp}
+                    disabled={loading || phone.length !== 10}
+                    className="w-full mt-2 py-4 px-6 bg-[#137fec] hover:bg-[#137fec]/90 disabled:opacity-50 text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-2"
+                  >
+                    {loading ? "Sending..." : (
+                      <>
+                        Get OTP <span className="material-symbols-outlined text-base">arrow_forward</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Step 2: OTP */}
+            {step === "otp" && (
+              <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
+                <div>
+                  <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Verify Phone</h2>
+                  <p className="text-slate-600 dark:text-slate-400 mt-1">Enter OTP sent to +91 {phone}</p>
+                </div>
+                {devOtp && (
+                  <div className="p-2 bg-amber-50 text-amber-700 text-xs rounded border border-amber-200">
+                    DEV OTP: <span className="font-bold">{devOtp}</span>
+                  </div>
+                )}
+                <div className="space-y-6">
+                  <div className="flex gap-2 justify-between">
+                    {otp.map((digit, i) => (
+                      <input
+                        key={i}
+                        ref={(el) => { otpRefs.current[i] = el; }}
+                        className="w-12 h-14 text-center text-xl font-bold rounded-lg bg-slate-50 dark:bg-[#111418] border border-slate-200 dark:border-[#3b4754] text-slate-900 dark:text-white focus:ring-2 focus:ring-[#137fec] outline-none transition-all"
+                        maxLength={1}
+                        type="text"
+                        inputMode="numeric"
+                        value={digit}
+                        onChange={(e) => handleOtpChange(i, e.target.value)}
+                        onKeyDown={(e) => handleOtpKeyDown(i, e)}
+                        autoFocus={i === 0}
+                      />
+                    ))}
+                  </div>
+
+                  {error && <p className="text-sm text-red-500 text-center">{error}</p>}
+
+                  <div className="flex justify-between items-center text-sm">
+                    <button onClick={() => setStep("phone")} className="text-slate-500 hover:text-[#137fec]">Change Number</button>
+                    {countdown > 0 ? (
+                      <span className="text-slate-400">Resend in {countdown}s</span>
+                    ) : (
+                      <button onClick={handleRequestOtp} className="text-[#137fec] font-bold hover:underline">Resend OTP</button>
+                    )}
+                  </div>
+
+                  <button
+                    onClick={handleVerifyOtp}
+                    disabled={loading || otp.join("").length !== 6}
+                    className="w-full mt-2 py-4 px-6 bg-[#137fec] hover:bg-[#137fec]/90 disabled:opacity-50 text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-2"
+                  >
+                    {loading ? "Verifying..." : (
+                      <>
+                        Verify & Continue <span className="material-symbols-outlined text-base">check</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Step 3: Profile */}
+            {step === "profile" && (
+              <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
+                <div>
+                  <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Complete Profile</h2>
+                  <p className="text-slate-600 dark:text-slate-400 mt-1">Tell us a bit about yourself</p>
+                </div>
+                <div className="space-y-6">
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Full Name</label>
+                      <input
+                        className="w-full p-3 rounded-lg bg-slate-50 dark:bg-[#111418] border border-slate-200 dark:border-[#3b4754] text-slate-900 dark:text-white focus:ring-1 focus:ring-[#137fec] outline-none mt-1"
+                        placeholder="e.g. Rajesh Kumar"
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Email (Optional)</label>
+                      <input
+                        className="w-full p-3 rounded-lg bg-slate-50 dark:bg-[#111418] border border-slate-200 dark:border-[#3b4754] text-slate-900 dark:text-white focus:ring-1 focus:ring-[#137fec] outline-none mt-1"
+                        placeholder="rajesh@example.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                      />
+                    </div>
+                  </div>
+
+                  {error && <p className="text-sm text-red-500">{error}</p>}
+
+                  <button
+                    onClick={handleCompleteProfile}
+                    disabled={loading || !fullName.trim()}
+                    className="w-full py-4 bg-[#137fec] text-white font-bold rounded-lg shadow-lg shadow-[#137fec]/20 hover:scale-[1.01] active:scale-[0.99] transition-all disabled:opacity-50"
+                  >
+                    {loading ? "Saving..." : "Finish Setup"}
+                  </button>
+                </div>
+              </div>
+            )}
+
+          </div>
         </div>
       </div>
-    </main>
+    </div>
   );
 }

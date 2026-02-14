@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Pandit Work Calendar - HmarePanditJi</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#f29e0d",
+                        "background-light": "#f8f7f5",
+                        "background-dark": "#221b10",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .marker-booking { width: 4px; height: 4px; background-color: #f29e0d; border-radius: 50%; }
+        .marker-travel { width: 4px; height: 4px; background-color: #6b7280; border-radius: 50%; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<!-- Top Navigation Bar -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark px-6 md:px-10 py-3 sticky top-0 z-50">
+<div class="flex items-center gap-4 text-slate-900 dark:text-slate-100">
+<div class="size-6 text-primary">
+<span class="material-symbols-outlined text-3xl">auto_awesome</span>
+</div>
+<h2 class="text-lg font-bold leading-tight tracking-[-0.015em]">HmarePanditJi</h2>
+</div>
+<div class="flex flex-1 justify-end gap-8">
+<div class="hidden md:flex items-center gap-9">
+<a class="text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Dashboard</a>
+<a class="text-sm font-bold leading-normal text-primary" href="#">Calendar</a>
+<a class="text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Bookings</a>
+<a class="text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Earnings</a>
+</div>
+<button class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-orange-600 transition-all">
+<span class="truncate">Sync Google Calendar</span>
+</button>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-primary/20" data-alt="Professional portrait of a Pandit for profile" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDMJo8f3Y4in17nkMYAoQ9KdIIMIWGSjc9463nIZgQHzXW_8q5tTsKH5bb0tvM8pY8EJLe0HzaTSQBAA8iU8WWqOFItla6a7JhymuMLlSNs3OX3FEI_0Pp74-WMDz_ymw0vVXT_kfsA0Dsoyn5oLRZZ6Dc3isR95rJuOXc32rRcNT5kOm7xVZw4F48u1QxL3jpdIWlKzcKNSEgFKwjWjovYRtKwnmam-FfGPAVqu3fwFjx6iwFIgKKhQgqy6Z7Ax-881cfEkvAO-qs");'></div>
+</div>
+</header>
+<main class="flex-1 max-w-[1200px] mx-auto w-full p-4 md:p-8">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Left Sidebar: Controls & Stats -->
+<div class="lg:col-span-3 flex flex-col gap-6">
+<div class="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
+<h1 class="text-xl font-bold mb-1">Work Calendar</h1>
+<p class="text-slate-500 text-sm mb-6">High-stakes schedule management</p>
+<div class="space-y-4">
+<button class="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-primary/10 text-primary font-semibold hover:bg-primary/20 transition-all">
+<span class="material-symbols-outlined">event_busy</span>
+<span class="text-sm">Block Festival Period</span>
+</button>
+<button class="w-full flex items-center gap-3 px-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-all">
+<span class="material-symbols-outlined">repeat_on</span>
+<span class="text-sm">Set Repeat Off</span>
+</button>
+</div>
+</div>
+<!-- Notification Card -->
+<div class="bg-orange-50 dark:bg-orange-950/20 p-4 rounded-xl border border-primary/20">
+<div class="flex gap-3">
+<span class="material-symbols-outlined text-primary">info</span>
+<div>
+<p class="text-sm font-bold text-orange-900 dark:text-orange-200">Travel Days Auto-blocked</p>
+<p class="text-xs text-orange-800/80 dark:text-orange-300/80 mt-1">Calendar intelligently blocks buffer time for venue travel based on location distance.</p>
+</div>
+</div>
+</div>
+<!-- Legend -->
+<div class="px-2">
+<h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Legend</h3>
+<div class="space-y-2">
+<div class="flex items-center gap-2 text-sm">
+<span class="w-3 h-3 rounded-full bg-primary"></span>
+<span>Wedding / Muhurat</span>
+</div>
+<div class="flex items-center gap-2 text-sm">
+<span class="w-3 h-3 rounded-full bg-slate-400"></span>
+<span>Travel Buffer</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Center: Calendar View -->
+<div class="lg:col-span-5">
+<div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+<div class="flex items-center justify-between p-6 border-b border-slate-100 dark:border-slate-800">
+<h2 class="text-lg font-bold">December 2024</h2>
+<div class="flex gap-2">
+<button class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+<div class="p-4">
+<div class="grid grid-cols-7 mb-2">
+<div class="text-center text-xs font-bold text-slate-400 py-2">SUN</div>
+<div class="text-center text-xs font-bold text-slate-400 py-2">MON</div>
+<div class="text-center text-xs font-bold text-slate-400 py-2">TUE</div>
+<div class="text-center text-xs font-bold text-slate-400 py-2">WED</div>
+<div class="text-center text-xs font-bold text-slate-400 py-2">THU</div>
+<div class="text-center text-xs font-bold text-slate-400 py-2">FRI</div>
+<div class="text-center text-xs font-bold text-slate-400 py-2">SAT</div>
+</div>
+<div class="grid grid-cols-7 gap-1">
+<!-- Empty cells for start of month -->
+<div class="aspect-square flex flex-col items-center justify-center text-sm text-slate-300">24</div>
+<div class="aspect-square flex flex-col items-center justify-center text-sm text-slate-300">25</div>
+<div class="aspect-square flex flex-col items-center justify-center text-sm text-slate-300">26</div>
+<div class="aspect-square flex flex-col items-center justify-center text-sm text-slate-300">27</div>
+<div class="aspect-square flex flex-col items-center justify-center text-sm text-slate-300">28</div>
+<div class="aspect-square flex flex-col items-center justify-center text-sm text-slate-300">29</div>
+<div class="aspect-square flex flex-col items-center justify-center text-sm text-slate-300">30</div>
+<!-- Days -->
+<button class="aspect-square flex flex-col items-center justify-center text-sm relative hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg">1</button>
+<button class="aspect-square flex flex-col items-center justify-center text-sm relative hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg">2</button>
+<button class="aspect-square flex flex-col items-center justify-center text-sm relative hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg">
+                                    3 <div class="flex gap-1 mt-1"><div class="marker-booking"></div></div>
+</button>
+<button class="aspect-square flex flex-col items-center justify-center text-sm relative hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg">4</button>
+<button class="aspect-square flex flex-col items-center justify-center text-sm relative hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg">5</button>
+<button class="aspect-square flex flex-col items-center justify-center text-sm relative hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg">6</button>
+<button class="aspect-square flex flex-col items-center justify-center text-sm relative hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg">7</button>
+<button class="aspect-square flex flex-col items-center justify-center text-sm relative hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg">8</button>
+<button class="aspect-square flex flex-col items-center justify-center text-sm relative hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg">9</button>
+<button class="aspect-square flex flex-col items-center justify-center text-sm relative hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg">
+                                    10 <div class="flex gap-1 mt-1"><div class="marker-booking"></div><div class="marker-booking"></div></div>
+</button>
+<button class="aspect-square flex flex-col items-center justify-center text-sm relative hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg">11</button>
+<button class="aspect-square flex flex-col items-center justify-center text-sm relative hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg">12</button>
+<button class="aspect-square flex flex-col items-center justify-center text-sm relative hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg">13</button>
+<button class="aspect-square flex flex-col items-center justify-center text-sm relative hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg">14</button>
+<button class="aspect-square flex flex-col items-center justify-center text-sm relative hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg">15</button>
+<button class="aspect-square flex flex-col items-center justify-center text-sm relative bg-primary text-white font-bold rounded-lg shadow-md ring-4 ring-primary/20">
+                                    16 <div class="flex gap-1 mt-1"><div class="w-1 h-1 bg-white rounded-full"></div><div class="w-1 h-1 bg-white rounded-full"></div></div>
+</button>
+<button class="aspect-square flex flex-col items-center justify-center text-sm relative hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg">17</button>
+<button class="aspect-square flex flex-col items-center justify-center text-sm relative hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg">18</button>
+<button class="aspect-square flex flex-col items-center justify-center text-sm relative hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg">19</button>
+<button class="aspect-square flex flex-col items-center justify-center text-sm relative hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg">20</button>
+<button class="aspect-square flex flex-col items-center justify-center text-sm relative hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg">21</button>
+<button class="aspect-square flex flex-col items-center justify-center text-sm relative hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg">22</button>
+<button class="aspect-square flex flex-col items-center justify-center text-sm relative hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg">23</button>
+<button class="aspect-square flex flex-col items-center justify-center text-sm relative hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg">
+                                    24 <div class="flex gap-1 mt-1"><div class="marker-travel"></div></div>
+</button>
+<button class="aspect-square flex flex-col items-center justify-center text-sm relative hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg">
+                                    25 <div class="flex gap-1 mt-1"><div class="marker-booking"></div></div>
+</button>
+<button class="aspect-square flex flex-col items-center justify-center text-sm relative hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg">26</button>
+<button class="aspect-square flex flex-col items-center justify-center text-sm relative hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg">27</button>
+<button class="aspect-square flex flex-col items-center justify-center text-sm relative hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg">28</button>
+<button class="aspect-square flex flex-col items-center justify-center text-sm relative hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg">29</button>
+<button class="aspect-square flex flex-col items-center justify-center text-sm relative hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg">30</button>
+<button class="aspect-square flex flex-col items-center justify-center text-sm relative hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg">31</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Sidebar: Selected Day Details -->
+<div class="lg:col-span-4 flex flex-col gap-6">
+<div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 flex-1 flex flex-col">
+<div class="p-6 border-b border-slate-100 dark:border-slate-800">
+<h3 class="text-lg font-bold">Monday, Dec 16</h3>
+<p class="text-sm text-slate-500">3 events scheduled</p>
+</div>
+<div class="flex-1 p-6 space-y-6">
+<!-- Timeline Entry -->
+<div class="relative pl-8">
+<div class="absolute left-0 top-1.5 w-3 h-3 bg-slate-400 rounded-full border-2 border-white dark:border-slate-900 z-10"></div>
+<div class="absolute left-[5px] top-4 w-[2px] h-[calc(100%+24px)] bg-slate-100 dark:bg-slate-800"></div>
+<div class="flex flex-col">
+<span class="text-xs font-bold text-slate-400 uppercase">8:00 AM</span>
+<span class="text-sm font-semibold text-slate-700 dark:text-slate-300">Travel to Venue</span>
+<span class="text-xs text-slate-500">Destination: Grand Heritage Resort, Jaipur</span>
+</div>
+</div>
+<!-- Timeline Entry -->
+<div class="relative pl-8">
+<div class="absolute left-0 top-1.5 w-3 h-3 bg-primary rounded-full border-2 border-white dark:border-slate-900 z-10"></div>
+<div class="absolute left-[5px] top-4 w-[2px] h-[calc(100%+24px)] bg-slate-100 dark:bg-slate-800"></div>
+<div class="flex flex-col bg-primary/5 p-3 rounded-lg border border-primary/10">
+<span class="text-xs font-bold text-primary uppercase">10:00 AM</span>
+<span class="text-base font-bold text-slate-900 dark:text-slate-100">Wedding Muhurat</span>
+<span class="text-sm text-slate-600 dark:text-slate-400">Client: Sharma-Mehta Wedding</span>
+<div class="mt-2 flex gap-2">
+<button class="px-2 py-1 text-[10px] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md">View Details</button>
+<button class="px-2 py-1 text-[10px] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md">Contact Host</button>
+</div>
+</div>
+</div>
+<!-- Timeline Entry -->
+<div class="relative pl-8">
+<div class="absolute left-0 top-1.5 w-3 h-3 bg-primary rounded-full border-2 border-white dark:border-slate-900 z-10"></div>
+<div class="flex flex-col">
+<span class="text-xs font-bold text-slate-400 uppercase">2:00 PM</span>
+<span class="text-sm font-semibold text-slate-700 dark:text-slate-300">Post-ceremony rituals</span>
+<span class="text-xs text-slate-500">Estimated duration: 1.5 hours</span>
+</div>
+</div>
+</div>
+<div class="p-6 bg-slate-50 dark:bg-slate-800/50 mt-auto rounded-b-xl">
+<button class="w-full py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-semibold hover:shadow-sm transition-all">
+                                Add Custom Event
+                            </button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-white dark:bg-background-dark border-t border-slate-200 dark:border-slate-800 p-6 text-center">
+<p class="text-sm text-slate-500">© 2024 HmarePanditJi Pandit App • Professional Management Suite</p>
+</footer>
+</div>
+</div>
+</body></html>

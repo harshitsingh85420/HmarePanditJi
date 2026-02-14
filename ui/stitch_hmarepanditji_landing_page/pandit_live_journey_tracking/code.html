@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Pandit Live Journey Tracking</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24 }
+        .fill-icon { font-variation-settings: 'FILL' 1; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-[#111318] dark:text-white antialiased">
+<div class="relative flex min-h-screen w-full flex-col">
+<!-- Top Navigation -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-[#f0f2f4] dark:border-gray-800 bg-white dark:bg-background-dark px-6 md:px-10 py-3 sticky top-0 z-50">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-3 text-primary">
+<span class="material-symbols-outlined text-3xl">auto_awesome</span>
+<h2 class="text-[#111318] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">HmarePanditJi</h2>
+</div>
+<nav class="hidden md:flex items-center gap-9">
+<a class="text-[#111318] dark:text-gray-300 text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Dashboard</a>
+<a class="text-[#111318] dark:text-gray-300 text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Bookings</a>
+<a class="text-primary text-sm font-bold leading-normal" href="#">Travel</a>
+<a class="text-[#111318] dark:text-gray-300 text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Support</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="hidden sm:block">
+<label class="flex items-center bg-[#f0f2f4] dark:bg-gray-800 rounded-lg px-3 py-2">
+<span class="material-symbols-outlined text-gray-500 text-xl">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-48" placeholder="Search booking ID..."/>
+</label>
+</div>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-primary/20" data-alt="Pandit profile picture" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCwKpkp4gHuJeJXQfTvgH1tsYam6cZUnF6hcitmo9_wFronC8LkzDH6sdBiyqzA7ZkleW_IbxWB9ivyvNgs2wTrYXi8V3c824CGj5jQw9Dmo38zgS9RT3bgL8y4t9pJvyMVaIgQWQpgbja7Y5UOo60ixQWgto8PVcE1mp9_tGrN63hewI7UXd9yyEho9eaW0KENK0Ddb78UQTfuM3IHf_9-xftG9tPImx03oHANmlFsb-xDjB2vY3FVMy2WSIR6HdLncjt43gl60gI");'></div>
+</div>
+</header>
+<main class="flex-1 flex flex-col md:flex-row h-[calc(100vh-64px)] overflow-hidden">
+<!-- Map View (Left/Main Area) -->
+<div class="relative flex-1 bg-gray-200 dark:bg-gray-900">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="Detailed map showing Varanasi to Delhi route" data-location="North India Map" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuB1jGNCv9hBLyaDVBU_9dtz76kcX7Hz5yWPCNAk1SdXQZ2Y3L9KlnwoYiZmPsqiQNV3sfwXRocPtm4R5tY2wdE6kQbrI7Vlik3wcRcOqDC1BQ-MaqUNJqzeSChP40U5TkuBftI39e6ixF_Q_OhIF6pTrJrmgir5E0y5uOJnksJgpKxIOPSUmIgXuYRDj4K-HgKb3Zigzk1i_I8hLwtyRO6BAwRAVF59ZnmLhttgdLJb7ZiTQB74Lf0mh6Rs36cKcEQhfv-BTMkutl0");'>
+<!-- Map Overlay UI -->
+<div class="absolute inset-0 bg-primary/5"></div>
+<!-- Route Path (SVG Overlay Simulation) -->
+<svg class="absolute inset-0 w-full h-full pointer-events-none" viewbox="0 0 800 600">
+<path class="opacity-60" d="M600,500 Q400,450 300,300 T100,100" fill="none" stroke="#135bec" stroke-dasharray="10 10" stroke-linecap="round" stroke-width="6"></path>
+<!-- Pandit Location Icon -->
+<g transform="translate(280, 280)">
+<circle class="animate-ping opacity-20" fill="#135bec" r="24"></circle>
+<circle class="shadow-lg" fill="white" r="16"></circle>
+<text class="material-symbols-outlined fill-icon text-primary text-xl" x="-10" y="8">directions_car</text>
+</g>
+</svg>
+<!-- Zoom Controls -->
+<div class="absolute right-6 top-6 flex flex-col gap-2">
+<button class="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-xl hover:bg-gray-50 dark:hover:bg-gray-700">
+<span class="material-symbols-outlined">add</span>
+</button>
+<button class="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-xl hover:bg-gray-50 dark:hover:bg-gray-700">
+<span class="material-symbols-outlined">remove</span>
+</button>
+<button class="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-xl text-primary mt-2">
+<span class="material-symbols-outlined">my_location</span>
+</button>
+</div>
+<!-- Breadcrumbs -->
+<div class="absolute left-6 top-6 bg-white/90 dark:bg-gray-900/90 backdrop-blur px-4 py-2 rounded-xl shadow-md flex items-center gap-2">
+<span class="text-gray-500 text-sm">Travel</span>
+<span class="material-symbols-outlined text-xs text-gray-400">chevron_right</span>
+<span class="text-sm font-bold">Live Journey Tracking</span>
+</div>
+</div>
+</div>
+<!-- Sidebar / Tracking Info -->
+<aside class="w-full md:w-[400px] bg-white dark:bg-background-dark border-l border-[#f0f2f4] dark:border-gray-800 overflow-y-auto flex flex-col p-6 shadow-2xl">
+<!-- Trip Summary Card -->
+<div class="bg-primary text-white rounded-xl p-6 mb-6 shadow-lg shadow-primary/20">
+<p class="text-primary-100 text-xs font-bold tracking-widest uppercase opacity-80 mb-1">Live Journey Status</p>
+<h3 class="text-2xl font-bold mb-4">En Route to Delhi</h3>
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-white/10 rounded-lg p-3">
+<div class="flex items-center gap-2 mb-1">
+<span class="material-symbols-outlined text-sm">schedule</span>
+<span class="text-xs font-medium uppercase opacity-70">ETA</span>
+</div>
+<p class="text-xl font-bold tracking-tight">4h 20m</p>
+</div>
+<div class="bg-white/10 rounded-lg p-3">
+<div class="flex items-center gap-2 mb-1">
+<span class="material-symbols-outlined text-sm">location_on</span>
+<span class="text-xs font-medium uppercase opacity-70">Next Stop</span>
+</div>
+<p class="text-xl font-bold tracking-tight">Agra</p>
+</div>
+</div>
+</div>
+<!-- Timeline Tracking -->
+<div class="flex-1 mb-8">
+<h4 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-6 px-2">Journey Timeline</h4>
+<div class="relative pl-8">
+<!-- Line -->
+<div class="absolute left-[15px] top-2 bottom-2 w-[2px] bg-gray-100 dark:bg-gray-800"></div>
+<div class="absolute left-[15px] top-2 h-[60%] w-[2px] bg-primary"></div>
+<!-- Milestone 1 -->
+<div class="relative mb-8">
+<div class="absolute -left-[25px] top-0 bg-primary text-white size-6 rounded-full flex items-center justify-center border-4 border-white dark:border-background-dark">
+<span class="material-symbols-outlined text-xs font-bold">check</span>
+</div>
+<div>
+<p class="font-bold text-[#111318] dark:text-white">Departed Varanasi</p>
+<p class="text-sm text-gray-500">6:00 AM • Started on time</p>
+</div>
+</div>
+<!-- Milestone 2 -->
+<div class="relative mb-8">
+<div class="absolute -left-[25px] top-0 bg-primary text-white size-6 rounded-full flex items-center justify-center border-4 border-white dark:border-background-dark">
+<span class="material-symbols-outlined text-xs font-bold">check</span>
+</div>
+<div>
+<p class="font-bold text-[#111318] dark:text-white">Passed Kanpur</p>
+<p class="text-sm text-gray-500">9:30 AM • Ahead of schedule</p>
+</div>
+</div>
+<!-- Milestone 3 (Active) -->
+<div class="relative">
+<div class="absolute -left-[25px] top-0 bg-white dark:bg-gray-800 text-primary size-6 rounded-full flex items-center justify-center border-4 border-primary">
+<div class="size-2 bg-primary rounded-full animate-pulse"></div>
+</div>
+<div>
+<p class="font-bold text-primary">Approaching Agra</p>
+<p class="text-sm text-gray-500">In Transit • Current Location</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Actions -->
+<div class="grid grid-cols-2 gap-3 pt-4 border-t border-gray-100 dark:border-gray-800">
+<button class="flex items-center justify-center gap-2 bg-[#fef2f2] text-[#ef4444] font-bold py-3 rounded-xl border border-[#fee2e2] hover:bg-red-100 transition-colors">
+<span class="material-symbols-outlined fill-icon">sos</span>
+                        SOS
+                    </button>
+<button class="flex items-center justify-center gap-2 bg-[#f0f4ff] text-primary font-bold py-3 rounded-xl border border-[#e0e7ff] hover:bg-blue-100 transition-colors">
+<span class="material-symbols-outlined">support_agent</span>
+                        Support
+                    </button>
+<button class="col-span-2 flex items-center justify-center gap-2 bg-primary text-white font-bold py-4 rounded-xl hover:bg-primary/90 transition-all shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined">share</span>
+                        Share Live Tracking
+                    </button>
+</div>
+</aside>
+</main>
+</div>
+</body></html>

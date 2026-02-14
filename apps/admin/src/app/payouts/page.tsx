@@ -1,367 +1,304 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState } from "react";
 
-const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api/v1";
-
-interface PayoutBooking {
+interface PayoutRecord {
   id: string;
-  bookingNumber: string;
-  eventType: string;
-  eventDate: string;
-  completedAt: string | null;
-  dakshinaAmount: number;
-  travelCost: number;
-  foodAllowanceAmount: number;
-  panditPayout: number;
-  payoutStatus: string;
-  payoutReference: string | null;
-  payoutCompletedAt: string | null;
-  grandTotal: number;
-  pandit: {
-    id: string;
-    displayName: string;
-    city: string;
-    bankDetails: Record<string, string> | null;
-  } | null;
+  bookingId: string;
+  panditName: string;
+  panditInitial: string;
+  dakshina: number;
+  travel: number;
+  food: number;
+  platformFee: number;
+  netPayout: number;
+  status: "Verified" | "Discrepancy" | "Processing";
+  discrepancyStart?: number;
+  discrepancyClaim?: number;
 }
 
-const MOCK_BOOKINGS: PayoutBooking[] = [
+const MOCK_PAYOUTS: PayoutRecord[] = [
   {
-    id: "pay1", bookingNumber: "BK-240125-001", eventType: "Griha Pravesh", eventDate: "2025-02-10T10:00:00Z",
-    completedAt: "2025-02-10T14:00:00Z", dakshinaAmount: 11000, travelCost: 2500, foodAllowanceAmount: 500,
-    panditPayout: 12600, payoutStatus: "PENDING", payoutReference: null, payoutCompletedAt: null, grandTotal: 16400,
-    pandit: { id: "p1", displayName: "Pandit Ramesh Sharma", city: "Old Delhi", bankDetails: { bankName: "SBI", accountNumber: "****5678", ifscCode: "SBIN0001234" } },
+    id: "1", bookingId: "#HPJ-9921", panditName: "Pt. Sharma", panditInitial: "S",
+    dakshina: 2100, travel: 500, food: 200, platformFee: 200, netPayout: 2600, status: "Verified"
   },
   {
-    id: "pay2", bookingNumber: "BK-240122-003", eventType: "Satyanarayan Katha", eventDate: "2025-02-08T09:00:00Z",
-    completedAt: "2025-02-08T12:00:00Z", dakshinaAmount: 5100, travelCost: 0, foodAllowanceAmount: 0,
-    panditPayout: 5100, payoutStatus: "COMPLETED", payoutReference: "NEFT-2025020812345", payoutCompletedAt: "2025-02-09T11:00:00Z", grandTotal: 7000,
-    pandit: { id: "p2", displayName: "Acharya Suresh Tiwari", city: "Varanasi", bankDetails: { bankName: "PNB", accountNumber: "****9012", ifscCode: "PUNB0002345" } },
+    id: "2", bookingId: "#HPJ-9945", panditName: "Pt. Verma", panditInitial: "V",
+    dakshina: 5100, travel: 800, food: 200, platformFee: 500, netPayout: 5600, status: "Discrepancy",
+    discrepancyStart: 800, discrepancyClaim: 1200
   },
   {
-    id: "pay3", bookingNumber: "BK-240120-002", eventType: "Mundan Ceremony", eventDate: "2025-02-05T08:00:00Z",
-    completedAt: "2025-02-05T10:00:00Z", dakshinaAmount: 7500, travelCost: 1200, foodAllowanceAmount: 500,
-    panditPayout: 8500, payoutStatus: "PENDING", payoutReference: null, payoutCompletedAt: null, grandTotal: 11200,
-    pandit: { id: "p3", displayName: "Pandit Hari Shastri", city: "Mathura", bankDetails: { bankName: "HDFC", accountNumber: "****3456", ifscCode: "HDFC0003456" } },
+    id: "3", bookingId: "#HPJ-9952", panditName: "Pt. Tiwari", panditInitial: "T",
+    dakshina: 1100, travel: 150, food: 100, platformFee: 100, netPayout: 1250, status: "Verified"
   },
   {
-    id: "pay4", bookingNumber: "BK-240118-004", eventType: "Wedding Ceremony", eventDate: "2025-02-01T06:00:00Z",
-    completedAt: "2025-02-01T12:00:00Z", dakshinaAmount: 21000, travelCost: 6500, foodAllowanceAmount: 1000,
-    panditPayout: 25500, payoutStatus: "COMPLETED", payoutReference: "NEFT-2025020298765", payoutCompletedAt: "2025-02-03T10:00:00Z", grandTotal: 34000,
-    pandit: { id: "p4", displayName: "Pandit Mohan Dubey", city: "South Delhi", bankDetails: { bankName: "ICICI", accountNumber: "****7890", ifscCode: "ICIC0004567" } },
+    id: "4", bookingId: "#HPJ-9960", panditName: "Pt. Joshi", panditInitial: "J",
+    dakshina: 3500, travel: 800, food: 250, platformFee: 350, netPayout: 4200, status: "Verified"
   },
   {
-    id: "pay5", bookingNumber: "BK-240115-005", eventType: "Vastu Shanti", eventDate: "2025-01-28T10:00:00Z",
-    completedAt: "2025-01-28T13:00:00Z", dakshinaAmount: 9000, travelCost: 1800, foodAllowanceAmount: 500,
-    panditPayout: 10200, payoutStatus: "PROCESSING", payoutReference: "NEFT-2025012999001", payoutCompletedAt: null, grandTotal: 13600,
-    pandit: { id: "p5", displayName: "Pandit Deepak Mishra", city: "Ghaziabad", bankDetails: { bankName: "Axis", accountNumber: "****1234", ifscCode: "UTIB0005678" } },
+    id: "5", bookingId: "#HPJ-9968", panditName: "Pt. Mishra", panditInitial: "M",
+    dakshina: 2100, travel: 300, food: 200, platformFee: 200, netPayout: 2400, status: "Verified"
   },
+  {
+    id: "6", bookingId: "#HPJ-9975", panditName: "Pt. Gupta", panditInitial: "G",
+    dakshina: 1500, travel: 0, food: 0, platformFee: 150, netPayout: 1350, status: "Processing"
+  }
 ];
 
-const STATUS_COLORS: Record<string, string> = {
-  PENDING: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
-  PROCESSING: "bg-blue-500/10 text-blue-400 border-blue-500/20",
-  COMPLETED: "bg-green-500/10 text-green-400 border-green-500/20",
-  FAILED: "bg-red-500/10 text-red-400 border-red-500/20",
-};
+export default function PayoutReconciliationPage() {
+  const [activeTab, setActiveTab] = useState("pending");
+  const [showDiscrepancies, setShowDiscrepancies] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
-export default function PayoutsPage() {
-  const [bookings, setBookings] = useState<PayoutBooking[]>(MOCK_BOOKINGS);
-  const [filter, setFilter] = useState("ALL");
-  const [selected, setSelected] = useState<PayoutBooking | null>(null);
-  const [refInput, setRefInput] = useState("");
-  const [toast, setToast] = useState("");
-  const [stats, setStats] = useState({
-    totalPayouts: 61900,
-    totalRevenue: 82200,
-    completedBookings: 5,
-    pendingPayouts: 2,
+  const filteredPayouts = MOCK_PAYOUTS.filter(p => {
+    if (showDiscrepancies && p.status !== "Discrepancy") return false;
+    if (searchTerm && !p.panditName.toLowerCase().includes(searchTerm.toLowerCase()) && !p.bookingId.toLowerCase().includes(searchTerm.toLowerCase())) return false;
+    return true;
   });
 
-  useEffect(() => {
-    fetchPayouts();
-  }, [filter]);
+  const toggleSelection = (id: string) => {
+    const next = new Set(selectedIds);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setSelectedIds(next);
+  };
 
-  async function fetchPayouts() {
-    try {
-      const token = localStorage.getItem("admin_token");
-      const params = new URLSearchParams({ limit: "50" });
-      if (filter !== "ALL") params.set("status", filter);
+  const toggleAll = () => {
+    if (selectedIds.size === filteredPayouts.length) setSelectedIds(new Set());
+    else setSelectedIds(new Set(filteredPayouts.map(p => p.id)));
+  };
 
-      const res = await fetch(`${API}/admin/payouts?${params}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const json = await res.json();
-        if (json.data?.bookings?.length) {
-          setBookings(json.data.bookings);
-          setStats(json.data.stats);
-        }
-      }
-    } catch {
-      /* use mock data */
-    }
-  }
-
-  async function markPaid(id: string) {
-    if (!refInput.trim()) {
-      showToast("Enter a payout reference (e.g. NEFT ID)");
-      return;
-    }
-
-    try {
-      const token = localStorage.getItem("admin_token");
-      const res = await fetch(`${API}/admin/payouts/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ payoutReference: refInput }),
-      });
-
-      if (res.ok) {
-        showToast("Payout marked as completed");
-        fetchPayouts();
-        setSelected(null);
-        setRefInput("");
-      }
-    } catch {
-      showToast("Failed to process payout");
-    }
-  }
-
-  function showToast(msg: string) {
-    setToast(msg);
-    setTimeout(() => setToast(""), 3000);
-  }
-
-  const filtered = filter === "ALL" ? bookings : bookings.filter((b) => b.payoutStatus === filter);
+  const totalSelected = Array.from(selectedIds).reduce((sum, id) => {
+    const p = MOCK_PAYOUTS.find(x => x.id === id);
+    return sum + (p?.netPayout || 0);
+  }, 0);
 
   return (
-    <main className="min-h-screen bg-slate-950 p-6">
-      {toast && (
-        <div className="fixed top-20 right-6 z-50 rounded-lg bg-green-600 px-4 py-2.5 text-sm font-medium text-white shadow-lg">
-          {toast}
-        </div>
-      )}
+    <div className="flex flex-col h-[calc(100vh-64px)] overflow-hidden bg-[#f6f6f8] dark:bg-[#101622] text-slate-800 dark:text-slate-100 font-sans">
 
-      {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-white">Payouts</h1>
-        <p className="text-sm text-slate-400">Track and manage pandit payout settlements</p>
+      {/* ── Header & KPI Section ─────────────────────────────────────────── */}
+      <div className="p-6 pb-2 space-y-6 shrink-0">
+        {/* Title & Batch Date */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Payout Reconciliation</h1>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Review pending claims and approve batch payments.</p>
+          </div>
+          <div className="flex items-center gap-3 bg-white dark:bg-slate-800 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">
+            <span className="material-symbols-outlined text-[#0f49bd] text-xl">event</span>
+            <div>
+              <p className="text-xs text-slate-500 dark:text-slate-400 uppercase font-semibold">Next Scheduled Batch</p>
+              <p className="text-sm font-bold text-slate-800 dark:text-white">Tue, 24 Oct 2023</p>
+            </div>
+          </div>
+        </div>
+
+        {/* KPI Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-start justify-between group hover:border-[#0f49bd]/30 transition-colors">
+            <div>
+              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Payable</p>
+              <h3 className="text-2xl font-bold text-slate-900 dark:text-white mt-1">₹1,24,500</h3>
+              <p className="text-xs text-slate-500 mt-1">45 Bookings Pending</p>
+            </div>
+            <div className="p-2 bg-[#0f49bd]/10 rounded-lg text-[#0f49bd]">
+              <span className="material-symbols-outlined">account_balance_wallet</span>
+            </div>
+          </div>
+          <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border-l-4 border-l-red-500 border-y border-r border-slate-200 dark:border-slate-700 shadow-sm flex items-start justify-between group">
+            <div>
+              <p className="text-xs font-semibold text-red-600 dark:text-red-400 uppercase tracking-wider">Discrepancies</p>
+              <h3 className="text-2xl font-bold text-slate-900 dark:text-white mt-1">3 <span className="text-sm font-normal text-slate-500">Bookings</span></h3>
+              <p className="text-xs text-red-600 dark:text-red-400 mt-1 font-medium">Action Required</p>
+            </div>
+            <div className="p-2 bg-red-50 dark:bg-red-900/20 rounded-lg text-red-500">
+              <span className="material-symbols-outlined">priority_high</span>
+            </div>
+          </div>
+          <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-start justify-between group hover:border-[#0f49bd]/30 transition-colors">
+            <div>
+              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Processed (Oct)</p>
+              <h3 className="text-2xl font-bold text-slate-900 dark:text-white mt-1">₹4,50,000</h3>
+              <p className="text-xs text-green-600 mt-1 flex items-center gap-1">
+                <span className="material-symbols-outlined text-xs">trending_up</span>
+                +12% vs Sep
+              </p>
+            </div>
+            <div className="p-2 bg-green-50 dark:bg-green-900/20 rounded-lg text-green-600">
+              <span className="material-symbols-outlined">check_circle</span>
+            </div>
+          </div>
+          <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-center gap-3">
+            <button className="w-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-white py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 border border-slate-200 dark:border-slate-600">
+              <span className="material-symbols-outlined text-lg">file_download</span>
+              Export for Tally
+            </button>
+          </div>
+        </div>
+
+        {/* Toolbar */}
+        <div className="flex flex-wrap items-center justify-between gap-4 mt-2">
+          {/* Tabs */}
+          <div className="bg-slate-100 dark:bg-slate-800 p-1 rounded-lg flex gap-1 border border-slate-200 dark:border-slate-700">
+            <button
+              onClick={() => setActiveTab("pending")}
+              className={`px-4 py-1.5 rounded-md shadow-sm font-semibold text-sm transition-all ${activeTab === 'pending' ? 'bg-white dark:bg-slate-700 text-[#0f49bd]' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'}`}
+            >
+              Pending Reconciliation
+            </button>
+            <button
+              onClick={() => setActiveTab("history")}
+              className={`px-4 py-1.5 rounded-md font-medium text-sm transition-all ${activeTab === 'history' ? 'bg-white dark:bg-slate-700 text-[#0f49bd]' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'}`}
+            >
+              Payout History
+            </button>
+          </div>
+          {/* Filters */}
+          <div className="flex items-center gap-3 flex-1 justify-end">
+            <label className="flex items-center gap-2 cursor-pointer bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-2 rounded-lg hover:bg-slate-50 transition-colors">
+              <input
+                checked={showDiscrepancies}
+                onChange={(e) => setShowDiscrepancies(e.target.checked)}
+                className="form-checkbox rounded text-red-500 border-slate-300 focus:ring-red-500 w-4 h-4"
+                type="checkbox"
+              />
+              <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Show Discrepancies Only</span>
+            </label>
+            <div className="relative">
+              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+              <input
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 pr-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-[#0f49bd] focus:border-[#0f49bd] w-64 dark:text-white"
+                placeholder="Search ID or Pandit..."
+                type="text"
+              />
+            </div>
+            <button className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 text-sm font-medium">
+              <span className="material-symbols-outlined text-lg">filter_list</span>
+              Filter
+            </button>
+          </div>
+        </div>
       </div>
 
-      {/* Stats */}
-      <div className="mb-6 grid grid-cols-4 gap-4">
-        <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">
-          <p className="text-xs text-slate-400">Total Pandit Payouts</p>
-          <p className="mt-1 text-2xl font-bold text-white">{"\u20B9"}{stats.totalPayouts.toLocaleString("en-IN")}</p>
-        </div>
-        <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">
-          <p className="text-xs text-slate-400">Total Revenue</p>
-          <p className="mt-1 text-2xl font-bold text-green-400">{"\u20B9"}{stats.totalRevenue.toLocaleString("en-IN")}</p>
-        </div>
-        <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">
-          <p className="text-xs text-slate-400">Completed Bookings</p>
-          <p className="mt-1 text-2xl font-bold text-white">{stats.completedBookings}</p>
-        </div>
-        <div className="rounded-xl border border-yellow-500/20 bg-yellow-500/5 p-4">
-          <p className="text-xs text-yellow-400">Pending Payouts</p>
-          <p className="mt-1 text-2xl font-bold text-yellow-400">{stats.pendingPayouts}</p>
-        </div>
-      </div>
+      {/* ── Table Container ──────────────────────────────────────────────── */}
+      <div className="flex-1 px-6 pb-6 overflow-hidden flex flex-col">
+        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col h-full overflow-hidden relative">
 
-      {/* Filters */}
-      <div className="mb-4 flex gap-2">
-        {["ALL", "PENDING", "PROCESSING", "COMPLETED", "FAILED"].map((s) => (
-          <button
-            key={s}
-            onClick={() => setFilter(s)}
-            className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
-              filter === s
-                ? "bg-primary text-white"
-                : "bg-slate-800 text-slate-400 hover:bg-slate-700"
-            }`}
-          >
-            {s === "ALL" ? "All" : s.charAt(0) + s.slice(1).toLowerCase()}
-          </button>
-        ))}
-      </div>
-
-      <div className="flex gap-6">
-        {/* Table */}
-        <div className="flex-1 overflow-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-slate-800 text-left text-xs text-slate-400">
-                <th className="pb-3 pr-4">Booking</th>
-                <th className="pb-3 pr-4">Pandit</th>
-                <th className="pb-3 pr-4">Completed</th>
-                <th className="pb-3 pr-4 text-right">Dakshina</th>
-                <th className="pb-3 pr-4 text-right">Travel</th>
-                <th className="pb-3 pr-4 text-right">Payout</th>
-                <th className="pb-3 pr-4">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((b) => (
-                <tr
-                  key={b.id}
-                  onClick={() => { setSelected(b); setRefInput(b.payoutReference ?? ""); }}
-                  className={`cursor-pointer border-b border-slate-800/50 transition-colors hover:bg-slate-900 ${
-                    selected?.id === b.id ? "bg-slate-800/60" : ""
-                  }`}
-                >
-                  <td className="py-3 pr-4">
-                    <p className="font-medium text-white">{b.bookingNumber}</p>
-                    <p className="text-xs text-slate-400">{b.eventType}</p>
-                  </td>
-                  <td className="py-3 pr-4">
-                    <p className="text-slate-300">{b.pandit?.displayName ?? "—"}</p>
-                    <p className="text-xs text-slate-500">{b.pandit?.city}</p>
-                  </td>
-                  <td className="py-3 pr-4 text-slate-400 text-xs">
-                    {b.completedAt
-                      ? new Date(b.completedAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })
-                      : "—"}
-                  </td>
-                  <td className="py-3 pr-4 text-right text-slate-300">
-                    {"\u20B9"}{b.dakshinaAmount.toLocaleString("en-IN")}
-                  </td>
-                  <td className="py-3 pr-4 text-right text-slate-400">
-                    {b.travelCost > 0 ? `\u20B9${b.travelCost.toLocaleString("en-IN")}` : "—"}
-                  </td>
-                  <td className="py-3 pr-4 text-right font-semibold text-white">
-                    {"\u20B9"}{b.panditPayout.toLocaleString("en-IN")}
-                  </td>
-                  <td className="py-3 pr-4">
-                    <span className={`inline-block rounded-full border px-2.5 py-1 text-xs font-medium ${STATUS_COLORS[b.payoutStatus] ?? "bg-slate-600 text-slate-300"}`}>
-                      {b.payoutStatus}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-              {filtered.length === 0 && (
+          {/* Table Header */}
+          <div className="overflow-x-auto custom-scrollbar flex-1">
+            <table className="w-full text-left border-collapse">
+              <thead className="bg-slate-50 dark:bg-slate-900/50 sticky top-0 z-10 border-b border-slate-200 dark:border-slate-700">
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-slate-500">No payouts in this category</td>
+                  <th className="py-3 px-4 w-12">
+                    <input
+                      onChange={toggleAll}
+                      checked={selectedIds.size === filteredPayouts.length && filteredPayouts.length > 0}
+                      className="form-checkbox rounded text-[#0f49bd] border-slate-300 focus:ring-[#0f49bd] w-4 h-4"
+                      type="checkbox"
+                    />
+                  </th>
+                  <th className="py-3 px-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider w-32">Status</th>
+                  <th className="py-3 px-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Booking ID</th>
+                  <th className="py-3 px-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Pandit Name</th>
+                  <th className="py-3 px-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-right">Dakshina</th>
+                  <th className="py-3 px-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-right">Travel Reimb.</th>
+                  <th className="py-3 px-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-right">Food Allw.</th>
+                  <th className="py-3 px-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-right text-red-500">Plat. Fee</th>
+                  <th className="py-3 px-4 text-xs font-bold text-[#0f49bd] dark:text-blue-400 uppercase tracking-wider text-right bg-[#0f49bd]/5 dark:bg-[#0f49bd]/10 border-l border-[#0f49bd]/10">Net Payout</th>
+                  <th className="py-3 px-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider w-24">Actions</th>
                 </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+                {filteredPayouts.map((row) => (
+                  <tr key={row.id} className={`group transition-colors ${row.status === 'Discrepancy' ? 'bg-red-50/50 dark:bg-red-900/10 hover:bg-red-50 dark:hover:bg-red-900/20' : 'hover:bg-slate-50 dark:hover:bg-slate-700/30'}`}>
+                    <td className="py-3 px-4">
+                      <input
+                        checked={selectedIds.has(row.id)}
+                        onChange={() => toggleSelection(row.id)}
+                        disabled={row.status === 'Processing'}
+                        className="form-checkbox rounded text-[#0f49bd] border-slate-300 focus:ring-[#0f49bd] w-4 h-4"
+                        type="checkbox"
+                      />
+                    </td>
+                    <td className="py-3 px-4">
+                      {row.status === 'Verified' && (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-800">
+                          <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                          Verified
+                        </span>
+                      )}
+                      {row.status === 'Discrepancy' && (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400 border border-red-200 dark:border-red-800 animate-pulse">
+                          <span className="material-symbols-outlined text-[14px]">warning</span>
+                          Discrepancy
+                        </span>
+                      )}
+                      {row.status === 'Processing' && (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-800">
+                          <span className="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse"></span>
+                          Processing
+                        </span>
+                      )}
+                    </td>
+                    <td className="py-3 px-4 text-sm font-medium text-slate-700 dark:text-slate-300 font-mono">{row.bookingId}</td>
+                    <td className="py-3 px-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-600 flex items-center justify-center text-xs font-bold text-slate-600 dark:text-slate-200">{row.panditInitial}</div>
+                        <span className="text-sm font-medium text-slate-900 dark:text-white">{row.panditName}</span>
+                      </div>
+                    </td>
+                    <td className="py-3 px-4 text-sm text-slate-600 dark:text-slate-400 text-right font-mono">₹{row.dakshina.toLocaleString()}</td>
+                    <td className="py-3 px-4 text-right font-mono text-sm text-slate-600 dark:text-slate-400">
+                      {row.status === 'Discrepancy' && row.discrepancyStart ? (
+                        <div className="flex flex-col items-end">
+                          <span className="text-sm text-red-600 font-bold">₹{row.discrepancyStart}</span>
+                          <span className="text-[10px] text-slate-400 line-through">Claim: ₹{row.discrepancyClaim}</span>
+                        </div>
+                      ) : (
+                        `₹${row.travel}`
+                      )}
+                    </td>
+                    <td className="py-3 px-4 text-sm text-slate-600 dark:text-slate-400 text-right font-mono">{row.food > 0 ? `₹${row.food}` : '--'}</td>
+                    <td className="py-3 px-4 text-sm text-red-500 text-right font-mono">-₹{row.platformFee}</td>
+                    <td className={`py-3 px-4 text-sm font-bold text-right font-mono bg-[#0f49bd]/5 dark:bg-[#0f49bd]/10 border-l border-[#0f49bd]/10 group-hover:bg-[#0f49bd]/10 dark:group-hover:bg-[#0f49bd]/20 ${row.status === 'Processing' ? 'text-slate-400 opacity-50' : 'text-[#0f49bd] dark:text-blue-400'}`}>
+                      ₹{row.netPayout.toLocaleString()}
+                    </td>
+                    <td className="py-3 px-4">
+                      <button className="p-1 text-slate-400 hover:text-[#0f49bd] transition-colors" title="View Details">
+                        <span className="material-symbols-outlined text-lg">visibility</span>
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-        {/* Detail Panel */}
-        {selected && (
-          <div className="w-96 flex-shrink-0 rounded-xl border border-slate-800 bg-slate-900 p-5">
-            <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-white">Payout Details</h3>
-              <button onClick={() => setSelected(null)} className="text-slate-500 hover:text-slate-300">
-                <span className="material-symbols-outlined text-lg">close</span>
+          {/* Footer Pagination & Action */}
+          <div className="border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 flex items-center justify-between shrink-0 z-20 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+            <div className="text-sm text-slate-500 dark:text-slate-400">
+              Showing {filteredPayouts.length} items
+            </div>
+            <div className="flex items-center gap-6">
+              <div className="text-right flex flex-col justify-center">
+                <span className="text-xs text-slate-500 dark:text-slate-400">Selected for Payment</span>
+                <span className="text-lg font-bold text-[#0f49bd] dark:text-blue-400">₹{totalSelected.toLocaleString()}</span>
+              </div>
+              <button
+                disabled={selectedIds.size === 0}
+                className="bg-[#0f49bd] hover:bg-[#0a3690] text-white px-6 py-2.5 rounded-lg shadow-md shadow-[#0f49bd]/20 flex items-center gap-2 font-medium transition-all transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <span className="material-symbols-outlined">payments</span>
+                Approve Batch ({selectedIds.size})
               </button>
             </div>
-
-            {/* Booking Info */}
-            <div className="mb-4 rounded-lg bg-slate-800 p-3">
-              <p className="text-xs text-slate-400 mb-1">Booking</p>
-              <p className="text-sm font-medium text-white">{selected.bookingNumber}</p>
-              <p className="text-xs text-slate-400">{selected.eventType} &mdash; {new Date(selected.eventDate).toLocaleDateString("en-IN")}</p>
-            </div>
-
-            {/* Pandit */}
-            <div className="mb-4 rounded-lg bg-slate-800 p-3">
-              <p className="text-xs text-slate-400 mb-1">Pandit</p>
-              <p className="text-sm font-medium text-white">{selected.pandit?.displayName}</p>
-              <p className="text-xs text-slate-400">{selected.pandit?.city}</p>
-            </div>
-
-            {/* Bank Details */}
-            {selected.pandit?.bankDetails && (
-              <div className="mb-4 rounded-lg bg-slate-800 p-3">
-                <p className="text-xs text-slate-400 mb-2">Bank Details</p>
-                <div className="space-y-1 text-xs">
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Bank</span>
-                    <span className="text-white">{selected.pandit.bankDetails.bankName}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Account</span>
-                    <span className="text-white">{selected.pandit.bankDetails.accountNumber}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">IFSC</span>
-                    <span className="text-white font-mono">{selected.pandit.bankDetails.ifscCode}</span>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Breakdown */}
-            <div className="mb-4 rounded-lg bg-slate-800 p-3">
-              <p className="text-xs text-slate-400 mb-2">Payout Breakdown</p>
-              <div className="space-y-1.5 text-xs">
-                <div className="flex justify-between">
-                  <span className="text-slate-400">Dakshina</span>
-                  <span className="text-white">{"\u20B9"}{selected.dakshinaAmount.toLocaleString("en-IN")}</span>
-                </div>
-                {selected.travelCost > 0 && (
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Travel Reimbursement</span>
-                    <span className="text-white">{"\u20B9"}{selected.travelCost.toLocaleString("en-IN")}</span>
-                  </div>
-                )}
-                {selected.foodAllowanceAmount > 0 && (
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Food Allowance</span>
-                    <span className="text-white">{"\u20B9"}{selected.foodAllowanceAmount.toLocaleString("en-IN")}</span>
-                  </div>
-                )}
-                <div className="border-t border-slate-700 pt-1.5 flex justify-between font-semibold">
-                  <span className="text-slate-300">Total Payout</span>
-                  <span className="text-green-400">{"\u20B9"}{selected.panditPayout.toLocaleString("en-IN")}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-500">Customer Paid</span>
-                  <span className="text-slate-400">{"\u20B9"}{selected.grandTotal.toLocaleString("en-IN")}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-500">Platform Revenue</span>
-                  <span className="text-primary">{"\u20B9"}{(selected.grandTotal - selected.panditPayout).toLocaleString("en-IN")}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Payout Reference */}
-            {selected.payoutStatus !== "COMPLETED" ? (
-              <>
-                <div className="mb-3">
-                  <label className="mb-1 block text-xs font-medium text-slate-400">Payout Reference (NEFT/UPI ID)</label>
-                  <input
-                    value={refInput}
-                    onChange={(e) => setRefInput(e.target.value)}
-                    placeholder="e.g. NEFT-2025021012345"
-                    className="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-primary focus:outline-none"
-                  />
-                </div>
-                <button
-                  onClick={() => markPaid(selected.id)}
-                  className="w-full rounded-lg bg-green-600 py-2.5 text-sm font-semibold text-white hover:bg-green-500"
-                >
-                  <span className="material-symbols-outlined mr-1 text-base align-middle">payments</span>
-                  Mark Payout Complete
-                </button>
-              </>
-            ) : (
-              <div className="rounded-lg bg-green-500/10 border border-green-500/20 p-3 text-center">
-                <span className="material-symbols-outlined text-green-400 text-2xl">check_circle</span>
-                <p className="mt-1 text-sm font-semibold text-green-400">Payout Completed</p>
-                <p className="text-xs text-slate-400 mt-0.5">Ref: {selected.payoutReference}</p>
-                {selected.payoutCompletedAt && (
-                  <p className="text-xs text-slate-500">{new Date(selected.payoutCompletedAt).toLocaleString("en-IN")}</p>
-                )}
-              </div>
-            )}
           </div>
-        )}
+
+        </div>
       </div>
-    </main>
+    </div>
   );
 }

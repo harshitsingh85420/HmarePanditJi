@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Pandit Growth &amp; Badges</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "primary": "#f48525",
+                "background-light": "#f8f7f5",
+                "background-dark": "#221810",
+              },
+              fontFamily: {
+                "display": ["Plus Jakarta Sans"]
+              },
+              borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+            },
+          },
+        }
+      </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-[#181411] dark:text-white">
+<div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<!-- Navigation Bar -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-[#e5e1dc] dark:border-[#3d2c1e] px-10 py-4 bg-white dark:bg-background-dark">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-4">
+<div class="size-6 text-primary">
+<span class="material-symbols-outlined text-3xl">temple_hindu</span>
+</div>
+<h2 class="text-xl font-bold leading-tight tracking-[-0.015em]">HmarePanditJi</h2>
+</div>
+<nav class="hidden md:flex items-center gap-9">
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#">Dashboard</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#">Bookings</a>
+<a class="text-sm font-medium text-primary" href="#">Travel History</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#">Badges</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#">Profile</a>
+</nav>
+</div>
+<div class="flex flex-1 justify-end gap-6 items-center">
+<label class="hidden lg:flex flex-col min-w-40 h-10 max-w-64">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full">
+<div class="text-[#8a7460] flex border-none bg-background-light dark:bg-white/10 items-center justify-center pl-4 rounded-l-lg">
+<span class="material-symbols-outlined">search</span>
+</div>
+<input class="form-input flex w-full min-w-0 flex-1 border-none bg-background-light dark:bg-white/10 focus:ring-0 h-full placeholder:text-[#8a7460] px-4 rounded-r-lg text-base font-normal" placeholder="Search milestones..." value=""/>
+</div>
+</label>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-primary" data-alt="Portrait of Pandit Vishnu Shastri" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAdtPFISFxAAbwvnwCB-HOBRb6AaSYQMlkIhxctoLO9qEttV_JYoJOSo-bRxGv0F5bLtNQrQiUuNQdKAqApcjPZCMHU7c3dNts-smbCaZmg_B-gOkMQDNRxp8EfwrjiKiD3zVA6HV5SraG4WLvU_fxTph1Yjv9K48Rl7XvycIhdY5I2aniSdmdZGhM32Jva4n0S14AIlHOGoRYnv-X26pTCiNqMrst8gaWG_I3dpAjXbC5S3Try7Gjke_C0XQBXqpvnYPhzYsnoo7w");'></div>
+</div>
+</header>
+<main class="flex flex-1 justify-center py-8">
+<div class="layout-content-container flex flex-col max-w-[960px] flex-1 px-4 md:px-10">
+<!-- Profile Header -->
+<div class="flex w-full flex-col gap-6 md:flex-row md:items-center p-6 bg-white dark:bg-[#2d1f14] rounded-xl shadow-sm border border-[#e5e1dc] dark:border-[#3d2c1e]">
+<div class="relative">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-24 md:size-32 border-4 border-primary/20" data-alt="Pandit Vishnu Shastri profile picture" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBdCtmrixC35kzXgtjsn6ls079YPXtFMyUD39IaJoc9zCc5J7_TIpwGyYoxtoPeWUkfvuxIzTXx27JgPSJ5AZOENXBs0umB8giQByu_Vj1R9SSMNaF1niesXktZG3K3LMLChPn08ZZlzDVRT8P3Wqn3qWNYRdWDtnVv8BvJjrbcbinTHTU33ONYkihMMgKOFJwoj_hJgQx4q12qSOfoQWgiHWbKcXOBz6Q6SG_-oWoBM9AZkLSrjllSBTUlR2jYKiLUrUMvqGmE05s");'></div>
+<div class="absolute bottom-0 right-0 bg-primary text-white text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">Level 5</div>
+</div>
+<div class="flex flex-col">
+<h1 class="text-2xl md:text-3xl font-bold leading-tight tracking-tight">Pandit Vishnu Shastri</h1>
+<div class="flex flex-wrap items-center gap-3 mt-1">
+<span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-semibold">Vedic Expert</span>
+<span class="text-[#8a7460] dark:text-[#c4b5a6] flex items-center gap-1 text-sm">
+<span class="material-symbols-outlined text-lg">location_on</span> Varanasi, India
+                            </span>
+</div>
+</div>
+</div>
+<!-- Milestones Progress -->
+<div class="mt-10 p-6 bg-white dark:bg-[#2d1f14] rounded-xl border border-[#e5e1dc] dark:border-[#3d2c1e]">
+<div class="flex justify-between items-end mb-4">
+<div>
+<h3 class="text-sm font-semibold uppercase tracking-widest text-[#8a7460] dark:text-[#c4b5a6]">Next Milestone Progress</h3>
+<h2 class="text-xl font-bold mt-1">National Expert</h2>
+</div>
+<p class="text-primary font-bold">3/5 Journeys Complete</p>
+</div>
+<div class="w-full bg-[#f5f2f0] dark:bg-white/10 rounded-full h-4">
+<div class="bg-primary h-4 rounded-full" style="width: 60%"></div>
+</div>
+<p class="mt-4 text-sm text-[#8a7460] dark:text-[#c4b5a6]">Complete 2 more inter-state journeys to earn your National Expert certification badge.</p>
+</div>
+<!-- Professional Badges -->
+<h2 class="text-2xl font-bold px-1 pb-4 pt-10">Professional Badges</h2>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+<div class="flex flex-col items-center gap-4 p-5 bg-white dark:bg-[#2d1f14] rounded-xl border border-[#e5e1dc] dark:border-[#3d2c1e] text-center hover:border-primary transition-colors cursor-default">
+<div class="size-20 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-4xl">travel_explore</span>
+</div>
+<div>
+<p class="font-bold">All India Traveler</p>
+<p class="text-sm text-[#8a7460] dark:text-[#c4b5a6]">Traveler</p>
+</div>
+</div>
+<div class="flex flex-col items-center gap-4 p-5 bg-white dark:bg-[#2d1f14] rounded-xl border border-[#e5e1dc] dark:border-[#3d2c1e] text-center hover:border-primary transition-colors cursor-default">
+<div class="size-20 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-4xl">celebration</span>
+</div>
+<div>
+<p class="font-bold">Wedding Specialist</p>
+<p class="text-sm text-[#8a7460] dark:text-[#c4b5a6]">Expert</p>
+</div>
+</div>
+<div class="flex flex-col items-center gap-4 p-5 bg-white dark:bg-[#2d1f14] rounded-xl border border-[#e5e1dc] dark:border-[#3d2c1e] text-center hover:border-primary transition-colors cursor-default">
+<div class="size-20 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-4xl">grade</span>
+</div>
+<div>
+<p class="font-bold">5.0★ Host Favorite</p>
+<p class="text-sm text-[#8a7460] dark:text-[#c4b5a6]">Top Rated</p>
+</div>
+</div>
+<div class="flex flex-col items-center gap-4 p-5 bg-white dark:bg-[#2d1f14] rounded-xl border border-[#e5e1dc] dark:border-[#3d2c1e] text-center hover:border-primary transition-colors cursor-default">
+<div class="size-20 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-4xl">devices</span>
+</div>
+<div>
+<p class="font-bold">Tech Savvy</p>
+<p class="text-sm text-[#8a7460] dark:text-[#c4b5a6]">Modern Scholar</p>
+</div>
+</div>
+</div>
+<!-- Travel History Section -->
+<div class="mt-10 mb-20">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+<h2 class="text-2xl font-bold">Travel History</h2>
+<div class="flex items-center gap-3 bg-primary text-white px-4 py-2 rounded-lg">
+<span class="material-symbols-outlined">route</span>
+<span class="font-bold text-lg">Total 5,000+ KM Traveled</span>
+</div>
+</div>
+<div class="space-y-4">
+<div class="flex items-center justify-between p-5 bg-white dark:bg-[#2d1f14] rounded-xl border border-[#e5e1dc] dark:border-[#3d2c1e]">
+<div class="flex items-center gap-4">
+<div class="size-12 rounded-lg bg-background-light dark:bg-white/5 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">distance</span>
+</div>
+<div>
+<p class="font-bold text-lg">Varanasi to Delhi</p>
+<p class="text-sm text-[#8a7460] dark:text-[#c4b5a6]">Maha Shivratri Celebration • Feb 2024</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-xl font-bold">1,200 km</p>
+<span class="text-xs font-semibold px-2 py-0.5 bg-green-100 text-green-700 rounded-full">Completed</span>
+</div>
+</div>
+<div class="flex items-center justify-between p-5 bg-white dark:bg-[#2d1f14] rounded-xl border border-[#e5e1dc] dark:border-[#3d2c1e]">
+<div class="flex items-center gap-4">
+<div class="size-12 rounded-lg bg-background-light dark:bg-white/5 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">distance</span>
+</div>
+<div>
+<p class="font-bold text-lg">Ujjain to Mumbai</p>
+<p class="text-sm text-[#8a7460] dark:text-[#c4b5a6]">Vaastu Shanti Puja • Jan 2024</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-xl font-bold">650 km</p>
+<span class="text-xs font-semibold px-2 py-0.5 bg-green-100 text-green-700 rounded-full">Completed</span>
+</div>
+</div>
+<div class="flex items-center justify-between p-5 bg-white dark:bg-[#2d1f14] rounded-xl border border-[#e5e1dc] dark:border-[#3d2c1e]">
+<div class="flex items-center gap-4">
+<div class="size-12 rounded-lg bg-background-light dark:bg-white/5 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">distance</span>
+</div>
+<div>
+<p class="font-bold text-lg">Haridwar to Rishikesh</p>
+<p class="text-sm text-[#8a7460] dark:text-[#c4b5a6]">Ganga Aarti Guidance • Dec 2023</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-xl font-bold">30 km</p>
+<span class="text-xs font-semibold px-2 py-0.5 bg-green-100 text-green-700 rounded-full">Completed</span>
+</div>
+</div>
+<button class="w-full py-4 text-primary font-bold text-sm border-2 border-dashed border-primary/20 rounded-xl hover:bg-primary/5 transition-colors">
+                            VIEW ALL TRAVEL LOGS
+                        </button>
+</div>
+</div>
+</div>
+</main>
+</div>
+</div>
+</body></html>

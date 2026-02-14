@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Pandit Earnings &amp; Wallet - HmarePanditJi</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#f4a825",
+                        "background-light": "#f8f7f5",
+                        "background-dark": "#221b10",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-[#181511] dark:text-[#f8f7f5]">
+<div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<!-- Header -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-[#e6e2db] dark:border-[#3d3428] bg-white dark:bg-[#181511] px-10 py-3 sticky top-0 z-50">
+<div class="flex items-center gap-4 text-[#181511] dark:text-[#f4a825]">
+<div class="size-6">
+<svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M24 4C25.7818 14.2173 33.7827 22.2182 44 24C33.7827 25.7818 25.7818 33.7827 24 44C22.2182 33.7827 14.2173 25.7818 4 24C14.2173 22.2182 22.2182 14.2173 24 4Z" fill="currentColor"></path>
+</svg>
+</div>
+<h2 class="text-lg font-bold leading-tight tracking-[-0.015em] dark:text-[#f8f7f5]">HmarePanditJi</h2>
+</div>
+<div class="flex flex-1 justify-end gap-8">
+<nav class="flex items-center gap-9">
+<a class="text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Dashboard</a>
+<a class="text-primary text-sm font-bold leading-normal" href="#">Earnings</a>
+<a class="text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Schedule</a>
+<a class="text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Profile</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="flex min-w-[84px] cursor-pointer items-center justify-center rounded-lg h-10 px-4 bg-primary text-[#181511] text-sm font-bold leading-normal hover:bg-primary/90 transition-colors">
+                            Logout
+                        </button>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-primary" data-alt="Profile photo of a professional Pandit" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA_-LzKHGppqJgzpbRyi7vNYRDGNUmmXqVhzRw6zk2WBTa6UVhmcgckiyB2kgdZXLDzda8EFh8VHDC5O_tfdk9hEyd_moUgBK4PrkZ4ZUCAI72KTq559oIIJwhEJ4fAFt35enRSHuqcLhPjMMSAnClp0lbLZJI9n9HVAHFAwqW42kq3tAa7DHMuinGMWbQpk45haxaOrXfygH4cGbqqoFR9nCzP_Ucdvfm34uDeBYcmh8otReGBksFqKR1HEO-0Ppo_H67mxmGr4EQ");'></div>
+</div>
+</div>
+</header>
+<main class="flex flex-1 justify-center py-10 px-4">
+<div class="layout-content-container flex flex-col max-w-[960px] flex-1 gap-6">
+<!-- Page Title & Subtitle -->
+<div class="flex flex-col gap-2">
+<h1 class="text-4xl font-black leading-tight tracking-[-0.033em] text-[#181511] dark:text-[#f8f7f5]">Earnings &amp; Wallet</h1>
+<p class="text-[#8a7b60] dark:text-[#a89980] text-base font-normal">Manage your professional dakshina, reimbursements and tax compliance.</p>
+</div>
+<!-- Balance Card Section -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="col-span-2 flex flex-col justify-between gap-6 rounded-xl p-8 bg-white dark:bg-[#2d2418] border border-[#e6e2db] dark:border-[#3d3428] shadow-sm">
+<div class="flex flex-col gap-2">
+<p class="text-[#8a7b60] dark:text-[#a89980] text-sm font-semibold uppercase tracking-wider">Available Balance</p>
+<p class="text-5xl font-black text-[#181511] dark:text-primary">₹52,000</p>
+</div>
+<div class="flex gap-4">
+<button class="flex-1 min-w-[140px] cursor-pointer items-center justify-center rounded-lg h-14 px-6 bg-primary text-[#181511] text-lg font-bold transition-all hover:scale-[1.02] active:scale-95 shadow-lg shadow-primary/20">
+<span class="flex items-center gap-2 justify-center">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+                                        Withdraw to Bank
+                                    </span>
+</button>
+<button class="flex items-center justify-center rounded-lg w-14 h-14 bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</div>
+<!-- Tax Summary Mini Card -->
+<div class="flex flex-col gap-4 rounded-xl p-6 bg-[#fef7e7] dark:bg-[#342a1a] border border-primary/20">
+<div class="flex items-center gap-3 text-primary">
+<span class="material-symbols-outlined">description</span>
+<p class="font-bold">Tax Summary</p>
+</div>
+<p class="text-sm text-[#8a7b60] dark:text-[#a89980]">View your TDS certificates and annual tax statements for the current financial year.</p>
+<a class="mt-auto flex items-center gap-2 text-sm font-bold text-[#181511] dark:text-[#f8f7f5] hover:underline underline-offset-4" href="#">
+                                View Documents
+                                <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</a>
+</div>
+</div>
+<!-- Breakdown & Analytics -->
+<div class="grid grid-cols-1 lg:grid-cols-1 gap-6">
+<div class="flex flex-col gap-6 rounded-xl border border-[#e6e2db] dark:border-[#3d3428] p-8 bg-white dark:bg-[#181511]">
+<div class="flex items-center justify-between">
+<p class="text-[#181511] dark:text-[#f8f7f5] text-xl font-bold">Earnings Breakdown</p>
+<select class="bg-background-light dark:bg-[#2d2418] border-none rounded-lg text-sm font-medium py-1 px-3">
+<option>This Month</option>
+<option>Last 3 Months</option>
+<option>Yearly</option>
+</select>
+</div>
+<div class="flex flex-col md:flex-row items-center gap-10">
+<!-- Chart Area -->
+<div class="relative size-48 flex items-center justify-center shrink-0">
+<!-- Simple CSS-based Donut placeholder -->
+<div class="absolute inset-0 rounded-full border-[16px] border-[#f5f3f0] dark:border-[#2d2418]"></div>
+<div class="absolute inset-0 rounded-full border-[16px] border-primary border-r-transparent border-b-transparent rotate-[30deg]"></div>
+<div class="flex flex-col items-center">
+<p class="text-3xl font-black text-[#181511] dark:text-[#f8f7f5]">100%</p>
+<p class="text-[10px] text-[#8a7b60] font-bold uppercase">Total</p>
+</div>
+</div>
+<!-- Legends & Bars -->
+<div class="flex-1 w-full flex flex-col gap-6">
+<div class="flex flex-col gap-2">
+<div class="flex justify-between items-end">
+<span class="text-sm font-bold flex items-center gap-2">
+<span class="size-3 rounded-full bg-primary"></span> Dakshina
+                                            </span>
+<span class="text-sm font-black">81%</span>
+</div>
+<div class="h-2 w-full bg-[#f5f3f0] dark:bg-[#2d2418] rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 81%"></div>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<div class="flex justify-between items-end">
+<span class="text-sm font-bold flex items-center gap-2">
+<span class="size-3 rounded-full bg-[#fcd581]"></span> Travel Reimbursement
+                                            </span>
+<span class="text-sm font-black">15%</span>
+</div>
+<div class="h-2 w-full bg-[#f5f3f0] dark:bg-[#2d2418] rounded-full overflow-hidden">
+<div class="h-full bg-[#fcd581] rounded-full" style="width: 15%"></div>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<div class="flex justify-between items-end">
+<span class="text-sm font-bold flex items-center gap-2">
+<span class="size-3 rounded-full bg-[#e6e2db]"></span> Food Allowance
+                                            </span>
+<span class="text-sm font-black">4%</span>
+</div>
+<div class="h-2 w-full bg-[#f5f3f0] dark:bg-[#2d2418] rounded-full overflow-hidden">
+<div class="h-full bg-[#e6e2db] rounded-full" style="width: 4%"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Recent Transactions -->
+<div class="flex flex-col gap-4">
+<div class="flex items-center justify-between px-2">
+<h3 class="text-xl font-bold">Recent Transactions</h3>
+<a class="text-primary text-sm font-bold" href="#">View All</a>
+</div>
+<div class="flex flex-col gap-3">
+<!-- Transaction Item 1 -->
+<div class="flex items-center justify-between p-4 rounded-xl bg-white dark:bg-[#2d2418] border border-[#e6e2db] dark:border-[#3d3428] hover:border-primary/50 transition-colors cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="size-12 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+<span class="material-symbols-outlined">celebration</span>
+</div>
+<div>
+<p class="font-bold text-[#181511] dark:text-[#f8f7f5]">Delhi Wedding - Grand Hyatt</p>
+<p class="text-xs text-[#8a7b60] dark:text-[#a89980]">Oct 24, 2023 • Vivah Sanskar</p>
+</div>
+</div>
+<div class="text-right flex flex-col items-end gap-1">
+<p class="font-black text-[#181511] dark:text-[#f8f7f5]">₹52,750</p>
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-[#078810]/10 text-[#078810] uppercase">
+<span class="size-1.5 rounded-full bg-[#078810] mr-1.5"></span> Paid
+                                    </span>
+</div>
+</div>
+<!-- Transaction Item 2 -->
+<div class="flex items-center justify-between p-4 rounded-xl bg-white dark:bg-[#2d2418] border border-[#e6e2db] dark:border-[#3d3428] hover:border-primary/50 transition-colors cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="size-12 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+<span class="material-symbols-outlined">home</span>
+</div>
+<div>
+<p class="font-bold text-[#181511] dark:text-[#f8f7f5]">Griha Pravesh - Noida Sec 150</p>
+<p class="text-xs text-[#8a7b60] dark:text-[#a89980]">Oct 22, 2023 • Puja Services</p>
+</div>
+</div>
+<div class="text-right flex flex-col items-end gap-1">
+<p class="font-black text-[#181511] dark:text-[#f8f7f5]">₹12,500</p>
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-[#078810]/10 text-[#078810] uppercase">
+<span class="size-1.5 rounded-full bg-[#078810] mr-1.5"></span> Paid
+                                    </span>
+</div>
+</div>
+<!-- Transaction Item 3 -->
+<div class="flex items-center justify-between p-4 rounded-xl bg-white dark:bg-[#2d2418] border border-[#e6e2db] dark:border-[#3d3428] hover:border-primary/50 transition-colors cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="size-12 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+<span class="material-symbols-outlined">flight</span>
+</div>
+<div>
+<p class="font-bold text-[#181511] dark:text-[#f8f7f5]">Travel Reimbursement - Mumbai</p>
+<p class="text-xs text-[#8a7b60] dark:text-[#a89980]">Oct 20, 2023 • Airfare &amp; Taxi</p>
+</div>
+</div>
+<div class="text-right flex flex-col items-end gap-1">
+<p class="font-black text-[#181511] dark:text-[#f8f7f5]">₹8,400</p>
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-[#078810]/10 text-[#078810] uppercase">
+<span class="size-1.5 rounded-full bg-[#078810] mr-1.5"></span> Paid
+                                    </span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Bar (Desktop version of mobile design requested) -->
+<footer class="flex justify-center border-t border-solid border-[#e6e2db] dark:border-[#3d3428] bg-white dark:bg-[#181511] px-10 py-4 mt-auto">
+<div class="flex max-w-[960px] flex-1 justify-around items-center">
+<a class="flex flex-col items-center gap-1 text-[#8a7b60] hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Home</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Wallet</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-[#8a7b60] hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">calendar_month</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Bookings</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-[#8a7b60] hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Profile</span>
+</a>
+</div>
+</footer>
+</div>
+</div>
+</body></html>

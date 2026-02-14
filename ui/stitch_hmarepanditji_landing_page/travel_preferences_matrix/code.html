@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Travel Preferences Matrix - HmarePanditJi</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Noto+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#f29e0d",
+                        "background-light": "#f8f7f5",
+                        "background-dark": "#221b10",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: "Plus Jakarta Sans", sans-serif;
+        }
+        .custom-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 4px;
+            background: #e6e2db;
+            outline: none;
+            border-radius: 2px;
+        }
+        .custom-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #f29e0d;
+            cursor: pointer;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-[#181511] dark:text-white min-h-screen">
+<div class="layout-container flex h-full grow flex-col">
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-[#e6e2db] dark:border-[#3d3220] px-10 py-3 bg-white dark:bg-[#2d2416]">
+<div class="flex items-center gap-4 text-primary">
+<div class="size-6">
+<span class="material-symbols-outlined text-3xl">temple_hindu</span>
+</div>
+<h2 class="text-[#181511] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">HmarePanditJi</h2>
+</div>
+<div class="flex flex-1 justify-end gap-8">
+<div class="hidden md:flex items-center gap-9">
+<a class="text-[#181511] dark:text-gray-300 text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Dashboard</a>
+<a class="text-[#181511] dark:text-gray-300 text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Services</a>
+<a class="text-primary text-sm font-bold leading-normal" href="#">Travel</a>
+<a class="text-[#181511] dark:text-gray-300 text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Profile</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="flex min-w-[84px] cursor-pointer items-center justify-center rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal hover:bg-orange-600 transition-colors">
+<span>Logout</span>
+</button>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-primary" data-alt="Professional profile picture of a male priest" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBxeJyQl-WvbZy2dm0YUiz2nzhGM_r8cw_UkRm2xnCp8_DgleWtyrDpDov0SUo_eq68EfSjrRQ5KpPdzknaiYB0YCGr-j9GuCD9x3N0kBfAjgzy9nisl2N1SS8SbrwgYYy6TmiGpeE0CjwOpOpCGsIisDeYITinnMXTKcELO5-QVdah-NDzV7Bfvc6Q_VuLM3GulhGnFGF4rGqXfnGZKXcO1RtTzMbKgNPPMMbD3eUWcm-4DCoO21cnJIpvf25cEvkRdtwUciIKe0Y");'></div>
+</div>
+</div>
+</header>
+<main class="flex-1 max-w-[960px] mx-auto w-full px-4 md:px-10 py-10">
+<div class="mb-8">
+<h1 class="text-[#181511] dark:text-white text-4xl font-black leading-tight tracking-[-0.033em]">Travel Preferences Matrix</h1>
+<p class="text-[#8a7b60] dark:text-gray-400 text-base font-normal leading-normal mt-2">Manage your travel limits and accommodation requirements for spiritual services across different regions.</p>
+</div>
+<section class="bg-white dark:bg-[#2d2416] p-6 rounded-xl border border-[#e6e2db] dark:border-[#3d3220] shadow-sm mb-6">
+<div class="flex items-center gap-2 mb-6">
+<span class="material-symbols-outlined text-primary">distance</span>
+<h2 class="text-xl font-bold">Section 1: Distance Limits</h2>
+</div>
+<div class="space-y-4">
+<div class="flex justify-between items-center">
+<label class="text-base font-semibold">Maximum Travel Distance (km)</label>
+<span class="text-primary font-bold text-lg">2500 km</span>
+</div>
+<input class="custom-slider dark:bg-gray-700" max="5000" min="0" type="range" value="2500"/>
+<div class="flex justify-between text-sm text-[#8a7b60] dark:text-gray-400">
+<span>0 km</span>
+<span>5000 km</span>
+</div>
+</div>
+</section>
+<section class="bg-white dark:bg-[#2d2416] p-6 rounded-xl border border-[#e6e2db] dark:border-[#3d3220] shadow-sm mb-6">
+<div class="flex items-center gap-2 mb-6">
+<span class="material-symbols-outlined text-primary">commute</span>
+<h2 class="text-xl font-bold">Section 2: Travel Mode Matrix</h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="p-4 rounded-lg border border-[#e6e2db] dark:border-[#3d3220] bg-background-light dark:bg-[#342a1b]">
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined">directions_car</span>
+<span class="font-bold">Self-Drive</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="space-y-2 text-sm">
+<div class="flex justify-between text-[#8a7b60] dark:text-gray-400">
+<span>Fuel Rate</span>
+<span class="font-medium text-[#181511] dark:text-white">₹12/km</span>
+</div>
+<div class="flex justify-between text-[#8a7b60] dark:text-gray-400">
+<span>Car Type</span>
+<span class="font-medium text-[#181511] dark:text-white">SUV / Sedan</span>
+</div>
+</div>
+</div>
+<div class="p-4 rounded-lg border border-[#e6e2db] dark:border-[#3d3220] bg-background-light dark:bg-[#342a1b]">
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined">train</span>
+<span class="font-bold">Train</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="space-y-2 text-sm">
+<div class="flex justify-between text-[#8a7b60] dark:text-gray-400">
+<span>Preference</span>
+<span class="font-medium text-[#181511] dark:text-white">3AC Class</span>
+</div>
+</div>
+</div>
+<div class="p-4 rounded-lg border border-[#e6e2db] dark:border-[#3d3220] bg-background-light dark:bg-[#342a1b]">
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined">flight</span>
+<span class="font-bold">Flight</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="space-y-2 text-sm">
+<div class="flex justify-between text-[#8a7b60] dark:text-gray-400">
+<span>Preference</span>
+<span class="font-medium text-[#181511] dark:text-white">Economy</span>
+</div>
+</div>
+</div>
+<div class="p-4 rounded-lg border border-[#e6e2db] dark:border-[#3d3220] bg-background-light dark:bg-[#342a1b]">
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined">local_taxi</span>
+<span class="font-bold">Cab</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="space-y-2 text-sm">
+<div class="flex justify-between text-[#8a7b60] dark:text-gray-400">
+<span>Type</span>
+<span class="font-medium text-[#181511] dark:text-white">Intercity / Prime</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="bg-white dark:bg-[#2d2416] p-6 rounded-xl border border-[#e6e2db] dark:border-[#3d3220] shadow-sm mb-6">
+<div class="flex items-center gap-2 mb-6">
+<span class="material-symbols-outlined text-primary">hotel</span>
+<h2 class="text-xl font-bold">Section 3: Accommodation Preferences</h2>
+</div>
+<div class="space-y-6">
+<div class="flex items-center justify-between">
+<div>
+<p class="font-semibold">Minimum Rating</p>
+<p class="text-sm text-[#8a7b60] dark:text-gray-400">Minimum standard for overnight stays</p>
+</div>
+<div class="flex gap-1 text-primary">
+<span class="material-symbols-outlined fill-1">star</span>
+<span class="material-symbols-outlined fill-1">star</span>
+<span class="material-symbols-outlined fill-1">star</span>
+<span class="material-symbols-outlined text-gray-300">star</span>
+<span class="material-symbols-outlined text-gray-300">star</span>
+</div>
+</div>
+<hr class="border-[#e6e2db] dark:border-[#3d3220]"/>
+<div class="flex items-center justify-between">
+<div>
+<p class="font-semibold">No Shared Room</p>
+<p class="text-sm text-[#8a7b60] dark:text-gray-400">Private accommodation only</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+</div>
+</section>
+<section class="bg-white dark:bg-[#2d2416] p-6 rounded-xl border border-[#e6e2db] dark:border-[#3d3220] shadow-sm mb-10">
+<div class="flex items-center gap-2 mb-6">
+<span class="material-symbols-outlined text-primary">assignment_ind</span>
+<h2 class="text-xl font-bold">Section 4: Special Requirements</h2>
+</div>
+<div class="space-y-4">
+<div class="flex items-start gap-4">
+<div class="pt-1">
+<input checked="" class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-primary dark:bg-gray-700 dark:border-gray-600" type="checkbox"/>
+</div>
+<div>
+<p class="font-semibold">Need Assistant for Large Ceremonies</p>
+<p class="text-sm text-[#8a7b60] dark:text-gray-400">Require one additional Sahayak for events with 50+ attendees.</p>
+</div>
+</div>
+<div class="mt-4">
+<label class="block text-sm font-semibold mb-2">Additional Notes</label>
+<textarea class="w-full p-4 rounded-lg border border-[#e6e2db] dark:border-[#3d3220] bg-background-light dark:bg-[#342a1b] text-sm focus:border-primary focus:ring-primary outline-none min-h-[100px]" placeholder="Add any other specific travel or stay requirements..."></textarea>
+</div>
+</div>
+</section>
+<div class="flex flex-col sm:flex-row gap-4 mb-20">
+<button class="flex-1 py-3 px-6 rounded-lg bg-primary text-white font-bold text-lg hover:bg-orange-600 transition-colors shadow-lg shadow-primary/20">Save Preferences</button>
+<button class="flex-1 py-3 px-6 rounded-lg border-2 border-[#e6e2db] dark:border-[#3d3220] font-bold text-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">Discard Changes</button>
+</div>
+</main>
+<footer class="bg-white dark:bg-[#2d2416] border-t border-[#e6e2db] dark:border-[#3d3220] py-8 px-10 text-center text-[#8a7b60] dark:text-gray-400 text-sm">
+<p>© 2024 HmarePanditJi Spiritual Services. All rights reserved.</p>
+</footer>
+</div>
+</body></html>

@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>HmarePanditJi - Home Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;family=Noto+Sans+Devanagari:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "primary": "#f49d25",
+                "background-light": "#f8f7f5",
+                "background-dark": "#221a10",
+              },
+              fontFamily: {
+                "display": ["Inter", "Noto Sans Devanagari", "sans-serif"]
+              },
+              borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+            },
+          },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', 'Noto Sans Devanagari', sans-serif; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-[#181511] dark:text-white min-h-screen">
+<div class="relative flex h-auto w-full flex-col">
+<!-- Top Navigation Bar -->
+<header class="sticky top-0 z-50 bg-white dark:bg-background-dark border-b border-solid border-[#e6e1db] dark:border-[#3a2f1f] px-4 md:px-10 lg:px-40 py-3">
+<div class="flex items-center justify-between gap-8 max-w-[1280px] mx-auto">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined text-3xl">temple_hindu</span>
+<h2 class="text-[#181511] dark:text-white text-xl font-bold leading-tight tracking-tight">HmarePanditJi</h2>
+</div>
+<div class="hidden md:flex items-center gap-2 px-3 py-1.5 bg-[#f5f3f0] dark:bg-[#3a2f1f] rounded-lg">
+<span class="material-symbols-outlined text-sm">location_on</span>
+<span class="text-sm font-medium">Delhi</span>
+</div>
+</div>
+<div class="flex-1 max-w-xl hidden lg:block">
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#8a7960]">
+<span class="material-symbols-outlined">search</span>
+</div>
+<input class="block w-full pl-10 pr-3 py-2 border-none bg-[#f5f3f0] dark:bg-[#3a2f1f] rounded-lg focus:ring-2 focus:ring-primary text-sm" placeholder="Search for Pandits, Pujas, or Muhurats..."/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<nav class="hidden xl:flex items-center gap-6">
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#">Muhurat Explorer</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#">Services</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#">About Us</a>
+</nav>
+<div class="flex items-center gap-3">
+<button class="flex items-center justify-center size-10 rounded-full bg-[#f5f3f0] dark:bg-[#3a2f1f] hover:bg-primary/20 transition-colors">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</div>
+</div>
+</header>
+<main class="max-w-[1280px] mx-auto w-full px-4 md:px-10 lg:px-40 py-8">
+<!-- Hero Section -->
+<section class="relative mb-12 rounded-2xl overflow-hidden min-h-[400px] flex flex-col items-center justify-center p-8 text-center" data-alt="Peaceful Indian temple courtyard during sunrise" style='background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.7)), url("https://lh3.googleusercontent.com/aida-public/AB6AXuAENADsPUGYYRX8W7ZPPo9bObLv_ggsJP2f-dmHDI92bS6Rzsi1Mbz4l-cUAoxtpi4n7yUCq97yhJqpnagNiuHIpWnq6ItOFQssDwThF_SmIaOELlZ7372cnXUhu65Lxko0wLJUAplsu_-UFRF_wsIoKQdvB7I55W1w-NrjHmPqLPrAL5irNlfDAAeO9W0vf30hUVi53KNPBdmv796DvWjphasvINlrZHZ7M3qYu4kI1BbKyCbY4VzoY4Zsh8jIu7hLYOkJgtzDWIE"); background-size: cover; background-position: center;'>
+<h1 class="text-white text-4xl md:text-5xl font-black mb-4">Find the Perfect Pandit for Your Puja</h1>
+<p class="text-white/90 text-lg mb-8 max-w-2xl">Professional religious services with end-to-end travel and logistics across India.</p>
+<div class="w-full max-w-2xl bg-white dark:bg-background-dark p-2 rounded-xl shadow-2xl flex flex-col md:flex-row gap-2">
+<div class="flex-1 flex items-center px-4 gap-3 border-b md:border-b-0 md:border-r border-gray-100 dark:border-gray-800">
+<span class="material-symbols-outlined text-[#8a7960]">search</span>
+<input class="w-full border-none focus:ring-0 bg-transparent text-sm py-3" placeholder="Which puja are you planning?"/>
+</div>
+<div class="flex items-center px-4 gap-4">
+<div class="flex items-center gap-2">
+<span class="text-xs font-bold text-[#8a7960] uppercase">Search All India</span>
+<div class="relative inline-flex h-6 w-11 items-center rounded-full bg-primary">
+<span class="inline-block h-4 w-4 translate-x-6 transform rounded-full bg-white transition"></span>
+</div>
+</div>
+<button class="bg-primary hover:bg-primary/90 text-black font-bold py-2 px-6 rounded-lg text-sm transition-all whitespace-nowrap">
+                            Explore Now
+                        </button>
+</div>
+</div>
+<div class="mt-6 flex items-center gap-3">
+<span class="text-white/80 text-sm">Or use voice search:</span>
+<button class="size-12 rounded-full bg-primary text-black flex items-center justify-center hover:scale-105 transition-transform shadow-lg">
+<span class="material-symbols-outlined">mic</span>
+</button>
+</div>
+</section>
+<!-- Categories Grid -->
+<section class="mb-16">
+<div class="flex items-center justify-between mb-8">
+<h2 class="text-2xl font-bold">Popular Services</h2>
+<a class="text-primary font-semibold text-sm hover:underline" href="#">View All</a>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+<div class="group cursor-pointer">
+<div class="aspect-square rounded-2xl bg-[#fdf5e8] dark:bg-[#3a2f1f] flex flex-col items-center justify-center gap-3 border-2 border-transparent group-hover:border-primary transition-all">
+<span class="material-symbols-outlined text-4xl text-primary">favorite</span>
+<span class="font-bold text-sm">Wedding</span>
+</div>
+</div>
+<div class="group cursor-pointer">
+<div class="aspect-square rounded-2xl bg-[#fdf5e8] dark:bg-[#3a2f1f] flex flex-col items-center justify-center gap-3 border-2 border-transparent group-hover:border-primary transition-all">
+<span class="material-symbols-outlined text-4xl text-primary">home</span>
+<span class="font-bold text-sm">Griha Pravesh</span>
+</div>
+</div>
+<div class="group cursor-pointer">
+<div class="aspect-square rounded-2xl bg-[#fdf5e8] dark:bg-[#3a2f1f] flex flex-col items-center justify-center gap-3 border-2 border-transparent group-hover:border-primary transition-all">
+<span class="material-symbols-outlined text-4xl text-primary">festival</span>
+<span class="font-bold text-sm">Satyanarayan</span>
+</div>
+</div>
+<div class="group cursor-pointer">
+<div class="aspect-square rounded-2xl bg-[#fdf5e8] dark:bg-[#3a2f1f] flex flex-col items-center justify-center gap-3 border-2 border-transparent group-hover:border-primary transition-all">
+<span class="material-symbols-outlined text-4xl text-primary">child_care</span>
+<span class="font-bold text-sm">Namkaran</span>
+</div>
+</div>
+<div class="group cursor-pointer">
+<div class="aspect-square rounded-2xl bg-[#fdf5e8] dark:bg-[#3a2f1f] flex flex-col items-center justify-center gap-3 border-2 border-transparent group-hover:border-primary transition-all">
+<span class="material-symbols-outlined text-4xl text-primary">auto_stories</span>
+<span class="font-bold text-sm">Vidhya Arambha</span>
+</div>
+</div>
+<div class="group cursor-pointer">
+<div class="aspect-square rounded-2xl bg-[#fdf5e8] dark:bg-[#3a2f1f] flex flex-col items-center justify-center gap-3 border-2 border-transparent group-hover:border-primary transition-all">
+<span class="material-symbols-outlined text-4xl text-primary">more_horiz</span>
+<span class="font-bold text-sm">More</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Muhurat Explorer -->
+<section class="mb-16">
+<div class="bg-white dark:bg-background-dark rounded-2xl border border-[#e6e1db] dark:border-[#3a2f1f] p-8 shadow-sm">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+<div>
+<h2 class="text-2xl font-bold">Muhurat Explorer</h2>
+<p class="text-[#8a7960] text-sm">Find auspicious dates for your upcoming ceremonies</p>
+</div>
+<div class="flex items-center gap-4 bg-[#f5f3f0] dark:bg-[#3a2f1f] p-1 rounded-lg">
+<button class="px-4 py-1.5 rounded-md bg-white dark:bg-background-dark shadow-sm text-sm font-bold">Monthly</button>
+<button class="px-4 py-1.5 rounded-md text-[#8a7960] text-sm font-bold">Weekly</button>
+</div>
+</div>
+<div class="grid grid-cols-7 gap-px bg-[#e6e1db] dark:bg-[#3a2f1f] rounded-xl overflow-hidden border border-[#e6e1db] dark:border-[#3a2f1f]">
+<!-- Calendar Header -->
+<div class="bg-[#fdfcfb] dark:bg-[#2a2216] py-3 text-center text-xs font-bold uppercase text-[#8a7960]">Sun</div>
+<div class="bg-[#fdfcfb] dark:bg-[#2a2216] py-3 text-center text-xs font-bold uppercase text-[#8a7960]">Mon</div>
+<div class="bg-[#fdfcfb] dark:bg-[#2a2216] py-3 text-center text-xs font-bold uppercase text-[#8a7960]">Tue</div>
+<div class="bg-[#fdfcfb] dark:bg-[#2a2216] py-3 text-center text-xs font-bold uppercase text-[#8a7960]">Wed</div>
+<div class="bg-[#fdfcfb] dark:bg-[#2a2216] py-3 text-center text-xs font-bold uppercase text-[#8a7960]">Thu</div>
+<div class="bg-[#fdfcfb] dark:bg-[#2a2216] py-3 text-center text-xs font-bold uppercase text-[#8a7960]">Fri</div>
+<div class="bg-[#fdfcfb] dark:bg-[#2a2216] py-3 text-center text-xs font-bold uppercase text-[#8a7960]">Sat</div>
+<!-- Calendar Days (Mockup for October) -->
+<div class="bg-white dark:bg-background-dark min-h-[100px] p-2 text-gray-400">29</div>
+<div class="bg-white dark:bg-background-dark min-h-[100px] p-2 text-gray-400">30</div>
+<div class="bg-white dark:bg-background-dark min-h-[100px] p-2">1</div>
+<div class="bg-white dark:bg-background-dark min-h-[100px] p-2">2</div>
+<div class="bg-[#fdf5e8] dark:bg-primary/10 min-h-[100px] p-2 border-2 border-primary">
+<span class="font-bold">3</span>
+<div class="mt-2 space-y-1">
+<span class="block bg-primary text-[10px] font-bold px-1 py-0.5 rounded leading-none">Wedding</span>
+<span class="block bg-orange-200 dark:bg-orange-800 text-[10px] font-bold px-1 py-0.5 rounded leading-none">Griha Pravesh</span>
+</div>
+</div>
+<div class="bg-white dark:bg-background-dark min-h-[100px] p-2">4</div>
+<div class="bg-white dark:bg-background-dark min-h-[100px] p-2">5</div>
+<div class="bg-white dark:bg-background-dark min-h-[100px] p-2">6</div>
+<div class="bg-white dark:bg-background-dark min-h-[100px] p-2">7</div>
+<div class="bg-white dark:bg-background-dark min-h-[100px] p-2">8</div>
+<div class="bg-[#fdf5e8] dark:bg-primary/10 min-h-[100px] p-2">
+<span class="font-bold text-primary">9</span>
+<div class="mt-2">
+<span class="block bg-primary text-[10px] font-bold px-1 py-0.5 rounded leading-none text-center">Navratri Start</span>
+</div>
+</div>
+<div class="bg-white dark:bg-background-dark min-h-[100px] p-2">10</div>
+<div class="bg-white dark:bg-background-dark min-h-[100px] p-2">11</div>
+<div class="bg-white dark:bg-background-dark min-h-[100px] p-2">12</div>
+</div>
+</div>
+</section>
+<!-- Featured Pandits -->
+<section class="mb-16">
+<div class="flex items-center justify-between mb-8">
+<h2 class="text-2xl font-bold">Highly Rated Pandits</h2>
+<div class="flex gap-2">
+<button class="size-10 rounded-full border border-[#e6e1db] dark:border-[#3a2f1f] flex items-center justify-center hover:bg-white dark:hover:bg-[#3a2f1f] transition-colors">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="size-10 rounded-full border border-[#e6e1db] dark:border-[#3a2f1f] flex items-center justify-center hover:bg-white dark:hover:bg-[#3a2f1f] transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+<!-- Pandit Card 1 -->
+<div class="bg-white dark:bg-[#2a2216] rounded-2xl overflow-hidden border border-[#e6e1db] dark:border-[#3a2f1f] group">
+<div class="aspect-[4/3] relative overflow-hidden">
+<img alt="Pandit profile" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Traditional Indian Pandit smiling warmly" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA0gilJzZZBjbdG1_-a7y9QqKsMtncPw0rhX2J-FNqMNKNWhVgUjPsJ9HXoiDYe-SF6wBoGu5OTUGYX9GPuqNovU2F-_IhMKz3YpYyntRsERGLGMnSwoVT0rmBORPQtmOVvhS2SvHSL_yiKm9PYrqEfR7TfpZzcfp4rvlWqrBPD4D9z3JjYwoyEzATRGmaT74BsOzScZIOu7RNsuSCYNaOXZT8Np9TZJVFqSvw3pW3XnfyHl-2rsWmEzWiUoIBC3zfBUTiKE3HPXqo"/>
+<div class="absolute top-3 right-3 bg-white/90 dark:bg-background-dark/90 backdrop-blur px-2 py-1 rounded text-xs font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-xs text-primary fill-1">star</span> 4.9
+                            </div>
+</div>
+<div class="p-5">
+<h3 class="font-bold text-lg mb-1">Pandit Sharma Ji</h3>
+<p class="text-[#8a7960] text-sm mb-3">Vedic Astrology &amp; Weddings</p>
+<div class="flex items-center gap-2 mb-4">
+<span class="text-xs px-2 py-0.5 bg-[#f5f3f0] dark:bg-[#3a2f1f] rounded">20+ Yrs Exp</span>
+<span class="text-xs px-2 py-0.5 bg-[#f5f3f0] dark:bg-[#3a2f1f] rounded">Sanskrit Scholar</span>
+</div>
+<button class="w-full py-2.5 rounded-lg border-2 border-primary text-primary font-bold text-sm hover:bg-primary hover:text-white transition-all">
+                                View Profile
+                            </button>
+</div>
+</div>
+<!-- Pandit Card 2 -->
+<div class="bg-white dark:bg-[#2a2216] rounded-2xl overflow-hidden border border-[#e6e1db] dark:border-[#3a2f1f] group">
+<div class="aspect-[4/3] relative overflow-hidden">
+<img alt="Pandit profile" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Senior Pandit in traditional saffron robes" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAEYU6iXqJ1Vjsnf8MeJbW_M9W7UYoqQ7UhDbHjP-uhuw__ayLodE8KscwxFyWnu_JAkzf6EurY9AnxyYlVW3sBDuHmQGpzjmfCxfDknwkH-FJZpSvL9GchAiU_r6NjaBT6o9z5IRIlMzjoCFEDUM4eDufUUN8fbyTV00Wrp-EMWrmUqU2VdvHhoIu6DCrRSR_8Uj5MN46vhX3ZSigsVVrxYAgJa_tCvSTRtgqJXSURXalBbLcYy6jS-IWBLwyNAMsZTF3qxrkw6uI"/>
+<div class="absolute top-3 right-3 bg-white/90 dark:bg-background-dark/90 backdrop-blur px-2 py-1 rounded text-xs font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-xs text-primary fill-1">star</span> 4.8
+                            </div>
+</div>
+<div class="p-5">
+<h3 class="font-bold text-lg mb-1">Acharya Manoj Pathak</h3>
+<p class="text-[#8a7960] text-sm mb-3">Griha Pravesh &amp; Shanti Puja</p>
+<div class="flex items-center gap-2 mb-4">
+<span class="text-xs px-2 py-0.5 bg-[#f5f3f0] dark:bg-[#3a2f1f] rounded">15+ Yrs Exp</span>
+<span class="text-xs px-2 py-0.5 bg-[#f5f3f0] dark:bg-[#3a2f1f] rounded">Ritual Expert</span>
+</div>
+<button class="w-full py-2.5 rounded-lg border-2 border-primary text-primary font-bold text-sm hover:bg-primary hover:text-white transition-all">
+                                View Profile
+                            </button>
+</div>
+</div>
+<!-- Pandit Card 3 -->
+<div class="bg-white dark:bg-[#2a2216] rounded-2xl overflow-hidden border border-[#e6e1db] dark:border-[#3a2f1f] group">
+<div class="aspect-[4/3] relative overflow-hidden">
+<img alt="Pandit profile" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Pandit performing ritual with marigold flowers" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC8-zW6_51dECd9HoZ-2avrMCsqKLAkNl6OrjbjYlftnjWEzzmq3H6125vwiQ61eIb4-HDjJ6DnWsvlZ4VVRUgewfsMS8RjYJkUCpa1d26e5EptwC3Bi_Ax-c_ChZmJLSijfjMa8K1ndFbCxea213ex5-wDpQvEsj3D-s6q8q6kfYHP4BAy5NJIGc8ajOXPelI_b4_AHB3skcjo-TVaLu6kJqA5YpXY0iFjwWNSAdrYX_6iT-M3dKAXZFg0SMSoVupcGKd_7KTiBI8"/>
+<div class="absolute top-3 right-3 bg-white/90 dark:bg-background-dark/90 backdrop-blur px-2 py-1 rounded text-xs font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-xs text-primary fill-1">star</span> 5.0
+                            </div>
+</div>
+<div class="p-5">
+<h3 class="font-bold text-lg mb-1">Pandit Rajesh Dixit</h3>
+<p class="text-[#8a7960] text-sm mb-3">Bhagwat Katha &amp; Havan</p>
+<div class="flex items-center gap-2 mb-4">
+<span class="text-xs px-2 py-0.5 bg-[#f5f3f0] dark:bg-[#3a2f1f] rounded">25+ Yrs Exp</span>
+<span class="text-xs px-2 py-0.5 bg-[#f5f3f0] dark:bg-[#3a2f1f] rounded">Spiritual Guru</span>
+</div>
+<button class="w-full py-2.5 rounded-lg border-2 border-primary text-primary font-bold text-sm hover:bg-primary hover:text-white transition-all">
+                                View Profile
+                            </button>
+</div>
+</div>
+<!-- Pandit Card 4 -->
+<div class="bg-white dark:bg-[#2a2216] rounded-2xl overflow-hidden border border-[#e6e1db] dark:border-[#3a2f1f] group">
+<div class="aspect-[4/3] relative overflow-hidden">
+<img alt="Pandit profile" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Traditional Pandit in a serene setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBxFL8pLsvu4LqHfcqV8hyBP9CzqCTrNXGPLxQoXxz3q3uZ4abiMxbwKz-RTOrDfWtK8ewpj3RAqFp6sVkyGwW_cioJRtcQ1bkQEKXlua8-q9BDX8N8IbkUDEXXonrUYqCmqzn6lYWnMK-3P7DA7MdrtGYMwHTh25cF0bAdnRyibNwxYtd4Q4gsqsbNWhq6Ks6f81Wv_kIAwflqVjrvk6xmBLBf_62m4hCfsQOwt1LuA77-4fiVnGOklkdu6xDk3NPZFlrFwKmvedI"/>
+<div class="absolute top-3 right-3 bg-white/90 dark:bg-background-dark/90 backdrop-blur px-2 py-1 rounded text-xs font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-xs text-primary fill-1">star</span> 4.7
+                            </div>
+</div>
+<div class="p-5">
+<h3 class="font-bold text-lg mb-1">Acharya Vinay Tiwari</h3>
+<p class="text-[#8a7960] text-sm mb-3">Astrology &amp; Matchmaking</p>
+<div class="flex items-center gap-2 mb-4">
+<span class="text-xs px-2 py-0.5 bg-[#f5f3f0] dark:bg-[#3a2f1f] rounded">12+ Yrs Exp</span>
+<span class="text-xs px-2 py-0.5 bg-[#f5f3f0] dark:bg-[#3a2f1f] rounded">Vedic Expert</span>
+</div>
+<button class="w-full py-2.5 rounded-lg border-2 border-primary text-primary font-bold text-sm hover:bg-primary hover:text-white transition-all">
+                                View Profile
+                            </button>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-white dark:bg-[#1a140d] border-t border-[#e6e1db] dark:border-[#3a2f1f] py-12">
+<div class="max-w-[1280px] mx-auto px-4 md:px-10 lg:px-40">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+<div class="col-span-1 md:col-span-1">
+<div class="flex items-center gap-2 text-primary mb-6">
+<span class="material-symbols-outlined text-2xl">temple_hindu</span>
+<h2 class="text-xl font-bold">HmarePanditJi</h2>
+</div>
+<p class="text-[#8a7960] text-sm leading-relaxed">Connecting people with authentic religious expertise. We handle the logistics, you focus on the blessings.</p>
+</div>
+<div>
+<h4 class="font-bold mb-6">Services</h4>
+<ul class="space-y-4 text-sm text-[#8a7960]">
+<li><a class="hover:text-primary transition-colors" href="#">Wedding Services</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Griha Pravesh</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Katha &amp; Havan</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Astrology Consult</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-bold mb-6">Explore</h4>
+<ul class="space-y-4 text-sm text-[#8a7960]">
+<li><a class="hover:text-primary transition-colors" href="#">Muhurat Calendar</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Find Pandits</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Pooja Samagri</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Blog</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-bold mb-6">Support</h4>
+<ul class="space-y-4 text-sm text-[#8a7960]">
+<li><a class="hover:text-primary transition-colors" href="#">Contact Us</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Terms of Service</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Privacy Policy</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">FAQs</a></li>
+</ul>
+</div>
+</div>
+<div class="pt-8 border-t border-[#e6e1db] dark:border-[#3a2f1f] flex flex-col md:flex-row justify-between items-center gap-4">
+<p class="text-sm text-[#8a7960]">© 2024 HmarePanditJi. All rights reserved.</p>
+<div class="flex gap-6">
+<span class="material-symbols-outlined text-[#8a7960] cursor-pointer hover:text-primary transition-colors">social_leaderboard</span>
+<span class="material-symbols-outlined text-[#8a7960] cursor-pointer hover:text-primary transition-colors">share</span>
+<span class="material-symbols-outlined text-[#8a7960] cursor-pointer hover:text-primary transition-colors">rss_feed</span>
+</div>
+</div>
+</div>
+</footer>
+</div>
+</body></html>

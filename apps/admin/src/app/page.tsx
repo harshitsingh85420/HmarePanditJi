@@ -1,312 +1,204 @@
 "use client";
 
-import { useState } from "react";
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api/v1";
-
-const STATS = [
-  {
-    icon: "groups",
-    value: "247",
-    label: "Active Pandits",
-    sub: "24 pending verification",
-    change: "+12",
-    color: "text-primary",
-    bg: "bg-primary/10",
-  },
-  {
-    icon: "people",
-    value: "1,842",
-    label: "Total Customers",
-    sub: "68 new this week",
-    change: "+68",
-    color: "text-violet-500",
-    bg: "bg-violet-500/10",
-  },
-  {
-    icon: "event_note",
-    value: "134",
-    label: "Active Bookings",
-    sub: "12 starting today",
-    change: "+5",
-    color: "text-amber-500",
-    bg: "bg-amber-500/10",
-  },
-  {
-    icon: "currency_rupee",
-    value: "₹8.4L",
-    label: "Revenue (MTD)",
-    sub: "₹12.1L projected",
-    change: "+18%",
-    color: "text-emerald-500",
-    bg: "bg-emerald-500/10",
-  },
-];
-
-const BOOKINGS_WEEK = [
-  { day: "Mon", count: 18 },
-  { day: "Tue", count: 24 },
-  { day: "Wed", count: 20 },
-  { day: "Thu", count: 32 },
-  { day: "Fri", count: 28 },
-  { day: "Sat", count: 45 },
-  { day: "Sun", count: 38 },
-];
-
-const CEREMONY_PIE = [
-  { label: "Vivah Puja", pct: 34, color: "bg-primary" },
-  { label: "Griha Pravesh", pct: 22, color: "bg-violet-500" },
-  { label: "Satyanarayan", pct: 18, color: "bg-amber-500" },
-  { label: "Mundan", pct: 14, color: "bg-emerald-500" },
-  { label: "Others", pct: 12, color: "bg-slate-400" },
-];
-
-const ACTIVITY = [
-  {
-    icon: "verified_user",
-    color: "text-emerald-500",
-    bg: "bg-emerald-500/10",
-    title: "Pandit Approved",
-    desc: "Ramesh Sharma (APID-00234) approved by Admin",
-    time: "2m ago",
-  },
-  {
-    icon: "event_available",
-    color: "text-primary",
-    bg: "bg-primary/10",
-    title: "New Booking",
-    desc: "Booking #BK-8821 confirmed — Vivah Puja, Delhi",
-    time: "8m ago",
-  },
-  {
-    icon: "person_add",
-    color: "text-violet-500",
-    bg: "bg-violet-500/10",
-    title: "New Customer",
-    desc: "Priya Mehta registered from Noida",
-    time: "15m ago",
-  },
-  {
-    icon: "warning",
-    color: "text-amber-500",
-    bg: "bg-amber-500/10",
-    title: "Travel Request",
-    desc: "Booking #BK-8817 needs travel arrangement (Delhi → Jaipur)",
-    time: "22m ago",
-  },
-  {
-    icon: "cancel",
-    color: "text-red-500",
-    bg: "bg-red-500/10",
-    title: "Booking Cancelled",
-    desc: "Booking #BK-8815 cancelled — full refund initiated",
-    time: "1h ago",
-  },
-  {
-    icon: "star",
-    color: "text-amber-400",
-    bg: "bg-amber-400/10",
-    title: "New Review",
-    desc: "5★ review for Pandit Suresh Mishra from Aryan Gupta",
-    time: "2h ago",
-  },
-];
-
-const RATINGS = [
-  { stars: 5, pct: 68 },
-  { stars: 4, pct: 22 },
-  { stars: 3, pct: 6 },
-  { stars: 2, pct: 2 },
-  { stars: 1, pct: 2 },
-];
-
-const maxCount = Math.max(...BOOKINGS_WEEK.map((d) => d.count));
+import React from "react";
+import Image from "next/image";
 
 export default function AdminDashboard() {
-  const [period, setPeriod] = useState<"week" | "month" | "year">("week");
-
   return (
-    <div className="max-w-[1440px] mx-auto px-6 py-8 space-y-6">
+    <div className="flex flex-col h-[calc(100vh-64px)] overflow-hidden bg-[#f8f7f5] dark:bg-[#181511]">
 
-      {/* ── Header ───────────────────────────────────────────────────────── */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Operations Dashboard</h1>
-          <p className="text-sm text-slate-500 mt-0.5">HmarePanditJi · Phase 1 · Delhi-NCR</p>
+      {/* ── Page Header ──────────────────────────────────────────────────── */}
+      <header className="h-16 flex items-center justify-between px-8 border-b border-slate-200 dark:border-white/10 bg-white/50 dark:bg-[#221a10]/50 backdrop-blur-md sticky top-0 z-10 shrink-0">
+        <div className="flex items-center gap-3">
+          <span className="material-symbols-outlined text-[#f49d25]">analytics</span>
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white">Operations Overview</h2>
         </div>
-        <div className="flex items-center gap-2">
-          {(["week", "month", "year"] as const).map((p) => (
-            <button
-              key={p}
-              onClick={() => setPeriod(p)}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium capitalize transition-colors ${
-                period === p
-                  ? "bg-primary text-white"
-                  : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
-              }`}
-            >
-              {p}
-            </button>
-          ))}
+        <div className="flex items-center gap-4">
+          <div className="relative">
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+            <input
+              className="w-64 pl-10 pr-4 py-1.5 bg-slate-100 dark:bg-white/5 border-none rounded-lg text-sm focus:ring-2 focus:ring-[#f49d25]/50 outline-none text-slate-900 dark:text-white placeholder-slate-400"
+              placeholder="Search Pandit or Service ID..."
+              type="text"
+            />
+          </div>
+          <button className="p-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg relative">
+            <span className="material-symbols-outlined">notifications</span>
+            <span className="absolute top-2 right-2 w-2 h-2 bg-[#fa3f38] rounded-full border-2 border-white dark:border-[#181511]"></span>
+          </button>
+          <button className="p-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg">
+            <span className="material-symbols-outlined">dark_mode</span>
+          </button>
         </div>
-      </div>
+      </header>
 
-      {/* ── Stats Grid ───────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {STATS.map((stat) => (
-          <div
-            key={stat.label}
-            className="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 p-5 shadow-sm"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div className={`w-11 h-11 rounded-xl ${stat.bg} flex items-center justify-center`}>
-                <span className={`material-symbols-outlined text-2xl ${stat.color}`}>{stat.icon}</span>
-              </div>
-              <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 dark:bg-emerald-900/30 dark:text-emerald-400 px-2 py-0.5 rounded-full">
-                {stat.change}
-              </span>
+      {/* ── Main Scrollable Content ──────────────────────────────────────── */}
+      <div className="flex-1 overflow-y-auto p-8 space-y-8">
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="p-6 rounded-xl bg-white dark:bg-[#221a10] border border-slate-200 dark:border-white/10 shadow-sm">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Bookings</p>
+              <span className="material-symbols-outlined text-[#f49d25]">calendar_month</span>
             </div>
-            <p className="text-2xl font-bold text-slate-900 dark:text-white">{stat.value}</p>
-            <p className="text-sm font-medium text-slate-600 dark:text-slate-300 mt-0.5">{stat.label}</p>
-            <p className="text-xs text-slate-400 mt-0.5">{stat.sub}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* ── Charts Row ───────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-
-        {/* Bookings/Week Bar Chart */}
-        <div className="lg:col-span-2 bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 p-5 shadow-sm">
-          <div className="flex items-center justify-between mb-5">
-            <div>
-              <h2 className="font-semibold text-slate-900 dark:text-white text-sm">Bookings This Week</h2>
-              <p className="text-xs text-slate-400 mt-0.5">Daily booking volume</p>
+            <div className="flex items-end gap-2">
+              <p className="text-3xl font-bold text-slate-900 dark:text-white">1,245</p>
+              <p className="text-[#0bda19] text-sm font-medium mb-1">+12%</p>
             </div>
-            <span className="text-2xl font-bold text-primary">205</span>
           </div>
-          <div className="flex items-end gap-2 h-40">
-            {BOOKINGS_WEEK.map((d) => (
-              <div key={d.day} className="flex-1 flex flex-col items-center gap-1">
-                <span className="text-[10px] text-slate-400">{d.count}</span>
-                <div
-                  className="w-full bg-primary/20 dark:bg-primary/30 rounded-t-md relative overflow-hidden"
-                  style={{ height: `${(d.count / maxCount) * 120}px` }}
-                >
-                  <div
-                    className="absolute bottom-0 left-0 right-0 bg-primary rounded-t-md"
-                    style={{ height: "40%" }}
-                  />
+          <div className="p-6 rounded-xl bg-white dark:bg-[#221a10] border border-slate-200 dark:border-white/10 shadow-sm">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Active Pandits</p>
+              <span className="material-symbols-outlined text-[#f49d25]">groups</span>
+            </div>
+            <div className="flex items-end gap-2">
+              <p className="text-3xl font-bold text-slate-900 dark:text-white">512</p>
+              <p className="text-[#0bda19] text-sm font-medium mb-1">+5%</p>
+            </div>
+          </div>
+          <div className="p-6 rounded-xl bg-white dark:bg-[#221a10] border border-slate-200 dark:border-white/10 shadow-sm">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Live Travels</p>
+              <span className="material-symbols-outlined text-[#f49d25]">commute</span>
+            </div>
+            <div className="flex items-end gap-2">
+              <p className="text-3xl font-bold text-slate-900 dark:text-white">42</p>
+              <p className="text-[#fa3f38] text-sm font-medium mb-1">-2%</p>
+            </div>
+          </div>
+          <div className="p-6 rounded-xl bg-white dark:bg-[#221a10] border border-slate-200 dark:border-white/10 shadow-sm">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Revenue</p>
+              <span className="material-symbols-outlined text-[#f49d25]">payments</span>
+            </div>
+            <div className="flex items-end gap-2">
+              <p className="text-3xl font-bold text-slate-900 dark:text-white">₹82.4L</p>
+              <p className="text-[#0bda19] text-sm font-medium mb-1">+18%</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+          {/* Live Map Section */}
+          <div className="xl:col-span-2 space-y-6">
+            <div className="p-6 rounded-xl bg-white dark:bg-[#221a10] border border-slate-200 dark:border-white/10 shadow-sm flex flex-col h-[500px]">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white">Live Pandit Journeys (Central India)</h3>
+                <div className="flex gap-2 text-xs font-medium text-slate-600 dark:text-slate-300">
+                  <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#0bda19]"></span> On Time</span>
+                  <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#f49d25]"></span> Minor Delay</span>
+                  <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-[#fa3f38]"></span> Critical</span>
                 </div>
-                <span className="text-[10px] text-slate-400 font-medium">{d.day}</span>
               </div>
-            ))}
-          </div>
-        </div>
+              <div className="flex-1 bg-slate-200 dark:bg-[#181511] rounded-lg relative overflow-hidden group">
+                {/* Map Image Placeholder - In real app, use an Interactive Map Component */}
+                <img
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuArYc-NYBn0ZSmRgE81MgTYrqJJqmIsoeJtOzaCY4hjIlJzW9uwMlW5wsdeZUlfuVp1Ltak3RlElDkmhZZRcnDm5zkMZLMpb4RQy1gHG9E8F155ebog-TZK7AXtykBw4UkWPAebiWunudSRZKqnSm7txLVqIiP9AoeVQaD5HzUm-jLGLPGHmIM0xxkNRg4ji429cZ-YRNg-VLPPD_E7Z4HQBVJz8Id8nLFXvHMm9YNkzWAnXy092mYA3Xhnd2YV5WaIOZwLKiVZgrQ"
+                  className="absolute inset-0 w-full h-full object-cover opacity-70 grayscale dark:invert"
+                  alt="Map of Central India showing movement of service providers"
+                />
 
-        {/* Ceremonies Pie + Rating */}
-        <div className="space-y-4">
-          {/* Ceremony breakdown */}
-          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 p-5 shadow-sm">
-            <h2 className="font-semibold text-slate-900 dark:text-white text-sm mb-4">Ceremony Types</h2>
-            <div className="space-y-2">
-              {CEREMONY_PIE.map((c) => (
-                <div key={c.label}>
-                  <div className="flex justify-between text-xs mb-1">
-                    <span className="text-slate-600 dark:text-slate-400">{c.label}</span>
-                    <span className="font-semibold text-slate-900 dark:text-white">{c.pct}%</span>
+                {/* Interactive Elements Simulation */}
+                <div className="absolute top-1/4 left-1/3 w-4 h-4 bg-[#0bda19] rounded-full ring-4 ring-[#0bda19]/20 animate-pulse cursor-pointer hover:scale-125 transition-transform" title="Pandit Sharma - On Time"></div>
+                <div className="absolute top-1/2 left-1/2 w-4 h-4 bg-[#f49d25] rounded-full ring-4 ring-[#f49d25]/20 animate-pulse cursor-pointer hover:scale-125 transition-transform" title="Pandit Verma - 10m Delay"></div>
+                <div className="absolute top-2/3 left-1/4 w-4 h-4 bg-[#fa3f38] rounded-full ring-4 ring-[#fa3f38]/20 animate-pulse cursor-pointer hover:scale-125 transition-transform" title="Pandit Singh - Critical Delay"></div>
+                <div className="absolute top-1/3 right-1/4 w-4 h-4 bg-[#0bda19] rounded-full ring-4 ring-[#0bda19]/20 animate-pulse cursor-pointer hover:scale-125 transition-transform" title="Pandit Gupta - On Time"></div>
+              </div>
+            </div>
+          </div>
+
+          {/* Red Alert Section */}
+          <div className="space-y-6">
+            <div className="p-6 rounded-xl bg-[#fa3f38]/5 border-2 border-[#fa3f38]/20 flex flex-col h-full">
+              <div className="flex items-center gap-2 mb-6 text-[#fa3f38]">
+                <span className="material-symbols-outlined">warning</span>
+                <h3 className="text-lg font-black uppercase tracking-tighter">Red Alert Monitor</h3>
+              </div>
+              <div className="space-y-4 flex-1">
+                {/* Delayed Item 1 */}
+                <div className="p-4 rounded-lg bg-white dark:bg-[#221a10] border border-[#fa3f38]/30 shadow-sm">
+                  <div className="flex justify-between items-start mb-2">
+                    <h4 className="font-bold text-sm text-slate-900 dark:text-white">Pandit Sharma Ji</h4>
+                    <span className="px-2 py-0.5 rounded bg-[#fa3f38] text-white text-[10px] font-bold">45m DELAY</span>
                   </div>
-                  <div className="h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                    <div className={`h-full ${c.color} rounded-full`} style={{ width: `${c.pct}%` }} />
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">Route: Indore -&gt; Ujjain (Mahakal Puja)</p>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-bold text-[#f49d25] uppercase">Backup Status:</span>
+                      <span className="px-2 py-0.5 rounded bg-[#0bda19]/20 text-[#0bda19] text-[10px] font-bold">READY</span>
+                    </div>
+                    <button className="bg-[#f49d25] hover:bg-[#f49d25]/90 text-white text-xs font-bold px-3 py-1 rounded transition-colors">REASSIGN</button>
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Rating histogram */}
-          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 p-5 shadow-sm">
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="font-semibold text-slate-900 dark:text-white text-sm">Pandit Ratings</h2>
-              <span className="text-lg font-black text-amber-500">4.7★</span>
-            </div>
-            <div className="space-y-1.5">
-              {RATINGS.map((r) => (
-                <div key={r.stars} className="flex items-center gap-2">
-                  <span className="text-xs text-slate-500 w-4">{r.stars}</span>
-                  <span className="material-symbols-outlined text-amber-400 text-xs leading-none" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                  <div className="flex-1 h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                    <div className="h-full bg-amber-400 rounded-full" style={{ width: `${r.pct}%` }} />
+                {/* Delayed Item 2 */}
+                <div className="p-4 rounded-lg bg-white dark:bg-[#221a10] border border-[#fa3f38]/30 shadow-sm opacity-90">
+                  <div className="flex justify-between items-start mb-2">
+                    <h4 className="font-bold text-sm text-slate-900 dark:text-white">Pandit Dubey Ji</h4>
+                    <span className="px-2 py-0.5 rounded bg-[#fa3f38] text-white text-[10px] font-bold">20m DELAY</span>
                   </div>
-                  <span className="text-xs text-slate-400 w-7 text-right">{r.pct}%</span>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">Route: Bhopal -&gt; Vidisha (Havan)</p>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-bold text-[#f49d25] uppercase">Backup Status:</span>
+                      <span className="px-2 py-0.5 rounded bg-slate-200 dark:bg-white/10 text-slate-500 text-[10px] font-bold">PENDING</span>
+                    </div>
+                    <button className="bg-[#f49d25] hover:bg-[#f49d25]/90 text-white text-xs font-bold px-3 py-1 rounded transition-colors">CONTACT</button>
+                  </div>
                 </div>
-              ))}
+              </div>
+              <button className="w-full mt-6 py-3 bg-[#fa3f38] text-white rounded-lg font-bold text-sm hover:bg-[#fa3f38]/90 transition-colors shadow-sm">
+                VIEW ALL CRITICAL ALERTS (4)
+              </button>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* ── Activity Feed ─────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
-          <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-slate-800">
-            <h2 className="font-semibold text-slate-900 dark:text-white text-sm">Recent Activity</h2>
-            <span className="text-xs text-slate-400">Live</span>
+        {/* Recent Activity Table */}
+        <div className="p-6 rounded-xl bg-white dark:bg-[#221a10] border border-slate-200 dark:border-white/10 shadow-sm overflow-hidden">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white">Live Travel Operations Log</h3>
+            <button className="text-sm font-semibold text-[#f49d25] hover:underline">Export CSV</button>
           </div>
-          <div className="divide-y divide-slate-50 dark:divide-slate-800">
-            {ACTIVITY.map((item, i) => (
-              <div key={i} className="flex items-start gap-3 px-5 py-3.5">
-                <div className={`w-8 h-8 rounded-lg ${item.bg} flex items-center justify-center flex-shrink-0 mt-0.5`}>
-                  <span className={`material-symbols-outlined text-base leading-none ${item.color}`}>{item.icon}</span>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-slate-900 dark:text-white">{item.title}</p>
-                  <p className="text-xs text-slate-500 mt-0.5 truncate">{item.desc}</p>
-                </div>
-                <span className="text-xs text-slate-400 flex-shrink-0">{item.time}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 p-5 shadow-sm">
-          <h2 className="font-semibold text-slate-900 dark:text-white text-sm mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-2 gap-3">
-            {[
-              { icon: "verified_user", label: "Review Verification Queue", sub: "24 pending", color: "text-primary", bg: "bg-primary/10", href: "/verification" },
-              { icon: "local_shipping", label: "Travel Arrangements", sub: "8 need action", color: "text-amber-500", bg: "bg-amber-500/10", href: "/operations" },
-              { icon: "event_note", label: "Active Bookings", sub: "134 bookings", color: "text-violet-500", bg: "bg-violet-500/10", href: "/bookings" },
-              { icon: "campaign", label: "Send Broadcast SMS", sub: "All pandits", color: "text-emerald-500", bg: "bg-emerald-500/10", href: "/settings" },
-            ].map((action) => (
-              <a
-                key={action.label}
-                href={action.href}
-                className="flex flex-col gap-3 p-4 rounded-xl border border-slate-100 dark:border-slate-800 hover:border-primary/30 dark:hover:border-primary/30 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all group"
-              >
-                <div className={`w-10 h-10 rounded-xl ${action.bg} flex items-center justify-center`}>
-                  <span className={`material-symbols-outlined text-xl leading-none ${action.color}`}>{action.icon}</span>
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-slate-900 dark:text-white group-hover:text-primary transition-colors">{action.label}</p>
-                  <p className="text-xs text-slate-400 mt-0.5">{action.sub}</p>
-                </div>
-              </a>
-            ))}
-          </div>
-
-          {/* Revenue mini stats */}
-          <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 grid grid-cols-3 gap-3 text-center">
-            {[
-              { label: "Avg Order Value", value: "₹6,250" },
-              { label: "Commission (10%)", value: "₹84,000" },
-              { label: "Refunds (MTD)", value: "₹8,500" },
-            ].map((s) => (
-              <div key={s.label}>
-                <p className="text-base font-bold text-slate-900 dark:text-white">{s.value}</p>
-                <p className="text-[10px] text-slate-400 mt-0.5">{s.label}</p>
-              </div>
-            ))}
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead className="border-b border-slate-200 dark:border-white/10">
+                <tr className="text-xs text-slate-500 uppercase tracking-wider">
+                  <th className="px-4 py-3 font-medium">Pandit ID</th>
+                  <th className="px-4 py-3 font-medium">Service Type</th>
+                  <th className="px-4 py-3 font-medium">Current Location</th>
+                  <th className="px-4 py-3 font-medium">ETA to Destination</th>
+                  <th className="px-4 py-3 font-medium">Risk Status</th>
+                  <th className="px-4 py-3 font-medium">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-200 dark:divide-white/10">
+                <tr className="text-sm hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+                  <td className="px-4 py-4 font-medium text-slate-700 dark:text-slate-300">#PJ-4512</td>
+                  <td className="px-4 py-4 text-slate-600 dark:text-slate-400">Griha Pravesh Puja</td>
+                  <td className="px-4 py-4 text-slate-500">Dewas Bypass</td>
+                  <td className="px-4 py-4 text-slate-600 dark:text-slate-400">12 mins</td>
+                  <td className="px-4 py-4"><span className="px-2 py-1 rounded-full bg-[#0bda19]/10 text-[#0bda19] text-[10px] font-bold">LOW</span></td>
+                  <td className="px-4 py-4"><button className="text-slate-400 hover:text-[#f49d25]"><span className="material-symbols-outlined text-xl">visibility</span></button></td>
+                </tr>
+                <tr className="text-sm hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+                  <td className="px-4 py-4 font-medium text-slate-700 dark:text-slate-300">#PJ-9821</td>
+                  <td className="px-4 py-4 text-slate-600 dark:text-slate-400">Satyanarayan Katha</td>
+                  <td className="px-4 py-4 text-slate-500">Raisen Road</td>
+                  <td className="px-4 py-4 text-slate-600 dark:text-slate-400">34 mins</td>
+                  <td className="px-4 py-4"><span className="px-2 py-1 rounded-full bg-[#f49d25]/10 text-[#f49d25] text-[10px] font-bold">MEDIUM</span></td>
+                  <td className="px-4 py-4"><button className="text-slate-400 hover:text-[#f49d25]"><span className="material-symbols-outlined text-xl">visibility</span></button></td>
+                </tr>
+                <tr className="text-sm hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+                  <td className="px-4 py-4 font-medium text-slate-700 dark:text-slate-300">#PJ-1102</td>
+                  <td className="px-4 py-4 text-slate-600 dark:text-slate-400">Vastu Shanti</td>
+                  <td className="px-4 py-4 text-slate-500">MP Nagar Ph-II</td>
+                  <td className="px-4 py-4 text-slate-600 dark:text-slate-400">5 mins</td>
+                  <td className="px-4 py-4"><span className="px-2 py-1 rounded-full bg-[#0bda19]/10 text-[#0bda19] text-[10px] font-bold">LOW</span></td>
+                  <td className="px-4 py-4"><button className="text-slate-400 hover:text-[#f49d25]"><span className="material-symbols-outlined text-xl">visibility</span></button></td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>

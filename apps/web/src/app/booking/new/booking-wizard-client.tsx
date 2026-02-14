@@ -4,6 +4,9 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth, API_BASE } from "../../../context/auth-context";
 import RazorpayCheckout from "../../../components/RazorpayCheckout";
+import { SamagriModal } from "../../../components/samagri/SamagriModal";
+import { useCart, SamagriItem } from "../../../context/cart-context";
+import { RitualVariationSelection } from "../../../components/booking/RitualVariationSelection";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -36,7 +39,7 @@ interface TravelOption {
 
 type FoodArrangement = "SELF" | "PLATFORM";
 type SamagriOption = "INCLUDED" | "SELF";
-type WizardStep = 0 | 1 | 2 | 3 | 4 | 5;
+type WizardStep = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
 interface BookingFormData {
   // Step 0 – Event Details
@@ -58,7 +61,9 @@ interface BookingFormData {
   travelCost: number;
   foodArrangement: FoodArrangement;
   foodCost: number;
-  // Step 3 – Preferences
+  // Step 3 – Ritual Variation
+  ritualVariation: string;
+  // Step 4 – Preferences
   samagri: SamagriOption;
   specialInstructions: string;
   // Step 4 – Payment
@@ -106,6 +111,7 @@ const STEPS = [
   { label: "Event Details", icon: "calendar_month" },
   { label: "Select Pandit", icon: "person" },
   { label: "Travel", icon: "directions_car" },
+  { label: "Ritual Style", icon: "location_on" },
   { label: "Preferences", icon: "tune" },
   { label: "Review & Pay", icon: "payments" },
   { label: "Confirmed", icon: "check_circle" },
@@ -135,13 +141,12 @@ function StepIndicator({ current, steps }: { current: number; steps: typeof STEP
             )}
             <div className="flex flex-col items-center gap-1 flex-shrink-0">
               <div
-                className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
-                  done
-                    ? "bg-[#f49d25] text-white"
-                    : active
+                className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold transition-all ${done
+                  ? "bg-[#f49d25] text-white"
+                  : active
                     ? "bg-[#f49d25]/10 text-[#f49d25] ring-2 ring-[#f49d25]"
                     : "bg-slate-100 text-slate-400"
-                }`}
+                  }`}
               >
                 {done ? (
                   <span className="material-symbols-outlined text-base">check</span>
@@ -185,6 +190,7 @@ export default function BookingWizardClient() {
     travelCost: 0,
     foodArrangement: "SELF",
     foodCost: 0,
+    ritualVariation: "",
     samagri: "INCLUDED",
     specialInstructions: "",
     orderId: "",
@@ -198,6 +204,17 @@ export default function BookingWizardClient() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [paymentReady, setPaymentReady] = useState(false);
+
+  // Samagri integration
+  const { samagriItem, hasSamagri, setSamagriItem } = useCart();
+  const [showSamagriModal, setShowSamagriModal] = useState(false);
+
+  // Add-ons state
+  const [addons, setAddons] = useState({
+    backup: false,
+    consultation: false,
+    visarjan: false,
+  });
 
   // pre-fill ritual from URL
   useEffect(() => {
@@ -218,7 +235,7 @@ export default function BookingWizardClient() {
         const data = j.data ?? j;
         if (Array.isArray(data) && data.length) setRituals(data);
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   // fetch pandits when ritual changes
@@ -244,7 +261,7 @@ export default function BookingWizardClient() {
           );
         }
       })
-      .catch(() => {});
+      .catch(() => { });
   }, [form.ritualName]);
 
   function set(patch: Partial<BookingFormData>) {
@@ -287,7 +304,11 @@ export default function BookingWizardClient() {
   const platformFee = Math.round(form.dakshina * PLATFORM_FEE_PCT);
   const travelServiceFee = form.travelCost > 0 ? Math.round(form.travelCost * TRAVEL_SERVICE_FEE_PCT) : 0;
   const foodAllowance = form.foodArrangement === "PLATFORM" ? FOOD_PER_DAY : 0;
-  const subtotal = form.dakshina + platformFee + form.travelCost + travelServiceFee + foodAllowance;
+  const samagriCost = (form.samagri === "INCLUDED" && samagriItem) ? samagriItem.totalCost : 0;
+
+  const addonCost = (addons.backup ? 9999 : 0) + (addons.consultation ? 1100 : 0) + (addons.visarjan ? 500 : 0);
+
+  const subtotal = form.dakshina + platformFee + form.travelCost + travelServiceFee + foodAllowance + samagriCost + addonCost;
   const gst = Math.round(platformFee * GST_PCT);
   const grandTotal = subtotal + gst;
 
@@ -300,10 +321,14 @@ export default function BookingWizardClient() {
       case 1:
         return !!form.panditId;
       case 2:
+      case 2:
         return !!form.travelMode;
       case 3:
-        return true;
+        return !!form.ritualVariation;
       case 4:
+        if (form.samagri === "INCLUDED" && !samagriItem) return false;
+        return true;
+      case 5:
         return false; // payment handles progression
       default:
         return false;
@@ -332,16 +357,16 @@ export default function BookingWizardClient() {
           panditId: form.panditId,
           eventDate: form.eventDate,
           eventTime: form.eventTime,
-          venueAddress: {
-            line1: form.venueLine1,
-            line2: form.venueLine2,
-            city: form.venueCity,
-            state: form.venueState,
-            pincode: form.venuePincode,
-          },
+          venueAddress: `${form.venueLine1}${form.venueLine2 ? ", " + form.venueLine2 : ""}${form.venueState ? ", " + form.venueState : ""}`,
+          venueCity: form.venueCity,
+          venuePincode: form.venuePincode,
+          // venueState: form.venueState, // Not in schema
+
           travelMode: form.travelMode,
           foodArrangement: form.foodArrangement,
-          samagri: form.samagri,
+
+          samagriPreference: form.samagri === "INCLUDED" ? "PANDIT_BRINGS" : "CUSTOMER_ARRANGES",
+          samagriNotes: (form.samagri === "INCLUDED" && samagriItem) ? JSON.stringify(samagriItem) : undefined,
           specialInstructions: form.specialInstructions,
         }),
       });
@@ -397,584 +422,733 @@ export default function BookingWizardClient() {
   // ── Payment success ───────────────────────────────────────────────────────
 
   function handlePaymentSuccess() {
-    setStep(5);
-  }
+    function handlePaymentSuccess() {
+      setStep(6);
+    }
 
-  // ── Navigation ────────────────────────────────────────────────────────────
+    // ── Navigation ────────────────────────────────────────────────────────────
 
-  function next() {
-    if (step === 3) {
-      // Step 3 → 4 requires auth
-      if (!user) {
-        openLoginModal();
-        return;
+    function next() {
+      function next() {
+        if (step === 4) {
+          // Step 4 → 5 requires auth
+          if (!user) {
+            openLoginModal();
+            return;
+          }
+          setStep(5);
+          return;
+        }
+        if (step < 6) setStep((step + 1) as WizardStep);
       }
-      setStep(4);
-      return;
-    }
-    if (step < 5) setStep((step + 1) as WizardStep);
-  }
 
-  function back() {
-    if (step > 0) {
-      setPaymentReady(false);
-      setStep((step - 1) as WizardStep);
-    }
-  }
+      function back() {
+        if (step > 0) {
+          setPaymentReady(false);
+          setStep((step - 1) as WizardStep);
+        }
+      }
 
-  // ── Loading state ─────────────────────────────────────────────────────────
+      // ── Loading state ─────────────────────────────────────────────────────────
 
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-[#f8f7f5] flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-[#f49d25] border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
-
-  // ── Confirmation Step ─────────────────────────────────────────────────────
-
-  if (step === 5) {
-    return (
-      <div className="min-h-screen bg-[#f8f7f5] flex items-center justify-center p-4">
-        <div className="bg-white rounded-3xl shadow-lg max-w-md w-full p-8 text-center">
-          <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-green-100 flex items-center justify-center">
-            <span className="material-symbols-outlined text-4xl text-green-600" style={{ fontVariationSettings: "'FILL' 1" }}>
-              check_circle
-            </span>
+      if (authLoading) {
+        return (
+          <div className="min-h-screen bg-[#f8f7f5] flex items-center justify-center">
+            <div className="w-8 h-8 border-2 border-[#f49d25] border-t-transparent rounded-full animate-spin" />
           </div>
-          <h1 className="text-2xl font-bold text-slate-800 mb-2">Booking Confirmed!</h1>
-          <p className="text-slate-500 mb-2">Your booking has been placed successfully.</p>
-          <div className="inline-block bg-[#f49d25]/10 text-[#c47c0e] px-4 py-2 rounded-xl text-sm font-bold mb-6">
-            {form.bookingNumber || "HPJ-XXXXXX"}
-          </div>
-          <div className="bg-slate-50 rounded-xl p-4 text-left space-y-2 mb-6">
-            <div className="flex items-center gap-2 text-sm text-slate-600">
-              <span className="material-symbols-outlined text-base text-[#f49d25]">auto_stories</span>
-              <span className="font-medium">{form.ritualName}</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-slate-600">
-              <span className="material-symbols-outlined text-base text-[#f49d25]">calendar_month</span>
-              <span>{new Date(form.eventDate).toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-slate-600">
-              <span className="material-symbols-outlined text-base text-[#f49d25]">person</span>
-              <span>{form.panditName}</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-slate-600">
-              <span className="material-symbols-outlined text-base text-[#f49d25]">payments</span>
-              <span className="font-semibold">{fmt(grandTotal)}</span>
-            </div>
-          </div>
-          <div className="space-y-2 text-sm text-slate-500 mb-6">
-            <p>📱 Confirmation SMS sent to your phone</p>
-            <p>🙏 Pandit Ji will be notified and will confirm shortly</p>
-          </div>
-          <div className="flex gap-3">
-            <button
-              onClick={() => router.push("/bookings")}
-              className="flex-1 py-3 rounded-xl border border-slate-200 text-slate-600 font-medium hover:bg-slate-50 transition-colors text-sm"
-            >
-              View Bookings
-            </button>
-            <button
-              onClick={() => router.push("/")}
-              className="flex-1 py-3 rounded-xl bg-[#f49d25] hover:bg-[#e08c14] text-white font-semibold transition-colors text-sm"
-            >
-              Go Home
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+        );
+      }
 
-  // ── Wizard Body ───────────────────────────────────────────────────────────
+      // ── Confirmation Step ─────────────────────────────────────────────────────
 
-  return (
-    <div className="min-h-screen bg-[#f8f7f5]">
-      {/* Header */}
-      <div className="bg-white border-b border-slate-100 sticky top-0 z-30">
-        <div className="max-w-3xl mx-auto px-4 py-4 flex items-center gap-3">
-          <button onClick={() => step === 0 ? router.back() : back()} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors" aria-label="Back">
-            <span className="material-symbols-outlined text-slate-500">arrow_back</span>
-          </button>
-          <h1 className="text-lg font-bold text-slate-800">Book a Pandit</h1>
-        </div>
-      </div>
-
-      <div className="max-w-3xl mx-auto px-4 py-6">
-        <StepIndicator current={step} steps={STEPS} />
-
-        {/* ── Step 0: Event Details ───────────────────────────────────────── */}
-        {step === 0 && (
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 space-y-5">
-            <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-              <span className="material-symbols-outlined text-[#f49d25]">calendar_month</span>
-              Event Details
-            </h2>
-
-            {/* Ritual */}
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Ceremony / Puja <span className="text-red-400">*</span></label>
-              <select
-                value={form.ritualId}
-                onChange={(e) => {
-                  const r = rituals.find((r) => r.id === e.target.value);
-                  set({ ritualId: e.target.value, ritualName: r?.name ?? "", dakshina: r?.baseDakshina ?? 0 });
-                }}
-                className="w-full px-4 py-2.5 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#f49d25]/40 focus:border-[#f49d25] text-slate-700"
-              >
-                <option value="">Select a ceremony</option>
-                {rituals.map((r) => (
-                  <option key={r.id} value={r.id}>
-                    {r.name} {r.nameHindi ? `(${r.nameHindi})` : ""} {r.durationMinutes ? `· ${r.durationMinutes} min` : ""}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Date & Time */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">Event Date <span className="text-red-400">*</span></label>
-                <input
-                  type="date"
-                  value={form.eventDate}
-                  min={new Date().toISOString().split("T")[0]}
-                  onChange={(e) => set({ eventDate: e.target.value })}
-                  className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#f49d25]/40 focus:border-[#f49d25] text-slate-700"
-                />
+      if (step === 6) {
+        return (
+          <div className="min-h-screen bg-[#f8f7f5] flex items-center justify-center p-4">
+            <div className="bg-white rounded-3xl shadow-lg max-w-md w-full p-8 text-center">
+              <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-green-100 flex items-center justify-center">
+                <span className="material-symbols-outlined text-4xl text-green-600" style={{ fontVariationSettings: "'FILL' 1" }}>
+                  check_circle
+                </span>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">Muhurat Time</label>
-                <input
-                  type="time"
-                  value={form.eventTime}
-                  onChange={(e) => set({ eventTime: e.target.value })}
-                  className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#f49d25]/40 focus:border-[#f49d25] text-slate-700"
-                />
+              <h1 className="text-2xl font-bold text-slate-800 mb-2">Booking Confirmed!</h1>
+              <p className="text-slate-500 mb-2">Your booking has been placed successfully.</p>
+              <div className="inline-block bg-[#f49d25]/10 text-[#c47c0e] px-4 py-2 rounded-xl text-sm font-bold mb-6">
+                {form.bookingNumber || "HPJ-XXXXXX"}
               </div>
-            </div>
-
-            {/* Venue */}
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Venue Address <span className="text-red-400">*</span></label>
-              <input
-                value={form.venueLine1}
-                onChange={(e) => set({ venueLine1: e.target.value })}
-                placeholder="House / Flat / Street"
-                className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#f49d25]/40 focus:border-[#f49d25] text-slate-700 mb-3"
-              />
-              <input
-                value={form.venueLine2}
-                onChange={(e) => set({ venueLine2: e.target.value })}
-                placeholder="Landmark (optional)"
-                className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#f49d25]/40 focus:border-[#f49d25] text-slate-700"
-              />
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">City <span className="text-red-400">*</span></label>
-                <select
-                  value={form.venueCity}
-                  onChange={(e) => set({ venueCity: e.target.value })}
-                  className="w-full px-4 py-2.5 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#f49d25]/40 focus:border-[#f49d25] text-slate-700"
+              <div className="bg-slate-50 rounded-xl p-4 text-left space-y-2 mb-6">
+                <div className="flex items-center gap-2 text-sm text-slate-600">
+                  <span className="material-symbols-outlined text-base text-[#f49d25]">auto_stories</span>
+                  <span className="font-medium">{form.ritualName}</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-slate-600">
+                  <span className="material-symbols-outlined text-base text-[#f49d25]">calendar_month</span>
+                  <span>{new Date(form.eventDate).toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-slate-600">
+                  <span className="material-symbols-outlined text-base text-[#f49d25]">person</span>
+                  <span>{form.panditName}</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-slate-600">
+                  <span className="material-symbols-outlined text-base text-[#f49d25]">payments</span>
+                  <span className="font-semibold">{fmt(grandTotal)}</span>
+                </div>
+              </div>
+              <div className="space-y-2 text-sm text-slate-500 mb-6">
+                <p>📱 Confirmation SMS sent to your phone</p>
+                <p>🙏 Pandit Ji will be notified and will confirm shortly</p>
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => router.push("/bookings")}
+                  className="flex-1 py-3 rounded-xl border border-slate-200 text-slate-600 font-medium hover:bg-slate-50 transition-colors text-sm"
                 >
-                  {DELHI_CITIES.map((c) => <option key={c} value={c}>{c}</option>)}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">Pincode</label>
-                <input
-                  value={form.venuePincode}
-                  onChange={(e) => set({ venuePincode: e.target.value })}
-                  placeholder="110001"
-                  maxLength={6}
-                  className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#f49d25]/40 focus:border-[#f49d25] text-slate-700"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">State</label>
-                <input value={form.venueState} onChange={(e) => set({ venueState: e.target.value })} className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#f49d25]/40 focus:border-[#f49d25] text-slate-700" />
+                  View Bookings
+                </button>
+                <button
+                  onClick={() => router.push("/")}
+                  className="flex-1 py-3 rounded-xl bg-[#f49d25] hover:bg-[#e08c14] text-white font-semibold transition-colors text-sm"
+                >
+                  Go Home
+                </button>
               </div>
             </div>
           </div>
-        )}
+        );
+      }
 
-        {/* ── Step 1: Pandit Selection ───────────────────────────────────── */}
-        {step === 1 && (
-          <div className="space-y-4">
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-              <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2 mb-1">
-                <span className="material-symbols-outlined text-[#f49d25]">person</span>
-                Select a Pandit
-              </h2>
-              <p className="text-sm text-slate-400 mb-5">Choose a verified pandit for your {form.ritualName || "ceremony"}</p>
+      // ── Wizard Body ───────────────────────────────────────────────────────────
 
-              <div className="space-y-3">
-                {pandits.map((p) => {
-                  const selected = form.panditId === p.id;
-                  return (
-                    <button
-                      key={p.id}
-                      onClick={() => set({ panditId: p.id, panditName: p.displayName, dakshina: p.baseDakshina })}
-                      className={`w-full text-left p-4 rounded-xl border-2 transition-all ${
-                        selected
-                          ? "border-[#f49d25] bg-[#f49d25]/5 shadow-md"
-                          : "border-slate-100 bg-white hover:border-slate-200 hover:shadow-sm"
-                      }`}
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className="w-12 h-12 rounded-full bg-[#f49d25]/10 border border-[#f49d25]/20 flex items-center justify-center shrink-0 overflow-hidden">
-                          {p.profilePhotoUrl ? (
-                            <img src={p.profilePhotoUrl} alt="" className="w-full h-full object-cover" />
-                          ) : (
-                            <span className="material-symbols-outlined text-[#f49d25]">person</span>
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <h3 className="font-semibold text-slate-800 truncate">{p.displayName}</h3>
-                            {selected && (
-                              <span className="material-symbols-outlined text-[#f49d25] text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-2 mt-0.5 text-xs text-slate-400">
-                            <span className="flex items-center gap-0.5">
-                              <span className="material-symbols-outlined text-[#f49d25] text-xs" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                              {p.averageRating}
-                            </span>
-                            <span>·</span>
-                            <span>{p.totalReviews} reviews</span>
-                            <span>·</span>
-                            <span>{p.city}</span>
-                          </div>
-                          <div className="flex flex-wrap gap-1 mt-2">
-                            {p.specializations.slice(0, 3).map((s) => (
-                              <span key={s} className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 font-medium">{s}</span>
-                            ))}
-                          </div>
-                        </div>
-                        <div className="text-right shrink-0">
-                          <p className="text-sm font-bold text-slate-800">{fmt(p.baseDakshina)}</p>
-                          <p className="text-[10px] text-slate-400">Dakshina</p>
-                        </div>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
+      return (
+        <div className="min-h-screen bg-[#f8f7f5]">
+          {/* Header */}
+          <div className="bg-white border-b border-slate-100 sticky top-0 z-30">
+            <div className="max-w-3xl mx-auto px-4 py-4 flex items-center gap-3">
+              <button onClick={() => step === 0 ? router.back() : back()} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors" aria-label="Back">
+                <span className="material-symbols-outlined text-slate-500">arrow_back</span>
+              </button>
+              <h1 className="text-lg font-bold text-slate-800">Book a Pandit</h1>
             </div>
           </div>
-        )}
 
-        {/* ── Step 2: Travel & Logistics ─────────────────────────────────── */}
-        {step === 2 && (
-          <div className="space-y-4">
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-              <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2 mb-1">
-                <span className="material-symbols-outlined text-[#f49d25]">directions_car</span>
-                Travel & Logistics
-              </h2>
-              <p className="text-sm text-slate-400 mb-5">How should Pandit Ji travel to your venue?</p>
+          <div className="max-w-3xl mx-auto px-4 py-6">
+            <StepIndicator current={step} steps={STEPS} />
 
-              <div className="space-y-3 mb-6">
-                {travelOptions.map((t) => {
-                  const selected = form.travelMode === t.mode;
-                  const icons: Record<string, string> = {
-                    SELF_DRIVE: "directions_car",
-                    CAB: "local_taxi",
-                    TRAIN: "train",
-                    FLIGHT: "flight",
-                    BUS: "directions_bus",
-                  };
-                  return (
-                    <button
-                      key={t.mode}
-                      onClick={() => set({ travelMode: t.mode, travelCost: t.totalCost })}
-                      className={`w-full text-left p-4 rounded-xl border-2 transition-all ${
-                        selected
-                          ? "border-[#f49d25] bg-[#f49d25]/5"
-                          : "border-slate-100 hover:border-slate-200"
-                      }`}
+            {/* ── Step 0: Event Details ───────────────────────────────────────── */}
+            {step === 0 && (
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 space-y-5">
+                <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                  <span className="material-symbols-outlined text-[#f49d25]">calendar_month</span>
+                  Event Details
+                </h2>
+
+                {/* Ritual */}
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1.5">Ceremony / Puja <span className="text-red-400">*</span></label>
+                  <select
+                    value={form.ritualId}
+                    onChange={(e) => {
+                      const r = rituals.find((r) => r.id === e.target.value);
+                      set({ ritualId: e.target.value, ritualName: r?.name ?? "", dakshina: r?.baseDakshina ?? 0 });
+                    }}
+                    className="w-full px-4 py-2.5 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#f49d25]/40 focus:border-[#f49d25] text-slate-700"
+                  >
+                    <option value="">Select a ceremony</option>
+                    {rituals.map((r) => (
+                      <option key={r.id} value={r.id}>
+                        {r.name} {r.nameHindi ? `(${r.nameHindi})` : ""} {r.durationMinutes ? `· ${r.durationMinutes} min` : ""}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Date & Time */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">Event Date <span className="text-red-400">*</span></label>
+                    <input
+                      type="date"
+                      value={form.eventDate}
+                      min={new Date().toISOString().split("T")[0]}
+                      onChange={(e) => set({ eventDate: e.target.value })}
+                      className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#f49d25]/40 focus:border-[#f49d25] text-slate-700"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">Muhurat Time</label>
+                    <input
+                      type="time"
+                      value={form.eventTime}
+                      onChange={(e) => set({ eventTime: e.target.value })}
+                      className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#f49d25]/40 focus:border-[#f49d25] text-slate-700"
+                    />
+                  </div>
+                </div>
+
+                {/* Venue */}
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1.5">Venue Address <span className="text-red-400">*</span></label>
+                  <input
+                    value={form.venueLine1}
+                    onChange={(e) => set({ venueLine1: e.target.value })}
+                    placeholder="House / Flat / Street"
+                    className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#f49d25]/40 focus:border-[#f49d25] text-slate-700 mb-3"
+                  />
+                  <input
+                    value={form.venueLine2}
+                    onChange={(e) => set({ venueLine2: e.target.value })}
+                    placeholder="Landmark (optional)"
+                    className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#f49d25]/40 focus:border-[#f49d25] text-slate-700"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">City <span className="text-red-400">*</span></label>
+                    <select
+                      value={form.venueCity}
+                      onChange={(e) => set({ venueCity: e.target.value })}
+                      className="w-full px-4 py-2.5 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#f49d25]/40 focus:border-[#f49d25] text-slate-700"
                     >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${selected ? "bg-[#f49d25]/10 text-[#f49d25]" : "bg-slate-100 text-slate-400"}`}>
-                            <span className="material-symbols-outlined">{icons[t.mode] ?? "route"}</span>
-                          </div>
-                          <div>
-                            <p className="font-medium text-slate-800">{t.label}</p>
-                            {t.estimatedDuration && <p className="text-xs text-slate-400">Est. {t.estimatedDuration}</p>}
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-bold text-slate-800">{fmt(t.totalCost)}</p>
-                          {selected && (
-                            <span className="material-symbols-outlined text-[#f49d25] text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
-                          )}
-                        </div>
-                      </div>
-                      {selected && t.breakdown.length > 1 && (
-                        <div className="mt-3 pt-3 border-t border-slate-100 space-y-1">
-                          {t.breakdown.map((b, i) => (
-                            <div key={i} className="flex justify-between text-xs text-slate-500">
-                              <span>{b.item}</span>
-                              <span>{fmt(b.amount)}</span>
+                      {DELHI_CITIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">Pincode</label>
+                    <input
+                      value={form.venuePincode}
+                      onChange={(e) => set({ venuePincode: e.target.value })}
+                      placeholder="110001"
+                      maxLength={6}
+                      className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#f49d25]/40 focus:border-[#f49d25] text-slate-700"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">State</label>
+                    <input value={form.venueState} onChange={(e) => set({ venueState: e.target.value })} className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#f49d25]/40 focus:border-[#f49d25] text-slate-700" />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ── Step 1: Pandit Selection ───────────────────────────────────── */}
+            {step === 1 && (
+              <div className="space-y-4">
+                <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+                  <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2 mb-1">
+                    <span className="material-symbols-outlined text-[#f49d25]">person</span>
+                    Select a Pandit
+                  </h2>
+                  <p className="text-sm text-slate-400 mb-5">Choose a verified pandit for your {form.ritualName || "ceremony"}</p>
+
+                  <div className="space-y-3">
+                    {pandits.map((p) => {
+                      const selected = form.panditId === p.id;
+                      return (
+                        <button
+                          key={p.id}
+                          onClick={() => set({ panditId: p.id, panditName: p.displayName, dakshina: p.baseDakshina })}
+                          className={`w-full text-left p-4 rounded-xl border-2 transition-all ${selected
+                            ? "border-[#f49d25] bg-[#f49d25]/5 shadow-md"
+                            : "border-slate-100 bg-white hover:border-slate-200 hover:shadow-sm"
+                            }`}
+                        >
+                          <div className="flex items-start gap-3">
+                            <div className="w-12 h-12 rounded-full bg-[#f49d25]/10 border border-[#f49d25]/20 flex items-center justify-center shrink-0 overflow-hidden">
+                              {p.profilePhotoUrl ? (
+                                <img src={p.profilePhotoUrl} alt="" className="w-full h-full object-cover" />
+                              ) : (
+                                <span className="material-symbols-outlined text-[#f49d25]">person</span>
+                              )}
                             </div>
-                          ))}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2">
+                                <h3 className="font-semibold text-slate-800 truncate">{p.displayName}</h3>
+                                {selected && (
+                                  <span className="material-symbols-outlined text-[#f49d25] text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-2 mt-0.5 text-xs text-slate-400">
+                                <span className="flex items-center gap-0.5">
+                                  <span className="material-symbols-outlined text-[#f49d25] text-xs" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                                  {p.averageRating}
+                                </span>
+                                <span>·</span>
+                                <span>{p.totalReviews} reviews</span>
+                                <span>·</span>
+                                <span>{p.city}</span>
+                              </div>
+                              <div className="flex flex-wrap gap-1 mt-2">
+                                {p.specializations.slice(0, 3).map((s) => (
+                                  <span key={s} className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 font-medium">{s}</span>
+                                ))}
+                              </div>
+                            </div>
+                            <div className="text-right shrink-0">
+                              <p className="text-sm font-bold text-slate-800">{fmt(p.baseDakshina)}</p>
+                              <p className="text-[10px] text-slate-400">Dakshina</p>
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ── Step 2: Travel & Logistics ─────────────────────────────────── */}
+            {step === 2 && (
+              <div className="space-y-6">
+                <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+                  <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2 mb-2">
+                    <span className="material-symbols-outlined text-primary">directions_car</span>
+                    Travel & Logistics
+                  </h2>
+                  <p className="text-sm text-slate-500 mb-6">Select the most convenient travel option for Pandit Ji.</p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    {travelOptions.map((t) => {
+                      const selected = form.travelMode === t.mode;
+                      const icons: Record<string, string> = {
+                        SELF_DRIVE: "directions_car",
+                        CAB: "local_taxi",
+                        TRAIN: "train",
+                        FLIGHT: "flight",
+                        BUS: "directions_bus",
+                      };
+                      return (
+                        <div
+                          key={t.mode}
+                          onClick={() => set({ travelMode: t.mode, travelCost: t.totalCost })}
+                          className={`relative group cursor-pointer border-2 rounded-xl p-5 flex flex-col h-full transition-all hover:shadow-md ${selected
+                            ? "border-primary bg-primary/5"
+                            : "border-slate-100 bg-white hover:border-primary/50"
+                            }`}
+                        >
+                          {selected && (
+                            <div className="absolute top-3 right-3">
+                              <span className="material-symbols-outlined text-primary fill-1">check_circle</span>
+                            </div>
+                          )}
+                          <div className={`w-12 h-12 rounded-lg flex items-center justify-center mb-4 ${selected ? "bg-primary/20" : "bg-slate-100 group-hover:bg-primary/10"
+                            }`}>
+                            <span className={`material-symbols-outlined text-3xl ${selected ? "text-primary" : "text-slate-400 group-hover:text-primary"
+                              }`}>
+                              {icons[t.mode] ?? "route"}
+                            </span>
+                          </div>
+
+                          <h3 className="font-bold text-slate-900 mb-1">{t.label}</h3>
+                          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+                            {t.estimatedDuration ? `Est. ${t.estimatedDuration}` : "Standard Travel"}
+                          </p>
+
+                          <div className="mt-auto pt-4">
+                            <p className="text-lg font-bold text-slate-900 mb-3">{fmt(t.totalCost)}</p>
+                            <button className={`w-full py-2 font-bold rounded-lg text-sm transition-colors ${selected
+                              ? "bg-primary text-white"
+                              : "bg-slate-100 text-slate-900 group-hover:bg-primary/20 group-hover:text-primary"
+                              }`}>
+                              {selected ? "Selected" : "Select"}
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Food Arrangement */}
+                  <div>
+                    <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                      <span className="material-symbols-outlined text-primary">restaurant</span>
+                      Food & Accommodation
+                    </h3>
+                    <div className="space-y-4">
+                      {[
+                        { value: "SELF" as FoodArrangement, label: "I will provide meals & stay", desc: "Host takes care of Satvik meals and lodging" },
+                        { value: "PLATFORM" as FoodArrangement, label: "Add Food Allowance", desc: `${fmt(FOOD_PER_DAY)}/day will be added to billing` },
+                      ].map((opt) => {
+                        const active = form.foodArrangement === opt.value;
+                        return (
+                          <label
+                            key={opt.value}
+                            className="flex items-center p-4 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors group"
+                          >
+                            <input
+                              type="radio"
+                              name="food_pref"
+                              checked={active}
+                              onChange={() => set({ foodArrangement: opt.value, foodCost: opt.value === "PLATFORM" ? FOOD_PER_DAY : 0 })}
+                              className="w-5 h-5 text-primary border-slate-300 focus:ring-primary accent-primary"
+                            />
+                            <div className="ml-4">
+                              <p className="font-medium text-slate-900">{opt.label}</p>
+                              <p className="text-xs text-slate-500">{opt.desc}</p>
+                            </div>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ── Step 3: Ritual Variation ───────────────────────────────────── */}
+            {step === 3 && (
+              <RitualVariationSelection
+                selectedVariation={form.ritualVariation}
+                onSelect={(variation) => set({ ritualVariation: variation })}
+              />
+            )}
+
+            {/* ── Step 4: Preferences ─────────────────────────────────────────── */}
+            {step === 4 && (
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 space-y-6">
+                <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                  <span className="material-symbols-outlined text-[#f49d25]">tune</span>
+                  Preferences
+                </h2>
+
+                {/* Samagri */}
+                {/* Samagri */}
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-700 mb-3">Puja Samagri (Materials)</h3>
+                  <div className="grid grid-cols-2 gap-3 mb-4">
+                    {[
+                      { value: "INCLUDED" as SamagriOption, label: "Pandit Ji brings", icon: "inventory_2", desc: samagriItem ? "Package selected" : "Select a package" },
+                      { value: "SELF" as SamagriOption, label: "I'll arrange myself", icon: "shopping_bag", desc: "You buy materials" },
+                    ].map((opt) => {
+                      const active = form.samagri === opt.value;
+                      return (
+                        <button
+                          key={opt.value}
+                          onClick={() => set({ samagri: opt.value })}
+                          className={`p-4 rounded-xl border-2 transition-all text-left ${active ? "border-[#f49d25] bg-[#f49d25]/5" : "border-slate-100 hover:border-slate-200"
+                            }`}
+                        >
+                          <span className={`material-symbols-outlined text-xl mb-2 ${active ? "text-[#f49d25]" : "text-slate-400"}`}>{opt.icon}</span>
+                          <p className="text-sm font-medium text-slate-700">{opt.label}</p>
+                          <p className="text-xs text-slate-400">{opt.desc}</p>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Package Selection */}
+                  {form.samagri === "INCLUDED" && (
+                    <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                      {samagriItem ? (
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="font-semibold text-slate-800">
+                                {samagriItem.type === "package" ? `${samagriItem.packageName} Package` : "Custom Selection"}
+                              </span>
+                              <span className="px-2 py-0.5 bg-green-100 text-green-700 text-[10px] font-bold rounded-full uppercase">
+                                Selected
+                              </span>
+                            </div>
+                            <div className="text-sm text-slate-600">
+                              Total: <span className="font-bold">₹{samagriItem.totalCost.toLocaleString("en-IN")}</span>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => setShowSamagriModal(true)}
+                            className="text-sm text-[#f49d25] font-semibold hover:underline"
+                          >
+                            Change
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="text-center py-2">
+                          <p className="text-sm text-slate-500 mb-3">Select a samagri package or build your own list.</p>
+                          <button
+                            onClick={() => setShowSamagriModal(true)}
+                            className="px-4 py-2 bg-[#f49d25] text-white text-sm font-semibold rounded-lg hover:bg-[#e08c14] transition-colors"
+                          >
+                            Select Samagri
+                          </button>
                         </div>
                       )}
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Food Arrangement */}
-              <div>
-                <h3 className="text-sm font-semibold text-slate-700 mb-3">Food Arrangement for Pandit Ji</h3>
-                <div className="grid grid-cols-2 gap-3">
-                  {[
-                    { value: "SELF" as FoodArrangement, label: "I'll arrange", icon: "restaurant", desc: "No extra cost" },
-                    { value: "PLATFORM" as FoodArrangement, label: "Platform arranges", icon: "room_service", desc: `${fmt(FOOD_PER_DAY)}/day` },
-                  ].map((opt) => {
-                    const active = form.foodArrangement === opt.value;
-                    return (
-                      <button
-                        key={opt.value}
-                        onClick={() => set({ foodArrangement: opt.value, foodCost: opt.value === "PLATFORM" ? FOOD_PER_DAY : 0 })}
-                        className={`p-4 rounded-xl border-2 transition-all text-left ${
-                          active ? "border-[#f49d25] bg-[#f49d25]/5" : "border-slate-100 hover:border-slate-200"
-                        }`}
-                      >
-                        <span className={`material-symbols-outlined text-xl mb-2 ${active ? "text-[#f49d25]" : "text-slate-400"}`}>{opt.icon}</span>
-                        <p className="text-sm font-medium text-slate-700">{opt.label}</p>
-                        <p className="text-xs text-slate-400">{opt.desc}</p>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ── Step 3: Preferences ─────────────────────────────────────────── */}
-        {step === 3 && (
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 space-y-6">
-            <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-              <span className="material-symbols-outlined text-[#f49d25]">tune</span>
-              Preferences
-            </h2>
-
-            {/* Samagri */}
-            <div>
-              <h3 className="text-sm font-semibold text-slate-700 mb-3">Puja Samagri (Materials)</h3>
-              <div className="grid grid-cols-2 gap-3">
-                {[
-                  { value: "INCLUDED" as SamagriOption, label: "Pandit Ji arranges", icon: "inventory_2", desc: "Included in dakshina" },
-                  { value: "SELF" as SamagriOption, label: "I'll arrange myself", icon: "shopping_bag", desc: "You buy materials" },
-                ].map((opt) => {
-                  const active = form.samagri === opt.value;
-                  return (
-                    <button
-                      key={opt.value}
-                      onClick={() => set({ samagri: opt.value })}
-                      className={`p-4 rounded-xl border-2 transition-all text-left ${
-                        active ? "border-[#f49d25] bg-[#f49d25]/5" : "border-slate-100 hover:border-slate-200"
-                      }`}
-                    >
-                      <span className={`material-symbols-outlined text-xl mb-2 ${active ? "text-[#f49d25]" : "text-slate-400"}`}>{opt.icon}</span>
-                      <p className="text-sm font-medium text-slate-700">{opt.label}</p>
-                      <p className="text-xs text-slate-400">{opt.desc}</p>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Special Instructions */}
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Special Instructions (optional)</label>
-              <textarea
-                value={form.specialInstructions}
-                onChange={(e) => set({ specialInstructions: e.target.value })}
-                placeholder="Any special requirements, parking instructions, or notes for Pandit Ji…"
-                rows={3}
-                maxLength={500}
-                className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#f49d25]/40 focus:border-[#f49d25] text-slate-700 resize-none placeholder-slate-400"
-              />
-              <p className="text-xs text-slate-400 mt-1">{form.specialInstructions.length} / 500</p>
-            </div>
-          </div>
-        )}
-
-        {/* ── Step 4: Review & Pay ────────────────────────────────────────── */}
-        {step === 4 && (
-          <div className="space-y-4">
-            {/* Summary */}
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-              <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2 mb-5">
-                <span className="material-symbols-outlined text-[#f49d25]">receipt_long</span>
-                Booking Summary
-              </h2>
-
-              <div className="space-y-4">
-                <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
-                  <span className="material-symbols-outlined text-[#f49d25]">auto_stories</span>
-                  <div>
-                    <p className="text-sm font-medium text-slate-700">{form.ritualName}</p>
-                    <p className="text-xs text-slate-400">
-                      {new Date(form.eventDate).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "long" })}
-                      {form.eventTime && ` at ${form.eventTime}`}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
-                  <span className="material-symbols-outlined text-[#f49d25]">person</span>
-                  <div>
-                    <p className="text-sm font-medium text-slate-700">{form.panditName}</p>
-                    <p className="text-xs text-slate-400">Verified Pandit</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
-                  <span className="material-symbols-outlined text-[#f49d25]">location_on</span>
-                  <div>
-                    <p className="text-sm font-medium text-slate-700">{form.venueLine1}</p>
-                    <p className="text-xs text-slate-400">{form.venueCity}{form.venuePincode ? ` – ${form.venuePincode}` : ""}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
-                  <span className="material-symbols-outlined text-[#f49d25]">directions_car</span>
-                  <div>
-                    <p className="text-sm font-medium text-slate-700">{travelOptions.find((t) => t.mode === form.travelMode)?.label ?? form.travelMode}</p>
-                    <p className="text-xs text-slate-400">
-                      Food: {form.foodArrangement === "SELF" ? "Self-arranged" : "Platform arranges"} · Samagri: {form.samagri === "INCLUDED" ? "Included" : "Self"}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Price Breakdown */}
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-              <h3 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
-                <span className="material-symbols-outlined text-[#f49d25] text-base">payments</span>
-                Price Breakdown
-              </h3>
-              <div className="space-y-2.5">
-                <div className="flex justify-between text-sm">
-                  <span className="text-slate-600">Pandit Dakshina</span>
-                  <span className="font-medium text-slate-800">{fmt(form.dakshina)}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-slate-600">Platform Fee (15%)</span>
-                  <span className="font-medium text-slate-800">{fmt(platformFee)}</span>
-                </div>
-                {form.travelCost > 0 && (
-                  <>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-slate-600">Travel Cost</span>
-                      <span className="font-medium text-slate-800">{fmt(form.travelCost)}</span>
                     </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-slate-600">Travel Service Fee (5%)</span>
-                      <span className="font-medium text-slate-800">{fmt(travelServiceFee)}</span>
-                    </div>
-                  </>
-                )}
-                {foodAllowance > 0 && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-slate-600">Food Allowance</span>
-                    <span className="font-medium text-slate-800">{fmt(foodAllowance)}</span>
-                  </div>
-                )}
-                <div className="flex justify-between text-sm">
-                  <span className="text-slate-600">GST (18% on platform fee)</span>
-                  <span className="font-medium text-slate-800">{fmt(gst)}</span>
-                </div>
-                <div className="h-px bg-slate-100 my-1" />
-                <div className="flex justify-between text-base font-bold">
-                  <span className="text-slate-800">Grand Total</span>
-                  <span className="text-[#f49d25]">{fmt(grandTotal)}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Payment */}
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-              {error && (
-                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600">
-                  {error}
-                </div>
-              )}
-
-              {!paymentReady ? (
-                <button
-                  onClick={handleCreateOrder}
-                  disabled={loading}
-                  className="w-full py-3.5 rounded-xl bg-[#f49d25] hover:bg-[#e08c14] disabled:opacity-60 text-white font-bold text-sm transition-all shadow-lg shadow-[#f49d25]/20 flex items-center justify-center gap-2"
-                >
-                  {loading ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      Creating order…
-                    </>
-                  ) : (
-                    <>
-                      <span className="material-symbols-outlined text-base" style={{ fontVariationSettings: "'FILL' 1" }}>lock</span>
-                      Proceed to Pay {fmt(grandTotal)}
-                    </>
                   )}
-                </button>
-              ) : (
-                <RazorpayCheckout
-                  orderId={form.orderId}
-                  amount={grandTotal * 100}
-                  razorpayKey={process.env.NEXT_PUBLIC_RAZORPAY_KEY ?? "rzp_test_mock"}
-                  bookingId={form.bookingId}
-                  bookingNumber={form.bookingNumber}
-                  customerName={user?.fullName ?? "Customer"}
-                  customerPhone={user?.phone}
-                  accessToken={accessToken ?? ""}
-                  onSuccess={handlePaymentSuccess}
-                  onFailure={(e) => setError(e)}
-                />
-              )}
+                </div>
 
-              <p className="text-xs text-center text-slate-400 mt-3">
-                🔒 Payments secured by Razorpay · Refund policy applies
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* ── Navigation Buttons ──────────────────────────────────────────── */}
-        {step < 4 && (
-          <div className="flex gap-3 mt-6">
-            {step > 0 && (
-              <button
-                onClick={back}
-                className="flex-1 py-3 rounded-xl border border-slate-200 text-slate-600 font-medium hover:bg-slate-50 transition-colors text-sm"
-              >
-                Back
-              </button>
+                {/* Special Instructions */}
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1.5">Special Instructions (optional)</label>
+                  <textarea
+                    value={form.specialInstructions}
+                    onChange={(e) => set({ specialInstructions: e.target.value })}
+                    placeholder="Any special requirements, parking instructions, or notes for Pandit Ji…"
+                    rows={3}
+                    maxLength={500}
+                    className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#f49d25]/40 focus:border-[#f49d25] text-slate-700 resize-none placeholder-slate-400"
+                  />
+                  <p className="text-xs text-slate-400 mt-1">{form.specialInstructions.length} / 500</p>
+                </div>
+              </div>
             )}
-            <button
-              onClick={next}
-              disabled={!canNext()}
-              className="flex-1 py-3 rounded-xl bg-[#f49d25] hover:bg-[#e08c14] disabled:opacity-50 text-white font-bold text-sm transition-all"
-            >
-              {step === 3 ? (user ? "Review & Pay" : "Login & Continue") : "Continue"}
-            </button>
+
+            {/* ── Step 5: Review & Pay ────────────────────────────────────────── */}
+            {step === 5 && (
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                {/* Left Column: Details & Itemization */}
+                <div className="lg:col-span-8 space-y-6">
+                  {/* Event Section */}
+                  <section className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                    <div className="flex items-center gap-2 mb-4">
+                      <span className="material-symbols-outlined text-primary">event_available</span>
+                      <h2 className="text-xl font-bold text-slate-900">Event Details</h2>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
+                      <div className="flex flex-col border-b border-slate-50 pb-2">
+                        <span className="text-slate-500 text-xs uppercase tracking-wider font-semibold">Event Type</span>
+                        <span className="text-slate-900 font-medium">{form.ritualName}</span>
+                      </div>
+                      <div className="flex flex-col border-b border-slate-50 pb-2">
+                        <span className="text-slate-500 text-xs uppercase tracking-wider font-semibold">Primary Pandit</span>
+                        <span className="text-slate-900 font-medium">{form.panditName}</span>
+                      </div>
+                      <div className="flex flex-col border-b border-slate-50 pb-2">
+                        <span className="text-slate-500 text-xs uppercase tracking-wider font-semibold">Date & Time</span>
+                        <span className="text-slate-900 font-medium">
+                          {new Date(form.eventDate).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}
+                          {form.eventTime && ` · ${form.eventTime}`}
+                        </span>
+                      </div>
+                      <div className="flex flex-col border-b border-slate-50 pb-2">
+                        <span className="text-slate-500 text-xs uppercase tracking-wider font-semibold">Venue</span>
+                        <span className="text-slate-900 font-medium truncate">{form.venueLine1}, {form.venueCity}</span>
+                      </div>
+                    </div>
+                  </section>
+
+                  {/* Cost Breakdown Section */}
+                  <section className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                    <div className="flex items-center gap-2 mb-6">
+                      <span className="material-symbols-outlined text-primary">receipt_long</span>
+                      <h2 className="text-xl font-bold text-slate-900">Cost Itemization</h2>
+                    </div>
+                    <div className="space-y-4">
+                      {/* Dakshina */}
+                      <div className="flex justify-between items-start py-2">
+                        <div>
+                          <p className="text-slate-900 font-semibold">Pandit Dakshina</p>
+                          <p className="text-slate-500 text-xs">Standard professional fees for main ritual</p>
+                        </div>
+                        <span className="font-semibold">{fmt(form.dakshina)}</span>
+                      </div>
+
+                      {/* Samagri */}
+                      {samagriCost > 0 && (
+                        <div className="flex justify-between items-start py-2">
+                          <div>
+                            <p className="text-slate-900 font-semibold">Samagri Package ({samagriItem?.type === "package" ? "Standard" : "Custom"})</p>
+                            <p className="text-slate-500 text-xs">Including organic materials and essentials</p>
+                          </div>
+                          <span className="font-semibold">{fmt(samagriCost)}</span>
+                        </div>
+                      )}
+
+                      {/* Logistics Breakdown */}
+                      <div className="bg-slate-50 p-4 rounded-lg space-y-3">
+                        <p className="text-xs font-bold text-primary uppercase tracking-widest mb-1">Logistics & Travel</p>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-slate-600">Travel ({form.travelMode})</span>
+                          <span className="font-medium text-slate-900">{fmt(form.travelCost)}</span>
+                        </div>
+                        {foodAllowance > 0 && (
+                          <div className="flex justify-between text-sm">
+                            <span className="text-slate-600">Food Allowance</span>
+                            <span className="font-medium text-slate-900">{fmt(foodAllowance)}</span>
+                          </div>
+                        )}
+                        {travelServiceFee > 0 && (
+                          <div className="flex justify-between text-sm">
+                            <span className="text-slate-600">Travel Service Fee</span>
+                            <span className="font-medium text-slate-900">{fmt(travelServiceFee)}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Platform Fee */}
+                      <div className="flex justify-between items-start py-2">
+                        <div>
+                          <p className="text-slate-900 font-semibold">Platform Fee & GST</p>
+                          <p className="text-slate-500 text-xs">Convenience fee + 18% GST on fee</p>
+                        </div>
+                        <span className="font-semibold">{fmt(platformFee + gst)}</span>
+                      </div>
+                    </div>
+                  </section>
+                </div>
+
+                {/* Right Column: Add-ons & Checkout */}
+                <div className="lg:col-span-4 space-y-6">
+                  {/* Add-ons Section */}
+                  <section className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                    <div className="flex items-center gap-2 mb-4">
+                      <span className="material-symbols-outlined text-primary">add_circle</span>
+                      <h2 className="text-lg font-bold text-slate-900">Recommended Add-ons</h2>
+                    </div>
+                    <div className="space-y-4">
+                      {/* Backup Guarantee */}
+                      <div className={`p-3 border-2 rounded-lg flex items-center justify-between gap-3 ${addons.backup ? "border-primary bg-primary/5" : "border-slate-100"}`}>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-1">
+                            <p className="text-sm font-bold text-slate-900">Premium Backup</p>
+                            <span className="text-[10px] bg-primary text-white px-1 rounded">SAFE</span>
+                          </div>
+                          <p className="text-[11px] text-slate-500">Guaranteed replacement within 2 hrs</p>
+                          <p className="text-xs font-bold text-primary mt-1">+ ₹9,999</p>
+                        </div>
+                        <input
+                          type="checkbox"
+                          checked={addons.backup}
+                          onChange={(e) => setAddons(prev => ({ ...prev, backup: e.target.checked }))}
+                          className="w-5 h-5 accent-primary rounded cursor-pointer"
+                        />
+                      </div>
+
+                      {/* Muhurat Consultation */}
+                      <div className={`p-3 border rounded-lg flex items-center justify-between gap-3 ${addons.consultation ? "border-primary bg-primary/5" : "border-slate-200"}`}>
+                        <div className="flex-1">
+                          <p className="text-sm font-bold text-slate-900">Muhurat Consultation</p>
+                          <p className="text-[11px] text-slate-500">15-min call for optimal timing</p>
+                          <p className="text-xs font-bold text-primary mt-1">+ ₹1,100</p>
+                        </div>
+                        <button
+                          onClick={() => setAddons(prev => ({ ...prev, consultation: !prev.consultation }))}
+                          className={`p-1 rounded transition-colors ${addons.consultation ? "bg-primary text-white" : "bg-primary/10 text-primary hover:bg-primary hover:text-white"}`}
+                        >
+                          <span className="material-symbols-outlined text-sm">{addons.consultation ? "check" : "add"}</span>
+                        </button>
+                      </div>
+
+                      {/* Nirmalya Visarjan */}
+                      <div className={`p-3 border rounded-lg flex items-center justify-between gap-3 ${addons.visarjan ? "border-primary bg-primary/5" : "border-slate-200"}`}>
+                        <div className="flex-1">
+                          <p className="text-sm font-bold text-slate-900">Nirmalya Visarjan</p>
+                          <p className="text-[11px] text-slate-500">Eco-friendly waste management</p>
+                          <p className="text-xs font-bold text-primary mt-1">+ ₹500</p>
+                        </div>
+                        <button
+                          onClick={() => setAddons(prev => ({ ...prev, visarjan: !prev.visarjan }))}
+                          className={`p-1 rounded transition-colors ${addons.visarjan ? "bg-primary text-white" : "bg-primary/10 text-primary hover:bg-primary hover:text-white"}`}
+                        >
+                          <span className="material-symbols-outlined text-sm">{addons.visarjan ? "check" : "add"}</span>
+                        </button>
+                      </div>
+                    </div>
+                  </section>
+
+                  {/* Grand Total Sticky Box */}
+                  <section className="sticky top-24 bg-white rounded-xl border-t-4 border-primary shadow-xl overflow-hidden">
+                    <div className="p-6 space-y-4">
+                      <div className="flex justify-between items-center text-slate-500 text-sm">
+                        <span>Subtotal</span>
+                        <span>{fmt(subtotal - addonCost)}</span>
+                      </div>
+                      {addonCost > 0 && (
+                        <div className="flex justify-between items-center text-slate-500 text-sm">
+                          <span>Add-ons</span>
+                          <span>{fmt(addonCost)}</span>
+                        </div>
+                      )}
+                      {/* Coupon Placeholder */}
+                      {/* <div className="flex justify-between items-center text-primary text-sm font-bold bg-primary/5 p-2 rounded">
+                    <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">local_offer</span> PANDIT10</span>
+                    <span>-₹0</span>
+                  </div> */}
+
+                      <div className="h-px bg-slate-100 my-2"></div>
+
+                      <div className="flex justify-between items-center">
+                        <span className="text-xl font-black text-slate-900">Grand Total</span>
+                        <span className="text-2xl font-black text-primary">{fmt(grandTotal)}</span>
+                      </div>
+                      <p className="text-[10px] text-center text-slate-500">Inclusive of all taxes and automated travel credits</p>
+                    </div>
+
+                    {!paymentReady ? (
+                      <button
+                        onClick={handleCreateOrder}
+                        disabled={loading}
+                        className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-5 flex items-center justify-center gap-2 text-lg transition-all group disabled:opacity-70"
+                      >
+                        {loading ? "Processing..." : (
+                          <>
+                            Proceed to Payment
+                            <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                          </>
+                        )}
+                      </button>
+                    ) : (
+                      <div className="p-4 bg-slate-50">
+                        <RazorpayCheckout
+                          orderId={form.orderId}
+                          amount={grandTotal * 100}
+                          razorpayKey={process.env.NEXT_PUBLIC_RAZORPAY_KEY ?? "rzp_test_mock"}
+                          bookingId={form.bookingId}
+                          bookingNumber={form.bookingNumber}
+                          customerName={user?.fullName ?? "Customer"}
+                          customerPhone={user?.phone}
+                          accessToken={accessToken ?? ""}
+                          onSuccess={handlePaymentSuccess}
+                          onFailure={(e) => setError(e)}
+                        />
+                      </div>
+                    )}
+                  </section>
+
+                  <div className="flex flex-col gap-4 text-center mt-6">
+                    <p className="text-sm text-slate-500 flex items-center justify-center gap-1">
+                      <span className="material-symbols-outlined text-sm text-green-500">verified_user</span>
+                      Secure 256-bit encrypted checkout
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ── Navigation Buttons ──────────────────────────────────────────── */}
+            {step < 5 && (
+              <div className="flex gap-3 mt-6">
+                {step > 0 && (
+                  <button
+                    onClick={back}
+                    className="flex-1 py-3 rounded-xl border border-slate-200 text-slate-600 font-medium hover:bg-slate-50 transition-colors text-sm"
+                  >
+                    Back
+                  </button>
+                )}
+                <button
+                  onClick={next}
+                  disabled={!canNext()}
+                  className="flex-1 py-3 rounded-xl bg-[#f49d25] hover:bg-[#e08c14] disabled:opacity-50 text-white font-bold text-sm transition-all"
+                >
+                  {step === 4 ? (user ? "Review & Pay" : "Login & Continue") : "Continue"}
+                </button>
+              </div>
+            )}
           </div>
-        )}
-      </div>
-    </div>
-  );
-}
+
+          {/* Samagri Modal */}
+          {
+            showSamagriModal && form.panditId && (
+              <SamagriModal
+                panditId={form.panditId}
+                pujaType={form.ritualName}
+                onSelect={(selection) => {
+                  setSamagriItem({ ...selection, pujaType: form.ritualName });
+                  setShowSamagriModal(false);
+                }}
+                onClose={() => setShowSamagriModal(false)}
+              />
+            )
+          }
+        </div >
+      );
+    }

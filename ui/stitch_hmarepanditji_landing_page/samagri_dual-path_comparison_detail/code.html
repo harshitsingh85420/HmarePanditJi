@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Samagri Dual-Path Comparison Detail</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ec7f13",
+                        "primary-light": "#fdf2e7",
+                        "primary-dark": "#b05e0e",
+                        "background-light": "#f8f7f6",
+                        "background-dark": "#221910",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom Scrollbar for the table body */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #e5e7eb;
+            border-radius: 20px;
+        }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #4b5563;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-100 h-screen flex items-center justify-center p-4 overflow-hidden bg-[url('https://images.unsplash.com/photo-1604871000636-074fa5117945?q=80&amp;w=2574&amp;auto=format&amp;fit=crop')] bg-cover bg-center bg-no-repeat relative">
+<!-- Backdrop Overlay -->
+<div class="absolute inset-0 bg-black/60 backdrop-blur-sm z-0" data-alt="Dark overlay background"></div>
+<!-- Main Modal Container -->
+<div class="relative z-10 w-full max-w-5xl bg-white dark:bg-[#2a2018] rounded-xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden border border-gray-100 dark:border-gray-700">
+<!-- Header -->
+<div class="flex items-center justify-between px-6 py-5 border-b border-gray-100 dark:border-gray-700 bg-white dark:bg-[#2a2018] shrink-0">
+<div>
+<h1 class="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">Compare &amp; Choose Your Samagri Kit</h1>
+<p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Review the sourcing options for your Satyanarayan Katha</p>
+</div>
+<button class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800">
+<span class="material-icons">close</span>
+</button>
+</div>
+<!-- Sticky Comparison Header -->
+<div class="grid grid-cols-12 gap-4 px-6 py-4 bg-background-light dark:bg-[#221910] border-b border-gray-200 dark:border-gray-700 shrink-0">
+<!-- Left Column Header: Pandit's Package -->
+<div class="col-span-5 flex flex-col justify-between h-full pr-4 border-r border-gray-200 dark:border-gray-700 border-dashed">
+<div class="flex items-start justify-between mb-2">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<span class="material-icons text-gray-500 text-lg">verified</span>
+<h2 class="font-semibold text-gray-700 dark:text-gray-200">Pandit's Fixed Package</h2>
+</div>
+<span class="text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 px-2 py-0.5 rounded-full">Premium Brands</span>
+</div>
+</div>
+<div class="mt-auto">
+<span class="text-2xl font-bold text-gray-800 dark:text-white">₹8,000</span>
+<span class="text-xs text-gray-500 block">Total estimated cost</span>
+</div>
+</div>
+<!-- Middle Spacer / Item Label Header -->
+<div class="col-span-2 flex items-end justify-center pb-1">
+<span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Item Details</span>
+</div>
+<!-- Right Column Header: Custom List -->
+<div class="col-span-5 flex flex-col justify-between h-full pl-4 relative">
+<!-- Floating Savings Badge -->
+<div class="absolute top-0 right-0 -mt-2 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg flex items-center gap-1 animate-pulse">
+<span class="material-icons text-[14px]">savings</span>
+                    You Save ₹2,800
+                </div>
+<div class="flex items-start justify-between mb-2">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<span class="material-icons text-primary text-lg">storefront</span>
+<h2 class="font-semibold text-gray-900 dark:text-white">Build Custom List</h2>
+</div>
+<span class="text-xs font-medium bg-primary-light dark:bg-primary/20 text-primary-dark dark:text-primary px-2 py-0.5 rounded-full">Live Market Prices</span>
+</div>
+</div>
+<div class="mt-auto">
+<span class="text-2xl font-bold text-primary">₹5,200</span>
+<span class="text-xs text-primary/80 block">Current market total</span>
+</div>
+</div>
+</div>
+<!-- Scrollable Item List -->
+<div class="overflow-y-auto custom-scrollbar flex-grow bg-white dark:bg-[#2a2018]">
+<!-- List Header Row (Visual aid) -->
+<div class="grid grid-cols-12 gap-4 px-6 py-2 bg-gray-50 dark:bg-[#32281e] text-xs font-medium text-gray-400 uppercase tracking-wider border-b border-gray-100 dark:border-gray-700 sticky top-0 z-10">
+<div class="col-span-5">Premium Brand</div>
+<div class="col-span-2 text-center">Item</div>
+<div class="col-span-5 text-right pr-4">Market Rate</div>
+</div>
+<!-- Item Row 1 -->
+<div class="grid grid-cols-12 gap-4 px-6 py-4 border-b border-gray-50 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-[#32281e] transition-colors group items-center">
+<!-- Left: Premium -->
+<div class="col-span-5 flex items-center justify-between pr-4 border-r border-gray-100 dark:border-gray-700 border-dashed">
+<div class="flex items-center gap-3">
+<img alt="Golden jar of ghee" class="w-10 h-10 rounded-lg object-cover bg-gray-100" data-alt="Jar of premium ghee" src="https://lh3.googleusercontent.com/aida-public/AB6AXuADMDvKfUZd31jnD2lZtBn5_nhOFPic93Y2TSccOXWGKH5bkYXdR6ZxxASRMkFA2CH2cAZtP86vKMYHSLcLVx2aqlnZb4Ou8mdaNFfU7DcpQH2uSh5iNM4bGQPsaBc8zFwrMqehunLbZzX0cETSOUZXaHHJzCkUBLTqx_ctHa4w3-eIfxtQ39sDFRYD4dikBq36cOnAxLayBPyfLfNfaadtyba5VBwYULeLHhlndixXSEle8RmrdXKdgNyWB0YbvBhyy3Rclp2n96o"/>
+<div>
+<p class="text-sm font-medium text-gray-700 dark:text-gray-300">Desi Ghee</p>
+<p class="text-xs text-gray-400">Amul Pure (1kg)</p>
+</div>
+</div>
+<span class="font-medium text-gray-500 dark:text-gray-400">₹650</span>
+</div>
+<!-- Center: Item Name -->
+<div class="col-span-2 text-center">
+<span class="text-xs font-bold text-gray-400 group-hover:text-primary transition-colors">1 KG</span>
+</div>
+<!-- Right: Market -->
+<div class="col-span-5 flex items-center justify-between pl-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-orange-50 dark:bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-icons text-lg">local_mall</span>
+</div>
+<div>
+<p class="text-sm font-medium text-gray-900 dark:text-white">Local Dairy</p>
+<p class="text-xs text-green-600 flex items-center">
+<span class="material-icons text-[10px] mr-1">trending_down</span> 18% less
+                            </p>
+</div>
+</div>
+<div class="text-right">
+<span class="font-bold text-primary">₹530</span>
+<div class="flex items-center justify-end mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-gray-400 hover:text-primary"><span class="material-icons text-sm">remove_circle_outline</span></button>
+<span class="text-xs px-2">1</span>
+<button class="text-gray-400 hover:text-primary"><span class="material-icons text-sm">add_circle_outline</span></button>
+</div>
+</div>
+</div>
+</div>
+<!-- Item Row 2 -->
+<div class="grid grid-cols-12 gap-4 px-6 py-4 border-b border-gray-50 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-[#32281e] transition-colors group items-center">
+<!-- Left: Premium -->
+<div class="col-span-5 flex items-center justify-between pr-4 border-r border-gray-100 dark:border-gray-700 border-dashed">
+<div class="flex items-center gap-3">
+<img alt="White camphor tablets" class="w-10 h-10 rounded-lg object-cover bg-gray-100" data-alt="White camphor tablets pile" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAq9nSiPkQ-kp4eUi7TN1teueP16CWvKxxHuLKrLeu24-Ue1WTT2RnqG6xMmOeuBmSTRZLXq1w6nBTyG3cuW8CYBsLGG6fFOZd0Eu18flaCkrSstZSIy4t1b1xl1LrVnquhvbeCph-ZLCMCknSX2VQgY39MlBQCmbW06C-VcTuNXIKvf4vhhf0tbQdKpRdp3E3M88xDJbpO1RXR6uAVYux5ScUEB2ztbWexuD6ukrXacX66KtvA7I8zV_friFsdZa4Tj-zNc7dbh0o"/>
+<div>
+<p class="text-sm font-medium text-gray-700 dark:text-gray-300">Camphor</p>
+<p class="text-xs text-gray-400">Mangal Deep (200g)</p>
+</div>
+</div>
+<span class="font-medium text-gray-500 dark:text-gray-400">₹240</span>
+</div>
+<!-- Center: Item Name -->
+<div class="col-span-2 text-center">
+<span class="text-xs font-bold text-gray-400 group-hover:text-primary transition-colors">200g</span>
+</div>
+<!-- Right: Market -->
+<div class="col-span-5 flex items-center justify-between pl-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-orange-50 dark:bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-icons text-lg">local_mall</span>
+</div>
+<div>
+<p class="text-sm font-medium text-gray-900 dark:text-white">Loose Camphor</p>
+<p class="text-xs text-green-600 flex items-center">
+<span class="material-icons text-[10px] mr-1">trending_down</span> 40% less
+                            </p>
+</div>
+</div>
+<div class="text-right">
+<span class="font-bold text-primary">₹145</span>
+<div class="flex items-center justify-end mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-gray-400 hover:text-primary"><span class="material-icons text-sm">remove_circle_outline</span></button>
+<span class="text-xs px-2">1</span>
+<button class="text-gray-400 hover:text-primary"><span class="material-icons text-sm">add_circle_outline</span></button>
+</div>
+</div>
+</div>
+</div>
+<!-- Item Row 3 -->
+<div class="grid grid-cols-12 gap-4 px-6 py-4 border-b border-gray-50 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-[#32281e] transition-colors group items-center">
+<!-- Left: Premium -->
+<div class="col-span-5 flex items-center justify-between pr-4 border-r border-gray-100 dark:border-gray-700 border-dashed">
+<div class="flex items-center gap-3">
+<img alt="Coconut with husk" class="w-10 h-10 rounded-lg object-cover bg-gray-100" data-alt="Brown coconut with husk" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB1yAa3CetZwkeyCKUqesqKZPcp89TOSFJX9uvzjKwrErR35I2k2eL4Yo9rpuTadJRqp3WUleOVf-cSL2B4K5IdvMe7rZNYS9HlWKOVvC2Kuox6C7LhPlJLStG1zYKLUpnYdybBzV2SZxawB5V8c2uRre6BirjkKecYbyguzFwgEfdcemw2ZehrhfaCXsx4hoICtHxNU_UkFQe21ZXvVjz4gBPMLINNMNlGAG-XpFphuHetV4h_KqfH97_Niln4BAnnkSqp77dwvzw"/>
+<div>
+<p class="text-sm font-medium text-gray-700 dark:text-gray-300">Whole Coconut</p>
+<p class="text-xs text-gray-400">Large, With Water</p>
+</div>
+</div>
+<span class="font-medium text-gray-500 dark:text-gray-400">₹50</span>
+</div>
+<!-- Center: Item Name -->
+<div class="col-span-2 text-center">
+<span class="text-xs font-bold text-gray-400 group-hover:text-primary transition-colors">2 Pcs</span>
+</div>
+<!-- Right: Market -->
+<div class="col-span-5 flex items-center justify-between pl-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-orange-50 dark:bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-icons text-lg">local_mall</span>
+</div>
+<div>
+<p class="text-sm font-medium text-gray-900 dark:text-white">Standard Size</p>
+<p class="text-xs text-green-600 flex items-center">
+<span class="material-icons text-[10px] mr-1">trending_down</span> 20% less
+                            </p>
+</div>
+</div>
+<div class="text-right">
+<span class="font-bold text-primary">₹40</span>
+<div class="flex items-center justify-end mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-gray-400 hover:text-primary"><span class="material-icons text-sm">remove_circle_outline</span></button>
+<span class="text-xs px-2">2</span>
+<button class="text-gray-400 hover:text-primary"><span class="material-icons text-sm">add_circle_outline</span></button>
+</div>
+</div>
+</div>
+</div>
+<!-- Item Row 4 -->
+<div class="grid grid-cols-12 gap-4 px-6 py-4 border-b border-gray-50 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-[#32281e] transition-colors group items-center">
+<!-- Left: Premium -->
+<div class="col-span-5 flex items-center justify-between pr-4 border-r border-gray-100 dark:border-gray-700 border-dashed">
+<div class="flex items-center gap-3">
+<img alt="Red kumkum powder" class="w-10 h-10 rounded-lg object-cover bg-gray-100" data-alt="Red kumkum powder" src="https://lh3.googleusercontent.com/aida-public/AB6AXuApiCSiz9pqLYv7omSJu5WXKrDqjUDIC0-jzrmHIi41kt2pT6iludUq0ttFwx-fIyajfMyCyba0hJJpo9PGwx3kl8Btp7BBUdX21TXUnCaliWotQjWzYpWsTpQ2Yz7yNhINjT2swUe1ngD3PfwfKv__VC1CVw_rnjvupz4l2okSKSZ3i9KmrB7Q9z5Jf3nT9NcPVD0jAegreWMw8_HPEfu243jfeam0ugsMqzm_skk11HfdKvOqJPIkf3NyC1iOmmkvqGRgEb_DeOk"/>
+<div>
+<p class="text-sm font-medium text-gray-700 dark:text-gray-300">Kumkum</p>
+<p class="text-xs text-gray-400">Organic (50g)</p>
+</div>
+</div>
+<span class="font-medium text-gray-500 dark:text-gray-400">₹80</span>
+</div>
+<!-- Center: Item Name -->
+<div class="col-span-2 text-center">
+<span class="text-xs font-bold text-gray-400 group-hover:text-primary transition-colors">50g</span>
+</div>
+<!-- Right: Market -->
+<div class="col-span-5 flex items-center justify-between pl-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-orange-50 dark:bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-icons text-lg">local_mall</span>
+</div>
+<div>
+<p class="text-sm font-medium text-gray-900 dark:text-white">Local Pack</p>
+<p class="text-xs text-green-600 flex items-center">
+<span class="material-icons text-[10px] mr-1">trending_down</span> 50% less
+                            </p>
+</div>
+</div>
+<div class="text-right">
+<span class="font-bold text-primary">₹40</span>
+<div class="flex items-center justify-end mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-gray-400 hover:text-primary"><span class="material-icons text-sm">remove_circle_outline</span></button>
+<span class="text-xs px-2">1</span>
+<button class="text-gray-400 hover:text-primary"><span class="material-icons text-sm">add_circle_outline</span></button>
+</div>
+</div>
+</div>
+</div>
+<!-- Item Row 5 -->
+<div class="grid grid-cols-12 gap-4 px-6 py-4 border-b border-gray-50 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-[#32281e] transition-colors group items-center">
+<!-- Left: Premium -->
+<div class="col-span-5 flex items-center justify-between pr-4 border-r border-gray-100 dark:border-gray-700 border-dashed">
+<div class="flex items-center gap-3">
+<img alt="Betel nuts in bowl" class="w-10 h-10 rounded-lg object-cover bg-gray-100" data-alt="Betel nuts pile" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBcfdjXgSUgv8gsdb0-CZlouCFT-VF_Q7bw_AZQQ1-JKo-5gnayZSRZtqW59pQ72uQVDMsS7IoTIFA3EQ-au6gStnsU9sKrTWTlx-yjNNYSaJ-RFC7p3krS6xdq851JnvMvRT57DNHIJ27lHY9skkCvBssge9PNEgxn_70dsyLtbUxMTtxyF7b_4t09StSGRVIWg1LXsO2BJg_c25-KgL9nJjsnHYP3T8YJ-tMm_9aVdQESEdE-xjsqXrDVPCqovEe1S84aK6FEkfg"/>
+<div>
+<p class="text-sm font-medium text-gray-700 dark:text-gray-300">Supari</p>
+<p class="text-xs text-gray-400">Whole Premium (100g)</p>
+</div>
+</div>
+<span class="font-medium text-gray-500 dark:text-gray-400">₹120</span>
+</div>
+<!-- Center: Item Name -->
+<div class="col-span-2 text-center">
+<span class="text-xs font-bold text-gray-400 group-hover:text-primary transition-colors">100g</span>
+</div>
+<!-- Right: Market -->
+<div class="col-span-5 flex items-center justify-between pl-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-orange-50 dark:bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-icons text-lg">local_mall</span>
+</div>
+<div>
+<p class="text-sm font-medium text-gray-900 dark:text-white">Loose Market</p>
+<p class="text-xs text-green-600 flex items-center">
+<span class="material-icons text-[10px] mr-1">trending_down</span> 25% less
+                            </p>
+</div>
+</div>
+<div class="text-right">
+<span class="font-bold text-primary">₹90</span>
+<div class="flex items-center justify-end mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-gray-400 hover:text-primary"><span class="material-icons text-sm">remove_circle_outline</span></button>
+<span class="text-xs px-2">1</span>
+<button class="text-gray-400 hover:text-primary"><span class="material-icons text-sm">add_circle_outline</span></button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Add-on Toggle Section -->
+<div class="bg-primary-light/30 dark:bg-gray-800/50 border-t border-gray-200 dark:border-gray-700 px-6 py-3 flex items-center justify-between shrink-0">
+<div class="flex items-center gap-3">
+<div class="bg-white dark:bg-gray-700 p-2 rounded-lg shadow-sm">
+<span class="material-icons text-rose-500">local_florist</span>
+</div>
+<div>
+<p class="text-sm font-semibold text-gray-900 dark:text-white">Include Fresh Flowers &amp; Fruits</p>
+<p class="text-xs text-gray-500 dark:text-gray-400">Sourced via Blinkit/Zepto integration</p>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/30 dark:peer-focus:ring-primary/20 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
+</label>
+</div>
+<!-- Sticky Footer Actions -->
+<div class="bg-white dark:bg-[#2a2018] p-6 border-t border-gray-100 dark:border-gray-700 shrink-0 grid grid-cols-2 gap-4">
+<button class="flex flex-col items-center justify-center p-4 rounded-xl border-2 border-transparent hover:border-gray-200 hover:bg-gray-50 dark:hover:bg-[#32281e] transition-all group">
+<span class="text-gray-500 dark:text-gray-400 text-sm font-medium mb-1">Pandit's Choice</span>
+<span class="text-gray-800 dark:text-white font-bold text-lg">Select Fixed Package</span>
+<span class="text-xs text-gray-400 mt-1 group-hover:text-gray-600 dark:group-hover:text-gray-300">Pay ₹8,000</span>
+</button>
+<button class="flex flex-col items-center justify-center p-4 rounded-xl bg-primary hover:bg-primary-dark transition-all text-white shadow-lg shadow-primary/30 relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -mr-10 -mt-10 blur-xl"></div>
+<span class="text-primary-light text-sm font-medium mb-1 flex items-center gap-1">
+                    Recommended <span class="material-icons text-xs">thumb_up</span>
+</span>
+<span class="font-bold text-lg">Use Custom List</span>
+<span class="text-xs text-white/90 mt-1 bg-black/10 px-2 py-0.5 rounded-full">Pay ₹5,200 (Save ₹2,800)</span>
+</button>
+</div>
+</div>
+</body></html>

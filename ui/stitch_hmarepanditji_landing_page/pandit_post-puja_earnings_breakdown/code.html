@@ -1,0 +1,170 @@
+<html class="light"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#f48525",
+                        "background-light": "#f8f7f5",
+                        "background-dark": "#221810",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-[#181411] dark:text-[#f8f7f5]">
+<div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-[#e6e0db] dark:border-[#3d2b1d] px-10 py-3 bg-white dark:bg-[#2d1f14]">
+<div class="flex items-center gap-4 text-primary">
+<div class="size-6">
+<span class="material-symbols-outlined text-3xl">temple_hindu</span>
+</div>
+<h2 class="text-[#181411] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">HmarePanditJi</h2>
+</div>
+<div class="flex flex-1 justify-end gap-8">
+<div class="hidden md:flex items-center gap-9">
+<a class="text-[#181411] dark:text-[#d4ccc4] text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Earnings</a>
+<a class="text-[#181411] dark:text-[#d4ccc4] text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Bookings</a>
+<a class="text-[#181411] dark:text-[#d4ccc4] text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Profile</a>
+<a class="text-[#181411] dark:text-[#d4ccc4] text-sm font-medium leading-normal hover:text-primary transition-colors" href="#">Support</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="flex min-w-[84px] cursor-pointer items-center justify-center rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal">
+<span>Logout</span>
+</button>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-primary/20" data-alt="Profile photo of a professional Pandit" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBH6zn8Ena8oRRKFrVzHt1PtGkek8zqo34PDsKyNxh8CgjiKPB6kSjR8j3837WQ4VGDmxKWdSZSTacGltI1NWvjvzVXwwtfxvTKsBQpqfFeG_R4gTivcDwGwrPQDSlsgZcJiUWtn6CNDMNIVwgBSegWZdk10hpMtB4vhAodEcXnPM9pFTpbnJTNvDho84G-1X348La8QbUjUhaXUgylCtPru8rntmVrDr99Sm-W7HptikxfGlrcvvLPpTF-LaNTIJrwOyEhpXyIVpM");'></div>
+</div>
+</div>
+</header>
+<main class="flex flex-1 justify-center py-8 px-4 md:px-10 lg:px-40">
+<div class="layout-content-container flex flex-col max-w-[960px] flex-1">
+<div class="flex flex-wrap gap-2 mb-4">
+<a class="text-[#8a7460] dark:text-[#a6917c] text-sm font-medium flex items-center gap-1" href="#">
+<span class="material-symbols-outlined text-sm">arrow_back</span> Earnings
+                        </a>
+<span class="text-[#8a7460] dark:text-[#a6917c] text-sm font-medium">/</span>
+<span class="text-[#181411] dark:text-[#f8f7f5] text-sm font-medium">Delhi Wedding Breakdown</span>
+</div>
+<div class="flex flex-wrap justify-between items-end gap-3 mb-6 bg-white dark:bg-[#2d1f14] p-6 rounded-xl border border-[#e6e0db] dark:border-[#3d2b1d]">
+<div class="flex min-w-72 flex-col gap-2">
+<h1 class="text-[#181411] dark:text-white text-3xl font-black leading-tight tracking-[-0.033em]">Earnings for Delhi Wedding</h1>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm text-primary">receipt_long</span>
+<p class="text-[#8a7460] dark:text-[#a6917c] text-sm font-normal">Transaction ID: TXN9876543210</p>
+</div>
+</div>
+<button class="flex min-w-[140px] cursor-pointer items-center justify-center rounded-lg h-10 px-4 bg-[#f5f2f0] dark:bg-[#3d2b1d] text-[#181411] dark:text-white text-sm font-bold leading-normal border border-transparent hover:border-primary transition-all">
+<span class="material-symbols-outlined mr-2 text-base">download</span>
+<span class="truncate">Download Invoice</span>
+</button>
+</div>
+<div class="flex flex-wrap gap-4 mb-8">
+<div class="flex min-w-[200px] flex-1 flex-col gap-2 rounded-xl p-8 bg-primary text-white shadow-lg shadow-primary/20">
+<p class="text-white/80 text-sm font-medium uppercase tracking-wider">Total Credited to Wallet</p>
+<div class="flex items-baseline gap-2">
+<p class="tracking-light text-4xl font-black leading-tight">₹52,750</p>
+<span class="material-symbols-outlined text-green-200">check_circle</span>
+</div>
+<p class="text-white/70 text-xs mt-2">Available for withdrawal immediately</p>
+</div>
+</div>
+<div class="bg-white dark:bg-[#2d1f14] rounded-xl border border-[#e6e0db] dark:border-[#3d2b1d] overflow-hidden mb-8">
+<div class="px-6 py-4 border-b border-[#e6e0db] dark:border-[#3d2b1d] bg-background-light/50 dark:bg-background-dark/50">
+<h3 class="text-[#181411] dark:text-white font-bold">Line Item Details</h3>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-white dark:bg-[#2d1f14]">
+<th class="px-6 py-4 text-[#181411] dark:text-white text-xs font-bold uppercase tracking-wider">Description</th>
+<th class="px-6 py-4 text-[#181411] dark:text-white text-xs font-bold uppercase tracking-wider text-right">Gross Amount</th>
+<th class="px-6 py-4 text-[#181411] dark:text-white text-xs font-bold uppercase tracking-wider text-center">Deductions/Status</th>
+<th class="px-6 py-4 text-[#181411] dark:text-white text-xs font-bold uppercase tracking-wider text-right">Net Amount</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-[#e6e0db] dark:divide-[#3d2b1d]">
+<tr class="hover:bg-background-light dark:hover:bg-background-dark/30 transition-colors">
+<td class="px-6 py-5 text-[#181411] dark:text-white text-sm font-semibold">Dakshina</td>
+<td class="px-6 py-5 text-[#8a7460] dark:text-[#a6917c] text-sm text-right">₹35,000</td>
+<td class="px-6 py-5 text-center">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">
+                                                -15% Platform Fee
+                                            </span>
+</td>
+<td class="px-6 py-5 text-primary text-sm font-bold text-right">₹29,750</td>
+</tr>
+<tr class="hover:bg-background-light dark:hover:bg-background-dark/30 transition-colors">
+<td class="px-6 py-5 text-[#181411] dark:text-white text-sm font-semibold">Samagri Package</td>
+<td class="px-6 py-5 text-[#8a7460] dark:text-[#a6917c] text-sm text-right">₹8,000</td>
+<td class="px-6 py-5 text-center">
+<span class="text-xs text-[#8a7460] dark:text-[#a6917c]">—</span>
+</td>
+<td class="px-6 py-5 text-primary text-sm font-bold text-right">₹8,000</td>
+</tr>
+<tr class="hover:bg-background-light dark:hover:bg-background-dark/30 transition-colors">
+<td class="px-6 py-5 text-[#181411] dark:text-white text-sm font-semibold">Travel Reimbursement</td>
+<td class="px-6 py-5 text-[#8a7460] dark:text-[#a6917c] text-sm text-right">₹12,000</td>
+<td class="px-6 py-5 text-center">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+<span class="material-symbols-outlined text-[10px] mr-1">verified</span> Approved
+                                            </span>
+</td>
+<td class="px-6 py-5 text-primary text-sm font-bold text-right">₹12,000</td>
+</tr>
+<tr class="hover:bg-background-light dark:hover:bg-background-dark/30 transition-colors">
+<td class="px-6 py-5 text-[#181411] dark:text-white text-sm font-semibold">Food Allowance</td>
+<td class="px-6 py-5 text-[#8a7460] dark:text-[#a6917c] text-sm text-right">₹3,000</td>
+<td class="px-6 py-5 text-center">
+<span class="text-xs text-[#8a7460] dark:text-[#a6917c]">—</span>
+</td>
+<td class="px-6 py-5 text-primary text-sm font-bold text-right">₹3,000</td>
+</tr>
+</tbody>
+<tfoot>
+<tr class="bg-primary/5 dark:bg-primary/10">
+<td class="px-6 py-4 text-[#181411] dark:text-white text-sm font-bold text-right" colspan="3">Total Net Payout</td>
+<td class="px-6 py-4 text-primary text-lg font-black text-right underline decoration-2 underline-offset-4">₹52,750</td>
+</tr>
+</tfoot>
+</table>
+</div>
+</div>
+<div class="flex flex-col md:flex-row justify-between items-center gap-6 p-8 bg-white dark:bg-[#2d1f14] rounded-xl border border-[#e6e0db] dark:border-[#3d2b1d]">
+<div class="flex flex-col gap-1">
+<p class="text-[#181411] dark:text-white font-bold">Ready to withdraw?</p>
+<p class="text-[#8a7460] dark:text-[#a6917c] text-sm">Withdrawal requests are processed within 24-48 hours.</p>
+</div>
+<div class="flex items-center gap-4 w-full md:w-auto">
+<a class="text-primary text-sm font-bold hover:underline" href="#">View Policy</a>
+<button class="flex-1 md:flex-none flex min-w-[200px] cursor-pointer items-center justify-center rounded-lg h-12 px-6 bg-primary text-white text-base font-bold shadow-lg shadow-primary/30 hover:bg-primary/90 transition-all">
+<span>Withdraw Now</span>
+<span class="material-symbols-outlined ml-2">account_balance_wallet</span>
+</button>
+</div>
+</div>
+<footer class="mt-12 mb-8 text-center">
+<div class="flex justify-center gap-6 text-[#8a7460] dark:text-[#a6917c] text-sm font-medium">
+<a class="hover:text-primary" href="#">Support Center</a>
+<a class="hover:text-primary" href="#">Terms of Service</a>
+<a class="hover:text-primary" href="#">Contact Us</a>
+</div>
+<p class="mt-4 text-[#8a7460]/60 text-xs">© 2024 HmarePanditJi. All rights reserved.</p>
+</footer>
+</div>
+</main>
+</div>
+</div>
+</body></html>

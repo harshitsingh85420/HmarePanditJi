@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Customer Live Pandit Tracking - HmarePanditJi</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 antialiased overflow-hidden">
+<div class="relative flex h-screen w-full flex-col group/design-root">
+<!-- Header -->
+<header class="flex h-16 items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark px-10 py-3 z-50">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-3 text-primary">
+<span class="material-symbols-outlined text-3xl font-bold">flare</span>
+<h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-tight">HmarePanditJi</h2>
+</div>
+<div class="hidden md:flex items-center gap-6">
+<a class="text-slate-600 dark:text-slate-300 text-sm font-medium hover:text-primary transition-colors" href="#">Dashboard</a>
+<a class="text-slate-600 dark:text-slate-300 text-sm font-medium hover:text-primary transition-colors" href="#">Bookings</a>
+<a class="text-primary text-sm font-bold leading-normal" href="#">Live Tracking</a>
+<a class="text-slate-600 dark:text-slate-300 text-sm font-medium hover:text-primary transition-colors" href="#">Support</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="hidden lg:flex flex-col text-right">
+<span class="text-xs text-slate-500 dark:text-slate-400">Welcome, Rahul</span>
+<span class="text-sm font-semibold">Premium User</span>
+</div>
+<div class="size-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">RK</div>
+</div>
+</header>
+<!-- Main Dashboard Area -->
+<main class="flex flex-1 relative overflow-hidden">
+<!-- Full Screen Map Background -->
+<div class="absolute inset-0 z-0 bg-[#e5e7eb] dark:bg-[#1c2127]">
+<div class="w-full h-full bg-cover bg-center" data-alt="Real-time map showing route from Varanasi to Delhi" data-location="North India Map" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAeaLCohXycqVnLLQCTXApvQRdXJYpA30yRcbha2X7bxeVG-JsEMqhdy3HKZMdmD-eok8AxQtRnuxu6KUNXgBGsTX1ooHAPzMntMBlLlzIfT0xR-iKfQZGWfRZR_bGGdB_sR_e8byDQun_HJ2x7fRZZ4zT7pJjVpsp_ndC9Fc3LLVhQR9ipEIaYoyBrMfumZaXp47unp6GQW5vn17qji73OFGOfkzwb2TKOnDjQ-A1BgVZrDE-Rk9LnPsOIUEcyL0735fsYp6Ngfiw');"></div>
+<!-- Map UI Elements -->
+<div class="absolute top-6 left-6 z-10 flex flex-col gap-3">
+<div class="flex bg-white dark:bg-slate-900 rounded-xl shadow-xl p-1 border border-slate-200 dark:border-slate-800">
+<input class="bg-transparent border-none focus:ring-0 text-sm w-64 dark:text-white placeholder:text-slate-400" placeholder="Search route..." type="text"/>
+<button class="p-2 text-slate-500"><span class="material-symbols-outlined">search</span></button>
+</div>
+</div>
+<div class="absolute bottom-10 right-[380px] z-10 flex flex-col gap-2">
+<button class="size-10 flex items-center justify-center bg-white dark:bg-slate-900 rounded-lg shadow-lg text-slate-600 dark:text-slate-300 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">add</span>
+</button>
+<button class="size-10 flex items-center justify-center bg-white dark:bg-slate-900 rounded-lg shadow-lg text-slate-600 dark:text-slate-300 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">remove</span>
+</button>
+<button class="size-10 flex items-center justify-center bg-primary text-white rounded-lg shadow-lg mt-2">
+<span class="material-symbols-outlined">my_location</span>
+</button>
+</div>
+<!-- Live Route Overlay (Simulated) -->
+<div class="absolute inset-0 pointer-events-none flex items-center justify-center">
+<div class="relative w-1/2 h-1/2">
+<!-- Route Line -->
+<div class="absolute top-1/2 left-1/4 w-[60%] h-1 bg-primary/40 rounded-full rotate-[-15deg]"></div>
+<!-- Current Position Marker -->
+<div class="absolute top-[48%] left-[60%] flex flex-col items-center">
+<div class="bg-primary text-white p-2 rounded-full shadow-xl animate-pulse">
+<span class="material-symbols-outlined">directions_car</span>
+</div>
+<div class="mt-2 bg-white dark:bg-slate-900 px-3 py-1 rounded-full shadow-lg text-xs font-bold border border-primary">Vishnu Shastri</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Floating Status Card (Left Bottom) -->
+<div class="absolute bottom-10 left-10 z-20 max-w-md w-full">
+<div class="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+<div class="p-6">
+<div class="flex items-start justify-between mb-4">
+<div>
+<h3 class="text-xl font-bold dark:text-white">Pandit Vishnu Shastri is near Agra</h3>
+<div class="flex items-center gap-2 mt-1">
+<span class="flex h-2 w-2 rounded-full bg-emerald-500"></span>
+<p class="text-emerald-600 dark:text-emerald-400 text-sm font-semibold">Current Status: On Time</p>
+</div>
+</div>
+<div class="bg-primary/10 p-3 rounded-xl">
+<span class="material-symbols-outlined text-primary">schedule</span>
+</div>
+</div>
+<div class="bg-slate-100 dark:bg-slate-800/50 p-4 rounded-xl mb-6">
+<p class="text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider font-bold mb-1">Estimated Arrival</p>
+<p class="text-2xl font-black text-slate-900 dark:text-white">4h 20m <span class="text-slate-400 text-base font-normal">at 02:20 AM</span></p>
+</div>
+<div class="flex flex-col gap-3">
+<div class="grid grid-cols-2 gap-3">
+<button class="flex items-center justify-center gap-2 bg-primary text-white font-bold py-3 rounded-xl hover:bg-primary/90 transition-all shadow-lg shadow-primary/25">
+<span class="material-symbols-outlined text-sm">call</span>
+                                    Call Pandit
+                                </button>
+<button class="flex items-center justify-center gap-2 bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-white font-bold py-3 rounded-xl hover:bg-slate-300 dark:hover:bg-slate-700 transition-all">
+<span class="material-symbols-outlined text-sm">chat</span>
+                                    Message
+                                </button>
+</div>
+<button class="flex items-center justify-center gap-2 text-slate-500 hover:text-primary text-sm font-medium py-2 transition-colors">
+<span class="material-symbols-outlined text-sm">contact_support</span>
+                                Contact Backup Support
+                            </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Sidebar: Timeline -->
+<aside class="w-96 bg-white dark:bg-background-dark border-l border-slate-200 dark:border-slate-800 z-30 flex flex-col">
+<div class="p-6 border-b border-slate-200 dark:border-slate-800">
+<h2 class="text-xl font-bold dark:text-white">Journey Timeline</h2>
+<p class="text-slate-500 dark:text-slate-400 text-sm">Varanasi → Delhi Route</p>
+</div>
+<div class="flex-1 overflow-y-auto p-6">
+<div class="relative space-y-8">
+<!-- Vertical Connector Line -->
+<div class="absolute left-[11px] top-2 bottom-2 w-0.5 bg-slate-200 dark:bg-slate-800"></div>
+<!-- Timeline Item 1 -->
+<div class="relative flex gap-4">
+<div class="mt-1.5 z-10 flex size-6 items-center justify-center rounded-full bg-emerald-500 text-white ring-4 ring-white dark:ring-background-dark">
+<span class="material-symbols-outlined text-[16px] font-bold">check</span>
+</div>
+<div class="flex flex-col">
+<h4 class="font-bold dark:text-white">Journey Started</h4>
+<p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Varanasi HQ</p>
+<p class="text-sm font-semibold text-emerald-600 dark:text-emerald-400 mt-1">4:00 PM ✓</p>
+</div>
+</div>
+<!-- Timeline Item 2 -->
+<div class="relative flex gap-4">
+<div class="mt-1.5 z-10 flex size-6 items-center justify-center rounded-full bg-emerald-500 text-white ring-4 ring-white dark:ring-background-dark">
+<span class="material-symbols-outlined text-[16px] font-bold">check</span>
+</div>
+<div class="flex flex-col">
+<h4 class="font-bold dark:text-white">Crossed Kanpur</h4>
+<p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Highway Checkpoint 4</p>
+<p class="text-sm font-semibold text-emerald-600 dark:text-emerald-400 mt-1">8:45 PM ✓</p>
+</div>
+</div>
+<!-- Timeline Item 3 (Current) -->
+<div class="relative flex gap-4">
+<div class="mt-1.5 z-10 flex size-6 items-center justify-center rounded-full bg-amber-500 text-white ring-4 ring-amber-100 dark:ring-amber-900/30">
+<span class="material-symbols-outlined text-[16px] font-bold">more_horiz</span>
+</div>
+<div class="flex flex-col">
+<h4 class="font-bold dark:text-white text-lg">Approaching Agra</h4>
+<p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Distance: 42km left</p>
+<p class="text-sm font-bold text-amber-500 mt-1">10:00 PM 🟡 (In Transit)</p>
+<div class="mt-3 p-3 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-lg bg-cover" data-alt="Agra landmark thumbnail" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAD2hXxB9Oz9hMQZgbqOe75bUcWr3UIM-1PBVTnxPs065tEh4FFk-DDIW5F8XbNepxAe1cWUY_8JYxNlF5F0QWIa8IjG5Jm4rr3dwNwELv4uHFj_EpdKkHfSE82h9NQyBPlGYjfMPtQeVBO4mSV-zmJZFccR_bsriTXat4CBU4t_h-9D3H9jqU1BnqL-gbmTYt-EmNCbzAmXK9ecYRO9GcOm4FCPCt4hz8KdBifqOoyBvRhycRGkTFNsmec1cr_5d7m_rZOu82dGNg');"></div>
+<span class="text-xs text-slate-500 dark:text-slate-400 italic">"Traffic reported near Yamuna Expressway. Minor delay possible."</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Timeline Item 4 (Future) -->
+<div class="relative flex gap-4 opacity-50">
+<div class="mt-1.5 z-10 flex size-6 items-center justify-center rounded-full bg-slate-200 dark:bg-slate-800 text-slate-400 ring-4 ring-white dark:ring-background-dark">
+<span class="material-symbols-outlined text-[16px]">radio_button_unchecked</span>
+</div>
+<div class="flex flex-col">
+<h4 class="font-bold dark:text-white">Mathura Transit</h4>
+<p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Scheduled Stop</p>
+<p class="text-sm font-medium mt-1">Est. 12:15 AM</p>
+</div>
+</div>
+<!-- Timeline Item 5 (Destination) -->
+<div class="relative flex gap-4 opacity-50">
+<div class="mt-1.5 z-10 flex size-6 items-center justify-center rounded-full bg-slate-200 dark:bg-slate-800 text-slate-400 ring-4 ring-white dark:ring-background-dark">
+<span class="material-symbols-outlined text-[16px]">location_on</span>
+</div>
+<div class="flex flex-col">
+<h4 class="font-bold dark:text-white">Delhi (Destination)</h4>
+<p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Pooja Venue</p>
+<p class="text-sm font-medium mt-1">Est. 02:20 AM</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Pandit Profile Quick View -->
+<div class="p-6 bg-slate-50 dark:bg-slate-900/50 border-t border-slate-200 dark:border-slate-800">
+<div class="flex items-center gap-4">
+<div class="size-14 rounded-full bg-cover bg-center border-2 border-primary" data-alt="Pandit Vishnu Shastri Portrait" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAEUtM09s-N5bHLZysoWYXWb71PECzwY2w2XLAEy6G1ervi7mHW55IcM5AuwAEdrrOIsGCm9p1i2el9so4Ek1CJelwor8ScWsawZ7z0Nc3fB9WB0sSbT985R4RlDwR7Elv_rtdL2DX1hxnrCKbezH_HTS1RcpV8PLaVR9hc73s_PGWIgsXj6zQZToKcrclzpKmaKOirus6tHXCavhL_eifJf0UBdmqQiwCMSbzSPb56LRkKZmF_7Uspi6M3pxc20t9gmqm2ykIsfKU');"></div>
+<div>
+<p class="font-bold dark:text-white">Vishnu Shastri</p>
+<div class="flex items-center text-amber-500 text-xs">
+<span class="material-symbols-outlined text-xs">star</span>
+<span class="material-symbols-outlined text-xs">star</span>
+<span class="material-symbols-outlined text-xs">star</span>
+<span class="material-symbols-outlined text-xs">star</span>
+<span class="material-symbols-outlined text-xs">star_half</span>
+<span class="ml-1 font-semibold">4.8 (120 reviews)</span>
+</div>
+<p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Expert in Satyanarayan Pooja</p>
+</div>
+</div>
+</div>
+</aside>
+</main>
+</div>
+</body></html>

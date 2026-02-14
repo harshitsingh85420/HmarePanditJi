@@ -1,375 +1,348 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
-const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api/v1";
+// ── Types ────────────────────────────────────────────────────────────────────
 
 interface TravelBooking {
   id: string;
-  bookingNumber: string;
-  eventType: string;
-  eventDate: string;
+  tripId: string;
+  serviceName: string;
+  panditName: string;
+  panditCity: string;
+  status: "ON_TRACK" | "DELAYED" | "EMERGENCY" | "COMPLETED";
+  currentLocation: string;
+  etaOffset: string; // e.g. "On Time", "+45 min"
   venueCity: string;
-  venueAddress: string;
-  travelMode: string | null;
-  travelDistanceKm: number | null;
-  travelStatus: string;
-  travelBookingRef: string | null;
-  travelNotes: string | null;
-  travelCost: number;
-  status: string;
-  pandit: { id: string; displayName: string; city: string } | null;
-  customer: { user: { fullName: string; phone: string } } | null;
+
+  // Detail Panel Data
+  miniMapUrl: string;
+  trainStatus?: string; // e.g. "45 min delay"
+  nextStop?: string;
+  customerName: string;
+  customerRole: string; // e.g. "Wedding Host"
+
+  // Backup / Logistics
+  backupAvailable?: boolean;
 }
 
-const STATUS_COLORS: Record<string, string> = {
-  NOT_REQUIRED: "bg-slate-600",
-  PENDING: "bg-yellow-500",
-  BOOKED: "bg-blue-500",
-  IN_TRANSIT: "bg-purple-500",
-  ARRIVED: "bg-green-500",
-};
-
-const STATUS_LABELS: Record<string, string> = {
-  NOT_REQUIRED: "Not Required",
-  PENDING: "Pending",
-  BOOKED: "Booked",
-  IN_TRANSIT: "In Transit",
-  ARRIVED: "Arrived",
-};
+// ── Mock Data ────────────────────────────────────────────────────────────────
 
 const MOCK_DATA: TravelBooking[] = [
   {
-    id: "t1", bookingNumber: "BK-240201-001", eventType: "Griha Pravesh", eventDate: "2025-03-15T10:00:00Z",
-    venueCity: "Gurgaon", venueAddress: "Sector 45, Gurgaon, Haryana", travelMode: "car",
-    travelDistanceKm: 85, travelStatus: "PENDING", travelBookingRef: null, travelNotes: null,
-    travelCost: 2500, status: "CONFIRMED",
-    pandit: { id: "p1", displayName: "Pandit Ramesh Sharma", city: "Old Delhi" },
-    customer: { user: { fullName: "Vikram Malhotra", phone: "+919876543210" } },
+    id: "1",
+    tripId: "HPJ-1257",
+    serviceName: "Mumbai Wedding",
+    panditName: "Pandit G. Sharma",
+    panditCity: "Pune",
+    status: "DELAYED",
+    currentLocation: "Kalyan Junction",
+    etaOffset: "+45 min",
+    venueCity: "Mumbai",
+    miniMapUrl: "https://lh3.googleusercontent.com/aida-public/AB6AXuCtxAn63IIMsNgCkzhXfOSNigmmQhQHUI0HNUjGVAwDvwKWiLiSkBr1eBTN77tMnDLHcLn0xn2alJNzMTytqUYRu7zBVEKuj8NvV_I5H1iGOGQ0CJWK9lovF7ISDtWtHT17bX2WflBB_qUd7p58_eOsabiyYtXQVpzu1bVIKkEGRJR4U7kufmiT2Gfc3yydCTNteJs51ZOR9kc-aVFlW63qxdwOg3frP4jIa2JOLqrR34vCr1_CzZHhdpddyn9SCgbN3ePtlBSdCRQ",
+    trainStatus: "45 min delay",
+    nextStop: "Thane Jn.",
+    customerName: "Rahul Malhotra",
+    customerRole: "Customer (Wedding Host)",
+    backupAvailable: true
   },
   {
-    id: "t2", bookingNumber: "BK-240201-002", eventType: "Satyanarayan Katha", eventDate: "2025-03-18T09:00:00Z",
-    venueCity: "Noida", venueAddress: "Sector 62, Noida, UP", travelMode: "train",
-    travelDistanceKm: 120, travelStatus: "BOOKED", travelBookingRef: "PNR-2847391", travelNotes: "Rajdhani Express",
-    travelCost: 1800, status: "TRAVEL_BOOKED",
-    pandit: { id: "p2", displayName: "Acharya Suresh Tiwari", city: "Varanasi" },
-    customer: { user: { fullName: "Priya Agarwal", phone: "+919123456780" } },
+    id: "2",
+    tripId: "HPJ-1302",
+    serviceName: "Varanasi Puja",
+    panditName: "Pandit R. Mishra",
+    panditCity: "Varanasi",
+    status: "ON_TRACK",
+    currentLocation: "Varanasi Cantt",
+    etaOffset: "On Time",
+    venueCity: "Varanasi",
+    miniMapUrl: "",
+    trainStatus: "On Time",
+    nextStop: "Destination",
+    customerName: "Anjali Gupta",
+    customerRole: "Customer",
+    backupAvailable: true
   },
   {
-    id: "t3", bookingNumber: "BK-240201-003", eventType: "Wedding Ceremony", eventDate: "2025-03-22T06:00:00Z",
-    venueCity: "Jaipur", venueAddress: "Jawahar Nagar, Jaipur, Rajasthan", travelMode: "flight",
-    travelDistanceKm: 280, travelStatus: "PENDING", travelBookingRef: null, travelNotes: null,
-    travelCost: 6500, status: "CONFIRMED",
-    pandit: { id: "p3", displayName: "Pandit Hari Shastri", city: "Mathura" },
-    customer: { user: { fullName: "Ankit Gupta", phone: "+919988776655" } },
-  },
-  {
-    id: "t4", bookingNumber: "BK-240201-004", eventType: "Mundan Ceremony", eventDate: "2025-03-12T08:00:00Z",
-    venueCity: "Faridabad", venueAddress: "NIT 5, Faridabad, Haryana", travelMode: "car",
-    travelDistanceKm: 45, travelStatus: "IN_TRANSIT", travelBookingRef: "DL-01-CA-9087", travelNotes: "Self-drive",
-    travelCost: 1200, status: "PANDIT_EN_ROUTE",
-    pandit: { id: "p4", displayName: "Pandit Mohan Dubey", city: "South Delhi" },
-    customer: { user: { fullName: "Rahul Verma", phone: "+919001234567" } },
-  },
+    id: "3",
+    tripId: "HPJ-1188",
+    serviceName: "Delhi Havan",
+    panditName: "Pandit A. Tiwari",
+    panditCity: "Mathura",
+    status: "EMERGENCY",
+    currentLocation: "New Delhi",
+    etaOffset: "Stopped",
+    venueCity: "Delhi",
+    miniMapUrl: "",
+    trainStatus: "Cancelled",
+    nextStop: "N/A",
+    customerName: "Sohan Lal",
+    customerRole: "Host",
+    backupAvailable: false
+  }
 ];
 
-export default function TravelQueuePage() {
-  const [bookings, setBookings] = useState<TravelBooking[]>(MOCK_DATA);
-  const [statusFilter, setStatusFilter] = useState("ALL");
-  const [selected, setSelected] = useState<TravelBooking | null>(null);
-  const [refInput, setRefInput] = useState("");
-  const [notesInput, setNotesInput] = useState("");
-  const [toast, setToast] = useState("");
+// ── Helper Components ────────────────────────────────────────────────────────
 
-  useEffect(() => {
-    fetchQueue();
-  }, [statusFilter]);
+function StatusBadge({ status }: { status: string }) {
+  if (status === "ON_TRACK") return <span className="bg-green-500 text-white text-[10px] font-black uppercase px-2 py-1 rounded">On Track</span>;
+  if (status === "DELAYED") return <span className="bg-[#f49d25] text-white text-[10px] font-black uppercase px-2 py-1 rounded">Delayed</span>;
+  if (status === "EMERGENCY") return <span className="bg-red-500 text-white text-[10px] font-black uppercase px-2 py-1 rounded">Emergency</span>;
+  return <span className="bg-slate-500 text-white text-[10px] font-black uppercase px-2 py-1 rounded">{status}</span>;
+}
 
-  async function fetchQueue() {
-    try {
-      const token = localStorage.getItem("admin_token");
-      const params = new URLSearchParams({ limit: "50" });
-      if (statusFilter !== "ALL") params.set("status", statusFilter);
+function ETAText({ status, text }: { status: string, text: string }) {
+  if (status === "ON_TRACK") return <span className="text-green-500 font-bold text-sm">{text}</span>;
+  if (status === "DELAYED") return <span className="text-[#f49d25] font-bold text-sm">{text}</span>;
+  if (status === "EMERGENCY") return <span className="text-red-500 font-bold text-sm">{text}</span>;
+  return <span className="text-slate-500 font-bold text-sm">{text}</span>;
+}
 
-      const res = await fetch(`${API}/admin/travel-queue?${params}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const json = await res.json();
-        if (json.data?.length) setBookings(json.data);
-      }
-    } catch {
-      /* use mock data */
-    }
-  }
+// ── Main Page Component ──────────────────────────────────────────────────────
 
-  async function updateTravelStatus(id: string, travelStatus: string) {
-    try {
-      const token = localStorage.getItem("admin_token");
-      const body: Record<string, string> = { travelStatus };
-      if (refInput) body.travelBookingRef = refInput;
-      if (notesInput) body.travelNotes = notesInput;
+export default function TravelOperationsPage() {
+  const [activeTab, setActiveTab] = useState("ALL");
+  const [selectedTrip, setSelectedTrip] = useState<TravelBooking | null>(MOCK_DATA[0]);
 
-      const res = await fetch(`${API}/admin/bookings/${id}/travel-status`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify(body),
-      });
-
-      if (res.ok) {
-        showToast(`Travel status updated to ${STATUS_LABELS[travelStatus]}`);
-        fetchQueue();
-        setSelected(null);
-      }
-    } catch {
-      showToast("Failed to update travel status");
-    }
-  }
-
-  function showToast(msg: string) {
-    setToast(msg);
-    setTimeout(() => setToast(""), 3000);
-  }
-
-  const filtered = statusFilter === "ALL" ? bookings : bookings.filter((b) => b.travelStatus === statusFilter);
-
-  const counts = {
-    PENDING: bookings.filter((b) => b.travelStatus === "PENDING").length,
-    BOOKED: bookings.filter((b) => b.travelStatus === "BOOKED").length,
-    IN_TRANSIT: bookings.filter((b) => b.travelStatus === "IN_TRANSIT").length,
-  };
+  const filtered = activeTab === "ALL" ? MOCK_DATA : MOCK_DATA.filter(d => d.status === activeTab);
 
   return (
-    <main className="min-h-screen bg-slate-950 p-6">
-      {/* Toast */}
-      {toast && (
-        <div className="fixed top-20 right-6 z-50 rounded-lg bg-green-600 px-4 py-2.5 text-sm font-medium text-white shadow-lg">
-          {toast}
-        </div>
-      )}
+    <div className="min-h-screen bg-[#f8f7f5] dark:bg-[#221a10] font-sans text-slate-900 dark:text-slate-100 flex flex-col">
 
-      {/* Header */}
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-white">Travel Queue</h1>
-          <p className="text-sm text-slate-400">Manage pandit travel logistics for upcoming bookings</p>
-        </div>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 rounded-lg border border-slate-700 bg-slate-800 px-3 py-2">
-            <span className="material-symbols-outlined text-yellow-500 text-lg">pending_actions</span>
-            <span className="text-sm text-white font-semibold">{counts.PENDING}</span>
-            <span className="text-xs text-slate-400">pending</span>
+      {/* Header taken from layout generally, but implementing specific page header here */}
+
+      <main className="flex-1 flex flex-col max-w-[1440px] mx-auto w-full p-6 gap-6">
+
+        {/* Hero Title */}
+        <div className="flex flex-wrap justify-between items-end gap-3">
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-2">
+              <span className="flex w-3 h-3 bg-green-500 rounded-full animate-pulse"></span>
+              <p className="text-[#f49d25] text-sm font-bold uppercase tracking-wider">Live Monitoring</p>
+            </div>
+            <h1 className="text-slate-900 dark:text-white text-4xl font-black leading-tight tracking-[-0.033em]">Travel Operations Center</h1>
+            <p className="text-slate-500 dark:text-slate-400 text-base font-normal">Real-time monitoring and logistics management for all ongoing priest travels.</p>
           </div>
-          <div className="flex items-center gap-2 rounded-lg border border-slate-700 bg-slate-800 px-3 py-2">
-            <span className="material-symbols-outlined text-blue-500 text-lg">confirmation_number</span>
-            <span className="text-sm text-white font-semibold">{counts.BOOKED}</span>
-            <span className="text-xs text-slate-400">booked</span>
-          </div>
-          <div className="flex items-center gap-2 rounded-lg border border-slate-700 bg-slate-800 px-3 py-2">
-            <span className="material-symbols-outlined text-purple-500 text-lg">local_shipping</span>
-            <span className="text-sm text-white font-semibold">{counts.IN_TRANSIT}</span>
-            <span className="text-xs text-slate-400">in transit</span>
+          <div className="flex gap-2">
+            <button className="bg-[#f49d25] text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-[#d8891c]">
+              <span className="material-symbols-outlined">add</span> New Manual Trip
+            </button>
           </div>
         </div>
-      </div>
 
-      {/* Filters */}
-      <div className="mb-4 flex gap-2">
-        {["ALL", "PENDING", "BOOKED", "IN_TRANSIT", "ARRIVED"].map((s) => (
-          <button
-            key={s}
-            onClick={() => setStatusFilter(s)}
-            className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
-              statusFilter === s
-                ? "bg-primary text-white"
-                : "bg-slate-800 text-slate-400 hover:bg-slate-700"
-            }`}
-          >
-            {s === "ALL" ? "All" : STATUS_LABELS[s] ?? s}
-          </button>
-        ))}
-      </div>
-
-      <div className="flex gap-6">
-        {/* Table */}
-        <div className="flex-1 overflow-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-slate-800 text-left text-xs text-slate-400">
-                <th className="pb-3 pr-4">Booking</th>
-                <th className="pb-3 pr-4">Route</th>
-                <th className="pb-3 pr-4">Mode / Distance</th>
-                <th className="pb-3 pr-4">Event Date</th>
-                <th className="pb-3 pr-4">Est. Cost</th>
-                <th className="pb-3 pr-4">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((b) => (
-                <tr
-                  key={b.id}
-                  onClick={() => { setSelected(b); setRefInput(b.travelBookingRef ?? ""); setNotesInput(b.travelNotes ?? ""); }}
-                  className={`cursor-pointer border-b border-slate-800/50 transition-colors hover:bg-slate-900 ${
-                    selected?.id === b.id ? "bg-slate-800/60" : ""
-                  }`}
-                >
-                  <td className="py-3 pr-4">
-                    <p className="font-medium text-white">{b.bookingNumber}</p>
-                    <p className="text-xs text-slate-400">{b.eventType}</p>
-                  </td>
-                  <td className="py-3 pr-4">
-                    <div className="flex items-center gap-1 text-xs">
-                      <span className="text-slate-300">{b.pandit?.city ?? "—"}</span>
-                      <span className="material-symbols-outlined text-slate-500 text-sm">arrow_forward</span>
-                      <span className="text-white font-medium">{b.venueCity}</span>
-                    </div>
-                  </td>
-                  <td className="py-3 pr-4">
-                    <p className="text-slate-300 capitalize">{b.travelMode ?? "TBD"}</p>
-                    <p className="text-xs text-slate-500">{b.travelDistanceKm ? `${b.travelDistanceKm} km` : "—"}</p>
-                  </td>
-                  <td className="py-3 pr-4 text-slate-300">
-                    {new Date(b.eventDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
-                  </td>
-                  <td className="py-3 pr-4 text-white font-medium">
-                    {"\u20B9"}{b.travelCost.toLocaleString("en-IN")}
-                  </td>
-                  <td className="py-3 pr-4">
-                    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium text-white ${STATUS_COLORS[b.travelStatus] ?? "bg-slate-600"}`}>
-                      <span className="h-1.5 w-1.5 rounded-full bg-white/40" />
-                      {STATUS_LABELS[b.travelStatus] ?? b.travelStatus}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-              {filtered.length === 0 && (
-                <tr>
-                  <td colSpan={6} className="py-12 text-center text-slate-500">No travel bookings in this category</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+        {/* Stats Bar */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="bg-white dark:bg-[#1a140d] p-4 rounded-xl border border-slate-200 dark:border-white/10">
+            <p className="text-slate-500 text-xs font-bold uppercase">Total Active Travels</p>
+            <p className="text-2xl font-black text-slate-900 dark:text-white">124</p>
+          </div>
+          <div className="bg-white dark:bg-[#1a140d] p-4 rounded-xl border border-slate-200 dark:border-white/10 border-l-4 border-l-green-500">
+            <p className="text-slate-500 text-xs font-bold uppercase">On Track</p>
+            <p className="text-2xl font-black text-green-500">112</p>
+          </div>
+          <div className="bg-white dark:bg-[#1a140d] p-4 rounded-xl border border-slate-200 dark:border-white/10 border-l-4 border-l-[#f49d25]">
+            <p className="text-slate-500 text-xs font-bold uppercase">Delayed</p>
+            <p className="text-2xl font-black text-[#f49d25]">9</p>
+          </div>
+          <div className="bg-white dark:bg-[#1a140d] p-4 rounded-xl border border-slate-200 dark:border-white/10 border-l-4 border-l-red-500">
+            <p className="text-slate-500 text-xs font-bold uppercase">Emergency / Blocked</p>
+            <p className="text-2xl font-black text-red-500">3</p>
+          </div>
         </div>
 
-        {/* Detail Panel */}
-        {selected && (
-          <div className="w-96 flex-shrink-0 rounded-xl border border-slate-800 bg-slate-900 p-5">
-            <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-white">Travel Details</h3>
-              <button onClick={() => setSelected(null)} className="text-slate-500 hover:text-slate-300">
-                <span className="material-symbols-outlined text-lg">close</span>
-              </button>
-            </div>
+        {/* Main Split Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
-            <div className="mb-4 rounded-lg bg-slate-800 p-3">
-              <p className="text-xs text-slate-400 mb-1">Booking</p>
-              <p className="text-sm font-medium text-white">{selected.bookingNumber} &mdash; {selected.eventType}</p>
-            </div>
-
-            {/* Route */}
-            <div className="mb-4 flex items-center gap-3">
-              <div className="flex-1 rounded-lg bg-slate-800 p-3 text-center">
-                <p className="text-xs text-slate-400">From</p>
-                <p className="text-sm font-semibold text-white">{selected.pandit?.city ?? "—"}</p>
-              </div>
-              <span className="material-symbols-outlined text-primary">arrow_forward</span>
-              <div className="flex-1 rounded-lg bg-slate-800 p-3 text-center">
-                <p className="text-xs text-slate-400">To</p>
-                <p className="text-sm font-semibold text-white">{selected.venueCity}</p>
-              </div>
-            </div>
-
-            {/* Info grid */}
-            <div className="mb-4 grid grid-cols-2 gap-3">
-              <div className="rounded-lg bg-slate-800 p-2.5">
-                <p className="text-[10px] text-slate-400">Distance</p>
-                <p className="text-sm font-semibold text-white">{selected.travelDistanceKm ?? "—"} km</p>
-              </div>
-              <div className="rounded-lg bg-slate-800 p-2.5">
-                <p className="text-[10px] text-slate-400">Mode</p>
-                <p className="text-sm font-semibold text-white capitalize">{selected.travelMode ?? "TBD"}</p>
-              </div>
-              <div className="rounded-lg bg-slate-800 p-2.5">
-                <p className="text-[10px] text-slate-400">Est. Cost</p>
-                <p className="text-sm font-semibold text-green-400">{"\u20B9"}{selected.travelCost.toLocaleString("en-IN")}</p>
-              </div>
-              <div className="rounded-lg bg-slate-800 p-2.5">
-                <p className="text-[10px] text-slate-400">Event Date</p>
-                <p className="text-sm font-semibold text-white">{new Date(selected.eventDate).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}</p>
-              </div>
-            </div>
-
-            {/* Pandit & Customer */}
-            <div className="mb-4 space-y-2">
-              <div className="rounded-lg bg-slate-800 p-3">
-                <p className="text-xs text-slate-400 mb-1">Pandit</p>
-                <p className="text-sm font-medium text-white">{selected.pandit?.displayName ?? "Unassigned"}</p>
-              </div>
-              <div className="rounded-lg bg-slate-800 p-3">
-                <p className="text-xs text-slate-400 mb-1">Customer</p>
-                <p className="text-sm font-medium text-white">{selected.customer?.user?.fullName ?? "—"}</p>
-                <p className="text-xs text-slate-400">{selected.customer?.user?.phone ?? ""}</p>
-              </div>
-            </div>
-
-            {/* Booking Ref input */}
-            <div className="mb-3">
-              <label className="mb-1 block text-xs font-medium text-slate-400">Booking Reference / PNR</label>
-              <input
-                value={refInput}
-                onChange={(e) => setRefInput(e.target.value)}
-                placeholder="Enter PNR or booking ref"
-                className="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-primary focus:outline-none"
-              />
-            </div>
-
-            <div className="mb-4">
-              <label className="mb-1 block text-xs font-medium text-slate-400">Notes</label>
-              <textarea
-                value={notesInput}
-                onChange={(e) => setNotesInput(e.target.value)}
-                placeholder="Travel arrangement notes..."
-                rows={2}
-                className="w-full resize-none rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-primary focus:outline-none"
-              />
-            </div>
-
-            {/* Actions */}
-            <div className="flex gap-2">
-              {selected.travelStatus === "PENDING" && (
-                <button
-                  onClick={() => updateTravelStatus(selected.id, "BOOKED")}
-                  className="flex-1 rounded-lg bg-blue-600 py-2 text-sm font-semibold text-white hover:bg-blue-500"
-                >
-                  Mark Booked
-                </button>
-              )}
-              {selected.travelStatus === "BOOKED" && (
-                <button
-                  onClick={() => updateTravelStatus(selected.id, "IN_TRANSIT")}
-                  className="flex-1 rounded-lg bg-purple-600 py-2 text-sm font-semibold text-white hover:bg-purple-500"
-                >
-                  Mark In Transit
-                </button>
-              )}
-              {selected.travelStatus === "IN_TRANSIT" && (
-                <button
-                  onClick={() => updateTravelStatus(selected.id, "ARRIVED")}
-                  className="flex-1 rounded-lg bg-green-600 py-2 text-sm font-semibold text-white hover:bg-green-500"
-                >
-                  Mark Arrived
-                </button>
-              )}
+          {/* Left: List View */}
+          <div className="lg:col-span-8 flex flex-col gap-4">
+            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
               <button
-                onClick={() => showToast("SMS sent to pandit")}
-                className="rounded-lg bg-slate-700 px-3 py-2 text-sm text-white hover:bg-slate-600"
+                onClick={() => setActiveTab("ALL")}
+                className={`flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg px-4 text-sm font-bold transition-all ${activeTab === "ALL" ? "bg-[#f49d25] text-white" : "bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300"}`}
               >
-                <span className="material-symbols-outlined text-base">sms</span>
+                All Travels <span className="bg-white/20 px-1.5 rounded">124</span>
+              </button>
+              <button
+                onClick={() => setActiveTab("DELAYED")}
+                className={`flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg px-4 text-sm font-medium transition-all ${activeTab === "DELAYED" ? "bg-[#f49d25] text-white" : "bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300"}`}
+              >
+                Delayed <span className="bg-[#f49d25]/20 text-[#f49d25] px-1.5 rounded">9</span>
+              </button>
+              <button
+                onClick={() => setActiveTab("EMERGENCY")}
+                className={`flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg px-4 text-sm font-medium transition-all ${activeTab === "EMERGENCY" ? "bg-[#f49d25] text-white" : "bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300"}`}
+              >
+                Emergency <span className="bg-red-500/20 text-red-500 px-1.5 rounded">3</span>
               </button>
             </div>
+
+            <div className="bg-white dark:bg-[#1a140d] rounded-xl border border-slate-200 dark:border-white/10 overflow-hidden">
+              <table className="w-full text-left">
+                <thead className="bg-slate-50 dark:bg-white/5 border-b border-slate-200 dark:border-white/10">
+                  <tr>
+                    <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase">Trip ID</th>
+                    <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase">Service</th>
+                    <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase">Status</th>
+                    <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase">Current Location</th>
+                    <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase">ETA Offset</th>
+                    <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 dark:divide-white/10">
+                  {filtered.map(trip => (
+                    <tr
+                      key={trip.id}
+                      onClick={() => setSelectedTrip(trip)}
+                      className={`cursor-pointer hover:bg-slate-50 dark:hover:bg-white/5 transition-colors ${selectedTrip?.id === trip.id ? "bg-slate-50 dark:bg-white/5" : ""} ${trip.status === "DELAYED" ? "border-l-4 border-l-[#f49d25] bg-[#f49d25]/5" : ""} ${trip.status === "EMERGENCY" ? "border-l-4 border-l-red-500 bg-red-500/5" : ""}`}
+                    >
+                      <td className="px-4 py-4 font-bold text-slate-900 dark:text-white">{trip.tripId}</td>
+                      <td className="px-4 py-4">
+                        <div className="flex flex-col">
+                          <span className="text-sm font-bold dark:text-white">{trip.serviceName}</span>
+                          <span className="text-xs text-slate-400">{trip.panditName}</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-4">
+                        <StatusBadge status={trip.status} />
+                      </td>
+                      <td className="px-4 py-4 text-sm dark:text-slate-300">{trip.currentLocation}</td>
+                      <td className="px-4 py-4">
+                        <ETAText status={trip.status} text={trip.etaOffset} />
+                      </td>
+                      <td className="px-4 py-4">
+                        <button className="text-[#f49d25] text-xs font-black hover:underline uppercase">Manage</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        )}
-      </div>
-    </main>
+
+          {/* Right: Detailed Card & Action Panel */}
+          <div className="lg:col-span-4 flex flex-col gap-6">
+            {selectedTrip ? (
+              <div className="bg-white dark:bg-[#1a140d] rounded-xl border border-slate-200 dark:border-white/10 overflow-hidden flex flex-col sticky top-24">
+                <div className="p-4 border-b border-slate-200 dark:border-white/10 flex justify-between items-center bg-slate-50 dark:bg-white/5">
+                  <h3 className="font-bold text-slate-900 dark:text-white">{selectedTrip.tripId} | {selectedTrip.serviceName}</h3>
+                  <span className="material-symbols-outlined text-slate-400 cursor-pointer">open_in_full</span>
+                </div>
+                <div className="p-4 flex flex-col gap-4">
+                  {/* Mini Map */}
+                  <div className="w-full h-40 rounded-lg bg-slate-200 dark:bg-white/5 relative overflow-hidden">
+                    {selectedTrip.miniMapUrl ? (
+                      <img className="w-full h-full object-cover" src={selectedTrip.miniMapUrl} alt="Mini map" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-slate-400 text-xs">Map Unavailable</div>
+                    )}
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                      <div className="relative">
+                        <span className="material-symbols-outlined text-[#f49d25] text-4xl">person_pin_circle</span>
+                        <div className="absolute top-0 right-0 size-2 bg-red-500 rounded-full animate-ping"></div>
+                      </div>
+                    </div>
+                    <div className="absolute bottom-2 left-2 bg-black/60 backdrop-blur-sm text-white text-[10px] px-2 py-1 rounded">
+                      GPS: 19.2344° N, 73.1298° E
+                    </div>
+                  </div>
+
+                  {/* Logistics Details */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[10px] uppercase font-bold text-slate-400">Train Status</span>
+                      <div className="flex items-center gap-1">
+                        <span className="material-symbols-outlined text-[#f49d25] text-sm">train</span>
+                        <span className="text-sm font-bold text-[#f49d25]">{selectedTrip.trainStatus || "N/A"}</span>
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[10px] uppercase font-bold text-slate-400">Next Stop</span>
+                      <span className="text-sm font-bold dark:text-white">{selectedTrip.nextStop || "N/A"}</span>
+                    </div>
+                  </div>
+                  <hr className="border-slate-100 dark:border-white/10" />
+
+                  {/* Customer Info */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="size-10 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center">
+                        <span className="material-symbols-outlined text-slate-400">person</span>
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-bold dark:text-white">{selectedTrip.customerName}</span>
+                        <span className="text-xs text-slate-400">{selectedTrip.customerRole}</span>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <button className="size-8 rounded-lg bg-green-500 text-white flex items-center justify-center hover:bg-green-600 transition-colors">
+                        <span className="material-symbols-outlined text-sm">call</span>
+                      </button>
+                      <button className="size-8 rounded-lg bg-[#f49d25] text-white flex items-center justify-center hover:bg-[#d8891c] transition-colors">
+                        <span className="material-symbols-outlined text-sm">chat</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Action Panel */}
+                  <div className="flex flex-col gap-2 pt-2">
+                    <button className="w-full py-2 bg-slate-100 dark:bg-white/5 text-slate-900 dark:text-white rounded-lg font-bold text-sm flex items-center justify-center gap-2 border border-slate-200 dark:border-white/10 hover:bg-slate-200 dark:hover:bg-white/10 transition-colors">
+                      <span className="material-symbols-outlined text-sm">campaign</span> Alert Customer
+                    </button>
+                    <button className="w-full py-2 bg-slate-100 dark:bg-white/5 text-slate-900 dark:text-white rounded-lg font-bold text-sm flex items-center justify-center gap-2 border border-slate-200 dark:border-white/10 hover:bg-slate-200 dark:hover:bg-white/10 transition-colors">
+                      <span className="material-symbols-outlined text-sm">local_taxi</span> Arrange Cab from Kalyan
+                    </button>
+
+                    <div className="mt-4 p-4 border-2 border-dashed border-red-500/50 rounded-xl bg-red-500/5 flex flex-col gap-4">
+                      <button className="w-full py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-black text-sm flex items-center justify-center gap-2 shadow-lg shadow-red-500/20 transition-all active:scale-[0.98]">
+                        <span className="material-symbols-outlined">verified_user</span> ACTIVATE BACKUP PANDIT
+                      </button>
+                      <div>
+                        <p className="text-[10px] uppercase font-bold text-red-500 mb-2">Available Local Backups</p>
+                        <div className="flex flex-col gap-2">
+                          <div className="flex items-center justify-between bg-white dark:bg-[#1a140d] p-2 rounded border border-red-500/20">
+                            <span className="text-xs font-medium dark:text-white">Pandit V. Kulkarni</span>
+                            <span className="text-[10px] bg-green-500/10 text-green-500 px-1 rounded">5km away</span>
+                          </div>
+                          <div className="flex items-center justify-between bg-white dark:bg-[#1a140d] p-2 rounded border border-red-500/20 opacity-60">
+                            <span className="text-xs font-medium dark:text-white">Pandit M. Joshi</span>
+                            <span className="text-[10px] bg-slate-500/10 text-slate-500 px-1 rounded">12km away</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="h-full flex items-center justify-center text-slate-400">Select a trip to view details</div>
+            )}
+          </div>
+        </div>
+      </main>
+
+      {/* API Footer */}
+      <footer className="bg-white dark:bg-[#1a140d] border-t border-slate-200 dark:border-white/10 px-10 py-4 mt-auto">
+        <div className="max-w-[1440px] mx-auto flex flex-wrap justify-between items-center gap-4">
+          <div className="flex gap-8">
+            <div className="flex items-center gap-2">
+              <span className="size-2 bg-green-500 rounded-full"></span>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">IRCTC API: CONNECTED</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="size-2 bg-green-500 rounded-full"></span>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">MMT API: LIVE</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="size-2 bg-yellow-500 rounded-full"></span>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">UBER API: LATENCY</span>
+            </div>
+          </div>
+          <div className="text-xs text-slate-400 font-medium">
+            © 2024 HmarePanditJi Operations - Internal Use Only
+          </div>
+        </div>
+      </footer>
+
+    </div>
   );
 }

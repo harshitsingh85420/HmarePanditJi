@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Guest-to-User Transition Flow - HmarePanditJi</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Icons -->
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+            extend: {
+                colors: {
+                    "primary": "#ec7f13",
+                    "background-light": "#f8f7f6",
+                    "background-dark": "#221910",
+                },
+                fontFamily: {
+                    "display": ["Lexend", "sans-serif"]
+                },
+                borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+            },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Lexend', sans-serif;
+        }
+        .pattern-bg {
+            background-color: #ec7f13;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark min-h-screen flex flex-col font-display text-gray-800 dark:text-gray-100">
+<!-- Navbar (Simplified for Transition Flow) -->
+<nav class="w-full bg-white dark:bg-zinc-900 border-b border-gray-100 dark:border-zinc-800 py-4 px-6 md:px-12 flex justify-between items-center shadow-sm relative z-20">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white font-bold text-lg">H</div>
+<span class="text-xl font-bold tracking-tight text-gray-900 dark:text-white">HmarePanditJi</span>
+</div>
+<div class="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center gap-1">
+<span class="material-icons-round text-primary text-base">lock</span> Secure Checkout
+        </div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-grow flex items-center justify-center p-4 md:p-8 lg:p-12 relative overflow-hidden">
+<!-- Background Elements -->
+<div class="absolute top-0 left-0 w-full h-full pointer-events-none z-0">
+<div class="absolute top-[-10%] right-[-5%] w-96 h-96 bg-primary/10 rounded-full blur-3xl"></div>
+<div class="absolute bottom-[-10%] left-[-5%] w-72 h-72 bg-primary/5 rounded-full blur-3xl"></div>
+</div>
+<!-- Split Card Container -->
+<div class="w-full max-w-5xl bg-white dark:bg-zinc-900 rounded-2xl shadow-xl overflow-hidden flex flex-col lg:flex-row relative z-10 border border-gray-100 dark:border-zinc-800">
+<!-- Left Side: Booking Context & Summary -->
+<div class="w-full lg:w-5/12 bg-primary/5 dark:bg-zinc-800/50 p-8 lg:p-10 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-gray-100 dark:border-zinc-800 relative">
+<!-- Abstract Mandala Pattern Overlay -->
+<div class="absolute inset-0 opacity-5 pointer-events-none" style="background-image: radial-gradient(circle at center, #ec7f13 1px, transparent 1px); background-size: 20px 20px;"></div>
+<div class="relative z-10">
+<div class="inline-flex items-center gap-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-3 py-1 rounded-full text-xs font-semibold mb-6 shadow-sm border border-green-200 dark:border-green-800">
+<span class="material-icons-round text-sm">check_circle</span> Cart Saved
+                    </div>
+<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2 leading-tight">Your booking is almost ready</h2>
+<p class="text-gray-600 dark:text-gray-400 text-sm mb-8">Review your selection before finalizing your Muhurat.</p>
+<!-- Booking Card -->
+<div class="bg-white dark:bg-zinc-900 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-zinc-700 flex gap-4 items-start transition-transform hover:scale-[1.01] duration-300">
+<img alt="Traditional indian priest performing rituals with fire" class="w-20 h-24 object-cover rounded-lg flex-shrink-0 bg-gray-100" data-alt="Traditional indian priest performing rituals with fire" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfIioH6aB55_VvNCcFrhw6WS63rqdRtcSRVF1lcvgEcdJPKMmfFsYnYyxX-8P9_t6OMSVK9z7e4nSPcbNHI0GDeS1IISu-z6Us8m9IQRFF_EZN2-Jrz_6zRV2a1Bc5qO_b6LGcZXQS0vkLB0N2H54XWkUFORhZ7But7QIoVK8HQdTmUclUSMBDZe9ju9ylR4ex_v_LrT5MvhwtVIf9PeNl7oZb0IlgmYG8nUiaXCGLq7vkh3JtF-77goYh_adn7THrCL60gNLpm4A"/>
+<div class="flex-grow">
+<h3 class="font-bold text-gray-900 dark:text-white text-lg">Varanasi Pandit</h3>
+<p class="text-xs text-primary font-medium mb-2 uppercase tracking-wide">Wedding Rituals</p>
+<div class="space-y-1.5">
+<div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+<span class="material-icons-round text-base text-gray-400">calendar_today</span>
+<span>Dec 16, 2023 • 9:00 AM</span>
+</div>
+<div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+<span class="material-icons-round text-base text-gray-400">location_on</span>
+<span>Delhi, NCR</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="relative z-10 mt-8 lg:mt-0 pt-6 lg:pt-0">
+<div class="flex items-center gap-3">
+<div class="flex -space-x-3">
+<img alt="Avatar user 1" class="w-8 h-8 rounded-full border-2 border-white dark:border-zinc-800" data-alt="User avatar 1" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCO_F42ht4yrfhs33xeXgLlQrOtE0ww3ygJJdBLT31w03PA-iH7jbiL1GiVgYHxSQskWY8aYdcFYRoj1XkacME9a1MxcnLJqBpH6Bx5Pmq_jpiTGQkkhR8KOKlhWJakbYCfFD52Lz_oCXNY96yxy3MNKhyUR1xB8XqmXw93AkqXAm5C7egHOtSrREJWmGYGk2_ep3rsdXvqCQFVhf01xqlgP_d4-oeVQ42TMRD6dl7y1OAjp5ENDIMHXLAC_24BUD3QH8swbbN5pCk"/>
+<img alt="Avatar user 2" class="w-8 h-8 rounded-full border-2 border-white dark:border-zinc-800" data-alt="User avatar 2" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAcJVWxmGhINH5pKJTn_QBJw2AuuvdZqYsjcVRC3Rd1PfgVK7YsaNL-NVtYvS8blK1h2nJ77aLOE3e9NfuGT54XOrjPtNKXz3Z_Sdyw_a7fFzDhJ9AjYkl_5zx4ob9cWuQYJzRdKs4AP8LEHJSPO03dTOlWmvwPqHBHGgoc0iMAA8eOThuxJ0Ne7GDLAHeYisY3KPjTljzen5fHZZeLWotipnUzr9T2VXXkMvfiU2cLydwcJbBkjwd-rYOrXNmbfyIBL5rfvRG_U3U"/>
+<img alt="Avatar user 3" class="w-8 h-8 rounded-full border-2 border-white dark:border-zinc-800" data-alt="User avatar 3" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCcri8kEFQ-t9t-YQKSjBjG2x7N2Insf4qb77Ouw3ppdBNpY5GupvraNP5f8QddPh2SODPoM_HkgfQWle96AUKpzwVyMHIgp63ke0D18YWVNi1qP6GqTgcBxBwQtApig6d0_-RiHjREV_2QtyrjFBbfLK3AkYFo384MzQrm2lxmI9M7307ps083UELHlRflSw00gqu3asliMLzkFbnbaWtMih7OXn82hIm21mhR3biUjNuP9hSiJ0AM4chx1PTFa3V-zHaC1IAkkZQ"/>
+</div>
+<p class="text-xs text-gray-500 dark:text-gray-400 font-medium">Join 15,000+ devotees today</p>
+</div>
+</div>
+</div>
+<!-- Right Side: Action & Signup -->
+<div class="w-full lg:w-7/12 p-8 lg:p-12 flex flex-col justify-center bg-white dark:bg-zinc-900">
+<div class="max-w-md mx-auto w-full">
+<div class="mb-8">
+<h1 class="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-3">Just one step away</h1>
+<p class="text-gray-600 dark:text-gray-400">Login or create an account to secure your Pandit and receive booking updates instantly.</p>
+</div>
+<!-- Input Form -->
+<form class="space-y-6" onsubmit="event.preventDefault();">
+<div>
+<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" for="phone">Mobile Number</label>
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="text-gray-500 dark:text-gray-400 font-medium">+91</span>
+<div class="h-4 w-px bg-gray-300 dark:bg-zinc-600 mx-2"></div>
+</div>
+<input class="block w-full pl-14 pr-12 py-3.5 border-gray-200 dark:border-zinc-700 rounded-lg focus:ring-primary focus:border-primary sm:text-lg dark:bg-zinc-800 dark:text-white shadow-sm placeholder-gray-400" id="phone" name="phone" placeholder="98765 43210" required="" type="tel"/>
+<div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+<span class="material-icons-round text-gray-400 text-xl">phone_iphone</span>
+</div>
+</div>
+</div>
+<button class="w-full bg-primary hover:bg-orange-600 text-white font-semibold py-4 px-6 rounded-lg transition duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-2 text-lg group" type="submit">
+                            Send OTP
+                            <span class="material-icons-round group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+</form>
+<!-- Trust Indicators / Benefits -->
+<div class="mt-10 pt-8 border-t border-gray-100 dark:border-zinc-800">
+<p class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-4">Member Benefits</p>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-6">
+<div class="flex items-start gap-3">
+<div class="p-1.5 rounded bg-primary/10 text-primary">
+<span class="material-icons-round text-lg">location_on</span>
+</div>
+<div>
+<h4 class="text-sm font-semibold text-gray-900 dark:text-white">Track Live</h4>
+<p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Real-time pandit tracking</p>
+</div>
+</div>
+<div class="flex items-start gap-3">
+<div class="p-1.5 rounded bg-primary/10 text-primary">
+<span class="material-icons-round text-lg">auto_awesome</span>
+</div>
+<div>
+<h4 class="text-sm font-semibold text-gray-900 dark:text-white">Digital Blessings</h4>
+<p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Access rituals anytime</p>
+</div>
+</div>
+<div class="flex items-start gap-3">
+<div class="p-1.5 rounded bg-primary/10 text-primary">
+<span class="material-icons-round text-lg">support_agent</span>
+</div>
+<div>
+<h4 class="text-sm font-semibold text-gray-900 dark:text-white">24/7 Support</h4>
+<p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Dedicated travel assistance</p>
+</div>
+</div>
+<div class="flex items-start gap-3">
+<div class="p-1.5 rounded bg-primary/10 text-primary">
+<span class="material-icons-round text-lg">verified_user</span>
+</div>
+<div>
+<h4 class="text-sm font-semibold text-gray-900 dark:text-white">Secure Payments</h4>
+<p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">100% money back guarantee</p>
+</div>
+</div>
+</div>
+</div>
+<p class="text-xs text-center text-gray-400 dark:text-gray-500 mt-8">
+                        By continuing, you agree to HmarePanditJi's <a class="underline hover:text-primary" href="#">Terms of Service</a> and <a class="underline hover:text-primary" href="#">Privacy Policy</a>.
+                    </p>
+</div>
+</div>
+</div>
+</main>
+<!-- Simple Footer Strip -->
+<footer class="bg-white dark:bg-zinc-900 py-4 text-center border-t border-gray-100 dark:border-zinc-800 relative z-20">
+<p class="text-xs text-gray-400">© 2023 HmarePanditJi. All rights reserved. Om Shanti.</p>
+</footer>
+</body></html>
