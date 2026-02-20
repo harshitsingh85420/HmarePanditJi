@@ -1,260 +1,299 @@
 import Razorpay from "razorpay";
 import crypto from "crypto";
-import { prisma } from "@hmarepanditji/db";
+import { prisma, BookingStatus, PaymentStatus } from "@hmarepanditji/db";
 import { env } from "../config/env";
-import { AppError } from "../middleware/errorHandler";
 import { logger } from "../utils/logger";
-import { notifyPaymentSuccess, notifyNewBooking } from "./notification.service";
+import { AppError } from "../middleware/errorHandler";
+import { calculatePanditPayout } from "../utils/pricing";
+import {
+  notifyNewBookingToPandit,
+  notifyPaymentReceivedToCustomer,
+} from "./notification.service";
 
-// ─── Razorpay singleton (lazy-init when keys are set) ─────────────────────────
+let razorpayInstance: Razorpay | null = null;
 
-let _razorpay: Razorpay | null = null;
-
-function getRazorpay(): Razorpay {
-  if (!env.RAZORPAY_KEY_ID || !env.RAZORPAY_KEY_SECRET) {
-    throw new AppError("Razorpay keys not configured", 503, "RAZORPAY_NOT_CONFIGURED");
-  }
-  if (!_razorpay) {
-    _razorpay = new Razorpay({
+function getRazorpay() {
+  if (!razorpayInstance) {
+    if (!env.RAZORPAY_KEY_ID || !env.RAZORPAY_KEY_SECRET) {
+      logger.warn("Razorpay keys not configured. Payment formatting will fail.");
+      return null;
+    }
+    razorpayInstance = new Razorpay({
       key_id: env.RAZORPAY_KEY_ID,
       key_secret: env.RAZORPAY_KEY_SECRET,
     });
   }
-  return _razorpay;
+  return razorpayInstance;
 }
 
-// ─── Create Razorpay Order ────────────────────────────────────────────────────
+export interface CreateOrderInput {
+  amount: number; // in INR
+  currency?: string;
+  receipt: string;
+  notes?: Record<string, string>;
+}
 
-export async function createRazorpayOrder(bookingId: string, customerId: string) {
-  const booking = await prisma.booking.findFirst({
-    where: { id: bookingId, customerId },
-    include: {
-      customer: { include: { user: true } },
-      pandit: true,
-      ritual: true,
-    },
-  });
-  if (!booking) throw new AppError("Booking not found", 404, "NOT_FOUND");
-  if (booking.paymentStatus === "CAPTURED") {
-    throw new AppError("Booking already paid", 400, "ALREADY_PAID");
-  }
-
-  const total = booking.grandTotal || 5100;
-  const amountPaise = Math.round(total * 100);
-
-  // Dev mode: no Razorpay keys configured → return mock order
-  if (!env.RAZORPAY_KEY_ID) {
-    const mockOrderId = `order_dev_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-    logger.info(`[DEV] Mock Razorpay order ${mockOrderId} for booking ${bookingId}, amount ₹${total}`);
-
-    await prisma.booking.update({
-      where: { id: bookingId },
-      data: { razorpayOrderId: mockOrderId },
-    });
-
+/**
+ * Low-level helper that talks to Razorpay API (or logs in mock mode).
+ * Amount is in rupees; this function converts to paise.
+ */
+export async function createOrder(input: CreateOrderInput) {
+  const rzp = getRazorpay();
+  if (!rzp) {
+    // Mock for development if keys missing
+    logger.info(`[MOCK] Creating Razorpay order for ₹${input.amount}`);
     return {
-      orderId: mockOrderId,
-      amount: amountPaise,
-      currency: "INR",
-      key: "rzp_test_mock",
+      id: "order_mock_" + Date.now(),
+      currency: input.currency || "INR",
+      amount: input.amount * 100,
+      status: "created",
     };
   }
 
-  // Production: create real Razorpay order
-  const razorpay = getRazorpay();
-  const order = await (razorpay.orders.create as Function)({
-    amount: amountPaise,
+  // Razorpay expects amount in paise
+  const options = {
+    amount: Math.round(input.amount * 100),
+    currency: input.currency || "INR",
+    receipt: input.receipt,
+    notes: input.notes,
+  };
+
+  try {
+    const order = await rzp.orders.create(options);
+    return order;
+  } catch (error) {
+    logger.error("Razorpay Create Order Failed:", error);
+    throw new Error("Payment initialization failed");
+  }
+}
+
+export function verifySignature(
+  orderId: string,
+  paymentId: string,
+  signature: string
+): boolean {
+  if (!env.RAZORPAY_KEY_SECRET) {
+    logger.warn("Cannot verify signature without RAZORPAY_KEY_SECRET");
+    return false;
+  }
+
+  const generatedSignature = crypto
+    .createHmac("sha256", env.RAZORPAY_KEY_SECRET)
+    .update(orderId + "|" + paymentId)
+    .digest("hex");
+
+  return generatedSignature === signature;
+}
+
+export async function initiateRefund(bookingId: string, reason?: string) {
+  const rzp = getRazorpay();
+  if (!rzp) {
+    logger.info(`[MOCK] Refund initiated for ${bookingId}`);
+    return { refundId: "rf_" + Date.now(), refundAmount: 0 };
+  }
+
+  logger.info(`[Payment] Refund requested for ${bookingId}. Reason: ${reason}`);
+  // Phase 1: manual refunds handled by ops team; we just log intent.
+  // In future, use rzp.payments.refund(...) here.
+  return { refundId: "rf_" + Date.now(), refundAmount: 0 };
+}
+
+// ─── High-level helpers used by routes ──────────────────────────────────────────
+
+/**
+ * Create a Razorpay order for a given booking.
+ * - Verifies booking & customer ownership.
+ * - Uses booking.grandTotal as source of truth for amount.
+ * - Persists razorpayOrderId and keeps paymentStatus=PENDING.
+ */
+export async function createRazorpayOrder(bookingId: string, customerId: string) {
+  const booking = await prisma.booking.findUnique({
+    where: { id: bookingId },
+    include: {
+      customer: { include: { user: true } },
+      pandit: { include: { user: true } },
+    },
+  });
+
+  if (!booking) {
+    throw new AppError("Booking not found", 404, "BOOKING_NOT_FOUND");
+  }
+
+  if (booking.customerId !== customerId) {
+    throw new AppError("You are not allowed to pay for this booking", 403, "FORBIDDEN");
+  }
+
+  if (booking.paymentStatus === "CAPTURED") {
+    // Idempotent behaviour — return existing order info if already paid.
+    return {
+      orderId: booking.razorpayOrderId,
+      amount: booking.grandTotal * 100,
+      currency: "INR",
+      keyId: env.RAZORPAY_KEY_ID,
+      bookingNumber: booking.bookingNumber,
+    };
+  }
+
+  const amountInRupees = booking.grandTotal || booking.dakshinaAmount;
+  if (!amountInRupees || amountInRupees <= 0) {
+    throw new AppError("Invalid booking amount", 400, "INVALID_AMOUNT");
+  }
+
+  const order = await createOrder({
+    amount: amountInRupees,
     currency: "INR",
     receipt: booking.bookingNumber,
     notes: {
       bookingId: booking.id,
-      customerName: booking.customer.user.name ?? "Customer",
-      panditName: booking.pandit?.displayName ?? "Unassigned",
-      ceremony: booking.ritual?.name ?? "Puja",
+      customerId: booking.customerId,
+      panditId: booking.panditId ?? "",
     },
   });
 
   await prisma.booking.update({
-    where: { id: bookingId },
-    data: { razorpayOrderId: order.id },
+    where: { id: booking.id },
+    data: {
+      razorpayOrderId: order.id,
+      paymentStatus: PaymentStatus.PENDING,
+    },
   });
 
   return {
     orderId: order.id,
-    amount: amountPaise,
-    currency: "INR",
-    key: env.RAZORPAY_KEY_ID,
+    amount: order.amount, // paise
+    currency: order.currency,
+    keyId: env.RAZORPAY_KEY_ID,
+    bookingNumber: booking.bookingNumber,
   };
 }
 
-// ─── Verify Razorpay Signature ────────────────────────────────────────────────
-
+/** Thin wrapper for signature verification used by routes. */
 export function verifyRazorpaySignature(
   orderId: string,
   paymentId: string,
   signature: string,
 ): boolean {
-  // Dev mode: skip when key secret not configured
-  if (!env.RAZORPAY_KEY_SECRET) return true;
-
-  const body = `${orderId}|${paymentId}`;
-  const expected = crypto
-    .createHmac("sha256", env.RAZORPAY_KEY_SECRET)
-    .update(body)
-    .digest("hex");
-  return expected === signature;
+  return verifySignature(orderId, paymentId, signature);
 }
 
-// ─── Verify Webhook Signature ─────────────────────────────────────────────────
-
+/**
+ * Verify Razorpay webhook signature using RAZORPAY_WEBHOOK_SECRET.
+ * If secret is not configured, treat as mock mode and accept all payloads.
+ */
 export function verifyWebhookSignature(rawBody: string, signature: string): boolean {
-  if (!env.RAZORPAY_WEBHOOK_SECRET) return true; // Dev mode
+  if (!env.RAZORPAY_WEBHOOK_SECRET) {
+    logger.warn("Razorpay webhook secret not configured — skipping signature verification");
+    return true;
+  }
 
   const expected = crypto
     .createHmac("sha256", env.RAZORPAY_WEBHOOK_SECRET)
     .update(rawBody)
     .digest("hex");
+
   return expected === signature;
 }
 
-// ─── Process Successful Payment ───────────────────────────────────────────────
-
+/**
+ * Mark a booking as paid after a successful Razorpay charge.
+ * - Updates paymentStatus to CAPTURED and status → PANDIT_REQUESTED.
+ * - Recalculates panditPayout based on latest financial columns.
+ * - Creates a BookingStatusUpdate record.
+ * - Triggers SMS notifications to customer & pandit.
+ */
 export async function processPaymentSuccess(
   bookingId: string,
-  paymentId: string,
-  orderId: string,
+  razorpayPaymentId: string,
+  razorpayOrderId?: string,
 ) {
-  const booking = await prisma.booking.update({
+  const booking = await prisma.booking.findUnique({
     where: { id: bookingId },
-    data: {
-      paymentStatus: "CAPTURED",
-      razorpayPaymentId: paymentId,
-      razorpayOrderId: orderId,
-      // status stays CREATED — awaiting pandit acceptance
-    },
     include: {
-      pandit: { include: { user: true } },
       customer: { include: { user: true } },
+      pandit: { include: { user: true } },
       ritual: true,
     },
   });
 
-  const totalAmount = booking.grandTotal || 0;
-  const customerPhone = booking.customer.user.phone;
-  const panditPhone = booking.pandit?.user?.phone;
-  const city = booking.venueCity ?? "Delhi";
-
-  // Notify customer — payment received
-  if (customerPhone) {
-    notifyPaymentSuccess({
-      customerUserId: booking.customer.userId,
-      customerPhone,
-      bookingNumber: booking.bookingNumber,
-      amount: totalAmount,
-    }).catch((err) => logger.error("notifyPaymentSuccess failed:", err));
+  if (!booking) {
+    throw new AppError("Booking not found", 404, "BOOKING_NOT_FOUND");
   }
 
-  // Notify pandit — new booking awaiting acceptance
-  if (panditPhone && booking.pandit) {
-    const dakshinaAmount = booking.dakshinaAmount || totalAmount;
-    notifyNewBooking({
-      panditUserId: booking.pandit.userId,
-      panditPhone,
-      bookingNumber: booking.bookingNumber,
-      ritualName: booking.ritual?.name ?? "Puja",
-      eventDate: booking.eventDate,
-      eventTime: booking.muhuratTime,
-      city,
-      dakshina: dakshinaAmount,
-    }).catch((err) => logger.error("notifyNewBooking failed:", err));
+  if (booking.paymentStatus === PaymentStatus.CAPTURED) {
+    // Idempotent — return existing booking.
+    return booking;
   }
 
-  logger.info(`Booking ${booking.bookingNumber} paid — notifications dispatched`);
+  const previousStatus = booking.status;
 
-  return booking;
-}
-
-// ─── Initiate Refund ──────────────────────────────────────────────────────────
-
-export async function initiateRefund(bookingId: string, reason?: string) {
-  const booking = await prisma.booking.findUnique({
-    where: { id: bookingId },
+  // Compute pandit payout using current financial fields
+  const panditPayout = calculatePanditPayout({
+    dakshinaAmount: booking.dakshinaAmount,
+    platformFee: booking.platformFee,
+    travelCost: booking.travelCost,
+    foodAllowanceAmount: booking.foodAllowanceAmount,
+    accommodationCost: booking.accommodationCost,
   });
 
-  if (!booking) throw new AppError("Booking not found", 404, "NOT_FOUND");
-  if (booking.paymentStatus !== "CAPTURED") {
-    throw new AppError("Booking is not eligible for refund", 400, "NOT_REFUNDABLE");
-  }
-  if (!booking.razorpayPaymentId) {
-    throw new AppError("No payment ID on record", 400, "NO_PAYMENT_ID");
-  }
-
-  const totalPaid = booking.grandTotal || 0;
-  const platformFeeAmount = booking.platformFee || 0;
-
-  // Refund policy based on days until event
-  const now = new Date();
-  const event = new Date(booking.eventDate);
-  const daysUntilEvent = Math.floor((event.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-
-  let refundAmount: number;
-  let refundNote: string;
-
-  if (daysUntilEvent > 7) {
-    refundAmount = totalPaid;
-    refundNote = "100% refund (>7 days notice)";
-  } else if (daysUntilEvent >= 3) {
-    refundAmount = Math.round(totalPaid * 0.5);
-    refundNote = "50% refund (3-7 days notice)";
-  } else {
-    // < 3 days: only platform fee refunded
-    refundAmount = platformFeeAmount;
-    refundNote = "Platform fee refund only (<3 days notice)";
-  }
-
-  const refundAmountPaise = Math.round(refundAmount * 100);
-  const noteText = reason ? `${refundNote}. Reason: ${reason}` : refundNote;
-
-  // Dev mode: mock refund
-  if (!env.RAZORPAY_KEY_ID) {
-    const mockRefundId = `refund_dev_${Date.now()}`;
-    logger.info(`[DEV] Mock refund ${mockRefundId} for booking ${bookingId} — ₹${refundAmount}`);
-
-    await prisma.booking.update({
-      where: { id: bookingId },
+  const updated = await prisma.$transaction(async (tx) => {
+    const updatedBooking = await tx.booking.update({
+      where: { id: booking.id },
       data: {
-        status: "REFUNDED",
-        paymentStatus: "REFUNDED",
-        refundStatus: "COMPLETED",
-        refundReference: mockRefundId,
-        refundAmount,
-        adminNotes: noteText,
+        razorpayPaymentId,
+        razorpayOrderId: razorpayOrderId ?? booking.razorpayOrderId,
+        paymentStatus: PaymentStatus.CAPTURED,
+        status: BookingStatus.PANDIT_REQUESTED,
+        panditPayout,
       },
     });
 
-    return { refundId: mockRefundId, refundAmount };
+    await tx.bookingStatusUpdate.create({
+      data: {
+        bookingId: booking.id,
+        fromStatus: previousStatus,
+        toStatus: BookingStatus.PANDIT_REQUESTED,
+        updatedBy: booking.customer.userId,
+      },
+    });
+
+    return updatedBooking;
+  });
+
+  // ── Fire-and-forget notifications ──────────────────────────────────────────
+  try {
+    if (booking.customer?.user) {
+      const customerUser = booking.customer.user;
+      if (customerUser.phone) {
+        notifyPaymentReceivedToCustomer({
+          customerUserId: customerUser.id,
+          customerName: customerUser.name ?? customerUser.phone,
+          amount: updated.grandTotal,
+          bookingNumber: updated.bookingNumber,
+          customerPhone: customerUser.phone,
+        }).catch((err) => logger.error("notifyPaymentReceivedToCustomer failed:", err));
+      }
+    }
+
+    if (booking.pandit?.user) {
+      const panditUser = booking.pandit.user;
+      if (panditUser.phone) {
+        notifyNewBookingToPandit({
+          panditUserId: panditUser.id,
+          panditName: booking.pandit.displayName,
+          bookingNumber: updated.bookingNumber,
+          eventType: updated.eventType,
+          eventDate: updated.eventDate,
+          venueCity: updated.venueCity,
+          dakshina: updated.dakshinaAmount,
+          travelMode: updated.travelMode ?? null,
+          panditPayout: updated.panditPayout,
+          panditPhone: panditUser.phone,
+        }).catch((err) => logger.error("notifyNewBookingToPandit failed:", err));
+      }
+    }
+  } catch (err) {
+    logger.error("Payment notifications failed:", err);
   }
 
-  // Production: call Razorpay refund API
-  const razorpay = getRazorpay();
-  const refund = await (razorpay.payments.refund as Function)(booking.razorpayPaymentId, {
-    amount: refundAmountPaise,
-    notes: { reason: noteText, bookingId },
-  });
-
-  await prisma.booking.update({
-    where: { id: bookingId },
-    data: {
-      status: "REFUNDED",
-      paymentStatus: "REFUNDED",
-      refundStatus: "COMPLETED",
-      refundReference: refund.id,
-      refundAmount,
-      adminNotes: `${noteText}. Razorpay refund ID: ${refund.id}`,
-    },
-  });
-
-  logger.info(`Refund ${refund.id} initiated for booking ${booking.bookingNumber} — ₹${refundAmount}`);
-
-  return { refundId: refund.id, refundAmount };
+  return updated;
 }

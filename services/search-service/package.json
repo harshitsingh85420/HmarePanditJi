@@ -1,0 +1,31 @@
+{
+    "name": "@hmarepanditji/search-service",
+    "version": "0.1.0",
+    "private": true,
+    "description": "Elasticsearch-powered pandit search service for HmarePanditJi",
+    "main": "src/index.js",
+    "scripts": {
+        "start": "node src/index.js",
+        "dev": "nodemon src/index.js",
+        "test": "jest --forceExit --detectOpenHandles",
+        "test:watch": "jest --watch"
+    },
+    "dependencies": {
+        "@elastic/elasticsearch": "^8.11.0",
+        "cors": "^2.8.5",
+        "dotenv": "^16.4.0",
+        "express": "^4.18.2",
+        "helmet": "^7.1.0",
+        "ioredis": "^5.3.2",
+        "jsonwebtoken": "^9.0.2",
+        "morgan": "^1.10.0",
+        "node-cron": "^3.0.3",
+        "pg": "^8.11.3",
+        "zod": "^3.22.0"
+    },
+    "devDependencies": {
+        "jest": "^29.7.0",
+        "nodemon": "^3.0.2",
+        "supertest": "^6.3.3"
+    }
+}

@@ -20,6 +20,8 @@ import notificationRoutes from "./routes/notification.routes";
 import travelRoutes from "./routes/travel.routes";
 import muhuratRoutes from "./routes/muhurat.routes";
 import samagriRoutes from "./routes/samagri.routes";
+import voiceRoutes from "./routes/voice.routes";
+import kycRoutes from "./routes/kyc.routes";
 
 const app: express.Application = express();
 
@@ -49,8 +51,8 @@ if (env.NODE_ENV !== "test") {
 }
 
 // ── Body Parsing ──────────────────────────────────────────────────────────────
-app.use(express.json({ limit: "10kb" }));
-app.use(express.urlencoded({ extended: true, limit: "10kb" }));
+app.use(express.json({ limit: "5mb" }));  // Larger limit for voice/audio uploads
+app.use(express.urlencoded({ extended: true, limit: "5mb" }));
 
 // ── Rate Limiting ─────────────────────────────────────────────────────────────
 app.use(generalLimiter);
@@ -87,6 +89,8 @@ app.get(API_PREFIX, (_req, res) => {
         travel: `${API_PREFIX}/travel`,
         muhurat: `${API_PREFIX}/muhurat`,
         samagri: `${API_PREFIX}/samagri`,
+        voice: `${API_PREFIX}/voice`,
+        kyc: `${API_PREFIX}/admin/kyc`,
       },
     },
   });
@@ -105,6 +109,8 @@ app.use(`${API_PREFIX}/notifications`, notificationRoutes);
 app.use(`${API_PREFIX}/travel`, travelRoutes);
 app.use(`${API_PREFIX}/muhurat`, muhuratRoutes);
 app.use(API_PREFIX, samagriRoutes);
+app.use(`${API_PREFIX}/voice`, voiceRoutes);
+app.use(`${API_PREFIX}/admin/kyc`, kycRoutes);
 
 // ── 404 ───────────────────────────────────────────────────────────────────────
 app.use(notFoundHandler);

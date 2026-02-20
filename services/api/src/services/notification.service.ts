@@ -76,13 +76,13 @@ async function sendWhatsApp(to: string, body: string): Promise<void> {
 export interface SendNotificationInput {
   userId: string;
   type:
-    | "BOOKING_CREATED"
-    | "BOOKING_CONFIRMED"
-    | "BOOKING_CANCELLED"
-    | "PAYMENT_SUCCESS"
-    | "REVIEW_REMINDER"
-    | "OTP"
-    | "GENERAL";
+  | "BOOKING_CREATED"
+  | "BOOKING_CONFIRMED"
+  | "BOOKING_CANCELLED"
+  | "PAYMENT_SUCCESS"
+  | "REVIEW_REMINDER"
+  | "OTP"
+  | "GENERAL";
   title: string;
   message: string;
   channel: "SMS" | "WHATSAPP" | "EMAIL" | "IN_APP";
@@ -129,191 +129,183 @@ export async function sendNotification(input: SendNotificationInput): Promise<vo
 
 const dateFormatter = new Intl.DateTimeFormat("en-IN", { dateStyle: "long" });
 
+
+
 /** Send OTP via SMS */
 export async function notifyOtp(phone: string, userId: string, otp: string): Promise<void> {
   const message = `[HmarePanditJi] आपका OTP: ${otp}. 10 min में expire होगा। Share न करें। 🙏`;
   await sendNotification({ userId, type: "OTP", title: "Your OTP", message, channel: "SMS", phone });
 }
 
-/** Notify customer — booking confirmed (payment received, awaiting pandit) */
-export async function notifyBookingConfirmed(booking: {
-  customerUserId: string;
-  customerPhone: string;
-  customerName: string;
-  bookingNumber: string;
-  ritualName: string;
-  eventDate: Date;
-  panditName: string;
-  amount: number;
-}): Promise<void> {
+export async function notifyBookingCreatedToCustomer(
+  booking: { customerUserId: string, customerName: string, bookingNumber: string, eventType: string, eventDate: Date, customerPhone: string }
+): Promise<void> {
   const dateStr = dateFormatter.format(booking.eventDate);
-  const message =
-    `🙏 बधाई हो ${booking.customerName} जी! आपकी बुकिंग #${booking.bookingNumber} confirm हो गई।\n` +
-    `📋 ${booking.ritualName}\n` +
-    `📅 ${dateStr}\n` +
-    `👳 पंडित ${booking.panditName}\n` +
-    `💰 ₹${booking.amount}\n` +
-    `हमारी team जल्द ही आपसे संपर्क करेगी।\n— HmarePanditJi`;
+  const message = `🙏 Namaste ${booking.customerName}! Aapki booking #${booking.bookingNumber} create ho gayi hai. ${booking.eventType} ke liye ${dateStr} ko. Pandit Ji ko notify kar diya hai. – HmarePanditJi`;
+
   await sendNotification({
     userId: booking.customerUserId,
-    type: "BOOKING_CONFIRMED",
-    title: `Booking #${booking.bookingNumber} Confirmed`,
+    type: "BOOKING_CREATED",
+    title: "Booking Created",
     message,
     channel: "SMS",
     phone: booking.customerPhone,
-    metadata: { bookingNumber: booking.bookingNumber },
   });
 }
 
-/** Notify pandit — new booking assigned */
-export async function notifyNewBooking(booking: {
-  panditUserId: string;
-  panditPhone: string;
-  bookingNumber: string;
-  ritualName: string;
-  eventDate: Date;
-  eventTime?: string | null;
-  city: string;
-  dakshina: number;
-}): Promise<void> {
+export async function notifyNewBookingToPandit(
+  booking: { panditUserId: string, panditName: string, bookingNumber: string, eventType: string, eventDate: Date, venueCity: string, dakshina: number, travelMode: string | null, panditPayout: number, panditPhone: string }
+): Promise<void> {
   const dateStr = dateFormatter.format(booking.eventDate);
-  const timeStr = booking.eventTime ?? "";
-  const message =
-    `🔔 नई बुकिंग! #${booking.bookingNumber}\n` +
-    `📋 ${booking.ritualName}\n` +
-    `📅 ${dateStr} | ${timeStr}\n` +
-    `📍 ${booking.city}\n` +
-    `💰 ₹${booking.dakshina}\n` +
-    `App par details dekhein aur Accept/Reject karein।\n— HmarePanditJi`;
+  const travelMode = booking.travelMode ?? "Local";
+  const message = `🔔 ${booking.panditName} Ji, nayi booking! #${booking.bookingNumber} – ${booking.eventType}, ${dateStr}, ${booking.venueCity}. Dakshina: ₹${booking.dakshina}. Travel: ${travelMode}. Aapki net earning: ₹${booking.panditPayout}. App mein jaake Accept/Reject karein. – HmarePanditJi`;
+
   await sendNotification({
     userId: booking.panditUserId,
     type: "BOOKING_CREATED",
-    title: `New Booking #${booking.bookingNumber}`,
+    title: "New Booking Request",
     message,
     channel: "SMS",
     phone: booking.panditPhone,
-    metadata: { bookingNumber: booking.bookingNumber },
   });
 }
 
-/** Notify customer — pandit accepted their booking */
-export async function notifyBookingAccepted(booking: {
-  customerUserId: string;
-  customerPhone: string;
-  customerName: string;
-  bookingNumber: string;
-  panditName: string;
-  eventDate: Date;
-}): Promise<void> {
+export async function notifyBookingConfirmedToCustomer(
+  booking: { customerUserId: string, customerName: string, bookingNumber: string, panditName: string, eventType: string, eventDate: Date, customerPhone: string }
+): Promise<void> {
   const dateStr = dateFormatter.format(booking.eventDate);
-  const message =
-    `✅ ${booking.customerName} जी, पंडित ${booking.panditName} ने आपकी बुकिंग #${booking.bookingNumber} accept कर ली है! \n` +
-    `📅 ${dateStr} ko mil rahe hain।\n— HmarePanditJi 🙏`;
+  const message = `✅ ${booking.customerName} Ji, booking #${booking.bookingNumber} confirmed! ${booking.panditName} Ji aapki ${booking.eventType} ke liye ${dateStr} ko available hain. Travel details jald update karenge. – HmarePanditJi`;
+
   await sendNotification({
     userId: booking.customerUserId,
     type: "BOOKING_CONFIRMED",
-    title: `Booking #${booking.bookingNumber} Accepted`,
+    title: "Booking Confirmed",
     message,
     channel: "SMS",
     phone: booking.customerPhone,
-    metadata: { bookingNumber: booking.bookingNumber },
   });
 }
 
-/** Notify customer — pandit rejected their booking */
-export async function notifyBookingRejected(booking: {
-  customerUserId: string;
-  customerPhone: string;
-  customerName: string;
-  bookingNumber: string;
-  panditName: string;
-  eventDate: Date;
-}): Promise<void> {
+export async function notifyBookingConfirmedToPandit(
+  booking: { panditUserId: string, panditName: string, bookingNumber: string, eventType: string, eventDate: Date, venueCity: string, customerName: string, panditPhone: string }
+): Promise<void> {
   const dateStr = dateFormatter.format(booking.eventDate);
-  const message =
-    `⚠️ ${booking.customerName} जी, पंडित ${booking.panditName} ${dateStr} ko available nahi hain।\n` +
-    `Hum aapko alternative Pandit ji suggest karenge। Chinta na karein!\n— HmarePanditJi`;
-  await sendNotification({
-    userId: booking.customerUserId,
-    type: "BOOKING_CANCELLED",
-    title: `Booking #${booking.bookingNumber} Rejected`,
-    message,
-    channel: "SMS",
-    phone: booking.customerPhone,
-    metadata: { bookingNumber: booking.bookingNumber },
-  });
-}
+  const message = `✅ ${booking.panditName} Ji, booking #${booking.bookingNumber} confirmed. ${booking.eventType}, ${dateStr}, ${booking.venueCity}. Customer: ${booking.customerName}. Travel details jald milenge. – HmarePanditJi`;
 
-/** Notify pandit — booking was cancelled by customer */
-export async function notifyBookingCancelledToPandit(booking: {
-  panditUserId: string;
-  panditPhone: string;
-  bookingNumber: string;
-  reason?: string | null;
-}): Promise<void> {
-  const message =
-    `❌ Booking #${booking.bookingNumber} cancel ho gayi hai।\n` +
-    `Reason: ${booking.reason ?? "N/A"}\n— HmarePanditJi`;
   await sendNotification({
     userId: booking.panditUserId,
-    type: "BOOKING_CANCELLED",
-    title: `Booking #${booking.bookingNumber} Cancelled`,
+    type: "BOOKING_CONFIRMED",
+    title: "Booking Confirmed",
     message,
     channel: "SMS",
     phone: booking.panditPhone,
-    metadata: { bookingNumber: booking.bookingNumber },
   });
 }
 
-/** Notify customer — payment successful */
-export async function notifyPaymentSuccess(booking: {
-  customerUserId: string;
-  customerPhone: string;
-  bookingNumber: string;
-  amount: number;
-  receiptUrl?: string;
-}): Promise<void> {
-  const receiptUrl = booking.receiptUrl ?? `${env.WEB_URL}/bookings`;
-  const message =
-    `💰 Payment successful! ₹${booking.amount} received for booking #${booking.bookingNumber}।\n` +
-    `Receipt: ${receiptUrl}\n— HmarePanditJi`;
+export async function notifyTravelBookedToPandit(
+  booking: { panditUserId: string, panditName: string, bookingNumber: string, travelMode: string, travelBookingRef: string, travelNotes: string, panditPhone: string }
+): Promise<void> {
+  const message = `🚆 ${booking.panditName} Ji, travel booked! Booking #${booking.bookingNumber}. ${booking.travelMode}: ${booking.travelBookingRef}. ${booking.travelNotes}. Puri details app mein dekhein. – HmarePanditJi`;
+
+  await sendNotification({
+    userId: booking.panditUserId,
+    type: "GENERAL",
+    title: "Travel Booked",
+    message,
+    channel: "SMS",
+    phone: booking.panditPhone,
+  });
+}
+
+export async function notifyTravelBookedToCustomer(
+  booking: { customerUserId: string, customerName: string, bookingNumber: string, panditName: string, travelMode: string, travelBookingRef: string, customerPhone: string }
+): Promise<void> {
+  const message = `🚆 ${booking.customerName} Ji, travel arranged! Pandit ${booking.panditName} Ji ka travel book ho gaya hai – ${booking.travelMode}. Ref: ${booking.travelBookingRef}. Booking #${booking.bookingNumber}. – HmarePanditJi`;
+
+  await sendNotification({
+    userId: booking.customerUserId,
+    type: "GENERAL",
+    title: "Travel Arranged",
+    message,
+    channel: "SMS",
+    phone: booking.customerPhone,
+  });
+}
+
+export async function notifyStatusUpdateToCustomer(
+  booking: { customerUserId: string, customerName: string, bookingNumber: string, panditName: string, statusMessage: string, customerPhone: string }
+): Promise<void> {
+  const message = `📍 Update: Pandit ${booking.panditName} Ji – ${booking.statusMessage}. Booking #${booking.bookingNumber}. – HmarePanditJi`;
+
+  await sendNotification({
+    userId: booking.customerUserId,
+    type: "GENERAL",
+    title: "Status Update",
+    message,
+    channel: "SMS",
+    phone: booking.customerPhone,
+  });
+}
+
+export async function notifyPaymentReceivedToCustomer(
+  booking: { customerUserId: string, customerName: string, amount: number, bookingNumber: string, customerPhone: string }
+): Promise<void> {
+  const message = `💰 ${booking.customerName} Ji, payment ₹${booking.amount} received for booking #${booking.bookingNumber}. Invoice aapke dashboard mein available hai. – HmarePanditJi`;
+
   await sendNotification({
     userId: booking.customerUserId,
     type: "PAYMENT_SUCCESS",
-    title: `Payment Confirmed — #${booking.bookingNumber}`,
+    title: "Payment Received",
     message,
     channel: "SMS",
     phone: booking.customerPhone,
-    metadata: { bookingNumber: booking.bookingNumber, amount: booking.amount },
   });
 }
 
-/** Notify customer — review reminder 24h after event */
-export async function notifyReviewReminder(booking: {
-  customerUserId: string;
-  customerPhone: string;
-  customerName: string;
-  panditName: string;
-  ritualName: string;
-  bookingId: string;
-}): Promise<void> {
-  const reviewUrl = `${env.WEB_URL}/bookings/${booking.bookingId}/review`;
-  const message =
-    `🙏 ${booking.customerName} जी, ${booking.ritualName} kaisi rahi?\n` +
-    `Pandit ${booking.panditName} ko rate karein: ${reviewUrl}\n` +
-    `Aapki feedback bahut mahatvapoorn hai!\n— HmarePanditJi`;
+export async function notifyReviewReminderToCustomer(
+  booking: { customerUserId: string, customerName: string, bookingNumber: string, panditName: string, eventType: string, reviewLink: string, customerPhone: string }
+): Promise<void> {
+  const message = `🙏 ${booking.customerName} Ji, aapki ${booking.eventType} kaisi rahi? Pandit ${booking.panditName} Ji ke liye review dein: ${booking.reviewLink}. Booking #${booking.bookingNumber}. – HmarePanditJi`;
+
   await sendNotification({
     userId: booking.customerUserId,
     type: "REVIEW_REMINDER",
-    title: "How was your experience?",
+    title: "Review Your Experience",
     message,
     channel: "SMS",
     phone: booking.customerPhone,
-    metadata: { panditName: booking.panditName, bookingId: booking.bookingId },
   });
 }
 
-// ─── In-app helpers ───────────────────────────────────────────────────────────
+export async function notifyCancellationToAffected(
+  booking: { userId: string, name: string, bookingNumber: string, reason: string, refundAmount: number, refundPercent: number, phone: string }
+): Promise<void> {
+  const message = `❌ ${booking.name} Ji, booking #${booking.bookingNumber} cancel ho gayi hai. Reason: ${booking.reason}. Refund: ₹${booking.refundAmount} (${booking.refundPercent}%). – HmarePanditJi`;
+
+  await sendNotification({
+    userId: booking.userId,
+    type: "BOOKING_CANCELLED",
+    title: "Booking Cancelled",
+    message,
+    channel: "SMS",
+    phone: booking.phone,
+  });
+}
+
+export async function notifyPayoutCompletedToPandit(
+  booking: { panditUserId: string, panditName: string, payoutAmount: number, bookingNumber: string, payoutReference: string, panditPhone: string }
+): Promise<void> {
+  const message = `💰 ${booking.panditName} Ji, aapka payment ₹${booking.payoutAmount} transfer ho gaya hai. Booking #${booking.bookingNumber}. Bank mein 1-2 din mein aayega. Ref: ${booking.payoutReference}. – HmarePanditJi`;
+
+  await sendNotification({
+    userId: booking.panditUserId,
+    type: "GENERAL",
+    title: "Payout Completed",
+    message,
+    channel: "SMS",
+    phone: booking.panditPhone,
+  });
+}
 
 export async function getUnreadCount(userId: string): Promise<number> {
   return prisma.notification.count({ where: { userId, isRead: false } });

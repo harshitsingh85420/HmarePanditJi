@@ -11,6 +11,8 @@ import {
   getPanditReviews,
   getPanditServices,
   getPanditAvailability,
+  getPanditSamagriPackages,
+  manageSamagriPackage,
 } from "../services/pandit.service";
 import { AppError } from "../middleware/errorHandler";
 
@@ -257,6 +259,82 @@ router.delete("/me/block-dates/:id", authenticate, roleGuard("PANDIT"), async (r
 
 // ─── Public routes ────────────────────────────────────────────────────────────
 
+const samagriItemSchema = z.object({
+  name: z.string(),
+  quantity: z.string(),
+  estimatedCost: z.number().optional(),
+});
+
+const samagriPackageSchema = z.object({
+  pujaType: z.string().min(2),
+  packageName: z.string().min(2),
+  tier: z.enum(["BASIC", "STANDARD", "PREMIUM", "CUSTOM"]),
+  fixedPrice: z.number().min(0),
+  description: z.string().optional(),
+  items: z.array(samagriItemSchema).min(1),
+  isActive: z.boolean().default(true),
+});
+
+/**
+ * POST /pandits/me/samagri-packages
+ * Create a new samagri package.
+ */
+router.post(
+  "/me/samagri-packages",
+  authenticate,
+  roleGuard("PANDIT"),
+  validate(samagriPackageSchema),
+  async (req, res, next) => {
+    try {
+      const pandit = await prisma.pandit.findUnique({ where: { userId: req.user!.id } });
+      if (!pandit) throw new AppError("Pandit profile not found", 404);
+
+      const pkg = await manageSamagriPackage("create", pandit.id, req.body);
+      sendSuccess(res, pkg, "Package created successfully", 201);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+/**
+ * PUT /pandits/me/samagri-packages/:id
+ * Update an existing samagri package.
+ */
+router.put(
+  "/me/samagri-packages/:id",
+  authenticate,
+  roleGuard("PANDIT"),
+  validate(samagriPackageSchema.partial()),
+  async (req, res, next) => {
+    try {
+      const pandit = await prisma.pandit.findUnique({ where: { userId: req.user!.id } });
+      if (!pandit) throw new AppError("Pandit profile not found", 404);
+
+      const pkg = await manageSamagriPackage("update", pandit.id, req.body, req.params.id);
+      sendSuccess(res, pkg, "Package updated successfully");
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+/**
+ * DELETE /pandits/me/samagri-packages/:id
+ * Delete a samagri package.
+ */
+router.delete("/me/samagri-packages/:id", authenticate, roleGuard("PANDIT"), async (req, res, next) => {
+  try {
+    const pandit = await prisma.pandit.findUnique({ where: { userId: req.user!.id } });
+    if (!pandit) throw new AppError("Pandit profile not found", 404);
+
+    await manageSamagriPackage("delete", pandit.id, null, req.params.id);
+    sendSuccess(res, null, "Package deleted successfully");
+  } catch (err) {
+    next(err);
+  }
+});
+
 /**
  * GET /pandits
  * Public list with search + filter.
@@ -380,6 +458,20 @@ router.get("/:id/services", async (req, res, next) => {
   try {
     const services = await getPanditServices(req.params.id);
     sendSuccess(res, services);
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * GET /pandits/:id/samagri-packages
+ * Get all available samagri packages for a pandit, optionally filtered by pujaType.
+ */
+router.get("/:id/samagri-packages", async (req, res, next) => {
+  try {
+    const { pujaType } = req.query as { pujaType?: string };
+    const packages = await getPanditSamagriPackages(req.params.id, pujaType);
+    sendSuccess(res, packages);
   } catch (err) {
     next(err);
   }

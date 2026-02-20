@@ -255,14 +255,50 @@ router.patch(
       const { travelStatus, travelBookingRef, travelNotes } = req.body;
 
       const updated = await prisma.booking.update({
-        where: { id: req.params.id },
+        where: { id: req.params.bookingId },
         data: {
           travelStatus,
           ...(travelBookingRef !== undefined && { travelBookingRef }),
           ...(travelNotes !== undefined && { travelNotes }),
           ...(travelStatus === "BOOKED" && { status: "TRAVEL_BOOKED" }),
         },
+        include: {
+          pandit: { select: { id: true, displayName: true, user: { select: { phone: true } } } },
+          customer: { include: { user: { select: { name: true, phone: true } } } },
+        },
       });
+
+      // Trigger Notifications
+      if (travelStatus === "BOOKED") {
+        const pPhone = updated.pandit?.user?.phone;
+        const cPhone = updated.customer?.user?.phone;
+
+        const ns = await import("../services/notification.service");
+
+        if (pPhone && updated.pandit) {
+          await ns.notifyTravelBookedToPandit({
+            panditUserId: updated.pandit!.id,
+            panditName: updated.pandit.displayName,
+            panditPhone: pPhone,
+            bookingNumber: updated.bookingNumber,
+            travelMode: updated.travelMode ?? "Transport",
+            travelBookingRef: travelBookingRef ?? "See app",
+            travelNotes: travelNotes ?? "",
+          });
+        }
+
+        if (cPhone && updated.customer && updated.customer.user) {
+          await ns.notifyTravelBookedToCustomer({
+            customerUserId: updated.customer!.id,
+            customerName: updated.customer.user.name ?? "Customer",
+            customerPhone: cPhone,
+            bookingNumber: updated.bookingNumber,
+            panditName: updated.pandit!.displayName,
+            travelMode: updated.travelMode ?? "Transport",
+            travelBookingRef: travelBookingRef ?? "See app",
+          });
+        }
+      }
 
       await prisma.adminLog.create({
         data: {

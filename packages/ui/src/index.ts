@@ -74,3 +74,12 @@ export type { HeaderProps, AppType, NavLink } from "./header";
 
 export { Footer } from "./footer";
 export type { FooterProps } from "./footer";
+
+export { VoiceHelpButton, useVoiceHelp } from "./voice-help-button";
+export * from "./big-button";
+export * from "./language-switcher";
+export type { VoiceHelpButtonProps } from "./voice-help-button";
+
+// ── Voice-First ──────────────────────────────────────────────────────────────
+export { ListenButton } from "./listen-button";
+export type { ListenButtonProps } from "./listen-button";

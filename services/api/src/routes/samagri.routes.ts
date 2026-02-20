@@ -8,7 +8,7 @@ import {
 } from "../controllers/samagri.controller";
 import { authenticate } from "../middleware/auth";
 
-const router = Router();
+const router: Router = Router();
 
 /**
  * Public route - Get samagri packages for a specific pandit

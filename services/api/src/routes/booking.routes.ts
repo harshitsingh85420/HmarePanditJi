@@ -8,9 +8,9 @@ import { createBooking, getBookingById, listMyBookings, calculateBookingFinancia
 import { createRazorpayOrder } from "../services/payment.service";
 import { parsePagination } from "../utils/helpers";
 import {
-  notifyBookingAccepted,
-  notifyBookingRejected,
-  notifyBookingCancelledToPandit,
+  notifyBookingConfirmedToCustomer,
+  notifyStatusUpdateToCustomer,
+  notifyCancellationToAffected,
 } from "../services/notification.service";
 import { logger } from "../utils/logger";
 
@@ -204,14 +204,15 @@ router.patch("/:id/accept", roleGuard("PANDIT"), async (req, res, next) => {
     const customerPhone = existing.customer.user.phone;
     const customerName = existing.customer.user.name ?? existing.customer.user.phone;
     if (customerPhone) {
-      notifyBookingAccepted({
+      notifyBookingConfirmedToCustomer({
         customerUserId: existing.customer.userId,
         customerPhone,
         customerName,
         bookingNumber: existing.bookingNumber,
         panditName: pandit.displayName,
+        eventType: existing.eventType,
         eventDate: existing.eventDate,
-      }).catch((err) => logger.error("notifyBookingAccepted failed:", err));
+      }).catch((err: unknown) => logger.error("notifyBookingConfirmed failed:", err));
     }
 
     sendSuccess(res, { booking }, "Booking accepted");
@@ -254,14 +255,14 @@ router.patch("/:id/reject", roleGuard("PANDIT"), async (req, res, next) => {
     const customerPhone = existing.customer.user.phone;
     const customerName = existing.customer.user.name ?? existing.customer.user.phone;
     if (customerPhone) {
-      notifyBookingRejected({
+      notifyStatusUpdateToCustomer({
         customerUserId: existing.customer.userId,
         customerPhone,
         customerName,
         bookingNumber: existing.bookingNumber,
         panditName: pandit.displayName,
-        eventDate: existing.eventDate,
-      }).catch((err) => logger.error("notifyBookingRejected failed:", err));
+        statusMessage: "Your booking has been declined by the pandit.",
+      }).catch((err: unknown) => logger.error("notifyBookingRejected failed:", err));
     }
 
     sendSuccess(res, { booking }, "Booking rejected");
@@ -365,23 +366,24 @@ router.patch("/:id/status", roleGuard("PANDIT", "ADMIN"), async (req, res, next)
       const panditName = existing.pandit.displayName;
 
       if (status === "CONFIRMED" && customerPhone) {
-        notifyBookingAccepted({
+        notifyBookingConfirmedToCustomer({
           customerUserId: existing.customer.userId,
           customerPhone,
           customerName,
           bookingNumber: existing.bookingNumber,
           panditName,
+          eventType: existing.eventType,
           eventDate: existing.eventDate,
-        }).catch((err) => logger.error("notifyBookingAccepted failed:", err));
+        }).catch((err: unknown) => logger.error("notifyBookingConfirmed failed:", err));
       } else if (status === "CANCELLED" && customerPhone) {
-        notifyBookingRejected({
+        notifyStatusUpdateToCustomer({
           customerUserId: existing.customer.userId,
           customerPhone,
           customerName,
           bookingNumber: existing.bookingNumber,
           panditName,
-          eventDate: existing.eventDate,
-        }).catch((err) => logger.error("notifyBookingRejected failed:", err));
+          statusMessage: `Booking cancelled${reason ? ': ' + reason : ''}`,
+        }).catch((err: unknown) => logger.error("notifyCancellation failed:", err));
       }
     }
 
@@ -418,12 +420,15 @@ router.post("/:id/cancel", roleGuard("CUSTOMER", "ADMIN"), async (req, res, next
     if (existing && existing.pandit) {
       const panditPhone = existing.pandit.user.phone;
       if (panditPhone) {
-        notifyBookingCancelledToPandit({
-          panditUserId: existing.pandit.userId,
-          panditPhone,
+        notifyCancellationToAffected({
+          userId: existing.pandit.userId,
+          phone: panditPhone,
+          name: existing.pandit.displayName,
           bookingNumber: existing.bookingNumber,
-          reason,
-        }).catch((err) => logger.error("notifyBookingCancelledToPandit failed:", err));
+          reason: reason ?? "Customer cancelled",
+          refundAmount: 0,
+          refundPercent: 0,
+        }).catch((err: unknown) => logger.error("notifyCancellation failed:", err));
       }
     }
 

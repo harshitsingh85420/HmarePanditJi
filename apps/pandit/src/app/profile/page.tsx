@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import SamagriManager from "../../components/SamagriManager";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -14,6 +15,7 @@ interface Badge {
 }
 
 interface PanditProfile {
+  id: string;
   displayName: string;
   bio: string;
   level: number;
@@ -40,6 +42,7 @@ interface PanditProfile {
 // ── Mock Data ─────────────────────────────────────────────────────────────────
 
 const MOCK_PROFILE: PanditProfile = {
+  id: "pandit-123",
   displayName: "Pandit Ram Sharma Ji",
   bio: "25+ saal ka anubhav. Kashi Vishwanath se certified. Vedic traditions ka gyaata.",
   level: 4,
@@ -222,9 +225,8 @@ export default function ProfilePage() {
               ].map((v) => (
                 <span
                   key={v.label}
-                  className={`flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full ${
-                    v.ok ? "bg-green-100 text-green-700" : "bg-slate-100 text-slate-400"
-                  }`}
+                  className={`flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full ${v.ok ? "bg-green-100 text-green-700" : "bg-slate-100 text-slate-400"
+                    }`}
                 >
                   <span className="material-symbols-outlined text-sm leading-none">{v.icon}</span>
                   {v.label} {v.ok ? "✓" : "—"}
@@ -275,11 +277,10 @@ export default function ProfilePage() {
           {BADGES.map((badge) => (
             <div
               key={badge.id}
-              className={`flex flex-col items-center p-5 rounded-xl border transition-colors ${
-                badge.earned
-                  ? "bg-white border-primary/20 hover:border-primary"
-                  : "bg-slate-50 border-slate-200 opacity-50"
-              }`}
+              className={`flex flex-col items-center p-5 rounded-xl border transition-colors ${badge.earned
+                ? "bg-white border-primary/20 hover:border-primary"
+                : "bg-slate-50 border-slate-200 opacity-50"
+                }`}
             >
               {/* Icon circle */}
               <div className="size-20 rounded-full bg-primary/10 flex items-center justify-center mb-3">
@@ -404,6 +405,11 @@ export default function ProfilePage() {
         </div>
       </div>
 
+      {/* ── 6b. Samagri Packages ─────────────────────────────────────────── */}
+      <div className="bg-white rounded-xl border border-primary/10 shadow-sm p-6">
+        <SamagriManager panditId={profile.id} />
+      </div>
+
       {/* ── 7. Bank Details ──────────────────────────────────────────────── */}
       <div className="bg-white rounded-xl border border-primary/10 shadow-sm p-6">
         <div className="flex items-center justify-between mb-4">
@@ -498,11 +504,10 @@ export default function ProfilePage() {
                       <button
                         key={s}
                         onClick={() => toggleSpec(s)}
-                        className={`text-sm font-medium rounded-full px-4 py-2 border transition-colors ${
-                          selected
-                            ? "bg-primary text-white border-primary"
-                            : "bg-white text-slate-600 border-slate-200 hover:border-primary/40"
-                        }`}
+                        className={`text-sm font-medium rounded-full px-4 py-2 border transition-colors ${selected
+                          ? "bg-primary text-white border-primary"
+                          : "bg-white text-slate-600 border-slate-200 hover:border-primary/40"
+                          }`}
                       >
                         {s}
                       </button>
@@ -522,11 +527,10 @@ export default function ProfilePage() {
                       <button
                         key={l}
                         onClick={() => toggleLang(l)}
-                        className={`text-sm font-medium rounded-full px-4 py-2 border transition-colors ${
-                          selected
-                            ? "bg-primary text-white border-primary"
-                            : "bg-white text-slate-600 border-slate-200 hover:border-primary/40"
-                        }`}
+                        className={`text-sm font-medium rounded-full px-4 py-2 border transition-colors ${selected
+                          ? "bg-primary text-white border-primary"
+                          : "bg-white text-slate-600 border-slate-200 hover:border-primary/40"
+                          }`}
                       >
                         {l}
                       </button>

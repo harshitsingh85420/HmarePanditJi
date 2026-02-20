@@ -555,6 +555,90 @@ async function main() {
   await prisma.cityDistance.createMany({ skipDuplicates: true, data: distances });
   console.log("City distances created:", distances.length);
 
+  // ── 7b. Samagri Packages ──────────────────────────────────────────────────
+  const samagriPackages = [
+    // Pandit 1 — Ramesh Shastri (Delhi) — Griha Pravesh
+    {
+      panditId: pMap["+919810001001"]!.panditId, pujaType: "Griha Pravesh", packageName: "Basic Griha Pravesh Samagri", tier: "BASIC", fixedPrice: 1100,
+      description: "Essential items for a simple Griha Pravesh ceremony",
+      items: [{ name: "Ghee", quantity: "250g", estimatedCost: 120 }, { name: "Havan Samagri", quantity: "200g", estimatedCost: 80 }, { name: "Coconut", quantity: "2 pcs", estimatedCost: 60 }, { name: "Kalash", quantity: "1 pc", estimatedCost: 150 }, { name: "Mango Leaves", quantity: "1 bunch", estimatedCost: 30 }, { name: "Red Cloth", quantity: "1 meter", estimatedCost: 80 }, { name: "Agarbatti + Dhoop", quantity: "1 pack", estimatedCost: 50 }, { name: "Camphor (Kapoor)", quantity: "50g", estimatedCost: 40 }, { name: "Flowers", quantity: "1 kg", estimatedCost: 150 }, { name: "Roli Moli", quantity: "1 set", estimatedCost: 30 }]
+    },
+    {
+      panditId: pMap["+919810001001"]!.panditId, pujaType: "Griha Pravesh", packageName: "Standard Griha Pravesh Samagri", tier: "STANDARD", fixedPrice: 2100,
+      description: "Complete samagri for a proper Vastu-compliant Griha Pravesh",
+      items: [{ name: "Desi Ghee", quantity: "500g", estimatedCost: 250 }, { name: "Havan Samagri (premium)", quantity: "500g", estimatedCost: 180 }, { name: "Coconut", quantity: "5 pcs", estimatedCost: 150 }, { name: "Brass Kalash", quantity: "1 pc", estimatedCost: 350 }, { name: "Mango Leaves", quantity: "2 bunches", estimatedCost: 60 }, { name: "Red Cloth", quantity: "2 meters", estimatedCost: 160 }, { name: "Agarbatti + Dhoop", quantity: "2 packs", estimatedCost: 100 }, { name: "Camphor", quantity: "100g", estimatedCost: 80 }, { name: "Flowers", quantity: "2 kg", estimatedCost: 300 }, { name: "Roli Akshat Set", quantity: "1 set", estimatedCost: 50 }, { name: "Supari + Paan", quantity: "1 set", estimatedCost: 80 }, { name: "Haldi + Kumkum", quantity: "1 set", estimatedCost: 40 }]
+    },
+    {
+      panditId: pMap["+919810001001"]!.panditId, pujaType: "Griha Pravesh", packageName: "Premium Griha Pravesh Samagri", tier: "PREMIUM", fixedPrice: 3500,
+      description: "Premium samagri with silver items and special havan materials for grand Griha Pravesh",
+      items: [{ name: "A2 Desi Ghee", quantity: "1 kg", estimatedCost: 600 }, { name: "Premium Havan Samagri", quantity: "1 kg", estimatedCost: 350 }, { name: "Coconut", quantity: "11 pcs", estimatedCost: 330 }, { name: "Silver Kalash", quantity: "1 pc", estimatedCost: 500 }, { name: "Mango Leaves", quantity: "5 bunches", estimatedCost: 150 }, { name: "Silk Red Cloth", quantity: "3 meters", estimatedCost: 350 }, { name: "Premium Agarbatti", quantity: "3 packs", estimatedCost: 200 }, { name: "Camphor (Bhimseni)", quantity: "200g", estimatedCost: 180 }, { name: "Fresh Flowers (Rose+Marigold)", quantity: "5 kg", estimatedCost: 500 }, { name: "Roli Akshat Deluxe Set", quantity: "1 set", estimatedCost: 100 }, { name: "Dry Fruits Prasad", quantity: "500g", estimatedCost: 350 }]
+    },
+
+    // Pandit 1 — Ramesh Shastri — Havan
+    {
+      panditId: pMap["+919810001001"]!.panditId, pujaType: "Havan", packageName: "Basic Havan Samagri", tier: "BASIC", fixedPrice: 800,
+      description: "Essential havan samagri for Navgraha or general havan",
+      items: [{ name: "Havan Samagri", quantity: "250g", estimatedCost: 100 }, { name: "Ghee", quantity: "250g", estimatedCost: 120 }, { name: "Havan Kund (clay)", quantity: "1 pc", estimatedCost: 80 }, { name: "Mango Wood", quantity: "2 kg", estimatedCost: 100 }, { name: "Camphor", quantity: "50g", estimatedCost: 40 }, { name: "Flowers", quantity: "500g", estimatedCost: 100 }, { name: "Rice (Akshat)", quantity: "500g", estimatedCost: 30 }, { name: "Sesame Seeds", quantity: "200g", estimatedCost: 40 }]
+    },
+    {
+      panditId: pMap["+919810001001"]!.panditId, pujaType: "Havan", packageName: "Standard Havan Samagri", tier: "STANDARD", fixedPrice: 1500,
+      description: "Complete havan samagri with copper kund and Navgraha items",
+      items: [{ name: "Premium Havan Samagri", quantity: "500g", estimatedCost: 200 }, { name: "Desi Ghee", quantity: "500g", estimatedCost: 250 }, { name: "Copper Havan Kund", quantity: "1 pc", estimatedCost: 300 }, { name: "Mango Wood", quantity: "5 kg", estimatedCost: 250 }, { name: "Camphor (Bhimseni)", quantity: "100g", estimatedCost: 100 }, { name: "Flowers", quantity: "1 kg", estimatedCost: 200 }, { name: "Navgraha Samagri Set", quantity: "1 set", estimatedCost: 150 }]
+    },
+
+    // Pandit 2 — Acharya Devendra (Varanasi) — Vivah
+    {
+      panditId: pMap["+919810001002"]!.panditId, pujaType: "Vivah", packageName: "Basic Vivah Samagri", tier: "BASIC", fixedPrice: 3500,
+      description: "Essential items for Vedic Vivah ceremony",
+      items: [{ name: "Havan Samagri", quantity: "500g", estimatedCost: 200 }, { name: "Ghee", quantity: "500g", estimatedCost: 250 }, { name: "Mangalsutra Thread", quantity: "1 pc", estimatedCost: 100 }, { name: "Sindoor", quantity: "1 pack", estimatedCost: 80 }, { name: "Coconut", quantity: "7 pcs", estimatedCost: 210 }, { name: "Rice (Akshata)", quantity: "2 kg", estimatedCost: 80 }, { name: "Flowers + Garlands", quantity: "5 kg", estimatedCost: 500 }, { name: "Mango Leaves", quantity: "3 bunches", estimatedCost: 90 }, { name: "Sacred Thread", quantity: "5 pcs", estimatedCost: 50 }, { name: "Supari + Paan", quantity: "1 set", estimatedCost: 120 }]
+    },
+    {
+      panditId: pMap["+919810001002"]!.panditId, pujaType: "Vivah", packageName: "Premium Vivah Samagri", tier: "PREMIUM", fixedPrice: 7500,
+      description: "Complete premium samagri for grand Vedic wedding with special Varanasi items",
+      items: [{ name: "A2 Desi Ghee", quantity: "2 kg", estimatedCost: 1200 }, { name: "Varanasi Havan Samagri", quantity: "1 kg", estimatedCost: 500 }, { name: "Gold-Plated Mangalsutra", quantity: "1 pc", estimatedCost: 500 }, { name: "Kannauj Sindoor", quantity: "1 pack", estimatedCost: 200 }, { name: "Coconut", quantity: "21 pcs", estimatedCost: 630 }, { name: "Basmati Rice", quantity: "5 kg", estimatedCost: 300 }, { name: "Premium Rose Garlands", quantity: "10 kg", estimatedCost: 1500 }, { name: "Silver Kalash", quantity: "1 pc", estimatedCost: 500 }, { name: "Silk Vastra Set", quantity: "1 set", estimatedCost: 800 }, { name: "Dry Fruits Prasad", quantity: "1 kg", estimatedCost: 700 }]
+    },
+
+    // Pandit 3 — Sharma (Delhi) — Satyanarayan Katha
+    {
+      panditId: pMap["+919810001003"]!.panditId, pujaType: "Satyanarayan Katha", packageName: "Basic Satyanarayan Samagri", tier: "BASIC", fixedPrice: 900,
+      description: "Essential samagri for Satyanarayan Katha with prasad ingredients",
+      items: [{ name: "Panchamrit Set", quantity: "1 set", estimatedCost: 120 }, { name: "Banana", quantity: "12 pcs", estimatedCost: 60 }, { name: "Sugar + Wheat", quantity: "1 kg each", estimatedCost: 80 }, { name: "Ghee", quantity: "250g", estimatedCost: 120 }, { name: "Coconut", quantity: "2 pcs", estimatedCost: 60 }, { name: "Flowers", quantity: "500g", estimatedCost: 100 }, { name: "Tulsi Leaves", quantity: "1 bunch", estimatedCost: 30 }, { name: "Agarbatti", quantity: "1 pack", estimatedCost: 50 }]
+    },
+    {
+      panditId: pMap["+919810001003"]!.panditId, pujaType: "Satyanarayan Katha", packageName: "Standard Satyanarayan Samagri", tier: "STANDARD", fixedPrice: 1800,
+      description: "Complete samagri with Sheera ingredients and full prasad setup",
+      items: [{ name: "Panchamrit Deluxe", quantity: "1 set", estimatedCost: 200 }, { name: "Banana", quantity: "24 pcs", estimatedCost: 120 }, { name: "Sheera Ingredients", quantity: "1 set", estimatedCost: 200 }, { name: "Desi Ghee", quantity: "500g", estimatedCost: 250 }, { name: "Coconut", quantity: "5 pcs", estimatedCost: 150 }, { name: "Fresh Flowers (Rose)", quantity: "1 kg", estimatedCost: 200 }, { name: "Tulsi + Bel Patra", quantity: "1 set", estimatedCost: 80 }, { name: "Premium Agarbatti", quantity: "2 packs", estimatedCost: 100 }, { name: "Fruits Set", quantity: "1 kg", estimatedCost: 200 }, { name: "Dry Fruits", quantity: "250g", estimatedCost: 200 }]
+    },
+
+    // Pandit 5 — Gopal Krishna Das (Mathura) — Satyanarayan
+    {
+      panditId: pMap["+919810001005"]!.panditId, pujaType: "Satyanarayan Katha", packageName: "Mathura Special Samagri", tier: "PREMIUM", fixedPrice: 2500,
+      description: "Authentic Mathura-sourced items for premium Satyanarayan Katha",
+      items: [{ name: "Mathura Peda Prasad", quantity: "1 kg", estimatedCost: 500 }, { name: "A2 Cow Ghee (Mathura)", quantity: "500g", estimatedCost: 350 }, { name: "Vrindavan Tulsi Mala", quantity: "2 pcs", estimatedCost: 200 }, { name: "Banana", quantity: "24 pcs", estimatedCost: 120 }, { name: "Silver Coin Prasad", quantity: "5 pcs", estimatedCost: 500 }, { name: "Sheera + Panjiri Set", quantity: "1 set", estimatedCost: 300 }, { name: "Flowers (Vrindavan)", quantity: "2 kg", estimatedCost: 300 }, { name: "Camphor + Dhoop", quantity: "1 set", estimatedCost: 130 }]
+    },
+
+    // Pandit 6 — Shiv Narayan (Gurgaon) — Ganesh Puja
+    {
+      panditId: pMap["+919810001006"]!.panditId, pujaType: "Ganesh Puja", packageName: "Basic Ganesh Puja Samagri", tier: "BASIC", fixedPrice: 700,
+      description: "Essential items for Ganesh Puja / Vinayaka Chaturthi",
+      items: [{ name: "Modak / Laddoo", quantity: "11 pcs", estimatedCost: 150 }, { name: "Durva Grass", quantity: "21 blades", estimatedCost: 30 }, { name: "Red Flowers", quantity: "500g", estimatedCost: 100 }, { name: "Coconut", quantity: "1 pc", estimatedCost: 30 }, { name: "Red Cloth", quantity: "1 meter", estimatedCost: 80 }, { name: "Sindoor", quantity: "1 pack", estimatedCost: 40 }, { name: "Ghee", quantity: "100g", estimatedCost: 50 }, { name: "Agarbatti", quantity: "1 pack", estimatedCost: 50 }]
+    },
+    {
+      panditId: pMap["+919810001006"]!.panditId, pujaType: "Ganesh Puja", packageName: "Standard Ganesh Puja Samagri", tier: "STANDARD", fixedPrice: 1200,
+      description: "Complete Ganesh Puja samagri with clay Ganesh murti and all 21 items",
+      items: [{ name: "Clay Ganesh Murti", quantity: "1 pc", estimatedCost: 250 }, { name: "Modak", quantity: "21 pcs", estimatedCost: 300 }, { name: "Durva Grass", quantity: "108 blades", estimatedCost: 60 }, { name: "Red Flowers", quantity: "1 kg", estimatedCost: 200 }, { name: "Coconut", quantity: "3 pcs", estimatedCost: 90 }, { name: "Silk Red Cloth", quantity: "1 meter", estimatedCost: 120 }, { name: "Desi Ghee", quantity: "250g", estimatedCost: 120 }, { name: "Premium Agarbatti", quantity: "1 pack", estimatedCost: 80 }]
+    },
+  ];
+
+  for (const pkg of samagriPackages) {
+    await prisma.samagriPackage.upsert({
+      where: { panditId_pujaType_tier: { panditId: pkg.panditId, pujaType: pkg.pujaType, tier: pkg.tier } },
+      update: {},
+      create: pkg,
+    });
+  }
+  console.log("Samagri packages created:", samagriPackages.length);
+
   // ── 8. Sample Bookings ────────────────────────────────────────────────────
   const ritualGrihaPravesh = await prisma.ritual.findUnique({ where: { name: "Griha Pravesh" } });
   const ritualVivah = await prisma.ritual.findUnique({ where: { name: "Vivah" } });

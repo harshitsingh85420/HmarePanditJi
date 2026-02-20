@@ -14,7 +14,8 @@
     "db:push": "pnpm --filter @hmarepanditji/db push",
     "db:migrate": "pnpm --filter @hmarepanditji/db migrate",
     "db:seed": "pnpm --filter @hmarepanditji/db seed",
-    "db:studio": "pnpm --filter @hmarepanditji/db studio"
+    "db:studio": "pnpm --filter @hmarepanditji/db studio",
+    "migrate:sql": "node scripts/migrate.js"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^7.0.0",

@@ -422,47 +422,45 @@ export default function BookingWizardClient() {
   // ── Payment success ───────────────────────────────────────────────────────
 
   function handlePaymentSuccess() {
-    function handlePaymentSuccess() {
-      setStep(6);
-    }
+    setStep(6);
+  }
 
     // ── Navigation ────────────────────────────────────────────────────────────
 
-    function next() {
-      function next() {
-        if (step === 4) {
-          // Step 4 → 5 requires auth
-          if (!user) {
-            openLoginModal();
-            return;
-          }
-          setStep(5);
-          return;
-        }
-        if (step < 6) setStep((step + 1) as WizardStep);
+  function next() {
+    if (step === 4) {
+      // Step 4 -> 5 requires auth
+      if (!user) {
+        openLoginModal();
+        return;
       }
+      setStep(5);
+      return;
+    }
+    if (step < 6) setStep((step + 1) as WizardStep);
+  }
 
-      function back() {
-        if (step > 0) {
-          setPaymentReady(false);
-          setStep((step - 1) as WizardStep);
-        }
-      }
+  function back() {
+    if (step > 0) {
+      setPaymentReady(false);
+      setStep((step - 1) as WizardStep);
+    }
+  }
 
-      // ── Loading state ─────────────────────────────────────────────────────────
+  // ── Loading state ─────────────────────────────────────────────────────────
 
-      if (authLoading) {
-        return (
-          <div className="min-h-screen bg-[#f8f7f5] flex items-center justify-center">
-            <div className="w-8 h-8 border-2 border-[#f49d25] border-t-transparent rounded-full animate-spin" />
-          </div>
-        );
-      }
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-[#f8f7f5] flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-[#f49d25] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
-      // ── Confirmation Step ─────────────────────────────────────────────────────
+  // ── Confirmation Step ─────────────────────────────────────────────────────
 
-      if (step === 6) {
-        return (
+  if (step === 6) {
+    return (
           <div className="min-h-screen bg-[#f8f7f5] flex items-center justify-center p-4">
             <div className="bg-white rounded-3xl shadow-lg max-w-md w-full p-8 text-center">
               <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-green-100 flex items-center justify-center">
@@ -513,12 +511,12 @@ export default function BookingWizardClient() {
               </div>
             </div>
           </div>
-        );
-      }
+    );
+  }
 
-      // ── Wizard Body ───────────────────────────────────────────────────────────
+  // ── Wizard Body ───────────────────────────────────────────────────────────
 
-      return (
+  return (
         <div className="min-h-screen bg-[#f8f7f5]">
           {/* Header */}
           <div className="bg-white border-b border-slate-100 sticky top-0 z-30">
@@ -1150,5 +1148,5 @@ export default function BookingWizardClient() {
             )
           }
         </div >
-      );
-    }
+  );
+}

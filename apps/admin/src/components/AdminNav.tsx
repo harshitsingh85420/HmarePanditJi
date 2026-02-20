@@ -10,6 +10,7 @@ const navLinks = [
   { href: "/customers", icon: "people", label: "Customers" },
   { href: "/operations", icon: "local_shipping", label: "Operations" },
   { href: "/travel-queue", icon: "flight", label: "Travel" },
+  { href: "/cancellations", icon: "cancel", label: "Cancellations" },
   { href: "/payouts", icon: "payments", label: "Payouts" },
   { href: "/b2b/bookings", icon: "business_center", label: "B2B" },
   { href: "/settings", icon: "settings", label: "Settings" },

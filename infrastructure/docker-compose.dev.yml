@@ -1,0 +1,22 @@
+version: '3.8'
+# Development overrides — use with:
+# docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+services:
+  postgres:
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+
+  redis:
+    command: redis-server --loglevel verbose
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+
+  elasticsearch:
+    environment:
+      - "ES_JAVA_OPTS=-Xms256m -Xmx256m"

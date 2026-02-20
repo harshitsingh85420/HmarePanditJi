@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import ClientNav from "../components/ClientNav";
 import PanditAuthGuard from "../components/PanditAuthGuard";
+import { VoiceHelpButton } from "@hmarepanditji/ui";
 
 export const metadata: Metadata = {
   title: "HmarePanditJi — Pandit Dashboard",
@@ -85,6 +86,8 @@ export default function RootLayout({
         <main className="mx-auto max-w-[960px] px-4 sm:px-6 pb-28 md:pb-10">
           <PanditAuthGuard>{children}</PanditAuthGuard>
         </main>
+
+        <VoiceHelpButton />
 
       </body>
     </html>

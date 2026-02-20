@@ -31,6 +31,7 @@ const verifyOtpSchema = z.object({
     .string()
     .length(6, "OTP must be 6 digits")
     .regex(/^\d{6}$/, "OTP must be numeric"),
+  role: z.enum(["CUSTOMER", "PANDIT", "ADMIN"]).optional(),
 });
 
 const refreshSchema = z.object({
@@ -77,8 +78,8 @@ router.post(
   validate(verifyOtpSchema),
   async (req, res, next) => {
     try {
-      const { phone, otp } = req.body as z.infer<typeof verifyOtpSchema>;
-      const result = await verifyOtp(phone, otp);
+      const { phone, otp, role } = req.body as z.infer<typeof verifyOtpSchema>;
+      const result = await verifyOtp(phone, otp, role);
       sendSuccess(res, result, "OTP verified successfully");
     } catch (err) {
       next(err);

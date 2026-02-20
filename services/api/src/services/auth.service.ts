@@ -79,10 +79,12 @@ export async function requestOtp(
 
 /**
  * Verify OTP, upsert User record, return access + refresh tokens.
+ * Optional roleOverride allows creating/updating users as PANDIT / ADMIN as well.
  */
 export async function verifyOtp(
   phone: string,
   otp: string,
+  roleOverride?: "CUSTOMER" | "PANDIT" | "ADMIN",
 ): Promise<{
   accessToken: string;
   refreshToken: string;
@@ -120,14 +122,18 @@ export async function verifyOtp(
   const isNewUser = !existingUser;
 
   // Upsert user
+  const targetRole = roleOverride ?? "CUSTOMER";
   const user = await prisma.user.upsert({
     where: { phone: e164Phone },
     create: {
       phone: e164Phone,
-      role: "CUSTOMER",
+      role: targetRole,
       isVerified: true,
     },
-    update: { isVerified: true },
+    update: {
+      isVerified: true,
+      ...(roleOverride ? { role: targetRole } : {}),
+    },
   });
 
   const accessToken = signAccessToken(user);

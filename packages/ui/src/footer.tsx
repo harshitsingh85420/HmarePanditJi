@@ -17,10 +17,10 @@ const quickLinks = [
 
 const supportLinks = [
   { label: "Contact Us", href: "/contact" },
-  { label: "Terms of Service", href: "/terms" },
-  { label: "Privacy Policy", href: "/privacy" },
-  { label: "Refund Policy", href: "/refund" },
-  { label: "Disclaimer", href: "/disclaimer" },
+  { label: "Terms of Service", href: "/legal/terms" },
+  { label: "Privacy Policy", href: "/legal/privacy" },
+  { label: "Refund Policy", href: "/legal/cancellation" },
+  { label: "Disclaimer", href: "/legal/terms" }, // Placeholder
 ];
 
 const socialLinks: { icon: string; href: string; label: string }[] = [

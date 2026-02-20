@@ -99,14 +99,26 @@ export function PanditCard({
       className={`bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden hover:shadow-md transition-shadow ${className}`}
     >
       <div className="flex gap-4 p-5">
-        {/* Photo */}
-        <div className="flex-shrink-0">
+        <div className="flex-shrink-0 relative group">
           <Avatar
             src={displayPhoto}
             name={name}
             size="lg"
             verifiedBadge={isVerified}
           />
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              const text = `Pandit ${name}. ${displayRating} stars, ${totalReviews} reviews. Located in ${displayLocation}. Starts from ${lowestPrice} rupees.`;
+              const u = new SpeechSynthesisUtterance(text);
+              window.speechSynthesis.speak(u);
+            }}
+            className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-white shadow-md flex items-center justify-center text-slate-500 hover:text-primary hover:scale-110 transition-all opacity-0 group-hover:opacity-100"
+            title="Read details"
+            aria-label="Read details aloud"
+          >
+            <span className="material-symbols-outlined text-sm">volume_up</span>
+          </button>
         </div>
 
         {/* Info */}

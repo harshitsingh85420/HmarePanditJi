@@ -302,3 +302,35 @@ export async function calculateAllOptions(
 
   return { ...distance, options };
 }
+
+// ─── Local Travel Calculation (Prompt 12) ─────────────────────────────────────
+
+export type LocalTravelMode = "2-wheeler" | "4-wheeler" | "public_transport";
+
+export function calculateTravelCosts(distance: number, mode: LocalTravelMode): { estimatedCost: number; durationMinutes: number } {
+  let cost = 0;
+  let speedKmH = 20; // Default city speed
+
+  switch (mode) {
+    case "2-wheeler":
+      cost = Math.max(50, 15 * distance);
+      speedKmH = 30;
+      break;
+    case "4-wheeler":
+      cost = Math.max(200, 30 * distance);
+      speedKmH = 25;
+      break;
+    case "public_transport":
+      cost = 5 + 2 * distance;
+      speedKmH = 15; // Slow due to stops
+      break;
+  }
+
+  // Round to nearest 10
+  const estimatedCost = Math.ceil(cost / 10) * 10;
+
+  // Duration
+  const durationMinutes = Math.round((distance / speedKmH) * 60);
+
+  return { estimatedCost, durationMinutes };
+}

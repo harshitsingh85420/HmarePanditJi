@@ -153,6 +153,83 @@ export async function getPanditById(id: string) {
   return pandit;
 }
 
+// ── Get pandit's samagri packages ──────────────────────────────────────────
+
+export async function getPanditSamagriPackages(panditId: string, pujaType?: string) {
+  const where: { panditId: string; pujaType?: string; isActive: boolean } = {
+    panditId,
+    isActive: true,
+  };
+
+  if (pujaType) {
+    where.pujaType = pujaType;
+  }
+
+  const packages = await prisma.samagriPackage.findMany({
+    where,
+    orderBy: { fixedPrice: "asc" },
+  });
+
+  return packages;
+}
+
+export async function manageSamagriPackage(
+  action: "create" | "update" | "delete",
+  panditId: string,
+  data: any,
+  packageId?: string,
+) {
+  if (action === "create") {
+    // Check if package already exists for this packageName/type
+    const existing = await prisma.samagriPackage.findUnique({
+      where: {
+        panditId_pujaType_packageName: {
+          panditId,
+          pujaType: data.pujaType,
+          packageName: data.packageName || data.tier,
+        },
+      },
+    });
+
+    if (existing) {
+      throw new AppError(`Package for ${data.pujaType} (${data.packageName || data.tier}) already exists`, 400);
+    }
+
+    return prisma.samagriPackage.create({
+      data: {
+        panditId,
+        ...data,
+      },
+    });
+  }
+
+  if (action === "update" && packageId) {
+    // Verify ownership
+    const pkg = await prisma.samagriPackage.findUnique({ where: { id: packageId } });
+    if (!pkg || pkg.panditId !== panditId) {
+      throw new AppError("Package not found or unauthorized", 404);
+    }
+
+    return prisma.samagriPackage.update({
+      where: { id: packageId },
+      data: { ...data, updatedAt: new Date() },
+    });
+  }
+
+  if (action === "delete" && packageId) {
+    const pkg = await prisma.samagriPackage.findUnique({ where: { id: packageId } });
+    if (!pkg || pkg.panditId !== panditId) {
+      throw new AppError("Package not found or unauthorized", 404);
+    }
+
+    return prisma.samagriPackage.delete({
+      where: { id: packageId },
+    });
+  }
+
+  throw new AppError("Invalid operation", 400);
+}
+
 // ── Get pandit reviews (paginated) ───────────────────────────────────────────
 
 export async function getPanditReviews(panditId: string, page = 1, limit = 10) {

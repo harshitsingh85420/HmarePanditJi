@@ -207,8 +207,11 @@ model Pandit {
   verificationStatus   VerificationStatus @default(PENDING)
   isVerified           Boolean            @default(false)
   isActive             Boolean            @default(true)
+  aadhaarEncrypted     String?            // AES-256-GCM encrypted full Aadhaar
+  aadhaarLastFour      String?            @db.Char(4) // Last 4 digits for display
   aadhaarVerified      Boolean            @default(false)
   videoKycCompleted    Boolean            @default(false)
+  bioAudioUrl          String?            // Recorded voice bio in Hindi
   certificateUrls      String[]           @default([])
   certificatesVerified Boolean            @default(false)
   profilePhotoUrl      String?
@@ -218,6 +221,7 @@ model Pandit {
   totalReviews         Int                @default(0)
   completedBookings    Int                @default(0)
   totalBookings        Int                @default(0)
+  totalEarningsPaise   Int                @default(0)  // Cumulative earnings in paise
   basePricing          Json               @default("{}")
   availableDays        String[]           @default([])
   travelPreferences    Json?
@@ -229,6 +233,8 @@ model Pandit {
   bankAccountAdded     Boolean            @default(false)
   bankDetails          Json?
   panNumber            String?
+  homeLat              Float?             // Geo lat for ES indexing (migration 008)
+  homeLng              Float?             // Geo lng for ES indexing (migration 008)
   isOnline             Boolean            @default(false)
   createdAt            DateTime           @default(now())
   updatedAt            DateTime           @updatedAt
