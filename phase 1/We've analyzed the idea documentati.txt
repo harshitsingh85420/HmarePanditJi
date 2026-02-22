@@ -1,0 +1,1007 @@
+We've analyzed the idea documentation, especially Bhag 12, and your Phase 1 plan. The non‑negotiable features for Phase 1 are:
+
+- **Customer‑side**  
+  • Guest mode with progressive registration  
+  • Homepage with search, quick categories, Muhurat Explorer (auspicious dates)  
+  • Pandit listing with filters (distance, travel mode, language, budget)  
+  • Pandit profile with verification badges, pricing, samagri packages, device info  
+  • Dual samagri selection (Pandit’s fixed package OR platform custom list)  
+  • Booking wizard (6 steps) with travel cost estimate (manual travel ops), food allowance, accommodation option  
+  • Transparent price breakdown including platform fee, GST  
+  • Payment (Razorpay) with advance payment flow  
+  • Post‑booking dashboard (itinerary, status timeline, documents)  
+  • Reviews & favorites  
+
+- **Pandit‑side**  
+  • Voice‑first registration and interaction (using browser’s SpeechRecognition + Text‑to‑Speech)  
+  • Separate login as pandit (mobile OTP)  
+  • Onboarding wizard (personal, specialization, travel preferences, samagri packages, documents, bank)  
+  • Dashboard with today’s bookings, online/offline toggle, earnings widget  
+  • Booking request accept/reject with earnings breakdown, “I’m Here” status updates  
+  • Profile management, calendar (block dates), samagri list editing, earnings report  
+
+- **Admin‑side**  
+  • Dashboard with booking queue, travel operations (manual cost calculation, booking reference entry)  
+  • Pandit verification queue  
+  • Payout management (manual)  
+  • Cancellation/refund processing  
+
+- **Backend**  
+  • All necessary models (User, PanditProfile, Booking, Review, etc.)  
+  • Travel calculation service (hardcoded distance matrix)  
+  • Muhurat data via seed JSON  
+  • Notification templates (SMS/WhatsApp – Phase 1 console log or Twilio mock)  
+
+- **Deferred to later phases**  
+  • Live GPS tracking, in‑app chat, automated travel APIs, elasticsearch, AI matching, mobile apps, backup guarantee system  
+
+We’ll now create a fresh set of **detailed Claude Code prompts** that build the entire Phase 1 MVP from scratch. Each prompt is designed to be pasted into VS Code with Claude Code running. They are ordered to be executed sequentially.
+
+---
+
+# **HMAREPANDITJI – PHASE 1 COMPLETE PROMPT LIBRARY (SCRATCH BUILD)**
+**25 Prompts | 12 Weeks | From Zero to Launch**
+
+---
+
+## **SPRINT 1: FOUNDATION (Weeks 1–2)**
+
+### **PROMPT 1.1 – MONOREPO SETUP**
+```
+Set up a Turborepo monorepo for HmarePanditJi Phase 1 MVP. The platform connects customers with verified Pandits (priests) for Hindu ceremonies, with transparent pricing, travel management, and muhurat suggestions. This Phase 1 focuses on Delhi/NCR with manual travel operations.
+
+Create the following structure:
+
+hmarepanditji/
+├── apps/
+│   ├── customer-web/          # Next.js 14 (App Router) – customer-facing website
+│   ├── pandit-dashboard/      # Next.js 14 – pandit management dashboard
+│   └── admin-panel/           # Next.js 14 – admin operations center
+├── services/
+│   └── api/                   # Express.js + TypeScript – REST API server
+├── packages/
+│   ├── ui/                    # Shared React component library
+│   ├── types/                 # Shared TypeScript interfaces and enums
+│   └── utils/                 # Shared utilities (formatting, validation, constants)
+├── prisma/
+│   ├── schema.prisma
+│   └── seed.ts
+├── turbo.json
+├── package.json
+├── .env.example
+└── README.md
+
+Instructions:
+1. Initialize the monorepo with Turborepo (or manually configure workspaces).
+2. Set up each Next.js app with TypeScript and Tailwind CSS. Use the design tokens:
+   - Customer primary: #f49d25 (amber)
+   - Pandit primary: #f09942 (deep orange)
+   - Admin primary: #137fec (blue)
+   - Font: Inter (Google Fonts)
+   - Border radius: 12px for cards, 8px for buttons, 24px for pills.
+3. Create the Express API with `express`, `cors`, `dotenv`, `helmet`, `morgan`, `jsonwebtoken`, `bcryptjs`, `firebase-admin` (for OTP), `razorpay`, `twilio`. Add dev dependencies: `typescript`, `ts-node-dev`, `@types/…`.
+4. Configure `turbo.json` with pipelines for `dev`, `build`, `lint`.
+5. Add scripts in root `package.json`:
+   - `dev`: `turbo run dev`
+   - `build`: `turbo run build`
+   - `db:migrate`: `prisma migrate dev`
+   - `db:seed`: `ts-node prisma/seed.ts`
+6. Ensure all apps can import from `packages/*`. Running `npm run dev` from root should start all four services (three Next.js apps + Express API).
+```
+
+---
+
+### **PROMPT 1.2 – DATABASE SCHEMA**
+```
+Create the Prisma schema for HmarePanditJi Phase 1. The schema must support: users (customers, pandits, admins), pandit profiles with verification, travel preferences, samagri packages, bookings with full GST-compliant pricing breakdown, reviews, favorites, muhurat dates (static), and city distances.
+
+Define the following models and enums (all in `prisma/schema.prisma`):
+
+1. `User`
+   - id: String @id @default(cuid())
+   - phone: String @unique
+   - name: String?
+   - email: String?
+   - role: Role (CUSTOMER, PANDIT, ADMIN)
+   - isVerified: Boolean @default(false)
+   - isActive: Boolean @default(true)
+   - createdAt, updatedAt
+   - Relations: customerBookings, panditBookings, reviewsGiven, reviewsReceived, favorites
+
+2. `CustomerProfile`
+   - id, userId (unique FK to User)
+   - preferredLanguages: String[]
+   - gotra: String?
+   - addresses: Address[]
+   - createdAt
+
+3. `Address`
+   - id, customerProfileId (FK)
+   - label: String (e.g., "Home")
+   - fullAddress: String
+   - city: String
+   - state: String
+   - pincode: String
+   - landmark: String?
+   - latitude: Float?
+   - longitude: Float?
+   - isDefault: Boolean
+
+4. `PanditProfile`
+   - id, userId (unique FK to User)
+   - bio: String?
+   - experienceYears: Int
+   - languages: String[]
+   - specializations: String[] (e.g., ["Vivah", "Griha Pravesh"])
+   - verificationStatus: VerificationStatus (PENDING, DOCUMENTS_SUBMITTED, VIDEO_KYC_DONE, VERIFIED, REJECTED)
+   - aadhaarVerified: Boolean
+   - videoKycCompleted: Boolean
+   - certificateUrls: String[]
+   - profilePhotoUrl: String?
+   - location: String (city name)
+   - fullAddress: String?
+   - rating: Float
+   - totalReviews: Int
+   - completedBookings: Int
+   - travelPreferences: Json (stores { maxDistanceKm, preferredModes: string[], selfDriveRatePerKm:12, vehicleType?, hotelPreference?, advanceNoticeDays })
+   - bankAccountName: String?
+   - bankAccountNumber: String?
+   - bankIfscCode: String?
+   - bankVerified: Boolean
+   - isOnline: Boolean @default(true)  # online/offline toggle
+   - pujaServices: PujaService[]
+   - blockedDates: PanditBlockedDate[]
+   - samagriPackages: SamagriPackage[]
+   - createdAt, updatedAt
+
+5. `PujaService`
+   - id, panditProfileId (FK)
+   - pujaType: String (e.g., "Vivah")
+   - dakshinaAmount: Int
+   - durationHours: Float
+   - description: String?
+   - isActive: Boolean
+
+6. `SamagriPackage`
+   - id, panditProfileId (FK)
+   - packageName: String (e.g., "Basic", "Standard", "Premium")
+   - pujaType: String
+   - fixedPrice: Int
+   - items: Json (array of { itemName, quantity, qualityNotes? })
+   - isActive: Boolean
+
+7. `PanditBlockedDate`
+   - id, panditProfileId (FK)
+   - date: DateTime
+   - reason: String?
+   - isRecurring: Boolean
+   - recurringRule: String?
+
+8. `Booking`
+   - id: String @id @default(cuid())
+   - bookingNumber: String @unique
+   - customerId: String (FK to User)
+   - panditId: String? (FK to User)
+   - status: BookingStatus (CREATED, PANDIT_REQUESTED, CONFIRMED, TRAVEL_BOOKED, PANDIT_EN_ROUTE, PANDIT_ARRIVED, PUJA_IN_PROGRESS, COMPLETED, CANCELLATION_REQUESTED, CANCELLED, REFUNDED)
+   - eventType: String
+   - eventDate: DateTime
+   - eventEndDate: DateTime?
+   - muhuratTime: String? (e.g., "10:30 AM - 12:00 PM")
+   - muhuratSuggested: Boolean
+   - venueAddress: String
+   - venueCity: String
+   - venuePincode: String
+   - venueLatitude: Float?
+   - venueLongitude: Float?
+   - attendees: Int?
+   - specialInstructions: String?
+   - travelRequired: Boolean
+   - travelMode: String? (SELF_DRIVE, TRAIN, FLIGHT, CAB, BUS)
+   - travelDistanceKm: Float?
+   - travelStatus: TravelStatus (NOT_REQUIRED, PENDING, BOOKED, IN_TRANSIT, ARRIVED)
+   - travelBookingRef: String?
+   - travelNotes: String?
+   - foodArrangement: FoodArrangement (CUSTOMER_PROVIDES, PLATFORM_ALLOWANCE)
+   - foodAllowanceDays: Int
+   - foodAllowanceAmount: Int
+   - accommodationArrangement: AccommodationArrangement (NOT_NEEDED, CUSTOMER_ARRANGES, PLATFORM_BOOKS)
+   - accommodationCost: Int
+   - samagriPreference: SamagriPreference (PANDIT_BRINGS, CUSTOMER_ARRANGES, NEED_HELP)
+   - samagriNotes: String?
+   - dakshinaAmount: Int
+   - travelCost: Int
+   - platformFee: Int
+   - platformFeeGst: Int
+   - travelServiceFee: Int
+   - travelServiceFeeGst: Int
+   - grandTotal: Int
+   - panditPayout: Int
+   - payoutStatus: PayoutStatus (PENDING, PROCESSING, COMPLETED, FAILED)
+   - payoutReference: String?
+   - payoutCompletedAt: DateTime?
+   - cancelledBy: String? (CUSTOMER, PANDIT, ADMIN)
+   - cancellationReason: String?
+   - cancellationRequestedAt: DateTime?
+   - refundAmount: Int
+   - refundStatus: RefundStatus (NONE, PENDING, PROCESSING, COMPLETED, FAILED)
+   - refundReference: String?
+   - razorpayOrderId: String?
+   - razorpayPaymentId: String?
+   - paymentStatus: PaymentStatus (PENDING, AUTHORIZED, CAPTURED, FAILED, REFUNDED)
+   - createdAt, updatedAt
+   - customer: User @relation(fields: [customerId], references: [id])
+   - pandit: User? @relation(fields: [panditId], references: [id])
+   - statusUpdates: BookingStatusUpdate[]
+   - review: Review?
+
+9. `BookingStatusUpdate`
+   - id, bookingId (FK)
+   - fromStatus: BookingStatus
+   - toStatus: BookingStatus
+   - updatedBy: String (FK to User)
+   - note: String?
+   - latitude: Float?
+   - longitude: Float?
+   - createdAt
+
+10. `Review`
+    - id, bookingId (unique FK)
+    - reviewerId: String (FK to User)
+    - revieweeId: String (FK to User)
+    - overallRating: Float
+    - knowledgeRating: Float?
+    - punctualityRating: Float?
+    - communicationRating: Float?
+    - comment: String?
+    - isAnonymous: Boolean
+    - createdAt
+
+11. `FavoritePandit`
+    - id, customerId (FK to User), panditId (FK to User)
+    - createdAt
+    - @@unique([customerId, panditId])
+
+12. `MuhuratDate`
+    - id
+    - date: DateTime
+    - pujaType: String
+    - timeWindow: String
+    - significance: String?
+    - source: String
+
+13. `CityDistance`
+    - id
+    - fromCity: String
+    - toCity: String
+    - distanceKm: Float
+    - estimatedDriveHours: Float?
+    - @@unique([fromCity, toCity])
+
+Enums:
+- Role: CUSTOMER, PANDIT, ADMIN
+- VerificationStatus: PENDING, DOCUMENTS_SUBMITTED, VIDEO_KYC_DONE, VERIFIED, REJECTED
+- BookingStatus: CREATED, PANDIT_REQUESTED, CONFIRMED, TRAVEL_BOOKED, PANDIT_EN_ROUTE, PANDIT_ARRIVED, PUJA_IN_PROGRESS, COMPLETED, CANCELLATION_REQUESTED, CANCELLED, REFUNDED
+- TravelStatus: NOT_REQUIRED, PENDING, BOOKED, IN_TRANSIT, ARRIVED
+- FoodArrangement: CUSTOMER_PROVIDES, PLATFORM_ALLOWANCE
+- AccommodationArrangement: NOT_NEEDED, CUSTOMER_ARRANGES, PLATFORM_BOOKS
+- SamagriPreference: PANDIT_BRINGS, CUSTOMER_ARRANGES, NEED_HELP
+- PayoutStatus: PENDING, PROCESSING, COMPLETED, FAILED
+- RefundStatus: NONE, PENDING, PROCESSING, COMPLETED, FAILED
+- PaymentStatus: PENDING, AUTHORIZED, CAPTURED, FAILED, REFUNDED
+
+Add indexes on foreign keys and frequently queried fields (bookingNumber, status, eventDate, etc.).
+
+After creating the schema, run `npx prisma migrate dev --name init`. Also create the Prisma client singleton in `services/api/src/lib/prisma.ts`.
+```
+
+---
+
+### **PROMPT 1.3 – API FOUNDATION**
+```
+Build the Express.js API foundation at `services/api/`. Create the server with middleware, route stubs, and core utilities.
+
+**1. Server setup (`src/index.ts`):**
+   - Express app on `PORT` (default 3001)
+   - Middleware: cors, helmet, morgan, express.json
+   - Global error handler
+   - Health check endpoint: `GET /api/health` → { status: "ok", timestamp }
+
+**2. Authentication middleware (`src/middleware/auth.ts`):**
+   - `authenticateToken`: Verify JWT from `Authorization` header, attach `req.user`
+   - `requireRole(...roles)`: Check user role
+   - `optionalAuth`: Attach user if token present (for guest mode)
+
+**3. Validation middleware (`src/middleware/validate.ts`):**
+   - `validateBody(schema)`: Zod body validation
+   - `validateQuery(schema)`: Zod query validation
+
+**4. Error handling (`src/middleware/errorHandler.ts`):**
+   - Custom `AppError` class with statusCode, code, message
+   - Global handler returns `{ success: false, error: { code, message } }`
+
+**5. Route stubs (create each file with placeholder handlers):**
+   - `auth.routes.ts`      – `/api/auth/*`
+   - `pandit.routes.ts`    – `/api/pandits/*`
+   - `booking.routes.ts`   – `/api/bookings/*`
+   - `payment.routes.ts`   – `/api/payments/*`
+   - `travel.routes.ts`    – `/api/travel/*`
+   - `muhurat.routes.ts`   – `/api/muhurat/*`
+   - `customer.routes.ts`  – `/api/customers/*`
+   - `review.routes.ts`    – `/api/reviews/*`
+   - `admin.routes.ts`     – `/api/admin/*`
+
+   Each handler should return `{ success: true, message: "Not implemented" }` with status 501.
+
+**6. Utility files:**
+   - `src/utils/pricing.ts`: functions for platform fee, GST, food allowance, grand total, pandit payout, refund amount (based on cancellation policy: >7 days 90%, 3-7 days 50%, <3 days 20%, same day 0%).
+   - `src/utils/bookingNumber.ts`: generate booking number `HPJ-YYYY-XXXXX`
+   - `src/utils/constants.ts`: PLATFORM_FEE_PERCENT=15, TRAVEL_SERVICE_FEE_PERCENT=5, GST_PERCENT=18, FOOD_ALLOWANCE_PER_DAY=1000, SELF_DRIVE_RATE_PER_KM=12, SUPPORTED_PUJA_TYPES, SUPPORTED_LANGUAGES.
+
+Register all routes in `src/index.ts`.
+```
+
+---
+
+### **PROMPT 1.4 – SHARED UI COMPONENT LIBRARY**
+```
+Create the shared UI component library at `packages/ui/`. Export all components from `index.ts`. Use Tailwind CSS and design tokens defined in a central `tokens.ts`. Build these components (React + TypeScript):
+
+- `Button`: variants (primary, secondary, outline, ghost, danger), sizes, loading, disabled, icons
+- `Input`: text, phone, search, textarea; label, error, helperText, icons
+- `Card`: default, outlined, elevated; header/footer slots
+- `Badge`: success, warning, error, info, neutral; sizes, optional dot
+- `Rating`: display (stars) and input (clickable) modes; half‑star support
+- `Avatar`: size, src/initials, optional verified badge overlay
+- `Modal`: overlay, title, onClose, sizes, ESC/click‑outside closes
+- `Select`: dropdown with search; options array, label, error
+- `DatePicker`: calendar with month navigation; min/max, highlighted dates
+- `Stepper`: horizontal step indicator; steps array, currentStep, completedSteps
+- `StatusTimeline`: vertical timeline for booking status; steps with timestamp, active/completed
+- `EmptyState`: centered illustration with title, description, action button
+- `Tabs`: horizontal tab list; underline style
+- `Toast`: toast notification system with useToast hook; success/error/warning/info
+- `Skeleton`: loading placeholders (text, card, avatar)
+- `PanditCard`: composite card for search results (photo, name, rating, specializations, location, travel mode tabs)
+- `PriceBreakdown`: itemized display of all pricing components, collapsible GST section
+- `GuestBanner`: sticky banner for guest mode with login CTA
+
+All components must be fully typed and accept `appTheme` prop to switch primary color for customer/pandit/admin contexts.
+```
+
+---
+
+### **PROMPT 1.5 – SEED DATA**
+```
+Create the database seed script at `prisma/seed.ts`. Populate with realistic test data:
+
+- 1 admin user: phone `+919999999999`, name "Admin User"
+- 5 customers (Delhi/NCR) with addresses
+- 10 pandits with detailed profiles:
+  * Mix of verification statuses (7 verified, 2 pending, 1 documents submitted)
+  * Locations: Delhi, Noida, Gurgaon, Faridabad, Varanasi, Mathura, Haridwar
+  * Travel preferences (local, regional, long‑distance)
+  * 2‑4 puja services each with realistic dakshina (e.g., Vivah ₹21k‑51k, Griha Pravesh ₹5k‑15k)
+  * Samagri packages (Basic/Standard/Premium) with fixed prices and item lists
+  * Bank details (dummy, with bankVerified true for verified pandits)
+  * Profile photos, bios, languages, specializations
+- Sample blocked dates for 2‑3 pandits
+- Muhurat data for next 6 months (using actual 2026 Hindu calendar dates for Vivah, Griha Pravesh, etc.) – include `timeWindow` and `significance`.
+- CityDistance matrix for Delhi‑NCR region (Delhi, Noida, Gurgaon, Faridabad, Ghaziabad, Greater Noida, Mathura, Agra, Jaipur, Haridwar, Varanasi, Lucknow, Chandigarh, Dehradun, Rishikesh) with distance and drive hours.
+- 5 sample bookings in various states (CREATED, CONFIRMED, COMPLETED, CANCELLED) with proper pricing and GST breakdown.
+- 3 sample reviews for completed bookings.
+- 2 favorite entries.
+
+After writing, configure `package.json` with `prisma: { "seed": "ts-node prisma/seed.ts" }` and run `npx prisma db seed`.
+```
+
+---
+
+## **SPRINT 2: CUSTOMER DISCOVERY (Weeks 3–4)**
+
+### **PROMPT 2.1 – CUSTOMER HOMEPAGE (Guest Mode)**
+```
+Build the customer homepage at `apps/customer-web/app/page.tsx`. This page must work fully in guest mode (no login). Use shared UI components from `packages/ui`.
+
+**Layout (mobile‑first, responsive):**
+- Sticky header with logo, navigation links, and `GuestBanner` (if not logged in).
+- Hero section with headline "Book Verified Pandits for Every Sacred Occasion", subheadline, and a **quick search bar** with: puja type dropdown, city input (autocomplete from supported cities), date picker, and "Search" button. Below: "No registration needed to explore."
+- **How it works** (3 steps with icons).
+- **Muhurat Explorer section**:
+  * Title "📅 Muhurat Explorer — Find Auspicious Dates"
+  * Compact calendar showing current month (use a lightweight calendar component).
+  * Each date cell shows a small badge with count of available pujas (data from `GET /api/muhurat/dates?month=...`).
+  * Highlighted dates (with muhurat) have an amber dot.
+  * Clicking a date navigates to `/muhurat?date=YYYY-MM-DD`.
+  * "View Full Calendar →" link.
+- **Featured Pandits** carousel (horizontal scroll) – fetch from `GET /api/pandits?sort=rating&limit=6&verificationStatus=VERIFIED`. Each card uses `PanditCard` component.
+- **Stats bar** (e.g., "100+ Verified Pandits", "4.8★ Avg Rating", "₹0 Hidden Costs").
+- **Trust section** (3 cards explaining verification, transparent pricing, travel managed).
+- Footer with links, contact info, copyright.
+
+Data fetching: use Next.js server components where possible; otherwise fetch client‑side with loading skeletons.
+
+Guest mode: all prices and interactions visible; "Login" only triggers when clicking "Book Now" or favorite.
+```
+
+---
+
+### **PROMPT 2.2 – MUHURAT EXPLORER PAGE**
+```
+Create the full‑page Muhurat Explorer at `apps/customer-web/app/muhurat/page.tsx`. Accessible in guest mode.
+
+**Page layout:**
+- Header with title, subtitle, and a puja type filter (chips: "All Pujas", "Vivah", "Griha Pravesh", etc.). Clicking a filter reloads the calendar.
+- Main calendar (full month grid) with the same design as the widget but larger.
+- Each date cell shows the count of pujas with muhurat (amber badge) and is clickable.
+- Clicking a date opens a **detail panel below**:
+  * List of pujas available on that date, each with time window, significance, and a "Find Pandits for This →" button that navigates to `/search?pujaType=...&date=...&muhurat=...`.
+- Sidebar (desktop) / section (mobile) with "Upcoming Auspicious Dates" (next 10 dates across all puja types) – each entry links to that date in the calendar.
+
+API endpoints needed:
+- `GET /api/muhurat/dates?month=3&year=2026&pujaType=...` → returns aggregated dates with counts.
+- `GET /api/muhurat/pujas-for-date?date=2026-03-15` → returns detailed list for that date.
+
+Implement these in `muhurat.controller.ts` using the seeded MuhuratDate table.
+
+Support URL query parameters: `/muhurat?date=2026-03-15&pujaType=Vivah` to pre‑select.
+```
+
+---
+
+### **PROMPT 2.3 – SEARCH PAGE WITH FILTERS**
+```
+Build the pandit search page at `apps/customer-web/app/search/page.tsx`. URL should accept query params like `?pujaType=Vivah&city=Delhi&date=2026-03-15&muhurat=10:30-12:00` to pre‑fill filters.
+
+**Layout:**
+- Search header with inline search bar and active filter pills.
+- Left sidebar (desktop) / bottom drawer (mobile) with filters:
+  * Puja Type (dropdown)
+  * City (input with autocomplete)
+  * Date picker
+  * Budget range (slider or preset buttons)
+  * Minimum rating (3+, 4+, 4.5+)
+  * Languages (checkboxes)
+  * Travel mode preference (chips: Self‑Drive, Train, Flight, Any)
+  * Distance slider (0‑2000km) with presets (Local, Regional, All India)
+  * "Apply Filters" and "Clear All"
+- Sort options dropdown.
+- Results grid: each result is a `PanditCard` (from UI library) showing:
+  * Photo, name, verified badge, rating
+  * Specialization tags, location, distance from user's city
+  * **Travel mode tabs** (Self‑Drive, Train, Flight) with estimated cost (fetched from `POST /api/travel/calculate` – call for each outstation pandit, cache results)
+  * Starting dakshina price
+  * "View Profile" button → `/pandit/[id]`
+
+Implement the search endpoint in `pandit.controller.ts`:
+- `GET /api/pandits` with all filters, sorting, pagination.
+- Return `PanditProfile` joined with `User`, `PujaService`, `travelPreferences`.
+- Filter by verificationStatus = VERIFIED (for customer view).
+
+Travel cost estimates: create a batch endpoint or cache to avoid 20 API calls per search.
+```
+
+---
+
+### **PROMPT 2.4 – PANDIT PROFILE PAGE**
+```
+Create the pandit profile detail page at `apps/customer-web/app/pandit/[id]/page.tsx`. Accessible in guest mode.
+
+**Sections:**
+- Hero: large photo, name, verified badge, rating, location, experience, travel badge (e.g., "✈️ Available for All‑India Travel"), languages, and favorite button (heart).
+- Tabs: "About", "Services & Pricing", "Travel Options", "Reviews", "Availability".
+- **About tab**: bio, specializations, certifications, quick stats.
+- **Services & Pricing tab**: list of `PujaService` cards with dakshina, duration, description, and "Book This Puja" button.
+- **Travel Options tab**: if pandit is outstation relative to the user's city (detected from browser or default Delhi), show comparison cards for each available travel mode (from `travelPreferences`). Each card displays:
+  * Mode icon, name
+  * Estimated cost (via `POST /api/travel/calculate`)
+  * Estimated time, distance
+  * "Best for" tagline
+  * Expandable breakdown
+  * "Select" button
+- **Reviews tab**: rating distribution, list of reviews with reviewer name (or "Anonymous"), date, star ratings, comment, puja type.
+- **Availability tab**: monthly calendar showing booked dates, blocked dates, and available dates (data from `GET /api/pandits/:id/availability?month=...`). Clicking an available date pre‑fills and leads to booking.
+- Sticky booking CTA (bottom bar on mobile, sidebar on desktop) showing cheapest service price and "Check Availability & Book" button. Guest mode: clicking triggers login modal then redirects.
+
+Implement required endpoints in `pandit.controller.ts`:
+- `GET /api/pandits/:id` – full profile with user details, services, travel preferences, review summary
+- `GET /api/pandits/:id/reviews` – paginated reviews
+- `GET /api/pandits/:id/availability` – returns array of { date, status }
+```
+
+---
+
+## **SPRINT 3: BOOKING & SAMAGRI (Weeks 5–6)**
+
+### **PROMPT 3.1 – AUTHENTICATION (Phone OTP)**
+```
+Implement authentication for all three apps using Firebase Phone Auth (with mock mode for development). Follow the guest‑to‑auth pattern.
+
+**Shared auth context (create in `packages/utils/auth-context.tsx`):**
+- `AuthProvider` with `user`, `loading`, `isAuthenticated`
+- `sendOtp(phone)`, `verifyOtp(verificationId, otp)`, `logout()`, `getToken()`
+- On app load, check localStorage for token and validate with `GET /api/auth/me`.
+
+**Login page (`/login`)** for each app:
+- Step 1: Phone number input (+91 fixed) → "Send OTP"
+- Step 2: OTP input (6 digits) → "Verify & Continue"
+- Step 3: (if new user) collect name (and optionally gotra, preferred language)
+- After success, redirect to original page (stored in query param `redirect`).
+
+**Login modal** component that wraps the same flow, triggered when a guest attempts a protected action (book, favorite, review).
+
+**Backend endpoints (`auth.controller.ts`):**
+- `POST /api/auth/send-otp` – in mock mode just return success; in production use Firebase Admin SDK.
+- `POST /api/auth/verify-otp` – verify Firebase token, find or create user, return JWT with { userId, phone, role, name }.
+- `GET /api/auth/me` – return full profile (including customer/pandit details).
+- `PUT /api/auth/me` – update name, email, preferredLanguages, gotra.
+
+**In `pandit-dashboard` and `admin-panel`, after login, check user.role matches the app (PANDIT or ADMIN) and redirect accordingly.**
+```
+
+---
+
+### **PROMPT 3.2 – TRAVEL CALCULATION SERVICE**
+```
+Implement the travel calculation service at `services/api/src/services/travel.service.ts`. This powers the travel mode tabs and booking wizard. In Phase 1, all calculations are based on the hardcoded `CityDistance` table and fixed fare tables (no live API calls).
+
+**Methods:**
+- `getDistance(fromCity, toCity)`: query `CityDistance` table (bidirectional). Return `{ distanceKm, estimatedDriveHours }` or null if not found.
+- `calculateSelfDrive(distanceKm, eventDays, foodArrangement)`: 
+  * roundTrip = distanceKm * 2
+  * drivingCost = roundTrip * 12
+  * travelDays = ceil(distanceKm / 400) * 2  (max 400km/day)
+  * foodAllowanceDays = travelDays + (foodArrangement === "PLATFORM_ALLOWANCE" ? eventDays : 0)
+  * foodAllowance = foodAllowanceDays * 1000
+  * totalTravelCost = drivingCost + foodAllowance
+  * travelServiceFee = totalTravelCost * 0.05, GST = travelServiceFee * 0.18
+  * Return breakdown and totals.
+- `calculateTrain(distanceKm, ...)`: use distance bands (0-200,200-500,500-1000,1000-2000) with fixed 3AC fares (e.g., ₹500, ₹1200, ₹2500, ₹3500). Multiply by 2 for round trip. Add local cab cost (₹1600 fixed). Compute food allowance similarly.
+- `calculateFlight(distanceKm, ...)`: distance bands with fixed one‑way fares (₹3500, ₹4500, ₹6000, ₹8000). Round trip ×2, plus local cab (₹2400). Food allowance as above.
+- `calculateCab(distanceKm, ...)`: for distances <300km, cab fare = distance * 15 * 2, plus food allowance.
+- `calculateAllOptions(fromCity, toCity, eventDays, foodArrangement, panditPreferences)`: returns array of possible modes with their cost breakdowns, sorted by total cost.
+
+**Controller (`travel.controller.ts`):**
+- `POST /api/travel/calculate` – accepts { fromCity, toCity, travelMode?, eventDays?, foodArrangement? }. If travelMode specified, calculate that mode only; otherwise all options.
+- `GET /api/travel/distance?from=...&to=...` – returns distance.
+- `GET /api/travel/cities` – returns list of all cities in the matrix.
+
+All endpoints public (no auth).
+```
+
+---
+
+### **PROMPT 3.3 – SAMAGRI MODAL & CART**
+```
+Build the samagri selection experience as described in Bhag 12. This includes:
+
+**On Pandit Profile page**, next to the pricing line, show "Samagri Package: ₹8,000 [View & Choose Option]". Clicking opens a modal.
+
+**Samagri modal** (two tabs/options mutually exclusive):
+- **Option 1: Pandit's Fixed Package**
+  * Displays the three packages (Basic, Standard, Premium) as toggle cards.
+  * Each card shows package name, fixed price, and an itemized list (view‑only).
+  * Important note: "Pandit Ji's packages are fixed. The price and included items cannot be changed."
+  * Selecting a package locks the choice.
+- **Option 2: Build Your Own List**
+  * Shows a categorized list of all samagri items (from a static JSON file in Phase 1) with live‑sourcing price (dummy data).
+  * User can select items and adjust quantities.
+  * For items that are also in the pandit's package, show a badge: "In Premium Package at ₹X" for comparison.
+  * Total is sum of selected items.
+  * "Add to Cart" action locks the list.
+
+**Cart icon** appears in header; clicking shows cart summary with source badge (which option), itemized list, and total.
+
+**Integration with booking flow:** When user clicks "Proceed to Book Pandit" from the cart, it goes to the booking wizard with the selected samagri option and price locked.
+
+Backend: Samagri data can be stored as JSON in the `SamagriPackage` model and a static `SamagriItem` table (or just a JSON file served via API).
+```
+
+---
+
+### **PROMPT 3.4 – BOOKING WIZARD (6 STEPS)**
+```
+Implement the complete booking wizard at `apps/customer-web/app/booking/new/page.tsx`. Requires authentication.
+
+**Stepper at top:** Step 1: Event Details → Step 2: Pandit & Puja → Step 3: Travel & Logistics → Step 4: Preferences → Step 5: Review & Pay → Step 6: Confirmation.
+
+**Step 1 – Event Details**
+- Puja type (dropdown, pre‑filled from URL)
+- Event date (DatePicker)
+- "Check Muhurat" button → fetches muhurat suggestions for that puja+date from `GET /api/muhurat/suggest` and displays them; user selects one to auto‑fill Muhurat time.
+- Event end date (only shown for multi‑day events like Vivah)
+- Venue address (textarea), city, pincode
+- Attendees (number, optional)
+- Special instructions (textarea)
+- "Next" (stores in wizard context)
+
+**Step 2 – Pandit & Puja**
+- If panditId in URL: show selected pandit card with ability to change (goes back to search)
+- Else: show simplified pandit search/select
+- Display the pandit's services for the selected puja type; user selects one.
+- "Next"
+
+**Step 3 – Travel & Logistics**
+- If pandit city == venue city → "No travel needed" and skip to step 4.
+- Else:
+  * Fetch travel options via `POST /api/travel/calculate` with `fromCity=panditCity`, `toCity=venueCity`, `eventDays`, and default foodArrangement (from step 4? – we'll let step 4 handle food, but travel cost needs it. We'll use a default "CUSTOMER_PROVIDES" for now and recalc later.)
+  * Display options as cards with mode, total cost, time, best‑for.
+  * User selects one; expandable breakdown shows fare, cab, food allowance, travel service fee, GST.
+  * Selected mode stored.
+- "Next"
+
+**Step 4 – Preferences**
+- Food arrangement: radio buttons "Yes, I will provide meals" (CUSTOMER_PROVIDES) or "No, please add ₹1,000/day allowance" (PLATFORM_ALLOWANCE). When changed, we might need to recalc travel cost (food allowance changes). Show a note.
+- Accommodation (only for multi‑day): "Not needed", "I will arrange", "Need help" (PLATFORM_BOOKS). If "Need help", note that our team will assist.
+- Samagri preference (pre‑filled from cart choice if any, else radio buttons):
+  * "Pandit Ji will bring samagri" (PANDIT_BRINGS)
+  * "I will arrange locally" (CUSTOMER_ARRANGES)
+  * "Need help with samagri" (NEED_HELP)
+- "Next"
+
+**Step 5 – Review & Pay**
+- Show full booking summary (pandit, event, travel mode, etc.)
+- Complete price breakdown using `PriceBreakdown` component, showing:
+  * Dakshina (GST exempt)
+  * Samagri cost (if PANDIT_BRINGS, show fixed package price; if CUSTOMER_ARRANGES, show ₹0 with note)
+  * Travel cost (from selected option)
+  * Food allowance (calculated based on step 4)
+  * Accommodation cost (if PLATFORM_BOOKS, show estimated amount; Phase 1 we'll just note "to be confirmed")
+  * Platform service fee (15% of dakshina)
+  * Travel service fee (5% of travel cost)
+  * GST on both fees
+  * Grand total
+- Checkbox: "I agree to the Terms of Service and Cancellation Policy"
+- "Proceed to Payment – ₹X" button → calls `POST /api/payments/create-order` and opens Razorpay.
+
+**Step 6 – Confirmation**
+- Show booking number, success message, next steps, and buttons to view bookings / book another.
+
+**State management:** Use React Context or `useReducer` to hold wizard data across steps. Persist in `sessionStorage` to survive refresh.
+
+**Backend endpoint** `POST /api/bookings` creates the booking record with all details, sets status CREATED, and returns bookingId.
+```
+
+---
+
+## **SPRINT 4: PAYMENTS & NOTIFICATIONS (Weeks 7–8)**
+
+### **PROMPT 4.1 – RAZORPAY INTEGRATION**
+```
+Integrate Razorpay for payments with GST‑compliant split tracking.
+
+**Payment service (`services/api/src/services/payment.service.ts`):**
+- `createOrder(bookingId)`: fetch booking, calculate grand total, create Razorpay order with notes containing all component values (for audit). Update booking with `razorpayOrderId`.
+- `verifyPayment(razorpayOrderId, razorpayPaymentId, razorpaySignature)`: verify signature.
+- `handlePaymentSuccess(bookingId, paymentData)`: update booking with paymentId, paymentStatus = CAPTURED, update status to PANDIT_REQUESTED, calculate panditPayout, set payoutStatus = PENDING, create initial status update, trigger notifications.
+- `calculatePanditPayout(booking)`: dakshina - platformFee + travelCost + foodAllowanceAmount.
+
+**Controller endpoints:**
+- `POST /api/payments/create-order` (customer auth) → return order details (id, amount, currency, key)
+- `POST /api/payments/verify` (customer auth) → verify and finalize
+- `POST /api/payments/webhook` (no auth, signature verification) → handle payment.captured, payment.failed, refund.processed events
+
+**Frontend hook `useRazorpay`** (in customer-web):
+- Loads Razorpay script
+- Opens checkout with prefill and theme
+- On success, calls `/api/payments/verify` and redirects to confirmation
+- On failure, shows error toast
+
+**Cancellation policy** (constants): >7 days: 90% refund, 3-7 days: 50%, <3 days: 20%, same day: 0%. Platform fee non‑refundable.
+```
+
+---
+
+### **PROMPT 4.2 – NOTIFICATIONS (SMS/WhatsApp)**
+```
+Implement notification service using Twilio (mockable). Create `services/api/src/services/notification.service.ts` with methods:
+- `sendSMS(to, message)`: if `MOCK_NOTIFICATIONS=true`, log to console; else use Twilio client.
+
+Define Hinglish templates for:
+1. Booking created → customer
+2. New booking request → pandit (with earnings)
+3. Booking confirmed → customer + pandit
+4. Travel booked → pandit + customer
+5. Pandit status update (en route, arrived, started, completed) → customer
+6. Payment received → customer
+7. Review reminder → customer (24h after completion)
+8. Cancellation notification → affected party
+9. Payout completed → pandit
+
+**Trigger points** – integrate calls into:
+- `bookingController.createBooking` → templates 1,2
+- `bookingController.acceptBooking` → templates 3
+- `adminController.updateTravelStatus` → templates 4
+- `bookingController.addStatusUpdate` → templates 5
+- `paymentController.handlePaymentSuccess` → templates 6
+- `adminController.completePayout` → templates 9
+- A scheduled job (or simple cron) to send review reminders 24h after COMPLETED bookings.
+
+In development, all notifications are printed to console with `[SMS]` prefix.
+```
+
+---
+
+## **SPRINT 5: PANDIT DASHBOARD (Weeks 9–10)**
+
+### **PROMPT 5.1 – PANDIT ONBOARDING WIZARD (Voice‑First)**
+```
+Create the pandit onboarding wizard at `apps/pandit-dashboard/app/onboarding/page.tsx`. This is a 6‑step form, but with voice‑first elements as described in Bhag 12.
+
+**Voice features (Phase 1 simplified):**
+- Use browser's `SpeechRecognition` API (with a polyfill) to capture spoken input for fields like name, city, etc.
+- Use `SpeechSynthesis` to read out instructions and confirmations.
+- Add a microphone button next to each field; clicking starts voice input and fills the field.
+
+**Steps:**
+
+1. **Personal Details** (voice‑guided):
+   - "Apna mobile number bolein." → fills phone (pre‑filled from login, but pandit can confirm)
+   - "Apna pura naam bolein." → fills name
+   - "Aapka ghar ka pata bataiye." → fills address
+   - Location (city) dropdown
+   - Languages spoken (checkbox grid)
+   - Experience years (number input)
+   - Profile photo upload (camera/ gallery)
+   - "Next"
+
+2. **Specializations & Services**:
+   - Grid of puja types with icons; pandit can tap or say "Vivah", "Griha Pravesh", etc.
+   - For each selected, inline fields: dakshina amount, duration, description (optional)
+   - "Next"
+
+3. **Travel Preferences**:
+   - "Will you travel for bookings?" – Yes/No toggle (voice: "Haan" / "Nahi")
+   - If Yes:
+     * Max distance slider (0‑2000km) with presets
+     * Preferred travel modes (checkboxes with icons)
+     * If self‑drive selected: vehicle type (Car/Bike)
+     * Hotel preference (Budget / 3‑Star / 4‑Star)
+     * Advance notice days
+   - "Next"
+
+4. **Samagri Packages Setup (voice‑driven)**:
+   - "Ab aap puja ke liye samagri ki list bana sakte hain. 'Pehle se bani list istemal karein' ya 'Nayi list banaein'."
+   - Using default list: show pre‑populated items for each puja type; pandit can edit quantities via voice ("Ghee 1 kg").
+   - Creating new list: pandit speaks items, app suggests from master database.
+   - Then ask to create packages: Basic, Standard, Premium – assign items and set fixed price for each.
+   - Finalize.
+
+5. **Verification Documents**:
+   - Aadhaar upload (front photo)
+   - Certificate uploads (multiple)
+   - Video KYC: show message "Our team will contact you for Video KYC within 48 hours."
+   - "Next"
+
+6. **Bank Details**:
+   - Account holder name, account number, confirm account number, IFSC code (auto‑fetch bank name), UPI ID (optional)
+   - "Submit for Review"
+
+After submission, create `PanditProfile` with verificationStatus = DOCUMENTS_SUBMITTED, and create `PujaService` and `SamagriPackage` records. Redirect to dashboard with pending verification message.
+
+**Backend endpoints**: reuse `PUT /api/pandits/me/profile`, `POST /api/pandits/me/services`, `POST /api/pandits/me/samagri-packages`, etc. Add file upload endpoint for documents.
+```
+
+---
+
+### **PROMPT 5.2 – PANDIT DASHBOARD HOME**
+```
+Build the pandit dashboard home page at `apps/pandit-dashboard/app/page.tsx` (requires pandit auth).
+
+**Layout:**
+- Header with name, avatar, notification bell, online/offline toggle (large button that calls `PATCH /api/pandits/me/online`).
+- Welcome message with verification status badge.
+- **Today's Schedule** card: list of today's bookings with time, event type, customer name, venue, and action buttons (Navigate, Call). If none, show "No bookings today."
+- **Earnings widget**: "This Month's Earnings" with large amount and comparison. Click → /earnings.
+- **Quick stats row**: rating, completed bookings, this month bookings, reviews count.
+- **Pending actions**: new booking requests (count), upcoming bookings, profile completeness alert.
+- **Recent bookings** list (last 5) with status and earning.
+- Bottom navigation (or sidebar): Home, Bookings, Calendar, Earnings, Profile.
+
+Data from:
+- `GET /api/bookings/pandit/my?status=CONFIRMED&date=today`
+- `GET /api/bookings/pandit/my?status=PANDIT_REQUESTED` (count)
+- `GET /api/auth/me` (profile with stats)
+```
+
+---
+
+### **PROMPT 5.3 – BOOKING REQUEST & STATUS UPDATES**
+```
+Implement booking request handling at `apps/pandit-dashboard/app/bookings/[id]/page.tsx`.
+
+**Page shows:**
+- Booking number and status badge
+- Event details card (date, muhurat, venue, customer name, rating)
+- Earnings breakdown card (dakshina, platform fee, net dakshina, travel reimbursement, food allowance, total payout)
+- Travel details (if outstation): mode, distance, notes, food arrangement, accommodation arrangement
+- Samagri note (customer's preference)
+
+**If status = PANDIT_REQUESTED**, show large Accept / Reject buttons.
+  - Accept: `PATCH /api/bookings/:id/accept` → status CONFIRMED, shows customer phone, triggers SMS.
+  - Reject: opens reason dropdown, then `PATCH /api/bookings/:id/reject` with reason; sets panditId null, status back to CREATED (admin reassigns).
+
+**If status is CONFIRMED or higher**, show "I'm Here" status buttons in sequence:
+  - "Started Journey" → updates to PANDIT_EN_ROUTE
+  - "Reached Venue" → updates to PANDIT_ARRIVED
+  - "Puja Started" → updates to PUJA_IN_PROGRESS
+  - "Puja Complete 🙏" → updates to COMPLETED
+  Each button calls `POST /api/bookings/:id/status-update` with location (if permitted) and triggers customer notification.
+
+**If status = COMPLETED**, show "Rate Customer" option and payment status.
+
+Implement endpoints in `booking.controller.ts`:
+- `PATCH /bookings/:id/accept` (pandit auth)
+- `PATCH /bookings/:id/reject` (pandit auth)
+- `POST /bookings/:id/status-update` (pandit auth) – creates `BookingStatusUpdate`, updates booking status, triggers notifications.
+```
+
+---
+
+### **PROMPT 5.4 – PANDIT PROFILE, CALENDAR, EARNINGS**
+```
+Build the remaining pandit pages:
+
+**Profile (`/profile`)** – editable:
+- Personal info (name, bio, languages, specializations, experience)
+- Puja services list (edit/add)
+- Travel preferences (edit)
+- Bank details (edit, with verification status)
+- Samagri packages (view/edit/add)
+- Verification status and document upload area
+
+**Calendar (`/calendar`)**:
+- Monthly calendar showing:
+  * Green: available (default)
+  * Orange: has booking(s) (click shows summary)
+  * Red: blocked by pandit
+  * Gray: past
+- Click on available date → option to block with reason.
+- Click on blocked date → option to unblock.
+- Recurring blocks section (e.g., every Tuesday).
+
+**Earnings (`/earnings`)**:
+- Summary cards: this month, last month, total, pending payouts
+- Bar chart of monthly earnings (simple)
+- Transaction list: each completed booking with date, event, gross, platform fee, net, payout status
+- Bank account details (masked)
+
+API endpoints already stubbed; implement in `pandit.controller.ts` and `booking.controller.ts`.
+```
+
+---
+
+## **SPRINT 6: ADMIN & LAUNCH (Weeks 11–12)**
+
+### **PROMPT 6.1 – ADMIN OPERATIONS CENTER**
+```
+Build the admin panel at `apps/admin-panel/`. All pages require admin auth.
+
+**Dashboard (`/`)**:
+- Key metrics cards (today's bookings, pending actions, monthly revenue, active pandits)
+- Recent activity feed
+- Quick action links to travel queue, verification queue, payout queue
+
+**Travel Queue (`/travel-queue`)** – MOST IMPORTANT (manual travel ops):
+- List all bookings with status CONFIRMED, travelRequired=true, travelStatus=PENDING.
+- For each, show: booking #, event date, pandit (name, city, phone), venue city, selected travel mode, estimated travel cost.
+- Actions:
+  * "Calculate Travel" – opens modal with pre‑filled from/to, shows breakdown using TravelService.
+  * "Book on IRCTC/MMT" – copy booking details to clipboard (opens external site in new tab).
+  * "Mark Travel Booked" – form to enter booking reference, travel notes, actual cost (if different), then `PATCH /api/admin/bookings/:id/travel-status` which updates travelStatus to BOOKED and sends notifications.
+
+**All Bookings (`/bookings`)**:
+- Table with filters (status, date range, city, pandit, customer)
+- Click row → detail page with all info, status timeline, admin actions (update status, reassign pandit, process cancellation)
+
+**Pandit Management (`/pandits`)**:
+- List with filters (verification status, city)
+- Click → detail page with personal info, verification documents (view), ability to approve/reject/request more info (`PATCH /api/admin/pandits/:id/verification`).
+
+**Verification Queue (`/verification`)**:
+- Pandits with verificationStatus != VERIFIED
+- For each: show submitted documents (Aadhaar, certificates), video KYC status.
+- Actions: Approve, Request More Info, Reject.
+
+**Payout Queue (`/payouts`)**:
+- Bookings with status COMPLETED and payoutStatus = PENDING.
+- For each: booking #, pandit, amount, bank details (masked).
+- "Mark as Paid" button → enter reference, date; calls `PATCH /api/admin/payouts/:bookingId`.
+
+**Cancellation Queue** (part of bookings):
+- Bookings with status CANCELLATION_REQUESTED.
+- Show refund amount calculated via policy, with option to approve (process Razorpay refund) or reject.
+
+Implement all admin endpoints in `admin.controller.ts`.
+```
+
+---
+
+### **PROMPT 6.2 – CUSTOMER DASHBOARD, REVIEWS, FAVORITES**
+```
+Build the customer‑side post‑booking pages at `apps/customer-web/app/dashboard/`.
+
+**My Bookings (`/dashboard/bookings`)**:
+- Tab filters: All, Upcoming, Completed, Cancelled
+- List of bookings, each with booking number, event, date, pandit name, status, grand total, and "View Details" → `/dashboard/bookings/[id]`
+
+**Booking Detail (`/dashboard/bookings/[id]`)**:
+- Status timeline (using `StatusTimeline` component)
+- Pandit contact card (phone, WhatsApp) – shown after CONFIRMED
+- Booking details card (event, venue, muhurat, attendees, instructions)
+- Travel information (if applicable)
+- Price breakdown
+- Cancel button (if status in [CREATED, CONFIRMED, TRAVEL_BOOKED]) – opens modal with refund estimate and reason input.
+- If completed and no review yet, "Write Review" button.
+
+**Review Submission (`/dashboard/bookings/[id]/review`)**:
+- Star ratings for overall, knowledge, punctuality, communication
+- Comment textarea
+- Anonymous toggle
+- Submit → `POST /api/reviews`
+
+**Favorites (`/dashboard/favorites`)**:
+- Grid of favorited pandits (from `GET /api/customers/me/favorites`)
+- Each card: photo, name, rating, location, specializations, "Book Again" button, "Remove" button.
+
+**Profile (`/dashboard/profile`)**:
+- Edit name, email, preferred languages, gotra
+- Saved addresses (add/edit/delete)
+
+Implement endpoints in `customer.controller.ts` and `review.controller.ts`.
+```
+
+---
+
+### **PROMPT 6.3 – SEO, LEGAL PAGES & LAUNCH CHECKLIST**
+```
+Prepare for launch:
+
+**SEO**:
+- In `apps/customer-web/app/layout.tsx`, add comprehensive metadata (title, description, keywords, Open Graph tags).
+- Generate `robots.txt` and `sitemap.xml`.
+- Add structured data (JSON‑LD) for LocalBusiness.
+
+**Legal pages** (in customer‑web):
+- `/terms` – Terms of Service (template)
+- `/privacy` – Privacy Policy
+- `/cancellation-policy` – Cancellation & Refund Policy
+- `/about` – About HmarePanditJi
+
+**Performance**:
+- Use Next.js `Image` component for all images.
+- Optimize fonts with `next/font/google`.
+- Run bundle analyzer and remove unused dependencies.
+
+**Launch checklist** (admin‑only page, e.g., `/admin/launch-checklist`):
+- [ ] 10+ pandits onboarded and verified
+- [ ] Payment integration tested (Razorpay test mode)
+- [ ] All notification templates working (console logs acceptable)
+- [ ] Complete booking flow tested end‑to‑end
+- [ ] Admin can process travel bookings (manual)
+- [ ] Admin can process payouts (manual)
+- [ ] Muhurat data loaded for next 6 months
+- [ ] SEO meta tags in place
+- [ ] Error boundaries and 404 pages
+- [ ] Mobile responsive verified
+```
+
+---
+
+## **DEFERRED TO PHASE 2+**
+
+- Live GPS tracking (WebSocket) – Phase 2
+- In‑app chat between customer and pandit – Phase 2
+- Automated travel API integration (IRCTC, MakeMyTrip, Uber) – Phase 2
+- Elasticsearch for advanced search – Phase 2
+- AI matching engine – Phase 2
+- Backup guarantee system – Phase 2
+- Mobile apps (React Native) – Phase 2
+- Multi‑language support beyond Hindi/English – Phase 2
+- B2B portal for wedding planners – Phase 2
+- NRI booking flow – Phase 2
+- Muhurat consultation (paid) – Phase 2
+- Insurance coverage for traveling pandits – arranged offline initially
+
+---
+
+This prompt library now covers **every non‑negotiable feature** from Bhag 12 and the Phase 1 plan, while keeping the implementation simple and manual where needed. Execute prompts in order; each one builds on the previous. **Jai Hind!**

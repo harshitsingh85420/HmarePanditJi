@@ -324,3 +324,100 @@ export async function markAllAsRead(userId: string) {
     data: { isRead: true },
   });
 }
+
+// ============ VERIFICATION NOTIFICATIONS ============
+export async function notifyVerificationApproved(
+  pandit: { userId: string, phone: string, name: string }
+): Promise<void> {
+  const message = `🙏 बधाई हो ${pandit.name} Ji! आपकी प्रोफाइल वेरीफाई हो गई है। अब आप HmarePanditJi पर बुकिंग लेना शुरू कर सकते हैं।`;
+
+  await sendNotification({
+    userId: pandit.userId,
+    type: "GENERAL",
+    title: "Profile Verified",
+    message,
+    channel: "SMS",
+    phone: pandit.phone,
+  });
+}
+
+export async function notifyVerificationRejected(
+  pandit: { userId: string, phone: string, name: string, reason: string }
+): Promise<void> {
+  const message = `❌ ${pandit.name} Ji, आपकी वेरीफिकेशन अस्वीकार हुई है। कारण: ${pandit.reason}। कृपया विवरण सही करके दोबारा कोशिश करें।`;
+
+  await sendNotification({
+    userId: pandit.userId,
+    type: "GENERAL",
+    title: "Verification Rejected",
+    message,
+    channel: "SMS",
+    phone: pandit.phone,
+  });
+}
+
+export async function notifyVerificationInfoRequested(
+  pandit: { userId: string, phone: string, name: string, requestedText: string }
+): Promise<void> {
+  const message = `⚠️ ${pandit.name} Ji, आपकी वेरीफिकेशन के लिए कुछ और जानकारी चाहिए: ${pandit.requestedText}। कृपया ऐप में अपडेट करें।`;
+
+  await sendNotification({
+    userId: pandit.userId,
+    type: "GENERAL",
+    title: "More Info Needed",
+    message,
+    channel: "SMS",
+    phone: pandit.phone,
+  });
+}
+
+export class NotificationService {
+  /**
+   * Core send method. In Phase 1 (MOCK_NOTIFICATIONS=true),
+   * logs to console. In production, uses Twilio SMS.
+   */
+  async sendSMS(to: string, message: string): Promise<void> {
+    // We already have env defined above as `import { env } from "../config/env";`, but for phase 1 checking `process.env.MOCK_NOTIFICATIONS === 'true'`
+    if (process.env.MOCK_NOTIFICATIONS === 'true') {
+      console.log(`\n[📱 SMS to ${to}]:\n${message}\n`);
+      return;
+    }
+    // Twilio integration (prep for Phase 2):
+    // const client = require('twilio')(accountSid, authToken);
+    // await client.messages.create({ body: message, from: twilioNumber, to });
+  }
+
+  /**
+   * Creates in-app notification record AND sends SMS.
+   */
+  async notify(params: {
+    userId: string,
+    type: string,
+    title: string,
+    message: string,
+    smsMessage?: string,  // SMS text (can differ from in-app)
+    data?: any,
+    sendSMS?: boolean
+  }): Promise<void> {
+    // 1. Create Notification record in DB
+    await prisma.notification.create({
+      data: {
+        userId: params.userId,
+        type: params.type,
+        title: params.title,
+        message: params.message,
+        data: params.data || {},
+      }
+    });
+
+    // 2. Send SMS if requested
+    if (params.sendSMS !== false && params.smsMessage) {
+      const user = await prisma.user.findUnique({
+        where: { id: params.userId }
+      });
+      if (user?.phone) {
+        await this.sendSMS(user.phone, params.smsMessage);
+      }
+    }
+  }
+}

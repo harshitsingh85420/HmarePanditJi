@@ -141,6 +141,21 @@ router.get("/my", async (req, res, next) => {
 });
 
 /**
+ * GET /bookings/customer/my
+ * List bookings for the authenticated customer.
+ */
+router.get("/customer/my", roleGuard("CUSTOMER"), async (req, res, next) => {
+  try {
+    const { page, limit } = parsePagination(req.query as Record<string, unknown>);
+    const status = typeof req.query.status === "string" ? req.query.status : undefined;
+    const { bookings, total } = await listMyBookings(req.user!.id, "CUSTOMER", status, page, limit);
+    sendPaginated(res, bookings as unknown[], total, page, limit, "Customer bookings");
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
  * GET /bookings/:id
  * Get a single booking by ID.
  */
@@ -175,17 +190,17 @@ router.patch("/:id/accept", roleGuard("PANDIT"), async (req, res, next) => {
       data: { status: "CONFIRMED" },
     });
 
-    // Notify customer (non-blocking)
-    if (existing.customer.phone) {
-      notifyBookingConfirmedToCustomer({
-        customerUserId: existing.customerId,
-        customerPhone: existing.customer.phone,
-        customerName: existing.customer.name ?? existing.customer.phone,
-        bookingNumber: existing.bookingNumber,
-        panditName: req.user!.name ?? "Pandit",
-        eventType: existing.eventType,
-        eventDate: existing.eventDate,
-      }).catch((err: unknown) => logger.error("notifyBookingConfirmed failed:", err));
+    // Notify customer and pandit
+    try {
+      const notificationService = new (require('../services/notification.service').NotificationService)();
+      const getTemplate = require('../services/notification-templates').getNotificationTemplate;
+      const t3 = getTemplate("BOOKING_CONFIRMED", { id: booking.id.substring(0, 8).toUpperCase(), panditName: req.user!.name ?? "Pandit", pujaType: existing.eventType, date: existing.eventDate.toISOString().split('T')[0] });
+      await notificationService.notify({ userId: existing.customerId, type: "BOOKING_CONFIRMED", ...t3 });
+
+      const t4 = getTemplate("BOOKING_CONFIRMED_ACK", { id: booking.id.substring(0, 8).toUpperCase(), date: existing.eventDate.toISOString().split('T')[0], city: existing.venueCity, pujaType: existing.eventType });
+      await notificationService.notify({ userId: req.user!.id, type: "BOOKING_CONFIRMED_ACK", ...t4 });
+    } catch (e) {
+      logger.error("notifyBookingConfirmed failed:", e);
     }
 
     sendSuccess(res, { booking }, "Booking accepted");
@@ -221,16 +236,24 @@ router.patch("/:id/reject", roleGuard("PANDIT"), async (req, res, next) => {
       },
     });
 
-    // Notify customer (non-blocking)
-    if (existing.customer.phone) {
-      notifyStatusUpdateToCustomer({
+    // Notify customer
+    try {
+      const notificationService = new (require('../services/notification.service').NotificationService)();
+      const getTemplate = require('../services/notification-templates').getNotificationTemplate;
+      // Note: Reusing CANCELLATION_APPROVED_PANDIT logic for Customer but template 13 is actually an ADMIN alert. We use a generic SMS here or Template 15 if applicable. Wait, the prompt says declineBooking -> template 13 which is "CANCELLATION_REQUESTED (-> Admin only, console)". We will just log it.
+      const t13 = getTemplate("CANCELLATION_REQUESTED", { id: booking.id.substring(0, 8).toUpperCase(), customerName: existing.customer.name ?? "Customer", reason: reason ?? "Pandit declined" });
+      logger.info(t13.message);
+      // Still need to notify customer of cancellation
+      await notifyStatusUpdateToCustomer({
         customerUserId: existing.customerId,
-        customerPhone: existing.customer.phone,
-        customerName: existing.customer.name ?? existing.customer.phone,
+        customerPhone: existing.customer.phone!,
+        customerName: existing.customer.name ?? existing.customer.phone!,
         bookingNumber: existing.bookingNumber,
         panditName: req.user!.name ?? "Pandit",
         statusMessage: "Your booking has been declined by the pandit.",
-      }).catch((err: unknown) => logger.error("notifyBookingRejected failed:", err));
+      });
+    } catch (e) {
+      logger.error("notifyBookingRejected failed:", e);
     }
 
     sendSuccess(res, { booking }, "Booking rejected");
@@ -264,9 +287,13 @@ router.post("/:id/status-update", roleGuard("PANDIT"), async (req, res, next) =>
     if (!existing) return res.status(404).json({ success: false, message: "Booking not found" });
     if (existing.panditId !== req.user!.id) return res.status(403).json({ success: false, message: "Not your booking" });
 
+    let updateData: any = { status: body.status as any };
+    if (body.status === "COMPLETED") {
+      updateData.completedAt = new Date();
+    }
     const booking = await prisma.booking.update({
       where: { id: req.params.id },
-      data: { status: body.status as any },
+      data: updateData,
     });
 
     // Create status update record — updatedById is the field name in new schema
@@ -281,6 +308,27 @@ router.post("/:id/status-update", roleGuard("PANDIT"), async (req, res, next) =>
         updatedById: req.user!.id,
       },
     });
+
+    try {
+      const notificationService = new (require('../services/notification.service').NotificationService)();
+      const getTemplate = require('../services/notification-templates').getNotificationTemplate;
+
+      if (body.status === "PANDIT_EN_ROUTE") {
+        const t7 = getTemplate("PANDIT_EN_ROUTE", { id: booking.id.substring(0, 8).toUpperCase() });
+        await notificationService.notify({ userId: existing.customerId, type: "STATUS_UPDATE", ...t7 });
+      } else if (body.status === "PANDIT_ARRIVED") {
+        const t8 = getTemplate("PANDIT_ARRIVED", { id: booking.id.substring(0, 8).toUpperCase() });
+        await notificationService.notify({ userId: existing.customerId, type: "STATUS_UPDATE", ...t8 });
+      } else if (body.status === "COMPLETED") {
+        const t9 = getTemplate("PUJA_COMPLETED", { id: booking.id.substring(0, 8).toUpperCase() });
+        await notificationService.notify({ userId: existing.customerId, type: "PUJA_COMPLETED", ...t9 });
+
+        const t10 = getTemplate("PUJA_COMPLETED_PANDIT", { id: booking.id.substring(0, 8).toUpperCase(), amount: booking.panditPayout });
+        await notificationService.notify({ userId: existing.panditId!, type: "PUJA_COMPLETED_PANDIT", ...t10 });
+      }
+    } catch (e) {
+      logger.error("status update notification failed", e);
+    }
 
     sendSuccess(res, { booking }, `Status updated to ${body.status}`);
   } catch (err) {
@@ -387,6 +435,83 @@ router.post("/:id/cancel", roleGuard("CUSTOMER", "ADMIN"), async (req, res, next
     }
 
     sendSuccess(res, { booking }, "Booking cancelled");
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * GET /bookings/:id/status-history
+ * Returns array of BookingStatusUpdate records, sorted by date
+ */
+router.get("/:id/status-history", async (req, res, next) => {
+  try {
+    const history = await prisma.bookingStatusUpdate.findMany({
+      where: { bookingId: req.params.id },
+      orderBy: { createdAt: "asc" },
+      include: {
+        updatedBy: { select: { name: true, role: true } },
+      },
+    });
+    sendSuccess(res, history, "Status history");
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * POST /bookings/:id/cancel-request
+ * Submit a cancellation request by the customer
+ */
+router.post("/:id/cancel-request", roleGuard("CUSTOMER"), async (req, res, next) => {
+  try {
+    const { reason } = req.body as { reason?: string };
+
+    const existing = await prisma.booking.findUnique({
+      where: { id: req.params.id },
+      include: { pandit: true },
+    });
+
+    if (!existing) return res.status(404).json({ success: false, message: "Booking not found" });
+    if (existing.customerId !== req.user!.id) return res.status(403).json({ success: false, message: "Not your booking" });
+
+    if (existing.status === "COMPLETED" || existing.status === "CANCELLED" || existing.status === "REFUNDED") {
+      return res.status(400).json({ success: false, message: "Cannot cancel this booking" });
+    }
+
+    // Logic: Calculate refund estimate
+    // Simple placeholder logic for cancellation policy:
+    // More than 7 days left = 100%, 3-7 days = 50%, <3 days = 0%
+    let refundPercent = 0;
+    const daysUntilEvent = (existing.eventDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24);
+    if (daysUntilEvent > 7) refundPercent = 100;
+    else if (daysUntilEvent >= 3) refundPercent = 50;
+
+    const refundEstimate = Math.round(existing.grandTotal * (refundPercent / 100));
+
+    const booking = await prisma.booking.update({
+      where: { id: req.params.id },
+      data: {
+        status: "CANCELLATION_REQUESTED",
+        cancellationReason: reason,
+        cancellationRequestedAt: new Date(),
+      },
+    });
+
+    await prisma.bookingStatusUpdate.create({
+      data: {
+        bookingId: req.params.id,
+        fromStatus: existing.status,
+        toStatus: "CANCELLATION_REQUESTED",
+        note: reason ?? "Customer requested cancellation",
+        updatedById: req.user!.id,
+      },
+    });
+
+    // Notify admin
+    logger.info(`[ADMIN] Cancellation request for ${existing.bookingNumber}`);
+
+    sendSuccess(res, { refundEstimate, refundPercent }, "Cancellation requested");
   } catch (err) {
     next(err);
   }

@@ -3,7 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "packageManager": "pnpm@9.1.0",
-  "workspaces": ["apps/*", "services/*", "packages/*"],
+  "workspaces": [
+    "apps/*",
+    "services/*",
+    "packages/*"
+  ],
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
@@ -29,5 +33,9 @@
     "prettier-plugin-tailwindcss": "^0.5.0",
     "turbo": "^2.0.0",
     "typescript": "^5.4.0"
+  },
+  "dependencies": {
+    "@playwright/test": "^1.58.2",
+    "playwright": "^1.58.2"
   }
 }

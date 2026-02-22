@@ -44,15 +44,13 @@ export function errorHandler(
   }
 
   // Unexpected errors
+  console.error('[API Error]', err);
   logger.error("Unhandled error", { message: err.message, stack: err.stack });
 
-  res.status(500).json({
-    success: false,
-    message:
-      process.env.NODE_ENV === "production"
-        ? "Internal server error"
-        : err.message,
-    error: { code: "INTERNAL_SERVER_ERROR" },
+  const statusCode = (err as any).statusCode || 500;
+  res.status(statusCode).json({
+    error: err.message || 'Internal Server Error',
+    statusCode: statusCode,
   });
 }
 

@@ -33,6 +33,31 @@ const addAddressSchema = z.object({
   isDefault: z.boolean().optional(),
 });
 
+const updateAddressSchema = z.object({
+  label: z.string().optional(),
+  fullAddress: z.string().optional(),
+  landmark: z.string().optional(),
+  city: z.string().optional(),
+  state: z.string().optional(),
+  pincode: z.string().regex(/^\d{6}$/, "Invalid pincode").optional(),
+  latitude: z.number().optional(),
+  longitude: z.number().optional(),
+  isDefault: z.boolean().optional(),
+});
+
+const updateFamilySchema = z.object({
+  gotra: z.string().optional(),
+  kulDevata: z.string().optional().nullable(),
+  familyMembers: z.array(z.object({
+    id: z.string().optional(),
+    name: z.string(),
+    relation: z.string(),
+    dob: z.string().optional().nullable(),
+    nakshatra: z.string().optional().nullable(),
+    rashi: z.string().optional().nullable()
+  })).optional()
+});
+
 // ─── Routes ───────────────────────────────────────────────────────────────────
 
 /**
@@ -169,9 +194,35 @@ router.post(
  * PUT /customers/me/addresses/:addressId
  * Update an existing address.
  */
-router.put("/me/addresses/:addressId", roleGuard("CUSTOMER"), async (_req, res) => {
-  res.status(501).json({ success: true, message: "Not implemented yet", endpoint: "PUT /customers/me/addresses/:addressId" });
-});
+router.put(
+  "/me/addresses/:addressId",
+  roleGuard("CUSTOMER"),
+  validate(updateAddressSchema),
+  async (req, res, next) => {
+    try {
+      const customerProfile = await prisma.customerProfile.findUnique({ where: { userId: req.user!.id } });
+      if (!customerProfile) throw new AppError("Customer profile not found", 404, "NOT_FOUND");
+
+      const data = req.body as z.infer<typeof updateAddressSchema>;
+
+      if (data.isDefault) {
+        await prisma.address.updateMany({
+          where: { customerProfileId: customerProfile.id, isDefault: true },
+          data: { isDefault: false },
+        });
+      }
+
+      await prisma.address.updateMany({
+        where: { id: req.params.addressId, customerProfileId: customerProfile.id },
+        data,
+      });
+
+      sendSuccess(res, null, "Address updated successfully");
+    } catch (err) {
+      next(err);
+    }
+  }
+);
 
 /**
  * DELETE /customers/me/addresses/:addressId
@@ -204,23 +255,41 @@ router.get("/me/favorites", roleGuard("CUSTOMER"), async (req, res, next) => {
   try {
     const favorites = await prisma.favoritePandit.findMany({
       where: { customerId: req.user!.id },
-      select: { panditId: true }
+      include: {
+        pandit: {
+          select: {
+            id: true,
+            name: true,
+            isVerified: true,
+            panditProfile: {
+              select: {
+                profilePhotoUrl: true,
+                rating: true,
+                totalReviews: true,
+                location: true,
+                specializations: true,
+                experienceYears: true,
+                verificationStatus: true
+              }
+            }
+          }
+        }
+      }
     });
 
-    const favoriteIds = favorites.map((f) => f.panditId);
-    sendSuccess(res, favoriteIds);
+    sendSuccess(res, favorites);
   } catch (err) {
     next(err);
   }
 });
 
 /**
- * POST /customers/me/favorites/:panditId
- * Toggle a pandit in favorites.
+ * POST /customers/me/favorites
+ * Add a pandit to favorites.
  */
-router.post("/me/favorites/:panditId", roleGuard("CUSTOMER"), async (req, res, next) => {
+router.post("/me/favorites", roleGuard("CUSTOMER"), async (req, res, next) => {
   try {
-    const panditId = req.params.panditId;
+    const { panditId } = req.body;
     const customerId = req.user!.id;
 
     const existing = await prisma.favoritePandit.findUnique({
@@ -229,17 +298,88 @@ router.post("/me/favorites/:panditId", roleGuard("CUSTOMER"), async (req, res, n
       }
     });
 
-    if (existing) {
-      await prisma.favoritePandit.delete({
-        where: { id: existing.id }
-      });
-      sendSuccess(res, { isFavorited: false });
-    } else {
+    if (!existing) {
       await prisma.favoritePandit.create({
         data: { customerId, panditId }
       });
-      sendSuccess(res, { isFavorited: true });
     }
+
+    sendSuccess(res, { isFavorited: true });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * DELETE /customers/me/favorites/:panditId
+ * Remove a pandit from favorites
+ */
+router.delete("/me/favorites/:panditId", roleGuard("CUSTOMER"), async (req, res, next) => {
+  try {
+    const panditId = req.params.panditId;
+    const customerId = req.user!.id;
+
+    await prisma.favoritePandit.deleteMany({
+      where: { customerId, panditId }
+    });
+
+    sendSuccess(res, { isFavorited: false });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ─── Family & Gotra ─────────────────────────────────────────────────────────
+
+/**
+ * GET /customers/me/family
+ */
+router.get("/me/family", roleGuard("CUSTOMER"), async (req, res, next) => {
+  try {
+    const customerProfile = await prisma.customerProfile.findUnique({ where: { userId: req.user!.id } });
+    const members = await prisma.familyMember.findMany({ where: { userId: req.user!.id } });
+    sendSuccess(res, {
+      gotra: customerProfile?.gotra || null,
+      familyMembers: members
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * PUT /customers/me/family
+ */
+router.put("/me/family", roleGuard("CUSTOMER"), validate(updateFamilySchema), async (req, res, next) => {
+  try {
+    const { gotra, familyMembers } = req.body;
+    if (gotra !== undefined) {
+      await prisma.customerProfile.upsert({
+        where: { userId: req.user!.id },
+        create: { userId: req.user!.id, gotra },
+        update: { gotra }
+      });
+    }
+
+    if (familyMembers) {
+      await prisma.familyMember.deleteMany({
+        where: { userId: req.user!.id }
+      });
+      if (familyMembers.length > 0) {
+        await prisma.familyMember.createMany({
+          data: familyMembers.map((m: any) => ({
+            userId: req.user!.id,
+            name: m.name,
+            relation: m.relation,
+            dob: m.dob ? new Date(m.dob) : null,
+            nakshatra: m.nakshatra || null,
+            rashi: m.rashi || null,
+          }))
+        });
+      }
+    }
+
+    sendSuccess(res, null, "Family info updated successfully");
   } catch (err) {
     next(err);
   }

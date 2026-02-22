@@ -30,7 +30,7 @@ router.get("/my", async (req, res, next) => {
     const [notifications, total] = await Promise.all([
       prisma.notification.findMany({
         where,
-        orderBy: { sentAt: "desc" },
+        orderBy: { createdAt: "desc" },
         skip: (page - 1) * limit,
         take: limit,
       }),

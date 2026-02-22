@@ -151,6 +151,31 @@ export async function createBooking(input: CreateBookingInput) {
     },
   });
 
+
+  const notificationService = new (require('./notification.service').NotificationService)();
+  const getTemplate = require('./notification-templates').getNotificationTemplate;
+
+  // Template 1 -> Customer
+  const t1 = getTemplate("BOOKING_CREATED", { id: booking.id.substring(0, 8).toUpperCase(), pujaType: input.eventType, date: input.eventDate.toISOString().split('T')[0] });
+  await notificationService.notify({
+    userId: input.customerId,
+    type: "BOOKING_CREATED",
+    title: t1.title,
+    message: t1.message,
+    smsMessage: t1.smsMessage
+  });
+
+  // Template 2 -> Pandit
+  if (input.panditId) {
+    const p1 = getTemplate("NEW_BOOKING_REQUEST", { pujaType: input.eventType, date: input.eventDate.toISOString().split('T')[0], city: input.venueCity, amount: booking.panditPayout || input.dakshinaAmount });
+    await notificationService.notify({
+      userId: input.panditId,
+      type: "NEW_BOOKING_REQUEST",
+      title: p1.title,
+      message: p1.message,
+      smsMessage: p1.smsMessage
+    });
+  }
   return booking;
 }
 
@@ -188,8 +213,20 @@ export async function listMyBookings(
   page = 1,
   limit = 20,
 ) {
+  let statusFilter: any = {};
+  if (status) {
+    if (status === "UPCOMING") {
+      statusFilter = { status: { in: ["CREATED", "PANDIT_REQUESTED", "CONFIRMED", "TRAVEL_BOOKED", "PANDIT_EN_ROUTE", "PANDIT_ARRIVED", "PUJA_IN_PROGRESS"] as BookingStatus[] } };
+    } else if (status === "COMPLETED") {
+      statusFilter = { status: "COMPLETED" as BookingStatus };
+    } else if (status === "CANCELLED") {
+      statusFilter = { status: { in: ["CANCELLATION_REQUESTED", "CANCELLED", "REFUNDED"] as BookingStatus[] } };
+    } else {
+      statusFilter = { status: status as BookingStatus };
+    }
+  }
+
   const skip = (page - 1) * limit;
-  const statusFilter = status ? { status: status as BookingStatus } : {};
 
   if (role === "CUSTOMER") {
     // In new schema, customerId on Booking IS the User's ID

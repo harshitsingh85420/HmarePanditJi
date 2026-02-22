@@ -48,6 +48,7 @@ enum TravelMode {
 enum TravelStatus {
   NOT_REQUIRED
   PENDING
+  ADMIN_CALCULATING
   BOOKED
   IN_TRANSIT
   ARRIVED
@@ -121,6 +122,8 @@ model User {
   favoritePandits    FavoritePandit[]      @relation("CustomerFavorites")
   favoritedBy        FavoritePandit[]      @relation("PanditFavorited")
   statusUpdates      BookingStatusUpdate[]
+  notifications      Notification[]
+  familyMembers      FamilyMember[]
 
   @@index([role])
   @@index([isActive])
@@ -196,6 +199,13 @@ model PanditProfile {
   isOnline Boolean @default(false) // Pandit's online/offline toggle
   canBringSamagri Boolean @default(true) // Added for Samagri Toggle
 
+  // Admin Verification Tracking
+  adminNotes           String?  @db.Text
+  rejectionReason      String?  @db.Text
+  verifiedAt           DateTime?
+  verifiedById         String?
+  profileCompletionPercent Int  @default(0)
+
   pujaServices    PujaService[]
   blockedDates    PanditBlockedDate[]
   samagriPackages SamagriPackage[]
@@ -270,6 +280,7 @@ model Booking {
   eventType        String   // "Vivah", "Griha Pravesh" etc.
   eventDate        DateTime
   eventEndDate     DateTime? // For multi-day events like Vivah
+  completedAt      DateTime? // When booking was marked COMPLETED
   muhuratTime      String?   // "10:30 AM - 12:00 PM"
   muhuratSuggested Boolean   @default(false)
 
@@ -286,9 +297,13 @@ model Booking {
   travelRequired   Boolean      @default(false)
   travelMode       TravelMode?
   travelDistanceKm Float?
-  travelStatus     TravelStatus @default(NOT_REQUIRED)
-  travelBookingRef String?      // Admin manually enters IRCTC/MMT reference
-  travelNotes      String?
+  travelStatus         TravelStatus @default(NOT_REQUIRED)
+  travelBookingRef     String?      // Admin manually enters IRCTC/MMT reference
+  travelNotes          String?
+  calculatedTravelCost Int?
+  travelBreakdown      Json?
+  travelBookingDetails Json?
+  travelDocumentUrls   String[]
 
   // Food & Accommodation
   foodArrangement          FoodArrangement          @default(CUSTOMER_PROVIDES)
@@ -323,6 +338,7 @@ model Booking {
   cancelledBy             String?      // "CUSTOMER" | "PANDIT" | "ADMIN"
   cancellationReason      String?
   cancellationRequestedAt DateTime?
+  cancelledAt             DateTime?
   refundAmount            Int          @default(0)
   refundStatus            RefundStatus @default(NONE)
   refundReference         String?
@@ -374,7 +390,9 @@ model Review {
   knowledgeRating      Float?
   punctualityRating    Float?
   communicationRating  Float?
+  valueForMoneyRating  Float?
   comment              String?
+  photoUrls            String[]
   isAnonymous          Boolean  @default(false)
   createdAt            DateTime @default(now())
 
@@ -415,4 +433,58 @@ model CityDistance {
 
   @@unique([fromCity, toCity])
   @@index([fromCity])
+}
+
+model SupportTicket {
+  id               String   @id @default(cuid())
+  source           String
+  type             String
+  subject          String
+  description      String   @db.Text
+  priority         String   @default("MEDIUM")
+  status           String   @default("OPEN")
+  relatedBookingId String?
+  relatedUserId    String?
+  resolution       String?  @db.Text
+  createdBy        String   // admin who logged it
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([status])
+  @@index([priority])
+}
+
+model FamilyMember {
+  id        String    @id @default(cuid())
+  userId    String
+  name      String
+  relation  String
+  dob       DateTime?
+  nakshatra String?
+  rashi     String?
+  user      User      @relation(fields: [userId], references: [id])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String   // BOOKING, TRAVEL, STATUS, PAYMENT, REVIEW, SYSTEM
+  title     String
+  message   String
+  data      Json?    // { bookingId?, panditId?, etc. }
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model CustomerRating {
+  id              String   @id @default(cuid())
+  bookingId       String   @unique
+  panditId        String
+  customerId      String
+  punctuality     Int      // 1-5
+  hospitality     Int      // 1-5
+  foodArrangement Int      // 1-5
+  comment         String?
+  createdAt       DateTime @default(now())
 }

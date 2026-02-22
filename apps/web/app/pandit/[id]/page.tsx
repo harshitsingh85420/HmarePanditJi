@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
     if (!pandit) return { title: "Pandit Not Found | HmarePanditJi" };
     const shortBio = pandit.bio?.substring(0, 150) || `Book ${pandit.user.name} for your next puja on HmarePanditJi.`;
     return {
-        title: `${pandit.user.name} | Verified Vedic Pandit in ${pandit.location}`,
+        title: `${pandit.user.name} — Verified Pandit | HmarePanditJi`,
         description: shortBio,
     };
 }

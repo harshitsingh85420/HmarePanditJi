@@ -17,6 +17,9 @@ import {
   getPanditAvailabilityHandler
 } from "../controllers/pandit.controller";
 import { AppError } from "../middleware/errorHandler";
+import { NotificationService } from "../services/notification.service";
+import { getNotificationTemplate } from "../services/notification-templates";
+const notificationService = new NotificationService();
 
 const router: Router = Router();
 
@@ -760,7 +763,11 @@ router.post("/bookings/:bookingId/accept", authenticate, roleGuard("PANDIT"), as
       })
     ]);
 
-    console.log(`[SMS to Customer]: "Booking HPJ-${booking.id} confirmed! -HmarePanditJi"`);
+    const t1 = getNotificationTemplate("BOOKING_CONFIRMED", { id: booking.id.substring(0, 8).toUpperCase(), panditName: "Aapke Pandit", pujaType: booking.eventType, date: booking.eventDate.toISOString().split('T')[0] });
+    await notificationService.notify({ userId: booking.customerId, type: "BOOKING_CONFIRMED", title: t1.title, message: t1.message, smsMessage: t1.smsMessage });
+
+    const t2 = getNotificationTemplate("BOOKING_CONFIRMED_ACK", { id: booking.id.substring(0, 8).toUpperCase(), date: booking.eventDate.toISOString().split('T')[0], city: booking.venueCity, pujaType: booking.eventType });
+    await notificationService.notify({ userId: req.user!.id, type: "BOOKING_CONFIRMED_ACK", title: t2.title, message: t2.message, smsMessage: t2.smsMessage });
     sendSuccess(res, { success: true });
   } catch (err) {
     next(err);
@@ -794,7 +801,9 @@ router.post("/bookings/:bookingId/decline", authenticate, roleGuard("PANDIT"), a
       })
     ]);
 
-    console.log(`[ADMIN] Pandit declined booking ${booking.id} — needs reassignment`);
+    const t1 = getNotificationTemplate("CANCELLATION_REQUESTED", { id: booking.id.substring(0, 8).toUpperCase(), customerName: "Unknown", reason: reason });
+    console.log(t1.message); // Admin log
+    // We don't notify customer directly for admin cancellation requests in Phase 1
     sendSuccess(res, { success: true });
   } catch (err) {
     next(err);
@@ -817,7 +826,7 @@ router.post("/bookings/:bookingId/complete", authenticate, roleGuard("PANDIT"), 
     await prisma.$transaction([
       prisma.booking.update({
         where: { id: booking.id },
-        data: { status: "COMPLETED", payoutStatus: "PENDING" }
+        data: { status: "COMPLETED", payoutStatus: "PENDING", completedAt: new Date() }
       }),
       prisma.bookingStatusUpdate.create({
         data: {
@@ -830,15 +839,17 @@ router.post("/bookings/:bookingId/complete", authenticate, roleGuard("PANDIT"), 
       })
     ]);
 
-    console.log(`[PAYOUT] Queued payout for Pandit ${booking.panditId}, Booking ${booking.id}`);
-    console.log(`[SMS to Customer] Puja completed! Rate your experience...`);
+    const t9 = getNotificationTemplate("PUJA_COMPLETED", { id: booking.id.substring(0, 8).toUpperCase() });
+    await notificationService.notify({ userId: booking.customerId, type: "PUJA_COMPLETED", title: t9.title, message: t9.message, smsMessage: t9.smsMessage });
+
+    const t10 = getNotificationTemplate("PUJA_COMPLETED_PANDIT", { id: booking.id.substring(0, 8).toUpperCase(), amount: booking.panditPayout });
+    await notificationService.notify({ userId: req.user!.id, type: "PUJA_COMPLETED_PANDIT", title: t10.title, message: t10.message, smsMessage: t10.smsMessage });
 
     sendSuccess(res, { success: true });
   } catch (err) {
     next(err);
   }
 });
-
 /**
  * POST /pandits/bookings/:bookingId/start-journey
  */
@@ -862,7 +873,8 @@ router.post("/bookings/:bookingId/start-journey", authenticate, roleGuard("PANDI
         }
       })
     ]);
-    console.log(`[SMS to Customer]: "Pandit Ji is on the way! Estimated arrival: ${req.body.eta}"`);
+    const t1 = getNotificationTemplate("PANDIT_EN_ROUTE", { id: booking.id.substring(0, 8).toUpperCase() });
+    await notificationService.notify({ userId: booking.customerId, type: "PANDIT_EN_ROUTE", title: t1.title, message: t1.message, smsMessage: t1.smsMessage });
     sendSuccess(res, { success: true });
   } catch (err) {
     next(err);
@@ -892,7 +904,8 @@ router.post("/bookings/:bookingId/arrived", authenticate, roleGuard("PANDIT"), a
         }
       })
     ]);
-    console.log(`[SMS to Customer]: "Pandit Ji has arrived! 🙏"`);
+    const t1 = getNotificationTemplate("PANDIT_ARRIVED", { id: booking.id.substring(0, 8).toUpperCase() });
+    await notificationService.notify({ userId: booking.customerId, type: "PANDIT_ARRIVED", title: t1.title, message: t1.message, smsMessage: t1.smsMessage });
     sendSuccess(res, { success: true });
   } catch (err) {
     next(err);
@@ -923,6 +936,33 @@ router.post("/bookings/:bookingId/start-puja", authenticate, roleGuard("PANDIT")
       })
     ]);
     sendSuccess(res, { success: true });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * POST /pandits/bookings/:bookingId/rate-customer
+ */
+router.post("/bookings/:bookingId/rate-customer", authenticate, roleGuard("PANDIT"), async (req, res, next) => {
+  try {
+    const { punctuality, hospitality, foodArrangement, comment } = req.body;
+    const booking = await prisma.booking.findUnique({ where: { id: req.params.bookingId } });
+    if (!booking || booking.panditId !== req.user!.id) throw new AppError("Invalid booking", 400);
+
+    const rating = await prisma.customerRating.create({
+      data: {
+        bookingId: booking.id,
+        panditId: req.user!.id,
+        customerId: booking.customerId,
+        punctuality: parseInt(punctuality),
+        hospitality: parseInt(hospitality),
+        foodArrangement: parseInt(foodArrangement),
+        comment
+      }
+    });
+
+    sendSuccess(res, rating, "Customer rated successfully");
   } catch (err) {
     next(err);
   }
@@ -1302,5 +1342,49 @@ router.get("/me/samagri/demand-insights", authenticate, roleGuard("PANDIT"), asy
  * Public pandit profile by ID
  */
 router.get("/:id", getPanditProfileById);
+
+/**
+ * POST /pandits/bookings/:id/rate-customer
+ * Pandit rates the customer after a puja is completed.
+ */
+const rateCustomerSchema = z.object({
+  punctuality: z.number().int().min(1).max(5),
+  hospitality: z.number().int().min(1).max(5),
+  foodArrangement: z.number().int().min(1).max(5),
+  comment: z.string().optional(),
+});
+
+router.post("/bookings/:id/rate-customer", authenticate, roleGuard("PANDIT"), validate(rateCustomerSchema), async (req, res, next) => {
+  try {
+    const booking = await prisma.booking.findUnique({ where: { id: req.params.id } });
+    if (!booking) throw new AppError("Booking not found", 404);
+    if (booking.panditId !== req.user!.id) throw new AppError("Not your booking", 403);
+    if (booking.status !== "COMPLETED") throw new AppError("Booking must be completed to rate customer", 400);
+
+    const data = req.body;
+    const rating = await prisma.customerRating.upsert({
+      where: { bookingId: booking.id },
+      update: {
+        punctuality: data.punctuality,
+        hospitality: data.hospitality,
+        foodArrangement: data.foodArrangement,
+        comment: data.comment,
+      },
+      create: {
+        bookingId: booking.id,
+        panditId: req.user!.id,
+        customerId: booking.customerId,
+        punctuality: data.punctuality,
+        hospitality: data.hospitality,
+        foodArrangement: data.foodArrangement,
+        comment: data.comment,
+      },
+    });
+
+    sendSuccess(res, rating, "Customer rating submitted successfully", 201);
+  } catch (err) {
+    next(err);
+  }
+});
 
 export default router;

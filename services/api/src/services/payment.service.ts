@@ -5,10 +5,8 @@ import { env } from "../config/env";
 import { logger } from "../utils/logger";
 import { AppError } from "../middleware/errorHandler";
 import { calculatePanditPayout } from "../utils/pricing";
-import {
-  notifyNewBookingToPandit,
-  notifyPaymentReceivedToCustomer,
-} from "./notification.service";
+import { NotificationService } from "./notification.service";
+import { getNotificationTemplate } from "./notification-templates";
 
 let razorpayInstance: Razorpay | null = null;
 
@@ -254,35 +252,17 @@ export async function processPaymentSuccess(
 
   // ── Fire-and-forget notifications ──────────────────────────────────────────
   try {
+    const notificationService = new NotificationService();
     if (booking.customer) {
       const customerUser = booking.customer;
-      if (customerUser.phone) {
-        notifyPaymentReceivedToCustomer({
-          customerUserId: customerUser.id,
-          customerName: customerUser.name ?? customerUser.phone,
-          amount: updated.grandTotal,
-          bookingNumber: updated.bookingNumber,
-          customerPhone: customerUser.phone,
-        }).catch((err) => logger.error("notifyPaymentReceivedToCustomer failed:", err));
-      }
+      const t1 = getNotificationTemplate("PAYMENT_CAPTURED", { id: updated.id.substring(0, 8).toUpperCase(), amount: updated.grandTotal });
+      notificationService.notify({ userId: customerUser.id, type: "PAYMENT_CAPTURED", title: t1.title, message: t1.message, smsMessage: t1.smsMessage }).catch((err) => logger.error("notifyPaymentReceivedToCustomer failed:", err));
     }
 
     if (booking.pandit) {
       const panditUser = booking.pandit;
-      if (panditUser.phone) {
-        notifyNewBookingToPandit({
-          panditUserId: panditUser.id,
-          panditName: panditUser.name ?? panditUser.phone,
-          bookingNumber: updated.bookingNumber,
-          eventType: updated.eventType,
-          eventDate: updated.eventDate,
-          venueCity: updated.venueCity,
-          dakshina: updated.dakshinaAmount,
-          travelMode: updated.travelMode ?? null,
-          panditPayout: updated.panditPayout,
-          panditPhone: panditUser.phone,
-        }).catch((err) => logger.error("notifyNewBookingToPandit failed:", err));
-      }
+      const t2 = getNotificationTemplate("NEW_BOOKING_REQUEST", { pujaType: updated.eventType, date: updated.eventDate.toISOString().split('T')[0], city: updated.venueCity, amount: updated.panditPayout });
+      notificationService.notify({ userId: panditUser.id, type: "NEW_BOOKING_REQUEST", title: t2.title, message: t2.message, smsMessage: t2.smsMessage }).catch((err) => logger.error("notifyNewBookingToPandit failed:", err));
     }
   } catch (err) {
     logger.error("Payment notifications failed:", err);

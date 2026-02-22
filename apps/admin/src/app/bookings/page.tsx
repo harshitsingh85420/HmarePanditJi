@@ -1,256 +1,313 @@
 "use client";
+import React, { useState, useEffect } from "react";
+import {
+  Card, CardContent, CardHeader, CardTitle
+} from "@hmarepanditji/ui/components/ui/card";
+import { Button } from "@hmarepanditji/ui/components/ui/button";
+import { Badge } from "@hmarepanditji/ui/components/ui/badge";
+import { Input } from "@hmarepanditji/ui/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@hmarepanditji/ui/components/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@hmarepanditji/ui/components/ui/select";
+import { Label } from "@hmarepanditji/ui/components/ui/label";
 
-import { useState } from "react";
+export default function AllBookingsPage() {
+  const [bookings, setBookings] = useState<any[]>([]);
+  const [stats, setStats] = useState<any>({ totalGmv: 0, thisMonthGmv: 0 });
+  const [loading, setLoading] = useState(true);
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api/v1";
+  // Filters state
+  const [status, setStatus] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [city, setCity] = useState("");
+  const [pandit, setPandit] = useState("");
+  const [customer, setCustomer] = useState("");
+  const [paymentStatus, setPaymentStatus] = useState("");
+  const [travelStatus, setTravelStatus] = useState("");
+  const [page, setPage] = useState(1);
+  const limit = 20;
+  const [total, setTotal] = useState(0);
 
-type BookingStatus = "CONFIRMED" | "COMPLETED" | "CANCELLED" | "PENDING";
-
-interface Booking {
-  id: string;
-  bookingNo: string;
-  ceremony: string;
-  customer: string;
-  pandit: string;
-  city: string;
-  date: string;
-  amount: number;
-  status: BookingStatus;
-  travelNeeded: boolean;
-}
-
-const MOCK_BOOKINGS: Booking[] = [
-  { id: "1", bookingNo: "BK-8821", ceremony: "Vivah Puja", customer: "Aryan Gupta", pandit: "Ramesh Sharma", city: "Delhi", date: "15 Feb 2024", amount: 21000, status: "CONFIRMED", travelNeeded: false },
-  { id: "2", bookingNo: "BK-8820", ceremony: "Griha Pravesh", customer: "Priya Mehta", pandit: "Suresh Mishra", city: "Noida", date: "14 Feb 2024", amount: 8500, status: "COMPLETED", travelNeeded: false },
-  { id: "3", bookingNo: "BK-8819", ceremony: "Satyanarayan Katha", customer: "Ravi Verma", pandit: "Dinesh Tiwari", city: "Gurgaon", date: "13 Feb 2024", amount: 6000, status: "CONFIRMED", travelNeeded: true },
-  { id: "4", bookingNo: "BK-8818", ceremony: "Mundan Ceremony", customer: "Sunita Singh", pandit: "Mahesh Pandey", city: "Delhi", date: "12 Feb 2024", amount: 5500, status: "CANCELLED", travelNeeded: false },
-  { id: "5", bookingNo: "BK-8817", ceremony: "Navgraha Puja", customer: "Amit Sharma", pandit: "Ganesh Dubey", city: "Faridabad", date: "16 Feb 2024", amount: 12000, status: "CONFIRMED", travelNeeded: true },
-  { id: "6", bookingNo: "BK-8816", ceremony: "Rudrabhishek", customer: "Kavita Joshi", pandit: "Rajesh Shastri", city: "Noida", date: "17 Feb 2024", amount: 15000, status: "PENDING", travelNeeded: false },
-  { id: "7", bookingNo: "BK-8815", ceremony: "Vivah Puja", customer: "Deepak Kumar", pandit: "Ramesh Sharma", city: "Delhi", date: "10 Feb 2024", amount: 22000, status: "COMPLETED", travelNeeded: false },
-  { id: "8", bookingNo: "BK-8814", ceremony: "Griha Pravesh", customer: "Meena Agrawal", pandit: "Suresh Mishra", city: "Gurgaon", date: "9 Feb 2024", amount: 9500, status: "CANCELLED", travelNeeded: true },
-];
-
-const STATUS_STYLES: Record<BookingStatus, string> = {
-  CONFIRMED: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
-  COMPLETED: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
-  CANCELLED: "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400",
-  PENDING: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
-};
-
-export default function BookingsPage() {
-  const [filter, setFilter] = useState<BookingStatus | "ALL">("ALL");
-  const [search, setSearch] = useState("");
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [detailNote, setDetailNote] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [toast, setToast] = useState("");
-
-  const showToast = (msg: string) => {
-    setToast(msg);
-    setTimeout(() => setToast(""), 3000);
-  };
-
-  const filtered = MOCK_BOOKINGS.filter((b) => {
-    const matchesFilter = filter === "ALL" || b.status === filter;
-    const matchesSearch =
-      b.bookingNo.toLowerCase().includes(search.toLowerCase()) ||
-      b.customer.toLowerCase().includes(search.toLowerCase()) ||
-      b.pandit.toLowerCase().includes(search.toLowerCase()) ||
-      b.ceremony.toLowerCase().includes(search.toLowerCase());
-    return matchesFilter && matchesSearch;
-  });
-
-  const selected = selectedId ? MOCK_BOOKINGS.find((b) => b.id === selectedId) : null;
-
-  const handleAction = async (action: string) => {
-    if (!selected) return;
+  const fetchBookings = async () => {
     setLoading(true);
     try {
-      await fetch(`${API_BASE}/admin/bookings/${selected.id}/action`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action, note: detailNote }),
+      const token = localStorage.getItem("token");
+      const qs = new URLSearchParams();
+      if (status && status !== "ALL") qs.append("status", status);
+      if (dateFrom) qs.append("dateFrom", dateFrom);
+      if (dateTo) qs.append("dateTo", dateTo);
+      if (city) qs.append("city", city);
+      if (pandit) qs.append("pandit", pandit);
+      if (customer) qs.append("customer", customer);
+      if (paymentStatus && paymentStatus !== "ALL") qs.append("paymentStatus", paymentStatus);
+      if (travelStatus && travelStatus !== "ALL") qs.append("travelStatus", travelStatus);
+      qs.append("page", page.toString());
+      qs.append("limit", limit.toString());
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/admin/bookings?${qs.toString()}`, {
+        headers: { Authorization: `Bearer ${token}` }
       });
-    } catch { /* dev mode */ } finally {
+      const json = await res.json();
+      if (json.success) {
+        setBookings(json.data.data || json.data || []);
+        setTotal(json.data.pagination?.total || 0);
+        if (json.data.stats) setStats(json.data.stats);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
       setLoading(false);
-      showToast(`Action "${action}" applied to ${selected.bookingNo}`);
-      setDetailNote("");
     }
   };
 
-  const counts = {
-    ALL: MOCK_BOOKINGS.length,
-    CONFIRMED: MOCK_BOOKINGS.filter((b) => b.status === "CONFIRMED").length,
-    PENDING: MOCK_BOOKINGS.filter((b) => b.status === "PENDING").length,
-    COMPLETED: MOCK_BOOKINGS.filter((b) => b.status === "COMPLETED").length,
-    CANCELLED: MOCK_BOOKINGS.filter((b) => b.status === "CANCELLED").length,
+  useEffect(() => {
+    fetchBookings();
+  }, [page]);
+
+  const handleApplyFilters = () => {
+    setPage(1);
+    fetchBookings();
+  };
+
+  const handleResetFilters = () => {
+    setStatus("ALL");
+    setDateFrom("");
+    setDateTo("");
+    setCity("");
+    setPandit("");
+    setCustomer("");
+    setPaymentStatus("ALL");
+    setTravelStatus("ALL");
+    setPage(1);
+    setTimeout(() => fetchBookings(), 0);
+  };
+
+  const exportCSV = () => {
+    const csvRows = [
+      ["BookingID", "Customer", "Pandit", "Event", "Date", "Status", "Amount", "Payment", "Travel"]
+    ];
+
+    bookings.forEach(b => {
+      csvRows.push([
+        b.bookingNumber,
+        b.customer?.name || "N/A",
+        b.pandit?.name || "N/A",
+        b.eventType,
+        new Date(b.eventDate).toLocaleDateString(),
+        b.status,
+        b.grandTotal.toString(),
+        b.paymentStatus,
+        b.travelStatus
+      ]);
+    });
+
+    const csvString = csvRows.map(row => row.join(",")).join("\n");
+    const blob = new Blob([csvString], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `bookings_export_${new Date().toISOString().split("T")[0]}.csv`;
+    a.click();
   };
 
   return (
-    <div className="max-w-[1440px] mx-auto px-6 py-8">
-      <div className="flex items-center justify-between mb-6">
+    <div className="p-6 space-y-6 max-w-7xl mx-auto flex-1">
+      <div className="flex justify-between flex-wrap gap-4 items-center">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Bookings Management</h1>
-          <p className="text-sm text-slate-500 mt-0.5">{MOCK_BOOKINGS.length} total bookings</p>
+          <h1 className="text-3xl font-bold tracking-tight">All Bookings</h1>
+          <p className="text-muted-foreground mt-1">Comprehensive booking management overview</p>
         </div>
-        <button className="flex items-center gap-2 bg-primary text-white rounded-xl px-4 py-2.5 text-sm font-semibold hover:bg-primary/90 transition-colors">
-          <span className="material-symbols-outlined text-base leading-none">download</span>
-          Export CSV
-        </button>
+        <div className="text-sm font-medium bg-muted p-2 px-4 rounded-md">
+          Showing <span className="text-indigo-600 font-bold">{total}</span> bookings |
+          Total GMV: <span className="font-bold text-green-600 border-r pr-2 mr-2 ml-1">₹{stats.totalGmv || 0}</span>
+          This month: <span className="font-bold">₹{stats.thisMonthGmv || 0}</span>
+        </div>
       </div>
 
-      <div className={`grid gap-6 ${selected ? "grid-cols-[1fr_360px]" : "grid-cols-1"}`}>
+      <Card className="bg-muted/30">
+        <CardContent className="p-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <div className="space-y-1">
+              <Label className="text-xs">Status</Label>
+              <Select value={status} onValueChange={setStatus}>
+                <SelectTrigger className="h-9">
+                  <SelectValue placeholder="All Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">All Status</SelectItem>
+                  <SelectItem value="CREATED">Created</SelectItem>
+                  <SelectItem value="CONFIRMED">Confirmed</SelectItem>
+                  <SelectItem value="TRAVEL_BOOKED">Travel Booked</SelectItem>
+                  <SelectItem value="COMPLETED">Completed</SelectItem>
+                  <SelectItem value="CANCELLED">Cancelled</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Date Range (Start)</Label>
+              <Input type="date" className="h-9" value={dateFrom} onChange={e => setDateFrom(e.target.value)} />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Date Range (End)</Label>
+              <Input type="date" className="h-9" value={dateTo} onChange={e => setDateTo(e.target.value)} />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">City</Label>
+              <Input placeholder="Search city..." className="h-9" value={city} onChange={e => setCity(e.target.value)} />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Pandit (Name/Phone)</Label>
+              <Input placeholder="Search pandit..." className="h-9" value={pandit} onChange={e => setPandit(e.target.value)} />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Customer (Name/Phone)</Label>
+              <Input placeholder="Search customer..." className="h-9" value={customer} onChange={e => setCustomer(e.target.value)} />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Payment</Label>
+              <Select value={paymentStatus} onValueChange={setPaymentStatus}>
+                <SelectTrigger className="h-9">
+                  <SelectValue placeholder="All Payments" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">All Payments</SelectItem>
+                  <SelectItem value="PENDING">Pending</SelectItem>
+                  <SelectItem value="CAPTURED">Captured</SelectItem>
+                  <SelectItem value="FAILED">Failed</SelectItem>
+                  <SelectItem value="REFUNDED">Refunded</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Travel</Label>
+              <Select value={travelStatus} onValueChange={setTravelStatus}>
+                <SelectTrigger className="h-9">
+                  <SelectValue placeholder="All Travel" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">All Travel</SelectItem>
+                  <SelectItem value="NOT_REQUIRED">Not Required</SelectItem>
+                  <SelectItem value="PENDING">Pending</SelectItem>
+                  <SelectItem value="BOOKED">Booked</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-        {/* Main Table */}
-        <div>
-          {/* Filters */}
-          <div className="flex items-center gap-3 mb-4 flex-wrap">
-            {(["ALL", "CONFIRMED", "PENDING", "COMPLETED", "CANCELLED"] as const).map((f) => (
-              <button
-                key={f}
-                onClick={() => setFilter(f)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                  filter === f
-                    ? "bg-primary text-white"
-                    : "bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-primary/40"
-                }`}
-              >
-                {f} ({counts[f]})
-              </button>
-            ))}
-
-            <div className="ml-auto flex items-center gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2">
-              <span className="material-symbols-outlined text-slate-400 text-base leading-none">search</span>
-              <input
-                type="text"
-                placeholder="Search bookings..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="bg-transparent text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none w-40"
-              />
+            <div className="flex items-end gap-2 md:col-span-2 lg:col-span-2">
+              <Button onClick={handleApplyFilters} className="bg-indigo-600 hover:bg-indigo-700 w-full">Apply Filters</Button>
+              <Button onClick={handleResetFilters} variant="outline" className="w-full">Reset</Button>
+              <Button onClick={exportCSV} variant="secondary" className="w-full">📥 Export CSV</Button>
             </div>
           </div>
+        </CardContent>
+      </Card>
 
-          {/* Table */}
-          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 overflow-hidden shadow-sm">
-            {/* Table header */}
-            <div className="grid grid-cols-[1fr_1.5fr_1fr_1fr_auto_auto] gap-4 px-5 py-3 border-b border-slate-100 dark:border-slate-800 text-[11px] font-bold uppercase tracking-wider text-slate-400">
-              <span>Booking #</span>
-              <span>Ceremony / Customer</span>
-              <span>Pandit</span>
-              <span>Date / City</span>
-              <span>Amount</span>
-              <span>Status</span>
-            </div>
-
-            {/* Rows */}
-            {filtered.length === 0 ? (
-              <div className="py-16 text-center text-sm text-slate-400">No bookings match your filters</div>
+      <Card>
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-muted">
+              <TableHead># / Booking ID</TableHead>
+              <TableHead>Customer</TableHead>
+              <TableHead>Pandit</TableHead>
+              <TableHead>Event & Date</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Amount</TableHead>
+              <TableHead>Payment</TableHead>
+              <TableHead>Travel</TableHead>
+              <TableHead>Action</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {loading ? (
+              <TableRow><TableCell colSpan={9} className="text-center py-10">Loading bookings...</TableCell></TableRow>
+            ) : bookings.length === 0 ? (
+              <TableRow><TableCell colSpan={9} className="text-center py-10">No bookings match the current filters</TableCell></TableRow>
             ) : (
-              <div className="divide-y divide-slate-50 dark:divide-slate-800">
-                {filtered.map((booking) => (
-                  <button
-                    key={booking.id}
-                    onClick={() => setSelectedId(selectedId === booking.id ? null : booking.id)}
-                    className={`w-full grid grid-cols-[1fr_1.5fr_1fr_1fr_auto_auto] gap-4 px-5 py-4 text-left transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 ${
-                      selectedId === booking.id ? "bg-primary/5 dark:bg-primary/10" : ""
-                    }`}
-                  >
-                    <div>
-                      <p className="text-sm font-bold text-primary">{booking.bookingNo}</p>
-                      {booking.travelNeeded && (
-                        <span className="text-[10px] text-amber-600 font-semibold flex items-center gap-0.5 mt-0.5">
-                          <span className="material-symbols-outlined text-[12px] leading-none">local_shipping</span>
-                          Travel needed
-                        </span>
-                      )}
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-slate-900 dark:text-white">{booking.ceremony}</p>
-                      <p className="text-xs text-slate-400 mt-0.5">{booking.customer}</p>
-                    </div>
-                    <p className="text-sm text-slate-700 dark:text-slate-300 self-center">{booking.pandit}</p>
-                    <div>
-                      <p className="text-sm text-slate-700 dark:text-slate-300">{booking.date}</p>
-                      <p className="text-xs text-slate-400 mt-0.5">{booking.city}</p>
-                    </div>
-                    <p className="text-sm font-bold text-slate-900 dark:text-white self-center">
-                      ₹{booking.amount.toLocaleString("en-IN")}
-                    </p>
-                    <span className={`self-center text-xs font-bold px-2.5 py-1 rounded-full ${STATUS_STYLES[booking.status]}`}>
-                      {booking.status}
-                    </span>
-                  </button>
-                ))}
-              </div>
+              bookings.map((b, i) => (
+                <TableRow key={b.id} className="hover:bg-muted/50 transition-colors">
+                  <TableCell>
+                    <div className="text-xs text-muted-foreground">{(page - 1) * limit + i + 1}</div>
+                    <a href={`/bookings/${b.id}`} className="text-indigo-600 hover:underline font-bold text-sm">
+                      {b.bookingNumber}
+                    </a>
+                  </TableCell>
+                  <TableCell>
+                    <div className="font-medium">{b.customer?.name}</div>
+                    <div className="text-xs text-muted-foreground">{b.customer?.phone}</div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="font-medium">{b.pandit?.name}</div>
+                    <div className="text-xs text-muted-foreground">{b.pandit?.phone}</div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="font-medium">{b.eventType}</div>
+                    <div className="text-xs font-mono">{new Date(b.eventDate).toLocaleDateString()}</div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={b.status === "COMPLETED" ? "default" : b.status === "CANCELLED" ? "destructive" : "secondary"} className="text-[10px] lowercase">
+                      {b.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="font-bold">₹{b.grandTotal}</TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className={`text-[10px] ${b.paymentStatus === 'CAPTURED' ? 'text-green-600 border-green-600' : ''}`}>
+                      {b.paymentStatus}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    {b.travelStatus !== "NOT_REQUIRED" && (
+                      <Badge variant="outline" className={`text-[10px] ${b.travelStatus === 'BOOKED' ? 'bg-indigo-50 text-indigo-700' : ''}`}>
+                        {b.travelStatus}
+                      </Badge>
+                    )}
+                    {b.travelStatus === "NOT_REQUIRED" && <span className="text-xs text-muted-foreground">-</span>}
+                  </TableCell>
+                  <TableCell>
+                    <a href={`/bookings/${b.id}?reassign=true`} className="text-xs text-muted-foreground hover:text-indigo-600 border p-1 rounded mr-2" title="Reassign">
+                      👳
+                    </a>
+                    <a href={`/bookings/${b.id}`} className="text-xs font-medium text-indigo-600 hover:underline">
+                      View →
+                    </a>
+                  </TableCell>
+                </TableRow>
+              ))
             )}
+          </TableBody>
+        </Table>
+
+        {/* Pagination Controls */}
+        <div className="flex justify-between items-center p-4 border-t bg-muted/20">
+          <div className="text-sm text-muted-foreground">
+            Page {page} of {Math.ceil(total / limit) || 1}
+          </div>
+          <div className="space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage(Math.max(1, page - 1))}
+              disabled={page === 1}
+            >
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage(page + 1)}
+              disabled={page >= Math.ceil(total / limit)}
+            >
+              Next
+            </Button>
           </div>
         </div>
-
-        {/* Detail Panel */}
-        {selected && (
-          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden h-fit sticky top-20">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-slate-800">
-              <div>
-                <p className="text-xs font-bold text-primary">{selected.bookingNo}</p>
-                <p className="text-base font-bold text-slate-900 dark:text-white mt-0.5">{selected.ceremony}</p>
-              </div>
-              <button onClick={() => setSelectedId(null)} className="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center hover:bg-slate-200 dark:hover:bg-slate-700">
-                <span className="material-symbols-outlined text-slate-500 text-base leading-none">close</span>
-              </button>
-            </div>
-
-            <div className="p-5 space-y-4">
-              {[
-                { label: "Customer", value: selected.customer },
-                { label: "Pandit", value: selected.pandit },
-                { label: "Date", value: selected.date },
-                { label: "City", value: selected.city },
-                { label: "Amount", value: `₹${selected.amount.toLocaleString("en-IN")}` },
-                { label: "Status", value: selected.status },
-              ].map((row) => (
-                <div key={row.label} className="flex justify-between text-sm">
-                  <span className="text-slate-500">{row.label}</span>
-                  <span className="font-semibold text-slate-900 dark:text-white">{row.value}</span>
-                </div>
-              ))}
-
-              <div className="pt-3 border-t border-slate-100 dark:border-slate-800">
-                <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Admin Note</label>
-                <textarea
-                  value={detailNote}
-                  onChange={(e) => setDetailNote(e.target.value)}
-                  placeholder="Add internal note..."
-                  rows={2}
-                  className="w-full mt-2 bg-slate-50 dark:bg-slate-800 rounded-lg text-sm text-slate-900 dark:text-white placeholder-slate-400 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-2">
-                <button onClick={() => handleAction("UPDATE_STATUS")} disabled={loading} className="py-2.5 rounded-xl text-xs font-bold bg-primary text-white hover:bg-primary/90 transition-colors disabled:opacity-50">
-                  Update Status
-                </button>
-                <button onClick={() => handleAction("REASSIGN")} disabled={loading} className="py-2.5 rounded-xl text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors disabled:opacity-50">
-                  Reassign Pandit
-                </button>
-                <button onClick={() => handleAction("REFUND")} disabled={loading} className="py-2.5 rounded-xl text-xs font-bold text-red-600 border border-red-200 dark:border-red-900/50 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50">
-                  Initiate Refund
-                </button>
-                <button onClick={() => handleAction("SEND_SMS")} disabled={loading} className="py-2.5 rounded-xl text-xs font-bold bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-400 hover:bg-violet-200 dark:hover:bg-violet-900/50 transition-colors disabled:opacity-50">
-                  Send SMS
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {toast && (
-        <div className="fixed bottom-6 right-6 z-50 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-sm font-semibold px-5 py-3 rounded-xl shadow-xl">
-          {toast}
-        </div>
-      )}
+      </Card>
     </div>
   );
 }
