@@ -1,11 +1,5 @@
-/**
- * Prisma client singleton — re-exports from the shared @hmarepanditji/db package.
- *
- * Usage:
- *   import { prisma } from "../lib/prisma";
- *
- * The actual singleton lives in packages/db/src/index.ts.
- * This file provides a convenient local import path for the API service.
- */
-export { prisma, PrismaClient } from "@hmarepanditji/db";
-export type { Prisma } from "@hmarepanditji/db";
+import { PrismaClient } from '@prisma/client';
+const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
+export const prisma = globalForPrisma.prisma || new PrismaClient({ log: ['error'] });
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+export default prisma;

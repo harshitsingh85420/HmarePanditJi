@@ -8,6 +8,7 @@ declare global {
         phone: string;
         role: Role;
         isVerified: boolean;
+        name?: string;
       };
     }
   }

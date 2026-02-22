@@ -45,17 +45,19 @@ export interface CalculateAllParams {
 
 // ── Fare tables ──────────────────────────────────────────────────────────────
 
+// Spec-defined one-way fare tables
 const TRAIN_FARES: { maxKm: number; fare: number }[] = [
-  { maxKm: 200, fare: 1200 },
-  { maxKm: 500, fare: 1800 },
+  { maxKm: 200, fare: 500 },
+  { maxKm: 500, fare: 1200 },
   { maxKm: 1000, fare: 2500 },
-  { maxKm: Infinity, fare: 3500 },
+  { maxKm: 2000, fare: 3500 },
+  { maxKm: Infinity, fare: 4500 },
 ];
 
 const FLIGHT_FARES: { maxKm: number; fare: number }[] = [
   { maxKm: 500, fare: 3500 },
   { maxKm: 1000, fare: 4500 },
-  { maxKm: 2000, fare: 6000 },
+  { maxKm: 1500, fare: 6000 },
   { maxKm: Infinity, fare: 8000 },
 ];
 
@@ -302,6 +304,9 @@ export async function calculateAllOptions(
 
   return { ...distance, options };
 }
+
+/** Spec-named alias for calculateAllOptions */
+export const calculateAllTravelOptions = calculateAllOptions;
 
 // ─── Local Travel Calculation (Prompt 12) ─────────────────────────────────────
 

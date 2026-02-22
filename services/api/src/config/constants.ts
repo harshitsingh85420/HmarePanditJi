@@ -2,10 +2,10 @@ export const API_VERSION = "v1";
 export const API_PREFIX = `/api/${API_VERSION}`;
 
 export const PORTS = {
-  API: 4000,
+  API: 3001,
   WEB: 3000,
-  PANDIT: 3001,
-  ADMIN: 3002,
+  PANDIT: 3002,
+  ADMIN: 3003,
 } as const;
 
 export const JWT = {

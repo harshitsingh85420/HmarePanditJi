@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import "./globals.css";
-import LandingHeader from "../components/landing-header";
 import AuthModal from "../components/auth-modal";
 import { AuthProvider } from "../context/auth-context";
 import { CartProvider } from "../context/cart-context";
 import { ToastProvider } from "@hmarepanditji/ui";
-import { Footer } from "@hmarepanditji/ui";
+import { SamagriCartProvider } from "../../context/SamagriCartContext";
+import { Header } from "../components/Header";
+import { Footer } from "../components/Footer";
 
 const BASE_URL = "https://hmarepanditji.com";
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID ?? "";
@@ -174,8 +175,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
         <ToastProvider>
           <AuthProvider>
+            <SamagriCartProvider>
             <CartProvider>
-              <LandingHeader />
+              <Header />
               <main>{children}</main>
               <Footer />
               <AuthModal />
@@ -199,6 +201,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 </svg>
               </a>
             </CartProvider>
+            </SamagriCartProvider>
           </AuthProvider>
         </ToastProvider>
       </body>

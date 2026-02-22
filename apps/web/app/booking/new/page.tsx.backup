@@ -1,0 +1,38 @@
+"use client";
+
+import { Suspense, useEffect } from "react";
+import BookingWizardClient from "./booking-wizard-client";
+import { useAuth } from "../../../context/auth-context";
+import { useRouter } from "next/navigation";
+
+export default function NewBookingPage() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push(`/login?next=${encodeURIComponent('/booking/new')}`);
+    }
+  }, [loading, user, router]);
+
+  if (loading || !user) {
+    return (
+      <div className="min-h-screen bg-[#f8f7f5] flex flex-col items-center justify-center gap-3">
+        <div className="w-10 h-10 border-4 border-[#f49d25] border-t-transparent rounded-full animate-spin" />
+        <p className="text-slate-500 font-medium">Checking authentication...</p>
+      </div>
+    );
+  }
+
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[#f8f7f5] flex items-center justify-center">
+          <div className="w-8 h-8 border-4 border-[#f49d25] border-t-transparent rounded-full animate-spin" />
+        </div>
+      }
+    >
+      <BookingWizardClient />
+    </Suspense>
+  );
+}

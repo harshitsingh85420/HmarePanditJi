@@ -22,8 +22,7 @@ router.use(authenticate);
 // ── Validation ────────────────────────────────────────────────────────────────
 
 const createBookingSchema = z.object({
-  panditId: z.string().min(1),
-  ritualId: z.string().min(1),
+  panditId: z.string().min(1),             // pandit's User.id
   eventDate: z.string().datetime(),
   eventType: z.string().min(1),
   muhuratTime: z.string().optional(),
@@ -44,10 +43,9 @@ const createBookingSchema = z.object({
   accommodationArrangement: z.enum(["NOT_NEEDED", "CUSTOMER_ARRANGES", "PLATFORM_BOOKS"]).optional(),
   // Samagri
   samagriPreference: z.enum(["PANDIT_BRINGS", "CUSTOMER_ARRANGES", "NEED_HELP"]).optional(),
+  samagriAmount: z.number().nonnegative().optional(),
   samagriNotes: z.string().max(500).optional(),
 });
-
-// ── Financials endpoint schema ─────────────────────────────────────────────
 
 const calculateFinancialsSchema = z.object({
   dakshina: z.number().positive(),
@@ -59,25 +57,15 @@ const calculateFinancialsSchema = z.object({
 /**
  * POST /bookings
  * Create a new booking + Razorpay order.
+ * customerId = req.user!.id (User.id directly — new schema)
  */
 router.post("/", roleGuard("CUSTOMER"), async (req, res, next) => {
   try {
     const body = createBookingSchema.parse(req.body);
 
-    // Get or create Customer record for this user
-    let customer = await prisma.customer.findUnique({
-      where: { userId: req.user!.id },
-    });
-    if (!customer) {
-      customer = await prisma.customer.create({
-        data: { userId: req.user!.id },
-      });
-    }
-
     const booking = await createBooking({
-      customerId: customer.id,
+      customerId: req.user!.id,    // User.id — new schema, no sub-model lookup needed
       panditId: body.panditId,
-      ritualId: body.ritualId,
       eventDate: new Date(body.eventDate),
       eventType: body.eventType,
       muhuratTime: body.muhuratTime,
@@ -94,12 +82,13 @@ router.post("/", roleGuard("CUSTOMER"), async (req, res, next) => {
       travelCost: body.travelCost,
       foodArrangement: body.foodArrangement as any,
       foodAllowanceDays: body.foodAllowanceDays,
-      accommodationArrangement: body.accommodationArrangement,
+      accommodationArrangement: body.accommodationArrangement as any,
       samagriPreference: body.samagriPreference as any,
+      samagriAmount: body.samagriAmount,
       samagriNotes: body.samagriNotes,
     });
 
-    const order = await createRazorpayOrder(booking.id, customer.id);
+    const order = await createRazorpayOrder(booking.id, req.user!.id);
 
     sendSuccess(res, { booking, order }, "Booking created", 201);
   } catch (err) {
@@ -109,8 +98,7 @@ router.post("/", roleGuard("CUSTOMER"), async (req, res, next) => {
 
 /**
  * POST /bookings/calculate-fees
- * Returns a fee breakdown (platformFee, travelServiceFee, gstAmount, grandTotal, panditPayout)
- * given a dakshina amount and optional travelCost. No auth required.
+ * Returns fee breakdown. No additional auth needed (router-level authenticate covers it).
  */
 router.post("/calculate-fees", async (req, res, next) => {
   try {
@@ -125,19 +113,12 @@ router.post("/calculate-fees", async (req, res, next) => {
 /**
  * GET /bookings/pandit/my
  * List bookings assigned to the authenticated pandit.
- * Query: { status?, page?, limit? }
  */
 router.get("/pandit/my", roleGuard("PANDIT"), async (req, res, next) => {
   try {
     const { page, limit } = parsePagination(req.query as Record<string, unknown>);
     const status = typeof req.query.status === "string" ? req.query.status : undefined;
-    const { bookings, total } = await listMyBookings(
-      req.user!.id,
-      "PANDIT",
-      status,
-      page,
-      limit,
-    );
+    const { bookings, total } = await listMyBookings(req.user!.id, "PANDIT", status, page, limit);
     sendPaginated(res, bookings as unknown[], total, page, limit, "Pandit bookings");
   } catch (err) {
     next(err);
@@ -152,13 +133,7 @@ router.get("/my", async (req, res, next) => {
   try {
     const { page, limit } = parsePagination(req.query as Record<string, unknown>);
     const status = typeof req.query.status === "string" ? req.query.status : undefined;
-    const { bookings, total } = await listMyBookings(
-      req.user!.id,
-      req.user!.role,
-      status,
-      page,
-      limit,
-    );
+    const { bookings, total } = await listMyBookings(req.user!.id, req.user!.role, status, page, limit);
     sendPaginated(res, bookings as unknown[], total, page, limit, "My bookings");
   } catch (err) {
     next(err);
@@ -181,35 +156,33 @@ router.get("/:id", async (req, res, next) => {
 /**
  * PATCH /bookings/:id/accept
  * Pandit accepts a booking.
+ * In new schema: panditId on Booking = pandit's User.id
  */
 router.patch("/:id/accept", roleGuard("PANDIT"), async (req, res, next) => {
   try {
-    const pandit = await prisma.pandit.findUnique({ where: { userId: req.user!.id } });
-    if (!pandit) return res.status(404).json({ success: false, message: "Pandit not found" });
-
     const existing = await prisma.booking.findUnique({
       where: { id: req.params.id },
-      include: { customer: { include: { user: true } } },
+      include: { customer: true },
     });
     if (!existing) return res.status(404).json({ success: false, message: "Booking not found" });
-    if (existing.panditId !== pandit.id) return res.status(403).json({ success: false, message: "Not your booking" });
-    if (existing.status !== "CREATED" && existing.status !== "PANDIT_REQUESTED") return res.status(400).json({ success: false, message: `Cannot accept booking in ${existing.status} status` });
+    if (existing.panditId !== req.user!.id) return res.status(403).json({ success: false, message: "Not your booking" });
+    if (existing.status !== "CREATED" && existing.status !== "PANDIT_REQUESTED") {
+      return res.status(400).json({ success: false, message: `Cannot accept booking in ${existing.status} status` });
+    }
 
     const booking = await prisma.booking.update({
       where: { id: req.params.id },
-      data: { status: "CONFIRMED", panditAcceptedAt: new Date() },
+      data: { status: "CONFIRMED" },
     });
 
     // Notify customer (non-blocking)
-    const customerPhone = existing.customer.user.phone;
-    const customerName = existing.customer.user.name ?? existing.customer.user.phone;
-    if (customerPhone) {
+    if (existing.customer.phone) {
       notifyBookingConfirmedToCustomer({
-        customerUserId: existing.customer.userId,
-        customerPhone,
-        customerName,
+        customerUserId: existing.customerId,
+        customerPhone: existing.customer.phone,
+        customerName: existing.customer.name ?? existing.customer.phone,
         bookingNumber: existing.bookingNumber,
-        panditName: pandit.displayName,
+        panditName: req.user!.name ?? "Pandit",
         eventType: existing.eventType,
         eventDate: existing.eventDate,
       }).catch((err: unknown) => logger.error("notifyBookingConfirmed failed:", err));
@@ -224,20 +197,18 @@ router.patch("/:id/accept", roleGuard("PANDIT"), async (req, res, next) => {
 /**
  * PATCH /bookings/:id/reject
  * Pandit rejects a booking.
- * Body: { reason?: string }
  */
 router.patch("/:id/reject", roleGuard("PANDIT"), async (req, res, next) => {
   try {
-    const pandit = await prisma.pandit.findUnique({ where: { userId: req.user!.id } });
-    if (!pandit) return res.status(404).json({ success: false, message: "Pandit not found" });
-
     const existing = await prisma.booking.findUnique({
       where: { id: req.params.id },
-      include: { customer: { include: { user: true } } },
+      include: { customer: true },
     });
     if (!existing) return res.status(404).json({ success: false, message: "Booking not found" });
-    if (existing.panditId !== pandit.id) return res.status(403).json({ success: false, message: "Not your booking" });
-    if (existing.status !== "CREATED" && existing.status !== "PANDIT_REQUESTED") return res.status(400).json({ success: false, message: `Cannot reject booking in ${existing.status} status` });
+    if (existing.panditId !== req.user!.id) return res.status(403).json({ success: false, message: "Not your booking" });
+    if (existing.status !== "CREATED" && existing.status !== "PANDIT_REQUESTED") {
+      return res.status(400).json({ success: false, message: `Cannot reject booking in ${existing.status} status` });
+    }
 
     const { reason } = req.body as { reason?: string };
 
@@ -245,22 +216,19 @@ router.patch("/:id/reject", roleGuard("PANDIT"), async (req, res, next) => {
       where: { id: req.params.id },
       data: {
         status: "CANCELLED",
-        panditRejectedReason: reason ?? "Pandit declined",
-        cancelledAt: new Date(),
+        cancellationReason: reason ?? "Pandit declined",
         cancelledBy: "PANDIT",
       },
     });
 
     // Notify customer (non-blocking)
-    const customerPhone = existing.customer.user.phone;
-    const customerName = existing.customer.user.name ?? existing.customer.user.phone;
-    if (customerPhone) {
+    if (existing.customer.phone) {
       notifyStatusUpdateToCustomer({
-        customerUserId: existing.customer.userId,
-        customerPhone,
-        customerName,
+        customerUserId: existing.customerId,
+        customerPhone: existing.customer.phone,
+        customerName: existing.customer.name ?? existing.customer.phone,
         bookingNumber: existing.bookingNumber,
-        panditName: pandit.displayName,
+        panditName: req.user!.name ?? "Pandit",
         statusMessage: "Your booking has been declined by the pandit.",
       }).catch((err: unknown) => logger.error("notifyBookingRejected failed:", err));
     }
@@ -286,39 +254,31 @@ const statusUpdateSchema = z.object({
 
 /**
  * POST /bookings/:id/status-update
- * Pandit updates booking progress (e.g. "I'm on my way", "I've arrived").
- * Body: { status, note?, latitude?, longitude? }
+ * Pandit updates booking progress.
  */
 router.post("/:id/status-update", roleGuard("PANDIT"), async (req, res, next) => {
   try {
     const body = statusUpdateSchema.parse(req.body);
 
-    const pandit = await prisma.pandit.findUnique({ where: { userId: req.user!.id } });
-    if (!pandit) return res.status(404).json({ success: false, message: "Pandit not found" });
-
     const existing = await prisma.booking.findUnique({ where: { id: req.params.id } });
     if (!existing) return res.status(404).json({ success: false, message: "Booking not found" });
-    if (existing.panditId !== pandit.id) return res.status(403).json({ success: false, message: "Not your booking" });
-
-    // Update booking status
-    const updateData: Record<string, unknown> = { status: body.status };
-    if (body.status === "COMPLETED") updateData.completedAt = new Date();
+    if (existing.panditId !== req.user!.id) return res.status(403).json({ success: false, message: "Not your booking" });
 
     const booking = await prisma.booking.update({
       where: { id: req.params.id },
-      data: updateData as never,
+      data: { status: body.status as any },
     });
 
-    // Create status update record
+    // Create status update record — updatedById is the field name in new schema
     await prisma.bookingStatusUpdate.create({
       data: {
         bookingId: req.params.id,
-        fromStatus: existing.status as never,
-        toStatus: body.status as never,
+        fromStatus: existing.status as any,
+        toStatus: body.status as any,
         note: body.note,
         latitude: body.latitude,
         longitude: body.longitude,
-        updatedBy: req.user!.id,
+        updatedById: req.user!.id,
       },
     });
 
@@ -340,34 +300,31 @@ router.patch("/:id/status", roleGuard("PANDIT", "ADMIN"), async (req, res, next)
       return;
     }
 
-    // Fetch full booking for notification context
     const existing = await prisma.booking.findUnique({
       where: { id: req.params.id },
       include: {
-        customer: { include: { user: true } },
-        pandit: { include: { user: true } },
-        ritual: true,
+        customer: true,
+        pandit: true,
       },
     });
 
     const booking = await prisma.booking.update({
       where: { id: req.params.id },
       data: {
-        status: status as never,
-        ...(reason ? { panditRejectedReason: reason } : {}),
-        ...(status === "CONFIRMED" ? { panditAcceptedAt: new Date() } : {}),
+        status: status as any,
+        ...(reason ? { cancellationReason: reason } : {}),
       },
     });
 
     // Fire notifications (non-blocking)
     if (existing && existing.pandit) {
-      const customerPhone = existing.customer.user.phone;
-      const customerName = existing.customer.user.name ?? existing.customer.user.phone;
-      const panditName = existing.pandit.displayName;
+      const customerPhone = existing.customer.phone;
+      const customerName = existing.customer.name ?? existing.customer.phone;
+      const panditName = existing.pandit.name ?? "Pandit";
 
       if (status === "CONFIRMED" && customerPhone) {
         notifyBookingConfirmedToCustomer({
-          customerUserId: existing.customer.userId,
+          customerUserId: existing.customerId,
           customerPhone,
           customerName,
           bookingNumber: existing.bookingNumber,
@@ -377,7 +334,7 @@ router.patch("/:id/status", roleGuard("PANDIT", "ADMIN"), async (req, res, next)
         }).catch((err: unknown) => logger.error("notifyBookingConfirmed failed:", err));
       } else if (status === "CANCELLED" && customerPhone) {
         notifyStatusUpdateToCustomer({
-          customerUserId: existing.customer.userId,
+          customerUserId: existing.customerId,
           customerPhone,
           customerName,
           bookingNumber: existing.bookingNumber,
@@ -401,35 +358,32 @@ router.post("/:id/cancel", roleGuard("CUSTOMER", "ADMIN"), async (req, res, next
   try {
     const { reason } = req.body as { reason?: string };
 
-    // Fetch full booking for notification context
     const existing = await prisma.booking.findUnique({
       where: { id: req.params.id },
-      include: { pandit: { include: { user: true } } },
+      include: { pandit: true },
     });
 
     const booking = await prisma.booking.update({
       where: { id: req.params.id },
       data: {
         status: "CANCELLED",
-        cancelledAt: new Date(),
         cancellationReason: reason,
+        cancelledBy: req.user!.role === "ADMIN" ? "ADMIN" : "CUSTOMER",
+        cancellationRequestedAt: new Date(),
       },
     });
 
     // Notify pandit (non-blocking)
-    if (existing && existing.pandit) {
-      const panditPhone = existing.pandit.user.phone;
-      if (panditPhone) {
-        notifyCancellationToAffected({
-          userId: existing.pandit.userId,
-          phone: panditPhone,
-          name: existing.pandit.displayName,
-          bookingNumber: existing.bookingNumber,
-          reason: reason ?? "Customer cancelled",
-          refundAmount: 0,
-          refundPercent: 0,
-        }).catch((err: unknown) => logger.error("notifyCancellation failed:", err));
-      }
+    if (existing?.pandit?.phone) {
+      notifyCancellationToAffected({
+        userId: existing.pandit.id,
+        phone: existing.pandit.phone,
+        name: existing.pandit.name ?? "Pandit",
+        bookingNumber: existing.bookingNumber,
+        reason: reason ?? "Customer cancelled",
+        refundAmount: 0,
+        refundPercent: 0,
+      }).catch((err: unknown) => logger.error("notifyCancellation failed:", err));
     }
 
     sendSuccess(res, { booking }, "Booking cancelled");

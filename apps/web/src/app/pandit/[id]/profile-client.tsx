@@ -213,7 +213,7 @@ const MOCK_PANDIT: PanditProfile = {
 
 // ── API fetch ─────────────────────────────────────────────────────────────────
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api/v1";
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api/v1";
 
 async function fetchProfile(id: string): Promise<PanditProfile> {
   try {
@@ -222,46 +222,53 @@ async function fetchProfile(id: string): Promise<PanditProfile> {
       fetch(`${API_URL}/pandits/${id}/reviews`, { signal: AbortSignal.timeout(5000) }),
     ]);
     if (!panditRes.ok) throw new Error("not found");
-    const pandit = await panditRes.json();
-    const reviews = reviewsRes.ok ? await reviewsRes.json() : [];
+    const { data: pandit } = await panditRes.json();
+    const reviewsBody = reviewsRes.ok ? await reviewsRes.json() : { data: [] };
+    const rawReviews: Record<string, unknown>[] = Array.isArray(reviewsBody.data) ? reviewsBody.data : [];
+
+    const services: PanditService[] = (pandit.pujaServices ?? []).map((s: Record<string, unknown>) => ({
+      name: String(s.pujaType),
+      nameHindi: String(s.pujaType),
+      durationHours: Number(s.durationHours) || 2,
+      basePrice: Number(s.dakshinaAmount) || 0,
+      description: String(s.description ?? ""),
+    }));
+
+    const rs = (pandit.reviewSummary ?? {}) as Record<string, unknown>;
 
     return {
       id: pandit.id,
-      displayName: pandit.displayName ?? pandit.name ?? "",
+      displayName: (pandit.user as Record<string, unknown>)?.name as string ?? pandit.name ?? "Pandit Ji",
       bio: pandit.bio ?? "",
       experienceYears: pandit.experienceYears ?? 0,
       specializations: pandit.specializations ?? [],
       languages: pandit.languages ?? [],
-      sect: pandit.sect,
-      gotra: pandit.gotra,
-      city: pandit.city ?? "Delhi",
-      state: pandit.state ?? "Delhi",
-      isVerified: pandit.isVerified ?? false,
+      sect: undefined,
+      gotra: undefined,
+      city: pandit.location ?? "Delhi",
+      state: "",
+      isVerified: pandit.verificationStatus === "VERIFIED",
       profilePhotoUrl: pandit.profilePhotoUrl,
-      galleryImages: pandit.galleryImages ?? [],
-      averageRating: pandit.averageRating ?? 0,
-      totalReviews: pandit.totalReviews ?? 0,
-      totalBookings: pandit.totalBookings ?? 0,
-      availableDays: pandit.availableDays ?? [],
+      galleryImages: [],
+      averageRating: (rs.avgRating as number) ?? pandit.rating ?? 0,
+      totalReviews: (rs.totalReviews as number) ?? pandit.totalReviews ?? 0,
+      totalBookings: pandit.completedBookings ?? 0,
+      availableDays: [],
       aadhaarVerified: pandit.aadhaarVerified ?? false,
-      certificatesVerified: pandit.certificatesVerified ?? false,
-      services: MOCK_SERVICES,
-      reviews: Array.isArray(reviews)
-        ? reviews.map((r: Record<string, unknown>) => ({
-            id: String(r.id),
-            customerName: r.isAnonymous
-              ? "Anonymous"
-              : String(((r.customer as Record<string, unknown>)?.user as Record<string, unknown>)?.fullName ?? "Customer"),
-            isAnonymous: Boolean(r.isAnonymous),
-            overallRating: Number(r.overallRating),
-            ritualKnowledge: r.ritualKnowledge as number | undefined,
-            punctuality: r.punctuality as number | undefined,
-            communication: r.communication as number | undefined,
-            comment: r.comment as string | undefined,
-            ceremony: String(((r.booking as Record<string, unknown>)?.ritual as Record<string, unknown>)?.name ?? "Ceremony"),
-            date: String(r.createdAt ?? new Date().toISOString()).split("T")[0],
-          }))
-        : MOCK_REVIEWS,
+      certificatesVerified: false,
+      services: services.length > 0 ? services : MOCK_SERVICES,
+      reviews: rawReviews.map((r) => ({
+        id: String(r.id),
+        customerName: String(r.reviewerName ?? "Customer"),
+        isAnonymous: r.reviewerName === "Anonymous",
+        overallRating: Number(r.overallRating),
+        ritualKnowledge: undefined,
+        punctuality: undefined,
+        communication: undefined,
+        comment: r.comment as string | undefined,
+        ceremony: String(r.pujaType ?? "Puja Service"),
+        date: String(r.createdAt ?? new Date().toISOString()).split("T")[0],
+      })),
     };
   } catch {
     return { ...MOCK_PANDIT, id };
@@ -270,36 +277,54 @@ async function fetchProfile(id: string): Promise<PanditProfile> {
 
 // ── Availability Calendar ─────────────────────────────────────────────────────
 
-function AvailabilityCalendar({ availableDays }: { availableDays: string[] }) {
+type DayStatus = "available" | "booked" | "blocked" | "past";
+interface DayInfo { date: string; status: DayStatus; reason?: string }
+
+function AvailabilityCalendar({ panditId }: { panditId: string }) {
   const today = new Date();
-  const [viewMonth, setViewMonth] = useState(today.getMonth());
+  const [viewMonth, setViewMonth] = useState(today.getMonth() + 1); // 1-12
   const [viewYear, setViewYear] = useState(today.getFullYear());
+  const [dayData, setDayData] = useState<Map<string, DayInfo>>(new Map());
+  const [fetching, setFetching] = useState(false);
+
+  useEffect(() => {
+    setFetching(true);
+    fetch(`${API_URL}/pandits/${panditId}/availability?month=${viewMonth}&year=${viewYear}`)
+      .then(r => (r.ok ? r.json() : null))
+      .then(body => {
+        if (body?.data) {
+          const map = new Map<string, DayInfo>();
+          for (const d of body.data as DayInfo[]) map.set(d.date, d);
+          setDayData(map);
+        }
+      })
+      .catch(() => {})
+      .finally(() => setFetching(false));
+  }, [panditId, viewMonth, viewYear]);
 
   const DAY_NAMES = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
   const MONTH_NAMES = [
     "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December",
   ];
-  const WEEK_DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
-  const firstDay = new Date(viewYear, viewMonth, 1).getDay();
-  const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+  const firstDay = new Date(viewYear, viewMonth - 1, 1).getDay();
+  const daysInMonth = new Date(viewYear, viewMonth, 0).getDate();
 
   function goNext() {
-    if (viewMonth === 11) { setViewMonth(0); setViewYear(y => y + 1); }
+    if (viewMonth === 12) { setViewMonth(1); setViewYear(y => y + 1); }
     else setViewMonth(m => m + 1);
   }
   function goPrev() {
-    const mn = viewMonth === 0 ? 11 : viewMonth - 1;
-    const yn = viewMonth === 0 ? viewYear - 1 : viewYear;
-    if (new Date(yn, mn, 1) < new Date(today.getFullYear(), today.getMonth(), 1)) return;
+    const mn = viewMonth === 1 ? 12 : viewMonth - 1;
+    const yn = viewMonth === 1 ? viewYear - 1 : viewYear;
+    if (new Date(yn, mn - 1, 1) < new Date(today.getFullYear(), today.getMonth(), 1)) return;
     setViewMonth(mn);
     setViewYear(yn);
   }
 
-  const maxMonth = new Date(today.getFullYear(), today.getMonth() + 2, 1);
-  const canGoNext = new Date(viewYear, viewMonth + 1, 1) < maxMonth;
-  const canGoPrev = new Date(viewYear, viewMonth, 1) > new Date(today.getFullYear(), today.getMonth(), 1);
+  const canGoNext = new Date(viewYear, viewMonth, 1) < new Date(today.getFullYear(), today.getMonth() + 3, 1);
+  const canGoPrev = new Date(viewYear, viewMonth - 1, 1) > new Date(today.getFullYear(), today.getMonth(), 1);
 
   return (
     <div>
@@ -313,7 +338,8 @@ function AvailabilityCalendar({ availableDays }: { availableDays: string[] }) {
           <span className="material-symbols-outlined text-slate-500 text-lg">chevron_left</span>
         </button>
         <span className="text-sm font-bold text-slate-800 dark:text-slate-100">
-          {MONTH_NAMES[viewMonth]} {viewYear}
+          {MONTH_NAMES[viewMonth - 1]} {viewYear}
+          {fetching && <span className="ml-2 text-xs text-slate-400 font-normal">loading…</span>}
         </span>
         <button
           onClick={goNext}
@@ -336,28 +362,29 @@ function AvailabilityCalendar({ availableDays }: { availableDays: string[] }) {
         {Array.from({ length: firstDay }).map((_, i) => <span key={`e-${i}`} />)}
         {Array.from({ length: daysInMonth }).map((_, i) => {
           const day = i + 1;
-          const date = new Date(viewYear, viewMonth, day);
-          const isPast = date < new Date(today.getFullYear(), today.getMonth(), today.getDate());
+          const dateStr = `${viewYear}-${String(viewMonth).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+          const info = dayData.get(dateStr);
+          const status = info?.status ?? (fetching ? "past" : "available");
           const isToday =
-            date.getDate() === today.getDate() &&
-            date.getMonth() === today.getMonth() &&
-            date.getFullYear() === today.getFullYear();
-          const dayName = WEEK_DAYS[date.getDay()];
-          const isAvailable = availableDays.includes(dayName);
+            day === today.getDate() &&
+            viewMonth === today.getMonth() + 1 &&
+            viewYear === today.getFullYear();
+
+          const cls = isToday
+            ? "ring-2 ring-primary font-bold text-primary"
+            : status === "past"
+            ? "text-slate-300 dark:text-slate-700"
+            : status === "available"
+            ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 cursor-pointer hover:bg-green-200"
+            : status === "booked"
+            ? "bg-orange-100 dark:bg-orange-900/30 text-orange-500 cursor-not-allowed"
+            : "bg-red-50 dark:bg-red-900/20 text-red-400 cursor-not-allowed";
 
           return (
             <div
               key={day}
-              className={[
-                "h-8 w-full flex items-center justify-center rounded-lg text-xs font-medium",
-                isPast
-                  ? "text-slate-300 dark:text-slate-700"
-                  : isToday
-                  ? "ring-2 ring-primary font-bold text-primary"
-                  : isAvailable
-                  ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-900/50 cursor-pointer transition-colors"
-                  : "bg-red-50 dark:bg-red-900/20 text-red-400",
-              ].join(" ")}
+              title={info?.reason}
+              className={`h-8 w-full flex items-center justify-center rounded-lg text-xs font-medium transition-colors ${cls}`}
             >
               {day}
             </div>
@@ -366,14 +393,18 @@ function AvailabilityCalendar({ availableDays }: { availableDays: string[] }) {
       </div>
 
       {/* Legend */}
-      <div className="flex items-center gap-4 mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
+      <div className="flex flex-wrap items-center gap-4 mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
         <span className="flex items-center gap-1.5 text-xs text-slate-500">
           <span className="w-3 h-3 rounded bg-green-100 dark:bg-green-900/30 border border-green-300" />
           Available
         </span>
         <span className="flex items-center gap-1.5 text-xs text-slate-500">
+          <span className="w-3 h-3 rounded bg-orange-100 dark:bg-orange-900/30 border border-orange-300" />
+          Booked
+        </span>
+        <span className="flex items-center gap-1.5 text-xs text-slate-500">
           <span className="w-3 h-3 rounded bg-red-50 dark:bg-red-900/20 border border-red-200" />
-          Unavailable
+          Blocked
         </span>
         <span className="flex items-center gap-1.5 text-xs text-slate-500">
           <span className="w-3 h-3 rounded ring-2 ring-primary" />
@@ -693,7 +724,39 @@ export default function ProfileClient({
 
   useEffect(() => {
     if (initialData) {
-      setProfile({ ...MOCK_PANDIT, ...initialData as Partial<PanditProfile>, id: panditId });
+      const d = initialData as Record<string, unknown>;
+      const rs = (d.reviewSummary as Record<string, unknown> | undefined) ?? {};
+      const rawServices = Array.isArray(d.pujaServices) ? d.pujaServices as Record<string, unknown>[] : [];
+      const services: PanditService[] = rawServices.map(s => ({
+        name: String(s.pujaType),
+        nameHindi: String(s.pujaType),
+        durationHours: Number(s.durationHours) || 2,
+        basePrice: Number(s.dakshinaAmount) || 0,
+        description: String(s.description ?? ""),
+      }));
+      setProfile({
+        id: panditId,
+        displayName: (d.user as Record<string, unknown>)?.name as string ?? d.name as string ?? "Pandit Ji",
+        bio: d.bio as string ?? "",
+        experienceYears: d.experienceYears as number ?? 0,
+        specializations: d.specializations as string[] ?? [],
+        languages: d.languages as string[] ?? [],
+        sect: undefined,
+        gotra: undefined,
+        city: d.location as string ?? "Delhi",
+        state: "",
+        isVerified: d.verificationStatus === "VERIFIED",
+        profilePhotoUrl: d.profilePhotoUrl as string | undefined,
+        galleryImages: [],
+        averageRating: (rs.avgRating as number) ?? (d.rating as number) ?? 0,
+        totalReviews: (rs.totalReviews as number) ?? (d.totalReviews as number) ?? 0,
+        totalBookings: d.completedBookings as number ?? 0,
+        availableDays: [],
+        aadhaarVerified: d.aadhaarVerified as boolean ?? false,
+        certificatesVerified: false,
+        services: services.length > 0 ? services : MOCK_SERVICES,
+        reviews: MOCK_REVIEWS,
+      });
       setLoading(false);
     } else {
       fetchProfile(panditId).then(p => {
@@ -799,7 +862,7 @@ export default function ProfileClient({
               <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-slate-500 dark:text-slate-400">
                 <span className="flex items-center gap-1">
                   <span className="material-symbols-outlined text-base text-slate-400">location_on</span>
-                  {profile.city}, {profile.state}
+                  {profile.city}{profile.state ? `, ${profile.state}` : ""}
                 </span>
                 <span className="flex items-center gap-1">
                   <span className="material-symbols-outlined text-base text-slate-400">workspace_premium</span>
@@ -1006,19 +1069,7 @@ export default function ProfileClient({
             <span className="material-symbols-outlined text-primary text-xl">calendar_month</span>
             Availability
           </h2>
-          {profile.availableDays.length > 0 ? (
-            <>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
-                Available on:{" "}
-                <span className="font-semibold text-slate-700 dark:text-slate-300">
-                  {profile.availableDays.join(", ")}
-                </span>
-              </p>
-              <AvailabilityCalendar availableDays={profile.availableDays} />
-            </>
-          ) : (
-            <p className="text-sm text-slate-400">Availability calendar loading…</p>
-          )}
+          <AvailabilityCalendar panditId={panditId} />
         </Card>
 
       </div>

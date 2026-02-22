@@ -1,5 +1,3 @@
-// HmarePanditJi — Prisma Schema (Phase 1, PostgreSQL 16)
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,7 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ─── Enums ───────────────────────────────────────────────────────────────────
+// ============ ENUMS ============
 
 enum Role {
   CUSTOMER
@@ -39,12 +37,26 @@ enum BookingStatus {
   REFUNDED
 }
 
+enum TravelMode {
+  SELF_DRIVE
+  TRAIN
+  FLIGHT
+  CAB
+  BUS
+}
+
 enum TravelStatus {
   NOT_REQUIRED
   PENDING
   BOOKED
   IN_TRANSIT
   ARRIVED
+}
+
+enum SamagriPreference {
+  PANDIT_BRINGS
+  CUSTOMER_ARRANGES
+  NEED_HELP
 }
 
 enum FoodArrangement {
@@ -58,10 +70,12 @@ enum AccommodationArrangement {
   PLATFORM_BOOKS
 }
 
-enum SamagriPreference {
-  PANDIT_BRINGS
-  CUSTOMER_ARRANGES
-  NEED_HELP
+enum PaymentStatus {
+  PENDING
+  AUTHORIZED
+  CAPTURED
+  FAILED
+  REFUNDED
 }
 
 enum PayoutStatus {
@@ -79,273 +93,187 @@ enum RefundStatus {
   FAILED
 }
 
-enum PaymentStatus {
-  PENDING
-  AUTHORIZED
-  CAPTURED
-  FAILED
-  REFUNDED
+enum PackageType {
+  BASIC
+  STANDARD
+  PREMIUM
 }
 
-enum GenderEnum {
-  MALE
-  FEMALE
-  OTHER
-}
-
-enum RitualCategory {
-  WEDDING
-  GRIHA
-  PUJA
-  SHANTI
-  FESTIVAL
-  DEATH_RITES
-  OTHER
-}
-
-enum NotificationType {
-  BOOKING_CREATED
-  BOOKING_CONFIRMED
-  BOOKING_CANCELLED
-  PAYMENT_SUCCESS
-  REVIEW_REMINDER
-  OTP
-  GENERAL
-}
-
-enum NotificationChannel {
-  SMS
-  WHATSAPP
-  EMAIL
-  IN_APP
-}
-
-// ─── Models ──────────────────────────────────────────────────────────────────
+// ============ MODELS ============
 
 model User {
-  id                String   @id @default(cuid())
-  phone             String   @unique
-  name              String?
-  email             String?  @unique
-  role              Role
-  isVerified        Boolean  @default(false)
-  isActive          Boolean  @default(true)
-  profileCompleted  Boolean  @default(false)
-  preferredLanguage String   @default("hindi")
-  avatarUrl         String?
-  firebaseUid       String?  @unique
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-
-  customer             Customer?
-  pandit               Pandit?
-  notifications        Notification[]
-  adminLogs            AdminLog[]
-  favoritedPandits     FavoritePandit[]     @relation("CustomerFavorites")
-  favoritedBy          FavoritePandit[]     @relation("PanditFavoritedBy")
-  bookingStatusUpdates BookingStatusUpdate[]
-  reviewsGiven         Review[]             @relation("ReviewsGiven")
-  reviewsReceived      Review[]             @relation("ReviewsReceived")
-
-  @@index([phone])
-  @@index([email])
-  @@map("users")
-}
-
-model Customer {
-  id                 String      @id @default(cuid())
-  userId             String      @unique
-  user               User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  preferredLanguages String[]    @default([])
-  gotra              String?
-  gender             GenderEnum?
-  createdAt          DateTime    @default(now())
-  updatedAt          DateTime    @updatedAt
-
-  addresses Address[]
-  bookings  Booking[]
-
-  @@index([userId])
-  @@map("customers")
-}
-
-model Address {
   id          String   @id @default(cuid())
-  customerId  String
-  customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  label       String   @default("Home")
-  fullAddress String
-  city        String
-  state       String   @default("Delhi")
-  pincode     String
-  landmark    String?
-  latitude    Float?
-  longitude   Float?
-  isDefault   Boolean  @default(false)
-  createdAt   DateTime @default(now())
-
-  @@index([customerId])
-  @@index([city])
-  @@map("addresses")
-}
-
-model Pandit {
-  id                   String             @id @default(cuid())
-  userId               String             @unique
-  user                 User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  displayName          String
-  bio                  String?            @db.VarChar(500)
-  experienceYears      Int                @default(0)
-  specializations      String[]           @default([])
-  languages            String[]           @default([])
-  sect                 String?
-  gotra                String?
-  location             String             @default("Delhi")
-  city                 String             @default("Delhi")
-  state                String             @default("Delhi")
-  fullAddress          String?
-  verificationStatus   VerificationStatus @default(PENDING)
-  isVerified           Boolean            @default(false)
-  isActive             Boolean            @default(true)
-  aadhaarEncrypted     String?            // AES-256-GCM encrypted full Aadhaar
-  aadhaarLastFour      String?            @db.Char(4) // Last 4 digits for display
-  aadhaarVerified      Boolean            @default(false)
-  videoKycCompleted    Boolean            @default(false)
-  bioAudioUrl          String?            // Recorded voice bio in Hindi
-  certificateUrls      String[]           @default([])
-  certificatesVerified Boolean            @default(false)
-  profilePhotoUrl      String?
-  galleryImages        String[]           @default([])
-  rating               Float              @default(0.0)
-  averageRating        Float              @default(0.0)
-  totalReviews         Int                @default(0)
-  completedBookings    Int                @default(0)
-  totalBookings        Int                @default(0)
-  totalEarningsPaise   Int                @default(0)  // Cumulative earnings in paise
-  basePricing          Json               @default("{}")
-  availableDays        String[]           @default([])
-  travelPreferences    Json?
-  maxTravelDistance    Int                @default(50)
-  bankAccountName      String?
-  bankAccountNumber    String?
-  bankIfscCode         String?
-  bankVerified         Boolean            @default(false)
-  bankAccountAdded     Boolean            @default(false)
-  bankDetails          Json?
-  panNumber            String?
-  homeLat              Float?             // Geo lat for ES indexing (migration 008)
-  homeLng              Float?             // Geo lng for ES indexing (migration 008)
-  isOnline             Boolean            @default(false)
-  createdAt            DateTime           @default(now())
-  updatedAt            DateTime           @updatedAt
-
-  bookings        Booking[]
-  reviews         Review[]            @relation("PanditReviews")
-  pujaServices    PujaService[]
-  blockedDates    PanditBlockedDate[]
-  samagriPackages SamagriPackage[]
-
-  @@index([userId])
-  @@index([city])
-  @@index([verificationStatus])
-  @@index([isVerified, isActive])
-  @@index([rating])
-  @@map("pandits")
-}
-
-model PujaService {
-  id              String   @id @default(cuid())
-  panditId        String
-  pandit          Pandit   @relation(fields: [panditId], references: [id], onDelete: Cascade)
-  pujaType        String
-  dakshinaAmount  Int
-  durationHours   Float
-  description     String?
-  includesSamagri Boolean  @default(false)
-  samagriCost     Int      @default(0)
-  isActive        Boolean  @default(true)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  @@unique([panditId, pujaType])
-  @@index([panditId])
-  @@index([pujaType])
-  @@map("puja_services")
-}
-
-model PanditBlockedDate {
-  id            String   @id @default(cuid())
-  panditId      String
-  pandit        Pandit   @relation(fields: [panditId], references: [id], onDelete: Cascade)
-  date          DateTime
-  reason        String?
-  isRecurring   Boolean  @default(false)
-  recurringRule String?
-  createdAt     DateTime @default(now())
-
-  @@unique([panditId, date])
-  @@index([panditId])
-  @@index([date])
-  @@map("pandit_blocked_dates")
-}
-
-model SamagriPackage {
-  id          String   @id @default(cuid())
-  panditId    String
-  pandit      Pandit   @relation(fields: [panditId], references: [id], onDelete: Cascade)
-  packageName String   // "Basic", "Standard", "Premium"
-  pujaType    String
-  fixedPrice  Int
-  items       Json     // Array of { itemName, quantity, qualityNotes? }
+  phone       String   @unique  // "+919876543210" format always
+  name        String?
+  email       String?
+  role        Role     @default(CUSTOMER)
+  isVerified  Boolean  @default(false)
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  @@unique([panditId, pujaType, packageName])
-  @@index([panditId])
-  @@index([pujaType])
+  customerProfile    CustomerProfile?
+  panditProfile      PanditProfile?
+  bookingsAsCustomer Booking[]             @relation("CustomerBookings")
+  bookingsAsPandit   Booking[]             @relation("PanditBookings")
+  reviewsGiven       Review[]              @relation("ReviewsGiven")
+  reviewsReceived    Review[]              @relation("ReviewsReceived")
+  favoritePandits    FavoritePandit[]      @relation("CustomerFavorites")
+  favoritedBy        FavoritePandit[]      @relation("PanditFavorited")
+  statusUpdates      BookingStatusUpdate[]
+
+  @@index([role])
   @@index([isActive])
-  @@map("samagri_packages")
 }
 
-model Ritual {
-  id               String         @id @default(cuid())
-  name             String         @unique
-  nameHindi        String
-  description      String?
-  descriptionHindi String?
-  category         RitualCategory
-  basePriceMin     Int
-  basePriceMax     Int
-  durationHours    Float
-  isActive         Boolean        @default(true)
-  iconUrl          String?
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
+model CustomerProfile {
+  id                 String   @id @default(cuid())
+  userId             String   @unique
+  user               User     @relation(fields: [userId], references: [id])
+  preferredLanguages String[]
+  gotra              String?  // Family gotra for ritual matching
+  addresses          Address[]
+  createdAt          DateTime @default(now())
+}
 
-  bookings Booking[]
+model Address {
+  id                String          @id @default(cuid())
+  customerProfileId String
+  customerProfile   CustomerProfile @relation(fields: [customerProfileId], references: [id])
+  label             String          // "Home", "Office", "Parents' House"
+  fullAddress       String
+  city              String
+  state             String
+  pincode           String
+  landmark          String?
+  latitude          Float?
+  longitude         Float?
+  isDefault         Boolean         @default(false)
+}
 
-  @@index([category])
-  @@index([isActive])
-  @@map("rituals")
+model PanditProfile {
+  id                   String             @id @default(cuid())
+  userId               String             @unique
+  user                 User               @relation(fields: [userId], references: [id])
+  bio                  String?
+  experienceYears      Int                @default(0)
+  languages            String[]
+  specializations      String[]           // ["Vivah", "Griha Pravesh", ...]
+  verificationStatus   VerificationStatus @default(PENDING)
+  aadhaarVerified      Boolean            @default(false)
+  videoKycCompleted    Boolean            @default(false)
+  certificateUrls      String[]
+  aadhaarFrontUrl      String?
+  aadhaarBackUrl       String?
+  videoKycUrl          String?
+  profilePhotoUrl      String?
+
+  location    String  // City name e.g. "Varanasi"
+  fullAddress String?
+
+  // Ratings & Stats
+  rating            Float @default(0)
+  totalReviews      Int   @default(0)
+  completedBookings Int   @default(0)
+
+  // Travel — stored as JSON for flexibility
+  // Schema: { maxDistanceKm: 500, preferredModes: ["SELF_DRIVE","TRAIN"], selfDriveRatePerKm: 12, vehicleType: "Car", hotelPreference: "3_STAR", advanceNoticeDays: 2 }
+  travelPreferences Json @default("{}")
+
+  // Bank details for payouts
+  bankAccountName   String?
+  bankAccountNumber String?
+  bankIfscCode      String?
+  bankName          String?  // Auto-fetched from IFSC
+  bankVerified      Boolean  @default(false)
+  upiId             String?
+
+  // Device info — auto-captured during registration, shown to customers so they know pandit is tech-equipped
+  deviceOs    String?  // "Android 12", "iOS 16"
+  deviceModel String?  // "Samsung Galaxy A32"
+  appVersion  String?
+
+  isOnline Boolean @default(false) // Pandit's online/offline toggle
+  canBringSamagri Boolean @default(true) // Added for Samagri Toggle
+
+  pujaServices    PujaService[]
+  blockedDates    PanditBlockedDate[]
+  samagriPackages SamagriPackage[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([verificationStatus])
+  @@index([location])
+  @@index([isOnline])
+  @@index([rating])
+}
+
+model PujaService {
+  id              String        @id @default(cuid())
+  panditProfileId String
+  panditProfile   PanditProfile @relation(fields: [panditProfileId], references: [id])
+  pujaType        String        // "Vivah", "Griha Pravesh" etc.
+  dakshinaAmount  Int           // In rupees, no decimals
+  durationHours   Float         // e.g. 3.5 hours
+  description     String?
+  isActive        Boolean       @default(true)
+  createdAt       DateTime      @default(now())
+
+  @@index([panditProfileId])
+  @@index([pujaType])
+}
+
+model SamagriPackage {
+  id              String        @id @default(cuid())
+  panditProfileId String
+  panditProfile   PanditProfile @relation(fields: [panditProfileId], references: [id])
+  packageName     String        // "Basic", "Standard", "Premium"
+  packageType     PackageType
+  pujaType        String        // Which puja this package is for
+  fixedPrice      Int           // FIXED, non-negotiable, set by pandit
+  // items: JSON array of { itemName: string, quantity: string, qualityNotes?: string }
+  // Example: [{"itemName":"Desi Ghee","quantity":"500g","qualityNotes":"Shuddh cow ghee"}]
+  items    Json
+  isActive Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  @@index([panditProfileId])
+}
+
+model PanditBlockedDate {
+  id              String        @id @default(cuid())
+  panditProfileId String
+  panditProfile   PanditProfile @relation(fields: [panditProfileId], references: [id])
+  date            DateTime
+  reason          String?
+  isRecurring     Boolean       @default(false)
+  recurringRule   String?       // "EVERY_TUESDAY", "EVERY_MONTH_15"
+  createdAt       DateTime      @default(now())
+
+  @@index([panditProfileId])
+  @@index([date])
 }
 
 model Booking {
   id            String        @id @default(cuid())
-  bookingNumber String        @unique
-  customerId    String
-  customer      Customer      @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  panditId      String?
-  pandit        Pandit?       @relation(fields: [panditId], references: [id])
-  ritualId      String?
-  ritual        Ritual?       @relation(fields: [ritualId], references: [id])
-  status        BookingStatus @default(CREATED)
+  bookingNumber String        @unique // "HPJ-2026-ABC12"
 
-  eventType           String
-  eventDate           DateTime
-  eventEndDate        DateTime?
-  muhuratTime         String?
-  muhuratSuggested    Boolean   @default(false)
+  customerId String
+  customer   User   @relation("CustomerBookings", fields: [customerId], references: [id])
+  panditId   String? // Null until pandit is assigned
+  pandit     User?   @relation("PanditBookings", fields: [panditId], references: [id])
+
+  status BookingStatus @default(CREATED)
+
+  // Event details
+  eventType        String   // "Vivah", "Griha Pravesh" etc.
+  eventDate        DateTime
+  eventEndDate     DateTime? // For multi-day events like Vivah
+  muhuratTime      String?   // "10:30 AM - 12:00 PM"
+  muhuratSuggested Boolean   @default(false)
+
+  // Venue
   venueAddress        String
   venueCity           String
   venuePincode        String
@@ -354,141 +282,132 @@ model Booking {
   attendees           Int?
   specialInstructions String?
 
+  // Travel
   travelRequired   Boolean      @default(false)
-  travelMode       String?
+  travelMode       TravelMode?
   travelDistanceKm Float?
   travelStatus     TravelStatus @default(NOT_REQUIRED)
-  travelBookingRef String?
+  travelBookingRef String?      // Admin manually enters IRCTC/MMT reference
   travelNotes      String?
 
+  // Food & Accommodation
   foodArrangement          FoodArrangement          @default(CUSTOMER_PROVIDES)
   foodAllowanceDays        Int                      @default(0)
+  foodAllowanceAmount      Int                      @default(0) // foodAllowanceDays * 1000
   accommodationArrangement AccommodationArrangement @default(NOT_NEEDED)
-  accommodationNotes       String?
+  accommodationCost        Int                      @default(0)
 
-  samagriPreference SamagriPreference @default(CUSTOMER_ARRANGES)
+  // Samagri
+  samagriPreference SamagriPreference @default(PANDIT_BRINGS)
+  samagriPackageId  String?           // If PANDIT_BRINGS and chose a fixed package
+  samagriCustomList Json?             // If PANDIT_BRINGS with custom list or NEED_HELP
+  samagriAmount     Int               @default(0)
   samagriNotes      String?
 
+  // Pricing — ALL amounts stored in rupees (integers, no decimals)
   dakshinaAmount      Int @default(0)
   travelCost          Int @default(0)
-  foodAllowanceAmount Int @default(0)
-  accommodationCost   Int @default(0)
-  platformFee         Int @default(0)
-  travelServiceFee    Int @default(0)
-  platformFeeGst      Int @default(0)
-  travelServiceFeeGst Int @default(0)
+  platformFee         Int @default(0)  // 15% of dakshina
+  platformFeeGst      Int @default(0)  // 18% of platformFee
+  travelServiceFee    Int @default(0)  // 5% of travelCost
+  travelServiceFeeGst Int @default(0)  // 18% of travelServiceFee
   grandTotal          Int @default(0)
 
-  panditPayout      Int          @default(0)
+  // Pandit payout
+  panditPayout      Int          @default(0) // dakshina - platformFee + travel + food + samagri
   payoutStatus      PayoutStatus @default(PENDING)
   payoutReference   String?
   payoutCompletedAt DateTime?
 
-  paymentStatus     PaymentStatus @default(PENDING)
-  razorpayOrderId   String?
-  razorpayPaymentId String?
-
-  cancelledBy             String?
+  // Cancellation
+  cancelledBy             String?      // "CUSTOMER" | "PANDIT" | "ADMIN"
   cancellationReason      String?
   cancellationRequestedAt DateTime?
-  refundAmount            Int        @default(0)
+  refundAmount            Int          @default(0)
   refundStatus            RefundStatus @default(NONE)
   refundReference         String?
 
-  panditAcceptedAt     DateTime?
-  panditRejectedReason String?
-  completedAt          DateTime?
-  cancelledAt          DateTime?
-  customerNotes        String?
-  adminNotes           String?
+  // Payment
+  razorpayOrderId   String?
+  razorpayPaymentId String?
+  paymentStatus     PaymentStatus @default(PENDING)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  review        Review?
   statusUpdates BookingStatusUpdate[]
+  review        Review?
 
-  @@index([bookingNumber])
   @@index([customerId])
   @@index([panditId])
   @@index([status])
   @@index([eventDate])
-  @@index([customerId, status])
-  @@index([panditId, status])
-  @@map("bookings")
+  @@index([bookingNumber])
+  @@index([paymentStatus])
 }
 
 model BookingStatusUpdate {
-  id         String        @id @default(cuid())
-  bookingId  String
-  booking    Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-  fromStatus BookingStatus
-  toStatus   BookingStatus
-  updatedBy  String
-  updater    User          @relation(fields: [updatedBy], references: [id])
-  note       String?
-  latitude   Float?
-  longitude  Float?
-  createdAt  DateTime      @default(now())
+  id          String        @id @default(cuid())
+  bookingId   String
+  booking     Booking       @relation(fields: [bookingId], references: [id])
+  fromStatus  BookingStatus
+  toStatus    BookingStatus
+  updatedById String
+  updatedBy   User          @relation(fields: [updatedById], references: [id])
+  note        String?
+  latitude    Float?        // Pandit's GPS when tapping "I'm Here" buttons
+  longitude   Float?
+  createdAt   DateTime      @default(now())
 
   @@index([bookingId])
-  @@map("booking_status_updates")
 }
 
 model Review {
-  id                  String   @id @default(cuid())
-  bookingId           String   @unique
-  booking             Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-  reviewerId          String
-  reviewer            User     @relation("ReviewsGiven", fields: [reviewerId], references: [id], onDelete: Cascade)
-  revieweeId          String
-  reviewee            User     @relation("ReviewsReceived", fields: [revieweeId], references: [id])
-  panditId            String?
-  pandit              Pandit?  @relation("PanditReviews", fields: [panditId], references: [id])
-  overallRating       Float
-  knowledgeRating     Float?
-  punctualityRating   Float?
-  communicationRating Float?
-  comment             String?  @db.VarChar(500)
-  isAnonymous         Boolean  @default(false)
-  createdAt           DateTime @default(now())
+  id                   String   @id @default(cuid())
+  bookingId            String   @unique
+  booking              Booking  @relation(fields: [bookingId], references: [id])
+  reviewerId           String
+  reviewer             User     @relation("ReviewsGiven", fields: [reviewerId], references: [id])
+  revieweeId           String
+  reviewee             User     @relation("ReviewsReceived", fields: [revieweeId], references: [id])
+  overallRating        Float    // 1.0 to 5.0
+  knowledgeRating      Float?
+  punctualityRating    Float?
+  communicationRating  Float?
+  comment              String?
+  isAnonymous          Boolean  @default(false)
+  createdAt            DateTime @default(now())
 
   @@index([revieweeId])
-  @@index([bookingId])
-  @@map("reviews")
 }
 
 model FavoritePandit {
   id         String   @id @default(cuid())
   customerId String
-  customer   User     @relation("CustomerFavorites", fields: [customerId], references: [id], onDelete: Cascade)
+  customer   User     @relation("CustomerFavorites", fields: [customerId], references: [id])
   panditId   String
-  pandit     User     @relation("PanditFavoritedBy", fields: [panditId], references: [id], onDelete: Cascade)
+  pandit     User     @relation("PanditFavorited", fields: [panditId], references: [id])
   createdAt  DateTime @default(now())
 
   @@unique([customerId, panditId])
   @@index([customerId])
-  @@index([panditId])
-  @@map("favorite_pandits")
 }
 
 model MuhuratDate {
   id           String   @id @default(cuid())
   date         DateTime
-  pujaType     String
-  timeWindow   String
-  significance String?
-  source       String   @default("DrikPanchang")
-  createdAt    DateTime @default(now())
+  pujaType     String   // "Vivah", "Griha Pravesh" etc.
+  timeWindow   String   // "10:30 AM - 12:00 PM"
+  significance String?  // "Akshaya Tritiya — highly auspicious for new beginnings"
+  source       String   // "Hindu Panchang 2026"
 
   @@index([date])
   @@index([pujaType])
-  @@index([date, pujaType])
-  @@map("muhurat_dates")
+  @@unique([date, pujaType, timeWindow])
 }
 
 model CityDistance {
-  id                  String  @id @default(cuid())
+  id                  String @id @default(cuid())
   fromCity            String
   toCity              String
   distanceKm          Float
@@ -496,55 +415,4 @@ model CityDistance {
 
   @@unique([fromCity, toCity])
   @@index([fromCity])
-  @@index([toCity])
-  @@map("city_distances")
-}
-
-model Notification {
-  id       String              @id @default(cuid())
-  userId   String
-  user     User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  type     NotificationType
-  title    String
-  message  String
-  channel  NotificationChannel
-  isRead   Boolean             @default(false)
-  metadata Json?
-  sentAt   DateTime            @default(now())
-
-  @@index([userId])
-  @@index([type])
-  @@index([isRead])
-  @@map("notifications")
-}
-
-model OTP {
-  id        String   @id @default(cuid())
-  phone     String
-  otp       String
-  expiresAt DateTime
-  isUsed    Boolean  @default(false)
-  attempts  Int      @default(0)
-  createdAt DateTime @default(now())
-
-  @@index([phone])
-  @@index([expiresAt])
-  @@index([phone, isUsed])
-  @@map("otps")
-}
-
-model AdminLog {
-  id          String   @id @default(cuid())
-  adminUserId String
-  adminUser   User     @relation(fields: [adminUserId], references: [id], onDelete: Cascade)
-  action      String
-  targetType  String
-  targetId    String
-  metadata    Json?
-  createdAt   DateTime @default(now())
-
-  @@index([adminUserId])
-  @@index([targetType])
-  @@index([createdAt])
-  @@map("admin_logs")
 }

@@ -5,8 +5,8 @@ import { logger } from "../utils/logger";
 export class AppError extends Error {
   constructor(
     public message: string,
-    public statusCode: number = 400,
-    public code: string = "BAD_REQUEST",
+    public statusCode: number = 500,
+    public code: string = "INTERNAL_ERROR",
   ) {
     super(message);
     this.name = "AppError";

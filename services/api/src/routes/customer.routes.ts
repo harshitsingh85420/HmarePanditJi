@@ -18,7 +18,7 @@ const updateCustomerSchema = z.object({
   name: z.string().min(2).max(100).optional(),
   email: z.string().email().optional().nullable(),
   gotra: z.string().max(100).optional(),
-  gender: z.enum(["MALE", "FEMALE", "OTHER"]).optional(),
+  preferredLanguages: z.array(z.string()).optional(),
 });
 
 const addAddressSchema = z.object({
@@ -41,7 +41,7 @@ const addAddressSchema = z.object({
  */
 router.get("/me", roleGuard("CUSTOMER"), async (req, res, next) => {
   try {
-    const customer = await prisma.customer.findUnique({
+    const customerProfile = await prisma.customerProfile.findUnique({
       where: { userId: req.user!.id },
       include: {
         user: {
@@ -50,18 +50,17 @@ router.get("/me", roleGuard("CUSTOMER"), async (req, res, next) => {
             phone: true,
             email: true,
             name: true,
-            avatarUrl: true,
-            preferredLanguage: true,
-            profileCompleted: true,
+            role: true,
+            isVerified: true,
             createdAt: true,
           },
         },
-        addresses: { orderBy: [{ isDefault: "desc" }, { createdAt: "asc" }] },
+        addresses: { orderBy: { isDefault: "desc" } },
       },
     });
 
-    if (!customer) throw new AppError("Customer profile not found", 404, "NOT_FOUND");
-    sendSuccess(res, customer);
+    if (!customerProfile) throw new AppError("Customer profile not found", 404, "NOT_FOUND");
+    sendSuccess(res, customerProfile);
   } catch (err) {
     next(err);
   }
@@ -70,7 +69,7 @@ router.get("/me", roleGuard("CUSTOMER"), async (req, res, next) => {
 /**
  * PUT /customers/me
  * Update the authenticated customer's profile
- * Body: { name?, email?, gotra?, gender? }
+ * Body: { name?, email?, gotra?, preferredLanguages? }
  */
 router.put(
   "/me",
@@ -78,32 +77,33 @@ router.put(
   validate(updateCustomerSchema),
   async (req, res, next) => {
     try {
-      const { name, email, gotra, gender } = req.body as z.infer<
+      const { name, email, gotra, preferredLanguages } = req.body as z.infer<
         typeof updateCustomerSchema
       >;
 
-      // Update User fields (name, email) + profileCompleted flag
+      // Update User fields (name, email)
       const userUpdate: Record<string, unknown> = {};
-      if (name !== undefined) { userUpdate.name = name; userUpdate.profileCompleted = true; }
+      if (name !== undefined) userUpdate.name = name;
       if (email !== undefined) userUpdate.email = email;
 
-      const [user, customer] = await prisma.$transaction([
+      const profileUpdate: Record<string, unknown> = {};
+      if (gotra !== undefined) profileUpdate.gotra = gotra;
+      if (preferredLanguages !== undefined) profileUpdate.preferredLanguages = preferredLanguages;
+
+      const [user, customerProfile] = await prisma.$transaction([
         prisma.user.update({ where: { id: req.user!.id }, data: userUpdate }),
-        prisma.customer.upsert({
+        prisma.customerProfile.upsert({
           where: { userId: req.user!.id },
           create: {
             userId: req.user!.id,
-            gotra: gotra,
-            gender: gender,
-          },
-          update: {
             ...(gotra !== undefined && { gotra }),
-            ...(gender !== undefined && { gender }),
+            ...(preferredLanguages !== undefined && { preferredLanguages }),
           },
+          update: profileUpdate,
         }),
       ]);
 
-      sendSuccess(res, { ...customer, user }, "Profile updated successfully");
+      sendSuccess(res, { ...customerProfile, user }, "Profile updated successfully");
     } catch (err) {
       next(err);
     }
@@ -116,12 +116,12 @@ router.put(
  */
 router.get("/me/addresses", roleGuard("CUSTOMER"), async (req, res, next) => {
   try {
-    const customer = await prisma.customer.findUnique({ where: { userId: req.user!.id } });
-    if (!customer) throw new AppError("Customer profile not found", 404, "NOT_FOUND");
+    const customerProfile = await prisma.customerProfile.findUnique({ where: { userId: req.user!.id } });
+    if (!customerProfile) throw new AppError("Customer profile not found", 404, "NOT_FOUND");
 
     const addresses = await prisma.address.findMany({
-      where: { customerId: customer.id },
-      orderBy: [{ isDefault: "desc" }, { createdAt: "asc" }],
+      where: { customerProfileId: customerProfile.id },
+      orderBy: { isDefault: "desc" },
     });
 
     sendSuccess(res, addresses);
@@ -141,21 +141,21 @@ router.post(
   validate(addAddressSchema),
   async (req, res, next) => {
     try {
-      const customer = await prisma.customer.findUnique({ where: { userId: req.user!.id } });
-      if (!customer) throw new AppError("Customer profile not found", 404, "NOT_FOUND");
+      const customerProfile = await prisma.customerProfile.findUnique({ where: { userId: req.user!.id } });
+      if (!customerProfile) throw new AppError("Customer profile not found", 404, "NOT_FOUND");
 
       const data = req.body as z.infer<typeof addAddressSchema>;
 
       // If new address is default, demote all existing default addresses
       if (data.isDefault) {
         await prisma.address.updateMany({
-          where: { customerId: customer.id, isDefault: true },
+          where: { customerProfileId: customerProfile.id, isDefault: true },
           data: { isDefault: false },
         });
       }
 
       const address = await prisma.address.create({
-        data: { ...data, customerId: customer.id },
+        data: { ...data, customerProfileId: customerProfile.id },
       });
 
       sendSuccess(res, address, "Address added successfully", 201);
@@ -179,11 +179,11 @@ router.put("/me/addresses/:addressId", roleGuard("CUSTOMER"), async (_req, res) 
  */
 router.delete("/me/addresses/:addressId", roleGuard("CUSTOMER"), async (req, res, next) => {
   try {
-    const customer = await prisma.customer.findUnique({ where: { userId: req.user!.id } });
-    if (!customer) throw new AppError("Customer profile not found", 404, "NOT_FOUND");
+    const customerProfile = await prisma.customerProfile.findUnique({ where: { userId: req.user!.id } });
+    if (!customerProfile) throw new AppError("Customer profile not found", 404, "NOT_FOUND");
 
     const address = await prisma.address.findFirst({
-      where: { id: req.params.addressId, customerId: customer.id },
+      where: { id: req.params.addressId, customerProfileId: customerProfile.id },
     });
     if (!address) throw new AppError("Address not found", 404, "NOT_FOUND");
 
@@ -200,25 +200,49 @@ router.delete("/me/addresses/:addressId", roleGuard("CUSTOMER"), async (req, res
  * GET /customers/me/favorites
  * Get customer's favorite pandits.
  */
-router.get("/me/favorites", roleGuard("CUSTOMER"), async (_req, res) => {
-  res.status(501).json({ success: true, message: "Not implemented yet", endpoint: "GET /customers/me/favorites" });
+router.get("/me/favorites", roleGuard("CUSTOMER"), async (req, res, next) => {
+  try {
+    const favorites = await prisma.favoritePandit.findMany({
+      where: { customerId: req.user!.id },
+      select: { panditId: true }
+    });
+
+    const favoriteIds = favorites.map((f) => f.panditId);
+    sendSuccess(res, favoriteIds);
+  } catch (err) {
+    next(err);
+  }
 });
 
 /**
- * POST /customers/me/favorites
- * Add a pandit to favorites.
- * Body: { panditId }
+ * POST /customers/me/favorites/:panditId
+ * Toggle a pandit in favorites.
  */
-router.post("/me/favorites", roleGuard("CUSTOMER"), async (_req, res) => {
-  res.status(501).json({ success: true, message: "Not implemented yet", endpoint: "POST /customers/me/favorites" });
-});
+router.post("/me/favorites/:panditId", roleGuard("CUSTOMER"), async (req, res, next) => {
+  try {
+    const panditId = req.params.panditId;
+    const customerId = req.user!.id;
 
-/**
- * DELETE /customers/me/favorites/:panditId
- * Remove a pandit from favorites.
- */
-router.delete("/me/favorites/:panditId", roleGuard("CUSTOMER"), async (_req, res) => {
-  res.status(501).json({ success: true, message: "Not implemented yet", endpoint: "DELETE /customers/me/favorites/:panditId" });
+    const existing = await prisma.favoritePandit.findUnique({
+      where: {
+        customerId_panditId: { customerId, panditId }
+      }
+    });
+
+    if (existing) {
+      await prisma.favoritePandit.delete({
+        where: { id: existing.id }
+      });
+      sendSuccess(res, { isFavorited: false });
+    } else {
+      await prisma.favoritePandit.create({
+        data: { customerId, panditId }
+      });
+      sendSuccess(res, { isFavorited: true });
+    }
+  } catch (err) {
+    next(err);
+  }
 });
 
 export default router;

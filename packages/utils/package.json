@@ -9,9 +9,11 @@
     "test": "echo \"No tests yet\""
   },
   "dependencies": {
-    "zod": "^3.25.76"
+    "zod": "^3.25.76",
+    "react": "^18.2.0"
   },
   "devDependencies": {
-    "typescript": "^5.4.0"
+    "typescript": "^5.4.0",
+    "@types/react": "^18.2.0"
   }
 }

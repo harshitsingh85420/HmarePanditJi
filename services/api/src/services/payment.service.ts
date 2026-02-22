@@ -109,10 +109,7 @@ export async function initiateRefund(bookingId: string, reason?: string) {
 export async function createRazorpayOrder(bookingId: string, customerId: string) {
   const booking = await prisma.booking.findUnique({
     where: { id: bookingId },
-    include: {
-      customer: { include: { user: true } },
-      pandit: { include: { user: true } },
-    },
+    include: { customer: true, pandit: true },
   });
 
   if (!booking) {
@@ -208,11 +205,7 @@ export async function processPaymentSuccess(
 ) {
   const booking = await prisma.booking.findUnique({
     where: { id: bookingId },
-    include: {
-      customer: { include: { user: true } },
-      pandit: { include: { user: true } },
-      ritual: true,
-    },
+    include: { customer: true, pandit: true },
   });
 
   if (!booking) {
@@ -252,7 +245,7 @@ export async function processPaymentSuccess(
         bookingId: booking.id,
         fromStatus: previousStatus,
         toStatus: BookingStatus.PANDIT_REQUESTED,
-        updatedBy: booking.customer.userId,
+        updatedById: booking.customerId,
       },
     });
 
@@ -261,8 +254,8 @@ export async function processPaymentSuccess(
 
   // ── Fire-and-forget notifications ──────────────────────────────────────────
   try {
-    if (booking.customer?.user) {
-      const customerUser = booking.customer.user;
+    if (booking.customer) {
+      const customerUser = booking.customer;
       if (customerUser.phone) {
         notifyPaymentReceivedToCustomer({
           customerUserId: customerUser.id,
@@ -274,12 +267,12 @@ export async function processPaymentSuccess(
       }
     }
 
-    if (booking.pandit?.user) {
-      const panditUser = booking.pandit.user;
+    if (booking.pandit) {
+      const panditUser = booking.pandit;
       if (panditUser.phone) {
         notifyNewBookingToPandit({
           panditUserId: panditUser.id,
-          panditName: booking.pandit.displayName,
+          panditName: panditUser.name ?? panditUser.phone,
           bookingNumber: updated.bookingNumber,
           eventType: updated.eventType,
           eventDate: updated.eventDate,

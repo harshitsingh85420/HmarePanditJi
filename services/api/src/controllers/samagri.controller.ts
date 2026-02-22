@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
 import { prisma } from "@hmarepanditji/db";
+import fs from "fs";
+import path from "path";
 
 /**
  * GET /api/v1/pandits/:id/samagri-packages
@@ -11,7 +13,7 @@ export async function getPanditSamagriPackages(req: Request, res: Response) {
         const { pujaType } = req.query;
 
         const where: any = {
-            panditId: id,
+            panditProfileId: id,
             isActive: true,
         };
 
@@ -71,14 +73,21 @@ export async function createSamagriPackage(req: Request, res: Response) {
             }
         }
 
+        const packageTypeMapping: Record<string, "BASIC" | "STANDARD" | "PREMIUM"> = {
+            Basic: "BASIC",
+            Standard: "STANDARD",
+            Premium: "PREMIUM",
+        };
+
         const samagriPackage = await prisma.samagriPackage.create({
             data: {
-                panditId,
+                panditProfileId: panditId,
                 packageName,
                 pujaType,
                 fixedPrice,
                 items,
                 isActive: true,
+                packageType: packageTypeMapping[packageName as string] || "BASIC",
             },
         });
 
@@ -111,7 +120,7 @@ export async function updateSamagriPackage(req: Request, res: Response) {
             return res.status(404).json({ error: "Samagri package not found" });
         }
 
-        if (existing.panditId !== panditId) {
+        if (existing.panditProfileId !== panditId) {
             return res.status(403).json({ error: "Forbidden - Not your package" });
         }
 
@@ -177,7 +186,7 @@ export async function deleteSamagriPackage(req: Request, res: Response) {
             return res.status(404).json({ error: "Samagri package not found" });
         }
 
-        if (existing.panditId !== panditId) {
+        if (existing.panditProfileId !== panditId) {
             return res.status(403).json({ error: "Forbidden - Not your package" });
         }
 
@@ -207,7 +216,7 @@ export async function getMySamagriPackages(req: Request, res: Response) {
         }
 
         const packages = await prisma.samagriPackage.findMany({
-            where: { panditId },
+            where: { panditProfileId: panditId },
             orderBy: [{ pujaType: "asc" }, { fixedPrice: "asc" }],
         });
 
@@ -215,5 +224,27 @@ export async function getMySamagriPackages(req: Request, res: Response) {
     } catch (error) {
         console.error("Error fetching my samagri packages:", error);
         res.status(500).json({ error: "Failed to fetch samagri packages" });
+    }
+}
+
+/**
+ * GET /api/v1/samagri/catalog
+ * Get samagri catalog based on puja type
+ */
+export async function getSamagriCatalog(req: Request, res: Response) {
+    try {
+        const { pujaType } = req.query;
+
+        // Basic implementation reading from local JSON
+        const catalogPath = path.join(__dirname, "../data/samagri-catalog.json");
+        const data = fs.readFileSync(catalogPath, "utf-8");
+        const catalog = JSON.parse(data);
+
+        // Here we could filter by pujaType if the catalog supported it, 
+        // for Phase 1 we return the general catalog
+        res.json(catalog);
+    } catch (error) {
+        console.error("Error fetching samagri catalog:", error);
+        res.status(500).json({ error: "Failed to fetch samagri catalog" });
     }
 }

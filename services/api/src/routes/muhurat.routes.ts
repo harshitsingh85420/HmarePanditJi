@@ -3,6 +3,7 @@ import {
   getMuhuratDates,
   getPujasForDate,
   getSuggestedMuhurat,
+  getUpcomingMuhurat,
 } from "../controllers/muhurat.controller";
 
 const router: Router = Router();
@@ -15,5 +16,8 @@ router.get("/pujas-for-date", getPujasForDate);
 
 /** GET /muhurat/suggest — top upcoming muhurat dates for a puja type */
 router.get("/suggest", getSuggestedMuhurat);
+
+/** GET /muhurat/upcoming — next N muhurat dates from today */
+router.get("/upcoming", getUpcomingMuhurat);
 
 export default router;

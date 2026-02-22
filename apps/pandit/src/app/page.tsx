@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 
 export default function PanditDashboard() {
   const [isOnline, setIsOnline] = useState(true);
@@ -85,9 +86,9 @@ export default function PanditDashboard() {
       <div className="pt-2">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-[#181411] text-[22px] font-bold leading-tight tracking-[-0.015em]">Today&apos;s Schedule</h2>
-          <button className="text-primary text-sm font-bold flex items-center gap-1 hover:underline">
+          <Link href="/calendar" className="text-primary text-sm font-bold flex items-center gap-1 hover:underline">
             View Calendar <span className="material-symbols-outlined text-sm">calendar_month</span>
-          </button>
+          </Link>
         </div>
 
         <div className="space-y-4">

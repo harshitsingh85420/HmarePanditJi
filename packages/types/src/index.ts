@@ -3,7 +3,37 @@
 // Package: @hmarepanditji/types (was @hpj/shared-types)
 // ============================================
 
-// ─── ENUMS ───────────────────────────────────────────
+// ─── TYPED ENUMS (spec-required) ─────────────────────
+export enum Role { CUSTOMER = 'CUSTOMER', PANDIT = 'PANDIT', ADMIN = 'ADMIN' }
+export enum VerificationStatus { PENDING='PENDING', DOCUMENTS_SUBMITTED='DOCUMENTS_SUBMITTED', VIDEO_KYC_DONE='VIDEO_KYC_DONE', VERIFIED='VERIFIED', REJECTED='REJECTED' }
+export enum BookingStatus { CREATED='CREATED', PANDIT_REQUESTED='PANDIT_REQUESTED', CONFIRMED='CONFIRMED', TRAVEL_BOOKED='TRAVEL_BOOKED', PANDIT_EN_ROUTE='PANDIT_EN_ROUTE', PANDIT_ARRIVED='PANDIT_ARRIVED', PUJA_IN_PROGRESS='PUJA_IN_PROGRESS', COMPLETED='COMPLETED', CANCELLATION_REQUESTED='CANCELLATION_REQUESTED', CANCELLED='CANCELLED', REFUNDED='REFUNDED' }
+export enum TravelMode { SELF_DRIVE='SELF_DRIVE', TRAIN='TRAIN', FLIGHT='FLIGHT', CAB='CAB', BUS='BUS' }
+export enum TravelStatus { NOT_REQUIRED='NOT_REQUIRED', PENDING='PENDING', BOOKED='BOOKED', IN_TRANSIT='IN_TRANSIT', ARRIVED='ARRIVED' }
+export enum SamagriPreference { PANDIT_BRINGS='PANDIT_BRINGS', CUSTOMER_ARRANGES='CUSTOMER_ARRANGES', NEED_HELP='NEED_HELP' }
+export enum PaymentStatus { PENDING='PENDING', AUTHORIZED='AUTHORIZED', CAPTURED='CAPTURED', FAILED='FAILED', REFUNDED='REFUNDED' }
+export enum PayoutStatus { PENDING='PENDING', PROCESSING='PROCESSING', COMPLETED='COMPLETED', FAILED='FAILED' }
+export enum RefundStatus { NONE='NONE', PENDING='PENDING', PROCESSING='PROCESSING', COMPLETED='COMPLETED', FAILED='FAILED' }
+export enum FoodArrangement { CUSTOMER_PROVIDES='CUSTOMER_PROVIDES', PLATFORM_ALLOWANCE='PLATFORM_ALLOWANCE' }
+export enum AccommodationArrangement { NOT_NEEDED='NOT_NEEDED', CUSTOMER_ARRANGES='CUSTOMER_ARRANGES', PLATFORM_BOOKS='PLATFORM_BOOKS' }
+export enum PackageType { BASIC='BASIC', STANDARD='STANDARD', PREMIUM='PREMIUM' }
+
+// ─── PRICING BREAKDOWN INTERFACE ─────────────────────
+export interface PricingBreakdown {
+  dakshinaAmount: number;          // Pandit's fee (GST exempt)
+  samagriAmount: number;           // Samagri package or custom list cost
+  travelCost: number;              // Raw travel fare
+  foodAllowanceAmount: number;     // ₹1000/day × days
+  foodAllowanceDays: number;       // Number of days food allowance applies
+  accommodationCost: number;       // Hotel cost if platform books
+  platformFee: number;             // 15% of dakshina
+  platformFeeGst: number;          // 18% of platformFee
+  travelServiceFee: number;        // 5% of travelCost
+  travelServiceFeeGst: number;     // 18% of travelServiceFee
+  grandTotal: number;              // Sum of everything
+  panditPayout: number;            // What pandit actually receives
+}
+
+// ─── ENUMS (legacy string unions — kept for backward compat) ─────────────────
 export type UserType = 'customer' | 'pandit' | 'admin';
 export type UserRole = 'customer' | 'pandit' | 'admin';
 

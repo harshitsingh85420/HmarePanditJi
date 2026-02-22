@@ -253,7 +253,7 @@ export function calculatePanditPayout(params: {
  * @param cancellationDate - Cancellation request date (defaults to now)
  * @returns Refund calculation details
  */
-export function calculateRefundAmount(
+export function calculateRefundDetailed(
     grandTotal: number,
     eventDate: Date,
     cancellationDate: Date = new Date()

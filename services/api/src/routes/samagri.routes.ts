@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+    getSamagriCatalog,
     getPanditSamagriPackages,
     createSamagriPackage,
     updateSamagriPackage,
@@ -9,6 +10,11 @@ import {
 import { authenticate } from "../middleware/auth";
 
 const router: Router = Router();
+
+/**
+ * Public route - Get samagri catalog
+ */
+router.get("/samagri/catalog", getSamagriCatalog);
 
 /**
  * Public route - Get samagri packages for a specific pandit

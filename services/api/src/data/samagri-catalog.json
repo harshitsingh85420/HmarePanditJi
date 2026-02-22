@@ -1,0 +1,141 @@
+{
+    "categories": [
+        {
+            "name": "Grains & Pulses",
+            "items": [
+                {
+                    "id": "gr-1",
+                    "name": "Rice (Akshat)",
+                    "unit": "500g",
+                    "basePrice": 60,
+                    "description": "Unbroken rice for puja"
+                },
+                {
+                    "id": "gr-2",
+                    "name": "Wheat (Gehun)",
+                    "unit": "1kg",
+                    "basePrice": 45,
+                    "description": "For Navagraha setup"
+                },
+                {
+                    "id": "gr-3",
+                    "name": "Black Sesame (Til)",
+                    "unit": "50g",
+                    "basePrice": 30,
+                    "description": "For Havan"
+                }
+            ]
+        },
+        {
+            "name": "Flowers & Leaves",
+            "items": [
+                {
+                    "id": "fl-1",
+                    "name": "Marigold Garland",
+                    "unit": "1 pc",
+                    "basePrice": 50,
+                    "description": "Fresh medium sized"
+                },
+                {
+                    "id": "fl-2",
+                    "name": "Mango Leaves",
+                    "unit": "11 pcs",
+                    "basePrice": 20,
+                    "description": "Fresh and whole"
+                },
+                {
+                    "id": "fl-3",
+                    "name": "Tulsi Leaves",
+                    "unit": "1 bunch",
+                    "basePrice": 15,
+                    "description": "Fresh Holy Basil"
+                },
+                {
+                    "id": "fl-4",
+                    "name": "Rose Petals",
+                    "unit": "100g",
+                    "basePrice": 40,
+                    "description": "Fresh pink/red mix"
+                }
+            ]
+        },
+        {
+            "name": "Ghee & Oils",
+            "items": [
+                {
+                    "id": "go-1",
+                    "name": "Desi Ghee",
+                    "unit": "500g",
+                    "basePrice": 240,
+                    "description": "Pure cow ghee"
+                },
+                {
+                    "id": "go-2",
+                    "name": "Sesame Oil",
+                    "unit": "200ml",
+                    "basePrice": 80,
+                    "description": "For diyas"
+                }
+            ]
+        },
+        {
+            "name": "Thread & Cloth",
+            "items": [
+                {
+                    "id": "tc-1",
+                    "name": "Kalava (Mauli)",
+                    "unit": "1 pc",
+                    "basePrice": 10,
+                    "description": "Sacred thread"
+                },
+                {
+                    "id": "tc-2",
+                    "name": "Janeu",
+                    "unit": "2 pairs",
+                    "basePrice": 20,
+                    "description": "Sacred thread for men"
+                },
+                {
+                    "id": "tc-3",
+                    "name": "Red Cloth (Lal Kapda)",
+                    "unit": "1 meter",
+                    "basePrice": 50,
+                    "description": "For altar setup"
+                }
+            ]
+        },
+        {
+            "name": "Fruits & Sweets",
+            "items": [
+                {
+                    "id": "fs-1",
+                    "name": "Coconut (Nariyal)",
+                    "unit": "1 pc",
+                    "basePrice": 30,
+                    "description": "With water"
+                },
+                {
+                    "id": "fs-2",
+                    "name": "Panchamrit",
+                    "unit": "1 bowl",
+                    "basePrice": 100,
+                    "description": "Milk, curd, honey, sugar, ghee"
+                },
+                {
+                    "id": "fs-3",
+                    "name": "Mishri",
+                    "unit": "100g",
+                    "basePrice": 40,
+                    "description": "Rock sugar"
+                },
+                {
+                    "id": "fs-4",
+                    "name": "Dry Fruits",
+                    "unit": "250g",
+                    "basePrice": 300,
+                    "description": "Almonds, cashews, raisins mix"
+                }
+            ]
+        }
+    ]
+}

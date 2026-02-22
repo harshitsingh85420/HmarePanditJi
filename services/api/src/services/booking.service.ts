@@ -4,6 +4,8 @@ import {
   TravelStatus,
   FoodArrangement,
   SamagriPreference,
+  TravelMode,
+  AccommodationArrangement,
 } from "@hmarepanditji/db";
 import { generateBookingNumber } from "../utils/helpers";
 import { AppError } from "../middleware/errorHandler";
@@ -17,7 +19,7 @@ export interface BookingFinancials {
   travelServiceFee?: number;  // 5% of travelCost
   gstAmount: number;          // 18% GST on platformFee + travelServiceFee
   grandTotal: number;         // customer pays
-  panditPayout: number;       // dakshina (travel reimbursed separately)
+  panditPayout: number;       // dakshina - platformFee (travel reimbursed separately)
 }
 
 /** Calculate all derived fee columns from first principles. */
@@ -30,14 +32,13 @@ export function calculateBookingFinancials(
   const taxableAmount = platformFee + (travelServiceFee ?? 0);
   const gstAmount = Math.round(taxableAmount * 0.18);
   const grandTotal = dakshina + travelCost + platformFee + (travelServiceFee ?? 0) + gstAmount;
-  const panditPayout = dakshina; // travel & accommodation reimbursed outside platform
+  const panditPayout = dakshina - platformFee;
   return { dakshina, travelCost: travelCost || undefined, platformFee, travelServiceFee, gstAmount, grandTotal, panditPayout };
 }
 
 export interface CreateBookingInput {
-  customerId: string;
-  panditId: string;
-  ritualId: string;
+  customerId: string;      // User.id of the customer
+  panditId: string;        // User.id of the pandit
   eventDate: Date;
   eventType: string;
   muhuratTime?: string;
@@ -55,10 +56,11 @@ export interface CreateBookingInput {
   travelCost?: number;
   foodArrangement?: FoodArrangement;
   foodAllowanceDays?: number;
-  accommodationArrangement?: string;
+  accommodationArrangement?: AccommodationArrangement | string;
   // Samagri
   samagriPreference?: SamagriPreference;
   samagriNotes?: string;
+  samagriAmount?: number;
   // Financials (auto-calculated if not provided)
   platformFee?: number;
   travelServiceFee?: number;
@@ -69,11 +71,14 @@ export interface CreateBookingInput {
 // ─── Service functions ────────────────────────────────────────────────────────
 
 export async function createBooking(input: CreateBookingInput) {
-  // Verify pandit exists and is active
-  const pandit = await prisma.pandit.findFirst({
-    where: { id: input.panditId, isActive: true },
+  // Verify pandit's User account is active and they have a pandit profile
+  const panditUser = await prisma.user.findFirst({
+    where: { id: input.panditId, role: "PANDIT", isActive: true },
+    include: { panditProfile: true },
   });
-  if (!pandit) throw new AppError("Pandit not available", 400, "PANDIT_UNAVAILABLE");
+  if (!panditUser?.panditProfile) {
+    throw new AppError("Pandit not available", 400, "PANDIT_UNAVAILABLE");
+  }
 
   // Check pandit availability: no CONFIRMED or CREATED booking on same calendar day
   const dayStart = new Date(input.eventDate);
@@ -96,21 +101,16 @@ export async function createBooking(input: CreateBookingInput) {
     );
   }
 
-  // Verify ritual exists and is active
-  const ritual = await prisma.ritual.findFirst({
-    where: { id: input.ritualId, isActive: true },
-  });
-  if (!ritual) throw new AppError("Ritual not found", 404, "NOT_FOUND");
-
-  // Auto-calculate financials when not explicitly provided
+  // Auto-calculate financials
   const fin = calculateBookingFinancials(input.dakshinaAmount, input.travelCost ?? 0);
+  const foodAllowanceDays = input.foodAllowanceDays ?? 0;
+  const foodAllowanceAmount = foodAllowanceDays * 1000;
 
   const booking = await prisma.booking.create({
     data: {
       bookingNumber: generateBookingNumber(),
       customerId: input.customerId,
       panditId: input.panditId,
-      ritualId: input.ritualId,
       eventDate: input.eventDate,
       eventType: input.eventType,
       muhuratTime: input.muhuratTime,
@@ -124,20 +124,22 @@ export async function createBooking(input: CreateBookingInput) {
       attendees: input.attendees,
       dakshinaAmount: input.dakshinaAmount,
       // Travel & logistics
-      travelMode: input.travelMode,
+      travelMode: input.travelMode as TravelMode | undefined,
       travelCost: input.travelCost ?? 0,
       travelRequired: !!input.travelMode,
       travelStatus: input.travelMode ? TravelStatus.PENDING : TravelStatus.NOT_REQUIRED,
       foodArrangement: input.foodArrangement ?? FoodArrangement.CUSTOMER_PROVIDES,
-      foodAllowanceDays: input.foodAllowanceDays ?? 0,
-      accommodationArrangement: input.accommodationArrangement as never ?? "NOT_NEEDED",
+      foodAllowanceDays,
+      foodAllowanceAmount,
+      accommodationArrangement: (input.accommodationArrangement as AccommodationArrangement) ?? AccommodationArrangement.NOT_NEEDED,
       // Samagri
       samagriPreference: input.samagriPreference ?? SamagriPreference.CUSTOMER_ARRANGES,
+      samagriAmount: input.samagriAmount ?? 0,
       samagriNotes: input.samagriNotes,
       // Financials
       platformFee: input.platformFee ?? fin.platformFee,
-      travelServiceFee: input.travelServiceFee ?? fin.travelServiceFee ?? 0,
       platformFeeGst: Math.round((input.platformFee ?? fin.platformFee) * 0.18),
+      travelServiceFee: input.travelServiceFee ?? fin.travelServiceFee ?? 0,
       travelServiceFeeGst: Math.round((input.travelServiceFee ?? fin.travelServiceFee ?? 0) * 0.18),
       grandTotal: input.grandTotal ?? fin.grandTotal,
       panditPayout: input.panditPayout ?? fin.panditPayout,
@@ -145,8 +147,7 @@ export async function createBooking(input: CreateBookingInput) {
       paymentStatus: "PENDING",
     },
     include: {
-      pandit: { include: { user: true } },
-      ritual: true,
+      pandit: true,
     },
   });
 
@@ -161,18 +162,18 @@ export async function getBookingById(
   const booking = await prisma.booking.findUnique({
     where: { id },
     include: {
-      customer: { include: { user: true } },
-      pandit: { include: { user: true } },
-      ritual: true,
+      customer: true,  // customer IS the User
+      pandit: true,    // pandit IS the User
       review: true,
+      statusUpdates: { orderBy: { createdAt: "desc" }, take: 10 },
     },
   });
 
   if (!booking) throw new AppError("Booking not found", 404, "NOT_FOUND");
 
   const isOwner =
-    booking.customer.userId === requesterId ||
-    booking.pandit?.userId === requesterId ||
+    booking.customerId === requesterId ||
+    booking.panditId === requesterId ||
     requesterRole === "ADMIN";
 
   if (!isOwner) throw new AppError("Access denied", 403, "FORBIDDEN");
@@ -191,35 +192,31 @@ export async function listMyBookings(
   const statusFilter = status ? { status: status as BookingStatus } : {};
 
   if (role === "CUSTOMER") {
-    const customer = await prisma.customer.findUnique({ where: { userId } });
-    if (!customer) return { bookings: [], total: 0 };
-
+    // In new schema, customerId on Booking IS the User's ID
     const [bookings, total] = await prisma.$transaction([
       prisma.booking.findMany({
-        where: { customerId: customer.id, ...statusFilter },
-        include: { pandit: { include: { user: true } }, ritual: true },
+        where: { customerId: userId, ...statusFilter },
+        include: { pandit: true },
         orderBy: { createdAt: "desc" },
         skip,
         take: limit,
       }),
-      prisma.booking.count({ where: { customerId: customer.id, ...statusFilter } }),
+      prisma.booking.count({ where: { customerId: userId, ...statusFilter } }),
     ]);
     return { bookings, total };
   }
 
   if (role === "PANDIT") {
-    const pandit = await prisma.pandit.findUnique({ where: { userId } });
-    if (!pandit) return { bookings: [], total: 0 };
-
+    // panditId on Booking IS the User's ID
     const [bookings, total] = await prisma.$transaction([
       prisma.booking.findMany({
-        where: { panditId: pandit.id, ...statusFilter },
-        include: { customer: { include: { user: true } }, ritual: true },
+        where: { panditId: userId, ...statusFilter },
+        include: { customer: true },
         orderBy: { createdAt: "desc" },
         skip,
         take: limit,
       }),
-      prisma.booking.count({ where: { panditId: pandit.id, ...statusFilter } }),
+      prisma.booking.count({ where: { panditId: userId, ...statusFilter } }),
     ]);
     return { bookings, total };
   }

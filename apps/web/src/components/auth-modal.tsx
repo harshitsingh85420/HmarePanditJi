@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useAuth, saveTokens, API_BASE, type AuthUser } from "../context/auth-context";
 
+
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 type Step = "phone" | "otp" | "profile";
@@ -79,7 +80,7 @@ function OtpInput({
 // ── Main Modal ────────────────────────────────────────────────────────────────
 
 export default function AuthModal() {
-  const { loginModalOpen, closeLoginModal, setUser } = useAuth();
+  const { loginModalOpen, closeLoginModal, login } = useAuth();
 
   const [step, setStep] = useState<Step>("phone");
   const [phone, setPhone] = useState("");
@@ -158,7 +159,7 @@ export default function AuthModal() {
       const res = await fetch(`${API_BASE}/auth/request-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: `+91${cleaned}` }),
+        body: JSON.stringify({ phone: `+91${cleaned}`, role: "CUSTOMER" }),
         signal: AbortSignal.timeout(10000),
       });
       const json = await res.json();
@@ -200,16 +201,20 @@ export default function AuthModal() {
         return;
       }
 
-      const { accessToken, refreshToken, isNewUser: isNew, user } = json.data;
-      saveTokens(accessToken, refreshToken);
-      setAccessTokenTemp(accessToken);
+      // API returns `token` (not accessToken/refreshToken in phase 1)
+      const token: string = json.data.token ?? json.data.accessToken;
+      const isNew: boolean = json.data.isNewUser ?? json.data.user?.isNewUser ?? false;
+      const userData = json.data.user;
+
+      saveTokens(token);
+      setAccessTokenTemp(token);
       setIsNewUser(isNew);
 
-      if (isNew) {
+      if (isNew && !userData?.name) {
         setStep("profile");
         setTimeout(() => nameRef.current?.focus(), 50);
       } else {
-        setUser(user as AuthUser);
+        login(token, userData as AuthUser);
         closeLoginModal();
       }
     } catch {
@@ -229,7 +234,7 @@ export default function AuthModal() {
     }
     setLoading(true);
     try {
-      const body: Record<string, string> = { fullName: fullName.trim() };
+      const body: Record<string, string> = { name: fullName.trim() };
       if (email.trim()) body.email = email.trim();
 
       const res = await fetch(`${API_BASE}/auth/me`, {
@@ -246,7 +251,7 @@ export default function AuthModal() {
         setError(json.message ?? "Failed to save profile. Please try again.");
         return;
       }
-      setUser(json.data?.user as AuthUser);
+      login(accessTokenTemp, json.data?.user as AuthUser);
       closeLoginModal();
     } catch {
       setError("Failed to save profile. Please try again.");
@@ -258,13 +263,12 @@ export default function AuthModal() {
   // ── Skip profile step ─────────────────────────────────────────────────────
 
   const handleSkipProfile = async () => {
-    // Fetch current user and set without profile completion
     try {
       const res = await fetch(`${API_BASE}/auth/me`, {
         headers: { Authorization: `Bearer ${accessTokenTemp}` },
       });
       const json = await res.json();
-      if (res.ok) setUser(json.data?.user as AuthUser);
+      if (res.ok) login(accessTokenTemp, json.data?.user as AuthUser);
     } catch {
       // proceed even if fetch fails
     }

@@ -30,6 +30,9 @@ export type { AvatarProps } from "./avatar";
 export { Modal } from "./modal";
 export type { ModalProps } from "./modal";
 
+export { OtpInput } from "./otp-input";
+export type { OtpInputProps } from "./otp-input";
+
 // ── Display & Feedback ───────────────────────────────────────────────────────
 export { Skeleton } from "./skeleton";
 export type { SkeletonProps } from "./skeleton";
@@ -83,3 +86,4 @@ export type { VoiceHelpButtonProps } from "./voice-help-button";
 // ── Voice-First ──────────────────────────────────────────────────────────────
 export { ListenButton } from "./listen-button";
 export type { ListenButtonProps } from "./listen-button";
+export * from "../VoiceButton";

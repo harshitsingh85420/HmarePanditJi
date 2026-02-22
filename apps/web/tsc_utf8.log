@@ -1,0 +1,21 @@
+src/app/booking/new/page.tsx(24,36): error TS2559: Type 'string' has no properties in common with type 'Properties<string | number, string & {}>'.
+src/app/booking/new/page.tsx(125,8): error TS2322: Type 'string' is not assignable to type 'boolean | undefined'.
+src/app/login/page.tsx(61,64): error TS2559: Type 'string' has no properties in common with type 'Properties<string | number, string & {}>'.
+src/app/login/page.tsx(92,203): error TS2322: Type '{ className: string; maxlength: string; type: "text"; }' is not assignable to type 'DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>'.
+  Property 'maxlength' does not exist on type 'DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>'. Did you mean 'maxLength'?
+src/app/login/page.tsx(93,203): error TS2322: Type '{ className: string; maxlength: string; type: "text"; }' is not assignable to type 'DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>'.
+  Property 'maxlength' does not exist on type 'DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>'. Did you mean 'maxLength'?
+src/app/login/page.tsx(94,203): error TS2322: Type '{ className: string; maxlength: string; type: "text"; }' is not assignable to type 'DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>'.
+  Property 'maxlength' does not exist on type 'DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>'. Did you mean 'maxLength'?
+src/app/login/page.tsx(95,203): error TS2322: Type '{ className: string; maxlength: string; type: "text"; }' is not assignable to type 'DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>'.
+  Property 'maxlength' does not exist on type 'DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>'. Did you mean 'maxLength'?
+src/app/login/page.tsx(96,203): error TS2322: Type '{ className: string; maxlength: string; type: "text"; }' is not assignable to type 'DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>'.
+  Property 'maxlength' does not exist on type 'DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>'. Did you mean 'maxLength'?
+src/app/login/page.tsx(97,203): error TS2322: Type '{ className: string; maxlength: string; type: "text"; }' is not assignable to type 'DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>'.
+  Property 'maxlength' does not exist on type 'DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>'. Did you mean 'maxLength'?
+src/app/login/page.tsx(121,259): error TS2322: Type 'string' is not assignable to type 'number'.
+src/app/search/search-client.tsx(373,18): error TS2304: Cannot find name 'useCallback'.
+src/app/search/search-client.tsx(427,88): error TS2322: Type '{ filters: SearchFilters; onChange: (patch: Partial<SearchFilters>) => void; onReset: () => void; onApply: () => void; }' is not assignable to type 'IntrinsicAttributes & { filters: SearchFilters; onChange: (patch: Partial<SearchFilters>) => void; onReset: () => void; }'.
+  Property 'onApply' does not exist on type 'IntrinsicAttributes & { filters: SearchFilters; onChange: (patch: Partial<SearchFilters>) => void; onReset: () => void; }'.
+src/app/search/search-client.tsx(435,86): error TS2322: Type '{ filters: SearchFilters; onChange: (patch: Partial<SearchFilters>) => void; onReset: () => void; onApply: () => any; }' is not assignable to type 'IntrinsicAttributes & { filters: SearchFilters; onChange: (patch: Partial<SearchFilters>) => void; onReset: () => void; }'.
+  Property 'onApply' does not exist on type 'IntrinsicAttributes & { filters: SearchFilters; onChange: (patch: Partial<SearchFilters>) => void; onReset: () => void; }'.

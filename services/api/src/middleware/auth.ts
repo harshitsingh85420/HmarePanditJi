@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { env } from "../config/env";
-import { sendUnauthorized } from "../utils/response";
+import { sendUnauthorized, sendForbidden } from "../utils/response";
 import { Role } from "@hmarepanditji/db";
 
 interface JwtPayload {
@@ -9,6 +9,7 @@ interface JwtPayload {
   phone: string;
   role: Role;
   isVerified: boolean;
+  name?: string;
 }
 
 export function authenticate(
@@ -32,6 +33,7 @@ export function authenticate(
       phone: payload.phone,
       role: payload.role,
       isVerified: payload.isVerified,
+      name: payload.name,
     };
     next();
   } catch (err) {
@@ -43,9 +45,34 @@ export function authenticate(
   }
 }
 
+/** Spec alias — same as authenticate */
+export const authenticateToken = authenticate;
+
 /**
- * Optional authentication — same as authenticate but doesn't fail.
- * Attaches user to req if a valid token is present, otherwise continues as guest.
+ * Middleware factory — restricts route to users whose role is in the allowed list.
+ * Must be used AFTER authenticate() / authenticateToken().
+ */
+export function requireRole(...roles: Role[]) {
+  return (req: Request, res: Response, next: NextFunction): void => {
+    if (!req.user) {
+      sendUnauthorized(res);
+      return;
+    }
+    if (!roles.includes(req.user.role)) {
+      sendForbidden(
+        res,
+        `Insufficient permissions. Required roles: ${roles.join(", ")}`,
+      );
+      return;
+    }
+    next();
+  };
+}
+
+/**
+ * Optional authentication — same as authenticate but on failure just sets
+ * req.user = undefined and calls next(). Never returns an error.
+ * Guest mode depends on this.
  */
 export function optionalAuth(
   req: Request,
@@ -68,6 +95,7 @@ export function optionalAuth(
       phone: payload.phone,
       role: payload.role,
       isVerified: payload.isVerified,
+      name: payload.name,
     };
   } catch {
     // Token invalid or expired — continue as guest

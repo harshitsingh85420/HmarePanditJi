@@ -1,33 +1,23 @@
-import { env } from "./config/env";
+import "./config/env"; // validates env vars on startup
 import app from "./app";
-import { logger } from "./utils/logger";
 
-const PORT = env.API_PORT;
+const port = process.env.PORT || process.env.API_PORT || 3001;
 
-const server = app.listen(PORT, () => {
-  logger.info(`
-  ────────────────────────────────────────────
-   HmarePanditJi API  v0.1.0
-  ────────────────────────────────────────────
-   Port        : ${PORT}
-   Environment : ${env.NODE_ENV}
-   API prefix  : http://localhost:${PORT}/api/v1
-   Health      : http://localhost:${PORT}/health
-  ────────────────────────────────────────────
-  `);
+const server = app.listen(port, () => {
+  console.log(`🚀 HmarePanditJi API running on port ${port}`);
 });
 
 // Graceful shutdown
 process.on("SIGTERM", () => {
-  logger.info("SIGTERM received — shutting down gracefully");
+  console.log("SIGTERM received — shutting down gracefully");
   server.close(() => {
-    logger.info("Server closed");
+    console.log("Server closed");
     process.exit(0);
   });
 });
 
 process.on("SIGINT", () => {
-  logger.info("SIGINT received — shutting down gracefully");
+  console.log("SIGINT received — shutting down gracefully");
   server.close(() => {
     process.exit(0);
   });

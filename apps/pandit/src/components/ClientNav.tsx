@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 const desktopLinks = [
   { href: "/", label: "Dashboard" },
   { href: "/bookings", label: "Bookings" },
+  { href: "/calendar", label: "Calendar" },
   { href: "/requests", label: "Requests" },
   { href: "/earnings", label: "Earnings" },
   { href: "/travel", label: "Travel" },
@@ -13,6 +14,7 @@ const desktopLinks = [
 
 const mobileLinks = [
   { href: "/", icon: "home", label: "Home" },
+  { href: "/calendar", icon: "calendar_month", label: "Calendar" },
   { href: "/bookings", icon: "event_note", label: "Bookings" },
   { href: "/travel", icon: "route", label: "Travel" },
   { href: "/earnings", icon: "wallet", label: "Earnings" },
@@ -65,9 +67,8 @@ export default function ClientNav() {
               <a
                 key={tab.href}
                 href={tab.href}
-                className={`flex-1 flex flex-col items-center justify-center min-h-[56px] gap-0.5 text-xs transition-colors ${
-                  active ? "text-primary font-bold" : "text-slate-500"
-                }`}
+                className={`flex-1 flex flex-col items-center justify-center min-h-[56px] gap-0.5 text-xs transition-colors ${active ? "text-primary font-bold" : "text-slate-500"
+                  }`}
               >
                 <span
                   className="material-symbols-outlined text-[22px] leading-none"

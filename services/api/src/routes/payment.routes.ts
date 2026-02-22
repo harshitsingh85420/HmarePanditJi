@@ -44,14 +44,7 @@ router.post("/create-order", authenticate, roleGuard("CUSTOMER"), async (req, re
       res.status(400).json({ success: false, message: "bookingId is required" });
       return;
     }
-    const customer = await prisma.customer.findUnique({
-      where: { userId: req.user!.id },
-    });
-    if (!customer) {
-      res.status(404).json({ success: false, message: "Customer not found" });
-      return;
-    }
-    const order = await createRazorpayOrder(bookingId, customer.id);
+    const order = await createRazorpayOrder(bookingId, req.user!.id);
     sendSuccess(res, order, "Razorpay order created", 201);
   } catch (err) {
     next(err);
@@ -139,12 +132,10 @@ router.post("/webhook", async (req, res) => {
           // Notify customer via SMS (non-blocking)
           const booking = await prisma.booking.findUnique({
             where: { id: payment.notes.bookingId as string },
-            include: {
-              customer: { include: { user: { select: { id: true, phone: true, name: true } } } },
-            },
+            include: { customer: true },
           });
-          if (booking?.customer?.user) {
-            const { id: userId, phone, name } = booking.customer.user;
+          if (booking?.customer) {
+            const { id: userId, phone, name } = booking.customer;
             sendNotification({
               userId,
               type: "GENERAL",

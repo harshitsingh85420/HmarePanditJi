@@ -9,6 +9,8 @@ const config: Config = {
     extend: {
       colors: {
         primary: "#f09942",
+        secondary: "#2d1b00",
+        accent: "#dc6803",
         "background-light": "#f8f7f6",
         "background-dark": "#221910",
       },

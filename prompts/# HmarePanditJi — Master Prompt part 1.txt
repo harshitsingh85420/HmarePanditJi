@@ -1,0 +1,1408 @@
+# HmarePanditJi — Master Prompt Library (Rebuild from Scratch)
+## Part 1 of 4: Foundation, Database, Auth & Shared UI
+
+---
+
+Before I give you the prompts, let me explain the philosophy behind how I've structured these. Each prompt is written so that a small model can execute it **without needing to ask clarifying questions** — every business rule, every formula, every field name is spelled out. I've also cross-referenced all four source documents plus Bhag 12 to pull in requirements that Document 1's original 25-prompt library missed entirely (like the food allowance auto-calculation, the Muhurat Patrika certificate, the device info on pandit profiles, the dual samagri cart with source badges, and the voice tutorial system).
+
+The critical architectural decisions I've baked in are: unified login for customer + pandit on one page (role-detected), voice-first pandit experience from first screen, guest mode everywhere, and a travel calculation service that is purely math-based (no live APIs in Phase 1).
+
+---
+
+### PROMPT 1.1 — MONOREPO & PROJECT FOUNDATION
+
+```
+You are building HmarePanditJi, a platform that connects Hindu customers with verified Pandits 
+(priests) for religious ceremonies. Customers can find local or pan-India Pandits. Pandits get 
+professional digital identity, managed travel, and guaranteed payments. Phase 1 is Delhi-NCR 
+focused with manual travel operations.
+
+Create a Turborepo monorepo with this EXACT structure:
+
+hmarepanditji/
+├── apps/
+│   ├── web/                    # Next.js 14 App Router — customer-facing site
+│   ├── pandit/                 # Next.js 14 App Router — pandit dashboard
+│   └── admin/                  # Next.js 14 App Router — admin operations
+├── services/
+│   └── api/                    # Express.js + TypeScript REST API
+├── packages/
+│   ├── ui/                     # Shared React component library
+│   ├── types/                  # Shared TypeScript types & enums
+│   └── utils/                  # Shared utilities
+├── prisma/
+│   ├── schema.prisma
+│   └── seed.ts
+├── turbo.json
+├── package.json (root)
+└── .env.example
+
+STEP 1 — Initialize root package.json with workspaces:
+{
+  "name": "hmarepanditji",
+  "private": true,
+  "workspaces": ["apps/*", "services/*", "packages/*"],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "db:migrate": "cd prisma && npx prisma migrate dev",
+    "db:seed": "cd prisma && npx ts-node seed.ts",
+    "db:studio": "npx prisma studio"
+  }
+}
+
+STEP 2 — turbo.json pipeline:
+{
+  "$schema": "https://turbo.build/schema.json",
+  "pipeline": {
+    "dev": { "cache": false, "persistent": true },
+    "build": { "dependsOn": ["^build"], "outputs": [".next/**", "dist/**"] },
+    "lint": {}
+  }
+}
+
+STEP 3 — Create each Next.js app with TypeScript + Tailwind. Use these EXACT design tokens in 
+each app's tailwind.config.ts:
+
+Customer app (apps/web):
+  Primary: #f49d25 (amber/orange — sacred fire color)
+  Secondary: #1a1a2e (deep navy)
+  Accent: #e8540a (deep saffron)
+  Success: #22c55e
+  Font: Inter (Google Fonts)
+
+Pandit app (apps/pandit):
+  Primary: #f09942 (warm orange)
+  Secondary: #2d1b00 (dark brown)
+  Accent: #dc6803 (burnt orange)
+
+Admin app (apps/admin):
+  Primary: #137fec (blue)
+  Secondary: #0f172a (slate)
+
+All apps share these border-radius values in tailwind.config.ts:
+  borderRadius: { 'card': '12px', 'btn': '8px', 'pill': '24px', 'full': '9999px' }
+
+STEP 4 — Express API (services/api/) with these dependencies in package.json:
+dependencies: express, cors, dotenv, helmet, morgan, jsonwebtoken, bcryptjs, 
+              @prisma/client, razorpay, twilio, zod, multer, uuid
+devDependencies: typescript, ts-node-dev, @types/express, @types/node, @types/cors, 
+                 @types/morgan, @types/multer, @types/uuid, prisma
+
+API runs on PORT=3001 (from .env).
+
+STEP 5 — Create .env.example with ALL required variables:
+DATABASE_URL=postgresql://user:password@localhost:5432/hmarepanditji
+JWT_SECRET=your-jwt-secret-min-32-chars
+JWT_EXPIRES_IN=7d
+RAZORPAY_KEY_ID=rzp_test_xxx
+RAZORPAY_KEY_SECRET=xxx
+TWILIO_ACCOUNT_SID=xxx
+TWILIO_AUTH_TOKEN=xxx
+TWILIO_PHONE_NUMBER=+1xxx
+FIREBASE_PROJECT_ID=xxx
+FIREBASE_PRIVATE_KEY=xxx
+FIREBASE_CLIENT_EMAIL=xxx
+MOCK_OTP=true              # In dev, OTP is always 123456
+MOCK_NOTIFICATIONS=true   # In dev, SMS goes to console
+NEXT_PUBLIC_API_URL=http://localhost:3001
+NEXT_PUBLIC_RAZORPAY_KEY_ID=rzp_test_xxx
+PORT=3001
+
+STEP 6 — packages/types/index.ts — Export ALL enums that will be used everywhere:
+export enum Role { CUSTOMER = 'CUSTOMER', PANDIT = 'PANDIT', ADMIN = 'ADMIN' }
+export enum VerificationStatus { PENDING='PENDING', DOCUMENTS_SUBMITTED='DOCUMENTS_SUBMITTED', VIDEO_KYC_DONE='VIDEO_KYC_DONE', VERIFIED='VERIFIED', REJECTED='REJECTED' }
+export enum BookingStatus { CREATED='CREATED', PANDIT_REQUESTED='PANDIT_REQUESTED', CONFIRMED='CONFIRMED', TRAVEL_BOOKED='TRAVEL_BOOKED', PANDIT_EN_ROUTE='PANDIT_EN_ROUTE', PANDIT_ARRIVED='PANDIT_ARRIVED', PUJA_IN_PROGRESS='PUJA_IN_PROGRESS', COMPLETED='COMPLETED', CANCELLATION_REQUESTED='CANCELLATION_REQUESTED', CANCELLED='CANCELLED', REFUNDED='REFUNDED' }
+export enum TravelMode { SELF_DRIVE='SELF_DRIVE', TRAIN='TRAIN', FLIGHT='FLIGHT', CAB='CAB', BUS='BUS' }
+export enum TravelStatus { NOT_REQUIRED='NOT_REQUIRED', PENDING='PENDING', BOOKED='BOOKED', IN_TRANSIT='IN_TRANSIT', ARRIVED='ARRIVED' }
+export enum SamagriPreference { PANDIT_BRINGS='PANDIT_BRINGS', CUSTOMER_ARRANGES='CUSTOMER_ARRANGES', NEED_HELP='NEED_HELP' }
+export enum PaymentStatus { PENDING='PENDING', AUTHORIZED='AUTHORIZED', CAPTURED='CAPTURED', FAILED='FAILED', REFUNDED='REFUNDED' }
+export enum PayoutStatus { PENDING='PENDING', PROCESSING='PROCESSING', COMPLETED='COMPLETED', FAILED='FAILED' }
+export enum RefundStatus { NONE='NONE', PENDING='PENDING', PROCESSING='PROCESSING', COMPLETED='COMPLETED', FAILED='FAILED' }
+export enum FoodArrangement { CUSTOMER_PROVIDES='CUSTOMER_PROVIDES', PLATFORM_ALLOWANCE='PLATFORM_ALLOWANCE' }
+export enum AccommodationArrangement { NOT_NEEDED='NOT_NEEDED', CUSTOMER_ARRANGES='CUSTOMER_ARRANGES', PLATFORM_BOOKS='PLATFORM_BOOKS' }
+export enum PackageType { BASIC='BASIC', STANDARD='STANDARD', PREMIUM='PREMIUM' }
+
+Also export these interfaces in packages/types/index.ts:
+export interface PricingBreakdown {
+  dakshinaAmount: number;          // Pandit's fee (GST exempt)
+  samagriAmount: number;           // Samagri package or custom list cost
+  travelCost: number;              // Raw travel fare
+  foodAllowanceAmount: number;     // ₹1000/day × days
+  foodAllowanceDays: number;       // Number of days food allowance applies
+  accommodationCost: number;       // Hotel cost if platform books
+  platformFee: number;             // 15% of dakshina
+  platformFeeGst: number;          // 18% of platformFee
+  travelServiceFee: number;        // 5% of travelCost
+  travelServiceFeeGst: number;     // 18% of travelServiceFee
+  grandTotal: number;              // Sum of everything
+  panditPayout: number;            // What pandit actually receives
+}
+
+STEP 7 — packages/utils/index.ts — export these utility functions with FULL implementations:
+
+export const CONSTANTS = {
+  PLATFORM_FEE_PERCENT: 15,
+  TRAVEL_SERVICE_FEE_PERCENT: 5,
+  GST_PERCENT: 18,
+  FOOD_ALLOWANCE_PER_DAY: 1000,
+  SELF_DRIVE_RATE_PER_KM: 12,
+  MAX_SELF_DRIVE_KM_PER_DAY: 400,
+  SUPPORTED_PUJA_TYPES: ['Vivah', 'Griha Pravesh', 'Satyanarayan Puja', 'Mundan', 'Namkaran', 'Annaprashan', 'Upanayana', 'Shradh', 'Havan', 'Navratri Puja', 'Ganesh Puja', 'Durga Puja'],
+  SUPPORTED_CITIES: ['Delhi', 'Noida', 'Gurgaon', 'Faridabad', 'Ghaziabad', 'Greater Noida', 'Mathura', 'Agra', 'Jaipur', 'Haridwar', 'Varanasi', 'Lucknow', 'Chandigarh', 'Dehradun', 'Rishikesh', 'Mumbai', 'Pune', 'Bangalore', 'Hyderabad', 'Chennai', 'Kolkata', 'Bhopal', 'Ujjain'],
+  SUPPORTED_LANGUAGES: ['Hindi', 'Sanskrit', 'English', 'Bengali', 'Tamil', 'Telugu', 'Maithili', 'Bhojpuri', 'Marathi', 'Gujarati', 'Kannada'],
+}
+
+export function calculatePricing(params: {
+  dakshinaAmount: number;
+  samagriAmount: number;
+  travelCost: number;
+  foodAllowanceDays: number;
+  accommodationCost: number;
+}): PricingBreakdown {
+  const foodAllowanceAmount = params.foodAllowanceDays * CONSTANTS.FOOD_ALLOWANCE_PER_DAY;
+  const platformFee = Math.round(params.dakshinaAmount * CONSTANTS.PLATFORM_FEE_PERCENT / 100);
+  const platformFeeGst = Math.round(platformFee * CONSTANTS.GST_PERCENT / 100);
+  const travelServiceFee = Math.round(params.travelCost * CONSTANTS.TRAVEL_SERVICE_FEE_PERCENT / 100);
+  const travelServiceFeeGst = Math.round(travelServiceFee * CONSTANTS.GST_PERCENT / 100);
+  const grandTotal = params.dakshinaAmount + params.samagriAmount + params.travelCost 
+    + foodAllowanceAmount + params.accommodationCost 
+    + platformFee + platformFeeGst + travelServiceFee + travelServiceFeeGst;
+  // Pandit gets: dakshina minus platform fee, plus travel, food allowance, samagri
+  const panditPayout = params.dakshinaAmount - platformFee + params.travelCost 
+    + foodAllowanceAmount + params.samagriAmount;
+  return { ...params, foodAllowanceAmount, platformFee, platformFeeGst, travelServiceFee, travelServiceFeeGst, grandTotal, panditPayout };
+}
+
+export function calculateRefundAmount(grandTotal: number, daysBeforeEvent: number): number {
+  // Policy: >7 days = 90% refund, 3-7 days = 50%, <3 days = 20%, same day = 0%
+  // Platform fee is NEVER refunded (already deducted from panditPayout)
+  if (daysBeforeEvent > 7) return Math.round(grandTotal * 0.9);
+  if (daysBeforeEvent >= 3) return Math.round(grandTotal * 0.5);
+  if (daysBeforeEvent >= 1) return Math.round(grandTotal * 0.2);
+  return 0;
+}
+
+export function generateBookingNumber(): string {
+  const year = new Date().getFullYear();
+  const random = Math.random().toString(36).substring(2, 7).toUpperCase();
+  return `HPJ-${year}-${random}`;
+}
+
+export function formatCurrency(amount: number): string {
+  return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(amount);
+}
+
+STEP 8 — Verify all apps can import from packages/* by adding path aliases in each app's 
+tsconfig.json:
+{
+  "compilerOptions": {
+    "paths": {
+      "@hpj/types": ["../../packages/types/index.ts"],
+      "@hpj/utils": ["../../packages/utils/index.ts"],
+      "@hpj/ui": ["../../packages/ui/index.ts"]
+    }
+  }
+}
+
+STEP 9 — Verify the setup works by running `npm run dev` from root. All four services 
+(web on 3000, pandit on 3002, admin on 3003, api on 3001) should start without errors.
+```
+
+---
+
+### PROMPT 1.2 — COMPLETE PRISMA DATABASE SCHEMA
+
+```
+Create the complete Prisma schema at prisma/schema.prisma. This schema supports the full 
+HmarePanditJi business model. Read every field comment carefully — they explain the business 
+rule behind each field.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============ ENUMS ============
+enum Role { CUSTOMER PANDIT ADMIN }
+enum VerificationStatus { PENDING DOCUMENTS_SUBMITTED VIDEO_KYC_DONE VERIFIED REJECTED }
+enum BookingStatus { CREATED PANDIT_REQUESTED CONFIRMED TRAVEL_BOOKED PANDIT_EN_ROUTE PANDIT_ARRIVED PUJA_IN_PROGRESS COMPLETED CANCELLATION_REQUESTED CANCELLED REFUNDED }
+enum TravelMode { SELF_DRIVE TRAIN FLIGHT CAB BUS }
+enum TravelStatus { NOT_REQUIRED PENDING BOOKED IN_TRANSIT ARRIVED }
+enum SamagriPreference { PANDIT_BRINGS CUSTOMER_ARRANGES NEED_HELP }
+enum FoodArrangement { CUSTOMER_PROVIDES PLATFORM_ALLOWANCE }
+enum AccommodationArrangement { NOT_NEEDED CUSTOMER_ARRANGES PLATFORM_BOOKS }
+enum PaymentStatus { PENDING AUTHORIZED CAPTURED FAILED REFUNDED }
+enum PayoutStatus { PENDING PROCESSING COMPLETED FAILED }
+enum RefundStatus { NONE PENDING PROCESSING COMPLETED FAILED }
+enum PackageType { BASIC STANDARD PREMIUM }
+
+// ============ MODELS ============
+
+model User {
+  id          String   @id @default(cuid())
+  phone       String   @unique  // "+919876543210" format always
+  name        String?
+  email       String?
+  role        Role     @default(CUSTOMER)
+  isVerified  Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  customerProfile   CustomerProfile?
+  panditProfile     PanditProfile?
+  bookingsAsCustomer Booking[] @relation("CustomerBookings")
+  bookingsAsPandit   Booking[] @relation("PanditBookings")
+  reviewsGiven       Review[]  @relation("ReviewsGiven")
+  reviewsReceived    Review[]  @relation("ReviewsReceived")
+  favoritePandits    FavoritePandit[] @relation("CustomerFavorites")
+  favoritedBy        FavoritePandit[] @relation("PanditFavorited")
+  statusUpdates      BookingStatusUpdate[]
+
+  @@index([role])
+  @@index([isActive])
+}
+
+model CustomerProfile {
+  id                 String   @id @default(cuid())
+  userId             String   @unique
+  user               User     @relation(fields: [userId], references: [id])
+  preferredLanguages String[]
+  gotra              String?  // Family gotra for ritual matching
+  addresses          Address[]
+  createdAt          DateTime @default(now())
+}
+
+model Address {
+  id                String          @id @default(cuid())
+  customerProfileId String
+  customerProfile   CustomerProfile @relation(fields: [customerProfileId], references: [id])
+  label             String          // "Home", "Office", "Parents' House"
+  fullAddress       String
+  city              String
+  state             String
+  pincode           String
+  landmark          String?
+  latitude          Float?
+  longitude         Float?
+  isDefault         Boolean         @default(false)
+}
+
+model PanditProfile {
+  id                   String             @id @default(cuid())
+  userId               String             @unique
+  user                 User               @relation(fields: [userId], references: [id])
+  bio                  String?
+  experienceYears      Int                @default(0)
+  languages            String[]
+  specializations      String[]           // ["Vivah", "Griha Pravesh", ...]
+  verificationStatus   VerificationStatus @default(PENDING)
+  aadhaarVerified      Boolean            @default(false)
+  videoKycCompleted    Boolean            @default(false)
+  certificateUrls      String[]
+  aadhaarFrontUrl      String?
+  aadhaarBackUrl       String?
+  videoKycUrl          String?
+  profilePhotoUrl      String?
+  
+  location             String             // City name e.g. "Varanasi"
+  fullAddress          String?
+  
+  // Ratings & Stats
+  rating               Float              @default(0)
+  totalReviews         Int                @default(0)
+  completedBookings    Int                @default(0)
+  
+  // Travel — stored as JSON for flexibility
+  // Schema: { maxDistanceKm: 500, preferredModes: ["SELF_DRIVE","TRAIN"], selfDriveRatePerKm: 12, vehicleType: "Car", hotelPreference: "3_STAR", advanceNoticeDays: 2 }
+  travelPreferences    Json               @default("{}")
+  
+  // Bank details for payouts
+  bankAccountName      String?
+  bankAccountNumber    String?
+  bankIfscCode         String?
+  bankName             String?            // Auto-fetched from IFSC
+  bankVerified         Boolean            @default(false)
+  upiId                String?
+  
+  // Device info — auto-captured during registration, shown to customers so they know pandit is tech-equipped
+  deviceOs             String?            // "Android 12", "iOS 16"
+  deviceModel          String?            // "Samsung Galaxy A32"
+  appVersion           String?
+  
+  isOnline             Boolean            @default(false) // Pandit's online/offline toggle
+  
+  pujaServices         PujaService[]
+  blockedDates         PanditBlockedDate[]
+  samagriPackages      SamagriPackage[]
+  
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+
+  @@index([verificationStatus])
+  @@index([location])
+  @@index([isOnline])
+  @@index([rating])
+}
+
+model PujaService {
+  id              String        @id @default(cuid())
+  panditProfileId String
+  panditProfile   PanditProfile @relation(fields: [panditProfileId], references: [id])
+  pujaType        String        // "Vivah", "Griha Pravesh" etc.
+  dakshinaAmount  Int           // In rupees, no decimals
+  durationHours   Float         // e.g. 3.5 hours
+  description     String?
+  isActive        Boolean       @default(true)
+  createdAt       DateTime      @default(now())
+
+  @@index([panditProfileId])
+  @@index([pujaType])
+}
+
+model SamagriPackage {
+  id              String        @id @default(cuid())
+  panditProfileId String
+  panditProfile   PanditProfile @relation(fields: [panditProfileId], references: [id])
+  packageName     String        // "Basic", "Standard", "Premium"
+  packageType     PackageType
+  pujaType        String        // Which puja this package is for
+  fixedPrice      Int           // FIXED, non-negotiable, set by pandit
+  // items: JSON array of { itemName: string, quantity: string, qualityNotes?: string }
+  // Example: [{"itemName":"Desi Ghee","quantity":"500g","qualityNotes":"Shuddh cow ghee"}]
+  items           Json
+  isActive        Boolean       @default(true)
+  createdAt       DateTime      @default(now())
+
+  @@index([panditProfileId])
+}
+
+model PanditBlockedDate {
+  id              String        @id @default(cuid())
+  panditProfileId String
+  panditProfile   PanditProfile @relation(fields: [panditProfileId], references: [id])
+  date            DateTime
+  reason          String?
+  isRecurring     Boolean       @default(false)
+  recurringRule   String?       // "EVERY_TUESDAY", "EVERY_MONTH_15"
+  createdAt       DateTime      @default(now())
+
+  @@index([panditProfileId])
+  @@index([date])
+}
+
+model Booking {
+  id            String         @id @default(cuid())
+  bookingNumber String         @unique // "HPJ-2026-ABC12"
+  
+  customerId    String
+  customer      User           @relation("CustomerBookings", fields: [customerId], references: [id])
+  panditId      String?        // Null until pandit is assigned
+  pandit        User?          @relation("PanditBookings", fields: [panditId], references: [id])
+  
+  status        BookingStatus  @default(CREATED)
+  
+  // Event details
+  eventType     String         // "Vivah", "Griha Pravesh" etc.
+  eventDate     DateTime
+  eventEndDate  DateTime?      // For multi-day events like Vivah
+  muhuratTime   String?        // "10:30 AM - 12:00 PM"
+  muhuratSuggested Boolean     @default(false)
+  
+  // Venue
+  venueAddress  String
+  venueCity     String
+  venuePincode  String
+  venueLatitude  Float?
+  venueLongitude Float?
+  attendees      Int?
+  specialInstructions String?
+  
+  // Travel
+  travelRequired    Boolean        @default(false)
+  travelMode        TravelMode?
+  travelDistanceKm  Float?
+  travelStatus      TravelStatus   @default(NOT_REQUIRED)
+  travelBookingRef  String?        // Admin manually enters IRCTC/MMT reference
+  travelNotes       String?
+  
+  // Food & Accommodation
+  foodArrangement         FoodArrangement @default(CUSTOMER_PROVIDES)
+  foodAllowanceDays       Int             @default(0)
+  foodAllowanceAmount     Int             @default(0) // foodAllowanceDays * 1000
+  accommodationArrangement AccommodationArrangement @default(NOT_NEEDED)
+  accommodationCost       Int             @default(0)
+  
+  // Samagri
+  samagriPreference   SamagriPreference @default(PANDIT_BRINGS)
+  samagriPackageId    String?     // If PANDIT_BRINGS and chose a fixed package
+  samagriCustomList   Json?       // If PANDIT_BRINGS with custom list or NEED_HELP
+  samagriAmount       Int         @default(0)
+  samagriNotes        String?
+  
+  // Pricing — ALL amounts stored in rupees (integers, no decimals)
+  dakshinaAmount      Int         @default(0)
+  travelCost          Int         @default(0)
+  platformFee         Int         @default(0)  // 15% of dakshina
+  platformFeeGst      Int         @default(0)  // 18% of platformFee
+  travelServiceFee    Int         @default(0)  // 5% of travelCost
+  travelServiceFeeGst Int         @default(0)  // 18% of travelServiceFee
+  grandTotal          Int         @default(0)
+  
+  // Pandit payout
+  panditPayout        Int         @default(0)  // dakshina - platformFee + travel + food + samagri
+  payoutStatus        PayoutStatus @default(PENDING)
+  payoutReference     String?
+  payoutCompletedAt   DateTime?
+  
+  // Cancellation
+  cancelledBy         String?     // "CUSTOMER" | "PANDIT" | "ADMIN"
+  cancellationReason  String?
+  cancellationRequestedAt DateTime?
+  refundAmount        Int         @default(0)
+  refundStatus        RefundStatus @default(NONE)
+  refundReference     String?
+  
+  // Payment
+  razorpayOrderId     String?
+  razorpayPaymentId   String?
+  paymentStatus       PaymentStatus @default(PENDING)
+  
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+  
+  statusUpdates       BookingStatusUpdate[]
+  review              Review?
+
+  @@index([customerId])
+  @@index([panditId])
+  @@index([status])
+  @@index([eventDate])
+  @@index([bookingNumber])
+  @@index([paymentStatus])
+}
+
+model BookingStatusUpdate {
+  id          String        @id @default(cuid())
+  bookingId   String
+  booking     Booking       @relation(fields: [bookingId], references: [id])
+  fromStatus  BookingStatus
+  toStatus    BookingStatus
+  updatedById String
+  updatedBy   User          @relation(fields: [updatedById], references: [id])
+  note        String?
+  latitude    Float?        // Pandit's GPS when tapping "I'm Here" buttons
+  longitude   Float?
+  createdAt   DateTime      @default(now())
+
+  @@index([bookingId])
+}
+
+model Review {
+  id                   String   @id @default(cuid())
+  bookingId            String   @unique
+  booking              Booking  @relation(fields: [bookingId], references: [id])
+  reviewerId           String
+  reviewer             User     @relation("ReviewsGiven", fields: [reviewerId], references: [id])
+  revieweeId           String
+  reviewee             User     @relation("ReviewsReceived", fields: [revieweeId], references: [id])
+  overallRating        Float    // 1.0 to 5.0
+  knowledgeRating      Float?
+  punctualityRating    Float?
+  communicationRating  Float?
+  comment              String?
+  isAnonymous          Boolean  @default(false)
+  createdAt            DateTime @default(now())
+
+  @@index([revieweeId])
+}
+
+model FavoritePandit {
+  id         String   @id @default(cuid())
+  customerId String
+  customer   User     @relation("CustomerFavorites", fields: [customerId], references: [id])
+  panditId   String
+  pandit     User     @relation("PanditFavorited", fields: [panditId], references: [id])
+  createdAt  DateTime @default(now())
+
+  @@unique([customerId, panditId])
+  @@index([customerId])
+}
+
+model MuhuratDate {
+  id           String   @id @default(cuid())
+  date         DateTime
+  pujaType     String   // "Vivah", "Griha Pravesh" etc.
+  timeWindow   String   // "10:30 AM - 12:00 PM"
+  significance String?  // "Akshaya Tritiya — highly auspicious for new beginnings"
+  source       String   // "Hindu Panchang 2026"
+  
+  @@index([date])
+  @@index([pujaType])
+  @@unique([date, pujaType, timeWindow])
+}
+
+model CityDistance {
+  id                  String @id @default(cuid())
+  fromCity            String
+  toCity              String
+  distanceKm          Float
+  estimatedDriveHours Float?
+
+  @@unique([fromCity, toCity])
+  @@index([fromCity])
+}
+
+After creating this schema, run: npx prisma migrate dev --name init
+
+Then create the Prisma singleton at services/api/src/lib/prisma.ts:
+import { PrismaClient } from '@prisma/client';
+const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
+export const prisma = globalForPrisma.prisma || new PrismaClient({ log: ['error'] });
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+export default prisma;
+```
+
+---
+
+### PROMPT 1.3 — EXPRESS API FOUNDATION + TRAVEL SERVICE + PRICING LOGIC
+
+```
+Build the complete Express API foundation at services/api/src/. This is the single backend 
+serving all three Next.js apps.
+
+FILE 1: src/index.ts
+- Express app on process.env.PORT || 3001
+- Middleware order (CRITICAL — must be in this order):
+  1. helmet()
+  2. cors({ origin: ['http://localhost:3000', 'http://localhost:3002', 'http://localhost:3003'], credentials: true })
+  3. morgan('dev')
+  4. express.json({ limit: '10mb' })
+  5. express.urlencoded({ extended: true })
+- Mount ALL routes under /api prefix
+- Health check: GET /api/health → { status: 'ok', timestamp: new Date(), version: '1.0.0' }
+- After all routes: global error handler
+- Log startup: console.log(`🚀 HmarePanditJi API running on port ${port}`)
+
+FILE 2: src/middleware/auth.ts
+Three middleware functions:
+
+export const authenticateToken = (req, res, next) => {
+  // Extract token from 'Authorization: Bearer <token>' header
+  // If no token → 401 with { success: false, error: { code: 'NO_TOKEN', message: 'Authentication required' } }
+  // Verify JWT with process.env.JWT_SECRET
+  // If expired → 401 with code: 'TOKEN_EXPIRED'
+  // If invalid → 401 with code: 'INVALID_TOKEN'
+  // On success → attach req.user = { userId, phone, role, name }
+  // Call next()
+}
+
+export const requireRole = (...roles: Role[]) => (req, res, next) => {
+  // Check req.user.role is in roles array
+  // If not → 403 with { success: false, error: { code: 'FORBIDDEN', message: 'Insufficient permissions' } }
+}
+
+export const optionalAuth = (req, res, next) => {
+  // Same as authenticateToken but on failure just set req.user = null and call next()
+  // Never return an error — guest mode depends on this
+}
+
+FILE 3: src/middleware/errorHandler.ts
+export class AppError extends Error {
+  constructor(
+    public message: string,
+    public statusCode: number = 500,
+    public code: string = 'INTERNAL_ERROR'
+  ) { super(message); }
+}
+
+export const errorHandler = (err, req, res, next) => {
+  if (err instanceof AppError) {
+    return res.status(err.statusCode).json({ success: false, error: { code: err.code, message: err.message } });
+  }
+  if (err.name === 'ZodError') {
+    return res.status(422).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Invalid input', details: err.errors } });
+  }
+  console.error('[ERROR]', err);
+  res.status(500).json({ success: false, error: { code: 'INTERNAL_ERROR', message: 'Something went wrong' } });
+}
+
+FILE 4: src/services/travel.service.ts
+// THE CORE PHASE 1 TRAVEL ENGINE — Pure math, no external APIs
+// All fare calculations are based on fixed rate tables and the CityDistance table
+
+import { prisma } from '../lib/prisma';
+
+interface TravelCalculationParams {
+  fromCity: string;
+  toCity: string;
+  eventDays: number;                    // How many days is the puja event
+  foodArrangement: 'CUSTOMER_PROVIDES' | 'PLATFORM_ALLOWANCE';
+  travelMode?: string;                  // If specified, calculate only this mode
+}
+
+interface TravelOptionResult {
+  mode: string;
+  totalCost: number;
+  breakdown: {
+    fareCost: number;          // The train/flight/driving fare
+    foodAllowanceDays: number; // travel days + puja days if no food
+    foodAllowanceAmount: number;
+    travelServiceFee: number;  // 5% of fareCost
+    travelServiceFeeGst: number; // 18% of travelServiceFee
+  };
+  distanceKm: number;
+  estimatedTravelDays: number; // Days spent traveling (NOT event days)
+  description: string;         // Human-readable summary
+  bestFor: string;             // "Multi-day events with lots of samagri"
+}
+
+async function getDistance(fromCity: string, toCity: string): Promise<{distanceKm: number, estimatedDriveHours: number | null} | null> {
+  // Check both directions (Delhi→Varanasi and Varanasi→Delhi)
+  const result = await prisma.cityDistance.findFirst({
+    where: { OR: [{ fromCity, toCity }, { fromCity: toCity, toCity: fromCity }] }
+  });
+  return result ? { distanceKm: result.distanceKm, estimatedDriveHours: result.estimatedDriveHours } : null;
+}
+
+function calculateFoodAllowanceDays(travelDays: number, eventDays: number, foodArrangement: string): number {
+  // ALWAYS add food allowance for travel days (departure + return)
+  // Add food allowance for event days ONLY IF customer is NOT providing food
+  const pujaFoodDays = foodArrangement === 'PLATFORM_ALLOWANCE' ? eventDays : 0;
+  return travelDays + pujaFoodDays;
+}
+
+// SELF DRIVE calculation
+// Formula: roundTrip = distanceKm * 2; drivingCost = roundTrip * ₹12/km
+// travelDays = ceil(distanceKm / 400) * 2 (max 400km driving per day, multiply by 2 for round trip)
+function calculateSelfDrive(distanceKm: number, eventDays: number, foodArrangement: string): TravelOptionResult {
+  const roundTripKm = distanceKm * 2;
+  const fareCost = Math.round(roundTripKm * 12); // ₹12/km
+  const travelDays = Math.ceil(distanceKm / 400) * 2;
+  const foodAllowanceDays = calculateFoodAllowanceDays(travelDays, eventDays, foodArrangement);
+  const foodAllowanceAmount = foodAllowanceDays * 1000;
+  const travelServiceFee = Math.round(fareCost * 0.05);
+  const travelServiceFeeGst = Math.round(travelServiceFee * 0.18);
+  const totalCost = fareCost + foodAllowanceAmount + travelServiceFee + travelServiceFeeGst;
+  return {
+    mode: 'SELF_DRIVE',
+    totalCost,
+    breakdown: { fareCost, foodAllowanceDays, foodAllowanceAmount, travelServiceFee, travelServiceFeeGst },
+    distanceKm,
+    estimatedTravelDays: travelDays,
+    description: `${roundTripKm}km round trip at ₹12/km`,
+    bestFor: 'Multi-day events, heavy samagri, flexible timing'
+  };
+}
+
+// TRAIN calculation — 3AC fixed fares by distance band
+// Bands: 0-200km=₹500, 200-500km=₹1200, 500-1000km=₹2500, 1000-2000km=₹3500, 2000+km=₹4500
+function calculateTrain(distanceKm: number, eventDays: number, foodArrangement: string): TravelOptionResult {
+  let onewayFare = 500;
+  if (distanceKm > 200 && distanceKm <= 500) onewayFare = 1200;
+  else if (distanceKm > 500 && distanceKm <= 1000) onewayFare = 2500;
+  else if (distanceKm > 1000 && distanceKm <= 2000) onewayFare = 3500;
+  else if (distanceKm > 2000) onewayFare = 4500;
+  const trainFare = onewayFare * 2; // round trip
+  const localCabCost = 1600; // Fixed: ₹800 each way for cab from/to station
+  const fareCost = trainFare + localCabCost;
+  const travelDays = 2; // 1 day going + 1 day returning (overnight train)
+  const foodAllowanceDays = calculateFoodAllowanceDays(travelDays, eventDays, foodArrangement);
+  const foodAllowanceAmount = foodAllowanceDays * 1000;
+  const travelServiceFee = Math.round(fareCost * 0.05);
+  const travelServiceFeeGst = Math.round(travelServiceFee * 0.18);
+  const totalCost = fareCost + foodAllowanceAmount + travelServiceFee + travelServiceFeeGst;
+  return {
+    mode: 'TRAIN',
+    totalCost,
+    breakdown: { fareCost, foodAllowanceDays, foodAllowanceAmount, travelServiceFee, travelServiceFeeGst },
+    distanceKm,
+    estimatedTravelDays: travelDays,
+    description: `3AC train (₹${onewayFare}×2) + local cabs (₹1600)`,
+    bestFor: 'Budget-conscious, overnight journeys'
+  };
+}
+
+// FLIGHT calculation — Economy fares by distance band
+// Bands: <500km=₹3500, 500-1000km=₹4500, 1000-1500km=₹6000, 1500+km=₹8000
+function calculateFlight(distanceKm: number, eventDays: number, foodArrangement: string): TravelOptionResult {
+  let onewayFare = 3500;
+  if (distanceKm > 500 && distanceKm <= 1000) onewayFare = 4500;
+  else if (distanceKm > 1000 && distanceKm <= 1500) onewayFare = 6000;
+  else if (distanceKm > 1500) onewayFare = 8000;
+  const flightFare = onewayFare * 2;
+  const localCabCost = 2400; // ₹1200 each way from/to airport
+  const fareCost = flightFare + localCabCost;
+  const travelDays = 2;
+  const foodAllowanceDays = calculateFoodAllowanceDays(travelDays, eventDays, foodArrangement);
+  const foodAllowanceAmount = foodAllowanceDays * 1000;
+  const travelServiceFee = Math.round(fareCost * 0.05);
+  const travelServiceFeeGst = Math.round(travelServiceFee * 0.18);
+  const totalCost = fareCost + foodAllowanceAmount + travelServiceFee + travelServiceFeeGst;
+  return {
+    mode: 'FLIGHT',
+    totalCost,
+    breakdown: { fareCost, foodAllowanceDays, foodAllowanceAmount, travelServiceFee, travelServiceFeeGst },
+    distanceKm,
+    estimatedTravelDays: travelDays,
+    description: `Economy flight (₹${onewayFare}×2) + airport cabs (₹2400)`,
+    bestFor: 'Long distances, time-critical events'
+  };
+}
+
+// CAB — only for distances under 300km
+// Fare: distanceKm * ₹15/km * 2 (round trip)
+function calculateCab(distanceKm: number, eventDays: number, foodArrangement: string): TravelOptionResult | null {
+  if (distanceKm > 300) return null; // Cab not feasible beyond 300km
+  const fareCost = Math.round(distanceKm * 15 * 2);
+  const travelDays = 1; // Same day or overnight, count as 1 travel day each way
+  const foodAllowanceDays = calculateFoodAllowanceDays(travelDays, eventDays, foodArrangement);
+  const foodAllowanceAmount = foodAllowanceDays * 1000;
+  const travelServiceFee = Math.round(fareCost * 0.05);
+  const travelServiceFeeGst = Math.round(travelServiceFee * 0.18);
+  const totalCost = fareCost + foodAllowanceAmount + travelServiceFee + travelServiceFeeGst;
+  return {
+    mode: 'CAB',
+    totalCost,
+    breakdown: { fareCost, foodAllowanceDays, foodAllowanceAmount, travelServiceFee, travelServiceFeeGst },
+    distanceKm,
+    estimatedTravelDays: travelDays,
+    description: `Outstation cab at ₹15/km (${distanceKm}km × 2)`,
+    bestFor: 'Nearby cities under 300km, door-to-door convenience'
+  };
+}
+
+export async function calculateAllTravelOptions(params: TravelCalculationParams): Promise<TravelOptionResult[]> {
+  // Same city = no travel needed
+  if (params.fromCity.toLowerCase() === params.toCity.toLowerCase()) return [];
+  
+  const distanceData = await getDistance(params.fromCity, params.toCity);
+  if (!distanceData) {
+    throw new AppError(`Distance between ${params.fromCity} and ${params.toCity} not found`, 404, 'DISTANCE_NOT_FOUND');
+  }
+  
+  const { distanceKm, eventDays, foodArrangement } = { ...params, distanceKm: distanceData.distanceKm };
+  
+  const options: TravelOptionResult[] = [];
+  options.push(calculateSelfDrive(distanceKm, eventDays, foodArrangement));
+  options.push(calculateTrain(distanceKm, eventDays, foodArrangement));
+  options.push(calculateFlight(distanceKm, eventDays, foodArrangement));
+  const cab = calculateCab(distanceKm, eventDays, foodArrangement);
+  if (cab) options.push(cab);
+  
+  // If specific mode requested, filter
+  if (params.travelMode) {
+    return options.filter(o => o.mode === params.travelMode);
+  }
+  
+  // Sort by total cost ascending
+  return options.sort((a, b) => a.totalCost - b.totalCost);
+}
+
+export { getDistance };
+
+FILE 5: Create route files for each domain. Each file currently returns 501 stubs.
+Create these files, each with the pattern shown below:
+
+// src/routes/auth.routes.ts — STUB
+import { Router } from 'express';
+export const authRouter = Router();
+authRouter.post('/send-otp', (req, res) => res.status(501).json({ success: true, message: 'Not implemented yet' }));
+authRouter.post('/verify-otp', (req, res) => res.status(501).json({ success: true, message: 'Not implemented yet' }));
+authRouter.get('/me', (req, res) => res.status(501).json({ success: true, message: 'Not implemented yet' }));
+authRouter.put('/me', (req, res) => res.status(501).json({ success: true, message: 'Not implemented yet' }));
+
+Create the same pattern for:
+- booking.routes.ts (paths: POST /, GET /:id, PATCH /:id/accept, PATCH /:id/reject, POST /:id/status-update, POST /:id/cancel)
+- pandit.routes.ts (paths: GET /, GET /:id, GET /:id/availability, GET /:id/reviews, PATCH /me/online, PUT /me/profile, PUT /me/travel-preferences, POST /me/services, DELETE /me/services/:id, POST /me/samagri-packages, GET /me/earnings)
+- customer.routes.ts (paths: GET /me, PUT /me, POST /me/addresses, GET /me/bookings, GET /me/favorites, POST /me/favorites/:panditId, DELETE /me/favorites/:panditId)
+- payment.routes.ts (paths: POST /create-order, POST /verify, POST /webhook)
+- travel.routes.ts (paths: POST /calculate, GET /cities, GET /distance)
+- muhurat.routes.ts (paths: GET /dates, GET /pujas-for-date, GET /suggest)
+- review.routes.ts (paths: POST /, GET /pandit/:panditId)
+- admin.routes.ts (paths: GET /bookings, GET /pandits, PATCH /pandits/:id/verification, GET /travel-queue, PATCH /bookings/:id/travel-status, GET /payouts, PATCH /payouts/:bookingId, GET /stats)
+
+FILE 6: Wire everything in src/index.ts — import and use all routers:
+app.use('/api/auth', authRouter);
+app.use('/api/bookings', bookingRouter);
+app.use('/api/pandits', panditRouter);
+// ... etc
+
+FILE 7: src/routes/travel.routes.ts — ACTUALLY IMPLEMENT the 3 travel endpoints now 
+since the service is ready:
+- POST /api/travel/calculate — body: { fromCity, toCity, eventDays?, foodArrangement?, travelMode? }
+  → calls calculateAllTravelOptions, returns { success: true, data: { options, fromCity, toCity } }
+- GET /api/travel/cities — no auth required
+  → returns { success: true, data: { cities: CONSTANTS.SUPPORTED_CITIES } }
+- GET /api/travel/distance?from=Delhi&to=Varanasi — no auth required
+  → calls getDistance, returns { success: true, data: { fromCity, toCity, distanceKm, estimatedDriveHours } }
+
+All three travel endpoints are public (no auth middleware needed).
+```
+
+---
+
+### PROMPT 1.4 — UNIFIED AUTH SYSTEM (CUSTOMER + PANDIT SAME PAGE)
+
+```
+Implement the complete authentication system. CRITICAL DESIGN DECISION: Customer and Pandit 
+login happen on the SAME page at apps/web/app/login/page.tsx. The page auto-detects role 
+based on which toggle the user selects. This is important for platform trust — both sides 
+use the same login entry point.
+
+PART A: Backend Auth Controller (services/api/src/controllers/auth.controller.ts)
+
+The auth flow:
+1. User sends their phone number → we send OTP
+2. User sends OTP back → we verify, create/find user, issue JWT
+3. JWT contains { userId, phone, role, name } and expires in 7 days
+
+Implement these handlers and wire them to auth.routes.ts (replacing stubs):
+
+sendOtp(req, res):
+  - Validate phone: must match /^\+91[6-9]\d{9}$/ (Indian mobile)
+  - Validate role: must be 'CUSTOMER' or 'PANDIT' (passed in body)
+  - If MOCK_OTP=true in env: log "[MOCK OTP] Phone: ${phone}, OTP: 123456" and return success
+  - In production: use Firebase Admin SDK to send real OTP
+  - Store { phone, role, otp, expiresAt: Date.now() + 10min } in a simple in-memory Map (OTPStore)
+    (Phase 1 simplification — production would use Redis)
+  - Return: { success: true, data: { message: 'OTP sent', expiresIn: 600 } }
+
+verifyOtp(req, res):
+  - Validate body: { phone, otp, role, name? }
+  - Check OTPStore: if not found → 400 'OTP_NOT_FOUND'
+  - Check expiry → 400 'OTP_EXPIRED'  
+  - Check otp match (in mock mode: otp === '123456' always passes) → 400 'INVALID_OTP'
+  - Delete from OTPStore
+  - Upsert user: find by phone OR create with role from the OTP request
+  - IMPORTANT: If user exists with role PANDIT but request role is CUSTOMER, 
+    that's fine — same person can have both (but create separate records)
+    For Phase 1 simplicity: role is set once at first registration and cannot change
+  - If new user and name provided: update name
+  - If new PANDIT user: create empty PanditProfile with verificationStatus=PENDING
+  - If new CUSTOMER user: create empty CustomerProfile
+  - Generate JWT: jwt.sign({ userId: user.id, phone: user.phone, role: user.role, name: user.name }, JWT_SECRET, { expiresIn: '7d' })
+  - Return: { success: true, data: { token, user: { id, phone, role, name, isVerified, profileCompleted } } }
+  - profileCompleted for PANDIT: panditProfile.verificationStatus !== PENDING
+  - profileCompleted for CUSTOMER: customerProfile exists and has at least one address
+
+getMe(req, res): [requires authenticateToken]
+  - Fetch user with their profile based on role
+  - For CUSTOMER: include customerProfile with addresses
+  - For PANDIT: include panditProfile with pujaServices, samagriPackages (count only for perf)
+  - Return full user object
+
+updateMe(req, res): [requires authenticateToken]
+  - Allow updating: name, email
+  - If CUSTOMER: also allow updating preferredLanguages, gotra via customerProfile
+  - Return updated user
+
+PART B: Shared Auth Context (packages/utils/auth-context.tsx)
+
+Create a React context that works in ALL THREE Next.js apps:
+
+'use client';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+
+interface AuthUser {
+  id: string;
+  phone: string;
+  role: 'CUSTOMER' | 'PANDIT' | 'ADMIN';
+  name: string | null;
+  isVerified: boolean;
+  profileCompleted: boolean;
+}
+
+interface AuthContextType {
+  user: AuthUser | null;
+  token: string | null;
+  loading: boolean;
+  isAuthenticated: boolean;
+  login: (token: string, user: AuthUser) => void;
+  logout: () => void;
+  refreshUser: () => Promise<void>;
+}
+
+// Implementation:
+// - On mount: check localStorage for 'hpj_token'
+// - If token found: call GET /api/auth/me to validate
+// - If /me returns error: clear localStorage and set user=null
+// - login(): store token in localStorage, set user state
+// - logout(): clear localStorage, set user=null, redirect to /
+// - refreshUser(): re-fetch /me and update user state
+
+Export AuthProvider and useAuth hook.
+
+PART C: Login Page (apps/web/app/login/page.tsx)
+
+This page serves BOTH customer and pandit login. The URL accepts ?role=pandit to pre-select 
+pandit mode. After login, redirect to ?redirect=URL parameter or role-appropriate default.
+
+Design the page as a clean two-column layout (mobile: single column):
+- Left side: Branding panel with saffron gradient background
+  - Logo + "HmarePanditJi" in large text
+  - Tagline: "Sanskriti ko Digital Disha"
+  - Three trust points with icons:
+    🔒 "Verified Pandits Only"
+    💳 "Transparent Pricing"  
+    ✈️ "Travel Managed for You"
+
+- Right side: Login form
+  - At the top: Role toggle with two large pill buttons:
+    [🙏 I'm a Customer] [📿 I'm a Pandit]
+    Selecting "I'm a Pandit" changes the color scheme to pandit orange (#f09942)
+    and shows extra message: "Welcome Pandit Ji! Join 500+ verified priests."
+  - Below toggle: A simple description of what this role gets
+    Customer: "Book verified Pandits for every sacred occasion"
+    Pandit: "Get bookings, travel managed, payments guaranteed"
+
+  - STEP 1: Phone input
+    - Fixed +91 prefix (non-editable, shown as text)
+    - 10-digit input field
+    - "Send OTP" button
+    - Below: "By continuing you agree to our Terms of Service"
+
+  - STEP 2 (shown after OTP sent, Step 1 fades out):
+    - "OTP sent to +91XXXXXXXX" message
+    - 6-box OTP input (one digit per box, auto-advance, auto-submit on 6th digit)
+    - "Resend OTP" (disabled for 30s countdown)
+    - "Verify OTP" button
+
+  - STEP 3 (only for new users):
+    - Name input: "What should we call you?"
+    - For new Pandits only: show animated message:
+      "🙏 Namaste! After entering your name, you'll complete your profile setup."
+
+  - Loading states: spinner on button, disable all inputs while loading
+  - Error states: show error below relevant field in red
+  - On success: use login() from AuthContext, then redirect
+
+PART D: Route Protection (for pandit and admin apps)
+
+Create middleware file apps/pandit/middleware.ts:
+import { NextResponse } from 'next/server'
+export function middleware(request) {
+  const token = request.cookies.get('hpj_token')?.value
+    || request.headers.get('x-auth-token');
+  // If accessing any page except /login and no token → redirect to /login
+  // If accessing /login with token → redirect to /
+  // Note: token validation happens on the API side — middleware just checks existence
+}
+
+Also create a useRequireAuth(role) hook in packages/utils/auth-context.tsx that:
+- If not authenticated: redirect to /login?redirect=currentPath
+- If wrong role: show "Access Denied" page
+- While loading: show full-screen skeleton
+```
+
+---
+
+### PROMPT 1.5 — COMPREHENSIVE SEED DATA
+
+```
+Create prisma/seed.ts with realistic data for HmarePanditJi Phase 1. Run with: 
+npx ts-node prisma/seed.ts
+
+The seed file must be idempotent (can be run multiple times without errors — use upsert 
+everywhere or delete and recreate).
+
+SECTION 1 — CityDistance matrix (ALL entries needed for Delhi-NCR + major Indian cities):
+Create bidirectional entries for ALL these pairs (store both directions):
+
+Delhi ↔ Noida: 25km, 0.75h
+Delhi ↔ Gurgaon: 30km, 1h  
+Delhi ↔ Faridabad: 35km, 1h
+Delhi ↔ Ghaziabad: 28km, 0.75h
+Delhi ↔ Greater Noida: 45km, 1.25h
+Delhi ↔ Mathura: 160km, 3h
+Delhi ↔ Agra: 210km, 3.5h
+Delhi ↔ Jaipur: 280km, 4.5h
+Delhi ↔ Haridwar: 240km, 4h
+Delhi ↔ Varanasi: 820km, 14h (overnight drive or 10h train)
+Delhi ↔ Lucknow: 550km, 8h
+Delhi ↔ Chandigarh: 250km, 4h
+Delhi ↔ Dehradun: 300km, 5h
+Delhi ↔ Rishikesh: 260km, 5h
+Delhi ↔ Mumbai: 1420km, 24h
+Delhi ↔ Pune: 1480km, 25h
+Delhi ↔ Bangalore: 2150km, 36h
+Delhi ↔ Hyderabad: 1580km, 26h
+Delhi ↔ Chennai: 2170km, 36h
+Delhi ↔ Kolkata: 1500km, 24h
+Delhi ↔ Bhopal: 770km, 12h
+Delhi ↔ Ujjain: 900km, 14h
+Varanasi ↔ Lucknow: 280km, 4.5h
+Varanasi ↔ Agra: 570km, 9h
+Varanasi ↔ Mumbai: 1600km, 26h
+Mathura ↔ Agra: 60km, 1.5h
+Haridwar ↔ Rishikesh: 25km, 0.75h
+Haridwar ↔ Dehradun: 55km, 1.5h
+(Add any other reasonable pairs you can infer from the list)
+
+SECTION 2 — MuhuratDate entries for Jan-Jun 2026:
+Use actual auspicious Hindu dates for 2026. Create entries for:
+
+Vivah (Wedding) muhurats:
+- 2026-01-15 "10:30 AM - 12:45 PM" "Makar Sankranti — highly auspicious"
+- 2026-01-19 "07:00 AM - 09:30 AM" "Shukla Paksha Panchami"
+- 2026-01-21 "10:00 AM - 12:00 PM" "Auspicious Saptami"
+- 2026-01-28 "11:30 AM - 01:30 PM" "Maghi Purnima — sacred"
+- 2026-02-04 "09:00 AM - 11:00 AM" "Basant Panchami — Goddess Saraswati's day"
+- 2026-02-09 "10:30 AM - 12:30 PM" "Shukla Dasami"
+- 2026-02-12 "08:00 AM - 10:00 AM" "Dvadashi — auspicious"
+- 2026-04-14 "07:30 AM - 09:30 AM" "Baisakhi — new beginnings"
+- 2026-04-21 "10:00 AM - 12:00 PM" "Akshaya Tritiya — most auspicious for weddings"
+- 2026-05-07 "09:00 AM - 11:30 AM" "Shukla Saptami"
+- 2026-05-20 "11:00 AM - 01:00 PM" "Vaisakh Purnima"
+- 2026-06-03 "08:30 AM - 10:30 AM" "Auspicious Tritiya"
+
+Griha Pravesh (Housewarming):
+- 2026-01-07 "11:00 AM - 01:00 PM" "Saptami — good for new homes"
+- 2026-01-14 "09:00 AM - 11:00 AM" "Makar Sankranti — entry into auspicious period"
+- 2026-02-04 "10:30 AM - 12:30 PM" "Basant Panchami — Saraswati blesses new home"
+- 2026-03-06 "09:30 AM - 11:30 AM" "Phalgun Shukla Saptami"
+- 2026-03-14 "08:00 AM - 10:00 AM" "Holi preceding week"
+- 2026-04-14 "10:00 AM - 12:00 PM" "Baisakhi — excellent for housewarming"
+- 2026-04-21 "11:30 AM - 01:30 PM" "Akshaya Tritiya — never diminishes"
+- 2026-05-10 "09:00 AM - 11:00 AM" "Auspicious Dashami"
+
+Satyanarayan Puja:
+- 2026-01-03 "06:00 PM - 08:00 PM" "Purnima Sandhya"
+- 2026-01-17 "10:00 AM - 12:00 PM" "Ekadashi"
+- 2026-02-02 "06:00 PM - 08:00 PM" "Purnima — monthly Satyanarayan"
+- 2026-02-16 "05:00 PM - 07:00 PM" "Pradosh"  
+- 2026-03-03 "06:30 PM - 08:30 PM" "Falgun Purnima"
+(Add one monthly Purnima entry for each remaining month)
+
+Mundan (First hair cutting):
+- 2026-01-19 "10:00 AM - 12:00 PM" "Panchami — auspicious for Mundan"
+- 2026-02-04 "09:00 AM - 11:00 AM" "Basant Panchami — Saraswati's grace for children"
+- 2026-04-21 "10:30 AM - 12:30 PM" "Akshaya Tritiya"
+- 2026-05-15 "09:00 AM - 11:00 AM" "Shukla Panchami"
+
+SECTION 3 — Users and Profiles:
+
+Admin: { phone: '+919999999999', name: 'Admin User', role: ADMIN }
+
+Customers (5):
+1. { phone: '+919811111111', name: 'Rahul Sharma', role: CUSTOMER }
+   CustomerProfile: languages=['Hindi','English'], gotra='Bhardwaj'
+   Address: 'House 45, Sector 12, Dwarka, New Delhi', city='Delhi', isDefault=true
+
+2. { phone: '+919822222222', name: 'Priya Gupta', role: CUSTOMER }
+   CustomerProfile: languages=['Hindi'], gotra='Kashyap'
+   Address: 'Flat 302, Supertech Emerald, Noida Sector 93', city='Noida', isDefault=true
+
+3. { phone: '+919833333333', name: 'Arun Verma', role: CUSTOMER }
+   CustomerProfile: languages=['Hindi','English']
+   Address: 'Villa 7, DLF Phase 3, Gurgaon', city='Gurgaon', isDefault=true
+
+4. { phone: '+919844444444', name: 'Sunita Joshi', role: CUSTOMER }
+   CustomerProfile: languages=['Hindi','Maithili'], gotra='Shandilya'
+   Address: 'Plot 123, Vasundhara Enclave, Delhi', city='Delhi', isDefault=true
+
+5. { phone: '+919855555555', name: 'Kiran Singh', role: CUSTOMER }
+   CustomerProfile: languages=['Hindi','Punjabi']
+   Address: 'H.No 78, Model Town, Delhi', city='Delhi', isDefault=true
+
+Pandits (10) — Create User + PanditProfile for each:
+
+Pandit 1 (VERIFIED, local Delhi):
+User: { phone: '+919700100001', name: 'Pt. Rajesh Tiwari', role: PANDIT }
+PanditProfile: {
+  bio: '25+ years experience in Vivah and Griha Pravesh ceremonies. Trained from Kashi Vidyapeeth.',
+  experienceYears: 25, languages: ['Hindi','Sanskrit'],
+  specializations: ['Vivah','Griha Pravesh','Satyanarayan Puja','Havan'],
+  verificationStatus: VERIFIED, aadhaarVerified: true, videoKycCompleted: true,
+  location: 'Delhi', fullAddress: 'Paschim Vihar, Delhi',
+  rating: 4.9, totalReviews: 87, completedBookings: 234,
+  travelPreferences: { maxDistanceKm: 100, preferredModes: ['SELF_DRIVE','CAB'], selfDriveRatePerKm: 12, vehicleType: 'Car', hotelPreference: 'BUDGET', advanceNoticeDays: 1 },
+  bankAccountName: 'Rajesh Kumar Tiwari', bankAccountNumber: '1234567890', bankIfscCode: 'HDFC0001234', bankName: 'HDFC Bank', bankVerified: true,
+  deviceOs: 'Android 12', deviceModel: 'Samsung Galaxy A52', isOnline: true
+}
+PujaServices:
+  - Vivah: dakshina=21000, durationHours=5, description='Complete wedding rituals with proper vidhi'
+  - Griha Pravesh: dakshina=7000, durationHours=3
+  - Satyanarayan Puja: dakshina=3500, durationHours=2
+  - Havan: dakshina=5000, durationHours=2.5
+SamagriPackages for Vivah:
+  - BASIC (₹3500): [Ghee 500g, Mauli 2pcs, Akshat 500g, Flowers (mixed) 1kg, Camphor 50g, Incense sticks 2packs, Janeu 2pcs, Panchpallav (5 leaves)]
+  - STANDARD (₹6000): [All Basic items + Havan Samagri 500g, Red cloth 2m, Coconut 5pcs, Supari 100g, Meetha Pan 10pcs]
+  - PREMIUM (₹9500): [All Standard + Mango wood (lathi) 5kg, Kalash 1pc, Flowers premium 2kg, Sindoor 50g, Alta 2bottles, Chandan 100g]
+
+Pandit 2 (VERIFIED, Varanasi — outstation):
+User: { phone: '+919700100002', name: 'Pt. Vishnu Shastri', role: PANDIT }
+PanditProfile: {
+  bio: 'Maithil Brahmin with 30+ years. Specialized in Maithili traditions. 500+ weddings performed.',
+  experienceYears: 30, languages: ['Hindi','Sanskrit','Maithili','English'],
+  specializations: ['Vivah','Mundan','Namkaran','Annaprashan','Upanayana'],
+  verificationStatus: VERIFIED, aadhaarVerified: true, videoKycCompleted: true,
+  location: 'Varanasi',
+  rating: 4.9, totalReviews: 156, completedBookings: 512,
+  travelPreferences: { maxDistanceKm: 2000, preferredModes: ['TRAIN','FLIGHT','SELF_DRIVE'], selfDriveRatePerKm: 12, vehicleType: 'Car', hotelPreference: '3_STAR', advanceNoticeDays: 7 },
+  bankVerified: true, deviceOs: 'Android 11', deviceModel: 'Redmi Note 10', isOnline: true
+}
+(PujaServices: Vivah dakshina=35000 dur=6, Mundan=8000 dur=2.5, Namkaran=5000 dur=2, Annaprashan=4000 dur=1.5, Upanayana=15000 dur=4)
+(SamagriPackages: Same 3-tier structure, PREMIUM price ₹12000 for Vivah)
+
+Pandit 3 (VERIFIED, Noida):
+User: { phone: '+919700100003', name: 'Pt. Suresh Dubey', role: PANDIT }
+PanditProfile: location='Noida', experienceYears=18, specializations=['Griha Pravesh','Satyanarayan Puja','Vastu Shanti'], rating=4.7, totalReviews=63, completedBookings=145, verificationStatus=VERIFIED
+travelPreferences: { maxDistanceKm: 200, preferredModes: ['CAB','SELF_DRIVE'] }
+PujaService: Griha Pravesh dakshina=8000, Satyanarayan Puja=4000, Vastu Shanti=12000
+
+Pandit 4 (VERIFIED, Haridwar):
+{ location='Haridwar', experienceYears=22, specializations=['Havan','Rudra Abhishek','Ganges Puja','Shradh'], rating=4.8, totalReviews=92 }
+travelPreferences: { maxDistanceKm: 1000, preferredModes: ['TRAIN','SELF_DRIVE','CAB'] }
+PujaService: Havan=10000, Rudra Abhishek=15000, Shradh=6000
+
+Pandit 5 (VERIFIED, Mathura):
+{ location='Mathura', specializations=['Janmashtami Puja','Govardhan Puja','Vivah','Satyanarayan Puja'], rating=4.6, totalReviews=44 }
+travelPreferences: { maxDistanceKm: 500, preferredModes: ['SELF_DRIVE','TRAIN'] }
+
+Pandit 6 (VERIFIED, Gurgaon):
+{ location='Gurgaon', specializations=['Corporate Puja','Griha Pravesh','Navratri Puja'], rating=4.5, totalReviews=31, experienceYears=12 }
+travelPreferences: { maxDistanceKm: 150, preferredModes: ['CAB','SELF_DRIVE'] }
+
+Pandit 7 (DOCUMENTS_SUBMITTED, Delhi):
+{ location='Delhi', specializations=['Vivah','Havan'], rating=0, totalReviews=0, verificationStatus=DOCUMENTS_SUBMITTED }
+
+Pandit 8 (DOCUMENTS_SUBMITTED, Noida):
+{ location='Noida', specializations=['Satyanarayan Puja','Ganesh Puja'], verificationStatus=DOCUMENTS_SUBMITTED }
+
+Pandit 9 (PENDING, Delhi):
+{ location='Delhi', specializations=['Vivah'], verificationStatus=PENDING }
+
+Pandit 10 (VERIFIED, Lucknow):
+{ location='Lucknow', specializations=['Vivah','Griha Pravesh','Mundan'], experienceYears=20, rating=4.7, totalReviews=58, travelPreferences: { maxDistanceKm: 800, preferredModes: ['TRAIN','FLIGHT'] } }
+
+Add blocked dates for Pandit 1: block next 3 Tuesdays (recurring)
+Add blocked dates for Pandit 2: block Jan 20-25, 2026 (family function)
+
+SECTION 4 — Sample Bookings (5 bookings showing different states):
+
+Booking 1 (COMPLETED):
+  customer: customer1, pandit: pandit1
+  bookingNumber: 'HPJ-2026-DEMO1'
+  eventType: 'Vivah', eventDate: 2026-01-15, muhuratTime: '10:30 AM - 12:45 PM'
+  venueCity: 'Delhi', travelRequired: false
+  dakshinaAmount: 21000, samagriAmount: 9500, platformFee: 3150, platformFeeGst: 567
+  grandTotal: 34217, paymentStatus: CAPTURED, payoutStatus: COMPLETED
+  status: COMPLETED
+  Add 5 StatusUpdate records showing the full journey
+
+Booking 2 (CONFIRMED):
+  customer: customer2, pandit: pandit2
+  eventType: 'Vivah', eventDate: 2026-02-12
+  venueCity: 'Noida', travelRequired: true, travelMode: TRAIN, travelDistanceKm: 845
+  travelCost: 7800, foodAllowanceDays: 3, foodAllowanceAmount: 3000
+  dakshinaAmount: 35000, samagriAmount: 12000
+  status: CONFIRMED, paymentStatus: CAPTURED
+
+Booking 3 (CREATED — just paid, waiting for pandit):
+  customer: customer3, eventType: 'Griha Pravesh', eventDate: 2026-02-04
+  venueCity: 'Gurgaon', status: PANDIT_REQUESTED, paymentStatus: CAPTURED
+
+Booking 4 (CANCELLED):
+  customer: customer4, eventType: 'Satyanarayan Puja'
+  status: CANCELLED, cancelledBy: 'CUSTOMER', refundStatus: COMPLETED, refundAmount: 3150
+
+Booking 5 (COMPLETED — has a review):
+  customer: customer5, pandit: pandit3
+  eventType: 'Griha Pravesh', status: COMPLETED, paymentStatus: CAPTURED
+
+SECTION 5 — Reviews (for completed bookings):
+
+Review for Booking 1:
+  reviewer: customer1, reviewee: pandit1 user
+  overallRating: 5.0, knowledgeRating: 5.0, punctualityRating: 4.5, communicationRating: 5.0
+  comment: 'Rajesh ji performed our wedding ceremony with utmost devotion and proper vidhi. Every ritual was explained beautifully. Highly recommend!'
+
+Review for Booking 5:
+  reviewer: customer5, reviewee: pandit3 user
+  overallRating: 4.5, knowledgeRating: 5.0, punctualityRating: 4.0, communicationRating: 4.5
+  comment: 'Very knowledgeable pandit ji. Arrived a bit late but performed the puja perfectly.'
+
+SECTION 6 — Favorites:
+customer1 → favorites pandit2 (Pt. Vishnu Shastri from Varanasi)
+customer2 → favorites pandit1 (Pt. Rajesh Tiwari from Delhi)
+
+After all inserts, log a summary:
+console.log('✅ Seed completed:');
+console.log(`   Users: ${await prisma.user.count()}`);
+console.log(`   Pandits (verified): ${await prisma.panditProfile.count({ where: { verificationStatus: 'VERIFIED' } })}`);
+console.log(`   Muhurat dates: ${await prisma.muhuratDate.count()}`);
+console.log(`   City distances: ${await prisma.cityDistance.count()}`);
+console.log(`   Bookings: ${await prisma.booking.count()}`);
+```
+
+---
+
+### PROMPT 1.6 — SHARED UI COMPONENT LIBRARY
+
+```
+Build the shared UI component library at packages/ui/. Every component must accept a 
+`theme` prop of type 'customer' | 'pandit' | 'admin' to switch the primary color.
+
+Export ALL components from packages/ui/index.ts.
+
+DESIGN SYSTEM — Create packages/ui/tokens.ts:
+export const themes = {
+  customer: { primary: '#f49d25', primaryDark: '#e8540a', primaryLight: '#fde9c3', textOnPrimary: '#fff' },
+  pandit: { primary: '#f09942', primaryDark: '#dc6803', primaryLight: '#fdf0d9', textOnPrimary: '#fff' },
+  admin: { primary: '#137fec', primaryDark: '#0d5db8', primaryLight: '#dbeafe', textOnPrimary: '#fff' }
+}
+export const spacing = { xs: '4px', sm: '8px', md: '16px', lg: '24px', xl: '32px', '2xl': '48px' }
+export const shadows = {
+  card: '0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06)',
+  cardHover: '0 4px 12px rgba(0,0,0,0.12)',
+  modal: '0 20px 60px rgba(0,0,0,0.3)'
+}
+
+BUILD THESE COMPONENTS (each in its own file with TypeScript props):
+
+1. Button (packages/ui/Button.tsx)
+Props: variant ('primary'|'secondary'|'outline'|'ghost'|'danger'), size ('sm'|'md'|'lg'), 
+       loading (bool), disabled (bool), leftIcon (ReactNode), rightIcon (ReactNode),
+       fullWidth (bool), theme ('customer'|'pandit'|'admin')
+- Primary: filled with theme color, white text
+- Secondary: filled with theme light, themed text
+- Outline: bordered with theme color, themed text  
+- Ghost: no border or background, themed text
+- Loading: replace content with spinner (keep same size, no layout shift)
+- All variants must have hover/active/disabled states
+
+2. Input (packages/ui/Input.tsx)
+Props: type ('text'|'tel'|'email'|'number'|'search'|'password'), label, error, helperText,
+       leftIcon, rightIcon, prefix (for +91 tel), disabled, theme, ...all standard input props
+- Show label above (floating label style NOT required — just standard above-label)
+- Show error in red below with ⚠️ icon
+- Show helperText in gray below
+- Phone type: show non-editable "+91" prefix in a gray box before the input
+- Error state: red border + red label
+
+3. Card (packages/ui/Card.tsx)
+Props: variant ('default'|'outlined'|'elevated'), padding ('none'|'sm'|'md'|'lg'),
+       onClick (makes it clickable with hover effect), className, children, theme
+- Default: white bg, subtle border
+- Outlined: white bg, 1.5px solid border with theme color
+- Elevated: white bg, shadow, hover lifts further
+
+4. Badge (packages/ui/Badge.tsx)
+Props: variant ('success'|'warning'|'error'|'info'|'neutral'|'primary'), size ('sm'|'md'),
+       dot (bool — shows colored dot before text), theme
+Colors: success=green, warning=amber, error=red, info=blue, neutral=gray, primary=theme color
+
+5. StarRating (packages/ui/StarRating.tsx)
+Props: value (0-5 float), max (default 5), interactive (bool — clickable),
+       onChange (for interactive mode), size ('sm'|'md'|'lg'), showValue (bool)
+- Display mode: filled/half/empty stars based on value
+- Input mode: clickable stars, hover preview
+- Always show numeric value when showValue=true (e.g., "4.9")
+
+6. Avatar (packages/ui/Avatar.tsx)
+Props: src, name (for initials fallback), size ('xs'|'sm'|'md'|'lg'|'xl'),
+       verified (bool — shows orange checkmark badge overlay), online (bool — shows green dot)
+- If no src: show initials (first letter of first + last name) with themed background
+- Verified badge: small ✓ circle in bottom-right, amber background
+- Online badge: small green dot in bottom-right
+
+7. Modal (packages/ui/Modal.tsx)
+Props: isOpen (bool), onClose, title, children, footer, size ('sm'|'md'|'lg'|'full'),
+       closeOnOverlayClick (default true)
+- Dark overlay with blur
+- Close on ESC key press
+- Close on overlay click if prop true
+- Smooth open/close animation (CSS transition, no framer-motion dependency)
+- Trap focus within modal when open
+
+8. StatusTimeline (packages/ui/StatusTimeline.tsx)
+Props: steps: Array<{ label, description?, timestamp?, status: 'completed'|'active'|'pending' }>
+- Vertical timeline with connecting lines
+- Completed: green circle with checkmark
+- Active: pulsing orange circle
+- Pending: gray empty circle
+- Show timestamp in small gray text below description
+- Used for booking status tracking
+
+9. PriceBreakdown (packages/ui/PriceBreakdown.tsx)
+Props: breakdown: PricingBreakdown (imported from @hpj/types), theme, showGstDetails (bool)
+- Each line item: left label, right amount in ₹
+- Divider before grand total
+- GST details collapsible (show/hide toggle)
+- Highlight grand total in bold with themed color
+- Color-code: dakshina (normal), platform fees (subtle gray), taxes (even subtler)
+- Show "GST exempt" next to dakshina line
+
+10. PanditCard (packages/ui/PanditCard.tsx)
+This is the most important component — used throughout search results.
+Props: pandit: { id, name, profilePhotoUrl, rating, totalReviews, experienceYears, location,
+       specializations, languages, verificationStatus, travelPreferences, isOnline },
+       travelOptions?: TravelOptionResult[] (pre-calculated travel costs),
+       customerCity?: string, onBook, onViewProfile, isFavorited, onToggleFavorite, theme
+
+Layout:
+- Top: Photo (left, 80×80 with Avatar component) + Name, location, online dot
+- Verification badge line: "✓ Verified Vedic" (only if VERIFIED)  
+- Stars + review count + experience years
+- Specialization tags (pill badges, max 3 shown + "+X more")
+- Language tags (smaller, gray)
+- If travelOptions provided AND customerCity provided AND pandit.location ≠ customerCity:
+  Show "Travel from [pandit.location]" header with 2-3 mini travel option cards
+  Each mini card: mode icon, mode name, "₹X" price
+  (Self-drive 🚗, Train 🚂, Flight ✈️, Cab 🚕)
+- Bottom: Favorite heart button (toggle) + "View Profile" button + "Book Now" button
+  Book Now uses primary theme color
+- Hover: card lifts (elevation shadow transition)
+
+11. GuestBanner (packages/ui/GuestBanner.tsx)
+Props: onLogin, theme
+- Sticky top bar (shown only to guests)
+- Light saffron background with subtle border
+- Text: "👋 Exploring as Guest — Login to book pandits and save favorites"
+- Right side: "Login / Register" button
+- Dismissible (X button stores dismissal in sessionStorage — returns after page refresh
+  for better re-engagement)
+
+12. Toast/useToast (packages/ui/Toast.tsx)
+- Create a Toaster component (renders toast container, place in app layout)
+- Create useToast() hook with methods: success(message), error(message), warning(message), info(message)
+- Toasts appear bottom-right, auto-dismiss after 4s
+- Max 3 toasts visible at once (queue older ones)
+- Each toast has icon, message, dismiss button
+- Smooth slide-in animation
+
+13. Skeleton (packages/ui/Skeleton.tsx)
+Props: variant ('text'|'circular'|'rectangular'), width, height, count (for multiple lines)
+- Animated shimmer effect (CSS keyframes)
+- PanditCardSkeleton: pre-built skeleton that matches PanditCard layout
+
+14. OtpInput (packages/ui/OtpInput.tsx)
+Props: length (default 6), onComplete (callback with full OTP string), disabled, autoFocus
+- 6 individual single-char inputs
+- Auto-advance to next input on digit entry
+- Backspace goes to previous input
+- Paste handling (paste "123456" fills all boxes)
+- Show asterisks after 0.5s delay for security
+
+All components must be exported from packages/ui/index.ts. Use TypeScript throughout.
+Do NOT use any external component library (no shadcn, no chakra, no MUI) — pure Tailwind + React.
+```
+
+---
+
+This completes **Part 1** of the prompt library. The next three parts will cover:
+
+**Part 2** — Customer Web App (Homepage with Muhurat Explorer, Search, Pandit Profile, Samagri Modal + Cart, full Booking Wizard with all 6 steps)
+
+**Part 3** — Pandit Dashboard (Voice-first onboarding wizard, Dashboard, Booking request handling, Calendar, Earnings — all built for a non-tech pandit)
+
+**Part 4** — Admin Operations Center, Payment Integration, Notifications, and Launch Checklist
+
+Shall I continue with Part 2?

@@ -3,6 +3,7 @@
 import React, {
   useState,
   useEffect,
+  useCallback,
 } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
@@ -53,6 +54,8 @@ interface SearchFilters {
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api/v1";
+
 const REGIONS = [
   "Varanasi (Kashi)",
   "Ujjain (Avantika)",
@@ -61,67 +64,74 @@ const REGIONS = [
   "Mathura",
 ];
 
-// ── Mock data (updated with Travel Tabs data) ────────────────────────────────
+// ── API helpers ───────────────────────────────────────────────────────────────
 
-const MOCK_PANDITS: PanditResult[] = [
-  {
-    id: "p1",
-    name: "Acharya Ved Vyas",
-    isVerified: true,
-    badges: ["Verified Vedic"],
-    overallRating: 4.9,
-    totalReviews: 128,
-    distanceKm: 800,
-    city: "Varanasi",
-    languages: ["Hindi", "Sanskrit"],
-    experienceYears: 22,
-    specializations: ["Mahamrityunjay Path", "Griha Pravesh"],
-    travelModes: [
-      { mode: "SELF_DRIVE", price: 3400, label: "SELF-DRIVE", duration: "12h 30m" },
-    ],
-    nextSlot: "Tomorrow",
-    willingToTravel: true,
-    description: "Specializes in Mahamrityunjay Path and Griha Pravesh."
-  },
-  {
-    id: "p2",
-    name: "Pandit Rajesh Shastri",
-    isVerified: true,
-    badges: ["Verified Vedic"],
-    overallRating: 4.7,
-    totalReviews: 94,
-    distanceKm: 750,
-    city: "Ujjain",
-    languages: ["Hindi", "Sanskrit"],
-    experienceYears: 16,
-    specializations: ["Kal Sarp Dosh Puja", "Mangal Dosh Nivaran"],
-    travelModes: [
-      { mode: "SELF_DRIVE", price: 2800, label: "SELF-DRIVE", duration: "10h 15m" },
-    ],
-    nextSlot: "Oct 12",
-    willingToTravel: true,
-    description: "Expert in Kal Sarp Dosh Puja and Mangal Dosh Nivaran."
-  },
-  {
-    id: "p3",
-    name: "Shastri Anand Maharaj",
-    isVerified: true,
-    badges: ["Verified Vedic"],
-    overallRating: 5.0,
-    totalReviews: 215,
-    distanceKm: 220,
-    city: "Haridwar",
-    languages: ["Hindi", "Sanskrit", "English"],
-    experienceYears: 30,
-    specializations: ["Vedic Astrology", "Satyanarayan Katha"],
-    travelModes: [
-      { mode: "SELF_DRIVE", price: 2100, label: "SELF-DRIVE", duration: "5h 30m" },
-    ],
-    nextSlot: "Oct 10",
-    willingToTravel: true,
-    description: "Master of Vedic Astrology and Satyanarayan Katha."
-  },
-];
+function mapSortToApi(sort: string): string {
+  const map: Record<string, string> = {
+    "Best Match": "rating",
+    "Rating": "rating",
+    "Price (Low → High)": "price_asc",
+    "Price (High → Low)": "price_desc",
+    "Distance": "distance",
+    "Experience": "rating",
+  };
+  return map[sort] ?? "rating";
+}
+
+function mapPanditToResult(p: Record<string, unknown>): PanditResult {
+  const prefs = (p.travelPreferences ?? {}) as Record<string, unknown>;
+  const modes = (prefs.preferredModes ?? []) as string[];
+  const travelModes = modes.map(mode => ({
+    mode,
+    price: 0,
+    label: mode.replace("_", "-"),
+    duration: "",
+  }));
+
+  return {
+    id: String(p.id),
+    name: String(p.name ?? "Pandit Ji"),
+    avatarUrl: p.profilePhotoUrl as string | undefined,
+    isVerified: p.verificationStatus === "VERIFIED",
+    badges: p.verificationStatus === "VERIFIED" ? ["Verified Vedic"] : [],
+    overallRating: Number(p.rating) || 0,
+    totalReviews: Number(p.totalReviews) || 0,
+    city: String(p.location ?? ""),
+    languages: p.languages as string[] ?? [],
+    experienceYears: Number(p.experienceYears) || 0,
+    specializations: p.specializations as string[] ?? [],
+    travelModes: travelModes.length > 0 ? travelModes : [{ mode: "SELF_DRIVE", price: 0, label: "SELF-DRIVE", duration: "" }],
+    willingToTravel: Number(prefs.maxDistanceKm ?? 0) > 0,
+    description: (p.specializations as string[] ?? []).join(", "),
+  };
+}
+
+interface PaginationInfo { total: number; page: number; limit: number; totalPages: number }
+
+async function fetchPandits(filters: SearchFilters, page = 1): Promise<{ pandits: PanditResult[]; pagination: PaginationInfo }> {
+  const params = new URLSearchParams();
+  if (filters.ritual) params.set("pujaType", filters.ritual);
+  if (filters.city) params.set("city", filters.city);
+  if (filters.date) params.set("date", filters.date);
+  if (filters.minBudget > 0) params.set("minDakshina", String(filters.minBudget));
+  if (filters.maxBudget < 50000) params.set("maxDakshina", String(filters.maxBudget));
+  if (filters.travel) params.set("travelMode", filters.travel);
+  if (filters.minRating) params.set("minRating", filters.minRating);
+  if (filters.languages.length > 0) params.set("language", filters.languages[0]);
+  if (filters.maxDistanceKm > 0 && filters.city) params.set("maxDistance", String(filters.maxDistanceKm));
+  params.set("sort", mapSortToApi(filters.sort));
+  params.set("page", String(page));
+  params.set("limit", "10");
+
+  const res = await fetch(`${API_URL}/pandits?${params.toString()}`, { signal: AbortSignal.timeout(8000) });
+  if (!res.ok) throw new Error("Failed to fetch pandits");
+  const body = await res.json();
+  const rawPandits: Record<string, unknown>[] = body.data?.pandits ?? [];
+  return {
+    pandits: rawPandits.map(mapPanditToResult),
+    pagination: body.data?.pagination ?? { total: 0, page: 1, limit: 10, totalPages: 0 },
+  };
+}
 
 // ── Components ─────────────────────────────────────────────────────────────
 
@@ -240,7 +250,7 @@ function EnhancedPanditCard({ pandit }: { pandit: PanditResult }) {
   );
 }
 
-function Sidebar({ filters, onChange, onReset }: { filters: SearchFilters; onChange: (patch: Partial<SearchFilters>) => void; onReset: () => void; }) {
+function Sidebar({ filters, onChange, onReset, onApply }: { filters: SearchFilters; onChange: (patch: Partial<SearchFilters>) => void; onReset: () => void; onApply?: () => void; }) {
   return (
     <aside className="w-full lg:w-72 flex-shrink-0 space-y-6">
       <div className="bg-white dark:bg-[#1a140d] rounded-xl p-5 border border-slate-200 dark:border-white/10 shadow-sm">
@@ -310,7 +320,7 @@ function Sidebar({ filters, onChange, onReset }: { filters: SearchFilters; onCha
             </div>
           </div>
 
-          <button className="w-full bg-[#f2a20d] text-white py-3 rounded-lg font-bold text-sm shadow-md hover:bg-[#f2a20d]/90 active:scale-95 transition-all">
+          <button onClick={onApply} className="w-full bg-[#f2a20d] text-white py-3 rounded-lg font-bold text-sm shadow-md hover:bg-[#f2a20d]/90 active:scale-95 transition-all">
             Update Results
           </button>
         </div>
@@ -338,7 +348,6 @@ export default function SearchClient({ initialParams }: { initialParams: Record<
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Initialize filters from URL
   const defaultFilters = (params: Record<string, string | undefined>): SearchFilters => ({
     ritual: params.ritual || "",
     city: params.city || "",
@@ -356,19 +365,53 @@ export default function SearchClient({ initialParams }: { initialParams: Record<
   });
 
   const [filters, setFilters] = useState<SearchFilters>(() => defaultFilters(initialParams));
-  const [pandits] = useState<PanditResult[]>(MOCK_PANDITS);
+  const [pandits, setPandits] = useState<PanditResult[]>([]);
+  const [pagination, setPagination] = useState<PaginationInfo>({ total: 0, page: 1, limit: 10, totalPages: 0 });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  const search = useCallback(async (searchFilters: SearchFilters, page = 1) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const result = await fetchPandits(searchFilters, page);
+      setPandits(result.pandits);
+      setPagination(result.pagination);
+    } catch (err) {
+      setError("Failed to load pandits. Please try again.");
+      setPandits([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    search(filters, 1);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   const updateFilters = (patch: Partial<SearchFilters>) => {
-    setFilters(prev => {
-      // Serialize to URL logic would go here
-      return { ...prev, ...patch };
-    });
+    setFilters(prev => ({ ...prev, ...patch }));
   };
 
   const resetFilters = () => {
-    // Reset logic
+    const fresh = defaultFilters({});
+    setFilters(fresh);
+    search(fresh, 1);
   };
+
+  const applyFilters = () => search(filters, 1);
+
+  const loadMore = () => {
+    if (pagination.page < pagination.totalPages) {
+      fetchPandits(filters, pagination.page + 1).then(result => {
+        setPandits(prev => [...prev, ...result.pandits]);
+        setPagination(result.pagination);
+      });
+    }
+  };
+
+  const location = filters.city || "Delhi";
 
   return (
     <div className="min-h-screen bg-[#f8f7f5] dark:bg-[#221c10]">
@@ -382,7 +425,7 @@ export default function SearchClient({ initialParams }: { initialParams: Record<
       {sidebarOpen && (
         <div className="fixed inset-0 z-50 lg:hidden bg-black/50" onClick={() => setSidebarOpen(false)}>
           <div className="absolute left-0 top-0 bottom-0 w-80 bg-white dark:bg-[#1a140d] overflow-y-auto p-4" onClick={e => e.stopPropagation()}>
-            <Sidebar filters={filters} onChange={updateFilters} onReset={resetFilters} />
+            <Sidebar filters={filters} onChange={updateFilters} onReset={resetFilters} onApply={() => { setSidebarOpen(false); applyFilters(); }} />
           </div>
         </div>
       )}
@@ -390,7 +433,7 @@ export default function SearchClient({ initialParams }: { initialParams: Record<
       <div className="max-w-[1440px] mx-auto flex flex-col lg:flex-row gap-8 p-4 lg:p-8 relative">
         {/* Desktop Sidebar */}
         <div className="hidden lg:block">
-          <Sidebar filters={filters} onChange={updateFilters} onReset={resetFilters} />
+          <Sidebar filters={filters} onChange={updateFilters} onReset={resetFilters} onApply={applyFilters} />
         </div>
 
         {/* Main Content */}
@@ -398,19 +441,27 @@ export default function SearchClient({ initialParams }: { initialParams: Record<
           <div className="flex flex-col gap-6">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Top-tier Pandits in India</h1>
-                <p className="text-slate-500 text-sm mt-1">Showing verified scholars willing to travel to <span className="text-[#f2a20d] font-bold">Delhi</span></p>
+                <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+                  {filters.ritual ? `${filters.ritual} Pandits` : "Top-tier Pandits"}
+                  {loading && <span className="ml-3 text-base font-normal text-slate-400">Loading…</span>}
+                </h1>
+                <p className="text-slate-500 text-sm mt-1">
+                  {!loading && `${pagination.total} verified pandits`}
+                  {filters.city && <> in <span className="text-[#f2a20d] font-bold">{location}</span></>}
+                </p>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-sm text-slate-500">Sort by:</span>
                 <select
                   value={filters.sort}
-                  onChange={(e) => updateFilters({ sort: e.target.value })}
+                  onChange={(e) => { updateFilters({ sort: e.target.value }); }}
                   className="bg-white dark:bg-[#1a140d] border-slate-200 dark:border-white/10 rounded-lg text-sm font-medium focus:ring-[#f2a20d] focus:border-[#f2a20d] text-slate-900 dark:text-white"
                 >
                   <option>Best Match</option>
                   <option>Rating</option>
-                  <option>Experience</option>
+                  <option>Price (Low → High)</option>
+                  <option>Price (High → Low)</option>
+                  {filters.city && <option>Distance</option>}
                 </select>
               </div>
             </div>
@@ -421,25 +472,56 @@ export default function SearchClient({ initialParams }: { initialParams: Record<
                   <span className="material-symbols-outlined text-sm mr-1">check_circle</span> Search All India: ON
                 </span>
               )}
-              <span className="inline-flex items-center px-3 py-1 rounded-full bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300 text-xs font-bold border border-slate-200 dark:border-white/10">
-                <span className="material-symbols-outlined text-sm mr-1">flight_takeoff</span> Willing to Travel
-              </span>
-              <span className="inline-flex items-center px-3 py-1 rounded-full bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300 text-xs font-bold border border-slate-200 dark:border-white/10">
-                <span className="material-symbols-outlined text-sm mr-1">star</span> Rating 4.8+
-              </span>
+              {filters.ritual && (
+                <span className="inline-flex items-center px-3 py-1 rounded-full bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300 text-xs font-bold border border-slate-200 dark:border-white/10">
+                  <span className="material-symbols-outlined text-sm mr-1">auto_stories</span> {filters.ritual}
+                </span>
+              )}
+              {filters.date && (
+                <span className="inline-flex items-center px-3 py-1 rounded-full bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300 text-xs font-bold border border-slate-200 dark:border-white/10">
+                  <span className="material-symbols-outlined text-sm mr-1">calendar_month</span> {filters.date}
+                </span>
+              )}
             </div>
 
-            <div className="grid grid-cols-1 gap-6">
-              {pandits.map((pandit) => (
-                <EnhancedPanditCard key={pandit.id} pandit={pandit} />
-              ))}
-            </div>
+            {error && (
+              <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-sm text-red-600 dark:text-red-400">
+                {error}
+                <button onClick={applyFilters} className="ml-4 font-bold underline">Retry</button>
+              </div>
+            )}
 
-            <div className="mt-8 flex justify-center">
-              <button className="bg-white dark:bg-[#1a140d] border border-slate-200 dark:border-white/10 px-8 py-3 rounded-lg font-bold text-sm hover:bg-slate-50 dark:hover:bg-white/5 text-slate-900 dark:text-white transition-colors">
-                Load More Experts
-              </button>
-            </div>
+            {loading ? (
+              <div className="grid grid-cols-1 gap-6">
+                {[1, 2, 3].map(i => (
+                  <div key={i} className="bg-white dark:bg-[#1a140d]/80 rounded-xl border border-slate-100 dark:border-white/10 p-5 h-48 animate-pulse" />
+                ))}
+              </div>
+            ) : pandits.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16 text-center">
+                <span className="material-symbols-outlined text-slate-300 text-5xl mb-3">search_off</span>
+                <p className="text-slate-500 font-semibold">No pandits found</p>
+                <p className="text-slate-400 text-sm mt-1">Try adjusting your filters or search all India</p>
+                <button onClick={resetFilters} className="mt-4 text-[#f2a20d] font-bold text-sm hover:underline">Clear All Filters</button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-6">
+                {pandits.map((pandit) => (
+                  <EnhancedPanditCard key={pandit.id} pandit={pandit} />
+                ))}
+              </div>
+            )}
+
+            {!loading && pagination.page < pagination.totalPages && (
+              <div className="mt-8 flex justify-center">
+                <button
+                  onClick={loadMore}
+                  className="bg-white dark:bg-[#1a140d] border border-slate-200 dark:border-white/10 px-8 py-3 rounded-lg font-bold text-sm hover:bg-slate-50 dark:hover:bg-white/5 text-slate-900 dark:text-white transition-colors"
+                >
+                  Load More ({pagination.total - pandits.length} more)
+                </button>
+              </div>
+            )}
           </div>
         </section>
       </div>

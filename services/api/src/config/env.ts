@@ -14,7 +14,10 @@ const envSchema = z.object({
   NODE_ENV: z
     .enum(["development", "test", "production"])
     .default("development"),
-  API_PORT: z.coerce.number().default(4000),
+  PORT: z.coerce.number().default(3001),
+  API_PORT: z.coerce.number().default(3001),
+  MOCK_OTP: z.string().default("false"),
+  MOCK_NOTIFICATIONS: z.string().default("false"),
 
   DATABASE_URL: z.string().url("DATABASE_URL must be a valid PostgreSQL URL"),
 
@@ -25,8 +28,8 @@ const envSchema = z.object({
   JWT_EXPIRY: z.string().default("7d"),
 
   WEB_URL: z.string().default("http://localhost:3000"),
-  PANDIT_URL: z.string().default("http://localhost:3001"),
-  ADMIN_URL: z.string().default("http://localhost:3002"),
+  PANDIT_URL: z.string().default("http://localhost:3002"),
+  ADMIN_URL: z.string().default("http://localhost:3003"),
 
   RAZORPAY_KEY_ID: z.string().default(""),
   RAZORPAY_KEY_SECRET: z.string().default(""),

@@ -51,7 +51,7 @@ type Tab = "upcoming" | "past" | "cancelled";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api/v1";
+const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api/v1";
 const WA = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "919999999999";
 
 const TAB_STATUSES: Record<Tab, BookingStatus[]> = {

@@ -22,6 +22,8 @@ import muhuratRoutes from "./routes/muhurat.routes";
 import samagriRoutes from "./routes/samagri.routes";
 import voiceRoutes from "./routes/voice.routes";
 import kycRoutes from "./routes/kyc.routes";
+import onboardingRoutes from "./routes/onboarding.routes";
+import uploadRoutes from "./routes/upload.routes";
 
 const app: express.Application = express();
 
@@ -51,19 +53,18 @@ if (env.NODE_ENV !== "test") {
 }
 
 // ── Body Parsing ──────────────────────────────────────────────────────────────
-app.use(express.json({ limit: "5mb" }));  // Larger limit for voice/audio uploads
-app.use(express.urlencoded({ extended: true, limit: "5mb" }));
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 // ── Rate Limiting ─────────────────────────────────────────────────────────────
 app.use(generalLimiter);
 
 // ── Health Check (no versioning, no auth) ────────────────────────────────────
 app.get("/health", (_req, res) => {
-  res.json({
-    status: "ok",
-    timestamp: new Date().toISOString(),
-    version: "1.0.0",
-  });
+  res.json({ status: "ok", timestamp: new Date(), version: "1.0.0" });
+});
+app.get("/api/health", (_req, res) => {
+  res.json({ status: "ok", timestamp: new Date(), version: "1.0.0" });
 });
 
 // ── API Root ──────────────────────────────────────────────────────────────────
@@ -111,6 +112,10 @@ app.use(`${API_PREFIX}/muhurat`, muhuratRoutes);
 app.use(API_PREFIX, samagriRoutes);
 app.use(`${API_PREFIX}/voice`, voiceRoutes);
 app.use(`${API_PREFIX}/admin/kyc`, kycRoutes);
+app.use(`${API_PREFIX}/pandits/onboarding`, onboardingRoutes);
+app.use(`${API_PREFIX}/upload`, uploadRoutes);
+// Serve uploaded files statically
+app.use("/uploads", express.static("public/uploads"));
 
 // ── 404 ───────────────────────────────────────────────────────────────────────
 app.use(notFoundHandler);

@@ -11,6 +11,9 @@ import {
   type FoodArrangementType,
 } from "../services/travel.service";
 
+// Simple in-memory cache for travel calculations
+const travelCache = new Map<string, { data: any; expiry: number }>();
+
 const calculateSchema = z.object({
   fromCity: z.string().min(1),
   toCity: z.string().min(1),
@@ -58,6 +61,60 @@ export async function calculateTravel(req: Request, res: Response, next: NextFun
       });
       sendSuccess(res, result);
     }
+  } catch (err) {
+    next(err);
+  }
+}
+
+const batchCalculateSchema = z.object({
+  requests: z.array(z.object({
+    fromCity: z.string().min(1),
+    toCity: z.string().min(1),
+    panditId: z.string().min(1),
+  })).max(20),
+  eventDays: z.number().int().min(1).default(1),
+  foodArrangement: z.enum(["CUSTOMER_PROVIDES", "PLATFORM_ALLOWANCE"]).default("CUSTOMER_PROVIDES"),
+});
+
+/**
+ * POST /travel/batch-calculate
+ */
+export async function batchCalculateTravel(req: Request, res: Response, next: NextFunction) {
+  try {
+    const body = batchCalculateSchema.parse(req.body);
+    const results: Record<string, any> = {};
+
+    await Promise.all(body.requests.map(async (request) => {
+      const cacheKey = `travel:${request.fromCity}:${request.toCity}:${body.eventDays}:${body.foodArrangement}`;
+
+      const cached = travelCache.get(cacheKey);
+      if (cached && cached.expiry > Date.now()) {
+        results[request.panditId] = cached.data;
+        return;
+      }
+
+      try {
+        const options = await calculateAllOptions({
+          fromCity: request.fromCity,
+          toCity: request.toCity,
+          eventDays: body.eventDays,
+          foodArrangement: body.foodArrangement as FoodArrangementType,
+        });
+
+        // Cache for 30 min
+        travelCache.set(cacheKey, {
+          data: options.options,
+          expiry: Date.now() + 30 * 60 * 1000
+        });
+
+        results[request.panditId] = options.options;
+      } catch (err) {
+        // Distance not found or error calculating, just return empty array
+        results[request.panditId] = [];
+      }
+    }));
+
+    sendSuccess(res, { results });
   } catch (err) {
     next(err);
   }

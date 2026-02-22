@@ -1,0 +1,241 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import Image from "next/image";
+import { QuickSearchBar } from "../components/QuickSearchBar";
+import { MuhuratCalendar } from "../components/MuhuratCalendar";
+import { FeaturedPanditsList } from "../components/FeaturedPanditsList";
+import { getFeaturedPandits, getMuhuratDates, getUpcomingMuhurat } from "../lib/api";
+
+export const metadata: Metadata = {
+  title: "HmarePanditJi | Book Verified Pandits & Sacred Rituals",
+  description: "Book Verified Pandits for Every Sacred Occasion. Transparent pricing, travel managed, backup guaranteed.",
+};
+
+export default async function HomePage() {
+  const today = new Date();
+  const currentMonth = today.getMonth() + 1;
+  const currentYear = today.getFullYear();
+
+  const [featuredPandits, muhuratDates, upcomingMuhurat] = await Promise.all([
+    getFeaturedPandits(),
+    getMuhuratDates(currentMonth, currentYear),
+    getUpcomingMuhurat(3),
+  ]);
+
+  return (
+    <div className="flex min-h-screen flex-col">
+      {/* Hero Section */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-amber-50 to-amber-100/50 pt-20 pb-32">
+        <div className="absolute inset-0 bg-[url('/mandala-pattern.png')] bg-repeat opacity-[0.03]" />
+
+        <div className="container relative mx-auto px-4 md:px-6 text-center z-10">
+          <h1 className="mx-auto max-w-4xl text-4xl font-black leading-tight tracking-tight text-gray-900 md:text-5xl lg:text-[48px]">
+            Book Verified Pandits for <span className="text-amber-600">Every Sacred Occasion</span>
+          </h1>
+          <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-600 md:text-[20px]">
+            Transparent pricing &middot; Travel managed &middot; Backup guaranteed
+          </p>
+
+          <div className="mt-10 mx-auto max-w-4xl">
+            <QuickSearchBar />
+            <p className="mt-4 text-sm text-gray-500 font-medium">
+              No registration needed to explore &rarr;
+            </p>
+          </div>
+
+          <div className="mt-12 flex flex-col items-center justify-center gap-6 sm:flex-row sm:gap-12 md:mt-16 text-sm font-semibold text-gray-700">
+            <div className="flex items-center gap-2">
+              <span className="text-xl">🕉</span> 500+ Verified Pandits
+            </div>
+            <div className="hidden h-1.5 w-1.5 rounded-full bg-gray-300 sm:block" />
+            <div className="flex items-center gap-2">
+              <span className="text-xl">⭐</span> 4.8 Avg Rating
+            </div>
+            <div className="hidden h-1.5 w-1.5 rounded-full bg-gray-300 sm:block" />
+            <div className="flex items-center gap-2">
+              <span className="text-xl">✅</span> ₹0 Hidden Costs
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* How it works */}
+      <section className="bg-white py-20">
+        <div className="container mx-auto px-4 md:px-6">
+          <h2 className="text-center text-3xl font-black text-gray-900 md:text-4xl mb-12">
+            Book in 3 Simple Steps
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+            <div className="flex flex-col items-center text-center">
+              <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-100 text-amber-600 text-3xl shadow-sm">
+                🔍
+              </div>
+              <h3 className="mb-3 text-xl font-bold text-gray-900">Step 1: Discover</h3>
+              <p className="text-gray-600 leading-relaxed">
+                Search from 500+ verified Pandits across India. Filter by specialization, language, and travel preference.
+              </p>
+            </div>
+            <div className="flex flex-col items-center text-center">
+              <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-100 text-amber-600 text-3xl shadow-sm">
+                📅
+              </div>
+              <h3 className="mb-3 text-xl font-bold text-gray-900">Step 2: Book with Muhurat</h3>
+              <p className="text-gray-600 leading-relaxed">
+                Pick an auspicious date from our Muhurat Explorer. Complete pricing shown upfront — no surprises.
+              </p>
+            </div>
+            <div className="flex flex-col items-center text-center">
+              <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-100 text-amber-600 text-3xl shadow-sm">
+                🙏
+              </div>
+              <h3 className="mb-3 text-xl font-bold text-gray-900">Step 3: Celebrate</h3>
+              <p className="text-gray-600 leading-relaxed">
+                We manage all travel and logistics. Backup guarantee available for important events.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Muhurat Explorer Widget */}
+      <section className="bg-amber-50/50 py-20 border-y border-amber-100/50">
+        <div className="container mx-auto px-4 md:px-6 max-w-5xl">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-black text-gray-900 md:text-4xl">
+              📅 Muhurat Explorer — Find Auspicious Dates
+            </h2>
+            <p className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">
+              Click any highlighted date to see available pujas
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
+            <div>
+              <MuhuratCalendar muhuratDates={muhuratDates} />
+              <div className="mt-4 text-right">
+                <Link href="/muhurat" className="text-sm font-bold text-amber-600 hover:text-amber-700 transition-colors">
+                  View Full Muhurat Calendar &rarr;
+                </Link>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-amber-100">
+              <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+                <span className="material-symbols-outlined text-amber-500">event_upcoming</span>
+                Upcoming Auspicious Dates
+              </h3>
+
+              <div className="space-y-4">
+                {upcomingMuhurat.map((m: any, idx: number) => {
+                  const date = new Date(m.date);
+                  const formatted = date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+                  return (
+                    <div key={idx} className="flex flex-col gap-1 p-4 rounded-xl border border-gray-100 hover:border-amber-200 transition-colors bg-gray-50/50 hover:bg-amber-50/30">
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-gray-900">{formatted}</span>
+                        <span className="text-xs font-semibold px-2 py-1 bg-white border rounded text-amber-600">{m.timeWindow || "Morning - Evening"}</span>
+                      </div>
+                      <p className="text-sm text-gray-600 font-medium">{m.pujaType}</p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Pandits Carousel */}
+      <section className="bg-white py-20">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-black text-gray-900 md:text-4xl">
+              ⭐ Highly Rated Pandits
+            </h2>
+            <p className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">
+              Verified experts ready to travel anywhere
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <FeaturedPanditsList pandits={featuredPandits} />
+          </div>
+
+          <div className="mt-12 text-center">
+            <Link href="/search" className="inline-flex items-center justify-center px-8 py-3.5 text-sm font-bold text-amber-600 bg-amber-50 hover:bg-amber-100 rounded-xl transition-colors">
+              View All Pandits &rarr;
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Puja Categories Quick Access */}
+      <section className="bg-gray-50 py-20 border-t border-gray-100">
+        <div className="container mx-auto px-4 md:px-6">
+          <h2 className="text-center text-3xl font-black text-gray-900 md:text-4xl mb-12">
+            Browse by Occasion
+          </h2>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+            {[
+              { icon: "💍", label: "Vivah (Wedding)" },
+              { icon: "🏠", label: "Griha Pravesh" },
+              { icon: "🕉", label: "Satyanarayan Puja" },
+              { icon: "👶", label: "Mundan / Namkaran" },
+              { icon: "🔥", label: "Havan / Hom" }
+            ].map((cat) => (
+              <Link
+                key={cat.label}
+                href={`/search?pujaType=${encodeURIComponent(cat.label.split(' ')[0])}`}
+                className="flex flex-col items-center justify-center gap-3 p-6 bg-white rounded-2xl shadow-sm border border-gray-100 hover:border-amber-300 hover:shadow-md transition-all group"
+              >
+                <div className="text-4xl group-hover:scale-110 transition-transform">{cat.icon}</div>
+                <div className="text-sm font-semibold text-center text-gray-800">{cat.label}</div>
+              </Link>
+            ))}
+            <Link
+              href="/search"
+              className="flex flex-col items-center justify-center gap-3 p-6 bg-amber-50 rounded-2xl border border-amber-200 hover:bg-amber-100 transition-colors group"
+            >
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-200 text-amber-700 font-bold group-hover:scale-110 transition-transform">
+                <span className="material-symbols-outlined">arrow_forward</span>
+              </div>
+              <div className="text-sm font-bold text-amber-800">View All</div>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Trust & Safety Section */}
+      <section className="bg-white py-24">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            <div className="flex flex-col gap-4 p-8 rounded-3xl bg-slate-50 border border-slate-100">
+              <div className="text-4xl">🛡️</div>
+              <h3 className="text-xl font-bold text-slate-900">Multi-Layer Verification</h3>
+              <p className="text-slate-600 leading-relaxed text-sm">
+                Every Pandit undergoes Aadhaar verification, certificate validation, and live Video KYC before joining.
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-4 p-8 rounded-3xl bg-green-50/50 border border-green-100">
+              <div className="text-4xl">💰</div>
+              <h3 className="text-xl font-bold text-green-900">100% Transparent Pricing</h3>
+              <p className="text-green-800/80 leading-relaxed text-sm">
+                Dakshina + Travel + Samagri + GST — all shown upfront before you pay. Zero hidden charges.
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-4 p-8 rounded-3xl bg-blue-50/50 border border-blue-100">
+              <div className="text-4xl">✈️</div>
+              <h3 className="text-xl font-bold text-blue-900">Travel Fully Managed</h3>
+              <p className="text-blue-800/80 leading-relaxed text-sm">
+                We coordinate train tickets, flights, cabs, and hotel for outstation Pandits. You just attend the ceremony.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}

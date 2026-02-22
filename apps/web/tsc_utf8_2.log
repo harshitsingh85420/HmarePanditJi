@@ -1,0 +1,7 @@
+src/app/booking/new/page.tsx(125,8): error TS2322: Type 'string' is not assignable to type 'boolean | undefined'.
+src/app/login/page.tsx(121,259): error TS2322: Type 'string' is not assignable to type 'number'.
+src/app/search/search-client.tsx(373,18): error TS2304: Cannot find name 'useCallback'.
+src/app/search/search-client.tsx(427,88): error TS2322: Type '{ filters: SearchFilters; onChange: (patch: Partial<SearchFilters>) => void; onReset: () => void; onApply: () => void; }' is not assignable to type 'IntrinsicAttributes & { filters: SearchFilters; onChange: (patch: Partial<SearchFilters>) => void; onReset: () => void; }'.
+  Property 'onApply' does not exist on type 'IntrinsicAttributes & { filters: SearchFilters; onChange: (patch: Partial<SearchFilters>) => void; onReset: () => void; }'.
+src/app/search/search-client.tsx(435,86): error TS2322: Type '{ filters: SearchFilters; onChange: (patch: Partial<SearchFilters>) => void; onReset: () => void; onApply: () => any; }' is not assignable to type 'IntrinsicAttributes & { filters: SearchFilters; onChange: (patch: Partial<SearchFilters>) => void; onReset: () => void; }'.
+  Property 'onApply' does not exist on type 'IntrinsicAttributes & { filters: SearchFilters; onChange: (patch: Partial<SearchFilters>) => void; onReset: () => void; }'.
