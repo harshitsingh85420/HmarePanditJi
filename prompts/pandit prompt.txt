@@ -1,0 +1,917 @@
+# HmarePanditJi – Phase 1 Pandit App – Complete Build Prompts
+
+This is the single source of truth. Every prompt is self‑contained, follows the exact specifications from Bhag 12, and must be executed in order.  
+**Stack**: Next.js 14 PWA (`localhost:3002`) + REST API (`localhost:3001`)  
+**Principles**: Voice‑first, Hindi‑first, 44 px+ tap targets, works on ₹8 k Android phones.
+
+---
+
+## 📦 Prompt 1 – Project Setup, Global Rules & Auth Integration
+
+**Goal**  
+Create the monorepo structure, install all dependencies, implement the shared voice hooks, authentication middleware, device info capture, and the unified login integration.
+
+**Files to create/modify**  
+- `apps/pandit/package.json` – Next.js 14 with PWA support (`next-pwa`)  
+- `apps/pandit/app/layout.tsx` – Root layout with Inter font, global CSS, PWA manifest  
+- `apps/pandit/app/login/page.tsx` – **No login page** (redirects to `localhost:3000/login`)  
+- `apps/pandit/middleware.ts` – Auth & onboarding redirect rules  
+- `apps/pandit/hooks/useVoiceNarration.ts` – SpeechSynthesis wrapper  
+- `apps/pandit/hooks/useVoiceInput.ts` – SpeechRecognition wrapper  
+- `apps/pandit/hooks/useDeviceInfo.ts` – User‑agent parser, posts to API  
+- `apps/pandit/components/VoiceButton.tsx` – Reusable orange pill 🔊 with speech synthesis  
+- `apps/pandit/types/onboarding.ts`, `types/booking.ts` – Shared TypeScript types
+
+**Detailed instructions**
+
+1. **Project initialization**  
+   - In the monorepo root, create `apps/pandit` using `create-next-app@latest` with TypeScript, Tailwind, App Router.  
+   - Add `next-pwa` and configure `next.config.js` for PWA (manifest, service worker).  
+   - Install additional deps: `axios`, `react-hook-form`, `zod`, `date-fns`, `lucide-react`, `framer-motion` (only for minimal animations).  
+   - Ensure the app runs on port 3002 (set in `package.json` dev script: `next dev -p 3002`).
+
+2. **Global layout (`app/layout.tsx`)**  
+   - Import Inter from `next/font/google`.  
+   - Set `lang="hi"` on `<html>`.  
+   - Include a `<header>` with logo and `GuestBanner` (only shown if not logged in).  
+   - Include a `<footer>` with contact links.  
+   - Wrap the app with an `AuthProvider` (client component) that manages token and user state from localStorage.  
+   - Add PWA meta tags and manifest link.
+
+3. **Middleware (`middleware.ts`)**  
+   - Define protected routes: `/dashboard/*`, `/onboarding/*`, `/bookings/*`, `/calendar/*`, `/earnings/*`, `/profile/*`.  
+   - If no token → redirect to `http://localhost:3000/login?redirect=pandit&next=${path}`.  
+   - If token exists but `onboardingComplete === false` → redirect to `/onboarding?step=<lastCompletedStep+1>` (read from token or fetch user).  
+   - If token exists, onboarding complete, but `verificationStatus !== 'VERIFIED'` → allow dashboard but show pending banner.  
+   - If token exists and role is `ADMIN` → redirect to `localhost:3003`.
+
+4. **Voice hooks**  
+   - **`useVoiceNarration.ts`** – Returns `speak(text: string, lang='hi-IN')` and `stop()`. Use `window.speechSynthesis`.  
+   - **`useVoiceInput.ts`** – Returns `startListening(onResult: (transcript: string) => void)` and `stopListening()`. Use `webkitSpeechRecognition` or standard `SpeechRecognition`. Set language to `hi-IN`. Emits interim results, final result on `speechend`.  
+   - Both hooks must gracefully degrade (if API unavailable, show a toast but not crash).
+
+5. **Device info capture**  
+   - In `useDeviceInfo.ts`, parse `navigator.userAgent` to extract `deviceModel` and `deviceOs` (use a lightweight parser like `ua-parser-js`).  
+   - On every successful login (token received), call `POST /api/pandit/device-info` with the parsed info.  
+   - Store this info in `PanditProfile`; it will be visible on the public profile later.
+
+6. **Unified login integration (at `localhost:3000`)**  
+   - The login page at `apps/web/app/login/page.tsx` must include a role toggle (Customer / Pandit Ji).  
+   - When “Pandit Ji” is selected, the OTP flow should call `/api/auth/send-otp` and `/api/auth/verify-otp` with `role='PANDIT'`.  
+   - After OTP verification, the backend returns a JWT. Save it to localStorage with key `hpj_pandit_token`.  
+   - Then redirect to `localhost:3002/dashboard` (or the `next` param).  
+   - In the Pandit app, the `AuthProvider` reads the token from localStorage and attaches it to all API requests via `Authorization` header.
+
+7. **Voice button component**  
+   - `VoiceButton.tsx` – An orange pill with 🔊 icon and text “सुनें”.  
+   - Accepts a `text` prop; on click, calls `speak(text)`. While speaking, icon changes to ⏹️ and text to “बंद करें”.  
+   - Clicking stop cancels speech.  
+   - Place this button in the top‑right corner of every onboarding step and on key dashboard pages.
+
+8. **Global CSS / design tokens**  
+   - Primary amber: `#F09942`.  
+   - Danger red: `#EF4444`.  
+   - Success green: `#10B981`.  
+   - Info blue: `#3B82F6`.  
+   - Border‑radius: `12px` for cards, `8px` for buttons, `24px` for pills.  
+   - All interactive elements must have `min-height: 44px` and `min-width: 44px`.
+
+**Testing**  
+- Run the app on a low‑end Android device (or Chrome device emulation) to verify touch targets.  
+- Ensure that without a token, navigation to `/dashboard` redirects to the login page on port 3000.  
+- After login, token is stored and device info is posted.
+
+---
+
+## 📦 Prompt 2 – Onboarding Wizard Shell & Step 1 (Basic Info)
+
+**Goal**  
+Build the 6‑step wizard container, progress bar, and implement Step 1: personal details, profile photo, audio bio recording, Aadhaar/PAN.
+
+**Files to create/modify**  
+- `apps/pandit/app/onboarding/page.tsx` – Shell that reads `?step` and renders the appropriate step component  
+- `apps/pandit/app/onboarding/layout.tsx` – Minimal layout (no sidebar, just the wizard)  
+- `apps/pandit/app/onboarding/components/StepProgress.tsx` – 6‑step progress bar with labels  
+- `apps/pandit/app/onboarding/components/Step1.tsx` – All fields from section C  
+- `apps/pandit/app/onboarding/components/AudioBioRecorder.tsx` – 3‑state recorder (before, recording, review)  
+- `apps/pandit/hooks/useOnboarding.ts` – Zustand (or context) to persist step data in localStorage  
+- `apps/pandit/components/FormFieldWithVoice.tsx` – Wrapper for inputs with mic button
+
+**Detailed instructions**
+
+1. **Onboarding shell (`page.tsx`)**  
+   - Use search params to get `step`. If missing, default to `1`.  
+   - If step > last completed step (from `useOnboarding` state) and user is not yet verified, redirect to the last incomplete step.  
+   - Render `<StepProgress currentStep={step} />` at the top.  
+   - Conditionally render `<Step1 />`, `<Step2 />`, etc. based on `step`.  
+   - Provide “Save & Continue” and “Back” buttons (except on step 1). On save, call API for that step, then update local state and advance.
+
+2. **Step progress component**  
+   - Display 6 circles connected by lines.  
+   - Labels (Hindi): 1=जानकारी, 2=पूजा, 3=यात्रा, 4=सामग्री, 5=KYC, 6=बैंक.  
+   - Completed steps: green filled with ✓. Current step: amber pulsing circle. Future steps: gray empty.  
+   - On mobile, show only the current step label.
+
+3. **Step 1 form (`Step1.tsx`)**  
+   - All fields from section C3c:  
+     * Full name (text, required, min 3 chars, mic)  
+     * Date of birth (date picker, max today‑18, shows age after selection)  
+     * Gender (3 large pill radios: पुरुष / महिला / अन्य)  
+     * Home city (searchable dropdown from `SUPPORTED_CITIES`, mic)  
+     * Home state (auto‑filled when city selected, editable)  
+     * Experience years (number input with “वर्ष” suffix)  
+     * Bio (textarea, 50‑300 chars, character counter, mic)  
+     * Aadhaar number (12‑digit masked, regex, stored encrypted)  
+     * PAN number (uppercase, regex, optional)  
+   - Each text field uses `<FormFieldWithVoice>` which adds a mic icon that triggers speech recognition and fills the field.  
+   - Profile photo upload (large circular avatar with camera overlay).  
+     * On click: file picker → upload to `/api/upload/profile-photo`. Show spinner, on success update photo URL.  
+   - Audio bio recorder (section C3b) – use `<AudioBioRecorder />`.
+
+4. **AudioBioRecorder component**  
+   - **State A (before)**: Amber card with microphone icon, heading “अपना ऑडियो परिचय रिकॉर्ड करें”, subtext, example prompt box, large red 🎙️ “रिकॉर्ड करें” button.  
+   - **State B (recording)**: Pulsing red border, timer counting up to 2 min (auto‑stop), stop button. Use `MediaRecorder` API.  
+   - **State C (review)**: `<audio controls>` with recorded blob, green “✅ यह ठीक है — Upload करें”, amber outline “🔄 दोबारा रिकॉर्ड करें”.  
+   - On upload: `POST /api/upload/audio-bio`. On success, store URL in state.  
+   - Allow skip: “बाद में भी जोड़ सकते हैं” link (optional).
+
+5. **Form persistence**  
+   - In `useOnboarding.ts`, use Zustand with persist middleware (or React context + localStorage) to store all step data.  
+   - On each field change, update the store.  
+   - On “Save & Continue”, validate required fields, then call `POST /api/pandit/onboarding/step1` with the collected data.  
+   - After successful API response, mark step 1 as completed and navigate to `?step=2`.
+
+6. **Backend API – Step 1**  
+   - `POST /api/pandit/onboarding/step1`  
+   - Expects all fields, encrypts Aadhaar before storing, saves to `User` and `PanditProfile`.  
+   - Returns `{ success: true, step: 1 }`.
+
+**Testing**  
+- Try the flow on a mobile device: mic should work.  
+- After filling, refresh the page – data should persist.  
+- Upload a photo and audio; ensure they are sent to the API.
+
+---
+
+## 📦 Prompt 3 – Onboarding Step 2 (Puja Specializations)
+
+**Goal**  
+Implement Step 2: puja type selection, languages, vedic degree, gotra, certifications, and per‑puja dakshina/duration.
+
+**Files to create/modify**  
+- `apps/pandit/app/onboarding/components/Step2.tsx`  
+- `apps/pandit/components/PujaTypeGrid.tsx` – re‑usable pill grid  
+- `apps/pandit/components/LanguageGrid.tsx` – re‑usable pill grid for languages  
+- `apps/pandit/components/DakshinaRow.tsx` – inline editor for per‑puja pricing
+
+**Detailed instructions**
+
+1. **Voice narration**  
+   - Place `VoiceButton` with the Hindi text from section D1.
+
+2. **Puja types grid**  
+   - Use the list from section D2. Each item: emoji + Hindi name.  
+   - Pill cards: selected = amber fill + white text, unselected = gray border + dark text.  
+   - Must select at least 1.  
+   - Voice input: when user clicks mic, listen for a phrase like “विवाह” and auto‑select the matching pill (fuzzy match using a simple string similarity).
+
+3. **Languages grid**  
+   - Use list from section D3. Hindi pre‑selected and cannot be deselected if it is the only selection.  
+   - Multi‑select, minimum 1.
+
+4. **Vedic degree dropdown**  
+   - Options from section D4. Default “कोई नहीं”.
+
+5. **Gotra input**  
+   - Text field with mic. Optional.
+
+6. **Certifications**  
+   - Tag‑input component: user types a certificate name and presses Enter to add as a tag. Max 5.  
+   - Display existing tags with remove (×) button.  
+   - Examples shown as hints below.
+
+7. **Per‑puja dakshina & duration**  
+   - After puja types are selected, a sub‑section appears below the grid: “प्रत्येक पूजा के लिए दक्षिणा और समय”.  
+   - For each selected puja, render a compact row with:  
+     * Puja name (read‑only amber label)  
+     * Dakshina (₹ number input, min ₹500, required, mic)  
+     * Duration (decimal hours, min 0.5, max 12, required)  
+     * Description (short textarea, optional, mic)  
+   - Use `DakshinaRow` component.
+
+8. **Validation & persistence**  
+   - Store all selections in Zustand store.  
+   - On “Save & Continue”, validate at least one puja selected, all dakshina fields filled.  
+   - Call `POST /api/pandit/onboarding/step2` with the data.  
+   - On success, mark step 2 completed, go to `?step=3`.
+
+9. **Backend API – Step 2**  
+   - `POST /api/pandit/onboarding/step2`  
+   - Expects `{ pujaTypes, languages, vedicDegree, gotra, certifications, dakshinas: [{pujaType, amount, durationHours, description}] }`  
+   - Deletes old `PanditSpecialization` and `PujaService` records, inserts new ones.  
+   - Updates `PanditProfile` with languages, vedicDegree, gotra, certifications.  
+   - Returns `{ success: true, step: 2 }`.
+
+**Testing**  
+- Ensure that selecting/deselecting puja types correctly shows/hides the dakshina rows.  
+- Try voice input for puja names.  
+- Verify that after refresh, selected pujas and entered dakshina are restored.
+
+---
+
+## 📦 Prompt 4 – Onboarding Step 3 (Travel Preferences)
+
+**Goal**  
+Implement Step 3: main travel toggle, per‑mode distance sliders, self‑drive options, hotel preference, advance notice.
+
+**Files to create/modify**  
+- `apps/pandit/app/onboarding/components/Step3.tsx`  
+- `apps/pandit/components/TravelModeCard.tsx` – card with mode icon, toggle, and distance slider  
+- `apps/pandit/components/SliderWithPresets.tsx` – slider with preset buttons
+
+**Detailed instructions**
+
+1. **Voice narration** – use `VoiceButton` with text from section E1.
+
+2. **Main travel toggle**  
+   - Large switch with “क्या आप दूर के बुकिंग के लिए यात्रा करेंगे?” – YES / NO. Default YES.  
+   - If NO, hide all travel‑related fields, set `maxTravelDistanceKm = 0`, and ensure only local bookings are sent.
+
+3. **Travel mode cards**  
+   - For each mode (self‑drive, cab, bus, train, flight), render a `TravelModeCard`.  
+   - Each card contains:  
+     * Mode icon + name (Hindi + English)  
+     * Toggle to enable/disable the mode  
+     * When enabled, show a distance slider (single value or range per spec).  
+   - Distance ranges:  
+     * Self‑drive: 0–200 km, presets 25, 50, 100 km  
+     * Cab: 50–500 km, presets 100, 200, 300 km  
+     * Bus: 100–800 km, presets 200, 400, 600 km  
+     * Train: 200–2000 km, presets 500, 1000, 1500 km  
+     * Flight: toggle only (any distance)  
+   - Use `SliderWithPresets` component.
+
+4. **Self‑drive additional fields** (only if self‑drive enabled)  
+   - Vehicle type: pill buttons – Car / Bike / दोनों  
+   - Rate per km: number input with ₹ prefix, default ₹12, min ₹8, max ₹25.  
+   - Note: “यह rate आपको reimburse होगा — यात्रा लागत का calculation इसी से होगा”
+
+5. **Hotel preference** (shown when any mode beyond self‑drive is enabled)  
+   - Pill buttons single‑select: बजट होटल / 3‑स्टार / 4‑स्टार / कोई भी चलेगा
+
+6. **Advance notice**  
+   - Segmented control: 1 दिन / 2 दिन / 3 दिन / 7 दिन / कोई भी  
+   - This sets `advanceNoticeDays` (integer). Bookings requiring shorter notice will not be offered.
+
+7. **Food allowance policy info card** (read‑only)  
+   - Green card with platform policy: ₹1000/day for travel days + puja days if customer doesn’t provide meals.  
+   - No editable fields, just information.
+
+8. **Validation & persistence**  
+   - Store all preferences in Zustand.  
+   - On “Save & Continue”, if main toggle is YES, ensure at least one mode enabled.  
+   - Call `POST /api/pandit/onboarding/step3` with the travel preferences JSON.  
+   - On success, go to `?step=4`.
+
+9. **Backend API – Step 3**  
+   - `POST /api/pandit/onboarding/step3`  
+   - Body: `{ willingToTravel, travelModes: [{ mode, enabled, maxDistanceKm }], vehicleType, ratePerKm, hotelPreference, advanceNoticeDays }`  
+   - Updates `PanditProfile.travelPreferences` as JSON.  
+   - Returns `{ success: true, step: 3 }`.
+
+**Testing**  
+- Toggle self‑drive on/off – the vehicle fields should appear/disappear.  
+- Change slider values – they should update the store.  
+- Verify that food allowance card is always visible and matches spec.
+
+---
+
+## 📦 Prompt 5 – Onboarding Step 4 (Samagri Packages)
+
+**Goal**  
+Implement Step 4: dual‑model samagri package creation with three tiers, item entry, and live preview.
+
+**Files to create/modify**  
+- `apps/pandit/app/onboarding/components/Step4.tsx`  
+- `apps/pandit/components/SamagriPackageCard.tsx` – per‑tier card with toggle, price, item list  
+- `apps/pandit/components/LivePreviewCard.tsx` – shows how package looks to customer  
+- `apps/pandit/components/VoiceItemEntry.tsx` – voice‑driven item tag input
+
+**Detailed instructions**
+
+1. **Voice narration** – use `VoiceButton` with text from section F2.
+
+2. **Puja type selector**  
+   - If multiple puja types were selected in Step 2, show horizontal tabs; the pandit configures packages per puja separately.  
+   - Default tab = first puja type.
+
+3. **Default vs custom list choice**  
+   - Two radio options: “पहले से बनी list इस्तेमाल करें” (platform pre‑populated list) and “नई list खुद बनाएं”.  
+   - If platform list chosen, show a default item set for that puja (hard‑coded in frontend, e.g., for Vivah: “कुमकुम, चावल, अगरबत्ती, घी, दीपक, फूल”).  
+   - Pandit can edit quantities/qualities.
+
+4. **Package cards**  
+   - Three cards for Basic, Standard, Premium (order fixed).  
+   - Each card has a toggle to enable/disable. Disabled card = grayed out, fields non‑editable.  
+   - Fields:  
+     * Package name (text, placeholder “साधारण पूजा सामग्री”, max 40 chars)  
+     * Price (₹ number, min ₹100, required if enabled)  
+     * Description (textarea, 50‑200 chars)  
+     * Item list (tag‑input with voice support)  
+         - On 🎙️, use voice input to speak items in sequence: “Ghee ek kilo, Kumkum ek packet”.  
+         - Parse spoken items and add as tags.  
+     * For each item, user can optionally type quantity (e.g., “1 kg”) and quality note (e.g., “Shuddh Desi Ghee”).  
+   - At least one package must be enabled to proceed.
+
+5. **Live preview card**  
+   - Right side (desktop) / below (mobile) shows a preview of the currently selected puja + tier.  
+   - Displays package name, price in large, item list, description. Updates live as pandit edits.  
+   - Title: “ग्राहक को ऐसा दिखेगा”.
+
+6. **Voice‑driven item entry**  
+   - `VoiceItemEntry` component: when mic clicked, start listening. Pandit speaks items separated by pauses or commas.  
+   - Recognized items are shown as tags with quantity input alongside.  
+   - If item not in master database, still add as custom item.
+
+7. **Validation & persistence**  
+   - Store packages in Zustand.  
+   - On “Save & Continue”, validate that at least one package is enabled and all required fields are filled.  
+   - Call `POST /api/pandit/onboarding/step4` with the packages data.  
+   - On success, go to `?step=5`.
+
+8. **Backend API – Step 4**  
+   - `POST /api/pandit/onboarding/step4`  
+   - Body: `{ canBringSamagri: true, packages: [{ pujaType, tier, name, price, description, items: [{name, quantity, qualityNote}] }] }`  
+   - Deletes old packages, inserts new ones.  
+   - Returns `{ success: true, step: 4 }`.
+
+**Testing**  
+- Switch between puja tabs – packages should be separate.  
+- Enable a package, fill items, see live preview update.  
+- Use voice to add items – should work on Chrome Android.
+
+---
+
+## 📦 Prompt 6 – Onboarding Step 5 (Video KYC & Documents)
+
+**Goal**  
+Implement Step 5: upload of Aadhaar front/back, selfie with Aadhaar, and in‑browser video KYC recording.
+
+**Files to create/modify**  
+- `apps/pandit/app/onboarding/components/Step5.tsx`  
+- `apps/pandit/components/UploadZone.tsx` – dashed‑border upload area with progress  
+- `apps/pandit/components/KYCVideoCapture.tsx` – 3‑state video recorder
+
+**Detailed instructions**
+
+1. **Voice narration** – use `VoiceButton` with text from section G1.
+
+2. **Document upload zones**  
+   - Three zones vertically on mobile, horizontally on desktop:  
+     * आधार कार्ड — सामने (Aadhaar Front)  
+     * आधार कार्ड — पीछे (Aadhaar Back)  
+     * आधार के साथ सेल्फी (Selfie with Aadhaar)  
+   - Each zone: dashed border, 120 px tall, camera icon, caption.  
+   - On click/tap: open file picker (accept images and PDF for front/back; images only for selfie).  
+   - On file select: upload to `/api/upload/kyc-document?type=...`, show progress bar inside zone.  
+   - On success: replace dashed border with solid green border + thumbnail of uploaded image.
+
+3. **Video KYC recording**  
+   - Component `KYCVideoCapture.tsx` with three states:  
+     * **Instructions**: Amber card with bullet points of what to say, large 🎥 “Video Record करें” button.  
+     * **Recording**: Camera feed (via `getUserMedia`), 30‑second countdown timer (auto‑stop), stop button.  
+       - Record using `MediaRecorder`, collect chunks.  
+     * **Review**: `<video>` element with playback, green “✅ यह ठीक है — Upload करें”, amber “🔄 फिर से Record करें”.  
+   - On upload: `POST /api/upload/kyc-video` (multipart, max 50 MB).  
+   - On success: show green “✅ Video upload हो गई”.
+
+4. **Completion status**  
+   - After all 4 uploads are successful, show a green card:  
+     * “✅ सभी दस्तावेज़ जमा हो गए!”  
+     * “हमारी team 24‑48 घंटों में verify करेगी।”  
+     * “Verification के बाद आपको SMS आएगा।”  
+   - The “Save & Continue” button is disabled until all uploads are done.
+
+5. **Validation & persistence**  
+   - Store uploaded URLs in Zustand.  
+   - On “Save & Continue”, call `POST /api/pandit/onboarding/step5` with all four URLs.  
+   - On success, go to `?step=6`.
+
+6. **Backend API – Step 5**  
+   - `POST /api/pandit/onboarding/step5`  
+   - Body: `{ aadhaarFrontUrl, aadhaarBackUrl, aadhaarSelfieUrl, kycVideoUrl }`  
+   - Creates a `KYCSubmission` record, updates `PanditProfile.verificationStatus = 'DOCUMENTS_SUBMITTED'`.  
+   - Returns `{ success: true, step: 5 }`.
+
+**Testing**  
+- Test upload with large images (should show progress).  
+- Test video recording, ensure 30‑second limit works.  
+- After all uploads, the button should become enabled.
+
+---
+
+## 📦 Prompt 7 – Onboarding Step 6 (Bank Details & Submission)
+
+**Goal**  
+Implement Step 6: bank account form, IFSC explanation modal, submission, and celebration page.
+
+**Files to create/modify**  
+- `apps/pandit/app/onboarding/components/Step6.tsx`  
+- `apps/pandit/app/onboarding/complete/page.tsx` – celebration page  
+- `apps/pandit/components/IFSCModal.tsx` – modal explaining IFSC
+
+**Detailed instructions**
+
+1. **Voice narration** – use `VoiceButton` with text from section H1.
+
+2. **Warning card**  
+   - Red/yellow card with ⚠️ icon and text: “सिर्फ अपनी खुद की bank account की जानकारी भरें।”
+
+3. **Bank form fields** (all required except UPI)  
+   - खाताधारक का नाम (text, required)  
+   - बैंक का नाम (searchable dropdown with common banks, required)  
+   - खाता नंबर (number input, 9‑18 digits, required)  
+   - खाता नंबर दोबारा (must match exactly, validation shown inline)  
+   - IFSC कोड (text, uppercase, regex, required) with [?] button next to it  
+   - खाता प्रकार (pill toggle: बचत खाता / चालू खाता, default Savings)  
+   - UPI ID (optional, regex `^[a-zA-Z0-9._-]+@[a-zA-Z]+$`)
+
+4. **IFSC explanation modal**  
+   - Opens when [?] clicked.  
+   - Content: “IFSC code क्या होता है? …” with example.  
+   - Saffron header, close button.  
+   - Use a simple dialog component.
+
+5. **Submit button**  
+   - Large amber button: “🎉 प्रोफाइल पूरी करें”.  
+   - On click: validate all fields (including account number match).  
+   - Call `POST /api/pandit/onboarding/complete` with all data.  
+   - On success, redirect to `/onboarding/complete`.
+
+6. **Celebration page**  
+   - Route: `/onboarding/complete` (no sidebar).  
+   - Pure CSS confetti animation (no library).  
+   - “🙏 बधाई हो, [Name]!” heading.  
+   - Timeline of next steps (as shown in section H6).  
+   - Button: “डैशबोर्ड पर जाएं →” that goes to `/dashboard`.
+
+7. **Backend API – complete**  
+   - `POST /api/pandit/onboarding/complete`  
+   - Body: `{ accountHolderName, bankName, accountNumber, confirmAccountNumber, ifscCode, accountType, upiId }`  
+   - Validates account number match, encrypts account number.  
+   - Creates `BankAccount` record.  
+   - Sets `PanditProfile.onboardingComplete = true`, `profileCompletionPercent = 80`, `completedSteps = [1,2,3,4,5,6]`.  
+   - Sends a mock SMS (console log).  
+   - Returns `{ success: true, redirectTo: "/dashboard" }`.
+
+**Testing**  
+- Try mismatched account numbers – error shown.  
+- Click [?] – modal opens.  
+- After submission, ensure you land on celebration page with confetti.
+
+---
+
+## 📦 Prompt 8 – Interactive Tutorial System
+
+**Goal**  
+After onboarding, automatically start a 5‑screen interactive tutorial overlay. Allow replay via ? icon.
+
+**Files to create/modify**  
+- `apps/pandit/components/TutorialOverlay.tsx` – full‑screen overlay with 5 screens  
+- `apps/pandit/hooks/useTutorial.ts` – manages whether tutorial has been shown (localStorage flag)
+
+**Detailed instructions**
+
+1. **Trigger**  
+   - After the first time user visits `/dashboard` (and `onboardingComplete` is true), check a localStorage key `hpj_tutorial_seen`.  
+   - If not seen, automatically show the tutorial overlay (after a short delay).  
+   - The overlay is a full‑screen dark semi‑transparent backdrop with a centered content card.
+
+2. **Tutorial overlay**  
+   - Contains:  
+     * A “Skip Tutorial” link at top‑right.  
+     * Content area showing current screen (title + description + highlight area).  
+     * Navigation: Previous (if >1) and Next (if <5) buttons.  
+     * Step dots at bottom (5 dots, amber filled for current).  
+   - On each screen, use a “spotlight” effect (simple CSS box‑shadow) to highlight the UI element being explained (e.g., online/offline toggle).  
+   - The actual UI behind is visible but semi‑transparent; the spotlight illuminates the target element.
+
+3. **5 screens content** (from section I3)  
+   - **Screen 1**: Online/Offline toggle (highlight the toggle in header).  
+   - **Screen 2**: New booking alert (highlight the amber alert card area).  
+   - **Screen 3**: Booking detail & earnings breakdown (highlight the earnings card).  
+   - **Screen 4**: “I'm Here” buttons (highlight the sequential buttons).  
+   - **Screen 5**: Earnings & Calendar (highlight sidebar links).  
+   - Each screen has a title and descriptive text in Hindi (as per spec).  
+   - Voice narration plays automatically when screen appears (use `useVoiceNarration`).
+
+4. **Replay**  
+   - In the header, next to the avatar, add a “?” icon.  
+   - Clicking it opens the tutorial overlay again (even if already seen).  
+   - Do not reset the `seen` flag.
+
+**Testing**  
+- On first dashboard visit, tutorial should start automatically.  
+- Click “Skip” – overlay closes, `seen` flag set.  
+- Click “?” – tutorial reopens.
+
+---
+
+## 📦 Prompt 9 – Home Dashboard
+
+**Goal**  
+Implement the main dashboard with pending verification banner, pending requests alert (with 6‑hour timer), today’s schedule, earnings widget, stats, and polling for new requests.
+
+**Files to create/modify**  
+- `apps/pandit/app/dashboard/page.tsx`  
+- `apps/pandit/app/dashboard/layout.tsx` – sidebar and header (shared)  
+- `apps/pandit/components/SidebarNav.tsx`  
+- `apps/pandit/components/TopHeader.tsx` (with online/offline toggle, notification bell, avatar)  
+- `apps/pandit/components/NewBookingAlert.tsx` – pulsing amber card with countdown  
+- `apps/pandit/hooks/useBookingPolling.ts` – polls for new requests every 30 s
+
+**Detailed instructions**
+
+1. **Layout**  
+   - Desktop: fixed left sidebar (240 px, dark brown), main content scrollable.  
+   - Mobile: bottom tab bar (5 icons + labels), no sidebar.  
+   - Sidebar items: 🏠 डैशबोर्ड, 📋 बुकिंग, 📅 कैलेंडर, 💰 कमाई, 👤 प्रोफाइल.  
+   - Sidebar footer: pandit avatar + name + verification badge pill, “वेरीफिकेशन: …”, 📞 सहायता.
+
+2. **Top header**  
+   - Left: logo + “Pandit Portal”.  
+   - Right:  
+     * Online/offline pill toggle (green when online, red when offline). Click calls `PATCH /api/pandit/online-status`.  
+     * Notification bell with red dot badge (unread count).  
+     * Avatar dropdown with Profile, Settings, Logout.
+
+3. **Pending verification banner** (if verificationStatus ≠ VERIFIED)  
+   - Amber background, ⏳ icon, message, and [दस्तावेज़ देखें] link to `/profile#documents`.
+
+4. **Data fetching**  
+   - On mount, call `GET /api/pandit/dashboard-summary` (response shape in section J4).  
+   - Store in state.
+
+5. **Section A – Urgent Alert Zone**  
+   - Only render if `pendingRequests.length > 0`.  
+   - For each request (max 2, then “और देखें”):  
+     * Card with amber left border, event type, date, location, customer name+rating, estimated earning.  
+     * Live countdown timer (from `createdAt + 6h - now`), updates every second.  
+       – When < 1 h, timer text turns red.  
+       – When ≤ 0, card shows “⏰ Expired” and is removed.  
+     * Two buttons: [✅ स्वीकार करें] [❌ अस्वीकार करें] → both navigate to `/bookings/{id}`.
+
+6. **Section B – Today’s Schedule Card**  
+   - If `todaysBooking` exists: show event, time, venue, customer name (if confirmed), and buttons [Navigate] (opens maps) and [Call Customer] (only if status >= PANDIT_ARRIVED).  
+   - If none: show “आज कोई booking नहीं है।” with illustration.
+
+7. **Section C – Earnings Widget**  
+   - Gradient card with “इस महीने की कमाई” and large amount, number of bookings, [विस्तार देखें] link.
+
+8. **Section D – Quick Stats Row**  
+   - 4 stat boxes: Rating, Completed, This Month, Reviews. Values from `stats`.
+
+9. **Section E – Upcoming Bookings**  
+   - List of next 5 bookings with date, event, city, status badge, and [Details] link.
+
+10. **Polling for new requests**  
+    - `useBookingPolling.ts` – uses `setInterval` to call `GET /api/pandit/pending-requests` every 30 s.  
+    - If new count > previous count:  
+      * Play `/sounds/booking-alert.mp3` (short bell).  
+      * If `Notification.permission === "granted"`, show browser push notification.  
+      * Update state to re‑render alert zone.  
+    - On first mount, request notification permission (if not already denied).
+
+**Testing**  
+- Mock pending requests and verify countdown timer.  
+- Toggle online/offline – API should be called.  
+- Ensure sidebar navigation works on both desktop and mobile.
+
+---
+
+## 📦 Prompt 10 – Booking Request Screen (Pending State)
+
+**Goal**  
+Build the detailed booking request page for pending requests, with earnings breakdown (dual scenario), samagri indicator, food allowance, travel preview, and accept/reject with 6‑hour timer.
+
+**Files to create/modify**  
+- `apps/pandit/app/bookings/[id]/page.tsx`  
+- `apps/pandit/components/EarningsBreakdown.tsx` – shows both scenarios side‑by‑side  
+- `apps/pandit/components/SamagriIndicator.tsx` – badge for package vs platform list  
+- `apps/pandit/components/FoodAllowanceDetail.tsx` – per‑day breakdown
+
+**Detailed instructions**
+
+1. **Fetch booking data**  
+   - Use `GET /api/pandit/bookings/{id}` to get full booking details.  
+   - Identify if status is `PANDIT_REQUESTED`, `CONFIRMED`, etc. This screen will render differently based on status.
+
+2. **Voice narration** – play the Hindi summary from section K2.
+
+3. **Event summary card**  
+   - Booking ID (amber badge), status badge, event type, muhurat date/time, city, customer name (first + initial), customer rating, attendees, special instructions.
+
+4. **Samagri choice indicator** (critical)  
+   - Show one of two badges with clear icon and text:  
+     * If customer chose Pandit package: amber badge “📦 Pandit Ji ka Package: Standard — ₹5,500” and note “आप इस package की full price कमाएंगे।”  
+     * If platform custom list: blue badge “🛒 Platform Custom List” and note “Customer अपनी samagri खुद manage करेगा। आपकी samagri earning: ₹0”
+
+5. **Food allowance details**  
+   - If travel required: show table with travel days and puja days breakdown, each ₹1,000/day.  
+   - If customer provides meals on puja days, show only travel days.
+
+6. **Earnings breakdown (dual scenario)**  
+   - Render two columns (or stacked on mobile):  
+     * Scenario A (Pandit Package): highlighted with amber border.  
+     * Scenario B (Platform List): grayed out.  
+   - Each column shows: Dakshina, Platform Fee, Net Dakshina, Samagri Earnings, Travel Reimbursement, Food Allowance, Total Earning.  
+   - Note: “Travel amount final होगा जब admin travel book करेगा।”
+
+7. **Travel itinerary preview**  
+   - For outstation bookings: show from‑to, selected travel mode, note that platform will arrange, accommodation arrangement.
+
+8. **6‑hour timer + Accept/Reject buttons**  
+   - Live countdown (same as on dashboard card).  
+   - Accept button: opens confirmation modal “क्या आप यह booking accept करना चाहते हैं?” → on confirm, call `PATCH /api/pandit/bookings/{id}/accept`. On success, show toast and redirect to the same page (now in active state).  
+   - Reject button: opens reason dropdown (options from spec) and confirm → call `PATCH /api/pandit/bookings/{id}/decline { reason }`. On success, redirect to dashboard with toast.
+
+**Testing**  
+- Mock a pending booking with both samagri types and verify the correct badge and earnings scenario are shown.  
+- Let the timer expire; the page should show “Expired” and not allow accept/reject.
+
+---
+
+## 📦 Prompt 11 – Active Booking & Itinerary
+
+**Goal**  
+For confirmed/active bookings, display day‑by‑day itinerary, “I'm Here” sequential buttons, customer phone reveal rules, and document wallet.
+
+**Files to create/modify**  
+- `apps/pandit/app/bookings/[id]/page.tsx` (extend to handle active states)  
+- `apps/pandit/components/ItineraryTimeline.tsx` – vertical day cards  
+- `apps/pandit/components/StatusButtons.tsx` – sequential buttons with completion tracking  
+- `apps/pandit/components/DocumentWallet.tsx` – list of downloadable documents
+
+**Detailed instructions**
+
+1. **State detection**  
+   - If booking status is `CONFIRMED` or higher, render the active view instead of the pending view.
+
+2. **Day‑by‑day itinerary**  
+   - Build from `booking.travelItinerary` (if stored) or generate based on event dates and travel mode.  
+   - Each day card shows:  
+     * Day label (e.g., “Day 1 — 14 March (Travel Day)”) with amber background.  
+     * Activities (depart, arrive, puja) with times.  
+     * Food allowance per day (green text): “Food Allowance: ₹1,000” (if applicable).  
+   - Total food allowance summary at bottom.
+
+3. **“I'm Here” sequential buttons**  
+   - Stepper with up to 6 buttons (as per spec):  
+     * 🚌 यात्रा शुरू करें  
+     * 🏨 होटल पहुंचा  
+     * 📍 Venue पहुंचा  
+     * 🔥 पूजा शुरू  
+     * 🙏 पूजा संपन्न  
+     * 🔙 वापसी (only for outstation)  
+   - Each button is active only when the previous step is completed.  
+   - On click, call corresponding API endpoint (`/start-journey`, `/arrived`, etc.).  
+   - After successful API call, button becomes disabled/green checkmark, next button enabled.  
+   - The “Venue पहुंचा” step reveals full customer phone number (update UI accordingly).
+
+4. **Customer phone reveal rules**  
+   - Store phone visibility in state. Initially hidden (masked).  
+   - After `PANDIT_ARRIVED` status, show full phone as clickable `tel:` and WhatsApp link.
+
+5. **Digital wallet / documents section**  
+   - Title “📁 दस्तावेज़ और टिकट”.  
+   - List of documents (train/flight tickets, hotel confirmation, cab booking, food allowance receipt, booking summary).  
+   - Each item: document name, [देखें] (opens in new tab) and [डाउनलोड] (forces download).  
+   - Documents are served from URLs stored in `Booking.travelDocuments` (admin uploads them).
+
+**Testing**  
+- Step through the status buttons in order; ensure each triggers the correct API and updates UI.  
+- Check that phone is masked until arrival.  
+- Test document download.
+
+---
+
+## 📦 Prompt 12 – Calendar Management
+
+**Goal**  
+Build a custom calendar grid where pandit can see bookings and block/unblock dates.
+
+**Files to create/modify**  
+- `apps/pandit/app/calendar/page.tsx`  
+- `apps/pandit/components/CalendarGrid.tsx` – custom grid (no library)  
+- `apps/pandit/components/DayDetailPanel.tsx` – slide‑in/up panel  
+- `apps/pandit/components/BlockDateModal.tsx` – modal to add block
+
+**Detailed instructions**
+
+1. **Layout**  
+   - Two‑column on desktop: calendar (left), upcoming events list (right).  
+   - Single column on mobile (events below calendar).  
+   - Top controls: month navigation arrows, [आज] button, [+ छुट्टी जोड़ें] button.
+
+2. **Calendar grid**  
+   - Build a 7‑column table with day headers in Hindi (र, सो, मं, बु, गु, शु, श).  
+   - Each cell at least 80 px tall (desktop) / 56 px (mobile).  
+   - Fetch data via `GET /api/pandit/calendar?month=YYYY-MM`.  
+   - Color coding:  
+     * White: available (no booking, no block)  
+     * Amber fill (`#FDE9C3`): has booking  
+     * Red fill (`#FEE2E2`): blocked by pandit  
+     * Gray fill: past date  
+     * Dark amber border: today  
+   - Cell content: day number, small amber badge with event time + truncated type if booking, “🔴 छुट्टी” if blocked.
+
+3. **Day detail panel**  
+   - When a cell is clicked, slide in panel (right on desktop, bottom on mobile).  
+   - Shows date, list of bookings (if any) with links to `/bookings/{id}`, or blocked info with [Unblock] button.  
+   - If available, [+ इस दिन छुट्टी जोड़ें] button → opens BlockDateModal.
+
+4. **BlockDateModal**  
+   - Fields: start date (pre‑filled), end date (optional), reason (optional).  
+   - On submit, call `POST /api/pandit/blackout-dates`.  
+   - Before creating, check for conflicting confirmed bookings in the range. If any, show conflict dialog with list and “हाँ, फिर भी block करें” / “वापस जाएं”.  
+   - If confirmed, create block and refresh calendar.
+
+5. **Unblock**  
+   - From day detail panel, click “Unblock” → `DELETE /api/pandit/blackout-dates/{id}`.
+
+**Testing**  
+- Verify that days with bookings appear amber.  
+- Block a date, see it turn red.  
+- Try blocking a range that includes an existing booking – conflict dialog should appear.
+
+---
+
+## 📦 Prompt 13 – Earnings View
+
+**Goal**  
+Implement earnings summary with monthly chart, per‑booking breakdown, and payout status.
+
+**Files to create/modify**  
+- `apps/pandit/app/earnings/page.tsx`  
+- `apps/pandit/components/BarChart.tsx` – simple SVG bar chart  
+- `apps/pandit/components/EarningsList.tsx` – expandable per‑booking rows
+
+**Detailed instructions**
+
+1. **Monthly summary header**  
+   - Period selector dropdown (last 12 months).  
+   - Three stat boxes:  
+     * “कुल कमाई” – large amber number, subtitle with booking count.  
+     * “भुगतान हो गया” – green, with bank last‑four.  
+     * “बाकी है” – orange, with pending booking count.  
+   - Bank account card: “भुगतान जाएगा: SBI ••••4521 — बचत खाता” with [बदलें] link to profile.
+
+2. **Bar chart**  
+   - Last 6 months of monthly totals.  
+   - X‑axis: month name (short Hindi), Y‑axis: ₹ amounts.  
+   - Bars: amber, hover shows exact amount.  
+   - No chart library – build with pure CSS/SVG.
+
+3. **Per‑booking list**  
+   - Expandable list of bookings in the selected month.  
+   - Each collapsed row shows: date, event type, city, customer first name, gross amount, payout status badge.  
+   - Expanded view shows full breakdown: dakshina, platform fee, net dakshina, samagri earnings, travel reimbursement, food allowance, total payout (green).  
+   - Payout status: PAID (green), PENDING (amber), PROCESSING (blue).
+
+4. **Data fetching**  
+   - `GET /api/pandit/earnings/summary?month=YYYY-MM` returns the structure from section N6.  
+   - Update when month changes.
+
+**Testing**  
+- Check that chart renders correctly.  
+- Expand a booking row to see detailed math.
+
+---
+
+## 📦 Prompt 14 – Profile Management
+
+**Goal**  
+Build the profile page with tabs for editing all information, samagri packages, and device info.
+
+**Files to create/modify**  
+- `apps/pandit/app/profile/page.tsx` – tabs container  
+- `apps/pandit/app/profile/tabs/PersonalTab.tsx`  
+- `apps/pandit/app/profile/tabs/PujaServicesTab.tsx`  
+- `apps/pandit/app/profile/tabs/TravelTab.tsx`  
+- `apps/pandit/app/profile/tabs/SamagriTab.tsx` (re‑use Step 4 components)  
+- `apps/pandit/app/profile/tabs/BankDocumentsTab.tsx`  
+- `apps/pandit/components/DeviceInfoDisplay.tsx` – read‑only device card
+
+**Detailed instructions**
+
+1. **Tabs** (using `<Tabs>` from shared UI)  
+   - Labels: व्यक्तिगत जानकारी, पूजा सेवाएं, यात्रा प्राथमिकताएं, सामग्री Packages, बैंक & Documents.
+
+2. **Personal tab**  
+   - Editable fields from Step 1 (except Aadhaar/PAN – show masked, maybe require re‑verification to edit).  
+   - Profile photo and audio bio can be re‑uploaded.  
+   - Device information card (read‑only) with [Device Update करें] button that re‑triggers device info capture and PATCH.
+
+3. **Puja services tab**  
+   - List of existing puja services, each can be edited (dakshina, duration, description).  
+   - Ability to add new puja types (using same grid as Step 2).  
+   - Save changes via `PATCH /api/pandit/puja-services`.
+
+4. **Travel tab**  
+   - Same fields as Step 3, pre‑filled with current preferences.  
+   - Save via `PATCH /api/pandit/travel-preferences`.
+
+5. **Samagri tab**  
+   - Re‑use Step 4 components, but allow editing/deleting/adding packages.  
+   - Each package can be enabled/disabled, items edited, price changed.  
+   - Delete package with confirmation.  
+   - Save via `PATCH /api/pandit/samagri-packages/{id}` and `DELETE /api/pandit/samagri-packages/{id}`.
+
+6. **Bank & Documents tab**  
+   - View current verification status (badge).  
+   - Bank details (masked) with edit option (requires re‑submission for verification).  
+   - Upload additional documents (if needed).  
+   - Show list of previously uploaded documents.
+
+7. **API endpoints**  
+   - `GET /api/pandit/profile` – returns full profile.  
+   - `PATCH /api/pandit/profile` – partial updates.  
+   - `PATCH /api/pandit/puja-services/{id}` etc.
+
+**Testing**  
+- Edit a field, save, refresh – change should persist.  
+- Update device info – should reflect new values.
+
+---
+
+## 📦 Prompt 15 – Backend API Implementation
+
+**Goal**  
+Implement all backend endpoints referenced in previous prompts. This is a consolidated prompt covering the necessary routes.
+
+**Files to create/modify** (in `services/api/src/`)  
+- `routes/pandit.routes.ts` – all pandit‑specific routes  
+- `controllers/pandit.controller.ts` – handlers  
+- `services/pandit.service.ts` – business logic  
+- `middleware/auth.ts` – ensure pandit role  
+- `utils/encryption.ts` – for Aadhaar number encryption  
+- `utils/bookingNumber.ts` – generator  
+- `utils/pricing.ts` – platform fee, GST, food allowance calculations
+
+**Detailed instructions**
+
+Implement all endpoints listed in section P. Use the following guidelines:
+
+- All routes under `/api/pandit` require `authenticateToken` and `requireRole('PANDIT')`.  
+- File upload endpoints (profile photo, audio bio, KYC docs) should store files locally (in `public/uploads/` or cloud storage) and return the URL.  
+- Aadhaar number must be encrypted before storing (use AES‑256 with a secret from env).  
+- On booking accept, status transition should trigger SMS via `notification.service` (mock).  
+- On booking completion, create a `Payout` record with status `PENDING`.  
+- For calendar, fetch bookings where status NOT IN [CANCELLED, REFUNDED] and date in month.  
+- For blackout dates, check conflicts with confirmed bookings before creation.  
+- Earnings summary: aggregate from completed bookings in the given month.
+
+**Testing**  
+- Use Postman to hit each endpoint with mock JWT.  
+- Verify file uploads work.
+
+---
+
+## 📦 Prompt 16 – Final Integration & Launch Checklist
+
+**Goal**  
+Integrate all pieces, run through the Phase 1 checklist, and prepare for launch.
+
+**Instructions**
+
+1. **Run the full flow**  
+   - Start the API server (`localhost:3001`) and the pandit PWA (`localhost:3002`).  
+   - Go through onboarding as a new pandit, ensuring every step works and data persists.  
+   - After onboarding, check dashboard loads with pending banner.  
+   - Simulate a new booking (via admin) and verify the alert appears, timer works, accept/reject works.  
+   - Go through “I'm Here” buttons, verify status updates.  
+   - Check calendar, block a date, verify it appears.  
+   - View earnings.
+
+2. **Check all non‑negotiable items** from section Q1.  
+   - Use a printed checklist and mark each feature as done.  
+   - Pay special attention to the ⚡ items: audio bio, device info capture, 6‑hour timer, samagri indicator, food allowance breakdown, voice buttons everywhere.
+
+3. **Fix any missing pieces**  
+   - Ensure all voice buttons are present.  
+   - Ensure all error messages are in Hindi.  
+   - Test on a real low‑end Android device (or emulate) to verify touch targets and performance.
+
+4. **Deferred features** (section Q2)  
+   - Document them in a `PHASE2.md` file.  
+   - Do not implement them now.
+
+5. **Launch**  
+   - Build the app: `npm run build` (should succeed).  
+   - Deploy to a staging environment first, then to production.
+
+---
+
+**End of Prompts**
+
+These 16 prompts, executed in order, will build the complete HmarePanditJi Pandit PWA exactly as specified in Bhag 12. No detail has been omitted. Follow them carefully and test each step. 🙏

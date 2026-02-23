@@ -1,0 +1,392 @@
+[API Error] TypeError: Cannot read properties of undefined (reading 'findMany')
+    at <anonymous> (C:\Users\ss\Documents\HmarePanditJi\services\api\src\routes\ritual.routes.ts:28:41)
+    at Layer.handle [as handle_request] (C:\Users\ss\Documents\HmarePanditJi\node_modules\.pnpm\express@4.22.1\node_modules\express\lib\router\layer.js:95:5)
+    at next (C:\Users\ss\Documents\HmarePanditJi\node_modules\.pnpm\express@4.22.1\node_modules\express\lib\router\route.js:149:13)
+    at Route.dispatch (C:\Users\ss\Documents\HmarePanditJi\node_modules\.pnpm\express@4.22.1\node_modules\express\lib\router\route.js:119:3)
+    at Layer.handle [as handle_request] (C:\Users\ss\Documents\HmarePanditJi\node_modules\.pnpm\express@4.22.1\node_modules\express\lib\router\layer.js:95:5)
+    at C:\Users\ss\Documents\HmarePanditJi\node_modules\.pnpm\express@4.22.1\node_modules\express\lib\router\index.js:284:15
+    at router.process_params (C:\Users\ss\Documents\HmarePanditJi\node_modules\.pnpm\express@4.22.1\node_modules\express\lib\router\index.js:346:12)
+    at next (C:\Users\ss\Documents\HmarePanditJi\node_modules\.pnpm\express@4.22.1\node_modules\express\lib\router\index.js:280:10)
+    at router.handle (C:\Users\ss\Documents\HmarePanditJi\node_modules\.pnpm\express@4.22.1\node_modules\express\lib\router\index.js:175:3)
+    at router (C:\Users\ss\Documents\HmarePanditJi\node_modules\.pnpm\express@4.22.1\node_modules\express\lib\router\index.js:47:12)
+[2026-02-23T14:50:47.040Z] [ERROR] Unhandled error {
+  message: "Cannot read properties of undefined (reading 'findMany')",
+  stack: "TypeError: Cannot read properties of undefined (reading 'findMany')\n" +
+    '    at <anonymous> (C:\\Users\\ss\\Documents\\HmarePanditJi\\services\\api\\src\\routes\\ritual.routes.ts:28:41)\n' +
+    '    at Layer.handle [as handle_request] (C:\\Users\\ss\\Documents\\HmarePanditJi\\node_modules\\.pnpm\\express@4.22.1\\node_modules\\express\\lib\\router\\layer.js:95:5)\n' +
+    '    at next (C:\\Users\\ss\\Documents\\HmarePanditJi\\node_modules\\.pnpm\\express@4.22.1\\node_modules\\express\\lib\\router\\route.js:149:13)\n' +
+    '    at Route.dispatch (C:\\Users\\ss\\Documents\\HmarePanditJi\\node_modules\\.pnpm\\express@4.22.1\\node_modules\\express\\lib\\router\\route.js:119:3)\n' +
+    '    at Layer.handle [as handle_request] (C:\\Users\\ss\\Documents\\HmarePanditJi\\node_modules\\.pnpm\\express@4.22.1\\node_modules\\express\\lib\\router\\layer.js:95:5)\n' +
+    '    at C:\\Users\\ss\\Documents\\HmarePanditJi\\node_modules\\.pnpm\\express@4.22.1\\node_modules\\express\\lib\\router\\index.js:284:15\n' +
+    '    at router.process_params (C:\\Users\\ss\\Documents\\HmarePanditJi\\node_modules\\.pnpm\\express@4.22.1\\node_modules\\express\\lib\\router\\index.js:346:12)\n' +
+    '    at next (C:\\Users\\ss\\Documents\\HmarePanditJi\\node_modules\\.pnpm\\express@4.22.1\\node_modules\\express\\lib\\router\\index.js:280:10)\n' +
+    '    at router.handle (C:\\Users\\ss\\Documents\\HmarePanditJi\\node_modules\\.pnpm\\express@4.22.1\\node_modules\\express\\lib\\router\\index.js:175:3)\n' +
+    '    at router (C:\\Users\\ss\\Documents\\HmarePanditJi\\node_modules\\.pnpm\\express@4.22.1\\node_modules\\express\\lib\\router\\index.js:47:12)'
+}
+[API Error] PrismaClientValidationError: 
+Invalid `prisma.booking.create()` invocation in
+C:\Users\ss\Documents\HmarePanditJi\services\api\src\services\booking.service.ts:109:40
+
+  106 const foodAllowanceDays = input.foodAllowanceDays ?? 0;
+  107 const foodAllowanceAmount = foodAllowanceDays * 1000;
+  108 
+→ 109 const booking = await prisma.booking.create({
+        data: {
+          bookingNumber: "HPJ-2026-87309",
+          customerId: undefined,
+          panditId: "cmly0vbgj002wmb7yyzx0r90n",
+          eventDate: new Date("2026-02-26T20:33:22.000Z"),
+          eventType: "Griha Pravesh",
+          muhuratTime: "09:00",
+          muhuratSuggested: false,
+          venueAddress: "Sector 62, Noida",
+          venueCity: "Noida",
+          venuePincode: "201301",
+          venueLatitude: undefined,
+          venueLongitude: undefined,
+          specialInstructions: undefined,
+          attendees: 15,
+          dakshinaAmount: 11000,
+          travelMode: "CAB",
+          travelCost: 1200,
+          travelRequired: true,
+          travelStatus: "PENDING",
+          foodArrangement: "CUSTOMER_PROVIDES",
+          foodAllowanceDays: 0,
+          foodAllowanceAmount: 0,
+          accommodationArrangement: "NOT_NEEDED",
+          samagriPreference: "PANDIT_BRINGS",
+          samagriAmount: 2500,
+          samagriNotes: undefined,
+          platformFee: 1650,
+          platformFeeGst: 297,
+          travelServiceFee: 60,
+          travelServiceFeeGst: 11,
+          grandTotal: 14218,
+          panditPayout: 9350,
+          status: "CREATED",
+          paymentStatus: "PENDING",
+      +   customer: {
+      +     create: UserCreateWithoutBookingsAsCustomerInput | UserUncheckedCreateWithoutBookingsAsCustomerInput,
+      +     connectOrCreate: UserCreateOrConnectWithoutBookingsAsCustomerInput,
+      +     connect: UserWhereUniqueInput
+      +   }
+        },
+        include: {
+          pandit: true
+        }
+      })
+
+Argument `customer` is missing.
+    at wn (C:\Users\ss\Documents\HmarePanditJi\node_modules\.pnpm\@prisma+client@5.22.0_prisma@5.22.0\node_modules\@prisma\client\runtime\library.js:29:1363)
+    at $n.handleRequestError (C:\Users\ss\Documents\HmarePanditJi\node_modules\.pnpm\@prisma+client@5.22.0_prisma@5.22.0\node_modules\@prisma\client\runtime\library.js:121:6958)
+    at $n.handleAndLogRequestError (C:\Users\ss\Documents\HmarePanditJi\node_modules\.pnpm\@prisma+client@5.22.0_prisma@5.22.0\node_modules\@prisma\client\runtime\library.js:121:6623)
+    at $n.request (C:\Users\ss\Documents\HmarePanditJi\node_modules\.pnpm\@prisma+client@5.22.0_prisma@5.22.0\node_modules\@prisma\client\runtime\library.js:121:6307)
+    at async l (C:\Users\ss\Documents\HmarePanditJi\node_modules\.pnpm\@prisma+client@5.22.0_prisma@5.22.0\node_modules\@prisma\client\runtime\library.js:130:9633)
+    at async createBooking (C:\Users\ss\Documents\HmarePanditJi\services\api\src\services\booking.service.ts:109:19)
+    at async <anonymous> (C:\Users\ss\Documents\HmarePanditJi\services\api\src\routes\booking.routes.ts:66:21) {
+  clientVersion: '5.22.0'
+}
+[2026-02-23T15:03:22.813Z] [ERROR] Unhandled error {
+  message: '\n' +
+    'Invalid `prisma.booking.create()` invocation in\n' +
+    'C:\\Users\\ss\\Documents\\HmarePanditJi\\services\\api\\src\\services\\booking.service.ts:109:40\n' +
+    '\n' +
+    '  106 const foodAllowanceDays = input.foodAllowanceDays ?? 0;\n' +
+    '  107 const foodAllowanceAmount = foodAllowanceDays * 1000;\n' +
+    '  108 \n' +
+    '→ 109 const booking = await prisma.booking.create({\n' +
+    '        data: {\n' +
+    '          bookingNumber: "HPJ-2026-87309",\n' +
+    '          customerId: undefined,\n' +
+    '          panditId: "cmly0vbgj002wmb7yyzx0r90n",\n' +
+    '          eventDate: new Date("2026-02-26T20:33:22.000Z"),\n' +
+    '          eventType: "Griha Pravesh",\n' +
+    '          muhuratTime: "09:00",\n' +
+    '          muhuratSuggested: false,\n' +
+    '          venueAddress: "Sector 62, Noida",\n' +
+    '          venueCity: "Noida",\n' +
+    '          venuePincode: "201301",\n' +
+    '          venueLatitude: undefined,\n' +
+    '          venueLongitude: undefined,\n' +
+    '          specialInstructions: undefined,\n' +
+    '          attendees: 15,\n' +
+    '          dakshinaAmount: 11000,\n' +
+    '          travelMode: "CAB",\n' +
+    '          travelCost: 1200,\n' +
+    '          travelRequired: true,\n' +
+    '          travelStatus: "PENDING",\n' +
+    '          foodArrangement: "CUSTOMER_PROVIDES",\n' +
+    '          foodAllowanceDays: 0,\n' +
+    '          foodAllowanceAmount: 0,\n' +
+    '          accommodationArrangement: "NOT_NEEDED",\n' +
+    '          samagriPreference: "PANDIT_BRINGS",\n' +
+    '          samagriAmount: 2500,\n' +
+    '          samagriNotes: undefined,\n' +
+    '          platformFee: 1650,\n' +
+    '          platformFeeGst: 297,\n' +
+    '          travelServiceFee: 60,\n' +
+    '          travelServiceFeeGst: 11,\n' +
+    '          grandTotal: 14218,\n' +
+    '          panditPayout: 9350,\n' +
+    '          status: "CREATED",\n' +
+    '          paymentStatus: "PENDING",\n' +
+    '      +   customer: {\n' +
+    '      +     create: UserCreateWithoutBookingsAsCustomerInput | UserUncheckedCreateWithoutBookingsAsCustomerInput,\n' +
+    '      +     connectOrCreate: UserCreateOrConnectWithoutBookingsAsCustomerInput,\n' +
+    '      +     connect: UserWhereUniqueInput\n' +
+    '      +   }\n' +
+    '        },\n' +
+    '        include: {\n' +
+    '          pandit: true\n' +
+    '        }\n' +
+    '      })\n' +
+    '\n' +
+    'Argument `customer` is missing.',
+  stack: 'PrismaClientValidationError: \n' +
+    'Invalid `prisma.booking.create()` invocation in\n' +
+    'C:\\Users\\ss\\Documents\\HmarePanditJi\\services\\api\\src\\services\\booking.service.ts:109:40\n' +
+    '\n' +
+    '  106 const foodAllowanceDays = input.foodAllowanceDays ?? 0;\n' +
+    '  107 const foodAllowanceAmount = foodAllowanceDays * 1000;\n' +
+    '  108 \n' +
+    '→ 109 const booking = await prisma.booking.create({\n' +
+    '        data: {\n' +
+    '          bookingNumber: "HPJ-2026-87309",\n' +
+    '          customerId: undefined,\n' +
+    '          panditId: "cmly0vbgj002wmb7yyzx0r90n",\n' +
+    '          eventDate: new Date("2026-02-26T20:33:22.000Z"),\n' +
+    '          eventType: "Griha Pravesh",\n' +
+    '          muhuratTime: "09:00",\n' +
+    '          muhuratSuggested: false,\n' +
+    '          venueAddress: "Sector 62, Noida",\n' +
+    '          venueCity: "Noida",\n' +
+    '          venuePincode: "201301",\n' +
+    '          venueLatitude: undefined,\n' +
+    '          venueLongitude: undefined,\n' +
+    '          specialInstructions: undefined,\n' +
+    '          attendees: 15,\n' +
+    '          dakshinaAmount: 11000,\n' +
+    '          travelMode: "CAB",\n' +
+    '          travelCost: 1200,\n' +
+    '          travelRequired: true,\n' +
+    '          travelStatus: "PENDING",\n' +
+    '          foodArrangement: "CUSTOMER_PROVIDES",\n' +
+    '          foodAllowanceDays: 0,\n' +
+    '          foodAllowanceAmount: 0,\n' +
+    '          accommodationArrangement: "NOT_NEEDED",\n' +
+    '          samagriPreference: "PANDIT_BRINGS",\n' +
+    '          samagriAmount: 2500,\n' +
+    '          samagriNotes: undefined,\n' +
+    '          platformFee: 1650,\n' +
+    '          platformFeeGst: 297,\n' +
+    '          travelServiceFee: 60,\n' +
+    '          travelServiceFeeGst: 11,\n' +
+    '          grandTotal: 14218,\n' +
+    '          panditPayout: 9350,\n' +
+    '          status: "CREATED",\n' +
+    '          paymentStatus: "PENDING",\n' +
+    '      +   customer: {\n' +
+    '      +     create: UserCreateWithoutBookingsAsCustomerInput | UserUncheckedCreateWithoutBookingsAsCustomerInput,\n' +
+    '      +     connectOrCreate: UserCreateOrConnectWithoutBookingsAsCustomerInput,\n' +
+    '      +     connect: UserWhereUniqueInput\n' +
+    '      +   }\n' +
+    '        },\n' +
+    '        include: {\n' +
+    '          pandit: true\n' +
+    '        }\n' +
+    '      })\n' +
+    '\n' +
+    'Argument `customer` is missing.\n' +
+    '    at wn (C:\\Users\\ss\\Documents\\HmarePanditJi\\node_modules\\.pnpm\\@prisma+client@5.22.0_prisma@5.22.0\\node_modules\\@prisma\\client\\runtime\\library.js:29:1363)\n' +
+    '    at $n.handleRequestError (C:\\Users\\ss\\Documents\\HmarePanditJi\\node_modules\\.pnpm\\@prisma+client@5.22.0_prisma@5.22.0\\node_modules\\@prisma\\client\\runtime\\library.js:121:6958)\n' +
+    '    at $n.handleAndLogRequestError (C:\\Users\\ss\\Documents\\HmarePanditJi\\node_modules\\.pnpm\\@prisma+client@5.22.0_prisma@5.22.0\\node_modules\\@prisma\\client\\runtime\\library.js:121:6623)\n' +
+    '    at $n.request (C:\\Users\\ss\\Documents\\HmarePanditJi\\node_modules\\.pnpm\\@prisma+client@5.22.0_prisma@5.22.0\\node_modules\\@prisma\\client\\runtime\\library.js:121:6307)\n' +
+    '    at async l (C:\\Users\\ss\\Documents\\HmarePanditJi\\node_modules\\.pnpm\\@prisma+client@5.22.0_prisma@5.22.0\\node_modules\\@prisma\\client\\runtime\\library.js:130:9633)\n' +
+    '    at async createBooking (C:\\Users\\ss\\Documents\\HmarePanditJi\\services\\api\\src\\services\\booking.service.ts:109:19)\n' +
+    '    at async <anonymous> (C:\\Users\\ss\\Documents\\HmarePanditJi\\services\\api\\src\\routes\\booking.routes.ts:66:21)'
+}
+[API Error] PrismaClientValidationError: 
+Invalid `prisma.booking.create()` invocation in
+C:\Users\ss\Documents\HmarePanditJi\services\api\src\services\booking.service.ts:109:40
+
+  106 const foodAllowanceDays = input.foodAllowanceDays ?? 0;
+  107 const foodAllowanceAmount = foodAllowanceDays * 1000;
+  108 
+→ 109 const booking = await prisma.booking.create({
+        data: {
+          bookingNumber: "HPJ-2026-25167",
+          customerId: undefined,
+          panditId: "cmly0vbgj002wmb7yyzx0r90n",
+          eventDate: new Date("2026-02-27T20:34:14.000Z"),
+          eventType: "Griha Pravesh",
+          muhuratTime: "09:00",
+          muhuratSuggested: false,
+          venueAddress: "Sector 62, Noida",
+          venueCity: "Noida",
+          venuePincode: "201301",
+          venueLatitude: undefined,
+          venueLongitude: undefined,
+          specialInstructions: undefined,
+          attendees: 15,
+          dakshinaAmount: 11000,
+          travelMode: "CAB",
+          travelCost: 1200,
+          travelRequired: true,
+          travelStatus: "PENDING",
+          foodArrangement: "CUSTOMER_PROVIDES",
+          foodAllowanceDays: 0,
+          foodAllowanceAmount: 0,
+          accommodationArrangement: "NOT_NEEDED",
+          samagriPreference: "PANDIT_BRINGS",
+          samagriAmount: 2500,
+          samagriNotes: undefined,
+          platformFee: 1650,
+          platformFeeGst: 297,
+          travelServiceFee: 60,
+          travelServiceFeeGst: 11,
+          grandTotal: 14218,
+          panditPayout: 9350,
+          status: "CREATED",
+          paymentStatus: "PENDING",
+      +   customer: {
+      +     create: UserCreateWithoutBookingsAsCustomerInput | UserUncheckedCreateWithoutBookingsAsCustomerInput,
+      +     connectOrCreate: UserCreateOrConnectWithoutBookingsAsCustomerInput,
+      +     connect: UserWhereUniqueInput
+      +   }
+        },
+        include: {
+          pandit: true
+        }
+      })
+
+Argument `customer` is missing.
+    at wn (C:\Users\ss\Documents\HmarePanditJi\node_modules\.pnpm\@prisma+client@5.22.0_prisma@5.22.0\node_modules\@prisma\client\runtime\library.js:29:1363)
+    at $n.handleRequestError (C:\Users\ss\Documents\HmarePanditJi\node_modules\.pnpm\@prisma+client@5.22.0_prisma@5.22.0\node_modules\@prisma\client\runtime\library.js:121:6958)
+    at $n.handleAndLogRequestError (C:\Users\ss\Documents\HmarePanditJi\node_modules\.pnpm\@prisma+client@5.22.0_prisma@5.22.0\node_modules\@prisma\client\runtime\library.js:121:6623)
+    at $n.request (C:\Users\ss\Documents\HmarePanditJi\node_modules\.pnpm\@prisma+client@5.22.0_prisma@5.22.0\node_modules\@prisma\client\runtime\library.js:121:6307)
+    at async l (C:\Users\ss\Documents\HmarePanditJi\node_modules\.pnpm\@prisma+client@5.22.0_prisma@5.22.0\node_modules\@prisma\client\runtime\library.js:130:9633)
+    at async createBooking (C:\Users\ss\Documents\HmarePanditJi\services\api\src\services\booking.service.ts:109:19)
+    at async <anonymous> (C:\Users\ss\Documents\HmarePanditJi\services\api\src\routes\booking.routes.ts:66:21) {
+  clientVersion: '5.22.0'
+}
+[2026-02-23T15:04:14.487Z] [ERROR] Unhandled error {
+  message: '\n' +
+    'Invalid `prisma.booking.create()` invocation in\n' +
+    'C:\\Users\\ss\\Documents\\HmarePanditJi\\services\\api\\src\\services\\booking.service.ts:109:40\n' +
+    '\n' +
+    '  106 const foodAllowanceDays = input.foodAllowanceDays ?? 0;\n' +
+    '  107 const foodAllowanceAmount = foodAllowanceDays * 1000;\n' +
+    '  108 \n' +
+    '→ 109 const booking = await prisma.booking.create({\n' +
+    '        data: {\n' +
+    '          bookingNumber: "HPJ-2026-25167",\n' +
+    '          customerId: undefined,\n' +
+    '          panditId: "cmly0vbgj002wmb7yyzx0r90n",\n' +
+    '          eventDate: new Date("2026-02-27T20:34:14.000Z"),\n' +
+    '          eventType: "Griha Pravesh",\n' +
+    '          muhuratTime: "09:00",\n' +
+    '          muhuratSuggested: false,\n' +
+    '          venueAddress: "Sector 62, Noida",\n' +
+    '          venueCity: "Noida",\n' +
+    '          venuePincode: "201301",\n' +
+    '          venueLatitude: undefined,\n' +
+    '          venueLongitude: undefined,\n' +
+    '          specialInstructions: undefined,\n' +
+    '          attendees: 15,\n' +
+    '          dakshinaAmount: 11000,\n' +
+    '          travelMode: "CAB",\n' +
+    '          travelCost: 1200,\n' +
+    '          travelRequired: true,\n' +
+    '          travelStatus: "PENDING",\n' +
+    '          foodArrangement: "CUSTOMER_PROVIDES",\n' +
+    '          foodAllowanceDays: 0,\n' +
+    '          foodAllowanceAmount: 0,\n' +
+    '          accommodationArrangement: "NOT_NEEDED",\n' +
+    '          samagriPreference: "PANDIT_BRINGS",\n' +
+    '          samagriAmount: 2500,\n' +
+    '          samagriNotes: undefined,\n' +
+    '          platformFee: 1650,\n' +
+    '          platformFeeGst: 297,\n' +
+    '          travelServiceFee: 60,\n' +
+    '          travelServiceFeeGst: 11,\n' +
+    '          grandTotal: 14218,\n' +
+    '          panditPayout: 9350,\n' +
+    '          status: "CREATED",\n' +
+    '          paymentStatus: "PENDING",\n' +
+    '      +   customer: {\n' +
+    '      +     create: UserCreateWithoutBookingsAsCustomerInput | UserUncheckedCreateWithoutBookingsAsCustomerInput,\n' +
+    '      +     connectOrCreate: UserCreateOrConnectWithoutBookingsAsCustomerInput,\n' +
+    '      +     connect: UserWhereUniqueInput\n' +
+    '      +   }\n' +
+    '        },\n' +
+    '        include: {\n' +
+    '          pandit: true\n' +
+    '        }\n' +
+    '      })\n' +
+    '\n' +
+    'Argument `customer` is missing.',
+  stack: 'PrismaClientValidationError: \n' +
+    'Invalid `prisma.booking.create()` invocation in\n' +
+    'C:\\Users\\ss\\Documents\\HmarePanditJi\\services\\api\\src\\services\\booking.service.ts:109:40\n' +
+    '\n' +
+    '  106 const foodAllowanceDays = input.foodAllowanceDays ?? 0;\n' +
+    '  107 const foodAllowanceAmount = foodAllowanceDays * 1000;\n' +
+    '  108 \n' +
+    '→ 109 const booking = await prisma.booking.create({\n' +
+    '        data: {\n' +
+    '          bookingNumber: "HPJ-2026-25167",\n' +
+    '          customerId: undefined,\n' +
+    '          panditId: "cmly0vbgj002wmb7yyzx0r90n",\n' +
+    '          eventDate: new Date("2026-02-27T20:34:14.000Z"),\n' +
+    '          eventType: "Griha Pravesh",\n' +
+    '          muhuratTime: "09:00",\n' +
+    '          muhuratSuggested: false,\n' +
+    '          venueAddress: "Sector 62, Noida",\n' +
+    '          venueCity: "Noida",\n' +
+    '          venuePincode: "201301",\n' +
+    '          venueLatitude: undefined,\n' +
+    '          venueLongitude: undefined,\n' +
+    '          specialInstructions: undefined,\n' +
+    '          attendees: 15,\n' +
+    '          dakshinaAmount: 11000,\n' +
+    '          travelMode: "CAB",\n' +
+    '          travelCost: 1200,\n' +
+    '          travelRequired: true,\n' +
+    '          travelStatus: "PENDING",\n' +
+    '          foodArrangement: "CUSTOMER_PROVIDES",\n' +
+    '          foodAllowanceDays: 0,\n' +
+    '          foodAllowanceAmount: 0,\n' +
+    '          accommodationArrangement: "NOT_NEEDED",\n' +
+    '          samagriPreference: "PANDIT_BRINGS",\n' +
+    '          samagriAmount: 2500,\n' +
+    '          samagriNotes: undefined,\n' +
+    '          platformFee: 1650,\n' +
+    '          platformFeeGst: 297,\n' +
+    '          travelServiceFee: 60,\n' +
+    '          travelServiceFeeGst: 11,\n' +
+    '          grandTotal: 14218,\n' +
+    '          panditPayout: 9350,\n' +
+    '          status: "CREATED",\n' +
+    '          paymentStatus: "PENDING",\n' +
+    '      +   customer: {\n' +
+    '      +     create: UserCreateWithoutBookingsAsCustomerInput | UserUncheckedCreateWithoutBookingsAsCustomerInput,\n' +
+    '      +     connectOrCreate: UserCreateOrConnectWithoutBookingsAsCustomerInput,\n' +
+    '      +     connect: UserWhereUniqueInput\n' +
+    '      +   }\n' +
+    '        },\n' +
+    '        include: {\n' +
+    '          pandit: true\n' +
+    '        }\n' +
+    '      })\n' +
+    '\n' +
+    'Argument `customer` is missing.\n' +
+    '    at wn (C:\\Users\\ss\\Documents\\HmarePanditJi\\node_modules\\.pnpm\\@prisma+client@5.22.0_prisma@5.22.0\\node_modules\\@prisma\\client\\runtime\\library.js:29:1363)\n' +
+    '    at $n.handleRequestError (C:\\Users\\ss\\Documents\\HmarePanditJi\\node_modules\\.pnpm\\@prisma+client@5.22.0_prisma@5.22.0\\node_modules\\@prisma\\client\\runtime\\library.js:121:6958)\n' +
+    '    at $n.handleAndLogRequestError (C:\\Users\\ss\\Documents\\HmarePanditJi\\node_modules\\.pnpm\\@prisma+client@5.22.0_prisma@5.22.0\\node_modules\\@prisma\\client\\runtime\\library.js:121:6623)\n' +
+    '    at $n.request (C:\\Users\\ss\\Documents\\HmarePanditJi\\node_modules\\.pnpm\\@prisma+client@5.22.0_prisma@5.22.0\\node_modules\\@prisma\\client\\runtime\\library.js:121:6307)\n' +
+    '    at async l (C:\\Users\\ss\\Documents\\HmarePanditJi\\node_modules\\.pnpm\\@prisma+client@5.22.0_prisma@5.22.0\\node_modules\\@prisma\\client\\runtime\\library.js:130:9633)\n' +
+    '    at async createBooking (C:\\Users\\ss\\Documents\\HmarePanditJi\\services\\api\\src\\services\\booking.service.ts:109:19)\n' +
+    '    at async <anonymous> (C:\\Users\\ss\\Documents\\HmarePanditJi\\services\\api\\src\\routes\\booking.routes.ts:66:21)'
+}
+^C

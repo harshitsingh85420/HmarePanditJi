@@ -169,10 +169,12 @@ export const verifyOtp = async (req: Request, res: Response) => {
 
   const token = jwt.sign(
     {
-      userId: user.id,
+      id: user.id,
+      userId: user.id, // Backward compatibility for handlers still reading userId
       phone: user.phone,
       role: user.role,
       name: user.name,
+      isVerified: user.isVerified,
     },
     env.JWT_SECRET,
     { expiresIn: "7d" }

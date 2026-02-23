@@ -1,4 +1,4 @@
-import { PrismaClient, Role, VerificationStatus, BookingStatus, TravelStatus, TravelMode, PaymentStatus, PayoutStatus, RefundStatus, SamagriPreference, FoodArrangement, AccommodationArrangement, PackageType } from '@prisma/client';
+import { PrismaClient, Role, VerificationStatus, BookingStatus, TravelStatus, PaymentStatus, PayoutStatus, RefundStatus, PackageType } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -91,11 +91,13 @@ const PANDITS = [
 
 async function main() {
   console.log('🔄 Cleaning up existing data...');
+
+  // Delete in dependency order
   await prisma.notification.deleteMany();
+  await prisma.customerRating.deleteMany();
   await prisma.review.deleteMany();
   await prisma.favoritePandit.deleteMany();
   await prisma.bookingStatusUpdate.deleteMany();
-  await prisma.payout.deleteMany();
   await prisma.booking.deleteMany();
   await prisma.address.deleteMany();
   await prisma.familyMember.deleteMany();
@@ -104,6 +106,7 @@ async function main() {
   await prisma.pujaService.deleteMany();
   await prisma.panditBlockedDate.deleteMany();
   await prisma.panditProfile.deleteMany();
+  await prisma.supportTicket.deleteMany();
   await prisma.user.deleteMany();
   await prisma.cityDistance.deleteMany();
   await prisma.muhuratDate.deleteMany();
@@ -142,18 +145,19 @@ async function main() {
             preferredLanguages: ['Hindi'], gotra: c.gotra,
             addresses: i === 0 ? {
               create: [
-                { label: 'Delhi', fullAddress: 'Delhi Address', city: 'Delhi', state: 'Delhi', pincode: '110001', isDefault: true },
-                { label: 'Noida', fullAddress: 'Noida Address', city: 'Noida', state: 'UP', pincode: '201301', isDefault: false }
-              ]
-            } : {},
-            familyMembers: i === 0 ? {
-              create: [
-                { name: 'Wife', relation: 'Spouse', dob: new Date('1990-01-01') },
-                { name: 'Son', relation: 'Son', dob: new Date('2015-01-01') }
+                { label: 'Delhi', fullAddress: 'A-42, Sector 62, Noida, UP', city: 'Delhi', state: 'Delhi', pincode: '110001', isDefault: true },
+                { label: 'Noida', fullAddress: 'C-15, Sector 4, Indirapuram, UP', city: 'Noida', state: 'UP', pincode: '201301', isDefault: false }
               ]
             } : {}
           }
-        }
+        },
+        // FamilyMember belongs to User directly
+        familyMembers: i === 0 ? {
+          create: [
+            { name: 'Sunita Devi', relation: 'Spouse', dob: new Date('1990-01-01') },
+            { name: 'Arjun', relation: 'Son', dob: new Date('2015-01-01') }
+          ]
+        } : {}
       }
     });
     customerMap[`customer${i + 1}`] = user;
@@ -193,36 +197,25 @@ async function main() {
     data: {
       bookingNumber: 'HPJ-001', customerId: customerMap.customer1.id, panditId: panditMap.pandit1.id,
       status: BookingStatus.COMPLETED, eventType: 'Satyanarayan Puja', eventDate: new Date('2026-05-03T00:00:00Z'),
-      venueCity: 'Delhi', venueAddress: 'Delhi Address', venuePincode: '110001',
+      venueCity: 'Delhi', venueAddress: 'A-42, Sector 62, Noida, UP, 201301', venuePincode: '110001',
       travelRequired: false, dakshinaAmount: 3100, platformFee: 465, platformFeeGst: 83, grandTotal: 3648,
       paymentStatus: PaymentStatus.CAPTURED, payoutStatus: PayoutStatus.COMPLETED,
+      panditPayout: 2635, payoutReference: 'UTR123456',
       statusUpdates: {
         create: [
           { fromStatus: BookingStatus.CREATED, toStatus: BookingStatus.PANDIT_REQUESTED, updatedById: customerMap.customer1.id },
           { fromStatus: BookingStatus.PUJA_IN_PROGRESS, toStatus: BookingStatus.COMPLETED, updatedById: panditMap.pandit1.id }
-        ]
-      },
-      review: {
-        create: {
-          reviewerId: customerMap.customer1.id, revieweeId: panditMap.pandit1.id,
-          overallRating: 5.0, knowledgeRating: 5.0, punctualityRating: 5.0, communicationRating: 5.0,
-          comment: 'Perfect puja.'
-        }
-      },
-      payouts: {
-        create: [
-          { amount: 15000, status: PayoutStatus.COMPLETED, referenceNo: 'UTR123456' }
         ]
       }
     }
   });
 
   // HPJ-002: Customer 1 → Pandit 2, CONFIRMED, Vivah, Delhi
-  await prisma.booking.create({
+  const b2 = await prisma.booking.create({
     data: {
       bookingNumber: 'HPJ-002', customerId: customerMap.customer1.id, panditId: panditMap.pandit2.id,
-      status: BookingStatus.CONFIRMED, eventType: 'Vivah', eventDate: new Date(new Date().getTime() + 5 * 24 * 60 * 60 * 1000), // in 5 days
-      venueCity: 'Delhi', venueAddress: 'Delhi Address', venuePincode: '110001',
+      status: BookingStatus.CONFIRMED, eventType: 'Vivah', eventDate: new Date(new Date().getTime() + 5 * 24 * 60 * 60 * 1000),
+      venueCity: 'Delhi', venueAddress: 'A-42, Sector 62, Noida, UP, 201301', venuePincode: '110001',
       travelRequired: true, travelStatus: TravelStatus.PENDING, dakshinaAmount: 25000, platformFee: 3750, platformFeeGst: 675, grandTotal: 29425,
       paymentStatus: PaymentStatus.CAPTURED,
       statusUpdates: {
@@ -234,23 +227,18 @@ async function main() {
   });
 
   // HPJ-003: Customer 2 → Pandit 1, TRAVEL_BOOKED, Griha Pravesh
-  await prisma.booking.create({
+  const b3 = await prisma.booking.create({
     data: {
       bookingNumber: 'HPJ-003', customerId: customerMap.customer2.id, panditId: panditMap.pandit1.id,
-      status: BookingStatus.TRAVEL_BOOKED, eventType: 'Griha Pravesh', eventDate: new Date(new Date().getTime() + 2 * 24 * 60 * 60 * 1000), // in 2 days
-      venueCity: 'Delhi', venueAddress: 'Noida Address', venuePincode: '201301',
+      status: BookingStatus.TRAVEL_BOOKED, eventType: 'Griha Pravesh', eventDate: new Date(new Date().getTime() + 2 * 24 * 60 * 60 * 1000),
+      venueCity: 'Noida', venueAddress: 'C-15, Sector 4, Indirapuram, UP, 201014', venuePincode: '201301',
       travelRequired: true, travelStatus: TravelStatus.BOOKED, dakshinaAmount: 7000, platformFee: 1050, platformFeeGst: 189, grandTotal: 8239,
-      paymentStatus: PaymentStatus.CAPTURED, payoutStatus: PayoutStatus.PENDING,
-      payouts: {
-        create: [
-          { amount: 27550, status: PayoutStatus.PENDING }
-        ]
-      }
+      paymentStatus: PaymentStatus.CAPTURED, payoutStatus: PayoutStatus.PENDING, panditPayout: 5950
     }
   });
 
   // HPJ-004: Customer 3 → Pandit 2, PANDIT_REQUESTED, Mundan
-  await prisma.booking.create({
+  const b4 = await prisma.booking.create({
     data: {
       bookingNumber: 'HPJ-004', customerId: customerMap.customer3.id, panditId: panditMap.pandit2.id,
       status: BookingStatus.PANDIT_REQUESTED, eventType: 'Mundan', eventDate: new Date('2026-06-04T00:00:00Z'),
@@ -261,7 +249,7 @@ async function main() {
   });
 
   // HPJ-005: Customer 2 → Pandit 1, CANCELLED, Satyanarayan
-  await prisma.booking.create({
+  const b5 = await prisma.booking.create({
     data: {
       bookingNumber: 'HPJ-005', customerId: customerMap.customer2.id, panditId: panditMap.pandit1.id,
       status: BookingStatus.CANCELLED, eventType: 'Satyanarayan Puja', eventDate: new Date('2026-07-02T00:00:00Z'),
@@ -273,7 +261,7 @@ async function main() {
   });
 
   // HPJ-006: Customer 3 → Pandit 1, CREATED, Annaprashan
-  await prisma.booking.create({
+  const b6 = await prisma.booking.create({
     data: {
       bookingNumber: 'HPJ-006', customerId: customerMap.customer3.id, panditId: panditMap.pandit1.id,
       status: BookingStatus.CREATED, eventType: 'Annaprashan', eventDate: new Date('2026-08-04T00:00:00Z'),
@@ -283,30 +271,42 @@ async function main() {
     }
   });
 
-  // REVIEWS (2 more needed, 1 already added in b1)
+  console.log('🌱 Seeding Reviews...');
+  // Review for completed booking HPJ-001
   await prisma.review.create({
     data: {
-      reviewerId: customerMap.customer2.id, revieweeId: panditMap.pandit2.id,
-      overallRating: 4.0, knowledgeRating: 4.0, punctualityRating: 4.0, communicationRating: 4.0,
-      comment: 'Good puja.', pujaType: 'Mundan'
-    }
-  });
-  await prisma.review.create({
-    data: {
-      reviewerId: customerMap.customer3.id, revieweeId: panditMap.pandit1.id,
+      bookingId: b1.id,
+      reviewerId: customerMap.customer1.id, revieweeId: panditMap.pandit1.id,
       overallRating: 5.0, knowledgeRating: 5.0, punctualityRating: 5.0, communicationRating: 5.0,
-      comment: 'Excellent.', pujaType: 'Griha Pravesh'
+      comment: 'Bahut acchi puja hui. Pandit ji ne sab vidhi-vidhaan se karwayi.'
     }
   });
 
-  // NOTIFICATIONS
+  console.log('🌱 Seeding Notifications...');
   await prisma.notification.create({ data: { userId: customerMap.customer1.id, title: 'Booking Confirmed', message: 'Your booking HPJ-002 is confirmed.', type: 'BOOKING_UPDATE' } });
   await prisma.notification.create({ data: { userId: customerMap.customer1.id, title: 'Pandit Assigned', message: 'Pandit has been assigned to HPJ-002.', type: 'BOOKING_UPDATE' } });
-  await prisma.notification.create({ data: { userId: panditMap.pandit1.id, title: 'New Booking Request', message: 'You have a new request for HPJ-006.', type: 'BOOKING_REQUEST' } });
-  await prisma.notification.create({ data: { userId: panditMap.pandit1.id, title: 'Payout Processed', message: 'Payout for HPJ-001 has been processed.', type: 'PAYOUT_UPDATE' } });
-  await prisma.notification.create({ data: { userId: panditMap.pandit2.id, title: 'Travel Details Added', message: 'Travel details for HPJ-002 have been added.', type: 'TRAVEL_UPDATE' } });
+  await prisma.notification.create({ data: { userId: panditMap.pandit1.id, title: 'Nayi Booking Request', message: 'Aapke liye HPJ-006 ki nayi request aayi hai.', type: 'BOOKING_REQUEST' } });
+  await prisma.notification.create({ data: { userId: panditMap.pandit1.id, title: 'Payout Processed', message: 'HPJ-001 ka payout ₹2,635 aapke account mein aa gaya hai.', type: 'PAYOUT_UPDATE' } });
+  await prisma.notification.create({ data: { userId: panditMap.pandit2.id, title: 'Travel Details Added', message: 'HPJ-002 ke liye travel details add ho gayi hain.', type: 'TRAVEL_UPDATE' } });
 
   console.log('✅ Seed completed successfully!');
+  console.log(`
+📊 Seeded Data Summary:
+   • 1 Admin, 3 Customers, 4 Pandits (2 verified, 1 pending, 1 rejected)
+   • 6 Bookings (1 completed, 1 confirmed, 1 travel_booked, 1 requested, 1 cancelled, 1 created)
+   • 16 City Distances (8 pairs, bidirectional)
+   • 20 Muhurat Dates (Vivah, Griha Pravesh, Satyanarayan, Mundan)
+   • 3 Favorite Pandits
+   • 1 Review
+   • 5 Notifications
+   • 3 Samagri Packages (for Pandit 1)
+   
+🔑 Test Login Phones:
+   Admin:    9000000001
+   Customer: 9000000002 / 9000000003 / 9000000004
+   Pandit:   9876543210 (verified) / 9876543211 (verified)
+   OTP:      Any 6 digits (MOCK_OTP=true)
+  `);
 }
 
 main()

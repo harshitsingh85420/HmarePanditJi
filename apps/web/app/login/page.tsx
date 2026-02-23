@@ -8,7 +8,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 type Step = "phone" | "otp" | "name";
 type Role = "CUSTOMER" | "PANDIT";
 
-const API_BASE = "http://localhost:3001";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api/v1";
 
 // ---------- OTP Input ----------
 function OtpInput({ onComplete }: { onComplete: (otp: string) => void }) {
@@ -86,16 +86,19 @@ function LoginPageContent() {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(`${API_BASE}/api/auth/send-otp`, {
+      const res = await fetch(`${API_BASE}/auth/send-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone: `+91${phone}`, role }),
       });
-      if (!res.ok) throw new Error("Failed to send OTP");
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error((data as { message?: string }).message || "Failed to send OTP");
+      }
       setStep("otp");
       setCountdown(30);
     } catch (err) {
-      setError("Failed to send OTP. Please try again.");
+      setError(err instanceof Error ? err.message : "Failed to send OTP. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -105,13 +108,15 @@ function LoginPageContent() {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(`${API_BASE}/api/auth/verify-otp`, {
+      const res = await fetch(`${API_BASE}/auth/verify-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone: `+91${phone}`, otp, role }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error?.message || "Invalid OTP");
+      if (!res.ok) {
+        throw new Error((data as { message?: string; error?: { message?: string } }).message || data.error?.message || "Invalid OTP");
+      }
 
       const { token, user } = data.data;
       localStorage.setItem("hpj_token", token);
@@ -135,8 +140,8 @@ function LoginPageContent() {
     setLoading(true);
     try {
       const token = localStorage.getItem("hpj_token");
-      const res = await fetch(`${API_BASE}/api/auth/me`, {
-        method: "PUT",
+      const res = await fetch(`${API_BASE}/auth/me`, {
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -145,10 +150,13 @@ function LoginPageContent() {
       });
       const data = await res.json();
       if (res.ok) {
-        localStorage.setItem("hpj_user", JSON.stringify(data.data));
-        handleRedirect(data.data);
+        const updatedUser = data.data?.user ?? data.data;
+        localStorage.setItem("hpj_user", JSON.stringify(updatedUser));
+        handleRedirect(updatedUser);
       }
-    } catch { }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not update profile");
+    }
     setLoading(false);
   }
 

@@ -61,6 +61,15 @@ export async function createOrder(input: CreateOrderInput) {
     return order;
   } catch (error) {
     logger.error("Razorpay Create Order Failed:", error);
+    if (env.NODE_ENV !== "production") {
+      logger.warn("[DEV] Falling back to mock Razorpay order after API failure");
+      return {
+        id: "order_mock_" + Date.now(),
+        currency: input.currency || "INR",
+        amount: input.amount * 100,
+        status: "created",
+      };
+    }
     throw new Error("Payment initialization failed");
   }
 }

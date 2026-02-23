@@ -1,450 +1,573 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { format, differenceInHours, differenceInMinutes } from "date-fns";
-import { hi } from "date-fns/locale";
-import {
-    Button,
-    Card,
-    Badge,
-    StatusTimeline,
-    PriceBreakdown,
-    VoiceButton
-} from "@hmarepanditji/ui";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useMemo, useState, useCallback } from "react";
 
-type BookingData = any;
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api/v1";
+const REQUEST_WINDOW_S = 6 * 60 * 60;
 
+function getToken() {
+  return (
+    localStorage.getItem("hpj_pandit_token") ||
+    localStorage.getItem("hpj_pandit_access_token") ||
+    localStorage.getItem("token")
+  );
+}
+
+function fmtRupees(n?: number) {
+  return `₹${Math.max(0, n ?? 0).toLocaleString("en-IN")}`;
+}
+
+function fmtDate(s?: string | null) {
+  if (!s) return "—";
+  return new Date(s).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
+}
+
+function fmtTime(s?: string | null) {
+  if (!s) return "—";
+  return new Date(s).toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit", hour12: true });
+}
+
+type BookingStatus =
+  | "CREATED" | "PANDIT_REQUESTED" | "CONFIRMED" | "TRAVEL_BOOKED"
+  | "PANDIT_EN_ROUTE" | "PANDIT_ARRIVED_HOTEL" | "PANDIT_ARRIVED"
+  | "PUJA_IN_PROGRESS" | "COMPLETED" | "CANCELLED" | "REFUNDED";
+
+interface BookingDetail {
+  id: string;
+  bookingNumber: string;
+  status: BookingStatus;
+  eventType: string;
+  eventDate: string;
+  eventEndDate?: string | null;
+  muhuratTime?: string | null;
+  venueAddress: string;
+  venueCity: string;
+  venuePincode?: string;
+  travelMode?: string | null;
+  travelCost: number;
+  travelStatus?: string | null;
+  foodArrangement: "CUSTOMER_PROVIDES" | "PLATFORM_ALLOWANCE";
+  foodAllowanceDays: number;
+  foodAllowanceAmount: number;
+  travelDays?: number;
+  pujaDaysWithAllowance?: number;
+  accommodationArrangement: "NOT_NEEDED" | "CUSTOMER_ARRANGES" | "PLATFORM_BOOKS";
+  samagriPreference: "PANDIT_BRINGS" | "CUSTOMER_ARRANGES" | "NEED_HELP";
+  samagriAmount: number;
+  samagriPackageName?: string | null;
+  samagriPackageTier?: string | null;
+  dakshinaAmount: number;
+  platformFee: number;
+  panditPayout: number;
+  guestCount?: number | null;
+  specialInstructions?: string | null;
+  createdAt: string;
+  customer: {
+    name?: string | null;
+    phone?: string | null;
+    rating?: number | null;
+    customerProfile?: { gotra?: string | null; preferredLanguages?: string[] | null } | null;
+  };
+  isOutstation?: boolean;
+}
+
+const STATUS_MAP: Record<string, { label: string; cls: string }> = {
+  PANDIT_REQUESTED: { label: "Nayi Request", cls: "bg-amber-100 text-amber-700 border border-amber-300" },
+  CREATED: { label: "Nayi Request", cls: "bg-amber-100 text-amber-700 border border-amber-300" },
+  CONFIRMED: { label: "Confirmed", cls: "bg-blue-100 text-blue-700 border border-blue-300" },
+  PANDIT_EN_ROUTE: { label: "Yatra Mein", cls: "bg-purple-100 text-purple-700" },
+  PANDIT_ARRIVED: { label: "Pahunche", cls: "bg-indigo-100 text-indigo-700" },
+  PUJA_IN_PROGRESS: { label: "Puja Chal Rahi Hai", cls: "bg-orange-100 text-orange-700" },
+  COMPLETED: { label: "Sampann", cls: "bg-green-100 text-green-700" },
+  CANCELLED: { label: "Cancelled", cls: "bg-red-100 text-red-700" },
+};
+
+const REJECT_REASONS = [
+  "Us din upalabdh nahin hun",
+  "Yatra bahut dur hai",
+  "Yeh puja nahin karta",
+  "Personal / Family emergency",
+  "Anya",
+];
+
+// ── Countdown Timer ────────────────────────────────────────────────────────
+function CountdownTimer({ createdAt, onExpired }: { createdAt: string; onExpired: () => void }) {
+  const [secs, setSecs] = useState(0);
+  const expiredRef = { current: false };
+
+  useEffect(() => {
+    const tick = () => {
+      const end = new Date(createdAt).getTime() + REQUEST_WINDOW_S * 1000;
+      const left = Math.max(0, Math.floor((end - Date.now()) / 1000));
+      setSecs(left);
+      if (left === 0 && !expiredRef.current) {
+        expiredRef.current = true;
+        onExpired();
+      }
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [createdAt]);
+
+  const h = Math.floor(secs / 3600);
+  const m = Math.floor((secs % 3600) / 60);
+  const s = secs % 60;
+  const label = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+  const isUrgent = secs <= 3600;
+
+  return (
+    <div className={`flex items-center gap-2 ${isUrgent ? "text-red-600" : "text-amber-700"}`}>
+      <span className="material-symbols-outlined text-base" style={{ fontVariationSettings: "'FILL' 1" }}>timer</span>
+      <span className="text-sm font-bold">Sweekar karne ka samay bachha hai: </span>
+      <span className={`font-mono font-bold text-base ${isUrgent ? "text-red-600" : "text-amber-700"}`}>{label}</span>
+    </div>
+  );
+}
+
+// ── Phone Reveal ───────────────────────────────────────────────────────────
+function phoneDisplay(phone: string | null | undefined, status: BookingStatus) {
+  if (!phone) return { text: "📞 Confirm ke baad dikhega", masked: true };
+  if (["PANDIT_REQUESTED", "CREATED"].includes(status)) return { text: "📞 ****-****-XXXX", masked: true };
+  if (["CONFIRMED", "TRAVEL_BOOKED"].includes(status)) return { text: `📞 ${phone.slice(0, 2)}XX-XXXX-XXXX`, masked: true };
+  return { text: `📞 +91 ${phone}`, masked: false };
+}
+
+// ── Main Page ──────────────────────────────────────────────────────────────
 export default function BookingDetailPage() {
-    const params = useParams();
-    const router = useRouter();
-    const [booking, setBooking] = useState<BookingData | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [showRatingSheet, setShowRatingSheet] = useState(false);
-    const [ratingData, setRatingData] = useState({ punctuality: 5, hospitality: 5, foodArrangement: 5, comment: "" });
-    const [submittingRating, setSubmittingRating] = useState(false);
+  const params = useParams<{ bookingId: string }>();
+  const router = useRouter();
+  const bookingId = params?.bookingId;
 
-    useEffect(() => {
-        if (params.bookingId) {
-            loadBooking(params.bookingId as string);
-        }
-    }, [params.bookingId]);
+  const [booking, setBooking] = useState<BookingDetail | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [expired, setExpired] = useState(false);
+  const [rejectOpen, setRejectOpen] = useState(false);
+  const [rejectReason, setRejectReason] = useState(REJECT_REASONS[0]);
+  const [actionLoading, setActionLoading] = useState(false);
+  const [acceptConfirm, setAcceptConfirm] = useState(false);
 
-    const loadBooking = async (id: string) => {
-        try {
-            setLoading(true);
-            const token = localStorage.getItem("token");
-            const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
+  const isPending = booking?.status === "PANDIT_REQUESTED" || booking?.status === "CREATED";
+  const isActive = booking && !isPending &&
+    !["COMPLETED", "CANCELLED", "REFUNDED"].includes(booking.status);
 
-            const res = await fetch(`/api/pandit/bookings/${id}`, { headers });
-            if (res.ok) {
-                const json = await res.json();
-                setBooking(json.data);
-            } else {
-                router.push("/bookings");
-            }
-        } catch (err) {
-            const [submittingRating, setSubmittingRating] = useState(false);
+  const netDakshina = Math.max(0, (booking?.dakshinaAmount ?? 0) - (booking?.platformFee ?? 0));
+  const scenarioATotal = netDakshina + (booking?.travelCost ?? 0) + (booking?.foodAllowanceAmount ?? 0) + (booking?.samagriAmount ?? 0);
+  const scenarioBTotal = netDakshina + (booking?.travelCost ?? 0) + (booking?.foodAllowanceAmount ?? 0);
+  const applicableTotal = booking?.samagriPreference === "PANDIT_BRINGS" ? scenarioATotal : scenarioBTotal;
 
-            useEffect(() => {
-                if (params.bookingId) {
-                    loadBooking(params.bookingId as string);
-                }
-            }, [params.bookingId]);
+  const load = useCallback(async () => {
+    if (!bookingId) return;
+    setLoading(true);
+    try {
+      const token = getToken();
+      const res = await fetch(`${API_BASE}/bookings/${bookingId}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      if (!res.ok) throw new Error("Booking load nahin ho saki");
+      const data = await res.json();
+      setBooking(data?.data?.booking ?? data?.data ?? data);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Kuch galat ho gaya");
+    } finally {
+      setLoading(false);
+    }
+  }, [bookingId]);
 
-            const loadBooking = async (id: string) => {
-                try {
-                    setLoading(true);
-                    const token = localStorage.getItem("token");
-                    const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
+  useEffect(() => { void load(); }, [load]);
 
-                    const res = await fetch(`/api/pandit/bookings/${id}`, { headers });
-                    if (res.ok) {
-                        const json = await res.json();
-                        setBooking(json.data);
-                    } else {
-                        router.push("/bookings");
-                    }
-                } catch (err) {
-                    console.error("Failed to load booking", err);
-                } finally {
-                    setLoading(false);
-                }
-            };
+  async function runAction(action: "accept" | "decline") {
+    if (!booking) return;
+    setActionLoading(true);
+    try {
+      const token = getToken();
+      const res = await fetch(`${API_BASE}/pandit/bookings/${booking.id}/${action}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        body: action === "decline" ? JSON.stringify({ reason: rejectReason }) : undefined,
+      });
+      if (!res.ok) throw new Error("Action fail ho gaya");
+      const data = await res.json();
+      setBooking(data?.data?.booking ?? data?.data ?? data);
+      setRejectOpen(false);
+      setAcceptConfirm(false);
+      if (action === "decline") {
+        setTimeout(() => router.push("/?declined=1"), 1500);
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Kuch galat ho gaya");
+    } finally {
+      setActionLoading(false);
+    }
+  }
 
-            const handleAction = async (action: string) => {
-                try {
-                    const token = localStorage.getItem("token");
-                    const res = await fetch(`/api/pandit/bookings/${booking?.id}/${action}`, {
-                        method: "POST",
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({ reason: "Other" }) // only used if decline
-                    });
-                    if (res.ok) {
-                        loadBooking(booking!.id);
-                        if (action === "complete") {
-                            setShowRatingSheet(true);
-                        }
-                    }
-                } catch (error) {
-                    console.error(error);
-                }
-            };
+  const statusInfo = useMemo(() => {
+    if (!booking) return null;
+    return STATUS_MAP[booking.status] ?? { label: booking.status, cls: "bg-gray-100 text-gray-600" };
+  }, [booking]);
 
+  if (loading) return (
+    <div className="py-20 flex items-center justify-center">
+      <span className="w-10 h-10 border-3 border-[#f09942] border-t-transparent rounded-full animate-spin" />
+    </div>
+  );
 
-            const submitRating = async () => {
-                try {
-                    setSubmittingRating(true);
-                    const token = localStorage.getItem("token");
-                    const res = await fetch(`/api/pandit/bookings/${booking?.id}/rate-customer`, {
-                        method: "POST",
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify(ratingData)
-                    });
-                    if (res.ok) {
-                        setShowRatingSheet(false);
-                    }
-                } catch (err) {
-                    console.error(err);
-                } finally {
-                    setSubmittingRating(false);
-                }
-            };
+  if (!booking) return (
+    <div className="py-16 space-y-4">
+      <p className="text-red-600 font-semibold">{error || "Booking nahin mili."}</p>
+      <Link href="/bookings" className="text-[#f09942] font-semibold hover:underline">← Wapas</Link>
+    </div>
+  );
 
-            if (loading) {
-                return (
-                    <div className="flex justify-center items-center h-screen">
-                        <div className="animate-spin w-8 h-8 border-4 border-amber-500 border-t-transparent rounded-full"></div>
-                    </div>
-                );
-            }
+  const phoneInfo = phoneDisplay(booking.customer.phone, booking.status);
+  const duration = booking.eventEndDate
+    ? Math.ceil((new Date(booking.eventEndDate).getTime() - new Date(booking.eventDate).getTime()) / (1000 * 60 * 60 * 24)) + 1
+    : 1;
 
-            if (!booking) return <div className="p-4 text-center">बुकिंग नहीं मिली</div>;
+  return (
+    <div className="space-y-4 pb-8">
+      {/* Back + Booking number */}
+      <div className="flex items-center justify-between">
+        <Link href="/bookings" className="flex items-center gap-1 text-sm font-semibold text-gray-600 hover:text-[#f09942]">
+          <span className="material-symbols-outlined text-base">arrow_back</span>
+          Bookings
+        </Link>
+        <span className="text-xs font-mono text-gray-500 bg-[#f09942]/10 px-3 py-1 rounded-full">
+          #{booking.bookingNumber}
+        </span>
+      </div>
 
-            const isConfirmedOrLater = ["CONFIRMED", "TRAVEL_BOOKED", "PANDIT_EN_ROUTE", "PANDIT_ARRIVED", "PUJA_IN_PROGRESS", "COMPLETED"].includes(booking.status);
-            const customerName = isConfirmedOrLater ? booking.customer.name : booking.customer.name?.split(" ")[0];
-            const customerPhone = booking.customer.phone;
+      {error && (
+        <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>
+      )}
 
-            const hoursToEvent = differenceInHours(new Date(booking.eventDate), new Date());
-            const showMaskedPhone = !isConfirmedOrLater || hoursToEvent > 0; // Or specific logic like < 30m
+      {/* ── SECTION 1: PENDING ALERT ── */}
+      {isPending && !expired && (
+        <section className="rounded-2xl border-2 border-amber-400 bg-amber-50 p-5 space-y-3">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-amber-600 text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>notification_important</span>
+            <p className="text-xs font-bold uppercase tracking-wider text-amber-700">Nayi Booking Alert</p>
+            {statusInfo && <span className={`ml-auto text-xs font-bold px-2 py-0.5 rounded-full ${statusInfo.cls}`}>{statusInfo.label}</span>}
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900">{booking.eventType}</h1>
+          <p className="text-sm text-gray-700">
+            {fmtDate(booking.eventDate)} · {booking.venueCity}
+            {booking.customer.name && ` · ${booking.customer.name.split(" ")[0]} Ji`}
+          </p>
+          <p className="text-lg font-bold text-green-700">
+            Estimated Earning: {fmtRupees(booking.panditPayout || applicableTotal)}
+          </p>
+          <CountdownTimer createdAt={booking.createdAt} onExpired={() => setExpired(true)} />
+        </section>
+      )}
 
-            const voiceSummary = `यह बुकिंग ${customerName} के घर ${booking.venueCity} में ${format(new Date(booking.eventDate), "d MMMM", { locale: hi })} को ${booking.eventType} के लिए है। कुल आमदनी ${booking.panditPayout} रुपये होगी।`;
+      {expired && (
+        <div className="rounded-xl border-2 border-red-300 bg-red-50 p-4 text-center">
+          <p className="text-red-700 font-bold">Yeh request expire ho gayi.</p>
+          <p className="text-red-600 text-sm mt-1">Admin ko reassign kar rahe hain...</p>
+          <Link href="/" className="inline-block mt-3 text-sm text-[#f09942] font-semibold hover:underline">Dashboard par Jaain</Link>
+        </div>
+      )}
 
-            return (
-                <div className="container mx-auto px-4 py-6 max-w-2xl mb-24 animate-in fade-in duration-500">
-                    {/* Header */}
-                    <div className="flex items-center gap-4 mb-6">
-                        <Link href="/bookings" className="text-gray-500 p-2 -ml-2 hover:bg-gray-100 rounded-full">
-                            ←
-                        </Link>
-                        <h1 className="text-xl font-bold flex-1">बुकिंग का विवरण</h1>
-                        <Badge className={booking.status === "COMPLETED" ? "bg-green-100 text-green-800" : "bg-blue-100 text-blue-800"}>
-                            {booking.status.replace(/_/g, " ")}
-                        </Badge>
-                    </div>
+      {/* Non-pending header */}
+      {!isPending && (
+        <section className="bg-white rounded-xl border border-gray-200 p-4">
+          <div className="flex items-start justify-between">
+            <div>
+              <h1 className="text-xl font-bold text-gray-900">{booking.eventType}</h1>
+              <p className="text-sm text-gray-500 mt-0.5">{fmtDate(booking.eventDate)} · {booking.venueCity}</p>
+            </div>
+            {statusInfo && <span className={`text-xs font-bold px-2 py-1 rounded-full ${statusInfo.cls}`}>{statusInfo.label}</span>}
+          </div>
+        </section>
+      )}
 
-                    <VoiceButton textToSpeak={voiceSummary} className="w-full mb-6 py-3" />
+      {/* ── SECTION 2: EVENT DETAILS ── */}
+      <section className="bg-white rounded-xl border border-gray-200 p-4 space-y-3">
+        <h2 className="text-sm font-bold text-gray-500 uppercase tracking-wider">Event Details</h2>
+        <div className="grid grid-cols-2 gap-3 text-sm">
+          <div>
+            <p className="text-gray-400 text-xs">Puja</p>
+            <p className="font-semibold text-gray-900">{booking.eventType}</p>
+          </div>
+          <div>
+            <p className="text-gray-400 text-xs">Date</p>
+            <p className="font-semibold text-gray-900">{fmtDate(booking.eventDate)}</p>
+          </div>
+          {booking.muhuratTime && (
+            <div>
+              <p className="text-gray-400 text-xs">Shubh Muhurat</p>
+              <p className="font-semibold text-[#f09942]">Subah {booking.muhuratTime}</p>
+            </div>
+          )}
+          <div>
+            <p className="text-gray-400 text-xs">Duration</p>
+            <p className="font-semibold text-gray-900">{duration} din</p>
+          </div>
+          <div>
+            <p className="text-gray-400 text-xs">Venue</p>
+            <p className="font-semibold text-gray-900">
+              {isPending ? booking.venueCity : `${booking.venueAddress}, ${booking.venueCity}`}
+            </p>
+          </div>
+          {booking.guestCount && (
+            <div>
+              <p className="text-gray-400 text-xs">Mehman</p>
+              <p className="font-semibold text-gray-900">{booking.guestCount} log</p>
+            </div>
+          )}
+          <div>
+            <p className="text-gray-400 text-xs">Customer</p>
+            <p className="font-semibold text-gray-900">
+              {booking.customer.name ? `${booking.customer.name.split(" ")[0]} Ji` : "Customer"}
+              {booking.customer.rating && <span className="text-yellow-500 ml-1">★ {booking.customer.rating}</span>}
+            </p>
+          </div>
+          <div>
+            <p className="text-gray-400 text-xs">Gotra</p>
+            <p className="font-semibold text-gray-900">{booking.customer.customerProfile?.gotra || "—"}</p>
+          </div>
+          <div>
+            <p className="text-gray-400 text-xs">Phone</p>
+            <p className={`font-semibold ${phoneInfo.masked ? "text-gray-400" : "text-gray-900"}`}>
+              {phoneInfo.text}
+            </p>
+            {!phoneInfo.masked && (
+              <a href={`tel:${booking.customer.phone}`} className="text-xs text-[#f09942] font-semibold">Call Karen</a>
+            )}
+          </div>
+        </div>
+        {booking.specialInstructions && (
+          <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+            <strong>Special Instructions:</strong> {booking.specialInstructions}
+          </div>
+        )}
+      </section>
 
-                    <div className="space-y-6">
-                        {/* Section 1: Event Details */}
-                        <Card padding="md" className="shadow-sm">
-                            <h2 className="text-lg font-bold mb-4 border-b pb-2 border-gray-100 font-sans text-brand-900 border-l-4 border-l-amber-500 pl-3">पूजा की जानकारी</h2>
-                            <div className="space-y-3 text-sm">
-                                <div className="flex justify-between">
-                                    <span className="text-gray-500">पूजा का नाम:</span>
-                                    <span className="font-semibold text-right">{booking.eventType}</span>
-                                </div>
-                                <div className="flex justify-between">
-                                    <span className="text-gray-500">तारीख:</span>
-                                    <span className="font-semibold text-right">{format(new Date(booking.eventDate), "EEEE, d MMMM yyyy", { locale: hi })}</span>
-                                </div>
-                                <div className="flex justify-between">
-                                    <span className="text-gray-500">समय:</span>
-                                    <span className="font-semibold text-right">{booking.muhuratTime || format(new Date(booking.eventDate), "h:mm a")}</span>
-                                </div>
-                                <div className="flex justify-between">
-                                    <span className="text-gray-500">पता:</span>
-                                    <span className="font-semibold text-right max-w-[200px]">
-                                        {isConfirmedOrLater ? booking.venueAddress : booking.venueCity}
-                                    </span>
-                                </div>
-                                {booking.specialInstructions && (
-                                    <div className="bg-amber-50 p-3 rounded-lg mt-2 text-amber-800 text-sm">
-                                        <strong>विशेष निर्देश:</strong> {booking.specialInstructions}
-                                    </div>
-                                )}
-                            </div>
-                        </Card>
+      {/* ── SECTION 3: SAMAGRI CHOICE ── */}
+      <section className="bg-white rounded-xl border border-gray-200 p-4 space-y-2">
+        <h2 className="text-sm font-bold text-gray-500 uppercase tracking-wider">Samagri Choice</h2>
+        {booking.samagriPreference === "PANDIT_BRINGS" ? (
+          <div className="rounded-xl border-2 border-[#f09942] bg-[#f09942]/5 p-3">
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-[#f09942] text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>shopping_bag</span>
+              <span className="text-sm font-bold text-[#f09942]">
+                Pandit Ji ka Package: {booking.samagriPackageTier} — {fmtRupees(booking.samagriAmount)}
+              </span>
+            </div>
+            <p className="text-xs text-amber-700 mt-1">Is package ki full price milegi ✓</p>
+          </div>
+        ) : booking.samagriPreference === "CUSTOMER_ARRANGES" ? (
+          <div className="rounded-xl border-2 border-blue-300 bg-blue-50 p-3">
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-blue-600 text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>inventory_2</span>
+              <span className="text-sm font-bold text-blue-700">Platform Custom List</span>
+            </div>
+            <p className="text-xs text-blue-600 mt-1">Customer apni samagri khud manage karegi. Aapki samagri earning: ₹0 (sirf dakshina + travel + food allowance)</p>
+          </div>
+        ) : (
+          <div className="rounded-xl border border-gray-200 bg-gray-50 p-3 text-sm text-gray-600">
+            Customer ko samagri arrange karne mein help chahiye. Platform handle karega.
+          </div>
+        )}
+      </section>
 
-                        {/* Section 2: Customer Information */}
-                        <Card padding="md" className="shadow-sm">
-                            <h2 className="text-lg font-bold mb-4 border-b pb-2 border-gray-100 font-sans text-brand-900 border-l-4 border-l-blue-500 pl-3">ग्राहक की जानकारी</h2>
-                            <div className="space-y-3 text-sm">
-                                <div className="flex justify-between">
-                                    <span className="text-gray-500">नाम:</span>
-                                    <span className="font-semibold text-right">{customerName} जी</span>
-                                </div>
-                                {booking.customer.customerProfile?.gotra && (
-                                    <div className="flex justify-between">
-                                        <span className="text-gray-500">गोत्र:</span>
-                                        <span className="font-semibold text-right">{booking.customer.customerProfile.gotra}</span>
-                                    </div>
-                                )}
-                                <div className="flex justify-between">
-                                    <span className="text-gray-500">ग्राहक की भाषा:</span>
-                                    <span className="font-semibold text-right">
-                                        {booking.customer.customerProfile?.preferredLanguages?.join(", ") || "Hindi"}
-                                    </span>
-                                </div>
-                                <div className="flex justify-between items-center">
-                                    <span className="text-gray-500">फोन नंबर:</span>
-                                    {showMaskedPhone ? (
-                                        <span className="font-semibold text-right text-gray-400">
-                                            +91 •••••••{customerPhone?.slice(-3)}
-                                            {hoursToEvent < 24 && hoursToEvent > 0 && (
-                                                <div className="text-xs font-normal text-amber-600 mt-1">
-                                                    नंबर {hoursToEvent} घंटे में दिखेगा
-                                                </div>
-                                            )}
-                                        </span>
-                                    ) : (
-                                        <a href={`tel:${customerPhone}`} className="text-brand-600 font-semibold underline">
-                                            {customerPhone}
-                                        </a>
-                                    )}
-                                </div>
-                            </div>
-                        </Card>
+      {/* ── SECTION 4: FOOD ALLOWANCE ── */}
+      {booking.foodAllowanceDays > 0 && (
+        <section className="bg-white rounded-xl border border-gray-200 p-4 space-y-2">
+          <h2 className="text-sm font-bold text-gray-500 uppercase tracking-wider">Bhojan Bhatta (Food Allowance)</h2>
+          <div className="space-y-1.5">
+            {(booking.travelDays ?? 0) > 0 && (
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600">यात्रा के दिन ({booking.travelDays} दिन)</span>
+                <span className="font-semibold text-green-700">{fmtRupees((booking.travelDays ?? 0) * 1000)}</span>
+              </div>
+            )}
+            {(booking.pujaDaysWithAllowance ?? 0) > 0 && (
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600">पूजा के दिन ({booking.pujaDaysWithAllowance} दिन, meals not provided)</span>
+                <span className="font-semibold text-green-700">{fmtRupees((booking.pujaDaysWithAllowance ?? 0) * 1000)}</span>
+              </div>
+            )}
+            {booking.foodArrangement === "CUSTOMER_PROVIDES" && (
+              <p className="text-xs text-gray-500">Customer puja ke din bhojan denge — food allowance nahin</p>
+            )}
+            <div className="flex justify-between text-sm font-bold border-t border-gray-100 pt-2 mt-2">
+              <span className="text-gray-700">कुल भत्ता</span>
+              <span className="text-green-700">{fmtRupees(booking.foodAllowanceAmount)}</span>
+            </div>
+          </div>
+        </section>
+      )}
 
-                        {/* Section 3: Samagri / Requirements */}
-                        <Card padding="md" className="shadow-sm">
-                            <h2 className="text-lg font-bold mb-4 border-b pb-2 border-gray-100 font-sans text-brand-900 border-l-4 border-l-green-500 pl-3">सामग्री की जानकारी</h2>
-                            <div className="text-sm">
-                                {booking.samagriPreference === "PANDIT_BRINGS" && (
-                                    <>
-                                        <p className="font-semibold text-green-700 bg-green-50 p-3 rounded mb-2">✅ आप सामग्री लेकर आएंगे</p>
-                                        {booking.samagriAmount > 0 && <p className="text-gray-600">पैकेज: ₹{booking.samagriAmount}</p>}
-                                        {booking.samagriCustomList && <pre className="text-xs bg-gray-50 p-2 mt-2 rounded overflow-auto">{JSON.stringify(booking.samagriCustomList, null, 2)}</pre>}
-                                    </>
-                                )}
-                                {booking.samagriPreference === "CUSTOMER_ARRANGES" && (
-                                    <p className="font-semibold text-blue-700 bg-blue-50 p-3 rounded">🧑 ग्राहक खुद व्यवस्था करेगा</p>
-                                )}
-                                {booking.samagriPreference === "NEED_HELP" && (
-                                    <p className="font-semibold text-amber-700 bg-amber-50 p-3 rounded">🤝 हमारी टीम सामग्री व्यवस्था में मदद करेगी</p>
-                                )}
-                            </div>
-                        </Card>
+      {/* ── SECTION 5: EARNINGS BREAKDOWN ── */}
+      <section className="bg-white rounded-xl border border-gray-200 p-4 space-y-3">
+        <h2 className="text-sm font-bold text-gray-500 uppercase tracking-wider">Aapki Kamai</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {/* Scenario A — with samagri */}
+          <div className={`rounded-xl border-2 p-3 space-y-1.5 ${booking.samagriPreference === "PANDIT_BRINGS" ? "border-[#f09942] bg-[#f09942]/5" : "border-gray-100 bg-gray-50 opacity-70"}`}>
+            <p className="text-xs font-bold uppercase tracking-wider text-[#f09942]">Scenario A — Pandit Package</p>
+            <Row label="Dakshina" val={fmtRupees(booking.dakshinaAmount)} />
+            <Row label="Platform Fee (15%)" val={`−${fmtRupees(booking.platformFee)}`} neg />
+            <Row label="Net Dakshina" val={fmtRupees(netDakshina)} />
+            <Row label="Samagri Earnings" val={fmtRupees(booking.samagriAmount)} />
+            <Row label="Travel Reimbursement" val={fmtRupees(booking.travelCost)} />
+            <Row label="Food Allowance" val={fmtRupees(booking.foodAllowanceAmount)} />
+            <div className="h-px bg-[#f09942]/30 my-1" />
+            <div className="flex justify-between text-sm font-bold">
+              <span className="text-[#f09942]">Total Earning</span>
+              <span className="text-[#f09942]">{fmtRupees(scenarioATotal)}</span>
+            </div>
+          </div>
 
-                        {/* Section 4: Travel Info */}
-                        {booking.travelRequired && (
-                            <Card padding="md" className="shadow-sm">
-                                <h2 className="text-lg font-bold mb-4 border-b pb-2 border-gray-100 font-sans text-brand-900 border-l-4 border-l-purple-500 pl-3">यात्रा की जानकारी</h2>
-                                <div className="space-y-3 text-sm">
-                                    <div className="flex justify-between">
-                                        <span className="text-gray-500">चुना गया तरीका:</span>
-                                        <span className="font-semibold text-right">{booking.travelMode || 'Admin Arranging'}</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span className="text-gray-500">दूरी:</span>
-                                        <span className="font-semibold text-right">~{booking.travelDistanceKm} km</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span className="text-gray-500">यात्रा लागत:</span>
-                                        <span className="font-semibold text-right">₹{booking.travelCost} (Reimbursed)</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span className="text-gray-500">खाने का भत्ता:</span>
-                                        <span className="font-semibold text-right">₹{booking.foodAllowanceAmount} ({booking.foodAllowanceDays} दिन)</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span className="text-gray-500">ठहरने की व्यवस्था:</span>
-                                        <span className="font-semibold text-right">
-                                            {booking.accommodationArrangement === "CUSTOMER_ARRANGES" ? 'ग्राहक करेंगे' : (booking.accommodationArrangement === "PLATFORM_BOOKS" ? 'Platform booked' : 'NOT NEEDED')}
-                                        </span>
-                                    </div>
+          {/* Scenario B — without samagri */}
+          <div className={`rounded-xl border-2 p-3 space-y-1.5 ${booking.samagriPreference !== "PANDIT_BRINGS" ? "border-blue-300 bg-blue-50" : "border-gray-100 bg-gray-50 opacity-70"}`}>
+            <p className="text-xs font-bold uppercase tracking-wider text-blue-600">Scenario B — Platform List</p>
+            <Row label="Dakshina" val={fmtRupees(booking.dakshinaAmount)} />
+            <Row label="Platform Fee (15%)" val={`−${fmtRupees(booking.platformFee)}`} neg />
+            <Row label="Net Dakshina" val={fmtRupees(netDakshina)} />
+            <Row label="Samagri Earnings" val="₹0" />
+            <Row label="Travel Reimbursement" val={fmtRupees(booking.travelCost)} />
+            <Row label="Food Allowance" val={fmtRupees(booking.foodAllowanceAmount)} />
+            <div className="h-px bg-blue-200 my-1" />
+            <div className="flex justify-between text-sm font-bold">
+              <span className="text-blue-700">Total Earning</span>
+              <span className="text-blue-700">{fmtRupees(scenarioBTotal)}</span>
+            </div>
+          </div>
+        </div>
+        <p className="text-xs text-gray-500">Note: Travel amount final hogi jab admin travel book karegi.</p>
+      </section>
 
-                                    {booking.travelStatus === "BOOKED" && (
-                                        <Link href={`/bookings/${booking.id}/itinerary`}>
-                                            <Button variant="outline" className="w-full mt-4 flex items-center justify-center gap-2 border-purple-500 text-purple-700 hover:bg-purple-50">
-                                                🗺️ यात्रा प्लान देखें →
-                                            </Button>
-                                        </Link>
-                                    )}
-                                </div>
-                            </Card>
-                        )}
+      {/* ── SECTION 6: TRAVEL PREVIEW ── */}
+      {booking.isOutstation && (
+        <section className="bg-white rounded-xl border border-gray-200 p-4 space-y-2">
+          <h2 className="text-sm font-bold text-gray-500 uppercase tracking-wider">Yatra ki Jankari</h2>
+          <div className="grid grid-cols-2 gap-3 text-sm">
+            <div>
+              <p className="text-gray-400 text-xs">Travel Mode</p>
+              <p className="font-semibold">{booking.travelMode || "Admin arrange karegi"}</p>
+            </div>
+            <div>
+              <p className="text-gray-400 text-xs">Accommodation</p>
+              <p className="font-semibold">{
+                booking.accommodationArrangement === "CUSTOMER_ARRANGES" ? "Customer arrange karegi" :
+                booking.accommodationArrangement === "PLATFORM_BOOKS" ? "Platform book karegi" :
+                "Not needed"
+              }</p>
+            </div>
+          </div>
+          <p className="text-xs text-blue-600 bg-blue-50 rounded-lg p-2">
+            Platform aapki yatra arrange karegi. Ticket/booking amount pandit wallet mein credit ki jayegi.
+          </p>
+        </section>
+      )}
 
-                        {/* Section 5: Earnings Breakdown */}
-                        <Card padding="md" className="shadow-sm">
-                            <h2 className="text-lg font-bold mb-4 border-b pb-2 border-gray-100 font-sans text-brand-900 border-l-4 border-l-emerald-500 pl-3">आपकी कमाई</h2>
-                            <div className="bg-gray-50 p-4 rounded-xl space-y-2 text-sm">
-                                <div className="flex justify-between">
-                                    <span className="text-gray-600">दक्षिणा:</span>
-                                    <span className="font-medium">₹{booking.dakshinaAmount - booking.platformFee}</span>
-                                </div>
-                                {booking.travelCost > 0 && (
-                                    <div className="flex justify-between">
-                                        <span className="text-gray-600">यात्रा खर्च (Reimbursement):</span>
-                                        <span className="font-medium">₹{booking.travelCost}</span>
-                                    </div>
-                                )}
-                                {booking.foodAllowanceAmount > 0 && (
-                                    <div className="flex justify-between">
-                                        <span className="text-gray-600">खाना भत्ता:</span>
-                                        <span className="font-medium">₹{booking.foodAllowanceAmount}</span>
-                                    </div>
-                                )}
-                                {booking.samagriAmount > 0 && (
-                                    <div className="flex justify-between">
-                                        <span className="text-gray-600">सामग्री:</span>
-                                        <span className="font-medium">₹{booking.samagriAmount}</span>
-                                    </div>
-                                )}
-                                <hr className="my-2" />
-                                <div className="flex justify-between font-bold text-lg text-emerald-700">
-                                    <span>कुल आमदनी:</span>
-                                    <span>₹{booking.panditPayout}</span>
-                                </div>
-                                <p className="text-xs text-gray-500 text-center mt-3 bg-white p-2 border rounded">
-                                    (प्लेटफॉर्म की 15% सेवा शुल्क काटकर)<br />
-                                    भुगतान पूजा पूरी होने के 24 घंटे में होगा
-                                </p>
-                            </div>
-                        </Card>
+      {/* ── ACCEPT / DECLINE ZONE ── */}
+      {isPending && !expired && (
+        <section className="space-y-3">
+          <button
+            onClick={() => setAcceptConfirm(true)}
+            className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl text-base flex items-center justify-center gap-2"
+          >
+            <span className="material-symbols-outlined">check_circle</span>
+            Accept Karein
+          </button>
+          <button
+            onClick={() => setRejectOpen(true)}
+            className="w-full border-2 border-red-400 text-red-600 font-bold py-4 rounded-xl text-base hover:bg-red-50 flex items-center justify-center gap-2"
+          >
+            <span className="material-symbols-outlined">cancel</span>
+            Decline Karein
+          </button>
+        </section>
+      )}
 
-                        {/* Section 6: Status Timeline */}
-                        <Card padding="md" className="shadow-sm mb-20 overflow-hidden">
-                            <h2 className="text-lg font-bold mb-6 font-sans text-brand-900">स्टेटस हिस्ट्री</h2>
-                            <StatusTimeline
-                                steps={booking.statusUpdates?.map((su: any, index: number) => ({
-                                    label: su.toStatus.replace(/_/g, " "),
-                                    description: su.note,
-                                    timestamp: new Date(su.createdAt),
-                                    status: index === booking.statusUpdates.length - 1 ? 'active' : 'completed'
-                                })) || [
-                                        { label: booking.status.replace(/_/g, " "), status: 'active', timestamp: new Date() }
-                                    ]}
-                            />
-                        </Card>
-                    </div>
+      {/* Active booking actions */}
+      {isActive && (
+        <div className="flex gap-3">
+          <Link href={`/bookings/${booking.id}/live-tracking`} className="flex-1">
+            <span className="block w-full bg-[#f09942] text-white font-bold py-3.5 rounded-xl text-center text-sm">
+              I&apos;m Here Updates →
+            </span>
+          </Link>
+        </div>
+      )}
 
-                    {/* Section 7: Action Buttons Overlay */}
-                    <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-100 shadow-[0_-10px_30px_rgba(0,0,0,0.05)] flex gap-3 z-50">
-                        {booking.status === "PANDIT_REQUESTED" && (
-                            <>
-                                <Button className="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 text-lg" onClick={() => handleAction("accept")}>✅ स्वीकार करें</Button>
-                                <Button variant="outline" className="flex-1 border-red-500 text-red-500 hover:bg-red-50 py-3 text-lg" onClick={() => handleAction("decline")}>❌ मना करें</Button>
-                            </>
-                        )}
+      {booking.status === "COMPLETED" && (
+        <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
+          <span className="material-symbols-outlined text-green-500 text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>task_alt</span>
+          <p className="text-green-700 font-bold mt-1">Puja Sampann! 🙏</p>
+          <p className="text-xs text-green-600 mt-1">Payment 24 ghante mein aayegi.</p>
+        </div>
+      )}
 
-                        {booking.status === "CONFIRMED" && (
-                            <>
-                                <Button variant="outline" className="flex-1 border-brand-500 text-brand-600 font-semibold py-3">📅 कैलेंडर में जोड़ें</Button>
-                                <Button variant="outline" className="flex-1 border-gray-300 font-semibold py-3 text-gray-700" onClick={() => window.open('tel:1800123456')}>💬 सहायता</Button>
-                            </>
-                        )}
+      {/* ── ACCEPT CONFIRM MODAL ── */}
+      {acceptConfirm && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center p-4">
+          <div className="bg-white rounded-2xl w-full max-w-sm p-5 space-y-4">
+            <h3 className="text-lg font-bold text-gray-900">Booking Accept Karein?</h3>
+            <p className="text-sm text-gray-600">
+              Kya aap <strong>{booking.eventType}</strong> ki booking accept karna chahte hain?<br />
+              Date: {fmtDate(booking.eventDate)}<br />
+              Estimated Earning: {fmtRupees(applicableTotal)}
+            </p>
+            <div className="flex gap-3">
+              <button onClick={() => setAcceptConfirm(false)} className="flex-1 border border-gray-200 text-gray-700 font-semibold py-3 rounded-xl">
+                Wapas
+              </button>
+              <button onClick={() => void runAction("accept")} disabled={actionLoading}
+                className="flex-1 bg-green-600 text-white font-bold py-3 rounded-xl hover:bg-green-700 disabled:opacity-60 flex items-center justify-center gap-1">
+                {actionLoading ? <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : "Haan, Accept Karein"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
-                        {["TRAVEL_BOOKED", "PANDIT_EN_ROUTE"].includes(booking.status) && (
-                            <>
-                                <Link href={`/bookings/${booking.id}/itinerary`} className="flex-1">
-                                    <Button variant="outline" className="w-full flex-1 border-purple-500 text-purple-600 font-semibold py-3">🗺️ यात्रा प्लान</Button>
-                                </Link>
-                                <Link href={`/bookings/${booking.id}/live-tracking`} className="flex-1">
-                                    <Button className="w-full flex-1 bg-amber-500 hover:bg-amber-600 text-white font-semibold py-3 shadow-md">📍 लाइव मोड</Button>
-                                </Link>
-                            </>
-                        )}
+      {/* ── DECLINE MODAL ── */}
+      {rejectOpen && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center p-4">
+          <div className="bg-white rounded-2xl w-full max-w-sm p-5 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-bold text-gray-900">Decline Karein</h3>
+              <button onClick={() => setRejectOpen(false)} className="text-gray-400 hover:text-gray-600">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <p className="text-sm text-gray-600">Kripya decline karne ki wajah batayein:</p>
+            <div className="space-y-2">
+              {REJECT_REASONS.map((r) => (
+                <label key={r} className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${rejectReason === r ? "border-red-400 bg-red-50" : "border-gray-100"}`}>
+                  <input type="radio" name="reason" value={r} checked={rejectReason === r}
+                    onChange={() => setRejectReason(r)} className="text-red-500" />
+                  <span className="text-sm text-gray-700">{r}</span>
+                </label>
+              ))}
+            </div>
+            <div className="flex gap-3">
+              <button onClick={() => setRejectOpen(false)} className="flex-1 border border-gray-200 text-gray-700 font-semibold py-3 rounded-xl">Wapas</button>
+              <button onClick={() => void runAction("decline")} disabled={actionLoading}
+                className="flex-1 bg-red-600 text-white font-bold py-3 rounded-xl hover:bg-red-700 disabled:opacity-60 flex items-center justify-center gap-1">
+                {actionLoading ? <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : "Decline Karein"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
-                        {booking.status === "PANDIT_ARRIVED" && (
-                            <>
-                                <Link href={`/bookings/${booking.id}/live-tracking`} className="flex-1">
-                                    <Button variant="outline" className="w-full border-blue-500 text-blue-600 font-semibold py-3">📍 लाइव मोड</Button>
-                                </Link>
-                                <Button className="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-semibold flex items-center justify-center py-3" onClick={() => handleAction("start-puja")}>🙏 पूजा शुरू करें</Button>
-                            </>
-                        )}
-
-                        {booking.status === "PUJA_IN_PROGRESS" && (
-                            <Button className="w-full bg-green-600 hover:bg-green-700 text-white text-lg font-bold shadow-lg py-4" onClick={() => handleAction("complete")}>✅ पूजा पूरी हुई</Button>
-                        )}
-
-                        {booking.status === "COMPLETED" && (
-                            <>
-                                {booking.review && <Button variant="outline" className="flex-1 border-brand-500 text-brand-600 font-semibold py-3">⭐ रेटिंग देखें</Button>}
-                                <Button className="flex-1 bg-green-600 text-white font-semibold py-3" onClick={() => router.push('/earnings')}>💰 भुगतान देखें</Button>
-                            </>
-                        )}
-                    </div>
-
-                    {/* Rating Bottom Sheet */}
-                    {showRatingSheet && (
-                        <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/50 p-4 sm:p-0">
-                            <div className="bg-white w-full sm:max-w-md rounded-t-2xl sm:rounded-xl p-6 shadow-2xl animate-in slide-in-from-bottom duration-300">
-                                <div className="flex justify-between items-center mb-4 border-b pb-2 border-gray-100">
-                                    <h2 className="text-xl font-bold font-sans text-brand-900">ग्राहक को रेटिंग दें</h2>
-                                    <button onClick={() => setShowRatingSheet(false)} className="text-gray-400 hover:text-gray-700">✕</button>
-                                </div>
-                                <p className="text-sm text-gray-500 mb-6">आपके अनुभव के आधार पर ग्राहक (Customer) को रेट करें। यह रेटिंग केवल आपके और अन्य पंडितों के लिए है।</p>
-
-                                <div className="space-y-4 mb-6">
-                                    {(['punctuality', 'hospitality', 'foodArrangement'] as const).map((key) => (
-                                        <div key={key} className="flex justify-between items-center">
-                                            <span className="font-medium text-gray-700 w-1/2">
-                                                {key === 'punctuality' ? 'समय की पाबंदी' : key === 'hospitality' ? 'आतिथ्य सत्कार' : 'भोजन व्यवस्था'}
-                                            </span>
-                                            <div className="flex gap-1 w-1/2 justify-end">
-                                                {[1, 2, 3, 4, 5].map((star) => (
-                                                    <button
-                                                        key={star}
-                                                        type="button"
-                                                        onClick={() => setRatingData(prev => ({ ...prev, [key]: star }))}
-                                                        className={`text-2xl ${ratingData[key] >= star ? 'text-amber-400' : 'text-gray-200'}`}
-                                                    >
-                                                        ★
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    ))}
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">टिप्पणी (कमेंट) - वैकल्पिक</label>
-                                        <textarea
-                                            value={ratingData.comment}
-                                            onChange={(e) => setRatingData(prev => ({ ...prev, comment: e.target.value }))}
-                                            className="w-full p-2 border border-gray-300 rounded-lg text-sm bg-white text-gray-900 focus:ring-amber-500 focus:border-amber-500"
-                                            rows={3}
-                                            placeholder="अपना अनुभव बताएं (हिंदी में लिखें)..."
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="flex gap-3">
-                                    <Button
-                                        variant="outline"
-                                        className="flex-1 py-3 text-gray-600 border-gray-300"
-                                        onClick={() => setShowRatingSheet(false)}
-                                    >
-                                        छोड़ें (Skip)
-                                    </Button>
-                                    <Button
-                                        className="flex-1 py-3 bg-amber-600 hover:bg-amber-700 text-white"
-                                        onClick={submitRating}
-                                        disabled={submittingRating}
-                                    >
-                                        {submittingRating ? 'सबमिट हो रहा है...' : 'सबमिट करें'}
-                                    </Button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                </div>
-            );
-        }
+function Row({ label, val, neg }: { label: string; val: string; neg?: boolean }) {
+  return (
+    <div className="flex justify-between text-xs text-gray-600">
+      <span>{label}</span>
+      <span className={neg ? "text-red-600" : "text-gray-800 font-medium"}>{val}</span>
+    </div>
+  );
+}

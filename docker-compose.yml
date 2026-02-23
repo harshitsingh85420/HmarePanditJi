@@ -6,15 +6,15 @@ services:
     container_name: hmarepanditji-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-hmarepanditji}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-hmarepanditji_secret}
+      POSTGRES_USER: ${POSTGRES_USER:-hpj_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-hpj_password_dev}
       POSTGRES_DB: ${POSTGRES_DB:-hmarepanditji}
     ports:
-      - "5433:5432"
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U hmarepanditji"]
+      test: ["CMD-SHELL", "pg_isready -U hpj_user"]
       interval: 10s
       timeout: 5s
       retries: 5

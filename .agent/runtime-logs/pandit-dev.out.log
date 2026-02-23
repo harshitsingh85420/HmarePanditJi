@@ -1,0 +1,143 @@
+
+> @hmarepanditji/pandit@0.1.0 dev C:\Users\ss\Documents\HmarePanditJi\apps\pandit
+> next dev --port 3002
+
+  ▲ Next.js 14.2.0
+  - Local:        http://localhost:3002
+
+ ✓ Starting...
+ ✓ Ready in 9.6s
+ ○ Compiling / ...
+ ✓ Compiled / in 6.8s (623 modules)
+ GET / 200 in 7277ms
+ ✓ Compiled /auth in 465ms (634 modules)
+ ✓ Compiled /_not-found in 316ms (623 modules)
+ GET /dashboard 404 in 512ms
+ ○ Compiling /bookings ...
+ ✓ Compiled /bookings in 530ms (629 modules)
+ GET /bookings 200 in 642ms
+ GET /availability 404 in 90ms
+ ○ Compiling /earnings ...
+ ✓ Compiled /earnings in 3.2s (1795 modules)
+ GET /earnings 200 in 3319ms
+ ✓ Compiled /profile in 382ms (1803 modules)
+ GET /profile 200 in 483ms
+ GET / 200 in 63ms
+ GET /auth 200 in 101ms
+ GET /bookings 200 in 54ms
+ ○ Compiling /bookings/[bookingId] ...
+ ✓ Compiled /bookings/[bookingId] in 653ms (1217 modules)
+ GET /bookings/sample 200 in 1441ms
+ ○ Compiling /bookings/[bookingId]/itinerary ...
+ ✓ Compiled /bookings/[bookingId]/itinerary in 1919ms (1807 modules)
+ GET /bookings/sample/itinerary 200 in 2445ms
+ ✓ Compiled /bookings/[bookingId]/live-tracking in 477ms (1813 modules)
+ GET /bookings/sample/live-tracking 200 in 978ms
+ ○ Compiling /calendar ...
+ ✓ Compiled /calendar in 768ms (1899 modules)
+ GET /calendar 200 in 915ms
+ ✓ Compiled /earnings in 338ms (1006 modules)
+ GET /earnings 200 in 459ms
+ ○ Compiling /earnings/[bookingId] ...
+ ✓ Compiled /earnings/[bookingId] in 720ms (1943 modules)
+ GET /earnings/sample 200 in 1421ms
+ ✓ Compiled /login in 422ms (1950 modules)
+ GET /login 200 in 594ms
+ ✓ Compiled /onboarding in 456ms (1958 modules)
+ GET /onboarding 200 in 612ms
+ ✓ Compiled /profile in 229ms (1036 modules)
+ GET /profile 200 in 334ms
+ ✓ Compiled /profile/growth in 451ms (1969 modules)
+ GET /profile/growth 200 in 559ms
+ ○ Compiling /profile/packages ...
+ ✓ Compiled /profile/packages in 695ms (1975 modules)
+ GET /profile/packages 200 in 828ms
+ ○ Compiling /profile/samagri ...
+ ✓ Compiled /profile/samagri in 713ms (1981 modules)
+ GET /profile/samagri 200 in 817ms
+ ○ Compiling /requests/[id] ...
+ ✓ Compiled /requests/[id] in 661ms (1987 modules)
+ GET /requests/sample 200 in 1138ms
+ ○ Compiling /samagri-packages ...
+ ✓ Compiled /samagri-packages in 565ms (1993 modules)
+ GET /samagri-packages 200 in 681ms
+ ✓ Compiled /travel in 452ms (1999 modules)
+ GET /travel 200 in 543ms
+ GET / 200 in 63ms
+ GET /auth 200 in 74ms
+ GET /bookings 200 in 82ms
+ GET /bookings/sample 200 in 74ms
+ GET /bookings/sample/itinerary 200 in 96ms
+ GET /bookings/sample/live-tracking 200 in 90ms
+ GET /calendar 200 in 257ms
+ GET /earnings 200 in 81ms
+ GET /earnings/sample 200 in 52ms
+ GET /login 200 in 71ms
+ GET /onboarding 200 in 67ms
+ GET /profile 200 in 114ms
+ GET /profile/growth 200 in 55ms
+ GET /profile/packages 200 in 53ms
+ GET /profile/samagri 200 in 67ms
+ GET /requests/sample 200 in 50ms
+ GET /samagri-packages 200 in 352ms
+ GET /travel 200 in 89ms
+ GET /onboarding 200 in 78ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 1287ms (1290 modules)
+ GET /icons/icon-192.png 404 in 1456ms
+ ✓ Compiled / in 95ms (359 modules)
+ GET /icons/icon-192.png 404 in 89ms
+ GET / 200 in 46ms
+ GET /auth 200 in 68ms
+ GET /auth 200 in 52ms
+ GET / 200 in 52ms
+ ✓ Compiled /bookings in 487ms (356 modules)
+ GET /bookings 200 in 642ms
+ ✓ Compiled /calendar in 300ms (450 modules)
+ GET /calendar 200 in 437ms
+ ✓ Compiled /earnings in 413ms (994 modules)
+ GET /earnings 200 in 527ms
+ ✓ Compiled /travel in 160ms (998 modules)
+ GET /travel 200 in 257ms
+ ✓ Compiled /profile in 192ms (1003 modules)
+ GET /profile 200 in 293ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 797ms (1959 modules)
+ GET /requests 404 in 893ms
+ ✓ Compiled /onboarding in 198ms (1009 modules)
+ GET /onboarding 200 in 294ms
+ GET /auth 200 in 79ms
+ ✓ Compiled /profile/samagri in 386ms (1013 modules)
+ GET /profile/samagri 200 in 495ms
+ ✓ Compiled /profile/growth in 203ms (1017 modules)
+ GET /profile/growth 200 in 323ms
+ ✓ Compiled /profile/packages in 213ms (1021 modules)
+ GET /profile/packages 200 in 326ms
+ ✓ Compiled /samagri-packages in 256ms (1025 modules)
+ GET /samagri-packages 200 in 372ms
+ ✓ Compiled /bookings/[bookingId] in 224ms (1029 modules)
+ GET /bookings/cmly0xkfq00rkmb7yj8tg4tyb 200 in 363ms
+ ✓ Compiled /bookings/[bookingId]/itinerary in 295ms (1033 modules)
+ GET /bookings/cmly0xkfq00rkmb7yj8tg4tyb/itinerary 200 in 500ms
+ GET /api/pandit/bookings/cmly0xkfq00rkmb7yj8tg4tyb/itinerary 404 in 69ms
+ GET /api/pandit/bookings/cmly0xkfq00rkmb7yj8tg4tyb 404 in 70ms
+ GET /api/pandit/bookings/cmly0xkfq00rkmb7yj8tg4tyb/itinerary 404 in 37ms
+ GET /api/pandit/bookings/cmly0xkfq00rkmb7yj8tg4tyb 404 in 56ms
+ ✓ Compiled /bookings/[bookingId]/live-tracking in 221ms (959 modules)
+ GET /bookings/cmly0xkfq00rkmb7yj8tg4tyb/live-tracking 200 in 351ms
+ GET /api/pandit/bookings/cmly0xkfq00rkmb7yj8tg4tyb 404 in 88ms
+ GET /api/pandit/bookings/cmly0xkfq00rkmb7yj8tg4tyb 404 in 29ms
+ ✓ Compiled /requests/[id] in 211ms (945 modules)
+ GET /requests/cmly0xkfq00rkmb7yj8tg4tyb 200 in 316ms
+ ✓ Compiled in 530ms (953 modules)
+ GET /auth 200 in 70ms
+ ✓ Compiled /_not-found in 499ms (1298 modules)
+ GET /icons/icon-192.png 404 in 612ms
+ ✓ Compiled /onboarding in 98ms (363 modules)
+ GET /onboarding 200 in 212ms
+ GET /icons/icon-192.png 404 in 33ms
+ GET /icons/icon-192.png 404 in 63ms
+ GET /icons/icon-192.png 404 in 55ms
+C:\Users\ss\Documents\HmarePanditJi\apps\pandit:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @hmarepanditji/pandit@0.1.0 dev: `next dev --port 3002`
+Exit status 3221225786

@@ -1,0 +1,243 @@
+
+> @hmarepanditji/web@0.1.0 dev C:\Users\ss\Documents\HmarePanditJi\apps\web
+> next dev --port 3000
+
+  ▲ Next.js 14.2.0
+  - Local:        http://localhost:3000
+
+ ✓ Starting...
+ ✓ Ready in 10.7s
+ ○ Compiling / ...
+ ✓ Compiled / in 8.7s (672 modules)
+ GET / 200 in 9199ms
+ ○ Compiling /search ...
+ ✓ Compiled /search in 1563ms (679 modules)
+ GET /search 200 in 1981ms
+ ✓ Compiled /muhurat in 257ms (670 modules)
+ GET /muhurat 200 in 418ms
+ ✓ Compiled /login in 352ms (676 modules)
+ GET /login 200 in 518ms
+ ○ Compiling /pandit/[id] ...
+ ✓ Compiled /pandit/[id] in 768ms (735 modules)
+ GET /pandit/1 200 in 1585ms
+ ✓ Compiled /_not-found in 455ms (736 modules)
+ GET /booking 404 in 650ms
+ ✓ Compiled /dashboard in 440ms (762 modules)
+ GET /dashboard 200 in 546ms
+ ✓ Compiled /dashboard/bookings in 437ms (770 modules)
+ GET /privacy-policy 404 in 127ms
+ ○ Compiling /terms ...
+ ✓ Compiled /terms in 871ms (773 modules)
+ GET /terms 200 in 1046ms
+ GET /refund-policy 404 in 46ms
+ GET / 200 in 63ms
+ ✓ Compiled /about in 488ms (703 modules)
+ GET /about 200 in 667ms
+ ✓ Compiled /booking/checkout in 374ms (709 modules)
+ GET /booking/checkout 200 in 535ms
+ ○ Compiling /booking/new ...
+ ✓ Compiled /booking/new in 1966ms (740 modules)
+ GET /booking/new 200 in 2221ms
+ ✓ Compiled /booking/[id] in 340ms (747 modules)
+ GET /booking/sample 200 in 1149ms
+ ○ Compiling /booking-confirmed/[bookingId] ...
+ ✓ Compiled /booking-confirmed/[bookingId] in 612ms (767 modules)
+ GET /booking-confirmed/sample 200 in 1385ms
+ ○ Compiling /cancellation-policy ...
+ ✓ Compiled /cancellation-policy in 709ms (769 modules)
+ GET /cancellation-policy 200 in 851ms
+ ✓ Compiled /dashboard in 313ms (441 modules)
+ GET /dashboard 200 in 519ms
+ ✓ Compiled /dashboard/bookings in 333ms (446 modules)
+ GET /dashboard/bookings 200 in 500ms
+ ○ Compiling /dashboard/bookings/[bookingId] ...
+ ✓ Compiled /dashboard/bookings/[bookingId] in 636ms (815 modules)
+ GET /dashboard/bookings/sample 200 in 1147ms
+ ✓ Compiled /dashboard/bookings/[bookingId]/cancel in 483ms (829 modules)
+ GET /dashboard/bookings/sample/cancel 200 in 969ms
+ ○ Compiling /dashboard/bookings/[bookingId]/review ...
+ ✓ Compiled /dashboard/bookings/[bookingId]/review in 724ms (837 modules)
+ GET /dashboard/bookings/sample/review 200 in 1452ms
+ ○ Compiling /dashboard/favorites ...
+ ✓ Compiled /dashboard/favorites in 779ms (851 modules)
+ GET /dashboard/favorites 200 in 898ms
+ ✓ Compiled /dashboard/notifications in 500ms (869 modules)
+ GET /dashboard/notifications 200 in 631ms
+ ○ Compiling /dashboard/profile ...
+ ✓ Compiled /dashboard/profile in 538ms (885 modules)
+ GET /dashboard/profile 200 in 628ms
+ ○ Compiling /dashboard/profile/family ...
+ ✓ Compiled /dashboard/profile/family in 547ms (895 modules)
+ GET /dashboard/profile/family 200 in 627ms
+ GET /login 200 in 87ms
+ ○ Compiling /muhurat ...
+ ✓ Compiled /muhurat in 525ms (511 modules)
+ GET /muhurat 200 in 753ms
+ ✓ Compiled /pandit/[id] in 501ms (534 modules)
+ GET /pandit/sample 200 in 849ms
+ ○ Compiling /privacy ...
+ ✓ Compiled /privacy in 718ms (923 modules)
+ GET /privacy 200 in 846ms
+ ✓ Compiled /search in 302ms (541 modules)
+ GET /search 200 in 431ms
+ ✓ Compiled /terms in 351ms (543 modules)
+ GET /terms 200 in 506ms
+ GET / 200 in 34ms
+ GET /about 200 in 34ms
+ GET /booking/checkout 200 in 31ms
+ GET /booking/new 200 in 52ms
+ GET /booking/sample 200 in 35ms
+ GET /booking-confirmed/sample 200 in 55ms
+ GET /cancellation-policy 200 in 46ms
+ GET /dashboard 200 in 48ms
+ GET /dashboard/bookings 200 in 39ms
+ GET /dashboard/bookings/sample 200 in 56ms
+ GET /dashboard/bookings/sample/cancel 200 in 75ms
+ GET /dashboard/bookings/sample/review 200 in 131ms
+ GET /dashboard/favorites 200 in 94ms
+ GET /dashboard/notifications 200 in 235ms
+ GET /dashboard/profile 200 in 96ms
+ GET /dashboard/profile/family 200 in 73ms
+ GET /login 200 in 116ms
+ GET /muhurat 200 in 79ms
+ GET /pandit/sample 200 in 74ms
+ GET /privacy 200 in 44ms
+ GET /search 200 in 45ms
+ GET /terms 200 in 37ms
+ ✓ Compiled in 1469ms (401 modules)
+ ✓ Compiled in 425ms (401 modules)
+ ✓ Compiled in 837ms (764 modules)
+ ✓ Compiled in 695ms (764 modules)
+ ✓ Compiled in 463ms (401 modules)
+ ✓ Compiled /stitched in 435ms (771 modules)
+ GET /stitched 200 in 611ms
+ ✓ Compiled /stitched/[slug]/raw in 219ms (414 modules)
+ GET /stitched/admin-helpline-agent-dashboard/raw 200 in 626ms
+ GET /stitched/admin-operations-overview/raw 200 in 17ms
+ GET /stitched/admin-payout-reconciliation-dashboard/raw 200 in 10ms
+ GET /stitched/admin-travel-operations-center/raw 200 in 10ms
+ GET /stitched/b2b-bulk-booking-dashboard/raw 200 in 11ms
+ GET /stitched/b2b-corporate-gst-invoice/raw 200 in 10ms
+ GET /stitched/booking-request-alert/raw 200 in 12ms
+ GET /stitched/booking-summary-and-add-ons/raw 200 in 11ms
+ GET /stitched/cancellation-and-liability-policy/raw 200 in 21ms
+ GET /stitched/customer-home-dashboard/raw 200 in 18ms
+ GET /stitched/customer-live-pandit-tracking/raw 200 in 12ms
+ GET /stitched/customer-post-booking-dashboard/raw 200 in 9ms
+ GET /stitched/customer-profile-and-settings/raw 200 in 12ms
+ GET /stitched/detailed-booking-request-pandit/raw 200 in 16ms
+ GET /stitched/digital-muhurat-patrika-certificate/raw 200 in 44ms
+ GET /stitched/earnings-detail-breakdown/raw 200 in 16ms
+ GET /stitched/emergency-backup-trigger-flow/raw 200 in 26ms
+ GET /stitched/family-gotra-and-lineage-setup/raw 200 in 14ms
+ GET /stitched/guest-to-user-transition-flow/raw 200 in 17ms
+ GET /stitched/hmarepanditji-landing-page/raw 200 in 15ms
+ GET /stitched/muhurat-explorer-calendar/raw 200 in 14ms
+ GET /stitched/nirmalya-visarjan-eco-flow/raw 200 in 14ms
+ GET /stitched/nri-and-international-booking-flow/raw 200 in 16ms
+ GET /stitched/nri-4k-live-streaming-ritual-view/raw 200 in 16ms
+ GET /stitched/pandit-blackout-dates-management/raw 200 in 13ms
+ GET /stitched/pandit-earnings-and-wallet/raw 200 in 26ms
+ GET /stitched/pandit-growth-and-badges/raw 200 in 17ms
+ GET /stitched/pandit-home-dashboard/raw 200 in 16ms
+ GET /stitched/pandit-inventory-and-surge-alerts/raw 200 in 14ms
+ GET /stitched/pandit-live-journey-tracking/raw 200 in 14ms
+ GET /stitched/pandit-multi-modal-itinerary-view/raw 200 in 16ms
+ GET /stitched/pandit-package-editor/raw 200 in 14ms
+ GET /stitched/pandit-post-puja-earnings-breakdown/raw 200 in 14ms
+ GET /stitched/pandit-profile-and-samagri-selection/raw 200 in 23ms
+ GET /stitched/pandit-samagri-management/raw 200 in 16ms
+ GET /stitched/pandit-search-results-and-filters/raw 200 in 13ms
+ GET /stitched/pandit-verification-and-vetting-queue/raw 200 in 15ms
+ GET /stitched/pandit-verification-detail/raw 200 in 13ms
+ GET /stitched/pandit-video-kyc-and-verification/raw 200 in 15ms
+ GET /stitched/pandit-work-calendar/raw 200 in 12ms
+ GET /stitched/puja-completion-and-digital-blessings/raw 200 in 47ms
+ GET /stitched/regional-ritual-variation-toggle/raw 200 in 20ms
+ GET /stitched/samagri-custom-comparison/raw 200 in 12ms
+ GET /stitched/samagri-dual-path-comparison-detail/raw 200 in 8ms
+ GET /stitched/screens-documentation-md-4/raw 200 in 10ms
+ GET /stitched/screens-documentation-md-5/raw 200 in 9ms
+ GET /stitched/screens-documentation-md-6/raw 200 in 10ms
+ GET /stitched/search-all-india-toggle-view/raw 200 in 9ms
+ GET /stitched/secure-payment-interface/raw 200 in 14ms
+ GET /stitched/travel-itinerary-and-roadmap/raw 200 in 11ms
+ GET /stitched/travel-mode-selection-modal/raw 200 in 11ms
+ GET /stitched/travel-preferences-matrix/raw 200 in 10ms
+ GET /stitched/user-registration-and-setup/raw 200 in 9ms
+ GET /stitched/voice-first-profile-setup/raw 200 in 9ms
+ GET /stitched/voice-search-interface/raw 200 in 10ms
+ GET /stitched/wedding-planner-b2b-dashboard/raw 200 in 9ms
+ ✓ Compiled /stitched/[slug] in 425ms (808 modules)
+ GET /stitched/admin-helpline-agent-dashboard 200 in 1069ms
+ GET /stitched/admin-operations-overview 200 in 58ms
+ GET /stitched/admin-payout-reconciliation-dashboard 200 in 60ms
+ GET /stitched/admin-travel-operations-center 200 in 65ms
+ GET /stitched/b2b-bulk-booking-dashboard 200 in 34ms
+ GET /stitched/b2b-corporate-gst-invoice 200 in 36ms
+ GET /stitched/booking-request-alert 200 in 65ms
+ GET /stitched/booking-summary-and-add-ons 200 in 76ms
+ GET /stitched/cancellation-and-liability-policy 200 in 26ms
+ GET /stitched/customer-home-dashboard 200 in 34ms
+ GET /stitched/customer-live-pandit-tracking 200 in 32ms
+ GET /stitched/customer-post-booking-dashboard 200 in 48ms
+ GET /stitched/customer-profile-and-settings 200 in 63ms
+ GET /stitched/detailed-booking-request-pandit 200 in 73ms
+ GET /stitched/digital-muhurat-patrika-certificate 200 in 46ms
+ GET /stitched/earnings-detail-breakdown 200 in 44ms
+ GET /stitched/emergency-backup-trigger-flow 200 in 56ms
+ GET /stitched/family-gotra-and-lineage-setup 200 in 64ms
+ GET /stitched/guest-to-user-transition-flow 200 in 47ms
+ GET /stitched/hmarepanditji-landing-page 200 in 49ms
+ GET /stitched/muhurat-explorer-calendar 200 in 35ms
+ GET /stitched/nirmalya-visarjan-eco-flow 200 in 44ms
+ GET /stitched/nri-and-international-booking-flow 200 in 42ms
+ GET /stitched/nri-4k-live-streaming-ritual-view 200 in 55ms
+ GET /stitched/pandit-blackout-dates-management 200 in 45ms
+ GET /stitched/pandit-earnings-and-wallet 200 in 58ms
+ GET /stitched/pandit-growth-and-badges 200 in 50ms
+ GET /stitched/pandit-home-dashboard 200 in 36ms
+ GET /stitched/pandit-inventory-and-surge-alerts 200 in 42ms
+ GET /stitched/pandit-live-journey-tracking 200 in 46ms
+ GET /stitched/pandit-multi-modal-itinerary-view 200 in 51ms
+ GET /stitched/pandit-package-editor 200 in 54ms
+ GET /stitched/pandit-post-puja-earnings-breakdown 200 in 68ms
+ GET /stitched/pandit-profile-and-samagri-selection 200 in 41ms
+ GET /stitched/pandit-samagri-management 200 in 43ms
+ GET /stitched/pandit-search-results-and-filters 200 in 60ms
+ GET /stitched/pandit-verification-and-vetting-queue 200 in 48ms
+ GET /stitched/pandit-verification-detail 200 in 56ms
+ GET /stitched/pandit-video-kyc-and-verification 200 in 39ms
+ GET /stitched/pandit-work-calendar 200 in 64ms
+ GET /stitched/puja-completion-and-digital-blessings 200 in 58ms
+ GET /stitched/regional-ritual-variation-toggle 200 in 64ms
+ GET /stitched/samagri-custom-comparison 200 in 47ms
+ GET /stitched/samagri-dual-path-comparison-detail 200 in 35ms
+ GET /stitched/screens-documentation-md-4 200 in 61ms
+ GET /stitched/screens-documentation-md-5 200 in 36ms
+ GET /stitched/screens-documentation-md-6 200 in 50ms
+ GET /stitched/search-all-india-toggle-view 200 in 68ms
+ GET /stitched/secure-payment-interface 200 in 49ms
+ GET /stitched/travel-itinerary-and-roadmap 200 in 56ms
+ GET /stitched/travel-mode-selection-modal 200 in 35ms
+ GET /stitched/travel-preferences-matrix 200 in 37ms
+ GET /stitched/user-registration-and-setup 200 in 50ms
+ GET /stitched/voice-first-profile-setup 200 in 63ms
+ GET /stitched/voice-search-interface 200 in 56ms
+ GET /stitched/wedding-planner-b2b-dashboard 200 in 33ms
+ GET / 200 in 67ms
+ ✓ Compiled in 1388ms (778 modules)
+ ✓ Compiled in 754ms (778 modules)
+ GET /login 200 in 281ms
+ GET /login 200 in 74ms
+ ○ Compiling /booking/new ...
+ ✓ Compiled /booking/new in 661ms (400 modules)
+ GET /booking/new 200 in 821ms
+ ✓ Compiled /stitched in 250ms (407 modules)
+ GET /stitched 200 in 463ms
+ GET /login 200 in 104ms
+ GET /login 200 in 49ms
+ GET / 200 in 86ms
+C:\Users\ss\Documents\HmarePanditJi\apps\web:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @hmarepanditji/web@0.1.0 dev: `next dev --port 3000`
+Exit status 3221225786

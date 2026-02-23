@@ -115,6 +115,55 @@ router.put(
   },
 );
 
+/**
+ * POST /pandits/device-info
+ * Capture device info from pandit's browser (Prompt 1, Section 5)
+ */
+router.post("/device-info", authenticate, roleGuard("PANDIT"), async (req, res, next) => {
+  try {
+    const { deviceModel, deviceOs, browser, screenWidth, screenHeight } = req.body;
+    const panditProfile = await prisma.panditProfile.findUnique({ where: { userId: req.user!.id } });
+    if (!panditProfile) throw new AppError("Pandit profile not found", 404, "NOT_FOUND");
+
+    const updated = await prisma.panditProfile.update({
+      where: { id: panditProfile.id },
+      data: {
+        deviceInfo: {
+          deviceModel: deviceModel || "Unknown",
+          deviceOs: deviceOs || "Unknown",
+          browser: browser || "Unknown",
+          screenWidth: screenWidth || 0,
+          screenHeight: screenHeight || 0,
+          lastUpdated: new Date().toISOString(),
+        },
+      },
+    });
+    sendSuccess(res, { deviceInfo: updated.deviceInfo }, "Device info updated");
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * PATCH /pandits/online-status
+ * Toggle pandit online/offline status (Prompt 9, Section 2)
+ */
+router.patch("/online-status", authenticate, roleGuard("PANDIT"), async (req, res, next) => {
+  try {
+    const { isOnline } = req.body;
+    const panditProfile = await prisma.panditProfile.findUnique({ where: { userId: req.user!.id } });
+    if (!panditProfile) throw new AppError("Pandit profile not found", 404, "NOT_FOUND");
+
+    const updated = await prisma.panditProfile.update({
+      where: { id: panditProfile.id },
+      data: { isOnline: !!isOnline },
+    });
+    sendSuccess(res, { isOnline: updated.isOnline }, `Status: ${updated.isOnline ? "Online" : "Offline"}`);
+  } catch (err) {
+    next(err);
+  }
+});
+
 const addServiceSchema = z.object({
   pujaType: z.string().min(1),
   dakshinaAmount: z.number().min(0),

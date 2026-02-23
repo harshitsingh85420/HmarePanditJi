@@ -1,14 +1,14 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useAuth, API_BASE } from "../../../context/auth-context";
-import RazorpayCheckout from "../../../components/RazorpayCheckout";
-import { SamagriModal } from "../../../components/samagri/SamagriModal";
-import { useCart, SamagriItem } from "../../../context/cart-context";
-import { RitualVariationSelection } from "../../../components/booking/RitualVariationSelection";
+import { useAuth, API_BASE } from "../../../src/context/auth-context";
+import RazorpayCheckout from "../../../src/components/RazorpayCheckout";
+import { SamagriModal } from "../../../src/components/samagri/SamagriModal";
+import { useCart } from "../../../src/context/cart-context";
+import { RitualVariationSelection } from "../../../src/components/booking/RitualVariationSelection";
 
-// ── Types ─────────────────────────────────────────────────────────────────────
+// â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 interface Ritual {
   id: string;
@@ -37,42 +37,51 @@ interface TravelOption {
   estimatedDuration?: string;
 }
 
-type FoodArrangement = "SELF" | "PLATFORM";
-type SamagriOption = "INCLUDED" | "SELF";
+type FoodArrangement = "CUSTOMER_PROVIDES" | "PLATFORM_ALLOWANCE";
+type SamagriOption = "PANDIT_PACKAGE" | "PLATFORM_CUSTOM";
 type WizardStep = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
 interface BookingFormData {
-  // Step 0 – Event Details
+  // Step 0 â€“ Event Details
   ritualId: string;
   ritualName: string;
   eventDate: string;
   eventTime: string;
+  attendees: number;
+  isMultiDay: boolean;
+  endDate: string;
   venueLine1: string;
   venueLine2: string;
   venueCity: string;
   venuePincode: string;
   venueState: string;
-  // Step 1 – Pandit
+  gotra: string;
+  familyMembers: string[];
+  // Step 1 â€“ Pandit
   panditId: string;
   panditName: string;
   dakshina: number;
-  // Step 2 – Travel
+  // Step 2 â€“ Travel
   travelMode: string;
   travelCost: number;
   foodArrangement: FoodArrangement;
   foodCost: number;
-  // Step 3 – Ritual Variation
+  accommodationArrangement: "NOT_NEEDED" | "CUSTOMER_ARRANGES" | "PLATFORM_BOOKS";
+  accommodationCost: number;
+  localTransportNeeded: boolean;
+  localTransportCost: number;
+  // Step 3 â€“ Ritual Variation
   ritualVariation: string;
-  // Step 4 – Preferences
+  // Step 4 â€“ Preferences
   samagri: SamagriOption;
   specialInstructions: string;
-  // Step 4 – Payment
+  // Step 4 â€“ Payment
   orderId: string;
   bookingId: string;
   bookingNumber: string;
 }
 
-// ── Constants ─────────────────────────────────────────────────────────────────
+// â”€â”€ Constants â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const DELHI_CITIES = [
   "Delhi", "Dwarka", "Rohini", "Noida", "Gurgaon", "Faridabad",
@@ -81,16 +90,16 @@ const DELHI_CITIES = [
 ];
 
 const RITUALS_FALLBACK: Ritual[] = [
-  { id: "r1", name: "Griha Pravesh", nameHindi: "गृह प्रवेश", durationMinutes: 120, baseDakshina: 11000 },
-  { id: "r2", name: "Satyanarayan Katha", nameHindi: "सत्यनारायण कथा", durationMinutes: 150, baseDakshina: 7500 },
-  { id: "r3", name: "Vivah Sanskar", nameHindi: "विवाह संस्कार", durationMinutes: 240, baseDakshina: 21000 },
-  { id: "r4", name: "Namkaran Sanskar", nameHindi: "नामकरण संस्कार", durationMinutes: 90, baseDakshina: 5100 },
-  { id: "r5", name: "Mundan Sanskar", nameHindi: "मुंडन संस्कार", durationMinutes: 90, baseDakshina: 5100 },
-  { id: "r6", name: "Shanti Path", nameHindi: "शांति पाठ", durationMinutes: 60, baseDakshina: 5100 },
-  { id: "r7", name: "Rudrabhishek", nameHindi: "रुद्राभिषेक", durationMinutes: 120, baseDakshina: 11000 },
-  { id: "r8", name: "Sunderkand Path", nameHindi: "सुंदरकांड पाठ", durationMinutes: 120, baseDakshina: 7500 },
-  { id: "r9", name: "Ganesh Puja", nameHindi: "गणेश पूजा", durationMinutes: 60, baseDakshina: 5100 },
-  { id: "r10", name: "Navgraha Puja", nameHindi: "नवग्रह पूजा", durationMinutes: 90, baseDakshina: 7500 },
+  { id: "r1", name: "Griha Pravesh", nameHindi: "à¤—à¥ƒà¤¹ à¤ªà¥à¤°à¤µà¥‡à¤¶", durationMinutes: 120, baseDakshina: 11000 },
+  { id: "r2", name: "Satyanarayan Katha", nameHindi: "à¤¸à¤¤à¥à¤¯à¤¨à¤¾à¤°à¤¾à¤¯à¤£ à¤•à¤¥à¤¾", durationMinutes: 150, baseDakshina: 7500 },
+  { id: "r3", name: "Vivah Sanskar", nameHindi: "à¤µà¤¿à¤µà¤¾à¤¹ à¤¸à¤‚à¤¸à¥à¤•à¤¾à¤°", durationMinutes: 240, baseDakshina: 21000 },
+  { id: "r4", name: "Namkaran Sanskar", nameHindi: "à¤¨à¤¾à¤®à¤•à¤°à¤£ à¤¸à¤‚à¤¸à¥à¤•à¤¾à¤°", durationMinutes: 90, baseDakshina: 5100 },
+  { id: "r5", name: "Mundan Sanskar", nameHindi: "à¤®à¥à¤‚à¤¡à¤¨ à¤¸à¤‚à¤¸à¥à¤•à¤¾à¤°", durationMinutes: 90, baseDakshina: 5100 },
+  { id: "r6", name: "Shanti Path", nameHindi: "à¤¶à¤¾à¤‚à¤¤à¤¿ à¤ªà¤¾à¤ ", durationMinutes: 60, baseDakshina: 5100 },
+  { id: "r7", name: "Rudrabhishek", nameHindi: "à¤°à¥à¤¦à¥à¤°à¤¾à¤­à¤¿à¤·à¥‡à¤•", durationMinutes: 120, baseDakshina: 11000 },
+  { id: "r8", name: "Sunderkand Path", nameHindi: "à¤¸à¥à¤‚à¤¦à¤°à¤•à¤¾à¤‚à¤¡ à¤ªà¤¾à¤ ", durationMinutes: 120, baseDakshina: 7500 },
+  { id: "r9", name: "Ganesh Puja", nameHindi: "à¤—à¤£à¥‡à¤¶ à¤ªà¥‚à¤œà¤¾", durationMinutes: 60, baseDakshina: 5100 },
+  { id: "r10", name: "Navgraha Puja", nameHindi: "à¤¨à¤µà¤—à¥à¤°à¤¹ à¤ªà¥‚à¤œà¤¾", durationMinutes: 90, baseDakshina: 7500 },
 ];
 
 const PANDITS_FALLBACK: PanditOption[] = [
@@ -111,7 +120,7 @@ const STEPS = [
   { label: "Event Details", icon: "calendar_month" },
   { label: "Select Pandit", icon: "person" },
   { label: "Travel", icon: "directions_car" },
-  { label: "Ritual Style", icon: "location_on" },
+  { label: "Ritual Details", icon: "location_on" },
   { label: "Preferences", icon: "tune" },
   { label: "Review & Pay", icon: "payments" },
   { label: "Confirmed", icon: "check_circle" },
@@ -119,13 +128,15 @@ const STEPS = [
 
 const PLATFORM_FEE_PCT = 0.15;
 const TRAVEL_SERVICE_FEE_PCT = 0.05;
+const SAMAGRI_SERVICE_FEE_PCT = 0.1;
 const GST_PCT = 0.18;
-const FOOD_PER_DAY = 500;
+const FOOD_PER_DAY = 1000;
+const MUHURAT_CONSULTATION_FEE = 499;
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+// â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function fmt(n: number) {
-  return `₹${Math.round(n).toLocaleString("en-IN")}`;
+  return `â‚¹${Math.round(n).toLocaleString("en-IN")}`;
 }
 
 function StepIndicator({ current, steps }: { current: number; steps: typeof STEPS }) {
@@ -165,7 +176,7 @@ function StepIndicator({ current, steps }: { current: number; steps: typeof STEP
   );
 }
 
-// ── Main Component ────────────────────────────────────────────────────────────
+// â”€â”€ Main Component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export default function BookingWizardClient() {
   const router = useRouter();
@@ -178,20 +189,29 @@ export default function BookingWizardClient() {
     ritualName: "",
     eventDate: "",
     eventTime: "09:00",
+    attendees: 11,
+    isMultiDay: false,
+    endDate: "",
     venueLine1: "",
     venueLine2: "",
     venueCity: "Delhi",
     venuePincode: "",
     venueState: "Delhi",
+    gotra: "",
+    familyMembers: [],
     panditId: searchParams.get("panditId") ?? "",
     panditName: "",
     dakshina: 0,
     travelMode: "",
     travelCost: 0,
-    foodArrangement: "SELF",
+    foodArrangement: "CUSTOMER_PROVIDES",
     foodCost: 0,
+    accommodationArrangement: "NOT_NEEDED",
+    accommodationCost: 0,
+    localTransportNeeded: false,
+    localTransportCost: 0,
     ritualVariation: "",
-    samagri: "INCLUDED",
+    samagri: "PANDIT_PACKAGE",
     specialInstructions: "",
     orderId: "",
     bookingId: "",
@@ -208,11 +228,13 @@ export default function BookingWizardClient() {
   // Samagri integration
   const { samagriItem, hasSamagri, setSamagriItem } = useCart();
   const [showSamagriModal, setShowSamagriModal] = useState(false);
+  const [familyInput, setFamilyInput] = useState("");
+  const [contactImportMessage, setContactImportMessage] = useState("");
+  const [muhuratConsultation, setMuhuratConsultation] = useState(false);
 
   // Add-ons state
   const [addons, setAddons] = useState({
     backup: false,
-    consultation: false,
     visarjan: false,
   });
 
@@ -268,7 +290,39 @@ export default function BookingWizardClient() {
     setForm((prev) => ({ ...prev, ...patch }));
   }
 
-  // ── Travel calculation ────────────────────────────────────────────────────
+  async function importFromContacts() {
+    if (typeof navigator === "undefined") return;
+    const nav = navigator as Navigator & {
+      contacts?: {
+        select?: (props: string[], options?: { multiple?: boolean }) => Promise<Array<{ name?: string[] }>>;
+      };
+    };
+
+    if (!nav.contacts?.select) {
+      setContactImportMessage("Contacts access is not supported on this browser. Please type family names manually.");
+      return;
+    }
+
+    try {
+      const picked = await nav.contacts.select(["name"], { multiple: true });
+      const names = picked
+        .map((c) => c.name?.[0]?.trim())
+        .filter((n): n is string => !!n && n.length > 0);
+
+      if (names.length > 0) {
+        set({
+          familyMembers: Array.from(new Set([...form.familyMembers, ...names])).slice(0, 10),
+        });
+        setContactImportMessage(`${names.length} family member${names.length > 1 ? "s" : ""} imported from contacts.`);
+      } else {
+        setContactImportMessage("No contact names were selected.");
+      }
+    } catch {
+      setContactImportMessage("Contacts permission denied or cancelled. You can continue by entering names manually.");
+    }
+  }
+
+  // â”€â”€ Travel calculation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   const fetchTravel = useCallback(async () => {
     if (!form.panditId || !form.venueCity) return;
@@ -281,7 +335,16 @@ export default function BookingWizardClient() {
         body: JSON.stringify({
           fromCity: pandit.city,
           toCity: form.venueCity,
-          eventDays: 1,
+          eventDays:
+            form.isMultiDay && form.endDate
+              ? Math.max(
+                  1,
+                  Math.floor(
+                    (new Date(form.endDate).getTime() - new Date(form.eventDate || form.endDate).getTime()) /
+                      (1000 * 60 * 60 * 24),
+                  ) + 1,
+                )
+              : 1,
           foodArrangement: form.foodArrangement,
         }),
         signal: AbortSignal.timeout(5000),
@@ -299,34 +362,103 @@ export default function BookingWizardClient() {
     if (step === 2) fetchTravel();
   }, [step, fetchTravel]);
 
-  // ── Pricing ───────────────────────────────────────────────────────────────
+  // â”€â”€ Pricing â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+  const selectedPandit = pandits.find((p) => p.id === form.panditId);
+  const eventDays =
+    form.isMultiDay && form.eventDate && form.endDate
+      ? Math.max(
+          1,
+          Math.floor((new Date(form.endDate).getTime() - new Date(form.eventDate).getTime()) / (1000 * 60 * 60 * 24)) + 1,
+        )
+      : 1;
+  const isOutstation =
+    !!selectedPandit &&
+    !!form.venueCity &&
+    selectedPandit.city.trim().toLowerCase() !== form.venueCity.trim().toLowerCase();
+  const travelDays = isOutstation ? 2 : 0;
+  const pujaMealAllowanceDays = form.foodArrangement === "PLATFORM_ALLOWANCE" ? eventDays : 0;
+  const foodAllowanceDays = travelDays + pujaMealAllowanceDays;
+  const localTransportCost = isOutstation && form.localTransportNeeded ? form.localTransportCost : 0;
+  const accommodationCost = isOutstation && form.accommodationArrangement === "PLATFORM_BOOKS" ? form.accommodationCost : 0;
+  const effectiveTravelCost = form.travelCost + localTransportCost;
 
   const platformFee = Math.round(form.dakshina * PLATFORM_FEE_PCT);
-  const travelServiceFee = form.travelCost > 0 ? Math.round(form.travelCost * TRAVEL_SERVICE_FEE_PCT) : 0;
-  const foodAllowance = form.foodArrangement === "PLATFORM" ? FOOD_PER_DAY : 0;
-  const samagriCost = (form.samagri === "INCLUDED" && samagriItem) ? samagriItem.totalCost : 0;
+  const travelServiceFee = effectiveTravelCost > 0 ? Math.round(effectiveTravelCost * TRAVEL_SERVICE_FEE_PCT) : 0;
+  const foodAllowance = FOOD_PER_DAY * foodAllowanceDays;
+  const samagriCost = samagriItem ? samagriItem.totalCost : 0;
+  const samagriServiceFee = samagriCost > 0 ? Math.round(samagriCost * SAMAGRI_SERVICE_FEE_PCT) : 0;
 
-  const addonCost = (addons.backup ? 9999 : 0) + (addons.consultation ? 1100 : 0) + (addons.visarjan ? 500 : 0);
+  const addonCost =
+    (addons.backup ? 9999 : 0) +
+    (muhuratConsultation ? MUHURAT_CONSULTATION_FEE : 0) +
+    (addons.visarjan ? 500 : 0);
 
-  const subtotal = form.dakshina + platformFee + form.travelCost + travelServiceFee + foodAllowance + samagriCost + addonCost;
-  const gst = Math.round(platformFee * GST_PCT);
-  const grandTotal = subtotal + gst;
+  const baseSubtotal = form.dakshina + effectiveTravelCost + foodAllowance + samagriCost + accommodationCost;
+  const subtotal = baseSubtotal + addonCost;
+  const totalPlatformFees = platformFee + travelServiceFee + samagriServiceFee;
+  const gst = Math.round(totalPlatformFees * GST_PCT);
+  const grandTotal = subtotal + totalPlatformFees + gst;
+  const payableNow = grandTotal > 5000 ? Math.round(grandTotal * 0.5) : grandTotal;
+  const payableLater = grandTotal - payableNow;
 
-  // ── Step validation ───────────────────────────────────────────────────────
+  useEffect(() => {
+    if (!selectedPandit || isOutstation) return;
+    setForm((prev) => {
+      if (
+        prev.travelMode === "LOCAL" &&
+        prev.travelCost === 0 &&
+        prev.accommodationArrangement === "NOT_NEEDED" &&
+        prev.accommodationCost === 0 &&
+        prev.localTransportNeeded === false &&
+        prev.localTransportCost === 0
+      ) {
+        return prev;
+      }
+      return {
+        ...prev,
+        travelMode: "LOCAL",
+        travelCost: 0,
+        accommodationArrangement: "NOT_NEEDED",
+        accommodationCost: 0,
+        localTransportNeeded: false,
+        localTransportCost: 0,
+      };
+    });
+  }, [isOutstation, selectedPandit]);
+
+  useEffect(() => {
+    if (!isOutstation) return;
+    setForm((prev) => {
+      if (prev.accommodationArrangement !== "NOT_NEEDED") return prev;
+      return { ...prev, accommodationArrangement: "CUSTOMER_ARRANGES" };
+    });
+  }, [isOutstation]);
+
+  // â”€â”€ Step validation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   function canNext(): boolean {
     switch (step) {
       case 0:
-        return !!(form.ritualId && form.eventDate && form.venueLine1 && form.venueCity);
+        return !!(
+          form.ritualId &&
+          form.eventDate &&
+          (!form.isMultiDay || (form.endDate && form.endDate >= form.eventDate)) &&
+          form.venueLine1 &&
+          form.venueCity &&
+          form.attendees > 0 &&
+          form.venuePincode.length === 6
+        );
       case 1:
         return !!form.panditId;
       case 2:
-      case 2:
-        return !!form.travelMode;
+        return !isOutstation || !!form.travelMode;
       case 3:
         return !!form.ritualVariation;
       case 4:
-        if (form.samagri === "INCLUDED" && !samagriItem) return false;
+        if (!samagriItem) return false;
+        if (form.samagri === "PANDIT_PACKAGE" && samagriItem.type !== "package") return false;
+        if (form.samagri === "PLATFORM_CUSTOM" && samagriItem.type !== "custom") return false;
         return true;
       case 5:
         return false; // payment handles progression
@@ -335,7 +467,7 @@ export default function BookingWizardClient() {
     }
   }
 
-  // ── Create booking & payment order ────────────────────────────────────────
+  // â”€â”€ Create booking & payment order â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   async function handleCreateOrder() {
     if (!user) {
@@ -360,17 +492,30 @@ export default function BookingWizardClient() {
           venueAddress: `${form.venueLine1}${form.venueLine2 ? ", " + form.venueLine2 : ""}${form.venueState ? ", " + form.venueState : ""}`,
           venueCity: form.venueCity,
           venuePincode: form.venuePincode,
+          attendees: form.attendees,
           dakshinaAmount: form.dakshina,
 
           travelMode: form.travelMode,
-          travelCost: form.travelCost,
-          foodArrangement: form.foodArrangement === "PLATFORM" ? "PLATFORM_ALLOWANCE" : "CUSTOMER_PROVIDES",
-          foodAllowanceDays: form.foodArrangement === "PLATFORM" ? 1 : 0,
+          travelCost: effectiveTravelCost,
+          foodArrangement: form.foodArrangement,
+          foodAllowanceDays,
+          accommodationArrangement: form.accommodationArrangement,
 
-          samagriPreference: form.samagri === "INCLUDED" ? "PANDIT_BRINGS" : "CUSTOMER_ARRANGES",
-          samagriAmount: form.samagri === "INCLUDED" && samagriItem ? samagriItem.totalCost : 0,
-          samagriNotes: (form.samagri === "INCLUDED" && samagriItem) ? JSON.stringify(samagriItem) : undefined,
-          specialInstructions: form.specialInstructions,
+          samagriPreference: form.samagri === "PANDIT_PACKAGE" ? "PANDIT_BRINGS" : "CUSTOMER_ARRANGES",
+          samagriAmount: samagriCost,
+          samagriNotes: samagriItem
+            ? `${samagriItem.type === "package" ? "Pandit fixed package" : "Platform custom list"} | Total: ${fmt(samagriItem.totalCost)}`
+            : undefined,
+          specialInstructions: [
+            form.specialInstructions,
+            form.gotra ? `Gotra: ${form.gotra}` : "",
+            form.familyMembers.length > 0 ? `Family members: ${form.familyMembers.join(", ")}` : "",
+            `Samagri path: ${form.samagri === "PANDIT_PACKAGE" ? "Pandit's Fixed Package" : "Platform Custom List"}.`,
+            isOutstation ? `Accommodation: ${form.accommodationArrangement}.` : "Local booking (no accommodation required).",
+            form.localTransportNeeded ? `Local transport arranged via platform (${fmt(form.localTransportCost)}).` : "",
+            muhuratConsultation ? "Muhurat consultation requested (â‚¹499)." : "Muhurat consultation skipped.",
+            addons.backup ? "Backup Guarantee added (â‚¹9,999)." : "",
+          ].filter(Boolean).join(" | "),
         }),
       });
 
@@ -422,15 +567,28 @@ export default function BookingWizardClient() {
     }
   }
 
-  // ── Payment success ───────────────────────────────────────────────────────
+  // â”€â”€ Payment success â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   function handlePaymentSuccess() {
     setStep(6);
   }
 
-  // ── Navigation ────────────────────────────────────────────────────────────
+  // â”€â”€ Navigation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   function next() {
+    if (step === 1 && !isOutstation) {
+      set({
+        travelMode: "LOCAL",
+        travelCost: 0,
+        accommodationArrangement: "NOT_NEEDED",
+        accommodationCost: 0,
+        localTransportNeeded: false,
+        localTransportCost: 0,
+        foodArrangement: "CUSTOMER_PROVIDES",
+      });
+      setStep(3);
+      return;
+    }
     if (step === 4) {
       // Step 4 -> 5 requires auth
       if (!user) {
@@ -444,13 +602,18 @@ export default function BookingWizardClient() {
   }
 
   function back() {
+    if (step === 3 && !isOutstation) {
+      setPaymentReady(false);
+      setStep(1);
+      return;
+    }
     if (step > 0) {
       setPaymentReady(false);
       setStep((step - 1) as WizardStep);
     }
   }
 
-  // ── Loading state ─────────────────────────────────────────────────────────
+  // â”€â”€ Loading state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   if (authLoading) {
     return (
@@ -460,7 +623,7 @@ export default function BookingWizardClient() {
     );
   }
 
-  // ── Confirmation Step ─────────────────────────────────────────────────────
+  // â”€â”€ Confirmation Step â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   if (step === 6) {
     return (
@@ -495,12 +658,12 @@ export default function BookingWizardClient() {
             </div>
           </div>
           <div className="space-y-2 text-sm text-slate-500 mb-6">
-            <p>📱 Confirmation SMS sent to your phone</p>
-            <p>🙏 Pandit Ji will be notified and will confirm shortly</p>
+            <p>ðŸ“± Confirmation SMS sent to your phone</p>
+            <p>ðŸ™ Pandit Ji will be notified and will confirm shortly</p>
           </div>
           <div className="flex gap-3">
             <button
-              onClick={() => router.push("/bookings")}
+              onClick={() => router.push("/dashboard/bookings")}
               className="flex-1 py-3 rounded-xl border border-slate-200 text-slate-600 font-medium hover:bg-slate-50 transition-colors text-sm"
             >
               View Bookings
@@ -517,7 +680,7 @@ export default function BookingWizardClient() {
     );
   }
 
-  // ── Wizard Body ───────────────────────────────────────────────────────────
+  // â”€â”€ Wizard Body â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   return (
     <div className="min-h-screen bg-[#f8f7f5]">
@@ -534,7 +697,7 @@ export default function BookingWizardClient() {
       <div className="max-w-3xl mx-auto px-4 py-6">
         <StepIndicator current={step} steps={STEPS} />
 
-        {/* ── Step 0: Event Details ───────────────────────────────────────── */}
+        {/* â”€â”€ Step 0: Event Details â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         {step === 0 && (
           <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 space-y-5">
             <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
@@ -556,7 +719,7 @@ export default function BookingWizardClient() {
                 <option value="">Select a ceremony</option>
                 {rituals.map((r) => (
                   <option key={r.id} value={r.id}>
-                    {r.name} {r.nameHindi ? `(${r.nameHindi})` : ""} {r.durationMinutes ? `· ${r.durationMinutes} min` : ""}
+                    {r.name} {r.nameHindi ? `(${r.nameHindi})` : ""} {r.durationMinutes ? `Â· ${r.durationMinutes} min` : ""}
                   </option>
                 ))}
               </select>
@@ -582,6 +745,41 @@ export default function BookingWizardClient() {
                   onChange={(e) => set({ eventTime: e.target.value })}
                   className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#f49d25]/40 focus:border-[#f49d25] text-slate-700"
                 />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">Attendees <span className="text-red-400">*</span></label>
+                <input
+                  type="number"
+                  min={1}
+                  max={500}
+                  value={form.attendees}
+                  onChange={(e) => set({ attendees: Math.max(1, Number(e.target.value || 1)) })}
+                  className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#f49d25]/40 focus:border-[#f49d25] text-slate-700"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-slate-700">Multi-day Ceremony</label>
+                <label className="flex items-center gap-2 text-sm text-slate-700">
+                  <input
+                    type="checkbox"
+                    checked={form.isMultiDay}
+                    onChange={(e) => set({ isMultiDay: e.target.checked, endDate: e.target.checked ? form.endDate : "" })}
+                    className="accent-[#f49d25]"
+                  />
+                  This ceremony spans multiple days
+                </label>
+                {form.isMultiDay && (
+                  <input
+                    type="date"
+                    min={form.eventDate || new Date().toISOString().split("T")[0]}
+                    value={form.endDate}
+                    onChange={(e) => set({ endDate: e.target.value })}
+                    className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#f49d25]/40 focus:border-[#f49d25] text-slate-700"
+                  />
+                )}
               </div>
             </div>
 
@@ -617,7 +815,7 @@ export default function BookingWizardClient() {
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">Pincode</label>
                 <input
                   value={form.venuePincode}
-                  onChange={(e) => set({ venuePincode: e.target.value })}
+                  onChange={(e) => set({ venuePincode: e.target.value.replace(/\D/g, "").slice(0, 6) })}
                   placeholder="110001"
                   maxLength={6}
                   className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#f49d25]/40 focus:border-[#f49d25] text-slate-700"
@@ -628,10 +826,69 @@ export default function BookingWizardClient() {
                 <input value={form.venueState} onChange={(e) => set({ venueState: e.target.value })} className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#f49d25]/40 focus:border-[#f49d25] text-slate-700" />
               </div>
             </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">Gotra (optional)</label>
+                <input
+                  value={form.gotra}
+                  onChange={(e) => set({ gotra: e.target.value })}
+                  placeholder="e.g., Bharadwaj"
+                  className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#f49d25]/40 focus:border-[#f49d25] text-slate-700"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">Family members</label>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => void importFromContacts()}
+                    className="px-3 py-2 text-xs font-semibold rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50"
+                  >
+                    Add from Contacts
+                  </button>
+                  <input
+                    value={familyInput}
+                    onChange={(e) => setFamilyInput(e.target.value)}
+                    placeholder="Type name and press Add"
+                    className="flex-1 px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f49d25]/40"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const nextName = familyInput.trim();
+                      if (!nextName) return;
+                      set({ familyMembers: Array.from(new Set([...form.familyMembers, nextName])).slice(0, 10) });
+                      setFamilyInput("");
+                    }}
+                    className="px-3 py-2 text-xs font-semibold rounded-lg bg-[#f49d25] text-white hover:bg-[#e08c14]"
+                  >
+                    Add
+                  </button>
+                </div>
+                {contactImportMessage && <p className="text-xs mt-2 text-slate-500">{contactImportMessage}</p>}
+                {form.familyMembers.length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-1">
+                    {form.familyMembers.map((name) => (
+                      <span key={name} className="inline-flex items-center gap-1 px-2 py-1 bg-slate-100 rounded-full text-xs text-slate-700">
+                        {name}
+                        <button
+                          type="button"
+                          onClick={() => set({ familyMembers: form.familyMembers.filter((member) => member !== name) })}
+                          className="text-slate-400 hover:text-slate-600"
+                        >
+                          Ã—
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         )}
 
-        {/* ── Step 1: Pandit Selection ───────────────────────────────────── */}
+        {/* â”€â”€ Step 1: Pandit Selection â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         {step === 1 && (
           <div className="space-y-4">
             <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
@@ -673,9 +930,9 @@ export default function BookingWizardClient() {
                               <span className="material-symbols-outlined text-[#f49d25] text-xs" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
                               {p.averageRating}
                             </span>
-                            <span>·</span>
+                            <span>Â·</span>
                             <span>{p.totalReviews} reviews</span>
-                            <span>·</span>
+                            <span>Â·</span>
                             <span>{p.city}</span>
                           </div>
                           <div className="flex flex-wrap gap-1 mt-2">
@@ -697,105 +954,225 @@ export default function BookingWizardClient() {
           </div>
         )}
 
-        {/* ── Step 2: Travel & Logistics ─────────────────────────────────── */}
+        {/* â”€â”€ Step 2: Travel & Logistics â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         {step === 2 && (
-          <div className="space-y-6">
+          !isOutstation ? (
             <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-              <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2 mb-2">
-                <span className="material-symbols-outlined text-primary">directions_car</span>
-                Travel & Logistics
+              <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2 mb-2">
+                <span className="material-symbols-outlined text-primary">near_me</span>
+                Local Booking Detected
               </h2>
-              <p className="text-sm text-slate-500 mb-6">Select the most convenient travel option for Pandit Ji.</p>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                {travelOptions.map((t) => {
-                  const selected = form.travelMode === t.mode;
-                  const icons: Record<string, string> = {
-                    SELF_DRIVE: "directions_car",
-                    CAB: "local_taxi",
-                    TRAIN: "train",
-                    FLIGHT: "flight",
-                    BUS: "directions_bus",
-                  };
-                  return (
-                    <div
-                      key={t.mode}
-                      onClick={() => set({ travelMode: t.mode, travelCost: t.totalCost })}
-                      className={`relative group cursor-pointer border-2 rounded-xl p-5 flex flex-col h-full transition-all hover:shadow-md ${selected
-                        ? "border-primary bg-primary/5"
-                        : "border-slate-100 bg-white hover:border-primary/50"
-                        }`}
-                    >
-                      {selected && (
-                        <div className="absolute top-3 right-3">
-                          <span className="material-symbols-outlined text-primary fill-1">check_circle</span>
-                        </div>
-                      )}
-                      <div className={`w-12 h-12 rounded-lg flex items-center justify-center mb-4 ${selected ? "bg-primary/20" : "bg-slate-100 group-hover:bg-primary/10"
-                        }`}>
-                        <span className={`material-symbols-outlined text-3xl ${selected ? "text-primary" : "text-slate-400 group-hover:text-primary"
-                          }`}>
-                          {icons[t.mode] ?? "route"}
-                        </span>
-                      </div>
-
-                      <h3 className="font-bold text-slate-900 mb-1">{t.label}</h3>
-                      <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
-                        {t.estimatedDuration ? `Est. ${t.estimatedDuration}` : "Standard Travel"}
-                      </p>
-
-                      <div className="mt-auto pt-4">
-                        <p className="text-lg font-bold text-slate-900 mb-3">{fmt(t.totalCost)}</p>
-                        <button className={`w-full py-2 font-bold rounded-lg text-sm transition-colors ${selected
-                          ? "bg-primary text-white"
-                          : "bg-slate-100 text-slate-900 group-hover:bg-primary/20 group-hover:text-primary"
-                          }`}>
-                          {selected ? "Selected" : "Select"}
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
+              <p className="text-sm text-slate-600">
+                Pandit and venue are in the same city, so travel/accommodation step is auto-skipped as per platform policy.
+              </p>
+              <div className="mt-4 text-xs text-slate-500 bg-slate-50 border border-slate-200 rounded-lg p-3">
+                Food allowance remains optional for puja day only. Outstation travel policies do not apply here.
               </div>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+                <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2 mb-2">
+                  <span className="material-symbols-outlined text-primary">directions_car</span>
+                  Travel & Accommodation
+                </h2>
+                <p className="text-sm text-slate-500 mb-6">
+                  Choose travel mode preferred by Pandit Ji. Platform will coordinate logistics for non self-drive options.
+                </p>
 
-              {/* Food Arrangement */}
-              <div>
-                <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-primary">restaurant</span>
-                  Food & Accommodation
-                </h3>
-                <div className="space-y-4">
-                  {[
-                    { value: "SELF" as FoodArrangement, label: "I will provide meals & stay", desc: "Host takes care of Satvik meals and lodging" },
-                    { value: "PLATFORM" as FoodArrangement, label: "Add Food Allowance", desc: `${fmt(FOOD_PER_DAY)}/day will be added to billing` },
-                  ].map((opt) => {
-                    const active = form.foodArrangement === opt.value;
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                  {travelOptions.map((t) => {
+                    const selected = form.travelMode === t.mode;
+                    const icons: Record<string, string> = {
+                      SELF_DRIVE: "directions_car",
+                      CAB: "local_taxi",
+                      TRAIN: "train",
+                      FLIGHT: "flight",
+                      BUS: "directions_bus",
+                    };
                     return (
-                      <label
-                        key={opt.value}
-                        className="flex items-center p-4 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors group"
+                      <div
+                        key={t.mode}
+                        onClick={() =>
+                          set({
+                            travelMode: t.mode,
+                            travelCost: t.totalCost,
+                            localTransportNeeded: t.mode === "SELF_DRIVE" ? false : form.localTransportNeeded,
+                            localTransportCost: t.mode === "SELF_DRIVE" ? 0 : form.localTransportCost,
+                          })
+                        }
+                        className={`relative group cursor-pointer border-2 rounded-xl p-5 flex flex-col h-full transition-all hover:shadow-md ${selected
+                          ? "border-primary bg-primary/5"
+                          : "border-slate-100 bg-white hover:border-primary/50"
+                          }`}
                       >
-                        <input
-                          type="radio"
-                          name="food_pref"
-                          checked={active}
-                          onChange={() => set({ foodArrangement: opt.value, foodCost: opt.value === "PLATFORM" ? FOOD_PER_DAY : 0 })}
-                          className="w-5 h-5 text-primary border-slate-300 focus:ring-primary accent-primary"
-                        />
-                        <div className="ml-4">
-                          <p className="font-medium text-slate-900">{opt.label}</p>
-                          <p className="text-xs text-slate-500">{opt.desc}</p>
+                        {selected && (
+                          <div className="absolute top-3 right-3">
+                            <span className="material-symbols-outlined text-primary fill-1">check_circle</span>
+                          </div>
+                        )}
+                        <div className={`w-12 h-12 rounded-lg flex items-center justify-center mb-4 ${selected ? "bg-primary/20" : "bg-slate-100 group-hover:bg-primary/10"
+                          }`}>
+                          <span className={`material-symbols-outlined text-3xl ${selected ? "text-primary" : "text-slate-400 group-hover:text-primary"
+                            }`}>
+                            {icons[t.mode] ?? "route"}
+                          </span>
                         </div>
-                      </label>
+
+                        <h3 className="font-bold text-slate-900 mb-1">{t.label}</h3>
+                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+                          {t.estimatedDuration ? `Est. ${t.estimatedDuration}` : "Standard Travel"}
+                        </p>
+
+                        <div className="mt-auto pt-4">
+                          <p className="text-lg font-bold text-slate-900 mb-3">{fmt(t.totalCost)}</p>
+                          <button className={`w-full py-2 font-bold rounded-lg text-sm transition-colors ${selected
+                            ? "bg-primary text-white"
+                            : "bg-slate-100 text-slate-900 group-hover:bg-primary/20 group-hover:text-primary"
+                            }`}>
+                            {selected ? "Selected" : "Select"}
+                          </button>
+                        </div>
+                      </div>
                     );
                   })}
                 </div>
+
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-primary">restaurant</span>
+                    Food Allowance Policy
+                  </h3>
+                  <div className="space-y-4">
+                    {[
+                      {
+                        value: "CUSTOMER_PROVIDES" as FoodArrangement,
+                        label: "Yes, I will provide meals on puja days",
+                        desc: `Travel days (${travelDays}) still include mandatory food allowance.`,
+                      },
+                      {
+                        value: "PLATFORM_ALLOWANCE" as FoodArrangement,
+                        label: "No, please add food allowance",
+                        desc: `${fmt(FOOD_PER_DAY)} added per day. Current allowance days: ${foodAllowanceDays}.`,
+                      },
+                    ].map((opt) => {
+                      const active = form.foodArrangement === opt.value;
+                      return (
+                        <label
+                          key={opt.value}
+                          className="flex items-center p-4 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors group"
+                        >
+                          <input
+                            type="radio"
+                            name="food_pref"
+                            checked={active}
+                            onChange={() =>
+                              set({
+                                foodArrangement: opt.value,
+                                foodCost: FOOD_PER_DAY * (travelDays + (opt.value === "PLATFORM_ALLOWANCE" ? eventDays : 0)),
+                              })
+                            }
+                            className="w-5 h-5 text-primary border-slate-300 focus:ring-primary accent-primary"
+                          />
+                          <div className="ml-4">
+                            <p className="font-medium text-slate-900">{opt.label}</p>
+                            <p className="text-xs text-slate-500">{opt.desc}</p>
+                          </div>
+                        </label>
+                      );
+                    })}
+                  </div>
+                  <p className="text-xs text-slate-500 mt-3 bg-slate-50 border border-slate-200 rounded-lg p-3">
+                    Platform policy: food allowance is non-negotiable at {fmt(FOOD_PER_DAY)}/day.
+                    Outstation travel days are always counted; puja days are counted when meals are not provided.
+                  </p>
+                </div>
+
+                <div className="mt-6 space-y-4">
+                  <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-primary">hotel</span>
+                    Stay & Local Commute
+                  </h3>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {[
+                      { value: "CUSTOMER_ARRANGES", label: "Customer will arrange hotel" },
+                      { value: "PLATFORM_BOOKS", label: "Book via platform" },
+                    ].map((opt) => {
+                      const active = form.accommodationArrangement === opt.value;
+                      return (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          onClick={() =>
+                            set({
+                              accommodationArrangement: opt.value as BookingFormData["accommodationArrangement"],
+                              accommodationCost:
+                                opt.value === "PLATFORM_BOOKS"
+                                  ? (form.accommodationCost > 0 ? form.accommodationCost : 3000)
+                                  : 0,
+                            })
+                          }
+                          className={`text-left p-4 rounded-xl border-2 transition-all ${active
+                            ? "border-primary bg-primary/5"
+                            : "border-slate-100 hover:border-slate-200"
+                            }`}
+                        >
+                          <p className="text-sm font-semibold text-slate-800">{opt.label}</p>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {form.accommodationArrangement === "PLATFORM_BOOKS" && (
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-1.5">Estimated Hotel Cost</label>
+                      <input
+                        type="number"
+                        min={0}
+                        step={100}
+                        value={form.accommodationCost}
+                        onChange={(e) => set({ accommodationCost: Math.max(0, Number(e.target.value || 0)) })}
+                        className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#f49d25]/40 focus:border-[#f49d25] text-slate-700"
+                      />
+                    </div>
+                  )}
+
+                  {form.travelMode !== "SELF_DRIVE" && (
+                    <div className="rounded-xl border border-slate-200 p-4">
+                      <label className="flex items-center gap-2 text-sm font-medium text-slate-800">
+                        <input
+                          type="checkbox"
+                          checked={form.localTransportNeeded}
+                          onChange={(e) =>
+                            set({
+                              localTransportNeeded: e.target.checked,
+                              localTransportCost: e.target.checked ? (form.localTransportCost || 800) : 0,
+                            })
+                          }
+                          className="accent-primary"
+                        />
+                        Add local cab (hotel to/from venue) via platform
+                      </label>
+                      {form.localTransportNeeded && (
+                        <input
+                          type="number"
+                          min={0}
+                          step={100}
+                          value={form.localTransportCost}
+                          onChange={(e) => set({ localTransportCost: Math.max(0, Number(e.target.value || 0)) })}
+                          className="mt-3 w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#f49d25]/40 focus:border-[#f49d25] text-slate-700"
+                        />
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
+          )
         )}
 
-        {/* ── Step 3: Ritual Variation ───────────────────────────────────── */}
+        {/* â”€â”€ Step 3: Ritual Variation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         {step === 3 && (
           <RitualVariationSelection
             selectedVariation={form.ritualVariation}
@@ -803,7 +1180,7 @@ export default function BookingWizardClient() {
           />
         )}
 
-        {/* ── Step 4: Preferences ─────────────────────────────────────────── */}
+        {/* â”€â”€ Step 4: Preferences â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         {step === 4 && (
           <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 space-y-6">
             <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
@@ -811,69 +1188,102 @@ export default function BookingWizardClient() {
               Preferences
             </h2>
 
-            {/* Samagri */}
-            {/* Samagri */}
             <div>
-              <h3 className="text-sm font-semibold text-slate-700 mb-3">Puja Samagri (Materials)</h3>
-              <div className="grid grid-cols-2 gap-3 mb-4">
+              <h3 className="text-sm font-semibold text-slate-700 mb-3">Puja Samagri Path (Choose One)</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
                 {[
-                  { value: "INCLUDED" as SamagriOption, label: "Pandit Ji brings", icon: "inventory_2", desc: samagriItem ? "Package selected" : "Select a package" },
-                  { value: "SELF" as SamagriOption, label: "I'll arrange myself", icon: "shopping_bag", desc: "You buy materials" },
+                  {
+                    value: "PANDIT_PACKAGE" as SamagriOption,
+                    label: "Pandit's Fixed Package",
+                    icon: "inventory_2",
+                    badge: "Fixed Package",
+                    badgeClass: "bg-amber-100 text-amber-700",
+                    desc: "Pre-defined item list and fixed non-negotiable package cost.",
+                  },
+                  {
+                    value: "PLATFORM_CUSTOM" as SamagriOption,
+                    label: "Platform Custom List",
+                    icon: "shopping_cart",
+                    badge: "Custom List",
+                    badgeClass: "bg-blue-100 text-blue-700",
+                    desc: "Build your own item list with platform market pricing.",
+                  },
                 ].map((opt) => {
                   const active = form.samagri === opt.value;
                   return (
                     <button
                       key={opt.value}
-                      onClick={() => set({ samagri: opt.value })}
+                      type="button"
+                      onClick={() => {
+                        set({ samagri: opt.value });
+                        if (
+                          samagriItem &&
+                          ((opt.value === "PANDIT_PACKAGE" && samagriItem.type !== "package") ||
+                            (opt.value === "PLATFORM_CUSTOM" && samagriItem.type !== "custom"))
+                        ) {
+                          setSamagriItem(null);
+                        }
+                      }}
                       className={`p-4 rounded-xl border-2 transition-all text-left ${active ? "border-[#f49d25] bg-[#f49d25]/5" : "border-slate-100 hover:border-slate-200"
                         }`}
                     >
-                      <span className={`material-symbols-outlined text-xl mb-2 ${active ? "text-[#f49d25]" : "text-slate-400"}`}>{opt.icon}</span>
-                      <p className="text-sm font-medium text-slate-700">{opt.label}</p>
-                      <p className="text-xs text-slate-400">{opt.desc}</p>
+                      <div className="flex items-start justify-between gap-2">
+                        <span className={`material-symbols-outlined text-xl ${active ? "text-[#f49d25]" : "text-slate-400"}`}>{opt.icon}</span>
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${opt.badgeClass}`}>{opt.badge}</span>
+                      </div>
+                      <p className="text-sm font-medium text-slate-700 mt-2">{opt.label}</p>
+                      <p className="text-xs text-slate-400 mt-1">{opt.desc}</p>
                     </button>
                   );
                 })}
               </div>
 
-              {/* Package Selection */}
-              {form.samagri === "INCLUDED" && (
-                <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
-                  {samagriItem ? (
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="font-semibold text-slate-800">
-                            {samagriItem.type === "package" ? `${samagriItem.packageName} Package` : "Custom Selection"}
-                          </span>
-                          <span className="px-2 py-0.5 bg-green-100 text-green-700 text-[10px] font-bold rounded-full uppercase">
-                            Selected
-                          </span>
-                        </div>
-                        <div className="text-sm text-slate-600">
-                          Total: <span className="font-bold">₹{samagriItem.totalCost.toLocaleString("en-IN")}</span>
-                        </div>
+              <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                {samagriItem && (
+                  ((form.samagri === "PANDIT_PACKAGE" && samagriItem.type === "package") ||
+                    (form.samagri === "PLATFORM_CUSTOM" && samagriItem.type === "custom"))
+                ) ? (
+                  <div className="flex items-center justify-between gap-4">
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-semibold text-slate-800">
+                          {samagriItem.type === "package"
+                            ? `${samagriItem.packageName || "Fixed"} Package`
+                            : "Custom Item List"}
+                        </span>
+                        <span className="px-2 py-0.5 bg-green-100 text-green-700 text-[10px] font-bold rounded-full uppercase">
+                          Selected
+                        </span>
                       </div>
-                      <button
-                        onClick={() => setShowSamagriModal(true)}
-                        className="text-sm text-[#f49d25] font-semibold hover:underline"
-                      >
-                        Change
-                      </button>
+                      <div className="text-sm text-slate-600">
+                        Total: <span className="font-bold">{fmt(samagriItem.totalCost)}</span>
+                      </div>
                     </div>
-                  ) : (
-                    <div className="text-center py-2">
-                      <p className="text-sm text-slate-500 mb-3">Select a samagri package or build your own list.</p>
-                      <button
-                        onClick={() => setShowSamagriModal(true)}
-                        className="px-4 py-2 bg-[#f49d25] text-white text-sm font-semibold rounded-lg hover:bg-[#e08c14] transition-colors"
-                      >
-                        Select Samagri
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
+                    <button
+                      type="button"
+                      onClick={() => setShowSamagriModal(true)}
+                      className="text-sm text-[#f49d25] font-semibold hover:underline"
+                    >
+                      Change
+                    </button>
+                  </div>
+                ) : (
+                  <div className="text-center py-2">
+                    <p className="text-sm text-slate-500 mb-3">
+                      {form.samagri === "PANDIT_PACKAGE"
+                        ? "Select a fixed package from Pandit Ji."
+                        : "Build your custom samagri list."}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setShowSamagriModal(true)}
+                      className="px-4 py-2 bg-[#f49d25] text-white text-sm font-semibold rounded-lg hover:bg-[#e08c14] transition-colors"
+                    >
+                      {form.samagri === "PANDIT_PACKAGE" ? "Select Fixed Package" : "Build Custom List"}
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Special Instructions */}
@@ -882,7 +1292,7 @@ export default function BookingWizardClient() {
               <textarea
                 value={form.specialInstructions}
                 onChange={(e) => set({ specialInstructions: e.target.value })}
-                placeholder="Any special requirements, parking instructions, or notes for Pandit Ji…"
+                placeholder="Any special requirements, parking instructions, or notes for Pandit Jiâ€¦"
                 rows={3}
                 maxLength={500}
                 className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#f49d25]/40 focus:border-[#f49d25] text-slate-700 resize-none placeholder-slate-400"
@@ -892,7 +1302,7 @@ export default function BookingWizardClient() {
           </div>
         )}
 
-        {/* ── Step 5: Review & Pay ────────────────────────────────────────── */}
+        {/* â”€â”€ Step 5: Review & Pay â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         {step === 5 && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             {/* Left Column: Details & Itemization */}
@@ -916,7 +1326,7 @@ export default function BookingWizardClient() {
                     <span className="text-slate-500 text-xs uppercase tracking-wider font-semibold">Date & Time</span>
                     <span className="text-slate-900 font-medium">
                       {new Date(form.eventDate).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}
-                      {form.eventTime && ` · ${form.eventTime}`}
+                      {form.eventTime && ` Â· ${form.eventTime}`}
                     </span>
                   </div>
                   <div className="flex flex-col border-b border-slate-50 pb-2">
@@ -958,29 +1368,53 @@ export default function BookingWizardClient() {
                     <p className="text-xs font-bold text-primary uppercase tracking-widest mb-1">Logistics & Travel</p>
                     <div className="flex justify-between text-sm">
                       <span className="text-slate-600">Travel ({form.travelMode})</span>
-                      <span className="font-medium text-slate-900">{fmt(form.travelCost)}</span>
+                      <span className="font-medium text-slate-900">{fmt(effectiveTravelCost)}</span>
                     </div>
+                    {form.localTransportNeeded && localTransportCost > 0 && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-slate-600">Local cab (hotel to/from venue)</span>
+                        <span className="font-medium text-slate-900">{fmt(localTransportCost)}</span>
+                      </div>
+                    )}
                     {foodAllowance > 0 && (
                       <div className="flex justify-between text-sm">
-                        <span className="text-slate-600">Food Allowance</span>
+                        <span className="text-slate-600">Food Allowance ({foodAllowanceDays} day{foodAllowanceDays > 1 ? "s" : ""})</span>
                         <span className="font-medium text-slate-900">{fmt(foodAllowance)}</span>
                       </div>
                     )}
-                    {travelServiceFee > 0 && (
+                    {accommodationCost > 0 && (
                       <div className="flex justify-between text-sm">
-                        <span className="text-slate-600">Travel Service Fee</span>
-                        <span className="font-medium text-slate-900">{fmt(travelServiceFee)}</span>
+                        <span className="text-slate-600">Accommodation (Platform Booked)</span>
+                        <span className="font-medium text-slate-900">{fmt(accommodationCost)}</span>
                       </div>
                     )}
                   </div>
 
-                  {/* Platform Fee */}
+                  {/* Platform fees + GST */}
                   <div className="flex justify-between items-start py-2">
                     <div>
-                      <p className="text-slate-900 font-semibold">Platform Fee & GST</p>
-                      <p className="text-slate-500 text-xs">Convenience fee + 18% GST on fee</p>
+                      <p className="text-slate-900 font-semibold">Platform Service Fee (15% of Dakshina)</p>
                     </div>
-                    <span className="font-semibold">{fmt(platformFee + gst)}</span>
+                    <span className="font-semibold">{fmt(platformFee)}</span>
+                  </div>
+                  {travelServiceFee > 0 && (
+                    <div className="flex justify-between items-start py-2">
+                      <p className="text-slate-900 font-semibold">Travel Service Fee (5% of Travel)</p>
+                      <span className="font-semibold">{fmt(travelServiceFee)}</span>
+                    </div>
+                  )}
+                  {samagriServiceFee > 0 && (
+                    <div className="flex justify-between items-start py-2">
+                      <p className="text-slate-900 font-semibold">Samagri Service Fee (10% of Samagri)</p>
+                      <span className="font-semibold">{fmt(samagriServiceFee)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between items-start py-2">
+                    <div>
+                      <p className="text-slate-900 font-semibold">GST (18% on platform fees)</p>
+                      <p className="text-slate-500 text-xs">Applied only on platform fees</p>
+                    </div>
+                    <span className="font-semibold">{fmt(gst)}</span>
                   </div>
                 </div>
               </section>
@@ -999,11 +1433,11 @@ export default function BookingWizardClient() {
                   <div className={`p-3 border-2 rounded-lg flex items-center justify-between gap-3 ${addons.backup ? "border-primary bg-primary/5" : "border-slate-100"}`}>
                     <div className="flex-1">
                       <div className="flex items-center gap-1">
-                        <p className="text-sm font-bold text-slate-900">Premium Backup</p>
+                        <p className="text-sm font-bold text-slate-900">Backup Guarantee</p>
                         <span className="text-[10px] bg-primary text-white px-1 rounded">SAFE</span>
                       </div>
-                      <p className="text-[11px] text-slate-500">Guaranteed replacement within 2 hrs</p>
-                      <p className="text-xs font-bold text-primary mt-1">+ ₹9,999</p>
+                      <p className="text-[11px] text-slate-500">Guaranteed qualified replacement within 4 hours</p>
+                      <p className="text-xs font-bold text-primary mt-1">+ â‚¹9,999</p>
                     </div>
                     <input
                       type="checkbox"
@@ -1013,19 +1447,28 @@ export default function BookingWizardClient() {
                     />
                   </div>
 
-                  {/* Muhurat Consultation */}
-                  <div className={`p-3 border rounded-lg flex items-center justify-between gap-3 ${addons.consultation ? "border-primary bg-primary/5" : "border-slate-200"}`}>
-                    <div className="flex-1">
-                      <p className="text-sm font-bold text-slate-900">Muhurat Consultation</p>
-                      <p className="text-[11px] text-slate-500">15-min call for optimal timing</p>
-                      <p className="text-xs font-bold text-primary mt-1">+ ₹1,100</p>
+                  {/* Muhurat confirmation session */}
+                  <div className={`p-3 border rounded-lg ${muhuratConsultation ? "border-primary bg-primary/5" : "border-slate-200"}`}>
+                    <p className="text-sm font-bold text-slate-900">Muhurat Confirmation Session</p>
+                    <p className="text-[11px] text-slate-500 mb-2">
+                      Validate selected muhurat with a Jyotishi before payment.
+                    </p>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setMuhuratConsultation(false)}
+                        className={`text-xs font-semibold rounded-md px-2 py-2 border ${!muhuratConsultation ? "border-primary text-primary bg-primary/5" : "border-slate-200 text-slate-600"}`}
+                      >
+                        Confirm & Proceed
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setMuhuratConsultation(true)}
+                        className={`text-xs font-semibold rounded-md px-2 py-2 border ${muhuratConsultation ? "border-primary text-primary bg-primary/5" : "border-slate-200 text-slate-600"}`}
+                      >
+                        Consult Expert Â· â‚¹499
+                      </button>
                     </div>
-                    <button
-                      onClick={() => setAddons(prev => ({ ...prev, consultation: !prev.consultation }))}
-                      className={`p-1 rounded transition-colors ${addons.consultation ? "bg-primary text-white" : "bg-primary/10 text-primary hover:bg-primary hover:text-white"}`}
-                    >
-                      <span className="material-symbols-outlined text-sm">{addons.consultation ? "check" : "add"}</span>
-                    </button>
                   </div>
 
                   {/* Nirmalya Visarjan */}
@@ -1033,7 +1476,7 @@ export default function BookingWizardClient() {
                     <div className="flex-1">
                       <p className="text-sm font-bold text-slate-900">Nirmalya Visarjan</p>
                       <p className="text-[11px] text-slate-500">Eco-friendly waste management</p>
-                      <p className="text-xs font-bold text-primary mt-1">+ ₹500</p>
+                      <p className="text-xs font-bold text-primary mt-1">+ â‚¹500</p>
                     </div>
                     <button
                       onClick={() => setAddons(prev => ({ ...prev, visarjan: !prev.visarjan }))}
@@ -1049,19 +1492,31 @@ export default function BookingWizardClient() {
               <section className="sticky top-24 bg-white rounded-xl border-t-4 border-primary shadow-xl overflow-hidden">
                 <div className="p-6 space-y-4">
                   <div className="flex justify-between items-center text-slate-500 text-sm">
-                    <span>Subtotal</span>
-                    <span>{fmt(subtotal - addonCost)}</span>
+                    <span>Subtotal (Dakshina + Travel + Samagri + Food + Stay)</span>
+                    <span>{fmt(baseSubtotal)}</span>
                   </div>
                   {addonCost > 0 && (
                     <div className="flex justify-between items-center text-slate-500 text-sm">
-                      <span>Add-ons</span>
+                      <span>Add-ons & Consultation</span>
                       <span>{fmt(addonCost)}</span>
                     </div>
                   )}
+                  <div className="flex justify-between items-center text-slate-500 text-sm">
+                    <span>Subtotal After Add-ons</span>
+                    <span>{fmt(subtotal)}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-slate-500 text-sm">
+                    <span>Platform Fees</span>
+                    <span>{fmt(totalPlatformFees)}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-slate-500 text-sm">
+                    <span>GST (18% on platform fees)</span>
+                    <span>{fmt(gst)}</span>
+                  </div>
                   {/* Coupon Placeholder */}
                   {/* <div className="flex justify-between items-center text-primary text-sm font-bold bg-primary/5 p-2 rounded">
                     <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">local_offer</span> PANDIT10</span>
-                    <span>-₹0</span>
+                    <span>-â‚¹0</span>
                   </div> */}
 
                   <div className="h-px bg-slate-100 my-2"></div>
@@ -1070,7 +1525,9 @@ export default function BookingWizardClient() {
                     <span className="text-xl font-black text-slate-900">Grand Total</span>
                     <span className="text-2xl font-black text-primary">{fmt(grandTotal)}</span>
                   </div>
-                  <p className="text-[10px] text-center text-slate-500">Inclusive of all taxes and automated travel credits</p>
+                  <p className="text-[10px] text-center text-slate-500">
+                    Advance policy: {grandTotal > 5000 ? `${fmt(payableNow)} now, ${fmt(payableLater)} after puja completion.` : "Full amount payable now."}
+                  </p>
                 </div>
 
                 {!paymentReady ? (
@@ -1081,7 +1538,7 @@ export default function BookingWizardClient() {
                   >
                     {loading ? "Processing..." : (
                       <>
-                        Proceed to Payment
+                        {grandTotal > 5000 ? `Pay 50% Advance (${fmt(payableNow)})` : "Proceed to Payment"}
                         <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
                       </>
                     )}
@@ -1090,7 +1547,7 @@ export default function BookingWizardClient() {
                   <div className="p-4 bg-slate-50">
                     <RazorpayCheckout
                       orderId={form.orderId}
-                      amount={grandTotal * 100}
+                      amount={payableNow * 100}
                       razorpayKey={process.env.NEXT_PUBLIC_RAZORPAY_KEY ?? "rzp_test_mock"}
                       bookingId={form.bookingId}
                       bookingNumber={form.bookingNumber}
@@ -1114,7 +1571,7 @@ export default function BookingWizardClient() {
           </div>
         )}
 
-        {/* ── Navigation Buttons ──────────────────────────────────────────── */}
+        {/* â”€â”€ Navigation Buttons â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         {step < 5 && (
           <div className="flex gap-3 mt-6">
             {step > 0 && (
@@ -1143,6 +1600,7 @@ export default function BookingWizardClient() {
             panditId={form.panditId}
             pujaType={form.ritualName}
             onSelect={(selection) => {
+              set({ samagri: selection.type === "package" ? "PANDIT_PACKAGE" : "PLATFORM_CUSTOM" });
               setSamagriItem({ ...selection, pujaType: form.ritualName });
               setShowSamagriModal(false);
             }}
@@ -1153,3 +1611,5 @@ export default function BookingWizardClient() {
     </div >
   );
 }
+
+

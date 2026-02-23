@@ -1,0 +1,26 @@
+[
+    {
+        "name":  "api",
+        "pid":  23656,
+        "out":  "c:\\Users\\ss\\Documents\\HmarePanditJi\\.agent\\runtime-logs\\api-dev.out.log",
+        "err":  "c:\\Users\\ss\\Documents\\HmarePanditJi\\.agent\\runtime-logs\\api-dev.err.log"
+    },
+    {
+        "name":  "web",
+        "pid":  31188,
+        "out":  "c:\\Users\\ss\\Documents\\HmarePanditJi\\.agent\\runtime-logs\\web-dev.out.log",
+        "err":  "c:\\Users\\ss\\Documents\\HmarePanditJi\\.agent\\runtime-logs\\web-dev.err.log"
+    },
+    {
+        "name":  "pandit",
+        "pid":  2500,
+        "out":  "c:\\Users\\ss\\Documents\\HmarePanditJi\\.agent\\runtime-logs\\pandit-dev.out.log",
+        "err":  "c:\\Users\\ss\\Documents\\HmarePanditJi\\.agent\\runtime-logs\\pandit-dev.err.log"
+    },
+    {
+        "name":  "admin",
+        "pid":  4420,
+        "out":  "c:\\Users\\ss\\Documents\\HmarePanditJi\\.agent\\runtime-logs\\admin-dev.out.log",
+        "err":  "c:\\Users\\ss\\Documents\\HmarePanditJi\\.agent\\runtime-logs\\admin-dev.err.log"
+    }
+]

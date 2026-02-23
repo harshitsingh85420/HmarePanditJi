@@ -2,23 +2,238 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Design Tokens (Prompt 1 Section 8) ────────────────────────────────────── */
 :root {
+  /* Primary */
   --primary: #f09942;
+  --primary-light: #fde9c3;
+  --primary-dark: #d97706;
+
+  /* Semantic colours */
+  --danger: #ef4444;
+  --success: #10b981;
+  --info: #3b82f6;
+  --warning: #f59e0b;
+
+  /* Background */
   --background-light: #f8f7f6;
   --background-dark: #221910;
+
+  /* Surface */
+  --surface-white: #ffffff;
+  --surface-card: #ffffff;
+  --surface-hover: #faf9f8;
+
+  /* Text */
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --text-muted: #94a3b8;
+
+  /* Border radius */
+  --radius-card: 12px;
+  --radius-button: 8px;
+  --radius-pill: 24px;
+  --radius-input: 8px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
 }
 
+/* ── Base styles ───────────────────────────────────────────────────────────── */
 body {
   font-family: "Inter", sans-serif;
   background-color: var(--background-light);
-  color: #1e293b;
+  color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  line-height: 1.6;
 }
 
+/* ── All interactive elements: min 44px tap targets (Prompt 1 spec) ─────── */
+button,
+a,
+input[type="submit"],
+input[type="button"],
+input[type="reset"],
+[role="button"],
+[role="tab"],
+select,
+.interactive {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+input,
+textarea,
+select {
+  min-height: 44px;
+  font-size: 16px;
+  /* Prevent iOS zoom on focus */
+}
+
+/* ── Component utility classes ─────────────────────────────────────────────── */
+.card {
+  background: var(--surface-card);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-sm);
+  padding: 1rem;
+}
+
+.pill {
+  border-radius: var(--radius-pill);
+  padding: 0.5rem 1.25rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.pill-primary {
+  background: var(--primary);
+  color: white;
+}
+
+.pill-outline {
+  border: 2px solid var(--primary);
+  color: var(--primary);
+  background: transparent;
+}
+
+.pill-outline:hover {
+  background: var(--primary-light);
+}
+
+.badge-verified {
+  background: #d1fae5;
+  color: #065f46;
+  border-radius: var(--radius-pill);
+  padding: 2px 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.badge-pending {
+  background: var(--primary-light);
+  color: #92400e;
+  border-radius: var(--radius-pill);
+  padding: 2px 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.badge-danger {
+  background: #fee2e2;
+  color: #991b1b;
+  border-radius: var(--radius-pill);
+  padding: 2px 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* ── Animations ────────────────────────────────────────────────────────────── */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulseAmber {
+
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(240, 153, 66, 0.4);
+  }
+
+  50% {
+    box-shadow: 0 0 0 12px rgba(240, 153, 66, 0);
+  }
+}
+
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-100vh) rotate(0deg);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.6s ease-out;
+}
+
+.animate-pulse-amber {
+  animation: pulseAmber 2s ease-in-out infinite;
+}
+
+/* ── Confetti animation (Prompt 7, celebration page) ───────────────────── */
+.confetti-piece {
+  position: fixed;
+  width: 10px;
+  height: 10px;
+  animation: confetti-fall linear forwards;
+  top: -10px;
+  z-index: 1000;
+}
+
+/* ── Scrollbar styling ─────────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* ── Dark mode support ─────────────────────────────────────────────────────── */
 @media (prefers-color-scheme: dark) {
   body {
     background-color: var(--background-dark);
     color: #f1f5f9;
+  }
+}
+
+/* ── Print styles ──────────────────────────────────────────────────────────── */
+@media print {
+  .no-print {
+    display: none !important;
   }
 }

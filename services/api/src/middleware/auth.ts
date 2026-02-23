@@ -5,7 +5,8 @@ import { sendUnauthorized, sendForbidden } from "../utils/response";
 import { Role } from "@hmarepanditji/db";
 
 interface JwtPayload {
-  id: string;
+  id?: string;
+  userId?: string;
   phone: string;
   role: Role;
   isVerified: boolean;
@@ -28,8 +29,13 @@ export function authenticate(
 
   try {
     const payload = jwt.verify(token, env.JWT_SECRET) as JwtPayload;
+    const resolvedUserId = payload.id || payload.userId;
+    if (!resolvedUserId) {
+      sendUnauthorized(res, "Invalid token payload");
+      return;
+    }
     req.user = {
-      id: payload.id,
+      id: resolvedUserId,
       phone: payload.phone,
       role: payload.role,
       isVerified: payload.isVerified,
@@ -90,8 +96,13 @@ export function optionalAuth(
 
   try {
     const payload = jwt.verify(token, env.JWT_SECRET) as JwtPayload;
+    const resolvedUserId = payload.id || payload.userId;
+    if (!resolvedUserId) {
+      next();
+      return;
+    }
     req.user = {
-      id: payload.id,
+      id: resolvedUserId,
       phone: payload.phone,
       role: payload.role,
       isVerified: payload.isVerified,

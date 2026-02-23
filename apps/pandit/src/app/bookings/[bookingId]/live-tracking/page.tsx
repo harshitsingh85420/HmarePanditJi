@@ -1,207 +1,320 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { format, differenceInMinutes, differenceInHours } from "date-fns";
-import { hi } from "date-fns/locale";
+import { useParams } from "next/navigation";
+import { useState, useEffect, useCallback } from "react";
 
-type LiveBookingData = any;
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api/v1";
+
+function getToken() {
+  return (
+    localStorage.getItem("hpj_pandit_token") ||
+    localStorage.getItem("hpj_pandit_access_token") ||
+    localStorage.getItem("token")
+  );
+}
+
+type BookingStatus =
+  | "CONFIRMED" | "TRAVEL_BOOKED" | "PANDIT_EN_ROUTE" | "PANDIT_ARRIVED_HOTEL"
+  | "PANDIT_ARRIVED" | "PUJA_IN_PROGRESS" | "COMPLETED" | "RETURN_IN_PROGRESS";
+
+interface BookingSummary {
+  id: string;
+  bookingNumber: string;
+  status: BookingStatus;
+  eventType: string;
+  eventDate: string;
+  venueCity: string;
+  customer: { name?: string | null; phone?: string | null };
+  isOutstation?: boolean;
+  foodAllowanceAmount?: number;
+  travelDays?: number;
+  pujaDaysWithAllowance?: number;
+  documents?: { type: string; label: string; url: string }[];
+}
+
+const ALL_STEPS = [
+  { id: "start-journey", label: "Yatra Shuru Karein", subLabel: "Journey start karo", icon: "directions_car", endpoint: "start-journey", requiredStatuses: ["CONFIRMED", "TRAVEL_BOOKED"] as string[], nextStatus: "PANDIT_EN_ROUTE", outstation: false },
+  { id: "reached-hotel", label: "Hotel Pahuncha", subLabel: "Hotel check-in ho gaya", icon: "hotel", endpoint: "reached-hotel", requiredStatuses: ["PANDIT_EN_ROUTE"] as string[], nextStatus: "PANDIT_ARRIVED_HOTEL", outstation: true },
+  { id: "arrived", label: "Venue Pahuncha", subLabel: "Main aa gaya/aayi 🙏", icon: "where_to_vote", endpoint: "arrived", requiredStatuses: ["PANDIT_ARRIVED_HOTEL", "PANDIT_EN_ROUTE"] as string[], nextStatus: "PANDIT_ARRIVED", outstation: false },
+  { id: "start-puja", label: "Puja Shuru", subLabel: "Puja ki shuruat ho gayi", icon: "auto_stories", endpoint: "start-puja", requiredStatuses: ["PANDIT_ARRIVED"] as string[], nextStatus: "PUJA_IN_PROGRESS", outstation: false },
+  { id: "complete", label: "Puja Sampann", subLabel: "Puja poori ho gayi", icon: "celebration", endpoint: "complete", requiredStatuses: ["PUJA_IN_PROGRESS"] as string[], nextStatus: "COMPLETED", outstation: false },
+  { id: "return-journey", label: "Wapsi Shuru", subLabel: "Return yatra shuru", icon: "home", endpoint: "return-journey", requiredStatuses: ["COMPLETED"] as string[], nextStatus: "RETURN_IN_PROGRESS", outstation: true },
+];
+
+function statusToCompletedCount(status: string): number {
+  const map: Record<string, number> = {
+    CONFIRMED: 0, TRAVEL_BOOKED: 0,
+    PANDIT_EN_ROUTE: 1,
+    PANDIT_ARRIVED_HOTEL: 2,
+    PANDIT_ARRIVED: 3,
+    PUJA_IN_PROGRESS: 4,
+    COMPLETED: 5,
+    RETURN_IN_PROGRESS: 6,
+  };
+  return map[status] ?? 0;
+}
 
 export default function LiveTrackingPage() {
-    const params = useParams();
-    const router = useRouter();
-    const [booking, setBooking] = useState<LiveBookingData | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [eta, setEta] = useState("");
-    const [showingCompletion, setShowingCompletion] = useState(false);
-    const [timer, setTimer] = useState(0);
+  const params = useParams<{ bookingId: string }>();
+  const bookingId = params?.bookingId;
 
-    useEffect(() => {
-        if (params.bookingId) loadBooking(params.bookingId as string);
-    }, [params.bookingId]);
+  const [booking, setBooking] = useState<BookingSummary | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [confirmStep, setConfirmStep] = useState<typeof ALL_STEPS[0] | null>(null);
 
-    // Timer for puja in progress
-    useEffect(() => {
-        let interval: NodeJS.Timeout;
-        if (booking?.status === 'PUJA_IN_PROGRESS') {
-            interval = setInterval(() => setTimer(t => t + 1), 60000); // update every minute
-        }
-        return () => clearInterval(interval);
-    }, [booking?.status]);
-
-    const loadBooking = async (id: string) => {
-        try {
-            setLoading(true);
-            const token = localStorage.getItem("token");
-            const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
-
-            const res = await fetch(`/api/pandit/bookings/${id}`, { headers });
-            if (res.ok) {
-                const json = await res.json();
-                setBooking(json.data);
-            } else {
-                router.push(`/bookings/${id}`);
-            }
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleAction = async (action: string) => {
-        try {
-            const token = localStorage.getItem("token");
-            const res = await fetch(`/api/pandit/bookings/${booking?.id}/${action}`, {
-                method: "POST",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(action === "start-journey" ? { eta } : {})
-            });
-            if (res.ok) {
-                if (action === "complete") {
-                    setShowingCompletion(true);
-                } else {
-                    loadBooking(booking!.id);
-                }
-            }
-        } catch (error) {
-            console.error(error);
-        }
-    };
-
-    if (loading) {
-        return (
-            <div className="flex justify-center items-center h-screen bg-[#1a1a2e]">
-                <div className="animate-spin w-12 h-12 border-4 border-amber-500 border-t-transparent rounded-full"></div>
-            </div>
-        );
+  const load = useCallback(async () => {
+    if (!bookingId) return;
+    const token = getToken();
+    try {
+      const res = await fetch(`${API_BASE}/bookings/${bookingId}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      if (!res.ok) throw new Error("Booking load nahin ho saki");
+      const data = await res.json();
+      setBooking(data?.data?.booking ?? data?.data ?? data);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Kuch galat ho gaya");
+    } finally {
+      setLoading(false);
     }
+  }, [bookingId]);
 
-    if (!booking) return <div className="p-4 text-center text-white bg-[#1a1a2e] h-screen">बुकिंग नहीं मिली</div>;
+  useEffect(() => { void load(); }, [load]);
 
-    const customerName = booking.customer?.name?.split(" ")[0] || "Customer";
+  const executeStep = async (step: typeof ALL_STEPS[0]) => {
+    if (!booking) return;
+    setActionLoading(step.id);
+    setError("");
+    try {
+      const token = getToken();
+      const res = await fetch(`${API_BASE}/pandit/bookings/${booking.id}/${step.endpoint}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      });
+      if (!res.ok) throw new Error("Status update nahin hua");
+      const data = await res.json();
+      const newStatus: BookingStatus = data?.data?.booking?.status ?? step.nextStatus as BookingStatus;
+      setBooking((prev) => prev ? { ...prev, status: newStatus } : prev);
+      setConfirmStep(null);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Kuch galat ho gaya");
+    } finally {
+      setActionLoading(null);
+    }
+  };
 
-    return (
-        <div className="bg-[#1a1a2e] min-h-screen text-amber-500 font-sans flex flex-col relative">
+  if (loading) return (
+    <div className="py-20 flex items-center justify-center">
+      <span className="w-10 h-10 border-3 border-[#f09942] border-t-transparent rounded-full animate-spin" />
+    </div>
+  );
 
-            {/* Header Strip */}
-            <div className="bg-[#11111f] p-4 flex flex-col items-center justify-center border-b border-amber-900/30">
-                <div className="text-gray-300 text-lg mb-1">{booking.eventType} — {customerName} जी के यहाँ</div>
-                <div className="text-amber-400 font-bold text-xl">{format(new Date(booking.eventDate), "d MMM, h:mm a")}</div>
-                <Link href={`/bookings/${booking.id}`} className="absolute top-4 left-4 text-gray-400 text-2xl px-2">✕</Link>
-            </div>
+  if (!booking) return (
+    <div className="py-16 space-y-4">
+      <p className="text-red-600">{error || "Booking nahin mili."}</p>
+      <Link href="/bookings" className="text-[#f09942] font-semibold">← Wapas</Link>
+    </div>
+  );
 
-            {/* Central Content area */}
-            <div className="flex-1 flex flex-col items-center justify-center p-6 w-full max-w-lg mx-auto">
-                <div className="w-full h-full flex flex-col justify-center items-center text-center space-y-8 mt-[-10vh]">
+  const isOutstation = booking.isOutstation ?? false;
+  const visibleSteps = ALL_STEPS.filter((s) => !s.outstation || isOutstation);
+  const completedCount = statusToCompletedCount(booking.status);
+  const isCompleted = ["COMPLETED", "RETURN_IN_PROGRESS"].includes(booking.status);
 
-                    {/* TRAVEL_BOOKED */}
-                    {booking.status === "TRAVEL_BOOKED" && (
-                        <>
-                            <div className="text-6xl mb-4">🗺️</div>
-                            <h2 className="text-3xl text-amber-50 font-bold">यात्रा के लिए तैयार हों</h2>
-                            <p className="text-xl text-gray-400 mb-8">अपने गंतव्य के लिए निकलें।</p>
-                            <button
-                                onClick={() => handleAction("start-journey")} className="w-full bg-amber-500 hover:bg-amber-400 text-[#1a1a2e] font-bold text-2xl h-20 rounded-2xl shadow-[0_0_20px_rgba(245,158,11,0.4)] transition-all transform active:scale-95"
-                            >
-                                🚀 यात्रा शुरू कर दी
-                            </button>
-                        </>
-                    )}
+  const showPhone = ["PANDIT_ARRIVED", "PUJA_IN_PROGRESS", "COMPLETED"].includes(booking.status);
 
-                    {/* PANDIT_EN_ROUTE */}
-                    {booking.status === "PANDIT_EN_ROUTE" && (
-                        <>
-                            <div className="text-7xl mb-4 animate-pulse">🚂</div>
-                            <h2 className="text-3xl text-amber-50 font-bold mb-2">रास्ते में हैं...</h2>
-                            <p className="text-lg text-amber-200/70 mb-8">ग्राहक को आपकी लाइव लोकेशन मिल रही है</p>
+  return (
+    <div className="space-y-4 pb-8">
+      <div className="flex items-center justify-between">
+        <Link href={`/bookings/${bookingId}`} className="flex items-center gap-1 text-sm font-semibold text-gray-600 hover:text-[#f09942]">
+          <span className="material-symbols-outlined text-base">arrow_back</span>
+          Booking Details
+        </Link>
+        <span className="text-xs font-mono bg-gray-100 text-gray-500 px-3 py-1 rounded-full">#{booking.bookingNumber}</span>
+      </div>
 
-                            <div className="w-full space-y-2 mb-10 text-left">
-                                <label className="text-amber-200 ml-2">अनुमानित पहुँचने का समय (ETA)</label>
-                                <div className="flex gap-2">
-                                    <input type="time" value={eta} onChange={(e) => setEta(e.target.value)} className="flex-1 bg-[#11111f] border border-amber-900/50 rounded-xl px-4 text-xl text-white outline-none focus:border-amber-500 h-16" />
-                                </div>
-                            </div>
+      {error && <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-sm text-red-700">{error}</div>}
 
-                            <button onClick={() => handleAction("arrived")} className="w-full bg-amber-500 hover:bg-amber-400 text-[#1a1a2e] font-bold text-2xl h-20 rounded-2xl shadow-[0_0_20px_rgba(245,158,11,0.4)] transition-all transform active:scale-95">
-                                📍 मैं पहुँच गया
-                            </button>
-                        </>
-                    )}
+      {/* Summary card */}
+      <section className="bg-white rounded-xl border border-gray-200 p-4">
+        <h1 className="text-xl font-bold text-gray-900">{booking.eventType}</h1>
+        <p className="text-sm text-gray-500 mt-1">
+          {new Date(booking.eventDate).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })} · {booking.venueCity}
+        </p>
 
-                    {/* PANDIT_ARRIVED */}
-                    {booking.status === "PANDIT_ARRIVED" && (
-                        <>
-                            <div className="text-7xl mb-4">🙏</div>
-                            <h2 className="text-3xl text-amber-50 font-bold">पहुँच गए</h2>
-                            <p className="text-xl text-amber-200/70 mb-2">पूजा शुरू करें</p>
-                            <p className="text-lg text-gray-400 mb-10">आप {format(new Date(), "h:mm a")} पर पहुँचे</p>
-
-                            <button onClick={() => handleAction("start-puja")} className="w-full bg-amber-500 hover:bg-amber-400 text-[#1a1a2e] font-bold text-3xl h-24 rounded-2xl shadow-[0_0_20px_rgba(245,158,11,0.4)] transition-all transform active:scale-95">
-                                🕉️ पूजा शुरू करें
-                            </button>
-                        </>
-                    )}
-
-                    {/* PUJA_IN_PROGRESS */}
-                    {booking.status === "PUJA_IN_PROGRESS" && (
-                        <>
-                            <div className="text-7xl mb-4 relative">
-                                🔥<span className="absolute inset-0 bg-yellow-500/20 blur-xl rounded-full mix-blend-screen animate-pulse"></span>
-                            </div>
-                            <h2 className="text-4xl text-amber-50 font-bold">पूजा जारी है</h2>
-                            <p className="text-2xl text-amber-200/70 font-mono tracking-widest">{Math.floor(timer / 60)}h {timer % 60}m</p>
-                            <p className="text-lg text-gray-400 mt-10 mb-4">जब पूजा खत्म हो जाए तो नीचे दबाएं:</p>
-
-                            <button onClick={() => handleAction("complete")} className="w-full bg-red-600 hover:bg-red-500 text-white font-bold text-3xl h-24 rounded-2xl shadow-[0_0_30px_rgba(220,38,38,0.4)] transition-all transform active:scale-95">
-                                ✅ पूजा पूरी हुई
-                            </button>
-                        </>
-                    )}
-
-                    {booking.status === "COMPLETED" && (
-                        <>
-                            <div className="text-7xl mb-4">✅</div>
-                            <h2 className="text-3xl text-amber-50 font-bold">पूजा पूरी हुई!</h2>
-                            <button onClick={() => router.push(`/bookings/${booking.id}`)} className="w-full mt-10 bg-gray-800 hover:bg-gray-700 text-white font-bold text-2xl h-20 rounded-2xl transition-all transform active:scale-95 border border-gray-600">
-                                वापस जाएँ
-                            </button>
-                        </>
-                    )}
-
-                </div>
-            </div>
-
-            {/* Bottom Section */}
-            <div className="p-4 border-t border-amber-900/30 flex justify-between bg-[#11111f] pb-6">
-                <a href="tel:+911800123456" className="text-amber-500 text-lg flex items-center gap-2 px-4 py-2 hover:bg-amber-900/20 rounded-lg">
-                    <span>📞</span> मदद चाहिए?
+        {/* Customer contact */}
+        <div className="mt-3 p-3 rounded-xl bg-gray-50 border border-gray-100">
+          <p className="text-xs text-gray-400 font-medium mb-1">Customer:</p>
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-semibold text-gray-900">
+              {booking.customer.name?.split(" ")[0] ?? "Customer"} Ji
+            </span>
+            {showPhone && booking.customer.phone ? (
+              <div className="flex gap-2">
+                <a href={`tel:+91${booking.customer.phone}`}
+                  className="flex items-center gap-1 bg-[#f09942] text-white text-xs font-bold px-3 py-1.5 rounded-full">
+                  <span className="material-symbols-outlined text-sm">call</span>Call
                 </a>
-                <button className="text-red-400 text-lg flex items-center gap-2 px-4 py-2 hover:bg-red-900/20 rounded-lg">
-                    <span>⚠️</span> समस्या रिपोर्ट
-                </button>
-            </div>
-
-            {/* Completion Modal */}
-            {showingCompletion && (
-                <div className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in zoom-in duration-300">
-                    <div className="bg-[#1a1a2e] border-2 border-amber-500 rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl">
-                        <div className="text-6xl mb-4">🙏</div>
-                        <h2 className="text-3xl text-white font-bold mb-4">बधाई हो!</h2>
-                        <p className="text-amber-200 text-lg mb-2">पूजा सफलतापूर्वक पूरी हुई।</p>
-                        <p className="text-gray-400 mb-6">ग्राहक को रेटिंग के लिए SMS भेज दिया गया है। आपका भुगतान ₹{booking.panditPayout} 24 घंटे में होगा।</p>
-
-                        <button onClick={() => router.push(`/bookings/${booking.id}`)} className="w-full bg-amber-500 text-[#1a1a2e] font-bold text-xl py-4 rounded-xl">
-                            बंद करें
-                        </button>
-                    </div>
-                </div>
+                <a href={`https://wa.me/91${booking.customer.phone}`} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-1 bg-green-500 text-white text-xs font-bold px-3 py-1.5 rounded-full">
+                  WhatsApp
+                </a>
+              </div>
+            ) : (
+              <span className="text-xs text-gray-400">📞 Venue pahunchne ke baad dikhega</span>
             )}
-
+          </div>
         </div>
-    );
+      </section>
+
+      {/* Food allowance */}
+      {(booking.foodAllowanceAmount ?? 0) > 0 && (
+        <section className="bg-green-50 border border-green-200 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="material-symbols-outlined text-green-600" style={{ fontVariationSettings: "'FILL' 1" }}>restaurant</span>
+            <p className="text-sm font-bold text-green-800">Food Allowance Milega</p>
+          </div>
+          <div className="space-y-1 text-sm text-green-700">
+            {(booking.travelDays ?? 0) > 0 && <p>Travel {booking.travelDays} din × ₹1,000 = ₹{(booking.travelDays ?? 0) * 1000}</p>}
+            {(booking.pujaDaysWithAllowance ?? 0) > 0 && <p>Puja {booking.pujaDaysWithAllowance} din × ₹1,000 = ₹{(booking.pujaDaysWithAllowance ?? 0) * 1000}</p>}
+            <p className="font-bold text-green-800 border-t border-green-200 pt-1 mt-1">Total: ₹{booking.foodAllowanceAmount?.toLocaleString("en-IN")}</p>
+          </div>
+        </section>
+      )}
+
+      {/* Completion */}
+      {isCompleted && (
+        <section className="bg-green-50 border-2 border-green-300 rounded-xl p-5 text-center">
+          <span className="material-symbols-outlined text-green-500 text-5xl" style={{ fontVariationSettings: "'FILL' 1" }}>task_alt</span>
+          <h2 className="text-xl font-bold text-green-800 mt-2">Puja Sampann! 🙏</h2>
+          <p className="text-sm text-green-700 mt-1">Bahut achhe kaam ke liye Dhanyawad!</p>
+          <p className="text-xs text-green-600 mt-1">Payment 24 ghante mein process hogi.</p>
+          <Link href="/" className="inline-block mt-4 bg-[#f09942] text-white font-bold px-6 py-2.5 rounded-xl text-sm">
+            Dashboard par Jaain
+          </Link>
+        </section>
+      )}
+
+      {/* Sequential status buttons */}
+      <section className="bg-white rounded-xl border border-gray-200 p-4">
+        <h2 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-1">Live Status Updates</h2>
+        <p className="text-xs text-gray-400 mb-4">Har update par customer ko SMS jayega</p>
+
+        <div className="space-y-2">
+          {visibleSteps.map((step, idx) => {
+            const isDone = idx < completedCount;
+            const isCurrent = !isDone && step.requiredStatuses.includes(booking.status);
+            const isFuture = !isDone && !isCurrent;
+            const isLoading = actionLoading === step.id;
+
+            return (
+              <div key={step.id} className={`flex items-center gap-3 p-3 rounded-xl border-2 transition-all ${
+                isDone ? "border-green-200 bg-green-50" :
+                isCurrent ? "border-[#f09942] bg-[#f09942]/5" :
+                "border-gray-100 bg-white opacity-40"
+              }`}>
+                <div className={`w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 ${
+                  isDone ? "bg-green-500" : isCurrent ? "bg-[#f09942]" : "bg-gray-100"
+                }`}>
+                  {isDone ? (
+                    <span className="material-symbols-outlined text-white text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>check</span>
+                  ) : (
+                    <span className={`material-symbols-outlined text-xl ${isCurrent ? "text-white" : "text-gray-300"}`} style={isCurrent ? { fontVariationSettings: "'FILL' 1" } : {}}>
+                      {step.icon}
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <p className={`text-sm font-bold ${isDone ? "text-green-700" : isCurrent ? "text-gray-900" : "text-gray-300"}`}>
+                    {step.label}
+                  </p>
+                  <p className={`text-xs ${isDone ? "text-green-600" : isCurrent ? "text-gray-500" : "text-gray-300"}`}>
+                    {step.subLabel}
+                  </p>
+                </div>
+
+                {isDone && (
+                  <span className="text-green-600 font-bold text-xs">✓ Done</span>
+                )}
+
+                {isCurrent && (
+                  <button
+                    onClick={() => setConfirmStep(step)}
+                    disabled={isLoading}
+                    className={`flex-shrink-0 font-bold text-sm py-2.5 px-4 rounded-xl transition-colors ${
+                      step.id === "complete" ? "bg-green-600 hover:bg-green-700 text-white" : "bg-[#f09942] hover:bg-[#dc6803] text-white"
+                    } disabled:opacity-60 flex items-center gap-1`}
+                  >
+                    {isLoading ? (
+                      <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    ) : step.id === "complete" ? "Sampann ✓" : "Confirm"}
+                  </button>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* Documents */}
+      {booking.documents && booking.documents.length > 0 && (
+        <section className="bg-white rounded-xl border border-gray-200 p-4">
+          <h2 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3">Documents & Tickets</h2>
+          <div className="space-y-2">
+            {booking.documents.map((doc, i) => (
+              <div key={i} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-[#f09942]">description</span>
+                  <span className="text-sm font-medium text-gray-700">{doc.label}</span>
+                </div>
+                <a href={doc.url} target="_blank" rel="noopener noreferrer"
+                  className="text-xs font-bold text-[#f09942] border border-[#f09942] rounded-lg px-3 py-1.5">
+                  Dekhein
+                </a>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Confirm modal */}
+      {confirmStep && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center p-4">
+          <div className="bg-white rounded-2xl w-full max-w-sm p-5 space-y-4">
+            <div className="w-14 h-14 rounded-full bg-[#f09942]/10 flex items-center justify-center mx-auto">
+              <span className="material-symbols-outlined text-[#f09942] text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>
+                {confirmStep.icon}
+              </span>
+            </div>
+            <h3 className="text-lg font-bold text-gray-900 text-center">{confirmStep.label}</h3>
+            <p className="text-sm text-gray-500 text-center">
+              {confirmStep.id === "complete"
+                ? "Puja sampann mark karne par customer ko review link bheja jayega aur payment process hogi."
+                : `${confirmStep.subLabel} — customer ko SMS jayega.`}
+            </p>
+            <div className="flex gap-3">
+              <button onClick={() => setConfirmStep(null)} className="flex-1 border border-gray-200 text-gray-700 font-semibold py-3 rounded-xl text-sm">
+                Wapas
+              </button>
+              <button
+                onClick={() => void executeStep(confirmStep)}
+                disabled={actionLoading === confirmStep.id}
+                className={`flex-1 font-bold py-3 rounded-xl text-white text-sm disabled:opacity-60 flex items-center justify-center gap-1 ${
+                  confirmStep.id === "complete" ? "bg-green-600" : "bg-[#f09942]"
+                }`}
+              >
+                {actionLoading === confirmStep.id ? (
+                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : "Haan, Confirm Karein"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }

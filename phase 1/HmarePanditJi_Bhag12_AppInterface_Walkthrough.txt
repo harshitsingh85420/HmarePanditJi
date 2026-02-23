@@ -1,0 +1,418 @@
+﻿HmarePanditJi
+Sanskriti ko Digital Disha
+BHAG 12 — APP INTERFACE & REGISTRATION FLOW
+Ek Detailed Walkthrough — Customer App, Pandit App & Key Platform Principles
+This document is the standalone extraction of Bhag 12 from the HmarePanditJi Complete Business Idea Documentation. It provides a screen-by-screen walkthrough of exactly how users will experience the platform — from first download through to post-booking management. This is the source of truth for UI/UX decisions, feature specifications, and the 8 platform non-negotiables.
+8 NON-NEGOTIABLE PLATFORM PRINCIPLES (From Bhag 12)
+1.  Progressive Permissions — Location immediately optional, Contacts only during booking flow
+2.  Interactive Tutorial System — Skippable, replayable via help button on both apps
+3.  Muhurat Explorer — Dedicated calendar on home showing auspicious dates & puja counts
+4.  Muhurat Confirmation Session — Optional Rs.499 expert consultation before final payment
+5.  Dual Samagri Paths — Pandit's Fixed Package (non-negotiable) OR Platform Custom List
+6.  Food Allowance System — Rs.1,000/day for travel days + puja days (meals not provided)
+7.  Travel is Preferential — Pandit sets modes & distance ranges; platform handles all logistics
+8.  Pandit Device Information — Auto-detected & displayed on public profile as tech-readiness signal
+PART I — Customer App Experience
+The customer experience is built around one principle: explore everything without barriers, commit only when ready to book.
+1.1  Download & Initial Experience (No Registration Required)
+First Open
+User downloads 'HmarePanditJi' from Play Store / App Store.
+App opens with full-screen language selection:
+'Continue in English'  |  'Hindi mein jaari rakhein'
+Language sets entire app UI — all text, voice prompts, and notifications follow this choice.
+Interactive App Tutorial (Skippable)
+Immediately after language selection, a welcome tutorial begins. Never shown again unless the user explicitly replays it.
+Screen 1: 'Explore all pujas without registration'
+Screen 2: 'Check muhurat dates instantly on Muhurat Explorer'
+Screen 3: 'Book with verified Pandits from Delhi-NCR and nationwide'
+Screen 4: 'Manage travel, food, samagri — all in one place'
+Screen 5: 'Guest Mode — no need to register until you book!'
+Each screen: [Next] + prominent [Skip Tutorial] buttons. Last screen leads to Home Dashboard.
+Tutorial Replay: Persistent '?' help icon in top-right corner on every screen.
+Permission Requests — Progressive & Contextual
+DESIGN PRINCIPLE: Never ask for permissions upfront — earn them through context
+Location: Requested immediately but optional — clear visible benefit (nearby pandits + muhurat accuracy)
+Contacts: Requested ONLY when 'Add family members' tapped inside booking flow Step 2
+Camera: Requested ONLY when Pandit initiates video KYC during onboarding
+Location Permission (Immediate, Optional)
+Dialog: 'Allow location access to find Pandits near you and auto-fill your address for accurate muhurat calculations?'
+If ALLOWED: Auto-detects city + locality. User confirms/edits with map pin. Option to save as Primary Address.
+If DENIED: Home dashboard loads normally. No features blocked. User can set city manually.
+Contacts Permission (Delayed — Only During Booking)
+Never shown at launch.
+Only appears in Booking Step 2 (Event Details) when user taps 'Add family members'.
+Fully optional — user can type names manually.
+1.2  Guest Mode — Explore Without Registration
+The entire app is accessible without registration in Guest Mode. A persistent 'Exploring as Guest' badge appears in the header. Registration triggers only at first booking attempt.
+Full capabilities in Guest Mode:
+Browse Home Dashboard — search bar, quick category pills, featured Pandits
+Use Muhurat Explorer calendar — tap any date to see puja types + available muhurat windows
+View all puja categories and browse the full Pandit directory
+Search Pandits nationwide with full filters (date, budget, travel mode, language, distance)
+View complete Pandit profiles: photos, verified badges, device info, audio bio, reviews, pricing, samagri packages
+Run travel cost calculator — enter origin/destination for cost estimates
+Build custom samagri list with live platform pricing
+View full price breakdowns: dakshina + samagri + travel + food allowance + fees + GST
+REGISTRATION TRIGGER
+Registration begins ONLY when user taps 'Check Availability & Book' or 'Proceed to Pay'.
+All real prices are shown in guest mode — no bait-and-switch at any point.
+'Exploring as Guest' badge disappears once the user is logged in.
+1.3  Registration Flow — Phone OTP
+Step A — Phone Verification
+User enters 10-digit mobile number. Taps [Send OTP].
+6-digit OTP received via SMS. Auto-filled on supported devices.
+30-second countdown before [Resend OTP] becomes available.
+On correct OTP: system checks if phone is new or existing.
+Step B — Role & Name (New Users Only)
+Existing phone → auto-detected as Customer or Pandit, routed accordingly. No extra step.
+New Customer → 'What should we call you?' name field → [Get Started]
+New Pandit → name field + note: 'After login, complete your profile to start receiving bookings (~10 mins).'
+Post-Login Redirect Logic
+New Customer → Home Dashboard (/) with welcome toast
+Returning Customer → Home or [next] param (e.g., back to booking flow where left off)
+New Pandit → Pandit Onboarding Wizard (/onboarding)
+Returning Pandit (pending verification) → Dashboard with verification status card
+Admin → Admin Operations Center
+1.4  Home Dashboard — The Discovery Hub
+Zone 1 — Hero Search Bar
+Large search: 'Search puja, pandit, or occasion...'
+Below search: horizontal pill chips — Vivah | Griha Pravesh | Satyanarayan | Mundan | Annaprashan | + More
+'Search All India' toggle — expands results beyond Delhi-NCR.
+Zone 2 — Muhurat Explorer Calendar (Core Non-Negotiable)
+Unique discovery path: find auspicious dates first, then see which pujas are available.
+Horizontal scrollable monthly calendar strip just below the search bar.
+Each date shows a badge with the COUNT of puja types that have an auspicious muhurat that day.
+Dates with 3+ auspicious pujas highlighted in amber.
+Tapping a date opens a bottom drawer showing:
+List of all puja types with at least 1 muhurat window on that date
+Time windows for each (e.g., 'Griha Pravesh: 7:30 AM – 9:00 AM, 5:00 PM – 6:30 PM')
+[Book Now] button per puja → pandit search filtered by that puja + date
+Zone 3 — Featured Pandits Carousel
+Horizontally scrollable verified Pandit cards near user's location.
+Each card: Profile photo | Name | Verified badge | Rating | Specializations | Starting price
+[View Profile]  |  [Save to Favorites] CTAs.
+Zone 4 — Guest Badge
+Persistent in header: 'Exploring as Guest  |  [Sign In]'
+Tapping [Sign In] opens login modal inline — user never leaves the current page.
+1.5  Pandit Search, Listing & Profile
+Filter Panel
+Date of Ceremony — date picker with muhurat availability overlay
+Budget (Dakshina) — range slider: Rs.1,000 – Rs.1,00,000+
+Distance from Venue — 0-50 km | 50-200 km | 200-500 km | Anywhere in India
+Travel Mode Preference — Self-Drive | Cab | Train | Flight (multi-select)
+Language — Hindi | English | Sanskrit | Bengali | Tamil | Telugu | Kannada | Marathi (multi-select)
+Puja Type — searchable multi-select from full puja catalog
+Verified Only toggle (on by default) | Gender preference
+Sort Options
+Relevance | Rating (High to Low) | Price (Low to High) | Distance (Nearest First) | Popularity
+Pandit Profile Page
+Hero Section
+Full-width cover + circular profile photo with gold border for Verified status
+Name + Verification badges: 'Aadhaar Verified'  'Video KYC Done'  '50+ Bookings'
+Languages | Specializations | Experience years | Rating + review count | Completion rate
+Device Information Card (Non-Negotiable Trust Signal)
+DEVICE INFO DISPLAY (on public profile)
+Smartphone: Samsung Galaxy A54  |  Android 14
+Last active: 2 hours ago
+Purpose: Shows customers that Pandit Ji has a modern device — can receive WhatsApp/calls reliably.
+Pandit can update this in profile settings if they change devices.
+Audio Bio (Voice Introduction)
+Pandit records 1-2 minute voice bio during onboarding: 'Apne bare mein bolein...'
+Displayed on profile as a playable audio card: [Play — Pandit Ji ki Awaaz Sunein]
+Duration shown. Hindi label. Builds personal connection before booking.
+Puja Services, Reviews, Travel Preferences
+Services table: each puja with dakshina amount | duration | [Book Now] CTA
+Samagri link next to each puja: 'Samagri: Rs.X,XXX  [View & Choose]' → opens Samagri Modal
+Reviews: overall rating + per-dimension breakdown (Knowledge, Punctuality, Communication, Food Hospitality)
+Travel info: modes available and distance ranges displayed clearly
+1.6  Booking Wizard — 6 Steps
+A 6-step wizard with progress indicator. State saved at each step — user can go Back without losing data.
+Step 1 — Puja & Muhurat Selection
+Puja type (pre-selected from profile or dropdown)
+Calendar with muhurat overlay — auspicious windows highlighted in amber
+Muhurat engine suggests 3-5 recommended time windows for selected date + puja type
+User selects preferred window OR 'Flexible — show me options'
+Step 2 — Event Details
+Full venue address with map pin for accuracy
+Number of attendees | Multi-day toggle → date range picker
+Family members: [Add from Contacts] (triggers Contacts permission) OR [Type Manually]
+Gotra (optional, pre-filled from profile if available)
+Special instructions: 'Specific requests or notes for Pandit Ji' (textarea)
+Step 3 — Samagri Selection
+PATH A: Pandit's Fixed Package
+PATH B: Platform Custom List
+Pre-defined item list by Pandit
+Customer builds their own list
+3 tiers: Basic / Standard / Premium
+Items from platform vendors
+Fixed, non-negotiable price set by Pandit
+Live market prices per item
+Customer CANNOT modify items or price
+Customer adds / removes items freely
+Amber badge: 'Fixed Package'
+Blue badge: 'Custom List'
+Only one path can be selected — mutually exclusive.
+Cart icon appears in header with item count once selection is made.
+Step 4 — Travel & Accommodation
+Skipped automatically for local bookings. Shown only when Pandit is outstation.
+Travel Mode Selection
+Shows modes this Pandit has enabled for this distance range
+User picks: Self-Drive | Cab/Bike | Bus | Train | Flight
+Each mode shows estimated cost (from hardcoded Delhi-NCR distance matrix)
+Self-Drive rate: Rs.12/km x distance x 2 (round trip)
+Other modes: 'Our team will book and handle all logistics'
+Food Allowance — Auto-Applied (Non-Negotiable Platform Policy)
+FOOD ALLOWANCE: Rs.1,000 / day — Automatic & Non-Negotiable
+AUTO-ADDED for every travel day (Pandit away from home city)
+AUTO-ADDED for puja day if customer does NOT provide meals
+Puja Day Meal Toggle: 'Will you provide meals for Pandit Ji on the day of puja?'
+   YES, I will provide meals  →  Food allowance NOT added for puja day
+   No, please add food allowance  →  Rs.1,000 added for puja day
+This is NON-NEGOTIABLE platform policy to ensure Pandit welfare.
+Accommodation (Multi-Day / Outstation)
+[Customer will arrange] — no cost added, customer provides hotel details post-booking
+[Book via Platform] — partner hotel selection near venue, user picks hotel + nights, cost added
+Local Travel: If primary mode is NOT Self-Drive → user must also book Cab/Bike for Hotel ↔ Venue segments
+Step 5 — Price Review & Backup Guarantee
+Puja Dakshina
+Rs. 35,000
+Samagri (Pandit's Standard Package)
+Rs.  5,500
+Travel (Train — Haridwar to Delhi, return)
+Rs.  2,400
+Food Allowance (2 travel days + 1 puja day — meals not provided)
+Rs.  3,000
+Accommodation (2 nights via Platform)
+Rs.  3,000
+Local Cab (Hotel to Venue, return)
+Rs.    800
+Subtotal
+Rs. 49,700
+Platform Service Fee (15% of Dakshina)
+Rs.  5,250
+Travel Service Fee (5% of Travel)
+Rs.    215
+Samagri Service Fee (10% of Samagri)
+Rs.    550
+GST (18% on all Platform Fees)
+Rs.  1,081
+GRAND TOTAL
+Rs. 56,796
+Backup Guarantee (Optional Add-On)
+Checkbox: '[Add] Backup Guarantee — Rs.9,999'
+'If Pandit Ji cannot arrive for any reason, we arrange an equally qualified replacement within 4 hours. Guaranteed or full refund.'
+If checked: Rs.9,999 added to Grand Total, updated live.
+Step 5b — Optional Muhurat Confirmation Session
+Shown as a distinct screen before proceeding to payment:
+'Muhurat Selection: You selected [Puja] on [Date] at [Window]. Confirm or consult an expert?'
+[Confirm & Proceed] — Free. Proceeds to payment.
+[Consult Expert — Rs.499] — 30-min call with Jyotishi to validate/refine muhurat.
+Step 6 — Payment
+Compact price breakdown recap
+Payment methods: UPI | Credit/Debit Card | Net Banking | Wallet
+Advance payment policy: 50% now, remainder after puja completion (for bookings > Rs.5,000)
+Razorpay integration. On success: Booking Confirmation screen with ID, next steps, [Share] button.
+1.7  Post-Booking Management Screen
+Accessible at /dashboard/bookings/{id}. Requires login.
+Tab 1 — Unified Itinerary
+Combined puja timing + full travel schedule in a single timeline. Day-by-day, hour-by-hour.
+SAMPLE ITINERARY — Vivah Puja
+Day 1 (15 Mar) — TRAVEL DAY  [Food Allowance: Rs.1,000]
+  4:00 PM  — Cab to Haridwar Railway Station
+  5:15 PM  — Board Shatabdi Express (PNR: XXXXXXXX)
+  8:30 PM  — Arrive New Delhi Rly Station
+  9:00 PM  — Cab to Hotel Sunrise, Safdarjung Enclave
+Day 2 (16 Mar) — PUJA DAY  [Food Allowance: Rs.1,000 — Meals not provided]
+  9:00 AM  — Cab from Hotel to Venue (47 Sundar Nagar)
+ 10:00 AM  — Muhurat: Vivah Puja begins (~2 hrs)
+Day 3 (17 Mar) — RETURN DAY  [Food Allowance: Rs.1,000]
+ 10:00 AM  — Checkout. Cab to New Delhi Rly Station for return
+Tab 2 — Live Tracking (Phase 2)
+Deferred. Phase 1: Status text updates shown instead (e.g., 'Pandit En Route').
+Tab 3 — Chat (Phase 2)
+Deferred. Phase 1: Pandit's phone number revealed after booking is confirmed.
+Tab 4 — Documents
+E-tickets (train/flight) — uploaded by admin after manual booking
+Hotel voucher (if platform-booked)
+Cab booking confirmations
+Pandit's Verification Certificate — downloadable PDF
+Muhurat Patrika — downloadable auspicious timing certificate (brand-designed PDF, unique to each booking)
+Food Allowance Receipt — line-item invoice per day
+Status Timeline & Actions
+Visual timeline: Created → Confirmed → Travel Booked → Pandit En Route → Arrived → In Progress → Completed
+Each milestone: timestamp + notification log
+Cancel button (visible for statuses: Created, Confirmed, Travel Booked) → refund estimate modal
+First booking: guided walkthrough overlay of management features with [Skip Tips].
+PART II — Pandit App Experience
+Built for non-tech users. Voice first, Hindi first, zero ambiguity. Every screen has a VoiceButton that reads all content aloud.
+2.1  Registration & Voice-First Onboarding
+First Open
+Immediate voice prompt: 'Welcome Pandit Ji. Registration shuru karen? Haan bolen ya Nahi bolen.'
+[Phir Se Sunein] (Replay) button always visible on every screen.
+6-Step Onboarding Wizard
+Each step has a VoiceButton that reads Hindi instructions aloud. Pandit can speak responses (voice-to-text) or type manually.
+Step 1 — Basic Information
+Profile photo upload (circular avatar)
+Full name | Date of birth | Gender | Home city (searchable) | Home state
+Experience years | About You bio (50-300 chars — shown to customers on profile)
+Aadhaar number (masked) | PAN number
+Step 2 — Puja Specializations
+Grid of clickable pill cards for all supported puja types (min 1 required)
+Language pills: which languages puja is performed in
+Vedic degree dropdown | Gotra (optional) | Special certifications (tag-input, max 5)
+Step 3 — Travel Preferences
+'Kya aap door ke booking ke liye travel karenge?' Toggle: YES / NO
+If YES: For each mode, set distance range (km to km):
+Self-Drive: Rs.12/km platform rate | Cab/Bike | Bus | Train | Flight
+Accommodation preference | Minimum advance notice days for outstation bookings
+Platform note: 'Hotel customer khud arrange karega ya hum platform se book karenge.'
+Step 4 — Samagri Packages
+Toggle: 'Kya aap puja ke liye samagri le kar aaenge?' YES / NO
+If YES: 3 tiers (Basic / Standard / Premium) per puja type
+Each package: Name, single fixed price (non-negotiable), item list (min 3 items)
+Preview card shows exactly how it will appear to customers. At least 1 package required.
+Step 5 — Document Upload & Video KYC
+Uploads: Aadhaar Front | Aadhaar Back | Selfie with Aadhaar (JPG/PNG/PDF, max 5MB each)
+Video KYC: 30-second recording. Pandit must say on camera:
+'Mera naam [apna naam] hai'  |  'Main pichle [X] varshon se Pandit hun'
+'Main [shehar] se hun'  |  'Yeh mera Aadhaar card hai' (hold to camera)
+Uploaded via browser MediaRecorder API.
+Step 6 — Bank Details
+Account Holder Name | Bank Name (searchable, 15 major banks) | Account Number | IFSC Code
+[?] IFSC help icon: explains 'Yeh 11 ankon ka code hai' with passbook image
+Account Type: Savings / Current | Confirm Account Number must match
+Warning: 'Sirf apni khud ki bank account bharein.'
+Submit → Confetti animation + 'Badhai ho! Aapki profile jama ho gayi.' → [Dashboard par jaayein]
+2.2  Pandit Dashboard — The Work Hub
+Urgent Alert Zone (Top Priority)
+NEW BOOKING ALERT — Pulsing Amber Border
+Nayi Booking Aayi Hai!  [1 pending]
+Vivah Puja  |  16 March 2026  |  3 din baad
+Delhi — Safdarjung Enclave  |  Customer: Rajesh Ji
+Estimated Earning: Rs.21,000 – Rs.24,000
+Jawab dene ka samay: 04:32:18  (timer goes red when < 1 hour)
+[Dekhein & Jawab Dein] button
+Main Dashboard Zones
+Today's View: 'Aaj [X] booking hain' — times, addresses, [Navigate] and [Call Customer] per booking
+Online/Offline Toggle: Big full-width button. GO ONLINE (green) / GO OFFLINE (gray). Confirmation on going offline.
+Earnings Widget: 'Kal ki aamdani: Rs.8,500'  |  'Is mahine ki: Rs.52,000'  |  [Pura Vivran Dekhein]
+Quick Stats: Rating 4.9 | Completion Rate 98% | Total Bookings 142 | Traveled 1,200 km this month
+Navigation: Dashboard | Bookings | Calendar | Earnings | Profile (sidebar desktop / bottom tab mobile)
+2.3  Receiving & Accepting a Booking
+Booking Request Screen — 5 Sections
+Section 1 — Event Details
+Puja name (large) | Date | Muhurat time | Duration
+Address: area only pre-confirmation, full address revealed post-accept
+Customer first name only | Gotra | Customer rating
+Section 2 — Samagri Choice Indicator
+Amber badge: 'Customer chose: Pandit's Standard Package (Fixed — Rs.5,500)'  OR
+Blue badge: 'Customer chose: Platform Custom List'
+Section 3 — Food Allowance
+'Food Allowance Included: Rs.3,000 (2 travel days + 1 puja day — meals not provided by customer)'
+Section 4 — Earnings Breakdown
+Scenario A: Pandit's Package
+Scenario B: Platform List
+Dakshina: Rs. 35,000
+Dakshina: Rs.35,000
+Platform Fee (15%): - Rs.5,250
+Platform Fee (15%): - Rs.5,250
+Net Dakshina: Rs.29,750
+Net Dakshina: Rs.29,750
+Travel Earnings: Rs.12,000
+Travel Earnings: Rs.12,000
+Food Allowance: Rs. 3,000
+Food Allowance: Rs. 3,000
+Samagri Earnings: Rs. 8,000
+Samagri Earnings: Rs. 0
+──────────
+──────────
+Total to Pandit: Rs.52,750
+Total to Pandit: Rs.44,750
+Section 5 — Travel Preview + Accept/Reject
+Travel mode selected by customer shown with itinerary preview
+Accommodation note: 'Customer will arrange' OR 'Hotel [Name] booked at [Address]'
+[Accept Booking] (green, full-width) → status CONFIRMED, customer phone revealed, SMS triggered
+[Reject] (outlined red) → dropdown reason → submit. Booking returns to platform queue for reassignment.
+6-Hour Expiry Timer: Pandit has 6 hours to respond. Auto-expires if no response — admin alerted.
+2.4  'I'm Here' Status Updates
+SAMPLE PANDIT TRAVEL ITINERARY
+Day 1 (Travel Day)  [Rs.1,000 Food Allowance]
+  4:00 PM  — Cab to airport (OLA#XXXX)  [View QR]
+  6:00 PM  — Flight AI-502 to Mumbai (PNR: XXXXXX)  [View e-ticket]
+  8:30 PM  — Cab to Hotel Saffron Inn, Andheri (OYO#XXXX)
+Day 2 (Puja Day)  [Rs.1,000 Food Allowance — meals not provided]
+  9:00 AM  — Cab from Hotel to Venue, Juhu
+ 10:00 AM  — MUHURAT — Vivah Puja begins
+Day 3 (Return Day)  [Rs.1,000 Food Allowance]
+ 10:00 AM  — Checkout. Cab to Airport
+Sequential Status Buttons (One at a Time)
+[Started Journey] → Status: PANDIT_EN_ROUTE
+[Reached Airport/Station] → Status update logged
+[Reached Hotel] → Status update logged
+[Reached Venue] → Status: PANDIT_ARRIVED — Customer notified
+[Puja Started] → Status: PUJA_IN_PROGRESS
+[Puja Complete] → Status: COMPLETED — Payment triggered within 24 hours
+Each tap: optional GPS capture + customer notification. Pre-written message option.
+2.5  Pandit Profile & Growth Management
+My Profile: All onboarding fields editable. Device info displayed + [Update Device Info] button.
+Travel badges: 'Delhi-NCR Expert', 'All India Travel Expert' (milestone-based)
+My Samagri Lists: Edit packages, view demand insights, see customer custom list requests
+My Calendar: Block/unblock dates, set recurring unavailability (e.g., every Tuesday)
+Earnings Report: Per-category breakdown (Dakshina | Travel | Food Allowance | Samagri) + payout status
+Tutorial Library: All categories with voiceover, accessible anytime via ? icon
+PART III — Phase 1 Implementation Scope
+What is IN SCOPE for Phase 1 vs. DEFERRED to Phase 2+.
+3.1  Non-Negotiable Checklist — Phase 1
+Customer Web App (PWA)
+Guest mode with 'Exploring as Guest' badge throughout
+Skippable tutorial on first load + replayable ? icon
+Progressive permissions: location on launch, contacts during booking only
+Muhurat Explorer calendar (seed JSON data for 6 months)
+Full Pandit search with filters + sort
+Pandit profile: verification badges, device info card, audio bio player, samagri modal
+Dual samagri selection (Pandit Package OR Custom List — mutually exclusive)
+6-step booking wizard with all business rules implemented
+Food allowance auto-calc: Rs.1,000/day × (travel days + puja days meals-not-provided)
+Accommodation: Customer arranges OR Platform books
+Transparent GST-compliant price breakdown
+Backup Guarantee opt-in (Rs.9,999 checkbox) at checkout
+Muhurat Confirmation Session placeholder screen
+Razorpay: 50% advance for bookings > Rs.5,000
+Post-booking dashboard: itinerary + status timeline + documents tab
+Muhurat Patrika PDF generation
+Cancel + refund estimate flow
+Reviews (4 dimensions) + favorites management
+Pandit Dashboard (PWA)
+Hindi TTS voice on every onboarding step
+6-step wizard: basic info → specializations → travel prefs → samagri → KYC → bank
+Profile photo + audio bio recording
+Device auto-capture (User-Agent) displayed on profile
+Dashboard: schedule, online/offline toggle, earnings, stats
+New booking alert with 6-hour countdown timer
+Booking request screen: all 5 sections + accept/reject flow
+Sequential I'm Here buttons (6 milestones)
+Digital wallet with travel documents
+Samagri list management + demand insights
+Calendar: block/unblock + recurring rules
+Earnings per-category breakdown
+Tutorial library with voice, always accessible
+Admin Operations Center
+Travel queue: calculate cost → copy to IRCTC/MMT → mark booked with reference
+Pandit verification queue: review docs + video KYC, approve/reject
+Payout queue: mark as paid with bank reference
+Cancellation queue: approve refund (via Razorpay) or reject
+3.2  Deferred to Phase 2+
+Live GPS tracking (WebSocket) — Phase 2. Phase 1: I'm Here text updates.
+In-app chat — Phase 2. Phase 1: Phone number revealed after booking confirmed.
+Automated travel APIs (IRCTC, MakeMyTrip, Uber) — Phase 2. Phase 1: Admin manually books.
+Elasticsearch — Phase 2. Phase 1: PostgreSQL full-text search.
+AI matching engine — Phase 2. Phase 1: Distance + availability filter.
+Backup fulfillment system — Phase 2. Phase 1: Rs.9,999 collected, manual ops fulfillment.
+React Native mobile apps — Phase 2. Phase 1: PWA for both Customer and Pandit.
+Multi-language UI beyond Hindi/English — Phase 2.
+B2B portal | NRI booking flow | Muhurat Consultation fulfilment — Phase 2.
+Samagri supplier live API (Blinkit, Zepto) — Phase 2. Phase 1: Static seed pricing.
+Travel emergency helpline (1800-TRAVEL-PANDIT) — Phase 3.
+Extracted from HmarePanditJi Complete Business Idea Documentation
+Bhag 12 — Standalone Reference Document  |  February 2026  |  Confidential
+Jai Hind — HmarePanditJi

@@ -1,0 +1,95 @@
+
+> @hmarepanditji/admin@0.1.0 dev C:\Users\ss\Documents\HmarePanditJi\apps\admin
+> next dev --port 3003
+
+  ▲ Next.js 14.2.0
+  - Local:        http://localhost:3003
+
+ ✓ Starting...
+ ✓ Ready in 9.7s
+ ○ Compiling / ...
+ ✓ Compiled / in 6s (611 modules)
+ GET / 200 in 6304ms
+ ○ Compiling /bookings ...
+ ✓ Compiled /bookings in 3.5s (633 modules)
+ GET /bookings 200 in 3644ms
+ ✓ Compiled /pandits in 347ms (625 modules)
+ GET /pandits 200 in 471ms
+ ✓ Compiled /payouts in 300ms (637 modules)
+ GET /payouts 200 in 374ms
+ ✓ Compiled /cancellations in 298ms (643 modules)
+ GET /cancellations 200 in 367ms
+ ○ Compiling /travel-desk ...
+ ✓ Compiled /travel-desk in 1081ms (695 modules)
+ GET /travel-desk 200 in 1221ms
+ ✓ Compiled /support in 363ms (701 modules)
+ GET /support 200 in 439ms
+ ✓ Compiled /settings in 265ms (707 modules)
+ GET /settings 200 in 328ms
+ GET / 200 in 48ms
+ ○ Compiling /b2b/bookings ...
+ ✓ Compiled /b2b/bookings in 663ms (652 modules)
+ GET /b2b/bookings 200 in 908ms
+ ✓ Compiled /b2b/invoices in 444ms (658 modules)
+ GET /b2b/invoices 200 in 591ms
+ ✓ Compiled /b2b/planners in 375ms (664 modules)
+ GET /b2b/planners 200 in 504ms
+ ✓ Compiled /bookings in 283ms (347 modules)
+ GET /bookings 200 in 421ms
+ ✓ Compiled /bookings/[id] in 397ms (681 modules)
+ GET /bookings/sample 200 in 903ms
+ ✓ Compiled /cancellations in 136ms (356 modules)
+ GET /cancellations 200 in 240ms
+ ✓ Compiled /customers in 263ms (692 modules)
+ GET /customers 200 in 351ms
+ ✓ Compiled /helpline in 286ms (698 modules)
+ GET /helpline 200 in 372ms
+ ✓ Compiled /login in 425ms (704 modules)
+ GET /login 200 in 524ms
+ ○ Compiling /operations ...
+ ✓ Compiled /operations in 586ms (710 modules)
+ GET /operations 200 in 694ms
+ ✓ Compiled /pandits in 491ms (376 modules)
+ GET /pandits 200 in 692ms
+ ○ Compiling /pandits/[panditId] ...
+ ✓ Compiled /pandits/[panditId] in 904ms (742 modules)
+ GET /pandits/sample 200 in 1464ms
+ ✓ Compiled /payouts in 231ms (407 modules)
+ GET /payouts 200 in 371ms
+ ✓ Compiled /settings in 168ms (411 modules)
+ GET /settings 200 in 320ms
+ ✓ Compiled /settings/launch-checklist in 327ms (758 modules)
+ GET /settings/launch-checklist 200 in 412ms
+ ✓ Compiled /support in 340ms (419 modules)
+ GET /support 200 in 507ms
+ ✓ Compiled /travel-desk in 330ms (426 modules)
+ GET /travel-desk 200 in 477ms
+ ○ Compiling /travel-queue ...
+ ✓ Compiled /travel-queue in 609ms (775 modules)
+ GET /travel-queue 200 in 699ms
+ ○ Compiling /verification ...
+ ✓ Compiled /verification in 596ms (781 modules)
+ GET /verification 200 in 678ms
+ GET / 200 in 65ms
+ GET /b2b/bookings 200 in 56ms
+ GET /b2b/invoices 200 in 69ms
+ GET /b2b/planners 200 in 72ms
+ GET /bookings 200 in 54ms
+ GET /bookings/sample 200 in 67ms
+ GET /cancellations 200 in 70ms
+ GET /customers 200 in 43ms
+ GET /helpline 200 in 79ms
+ GET /login 200 in 80ms
+ GET /operations 200 in 49ms
+ GET /pandits 200 in 70ms
+ GET /pandits/sample 200 in 99ms
+ GET /payouts 200 in 110ms
+ GET /settings 200 in 79ms
+ GET /settings/launch-checklist 200 in 56ms
+ GET /support 200 in 65ms
+ GET /travel-desk 200 in 95ms
+ GET /travel-queue 200 in 74ms
+ GET /verification 200 in 83ms
+C:\Users\ss\Documents\HmarePanditJi\apps\admin:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @hmarepanditji/admin@0.1.0 dev: `next dev --port 3003`
+Exit status 3221225786

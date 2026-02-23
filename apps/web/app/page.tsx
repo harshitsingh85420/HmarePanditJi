@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 // ---------------------------------------------------------------------------
 // CONSTANTS
@@ -33,6 +33,13 @@ const MONTHS = [
   "July", "August", "September", "October", "November", "December",
 ];
 const DAYS = ["S", "M", "T", "W", "T", "F", "S"];
+const TUTORIAL_SLIDES = [
+  "Explore all pujas without registration.",
+  "Check muhurat dates instantly on Muhurat Explorer.",
+  "Book with verified Pandits from Delhi-NCR and nationwide.",
+  "Manage travel, food, samagri — all in one place.",
+  "Guest Mode — no need to register until you book.",
+];
 
 // ---------------------------------------------------------------------------
 // QUICK SEARCH BAR
@@ -373,8 +380,199 @@ function FeaturedPanditsSection() {
 // MAIN PAGE
 // ---------------------------------------------------------------------------
 export default function HomePage() {
+  const searchParams = useSearchParams();
+  const [language, setLanguage] = useState<"en" | "hi" | null>(null);
+  const [showLanguageModal, setShowLanguageModal] = useState(false);
+  const [showTutorial, setShowTutorial] = useState(false);
+  const [tutorialIndex, setTutorialIndex] = useState(0);
+  const [showLocationPrompt, setShowLocationPrompt] = useState(false);
+  const [locationMessage, setLocationMessage] = useState("");
+
+  useEffect(() => {
+    const savedLanguage = localStorage.getItem("hpj_language");
+    const tutorialSeen = localStorage.getItem("hpj_tutorial_seen") === "1";
+    const locationPrompted = localStorage.getItem("hpj_location_prompted") === "1";
+
+    if (!savedLanguage) {
+      setShowLanguageModal(true);
+      return;
+    }
+
+    setLanguage(savedLanguage === "hi" ? "hi" : "en");
+
+    if (!tutorialSeen || searchParams.get("tutorial") === "1") {
+      setShowTutorial(true);
+      setTutorialIndex(0);
+    }
+
+    if (!locationPrompted) {
+      setShowLocationPrompt(true);
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    const openTutorial = () => {
+      setShowTutorial(true);
+      setTutorialIndex(0);
+    };
+    window.addEventListener("hpj-open-tutorial", openTutorial);
+    return () => window.removeEventListener("hpj-open-tutorial", openTutorial);
+  }, []);
+
+  function handleLanguageSelect(nextLanguage: "en" | "hi") {
+    localStorage.setItem("hpj_language", nextLanguage);
+    setLanguage(nextLanguage);
+    setShowLanguageModal(false);
+    setShowTutorial(true);
+    setTutorialIndex(0);
+  }
+
+  function closeTutorial(markSeen: boolean) {
+    if (markSeen) {
+      localStorage.setItem("hpj_tutorial_seen", "1");
+    }
+    setShowTutorial(false);
+  }
+
+  function nextTutorialSlide() {
+    if (tutorialIndex >= TUTORIAL_SLIDES.length - 1) {
+      closeTutorial(true);
+      return;
+    }
+    setTutorialIndex((prev) => prev + 1);
+  }
+
+  function skipLocationPrompt() {
+    localStorage.setItem("hpj_location_prompted", "1");
+    setShowLocationPrompt(false);
+  }
+
+  function requestLocation() {
+    if (!navigator.geolocation) {
+      setLocationMessage("Location is not supported on this device. You can set city manually.");
+      skipLocationPrompt();
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      () => {
+        setLocationMessage("Location enabled. Nearby pandits and muhurat accuracy are now improved.");
+        skipLocationPrompt();
+      },
+      () => {
+        setLocationMessage("Location was skipped. You can continue in guest mode and set city manually.");
+        skipLocationPrompt();
+      },
+    );
+  }
+
   return (
     <>
+      {/* First-open language selection */}
+      {showLanguageModal && (
+        <div className="fixed inset-0 z-[120] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-md bg-white rounded-2xl p-6 border border-amber-100 shadow-2xl text-center">
+            <h2 className="text-xl font-bold text-gray-900 mb-2">Choose App Language</h2>
+            <p className="text-sm text-gray-500 mb-5">Continue in your preferred language.</p>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={() => handleLanguageSelect("en")}
+                className="rounded-xl border border-slate-200 px-4 py-3 font-semibold text-slate-700 hover:bg-slate-50"
+              >
+                Continue in English
+              </button>
+              <button
+                onClick={() => handleLanguageSelect("hi")}
+                className="rounded-xl border border-amber-300 px-4 py-3 font-semibold text-amber-700 bg-amber-50 hover:bg-amber-100"
+              >
+                Hindi mein jaari rakhein
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Skippable tutorial */}
+      {showTutorial && (
+        <div className="fixed inset-0 z-[115] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-lg bg-white rounded-2xl p-6 border border-slate-200 shadow-2xl">
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                Tutorial {tutorialIndex + 1}/{TUTORIAL_SLIDES.length}
+              </p>
+              <button onClick={() => closeTutorial(true)} className="text-xs font-semibold text-slate-500 hover:text-slate-700">
+                Skip Tutorial
+              </button>
+            </div>
+            <h3 className="text-2xl font-bold text-slate-900 mb-4">{TUTORIAL_SLIDES[tutorialIndex]}</h3>
+            <div className="flex items-center gap-1 mb-6">
+              {TUTORIAL_SLIDES.map((_, index) => (
+                <span key={index} className={`h-1.5 flex-1 rounded-full ${index <= tutorialIndex ? "bg-[#f49d25]" : "bg-slate-200"}`} />
+              ))}
+            </div>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => closeTutorial(true)}
+                className="px-4 py-2 rounded-lg border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50"
+              >
+                Skip
+              </button>
+              <button
+                onClick={nextTutorialSlide}
+                className="px-4 py-2 rounded-lg bg-[#f49d25] text-sm font-semibold text-white hover:bg-[#e08c14]"
+              >
+                {tutorialIndex === TUTORIAL_SLIDES.length - 1 ? "Start Exploring" : "Next"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Progressive location permission */}
+      {language && showLocationPrompt && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[105] w-[calc(100%-2rem)] max-w-2xl bg-white border border-amber-200 rounded-2xl shadow-xl p-4">
+          <p className="text-sm font-semibold text-slate-900 mb-1">
+            Allow location access to find nearby Pandits and improve muhurat accuracy?
+          </p>
+          <p className="text-xs text-slate-500 mb-3">
+            This is optional. You can continue without sharing location.
+          </p>
+          <div className="flex gap-2 justify-end">
+            <button
+              onClick={skipLocationPrompt}
+              className="px-3 py-2 rounded-lg border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50"
+            >
+              Not Now
+            </button>
+            <button
+              onClick={requestLocation}
+              className="px-3 py-2 rounded-lg bg-[#f49d25] text-sm font-semibold text-white hover:bg-[#e08c14]"
+            >
+              Allow Location
+            </button>
+          </div>
+        </div>
+      )}
+
+      {locationMessage && (
+        <div className="fixed bottom-6 right-6 z-[106] bg-slate-900 text-white text-xs px-3 py-2 rounded-lg shadow-lg">
+          {locationMessage}
+        </div>
+      )}
+
+      {/* Tutorial replay */}
+      <button
+        onClick={() => {
+          setShowTutorial(true);
+          setTutorialIndex(0);
+        }}
+        className="fixed top-24 right-6 z-[104] w-10 h-10 rounded-full bg-white border border-slate-200 shadow-md flex items-center justify-center text-slate-700 hover:bg-slate-50"
+        aria-label="Replay tutorial"
+        title="Replay tutorial"
+      >
+        ?
+      </button>
+
       {/* HERO SECTION */}
       <section className="relative overflow-hidden bg-gradient-to-br from-amber-50 via-orange-50 to-white">
         {/* Mandala pattern overlay */}

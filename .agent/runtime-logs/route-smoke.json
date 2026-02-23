@@ -1,0 +1,482 @@
+[
+    {
+        "app":  "web",
+        "route":  "/",
+        "initial":  "http://localhost:3000/",
+        "final":  "http://localhost:3000/",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "web",
+        "route":  "/about",
+        "initial":  "http://localhost:3000/about",
+        "final":  "http://localhost:3000/about",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "web",
+        "route":  "/booking/checkout",
+        "initial":  "http://localhost:3000/booking/checkout",
+        "final":  "http://localhost:3000/booking/checkout",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "web",
+        "route":  "/booking/new",
+        "initial":  "http://localhost:3000/booking/new",
+        "final":  "http://localhost:3000/booking/new",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "web",
+        "route":  "/booking/sample",
+        "initial":  "http://localhost:3000/booking/sample",
+        "final":  "http://localhost:3000/booking/sample",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "web",
+        "route":  "/booking-confirmed/sample",
+        "initial":  "http://localhost:3000/booking-confirmed/sample",
+        "final":  "http://localhost:3000/booking-confirmed/sample",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "web",
+        "route":  "/cancellation-policy",
+        "initial":  "http://localhost:3000/cancellation-policy",
+        "final":  "http://localhost:3000/cancellation-policy",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "web",
+        "route":  "/dashboard",
+        "initial":  "http://localhost:3000/dashboard",
+        "final":  "http://localhost:3000/dashboard",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "web",
+        "route":  "/dashboard/bookings",
+        "initial":  "http://localhost:3000/dashboard/bookings",
+        "final":  "http://localhost:3000/dashboard/bookings",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "web",
+        "route":  "/dashboard/bookings/sample",
+        "initial":  "http://localhost:3000/dashboard/bookings/sample",
+        "final":  "http://localhost:3000/dashboard/bookings/sample",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "web",
+        "route":  "/dashboard/bookings/sample/cancel",
+        "initial":  "http://localhost:3000/dashboard/bookings/sample/cancel",
+        "final":  "http://localhost:3000/dashboard/bookings/sample/cancel",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "web",
+        "route":  "/dashboard/bookings/sample/review",
+        "initial":  "http://localhost:3000/dashboard/bookings/sample/review",
+        "final":  "http://localhost:3000/dashboard/bookings/sample/review",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "web",
+        "route":  "/dashboard/favorites",
+        "initial":  "http://localhost:3000/dashboard/favorites",
+        "final":  "http://localhost:3000/dashboard/favorites",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "web",
+        "route":  "/dashboard/notifications",
+        "initial":  "http://localhost:3000/dashboard/notifications",
+        "final":  "http://localhost:3000/dashboard/notifications",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "web",
+        "route":  "/dashboard/profile",
+        "initial":  "http://localhost:3000/dashboard/profile",
+        "final":  "http://localhost:3000/dashboard/profile",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "web",
+        "route":  "/dashboard/profile/family",
+        "initial":  "http://localhost:3000/dashboard/profile/family",
+        "final":  "http://localhost:3000/dashboard/profile/family",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "web",
+        "route":  "/login",
+        "initial":  "http://localhost:3000/login",
+        "final":  "http://localhost:3000/login",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "web",
+        "route":  "/muhurat",
+        "initial":  "http://localhost:3000/muhurat",
+        "final":  "http://localhost:3000/muhurat",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "web",
+        "route":  "/pandit/sample",
+        "initial":  "http://localhost:3000/pandit/sample",
+        "final":  "http://localhost:3000/pandit/sample",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "web",
+        "route":  "/privacy",
+        "initial":  "http://localhost:3000/privacy",
+        "final":  "http://localhost:3000/privacy",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "web",
+        "route":  "/search",
+        "initial":  "http://localhost:3000/search",
+        "final":  "http://localhost:3000/search",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "web",
+        "route":  "/terms",
+        "initial":  "http://localhost:3000/terms",
+        "final":  "http://localhost:3000/terms",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "pandit",
+        "route":  "/",
+        "initial":  "http://localhost:3002/",
+        "final":  "http://localhost:3002/",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "pandit",
+        "route":  "/auth",
+        "initial":  "http://localhost:3002/auth",
+        "final":  "http://localhost:3002/auth",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "pandit",
+        "route":  "/bookings",
+        "initial":  "http://localhost:3002/bookings",
+        "final":  "http://localhost:3002/bookings",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "pandit",
+        "route":  "/bookings/sample",
+        "initial":  "http://localhost:3002/bookings/sample",
+        "final":  "http://localhost:3002/bookings/sample",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "pandit",
+        "route":  "/bookings/sample/itinerary",
+        "initial":  "http://localhost:3002/bookings/sample/itinerary",
+        "final":  "http://localhost:3002/bookings/sample/itinerary",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "pandit",
+        "route":  "/bookings/sample/live-tracking",
+        "initial":  "http://localhost:3002/bookings/sample/live-tracking",
+        "final":  "http://localhost:3002/bookings/sample/live-tracking",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "pandit",
+        "route":  "/calendar",
+        "initial":  "http://localhost:3002/calendar",
+        "final":  "http://localhost:3002/calendar",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "pandit",
+        "route":  "/earnings",
+        "initial":  "http://localhost:3002/earnings",
+        "final":  "http://localhost:3002/earnings",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "pandit",
+        "route":  "/earnings/sample",
+        "initial":  "http://localhost:3002/earnings/sample",
+        "final":  "http://localhost:3002/earnings/sample",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "pandit",
+        "route":  "/login",
+        "initial":  "http://localhost:3002/login",
+        "final":  "http://localhost:3002/login",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "pandit",
+        "route":  "/onboarding",
+        "initial":  "http://localhost:3002/onboarding",
+        "final":  "http://localhost:3002/onboarding",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "pandit",
+        "route":  "/profile",
+        "initial":  "http://localhost:3002/profile",
+        "final":  "http://localhost:3002/profile",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "pandit",
+        "route":  "/profile/growth",
+        "initial":  "http://localhost:3002/profile/growth",
+        "final":  "http://localhost:3002/profile/growth",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "pandit",
+        "route":  "/profile/packages",
+        "initial":  "http://localhost:3002/profile/packages",
+        "final":  "http://localhost:3002/profile/packages",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "pandit",
+        "route":  "/profile/samagri",
+        "initial":  "http://localhost:3002/profile/samagri",
+        "final":  "http://localhost:3002/profile/samagri",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "pandit",
+        "route":  "/requests/sample",
+        "initial":  "http://localhost:3002/requests/sample",
+        "final":  "http://localhost:3002/requests/sample",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "pandit",
+        "route":  "/samagri-packages",
+        "initial":  "http://localhost:3002/samagri-packages",
+        "final":  "http://localhost:3002/samagri-packages",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "pandit",
+        "route":  "/travel",
+        "initial":  "http://localhost:3002/travel",
+        "final":  "http://localhost:3002/travel",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "admin",
+        "route":  "/",
+        "initial":  "http://localhost:3003/",
+        "final":  "http://localhost:3003/",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "admin",
+        "route":  "/b2b/bookings",
+        "initial":  "http://localhost:3003/b2b/bookings",
+        "final":  "http://localhost:3003/b2b/bookings",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "admin",
+        "route":  "/b2b/invoices",
+        "initial":  "http://localhost:3003/b2b/invoices",
+        "final":  "http://localhost:3003/b2b/invoices",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "admin",
+        "route":  "/b2b/planners",
+        "initial":  "http://localhost:3003/b2b/planners",
+        "final":  "http://localhost:3003/b2b/planners",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "admin",
+        "route":  "/bookings",
+        "initial":  "http://localhost:3003/bookings",
+        "final":  "http://localhost:3003/bookings",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "admin",
+        "route":  "/bookings/sample",
+        "initial":  "http://localhost:3003/bookings/sample",
+        "final":  "http://localhost:3003/bookings/sample",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "admin",
+        "route":  "/cancellations",
+        "initial":  "http://localhost:3003/cancellations",
+        "final":  "http://localhost:3003/cancellations",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "admin",
+        "route":  "/customers",
+        "initial":  "http://localhost:3003/customers",
+        "final":  "http://localhost:3003/customers",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "admin",
+        "route":  "/helpline",
+        "initial":  "http://localhost:3003/helpline",
+        "final":  "http://localhost:3003/helpline",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "admin",
+        "route":  "/login",
+        "initial":  "http://localhost:3003/login",
+        "final":  "http://localhost:3003/login",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "admin",
+        "route":  "/operations",
+        "initial":  "http://localhost:3003/operations",
+        "final":  "http://localhost:3003/operations",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "admin",
+        "route":  "/pandits",
+        "initial":  "http://localhost:3003/pandits",
+        "final":  "http://localhost:3003/pandits",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "admin",
+        "route":  "/pandits/sample",
+        "initial":  "http://localhost:3003/pandits/sample",
+        "final":  "http://localhost:3003/pandits/sample",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "admin",
+        "route":  "/payouts",
+        "initial":  "http://localhost:3003/payouts",
+        "final":  "http://localhost:3003/payouts",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "admin",
+        "route":  "/settings",
+        "initial":  "http://localhost:3003/settings",
+        "final":  "http://localhost:3003/settings",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "admin",
+        "route":  "/settings/launch-checklist",
+        "initial":  "http://localhost:3003/settings/launch-checklist",
+        "final":  "http://localhost:3003/settings/launch-checklist",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "admin",
+        "route":  "/support",
+        "initial":  "http://localhost:3003/support",
+        "final":  "http://localhost:3003/support",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "admin",
+        "route":  "/travel-desk",
+        "initial":  "http://localhost:3003/travel-desk",
+        "final":  "http://localhost:3003/travel-desk",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "admin",
+        "route":  "/travel-queue",
+        "initial":  "http://localhost:3003/travel-queue",
+        "final":  "http://localhost:3003/travel-queue",
+        "status":  200,
+        "state":  "enabled"
+    },
+    {
+        "app":  "admin",
+        "route":  "/verification",
+        "initial":  "http://localhost:3003/verification",
+        "final":  "http://localhost:3003/verification",
+        "status":  200,
+        "state":  "enabled"
+    }
+]

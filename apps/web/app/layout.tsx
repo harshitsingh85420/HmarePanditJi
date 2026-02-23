@@ -4,6 +4,9 @@ import { SamagriCartProvider } from "../context/SamagriCartContext";
 import { CartSidebar } from "../components/CartSidebar";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import { AuthProvider } from "../src/context/auth-context";
+import { CartProvider } from "../src/context/cart-context";
+import AuthModal from "../src/components/auth-modal";
 
 export const metadata: Metadata = {
     title: {
@@ -65,14 +68,19 @@ export default function RootLayout({
                 />
             </head>
             <body className="font-display antialiased bg-white text-gray-900 min-h-screen flex flex-col">
-                <SamagriCartProvider>
-                    <Header />
-                    <main className="flex-1">
-                        {children}
-                    </main>
-                    <Footer />
-                    <CartSidebar />
-                </SamagriCartProvider>
+                <AuthProvider>
+                    <SamagriCartProvider>
+                        <CartProvider>
+                            <Header />
+                            <main className="flex-1">
+                                {children}
+                            </main>
+                            <Footer />
+                            <CartSidebar />
+                            <AuthModal />
+                        </CartProvider>
+                    </SamagriCartProvider>
+                </AuthProvider>
             </body>
         </html>
     );
