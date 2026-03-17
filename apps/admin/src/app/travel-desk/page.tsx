@@ -18,7 +18,7 @@ export default function TravelDeskPage() {
 
     const fetchQueue = () => {
         setLoading(true);
-        fetch(`http://localhost:3001/api/admin/travel-queue?tab=${activeTab}`, {
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/travel-queue?tab=${activeTab}`, {
             headers: { Authorization: `Bearer ${localStorage.getItem("adminToken") || ""}` }
         })
             .then(res => res.json())
@@ -37,7 +37,7 @@ export default function TravelDeskPage() {
 
     const handleCalculateSave = async (data: any) => {
         try {
-            await fetch(`http://localhost:3001/api/admin/bookings/${calculatorModal.bookingId}/travel-calculate`, {
+            await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/bookings/${calculatorModal.bookingId}/travel-calculate`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
@@ -54,7 +54,7 @@ export default function TravelDeskPage() {
 
     const handleMarkBooked = async () => {
         try {
-            await fetch(`http://localhost:3001/api/admin/bookings/${markBookedModal.bookingId}/travel-booked`, {
+            await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/bookings/${markBookedModal.bookingId}/travel-booked`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
@@ -107,8 +107,8 @@ Mode: ${b.travelMode || "Transport"}`;
                         key={t.id}
                         onClick={() => setActiveTab(t.id)}
                         className={`px-5 py-2.5 rounded-lg font-bold text-sm transition-all flex items-center gap-2 ${activeTab === t.id
-                                ? "bg-white text-slate-900 shadow-sm"
-                                : "text-slate-500 hover:text-slate-700 hover:bg-slate-200/50"
+                            ? "bg-white text-slate-900 shadow-sm"
+                            : "text-slate-500 hover:text-slate-700 hover:bg-slate-200/50"
                             }`}
                     >
                         <span>{t.icon}</span>

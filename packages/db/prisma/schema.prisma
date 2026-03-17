@@ -110,6 +110,9 @@ model User {
   role        Role     @default(CUSTOMER)
   isVerified  Boolean  @default(false)
   isActive    Boolean  @default(true)
+  profileCompleted Boolean @default(false)
+  avatarUrl        String?
+  preferredLanguage String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -199,12 +202,23 @@ model PanditProfile {
   isOnline Boolean @default(false) // Pandit's online/offline toggle
   canBringSamagri Boolean @default(true) // Added for Samagri Toggle
 
-  // Admin Verification Tracking
   adminNotes           String?  @db.Text
   rejectionReason      String?  @db.Text
   verifiedAt           DateTime?
   verifiedById         String?
   profileCompletionPercent Int  @default(0)
+
+  // Newly added fields needed by kyc and voice routes
+  displayName          String?
+  city                 String?
+  state                String?
+  sect                 String?
+  gotra                String?
+  aadhaarEncrypted     String?
+  aadhaarLastFour      String?
+  certificatesVerified Boolean @default(false)
+  bankAccountAdded     Boolean @default(false)
+  deviceInfo           Json?
 
   pujaServices    PujaService[]
   blockedDates    PanditBlockedDate[]
@@ -487,4 +501,43 @@ model CustomerRating {
   foodArrangement Int      // 1-5
   comment         String?
   createdAt       DateTime @default(now())
+}
+
+model OTP {
+  id        String   @id @default(cuid())
+  phone     String
+  otp       String
+  expiresAt DateTime
+  isUsed    Boolean  @default(false)
+  attempts  Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([phone])
+}
+
+model AdminLog {
+  id          String   @id @default(cuid())
+  adminUserId String
+  action      String
+  targetType  String
+  targetId    String
+  metadata    Json?
+  createdAt   DateTime @default(now())
+}
+
+model Ritual {
+  id               String   @id @default(cuid())
+  name             String
+  nameHindi        String?
+  description      String?
+  descriptionHindi String?
+  category         String?
+  basePriceMin     Int?
+  basePriceMax     Int?
+  durationHours    Float?
+  isActive         Boolean  @default(true)
+  iconUrl          String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 }

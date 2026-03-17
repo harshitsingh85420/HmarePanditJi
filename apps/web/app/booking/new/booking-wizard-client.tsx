@@ -338,12 +338,12 @@ export default function BookingWizardClient() {
           eventDays:
             form.isMultiDay && form.endDate
               ? Math.max(
-                  1,
-                  Math.floor(
-                    (new Date(form.endDate).getTime() - new Date(form.eventDate || form.endDate).getTime()) /
-                      (1000 * 60 * 60 * 24),
-                  ) + 1,
-                )
+                1,
+                Math.floor(
+                  (new Date(form.endDate).getTime() - new Date(form.eventDate || form.endDate).getTime()) /
+                  (1000 * 60 * 60 * 24),
+                ) + 1,
+              )
               : 1,
           foodArrangement: form.foodArrangement,
         }),
@@ -368,9 +368,9 @@ export default function BookingWizardClient() {
   const eventDays =
     form.isMultiDay && form.eventDate && form.endDate
       ? Math.max(
-          1,
-          Math.floor((new Date(form.endDate).getTime() - new Date(form.eventDate).getTime()) / (1000 * 60 * 60 * 24)) + 1,
-        )
+        1,
+        Math.floor((new Date(form.endDate).getTime() - new Date(form.eventDate).getTime()) / (1000 * 60 * 60 * 24)) + 1,
+      )
       : 1;
   const isOutstation =
     !!selectedPandit &&
@@ -812,7 +812,7 @@ export default function BookingWizardClient() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">Pincode</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">Pincode <span className="text-red-400">*</span></label>
                 <input
                   value={form.venuePincode}
                   onChange={(e) => set({ venuePincode: e.target.value.replace(/\D/g, "").slice(0, 6) })}
@@ -1304,50 +1304,50 @@ export default function BookingWizardClient() {
 
         {/* â”€â”€ Step 5: Review & Pay â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         {step === 5 && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start relative dark:text-white">
             {/* Left Column: Details & Itemization */}
             <div className="lg:col-span-8 space-y-6">
               {/* Event Section */}
-              <section className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+              <section className="bg-white dark:bg-[#2a2218] p-6 rounded-xl border border-[#e6e1db] dark:border-[#3d3326] shadow-sm">
                 <div className="flex items-center gap-2 mb-4">
-                  <span className="material-symbols-outlined text-primary">event_available</span>
-                  <h2 className="text-xl font-bold text-slate-900">Event Details</h2>
+                  <span className="material-symbols-outlined text-[#f49d25]">event_available</span>
+                  <h2 className="text-xl font-bold text-[#181511] dark:text-white">Event Details</h2>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
-                  <div className="flex flex-col border-b border-slate-50 pb-2">
-                    <span className="text-slate-500 text-xs uppercase tracking-wider font-semibold">Event Type</span>
-                    <span className="text-slate-900 font-medium">{form.ritualName}</span>
+                  <div className="flex flex-col border-b border-[#f5f3f0] dark:border-[#3d3326] pb-2">
+                    <span className="text-[#8a7960] text-xs uppercase tracking-wider font-semibold">Event Type</span>
+                    <span className="text-[#181511] dark:text-white font-medium">{form.ritualName}</span>
                   </div>
-                  <div className="flex flex-col border-b border-slate-50 pb-2">
-                    <span className="text-slate-500 text-xs uppercase tracking-wider font-semibold">Primary Pandit</span>
-                    <span className="text-slate-900 font-medium">{form.panditName}</span>
+                  <div className="flex flex-col border-b border-[#f5f3f0] dark:border-[#3d3326] pb-2">
+                    <span className="text-[#8a7960] text-xs uppercase tracking-wider font-semibold">Primary Pandit</span>
+                    <span className="text-[#181511] dark:text-white font-medium">{form.panditName}</span>
                   </div>
-                  <div className="flex flex-col border-b border-slate-50 pb-2">
-                    <span className="text-slate-500 text-xs uppercase tracking-wider font-semibold">Date & Time</span>
-                    <span className="text-slate-900 font-medium">
+                  <div className="flex flex-col border-b border-[#f5f3f0] dark:border-[#3d3326] pb-2">
+                    <span className="text-[#8a7960] text-xs uppercase tracking-wider font-semibold">Date & Time</span>
+                    <span className="text-[#181511] dark:text-white font-medium">
                       {new Date(form.eventDate).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}
-                      {form.eventTime && ` Â· ${form.eventTime}`}
+                      {form.eventTime && ` · ${form.eventTime}`}
                     </span>
                   </div>
-                  <div className="flex flex-col border-b border-slate-50 pb-2">
-                    <span className="text-slate-500 text-xs uppercase tracking-wider font-semibold">Venue</span>
-                    <span className="text-slate-900 font-medium truncate">{form.venueLine1}, {form.venueCity}</span>
+                  <div className="flex flex-col border-b border-[#f5f3f0] dark:border-[#3d3326] pb-2">
+                    <span className="text-[#8a7960] text-xs uppercase tracking-wider font-semibold">Venue</span>
+                    <span className="text-[#181511] dark:text-white font-medium truncate">{form.venueLine1}, {form.venueCity}</span>
                   </div>
                 </div>
               </section>
 
               {/* Cost Breakdown Section */}
-              <section className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+              <section className="bg-white dark:bg-[#2a2218] p-6 rounded-xl border border-[#e6e1db] dark:border-[#3d3326] shadow-sm">
                 <div className="flex items-center gap-2 mb-6">
-                  <span className="material-symbols-outlined text-primary">receipt_long</span>
-                  <h2 className="text-xl font-bold text-slate-900">Cost Itemization</h2>
+                  <span className="material-symbols-outlined text-[#f49d25]">receipt_long</span>
+                  <h2 className="text-xl font-bold text-[#181511] dark:text-white">Cost Itemization</h2>
                 </div>
                 <div className="space-y-4">
                   {/* Dakshina */}
                   <div className="flex justify-between items-start py-2">
                     <div>
-                      <p className="text-slate-900 font-semibold">Pandit Dakshina</p>
-                      <p className="text-slate-500 text-xs">Standard professional fees for main ritual</p>
+                      <p className="text-[#181511] dark:text-white font-semibold">Pandit Dakshina</p>
+                      <p className="text-[#8a7960] text-xs">Standard professional fees for main ritual</p>
                     </div>
                     <span className="font-semibold">{fmt(form.dakshina)}</span>
                   </div>
@@ -1356,65 +1356,47 @@ export default function BookingWizardClient() {
                   {samagriCost > 0 && (
                     <div className="flex justify-between items-start py-2">
                       <div>
-                        <p className="text-slate-900 font-semibold">Samagri Package ({samagriItem?.type === "package" ? "Standard" : "Custom"})</p>
-                        <p className="text-slate-500 text-xs">Including organic materials and essentials</p>
+                        <p className="text-[#181511] dark:text-white font-semibold flex items-center gap-1">Samagri Package <span className="text-[10px] px-1.5 py-0.5 rounded bg-green-100 text-green-700 font-bold uppercase tracking-wider ml-1">{samagriItem?.type === "package" ? "Standard" : "Custom"}</span></p>
+                        <p className="text-[#8a7960] text-xs">Including organic materials and essentials</p>
                       </div>
                       <span className="font-semibold">{fmt(samagriCost)}</span>
                     </div>
                   )}
 
                   {/* Logistics Breakdown */}
-                  <div className="bg-slate-50 p-4 rounded-lg space-y-3">
-                    <p className="text-xs font-bold text-primary uppercase tracking-widest mb-1">Logistics & Travel</p>
+                  <div className="bg-[#f8f7f5] dark:bg-[#32291d] p-4 rounded-lg space-y-3">
+                    <p className="text-xs font-bold text-[#f49d25] uppercase tracking-widest mb-1">Logistics & Travel</p>
                     <div className="flex justify-between text-sm">
-                      <span className="text-slate-600">Travel ({form.travelMode})</span>
-                      <span className="font-medium text-slate-900">{fmt(effectiveTravelCost)}</span>
+                      <span className="text-[#8a7960]">Travel Allowance ({form.travelMode})</span>
+                      <span className="font-medium text-[#181511] dark:text-white">{fmt(effectiveTravelCost)}</span>
                     </div>
                     {form.localTransportNeeded && localTransportCost > 0 && (
                       <div className="flex justify-between text-sm">
-                        <span className="text-slate-600">Local cab (hotel to/from venue)</span>
-                        <span className="font-medium text-slate-900">{fmt(localTransportCost)}</span>
+                        <span className="text-[#8a7960]">Local cab (hotel to/from venue)</span>
+                        <span className="font-medium text-[#181511] dark:text-white">{fmt(localTransportCost)}</span>
                       </div>
                     )}
                     {foodAllowance > 0 && (
                       <div className="flex justify-between text-sm">
-                        <span className="text-slate-600">Food Allowance ({foodAllowanceDays} day{foodAllowanceDays > 1 ? "s" : ""})</span>
-                        <span className="font-medium text-slate-900">{fmt(foodAllowance)}</span>
+                        <span className="text-[#8a7960]">Food Allowance ({foodAllowanceDays} day{foodAllowanceDays > 1 ? "s" : ""})</span>
+                        <span className="font-medium text-[#181511] dark:text-white">{fmt(foodAllowance)}</span>
                       </div>
                     )}
                     {accommodationCost > 0 && (
                       <div className="flex justify-between text-sm">
-                        <span className="text-slate-600">Accommodation (Platform Booked)</span>
-                        <span className="font-medium text-slate-900">{fmt(accommodationCost)}</span>
+                        <span className="text-[#8a7960]">Accommodation (Platform Booked)</span>
+                        <span className="font-medium text-[#181511] dark:text-white">{fmt(accommodationCost)}</span>
                       </div>
                     )}
                   </div>
 
                   {/* Platform fees + GST */}
-                  <div className="flex justify-between items-start py-2">
+                  <div className="flex justify-between items-start py-2 pt-4">
                     <div>
-                      <p className="text-slate-900 font-semibold">Platform Service Fee (15% of Dakshina)</p>
+                      <p className="text-[#181511] dark:text-white font-semibold">Platform Convenience Fee</p>
+                      <p className="text-[#8a7960] text-xs">Service & automated logistics handling</p>
                     </div>
-                    <span className="font-semibold">{fmt(platformFee)}</span>
-                  </div>
-                  {travelServiceFee > 0 && (
-                    <div className="flex justify-between items-start py-2">
-                      <p className="text-slate-900 font-semibold">Travel Service Fee (5% of Travel)</p>
-                      <span className="font-semibold">{fmt(travelServiceFee)}</span>
-                    </div>
-                  )}
-                  {samagriServiceFee > 0 && (
-                    <div className="flex justify-between items-start py-2">
-                      <p className="text-slate-900 font-semibold">Samagri Service Fee (10% of Samagri)</p>
-                      <span className="font-semibold">{fmt(samagriServiceFee)}</span>
-                    </div>
-                  )}
-                  <div className="flex justify-between items-start py-2">
-                    <div>
-                      <p className="text-slate-900 font-semibold">GST (18% on platform fees)</p>
-                      <p className="text-slate-500 text-xs">Applied only on platform fees</p>
-                    </div>
-                    <span className="font-semibold">{fmt(gst)}</span>
+                    <span className="font-semibold">{fmt(platformFee + travelServiceFee + samagriServiceFee + gst)}</span>
                   </div>
                 </div>
               </section>
@@ -1423,110 +1405,93 @@ export default function BookingWizardClient() {
             {/* Right Column: Add-ons & Checkout */}
             <div className="lg:col-span-4 space-y-6">
               {/* Add-ons Section */}
-              <section className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+              <section className="bg-white dark:bg-[#2a2218] p-6 rounded-xl border border-[#e6e1db] dark:border-[#3d3326] shadow-sm">
                 <div className="flex items-center gap-2 mb-4">
-                  <span className="material-symbols-outlined text-primary">add_circle</span>
-                  <h2 className="text-lg font-bold text-slate-900">Recommended Add-ons</h2>
+                  <span className="material-symbols-outlined text-[#f49d25]">add_circle</span>
+                  <h2 className="text-lg font-bold text-[#181511] dark:text-white">Recommended Add-ons</h2>
                 </div>
                 <div className="space-y-4">
                   {/* Backup Guarantee */}
-                  <div className={`p-3 border-2 rounded-lg flex items-center justify-between gap-3 ${addons.backup ? "border-primary bg-primary/5" : "border-slate-100"}`}>
+                  <div className={`p-3 rounded-lg flex items-center justify-between gap-3 ${addons.backup ? "border-2 border-[#f49d25]/30 bg-[#f49d25]/5" : "border border-[#e6e1db] dark:border-[#3d3326]"}`}>
                     <div className="flex-1">
                       <div className="flex items-center gap-1">
-                        <p className="text-sm font-bold text-slate-900">Backup Guarantee</p>
-                        <span className="text-[10px] bg-primary text-white px-1 rounded">SAFE</span>
+                        <p className="text-sm font-bold text-[#181511] dark:text-white">Premium Backup</p>
+                        <span className="text-[10px] bg-[#f49d25] text-white px-1.5 py-0.5 rounded font-bold tracking-wider">SAFE</span>
                       </div>
-                      <p className="text-[11px] text-slate-500">Guaranteed qualified replacement within 4 hours</p>
-                      <p className="text-xs font-bold text-primary mt-1">+ â‚¹9,999</p>
+                      <p className="text-[11px] text-[#8a7960] mt-0.5">Guaranteed replacement within 2 hrs if emergency</p>
+                      <p className="text-xs font-bold text-[#f49d25] mt-1.5">+ ₹9,999</p>
                     </div>
-                    <input
-                      type="checkbox"
-                      checked={addons.backup}
-                      onChange={(e) => setAddons(prev => ({ ...prev, backup: e.target.checked }))}
-                      className="w-5 h-5 accent-primary rounded cursor-pointer"
-                    />
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={addons.backup}
+                        onChange={(e) => setAddons(prev => ({ ...prev, backup: e.target.checked }))}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-[#e6e1db] after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#f49d25]"></div>
+                    </label>
                   </div>
 
-                  {/* Muhurat confirmation session */}
-                  <div className={`p-3 border rounded-lg ${muhuratConsultation ? "border-primary bg-primary/5" : "border-slate-200"}`}>
-                    <p className="text-sm font-bold text-slate-900">Muhurat Confirmation Session</p>
-                    <p className="text-[11px] text-slate-500 mb-2">
-                      Validate selected muhurat with a Jyotishi before payment.
-                    </p>
-                    <div className="grid grid-cols-2 gap-2">
+                  {/* Muhurat consultation session */}
+                  <div className={`p-3 rounded-lg ${muhuratConsultation ? "border-2 border-[#f49d25]/30 bg-[#f49d25]/5" : "border border-[#e6e1db] dark:border-[#3d3326]"}`}>
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <p className="text-sm font-bold text-[#181511] dark:text-white">Muhurat Consultation</p>
+                        <p className="text-[11px] text-[#8a7960] mt-0.5">15-min call for optimal timing adjustment</p>
+                        <p className="text-xs font-bold text-[#f49d25] mt-1.5">+ ₹499</p>
+                      </div>
                       <button
-                        type="button"
-                        onClick={() => setMuhuratConsultation(false)}
-                        className={`text-xs font-semibold rounded-md px-2 py-2 border ${!muhuratConsultation ? "border-primary text-primary bg-primary/5" : "border-slate-200 text-slate-600"}`}
+                        onClick={() => setMuhuratConsultation(!muhuratConsultation)}
+                        className={`w-7 h-7 flex items-center justify-center rounded transition-colors ${muhuratConsultation ? "bg-[#f49d25] text-white" : "bg-[#f49d25]/10 hover:bg-[#f49d25] text-[#f49d25] hover:text-white"}`}
                       >
-                        Confirm & Proceed
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setMuhuratConsultation(true)}
-                        className={`text-xs font-semibold rounded-md px-2 py-2 border ${muhuratConsultation ? "border-primary text-primary bg-primary/5" : "border-slate-200 text-slate-600"}`}
-                      >
-                        Consult Expert Â· â‚¹499
+                        <span className="material-symbols-outlined text-sm font-bold">{muhuratConsultation ? "check" : "add"}</span>
                       </button>
                     </div>
                   </div>
 
                   {/* Nirmalya Visarjan */}
-                  <div className={`p-3 border rounded-lg flex items-center justify-between gap-3 ${addons.visarjan ? "border-primary bg-primary/5" : "border-slate-200"}`}>
+                  <div className={`p-3 rounded-lg flex items-center justify-between gap-3 ${addons.visarjan ? "border-2 border-[#f49d25]/30 bg-[#f49d25]/5" : "border border-[#e6e1db] dark:border-[#3d3326]"}`}>
                     <div className="flex-1">
-                      <p className="text-sm font-bold text-slate-900">Nirmalya Visarjan</p>
-                      <p className="text-[11px] text-slate-500">Eco-friendly waste management</p>
-                      <p className="text-xs font-bold text-primary mt-1">+ â‚¹500</p>
+                      <p className="text-sm font-bold text-[#181511] dark:text-white">Nirmalya Visarjan</p>
+                      <p className="text-[11px] text-[#8a7960] mt-0.5">Eco-friendly floral waste management</p>
+                      <p className="text-xs font-bold text-[#f49d25] mt-1.5">+ ₹500</p>
                     </div>
                     <button
                       onClick={() => setAddons(prev => ({ ...prev, visarjan: !prev.visarjan }))}
-                      className={`p-1 rounded transition-colors ${addons.visarjan ? "bg-primary text-white" : "bg-primary/10 text-primary hover:bg-primary hover:text-white"}`}
+                      className={`w-7 h-7 flex items-center justify-center rounded transition-colors ${addons.visarjan ? "bg-[#f49d25] text-white" : "bg-[#f49d25]/10 hover:bg-[#f49d25] text-[#f49d25] hover:text-white"}`}
                     >
-                      <span className="material-symbols-outlined text-sm">{addons.visarjan ? "check" : "add"}</span>
+                      <span className="material-symbols-outlined text-sm font-bold">{addons.visarjan ? "check" : "add"}</span>
                     </button>
                   </div>
                 </div>
               </section>
 
               {/* Grand Total Sticky Box */}
-              <section className="sticky top-24 bg-white rounded-xl border-t-4 border-primary shadow-xl overflow-hidden">
+              <section className="sticky top-24 bg-white dark:bg-[#2a2218] rounded-xl border-t-4 border-[#f49d25] shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] overflow-hidden">
                 <div className="p-6 space-y-4">
-                  <div className="flex justify-between items-center text-slate-500 text-sm">
-                    <span>Subtotal (Dakshina + Travel + Samagri + Food + Stay)</span>
+                  <div className="flex justify-between items-center text-[#8a7960] text-sm font-medium">
+                    <span>Subtotal</span>
                     <span>{fmt(baseSubtotal)}</span>
                   </div>
                   {addonCost > 0 && (
-                    <div className="flex justify-between items-center text-slate-500 text-sm">
-                      <span>Add-ons & Consultation</span>
+                    <div className="flex justify-between items-center text-[#8a7960] text-sm font-medium">
+                      <span>Add-ons</span>
                       <span>{fmt(addonCost)}</span>
                     </div>
                   )}
-                  <div className="flex justify-between items-center text-slate-500 text-sm">
-                    <span>Subtotal After Add-ons</span>
-                    <span>{fmt(subtotal)}</span>
+                  <div className="flex justify-between items-center text-[#8a7960] text-sm font-medium">
+                    <span>Platform Fees & Taxes</span>
+                    <span>{fmt(totalPlatformFees + gst)}</span>
                   </div>
-                  <div className="flex justify-between items-center text-slate-500 text-sm">
-                    <span>Platform Fees</span>
-                    <span>{fmt(totalPlatformFees)}</span>
-                  </div>
-                  <div className="flex justify-between items-center text-slate-500 text-sm">
-                    <span>GST (18% on platform fees)</span>
-                    <span>{fmt(gst)}</span>
-                  </div>
-                  {/* Coupon Placeholder */}
-                  {/* <div className="flex justify-between items-center text-primary text-sm font-bold bg-primary/5 p-2 rounded">
-                    <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">local_offer</span> PANDIT10</span>
-                    <span>-â‚¹0</span>
-                  </div> */}
 
-                  <div className="h-px bg-slate-100 my-2"></div>
+                  <div className="h-px bg-[#e6e1db] dark:bg-[#3d3326] my-4"></div>
 
-                  <div className="flex justify-between items-center">
-                    <span className="text-xl font-black text-slate-900">Grand Total</span>
-                    <span className="text-2xl font-black text-primary">{fmt(grandTotal)}</span>
+                  <div className="flex justify-between items-end">
+                    <span className="text-xl font-black text-[#181511] dark:text-white leading-none">Grand Total</span>
+                    <span className="text-3xl font-black text-[#f49d25] leading-none">{fmt(grandTotal)}</span>
                   </div>
-                  <p className="text-[10px] text-center text-slate-500">
-                    Advance policy: {grandTotal > 5000 ? `${fmt(payableNow)} now, ${fmt(payableLater)} after puja completion.` : "Full amount payable now."}
+                  <p className="text-[10px] text-center text-[#8a7960] bg-[#f8f7f5] dark:bg-[#3d3326] p-2 rounded-lg mt-2 font-medium">
+                    Inclusive of all taxes and automated travel credits
                   </p>
                 </div>
 
@@ -1534,17 +1499,17 @@ export default function BookingWizardClient() {
                   <button
                     onClick={handleCreateOrder}
                     disabled={loading}
-                    className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-5 flex items-center justify-center gap-2 text-lg transition-all group disabled:opacity-70"
+                    className="w-full bg-[#f49d25] hover:bg-[#e08c14] text-white font-bold py-5 flex items-center justify-center gap-2 text-lg transition-all group disabled:opacity-70 disabled:cursor-not-allowed"
                   >
                     {loading ? "Processing..." : (
                       <>
-                        {grandTotal > 5000 ? `Pay 50% Advance (${fmt(payableNow)})` : "Proceed to Payment"}
+                        {grandTotal > 5000 ? `Pay Advance (${fmt(payableNow)})` : "Proceed to Payment"}
                         <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
                       </>
                     )}
                   </button>
                 ) : (
-                  <div className="p-4 bg-slate-50">
+                  <div className="p-4 bg-[#f8f7f5] dark:bg-[#181511]">
                     <RazorpayCheckout
                       orderId={form.orderId}
                       amount={payableNow * 100}
@@ -1562,8 +1527,8 @@ export default function BookingWizardClient() {
               </section>
 
               <div className="flex flex-col gap-4 text-center mt-6">
-                <p className="text-sm text-slate-500 flex items-center justify-center gap-1">
-                  <span className="material-symbols-outlined text-sm text-green-500">verified_user</span>
+                <p className="text-sm text-[#8a7960] font-medium flex items-center justify-center gap-1.5">
+                  <span className="material-symbols-outlined text-[18px] text-green-500 fill-1" style={{ fontVariationSettings: "'FILL' 1" }}>verified_user</span>
                   Secure 256-bit encrypted checkout
                 </p>
               </div>
@@ -1573,22 +1538,30 @@ export default function BookingWizardClient() {
 
         {/* â”€â”€ Navigation Buttons â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         {step < 5 && (
-          <div className="flex gap-3 mt-6">
-            {step > 0 && (
-              <button
-                onClick={back}
-                className="flex-1 py-3 rounded-xl border border-slate-200 text-slate-600 font-medium hover:bg-slate-50 transition-colors text-sm"
-              >
-                Back
-              </button>
+          <div className="space-y-3 mt-6">
+            {step === 0 && !canNext() && (
+              <p className="text-xs font-medium text-red-500 bg-red-50 border border-red-100 p-3 rounded-xl flex items-center justify-center gap-2">
+                <span className="material-symbols-outlined text-base">error</span>
+                Please fill all required fields (marked with *) and enter a valid 6-digit Pincode to continue.
+              </p>
             )}
-            <button
-              onClick={next}
-              disabled={!canNext()}
-              className="flex-1 py-3 rounded-xl bg-[#f49d25] hover:bg-[#e08c14] disabled:opacity-50 text-white font-bold text-sm transition-all"
-            >
-              {step === 4 ? (user ? "Review & Pay" : "Login & Continue") : "Continue"}
-            </button>
+            <div className="flex gap-3">
+              {step > 0 && (
+                <button
+                  onClick={back}
+                  className="flex-1 py-3 rounded-xl border border-slate-200 text-slate-600 font-medium hover:bg-slate-50 transition-colors text-sm"
+                >
+                  Back
+                </button>
+              )}
+              <button
+                onClick={next}
+                disabled={!canNext()}
+                className="flex-1 py-3 rounded-xl bg-[#f49d25] hover:bg-[#e08c14] disabled:opacity-50 text-white font-bold text-sm transition-all"
+              >
+                {step === 4 ? (user ? "Review & Pay" : "Login & Continue") : "Continue"}
+              </button>
+            </div>
           </div>
         )}
       </div>

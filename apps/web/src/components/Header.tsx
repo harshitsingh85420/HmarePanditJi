@@ -15,10 +15,14 @@ export function Header() {
     const { selection, setIsCartOpen } = useSamagriCart();
 
     useEffect(() => {
-        if (!loading && !isAuthenticated) {
-            const dismissed = sessionStorage.getItem("hpj_guest_dismissed");
-            if (!dismissed) {
-                setShowGuestBanner(true);
+        if (!loading) {
+            if (!isAuthenticated) {
+                const dismissed = sessionStorage.getItem("hpj_guest_dismissed");
+                if (!dismissed) {
+                    setShowGuestBanner(true);
+                }
+            } else {
+                setShowGuestBanner(false);
             }
         }
     }, [loading, isAuthenticated]);

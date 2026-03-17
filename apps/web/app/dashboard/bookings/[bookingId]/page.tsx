@@ -224,6 +224,11 @@ export default function BookingDetailPage() {
 
                         {/* Actions */}
                         <div className="flex flex-col gap-3">
+                            {["PANDIT_EN_ROUTE", "PANDIT_ARRIVED"].includes(booking.status) && (
+                                <Link href={`/dashboard/bookings/${booking.id}/track`} className="w-full flex items-center justify-center gap-2 bg-[#137fec] text-white font-bold py-3 rounded-xl hover:bg-[#137fec]/90 transition-all shadow-md">
+                                    <MapPin size={18} /> Live Track Pandit
+                                </Link>
+                            )}
                             {booking.status === "COMPLETED" && !booking.review && (
                                 <Button size="lg" className="w-full text-lg" onClick={() => router.push(`/dashboard/bookings/${booking.id}/review`)}>
                                     ⭐ Write Review

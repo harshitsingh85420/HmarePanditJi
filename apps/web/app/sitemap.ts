@@ -1,72 +1,93 @@
-import { MetadataRoute } from 'next';
+import { MetadataRoute } from "next";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-    const baseUrl = 'https://hmarepanditji.com';
+    const baseUrl = process.env.NEXT_PUBLIC_WEB_URL || "https://hmarepanditji.com";
+    const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
-    // Fetch verified pandits for dynamic routes
     let panditRoutes: MetadataRoute.Sitemap = [];
+
     try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-        const res = await fetch(`${apiUrl}/api/pandits?status=VERIFIED`, {
-            next: { revalidate: 3600 } // Revalidate every hour
+        const res = await fetch(`${apiBase}/api/v1/pandits?verificationStatus=VERIFIED&limit=500`, {
+            next: { revalidate: 3600 },
         });
 
         if (res.ok) {
             const data = await res.json();
-            const pandits = Array.isArray(data) ? data : data.pandits || [];
-            panditRoutes = pandits.map((pandit: any) => ({
-                url: `${baseUrl}/pandits/${pandit.id}`,
-                lastModified: new Date(),
-                changeFrequency: 'weekly' as const,
-                priority: 0.8,
-            }));
+            const pandits = data?.data?.pandits || [];
+            panditRoutes = pandits
+                .filter((pandit: { id?: string }) => Boolean(pandit.id))
+                .map((pandit: { id: string }) => ({
+                    url: `${baseUrl}/pandit/${pandit.id}`,
+                    lastModified: new Date(),
+                    changeFrequency: "weekly" as const,
+                    priority: 0.8,
+                }));
         }
-    } catch (error) {
-        console.error('Failed to fetch pandits for sitemap:', error);
+    } catch {
+        // Skip dynamic entries if API is unavailable during build.
+        panditRoutes = [];
     }
 
     const staticRoutes: MetadataRoute.Sitemap = [
         {
             url: baseUrl,
             lastModified: new Date(),
-            changeFrequency: 'daily',
+            changeFrequency: "daily",
             priority: 1,
         },
         {
             url: `${baseUrl}/search`,
             lastModified: new Date(),
-            changeFrequency: 'daily',
+            changeFrequency: "daily",
             priority: 0.9,
         },
         {
-            url: `${baseUrl}/muhurat-explorer`,
+            url: `${baseUrl}/muhurat`,
             lastModified: new Date(),
-            changeFrequency: 'daily',
+            changeFrequency: "daily",
             priority: 0.9,
+        },
+        {
+            url: `${baseUrl}/about`,
+            lastModified: new Date(),
+            changeFrequency: "monthly",
+            priority: 0.8,
+        },
+        {
+            url: `${baseUrl}/contact`,
+            lastModified: new Date(),
+            changeFrequency: "monthly",
+            priority: 0.7,
         },
         {
             url: `${baseUrl}/terms`,
             lastModified: new Date(),
-            changeFrequency: 'monthly',
+            changeFrequency: "monthly",
             priority: 0.5,
         },
         {
             url: `${baseUrl}/privacy`,
             lastModified: new Date(),
-            changeFrequency: 'monthly',
+            changeFrequency: "monthly",
             priority: 0.5,
         },
         {
             url: `${baseUrl}/cancellation-policy`,
             lastModified: new Date(),
-            changeFrequency: 'monthly',
+            changeFrequency: "monthly",
             priority: 0.5,
         },
         {
-            url: `${baseUrl}/about`,
+            url: `${baseUrl}/refund`,
             lastModified: new Date(),
-            changeFrequency: 'monthly',
-            priority: 0.8,
+            changeFrequency: "monthly",
+            priority: 0.5,
+        },
+        {
+            url: `${baseUrl}/disclaimer`,
+            lastModified: new Date(),
+            changeFrequency: "monthly",
+            priority: 0.5,
         },
     ];
 

@@ -8,29 +8,45 @@ import { AuthProvider } from "../src/context/auth-context";
 import { CartProvider } from "../src/context/cart-context";
 import AuthModal from "../src/components/auth-modal";
 
+const webUrl = process.env.NEXT_PUBLIC_WEB_URL || "http://localhost:3000";
+
 export const metadata: Metadata = {
+    metadataBase: new URL(webUrl),
     title: {
-        template: '%s | HmarePanditJi',
-        default: 'HmarePanditJi — Book Verified Pandits for Puja Online',
+        template: "%s | HmarePanditJi",
+        default: "HmarePanditJi - Book Verified Pandits for Puja Online",
     },
-    description: 'Book verified Pandits online for all Hindu ceremonies — Vivah, Griha Pravesh, Satyanarayan Puja & more. Transparent pricing, managed travel, verified priests. Delhi-NCR.',
-    keywords: ['pandit booking', 'online puja booking', 'hindu priest', 'vivah pandit', 'griha pravesh', 'delhi pandit', 'verified pandit', 'puja at home', 'muhurat', 'pandit near me'],
+    description:
+        "Book verified Pandits online for all Hindu ceremonies - Vivah, Griha Pravesh, Satyanarayan Puja & more. Transparent pricing, managed travel, verified priests. Delhi-NCR.",
+    keywords: [
+        "pandit booking",
+        "online puja booking",
+        "hindu priest",
+        "vivah pandit",
+        "griha pravesh",
+        "delhi pandit",
+        "verified pandit",
+        "puja at home",
+        "muhurat",
+        "pandit near me",
+    ],
     openGraph: {
-        type: 'website',
-        locale: 'en_IN',
-        url: 'https://hmarepanditji.com',
-        siteName: 'HmarePanditJi',
-        title: 'HmarePanditJi — Book Verified Pandits Online',
-        description: 'India\'s trusted platform for booking verified Pandits. Transparent pricing, travel managed, 500+ priests.',
-        images: [{ url: '/og-image.jpg', width: 1200, height: 630 }],
+        type: "website",
+        locale: "en_IN",
+        url: webUrl,
+        siteName: "HmarePanditJi",
+        title: "HmarePanditJi - Book Verified Pandits Online",
+        description:
+            "India's trusted platform for booking verified Pandits. Transparent pricing, travel managed, 500+ priests.",
+        images: [{ url: "/og-image.jpg", width: 1200, height: 630 }],
     },
     twitter: {
-        card: 'summary_large_image',
-        title: 'HmarePanditJi — Book Verified Pandits Online',
-        description: 'Book verified Pandits for any Hindu ceremony.',
+        card: "summary_large_image",
+        title: "HmarePanditJi - Book Verified Pandits Online",
+        description: "Book verified Pandits for any Hindu ceremony.",
     },
     robots: { index: true, follow: true },
-    alternates: { canonical: 'https://hmarepanditji.com' },
+    alternates: { canonical: webUrl },
 };
 
 export default function RootLayout({
@@ -47,23 +63,25 @@ export default function RootLayout({
                     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
                     rel="stylesheet"
                 />
+                <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+                <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
                 <script
                     type="application/ld+json"
                     dangerouslySetInnerHTML={{
                         __html: JSON.stringify({
                             "@context": "https://schema.org",
                             "@type": "LocalBusiness",
-                            "name": "HmarePanditJi",
-                            "description": "Online platform for booking verified Hindu priests",
-                            "url": "https://hmarepanditji.com",
-                            "areaServed": "Delhi-NCR, India",
-                            "priceRange": "₹₹",
-                            "address": {
+                            name: "HmarePanditJi",
+                            description: "Online platform for booking verified Hindu priests",
+                            url: webUrl,
+                            areaServed: "Delhi-NCR, India",
+                            priceRange: "INR",
+                            address: {
                                 "@type": "PostalAddress",
-                                "addressLocality": "Delhi",
-                                "addressCountry": "IN"
-                            }
-                        })
+                                addressLocality: "Delhi",
+                                addressCountry: "IN",
+                            },
+                        }),
                     }}
                 />
             </head>
@@ -72,9 +90,7 @@ export default function RootLayout({
                     <SamagriCartProvider>
                         <CartProvider>
                             <Header />
-                            <main className="flex-1">
-                                {children}
-                            </main>
+                            <main className="flex-1">{children}</main>
                             <Footer />
                             <CartSidebar />
                             <AuthModal />

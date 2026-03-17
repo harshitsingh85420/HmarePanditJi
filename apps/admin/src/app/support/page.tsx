@@ -52,7 +52,7 @@ export default function SupportLogPage() {
             if (statusFilter !== "ALL") qs.append("status", statusFilter);
             if (priorityFilter !== "ALL") qs.append("priority", priorityFilter);
 
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/admin/support-tickets?${qs.toString()}`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/support-tickets?${qs.toString()}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             const json = await res.json();
@@ -86,7 +86,7 @@ export default function SupportLogPage() {
         if (!subject || !description) return alert("Subject and Description are required");
         try {
             const token = localStorage.getItem("token");
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/admin/support-tickets`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/support-tickets`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                 body: JSON.stringify({
@@ -117,7 +117,7 @@ export default function SupportLogPage() {
     const saveTicketUpdate = async () => {
         try {
             const token = localStorage.getItem("token");
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/admin/support-tickets/${selectedTicket.id}`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/support-tickets/${selectedTicket.id}`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                 body: JSON.stringify({ status: updateStatus, resolution })

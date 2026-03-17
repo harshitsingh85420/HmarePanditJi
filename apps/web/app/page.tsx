@@ -40,10 +40,10 @@ const TUTORIAL_SLIDES = [
   "Manage travel, food, samagri — all in one place.",
   "Guest Mode — no need to register until you book.",
 ];
+const API_BASE = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/api/v1`;
 
 // ---------------------------------------------------------------------------
 // QUICK SEARCH BAR
-// ---------------------------------------------------------------------------
 function QuickSearchBar() {
   const router = useRouter();
   const [pujaType, setPujaType] = useState("");
@@ -59,48 +59,32 @@ function QuickSearchBar() {
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-3 md:p-4 mt-8">
-      <div className="flex flex-col md:flex-row gap-3 md:gap-2 items-stretch md:items-center">
-        <select
-          value={pujaType}
-          onChange={(e) => setPujaType(e.target.value)}
-          className="flex-1 px-4 py-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 bg-gray-50"
-        >
-          <option value="">Puja Type ▾</option>
-          {SUPPORTED_PUJA_TYPES.map((p) => (
-            <option key={p} value={p}>{p}</option>
-          ))}
-        </select>
-
+    <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-2xl p-2 flex flex-col md:flex-row gap-4 items-center max-w-2xl mx-auto mt-8 border border-amber-100 dark:border-zinc-800">
+      <div className="flex-1 flex items-center relative border-b md:border-b-0 md:border-r border-gray-100 dark:border-zinc-800 w-full pl-4">
+        <span className="material-symbols-outlined absolute left-6 top-1/2 -translate-y-1/2 text-[#8a7960] dark:text-gray-400 z-10 text-xl font-bold">search</span>
         <input
           type="text"
-          placeholder="City"
-          value={city}
-          onChange={(e) => setCity(e.target.value)}
-          list="city-list"
-          className="flex-1 px-4 py-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 bg-gray-50"
+          placeholder="Search for Pandits, Pujas, or Muhurats..."
+          className="w-full border-none focus:ring-0 bg-transparent text-sm py-4 text-gray-800 dark:text-gray-200 pl-14 pr-4 font-medium placeholder:font-normal placeholder:text-gray-400"
         />
-        <datalist id="city-list">
-          {SUPPORTED_CITIES.map((c) => <option key={c} value={c} />)}
-        </datalist>
+      </div>
 
-        <input
-          type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-          className="flex-1 px-4 py-3 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 bg-gray-50"
-        />
-
+      <div className="flex items-center gap-3 px-4 w-full md:w-auto shrink-0 pb-2 md:pb-0 justify-between md:justify-end">
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Search All India</span>
+          <button
+            className="w-10 h-6 rounded-full bg-primary/20 relative cursor-pointer border-transparent ring-2 ring-primary/20 hover:bg-primary/30 transition-colors"
+          >
+            <div className="w-4 h-4 rounded-full bg-primary absolute left-1 top-1 shadow-sm"></div>
+          </button>
+        </div>
         <button
           onClick={handleSearch}
-          className="bg-primary text-white px-6 py-3 rounded-lg font-bold text-sm hover:bg-primary/90 transition-all shadow-md shadow-primary/20 flex items-center justify-center gap-2 whitespace-nowrap"
+          className="bg-primary hover:bg-primary/90 text-white font-bold py-3.5 px-8 rounded-lg text-sm transition-all shadow-md active:scale-95"
         >
-          🔍 Search
+          Explore Now
         </button>
       </div>
-      <p className="text-xs text-gray-500 mt-3 text-center">
-        No registration needed to explore →
-      </p>
     </div>
   );
 }
@@ -128,8 +112,8 @@ function MuhuratWidget() {
     async function fetchData() {
       try {
         const [datesRes, upcomingRes] = await Promise.all([
-          fetch(`http://localhost:3001/api/v1/muhurat/dates?month=${month}&year=${year}`),
-          fetch(`http://localhost:3001/api/v1/muhurat/upcoming?limit=3`),
+          fetch(`${API_BASE}/muhurat/dates?month=${month}&year=${year}`),
+          fetch(`${API_BASE}/muhurat/upcoming?limit=3`),
         ]);
         if (datesRes.ok) {
           const d = await datesRes.json();
@@ -274,7 +258,7 @@ function FeaturedPanditsSection() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost:3001/api/v1/pandits?sort=rating&limit=6&verificationStatus=VERIFIED")
+    fetch(`${API_BASE}/pandits?sort=rating&limit=6&verificationStatus=VERIFIED`)
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
         if (d?.data?.pandits) setPandits(d.data.pandits);
@@ -573,193 +557,165 @@ export default function HomePage() {
         ?
       </button>
 
-      {/* HERO SECTION */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-amber-50 via-orange-50 to-white">
-        {/* Mandala pattern overlay */}
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 opacity-5"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23f49d25' fill-opacity='1'%3E%3Ccircle cx='40' cy='40' r='20'/%3E%3Ccircle cx='40' cy='40' r='30' stroke='%23f49d25' stroke-width='1'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-            backgroundSize: "80px 80px",
-          }}
-        />
-
-        <div className="relative mx-auto max-w-7xl px-4 py-16 md:py-24 text-center">
-          {/* Trust badge */}
-          <div className="inline-flex items-center gap-2 bg-white border border-amber-200 rounded-full px-4 py-1.5 text-xs font-bold text-amber-700 mb-6 shadow-sm">
-            <span className="w-2 h-2 rounded-full bg-green-500"></span>
-            500+ Verified Pandits Available Now
-          </div>
-
-          {/* Headline */}
-          <h1 className="text-4xl md:text-6xl font-extrabold text-gray-900 leading-tight tracking-tight mb-4 max-w-4xl mx-auto">
-            Book Verified Pandits for{" "}
-            <span className="text-primary">Every Sacred Occasion</span>
-          </h1>
-
-          {/* Subheadline */}
-          <p className="text-lg md:text-xl text-gray-600 mb-2 max-w-2xl mx-auto">
-            Transparent pricing · Travel managed · Backup guaranteed
-          </p>
-
-          {/* Quick Search */}
-          <div className="max-w-3xl mx-auto">
-            <QuickSearchBar />
-          </div>
-
-          {/* Trust stats */}
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-6 md:gap-10 text-sm font-semibold text-gray-600">
-            <div className="flex items-center gap-2">
-              <span className="text-primary text-lg">🕉</span>
-              <span>500+ Verified Pandits</span>
+      {/* Hero Section from Stitched Design */}
+      <section className="mx-auto max-w-[1280px] px-6 lg:px-20 py-12 md:py-24">
+        <div className="flex flex-col gap-10 lg:flex-row items-center">
+          <div className="flex flex-col gap-8 lg:w-1/2">
+            <div className="flex flex-col gap-4">
+              <span className="inline-flex w-fit items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary">
+                <span className="material-symbols-outlined text-base">verified</span> Authentic & Trusted
+              </span>
+              <h1 className="text-4xl font-black leading-tight tracking-[-0.03em] md:text-6xl text-[#181511]">
+                Book Verified Pandits with <span className="text-primary">Guaranteed Travel</span> & Backup
+              </h1>
+              <p className="text-lg leading-relaxed text-[#5e5241] max-w-[540px]">
+                Experience seamless spiritual ceremonies with Aadhaar-verified experts and automated door-to-door logistics. We ensure your Mahurat is never missed.
+              </p>
             </div>
-            <div className="w-px h-4 bg-gray-300 hidden md:block" />
-            <div className="flex items-center gap-2">
-              <span className="text-yellow-500 text-lg">⭐</span>
-              <span>4.8 Avg Rating</span>
+
+            <div className="w-full">
+              <QuickSearchBar />
             </div>
-            <div className="w-px h-4 bg-gray-300 hidden md:block" />
-            <div className="flex items-center gap-2">
-              <span className="text-green-500 text-lg">✅</span>
-              <span>₹0 Hidden Costs</span>
+
+            <div className="flex flex-wrap gap-4 mt-2">
+              <Link href="/search" className="flex h-12 min-w-[160px] cursor-pointer items-center justify-center rounded-lg bg-primary px-6 text-base font-bold text-white shadow-xl shadow-primary/30 hover:bg-primary/90 transition-all">
+                <span>Book Now</span>
+              </Link>
+              <button className="flex h-12 min-w-[160px] cursor-pointer items-center justify-center rounded-lg border-2 border-[#e6e1db] px-6 text-base font-bold hover:bg-white transition-all">
+                <span className="material-symbols-outlined mr-2">download</span> Download App
+              </button>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* HOW IT WORKS */}
-      <section className="py-16 bg-white">
-        <div className="mx-auto max-w-6xl px-4">
-          <h2 className="text-3xl font-extrabold text-gray-900 text-center mb-12">Book in 3 Simple Steps</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              {
-                icon: "🔍",
-                step: "1",
-                title: "Discover",
-                desc: "Search from 500+ verified Pandits across India. Filter by specialization, language, and travel preference.",
-              },
-              {
-                icon: "📅",
-                step: "2",
-                title: "Book with Muhurat",
-                desc: "Pick an auspicious date from our Muhurat Explorer. Complete pricing shown upfront — no surprises.",
-              },
-              {
-                icon: "🙏",
-                step: "3",
-                title: "Celebrate",
-                desc: "We manage all travel and logistics. Backup guarantee available for important events.",
-              },
-            ].map((s) => (
-              <div key={s.step} className="relative bg-gradient-to-br from-amber-50 to-white border border-amber-100 rounded-2xl p-8 hover:shadow-md transition-shadow">
-                <div className="text-4xl mb-4">{s.icon}</div>
-                <div className="absolute top-4 right-4 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center text-sm font-extrabold">
-                  {s.step}
+          <div className="relative w-full lg:w-1/2">
+            <div
+              className="aspect-square w-full rounded-2xl bg-cover bg-center shadow-2xl overflow-hidden"
+              style={{ backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuD9eBptz8ZTcYEfLp7QaWTwx71FtJLHedZaiC6Q9u8h8X2XVRO3K0xoSc36Ees7qgjcj7LqHegKBh0dvxURu9dzAXxLBn4F7XSIE_Y-YyPEyIVNDICukJ-LUQZFTUdC4fjZE0UubuvKQwVBDg3RVKY_rvSsQlyuglILEVi3L32RXKK4u3vhtYEhFAuHMkmCPRYCLOh1QxjK9x8BSzxez8ER1f4hdG-JLJ1J9hZBOVOicfdcUzxQEfmPSwaZFzI94_aecKdBvTItMxM")' }}
+            >
+            </div>
+            <div className="absolute -bottom-6 -left-6 hidden md:block rounded-xl bg-white p-6 shadow-xl border border-[#e6e1db]">
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100 text-green-600">
+                  <span className="material-symbols-outlined">check_circle</span>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">{s.title}</h3>
-                <p className="text-gray-600 text-sm leading-relaxed">{s.desc}</p>
+                <div>
+                  <p className="text-sm font-bold text-[#181511]">Aadhaar Verified</p>
+                  <p className="text-xs text-[#8a7960]">100% Background Check</p>
+                </div>
               </div>
-            ))}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* MUHURAT WIDGET */}
-      <MuhuratWidget />
+      {/* POPULAR SERVICES GRID */}
+      <section className="mb-16 mx-4 md:mx-10 lg:mx-40 mt-12">
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-2xl font-bold dark:text-white text-gray-900">Popular Services</h2>
+          <Link href="/search" className="text-primary font-semibold text-sm hover:text-primary/80 transition-colors">View All</Link>
+        </div>
 
-      {/* FEATURED PANDITS */}
+        <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">
+          {[
+            { label: "Wedding", icon: "favorite", bg: "bg-amber-50" },
+            { label: "Griha Pravesh", icon: "home", bg: "bg-amber-50" },
+            { label: "Satyanarayan", icon: "festival", bg: "bg-amber-50" },
+            { label: "Namkaran", icon: "child_care", bg: "bg-amber-50" },
+            { label: "Vidhya Arambha", icon: "auto_stories", bg: "bg-amber-50" },
+            { label: "More", icon: "more_horiz", bg: "bg-amber-50" },
+          ].map((c) => (
+            <Link
+              key={c.label}
+              href={c.label !== "More" ? `/search?pujaType=${encodeURIComponent(c.label)}` : '/search'}
+              className="group cursor-pointer block"
+            >
+              <div className={`aspect-[4/3] rounded-3xl ${c.bg} dark:bg-zinc-800 flex flex-col items-center justify-center gap-4 transition-all hover:bg-amber-100 hover:-translate-y-1 hover:shadow-sm`}>
+                <span className="material-symbols-outlined text-[32px] text-primary">{c.icon}</span>
+                <span className="font-bold text-[13px] text-gray-800 dark:text-gray-200">{c.label}</span>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* Value Proposition */}
+      <section className="bg-[#f0ece6] py-20 px-6 lg:px-20">
+        <div className="mx-auto max-w-[1280px]">
+          <div className="mb-16 flex flex-col items-center text-center gap-4">
+            <h2 className="text-3xl font-black text-[#181511] md:text-4xl">Our Value Proposition</h2>
+            <p className="text-base text-[#8a7960] max-w-[600px]">Ensuring a seamless religious experience through technology, punctuality, and trust.</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="flex flex-col gap-4 rounded-2xl bg-white p-8 shadow-sm border border-[#e6e1db] hover:shadow-md transition-shadow">
+              <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                <span className="material-symbols-outlined text-3xl">verified_user</span>
+              </div>
+              <h3 className="text-xl font-bold text-[#181511]">Aadhaar Verified Trust</h3>
+              <p className="text-[#8a7960] leading-relaxed">Every Pandit undergoes rigorous Aadhaar verification and professional background checks for your absolute safety.</p>
+            </div>
+            <div className="flex flex-col gap-4 rounded-2xl bg-white p-8 shadow-sm border border-[#e6e1db] hover:shadow-md transition-shadow">
+              <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                <span className="material-symbols-outlined text-3xl">commute</span>
+              </div>
+              <h3 className="text-xl font-bold text-[#181511]">Door-to-Door Logistics</h3>
+              <p className="text-[#8a7960] leading-relaxed">We handle all travel arrangements through our automated logistics platform, ensuring punctuality and stress-free arrival.</p>
+            </div>
+            <div className="flex flex-col gap-4 rounded-2xl bg-white p-8 shadow-sm border border-[#e6e1db] hover:shadow-md transition-shadow">
+              <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                <span className="material-symbols-outlined text-3xl">sync_saved_locally</span>
+              </div>
+              <h3 className="text-xl font-bold text-[#181511]">100% Uptime Backup</h3>
+              <p className="text-[#8a7960] leading-relaxed">Never miss a mahurat. We maintain a standby Pandit network ready to fill in for every booking in case of emergencies.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Feature Sections */}
+      <MuhuratWidget />
       <FeaturedPanditsSection />
 
-      {/* PUJA CATEGORIES */}
-      <section className="py-16 bg-amber-50/30">
-        <div className="mx-auto max-w-6xl px-4">
-          <h2 className="text-3xl font-extrabold text-gray-900 text-center mb-10">Browse by Occasion</h2>
-          <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
-            {PUJA_CATEGORIES.map((c) =>
-              c.label ? (
-                <Link
-                  key={c.label}
-                  href={`/search?pujaType=${encodeURIComponent(c.label)}`}
-                  className="bg-white rounded-xl border border-gray-100 p-4 flex flex-col items-center text-center hover:border-primary hover:shadow-md transition-all group"
-                >
-                  <span className="text-3xl mb-2 group-hover:scale-110 transition-transform">{c.emoji}</span>
-                  <span className="text-xs font-bold text-gray-800">{c.label}</span>
-                  <span className="text-[10px] text-gray-400 mt-0.5">{c.sub}</span>
-                </Link>
-              ) : (
-                <Link
-                  key="view-all"
-                  href="/search"
-                  className="bg-primary rounded-xl border border-primary p-4 flex flex-col items-center text-center hover:bg-primary/90 transition-all group"
-                >
-                  <span className="text-3xl mb-2">📿</span>
-                  <span className="text-xs font-bold text-white">View All →</span>
-                  <span className="text-[10px] text-white/70 mt-0.5">{c.sub}</span>
-                </Link>
-              )
-            )}
+      {/* Social Proof Section */}
+      <section className="mx-auto max-w-[1280px] px-6 lg:px-20 py-24">
+        <div className="flex flex-wrap items-center justify-between gap-8 rounded-3xl bg-primary p-10 md:p-16">
+          <div className="flex flex-col gap-4 max-w-[400px]">
+            <h2 className="text-3xl font-black text-white md:text-4xl">Trusted by Thousands of Families</h2>
+            <p className="text-white/80 font-medium">Spreading spiritual harmony across the nation through reliable service.</p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-8 flex-1">
+            <div className="text-center md:text-left">
+              <p className="text-4xl font-black text-white">50,000+</p>
+              <p className="text-white/80 text-sm font-bold uppercase tracking-wide">Successful Ceremonies</p>
+            </div>
+            <div className="text-center md:text-left">
+              <p className="text-4xl font-black text-white">2,500+</p>
+              <p className="text-white/80 text-sm font-bold uppercase tracking-wide">Verified Pandits</p>
+            </div>
+            <div className="text-center md:text-left col-span-2 md:col-span-1">
+              <p className="text-4xl font-black text-white">40+</p>
+              <p className="text-white/80 text-sm font-bold uppercase tracking-wide">Cities Covered</p>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* TRUST & SAFETY */}
-      <section className="py-16 bg-white">
-        <div className="mx-auto max-w-6xl px-4">
-          <h2 className="text-3xl font-extrabold text-gray-900 text-center mb-12">Why Trust HmarePanditJi?</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              {
-                icon: "🛡️",
-                title: "Multi-Layer Verification",
-                desc: "Every Pandit undergoes Aadhaar verification, certificate validation, and live Video KYC before joining.",
-              },
-              {
-                icon: "💰",
-                title: "100% Transparent Pricing",
-                desc: "Dakshina + Travel + Samagri + GST — all shown upfront before you pay. Zero hidden charges.",
-              },
-              {
-                icon: "✈️",
-                title: "Travel Fully Managed",
-                desc: "We coordinate train tickets, flights, cabs, and hotel for outstation Pandits. You just attend the ceremony.",
-              },
-            ].map((t) => (
-              <div key={t.title} className="bg-gradient-to-br from-gray-50 to-white border border-gray-100 rounded-2xl p-8 hover:shadow-md transition-shadow">
-                <div className="text-4xl mb-4">{t.icon}</div>
-                <h3 className="text-lg font-bold text-gray-900 mb-2">{t.title}</h3>
-                <p className="text-gray-600 text-sm leading-relaxed">{t.desc}</p>
-              </div>
-            ))}
+      {/* Call to Action */}
+      <section className="mx-auto max-w-[1280px] px-6 lg:px-20 py-20 text-center">
+        <div className="flex flex-col items-center gap-8 rounded-3xl bg-white border border-primary/20 p-12 md:py-24 shadow-2xl">
+          <div className="flex flex-col gap-4 items-center">
+            <div className="h-16 w-16 bg-primary/20 rounded-full flex items-center justify-center text-primary mb-4">
+              <span className="material-symbols-outlined text-4xl">celebration</span>
+            </div>
+            <h2 className="text-3xl font-black text-[#181511] md:text-5xl">Ready to book your ceremony?</h2>
+            <p className="text-lg text-[#8a7960] max-w-[600px]">Join thousands of families who trust HmarePanditJi for their sacred rituals and auspicious beginnings.</p>
           </div>
-        </div>
-      </section>
-
-      {/* CTA BANNER */}
-      <section className="py-16 bg-gradient-to-r from-primary to-amber-400">
-        <div className="mx-auto max-w-4xl px-4 text-center">
-          <h2 className="text-3xl md:text-4xl font-extrabold text-white mb-4">
-            Ready to Book Your Sacred Ceremony?
-          </h2>
-          <p className="text-white/80 text-lg mb-8">
-            Join thousands of families who trust HmarePanditJi for their sacred rituals.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link
-              href="/search"
-              className="bg-white text-primary px-8 py-3 rounded-btn font-bold text-lg hover:bg-gray-50 transition-all shadow-lg"
-            >
-              Find a Pandit Now
+          <div className="flex flex-col sm:flex-row gap-4">
+            <Link href="/search" className="flex h-14 min-w-[200px] cursor-pointer items-center justify-center rounded-xl bg-primary px-8 text-lg font-bold text-white shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all">
+              <span>Get Started Now</span>
             </Link>
-            <Link
-              href="/muhurat"
-              className="bg-white/20 text-white border-2 border-white/40 px-8 py-3 rounded-btn font-bold text-lg hover:bg-white/30 transition-all"
-            >
-              View Muhurat Calendar
-            </Link>
+            <button className="flex h-14 min-w-[200px] cursor-pointer items-center justify-center rounded-xl border-2 border-primary/30 px-8 text-lg font-bold text-primary hover:bg-primary/5 transition-all">
+              <span>Contact Sales</span>
+            </button>
           </div>
-          <p className="text-white/60 text-sm mt-4">Just exploring? <Link href="/" className="text-white underline">Continue as Guest →</Link></p>
         </div>
       </section>
     </>

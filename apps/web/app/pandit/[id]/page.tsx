@@ -6,6 +6,7 @@ import { TravelOptionsTab } from "./TravelOptionsTab";
 import { AvailabilityCalendar } from "./AvailabilityCalendar";
 import { ProfileTabs } from "./profile-tabs";
 import { ServicesTab } from "./ServicesTab";
+import { BookingCTA } from "./BookingCTA";
 
 export const revalidate = 60; // Revalidate every 60 seconds
 
@@ -172,65 +173,59 @@ export default async function PanditProfilePage({ params }: { params: { id: stri
     return (
         <div className="min-h-screen bg-gray-50 pb-24 md:pb-12">
             {/* Hero Section */}
-            <section className="bg-gradient-to-r from-orange-500 to-red-600 pt-12 pb-24 px-4 text-white relative">
-                <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center md:items-start gap-6">
-                    <div className="relative">
-                        <div className="w-32 h-32 md:w-36 md:h-36 rounded-full border-4 border-white overflow-hidden bg-white shadow-lg relative">
+            <section className="max-w-[1280px] mx-auto px-6 mt-8 mb-6 relative">
+                <div className="bg-white dark:bg-[#221a10] rounded-xl p-6 shadow-sm border border-[#f49d25]/10">
+                    <div className="flex flex-col md:flex-row gap-6">
+                        <div className="relative aspect-square min-h-[160px] w-[160px] md:min-w-[160px] md:h-[160px] rounded-xl border-4 border-[#f49d25]/20 shadow-lg overflow-hidden shrink-0">
                             <Image
                                 src={pandit.profilePhotoUrl || "/default-avatar.png"}
                                 alt={user.name}
                                 fill
                                 className="object-cover"
                             />
+                            {isOnline && (
+                                <div className="absolute top-2 right-2 w-4 h-4 bg-green-500 rounded-full border-2 border-white shadow-sm" title="Online now" />
+                            )}
                         </div>
-                        {isOnline && (
-                            <div className="absolute bottom-2 right-2 w-5 h-5 bg-green-500 rounded-full border-2 border-white" title="Online now" />
-                        )}
-                    </div>
-
-                    <div className="flex-1 text-center md:text-left">
-                        <div className="flex flex-col md:flex-row items-center gap-3 mb-2">
-                            <h1 className="text-3xl font-bold">{user.name}</h1>
-                            <span className="bg-green-100 text-green-800 text-xs px-2.5 py-0.5 rounded-full font-semibold border border-green-200">
-                                ✅ Verified Vedic
-                            </span>
-                        </div>
-
-                        <p className="text-orange-100 text-lg mb-3">
-                            {location} · {experienceYears} years experience
-                        </p>
-
-                        <div className="flex flex-wrap justify-center md:justify-start gap-2 mb-4">
-                            {languages?.map((lang: string) => (
-                                <span key={lang} className="bg-white/20 px-3 py-1 rounded-full text-sm">
-                                    {lang}
-                                </span>
-                            ))}
-                        </div>
-
-                        <div className="flex flex-wrap justify-center md:justify-start gap-2 mb-4">
-                            {specializations?.map((spec: string) => (
-                                <span key={spec} className="bg-orange-800/40 border border-orange-300/30 px-3 py-1 rounded-full text-sm">
-                                    {spec}
-                                </span>
-                            ))}
-                        </div>
-
-                        <div className="flex items-center justify-center md:justify-start gap-4 text-sm text-orange-100/90 font-medium">
-                            <div className="flex items-center gap-1">
-                                ⭐ <span className="text-white font-bold">{formattedRating}</span> ({totalRev} reviews)
+                        <div className="flex flex-col flex-1">
+                            <div className="flex justify-between items-start">
+                                <div>
+                                    <h1 className="text-[#181511] dark:text-white text-3xl font-bold leading-tight flex items-center gap-2">
+                                        {user.name}
+                                        <span className="material-symbols-outlined text-green-600 text-2xl" title="Verified Vedic Priest">verified</span>
+                                    </h1>
+                                    <p className="text-[#f49d25] font-semibold text-lg mt-1">{specializations?.[0] || 'Vedic Priest & Ritual Expert'}</p>
+                                </div>
+                                <button className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-lg bg-[#f49d25]/10 text-[#f49d25] border border-[#f49d25]/20 hover:bg-[#f49d25]/20 transition-all">
+                                    <span className="material-symbols-outlined">play_circle</span>
+                                    <span className="font-bold text-sm">Watch Intro</span>
+                                </button>
                             </div>
-                            <div className="bg-white/30 w-1 h-1 rounded-full" />
-                            <div>{completedBookings} completed</div>
-                            <div className="bg-white/30 w-1 h-1 rounded-full" />
-                            <div>{travelBadge}</div>
-                        </div>
+                            <p className="text-[#8a7960] dark:text-[#b0a08a] mt-3 flex flex-wrap items-center gap-2 text-sm">
+                                <span className="material-symbols-outlined text-sm">location_on</span>
+                                {location} <span className="mx-1">|</span> {experienceYears}+ Years Experience <span className="mx-1">|</span> {completedBookings}+ Ceremonies
+                            </p>
 
-                        {(deviceModel || deviceOs) && (
-                            <div className="mt-4 text-xs text-white/60">
-                                📱 {deviceModel || "Smartphone"} · {deviceOs || "Active"}
+                            <div className="flex flex-wrap items-center gap-4 mt-5">
+                                <div className="flex flex-col">
+                                    <div className="flex items-center gap-1 text-[#f49d25]">
+                                        <span className="material-symbols-outlined text-lg fill-1" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                                        <span className="text-xl font-bold">{formattedRating}</span>
+                                    </div>
+                                    <span className="text-[#8a7960] text-xs">{totalRev} Reviews</span>
+                                </div>
+                                <div className="h-8 w-px bg-[#f49d25]/20"></div>
+                                <div className="flex flex-col">
+                                    <span className="text-xl font-bold text-[#181511] dark:text-white">{completedBookings}+</span>
+                                    <span className="text-[#8a7960] text-xs">Ceremonies</span>
+                                </div>
+                                <div className="h-8 w-px bg-[#f49d25]/20"></div>
+                                <div className="flex flex-col items-center justify-center">
+                                    <span className="text-sm font-bold text-[#181511] dark:text-white mt-1">{travelBadge.split(' ')[0]}</span>
+                                    <span className="text-[#8a7960] text-xs">{travelBadge.split(' ').slice(1).join(' ')}</span>
+                                </div>
                             </div>
-                        )}
+                        </div>
                     </div>
                 </div>
             </section>
@@ -247,18 +242,7 @@ export default async function PanditProfilePage({ params }: { params: { id: stri
                             Share Profile
                         </button>
                     </div>
-                    <div className="flex items-center gap-6">
-                        <div className="text-right">
-                            <p className="text-sm text-gray-500">Starting from</p>
-                            <p className="text-2xl font-bold text-gray-900">₹{lowestPrice}</p>
-                        </div>
-                        <Link
-                            href={`/booking/new?panditId=${pandit.id}`}
-                            className="bg-orange-600 hover:bg-orange-700 text-white px-8 py-3 rounded-xl font-bold text-lg shadow-lg hover:shadow-orange-500/30 transition transform hover:-translate-y-0.5"
-                        >
-                            Check Availability & Book
-                        </Link>
-                    </div>
+                    <BookingCTA panditId={pandit.id} lowestPrice={lowestPrice} />
                 </div>
             </div>
 
@@ -273,18 +257,7 @@ export default async function PanditProfilePage({ params }: { params: { id: stri
             </div>
 
             {/* Mobile Sticky CTA */}
-            <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] p-4 z-50 flex items-center justify-between">
-                <div>
-                    <p className="text-xs text-gray-500">Starting from</p>
-                    <p className="text-xl font-bold text-gray-900">₹{lowestPrice}</p>
-                </div>
-                <Link
-                    href={`/booking/new?panditId=${pandit.id}`}
-                    className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-3 rounded-xl font-bold text-sm shadow-md"
-                >
-                    Book Now
-                </Link>
-            </div>
+            <BookingCTA panditId={pandit.id} lowestPrice={lowestPrice} isMobile />
         </div>
     );
 }

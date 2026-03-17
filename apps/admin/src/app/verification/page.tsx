@@ -162,8 +162,8 @@ export default function VerificationPage() {
           <button
             onClick={() => setActiveTab("PENDING")}
             className={`flex-1 py-1.5 rounded text-xs font-semibold transition-colors ${activeTab === "PENDING"
-                ? "bg-[#137fec] text-white"
-                : "bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white"
+              ? "bg-[#137fec] text-white"
+              : "bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white"
               }`}
           >
             PENDING ({pendingCount})
@@ -171,8 +171,8 @@ export default function VerificationPage() {
           <button
             onClick={() => setActiveTab("REVIEW")}
             className={`flex-1 py-1.5 rounded text-xs font-semibold transition-colors ${activeTab === "REVIEW"
-                ? "bg-[#137fec] text-white"
-                : "bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white"
+              ? "bg-[#137fec] text-white"
+              : "bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white"
               }`}
           >
             REVIEWS ({reviewCount})
@@ -191,8 +191,8 @@ export default function VerificationPage() {
                   key={applicant.id}
                   onClick={() => setSelectedId(applicant.id)}
                   className={`w-full text-left p-4 transition-colors ${isSelected
-                      ? "bg-[#137fec]/5 border-l-4 border-[#137fec]"
-                      : "hover:bg-slate-50 dark:hover:bg-slate-800/50 border-l-4 border-transparent"
+                    ? "bg-[#137fec]/5 border-l-4 border-[#137fec]"
+                    : "hover:bg-slate-50 dark:hover:bg-slate-800/50 border-l-4 border-transparent"
                     }`}
                 >
                   {/* App ID + Time */}
@@ -334,7 +334,7 @@ export default function VerificationPage() {
                             <span>{note.time}</span>
                             <span>{note.label}</span>
                           </div>
-                          <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed italic">"{note.note}"</p>
+                          <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed italic">&quot;{note.note}&quot;</p>
                         </div>
                       )) : (
                         <p className="text-xs text-slate-400 italic">No specific phonetic notes generated.</p>

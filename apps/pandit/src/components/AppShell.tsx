@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import SidebarLayout from "./SidebarLayout";
 
-const MINIMAL_PATHS = ["/onboarding", "/auth", "/login"];
+const MINIMAL_PATHS = ["/onboarding", "/auth", "/login", "/tutorial"];
 
 function getToken() {
   if (typeof window === "undefined") return null;

@@ -1,9 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Button, Card, Input, Badge } from "@hmarepanditji/ui";
-import { MapPin, User as UserIcon, Bell, Users, Trash2, Edit2, CheckCircle2, AlertCircle } from "lucide-react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function ProfilePage() {
@@ -12,7 +9,7 @@ export default function ProfilePage() {
     const [profile, setProfile] = useState<any>(null);
     const [user, setUser] = useState<any>(null);
 
-    // Edit mode states
+    // Editing states
     const [isEditingSectionA, setIsEditingSectionA] = useState(false);
     const [formDataSectionA, setFormDataSectionA] = useState({ name: "", email: "", preferredLanguages: [] as string[] });
 
@@ -32,7 +29,6 @@ export default function ProfilePage() {
 
     const [isLoading, setIsLoading] = useState(true);
     const [saveLoading, setSaveLoading] = useState(false);
-    const [error, setError] = useState("");
 
     const SUPPORTED_LANGUAGES = ["Hindi", "Sanskrit", "English", "Bhojpuri", "Maithili"];
 
@@ -67,7 +63,6 @@ export default function ProfilePage() {
 
     const handleSaveSectionA = async () => {
         setSaveLoading(true);
-        setError("");
         try {
             const token = localStorage.getItem("token");
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/customers/me`, {
@@ -79,332 +74,224 @@ export default function ProfilePage() {
             await fetchProfile();
             setIsEditingSectionA(false);
         } catch (err: any) {
-            setError(err.message);
+            console.error(err);
         } finally {
             setSaveLoading(false);
         }
     };
 
-    const toggleLanguage = (lang: string) => {
-        setFormDataSectionA(prev => {
-            const isSelected = prev.preferredLanguages.includes(lang);
-            if (isSelected) {
-                return { ...prev, preferredLanguages: prev.preferredLanguages.filter(l => l !== lang) };
-            }
-            return { ...prev, preferredLanguages: [...prev.preferredLanguages, lang] };
-        });
-    };
-
-    const handleSaveAddress = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setSaveLoading(true);
-        try {
-            const token = localStorage.getItem("token");
-            const isEdit = !!addressForm.id;
-            const url = isEdit
-                ? `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/customers/me/addresses/${addressForm.id}`
-                : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/customers/me/addresses`;
-
-            const res = await fetch(url, {
-                method: isEdit ? "PUT" : "POST",
-                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-                body: JSON.stringify(addressForm)
-            });
-            if (!res.ok) throw new Error("Failed to save address");
-            await fetchProfile();
-            setShowAddressForm(false);
-            resetAddressForm();
-        } catch (err: any) {
-            setError("Failed to save address: " + err.message);
-        } finally {
-            setSaveLoading(false);
-        }
-    };
-
-    const setPrimaryAddress = async (id: string, currentData: any) => {
-        try {
-            const token = localStorage.getItem("token");
-            const url = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/customers/me/addresses/${id}`;
-            await fetch(url, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-                body: JSON.stringify({ isDefault: true })
-            });
-            fetchProfile();
-        } catch (err) {
-            console.error(err);
-        }
-    }
-
-    const handleDeleteAddress = async (id: string) => {
-        if (!confirm("Are you sure you want to delete this address?")) return;
-        try {
-            const token = localStorage.getItem("token");
-            const url = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/customers/me/addresses/${id}`;
-            await fetch(url, {
-                method: "DELETE",
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            fetchProfile();
-        } catch (err) {
-            console.error(err);
-        }
-    }
-
-    const resetAddressForm = () => {
-        setAddressForm({
-            id: "",
-            label: "Home",
-            fullAddress: "",
-            city: "",
-            state: "Delhi",
-            pincode: "",
-            landmark: "",
-            isDefault: addresses.length === 0
-        });
-    };
-
-    if (isLoading) return <div className="p-8 text-center text-amber-600">Loading profile...</div>;
+    if (isLoading) return <div className="p-8 text-center text-[#f29e0d]">Loading profile...</div>;
 
     return (
-        <div className="max-w-4xl mx-auto py-8 px-4 grid grid-cols-1 md:grid-cols-[1fr,300px] gap-8">
-
-            <div className="space-y-6">
-                {/* SECTION A: Personal Details */}
-                <Card className="p-6">
-                    <div className="flex justify-between items-center mb-6">
-                        <h2 className="text-xl font-bold flex items-center gap-2">
-                            <UserIcon className="w-5 h-5 text-amber-600" /> Personal Details
-                        </h2>
-                        {!isEditingSectionA ? (
-                            <Button variant="outline" size="sm" onClick={() => setIsEditingSectionA(true)}>
-                                <Edit2 className="w-4 h-4 mr-2" /> Edit
-                            </Button>
-                        ) : (
-                            <div className="flex gap-2">
-                                <Button variant="outline" size="sm" onClick={() => setIsEditingSectionA(false)}>Cancel</Button>
-                                <Button variant="primary" size="sm" onClick={handleSaveSectionA} disabled={saveLoading}>Save</Button>
-                            </div>
-                        )}
+        <div className="flex-1 flex flex-col gap-8 pb-12 w-full max-w-5xl">
+            {/* Section: My Profile */}
+            <section className="bg-[#27231b] rounded-xl p-8 border border-[#393328] shadow-xl">
+                <div className="flex justify-between items-start mb-6">
+                    <div>
+                        <h2 className="text-2xl font-bold text-white mb-1">My Profile</h2>
+                        <p className="text-[#baaf9c] text-sm">Personal details and preferences</p>
                     </div>
-
-                    <div className="space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label className="text-sm text-gray-500">Name</label>
-                                {isEditingSectionA ? (
-                                    <Input value={formDataSectionA.name} onChange={(e) => setFormDataSectionA({ ...formDataSectionA, name: e.target.value })} className="mt-1" />
-                                ) : (
-                                    <p className="font-medium mt-1">{user?.name || "Not provided"}</p>
-                                )}
-                            </div>
-                            <div>
-                                <label className="text-sm text-gray-500">Email (Optional)</label>
-                                {isEditingSectionA ? (
-                                    <Input value={formDataSectionA.email} onChange={(e) => setFormDataSectionA({ ...formDataSectionA, email: e.target.value })} className="mt-1" />
-                                ) : (
-                                    <p className="font-medium mt-1">{user?.email || "Not provided"}</p>
-                                )}
-                            </div>
-                        </div>
-
-                        <div>
-                            <label className="text-sm text-gray-500 flex items-center gap-2">
-                                Phone Number
-                                <Badge variant="success" className="px-1.5 py-0 items-center justify-center h-4"><span className="text-[10px]">✓ Verified</span></Badge>
-                            </label>
-                            <p className="font-medium mt-1 text-gray-700 bg-gray-50 py-2 px-3 rounded-lg border border-gray-200 inline-block w-full md:w-auto">
-                                {user?.phone}
-                            </p>
-                        </div>
-
-                        <div>
-                            <label className="text-sm text-gray-500 mb-2 block">Preferred Languages</label>
-                            <div className="flex gap-2 flex-wrap">
-                                {isEditingSectionA ? (
-                                    SUPPORTED_LANGUAGES.map(lang => {
-                                        const isSel = formDataSectionA.preferredLanguages.includes(lang);
-                                        return (
-                                            <button
-                                                key={lang}
-                                                onClick={() => toggleLanguage(lang)}
-                                                className={`px-3 py-1 rounded-full text-sm font-medium border transition-colors ${isSel ? 'bg-amber-100 border-amber-500 text-amber-700' : 'bg-white border-gray-300 text-gray-600'}`}
-                                            >
-                                                {lang}
-                                            </button>
-                                        );
-                                    })
-                                ) : (
-                                    formDataSectionA.preferredLanguages.length > 0 ? formDataSectionA.preferredLanguages.map((lang: string) => (
-                                        <Badge key={lang} variant="neutral" className="border border-amber-200 bg-amber-50 text-amber-700 rounded-full">{lang}</Badge>
-                                    )) : <span className="text-sm text-gray-500 italic">None selected</span>
-                                )}
-                            </div>
-                        </div>
-                        {error && <div className="text-red-500 text-sm">{error}</div>}
-                    </div>
-                </Card>
-
-                {/* SECTION B: Addresses */}
-                <Card className="p-6">
-                    <div className="flex justify-between items-center mb-6">
-                        <h2 className="text-xl font-bold flex items-center gap-2">
-                            <MapPin className="w-5 h-5 text-indigo-600" /> Saved Addresses
-                        </h2>
-                        {!showAddressForm && (
-                            <Button variant="outline" size="sm" onClick={() => { resetAddressForm(); setShowAddressForm(true); }}>
-                                + Add New
-                            </Button>
-                        )}
-                    </div>
-
-                    {showAddressForm ? (
-                        <form onSubmit={handleSaveAddress} className="bg-gray-50 p-4 rounded-xl border border-gray-200 space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="col-span-2 md:col-span-1">
-                                    <label className="text-sm font-medium">Label</label>
-                                    <select
-                                        value={addressForm.label}
-                                        onChange={e => setAddressForm({ ...addressForm, label: e.target.value })}
-                                        className="mt-1 block w-full outline-none border-gray-300 rounded-lg p-2 border focus:ring-amber-500 focus:border-amber-500"
-                                    >
-                                        <option>Home</option>
-                                        <option>Office</option>
-                                        <option>Temple</option>
-                                        <option>Other</option>
-                                    </select>
-                                </div>
-                                <div className="col-span-2 md:col-span-1 border self-end flex items-center p-2 rounded-lg bg-white border-gray-300 h-[42px]">
-                                    <input
-                                        type="checkbox"
-                                        id="isDefault"
-                                        className="w-4 h-4 text-amber-600 rounded mr-2 focus:ring-amber-500"
-                                        checked={addressForm.isDefault}
-                                        onChange={e => setAddressForm({ ...addressForm, isDefault: e.target.checked })}
-                                    />
-                                    <label htmlFor="isDefault" className="text-sm">Set as Primary Address</label>
-                                </div>
-                                <div className="col-span-2">
-                                    <label className="text-sm font-medium">Full Address</label>
-                                    <textarea
-                                        required
-                                        value={addressForm.fullAddress}
-                                        onChange={e => setAddressForm({ ...addressForm, fullAddress: e.target.value })}
-                                        className="mt-1 block w-full outline-none border-gray-300 rounded-lg p-2 border min-h-[80px]"
-                                        placeholder="House/Flat No., Building Name, Street"
-                                    />
-                                </div>
-                                <div className="col-span-2 md:col-span-1">
-                                    <label className="text-sm font-medium">City</label>
-                                    <Input required value={addressForm.city} onChange={e => setAddressForm({ ...addressForm, city: e.target.value })} />
-                                </div>
-                                <div className="col-span-2 md:col-span-1">
-                                    <label className="text-sm font-medium">PIN Code</label>
-                                    <Input required value={addressForm.pincode} onChange={e => setAddressForm({ ...addressForm, pincode: e.target.value })} maxLength={6} pattern="\d{6}" placeholder="e.g. 110001" />
-                                </div>
-                                <div className="col-span-2">
-                                    <label className="text-sm font-medium">Landmark (Optional)</label>
-                                    <Input value={addressForm.landmark} onChange={e => setAddressForm({ ...addressForm, landmark: e.target.value })} />
-                                </div>
-                            </div>
-
-                            <div className="flex gap-2 justify-end pt-2">
-                                <Button variant="outline" type="button" onClick={() => setShowAddressForm(false)}>Cancel</Button>
-                                <Button variant="primary" type="submit" disabled={saveLoading}>Save Address</Button>
-                            </div>
-                        </form>
+                    {!isEditingSectionA ? (
+                        <button
+                            onClick={() => setIsEditingSectionA(true)}
+                            className="text-[#f29e0d] border border-[#f29e0d]/30 hover:bg-[#f29e0d]/10 px-4 py-2 rounded-lg text-sm font-semibold transition-all">
+                            Edit Details
+                        </button>
                     ) : (
-                        <div className="space-y-4">
-                            {addresses.map(addr => (
-                                <div key={addr.id} className={`p-4 rounded-xl border relative transition-all ${addr.isDefault ? 'border-amber-400 bg-amber-50/50' : 'border-gray-200 bg-white'}`}>
-                                    {addr.isDefault && (
-                                        <span className="absolute top-4 right-4 text-amber-600 text-xs font-bold uppercase flex items-center">
-                                            <CheckCircle2 className="w-3 h-3 mr-1" /> Primary
-                                        </span>
-                                    )}
-                                    <h3 className="font-bold text-gray-800 mb-1">{addr.label}</h3>
-                                    <p className="text-sm text-gray-600 mb-1">{addr.fullAddress}</p>
-                                    <p className="text-sm text-gray-600">{addr.city}, {addr.state} - {addr.pincode}</p>
-                                    {addr.landmark && <p className="text-xs text-gray-500 mt-1">Landmark: {addr.landmark}</p>}
-
-                                    <div className="flex gap-3 mt-4 pt-3 border-t">
-                                        <button
-                                            onClick={() => {
-                                                setAddressForm(addr);
-                                                setShowAddressForm(true);
-                                            }}
-                                            className="text-xs text-indigo-600 font-medium hover:underline flex items-center"
-                                        >
-                                            <Edit2 className="w-3 h-3 mr-1" /> Edit
-                                        </button>
-                                        {!addr.isDefault && (
-                                            <button
-                                                onClick={() => setPrimaryAddress(addr.id, addr)}
-                                                className="text-xs text-amber-600 font-medium hover:underline flex items-center"
-                                            >
-                                                <CheckCircle2 className="w-3 h-3 mr-1" /> Set as Primary
-                                            </button>
-                                        )}
-                                        <button
-                                            onClick={() => handleDeleteAddress(addr.id)}
-                                            className="text-xs text-red-500 font-medium hover:underline flex items-center ml-auto"
-                                        >
-                                            <Trash2 className="w-3 h-3 mr-1" /> Delete
-                                        </button>
-                                    </div>
-                                </div>
-                            ))}
-                            {addresses.length === 0 && (
-                                <div className="text-center py-8 text-gray-500 text-sm">
-                                    No addresses saved yet. Add one to speed up booking.
-                                </div>
-                            )}
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => setIsEditingSectionA(false)}
+                                className="text-white border border-[#393328] hover:bg-[#393328] px-4 py-2 rounded-lg text-sm font-semibold transition-all">
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleSaveSectionA}
+                                disabled={saveLoading}
+                                className="bg-[#f29e0d] text-black px-4 py-2 rounded-lg text-sm font-semibold transition-all hover:bg-[#f29e0d]/90">
+                                Save
+                            </button>
                         </div>
                     )}
-                </Card>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="flex flex-col gap-2">
+                        <label className="text-sm font-medium text-[#baaf9c]">Full Name</label>
+                        {isEditingSectionA ? (
+                            <input
+                                value={formDataSectionA.name}
+                                onChange={(e) => setFormDataSectionA({ ...formDataSectionA, name: e.target.value })}
+                                className="bg-[#181511] p-3 rounded-lg border border-[#393328] text-white focus:ring-1 focus:ring-[#f29e0d] outline-none"
+                            />
+                        ) : (
+                            <div className="bg-[#393328]/50 p-3 rounded-lg border border-[#393328] text-white overflow-hidden text-ellipsis whitespace-nowrap">
+                                {user?.name || "Not provided"}
+                            </div>
+                        )}
+                    </div>
+                    <div className="flex flex-col gap-2">
+                        <label className="text-sm font-medium text-[#baaf9c]">Phone Number</label>
+                        <div className="bg-[#393328]/50 p-3 rounded-lg border border-[#393328] text-white flex justify-between items-center">
+                            {user?.phone}
+                            <span className="text-[10px] bg-green-900 text-green-400 px-1.5 py-0.5 rounded uppercase tracking-wider font-bold">Verified</span>
+                        </div>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                        <label className="text-sm font-medium text-[#baaf9c]">Preferred Languages</label>
+                        {isEditingSectionA ? (
+                            <select
+                                multiple
+                                value={formDataSectionA.preferredLanguages}
+                                onChange={(e) => {
+                                    const opts = Array.from(e.target.selectedOptions, option => option.value);
+                                    setFormDataSectionA({ ...formDataSectionA, preferredLanguages: opts });
+                                }}
+                                className="bg-[#181511] p-3 rounded-lg border border-[#393328] text-white focus:ring-1 focus:ring-[#f29e0d] outline-none h-24"
+                            >
+                                {SUPPORTED_LANGUAGES.map(lang => (
+                                    <option key={lang} value={lang}>{lang}</option>
+                                ))}
+                            </select>
+                        ) : (
+                            <div className="bg-[#393328]/50 p-3 rounded-lg border border-[#393328] text-white overflow-hidden text-ellipsis whitespace-nowrap">
+                                {profile?.preferredLanguages?.join(", ") || "English & Hindi"}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </section>
+
+            {/* Section: My Family */}
+            <section className="bg-[#27231b] rounded-xl p-8 border border-[#393328] shadow-xl">
+                <div className="flex justify-between items-center mb-6">
+                    <div>
+                        <h2 className="text-2xl font-bold text-white mb-1">My Family & Gotra</h2>
+                        <p className="text-[#baaf9c] text-sm">Add family members for personalized rituals</p>
+                    </div>
+                    <button
+                        onClick={() => router.push('/dashboard/family')}
+                        className="flex items-center gap-2 bg-[#f29e0d]/20 text-[#f29e0d] px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#f29e0d]/30 transition-all">
+                        <span className="material-symbols-outlined text-base">add</span>
+                        Manage members
+                    </button>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Placeholder for Family Members - We link to /family to manage */}
+                    <div className="flex items-center gap-4 p-4 rounded-xl border border-[#393328] bg-[#181511]/30">
+                        <div className="size-12 rounded-full bg-[#f29e0d]/10 flex items-center justify-center text-[#f29e0d]">
+                            <span className="material-symbols-outlined">person</span>
+                        </div>
+                        <div className="flex-1">
+                            <h4 className="text-white font-semibold">You ({user?.name || "User"})</h4>
+                            <p className="text-[#baaf9c] text-xs">Gotra: {(profile as any)?.gotra || "Not specified"}</p>
+                        </div>
+                        <button onClick={() => router.push('/dashboard/family')} className="text-[#baaf9c] hover:text-white transition-colors">
+                            <span className="material-symbols-outlined text-xl">edit</span>
+                        </button>
+                    </div>
+                    {(profile as any)?.familyMembers?.slice(0, 1).map((member: any, i: number) => (
+                        <div key={i} className="flex items-center gap-4 p-4 rounded-xl border border-[#393328] bg-[#181511]/30">
+                            <div className="size-12 rounded-full bg-[#f29e0d]/10 flex items-center justify-center text-[#f29e0d]">
+                                <span className="material-symbols-outlined">{member.relation === 'Wife' ? 'woman' : 'person'}</span>
+                            </div>
+                            <div className="flex-1">
+                                <h4 className="text-white font-semibold">{member.name}</h4>
+                                <p className="text-[#baaf9c] text-xs">{member.relation} • Gotra: {member.gotra}</p>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </section>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Section: Saved Addresses */}
+                <section className="bg-[#27231b] rounded-xl p-8 border border-[#393328] shadow-xl">
+                    <div className="flex justify-between items-center mb-6">
+                        <h2 className="text-xl font-bold text-white">Saved Addresses</h2>
+                        <button onClick={() => router.push('/dashboard/addresses')} className="text-[#f29e0d] text-sm font-semibold hover:underline">Manage All</button>
+                    </div>
+                    <div className="space-y-4">
+                        {addresses.length > 0 ? addresses.map((addr) => (
+                            <div key={addr.id} className="flex gap-3 items-start p-4 rounded-lg bg-[#181511]/30 border border-[#393328]">
+                                <span className="material-symbols-outlined text-[#f29e0d] mt-1">home</span>
+                                <div>
+                                    <h4 className="text-white font-medium flex items-center gap-2">
+                                        {addr.label}
+                                        {addr.isDefault && <span className="text-[10px] px-1 py-0.5 bg-[#f29e0d]/20 text-[#f29e0d] rounded uppercase font-bold">Primary</span>}
+                                    </h4>
+                                    <p className="text-[#baaf9c] text-xs leading-relaxed mt-1">
+                                        {addr.fullAddress}, {addr.city}
+                                    </p>
+                                </div>
+                            </div>
+                        )) : (
+                            <div className="text-sm text-[#baaf9c] py-4 text-center border border-dashed border-[#393328] rounded-lg">
+                                No addresses saved.
+                            </div>
+                        )}
+                    </div>
+                </section>
+
+                {/* Section: Payment Methods */}
+                <section className="bg-[#27231b] rounded-xl p-8 border border-[#393328] shadow-xl">
+                    <div className="flex justify-between items-center mb-6">
+                        <h2 className="text-xl font-bold text-white">Payment Methods</h2>
+                        <button className="text-[#f29e0d] text-sm font-semibold hover:underline">Manage</button>
+                    </div>
+                    <div className="space-y-4">
+                        <div className="flex items-center justify-between p-4 rounded-lg bg-[#181511]/30 border border-[#393328]">
+                            <div className="flex items-center gap-3">
+                                <span className="material-symbols-outlined text-[#f29e0d]">payments</span>
+                                <div>
+                                    <h4 className="text-white font-medium">Standard UPI</h4>
+                                    <p className="text-[#baaf9c] text-xs mt-1">For all quick payments</p>
+                                </div>
+                            </div>
+                            <span className="material-symbols-outlined text-[#baaf9c] text-base cursor-pointer">check_circle</span>
+                        </div>
+                    </div>
+                </section>
             </div>
 
-            {/* SECTION C: Account Actions */}
-            <div className="space-y-4">
-                <h3 className="font-bold text-lg text-gray-800">Quick Actions</h3>
-
-                <Link href="/dashboard/profile/family" className="block text-left p-4 rounded-xl border border-blue-200 bg-blue-50/50 hover:bg-blue-50 transition-colors w-full">
-                    <div className="flex items-center gap-3">
-                        <div className="bg-blue-100 p-2 rounded-lg text-blue-600">
-                            <Users className="w-5 h-5" />
-                        </div>
-                        <div>
-                            <h4 className="font-bold text-gray-800">Family & Gotra</h4>
-                            <p className="text-xs text-gray-500 mt-0.5">Manage family details for personalized pooja.</p>
-                        </div>
+            {/* Section: My Pandits (Kul Purohits) */}
+            <section className="bg-[#27231b] rounded-xl p-8 border border-[#393328] shadow-xl">
+                <div className="flex justify-between items-center mb-6">
+                    <div>
+                        <h2 className="text-2xl font-bold text-white mb-1">My Pandits</h2>
+                        <p className="text-[#baaf9c] text-sm">Trusted family Pandits and Kul Purohits</p>
                     </div>
-                </Link>
+                    <button onClick={() => router.push('/search')} className="text-[#f29e0d] text-sm font-semibold border border-[#f29e0d]/20 px-4 py-2 rounded-lg hover:bg-[#f29e0d]/5 transition-all hidden md:block">
+                        Find New Pandit
+                    </button>
+                </div>
 
-                <Link href="/dashboard/notifications" className="block text-left p-4 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 transition-colors w-full">
-                    <div className="flex items-center gap-3">
-                        <div className="bg-gray-100 p-2 rounded-lg text-gray-600">
-                            <Bell className="w-5 h-5" />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div onClick={() => router.push('/dashboard/favorites')} className="flex items-center gap-5 p-5 rounded-xl bg-[#181511]/30 border border-[#393328] group hover:border-[#f29e0d]/40 transition-all cursor-pointer">
+                        <div className="size-16 rounded-lg bg-[#393328] flex items-center justify-center text-[#baaf9c] shadow-lg border border-[#393328]">
+                            <span className="material-symbols-outlined text-3xl">self_improvement</span>
                         </div>
-                        <div>
-                            <h4 className="font-bold text-gray-800">Notification Preferences</h4>
-                            <p className="text-xs text-gray-500 mt-0.5">Manage alerts and messages.</p>
+                        <div className="flex-1">
+                            <h4 className="text-white font-bold text-lg">Favorite Pandits</h4>
+                            <p className="text-[#baaf9c] text-sm mt-0.5">View your saved pandits</p>
                         </div>
+                        <span className="material-symbols-outlined text-[#baaf9c] group-hover:text-[#f29e0d] transition-colors">chevron_right</span>
                     </div>
-                </Link>
+                </div>
+            </section>
 
-                <button className="text-left mt-8 p-4 rounded-xl border border-red-200 bg-red-50/30 hover:bg-red-50 transition-colors w-full text-red-700 focus:outline-none">
+            <div className="pt-8 mb-8 border-t border-[#393328]">
+                <button className="text-left p-4 rounded-xl border border-red-900/50 bg-red-900/10 hover:bg-red-900/20 transition-colors w-full text-red-500 focus:outline-none max-w-sm">
                     <div className="flex items-center gap-3">
-                        <div className="bg-red-100 p-2 rounded-lg text-red-600">
-                            <AlertCircle className="w-5 h-5" />
+                        <div className="bg-red-900/30 p-2 rounded-lg text-red-500">
+                            <span className="material-symbols-outlined">delete</span>
                         </div>
                         <div>
                             <h4 className="font-bold">Delete Account</h4>
-                            <p className="text-xs text-red-500 mt-0.5">Permanently remove your data.</p>
+                            <p className="text-xs text-red-400/80 mt-0.5">Permanently remove your data.</p>
                         </div>
                     </div>
                 </button>
             </div>
-
         </div>
     );
 }

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { z } from "zod";
-import { prisma } from "@hmarepanditji/db";
+import { prisma, Prisma } from "@hmarepanditji/db";
 import { authenticate } from "../middleware/auth";
 import { roleGuard } from "../middleware/roleGuard";
 import { validate } from "../middleware/validator";
@@ -1353,7 +1353,7 @@ router.get("/me/samagri/customer-requests", authenticate, roleGuard("PANDIT"), a
         panditId,
         samagriPreference: "CUSTOMER_ARRANGES",
         status: "COMPLETED",
-        samagriCustomList: { not: null }
+        samagriCustomList: { not: Prisma.DbNull }
       },
       orderBy: { eventDate: "desc" },
       take: 10

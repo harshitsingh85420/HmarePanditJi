@@ -45,7 +45,7 @@ export default function PayoutsPage() {
     try {
       const token = localStorage.getItem("token");
       const statusQuery = tab === "ALL" ? "" : `?status=${tab}`;
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/admin/payouts${statusQuery}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/payouts${statusQuery}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -80,7 +80,7 @@ export default function PayoutsPage() {
     setProcessing(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/admin/payouts/${selectedPayout.id}/complete`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/payouts/${selectedPayout.id}/complete`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",

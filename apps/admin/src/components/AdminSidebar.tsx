@@ -13,7 +13,7 @@ export default function AdminSidebar() {
     });
 
     useEffect(() => {
-        fetch("http://localhost:3001/api/admin/dashboard-stats", {
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/dashboard-stats`, {
             headers: { Authorization: `Bearer ${localStorage.getItem("adminToken") || ''}` }
         })
             .then((res) => res.json())
@@ -60,8 +60,8 @@ export default function AdminSidebar() {
                             key={item.href}
                             href={item.href}
                             className={`flex items-center justify-between px-3 py-2.5 rounded-lg transition-all font-medium text-sm group ${isActive
-                                    ? "bg-blue-50 text-blue-700 font-semibold"
-                                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                                ? "bg-blue-50 text-blue-700 font-semibold"
+                                : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                                 }`}
                         >
                             <div className="flex items-center gap-3">
@@ -96,7 +96,13 @@ export default function AdminSidebar() {
                         <p className="text-sm font-semibold text-slate-900 truncate">Arjun Verma</p>
                     </div>
                 </div>
-                <button className="w-full mt-3 text-sm text-slate-500 hover:text-red-600 font-semibold text-left flex items-center gap-2 group p-2 hover:bg-red-50 rounded-lg transition-colors">
+                <button
+                    onClick={() => {
+                        localStorage.removeItem("adminToken");
+                        window.location.href = "/login";
+                    }}
+                    className="w-full mt-3 text-sm text-slate-500 hover:text-red-600 font-semibold text-left flex items-center gap-2 group p-2 hover:bg-red-50 rounded-lg transition-colors"
+                >
                     <span className="material-symbols-outlined text-lg group-hover:text-red-500 text-slate-400">logout</span>
                     Logout
                 </button>

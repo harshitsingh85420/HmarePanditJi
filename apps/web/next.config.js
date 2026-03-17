@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   eslint: { ignoreDuringBuilds: true },
-  output: "standalone",
+  // output: "standalone",
   transpilePackages: [
     "@hmarepanditji/ui",
     "@hmarepanditji/types",

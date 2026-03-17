@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button, PanditCard, Skeleton, GuestBanner } from "@hmarepanditji/ui";
+import { LoginModal } from "@/components/LoginModal";
 
 const SUPPORTED_PUJA_TYPES = [
     "Vivah",
@@ -20,6 +21,8 @@ const TRAVEL_MODES = [
     { label: "🚕 Cab", value: "CAB" },
     { label: "Any", value: "ANY" }
 ];
+
+const API_BASE = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/api/v1`;
 
 interface Pandit {
     id: string;
@@ -62,6 +65,9 @@ function SearchPageContent() {
     const sort = searchParams.get("sort") || "rating";
     const pageParam = parseInt(searchParams.get("page") || "1", 10);
 
+    const [loginModalOpen, setLoginModalOpen] = useState(false);
+    const [redirectUrl, setRedirectUrl] = useState("");
+
     const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
     // Local state for UI inputs (to avoid spamming URL updates on every keystroke)
@@ -101,7 +107,7 @@ function SearchPageContent() {
             q.append("page", pageParam.toString());
             q.append("limit", "12");
 
-            const res = await fetch(`http://localhost:3001/api/v1/pandits?${q.toString()}`);
+            const res = await fetch(`${API_BASE}/pandits?${q.toString()}`);
             if (!res.ok) throw new Error("Failed to load pandits");
             const data = await res.json();
 
@@ -121,7 +127,7 @@ function SearchPageContent() {
     const checkMuhurats = async () => {
         if (!localDate) return;
         try {
-            const res = await fetch(`http://localhost:3001/api/v1/muhurat/pujas-for-date?date=${localDate}`);
+            const res = await fetch(`${API_BASE}/muhurat/pujas-for-date?date=${localDate}`);
             if (res.ok) {
                 const data = await res.json();
                 // just count how many muhurats available a given day
@@ -149,7 +155,7 @@ function SearchPageContent() {
         if (requests.length === 0) return;
 
         try {
-            const res = await fetch("http://localhost:3001/api/v1/travel/batch-calculate", {
+            const res = await fetch(`${API_BASE}/travel/batch-calculate`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -169,7 +175,7 @@ function SearchPageContent() {
     const fetchFavorites = useCallback(async () => {
         if (!token) return;
         try {
-            const res = await fetch("http://localhost:3001/api/v1/customers/me/favorites", {
+            const res = await fetch(`${API_BASE}/customers/me/favorites`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (res.ok) {
@@ -203,7 +209,7 @@ function SearchPageContent() {
         const isFav = favorites.includes(panditId);
         setFavorites(prev => isFav ? prev.filter(id => id !== panditId) : [...prev, panditId]);
         try {
-            await fetch(`http://localhost:3001/api/v1/customers/me/favorites/${panditId}`, {
+            await fetch(`${API_BASE}/customers/me/favorites/${panditId}`, {
                 method: "POST",
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -214,296 +220,323 @@ function SearchPageContent() {
         }
     };
 
+    const handleBookClick = (id: string, mode: string) => {
+        const url = `/booking/new?panditId=${id}&pujaType=${pujaType || ''}&travelMode=${mode}`;
+        if (!token) {
+            setRedirectUrl(url);
+            setLoginModalOpen(true);
+        } else {
+            router.push(url);
+        }
+    };
+
     const numFiltersApplied = [pujaType, city, date, minRating, lang, travelMode, budget, distance].filter(Boolean).length;
 
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
-            {/* Top Bar (Sticky) */}
-            <div className="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm">
-                <div className="max-w-7xl mx-auto px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <div className="flex gap-2 text-sm text-gray-700 w-full sm:w-auto overflow-x-auto pb-2 sm:pb-0">
-                        <select
-                            className="px-3 py-2 border rounded-md"
-                            value={pujaType}
-                            onChange={(e) => updateFilters("pujaType", e.target.value)}
-                        >
-                            <option value="">Puja Type ▾</option>
-                            {SUPPORTED_PUJA_TYPES.map(p => <option key={p} value={p}>{p}</option>)}
-                        </select>
-                        <input
-                            type="text"
-                            placeholder="City"
-                            className="px-3 py-2 border rounded-md w-32"
-                            value={localCity}
-                            onChange={(e) => setLocalCity(e.target.value)}
-                            onBlur={() => updateFilters("city", localCity)}
-                            onKeyDown={(e) => e.key === "Enter" && updateFilters("city", localCity)}
-                        />
-                        <input
-                            type="date"
-                            className="px-3 py-2 border rounded-md"
-                            value={localDate}
-                            onChange={(e) => { setLocalDate(e.target.value); updateFilters("date", e.target.value); }}
-                        />
-                    </div>
+        <div className="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-[calc(100vh-64px)]">
+            <main className="max-w-[1440px] mx-auto flex flex-col lg:flex-row min-h-[calc(100vh-64px)] relative">
 
-                    <div className="flex gap-2 items-center w-full sm:w-auto justify-between sm:justify-end">
-                        <span className="text-gray-500 text-sm hidden sm:inline">Sort by:</span>
-                        <select
-                            className="text-sm px-2 py-1 border rounded"
-                            value={sort}
-                            onChange={(e) => updateFilters("sort", e.target.value)}
-                        >
-                            <option value="rating">Best Match</option>
-                            <option value="price_asc">Price: Low - High</option>
-                            <option value="price_desc">Price: High - Low</option>
-                            <option value="distance">Distance</option>
-                        </select>
-                        <Button variant="outline" size="sm" className="lg:hidden" onClick={() => setShowMobileFilter(true)}>
-                            Filters {numFiltersApplied > 0 && `(${numFiltersApplied})`}
-                        </Button>
-                    </div>
+                {/* Mobile Filter Toggle */}
+                <div className="lg:hidden p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-white dark:bg-background-dark">
+                    <h2 className="text-lg font-bold">Search Filters</h2>
+                    <Button variant="outline" size="sm" onClick={() => setShowMobileFilter(!showMobileFilter)}>
+                        {showMobileFilter ? 'Hide Filters' : `Filters ${numFiltersApplied > 0 ? `(${numFiltersApplied})` : ''}`}
+                    </Button>
                 </div>
 
-                {/* Active Filters Pills */}
-                {numFiltersApplied > 0 && (
-                    <div className="max-w-7xl mx-auto px-4 py-2 flex gap-2 overflow-x-auto bg-gray-50 border-t border-gray-100">
-                        {pujaType && <span className="bg-orange-100 text-orange-800 px-2 py-1 rounded-full text-xs flex items-center">{pujaType} <button onClick={() => removeFilter("pujaType")} className="ml-1 text-orange-500 font-bold hover:text-orange-900">×</button></span>}
-                        {city && <span className="bg-orange-100 text-orange-800 px-2 py-1 rounded-full text-xs flex items-center">{city} <button onClick={() => removeFilter("city")} className="ml-1 text-orange-500 font-bold hover:text-orange-900">×</button></span>}
-                        {date && <span className="bg-orange-100 text-orange-800 px-2 py-1 rounded-full text-xs flex items-center">{date} <button onClick={() => removeFilter("date")} className="ml-1 text-orange-500 font-bold hover:text-orange-900">×</button></span>}
-                        {minRating && <span className="bg-orange-100 text-orange-800 px-2 py-1 rounded-full text-xs flex items-center">{minRating}★+ <button onClick={() => removeFilter("rating")} className="ml-1 text-orange-500 font-bold hover:text-orange-900">×</button></span>}
-                        {lang && <span className="bg-orange-100 text-orange-800 px-2 py-1 rounded-full text-xs flex items-center">{lang} <button onClick={() => removeFilter("lang")} className="ml-1 text-orange-500 font-bold hover:text-orange-900">×</button></span>}
-                        {travelMode && <span className="bg-orange-100 text-orange-800 px-2 py-1 rounded-full text-xs flex items-center">Mode: {travelMode} <button onClick={() => removeFilter("travelMode")} className="ml-1 text-orange-500 font-bold hover:text-orange-900">×</button></span>}
-                        <button className="text-sm text-gray-500 underline ml-2" onClick={() => router.push("/search")}>Clear All</button>
-                    </div>
-                )}
-            </div>
-
-            <div className="max-w-7xl mx-auto px-4 py-6 flex w-full gap-6 flex-1">
                 {/* Sidebar Filters */}
-                <aside className={`w-full lg:w-64 bg-white p-4 rounded-md shadow-sm border border-gray-200 lg:block flex-shrink-0
-          ${showMobileFilter ? 'fixed inset-0 z-50 overflow-y-auto block' : 'hidden'}
-        `}>
-                    <div className="flex justify-between items-center mb-6 lg:hidden">
-                        <h2 className="text-lg font-bold">Filters</h2>
-                        <button onClick={() => setShowMobileFilter(false)} className="text-gray-500 text-2xl">×</button>
-                    </div>
-
-                    {/* Puja Type */}
-                    <div className="mb-6">
-                        <h3 className="font-semibold text-gray-800 mb-2">Puja Type</h3>
-                        <div className="flex flex-col gap-2">
-                            {SUPPORTED_PUJA_TYPES.map(p => (
-                                <label key={p} className="flex items-center gap-2 text-sm text-gray-600">
-                                    <input type="radio" name="pujaType" checked={pujaType === p} onChange={() => updateFilters("pujaType", p)} className="accent-orange-500" /> {p}
-                                </label>
-                            ))}
+                <aside className={`w-full lg:w-[320px] lg:sticky lg:top-16 h-fit p-6 border-r border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 overflow-y-auto z-10 
+                    ${showMobileFilter ? 'fixed inset-0 z-50 bg-white dark:bg-slate-900 block' : 'hidden lg:block'}
+                `}>
+                    <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-lg font-bold">Advanced Filters</h2>
+                        <div className="flex items-center gap-2">
+                            {numFiltersApplied > 0 && (
+                                <button onClick={() => router.push("/search")} className="text-primary text-xs font-semibold uppercase tracking-wider hover:underline">Reset</button>
+                            )}
+                            <button className="lg:hidden text-slate-500 font-bold ml-4" onClick={() => setShowMobileFilter(false)}>✕</button>
                         </div>
                     </div>
 
-                    {/* Date & Muhurat */}
-                    <div className="mb-6">
-                        <h3 className="font-semibold text-gray-800 mb-2">Date</h3>
-                        <input
-                            type="date"
-                            className="px-3 py-2 border rounded-md w-full mb-2 text-sm"
-                            value={localDate}
-                            onChange={(e) => setLocalDate(e.target.value)}
-                            onBlur={() => updateFilters("date", localDate)}
-                        />
-                        <Button size="sm" variant="outline" className="w-full text-xs" onClick={checkMuhurats}>Check Muhurat</Button>
-                        {muhuratCount !== null && (
-                            <div className="mt-2 text-xs text-orange-600 bg-orange-50 p-2 rounded border border-orange-200">
-                                🔶 {muhuratCount} auspicious muhurat{muhuratCount !== 1 && 's'} on this date
+                    <div className="space-y-8 pb-20 lg:pb-0">
+                        {/* Puja Type */}
+                        <div>
+                            <label className="block text-sm font-semibold mb-3">Service Type</label>
+                            <div className="relative">
+                                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">festival</span>
+                                <select
+                                    className="w-full pl-10 pr-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-primary outline-none focus:border-primary"
+                                    value={pujaType}
+                                    onChange={(e) => updateFilters("pujaType", e.target.value)}
+                                >
+                                    <option value="">Any Service</option>
+                                    {SUPPORTED_PUJA_TYPES.map(p => <option key={p} value={p}>{p}</option>)}
+                                </select>
+                            </div>
+                        </div>
+
+                        {/* Location */}
+                        <div>
+                            <label className="block text-sm font-semibold mb-3">Location</label>
+                            <div className="relative flex flex-col gap-2">
+                                <div className="relative">
+                                    <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">location_on</span>
+                                    <input
+                                        type="text"
+                                        placeholder="City Name"
+                                        className="w-full pl-10 pr-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-primary focus:border-primary outline-none"
+                                        value={localCity}
+                                        onChange={(e) => setLocalCity(e.target.value)}
+                                        onBlur={() => updateFilters("city", localCity)}
+                                        onKeyDown={(e) => e.key === "Enter" && updateFilters("city", localCity)}
+                                    />
+                                </div>
+
+                                <div className="mt-4">
+                                    <div className="flex justify-between items-center mb-2">
+                                        <span className="text-xs font-semibold text-slate-500">Max Distance:</span>
+                                        <span className="text-xs font-bold text-orange-500">{localDistance} km</span>
+                                    </div>
+                                    <input
+                                        type="range" min="10" max="2000" step="10"
+                                        className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-primary"
+                                        value={localDistance}
+                                        onChange={(e) => setLocalDistance(parseInt(e.target.value, 10))}
+                                        onMouseUp={() => updateFilters("distance", localDistance.toString())}
+                                        onTouchEnd={() => updateFilters("distance", localDistance.toString())}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Date/Muhurat */}
+                        <div>
+                            <label className="block text-sm font-semibold mb-3">Muhurat Date</label>
+                            <div className="relative">
+                                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">calendar_month</span>
+                                <input
+                                    className="w-full pl-10 pr-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-primary focus:border-primary outline-none"
+                                    type="date"
+                                    value={localDate}
+                                    onChange={(e) => { setLocalDate(e.target.value); updateFilters("date", e.target.value); }}
+                                />
+                            </div>
+                            {muhuratCount !== null && (
+                                <div className="mt-2 text-xs text-orange-600 bg-orange-50/50 p-2 rounded-lg border border-orange-200 flex flex-col gap-1">
+                                    <span className="font-bold flex items-center gap-1">
+                                        <span className="material-symbols-outlined text-sm">auto_awesome</span>
+                                        {muhuratCount} auspicious muhurat{muhuratCount !== 1 ? 's' : ''} on this date!
+                                    </span>
+                                </div>
+                            )}
+                            <button onClick={checkMuhurats} className="mt-2 text-xs font-bold text-primary hover:underline">Check daily muhurats →</button>
+                        </div>
+
+                        {/* Budget */}
+                        <div>
+                            <div className="flex justify-between items-center mb-3">
+                                <label className="text-sm font-semibold">Max Dakshina</label>
+                                <span className="text-xs text-slate-500 font-medium line-clamp-1">₹5k - ₹{localBudget >= 1000 ? `${(localBudget / 1000).toFixed(0)}k` : localBudget}</span>
+                            </div>
+                            <input
+                                className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-primary"
+                                type="range"
+                                min="5000" max="100000" step="5000"
+                                value={localBudget}
+                                onChange={(e) => setLocalBudget(parseInt(e.target.value, 10))}
+                                onMouseUp={() => updateFilters("budget", localBudget.toString())}
+                                onTouchEnd={() => updateFilters("budget", localBudget.toString())}
+                            />
+                        </div>
+
+                        {/* Minimum Rating */}
+                        <div>
+                            <label className="block text-sm font-semibold mb-3">Minimum Rating</label>
+                            <div className="grid grid-cols-4 gap-2">
+                                {["Any", "3", "4", "4.5"].map(r => (
+                                    <button
+                                        key={r}
+                                        onClick={() => updateFilters("rating", r === "Any" ? null : r)}
+                                        className={`flex items-center justify-center gap-1 py-2 text-xs font-bold rounded-xl transition-colors ${minRating === r || (r === "Any" && !minRating) ? 'bg-primary/10 text-primary border border-primary shadow-sm shadow-primary/10' : 'bg-white border border-slate-200 text-slate-600 hover:border-primary hover:text-primary dark:bg-slate-800 dark:border-slate-700 dark:text-slate-400'}`}
+                                    >
+                                        {r !== "Any" && <span className="material-symbols-outlined text-[10px] fill-1">star</span>}
+                                        {r === "Any" ? "Any" : `${r}+`}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Travel Preferences */}
+                        <div>
+                            <label className="block text-sm font-semibold mb-3">Modes allowed</label>
+                            <div className="flex flex-wrap gap-2">
+                                {TRAVEL_MODES.map(tm => (
+                                    <button
+                                        key={tm.value}
+                                        onClick={() => updateFilters("travelMode", tm.value)}
+                                        className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium transition-all ${travelMode === tm.value
+                                            ? 'border border-primary bg-primary text-white shadow-md'
+                                            : 'bg-white border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-primary hover:text-primary dark:bg-slate-800'
+                                            }`}
+                                    >
+                                        {tm.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Apply Filters (Mobile) */}
+                        {showMobileFilter && (
+                            <div className="fixed bottom-0 left-0 right-0 p-4 bg-white dark:bg-slate-900 border-t border-slate-200 shadow-xl">
+                                <Button className="w-full bg-orange-600 hover:bg-orange-700 text-white py-3 rounded-xl shadow-lg font-bold" onClick={() => setShowMobileFilter(false)}>Show Results</Button>
                             </div>
                         )}
                     </div>
-
-                    {/* Budget */}
-                    <div className="mb-6">
-                        <h3 className="font-semibold text-gray-800 mb-2">Max Dakshina (₹)</h3>
-                        <div className="flex justify-between text-xs text-gray-500 mb-1">
-                            <span>₹5,000</span>
-                            <span>₹{localBudget.toLocaleString()}</span>
-                            <span>₹1,00,000</span>
-                        </div>
-                        <input
-                            type="range" min="5000" max="100000" step="5000"
-                            className="w-full accent-orange-500"
-                            value={localBudget}
-                            onChange={(e) => setLocalBudget(parseInt(e.target.value, 10))}
-                            onMouseUp={() => updateFilters("budget", localBudget.toString())}
-                            onTouchEnd={() => updateFilters("budget", localBudget.toString())}
-                        />
-                        <div className="flex flex-wrap gap-1 mt-2">
-                            <button onClick={() => { setLocalBudget(15000); updateFilters("budget", "15000"); }} className="text-[10px] px-2 py-1 bg-gray-100 rounded hover:bg-gray-200 text-gray-700">Under 15k</button>
-                            <button onClick={() => { setLocalBudget(40000); updateFilters("budget", "40000"); }} className="text-[10px] px-2 py-1 bg-gray-100 rounded hover:bg-gray-200 text-gray-700">Under 40k</button>
-                        </div>
-                    </div>
-
-                    {/* Rating */}
-                    <div className="mb-6">
-                        <h3 className="font-semibold text-gray-800 mb-2">Minimum Rating</h3>
-                        <div className="flex gap-2">
-                            {["4.5", "4", "3", "Any"].map(r => (
-                                <button
-                                    key={r}
-                                    onClick={() => updateFilters("rating", r === "Any" ? null : r)}
-                                    className={`text-xs px-2 py-1 border rounded ${minRating === r || (r === "Any" && !minRating) ? 'bg-orange-50 border-orange-500 text-orange-700' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
-                                >
-                                    {r === "Any" ? r : `${r}★+`}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Languages */}
-                    <div className="mb-6">
-                        <h3 className="font-semibold text-gray-800 mb-2">Languages</h3>
-                        <div className="flex flex-col gap-2 max-h-40 overflow-y-auto">
-                            {SUPPORTED_LANGUAGES.map(l => (
-                                <label key={l} className="flex items-center gap-2 text-sm text-gray-600">
-                                    <input type="radio" name="languageRadio" checked={lang === l} onChange={() => updateFilters("lang", l)} className="accent-orange-500" /> {l}
-                                </label>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Travel Mode */}
-                    <div className="mb-6">
-                        <h3 className="font-semibold text-gray-800 mb-2">Travel Mode</h3>
-                        <div className="flex flex-wrap gap-2">
-                            {TRAVEL_MODES.map(tm => (
-                                <button
-                                    key={tm.value}
-                                    onClick={() => updateFilters("travelMode", tm.value)}
-                                    className={`text-xs px-2 py-1 rounded-full border ${travelMode === tm.value ? 'bg-orange-50 border-orange-500 text-orange-700' : 'bg-gray-50 border-gray-200 text-gray-600'}`}
-                                >
-                                    {tm.label}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Distance */}
-                    <div className="mb-6">
-                        <h3 className="font-semibold text-gray-800 mb-2">Max Distance (km)</h3>
-                        <div className="flex justify-between text-xs text-gray-500 mb-1">
-                            <span>0</span>
-                            <span>{localDistance} km</span>
-                            <span>2000</span>
-                        </div>
-                        <input
-                            type="range" min="10" max="2000" step="10"
-                            className="w-full accent-orange-500"
-                            value={localDistance}
-                            onChange={(e) => setLocalDistance(parseInt(e.target.value, 10))}
-                            onMouseUp={() => updateFilters("distance", localDistance.toString())}
-                            onTouchEnd={() => updateFilters("distance", localDistance.toString())}
-                        />
-                        <div className="flex flex-wrap gap-1 mt-2">
-                            <button onClick={() => { setLocalDistance(50); updateFilters("distance", "50") }} className="text-[10px] px-2 py-1 bg-gray-100 rounded hover:bg-gray-200 text-gray-700">Local (&lt;50)</button>
-                            <button onClick={() => { setLocalDistance(500); updateFilters("distance", "500") }} className="text-[10px] px-2 py-1 bg-gray-100 rounded hover:bg-gray-200 text-gray-700">Regional (&lt;500)</button>
-                        </div>
-                    </div>
-
-                    {showMobileFilter && (
-                        <div className="sticky bottom-4">
-                            <Button className="w-full bg-orange-600 hover:bg-orange-700 text-white" onClick={() => setShowMobileFilter(false)}>Show Results</Button>
-                        </div>
-                    )}
                 </aside>
 
-                {/* Results Grid */}
-                <main className="flex-1 w-full flex flex-col">
-                    {!token && <GuestBanner onLoginClick={() => router.push("/login")} />}
+                {/* Main Content Area */}
+                <section className="flex-1 p-4 lg:p-10 spiritual-pattern relative min-h-screen">
+                    {!token && <div className="mb-6"><GuestBanner onLoginClick={() => router.push("/login")} /></div>}
 
-                    <div className="flex justify-between items-center mb-6">
-                        <h2 className="text-xl font-medium text-gray-800">
-                            Showing {pandits.length} verified Pandit{pandits.length !== 1 ? 's' : ''}
-                        </h2>
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+                        <div>
+                            {loading && pageParam === 1 ? (
+                                <h2 className="text-2xl font-bold">Searching Pandits...</h2>
+                            ) : (
+                                <h2 className="text-2xl font-bold">{total} Pandits match your search</h2>
+                            )}
+                            <p className="text-slate-500 text-sm mt-1">
+                                {city || pujaType ? `Found in ${city || 'all regions'} ${pujaType ? `for ${pujaType}` : ''}` : 'Showing all verified Pandits'}
+                            </p>
+
+                            {/* Active Filters Pills inline */}
+                            {numFiltersApplied > 0 && (
+                                <div className="flex flex-wrap gap-2 mt-3">
+                                    {pujaType && <span className="bg-white border border-slate-200 shadow-sm text-slate-700 px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wide flex items-center">{pujaType} <button onClick={() => removeFilter("pujaType")} className="ml-1 hover:text-red-500 font-black text-xs">×</button></span>}
+                                    {city && <span className="bg-white border border-slate-200 shadow-sm text-slate-700 px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wide flex items-center">{city} <button onClick={() => removeFilter("city")} className="ml-1 hover:text-red-500 font-black text-xs">×</button></span>}
+                                    {date && <span className="bg-white border border-slate-200 shadow-sm text-slate-700 px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wide flex items-center">{date} <button onClick={() => removeFilter("date")} className="ml-1 hover:text-red-500 font-black text-xs">×</button></span>}
+                                    {travelMode && travelMode !== "ANY" && <span className="bg-white border border-slate-200 shadow-sm text-slate-700 px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wide flex items-center">Travel: {travelMode.replace('_', ' ')} <button onClick={() => removeFilter("travelMode")} className="ml-1 hover:text-red-500 font-black text-xs">×</button></span>}
+                                    {budget && <span className="bg-white border border-slate-200 shadow-sm text-slate-700 px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wide flex items-center">&lt;₹{parseInt(budget, 10) / 1000}k <button onClick={() => removeFilter("budget")} className="ml-1 hover:text-red-500 font-black text-xs">×</button></span>}
+                                </div>
+                            )}
+                        </div>
+                        <div className="flex items-center gap-3 bg-white dark:bg-slate-800 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                            <span className="material-symbols-outlined text-slate-400 text-sm">sort</span>
+                            <span className="text-sm font-semibold text-slate-500">Sort:</span>
+                            <select
+                                className="bg-transparent border-none text-sm font-bold text-slate-800 dark:text-slate-200 focus:ring-0 cursor-pointer p-0"
+                                value={sort}
+                                onChange={(e) => updateFilters("sort", e.target.value)}
+                            >
+                                <option value="rating">Best Match</option>
+                                <option value="price_asc">Price: Low to High</option>
+                                <option value="price_desc">Price: High to Low</option>
+                                <option value="distance">Distance Nearby</option>
+                            </select>
+                        </div>
                     </div>
 
+                    {/* Results Grid */}
                     {loading && pageParam === 1 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
-                            {Array.from({ length: 6 }).map((_, i) => (
+                        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                            {Array.from({ length: 4 }).map((_, i) => (
                                 <Skeleton key={i} variant="card" />
                             ))}
                         </div>
                     ) : pandits.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center p-12 bg-white rounded-xl border border-gray-200 text-center">
-                            <div className="text-5xl mb-4 text-gray-300">🔍</div>
-                            <h3 className="text-xl font-bold text-gray-800 mb-2">No pandits found</h3>
-                            <p className="text-gray-500 max-w-sm mb-6">
-                                Try expanding your distance filter, removing some filters, or checking a different date.
+                        <div className="flex flex-col items-center justify-center p-16 bg-white/80 dark:bg-slate-900/80 backdrop-blur rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm text-center">
+                            <span className="material-symbols-outlined text-6xl text-slate-300 dark:text-slate-600 mb-4">search_off</span>
+                            <h3 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">No pandits found matching criteria</h3>
+                            <p className="text-slate-500 max-w-sm mb-6">
+                                Try expanding your budget, adjusting the distance filter, changing travel modes, or selecting a different date.
                             </p>
-                            <Button variant="outline" onClick={() => router.push("/search")}>Clear All Filters</Button>
+                            <button className="bg-primary hover:bg-orange-500 text-white font-bold py-3 px-8 rounded-xl shadow-md transition-all" onClick={() => router.push("/search")}>Clear All Filters</button>
                         </div>
                     ) : (
-                        <>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6 items-stretch w-full">
-                                {pandits.map(p => {
-                                    const rawOptions = travelOptions[p.id] || [];
-                                    const options = Array.isArray(rawOptions) ? rawOptions.map((o: unknown) => {
-                                        const opt = o as { mode?: string; totalCost?: number; description?: string };
-                                        return {
-                                            mode: (opt.mode?.toUpperCase() || 'SELF_DRIVE') as any,
-                                            label: opt.mode || 'Self Drive',
-                                            price: opt.totalCost || 0,
-                                            description: opt.description
-                                        };
-                                    }) : [];
+                        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                            {pandits.map(p => {
+                                const rawOptions = travelOptions[p.id] || [];
+                                const options = Array.isArray(rawOptions) ? rawOptions.map((o: unknown) => {
+                                    const opt = o as { mode?: string; totalCost?: number; description?: string };
+                                    return {
+                                        mode: (opt.mode?.toLowerCase() || 'self_drive') as any,
+                                        label: opt.mode || 'Self Drive',
+                                        totalCost: opt.totalCost || 0,
+                                        price: opt.totalCost || 0,
+                                        description: opt.description
+                                    };
+                                }) : [];
 
-                                    return (
-                                        <div key={p.id} className="relative">
-                                            <button
-                                                onClick={() => toggleFavorite(p.id)}
-                                                className={`absolute top-4 right-4 z-10 p-2 rounded-full shadow-sm hover:scale-110 transition-transform ${favorites.includes(p.id) ? 'bg-red-50 text-red-500' : 'bg-white border border-slate-200 text-slate-400 hover:text-red-500'}`}
-                                            >
-                                                {favorites.includes(p.id) ? '♥' : '♡'}
-                                            </button>
-                                            <PanditCard
-                                                id={p.id}
-                                                name={p.name}
-                                                photoUrl={p.profilePhotoUrl}
-                                                rating={p.rating}
-                                                totalReviews={p.totalReviews}
-                                                experienceYears={p.experienceYears}
-                                                location={p.location}
-                                                specializations={p.specializations}
-                                                isVerified={p.verificationStatus === 'VERIFIED'}
-                                                travelModes={options.length > 0 ? options : undefined}
-                                                onBook={(id, mode) => router.push(`/booking/new?panditId=${id}&pujaType=${pujaType || ''}&travelMode=${mode}`)}
-                                                onViewProfile={(id) => router.push(`/pandit/${id}`)}
-                                            />
-                                        </div>
-                                    );
-                                })}
-                            </div>
-
-                            {total > pandits.length && (
-                                <div className="mt-10 flex flex-col items-center">
-                                    <p className="text-sm text-gray-500 mb-4">Showing {pandits.length} of {total} results</p>
-                                    <Button
-                                        variant="outline"
-                                        onClick={() => updateFilters("page", (pageParam + 1).toString())}
-                                        disabled={loading}
-                                    >
-                                        {loading ? "Loading..." : "Load More"}
-                                    </Button>
-                                </div>
-                            )}
-                        </>
+                                return (
+                                    <div key={p.id} className="relative group min-w-0">
+                                        <button
+                                            onClick={() => toggleFavorite(p.id)}
+                                            className={`absolute top-4 right-4 z-10 w-9 h-9 flex justify-center items-center rounded-full shadow-md bg-white border border-slate-100 transition-all ${favorites.includes(p.id) ? 'text-red-500 hover:scale-110' : 'text-slate-400 hover:text-red-500 opacity-0 group-hover:opacity-100'}`}
+                                        >
+                                            <span className={`material-symbols-outlined ${favorites.includes(p.id) ? 'fill-1' : ''} text-lg block leading-none`}>favorite</span>
+                                        </button>
+                                        <PanditCard
+                                            id={p.id}
+                                            name={p.name}
+                                            photoUrl={p.profilePhotoUrl}
+                                            rating={p.rating}
+                                            totalReviews={p.totalReviews}
+                                            experienceYears={p.experienceYears}
+                                            location={p.location}
+                                            specializations={p.specializations}
+                                            isVerified={p.verificationStatus === "VERIFIED"}
+                                            travelModes={options.length > 0 ? options.map(o => ({
+                                                mode: (o.mode?.toUpperCase() || "SELF_DRIVE") as any,
+                                                label: o.label || "Self Drive",
+                                                price: o.price || 0,
+                                                description: o.description
+                                            })) : undefined}
+                                            onBook={(id, mode) => handleBookClick(id, mode as string)}
+                                            onViewProfile={(id) => router.push(`/pandit/${id}`)}
+                                        />
+                                    </div>
+                                );
+                            })}
+                        </div>
                     )}
-                </main>
-            </div>
+
+                    {/* Pagination or Load More */}
+                    {total > pandits.length && !loading && (
+                        <div className="mt-12 flex justify-center">
+                            <button
+                                onClick={() => updateFilters("page", (pageParam + 1).toString())}
+                                className="flex items-center gap-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-8 py-4 rounded-xl font-bold text-sm shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                            >
+                                Load More Results
+                                <span className="material-symbols-outlined text-sm">expand_more</span>
+                            </button>
+                        </div>
+                    )}
+                    {loading && pageParam > 1 && (
+                        <div className="mt-12 flex justify-center">
+                            <button disabled className="flex items-center gap-2 border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-400 px-8 py-4 rounded-xl font-bold text-sm shadow-sm">
+                                <span className="material-symbols-outlined text-sm animate-spin">sync</span>
+                                Loading...
+                            </button>
+                        </div>
+                    )}
+                </section>
+            </main>
+
+            {loginModalOpen && (
+                <LoginModal
+                    isOpen={loginModalOpen}
+                    onClose={() => setLoginModalOpen(false)}
+                    redirectAfterLogin={redirectUrl}
+                />
+            )}
         </div>
     );
 }
 
 export default function SearchPage() {
     return (
-        <React.Suspense fallback={<div className="min-h-screen bg-gray-50 p-10"><Skeleton variant="card" /></div>}>
+        <React.Suspense fallback={<div className="min-h-screen bg-background-light p-10"><Skeleton variant="card" /></div>}>
             <SearchPageContent />
         </React.Suspense>
     );

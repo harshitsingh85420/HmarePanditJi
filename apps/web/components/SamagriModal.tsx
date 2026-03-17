@@ -57,8 +57,12 @@ export function SamagriModal({
 
     useEffect(() => {
         if (activeTab === "CUSTOM" && catalog.length === 0) {
-            fetch(`/api/samagri/catalog?pujaType=${encodeURIComponent(pujaType)}`)
-                .then((res) => res.json())
+            const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1";
+            fetch(`${apiBase}/samagri/catalog?pujaType=${encodeURIComponent(pujaType)}`)
+                .then((res) => {
+                    if (!res.ok) throw new Error("Catalog fetch failed");
+                    return res.json();
+                })
                 .then((data) => {
                     if (data && data.categories) {
                         setCatalog(data.categories);

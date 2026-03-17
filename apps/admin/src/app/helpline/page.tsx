@@ -238,7 +238,7 @@ export default function HelplineDashboard() {
                     <div className="flex gap-3 flex-row-reverse">
                         <div className="w-8 h-8 rounded-full bg-[#0f49bd]/20 flex items-center justify-center text-[#0f49bd] font-bold text-xs shrink-0">You</div>
                         <div className="bg-[#0f49bd] text-white rounded-2xl rounded-tr-none p-3 shadow-md max-w-[85%]">
-                            <p className="text-sm">Namaste Mr. Kapoor. We are tracking the Pandit's location. He is stuck in heavy traffic. We are arranging a backup.</p>
+                            <p className="text-sm">Namaste Mr. Kapoor. We are tracking the Pandit&apos;s location. He is stuck in heavy traffic. We are arranging a backup.</p>
                             <span className="text-[10px] text-blue-100 mt-1 block">09:54 AM</span>
                         </div>
                     </div>

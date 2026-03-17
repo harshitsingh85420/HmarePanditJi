@@ -94,7 +94,7 @@ export default function SettingsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">Food & Accommodation</CardTitle>
-            <CardDescription>Standard allowances if customer doesn't provide</CardDescription>
+            <CardDescription>Standard allowances if customer doesn&apos;t provide</CardDescription>
           </CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">

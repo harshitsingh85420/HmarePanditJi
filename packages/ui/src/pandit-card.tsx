@@ -33,6 +33,8 @@ export interface PanditCardProps {
   travelModes?: (TravelMode | TravelModePrice)[];
   onViewProfile?: (id: string) => void;
   onBook?: (id: string, mode: TravelMode) => void;
+  isFavorite?: boolean;
+  onFavorite?: (id: string) => void;
   className?: string;
 }
 
@@ -69,8 +71,10 @@ export function PanditCard({
   startingPrice,
   isVerified = false,
   travelModes = [],
+  isFavorite = false,
   onViewProfile,
   onBook,
+  onFavorite,
   className = "",
 }: PanditCardProps) {
   const displayRating = overallRating ?? rating ?? 0;
@@ -96,8 +100,22 @@ export function PanditCard({
 
   return (
     <div
-      className={`bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden hover:shadow-md transition-shadow ${className}`}
+      className={`bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden hover:shadow-md transition-shadow relative ${className}`}
     >
+      {onFavorite && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onFavorite(id);
+          }}
+          className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm shadow-sm flex items-center justify-center text-slate-400 hover:text-red-500 hover:scale-110 transition-all"
+          title={isFavorite ? "Remove from favorites" : "Add to favorites"}
+        >
+          <span className={`material-symbols-outlined text-lg ${isFavorite ? "text-red-500 fill-current font-variation-fill-1" : ""}`}>
+            favorite
+          </span>
+        </button>
+      )}
       <div className="flex gap-4 p-5">
         <div className="flex-shrink-0 relative group">
           <Avatar

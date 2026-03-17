@@ -50,7 +50,7 @@ export default function PanditVerificationDetail() {
 
     const handleAction = async (action: "APPROVE" | "REJECT" | "REQUEST_INFO") => {
         try {
-            let body: any = { action, notes: adminNotes };
+            const body: any = { action, notes: adminNotes };
             if (action === "REJECT") body.reason = `${rejectReason} - ${rejectDetail}`;
             if (action === "REQUEST_INFO") body.requestedDocuments = requestedDocs;
 
@@ -94,7 +94,8 @@ export default function PanditVerificationDetail() {
                                         pandit.verificationStatus === 'REJECTED' ? 'bg-red-50 text-red-700 border-red-200' :
                                             'bg-slate-100 text-slate-600 border-slate-200'
                                     }`}>
-                                    {pandit.verificationStatus.replace(/_/g, ' ')}
+                                    {/* eslint-disable-next-line react/no-unescaped-entities */}
+                                    {pandit.verificationStatus.replace(/_/g, "&nbsp;").replace(/&nbsp;/g, " ")}
                                 </span>
                             </div>
                         </div>
@@ -323,7 +324,7 @@ export default function PanditVerificationDetail() {
                             {pandit.documentUrls && pandit.documentUrls.length >= 3 && !documentScale.compareUrl && (
                                 <button onClick={() => setDocumentScale(s => ({ ...s, compareUrl: pandit.documentUrls[2] }))} className="text-amber-400 hover:bg-amber-400/20 p-3 rounded-xl transition-colors flex items-center gap-2 font-bold"><span className="material-symbols-outlined">compare</span> Compare w/ Selfie</button>
                             )}
-                            <a href={documentScale.url} download target="_blank" className="text-blue-400 hover:bg-blue-400/20 p-3 rounded-xl transition-colors flex items-center gap-2 font-bold"><span className="material-symbols-outlined">download</span> Download</a>
+                            <a href={documentScale.url} download target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:bg-blue-400/20 p-3 rounded-xl transition-colors flex items-center gap-2 font-bold"><span className="material-symbols-outlined">download</span> Download</a>
                         </div>
                         <button onClick={() => { setDocumentScale({ url: null }); setImgState({ scale: 1, rotation: 0 }); }} className="text-white hover:bg-red-500/20 text-red-400 p-4 rounded-full transition-colors flex items-center justify-center ring-1 ring-red-500/50"><span className="material-symbols-outlined text-3xl leading-none">close</span></button>
                     </div>

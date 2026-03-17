@@ -122,7 +122,7 @@ router.post(
             const userId = req.user!.id;
 
             // Upsert pandit profile
-            const pandit = await prisma.pandit.upsert({
+            const pandit = await prisma.panditProfile.upsert({
                 where: { userId },
                 create: {
                     userId,
@@ -214,7 +214,7 @@ router.post(
             const data = req.body as z.infer<typeof bankStepSchema>;
             const userId = req.user!.id;
 
-            await prisma.pandit.update({
+            await prisma.panditProfile.update({
                 where: { userId },
                 data: {
                     bankAccountName: data.bankAccountName,

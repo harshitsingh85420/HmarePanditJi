@@ -5,10 +5,14 @@ import { useSamagriCart } from "../context/SamagriCartContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@hmarepanditji/ui";
+import { LoginModal } from "@/components/LoginModal";
 
 export function CartSidebar() {
     const { selection, isCartOpen, setIsCartOpen, clearCart } = useSamagriCart();
     const router = useRouter();
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    const [loginModalOpen, setLoginModalOpen] = useState(false);
+    const [redirectUrl, setRedirectUrl] = useState("");
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
@@ -25,7 +29,13 @@ export function CartSidebar() {
             pujaType
         )}&samagriSource=${source}${packageId ? `&samagriPackageId=${packageId}` : ""
             }`;
-        router.push(url);
+
+        if (!token) {
+            setRedirectUrl(url);
+            setLoginModalOpen(true);
+        } else {
+            router.push(url);
+        }
     };
 
     return (
@@ -135,6 +145,13 @@ export function CartSidebar() {
                     )}
                 </div>
             </div>
+            {loginModalOpen && (
+                <LoginModal
+                    isOpen={loginModalOpen}
+                    onClose={() => setLoginModalOpen(false)}
+                    redirectAfterLogin={redirectUrl}
+                />
+            )}
         </>
     );
 }

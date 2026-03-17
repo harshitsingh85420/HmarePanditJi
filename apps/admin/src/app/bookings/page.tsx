@@ -51,7 +51,7 @@ export default function AllBookingsPage() {
       qs.append("page", page.toString());
       qs.append("limit", limit.toString());
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/admin/bookings?${qs.toString()}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/bookings?${qs.toString()}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const json = await res.json();

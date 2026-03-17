@@ -8,6 +8,7 @@ import {
   verifyOtp,
   getMe,
   updateMe,
+  adminLogin,
 } from "../controllers/auth.controller";
 
 const router: Router = Router();
@@ -79,6 +80,12 @@ router.post(
   validate(verifyOtpSchema),
   verifyOtp
 );
+
+/**
+ * POST /auth/admin-login
+ * Login for Admin panel
+ */
+router.post("/admin-login", adminLogin);
 
 /**
  * POST /auth/logout

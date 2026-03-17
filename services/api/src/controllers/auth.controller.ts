@@ -302,3 +302,41 @@ export const updateMe = async (req: Request, res: Response) => {
 
   return sendSuccess(res, { user });
 };
+
+export const adminLogin = async (req: Request, res: Response) => {
+  const { email, password } = req.body;
+
+  if (email === "admin@hmarepanditji.com" && password === "admin123") {
+    let adminUser = await prisma.user.findFirst({
+      where: { role: "ADMIN", email: "admin@hmarepanditji.com" }
+    });
+
+    if (!adminUser) {
+      adminUser = await prisma.user.create({
+        data: {
+          phone: "+910000000000",
+          email: "admin@hmarepanditji.com",
+          name: "Admin",
+          role: "ADMIN",
+          isVerified: true
+        }
+      });
+    }
+
+    const token = jwt.sign(
+      {
+        id: adminUser.id,
+        userId: adminUser.id,
+        role: "ADMIN",
+        name: "Admin",
+        isVerified: true
+      },
+      env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    return sendSuccess(res, { accessToken: token });
+  }
+
+  throw new AppError("Invalid credentials", 401);
+};

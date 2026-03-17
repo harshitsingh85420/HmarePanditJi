@@ -6,6 +6,12 @@ import { usePathname } from "next/navigation";
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
 
+    React.useEffect(() => {
+        if (!pathname.startsWith("/login") && !localStorage.getItem("adminToken")) {
+            window.location.href = "/login";
+        }
+    }, [pathname]);
+
     const getPageTitle = (path: string) => {
         switch (true) {
             case path === "/": return "Dashboard";

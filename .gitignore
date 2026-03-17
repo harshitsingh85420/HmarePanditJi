@@ -38,6 +38,9 @@ coverage/
 npm-debug.log*
 pnpm-debug.log*
 yarn-debug.log*
+*.log
+all_pages*.txt
+build_*.txt
 
 # AI Tool internals
 .claude/

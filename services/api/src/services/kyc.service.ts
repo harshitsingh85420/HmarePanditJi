@@ -26,7 +26,7 @@ export async function submitAadhaar(
     const encrypted = encryptAadhaar(aadhaarNumber);
     const lastFour = getAadhaarLastFour(aadhaarNumber);
 
-    const pandit = await prisma.pandit.findUnique({
+    const pandit = await prisma.panditProfile.findUnique({
         where: { userId: panditUserId },
     });
 
@@ -35,7 +35,7 @@ export async function submitAadhaar(
     }
 
     // Store encrypted Aadhaar and last 4 digits using dedicated columns
-    await prisma.pandit.update({
+    await prisma.panditProfile.update({
         where: { userId: panditUserId },
         data: {
             aadhaarEncrypted: encrypted,
@@ -57,7 +57,7 @@ export async function submitAadhaar(
  * Create a KYC video session record.
  */
 export async function submitVideoKYC(panditUserId: string, videoUrl: string) {
-    const pandit = await prisma.pandit.findUnique({
+    const pandit = await prisma.panditProfile.findUnique({
         where: { userId: panditUserId },
     });
 
@@ -66,7 +66,7 @@ export async function submitVideoKYC(panditUserId: string, videoUrl: string) {
     }
 
     // Update pandit verification status
-    await prisma.pandit.update({
+    await prisma.panditProfile.update({
         where: { userId: panditUserId },
         data: {
             videoKycCompleted: true,
@@ -88,10 +88,10 @@ export async function getKYCQueue(page: number = 1, limit: number = 20) {
     const skip = (page - 1) * limit;
 
     const [pandits, total] = await Promise.all([
-        prisma.pandit.findMany({
+        prisma.panditProfile.findMany({
             where: {
                 verificationStatus: { in: ["PENDING", "DOCUMENTS_SUBMITTED", "VIDEO_KYC_DONE"] },
-                isActive: true,
+                user: { is: { isActive: true } },
             },
             include: {
                 user: {
@@ -107,10 +107,10 @@ export async function getKYCQueue(page: number = 1, limit: number = 20) {
             skip,
             take: limit,
         }),
-        prisma.pandit.count({
+        prisma.panditProfile.count({
             where: {
                 verificationStatus: { in: ["PENDING", "DOCUMENTS_SUBMITTED", "VIDEO_KYC_DONE"] },
-                isActive: true,
+                user: { is: { isActive: true } },
             },
         }),
     ]);
@@ -150,7 +150,7 @@ export async function reviewKYC(
     decision: "approve" | "reject",
     notes?: string
 ) {
-    const pandit = await prisma.pandit.findUnique({
+    const pandit = await prisma.panditProfile.findUnique({
         where: { id: panditId },
         include: { user: true },
     });
@@ -160,11 +160,10 @@ export async function reviewKYC(
     }
 
     if (decision === "approve") {
-        await prisma.pandit.update({
+        await prisma.panditProfile.update({
             where: { id: panditId },
             data: {
                 verificationStatus: "VERIFIED",
-                isVerified: true,
                 aadhaarVerified: true,
                 certificatesVerified: true,
             },
@@ -188,11 +187,10 @@ export async function reviewKYC(
 
         logger.info(`[KYC] Pandit ${panditId} APPROVED by admin ${adminUserId}`);
     } else {
-        await prisma.pandit.update({
+        await prisma.panditProfile.update({
             where: { id: panditId },
             data: {
                 verificationStatus: "REJECTED",
-                isVerified: false,
             },
         });
 
@@ -223,12 +221,12 @@ export async function reviewKYC(
 
 export async function getKYCStats() {
     const [pending, verified, rejected, total] = await Promise.all([
-        prisma.pandit.count({
+        prisma.panditProfile.count({
             where: { verificationStatus: { in: ["PENDING", "DOCUMENTS_SUBMITTED", "VIDEO_KYC_DONE"] } },
         }),
-        prisma.pandit.count({ where: { verificationStatus: "VERIFIED" } }),
-        prisma.pandit.count({ where: { verificationStatus: "REJECTED" } }),
-        prisma.pandit.count(),
+        prisma.panditProfile.count({ where: { verificationStatus: "VERIFIED" } }),
+        prisma.panditProfile.count({ where: { verificationStatus: "REJECTED" } }),
+        prisma.panditProfile.count(),
     ]);
 
     return { pending, verified, rejected, total };

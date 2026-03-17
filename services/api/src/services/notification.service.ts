@@ -103,8 +103,7 @@ export async function sendNotification(input: SendNotificationInput): Promise<vo
         type: input.type,
         title: input.title,
         message: input.message,
-        channel: input.channel,
-        metadata: (input.metadata ?? {}) as object,
+        data: (input.metadata ?? {}) as object,
       },
     })
     .catch((err) => logger.error("Failed to save notification to DB:", err));

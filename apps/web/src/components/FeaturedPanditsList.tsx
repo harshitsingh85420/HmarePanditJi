@@ -4,17 +4,32 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { PanditCard, TravelMode } from "@hmarepanditji/ui";
 import { useAuth } from "../context/auth-context";
+import { LoginModal } from "./LoginModal";
 
 export function FeaturedPanditsList({ pandits }: { pandits: any[] }) {
     const router = useRouter();
     const { isAuthenticated, loading } = useAuth();
+    const [loginModalOpen, setLoginModalOpen] = React.useState(false);
+    const [redirectUrl, setRedirectUrl] = React.useState("");
 
     const handleBook = (id: string, mode: TravelMode) => {
         if (loading) return;
         if (!isAuthenticated) {
-            router.push("/login?next=" + encodeURIComponent(`/booking/new?panditId=${id}`));
+            setRedirectUrl(`/booking/new?panditId=${id}`);
+            setLoginModalOpen(true);
         } else {
             router.push(`/booking/new?panditId=${id}`);
+        }
+    };
+
+    const handleFavorite = (id: string) => {
+        if (loading) return;
+        if (!isAuthenticated) {
+            setRedirectUrl("");
+            setLoginModalOpen(true);
+        } else {
+            // Future: Implement favorite logic with proper API calls
+            console.log("Added to favorites:", id);
         }
     };
 
@@ -41,9 +56,15 @@ export function FeaturedPanditsList({ pandits }: { pandits: any[] }) {
                     isVerified={pandit.isVerified}
                     onBook={handleBook}
                     onViewProfile={handleViewProfile}
+                    onFavorite={handleFavorite}
                     className="shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
                 />
             ))}
+            <LoginModal
+                isOpen={loginModalOpen}
+                onClose={() => setLoginModalOpen(false)}
+                redirectAfterLogin={redirectUrl}
+            />
         </>
     );
 }

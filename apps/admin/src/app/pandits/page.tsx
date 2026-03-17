@@ -16,7 +16,7 @@ export default function PanditVerificationQueue() {
     let query = `?status=${activeTab}&limit=20`;
     if (search.trim()) query += `&search=${encodeURIComponent(search)}`;
 
-    fetch(`http://localhost:3001/api/admin/pandits${query}`, {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/pandits${query}`, {
       headers: { Authorization: `Bearer ${localStorage.getItem("adminToken") || ""}` }
     })
       .then(res => res.json())

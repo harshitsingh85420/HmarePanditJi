@@ -2,7 +2,9 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { SamagriModal } from "../../../components/SamagriModal";
+import { LoginModal } from "@/components/LoginModal";
 
 export function ServicesTab({
     panditId,
@@ -15,6 +17,10 @@ export function ServicesTab({
 }) {
     const [isSamagriModalOpen, setIsSamagriModalOpen] = useState(false);
     const [selectedPujaService, setSelectedPujaService] = useState<string | null>(null);
+    const router = useRouter();
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    const [loginModalOpen, setLoginModalOpen] = useState(false);
+    const [redirectUrl, setRedirectUrl] = useState("");
 
     const handleOpenSamagri = (pujaType: string) => {
         setSelectedPujaService(pujaType);
@@ -71,12 +77,21 @@ export function ServicesTab({
                                         </div>
                                     </div>
                                 </div>
-                                <Link
-                                    href={`/booking/new?panditId=${panditId}&pujaType=${encodeURIComponent(service.pujaType)}`}
+                                <button
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        const url = `/booking/new?panditId=${panditId}&pujaType=${encodeURIComponent(service.pujaType)}`;
+                                        if (!token) {
+                                            setRedirectUrl(url);
+                                            setLoginModalOpen(true);
+                                        } else {
+                                            router.push(url);
+                                        }
+                                    }}
                                     className="w-full block text-center py-3 bg-white border-2 border-orange-600 text-orange-600 font-bold rounded-xl hover:bg-orange-50 transition"
                                 >
                                     Book This Puja →
-                                </Link>
+                                </button>
                             </div>
                         );
                     })
@@ -92,6 +107,14 @@ export function ServicesTab({
                     panditId={panditId}
                     pujaType={selectedPujaService}
                     packages={samagriPackages?.filter(pkg => pkg.pujaType === selectedPujaService) || []}
+                />
+            )}
+
+            {loginModalOpen && (
+                <LoginModal
+                    isOpen={loginModalOpen}
+                    onClose={() => setLoginModalOpen(false)}
+                    redirectAfterLogin={redirectUrl}
                 />
             )}
         </div>

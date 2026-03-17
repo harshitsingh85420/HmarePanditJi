@@ -93,7 +93,7 @@ export default function B2BInvoicePage() {
                                     <p>Prestige Tech Park, Marathahalli</p>
                                     <p>Bangalore, Karnataka, 560103</p>
                                     <p className="mt-2"><span className="font-medium text-slate-500">GSTIN:</span> 29AAACT3829K1Z5</p>
-                                    <p><span class="font-medium text-slate-500">PO Ref:</span> TN-EVT-2309</p>
+                                    <p><span className="font-medium text-slate-500">PO Ref:</span> TN-EVT-2309</p>
                                 </div>
                             </div>
                         </div>

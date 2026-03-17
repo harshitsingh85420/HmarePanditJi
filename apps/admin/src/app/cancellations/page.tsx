@@ -37,7 +37,7 @@ export default function CancellationsPage() {
         setLoading(true);
         try {
             const token = localStorage.getItem("token");
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/admin/cancellations`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/cancellations`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             const json = await res.json();
@@ -105,7 +105,7 @@ export default function CancellationsPage() {
             const policy = calculateRefundPolicy(days, selectedCancel.grandTotal);
             const amt = overrideChecked ? Number(customRefundAmount) : policy.amount;
 
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/admin/bookings/${selectedCancel.id}/cancel-approve`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/bookings/${selectedCancel.id}/cancel-approve`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -137,7 +137,7 @@ export default function CancellationsPage() {
         setProcessing(true);
         try {
             const token = localStorage.getItem("token");
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/admin/bookings/${selectedCancel.id}/cancel-reject`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/bookings/${selectedCancel.id}/cancel-reject`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

@@ -18,7 +18,7 @@ const PANDIT_PORTAL_URL = process.env.NEXT_PUBLIC_PANDIT_URL || "http://localhos
 // ── User Menu / Guest Pill ───────────────────────────────────────────────────
 
 function UserMenu() {
-  const { user, logout, openLoginModal } = useAuth();
+  const { user, loading, logout, openLoginModal } = useAuth();
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -34,6 +34,10 @@ function UserMenu() {
   }, [open]);
 
   /* ── Guest state ── */
+  if (loading) {
+    return <div className="h-9 w-24 bg-slate-200 dark:bg-slate-800 animate-pulse rounded-lg"></div>;
+  }
+
   if (!user) {
     return (
       <div className="flex items-center gap-2">

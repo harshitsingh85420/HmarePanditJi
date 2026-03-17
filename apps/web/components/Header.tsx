@@ -5,6 +5,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "../src/context/auth-context";
 
+type NavLink = {
+  href: string;
+  label: string;
+  external?: boolean;
+};
+
 function GuestBanner({ onSignIn }: { onSignIn: () => void }) {
   const [dismissed, setDismissed] = useState(false);
 
@@ -18,7 +24,7 @@ function GuestBanner({ onSignIn }: { onSignIn: () => void }) {
   return (
     <div className="bg-amber-50 border-b border-amber-200 px-4 py-2 flex items-center justify-between text-sm z-50">
       <span className="text-amber-800 font-medium">
-        Exploring as Guest. Sign in to book pandits and save favorites.
+        👋 Exploring as Guest - Login to book pandits and save favorites
       </span>
       <div className="flex items-center gap-3">
         <button
@@ -26,7 +32,7 @@ function GuestBanner({ onSignIn }: { onSignIn: () => void }) {
           onClick={onSignIn}
           className="bg-primary text-white px-3 py-1 rounded-btn text-xs font-bold hover:bg-primary/90 transition-colors"
         >
-          Sign In
+          Login / Register
         </button>
         <button
           type="button"
@@ -51,11 +57,13 @@ export default function Header() {
 
   const isGuest = !loading && !user;
   const userInitial = (user?.fullName || user?.name || "U").charAt(0).toUpperCase();
+  const panditAppUrl = process.env.NEXT_PUBLIC_PANDIT_APP_URL || "http://localhost:3002";
 
-  const navLinks = [
+  const navLinks: NavLink[] = [
     { href: "/", label: "Home" },
     { href: "/search", label: "Find Pandits" },
     { href: "/muhurat", label: "Muhurat Explorer" },
+    { href: panditAppUrl, label: "For Pandits", external: true },
   ];
 
   const replayTutorial = () => {
@@ -78,16 +86,28 @@ export default function Header() {
           </Link>
 
           <nav className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`text-sm font-semibold transition-colors hover:text-primary ${pathname === link.href ? "text-primary" : "text-gray-700"
-                  }`}
-              >
-                {link.label}
-              </Link>
-            ))}
+            {navLinks.map((link) =>
+              link.external ? (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm font-semibold transition-colors hover:text-primary text-gray-700"
+                >
+                  {link.label}
+                </a>
+              ) : (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`text-sm font-semibold transition-colors hover:text-primary ${pathname === link.href ? "text-primary" : "text-gray-700"
+                    }`}
+                >
+                  {link.label}
+                </Link>
+              )
+            )}
           </nav>
 
           <div className="flex items-center gap-3">
@@ -162,17 +182,30 @@ export default function Header() {
 
         {mobileOpen && (
           <div className="md:hidden bg-white border-t border-gray-100 px-4 py-4 space-y-3">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setMobileOpen(false)}
-                className={`block text-base font-semibold py-2 transition-colors hover:text-primary ${pathname === link.href ? "text-primary" : "text-gray-800"
-                  }`}
-              >
-                {link.label}
-              </Link>
-            ))}
+            {navLinks.map((link) =>
+              link.external ? (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setMobileOpen(false)}
+                  className="block text-base font-semibold py-2 transition-colors hover:text-primary text-gray-800"
+                >
+                  {link.label}
+                </a>
+              ) : (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setMobileOpen(false)}
+                  className={`block text-base font-semibold py-2 transition-colors hover:text-primary ${pathname === link.href ? "text-primary" : "text-gray-800"
+                    }`}
+                >
+                  {link.label}
+                </Link>
+              )
+            )}
             {isGuest && (
               <button
                 type="button"
