@@ -22,46 +22,51 @@ import { useInactivityTimer } from '@/hooks/useInactivityTimer'
 
 import LanguageBottomSheet from '@/components/part0/LanguageBottomSheet'
 
-import SplashScreen from './screens/SplashScreen'
-import LocationPermissionScreen from './screens/LocationPermissionScreen'
-import ManualCityScreen from './screens/ManualCityScreen'
-import LanguageConfirmScreen from './screens/LanguageConfirmScreen'
-import LanguageListScreen from './screens/LanguageListScreen'
-import LanguageChoiceConfirmScreen from './screens/LanguageChoiceConfirmScreen'
-import LanguageSetScreen from './screens/LanguageSetScreen'
-import HelpScreen from './screens/HelpScreen'
-import VoiceTutorialScreen from './screens/VoiceTutorialScreen'
-import TutorialSwagat from './screens/tutorial/TutorialSwagat'
-import TutorialIncome from './screens/tutorial/TutorialIncome'
-import TutorialDakshina from './screens/tutorial/TutorialDakshina'
-import TutorialOnlineRevenue from './screens/tutorial/TutorialOnlineRevenue'
-import TutorialBackup from './screens/tutorial/TutorialBackup'
-import TutorialPayment from './screens/tutorial/TutorialPayment'
-import TutorialVoiceNav from './screens/tutorial/TutorialVoiceNav'
-import TutorialDualMode from './screens/tutorial/TutorialDualMode'
-import TutorialTravel from './screens/tutorial/TutorialTravel'
-import TutorialVideoVerify from './screens/tutorial/TutorialVideoVerify'
-import TutorialGuarantees from './screens/tutorial/TutorialGuarantees'
-import TutorialCTA from './screens/tutorial/TutorialCTA'
+// Screen imports
+import SplashScreen from '../onboarding/screens/SplashScreen'
+import LocationPermissionScreen from '../onboarding/screens/LocationPermissionScreen'
+import ManualCityScreen from '../onboarding/screens/ManualCityScreen'
+import LanguageConfirmScreen from '../onboarding/screens/LanguageConfirmScreen'
+import LanguageListScreen from '../onboarding/screens/LanguageListScreen'
+import LanguageChoiceConfirmScreen from '../onboarding/screens/LanguageChoiceConfirmScreen'
+import LanguageSetScreen from '../onboarding/screens/LanguageSetScreen'
+import HelpScreen from '../onboarding/screens/HelpScreen'
+import VoiceTutorialScreen from '../onboarding/screens/VoiceTutorialScreen'
+import TutorialSwagat from '../onboarding/screens/tutorial/TutorialSwagat'
+import TutorialIncome from '../onboarding/screens/tutorial/TutorialIncome'
+import TutorialDakshina from '../onboarding/screens/tutorial/TutorialDakshina'
+import TutorialOnlineRevenue from '../onboarding/screens/tutorial/TutorialOnlineRevenue'
+import TutorialBackup from '../onboarding/screens/tutorial/TutorialBackup'
+import TutorialPayment from '../onboarding/screens/tutorial/TutorialPayment'
+import TutorialVoiceNav from '../onboarding/screens/tutorial/TutorialVoiceNav'
+import TutorialDualMode from '../onboarding/screens/tutorial/TutorialDualMode'
+import TutorialTravel from '../onboarding/screens/tutorial/TutorialTravel'
+import TutorialVideoVerify from '../onboarding/screens/tutorial/TutorialVideoVerify'
+import TutorialGuarantees from '../onboarding/screens/tutorial/TutorialGuarantees'
+import TutorialCTA from '../onboarding/screens/tutorial/TutorialCTA'
 
-export default function OnboardingPage() {
+export default function IntroPage() {
   const router = useRouter()
   const [state, setState] = useState<OnboardingState>(DEFAULT_STATE)
   const [isLoaded, setIsLoaded] = useState(false)
   const [showLanguageSheet, setShowLanguageSheet] = useState(false)
 
+  // Keep screen on during the entire Part 0 tutorial
   useWakeLock(true)
 
+  // Handle 5 minutes of inactivity gracefully
   useInactivityTimer({
     timeoutMs: 300_000,
     onInactive: () => {
-      console.log('[Onboarding] Inactivity detected after 5 minutes')
+      console.log('[Intro] Inactivity detected after 5 minutes')
     },
   })
 
+  // Load state from localStorage on mount
   useEffect(() => {
     const saved = loadOnboardingState()
 
+    // If tutorial is already complete, redirect to registration
     if (saved.tutorialCompleted) {
       router.replace('/onboarding/register')
       return
@@ -71,6 +76,7 @@ export default function OnboardingPage() {
     setIsLoaded(true)
   }, [router])
 
+  // Persist state on every change
   const updateState = useCallback((updates: Partial<OnboardingState>) => {
     setState(prev => {
       const next = { ...prev, ...updates }
@@ -78,6 +84,8 @@ export default function OnboardingPage() {
       return next
     })
   }, [])
+
+  // ─── PHASE TRANSITION HANDLERS ───────────────────────────
 
   const goToPhase = useCallback((phase: OnboardingPhase) => {
     stopSpeaking()
@@ -155,10 +163,6 @@ export default function OnboardingPage() {
     updateState({ phase: 'TUTORIAL_SWAGAT', tutorialStarted: true })
   }, [updateState])
 
-  const handleVoiceTutorialBack = useCallback(() => {
-    goToPhase('LANGUAGE_CONFIRM')
-  }, [goToPhase])
-
   const handleTutorialNext = useCallback(() => {
     const next = getNextTutorialPhase(state.phase)
     if (next === 'REGISTRATION') {
@@ -192,6 +196,8 @@ export default function OnboardingPage() {
     goToPhase('LANGUAGE_CONFIRM')
   }, [goToPhase])
 
+  // ─── LANGUAGE SHEET ───────────────────────────────────────
+
   const handleLanguageSheetOpen = useCallback(() => {
     stopSpeaking()
     setShowLanguageSheet(true)
@@ -205,6 +211,8 @@ export default function OnboardingPage() {
     setShowLanguageSheet(false)
     updateState({ selectedLanguage: language, languageConfirmed: true })
   }, [updateState])
+
+  // ─── RENDER ───────────────────────────────────────────────
 
   if (!isLoaded) {
     return (
@@ -286,7 +294,7 @@ export default function OnboardingPage() {
         return <HelpScreen {...commonProps} onBack={handleHelpBack} />
 
       case 'VOICE_TUTORIAL':
-        return <VoiceTutorialScreen {...commonProps} onComplete={handleVoiceTutorialComplete} onBack={handleVoiceTutorialBack} />
+        return <VoiceTutorialScreen {...commonProps} onComplete={handleVoiceTutorialComplete} />
 
       case 'TUTORIAL_SWAGAT':
         return <TutorialSwagat {...tutorialProps} />
@@ -315,7 +323,7 @@ export default function OnboardingPage() {
           <TutorialCTA
             {...tutorialProps}
             onRegisterNow={handleRegistrationNow}
-            onLater={() => updateState({ tutorialCompleted: true })}
+            onLater={() => router.push('/')}
           />
         )
 
@@ -327,6 +335,7 @@ export default function OnboardingPage() {
   return (
     <div className="min-h-screen bg-vedic-cream screen-always-on">
       {renderScreen()}
+      {/* Language bottom sheet — always available */}
       <LanguageBottomSheet
         isOpen={showLanguageSheet}
         currentLanguage={state.selectedLanguage}
