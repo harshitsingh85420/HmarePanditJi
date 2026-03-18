@@ -8,6 +8,7 @@ import { ToastProvider } from "@hmarepanditji/ui";
 import { SamagriCartProvider } from "../../context/SamagriCartContext";
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
+import { GurujiAIChat } from "../components/GurujiAIChat";
 
 const BASE_URL = "https://hmarepanditji.com";
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID ?? "";
@@ -135,6 +136,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
         />
+        {/* Puter.js — free serverless AI (Claude claude-sonnet-4-5) via puter.ai.chat */}
+        <script src="https://js.puter.com/v2/" async />
       </head>
       <body
         className="min-h-screen bg-[#f8f7f5] dark:bg-[#221a10] antialiased"
@@ -180,6 +183,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <Footer />
                 <AuthModal />
 
+                {/* Guruji AI — Claude claude-sonnet-4-5 powered chat widget (via puter.js) */}
+                <GurujiAIChat />
                 {/* WhatsApp Floating Button */}
                 <a
                   href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Namaste! I want to book a pandit for my puja.")}`}
