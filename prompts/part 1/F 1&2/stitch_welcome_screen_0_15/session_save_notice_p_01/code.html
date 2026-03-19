@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+
+<html class="light" lang="hi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&amp;family=Public+Sans:wght@300;400;500;600;700&amp;family=Noto+Sans+Devanagari:wght@300;400;500;600;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-primary-fixed": "#2f1500",
+              "tertiary-fixed-dim": "#ffb874",
+              "surface-container": "#f0eee8",
+              "surface-container-lowest": "#ffffff",
+              "on-tertiary-fixed-variant": "#6a3b00",
+              "tertiary-fixed": "#ffdcbf",
+              "surface-variant": "#e4e2dd",
+              "on-surface": "#1b1c19",
+              "on-secondary-container": "#217128",
+              "on-error": "#ffffff",
+              "on-tertiary": "#ffffff",
+              "background": "#fbf9f3",
+              "surface-dim": "#dbdad4",
+              "on-primary-container": "#623200",
+              "surface-tint": "#904d00",
+              "secondary-fixed-dim": "#88d982",
+              "secondary-container": "#a0f399",
+              "error": "#ba1a1a",
+              "primary-fixed": "#ffdcc3",
+              "on-secondary": "#ffffff",
+              "surface-container-low": "#f5f3ee",
+              "inverse-on-surface": "#f2f1eb",
+              "primary": "#904d00",
+              "inverse-surface": "#30312d",
+              "on-secondary-fixed-variant": "#005312",
+              "outline": "#897362",
+              "on-background": "#1b1c19",
+              "surface-bright": "#fbf9f3",
+              "primary-fixed-dim": "#ffb77d",
+              "secondary-fixed": "#a3f69c",
+              "on-tertiary-fixed": "#2d1600",
+              "inverse-primary": "#ffb77d",
+              "on-tertiary-container": "#5f3400",
+              "surface-container-highest": "#e4e2dd",
+              "tertiary-container": "#f89100",
+              "tertiary": "#8c5000",
+              "secondary": "#1b6d24",
+              "on-error-container": "#93000a",
+              "on-primary-fixed-variant": "#6e3900",
+              "on-secondary-fixed": "#002204",
+              "on-primary": "#ffffff",
+              "error-container": "#ffdad6",
+              "primary-container": "#ff8c00",
+              "surface-container-high": "#eae8e2",
+              "surface": "#fbf9f3",
+              "outline-variant": "#ddc1ae",
+              "on-surface-variant": "#564334"
+            },
+            fontFamily: {
+              "headline": ["Noto Serif"],
+              "body": ["Public Sans"],
+              "label": ["Public Sans", "Noto Sans Devanagari"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "3xl": "1.5rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .bg-gradient-sacred {
+        background: linear-gradient(180deg, #904d00 0%, #f89100 100%);
+      }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-body min-h-screen flex flex-col items-center">
+<!-- Top App Bar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-5 h-16 bg-[#fbf9f3] shadow-[0px_8px_24px_rgba(144,77,0,0.08)]">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container overflow-hidden">
+<img alt="Pandit Ji Profile" class="w-full h-full object-cover" data-alt="Senior Indian Pandit smiling profile photo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDlaa1p71lynaNP4fG-WdH_YtSPNw5yRwYgQlryPp3g6fza6lEdV6kfO-2aqB5f1OsPhAggLZQmZcr6mziiATQPrKQ6m38gdPbKiGHzBpRZLDmt_LfcSG5-v_FS9Z_hhyu6hYcVxwafl3uuxcYfsc9gbcvtv3X70irHRB4YRze9uMKCPr1EdKga8U1FCqZzQC0Xyb3SFlldLrk3_lNeqyL9_SxoyBg1pD4YcdvrpHJVoJ-IeQ81qH6r930ZraA4Rs8ufXtZOQzqfWZS"/>
+</div>
+<span class="font-headline text-[#904d00] text-xl font-bold">सुप्रभातम्</span>
+</div>
+<button class="text-[#904d00] material-symbols-outlined text-2xl">notifications</button>
+</header>
+<!-- Main Content Canvas: Identity Confirmation -->
+<main class="w-full max-w-md px-6 pt-24 pb-48 flex flex-col gap-8">
+<!-- Header Section -->
+<section class="flex flex-col gap-2">
+<h1 class="font-headline text-3xl font-bold text-on-surface leading-tight">अपनी पहचान की पुष्टि करें</h1>
+<p class="text-on-surface-variant text-lg font-label">सुरक्षित लॉगिन के लिए कृपया नीचे दी गई जानकारी की जाँच करें।</p>
+</section>
+<!-- Identity Card (Asymmetric Layout) -->
+<section class="relative bg-surface-container-lowest p-8 rounded-3xl shadow-[0px_8px_24px_rgba(144,77,0,0.05)] border-l-4 border-primary">
+<div class="flex flex-col gap-6">
+<div class="flex items-start justify-between">
+<div>
+<span class="text-primary font-bold text-sm tracking-widest uppercase mb-1 block">आचार्य प्रोफाइल</span>
+<h2 class="font-headline text-2xl text-on-surface">पंडित जी (वरिष्ठ आचार्य)</h2>
+</div>
+<span class="material-symbols-outlined text-secondary text-3xl" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+</div>
+<div class="space-y-4">
+<div class="flex flex-col gap-1">
+<label class="text-on-surface-variant font-label text-sm">पंजीकृत मोबाइल नंबर</label>
+<p class="text-lg font-medium text-on-surface tracking-wider">+91 98XXX-X1234</p>
+</div>
+<div class="flex flex-col gap-1">
+<label class="text-on-surface-variant font-label text-sm">मुख्य केंद्र</label>
+<p class="text-lg font-medium text-on-surface">काशी विश्वनाथ क्षेत्र, वाराणसी</p>
+</div>
+</div>
+<div class="pt-4">
+<button class="w-full h-14 bg-gradient-sacred text-white font-bold rounded-xl shadow-lg active:scale-95 transition-transform flex items-center justify-center gap-2">
+<span>पुष्टि करें और आगे बढ़ें</span>
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Decorative Element -->
+<div class="absolute -bottom-4 -right-4 w-24 h-24 opacity-10 pointer-events-none">
+<img alt="Marigold petal pattern" data-alt="Abstract marigold flower watercolor pattern" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAj3QcX0SYmu73QUu-zNruPXvDfPGQ2-A661omz7tEkFCvatyEdJBwl9l0x0_k6r8K-7kg1dah-fd3dFrraOa9qI8zaP7lti9quq-jWHe2Mkz3_0tR1HAwQgIEdqisuU-Vo-XbNv9KQNsc3h4tro6OEe8gkEuJjPKihBVQYYGv14T8Rl2tbU69DtkA-aHC3KxZ6BnRycJRUtRPG6awugb2KtRxz5bneIVJMGvzQscV2u4_TrBHTNSUYTO7hpIbfT-SukJn2DotHASsX"/>
+</div>
+</section>
+<!-- Secondary Action -->
+<div class="flex justify-center">
+<button class="text-primary font-medium px-6 py-3 rounded-full hover:bg-primary/5 transition-colors">
+                यह मैं नहीं हूँ? खाता बदलें
+            </button>
+</div>
+</main>
+<!-- Overlay / Backdrop (Subtle Blur) -->
+<div class="fixed inset-0 bg-on-surface/10 backdrop-blur-sm z-40"></div>
+<!-- P-01: Session Save Notice Bottom Sheet -->
+<!-- Slides up 120px from bottom contextually -->
+<section class="fixed bottom-32 left-1/2 -translate-x-1/2 w-[92%] max-w-md z-50">
+<div class="bg-surface-container-lowest rounded-3xl shadow-[0px_12px_40px_rgba(144,77,0,0.15)] overflow-hidden border border-outline-variant/20">
+<div class="p-6 flex items-start gap-4">
+<!-- Left Icon -->
+<div class="w-14 h-14 bg-primary-container/15 rounded-2xl flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-primary text-3xl" style="font-variation-settings: 'FILL' 1;">save</span>
+</div>
+<!-- Center Text Content -->
+<div class="flex flex-col gap-1">
+<h3 class="font-headline text-xl font-bold text-on-primary-container">आपका काम सेव होता रहेगा</h3>
+<p class="font-label text-on-surface-variant text-base leading-relaxed">
+                        किसी भी स्टेप पर रुक सकते हैं — वपास आने पर वहां से शुरू होंगे।
+                    </p>
+</div>
+</div>
+<!-- Auto-dismiss Progress Bar at bottom -->
+<div class="w-full h-1.5 bg-surface-container">
+<div class="h-full bg-primary-container w-2/3 rounded-r-full"></div>
+</div>
+</div>
+</section>
+<!-- Bottom Nav Bar (Suppressed on focused identity screens but shown here per task logic of being a 'destination' start) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-4 pt-2 bg-[#ffffff] shadow-[0px_-4px_16px_rgba(144,77,0,0.05)] rounded-t-3xl border-t border-[#ddc1ae]/20">
+<a class="flex flex-col items-center justify-center bg-[#ff8c00]/10 text-[#904d00] rounded-2xl px-6 py-2 transition-all" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-['Noto_Sans_Devanagari'] text-[14px] font-medium leading-[150%]">मुख्य पृष्ठ</span>
+</a>
+<a class="flex flex-col items-center justify-center text-stone-400 px-6 py-2 hover:text-[#904d00]" href="#">
+<span class="material-symbols-outlined">groups</span>
+<span class="font-['Noto_Sans_Devanagari'] text-[14px] font-medium leading-[150%]">यजमान</span>
+</a>
+<a class="flex flex-col items-center justify-center text-stone-400 px-6 py-2 hover:text-[#904d00]" href="#">
+<span class="material-symbols-outlined">calendar_month</span>
+<span class="font-['Noto_Sans_Devanagari'] text-[14px] font-medium leading-[150%]">पंचांग</span>
+</a>
+<a class="flex flex-col items-center justify-center text-stone-400 px-6 py-2 hover:text-[#904d00]" href="#">
+<span class="material-symbols-outlined">help_center</span>
+<span class="font-['Noto_Sans_Devanagari'] text-[14px] font-medium leading-[150%]">सहायता</span>
+</a>
+</nav>
+</body></html>

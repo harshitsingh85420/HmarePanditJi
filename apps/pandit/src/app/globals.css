@@ -1,534 +1,94 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&family=Public+Sans:wght@300;400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* ── Design Tokens (Prompt 1 Section 8) ────────────────────────────────────── */
-:root {
-  /* Primary */
-  --primary: #f09942;
-  --primary-light: #fde9c3;
-  --primary-dark: #d97706;
-
-  /* Semantic colours */
-  --danger: #ef4444;
-  --success: #10b981;
-  --info: #3b82f6;
-  --warning: #f59e0b;
-
-  /* Background */
-  --background-light: #f8f7f6;
-  --background-dark: #221910;
-
-  /* Surface */
-  --surface-white: #ffffff;
-  --surface-card: #ffffff;
-  --surface-hover: #faf9f8;
-
-  /* Text */
-  --text-primary: #1e293b;
-  --text-secondary: #64748b;
-  --text-muted: #94a3b8;
-
-  /* Border radius */
-  --radius-card: 12px;
-  --radius-button: 8px;
-  --radius-pill: 24px;
-  --radius-input: 8px;
-
-  /* Shadows */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
-}
-
-/* ── Base styles ───────────────────────────────────────────────────────────── */
-body {
-  font-family: var(--font-hind), 'Hind', sans-serif;
-  background-color: #FFFBF5;
-  color: #2D1B00;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  line-height: 1.6;
-  overflow-x: hidden;
-}
-
-/* ── All interactive elements: min 44px tap targets (Prompt 1 spec) ─────── */
-button,
-a,
-input[type="submit"],
-input[type="button"],
-input[type="reset"],
-[role="button"],
-[role="tab"],
-select,
-.interactive {
-  min-height: 44px;
-  min-width: 44px;
-}
-
-input,
-textarea,
-select {
-  min-height: 44px;
-  font-size: 16px;
-  /* Prevent iOS zoom on focus */
-}
-
-/* ── Component utility classes ─────────────────────────────────────────────── */
-.card {
-  background: var(--surface-card);
-  border-radius: var(--radius-card);
-  box-shadow: var(--shadow-sm);
-  padding: 1rem;
-}
-
-.pill {
-  border-radius: var(--radius-pill);
-  padding: 0.5rem 1.25rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-weight: 500;
-  transition: all 0.2s ease;
-}
-
-.pill-primary {
-  background: var(--primary);
-  color: white;
-}
-
-.pill-outline {
-  border: 2px solid var(--primary);
-  color: var(--primary);
-  background: transparent;
-}
-
-.pill-outline:hover {
-  background: var(--primary-light);
-}
-
-.badge-verified {
-  background: #d1fae5;
-  color: #065f46;
-  border-radius: var(--radius-pill);
-  padding: 2px 10px;
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-
-.badge-pending {
-  background: var(--primary-light);
-  color: #92400e;
-  border-radius: var(--radius-pill);
-  padding: 2px 10px;
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-
-.badge-danger {
-  background: #fee2e2;
-  color: #991b1b;
-  border-radius: var(--radius-pill);
-  padding: 2px 10px;
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-
-/* ── Animations ────────────────────────────────────────────────────────────── */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
+@layer base {
+  :root {
+    --font-devanagari: 'Noto Sans Devanagari', sans-serif;
+    --font-serif: 'Noto Serif', serif;
+    --font-body: 'Public Sans', sans-serif;
   }
 
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
+  html {
+    font-family: var(--font-body);
+    background-color: #FFFDF7;
+    color: #1C1C1E;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
   }
 
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes pulseAmber {
-
-  0%,
-  100% {
-    box-shadow: 0 0 0 0 rgba(240, 153, 66, 0.4);
+  body {
+    min-height: 100dvh;
+    overflow-x: hidden;
   }
 
-  50% {
-    box-shadow: 0 0 0 12px rgba(240, 153, 66, 0);
-  }
-}
-
-@keyframes confetti-fall {
-  0% {
-    transform: translateY(-100vh) rotate(0deg);
-    opacity: 1;
+  * {
+    box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
-  100% {
-    transform: translateY(100vh) rotate(720deg);
-    opacity: 0;
+  /* Prevent text selection on tap (mobile UX) */
+  button, a { 
+    -webkit-user-select: none; 
+    user-select: none; 
   }
+
+  /* Smooth scrolling */
+  html { scroll-behavior: smooth; }
 }
 
-.animate-fade-in {
-  animation: fadeIn 0.5s ease-out;
-}
-
-.animate-slide-up {
-  animation: slideUp 0.6s ease-out;
-}
-
-.animate-pulse-amber {
-  animation: pulseAmber 2s ease-in-out infinite;
-}
-
-/* ── Confetti animation (Prompt 7, celebration page) ───────────────────── */
-.confetti-piece {
-  position: fixed;
-  width: 10px;
-  height: 10px;
-  animation: confetti-fall linear forwards;
-  top: -10px;
-  z-index: 1000;
-}
-
-/* ── Scrollbar styling ─────────────────────────────────────────────────────── */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #d1d5db;
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
-}
-
-/* ── Dark mode: DISABLED — this app uses warm cream (#FFFBF5) always ──────── */
-/* The HmarePanditJi pandit app is intentionally light-only (sacred warmth).  */
-/* Dark mode is NOT supported per design spec. Body always uses #FFFBF5.       */
-
-/* ── Print styles ──────────────────────────────────────────────────────────── */
-@media print {
-  .no-print {
-    display: none !important;
+@layer components {
+  /* Material Symbols configuration */
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    font-family: 'Material Symbols Outlined';
+    display: inline-block;
+    line-height: 1;
+    text-transform: none;
+    letter-spacing: normal;
+    word-wrap: normal;
+    white-space: nowrap;
   }
-}
+  .material-symbols-outlined.filled {
+    font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
 
-/* ══════════════════════════════════════════════════════════════
-   PART 0 — VOICE & ANIMATION STYLES
-   ══════════════════════════════════════════════════════════════ */
+  /* Devanagari text utility */
+  .text-devanagari {
+    font-family: var(--font-devanagari);
+  }
 
-/* ─────── Prevent iOS text size adjustment ─────── */
-html {
-  -webkit-text-size-adjust: 100%;
-  text-size-adjust: 100%;
-}
+  /* Saffron glow effect (used on active voice states) */
+  .saffron-glow {
+    box-shadow: 0 0 40px rgba(255, 140, 0, 0.15);
+  }
 
-/* ─────── Remove iOS tap highlight ─────── */
-* {
-  -webkit-tap-highlight-color: transparent;
-}
+  /* Sacred gradient background */
+  .bg-sacred {
+    background: linear-gradient(
+      135deg, 
+      rgba(255, 140, 0, 0.08) 0%, 
+      #FFFDF7 40%
+    );
+  }
 
-/* Hide scrollbar for horizontal scroll chips */
-.no-scrollbar::-webkit-scrollbar { display: none; }
-.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  /* Waveform bars (voice UI) */
+  .waveform-bar {
+    width: 6px;
+    border-radius: 3px;
+    background: linear-gradient(to top, #FFB300, #FF8C00);
+    animation: waveform 1.2s ease-in-out infinite alternate;
+  }
+  .waveform-bar:nth-child(2) { animation-delay: 0.2s; }
+  .waveform-bar:nth-child(3) { animation-delay: 0.4s; }
+  .waveform-bar:nth-child(4) { animation-delay: 0.6s; }
+  .waveform-bar:nth-child(5) { animation-delay: 0.8s; }
 
-/* Screen timeout override for Part 0 screens */
-.screen-always-on { touch-action: manipulation; }
-
-/* Voice bar indicator */
-.voice-bar {
-  width: 6px;
-  border-radius: 3px;
-  background-color: #F09942;
-  animation: voiceBar 1.2s ease-in-out infinite;
-  height: 8px;
-}
-.voice-bar:nth-child(2) { animation-delay: 0.2s; }
-.voice-bar:nth-child(3) { animation-delay: 0.4s; }
-
-@keyframes voiceBar {
-  0%, 100% { height: 8px; }
-  50%       { height: 24px; }
-}
-
-/* Shimmer text (language confirm screen script char) */
-@keyframes shimmerText {
-  0%   { background-position: -200% center; }
-  100% { background-position: 200% center; }
-}
-
-.shimmer-text {
-  background: linear-gradient(
-    90deg,
-    #F09942 20%,
-    #FFD700 40%,
-    #F09942 60%,
-    #DC6803 80%,
-    #F09942 100%
-  );
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: shimmerText 3s linear infinite;
-}
-
-/* Splash gradient: Saffron → Amber → Cream */
-.splash-gradient {
-  background: linear-gradient(180deg, #F09942 0%, #F5C07A 50%, #FFFBF5 100%);
-}
-
-/* Slide-up for bottom sheet */
-@keyframes slideUpBS {
-  from { transform: translateY(100%); }
-  to   { transform: translateY(0); }
-}
-
-/* SVG draw animation helpers */
-.draw-circle {
-  stroke-dasharray: 252;
-  stroke-dashoffset: 252;
-  animation: drawCircle 0.8s ease-out forwards;
-}
-.draw-check {
-  stroke-dasharray: 100;
-  stroke-dashoffset: 100;
-  animation: drawCheck 0.5s ease-out 0.8s forwards;
-}
-@keyframes drawCircle { to { stroke-dashoffset: 0; } }
-@keyframes drawCheck { to { stroke-dashoffset: 0; } }
-
-/* Accordion animation */
-.accordion-content {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.3s ease-out;
-}
-.accordion-content.open {
-  max-height: 200px;
-}
-
-/* Splash gradient animation */
-@keyframes splashGradient {
-  0%   { background-position: 0% 50%; }
-  50%  { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-/* ─────── Shimmer keyframe alias (used by .shimmer-text) ─────── */
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
-/* ─────── SVG draw animation keyframe aliases ─────── */
-@keyframes draw-circle { to { stroke-dashoffset: 0; } }
-@keyframes draw-check  { to { stroke-dashoffset: 0; } }
-
-/* ─────── fadeInUp: Language grid staggered entry ─────── */
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(14px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-.grid-item {
-  opacity: 0;
-  animation: fadeInUp 0.35s ease-out forwards;
-}
-.grid-item:nth-child(1)  { animation-delay: 0.10s; }
-.grid-item:nth-child(2)  { animation-delay: 0.15s; }
-.grid-item:nth-child(3)  { animation-delay: 0.20s; }
-.grid-item:nth-child(4)  { animation-delay: 0.25s; }
-.grid-item:nth-child(5)  { animation-delay: 0.30s; }
-.grid-item:nth-child(6)  { animation-delay: 0.35s; }
-.grid-item:nth-child(7)  { animation-delay: 0.40s; }
-.grid-item:nth-child(8)  { animation-delay: 0.45s; }
-.grid-item:nth-child(9)  { animation-delay: 0.50s; }
-.grid-item:nth-child(10) { animation-delay: 0.55s; }
-.grid-item:nth-child(11) { animation-delay: 0.60s; }
-.grid-item:nth-child(12) { animation-delay: 0.65s; }
-.grid-item:nth-child(13) { animation-delay: 0.70s; }
-.grid-item:nth-child(14) { animation-delay: 0.75s; }
-.grid-item:nth-child(n+15) { animation-delay: 0.75s; }
-
-/* ─────── fadeUp: Location permission benefit rows ─────── */
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(16px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-.animate-fade-up {
-  animation: fadeUp 0.45s ease-out forwards;
-}
-.stagger-1 { animation-delay: 0.15s; }
-.stagger-2 { animation-delay: 0.30s; }
-.stagger-3 { animation-delay: 0.45s; }
-
-/* ─────── glideIn: City chip horizontal scroll ─────── */
-@keyframes glideIn {
-  from { opacity: 0; transform: translateX(-12px); }
-  to   { opacity: 1; transform: translateX(0); }
-}
-
-.animate-glide-in {
-  opacity: 0;
-  animation: glideIn 0.35s ease-out forwards;
-}
-
-/* ─────── progressFill: Splash progress bar ─────── */
-@keyframes progressFill {
-  0%   { width: 0%; }
-  100% { width: 100%; }
-}
-
-/* ─────── Sacred diya flicker: OM on splash ─────── */
-@keyframes diyaFlicker {
-  0%, 100% { opacity: 0.9; transform: scale(1) rotate(-1deg); filter: drop-shadow(0 0 8px rgba(255,255,255,0.6)); }
-  25%       { opacity: 1;   transform: scale(1.04) rotate(0.5deg); filter: drop-shadow(0 0 16px rgba(255,255,255,0.9)); }
-  50%       { opacity: 0.95; transform: scale(1.06) rotate(-0.5deg); filter: drop-shadow(0 0 20px rgba(255,255,255,1)); }
-  75%       { opacity: 1;   transform: scale(1.02) rotate(1deg); filter: drop-shadow(0 0 12px rgba(255,255,255,0.7)); }
-}
-
-.animate-diya-flicker {
-  animation: diyaFlicker 4s ease-in-out infinite;
-}
-
-/* ─────── Prana breath: subtle size oscillation for sacred elements ─────── */
-@keyframes pranaBreath {
-  0%, 100% { transform: scale(1);    opacity: 0.85; }
-  40%       { transform: scale(1.05); opacity: 1; }
-  60%       { transform: scale(1.07); opacity: 1; }
-}
-
-.animate-prana {
-  animation: pranaBreath 3.5s ease-in-out infinite;
-}
-
-/* ─────── shimmerOM: golden shimmer for large OM symbol ─────── */
-@keyframes shimmerOM {
-  0%   { background-position: -300% center; }
-  100% { background-position: 300% center; }
-}
-
-.shimmer-om {
-  background: linear-gradient(
-    90deg,
-    #FFFFFF 0%,
-    rgba(255,255,255,0.7) 20%,
-    #FFFDE0 40%,
-    #FFFFFF 60%,
-    rgba(255,255,255,0.7) 80%,
-    #FFFFFF 100%
-  );
-  background-size: 300% auto;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: shimmerOM 5s linear infinite;
-}
-
-/* ─────── Card reveal: screens entering from slightly below ─────── */
-@keyframes cardReveal {
-  from { opacity: 0; transform: translateY(24px) scale(0.97); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-.animate-card-reveal {
-  animation: cardReveal 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-
-/* ─────── Stagger 4, 5, 6 for longer lists ─────── */
-.stagger-4 { animation-delay: 0.60s; }
-.stagger-5 { animation-delay: 0.75s; }
-.stagger-6 { animation-delay: 0.90s; }
-
-/* ─────── Ripple for mic/CTA buttons ─────── */
-@keyframes rippleOut {
-  from { transform: scale(0.9); opacity: 0.6; }
-  to   { transform: scale(2.2); opacity: 0; }
-}
-
-.animate-ripple {
-  animation: rippleOut 1.8s ease-out infinite;
-}
-.animate-ripple-delay {
-  animation: rippleOut 1.8s ease-out 0.6s infinite;
-}
-
-/* ─────── Heartbeat for verified badges ─────── */
-@keyframes heartbeat {
-  0%, 100% { transform: scale(1); }
-  14%       { transform: scale(1.1); }
-  28%       { transform: scale(1); }
-  42%       { transform: scale(1.08); }
-  70%       { transform: scale(1); }
-}
-
-.animate-heartbeat {
-  animation: heartbeat 2.5s ease-in-out infinite;
-}
-
-/* ─────── Float for CTA hero elements ─────── */
-@keyframes floatUp {
-  0%, 100% { transform: translateY(0px); }
-  50%       { transform: translateY(-6px); }
-}
-
-.animate-float {
-  animation: floatUp 3s ease-in-out infinite;
-}
-
-/* ─────── Pulse glow for primary CTA buttons ─────── */
-@keyframes ctaGlow {
-  0%, 100% { box-shadow: 0 4px 12px rgba(240,153,66,0.35); }
-  50%       { box-shadow: 0 4px 24px rgba(240,153,66,0.65), 0 0 0 6px rgba(240,153,66,0.12); }
-}
-
-.animate-cta-glow {
-  animation: ctaGlow 2.5s ease-in-out infinite;
-}
-
-/* ─────── Celebration: scale + fade ─────── */
-@keyframes celebrationPop {
-  0%   { transform: scale(0.7) rotate(-5deg); opacity: 0; }
-  60%  { transform: scale(1.1) rotate(2deg); opacity: 1; }
-  100% { transform: scale(1) rotate(0deg); opacity: 1; }
-}
-
-.animate-celebration-pop {
-  animation: celebrationPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-}
-
-/* ─────── Shimmer wave: loading/pending state ─────── */
-@keyframes shimmerWave {
-  0%   { background-position: -200px 0; }
-  100% { background-position: 400px 0; }
-}
-
-.shimmer-loading {
-  background: linear-gradient(90deg, #FEF3C7 25%, #FFFBF5 50%, #FEF3C7 75%);
-  background-size: 600px 100%;
-  animation: shimmerWave 1.5s infinite;
+  /* Safe area padding (iOS home bar) */
+  .pb-safe { padding-bottom: env(safe-area-inset-bottom, 16px); }
+  .pt-safe { padding-top: env(safe-area-inset-top, 0px); }
 }

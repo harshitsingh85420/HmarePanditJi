@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+
+<html lang="hi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sujatam - Mobile Number Collection</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&amp;family=Public+Sans:wght@400;500;600;700&amp;family=Noto+Sans+Devanagari:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-bright": "#fbf9f3",
+              "on-surface": "#1b1c19",
+              "surface-container": "#f0eee8",
+              "on-background": "#1b1c19",
+              "on-secondary-fixed": "#002204",
+              "on-secondary-fixed-variant": "#005312",
+              "on-error": "#ffffff",
+              "secondary-fixed-dim": "#88d982",
+              "primary-fixed": "#ffdcc3",
+              "secondary": "#1b6d24",
+              "surface-dim": "#dbdad4",
+              "on-tertiary-fixed-variant": "#6a3b00",
+              "tertiary-fixed": "#ffdcbf",
+              "on-secondary": "#ffffff",
+              "outline-variant": "#ddc1ae",
+              "on-primary-fixed": "#2f1500",
+              "surface-container-low": "#f5f3ee",
+              "inverse-primary": "#ffb77d",
+              "secondary-fixed": "#a3f69c",
+              "primary": "#904d00",
+              "secondary-container": "#a0f399",
+              "primary-container": "#ff8c00",
+              "tertiary": "#8c5000",
+              "on-error-container": "#93000a",
+              "on-tertiary-container": "#5f3400",
+              "on-tertiary-fixed": "#2d1600",
+              "inverse-surface": "#30312d",
+              "on-primary-fixed-variant": "#6e3900",
+              "background": "#fbf9f3",
+              "on-primary-container": "#623200",
+              "on-secondary-container": "#217128",
+              "surface": "#fbf9f3",
+              "tertiary-fixed-dim": "#ffb874",
+              "surface-tint": "#904d00",
+              "surface-container-highest": "#e4e2dd",
+              "surface-container-high": "#eae8e2",
+              "error": "#ba1a1a",
+              "surface-container-lowest": "#ffffff",
+              "on-tertiary": "#ffffff",
+              "on-primary": "#ffffff",
+              "primary-fixed-dim": "#ffb77d",
+              "surface-variant": "#e4e2dd",
+              "outline": "#897362",
+              "error-container": "#ffdad6",
+              "on-surface-variant": "#564334",
+              "inverse-on-surface": "#f2f1eb",
+              "tertiary-container": "#f89100"
+            },
+            fontFamily: {
+              "headline": ["Noto Serif", "Noto Sans Devanagari"],
+              "body": ["Public Sans", "Noto Sans Devanagari"],
+              "label": ["Public Sans", "Noto Sans Devanagari"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      body {
+        background-color: #FFFDF7;
+      }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body text-on-surface flex flex-col min-h-screen">
+<!-- Top Bar: Progress & Navigation -->
+<header class="w-full top-0 sticky z-50 px-6 py-4 flex items-center gap-6 bg-[#FFFDF7]">
+<button class="w-12 h-12 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-primary text-2xl" data-icon="arrow_back">arrow_back</span>
+</button>
+<div class="flex-1 flex gap-2">
+<!-- Progress Pills (1 of 6) -->
+<div class="h-2 flex-1 rounded-full bg-primary-container"></div>
+<div class="h-2 flex-1 rounded-full bg-surface-container-highest opacity-40"></div>
+<div class="h-2 flex-1 rounded-full bg-surface-container-highest opacity-40"></div>
+<div class="h-2 flex-1 rounded-full bg-surface-container-highest opacity-40"></div>
+<div class="h-2 flex-1 rounded-full bg-surface-container-highest opacity-40"></div>
+<div class="h-2 flex-1 rounded-full bg-surface-container-highest opacity-40"></div>
+</div>
+<span class="font-label text-sm font-bold text-primary">1/6</span>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 px-6 pt-10 pb-32 max-w-xl mx-auto w-full">
+<!-- Animated Entrance Card -->
+<div class="bg-surface-container-lowest rounded-3xl p-8 shadow-[0px_8px_24px_rgba(144,77,0,0.04)] border-l-4 border-primary">
+<div class="flex items-center justify-between mb-8">
+<h1 class="font-headline text-3xl font-bold text-on-surface leading-tight">
+                    आपका मोबाइल नंबर क्या है?
+                </h1>
+<!-- Saved Status Badge -->
+<div class="flex items-center gap-1.5 px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full text-sm font-medium">
+<span class="material-symbols-outlined text-sm" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                    Saved
+                </div>
+</div>
+<p class="text-on-surface-variant text-lg mb-10 leading-[150%]">
+                हम आपके पंजीकरण के लिए एक ओटीपी भेजेंगे।
+            </p>
+<!-- Large Input Field Section -->
+<div class="relative group">
+<label class="block font-label font-bold text-primary mb-3 text-lg">मोबाइल नंबर</label>
+<div class="flex items-center gap-4 p-5 bg-surface-container-low rounded-2xl border-2 border-transparent group-focus-within:border-primary-container group-focus-within:shadow-[0_0_12px_rgba(255,140,0,0.15)] transition-all">
+<!-- Flag/Code Section -->
+<div class="flex items-center gap-2 pr-4 border-r border-outline-variant/30">
+<img alt="India Flag" class="w-8 h-auto rounded-sm" data-alt="Indian national flag icon" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBV5bkQSaetV1KF2tMYK-8Vh8m6IpRrIFfFU5VM8ZfZpyUWwBSFQHSnejQpCNNm4AWTaXrfm9YSMkf4a90Pj5vudF8-oert7tBVzlpHIg8Hf7VzCLhuRKAjb4AAgPqi7StXNdjZ28EJfAiAqDq6pQi4mnxawj65PY91hBH3UIrCOeMKtPnTEr-MBxNHZL1NMGDEBAUSa1YYGg4I_ELLNgEIwSDr2pPEkQDP2XQT_P_JGj1mLknm0c1GxkPMiDjmRn0iZaXgu80RxBne"/>
+<span class="text-2xl font-bold text-on-surface">+91</span>
+</div>
+<!-- Input Area -->
+<input class="w-full bg-transparent border-none focus:ring-0 text-3xl font-bold tracking-widest text-on-surface placeholder:text-outline/40" maxlength="10" placeholder="00000 00000" type="tel"/>
+</div>
+</div>
+<!-- Contextual Help -->
+<div class="mt-8 p-4 bg-surface-bright rounded-xl flex items-start gap-4 italic text-on-surface-variant">
+<span class="material-symbols-outlined text-primary" data-icon="security">security</span>
+<p class="text-base leading-relaxed">
+                    आपकी गोपनीयता हमारे लिए पवित्र है। हम कभी भी आपके नंबर का दुरुपयोग नहीं करेंगे।
+                </p>
+</div>
+</div>
+<!-- Asymmetric Decorative Element -->
+<div class="mt-12 flex justify-end opacity-20">
+<span class="material-symbols-outlined text-8xl text-primary transform rotate-12" data-icon="potted_plant">potted_plant</span>
+</div>
+</main>
+<!-- Bottom Action Area -->
+<footer class="fixed bottom-0 left-0 w-full z-50 pointer-events-none">
+<!-- Floating Action Button for Next -->
+<div class="max-w-xl mx-auto px-6 mb-24 flex justify-end pointer-events-auto">
+<button class="h-16 px-8 rounded-2xl bg-gradient-to-tr from-primary to-tertiary-container text-white shadow-lg flex items-center gap-3 active:scale-95 transition-transform">
+<span class="font-bold text-xl">आगे बढ़ें</span>
+<span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+<!-- Voice-Keyboard Toggle Bar -->
+<div class="w-full bg-surface-container-highest px-6 py-4 flex justify-between items-center pointer-events-auto shadow-[0px_-4px_16px_rgba(144,77,0,0.06)]">
+<button class="flex items-center gap-2 text-primary font-bold px-4 py-2 hover:bg-surface-container rounded-lg transition-colors">
+<span class="material-symbols-outlined" data-icon="keyboard">keyboard</span>
+<span>कीबोर्ड</span>
+</button>
+<div class="h-8 w-px bg-outline-variant/50"></div>
+<button class="flex items-center gap-2 text-on-surface-variant font-medium px-4 py-2 hover:bg-surface-container rounded-lg transition-colors">
+<span class="material-symbols-outlined" data-icon="mic">mic</span>
+<span>बोलकर लिखें</span>
+</button>
+</div>
+</footer>
+</body></html>

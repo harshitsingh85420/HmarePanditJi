@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+
+<html class="light" lang="hi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Session Save Notice</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&amp;family=Public+Sans:wght@400;500;600;700&amp;family=Noto+Sans+Devanagari:wght@400;500;600;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-error-container": "#93000a",
+              "primary-container": "#ff8c00",
+              "background": "#fbf9f3",
+              "on-secondary-fixed-variant": "#005312",
+              "surface-container-lowest": "#ffffff",
+              "secondary-fixed-dim": "#88d982",
+              "on-error": "#ffffff",
+              "tertiary-fixed": "#ffdcbf",
+              "inverse-primary": "#ffb77d",
+              "primary-fixed": "#ffdcc3",
+              "error-container": "#ffdad6",
+              "tertiary-fixed-dim": "#ffb874",
+              "surface-bright": "#fbf9f3",
+              "on-primary-container": "#623200",
+              "on-tertiary-fixed-variant": "#6a3b00",
+              "on-primary-fixed-variant": "#6e3900",
+              "secondary-container": "#a0f399",
+              "on-secondary-fixed": "#002204",
+              "surface-container": "#f0eee8",
+              "error": "#ba1a1a",
+              "tertiary-container": "#f89100",
+              "surface-tint": "#904d00",
+              "inverse-on-surface": "#f2f1eb",
+              "on-tertiary": "#ffffff",
+              "on-primary": "#ffffff",
+              "surface-variant": "#e4e2dd",
+              "outline-variant": "#ddc1ae",
+              "surface-container-low": "#f5f3ee",
+              "surface-container-high": "#eae8e2",
+              "on-tertiary-fixed": "#2d1600",
+              "primary-fixed-dim": "#ffb77d",
+              "secondary-fixed": "#a3f69c",
+              "tertiary": "#8c5000",
+              "surface": "#fbf9f3",
+              "on-tertiary-container": "#5f3400",
+              "primary": "#904d00",
+              "on-primary-fixed": "#2f1500",
+              "secondary": "#1b6d24",
+              "on-secondary-container": "#217128",
+              "on-background": "#1b1c19",
+              "on-surface-variant": "#564334",
+              "surface-dim": "#dbdad4",
+              "surface-container-highest": "#e4e2dd",
+              "outline": "#897362",
+              "on-surface": "#1b1c19",
+              "on-secondary": "#ffffff",
+              "inverse-surface": "#30312d"
+            },
+            fontFamily: {
+              "headline": ["Noto Serif"],
+              "body": ["Public Sans"],
+              "label": ["Public Sans", "Noto Sans Devanagari"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .progress-bar-fill {
+        width: 100%;
+        animation: shrink 4s linear forwards;
+      }
+      @keyframes shrink {
+        from { width: 100%; }
+        to { width: 0%; }
+      }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body min-h-screen">
+<!-- Screen Content Underlay (E-02 Context) -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-5 h-16 bg-[#fbf9f3] dark:bg-stone-900 shadow-[0px_8px_24px_rgba(144,77,0,0.08)]">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center overflow-hidden border-2 border-primary-container">
+<img alt="Pandit Ji Profile Avatar" class="w-full h-full object-cover" data-alt="Close up portrait of an elderly Indian priest" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBdU8RpxrSJPnPeZ1whZP3r6UA4oZ6r7Au9lWz_kkme2qb3LkDeFEbH-jNxSNvtXyn0SvO5dMf6Olsl9o8wspeancBEQx2UraQ6AhVfJjkTwOwAzt08vI16QBgkvssGwsCQ_xSRZLaZyYGOr24E7ZBzh0JAWK4n1DFFwaKYS3IXX86QJM90jRL5jNvqwt5_-o0HfYqd_iA8Bq5V82KZojwWmTXOdZL029HWAFayv_1Rqrn7DZrfydgp9FLaoh7Yce_9ZNiAWpMkVCmw"/>
+</div>
+<h1 class="font-headline text-2xl font-bold leading-[150%] text-[#904d00] dark:text-[#ff8c00]">सुप्रभातम्</h1>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-[#f5f2ea] transition-colors">
+<span class="material-symbols-outlined text-primary">notifications</span>
+</button>
+</header>
+<main class="pt-24 pb-32 px-5 space-y-10">
+<!-- Asymmetric Ritual Entry Cards (Simulating E-02 Progress) -->
+<section class="space-y-6">
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm border-l-4 border-primary">
+<h2 class="font-headline text-xl font-bold mb-2">आज के यजमान</h2>
+<div class="space-y-4">
+<div class="flex items-center gap-4 p-4 bg-surface-container-low rounded-lg">
+<div class="w-12 h-12 rounded-full bg-secondary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-secondary-container">person</span>
+</div>
+<div>
+<p class="font-bold text-lg">राजेश शर्मा</p>
+<p class="text-on-surface-variant text-sm">गणेश पूजन - सुबह 9:00 बजे</p>
+</div>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-surface-container-highest/30 p-6 rounded-2xl flex flex-col items-center justify-center text-center aspect-square">
+<span class="material-symbols-outlined text-primary text-4xl mb-2">menu_book</span>
+<p class="font-label font-medium">पूजा विधि</p>
+</div>
+<div class="bg-primary-container/10 p-6 rounded-2xl flex flex-col items-center justify-center text-center aspect-square border-2 border-dashed border-primary-container/30">
+<span class="material-symbols-outlined text-primary text-4xl mb-2">add_circle</span>
+<p class="font-label font-medium">नई प्रविष्टि</p>
+</div>
+</div>
+</section>
+<!-- Dummy Content to create scroll/context -->
+<div class="bg-surface-container-low p-8 rounded-3xl opacity-40">
+<div class="h-4 w-3/4 bg-surface-variant rounded-full mb-4"></div>
+<div class="h-4 w-1/2 bg-surface-variant rounded-full"></div>
+</div>
+</main>
+<!-- Overlay / Backdrop -->
+<div class="fixed inset-0 bg-on-surface/20 backdrop-blur-[2px] z-[60]"></div>
+<!-- P-01: Session Save Notice Bottom Sheet -->
+<div class="fixed bottom-0 left-0 w-full z-[70] bg-surface-container-lowest rounded-t-[32px] shadow-[0px_-8px_32px_rgba(0,0,0,0.15)] flex flex-col" style="height: 128px;">
+<!-- Drag Handle (Visual cue) -->
+<div class="w-12 h-1.5 bg-surface-variant rounded-full self-center mt-3 mb-1"></div>
+<div class="flex-1 px-6 flex items-start gap-4 py-2">
+<!-- Saffron Save Icon -->
+<div class="mt-1 flex items-center justify-center w-10 h-10 rounded-full bg-primary-container/10">
+<span class="material-symbols-outlined text-primary font-bold" style="font-variation-settings: 'FILL' 1;">save</span>
+</div>
+<!-- Notice Content -->
+<div class="flex-1">
+<h3 class="font-label font-bold text-on-surface text-lg leading-tight">Aapka kaam save hota rahega</h3>
+<p class="font-label text-on-surface-variant text-[15px] leading-[140%] mt-0.5">
+                    Kisi bhi step par ruk sakte hain — wapas aane par wahan se shuru honge.
+                </p>
+</div>
+<!-- Dismiss Button -->
+<button class="mt-1 w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined text-outline text-xl">close</span>
+</button>
+</div>
+<!-- Progress Footer Section -->
+<div class="px-6 pb-4">
+<div class="flex items-center justify-between mb-1.5">
+<span class="text-[11px] font-medium text-outline uppercase tracking-wider">4 seconds mein apne aap band ho jaayega</span>
+</div>
+<!-- Progress Bar Container -->
+<div class="h-1 w-full bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-primary-container progress-bar-fill"></div>
+</div>
+</div>
+</div>
+<!-- Background Decoration (Subtle Spiritual Touch) -->
+<div class="fixed -bottom-20 -right-20 w-64 h-64 bg-primary-container/5 rounded-full blur-3xl -z-10"></div>
+<div class="fixed -top-20 -left-20 w-64 h-64 bg-tertiary-container/5 rounded-full blur-3xl -z-10"></div>
+</body></html>

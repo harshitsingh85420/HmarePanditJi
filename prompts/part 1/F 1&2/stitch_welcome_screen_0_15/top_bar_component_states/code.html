@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+
+<html lang="hi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&amp;family=Noto+Sans+Devanagari:wght@400;500;700&amp;family=Public+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-error-container": "#93000a",
+              "primary-container": "#ff8c00",
+              "background": "#fbf9f3",
+              "on-secondary-fixed-variant": "#005312",
+              "surface-container-lowest": "#ffffff",
+              "secondary-fixed-dim": "#88d982",
+              "on-error": "#ffffff",
+              "tertiary-fixed": "#ffdcbf",
+              "inverse-primary": "#ffb77d",
+              "primary-fixed": "#ffdcc3",
+              "error-container": "#ffdad6",
+              "tertiary-fixed-dim": "#ffb874",
+              "surface-bright": "#fbf9f3",
+              "on-primary-container": "#623200",
+              "on-tertiary-fixed-variant": "#6a3b00",
+              "on-primary-fixed-variant": "#6e3900",
+              "secondary-container": "#a0f399",
+              "on-secondary-fixed": "#002204",
+              "surface-container": "#f0eee8",
+              "error": "#ba1a1a",
+              "tertiary": "#8c5000",
+              "surface": "#fbf9f3",
+              "on-tertiary-container": "#5f3400",
+              "primary": "#904d00",
+              "on-primary-fixed": "#2f1500",
+              "secondary": "#1b6d24",
+              "on-secondary-container": "#217128",
+              "on-background": "#1b1c19",
+              "on-surface-variant": "#564334",
+              "surface-dim": "#dbdad4",
+              "surface-container-highest": "#e4e2dd",
+              "outline": "#897362",
+              "on-surface": "#1b1c19",
+              "on-secondary": "#ffffff",
+              "inverse-surface": "#30312d",
+              "outline-variant": "#ddc1ae"
+            },
+            fontFamily: {
+              "headline": ["Noto Serif"],
+              "body": ["Public Sans"],
+              "label": ["Noto Sans Devanagari"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      body {
+        background-color: #fbf9f3;
+        font-family: 'Public Sans', sans-serif;
+      }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="text-on-background min-h-screen">
+<!-- Main Canvas -->
+<main class="max-w-2xl mx-auto p-8 space-y-16">
+<!-- SECTION 1: STATE 1 (Onboarding / Progress) -->
+<section class="space-y-6">
+<h2 class="font-headline text-primary text-sm font-bold uppercase tracking-widest opacity-60">State 1: Onboarding Flow</h2>
+<div class="bg-[#FFFDF7] rounded-xl shadow-[0px_8px_24px_rgba(144,77,0,0.06)] overflow-hidden border border-outline-variant/10">
+<header class="flex flex-col px-5 pt-4 pb-6 space-y-4">
+<div class="flex items-center justify-between h-12">
+<!-- Back Arrow -->
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-variant transition-colors active:scale-90 duration-150">
+<span class="material-symbols-outlined text-primary">arrow_back</span>
+</button>
+<!-- Globe Bhasha -->
+<button class="flex items-center gap-2 px-3 py-1.5 rounded-full border border-outline-variant/30 text-primary font-medium text-sm hover:bg-primary/5 transition-colors">
+<span class="material-symbols-outlined text-[20px]">language</span>
+<span class="font-label">भाषा</span>
+</button>
+</div>
+<!-- Progress Pills -->
+<div class="flex items-center justify-between gap-2 px-1">
+<!-- Completed -->
+<div class="h-1.5 flex-1 bg-primary-container rounded-full"></div>
+<div class="h-1.5 flex-1 bg-primary-container rounded-full"></div>
+<!-- Current -->
+<div class="relative flex-1 h-1.5">
+<div class="absolute inset-[-3px] border-2 border-primary-container/40 rounded-full"></div>
+<div class="h-full bg-primary-container rounded-full"></div>
+</div>
+<!-- Incomplete -->
+<div class="h-1.5 flex-1 bg-surface-variant rounded-full"></div>
+<div class="h-1.5 flex-1 bg-surface-variant rounded-full"></div>
+<div class="h-1.5 flex-1 bg-surface-variant rounded-full"></div>
+</div>
+</header>
+<!-- Mock Content -->
+<div class="px-8 py-10 text-center space-y-4 bg-surface-container-lowest/50">
+<h1 class="font-headline text-2xl font-bold text-on-surface">अपनी जानकारी साझा करें</h1>
+<p class="text-on-surface-variant font-body">कृपया अपने निवास स्थान का चयन करें।</p>
+<div class="h-32 bg-surface-variant/20 rounded-lg flex items-center justify-center border-2 border-dashed border-outline-variant/40">
+<span class="material-symbols-outlined text-outline text-4xl">map</span>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION 2: STATE 2 (Secondary View) -->
+<section class="space-y-6">
+<h2 class="font-headline text-primary text-sm font-bold uppercase tracking-widest opacity-60">State 2: Contextual Navigation</h2>
+<div class="bg-[#FFFDF7] rounded-xl shadow-[0px_8px_24px_rgba(144,77,0,0.06)] overflow-hidden border border-outline-variant/10">
+<header class="flex items-center justify-between h-16 px-5">
+<!-- Back Arrow -->
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-variant transition-colors active:scale-90 duration-150">
+<span class="material-symbols-outlined text-primary">arrow_back</span>
+</button>
+<!-- Headline Placeholder -->
+<span class="font-headline font-bold text-primary text-lg">नियम और शर्तें</span>
+<!-- Globe Bhasha -->
+<button class="flex items-center gap-2 px-3 py-1.5 rounded-full border border-outline-variant/30 text-primary font-medium text-sm hover:bg-primary/5 transition-colors">
+<span class="material-symbols-outlined text-[20px]">language</span>
+<span class="font-label">भाषा</span>
+</button>
+</header>
+<div class="p-8 h-24 bg-surface-container-lowest/50"></div>
+</div>
+</section>
+<!-- SECTION 3: STATE 3 (Completion/Success) -->
+<section class="space-y-6">
+<h2 class="font-headline text-primary text-sm font-bold uppercase tracking-widest opacity-60">State 3: Success Confirmation</h2>
+<div class="bg-[#FFFDF7] rounded-xl shadow-[0px_8px_24px_rgba(144,77,0,0.06)] overflow-hidden border border-outline-variant/10">
+<header class="flex items-center justify-between h-16 px-5">
+<!-- Placeholder for alignment (No back arrow) -->
+<div class="w-10"></div>
+<!-- Success Message -->
+<div class="flex items-center gap-2 px-4 py-1.5 bg-secondary-container/30 rounded-full">
+<span class="material-symbols-outlined text-secondary text-lg" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="font-label text-on-secondary-container font-bold text-sm">Registration Complete ✅</span>
+</div>
+<!-- Globe Bhasha -->
+<button class="flex items-center gap-2 px-3 py-1.5 rounded-full border border-outline-variant/30 text-primary font-medium text-sm hover:bg-primary/5 transition-colors">
+<span class="material-symbols-outlined text-[20px]">language</span>
+<span class="font-label">भाषा</span>
+</button>
+</header>
+<div class="px-8 py-12 flex flex-col items-center text-center space-y-6 bg-surface-container-lowest/50">
+<div class="w-20 h-20 bg-secondary-container flex items-center justify-center rounded-full">
+<span class="material-symbols-outlined text-secondary text-4xl" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+<div class="space-y-2">
+<h1 class="font-headline text-2xl font-bold text-on-surface">अभिनंदन, पंडित जी!</h1>
+<p class="text-on-surface-variant font-body px-8">आपका प्रोफाइल सफलतापूर्वक पंजीकृत हो गया है। अब आप यजमानों से जुड़ सकते हैं।</p>
+</div>
+<button class="w-full h-14 bg-primary text-white font-bold rounded-xl shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all">
+                        प्रारंभ करें
+                    </button>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation Shell (Contextual) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-4 pt-2 bg-white shadow-[0px_-4px_16px_rgba(144,77,0,0.05)] rounded-t-3xl border-t border-outline-variant/20 md:hidden">
+<div class="flex flex-col items-center justify-center bg-primary-container/10 text-primary rounded-2xl px-6 py-2 transition-all">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-label text-[12px] mt-1">मुख्य पृष्ठ</span>
+</div>
+<div class="flex flex-col items-center justify-center text-stone-400 px-6 py-2">
+<span class="material-symbols-outlined">groups</span>
+<span class="font-label text-[12px] mt-1">यजमान</span>
+</div>
+<div class="flex flex-col items-center justify-center text-stone-400 px-6 py-2">
+<span class="material-symbols-outlined">calendar_month</span>
+<span class="font-label text-[12px] mt-1">पंचांग</span>
+</div>
+<div class="flex flex-col items-center justify-center text-stone-400 px-6 py-2">
+<span class="material-symbols-outlined">help_center</span>
+<span class="font-label text-[12px] mt-1">सहायता</span>
+</div>
+</nav>
+</body></html>

@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>🛕 HmarePanditJi AI Agent — Claude Opus 4.6</title>
+<script src="https://js.puter.com/v2/"></script>
+<style>
+/* ========================================================================
+   DESIGN SYSTEM — Dark IDE-inspired theme
+   ======================================================================== */
+:root {
+  --bg-deep:    #0d1117;
+  --bg-surface: #161b22;
+  --bg-raised:  #1c2333;
+  --bg-hover:   #21283b;
+  --border:     #30363d;
+  --border-bright: #8b949e;
+  --text:       #e6edf3;
+  --text-dim:   #8b949e;
+  --accent:     #f59e0b;
+  --accent2:    #d97706;
+  --green:      #3fb950;
+  --red:        #f85149;
+  --blue:       #58a6ff;
+  --purple:     #bc8cff;
+  --font-mono:  'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'Consolas', monospace;
+  --font-sans:  'Inter', -apple-system, system-ui, sans-serif;
+  --radius:     8px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{
+  font-family:var(--font-sans);background:var(--bg-deep);color:var(--text);
+  display:flex;flex-direction:column;
+}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:var(--border-bright)}
+
+/* ── TOP BAR ────────────────────────────────────────────────────────── */
+#topbar{
+  display:flex;align-items:center;gap:12px;
+  padding:8px 16px;background:var(--bg-surface);border-bottom:1px solid var(--border);
+  flex-shrink:0;
+}
+#topbar .logo{font-size:18px;font-weight:800;color:var(--accent);display:flex;align-items:center;gap:6px}
+#topbar .logo span{font-size:22px}
+#topbar .status{font-size:11px;color:var(--text-dim);margin-left:auto;display:flex;align-items:center;gap:6px}
+#topbar .status .dot{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;animation:pulse-dot 2s infinite}
+@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.4}}
+.btn{
+  padding:6px 14px;border-radius:var(--radius);border:1px solid var(--border);
+  background:var(--bg-raised);color:var(--text);cursor:pointer;font-size:12px;
+  font-family:var(--font-sans);transition:all .15s;display:inline-flex;align-items:center;gap:6px;
+}
+.btn:hover{background:var(--bg-hover);border-color:var(--border-bright)}
+.btn-primary{background:var(--accent);color:#000;border-color:var(--accent);font-weight:600}
+.btn-primary:hover{background:var(--accent2)}
+.btn-danger{border-color:var(--red);color:var(--red)}
+.btn-danger:hover{background:rgba(248,81,73,.15)}
+.btn-sm{padding:3px 8px;font-size:11px}
+
+/* ── MAIN LAYOUT ────────────────────────────────────────────────────── */
+#main{display:flex;flex:1;overflow:hidden}
+
+/* Sidebar — file tree */
+#sidebar{
+  width:280px;min-width:200px;max-width:400px;background:var(--bg-surface);
+  border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;
+}
+#sidebar-header{
+  padding:10px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;
+  font-size:12px;font-weight:600;color:var(--text-dim);text-transform:uppercase;letter-spacing:.6px;
+}
+#file-tree{flex:1;overflow-y:auto;padding:4px 0;font-size:13px;font-family:var(--font-mono)}
+.tree-item{
+  display:flex;align-items:center;gap:6px;padding:3px 12px;cursor:pointer;
+  color:var(--text-dim);transition:background .1s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.tree-item:hover{background:var(--bg-hover);color:var(--text)}
+.tree-item.active{background:rgba(245,158,11,.12);color:var(--accent)}
+.tree-item .icon{font-size:14px;flex-shrink:0;width:16px;text-align:center}
+.tree-dir .icon{color:var(--accent)}
+.tree-file .icon{color:var(--blue)}
+.tree-item .name{overflow:hidden;text-overflow:ellipsis}
+.indent{display:inline-block}
+
+/* Center — chat + agent output */
+#center{flex:1;display:flex;flex-direction:column;overflow:hidden}
+
+/* Chat messages */
+#messages{flex:1;overflow-y:auto;padding:20px 24px;display:flex;flex-direction:column;gap:16px}
+.msg{display:flex;gap:12px;max-width:100%}
+.msg-avatar{
+  width:32px;height:32px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  font-size:16px;font-weight:700;
+}
+.msg-user .msg-avatar{background:var(--bg-hover);color:var(--blue)}
+.msg-assistant .msg-avatar{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#000}
+.msg-body{flex:1;min-width:0}
+.msg-role{font-size:11px;font-weight:600;color:var(--text-dim);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
+.msg-content{
+  font-size:13.5px;line-height:1.65;color:var(--text);white-space:pre-wrap;word-break:break-word;
+}
+.msg-content code{
+  background:var(--bg-raised);padding:1px 5px;border-radius:4px;font-family:var(--font-mono);font-size:12.5px;
+}
+
+/* Code blocks inside messages */
+.code-block{
+  position:relative;margin:12px 0;border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);
+}
+.code-block-header{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:6px 12px;background:var(--bg-hover);font-size:11px;color:var(--text-dim);
+  font-family:var(--font-mono);border-bottom:1px solid var(--border);
+}
+.code-block pre{
+  margin:0;padding:12px;background:var(--bg-deep);overflow-x:auto;
+  font-family:var(--font-mono);font-size:12.5px;line-height:1.6;color:var(--text);
+}
+
+/* Action buttons on code blocks */
+.code-actions{display:flex;gap:4px}
+
+/* File diff blocks */
+.diff-block{margin:12px 0;border-radius:var(--radius);overflow:hidden;border:1px solid var(--border)}
+.diff-header{
+  padding:8px 12px;background:var(--bg-hover);font-size:12px;color:var(--text-dim);
+  font-family:var(--font-mono);display:flex;justify-content:space-between;align-items:center;
+  border-bottom:1px solid var(--border);
+}
+.diff-content{background:var(--bg-deep);padding:0;font-family:var(--font-mono);font-size:12px;line-height:1.6;overflow-x:auto}
+.diff-line{padding:0 12px;white-space:pre}
+.diff-add{background:rgba(63,185,80,.12);color:var(--green)}
+.diff-del{background:rgba(248,81,73,.12);color:var(--red)}
+
+/* Input area */
+#input-area{
+  padding:12px 16px;border-top:1px solid var(--border);background:var(--bg-surface);flex-shrink:0;
+}
+#input-row{display:flex;gap:8px;align-items:flex-end}
+#prompt{
+  flex:1;resize:none;border:1px solid var(--border);border-radius:var(--radius);
+  background:var(--bg-raised);color:var(--text);padding:10px 14px;
+  font-family:var(--font-sans);font-size:13.5px;line-height:1.5;outline:none;
+  min-height:44px;max-height:200px;
+}
+#prompt:focus{border-color:var(--accent)}
+#prompt::placeholder{color:var(--text-dim)}
+#send-btn{
+  width:42px;height:42px;border-radius:var(--radius);border:none;cursor:pointer;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));color:#000;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .15s;
+}
+#send-btn:hover{transform:scale(1.05)}
+#send-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+#input-meta{display:flex;gap:12px;margin-top:6px;font-size:11px;color:var(--text-dim);align-items:center}
+#input-meta label{display:flex;align-items:center;gap:4px;cursor:pointer}
+#input-meta select,#input-meta input[type=checkbox]{
+  background:var(--bg-raised);color:var(--text);border:1px solid var(--border);border-radius:4px;
+  padding:2px 6px;font-size:11px;cursor:pointer;
+}
+
+/* Right panel — file viewer */
+#right-panel{
+  width:0;overflow:hidden;transition:width .2s;background:var(--bg-surface);
+  border-left:1px solid var(--border);display:flex;flex-direction:column;
+}
+#right-panel.open{width:480px}
+#right-panel-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 12px;border-bottom:1px solid var(--border);font-size:12px;flex-shrink:0;
+}
+#right-panel-header .filepath{font-family:var(--font-mono);color:var(--accent);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+#file-viewer{
+  flex:1;overflow:auto;padding:12px;font-family:var(--font-mono);font-size:12.5px;
+  line-height:1.6;white-space:pre-wrap;word-break:break-all;color:var(--text);
+}
+
+/* Loading spinner */
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Thinking indicator */
+.thinking{display:flex;align-items:center;gap:8px;padding:8px 0;color:var(--text-dim);font-size:13px}
+.thinking .dots span{
+  display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent);
+  margin:0 2px;animation:bounce-dot 1.4s ease-in-out infinite;
+}
+.thinking .dots span:nth-child(2){animation-delay:.2s}
+.thinking .dots span:nth-child(3){animation-delay:.4s}
+@keyframes bounce-dot{0%,80%,100%{transform:scale(.6);opacity:.4}40%{transform:scale(1);opacity:1}}
+
+/* Context chips */
+.context-chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.chip{
+  display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:12px;
+  font-size:11px;background:rgba(245,158,11,.12);color:var(--accent);border:1px solid rgba(245,158,11,.25);
+  font-family:var(--font-mono);
+}
+.chip .remove{cursor:pointer;opacity:.6}
+.chip .remove:hover{opacity:1}
+
+/* Welcome screen */
+#welcome{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:40px;gap:24px;
+}
+#welcome h1{font-size:32px;font-weight:800;color:var(--accent);display:flex;align-items:center;gap:8px}
+#welcome p{color:var(--text-dim);max-width:500px;line-height:1.6;font-size:14px}
+#welcome .features{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px;text-align:left}
+#welcome .feat{
+  padding:14px;border-radius:var(--radius);border:1px solid var(--border);background:var(--bg-surface);
+  font-size:12.5px;display:flex;gap:10px;align-items:flex-start;
+}
+#welcome .feat-icon{font-size:20px;flex-shrink:0}
+#welcome .feat-text strong{color:var(--text);display:block;margin-bottom:2px}
+#welcome .feat-text span{color:var(--text-dim)}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ TOP BAR ═══════════════ -->
+<div id="topbar">
+  <div class="logo"><span>🛕</span> HmarePanditJi AI Agent</div>
+  <button class="btn" id="open-folder-btn" onclick="pickFolder()">📂 Open Project Folder</button>
+  <button class="btn btn-sm" id="model-info-btn" onclick="showModelInfo()">🤖 Model Info</button>
+  <div class="status">
+    <span class="dot" id="status-dot"></span>
+    <span id="status-text">Ready — Open a folder to start</span>
+  </div>
+</div>
+
+<!-- ═══════════════ MAIN ═══════════════ -->
+<div id="main">
+  <!-- Sidebar -->
+  <div id="sidebar" style="display:none">
+    <div id="sidebar-header">
+      <span>📁</span>
+      <span id="project-name">Explorer</span>
+    </div>
+    <div id="file-tree"></div>
+  </div>
+
+  <!-- Center -->
+  <div id="center">
+    <!-- Welcome screen (shown initially) -->
+    <div id="welcome">
+      <h1>🛕 AI Coding Agent</h1>
+      <p>A <strong>free AI coding assistant</strong> powered by <strong>Claude Opus 4.6</strong> via Puter.js. Give it prompts, and it will read, understand, and modify your project code — just like a pair programmer.</p>
+      <div class="features">
+        <div class="feat"><div class="feat-icon">📂</div><div class="feat-text"><strong>Local File Access</strong><span>Read & write files directly on your machine</span></div></div>
+        <div class="feat"><div class="feat-icon">🧠</div><div class="feat-text"><strong>Claude Opus 4.6</strong><span>Most powerful model, free via Puter.js</span></div></div>
+        <div class="feat"><div class="feat-icon">✏️</div><div class="feat-text"><strong>Code Generation</strong><span>Creates, edits & refactors code for you</span></div></div>
+        <div class="feat"><div class="feat-icon">🔍</div><div class="feat-text"><strong>Context-Aware</strong><span>Reads your files to understand the codebase</span></div></div>
+      </div>
+      <button class="btn btn-primary" onclick="pickFolder()" style="margin-top:12px;padding:10px 24px;font-size:14px">📂 Open Your Project Folder to Start</button>
+    </div>
+
+    <!-- Messages (hidden initially) -->
+    <div id="messages" style="display:none"></div>
+
+    <!-- Input (hidden initially) -->
+    <div id="input-area" style="display:none">
+      <div id="input-row">
+        <textarea id="prompt" rows="1" placeholder="Give me a coding prompt… e.g. 'Add a new API endpoint for user reviews'" onkeydown="handleKey(event)" oninput="autoGrow(this)"></textarea>
+        <button id="send-btn" onclick="send()" title="Send (Ctrl+Enter)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5"/></svg>
+        </button>
+      </div>
+      <div id="input-meta">
+        <label>Model:
+          <select id="model-select" onchange="selectedModel=this.value">
+            <option value="claude-opus-4-6" selected>Claude Opus 4.6 (Best)</option>
+            <option value="claude-sonnet-4-6">Claude Sonnet 4.6</option>
+            <option value="claude-sonnet-4-5">Claude Sonnet 4.5</option>
+            <option value="claude-opus-4-5">Claude Opus 4.5</option>
+            <option value="gpt-5-nano">GPT-5 Nano</option>
+          </select>
+        </label>
+        <label title="Automatically apply code changes without asking">
+          <input type="checkbox" id="auto-apply" /> Auto-apply changes
+        </label>
+        <span id="context-label" style="margin-left:auto">Context files: <strong id="ctx-count">0</strong></span>
+      </div>
+      <div class="context-chips" id="context-chips"></div>
+    </div>
+  </div>
+
+  <!-- Right Panel — file viewer -->
+  <div id="right-panel">
+    <div id="right-panel-header">
+      <span class="filepath" id="viewer-path">No file</span>
+      <button class="btn btn-sm" onclick="closeViewer()">✕</button>
+    </div>
+    <div id="file-viewer"></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════════
+// GLOBALS
+// ═══════════════════════════════════════════════════════════════════════════
+let dirHandle = null;           // FileSystemDirectoryHandle for the project root
+let fileIndex = {};             // path -> FileSystemFileHandle
+let contextFiles = [];          // [{path, content}] — files sent as context
+let conversationHistory = [];   // [{role, content}]
+let selectedModel = 'claude-opus-4-6';
+let isProcessing = false;
+
+const IGNORED = new Set([
+  'node_modules','.next','.git','.turbo','dist','build','.cache',
+  '__pycache__','coverage','.DS_Store','Thumbs.db','.env','pnpm-lock.yaml',
+  'package-lock.json','tsconfig.tsbuildinfo','.swc'
+]);
+
+const TEXT_EXTS = new Set([
+  'ts','tsx','js','jsx','json','css','scss','html','md','txt','yaml','yml',
+  'sql','prisma','graphql','gql','env','example','sh','bat','ps1','py',
+  'toml','xml','svg','conf','cfg','ini','dockerfile','dockerignore',
+  'gitignore','prettierrc','eslintrc','editorconfig','lock','log'
+]);
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SYSTEM PROMPT — The brain of the agent
+// ═══════════════════════════════════════════════════════════════════════════
+const SYSTEM_PROMPT = `You are an expert full-stack AI coding agent for the "HmarePanditJi" project — India's first platform for booking Aadhaar-verified Hindu pandits. You are running inside a browser-based IDE that can read and write files on the user's local filesystem.
+
+YOUR CAPABILITIES:
+1. You can READ any file the user has added to context (they will be provided below).
+2. You can output FILE OPERATIONS that the IDE will execute:
+   - CREATE a new file
+   - EDIT an existing file (provide the full new content)
+   - DELETE a file
+
+WHEN GENERATING FILE CHANGES, use this EXACT format — the IDE parses it:
+
+===FILE_OP===
+ACTION: CREATE | EDIT | DELETE
+PATH: relative/path/to/file.ts
+CONTENT:
+\`\`\`
+(full file content here — for CREATE and EDIT)
+\`\`\`
+===END_FILE_OP===
+
+RULES:
+- Always output the COMPLETE file content for CREATE / EDIT — never use "// ... rest unchanged" placeholders.
+- You can output multiple ===FILE_OP=== blocks in one response.
+- For EDIT operations, always provide the ENTIRE file with your changes applied.
+- Explain what you are doing BEFORE the file operations.
+- If you need to see more files, ASK the user to add them to context.
+- Use TypeScript, Next.js App Router, Tailwind CSS, and Prisma patterns matching the existing codebase.
+- Follow existing code style and conventions.
+- Be thorough — implement complete features, not stubs.
+
+PROJECT TECH STACK:
+- Next.js 14 App Router (apps/web)
+- TypeScript
+- Tailwind CSS
+- Prisma ORM
+- PostgreSQL
+- Express.js microservices (services/api, services/booking-service, services/search-service)
+- pnpm monorepo with Turborepo
+- Shared UI package (@hmarepanditji/ui in packages/)
+
+Be direct, concise, and thorough. Act like a senior full-stack developer.`;
+
+// ═══════════════════════════════════════════════════════════════════════════
+// FOLDER PICKER — uses File System Access API
+// ═══════════════════════════════════════════════════════════════════════════
+async function pickFolder() {
+  try {
+    dirHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+    await verifyPermission(dirHandle);
+    fileIndex = {};
+    await indexDirectory(dirHandle, '');
+    renderFileTree();
+    document.getElementById('sidebar').style.display = 'flex';
+    document.getElementById('welcome').style.display = 'none';
+    document.getElementById('messages').style.display = 'flex';
+    document.getElementById('input-area').style.display = 'block';
+    document.getElementById('project-name').textContent = dirHandle.name;
+    setStatus('Project loaded — ' + Object.keys(fileIndex).length + ' files indexed', true);
+    addSystemMessage(`📂 Project **${dirHandle.name}** loaded with ${Object.keys(fileIndex).length} files.\n\nClick files in the sidebar to add them as context, then give me coding prompts!\n\n**Tips:**\n• Click a file → adds it to AI context\n• Give prompts like "Add a reviews API endpoint"\n• I'll generate the code and you can apply changes with one click`);
+  } catch (e) {
+    if (e.name !== 'AbortError') {
+      alert('Error opening folder: ' + e.message);
+    }
+  }
+}
+
+async function verifyPermission(handle) {
+  if (await handle.queryPermission({ mode: 'readwrite' }) === 'granted') return;
+  if (await handle.requestPermission({ mode: 'readwrite' }) !== 'granted') {
+    throw new Error('Read-write permission denied. Please grant full access.');
+  }
+}
+
+async function indexDirectory(handle, path) {
+  for await (const entry of handle.values()) {
+    const entryPath = path ? path + '/' + entry.name : entry.name;
+    if (IGNORED.has(entry.name)) continue;
+    if (entry.kind === 'directory') {
+      fileIndex[entryPath] = { handle: entry, kind: 'directory' };
+      await indexDirectory(entry, entryPath);
+    } else {
+      fileIndex[entryPath] = { handle: entry, kind: 'file' };
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// FILE TREE RENDERING
+// ═══════════════════════════════════════════════════════════════════════════
+function renderFileTree() {
+  const tree = document.getElementById('file-tree');
+  const structure = buildTree(fileIndex);
+  tree.innerHTML = '';
+  renderNode(tree, structure, 0);
+}
+
+function buildTree(index) {
+  const root = {};
+  for (const path of Object.keys(index).sort()) {
+    const parts = path.split('/');
+    let node = root;
+    for (let i = 0; i < parts.length; i++) {
+      const part = parts[i];
+      if (!node[part]) {
+        node[part] = i === parts.length - 1 && index[path].kind === 'file' ? null : {};
+      }
+      if (node[part] !== null) node = node[part];
+    }
+  }
+  return root;
+}
+
+function renderNode(container, node, depth) {
+  const sortedKeys = Object.keys(node).sort((a, b) => {
+    const aDir = node[a] !== null;
+    const bDir = node[b] !== null;
+    if (aDir && !bDir) return -1;
+    if (!aDir && bDir) return 1;
+    return a.localeCompare(b);
+  });
+  for (const key of sortedKeys) {
+    const isDir = node[key] !== null;
+    const div = document.createElement('div');
+    div.className = 'tree-item ' + (isDir ? 'tree-dir' : 'tree-file');
+    const indent = '<span class="indent" style="width:' + (depth * 16) + 'px"></span>';
+    const icon = isDir ? '📁' : getFileIcon(key);
+    div.innerHTML = indent + '<span class="icon">' + icon + '</span><span class="name">' + key + '</span>';
+    div.title = key;
+    if (!isDir) {
+      div.addEventListener('click', () => {
+        const path = getFullPath(div);
+        loadFileContext(path);
+        viewFile(path);
+      });
+    } else {
+      div.addEventListener('click', () => {
+        const next = div.nextElementSibling;
+        // Toggle children
+        let child = div.nextElementSibling;
+        const currentDepth = depth;
+        while (child && child.classList.contains('tree-item')) {
+          const childIndent = child.querySelector('.indent');
+          const childWidth = parseInt(childIndent?.style.width || '0');
+          if (childWidth <= currentDepth * 16) break;
+          child.style.display = child.style.display === 'none' ? 'flex' : 'none';
+          child = child.nextElementSibling;
+        }
+      });
+    }
+    container.appendChild(div);
+    if (isDir) {
+      renderNode(container, node[key], depth + 1);
+    }
+  }
+}
+
+function getFullPath(el) {
+  const parts = [];
+  let current = el;
+  const nameSpan = el.querySelector('.name');
+  if (!nameSpan) return '';
+
+  // Walk up through tree items to build path
+  const allItems = Array.from(document.querySelectorAll('#file-tree .tree-item'));
+  const idx = allItems.indexOf(el);
+  const elDepth = parseInt(el.querySelector('.indent')?.style.width || '0') / 16;
+  parts.unshift(nameSpan.textContent);
+
+  let curDepth = elDepth;
+  for (let i = idx - 1; i >= 0; i--) {
+    const item = allItems[i];
+    const d = parseInt(item.querySelector('.indent')?.style.width || '0') / 16;
+    if (d < curDepth) {
+      parts.unshift(item.querySelector('.name').textContent);
+      curDepth = d;
+      if (d === 0) break;
+    }
+  }
+  return parts.join('/');
+}
+
+function getFileIcon(name) {
+  const ext = name.split('.').pop().toLowerCase();
+  const icons = {
+    ts: '🔷', tsx: '⚛️', js: '🟨', jsx: '⚛️', json: '📋', css: '🎨',
+    html: '🌐', md: '📝', sql: '🗄️', prisma: '💎', yml: '⚙️', yaml: '⚙️',
+    env: '🔒', sh: '🐚', py: '🐍', svg: '🖼️', txt: '📄',
+  };
+  return icons[ext] || '📄';
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// FILE READING / WRITING
+// ═══════════════════════════════════════════════════════════════════════════
+async function readFile(path) {
+  const entry = fileIndex[path];
+  if (!entry || entry.kind !== 'file') return null;
+  try {
+    const file = await entry.handle.getFile();
+    return await file.text();
+  } catch (e) {
+    console.error('Error reading', path, e);
+    return null;
+  }
+}
+
+async function writeFile(path, content) {
+  try {
+    const parts = path.split('/');
+    const fileName = parts.pop();
+    let currentDir = dirHandle;
+
+    // Create directories as needed
+    for (const dir of parts) {
+      currentDir = await currentDir.getDirectoryHandle(dir, { create: true });
+    }
+
+    const fileHandle = await currentDir.getFileHandle(fileName, { create: true });
+    const writable = await fileHandle.createWritable();
+    await writable.write(content);
+    await writable.close();
+
+    // Update index
+    fileIndex[path] = { handle: fileHandle, kind: 'file' };
+    return true;
+  } catch (e) {
+    console.error('Error writing', path, e);
+    return false;
+  }
+}
+
+async function deleteFile(path) {
+  try {
+    const parts = path.split('/');
+    const fileName = parts.pop();
+    let currentDir = dirHandle;
+    for (const dir of parts) {
+      currentDir = await currentDir.getDirectoryHandle(dir);
+    }
+    await currentDir.removeEntry(fileName);
+    delete fileIndex[path];
+    return true;
+  } catch (e) {
+    console.error('Error deleting', path, e);
+    return false;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CONTEXT MANAGEMENT — files sent to the AI
+// ═══════════════════════════════════════════════════════════════════════════
+async function loadFileContext(path) {
+  if (contextFiles.find(f => f.path === path)) return; // already loaded
+  const content = await readFile(path);
+  if (content === null) return;
+
+  // Limit context size — skip files > 50KB
+  if (content.length > 50000) {
+    addSystemMessage(`⚠️ File **${path}** is too large (${(content.length/1024).toFixed(0)}KB). Skipping to save context.`);
+    return;
+  }
+
+  contextFiles.push({ path, content });
+  updateContextChips();
+  addSystemMessage(`📄 Added **${path}** to context (${(content.length/1024).toFixed(1)}KB)`);
+}
+
+function removeContext(path) {
+  contextFiles = contextFiles.filter(f => f.path !== path);
+  updateContextChips();
+}
+
+function updateContextChips() {
+  const el = document.getElementById('context-chips');
+  document.getElementById('ctx-count').textContent = contextFiles.length;
+  el.innerHTML = contextFiles.map(f =>
+    `<span class="chip">📄 ${f.path.split('/').pop()} <span class="remove" onclick="removeContext('${f.path.replace(/'/g, "\\'")}')">✕</span></span>`
+  ).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// FILE VIEWER (right panel)
+// ═══════════════════════════════════════════════════════════════════════════
+async function viewFile(path) {
+  const content = await readFile(path);
+  if (content === null) return;
+  document.getElementById('right-panel').classList.add('open');
+  document.getElementById('viewer-path').textContent = path;
+  document.getElementById('file-viewer').textContent = content;
+}
+
+function closeViewer() {
+  document.getElementById('right-panel').classList.remove('open');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CHAT — message rendering
+// ═══════════════════════════════════════════════════════════════════════════
+function addSystemMessage(text) {
+  const el = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = 'msg msg-assistant';
+  div.innerHTML = `
+    <div class="msg-avatar">🛕</div>
+    <div class="msg-body">
+      <div class="msg-role">Agent</div>
+      <div class="msg-content">${formatMarkdown(text)}</div>
+    </div>`;
+  el.appendChild(div);
+  el.scrollTop = el.scrollHeight;
+}
+
+function addUserMessage(text) {
+  const el = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = 'msg msg-user';
+  div.innerHTML = `
+    <div class="msg-avatar">👤</div>
+    <div class="msg-body">
+      <div class="msg-role">You</div>
+      <div class="msg-content">${escapeHtml(text)}</div>
+    </div>`;
+  el.appendChild(div);
+  el.scrollTop = el.scrollHeight;
+}
+
+function addAssistantMessage(text) {
+  const el = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = 'msg msg-assistant';
+
+  // Parse file operations and regular text
+  const { html, operations } = parseResponse(text);
+
+  div.innerHTML = `
+    <div class="msg-avatar">🧠</div>
+    <div class="msg-body">
+      <div class="msg-role">Claude Opus 4.6</div>
+      <div class="msg-content">${html}</div>
+    </div>`;
+  el.appendChild(div);
+  el.scrollTop = el.scrollHeight;
+
+  // Attach event handlers to Apply buttons
+  if (operations.length > 0) {
+    const autoApply = document.getElementById('auto-apply').checked;
+    operations.forEach((op, i) => {
+      const applyBtn = div.querySelector(`[data-op-index="${i}"]`);
+      if (applyBtn) {
+        applyBtn.addEventListener('click', () => applyOperation(op, applyBtn));
+      }
+      if (autoApply) {
+        applyOperation(op, applyBtn);
+      }
+    });
+  }
+}
+
+function showThinking() {
+  const el = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.id = 'thinking-indicator';
+  div.className = 'msg msg-assistant';
+  div.innerHTML = `
+    <div class="msg-avatar">🧠</div>
+    <div class="msg-body">
+      <div class="thinking">
+        <div class="dots"><span></span><span></span><span></span></div>
+        Claude is thinking…
+      </div>
+    </div>`;
+  el.appendChild(div);
+  el.scrollTop = el.scrollHeight;
+}
+
+function hideThinking() {
+  const el = document.getElementById('thinking-indicator');
+  if (el) el.remove();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// RESPONSE PARSING — extracts file operations from AI response
+// ═══════════════════════════════════════════════════════════════════════════
+function parseResponse(text) {
+  const operations = [];
+  let html = '';
+  const opRegex = /===FILE_OP===\s*\n([\s\S]*?)===END_FILE_OP===/g;
+  let lastIndex = 0;
+  let match;
+
+  while ((match = opRegex.exec(text)) !== null) {
+    // Text before this operation
+    const before = text.slice(lastIndex, match.index);
+    html += formatMarkdown(before);
+
+    // Parse operation
+    const opBlock = match[1];
+    const actionMatch = opBlock.match(/ACTION:\s*(CREATE|EDIT|DELETE)/i);
+    const pathMatch = opBlock.match(/PATH:\s*(.+)/);
+    const contentMatch = opBlock.match(/CONTENT:\s*\n```[\w]*\n([\s\S]*?)```/);
+
+    if (actionMatch && pathMatch) {
+      const action = actionMatch[1].toUpperCase();
+      const path = pathMatch[1].trim();
+      const content = contentMatch ? contentMatch[1] : '';
+
+      operations.push({ action, path, content });
+      const opIndex = operations.length - 1;
+
+      const actionColors = { CREATE: 'var(--green)', EDIT: 'var(--blue)', DELETE: 'var(--red)' };
+      const actionIcons = { CREATE: '✨', EDIT: '✏️', DELETE: '🗑️' };
+
+      html += `
+        <div class="diff-block">
+          <div class="diff-header">
+            <span style="color:${actionColors[action]};font-weight:600">${actionIcons[action]} ${action}</span>
+            <span>${escapeHtml(path)}</span>
+            <div>
+              <button class="btn btn-sm btn-primary" data-op-index="${opIndex}">✅ Apply</button>
+              <button class="btn btn-sm" onclick="viewDiff(${opIndex})">👁️ View</button>
+            </div>
+          </div>
+          <div class="diff-content" style="max-height:200px;overflow-y:auto">
+            ${action !== 'DELETE' ? '<pre>' + escapeHtml(content.slice(0, 2000)) + (content.length > 2000 ? '\n... (' + (content.length - 2000) + ' more chars)' : '') + '</pre>' : '<div style="padding:12px;color:var(--red)">File will be deleted</div>'}
+          </div>
+        </div>`;
+    }
+
+    lastIndex = match.index + match[0].length;
+  }
+
+  // Remaining text after last operation
+  html += formatMarkdown(text.slice(lastIndex));
+
+  return { html, operations };
+}
+
+// Store operations for viewing
+let lastOperations = [];
+function viewDiff(index) {
+  // Already visible in the diff block — this is a placeholder for a more elaborate diff viewer
+  alert('The file content is shown in the diff block above. Click "Apply" to write it to disk.');
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// APPLY OPERATIONS — actually write to disk
+// ═══════════════════════════════════════════════════════════════════════════
+async function applyOperation(op, btn) {
+  try {
+    if (op.action === 'CREATE' || op.action === 'EDIT') {
+      const ok = await writeFile(op.path, op.content);
+      if (ok) {
+        if (btn) {
+          btn.textContent = '✅ Applied!';
+          btn.disabled = true;
+          btn.style.background = 'var(--green)';
+        }
+        addSystemMessage(`✅ **${op.action === 'CREATE' ? 'Created' : 'Updated'}** \`${op.path}\``);
+        // Refresh file tree
+        await indexDirectory(dirHandle, '');
+        renderFileTree();
+        // Refresh context if file was in context
+        const ctxIdx = contextFiles.findIndex(f => f.path === op.path);
+        if (ctxIdx >= 0) {
+          contextFiles[ctxIdx].content = op.content;
+        }
+      } else {
+        if (btn) btn.textContent = '❌ Failed';
+        addSystemMessage(`❌ Failed to write \`${op.path}\`. Check console for errors.`);
+      }
+    } else if (op.action === 'DELETE') {
+      const ok = await deleteFile(op.path);
+      if (ok) {
+        if (btn) {
+          btn.textContent = '✅ Deleted!';
+          btn.disabled = true;
+        }
+        addSystemMessage(`🗑️ Deleted \`${op.path}\``);
+        renderFileTree();
+      }
+    }
+  } catch (e) {
+    console.error('Apply operation failed:', e);
+    if (btn) btn.textContent = '❌ Error';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SEND — sends prompt to Claude via puter.js
+// ═══════════════════════════════════════════════════════════════════════════
+async function send() {
+  const input = document.getElementById('prompt');
+  const text = input.value.trim();
+  if (!text || isProcessing) return;
+
+  isProcessing = true;
+  input.value = '';
+  input.style.height = 'auto';
+  document.getElementById('send-btn').disabled = true;
+
+  addUserMessage(text);
+  setStatus('Thinking…', true);
+  showThinking();
+
+  // Build context
+  let contextBlock = '';
+  if (contextFiles.length > 0) {
+    contextBlock = '\n\n--- CONTEXT FILES ---\n';
+    for (const f of contextFiles) {
+      contextBlock += `\n### FILE: ${f.path}\n\`\`\`\n${f.content}\n\`\`\`\n`;
+    }
+    contextBlock += '--- END CONTEXT ---\n';
+  }
+
+  // Build conversation
+  const messages = [
+    { role: 'system', content: SYSTEM_PROMPT },
+    ...conversationHistory,
+    { role: 'user', content: text + contextBlock }
+  ];
+
+  try {
+    // Call puter.ai.chat with selected model
+    const response = await puter.ai.chat(messages, { model: selectedModel });
+
+    // Extract text from response
+    let reply = '';
+    if (response?.message?.content) {
+      const c = response.message.content;
+      if (typeof c === 'string') reply = c;
+      else if (Array.isArray(c)) reply = c.map(b => b.text || '').join('');
+    }
+    if (!reply && response?.text) reply = response.text;
+    if (!reply) reply = 'No response received from the model.';
+
+    hideThinking();
+    addAssistantMessage(reply);
+
+    // Save to conversation history
+    conversationHistory.push({ role: 'user', content: text + contextBlock });
+    conversationHistory.push({ role: 'assistant', content: reply });
+
+    // Trim history to avoid token limit (keep last 20 exchanges)
+    if (conversationHistory.length > 40) {
+      conversationHistory = conversationHistory.slice(-40);
+    }
+
+    setStatus('Ready', true);
+  } catch (e) {
+    hideThinking();
+    console.error('[AI Agent] Error:', e);
+    addSystemMessage(`❌ **Error calling AI:** ${e.message || 'Unknown error'}\n\nThis might happen if you need to sign in to Puter. Try refreshing the page.`);
+    setStatus('Error — see above', false);
+  } finally {
+    isProcessing = false;
+    document.getElementById('send-btn').disabled = false;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// UTILITIES
+// ═══════════════════════════════════════════════════════════════════════════
+function handleKey(e) {
+  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+    e.preventDefault();
+    send();
+  }
+}
+
+function autoGrow(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 200) + 'px';
+}
+
+function setStatus(text, ok) {
+  document.getElementById('status-text').textContent = text;
+  document.getElementById('status-dot').style.background = ok ? 'var(--green)' : 'var(--red)';
+}
+
+function escapeHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function formatMarkdown(text) {
+  if (!text) return '';
+  let html = escapeHtml(text);
+
+  // Code blocks
+  html = html.replace(/```(\w*)\n([\s\S]*?)```/g, (_, lang, code) => {
+    return `<div class="code-block"><div class="code-block-header"><span>${lang || 'code'}</span><div class="code-actions"><button class="btn btn-sm" onclick="navigator.clipboard.writeText(decodeURIComponent('${encodeURIComponent(code)}'))">📋 Copy</button></div></div><pre>${code}</pre></div>`;
+  });
+
+  // Inline code
+  html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+  // Bold
+  html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  // Italic
+  html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+  // Links
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" style="color:var(--blue)">$1</a>');
+  // Headings
+  html = html.replace(/^### (.+)$/gm, '<h3 style="color:var(--accent);margin:8px 0 4px;font-size:14px">$1</h3>');
+  html = html.replace(/^## (.+)$/gm, '<h2 style="color:var(--accent);margin:12px 0 6px;font-size:16px">$1</h2>');
+  // Lists
+  html = html.replace(/^[-•] (.+)$/gm, '<div style="padding-left:16px;position:relative"><span style="position:absolute;left:4px;color:var(--accent)">•</span>$1</div>');
+  // Newlines
+  html = html.replace(/\n/g, '<br>');
+
+  return html;
+}
+
+function showModelInfo() {
+  alert(
+    'AI Agent Model Info\n' +
+    '━━━━━━━━━━━━━━━━━━\n' +
+    'Current: ' + selectedModel + '\n' +
+    'Provider: Puter.js (free, no API key)\n' +
+    'Context: 200K tokens\n' +
+    'Output: 64K tokens\n\n' +
+    'Puter.js uses a User-Pays model:\n' +
+    '• You pay nothing as the developer\n' +
+    '• Users sign in to Puter for free\n' +
+    '• Heavy usage may require Puter credits'
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// INIT — wait for puter.js
+// ═══════════════════════════════════════════════════════════════════════════
+(function init() {
+  const check = setInterval(() => {
+    if (typeof puter !== 'undefined') {
+      clearInterval(check);
+      setStatus('Puter.js loaded — Claude ready!', true);
+    }
+  }, 200);
+
+  setTimeout(() => {
+    clearInterval(check);
+    if (typeof puter === 'undefined') {
+      setStatus('Puter.js failed to load — check internet', false);
+    }
+  }, 15000);
+})();
+</script>
+</body>
+</html>

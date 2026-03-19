@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+
+<html lang="hi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&amp;family=Public+Sans:wght@300;400;500;600;700&amp;family=Noto+Sans+Devanagari:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-bright": "#fbf9f3",
+              "on-surface": "#1b1c19",
+              "surface-container": "#f0eee8",
+              "on-background": "#1b1c19",
+              "on-secondary-fixed": "#002204",
+              "on-secondary-fixed-variant": "#005312",
+              "on-error": "#ffffff",
+              "secondary-fixed-dim": "#88d982",
+              "primary-fixed": "#ffdcc3",
+              "secondary": "#1b6d24",
+              "surface-dim": "#dbdad4",
+              "on-tertiary-fixed-variant": "#6a3b00",
+              "tertiary-fixed": "#ffdcbf",
+              "on-secondary": "#ffffff",
+              "outline-variant": "#ddc1ae",
+              "on-primary-fixed": "#2f1500",
+              "surface-container-low": "#f5f3ee",
+              "inverse-primary": "#ffb77d",
+              "secondary-fixed": "#a3f69c",
+              "primary": "#904d00",
+              "secondary-container": "#a0f399",
+              "primary-container": "#ff8c00",
+              "tertiary": "#8c5000",
+              "on-error-container": "#93000a",
+              "on-tertiary-container": "#5f3400",
+              "on-tertiary-fixed": "#2d1600",
+              "inverse-surface": "#30312d",
+              "on-primary-fixed-variant": "#6e3900",
+              "background": "#fbf9f3",
+              "on-primary-container": "#623200",
+              "on-secondary-container": "#217128",
+              "surface": "#fbf9f3",
+              "tertiary-fixed-dim": "#ffb874",
+              "surface-tint": "#904d00",
+              "surface-container-highest": "#e4e2dd",
+              "surface-container-high": "#eae8e2",
+              "error": "#ba1a1a",
+              "surface-container-lowest": "#ffffff",
+              "on-tertiary": "#ffffff",
+              "on-primary": "#ffffff",
+              "primary-fixed-dim": "#ffb77d",
+              "surface-variant": "#e4e2dd",
+              "outline": "#897362",
+              "error-container": "#ffdad6",
+              "on-surface-variant": "#564334",
+              "inverse-on-surface": "#f2f1eb",
+              "tertiary-container": "#f89100"
+            },
+            fontFamily: {
+              "headline": ["Noto Serif", "Noto Sans Devanagari"],
+              "body": ["Public Sans", "Noto Sans Devanagari"],
+              "label": ["Public Sans", "Noto Sans Devanagari"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .saffron-glow {
+        box-shadow: 0 0 40px rgba(255, 140, 0, 0.15);
+      }
+      .asymmetric-shape {
+        border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+      }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-[#FFFDF7] text-on-surface font-body selection:bg-primary-fixed antialiased overflow-x-hidden min-h-screen">
+<div class="max-w-md mx-auto min-h-screen flex flex-col px-6 py-10 relative">
+<!-- Header / Hero Section -->
+<section class="flex flex-col items-center text-center space-y-8 mb-12">
+<!-- Animated Hero Illustration -->
+<div class="relative w-48 h-48 flex items-center justify-center">
+<!-- Saffron Sound Rings (Soft) -->
+<div class="absolute inset-0 bg-primary-container/10 rounded-full animate-pulse scale-110"></div>
+<div class="absolute inset-0 bg-primary-container/5 rounded-full animate-pulse scale-150 opacity-40"></div>
+<!-- Main Illustration Container -->
+<div class="relative z-10 bg-surface-container-lowest saffron-glow p-8 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-primary-container !text-7xl" data-icon="mic" style="font-variation-settings: 'FILL' 1;">mic</span>
+</div>
+<!-- Floating Decorative Elements -->
+<div class="absolute -top-2 -right-2 bg-tertiary-container text-white p-2 rounded-full shadow-lg">
+<span class="material-symbols-outlined !text-xl" data-icon="auto_awesome">auto_awesome</span>
+</div>
+</div>
+<!-- Headlines -->
+<div class="space-y-4">
+<h1 class="font-headline text-3xl font-bold text-primary leading-snug">
+                    यह App आपकी आवाज़ से चलेगा 🎙️
+                </h1>
+<p class="text-on-surface-variant text-lg leading-relaxed px-4">
+                    आपको लिखने की ज़रूरत नहीं है। बस बोलिए और हम आपका काम कर देंगे।
+                </p>
+</div>
+</section>
+<!-- Comic Strip Demo (Bento Style) -->
+<section class="mb-12 space-y-4">
+<h2 class="font-label text-sm font-semibold uppercase tracking-wider text-outline mb-4 flex items-center gap-2">
+<span class="h-px w-8 bg-outline-variant"></span> यह कैसे काम करता है?
+            </h2>
+<div class="grid grid-cols-3 gap-3">
+<!-- Step 1 -->
+<div class="bg-surface-container-low rounded-2xl p-4 flex flex-col items-center text-center space-y-3 border-l-4 border-primary">
+<div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-primary !text-xl" data-icon="record_voice_over">record_voice_over</span>
+</div>
+<p class="text-sm font-bold leading-tight text-on-surface">Aap bolein</p>
+</div>
+<!-- Step 2 -->
+<div class="bg-surface-container-low rounded-2xl p-4 flex flex-col items-center text-center space-y-3 border-l-4 border-primary-container">
+<div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-primary-container !text-xl" data-icon="hearing">hearing</span>
+</div>
+<p class="text-sm font-bold leading-tight text-on-surface">App sune</p>
+</div>
+<!-- Step 3 -->
+<div class="bg-surface-container-low rounded-2xl p-4 flex flex-col items-center text-center space-y-3 border-l-4 border-secondary">
+<div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-secondary !text-xl" data-icon="check_circle">check_circle</span>
+</div>
+<p class="text-sm font-bold leading-tight text-on-surface">Ho gaya!</p>
+</div>
+</div>
+</section>
+<!-- Trust / Safety Card -->
+<section class="mb-12">
+<div class="bg-secondary-container/20 rounded-3xl p-6 flex items-start gap-5 relative overflow-hidden">
+<!-- Decorative Icon Background -->
+<div class="absolute -right-4 -bottom-4 opacity-10">
+<span class="material-symbols-outlined !text-9xl" data-icon="verified_user">verified_user</span>
+</div>
+<div class="bg-secondary text-white p-3 rounded-2xl shrink-0 shadow-sm">
+<span class="material-symbols-outlined !text-2xl" data-icon="lock" style="font-variation-settings: 'FILL' 1;">lock</span>
+</div>
+<div class="space-y-1 relative z-10">
+<h3 class="font-bold text-on-secondary-container text-lg">आपकी प्राइवेसी हमारी जिम्मेदारी</h3>
+<p class="text-on-secondary-container/80 text-base leading-relaxed">
+                        आपकी आवाज़ रिकॉर्ड नहीं की जाती है। यह सिर्फ आपके आदेश समझने के लिए इस्तेमाल होती है।
+                    </p>
+</div>
+</div>
+</section>
+<!-- Action Section -->
+<footer class="mt-auto pt-8 flex flex-col space-y-4">
+<!-- Secondary Instruction -->
+<div class="flex items-center justify-center gap-2 text-on-surface-variant/70 text-sm italic mb-2">
+<span class="material-symbols-outlined !text-sm" data-icon="info">info</span>
+                अगली स्क्रीन पर 'Allow' या 'अनुमति दें' दबाएं
+            </div>
+<!-- Primary Action Button -->
+<button class="w-full h-16 bg-gradient-to-r from-primary to-primary-container text-white rounded-2xl shadow-[0px_12px_24px_rgba(144,77,0,0.2)] flex items-center justify-center gap-3 active:scale-[0.98] transition-all group">
+<span class="text-xl font-bold tracking-wide">ठीक है, Microphone खोलें</span>
+<span class="material-symbols-outlined !text-2xl group-hover:translate-x-1 transition-transform" data-icon="arrow_forward">arrow_forward</span>
+</button>
+<!-- Dismissal Action -->
+<button class="w-full py-4 text-outline font-medium text-base hover:text-on-surface-variant transition-colors">
+                अभी नहीं, मैं टाइप करूँगा
+            </button>
+</footer>
+</div>
+<!-- Decorative Corner Pattern (Soft) -->
+<div class="fixed top-0 right-0 -z-10 opacity-30 pointer-events-none">
+<svg fill="none" height="200" viewbox="0 0 200 200" width="200" xmlns="http://www.w3.org/2000/svg">
+<circle cx="200" cy="0" r="160" stroke="#FF8C00" stroke-dasharray="10 10" stroke-width="1"></circle>
+<circle cx="200" cy="0" r="120" stroke="#FF8C00" stroke-width="0.5"></circle>
+<circle cx="200" cy="0" r="80" stroke="#FF8C00" stroke-dasharray="5 5" stroke-width="1"></circle>
+</svg>
+</div>
+<!-- Image Data Attributes Placeholder -->
+<div class="hidden">
+<img data-alt="Abstract golden sound waves and mandalas" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCVy8wicBly4wI7WM0gWFl149_ZDEzrKtKMAPre0XcENftNfw_PEgK40FymPgWi8BZ7cAvpY7wOp0mDJNiSd_J6m5qsnCrrsBwZDQG2iSJxvkyrfL1P-I87uTzm1uskm-Odp86EysEFDi7BiU4tDwkQYwq9Re1fikymkGmS0VBsdyPdC-DHzlB-MpBFPmOhE6dQeXmEzkXpf5Ef9fAfnZXP1TI39oTAlUJKYlB9pfTQ-X16Oe2LQvw4djBgKGw7jrwXhPKkTkhH_PCa"/>
+</div>
+</body></html>

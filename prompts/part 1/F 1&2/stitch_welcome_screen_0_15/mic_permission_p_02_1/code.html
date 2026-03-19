@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+
+<html lang="hi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&amp;family=Public+Sans:wght@400;500;700&amp;family=Noto+Sans+Devanagari:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-primary-fixed-variant": "#6e3900",
+              "secondary-fixed-dim": "#88d982",
+              "surface-bright": "#fbf9f3",
+              "surface-variant": "#e4e2dd",
+              "inverse-on-surface": "#f2f1eb",
+              "secondary-fixed": "#a3f69c",
+              "error": "#ba1a1a",
+              "on-background": "#1b1c19",
+              "tertiary": "#8c5000",
+              "secondary-container": "#a0f399",
+              "on-surface-variant": "#564334",
+              "inverse-surface": "#30312d",
+              "surface-container-high": "#eae8e2",
+              "surface-dim": "#dbdad4",
+              "primary-container": "#ff8c00",
+              "on-primary-container": "#623200",
+              "error-container": "#ffdad6",
+              "outline": "#897362",
+              "on-tertiary-fixed-variant": "#6a3b00",
+              "inverse-primary": "#ffb77d",
+              "background": "#fbf9f3",
+              "on-surface": "#1b1c19",
+              "on-error-container": "#93000a",
+              "outline-variant": "#ddc1ae",
+              "on-tertiary-container": "#5f3400",
+              "on-error": "#ffffff",
+              "tertiary-fixed": "#ffdcbf",
+              "on-tertiary-fixed": "#2d1600",
+              "tertiary-fixed-dim": "#ffb874",
+              "surface-container-highest": "#e4e2dd",
+              "surface-tint": "#904d00",
+              "on-tertiary": "#ffffff",
+              "primary-fixed-dim": "#ffb77d",
+              "on-primary-fixed": "#2f1500",
+              "secondary": "#1b6d24",
+              "on-secondary-fixed-variant": "#005312",
+              "surface-container": "#f0eee8",
+              "on-secondary-container": "#217128",
+              "surface": "#fbf9f3",
+              "on-primary": "#ffffff",
+              "tertiary-container": "#f89100",
+              "surface-container-lowest": "#ffffff",
+              "on-secondary-fixed": "#002204",
+              "surface-container-low": "#f5f3ee",
+              "primary-fixed": "#ffdcc3",
+              "primary": "#904d00",
+              "on-secondary": "#ffffff"
+            },
+            fontFamily: {
+              "headline": ["Noto Serif", "Noto Sans Devanagari"],
+              "body": ["Public Sans", "Noto Sans Devanagari"],
+              "label": ["Public Sans", "Noto Sans Devanagari"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+        }
+        .mic-shadow {
+            filter: drop-shadow(0px 8px 24px rgba(144, 77, 0, 0.15));
+        }
+        .wave-bar {
+            width: 8px;
+            background-color: #ff8c00;
+            border-radius: 99px;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-[#FFFDF7] font-body text-on-surface selection:bg-primary-fixed overflow-x-hidden min-h-screen flex flex-col">
+<!-- Top App Bar (Suppressed but logic applied for Shell consistency) -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-5 h-16 bg-[#fbf9f3] shadow-[0px_8px_24px_rgba(144,77,0,0.08)]">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[#904d00]" data-icon="arrow_back">arrow_back</span>
+<h1 class="font-serif text-2xl font-bold leading-[150%] text-[#904d00]">सहायता</h1>
+</div>
+<div class="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center overflow-hidden border-2 border-primary-container/20">
+<img alt="Pandit Profile Avatar" class="w-full h-full object-cover" data-alt="Pandit Profile Photo Avatar Placeholder" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCOb6phlMSFBsl_NxwYI_POrNcE_1fPJfutU-UK-KyPp3Hx9D2bRrBgXMNQs-aK3X30U6rX1s75q3jdcSBWkP8XZYgW3Lw0gjYKQYo-m70mVTXUAWrokZWaHZoL7KELW-nb-rf7t2oVV7H1y6pNLiDIfzWheOD2tMUsNZkxyVNAxmw9bfaIC66cE0pZLDlBuRgIdaObDU8QmN_gJ5lsElY_JRCOViseCjMUrZ8B7UUblCDad4mdSeXhEOrbeoyrwZhK5WuX-m9Kh23v"/>
+</div>
+</header>
+<main class="flex-grow pt-24 pb-32 px-6 flex flex-col items-center max-w-lg mx-auto w-full">
+<!-- Hero Illustration -->
+<div class="relative mb-10 flex flex-col items-center">
+<!-- Saffron Sound Rings (Abstract) -->
+<div class="absolute inset-0 -z-10 flex items-center justify-center">
+<div class="w-48 h-48 rounded-full bg-primary-container/5 scale-125"></div>
+<div class="absolute w-40 h-40 rounded-full bg-primary-container/10"></div>
+</div>
+<div class="bg-surface-container-lowest p-8 rounded-full mic-shadow border-4 border-primary-container/10 mb-6">
+<span class="material-symbols-outlined text-primary-container text-8xl" data-icon="mic" data-weight="fill" style="font-variation-settings: 'FILL' 1;">mic</span>
+</div>
+<!-- Staggered Sound Waves -->
+<div class="flex items-end gap-2 h-8">
+<div class="wave-bar h-[6px]"></div>
+<div class="wave-bar h-[20px]"></div>
+<div class="wave-bar h-[10px]"></div>
+</div>
+</div>
+<!-- Typography Section -->
+<div class="text-center space-y-4 mb-10">
+<h2 class="font-headline text-3xl font-bold text-primary leading-tight">यह App आपकी आवाज़ से चलेगा 🎙️</h2>
+<p class="text-on-surface-variant text-lg leading-relaxed">
+                Is app mein aapko kuch bhi type karne ki zaroorat nahi. बस बोलें और अपना काम करें।
+            </p>
+</div>
+<!-- Demo Flow (Bento-style row) -->
+<div class="w-full flex justify-between items-center gap-4 mb-12">
+<div class="flex-1 bg-surface-container-low p-4 rounded-xl flex flex-col items-center gap-2 border-l-4 border-primary shadow-sm">
+<span class="material-symbols-outlined text-primary" data-icon="mic">mic</span>
+<span class="text-sm font-bold text-primary">Aap bolein</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant opacity-40" data-icon="trending_flat">trending_flat</span>
+<div class="flex-1 bg-surface-container-low p-4 rounded-xl flex flex-col items-center gap-2 border-l-4 border-primary shadow-sm">
+<span class="material-symbols-outlined text-primary" data-icon="graphic_eq">graphic_eq</span>
+<span class="text-sm font-bold text-primary">App sune</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant opacity-40" data-icon="trending_flat">trending_flat</span>
+<div class="flex-1 bg-surface-container-low p-4 rounded-xl flex flex-col items-center gap-2 border-l-4 border-primary shadow-sm">
+<span class="material-symbols-outlined text-secondary" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="text-sm font-bold text-secondary">Ho gaya!</span>
+</div>
+</div>
+<!-- Safety Card (Trust Green) -->
+<div class="w-full bg-[#E8F5E9] p-5 rounded-2xl flex gap-4 items-start mb-12 border border-secondary/10">
+<div class="bg-white p-2 rounded-full shadow-sm">
+<span class="material-symbols-outlined text-secondary text-2xl" data-icon="lock" style="font-variation-settings: 'FILL' 1;">lock</span>
+</div>
+<div class="space-y-1">
+<p class="font-bold text-on-secondary-container text-lg">Aapki awaaz kabhi record nahi hoti</p>
+<p class="text-secondary text-base opacity-90">Sirf tab sunta hai jab aap bol rahe hain</p>
+</div>
+</div>
+<!-- CTA Section -->
+<div class="w-full space-y-6 flex flex-col items-center">
+<button class="w-full h-14 bg-primary-container text-white font-bold text-xl rounded-xl shadow-lg shadow-primary-container/30 flex items-center justify-center gap-3 active:scale-95 transition-transform">
+                ठीक है, Microphone खोलें
+                <span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
+</button>
+<button class="text-stone-500 font-medium text-lg underline underline-offset-4 hover:text-stone-700 transition-colors">
+                Nahi chahiye — Main type karna chahta hoon
+            </button>
+</div>
+</main>
+<!-- Navigation Shell (Using Shared Component BottomNavBar Logic) -->
+<!-- Suppressed active state but keeping shell for consistency as requested by "Bottom: Sahayata bar" context -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 pb-4 pt-2 bg-[#fbf9f3] shadow-[0px_-4px_16px_rgba(144,77,0,0.05)] rounded-t-3xl">
+<div class="flex flex-col items-center justify-center text-stone-600 px-4 py-2 min-h-[56px] hover:bg-[#ff8c00]/10 transition-all active:scale-90 duration-150">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="text-[12px] font-medium leading-[150%]">मुख्य</span>
+</div>
+<div class="flex flex-col items-center justify-center text-stone-600 px-4 py-2 min-h-[56px] hover:bg-[#ff8c00]/10 transition-all active:scale-90 duration-150">
+<span class="material-symbols-outlined" data-icon="groups">groups</span>
+<span class="text-[12px] font-medium leading-[150%]">यजमान</span>
+</div>
+<div class="flex flex-col items-center justify-center text-stone-600 px-4 py-2 min-h-[56px] hover:bg-[#ff8c00]/10 transition-all active:scale-90 duration-150">
+<span class="material-symbols-outlined" data-icon="assignment_ind">assignment_ind</span>
+<span class="text-[12px] font-medium leading-[150%]">पंजीकरण</span>
+</div>
+<!-- Active Tab for "Sahayata" based on Screen Intent -->
+<div class="flex flex-col items-center justify-center bg-[#ff8c00] text-white rounded-2xl px-6 py-2 min-h-[56px] shadow-md shadow-primary-container/20">
+<span class="material-symbols-outlined" data-icon="help" style="font-variation-settings: 'FILL' 1;">help</span>
+<span class="text-[12px] font-medium leading-[150%]">सहायता</span>
+</div>
+</nav>
+</body></html>

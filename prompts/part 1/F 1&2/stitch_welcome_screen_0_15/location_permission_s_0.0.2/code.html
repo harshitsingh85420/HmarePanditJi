@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+
+<html class="light" lang="hi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&amp;family=Public+Sans:wght@400;500;600;700&amp;family=Noto+Sans+Devanagari:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "error-container": "#ffdad6",
+              "tertiary-fixed-dim": "#ffb874",
+              "on-primary-fixed-variant": "#6e3900",
+              "tertiary-container": "#f89100",
+              "on-tertiary": "#ffffff",
+              "tertiary": "#8c5000",
+              "surface-bright": "#fbf9f3",
+              "primary-fixed-dim": "#ffb77d",
+              "on-error": "#ffffff",
+              "surface-container-low": "#f5f3ee",
+              "secondary-container": "#a0f399",
+              "background": "#fbf9f3",
+              "outline": "#897362",
+              "secondary-fixed": "#a3f69c",
+              "on-background": "#1b1c19",
+              "on-secondary-fixed-variant": "#005312",
+              "surface-variant": "#e4e2dd",
+              "secondary-fixed-dim": "#88d982",
+              "primary": "#904d00",
+              "on-surface-variant": "#564334",
+              "inverse-surface": "#30312d",
+              "on-error-container": "#93000a",
+              "surface": "#fbf9f3",
+              "primary-fixed": "#ffdcc3",
+              "on-surface": "#1b1c19",
+              "inverse-on-surface": "#f2f1eb",
+              "on-tertiary-fixed": "#2d1600",
+              "outline-variant": "#ddc1ae",
+              "tertiary-fixed": "#ffdcbf",
+              "surface-container-high": "#eae8e2",
+              "primary-container": "#ff8c00",
+              "on-tertiary-fixed-variant": "#6a3b00",
+              "error": "#ba1a1a",
+              "surface-container-highest": "#e4e2dd",
+              "on-secondary-container": "#217128",
+              "surface-container-lowest": "#ffffff",
+              "secondary": "#1b6d24",
+              "on-secondary-fixed": "#002204",
+              "on-tertiary-container": "#5f3400",
+              "on-primary-container": "#623200",
+              "on-primary": "#ffffff",
+              "surface-dim": "#dbdad4",
+              "surface-container": "#f0eee8",
+              "on-secondary": "#ffffff",
+              "inverse-primary": "#ffb77d",
+              "on-primary-fixed": "#2f1500",
+              "surface-tint": "#904d00"
+            },
+            fontFamily: {
+              "headline": ["Noto Serif", "serif"],
+              "body": ["Public Sans", "Noto Sans Devanagari", "sans-serif"],
+              "label": ["Public Sans", "Noto Sans Devanagari", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "3xl": "1.5rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #fbf9f3;
+            color: #1b1c19;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .pulse-ring {
+            animation: pulse 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.8); opacity: 0.5; }
+            50% { transform: scale(1.2); opacity: 0.2; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body min-h-screen flex flex-col">
+<!-- Top Navigation Placeholder (Suppressed as per "Task-Focused" rule but maintaining brand alignment) -->
+<header class="flex justify-between items-center px-6 py-4 w-full sticky top-0 z-50 bg-[#fbf9f3]">
+<div class="font-serif text-[#904d00] text-xl font-bold">Sujatam</div>
+<div class="h-8 w-8 rounded-full bg-surface-container-high flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-xl">close</span>
+</div>
+</header>
+<main class="flex-1 flex flex-col px-8 pb-10 max-w-lg mx-auto w-full">
+<!-- Hero Illustration Section -->
+<div class="relative w-full aspect-square max-h-[300px] flex items-center justify-center mb-10 overflow-hidden">
+<!-- Decorative Background Glow -->
+<div class="absolute w-64 h-64 bg-primary-container/10 rounded-full blur-3xl"></div>
+<div class="relative w-full h-full flex items-center justify-center">
+<!-- India Map Outline Placeholder -->
+<div class="relative w-4/5 h-4/5">
+<img class="w-full h-full object-contain opacity-40 grayscale sepia brightness-110" data-alt="Minimalist flat map of India with saffron highlights" data-location="India" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBul0cLDYOWkM_Za3y1KK1BewzmI2Fz74FTyG6UtXjWgjxa8sbaOmhUeWCipF3KAu7XKSPaKRmQdNUgrleZZ0FW2ahR9obwYKEwTpM63X3cl1sVISkjAUedd3t4fxM0TNxD8N4ZHvqFIDmuwEnhf0mNgmQ9zwxZC7K6v6PdqYIWpq6jBDJo9EOZMB7HGGrNg6-jnQC_RFfQ7zzgpbhTFTy2eKxMERLjU9zW58upBzzb1zZhfDzeF1eO1rv67kPprTtD1nEIJ6ZS81CZ"/>
+<!-- Pulsing Saffron Signal Circles -->
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+<div class="absolute pulse-ring w-24 h-24 border-2 border-primary-container rounded-full"></div>
+<div class="absolute pulse-ring w-24 h-24 border-2 border-primary-container rounded-full" style="animation-delay: 0.5s;"></div>
+<!-- Saffron Pin -->
+<div class="relative z-10 flex flex-col items-center">
+<span class="material-symbols-outlined text-primary-container text-5xl drop-shadow-lg" style="font-variation-settings: 'FILL' 1;">location_on</span>
+<div class="w-2 h-1 bg-on-background/10 rounded-full blur-[1px] mt-1"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Content Section -->
+<div class="space-y-8">
+<div class="text-center">
+<h1 class="font-headline text-3xl font-bold text-on-background leading-tight mb-4">
+                    आपका शहर जानना क्यों ज़रूरी है?
+                </h1>
+<!-- Privacy Pill -->
+<div class="inline-flex items-center gap-2 px-4 py-2 bg-surface-container-low rounded-full border border-outline-variant/20 shadow-sm">
+<span class="material-symbols-outlined text-on-surface-variant text-base">lock</span>
+<span class="text-on-surface-variant font-medium text-sm">आपका पूरा पता कभी नहीं दिखेगा</span>
+</div>
+</div>
+<!-- Benefit Rows -->
+<div class="space-y-6 pt-2">
+<!-- Row 1 -->
+<div class="flex items-start gap-5">
+<div class="flex-shrink-0 w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center">
+<span class="material-symbols-outlined text-primary font-bold text-lg">check</span>
+</div>
+<p class="text-[18px] font-medium text-on-surface leading-snug pt-1">
+                        आपकी भाषा खुद सेट हो जाएगी
+                    </p>
+</div>
+<!-- Row 2 -->
+<div class="flex items-start gap-5">
+<div class="flex-shrink-0 w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center">
+<span class="material-symbols-outlined text-primary font-bold text-lg">check</span>
+</div>
+<p class="text-[18px] font-medium text-on-surface leading-snug pt-1">
+                        आपके शहर की पूजाएं मिलेंगी
+                    </p>
+</div>
+<!-- Row 3 -->
+<div class="flex items-start gap-5">
+<div class="flex-shrink-0 w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center">
+<span class="material-symbols-outlined text-primary font-bold text-lg">check</span>
+</div>
+<p class="text-[18px] font-medium text-on-surface leading-snug pt-1">
+                        ग्राहक आपको ढूंढ पाएंगे
+                    </p>
+</div>
+</div>
+</div>
+<!-- Action Section -->
+<div class="mt-auto pt-12 flex flex-col gap-4">
+<button class="w-full h-14 bg-gradient-to-b from-primary-container to-tertiary-container text-on-primary font-bold text-lg rounded-xl shadow-[0px_8px_24px_rgba(144,77,0,0.15)] active:scale-95 transition-transform flex items-center justify-center gap-2">
+                ✅ हाँ, मेरा शहर जानें
+            </button>
+<button class="w-full py-4 text-on-surface-variant font-medium text-base hover:bg-surface-container-low rounded-lg transition-colors">
+                छोड़ें — हाथ से भरूँगा
+            </button>
+</div>
+</main>
+<!-- Decorative Corner Element (Asymmetry) -->
+<div class="fixed bottom-0 right-0 w-32 h-32 pointer-events-none opacity-5">
+<img class="w-full h-full object-cover grayscale" data-alt="Subtle decorative traditional motif pattern" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDC03DZYxbmJyU6nDx0Cf9OUB-I5-DSqo1uYQ7o8zgp_IKc-DEoj56qKmSP-tEVarSQ0vLvF9Q6s9GGix-PDp1-reAh5wJTek1O4SlXZ-SiSi4ejTKL2gz7ogV5zWclk-u_myiy0BR512CcqOuVJcRI-Jqx0dOhVWWr3F2_7l9PNA4dlUUYcmOyDHexYY7GZjnvxiSivQXhDAbmmceJRaZlS-3u2iRD7e4CIcLEXmsDUEQSfnxHmc2zKR-5ZJPeFRT3Al-9VIeb6RR7"/>
+</div>
+</body></html>

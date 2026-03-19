@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+
+<html lang="hi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&amp;family=Public+Sans:wght@400;500;600&amp;family=Noto+Sans+Devanagari:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "error-container": "#ffdad6",
+              "tertiary-fixed-dim": "#ffb874",
+              "on-primary-fixed-variant": "#6e3900",
+              "tertiary-container": "#f89100",
+              "on-tertiary": "#ffffff",
+              "tertiary": "#8c5000",
+              "surface-bright": "#fbf9f3",
+              "primary-fixed-dim": "#ffb77d",
+              "on-error": "#ffffff",
+              "surface-container-low": "#f5f3ee",
+              "secondary-container": "#a0f399",
+              "background": "#fbf9f3",
+              "outline": "#897362",
+              "secondary-fixed": "#a3f69c",
+              "on-background": "#1b1c19",
+              "on-secondary-fixed-variant": "#005312",
+              "surface-variant": "#e4e2dd",
+              "secondary-fixed-dim": "#88d982",
+              "primary": "#904d00",
+              "on-surface-variant": "#564334",
+              "inverse-surface": "#30312d",
+              "on-error-container": "#93000a",
+              "surface": "#fbf9f3",
+              "primary-fixed": "#ffdcc3",
+              "on-surface": "#1b1c19",
+              "inverse-on-surface": "#f2f1eb",
+              "on-tertiary-fixed": "#2d1600",
+              "outline-variant": "#ddc1ae",
+              "tertiary-fixed": "#ffdcbf",
+              "surface-container-high": "#eae8e2",
+              "primary-container": "#ff8c00",
+              "on-tertiary-fixed-variant": "#6a3b00",
+              "error": "#ba1a1a",
+              "surface-container-highest": "#e4e2dd",
+              "on-secondary-container": "#217128",
+              "surface-container-lowest": "#ffffff",
+              "secondary": "#1b6d24",
+              "on-secondary-fixed": "#002204",
+              "on-tertiary-container": "#5f3400",
+              "on-primary-container": "#623200",
+              "on-primary": "#ffffff",
+              "surface-dim": "#dbdad4",
+              "surface-container": "#f0eee8",
+              "on-secondary": "#ffffff",
+              "inverse-primary": "#ffb77d",
+              "on-primary-fixed": "#2f1500",
+              "surface-tint": "#904d00"
+            },
+            fontFamily: {
+              "headline": ["Noto Serif", "Noto Sans Devanagari"],
+              "body": ["Public Sans", "Noto Sans Devanagari"],
+              "label": ["Public Sans", "Noto Sans Devanagari"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .voice-bar {
+        height: 24px;
+        width: 4px;
+        background-color: #ff8c00;
+        border-radius: 2px;
+        margin: 0 2px;
+      }
+      .sacred-glow {
+        box-shadow: 0px 8px 24px rgba(144, 77, 0, 0.08);
+      }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-[#FFFDF7] font-body text-on-background min-h-screen flex flex-col items-center">
+<!-- Top App Bar - Simplified for focused journey (No Nav Shell per rules) -->
+<header class="flex justify-between items-center px-6 py-4 w-full max-w-screen-xl mx-auto sticky top-0 z-50">
+<div class="font-headline italic text-2xl text-primary">Pandit Seva</div>
+<div class="flex items-center gap-2 px-3 py-1 bg-surface-container-low rounded-full">
+<span class="material-symbols-outlined text-primary text-sm">language</span>
+<span class="text-xs font-medium uppercase tracking-wider text-on-surface-variant">Bhojpuri</span>
+</div>
+</header>
+<main class="flex-1 w-full max-w-md px-8 pt-12 pb-24 flex flex-col items-center justify-center text-center">
+<!-- Hero Element -->
+<div class="relative mb-10 w-full flex flex-col items-center">
+<!-- Decorative background element -->
+<div class="absolute -top-10 opacity-10 pointer-events-none">
+<span class="material-symbols-outlined text-[180px] text-primary">temple_hindu</span>
+</div>
+<h1 class="font-headline text-7xl font-bold text-primary tracking-tight mb-2">भोजपुरी</h1>
+<p class="text-on-surface-variant text-xl tracking-widest font-medium opacity-60">BHOJPURI</p>
+<!-- Decorative Divider -->
+<div class="mt-8 flex items-center justify-center gap-4 w-full">
+<div class="h-[1px] flex-1 bg-gradient-to-r from-transparent via-outline-variant to-transparent"></div>
+<span class="material-symbols-outlined text-primary/40" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+<div class="h-[1px] flex-1 bg-gradient-to-l from-transparent via-outline-variant to-transparent"></div>
+</div>
+</div>
+<!-- Question -->
+<div class="mb-12">
+<h2 class="font-headline text-3xl font-bold text-on-surface leading-snug">क्या यही भाषा सही है?</h2>
+</div>
+<!-- Voice Status Bars -->
+<div class="mb-16 flex flex-col items-center gap-4">
+<div class="flex items-end justify-center h-12 gap-1 px-8 py-3 bg-surface-container-low rounded-full">
+<div class="voice-bar h-4 opacity-40"></div>
+<div class="voice-bar h-8 opacity-60"></div>
+<div class="voice-bar h-12"></div>
+<div class="voice-bar h-6 opacity-80"></div>
+<div class="voice-bar h-10 opacity-70"></div>
+<div class="voice-bar h-3 opacity-30"></div>
+</div>
+<p class="text-primary font-medium tracking-wide">हाँ या नहीं बोलें</p>
+</div>
+<!-- Interaction Buttons -->
+<div class="w-full space-y-5">
+<button class="w-full h-14 bg-primary-container text-on-primary-container font-bold text-xl rounded-xl sacred-glow transition-transform active:scale-95 flex items-center justify-center gap-3">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                हाँ, यही भाषा चाहिए
+            </button>
+<button class="w-full h-14 bg-surface-variant text-on-surface-variant font-bold text-lg rounded-xl transition-transform active:scale-95 flex items-center justify-center gap-3">
+<span class="material-symbols-outlined">restart_alt</span>
+                नहीं, फिर से चुनूँगा
+            </button>
+</div>
+</main>
+<!-- Ashirwad Loader (Subtle/Placeholder) -->
+<div class="fixed bottom-10 opacity-20 pointer-events-none">
+<span class="material-symbols-outlined text-primary text-4xl">local_florist</span>
+</div>
+<!-- Background texture simulation -->
+<div class="fixed inset-0 -z-10 opacity-[0.03] pointer-events-none">
+<img alt="" class="w-full h-full object-cover" data-alt="Subtle handmade paper fiber texture background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAFC0Iiu_MAsj8F84in-3S1sTkk1UnrK4Uh5Q-dwivS_lUgDBfC_e0yoZz79bFVcXh7vPtmwV4rkT5Pzzc19m34R5obh9FShJQ2N8xLRAeWu-F7VPfpTjQmGOicQVw5TDuChWS4fbEqUkQ2rsWl2HAeWrFo693BldfziM7OitL7aQUGiaEw1XxZ_A0_q8S-UvwTpSXwl3Ghga8tE_xPaT9Dty662tK-aeDf6FLl-7TpIKl9PJCTa9E-w0hPCA_TWid-PNKsyFN1Dgld"/>
+</div>
+</body></html>

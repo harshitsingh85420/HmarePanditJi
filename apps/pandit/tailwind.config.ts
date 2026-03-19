@@ -1,146 +1,130 @@
-import type { Config } from "tailwindcss";
+import type { Config } from 'tailwindcss'
 
 const config: Config = {
   content: [
-    "./src/**/*.{js,ts,jsx,tsx,mdx}",
-    "../../packages/ui/src/**/*.{js,ts,jsx,tsx}",
+    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
     extend: {
       colors: {
-        // ── Existing app colors ──────────────────────────────────────
-        primary: "#F09942",
-        "primary-dk": "#DC6803",
-        "primary-lt": "#FEF3C7",
-        "primary-light": "#fde9c3",
-        "primary-dark": "#d97706",
-        secondary: "#2d1b00",
-        accent: "#dc6803",
-        danger: "#EF4444",
-        success: "#15803D",
-        "success-lt": "#DCFCE7",
-        error: "#DC2626",
-        "error-lt": "#FEE2E2",
-        info: "#3B82F6",
-        warning: "#F59E0B",
-        "background-light": "#f8f7f6",
-        "background-dark": "#221910",
+        // PRIMARY PALETTE - Saffron (ALL primary actions)
+        'saffron':          '#FF8C00',
+        'saffron-dark':     '#CC7000',
+        'saffron-light':    '#FFF3E0',
+        'saffron-tint':     '#FFF8E1',
+        'saffron-border':   '#FFB300',
 
-        // ── Part 0 Vedic Design System ──────────────────────────────
-        "vedic-cream": "#FFFBF5",    // ALL screen backgrounds
-        "vedic-brown": "#2D1B00",    // Primary text
-        "vedic-brown-2": "#6B4F2A",  // Secondary text
-        "vedic-gold": "#9B7B52",     // Muted / tertiary text
-        "vedic-border": "#F0E6D3",   // Dividers, inactive borders
+        // SURFACE PALETTE - Backgrounds
+        'surface-base':     '#FFFDF7',  // Main background (warm off-white)
+        'surface-card':     '#FFFFFF',  // Card surfaces
+        'surface-muted':    '#F5F3EE',  // Muted containers
+        'surface-dim':      '#F0EEE8',  // Dimmed containers
+        'surface-high':     '#EAE8E2',  // High emphasis containers
+
+        // TEXT PALETTE
+        'text-primary':     '#1C1C1E',  // Near-black body text
+        'text-secondary':   '#636366',  // Muted descriptions
+        'text-placeholder': '#AEAEB2',  // Input placeholders
+        'text-disabled':    '#C7C7CC',  // Disabled states
+
+        // SEMANTIC COLORS
+        'trust-green':      '#2E7D32',  // Success, savings, verified
+        'trust-green-bg':   '#E8F5E9',  // Light green background
+        'trust-green-border':'#A5D6A7', // Green borders
+
+        'warning-amber':    '#FF9500',  // Network warnings (NOT errors)
+        'warning-amber-bg': '#FFF3E0',  // Amber light background
+
+        'error-red':        '#D32F2F',  // Critical errors ONLY
+        'error-red-bg':     '#FFDAD6',  // Error backgrounds
+
+        // INDIGO (Customer card only - never use for Pandit flows)
+        'indigo-tint':      '#E8EAF6',
+        'indigo-border':    '#9FA8DA',
+        'indigo-text':      '#3F51B5',
+
+        // BORDERS
+        'border-default':   '#E5E5EA',
+        'border-active':    '#FF8C00',
+        'border-success':   '#2E7D32',
+        'border-warm':      '#DDC1AE',
       },
       fontFamily: {
-        display: ["Inter", "sans-serif"],
-        hindi: ["Inter", "sans-serif"],
-        hind: ["Hind", "sans-serif"],
+        'devanagari': ['Noto Sans Devanagari', 'sans-serif'],
+        'serif': ['Noto Serif', 'serif'],
+        'body': ['Public Sans', 'Noto Sans Devanagari', 'sans-serif'],
+        'label': ['Public Sans', 'sans-serif'],
+      },
+      fontSize: {
+        'hero':   ['28px', { lineHeight: '1.2', fontWeight: '700' }],
+        'title':  ['22px', { lineHeight: '1.3', fontWeight: '600' }],
+        'body':   ['18px', { lineHeight: '1.5', fontWeight: '400' }],
+        'body-sm':['16px', { lineHeight: '1.5', fontWeight: '400' }],
+        'label':  ['14px', { lineHeight: '1.5', fontWeight: '400' }],
+        'micro':  ['12px', { lineHeight: '1.4', fontWeight: '400' }],
+      },
+      spacing: {
+        'screen-x': '20px',  // Horizontal screen margin
+        'card-p':   '20px',  // Card padding
       },
       borderRadius: {
-        DEFAULT: "0.25rem",
-        btn: "12px",
-        card: "16px",
-        pill: "9999px",
-        lg: "0.5rem",
-        xl: "0.75rem",
-        "2xl": "1rem",
-        full: "9999px",
+        'card':    '16px',
+        'card-sm': '12px',
+        'btn':     '12px',
+        'pill':    '9999px',
       },
       boxShadow: {
-        card: "0 2px 16px rgba(0,0,0,0.08)",
-        "card-hover": "0 4px 24px rgba(0,0,0,0.12)",
-        cta: "0 4px 12px rgba(240,153,66,0.35)",
-        "cta-dk": "0 6px 20px rgba(220,104,3,0.45)",
-      },
-      keyframes: {
-        // ── Existing ─────────────────────────────────────────────
-        "pulse-amber": {
-          "0%, 100%": { boxShadow: "0 0 0 0 rgba(240, 153, 66, 0.4)" },
-          "50%": { boxShadow: "0 0 0 12px rgba(240, 153, 66, 0)" },
-        },
-        // ── Part 0 animations ─────────────────────────────────────
-        "voice-bar": {
-          "0%, 100%": { height: "8px" },
-          "50%": { height: "24px" },
-        },
-        "fade-up": {
-          "0%": { opacity: "0", transform: "translateY(16px)" },
-          "100%": { opacity: "1", transform: "translateY(0)" },
-        },
-        "slide-up": {
-          "0%": { transform: "translateY(100%)" },
-          "100%": { transform: "translateY(0)" },
-        },
-        "slide-in-right": {
-          "0%": { transform: "translateX(100%)" },
-          "100%": { transform: "translateX(0)" },
-        },
-        "scale-spring": {
-          "0%": { transform: "scale(0.9)", opacity: "0" },
-          "60%": { transform: "scale(1.05)" },
-          "100%": { transform: "scale(1)", opacity: "1" },
-        },
-        "pulse-ring": {
-          "0%": { transform: "scale(0.8)", opacity: "0.6" },
-          "100%": { transform: "scale(1.5)", opacity: "0" },
-        },
-        "draw-circle": {
-          to: { strokeDashoffset: "0" },
-        },
-        "draw-check": {
-          to: { strokeDashoffset: "0" },
-        },
-        "confetti-fall": {
-          "0%": { transform: "translateY(-20px) rotate(0deg)", opacity: "0" },
-          "10%": { opacity: "1" },
-          "100%": { transform: "translateY(200px) rotate(360deg)", opacity: "0" },
-        },
-        "progress-fill": {
-          "0%": { width: "0%" },
-          "100%": { width: "70%" },
-        },
-        "pin-drop": {
-          "0%": { transform: "translateY(-20px)", opacity: "0" },
-          "100%": { transform: "translateY(0)", opacity: "1" },
-        },
-        "gentle-float": {
-          "0%, 100%": { transform: "translateY(0)" },
-          "50%": { transform: "translateY(-8px)" },
-        },
-        "glow-pulse": {
-          "0%, 100%": { opacity: "0.6", transform: "scale(1)" },
-          "50%": { opacity: "1", transform: "scale(1.1)" },
-        },
-        "fade-in": {
-          from: { opacity: "0", transform: "translateY(8px)" },
-          to: { opacity: "1", transform: "translateY(0)" },
-        },
+        'card':     '0px 2px 8px rgba(0,0,0,0.06), 0px 1px 2px rgba(0,0,0,0.04)',
+        'card-saffron': '0px 4px 16px rgba(255,140,0,0.12), 0px 2px 4px rgba(0,0,0,0.06)',
+        'btn-saffron':  '0px 4px 12px rgba(255,140,0,0.35)',
+        'btn-saffron-pressed': '0px 1px 4px rgba(255,140,0,0.20)',
+        'sheet':    '0px -4px 20px rgba(0,0,0,0.10)',
+        'top-bar':  '0px 2px 10px rgba(144,77,0,0.05)',
       },
       animation: {
-        "pulse-amber": "pulse-amber 2s ease-in-out infinite",
-        "fade-in": "fade-in 0.5s ease-out",
-        // Part 0
-        "voice-bar": "voice-bar 1.2s ease-in-out infinite",
-        "voice-bar-2": "voice-bar 1.2s ease-in-out 0.2s infinite",
-        "voice-bar-3": "voice-bar 1.2s ease-in-out 0.4s infinite",
-        "fade-up": "fade-up 0.5s ease-out forwards",
-        "slide-up": "slide-up 0.35s cubic-bezier(0,0,0.2,1) forwards",
-        "slide-in-right": "slide-in-right 0.25s cubic-bezier(0,0,0.2,1) forwards",
-        "scale-spring": "scale-spring 0.4s cubic-bezier(0.34,1.56,0.64,1) forwards",
-        "pulse-ring": "pulse-ring 2s cubic-bezier(0.4,0,0.6,1) infinite",
-        "draw-circle": "draw-circle 0.8s ease-out forwards",
-        "draw-check": "draw-check 0.5s ease-out 0.8s forwards",
-        "confetti-fall": "confetti-fall linear infinite",
-        "progress-fill": "progress-fill 2.5s ease-out forwards",
-        "pin-drop": "pin-drop 0.6s ease-out forwards",
-        "gentle-float": "gentle-float 3s ease-in-out infinite",
-        "glow-pulse": "glow-pulse 3s ease-in-out infinite",
+        'pulse-saffron':   'pulse-saffron 2s ease-in-out infinite',
+        'waveform':        'waveform 1.2s ease-in-out infinite alternate',
+        'celebration-in':  'celebration-in 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards',
+        'sheet-up':        'sheet-up 0.32s cubic-bezier(0.32,0,0,1) forwards',
+        'fade-in':         'fade-in 0.25s ease-in-out forwards',
+        'spin-slow':       'spin 2s linear infinite',
+      },
+      keyframes: {
+        'pulse-saffron': {
+          '0%, 100%': { opacity: '0.6', transform: 'scale(1)' },
+          '50%':       { opacity: '1',  transform: 'scale(1.05)' },
+        },
+        'waveform': {
+          '0%':   { transform: 'scaleY(0.3)' },
+          '100%': { transform: 'scaleY(1)' },
+        },
+        'celebration-in': {
+          '0%':   { transform: 'scale(0)',   opacity: '0' },
+          '70%':  { transform: 'scale(1.1)', opacity: '1' },
+          '100%': { transform: 'scale(1)',   opacity: '1' },
+        },
+        'sheet-up': {
+          '0%':   { transform: 'translateY(100%)' },
+          '100%': { transform: 'translateY(0)' },
+        },
+        'fade-in': {
+          '0%':   { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+      },
+      minHeight: {
+        'touch': '52px',   // Minimum touch target
+        'btn':   '56px',   // Primary button height
+        'btn-sm':'48px',   // Secondary button height
+        'confirm':'60px',  // Confirmation pair buttons
+      },
+      minWidth: {
+        'touch': '52px',
       },
     },
   },
   plugins: [],
-};
-
-export default config;
+}
+export default config

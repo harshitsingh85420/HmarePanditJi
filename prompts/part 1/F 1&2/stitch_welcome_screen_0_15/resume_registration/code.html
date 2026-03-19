@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+
+<html class="light" lang="hi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Welcome Back - Resume Registration</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&amp;family=Noto+Sans+Devanagari:wght@400;500;700&amp;family=Public+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-error-container": "#93000a",
+              "primary-container": "#ff8c00",
+              "background": "#fbf9f3",
+              "on-secondary-fixed-variant": "#005312",
+              "surface-container-lowest": "#ffffff",
+              "secondary-fixed-dim": "#88d982",
+              "on-error": "#ffffff",
+              "tertiary-fixed": "#ffdcbf",
+              "inverse-primary": "#ffb77d",
+              "primary-fixed": "#ffdcc3",
+              "error-container": "#ffdad6",
+              "tertiary-fixed-dim": "#ffb874",
+              "surface-bright": "#fbf9f3",
+              "on-primary-container": "#623200",
+              "on-tertiary-fixed-variant": "#6a3b00",
+              "on-primary-fixed-variant": "#6e3900",
+              "secondary-container": "#a0f399",
+              "on-secondary-fixed": "#002204",
+              "surface-container": "#f0eee8",
+              "error": "#ba1a1a",
+              "tertiary-fixed-dim": "#ffb874",
+              "surface-tint": "#904d00",
+              "inverse-on-surface": "#f2f1eb",
+              "on-tertiary": "#ffffff",
+              "on-primary": "#ffffff",
+              "surface-variant": "#e4e2dd",
+              "outline-variant": "#ddc1ae",
+              "surface-container-low": "#f5f3ee",
+              "surface-container-high": "#eae8e2",
+              "on-tertiary-fixed": "#2d1600",
+              "primary-fixed-dim": "#ffb77d",
+              "secondary-fixed": "#a3f69c",
+              "tertiary": "#8c5000",
+              "surface": "#fbf9f3",
+              "on-tertiary-container": "#5f3400",
+              "primary": "#904d00",
+              "on-primary-fixed": "#2f1500",
+              "secondary": "#1b6d24",
+              "on-secondary-container": "#217128",
+              "on-background": "#1b1c19",
+              "on-surface-variant": "#564334",
+              "surface-dim": "#dbdad4",
+              "surface-container-highest": "#e4e2dd",
+              "outline": "#897362",
+              "on-surface": "#1b1c19",
+              "on-secondary": "#ffffff",
+              "inverse-surface": "#30312d"
+            },
+            fontFamily: {
+              "headline": ["Noto Serif"],
+              "body": ["Noto Sans Devanagari", "Public Sans"],
+              "label": ["Noto Sans Devanagari", "Public Sans"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .diya-glow {
+        background: radial-gradient(circle, rgba(255,140,0,0.15) 0%, rgba(251,249,243,0) 70%);
+      }
+      .saffron-ring {
+        background: conic-gradient(#ff8c00 0% 33%, #e4e2dd 33% 100%);
+      }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background font-body text-on-background min-h-screen flex flex-col">
+<!-- Top Bar: Transactional focused (No global nav) -->
+<nav class="fixed top-0 w-full z-50 flex justify-end items-center px-5 h-16">
+<div class="p-2 rounded-full hover:bg-surface-container-low transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-on-surface-variant">language</span>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="flex-grow pt-16 px-5 pb-10 flex flex-col items-center max-w-md mx-auto w-full">
+<!-- Hero Section -->
+<div class="relative w-full aspect-square max-h-64 flex items-center justify-center mb-8">
+<div class="absolute inset-0 diya-glow rounded-full"></div>
+<div class="relative z-10 w-48 h-48 flex items-center justify-center">
+<img alt="Sacred Diya lamp with soft warm glow" class="w-40 h-40 object-contain" data-alt="Traditional oil lamp Diya with warm orange light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAI38iWKkrweNG0SyxtFTvn5AKpHtBDM8pW8ScM8odkgYGJtKl76Fs3EtaR_EMRnjKjhexttwac9zclDgHHIAk9JV0ITZRfJ_F6_wkC73x6NPj54PDmO9P8qg2KaTpuJgHdRnGcrcGdVLFr2RoaaCRkyW8c63X69ITpAzULHQ89oUkYpNNnhEaXHzvd65E7ae8nIejdySgEaMsVYYSteX2WFIhaM9jsw3GTb69nXZJmpM6Q7u0f10BaOXRDNQGTgoIsWeSfHxx7f4zf"/>
+</div>
+</div>
+<!-- Progress Indicator -->
+<div class="relative mb-8">
+<div class="w-24 h-24 rounded-full saffron-ring p-1 flex items-center justify-center">
+<div class="w-full h-full bg-background rounded-full flex flex-col items-center justify-center">
+<span class="font-headline text-2xl font-bold text-primary">33%</span>
+</div>
+</div>
+</div>
+<!-- Typography Cluster -->
+<div class="text-center mb-10">
+<h1 class="font-headline text-4xl font-bold text-on-surface mb-3 tracking-tight">Wapas Aaye! 🪔</h1>
+<p class="text-lg text-on-surface-variant leading-[150%]">Aapka registration 33% complete hai.</p>
+</div>
+<!-- Progress List: The "Scripture" Layout -->
+<div class="w-full space-y-6 mb-10">
+<!-- Completed Step -->
+<div class="flex items-center gap-5 p-4 bg-surface-container-lowest rounded-xl shadow-[0px_8px_24px_rgba(144,77,0,0.04)] border-l-4 border-secondary">
+<div class="bg-secondary/10 p-2 rounded-full">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div>
+<p class="font-medium text-on-surface">मोबाइल वेरिफिकेशन</p>
+</div>
+</div>
+<!-- Next Step (Active) -->
+<div class="flex items-center justify-between gap-4 p-4 bg-primary-container/10 rounded-xl border-l-4 border-primary-container">
+<div class="flex items-center gap-5">
+<div class="bg-primary-container p-2 rounded-full">
+<span class="material-symbols-outlined text-on-primary">person_edit</span>
+</div>
+<div>
+<p class="font-bold text-primary">व्यक्तिगत विवरण</p>
+</div>
+</div>
+<div class="flex items-center gap-1 text-primary font-bold animate-pulse">
+<span class="material-symbols-outlined text-sm">arrow_back</span>
+<span class="text-xs uppercase tracking-wider">Yahaan se shuru</span>
+</div>
+</div>
+<!-- Future Step (Inactive) -->
+<div class="flex items-center gap-5 p-4 bg-surface-container-high/30 rounded-xl opacity-50 border-l-4 border-outline-variant">
+<div class="bg-surface-variant p-2 rounded-full">
+<span class="material-symbols-outlined text-outline">description</span>
+</div>
+<div>
+<p class="font-medium text-outline">दस्तावेज अपलोड</p>
+</div>
+</div>
+</div>
+<!-- Reassurance -->
+<div class="flex items-center gap-2 mb-8 text-secondary font-medium">
+<span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">save</span>
+<span>💾 Aaj tak ka pura kaam save hai.</span>
+</div>
+<!-- Primary Button (The Path Component) -->
+<div class="w-full mt-auto">
+<button class="w-full h-[56px] bg-gradient-to-b from-primary-container to-tertiary-container text-on-primary font-bold text-lg rounded-xl shadow-lg active:scale-95 transition-all duration-150 flex items-center justify-center gap-2">
+                Jahaan Chhodha Wahan Se Shuru Karein 🙏
+            </button>
+</div>
+</main>
+<!-- Content Separation Logic (Tonal Shift) -->
+<div class="h-8 bg-surface-container-low w-full mt-4"></div>
+</body></html>
