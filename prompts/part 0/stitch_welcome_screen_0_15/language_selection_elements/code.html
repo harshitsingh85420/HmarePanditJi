@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>HmarePanditJi - Language &amp; Search UI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#f09f42",
+                        "background-light": "#FFFBF5",
+                        "background-dark": "#221a10",
+                    },
+                    fontFamily: {
+                        "display": ["Work Sans"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Work Sans', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .material-symbols-outlined.fill { font-variation-settings: 'FILL' 1; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="max-w-md mx-auto p-6 space-y-6">
+<!-- Section: Voice Search Box -->
+<div class="space-y-3">
+<h3 class="text-sm font-semibold uppercase tracking-wider text-primary">Voice Search Box</h3>
+<div class="flex items-center justify-between gap-4 p-4 rounded-xl bg-[#FEF3C7] border border-primary/20 shadow-sm">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-2xl">mic</span>
+<span class="text-lg font-medium text-slate-800">बोलकर खोजें</span>
+</div>
+<div class="flex gap-1">
+<span class="w-1 h-4 bg-primary rounded-full animate-pulse"></span>
+<span class="w-1 h-6 bg-primary rounded-full animate-pulse"></span>
+<span class="w-1 h-3 bg-primary rounded-full animate-pulse"></span>
+</div>
+</div>
+</div>
+<!-- Section: Text Search Bar -->
+<div class="space-y-3">
+<h3 class="text-sm font-semibold uppercase tracking-wider text-primary">Text Search Bar</h3>
+<div class="relative group">
+<span class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-slate-400 group-focus-within:text-primary transition-colors">search</span>
+</span>
+<input class="block w-full pl-12 pr-4 py-4 bg-white dark:bg-slate-800 border-[#F0E6D3] dark:border-slate-700 rounded-xl focus:ring-primary focus:border-primary shadow-sm text-base" placeholder="Search for Puja, Pandit or Rituals..." type="text"/>
+</div>
+</div>
+<!-- Section: Language Grid -->
+<div class="space-y-3">
+<h3 class="text-sm font-semibold uppercase tracking-wider text-primary">Language Cells</h3>
+<div class="grid grid-cols-2 gap-4">
+<!-- Selected Language -->
+<button class="flex flex-col items-start gap-2 p-4 rounded-xl bg-[#FEF3C7] border-2 border-primary transition-all shadow-md relative overflow-hidden group">
+<div class="flex justify-between w-full items-start">
+<span class="material-symbols-outlined text-primary fill">translate</span>
+<span class="material-symbols-outlined text-primary fill text-xl">check_circle</span>
+</div>
+<div class="text-left">
+<p class="text-lg font-bold text-slate-900 leading-tight">Hindi</p>
+<p class="text-sm font-medium text-primary leading-tight">हिंदी</p>
+</div>
+</button>
+<!-- Default Language -->
+<button class="flex flex-col items-start gap-2 p-4 rounded-xl bg-white dark:bg-slate-800 border border-[#F0E6D3] dark:border-slate-700 hover:border-primary/50 transition-all shadow-sm">
+<div class="flex justify-between w-full items-start">
+<span class="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">translate</span>
+</div>
+<div class="text-left">
+<p class="text-lg font-bold text-slate-900 dark:text-slate-100 leading-tight">Tamil</p>
+<p class="text-sm font-medium text-slate-500 leading-tight">தமிழ்</p>
+</div>
+</button>
+<!-- Default Language -->
+<button class="flex flex-col items-start gap-2 p-4 rounded-xl bg-white dark:bg-slate-800 border border-[#F0E6D3] dark:border-slate-700 hover:border-primary/50 transition-all shadow-sm">
+<div class="flex justify-between w-full items-start">
+<span class="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">translate</span>
+</div>
+<div class="text-left">
+<p class="text-lg font-bold text-slate-900 dark:text-slate-100 leading-tight">English</p>
+<p class="text-sm font-medium text-slate-500 leading-tight">Default</p>
+</div>
+</button>
+<!-- Default Language -->
+<button class="flex flex-col items-start gap-2 p-4 rounded-xl bg-white dark:bg-slate-800 border border-[#F0E6D3] dark:border-slate-700 hover:border-primary/50 transition-all shadow-sm">
+<div class="flex justify-between w-full items-start">
+<span class="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">translate</span>
+</div>
+<div class="text-left">
+<p class="text-lg font-bold text-slate-900 dark:text-slate-100 leading-tight">Bengali</p>
+<p class="text-sm font-medium text-slate-500 leading-tight">বাংলা</p>
+</div>
+</button>
+</div>
+</div>
+<!-- Section: City Chips -->
+<div class="space-y-3">
+<h3 class="text-sm font-semibold uppercase tracking-wider text-primary">City Chips</h3>
+<div class="flex flex-wrap gap-3">
+<button class="px-6 py-2 rounded-full bg-primary text-white font-medium shadow-md flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">location_on</span>
+                    Delhi
+                </button>
+<button class="px-6 py-2 rounded-full bg-white dark:bg-slate-800 border border-[#F0E6D3] dark:border-slate-700 text-slate-700 dark:text-slate-300 font-medium hover:bg-primary/10 hover:border-primary transition-all">
+                    Varanasi
+                </button>
+<button class="px-6 py-2 rounded-full bg-white dark:bg-slate-800 border border-[#F0E6D3] dark:border-slate-700 text-slate-700 dark:text-slate-300 font-medium hover:bg-primary/10 hover:border-primary transition-all">
+                    Mumbai
+                </button>
+<button class="px-6 py-2 rounded-full bg-white dark:bg-slate-800 border border-[#F0E6D3] dark:border-slate-700 text-slate-700 dark:text-slate-300 font-medium hover:bg-primary/10 hover:border-primary transition-all">
+                    Haridwar
+                </button>
+</div>
+</div>
+</div>
+<!-- Bottom Navigation Bar Placeholder -->
+<div class="fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-900 border-t border-[#F0E6D3] dark:border-slate-800 px-4 py-2">
+<div class="max-w-md mx-auto flex justify-around items-center">
+<a class="flex flex-col items-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined fill">home</span>
+<span class="text-xs font-medium">Home</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400" href="#">
+<span class="material-symbols-outlined">calendar_month</span>
+<span class="text-xs font-medium">Bookings</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400" href="#">
+<span class="material-symbols-outlined">person_search</span>
+<span class="text-xs font-medium">PanditJi</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400" href="#">
+<span class="material-symbols-outlined">account_circle</span>
+<span class="text-xs font-medium">Profile</span>
+</a>
+</div>
+</div>
+<div class="h-24"></div> <!-- Padding for bottom nav -->
+</body></html>

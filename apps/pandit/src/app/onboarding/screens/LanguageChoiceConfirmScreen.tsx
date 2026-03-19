@@ -23,7 +23,7 @@ export default function LanguageChoiceConfirmScreen({
 }: LanguageChoiceConfirmScreenProps) {
   const { isListening } = useVoiceFlow({
     language,
-    voiceScript: `Aapne ${pendingLanguage} kahi. Sahi hai? Haan ya Nahi bolein.`,
+    voiceScript: `आपने ${pendingLanguage} कही। सही है? हाँ या नहीं बोलें।`,
     onIntent: (intent) => {
       if (intent === 'YES') onConfirm()
       else if (intent === 'NO' || intent === 'CHANGE') onReject()

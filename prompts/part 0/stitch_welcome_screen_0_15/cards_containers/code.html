@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>HmarePanditJi - Component Sheet 2</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#f09f42",
+                        "background-light": "#FFFBF5",
+                        "background-dark": "#221a10",
+                    },
+                    fontFamily: {
+                        "display": ["Work Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen p-8">
+<div class="max-w-4xl mx-auto space-y-12">
+<!-- Header Section -->
+<header class="mb-12 border-b border-primary/20 pb-6">
+<h1 class="text-4xl font-bold text-primary mb-2">HmarePanditJi Component Sheet</h1>
+<p class="text-slate-600 dark:text-slate-400">Cards &amp; Information Containers Design System</p>
+</header>
+<!-- 1. STANDARD WHITE CARD -->
+<section>
+<h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">label</span>
+                1. STANDARD WHITE CARD: Pandit Profile
+            </h2>
+<div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-5 border border-slate-100 dark:border-slate-700">
+<div class="flex items-center gap-5">
+<div class="w-24 h-24 rounded-full bg-primary/10 overflow-hidden shrink-0 border-2 border-primary/20">
+<img alt="Pandit Profile Photo" class="w-full h-full object-cover" data-alt="Elderly Indian priest in traditional saffron attire" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7YfM7bW6xfcCZeWXnw_lPtbyrJOUb4x8-yJ42bBnxnKAAOqjCzQ9SkATRPDIRXOplx6EAL2ENea89hDod9ydDUnN8VFxcFWnzSPb_aFkIh0hkMaaw7uPeMTcmECzG7KU66nc-Z2ZFknPV0DC_bzZ8MO5Z-zkJ6lZ6G4hxNLlZtrI8wR3x1bbb6BvWBOUv3o-PF6AgLlUC6f05B7D4RGUMvO0felJJk3crkv3030ISDlh4p2Fkfm-GDhm4c9EjBXwpr28UgGilqNGx"/>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="text-xl font-bold text-slate-900 dark:text-slate-100">Pandit Rajesh Kumar</h3>
+<p class="text-primary font-medium">Vedic Scholar | 15+ Years Exp</p>
+</div>
+<span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold uppercase tracking-wider">Verified</span>
+</div>
+<div class="mt-3 flex gap-4 text-sm text-slate-500 dark:text-slate-400">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">language</span> Hindi, Sanskrit</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">star</span> 4.9 (240 Reviews)</span>
+</div>
+<button class="mt-4 bg-primary text-white px-6 py-2 rounded-lg font-semibold hover:bg-primary/90 transition-colors">View Profile</button>
+</div>
+</div>
+</div>
+</section>
+<!-- 2. ACCENT TINT CARD -->
+<section>
+<h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">label</span>
+                2. ACCENT TINT CARD: Video Puja
+            </h2>
+<div class="bg-[#FEF3C7] dark:bg-amber-900/20 rounded-xl border-[1.5px] border-primary p-6">
+<div class="flex flex-col md:flex-row gap-6">
+<div class="w-full md:w-1/3 aspect-video rounded-lg overflow-hidden relative">
+<img alt="Video Puja Setup" class="w-full h-full object-cover" data-alt="Digital tablet showing a live puja ceremony" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCcXSvte7I3jWOKbGPvpRGbg1vX1kG_dNOcvfJsRdzy_Dazt2TemFaHGi3jIZL82vEDTx_szySuULzE1ku0UVHjFTMb40KaW_CcZFtpPcmxtdq7UjmluuqpDFGWNLgdBDxVcT0EQqtFFiMwVrlCxhyRhVHoiwwlJY4ticOHA-4ps4-ymYU_aPGEncQZTD0iC3vVtFYtF3IrTWW5hCfAAWfM-r1HdB6kkwt4jm6v9NZh71P6sl9zTqWelYalSyF6E75nmZ9C5ePLJHhj"/>
+<div class="absolute inset-0 bg-black/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-5xl">play_circle</span>
+</div>
+</div>
+<div class="flex-grow">
+<span class="text-primary font-bold text-xs uppercase tracking-widest">Special Highlight</span>
+<h3 class="text-2xl font-bold text-slate-900 dark:text-slate-100 mt-1 mb-2">Online Ganesha Puja</h3>
+<p class="text-slate-700 dark:text-slate-300 mb-4">Live Vedic chanting via secure video call. Includes personalized sankalp and high-quality streaming for the whole family.</p>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-1 text-slate-600 dark:text-slate-400 font-medium">
+<span class="material-symbols-outlined">schedule</span>
+                                24/7 Availability
+                            </div>
+<div class="h-4 w-[1px] bg-primary/30"></div>
+<div class="flex items-center gap-1 text-primary font-bold">
+<span class="material-symbols-outlined">videocam</span>
+                                HD Quality
+                            </div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- 3. SUCCESS GREEN CARD -->
+<section>
+<h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">label</span>
+                3. SUCCESS GREEN CARD: Payment Breakdown
+            </h2>
+<div class="bg-[#DCFCE7] dark:bg-green-900/20 rounded-r-xl border-l-4 border-[#15803D] p-6">
+<h3 class="text-lg font-bold text-[#15803D] mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined">payments</span>
+                    Payment Finalized
+                </h3>
+<div class="space-y-3">
+<div class="flex justify-between text-slate-700 dark:text-slate-300">
+<span>Base Puja Fee</span>
+<span class="font-mono">₹ 2,100.00</span>
+</div>
+<div class="flex justify-between text-slate-700 dark:text-slate-300">
+<span>Dakshina (Optional)</span>
+<span class="font-mono">₹ 501.00</span>
+</div>
+<div class="flex justify-between text-slate-700 dark:text-slate-300">
+<span>Travel Allowance</span>
+<span class="font-mono">₹ 200.00</span>
+</div>
+<div class="pt-3 border-t border-green-700/20 flex justify-between text-lg font-bold text-[#15803D]">
+<span>Total Credited</span>
+<span class="font-mono">₹ 2,801.00</span>
+</div>
+</div>
+</div>
+</section>
+<!-- 4. TESTIMONIAL CARD -->
+<section>
+<h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">label</span>
+                4. TESTIMONIAL CARD: Income Comparison
+            </h2>
+<div class="bg-white dark:bg-slate-800 rounded-r-xl border-l-4 border-primary p-6 shadow-md">
+<p class="text-slate-600 dark:text-slate-400 italic mb-6">"Before joining HmarePanditJi, I spent more time traveling than performing pujas. Now, my earnings are consistent and my schedule is organized."</p>
+<div class="grid grid-cols-2 gap-8 relative">
+<div class="text-center p-4 bg-slate-50 dark:bg-slate-900 rounded-lg">
+<span class="text-xs uppercase text-slate-500 font-bold tracking-tighter">Before Platform</span>
+<div class="text-2xl font-bold text-slate-400 mt-1">₹ 15k /mo</div>
+</div>
+<div class="text-center p-4 bg-primary/10 rounded-lg border border-primary/20">
+<span class="text-xs uppercase text-primary font-bold tracking-tighter">After Joining</span>
+<div class="text-2xl font-bold text-primary mt-1">₹ 45k+ /mo</div>
+</div>
+<div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-slate-800 rounded-full p-1 border border-primary/20">
+<span class="material-symbols-outlined text-primary">trending_up</span>
+</div>
+</div>
+</div>
+</section>
+<!-- 5. FAMILY INCLUSION CARD -->
+<section>
+<h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">label</span>
+                5. FAMILY INCLUSION CARD
+            </h2>
+<div class="bg-[#FEF3C7] dark:bg-amber-900/10 rounded-xl p-6 flex items-center gap-6">
+<div class="text-5xl shrink-0">👨‍👩‍👦</div>
+<div>
+<h3 class="text-xl font-bold text-slate-900 dark:text-slate-100">Family can help</h3>
+<p class="text-slate-600 dark:text-slate-400">Add your family members to help manage bookings, handle calls, and assist with ritual preparation. Together, you can double your puja capacity.</p>
+</div>
+<button class="bg-white dark:bg-slate-700 text-primary border border-primary px-4 py-2 rounded-lg font-bold hover:bg-primary hover:text-white transition-all whitespace-nowrap">
+                    Invite Family
+                </button>
+</div>
+</section>
+<!-- 6. OUTCOME TABLE CARD -->
+<section>
+<h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">label</span>
+                6. OUTCOME TABLE CARD
+            </h2>
+<div class="bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700">
+<table class="w-full text-left">
+<thead class="bg-slate-50 dark:bg-slate-900 border-b border-slate-100 dark:border-slate-700">
+<tr>
+<th class="p-4 text-slate-600 dark:text-slate-400 font-bold text-sm uppercase">Scenario</th>
+<th class="p-4 text-slate-600 dark:text-slate-400 font-bold text-sm uppercase">Earnings Potential</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+<tr>
+<td class="p-4">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-green-500">check_circle</span>
+<div>
+<div class="font-bold">Puja Completed</div>
+<div class="text-xs text-slate-500">Success ritual with review</div>
+</div>
+</div>
+</td>
+<td class="p-4 font-bold text-green-600">100% Fee + Dakshina</td>
+</tr>
+<tr class="bg-red-50/30 dark:bg-red-900/10">
+<td class="p-4">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-red-500">cancel</span>
+<div>
+<div class="font-bold">Last-minute Cancellation</div>
+<div class="text-xs text-slate-500">Cancelled by user &lt; 2hrs</div>
+</div>
+</div>
+</td>
+<td class="p-4 font-bold text-red-600">50% Compensation</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<!-- 7. PAYMENT TIMELINE -->
+<section>
+<h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">label</span>
+                7. PAYMENT TIMELINE
+            </h2>
+<div class="bg-white dark:bg-slate-800 rounded-xl p-8 shadow-sm">
+<div class="relative">
+<!-- Vertical Line -->
+<div class="absolute left-[15px] top-0 bottom-0 w-1 bg-slate-200 dark:bg-slate-700 rounded-full"></div>
+<!-- Timeline Items -->
+<div class="space-y-8 relative">
+<div class="flex items-start gap-6">
+<div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0 z-10 text-white">
+<span class="material-symbols-outlined text-sm">event_available</span>
+</div>
+<div>
+<h4 class="font-bold text-slate-900 dark:text-slate-100">Puja Ended</h4>
+<p class="text-sm text-slate-500 dark:text-slate-400">Ritual completion marked by Pandit &amp; User.</p>
+<span class="text-xs text-primary font-medium">Day 0 - 10:00 AM</span>
+</div>
+</div>
+<div class="flex items-start gap-6">
+<div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0 z-10 text-white">
+<span class="material-symbols-outlined text-sm">verified_user</span>
+</div>
+<div>
+<h4 class="font-bold text-slate-900 dark:text-slate-100">Review &amp; Verification</h4>
+<p class="text-sm text-slate-500 dark:text-slate-400">Automated system checks and user feedback period.</p>
+<span class="text-xs text-primary font-medium">Day 0 - 12:00 PM</span>
+</div>
+</div>
+<div class="flex items-start gap-6">
+<div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0 z-10 text-white">
+<span class="material-symbols-outlined text-sm">account_balance_wallet</span>
+</div>
+<div>
+<h4 class="font-bold text-slate-900 dark:text-slate-100">Wallet Credit</h4>
+<p class="text-sm text-slate-500 dark:text-slate-400">Funds available for withdrawal in your digital wallet.</p>
+<span class="text-xs text-primary font-medium">Day 1 - 09:00 AM</span>
+</div>
+</div>
+<div class="flex items-start gap-6">
+<div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center shrink-0 z-10 text-white">
+<span class="material-symbols-outlined text-sm">check</span>
+</div>
+<div>
+<h4 class="font-bold text-slate-900 dark:text-slate-100">Money in Bank</h4>
+<p class="text-sm text-slate-500 dark:text-slate-400">Withdrawal processed to your linked bank account.</p>
+<span class="text-xs text-green-600 font-bold uppercase">Success</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</body></html>

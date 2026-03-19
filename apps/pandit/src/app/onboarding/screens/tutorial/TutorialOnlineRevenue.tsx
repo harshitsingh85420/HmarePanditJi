@@ -12,7 +12,7 @@ import { SupportedLanguage } from '@/lib/onboarding-store'
 export default function TutorialOnlineRevenue({ language, onLanguageChange, currentDot, onNext, onBack, onSkip }: TutorialScreenProps) {
   const { isListening } = useVoiceFlow({
     language: language as SupportedLanguage,
-    voiceScript: 'Do bilkul naye tarike. Pehla — Ghar Baithe Pooja. Video call se do hazaar se paanch hazaar ek pooja. Doosra — Pandit Se Baat. Bees minute ki call mein aath sau rupe.',
+    voiceScript: 'घर बैठे भी आप दो तरीकों से कमा सकते हैं। पहला: Video call से पूजा कराएं, दो हज़ार से पाँच हज़ार तक। दूसरा: Phone या Chat पर सलाह दें, बीस से पचास रुपये प्रति मिनट। उदाहरण: बीस मिनट में आठ सौ रुपये।',
     onIntent: (intent) => {
       if (intent === 'FORWARD' || intent === 'YES') onNext()
       else if (intent === 'BACK') onBack()
@@ -29,53 +29,128 @@ export default function TutorialOnlineRevenue({ language, onLanguageChange, curr
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
-        <div>
-          <h2 className="text-[30px] font-bold text-[#2D1B00]">घर बैठे भी कमाई</h2>
-          <p className="text-[17px] italic text-[#9B7B52]">(2 नए तरीके जो आप नहीं जानते)</p>
-        </div>
-
-        {/* Card 1 */}
-        <div className="bg-[#FEF3C7] border-2 border-[#F09942] rounded-[16px] p-4">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center text-2xl">🎥</div>
-            <p className="text-[22px] font-bold text-[#2D1B00]">घर बैठे पूजा</p>
-          </div>
-          <p className="text-[17px] text-[#6B4F2A] mb-3">
-            Video call से पूजा कराएं। दुनिया भर के ग्राहक मिलेंगे — NRI भी।
+        {/* Screen title */}
+        <div className="animate-fade-in">
+          <h2 style={{ fontSize: 30, fontWeight: 700, color: '#2D1B00', fontFamily: 'Hind, sans-serif' }}>
+            घर बैठे भी कमाई
+          </h2>
+          <p className="italic" style={{ fontSize: 17, color: '#9B7B52', fontFamily: 'Hind, sans-serif' }}>
+            (2 नए तरीके जो आप नहीं जानते)
           </p>
-          <div className="inline-flex items-center bg-white border border-[#15803D] rounded-full px-4 py-1">
-            <p className="text-[18px] font-bold text-[#15803D]">₹2,000 – ₹5,000 प्रति पूजा</p>
-          </div>
         </div>
 
-        {/* Card 2 */}
-        <div className="bg-white border border-[#F0E6D3] rounded-[16px] p-4 shadow-[0_2px_16px_rgba(0,0,0,0.08)]">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-12 h-12 rounded-full bg-[#FEF3C7] flex items-center justify-center text-2xl">🎓</div>
-            <p className="text-[22px] font-bold text-[#2D1B00]">पंडित से बात</p>
+        {/* Card 1 — Ghar Baithe Pooja */}
+        <div
+          className="rounded-2xl animate-fade-up stagger-1"
+          style={{
+            backgroundColor: '#FEF3C7',
+            border: '2px solid #F09942',
+            padding: 20,
+            opacity: 0,
+            animationFillMode: 'forwards'
+          }}
+        >
+          {/* Header row */}
+          <div className="flex items-start gap-3 mb-3">
+            <div
+              className="flex items-center justify-center rounded-full shrink-0"
+              style={{ width: 48, height: 48, backgroundColor: '#FFFFFF', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}
+            >
+              <span style={{ fontSize: 24 }}>📹</span>
+            </div>
+            <div>
+              <p style={{ fontSize: 22, fontWeight: 700, color: '#2D1B00', fontFamily: 'Hind, sans-serif' }}>
+                घर बैठे पूजा
+              </p>
+              <p style={{ fontSize: 16, color: '#6B4F2A', fontFamily: 'Hind, sans-serif' }}>
+                Video call से पूजा कराएं
+              </p>
+            </div>
           </div>
-          <p className="text-[17px] text-[#6B4F2A] mb-3">
-            Phone / Video / Chat पर सलाह दें। आपका ज्ञान अब बिकेगा।
+          {/* Body */}
+          <p style={{ fontSize: 18, color: '#2D1B00', fontFamily: 'Hind, sans-serif', marginBottom: 12 }}>
+            दुनिया भर के ग्राहक मिलेंगे — NRI भी।
           </p>
-          <div className="inline-flex items-center bg-[#DCFCE7] border border-[#15803D] rounded-full px-3 py-1 mb-3">
-            <p className="text-[15px] font-bold text-[#15803D]">₹20 – ₹50 प्रति मिनट</p>
-          </div>
-          {/* Worked example */}
-          <div className="bg-[#FEF3C7] rounded-xl p-3">
-            <p className="text-[17px] font-bold text-[#F09942]">उदाहरण: 20 मिनट = ₹800 आपको</p>
+          {/* Earnings chip */}
+          <div
+            className="inline-flex items-center rounded-full px-4 py-2 animate-heartbeat"
+            style={{ backgroundColor: '#FFFFFF', border: '1.5px solid #15803D' }}
+          >
+            <span style={{ fontSize: 18, fontWeight: 700, color: '#15803D', fontFamily: 'Hind, sans-serif' }}>
+              ₹2,000 – ₹5,000 प्रति पूजा
+            </span>
           </div>
         </div>
 
-        {/* Summary strip */}
-        <div className="bg-[#FEF3C7] border border-dashed border-[#F09942] rounded-xl p-3 text-center">
-          <p className="text-[18px] font-semibold text-[#2D1B00]">
-            दोनों मिलाकर <strong className="text-[#F09942]">₹40,000+</strong> अलग से हर महीने
+        {/* Card 2 — Pandit Se Baat */}
+        <div
+          className="rounded-2xl animate-fade-up stagger-2"
+          style={{
+            backgroundColor: '#FFFFFF',
+            border: '1.5px solid #F0E6D3',
+            boxShadow: '0 2px 12px rgba(0,0,0,0.07)',
+            padding: 20,
+            opacity: 0,
+            animationFillMode: 'forwards'
+          }}
+        >
+          {/* Header row */}
+          <div className="flex items-start gap-3 mb-3">
+            <div
+              className="flex items-center justify-center rounded-full shrink-0"
+              style={{ width: 48, height: 48, backgroundColor: '#FEF3C7', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}
+            >
+              <span style={{ fontSize: 24 }}>🎓</span>
+            </div>
+            <div>
+              <p style={{ fontSize: 22, fontWeight: 700, color: '#2D1B00', fontFamily: 'Hind, sans-serif' }}>
+                पंडित से बात
+              </p>
+              <p style={{ fontSize: 16, color: '#6B4F2A', fontFamily: 'Hind, sans-serif' }}>
+                Phone / Video / Chat पर सलाह दें
+              </p>
+            </div>
+          </div>
+
+          {/* Body */}
+          <p style={{ fontSize: 18, color: '#2D1B00', fontFamily: 'Hind, sans-serif', marginBottom: 12 }}>
+            आपका ज्ञान अब बिकेगा।
+          </p>
+
+          {/* Rate chip */}
+          <div
+            className="inline-flex items-center rounded-full px-4 py-2 mb-3 animate-heartbeat"
+            style={{ backgroundColor: '#DCFCE7', border: '1.5px solid #15803D', animationDelay: '0.4s' }}
+          >
+            <span style={{ fontSize: 17, fontWeight: 700, color: '#15803D', fontFamily: 'Hind, sans-serif' }}>
+              ₹20 – ₹50 प्रति मिनट
+            </span>
+          </div>
+
+          {/* Worked example — the most important text on screen */}
+          <div
+            className="rounded-xl animate-pulse-amber"
+            style={{ backgroundColor: '#FEF3C7', padding: '10px 14px' }}
+          >
+            <p style={{ fontSize: 17, fontWeight: 700, color: '#F09942', fontFamily: 'Hind, sans-serif' }}>
+              🧮 उदाहरण: 20 मिनट = ₹800 आपको
+            </p>
+          </div>
+        </div>
+
+        {/* Summary row */}
+        <div
+          className="rounded-xl text-center animate-fade-up stagger-3"
+          style={{ backgroundColor: '#FEF3C7', padding: '12px 20px', opacity: 0, animationFillMode: 'forwards' }}
+        >
+          <p style={{ fontSize: 18, fontWeight: 600, color: '#2D1B00', fontFamily: 'Hind, sans-serif' }}>
+            दोनों मिलाकर ₹40,000+ अलग से हर महीने
           </p>
         </div>
       </div>
 
-      <ScreenFooter isListening={isListening} onKeyboardToggle={() => {}}>
-        <CTAButton label="अगला फ़ायदा →" onClick={onNext} variant="primary" />
+      <ScreenFooter isListening={isListening}>
+        <CTAButton label="अगला फ़ायदा देखें →" onClick={onNext} variant="primary" />
       </ScreenFooter>
     </div>
   )

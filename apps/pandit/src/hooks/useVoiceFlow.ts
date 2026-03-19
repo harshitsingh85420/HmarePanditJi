@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
   speak, startListening, stopListening, stopSpeaking,
   detectIntent, LANGUAGE_TO_BCP47, VoiceState,
+  isGlobalMicMuted, subscribeToMicMute, subscribeToTranscript
 } from '@/lib/voice-engine'
 import { SupportedLanguage } from '@/lib/onboarding-store'
 
@@ -22,64 +23,69 @@ export function useVoiceFlow({
   voiceScript,
   onIntent,
   autoListen = true,
-  listenTimeoutMs = 12000,
-  repromptScript,
 }: UseVoiceFlowOptions) {
   const [voiceState, setVoiceState] = useState<VoiceState>('IDLE')
-  const [isListening, setIsListening] = useState(false)
-  const [repromptCount, setRepromptCount] = useState(0)
-  const cleanupRef = useRef<(() => void) | null>(null)
+  const isMounted = useRef(false)
   const bcp47 = LANGUAGE_TO_BCP47[language] ?? 'hi-IN'
 
-  const startListeningSession = useCallback(() => {
-    setIsListening(true)
-    setVoiceState('LISTENING')
-
-    const cleanup = startListening({
-      language: bcp47,
-      listenTimeoutMs,
-      onStateChange: (state) => {
-        setVoiceState(state)
-        if (state !== 'LISTENING') setIsListening(false)
-      },
-      onResult: (result) => {
-        const intent = detectIntent(result.transcript)
-        if (intent && onIntent) {
-          onIntent(intent)
-        } else if (onIntent) {
-          onIntent(`RAW:${result.transcript}`)
-        }
-      },
-      onError: (error) => {
-        setIsListening(false)
-        if (error === 'TIMEOUT' && repromptCount < 1) {
-          setRepromptCount(c => c + 1)
-          const repromptText = repromptScript ?? voiceScript
-          speak(repromptText, bcp47, () => {
-            if (autoListen) startListeningSession()
-          })
-        }
-      },
-    })
-    cleanupRef.current = cleanup
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [bcp47, listenTimeoutMs, repromptCount, repromptScript, voiceScript, autoListen])
-
   useEffect(() => {
+    isMounted.current = true
+
+    // Make sure the global loop is running if autoListen is true
+    if (autoListen && !isGlobalMicMuted) {
+      startListening({ language: bcp47 })
+    }
+
+    const unsubMute = subscribeToMicMute(() => {
+      if (!isGlobalMicMuted && autoListen) {
+        startListening({ language: bcp47 })
+      }
+    })
+
+    const unsubTranscript = subscribeToTranscript((transcript) => {
+      if (!isMounted.current || isGlobalMicMuted || !autoListen) return
+      
+      const intent = detectIntent(transcript)
+      if (intent && onIntent) {
+        // App visually/vocally confirms the action as requested
+        const ackMap: Record<string, string> = {
+          YES: 'आपने कहा: हाँ।',
+          NO: 'आपने कहा: नहीं।',
+          SKIP: 'आपने कहा: छोड़ें।',
+          HELP: 'आपने कहा: मदद।',
+          CHANGE: 'आपने कहा: बदलें।',
+          FORWARD: 'आपने कहा: आगे।',
+          BACK: 'आपने कहा: पीछे।'
+        }
+        const ackText = ackMap[intent] || `आपने कहा: ${transcript}`
+        
+        speak(ackText, bcp47, () => {
+          if (isMounted.current) onIntent(intent)
+        })
+      } else if (onIntent) {
+        onIntent(`RAW:${transcript}`)
+      }
+    })
+
     const ttsDelay = setTimeout(() => {
       speak(voiceScript, bcp47, () => {
-        if (autoListen) startListeningSession()
+        // We no longer trigger mic starts here, because the global
+        // loop is ALREADY running in parallel to the voice!
       })
     }, 500)
 
     return () => {
+      isMounted.current = false
+      unsubMute()
+      unsubTranscript()
       clearTimeout(ttsDelay)
       stopSpeaking()
-      stopListening()
-      cleanupRef.current?.()
+      // Notice we DO NOT call stopListening() here. 
+      // It stays strictly ON all the time across screen boundaries.
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [autoListen, bcp47, onIntent, voiceScript])
+
+  const isListening = autoListen && !isGlobalMicMuted
 
   return { voiceState, isListening }
 }

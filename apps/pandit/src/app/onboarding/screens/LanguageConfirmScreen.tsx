@@ -23,12 +23,12 @@ export default function LanguageConfirmScreen({
 }: LanguageConfirmScreenProps) {
   const { isListening } = useVoiceFlow({
     language,
-    voiceScript: `${detectedCity} ke hisaab se hum ${language} set kar rahe hain. Kya yeh theek hai? Haan bolein ya Doosri bolein.`,
+    voiceScript: `${detectedCity} के हिसाब से हम ${language} set कर रहे हैं। क्या यह ठीक है? हाँ बोलें या दूसरी बोलें।`,
     onIntent: (intent) => {
       if (intent === 'YES') onConfirm()
       else if (intent === 'NO' || intent === 'CHANGE') onChange()
     },
-    repromptScript: "Kripya 'Haan' ya 'Doosri' bolein, ya neeche button dabayein.",
+    repromptScript: "'हाँ' या 'दूसरी' बोलें, या नीचे button दबाएं।",
   })
 
   const display = LANGUAGE_DISPLAY[language]
@@ -69,8 +69,12 @@ export default function LanguageConfirmScreen({
 
       {/* Action buttons */}
       <footer className="p-6 space-y-3 mb-6">
-        <CTAButton label="हाँ, यही भाषा सही है" onClick={onConfirm} variant="primary" />
-        <CTAButton label="दूसरी भाषा चुनें" onClick={onChange} variant="secondary" />
+        <div className="animate-slide-up" style={{ animationDelay: '0.1s', animationFillMode: 'both' }}>
+          <CTAButton label="हाँ, यही भाषा सही है" onClick={onConfirm} variant="primary" />
+        </div>
+        <div className="animate-slide-up" style={{ animationDelay: '0.2s', animationFillMode: 'both' }}>
+          <CTAButton label="दूसरी भाषा चुनें" onClick={onChange} variant="secondary" />
+        </div>
       </footer>
 
       <style>{`

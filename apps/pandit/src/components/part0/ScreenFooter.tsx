@@ -14,7 +14,7 @@ export default function ScreenFooter({
   children,
 }: ScreenFooterProps) {
   return (
-    <footer className="px-4 pb-8 pt-4 space-y-3">
+    <footer className="sticky bottom-0 z-20 bg-[#FFFBF5] border-t border-[#F0E6D3] px-4 pb-8 pt-4 space-y-3">
       <div className="flex items-center justify-between min-h-[44px]">
         <VoiceIndicator isListening={isListening} />
         {onKeyboardToggle && !isListening && (

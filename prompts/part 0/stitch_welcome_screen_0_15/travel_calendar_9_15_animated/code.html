@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+
+<html lang="hi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>HmarePanditJi Tutorial - Screen 9</title>
+<!-- BEGIN: External Scripts -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'vedic-cream': '#FFFBF5',
+            'vedic-dark': '#2D1B00',
+            'vedic-saffron': '#F09942',
+            'vedic-card-bg': '#FEF3C7',
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+<!-- END: External Scripts -->
+<style data-purpose="animations">
+    @keyframes bounce-subtle {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+    .animate-bounce-subtle {
+      animation: bounce-subtle 3s ease-in-out infinite;
+    }
+    .mini-calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+    }
+  </style>
+</head>
+<body class="bg-vedic-cream text-vedic-dark font-sans selection:bg-vedic-saffron selection:text-white">
+<!-- BEGIN: Mobile Container -->
+<main class="relative mx-auto w-[390px] h-[844px] overflow-hidden flex flex-col">
+<!-- BEGIN: Persistent Tutorial Chrome (Top Bar) -->
+<header class="pt-12 px-6 flex justify-between items-center z-10">
+<!-- Progress Dots -->
+<div class="flex gap-1.5" data-purpose="tutorial-progress">
+<span class="w-2 h-2 rounded-full bg-vedic-saffron"></span>
+<span class="w-2 h-2 rounded-full bg-vedic-saffron"></span>
+<span class="w-2 h-2 rounded-full bg-vedic-saffron"></span>
+<span class="w-2 h-2 rounded-full bg-vedic-saffron"></span>
+<span class="w-2 h-2 rounded-full bg-vedic-saffron"></span>
+<span class="w-2 h-2 rounded-full bg-vedic-saffron"></span>
+<span class="w-2 h-2 rounded-full bg-vedic-saffron"></span>
+<span class="w-2 h-2 rounded-full bg-vedic-saffron"></span>
+<span class="w-2 h-2 rounded-full bg-vedic-saffron"></span>
+<span class="w-2 h-2 rounded-full bg-stone-300"></span>
+<span class="w-2 h-2 rounded-full bg-stone-300"></span>
+<span class="w-2 h-2 rounded-full bg-stone-300"></span>
+</div>
+<!-- Skip Button -->
+<button class="text-stone-400 font-medium text-sm">Skip</button>
+</header>
+<!-- END: Persistent Tutorial Chrome -->
+<!-- BEGIN: Headlines -->
+<section class="mt-8 px-6 space-y-1">
+<h1 class="text-[26px] leading-tight font-bold">Travel की Tension नहीं।</h1>
+<h1 class="text-[26px] leading-tight font-bold">Double Booking नहीं।</h1>
+</section>
+<!-- END: Headlines -->
+<!-- BEGIN: Content Area -->
+<div class="flex-1 px-6 mt-10 space-y-6">
+<!-- Travel Card -->
+<div class="bg-vedic-card-bg border-[1.5px] border-vedic-saffron rounded-[20px] p-5 shadow-sm animate-bounce-subtle" data-purpose="travel-feature-card">
+<div class="flex items-center gap-3 mb-4">
+<span class="text-3xl">🚂</span>
+<h3 class="font-bold text-lg">यात्रा के लाभ</h3>
+</div>
+<ul class="space-y-3">
+<li class="flex items-center gap-3">
+<svg class="w-5 h-5 text-vedic-saffron" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"></path></svg>
+<span class="text-[15px] font-medium">Train / Bus / Car बुकिंग</span>
+</li>
+<li class="flex items-center gap-3">
+<svg class="w-5 h-5 text-vedic-saffron" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"></path></svg>
+<span class="text-[15px] font-medium">Hotel ठहरने की व्यवस्था</span>
+</li>
+<li class="flex items-center gap-3">
+<svg class="w-5 h-5 text-vedic-saffron" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"></path></svg>
+<span class="text-[15px] font-medium">खर्च (Food) ₹1,000/दिन</span>
+</li>
+<li class="flex items-center gap-3">
+<svg class="w-5 h-5 text-vedic-saffron" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"></path></svg>
+<span class="text-[15px] font-medium">GPS लोकेशन अपडेट्स</span>
+</li>
+</ul>
+</div>
+<!-- Calendar Card -->
+<div class="bg-white border-[1.5px] border-dashed border-[#F0E6D3] rounded-[20px] p-5 shadow-sm" data-purpose="calendar-prevention-card">
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center gap-3">
+<span class="text-2xl">📅</span>
+<h3 class="font-bold text-lg">स्मार्ट कैलेंडर</h3>
+</div>
+<span class="text-[12px] bg-red-50 text-red-500 px-2 py-0.5 rounded-full font-bold">Auto-Blocked</span>
+</div>
+<!-- Mini Calendar Grid -->
+<div class="mini-calendar-grid opacity-80">
+<!-- Dummy dates -->
+<div class="text-center py-2 text-xs font-bold text-stone-300">M</div>
+<div class="text-center py-2 text-xs font-bold text-stone-300">T</div>
+<div class="text-center py-2 text-xs font-bold text-stone-300">W</div>
+<div class="text-center py-2 text-xs font-bold text-stone-300">T</div>
+<div class="text-center py-2 text-xs font-bold text-stone-300">F</div>
+<div class="text-center py-2 text-xs font-bold text-stone-300">S</div>
+<div class="text-center py-2 text-xs font-bold text-stone-300 text-red-300">S</div>
+<div class="aspect-square bg-stone-50 rounded-md flex items-center justify-center text-[10px]">12</div>
+<div class="aspect-square bg-stone-50 rounded-md flex items-center justify-center text-[10px]">13</div>
+<div class="aspect-square bg-red-50 rounded-md flex items-center justify-center text-red-600 font-bold text-sm">✕</div>
+<div class="aspect-square bg-red-50 rounded-md flex items-center justify-center text-red-600 font-bold text-sm">✕</div>
+<div class="aspect-square bg-stone-50 rounded-md flex items-center justify-center text-[10px]">16</div>
+<div class="aspect-square bg-stone-50 rounded-md flex items-center justify-center text-[10px]">17</div>
+<div class="aspect-square bg-stone-50 rounded-md flex items-center justify-center text-[10px]">18</div>
+</div>
+<p class="mt-4 text-xs text-stone-500 italic text-center leading-relaxed">एक बार बुक होने पर वो स्लॉट अपने आप हट जाएगा।</p>
+</div>
+</div>
+<!-- END: Content Area -->
+<!-- BEGIN: Interactive Controls -->
+<footer class="mt-auto pb-10 px-6 space-y-6">
+<!-- Voice & Keyboard Toggles -->
+<div class="flex justify-between items-center">
+<!-- Voice Status Indicator -->
+<div class="flex items-center gap-2 bg-white/80 backdrop-blur-sm border border-stone-100 px-4 py-2 rounded-full shadow-sm">
+<div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+<span class="text-xs font-medium text-stone-600">सुन रहा हूँ...</span>
+</div>
+<!-- Keyboard Toggle -->
+<button class="p-3 bg-white border border-stone-200 rounded-full shadow-sm" data-purpose="keyboard-toggle">
+<svg class="w-5 h-5 text-stone-600" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M18 10V7a2 2 0 00-2-2H8a2 2 0 00-2 2v3m12 0a2 2 0 012 2v3a2 2 0 01-2 2H6a2 2 0 01-2-2v-3a2 2 0 012-2m12 0h-3m-3 0H9m-3 0H6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+</div>
+<!-- Main CTA Button -->
+<button class="w-full h-16 bg-vedic-saffron rounded-2xl flex items-center justify-center gap-2 text-white text-[22px] font-bold shadow-lg shadow-vedic-saffron/30 active:scale-[0.98] transition-transform">
+        अगला फ़ायदा देखें 
+        <span class="text-2xl">→</span>
+</button>
+</footer>
+<!-- END: Interactive Controls -->
+</main>
+<!-- END: Mobile Container -->
+<!-- JavaScript for micro-interactions -->
+<script data-purpose="event-handlers">
+    document.querySelector('[data-purpose="keyboard-toggle"]').addEventListener('click', () => {
+      console.log('Keyboard view toggled');
+      // Potential logic for switching input modes
+    });
+  </script>
+</body></html>

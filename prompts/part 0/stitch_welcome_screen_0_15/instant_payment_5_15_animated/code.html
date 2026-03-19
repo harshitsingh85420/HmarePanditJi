@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+
+<html lang="hi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#f09f42",
+                        "background-light": "#FFFBF5",
+                        "background-dark": "#221a10",
+                    },
+                    fontFamily: {
+                        "display": ["Work Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .success-glow {
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.2);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display antialiased text-slate-900 dark:text-slate-100">
+<div class="relative flex min-h-screen w-full flex-col max-w-md mx-auto overflow-x-hidden border-x border-primary/10">
+<!-- Header / Navigation -->
+<div class="flex items-center p-4 pb-2 justify-between">
+<div class="text-slate-900 dark:text-slate-100 flex size-12 shrink-0 items-center">
+<span class="material-symbols-outlined text-2xl cursor-pointer">arrow_back</span>
+</div>
+<h2 class="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight tracking-tight flex-1 text-center">
+                पैसे 2 मिनट में।
+            </h2>
+<div class="flex w-12 items-center justify-end">
+<p class="text-primary text-base font-bold leading-normal cursor-pointer">Skip</p>
+</div>
+</div>
+<!-- Progress Indicator -->
+<div class="flex flex-col gap-3 p-4">
+<div class="flex gap-6 justify-between items-end">
+<p class="text-slate-900 dark:text-slate-100 text-base font-medium leading-normal">Part 6/15</p>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-normal leading-normal">40% complete</p>
+</div>
+<div class="rounded-full bg-primary/20 h-2 w-full">
+<div class="h-2 rounded-full bg-primary" style="width: 40%;"></div>
+</div>
+</div>
+<!-- Headline Section -->
+<div class="px-4 pt-6 pb-4">
+<h1 class="text-slate-900 dark:text-slate-100 text-[32px] font-bold leading-tight">
+                पूजा ख़त्म।
+            </h1>
+<h1 class="text-primary text-[32px] font-bold leading-tight">
+                पैसे 2 मिनट में।
+            </h1>
+</div>
+<!-- Main Content Area -->
+<div class="flex flex-col gap-6 p-4">
+<!-- Timeline Card -->
+<div class="bg-white dark:bg-background-dark/50 rounded-xl p-5 border border-primary/10 shadow-sm">
+<div class="space-y-4">
+<div class="flex items-start gap-4">
+<div class="flex flex-col items-center">
+<span class="material-symbols-outlined text-primary text-xl">check_circle</span>
+<div class="w-0.5 h-8 bg-primary/20"></div>
+</div>
+<div class="flex-1">
+<p class="text-slate-900 dark:text-slate-100 font-semibold text-sm">3:30 PM</p>
+<p class="text-slate-500 dark:text-slate-400 text-sm">पूजा संपन्न हुई (Dakshina confirmed)</p>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<div class="flex flex-col items-center">
+<span class="material-symbols-outlined text-primary text-xl">account_balance_wallet</span>
+<div class="w-0.5 h-8 bg-primary/20"></div>
+</div>
+<div class="flex-1">
+<p class="text-slate-900 dark:text-slate-100 font-semibold text-sm">3:31 PM</p>
+<p class="text-slate-500 dark:text-slate-400 text-sm">Processing instant settlement...</p>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<div class="flex flex-col items-center">
+<span class="material-symbols-outlined text-green-600 text-xl">paid</span>
+</div>
+<div class="flex-1">
+<p class="text-green-600 dark:text-green-400 font-bold text-sm">3:32 PM</p>
+<p class="text-slate-900 dark:text-slate-100 font-medium text-sm">बैंक खाते में जमा!</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Payment Breakdown Card -->
+<div class="bg-white dark:bg-background-dark/50 rounded-xl p-5 border border-primary/10 shadow-sm success-glow">
+<div class="flex justify-between items-center mb-4">
+<h3 class="font-bold text-slate-800 dark:text-slate-200">Payment Summary</h3>
+<span class="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">Success</span>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between text-sm">
+<span class="text-slate-500 dark:text-slate-400">Total Dakshina</span>
+<span class="text-slate-900 dark:text-slate-100 font-medium">₹2,735</span>
+</div>
+<div class="flex justify-between text-sm">
+<span class="text-slate-500 dark:text-slate-400">Platform Fee (15%)</span>
+<span class="text-red-500 font-medium">- ₹410</span>
+</div>
+<div class="h-px bg-slate-100 dark:bg-slate-800 my-2"></div>
+<div class="flex justify-between items-center">
+<span class="text-slate-900 dark:text-slate-100 font-bold">You Received</span>
+<span class="text-green-600 dark:text-green-400 text-2xl font-bold">₹2,325</span>
+</div>
+</div>
+<div class="mt-4 p-3 bg-primary/5 rounded-lg flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm">info</span>
+<p class="text-[11px] text-slate-600 dark:text-slate-400">Honest 15% platform fee for server, marketing and secure transfers.</p>
+</div>
+</div>
+</div>
+<!-- Voice & Keyboard Status Floating Bar -->
+<div class="px-4 py-2 flex items-center justify-between">
+<div class="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+</span>
+<span class="text-xs font-medium text-slate-600 dark:text-slate-400 uppercase tracking-widest">Voice: Active</span>
+</div>
+<button class="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+<span class="material-symbols-outlined">keyboard</span>
+</button>
+</div>
+<!-- Footer Spacer for CTA -->
+<div class="h-24"></div>
+<!-- Bottom CTA -->
+<div class="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-4 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md">
+<button class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-xl shadow-lg flex items-center justify-center gap-2 transition-transform active:scale-95">
+                अगला फ़ायदा देखें
+                <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+<!-- Bottom Navigation Bar (Persistent Chrome) -->
+<div class="mt-auto border-t border-primary/10 bg-white dark:bg-background-dark/90 px-4 pb-6 pt-2 flex justify-between items-center">
+<a class="flex flex-1 flex-col items-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined">home</span>
+</a>
+<a class="flex flex-1 flex-col items-center gap-1 text-slate-400 dark:text-slate-600" href="#">
+<span class="material-symbols-outlined">history</span>
+</a>
+<a class="flex flex-1 flex-col items-center gap-1 text-slate-900 dark:text-slate-100" href="#">
+<span class="material-symbols-outlined text-[32px] font-fill">account_balance_wallet</span>
+</a>
+<a class="flex flex-1 flex-col items-center gap-1 text-slate-400 dark:text-slate-600" href="#">
+<span class="material-symbols-outlined">chat</span>
+</a>
+<a class="flex flex-1 flex-col items-center gap-1 text-slate-400 dark:text-slate-600" href="#">
+<span class="material-symbols-outlined">person</span>
+</a>
+</div>
+</div>
+</body></html>

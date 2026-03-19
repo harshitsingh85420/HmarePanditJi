@@ -60,15 +60,22 @@ export default function OnboardingPage() {
   })
 
   useEffect(() => {
+    // Guard against React Strict Mode double-invocation
+    let cancelled = false
+
     const saved = loadOnboardingState()
 
     if (saved.tutorialCompleted) {
-      router.replace('/onboarding/register')
-      return
+      if (!cancelled) router.replace('/onboarding/register')
+      return () => { cancelled = true }
     }
 
-    setState(saved)
-    setIsLoaded(true)
+    if (!cancelled) {
+      setState(saved)
+      setIsLoaded(true)
+    }
+
+    return () => { cancelled = true }
   }, [router])
 
   const updateState = useCallback((updates: Partial<OnboardingState>) => {

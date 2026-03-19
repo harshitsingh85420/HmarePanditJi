@@ -18,7 +18,7 @@ export default function VoiceIndicator({
         <div className="voice-bar" style={{ animationDelay: '0.2s' }} />
         <div className="voice-bar" style={{ animationDelay: '0.4s' }} />
       </div>
-      <span className="text-[#9B7B52] text-sm">{label}</span>
+      <span className="text-[#F09942] font-bold text-base">{label}</span>
     </div>
   )
 }

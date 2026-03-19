@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+
+<html lang="hi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>HmarePanditJi Voice Tutorial</title>
+<!-- Tailwind CSS with Plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts: Hind for Hindi support -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Hind:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'shaffron-border': '#F97316',
+            'brand-bg': '#FFFBF5',
+            'demo-bg': '#FEF3C7',
+          },
+          fontFamily: {
+            hind: ['Hind', 'sans-serif'],
+          },
+          animation: {
+            'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+          }
+        }
+      }
+    }
+  </script>
+<style data-purpose="custom-animations">
+    @keyframes waves {
+      0% { transform: scale(1); opacity: 0.8; }
+      100% { transform: scale(1.5); opacity: 0; }
+    }
+    .wave-ring {
+      position: absolute;
+      border: 2px solid #F97316;
+      border-radius: 50%;
+      animation: waves 2s infinite;
+    }
+    .wave-ring-delayed {
+      animation-delay: 1s;
+    }
+  </style>
+</head>
+<body class="bg-brand-bg font-hind text-slate-800 min-h-screen flex flex-col">
+<!-- BEGIN: MainHeader -->
+<header class="pt-8 px-6 text-center">
+<h1 class="text-2xl font-bold text-orange-800" data-purpose="tutorial-title">
+      Voice Micro-Tutorial
+    </h1>
+<span class="inline-block mt-2 px-4 py-1 bg-orange-100 text-orange-700 rounded-full text-sm font-semibold tracking-wide" data-purpose="section-label">
+      एक ज़रूरी बात
+    </span>
+</header>
+<!-- END: MainHeader -->
+<!-- BEGIN: IllustrationSection -->
+<main class="flex-grow flex flex-col items-center px-6 py-8">
+<!-- Illustration of person holding phone with sound waves -->
+<div class="relative w-48 h-48 mb-8 flex items-center justify-center" data-purpose="visual-aid">
+<!-- Placeholder for Person Illustration -->
+<div class="w-32 h-32 bg-orange-200 rounded-full flex items-center justify-center relative z-10 overflow-hidden">
+<svg class="w-20 h-20 text-orange-600" fill="currentColor" viewbox="0 0 24 24">
+<path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path>
+</svg>
+</div>
+<!-- Animated Sound Waves -->
+<div class="absolute inset-0 flex items-center justify-center">
+<div class="wave-ring w-32 h-32"></div>
+<div class="wave-ring wave-ring-delayed w-32 h-32"></div>
+</div>
+<!-- Phone Indicator -->
+<div class="absolute bottom-4 right-4 bg-white p-2 rounded-lg shadow-md border border-orange-100 z-20">
+<svg class="w-6 h-6 text-orange-500" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+</div>
+<!-- Instruction Text -->
+<div class="text-center mb-8 px-4" data-purpose="instruction-container">
+<p class="text-lg font-medium leading-relaxed">
+        जब यह दिखे: 
+        <span class="inline-flex items-center px-2 py-0.5 bg-white border border-orange-300 rounded-md mx-1">
+<svg class="w-4 h-4 text-orange-500 mr-1" fill="currentColor" viewbox="0 0 20 20"><path d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z"></path></svg>
+<span class="text-xs text-orange-600 font-bold uppercase">Live</span>
+</span> 
+        तब बोलिए.
+      </p>
+</div>
+<!-- BEGIN: DemoInteraction -->
+<section class="w-full max-w-sm" data-purpose="interactive-demo">
+<div class="bg-demo-bg border-2 border-dashed border-shaffron-border rounded-3xl p-10 flex flex-col items-center justify-center transition-all duration-300" id="interaction-box">
+<!-- Pulsing Mic Icon -->
+<button class="w-24 h-24 bg-white rounded-full shadow-lg flex items-center justify-center text-orange-600 animate-pulse-fast hover:scale-105 transition-transform" data-purpose="mic-trigger" id="mic-button">
+<svg class="w-12 h-12" fill="currentColor" viewbox="0 0 20 20">
+<path d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z"></path>
+</svg>
+</button>
+<p class="mt-6 text-orange-800 font-semibold text-center">बटन दबाकर बोलें</p>
+<!-- Success Feedback (Hidden by default) -->
+<div class="mt-4 opacity-0 scale-95 transition-all duration-500 pointer-events-none" id="success-pill">
+<div class="bg-green-100 text-green-700 px-6 py-2 rounded-full font-bold shadow-sm flex items-center gap-2">
+<span>✅</span>
+<span>शाबाश! बिल्कुल सही!</span>
+</div>
+</div>
+</div>
+</section>
+<!-- END: DemoInteraction -->
+</main>
+<!-- END: IllustrationSection -->
+<!-- BEGIN: FooterActions -->
+<footer class="p-6 space-y-4">
+<button class="w-full py-4 bg-orange-600 text-white rounded-2xl text-xl font-bold shadow-lg shadow-orange-200 hover:bg-orange-700 active:scale-[0.98] transition-all flex items-center justify-center gap-2" data-purpose="primary-cta">
+      समझ गया, आगे चलें 
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+<div class="flex justify-end">
+<!-- Keyboard Toggle -->
+<button class="p-3 text-slate-400 hover:text-slate-600 flex items-center gap-1 text-sm font-medium" data-purpose="keyboard-toggle">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+        टाइप करें
+      </button>
+</div>
+</footer>
+<!-- END: FooterActions -->
+<!-- BEGIN: InteractionLogic -->
+<script data-purpose="demo-handler">
+    const micBtn = document.getElementById('mic-button');
+    const successPill = document.getElementById('success-pill');
+    const interactionBox = document.getElementById('interaction-box');
+
+    micBtn.addEventListener('click', () => {
+      // Simulate listening state
+      micBtn.classList.remove('animate-pulse-fast');
+      micBtn.classList.add('ring-4', 'ring-orange-300');
+      
+      // Simulate successful speech detection after 1.5s
+      setTimeout(() => {
+        successPill.classList.remove('opacity-0', 'scale-95');
+        successPill.classList.add('opacity-100', 'scale-100');
+        interactionBox.classList.add('bg-green-50', 'border-green-300');
+        interactionBox.classList.remove('bg-demo-bg', 'border-shaffron-border');
+        micBtn.classList.remove('ring-4', 'ring-orange-300');
+      }, 1500);
+    });
+  </script>
+<!-- END: InteractionLogic -->
+</body></html>

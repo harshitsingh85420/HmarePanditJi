@@ -23,7 +23,7 @@ export default function LanguageSetScreen({ language, onComplete }: LanguageSetS
     const nativeName = LANGUAGE_DISPLAY[language].nativeName
 
     const speakTimer = setTimeout(() => {
-      speak(`Bahut achha! Ab hum aapse ${nativeName} mein baat karenge.`, bcp47)
+      speak(`बहुत अच्छा! अब हम आपसे ${nativeName} में बात करेंगे।`, bcp47)
     }, 300)
 
     const timer = setTimeout(() => {

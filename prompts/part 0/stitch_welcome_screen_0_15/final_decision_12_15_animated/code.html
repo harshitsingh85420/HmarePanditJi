@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+
+<html lang="hi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>HmarePanditJi - Tutorial Final Step</title>
+<!-- Tailwind CSS CDN with plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style data-purpose="typography">
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&display=swap');
+    
+    body {
+      font-family: 'Noto Sans Devanagari', sans-serif;
+      background-color: #FFFBF5;
+      color: #2D1B00;
+      overflow: hidden; /* Prevent scrolling for the fixed app feel */
+    }
+  </style>
+<style data-purpose="animations">
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+      100% { transform: translateY(0px); }
+    }
+    .animate-float {
+      animation: float 3s ease-in-out infinite;
+    }
+    .tap-effect:active {
+      transform: scale(0.98);
+    }
+  </style>
+</head>
+<body class="flex flex-col h-[844px] w-[390px] mx-auto relative bg-[#FFFBF5]">
+<!-- BEGIN: Tutorial Chrome -->
+<header class="pt-12 px-6 flex flex-col gap-4" data-purpose="header-navigation">
+<!-- Progress Dots: 12 of 12 filled -->
+<div class="flex justify-center gap-1.5" data-purpose="progress-indicator">
+<div class="w-2 h-2 rounded-full bg-[#DC6803]"></div>
+<div class="w-2 h-2 rounded-full bg-[#DC6803]"></div>
+<div class="w-2 h-2 rounded-full bg-[#DC6803]"></div>
+<div class="w-2 h-2 rounded-full bg-[#DC6803]"></div>
+<div class="w-2 h-2 rounded-full bg-[#DC6803]"></div>
+<div class="w-2 h-2 rounded-full bg-[#DC6803]"></div>
+<div class="w-2 h-2 rounded-full bg-[#DC6803]"></div>
+<div class="w-2 h-2 rounded-full bg-[#DC6803]"></div>
+<div class="w-2 h-2 rounded-full bg-[#DC6803]"></div>
+<div class="w-2 h-2 rounded-full bg-[#DC6803]"></div>
+<div class="w-2 h-2 rounded-full bg-[#DC6803]"></div>
+<div class="w-2 h-2 rounded-full bg-[#DC6803]"></div>
+</div>
+</header>
+<!-- END: Tutorial Chrome -->
+<!-- BEGIN: Main Content -->
+<main class="flex-1 flex flex-col items-center px-8 pt-8 text-center" data-purpose="main-layout">
+<!-- Hero Illustration -->
+<div class="relative w-64 h-64 mb-10 flex items-center justify-center animate-float" data-purpose="hero-illustration">
+<!-- Decorative Backdrop Circles -->
+<div class="absolute inset-0 bg-[#F0E6D3] opacity-50 rounded-full scale-110"></div>
+<!-- Illustration Placeholder -->
+<img alt="Confident Pandit with Phone" class="relative z-10 w-full h-full object-contain rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBRWa_13F4-aVsD0ktpjx7I-0ylP0a-7XTfzUPyWcReq5rZvxBmZibCypToJibCKn_H0Im6IHsbFF3GPp29X1i-J10S4_o5uq59JgrlacGQ4D8JSNphmdVtRz33LI9Pkc8LTEp15_cvo5UD1fCn6b5v73eHx_qhRumw7i1TMSLKJxp7ausFDM5b1XMFVpSDbMQpEqO-JYe8tjOYgHvqPeOBoxrwsAOVs4uWwHvToaUabgP6dduc1Qr7w0gfiluxENdlKQ4jE_tK_nl5"/>
+</div>
+<!-- Headlines -->
+<div class="space-y-4" data-purpose="copytext">
+<h1 class="text-[32px] font-bold leading-tight text-[#2D1B00]">
+        Registration शुरू करें?
+      </h1>
+<div class="space-y-1">
+<p class="text-[22px] font-semibold text-[#15803D]">
+          बिल्कुल मुफ़्त।
+        </p>
+<p class="text-[20px] font-normal text-[#6B4F2A]">
+          10 मिनट लगेंगे।
+        </p>
+</div>
+</div>
+<!-- CTA Buttons Container -->
+<div class="w-full mt-12 space-y-4" data-purpose="action-buttons">
+<!-- Primary CTA -->
+<button class="w-full h-[72px] bg-[#DC6803] text-white rounded-2xl flex items-center justify-center gap-2 text-[22px] font-bold shadow-lg shadow-orange-200 tap-effect transition-transform" data-purpose="primary-action">
+<span>✅</span> हाँ, Registration शुरू करें →
+      </button>
+<!-- Secondary CTA -->
+<button class="w-full h-[56px] bg-white text-[#6B4F2A] border-2 border-[#F0E6D3] rounded-2xl text-[18px] font-semibold tap-effect transition-transform" data-purpose="secondary-action">
+        बाद में करूँगा
+      </button>
+</div>
+</main>
+<!-- END: Main Content -->
+<!-- BEGIN: Bottom Interaction Bar -->
+<footer class="pb-10 px-8" data-purpose="footer-controls">
+<!-- Helpline Section -->
+<div class="mb-8 text-center" data-purpose="helpline-info">
+<p class="text-[14px] text-[#6B4F2A] opacity-70 mb-1">मदद चाहिए? टोल-फ्री कॉल करें</p>
+<a class="text-[18px] font-bold text-[#DC6803] tracking-wide" href="tel:1800-HPJ-HELP">
+        1800-HPJ-HELP
+      </a>
+</div>
+<!-- Bottom Action Icons -->
+<div class="flex justify-between items-center px-4" data-purpose="persistent-controls">
+<!-- Keyboard Toggle (Inactive) -->
+<button class="p-3 opacity-30 grayscale cursor-not-allowed" title="Keyboard Toggle (Disabled)">
+<svg fill="none" height="28" stroke="#6B4F2A" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
+<rect height="16" rx="2" ry="2" width="20" x="2" y="4"></rect>
+<path d="M6 8h.01"></path><path d="M10 8h.01"></path><path d="M14 8h.01"></path><path d="M18 8h.01"></path>
+<path d="M6 12h.01"></path><path d="M10 12h.01"></path><path d="M14 12h.01"></path><path d="M18 12h.01"></path>
+<path d="M7 16h10"></path>
+</svg>
+</button>
+<!-- Voice Status Indicator (Inactive) -->
+<div class="flex flex-col items-center gap-1 opacity-40 grayscale" data-purpose="voice-indicator">
+<div class="w-12 h-12 rounded-full border-2 border-[#6B4F2A] flex items-center justify-center">
+<svg fill="none" height="24" stroke="#6B4F2A" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+<path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+<line x1="12" x2="12" y1="19" y2="23"></line>
+<line x1="8" x2="16" y1="23" y2="23"></line>
+</svg>
+</div>
+<span class="text-[10px] font-semibold uppercase tracking-widest text-[#6B4F2A]">Inactive</span>
+</div>
+<!-- Settings/Info Placeholder (Optional for balance) -->
+<button class="p-3 opacity-30 grayscale cursor-not-allowed">
+<svg fill="none" height="28" stroke="#6B4F2A" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg">
+<circle cx="12" cy="12" r="10"></circle>
+<line x1="12" x2="12" y1="16" y2="12"></line>
+<line x1="12" x2="12.01" y1="8" y2="8"></line>
+</svg>
+</button>
+</div>
+</footer>
+<!-- END: Bottom Interaction Bar -->
+</body></html>

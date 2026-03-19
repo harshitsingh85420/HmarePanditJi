@@ -20,7 +20,7 @@ export default function TutorialVoiceNav({ language, onLanguageChange, currentDo
     const bcp47 = LANGUAGE_TO_BCP47[language] ?? 'hi-IN'
     const t = setTimeout(() => {
       speak(
-        "Yeh app aapki aawaz se chalta hai. Abhi koshish kariye — 'haan' ya 'nahi' boliye. Mic abhi sun raha hai.",
+        "यह App आपकी आवाज़ से चलता है। अभी कोशिश करिए — 'हाँ' या 'नहीं' बोलिए। Mic अभी सुन रहा है।",
         bcp47,
         () => startDemo()
       )
@@ -63,21 +63,59 @@ export default function TutorialVoiceNav({ language, onLanguageChange, currentDo
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-5">
-        <h2 className="text-[30px] font-bold text-[#2D1B00] text-center">टाइपिंग की ज़रूरत नहीं।</h2>
+        <h2 className="text-[30px] font-bold text-[#2D1B00] text-center animate-fade-in">टाइपिंग की ज़रूरत नहीं।</h2>
 
-        {/* Illustration */}
-        <div className="flex justify-center">
-          <div className="relative w-[160px] h-[160px] flex items-center justify-center">
-            <div className="absolute inset-0 rounded-full bg-[#FEF3C7]" />
-            <div className="absolute inset-2 rounded-full border-2 border-[#F09942]/20 animate-ping" />
-            <div className="absolute inset-4 rounded-full border-2 border-[#F09942]/10 animate-ping" style={{ animationDelay: '0.5s' }} />
-            <span className="relative z-10 text-[64px]">🎤</span>
+        {/* Illustration — phone with sound waves */}
+        <div className="flex justify-center animate-fade-up stagger-1" style={{ opacity: 0, animationFillMode: 'forwards' }}>
+          <div className="relative w-[180px] h-[160px] flex items-center justify-center animate-float">
+            <div className="absolute inset-0 rounded-full bg-[#FEF3C7] animate-pulse-amber" />
+            <svg
+              viewBox="0 0 180 160"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              className="relative z-10 w-full h-full"
+              aria-hidden="true"
+            >
+              {/* Phone body */}
+              <rect x="66" y="28" width="48" height="84" rx="8" fill="#2D1B00" />
+              {/* Phone screen */}
+              <rect x="69" y="34" width="42" height="64" rx="4" fill="#DBEAFE" />
+              {/* App UI on screen */}
+              <rect x="73" y="39" width="34" height="6" rx="2" fill="#F09942" opacity="0.85" />
+              <rect x="73" y="49" width="26" height="3" rx="1.5" fill="#9CA3AF" opacity="0.5" />
+              <rect x="73" y="55" width="22" height="3" rx="1.5" fill="#9CA3AF" opacity="0.4" />
+              {/* Waveform bars on screen — voice active */}
+              <rect x="75" y="64" width="3" height="8" rx="1.5" fill="#F09942" opacity="0.9" />
+              <rect x="81" y="60" width="3" height="16" rx="1.5" fill="#F09942" />
+              <rect x="87" y="66" width="3" height="6" rx="1.5" fill="#F09942" opacity="0.9" />
+              <rect x="93" y="62" width="3" height="12" rx="1.5" fill="#F09942" opacity="0.8" />
+              <rect x="99" y="65" width="3" height="8" rx="1.5" fill="#F09942" opacity="0.7" />
+              {/* Phone home indicator */}
+              <rect x="82" y="103" width="16" height="2" rx="1" fill="#6B7280" opacity="0.4" />
+              {/* Speaker top */}
+              <rect x="82" y="31" width="16" height="2" rx="1" fill="#6B7280" opacity="0.5" />
+
+              {/* Sound wave arcs — left side */}
+              <path d="M58,65 Q46,80 58,95" stroke="#F09942" strokeWidth="3" fill="none" strokeLinecap="round" opacity="0.85" />
+              <path d="M48,58 Q30,80 48,102" stroke="#F09942" strokeWidth="2.5" fill="none" strokeLinecap="round" opacity="0.5" />
+              <path d="M40,52 Q18,80 40,108" stroke="#F09942" strokeWidth="2" fill="none" strokeLinecap="round" opacity="0.25" />
+
+              {/* Sound wave arcs — right side */}
+              <path d="M122,65 Q134,80 122,95" stroke="#F09942" strokeWidth="3" fill="none" strokeLinecap="round" opacity="0.85" />
+              <path d="M132,58 Q150,80 132,102" stroke="#F09942" strokeWidth="2.5" fill="none" strokeLinecap="round" opacity="0.5" />
+              <path d="M140,52 Q162,80 140,108" stroke="#F09942" strokeWidth="2" fill="none" strokeLinecap="round" opacity="0.25" />
+
+              {/* "हाँ" speech bubble */}
+              <rect x="108" y="22" width="38" height="22" rx="8" fill="#F09942" />
+              <path d="M114,44 L110,50 L120,44" fill="#F09942" />
+              <text x="127" y="38" textAnchor="middle" fontSize="11" fill="white" fontWeight="bold" fontFamily="sans-serif">हाँ ✓</text>
+            </svg>
           </div>
         </div>
-        <p className="text-[18px] text-[#9B7B52] text-center">बोलो → लिखाई हो जाती है</p>
+        <p className="text-[18px] text-[#9B7B52] text-center animate-fade-up stagger-2" style={{ opacity: 0, animationFillMode: 'forwards' }}>बोलो → लिखाई हो जाती है</p>
 
         {/* Instruction */}
-        <div className="text-center space-y-2">
+        <div className="text-center space-y-2 animate-fade-up stagger-3" style={{ opacity: 0, animationFillMode: 'forwards' }}>
           <p className="text-[20px] text-[#2D1B00]">जब यह दिखे:</p>
           <div className="inline-flex items-center gap-2 bg-[#FEF3C7] border border-[#F09942] rounded-full px-4 py-2">
             <div className="flex items-end gap-1 h-4">
@@ -91,7 +129,7 @@ export default function TutorialVoiceNav({ language, onLanguageChange, currentDo
         </div>
 
         {/* Interactive demo */}
-        <div>
+        <div className="animate-fade-up stagger-4" style={{ opacity: 0, animationFillMode: 'forwards' }}>
           <div
             className="w-full h-[104px] border-2 border-dashed rounded-[20px] flex flex-col items-center justify-center gap-2 transition-colors"
             style={{
@@ -99,9 +137,21 @@ export default function TutorialVoiceNav({ language, onLanguageChange, currentDo
               borderColor: demoState === 'success' ? '#15803D' : '#F09942',
             }}
           >
-            <div className="relative">
-              <div className="absolute inset-0 bg-[#F09942] rounded-full animate-ping opacity-25 scale-125" />
-              <span className="relative text-[44px]">🎤</span>
+            <div className="relative w-12 h-12 flex items-center justify-center flex-shrink-0">
+              {demoState === 'listening' && (
+                <div className="absolute inset-0 bg-[#F09942] rounded-full animate-ping opacity-25" />
+              )}
+              <svg viewBox="0 0 48 48" fill="none" className="relative z-10 w-10 h-10" aria-hidden="true">
+                <rect x="14" y="4" width="20" height="30" rx="10" fill="#2D1B00" />
+                <rect x="17" y="7" width="14" height="22" rx="5" fill="#DBEAFE" />
+                {/* Waveform bars */}
+                <rect x="19" y="18" width="2" height="6" rx="1" fill="#F09942" opacity="0.9" />
+                <rect x="23" y="15" width="2" height="12" rx="1" fill="#F09942" />
+                <rect x="27" y="19" width="2" height="5" rx="1" fill="#F09942" opacity="0.8" />
+                {/* Stand */}
+                <path d="M12,32 Q12,42 24,42 Q36,42 36,32" stroke="#F09942" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+                <line x1="24" y1="42" x2="24" y2="46" stroke="#F09942" strokeWidth="2.5" strokeLinecap="round" />
+              </svg>
             </div>
             <p className="text-[18px] text-[#6B4F2A]">
               {demoState === 'listening' ? 'सुन रहा हूँ...' : 'हाँ या नहीं बोलकर देखें'}
@@ -117,10 +167,10 @@ export default function TutorialVoiceNav({ language, onLanguageChange, currentDo
           )}
         </div>
 
-        <p className="text-[16px] text-[#9B7B52] text-center">अगर बोलने में दिक्कत हो: <strong>⌨️ Keyboard हमेशा नीचे है</strong></p>
+        <p className="text-[16px] text-[#9B7B52] text-center">अगर बोलने में दिक्कत हो: नीचे का <strong>Button दबाएं →</strong></p>
       </div>
 
-      <ScreenFooter isListening={demoState === 'listening'} onKeyboardToggle={() => {}}>
+      <ScreenFooter isListening={demoState === 'listening'}>
         <CTAButton label="अगला फ़ायदा देखें →" onClick={onNext} variant="primary" />
       </ScreenFooter>
 

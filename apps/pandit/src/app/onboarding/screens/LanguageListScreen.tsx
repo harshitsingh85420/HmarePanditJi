@@ -24,7 +24,7 @@ export default function LanguageListScreen({
 
   useVoiceFlow({
     language,
-    voiceScript: 'Apni bhasha chuniye. Boliye ya neeche tap karein.',
+    voiceScript: 'अपनी भाषा चुनें। बोलें या नीचे tap करें।',
     onIntent: (intent) => {
       if (intent.startsWith('RAW:')) {
         const transcript = intent.replace('RAW:', '')
@@ -49,10 +49,10 @@ export default function LanguageListScreen({
       <TopBar showBack={true} onBack={onBack} onLanguageChange={onLanguageChange} />
 
       <div className="px-6 pt-4 flex flex-col flex-1 gap-4">
-        <h1 className="text-[28px] font-bold text-[#2D1B00]">अपनी भाषा चुनें</h1>
+        <h1 className="text-[28px] font-bold text-[#2D1B00] animate-fade-in">अपनी भाषा चुनें</h1>
 
         {/* Voice input box */}
-        <div className="bg-[#FEF3C7] border-2 border-[#F09942] rounded-2xl p-4 flex items-center gap-4">
+        <div className="bg-[#FEF3C7] border-2 border-[#F09942] rounded-2xl p-4 flex items-center gap-4 animate-fade-up stagger-1" style={{ opacity: 0, animationFillMode: 'forwards' }}>
           <div className="bg-white p-2 rounded-full animate-pulse shadow-sm">
             <svg className="h-6 w-6 text-[#F09942]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" strokeLinecap="round" strokeLinejoin="round" />
@@ -65,7 +65,7 @@ export default function LanguageListScreen({
         </div>
 
         {/* Search */}
-        <div className="relative">
+        <div className="relative animate-fade-up stagger-2" style={{ opacity: 0, animationFillMode: 'forwards' }}>
           <span className="absolute inset-y-0 left-0 flex items-center pl-3">
             <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" strokeLinecap="round" strokeLinejoin="round" />
@@ -93,11 +93,12 @@ export default function LanguageListScreen({
                   setTimeout(() => onSelect(lang), 200)
                 }}
                 className={[
-                  'relative flex items-center h-16 rounded-xl border px-3 gap-3 text-left transition-all',
+                  `grid-item relative flex items-center h-16 rounded-xl border px-3 gap-3 text-left transition-all animate-fade-up stagger-${(filtered.indexOf(lang) % 6) + 3}`,
                   isActive
                     ? 'bg-[#FEF3C7] border-2 border-[#F09942]'
                     : 'bg-white border-[#F0E6D3] hover:border-[#F09942]',
                 ].join(' ')}
+                style={{ opacity: 0, animationFillMode: 'forwards' }}
               >
                 {isActive && (
                   <div className="absolute top-1 right-1">
@@ -114,6 +115,21 @@ export default function LanguageListScreen({
               </button>
             )
           })}
+
+          {/* + More cell — shown only when not searching */}
+          {!search && (
+            <button
+              className="grid-item relative flex items-center h-16 rounded-xl border border-dashed border-[#9B7B52]/40 px-3 gap-3 text-left bg-[#FFFBF5] hover:border-[#F09942]/60 transition-all"
+              onClick={() => setSearch(' ')}
+              aria-label="और भाषाएं देखें"
+            >
+              <span className="text-2xl font-bold text-[#9B7B52]">+</span>
+              <div>
+                <p className="font-semibold text-sm text-[#9B7B52]">+ अधिक</p>
+                <p className="text-xs text-[#9B7B52]/60">More Languages</p>
+              </div>
+            </button>
+          )}
         </div>
       </div>
     </div>

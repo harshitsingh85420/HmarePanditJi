@@ -14,7 +14,7 @@ export default function TutorialBackup({ language, onLanguageChange, currentDot,
   const [accordionOpen, setAccordionOpen] = useState(true)
   const { isListening } = useVoiceFlow({
     language: language as SupportedLanguage,
-    voiceScript: 'Yeh sun ke lagega yeh kaise ho sakta hai. Jab koi booking hoti hai, aapko offer aata hai. Aap haan kehte hain. Main Pandit ne pooja kar li — bhi aapko do hazaar. Main Pandit cancel kiya — poori booking plus do hazaar. Dono taraf faayda.',
+    voiceScript: 'यह सुनकर लगेगा यह कैसे हो सकता है। जब कोई Booking होती है, आपको Offer आता है। आप हाँ कहते हैं। मुख्य Pandit ने पूजा कर ली — फिर भी आपको दो हज़ार। मुख्य Pandit ने Cancel किया — पूरी Booking plus दो हज़ार। दोनों तरफ फ़ायदा।',
     onIntent: (intent) => {
       if (intent === 'FORWARD' || intent === 'YES') onNext()
       else if (intent === 'BACK') onBack()
@@ -32,14 +32,16 @@ export default function TutorialBackup({ language, onLanguageChange, currentDot,
 
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
         {/* Hero text */}
-        <div className="text-center">
+        <div className="text-center animate-fade-in">
           <p className="text-[28px] font-bold text-[#2D1B00]">बिना कुछ किए</p>
-          <p className="text-[44px] font-bold text-[#15803D]">₹2,000?</p>
-          <p className="text-[18px] font-semibold text-[#6B4F2A]">हाँ। यह सच है।</p>
+          <div className="inline-block animate-pulse-amber rounded-full mt-1 mb-1 px-4 py-1" style={{ backgroundColor: '#DCFCE7' }}>
+            <p className="text-[44px] font-bold text-[#15803D] leading-none">₹2,000?</p>
+          </div>
+          <p className="text-[18px] font-semibold text-[#6B4F2A] mt-1">हाँ। यह सच है।</p>
         </div>
 
         {/* Timeline card */}
-        <div className="bg-white shadow-[0_2px_16px_rgba(0,0,0,0.08)] rounded-[16px] p-5 space-y-0">
+        <div className="bg-white shadow-[0_2px_16px_rgba(0,0,0,0.08)] rounded-[16px] p-5 space-y-0 animate-fade-up stagger-1" style={{ opacity: 0, animationFillMode: 'forwards' }}>
           {[
             { icon: '📅', color: '#F09942', title: 'कोई पूजा Book हुई', sub: '(Backup Protection के साथ)' },
             { icon: '📲', color: '#F09942', title: 'आपको Offer आया:', sub: "'क्या आप Backup Pandit बनेंगे?'" },
@@ -61,7 +63,7 @@ export default function TutorialBackup({ language, onLanguageChange, currentDot,
         </div>
 
         {/* Outcome table */}
-        <div className="bg-white shadow-[0_2px_16px_rgba(0,0,0,0.08)] rounded-[16px] overflow-hidden">
+        <div className="bg-white shadow-[0_2px_16px_rgba(0,0,0,0.08)] rounded-[16px] overflow-hidden animate-fade-up stagger-2" style={{ opacity: 0, animationFillMode: 'forwards' }}>
           <div className="flex bg-[#FEF3C7]">
             <div className="flex-1 p-3 text-center border-r border-[#F0E6D3]">
               <p className="text-[15px] font-bold text-[#6B4F2A]">मुख्य Pandit ने पूजा की</p>
@@ -83,7 +85,7 @@ export default function TutorialBackup({ language, onLanguageChange, currentDot,
         </div>
 
         {/* Accordion */}
-        <div className="bg-white rounded-[16px] border border-[#F0E6D3] overflow-hidden">
+        <div className="bg-white rounded-[16px] border border-[#F0E6D3] overflow-hidden animate-fade-up stagger-3" style={{ opacity: 0, animationFillMode: 'forwards' }}>
           <button
             onClick={() => setAccordionOpen(o => !o)}
             className="w-full flex items-center justify-between px-4 py-3 text-[16px] font-bold text-[#2D1B00]"
@@ -100,7 +102,7 @@ export default function TutorialBackup({ language, onLanguageChange, currentDot,
         </div>
       </div>
 
-      <ScreenFooter isListening={isListening} onKeyboardToggle={() => {}}>
+      <ScreenFooter isListening={isListening}>
         <CTAButton label="अगला फ़ायदा →" onClick={onNext} variant="primary" />
       </ScreenFooter>
     </div>

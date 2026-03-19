@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+
+<html lang="hi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>HmarePanditJi - Language Confirmation</title>
+<!-- Tailwind CSS v3 with Plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Custom Tailwind Configuration -->
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'hp-bg': '#FFFBF5',
+            'hp-saffron': '#F09942',
+            'hp-saffron-dark': '#D97706',
+            'hp-text-dark': '#2D1B00',
+            'hp-text-muted': '#6B4F2A',
+            'hp-pill-bg': '#FEF3C7',
+          },
+          animation: {
+            'float': 'float 3s ease-in-out infinite',
+            'shimmer': 'shimmer 2s linear infinite',
+            'voice-bar-1': 'voice-grow 1.2s infinite ease-in-out',
+            'voice-bar-2': 'voice-grow 1.2s infinite ease-in-out 0.2s',
+            'voice-bar-3': 'voice-grow 1.2s infinite ease-in-out 0.4s',
+            'slide-up': 'slideUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards',
+          },
+          keyframes: {
+            float: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-10px)' },
+            },
+            shimmer: {
+              '0%': { backgroundPosition: '-200% 0' },
+              '100%': { backgroundPosition: '200% 0' },
+            },
+            'voice-grow': {
+              '0%, 100%': { height: '8px' },
+              '50%': { height: '24px' },
+            },
+            slideUp: {
+              '0%': { transform: 'translateY(50px)', opacity: '0' },
+              '100%': { transform: 'translateY(0)', opacity: '1' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+<style data-purpose="custom-animations">
+    /* Custom shimmer gradient for the "अ" icon */
+    .shimmer-text {
+      background: linear-gradient(90deg, #F09942 25%, #FFD7A8 50%, #F09942 75%);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+  </style>
+</head>
+<body class="bg-hp-bg text-hp-text-dark font-sans flex items-center justify-center min-h-screen">
+<!-- BEGIN: Main Mobile Container (390x844pt) -->
+<main class="w-[390px] h-[844px] bg-hp-bg shadow-2xl relative flex flex-col overflow-hidden">
+<!-- BEGIN: Top Bar -->
+<header class="flex items-center p-4">
+<button aria-label="Go back" class="p-2 hover:bg-black/5 rounded-full transition-colors">
+<svg class="h-6 w-6" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+</header>
+<!-- END: Top Bar -->
+<!-- BEGIN: Content Area -->
+<div class="flex-1 flex flex-col items-center px-6 pt-2">
+<!-- BEGIN: Detected City Chip -->
+<div class="inline-flex items-center px-4 py-1.5 rounded-full bg-hp-pill-bg border border-hp-saffron text-hp-text-muted text-sm font-medium mb-12" data-purpose="city-chip">
+<span class="mr-1">📍</span>
+<span>वाराणसी, UP</span>
+</div>
+<!-- END: Detected City Chip -->
+<!-- BEGIN: Main Language Card -->
+<section class="w-full bg-white rounded-[20px] py-12 px-8 flex flex-col items-center shadow-[0_4px_24px_rgba(0,0,0,0.1)] animate-float" data-purpose="hero-language-card">
+<!-- Language Script Icon -->
+<div class="text-[64px] font-bold shimmer-text animate-shimmer mb-2">
+          अ
+        </div>
+<!-- Language Name -->
+<h1 class="text-[48px] font-bold leading-tight mb-4">
+          हिंदी
+        </h1>
+<!-- Question Text -->
+<p class="text-[22px] text-hp-text-muted text-center leading-snug">
+          क्या इस भाषा में बात करना चाहेंगे?
+        </p>
+</section>
+<!-- END: Main Language Card -->
+<!-- BEGIN: Voice Status -->
+<div class="mt-16 flex flex-col items-center" data-purpose="voice-status">
+<!-- Animated Bars -->
+<div class="flex items-end gap-1.5 h-6 mb-3">
+<div class="w-1.5 bg-hp-saffron rounded-full animate-voice-bar-1"></div>
+<div class="w-1.5 bg-hp-saffron rounded-full animate-voice-bar-2"></div>
+<div class="w-1.5 bg-hp-saffron rounded-full animate-voice-bar-3"></div>
+</div>
+<!-- Listening Status -->
+<p class="text-hp-saffron font-medium text-lg mb-1">सुन रहा हूँ...</p>
+<p class="text-hp-text-muted text-sm italic">"'हाँ' या 'बदलें' बोलें"</p>
+</div>
+<!-- END: Voice Status -->
+</div>
+<!-- END: Content Area -->
+<!-- BEGIN: Action Buttons -->
+<footer class="p-6 space-y-4 mb-8">
+<!-- Primary Button -->
+<button class="w-full py-4 bg-hp-saffron hover:bg-hp-saffron-dark text-white font-bold text-lg rounded-2xl shadow-lg transition-transform active:scale-95 animate-slide-up" style="animation-delay: 0.1s;">
+        हाँ, यही भाषा सही है
+      </button>
+<!-- Secondary Button -->
+<button class="w-full py-4 bg-white border-2 border-hp-saffron text-hp-saffron font-bold text-lg rounded-2xl transition-transform active:scale-95 animate-slide-up" style="animation-delay: 0.2s;">
+        दूसरी भाषा चुनें
+      </button>
+</footer>
+<!-- END: Action Buttons -->
+</main>
+<!-- END: Main Mobile Container -->
+</body></html>

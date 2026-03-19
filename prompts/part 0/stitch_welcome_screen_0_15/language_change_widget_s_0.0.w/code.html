@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+
+<html lang="hi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Change Language - HmarePanditJi</title>
+<!-- Hind Font from Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Hind:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS v3 with Plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            hind: ['Hind', 'sans-serif'],
+          },
+          colors: {
+            'hp-gold': '#FEF3C7',
+            'hp-orange': '#F97316',
+          }
+        }
+      }
+    }
+  </script>
+<style data-purpose="custom-animations">
+    @keyframes slide-up {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+    .animate-slide-up {
+      animation: slide-up 0.4s ease-out forwards;
+    }
+    .bottom-sheet {
+      border-radius: 24px 24px 0 0;
+      max-height: 90vh;
+    }
+    /* Hide scrollbar for clean look */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="font-hind bg-gray-900 overflow-hidden">
+<!-- BEGIN: Backdrop Simulation -->
+<!-- Dimmed tutorial screen background -->
+<div class="fixed inset-0 bg-black/60 flex items-center justify-center p-6" data-purpose="tutorial-backdrop">
+<div class="text-white text-center opacity-50">
+<div class="w-16 h-16 bg-white/20 rounded-full mx-auto mb-4 flex items-center justify-center">
+<svg class="h-8 w-8" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+<h2 class="text-xl font-semibold mb-2 text-white">सीखने के लिए तैयार?</h2>
+<p class="text-sm">हम आपके लिए सर्वश्रेष्ठ अनुभव तैयार कर रहे हैं।</p>
+</div>
+</div>
+<!-- END: Backdrop Simulation -->
+<!-- BEGIN: Bottom Sheet Overlay -->
+<div class="fixed inset-0 z-50 flex flex-col justify-end" data-purpose="bottom-sheet-container">
+<!-- Tap to dismiss area (optional overlay logic) -->
+<div class="flex-grow" onclick="console.log('Dismiss')"></div>
+<div class="bottom-sheet bg-white w-full animate-slide-up shadow-2xl flex flex-col">
+<!-- BEGIN: Drag Handle & Header -->
+<div class="pt-3 pb-2 flex flex-col items-center">
+<div class="w-12 h-1.5 bg-gray-300 rounded-full mb-4" data-purpose="drag-handle"></div>
+<div class="w-full px-6 flex justify-between items-center">
+<h1 class="text-xl font-bold text-gray-800">भाषा बदलें <span class="text-gray-400 font-normal">/ Change Language</span></h1>
+<button class="p-2 text-gray-400 hover:text-gray-600">
+<svg class="h-6 w-6" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+</div>
+</div>
+<!-- END: Drag Handle & Header -->
+<!-- BEGIN: Search Section -->
+<div class="px-6 py-2">
+<div class="relative">
+<span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+<svg class="h-5 w-5" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" fill-rule="evenodd"></path>
+</svg>
+</span>
+<input class="w-full pl-10 pr-4 py-2.5 bg-gray-100 border-none rounded-xl text-sm focus:ring-hp-orange focus:bg-white transition-all" placeholder="भाषा खोजें / Search Language..." type="text"/>
+</div>
+</div>
+<!-- END: Search Section -->
+<div class="flex-grow overflow-y-auto no-scrollbar px-6 py-4">
+<!-- BEGIN: Active Selection -->
+<div class="mb-6" data-purpose="current-language-row">
+<h2 class="text-xs uppercase tracking-wider text-gray-500 font-semibold mb-3">वर्तमान भाषा / Current</h2>
+<div class="flex items-center justify-between p-4 bg-hp-gold rounded-2xl border border-yellow-200">
+<div class="flex items-center gap-3">
+<span class="text-2xl">🕉️</span>
+<div>
+<p class="font-bold text-gray-900 leading-tight">हिंदी</p>
+<p class="text-xs text-gray-600">Hindi</p>
+</div>
+</div>
+<div class="bg-hp-orange text-white rounded-full p-1">
+<svg class="h-5 w-5" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" fill-rule="evenodd"></path>
+</svg>
+</div>
+</div>
+</div>
+<!-- END: Active Selection -->
+<!-- BEGIN: Language Grid -->
+<div class="mb-8" data-purpose="language-options-grid">
+<h2 class="text-xs uppercase tracking-wider text-gray-500 font-semibold mb-3">अन्य भाषाएं / Other Languages</h2>
+<div class="grid grid-cols-2 gap-3">
+<!-- Language Card: Bhojpuri -->
+<button class="flex items-center gap-3 p-3 border border-gray-100 rounded-xl hover:bg-gray-50 text-left transition-colors">
+<div class="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-sm">भ</div>
+<div>
+<p class="font-semibold text-gray-800 text-sm">भोजपुरी</p>
+<p class="text-[10px] text-gray-400">Bhojpuri</p>
+</div>
+</button>
+<!-- Language Card: Bengali -->
+<button class="flex items-center gap-3 p-3 border border-gray-100 rounded-xl hover:bg-gray-50 text-left transition-colors">
+<div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-sm">ব</div>
+<div>
+<p class="font-semibold text-gray-800 text-sm">Bengali</p>
+<p class="text-[10px] text-gray-400">বাংলা</p>
+</div>
+</button>
+<!-- Language Card: Tamil -->
+<button class="flex items-center gap-3 p-3 border border-gray-100 rounded-xl hover:bg-gray-50 text-left transition-colors">
+<div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-sm">த</div>
+<div>
+<p class="font-semibold text-gray-800 text-sm">Tamil</p>
+<p class="text-[10px] text-gray-400">தமிழ்</p>
+</div>
+</button>
+<!-- Language Card: Telugu -->
+<button class="flex items-center gap-3 p-3 border border-gray-100 rounded-xl hover:bg-gray-50 text-left transition-colors">
+<div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-sm">తె</div>
+<div>
+<p class="font-semibold text-gray-800 text-sm">Telugu</p>
+<p class="text-[10px] text-gray-400">తెలుగు</p>
+</div>
+</button>
+<!-- Language Card: Marathi -->
+<button class="flex items-center gap-3 p-3 border border-gray-100 rounded-xl hover:bg-gray-50 text-left transition-colors">
+<div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-sm">म</div>
+<div>
+<p class="font-semibold text-gray-800 text-sm">Marathi</p>
+<p class="text-[10px] text-gray-400">मराठी</p>
+</div>
+</button>
+<!-- Language Card: Gujarati -->
+<button class="flex items-center gap-3 p-3 border border-gray-100 rounded-xl hover:bg-gray-50 text-left transition-colors">
+<div class="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center text-sm">ગ</div>
+<div>
+<p class="font-semibold text-gray-800 text-sm">Gujarati</p>
+<p class="text-[10px] text-gray-400">ગુજરાતી</p>
+</div>
+</button>
+<!-- Language Card: English -->
+<button class="flex items-center gap-3 p-3 border border-gray-100 rounded-xl hover:bg-gray-50 text-left transition-colors">
+<div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-sm">A</div>
+<div>
+<p class="font-semibold text-gray-800 text-sm">English</p>
+<p class="text-[10px] text-gray-400">English</p>
+</div>
+</button>
+<!-- Language Card: Kannada -->
+<button class="flex items-center gap-3 p-3 border border-gray-100 rounded-xl hover:bg-gray-50 text-left transition-colors">
+<div class="w-8 h-8 rounded-full bg-pink-100 flex items-center justify-center text-sm">ಕ</div>
+<div>
+<p class="font-semibold text-gray-800 text-sm">Kannada</p>
+<p class="text-[10px] text-gray-400">ಕನ್ನಡ</p>
+</div>
+</button>
+</div>
+</div>
+<!-- END: Language Grid -->
+</div>
+<!-- BEGIN: Bottom Action Bar -->
+<div class="px-6 pt-4 pb-8 border-t border-gray-100 bg-gray-50">
+<button class="w-full py-4 bg-hp-orange hover:bg-orange-600 text-white rounded-2xl font-bold text-lg shadow-lg shadow-orange-200 transition-all active:scale-[0.98]">
+          बंद करें / Close
+        </button>
+</div>
+<!-- END: Bottom Action Bar -->
+</div>
+</div>
+<!-- END: Bottom Sheet Overlay -->
+</body></html>

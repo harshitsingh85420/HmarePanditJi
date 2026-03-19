@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+
+<html lang="hi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>HmarePanditJi - Select Language</title>
+<!-- Tailwind CSS CDN with Plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Custom Tailwind Configuration for specific brand colors -->
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'brand-bg': '#FFFBF5',
+            'brand-dark': '#2D1B00',
+            'brand-accent': '#F09942',
+            'brand-light-accent': '#FEF3C7',
+            'brand-border': '#F0E6D3',
+            'brand-saffron': '#FF9933',
+          },
+          animation: {
+            'pulse-soft': 'pulse-soft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'fade-in-up': 'fadeInUp 0.5s ease-out forwards',
+            'pop-in': 'popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
+          },
+          keyframes: {
+            'pulse-soft': {
+              '0%, 100%': { transform: 'scale(1)', opacity: '1' },
+              '50%': { transform: 'scale(1.1)', opacity: '0.7' },
+            },
+            'fadeInUp': {
+              '0%': { opacity: '0', transform: 'translateY(20px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            },
+            'popIn': {
+              '0%': { transform: 'scale(0.95)', opacity: '0.9' },
+              '100%': { transform: 'scale(1.05)', opacity: '1' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+<style data-purpose="custom-animations">
+    /* Staggered animation delay for grid items */
+    .grid-item { opacity: 0; }
+    .grid-item:nth-child(1) { animation: fadeInUp 0.4s ease-out 0.1s forwards; }
+    .grid-item:nth-child(2) { animation: fadeInUp 0.4s ease-out 0.15s forwards; }
+    .grid-item:nth-child(3) { animation: fadeInUp 0.4s ease-out 0.2s forwards; }
+    .grid-item:nth-child(4) { animation: fadeInUp 0.4s ease-out 0.25s forwards; }
+    .grid-item:nth-child(5) { animation: fadeInUp 0.4s ease-out 0.3s forwards; }
+    .grid-item:nth-child(6) { animation: fadeInUp 0.4s ease-out 0.35s forwards; }
+    .grid-item:nth-child(7) { animation: fadeInUp 0.4s ease-out 0.4s forwards; }
+    .grid-item:nth-child(8) { animation: fadeInUp 0.4s ease-out 0.45s forwards; }
+    .grid-item:nth-child(9) { animation: fadeInUp 0.4s ease-out 0.5s forwards; }
+    .grid-item:nth-child(10) { animation: fadeInUp 0.4s ease-out 0.55s forwards; }
+    .grid-item:nth-child(11) { animation: fadeInUp 0.4s ease-out 0.6s forwards; }
+    .grid-item:nth-child(12) { animation: fadeInUp 0.4s ease-out 0.65s forwards; }
+    .grid-item:nth-child(13) { animation: fadeInUp 0.4s ease-out 0.7s forwards; }
+    .grid-item:nth-child(14) { animation: fadeInUp 0.4s ease-out 0.75s forwards; }
+  </style>
+</head>
+<body class="bg-brand-bg flex justify-center items-start min-h-screen">
+<!-- BEGIN: Mobile Container -->
+<main class="w-[390px] h-[844px] bg-brand-bg relative flex flex-col overflow-hidden shadow-2xl">
+<!-- BEGIN: Header Section -->
+<header class="pt-12 px-6 pb-6">
+<h1 class="text-[28px] font-bold text-brand-dark leading-tight" data-purpose="screen-title">
+        अपनी भाषा चुनें
+      </h1>
+</header>
+<!-- END: Header Section -->
+<!-- BEGIN: Voice Search Section -->
+<section class="px-6 mb-6" data-purpose="voice-search-container">
+<div class="bg-brand-light-accent border-2 border-brand-accent rounded-2xl p-4 flex items-center space-x-4">
+<div class="bg-white p-2 rounded-full animate-pulse-soft shadow-sm" data-purpose="mic-icon-wrapper">
+<svg class="h-6 w-6 text-brand-accent" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<div class="flex flex-col">
+<span class="text-brand-dark font-bold text-base">भाषा का नाम बोलें</span>
+<span class="text-gray-500 text-xs">जैसे: 'Hindi', 'Tamil', 'Bengali'</span>
+</div>
+</div>
+</section>
+<!-- END: Voice Search Section -->
+<!-- BEGIN: Divider -->
+<div class="px-6 mb-6 text-center" data-purpose="section-divider">
+<span class="text-gray-400 text-sm font-medium">─── या नीचे से चुनें ───</span>
+</div>
+<!-- END: Divider -->
+<!-- BEGIN: Text Search Bar -->
+<section class="px-6 mb-8" data-purpose="text-search-container">
+<div class="relative">
+<span class="absolute inset-y-0 left-0 flex items-center pl-3">
+<svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</span>
+<input class="w-full bg-white border border-brand-border rounded-xl py-3 pl-10 pr-4 text-brand-dark placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-brand-accent focus:border-brand-accent transition-all duration-200" placeholder="भाषा खोजें..." type="text"/>
+</div>
+</section>
+<!-- END: Text Search Bar -->
+<!-- BEGIN: Language Grid -->
+<section class="px-6 flex-1 overflow-y-auto pb-10" data-purpose="language-selection-grid">
+<div class="grid grid-cols-2 gap-4">
+<!-- Hindi -->
+<button class="grid-item flex items-center justify-center h-[64px] bg-white border border-brand-border rounded-[10px] text-brand-dark font-medium hover:border-brand-accent transition-colors">
+          हिंदी / Hindi
+        </button>
+<!-- Bhojpuri -->
+<button class="grid-item flex items-center justify-center h-[64px] bg-white border border-brand-border rounded-[10px] text-brand-dark font-medium hover:border-brand-accent transition-colors">
+          भोजपुरी / Bhojpuri
+        </button>
+<!-- Maithili -->
+<button class="grid-item flex items-center justify-center h-[64px] bg-white border border-brand-border rounded-[10px] text-brand-dark font-medium hover:border-brand-accent transition-colors">
+          मैथिली / Maithili
+        </button>
+<!-- Bengali -->
+<button class="grid-item flex items-center justify-center h-[64px] bg-white border border-brand-border rounded-[10px] text-brand-dark font-medium hover:border-brand-accent transition-colors">
+          Bengali / বাংলা
+        </button>
+<!-- Tamil (Selected State) -->
+<button class="grid-item relative animate-pop-in flex items-center justify-center h-[64px] bg-brand-light-accent border-2 border-brand-saffron rounded-[10px] text-brand-saffron font-bold transition-all shadow-sm">
+          Tamil / தமிழ்
+          <!-- Checkmark Icon -->
+<div class="absolute top-1 right-1">
+<svg class="h-5 w-5 text-orange-500" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" fill-rule="evenodd"></path>
+</svg>
+</div>
+</button>
+<!-- Telugu -->
+<button class="grid-item flex items-center justify-center h-[64px] bg-white border border-brand-border rounded-[10px] text-brand-dark font-medium hover:border-brand-accent transition-colors">
+          Telugu / తెలుగు
+        </button>
+<!-- Kannada -->
+<button class="grid-item flex items-center justify-center h-[64px] bg-white border border-brand-border rounded-[10px] text-brand-dark font-medium hover:border-brand-accent transition-colors">
+          Kannada / ಕನ್ನಡ
+        </button>
+<!-- Malayalam -->
+<button class="grid-item flex items-center justify-center h-[64px] bg-white border border-brand-border rounded-[10px] text-brand-dark font-medium hover:border-brand-accent transition-colors">
+          Malayalam / മലയാളം
+        </button>
+<!-- Marathi -->
+<button class="grid-item flex items-center justify-center h-[64px] bg-white border border-brand-border rounded-[10px] text-brand-dark font-medium hover:border-brand-accent transition-colors">
+          Marathi / मराठी
+        </button>
+<!-- Gujarati -->
+<button class="grid-item flex items-center justify-center h-[64px] bg-white border border-brand-border rounded-[10px] text-brand-dark font-medium hover:border-brand-accent transition-colors">
+          Gujarati / ગુજરાતી
+        </button>
+<!-- Sanskrit -->
+<button class="grid-item flex items-center justify-center h-[64px] bg-white border border-brand-border rounded-[10px] text-brand-dark font-medium hover:border-brand-accent transition-colors">
+          संस्कृत / Sanskrit
+        </button>
+<!-- English -->
+<button class="grid-item flex items-center justify-center h-[64px] bg-white border border-brand-border rounded-[10px] text-brand-dark font-medium hover:border-brand-accent transition-colors">
+          English / English
+        </button>
+<!-- Odia -->
+<button class="grid-item flex items-center justify-center h-[64px] bg-white border border-brand-border rounded-[10px] text-brand-dark font-medium hover:border-brand-accent transition-colors">
+          Odia / ଓଡ଼ିଆ
+        </button>
+<!-- More -->
+<button class="grid-item flex items-center justify-center h-[64px] bg-white border border-brand-border rounded-[10px] text-brand-accent font-semibold hover:bg-orange-50 transition-colors">
+          [+ More / अधिक]
+        </button>
+</div>
+</section>
+<!-- END: Language Grid -->
+<!-- BEGIN: Bottom Action (Optional placeholder for mobile flow) -->
+<div class="px-6 py-6 border-t border-brand-border bg-white/50 backdrop-blur-sm">
+<button class="w-full bg-brand-accent text-white font-bold py-4 rounded-xl shadow-lg active:scale-95 transition-transform" data-purpose="continue-button">
+        आगे बढ़ें
+      </button>
+</div>
+<!-- END: Bottom Action -->
+</main>
+<!-- END: Mobile Container -->
+</body></html>

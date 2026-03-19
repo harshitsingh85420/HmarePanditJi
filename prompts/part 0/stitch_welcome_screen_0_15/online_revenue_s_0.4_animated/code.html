@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+
+<html lang="hi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Tutorial Screen - Online Revenue</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<style data-purpose="typography">
+    body {
+      font-family: 'Noto Sans Devanagari', sans-serif;
+    }
+    .title-text {
+      font-size: 30px;
+      font-weight: 700;
+      color: #2D1B00;
+      line-height: 1.2;
+    }
+    .subtitle-text {
+      font-size: 17px;
+      color: #9B7B52;
+    }
+  </style>
+<style data-purpose="animations">
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+    .animate-float {
+      animation: float 3s ease-in-out infinite;
+    }
+    @keyframes pulse-glow {
+      0%, 100% { text-shadow: 0 0 5px rgba(240, 153, 66, 0.2); }
+      50% { text-shadow: 0 0 15px rgba(240, 153, 66, 0.6); }
+    }
+    .glow-text {
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body class="bg-[#FFFBF5] min-h-screen flex flex-col overflow-hidden">
+<!-- BEGIN: Header -->
+<header class="p-6 flex justify-between items-center">
+<!-- Progress Indicator -->
+<div class="flex gap-1 text-xs tracking-tighter" data-purpose="progress-dots">
+<span class="text-[#F09942]">●●●●</span><span class="text-[#D1C7B7]">○○○○○○○○</span>
+</div>
+<!-- Skip Action -->
+<button class="text-[#9B7B52] font-medium text-sm">Skip</button>
+</header>
+<!-- END: Header -->
+<!-- BEGIN: Main Content -->
+<main class="flex-grow flex flex-col px-6 pt-4">
+<!-- Title Section -->
+<div class="mb-10 text-center">
+<h1 class="title-text">घर बैठे भी कमाई</h1>
+<p class="subtitle-text mt-1">(2 नए तरीके जो आप नहीं जानते)</p>
+</div>
+<!-- Feature Cards Container -->
+<div class="space-y-6 flex flex-col">
+<!-- Card 1: Ghar Baithe Pooja -->
+<div class="bg-[#FEF3C7] border-2 border-[#F09942] rounded-3xl p-5 flex items-center shadow-sm" data-purpose="feature-card-pooja">
+<div class="bg-white p-3 rounded-2xl mr-4 shadow-sm animate-float">
+<svg class="w-8 h-8 text-[#F09942]" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+<div>
+<h3 class="font-bold text-[#2D1B00] text-lg">GHAR BAITHE POOJA</h3>
+<p class="text-[#F09942] font-bold text-xl glow-text">₹2,000 – ₹5,000 <span class="text-sm font-normal text-[#9B7B52]">प्रति पूजा</span></p>
+</div>
+</div>
+<!-- Card 2: Pandit Se Baat -->
+<div class="bg-white border-2 border-transparent rounded-3xl p-5 flex items-center shadow-md" data-purpose="feature-card-chat">
+<div class="bg-[#F8F1E7] p-3 rounded-2xl mr-4 shadow-sm animate-float" style="animation-delay: 0.5s;">
+<svg class="w-8 h-8 text-[#9B7B52]" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M12 14l9-5-9-5-9 5 9 5z"></path>
+<path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path>
+<path d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+<div class="flex-grow">
+<h3 class="font-bold text-[#2D1B00] text-lg uppercase">Pandit Se Baat</h3>
+<p class="text-[#2D1B00] font-bold text-xl">₹20 – ₹50 <span class="text-sm font-normal text-[#9B7B52]">प्रति मिनट</span></p>
+<div class="mt-2 inline-block bg-[#FFF9F0] px-3 py-1 rounded-lg border border-[#FDE68A]">
+<p class="text-xs text-[#9B7B52] font-medium italic">उदाहरण: 20 मिनट = <span class="text-[#F09942] font-bold">₹800 आपको</span></p>
+</div>
+</div>
+</div>
+</div>
+<!-- Summary Pill -->
+<div class="mt-12 flex justify-center">
+<div class="bg-[#F09942] bg-opacity-10 border border-[#F09942] border-dashed px-6 py-3 rounded-full">
+<p class="text-[#2D1B00] font-bold text-center">
+          दोनों मिलाकर <span class="text-[#F09942] text-xl">₹40,000+</span> अलग से हर महीने
+        </p>
+</div>
+</div>
+</main>
+<!-- END: Main Content -->
+<!-- BEGIN: Footer CTA -->
+<footer class="p-6 mt-auto">
+<button class="w-full bg-[#F09942] text-white h-[64px] rounded-2xl text-xl font-bold flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-transform">
+      अगला फ़ायदा देखें →
+    </button>
+</footer>
+<!-- END: Footer CTA -->
+</body></html>

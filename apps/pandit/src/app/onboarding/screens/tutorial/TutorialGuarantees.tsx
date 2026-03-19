@@ -19,7 +19,7 @@ const GUARANTEES = [
 export default function TutorialGuarantees({ language, onLanguageChange, currentDot, onNext, onBack, onSkip }: TutorialScreenProps) {
   const { isListening } = useVoiceFlow({
     language: language as SupportedLanguage,
-    voiceScript: 'Yeh rahe chaar vaade. Samman, Suwidha, Suraksha, Samridhdhi. Teen lakh se zyada pandit pehle se jud chuke hain. Ab registration ki baari.',
+    voiceScript: 'यह रहे चार वादे। सम्मान, सुविधा, सुरक्षा, समृद्धि। तीन लाख से ज़्यादा पंडित पहले से जुड़ चुके हैं। अब Registration की बारी।',
     onIntent: (intent) => {
       if (intent === 'FORWARD' || intent === 'YES') onNext()
       else if (intent === 'BACK') onBack()
@@ -36,9 +36,9 @@ export default function TutorialGuarantees({ language, onLanguageChange, current
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
-        <div>
-          <p className="text-[22px] text-[#F09942] font-semibold">HmarePanditJi की</p>
-          <p className="text-[40px] font-bold text-[#2D1B00]">4 गारंटी</p>
+        <div className="animate-fade-in">
+          <p className="text-[22px] text-[#9B7B52] font-normal">HmarePanditJi की</p>
+          <p className="text-[36px] font-bold text-[#2D1B00]">4 गारंटी</p>
         </div>
 
         {/* Guarantee cards */}
@@ -46,15 +46,15 @@ export default function TutorialGuarantees({ language, onLanguageChange, current
           {GUARANTEES.map((g, i) => (
             <div
               key={i}
-              className="bg-white border-l-[6px] border-[#DC6803] rounded-r-xl shadow-sm h-[80px] flex items-center px-4 gap-4"
-              style={{ animation: `fadeUp 0.4s ease-out ${i * 200}ms both` }}
+              className={`bg-white border-l-[6px] border-[#F09942] rounded-r-xl shadow-sm h-[80px] flex items-center px-4 gap-4 animate-fade-up stagger-${i + 1}`}
+              style={{ opacity: 0, animationFillMode: 'forwards' }}
             >
               <div className="w-10 h-10 rounded-full bg-[#FEF3C7] flex items-center justify-center text-xl flex-shrink-0">
                 {g.icon}
               </div>
               <div>
                 <p className="text-[18px] font-bold text-[#2D1B00]">{g.title}</p>
-                <p className="text-[15px] text-[#F09942]">{g.sub}</p>
+                <p className="text-[15px] text-[#9B7B52]">{g.sub}</p>
               </div>
             </div>
           ))}
@@ -62,14 +62,18 @@ export default function TutorialGuarantees({ language, onLanguageChange, current
 
         {/* Social proof strip */}
         <div
-          className="bg-[#FEF3C7]/50 border border-[#F09942]/20 rounded-full px-5 py-3.5 flex items-center gap-3"
+          className="bg-[#FEF3C7]/50 border border-[#F09942]/20 rounded-full px-5 py-3.5 flex items-center gap-3 animate-fade-up stagger-6"
+          style={{ opacity: 0, animationFillMode: 'forwards' }}
         >
           <span className="text-[24px]">🤝</span>
-          <p className="text-[18px] font-semibold text-[#2D1B00]">3,00,000+ पंडित पहले से जुड़े हैं</p>
+          <div>
+            <p className="text-[18px] font-semibold text-[#2D1B00]">3,00,000+ पंडित पहले से जुड़े हैं</p>
+            <p className="text-[14px] text-[#F09942] font-medium">★★★★★ 4.9 / 5 — 12,000+ Reviews</p>
+          </div>
         </div>
       </div>
 
-      <ScreenFooter isListening={isListening} onKeyboardToggle={() => {}}>
+      <ScreenFooter isListening={isListening}>
         <CTAButton label="Registration शुरू करें →" onClick={onNext} variant="primary-dk" />
       </ScreenFooter>
 

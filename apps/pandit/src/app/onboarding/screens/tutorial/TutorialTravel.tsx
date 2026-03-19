@@ -12,7 +12,7 @@ import { SupportedLanguage } from '@/lib/onboarding-store'
 export default function TutorialTravel({ language, onLanguageChange, currentDot, onNext, onBack, onSkip }: TutorialScreenProps) {
   const { isListening } = useVoiceFlow({
     language: language as SupportedLanguage,
-    voiceScript: 'Booking confirm hote hi, train, hotel, khaana — sab platform plan kar dega. Aur jo din free nahi, woh block ho jayega. Double booking ho hi nahi sakti.',
+    voiceScript: 'Booking confirm होते ही, Train, Hotel, खाना — सब Platform plan कर देगा। और जो दिन Free नहीं, वह Block हो जाएगा। Double Booking हो ही नहीं सकती।',
     onIntent: (intent) => {
       if (intent === 'FORWARD' || intent === 'YES') onNext()
       else if (intent === 'BACK') onBack()
@@ -35,22 +35,23 @@ export default function TutorialTravel({ language, onLanguageChange, currentDot,
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
-        <div>
-          <h2 className="text-[30px] font-bold text-[#2D1B00]">यात्रा की चिंता</h2>
-          <p className="text-[30px] font-bold text-[#15803D]">हम करते हैं।</p>
+        <div className="animate-fade-in">
+          <h2 className="text-[26px] font-bold text-[#2D1B00]">Travel की Tension नहीं.</h2>
+          <p className="text-[26px] font-bold text-[#2D1B00]">Double Booking नहीं.</p>
         </div>
 
         {/* Auto Travel card */}
-        <div className="bg-[#FEF3C7] border-2 border-[#F09942] rounded-[16px] p-4">
+        <div className="bg-[#FEF3C7] border-2 border-[#F09942] rounded-[16px] p-4 animate-fade-up stagger-1" style={{ opacity: 0, animationFillMode: 'forwards' }}>
           <p className="text-[16px] font-bold text-[#6B4F2A] mb-3">⚡ Auto Travel Planner</p>
           <div className="space-y-2">
             {[
               { icon: '🚕', label: 'Cab', value: 'Auto Book' },
               { icon: '🚂', label: 'Train (दूर के लिए)', value: 'Best Seat' },
               { icon: '🏨', label: 'Hotel (रात रुकने पर)', value: 'Check Out → Auto' },
-              { icon: '🍽️', label: 'खाना', value: 'Order Reminder' },
+              { icon: '🍽️', label: 'खाना (₹1,000/दिन)', value: '₹1k Allowance' },
+              { icon: '📍', label: 'GPS Updates', value: 'Live Track' },
             ].map((row, i) => (
-              <div key={i} className="bg-white rounded-xl flex items-center h-11 px-3 gap-3">
+              <div key={i} className={`bg-white rounded-xl flex items-center h-11 px-3 gap-3 animate-fade-up stagger-${i + 2}`} style={{ opacity: 0, animationFillMode: 'forwards' }}>
                 <span className="text-xl">{row.icon}</span>
                 <span className="text-[16px] text-[#2D1B00] flex-1">{row.label}</span>
                 <span className="text-[14px] font-bold text-[#15803D] bg-[#DCFCE7] px-2 py-0.5 rounded-full">{row.value}</span>
@@ -60,7 +61,7 @@ export default function TutorialTravel({ language, onLanguageChange, currentDot,
         </div>
 
         {/* Calendar */}
-        <div className="bg-white rounded-[16px] shadow-[0_2px_16px_rgba(0,0,0,0.08)] p-4">
+        <div className="bg-white rounded-[16px] shadow-[0_2px_16px_rgba(0,0,0,0.08)] p-4 animate-fade-up stagger-6" style={{ opacity: 0, animationFillMode: 'forwards' }}>
           <p className="text-[16px] font-bold text-[#2D1B00] mb-3">📅 Auto Block Calendar</p>
           {/* Day headers */}
           <div className="grid grid-cols-7 gap-1 mb-1">
@@ -93,7 +94,7 @@ export default function TutorialTravel({ language, onLanguageChange, currentDot,
         </div>
       </div>
 
-      <ScreenFooter isListening={isListening} onKeyboardToggle={() => {}}>
+      <ScreenFooter isListening={isListening}>
         <CTAButton label="अगला फ़ायदा →" onClick={onNext} variant="primary" />
       </ScreenFooter>
     </div>

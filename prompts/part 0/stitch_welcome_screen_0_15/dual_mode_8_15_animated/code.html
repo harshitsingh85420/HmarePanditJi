@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+
+<html lang="hi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#f09f42",
+              "background-light": "#fcfaf8",
+              "background-dark": "#221a10",
+            },
+            fontFamily: {
+              "display": ["Work Sans", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen flex flex-col">
+<!-- Header Navigation -->
+<header class="flex items-center justify-between p-4 sticky top-0 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md z-10">
+<button class="size-10 flex items-center justify-center rounded-full hover:bg-primary/10 transition-colors">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<div class="flex flex-col items-center">
+<span class="text-xs font-bold uppercase tracking-widest text-primary">प्रगति</span>
+<h2 class="text-sm font-bold leading-tight">8 / 12</h2>
+</div>
+<button class="text-primary font-bold hover:opacity-80 transition-opacity">Skip</button>
+</header>
+<!-- Progress Bar -->
+<div class="px-4 py-2">
+<div class="flex justify-between mb-1">
+<p class="text-xs font-medium opacity-70">स्टेप 8/12: डिवाइस विकल्प</p>
+</div>
+<div class="w-full bg-primary/20 rounded-full h-1.5 overflow-hidden">
+<div class="bg-primary h-full w-[66.6%] rounded-full transition-all duration-500"></div>
+</div>
+</div>
+<!-- Main Content -->
+<main class="flex-1 overflow-y-auto px-4 py-6 flex flex-col gap-8">
+<!-- Headline Section -->
+<div class="text-center space-y-2">
+<h1 class="text-3xl md:text-4xl font-bold leading-tight">
+<span class="block">कोई भी Phone,</span>
+<span class="text-primary block">Platform चलेगा।</span>
+</h1>
+<p class="text-slate-600 dark:text-slate-400 max-w-xs mx-auto text-sm">हमारा सिस्टम हर डिवाइस पर समान रूप से काम करता है।</p>
+</div>
+<!-- Dual Mode Cards -->
+<div class="grid grid-cols-2 gap-4">
+<!-- Smartphone Card -->
+<div class="group flex flex-col gap-3 p-4 rounded-xl border border-primary/10 bg-white dark:bg-slate-800/50 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300">
+<div class="aspect-[3/4] w-full bg-primary/5 rounded-lg flex items-center justify-center overflow-hidden">
+<img alt="Modern smartphone showing a clean mobile app interface" class="object-cover w-full h-full opacity-90 group-hover:scale-105 transition-transform" data-alt="Modern smartphone showing a clean mobile app interface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBbk-rwAVl5nbvp1ys5qgmC6J9NyXBGYmgy1J9gu3ba0bO6ZimujovKBmctx6Z8hOnU8FUKAWIX4oNtD75JigSiMfRo45CjbDSLvvXlfEfe-IWeq0fzXMe7m8Rz_-r_M7zZuBvQNM5tdeCOIE35tL_VOFWiv6GxRBzaLWXyk5a2AYPFVLeAiR9SbdQbTsqVMp73vDOBMUKaBsWP5dQ-WF8ux_PvmI5-OhQvoihvyco2SHl4Ahlkbs4UVyKIMWxsrx5_IqeVgI4xNdqu"/>
+</div>
+<div class="text-center">
+<p class="font-bold text-sm">Smartphone</p>
+<p class="text-primary text-xs font-medium">Smart App</p>
+</div>
+</div>
+<!-- Keypad Phone Card -->
+<div class="group flex flex-col gap-3 p-4 rounded-xl border border-primary/10 bg-white dark:bg-slate-800/50 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300">
+<div class="aspect-[3/4] w-full bg-primary/5 rounded-lg flex items-center justify-center overflow-hidden">
+<img alt="Classic feature phone with physical keypad and buttons" class="object-cover w-full h-full opacity-90 group-hover:scale-105 transition-transform" data-alt="Classic feature phone with physical keypad and buttons" src="https://lh3.googleusercontent.com/aida-public/AB6AXuClq3PSB3bl4SISHby2ykk88tcQ8SIcllVSyTGt_-E2TlhTKP93ADkGPRCQduU1VyajCI5q-EmrgjeB49n_dpqfFkzAxEWzftZr5htNcYvaNHbmXIN-LYB9JJqivu-KSz9A_PnmHa0YXz6duOmqFbJGJnDg-mBLlmAko-StG78BZFx_1Y8j37xs6M4Yzb4my1c9SMTStOD9bQTHGqAbnY2yU6ohahu6cQg8YP84Qg0ynbK-Fx2HhhQ46Mpqb8QHI1vHxZbV2Mp9zXdE"/>
+</div>
+<div class="text-center">
+<p class="font-bold text-sm">Keypad Phone</p>
+<p class="text-primary text-xs font-medium">Voice/SMS</p>
+</div>
+</div>
+</div>
+<!-- Family Inclusion Card -->
+<div class="bg-primary/10 dark:bg-primary/5 p-6 rounded-xl border-2 border-dashed border-primary/30 flex flex-col items-center text-center gap-3">
+<div class="size-16 bg-white dark:bg-slate-800 rounded-full flex items-center justify-center text-4xl shadow-sm">
+                👨‍👩‍👧‍👦
+            </div>
+<div class="space-y-1">
+<h3 class="font-bold text-lg">Family Inclusion Card</h3>
+<p class="text-xs text-slate-600 dark:text-slate-400">पूरे परिवार को जोड़ें, चाहे उनके पास कोई भी फोन हो।</p>
+</div>
+<div class="flex gap-2 mt-2">
+<span class="bg-primary/20 text-primary text-[10px] font-bold px-2 py-1 rounded uppercase">आवाज</span>
+<span class="bg-primary/20 text-primary text-[10px] font-bold px-2 py-1 rounded uppercase">संदेश</span>
+<span class="bg-primary/20 text-primary text-[10px] font-bold px-2 py-1 rounded uppercase">ऐप</span>
+</div>
+</div>
+<!-- Call to Action -->
+<div class="flex flex-col gap-4 mt-auto pt-4">
+<button class="w-full bg-primary text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-primary/90 shadow-lg shadow-primary/20 active:scale-95 transition-all">
+                अगला फ़ायदा देखें
+                <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+<div class="flex items-center justify-between px-2">
+<div class="flex items-center gap-2 text-primary">
+<span class="relative flex h-3 w-3">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
+</span>
+<span class="text-xs font-bold uppercase tracking-wider">Voice Status: Live</span>
+</div>
+<button class="flex items-center gap-1 text-slate-500 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-lg">keyboard</span>
+<span class="text-xs font-medium uppercase">Toggle</span>
+</button>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="border-t border-primary/10 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md px-2 pb-6 pt-2">
+<div class="flex justify-around items-end">
+<a class="flex flex-col items-center gap-1 text-slate-400" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="text-[10px] font-medium">Home</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined">menu_book</span>
+<span class="text-[10px] font-medium">Tutorials</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400" href="#">
+<span class="material-symbols-outlined">search</span>
+<span class="text-[10px] font-medium">Search</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400" href="#">
+<span class="material-symbols-outlined">history</span>
+<span class="text-[10px] font-medium">History</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px] font-medium">Profile</span>
+</a>
+</div>
+</nav>
+</body></html>

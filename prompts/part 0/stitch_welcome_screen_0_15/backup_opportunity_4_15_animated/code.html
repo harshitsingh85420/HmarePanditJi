@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+
+<html class="light" lang="hi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#f09f42",
+              "background-light": "#FFFBF5",
+              "background-dark": "#221a10",
+              "success": "#16a34a",
+            },
+            fontFamily: {
+              "display": ["Work Sans", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Work Sans', sans-serif; }
+        .pulse-soft {
+            box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.4);
+            animation: pulse-animation 2s infinite;
+        }
+        @keyframes pulse-animation {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .float-icon {
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+            100% { transform: translateY(0px); }
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex flex-col">
+<!-- Persistent Header -->
+<header class="sticky top-0 z-50 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-primary/10">
+<div class="flex items-center p-4 justify-between">
+<div class="flex items-center gap-3">
+<div class="text-primary cursor-pointer">
+<span class="material-symbols-outlined">arrow_back</span>
+</div>
+<h2 class="text-slate-900 dark:text-slate-100 text-base font-bold leading-tight uppercase tracking-wider">S-0.5: BACKUP PANDIT</h2>
+</div>
+<button class="text-primary text-sm font-bold tracking-wide hover:opacity-80">Skip</button>
+</div>
+<!-- Progress Bar -->
+<div class="px-4 pb-4">
+<div class="flex justify-between items-end mb-2">
+<p class="text-slate-600 dark:text-slate-400 text-xs font-medium">Tutorial Progress</p>
+<p class="text-primary text-xs font-bold">5 / 15</p>
+</div>
+<div class="h-1.5 w-full bg-primary/10 rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full transition-all duration-500" style="width: 33%;"></div>
+</div>
+</div>
+</header>
+<main class="flex-1 overflow-y-auto px-4 py-6 max-w-md mx-auto w-full space-y-8">
+<!-- Headline Section -->
+<div class="text-center space-y-2">
+<h2 class="text-slate-800 dark:text-slate-200 text-[28px] font-bold">बिना कुछ किए</h2>
+<div class="inline-block px-4 py-1 rounded-xl bg-success/5 border border-success/10 pulse-soft">
+<h1 class="text-success text-[44px] font-extrabold leading-none">₹2,000?</h1>
+</div>
+<p class="text-slate-600 dark:text-slate-400 text-lg font-medium">हाँ। यह सच है।</p>
+</div>
+<!-- Animated Timeline Card -->
+<div class="bg-white dark:bg-slate-900 rounded-xl p-5 shadow-sm border border-primary/5 relative overflow-hidden">
+<div class="absolute top-0 right-0 p-3 float-icon text-primary/20">
+<span class="material-symbols-outlined text-4xl">history_toggle_off</span>
+</div>
+<h3 class="text-slate-900 dark:text-slate-100 font-bold mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">schedule</span>
+                आपका समयरेखा
+            </h3>
+<div class="space-y-6 relative before:absolute before:left-3 before:top-2 before:bottom-2 before:w-0.5 before:bg-primary/20">
+<div class="flex gap-4 relative">
+<div class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-white text-[10px] z-10">1</div>
+<div>
+<p class="text-sm font-bold">आज ही शुरू करें</p>
+<p class="text-xs text-slate-500">₹0 निवेश</p>
+</div>
+</div>
+<div class="flex gap-4 relative">
+<div class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-white text-[10px] z-10">2</div>
+<div>
+<p class="text-sm font-bold">सिस्टम सेटअप</p>
+<p class="text-xs text-slate-500">2 मिनट का समय</p>
+</div>
+</div>
+<div class="flex gap-4 relative">
+<div class="w-6 h-6 rounded-full bg-success flex items-center justify-center text-white text-[10px] z-10">
+<span class="material-symbols-outlined text-[14px]">check</span>
+</div>
+<div>
+<p class="text-sm font-bold text-success">कमाई शुरू</p>
+<p class="text-xs text-slate-500">सीधे बैंक में</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Outcome Table -->
+<div class="overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800">
+<div class="grid grid-cols-2 bg-slate-100 dark:bg-slate-800 text-xs font-bold uppercase tracking-wider text-slate-500">
+<div class="p-3 border-r border-slate-200 dark:border-slate-700">बिना बैकअप</div>
+<div class="p-3">बैकअप पंडित के साथ</div>
+</div>
+<div class="grid grid-cols-2 text-sm">
+<div class="p-4 border-r border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900/50">
+<p class="text-slate-400 line-through">₹0 इनकम</p>
+</div>
+<div class="p-4 bg-success/5 dark:bg-success/10">
+<p class="font-bold text-success">₹2,000+ प्रतिमाह</p>
+</div>
+</div>
+</div>
+<!-- Income Grid -->
+<div class="grid grid-cols-2 gap-3">
+<div class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-100 dark:border-slate-800 text-center">
+<span class="material-symbols-outlined text-primary mb-1 float-icon">account_balance_wallet</span>
+<p class="text-xs text-slate-500">दैनिक बचत</p>
+<p class="font-bold">₹65</p>
+</div>
+<div class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-100 dark:border-slate-800 text-center">
+<span class="material-symbols-outlined text-primary mb-1 float-icon">trending_up</span>
+<p class="text-xs text-slate-500">विकास दर</p>
+<p class="font-bold">12% वार्षिक</p>
+</div>
+<div class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-100 dark:border-slate-800 text-center">
+<span class="material-symbols-outlined text-primary mb-1 float-icon">verified_user</span>
+<p class="text-xs text-slate-500">सुरक्षा</p>
+<p class="font-bold">100%</p>
+</div>
+<div class="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-100 dark:border-slate-800 text-center">
+<span class="material-symbols-outlined text-primary mb-1 float-icon">volunteer_activism</span>
+<p class="text-xs text-slate-500">न्यूनतम शेष</p>
+<p class="font-bold">₹0</p>
+</div>
+</div>
+</main>
+<!-- Controls and CTA -->
+<footer class="p-4 space-y-4 bg-background-light dark:bg-background-dark">
+<div class="flex items-center justify-between px-2">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-success animate-pulse"></div>
+<span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Voice Active</span>
+</div>
+<button class="flex items-center gap-1 text-slate-500 hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-xl">keyboard_alt</span>
+<span class="text-xs font-bold uppercase">Toggle</span>
+</button>
+</div>
+<button class="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/20 flex items-center justify-center gap-2 group transition-all">
+            अगला फ़ायदा देखें
+            <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+</footer>
+<!-- Bottom Navigation Bar -->
+<nav class="flex gap-2 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 pb-6 pt-2">
+<a class="flex flex-1 flex-col items-center justify-center py-2 text-primary" href="#">
+<span class="material-symbols-outlined">home</span>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center py-2 text-slate-400" href="#">
+<span class="material-symbols-outlined">search</span>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center py-2 text-slate-400" href="#">
+<span class="material-symbols-outlined">add_circle</span>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center py-2 text-slate-400" href="#">
+<span class="material-symbols-outlined">notifications</span>
+</a>
+<a class="flex flex-1 flex-col items-center justify-center py-2 text-slate-400" href="#">
+<span class="material-symbols-outlined">person</span>
+</a>
+</nav>
+</body></html>

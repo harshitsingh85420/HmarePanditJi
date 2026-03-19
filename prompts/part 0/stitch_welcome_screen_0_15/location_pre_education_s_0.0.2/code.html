@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+
+<html lang="hi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>HmarePanditJi - Location Permission</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'warm-parchment': '#FFFBF5',
+            'deep-brown': '#2D1B00',
+            'saffron': '#F09942',
+            'muted-gold': '#9B7B52',
+            'border-cream': '#F0E6D3',
+            'map-beige': '#FAF0E6',
+            'success-green': '#15803D',
+            'success-light': '#DCFCE7',
+          },
+          animation: {
+            'pin-drop': 'pinDrop 0.6s ease-out forwards',
+            'pulse-ring': 'pulseRing 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'fade-up': 'fadeUp 0.5s ease-out forwards',
+          },
+          keyframes: {
+            pinDrop: {
+              '0%': { transform: 'translateY(-20px)', opacity: '0' },
+              '100%': { transform: 'translateY(0)', opacity: '1' },
+            },
+            pulseRing: {
+              '0%': { transform: 'scale(0.8)', opacity: '0.6' },
+              '100%': { transform: 'scale(1.5)', opacity: '0' },
+            },
+            fadeUp: {
+              '0%': { transform: 'translateY(10px)', opacity: '0' },
+              '100%': { transform: 'translateY(0)', opacity: '1' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+<style data-purpose="custom-animations">
+    .stagger-1 { animation-delay: 0.2s; }
+    .stagger-2 { animation-delay: 0.4s; }
+    .stagger-3 { animation-delay: 0.6s; }
+    
+    /* Ensure the map and pin stay centered */
+    .map-container {
+      position: relative;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body class="bg-warm-parchment font-sans text-deep-brown antialiased">
+<!-- BEGIN: MainContainer -->
+<main class="relative mx-auto min-h-screen max-w-[390px] shadow-lg flex flex-col overflow-hidden">
+<!-- BEGIN: TopBar -->
+<header class="h-[56px] px-4 flex items-center justify-between border-b border-border-cream sticky top-0 bg-warm-parchment z-50" data-purpose="header-navigation">
+<div class="flex items-center gap-2">
+<span class="text-[20px] text-saffron">ॐ</span>
+<h1 class="text-[18px] font-semibold text-deep-brown">HmarePanditJi</h1>
+</div>
+<div class="text-[24px] text-muted-gold">
+        🌐
+      </div>
+</header>
+<!-- END: TopBar -->
+<!-- BEGIN: IllustrationArea -->
+<section class="mt-4 px-4 flex justify-center" data-purpose="hero-illustration">
+<div class="w-[358px] h-[160px] relative flex items-center justify-center bg-transparent">
+<!-- Background Circle -->
+<div class="absolute w-[140px] h-[140px] bg-[#FEF3C7] rounded-full"></div>
+<!-- Minimal India Map (Simplified Path Representation) -->
+<svg class="relative z-10 w-32 h-32" data-purpose="india-map-outline" fill="none" viewbox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+<path d="M50 5L60 15L75 20L85 35L80 55L65 75L50 95L35 75L20 55L15 35L25 20L40 15L50 5Z" fill="#FAF0E6" stroke="#F0E6D3" stroke-width="1"></path>
+</svg>
+<!-- Animated Pin and Rings -->
+<div class="absolute top-[35%] left-[50%] -translate-x-1/2 -translate-y-1/2 z-20" data-purpose="animated-location-pin">
+<!-- Pulse Rings -->
+<div class="absolute top-8 left-1/2 -translate-x-1/2">
+<div class="absolute w-8 h-8 -translate-x-1/2 -translate-y-1/2 rounded-full border border-saffron opacity-60 animate-pulse-ring"></div>
+<div class="absolute w-12 h-12 -translate-x-1/2 -translate-y-1/2 rounded-full border border-saffron opacity-30 animate-pulse-ring" style="animation-delay: 1s;"></div>
+<div class="absolute w-16 h-16 -translate-x-1/2 -translate-y-1/2 rounded-full border border-saffron opacity-10 animate-pulse-ring" style="animation-delay: 2s;"></div>
+</div>
+<!-- Drop Pin -->
+<svg class="w-8 h-8 text-saffron animate-pin-drop" fill="currentColor" viewbox="0 0 24 24">
+<path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"></path>
+</svg>
+</div>
+</div>
+</section>
+<!-- END: IllustrationArea -->
+<!-- BEGIN: TitleSection -->
+<section class="mt-4 px-4" data-purpose="content-header">
+<h2 class="text-[26px] font-bold text-deep-brown leading-tight">
+        आपका शहर जानना क्यों ज़रूरी है?
+      </h2>
+</section>
+<!-- END: TitleSection -->
+<!-- BEGIN: ContentBody -->
+<section class="px-4 flex-grow">
+<hr class="my-6 border-border-cream"/>
+<!-- Benefit Rows -->
+<div class="space-y-6" data-purpose="benefit-list">
+<!-- Row 1 -->
+<div class="flex items-start gap-4 opacity-0 animate-fade-up stagger-1">
+<div class="flex-shrink-0 w-6 h-6 rounded-full bg-saffron flex items-center justify-center mt-1">
+<span class="text-white text-xs">✓</span>
+</div>
+<div>
+<h3 class="text-[20px] font-bold text-deep-brown">आपकी भाषा खुद सेट हो जाएगी</h3>
+<p class="text-[16px] font-normal text-muted-gold">टाइपिंग की ज़रूरत नहीं</p>
+</div>
+</div>
+<!-- Row 2 -->
+<div class="flex items-start gap-4 opacity-0 animate-fade-up stagger-2">
+<div class="flex-shrink-0 w-6 h-6 rounded-full bg-saffron flex items-center justify-center mt-1">
+<span class="text-white text-xs">✓</span>
+</div>
+<div>
+<h3 class="text-[20px] font-bold text-deep-brown">आपके शहर की पूजाएं मिलेंगी</h3>
+<p class="text-[16px] font-normal text-muted-gold">दूर-दराज़ की नहीं</p>
+</div>
+</div>
+<!-- Row 3 -->
+<div class="flex items-start gap-4 opacity-0 animate-fade-up stagger-3">
+<div class="flex-shrink-0 w-6 h-6 rounded-full bg-saffron flex items-center justify-center mt-1">
+<span class="text-white text-xs">✓</span>
+</div>
+<div>
+<h3 class="text-[20px] font-bold text-deep-brown">ग्राहक आपको ढूंढ पाएंगे</h3>
+<p class="text-[16px] font-normal text-muted-gold">नए ग्राहक, नई आमदनी</p>
+</div>
+</div>
+</div>
+<!-- Privacy Card -->
+<div class="mt-8 p-4 bg-success-light rounded-xl flex items-center gap-3" data-purpose="privacy-assurance-card">
+<span class="text-[20px]">🔒</span>
+<p class="text-[16px] font-semibold text-success-green leading-snug">
+          आपका पूरा पता कभी नहीं दिखेगा किसी को भी
+        </p>
+</div>
+</section>
+<!-- END: ContentBody -->
+<!-- BEGIN: FooterButtons -->
+<footer class="p-4 space-y-4 mb-4" data-purpose="footer-actions">
+<button class="w-full bg-saffron text-white py-4 rounded-xl text-[18px] font-bold active:scale-[0.98] transition-transform shadow-md" id="btn-allow">
+        ✅ हाँ, मेरा शहर जानें
+      </button>
+<button class="w-full text-muted-gold text-[16px] font-medium text-center block" id="btn-skip">
+        छोड़ें — हाथ से भरूँगा
+      </button>
+</footer>
+<!-- END: FooterButtons -->
+</main>
+<!-- END: MainContainer -->
+<script data-purpose="event-handlers">
+    // Simple click logging or transition triggers
+    document.getElementById('btn-allow').addEventListener('click', () => {
+      console.log('Requesting OS location permission...');
+    });
+    
+    document.getElementById('btn-skip').addEventListener('click', () => {
+      console.log('Skipping automated location detection.');
+    });
+  </script>
+</body></html>

@@ -20,16 +20,16 @@ export default function CTAButton({
   height = 'normal',
 }: CTAButtonProps) {
   const baseClass = [
-    'flex items-center justify-center gap-2 rounded-xl font-bold text-xl',
-    'transition-transform active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed',
+    'flex items-center justify-center gap-2 rounded-xl font-bold text-[18px]',
+    'transition-all active:scale-[0.98] active:ring-4 active:ring-[#F09942]/20 disabled:opacity-60 disabled:cursor-not-allowed',
     fullWidth ? 'w-full' : 'px-8',
     height === 'tall' ? 'h-[72px]' : 'h-16',
   ]
 
   const variantClass: Record<string, string> = {
-    'primary': 'bg-[#F09942] text-white shadow-[0_4px_12px_rgba(240,153,66,0.35)]',
-    'primary-dk': 'bg-[#DC6803] text-white shadow-[0_6px_20px_rgba(220,104,3,0.45)]',
-    'secondary': 'bg-white text-[#F09942] border-2 border-[#F09942]',
+    'primary': 'bg-[#F09942] text-white shadow-[0_4px_12px_rgba(240,153,66,0.35)] hover:opacity-90',
+    'primary-dk': 'bg-[#DC6803] text-white shadow-[0_6px_20px_rgba(220,104,3,0.45)] hover:opacity-90',
+    'secondary': 'bg-white text-[#F09942] border-2 border-[#F09942] hover:bg-[#F09942]/5 transition-colors',
     'ghost': 'bg-transparent text-[#9B7B52] text-base font-normal h-11',
   }
 

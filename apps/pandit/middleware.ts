@@ -26,13 +26,17 @@ export function middleware(request: NextRequest) {
         || request.headers.get('authorization')?.replace('Bearer ', '');
 
     if (!token) {
-        // If we're already on a public route, don't redirect
-        if (
-            request.nextUrl.pathname === '/login' ||
-            request.nextUrl.pathname === '/auth' ||
-            request.nextUrl.pathname.startsWith('/login') ||
-            request.nextUrl.pathname.startsWith('/auth')
-        ) {
+        // Public routes — no token required (pre-auth flows)
+        const PUBLIC_PATHS = [
+            '/login',
+            '/auth',
+            '/onboarding/register',   // First-time pandit registration (pre-auth)
+            '/onboarding/complete',   // Registration completion screen (pre-auth)
+        ]
+        const isPublic =
+            PUBLIC_PATHS.some(p => request.nextUrl.pathname === p || request.nextUrl.pathname.startsWith(p + '/'))
+
+        if (isPublic) {
             return NextResponse.next();
         }
 

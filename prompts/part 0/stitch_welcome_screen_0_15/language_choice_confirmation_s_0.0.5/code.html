@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+
+<html lang="hi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Language Choice Confirmation - HmarePanditJi</title>
+<!-- Tailwind CSS v3 with Forms and Container Queries -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Hind Font Integration -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Hind:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            hind: ['Hind', 'sans-serif'],
+          },
+          colors: {
+            'bhagwa-primary': '#F09942',
+            'bhagwa-bg': '#FFFBF5',
+            'bhagwa-brown': '#9B7B52',
+            'bhagwa-dark': '#2D1B00',
+          }
+        }
+      }
+    }
+  </script>
+<style data-purpose="layout-styles">
+    /* Precise dimensions for 390x844 mobile view */
+    body {
+      background-color: #FFFBF5;
+      width: 390px;
+      height: 844px;
+      margin: 0 auto;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Animation for voice bars */
+    @keyframes voiceWave {
+      0%, 100% { height: 12px; }
+      50% { height: 32px; }
+    }
+    .voice-bar {
+      animation: voiceWave 1.2s ease-in-out infinite;
+    }
+    .voice-bar:nth-child(2) { animation-delay: 0.2s; }
+    .voice-bar:nth-child(3) { animation-delay: 0.4s; }
+    .voice-bar:nth-child(4) { animation-delay: 0.1s; }
+    .voice-bar:nth-child(5) { animation-delay: 0.3s; }
+  </style>
+</head>
+<body class="font-hind text-bhagwa-dark flex flex-col items-center justify-between p-6">
+<!-- BEGIN: ScreenHeader -->
+<header class="w-full pt-8 text-center" data-purpose="screen-identifier">
+<p class="text-[12px] opacity-40 font-medium tracking-widest uppercase">
+      Language Choice Confirmation (S-0.0.5)
+    </p>
+</header>
+<!-- END: ScreenHeader -->
+<!-- BEGIN: CenterContent -->
+<main class="flex-1 flex flex-col items-center justify-center w-full text-center space-y-12" data-purpose="main-selection-display">
+<!-- Language Display -->
+<div class="space-y-2 animate-in fade-in zoom-in duration-700">
+<h1 class="text-[56px] font-bold text-bhagwa-primary leading-tight">
+        भोजपुरी
+      </h1>
+<p class="text-[24px] font-normal text-bhagwa-brown">
+        Bhojpuri
+      </p>
+</div>
+<!-- Confirmation Question -->
+<div class="pt-4">
+<h2 class="text-[26px] font-semibold text-bhagwa-dark">
+        क्या यही भाषा सही है?
+      </h2>
+</div>
+<!-- BEGIN: VoiceStatusIndicator -->
+<div class="flex items-center justify-center gap-1.5 h-10" data-purpose="voice-activity-feedback">
+<div class="voice-bar w-1.5 bg-bhagwa-primary rounded-full"></div>
+<div class="voice-bar w-1.5 bg-bhagwa-primary rounded-full"></div>
+<div class="voice-bar w-1.5 bg-bhagwa-primary rounded-full"></div>
+<div class="voice-bar w-1.5 bg-bhagwa-primary rounded-full"></div>
+<div class="voice-bar w-1.5 bg-bhagwa-primary rounded-full"></div>
+</div>
+<!-- END: VoiceStatusIndicator -->
+</main>
+<!-- END: CenterContent -->
+<!-- BEGIN: ActionFooter -->
+<footer class="w-full space-y-4 pb-12 relative" data-purpose="user-actions">
+<!-- Primary Confirmation Button -->
+<button class="w-full bg-bhagwa-primary text-white text-[20px] font-semibold py-4 rounded-2xl shadow-lg shadow-bhagwa-primary/20 active:scale-[0.98] transition-transform">
+      हाँ, यही भाषा चाहिए
+    </button>
+<!-- Secondary Reset Button -->
+<button class="w-full bg-transparent text-bhagwa-brown text-[18px] font-medium py-2 hover:underline">
+      नहीं, फिर से चुनूँगा
+    </button>
+<!-- BEGIN: KeyboardToggle -->
+<!-- Positioned absolute bottom-right as per requirement -->
+<div class="absolute -bottom-4 right-0" data-purpose="keyboard-utility">
+<button aria-label="Toggle Keyboard" class="p-3 bg-bhagwa-dark/5 rounded-full text-bhagwa-dark/60 active:bg-bhagwa-dark/10 transition-colors">
+<svg fill="none" height="24" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+<rect height="16" rx="2" ry="2" width="20" x="2" y="4"></rect>
+<path d="M6 8h.01"></path><path d="M10 8h.01"></path><path d="M14 8h.01"></path><path d="M18 8h.01"></path>
+<path d="M6 12h.01"></path><path d="M18 12h.01"></path><path d="M7 16h10"></path>
+</svg>
+</button>
+</div>
+<!-- END: KeyboardToggle -->
+</footer>
+<!-- END: ActionFooter -->
+</body></html>
