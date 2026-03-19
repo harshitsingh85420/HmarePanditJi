@@ -11,8 +11,6 @@ import {
     VoiceButton
 } from "@hmarepanditji/ui";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api/v1";
-
 type ItineraryData = any;
 
 export default function ItineraryPage() {
@@ -31,12 +29,12 @@ export default function ItineraryPage() {
     const loadItinerary = async (id: string) => {
         try {
             setLoading(true);
-            const token = localStorage.getItem("hpj_pandit_token") || localStorage.getItem("hpj_pandit_access_token") || localStorage.getItem("token");
+            const token = localStorage.getItem("token");
             const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
 
             const [itineraryRes, bookingRes] = await Promise.all([
-                fetch(`${API_BASE}/pandits/bookings/${id}/itinerary`, { headers }),
-                fetch(`${API_BASE}/pandits/bookings/${id}`, { headers })
+                fetch(`/api/pandit/bookings/${id}/itinerary`, { headers }),
+                fetch(`/api/pandit/bookings/${id}`, { headers })
             ]);
 
             if (itineraryRes.ok && bookingRes.ok) {

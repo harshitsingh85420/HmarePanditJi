@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api/v1";
 
@@ -91,6 +90,11 @@ function isToday(iso: string) {
 }
 function isPastOrToday(iso: string) {
   return new Date(iso) <= new Date(new Date().setHours(23, 59, 59, 999));
+}
+function mapsUrl(b: Booking) {
+  const a = b.venueAddress;
+  const q = [a?.line1, a?.city, a?.state, a?.pincode].filter(Boolean).join(", ");
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
 }
 
 export default function BookingsPage() {
@@ -259,124 +263,108 @@ export default function BookingsPage() {
             return (
               <div
                 key={b.id}
-                className={`relative bg-white rounded-xl shadow-sm border border-slate-100 border-l-4 ${
+                className={`bg-white rounded-xl p-5 shadow-sm border border-slate-100 border-l-4 ${
                   borderColor[activeTab]
-                } overflow-hidden`}
+                }`}
               >
-                {/* Clickable overlay link to detail page */}
-                <Link
-                  href={`/bookings/${b.id}`}
-                  className="absolute inset-0 z-0"
-                  aria-label={`View booking ${b.bookingNumber}`}
-                />
+                {/* Top row: badge + booking number */}
+                <div className="flex items-center justify-between flex-wrap gap-2 mb-3">
+                  <span
+                    className={`text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide ${
+                      badgeColor[b.status]
+                    }`}
+                  >
+                    {badgeLabel[b.status]}
+                  </span>
+                  <span className="text-xs font-mono text-slate-400">#{b.bookingNumber}</span>
+                </div>
 
-                <div className="relative z-10 p-5">
-                  {/* Top row: badge + booking number */}
-                  <div className="flex items-center justify-between flex-wrap gap-2 mb-3">
-                    <span
-                      className={`text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide ${
-                        badgeColor[b.status]
-                      }`}
-                    >
-                      {badgeLabel[b.status]}
+                {/* Ceremony + Date */}
+                <div className="mb-3">
+                  <p className="text-lg font-bold text-slate-900 leading-tight">
+                    {b.ritual?.name ?? "Puja Ceremony"}
+                  </p>
+                  <div className="flex items-center gap-1 mt-1 text-sm text-slate-500">
+                    <span className="material-symbols-outlined text-base leading-none">
+                      calendar_today
                     </span>
-                    <span className="text-xs font-mono text-slate-400">#{b.bookingNumber}</span>
+                    <span>{formatDate(b.eventDate)}</span>
+                    {isToday(b.eventDate) && (
+                      <span className="ml-1 text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                        Today
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Customer info */}
+                <div className="flex items-center gap-4 flex-wrap mb-3">
+                  <a
+                    href={`tel:${b.customer?.user?.phone}`}
+                    className="flex items-center gap-1.5 text-sm text-slate-700 hover:text-primary transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-base leading-none">person</span>
+                    <span className="font-medium">{b.customer?.user?.fullName ?? "Customer"}</span>
+                  </a>
+                  <a
+                    href={`tel:${b.customer?.user?.phone}`}
+                    className="flex items-center gap-1.5 text-sm text-primary hover:text-primary/80 font-medium transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-base leading-none">call</span>
+                    <span>{b.customer?.user?.phone ?? "—"}</span>
+                  </a>
+                </div>
+
+                {/* Address */}
+                {b.venueAddress && (
+                  <a
+                    href={mapsUrl(b)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-start gap-1.5 text-sm text-slate-500 hover:text-primary transition-colors mb-3"
+                  >
+                    <span className="material-symbols-outlined text-base leading-none mt-0.5">
+                      location_on
+                    </span>
+                    <span className="underline underline-offset-2">
+                      {[b.venueAddress.line1, b.venueAddress.city, b.venueAddress.state, b.venueAddress.pincode]
+                        .filter(Boolean)
+                        .join(", ")}
+                    </span>
+                  </a>
+                )}
+
+                {/* Bottom row: Amount + Action */}
+                <div className="flex items-center justify-between gap-3 flex-wrap pt-3 border-t border-slate-100">
+                  <div className="flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-primary text-base leading-none">
+                      payments
+                    </span>
+                    <span className="text-base font-bold text-slate-900">
+                      ₹{fmtAmt(b.pricing?.total)}
+                    </span>
                   </div>
 
-                  {/* Ceremony + Date */}
-                  <div className="mb-3">
-                    <p className="text-lg font-bold text-slateate-900 leading-tight">
-                      {b.ritual?.name ?? "Puja Ceremony"}
-                    </p>
-                    <div className="flex items-center gap-1 mt-1 text-sm text-slate-500">
+                  {canComplete && (
+                    <button
+                      onClick={() => setConfirmId(b.id)}
+                      className="flex items-center gap-1.5 bg-green-600 hover:bg-green-700 text-white text-sm font-bold rounded-lg px-4 py-2.5 min-h-[44px] transition-colors shadow-sm"
+                    >
                       <span className="material-symbols-outlined text-base leading-none">
-                        calendar_today
+                        task_alt
                       </span>
-                      <span>{formatDate(b.eventDate)}</span>
-                      {isToday(b.eventDate) && (
-                        <span className="ml-1 text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-                          Today
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Customer info */}
-                  <div className="flex items-center gap-4 flex-wrap mb-3">
-                    <a
-                      href={`tel:${b.customer?.user?.phone}`}
-                      onClick={(e) => e.stopPropagation()}
-                      className="relative z-20 flex items-center gap-1.5 text-sm text-slate-700 hover:text-primary transition-colors"
-                    >
-                      <span className="material-symbols-outlined text-base leading-none">person</span>
-                      <span className="font-medium">{b.customer?.user?.fullName ?? "Customer"}</span>
-                    </a>
-                    <a
-                      href={`tel:${b.customer?.user?.phone}`}
-                      onClick={(e) => e.stopPropagation()}
-                      className="relative z-20 flex items-center gap-1.5 text-sm text-primary hover:text-primary/80 font-medium transition-colors"
-                    >
-                      <span className="material-symbols-outlined text-base leading-none">call</span>
-                      <span>{b.customer?.user?.phone ?? "—"}</span>
-                    </a>
-                  </div>
-
-                  {/* Address */}
-                  {b.venueAddress && (
-                    <a
-                      href={`https://maps.google.com/?q=${encodeURIComponent(
-                        [b.venueAddress.line1, b.venueAddress.city, b.venueAddress.state, b.venueAddress.pincode]
-                          .filter(Boolean)
-                          .join(", ")
-                      )}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={(e) => e.stopPropagation()}
-                      className="relative z-20 flex items-start gap-1.5 text-sm text-slate-500 hover:text-primary transition-colors mb-3"
-                    >
-                      <span className="material-symbols-outlined text-base leading-none mt-0.5">
-                        location_on
-                      </span>
-                      <span className="underline underline-offset-2">
-                        {[b.venueAddress.line1, b.venueAddress.city, b.venueAddress.state, b.venueAddress.pincode]
-                          .filter(Boolean)
-                          .join(", ")}
-                      </span>
-                    </a>
+                      पूजा संपन्न
+                    </button>
                   )}
 
-                  {/* Bottom row: Amount + Action */}
-                  <div className="flex items-center justify-between gap-3 flex-wrap pt-3 border-t border-slate-100">
-                    <div className="flex items-center gap-1.5">
-                      <span className="material-symbols-outlined text-primary text-base leading-none">
-                        payments
+                  {completedIds.has(b.id) && b.status === "COMPLETED" && (
+                    <span className="flex items-center gap-1 text-sm font-semibold text-green-600">
+                      <span className="material-symbols-outlined text-base leading-none">
+                        check_circle
                       </span>
-                      <span className="text-base font-bold text-slate-900">
-                        ₹{fmtAmt(b.pricing?.total)}
-                      </span>
-                    </div>
-
-                    {canComplete && (
-                      <button
-                        onClick={(e) => { e.stopPropagation(); setConfirmId(b.id); }}
-                        className="relative z-20 flex items-center gap-1.5 bg-green-600 hover:bg-green-700 text-white text-sm font-bold rounded-lg px-4 py-2.5 min-h-[44px] transition-colors shadow-sm"
-                      >
-                        <span className="material-symbols-outlined text-base leading-none">
-                          task_alt
-                        </span>
-                        पूजा संपन्न
-                      </button>
-                    )}
-
-                    {completedIds.has(b.id) && b.status === "COMPLETED" && (
-                      <span className="flex items-center gap-1 text-sm font-semibold text-green-600">
-                        <span className="material-symbols-outlined text-base leading-none">
-                          check_circle
-                        </span>
-                        Completed
-                      </span>
-                    )}
-                  </div>
+                      Completed
+                    </span>
+                  )}
                 </div>
               </div>
             );
