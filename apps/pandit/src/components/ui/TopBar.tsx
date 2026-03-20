@@ -12,6 +12,7 @@ interface TopBarProps {
   totalSteps?: number      // Default 6
   onBack?: () => void      // Custom back handler
   showLanguage?: boolean
+  onLanguageChange?: () => void  // ← triggers the language bottom sheet
 }
 
 export function TopBar({
@@ -20,9 +21,10 @@ export function TopBar({
   totalSteps = 6,
   onBack,
   showLanguage = true,
+  onLanguageChange,
 }: TopBarProps) {
   const router = useRouter()
-  const isListening = useVoiceStore((store) => store.state === 'listening')
+  const isListening = useVoiceStore((store: { state: string }) => store.state === 'listening')
 
   const handleBack = () => {
     // If voice is listening, pause it first (do not navigate immediately)
@@ -66,11 +68,12 @@ export function TopBar({
           ) : null}
         </div>
 
-        {/* Right: Language Button */}
+        {/* Right: Language Button (Comp. 25 — Language Change Widget) */}
         <div className="w-10 h-10 flex items-center justify-center">
           {showLanguage && (
             <motion.button
               whileTap={{ scale: 0.9 }}
+              onClick={onLanguageChange}
               className="flex flex-col items-center justify-center w-10 h-10"
               aria-label="Change language"
             >

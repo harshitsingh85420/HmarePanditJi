@@ -164,6 +164,12 @@ export default function OnboardingPage() {
     router.push('/onboarding/register')
   }, [updateState, router])
 
+  const handleLater = useCallback(() => {
+    // "Later" still sends them to registration — they've seen the full tutorial
+    updateState({ tutorialCompleted: true })
+    router.push('/onboarding/register')
+  }, [updateState, router])
+
   const handleHelpBack = useCallback(() => {
     // Return to previous reasonable state
     goToPhase('LANGUAGE_CONFIRM')
@@ -297,7 +303,7 @@ export default function OnboardingPage() {
           <TutorialCTA
             {...tutorialProps}
             onRegisterNow={handleRegistrationNow}
-            onLater={() => router.push('/dashboard')}
+            onLater={handleLater}
           />
         )
 
