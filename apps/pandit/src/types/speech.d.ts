@@ -1,65 +1,43 @@
-// Type definitions for Web Speech API
-// SpeechRecognition and SpeechSynthesis APIs
+// Web Speech API Type Declarations
+// These types are vendor-prefixed and not always included in standard TypeScript DOM types
 
-declare global {
-    interface Window {
-        SpeechRecognition: typeof SpeechRecognition;
-        webkitSpeechRecognition: typeof SpeechRecognition;
-    }
-
-    class SpeechRecognition extends EventTarget {
-        // Properties
-        continuous: boolean;
-        interimResults: boolean;
-        lang: string;
-        maxAlternatives: number;
-
-        // Methods
-        start(): void;
-        stop(): void;
-        abort(): void;
-
-        // Event handlers
-        onaudioend: ((this: SpeechRecognition, ev: Event) => any) | null;
-        onaudiostart: ((this: SpeechRecognition, ev: Event) => any) | null;
-        onend: ((this: SpeechRecognition, ev: Event) => any) | null;
-        onerror: ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => any) | null;
-        onnomatch: ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => any) | null;
-        onresult: ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => any) | null;
-        onsoundend: ((this: SpeechRecognition, ev: Event) => any) | null;
-        onsoundstart: ((this: SpeechRecognition, ev: Event) => any) | null;
-        onspeechend: ((this: SpeechRecognition, ev: Event) => any) | null;
-        onspeechstart: ((this: SpeechRecognition, ev: Event) => any) | null;
-        onstart: ((this: SpeechRecognition, ev: Event) => any) | null;
-    }
-
-    interface SpeechRecognitionErrorEvent extends Event {
-        error: string;
-        message: string;
-    }
-
-    interface SpeechRecognitionEvent extends Event {
-        results: SpeechRecognitionResultList;
-        resultIndex: number;
-    }
-
-    interface SpeechRecognitionResultList {
-        length: number;
-        item(index: number): SpeechRecognitionResult;
-        [index: number]: SpeechRecognitionResult;
-    }
-
-    interface SpeechRecognitionResult {
-        length: number;
-        item(index: number): SpeechRecognitionAlternative;
-        [index: number]: SpeechRecognitionAlternative;
-        isFinal: boolean;
-    }
-
-    interface SpeechRecognitionAlternative {
-        transcript: string;
-        confidence: number;
-    }
+interface SpeechRecognitionEvent extends Event {
+  readonly resultIndex: number;
+  readonly results: SpeechRecognitionResultList;
 }
 
-export { };
+interface SpeechRecognitionErrorEvent extends Event {
+  readonly error: string;
+  readonly message: string;
+}
+
+interface SpeechRecognition extends EventTarget {
+  continuous: boolean;
+  grammars: unknown;
+  interimResults: boolean;
+  lang: string;
+  maxAlternatives: number;
+  onaudioend: ((this: SpeechRecognition, ev: Event) => unknown) | null;
+  onaudiostart: ((this: SpeechRecognition, ev: Event) => unknown) | null;
+  onend: ((this: SpeechRecognition, ev: Event) => unknown) | null;
+  onerror: ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => unknown) | null;
+  onnomatch: ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => unknown) | null;
+  onresult: ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => unknown) | null;
+  onsoundend: ((this: SpeechRecognition, ev: Event) => unknown) | null;
+  onsoundstart: ((this: SpeechRecognition, ev: Event) => unknown) | null;
+  onspeechend: ((this: SpeechRecognition, ev: Event) => unknown) | null;
+  onspeechstart: ((this: SpeechRecognition, ev: Event) => unknown) | null;
+  onstart: ((this: SpeechRecognition, ev: Event) => unknown) | null;
+  start(): void;
+  stop(): void;
+  abort(): void;
+}
+
+declare const SpeechRecognition: {
+  new(): SpeechRecognition;
+};
+
+interface Window {
+  SpeechRecognition: typeof SpeechRecognition;
+  webkitSpeechRecognition: typeof SpeechRecognition;
+}
