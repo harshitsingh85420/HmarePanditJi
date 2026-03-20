@@ -44,11 +44,6 @@ interface RegistrationStore {
   reset: () => void
 }
 
-const STEP_ORDER: RegistrationStep[] = [
-  'language', 'welcome', 'mic_permission', 'location_permission',
-  'notification_permission', 'mobile', 'otp', 'profile', 'complete'
-]
-
 const REGISTRATION_STEPS: RegistrationStep[] = [
   'mobile', 'otp', 'profile', 'complete'
 ]

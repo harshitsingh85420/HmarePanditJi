@@ -2,9 +2,11 @@
 
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { useRegistrationStore } from '@/stores/registrationStore'
+import { useRegistrationStore, type RegistrationStep } from '@/stores/registrationStore'
 import { STEP_TO_ROUTE } from '@/lib/constants'
 import { Button } from '@/components/ui/Button'
+
+const REGISTRATION_SUMMARY_STEPS: RegistrationStep[] = ['mobile', 'otp', 'profile']
 
 const STEP_NAMES: Record<string, string> = {
   mobile: 'मोबाइल वेरिफिकेशन',
@@ -55,8 +57,8 @@ export default function ResumePage() {
 
       {/* Step list */}
       <div className="bg-surface-card rounded-card p-5 shadow-card mb-6">
-        {['mobile', 'otp', 'profile'].map((step) => {
-          const isComplete = data.completedSteps.includes(step as any)
+        {REGISTRATION_SUMMARY_STEPS.map((step, index) => {
+          const isComplete = data.completedSteps.includes(step)
           const isCurrent = data.currentStep === step
 
           return (
@@ -70,7 +72,7 @@ export default function ResumePage() {
                   <span className="material-symbols-outlined text-trust-green text-sm filled">check</span>
                 ) : (
                   <span className={`text-sm font-bold ${isCurrent ? 'text-white' : 'text-text-disabled'}`}>
-                    {['mobile', 'otp', 'profile'].indexOf(step) + 1}
+                    {index + 1}
                   </span>
                 )}
               </div>

@@ -116,7 +116,7 @@ export default function ManualCityScreen({ onCitySelected, onBack, onLanguageCha
             <span className="text-[20px] font-bold text-vedic-brown truncate">
               {isListening ? 'सुन रहा हूँ...' : (cityInput || 'अपना शहर बोलें')}
             </span>
-            <span className="text-[16px] text-vedic-gold">जैसे: 'वाराणसी' या 'दिल्ली'</span>
+            <span className="text-[16px] text-vedic-gold">जैसे: &apos;वाराणसी&apos; या &apos;दिल्ली&apos;</span>
           </div>
         </motion.div>
 

@@ -1,55 +1,205 @@
 'use client';
-import React from 'react';
-import { motion } from 'framer-motion';
+
+import React, { useEffect, useRef, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { speak, startListening, stopListening, stopSpeaking } from '@/lib/voice-engine';
 import TutorialShell from './TutorialShell';
+import { TutorialScreenProps } from './types';
+import { useSarvamVoiceFlow } from '@/lib/hooks/useSarvamVoiceFlow';
 
-interface Props { currentDot: number; onNext: () => void; onBack: () => void; onSkip: () => void; language?: string; onLanguageChange?: () => void; }
+type DemoState = 'ready' | 'listening' | 'success';
 
-export default function TutorialVoiceNav({ currentDot, onNext, onBack, onSkip }: Props) {
+const VOICE_NAV_SCRIPT =
+  "यह app आपकी आवाज़ से चलता है। टाइपिंग की कोई ज़रूरत नहीं। अभी कोशिश करिए — 'हाँ' या 'नहीं' बोलिए। Mic अभी सुन रहा है।";
+
+export default function TutorialVoiceNav({
+  currentDot,
+  onNext,
+  onBack,
+  onSkip,
+  language,
+}: TutorialScreenProps) {
+  const cleanupRef = useRef<(() => void) | undefined>(undefined);
+  const resetTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const [demoState, setDemoState] = useState<DemoState>('ready');
+  const [helperText, setHelperText] = useState('हाँ या नहीं बोलकर देखें');
+  const [ctaPulse, setCtaPulse] = useState(false);
+
+  const startDemo = () => {
+    cleanupRef.current?.();
+    setDemoState('listening');
+    setHelperText('हाँ या नहीं बोलकर देखें');
+    setCtaPulse(false);
+
+    cleanupRef.current = startListening({
+      language: 'hi-IN',
+      listenTimeoutMs: 15000,
+      onResult: () => {
+        setDemoState('success');
+        cleanupRef.current?.();
+        cleanupRef.current = undefined;
+        setHelperText('हाँ या नहीं बोलकर देखें');
+
+        resetTimerRef.current = setTimeout(() => {
+          setDemoState('ready');
+          startDemo();
+        }, 2000);
+      },
+      onError: (error) => {
+        if (error === 'TIMEOUT') {
+          setDemoState('ready');
+          setHelperText('कोई बात नहीं। Keyboard से भी चलता है।');
+          setCtaPulse(true);
+          speak('कोई बात नहीं। Keyboard से भी चलता है। नीचे Keyboard button हमेशा रहेगा।', 'hi-IN');
+        }
+      },
+    });
+  };
+
+  const { stopFlow } = useSarvamVoiceFlow({
+    language,
+    script: VOICE_NAV_SCRIPT,
+    autoListen: false,
+    onIntent: () => {},
+    onScriptComplete: () => {
+      window.setTimeout(startDemo, 300);
+    },
+  });
+
+  useEffect(() => {
+    return () => {
+      stopFlow();
+      clearTimeout(resetTimerRef.current);
+      cleanupRef.current?.();
+      stopListening();
+      stopSpeaking();
+    };
+  }, [stopFlow]);
+
   return (
-    <TutorialShell currentDot={currentDot} onNext={onNext} onBack={onBack} onSkip={onSkip}>
-      {/* Headline */}
-      <motion.div initial={{opacity:0,y:10}} animate={{opacity:1,y:0}} className="text-center mb-6">
-        <h1 className="text-3xl font-bold leading-tight text-vedic-brown">टाइपिंग की ज़रूरत नहीं।</h1>
-        <p className="text-vedic-gold text-lg mt-1">बोलकर खोजें और नेविगेट करें</p>
+    <TutorialShell
+      currentDot={currentDot}
+      onNext={onNext}
+      onBack={onBack}
+      onSkip={onSkip}
+      nextLabel="अगला फ़ायदा देखें →"
+      isListening={demoState === 'listening'}
+      showKeyboardToggle
+      onKeyboardToggle={() => {}}
+    >
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-6">
+        <h1 className="text-[30px] font-bold leading-tight text-vedic-brown">टाइपिंग की ज़रूरत नहीं।</h1>
       </motion.div>
 
-      {/* Demo Box */}
-      <motion.div initial={{scale:0.9,opacity:0}} animate={{scale:1,opacity:1}} transition={{delay:0.15}}
-        className="w-full aspect-square relative flex flex-col items-center justify-center border-4 border-dashed border-primary/40 rounded-xl bg-white shadow-sm mb-6 overflow-hidden">
-        {/* Success Pill */}
-        <div className="absolute top-5 flex items-center gap-2 bg-success-lt border border-success/30 text-success px-4 py-2 rounded-full shadow-sm">
-          <span className="text-sm">✅</span>
-          <span className="font-bold text-sm uppercase">शाबाश! बिल्कुल सही!</span>
-        </div>
-
-        {/* Pulsing Mic */}
-        <div className="relative flex items-center justify-center mt-8">
-          <motion.div animate={{scale:[1,1.3],opacity:[0.3,0]}} transition={{repeat:Infinity,duration:2}} className="absolute inset-0 bg-primary rounded-full w-24 h-24"></motion.div>
-          <motion.div animate={{scale:[1,1.3],opacity:[0.3,0]}} transition={{repeat:Infinity,duration:2,delay:1}} className="absolute inset-0 bg-primary rounded-full w-24 h-24"></motion.div>
-          <div className="relative z-10 w-24 h-24 bg-primary rounded-full flex items-center justify-center text-white shadow-cta">
-            <svg className="w-12 h-12" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z"/>
-            </svg>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.1 }}
+        className="flex flex-col items-center mb-6"
+      >
+        <div className="w-40 h-40 bg-primary-lt rounded-full flex flex-col items-center justify-center relative mb-2">
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-20 h-20 rounded-full border-2 border-primary/20" />
+            <div className="absolute w-28 h-28 rounded-full border-2 border-primary/10" />
+          </div>
+          <div className="absolute left-5 top-12 h-10 w-10 rounded-full border-2 border-primary/30 border-r-transparent border-b-transparent rotate-[-35deg]" />
+          <div className="absolute right-5 top-12 h-10 w-10 rounded-full border-2 border-primary/30 border-l-transparent border-b-transparent rotate-[35deg]" />
+          <span className="text-[64px] relative z-10">🎤</span>
+          <div className="absolute bottom-4 right-4 bg-white border border-primary/30 rounded-full px-2 py-1 text-[12px] font-bold text-primary shadow-sm">
+            हाँ
           </div>
         </div>
-
-        <div className="mt-8 text-center">
-          <p className="text-primary font-bold animate-pulse">सुन रहा हूँ...</p>
-          <p className="text-vedic-gold text-xs mt-1">"निकटतम एटीएम कहाँ है?"</p>
-        </div>
+        <p className="text-[16px] text-vedic-gold">बोलो → लिखाई हो जाती है</p>
       </motion.div>
 
-      {/* Keyboard toggle */}
-      <div className="flex justify-center">
-        <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-vedic-border/50 text-vedic-gold font-medium border border-vedic-border">
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <rect height="14" rx="2" width="18" x="3" y="5"></rect>
-            <path d="M7 9h.01M11 9h.01M15 9h.01M7 13h.01M11 13h.01M15 13h.01M8 17h8" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
-          </svg>
-          कीबोर्ड इस्तेमाल करें
-        </button>
-      </div>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.2 }}
+        className="text-center mb-4"
+      >
+        <p className="text-[16px] text-vedic-brown-2 mb-2">जब यह दिखे:</p>
+        <div className="inline-flex items-center gap-2 bg-primary-lt border border-primary px-3 py-1.5 rounded-full mb-3">
+          <div className="flex gap-0.5 items-end h-4">
+            {[2, 4, 3].map((height, index) => (
+              <motion.div
+                key={index}
+                animate={{ scaleY: [1, 2, 1] }}
+                transition={{ duration: 0.8, repeat: Infinity, delay: index * 0.15 }}
+                className="w-1 bg-primary rounded-full"
+                style={{ height: `${height * 3}px`, transformOrigin: 'bottom' }}
+              />
+            ))}
+          </div>
+          <span className="text-[14px] font-medium text-primary">सुन रहा हूँ...</span>
+        </div>
+        <p className="text-[28px] font-bold text-vedic-brown">तब बोलिए।</p>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="mb-4"
+      >
+        <div
+          className={`w-full h-[104px] rounded-[20px] border-2 border-dashed flex flex-col items-center justify-center transition-colors ${
+            demoState === 'success' ? 'bg-success-lt border-success' : 'bg-primary-lt border-primary'
+          }`}
+        >
+          <div className="relative flex items-center justify-center mb-1">
+            {demoState !== 'success' && (
+              <>
+                <motion.div
+                  animate={{ scale: [1, 2], opacity: [0.4, 0] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                  className="absolute w-11 h-11 rounded-full bg-primary"
+                />
+                <motion.div
+                  animate={{ scale: [1, 1.6], opacity: [0.3, 0] }}
+                  transition={{ duration: 1.5, repeat: Infinity, delay: 0.5 }}
+                  className="absolute w-11 h-11 rounded-full bg-primary"
+                />
+              </>
+            )}
+            <span className="text-[44px] relative z-10">🎤</span>
+          </div>
+          <p className="text-[18px] text-vedic-brown-2">{helperText}</p>
+        </div>
+
+        <AnimatePresence>
+          {demoState === 'success' && (
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              className="mt-3 flex justify-center"
+            >
+              <div className="bg-success-lt border border-success rounded-full px-6 py-3">
+                <p className="text-[20px] font-bold text-success">✅ शाबाश! बिल्कुल सही!</p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5 }}
+        className="text-center space-y-1"
+      >
+        <p className="text-[15px] text-vedic-gold">अगर बोलने में दिक्कत हो:</p>
+        <p className="text-[15px] font-medium text-vedic-brown-2">⌨️ Keyboard हमेशा नीचे है</p>
+      </motion.div>
+
+      {ctaPulse && (
+        <div className="mt-4 flex justify-center">
+          <div className="rounded-full bg-primary-lt px-4 py-2 text-[14px] font-medium text-primary animate-pulse">
+            अगले बटन से भी आगे बढ़ सकते हैं
+          </div>
+        </div>
+      )}
     </TutorialShell>
   );
 }

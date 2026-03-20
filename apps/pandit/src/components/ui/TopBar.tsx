@@ -22,7 +22,7 @@ export function TopBar({
   showLanguage = true,
 }: TopBarProps) {
   const router = useRouter()
-  const { isListening } = useVoiceStore() as { isListening: boolean }
+  const isListening = useVoiceStore((store) => store.state === 'listening')
 
   const handleBack = () => {
     // If voice is listening, pause it first (do not navigate immediately)
@@ -97,7 +97,6 @@ function ProgressPills({ current, total }: ProgressPillsProps) {
         const stepNum = i + 1
         const isCompleted = stepNum < current
         const isCurrent = stepNum === current
-        const isUpcoming = stepNum > current
 
         return (
           <div key={i} className="relative">

@@ -1,57 +1,79 @@
 'use client';
-import React from 'react';
-import { motion } from 'framer-motion';
-import TutorialShell from './TutorialShell';
 
-interface Props { currentDot: number; onNext: () => void; onBack: () => void; onSkip: () => void; language?: string; onLanguageChange?: () => void; }
+import React from 'react';
+import TutorialShell from './TutorialShell';
+import { TutorialScreenProps } from './types';
+import { useSarvamVoiceFlow } from '@/lib/hooks/useSarvamVoiceFlow';
 
 const GUARANTEES = [
-  { icon: '🏅', title: 'सम्मान', sub: 'Verified Badge, Zero Negotiation' },
-  { icon: '🎧', title: 'सुविधा', sub: 'Voice Nav, Auto Travel' },
-  { icon: '🔒', title: 'सुरक्षा', sub: 'Fixed Income, Instant Payment' },
-  { icon: '💰', title: 'समृद्धि', sub: '4 Income Streams, Backup Earnings' },
+  { icon: '🏅', title: 'सम्मान', sub: 'Verified Badge · Zero मोलभाव' },
+  { icon: '🎧', title: 'सुविधा', sub: 'Voice Navigation · Auto Travel' },
+  { icon: '🔒', title: 'सुरक्षा', sub: 'Fixed Income · Instant Payment' },
+  { icon: '💰', title: 'समृद्धि', sub: '4 Income Streams · Backup Earnings' },
 ];
 
-export default function TutorialGuarantees({ currentDot, onNext, onBack, onSkip }: Props) {
+const GUARANTEES_SCRIPT =
+  'यह रहे HmarePanditJi के चार वादे। एक — सम्मान। दो — सुविधा। तीन — सुरक्षा। चार — समृद्धि। तीन लाख से ज़्यादा पंडित पहले से जुड़ चुके हैं। अब Registration की बारी।';
+
+export default function TutorialGuarantees({
+  currentDot,
+  onNext,
+  onBack,
+  onSkip,
+  language,
+}: TutorialScreenProps) {
+  const { isListening } = useSarvamVoiceFlow({
+    language,
+    script: GUARANTEES_SCRIPT,
+    onIntent: (intent) => {
+      if (intent === 'FORWARD' || intent === 'YES') onNext();
+      else if (intent === 'BACK') onBack();
+      else if (intent === 'SKIP') onSkip();
+    },
+  });
+
   return (
-    <TutorialShell currentDot={currentDot} onNext={onNext} onBack={onBack} onSkip={onSkip} nextLabel="Registration शुरू करें →">
-      {/* Headline */}
-      <motion.section initial={{opacity:0,y:10}} animate={{opacity:1,y:0}} className="mb-8">
+    <TutorialShell
+      currentDot={currentDot}
+      onNext={onNext}
+      onBack={onBack}
+      onSkip={onSkip}
+      nextLabel="Registration शुरू करें →"
+      nextVariant="primary-dk"
+      isListening={isListening}
+      showKeyboardToggle
+      onKeyboardToggle={() => {}}
+    >
+      <section className="mb-8 animate-fade-up opacity-0">
         <h2 className="text-[22px] text-vedic-gold leading-tight">HmarePanditJi की</h2>
         <h1 className="text-[36px] font-bold text-vedic-brown leading-tight">4 गारंटी</h1>
-      </motion.section>
+      </section>
 
-      {/* Guarantee Cards Stack */}
-      <section className="space-y-4 mb-6">
-        {GUARANTEES.map((g, i) => (
-          <motion.div
-            key={i}
-            initial={{ x: 20, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ delay: 0.1 * (i + 1) }}
-            className="bg-white p-4 rounded-r-xl shadow-sm flex items-center gap-4 border-l-[6px] border-primary"
+      <section className="space-y-3 mb-6">
+        {GUARANTEES.map((guarantee, index) => (
+          <div
+            key={guarantee.title}
+            style={{ animationDelay: `${index * 0.2}s`, animationFillMode: 'forwards' }}
+            className="bg-white h-[80px] px-4 rounded-r-xl shadow-sm flex items-center gap-4 border-l-[6px] border-primary-dk animate-fade-up opacity-0"
           >
-            <div className="text-2xl bg-primary-lt p-3 rounded-full shrink-0">{g.icon}</div>
-            <div>
-              <h3 className="text-lg font-bold text-vedic-brown">{g.title}</h3>
-              <p className="text-sm text-vedic-gold">{g.sub}</p>
+            <div className="w-10 h-10 bg-primary-lt rounded-full flex items-center justify-center text-[20px] shrink-0">
+              {guarantee.icon}
             </div>
-          </motion.div>
+            <div>
+              <h3 className="text-[18px] font-bold text-vedic-brown leading-tight">{guarantee.title}</h3>
+              <p className="text-[15px] text-vedic-gold">{guarantee.sub}</p>
+            </div>
+          </div>
         ))}
       </section>
 
-      {/* Social Proof Strip */}
-      <motion.div initial={{opacity:0}} animate={{opacity:1}} transition={{delay:0.6}}
-        className="flex justify-center">
-        <div className="bg-primary-lt/50 border border-primary/20 rounded-full py-2 px-4 flex items-center justify-center gap-2">
-          <span className="flex -space-x-2">
-            {['bg-vedic-gold', 'bg-primary', 'bg-vedic-brown-2'].map((c, i) => (
-              <div key={i} className={`w-6 h-6 rounded-full ${c} border-2 border-white`}></div>
-            ))}
-          </span>
-          <p className="text-xs font-semibold text-vedic-brown">3,00,000+ पंडित पहले से जुड़े हैं</p>
-        </div>
-      </motion.div>
+      <div
+        style={{ animationDelay: '1s', animationFillMode: 'forwards' }}
+        className="bg-primary-lt/50 border border-primary/20 rounded-full py-3.5 px-5 flex items-center gap-3 justify-center animate-fade-up opacity-0"
+      >
+        <span className="text-[24px]">🤝</span>
+        <p className="text-[18px] font-semibold text-vedic-brown">3,00,000+ पंडित पहले से जुड़े हैं</p>
+      </div>
     </TutorialShell>
   );
 }

@@ -179,7 +179,9 @@ export function clearOnboardingState(): void {
   if (typeof window === 'undefined') return
   try {
     localStorage.removeItem(STORAGE_KEY)
-  } catch {}
+  } catch {
+    // Ignore localStorage cleanup failures silently.
+  }
 }
 
 // ─────────────────────────────────────────────────────────────

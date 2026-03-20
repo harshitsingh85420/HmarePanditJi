@@ -1,6 +1,5 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useVoiceStore, VoiceState } from '@/stores/voiceStore'
 
@@ -155,13 +154,13 @@ function Error3Content() {
         <div className="flex items-center justify-around">
           <div className="flex flex-col items-center gap-1">
             <span className="text-2xl">🎙️</span>
-            <span className="text-xs text-text-secondary">"नमस्ते"</span>
+            <span className="text-xs text-text-secondary">&quot;नमस्ते&quot;</span>
             <span className="material-symbols-outlined text-trust-green text-xl filled">check_circle</span>
           </div>
           <span className="text-text-disabled text-xl font-light">=</span>
           <div className="flex flex-col items-center gap-1">
             <span className="text-2xl">⌨️</span>
-            <span className="text-xs text-text-secondary">"नमस्ते"</span>
+            <span className="text-xs text-text-secondary">&quot;नमस्ते&quot;</span>
             <span className="material-symbols-outlined text-trust-green text-xl filled">check_circle</span>
           </div>
         </div>

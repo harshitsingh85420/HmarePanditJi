@@ -1,70 +1,131 @@
 'use client';
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import TutorialShell from './TutorialShell';
+import { TutorialScreenProps } from './types';
+import { useSarvamVoiceFlow } from '@/lib/hooks/useSarvamVoiceFlow';
 
-interface Props { currentDot: number; onNext: () => void; onBack: () => void; onSkip: () => void; language?: string; onLanguageChange?: () => void; }
+const PAYMENT_SCRIPT =
+  'पूजा खत्म हुई। दो मिनट में पैसे बैंक में। कोई इंतज़ार नहीं। और platform का share भी screen पर दिखेगा। छुपा कुछ नहीं।';
 
-export default function TutorialPayment({ currentDot, onNext, onBack, onSkip }: Props) {
-  const timeline = [
-    { time: '3:30 PM', label: 'पूजा संपन्न हुई (Dakshina confirmed)', icon: '✅', color: 'text-primary' },
-    { time: '3:31 PM', label: 'Processing instant settlement...', icon: '💳', color: 'text-vedic-gold' },
-    { time: '3:32 PM', label: 'बैंक खाते में जमा!', icon: '💚', color: 'text-success', bold: true },
-  ];
+export default function TutorialPayment({
+  currentDot,
+  onNext,
+  onBack,
+  onSkip,
+  language,
+}: TutorialScreenProps) {
+  const { isListening } = useSarvamVoiceFlow({
+    language,
+    script: PAYMENT_SCRIPT,
+    onIntent: (intent) => {
+      if (intent === 'FORWARD' || intent === 'YES') onNext();
+      else if (intent === 'BACK') onBack();
+      else if (intent === 'SKIP') onSkip();
+    },
+  });
 
   return (
-    <TutorialShell currentDot={currentDot} onNext={onNext} onBack={onBack} onSkip={onSkip}>
-      {/* Headline */}
-      <motion.div initial={{opacity:0,y:15}} animate={{opacity:1,y:0}} className="pb-6">
+    <TutorialShell
+      currentDot={currentDot}
+      onNext={onNext}
+      onBack={onBack}
+      onSkip={onSkip}
+      isListening={isListening}
+      showKeyboardToggle
+      onKeyboardToggle={() => {}}
+    >
+      <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="pb-6 text-center">
         <h1 className="text-[32px] font-bold leading-tight text-vedic-brown">पूजा ख़त्म।</h1>
         <h1 className="text-[32px] font-bold leading-tight text-primary">पैसे 2 मिनट में।</h1>
       </motion.div>
 
-      {/* Timeline Card */}
-      <motion.div initial={{y:20,opacity:0}} animate={{y:0,opacity:1}} transition={{delay:0.15}}
-        className="bg-white rounded-xl p-5 border border-vedic-border/50 shadow-card mb-5">
-        <div className="space-y-4">
-          {timeline.map((item, i) => (
-            <div key={i} className="flex items-start gap-4">
-              <div className="flex flex-col items-center">
-                <span className="text-xl">{item.icon}</span>
-                {i < timeline.length - 1 && <div className="w-0.5 h-8 bg-primary/20 mt-1"></div>}
-              </div>
-              <div className="flex-1">
-                <p className={`font-semibold text-sm ${item.bold ? 'text-success' : 'text-vedic-brown'}`}>{item.time}</p>
-                <p className="text-vedic-gold text-sm">{item.label}</p>
-              </div>
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.15 }}
+        className="bg-white rounded-card p-5 border border-vedic-border/50 shadow-card mb-5"
+      >
+        <div className="space-y-2">
+          <div className="flex items-start gap-4">
+            <div className="flex flex-col items-center">
+              <p className="text-[15px] text-vedic-gold w-14 shrink-0">3:30 PM</p>
             </div>
-          ))}
+            <div className="flex flex-col items-center">
+              <div className="w-3 h-3 rounded-full bg-success mt-0.5 shrink-0" />
+              <div className="w-0.5 h-6 border-l-2 border-dashed border-vedic-border mt-1" />
+            </div>
+            <p className="text-[18px] text-vedic-brown">पूजा समाप्त हुई</p>
+          </div>
+
+          <div className="flex items-start gap-4">
+            <div className="flex flex-col items-center">
+              <p className="text-[15px] text-vedic-gold w-14 shrink-0">3:31 PM</p>
+            </div>
+            <div className="flex flex-col items-center">
+              <div className="relative w-4 h-4 flex items-center justify-center mt-0.5 shrink-0">
+                <motion.div
+                  animate={{ scale: [1, 1.8], opacity: [0.5, 0] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                  className="absolute w-4 h-4 rounded-full bg-primary"
+                />
+                <div className="w-3 h-3 rounded-full bg-primary relative z-10" />
+              </div>
+              <div className="w-0.5 h-6 border-l-2 border-dashed border-vedic-border mt-1" />
+            </div>
+            <p className="text-[18px] text-vedic-brown">Payment शुरू हुआ</p>
+          </div>
+
+          <div className="flex items-start gap-4">
+            <div className="flex flex-col items-center">
+              <p className="text-[15px] text-vedic-gold w-14 shrink-0">3:32 PM</p>
+            </div>
+            <div className="flex flex-col items-center">
+              <div className="w-4 h-4 rounded-full bg-success mt-0.5 shrink-0" />
+            </div>
+            <p className="text-[26px] font-bold text-success">✅ ₹2,325 आपके Bank में</p>
+          </div>
         </div>
       </motion.div>
 
-      {/* Payment Breakdown */}
-      <motion.div initial={{y:20,opacity:0}} animate={{y:0,opacity:1}} transition={{delay:0.3}}
-        className="bg-white rounded-xl p-5 border border-success/20 shadow-card" style={{boxShadow:'0 0 20px rgba(34,197,94,0.1)'}}>
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="font-bold text-vedic-brown">Payment Summary</h3>
-          <span className="bg-success-lt text-success text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">Success</span>
-        </div>
-        <div className="space-y-3">
-          <div className="flex justify-between text-sm">
-            <span className="text-vedic-gold">Total Dakshina</span>
-            <span className="text-vedic-brown font-medium">₹2,735</span>
-          </div>
-          <div className="flex justify-between text-sm">
-            <span className="text-vedic-gold">Platform Fee (15%)</span>
-            <span className="text-error font-medium">− ₹410</span>
-          </div>
-          <div className="h-px bg-vedic-border my-1"></div>
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.3 }}
+        className="bg-success-lt border-l-4 border-success rounded-xl px-5 py-4"
+      >
+        <p className="text-[14px] text-vedic-gold italic mb-2">एक असली उदाहरण:</p>
+        <div className="h-px bg-success/20 mb-3" />
+        <div className="space-y-2.5">
           <div className="flex justify-between items-center">
-            <span className="text-vedic-brown font-bold">You Received</span>
-            <span className="text-success text-2xl font-bold">₹2,325</span>
+            <span className="text-[18px] text-vedic-brown">आपकी दक्षिणा:</span>
+            <span className="text-[18px] text-vedic-brown font-medium">₹2,500</span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-[16px] text-vedic-gold">Platform (15%):</span>
+            <span className="text-[18px] text-error font-medium">−₹375</span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-[16px] text-vedic-gold">यात्रा भत्ता:</span>
+            <span className="text-[18px] text-success font-medium">+₹200</span>
+          </div>
+          <div className="h-px bg-success/30" />
+          <div className="flex justify-between items-center">
+            <span className="text-[18px] font-bold text-success">आपको मिला:</span>
+            <span className="text-[22px] font-bold text-success">₹2,325</span>
           </div>
         </div>
-        <div className="mt-4 p-3 bg-primary/5 rounded-lg flex items-center gap-2">
-          <span className="text-primary">ℹ️</span>
-          <p className="text-[11px] text-vedic-gold">15% platform fee for server, marketing & secure transfers.</p>
-        </div>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5 }}
+        className="text-center mt-5 space-y-1"
+      >
+        <p className="text-[16px] font-semibold text-vedic-brown-2">हर रुपये का हिसाब।</p>
+        <p className="text-[15px] text-vedic-brown-2">कोई छुपाई नहीं।</p>
       </motion.div>
     </TutorialShell>
   );

@@ -1,45 +1,81 @@
 'use client';
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
+import { speak, startListening, stopListening, stopSpeaking } from '@/lib/voice-engine';
+import { TutorialScreenProps } from './types';
 
-interface TutorialCTAProps {
-  currentDot: number;
-  onNext: () => void;
-  onBack: () => void;
-  onSkip: () => void;
+interface TutorialCTAProps extends TutorialScreenProps {
   onRegisterNow: () => void;
   onLater: () => void;
-  language?: string;
-  onLanguageChange?: () => void;
 }
 
-export default function TutorialCTA({ currentDot, onBack, onSkip, onRegisterNow, onLater }: TutorialCTAProps) {
+export default function TutorialCTA({ onRegisterNow, onLater }: TutorialCTAProps) {
+  const cleanupRef = useRef<(() => void) | undefined>(undefined);
+
+  useEffect(() => {
+    const t = setTimeout(() => {
+      speak('Bas itna tha parichay. Ab registration shuru kar sakte hain.', 'hi-IN', () => {
+        setTimeout(() => {
+          speak('Bilkul muft, das minute lagenge.', 'hi-IN', () => {
+            setTimeout(() => {
+              speak("'Haan' bolein ya button dabayein.", 'hi-IN', () => {
+                setTimeout(() => {
+                  cleanupRef.current = startListening({
+                    language: 'hi-IN',
+                    onResult: (result) => {
+                      const lower = result.transcript.toLowerCase();
+                      if (
+                        lower.includes('haan') || lower.includes('ha') ||
+                        lower.includes('yes') || lower.includes('register') ||
+                        lower.includes('shuru')
+                      ) {
+                        onRegisterNow();
+                      }
+                    },
+                    onError: () => {},
+                  });
+                }, 800);
+              });
+            }, 400);
+          });
+        }, 400);
+      });
+    }, 300);
+
+    return () => {
+      clearTimeout(t);
+      cleanupRef.current?.();
+      stopListening();
+      stopSpeaking();
+    };
+  }, [onRegisterNow]);
+
   return (
     <main className="min-h-dvh max-w-[390px] mx-auto bg-vedic-cream font-hind text-vedic-brown flex flex-col shadow-2xl relative overflow-hidden">
-      {/* Progress Dots Header */}
-      <header className="pt-10 px-6 flex justify-center">
+      {/* Progress Dots + Completion Badge */}
+      <header className="pt-10 px-6 flex flex-col items-center gap-2">
         <div className="flex gap-1.5">
           {Array.from({ length: 12 }).map((_, i) => (
             <span key={i} className="w-2 h-2 rounded-full bg-primary-dk" />
           ))}
         </div>
+        <p className="text-[14px] font-semibold text-success">✓ Tutorial पूरा हुआ</p>
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col items-center px-8 pt-8 text-center">
+      <section className="flex-1 flex flex-col items-center px-8 pt-8 text-center">
         {/* Hero Illustration */}
-        <motion.div
-          animate={{ y: [0, -10, 0] }}
-          transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-          className="relative w-56 h-56 mb-8 flex items-center justify-center"
-        >
-          <div className="absolute inset-0 bg-vedic-border opacity-50 rounded-full scale-110"></div>
-          <img
-            alt="Confident Pandit with Phone"
-            className="relative z-10 w-full h-full object-contain rounded-full"
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuBRWa_13F4-aVsD0ktpjx7I-0ylP0a-7XTfzUPyWcReq5rZvxBmZibCypToJibCKn_H0Im6IHsbFF3GPp29X1i-J10S4_o5uq59JgrlacGQ4D8JSNphmdVtRz33LI9Pkc8LTEp15_cvo5UD1fCn6b5v73eHx_qhRumw7i1TMSLKJxp7ausFDM5b1XMFVpSDbMQpEqO-JYe8tjOYgHvqPeOBoxrwsAOVs4uWwHvToaUabgP6dduc1Qr7w0gfiluxENdlKQ4jE_tK_nl5"
-          />
-        </motion.div>
+        <div className="relative w-[200px] h-[200px] flex items-center justify-center mb-8">
+          <div className="absolute inset-0 bg-primary-lt/30 rounded-full" />
+          <div className="absolute inset-0 bg-primary/12 rounded-full blur-xl" />
+          <motion.span
+            animate={{ y: [0, -10, 0] }}
+            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+            className="relative z-10 text-[96px] leading-none"
+          >
+            🧘
+          </motion.span>
+        </div>
 
         {/* Headlines */}
         <div className="space-y-4">
@@ -52,12 +88,15 @@ export default function TutorialCTA({ currentDot, onBack, onSkip, onRegisterNow,
           </div>
         </div>
 
+        {/* Divider */}
+        <div className="w-full h-px bg-vedic-border/40 my-8" />
+
         {/* Action Buttons */}
-        <div className="w-full mt-10 space-y-4">
+        <div className="w-full space-y-4">
           <motion.button
             whileTap={{ scale: 0.97 }}
             onClick={onRegisterNow}
-            className="w-full h-[72px] bg-primary-dk text-white rounded-2xl flex items-center justify-center gap-2 text-[22px] font-bold shadow-cta-dk active:scale-95 transition-transform"
+            className="w-full h-[72px] bg-primary-dk text-white rounded-2xl flex items-center justify-center gap-2 text-[22px] font-bold shadow-cta-dk outline outline-2 outline-offset-2 outline-primary/30 active:scale-95 transition-transform"
           >
             <span>✅</span> हाँ, Registration शुरू करें →
           </motion.button>
@@ -69,14 +108,19 @@ export default function TutorialCTA({ currentDot, onBack, onSkip, onRegisterNow,
             बाद में करूँगा
           </motion.button>
         </div>
-      </main>
+      </section>
 
-      {/* Footer */}
-      <footer className="pb-10 px-8 text-center space-y-2">
-        <p className="text-[14px] text-vedic-brown-2 opacity-70">मदद चाहिए? टोल-फ्री कॉल करें</p>
-        <a className="text-[18px] font-bold text-primary-dk tracking-wide" href="tel:1800435000">
-          1800-HPJ-HELP
-        </a>
+      {/* Footer — Helpline */}
+      <footer className="pb-10 px-8 text-center space-y-1 mt-8">
+        <div className="flex items-center justify-center gap-2 flex-wrap">
+          <span className="text-[18px]">📞</span>
+          <span className="text-[16px] text-vedic-brown-2">कोई सवाल?</span>
+          <a className="text-[18px] font-bold text-primary-dk tracking-wide" href="tel:1800435000">
+            1800-HPJ-HELP
+          </a>
+          <span className="text-[14px] text-vedic-brown-2">(Toll Free)</span>
+        </div>
+        <p className="text-[14px] text-vedic-gold">सुबह 8 बजे – रात 10 बजे</p>
       </footer>
     </main>
   );

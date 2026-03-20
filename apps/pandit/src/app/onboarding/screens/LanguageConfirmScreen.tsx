@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { speak, startListening, stopListening, stopSpeaking } from '@/lib/voice-engine';
 import { LANGUAGE_DISPLAY, SupportedLanguage } from '@/lib/onboarding-store';
@@ -18,44 +18,73 @@ export default function LanguageConfirmScreen({
   detectedCity,
   onConfirm,
   onChange,
-  onLanguageChange
+  onLanguageChange,
 }: LanguageConfirmScreenProps) {
   const langInfo = LANGUAGE_DISPLAY[language] || LANGUAGE_DISPLAY['Hindi'];
+  const cleanupRef = useRef<(() => void) | undefined>(undefined);
 
   useEffect(() => {
-    let cleanup: (() => void) | undefined;
+    let timeout12s: ReturnType<typeof setTimeout>;
+    let timeout24s: ReturnType<typeof setTimeout>;
+
+    const city = detectedCity || 'आपके शहर';
 
     const t = setTimeout(() => {
       speak(
-        `Aapke shehar ke hisaab se, humne ${langInfo.latinName} ko chuna hai. Kya yeh sahi hai? Haan ya Nahi bolein.`,
+        `${city} ke hisaab se hum ${langInfo.latinName} set kar rahe hain. Kya yeh theek hai? 'Haan' bolein ya 'Badle' bolein.`,
         'hi-IN',
         () => {
-          // After speaking — start listening with 500ms buffer (already handled inside speak via postTtsTimeout)
-          cleanup = startListening({
-            language: 'hi-IN',
-            onResult: (result) => {
-              const lower = result.transcript.toLowerCase();
-              if (lower.includes('haan') || lower.includes('ha') || lower.includes('yes') || lower.includes('sahi') || lower.includes('theek') || lower.includes('bilkul')) {
-                onConfirm();
-              } else if (lower.includes('nahi') || lower.includes('naa') || lower.includes('no') || lower.includes('badlo') || lower.includes('change') || lower.includes('alag')) {
-                onChange();
-              }
-            },
-            onError: () => {
-              // Silently ignore — user can tap buttons
-            },
-          });
+          // STT starts 800ms after TTS ends
+          setTimeout(() => {
+            cleanupRef.current = startListening({
+              language: 'hi-IN',
+              onResult: (result) => {
+                const lower = result.transcript.toLowerCase();
+                if (
+                  lower.includes('haan') || lower.includes('ha') ||
+                  lower.includes('yes') || lower.includes('sahi') ||
+                  lower.includes('theek') || lower.includes('bilkul')
+                ) {
+                  clearTimeout(timeout12s);
+                  clearTimeout(timeout24s);
+                  speak('Bahut achha.', 'hi-IN', () => onConfirm());
+                } else if (
+                  lower.includes('nahi') || lower.includes('naa') ||
+                  lower.includes('no') || lower.includes('badlo') ||
+                  lower.includes('badle') || lower.includes('change') ||
+                  lower.includes('alag')
+                ) {
+                  clearTimeout(timeout12s);
+                  clearTimeout(timeout24s);
+                  speak('Theek hai. Aap kaun si bhasha chahte hain?', 'hi-IN', () => onChange());
+                }
+              },
+              onError: () => {},
+            });
+
+            // 12s reprompt
+            timeout12s = setTimeout(() => {
+              speak("Kripya 'Haan' ya 'Badlein' bolein, ya neeche button dabayein.", 'hi-IN');
+            }, 12000);
+
+            // 24s auto-confirm (silent)
+            timeout24s = setTimeout(() => {
+              onConfirm();
+            }, 24000);
+          }, 800);
         }
       );
-    }, 600);
+    }, 400);
 
     return () => {
       clearTimeout(t);
-      cleanup?.();
+      clearTimeout(timeout12s);
+      clearTimeout(timeout24s);
+      cleanupRef.current?.();
       stopListening();
       stopSpeaking();
     };
-  }, [language, langInfo.latinName, onConfirm, onChange]);
+  }, [language, langInfo.latinName, detectedCity, onConfirm, onChange]);
 
   return (
     <main className="w-full min-h-dvh bg-vedic-cream shadow-2xl relative flex flex-col overflow-hidden items-center text-vedic-brown font-hind">
@@ -63,7 +92,7 @@ export default function LanguageConfirmScreen({
       <header className="flex items-center p-4 w-full justify-between">
         <button onClick={onChange} aria-label="Go back" className="p-2 hover:bg-black/5 rounded-full transition-colors active:scale-95">
           <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
+            <path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
           </svg>
         </button>
         <button onClick={onLanguageChange} className="text-[24px] active:opacity-50">🌐</button>
@@ -91,17 +120,12 @@ export default function LanguageConfirmScreen({
           transition={{ type: 'spring', damping: 20, stiffness: 200 }}
           className="w-full bg-white rounded-[20px] py-12 px-8 flex flex-col items-center shadow-card-hover animate-gentle-float"
         >
-          {/* Language Script Icon */}
           <div className="text-[64px] font-bold mb-2 text-primary animate-glow-pulse">
             {langInfo.scriptChar}
           </div>
-
-          {/* Language Name */}
           <h1 className="text-[48px] font-bold leading-tight mb-4 text-vedic-brown">
             {langInfo.nativeName}
           </h1>
-
-          {/* Question Text */}
           <p className="text-[22px] text-vedic-gold text-center leading-snug">
             क्या इस भाषा में बात करना चाहेंगे?
           </p>
@@ -110,12 +134,12 @@ export default function LanguageConfirmScreen({
         {/* Voice Status */}
         <div className="mt-12 flex flex-col items-center">
           <div className="flex items-end gap-1.5 h-6 mb-3">
-            <div className="w-1.5 bg-primary rounded-full animate-voice-bar"></div>
-            <div className="w-1.5 bg-primary rounded-full animate-voice-bar-2 h-full"></div>
-            <div className="w-1.5 bg-primary rounded-full animate-voice-bar-3"></div>
+            <div className="w-1.5 bg-primary rounded-full animate-voice-bar" />
+            <div className="w-1.5 bg-primary rounded-full animate-voice-bar-2 h-full" />
+            <div className="w-1.5 bg-primary rounded-full animate-voice-bar-3" />
           </div>
           <p className="text-primary font-medium text-lg mb-1">सुन रहा हूँ...</p>
-          <p className="text-vedic-gold text-sm italic">"हाँ" या "बदलें" बोलें</p>
+          <p className="text-vedic-gold text-sm italic">&quot;हाँ&quot; या &quot;बदलें&quot; बोलें</p>
         </div>
       </div>
 
@@ -123,7 +147,9 @@ export default function LanguageConfirmScreen({
       <footer className="p-6 space-y-4 mb-8 w-full max-w-[390px]">
         <motion.button
           initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}
-          onClick={onConfirm}
+          onClick={() => {
+            speak('Bahut achha.', 'hi-IN', () => onConfirm());
+          }}
           className="w-full py-4 bg-primary text-white font-bold text-lg rounded-btn shadow-cta transition-transform active:scale-95"
         >
           हाँ, यही भाषा सही है
@@ -131,7 +157,9 @@ export default function LanguageConfirmScreen({
 
         <motion.button
           initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 }}
-          onClick={onChange}
+          onClick={() => {
+            speak('Theek hai. Aap kaun si bhasha chahte hain?', 'hi-IN', () => onChange());
+          }}
           className="w-full py-4 bg-white border-2 border-primary text-primary font-bold text-lg rounded-btn transition-transform active:scale-95"
         >
           दूसरी भाषा चुनें

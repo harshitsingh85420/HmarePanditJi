@@ -40,11 +40,6 @@ export const useVoiceStore = create<VoiceStore>((set, get) => ({
   isKeyboardMode: false,
 
   setState: (voiceState) => {
-    const errorStateMap: Record<string, VoiceState> = {
-      error_1: 'error_1',
-      error_2: 'error_2',
-      error_3: 'error_3',
-    }
     set({ state: voiceState })
     if (voiceState === 'error_3') {
       set({ isKeyboardMode: true })

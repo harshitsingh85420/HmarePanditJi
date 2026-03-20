@@ -1,8 +1,10 @@
 'use client'
 
-// ─────────────────────────────────────────────────────────────
+// DEPRECATED: legacy browser-voice fallback used by the Sarvam/Deepgram adapters.
+
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // TYPES
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export type VoiceState =
   | 'IDLE'
@@ -28,9 +30,16 @@ export type VoiceEngineConfig = {
   onError?: (error: string) => void
 }
 
-// ─────────────────────────────────────────────────────────────
-// LANGUAGE → BCP-47 MAP
-// ─────────────────────────────────────────────────────────────
+type BrowserSpeechRecognitionCtor = new () => SpeechRecognition
+
+type BrowserSpeechWindow = Window & typeof globalThis & {
+  SpeechRecognition?: BrowserSpeechRecognitionCtor
+  webkitSpeechRecognition?: BrowserSpeechRecognitionCtor
+}
+
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// LANGUAGE â†’ BCP-47 MAP
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export const LANGUAGE_TO_BCP47: Record<string, string> = {
   'Hindi': 'hi-IN',
@@ -50,9 +59,9 @@ export const LANGUAGE_TO_BCP47: Record<string, string> = {
   'Assamese': 'as-IN',
 }
 
-// ─────────────────────────────────────────────────────────────
-// INTENT → WORD MAP (Fuzzy matching for voice commands)
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// INTENT â†’ WORD MAP (Fuzzy matching for voice commands)
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 type VoiceIntent = 'YES' | 'NO' | 'SKIP' | 'HELP' | 'CHANGE' | 'FORWARD' | 'BACK'
 
@@ -126,9 +135,9 @@ export function detectLanguageName(transcript: string): string | null {
   return null
 }
 
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // VOICE STATE MACHINE (GLOBAL)
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export let globalVoiceState: VoiceState = 'IDLE'
 
@@ -136,9 +145,9 @@ export function setGlobalVoiceState(state: VoiceState) {
   globalVoiceState = state
 }
 
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // TTS (TEXT TO SPEECH)
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 let ttsUtterance: SpeechSynthesisUtterance | null = null
 let postTtsTimeout: ReturnType<typeof setTimeout> | null = null
@@ -169,7 +178,7 @@ export function speak(
 
   ttsUtterance = new SpeechSynthesisUtterance(text)
   ttsUtterance.lang = languageBcp47
-  ttsUtterance.rate = 0.88     // Slightly slower than natural — elderly users
+  ttsUtterance.rate = 0.88     // Slightly slower than natural â€” elderly users
   ttsUtterance.pitch = 1.0
   ttsUtterance.volume = 1.0
 
@@ -189,7 +198,7 @@ export function speak(
     }, 500) // 500ms post-TTS buffer
   }
   ttsUtterance.onerror = () => {
-    console.warn('[VoiceEngine] TTS error — calling onEnd anyway')
+    console.warn('[VoiceEngine] TTS error â€” calling onEnd anyway')
     postTtsTimeout = setTimeout(() => {
       setGlobalVoiceState('IDLE')
       onEnd?.()
@@ -210,9 +219,9 @@ export function stopSpeaking(): void {
   setGlobalVoiceState('IDLE')
 }
 
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // STT (SPEECH TO TEXT)
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 let recognition: SpeechRecognition | null = null
 let listenTimeout: ReturnType<typeof setTimeout> | null = null
@@ -229,9 +238,10 @@ export function startListening(config: VoiceEngineConfig): () => void {
   // Also stop any TTS just in case
   stopSpeaking()
 
+  const speechWindow = window as BrowserSpeechWindow
   const SpeechRecognition =
-    (window as any).SpeechRecognition ||
-    (window as any).webkitSpeechRecognition
+    speechWindow.SpeechRecognition ||
+    speechWindow.webkitSpeechRecognition
 
   if (!SpeechRecognition) {
     console.warn('[VoiceEngine] SpeechRecognition not supported')
@@ -241,7 +251,7 @@ export function startListening(config: VoiceEngineConfig): () => void {
 
   // Stop any existing recognition
   if (recognition) {
-    try { recognition.stop() } catch {}
+    try { recognition.stop() } catch { /* noop */ }
     recognition = null
   }
 
@@ -319,7 +329,7 @@ export function startListening(config: VoiceEngineConfig): () => void {
   // Auto-timeout if no speech detected
   listenTimeout = setTimeout(() => {
     if (recognition) {
-      try { recognition.stop() } catch {}
+      try { recognition.stop() } catch { /* noop */ }
       recognition = null
     }
     setGlobalVoiceState('IDLE')
@@ -331,7 +341,7 @@ export function startListening(config: VoiceEngineConfig): () => void {
   return () => {
     clearListenTimeout()
     if (recognition) {
-      try { recognition.stop() } catch {}
+      try { recognition.stop() } catch { /* noop */ }
       recognition = null
     }
   }
@@ -347,7 +357,7 @@ function clearListenTimeout(): void {
 export function stopListening(): void {
   clearListenTimeout()
   if (recognition) {
-    try { recognition.stop() } catch {}
+    try { recognition.stop() } catch { /* noop */ }
     recognition = null
   }
   if (globalVoiceState === 'LISTENING' || globalVoiceState === 'PROCESSING') {
@@ -355,16 +365,17 @@ export function stopListening(): void {
   }
 }
 
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // IS VOICE SUPPORTED
-// ─────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export function isVoiceSupported(): boolean {
   if (typeof window === 'undefined') return false
+  const speechWindow = window as BrowserSpeechWindow
   const hasTTS = !!window.speechSynthesis
   const hasSTT = !!(
-    (window as any).SpeechRecognition ||
-    (window as any).webkitSpeechRecognition
+    speechWindow.SpeechRecognition ||
+    speechWindow.webkitSpeechRecognition
   )
   return hasTTS && hasSTT
 }

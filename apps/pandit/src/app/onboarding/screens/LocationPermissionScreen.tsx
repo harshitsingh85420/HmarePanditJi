@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { speak, stopSpeaking } from '@/lib/voice-engine';
-import TopBar from '@/components/TopBar';
 
 interface LocationPermissionScreenProps {
   language: string;
@@ -13,7 +12,7 @@ interface LocationPermissionScreenProps {
 }
 
 export default function LocationPermissionScreen({
-  language,
+  language: _language,
   onLanguageChange,
   onGranted,
   onDenied

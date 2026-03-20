@@ -5,6 +5,42 @@
 
 ---
 
+## PART 1 UI REFERENCE FOLDER MAPPING
+
+The UI/UX mockups, complete with HTML code and images for Part 1 (screens 0-15), are available in the directory:
+`E:\HmarePanditJi\hmarepanditji\prompts\part 1\F 1&2\stitch_welcome_screen_0_15\`
+
+Use the following mapping to locate the visual reference for each component or screen when implementing voice flows and UI components:
+
+| Component / Screen Name | Screen Code | UI Reference Folder Name |
+|-------------------------|-------------|--------------------------|
+| Homepage | E-01 | `homepage_e_01`, `homepage_calm_happy` |
+| Identity Confirmation | E-02 | `identity_confirmation_e_02`, `identity_confirmation_calm_happy` |
+| Referral Landing | E-04 | `referral_landing_e_04` |
+| Language Selection | PR-01 / S-0.0.5 | `language_choice_confirmation_s_0.0.5` |
+| Welcome Voice Intro | PR-02 | `welcome_voice_intro` |
+| Mobile Number | R-01 | `mobile_collection_r_01` |
+| OTP Verification | R-02 | `otp_verification_r_02` |
+| Mic Permission | P-02 | `mic_permission_p_02_1`, `mic_permission_p_02_2` |
+| Mic Denied Recovery | P-02-B | `mic_denied_recovery_p_02_b`, `mic_denied_recovery` |
+| Location Permissions | P-03 / S-0.0.2 | `location_permission_s_0.0.2` |
+| Active Listening | V-02 | `active_listening_overlay` |
+| Voice Speech Guidance | V-01 | `voice_speech_guidance` |
+| Voice Confirmation Loop | V-04 | `voice_confirmation_loop` |
+| Voice Error 3rd Failure | V-07 | `voice_error_transition_v_07` |
+| Gentle Voice Retry | V-05/06 | `gentle_voice_retry` |
+| Network Lost Banner | X-01 | `network_lost_banner` |
+| Session Save Notice | P-01 | `session_save_notice_p_01`, `session_save_notice` |
+| Resume Registration | | `resume_registration` |
+| Celebration Overlay | T-02 | `step_completion_celebration` |
+| TopBar Component | | `top_bar_component_states` |
+| Sahayata Help Screen | | `sahayata_help_screen` |
+| Saffron Glow Effect | | `saffron_glow` |
+| Complete Visual Mockup | | `complete_visual_flow_mockup` |
+| Emergency SOS Feature | | `emergency_sos_feature_42` |
+
+---
+
 # PART A: GLOBAL VOICE TECHNOLOGY ANALYSIS
 ## Every Major Voice Tool in the World, Ranked for HmarePanditJi
 

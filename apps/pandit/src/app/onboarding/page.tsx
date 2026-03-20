@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { motion, AnimatePresence } from 'framer-motion'
 import {
   OnboardingState,
   OnboardingPhase,
@@ -164,10 +163,6 @@ export default function OnboardingPage() {
     updateState({ tutorialCompleted: true })
     router.push('/onboarding/register')
   }, [updateState, router])
-
-  const handleHelpRequested = useCallback(() => {
-    updateState({ helpRequested: true, phase: 'HELP' })
-  }, [updateState])
 
   const handleHelpBack = useCallback(() => {
     // Return to previous reasonable state

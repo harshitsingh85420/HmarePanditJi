@@ -1,64 +1,102 @@
 'use client';
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import TutorialShell from './TutorialShell';
+import { TutorialScreenProps } from './types';
+import { useSarvamVoiceFlow } from '@/lib/hooks/useSarvamVoiceFlow';
 
-interface Props { currentDot: number; onNext: () => void; onBack: () => void; onSkip: () => void; language?: string; onLanguageChange?: () => void; }
+const VIDEO_VERIFY_SCRIPT =
+  'Verified होने का मतलब है — ज़्यादा bookings। Verified पंडितों को तीन गुना ज़्यादा bookings मिलती हैं। इसके लिए हर पूजा के लिए सिर्फ दो मिनट का video — एक बार। यह video सिर्फ हमारी admin team देखेगी। Public नहीं होगी।';
 
-export default function TutorialVideoVerify({ currentDot, onNext, onBack, onSkip }: Props) {
+export default function TutorialVideoVerify({
+  currentDot,
+  onNext,
+  onBack,
+  onSkip,
+  language,
+}: TutorialScreenProps) {
+  const { isListening } = useSarvamVoiceFlow({
+    language,
+    script: VIDEO_VERIFY_SCRIPT,
+    onIntent: (intent) => {
+      if (intent === 'FORWARD' || intent === 'YES') onNext();
+      else if (intent === 'BACK') onBack();
+      else if (intent === 'SKIP') onSkip();
+    },
+  });
+
   return (
-    <TutorialShell currentDot={currentDot} onNext={onNext} onBack={onBack} onSkip={onSkip} nextLabel="आगे देखें → (लगभग हो गया!)">
-      {/* Headline */}
-      <motion.section initial={{opacity:0,y:10}} animate={{opacity:1,y:0}} className="mb-6">
-        <h1 className="text-[26px] font-bold leading-tight text-vedic-brown">
-          ✅ Verified का मतलब<br/>
-          <span className="text-primary">ज़्यादा Bookings</span>
-        </h1>
+    <TutorialShell
+      currentDot={currentDot}
+      onNext={onNext}
+      onBack={onBack}
+      onSkip={onSkip}
+      nextLabel="आगे देखें → (लगभग हो गया!)"
+      isListening={isListening}
+      showKeyboardToggle
+      onKeyboardToggle={() => {}}
+    >
+      <motion.section initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-6 text-center">
+        <h1 className="text-[26px] font-bold leading-tight text-vedic-brown">✅ Verified का मतलब</h1>
+        <h1 className="text-[26px] font-bold text-primary leading-tight">ज़्यादा Bookings</h1>
       </motion.section>
 
-      {/* Profile Preview Card */}
-      <motion.section initial={{y:20,opacity:0}} animate={{y:0,opacity:1}} transition={{delay:0.1}}
-        className="mb-6 animate-gentle-float">
-        <div className="bg-white rounded-3xl p-5 border border-primary-lt shadow-card relative" style={{boxShadow:'0 10px 25px -5px rgba(240,153,66,0.15)'}}>
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-16 h-16 rounded-full bg-primary-lt overflow-hidden border-2 border-primary shrink-0">
-              <img alt="Pandit Profile" className="w-full h-full object-cover"
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuCSbpbUlg0rliNCgrMKEO5xxY_mdVdGE5Al4Fl4K8RPXGutDABuxvX_m9lNVde4NflE3DwZdvcuQcFmCfVHt_oUTTQJ3VGaHKQ60pC7HTkLmE3J5y0gFujqpm96WJatiYFMPqrdG7GXgBzcfNA80E47xYIwHbZKJQpYyFqg1Og-lS2_2KePSiKJwhWqM5BEq2aGjwX9gMPwnozIK3VyuBb8O6V87p2TcS0un1mNXLR75hZ2Zl2P-SqIohT_NGlr89DgoJjG1ncJcuQF" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="font-bold text-lg text-vedic-brown">पंडित राज शर्मा</h2>
-                <span className="bg-success text-white text-[10px] font-black px-2 py-0.5 rounded-full flex items-center gap-1">
-                  ✓ VERIFIED
-                </span>
-              </div>
-              <div className="flex items-center gap-1 text-primary">
-                <span className="text-sm font-bold">4.9</span>
-                <span className="text-primary">⭐</span>
-                <span className="text-vedic-gold text-xs ml-1">(245 रीव्यू)</span>
-              </div>
-            </div>
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.1 }}
+        className="bg-white rounded-[20px] p-5 shadow-card-hover mb-5"
+      >
+        <div className="flex items-center gap-4 mb-4">
+          <div className="w-14 h-14 rounded-full bg-primary-lt border-[2.5px] border-primary flex items-center justify-center shrink-0">
+            <span className="text-[28px]">🧑</span>
           </div>
-          <div className="space-y-2">
-            <p className="text-xs font-semibold text-vedic-gold uppercase tracking-wider">Verified पूजाएं:</p>
-            <div className="flex flex-wrap gap-2">
-              {['🕉️ सत्यनारायण कथा', '🏠 गृह प्रवेश', '🔥 महामृत्युंजय जाप'].map(p => (
-                <span key={p} className="bg-primary-lt text-primary px-3 py-1.5 rounded-lg text-xs font-bold border border-primary-lt flex items-center gap-1">{p}</span>
-              ))}
+          <div className="flex-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-[20px] font-bold text-vedic-brown">[आपका नाम]</span>
+              <span className="bg-success text-white text-[10px] font-bold px-2 py-0.5 rounded-md">✓ VERIFIED</span>
             </div>
+            <p className="text-[15px] text-vedic-gold">⭐ 4.9 | 234 Reviews</p>
           </div>
         </div>
-      </motion.section>
 
-      {/* Stats Banner */}
-      <motion.section initial={{scale:0.9,opacity:0}} animate={{scale:1,opacity:1}} transition={{delay:0.3}}>
-        <div className="bg-primary rounded-2xl p-6 text-white flex items-center gap-6 shadow-cta">
-          <div className="text-5xl font-black">3x</div>
-          <div className="text-lg font-bold leading-tight">
-            ज़्यादा Bookings <br/> मिलती हैं
-          </div>
+        <div className="h-px bg-vedic-border/40 mb-3" />
+        <p className="text-[16px] font-semibold text-vedic-brown-2 mb-2">Verified पूजाएं:</p>
+
+        <div className="flex flex-wrap gap-2">
+          {['सत्यनारायण कथा ✓', 'विवाह संस्कार ✓', 'गृह प्रवेश ✓', 'श्राद्ध कर्म ✓'].map((badge) => (
+            <div
+              key={badge}
+              className="bg-primary-lt border border-primary rounded-full px-3.5 py-2 h-9 flex items-center gap-1 text-[16px] text-vedic-brown"
+            >
+              <span className="text-primary text-[12px]">🟠</span> {badge}
+            </div>
+          ))}
         </div>
-      </motion.section>
+      </motion.div>
+
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ delay: 0.3 }}
+        className="bg-primary rounded-xl px-5 py-4 text-center mb-5"
+      >
+        <p className="text-[16px] text-white/90">Verified Pandits को</p>
+        <p className="text-[48px] font-bold text-white leading-none">3x</p>
+        <p className="text-[16px] text-white/90">ज़्यादा Bookings मिलती हैं</p>
+        <p className="text-[14px] text-white/70">Unverified से</p>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5 }}
+        className="text-center space-y-1"
+      >
+        <p className="text-[18px] font-semibold text-vedic-brown">सिर्फ 2 मिनट का Video — एक बार।</p>
+        <p className="text-[16px] text-vedic-gold italic">Video सिर्फ Admin देखेगा। Public नहीं होगी।</p>
+      </motion.div>
     </TutorialShell>
   );
 }

@@ -17,6 +17,43 @@
 
 ---
 
+## PART 0 UI REFERENCE FOLDER MAPPING
+
+The UI/UX mockups, complete with HTML code and images for Part 0 (screens 0-15), are available in the directory:
+`E:\HmarePanditJi\hmarepanditji\prompts\part 0\stitch_welcome_screen_0_15\`
+
+Use the following mapping to locate the visual reference for each component or screen when executing these prompts:
+
+| Component / Screen Name | Screen Code | UI Reference Folder Name |
+|-------------------------|-------------|--------------------------|
+| 1. Splash Screen | S-0.0.1 | `splash_screen_s_0.0.1` |
+| 2. Location Permission | S-0.0.2 | `location_pre_education_s_0.0.2` |
+| 3. Manual City Entry | S-0.0.2B | `manual_city_entry_s_0.0.2b` |
+| 4. Language Auto-Detect Confirm | S-0.0.3 | `language_confirmation_s_0.0.3` |
+| 5. Language Selection List | S-0.0.4 | `language_list_s_0.0.4` |
+| 6. Language Choice Confirm | S-0.0.5 | `language_choice_confirmation_s_0.0.5` |
+| 7. Language Set Celebration | S-0.0.6 | `language_set_celebration_s_0.0.6` |
+| 8. Sahayata (Help) | S-0.0.7 | `sahayata_help_screen_s_0.0.7` |
+| 9. Voice Micro-Tutorial | S-0.0.8 | `voice_micro_tutorial_s_0.0.8` |
+| 10. Swagat (Welcome) | S-0.1 | `welcome_s_0.1_animated` |
+| 11. Income Hook | S-0.2 | `income_hook_s_0.2_animated` |
+| 12. Fixed Dakshina | S-0.3 | `fixed_dakshina_s_0.3_animated` |
+| 13. Online Revenue | S-0.4 | `online_revenue_s_0.4_animated` |
+| 14. Backup Pandit | S-0.5 / 4_15 | `backup_opportunity_4_15_animated` |
+| 15. Instant Payment | S-0.6 / 5_15 | `instant_payment_5_15_animated` |
+| 16. Voice Navigation Demo | S-0.7 / 7_15 | `voice_navigation_7_15_animated` |
+| 17. Dual Mode | S-0.8 / 8_15 | `dual_mode_8_15_animated` |
+| 18. Travel Calendar | S-0.9 / 9_15 | `travel_calendar_9_15_animated` |
+| 19. Video Verification | S-0.10 / 10_15 | `video_verification_10_15_animated` |
+| 20. 4 Guarantees | S-0.11 / 11_15 | `4_guarantees_11_15_animated` |
+| 21. Final Decision (CTA) | S-0.12 / 12_15 | `final_decision_12_15_animated` |
+| 22. Buttons & UI Elements | | `buttons_interactive_elements` |
+| 23. Cards & Containers | | `cards_containers` |
+| 24. Language Selection Elements | | `language_selection_elements` |
+| 25. Language Change Widget | | `language_change_widget_s_0.0.w` |
+
+---
+
 # ════════════════════════════════════════════════════════════
 # IMPL-00: PROJECT CONTEXT BLOCK
 # (PASTE THIS AT THE START OF EVERY SESSION WITH YOUR AI MODEL)
