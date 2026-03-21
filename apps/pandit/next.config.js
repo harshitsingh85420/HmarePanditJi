@@ -6,6 +6,10 @@ const nextConfig = {
     "@hmarepanditji/types",
     "@hmarepanditji/utils",
   ],
-};
+  reactStrictMode: true,
+  experimental: {
+    optimizePackageImports: ['framer-motion', 'zustand'],
+  },
+}
 
-module.exports = nextConfig;
+module.exports = nextConfig

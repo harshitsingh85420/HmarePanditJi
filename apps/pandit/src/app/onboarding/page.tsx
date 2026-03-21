@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect, useCallback, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import {
   OnboardingState,
   OnboardingPhase,
@@ -26,31 +26,42 @@ import LanguageSetScreen from './screens/LanguageSetScreen'
 import HelpScreen from './screens/HelpScreen'
 import VoiceTutorialScreen from './screens/VoiceTutorialScreen'
 
-import TutorialSwagat from './screens/tutorial/TutorialSwagat';
-import TutorialIncome from './screens/tutorial/TutorialIncome';
-import TutorialDakshina from './screens/tutorial/TutorialDakshina';
-import TutorialOnlineRevenue from './screens/tutorial/TutorialOnlineRevenue';
-import TutorialBackup from './screens/tutorial/TutorialBackup';
-import TutorialPayment from './screens/tutorial/TutorialPayment';
-import TutorialVoiceNav from './screens/tutorial/TutorialVoiceNav';
-import TutorialDualMode from './screens/tutorial/TutorialDualMode';
-import TutorialTravel from './screens/tutorial/TutorialTravel';
-import TutorialVideoVerify from './screens/tutorial/TutorialVideoVerify';
-import TutorialGuarantees from './screens/tutorial/TutorialGuarantees';
-import TutorialCTA from './screens/tutorial/TutorialCTA';
+import TutorialSwagat from './screens/tutorial/TutorialSwagat'
+import TutorialIncome from './screens/tutorial/TutorialIncome'
+import TutorialDakshina from './screens/tutorial/TutorialDakshina'
+import TutorialOnlineRevenue from './screens/tutorial/TutorialOnlineRevenue'
+import TutorialBackup from './screens/tutorial/TutorialBackup'
+import TutorialPayment from './screens/tutorial/TutorialPayment'
+import TutorialVoiceNav from './screens/tutorial/TutorialVoiceNav'
+import TutorialDualMode from './screens/tutorial/TutorialDualMode'
+import TutorialTravel from './screens/tutorial/TutorialTravel'
+import TutorialVideoVerify from './screens/tutorial/TutorialVideoVerify'
+import TutorialGuarantees from './screens/tutorial/TutorialGuarantees'
+import TutorialCTA from './screens/tutorial/TutorialCTA'
 
 import LanguageBottomSheet from '@/components/LanguageBottomSheet'
 
-export default function OnboardingPage() {
+// Inner component that uses useSearchParams (wrapped in Suspense)
+function OnboardingContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [state, setState] = useState<OnboardingState>(DEFAULT_STATE)
   const [isLoaded, setIsLoaded] = useState(false)
   const [showLanguageSheet, setShowLanguageSheet] = useState(false)
 
   useEffect(() => {
-    setState(loadOnboardingState())
+    const saved = loadOnboardingState()
+
+    // Allow direct deep-linking to a specific phase (used by Registration Back button).
+    const phaseParam = searchParams?.get('phase') as OnboardingPhase | null
+    if (phaseParam) {
+      setState({ ...saved, phase: phaseParam })
+    } else {
+      setState(saved)
+    }
+
     setIsLoaded(true)
-  }, [])
+  }, [searchParams])
 
   const updateState = useCallback((updates: Partial<OnboardingState>) => {
     setState(prev => {
@@ -317,5 +328,18 @@ export default function OnboardingPage() {
         onClose={handleLanguageSheetClose}
       />
     </div>
+  )
+}
+
+// Main export with Suspense boundary
+export default function OnboardingPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen splash-gradient flex items-center justify-center">
+        <span className="text-white text-5xl animate-glow-pulse">ॐ</span>
+      </div>
+    }>
+      <OnboardingContent />
+    </Suspense>
   )
 }

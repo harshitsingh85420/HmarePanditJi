@@ -1,7 +1,13 @@
 import type { Metadata, Viewport } from 'next'
 import { Hind } from 'next/font/google'
 import './globals.css'
-import GlobalProviders from '../components/GlobalProviders'
+import StoreProvider from '@/components/StoreProvider'
+
+// Force ALL routes to be dynamically rendered (no static generation)
+// This is required for Zustand store compatibility and error boundaries
+export const dynamic = 'force-dynamic'
+export const dynamicParams = true
+export const revalidate = 0
 
 const hind = Hind({
   subsets: ['latin', 'devanagari'],
@@ -26,7 +32,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: '#F09942',
+  themeColor: '#FF8C00',
 }
 
 export default function RootLayout({
@@ -40,11 +46,11 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
-      <body className="font-hind bg-vedic-cream text-vedic-brown antialiased">
+      <body className="font-hind bg-surface-base text-text-primary antialiased">
         <div className="relative mx-auto w-full max-w-[430px] min-h-screen overflow-x-hidden">
-          <GlobalProviders>
+          <StoreProvider>
             {children}
-          </GlobalProviders>
+          </StoreProvider>
         </div>
       </body>
     </html>

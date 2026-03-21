@@ -18,7 +18,7 @@ interface ButtonProps {
   onClick?: () => void
   type?: 'button' | 'submit' | 'reset'
   className?: string
-  icon?: string  // Material Symbols icon name
+  icon?: string
   iconPosition?: 'left' | 'right'
 }
 
@@ -36,18 +36,13 @@ export function Button({
   iconPosition = 'right',
 }: ButtonProps) {
   const baseClasses = cn(
-    // Sizing
     'flex items-center justify-center gap-2',
     'font-body font-bold rounded-btn',
     'transition-all duration-150',
     'select-none cursor-pointer',
-    // Touch target (minimum 52px, buttons are 56px)
     'min-h-btn',
-    // Disabled states
     disabled && 'opacity-50 cursor-not-allowed pointer-events-none',
-    // Full width
     fullWidth && 'w-full',
-    // Size variants
     size === 'default' && 'h-14 px-6 text-base',
     size === 'lg' && 'h-16 px-8 text-lg',
     size === 'confirm' && 'h-[60px] px-4 text-base',
@@ -55,16 +50,16 @@ export function Button({
 
   const variantClasses = {
     primary: cn(
-      'bg-saffron text-white',
+      'bg-primary-container text-white',
       'shadow-btn-saffron',
-      !disabled && 'active:bg-saffron-dark active:scale-[0.97] active:shadow-btn-saffron-pressed',
+      !disabled && 'active:bg-primary active:scale-[0.97] active:shadow-btn-saffron-pressed',
     ),
     outline: cn(
-      'bg-transparent border-2 border-saffron text-saffron',
+      'bg-transparent border-2 border-primary-container text-primary-container',
       !disabled && 'active:bg-saffron-light active:scale-[0.97]',
     ),
     text: cn(
-      'bg-transparent text-saffron underline-offset-2',
+      'bg-transparent text-primary-container underline-offset-2',
       'min-h-touch h-auto px-0 font-normal text-sm',
       !disabled && 'active:opacity-70',
     ),
@@ -84,7 +79,7 @@ export function Button({
       className={cn(baseClasses, variantClasses[variant], className)}
     >
       {loading ? (
-        <LoadingSpinner />
+        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin-slow" />
       ) : (
         <>
           {icon && iconPosition === 'left' && (
@@ -100,13 +95,6 @@ export function Button({
   )
 }
 
-function LoadingSpinner() {
-  return (
-    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin-slow" />
-  )
-}
-
-// Specialized Confirm Button Pair (Haan / Nahi)
 interface ConfirmButtonsProps {
   onConfirm: () => void
   onRetry: () => void
@@ -127,7 +115,7 @@ export function ConfirmButtons({
         onClick={onConfirm}
         className={cn(
           'flex-1 h-[60px] rounded-btn',
-          'bg-saffron text-white font-bold',
+          'bg-primary-container text-white font-bold',
           'flex items-center justify-center gap-2',
           'shadow-btn-saffron',
         )}

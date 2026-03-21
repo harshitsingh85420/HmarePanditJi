@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&family=Public+Sans:wght@300;400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -16,7 +19,8 @@ html {
 /* ─────── Prevent scrollbar from causing layout shift ─────── */
 body {
   overflow-x: hidden;
-  background-color: #FFFBF5;
+  background-color: #FBF9F3;
+  /* surface-base */
 }
 
 /* ─────── Custom scrollbar (subtle) ─────── */
@@ -24,45 +28,150 @@ body {
   width: 4px;
   height: 4px;
 }
+
 ::-webkit-scrollbar-track {
   background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
-  background: #F0E6D3;
+  background: #E4E2DD;
+  /* surface-container-highest */
   border-radius: 2px;
 }
 
 /* ─────── Hide scrollbar for horizontal scroll chips ─────── */
-.no-scrollbar::-webkit-scrollbar { display: none; }
-.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ─────── Material Symbols configuration ─────── */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  font-family: 'Material Symbols Outlined';
+  display: inline-block;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+}
+
+.material-symbols-outlined.filled {
+  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* ─────── Devanagari text utility ─────── */
+.text-devanagari {
+  font-family: 'Noto Sans Devanagari', sans-serif;
+}
+
+/* ─────── Saffron glow effect (from saffron_glow folder) ─────── */
+.saffron-glow {
+  box-shadow: 0 0 40px rgba(255, 140, 0, 0.15);
+}
+
+/* ─────── Sacred gradient background (from homepage HTML) ─────── */
+.bg-sacred {
+  background: radial-gradient(circle at top right, rgba(255, 140, 0, 0.12) 0%, rgba(255, 253, 247, 0) 55%);
+}
+
+/* ─────── Diya halo effect (from identity_confirmation HTML) ─────── */
+.diya-halo {
+  background: radial-gradient(circle, rgba(255, 140, 0, 0.15) 0%, rgba(255, 253, 247, 0) 70%);
+}
+
+/* ─────── Celebration background (from step_completion_celebration HTML) ─────── */
+.celebration-bg {
+  background: radial-gradient(circle, rgba(255, 140, 0, 0.08) 0%, rgba(255, 255, 255, 1) 70%);
+}
+
+/* ─────── Glow ring for celebration ─────── */
+.glow-ring {
+  box-shadow: 0 0 20px 4px rgba(255, 140, 0, 0.3);
+}
+
+/* ─────── Waveform bars (voice UI - from active_listening_overlay HTML) ─────── */
+.waveform-bar {
+  width: 8px;
+  border-radius: 4px;
+  background: linear-gradient(to top, #904D00, #FF8C00);
+  animation: waveform 1.2s ease-in-out infinite alternate;
+}
+
+.waveform-bar:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.waveform-bar:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+.waveform-bar:nth-child(4) {
+  animation-delay: 0.6s;
+}
+
+.waveform-bar:nth-child(5) {
+  animation-delay: 0.8s;
+}
+
+@keyframes waveform {
+  0% {
+    transform: scaleY(0.3);
+  }
+
+  100% {
+    transform: scaleY(1);
+  }
+}
 
 /* ─────── Screen timeout override for Part 0 screens ─────── */
 /* Applied via JS wakeLock API — CSS placeholder only */
-.screen-always-on { touch-action: manipulation; }
+.screen-always-on {
+  touch-action: manipulation;
+}
 
 /* ─────── Voice bar animations ─────── */
 .voice-bar {
   width: 6px;
-  background-color: #F09942;
+  background-color: #FF8C00;
+  /* primary-container */
   border-radius: 3px;
   animation: voice-bar 1.2s ease-in-out infinite;
 }
-.voice-bar:nth-child(2) { animation-delay: 0.2s; }
-.voice-bar:nth-child(3) { animation-delay: 0.4s; }
+
+.voice-bar:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.voice-bar:nth-child(3) {
+  animation-delay: 0.4s;
+}
 
 @keyframes voice-bar {
-  0%, 100% { height: 8px; }
-  50% { height: 24px; }
+
+  0%,
+  100% {
+    height: 8px;
+  }
+
+  50% {
+    height: 24px;
+  }
 }
 
 /* ─────── Saffron gradient splash ─────── */
 .splash-gradient {
-  background: linear-gradient(180deg, #F09942 0%, #F5C07A 50%, #FFFBF5 100%);
+  background: linear-gradient(180deg, #FF8C00 0%, #FFB77D 50%, #FBF9F3 100%);
 }
 
 /* ─────── Shimmer text (for OM/Script icon) ─────── */
 .shimmer-text {
-  background: linear-gradient(90deg, #F09942 25%, #FFD7A8 50%, #F09942 75%);
+  background: linear-gradient(90deg, #FF8C00 25%, #FFDCC3 50%, #FF8C00 75%);
   background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -71,8 +180,13 @@ body {
 }
 
 @keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 /* ─────── SVG animation helpers ─────── */
@@ -81,14 +195,24 @@ body {
   stroke-dashoffset: 252;
   animation: draw-circle 0.8s ease-out forwards;
 }
+
 .draw-check {
   stroke-dasharray: 100;
   stroke-dashoffset: 100;
   animation: draw-check 0.5s ease-out 0.8s forwards;
 }
 
-@keyframes draw-circle { to { stroke-dashoffset: 0; } }
-@keyframes draw-check { to { stroke-dashoffset: 0; } }
+@keyframes draw-circle {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes draw-check {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
 
 /* ─────── Accordion animation ─────── */
 .accordion-content {
@@ -96,6 +220,16 @@ body {
   overflow: hidden;
   transition: max-height 0.3s ease-out;
 }
+
 .accordion-content.open {
   max-height: 200px;
+}
+
+/* ─────── Safe area padding (iOS home bar) ─────── */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 16px);
+}
+
+.pt-safe {
+  padding-top: env(safe-area-inset-top, 0px);
 }

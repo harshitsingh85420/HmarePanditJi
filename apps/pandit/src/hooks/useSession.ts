@@ -5,22 +5,17 @@ import { useUIStore } from '@/stores/uiStore'
 import { useRegistrationStore } from '@/stores/registrationStore'
 
 const IDLE_TIMEOUT = 25 * 60 * 1000 // 25 minutes
-const SESSION_TIMEOUT_WARNING = 5 * 60 * 1000 // 5 minutes warning
 
 export function useSession() {
   const { setSessionTimeout, setSessionSaveNotice } = useUIStore()
   const { data } = useRegistrationStore()
 
   const idleTimerRef = useRef<NodeJS.Timeout | null>(null)
-  const warningTimerRef = useRef<NodeJS.Timeout | null>(null)
 
   const resetTimer = useCallback(() => {
-    if (idleTimerRef.current) clearTimeout(idleTimerRef.current)
-    if (warningTimerRef.current) clearTimeout(warningTimerRef.current)
-
-    warningTimerRef.current = setTimeout(() => {
-      setSessionTimeout(true)
-    }, IDLE_TIMEOUT - SESSION_TIMEOUT_WARNING)
+    if (idleTimerRef.current) {
+      clearTimeout(idleTimerRef.current)
+    }
 
     idleTimerRef.current = setTimeout(() => {
       setSessionTimeout(true)
@@ -34,8 +29,9 @@ export function useSession() {
 
     return () => {
       events.forEach(event => document.removeEventListener(event, resetTimer, true))
-      if (idleTimerRef.current) clearTimeout(idleTimerRef.current)
-      if (warningTimerRef.current) clearTimeout(warningTimerRef.current)
+      if (idleTimerRef.current) {
+        clearTimeout(idleTimerRef.current)
+      }
     }
   }, [resetTimer])
 

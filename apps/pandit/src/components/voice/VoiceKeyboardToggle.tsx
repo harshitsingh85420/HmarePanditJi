@@ -32,19 +32,18 @@ export function VoiceKeyboardToggle({
         whileTap={{ scale: 0.97 }}
         className={`flex-1 flex items-center justify-center gap-2 text-sm font-label font-medium
                    border-b-2 transition-colors duration-200
-                   ${!isKeyboardMode 
-                     ? 'text-saffron border-saffron bg-saffron-light' 
-                     : 'text-text-secondary border-transparent bg-white'
-                   }`}
+                   ${!isKeyboardMode
+            ? 'text-primary-container border-primary-container bg-saffron-light'
+            : 'text-text-secondary border-transparent bg-white'
+          }`}
       >
         <span className={`material-symbols-outlined text-xl ${!isKeyboardMode ? 'filled' : ''}`}>
           mic
         </span>
         <span>Bolne ke liye tapein</span>
         {!isKeyboardMode && (
-          // Active pulse indicator
           <motion.span
-            className="w-2 h-2 rounded-full bg-saffron"
+            className="w-2 h-2 rounded-full bg-primary-container"
             animate={{ scale: [1, 1.3, 1], opacity: [1, 0.6, 1] }}
             transition={{ duration: 1.5, repeat: Infinity }}
           />
@@ -60,10 +59,10 @@ export function VoiceKeyboardToggle({
         whileTap={{ scale: 0.97 }}
         className={`flex-1 flex items-center justify-center gap-2 text-sm font-label font-medium
                    border-b-2 transition-colors duration-200
-                   ${isKeyboardMode 
-                     ? 'text-saffron border-saffron bg-saffron-light' 
-                     : 'text-text-secondary border-transparent bg-white'
-                   }`}
+                   ${isKeyboardMode
+            ? 'text-primary-container border-primary-container bg-saffron-light'
+            : 'text-text-secondary border-transparent bg-white'
+          }`}
       >
         <span className="material-symbols-outlined text-xl">keyboard</span>
         <span>Type karein</span>

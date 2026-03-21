@@ -1,127 +1,103 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { useVoiceStore } from '@/stores/voiceStore'
-
-type TopBarState = 'no-back' | 'with-back' | 'complete'
 
 interface TopBarProps {
-  state?: TopBarState
-  currentStep?: number     // 1-6 for registration steps
-  totalSteps?: number      // Default 6
-  onBack?: () => void      // Custom back handler
-  showLanguage?: boolean
+  showBack?: boolean
+  onBack?: () => void
+  onLanguageChange?: () => void
+  currentStep?: number
+  totalSteps?: number
+  showComplete?: boolean
+  headline?: string
 }
 
-export function TopBar({
-  state = 'with-back',
+export default function TopBar({
+  showBack = false,
+  onBack,
+  onLanguageChange,
   currentStep,
   totalSteps = 6,
-  onBack,
-  showLanguage = true,
+  showComplete = false,
+  headline,
 }: TopBarProps) {
-  const router = useRouter()
-  const isListening = useVoiceStore((store) => store.state === 'listening')
-
-  const handleBack = () => {
-    // If voice is listening, pause it first (do not navigate immediately)
-    if (isListening) {
-      // The voice hook cleanup handles this
-    }
-    
-    if (onBack) {
-      onBack()
-    } else {
-      router.back()
-    }
-  }
-
   return (
-    <header className="sticky top-0 z-50 bg-surface-base shadow-top-bar">
-      <div className="flex items-center justify-between px-5 h-14">
-        {/* Left: Back Arrow */}
-        <div className="w-10 h-10 flex items-center justify-center">
-          {state !== 'no-back' && (
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              onClick={handleBack}
-              className="w-10 h-10 flex items-center justify-center rounded-full"
-              aria-label="Go back"
-            >
-              <span className="material-symbols-outlined text-text-primary text-2xl">arrow_back</span>
-            </motion.button>
+    <header className="sticky top-0 z-50 bg-surface-base shadow-[0px_8px_24px_rgba(144,77,0,0.06)] border-b border-outline-variant/10">
+      <div className="flex flex-col">
+        {/* Top Row: Navigation & Controls */}
+        <div className="flex items-center justify-between px-5 h-16">
+          {/* Left: Back Arrow or Placeholder */}
+          <div className="w-10 h-10 flex items-center justify-center">
+            {showBack && (
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                onClick={onBack}
+                className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-variant transition-colors active:scale-90 duration-150"
+                aria-label="Go back"
+              >
+                <span className="material-symbols-outlined text-primary">arrow_back</span>
+              </motion.button>
+            )}
+          </div>
+
+          {/* Center: Headline (State 2) OR empty */}
+          {headline && (
+            <span className="font-headline font-bold text-primary text-lg">
+              {headline}
+            </span>
           )}
-        </div>
 
-        {/* Center: Progress Pills OR Complete Badge */}
-        <div className="flex-1 flex items-center justify-center px-4">
-          {state === 'complete' ? (
-            <div className="flex items-center gap-1.5 px-3 py-1 bg-trust-green-bg rounded-pill">
-              <span className="material-symbols-outlined text-trust-green text-base filled">check_circle</span>
-              <span className="text-trust-green font-bold text-xs">Registration Complete ✅</span>
-            </div>
-          ) : currentStep !== undefined ? (
-            <ProgressPills current={currentStep} total={totalSteps} />
-          ) : null}
-        </div>
-
-        {/* Right: Language Button */}
-        <div className="w-10 h-10 flex items-center justify-center">
-          {showLanguage && (
+          {/* Right: Language Button */}
+          {onLanguageChange && (
             <motion.button
               whileTap={{ scale: 0.9 }}
-              className="flex flex-col items-center justify-center w-10 h-10"
+              onClick={onLanguageChange}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-outline-variant/30 text-primary font-medium text-sm hover:bg-primary/5 transition-colors"
               aria-label="Change language"
             >
-              <span className="material-symbols-outlined text-text-secondary text-xl">language</span>
-              <span className="text-[10px] text-text-secondary font-label leading-none mt-0.5">Bhasha</span>
+              <span className="material-symbols-outlined text-[20px]">language</span>
+              <span className="font-label">भाषा</span>
             </motion.button>
           )}
         </div>
+
+        {/* Bottom Row: Progress Pills (only for onboarding state) */}
+        {showComplete !== true && currentStep !== undefined && (
+          <div className="flex items-center justify-between gap-2 px-5 pb-4">
+            {Array.from({ length: totalSteps }, (_, i) => {
+              const stepNum = i + 1
+              const isCompleted = stepNum < currentStep
+              const isCurrent = stepNum === currentStep
+
+              return (
+                <div
+                  key={i}
+                  className={`flex-1 h-1.5 rounded-full transition-all duration-300 ${isCompleted || isCurrent ? 'bg-primary-container' : 'bg-surface-variant'
+                    }`}
+                >
+                  {isCurrent && (
+                    <div className="relative w-full h-full">
+                      <div className="absolute inset-[-3px] border-2 border-primary-container/40 rounded-full" />
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        )}
+
+        {/* Complete State Badge */}
+        {showComplete && (
+          <div className="px-5 pb-4">
+            <div className="flex items-center gap-2 px-4 py-1.5 bg-secondary-container/30 rounded-full w-fit">
+              <span className="material-symbols-outlined text-secondary text-lg filled">check_circle</span>
+              <span className="font-label text-on-secondary-container font-bold text-sm">
+                Registration Complete ✅
+              </span>
+            </div>
+          </div>
+        )}
       </div>
     </header>
-  )
-}
-
-// Progress Pills Component
-interface ProgressPillsProps {
-  current: number    // 1-based current step
-  total: number
-}
-
-function ProgressPills({ current, total }: ProgressPillsProps) {
-  return (
-    <div className="flex items-center gap-1.5" role="progressbar" aria-valuenow={current} aria-valuemax={total}>
-      {Array.from({ length: total }, (_, i) => {
-        const stepNum = i + 1
-        const isCompleted = stepNum < current
-        const isCurrent = stepNum === current
-
-        return (
-          <div key={i} className="relative">
-            {isCurrent && (
-              // Pulse ring for current pill
-              <motion.div
-                className="absolute inset-[-3px] rounded-pill border-2 border-saffron"
-                style={{ opacity: 0.4 }}
-                animate={{ opacity: [0.4, 0.8, 0.4] }}
-                transition={{ duration: 1.5, repeat: Infinity }}
-              />
-            )}
-            <motion.div
-              className={`h-2 rounded-pill transition-all duration-300 ${
-                isCompleted || isCurrent ? 'bg-saffron' : 'bg-border-default'
-              } ${isCurrent ? 'w-6' : 'w-5'}`}
-              initial={false}
-              animate={{ 
-                width: isCurrent ? 24 : 20,
-                backgroundColor: isCompleted || isCurrent ? '#FF8C00' : '#E5E5EA'
-              }}
-            />
-          </div>
-        )
-      })}
-    </div>
   )
 }

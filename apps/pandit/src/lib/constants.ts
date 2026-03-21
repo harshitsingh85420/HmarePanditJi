@@ -1,3 +1,4 @@
+// Routes mapping
 export const ROUTES = {
   HOME: '/',
   IDENTITY: '/identity',
@@ -35,10 +36,26 @@ export const VOICE_QUESTIONS: Record<string, string> = {
   city: 'Aap kis shehar mein hain? Apna shehar ka naam boliye.',
 }
 
-// Celebrations messages per step
+// Celebration messages per step
 export const CELEBRATION_NAMES: Record<string, string> = {
   mobile: 'Mobile Number',
   otp: 'OTP Verification',
   profile: 'Profile Details',
   complete: 'Registration',
 }
+
+// Supported languages
+export const SUPPORTED_LANGUAGES = [
+  { code: 'hi', name: 'हिन्दी', englishName: 'Hindi' },
+  { code: 'en', name: 'English', englishName: 'English' },
+  { code: 'ta', name: 'தமிழ்', englishName: 'Tamil' },
+  { code: 'te', name: 'తెలుగు', englishName: 'Telugu' },
+  { code: 'kn', name: 'ಕನ್ನಡ', englishName: 'Kannada' },
+  { code: 'ml', name: 'മലയാളം', englishName: 'Malayalam' },
+  { code: 'mr', name: 'मराठी', englishName: 'Marathi' },
+  { code: 'gu', name: 'ગુજરાતી', englishName: 'Gujarati' },
+  { code: 'bn', name: 'বাংলা', englishName: 'Bengali' },
+  { code: 'pa', name: 'ਪੰਜਾਬੀ', englishName: 'Punjabi' },
+] as const
+
+export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number]['code']

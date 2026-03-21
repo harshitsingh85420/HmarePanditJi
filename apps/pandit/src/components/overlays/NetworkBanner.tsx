@@ -21,13 +21,13 @@ export function NetworkBanner({ isOnline }: NetworkBannerProps) {
           {isOnline ? 'wifi' : 'signal_wifi_off'}
         </span>
         <p className="text-white text-sm font-medium font-devanagari">
-          {isOnline 
+          {isOnline
             ? 'Internet wapas aa gayi ✅'
             : 'Internet nahi hai — koi baat nahi, sab save hai'
           }
         </p>
       </div>
-      
+
       {!isOnline && (
         <motion.div
           animate={{ rotate: 360 }}

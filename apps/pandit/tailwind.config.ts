@@ -6,111 +6,177 @@ const config: Config = {
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
-        'primary': '#F09942',
-        'primary-dk': '#DC6803',
-        'primary-lt': '#FEF3C7',
-        'vedic-cream': '#FFFBF5',
-        'vedic-brown': '#2D1B00',
-        'vedic-brown-2': '#6B4F2A',
-        'vedic-gold': '#9B7B52',
-        'vedic-border': '#F0E6D3',
-        'success': '#15803D',
-        'success-lt': '#DCFCE7',
-        'error': '#DC2626',
-        'error-lt': '#FEE2E2',
-        'warning': '#B45309',
+        // PRIMARY PALETTE - Saffron (EXACT values from HTML references)
+        'primary': '#904D00',           // Dark saffron - main text/actions (on-primary-container)
+        'primary-container': '#FF8C00', // Bright saffron - buttons (primary-container)
+        'primary-fixed': '#FFDCC3',     // Light saffron - backgrounds
+        'primary-fixed-dim': '#FFB77D',
+        'on-primary': '#FFFFFF',
+        'on-primary-container': '#623200',
+        'on-primary-fixed': '#2F1500',
+        'on-primary-fixed-variant': '#6E3900',
+
+        // SURFACE PALETTE - Backgrounds (EXACT from HTML)
+        'surface-base': '#FBF9F3',           // Main background
+        'surface-card': '#FFFFFF',           // Card surfaces
+        'surface-container': '#F0EEE8',      // Container backgrounds
+        'surface-container-lowest': '#FFFFFF',
+        'surface-container-low': '#F5F3EE',
+        'surface-container-high': '#EAE8E2',
+        'surface-container-highest': '#E4E2DD',
+        'surface-dim': '#DBDAD4',
+        'surface-bright': '#FBF9F3',
+
+        // TEXT PALETTE (EXACT from HTML)
+        'text-primary': '#1B1C19',      // Primary text (on-background/on-surface)
+        'text-secondary': '#564334',    // Secondary text (on-surface-variant)
+        'text-placeholder': '#897362',  // Input placeholders (outline)
+        'text-disabled': '#C7C7CC',     // Disabled states
+
+        // SEMANTIC COLORS (EXACT from HTML)
+        'secondary': '#1B6D24',         // Green - success
+        'secondary-container': '#A0F399',
+        'on-secondary': '#FFFFFF',
+        'on-secondary-container': '#217128',
+        'on-secondary-fixed': '#002204',
+        'on-secondary-fixed-variant': '#005312',
+        'secondary-fixed': '#A3F69C',
+        'secondary-fixed-dim': '#88D982',
+
+        'error': '#BA1A1A',             // Red - errors
+        'error-container': '#FFDAD6',
+        'on-error': '#FFFFFF',
+        'on-error-container': '#93000A',
+
+        'warning-amber': '#F89100',     // Amber - warnings
+        'warning-amber-bg': '#FFF3E0',
+
+        'tertiary': '#8C5000',          // Brown
+        'tertiary-container': '#F89100',
+        'tertiary-fixed': '#FFDCBF',
+        'tertiary-fixed-dim': '#FFB874',
+        'on-tertiary': '#FFFFFF',
+        'on-tertiary-container': '#5F3400',
+        'on-tertiary-fixed': '#2D1600',
+        'on-tertiary-fixed-variant': '#6A3B00',
+
+        // BORDERS & OUTLINES (EXACT from HTML)
+        'outline': '#897362',
+        'outline-variant': '#DDC1AE',
+        'border-default': '#E5E5EA',
+        'border-active': '#FF8C00',
+        'border-success': '#1B6D24',
+        'border-warm': '#DDC1AE',
+
+        // OTHER
+        'background': '#FBF9F3',
+        'on-background': '#1B1C19',
+        'on-surface': '#1B1C19',
+        'on-surface-variant': '#564334',
+        'inverse-surface': '#30312D',
+        'inverse-on-surface': '#F2F1EB',
+        'inverse-primary': '#FFB77D',
+        'surface-tint': '#904D00',
+        'surface-variant': '#E4E2DD',
+
+        // INDIGO (Customer card only)
+        'indigo-tint': '#E8EAF6',
+        'indigo-border': '#9FA8DA',
+        'indigo-text': '#3F51B5',
+
+        // TRUST COLORS
+        'trust-green': '#1B6D24',
+        'trust-green-bg': '#E8F5E9',
+        'trust-green-border': '#A5D6A7',
       },
       fontFamily: {
         hind: ['Hind', 'sans-serif'],
+        devanagari: ['Noto Sans Devanagari', 'sans-serif'],
+        serif: ['Noto Serif', 'serif'],
+        body: ['Public Sans', 'Noto Sans Devanagari', 'sans-serif'],
+        label: ['Noto Sans Devanagari', 'sans-serif'],
+        headline: ['Noto Serif', 'serif'],
+      },
+      fontSize: {
+        'hero': ['28px', { lineHeight: '1.2', fontWeight: '700' }],
+        'title': ['22px', { lineHeight: '1.3', fontWeight: '600' }],
+        'body': ['18px', { lineHeight: '1.5', fontWeight: '400' }],
+        'body-sm': ['16px', { lineHeight: '1.5', fontWeight: '400' }],
+        'label': ['14px', { lineHeight: '1.5', fontWeight: '400' }],
+        'micro': ['12px', { lineHeight: '1.4', fontWeight: '400' }],
+      },
+      spacing: {
+        'screen-x': '20px',
+        'card-p': '20px',
       },
       borderRadius: {
         'card': '16px',
+        'card-sm': '12px',
         'btn': '12px',
         'pill': '9999px',
       },
       boxShadow: {
-        'card': '0 2px 16px rgba(0,0,0,0.08)',
-        'card-hover': '0 4px 24px rgba(0,0,0,0.12)',
-        'cta': '0 4px 12px rgba(240,153,66,0.35)',
-        'cta-dk': '0 6px 20px rgba(220,104,3,0.45)',
+        'card': '0px 2px 8px rgba(0,0,0,0.06), 0px 1px 2px rgba(0,0,0,0.04)',
+        'card-saffron': '0px 4px 16px rgba(255,140,0,0.12), 0px 2px 4px rgba(0,0,0,0.06)',
+        'btn-saffron': '0px 4px 12px rgba(255,140,0,0.35)',
+        'btn-saffron-pressed': '0px 1px 4px rgba(255,140,0,0.20)',
+        'sheet': '0px -4px 20px rgba(0,0,0,0.10)',
+        'top-bar': '0px 2px 10px rgba(144,77,0,0.05)',
       },
       keyframes: {
         'voice-bar': {
           '0%, 100%': { height: '8px' },
           '50%': { height: '24px' },
         },
-        'fade-up': {
-          '0%': { opacity: '0', transform: 'translateY(16px)' },
-          '100%': { opacity: '1', transform: 'translateY(0)' },
+        'waveform': {
+          '0%': { transform: 'scaleY(0.3)' },
+          '100%': { transform: 'scaleY(1)' },
         },
-        'slide-up': {
+        'pulse-saffron': {
+          '0%, 100%': { opacity: '0.6', transform: 'scale(1)' },
+          '50%': { opacity: '1', transform: 'scale(1.05)' },
+        },
+        'celebration-in': {
+          '0%': { transform: 'scale(0)', opacity: '0' },
+          '70%': { transform: 'scale(1.1)', opacity: '1' },
+          '100%': { transform: 'scale(1)', opacity: '1' },
+        },
+        'sheet-up': {
           '0%': { transform: 'translateY(100%)' },
           '100%': { transform: 'translateY(0)' },
         },
-        'slide-left': {
-          '0%': { transform: 'translateX(0)' },
-          '100%': { transform: 'translateX(-100%)' },
+        'fade-in': {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
         },
-        'slide-in-right': {
-          '0%': { transform: 'translateX(100%)' },
-          '100%': { transform: 'translateX(0)' },
-        },
-        'scale-spring': {
-          '0%': { transform: 'scale(0.9)', opacity: '0' },
-          '60%': { transform: 'scale(1.05)' },
-          '100%': { transform: 'scale(1)', opacity: '1' },
-        },
-        'pulse-ring': {
-          '0%': { transform: 'scale(0.8)', opacity: '0.6' },
-          '100%': { transform: 'scale(1.5)', opacity: '0' },
-        },
-        'draw-circle': {
-          'to': { strokeDashoffset: '0' },
-        },
-        'draw-check': {
-          'to': { strokeDashoffset: '0' },
-        },
-        'confetti-fall': {
-          '0%': { transform: 'translateY(-20px) rotate(0deg)', opacity: '0' },
-          '10%': { opacity: '1' },
-          '100%': { transform: 'translateY(200px) rotate(360deg)', opacity: '0' },
-        },
-        'progress-fill': {
-          '0%': { width: '0%' },
-          '100%': { width: '70%' },
-        },
-        'pin-drop': {
-          '0%': { transform: 'translateY(-20px)', opacity: '0' },
-          '100%': { transform: 'translateY(0)', opacity: '1' },
-        },
-        'gentle-float': {
-          '0%, 100%': { transform: 'translateY(0)' },
-          '50%': { transform: 'translateY(-8px)' },
-        },
-        'glow-pulse': {
-          '0%, 100%': { opacity: '0.6', transform: 'scale(1)' },
-          '50%': { opacity: '1', transform: 'scale(1.1)' },
+        'spin-slow': {
+          '0%': { transform: 'rotate(0deg)' },
+          '100%': { transform: 'rotate(360deg)' },
         },
       },
       animation: {
         'voice-bar': 'voice-bar 1.2s ease-in-out infinite',
         'voice-bar-2': 'voice-bar 1.2s ease-in-out 0.2s infinite',
         'voice-bar-3': 'voice-bar 1.2s ease-in-out 0.4s infinite',
-        'fade-up': 'fade-up 0.5s ease-out forwards',
-        'slide-up': 'slide-up 0.35s cubic-bezier(0,0,0.2,1) forwards',
-        'slide-in-right': 'slide-in-right 0.25s cubic-bezier(0,0,0.2,1) forwards',
-        'scale-spring': 'scale-spring 0.4s cubic-bezier(0.34,1.56,0.64,1) forwards',
-        'pulse-ring': 'pulse-ring 2s cubic-bezier(0.4,0,0.6,1) infinite',
-        'draw-circle': 'draw-circle 0.8s ease-out forwards',
-        'draw-check': 'draw-check 0.5s ease-out 0.8s forwards',
-        'confetti-fall': 'confetti-fall linear infinite',
-        'progress-fill': 'progress-fill 2.5s ease-out forwards',
-        'pin-drop': 'pin-drop 0.6s ease-out forwards',
-        'gentle-float': 'gentle-float 3s ease-in-out infinite',
-        'glow-pulse': 'glow-pulse 3s ease-in-out infinite',
+        'waveform': 'waveform 1.2s ease-in-out infinite alternate',
+        'pulse-saffron': 'pulse-saffron 2s ease-in-out infinite',
+        'celebration-in': 'celebration-in 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards',
+        'sheet-up': 'sheet-up 0.32s cubic-bezier(0.32,0,0,1) forwards',
+        'fade-in': 'fade-in 0.25s ease-in-out forwards',
+        'spin-slow': 'spin-slow 2s linear infinite',
+      },
+      minHeight: {
+        'touch': '52px',
+        'btn': '56px',
+        'btn-sm': '48px',
+        'confirm': '60px',
+      },
+      minWidth: {
+        'touch': '52px',
       },
     },
   },

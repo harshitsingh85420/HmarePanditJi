@@ -1,10 +1,8 @@
 'use client'
 
-// DEPRECATED: legacy browser-voice fallback used by the Sarvam/Deepgram adapters.
-
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────
 // TYPES
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────
 
 export type VoiceState =
   | 'IDLE'
@@ -37,14 +35,14 @@ type BrowserSpeechWindow = Window & typeof globalThis & {
   webkitSpeechRecognition?: BrowserSpeechRecognitionCtor
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// LANGUAGE â†’ BCP-47 MAP
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────
+// LANGUAGE → BCP-47 MAP
+// ─────────────────────────────────────────────────────────────
 
 export const LANGUAGE_TO_BCP47: Record<string, string> = {
   'Hindi': 'hi-IN',
-  'Bhojpuri': 'hi-IN',     // Bhojpuri falls back to hi-IN (no dedicated code)
-  'Maithili': 'hi-IN',     // Same fallback
+  'Bhojpuri': 'hi-IN',
+  'Maithili': 'hi-IN',
   'Bengali': 'bn-IN',
   'Tamil': 'ta-IN',
   'Telugu': 'te-IN',
@@ -59,9 +57,9 @@ export const LANGUAGE_TO_BCP47: Record<string, string> = {
   'Assamese': 'as-IN',
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// INTENT â†’ WORD MAP (Fuzzy matching for voice commands)
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────
+// INTENT → WORD MAP (Fuzzy matching for voice commands)
+// ─────────────────────────────────────────────────────────────
 
 type VoiceIntent = 'YES' | 'NO' | 'SKIP' | 'HELP' | 'CHANGE' | 'FORWARD' | 'BACK'
 
@@ -109,7 +107,6 @@ export function detectIntent(transcript: string): VoiceIntent | null {
   return null
 }
 
-// Detect language name from speech
 export function detectLanguageName(transcript: string): string | null {
   const normalized = transcript.toLowerCase().trim()
   const languageAliases: Record<string, string> = {
@@ -135,9 +132,9 @@ export function detectLanguageName(transcript: string): string | null {
   return null
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────
 // VOICE STATE MACHINE (GLOBAL)
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────
 
 export let globalVoiceState: VoiceState = 'IDLE'
 
@@ -145,13 +142,33 @@ export function setGlobalVoiceState(state: VoiceState) {
   globalVoiceState = state
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────
+// MANUAL MIC TOGGLE STATE
+// ─────────────────────────────────────────────────────────────
+
+let isManualMicOff = false
+
+export function setManualMicOff(isOff: boolean): void {
+  isManualMicOff = isOff
+  console.log('[VoiceEngine] Manual mic toggle:', isOff ? 'OFF' : 'ON')
+}
+
+export function getManualMicOff(): boolean {
+  return isManualMicOff
+}
+
+// ─────────────────────────────────────────────────────────────
 // TTS (TEXT TO SPEECH)
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────
 
 let ttsUtterance: SpeechSynthesisUtterance | null = null
 let postTtsTimeout: ReturnType<typeof setTimeout> | null = null
 
+/**
+ * Speak text using Web Speech API.
+ * CRITICAL: While speaking, microphone is turned OFF to prevent feedback loop.
+ * After speech ends, microphone restarts ONLY if user hasn't manually turned it off.
+ */
 export function speak(
   text: string,
   languageBcp47: string = 'hi-IN',
@@ -164,7 +181,7 @@ export function speak(
     return
   }
 
-  // HARD STOP STT while speaking to prevent feedback loop
+  // CRITICAL: HARD STOP STT while speaking to prevent feedback loop
   stopListening()
 
   if (postTtsTimeout) {
@@ -178,11 +195,10 @@ export function speak(
 
   ttsUtterance = new SpeechSynthesisUtterance(text)
   ttsUtterance.lang = languageBcp47
-  ttsUtterance.rate = 0.88     // Slightly slower than natural â€” elderly users
+  ttsUtterance.rate = 0.88
   ttsUtterance.pitch = 1.0
   ttsUtterance.volume = 1.0
 
-  // Try to find a matching voice for the language
   const voices = window.speechSynthesis.getVoices()
   const matchedVoice = voices.find(v =>
     v.lang.startsWith(languageBcp47.split('-')[0]) && v.localService
@@ -191,21 +207,23 @@ export function speak(
     ttsUtterance.voice = matchedVoice
   }
 
-  ttsUtterance.onend = () => { 
+  // CRITICAL: Use speechSynthesis.onend to control mic restart
+  ttsUtterance.onend = () => {
     postTtsTimeout = setTimeout(() => {
       setGlobalVoiceState('IDLE')
+      // Call onEnd callback - caller decides whether to restart listening
       onEnd?.()
-    }, 500) // 500ms post-TTS buffer
+    }, 500)
   }
+
   ttsUtterance.onerror = () => {
-    console.warn('[VoiceEngine] TTS error â€” calling onEnd anyway')
+    console.warn('[VoiceEngine] TTS error - calling onEnd anyway')
     postTtsTimeout = setTimeout(() => {
       setGlobalVoiceState('IDLE')
       onEnd?.()
     }, 500)
   }
 
-  // Chrome requires a tiny delay before speaking
   setTimeout(() => {
     if (ttsUtterance) window.speechSynthesis.speak(ttsUtterance)
   }, 100)
@@ -219,23 +237,30 @@ export function stopSpeaking(): void {
   setGlobalVoiceState('IDLE')
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────
 // STT (SPEECH TO TEXT)
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────
 
 let recognition: SpeechRecognition | null = null
 let listenTimeout: ReturnType<typeof setTimeout> | null = null
 
 export function startListening(config: VoiceEngineConfig): () => void {
-  if (typeof window === 'undefined') return () => {}
+  if (typeof window === 'undefined') return () => { }
 
+  // CRITICAL: If user manually turned mic off, do NOT start listening
+  if (isManualMicOff) {
+    console.warn('[VoiceEngine] Mic is manually turned OFF. Not starting listening.')
+    config.onError?.('MIC_MANUALLY_OFF')
+    return () => { }
+  }
+
+  // If TTS is currently speaking, do not start STT
   if (globalVoiceState === 'SPEAKING' || window.speechSynthesis?.speaking) {
     console.warn('[VoiceEngine] Cannot listen while speaking. Mic OFF.')
     config.onError?.('MIC_OFF_WHILE_SPEAKING')
-    return () => {}
+    return () => { }
   }
 
-  // Also stop any TTS just in case
   stopSpeaking()
 
   const speechWindow = window as BrowserSpeechWindow
@@ -246,10 +271,9 @@ export function startListening(config: VoiceEngineConfig): () => void {
   if (!SpeechRecognition) {
     console.warn('[VoiceEngine] SpeechRecognition not supported')
     config.onError?.('NOT_SUPPORTED')
-    return () => {}
+    return () => { }
   }
 
-  // Stop any existing recognition
   if (recognition) {
     try { recognition.stop() } catch { /* noop */ }
     recognition = null
@@ -326,7 +350,6 @@ export function startListening(config: VoiceEngineConfig): () => void {
     onError?.('START_FAILED')
   }
 
-  // Auto-timeout if no speech detected
   listenTimeout = setTimeout(() => {
     if (recognition) {
       try { recognition.stop() } catch { /* noop */ }
@@ -337,7 +360,6 @@ export function startListening(config: VoiceEngineConfig): () => void {
     onError?.('TIMEOUT')
   }, listenTimeoutMs)
 
-  // Return cleanup function
   return () => {
     clearListenTimeout()
     if (recognition) {
@@ -365,9 +387,20 @@ export function stopListening(): void {
   }
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// IS VOICE SUPPORTED
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+export function speakEchoAndResume(
+  echoText: string,
+  languageBcp47: string,
+  resumeConfig: VoiceEngineConfig | null,
+  shouldResume: () => boolean
+): void {
+  stopListening()
+
+  speak(echoText, languageBcp47, () => {
+    if (!resumeConfig) return
+    if (!shouldResume()) return
+    startListening(resumeConfig)
+  })
+}
 
 export function isVoiceSupported(): boolean {
   if (typeof window === 'undefined') return false
