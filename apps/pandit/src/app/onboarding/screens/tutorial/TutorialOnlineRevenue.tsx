@@ -1,83 +1,40 @@
 'use client';
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
-import { speak, startListening, stopListening, stopSpeaking } from '@/lib/voice-engine';
+import { useSarvamVoiceFlow } from '@/lib/hooks/useSarvamVoiceFlow';
+import { TUTORIAL_ONLINE_REVENUE } from '@/lib/voice-scripts';
 import TutorialShell from './TutorialShell';
+import { TUTORIAL_TRANSLATIONS, getTutorialLang } from '@/lib/tutorial-translations';
 
 interface Props { currentDot: number; onNext: () => void; onBack: () => void; onSkip: () => void; language?: string; onLanguageChange?: () => void; }
 
-export default function TutorialOnlineRevenue({ currentDot, onNext, onBack, onSkip }: Props) {
-  const cleanupRef = useRef<(() => void) | undefined>(undefined);
+export default function TutorialOnlineRevenue({ currentDot, onNext, onBack, onSkip, language = 'Hindi' }: Props) {
+  const lang = getTutorialLang(language);
+  const t = TUTORIAL_TRANSLATIONS[lang].screens.S04;
 
-  useEffect(() => {
-    const t = setTimeout(() => {
-      speak(
-        'Do bilkul naye tarike hain — jo aap shayad abhi tak nahi jaante.',
-        'hi-IN',
-        () => {
-          setTimeout(() => {
-            speak('Pehla — Ghar Baithe Pooja. Video call se pooja karaiye. Duniya bhar ke grahak milenge — NRI bhi.', 'hi-IN', () => {
-              setTimeout(() => {
-                speak('Ek pooja mein do hazaar se paanch hazaar rupaye.', 'hi-IN', () => {
-                  setTimeout(() => {
-                    speak('Doosra — Pandit Se Baat. Phone, video, ya chat par dharmik salah dijiye.', 'hi-IN', () => {
-                      setTimeout(() => {
-                        speak('Bees rupaye se pachaas rupaye prati minute.', 'hi-IN', () => {
-                          setTimeout(() => {
-                            speak('Udaaharan ke taur par — bees minute ki ek call mein aath sau rupaye seedhe aapko.', 'hi-IN', () => {
-                              setTimeout(() => {
-                                speak('Dono milakar — chaalees hazaar rupaye alag se har mahine.', 'hi-IN', () => {
-                                  setTimeout(() => {
-                                    speak("'Aage' bolein.", 'hi-IN', () => {
-                                      setTimeout(() => {
-                                        cleanupRef.current = startListening({
-                                          language: 'hi-IN',
-                                          onResult: (result) => {
-                                            const lower = result.transcript.toLowerCase();
-                                            if (
-                                              lower.includes('aage') || lower.includes('haan') ||
-                                              lower.includes('ha') || lower.includes('yes') ||
-                                              lower.includes('agle') || lower.includes('chalein') ||
-                                              lower.includes('next') || lower.includes('agla')
-                                            ) {
-                                              onNext();
-                                            }
-                                          },
-                                          onError: () => {},
-                                        });
-                                      }, 1000);
-                                    });
-                                  }, 400);
-                                });
-                              }, 500);
-                            });
-                          }, 200);
-                        });
-                      }, 300);
-                    });
-                  }, 500);
-                });
-              }, 300);
-            });
-          }, 300);
-        }
-      );
-    }, 400);
-
-    return () => {
-      clearTimeout(t);
-      cleanupRef.current?.();
-      stopListening();
-      stopSpeaking();
-    };
-  }, [onNext]);
+  const { isListening } = useSarvamVoiceFlow({
+    language,
+    script: TUTORIAL_ONLINE_REVENUE.scripts.main.hindi,
+    autoListen: true,
+    listenTimeoutMs: 12000,
+    repromptScript: 'कृपया आगे बोलें।',
+    repromptTimeoutMs: 12000,
+    initialDelayMs: 400,
+    pauseAfterMs: 1000,
+    onIntent: (intent) => {
+      const lower = typeof intent === 'string' ? intent.toLowerCase() : '';
+      if (lower.includes('aage') || lower.includes('haan') || lower.includes('forward')) {
+        onNext();
+      }
+    },
+  });
 
   return (
-    <TutorialShell currentDot={currentDot} onNext={onNext} onBack={onBack} onSkip={onSkip}>
+    <TutorialShell currentDot={currentDot} onNext={onNext} onBack={onBack} onSkip={onSkip} isListening={isListening}>
       {/* Title */}
       <div className="text-center mb-6">
-        <h1 className="text-[30px] font-bold text-vedic-brown leading-tight">घर बैठे भी कमाई</h1>
-        <p className="text-[17px] italic text-vedic-gold mt-1">(2 नए तरीके जो आप नहीं जानते)</p>
+        <h1 className="text-[30px] font-bold text-vedic-brown leading-tight">{t.title}</h1>
+        <p className="text-[17px] italic text-vedic-gold mt-1">{t.subtitle}</p>
       </div>
 
       {/* Feature Cards */}

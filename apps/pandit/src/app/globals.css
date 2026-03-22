@@ -5,118 +5,153 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ─────── Prevent iOS text size adjustment ─────── */
-html {
-  -webkit-text-size-adjust: 100%;
-  text-size-adjust: 100%;
+@layer base {
+  :root {
+    --font-devanagari: 'Noto Sans Devanagari', sans-serif;
+    --font-serif: 'Noto Serif', serif;
+    --font-body: 'Public Sans', sans-serif;
+    --font-label: 'Noto Sans Devanagari', sans-serif;
+    --font-headline: 'Noto Serif', serif;
+  }
+
+  html {
+    font-family: var(--font-body);
+    background-color: #FBF9F3;
+    color: #1B1C19;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    min-height: 100dvh;
+    overflow-x: hidden;
+  }
+
+  * {
+    box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  button,
+  a {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
 }
 
-/* ─────── Remove iOS tap highlight ─────── */
-* {
-  -webkit-tap-highlight-color: transparent;
-}
+@layer components {
 
-/* ─────── Prevent scrollbar from causing layout shift ─────── */
-body {
-  overflow-x: hidden;
-  background-color: #FBF9F3;
-  /* surface-base */
-}
+  /* Material Symbols configuration */
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    font-family: 'Material Symbols Outlined';
+    display: inline-block;
+    line-height: 1;
+    text-transform: none;
+    letter-spacing: normal;
+    word-wrap: normal;
+    white-space: nowrap;
+  }
 
-/* ─────── Custom scrollbar (subtle) ─────── */
-::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
-}
+  .material-symbols-outlined.filled {
+    font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
 
-::-webkit-scrollbar-track {
-  background: transparent;
-}
+  /* Devanagari text utility */
+  .text-devanagari {
+    font-family: var(--font-devanagari);
+  }
 
-::-webkit-scrollbar-thumb {
-  background: #E4E2DD;
-  /* surface-container-highest */
-  border-radius: 2px;
-}
+  /* Saffron glow effect */
+  .saffron-glow {
+    box-shadow: 0 0 40px rgba(255, 140, 0, 0.15);
+  }
 
-/* ─────── Hide scrollbar for horizontal scroll chips ─────── */
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
+  /* Sacred gradient background */
+  .bg-sacred {
+    background: radial-gradient(circle at top right, rgba(255, 140, 0, 0.12) 0%, rgba(255, 253, 247, 0) 55%);
+  }
 
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
+  /* Diya halo effect */
+  .diya-halo {
+    background: radial-gradient(circle, rgba(255, 140, 0, 0.15) 0%, rgba(255, 253, 247, 0) 70%);
+  }
 
-/* ─────── Material Symbols configuration ─────── */
-.material-symbols-outlined {
-  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-  font-family: 'Material Symbols Outlined';
-  display: inline-block;
-  line-height: 1;
-  text-transform: none;
-  letter-spacing: normal;
-  word-wrap: normal;
-  white-space: nowrap;
-}
+  /* Waveform bars */
+  .waveform-bar {
+    width: 8px;
+    border-radius: 4px;
+    background: linear-gradient(to top, #904D00, #FF8C00);
+    animation: waveform 1.2s ease-in-out infinite alternate;
+  }
 
-.material-symbols-outlined.filled {
-  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-}
+  .waveform-bar:nth-child(2) {
+    animation-delay: 0.2s;
+  }
 
-/* ─────── Devanagari text utility ─────── */
-.text-devanagari {
-  font-family: 'Noto Sans Devanagari', sans-serif;
-}
+  .waveform-bar:nth-child(3) {
+    animation-delay: 0.4s;
+  }
 
-/* ─────── Saffron glow effect (from saffron_glow folder) ─────── */
-.saffron-glow {
-  box-shadow: 0 0 40px rgba(255, 140, 0, 0.15);
-}
+  .waveform-bar:nth-child(4) {
+    animation-delay: 0.6s;
+  }
 
-/* ─────── Sacred gradient background (from homepage HTML) ─────── */
-.bg-sacred {
-  background: radial-gradient(circle at top right, rgba(255, 140, 0, 0.12) 0%, rgba(255, 253, 247, 0) 55%);
-}
+  .waveform-bar:nth-child(5) {
+    animation-delay: 0.8s;
+  }
 
-/* ─────── Diya halo effect (from identity_confirmation HTML) ─────── */
-.diya-halo {
-  background: radial-gradient(circle, rgba(255, 140, 0, 0.15) 0%, rgba(255, 253, 247, 0) 70%);
-}
+  /* Celebration background */
+  .celebration-bg {
+    background: radial-gradient(circle, rgba(255, 140, 0, 0.08) 0%, rgba(255, 255, 255, 1) 70%);
+  }
 
-/* ─────── Celebration background (from step_completion_celebration HTML) ─────── */
-.celebration-bg {
-  background: radial-gradient(circle, rgba(255, 140, 0, 0.08) 0%, rgba(255, 255, 255, 1) 70%);
-}
+  /* Glow ring */
+  .glow-ring {
+    box-shadow: 0 0 20px 4px rgba(255, 140, 0, 0.3);
+  }
 
-/* ─────── Glow ring for celebration ─────── */
-.glow-ring {
-  box-shadow: 0 0 20px 4px rgba(255, 140, 0, 0.3);
-}
+  /* Safe area padding */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 16px);
+  }
 
-/* ─────── Waveform bars (voice UI - from active_listening_overlay HTML) ─────── */
-.waveform-bar {
-  width: 8px;
-  border-radius: 4px;
-  background: linear-gradient(to top, #904D00, #FF8C00);
-  animation: waveform 1.2s ease-in-out infinite alternate;
-}
+  .pt-safe {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
 
-.waveform-bar:nth-child(2) {
-  animation-delay: 0.2s;
-}
+  /* Voice bar animations */
+  .voice-bar {
+    width: 6px;
+    background-color: #FF8C00;
+    border-radius: 3px;
+    animation: voice-bar 1.2s ease-in-out infinite;
+  }
 
-.waveform-bar:nth-child(3) {
-  animation-delay: 0.4s;
-}
+  .voice-bar:nth-child(2) {
+    animation-delay: 0.2s;
+  }
 
-.waveform-bar:nth-child(4) {
-  animation-delay: 0.6s;
-}
+  .voice-bar:nth-child(3) {
+    animation-delay: 0.4s;
+  }
 
-.waveform-bar:nth-child(5) {
-  animation-delay: 0.8s;
+  @keyframes voice-bar {
+
+    0%,
+    100% {
+      height: 8px;
+    }
+
+    50% {
+      height: 24px;
+    }
+  }
 }
 
 @keyframes waveform {
@@ -129,107 +164,12 @@ body {
   }
 }
 
-/* ─────── Screen timeout override for Part 0 screens ─────── */
-/* Applied via JS wakeLock API — CSS placeholder only */
-.screen-always-on {
-  touch-action: manipulation;
-}
-
-/* ─────── Voice bar animations ─────── */
-.voice-bar {
-  width: 6px;
-  background-color: #FF8C00;
-  /* primary-container */
-  border-radius: 3px;
-  animation: voice-bar 1.2s ease-in-out infinite;
-}
-
-.voice-bar:nth-child(2) {
-  animation-delay: 0.2s;
-}
-
-.voice-bar:nth-child(3) {
-  animation-delay: 0.4s;
-}
-
-@keyframes voice-bar {
-
-  0%,
-  100% {
-    height: 8px;
-  }
-
-  50% {
-    height: 24px;
-  }
-}
-
-/* ─────── Saffron gradient splash ─────── */
-.splash-gradient {
-  background: linear-gradient(180deg, #FF8C00 0%, #FFB77D 50%, #FBF9F3 100%);
-}
-
-/* ─────── Shimmer text (for OM/Script icon) ─────── */
-.shimmer-text {
-  background: linear-gradient(90deg, #FF8C00 25%, #FFDCC3 50%, #FF8C00 75%);
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: shimmer 2s linear infinite;
-}
-
-@keyframes shimmer {
+@keyframes spin {
   0% {
-    background-position: -200% 0;
+    transform: rotate(0deg);
   }
 
   100% {
-    background-position: 200% 0;
+    transform: rotate(360deg);
   }
-}
-
-/* ─────── SVG animation helpers ─────── */
-.draw-circle {
-  stroke-dasharray: 252;
-  stroke-dashoffset: 252;
-  animation: draw-circle 0.8s ease-out forwards;
-}
-
-.draw-check {
-  stroke-dasharray: 100;
-  stroke-dashoffset: 100;
-  animation: draw-check 0.5s ease-out 0.8s forwards;
-}
-
-@keyframes draw-circle {
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-
-@keyframes draw-check {
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-
-/* ─────── Accordion animation ─────── */
-.accordion-content {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.3s ease-out;
-}
-
-.accordion-content.open {
-  max-height: 200px;
-}
-
-/* ─────── Safe area padding (iOS home bar) ─────── */
-.pb-safe {
-  padding-bottom: env(safe-area-inset-bottom, 16px);
-}
-
-.pt-safe {
-  padding-top: env(safe-area-inset-top, 0px);
 }

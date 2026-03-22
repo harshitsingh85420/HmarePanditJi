@@ -207,6 +207,17 @@ export function getTutorialDotNumber(phase: OnboardingPhase): number {
   return TUTORIAL_PHASE_TO_DOT[phase] ?? 1
 }
 
+// Check if current phase is in Part 0 (tutorial)
+export function isPart0Phase(phase: OnboardingPhase): boolean {
+  return phase.startsWith('TUTORIAL_') || phase === 'SPLASH' || phase.startsWith('LANGUAGE_') ||
+    phase === 'LOCATION_PERMISSION' || phase === 'MANUAL_CITY' || phase === 'HELP' ||
+    phase === 'VOICE_TUTORIAL' || phase === 'LANGUAGE_SET'
+}
+
+export function isPart1Phase(phase: OnboardingPhase): boolean {
+  return phase === 'REGISTRATION'
+}
+
 // ─────────────────────────────────────────────────────────────
 // LANGUAGE DISPLAY HELPERS
 // ─────────────────────────────────────────────────────────────
@@ -217,21 +228,21 @@ export const LANGUAGE_DISPLAY: Record<SupportedLanguage, {
   scriptChar: string  // Single character representing the script
   emoji: string
 }> = {
-  Hindi:     { nativeName: 'हिंदी',     latinName: 'Hindi',     scriptChar: 'अ', emoji: '🇮🇳' },
-  Bhojpuri:  { nativeName: 'भोजपुरी',   latinName: 'Bhojpuri',  scriptChar: 'भ', emoji: '🌾' },
-  Maithili:  { nativeName: 'मैथिली',    latinName: 'Maithili',  scriptChar: 'म', emoji: '🪔' },
-  Bengali:   { nativeName: 'বাংলা',     latinName: 'Bengali',   scriptChar: 'ব', emoji: '🐟' },
-  Tamil:     { nativeName: 'தமிழ்',     latinName: 'Tamil',     scriptChar: 'த', emoji: '🌺' },
-  Telugu:    { nativeName: 'తెలుగు',    latinName: 'Telugu',    scriptChar: 'తె', emoji: '🌴' },
-  Kannada:   { nativeName: 'ಕನ್ನಡ',    latinName: 'Kannada',   scriptChar: 'ಕ', emoji: '🏔️' },
-  Malayalam: { nativeName: 'മലയാളം',    latinName: 'Malayalam', scriptChar: 'മ', emoji: '🌿' },
-  Marathi:   { nativeName: 'मराठी',     latinName: 'Marathi',   scriptChar: 'म', emoji: '🟠' },
-  Gujarati:  { nativeName: 'ગુજરાતી',   latinName: 'Gujarati',  scriptChar: 'ગ', emoji: '🦚' },
-  Sanskrit:  { nativeName: 'संस्कृत',   latinName: 'Sanskrit',  scriptChar: 'ॐ', emoji: '📜' },
-  English:   { nativeName: 'English',   latinName: 'English',   scriptChar: 'A', emoji: '🌐' },
-  Odia:      { nativeName: 'ଓଡ଼ିଆ',    latinName: 'Odia',      scriptChar: 'ଓ', emoji: '🌊' },
-  Punjabi:   { nativeName: 'ਪੰਜਾਬੀ',   latinName: 'Punjabi',   scriptChar: 'ਪ', emoji: '🌻' },
-  Assamese:  { nativeName: 'অসমীয়া',   latinName: 'Assamese',  scriptChar: 'অ', emoji: '🦅' },
+  Hindi: { nativeName: 'हिंदी', latinName: 'Hindi', scriptChar: 'अ', emoji: '🇮🇳' },
+  Bhojpuri: { nativeName: 'भोजपुरी', latinName: 'Bhojpuri', scriptChar: 'भ', emoji: '🌾' },
+  Maithili: { nativeName: 'मैथिली', latinName: 'Maithili', scriptChar: 'म', emoji: '🪔' },
+  Bengali: { nativeName: 'বাংলা', latinName: 'Bengali', scriptChar: 'ব', emoji: '🐟' },
+  Tamil: { nativeName: 'தமிழ்', latinName: 'Tamil', scriptChar: 'த', emoji: '🌺' },
+  Telugu: { nativeName: 'తెలుగు', latinName: 'Telugu', scriptChar: 'తె', emoji: '🌴' },
+  Kannada: { nativeName: 'ಕನ್ನಡ', latinName: 'Kannada', scriptChar: 'ಕ', emoji: '🏔️' },
+  Malayalam: { nativeName: 'മലയാളം', latinName: 'Malayalam', scriptChar: 'മ', emoji: '🌿' },
+  Marathi: { nativeName: 'मराठी', latinName: 'Marathi', scriptChar: 'म', emoji: '🟠' },
+  Gujarati: { nativeName: 'ગુજરાતી', latinName: 'Gujarati', scriptChar: 'ગ', emoji: '🦚' },
+  Sanskrit: { nativeName: 'संस्कृत', latinName: 'Sanskrit', scriptChar: 'ॐ', emoji: '📜' },
+  English: { nativeName: 'English', latinName: 'English', scriptChar: 'A', emoji: '🌐' },
+  Odia: { nativeName: 'ଓଡ଼ିଆ', latinName: 'Odia', scriptChar: 'ଓ', emoji: '🌊' },
+  Punjabi: { nativeName: 'ਪੰਜਾਬੀ', latinName: 'Punjabi', scriptChar: 'ਪ', emoji: '🌻' },
+  Assamese: { nativeName: 'অসমীয়া', latinName: 'Assamese', scriptChar: 'অ', emoji: '🦅' },
 }
 
 // All supported languages as an ordered array for the selection grid

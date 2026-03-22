@@ -18,6 +18,9 @@ export default function LanguageBottomSheet({
 }: LanguageBottomSheetProps) {
   const [search, setSearch] = useState('')
 
+  // Safety check: Default to 'Hindi' if currentLanguage is undefined
+  const safeCurrentLanguage = currentLanguage || 'Hindi'
+
   const filtered = ALL_LANGUAGES.filter(lang => {
     const display = LANGUAGE_DISPLAY[lang]
     return (
@@ -27,6 +30,9 @@ export default function LanguageBottomSheet({
   })
 
   if (!isOpen) return null
+
+  // Get safe display data
+  const currentDisplay = LANGUAGE_DISPLAY[safeCurrentLanguage] || LANGUAGE_DISPLAY['Hindi']
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col justify-end">
@@ -73,10 +79,10 @@ export default function LanguageBottomSheet({
         <div className="px-4 pb-2">
           <div className="bg-primary-lt border border-primary rounded-xl px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <span className="text-2xl">{LANGUAGE_DISPLAY[currentLanguage].scriptChar}</span>
+              <span className="text-2xl">{currentDisplay.scriptChar}</span>
               <div>
-                <p className="font-bold text-vedic-brown text-base">{LANGUAGE_DISPLAY[currentLanguage].nativeName}</p>
-                <p className="text-sm text-vedic-gold">{LANGUAGE_DISPLAY[currentLanguage].latinName}</p>
+                <p className="font-bold text-vedic-brown text-base">{currentDisplay.nativeName}</p>
+                <p className="text-sm text-vedic-gold">{currentDisplay.latinName}</p>
               </div>
             </div>
             <span className="text-primary font-bold text-xl">✓</span>
@@ -87,7 +93,7 @@ export default function LanguageBottomSheet({
           <div className="grid grid-cols-2 gap-2">
             {filtered.map(lang => {
               const display = LANGUAGE_DISPLAY[lang]
-              const isActive = lang === currentLanguage
+              const isActive = lang === safeCurrentLanguage
               return (
                 <button
                   key={lang}

@@ -1,78 +1,52 @@
 'use client';
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
-import { speak, startListening, stopListening, stopSpeaking } from '@/lib/voice-engine';
+import { useSarvamVoiceFlow } from '@/lib/hooks/useSarvamVoiceFlow';
+import { TUTORIAL_DAKSHINA } from '@/lib/voice-scripts';
 import TutorialShell from './TutorialShell';
+import { TUTORIAL_TRANSLATIONS, getTutorialLang } from '@/lib/tutorial-translations';
 
-interface Props { currentDot: number; onNext: () => void; onBack: () => void; onSkip: () => void; language?: string; onLanguageChange?: () => void; }
+interface Props {
+  currentDot: number;
+  onNext: () => void;
+  onBack: () => void;
+  onSkip: () => void;
+  language?: string;
+  onLanguageChange?: () => void;
+}
 
-export default function TutorialDakshina({ currentDot, onNext, onBack, onSkip }: Props) {
-  const cleanupRef = useRef<(() => void) | undefined>(undefined);
+export default function TutorialDakshina({ currentDot, onNext, onBack, onSkip, language = 'Hindi' }: Props) {
+  const lang = getTutorialLang(language);
+  const t = TUTORIAL_TRANSLATIONS[lang].screens.S03;
 
-  useEffect(() => {
-    const t = setTimeout(() => {
-      speak(
-        "Kitni baar aisa hua hai ki aapne do ghante ki pooja ki — aur grahak ne keh diya, 'Bhaiya, teen hazaar nahi, do hazaar le lo.'",
-        'hi-IN',
-        () => {
-          setTimeout(() => {
-            speak('Aap kuch nahi bol paye.', 'hi-IN', () => {
-              setTimeout(() => {
-                speak('Ab nahi hoga yeh.', 'hi-IN', () => {
-                  setTimeout(() => {
-                    speak('Aap khud dakshina tay karenge — platform kabhi nahi badlegi.', 'hi-IN', () => {
-                      setTimeout(() => {
-                        speak('Grahak ko booking se pehle hi pata hota hai — kitna dena hai.', 'hi-IN', () => {
-                          setTimeout(() => {
-                            speak('Moalbhav khatam.', 'hi-IN', () => {
-                              setTimeout(() => {
-                                speak("'Aage' bolein.", 'hi-IN', () => {
-                                  setTimeout(() => {
-                                    cleanupRef.current = startListening({
-                                      language: 'hi-IN',
-                                      onResult: (result) => {
-                                        const lower = result.transcript.toLowerCase();
-                                        if (
-                                          lower.includes('aage') || lower.includes('haan') ||
-                                          lower.includes('ha') || lower.includes('yes') ||
-                                          lower.includes('agle') || lower.includes('chalein') ||
-                                          lower.includes('next') || lower.includes('agla')
-                                        ) {
-                                          onNext();
-                                        }
-                                      },
-                                      onError: () => {},
-                                    });
-                                  }, 1200);
-                                });
-                              }, 800);
-                            });
-                          }, 300);
-                        });
-                      }, 300);
-                    });
-                  }, 300);
-                });
-              }, 400);
-            });
-          }, 600);
-        }
-      );
-    }, 500);
-
-    return () => {
-      clearTimeout(t);
-      cleanupRef.current?.();
-      stopListening();
-      stopSpeaking();
-    };
-  }, [onNext]);
+  const { isListening } = useSarvamVoiceFlow({
+    language,
+    script: TUTORIAL_DAKSHINA.scripts.main.hindi,
+    autoListen: true,
+    listenTimeoutMs: 12000,
+    repromptScript: 'कृपया आगे बोलें।',
+    repromptTimeoutMs: 12000,
+    initialDelayMs: 500,
+    pauseAfterMs: 1200,
+    onIntent: (intent) => {
+      const lower = typeof intent === 'string' ? intent.toLowerCase() : '';
+      if (
+        lower.includes('aage') || lower.includes('haan') ||
+        lower.includes('ha') || lower.includes('yes') ||
+        lower.includes('agle') || lower.includes('chalein') ||
+        lower.includes('next') || lower.includes('agla') ||
+        lower.includes('forward')
+      ) {
+        onNext();
+      }
+    },
+  });
 
   return (
-    <TutorialShell currentDot={currentDot} onNext={onNext} onBack={onBack} onSkip={onSkip} nextLabel="अगला फ़ायदा देखें →">
+    <TutorialShell currentDot={currentDot} onNext={onNext} onBack={onBack} onSkip={onSkip} isListening={isListening} language={language}>
       {/* Headline */}
       <motion.section initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-6 text-center">
-        <h1 className="text-[34px] font-bold leading-tight text-vedic-brown">अब कोई मोलभाव नहीं।</h1>
+        <h1 className="text-[34px] font-bold leading-tight text-vedic-brown">{t.title}</h1>
       </motion.section>
 
       {/* Illustration */}
@@ -92,7 +66,7 @@ export default function TutorialDakshina({ currentDot, onNext, onBack, onSkip }:
           className="bg-error-lt rounded-2xl p-4 border border-red-200 shadow-sm"
         >
           <header className="flex items-center gap-2 mb-3">
-            <span className="font-bold text-red-700">❌ पहले:</span>
+            <span className="font-bold text-red-700">{t.before}</span>
           </header>
           <div className="flex flex-col gap-2 text-left">
             <div className="flex items-start gap-2">
@@ -119,7 +93,7 @@ export default function TutorialDakshina({ currentDot, onNext, onBack, onSkip }:
           className="bg-success-lt rounded-2xl p-4 border border-green-200 shadow-sm"
         >
           <header className="flex items-center gap-2 mb-3">
-            <span className="font-bold text-green-700">✅ अब:</span>
+            <span className="font-bold text-green-700">{t.after}</span>
           </header>
           <div className="bg-white rounded-xl p-3 text-left border border-green-200 shadow-sm">
             <div className="flex justify-between items-center mb-1">

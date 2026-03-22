@@ -31,8 +31,8 @@ export interface SarvamTTSOptions {
 
 export const LANGUAGE_TO_SARVAM_CODE: Record<string, SarvamLanguageCode> = {
   Hindi: 'hi-IN',
-  Bhojpuri: 'hi-IN',
-  Maithili: 'hi-IN',
+  Bhojpuri: 'hi-IN',      // Bhojpuri falls back to hi-IN (no dedicated code)
+  Maithili: 'hi-IN',      // Same fallback
   Bengali: 'bn-IN',
   Tamil: 'ta-IN',
   Telugu: 'te-IN',
@@ -40,11 +40,11 @@ export const LANGUAGE_TO_SARVAM_CODE: Record<string, SarvamLanguageCode> = {
   Malayalam: 'ml-IN',
   Marathi: 'mr-IN',
   Gujarati: 'gu-IN',
-  Punjabi: 'pa-IN',
-  Odia: 'or-IN',
   Sanskrit: 'hi-IN',
   English: 'en-IN',
-  Assamese: 'hi-IN',
+  Odia: 'or-IN',
+  Punjabi: 'pa-IN',
+  Assamese: 'hi-IN',      // Fallback to hi-IN (Sarvam may add as-IN later)
 };
 
 let activeSpeechToken = 0;

@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { persist, createJSONStorage } from 'zustand/middleware'
 
 export type RegistrationStep =
   | 'language'
@@ -43,6 +44,11 @@ interface RegistrationStore {
   reset: () => void
 }
 
+const STEP_ORDER: RegistrationStep[] = [
+  'language', 'welcome', 'mic_permission', 'location_permission',
+  'notification_permission', 'mobile', 'otp', 'profile', 'complete'
+]
+
 const REGISTRATION_STEPS: RegistrationStep[] = [
   'mobile', 'otp', 'profile', 'complete'
 ]
@@ -61,86 +67,66 @@ const initialData: RegistrationData = {
   lastSavedAt: Date.now(),
 }
 
-export const useRegistrationStore = create<RegistrationStore>()((set, get) => ({
-  data: initialData,
+export const useRegistrationStore = create<RegistrationStore>()(
+  persist(
+    (set, get) => ({
+      data: initialData,
 
-  setLanguage: (lang) => set((state) => ({
-    data: { ...state.data, language: lang, lastSavedAt: Date.now() }
-  })),
+      setLanguage: (lang) => set((state) => ({
+        data: { ...state.data, language: lang, lastSavedAt: Date.now() }
+      })),
 
-  setMobile: (mobile) => set((state) => ({
-    data: { ...state.data, mobile, lastSavedAt: Date.now() }
-  })),
+      setMobile: (mobile) => set((state) => ({
+        data: { ...state.data, mobile, lastSavedAt: Date.now() }
+      })),
 
-  setOtp: (otp) => set((state) => ({
-    data: { ...state.data, otp, lastSavedAt: Date.now() }
-  })),
+      setOtp: (otp) => set((state) => ({
+        data: { ...state.data, otp, lastSavedAt: Date.now() }
+      })),
 
-  setName: (name) => set((state) => ({
-    data: { ...state.data, name, lastSavedAt: Date.now() }
-  })),
+      setName: (name) => set((state) => ({
+        data: { ...state.data, name, lastSavedAt: Date.now() }
+      })),
 
-  setCity: (city, state_name) => set((state) => ({
-    data: { ...state.data, city, state: state_name, lastSavedAt: Date.now() }
-  })),
+      setCity: (city, state_name) => set((state) => ({
+        data: { ...state.data, city, state: state_name, lastSavedAt: Date.now() }
+      })),
 
-  setCurrentStep: (step) => set((state) => ({
-    data: { ...state.data, currentStep: step, lastSavedAt: Date.now() }
-  })),
+      setCurrentStep: (step) => set((state) => ({
+        data: { ...state.data, currentStep: step, lastSavedAt: Date.now() }
+      })),
 
-  markStepComplete: (step) => set((state) => ({
-    data: {
-      ...state.data,
-      completedSteps: (state.data.completedSteps || []).includes(step)
-        ? state.data.completedSteps || []
-        : [...(state.data.completedSteps || []), step],
-      lastSavedAt: Date.now()
+      markStepComplete: (step) => set((state) => ({
+        data: {
+          ...state.data,
+          completedSteps: state.data.completedSteps.includes(step)
+            ? state.data.completedSteps
+            : [...state.data.completedSteps, step],
+          lastSavedAt: Date.now()
+        }
+      })),
+
+      setReferralCode: (code) => set((state) => ({
+        data: { ...state.data, referralCode: code }
+      })),
+
+      getStepNumber: (step) => REGISTRATION_STEPS.indexOf(step) + 1,
+      getTotalSteps: () => REGISTRATION_STEPS.length,
+
+      getCompletionPercentage: () => {
+        const { completedSteps } = get().data
+        const registrationSteps = completedSteps.filter(s => REGISTRATION_STEPS.includes(s))
+        return Math.round((registrationSteps.length / REGISTRATION_STEPS.length) * 100)
+      },
+
+      isStepComplete: (step) => get().data.completedSteps.includes(step),
+
+      reset: () => set({ data: { ...initialData, sessionId: `session_${Date.now()}`, startedAt: Date.now() } }),
+    }),
+    {
+      name: 'hpj-registration',
+      storage: createJSONStorage(() => localStorage),
+      partialize: (state) => ({ data: state.data }),
     }
-  })),
-
-  setReferralCode: (code) => set((state) => ({
-    data: { ...state.data, referralCode: code }
-  })),
-
-  getStepNumber: (step) => REGISTRATION_STEPS.indexOf(step) + 1,
-  getTotalSteps: () => REGISTRATION_STEPS.length,
-
-  getCompletionPercentage: () => {
-    const completedSteps = get().data.completedSteps || []
-    const registrationSteps = completedSteps.filter(s => REGISTRATION_STEPS.includes(s))
-    return Math.round((registrationSteps.length / REGISTRATION_STEPS.length) * 100)
-  },
-
-  isStepComplete: (step) => (get().data.completedSteps || []).includes(step),
-
-  reset: () => set({ data: { ...initialData, sessionId: `session_${Date.now()}`, startedAt: Date.now() } }),
-}))
-
-// Custom localStorage persistence
-const STORAGE_KEY = 'hpj-registration'
-
-export function saveRegistrationToStorage() {
-  if (typeof window === 'undefined') return
-  const state = useRegistrationStore.getState()
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state.data))
-}
-
-export function loadRegistrationFromStorage(): RegistrationData | null {
-  if (typeof window === 'undefined') return null
-  const stored = localStorage.getItem(STORAGE_KEY)
-  if (!stored) return null
-  try {
-    return JSON.parse(stored)
-  } catch {
-    return null
-  }
-}
-
-export function restoreRegistrationFromStorage() {
-  const stored = loadRegistrationFromStorage()
-  if (stored) {
-    useRegistrationStore.setState({ 
-      data: { ...initialData, ...stored, completedSteps: stored.completedSteps || [] } 
-    })
-  }
-}
+  )
+)

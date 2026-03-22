@@ -50,16 +50,16 @@ export function Button({
 
   const variantClasses = {
     primary: cn(
-      'bg-primary-container text-white',
+      'bg-saffron text-white',
       'shadow-btn-saffron',
-      !disabled && 'active:bg-primary active:scale-[0.97] active:shadow-btn-saffron-pressed',
+      !disabled && 'active:bg-saffron-dark active:scale-[0.97] active:shadow-btn-saffron-pressed',
     ),
     outline: cn(
-      'bg-transparent border-2 border-primary-container text-primary-container',
+      'bg-transparent border-2 border-saffron text-saffron',
       !disabled && 'active:bg-saffron-light active:scale-[0.97]',
     ),
     text: cn(
-      'bg-transparent text-primary-container underline-offset-2',
+      'bg-transparent text-saffron underline-offset-2',
       'min-h-touch h-auto px-0 font-normal text-sm',
       !disabled && 'active:opacity-70',
     ),
@@ -79,7 +79,7 @@ export function Button({
       className={cn(baseClasses, variantClasses[variant], className)}
     >
       {loading ? (
-        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin-slow" />
+        <LoadingSpinner />
       ) : (
         <>
           {icon && iconPosition === 'left' && (
@@ -92,6 +92,12 @@ export function Button({
         </>
       )}
     </motion.button>
+  )
+}
+
+function LoadingSpinner() {
+  return (
+    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin-slow" />
   )
 }
 
@@ -115,7 +121,7 @@ export function ConfirmButtons({
         onClick={onConfirm}
         className={cn(
           'flex-1 h-[60px] rounded-btn',
-          'bg-primary-container text-white font-bold',
+          'bg-saffron text-white font-bold',
           'flex items-center justify-center gap-2',
           'shadow-btn-saffron',
         )}
@@ -129,11 +135,11 @@ export function ConfirmButtons({
         onClick={onRetry}
         className={cn(
           'flex-1 h-[60px] rounded-btn',
-          'bg-surface-card border-2 border-border-default text-text-primary font-bold',
+          'bg-surface-card border-2 border-saffron text-saffron font-bold',
           'flex items-center justify-center gap-2',
         )}
       >
-        <span className="material-symbols-outlined text-lg">restart_alt</span>
+        <span className="material-symbols-outlined text-lg">refresh</span>
         <span>{retryLabel}</span>
       </motion.button>
     </div>

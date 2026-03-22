@@ -2,23 +2,31 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useSarvamVoiceFlow } from '@/lib/hooks/useSarvamVoiceFlow';
+import { TUTORIAL_DUAL_MODE } from '@/lib/voice-scripts';
 import TutorialShell from './TutorialShell';
 import { TutorialScreenProps } from './types';
-import { useSarvamVoiceFlow } from '@/lib/hooks/useSarvamVoiceFlow';
-
-const DUAL_MODE_SCRIPT =
-  'चाहे आपके पास smartphone हो या keypad phone — दोनों से काम चलेगा। और अगर registration में बेटा या परिवार मदद करे — कोई बात नहीं। पूजा आपको मिलेगी। पैसे आपके खाते में।';
+import { TUTORIAL_TRANSLATIONS, getTutorialLang } from '@/lib/tutorial-translations';
 
 export default function TutorialDualMode({
   currentDot,
   onNext,
   onBack,
   onSkip,
-  language,
+  language = 'Hindi',
 }: TutorialScreenProps) {
+  const lang = getTutorialLang(language);
+  const t = TUTORIAL_TRANSLATIONS[lang].screens.S08;
+
   const { isListening } = useSarvamVoiceFlow({
     language,
-    script: DUAL_MODE_SCRIPT,
+    script: TUTORIAL_DUAL_MODE.scripts.main.hindi,
+    autoListen: true,
+    listenTimeoutMs: 12000,
+    repromptScript: 'कृपया आगे बोलें।',
+    repromptTimeoutMs: 12000,
+    initialDelayMs: 400,
+    pauseAfterMs: 1000,
     onIntent: (intent) => {
       if (intent === 'FORWARD' || intent === 'YES') onNext();
       else if (intent === 'BACK') onBack();
@@ -34,15 +42,16 @@ export default function TutorialDualMode({
       onSkip={onSkip}
       isListening={isListening}
       showKeyboardToggle
-      onKeyboardToggle={() => {}}
+      onKeyboardToggle={() => { }}
+      language={language}
     >
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         className="text-center space-y-1 mb-6"
       >
-        <h1 className="text-[28px] font-bold text-vedic-brown leading-tight">कोई भी Phone,</h1>
-        <h1 className="text-[28px] font-bold text-primary leading-tight">Platform चलेगा।</h1>
+        <h1 className="text-[28px] font-bold text-vedic-brown leading-tight">{t.title}</h1>
+        <h1 className="text-[28px] font-bold text-primary leading-tight">{t.subtitle}</h1>
       </motion.div>
 
       <div className="grid grid-cols-2 gap-3 mb-5">
@@ -97,8 +106,7 @@ export default function TutorialDualMode({
       >
         <span className="text-[36px] shrink-0">👨‍👩‍👦</span>
         <div>
-          <p className="text-[20px] font-bold text-vedic-brown leading-snug">बेटा या परिवार Registration में</p>
-          <p className="text-[20px] font-bold text-vedic-brown leading-snug">मदद कर सकते हैं।</p>
+          <p className="text-[20px] font-bold text-vedic-brown leading-snug">{t.family}</p>
           <p className="text-[16px] text-vedic-brown-2 mt-1">पूजा आपको मिलेगी, पैसे आपके खाते में।</p>
         </div>
       </motion.div>

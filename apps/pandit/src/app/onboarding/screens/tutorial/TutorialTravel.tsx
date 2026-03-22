@@ -2,12 +2,11 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useSarvamVoiceFlow } from '@/lib/hooks/useSarvamVoiceFlow';
+import { TUTORIAL_TRAVEL } from '@/lib/voice-scripts';
 import TutorialShell from './TutorialShell';
 import { TutorialScreenProps } from './types';
-import { useSarvamVoiceFlow } from '@/lib/hooks/useSarvamVoiceFlow';
-
-const TRAVEL_SCRIPT =
-  'Booking confirm होते ही — train हो, bus हो, या cab — पूरी यात्रा की planning platform कर देगा। Hotel से खाने तक। और calendar में जो दिन आप free नहीं हैं — एक बार set करो। Double booking हो ही नहीं सकती।';
+import { TUTORIAL_TRANSLATIONS, getTutorialLang } from '@/lib/tutorial-translations';
 
 const CALENDAR_CELLS = [
   '', '', '', '', '', '',
@@ -23,11 +22,20 @@ export default function TutorialTravel({
   onNext,
   onBack,
   onSkip,
-  language,
+  language = 'Hindi',
 }: TutorialScreenProps) {
+  const lang = getTutorialLang(language);
+  const t = TUTORIAL_TRANSLATIONS[lang].screens.S09;
+
   const { isListening } = useSarvamVoiceFlow({
     language,
-    script: TRAVEL_SCRIPT,
+    script: TUTORIAL_TRAVEL.scripts.main.hindi,
+    autoListen: true,
+    listenTimeoutMs: 12000,
+    repromptScript: 'कृपया आगे बोलें।',
+    repromptTimeoutMs: 12000,
+    initialDelayMs: 400,
+    pauseAfterMs: 1000,
     onIntent: (intent) => {
       if (intent === 'FORWARD' || intent === 'YES') onNext();
       else if (intent === 'BACK') onBack();
@@ -43,11 +51,11 @@ export default function TutorialTravel({
       onSkip={onSkip}
       isListening={isListening}
       showKeyboardToggle
-      onKeyboardToggle={() => {}}
+      onKeyboardToggle={() => { }}
     >
       <motion.section initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-6 space-y-1">
-        <h1 className="text-[26px] font-bold text-vedic-brown leading-tight">Travel की Tension नहीं।</h1>
-        <h1 className="text-[26px] font-bold text-vedic-brown leading-tight">Double Booking नहीं।</h1>
+        <h1 className="text-[26px] font-bold text-vedic-brown leading-tight">{t.title}</h1>
+        <h1 className="text-[26px] font-bold text-vedic-brown leading-tight">{t.subtitle}</h1>
       </motion.section>
 
       <motion.div
@@ -103,13 +111,12 @@ export default function TutorialTravel({
             return (
               <div
                 key={index}
-                className={`h-9 w-9 rounded-md flex items-center justify-center relative ${
-                  isBlocked
-                    ? 'bg-error-lt text-error'
-                    : day
+                className={`h-9 w-9 rounded-md flex items-center justify-center relative ${isBlocked
+                  ? 'bg-error-lt text-error'
+                  : day
                     ? 'bg-gray-50 text-vedic-brown text-[11px]'
                     : 'bg-transparent'
-                }`}
+                  }`}
               >
                 {isBlocked ? (
                   <>

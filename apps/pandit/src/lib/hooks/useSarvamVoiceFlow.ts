@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { SupportedLanguage } from '@/lib/onboarding-store';
 import { detectIntent } from '@/lib/voice-engine';
+import { useVoiceStore } from '@/stores/voiceStore';
 import {
   LANGUAGE_TO_SARVAM_CODE,
   speakWithSarvam,
@@ -35,25 +36,30 @@ interface UseSarvamVoiceFlowResult {
   stopFlow: () => void;
 }
 
+// BUG-002 FIX: Reduced timeouts for faster keyboard fallback (was 12000ms)
+const DEFAULT_TIMEOUT_MS = 8000;
+const ELDERLY_TIMEOUT_MS = 10000;
+
 export function useSarvamVoiceFlow({
   language,
   script,
   onIntent,
   autoListen = true,
-  listenTimeoutMs = 12000,
+  listenTimeoutMs = DEFAULT_TIMEOUT_MS, // BUG-002 FIX: Reduced from 12000ms to 8000ms
   repromptScript,
-  repromptTimeoutMs = 12000,
+  repromptTimeoutMs = DEFAULT_TIMEOUT_MS, // BUG-002 FIX: Reduced from 12000ms to 8000ms
   initialDelayMs = 500,
   pauseAfterMs = 300,
   disabled = false,
   onScriptComplete,
 }: UseSarvamVoiceFlowOptions): UseSarvamVoiceFlowResult {
   const [voiceFlowState, setVoiceFlowState] = useState<VoiceFlowState>('idle');
+  const { incrementError, setState: setVoiceState } = useVoiceStore();
 
   const repromptCountRef = useRef(0);
   const cleanupSTTRef = useRef<(() => void) | null>(null);
   const mountedRef = useRef(false);
-  const restartListeningRef = useRef<() => void>(() => {});
+  const restartListeningRef = useRef<() => void>(() => { });
   const onIntentRef = useRef(onIntent);
   const onScriptCompleteRef = useRef(onScriptComplete);
 
@@ -97,7 +103,11 @@ export function useSarvamVoiceFlow({
         setVoiceFlowState('idle');
       },
       () => {
+        // Timeout callback - increment error count (triggers V-05/V-06/V-07 cascade)
         if (!mountedRef.current) return;
+
+        incrementError();
+        setVoiceState('error_1');
 
         if (repromptCountRef.current < 1 && repromptScript) {
           repromptCountRef.current += 1;
@@ -113,14 +123,13 @@ export function useSarvamVoiceFlow({
               if (mountedRef.current) setVoiceFlowState('error');
             },
           });
-          return;
+        } else {
+          setVoiceFlowState('idle');
+          onIntentRef.current?.('TIMEOUT');
         }
-
-        setVoiceFlowState('idle');
-        onIntentRef.current?.('TIMEOUT');
       }
     );
-  }, [deepgramLang, disabled, effectiveListenTimeoutMs, repromptScript, sarvamLangCode]);
+  }, [deepgramLang, disabled, effectiveListenTimeoutMs, incrementError, repromptScript, sarvamLangCode, setVoiceState]);
 
   restartListeningRef.current = restartListening;
 
@@ -161,15 +170,7 @@ export function useSarvamVoiceFlow({
       window.clearTimeout(timer);
       stopFlow();
     };
-  }, [
-    autoListen,
-    disabled,
-    initialDelayMs,
-    pauseAfterMs,
-    sarvamLangCode,
-    script,
-    stopFlow,
-  ]);
+  }, [autoListen, disabled, initialDelayMs, pauseAfterMs, sarvamLangCode, script, stopFlow, onScriptComplete]);
 
   return {
     voiceFlowState,

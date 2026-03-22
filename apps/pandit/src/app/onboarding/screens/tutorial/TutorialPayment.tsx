@@ -2,23 +2,31 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useSarvamVoiceFlow } from '@/lib/hooks/useSarvamVoiceFlow';
+import { TUTORIAL_PAYMENT } from '@/lib/voice-scripts';
 import TutorialShell from './TutorialShell';
 import { TutorialScreenProps } from './types';
-import { useSarvamVoiceFlow } from '@/lib/hooks/useSarvamVoiceFlow';
-
-const PAYMENT_SCRIPT =
-  'पूजा खत्म हुई। दो मिनट में पैसे बैंक में। कोई इंतज़ार नहीं। और platform का share भी screen पर दिखेगा। छुपा कुछ नहीं।';
+import { TUTORIAL_TRANSLATIONS, getTutorialLang } from '@/lib/tutorial-translations';
 
 export default function TutorialPayment({
   currentDot,
   onNext,
   onBack,
   onSkip,
-  language,
+  language = 'Hindi',
 }: TutorialScreenProps) {
+  const lang = getTutorialLang(language);
+  const t = TUTORIAL_TRANSLATIONS[lang].screens.S06;
+
   const { isListening } = useSarvamVoiceFlow({
     language,
-    script: PAYMENT_SCRIPT,
+    script: TUTORIAL_PAYMENT.scripts.main.hindi,
+    autoListen: true,
+    listenTimeoutMs: 12000,
+    repromptScript: 'कृपया आगे बोलें।',
+    repromptTimeoutMs: 12000,
+    initialDelayMs: 400,
+    pauseAfterMs: 1000,
     onIntent: (intent) => {
       if (intent === 'FORWARD' || intent === 'YES') onNext();
       else if (intent === 'BACK') onBack();
@@ -34,11 +42,11 @@ export default function TutorialPayment({
       onSkip={onSkip}
       isListening={isListening}
       showKeyboardToggle
-      onKeyboardToggle={() => {}}
+      onKeyboardToggle={() => { }}
     >
       <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="pb-6 text-center">
-        <h1 className="text-[32px] font-bold leading-tight text-vedic-brown">पूजा ख़त्म।</h1>
-        <h1 className="text-[32px] font-bold leading-tight text-primary">पैसे 2 मिनट में।</h1>
+        <h1 className="text-[32px] font-bold leading-tight text-vedic-brown">{t.title}</h1>
+        <h1 className="text-[32px] font-bold leading-tight text-primary">{t.subtitle}</h1>
       </motion.div>
 
       <motion.div

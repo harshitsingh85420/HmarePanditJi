@@ -10,11 +10,13 @@ import {
   detectLanguageFromCity,
   loadOnboardingState,
   saveOnboardingState,
+  clearOnboardingState,
   getNextTutorialPhase,
   getPrevTutorialPhase,
   getTutorialDotNumber,
 } from '@/lib/onboarding-store'
 import { stopSpeaking } from '@/lib/voice-engine'
+import { useWakeLock } from '@/lib/hooks/useWakeLock'
 
 import SplashScreen from './screens/SplashScreen'
 import LocationPermissionScreen from './screens/LocationPermissionScreen'
@@ -48,19 +50,32 @@ function OnboardingContent() {
   const [state, setState] = useState<OnboardingState>(DEFAULT_STATE)
   const [isLoaded, setIsLoaded] = useState(false)
   const [showLanguageSheet, setShowLanguageSheet] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
+
+  // Enable wake lock during onboarding to prevent screen sleep
+  useWakeLock(true)
 
   useEffect(() => {
     const saved = loadOnboardingState()
 
-    // Allow direct deep-linking to a specific phase (used by Registration Back button).
-    const phaseParam = searchParams?.get('phase') as OnboardingPhase | null
-    if (phaseParam) {
-      setState({ ...saved, phase: phaseParam })
+    // Check for reset parameter (for testing or restarting)
+    const resetParam = searchParams?.get('reset')
+    if (resetParam === 'true') {
+      // Clear onboarding state and start fresh
+      clearOnboardingState()
+      setState({ ...DEFAULT_STATE, firstEverOpen: true })
     } else {
-      setState(saved)
+      // Allow direct deep-linking to a specific phase (used by Registration Back button).
+      const phaseParam = searchParams?.get('phase') as OnboardingPhase | null
+      if (phaseParam) {
+        setState({ ...saved, phase: phaseParam })
+      } else {
+        setState(saved)
+      }
     }
 
     setIsLoaded(true)
+    setIsMounted(true)
   }, [searchParams])
 
   const updateState = useCallback((updates: Partial<OnboardingState>) => {
@@ -154,7 +169,7 @@ function OnboardingContent() {
     const next = getNextTutorialPhase(state.phase)
     if (next === 'REGISTRATION') {
       updateState({ tutorialCompleted: true, phase: 'REGISTRATION' })
-      router.push('/onboarding/register')
+      router.push('/mobile')
     } else {
       updateState({ phase: next, currentTutorialScreen: getTutorialDotNumber(next) })
     }
@@ -167,18 +182,18 @@ function OnboardingContent() {
 
   const handleTutorialSkip = useCallback(() => {
     updateState({ tutorialCompleted: true })
-    router.push('/onboarding/register')
+    router.push('/mobile')
   }, [updateState, router])
 
   const handleRegistrationNow = useCallback(() => {
     updateState({ tutorialCompleted: true })
-    router.push('/onboarding/register')
+    router.push('/mobile')
   }, [updateState, router])
 
   const handleLater = useCallback(() => {
-    // "Later" still sends them to registration — they've seen the full tutorial
+    // "Later" navigates to the dashboard, preserving incomplete registration status
     updateState({ tutorialCompleted: true })
-    router.push('/onboarding/register')
+    router.push('/dashboard')
   }, [updateState, router])
 
   const handleHelpBack = useCallback(() => {
@@ -186,11 +201,87 @@ function OnboardingContent() {
     goToPhase('LANGUAGE_CONFIRM')
   }, [goToPhase])
 
+  // ─── PART 0.0 NAVIGATION HANDLERS ───────────────────────────
+
+  const handleSplashToLocation = useCallback(() => {
+    goToPhase('LOCATION_PERMISSION')
+  }, [goToPhase])
+
+  const handleLocationToManual = useCallback(() => {
+    goToPhase('MANUAL_CITY')
+  }, [goToPhase])
+
+  const handleLocationToLanguageConfirm = useCallback((city: string, stateStr: string) => {
+    const detectedLanguage = detectLanguageFromCity(city)
+    updateState({
+      detectedCity: city,
+      detectedState: stateStr,
+      selectedLanguage: detectedLanguage,
+      phase: 'LANGUAGE_CONFIRM',
+    })
+  }, [updateState])
+
+  const handleManualToLanguageConfirm = useCallback((city: string) => {
+    const detectedLanguage = detectLanguageFromCity(city)
+    updateState({
+      detectedCity: city,
+      selectedLanguage: detectedLanguage,
+      phase: 'LANGUAGE_CONFIRM',
+    })
+  }, [updateState])
+
+  const handleLanguageConfirmToSet = useCallback(() => {
+    updateState({
+      languageConfirmed: true,
+      phase: 'LANGUAGE_SET',
+    })
+  }, [updateState])
+
+  const handleLanguageConfirmToList = useCallback(() => {
+    goToPhase('LANGUAGE_LIST')
+  }, [goToPhase])
+
+  const handleLanguageListToChoiceConfirm = useCallback((lang: SupportedLanguage) => {
+    updateState({
+      pendingLanguage: lang,
+      phase: 'LANGUAGE_CHOICE_CONFIRM',
+    })
+  }, [updateState])
+
+  const handleLanguageChoiceConfirmToSet = useCallback(() => {
+    if (state.pendingLanguage) {
+      updateState({
+        selectedLanguage: state.pendingLanguage,
+        pendingLanguage: null,
+        languageConfirmed: true,
+        phase: 'LANGUAGE_SET',
+      })
+    }
+  }, [state.pendingLanguage, updateState])
+
+  const handleLanguageChoiceRejectToList = useCallback(() => {
+    updateState({ pendingLanguage: null, phase: 'LANGUAGE_LIST' })
+  }, [updateState])
+
+  const handleLanguageSetToVoiceTutorial = useCallback(() => {
+    if (state.firstEverOpen && !state.voiceTutorialSeen) {
+      updateState({
+        voiceTutorialSeen: true,
+        phase: 'VOICE_TUTORIAL',
+      })
+    } else {
+      updateState({ phase: 'TUTORIAL_SWAGAT' })
+    }
+  }, [state.firstEverOpen, state.voiceTutorialSeen, updateState])
+
   // ─── LANGUAGE SHEET ───────────────────────────────────────
 
   const handleLanguageSheetOpen = useCallback(() => {
     stopSpeaking()
-    setShowLanguageSheet(true)
+    // Fix hydration: Only update state after mount
+    if (typeof window !== 'undefined') {
+      setShowLanguageSheet(true)
+    }
   }, [])
 
   const handleLanguageSheetClose = useCallback(() => {
@@ -198,6 +289,9 @@ function OnboardingContent() {
   }, [])
 
   const handleLanguageSheetSelect = useCallback((language: SupportedLanguage) => {
+    // Fix hydration: Ensure we're on client side
+    if (typeof window === 'undefined') return
+
     setShowLanguageSheet(false)
     updateState({ selectedLanguage: language, languageConfirmed: true })
     // Show a brief toast — the language changes immediately
@@ -226,17 +320,21 @@ function OnboardingContent() {
     onSkip: handleTutorialSkip,
   }
 
+  // Force re-render when language changes
+  const tutorialKey = `${state.phase}-${state.selectedLanguage}`
+
   const renderScreen = () => {
     switch (state.phase) {
       case 'SPLASH':
-        return <SplashScreen onComplete={() => goToPhase('LOCATION_PERMISSION')} />
+        return <SplashScreen onComplete={handleSplashToLocation} />
 
       case 'LOCATION_PERMISSION':
         return (
           <LocationPermissionScreen
             {...commonProps}
-            onGranted={handleLocationGranted}
-            onDenied={handleLocationDenied}
+            onGranted={handleLocationToLanguageConfirm}
+            onDenied={handleLocationToManual}
+            onBack={() => goToPhase('SPLASH')}
           />
         )
 
@@ -244,7 +342,7 @@ function OnboardingContent() {
         return (
           <ManualCityScreen
             {...commonProps}
-            onCitySelected={handleCitySelected}
+            onCitySelected={handleManualToLanguageConfirm}
             onBack={() => goToPhase('LOCATION_PERMISSION')}
           />
         )
@@ -254,8 +352,9 @@ function OnboardingContent() {
           <LanguageConfirmScreen
             {...commonProps}
             detectedCity={state.detectedCity}
-            onConfirm={handleLanguageConfirmed}
-            onChange={handleLanguageChangeRequested}
+            onConfirm={handleLanguageConfirmToSet}
+            onChange={handleLanguageConfirmToList}
+            onBack={() => goToPhase('MANUAL_CITY')}
           />
         )
 
@@ -263,7 +362,7 @@ function OnboardingContent() {
         return (
           <LanguageListScreen
             {...commonProps}
-            onSelect={handleLanguageSelected}
+            onSelect={handleLanguageListToChoiceConfirm}
             onBack={() => goToPhase('LANGUAGE_CONFIRM')}
           />
         )
@@ -273,45 +372,47 @@ function OnboardingContent() {
           <LanguageChoiceConfirmScreen
             {...commonProps}
             pendingLanguage={state.pendingLanguage ?? 'Hindi'}
-            onConfirm={handleLanguageChoiceConfirmed}
-            onReject={handleLanguageChoiceRejected}
+            onConfirm={handleLanguageChoiceConfirmToSet}
+            onReject={handleLanguageChoiceRejectToList}
+            onBack={() => goToPhase('LANGUAGE_LIST')}
           />
         )
 
       case 'LANGUAGE_SET':
-        return <LanguageSetScreen language={state.selectedLanguage} onComplete={handleLanguageSetComplete} />
+        return <LanguageSetScreen language={state.selectedLanguage} onComplete={handleLanguageSetToVoiceTutorial} />
 
       case 'HELP':
         return <HelpScreen {...commonProps} onBack={handleHelpBack} />
 
       case 'VOICE_TUTORIAL':
-        return <VoiceTutorialScreen {...commonProps} onComplete={handleVoiceTutorialComplete} />
+        return <VoiceTutorialScreen {...commonProps} onComplete={handleLanguageSetToVoiceTutorial} />
 
       case 'TUTORIAL_SWAGAT':
-        return <TutorialSwagat {...tutorialProps} />
+        return <TutorialSwagat key={tutorialKey} {...tutorialProps} />
       case 'TUTORIAL_INCOME':
-        return <TutorialIncome {...tutorialProps} />
+        return <TutorialIncome key={tutorialKey} {...tutorialProps} />
       case 'TUTORIAL_DAKSHINA':
-        return <TutorialDakshina {...tutorialProps} />
+        return <TutorialDakshina key={tutorialKey} {...tutorialProps} />
       case 'TUTORIAL_ONLINE_REVENUE':
-        return <TutorialOnlineRevenue {...tutorialProps} />
+        return <TutorialOnlineRevenue key={tutorialKey} {...tutorialProps} />
       case 'TUTORIAL_BACKUP':
-        return <TutorialBackup {...tutorialProps} />
+        return <TutorialBackup key={tutorialKey} {...tutorialProps} />
       case 'TUTORIAL_PAYMENT':
-        return <TutorialPayment {...tutorialProps} />
+        return <TutorialPayment key={tutorialKey} {...tutorialProps} />
       case 'TUTORIAL_VOICE_NAV':
-        return <TutorialVoiceNav {...tutorialProps} />
+        return <TutorialVoiceNav key={tutorialKey} {...tutorialProps} />
       case 'TUTORIAL_DUAL_MODE':
-        return <TutorialDualMode {...tutorialProps} />
+        return <TutorialDualMode key={tutorialKey} {...tutorialProps} />
       case 'TUTORIAL_TRAVEL':
-        return <TutorialTravel {...tutorialProps} />
+        return <TutorialTravel key={tutorialKey} {...tutorialProps} />
       case 'TUTORIAL_VIDEO_VERIFY':
-        return <TutorialVideoVerify {...tutorialProps} />
+        return <TutorialVideoVerify key={tutorialKey} {...tutorialProps} />
       case 'TUTORIAL_GUARANTEES':
-        return <TutorialGuarantees {...tutorialProps} />
+        return <TutorialGuarantees key={tutorialKey} {...tutorialProps} />
       case 'TUTORIAL_CTA':
         return (
           <TutorialCTA
+            key={tutorialKey}
             {...tutorialProps}
             onRegisterNow={handleRegistrationNow}
             onLater={handleLater}
@@ -326,13 +427,15 @@ function OnboardingContent() {
   return (
     <div className="min-h-screen bg-vedic-cream">
       {renderScreen()}
-      {/* Language bottom sheet — always available */}
-      <LanguageBottomSheet
-        isOpen={showLanguageSheet}
-        currentLanguage={state.selectedLanguage}
-        onSelect={handleLanguageSheetSelect}
-        onClose={handleLanguageSheetClose}
-      />
+      {/* Language bottom sheet — always available (only render after mount to prevent hydration errors) */}
+      {isMounted && (
+        <LanguageBottomSheet
+          isOpen={showLanguageSheet}
+          currentLanguage={state.selectedLanguage}
+          onSelect={handleLanguageSheetSelect}
+          onClose={handleLanguageSheetClose}
+        />
+      )}
     </div>
   )
 }

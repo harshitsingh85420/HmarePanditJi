@@ -1,0 +1,247 @@
+'use client'
+
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { motion } from 'framer-motion'
+import { useRegistrationStore } from '@/stores/registrationStore'
+import { useNavigationStore } from '@/stores/navigationStore'
+import { speakWithSarvam } from '@/lib/sarvam-tts'
+
+const STEP_LABELS: Record<string, { title: string; subtitle: string; icon: string }> = {
+  mobile: {
+    title: 'Mobile Number',
+    subtitle: 'मोबाइल नंबर',
+    icon: 'phone',
+  },
+  otp: {
+    title: 'OTP Verification',
+    subtitle: 'OTP सत्यापन',
+    icon: 'security',
+  },
+  profile: {
+    title: 'Profile Details',
+    subtitle: 'प्रोफ़ाइल विवरण',
+    icon: 'person',
+  },
+  mic_permission: {
+    title: 'Mic Permission',
+    subtitle: 'माइक अनुमति',
+    icon: 'mic',
+  },
+  location_permission: {
+    title: 'Location Permission',
+    subtitle: 'स्थान अनुमति',
+    icon: 'location_on',
+  },
+  notification_permission: {
+    title: 'Notifications',
+    subtitle: 'सूचनाएं',
+    icon: 'notifications',
+  },
+}
+
+// Calculate the NEXT incomplete step based on what user actually completed
+function getNextIncompleteStep(data: any): string {
+  const { completedSteps } = data;
+
+  // Check in order: mobile → otp → profile → permissions
+  if (!completedSteps.includes('mobile')) {
+    return 'mobile';
+  }
+
+  if (!completedSteps.includes('otp')) {
+    return 'otp';
+  }
+
+  if (!completedSteps.includes('profile')) {
+    return 'profile';
+  }
+
+  // If all main steps complete, check permissions
+  if (!completedSteps.includes('mic_permission')) {
+    return 'mic_permission';
+  }
+
+  if (!completedSteps.includes('location_permission')) {
+    return 'location_permission';
+  }
+
+  if (!completedSteps.includes('notification_permission')) {
+    return 'notification_permission';
+  }
+
+  // All complete
+  return 'dashboard';
+}
+
+export default function ResumeRegistrationScreen() {
+  const router = useRouter()
+  const { data, setCurrentStep } = useRegistrationStore()
+  const { navigate, setSection } = useNavigationStore()
+
+  useEffect(() => {
+    navigate('/resume', 'part1-registration')
+    setSection('part1-registration')
+  }, [navigate, setSection])
+
+  // Calculate next incomplete step dynamically
+  const nextStep = getNextIncompleteStep(data);
+  const stepInfo = STEP_LABELS[nextStep] || { title: 'Registration', subtitle: 'पंजीकरण', icon: 'edit' };
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      void speakWithSarvam({
+        text: `स्वागत है। आपका ${stepInfo.title} अधूरा है। क्या आप जारी रखना चाहेंगे?`,
+        languageCode: 'hi-IN',
+        speaker: 'meera',
+        pace: 0.82,
+      })
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [stepInfo.title])
+
+  const handleContinue = () => {
+    // Route to the NEXT incomplete step
+    const routes: Record<string, string> = {
+      mobile: '/mobile',
+      otp: '/otp',
+      profile: '/profile',
+      mic_permission: '/permissions/mic',
+      location_permission: '/permissions/location',
+      notification_permission: '/permissions/notifications',
+    }
+    const route = routes[nextStep] || '/mobile'
+    router.push(route)
+  }
+
+  const handleStartOver = () => {
+    router.push('/identity')
+  }
+
+  const completedCount = data.completedSteps.length
+  const totalSteps = 6
+  const progressPercent = Math.round((completedCount / totalSteps) * 100)
+
+  return (
+    <main className="min-h-dvh flex flex-col px-6 pt-16 bg-surface-base">
+      {/* Content */}
+      <div className="flex-1 flex flex-col">
+        {/* Illustration */}
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="w-32 h-32 bg-saffron-light rounded-full flex items-center justify-center mb-8 mx-auto"
+        >
+          <span className="text-6xl">📋</span>
+        </motion.div>
+
+        {/* Title */}
+        <h1 className="text-2xl font-bold text-text-primary text-center mb-2">
+          पंजीकरण जारी रखें
+        </h1>
+        <p className="text-text-secondary text-center mb-8">
+          आपने {completedCount} में से {totalSteps} चरण पूरे किए
+        </p>
+
+        {/* Progress Card */}
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          className="bg-surface-card rounded-card shadow-card p-6 mb-6"
+        >
+          {/* Progress bar */}
+          <div className="mb-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium text-text-primary">प्रगति</span>
+              <span className="text-sm font-bold text-saffron">{progressPercent}%</span>
+            </div>
+            <div className="w-full h-3 bg-surface-muted rounded-full overflow-hidden">
+              <motion.div
+                className="h-full bg-saffron"
+                initial={{ width: 0 }}
+                animate={{ width: `${progressPercent}%` }}
+                transition={{ duration: 0.8, ease: 'easeOut' }}
+              />
+            </div>
+          </div>
+
+          {/* Next step */}
+          <div className="bg-saffron-tint rounded-card-sm p-4 flex items-center gap-4">
+            <div className="w-12 h-12 bg-saffron rounded-full flex items-center justify-center">
+              <span className="material-symbols-outlined text-white text-2xl">
+                {stepInfo.icon}
+              </span>
+            </div>
+            <div className="flex-1">
+              <p className="text-text-secondary text-xs font-medium">अगला चरण:</p>
+              <p className="text-text-primary font-bold text-lg">{stepInfo.title}</p>
+              <p className="text-text-secondary text-sm">{stepInfo.subtitle}</p>
+            </div>
+            <span className="material-symbols-outlined text-saffron">arrow_forward</span>
+          </div>
+        </motion.div>
+
+        {/* Completed steps */}
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          className="bg-surface-card rounded-card shadow-card p-6 mb-8"
+        >
+          <h2 className="text-lg font-bold text-text-primary mb-4 flex items-center gap-2">
+            <span className="material-symbols-outlined text-trust-green filled">check_circle</span>
+            पूरे हुए चरण
+          </h2>
+          <div className="space-y-3">
+            {data.completedSteps.map((step) => {
+              const stepInfo = STEP_LABELS[step]
+              if (!stepInfo) return null
+              return (
+                <div
+                  key={step}
+                  className="flex items-center gap-3 p-3 bg-trust-green-bg rounded-card-sm"
+                >
+                  <span className="material-symbols-outlined text-trust-green text-xl">
+                    check_circle
+                  </span>
+                  <div>
+                    <p className="text-text-primary font-medium text-sm">{stepInfo.title}</p>
+                    <p className="text-text-secondary text-xs">{stepInfo.subtitle}</p>
+                  </div>
+                </div>
+              )
+            })}
+            {data.completedSteps.length === 0 && (
+              <p className="text-text-secondary text-sm text-center py-4">
+                अभी कोई चरण पूरा नहीं हुआ
+              </p>
+            )}
+          </div>
+        </motion.div>
+
+        {/* Action buttons */}
+        <div className="space-y-3">
+          <button
+            onClick={handleContinue}
+            className="w-full h-16 bg-saffron text-white font-bold text-lg rounded-btn shadow-btn-saffron active:scale-[0.97] flex items-center justify-center gap-2"
+          >
+            <span className="material-symbols-outlined">play_arrow</span>
+            <span>जारी रखें</span>
+          </button>
+
+          <button
+            onClick={handleStartOver}
+            className="w-full h-14 text-text-secondary font-medium underline-offset-2 active:opacity-70"
+          >
+            नए सिरे से शुरू करें
+          </button>
+        </div>
+      </div>
+
+      {/* Footer note */}
+      <p className="pb-8 text-center text-xs text-text-placeholder">
+        Session ID: {data.sessionId.slice(-8)}
+      </p>
+    </main>
+  )
+}

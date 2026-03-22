@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
-import { speak, startListening, stopListening, stopSpeaking } from '@/lib/voice-engine';
+import { useSarvamVoiceFlow } from '@/lib/hooks/useSarvamVoiceFlow';
+import { LANGUAGE_CONFIRM_SCREEN, replaceScriptPlaceholders } from '@/lib/voice-scripts';
 import { LANGUAGE_DISPLAY, SupportedLanguage } from '@/lib/onboarding-store';
 
 interface LanguageConfirmScreenProps {
@@ -21,70 +22,41 @@ export default function LanguageConfirmScreen({
   onLanguageChange,
 }: LanguageConfirmScreenProps) {
   const langInfo = LANGUAGE_DISPLAY[language] || LANGUAGE_DISPLAY['Hindi'];
-  const cleanupRef = useRef<(() => void) | undefined>(undefined);
+  const city = detectedCity || 'आपके शहर';
 
-  useEffect(() => {
-    let timeout12s: ReturnType<typeof setTimeout>;
-    let timeout24s: ReturnType<typeof setTimeout>;
+  // Build dynamic script with city and language placeholders
+  const mainScript = replaceScriptPlaceholders(LANGUAGE_CONFIRM_SCREEN.scripts.main, {
+    CITY: city,
+    LANGUAGE: langInfo.latinName,
+  });
 
-    const city = detectedCity || 'आपके शहर';
-
-    const t = setTimeout(() => {
-      speak(
-        `${city} ke hisaab se hum ${langInfo.latinName} set kar rahe hain. Kya yeh theek hai? 'Haan' bolein ya 'Badle' bolein.`,
-        'hi-IN',
-        () => {
-          // STT starts 800ms after TTS ends
-          setTimeout(() => {
-            cleanupRef.current = startListening({
-              language: 'hi-IN',
-              onResult: (result) => {
-                const lower = result.transcript.toLowerCase();
-                if (
-                  lower.includes('haan') || lower.includes('ha') ||
-                  lower.includes('yes') || lower.includes('sahi') ||
-                  lower.includes('theek') || lower.includes('bilkul')
-                ) {
-                  clearTimeout(timeout12s);
-                  clearTimeout(timeout24s);
-                  speak('Bahut achha.', 'hi-IN', () => onConfirm());
-                } else if (
-                  lower.includes('nahi') || lower.includes('naa') ||
-                  lower.includes('no') || lower.includes('badlo') ||
-                  lower.includes('badle') || lower.includes('change') ||
-                  lower.includes('alag')
-                ) {
-                  clearTimeout(timeout12s);
-                  clearTimeout(timeout24s);
-                  speak('Theek hai. Aap kaun si bhasha chahte hain?', 'hi-IN', () => onChange());
-                }
-              },
-              onError: () => {},
-            });
-
-            // 12s reprompt
-            timeout12s = setTimeout(() => {
-              speak("Kripya 'Haan' ya 'Badlein' bolein, ya neeche button dabayein.", 'hi-IN');
-            }, 12000);
-
-            // 24s auto-confirm (silent)
-            timeout24s = setTimeout(() => {
-              onConfirm();
-            }, 24000);
-          }, 800);
-        }
-      );
-    }, 400);
-
-    return () => {
-      clearTimeout(t);
-      clearTimeout(timeout12s);
-      clearTimeout(timeout24s);
-      cleanupRef.current?.();
-      stopListening();
-      stopSpeaking();
-    };
-  }, [language, langInfo.latinName, detectedCity, onConfirm, onChange]);
+  const { isListening } = useSarvamVoiceFlow({
+    language,
+    script: mainScript.hindi,
+    autoListen: true,
+    listenTimeoutMs: 12000,
+    repromptScript: LANGUAGE_CONFIRM_SCREEN.scripts.reprompt?.hindi,
+    repromptTimeoutMs: 24000,
+    initialDelayMs: 400,
+    pauseAfterMs: 800,
+    onIntent: (intent) => {
+      const lower = typeof intent === 'string' ? intent.toLowerCase() : '';
+      if (
+        lower.includes('haan') || lower.includes('ha') ||
+        lower.includes('yes') || lower.includes('sahi') ||
+        lower.includes('theek') || lower.includes('bilkul')
+      ) {
+        onConfirm();
+      } else if (
+        lower.includes('nahi') || lower.includes('naa') ||
+        lower.includes('no') || lower.includes('badlo') ||
+        lower.includes('badle') || lower.includes('change') ||
+        lower.includes('alag')
+      ) {
+        onChange();
+      }
+    },
+  });
 
   return (
     <main className="w-full min-h-dvh bg-vedic-cream shadow-2xl relative flex flex-col overflow-hidden items-center text-vedic-brown font-hind">
@@ -147,23 +119,26 @@ export default function LanguageConfirmScreen({
       <footer className="p-6 space-y-4 mb-8 w-full max-w-[390px]">
         <motion.button
           initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}
-          onClick={() => {
-            speak('Bahut achha.', 'hi-IN', () => onConfirm());
-          }}
-          className="w-full py-4 bg-primary text-white font-bold text-lg rounded-btn shadow-cta transition-transform active:scale-95"
+          onClick={onConfirm}
+          className="w-full py-4 bg-primary text-white font-bold text-lg rounded-btn shadow-cta transition-transform active:scale-95 flex items-center justify-center gap-2"
         >
-          हाँ, यही भाषा सही है
+          <span className="material-symbols-outlined">check_circle</span>
+          <span>हाँ, यही भाषा सही है</span>
         </motion.button>
 
         <motion.button
           initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 }}
-          onClick={() => {
-            speak('Theek hai. Aap kaun si bhasha chahte hain?', 'hi-IN', () => onChange());
-          }}
-          className="w-full py-4 bg-white border-2 border-primary text-primary font-bold text-lg rounded-btn transition-transform active:scale-95"
+          onClick={onChange}
+          className="w-full py-4 bg-white border-2 border-primary text-primary font-bold text-lg rounded-btn transition-transform active:scale-95 flex items-center justify-center gap-2"
         >
-          दूसरी भाषा चुनें
+          <span className="material-symbols-outlined">language</span>
+          <span>दूसरी भाषा चुनें</span>
         </motion.button>
+
+        {/* Timeout hint - BUG-001 FIX */}
+        <p className="text-center text-xs text-vedic-gold mt-4">
+          12 सेकंड में ऑटो-कन्फर्म होगा • Auto-confirm in 12s
+        </p>
       </footer>
     </main>
   );

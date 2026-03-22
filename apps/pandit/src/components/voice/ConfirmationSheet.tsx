@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ConfirmButtons } from '@/components/ui/Button'
+import { useVoiceStore } from '@/stores/voiceStore'
 
 interface ConfirmationSheetProps {
   transcribedText: string
@@ -25,6 +25,7 @@ export function ConfirmationSheet({
 }: ConfirmationSheetProps) {
   const [countdown, setCountdown] = useState(autoConfirmSeconds)
   const [progress, setProgress] = useState(100)
+  const { setState } = useVoiceStore()
 
   useEffect(() => {
     if (!isVisible) {
@@ -33,6 +34,8 @@ export function ConfirmationSheet({
       return
     }
 
+    setState('confirming')
+
     const interval = setInterval(() => {
       setCountdown(prev => {
         const next = prev - 1
@@ -40,7 +43,11 @@ export function ConfirmationSheet({
 
         if (next <= 0) {
           clearInterval(interval)
-          setTimeout(onConfirm, 2000)
+          // 2-second silence gate before confirming
+          setTimeout(() => {
+            onConfirm()
+            setState('idle')
+          }, 2000)
           return 0
         }
         return next
@@ -48,72 +55,110 @@ export function ConfirmationSheet({
     }, 1000)
 
     return () => clearInterval(interval)
-  }, [isVisible, autoConfirmSeconds, onConfirm])
+  }, [isVisible, autoConfirmSeconds, onConfirm, setState])
 
-  const showLowConfidence = confidence > 0 && confidence < 0.8
+  const showLowConfidence = confidence > 0 && confidence < 0.80
 
   return (
     <AnimatePresence>
       {isVisible && (
         <>
+          {/* Scrim */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 0.3 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-40 bg-text-primary"
+            className="fixed inset-0 z-30 bg-text-primary"
           />
 
+          {/* BUG-005 FIX: Bottom Sheet - Push up by bottom-[100px] so footer buttons are accessible above */}
           <motion.div
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'tween', duration: 0.32, ease: [0.32, 0, 0, 1] }}
-            className="fixed bottom-0 left-0 right-0 z-50 bg-surface-card max-w-md mx-auto
+            className="fixed bottom-[100px] left-0 right-0 z-40 bg-surface-card max-w-md mx-auto
                        rounded-t-[20px] shadow-sheet overflow-hidden"
-            style={{ maxHeight: '70vh' }}
+            style={{ maxHeight: '60vh' }}
           >
+            {/* Handle bar */}
             <div className="flex justify-center pt-3 pb-2">
-              <div className="w-8 h-1 bg-border-default rounded-pill" />
+              <div className="w-8 h-1 bg-border-default rounded-full" />
             </div>
 
             <div className="px-6 pb-6 flex flex-col gap-5">
+              {/* What was said */}
               <div>
-                <p className="text-text-secondary text-xs font-label mb-2">Aapne kaha:</p>
+                <p className="text-text-secondary text-xs font-label mb-2">
+                  आपने कहा:
+                </p>
 
                 <div className="bg-saffron-tint rounded-card-sm px-4 py-3">
-                  <p className="text-text-primary font-devanagari text-2xl font-bold">{transcribedText}</p>
+                  <p className="text-text-primary font-devanagari text-2xl font-bold">
+                    {transcribedText}
+                  </p>
                 </div>
 
+                {/* Low confidence warning */}
                 {showLowConfidence && (
                   <p className="text-warning-amber text-xs mt-2 flex items-center gap-1">
                     <span className="material-symbols-outlined text-sm">warning</span>
-                    Pakka karein — thoda unsure hoon
+                    पक्का करें — थोड़ा unsure हूँ
                   </p>
                 )}
               </div>
 
-              <ConfirmButtons onConfirm={onConfirm} onRetry={onRetry} />
-
-              <div className="flex flex-col gap-1.5">
-                <div className="h-1 bg-surface-dim rounded-pill overflow-hidden">
+              {/* Countdown progress */}
+              <div className="flex items-center gap-3">
+                <span className="material-symbols-outlined text-text-secondary text-sm">
+                  timer
+                </span>
+                <div className="flex-1 h-2 bg-surface-muted rounded-full overflow-hidden">
                   <motion.div
-                    className="h-full bg-primary-container rounded-pill"
+                    className="h-full bg-saffron"
+                    initial={{ width: '100%' }}
                     animate={{ width: `${progress}%` }}
-                    transition={{ duration: 0.5 }}
+                    transition={{ duration: 1, ease: 'linear' }}
                   />
                 </div>
-
-                <div className="flex items-center justify-between">
-                  <p className="text-text-disabled text-xs font-label">
-                    {countdown} seconds mein apne aap confirm ho jaayega
-                  </p>
-
-                  <button onClick={onEdit} className="text-primary text-xs font-label flex items-center gap-1">
-                    <span className="material-symbols-outlined text-xs">edit</span>
-                    Edit karein?
-                  </button>
-                </div>
+                <span className="text-text-secondary text-sm font-mono w-8 text-right">
+                  {countdown}s
+                </span>
               </div>
+
+              {/* Action buttons */}
+              <div className="flex gap-3 pt-2">
+                <motion.button
+                  whileTap={{ scale: 0.97 }}
+                  onClick={onConfirm}
+                  className="flex-1 h-[60px] rounded-btn bg-saffron text-white font-bold
+                           flex items-center justify-center gap-2 shadow-btn-saffron"
+                >
+                  <span className="material-symbols-outlined text-lg filled">check_circle</span>
+                  <span>हाँ, सही है</span>
+                </motion.button>
+
+                <motion.button
+                  whileTap={{ scale: 0.97 }}
+                  onClick={onRetry}
+                  className="flex-1 h-[60px] rounded-btn border-2 border-saffron text-saffron
+                           font-bold flex items-center justify-center gap-2"
+                >
+                  <span className="material-symbols-outlined text-lg">refresh</span>
+                  <span>नहीं, बदलें</span>
+                </motion.button>
+              </div>
+
+              {/* Edit button (keyboard) - BUG-004 FIX: min-h-[56px] for 52px touch target */}
+              <motion.button
+                whileTap={{ scale: 0.97 }}
+                onClick={onEdit}
+                className="w-full min-h-[56px] text-text-secondary font-medium underline-offset-2
+                         flex items-center justify-center gap-2"
+              >
+                <span className="material-symbols-outlined">edit</span>
+                <span>टाइप करके सुधारें</span>
+              </motion.button>
             </div>
           </motion.div>
         </>

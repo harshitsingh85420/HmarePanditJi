@@ -9,7 +9,7 @@ export default function DashboardPage() {
       </h1>
       <div className="w-full max-w-sm">
         <a
-          href="/onboarding/register"
+          href="/mobile"
           className="flex items-center justify-center h-16 w-full bg-primary text-white text-xl font-bold rounded-btn shadow-cta"
         >
           Registration शुरू करें →

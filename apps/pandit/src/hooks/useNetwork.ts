@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { useUIStore } from '@/stores/uiStore'
 
 export function useNetwork() {
-  const { setOnline } = useUIStore()
+  const { setOnline, isOnline } = useUIStore()
 
   useEffect(() => {
     const handleOnline = () => setOnline(true)
@@ -21,4 +21,6 @@ export function useNetwork() {
       window.removeEventListener('offline', handleOffline)
     }
   }, [setOnline])
+
+  return { isOnline }
 }

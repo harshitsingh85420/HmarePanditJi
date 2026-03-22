@@ -1,24 +1,10 @@
 import type { Metadata, Viewport } from 'next'
-import { Hind } from 'next/font/google'
 import './globals.css'
-import StoreProvider from '@/components/StoreProvider'
-
-// Force ALL routes to be dynamically rendered (no static generation)
-// This is required for Zustand store compatibility and error boundaries
-export const dynamic = 'force-dynamic'
-export const dynamicParams = true
-export const revalidate = 0
-
-const hind = Hind({
-  subsets: ['latin', 'devanagari'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-hind',
-  display: 'swap',
-})
+import { GlobalProviders } from '@/components/GlobalProviders'
 
 export const metadata: Metadata = {
-  title: 'HmarePanditJi — Pandit App',
-  description: 'App Pandit ke liye hai, Pandit App ke liye nahi.',
+  title: 'HmarePanditJi — Pandit Partner',
+  description: 'Join HmarePanditJi as a verified Pandit partner',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
@@ -32,7 +18,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: '#FF8C00',
+  themeColor: '#FBF9F3',
 }
 
 export default function RootLayout({
@@ -41,17 +27,25 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="hi" className={hind.variable}>
+    <html lang="hi" className="light">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&family=Public+Sans:wght@300;400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
+          rel="stylesheet"
+        />
       </head>
-      <body className="font-hind bg-surface-base text-text-primary antialiased">
-        <div className="relative mx-auto w-full max-w-[430px] min-h-screen overflow-x-hidden">
-          <StoreProvider>
+      <body className="bg-surface-base font-body text-text-primary selection:bg-saffron-light antialiased">
+        <GlobalProviders>
+          <div className="min-h-dvh max-w-[430px] mx-auto bg-surface-base">
             {children}
-          </StoreProvider>
-        </div>
+          </div>
+        </GlobalProviders>
       </body>
     </html>
   )

@@ -14,6 +14,26 @@ interface ManualCityScreenProps {
 const POPULAR_CITIES_ROW1 = ['दिल्ली', 'वाराणसी', 'पटना', 'लखनऊ'];
 const POPULAR_CITIES_ROW2 = ['मुंबई', 'जयपुर', 'कोलकाता', 'हरिद्वार'];
 
+// Hindi → English city name mapping (as per prompt specification)
+const HINDI_TO_ENGLISH_CITIES: Record<string, string> = {
+  'दिल्ली': 'Delhi',
+  'वाराणसी': 'Varanasi',
+  'पटना': 'Patna',
+  'लखनऊ': 'Lucknow',
+  'मुंबई': 'Mumbai',
+  'जयपुर': 'Jaipur',
+  'कोलकाता': 'Kolkata',
+  'हरिद्वार': 'Haridwar',
+  'उज्जैन': 'Ujjain',
+  'चेन्नई': 'Chennai',
+  'हैदराबाद': 'Hyderabad',
+  'बेंगलुरु': 'Bengaluru',
+  'पुणे': 'Pune',
+  'अहमदाबाद': 'Ahmedabad',
+  'भोपाल': 'Bhopal',
+  'इंदौर': 'Indore',
+};
+
 export default function ManualCityScreen({ onCitySelected, onBack, onLanguageChange }: ManualCityScreenProps) {
   const [cityInput, setCityInput] = useState('');
   const [isListening, setIsListening] = useState(false);
@@ -79,7 +99,7 @@ export default function ManualCityScreen({ onCitySelected, onBack, onLanguageCha
 
       {/* Content Area */}
       <section className="flex-grow px-6 pt-4 flex flex-col gap-6">
-        
+
         {/* Reassurance and Title */}
         <div className="text-center space-y-1">
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-[22px] text-vedic-gold font-medium">
@@ -111,7 +131,7 @@ export default function ManualCityScreen({ onCitySelected, onBack, onLanguageCha
               </svg>
             </div>
           </div>
-          
+
           <div className="flex flex-col min-w-0">
             <span className="text-[20px] font-bold text-vedic-brown truncate">
               {isListening ? 'सुन रहा हूँ...' : (cityInput || 'अपना शहर बोलें')}
@@ -146,13 +166,19 @@ export default function ManualCityScreen({ onCitySelected, onBack, onLanguageCha
             onChange={(e) => setCityInput(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && cityInput.trim().length > 1) {
-                onCitySelected(cityInput.trim());
+                // Convert Hindi city name to English using mapping
+                const englishCity = HINDI_TO_ENGLISH_CITIES[cityInput.trim()] || cityInput.trim();
+                onCitySelected(englishCity);
               }
             }}
           />
           {cityInput.trim().length > 1 && (
             <button
-              onClick={() => onCitySelected(cityInput.trim())}
+              onClick={() => {
+                // Convert Hindi city name to English using mapping
+                const englishCity = HINDI_TO_ENGLISH_CITIES[cityInput.trim()] || cityInput.trim();
+                onCitySelected(englishCity);
+              }}
               className="bg-primary text-white text-sm font-bold px-3 py-1.5 rounded-lg active:scale-95 shrink-0"
             >
               ठीक है
@@ -163,7 +189,7 @@ export default function ManualCityScreen({ onCitySelected, onBack, onLanguageCha
         {/* Popular Cities */}
         <div className="space-y-3">
           <h2 className="text-[16px] font-semibold text-vedic-brown-2">लोकप्रिय शहर</h2>
-          
+
           {[POPULAR_CITIES_ROW1, POPULAR_CITIES_ROW2].map((row, rIdx) => (
             <div key={rIdx} className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
               {row.map((city, cIdx) => (
@@ -172,7 +198,11 @@ export default function ManualCityScreen({ onCitySelected, onBack, onLanguageCha
                   initial={{ x: 20, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
                   transition={{ delay: 0.05 * (rIdx * 4 + cIdx) }}
-                  onClick={() => onCitySelected(city)}
+                  onClick={() => {
+                    // Convert Hindi city name to English using mapping
+                    const englishCity = HINDI_TO_ENGLISH_CITIES[city] || city;
+                    onCitySelected(englishCity);
+                  }}
                   className="whitespace-nowrap px-5 py-2 bg-white border-2 border-primary text-primary rounded-full font-semibold text-sm active:bg-primary-lt shrink-0"
                 >
                   {city}

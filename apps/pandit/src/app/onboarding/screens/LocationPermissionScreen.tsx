@@ -9,13 +9,17 @@ interface LocationPermissionScreenProps {
   onLanguageChange: () => void;
   onGranted: (city: string, state: string) => void;
   onDenied: () => void;
+  onBack?: () => void;
+  showBack?: boolean;
 }
 
 export default function LocationPermissionScreen({
   language: _language,
   onLanguageChange,
   onGranted,
-  onDenied
+  onDenied,
+  onBack,
+  showBack = true
 }: LocationPermissionScreenProps) {
 
   const [loading, setLoading] = useState(false);
@@ -46,11 +50,11 @@ export default function LocationPermissionScreen({
           const { latitude, longitude } = position.coords;
           const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`);
           if (!res.ok) throw new Error("Reverse geocode failed");
-          
+
           const data = await res.json();
           const city = data.address.city || data.address.town || data.address.village || 'Unknown City';
           const stateStr = data.address.state || 'Unknown State';
-          
+
           onGranted(city, stateStr);
         } catch (e) {
           console.error(e);
@@ -74,6 +78,28 @@ export default function LocationPermissionScreen({
       {/* TopBar Component Reference */}
       <div className="h-[56px] px-4 flex items-center justify-between border-b border-vedic-border sticky top-0 bg-vedic-cream z-50">
         <div className="flex items-center gap-2">
+          {showBack && onBack && (
+            <button
+              onClick={onBack}
+              className="w-10 h-10 flex items-center justify-center text-vedic-gold rounded-full active:bg-black/5"
+              aria-label="Go back"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+          )}
+          {!showBack && (
+            <button
+              onClick={() => { }}
+              className="w-10 h-10 flex items-center justify-center text-vedic-gold rounded-full active:bg-black/5"
+              aria-label="Exit"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          )}
           <span className="text-[20px] text-primary">ॐ</span>
           <h1 className="text-[18px] font-semibold text-vedic-brown">HmarePanditJi</h1>
         </div>
@@ -91,14 +117,14 @@ export default function LocationPermissionScreen({
           <svg className="relative z-10 w-32 h-32" fill="none" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
             <path d="M50 5L60 15L75 20L85 35L80 55L65 75L50 95L35 75L20 55L15 35L25 20L40 15L50 5Z" fill="#FAF0E6" stroke="#F0E6D3" strokeWidth="1"></path>
           </svg>
-          
+
           {/* Animated Pin and Rings */}
           <div className="absolute top-[35%] left-[50%] -translate-x-1/2 -translate-y-1/2 z-20">
             {/* Pulse Rings */}
             <div className="absolute top-8 left-1/2 -translate-x-1/2">
               <motion.div animate={{ scale: [0.8, 1.5], opacity: [0.6, 0] }} transition={{ duration: 3, repeat: Infinity, ease: 'easeOut' }} className="absolute w-8 h-8 -translate-x-1/2 -translate-y-1/2 rounded-full border border-primary"></motion.div>
             </div>
-            
+
             <motion.svg initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.6 }} className="w-8 h-8 text-primary" fill="currentColor" viewBox="0 0 24 24">
               <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"></path>
             </motion.svg>
@@ -115,12 +141,12 @@ export default function LocationPermissionScreen({
 
       {/* ContentBody */}
       <section className="px-4 flex-grow">
-        <hr className="my-6 border-vedic-border"/>
+        <hr className="my-6 border-vedic-border" />
         {/* Benefit Rows */}
         <div className="space-y-6">
-          {[{ title: 'आपकी भाषा खुद सेट हो जाएगी', desc: 'टाइपिंग की ज़रूरत नहीं' }, 
-            { title: 'आपके शहर की पूजाएं मिलेंगी', desc: 'दूर-दराज़ की नहीं' }, 
-            { title: 'ग्राहक आपको ढूंढ पाएंगे', desc: 'नए ग्राहक, नई आमदनी' }].map((item, idx) => (
+          {[{ title: 'आपकी भाषा खुद सेट हो जाएगी', desc: 'टाइपिंग की ज़रूरत नहीं' },
+          { title: 'आपके शहर की पूजाएं मिलेंगी', desc: 'दूर-दराज़ की नहीं' },
+          { title: 'ग्राहक आपको ढूंढ पाएंगे', desc: 'नए ग्राहक, नई आमदनी' }].map((item, idx) => (
             <motion.div key={idx} initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 * (idx + 1) }} className="flex items-start gap-4">
               <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary flex items-center justify-center mt-1">
                 <span className="text-white text-xs">✓</span>
@@ -144,8 +170,8 @@ export default function LocationPermissionScreen({
 
       {/* FooterButtons */}
       <footer className="p-4 space-y-4 mb-4">
-        <button 
-          onClick={handleAllowClick} 
+        <button
+          onClick={handleAllowClick}
           disabled={loading}
           className="w-full bg-primary text-white py-4 rounded-xl text-[18px] font-bold active:scale-[0.98] transition-transform shadow-md"
         >

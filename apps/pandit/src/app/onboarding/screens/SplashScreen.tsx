@@ -5,9 +5,10 @@ import { motion } from 'framer-motion';
 
 interface SplashScreenProps {
   onComplete: () => void;
+  onExit?: () => void;
 }
 
-export default function SplashScreen({ onComplete }: SplashScreenProps) {
+export default function SplashScreen({ onComplete, onExit }: SplashScreenProps) {
   useEffect(() => {
     const timer = setTimeout(() => {
       onComplete();
@@ -17,6 +18,19 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
 
   return (
     <main className="splash-gradient shadow-2xl overflow-hidden min-h-dvh flex flex-col items-center relative w-full">
+      {/* Exit Button */}
+      {onExit && (
+        <button
+          onClick={onExit}
+          className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center text-white/60 hover:text-white active:opacity-50 z-50"
+          aria-label="Exit app"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      )}
+
       {/* Top breathing room */}
       <div className="h-[180px]"></div>
 
@@ -29,7 +43,7 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
             <path d="M12.5 5.5C13.5 4.5 15.5 4 17.5 4.5M6 14.5C5 12.5 5.5 9.5 8.5 8.5C11.5 7.5 13 9.5 13 11.5C13 13.5 11.5 15 9.5 15C13 15 16.5 17.5 16.5 20C16.5 22.5 14 23 12 23M17 10C18 9 20 8.5 22 9" stroke="white" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.2"></path>
           </svg>
         </div>
-        
+
         {/* Wordmark */}
         <h1 className="font-hind text-[28px] font-[600] text-white tracking-[0.5px] leading-tight">
           HmarePanditJi
@@ -43,7 +57,7 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
       <footer className="absolute bottom-[48px] w-full flex justify-center">
         <div className="w-[120px] h-[3px] bg-white/25 rounded-[2px] relative overflow-hidden">
           {/* Progress Fill Animation */}
-          <motion.div 
+          <motion.div
             initial={{ width: '0%' }}
             animate={{ width: '100%' }}
             transition={{ duration: 3, ease: "easeOut" }}

@@ -1,41 +1,44 @@
 'use client'
 
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
+import { useUIStore } from '@/stores/uiStore'
 
-interface NetworkBannerProps {
-  isOnline: boolean
-}
+export function NetworkBanner() {
+  const { showNetworkBanner, isOnline } = useUIStore()
 
-export function NetworkBanner({ isOnline }: NetworkBannerProps) {
   return (
-    <motion.div
-      initial={{ y: -44 }}
-      animate={{ y: 0 }}
-      exit={{ y: -44 }}
-      transition={{ duration: 0.3 }}
-      className={`fixed top-14 left-0 right-0 z-40 h-11 flex items-center justify-between px-5
-                 ${isOnline ? 'bg-trust-green' : 'bg-warning-amber'}`}
-    >
-      <div className="flex items-center gap-3">
-        <span className="material-symbols-outlined text-white text-xl">
-          {isOnline ? 'wifi' : 'signal_wifi_off'}
-        </span>
-        <p className="text-white text-sm font-medium font-devanagari">
-          {isOnline
-            ? 'Internet wapas aa gayi ✅'
-            : 'Internet nahi hai — koi baat nahi, sab save hai'
-          }
-        </p>
-      </div>
-
-      {!isOnline && (
+    <AnimatePresence>
+      {showNetworkBanner && (
         <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+          initial={{ height: 0, opacity: 0 }}
+          animate={{ height: 'auto', opacity: 1 }}
+          exit={{ height: 0, opacity: 0 }}
+          className={`overflow-hidden ${isOnline ? 'bg-trust-green-bg' : 'bg-warning-amber-bg'
+            }`}
         >
-          <span className="material-symbols-outlined text-white text-xl">sync</span>
+          <div className="px-4 py-2 flex items-center justify-center gap-2">
+            {isOnline ? (
+              <>
+                <span className="material-symbols-outlined text-trust-green text-lg">
+                  wifi
+                </span>
+                <span className="text-sm font-medium text-trust-green">
+                  आप फिर से ऑनलाइन हैं
+                </span>
+              </>
+            ) : (
+              <>
+                <span className="material-symbols-outlined text-warning-amber text-lg">
+                  wifi_off
+                </span>
+                <span className="text-sm font-medium text-warning-amber">
+                  इंटरनेट कनेक्शन नहीं है
+                </span>
+              </>
+            )}
+          </div>
         </motion.div>
       )}
-    </motion.div>
+    </AnimatePresence>
   )
 }

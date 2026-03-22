@@ -1,95 +1,40 @@
 'use client';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { speak, startListening, stopListening, stopSpeaking } from '@/lib/voice-engine';
+import { useSarvamVoiceFlow } from '@/lib/hooks/useSarvamVoiceFlow';
+import { TUTORIAL_BACKUP } from '@/lib/voice-scripts';
 import TutorialShell from './TutorialShell';
+import { TUTORIAL_TRANSLATIONS, getTutorialLang } from '@/lib/tutorial-translations';
 
 interface Props { currentDot: number; onNext: () => void; onBack: () => void; onSkip: () => void; language?: string; onLanguageChange?: () => void; }
 
-export default function TutorialBackup({ currentDot, onNext, onBack, onSkip }: Props) {
-  const cleanupRef = useRef<(() => void) | undefined>(undefined);
+export default function TutorialBackup({ currentDot, onNext, onBack, onSkip, language = 'Hindi' }: Props) {
   const [accordionOpen, setAccordionOpen] = useState(true);
+  const lang = getTutorialLang(language);
+  const t = TUTORIAL_TRANSLATIONS[lang].screens.S05;
 
-  useEffect(() => {
-    const t = setTimeout(() => {
-      speak("Yeh sunkar lagega — 'Yeh kaise ho sakta hai?'", 'hi-IN', () => {
-        setTimeout(() => {
-          speak('Main samjhata hoon.', 'hi-IN', () => {
-            setTimeout(() => {
-              speak(
-                'Jab koi booking hoti hai jisme grahak ne backup protection liya hota hai — aapko offer aata hai.',
-                'hi-IN',
-                () => {
-                  setTimeout(() => {
-                    speak("'Kya aap us din backup Pandit banenge?'", 'hi-IN', () => {
-                      setTimeout(() => {
-                        speak('Aap haan kehte hain. Us din free rehte hain.', 'hi-IN', () => {
-                          setTimeout(() => {
-                            speak('Agar mukhya Pandit ne pooja kar li — bhi aapko do hazaar rupaye milenge.', 'hi-IN', () => {
-                              setTimeout(() => {
-                                speak('Agar mukhya Pandit cancel kiye — to poori booking aapki aur upar se do hazaar bonus.', 'hi-IN', () => {
-                                  setTimeout(() => {
-                                    speak(
-                                      'Yeh paisa grahak ne booking ke samay backup protection ki extra payment ki thi. Wohi aapko milta hai.',
-                                      'hi-IN',
-                                      () => {
-                                        setTimeout(() => {
-                                          speak('Dono taraf se faayda.', 'hi-IN', () => {
-                                            setTimeout(() => {
-                                              speak("'Aage' bolein.", 'hi-IN', () => {
-                                                setTimeout(() => {
-                                                  cleanupRef.current = startListening({
-                                                    language: 'hi-IN',
-                                                    onResult: (result) => {
-                                                      const lower = result.transcript.toLowerCase();
-                                                      if (
-                                                        lower.includes('aage') || lower.includes('haan') ||
-                                                        lower.includes('ha') || lower.includes('yes') ||
-                                                        lower.includes('agle') || lower.includes('chalein') ||
-                                                        lower.includes('next') || lower.includes('agla')
-                                                      ) {
-                                                        onNext();
-                                                      }
-                                                    },
-                                                    onError: () => {},
-                                                  });
-                                                }, 1000);
-                                              });
-                                            }, 400);
-                                          });
-                                        }, 500);
-                                      }
-                                    );
-                                  }, 500);
-                                });
-                              }, 300);
-                            });
-                          }, 400);
-                        });
-                      }, 400);
-                    });
-                  }, 300);
-                }
-              );
-            }, 300);
-          });
-        }, 300);
-      });
-    }, 400);
-
-    return () => {
-      clearTimeout(t);
-      cleanupRef.current?.();
-      stopListening();
-      stopSpeaking();
-    };
-  }, [onNext]);
+  const { isListening } = useSarvamVoiceFlow({
+    language,
+    script: TUTORIAL_BACKUP.scripts.main.hindi,
+    autoListen: true,
+    listenTimeoutMs: 12000,
+    repromptScript: 'कृपया आगे बोलें।',
+    repromptTimeoutMs: 12000,
+    initialDelayMs: 400,
+    pauseAfterMs: 1000,
+    onIntent: (intent) => {
+      const lower = typeof intent === 'string' ? intent.toLowerCase() : '';
+      if (lower.includes('aage') || lower.includes('haan') || lower.includes('forward')) {
+        onNext();
+      }
+    },
+  });
 
   return (
-    <TutorialShell currentDot={currentDot} onNext={onNext} onBack={onBack} onSkip={onSkip}>
+    <TutorialShell currentDot={currentDot} onNext={onNext} onBack={onBack} onSkip={onSkip} isListening={isListening}>
       {/* Headline block */}
       <div className="text-center space-y-2 mb-8">
-        <h2 className="text-[28px] font-bold text-vedic-brown">बिना कुछ किए</h2>
+        <h2 className="text-[28px] font-bold text-vedic-brown">{t.title}</h2>
         <div className="inline-block px-4 py-1 rounded-xl bg-success-lt border border-success/20 animate-gentle-float">
           <h1 className="text-success text-[44px] font-extrabold leading-none">₹2,000?</h1>
         </div>
@@ -114,7 +59,7 @@ export default function TutorialBackup({ currentDot, onNext, onBack, onSkip }: P
               <div className="w-0.5 h-6 border-l-2 border-dashed border-vedic-border mt-1" />
             </div>
             <div className="pb-2">
-              <p className="text-[18px] font-bold text-vedic-brown">कोई पूजा Book हुई</p>
+              <p className="text-[18px] font-bold text-vedic-brown">{t.step1}</p>
               <p className="text-[15px] text-vedic-gold">(Backup Protection के साथ)</p>
             </div>
           </div>
@@ -127,7 +72,7 @@ export default function TutorialBackup({ currentDot, onNext, onBack, onSkip }: P
               <div className="w-0.5 h-6 border-l-2 border-dashed border-vedic-border mt-1" />
             </div>
             <div className="pb-2">
-              <p className="text-[18px] font-bold text-vedic-brown">आपको Offer आया:</p>
+              <p className="text-[18px] font-bold text-vedic-brown">{t.step2}:</p>
               <p className="text-[15px] text-vedic-gold italic">&quot;क्या आप Backup Pandit बनेंगे?&quot;</p>
             </div>
           </div>
@@ -137,7 +82,7 @@ export default function TutorialBackup({ currentDot, onNext, onBack, onSkip }: P
               ✅
             </div>
             <div>
-              <p className="text-[18px] font-bold text-vedic-brown">आपने हाँ कहा। उस दिन Free रहे।</p>
+              <p className="text-[18px] font-bold text-vedic-brown">{t.step3}</p>
             </div>
           </div>
         </div>
@@ -151,10 +96,10 @@ export default function TutorialBackup({ currentDot, onNext, onBack, onSkip }: P
         {/* Header row */}
         <div className="grid grid-cols-2 bg-primary-lt">
           <div className="p-3.5 border-r border-vedic-border">
-            <p className="text-[15px] font-bold text-vedic-brown-2">मुख्य Pandit ने पूजा की</p>
+            <p className="text-[15px] font-bold text-vedic-brown-2">{t.outcome1}</p>
           </div>
           <div className="p-3.5">
-            <p className="text-[15px] font-bold text-vedic-brown-2">मुख्य Pandit Cancel किया</p>
+            <p className="text-[15px] font-bold text-vedic-brown-2">{t.outcome2}</p>
           </div>
         </div>
         {/* Data row */}

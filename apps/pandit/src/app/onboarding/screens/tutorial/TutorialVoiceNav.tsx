@@ -2,23 +2,25 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useSarvamVoiceFlow } from '@/lib/hooks/useSarvamVoiceFlow';
+import { TUTORIAL_VOICE_NAV } from '@/lib/voice-scripts';
 import { speak, startListening, stopListening, stopSpeaking } from '@/lib/voice-engine';
 import TutorialShell from './TutorialShell';
 import { TutorialScreenProps } from './types';
-import { useSarvamVoiceFlow } from '@/lib/hooks/useSarvamVoiceFlow';
+import { TUTORIAL_TRANSLATIONS, getTutorialLang } from '@/lib/tutorial-translations';
 
 type DemoState = 'ready' | 'listening' | 'success';
-
-const VOICE_NAV_SCRIPT =
-  "यह app आपकी आवाज़ से चलता है। टाइपिंग की कोई ज़रूरत नहीं। अभी कोशिश करिए — 'हाँ' या 'नहीं' बोलिए। Mic अभी सुन रहा है।";
 
 export default function TutorialVoiceNav({
   currentDot,
   onNext,
   onBack,
   onSkip,
-  language,
+  language = 'Hindi',
 }: TutorialScreenProps) {
+  const lang = getTutorialLang(language);
+  const t = TUTORIAL_TRANSLATIONS[lang].screens.S07;
+
   const cleanupRef = useRef<(() => void) | undefined>(undefined);
   const resetTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const [demoState, setDemoState] = useState<DemoState>('ready');
@@ -58,9 +60,9 @@ export default function TutorialVoiceNav({
 
   const { stopFlow } = useSarvamVoiceFlow({
     language,
-    script: VOICE_NAV_SCRIPT,
+    script: TUTORIAL_VOICE_NAV.scripts.main.hindi,
     autoListen: false,
-    onIntent: () => {},
+    onIntent: () => { },
     onScriptComplete: () => {
       window.setTimeout(startDemo, 300);
     },
@@ -82,13 +84,13 @@ export default function TutorialVoiceNav({
       onNext={onNext}
       onBack={onBack}
       onSkip={onSkip}
-      nextLabel="अगला फ़ायदा देखें →"
       isListening={demoState === 'listening'}
       showKeyboardToggle
-      onKeyboardToggle={() => {}}
+      onKeyboardToggle={() => { }}
+      language={language}
     >
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-6">
-        <h1 className="text-[30px] font-bold leading-tight text-vedic-brown">टाइपिंग की ज़रूरत नहीं।</h1>
+        <h1 className="text-[30px] font-bold leading-tight text-vedic-brown">{t.title}</h1>
       </motion.div>
 
       <motion.div
@@ -106,10 +108,10 @@ export default function TutorialVoiceNav({
           <div className="absolute right-5 top-12 h-10 w-10 rounded-full border-2 border-primary/30 border-l-transparent border-b-transparent rotate-[35deg]" />
           <span className="text-[64px] relative z-10">🎤</span>
           <div className="absolute bottom-4 right-4 bg-white border border-primary/30 rounded-full px-2 py-1 text-[12px] font-bold text-primary shadow-sm">
-            हाँ
+            {t.voiceBadge || 'हाँ'}
           </div>
         </div>
-        <p className="text-[16px] text-vedic-gold">बोलो → लिखाई हो जाती है</p>
+        <p className="text-[16px] text-vedic-gold">{t.speakTypes || 'बोलो → लिखाई हो जाती है'}</p>
       </motion.div>
 
       <motion.div
@@ -118,7 +120,7 @@ export default function TutorialVoiceNav({
         transition={{ delay: 0.2 }}
         className="text-center mb-4"
       >
-        <p className="text-[16px] text-vedic-brown-2 mb-2">जब यह दिखे:</p>
+        <p className="text-[16px] text-vedic-brown-2 mb-2">{t.whenYouSee || 'जब यह दिखे:'}</p>
         <div className="inline-flex items-center gap-2 bg-primary-lt border border-primary px-3 py-1.5 rounded-full mb-3">
           <div className="flex gap-0.5 items-end h-4">
             {[2, 4, 3].map((height, index) => (
@@ -131,9 +133,9 @@ export default function TutorialVoiceNav({
               />
             ))}
           </div>
-          <span className="text-[14px] font-medium text-primary">सुन रहा हूँ...</span>
+          <span className="text-[14px] font-medium text-primary">{t.listening || 'सुन रहा हूँ...'}</span>
         </div>
-        <p className="text-[28px] font-bold text-vedic-brown">तब बोलिए।</p>
+        <p className="text-[28px] font-bold text-vedic-brown">{t.thenSpeak || 'तब बोलिए।'}</p>
       </motion.div>
 
       <motion.div
@@ -143,9 +145,8 @@ export default function TutorialVoiceNav({
         className="mb-4"
       >
         <div
-          className={`w-full h-[104px] rounded-[20px] border-2 border-dashed flex flex-col items-center justify-center transition-colors ${
-            demoState === 'success' ? 'bg-success-lt border-success' : 'bg-primary-lt border-primary'
-          }`}
+          className={`w-full h-[104px] rounded-[20px] border-2 border-dashed flex flex-col items-center justify-center transition-colors ${demoState === 'success' ? 'bg-success-lt border-success' : 'bg-primary-lt border-primary'
+            }`}
         >
           <div className="relative flex items-center justify-center mb-1">
             {demoState !== 'success' && (
@@ -164,7 +165,7 @@ export default function TutorialVoiceNav({
             )}
             <span className="text-[44px] relative z-10">🎤</span>
           </div>
-          <p className="text-[18px] text-vedic-brown-2">{helperText}</p>
+          <p className="text-[18px] text-vedic-brown-2">{helperText || t.demoText}</p>
         </div>
 
         <AnimatePresence>
@@ -176,7 +177,7 @@ export default function TutorialVoiceNav({
               className="mt-3 flex justify-center"
             >
               <div className="bg-success-lt border border-success rounded-full px-6 py-3">
-                <p className="text-[20px] font-bold text-success">✅ शाबाश! बिल्कुल सही!</p>
+                <p className="text-[20px] font-bold text-success">{t.successMessage || '✅ शाबाश! बिल्कुल सही!'}</p>
               </div>
             </motion.div>
           )}
@@ -189,8 +190,8 @@ export default function TutorialVoiceNav({
         transition={{ delay: 0.5 }}
         className="text-center space-y-1"
       >
-        <p className="text-[15px] text-vedic-gold">अगर बोलने में दिक्कत हो:</p>
-        <p className="text-[15px] font-medium text-vedic-brown-2">⌨️ Keyboard हमेशा नीचे है</p>
+        <p className="text-[15px] text-vedic-gold">{t.keyboardFallback || 'अगर बोलने में दिक्कत हो:'}</p>
+        <p className="text-[15px] font-medium text-vedic-brown-2">{t.keyboardAlways || '⌨️ Keyboard हमेशा नीचे है'}</p>
       </motion.div>
 
       {ctaPulse && (

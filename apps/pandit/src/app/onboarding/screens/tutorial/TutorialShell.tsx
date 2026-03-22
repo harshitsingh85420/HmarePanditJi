@@ -3,8 +3,9 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import ScreenFooter from '@/components/ScreenFooter';
+import { TUTORIAL_TRANSLATIONS, type TutorialLanguage, getTutorialLang } from '@/lib/tutorial-translations';
 
-const noop = () => {};
+const noop = () => { };
 
 interface TutorialShellProps {
   currentDot: number;
@@ -19,6 +20,7 @@ interface TutorialShellProps {
   onKeyboardToggle?: () => void;
   showKeyboardToggle?: boolean;
   nextVariant?: 'primary' | 'primary-dk';
+  language?: string;
 }
 
 export default function TutorialShell({
@@ -27,18 +29,24 @@ export default function TutorialShell({
   onSkip,
   onBack,
   onNext,
-  nextLabel = 'जानें (सिर्फ 2 मिनट) →',
+  nextLabel,
   children,
   showVoiceBar = true,
   isListening = false,
   onKeyboardToggle,
   showKeyboardToggle = false,
   nextVariant = 'primary',
+  language = 'Hindi',
 }: TutorialShellProps) {
   const nextButtonClasses =
     nextVariant === 'primary-dk'
       ? 'bg-primary-dk shadow-cta-dk'
       : 'bg-primary shadow-cta';
+
+  // Get translations
+  const lang: TutorialLanguage = getTutorialLang(language);
+  const translations = TUTORIAL_TRANSLATIONS[lang];
+  const label = nextLabel || translations.next;
 
   return (
     <main className="min-h-dvh max-w-[390px] mx-auto bg-vedic-cream font-hind text-vedic-brown flex flex-col shadow-2xl relative overflow-hidden">
@@ -47,14 +55,13 @@ export default function TutorialShell({
           {Array.from({ length: totalDots }).map((_, index) => (
             <span
               key={index}
-              className={`w-2 h-2 rounded-full transition-colors ${
-                index < currentDot ? 'bg-primary' : 'bg-vedic-border'
-              }`}
+              className={`w-2 h-2 rounded-full transition-colors ${index < currentDot ? 'bg-primary' : 'bg-vedic-border'
+                }`}
             />
           ))}
         </div>
         <button onClick={onSkip} className="text-vedic-gold text-sm font-medium shrink-0 active:opacity-50">
-          Skip करें →
+          {translations.skip}
         </button>
       </header>
 
@@ -71,13 +78,13 @@ export default function TutorialShell({
             <motion.button
               whileTap={{ scale: 0.97 }}
               onClick={onNext}
-              className={`w-full h-16 ${nextButtonClasses} text-white rounded-2xl flex items-center justify-center text-[20px] font-bold active:scale-95 transition-transform gap-2`}
+              className={`w-full h-16 ${nextButtonClasses} text-vedic-brown rounded-2xl flex items-center justify-center text-[20px] font-bold active:scale-95 transition-transform gap-2`}
             >
-              {nextLabel}
+              {label}
             </motion.button>
             {onBack && (
               <button onClick={onBack} className="w-full text-center text-vedic-gold text-sm py-1 active:opacity-50">
-                ← वापस जाएँ
+                {translations.back}
               </button>
             )}
           </div>
@@ -87,13 +94,13 @@ export default function TutorialShell({
           <motion.button
             whileTap={{ scale: 0.97 }}
             onClick={onNext}
-            className={`w-full h-16 ${nextButtonClasses} text-white rounded-2xl flex items-center justify-center text-[20px] font-bold active:scale-95 transition-transform gap-2`}
+            className={`w-full h-16 ${nextButtonClasses} text-vedic-brown rounded-2xl flex items-center justify-center text-[20px] font-bold active:scale-95 transition-transform gap-2`}
           >
-            {nextLabel}
+            {label}
           </motion.button>
           {onBack && (
             <button onClick={onBack} className="w-full text-center text-vedic-gold text-sm py-1 active:opacity-50">
-              ← वापस जाएँ
+              {translations.back}
             </button>
           )}
         </footer>

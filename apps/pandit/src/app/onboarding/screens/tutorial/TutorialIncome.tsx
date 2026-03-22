@@ -1,71 +1,52 @@
 'use client';
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
-import { speak, startListening, stopListening, stopSpeaking } from '@/lib/voice-engine';
+import { useSarvamVoiceFlow } from '@/lib/hooks/useSarvamVoiceFlow';
+import { TUTORIAL_INCOME } from '@/lib/voice-scripts';
 import TutorialShell from './TutorialShell';
+import { TUTORIAL_TRANSLATIONS, getTutorialLang } from '@/lib/tutorial-translations';
 
-interface Props { currentDot: number; onNext: () => void; onBack: () => void; onSkip: () => void; language?: string; onLanguageChange?: () => void; }
+interface Props {
+  currentDot: number;
+  onNext: () => void;
+  onBack: () => void;
+  onSkip: () => void;
+  language?: string;
+  onLanguageChange?: () => void;
+}
 
-export default function TutorialIncome({ currentDot, onNext, onBack, onSkip }: Props) {
-  const cleanupRef = useRef<(() => void) | undefined>(undefined);
+export default function TutorialIncome({ currentDot, onNext, onBack, onSkip, language = 'Hindi' }: Props) {
+  const lang = getTutorialLang(language);
+  const t = TUTORIAL_TRANSLATIONS[lang].screens.S02;
 
-  useEffect(() => {
-    const t = setTimeout(() => {
-      speak(
-        'Suniye, Varanasi ke Pandit Rameshwar Sharma Ji pehle mahine mein aatharah hazaar rupaye kamate the.',
-        'hi-IN',
-        () => {
-          setTimeout(() => {
-            speak('Aaj woh teen naye tarikon se tirsath hazaar kama rahe hain.', 'hi-IN', () => {
-              setTimeout(() => {
-                speak('Main aapko bhi yahi teen tarike dikhata hoon.', 'hi-IN', () => {
-                  setTimeout(() => {
-                    speak(
-                      "In chaar tiles mein se jo samajhna ho use chhoo sakte hain. Ya 'aage' bolkar sab ek-ek dekh sakte hain.",
-                      'hi-IN',
-                      () => {
-                        setTimeout(() => {
-                          cleanupRef.current = startListening({
-                            language: 'hi-IN',
-                            onResult: (result) => {
-                              const lower = result.transcript.toLowerCase();
-                              if (
-                                lower.includes('aage') || lower.includes('haan') ||
-                                lower.includes('ha') || lower.includes('yes') ||
-                                lower.includes('agle') || lower.includes('chalein') ||
-                                lower.includes('dekhe') || lower.includes('next') ||
-                                lower.includes('aur')
-                              ) {
-                                onNext();
-                              }
-                            },
-                            onError: () => {},
-                          });
-                        }, 1500);
-                      }
-                    );
-                  }, 400);
-                });
-              }, 500);
-            });
-          }, 300);
-        }
-      );
-    }, 500);
-
-    return () => {
-      clearTimeout(t);
-      cleanupRef.current?.();
-      stopListening();
-      stopSpeaking();
-    };
-  }, [onNext]);
+  const { isListening } = useSarvamVoiceFlow({
+    language,
+    script: TUTORIAL_INCOME.scripts.main.hindi,
+    autoListen: true,
+    listenTimeoutMs: 12000,
+    repromptScript: 'कृपया आगे बोलें या किसी tile को छूएं।',
+    repromptTimeoutMs: 12000,
+    initialDelayMs: 400,
+    pauseAfterMs: 1500,
+    onIntent: (intent) => {
+      const lower = typeof intent === 'string' ? intent.toLowerCase() : '';
+      if (
+        lower.includes('aage') || lower.includes('haan') ||
+        lower.includes('ha') || lower.includes('yes') ||
+        lower.includes('agle') || lower.includes('chalein') ||
+        lower.includes('dekhe') || lower.includes('next') ||
+        lower.includes('aur') || lower.includes('forward')
+      ) {
+        onNext();
+      }
+    },
+  });
 
   return (
-    <TutorialShell currentDot={currentDot} onNext={onNext} onBack={onBack} onSkip={onSkip} nextLabel="और देखें →">
+    <TutorialShell currentDot={currentDot} onNext={onNext} onBack={onBack} onSkip={onSkip} isListening={isListening} language={language}>
       {/* Title Section */}
       <motion.section initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
-        <h1 className="text-[26px] font-bold text-vedic-brown leading-tight">आपकी कमाई कैसे बढ़ेगी?</h1>
+        <h1 className="text-[26px] font-bold text-vedic-brown leading-tight">{t.title}</h1>
       </motion.section>
 
       {/* Hero Card - Testimonial */}
@@ -99,7 +80,7 @@ export default function TutorialIncome({ currentDot, onNext, onBack, onSkip }: P
 
       {/* 3 New Methods Grid */}
       <motion.section initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-        <h2 className="text-[20px] font-semibold text-vedic-brown-2 mb-4">3 नए तरीकों से यह हुआ:</h2>
+        <h2 className="text-[20px] font-semibold text-vedic-brown-2 mb-4">{t.subtitle}</h2>
         <div className="grid grid-cols-2 gap-2.5">
           {[
             { icon: '🏠', label: 'ऑफलाइन पूजाएं', sub: '(पहले से हैं आप)', delay: 0.1, badge: null },

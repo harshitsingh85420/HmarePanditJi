@@ -4,61 +4,62 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useVoiceStore } from '@/stores/voiceStore'
 
 interface ErrorOverlayProps {
-  onRetry?: () => void
-  onKeyboard?: () => void
-  show?: boolean
+  onRetry: () => void
+  onUseKeyboard: () => void
 }
 
-export default function ErrorOverlay({
-  onRetry,
-  onKeyboard,
-  show = true,
-}: ErrorOverlayProps) {
-  const { state, errorCount } = useVoiceStore()
+export function ErrorOverlay({ onRetry, onUseKeyboard }: ErrorOverlayProps) {
+  const { state, errorCount, ambientNoiseLevel } = useVoiceStore()
 
-  if (!show) return null
+  const isError1 = state === 'error_1'
+  const isError2 = state === 'error_2'
+  const isError3 = state === 'error_3'
 
-  const isError = state === 'error_1' || state === 'error_2' || state === 'error_3'
-  const isKeyboard = state === 'keyboard'
+  // BUG-002 FIX: On V-07 (error_3), let pointer events pass through to keyboard toggle behind
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const isFinalError = state === 'error_3'
 
-  if (!isError && !isKeyboard) return null
+  const isHighNoise = ambientNoiseLevel > 65
 
-  // Different messages for different error counts
-  const getErrorMessage = () => {
-    switch (state) {
-      case 'error_1':
-        return {
-          title: 'समझ नहीं आया',
-          subtitle: 'थोड़ा धीरे और साफ़ बोलें',
-          icon: '🤔',
-          color: 'warning',
-        }
-      case 'error_2':
-        return {
-          title: 'फिर से कोशिश करें',
-          subtitle: 'या Keyboard का उपयोग करें',
-          icon: '🔄',
-          color: 'warning',
-        }
-      case 'error_3':
-      case 'keyboard':
-        return {
-          title: 'Keyboard से भरें',
-          subtitle: 'आवाज़ नहीं पहचान पाए',
-          icon: '⌨️',
-          color: 'error',
-        }
-      default:
-        return {
-          title: 'त्रुटि',
-          subtitle: 'कृपया पुनः प्रयास करें',
-          icon: '⚠️',
-          color: 'warning',
-        }
+  const getErrorConfig = () => {
+    if (isError1) return {
+      title: 'सुनाई नहीं दिया',
+      message: 'कृपया धीरे और साफ़ बोलें।',
+      icon: 'hearing',
+      iconColor: 'text-warning-amber',
+      bgColor: 'bg-warning-amber-bg',
+      borderColor: 'border-warning-amber',
+      showRetry: true,
+      showKeyboard: true,
+      hint: '🎤 धीरे और साफ़ बोलें',
     }
+    if (isError2) return {
+      title: 'फिर से कोशिश करें',
+      message: 'थोड़ा धीरे बोलें, या कीबोर्ड का उपयोग करें।',
+      icon: 'mic_off',
+      iconColor: 'text-error-red',
+      bgColor: 'bg-error-red-bg',
+      borderColor: 'border-error-red',
+      showRetry: true,
+      showKeyboard: true,
+      hint: '⌨️ कीबोर्ड या 🎤 फिर से बोलें',
+    }
+    if (isError3) return {
+      title: 'कीबोर्ड का उपयोग करें',
+      message: 'आवाज़ नहीं समझ आई। आप टाइप कर सकते हैं।',
+      icon: 'keyboard',
+      iconColor: 'text-text-primary',
+      bgColor: 'bg-surface-card',
+      borderColor: 'border-border-default',
+      showRetry: false,
+      showKeyboard: true,
+      hint: '⌨️ नीचे टाइप करें',
+    }
+    return null
   }
 
-  const error = getErrorMessage()
+  const error = getErrorConfig()
+  if (!error) return null
 
   return (
     <AnimatePresence>
@@ -66,86 +67,110 @@ export default function ErrorOverlay({
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 50 }}
-        className="fixed inset-x-0 bottom-0 z-50 px-4 pb-6"
+        // BUG-005 FIX: Push overlay up by bottom-[100px] so footer buttons are accessible above it
+        className="fixed bottom-[100px] left-0 right-0 z-40 px-4 pb-safe pointer-events-none"
       >
-        <div className="max-w-[390px] mx-auto">
-          <div
-            className={`rounded-2xl shadow-2xl p-5 border-2 ${
-              error.color === 'error'
-                ? 'bg-error-lt border-error'
-                : 'bg-warning-amber-bg border-warning-amber'
-            }`}
+        <div className="max-w-md mx-auto w-full pointer-events-auto mb-4">
+          {/* BUG-005 FIX: Added max-h-[70vh] and overflow-y-auto to prevent blocking footer */}
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className={`${error.bgColor} ${error.borderColor} border-2 rounded-card p-4 shadow-card max-h-[70vh] overflow-y-auto`}
           >
-            {/* Icon and Title */}
-            <div className="flex items-center gap-3 mb-3">
-              <span className="text-4xl">{error.icon}</span>
-              <div>
-                <h3 className="font-bold text-lg text-vedic-brown">
-                  {error.title}
-                </h3>
-                <p className="text-sm text-vedic-gold">
-                  {error.subtitle}
-                </p>
+            {/* Header with icon */}
+            <div className="flex items-center gap-3 mb-4">
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: 'spring', damping: 15 }}
+                className={`w-12 h-12 rounded-full bg-surface-card flex items-center justify-center`}
+              >
+                <span className={`material-symbols-outlined text-2xl ${error.iconColor}`}>
+                  {error.icon}
+                </span>
+              </motion.div>
+              <div className="flex-1">
+                <h3 className="text-lg font-bold text-text-primary">{error.title}</h3>
+                <p className="text-text-secondary text-sm">{error.message}</p>
               </div>
             </div>
 
-            {/* Progress indicators for error count */}
-            <div className="flex gap-2 mb-4">
-              {[1, 2, 3].map((num) => (
-                <div
-                  key={num}
-                  className={`h-2 flex-1 rounded-full transition-colors ${
-                    num <= errorCount
-                      ? num === 3
-                        ? 'bg-error'
+            {/* Ambient noise warning (if applicable) */}
+            {isHighNoise && (isError1 || isError2) && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                className="mb-4 p-3 bg-warning-amber-bg rounded-card-sm flex items-center gap-2"
+              >
+                <span className="material-symbols-outlined text-warning-amber text-lg">
+                  volume_up
+                </span>
+                <p className="text-warning-amber text-sm font-medium">
+                  आसपास शोर ज़्यादा है। शांत जगह जाएं।
+                </p>
+              </motion.div>
+            )}
+
+            {/* Progress indicators */}
+            <div className="flex justify-center gap-2 mb-4">
+              {[1, 2, 3].map((n) => (
+                <motion.div
+                  key={n}
+                  initial={{ scale: 0.8, opacity: 0.5 }}
+                  animate={{
+                    scale: n <= errorCount ? 1 : 0.8,
+                    opacity: n <= errorCount ? 1 : 0.5,
+                  }}
+                  className={`w-3 h-3 rounded-full transition-colors ${n <= errorCount
+                    ? n === 3
+                      ? 'bg-saffron'
+                      : n === 2
+                        ? 'bg-error-red'
                         : 'bg-warning-amber'
-                      : 'bg-vedic-border'
-                  }`}
+                    : 'bg-border-default'
+                    }`}
                 />
               ))}
             </div>
 
             {/* Action buttons */}
             <div className="flex gap-3">
-              {state !== 'keyboard' && onRetry && (
+              {error.showRetry && (
                 <motion.button
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
                   whileTap={{ scale: 0.97 }}
                   onClick={onRetry}
-                  className="flex-1 h-12 bg-primary text-white rounded-xl font-bold"
+                  className={`flex-1 h-14 rounded-btn font-bold flex items-center justify-center gap-2 ${isError2
+                    ? 'bg-saffron text-white shadow-btn-saffron'
+                    : 'border-2 border-saffron text-saffron'
+                    }`}
                 >
-                  फिर से कोशिश करें
+                  <span className="material-symbols-outlined">refresh</span>
+                  <span>{isError2 ? 'आखिरी कोशिश' : 'फिर से बोलें'}</span>
                 </motion.button>
               )}
-              {onKeyboard && (
-                <motion.button
-                  whileTap={{ scale: 0.97 }}
-                  onClick={onKeyboard}
-                  className={`flex-1 h-12 rounded-xl font-bold flex items-center justify-center gap-2 ${
-                    state === 'keyboard'
-                      ? 'bg-primary text-white'
-                      : 'bg-white border-2 border-vedic-border text-vedic-brown'
+
+              <motion.button
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                whileTap={{ scale: 0.97 }}
+                onClick={onUseKeyboard}
+                className={`flex-1 h-14 rounded-btn font-bold flex items-center justify-center gap-2 ${isError3
+                  ? 'bg-saffron text-white shadow-btn-saffron w-full'
+                  : 'border-2 border-saffron text-saffron'
                   }`}
-                >
-                  <svg width="20" height="20" fill="none" viewBox="0 0 20 20">
-                    <rect x="2" y="5" width="16" height="10" rx="1.5" stroke="currentColor" strokeWidth="2" />
-                    <path d="M5 8h1M7 8h1M9 8h1M11 8h1M13 8h1M5 11h1M7 11h1M9 11h3M13 11h1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                  </svg>
-                  Keyboard
-                </motion.button>
-              )}
+              >
+                <span className="material-symbols-outlined">keyboard</span>
+                <span>{isError3 ? 'टाइप करें' : 'कीबोर्ड'}</span>
+              </motion.button>
             </div>
 
-            {/* Help text for keyboard mode */}
-            {state === 'keyboard' && (
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="text-xs text-vedic-gold mt-3 text-center"
-              >
-                ⌨️ Keyboard से आसानी से भर सकते हैं
-              </motion.p>
-            )}
-          </div>
+            {/* Helper hint */}
+            <p className="mt-4 text-center text-xs text-text-placeholder">
+              {error.hint}
+            </p>
+          </motion.div>
         </div>
       </motion.div>
     </AnimatePresence>

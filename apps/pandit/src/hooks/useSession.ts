@@ -1,23 +1,24 @@
 'use client'
 
-import { useEffect, useCallback, useRef } from 'react'
+import { useEffect, useCallback } from 'react'
 import { useUIStore } from '@/stores/uiStore'
 import { useRegistrationStore } from '@/stores/registrationStore'
 
 const IDLE_TIMEOUT = 25 * 60 * 1000 // 25 minutes
+const SESSION_TIMEOUT_WARNING = 5 * 60 * 1000 // 5 minutes warning
 
 export function useSession() {
   const { setSessionTimeout, setSessionSaveNotice } = useUIStore()
   const { data } = useRegistrationStore()
 
-  const idleTimerRef = useRef<NodeJS.Timeout | null>(null)
+  let idleTimer: NodeJS.Timeout | undefined;
+  let warningTimer: NodeJS.Timeout | undefined;
 
   const resetTimer = useCallback(() => {
-    if (idleTimerRef.current) {
-      clearTimeout(idleTimerRef.current)
-    }
+    clearTimeout(idleTimer)
+    clearTimeout(warningTimer)
 
-    idleTimerRef.current = setTimeout(() => {
+    warningTimer = setTimeout(() => {
       setSessionTimeout(true)
     }, IDLE_TIMEOUT)
   }, [setSessionTimeout])
@@ -29,9 +30,8 @@ export function useSession() {
 
     return () => {
       events.forEach(event => document.removeEventListener(event, resetTimer, true))
-      if (idleTimerRef.current) {
-        clearTimeout(idleTimerRef.current)
-      }
+      clearTimeout(idleTimer)
+      clearTimeout(warningTimer)
     }
   }, [resetTimer])
 

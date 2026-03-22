@@ -2,23 +2,31 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useSarvamVoiceFlow } from '@/lib/hooks/useSarvamVoiceFlow';
+import { TUTORIAL_VIDEO_VERIFY } from '@/lib/voice-scripts';
 import TutorialShell from './TutorialShell';
 import { TutorialScreenProps } from './types';
-import { useSarvamVoiceFlow } from '@/lib/hooks/useSarvamVoiceFlow';
-
-const VIDEO_VERIFY_SCRIPT =
-  'Verified होने का मतलब है — ज़्यादा bookings। Verified पंडितों को तीन गुना ज़्यादा bookings मिलती हैं। इसके लिए हर पूजा के लिए सिर्फ दो मिनट का video — एक बार। यह video सिर्फ हमारी admin team देखेगी। Public नहीं होगी।';
+import { TUTORIAL_TRANSLATIONS, getTutorialLang } from '@/lib/tutorial-translations';
 
 export default function TutorialVideoVerify({
   currentDot,
   onNext,
   onBack,
   onSkip,
-  language,
+  language = 'Hindi',
 }: TutorialScreenProps) {
+  const lang = getTutorialLang(language);
+  const t = TUTORIAL_TRANSLATIONS[lang].screens.S10;
+
   const { isListening } = useSarvamVoiceFlow({
     language,
-    script: VIDEO_VERIFY_SCRIPT,
+    script: TUTORIAL_VIDEO_VERIFY.scripts.main.hindi,
+    autoListen: true,
+    listenTimeoutMs: 12000,
+    repromptScript: 'कृपया आगे बोलें।',
+    repromptTimeoutMs: 12000,
+    initialDelayMs: 400,
+    pauseAfterMs: 1000,
     onIntent: (intent) => {
       if (intent === 'FORWARD' || intent === 'YES') onNext();
       else if (intent === 'BACK') onBack();
@@ -32,14 +40,14 @@ export default function TutorialVideoVerify({
       onNext={onNext}
       onBack={onBack}
       onSkip={onSkip}
-      nextLabel="आगे देखें → (लगभग हो गया!)"
       isListening={isListening}
       showKeyboardToggle
-      onKeyboardToggle={() => {}}
+      onKeyboardToggle={() => { }}
+      language={language}
     >
       <motion.section initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-6 text-center">
-        <h1 className="text-[26px] font-bold leading-tight text-vedic-brown">✅ Verified का मतलब</h1>
-        <h1 className="text-[26px] font-bold text-primary leading-tight">ज़्यादा Bookings</h1>
+        <h1 className="text-[26px] font-bold leading-tight text-vedic-brown">{t.title}</h1>
+        <h1 className="text-[26px] font-bold text-primary leading-tight">{t.subtitle}</h1>
       </motion.section>
 
       <motion.div
