@@ -10,7 +10,7 @@ import { SupportedLanguage } from '@/lib/onboarding-store'
 
 export default function RegistrationLayout({ children }: { children: React.ReactNode }) {
   useSession()
-  const { showSessionTimeout, showSessionSaveNotice } = useUIStore()
+  const { showSessionTimeout } = useUIStore()
   const { data } = useRegistrationStore()
 
   // Fix hydration: Only render LanguageBottomSheet after mount

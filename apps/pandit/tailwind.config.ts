@@ -15,6 +15,8 @@ const config: Config = {
         'saffron-light': '#FFF3E0',
         'saffron-tint': '#FFF8E1',
         'saffron-border': '#FFB300',
+        'primary': '#FF8C00',
+        'primary-lt': '#FFF3E0',
 
         // SURFACE PALETTE - Backgrounds (EXACT from Part 1 HTML)
         'surface-base': '#FBF9F3',
@@ -27,14 +29,23 @@ const config: Config = {
         'text-primary': '#1B1C19',
         'text-secondary': '#4A3728',  // DARKER (was #564334) - 4.5:1 contrast minimum
         'text-placeholder': '#6B5344',  // DARKER (was #897362)
-        'text-disabled': '#C7C7CC',
+        'text-disabled': '#9CA3AF',  // DARKER for WCAG AA (was #C7C7CC)
+        'text-gold': '#B8860B',  // DarkGoldenrod - WCAG AA compliant on #FBF9F3
+        'text-gold-light': '#DAA520',  // Goldenrod for backgrounds
+
+        // VEDIC COLORS - Updated for accessibility
+        'vedic-cream': '#FBF9F3',
+        'vedic-brown': '#3E2723',  // Darker brown for better contrast
+        'vedic-gold': '#B8860B',  // DarkGoldenrod - WCAG AA compliant
+        'vedic-gold-light': '#DAA520',
+        'vedic-border': '#C4B5A0',  // Darker border for visibility
 
         // SEMANTIC COLORS
         'trust-green': '#1B6D24',
         'trust-green-bg': '#E8F5E9',
         'trust-green-border': '#A5D6A7',
 
-        'warning-amber': '#F89100',
+        'warning-amber': '#F57C00',  // Darker amber for better visibility
         'warning-amber-bg': '#FFF3E0',
 
         'error-red': '#BA1A1A',
@@ -45,8 +56,8 @@ const config: Config = {
         'indigo-border': '#9FA8DA',
         'indigo-text': '#3F51B5',
 
-        // BORDERS (EXACT from Part 1 HTML)
-        'border-default': '#E5E5EA',
+        // BORDERS (EXACT from Part 1 HTML) - DARKER for WCAG AA
+        'border-default': '#C4B5A0',  // DARKER (was #E5E5EA) - 3:1 contrast minimum
         'border-active': '#FF8C00',
         'border-success': '#1B6D24',
         'border-warm': '#DDC1AE',
@@ -129,13 +140,13 @@ const config: Config = {
         },
       },
       minHeight: {
-        'touch': '52px',
-        'btn': '56px',
-        'btn-sm': '48px',
-        'confirm': '60px',
+        'touch': '64px',  // WET HAND RELIABILITY - 64px minimum for temple environments
+        'btn': '64px',
+        'btn-sm': '56px',
+        'confirm': '64px',
       },
       minWidth: {
-        'touch': '52px',
+        'touch': '64px',  // WET HAND RELIABILITY - 64px minimum
       },
     },
   },

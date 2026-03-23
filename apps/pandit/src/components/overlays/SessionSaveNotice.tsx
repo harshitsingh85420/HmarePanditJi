@@ -6,7 +6,7 @@ import { useUIStore } from '@/stores/uiStore'
 import { useRegistrationStore } from '@/stores/registrationStore'
 
 export function SessionSaveNotice() {
-  const { showSessionSaveNotice, setSessionSaveNotice } = useUIStore()
+  const { sessionSaveNoticeVisible, setSessionSaveNotice } = useUIStore()
   const { data } = useRegistrationStore()
 
   useEffect(() => {
@@ -19,7 +19,7 @@ export function SessionSaveNotice() {
 
   return (
     <AnimatePresence>
-      {showSessionSaveNotice && (
+      {sessionSaveNoticeVisible && (
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}

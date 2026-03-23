@@ -16,7 +16,6 @@ export default function NotificationsPermission() {
       void speakWithSarvam({
         text: 'क्या आप notification की अनुमति देंगे? जब नई पूजा होगी, हम आपको बताएंगे। हाँ बोलें या नहीं बोलें।',
         languageCode: 'hi-IN',
-        speaker: 'meera',
         pace: 0.82,
       })
     }, 500)

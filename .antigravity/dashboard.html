@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎯 Live QA Dashboard - HmarePanditJi</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    header {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    }
+    h1 {
+      font-size: 28px;
+      color: #1a1a2e;
+      margin-bottom: 8px;
+    }
+    .subtitle {
+      color: #666;
+      font-size: 14px;
+    }
+    .dashboard {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    }
+    .card h2 {
+      font-size: 18px;
+      color: #1a1a2e;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .status-running {
+      background: #10b981;
+      color: white;
+    }
+    .status-pending {
+      background: #f59e0b;
+      color: white;
+    }
+    .status-completed {
+      background: #3b82f6;
+      color: white;
+    }
+    .status-error {
+      background: #ef4444;
+      color: white;
+    }
+    .progress-bar {
+      height: 12px;
+      background: #e5e7eb;
+      border-radius: 6px;
+      overflow: hidden;
+      margin: 16px 0;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #10b981, #3b82f6);
+      transition: width 0.3s ease;
+      border-radius: 6px;
+    }
+    .task-list {
+      list-style: none;
+    }
+    .task-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      background: #f9fafb;
+      border-left: 4px solid #e5e7eb;
+    }
+    .task-item.pending { border-left-color: #f59e0b; }
+    .task-item.running { border-left-color: #10b981; background: #ecfdf5; }
+    .task-item.completed { border-left-color: #3b82f6; background: #eff6ff; }
+    .task-name {
+      font-weight: 500;
+      color: #1a1a2e;
+    }
+    .task-status {
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+    .task-status.pending { background: #fef3c7; color: #92400e; }
+    .task-status.running { background: #d1fae5; color: #065f46; }
+    .task-status.completed { background: #dbeafe; color: #1e40af; }
+    .live-log {
+      background: #1a1a2e;
+      color: #10b981;
+      font-family: 'Courier New', monospace;
+      padding: 16px;
+      border-radius: 8px;
+      max-height: 300px;
+      overflow-y: auto;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .log-entry {
+      margin-bottom: 4px;
+    }
+    .log-time {
+      color: #6b7280;
+      margin-right: 8px;
+    }
+    .browser-status {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
+      background: #f9fafb;
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+    .browser-icon {
+      font-size: 32px;
+    }
+    .browser-info {
+      flex: 1;
+    }
+    .browser-url {
+      font-weight: 600;
+      color: #1a1a2e;
+    }
+    .browser-state {
+      font-size: 12px;
+      color: #666;
+    }
+    .screenshot-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .screenshot-item {
+      border-radius: 8px;
+      overflow: hidden;
+      border: 2px solid #e5e7eb;
+    }
+    .screenshot-item img {
+      width: 100%;
+      height: 100px;
+      object-fit: cover;
+    }
+    .screenshot-caption {
+      padding: 8px;
+      font-size: 11px;
+      background: white;
+      color: #666;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .stat-card {
+      text-align: center;
+      padding: 16px;
+      background: #f9fafb;
+      border-radius: 8px;
+    }
+    .stat-value {
+      font-size: 24px;
+      font-weight: bold;
+      color: #1a1a2e;
+    }
+    .stat-label {
+      font-size: 12px;
+      color: #666;
+      margin-top: 4px;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    .live-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #10b981;
+      font-weight: 600;
+    }
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      background: #10b981;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🎯 Live QA Dashboard</h1>
+      <p class="subtitle">HmarePanditJi - Pandit Registration Flow Testing</p>
+      <div style="margin-top: 12px;">
+        <span class="live-indicator">
+          <span class="live-dot"></span>
+          LIVE UPDATES
+        </span>
+      </div>
+    </header>
+
+    <div class="dashboard">
+      <!-- Session Status -->
+      <div class="card">
+        <h2>📊 Session Status</h2>
+        <div id="session-status">
+          <span class="status-badge status-pending">⏳ Waiting to start...</span>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: 0%"></div>
+          </div>
+          <p id="progress-text">0% complete</p>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-value" id="stat-completed">0</div>
+            <div class="stat-label">Completed</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="stat-running">0</div>
+            <div class="stat-label">Running</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="stat-pending">0</div>
+            <div class="stat-label">Pending</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Browser Status -->
+      <div class="card">
+        <h2>🌐 Browser Status</h2>
+        <div class="browser-status">
+          <span class="browser-icon" id="browser-icon">🌐</span>
+          <div class="browser-info">
+            <div class="browser-url" id="browser-url">Not connected</div>
+            <div class="browser-state" id="browser-state">Waiting for test to start...</div>
+          </div>
+        </div>
+        <div id="current-action" style="padding: 12px; background: #eff6ff; border-radius: 8px; font-size: 13px;">
+          <strong>Current Action:</strong> <span id="action-text">-</span>
+        </div>
+      </div>
+
+      <!-- Task Queue -->
+      <div class="card" style="grid-column: 1 / -1;">
+        <h2>📋 Task Queue</h2>
+        <ul class="task-list" id="task-list">
+          <li class="task-item pending">
+            <span class="task-name">Waiting for tasks...</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Live Log -->
+      <div class="card">
+        <h2>📜 Live Log</h2>
+        <div class="live-log" id="live-log">
+          <div class="log-entry">
+            <span class="log-time">--:--:--</span>
+            <span>Waiting for test to start...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Screenshots -->
+      <div class="card">
+        <h2>📸 Screenshots</h2>
+        <div class="screenshot-grid" id="screenshot-grid">
+          <p style="color: #666; font-size: 13px;">No screenshots yet...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const LIVE_TASKS_FILE = '../.antigravity/live-tasks.json';
+    let lastUpdate = null;
+
+    function updateTime() {
+      const now = new Date();
+      return now.toLocaleTimeString('en-US', { hour12: false });
+    }
+
+    function addLog(message, type = 'info') {
+      const logEl = document.getElementById('live-log');
+      const entry = document.createElement('div');
+      entry.className = 'log-entry';
+      entry.innerHTML = `
+        <span class="log-time">${updateTime()}</span>
+        <span style="color: ${type === 'error' ? '#ef4444' : type === 'success' ? '#10b981' : '#10b981'}">${message}</span>
+      `;
+      logEl.insertBefore(entry, logEl.firstChild);
+      
+      // Keep only last 50 logs
+      while (logEl.children.length > 50) {
+        logEl.removeChild(logEl.lastChild);
+      }
+    }
+
+    function updateDashboard(data) {
+      if (!data) return;
+
+      // Session status
+      const session = data.session || {};
+      const progressEl = document.querySelector('.progress-fill');
+      const progressText = document.getElementById('progress-text');
+      const statusBadge = document.querySelector('#session-status .status-badge');
+
+      if (session.status === 'running') {
+        statusBadge.className = 'status-badge status-running';
+        statusBadge.innerHTML = '✅ Running';
+      } else if (session.status === 'completed') {
+        statusBadge.className = 'status-badge status-completed';
+        statusBadge.innerHTML = '✅ Completed';
+      }
+
+      const progress = data.liveStatus?.progress || 0;
+      progressEl.style.width = progress + '%';
+      progressText.textContent = `${progress}% complete`;
+
+      // Stats
+      document.getElementById('stat-completed').textContent = session.completedTasks || 0;
+      document.getElementById('stat-pending').textContent = (session.totalTasks || 0) - (session.completedTasks || 0);
+
+      // Browser status
+      const browser = data.liveStatus?.browser || {};
+      document.getElementById('browser-url').textContent = browser.url || 'Not connected';
+      document.getElementById('browser-state').textContent = browser.open ? '🟢 Browser is open' : '⚫ Browser closed';
+      document.getElementById('browser-icon').textContent = browser.open ? '🌐' : '⚫';
+
+      // Current action
+      const action = data.liveStatus?.currentAction || '-';
+      document.getElementById('action-text').textContent = action;
+
+      // Task queue
+      const taskList = document.getElementById('task-list');
+      if (data.taskQueue && data.taskQueue.length > 0) {
+        taskList.innerHTML = data.taskQueue.map(task => `
+          <li class="task-item ${task.status}">
+            <span class="task-name">${task.name}</span>
+            <span class="task-status ${task.status}">${task.status.toUpperCase()}</span>
+          </li>
+        `).join('');
+      }
+
+      // Screenshots
+      const screenshotGrid = document.getElementById('screenshot-grid');
+      if (data.testResults?.screenshots && data.testResults.screenshots.length > 0) {
+        screenshotGrid.innerHTML = data.testResults.screenshots.map(path => `
+          <div class="screenshot-item">
+            <img src="file://${path}" alt="Screenshot" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22><rect fill=%22%23eee%22 width=%22100%22 height=%22100%22/><text x=%2250%22 y=%2250%22 text-anchor=%22middle%22>No Preview</text></svg>'">
+            <div class="screenshot-caption">${path.split('/').pop().substring(0, 30)}...</div>
+          </div>
+        `).join('');
+      }
+
+      // Log updates
+      if (data.liveStatus?.lastLog && data.liveStatus.lastLog.timestamp !== lastUpdate) {
+        addLog(data.liveStatus.lastLog.message, data.liveStatus.lastLog.type);
+        lastUpdate = data.liveStatus.lastLog.timestamp;
+      }
+    }
+
+    async function fetchLiveTasks() {
+      try {
+        const response = await fetch(LIVE_TASKS_FILE + '?t=' + Date.now());
+        if (response.ok) {
+          const data = await response.json();
+          updateDashboard(data);
+        }
+      } catch (e) {
+        // File might not exist yet or being written
+      }
+    }
+
+    // Poll for updates every 500ms
+    setInterval(fetchLiveTasks, 500);
+    
+    // Initial fetch
+    fetchLiveTasks();
+
+    // Add initial log
+    addLog('Dashboard loaded. Waiting for test to start...', 'info');
+  </script>
+</body>
+</html>

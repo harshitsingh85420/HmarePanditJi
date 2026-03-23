@@ -59,7 +59,7 @@ export default function TutorialVoiceNav({
   };
 
   const { stopFlow } = useSarvamVoiceFlow({
-    language,
+    language: language as any,
     script: TUTORIAL_VOICE_NAV.scripts.main.hindi,
     autoListen: false,
     onIntent: () => { },

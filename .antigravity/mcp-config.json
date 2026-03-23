@@ -1,0 +1,55 @@
+{
+  "mcpServers": {
+    "browser": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-puppeteer"],
+      "env": {
+        "PUPPETEER_HEADLESS": "true"
+      },
+      "disabled": false
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "--allowed-dirs", "test-results,apps,packages"],
+      "disabled": false
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@executeautomation/playwright-mcp-server"],
+      "disabled": false
+    }
+  },
+  "antigravity": {
+    "agentSkills": {
+      "visualTesting": {
+        "enabled": true,
+        "browserSubagent": true,
+        "capabilities": {
+          "screenshots": true,
+          "recordings": true,
+          "domCapture": true,
+          "visualRegression": true,
+          "interaction": true
+        }
+      }
+    },
+    "artifacts": {
+      "autoSave": true,
+      "directory": "test-results/antigravity-artifacts/",
+      "types": {
+        "screenshots": true,
+        "browserRecordings": true,
+        "domSnapshots": true,
+        "testReports": true
+      }
+    },
+    "integration": {
+      "qwenCode": {
+        "enabled": true,
+        "outputFormat": "markdown",
+        "autoNotify": true,
+        "resultsDirectory": "test-results/"
+      }
+    }
+  }
+}

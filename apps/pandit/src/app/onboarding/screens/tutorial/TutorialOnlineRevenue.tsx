@@ -13,7 +13,7 @@ export default function TutorialOnlineRevenue({ currentDot, onNext, onBack, onSk
   const t = TUTORIAL_TRANSLATIONS[lang].screens.S04;
 
   const { isListening } = useSarvamVoiceFlow({
-    language,
+    language: language as any,
     script: TUTORIAL_ONLINE_REVENUE.scripts.main.hindi,
     autoListen: true,
     listenTimeoutMs: 12000,

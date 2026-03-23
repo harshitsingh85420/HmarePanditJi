@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: "standalone",
+  // output: "standalone", // Disabled for Windows dev - causes symlink permission errors
   transpilePackages: [
     "@hmarepanditji/ui",
     "@hmarepanditji/types",

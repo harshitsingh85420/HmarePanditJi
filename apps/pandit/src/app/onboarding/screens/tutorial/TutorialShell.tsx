@@ -60,7 +60,11 @@ export default function TutorialShell({
             />
           ))}
         </div>
-        <button onClick={onSkip} className="text-vedic-gold text-sm font-medium shrink-0 active:opacity-50">
+        {/* UI-005 FIX: Skip button with proper touch target (52px minimum) */}
+        <button
+          onClick={onSkip}
+          className="min-w-[64px] min-h-[52px] px-3 text-[16px] font-semibold text-vedic-gold rounded-full border-2 border-vedic-gold/30 active:bg-vedic-gold/10 active:opacity-50 shrink-0"
+        >
           {translations.skip}
         </button>
       </header>
@@ -82,8 +86,12 @@ export default function TutorialShell({
             >
               {label}
             </motion.button>
+            {/* UI-006 FIX: Back button with proper touch target (52px minimum) and larger text */}
             {onBack && (
-              <button onClick={onBack} className="w-full text-center text-vedic-gold text-sm py-1 active:opacity-50">
+              <button
+                onClick={onBack}
+                className="w-full text-center text-[16px] font-medium text-vedic-gold min-h-[52px] py-3 rounded-full border-2 border-vedic-gold/30 active:bg-vedic-gold/10"
+              >
                 {translations.back}
               </button>
             )}
@@ -98,8 +106,12 @@ export default function TutorialShell({
           >
             {label}
           </motion.button>
+          {/* UI-006 FIX: Back button with proper touch target (52px minimum) and larger text */}
           {onBack && (
-            <button onClick={onBack} className="w-full text-center text-vedic-gold text-sm py-1 active:opacity-50">
+            <button
+              onClick={onBack}
+              className="w-full text-center text-[16px] font-medium text-vedic-gold min-h-[52px] py-3 rounded-full border-2 border-vedic-gold/30 active:bg-vedic-gold/10"
+            >
               {translations.back}
             </button>
           )}

@@ -26,7 +26,7 @@ export default function TutorialGuarantees({
   ];
 
   const { isListening } = useSarvamVoiceFlow({
-    language,
+    language: language as any,
     script: TUTORIAL_GUARANTEES.scripts.main.hindi,
     autoListen: true,
     listenTimeoutMs: 12000,

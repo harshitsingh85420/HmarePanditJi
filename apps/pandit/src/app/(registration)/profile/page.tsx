@@ -5,20 +5,54 @@ import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { useRegistrationStore } from '@/stores/registrationStore'
 import { useSarvamVoiceFlow } from '@/lib/hooks/useSarvamVoiceFlow'
-import { speakWithSarvam } from '@/lib/sarvam-tts'
+import { speakWithSarvam, stopCurrentSpeech } from '@/lib/sarvam-tts'
 import { useNavigationStore } from '@/stores/navigationStore'
 
 export default function ProfileDetails() {
   const router = useRouter()
-  const { setName, setCurrentStep, markStepComplete } = useRegistrationStore()
+  const { data, setName, setCurrentStep, markStepComplete } = useRegistrationStore()
   const { navigate, setSection, canNavigateBack, goBack } = useNavigationStore()
-  const [fullName, setFullName] = useState('')
-  const [error, setError] = useState('')
 
+  // BUG-015 FIX: Initialize from persisted store for back-navigation/refresh survival
+  const [fullName, setFullName] = useState(() => data.name || '')
+  const [error, setError] = useState('')
+  // BUG-030 FIX: Prevent shaky thumb spam during submission
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // BUG-014 FIX: Route guard - redirect to mobile if OTP not completed
   useEffect(() => {
+    if (!data.mobile || data.mobile.length !== 10) {
+      void speakWithSarvam({
+        text: 'मोबाइल नंबर नहीं मिला। कृपया पहले मोबाइल दर्ज करें।',
+        languageCode: 'hi-IN',
+      })
+      router.push('/mobile')
+      return
+    }
+    if (!data.otp || data.otp.length !== 6) {
+      void speakWithSarvam({
+        text: 'OTP सत्यापन अधूरा है। कृपया पहले OTP पूरा करें।',
+        languageCode: 'hi-IN',
+      })
+      router.push('/otp')
+      return
+    }
+
     navigate('/profile', 'part1-registration')
     setSection('part1-registration')
-  }, [navigate, setSection])
+
+    // BUG-011 FIX: Stop any ongoing speech on unmount
+    return () => {
+      stopCurrentSpeech()
+    }
+  }, [data.mobile, data.otp, navigate, router, setSection])
+
+  // BUG-015 FIX: Persist keystrokes to store immediately for crash/refresh survival
+  useEffect(() => {
+    if (fullName.trim().length > 0) {
+      setName(fullName.trim())
+    }
+  }, [fullName, setName])
 
   const handleBack = () => {
     if (canNavigateBack()) {
@@ -30,6 +64,7 @@ export default function ProfileDetails() {
     }
   }
 
+  // BUG-012 FIX: Removed duplicate useEffect - useSarvamVoiceFlow handles all voice logic
   const { isListening } = useSarvamVoiceFlow({
     language: 'Hindi',
     script: 'अब मुझे आपका पूरा नाम चाहिए। जैसा आपके आधार कार्ड में है। बोलें या नीचे टाइप करें।',
@@ -53,19 +88,6 @@ export default function ProfileDetails() {
     },
   })
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      void speakWithSarvam({
-        text: 'अब मुझे आपका पूरा नाम चाहिए। जैसा आपके आधार कार्ड में है। बोलें या नीचे टाइप करें।',
-        languageCode: 'hi-IN',
-        speaker: 'meera',
-        pace: 0.82,
-      })
-    }, 800)
-
-    return () => clearTimeout(timer)
-  }, [])
-
   const handleContinue = (nameValue: string) => {
     if (nameValue.trim().length < 3) {
       setError('कृपया अपना पूरा नाम दर्ज करें')
@@ -76,6 +98,10 @@ export default function ProfileDetails() {
       return
     }
 
+    // BUG-030 FIX: Prevent double submission
+    if (isSubmitting) return
+
+    setIsSubmitting(true)
     setName(nameValue)
     markStepComplete('profile')
     setCurrentStep('complete')
@@ -83,7 +109,6 @@ export default function ProfileDetails() {
     void speakWithSarvam({
       text: 'बहुत अच्छा पंडित जी! आपका पंजीकरण पूरा हो गया है।',
       languageCode: 'hi-IN',
-      speaker: 'meera',
       pace: 0.82,
     })
 
@@ -177,16 +202,16 @@ export default function ProfileDetails() {
         {/* Submit button */}
         <button
           onClick={handleSubmit}
-          disabled={!fullName.trim()}
+          disabled={!fullName.trim() || isSubmitting}
           className="w-full h-16 bg-saffron text-white font-bold text-lg rounded-btn shadow-btn-saffron active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          पंजीकरण पूरा करें ✓
+          {isSubmitting ? 'पंजीकरण हो रहा है...' : 'पंजीकरण पूरा करें ✓'}
         </button>
       </div>
 
       {/* Footer hint */}
       <p className="pb-8 text-center text-sm text-text-placeholder">
-        🎤 "नाम बोलें" या "पीछे जाएं" बोलें
+        🎤 &quot;नाम बोलें&quot; या &quot;पीछे जाएं&quot; बोलें
       </p>
     </main>
   )

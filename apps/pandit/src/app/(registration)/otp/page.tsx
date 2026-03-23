@@ -6,9 +6,11 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useRegistrationStore } from '@/stores/registrationStore'
 import { useVoiceStore } from '@/stores/voiceStore'
 import { useNavigationStore } from '@/stores/navigationStore'
-import { speakWithSarvam } from '@/lib/sarvam-tts'
+import { speakWithSarvam, stopCurrentSpeech } from '@/lib/sarvam-tts'
 import { ConfirmationSheet } from '@/components/voice/ConfirmationSheet'
 import { ErrorOverlay } from '@/components/voice/ErrorOverlay'
+import { listenOnce } from '@/lib/deepgram-stt'
+import { useAmbientNoise } from '@/hooks/useAmbientNoise'
 
 const NUMBER_WORDS: Record<string, string> = {
   'ek': '1', 'do': '2', 'teen': '3', 'char': '4', 'chaar': '4',
@@ -27,7 +29,7 @@ export default function OTPScreen() {
   const router = useRouter()
   const { data, setOtp, markStepComplete, setCurrentStep } = useRegistrationStore()
   const { navigate, setSection } = useNavigationStore()
-  const { resetErrors, switchToKeyboard } = useVoiceStore()
+  const { resetErrors, switchToKeyboard, setState: setVoiceState } = useVoiceStore()
 
   const [otp, setOtpLocal] = useState<string[]>(() => {
     if (data.otp && data.otp.length === 6) {
@@ -42,47 +44,105 @@ export default function OTPScreen() {
   const [errorCount, setErrorCount] = useState(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [networkError, setNetworkError] = useState<string | null>(null)
+  const [isLocked, setIsLocked] = useState(false)
+  const [isListening, setIsListening] = useState(false)
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
 
-  const formattedMobile = `${data.mobile.slice(0, 5)} ${data.mobile.slice(5)}`
+  const formattedMobile = data.mobile ? `${data.mobile.slice(0, 5)} ${data.mobile.slice(5)}` : ''
 
+  // BUG-019 FIX: Ambient noise detection for intelligent error messages
+  const { startNoiseDetection, stopNoiseDetection } = useAmbientNoise()
+
+  // BUG-010 FIX: Voice engine for OTP listening
   useEffect(() => {
     navigate('/otp', 'part1-registration')
     setSection('part1-registration')
 
-    // Auto-read OTP using WebOTP API (Android only)
-    if ('credentials' in navigator && 'PublicKeyCredential' in window) {
-      // @ts-ignore - WebOTP API
-      if (navigator.credentials.get) {
-        // @ts-ignore
-        navigator.credentials.get({
-          otp: { transport: ['sms'] },
-          signal: AbortSignal.timeout(30000),
-        }).then((credential: any) => {
-          const code = credential.code
-          if (code && code.length === 6) {
-            const otpArray = code.split('')
-            setOtpLocal(otpArray)
-            handleOTPSubmit(code)
-          }
-        }).catch(() => {
-          // Silently fail - user can enter manually
-        })
-      }
+    // BUG-019 FIX: Start ambient noise detection
+    void startNoiseDetection()
+
+    // BUG-009 FIX: Guard against deep link / direct navigation when mobile is empty
+    if (!data.mobile || data.mobile.length < 10) {
+      void speakWithSarvam({
+        text: 'मोबाइल नंबर नहीं मिला। कृपया वापस जाकर मोबाइल दर्ज करें।',
+        languageCode: 'hi-IN',
+      })
+      setTimeout(() => {
+        router.push('/mobile')
+      }, 2000)
+      return
     }
 
-    // Voice prompt
+    // Auto-read OTP using WebOTP API (Android only)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if ('credentials' in navigator && 'PublicKeyCredential' in window) {
+      (navigator.credentials as any).get({
+        otp: { transport: ['sms'] },
+        signal: AbortSignal.timeout(30000),
+      }).then((credential: any) => {
+        const code = credential.code
+        if (code && code.length === 6) {
+          const otpArray = code.split('')
+          setOtpLocal(otpArray)
+          handleOTPSubmit(code)
+        }
+      }).catch(() => {
+        // Silently fail - user can enter manually
+      })
+    }
+
+    // BUG-010 FIX: Voice prompt with STT listening
     const timer = setTimeout(() => {
       void speakWithSarvam({
         text: `हमने ${formattedMobile.split('').join('... ')} पर OTP भेजा है। 6 अंकों का OTP बोलें — या नीचे टाइप करें।`,
         languageCode: 'hi-IN',
-        speaker: 'meera',
         pace: 0.82,
+        onEnd: () => {
+          // Start listening for voice OTP after speech completes
+          setIsListening(true)
+          setVoiceState('listening')
+
+          const cleanup = listenOnce(
+            'hi',
+            15000,
+            (transcript) => {
+              setIsListening(false)
+              setVoiceState('idle')
+              const otpDigits = normalizeOTP(transcript)
+              if (otpDigits.length === 6) {
+                const otpArray = otpDigits.split('')
+                setOtpLocal(otpArray)
+                handleOTPSubmit(otpDigits)
+              } else if (otpDigits.length > 0) {
+                setError('कृपया पूरा 6-अंकों का OTP बोलें')
+                void speakWithSarvam({
+                  text: 'कृपया पूरा 6 अंकों का OTP बोलें',
+                  languageCode: 'hi-IN',
+                })
+              }
+            },
+            () => {
+              // Timeout
+              setIsListening(false)
+              setVoiceState('error_1')
+            }
+          )
+
+          // Store cleanup for unmount
+          return cleanup
+        },
       })
     }, 600)
 
-    return () => clearTimeout(timer)
-  }, [navigate, setSection, data.mobile])
+    // BUG-011 FIX: Stop speech on unmount to prevent overlapping voices
+    return () => {
+      clearTimeout(timer)
+      stopCurrentSpeech()
+      setIsListening(false)
+      setVoiceState('idle')
+      stopNoiseDetection()
+    }
+  }, [navigate, setSection, data.mobile, router, formattedMobile, setVoiceState, startNoiseDetection, stopNoiseDetection])
 
   // Resend timer
   useEffect(() => {
@@ -119,46 +179,62 @@ export default function OTPScreen() {
   }
 
   const handleOTPSubmit = async (otpValue: string) => {
-    if (otpValue.length === 6) {
-      setIsSubmitting(true)
-      setNetworkError(null)
-      try {
-        // Simulate API call to verify OTP - add error handling
-        await new Promise((resolve, reject) => {
-          setTimeout(() => {
-            // Simulate 5% network failure rate for testing
-            if (Math.random() < 0.05) {
-              reject(new Error('Network error'))
-            } else {
-              resolve(true)
-            }
-          }, 1000)
-        })
+    // BUG-007 FIX: Don't silently swallow clicks - show error for partial OTP
+    if (otpValue.length !== 6) {
+      setError('कृपया पूरा 6-अंकों का OTP दर्ज करें')
+      void speakWithSarvam({
+        text: 'कृपया पूरा 6 अंकों का OTP दर्ज करें',
+        languageCode: 'hi-IN',
+      })
+      return
+    }
 
-        setOtp(otpValue)
-        markStepComplete('otp')
-        setCurrentStep('otp')
-        void speakWithSarvam({
-          text: 'बहुत अच्छा। OTP सही है। अब प्रोफाइल बना रहे हैं।',
-          languageCode: 'hi-IN',
-        })
+    // BUG-008 FIX: Prevent brute force - lock after 0 attempts left
+    if (attemptsLeft <= 0 || isLocked) {
+      setError('बहुत अधिक प्रयास। कृपया नया OTP अनुरोध करें।')
+      void speakWithSarvam({
+        text: 'बहुत अधिक प्रयास। कृपया नया OTP अनुरोध करें।',
+        languageCode: 'hi-IN',
+      })
+      return
+    }
+
+    setIsSubmitting(true)
+    setNetworkError(null)
+    try {
+      // Simulate API call to verify OTP - add error handling
+      await new Promise((resolve, reject) => {
         setTimeout(() => {
-          router.push('/profile')
-        }, 1500)
-      } catch (error) {
-        setNetworkError('नेटवर्क धीमा है। कृपया पुनः प्रयास करें।')
-        void speakWithSarvam({
-          text: 'नेटवर्क धीमा है। कृपया पुनः प्रयास करें।',
-          languageCode: 'hi-IN',
-        })
-        setAttemptsLeft(prev => prev - 1)
-      } finally {
-        setIsSubmitting(false)
-      }
-    } else {
-      setError('OTP 6 अंकों का होना चाहिए')
-      setAttemptsLeft(prev => prev - 1)
-      setErrorCount(prev => prev + 1)
+          // Simulate 5% network failure rate for testing
+          if (Math.random() < 0.05) {
+            reject(new Error('Network error'))
+          } else {
+            resolve(true)
+          }
+        }, 1000)
+      })
+
+      setOtp(otpValue)
+      markStepComplete('otp')
+      setCurrentStep('otp')
+      void speakWithSarvam({
+        text: 'बहुत अच्छा। OTP सही है। अब प्रोफाइल बना रहे हैं।',
+        languageCode: 'hi-IN',
+      })
+      setTimeout(() => {
+        router.push('/profile')
+      }, 1500)
+    } catch (error) {
+      // BUG-017 FIX: Don't decrement attempts or increment errorCount on network errors
+      // Only show error message and let user retry without penalty
+      setNetworkError('नेटवर्क धीमा है। कृपया पुनः प्रयास करें।')
+      void speakWithSarvam({
+        text: 'नेटवर्क धीमा है। कृपया पुनः प्रयास करें।',
+        languageCode: 'hi-IN',
+      })
+      // NOTE: Not incrementing errorCount to avoid punishing users for network issues
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -173,7 +249,39 @@ export default function OTPScreen() {
     setErrorCount(0)
     resetErrors()
     inputRefs.current[0]?.focus()
-  }, [resetErrors])
+
+    // BUG-023 FIX: Restart the STT Voice Engine after error timeout
+    setIsListening(true)
+    setVoiceState('listening')
+
+    const cleanup = listenOnce(
+      'hi',
+      15000,
+      (transcript) => {
+        setIsListening(false)
+        setVoiceState('idle')
+        const otpDigits = normalizeOTP(transcript)
+        if (otpDigits.length === 6) {
+          const otpArray = otpDigits.split('')
+          setOtpLocal(otpArray)
+          handleOTPSubmit(otpDigits)
+        } else if (otpDigits.length > 0) {
+          setError('कृपया पूरा 6-अंकों का OTP बोलें')
+          void speakWithSarvam({
+            text: 'कृपया पूरा 6 अंकों का OTP बोलें',
+            languageCode: 'hi-IN',
+          })
+        }
+      },
+      () => {
+        // Timeout
+        setIsListening(false)
+        setVoiceState('error_1')
+      }
+    )
+
+    return cleanup
+  }, [resetErrors, setVoiceState])
 
   const handleUseKeyboard = useCallback(() => {
     switchToKeyboard()
@@ -183,11 +291,53 @@ export default function OTPScreen() {
   const handleResend = () => {
     setResendTimer(30)
     setAttemptsLeft(3)
+    setIsLocked(false)
     setError('')
+    setOtpLocal(['', '', '', '', '', ''])
+    setErrorCount(0)
+    setNetworkError(null)
+    setIsListening(false) // BUG-016 FIX: Stop any existing listening session first
+
     void speakWithSarvam({
       text: 'नया OTP भेजा गया है।',
       languageCode: 'hi-IN',
     })
+
+    // BUG-016 FIX: Restart voice listening after resend with proper cleanup
+    setTimeout(() => {
+      setIsListening(true)
+      setVoiceState('listening')
+
+      const cleanup = listenOnce(
+        'hi',
+        15000,
+        (transcript) => {
+          setIsListening(false)
+          setVoiceState('idle')
+          const otpDigits = normalizeOTP(transcript)
+          if (otpDigits.length === 6) {
+            const otpArray = otpDigits.split('')
+            setOtpLocal(otpArray)
+            handleOTPSubmit(otpDigits)
+          } else if (otpDigits.length > 0) {
+            setError('कृपया पूरा 6-अंकों का OTP बोलें')
+            void speakWithSarvam({
+              text: 'कृपया पूरा 6 अंकों का OTP बोलें',
+              languageCode: 'hi-IN',
+            })
+          }
+        },
+        () => {
+          // Timeout
+          setIsListening(false)
+          setVoiceState('error_1')
+        }
+      )
+
+      return cleanup
+    }, 600)
+
+    inputRefs.current[0]?.focus()
   }
 
   return (
@@ -241,10 +391,10 @@ export default function OTPScreen() {
           OTP Verification
         </h1>
         <p className="text-text-secondary text-center mb-2">
-          {formattedMobile} पर भेजा गया
+          {formattedMobile ? `${formattedMobile} पर भेजा गया` : ''}
         </p>
-        <p className="text-saffron text-center text-sm font-medium mb-8">
-          {attemptsLeft} प्रयास बाकी
+        <p className={`text-center text-sm font-medium mb-8 ${isLocked || attemptsLeft <= 0 ? 'text-error-red' : 'text-saffron'}`}>
+          {isLocked || attemptsLeft <= 0 ? 'खाता लॉक हो गया' : `${attemptsLeft} प्रयास बाकी`}
         </p>
 
         {/* OTP Input */}
@@ -259,7 +409,8 @@ export default function OTPScreen() {
               onChange={(e) => handleOTPChange(index, e.target.value)}
               onKeyDown={(e) => handleOTPKeyDown(index, e)}
               maxLength={1}
-              className="w-12 h-16 text-2xl text-center border-2 border-border-default rounded-btn focus:border-saffron focus:outline-none bg-surface-card"
+              disabled={isLocked || attemptsLeft <= 0}
+              className="w-12 h-16 text-2xl text-center border-2 border-border-default rounded-btn focus:border-saffron focus:outline-none bg-surface-card disabled:opacity-50 disabled:cursor-not-allowed"
             />
           ))}
         </div>
@@ -269,9 +420,34 @@ export default function OTPScreen() {
           <p className="text-error-red text-sm text-center mb-4">{error}</p>
         )}
 
+        {/* Voice indicator */}
+        {isListening && (
+          <div className="flex items-center justify-center gap-2 mb-6">
+            <div className="flex items-end gap-1 h-6">
+              <div className="w-1.5 bg-saffron rounded-full animate-voice-bar" />
+              <div className="w-1.5 bg-saffron rounded-full animate-voice-bar-2" />
+              <div className="w-1.5 bg-saffron rounded-full animate-voice-bar-3" />
+            </div>
+            <span className="text-saffron text-sm">सुन रहा हूँ...</span>
+          </div>
+        )}
+
         {/* Resend */}
         <div className="text-center mb-6">
-          {resendTimer > 0 ? (
+          {isLocked || attemptsLeft <= 0 ? (
+            resendTimer > 0 ? (
+              <p className="text-error-red text-sm font-bold">
+                खाता लॉक हो गया। नया OTP: <span className="font-bold text-saffron">{resendTimer}s</span>
+              </p>
+            ) : (
+              <button
+                onClick={handleResend}
+                className="text-saffron text-sm font-bold underline-offset-2"
+              >
+                नया OTP अनुरोध करें
+              </button>
+            )
+          ) : resendTimer > 0 ? (
             <p className="text-text-secondary text-sm">
               OTP फिर से भेजेंगे: <span className="font-bold text-saffron">{resendTimer}s</span>
             </p>
@@ -291,14 +467,14 @@ export default function OTPScreen() {
         <button
           onClick={async () => {
             const otpValue = otp.join('')
-            if (otpValue.length === 6) {
-              await handleOTPSubmit(otpValue)
-            }
+            await handleOTPSubmit(otpValue)
           }}
-          disabled={otp.every(d => d === '') || isSubmitting}
+          disabled={otp.every(d => d === '') || isSubmitting || isLocked || attemptsLeft <= 0}
           className="w-full h-16 bg-saffron text-white font-bold text-lg rounded-btn shadow-btn-saffron active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
-          {isSubmitting ? (
+          {isLocked || attemptsLeft <= 0 ? (
+            <span>खाता लॉक हो गया</span>
+          ) : isSubmitting ? (
             <>
               <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
@@ -310,8 +486,8 @@ export default function OTPScreen() {
             <span>Verify OTP →</span>
           )}
         </button>
-        <p className="pt-3 text-center text-sm text-text-placeholder">
-          🎤 "एक दो तीन..." बोलें या टाइप करें
+        <p className="pt-3 text-center text-base text-text-placeholder">
+          🎤 &quot;एक दो तीन...&quot; बोलें या टाइप करें
         </p>
       </footer>
 

@@ -153,7 +153,7 @@ export default function LocationPermissionScreen({
               </div>
               <div>
                 <h3 className="text-[20px] font-bold text-vedic-brown">{item.title}</h3>
-                <p className="text-[16px] font-normal text-vedic-gold">{item.desc}</p>
+                <p className="text-[18px] font-semibold text-text-secondary">{item.desc}</p>
               </div>
             </motion.div>
           ))}

@@ -6,7 +6,6 @@ import {
   detectIntent, LANGUAGE_TO_BCP47, VoiceState,
 } from '@/lib/voice-engine'
 import { SupportedLanguage } from '@/lib/onboarding-store'
-import { useVoiceStore } from '@/stores/voiceStore'
 
 interface UseVoiceFlowOptions {
   language: SupportedLanguage
@@ -44,7 +43,6 @@ export function useVoiceFlow({
   const cleanupRef = useRef<(() => void) | null>(null)
   const mountedRef = useRef(false)
   const bcp47 = LANGUAGE_TO_BCP47[language] ?? 'hi-IN'
-  const { isMicOff } = useVoiceStore()
 
   const stopSTT = useCallback(() => {
     cleanupRef.current?.()
@@ -54,8 +52,8 @@ export function useVoiceFlow({
   }, [])
 
   const startListeningSession = useCallback(() => {
-    // CRITICAL: Never start listening if mic is manually off
-    if (!mountedRef.current || isMicOff) return
+    // CRITICAL: Never start listening if component is unmounted
+    if (!mountedRef.current) return
 
     setIsListening(true)
     setVoiceState('LISTENING')
@@ -84,8 +82,8 @@ export function useVoiceFlow({
             onIntent(`RAW:${result.transcript}`)
           }
           setVoiceState('IDLE')
-          // Resume listening AFTER intent processing (only if mic is not off)
-          if (autoListen && mountedRef.current && !isMicOff) {
+          // Resume listening AFTER intent processing
+          if (autoListen && mountedRef.current) {
             startListeningSession()
           }
         }
@@ -100,8 +98,8 @@ export function useVoiceFlow({
           // CRITICAL: STT is already stopped on error — speak re-prompt safely
           const repromptText = repromptScript ?? voiceScript
           speak(repromptText, bcp47, () => {
-            // Resume STT only after re-prompt TTS finishes, and only if mic is on
-            if (autoListen && mountedRef.current && !isMicOff) {
+            // Resume STT only after re-prompt TTS finishes
+            if (autoListen && mountedRef.current) {
               startListeningSession()
             }
           })
@@ -109,7 +107,7 @@ export function useVoiceFlow({
       },
     })
     cleanupRef.current = cleanup
-  }, [bcp47, listenTimeoutMs, onIntent, repromptCount, repromptScript, voiceScript, autoListen, isMicOff, stopSTT])
+  }, [bcp47, listenTimeoutMs, onIntent, repromptCount, repromptScript, voiceScript, autoListen, stopSTT])
 
   useEffect(() => {
     mountedRef.current = true
@@ -122,8 +120,8 @@ export function useVoiceFlow({
       setVoiceState('SPEAKING' as VoiceState)
 
       speak(voiceScript, bcp47, () => {
-        // STT starts only AFTER TTS finishes, and only if mic is on
-        if (autoListen && mountedRef.current && !isMicOff) {
+        // STT starts only AFTER TTS finishes
+        if (autoListen && mountedRef.current) {
           startListeningSession()
         } else {
           setVoiceState('IDLE')

@@ -14,7 +14,7 @@ export default function TutorialBackup({ currentDot, onNext, onBack, onSkip, lan
   const t = TUTORIAL_TRANSLATIONS[lang].screens.S05;
 
   const { isListening } = useSarvamVoiceFlow({
-    language,
+    language: language as any,
     script: TUTORIAL_BACKUP.scripts.main.hindi,
     autoListen: true,
     listenTimeoutMs: 12000,

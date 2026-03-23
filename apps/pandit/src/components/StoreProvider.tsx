@@ -1,16 +1,12 @@
 'use client'
 
 import { ReactNode, useEffect, useState } from 'react'
-import { restoreRegistrationFromStorage } from '@/stores/registrationStore'
-import { restoreVoicePreferencesFromStorage } from '@/stores/voiceStore'
 
 export default function StoreProvider({ children }: { children: ReactNode }) {
   const [isReady, setIsReady] = useState(false)
 
   useEffect(() => {
-    // Restore state from localStorage on client
-    restoreRegistrationFromStorage()
-    restoreVoicePreferencesFromStorage()
+    // Stores use Zustand persist middleware with automatic hydration
     setIsReady(true)
   }, [])
 

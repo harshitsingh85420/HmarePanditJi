@@ -12,6 +12,7 @@ interface LanguageConfirmScreenProps {
   detectedCity: string;
   onConfirm: () => void;
   onChange: () => void;
+  onBack?: () => void;
 }
 
 export default function LanguageConfirmScreen({
@@ -20,6 +21,7 @@ export default function LanguageConfirmScreen({
   onConfirm,
   onChange,
   onLanguageChange,
+  onBack,
 }: LanguageConfirmScreenProps) {
   const langInfo = LANGUAGE_DISPLAY[language] || LANGUAGE_DISPLAY['Hindi'];
   const city = detectedCity || 'आपके शहर';
@@ -62,12 +64,12 @@ export default function LanguageConfirmScreen({
     <main className="w-full min-h-dvh bg-vedic-cream shadow-2xl relative flex flex-col overflow-hidden items-center text-vedic-brown font-hind">
       {/* Top Bar */}
       <header className="flex items-center p-4 w-full justify-between">
-        <button onClick={onChange} aria-label="Go back" className="p-2 hover:bg-black/5 rounded-full transition-colors active:scale-95">
+        <button onClick={onBack ?? onChange} aria-label="Go back" className="min-h-[52px] min-w-[52px] p-2 hover:bg-black/5 rounded-full transition-colors active:scale-95">
           <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
           </svg>
         </button>
-        <button onClick={onLanguageChange} className="text-[24px] active:opacity-50">🌐</button>
+        <button onClick={onLanguageChange} className="min-h-[52px] min-w-[52px] text-[24px] active:opacity-50">🌐</button>
       </header>
 
       {/* Content Area */}

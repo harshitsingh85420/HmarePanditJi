@@ -1,0 +1,23 @@
+{
+  "models": [
+    {
+      "title": "DeepSeek V3",
+      "provider": "openai",
+      "model": "deepseek-chat",
+      "apiKey": "sk-8ff9a856f5ea4c638fcd715c65655218",
+      "apiBase": "https://api.deepseek.com"
+    }
+  ],
+  "tabAutocompleteModel": {
+    "title": "DeepSeek V3",
+    "provider": "openai",
+    "model": "deepseek-chat",
+    "apiKey": "sk-8ff9a856f5ea4c638fcd715c65655218",
+    "apiBase": "https://api.deepseek.com"
+  },
+  "systemMessage": "You are an expert Next.js, React, and TypeScript developer. You help build HmarePanditJi - a Hindu pandit booking platform. Write clean, production-ready code following Next.js 14 best practices.",
+  "completionOptions": {
+    "temperature": 0.7,
+    "maxTokens": 2048
+  }
+}

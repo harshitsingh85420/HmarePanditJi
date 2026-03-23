@@ -20,7 +20,7 @@ export default function TutorialSwagat({ currentDot, onNext, onBack, onSkip, lan
   const t = TUTORIAL_TRANSLATIONS[lang].screens.S01;
 
   const { isListening } = useSarvamVoiceFlow({
-    language,
+    language: language as any,
     script: TUTORIAL_SWAGAT.scripts.main.hindi,
     autoListen: true,
     listenTimeoutMs: 12000,

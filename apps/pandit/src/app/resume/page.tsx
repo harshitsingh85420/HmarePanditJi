@@ -23,28 +23,14 @@ const STEP_LABELS: Record<string, { title: string; subtitle: string; icon: strin
     subtitle: 'प्रोफ़ाइल विवरण',
     icon: 'person',
   },
-  mic_permission: {
-    title: 'Mic Permission',
-    subtitle: 'माइक अनुमति',
-    icon: 'mic',
-  },
-  location_permission: {
-    title: 'Location Permission',
-    subtitle: 'स्थान अनुमति',
-    icon: 'location_on',
-  },
-  notification_permission: {
-    title: 'Notifications',
-    subtitle: 'सूचनाएं',
-    icon: 'notifications',
-  },
 }
 
-// Calculate the NEXT incomplete step based on what user actually completed
-function getNextIncompleteStep(data: any): string {
+// BUG-027 FIX: Calculate the NEXT incomplete step based on actual registration flow
+// Profile page goes directly to /dashboard, so permissions are NOT part of the core flow
+function getNextIncompleteStep(data: any): string | null {
   const { completedSteps } = data;
 
-  // Check in order: mobile → otp → profile → permissions
+  // Check in order: mobile → otp → profile
   if (!completedSteps.includes('mobile')) {
     return 'mobile';
   }
@@ -57,26 +43,13 @@ function getNextIncompleteStep(data: any): string {
     return 'profile';
   }
 
-  // If all main steps complete, check permissions
-  if (!completedSteps.includes('mic_permission')) {
-    return 'mic_permission';
-  }
-
-  if (!completedSteps.includes('location_permission')) {
-    return 'location_permission';
-  }
-
-  if (!completedSteps.includes('notification_permission')) {
-    return 'notification_permission';
-  }
-
-  // All complete
-  return 'dashboard';
+  // BUG-025 FIX: All main steps complete - return null to indicate fully registered
+  return null;
 }
 
 export default function ResumeRegistrationScreen() {
   const router = useRouter()
-  const { data, setCurrentStep } = useRegistrationStore()
+  const { data, reset } = useRegistrationStore()
   const { navigate, setSection } = useNavigationStore()
 
   useEffect(() => {
@@ -84,42 +57,51 @@ export default function ResumeRegistrationScreen() {
     setSection('part1-registration')
   }, [navigate, setSection])
 
-  // Calculate next incomplete step dynamically
+  // BUG-025 FIX: Calculate next incomplete step dynamically
   const nextStep = getNextIncompleteStep(data);
-  const stepInfo = STEP_LABELS[nextStep] || { title: 'Registration', subtitle: 'पंजीकरण', icon: 'edit' };
 
+  // BUG-025 FIX: If fully registered, redirect to dashboard immediately
   useEffect(() => {
+    if (nextStep === null) {
+      // User has completed all registration steps - redirect to dashboard
+      router.push('/dashboard')
+      return
+    }
+
+    const stepInfo = STEP_LABELS[nextStep] || { title: 'Registration', subtitle: 'पंजीकरण', icon: 'edit' }
     const timer = setTimeout(() => {
       void speakWithSarvam({
         text: `स्वागत है। आपका ${stepInfo.title} अधूरा है। क्या आप जारी रखना चाहेंगे?`,
         languageCode: 'hi-IN',
-        speaker: 'meera',
+        speaker: 'ratan',
         pace: 0.82,
       })
     }, 500)
     return () => clearTimeout(timer)
-  }, [stepInfo.title])
+  }, [nextStep, router])
+
+  // BUG-025 FIX: Safe step info lookup with fallback
+  const stepInfo = nextStep ? (STEP_LABELS[nextStep] || { title: 'Registration', subtitle: 'पंजीकरण', icon: 'edit' }) : { title: 'Complete', subtitle: 'पूर्ण', icon: 'check_circle' }
 
   const handleContinue = () => {
-    // Route to the NEXT incomplete step
+    // BUG-025 FIX: Route to the NEXT incomplete step (no permissions in flow)
     const routes: Record<string, string> = {
       mobile: '/mobile',
       otp: '/otp',
       profile: '/profile',
-      mic_permission: '/permissions/mic',
-      location_permission: '/permissions/location',
-      notification_permission: '/permissions/notifications',
     }
-    const route = routes[nextStep] || '/mobile'
+    const route = routes[nextStep ?? 'mobile']
     router.push(route)
   }
 
+  // BUG-026 FIX: Reset registration and redirect to onboarding (not /identity which doesn't exist)
   const handleStartOver = () => {
-    router.push('/identity')
+    reset()
+    router.push('/onboarding')
   }
 
-  const completedCount = data.completedSteps.length
-  const totalSteps = 6
+  const completedCount = data.completedSteps.filter(s => ['mobile', 'otp', 'profile'].includes(s)).length
+  const totalSteps = 3
   const progressPercent = Math.round((completedCount / totalSteps) * 100)
 
   return (
@@ -193,25 +175,27 @@ export default function ResumeRegistrationScreen() {
             पूरे हुए चरण
           </h2>
           <div className="space-y-3">
-            {data.completedSteps.map((step) => {
-              const stepInfo = STEP_LABELS[step]
-              if (!stepInfo) return null
-              return (
-                <div
-                  key={step}
-                  className="flex items-center gap-3 p-3 bg-trust-green-bg rounded-card-sm"
-                >
-                  <span className="material-symbols-outlined text-trust-green text-xl">
-                    check_circle
-                  </span>
-                  <div>
-                    <p className="text-text-primary font-medium text-sm">{stepInfo.title}</p>
-                    <p className="text-text-secondary text-xs">{stepInfo.subtitle}</p>
+            {data.completedSteps
+              .filter(step => ['mobile', 'otp', 'profile'].includes(step))
+              .map((step) => {
+                const stepInfo = STEP_LABELS[step]
+                if (!stepInfo) return null
+                return (
+                  <div
+                    key={step}
+                    className="flex items-center gap-3 p-3 bg-trust-green-bg rounded-card-sm"
+                  >
+                    <span className="material-symbols-outlined text-trust-green text-xl">
+                      check_circle
+                    </span>
+                    <div>
+                      <p className="text-text-primary font-medium text-sm">{stepInfo.title}</p>
+                      <p className="text-text-secondary text-xs">{stepInfo.subtitle}</p>
+                    </div>
                   </div>
-                </div>
-              )
-            })}
-            {data.completedSteps.length === 0 && (
+                )
+              })}
+            {completedCount === 0 && (
               <p className="text-text-secondary text-sm text-center py-4">
                 अभी कोई चरण पूरा नहीं हुआ
               </p>

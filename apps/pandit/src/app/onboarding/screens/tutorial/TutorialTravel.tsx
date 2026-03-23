@@ -28,7 +28,7 @@ export default function TutorialTravel({
   const t = TUTORIAL_TRANSLATIONS[lang].screens.S09;
 
   const { isListening } = useSarvamVoiceFlow({
-    language,
+    language: language as any,
     script: TUTORIAL_TRAVEL.scripts.main.hindi,
     autoListen: true,
     listenTimeoutMs: 12000,

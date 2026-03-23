@@ -78,18 +78,16 @@ export default function OTPScreen({ mobile, language, onVerified, onBack }: Prop
     cleanupSTT.current = listenOnce(
       'hi',
       20000,
-      (text, isFinal) => {
+      (text) => {
         setTranscript(text);
-        if (isFinal) {
-          setIsListening(false);
-          const digits = normalizeOTP(text);
-          if (digits.length === 6) {
-            const arr = digits.split('');
-            setOtp(arr);
-            submitOTP(arr.join(''));
-          } else {
-            setError('6 अंक नहीं मिले — फिर से बोलें या टाइप करें।');
-          }
+        setIsListening(false);
+        const digits = normalizeOTP(text);
+        if (digits.length === 6) {
+          const arr = digits.split('');
+          setOtp(arr);
+          submitOTP(arr.join(''));
+        } else {
+          setError('6 अंक नहीं मिले — फिर से बोलें या टाइप करें।');
         }
       },
       () => {

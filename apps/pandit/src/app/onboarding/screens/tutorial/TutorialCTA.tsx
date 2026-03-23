@@ -20,7 +20,7 @@ export default function TutorialCTA({
   const t = TUTORIAL_TRANSLATIONS[lang].screens.S12;
 
   const { isListening } = useSarvamVoiceFlow({
-    language,
+    language: language as any,
     script: TUTORIAL_CTA.scripts.main.hindi,
     repromptScript: TUTORIAL_CTA.scripts.onTimeout?.hindi,
     initialDelayMs: 300,

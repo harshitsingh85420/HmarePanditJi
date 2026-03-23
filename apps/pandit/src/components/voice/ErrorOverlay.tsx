@@ -96,7 +96,8 @@ export function ErrorOverlay({ onRetry, onUseKeyboard }: ErrorOverlayProps) {
             </div>
 
             {/* Ambient noise warning (if applicable) */}
-            {isHighNoise && (isError1 || isError2) && (
+            {/* BUG-029 FIX: Show noise warning on all error states including error_3 (ultimate failure) */}
+            {isHighNoise && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
@@ -141,12 +142,12 @@ export function ErrorOverlay({ onRetry, onUseKeyboard }: ErrorOverlayProps) {
                   animate={{ opacity: 1, x: 0 }}
                   whileTap={{ scale: 0.97 }}
                   onClick={onRetry}
-                  className={`flex-1 h-14 rounded-btn font-bold flex items-center justify-center gap-2 ${isError2
+                  className={`flex-1 min-h-[64px] rounded-btn font-bold flex items-center justify-center gap-2 text-base ${isError2
                     ? 'bg-saffron text-white shadow-btn-saffron'
                     : 'border-2 border-saffron text-saffron'
                     }`}
                 >
-                  <span className="material-symbols-outlined">refresh</span>
+                  <span className="material-symbols-outlined text-xl">refresh</span>
                   <span>{isError2 ? 'आखिरी कोशिश' : 'फिर से बोलें'}</span>
                 </motion.button>
               )}
@@ -156,18 +157,18 @@ export function ErrorOverlay({ onRetry, onUseKeyboard }: ErrorOverlayProps) {
                 animate={{ opacity: 1, x: 0 }}
                 whileTap={{ scale: 0.97 }}
                 onClick={onUseKeyboard}
-                className={`flex-1 h-14 rounded-btn font-bold flex items-center justify-center gap-2 ${isError3
-                  ? 'bg-saffron text-white shadow-btn-saffron w-full'
+                className={`flex-1 min-h-[64px] rounded-btn font-bold flex items-center justify-center gap-2 text-base ${isError3
+                  ? 'bg-saffron text-white shadow-btn-saffron'
                   : 'border-2 border-saffron text-saffron'
                   }`}
               >
-                <span className="material-symbols-outlined">keyboard</span>
+                <span className="material-symbols-outlined text-xl">keyboard</span>
                 <span>{isError3 ? 'टाइप करें' : 'कीबोर्ड'}</span>
               </motion.button>
             </div>
 
             {/* Helper hint */}
-            <p className="mt-4 text-center text-xs text-text-placeholder">
+            <p className="mt-4 text-center text-base text-text-placeholder">
               {error.hint}
             </p>
           </motion.div>

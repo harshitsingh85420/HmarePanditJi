@@ -1,9 +1,8 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSarvamVoiceFlow } from '@/lib/hooks/useSarvamVoiceFlow';
-import { useVoiceStore } from '@/stores/voiceStore';
 import { speakWithSarvam, stopCurrentSpeech } from '@/lib/sarvam-tts';
 import { useRegistrationStore } from '@/stores/registrationStore';
 import type { SupportedLanguage } from '@/lib/onboarding-store';
@@ -55,22 +54,26 @@ export default function MobileNumberScreen({ language, onComplete, onBack }: Pro
   const [error, setError] = useState('');
   const [isKeyboardMode, setIsKeyboardMode] = useState(false); // BUG-003 FIX: Track keyboard mode
   const [keyboardEntered, setKeyboardEntered] = useState(false); // BUG-003 FIX: Track if user typed input
+  const [transcript, setTranscript] = useState(''); // BUG-003 FIX: Local transcript state
+  const [isMicOff, setIsMicOff] = useState(false); // BUG-003 FIX: Local mic state
   const inputRef = useRef<HTMLInputElement>(null);
-  const { isMicOff, toggleMic } = useVoiceStore();
 
-  const { isListening, isSpeaking, transcript, restartListening, stopFlow } = useSarvamVoiceFlow({ // BUG-003 FIX: Added stopFlow
+  const toggleMic = () => setIsMicOff(prev => !prev); // BUG-003 FIX: Toggle mic state
+
+  const { isSpeaking, restartListening, stopFlow } = useSarvamVoiceFlow({ // BUG-003 FIX: Added stopFlow
     language,
     script: MIC_CLOSE_SCRIPT,
     repromptScript: REPROMPT,
     initialDelayMs: 600,
     pauseAfterMs: 500,
-    disabled: isKeyboardMode, // BUG-003 FIX: Disable voice when keyboard mode active
+    disabled: isKeyboardMode || isMicOff, // BUG-003 FIX: Disable voice when keyboard mode or mic off
     onIntent: (intentOrRaw) => {
       // BUG-003 FIX: Skip voice confirmation if keyboard mode is active
-      if (isKeyboardMode) return;
+      if (isKeyboardMode || isMicOff) return;
 
       if (intentOrRaw.startsWith('RAW:')) {
         const raw = intentOrRaw.slice(4);
+        setTranscript(raw); // BUG-003 FIX: Store transcript
         const digits = normalizeMobile(raw);
         if (digits.length === 10) {
           setMobile(digits);

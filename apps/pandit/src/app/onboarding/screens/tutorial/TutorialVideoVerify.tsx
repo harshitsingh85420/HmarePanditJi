@@ -19,7 +19,7 @@ export default function TutorialVideoVerify({
   const t = TUTORIAL_TRANSLATIONS[lang].screens.S10;
 
   const { isListening } = useSarvamVoiceFlow({
-    language,
+    language: language as any,
     script: TUTORIAL_VIDEO_VERIFY.scripts.main.hindi,
     autoListen: true,
     listenTimeoutMs: 12000,

@@ -14,7 +14,6 @@ export default function MicDeniedRecovery() {
       void speakWithSarvam({
         text: 'माइक्रोफ़ोन की अनुमति ज़रूरी है। कृपया सेटिंग्स में जाकर माइक्रोफ़ोन चालू करें।',
         languageCode: 'hi-IN',
-        speaker: 'meera',
         pace: 0.82,
       })
     }, 500)

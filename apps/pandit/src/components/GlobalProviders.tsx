@@ -10,11 +10,11 @@ import { useUIStore } from '@/stores/uiStore'
 function InnerProviders({ children }: { children: React.ReactNode }) {
   useNetwork()
 
-  const { showCelebration, showNetworkBanner, isOnline } = useUIStore()
+  const { showCelebration, showNetworkBanner } = useUIStore()
 
   return (
     <>
-      {showNetworkBanner && <NetworkBanner isOnline={isOnline} />}
+      {showNetworkBanner && <NetworkBanner />}
       {showCelebration && <CelebrationOverlay />}
       <SessionSaveNotice />
       {children}

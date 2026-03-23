@@ -7,10 +7,12 @@ import { useRegistrationStore } from '@/stores/registrationStore'
 import { useVoiceStore } from '@/stores/voiceStore'
 import { useNavigationStore } from '@/stores/navigationStore'
 import { useSarvamVoiceFlow } from '@/lib/hooks/useSarvamVoiceFlow'
-import { speakWithSarvam } from '@/lib/sarvam-tts'
+import { speakWithSarvam, stopCurrentSpeech } from '@/lib/sarvam-tts'
 import { ConfirmationSheet } from '@/components/voice/ConfirmationSheet'
 import { ErrorOverlay } from '@/components/voice/ErrorOverlay'
 import { VoiceOverlay } from '@/components/voice/VoiceOverlay'
+import { useAmbientNoise } from '@/hooks/useAmbientNoise'
+import LanguageChangeBottomSheet from '@/components/LanguageChangeBottomSheet'
 
 const NUMBER_WORDS: Record<string, string> = {
   // Hindi (Latin script)
@@ -161,22 +163,45 @@ export default function MobileNumberScreen() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [networkError, setNetworkError] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
-  // BUG-006 FIX: If a mobile number is already stored (back-navigation scenario),
-  // eagerly start in keyboard mode so the input is visible immediately without
-  // waiting for a useEffect (which runs after paint and caused blank UI flash).
   const [isKeyboardForced, setIsKeyboardForced] = useState(() => !!(data.mobile && data.mobile.length === 10))
+  const [hasHydrated, setHasHydrated] = useState(false)
+  const [showLanguageSheet, setShowLanguageSheet] = useState(false)
 
+  // BUG-019 FIX: Ambient noise detection for intelligent error messages
+  const { startNoiseDetection, stopNoiseDetection } = useAmbientNoise()
+
+  // Use effect to handle Zustand hydration on refresh
+  useEffect(() => {
+    setHasHydrated(true)
+    if (data.mobile && data.mobile.length > 0) {
+      setMobileLocal(data.mobile)
+      if (data.mobile.length === 10) {
+        setIsKeyboardForced(true)
+        setShowConfirm(true)
+      }
+    }
+  }, [data.mobile])
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     navigate('/mobile', 'part1-registration')
     setSection('part1-registration')
+
+    // BUG-019 FIX: Start ambient noise detection
+    void startNoiseDetection()
+
     // BUG-006 FIX: If returning from OTP (number already stored), sync voice store to
     // keyboard mode and auto-show the confirmation sheet so user re-confirms with 1 tap.
     if (data.mobile && data.mobile.length === 10) {
       switchToKeyboard()
       setShowConfirm(true)  // Pre-show confirmation sheet with stored number
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    // BUG-011 FIX: Stop any ongoing speech on unmount
+    return () => {
+      stopCurrentSpeech()
+      stopNoiseDetection()
+    }
+  }, [startNoiseDetection, stopNoiseDetection])
 
   const handleBack = () => {
     // Navigate back to Tutorial CTA (Part 0)
@@ -283,9 +308,8 @@ export default function MobileNumberScreen() {
     const digits = value.replace(/\D/g, '').slice(0, 10)
     setMobileLocal(digits)
     // CRITICAL: Save to store immediately for back navigation persistence
-    if (digits.length > 0) {
-      setMobile(digits)
-    }
+    // BUG-022 FIX: Always call setMobile, even when digits is empty, so user can fully clear the field
+    setMobile(digits)
     if (digits.length === 10) {
       setShowConfirm(true)
     }
@@ -293,21 +317,32 @@ export default function MobileNumberScreen() {
 
   return (
     <div className="min-h-dvh flex flex-col bg-surface-base">
-      {/* Top Bar - Fixed at top */}
-      <header className="flex items-center gap-2 px-6 pt-4 pb-2 bg-surface-base sticky top-0 z-20">
-        <button
-          onClick={handleBack}
-          className="w-12 h-12 flex items-center justify-center text-vedic-gold rounded-full active:bg-black/5"
-          aria-label="Go back"
-        >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-        </button>
+      {/* Top Bar - Fixed at top - UI-012 FIX: Language button reachable */}
+      <header className="flex items-center justify-between px-6 pt-4 pb-2 bg-surface-base sticky top-0 z-20">
         <div className="flex items-center gap-2">
-          <span className="text-2xl text-saffron">ॐ</span>
-          <span className="text-lg font-bold text-text-primary">HmarePanditJi</span>
+          <button
+            onClick={handleBack}
+            className="w-[52px] h-[52px] flex items-center justify-center text-vedic-gold rounded-full active:bg-black/5"
+            aria-label="Go back"
+          >
+            <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <div className="flex items-center gap-2">
+            <span className="text-2xl text-saffron">ॐ</span>
+            <span className="text-lg font-bold text-text-primary">HmarePanditJi</span>
+          </div>
         </div>
+        {/* UI-012 FIX: Large language button in reachable area */}
+        <motion.button
+          whileTap={{ scale: 0.95 }}
+          onClick={() => setShowLanguageSheet(true)}
+          className="min-w-[64px] min-h-[64px] rounded-full bg-primary-lt/30 border-2 border-primary/40 active:bg-primary/30 flex items-center justify-center"
+          aria-label="भाषा बदलें"
+        >
+          <span className="text-[32px]">🌐</span>
+        </motion.button>
       </header>
 
       {/* Progress - Fixed below header */}
@@ -345,19 +380,35 @@ export default function MobileNumberScreen() {
           10-digit मोबाइल नंबर दर्ज करें
         </p>
 
-        {/* Voice Status Indicator */}
+        {/* Voice Status Indicator - UI-014 FIX: Real-time transcription */}
         {isListening && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex items-center justify-center gap-2 mb-4"
+            className="mb-4"
           >
-            <div className="flex items-end gap-1 h-6">
-              <div className="w-1.5 bg-saffron rounded-full animate-voice-bar" />
-              <div className="w-1.5 bg-saffron rounded-full animate-voice-bar-2" />
-              <div className="w-1.5 bg-saffron rounded-full animate-voice-bar-3" />
+            {/* Transcription display - UI-014 FIX */}
+            <div className="bg-primary-lt rounded-xl px-4 py-3 mb-3 border-2 border-primary/30">
+              <p className="text-[14px] text-text-secondary mb-1">आपने बोला:</p>
+              <p className="text-[20px] font-bold text-vedic-brown min-h-[28px]">
+                {transcribedText || "बोल रहे हैं..."}
+              </p>
+              {confidence && confidence < 0.7 && (
+                <p className="text-[14px] text-warning-amber mt-1 flex items-center gap-1">
+                  <span>⚠️</span> साफ़ नहीं सुनाई दिया
+                </p>
+              )}
             </div>
-            <span className="text-saffron text-sm font-medium">सुन रहा हूँ...</span>
+
+            {/* Listening indicator */}
+            <div className="flex items-center justify-center gap-2">
+              <div className="flex items-end gap-1 h-6">
+                <div className="w-1.5 bg-saffron rounded-full animate-voice-bar" />
+                <div className="w-1.5 bg-saffron rounded-full animate-voice-bar-2" />
+                <div className="w-1.5 bg-saffron rounded-full animate-voice-bar-3" />
+              </div>
+              <span className="text-saffron text-[16px] font-semibold">सुन रहा हूँ...</span>
+            </div>
           </motion.div>
         )}
 
@@ -374,30 +425,18 @@ export default function MobileNumberScreen() {
           />
         </div>
 
-        {/* Voice status */}
-        <div className="mb-6">
-          {isListening && (
-            <div className="flex items-center justify-center gap-2">
-              <div className="flex items-end gap-1 h-6">
-                <div className="w-1.5 bg-saffron rounded-full animate-voice-bar" />
-                <div className="w-1.5 bg-saffron rounded-full animate-voice-bar-2" />
-                <div className="w-1.5 bg-saffron rounded-full animate-voice-bar-3" />
-              </div>
-              <span className="text-saffron text-sm">सुन रहा हूँ...</span>
-            </div>
-          )}
-          {isSpeaking && (
-            <p className="text-center text-saffron text-sm">बोल रहा हूँ...</p>
-          )}
-        </div>
+        {/* Speaking indicator */}
+        {isSpeaking && (
+          <p className="text-center text-saffron text-[16px] font-semibold">बोल रहा हूँ...</p>
+        )}
       </div>
 
-      {/* Fixed Bottom CTA - One-handed reachable */}
+      {/* Fixed Bottom CTA - UI-008 FIX: Prominent keyboard fallback */}
       <footer className="sticky bottom-0 z-30 px-6 py-4 bg-surface-base border-t border-border-default">
         <button
           onClick={handleConfirm}
           disabled={mobile.length !== 10 || isSubmitting}
-          className="w-full h-16 bg-saffron text-white font-bold text-lg rounded-btn shadow-btn-saffron active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          className="w-full h-[64px] bg-saffron text-white font-bold text-[18px] rounded-xl shadow-btn-saffron active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
           {isSubmitting ? (
             <>
@@ -411,13 +450,43 @@ export default function MobileNumberScreen() {
             <span>आगे बढ़ें →</span>
           )}
         </button>
-        <p className="pt-3 text-center text-sm text-text-placeholder">
-          🎤 "नौ आठ सात..." बोलें या टाइप करें
+
+        {/* UI-008 FIX: Prominent keyboard fallback button with animation */}
+        {!isKeyboardForced && errorCount >= 1 && (
+          <motion.button
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            onClick={handleUseKeyboard}
+            className="w-full mt-3 h-[56px] bg-white border-2 border-saffron text-saffron font-bold text-[16px] rounded-xl flex items-center justify-center gap-2 active:bg-saffron/10"
+          >
+            <motion.span
+              animate={{ rotate: [0, 10, -10, 0] }}
+              transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 2 }}
+            >
+              ⌨️
+            </motion.span>
+            <span>कीबोर्ड का उपयोग करें</span>
+          </motion.button>
+        )}
+
+        <p className="pt-3 text-center text-[16px] text-text-placeholder">
+          🎤 &quot;नौ आठ सात...&quot; बोलें या टाइप करें
         </p>
       </footer>
 
       {/* Overlays — BUG-006 FIX: hide VoiceOverlay when keyboard mode is forced (back-navigation) */}
       {!isKeyboardForced && <VoiceOverlay question="अपना मोबाइल नंबर बोलें" interimText="" />}
+
+      {/* UI-012 FIX: Language Bottom Sheet for reachable language change */}
+      <LanguageChangeBottomSheet
+        isOpen={showLanguageSheet}
+        currentLanguage="Hindi"
+        onSelect={(lang) => {
+          // Handle language change here
+          setShowLanguageSheet(false)
+        }}
+        onClose={() => setShowLanguageSheet(false)}
+      />
 
       <AnimatePresence>
         {showConfirm && (

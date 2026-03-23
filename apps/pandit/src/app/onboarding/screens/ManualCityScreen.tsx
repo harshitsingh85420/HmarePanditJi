@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { startListening, stopListening, speak, stopSpeaking } from '@/lib/voice-engine';
 
@@ -38,6 +38,7 @@ export default function ManualCityScreen({ onCitySelected, onBack, onLanguageCha
   const [cityInput, setCityInput] = useState('');
   const [isListening, setIsListening] = useState(false);
   const [voiceError, setVoiceError] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -84,7 +85,7 @@ export default function ManualCityScreen({ onCitySelected, onBack, onLanguageCha
       {/* Top Bar */}
       <header className="flex items-center justify-between px-4 py-4">
         <div className="flex items-center gap-2">
-          <button onClick={onBack} aria-label="Go back" className="p-1 active:opacity-50 text-vedic-brown">
+          <button onClick={onBack} aria-label="Go back" className="min-h-[52px] min-w-[52px] p-1 active:opacity-50 text-vedic-brown">
             <svg fill="none" height="24" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" width="24">
               <path d="m15 18-6-6 6-6"></path>
             </svg>
@@ -94,7 +95,7 @@ export default function ManualCityScreen({ onCitySelected, onBack, onLanguageCha
             <span>HmarePanditJi</span>
           </div>
         </div>
-        <button onClick={onLanguageChange} aria-label="Language" className="p-1 text-2xl active:opacity-50">🌐</button>
+        <button onClick={onLanguageChange} aria-label="Language" className="min-h-[52px] min-w-[52px] p-1 text-2xl active:opacity-50">🌐</button>
       </header>
 
       {/* Content Area */}
@@ -119,8 +120,17 @@ export default function ManualCityScreen({ onCitySelected, onBack, onLanguageCha
           <div className="relative flex items-center justify-center w-12 h-12 shrink-0">
             {isListening && (
               <>
-                <motion.div animate={{ scale: [0.8, 1.6], opacity: [0.8, 0] }} transition={{ duration: 1.5, repeat: Infinity }} className="absolute inset-0 bg-primary rounded-full"></motion.div>
-                <motion.div animate={{ scale: [0.8, 1.6], opacity: [0.8, 0] }} transition={{ duration: 1.5, delay: 0.3, repeat: Infinity }} className="absolute inset-0 bg-primary rounded-full"></motion.div>
+                {/* UI-004 FIX: More visible pulse animation for bright sunlight */}
+                <motion.div
+                  animate={{ scale: [0.8, 1.8], opacity: [1, 0.3] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                  className="absolute inset-0 bg-primary border-4 border-primary/50 rounded-full"
+                />
+                <motion.div
+                  animate={{ scale: [0.8, 1.8], opacity: [1, 0.3] }}
+                  transition={{ duration: 1.5, delay: 0.3, repeat: Infinity }}
+                  className="absolute inset-0 bg-primary border-4 border-primary/50 rounded-full"
+                />
               </>
             )}
             <div className="relative bg-primary rounded-full p-2.5 z-10">
@@ -159,6 +169,7 @@ export default function ManualCityScreen({ onCitySelected, onBack, onLanguageCha
             <path d="m21 21-4.3-4.3"></path>
           </svg>
           <input
+            ref={inputRef}
             type="text"
             className="text-[18px] text-vedic-brown bg-transparent outline-none w-full placeholder-vedic-gold/60"
             placeholder="अपना शहर लिखें..."
@@ -203,7 +214,7 @@ export default function ManualCityScreen({ onCitySelected, onBack, onLanguageCha
                     const englishCity = HINDI_TO_ENGLISH_CITIES[city] || city;
                     onCitySelected(englishCity);
                   }}
-                  className="whitespace-nowrap px-5 py-2 bg-white border-2 border-primary text-primary rounded-full font-semibold text-sm active:bg-primary-lt shrink-0"
+                  className="whitespace-nowrap px-5 py-2 min-h-[52px] bg-white border-2 border-primary text-primary rounded-full font-semibold text-sm active:bg-primary-lt shrink-0"
                 >
                   {city}
                 </motion.button>
@@ -228,7 +239,13 @@ export default function ManualCityScreen({ onCitySelected, onBack, onLanguageCha
           )}
         </div>
 
-        <button aria-label="Toggle keyboard" className="p-3 bg-white rounded-full shadow-md border border-vedic-border active:scale-95 transition-transform">
+        {/* BUG-020 FIX: Added onClick handler to toggle keyboard input */}
+        {/* BUG-021 FIX: Added min-h-[52px] min-w-[52px] for elderly accessibility */}
+        <button
+          aria-label="Toggle keyboard"
+          onClick={() => inputRef.current?.focus()}
+          className="min-h-[52px] min-w-[52px] p-3 bg-white rounded-full shadow-md border border-vedic-border active:scale-95 transition-transform"
+        >
           <svg fill="none" height="24" stroke="#2D1B00" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" width="24">
             <rect height="16" rx="2" width="20" x="2" y="4"></rect>
             <path d="M6 8h.01"></path><path d="M10 8h.01"></path><path d="M14 8h.01"></path><path d="M18 8h.01"></path>

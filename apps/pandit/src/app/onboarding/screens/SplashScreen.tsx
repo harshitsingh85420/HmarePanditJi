@@ -12,7 +12,7 @@ export default function SplashScreen({ onComplete, onExit }: SplashScreenProps) 
   useEffect(() => {
     const timer = setTimeout(() => {
       onComplete();
-    }, 3000);
+    }, 4000); // UI-003 FIX: Increased from 3000ms to 4000ms for elderly users
     return () => clearTimeout(timer);
   }, [onComplete]);
 
@@ -56,11 +56,11 @@ export default function SplashScreen({ onComplete, onExit }: SplashScreenProps) 
       {/* Loading Area */}
       <footer className="absolute bottom-[48px] w-full flex justify-center">
         <div className="w-[120px] h-[3px] bg-white/25 rounded-[2px] relative overflow-hidden">
-          {/* Progress Fill Animation */}
+          {/* Progress Fill Animation - UI-003 FIX: Slower timing for elderly users */}
           <motion.div
             initial={{ width: '0%' }}
             animate={{ width: '100%' }}
-            transition={{ duration: 3, ease: "easeOut" }}
+            transition={{ duration: 4, ease: "easeInOut" }}
             className="absolute left-0 top-0 h-full bg-white/90 rounded-[2px]"
           />
         </div>

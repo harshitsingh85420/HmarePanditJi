@@ -42,6 +42,20 @@
   html {
     scroll-behavior: smooth;
   }
+
+  /* UI-016 FIX: Larger touch targets for wet hand reliability */
+  @media (pointer: coarse) {
+
+    button,
+    a,
+    [role="button"],
+    input[type="button"],
+    input[type="submit"] {
+      min-height: 52px;
+      min-width: 52px;
+      padding: 12px 16px;
+    }
+  }
 }
 
 @layer components {
@@ -125,20 +139,20 @@
     padding-top: env(safe-area-inset-top, 0px);
   }
 
-  /* Voice bar animations */
+  /* Voice bar animations - UI-003 FIX: Slower, more calming animation for elderly users */
   .voice-bar {
     width: 6px;
     background-color: #FF8C00;
     border-radius: 3px;
-    animation: voice-bar 1.2s ease-in-out infinite;
+    animation: voice-bar 1.8s ease-in-out infinite;
   }
 
   .voice-bar:nth-child(2) {
-    animation-delay: 0.2s;
+    animation-delay: 0.3s;
   }
 
   .voice-bar:nth-child(3) {
-    animation-delay: 0.4s;
+    animation-delay: 0.6s;
   }
 
   @keyframes voice-bar {

@@ -89,7 +89,7 @@ export function ConfirmationSheet({
             <div className="px-6 pb-6 flex flex-col gap-5">
               {/* What was said */}
               <div>
-                <p className="text-text-secondary text-xs font-label mb-2">
+                <p className="text-text-secondary text-base font-label mb-2">
                   आपने कहा:
                 </p>
 
@@ -101,8 +101,8 @@ export function ConfirmationSheet({
 
                 {/* Low confidence warning */}
                 {showLowConfidence && (
-                  <p className="text-warning-amber text-xs mt-2 flex items-center gap-1">
-                    <span className="material-symbols-outlined text-sm">warning</span>
+                  <p className="text-warning-amber text-base mt-2 flex items-center gap-1">
+                    <span className="material-symbols-outlined text-base">warning</span>
                     पक्का करें — थोड़ा unsure हूँ
                   </p>
                 )}
@@ -110,7 +110,7 @@ export function ConfirmationSheet({
 
               {/* Countdown progress */}
               <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-text-secondary text-sm">
+                <span className="material-symbols-outlined text-text-secondary text-base">
                   timer
                 </span>
                 <div className="flex-1 h-2 bg-surface-muted rounded-full overflow-hidden">
@@ -121,7 +121,7 @@ export function ConfirmationSheet({
                     transition={{ duration: 1, ease: 'linear' }}
                   />
                 </div>
-                <span className="text-text-secondary text-sm font-mono w-8 text-right">
+                <span className="text-text-secondary text-base font-mono w-8 text-right">
                   {countdown}s
                 </span>
               </div>
@@ -131,32 +131,32 @@ export function ConfirmationSheet({
                 <motion.button
                   whileTap={{ scale: 0.97 }}
                   onClick={onConfirm}
-                  className="flex-1 h-[60px] rounded-btn bg-saffron text-white font-bold
+                  className="flex-1 min-h-[64px] rounded-btn bg-saffron text-white font-bold text-base
                            flex items-center justify-center gap-2 shadow-btn-saffron"
                 >
-                  <span className="material-symbols-outlined text-lg filled">check_circle</span>
+                  <span className="material-symbols-outlined text-xl filled">check_circle</span>
                   <span>हाँ, सही है</span>
                 </motion.button>
 
                 <motion.button
                   whileTap={{ scale: 0.97 }}
                   onClick={onRetry}
-                  className="flex-1 h-[60px] rounded-btn border-2 border-saffron text-saffron
-                           font-bold flex items-center justify-center gap-2"
+                  className="flex-1 min-h-[64px] rounded-btn border-2 border-saffron text-saffron
+                           font-bold text-base flex items-center justify-center gap-2"
                 >
-                  <span className="material-symbols-outlined text-lg">refresh</span>
+                  <span className="material-symbols-outlined text-xl">refresh</span>
                   <span>नहीं, बदलें</span>
                 </motion.button>
               </div>
 
-              {/* Edit button (keyboard) - BUG-004 FIX: min-h-[56px] for 52px touch target */}
+              {/* Edit button (keyboard) - BUG-004 FIX: min-h-[64px] for wet hand reliability */}
               <motion.button
                 whileTap={{ scale: 0.97 }}
                 onClick={onEdit}
-                className="w-full min-h-[56px] text-text-secondary font-medium underline-offset-2
+                className="w-full min-h-[64px] text-text-secondary font-medium text-base underline-offset-2
                          flex items-center justify-center gap-2"
               >
-                <span className="material-symbols-outlined">edit</span>
+                <span className="material-symbols-outlined text-base">edit</span>
                 <span>टाइप करके सुधारें</span>
               </motion.button>
             </div>

@@ -351,10 +351,9 @@ function OnboardingContent() {
         return (
           <LanguageConfirmScreen
             {...commonProps}
-            detectedCity={state.detectedCity}
+            detectedCity={state.detectedCity || ''}
             onConfirm={handleLanguageConfirmToSet}
             onChange={handleLanguageConfirmToList}
-            onBack={() => goToPhase('MANUAL_CITY')}
           />
         )
 
@@ -374,7 +373,6 @@ function OnboardingContent() {
             pendingLanguage={state.pendingLanguage ?? 'Hindi'}
             onConfirm={handleLanguageChoiceConfirmToSet}
             onReject={handleLanguageChoiceRejectToList}
-            onBack={() => goToPhase('LANGUAGE_LIST')}
           />
         )
 

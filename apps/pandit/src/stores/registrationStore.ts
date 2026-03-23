@@ -1,6 +1,42 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 
+// BUG-024 FIX: Custom storage wrapper that handles QuotaExceededError gracefully
+const createSafeLocalStorage = () => {
+  return {
+    getItem: (key: string) => {
+      try {
+        return localStorage.getItem(key)
+      } catch (error) {
+        // Silently fail - storage might be unavailable
+        console.warn('[registrationStore] getItem failed:', error)
+        return null
+      }
+    },
+    setItem: (key: string, value: string) => {
+      try {
+        localStorage.setItem(key, value)
+      } catch (error) {
+        // BUG-024: Handle QuotaExceededError gracefully - don't crash the app
+        if (error instanceof DOMException && error.name === 'QuotaExceededError') {
+          console.warn('[registrationStore] Storage full - cannot persist data. User data may be lost on page reload.')
+        } else {
+          console.warn('[registrationStore] setItem failed:', error)
+        }
+        // Silently fail - don't throw, don't crash the app
+      }
+    },
+    removeItem: (key: string) => {
+      try {
+        localStorage.removeItem(key)
+      } catch (error) {
+        // Silently fail - storage might be unavailable
+        console.warn('[registrationStore] removeItem failed:', error)
+      }
+    },
+  }
+}
+
 export type RegistrationStep =
   | 'language'
   | 'welcome'
@@ -42,6 +78,7 @@ interface RegistrationStore {
   getCompletionPercentage: () => number
   isStepComplete: (step: RegistrationStep) => boolean
   reset: () => void
+  syncFromStorage: () => void
 }
 
 const STEP_ORDER: RegistrationStep[] = [
@@ -122,11 +159,77 @@ export const useRegistrationStore = create<RegistrationStore>()(
       isStepComplete: (step) => get().data.completedSteps.includes(step),
 
       reset: () => set({ data: { ...initialData, sessionId: `session_${Date.now()}`, startedAt: Date.now() } }),
+
+      // BUG-018 FIX: Manual sync function to reload data from localStorage
+      syncFromStorage: () => {
+        try {
+          const stored = localStorage.getItem('hpj-registration')
+          if (stored) {
+            const parsed = JSON.parse(stored)
+            if (parsed.data) {
+              set({ data: parsed.data })
+            }
+          }
+        } catch {
+          // Silently fail - storage might be corrupted or unavailable
+        }
+      },
     }),
     {
       name: 'hpj-registration',
-      storage: createJSONStorage(() => localStorage),
+      // BUG-024 FIX: Use safe storage wrapper that handles QuotaExceededError
+      storage: createJSONStorage(() => createSafeLocalStorage()),
       partialize: (state) => ({ data: state.data }),
+      // BUG-018 FIX: Skip initial hydration to set up storage listener first
+      skipHydration: true,
     }
   )
 )
+
+// BUG-018 FIX: Cross-tab synchronization using storage event listener
+if (typeof window !== 'undefined') {
+  // Initial hydration
+  try {
+    const stored = localStorage.getItem('hpj-registration')
+    if (stored) {
+      const parsed = JSON.parse(stored)
+      if (parsed.data) {
+        useRegistrationStore.setState({ data: parsed.data })
+      }
+    }
+  } catch {
+    // Silently fail - use default state
+  }
+
+  // Listen for storage changes from other tabs
+  window.addEventListener('storage', (event) => {
+    if (event.key === 'hpj-registration' && event.newValue) {
+      try {
+        const parsed = JSON.parse(event.newValue)
+        if (parsed.data) {
+          // Sync data from other tab
+          useRegistrationStore.setState({ data: parsed.data })
+        }
+      } catch {
+        // Silently ignore corrupted storage events
+      }
+    }
+  })
+
+  // BUG-018 FIX: Also sync when visibility changes (user switches back from another tab)
+  window.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+      try {
+        const stored = localStorage.getItem('hpj-registration')
+        if (stored) {
+          const parsed = JSON.parse(stored)
+          if (parsed.data) {
+            useRegistrationStore.setState({ data: parsed.data })
+          }
+        }
+      } catch {
+        // Silently fail
+      }
+    }
+  })
+}

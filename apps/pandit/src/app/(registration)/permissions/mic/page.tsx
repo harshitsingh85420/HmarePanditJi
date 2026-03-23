@@ -24,7 +24,6 @@ export default function MicPermissionScreen() {
       void speakWithSarvam({
         text: 'यह ऐप आपकी आवाज़ से चलता है। कृपया माइक्रोफ़ोन की अनुमति दें। हाँ बोलें या नीचे बटन दबाएं।',
         languageCode: 'hi-IN',
-        speaker: 'meera',
         pace: 0.82,
       })
     }, 500)

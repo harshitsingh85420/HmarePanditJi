@@ -8,7 +8,7 @@ interface NavigationState {
   canGoBack: boolean
   canGoForward: boolean
   forwardHistory: string[]
-  
+
   // Actions
   navigate: (path: string, section: AppSection) => void
   goBack: () => string | null
@@ -27,6 +27,13 @@ export const useNavigationStore = create<NavigationState>((set, get) => ({
   forwardHistory: [],
 
   navigate: (path, section) => {
+    const state = get()
+    // BUG-028 FIX: Don't push duplicate if this path is already the last entry
+    // This prevents history inflation when native back button triggers screen remount
+    if (state.history.length > 0 && state.history[state.history.length - 1] === path) {
+      set({ currentSection: section })
+      return
+    }
     set((state) => ({
       history: [...state.history, path],
       currentSection: section,

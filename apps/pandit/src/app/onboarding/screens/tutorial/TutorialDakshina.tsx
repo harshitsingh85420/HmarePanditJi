@@ -20,7 +20,7 @@ export default function TutorialDakshina({ currentDot, onNext, onBack, onSkip, l
   const t = TUTORIAL_TRANSLATIONS[lang].screens.S03;
 
   const { isListening } = useSarvamVoiceFlow({
-    language,
+    language: language as any,
     script: TUTORIAL_DAKSHINA.scripts.main.hindi,
     autoListen: true,
     listenTimeoutMs: 12000,

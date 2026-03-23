@@ -19,7 +19,7 @@ export default function TutorialDualMode({
   const t = TUTORIAL_TRANSLATIONS[lang].screens.S08;
 
   const { isListening } = useSarvamVoiceFlow({
-    language,
+    language: language as any,
     script: TUTORIAL_DUAL_MODE.scripts.main.hindi,
     autoListen: true,
     listenTimeoutMs: 12000,

@@ -16,24 +16,35 @@ export function NetworkBanner() {
           className={`overflow-hidden ${isOnline ? 'bg-trust-green-bg' : 'bg-warning-amber-bg'
             }`}
         >
-          <div className="px-4 py-2 flex items-center justify-center gap-2">
+          {/* UI-013 FIX: Larger text and icons for offline banner */}
+          <div className="px-6 py-4 flex items-center justify-center gap-3">
             {isOnline ? (
               <>
-                <span className="material-symbols-outlined text-trust-green text-lg">
+                <span className="material-symbols-outlined text-trust-green text-[32px]">
                   wifi
                 </span>
-                <span className="text-sm font-medium text-trust-green">
-                  आप फिर से ऑनलाइन हैं
-                </span>
+                <div>
+                  <p className="text-[18px] font-bold text-trust-green">
+                    आप फिर से ऑनलाइन हैं
+                  </p>
+                  <p className="text-[14px] text-text-secondary">
+                    कनेक्शन ठीक हो गया
+                  </p>
+                </div>
               </>
             ) : (
               <>
-                <span className="material-symbols-outlined text-warning-amber text-lg">
+                <span className="material-symbols-outlined text-warning-amber text-[32px]">
                   wifi_off
                 </span>
-                <span className="text-sm font-medium text-warning-amber">
-                  इंटरनेट कनेक्शन नहीं है
-                </span>
+                <div>
+                  <p className="text-[20px] font-bold text-warning-amber">
+                    इंटरनेट नहीं है
+                  </p>
+                  <p className="text-[14px] text-text-secondary">
+                    कनेक्शन ठीक होने पर पुनः प्रयास करें
+                  </p>
+                </div>
               </>
             )}
           </div>

@@ -26,7 +26,6 @@ export default function LocationPermissionScreen() {
       void speakWithSarvam({
         text: 'हमें आपकी लोकेशन की अनुमति दें — ताकि हम आपके शहर की पूजाएं दिखा सकें। हाँ बोलें या नीचे बटन दबाएं।',
         languageCode: 'hi-IN',
-        speaker: 'meera',
         pace: 0.82,
       })
     }, 500)
@@ -37,36 +36,36 @@ export default function LocationPermissionScreen() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
       stream.getTracks().forEach(track => track.stop())
-      
+
       // Get location
       if ('geolocation' in navigator) {
         navigator.geolocation.getCurrentPosition(
           async (position) => {
             const { latitude, longitude } = position.coords
-            
+
             // Reverse geocoding (in production, use proper API)
             try {
               const response = await fetch(
                 `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
               )
               const data = await response.json()
-              
+
               const city = data.address?.city || data.address?.town || data.address?.village || 'Varanasi'
               const state = data.address?.state || 'Uttar Pradesh'
-              
+
               setCityName(city)
               setStateName(state)
               setCity(city, state)
               setGranted(true)
-              
+
               markStepComplete('location_permission')
               setCurrentStep('location_permission')
-              
+
               void speakWithSarvam({
                 text: `बहुत अच्छा! आपका शहर ${city} है। अब हम आगे बढ़ते हैं।`,
                 languageCode: 'hi-IN',
               })
-              
+
               setTimeout(() => {
                 router.push('/permissions/notifications')
               }, 2000)

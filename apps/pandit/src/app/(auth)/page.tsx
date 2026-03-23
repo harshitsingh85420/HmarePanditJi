@@ -41,7 +41,7 @@ export default function HomePage() {
   }, [])
 
   const handlePanditEntry = () => {
-    router.push('/identity')
+    router.push('/onboarding')
   }
 
   const handleCustomerEntry = () => {

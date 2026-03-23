@@ -8,15 +8,15 @@ interface TopBarProps {
 
 export default function TopBar({ showBack = false, onBack, onLanguageChange }: TopBarProps) {
   return (
-    <header className="flex items-center justify-between px-4 h-14 bg-vedic-cream border-b border-vedic-border sticky top-0 z-50">
+    <header className="flex items-center justify-between px-4 h-16 bg-vedic-cream border-b border-vedic-border sticky top-0 z-50">
       <div className="flex items-center gap-2">
         {showBack && (
           <button
             onClick={onBack}
-            className="w-10 h-14 flex items-center justify-center text-vedic-gold"
+            className="min-w-[52px] min-h-[52px] flex items-center justify-center text-vedic-gold rounded-full active:bg-vedic-gold/10"
             aria-label="Go back"
           >
-            <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+            <svg width="28" height="28" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
               <path d="M15 18l-6-6 6-6" />
             </svg>
           </button>
@@ -28,14 +28,10 @@ export default function TopBar({ showBack = false, onBack, onLanguageChange }: T
       </div>
       <button
         onClick={onLanguageChange}
-        className="w-14 h-14 flex items-center justify-center text-vedic-gold"
-        aria-label="Change language"
+        className="min-w-[64px] min-h-[64px] rounded-full bg-primary-lt/20 border-2 border-primary/30 active:bg-primary/30 flex items-center justify-center"
+        aria-label="भाषा बदलें"
       >
-        <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
-          <circle cx="12" cy="12" r="10" />
-          <path d="M12 2a14.5 14.5 0 000 20" />
-          <path d="M2 12h20" />
-        </svg>
+        <span className="text-[32px]">🌐</span>
       </button>
     </header>
   )
