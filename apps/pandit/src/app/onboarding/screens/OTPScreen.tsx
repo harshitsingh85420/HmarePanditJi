@@ -248,7 +248,7 @@ export default function OTPScreen({ mobile, language, onVerified, onBack }: Prop
                   startSTT();
                 });
               }}
-              className="text-lgrimary text-[16px] font-semibold underline"
+              className="min-h-[56px] text-text-primary text-[16px] font-semibold underline focus:ring-2 focus:ring-primary focus:outline-none"
             >
               OTP दोबारा भेजें
             </button>

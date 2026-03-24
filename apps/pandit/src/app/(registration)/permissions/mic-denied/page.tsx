@@ -92,13 +92,13 @@ export default function MicDeniedRecovery() {
               <h2 className="text-lg font-bold text-text-primary mb-1">
                 माइक्रोफ़ोन बंद है
               </h2>
-              <p className="text-text-secondary text-sm">
+              <p className="text-text-secondary text-base">
                 कृपया माइक्रोफ़ोन चालू करें ताकि आप आवाज़ से पंजीकरण कर सकें।
               </p>
             </div>
           </div>
 
-          <ul className="space-y-2 text-sm text-text-secondary">
+          <ul className="space-y-2 text-base text-text-secondary">
             <li className="flex items-center gap-2">
               <span className="material-symbols-outlined text-saffron text-lg">check</span>
               <span>ब्राउज़र सेटिंग्स में जाएं</span>
@@ -118,7 +118,7 @@ export default function MicDeniedRecovery() {
         <div className="space-y-3">
           <button
             onClick={handleOpenSettings}
-            className="w-full h-16 bg-saffron text-white font-bold text-lg rounded-btn shadow-btn-saffron active:scale-[0.97] flex items-center justify-center gap-2"
+            className="w-full min-h-[56px] bg-saffron text-white font-bold text-lg rounded-btn shadow-btn-saffron active:scale-[0.97] flex items-center justify-center gap-2 focus:ring-2 focus:ring-primary focus:outline-none"
           >
             <span className="material-symbols-outlined">settings</span>
             <span>सेटिंग्स खोलें</span>
@@ -126,14 +126,14 @@ export default function MicDeniedRecovery() {
 
           <button
             onClick={handleRetry}
-            className="w-full h-14 border-2 border-saffron text-saffron font-bold text-lg rounded-btn active:scale-[0.97]"
+            className="w-full min-h-[56px] border-2 border-saffron text-saffron font-bold text-lg rounded-btn active:scale-[0.97] focus:ring-2 focus:ring-primary focus:outline-none"
           >
             फिर से कोशिश करें
           </button>
 
           <button
             onClick={handleContinueWithoutVoice}
-            className="w-full h-14 text-text-secondary font-medium underline-offset-2 active:opacity-70"
+            className="w-full min-h-[56px] text-text-secondary font-medium underline-offset-2 active:opacity-70 focus:ring-2 focus:ring-primary focus:outline-none"
           >
             बिना आवाज़ के जारी रखें
           </button>

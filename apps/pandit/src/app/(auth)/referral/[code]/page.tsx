@@ -27,13 +27,13 @@ export default function ReferralLandingPage() {
     const validateCode = async () => {
       // Simulated validation - in production, fetch from API
       const validCodes = ['PANDIT2024', 'SHARMA123', 'KASHI42', 'VARANASI']
-      const isValidCode = validCodes.some(code => 
+      const isValidCode = validCodes.some(code =>
         code.toLowerCase() === referralCode.toLowerCase() ||
         referralCode.length >= 6
       )
-      
+
       setIsValid(isValidCode)
-      
+
       if (isValidCode) {
         setReferralCode(referralCode.toUpperCase())
         // Simulated referrer name
@@ -113,14 +113,14 @@ export default function ReferralLandingPage() {
               <div className="flex items-center gap-3 mb-4">
                 <span className="material-symbols-outlined text-3xl">card_giftcard</span>
                 <div>
-                  <p className="text-white/80 text-sm">Referral Code</p>
+                  <p className="text-white/80 text-base">Referral Code</p>
                   <p className="text-2xl font-bold">{referralCode.toUpperCase()}</p>
                 </div>
               </div>
-              
+
               <div className="border-t border-white/20 pt-4">
-                <p className="text-white/90 text-sm mb-2">आपको मिलेगा:</p>
-                <ul className="space-y-2 text-sm">
+                <p className="text-white/90 text-base mb-2">आपको मिलेगा:</p>
+                <ul className="space-y-2 text-base">
                   <li className="flex items-center gap-2">
                     <span className="material-symbols-outlined text-lg">check</span>
                     <span>प्राथमिकता समर्थन</span>
@@ -154,7 +154,7 @@ export default function ReferralLandingPage() {
                   </span>
                   <div>
                     <p className="text-text-primary font-medium">तुरंत भुगतान</p>
-                    <p className="text-text-secondary text-sm">पूजा के बाद सीधे बैंक में</p>
+                    <p className="text-text-secondary text-base">पूजा के बाद सीधे बैंक में</p>
                   </div>
                 </li>
                 <li className="flex items-start gap-3">
@@ -163,7 +163,7 @@ export default function ReferralLandingPage() {
                   </span>
                   <div>
                     <p className="text-text-primary font-medium">सत्यापित प्रोफ़ाइल</p>
-                    <p className="text-text-secondary text-sm">विश्वासनीय और सुरक्षित</p>
+                    <p className="text-text-secondary text-base">विश्वासनीय और सुरक्षित</p>
                   </div>
                 </li>
                 <li className="flex items-start gap-3">
@@ -172,7 +172,7 @@ export default function ReferralLandingPage() {
                   </span>
                   <div>
                     <p className="text-text-primary font-medium">बढ़ी हुई कमाई</p>
-                    <p className="text-text-secondary text-sm">ऑनलाइन और ऑफलाइन दोनों</p>
+                    <p className="text-text-secondary text-base">ऑनलाइन और ऑफलाइन दोनों</p>
                   </div>
                 </li>
               </ul>
@@ -182,7 +182,7 @@ export default function ReferralLandingPage() {
             <div className="space-y-3">
               <button
                 onClick={handleContinue}
-                className="w-full h-16 bg-saffron text-white font-bold text-lg rounded-btn shadow-btn-saffron active:scale-[0.97]"
+                className="w-full min-h-[56px] bg-saffron text-white font-bold text-lg rounded-btn shadow-btn-saffron active:scale-[0.97] focus:ring-2 focus:ring-primary focus:outline-none"
               >
                 पंजीकरण शुरू करें →
               </button>
@@ -210,13 +210,13 @@ export default function ReferralLandingPage() {
                 </span>
                 <div>
                   <p className="text-error-red font-bold">कोड काम नहीं कर रहा</p>
-                  <p className="text-text-secondary text-sm">
+                  <p className="text-text-secondary text-base">
                     कोड: <span className="font-mono">{referralCode}</span>
                   </p>
                 </div>
               </div>
-              
-              <p className="text-text-secondary text-sm">
+
+              <p className="text-text-secondary text-base">
                 कृपया अपने रेफरल कोड की जांच करें या अपने मित्र से सही कोड प्राप्त करें।
               </p>
             </motion.div>
@@ -225,7 +225,7 @@ export default function ReferralLandingPage() {
             <div className="space-y-3">
               <button
                 onClick={handleGoHome}
-                className="w-full h-16 bg-saffron text-white font-bold text-lg rounded-btn shadow-btn-saffron active:scale-[0.97]"
+                className="w-full min-h-[56px] bg-saffron text-white font-bold text-lg rounded-btn shadow-btn-saffron active:scale-[0.97] focus:ring-2 focus:ring-primary focus:outline-none"
               >
                 होमपेज पर जाएं
               </button>

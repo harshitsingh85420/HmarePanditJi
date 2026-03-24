@@ -90,7 +90,7 @@ export default function NotificationsPermission() {
               </span>
               <div>
                 <p className="text-text-primary font-medium">नई पूजा की notification</p>
-                <p className="text-text-secondary text-sm">जब कोई ग्राहक पूजा बुक करे</p>
+                <p className="text-text-secondary text-base">जब कोई ग्राहक पूजा बुक करे</p>
               </div>
             </li>
             <li className="flex items-start gap-3">
@@ -99,7 +99,7 @@ export default function NotificationsPermission() {
               </span>
               <div>
                 <p className="text-text-primary font-medium">भुगतान की जानकारी</p>
-                <p className="text-text-secondary text-sm">जब पैसा आपके खाते में आए</p>
+                <p className="text-text-secondary text-base">जब पैसा आपके खाते में आए</p>
               </div>
             </li>
             <li className="flex items-start gap-3">
@@ -108,7 +108,7 @@ export default function NotificationsPermission() {
               </span>
               <div>
                 <p className="text-text-primary font-medium">पूजा का समय याद दिलाना</p>
-                <p className="text-text-secondary text-sm">ताकि आप समय पर पहुँचें</p>
+                <p className="text-text-secondary text-base">ताकि आप समय पर पहुँचें</p>
               </div>
             </li>
           </ul>
@@ -118,13 +118,13 @@ export default function NotificationsPermission() {
         <div className="space-y-3">
           <button
             onClick={handleGrant}
-            className="w-full h-16 bg-saffron text-white font-bold text-lg rounded-btn shadow-btn-saffron active:scale-[0.97"
+            className="w-full min-h-[56px] bg-saffron text-white font-bold text-lg rounded-btn shadow-btn-saffron active:scale-[0.97] focus:ring-2 focus:ring-primary focus:outline-none"
           >
             हाँ, notification चालू करें
           </button>
           <button
             onClick={handleSkip}
-            className="w-full h-14 text-text-secondary font-medium underline-offset-2 active:opacity-70"
+            className="w-full min-h-[56px] text-text-secondary font-medium underline-offset-2 active:opacity-70 focus:ring-2 focus:ring-primary focus:outline-none"
           >
             बाद में चालू करूँगा
           </button>
@@ -132,7 +132,7 @@ export default function NotificationsPermission() {
       </div>
 
       {/* Footer note */}
-      <p className="pb-8 text-center text-xs text-text-placeholder">
+      <p className="pb-8 text-center text-base text-text-placeholder">
         आप बाद में सेटिंग्स से कभी भी notification बंद कर सकते हैं
       </p>
     </main>

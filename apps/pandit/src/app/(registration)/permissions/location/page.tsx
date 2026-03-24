@@ -159,7 +159,7 @@ export default function LocationPermissionScreen() {
               </span>
               <div>
                 <p className="text-text-primary font-medium">स्थानीय पूजाएं</p>
-                <p className="text-text-secondary text-sm">आपके शहर की पूजाएं दिखाएं</p>
+                <p className="text-text-secondary text-base">आपके शहर की पूजाएं दिखाएं</p>
               </div>
             </li>
             <li className="flex items-start gap-3">
@@ -168,7 +168,7 @@ export default function LocationPermissionScreen() {
               </span>
               <div>
                 <p className="text-text-primary font-medium">भाषा चयन</p>
-                <p className="text-text-secondary text-sm">आपकी लोकेशन के आधार पर</p>
+                <p className="text-text-secondary text-base">आपकी लोकेशन के आधार पर</p>
               </div>
             </li>
             <li className="flex items-start gap-3">
@@ -177,7 +177,7 @@ export default function LocationPermissionScreen() {
               </span>
               <div>
                 <p className="text-text-primary font-medium">यात्रा योजना</p>
-                <p className="text-text-secondary text-sm">पूजा स्थल तक मार्गदर्शन</p>
+                <p className="text-text-secondary text-base">पूजा स्थल तक मार्गदर्शन</p>
               </div>
             </li>
           </ul>
@@ -195,10 +195,10 @@ export default function LocationPermissionScreen() {
               security
             </span>
             <div>
-              <p className="text-trust-green font-bold text-sm mb-1">
+              <p className="text-trust-green font-bold text-base mb-1">
                 आपकी गोपनीयता सुरक्षित है
               </p>
-              <p className="text-text-secondary text-xs">
+              <p className="text-text-secondary text-base">
                 आपका सटीक स्थान कभी भी सार्वजनिक रूप से नहीं दिखाया जाएगा। केवल शहर का नाम उपयोग किया जाएगा।
               </p>
             </div>
@@ -218,19 +218,19 @@ export default function LocationPermissionScreen() {
               </span>
               <div>
                 <p className="text-text-primary font-bold mb-1">लोकेशन ब्लॉक है</p>
-                <p className="text-text-secondary text-sm mb-3">
+                <p className="text-text-secondary text-base mb-3">
                   कृपया ब्राउज़र सेटिंग्स में जाकर लोकेशन की अनुमति दें।
                 </p>
                 <div className="flex gap-3">
                   <button
                     onClick={handleRetry}
-                    className="text-saffron text-sm font-bold underline-offset-2"
+                    className="text-saffron text-base font-bold underline-offset-2 focus:ring-2 focus:ring-primary focus:outline-none"
                   >
                     फिर से कोशिश करें
                   </button>
                   <button
                     onClick={handleManualEntry}
-                    className="text-text-secondary text-sm underline-offset-2"
+                    className="text-text-secondary text-base underline-offset-2 focus:ring-2 focus:ring-primary focus:outline-none"
                   >
                     शहर मैन्युअल दर्ज करें
                   </button>
@@ -246,7 +246,7 @@ export default function LocationPermissionScreen() {
             animate={{ opacity: 1, y: 0 }}
             className="bg-error-red-bg border-2 border-error-red rounded-card p-4 mb-6"
           >
-            <p className="text-error-red text-sm text-center">
+            <p className="text-error-red text-base text-center">
               लोकेशन प्राप्त करने में त्रुटि। कृपया फिर से कोशिश करें।
             </p>
           </motion.div>
@@ -265,7 +265,7 @@ export default function LocationPermissionScreen() {
               </span>
               <div>
                 <p className="text-success font-bold">लोकेशन मिल गया!</p>
-                <p className="text-text-secondary text-sm">
+                <p className="text-text-secondary text-base">
                   {cityName}, {stateName}
                 </p>
               </div>
@@ -278,7 +278,7 @@ export default function LocationPermissionScreen() {
           <button
             onClick={handleGrant}
             disabled={granted || error === 'location_denied'}
-            className="w-full h-16 bg-saffron text-white font-bold text-lg rounded-btn shadow-btn-saffron active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full min-h-[56px] bg-saffron text-white font-bold text-lg rounded-btn shadow-btn-saffron active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 focus:ring-2 focus:ring-primary focus:outline-none"
           >
             <span className="material-symbols-outlined">my_location</span>
             <span>{granted ? 'लोकेशन मिल गया' : 'हाँ, अनुमति दें'}</span>
@@ -287,14 +287,14 @@ export default function LocationPermissionScreen() {
           {error === 'location_denied' ? (
             <button
               onClick={handleRetry}
-              className="w-full h-14 border-2 border-saffron text-saffron font-bold text-lg rounded-btn active:scale-[0.97]"
+              className="w-full min-h-[56px] border-2 border-saffron text-saffron font-bold text-lg rounded-btn active:scale-[0.97] focus:ring-2 focus:ring-primary focus:outline-none"
             >
               फिर से कोशिश करें
             </button>
           ) : (
             <button
               onClick={handleSkip}
-              className="w-full h-14 text-text-secondary font-medium underline-offset-2 active:opacity-70"
+              className="w-full min-h-[56px] text-text-secondary font-medium underline-offset-2 active:opacity-70 focus:ring-2 focus:ring-primary focus:outline-none"
             >
               बाद में चालू करूँगा
             </button>
@@ -303,7 +303,7 @@ export default function LocationPermissionScreen() {
       </div>
 
       {/* Footer note */}
-      <p className="pb-8 text-center text-xs text-text-placeholder">
+      <p className="pb-8 text-center text-base text-text-placeholder">
         आप बाद में सेटिंग्स से कभी भी लोकेशन बंद कर सकते हैं
       </p>
     </main>

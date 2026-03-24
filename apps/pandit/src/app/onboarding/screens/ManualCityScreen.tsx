@@ -530,14 +530,14 @@ export default function ManualCityScreen({ onCitySelected, onBack, onLanguageCha
       {/* Top Bar */}
       <header className="flex items-center justify-between px-4 py-4">
         <div className="flex items-center gap-2">
-          {/* UX-008 FIX: Haptic feedback, ACC-008 FIX: Focus indicators */}
+          {/* UX-008 FIX: Haptic feedback, ACC-008 FIX: Focus indicators, ACC-009 FIX: Larger touch target */}
           <button
             onClick={() => {
               if (navigator.vibrate) navigator.vibrate(10);
               onBack();
             }}
             aria-label="Go back"
-            className="min-h-[52px] min-w-[52px] p-1 active:opacity-50 text-text-primary focus:ring-2 focus:ring-primary focus:outline-none"
+            className="min-h-[56px] min-w-[56px] p-1 active:opacity-50 text-text-primary focus:ring-2 focus:ring-primary focus:outline-none"
           >
             <svg fill="none" height="24" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" width="24">
               <path d="m15 18-6-6 6-6"></path>
@@ -548,16 +548,17 @@ export default function ManualCityScreen({ onCitySelected, onBack, onLanguageCha
             <span>HmarePanditJi</span>
           </div>
         </div>
-        {/* UX-008 FIX: Haptic feedback, ACC-009 FIX: Larger language switcher */}
+        {/* UX-008 FIX: Haptic feedback, ACC-009 FIX: Larger language switcher with text label */}
         <button
           onClick={() => {
             if (navigator.vibrate) navigator.vibrate(10);
             onLanguageChange?.();
           }}
           aria-label="Language"
-          className="min-h-[56px] min-w-[56px] p-1 text-[28px] active:opacity-50 focus:ring-2 focus:ring-primary focus:outline-none"
+          className="min-h-[56px] px-3 flex items-center gap-2 text-[18px] font-semibold text-text-primary active:opacity-50 focus:ring-2 focus:ring-primary focus:outline-none"
         >
-          🌐
+          <span>🌐</span>
+          <span className="hidden sm:inline">हिन्दी / English</span>
         </button>
       </header>
 
@@ -656,7 +657,7 @@ export default function ManualCityScreen({ onCitySelected, onBack, onLanguageCha
                 const englishCity = HINDI_TO_ENGLISH_CITIES[cityInput.trim()] || cityInput.trim();
                 onCitySelected(englishCity);
               }}
-              className="bg-saffron text-white text-lg font-bold px-3 py-1.5 rounded-lg active:scale-95 shrink-0"
+              className="bg-saffron text-white text-lg font-bold px-4 py-3 min-h-[56px] rounded-lg active:scale-95 shrink-0 focus:ring-2 focus:ring-primary focus:outline-none"
             >
               ठीक है
             </button>
@@ -675,14 +676,14 @@ export default function ManualCityScreen({ onCitySelected, onBack, onLanguageCha
                   initial={{ x: 20, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
                   transition={{ delay: 0.05 * (rIdx * 4 + cIdx) }}
-                  // UX-008 FIX: Haptic feedback, ACC-008 FIX: Focus indicators
+                  // UX-008 FIX: Haptic feedback, ACC-008 FIX: Focus indicators, ACC-009 FIX: Larger touch target
                   onClick={() => {
                     if (navigator.vibrate) navigator.vibrate(10);
                     // Convert Hindi city name to English using mapping
                     const englishCity = HINDI_TO_ENGLISH_CITIES[city] || city;
                     onCitySelected(englishCity);
                   }}
-                  className="whitespace-nowrap px-5 py-2 min-h-[52px] bg-white border-2 border-saffron text-lgrimary rounded-full font-semibold text-lg active:bg-saffron-lt shrink-0 focus:ring-2 focus:ring-primary focus:outline-none"
+                  className="whitespace-nowrap px-5 py-2 min-h-[56px] bg-white border-2 border-saffron text-lgrimary rounded-full font-semibold text-lg active:bg-saffron-lt shrink-0 focus:ring-2 focus:ring-primary focus:outline-none"
                 >
                   {city}
                 </motion.button>
@@ -708,11 +709,11 @@ export default function ManualCityScreen({ onCitySelected, onBack, onLanguageCha
         </div>
 
         {/* BUG-020 FIX: Added onClick handler to toggle keyboard input */}
-        {/* BUG-021 FIX: Added min-h-[52px] min-w-[52px] for elderly accessibility */}
+        {/* BUG-021 FIX: Added min-h-[56px] min-w-[56px] for elderly accessibility */}
         <button
           aria-label="Toggle keyboard"
           onClick={() => inputRef.current?.focus()}
-          className="min-h-[52px] min-w-[52px] p-3 bg-white rounded-full shadow-md border border-outline-variant active:scale-95 transition-transform"
+          className="min-h-[56px] min-w-[56px] p-3 bg-white rounded-full shadow-md border border-outline-variant active:scale-95 transition-transform"
         >
           <svg fill="none" height="24" stroke="#2D1B00" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" width="24">
             <rect height="16" rx="2" width="20" x="2" y="4"></rect>

@@ -31,16 +31,16 @@ export function SessionSaveNotice() {
               save
             </span>
             <div className="flex-1">
-              <p className="text-text-primary font-bold text-sm">
+              <p className="text-text-primary font-bold text-base">
                 आपका डेटा सुरक्षित है
               </p>
-              <p className="text-text-secondary text-xs">
+              <p className="text-text-secondary text-base">
                 आप कभी भी वापस आकर जारी रख सकते हैं
               </p>
             </div>
             <button
               onClick={() => setSessionSaveNotice(false)}
-              className="text-text-secondary hover:text-text-primary"
+              className="text-text-secondary hover:text-text-primary focus:ring-2 focus:ring-primary focus:outline-none min-h-[56px] min-w-[56px] flex items-center justify-center"
             >
               <span className="material-symbols-outlined">close</span>
             </button>

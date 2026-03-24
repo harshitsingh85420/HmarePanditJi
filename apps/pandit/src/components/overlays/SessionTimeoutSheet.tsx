@@ -50,7 +50,7 @@ export function SessionTimeoutSheet() {
             </p>
           </div>
 
-          <p className="text-text-secondary font-devanagari text-sm mb-4">
+          <p className="text-text-secondary font-devanagari text-base mb-4">
             {minutes}:{String(seconds).padStart(2, '0')} mein screen band ho jaayegi.
             Aapka kaam save hai — wapas aayein to continue.
           </p>
@@ -66,7 +66,7 @@ export function SessionTimeoutSheet() {
           <motion.button
             whileTap={{ scale: 0.97 }}
             onClick={handleStillHere}
-            className="w-full h-14 bg-primary-container text-white font-bold rounded-btn flex items-center justify-center shadow-btn-saffron"
+            className="w-full min-h-[56px] bg-primary-container text-white font-bold rounded-btn flex items-center justify-center shadow-btn-saffron focus:ring-2 focus:ring-primary focus:outline-none"
           >
             Haan, main yahaan hoon
           </motion.button>

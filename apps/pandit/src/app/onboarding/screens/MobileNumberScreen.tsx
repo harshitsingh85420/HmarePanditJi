@@ -256,7 +256,7 @@ export default function MobileNumberScreen({ language, onComplete, onBack }: Pro
 
               <button
                 onClick={toggleMic}
-                className={`px-3 py-1 rounded-full text-lg font-medium border transition-colors shrink-0 ${isMicOff
+                className={`px-4 py-2 min-h-[56px] rounded-full text-lg font-medium border transition-colors shrink-0 focus:ring-2 focus:ring-primary focus:outline-none ${isMicOff
                   ? 'bg-saffron text-white border-saffron'
                   : 'bg-white text-text-primary border-outline-variant'
                   }`}
@@ -279,7 +279,7 @@ export default function MobileNumberScreen({ language, onComplete, onBack }: Pro
             </div>
             <button
               onClick={handleKeyboardToggle}
-              className="px-3 py-1 rounded-full text-lg font-medium border border-outline-variant bg-white text-text-primary hover:bg-saffron-lt transition-colors"
+              className="px-4 py-2 min-h-[56px] rounded-full text-lg font-medium border border-outline-variant bg-white text-text-primary hover:bg-saffron-lt transition-colors focus:ring-2 focus:ring-primary focus:outline-none"
             >
               Voice वापस लाएं
             </button>

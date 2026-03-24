@@ -42,27 +42,27 @@ export default function LanguageBottomSheet({
         onClick={onClose}
       />
       {/* Sheet */}
-      <div className="relative bg-white rounded-t-[20px] shadow-2xl flex flex-col max-h-[90vh] animate-slide-up">
+      <div className="relative bg-surface-card rounded-t-[20px] shadow-2xl flex flex-col max-h-[90vh] animate-slide-up">
         {/* Drag handle */}
         <div className="flex justify-center pt-3 pb-1">
-          <div className="w-10 h-1 bg-vedic-border rounded-full" />
+          <div className="w-10 h-1 bg-outline-variant rounded-full" />
         </div>
-        {/* Header */}
+        {/* Header - ACC-010 FIX: Larger text and textual language labels */}
         <div className="flex items-center justify-between px-4 py-3">
           <div>
-            <h2 className="text-lg font-bold text-text-baserimary">भाषा बदलें</h2>
-            <p className="text-lg text-saffron">Change Language</p>
+            <h2 className="text-[20px] font-bold text-text-primary">भाषा बदलें</h2>
+            <p className="text-[18px] text-saffron">Change Language</p>
           </div>
-          <button onClick={onClose} className="w-[56px] h-[56px] flex items-center justify-center text-saffron">
-            <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+          <button onClick={onClose} className="min-w-[56px] min-h-[56px] flex items-center justify-center text-saffron focus:ring-2 focus:ring-primary focus:outline-none">
+            <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
               <path d="M18 6L6 18M6 6l12 12" />
             </svg>
           </button>
         </div>
         {/* Search */}
         <div className="px-4 pb-3">
-          <div className="flex items-center gap-2 bg-gray-100 rounded-xl px-3 h-11">
-            <svg width="18" height="18" fill="none" stroke="#9B7B52" strokeWidth="2" viewBox="0 0 24 24">
+          <div className="flex items-center gap-2 bg-surface-muted rounded-xl px-3 h-[56px]">
+            <svg width="20" height="20" fill="none" stroke="#9B7B52" strokeWidth="2" viewBox="0 0 24 24">
               <circle cx="11" cy="11" r="8" />
               <path d="M21 21l-4.3-4.3" strokeLinecap="round" />
             </svg>
@@ -71,24 +71,24 @@ export default function LanguageBottomSheet({
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Search..."
-              className="bg-transparent flex-1 text-base text-text-baserimary placeholder-vedic-gold outline-none"
+              className="bg-transparent flex-1 text-[18px] text-text-primary placeholder-saffron outline-none"
             />
           </div>
         </div>
-        {/* Current language highlight */}
+        {/* Current language highlight - ACC-010 FIX: Larger text */}
         <div className="px-4 pb-2">
-          <div className="bg-saffron-lt border border-saffron rounded-xl px-4 py-3 flex items-center justify-between">
+          <div className="bg-saffron-lt border border-saffron rounded-xl px-4 py-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <span className="text-2xl">{currentDisplay.scriptChar}</span>
+              <span className="text-[32px]">{currentDisplay.scriptChar}</span>
               <div>
-                <p className="font-bold text-text-baserimary text-base">{currentDisplay.nativeName}</p>
-                <p className="text-lg text-saffron">{currentDisplay.latinName}</p>
+                <p className="font-bold text-text-primary text-[18px]">{currentDisplay.nativeName}</p>
+                <p className="text-[16px] text-saffron">{currentDisplay.latinName}</p>
               </div>
             </div>
-            <span className="text-saffron font-bold text-lgl">✓</span>
+            <span className="text-saffron font-bold text-[24px]">✓</span>
           </div>
         </div>
-        {/* Language grid */}
+        {/* Language grid - ACC-010 FIX: Larger text */}
         <div className="overflow-y-auto flex-1 px-4 pb-4">
           <div className="grid grid-cols-2 gap-2">
             {filtered.map(lang => {
@@ -99,31 +99,31 @@ export default function LanguageBottomSheet({
                   key={lang}
                   onClick={() => onSelect(lang)}
                   className={[
-                    'flex items-center gap-2 p-3 rounded-xl border text-left transition-colors',
+                    'flex items-center gap-2 p-4 rounded-xl border text-left transition-colors min-h-[72px]',
                     isActive
                       ? 'bg-saffron-lt border-saffron'
-                      : 'bg-white border-outline-variant',
+                      : 'bg-surface-card border-outline-variant',
                   ].join(' ')}
                 >
-                  <span className="text-lgl font-bold" style={{ color: isActive ? '#F09942' : '#2D1B00' }}>
+                  <span className="text-[28px] font-bold" style={{ color: isActive ? '#F09942' : '#2D1B00' }}>
                     {display.scriptChar}
                   </span>
                   <div>
-                    <p className={`font-semibold text-lg ${isActive ? 'text-saffron' : 'text-text-baserimary'}`}>
+                    <p className={`font-semibold text-[18px] ${isActive ? 'text-saffron' : 'text-text-primary'}`}>
                       {display.nativeName}
                     </p>
-                    <p className="text-lgs text-saffron">{display.latinName}</p>
+                    <p className="text-[16px] text-text-secondary">{display.latinName}</p>
                   </div>
                 </button>
               )
             })}
           </div>
         </div>
-        {/* Close button */}
+        {/* Close button - ACC-009 FIX: Larger touch target */}
         <div className="px-4 py-4 border-t border-outline-variant">
           <button
             onClick={onClose}
-            className="w-full h-14 border border-outline-variant rounded-btn text-text-baserimary-2 font-semibold text-lg"
+            className="w-full min-h-[56px] border border-outline-variant rounded-btn text-text-secondary font-semibold text-[18px] focus:ring-2 focus:ring-primary focus:outline-none"
           >
             बंद करें / Close
           </button>
