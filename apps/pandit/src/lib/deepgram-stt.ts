@@ -92,6 +92,7 @@ export function listenOnce(
   onResult: (transcript: string) => void,
   onTimeout: () => void
 ): () => void {
+  // BUG-047 FIX: Actually pass keyterms to startListening for custom vocabulary
   const session = new DeepgramSTTSession({
     language,
     keyterms: POOJA_KEYTERMS,

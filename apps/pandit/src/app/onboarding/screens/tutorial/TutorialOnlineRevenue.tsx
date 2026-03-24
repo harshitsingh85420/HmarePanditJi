@@ -54,7 +54,7 @@ export default function TutorialOnlineRevenue({ currentDot, onNext, onBack, onSk
             Video call से पूजा कराएं। दुनिया भर के ग्राहक मिलेंगे — NRI भी।
           </p>
           <div className="inline-flex items-center px-4 py-1.5 bg-white border border-success rounded-full">
-            <span className="text-success font-bold text-[18px]">₹2,000 – ₹5,000 <span className="text-sm font-normal text-vedic-gold">प्रति पूजा</span></span>
+            <span className="text-success font-bold text-[18px]">₹2,000 – ₹5,000 <span className="text-[16px] font-normal text-vedic-gold">प्रति पूजा</span></span>
           </div>
         </motion.div>
 

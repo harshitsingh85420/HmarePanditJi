@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { motion } from 'framer-motion'
 
@@ -27,22 +27,22 @@ export default function TopBar({
         {/* Top Row: Navigation & Controls */}
         <div className="flex items-center justify-between px-5 h-16">
           {/* Left: Back Arrow or Placeholder */}
-          <div className="w-10 h-10 flex items-center justify-center">
+          <div className="w-[56px] h-[56px] flex items-center justify-center">
             {showBack && (
               <motion.button
                 whileTap={{ scale: 0.9 }}
                 onClick={onBack}
-                className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-variant transition-colors active:scale-90 duration-150"
+                className="w-[56px] h-[56px] flex items-center justify-center rounded-full hover:bg-surface-variant transition-colors active:scale-90 duration-150"
                 aria-label="Go back"
               >
-                <span className="material-symbols-outlined text-primary">arrow_back</span>
+                <span className="material-symbols-outlined text-saffron">arrow_back</span>
               </motion.button>
             )}
           </div>
 
           {/* Center: Headline (State 2) OR empty */}
           {headline && (
-            <span className="font-headline font-bold text-primary text-lg">
+            <span className="font-headline font-bold text-saffron text-lg">
               {headline}
             </span>
           )}
@@ -52,7 +52,7 @@ export default function TopBar({
             <motion.button
               whileTap={{ scale: 0.9 }}
               onClick={onLanguageChange}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-outline-variant/30 text-primary font-medium text-sm hover:bg-primary/5 transition-colors"
+              className="flex items-center gap-2 px-3 py-3 rounded-full border border-outline-variant/30 text-saffron font-medium text-lg hover:bg-saffron/5 transition-colors"
               aria-label="Change language"
             >
               <span className="material-symbols-outlined text-[20px]">language</span>
@@ -72,12 +72,12 @@ export default function TopBar({
               return (
                 <div
                   key={i}
-                  className={`flex-1 h-1.5 rounded-full transition-all duration-300 ${isCompleted || isCurrent ? 'bg-primary-container' : 'bg-surface-variant'
+                  className={`flex-1 h-1.5 rounded-full transition-all duration-300 ${isCompleted || isCurrent ? 'bg-saffron-container' : 'bg-surface-variant'
                     }`}
                 >
                   {isCurrent && (
                     <div className="relative w-full h-full">
-                      <div className="absolute inset-[-3px] border-2 border-primary-container/40 rounded-full" />
+                      <div className="absolute inset-[-3px] border-2 border-saffron-container/40 rounded-full" />
                     </div>
                   )}
                 </div>
@@ -89,9 +89,9 @@ export default function TopBar({
         {/* Complete State Badge */}
         {showComplete && (
           <div className="px-5 pb-4">
-            <div className="flex items-center gap-2 px-4 py-1.5 bg-secondary-container/30 rounded-full w-fit">
+            <div className="flex items-center gap-2 px-4 py-3 bg-secondary-container/30 rounded-full w-fit">
               <span className="material-symbols-outlined text-secondary text-lg filled">check_circle</span>
-              <span className="font-label text-on-secondary-container font-bold text-sm">
+              <span className="font-label text-on-secondary-container font-bold text-lg">
                 Registration Complete ✅
               </span>
             </div>

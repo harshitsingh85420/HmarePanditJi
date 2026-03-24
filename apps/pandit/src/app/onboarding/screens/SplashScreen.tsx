@@ -10,9 +10,10 @@ interface SplashScreenProps {
 
 export default function SplashScreen({ onComplete, onExit }: SplashScreenProps) {
   useEffect(() => {
+    // BUG-001 FIX: Synchronized all timings to 2500ms for elderly users to see full branding
     const timer = setTimeout(() => {
       onComplete();
-    }, 4000); // UI-003 FIX: Increased from 3000ms to 4000ms for elderly users
+    }, 2500);
     return () => clearTimeout(timer);
   }, [onComplete]);
 
@@ -56,11 +57,11 @@ export default function SplashScreen({ onComplete, onExit }: SplashScreenProps) 
       {/* Loading Area */}
       <footer className="absolute bottom-[48px] w-full flex justify-center">
         <div className="w-[120px] h-[3px] bg-white/25 rounded-[2px] relative overflow-hidden">
-          {/* Progress Fill Animation - UI-003 FIX: Slower timing for elderly users */}
+          {/* Progress Fill Animation - BUG-001 FIX: Synchronized to 2500ms */}
           <motion.div
             initial={{ width: '0%' }}
             animate={{ width: '100%' }}
-            transition={{ duration: 4, ease: "easeInOut" }}
+            transition={{ duration: 2.5, ease: "easeInOut" }}
             className="absolute left-0 top-0 h-full bg-white/90 rounded-[2px]"
           />
         </div>

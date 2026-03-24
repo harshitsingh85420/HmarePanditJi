@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -35,7 +35,7 @@ export default function DashboardPage() {
     return (
       <div className="min-h-screen bg-surface-base flex flex-col items-center justify-center px-6 text-center">
         <div className="text-6xl mb-6">⏳</div>
-        <h1 className="text-2xl font-bold text-text-primary mb-4">
+        <h1 className="text-2xl font-bold text-text-saffron mb-4">
           पंजीकरण जांच रहे हैं...
         </h1>
         <p className="text-text-secondary">
@@ -48,7 +48,7 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-surface-base flex flex-col items-center justify-center px-6 text-center">
       <div className="text-6xl mb-6">🏠</div>
-      <h1 className="text-2xl font-bold text-text-primary mb-2">
+      <h1 className="text-2xl font-bold text-text-saffron mb-2">
         स्वागत है, {data.name.split(' ')[0]} जी!
       </h1>
       <p className="text-text-secondary mb-8">
@@ -57,21 +57,21 @@ export default function DashboardPage() {
 
       <div className="w-full max-w-sm space-y-4">
         <div className="bg-surface-card rounded-card p-6 shadow-card">
-          <h2 className="text-lg font-bold text-text-primary mb-4">
+          <h2 className="text-lg font-bold text-text-saffron mb-4">
             आपकी प्रोफाइल
           </h2>
-          <div className="space-y-2 text-sm text-text-secondary">
+          <div className="space-y-2 text-lg text-text-secondary">
             <div className="flex justify-between">
               <span>नाम:</span>
-              <span className="font-bold text-text-primary">{data.name}</span>
+              <span className="font-bold text-text-saffron">{data.name}</span>
             </div>
             <div className="flex justify-between">
               <span>मोबाइल:</span>
-              <span className="font-bold text-text-primary">{data.mobile}</span>
+              <span className="font-bold text-text-saffron">{data.mobile}</span>
             </div>
             <div className="flex justify-between">
               <span>शहर:</span>
-              <span className="font-bold text-text-primary">{data.city || 'Not set'}</span>
+              <span className="font-bold text-text-saffron">{data.city || 'Not set'}</span>
             </div>
           </div>
         </div>

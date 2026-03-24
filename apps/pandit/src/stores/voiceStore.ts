@@ -30,51 +30,105 @@ interface VoiceStore {
   reset: () => void
 }
 
-export const useVoiceStore = create<VoiceStore>((set, get) => ({
-  state: 'idle',
-  transcribedText: '',
-  confidence: 0,
-  currentQuestion: '',
-  errorCount: 0,
-  ambientNoiseLevel: 0,
-  isKeyboardMode: false,
-
-  setState: (voiceState) => {
-    set({ state: voiceState })
-    if (voiceState === 'error_3') {
-      set({ isKeyboardMode: true })
-    }
-  },
-
-  setTranscribedText: (text) => set({ transcribedText: text }),
-  setConfidence: (confidence) => set({ confidence }),
-  setCurrentQuestion: (question) => set({ currentQuestion: question }),
-
-  incrementError: () => {
-    const newCount = get().errorCount + 1
-    set({ errorCount: newCount })
-    if (newCount === 1) set({ state: 'error_1' })
-    else if (newCount === 2) set({ state: 'error_2' })
-    else if (newCount >= 3) {
-      set({ state: 'error_3', isKeyboardMode: true })
-    }
-  },
-
-  resetErrors: () => set({ errorCount: 0, state: 'idle' }),
-
-  setAmbientNoise: (level) => set({ ambientNoiseLevel: level }),
-
-  switchToKeyboard: () => set({ isKeyboardMode: true, state: 'keyboard' }),
-
-  switchToVoice: () => {
-    set({ isKeyboardMode: false, state: 'idle', errorCount: 0 })
-  },
-
-  reset: () => set({
+// SSR-safe store creation
+const createStore = () =>
+  create<VoiceStore>((set, get) => ({
     state: 'idle',
     transcribedText: '',
     confidence: 0,
+    currentQuestion: '',
     errorCount: 0,
+    ambientNoiseLevel: 0,
     isKeyboardMode: false,
-  }),
-}))
+
+    setState: (voiceState) => {
+      set({ state: voiceState })
+      if (voiceState === 'error_3') {
+        set({ isKeyboardMode: true })
+      }
+    },
+
+    setTranscribedText: (text) => set({ transcribedText: text }),
+    setConfidence: (confidence) => set({ confidence }),
+    setCurrentQuestion: (question) => set({ currentQuestion: question }),
+
+    incrementError: () => {
+      const newCount = get().errorCount + 1
+      set({ errorCount: newCount })
+      if (newCount === 1) set({ state: 'error_1' })
+      else if (newCount === 2) set({ state: 'error_2' })
+      else if (newCount >= 3) {
+        set({ state: 'error_3', isKeyboardMode: true })
+      }
+    },
+
+    resetErrors: () => set({ errorCount: 0, state: 'idle' }),
+
+    setAmbientNoise: (level) => set({ ambientNoiseLevel: level }),
+
+    switchToKeyboard: () => set({ isKeyboardMode: true, state: 'keyboard' }),
+
+    switchToVoice: () => {
+      set({ isKeyboardMode: false, state: 'idle', errorCount: 0 })
+    },
+
+    reset: () => set({
+      state: 'idle',
+      transcribedText: '',
+      confidence: 0,
+      errorCount: 0,
+      isKeyboardMode: false,
+    }),
+  }))
+
+// SSR-safe store instance
+let store: ReturnType<typeof createStore> | null = null
+
+const getStore = () => {
+  if (typeof window === 'undefined') {
+    // Return a mock store for SSR
+    return {
+      getState: () => ({
+        state: 'idle' as VoiceState,
+        transcribedText: '',
+        confidence: 0,
+        currentQuestion: '',
+        errorCount: 0,
+        ambientNoiseLevel: 0,
+        isKeyboardMode: false,
+        setState: () => { },
+        setTranscribedText: () => { },
+        setConfidence: () => { },
+        setCurrentQuestion: () => { },
+        incrementError: () => { },
+        resetErrors: () => { },
+        setAmbientNoise: () => { },
+        switchToKeyboard: () => { },
+        switchToVoice: () => { },
+        reset: () => { },
+      }),
+      setState: () => { },
+      subscribe: () => () => { },
+      destroy: () => { },
+    }
+  }
+  if (!store) {
+    store = createStore()
+  }
+  return store
+}
+
+export const useVoiceStore = ((...args: Parameters<typeof createStore>) => {
+  const store = getStore()
+  return store(...args)
+}) as typeof createStore
+
+// SSR-safe getter for ambient noise level
+export function getAmbientNoiseLevel(): number {
+  if (typeof window === 'undefined') return 0
+  try {
+    return getStore().getState().ambientNoiseLevel
+  } catch {
+    return 0
+  }
+}

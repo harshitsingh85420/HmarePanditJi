@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
@@ -23,14 +23,20 @@ export default function LocationPermissionScreen({
 }: LocationPermissionScreenProps) {
 
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const isMountedRef = React.useRef(true);
 
   useEffect(() => {
+    isMountedRef.current = true;
     // 500ms delay to speak the prompt
     const timer = setTimeout(() => {
-      speak("Namaste Pandit Ji. Main aapka shehar jaanna chahta hoon...", 'hi-IN');
+      if (isMountedRef.current) {
+        speak("Namaste Pandit Ji. Main aapka shehar jaanna chahta hoon...", 'hi-IN');
+      }
     }, 500);
 
     return () => {
+      isMountedRef.current = false;
       clearTimeout(timer);
       stopSpeaking();
     };
@@ -38,8 +44,9 @@ export default function LocationPermissionScreen({
 
   const handleAllowClick = () => {
     setLoading(true);
+    setError(null);
     if (!navigator.geolocation) {
-      alert("Geolocation is not supported by your browser");
+      setError("Geolocation is not supported by your browser");
       onDenied();
       return;
     }
@@ -58,12 +65,23 @@ export default function LocationPermissionScreen({
           onGranted(city, stateStr);
         } catch (e) {
           console.error(e);
-          onDenied();
+          // BUG-007 FIX: Show user-friendly error with auto-navigation to manual entry
+          setError('शहर पहचानने में समस्या हुई। कृपया हाथ से चुनें।');
+          // Auto-navigate to manual entry after 2 seconds
+          setTimeout(() => {
+            onDenied();
+          }, 2000);
+        } finally {
+          setLoading(false);
         }
       },
       (error) => {
         console.warn("Location denied:", error);
-        onDenied();
+        setError('लोकेशन अनुमति नहीं दी गई। कृपया हाथ से चुनें।');
+        // Auto-navigate to manual entry after 2 seconds
+        setTimeout(() => {
+          onDenied();
+        }, 2000);
       },
       {
         enableHighAccuracy: true,
@@ -74,17 +92,18 @@ export default function LocationPermissionScreen({
   };
 
   return (
-    <main className="relative mx-auto min-h-dvh w-full flex flex-col bg-vedic-cream">
+    <main className="relative mx-auto min-h-dvh w-full flex flex-col bg-surface-base">
       {/* TopBar Component Reference */}
-      <div className="h-[56px] px-4 flex items-center justify-between border-b border-vedic-border sticky top-0 bg-vedic-cream z-50">
+      <div className="h-[56px] px-4 flex items-center justify-between border-b border-outline-variant sticky top-0 bg-surface-base z-50">
         <div className="flex items-center gap-2">
           {showBack && onBack && (
             <button
               onClick={onBack}
-              className="w-10 h-10 flex items-center justify-center text-vedic-gold rounded-full active:bg-black/5"
+              // ACC-001 FIX: Increased to 48x48px, ACC-008 FIX: Added focus indicators
+              className="w-[52px] h-[52px] flex items-center justify-center text-saffron rounded-full active:bg-black/5 focus:ring-2 focus:ring-primary focus:outline-none"
               aria-label="Go back"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
             </button>
@@ -92,18 +111,24 @@ export default function LocationPermissionScreen({
           {!showBack && (
             <button
               onClick={() => { }}
-              className="w-10 h-10 flex items-center justify-center text-vedic-gold rounded-full active:bg-black/5"
+              // ACC-001 FIX: Increased to 48x48px, ACC-008 FIX: Added focus indicators
+              className="w-[52px] h-[52px] flex items-center justify-center text-saffron rounded-full active:bg-black/5 focus:ring-2 focus:ring-primary focus:outline-none"
               aria-label="Exit"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           )}
-          <span className="text-[20px] text-primary">ॐ</span>
-          <h1 className="text-[18px] font-semibold text-vedic-brown">HmarePanditJi</h1>
+          <span className="text-[24px] text-saffron">ॐ</span>
+          <h1 className="text-[18px] font-semibold text-text-baserimary">HmarePanditJi</h1>
         </div>
-        <button onClick={onLanguageChange} className="text-[24px] text-vedic-gold">
+        {/* ACC-009 FIX: Larger language switcher with focus indicator */}
+        <button
+          onClick={onLanguageChange}
+          className="w-[56px] h-[56px] flex items-center justify-center text-[28px] text-saffron rounded-full active:opacity-50 focus:ring-2 focus:ring-primary focus:outline-none"
+          aria-label="Change language / भाषा बदलें"
+        >
           🌐
         </button>
       </div>
@@ -112,7 +137,7 @@ export default function LocationPermissionScreen({
       <section className="mt-4 px-4 flex justify-center">
         <div className="w-[358px] h-[160px] relative flex flex-col items-center justify-center bg-transparent">
           {/* Background Circle */}
-          <div className="absolute w-[140px] h-[140px] bg-primary-lt rounded-full"></div>
+          <div className="absolute w-[140px] h-[140px] bg-saffron-lt rounded-full"></div>
           {/* Minimal India Map SVG path mock */}
           <svg className="relative z-10 w-32 h-32" fill="none" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
             <path d="M50 5L60 15L75 20L85 35L80 55L65 75L50 95L35 75L20 55L15 35L25 20L40 15L50 5Z" fill="#FAF0E6" stroke="#F0E6D3" strokeWidth="1"></path>
@@ -122,10 +147,10 @@ export default function LocationPermissionScreen({
           <div className="absolute top-[35%] left-[50%] -translate-x-1/2 -translate-y-1/2 z-20">
             {/* Pulse Rings */}
             <div className="absolute top-8 left-1/2 -translate-x-1/2">
-              <motion.div animate={{ scale: [0.8, 1.5], opacity: [0.6, 0] }} transition={{ duration: 3, repeat: Infinity, ease: 'easeOut' }} className="absolute w-8 h-8 -translate-x-1/2 -translate-y-1/2 rounded-full border border-primary"></motion.div>
+              <motion.div animate={{ scale: [0.8, 1.5], opacity: [0.6, 0] }} transition={{ duration: 3, repeat: Infinity, ease: 'easeOut' }} className="absolute w-8 h-[52px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-saffron"></motion.div>
             </div>
 
-            <motion.svg initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.6 }} className="w-8 h-8 text-primary" fill="currentColor" viewBox="0 0 24 24">
+            <motion.svg initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.6 }} className="w-8 h-[52px] text-saffron" fill="currentColor" viewBox="0 0 24 24">
               <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"></path>
             </motion.svg>
           </div>
@@ -134,25 +159,25 @@ export default function LocationPermissionScreen({
 
       {/* TitleSection */}
       <section className="mt-4 px-4">
-        <h2 className="text-[26px] font-bold text-vedic-brown leading-tight">
+        <h2 className="text-[26px] font-bold text-text-baserimary leading-tight">
           आपका शहर जानना क्यों ज़रूरी है?
         </h2>
       </section>
 
       {/* ContentBody */}
       <section className="px-4 flex-grow">
-        <hr className="my-6 border-vedic-border" />
+        <hr className="my-6 border-outline-variant" />
         {/* Benefit Rows */}
         <div className="space-y-6">
           {[{ title: 'आपकी भाषा खुद सेट हो जाएगी', desc: 'टाइपिंग की ज़रूरत नहीं' },
           { title: 'आपके शहर की पूजाएं मिलेंगी', desc: 'दूर-दराज़ की नहीं' },
           { title: 'ग्राहक आपको ढूंढ पाएंगे', desc: 'नए ग्राहक, नई आमदनी' }].map((item, idx) => (
             <motion.div key={idx} initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 * (idx + 1) }} className="flex items-start gap-4">
-              <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary flex items-center justify-center mt-1">
-                <span className="text-white text-xs">✓</span>
+              <div className="flex-shrink-0 w-6 h-6 rounded-full bg-saffron flex items-center justify-center mt-1">
+                <span className="text-white text-lgs">✓</span>
               </div>
               <div>
-                <h3 className="text-[20px] font-bold text-vedic-brown">{item.title}</h3>
+                <h3 className="text-[20px] font-bold text-text-baserimary">{item.title}</h3>
                 <p className="text-[18px] font-semibold text-text-secondary">{item.desc}</p>
               </div>
             </motion.div>
@@ -169,15 +194,42 @@ export default function LocationPermissionScreen({
       </section>
 
       {/* FooterButtons */}
-      <footer className="p-4 space-y-4 mb-4">
+      <footer className="p-6 space-y-4 mb-6">
+        {/* UX-009 FIX: Error banner with aria-live for screen readers */}
+        {error && (
+          <div
+            role="alert"
+            aria-live="polite"
+            className="w-full bg-error-red-bg border-2 border-error-red rounded-xl p-4 flex items-center gap-3"
+          >
+            <span className="text-[24px]">⚠️</span>
+            <p className="text-[16px] font-semibold text-error-red">{error}</p>
+          </div>
+        )}
+
         <button
           onClick={handleAllowClick}
           disabled={loading}
-          className="w-full bg-primary text-white py-4 rounded-xl text-[18px] font-bold active:scale-[0.98] transition-transform shadow-md"
+          // ACC-001 FIX: Increased height to 56px, ACC-008 FIX: Added focus indicators
+          className="w-full bg-saffron text-white py-4 rounded-xl text-[18px] font-bold active:scale-[0.98] transition-transform shadow-md focus:ring-2 focus:ring-primary focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {loading ? 'लोकेशन जांची जा रही है...' : '✅ हाँ, मेरा शहर जानें'}
+          {loading ? (
+            <span className="flex items-center justify-center gap-2">
+              <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+              लोकेशन जांची जा रही है...
+            </span>
+          ) : (
+            '✅ हाँ, मेरा शहर जानें'
+          )}
         </button>
-        <button onClick={onDenied} className="w-full text-vedic-gold text-[16px] font-medium text-center block active:opacity-75">
+        <button
+          onClick={onDenied}
+          // ACC-001 FIX: Increased touch target, ACC-008 FIX: Added focus indicators
+          className="w-full text-saffron text-[18px] font-medium text-center block active:opacity-75 py-3 focus:ring-2 focus:ring-primary focus:outline-none rounded-lg"
+        >
           छोड़ें — हाथ से भरूँगा
         </button>
       </footer>

@@ -28,7 +28,13 @@
     "visual:regression": "node scripts/visual-test.js --regression",
     "antigravity:setup": "node scripts/setup-antigravity.js",
     "continue:config": "code .continue-config.json && echo \"Now copy this config to Continue (Ctrl+Shift+P → Continue: Open Config)\"",
-    "ask-deepseek": "node scripts/ask-deepseek.js"
+    "ask-deepseek": "node scripts/ask-deepseek.js",
+    "auto:fix": "node scripts/auto-fix-loop-free.js",
+    "auto:fix:dry": "node scripts/auto-fix-loop-free.js --dry-run",
+    "auto:fix:restore": "node scripts/restore-backup.js",
+    "auto:fix:list": "node scripts/restore-backup.js --list",
+    "auto:fix:setup": "node scripts/auto-fix-loop-free.js --help",
+    "manual:fix": "node scripts/manual-handoff.js"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^7.0.0",

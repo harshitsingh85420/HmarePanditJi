@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 interface KeyboardToggleProps {
   onClick: () => void
@@ -8,7 +8,7 @@ export default function KeyboardToggle({ onClick }: KeyboardToggleProps) {
   return (
     <button
       onClick={onClick}
-      className="flex items-center gap-1 text-vedic-gold text-sm py-2 px-2 min-h-[44px]"
+      className="flex items-center gap-1 text-saffron text-lg py-3 px-2 min-h-[44px]"
       aria-label="Use keyboard instead"
     >
       <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">

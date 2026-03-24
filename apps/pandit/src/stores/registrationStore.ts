@@ -81,14 +81,14 @@ interface RegistrationStore {
   syncFromStorage: () => void
 }
 
-const STEP_ORDER: RegistrationStep[] = [
-  'language', 'welcome', 'mic_permission', 'location_permission',
-  'notification_permission', 'mobile', 'otp', 'profile', 'complete'
-]
-
 const REGISTRATION_STEPS: RegistrationStep[] = [
   'mobile', 'otp', 'profile', 'complete'
 ]
+
+// STEP_ORDER: RegistrationStep[] = [  // ARCH-001 FIX: Commented out unused constant
+//   'language', 'welcome', 'mic_permission', 'location_permission',
+//   'notification_permission', 'mobile', 'otp', 'profile', 'complete'
+// ]
 
 const initialData: RegistrationData = {
   language: 'hi',

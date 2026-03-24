@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
@@ -67,10 +67,10 @@ export default function HomePage() {
       {/* Top Bar */}
       <header className="sticky top-0 z-50 bg-surface-base">
         <div className="flex items-center justify-between px-6 py-4">
-          <h1 className="font-serif text-xl font-bold text-primary tracking-tight">
+          <h1 className="font-serif text-lgl font-bold text-saffron tracking-tight">
             HmarePanditJi 🪔
           </h1>
-          <button className="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-lowest shadow-sm text-primary transition-transform active:scale-90">
+          <button className="w-[56px] h-[56px] flex items-center justify-center rounded-full bg-surface-container-lowest shadow-sm text-saffron transition-transform active:scale-90">
             <span className="material-symbols-outlined">language</span>
           </button>
         </div>
@@ -87,14 +87,14 @@ export default function HomePage() {
         >
           <motion.h2
             variants={itemVariants}
-            className="font-headline text-3xl font-bold text-on-surface leading-tight mb-4 font-devanagari text-center"
+            className="font-headline text-basexl font-bold text-on-surface leading-tight mb-4 font-devanagari text-center"
           >
             पंडित जी का वक्त पूजा में लगे, बाकी सब हम सँभालेंगे
           </motion.h2>
 
           <motion.p
             variants={itemVariants}
-            className="text-primary font-medium text-lg font-devanagari text-center"
+            className="text-saffron font-medium text-lg font-devanagari text-center"
           >
             आपकी आध्यात्मिक यात्रा का डिजिटल साथी
           </motion.p>
@@ -111,8 +111,8 @@ export default function HomePage() {
             <div className="flex items-center gap-3">
               <span className="material-symbols-outlined text-trust-green">schedule</span>
               <div className="text-left">
-                <p className="text-trust-green font-bold text-sm">पंजीकरण जारी रखें</p>
-                <p className="text-text-secondary text-xs">{data.completedSteps.length} चरण पूरे हुए</p>
+                <p className="text-trust-green font-bold text-lg">पंजीकरण जारी रखें</p>
+                <p className="text-text-secondary text-lgs">{data.completedSteps.length} चरण पूरे हुए</p>
               </div>
             </div>
             <span className="material-symbols-outlined text-trust-green">arrow_forward</span>
@@ -133,11 +133,11 @@ export default function HomePage() {
               onClick={handleCustomerEntry}
               className="w-full relative overflow-hidden p-8 rounded-3xl bg-indigo-tint border border-indigo-border shadow-sm flex flex-col items-center justify-center text-center active:scale-[0.98] transition-all"
             >
-              <div className="mb-4 text-5xl">🙏</div>
+              <div className="mb-4 text-lgxl">🙏</div>
               <h2 className="text-2xl font-bold text-indigo-text font-devanagari mb-2">
                 मुझे पंडित चाहिए
               </h2>
-              <p className="text-indigo-text/80 text-sm">Find verified priests for your rituals</p>
+              <p className="text-indigo-text/80 text-lg">Find verified priests for your rituals</p>
               <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-indigo-tint rounded-full blur-2xl" />
             </motion.button>
           </motion.div>
@@ -150,13 +150,13 @@ export default function HomePage() {
               className="w-full relative overflow-hidden p-8 rounded-3xl bg-surface-card shadow-[0px_8px_24px_rgba(144,77,0,0.08)] flex flex-col items-center justify-center text-center border-l-4 border-saffron active:scale-[0.98] transition-all"
             >
               {/* Badge */}
-              <div className="absolute top-4 right-4 bg-trust-green-bg text-trust-green px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+              <div className="absolute top-4 right-4 bg-trust-green-bg text-trust-green px-3 py-1 rounded-full text-lgs font-bold flex items-center gap-1">
                 <span className="w-2 h-2 rounded-full bg-trust-green" />
                 Joining free
               </div>
 
-              <div className="mb-4 text-5xl">🪔</div>
-              <h2 className="text-2xl font-bold text-text-primary font-devanagari mb-6">
+              <div className="mb-4 text-lgxl">🪔</div>
+              <h2 className="text-2xl font-bold text-text-saffron font-devanagari mb-6">
                 क्या आप एक पंडित हैं?
               </h2>
 
@@ -164,7 +164,7 @@ export default function HomePage() {
                 <span className="font-bold text-lg">Pandit Ke Roop Mein Judein 🪔</span>
               </button>
 
-              <p className="mt-4 text-text-secondary text-sm font-devanagari">
+              <p className="mt-4 text-text-secondary text-lg font-devanagari">
                 पंजीकरण में मात्र २ मिनट लगेंगे
               </p>
             </motion.button>
@@ -187,7 +187,7 @@ export default function HomePage() {
 
           {/* Help & Support Section */}
           <div className="flex flex-col items-center bg-surface-muted w-full py-4 rounded-2xl gap-1">
-            <span className="text-xs text-text-secondary uppercase tracking-widest font-bold">
+            <span className="text-lgs text-text-secondary uppercase tracking-widest font-bold">
               Help & Support
             </span>
             <div className="flex items-center gap-2 text-saffron">

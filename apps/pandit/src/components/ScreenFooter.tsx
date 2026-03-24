@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import VoiceIndicator from './VoiceIndicator'
@@ -19,9 +19,15 @@ export default function ScreenFooter({
   const [isMicOff, setIsMicOff] = useState(false)
 
   useEffect(() => {
-    // Sync with global mic state
+    // Sync with global mic state on mount
     setIsMicOff(getManualMicOff())
-  }, [])
+
+    // P1 FIX: Also sync when isListening changes (mic state sync issue)
+    if (isListening && isMicOff) {
+      setIsMicOff(false)
+      setManualMicOff(false)
+    }
+  }, [isListening, isMicOff])
 
   const toggleMic = () => {
     const newState = !isMicOff
@@ -38,7 +44,7 @@ export default function ScreenFooter({
           <div className="flex items-center gap-3">
             {isListening && <VoiceIndicator isListening={isListening} />}
             {isMicOff && (
-              <div className="flex items-center gap-1.5 text-error text-sm font-medium">
+              <div className="flex items-center gap-1.5 text-error text-lg font-medium">
                 <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
                   <line x1="1" y1="1" x2="23" y2="23" />
                   <path d="M9 9v3a3 3 0 005.12 2.12M15 9.34V4a3 3 0 00-5.94-.6" />
@@ -59,9 +65,9 @@ export default function ScreenFooter({
               type="button"
               onClick={toggleMic}
               aria-label={isMicOff ? 'Turn microphone on' : 'Turn microphone off'}
-              className={`flex items-center gap-1 text-sm py-2 px-2 min-h-[44px] rounded-lg transition-colors ${isMicOff
-                  ? 'bg-error/10 text-error'
-                  : 'bg-vedic-border/20 text-vedic-gold'
+              className={`flex items-center gap-1 text-lg py-3 px-2 min-h-[44px] rounded-lg transition-colors ${isMicOff
+                ? 'bg-error/10 text-error'
+                : 'bg-vedic-border/20 text-saffron'
                 }`}
             >
               {isMicOff ? (

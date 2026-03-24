@@ -36,6 +36,9 @@ export function ConfirmationSheet({
 
     setState('confirming')
 
+    // BUG-014 CRITICAL FIX: Removed auto-confirm after silence
+    // Auto-confirm was dangerous - user could get distracted and wrong data confirmed
+    // Now user MUST explicitly click "हाँ, सही है" to confirm
     const interval = setInterval(() => {
       setCountdown(prev => {
         const next = prev - 1
@@ -43,11 +46,9 @@ export function ConfirmationSheet({
 
         if (next <= 0) {
           clearInterval(interval)
-          // 2-second silence gate before confirming
-          setTimeout(() => {
-            onConfirm()
-            setState('idle')
-          }, 2000)
+          // BUG-014 FIX: Do NOT auto-confirm - just reset to idle state
+          // User must explicitly confirm by clicking the button
+          setState('idle')
           return 0
         }
         return next
@@ -55,7 +56,7 @@ export function ConfirmationSheet({
     }, 1000)
 
     return () => clearInterval(interval)
-  }, [isVisible, autoConfirmSeconds, onConfirm, setState])
+  }, [isVisible, autoConfirmSeconds, setState])  // BUG: Removed `countdown` dependency - causes re-render every second
 
   const showLowConfidence = confidence > 0 && confidence < 0.80
 

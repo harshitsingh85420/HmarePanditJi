@@ -71,13 +71,13 @@ export default function TutorialDakshina({ currentDot, onNext, onBack, onSkip, l
           <div className="flex flex-col gap-2 text-left">
             <div className="flex items-start gap-2">
               <span className="text-xl">😒</span>
-              <div className="bg-white px-3 py-1.5 rounded-lg rounded-tl-none shadow-sm text-sm border border-red-100">
+              <div className="bg-white px-3 py-1.5 rounded-lg rounded-tl-none shadow-sm text-[16px] border border-red-100">
                 &quot;1,500 में हो जाएगा?&quot;
               </div>
             </div>
             <div className="flex items-start gap-2 self-end flex-row-reverse">
               <span className="text-xl">😔</span>
-              <div className="bg-white/60 px-3 py-1.5 rounded-lg rounded-tr-none shadow-sm text-sm italic border border-red-100">
+              <div className="bg-white/60 px-3 py-1.5 rounded-lg rounded-tr-none shadow-sm text-[16px] italic border border-red-100">
                 (चुप रह गए...)
               </div>
             </div>
@@ -100,9 +100,9 @@ export default function TutorialDakshina({ currentDot, onNext, onBack, onSkip, l
               <span className="font-bold text-vedic-brown text-[18px]">सत्यनारायण पूजा</span>
             </div>
             <div className="text-success font-bold text-[24px]">आपकी दक्षिणा: ₹2,100</div>
-            <div className="text-xs text-vedic-gold">(पहले से तय)</div>
+            <div className="text-[16px] text-vedic-gold">(पहले से तय)</div>
           </div>
-          <footer className="mt-2 text-sm font-medium text-green-800 text-left">
+          <footer className="mt-2 text-[16px] font-medium text-green-800 text-left">
             ग्राहक को Booking से पहले ही पता है।
           </footer>
         </motion.article>

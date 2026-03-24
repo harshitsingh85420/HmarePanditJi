@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 interface VoiceIndicatorProps {
   isListening: boolean
@@ -19,7 +19,7 @@ export default function VoiceIndicator({
         <div className="voice-bar" style={{ animationDelay: '0.2s' }} />
         <div className="voice-bar" style={{ animationDelay: '0.4s' }} />
       </div>
-      <span className="text-vedic-gold text-sm">{label}</span>
+      <span className="text-saffron text-lg">{label}</span>
     </div>
   )
 }

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -127,7 +127,7 @@ export default function ProfileDetails() {
       <header className="flex items-center gap-2 mb-8">
         <button
           onClick={handleBack}
-          className="w-10 h-10 flex items-center justify-center text-vedic-gold rounded-full active:bg-black/5"
+          className="w-[56px] h-[56px] flex items-center justify-center text-saffron rounded-full active:bg-black/5"
           aria-label="Go back"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -135,7 +135,7 @@ export default function ProfileDetails() {
           </svg>
         </button>
         <span className="text-2xl text-saffron">ॐ</span>
-        <span className="text-lg font-bold text-text-primary">HmarePanditJi</span>
+        <span className="text-lg font-bold text-text-lgrimary">HmarePanditJi</span>
       </header>
 
       {/* Progress */}
@@ -149,7 +149,7 @@ export default function ProfileDetails() {
             />
           ))}
         </div>
-        <p className="text-center text-sm text-text-secondary">
+        <p className="text-center text-lg text-text-secondary">
           Step 3 of 3
         </p>
       </div>
@@ -162,11 +162,11 @@ export default function ProfileDetails() {
           animate={{ scale: 1, opacity: 1 }}
           className="w-24 h-24 bg-saffron-light rounded-full flex items-center justify-center mb-6 mx-auto"
         >
-          <span className="text-4xl">👤</span>
+          <span className="text-lgxl">👤</span>
         </motion.div>
 
         {/* Title */}
-        <h1 className="text-2xl font-bold text-text-primary text-center mb-2">
+        <h1 className="text-2xl font-bold text-text-lgrimary text-center mb-2">
           आपका नाम
         </h1>
         <p className="text-text-secondary text-center mb-8">
@@ -180,10 +180,10 @@ export default function ProfileDetails() {
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             placeholder="पंडित राम कुमार शर्मा"
-            className="w-full h-16 px-4 text-xl border-2 border-border-default rounded-btn focus:border-saffron focus:outline-none bg-surface-card"
+            className="w-full h-16 px-4 text-lgl border-2 border-border-default rounded-btn focus:border-saffron focus:outline-none bg-surface-card"
           />
           {error && (
-            <p className="mt-2 text-sm text-error-red">{error}</p>
+            <p className="mt-2 text-lg text-error-red">{error}</p>
           )}
         </div>
 
@@ -195,7 +195,7 @@ export default function ProfileDetails() {
               <div className="w-1.5 bg-saffron rounded-full animate-voice-bar-2" />
               <div className="w-1.5 bg-saffron rounded-full animate-voice-bar-3" />
             </div>
-            <span className="text-saffron text-sm">सुन रहा हूँ...</span>
+            <span className="text-saffron text-lg">सुन रहा हूँ...</span>
           </div>
         )}
 
@@ -210,7 +210,7 @@ export default function ProfileDetails() {
       </div>
 
       {/* Footer hint */}
-      <p className="pb-8 text-center text-sm text-text-placeholder">
+      <p className="pb-8 text-center text-lg text-text-lglaceholder">
         🎤 &quot;नाम बोलें&quot; या &quot;पीछे जाएं&quot; बोलें
       </p>
     </main>

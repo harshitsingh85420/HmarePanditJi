@@ -32,7 +32,8 @@ export const useUIStore = create<UIStore>()((set) => ({
   setOnline: (isOnline) => {
     set({ isOnline, showNetworkBanner: !isOnline })
     if (isOnline) {
-      setTimeout(() => set({ showNetworkBanner: false }), 2000)
+      // BUG-016 FIX: Increased from 2000ms to 5000ms for elderly users to read
+      setTimeout(() => set({ showNetworkBanner: false }), 5000)
     }
   },
 

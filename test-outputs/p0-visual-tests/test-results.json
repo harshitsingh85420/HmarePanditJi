@@ -1,0 +1,14 @@
+{
+  "passed": [
+    "TEST #2: TTS Error Handling - App doesn't freeze on TTS failure"
+  ],
+  "failed": [
+    "TEST #1: Mobile Number Persistence - Number lost after back navigation",
+    "TEST #4: Splash Timing - Error: Waiting failed: 30000ms exceeded",
+    "TEST #5: Language Globe Button - Missing on some screens"
+  ],
+  "warnings": [
+    "TEST #3: OTP Language - Manual verification required"
+  ],
+  "screenshots": []
+}

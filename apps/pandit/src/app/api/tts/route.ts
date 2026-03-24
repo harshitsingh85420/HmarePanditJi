@@ -6,7 +6,82 @@ import { NextRequest, NextResponse } from 'next/server';
 // Uses server-side SARVAM_API_KEY (never exposed to browser)
 // ─────────────────────────────────────────────────────────────
 
+// BUG-048 FIX: Simple in-memory rate limiting (10 requests per minute per IP)
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+
+function checkRateLimit(ip: string): { allowed: boolean; remaining: number } {
+  const now = Date.now();
+  const windowMs = 60 * 1000; // 1 minute window
+  const maxRequests = 10;
+
+  const limit = rateLimitMap.get(ip) || { count: 0, resetTime: now + windowMs };
+
+  if (now > limit.resetTime) {
+    // Reset window
+    limit.count = 1;
+    limit.resetTime = now + windowMs;
+  } else if (limit.count >= maxRequests) {
+    return { allowed: false, remaining: 0 };
+  } else {
+    limit.count += 1;
+  }
+
+  rateLimitMap.set(ip, limit);
+  return { allowed: true, remaining: maxRequests - limit.count };
+}
+
+// BUG-049 FIX: Retry logic with exponential backoff
+async function fetchWithRetry(
+  url: string,
+  options: RequestInit,
+  maxRetries = 2
+): Promise<Response> {
+  let lastError: Error | null = null;
+
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const response = await fetch(url, options);
+
+      if (response.ok) {
+        return response;
+      }
+
+      // Don't retry on client errors (4xx)
+      if (response.status >= 400 && response.status < 500) {
+        return response;
+      }
+
+      lastError = new Error(`Attempt ${attempt + 1} failed with status ${response.status}`);
+      console.warn(`[TTS Route] Retry attempt ${attempt + 1}/${maxRetries} failed:`, lastError.message);
+
+      // Exponential backoff: 500ms, 1000ms
+      if (attempt < maxRetries) {
+        await new Promise(resolve => setTimeout(resolve, 500 * Math.pow(2, attempt)));
+      }
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error('Unknown error');
+
+      if (attempt < maxRetries) {
+        await new Promise(resolve => setTimeout(resolve, 500 * Math.pow(2, attempt)));
+      }
+    }
+  }
+
+  throw lastError || new Error('All retry attempts failed');
+}
+
 export async function POST(request: NextRequest) {
+  // BUG-048 FIX: Rate limiting
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown';
+  const rateLimit = checkRateLimit(ip);
+
+  if (!rateLimit.allowed) {
+    return NextResponse.json(
+      { error: 'Rate limit exceeded. Please try again later.' },
+      { status: 429 }
+    );
+  }
+
   // Rate limit check (basic)
   const body = await request.json() as {
     text?: string;
@@ -36,7 +111,8 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const sarvamResponse = await fetch('https://api.sarvam.ai/text-to-speech', {
+    // BUG-049 FIX: Use retry logic for TTS fetch
+    const sarvamResponse = await fetchWithRetry('https://api.sarvam.ai/text-to-speech', {
       method: 'POST',
       headers: {
         'api-subscription-key': apiKey,

@@ -78,6 +78,13 @@ function OnboardingContent() {
     setIsMounted(true)
   }, [searchParams])
 
+  // BUG-007 FIX: Handle navigation to registration when phase changes
+  useEffect(() => {
+    if (state.phase === 'REGISTRATION' && state.tutorialCompleted) {
+      router.push('/mobile')
+    }
+  }, [state.phase, state.tutorialCompleted, router])
+
   const updateState = useCallback((updates: Partial<OnboardingState>) => {
     setState(prev => {
       const next = { ...prev, ...updates }
@@ -93,97 +100,26 @@ function OnboardingContent() {
     updateState({ phase })
   }, [updateState])
 
-  const handleLocationGranted = useCallback((city: string, stateStr: string) => {
-    const detectedLanguage = detectLanguageFromCity(city)
-    updateState({
-      detectedCity: city,
-      detectedState: stateStr,
-      selectedLanguage: detectedLanguage,
-      phase: 'LANGUAGE_CONFIRM',
-    })
-  }, [updateState])
-
-  const handleLocationDenied = useCallback(() => {
-    goToPhase('MANUAL_CITY')
-  }, [goToPhase])
-
-  const handleCitySelected = useCallback((city: string) => {
-    const detectedLanguage = detectLanguageFromCity(city)
-    updateState({
-      detectedCity: city,
-      selectedLanguage: detectedLanguage,
-      phase: 'LANGUAGE_CONFIRM',
-    })
-  }, [updateState])
-
-  const handleLanguageConfirmed = useCallback(() => {
-    updateState({
-      languageConfirmed: true,
-      phase: 'LANGUAGE_SET',
-    })
-  }, [updateState])
-
-  const handleLanguageChangeRequested = useCallback(() => {
-    goToPhase('LANGUAGE_LIST')
-  }, [goToPhase])
-
-  const handleLanguageSelected = useCallback((language: SupportedLanguage) => {
-    updateState({
-      pendingLanguage: language,
-      phase: 'LANGUAGE_CHOICE_CONFIRM',
-    })
-  }, [updateState])
-
-  const handleLanguageChoiceConfirmed = useCallback(() => {
-    if (state.pendingLanguage) {
-      updateState({
-        selectedLanguage: state.pendingLanguage,
-        pendingLanguage: null,
-        languageConfirmed: true,
-        phase: 'LANGUAGE_SET',
-      })
-    }
-  }, [state.pendingLanguage, updateState])
-
-  const handleLanguageChoiceRejected = useCallback(() => {
-    updateState({ pendingLanguage: null, phase: 'LANGUAGE_LIST' })
-  }, [updateState])
-
-  const handleLanguageSetComplete = useCallback(() => {
-    // After celebration screen
-    if (state.firstEverOpen && !state.voiceTutorialSeen) {
-      updateState({
-        voiceTutorialSeen: true,
-        phase: 'VOICE_TUTORIAL',
-      })
-    } else {
-      updateState({ phase: 'TUTORIAL_SWAGAT' })
-    }
-  }, [state.firstEverOpen, state.voiceTutorialSeen, updateState])
-
-  const handleVoiceTutorialComplete = useCallback(() => {
-    updateState({ phase: 'TUTORIAL_SWAGAT', tutorialStarted: true })
-  }, [updateState])
-
   const handleTutorialNext = useCallback(() => {
     const next = getNextTutorialPhase(state.phase)
     if (next === 'REGISTRATION') {
       updateState({ tutorialCompleted: true, phase: 'REGISTRATION' })
-      router.push('/mobile')
     } else {
       updateState({ phase: next, currentTutorialScreen: getTutorialDotNumber(next) })
     }
-  }, [state.phase, updateState, router])
+  }, [state.phase, updateState])
 
   const handleTutorialBack = useCallback(() => {
     const prev = getPrevTutorialPhase(state.phase)
     updateState({ phase: prev, currentTutorialScreen: getTutorialDotNumber(prev) })
   }, [state.phase, updateState])
 
+  // BUG-008 FIX: Skip directly to registration without double navigation
   const handleTutorialSkip = useCallback(() => {
-    updateState({ tutorialCompleted: true })
+    stopSpeaking()
+    updateState({ tutorialCompleted: true, phase: 'REGISTRATION' })
     router.push('/mobile')
-  }, [updateState, router])
+  }, [updateState, router]) // eslint-disable-line react-hooks/exhaustive-deps -- router is needed
 
   const handleRegistrationNow = useCallback(() => {
     updateState({ tutorialCompleted: true })

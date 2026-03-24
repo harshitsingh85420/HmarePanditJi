@@ -23,7 +23,8 @@ export default function CTAButton({
     'flex items-center justify-center gap-2 rounded-btn font-bold text-xl',
     'transition-transform active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed',
     fullWidth ? 'w-full' : 'px-8',
-    height === 'tall' ? 'h-[72px]' : 'h-16',
+    // P1 FIX: Changed tall variant from 72px to 64px (standard)
+    height === 'tall' ? 'h-16' : 'h-16',
   ]
 
   const variantClass: Record<string, string> = {

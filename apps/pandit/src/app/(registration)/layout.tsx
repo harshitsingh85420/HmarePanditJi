@@ -6,7 +6,8 @@ import { SessionTimeoutSheet } from '@/components/overlays/SessionTimeout'
 import { useUIStore } from '@/stores/uiStore'
 import { useRegistrationStore } from '@/stores/registrationStore'
 import LanguageBottomSheet from '@/components/LanguageBottomSheet'
-import { SupportedLanguage } from '@/lib/onboarding-store'
+import { SupportedLanguage, loadOnboardingState } from '@/lib/onboarding-store'
+import { LANGUAGE_TO_BCP47 } from '@/lib/voice-engine'
 
 export default function RegistrationLayout({ children }: { children: React.ReactNode }) {
   useSession()
@@ -21,30 +22,43 @@ export default function RegistrationLayout({ children }: { children: React.React
     setIsMounted(true)
   }, [])
 
+  // BUG-005 FIX: Sync language from onboarding state to registration store
+  useEffect(() => {
+    const onboardingState = loadOnboardingState()
+    if (onboardingState.selectedLanguage) {
+      const bcp47Code = LANGUAGE_TO_BCP47[onboardingState.selectedLanguage] || 'hi'
+      // Convert BCP-47 code to registration store format (e.g., 'hi-IN' -> 'hi')
+      const langCode = bcp47Code.split('-')[0]
+      useRegistrationStore.getState().setLanguage(langCode)
+    }
+  }, [])
+
   const handleLanguageChange = () => {
     setShowLanguageSheet(true)
   }
 
-  const handleLanguageSelect = (language: SupportedLanguage) => {
+  const handleLanguageSelect = (_language: SupportedLanguage) => {
     setShowLanguageSheet(false)
     // Language change will be handled by the store
   }
 
   return (
     <div className="min-h-dvh flex flex-col bg-surface-base relative">
-      {/* Top Bar with Language Globe - Available on ALL registration screens */}
+      {/* Top Bar with Language Toggle - Available on ALL registration screens */}
       <header className="sticky top-0 z-50 bg-surface-base border-b border-vedic-border">
-        <div className="flex items-center justify-between px-4 h-14">
+        <div className="flex items-center justify-between px-4 h-16">
           <div className="flex items-center gap-2">
             <span className="text-2xl text-primary">ॐ</span>
             <span className="text-lg font-semibold text-vedic-brown">HmarePanditJi</span>
           </div>
           <button
             onClick={handleLanguageChange}
-            className="w-10 h-10 flex items-center justify-center text-vedic-gold hover:bg-black/5 rounded-full transition-colors active:scale-95"
-            aria-label="Change language"
+            className="min-h-[56px] px-4 flex items-center gap-2 bg-primary-lt border-2 border-primary rounded-full hover:bg-primary/20 transition-colors active:scale-95"
+            aria-label="Change language / भाषा बदलें"
           >
-            🌐
+            <span className="text-[16px] font-bold text-primary">हिन्दी</span>
+            <span className="text-[14px] text-vedic-gold">/</span>
+            <span className="text-[14px] font-medium text-vedic-gold">English</span>
           </button>
         </div>
       </header>

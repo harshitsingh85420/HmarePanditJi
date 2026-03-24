@@ -1,25 +1,35 @@
 'use client'
 
-import { useEffect, useCallback } from 'react'
+import { useEffect, useCallback, useRef } from 'react'
 import { useUIStore } from '@/stores/uiStore'
 import { useRegistrationStore } from '@/stores/registrationStore'
 
 const IDLE_TIMEOUT = 25 * 60 * 1000 // 25 minutes
-const SESSION_TIMEOUT_WARNING = 5 * 60 * 1000 // 5 minutes warning
+const SESSION_TIMEOUT_WARNING = 5 * 60 * 1000 // 5 minutes warning - BUG-SESSION FIX: Proper two-stage timeout
 
 export function useSession() {
   const { setSessionTimeout, setSessionSaveNotice } = useUIStore()
   const { data } = useRegistrationStore()
 
-  let idleTimer: NodeJS.Timeout | undefined;
-  let warningTimer: NodeJS.Timeout | undefined;
+  // BUG-006 CRITICAL FIX: Use useRef for timers to prevent loss after re-render
+  const idleTimerRef = useRef<NodeJS.Timeout | undefined>(undefined);
+  const warningTimerRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
+  // BUG-SESSION FIX: Proper two-stage timeout with correct timer cleanup
   const resetTimer = useCallback(() => {
-    clearTimeout(idleTimer)
-    clearTimeout(warningTimer)
+    // Clear existing timers using refs
+    if (idleTimerRef.current) {
+      clearTimeout(idleTimerRef.current)
+    }
+    if (warningTimerRef.current) {
+      clearTimeout(warningTimerRef.current)
+    }
 
-    warningTimer = setTimeout(() => {
-      setSessionTimeout(true)
+    // First wait for idle timeout, then show warning
+    idleTimerRef.current = setTimeout(() => {
+      warningTimerRef.current = setTimeout(() => {
+        setSessionTimeout(true)
+      }, SESSION_TIMEOUT_WARNING)
     }, IDLE_TIMEOUT)
   }, [setSessionTimeout])
 
@@ -30,8 +40,13 @@ export function useSession() {
 
     return () => {
       events.forEach(event => document.removeEventListener(event, resetTimer, true))
-      clearTimeout(idleTimer)
-      clearTimeout(warningTimer)
+      // Clear timers using refs
+      if (idleTimerRef.current) {
+        clearTimeout(idleTimerRef.current)
+      }
+      if (warningTimerRef.current) {
+        clearTimeout(warningTimerRef.current)
+      }
     }
   }, [resetTimer])
 

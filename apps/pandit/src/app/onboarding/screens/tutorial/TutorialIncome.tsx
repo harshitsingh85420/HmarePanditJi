@@ -65,11 +65,11 @@ export default function TutorialIncome({ currentDot, onNext, onBack, onSkip, lan
         </div>
         <div className="flex justify-between items-end mb-3">
           <div>
-            <p className="text-sm text-vedic-gold mb-1">पहले:</p>
+            <p className="text-[16px] text-vedic-gold mb-1">पहले:</p>
             <span className="text-[24px] text-vedic-gold/60 line-through">₹18,000</span>
           </div>
           <div className="text-right">
-            <p className="text-sm text-vedic-gold mb-1">अब:</p>
+            <p className="text-[16px] text-vedic-gold mb-1">अब:</p>
             <span className="text-[32px] font-bold text-success block animate-glow-pulse">₹63,000</span>
           </div>
         </div>

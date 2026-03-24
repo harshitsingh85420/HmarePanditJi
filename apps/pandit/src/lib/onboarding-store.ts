@@ -154,14 +154,76 @@ export function detectLanguageFromCity(city: string): SupportedLanguage {
 // PERSISTENCE HELPERS
 // ─────────────────────────────────────────────────────────────
 
+// STATE-001 FIX: Valid phases for validation
+const VALID_PHASES: OnboardingPhase[] = [
+  'SPLASH', 'LOCATION_PERMISSION', 'MANUAL_CITY', 'LANGUAGE_CONFIRM',
+  'LANGUAGE_LIST', 'LANGUAGE_CHOICE_CONFIRM', 'LANGUAGE_SET', 'HELP',
+  'VOICE_TUTORIAL', 'TUTORIAL_SWAGAT', 'TUTORIAL_INCOME', 'TUTORIAL_DAKSHINA',
+  'TUTORIAL_ONLINE_REVENUE', 'TUTORIAL_BACKUP', 'TUTORIAL_PAYMENT',
+  'TUTORIAL_VOICE_NAV', 'TUTORIAL_DUAL_MODE', 'TUTORIAL_TRAVEL',
+  'TUTORIAL_VIDEO_VERIFY', 'TUTORIAL_GUARANTEES', 'TUTORIAL_CTA', 'REGISTRATION'
+]
+
+// STATE-001 FIX: Validate onboarding state to prevent crashes from corrupted data
+function validateOnboardingState(parsed: Partial<OnboardingState>): Partial<OnboardingState> {
+  const validated: Partial<OnboardingState> = {}
+
+  // Validate phase
+  if (parsed.phase && VALID_PHASES.includes(parsed.phase)) {
+    validated.phase = parsed.phase
+  } else {
+    validated.phase = 'SPLASH'
+  }
+
+  // Validate selectedLanguage
+  if (parsed.selectedLanguage && ALL_LANGUAGES.includes(parsed.selectedLanguage)) {
+    validated.selectedLanguage = parsed.selectedLanguage
+  } else {
+    validated.selectedLanguage = 'Hindi'
+  }
+
+  // Validate boolean fields
+  validated.languageConfirmed = typeof parsed.languageConfirmed === 'boolean' ? parsed.languageConfirmed : false
+  validated.tutorialStarted = typeof parsed.tutorialStarted === 'boolean' ? parsed.tutorialStarted : false
+  validated.tutorialCompleted = typeof parsed.tutorialCompleted === 'boolean' ? parsed.tutorialCompleted : false
+  validated.voiceTutorialSeen = typeof parsed.voiceTutorialSeen === 'boolean' ? parsed.voiceTutorialSeen : false
+  validated.firstEverOpen = typeof parsed.firstEverOpen === 'boolean' ? parsed.firstEverOpen : true
+  validated.helpRequested = typeof parsed.helpRequested === 'boolean' ? parsed.helpRequested : false
+
+  // Validate string fields
+  validated.detectedCity = typeof parsed.detectedCity === 'string' ? parsed.detectedCity : ''
+  validated.detectedState = typeof parsed.detectedState === 'string' ? parsed.detectedState : ''
+
+  // Validate number fields
+  if (typeof parsed.currentTutorialScreen === 'number' && parsed.currentTutorialScreen >= 1 && parsed.currentTutorialScreen <= 12) {
+    validated.currentTutorialScreen = parsed.currentTutorialScreen
+  } else {
+    validated.currentTutorialScreen = 1
+  }
+
+  // Validate pendingLanguage
+  if (parsed.pendingLanguage && ALL_LANGUAGES.includes(parsed.pendingLanguage)) {
+    validated.pendingLanguage = parsed.pendingLanguage
+  } else {
+    validated.pendingLanguage = null
+  }
+
+  return validated
+}
+
 export function loadOnboardingState(): OnboardingState {
   if (typeof window === 'undefined') return DEFAULT_STATE
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return { ...DEFAULT_STATE, firstEverOpen: true }
+
+    // STATE-001 FIX: Validate parsed data before returning
     const parsed = JSON.parse(raw) as Partial<OnboardingState>
-    return { ...DEFAULT_STATE, ...parsed, firstEverOpen: false }
-  } catch {
+    const validated = validateOnboardingState(parsed)
+
+    return { ...DEFAULT_STATE, ...validated, firstEverOpen: false }
+  } catch (error) {
+    console.warn('[onboarding-store] Load failed, using defaults:', error)
     return { ...DEFAULT_STATE, firstEverOpen: true }
   }
 }
@@ -179,8 +241,11 @@ export function clearOnboardingState(): void {
   if (typeof window === 'undefined') return
   try {
     localStorage.removeItem(STORAGE_KEY)
-  } catch {
-    // Ignore localStorage cleanup failures silently.
+  } catch (error) {
+    // BUG-050 FIX: Log error instead of silently ignoring
+    console.error('[onboarding-store] Failed to clear onboarding state:', error);
+    // Re-throw for caller to handle if needed
+    throw error;
   }
 }
 

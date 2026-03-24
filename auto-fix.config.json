@@ -1,0 +1,49 @@
+{
+  "_comment": "Auto-Fix Loop Configuration",
+  "_description": "Settings for the automated test → AI fix loop",
+  
+  "test": {
+    "command": "node browser-test.js",
+    "timeout": 120000,
+    "retryDelay": 5000
+  },
+  
+  "ai": {
+    "provider": "deepseek",
+    "model": "deepseek-chat",
+    "temperature": 0.3,
+    "maxTokens": 4096,
+    "maxFixesPerIteration": 5
+  },
+  
+  "loop": {
+    "maxIterations": 3,
+    "stopOnFirstSuccess": true,
+    "dryRun": false
+  },
+  
+  "safety": {
+    "backupBeforeFix": true,
+    "backupDirectory": "backups/auto-fix",
+    "reportsDirectory": "auto-fix-reports",
+    "testOutputsDirectory": "test-outputs"
+  },
+  
+  "files": {
+    "extensions": [".js", ".ts", ".jsx", ".tsx", ".json", ".css", ".html"],
+    "exclude": [
+      "node_modules/**",
+      "backups/**",
+      "auto-fix-reports/**",
+      "test-outputs/**",
+      "*.test.js",
+      "*.spec.js"
+    ]
+  },
+  
+  "notifications": {
+    "onSuccess": true,
+    "onFailure": true,
+    "onIteration": true
+  }
+}

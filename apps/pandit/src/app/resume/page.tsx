@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -118,7 +118,7 @@ export default function ResumeRegistrationScreen() {
         </motion.div>
 
         {/* Title */}
-        <h1 className="text-2xl font-bold text-text-primary text-center mb-2">
+        <h1 className="text-2xl font-bold text-text-saffron text-center mb-2">
           पंजीकरण जारी रखें
         </h1>
         <p className="text-text-secondary text-center mb-8">
@@ -134,8 +134,8 @@ export default function ResumeRegistrationScreen() {
           {/* Progress bar */}
           <div className="mb-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-text-primary">प्रगति</span>
-              <span className="text-sm font-bold text-saffron">{progressPercent}%</span>
+              <span className="text-lg font-medium text-text-saffron">प्रगति</span>
+              <span className="text-lg font-bold text-saffron">{progressPercent}%</span>
             </div>
             <div className="w-full h-3 bg-surface-muted rounded-full overflow-hidden">
               <motion.div
@@ -155,9 +155,9 @@ export default function ResumeRegistrationScreen() {
               </span>
             </div>
             <div className="flex-1">
-              <p className="text-text-secondary text-xs font-medium">अगला चरण:</p>
-              <p className="text-text-primary font-bold text-lg">{stepInfo.title}</p>
-              <p className="text-text-secondary text-sm">{stepInfo.subtitle}</p>
+              <p className="text-text-secondary text-lgs font-medium">अगला चरण:</p>
+              <p className="text-text-saffron font-bold text-lg">{stepInfo.title}</p>
+              <p className="text-text-secondary text-lg">{stepInfo.subtitle}</p>
             </div>
             <span className="material-symbols-outlined text-saffron">arrow_forward</span>
           </div>
@@ -170,7 +170,7 @@ export default function ResumeRegistrationScreen() {
           transition={{ delay: 0.2 }}
           className="bg-surface-card rounded-card shadow-card p-6 mb-8"
         >
-          <h2 className="text-lg font-bold text-text-primary mb-4 flex items-center gap-2">
+          <h2 className="text-lg font-bold text-text-saffron mb-4 flex items-center gap-2">
             <span className="material-symbols-outlined text-trust-green filled">check_circle</span>
             पूरे हुए चरण
           </h2>
@@ -185,18 +185,18 @@ export default function ResumeRegistrationScreen() {
                     key={step}
                     className="flex items-center gap-3 p-3 bg-trust-green-bg rounded-card-sm"
                   >
-                    <span className="material-symbols-outlined text-trust-green text-xl">
+                    <span className="material-symbols-outlined text-trust-green text-lgl">
                       check_circle
                     </span>
                     <div>
-                      <p className="text-text-primary font-medium text-sm">{stepInfo.title}</p>
-                      <p className="text-text-secondary text-xs">{stepInfo.subtitle}</p>
+                      <p className="text-text-saffron font-medium text-lg">{stepInfo.title}</p>
+                      <p className="text-text-secondary text-lgs">{stepInfo.subtitle}</p>
                     </div>
                   </div>
                 )
               })}
             {completedCount === 0 && (
-              <p className="text-text-secondary text-sm text-center py-4">
+              <p className="text-text-secondary text-lg text-center py-4">
                 अभी कोई चरण पूरा नहीं हुआ
               </p>
             )}
@@ -223,7 +223,7 @@ export default function ResumeRegistrationScreen() {
       </div>
 
       {/* Footer note */}
-      <p className="pb-8 text-center text-xs text-text-placeholder">
+      <p className="pb-8 text-center text-lgs text-text-lglaceholder">
         Session ID: {data.sessionId.slice(-8)}
       </p>
     </main>

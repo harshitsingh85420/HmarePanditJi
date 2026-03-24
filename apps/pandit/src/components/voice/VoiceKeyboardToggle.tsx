@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { motion } from 'framer-motion'
 import { useVoiceStore } from '@/stores/voiceStore'
@@ -30,20 +30,20 @@ export function VoiceKeyboardToggle({
       <motion.button
         onClick={handleVoice}
         whileTap={{ scale: 0.97 }}
-        className={`flex-1 flex items-center justify-center gap-2 text-sm font-label font-medium
+        className={`flex-1 flex items-center justify-center gap-2 text-lg font-label font-medium
                    border-b-2 transition-colors duration-200
                    ${!isKeyboardMode
-            ? 'text-primary-container border-primary-container bg-saffron-light'
+            ? 'text-saffron-container border-saffron-container bg-saffron-light'
             : 'text-text-secondary border-transparent bg-white'
           }`}
       >
-        <span className={`material-symbols-outlined text-xl ${!isKeyboardMode ? 'filled' : ''}`}>
+        <span className={`material-symbols-outlined text-lgl ${!isKeyboardMode ? 'filled' : ''}`}>
           mic
         </span>
         <span>Bolne ke liye tapein</span>
         {!isKeyboardMode && (
           <motion.span
-            className="w-2 h-2 rounded-full bg-primary-container"
+            className="w-2 h-2 rounded-full bg-saffron-container"
             animate={{ scale: [1, 1.3, 1], opacity: [1, 0.6, 1] }}
             transition={{ duration: 1.5, repeat: Infinity }}
           />
@@ -57,14 +57,14 @@ export function VoiceKeyboardToggle({
       <motion.button
         onClick={handleKeyboard}
         whileTap={{ scale: 0.97 }}
-        className={`flex-1 flex items-center justify-center gap-2 text-sm font-label font-medium
+        className={`flex-1 flex items-center justify-center gap-2 text-lg font-label font-medium
                    border-b-2 transition-colors duration-200
                    ${isKeyboardMode
-            ? 'text-primary-container border-primary-container bg-saffron-light'
+            ? 'text-saffron-container border-saffron-container bg-saffron-light'
             : 'text-text-secondary border-transparent bg-white'
           }`}
       >
-        <span className="material-symbols-outlined text-xl">keyboard</span>
+        <span className="material-symbols-outlined text-lgl">keyboard</span>
         <span>Type karein</span>
       </motion.button>
     </div>

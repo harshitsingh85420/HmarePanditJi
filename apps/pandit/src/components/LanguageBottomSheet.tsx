@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { ALL_LANGUAGES, LANGUAGE_DISPLAY, SupportedLanguage } from '@/lib/onboarding-store'
@@ -50,10 +50,10 @@ export default function LanguageBottomSheet({
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3">
           <div>
-            <h2 className="text-lg font-bold text-vedic-brown">भाषा बदलें</h2>
-            <p className="text-sm text-vedic-gold">Change Language</p>
+            <h2 className="text-lg font-bold text-text-baserimary">भाषा बदलें</h2>
+            <p className="text-lg text-saffron">Change Language</p>
           </div>
-          <button onClick={onClose} className="w-10 h-10 flex items-center justify-center text-vedic-gold">
+          <button onClick={onClose} className="w-[56px] h-[56px] flex items-center justify-center text-saffron">
             <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
               <path d="M18 6L6 18M6 6l12 12" />
             </svg>
@@ -71,21 +71,21 @@ export default function LanguageBottomSheet({
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="Search..."
-              className="bg-transparent flex-1 text-base text-vedic-brown placeholder-vedic-gold outline-none"
+              className="bg-transparent flex-1 text-base text-text-baserimary placeholder-vedic-gold outline-none"
             />
           </div>
         </div>
         {/* Current language highlight */}
         <div className="px-4 pb-2">
-          <div className="bg-primary-lt border border-primary rounded-xl px-4 py-3 flex items-center justify-between">
+          <div className="bg-saffron-lt border border-saffron rounded-xl px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <span className="text-2xl">{currentDisplay.scriptChar}</span>
               <div>
-                <p className="font-bold text-vedic-brown text-base">{currentDisplay.nativeName}</p>
-                <p className="text-sm text-vedic-gold">{currentDisplay.latinName}</p>
+                <p className="font-bold text-text-baserimary text-base">{currentDisplay.nativeName}</p>
+                <p className="text-lg text-saffron">{currentDisplay.latinName}</p>
               </div>
             </div>
-            <span className="text-primary font-bold text-xl">✓</span>
+            <span className="text-saffron font-bold text-lgl">✓</span>
           </div>
         </div>
         {/* Language grid */}
@@ -101,18 +101,18 @@ export default function LanguageBottomSheet({
                   className={[
                     'flex items-center gap-2 p-3 rounded-xl border text-left transition-colors',
                     isActive
-                      ? 'bg-primary-lt border-primary'
-                      : 'bg-white border-vedic-border',
+                      ? 'bg-saffron-lt border-saffron'
+                      : 'bg-white border-outline-variant',
                   ].join(' ')}
                 >
-                  <span className="text-xl font-bold" style={{ color: isActive ? '#F09942' : '#2D1B00' }}>
+                  <span className="text-lgl font-bold" style={{ color: isActive ? '#F09942' : '#2D1B00' }}>
                     {display.scriptChar}
                   </span>
                   <div>
-                    <p className={`font-semibold text-sm ${isActive ? 'text-primary' : 'text-vedic-brown'}`}>
+                    <p className={`font-semibold text-lg ${isActive ? 'text-saffron' : 'text-text-baserimary'}`}>
                       {display.nativeName}
                     </p>
-                    <p className="text-xs text-vedic-gold">{display.latinName}</p>
+                    <p className="text-lgs text-saffron">{display.latinName}</p>
                   </div>
                 </button>
               )
@@ -120,10 +120,10 @@ export default function LanguageBottomSheet({
           </div>
         </div>
         {/* Close button */}
-        <div className="px-4 py-4 border-t border-vedic-border">
+        <div className="px-4 py-4 border-t border-outline-variant">
           <button
             onClick={onClose}
-            className="w-full h-14 border border-vedic-border rounded-btn text-vedic-brown-2 font-semibold text-lg"
+            className="w-full h-14 border border-outline-variant rounded-btn text-text-baserimary-2 font-semibold text-lg"
           >
             बंद करें / Close
           </button>

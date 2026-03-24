@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { motion, AnimatePresence } from 'framer-motion'
 import { useVoiceStore } from '@/stores/voiceStore'
@@ -20,6 +20,9 @@ export function ErrorOverlay({ onRetry, onUseKeyboard }: ErrorOverlayProps) {
   const isFinalError = state === 'error_3'
 
   const isHighNoise = ambientNoiseLevel > 65
+
+  // BUG-004 FIX: Show noise warning if noise level is high
+  const shouldShowNoiseWarning = isHighNoise
 
   const getErrorConfig = () => {
     if (isError1) return {
@@ -48,7 +51,7 @@ export function ErrorOverlay({ onRetry, onUseKeyboard }: ErrorOverlayProps) {
       title: 'कीबोर्ड का उपयोग करें',
       message: 'आवाज़ नहीं समझ आई। आप टाइप कर सकते हैं।',
       icon: 'keyboard',
-      iconColor: 'text-text-primary',
+      iconColor: 'text-text-saffron',
       bgColor: 'bg-surface-card',
       borderColor: 'border-border-default',
       showRetry: false,
@@ -90,14 +93,14 @@ export function ErrorOverlay({ onRetry, onUseKeyboard }: ErrorOverlayProps) {
                 </span>
               </motion.div>
               <div className="flex-1">
-                <h3 className="text-lg font-bold text-text-primary">{error.title}</h3>
-                <p className="text-text-secondary text-sm">{error.message}</p>
+                <h3 className="text-lg font-bold text-text-saffron">{error.title}</h3>
+                <p className="text-text-secondary text-lg">{error.message}</p>
               </div>
             </div>
 
             {/* Ambient noise warning (if applicable) */}
-            {/* BUG-029 FIX: Show noise warning on all error states including error_3 (ultimate failure) */}
-            {isHighNoise && (
+            {/* BUG-004 FIX: Show noise warning on all error states when noise is high */}
+            {shouldShowNoiseWarning && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
@@ -106,7 +109,7 @@ export function ErrorOverlay({ onRetry, onUseKeyboard }: ErrorOverlayProps) {
                 <span className="material-symbols-outlined text-warning-amber text-lg">
                   volume_up
                 </span>
-                <p className="text-warning-amber text-sm font-medium">
+                <p className="text-warning-amber text-lg font-medium">
                   आसपास शोर ज़्यादा है। शांत जगह जाएं।
                 </p>
               </motion.div>
@@ -147,7 +150,7 @@ export function ErrorOverlay({ onRetry, onUseKeyboard }: ErrorOverlayProps) {
                     : 'border-2 border-saffron text-saffron'
                     }`}
                 >
-                  <span className="material-symbols-outlined text-xl">refresh</span>
+                  <span className="material-symbols-outlined text-lgl">refresh</span>
                   <span>{isError2 ? 'आखिरी कोशिश' : 'फिर से बोलें'}</span>
                 </motion.button>
               )}
@@ -162,13 +165,13 @@ export function ErrorOverlay({ onRetry, onUseKeyboard }: ErrorOverlayProps) {
                   : 'border-2 border-saffron text-saffron'
                   }`}
               >
-                <span className="material-symbols-outlined text-xl">keyboard</span>
+                <span className="material-symbols-outlined text-lgl">keyboard</span>
                 <span>{isError3 ? 'टाइप करें' : 'कीबोर्ड'}</span>
               </motion.button>
             </div>
 
             {/* Helper hint */}
-            <p className="mt-4 text-center text-base text-text-placeholder">
+            <p className="mt-4 text-center text-base text-text-lglaceholder">
               {error.hint}
             </p>
           </motion.div>

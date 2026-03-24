@@ -29,9 +29,11 @@ export function useAmbientNoise() {
         setNoiseLevel(average)
         setAmbientNoise(average)
 
-        // if (average > 65) {
-        //   useVoiceStore.getState().onNoiseDetected?.()
-        // }
+        // BUG-004 CRITICAL FIX: Show UI warning when noise is too high
+        if (average > 65) {
+          // Increment error count to trigger keyboard suggestion
+          useVoiceStore.getState().incrementError()
+        }
 
         animationFrameRef.current = requestAnimationFrame(detect)
       }

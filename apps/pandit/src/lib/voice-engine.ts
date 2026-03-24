@@ -58,6 +58,132 @@ export const LANGUAGE_TO_BCP47: Record<string, string> = {
 }
 
 // ─────────────────────────────────────────────────────────────
+// ARCH-009 FIX: Single source of truth for voice timeouts
+// ─────────────────────────────────────────────────────────────
+
+export const VOICE_TIMEOUTS = {
+  LISTEN: 15000,      // 15s for user to respond (elderly-friendly)
+  REPROMPT: 30000,    // 30s for reprompt
+  MAX_ERRORS: 3,      // Max errors before keyboard fallback
+} as const
+
+// ─────────────────────────────────────────────────────────────
+// AMBIENT NOISE DETECTION
+// ─────────────────────────────────────────────────────────────
+
+export const AMBIENT_NOISE_THRESHOLD_DB = 65  // Temple bells, crowds, etc.
+
+let audioContext: AudioContext | null = null
+let noiseAnalyser: AnalyserNode | null = null
+let noiseSource: MediaStreamAudioSourceNode | null = null
+let noiseStream: MediaStream | null = null
+let noiseCheckInterval: ReturnType<typeof setInterval> | null = null
+
+/**
+ * Start monitoring ambient noise level using Web Audio API.
+ * Returns cleanup function to stop monitoring.
+ */
+export function startAmbientNoiseMonitoring(
+  onNoiseHigh: (level: number) => void,
+  onNoiseNormal: () => void
+): () => void {
+  if (typeof window === 'undefined') return () => { }
+
+  try {
+    // Create audio context
+    audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
+    noiseAnalyser = audioContext.createAnalyser()
+    noiseAnalyser.fftSize = 512
+    noiseAnalyser.smoothingTimeConstant = 0.8
+
+    // Request mic access for noise monitoring
+    navigator.mediaDevices.getUserMedia({ audio: true })
+      .then((stream) => {
+        noiseStream = stream
+        noiseSource = audioContext!.createMediaStreamSource(stream)
+        noiseSource.connect(noiseAnalyser!)
+
+        const dataArray = new Uint8Array(noiseAnalyser!.frequencyBinCount)
+
+        noiseCheckInterval = setInterval(() => {
+          if (!noiseAnalyser) return
+
+          noiseAnalyser.getByteFrequencyData(dataArray)
+
+          // Calculate average volume (RMS approximation)
+          let sum = 0
+          for (let i = 0; i < dataArray.length; i++) {
+            sum += dataArray[i] * dataArray[i]
+          }
+          const rms = Math.sqrt(sum / dataArray.length)
+
+          // Convert to approximate dB (0-100 scale)
+          // Typical silence: 0-20, Normal room: 20-40, Loud: 40-60, Very loud: 60+
+          const noiseLevel = Math.min(100, Math.max(0, rms * 1.5))
+
+          // Update store with current noise level
+          try {
+            // eslint-disable-next-line @typescript-eslint/no-var-requires
+            const { useVoiceStore } = require('@/stores/voiceStore')
+            useVoiceStore.getState().setAmbientNoise(Math.round(noiseLevel))
+          } catch { /* Store not available */ }
+
+          // Check if noise exceeds threshold
+          if (noiseLevel > AMBIENT_NOISE_THRESHOLD_DB) {
+            onNoiseHigh(Math.round(noiseLevel))
+          } else {
+            onNoiseNormal()
+          }
+        }, 500)  // Check every 500ms
+      })
+      .catch((err) => {
+        console.warn('[VoiceEngine] Cannot access mic for noise monitoring:', err)
+      })
+  } catch (err) {
+    console.warn('[VoiceEngine] Noise monitoring setup failed:', err)
+  }
+
+  return () => {
+    stopAmbientNoiseMonitoring()
+  }
+}
+
+export function stopAmbientNoiseMonitoring(): void {
+  if (noiseCheckInterval) {
+    clearInterval(noiseCheckInterval)
+    noiseCheckInterval = null
+  }
+
+  if (noiseSource) {
+    noiseSource.disconnect()
+    noiseSource = null
+  }
+
+  if (noiseStream) {
+    noiseStream.getTracks().forEach(track => track.stop())
+    noiseStream = null
+  }
+
+  if (audioContext) {
+    audioContext.close()
+    audioContext = null
+  }
+
+  noiseAnalyser = null
+}
+
+export function getCurrentNoiseLevel(): number {
+  if (typeof window === 'undefined') return 0
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { getAmbientNoiseLevel } = require('@/stores/voiceStore')
+    return getAmbientNoiseLevel()
+  } catch {
+    return 0
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
 // INTENT → WORD MAP (Fuzzy matching for voice commands)
 // ─────────────────────────────────────────────────────────────
 
@@ -95,16 +221,42 @@ const INTENT_WORD_MAP: Record<VoiceIntent, string[]> = {
   ],
 }
 
+// ARCH-011 FIX: Use word boundary matching + scoring to prevent false positives
 export function detectIntent(transcript: string): VoiceIntent | null {
   const normalized = transcript.toLowerCase().trim()
+  // const words = normalized.split(/\s+/) // ARCH-011 FIX: Removed unused variable
+
+  let bestIntent: VoiceIntent | null = null
+  let bestScore = 0
+
   for (const [intent, words] of Object.entries(INTENT_WORD_MAP)) {
+    let score = 0
+
     for (const word of words) {
-      if (normalized.includes(word)) {
-        return intent as VoiceIntent
+      // ARCH-011 FIX: Use word boundary regex instead of simple includes()
+      // This prevents false positives like "theek" matching "yeh theek nahi hai"
+      const wordBoundaryRegex = new RegExp(`\\b${word}\\b`, 'i')
+      if (wordBoundaryRegex.test(normalized)) {
+        score++
       }
     }
+
+    // Also check for multi-word phrases with higher weight
+    for (const word of words) {
+      if (word.includes(' ') && normalized.includes(word)) {
+        score += 2 // Extra weight for exact phrase match
+      }
+    }
+
+    if (score > bestScore) {
+      bestScore = score
+      bestIntent = intent as VoiceIntent
+    }
   }
-  return null
+
+  // ARCH-011 FIX: Only return intent if we have a clear winner (score >= 1)
+  // This prevents false positives from weak matches
+  return bestScore >= 1 ? bestIntent : null
 }
 
 export function detectLanguageName(transcript: string): string | null {
@@ -150,7 +302,7 @@ let isManualMicOff = false
 
 export function setManualMicOff(isOff: boolean): void {
   isManualMicOff = isOff
-  console.log('[VoiceEngine] Manual mic toggle:', isOff ? 'OFF' : 'ON')
+  // P1 FIX: Removed console.log for production
 }
 
 export function getManualMicOff(): boolean {

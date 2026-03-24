@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { motion } from 'framer-motion'
 import { clsx } from 'clsx'
@@ -60,12 +60,12 @@ export function Button({
     ),
     text: cn(
       'bg-transparent text-saffron underline-offset-2',
-      'min-h-touch h-auto px-0 font-normal text-sm',
+      'min-h-touch h-auto px-0 font-normal text-lg',
       !disabled && 'active:opacity-70',
     ),
     'danger-text': cn(
       'bg-transparent text-text-secondary underline-offset-2',
-      'min-h-touch h-auto px-0 font-normal text-sm',
+      'min-h-touch h-auto px-0 font-normal text-lg',
       !disabled && 'active:opacity-70',
     ),
   }
@@ -83,11 +83,11 @@ export function Button({
       ) : (
         <>
           {icon && iconPosition === 'left' && (
-            <span className="material-symbols-outlined text-xl">{icon}</span>
+            <span className="material-symbols-outlined text-lgl">{icon}</span>
           )}
           {children}
           {icon && iconPosition === 'right' && (
-            <span className="material-symbols-outlined text-xl">{icon}</span>
+            <span className="material-symbols-outlined text-lgl">{icon}</span>
           )}
         </>
       )}

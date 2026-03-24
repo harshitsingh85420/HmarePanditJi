@@ -30,19 +30,21 @@ export default function OnboardingLayout({
 
   return (
     <div className="screen-always-on min-h-screen bg-vedic-cream relative">
-      {/* Top Bar with Language Globe */}
+      {/* Top Bar with Language Toggle */}
       <header className="sticky top-0 z-50 bg-vedic-cream border-b border-vedic-border">
-        <div className="flex items-center justify-between px-4 h-14">
+        <div className="flex items-center justify-between px-4 h-16">
           <div className="flex items-center gap-2">
             <span className="text-2xl text-primary">ॐ</span>
             <span className="text-lg font-semibold text-vedic-brown">HmarePanditJi</span>
           </div>
           <button
             onClick={handleLanguageChange}
-            className="w-10 h-10 flex items-center justify-center text-vedic-gold hover:bg-black/5 rounded-full transition-colors active:scale-95"
-            aria-label="Change language"
+            className="min-h-[56px] px-4 flex items-center gap-2 bg-primary-lt border-2 border-primary rounded-full hover:bg-primary/20 transition-colors active:scale-95"
+            aria-label="Change language / भाषा बदलें"
           >
-            🌐
+            <span className="text-[16px] font-bold text-primary">हिन्दी</span>
+            <span className="text-[14px] text-vedic-gold">/</span>
+            <span className="text-[14px] font-medium text-vedic-gold">English</span>
           </button>
         </div>
       </header>

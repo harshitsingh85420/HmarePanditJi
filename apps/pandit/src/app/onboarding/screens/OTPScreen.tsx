@@ -1,8 +1,8 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { speakWithSarvam, stopCurrentSpeech } from '@/lib/sarvam-tts';
+import { speakWithSarvam, stopCurrentSpeech, LANGUAGE_TO_SARVAM_CODE } from '@/lib/sarvam-tts';
 import { listenOnce } from '@/lib/deepgram-stt';
 import type { SupportedLanguage } from '@/lib/onboarding-store';
 
@@ -32,7 +32,6 @@ interface Props {
 export default function OTPScreen({ mobile, language, onVerified, onBack }: Props) {
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [error, setError] = useState('');
-  const [attemptsLeft, setAttemptsLeft] = useState(3);
   const [resendTimer, setResendTimer] = useState(30);
   const [transcript, setTranscript] = useState('');
   const [isListening, setIsListening] = useState(false);
@@ -46,15 +45,21 @@ export default function OTPScreen({ mobile, language, onVerified, onBack }: Prop
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsSpeaking(true);
+      const languageCode = LANGUAGE_TO_SARVAM_CODE[language] || 'hi-IN'; // BUG-003 FIX: Use dynamic language
       void speakWithSarvam({
         text: `हमने ${mobile.split('').join('... ')} पर OTP भेजा है। 6 अंकों का OTP बोलें — या नीचे टाइप करें।`,
-        languageCode: 'hi-IN',
+        languageCode,
         speaker: 'ratan',
         onStart: () => setIsSpeaking(true),
         onEnd: () => {
           setIsSpeaking(false);
           startSTT();
         },
+      }).catch((err) => {
+        console.error('TTS failed on mount:', err);
+        // Still start STT even if TTS fails
+        setIsSpeaking(false);
+        startSTT();
       });
     }, 600);
 
@@ -63,7 +68,7 @@ export default function OTPScreen({ mobile, language, onVerified, onBack }: Prop
       stopCurrentSpeech();
       cleanupSTT.current?.();
     };
-  }, [mobile]);
+  }, [mobile, language]);
 
   // Resend timer countdown
   useEffect(() => {
@@ -75,6 +80,7 @@ export default function OTPScreen({ mobile, language, onVerified, onBack }: Prop
   function startSTT() {
     cleanupSTT.current?.();
     setIsListening(true);
+    const languageCode = LANGUAGE_TO_SARVAM_CODE[language] || 'hi-IN'; // BUG-003 FIX: Use dynamic language
     cleanupSTT.current = listenOnce(
       'hi',
       20000,
@@ -95,8 +101,12 @@ export default function OTPScreen({ mobile, language, onVerified, onBack }: Prop
         // Reprompt once
         void speakWithSarvam({
           text: '6 अंकों का OTP बोलें।',
-          languageCode: 'hi-IN',
+          languageCode,
           onEnd: () => startSTT(),
+        }).catch((err) => {
+          console.error('TTS reprompt failed:', err);
+          // Still start STT even if TTS fails
+          startSTT();
         });
       }
     );
@@ -147,34 +157,34 @@ export default function OTPScreen({ mobile, language, onVerified, onBack }: Prop
   };
 
   return (
-    <main className="min-h-dvh max-w-[390px] mx-auto bg-vedic-cream font-hind text-vedic-brown flex flex-col shadow-2xl">
+    <main className="min-h-dvh max-w-[390px] mx-auto bg-surface-base font-hind text-text-primary flex flex-col shadow-2xl">
       {/* Header - shrink-0 to prevent compression */}
       <header className="pt-8 px-6 pb-2 flex items-center gap-3 shrink-0">
-        <button onClick={onBack} className="w-10 h-10 -ml-2 flex items-center justify-center text-vedic-gold hover:bg-black/5 rounded-full" aria-label="Go back">
+        <button onClick={onBack} className="w-[56px] h-[56px] -ml-2 flex items-center justify-center text-saffron hover:bg-black/5 rounded-full" aria-label="Go back">
           <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
             <path d="M15 18l-6-6 6-6" />
           </svg>
         </button>
-        <h1 className="text-[20px] font-bold text-vedic-brown">Registration — Step 2/4</h1>
+        <h1 className="text-[20px] font-bold text-text-primary">Registration — Step 2/4</h1>
       </header>
 
       {/* Progress - shrink-0 to prevent compression */}
       <div className="px-6 pb-4 shrink-0">
         <div className="flex gap-1.5">
           {[1, 2, 3, 4].map(i => (
-            <div key={i} className={`flex-1 h-1.5 rounded-full transition-colors ${i <= 2 ? 'bg-primary' : 'bg-vedic-border'}`} />
+            <div key={i} className={`flex-1 h-1.5 rounded-full transition-colors ${i <= 2 ? 'bg-saffron' : 'bg-vedic-border'}`} />
           ))}
         </div>
-        <p className="text-xs text-vedic-gold mt-1">OTP Verification</p>
+        <p className="text-lgs text-saffron mt-1">OTP Verification</p>
       </div>
 
       {/* Content - flex-grow with overflow-y-auto for scroll on small screens */}
       <div className="flex-grow flex flex-col items-center px-6 pt-2 overflow-y-auto">
         {/* Title */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-8">
-          <h2 className="text-[26px] font-bold text-vedic-brown">🔐 OTP दर्ज करें</h2>
-          <p className="text-[16px] text-vedic-gold mt-2">
-            <span className="font-semibold text-vedic-brown">+91 {formatted}</span> पर भेजा गया
+          <h2 className="text-[26px] font-bold text-text-primary">🔐 OTP दर्ज करें</h2>
+          <p className="text-[16px] text-saffron mt-2">
+            <span className="font-semibold text-text-primary">+91 {formatted}</span> पर भेजा गया
           </p>
         </motion.div>
 
@@ -185,14 +195,14 @@ export default function OTPScreen({ mobile, language, onVerified, onBack }: Prop
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
-              className="w-full mb-4 flex items-center gap-3 px-4 py-2.5 bg-primary-lt rounded-xl border border-primary/20"
+              className="w-full mb-4 flex items-center gap-3 px-4 py-2.5 bg-saffron-lt rounded-xl border border-saffron/20"
             >
               <div className="flex items-end gap-1 h-5 shrink-0">
                 {Array.from({ length: 3 }).map((_, i) => (
-                  <div key={i} className="w-1.5 bg-primary rounded-full animate-voice-bar" style={{ animationDelay: `${i * 0.2}s` }} />
+                  <div key={i} className="w-1.5 bg-saffron rounded-full animate-voice-bar" style={{ animationDelay: `${i * 0.2}s` }} />
                 ))}
               </div>
-              <span className="text-[14px] text-vedic-brown truncate">
+              <span className="text-[14px] text-text-primary truncate">
                 {isSpeaking ? 'बोल रहा हूँ...' : (transcript || 'OTP बोलें...')}
               </span>
             </motion.div>
@@ -210,8 +220,8 @@ export default function OTPScreen({ mobile, language, onVerified, onBack }: Prop
               value={digit}
               onChange={(e) => handleOtpInput(i, e.target.value)}
               onKeyDown={(e) => handleKeyDown(i, e)}
-              className={`w-12 h-14 text-center text-[24px] font-bold rounded-xl border-2 transition-colors bg-white focus:outline-none ${digit ? 'border-primary text-vedic-brown' : 'border-vedic-border text-vedic-border'
-                } focus:border-primary`}
+              className={`w-12 h-14 text-center text-[24px] font-bold rounded-xl border-2 transition-colors bg-white focus:outline-none ${digit ? 'border-saffron text-text-primary' : 'border-outline-variant text-vedic-border'
+                } focus:border-saffron`}
             />
           ))}
         </div>
@@ -221,19 +231,24 @@ export default function OTPScreen({ mobile, language, onVerified, onBack }: Prop
         {/* Resend */}
         <div className="text-center mb-8">
           {resendTimer > 0 ? (
-            <p className="text-vedic-gold text-[14px]">OTP दोबारा भेजें ({resendTimer}s)</p>
+            <p className="text-saffron text-[14px]">OTP दोबारा भेजें ({resendTimer}s)</p>
           ) : (
             <button
               onClick={() => {
                 setResendTimer(30);
                 setError('');
+                const languageCode = LANGUAGE_TO_SARVAM_CODE[language] || 'hi-IN'; // BUG-003 FIX: Use dynamic language
                 void speakWithSarvam({
                   text: 'नया OTP भेजा गया।',
-                  languageCode: 'hi-IN',
+                  languageCode,
                   onEnd: () => startSTT(),
+                }).catch((err) => {
+                  console.error('TTS resend failed:', err);
+                  // Still start STT even if TTS fails
+                  startSTT();
                 });
               }}
-              className="text-primary text-[16px] font-semibold underline"
+              className="text-lgrimary text-[16px] font-semibold underline"
             >
               OTP दोबारा भेजें
             </button>
@@ -241,20 +256,20 @@ export default function OTPScreen({ mobile, language, onVerified, onBack }: Prop
         </div>
 
         {/* Helptext */}
-        <p className="text-[13px] text-vedic-gold text-center">
+        <p className="text-[13px] text-saffron text-center">
           OTP नहीं आया? Spam folder check करें या ऊपर Resend दबाएं।
         </p>
       </div>
 
       {/* Footer */}
-      <footer className="px-6 pb-10 pt-3 bg-vedic-cream/90 backdrop-blur-sm border-t border-vedic-border shrink-0">
+      <footer className="px-6 pb-10 pt-3 bg-surface-base/90 backdrop-blur-sm border-t border-outline-variant shrink-0">
         <motion.button
           whileTap={{ scale: 0.97 }}
           disabled={!otp.every(d => d !== '')}
           onClick={() => submitOTP(otp.join(''))}
           className={`w-full h-16 rounded-2xl flex items-center justify-center text-[20px] font-bold transition-all ${otp.every(d => d !== '')
-            ? 'bg-primary text-white shadow-cta'
-            : 'bg-vedic-border/30 text-vedic-gold cursor-not-allowed'
+            ? 'bg-saffron text-white shadow-cta'
+            : 'bg-vedic-border/30 text-saffron cursor-not-allowed'
             }`}
         >
           Verify करें →

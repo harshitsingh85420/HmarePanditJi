@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
@@ -35,7 +35,7 @@ export function Input({
   return (
     <div className={cn('w-full', className)}>
       {label && (
-        <label className="block text-sm font-medium text-text-secondary mb-2">
+        <label className="block text-lg font-medium text-text-secondary mb-2">
           {label}
         </label>
       )}
@@ -49,16 +49,16 @@ export function Input({
         autoFocus={autoFocus}
         className={cn(
           'w-full h-14 px-4',
-          'text-lg text-text-primary',
+          'text-lg text-text-saffron',
           'bg-surface-card border-2 rounded-btn',
-          'placeholder:text-text-placeholder',
+          'placeholder:text-text-lglaceholder',
           'focus:outline-none focus:border-saffron focus:ring-2 focus:ring-saffron-light',
           'disabled:opacity-50 disabled:cursor-not-allowed',
           error ? 'border-error-red' : 'border-border-default',
         )}
       />
       {error && (
-        <p className="mt-2 text-sm text-error-red">{error}</p>
+        <p className="mt-2 text-lg text-error-red">{error}</p>
       )}
     </div>
   )

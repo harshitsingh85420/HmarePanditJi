@@ -111,6 +111,14 @@ const config: Config = {
         'voice-bar': 'voice-bar 1.2s ease-in-out infinite',
         'voice-bar-2': 'voice-bar 1.2s ease-in-out 0.2s infinite',
         'voice-bar-3': 'voice-bar 1.2s ease-in-out 0.4s infinite',
+        // BUG-ANIMATION FIX: Add missing animation shorthands
+        'shimmer': 'shimmer 2s linear infinite',
+        'draw-circle': 'draw-circle 0.8s ease-out forwards',
+        'draw-check': 'draw-check 0.5s ease-out 0.8s forwards',
+        'confetti-fall': 'confetti-fall linear infinite',
+        'pin-drop': 'pin-drop 0.6s ease-out forwards',
+        'gentle-float': 'gentle-float 3s ease-in-out infinite',
+        'glow-pulse': 'glow-pulse 3s ease-in-out infinite',
       },
       keyframes: {
         'pulse-saffron': {
@@ -137,6 +145,37 @@ const config: Config = {
         'voice-bar': {
           '0%, 100%': { height: '8px' },
           '50%': { height: '24px' },
+        },
+        // BUG-011 FIX: Add missing keyframes for animations
+        'shimmer': {
+          '0%': { backgroundPosition: '-1000px 0' },
+          '100%': { backgroundPosition: '1000px 0' },
+        },
+        'draw-circle': {
+          '0%': { strokeDashoffset: '1000' },
+          '100%': { strokeDashoffset: '0' },
+        },
+        'draw-check': {
+          '0%': { strokeDashoffset: '100' },
+          '100%': { strokeDashoffset: '0' },
+        },
+        'confetti-fall': {
+          '0%': { transform: 'translateY(-100vh) rotate(0deg)', opacity: '1' },
+          '100%': { transform: 'translateY(100vh) rotate(720deg)', opacity: '0' },
+        },
+        'pin-drop': {
+          '0%': { transform: 'translateY(-20px) scale(1.2)', opacity: '0' },
+          '50%': { transform: 'translateY(0) scale(1)', opacity: '1' },
+          '70%': { transform: 'scale(1.1)', opacity: '1' },
+          '100%': { transform: 'scale(1)', opacity: '1' },
+        },
+        'gentle-float': {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-10px)' },
+        },
+        'glow-pulse': {
+          '0%, 100%': { opacity: '0.6', filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.4))' },
+          '50%': { opacity: '1', filter: 'drop-shadow(0 0 12px rgba(255,255,255,0.8))' },
         },
       },
       minHeight: {

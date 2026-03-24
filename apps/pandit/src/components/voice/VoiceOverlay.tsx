@@ -16,21 +16,26 @@ export function VoiceOverlay({ question, interimText }: VoiceOverlayProps) {
   const isConfirming = state === 'confirming'
   const isError = state === 'error_1' || state === 'error_2' || state === 'error_3'
 
+  // BUG-003/018 FIX: Use confidence value to show low confidence warning
+  const showLowConfidence = confidence > 0 && confidence < 0.7
+
   // Noise level interpretation
   const isHighNoise = ambientNoiseLevel > 65
   const isMediumNoise = ambientNoiseLevel > 40
 
-  // Timeout display for elderly users - large emoji + text
-  const showTimeout = errorCount >= 1 && isError
-
   // UI-015 FIX: Fast speech detection based on transcript length
   const showFastSpeechWarning = transcribedText && transcribedText.split(/\s+/).length > 8 && isListening
 
+  // CRITICAL FIX: Don't show timeout overlay in VoiceOverlay when ErrorOverlay is handling it
+  // The ErrorOverlay has better UX with retry/keyboard buttons
+  const showTimeoutInVoiceOverlay = false // Disabled - ErrorOverlay handles timeout now
+
   return (
     <div className="fixed inset-0 z-40 pointer-events-none">
-      {/* TIMEOUT OVERLAY - CRITICAL FIX UI-007 */}
+      {/* TIMEOUT OVERLAY - DISABLED: ErrorOverlay now handles timeout with better UX */}
+      {/* CRITICAL FIX: Prevents multiple overlays from stacking and blocking UI */}
       <AnimatePresence>
-        {showTimeout && (
+        {showTimeoutInVoiceOverlay && (
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -170,6 +175,21 @@ export function VoiceOverlay({ question, interimText }: VoiceOverlayProps) {
       <div className="absolute bottom-32 left-4 right-4">
         <div className="bg-surface-card rounded-card shadow-card p-4">
           <p className="text-text-primary font-medium mb-2">{question}</p>
+
+          {/* BUG-003/018 FIX: Low confidence warning */}
+          {showLowConfidence && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-3 p-3 bg-warning-amber-bg border-2 border-warning-amber rounded-lg flex items-center gap-2"
+            >
+              <span className="text-[28px]">❓</span>
+              <div>
+                <p className="text-[16px] font-bold text-warning-amber">साफ़ नहीं सुनाई दिया</p>
+                <p className="text-[14px] text-text-secondary">कृपया फिर से बोलें या कीबोर्ड का उपयोग करें</p>
+              </div>
+            </motion.div>
+          )}
 
           {/* UI-015 FIX: Fast speech warning */}
           {showFastSpeechWarning && (

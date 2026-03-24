@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -88,7 +88,7 @@ export default function IdentityConfirmation() {
         <div className="flex items-center gap-2">
           <button
             onClick={handleBack}
-            className="w-10 h-10 flex items-center justify-center text-vedic-gold rounded-full active:bg-black/5"
+            className="w-[56px] h-[56px] flex items-center justify-center text-saffron rounded-full active:bg-black/5"
             aria-label="Go back"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -97,7 +97,7 @@ export default function IdentityConfirmation() {
           </button>
           <div className="flex items-center gap-2">
             <span className="text-2xl text-saffron">ॐ</span>
-            <span className="text-lg font-bold text-text-primary">HmarePanditJi</span>
+            <span className="text-lg font-bold text-text-lgrimary">HmarePanditJi</span>
           </div>
         </div>
       </header>
@@ -110,11 +110,11 @@ export default function IdentityConfirmation() {
           animate={{ scale: 1, opacity: 1 }}
           className="w-24 h-24 bg-saffron-light rounded-full flex items-center justify-center mb-6 mx-auto"
         >
-          <span className="text-4xl">🧑‍🦳</span>
+          <span className="text-lgxl">🧑‍🦳</span>
         </motion.div>
 
         {/* Title */}
-        <h1 className="text-2xl font-bold text-text-primary text-center mb-2">
+        <h1 className="text-2xl font-bold text-text-lgrimary text-center mb-2">
           पहचान की पुष्टि
         </h1>
         <p className="text-text-secondary text-center mb-8">
@@ -129,16 +129,16 @@ export default function IdentityConfirmation() {
         >
           <div className="flex items-center gap-4 mb-4">
             <div className="w-16 h-16 bg-saffron-light rounded-full flex items-center justify-center">
-              <span className="text-3xl">🧑‍🦳</span>
+              <span className="text-basexl">🧑‍🦳</span>
             </div>
             <div>
-              <h2 className="text-xl font-bold text-text-primary">पंडित रामेश्वर शर्मा</h2>
+              <h2 className="text-lgl font-bold text-text-lgrimary">पंडित रामेश्वर शर्मा</h2>
               <p className="text-text-secondary">वाराणसी, उत्तर प्रदेश</p>
             </div>
           </div>
 
           <div className="border-t border-border-default pt-4">
-            <div className="flex items-center gap-2 text-sm text-text-secondary">
+            <div className="flex items-center gap-2 text-lg text-text-secondary">
               <span className="material-symbols-outlined text-trust-green filled">check_circle</span>
               <span>आधार सत्यापित</span>
             </div>
@@ -153,7 +153,7 @@ export default function IdentityConfirmation() {
               <div className="w-1.5 bg-saffron rounded-full animate-voice-bar-2" />
               <div className="w-1.5 bg-saffron rounded-full animate-voice-bar-3" />
             </div>
-            <span className="text-saffron text-sm">सुन रहा हूँ...</span>
+            <span className="text-saffron text-lg">सुन रहा हूँ...</span>
           </div>
         )}
 
@@ -174,7 +174,7 @@ export default function IdentityConfirmation() {
         </div>
 
         {/* Voice hint */}
-        <p className="mt-6 text-center text-sm text-text-placeholder">
+        <p className="mt-6 text-center text-lg text-text-lglaceholder">
           🎤 &quot;हाँ&quot;, &quot;नहीं&quot;, या &quot;पीछे जाएं&quot; बोलें
         </p>
       </div>

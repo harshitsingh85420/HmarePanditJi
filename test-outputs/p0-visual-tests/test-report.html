@@ -1,0 +1,204 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>P0 Fixes Visual Test Report</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      border-radius: 12px;
+      margin-bottom: 30px;
+    }
+    .header h1 {
+      margin: 0 0 10px 0;
+      font-size: 28px;
+    }
+    .header p {
+      margin: 0;
+      opacity: 0.9;
+    }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+    .summary-card {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .summary-card h3 {
+      margin: 0;
+      font-size: 36px;
+    }
+    .summary-card.passed h3 { color: #10b981; }
+    .summary-card.failed h3 { color: #ef4444; }
+    .summary-card.warnings h3 { color: #f59e0b; }
+    .summary-card.total h3 { color: #6b7280; }
+    .summary-card p {
+      margin: 5px 0 0 0;
+      color: #6b7280;
+      font-size: 14px;
+    }
+    .section {
+      background: white;
+      padding: 25px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .section h2 {
+      margin: 0 0 20px 0;
+      color: #1f2937;
+      border-bottom: 2px solid #e5e7eb;
+      padding-bottom: 10px;
+    }
+    .test-item {
+      padding: 12px;
+      margin-bottom: 10px;
+      border-radius: 6px;
+      border-left: 4px solid;
+    }
+    .test-item.passed {
+      background: #d1fae5;
+      border-color: #10b981;
+    }
+    .test-item.failed {
+      background: #fee2e2;
+      border-color: #ef4444;
+    }
+    .test-item.warning {
+      background: #fef3c7;
+      border-color: #f59e0b;
+    }
+    .pass-rate {
+      font-size: 48px;
+      font-weight: bold;
+      text-align: center;
+      padding: 30px;
+    }
+    .pass-rate.good { color: #10b981; }
+    .pass-rate.bad { color: #ef4444; }
+    .screenshots {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
+    }
+    .screenshot-item {
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .screenshot-item img {
+      width: 100%;
+      height: 300px;
+      object-fit: cover;
+    }
+    .screenshot-item p {
+      padding: 10px;
+      margin: 0;
+      font-size: 12px;
+      color: #6b7280;
+      text-align: center;
+    }
+    .timestamp {
+      text-align: center;
+      color: #9ca3af;
+      font-size: 14px;
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🧪 P0 Fixes Visual Test Report</h1>
+    <p>HmarePanditJi — Visual Verification of Critical Bug Fixes</p>
+  </div>
+  
+  <div class="pass-rate bad">
+    Pass Rate: 20%
+  </div>
+  
+  <div class="summary">
+    <div class="summary-card passed">
+      <h3>1</h3>
+      <p>Passed</p>
+    </div>
+    <div class="summary-card failed">
+      <h3>3</h3>
+      <p>Failed</p>
+    </div>
+    <div class="summary-card warnings">
+      <h3>1</h3>
+      <p>Warnings</p>
+    </div>
+    <div class="summary-card total">
+      <h3>5</h3>
+      <p>Total Tests</p>
+    </div>
+  </div>
+  
+  
+  <div class="section">
+    <h2>✅ Passed Tests</h2>
+    
+      <div class="test-item passed">
+        <strong>✓ TEST #2: TTS Error Handling - App doesn't freeze on TTS failure</strong>
+      </div>
+    
+  </div>
+  
+  
+  
+  <div class="section">
+    <h2>❌ Failed Tests</h2>
+    
+      <div class="test-item failed">
+        <strong>✗ TEST #1: Mobile Number Persistence - Number lost after back navigation</strong>
+      </div>
+    
+      <div class="test-item failed">
+        <strong>✗ TEST #4: Splash Timing - Error: Waiting failed: 30000ms exceeded</strong>
+      </div>
+    
+      <div class="test-item failed">
+        <strong>✗ TEST #5: Language Globe Button - Missing on some screens</strong>
+      </div>
+    
+  </div>
+  
+  
+  
+  <div class="section">
+    <h2>⚠️ Warnings</h2>
+    
+      <div class="test-item warning">
+        <strong>⚠ TEST #3: OTP Language - Manual verification required</strong>
+      </div>
+    
+  </div>
+  
+  
+  
+  
+  <p class="timestamp">
+    Generated: 24/3/2026, 2:31:44 am
+  </p>
+</body>
+</html>

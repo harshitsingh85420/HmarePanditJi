@@ -20,10 +20,12 @@ export default function ProgressDots({ total, current, onDotClick }: ProgressDot
             className={[
               'rounded-full transition-all duration-300',
               isCurrent
-                ? 'w-3 h-3 bg-primary ring-2 ring-primary/25 ring-offset-1'
+                // P1 FIX: Increased from 12px to 16px for elderly visibility
+                ? 'w-4 h-4 bg-primary ring-2 ring-primary/25 ring-offset-1'
+                // P1 FIX: Increased from 10px to 14px for elderly visibility
                 : isCompleted
-                ? 'w-2.5 h-2.5 bg-primary cursor-pointer'
-                : 'w-2.5 h-2.5 bg-vedic-border cursor-default',
+                  ? 'w-[14px] h-[14px] bg-primary cursor-pointer'
+                  : 'w-[14px] h-[14px] bg-vedic-border cursor-default',
             ].join(' ')}
             aria-label={`Step ${dotNum}`}
             disabled={!isCompleted}

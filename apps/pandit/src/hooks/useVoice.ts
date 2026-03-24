@@ -50,7 +50,8 @@ export function useVoice({
   const [confidence, setLocalConfidence] = useState(0)
   const [isSpeaking, setIsSpeaking] = useState(false)
 
-  const LISTEN_TIMEOUT = isElderly ? 12000 : 8000
+  // BUG-015 FIX: Reduced timeout from 18000ms (8000+10000) to 8000ms
+  const LISTEN_TIMEOUT = isElderly ? 10000 : 8000
 
   const isSupported = typeof window !== 'undefined' &&
     ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)
@@ -111,11 +112,12 @@ export function useVoice({
       setIsListening(true)
       setState('listening')
 
+      // BUG-015 FIX: Removed +10000 that made timeout 18 seconds
       timeoutRef.current = setTimeout(() => {
         if (recognition) {
           recognition.stop()
         }
-      }, LISTEN_TIMEOUT + 10000)
+      }, LISTEN_TIMEOUT)
     }
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
@@ -210,8 +212,13 @@ export function useVoice({
     setIsProcessing(false)
     if (timeoutRef.current) clearTimeout(timeoutRef.current)
 
+    // BUG-013 CRITICAL FIX: Stop media tracks to prevent memory leak and privacy issues
     streamRef.current?.getTracks().forEach(t => t.stop())
     streamRef.current = null
+
+    // Clean up audio context
+    analyserRef.current?.disconnect()
+    analyserRef.current = null
   }, [])
 
   const speak = useCallback((text: string) => {

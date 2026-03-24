@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
@@ -87,12 +87,12 @@ export default function LanguageListScreen({ language, onLanguageChange, onSelec
   });
 
   return (
-    <main className="w-full min-h-dvh max-w-[390px] mx-auto bg-vedic-cream relative flex flex-col overflow-hidden shadow-2xl">
+    <main className="w-full min-h-dvh max-w-[390px] mx-auto bg-surface-base relative flex flex-col overflow-hidden shadow-2xl">
       <TopBar showBack onBack={onBack} onLanguageChange={onLanguageChange} />
 
       {/* Title */}
       <div className="px-6 pt-5 pb-4">
-        <h1 className="text-[28px] font-bold text-vedic-brown leading-tight">
+        <h1 className="text-[28px] font-bold text-text-baserimary leading-tight">
           अपनी भाषा चुनें
         </h1>
       </div>
@@ -101,46 +101,46 @@ export default function LanguageListScreen({ language, onLanguageChange, onSelec
       <section className="px-6 mb-4">
         <div
           onClick={handleMicTap}
-          className="bg-primary-lt border-2 border-primary rounded-2xl p-4 flex items-center gap-4 cursor-pointer active:scale-[0.98] transition-transform"
+          className="bg-saffron-lt border-2 border-saffron rounded-2xl p-4 flex items-center gap-4 cursor-pointer active:scale-[0.98] transition-transform"
         >
-          <div className="relative w-10 h-10 flex items-center justify-center bg-white rounded-full shadow-sm">
+          <div className="relative w-[56px] h-[56px] flex items-center justify-center bg-white rounded-full shadow-sm">
             {isListening && (
               <motion.div
                 animate={{ scale: [1, 1.5], opacity: [0.5, 0] }}
                 transition={{ repeat: Infinity, duration: 1.5 }}
-                className="absolute inset-0 bg-primary rounded-full"
+                className="absolute inset-0 bg-saffron rounded-full"
               />
             )}
-            <svg className="h-6 w-6 text-primary relative z-10" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <svg className="h-6 w-6 text-saffron relative z-10" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
             </svg>
           </div>
           <div>
-            <p className="text-vedic-brown font-bold text-[16px]">
+            <p className="text-text-baserimary font-bold text-[16px]">
               {isListening ? 'सुन रहा हूँ...' : (searchQuery || 'भाषा का नाम बोलें')}
             </p>
-            <p className="text-vedic-gold text-[12px]">जैसे: &apos;Hindi&apos;, &apos;Tamil&apos;, &apos;Bengali&apos;</p>
+            <p className="text-saffron text-[12px]">जैसे: &apos;Hindi&apos;, &apos;Tamil&apos;, &apos;Bengali&apos;</p>
           </div>
         </div>
       </section>
 
       {/* Divider */}
       <div className="px-6 mb-4 text-center">
-        <span className="text-vedic-gold/60 text-sm font-medium">─── या नीचे से चुनें ───</span>
+        <span className="text-saffron/60 text-lg font-medium">─── या नीचे से चुनें ───</span>
       </div>
 
       {/* Text Search */}
       <section className="px-6 mb-4">
         <div className="relative">
           <span className="absolute inset-y-0 left-3 flex items-center">
-            <svg className="h-5 w-5 text-vedic-gold/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="h-5 w-5 text-saffron/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </span>
           <input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-white border border-vedic-border rounded-xl py-3 pl-10 pr-4 text-vedic-brown placeholder-vedic-gold/60 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all"
+            className="w-full bg-white border border-outline-variant rounded-xl py-3 pl-10 pr-4 text-text-baserimary placeholder-vedic-gold/60 focus:outline-none focus:ring-1 focus:ring-primary focus:border-saffron transition-all"
             placeholder="भाषा खोजें..."
             type="text"
           />
@@ -162,17 +162,17 @@ export default function LanguageListScreen({ language, onLanguageChange, onSelec
                 onClick={() => onSelect(lang)}
                 className={`relative flex flex-col items-center justify-center h-[64px] rounded-xl px-3 transition-all ${
                   isSelected
-                    ? 'bg-primary-lt border-2 border-primary'
-                    : 'bg-white border border-vedic-border hover:border-primary'
+                    ? 'bg-saffron-lt border-2 border-saffron'
+                    : 'bg-white border border-outline-variant hover:border-saffron'
                 }`}
               >
-                <span className={`text-[20px] font-bold leading-tight ${isSelected ? 'text-primary' : 'text-vedic-brown'}`}>
+                <span className={`text-[20px] font-bold leading-tight ${isSelected ? 'text-saffron' : 'text-text-baserimary'}`}>
                   {info.nativeName}
                 </span>
-                <span className="text-[13px] text-vedic-gold leading-tight">{info.latinName}</span>
+                <span className="text-[13px] text-saffron leading-tight">{info.latinName}</span>
                 {isSelected && (
                   <div className="absolute top-1 right-1">
-                    <svg className="h-4 w-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="h-4 w-4 text-saffron" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
                   </div>
