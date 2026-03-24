@@ -40,7 +40,7 @@ export function VoiceOverlay({ question, interimText }: VoiceOverlayProps) {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
-            transition={{ type: 'spring', damping: 20 }}
+            transition={{ type: 'spring' as const, damping: 20 }}
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 pointer-events-auto"
           >
             <motion.div

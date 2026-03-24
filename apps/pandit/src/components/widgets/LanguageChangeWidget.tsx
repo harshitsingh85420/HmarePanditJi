@@ -42,7 +42,7 @@ const sheetVariants = {
   hidden: { y: '100%' },
   visible: {
     y: 0,
-    transition: { type: 'spring', damping: 25, stiffness: 300 }
+    transition: { type: 'spring' as const, damping: 25, stiffness: 300 }
   },
   exit: {
     y: '100%',

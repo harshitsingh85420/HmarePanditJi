@@ -38,7 +38,7 @@ export default function LanguageChangeBottomSheet({
         initial={{ y: '100%' }}
         animate={{ y: 0 }}
         exit={{ y: '100%' }}
-        transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+        transition={{ type: 'spring' as const, damping: 25, stiffness: 300 }}
         className="relative bg-white rounded-t-[24px] shadow-2xl flex flex-col max-h-[85vh]"
       >
         {/* Drag handle */}

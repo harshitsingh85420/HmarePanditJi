@@ -92,7 +92,7 @@ export default function LanguageConfirmScreen({
         <motion.section
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          transition={{ type: 'spring', damping: 20, stiffness: 200 }}
+          transition={{ type: 'spring' as const, damping: 20, stiffness: 200 }}
           className="w-full bg-white rounded-[20px] py-12 px-8 flex flex-col items-center shadow-card-hover animate-gentle-float"
         >
           <div className="text-[64px] font-bold mb-2 text-saffron animate-glow-pulse">

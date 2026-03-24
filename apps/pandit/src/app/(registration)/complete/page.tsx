@@ -25,23 +25,10 @@ const itemVariants = {
     y: 0,
     transition: {
       duration: 0.5,
-      type: 'spring',
+      type: 'spring' as const,
       stiffness: 100
     }
   }
-}
-
-const confettiVariants = {
-  hidden: { opacity: 0, y: -50 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: {
-      delay: i * 0.1,
-      duration: 0.6,
-      type: 'spring',
-    }
-  })
 }
 
 export default function RegistrationCompletePage() {
@@ -141,15 +128,10 @@ export default function RegistrationCompletePage() {
               return (
                 <motion.div
                   key={i}
-                  custom={i}
-                  variants={confettiVariants}
-                  className="absolute w-3 h-3 rounded-full"
-                  style={{
-                    left: `${Math.random() * 100}%`,
-                    top: `-20px`,
-                  }}
+                  initial={{ opacity: 0, y: -50 }}
                   animate={{
-                    y: [0, window.innerHeight + 50],
+                    opacity: 1,
+                    y: [0, typeof window !== 'undefined' ? window.innerHeight + 50 : 800],
                     rotate: [0, 360 * 2],
                     x: [0, Math.sin(i) * 50],
                   }}
@@ -158,6 +140,11 @@ export default function RegistrationCompletePage() {
                     repeat: Infinity,
                     ease: 'linear',
                     delay: i * 0.1,
+                  }}
+                  className="absolute w-3 h-3 rounded-full"
+                  style={{
+                    left: `${Math.random() * 100}%`,
+                    top: `-20px`,
                   }}
                 >
                   <div className={`w-full h-full rounded-full ${randomColor === '#FF8C00' ? 'bg-saffron' :

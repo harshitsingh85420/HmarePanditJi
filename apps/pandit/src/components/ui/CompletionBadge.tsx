@@ -92,7 +92,7 @@ export function SuccessCheckmark({
             animate={{ strokeDashoffset: 0 }}
             transition={{
               duration: 0.8,
-              ease: 'ease-out',
+              ease: 'easeOut',
             }}
           />
         ) : showCircle ? (
@@ -120,7 +120,7 @@ export function SuccessCheckmark({
             animate={{ strokeDashoffset: 0 }}
             transition={{
               duration: 0.5,
-              ease: 'ease-out',
+              ease: 'easeOut',
               delay: animated ? 0.6 : 0,
             }}
           />
@@ -247,7 +247,7 @@ export function CompletionBadge({
         initial={{ scale: 0.5, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{
-          type: 'spring',
+          type: 'spring' as const,
           damping: 15,
           stiffness: 200,
         }}

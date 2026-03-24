@@ -26,14 +26,14 @@ export function EntranceAnimation({
   const variants = {
     'fade-in': {
       hidden: { opacity: 0 },
-      visible: { 
+      visible: {
         opacity: 1,
         transition: { duration: 0.4, delay }
       },
     },
     'slide-up': {
       hidden: { opacity: 0, y: 30 },
-      visible: { 
+      visible: {
         opacity: 1,
         y: 0,
         transition: { duration: 0.5, delay }
@@ -41,34 +41,34 @@ export function EntranceAnimation({
     },
     'scale-spring': {
       hidden: { opacity: 0, scale: 0.8 },
-      visible: { 
+      visible: {
         opacity: 1,
         scale: 1,
-        transition: { 
-          type: 'spring',
+        transition: {
+          type: 'spring' as const,
           damping: 20,
           stiffness: 300,
-          delay 
+          delay
         }
       },
     },
     'pin-drop': {
       hidden: { opacity: 0, y: -30, scale: 1.2 },
-      visible: { 
+      visible: {
         opacity: 1,
         y: 0,
         scale: 1,
-        transition: { 
-          type: 'spring',
+        transition: {
+          type: 'spring' as const,
           damping: 15,
           stiffness: 400,
-          delay 
+          delay
         }
       },
     },
     'shimmer': {
       hidden: { opacity: 0, filter: 'blur(4px)' },
-      visible: { 
+      visible: {
         opacity: 1,
         filter: 'blur(0px)',
         transition: { duration: 0.6, delay }
@@ -152,7 +152,7 @@ export function TutorialHeroIllustration({
               <motion.div
                 key={angle}
                 className="absolute w-1 h-16 bg-gradient-to-t from-saffron/20 to-transparent origin-bottom"
-                style={{ 
+                style={{
                   transform: `rotate(${angle}deg) translateY(-${size === 'lg' ? '80' : size === 'md' ? '64' : '48'}px)`,
                 }}
                 animate={{
@@ -238,8 +238,8 @@ export function TutorialTextContent({
       )}
 
       {subtitle && (
-        <EntranceAnimation 
-          type="slide-up" 
+        <EntranceAnimation
+          type="slide-up"
           delay={stagger ? delay + 0.15 : delay}
         >
           <h2 className="text-4xl font-bold text-primary leading-tight font-devanagari">
@@ -249,8 +249,8 @@ export function TutorialTextContent({
       )}
 
       {description && (
-        <EntranceAnimation 
-          type="fade-in" 
+        <EntranceAnimation
+          type="fade-in"
           delay={stagger ? delay + 0.3 : delay}
         >
           <p className="text-2xl text-vedic-brown-2 font-normal mt-2 font-devanagari">
@@ -260,8 +260,8 @@ export function TutorialTextContent({
       )}
 
       {highlight && (
-        <EntranceAnimation 
-          type="shimmer" 
+        <EntranceAnimation
+          type="shimmer"
           delay={stagger ? delay + 0.45 : delay}
         >
           <p className="text-2xl italic text-vedic-gold leading-relaxed font-devanagari shimmer-text">

@@ -85,7 +85,7 @@ export function ErrorOverlay({ onRetry, onUseKeyboard }: ErrorOverlayProps) {
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                transition={{ type: 'spring', damping: 15 }}
+                transition={{ type: 'spring' as const, damping: 15 }}
                 className={`w-12 h-12 rounded-full bg-surface-card flex items-center justify-center`}
               >
                 <span className={`material-symbols-outlined text-2xl ${error.iconColor}`}>

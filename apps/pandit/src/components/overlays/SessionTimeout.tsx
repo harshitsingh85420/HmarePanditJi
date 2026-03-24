@@ -19,11 +19,11 @@ export function SessionTimeoutSheet() {
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
-            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            transition={{ type: 'spring' as const, damping: 25, stiffness: 300 }}
             className="w-full max-w-md bg-surface-card rounded-t-[20px] shadow-2xl p-6 pb-safe"
           >
             <div className="w-10 h-1 bg-border-default rounded-full mx-auto mb-4" />
-            
+
             <div className="text-center mb-6">
               <span className="material-symbols-outlined text-4xl text-saffron mb-2">
                 timer

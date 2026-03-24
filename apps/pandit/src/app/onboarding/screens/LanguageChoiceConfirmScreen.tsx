@@ -46,7 +46,7 @@ export default function LanguageChoiceConfirmScreen({
                 speak('Theek hai, phir se chunte hain.', 'hi-IN', () => onReject());
               }
             },
-            onError: () => {},
+            onError: () => { },
           });
 
           // 12s timeout: remind
@@ -84,7 +84,7 @@ export default function LanguageChoiceConfirmScreen({
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.7, type: 'spring' }}
+          transition={{ duration: 0.7, type: 'spring' as const }}
           className="space-y-2"
         >
           <h1 className="text-[56px] font-bold text-primary leading-tight">

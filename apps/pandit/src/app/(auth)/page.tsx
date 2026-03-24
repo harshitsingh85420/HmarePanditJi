@@ -187,8 +187,8 @@ export default function HomePage() {
         >
           <div className="flex items-center gap-2">
             <span className="text-text-secondary font-devanagari">पहले से जुड़े हैं?</span>
-            <a className="text-saffron font-bold decoration-saffron/30 underline underline-offset-4" href="/login">
-              Login
+            <a className="text-saffron font-bold decoration-saffron/30 underline underline-offset-4 min-h-[56px] min-w-[56px] flex items-center justify-center" href="/login">
+              लॉगिन करें
             </a>
           </div>
 

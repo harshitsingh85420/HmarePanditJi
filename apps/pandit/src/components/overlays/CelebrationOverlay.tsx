@@ -20,7 +20,7 @@ export function CelebrationOverlay() {
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 1.5, opacity: 0 }}
             transition={{
-              type: 'spring',
+              type: 'spring' as const,
               damping: 15,
               stiffness: 300,
               delay: 0.1

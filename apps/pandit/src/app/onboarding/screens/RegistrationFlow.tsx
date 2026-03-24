@@ -280,7 +280,7 @@ function RegistrationCompleteScreen({ name, language }: { name: string; language
 
   return (
     <main className="min-h-dvh max-w-[390px] mx-auto bg-surface-base font-hind text-text-primary flex flex-col items-center justify-center shadow-2xl px-6 text-center">
-      <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: 'spring' }}>
+      <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: 'spring' as const }}>
         <div className="text-[80px] mb-6 animate-gentle-float">🎉</div>
         <h1 className="text-[32px] font-bold text-text-primary mb-2">बधाई हो!</h1>
         <h2 className="text-[24px] font-bold text-saffron mb-4">{name} जी</h2>
