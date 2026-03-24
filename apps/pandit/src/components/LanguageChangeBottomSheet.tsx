@@ -32,7 +32,7 @@ export default function LanguageChangeBottomSheet({
         className="absolute inset-0 bg-black/60"
         onClick={onClose}
       />
-      
+
       {/* Sheet */}
       <motion.div
         initial={{ y: '100%' }}
@@ -55,7 +55,7 @@ export default function LanguageChangeBottomSheet({
               <p className="text-[16px] text-text-secondary">Change Language</p>
             </div>
           </div>
-          
+
           {/* Current language display */}
           <div className="bg-primary-lt border-2 border-primary rounded-xl px-4 py-3 flex items-center gap-3">
             <span className="text-[32px]">{currentDisplay.scriptChar}</span>
@@ -84,7 +84,7 @@ export default function LanguageChangeBottomSheet({
                       : 'bg-white border-vedic-border hover:border-primary/50',
                   ].join(' ')}
                 >
-                  <span className="text-[32px] font-bold" style={{ color: isActive ? '#FF8C00' : '#4A3728' }}>
+                  <span className="text-[32px] font-bold text-saffron">
                     {display.scriptChar}
                   </span>
                   <div className="flex-1">

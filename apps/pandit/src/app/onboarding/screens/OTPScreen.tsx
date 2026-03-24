@@ -198,9 +198,9 @@ export default function OTPScreen({ mobile, language, onVerified, onBack }: Prop
               className="w-full mb-4 flex items-center gap-3 px-4 py-2.5 bg-saffron-lt rounded-xl border border-saffron/20"
             >
               <div className="flex items-end gap-1 h-5 shrink-0">
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <div key={i} className="w-1.5 bg-saffron rounded-full animate-voice-bar" style={{ animationDelay: `${i * 0.2}s` }} />
-                ))}
+                <div className="w-1.5 bg-saffron rounded-full animate-voice-bar" />
+                <div className="w-1.5 bg-saffron rounded-full animate-voice-bar-2" />
+                <div className="w-1.5 bg-saffron rounded-full animate-voice-bar-3" />
               </div>
               <span className="text-[14px] text-text-primary truncate">
                 {isSpeaking ? 'बोल रहा हूँ...' : (transcript || 'OTP बोलें...')}

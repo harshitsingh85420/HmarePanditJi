@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
-import { GlobalProviders } from '@/components/GlobalProviders'
+import ClientProviders from '@/components/ClientProviders'
 
 export const metadata: Metadata = {
   title: 'HmarePanditJi — Pandit Partner',
@@ -41,11 +41,9 @@ export default function RootLayout({
         />
       </head>
       <body className="bg-surface-base font-body text-text-primary selection:bg-saffron-light antialiased">
-        <GlobalProviders>
-          <div className="min-h-dvh max-w-[430px] mx-auto bg-surface-base">
-            {children}
-          </div>
-        </GlobalProviders>
+        <div className="min-h-dvh max-w-[430px] mx-auto bg-surface-base relative">
+          <ClientProviders>{children}</ClientProviders>
+        </div>
       </body>
     </html>
   )

@@ -49,11 +49,8 @@ export default function LanguageSetScreen({ language, onComplete }: LanguageSetS
 
   return (
     <main className="w-full min-h-dvh max-w-[390px] mx-auto bg-vedic-cream relative overflow-hidden flex flex-col items-center justify-center text-center px-8">
-      {/* Radial Background Overlay */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{ background: 'radial-gradient(circle at center, rgba(240, 153, 66, 0.08) 0%, rgba(240, 153, 66, 0) 70%)' }}
-      />
+      {/* Radial Background Overlay - Using diya-halo CSS class */}
+      <div className="absolute inset-0 pointer-events-none diya-halo" />
 
       {/* Animated Checkmark */}
       <div className="relative w-20 h-20 mb-10 z-10">
@@ -77,10 +74,9 @@ export default function LanguageSetScreen({ language, onComplete }: LanguageSetS
           {confetti.map((c) => (
             <div
               key={c.id}
-              className={`absolute animate-confetti-fall ${c.shape}`}
+              className={`absolute animate-confetti-fall ${c.shape} w-2 h-2`}
               style={{
                 left: c.left, top: c.top, backgroundColor: c.color,
-                width: '8px', height: '8px',
                 animationDuration: c.duration, animationDelay: c.delay,
               }}
             />

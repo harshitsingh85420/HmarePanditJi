@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useNetwork } from '@/hooks/useNetwork'
 import { NetworkBanner } from '@/components/overlays/NetworkBanner'
 import { CelebrationOverlay } from '@/components/overlays/CelebrationOverlay'
@@ -9,8 +9,17 @@ import { useUIStore } from '@/stores/uiStore'
 
 function InnerProviders({ children }: { children: React.ReactNode }) {
   useNetwork()
-
+  const [isMounted, setIsMounted] = useState(false)
   const { showCelebration, showNetworkBanner } = useUIStore()
+
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
+
+  // Only render overlays after mount to prevent hydration issues
+  if (!isMounted) {
+    return <>{children}</>
+  }
 
   return (
     <>

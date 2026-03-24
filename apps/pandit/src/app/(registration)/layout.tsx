@@ -11,13 +11,11 @@ import { LANGUAGE_TO_BCP47 } from '@/lib/voice-engine'
 
 export default function RegistrationLayout({ children }: { children: React.ReactNode }) {
   useSession()
+  const [isMounted, setIsMounted] = useState(false)
   const { showSessionTimeout } = useUIStore()
   const { data } = useRegistrationStore()
 
-  // Fix hydration: Only render LanguageBottomSheet after mount
-  const [isMounted, setIsMounted] = useState(false)
-  const [showLanguageSheet, setShowLanguageSheet] = useState(false)
-
+  // Fix hydration: Only render after mount
   useEffect(() => {
     setIsMounted(true)
   }, [])
@@ -34,12 +32,16 @@ export default function RegistrationLayout({ children }: { children: React.React
   }, [])
 
   const handleLanguageChange = () => {
-    setShowLanguageSheet(true)
+    // Language change handler
   }
 
   const handleLanguageSelect = (_language: SupportedLanguage) => {
-    setShowLanguageSheet(false)
-    // Language change will be handled by the store
+    // Language select handler
+  }
+
+  // Don't render layout until mounted to prevent hydration issues
+  if (!isMounted) {
+    return <>{children}</>
   }
 
   return (
@@ -72,14 +74,12 @@ export default function RegistrationLayout({ children }: { children: React.React
       {showSessionTimeout && <SessionTimeoutSheet />}
 
       {/* Language Bottom Sheet - Only render after mount to prevent hydration errors */}
-      {isMounted && (
-        <LanguageBottomSheet
-          isOpen={showLanguageSheet}
-          currentLanguage={data.language as SupportedLanguage}
-          onSelect={handleLanguageSelect}
-          onClose={() => setShowLanguageSheet(false)}
-        />
-      )}
+      <LanguageBottomSheet
+        isOpen={false}
+        currentLanguage={data.language as SupportedLanguage}
+        onSelect={handleLanguageSelect}
+        onClose={() => { }}
+      />
     </div>
   )
 }

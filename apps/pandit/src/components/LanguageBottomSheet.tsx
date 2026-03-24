@@ -105,7 +105,7 @@ export default function LanguageBottomSheet({
                       : 'bg-surface-card border-outline-variant',
                   ].join(' ')}
                 >
-                  <span className="text-[28px] font-bold" style={{ color: isActive ? '#F09942' : '#2D1B00' }}>
+                  <span className="text-[28px] font-bold text-saffron">
                     {display.scriptChar}
                   </span>
                   <div>

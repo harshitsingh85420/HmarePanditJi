@@ -92,9 +92,9 @@ function ProfileNameScreen({
         {(isListening || isSpeaking) && (
           <div className="w-full mb-4 flex items-center gap-3 px-4 py-3 bg-surface-card rounded-xl border border-saffron/20 min-h-[56px]">
             <div className="flex items-end gap-1 h-5 shrink-0">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="w-1.5 bg-saffron rounded-full animate-voice-bar" style={{ animationDelay: `${i * 0.2}s` }} />
-              ))}
+              <div className="w-1.5 bg-saffron rounded-full animate-voice-bar" />
+              <div className="w-1.5 bg-saffron rounded-full animate-voice-bar-2" />
+              <div className="w-1.5 bg-saffron rounded-full animate-voice-bar-3" />
             </div>
             <span className="text-lg text-text-primary truncate">
               {isSpeaking ? 'बोल रहा हूँ...' : (transcript || 'नाम बोलें...')}
@@ -219,9 +219,9 @@ function ProfileCityScreen({
         {(isListening || isSpeaking) && (
           <div className="mb-4 flex items-center gap-3 px-4 py-3 bg-surface-card rounded-xl border border-saffron/20 min-h-[56px]">
             <div className="flex items-end gap-1 h-5 shrink-0">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="w-1.5 bg-saffron rounded-full animate-voice-bar" style={{ animationDelay: `${i * 0.2}s` }} />
-              ))}
+              <div className="w-1.5 bg-saffron rounded-full animate-voice-bar" />
+              <div className="w-1.5 bg-saffron rounded-full animate-voice-bar-2" />
+              <div className="w-1.5 bg-saffron rounded-full animate-voice-bar-3" />
             </div>
             <span className="text-lg text-text-primary">{isSpeaking ? 'बोल रहा हूँ...' : 'शहर बोलें...'}</span>
           </div>
@@ -349,9 +349,9 @@ export default function RegistrationFlow({ onBack }: { onBack: () => void }) {
             <div className="text-[64px] mb-4 animate-gentle-float">🙏</div>
             <p className="text-[22px] font-bold text-text-primary">तैयार हो रहे हैं...</p>
             <div className="flex justify-center gap-2 mt-4">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="w-3 h-3 bg-saffron rounded-full animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
-              ))}
+              <div className="w-3 h-3 bg-saffron rounded-full animate-bounce delay-0" />
+              <div className="w-3 h-3 bg-saffron rounded-full animate-bounce delay-150" />
+              <div className="w-3 h-3 bg-saffron rounded-full animate-bounce delay-300" />
             </div>
           </div>
         </div>

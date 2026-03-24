@@ -69,8 +69,7 @@ export default function HelpScreen({ onLanguageChange, onBack }: HelpScreenProps
           {/* WhatsApp Card */}
           <a
             href="https://wa.me/919876543210"
-            className="flex items-center gap-4 rounded-card px-5 py-0 min-h-[64px] active:scale-[0.98] transition-transform"
-            style={{ backgroundColor: '#25D366' }}
+            className="flex items-center gap-4 rounded-card px-5 py-0 min-h-[64px] active:scale-[0.98] transition-transform bg-[#25D366]"
           >
             <div className="w-[56px] h-[56px] flex items-center justify-center shrink-0">
               <svg className="h-6 w-6 text-white" fill="currentColor" viewBox="0 0 24 24">

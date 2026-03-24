@@ -1,7 +1,16 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
-export type AppSection = 'homepage' | 'identity' | 'part0-tutorial' | 'part1-registration' | 'dashboard'
+export type AppSection =
+  | 'homepage'
+  | 'identity'
+  | 'identity-confirmation'
+  | 'welcome'
+  | 'part0-tutorial'
+  | 'part1-registration'
+  | 'registration-complete'
+  | 'dashboard'
+  | 'emergency-sos'
 
 interface NavigationState {
   history: string[]
@@ -122,10 +131,16 @@ export function getSectionFromPath(pathname: string): AppSection {
     return 'part0-tutorial'
   }
   if (pathname.includes('/onboarding/register') || pathname.includes('/(registration)')) {
+    if (pathname.includes('/complete')) {
+      return 'registration-complete'
+    }
     return 'part1-registration'
   }
   if (pathname.includes('/identity')) {
-    return 'identity'
+    return 'identity-confirmation'
+  }
+  if (pathname.includes('/welcome')) {
+    return 'welcome'
   }
   if (pathname.includes('/dashboard')) {
     return 'dashboard'

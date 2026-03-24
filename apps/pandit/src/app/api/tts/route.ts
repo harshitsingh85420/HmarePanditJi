@@ -112,6 +112,7 @@ export async function POST(request: NextRequest) {
 
   try {
     // BUG-049 FIX: Use retry logic for TTS fetch
+    // NOTE: Bulbul V3 does NOT support pitch and loudness parameters
     const sarvamResponse = await fetchWithRetry('https://api.sarvam.ai/text-to-speech', {
       method: 'POST',
       headers: {
@@ -122,9 +123,7 @@ export async function POST(request: NextRequest) {
         inputs: [body.text.trim()],
         target_language_code: body.languageCode ?? 'hi-IN',
         speaker: body.speaker ?? 'ratan',
-        pitch: body.pitch ?? 0,
         pace: body.pace ?? 0.9,
-        loudness: body.loudness ?? 1.0,
         speech_sample_rate: 22050,
         enable_preprocessing: true,   // handles numbers, abbreviations
         model: 'bulbul:v3',

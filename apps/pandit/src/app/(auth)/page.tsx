@@ -6,6 +6,7 @@ import { useEffect } from 'react'
 import { useRegistrationStore } from '@/stores/registrationStore'
 import { useNavigationStore } from '@/stores/navigationStore'
 import { speakWithSarvam } from '@/lib/sarvam-tts'
+import { PanditIllustration } from '@/components/illustrations/PremiumIcons'
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -56,19 +57,16 @@ export default function HomePage() {
 
   return (
     <div className="min-h-dvh flex flex-col bg-surface-base relative overflow-hidden">
-      {/* Sacred Gradient Backdrop */}
-      <div
-        className="fixed top-0 right-0 w-full h-full pointer-events-none -z-10"
-        style={{
-          background: 'radial-gradient(circle at top right, rgba(255,140,0,0.12) 0%, rgba(255,253,247,0) 55%)'
-        }}
-      />
+      {/* Sacred Gradient Backdrop - Using CSS class instead of inline style */}
+      <div className="fixed inset-0 bg-sacred pointer-events-none -z-10" />
 
       {/* Top Bar */}
       <header className="sticky top-0 z-50 bg-surface-base">
         <div className="flex items-center justify-between px-6 py-4">
-          <h1 className="font-serif text-lgl font-bold text-saffron tracking-tight">
-            HmarePanditJi 🪔
+          <h1 className="font-serif text-lg font-bold text-saffron tracking-tight flex items-center gap-2">
+            <span className="text-2xl shimmer-text">ॐ</span>
+            <span className="shimmer-text">HmarePanditJi</span>
+            <span className="text-xl">🪔</span>
           </h1>
           <button className="w-[56px] h-[56px] flex items-center justify-center rounded-full bg-surface-container-lowest shadow-sm text-saffron transition-transform active:scale-90">
             <span className="material-symbols-outlined">language</span>
@@ -78,16 +76,25 @@ export default function HomePage() {
 
       {/* Main Content */}
       <main className="flex-1 px-6 pb-12 pt-4 flex flex-col">
-        {/* Hero Section */}
+        {/* Hero Section with Premium Pandit Illustration */}
         <motion.section
           variants={containerVariants}
           initial="hidden"
           animate="visible"
           className="mb-10"
         >
+          {/* Premium Pandit Illustration with shimmer and glow */}
+          <motion.div variants={itemVariants} className="flex justify-center mb-6 relative">
+            {/* Diya halo effect behind illustration */}
+            <div className="absolute inset-0 diya-halo rounded-full blur-xl -z-10" />
+            <div className="shimmer-text">
+              <PanditIllustration size="lg" animated={true} />
+            </div>
+          </motion.div>
+
           <motion.h2
             variants={itemVariants}
-            className="font-headline text-basexl font-bold text-on-surface leading-tight mb-4 font-devanagari text-center"
+            className="font-headline text-2xl font-bold text-text-primary leading-tight mb-4 font-devanagari text-center"
           >
             पंडित जी का वक्त पूजा में लगे, बाकी सब हम सँभालेंगे
           </motion.h2>
@@ -126,45 +133,45 @@ export default function HomePage() {
           animate="visible"
           className="flex-grow flex flex-col gap-6"
         >
-          {/* Card 1: Customer (Indigo Tint) */}
+          {/* Card 1: Customer (Indigo Tint) - Matching homepage_e_01 reference */}
           <motion.div variants={itemVariants}>
             <motion.button
               whileTap={{ scale: 0.98 }}
               onClick={handleCustomerEntry}
-              className="w-full relative overflow-hidden p-8 rounded-3xl bg-indigo-tint border border-indigo-border shadow-sm flex flex-col items-center justify-center text-center active:scale-[0.98] transition-all"
+              className="w-full relative overflow-hidden p-8 rounded-3xl bg-indigo-50/60 border border-indigo-100/50 shadow-sm flex flex-col items-center justify-center text-center active:scale-[0.98] transition-all"
             >
-              <div className="mb-4 text-lgxl">🙏</div>
-              <h2 className="text-2xl font-bold text-indigo-text font-devanagari mb-2">
+              <div className="mb-4 text-5xl">🙏</div>
+              <h2 className="text-2xl font-bold text-indigo-900 font-devanagari mb-2">
                 मुझे पंडित चाहिए
               </h2>
-              <p className="text-indigo-text/80 text-lg">Find verified priests for your rituals</p>
-              <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-indigo-tint rounded-full blur-2xl" />
+              <p className="text-indigo-700/80 text-sm">Find verified priests for your rituals</p>
+              <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-indigo-200/20 rounded-full blur-2xl" />
             </motion.button>
           </motion.div>
 
-          {/* Card 2: Pandit (Primary Elevated) */}
+          {/* Card 2: Pandit (Primary Elevated) - Matching homepage_e_01 reference */}
           <motion.div variants={itemVariants}>
             <motion.button
               whileTap={{ scale: 0.98 }}
               onClick={handlePanditEntry}
-              className="w-full relative overflow-hidden p-8 rounded-3xl bg-surface-card shadow-[0px_8px_24px_rgba(144,77,0,0.08)] flex flex-col items-center justify-center text-center border-l-4 border-saffron active:scale-[0.98] transition-all"
+              className="w-full relative overflow-hidden p-8 rounded-3xl bg-surface-container-lowest shadow-[0px_8px_24px_rgba(144,77,0,0.08)] flex flex-col items-center justify-center text-center border-l-4 border-saffron active:scale-[0.98] transition-all"
             >
               {/* Badge */}
-              <div className="absolute top-4 right-4 bg-trust-green-bg text-trust-green px-3 py-1 rounded-full text-lgs font-bold flex items-center gap-1">
+              <div className="absolute top-4 right-4 bg-trust-green-bg text-trust-green px-3 py-1 rounded-full text-sm font-bold flex items-center gap-1">
                 <span className="w-2 h-2 rounded-full bg-trust-green" />
                 Joining free
               </div>
 
-              <div className="mb-4 text-lgxl">🪔</div>
-              <h2 className="text-2xl font-bold text-text-saffron font-devanagari mb-6">
+              <div className="mb-4 text-5xl shimmer-text">🪔</div>
+              <h2 className="text-2xl font-bold text-text-primary font-devanagari mb-6">
                 क्या आप एक पंडित हैं?
               </h2>
 
-              <button className="w-full h-14 bg-gradient-to-b from-saffron to-saffron-dark text-white font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 px-6 active:scale-95 transition-transform">
+              <button className="w-full h-14 bg-gradient-to-b from-primary-container to-tertiary-container text-white font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 px-6 active:scale-95 transition-transform">
                 <span className="font-bold text-lg">Pandit Ke Roop Mein Judein 🪔</span>
               </button>
 
-              <p className="mt-4 text-text-secondary text-lg font-devanagari">
+              <p className="mt-4 text-text-secondary text-sm font-devanagari">
                 पंजीकरण में मात्र २ मिनट लगेंगे
               </p>
             </motion.button>

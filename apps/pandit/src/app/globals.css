@@ -76,6 +76,40 @@
     font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
   }
 
+  /* Utility class for filled material icons - replaces inline style */
+  .material-symbols-filled {
+    font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
+
+  /* Animation delay utilities for voice bars */
+  .delay-100 {
+    animation-delay: 0.1s;
+  }
+
+  .delay-150 {
+    animation-delay: 0.15s;
+  }
+
+  .delay-200 {
+    animation-delay: 0.2s;
+  }
+
+  .delay-300 {
+    animation-delay: 0.3s;
+  }
+
+  .delay-400 {
+    animation-delay: 0.4s;
+  }
+
+  .delay-500 {
+    animation-delay: 0.5s;
+  }
+
+  .delay-600 {
+    animation-delay: 0.6s;
+  }
+
   /* Devanagari text utility */
   .text-devanagari {
     font-family: var(--font-devanagari);
@@ -185,5 +219,207 @@
 
   100% {
     transform: rotate(360deg);
+  }
+}
+
+/* Shimmer text animation - subtle glow sweep on religious icons */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.shimmer-text {
+  background: linear-gradient(90deg,
+      rgba(255, 140, 0, 0) 0%,
+      rgba(255, 140, 0, 0.3) 50%,
+      rgba(255, 140, 0, 0) 100%);
+  background-size: 1000px 100%;
+  animation: shimmer 3s ease-in-out infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* SOS pulse animation */
+@keyframes sos-pulse {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(255, 140, 0, 0.7);
+  }
+
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 20px rgba(255, 140, 0, 0);
+  }
+
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(255, 140, 0, 0);
+  }
+}
+
+.sos-pulse {
+  animation: sos-pulse 2s infinite;
+}
+
+/* Enhanced saffron-glow for active voice states */
+.saffron-glow-active {
+  box-shadow: 0 0 60px rgba(255, 140, 0, 0.25), 0 0 20px rgba(255, 140, 0, 0.15);
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+@keyframes glow-pulse {
+
+  0%,
+  100% {
+    box-shadow: 0 0 40px rgba(255, 140, 0, 0.15);
+  }
+
+  50% {
+    box-shadow: 0 0 60px rgba(255, 140, 0, 0.25), 0 0 20px rgba(255, 140, 0, 0.15);
+  }
+}
+
+/* Splash gradient for onboarding */
+.splash-gradient {
+  background: radial-gradient(circle at top right, rgba(255, 140, 0, 0.15) 0%, rgba(255, 253, 247, 0) 60%),
+    radial-gradient(circle at bottom left, rgba(255, 140, 0, 0.08) 0%, rgba(255, 253, 247, 0) 50%);
+}
+
+/* Radial gradient utility */
+.bg-gradient-radial {
+  background: radial-gradient(circle, var(--tw-gradient-stops));
+}
+
+/* Animation utilities for tutorial screens */
+@keyframes scale-spring {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+
+  50% {
+    transform: scale(1.05);
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-scale-spring {
+  animation: scale-spring 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes pin-drop {
+  0% {
+    transform: translateY(-20px) scale(1.2);
+    opacity: 0;
+  }
+
+  50% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+
+  70% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-pin-drop {
+  animation: pin-drop 0.6s ease-out forwards;
+}
+
+@keyframes gentle-float {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-gentle-float {
+  animation: gentle-float 4s ease-in-out infinite;
+}
+
+.animate-glow {
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+
+  0%,
+  100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+/* Glow pulse animation for premium cards */
+@keyframes glow-pulse-slow {
+
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(255, 140, 0, 0.1);
+  }
+
+  50% {
+    box-shadow: 0 0 30px rgba(255, 140, 0, 0.2);
+  }
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse-slow 3s ease-in-out infinite;
+}
+
+/* Accessibility: Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Keep essential animations for voice states */
+  .saffron-glow-active,
+  .sos-pulse {
+    animation: none !important;
+    box-shadow: 0 0 20px rgba(255, 140, 0, 0.15);
+  }
+
+  /* Keep shimmer but make it static */
+  .shimmer-text {
+    background: linear-gradient(90deg,
+        rgba(255, 140, 0, 0) 0%,
+        rgba(255, 140, 0, 0.3) 50%,
+        rgba(255, 140, 0, 0) 100%);
+    background-size: 1000px 100%;
+    animation: none !important;
   }
 }

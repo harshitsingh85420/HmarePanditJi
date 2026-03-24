@@ -19,7 +19,29 @@ interface UIStore {
   setCelebrationStepName: (stepName: string) => void
 }
 
+// Default values for SSR
+const defaultState: UIStore = {
+  isOnline: true,
+  showNetworkBanner: false,
+  helpSheetOpen: false,
+  sessionTimeoutOpen: false,
+  sessionSaveNoticeVisible: false,
+  showCelebration: false,
+  celebrationStepName: '',
+  showSessionTimeout: false,
+  setOnline: () => { },
+  setNetworkBanner: () => { },
+  setHelpSheet: () => { },
+  setSessionTimeout: () => { },
+  setSessionSaveNotice: () => { },
+  triggerCelebration: () => { },
+  dismissCelebration: () => { },
+  setCelebrationStepName: () => { },
+}
+
+// Create store with SSR-safe initialization
 export const useUIStore = create<UIStore>()((set) => ({
+  ...defaultState,
   isOnline: true,
   showNetworkBanner: false,
   helpSheetOpen: false,

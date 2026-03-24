@@ -79,8 +79,7 @@ export function ConfirmationSheet({
             exit={{ y: '100%' }}
             transition={{ type: 'tween', duration: 0.32, ease: [0.32, 0, 0, 1] }}
             className="fixed bottom-[100px] left-0 right-0 z-40 bg-surface-card max-w-md mx-auto
-                       rounded-t-[20px] shadow-sheet overflow-hidden"
-            style={{ maxHeight: '60vh' }}
+                       rounded-t-[20px] shadow-sheet overflow-hidden max-h-[60vh]"
           >
             {/* Handle bar */}
             <div className="flex justify-center pt-3 pb-2">

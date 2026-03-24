@@ -244,9 +244,9 @@ export default function MobileNumberScreen({ language, onComplete, onBack }: Pro
               ) : (
                 <div className="flex items-center gap-2 overflow-hidden">
                   <div className="flex items-end gap-1 h-5 shrink-0">
-                    {Array.from({ length: 3 }).map((_, i) => (
-                      <div key={i} className="w-1.5 bg-saffron rounded-full animate-voice-bar" style={{ animationDelay: `${i * 0.2}s` }} />
-                    ))}
+                    <div className="w-1.5 bg-saffron rounded-full animate-voice-bar" />
+                    <div className="w-1.5 bg-saffron rounded-full animate-voice-bar-2" />
+                    <div className="w-1.5 bg-saffron rounded-full animate-voice-bar-3" />
                   </div>
                   <span className="text-[14px] text-text-primary truncate">
                     {isSpeaking ? 'बोल रहा हूँ...' : (transcript || 'नंबर बोलें...')}

@@ -78,7 +78,7 @@ export function ErrorOverlay({ onRetry, onUseKeyboard }: ErrorOverlayProps) {
           <motion.div
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className={`${error.bgColor} ${error.borderColor} border-2 rounded-card p-4 shadow-card max-h-[70vh] overflow-y-auto`}
+            className={`${error.bgColor} ${error.borderColor} border-2 rounded-card p-4 shadow-card saffron-glow-active max-h-[70vh] overflow-y-auto`}
           >
             {/* Header with icon */}
             <div className="flex items-center gap-3 mb-4">

@@ -16,8 +16,8 @@ export default function VoiceIndicator({
       {/* Animated bars */}
       <div className="flex items-end gap-1 h-6">
         <div className="voice-bar" />
-        <div className="voice-bar" style={{ animationDelay: '0.2s' }} />
-        <div className="voice-bar" style={{ animationDelay: '0.4s' }} />
+        <div className="voice-bar delay-200" />
+        <div className="voice-bar delay-400" />
       </div>
       <span className="text-saffron text-lg">{label}</span>
     </div>

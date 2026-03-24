@@ -129,7 +129,7 @@ export default function TutorialVoiceNav({
                 animate={{ scaleY: [1, 2, 1] }}
                 transition={{ duration: 0.8, repeat: Infinity, delay: index * 0.15 }}
                 className="w-1 bg-primary rounded-full"
-                style={{ height: `${height * 3}px`, transformOrigin: 'bottom' }}
+                style={{ height: height * 3 }}
               />
             ))}
           </div>

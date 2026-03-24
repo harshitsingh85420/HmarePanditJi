@@ -1,5 +1,7 @@
 'use client'
 
+import { sttEngine, type STTOptions } from './sarvamSTT'
+
 // ─────────────────────────────────────────────────────────────
 // TYPES
 // ─────────────────────────────────────────────────────────────
@@ -23,9 +25,14 @@ export type VoiceEngineConfig = {
   language?: string         // BCP-47 language tag, e.g. 'hi-IN', 'en-IN'
   confidenceThreshold?: number  // 0-1, default 0.65
   listenTimeoutMs?: number     // How long to listen, default 12000ms
+  inputType?: 'mobile' | 'otp' | 'yes_no' | 'name' | 'text' | 'address' | 'date'
+  isElderly?: boolean        // Use longer timeout for elderly users
+  useSarvam?: boolean        // Force Sarvam STT (default: true if configured)
   onStateChange?: (state: VoiceState) => void
   onResult?: (result: VoiceResult) => void
   onError?: (error: string) => void
+  onInterimResult?: (text: string) => void  // Real-time partial transcription
+  onNoiseLevel?: (dbLevel: number) => void  // Ambient noise level callback
 }
 
 type BrowserSpeechRecognitionCtor = new () => SpeechRecognition
@@ -554,6 +561,161 @@ export function speakEchoAndResume(
   })
 }
 
+// ─────────────────────────────────────────────────────────────
+// SARVAM AI STT INTEGRATION (Enterprise-grade)
+// Uses Sarvam AI WebSocket streaming for Indian language support
+// Falls back to Web Speech API if Sarvam is not configured
+// ─────────────────────────────────────────────────────────────
+
+let sarvamCleanup: (() => void) | null = null
+
+/**
+ * Start listening using Sarvam AI STT (preferred) or Web Speech API (fallback)
+ * This is the main entry point for voice input with enterprise-grade reliability
+ */
+export function startListeningWithSarvam(config: VoiceEngineConfig): () => void {
+  if (typeof window === 'undefined') return () => { }
+
+  const {
+    language = 'hi-IN',
+    inputType = 'text',
+    isElderly = false,
+    useSarvam = true,
+    confidenceThreshold = 0.65,
+    onStateChange,
+    onResult,
+    onError,
+    onInterimResult,
+    onNoiseLevel,
+  } = config
+
+  // Check if Sarvam should be used (and is available)
+  const shouldUseSarvam = useSarvam && process.env.NEXT_PUBLIC_SARVAM_API_KEY
+
+  if (!shouldUseSarvam) {
+    // Fall back to Web Speech API
+    console.log('[VoiceEngine] Using Web Speech API fallback')
+    return startListening(config)
+  }
+
+  // Use Sarvam AI STT
+  console.log('[VoiceEngine] Using Sarvam AI STT with language:', language, 'inputType:', inputType)
+
+  if (!sttEngine) {
+    console.warn('[VoiceEngine] Sarvam STT engine not initialized, falling back to Web Speech API')
+    return startListening(config)
+  }
+
+  // Convert VoiceEngineConfig to STTOptions
+  const sttOptions: STTOptions = {
+    language,
+    inputType,
+    isElderly,
+    onInterimResult: (text: string) => {
+      onInterimResult?.(text)
+    },
+    onFinalResult: (transcript: string, confidence: number) => {
+      setGlobalVoiceState('PROCESSING')
+      onStateChange?.('PROCESSING')
+
+      // Normalize confidence to 0-1 scale
+      const normalizedConfidence = Math.min(1, Math.max(0, confidence))
+
+      if (normalizedConfidence >= confidenceThreshold) {
+        setGlobalVoiceState('SUCCESS')
+        onStateChange?.('SUCCESS')
+        onResult?.({
+          transcript,
+          confidence: normalizedConfidence,
+          isFinal: true,
+        })
+      } else {
+        setGlobalVoiceState('FAILURE')
+        onStateChange?.('FAILURE')
+        onError?.('LOW_CONFIDENCE')
+      }
+    },
+    onSilenceDetected: () => {
+      setGlobalVoiceState('IDLE')
+      onStateChange?.('IDLE')
+      onError?.('SILENCE_TIMEOUT')
+    },
+    onError: (error: string) => {
+      console.warn('[VoiceEngine] Sarvam STT error:', error)
+      setGlobalVoiceState('FAILURE')
+      onStateChange?.('FAILURE')
+
+      // Handle error cascade (3 errors -> keyboard fallback)
+      if (error === 'keyboard_fallback') {
+        onError?.('KEYBOARD_FALLBACK')
+      } else {
+        onError?.(error)
+      }
+    },
+    onNoiseLevel: (dbLevel: number) => {
+      onNoiseLevel?.(dbLevel)
+
+      // If noise is too high, warn user
+      if (dbLevel > 65) {
+        setGlobalVoiceState('NOISE_WARNING')
+        onStateChange?.('NOISE_WARNING')
+      }
+    },
+  }
+
+  // Start Sarvam STT
+  setGlobalVoiceState('LISTENING')
+  onStateChange?.('LISTENING')
+
+  sttEngine.startListening(sttOptions).catch((err: any) => {
+    console.error('[VoiceEngine] Sarvam STT start failed:', err)
+    setGlobalVoiceState('FAILURE')
+    onStateChange?.('FAILURE')
+    onError?.(err.message || 'STT_START_FAILED')
+
+    // Auto-fallback to Web Speech API
+    console.log('[VoiceEngine] Falling back to Web Speech API')
+    return startListening(config)
+  })
+
+  // Return cleanup function
+  return () => {
+    if (sarvamCleanup) {
+      sarvamCleanup()
+      sarvamCleanup = null
+    }
+    sttEngine?.stopListening()
+  }
+}
+
+/**
+ * Check if Sarvam AI is configured and available
+ */
+export function isSarvamAvailable(): boolean {
+  return !!(typeof window !== 'undefined' && process.env.NEXT_PUBLIC_SARVAM_API_KEY && sttEngine)
+}
+
+/**
+ * Get current error count from Sarvam engine (for cascade logic)
+ */
+export function getSarvamErrorCount(): number {
+  return sttEngine?.getErrorCount() || 0
+}
+
+/**
+ * Reset Sarvam error count (call after successful recognition)
+ */
+export function resetSarvamErrors(): void {
+  sttEngine?.resetErrorCount()
+}
+
+/**
+ * Get current ambient noise level from Sarvam engine
+ */
+export function getSarvamNoiseLevel(): number {
+  return sttEngine?.getCurrentNoiseLevel() || 0
+}
+
 export function isVoiceSupported(): boolean {
   if (typeof window === 'undefined') return false
   const speechWindow = window as BrowserSpeechWindow
@@ -562,5 +724,9 @@ export function isVoiceSupported(): boolean {
     speechWindow.SpeechRecognition ||
     speechWindow.webkitSpeechRecognition
   )
-  return hasTTS && hasSTT
+  const hasSarvam = isSarvamAvailable()
+
+  // If Sarvam is available, we have enterprise-grade STT
+  // Otherwise, fall back to browser Web Speech API
+  return hasTTS && (hasSarvam || hasSTT)
 }

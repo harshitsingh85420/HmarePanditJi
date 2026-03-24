@@ -85,14 +85,14 @@ export function VoiceOverlay({ question, interimText }: VoiceOverlayProps) {
         )}
       </AnimatePresence>
 
-      {/* Voice wave animation */}
+      {/* Voice wave animation with saffron-glow */}
       <AnimatePresence>
         {isListening && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-saffron-light/20 to-transparent h-32"
+            className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-saffron-light/20 to-transparent h-32 saffron-glow-active"
           >
             <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex items-end gap-1 h-8">
               {[...Array(5)].map((_, i) => (
@@ -112,14 +112,14 @@ export function VoiceOverlay({ question, interimText }: VoiceOverlayProps) {
         )}
       </AnimatePresence>
 
-      {/* Ambient Noise Indicator - UI-010 FIX: Larger text */}
+      {/* Ambient Noise Indicator with saffron-glow */}
       <AnimatePresence>
         {isListening && (
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 20 }}
-            className="absolute bottom-40 right-4 bg-surface-card rounded-card shadow-card p-3 pointer-events-auto"
+            className="absolute bottom-40 right-4 bg-surface-card rounded-card shadow-card p-3 pointer-events-auto saffron-glow-active"
           >
             <div className="flex items-center gap-2 mb-2">
               <span className="material-symbols-outlined text-text-secondary text-[20px]">
@@ -139,9 +139,8 @@ export function VoiceOverlay({ question, interimText }: VoiceOverlayProps) {
                   <motion.div
                     key={i}
                     className={`w-2 rounded-full ${barColor}`}
-                    style={{ height }}
                     animate={{
-                      scaleY: isListening ? [0.3, 1, 0.3] : 0.3,
+                      height: isListening ? [8, height, 8] : 8,
                     }}
                     transition={{
                       duration: 0.8,
