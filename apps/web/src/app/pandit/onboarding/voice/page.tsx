@@ -31,9 +31,9 @@ export default function VoiceProfileSetupPage() {
                 </div>
                 <div className="hidden md:flex flex-1 justify-end gap-8">
                     <div className="flex items-center gap-9">
-                        <a href="#" className="text-[#181112] dark:text-white text-sm font-medium">Services</a>
-                        <a href="#" className="text-[#181112] dark:text-white text-sm font-medium">Travel</a>
-                        <a href="#" className="text-[#181112] dark:text-white text-sm font-medium">Support</a>
+                        <a href="#" className="text-[#181112] dark:text-white text-lg font-medium">Services</a>
+                        <a href="#" className="text-[#181112] dark:text-white text-lg font-medium">Travel</a>
+                        <a href="#" className="text-[#181112] dark:text-white text-lg font-medium">Support</a>
                     </div>
                     <div
                         className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-[#cf1736]"
@@ -51,14 +51,14 @@ export default function VoiceProfileSetupPage() {
                     <div className="flex flex-col gap-4 mb-8">
                         <div className="flex gap-6 justify-between items-end">
                             <div className="flex flex-col">
-                                <span className="text-[#cf1736] text-xs font-bold uppercase tracking-wider">
+                                <span className="text-[#cf1736] text-base font-bold uppercase tracking-wider">
                                     Registration
                                 </span>
                                 <p className="text-[#181112] dark:text-white text-lg font-bold leading-normal">
                                     Profile Setup
                                 </p>
                             </div>
-                            <p className="text-[#181112] dark:text-white text-sm font-bold leading-normal">
+                            <p className="text-[#181112] dark:text-white text-lg font-bold leading-normal">
                                 Step 1 of 4
                             </p>
                         </div>
@@ -129,10 +129,10 @@ export default function VoiceProfileSetupPage() {
                                 <span className="material-symbols-outlined !text-4xl text-[#cf1736] mb-2 group-hover:scale-110 transition-transform">
                                     add_a_photo
                                 </span>
-                                <span className="text-sm font-bold text-[#181112] dark:text-white">
+                                <span className="text-lg font-bold text-[#181112] dark:text-white">
                                     Front Side
                                 </span>
-                                <span className="text-xs text-[#886369] dark:text-[#b09498]">
+                                <span className="text-base text-[#886369] dark:text-[#b09498]">
                                     Aadhaar card front photo
                                 </span>
                             </div>
@@ -140,10 +140,10 @@ export default function VoiceProfileSetupPage() {
                                 <span className="material-symbols-outlined !text-4xl text-[#cf1736] mb-2 group-hover:scale-110 transition-transform">
                                     add_a_photo
                                 </span>
-                                <span className="text-sm font-bold text-[#181112] dark:text-white">
+                                <span className="text-lg font-bold text-[#181112] dark:text-white">
                                     Back Side
                                 </span>
-                                <span className="text-xs text-[#886369] dark:text-[#b09498]">
+                                <span className="text-base text-[#886369] dark:text-[#b09498]">
                                     Aadhaar card back photo
                                 </span>
                             </div>
@@ -164,7 +164,7 @@ export default function VoiceProfileSetupPage() {
                     </div>
 
                     <div className="mt-12 text-center">
-                        <p className="text-sm text-[#886369] dark:text-[#b09498]">
+                        <p className="text-lg text-[#886369] dark:text-[#b09498]">
                             Need help? Call our support at{" "}
                             <a className="text-[#cf1736] font-bold hover:underline" href="#">
                                 1800-PANDIT
@@ -175,7 +175,7 @@ export default function VoiceProfileSetupPage() {
             </main>
 
             <footer className="mt-auto py-6 px-10 border-t border-[#e5dcdd] dark:border-[#3d2a2d] text-center bg-white dark:bg-[#211114]">
-                <p className="text-xs text-[#886369] dark:text-[#b09498]">
+                <p className="text-base text-[#886369] dark:text-[#b09498]">
                     © 2024 HmarePanditJi Spiritual Services. Accessible Design for
                     Everyone.
                 </p>

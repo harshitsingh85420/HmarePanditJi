@@ -2,8 +2,9 @@
 
 import { useCallback, useEffect, useRef } from 'react'
 import { useVoiceStore } from '@/stores/voiceStore'
-import { speakWithSarvam } from '@/lib/sarvam-tts'
+import { speakWithSarvam, LANGUAGE_TO_SARVAM_CODE, type SarvamLanguageCode } from '@/lib/sarvam-tts'
 import { startListeningWithSarvam, type VoiceEngineConfig } from '@/lib/voice-engine'
+import type { SupportedLanguage } from '@/lib/onboarding-store'
 
 /**
  * 3-Error Cascade Voice Recovery System
@@ -17,7 +18,7 @@ import { startListeningWithSarvam, type VoiceEngineConfig } from '@/lib/voice-en
  */
 
 interface UseVoiceCascadeOptions {
-  language?: string
+  language?: SupportedLanguage
   inputType?: 'mobile' | 'otp' | 'yes_no' | 'name' | 'text'
   isElderly?: boolean
   questionText?: string        // The question we're asking (for reprompt)
@@ -39,7 +40,7 @@ interface UseVoiceCascadeReturn {
 }
 
 export function useVoiceCascade({
-  language = 'hi-IN',
+  language = 'Hindi' as SupportedLanguage,
   inputType = 'text',
   isElderly = true,
   questionText,
@@ -88,9 +89,10 @@ export function useVoiceCascade({
   // Play error reprompt voice
   const playErrorReprompt = useCallback(async (count: number) => {
     const message = getErrorMessage(count)
+    const sarvamLangCode: SarvamLanguageCode = LANGUAGE_TO_SARVAM_CODE[language] || 'hi-IN'
     await speakWithSarvam({
       text: message,
-      languageCode: language as any,
+      languageCode: sarvamLangCode,
       pace: 0.85,
     })
   }, [getErrorMessage, language])
@@ -105,14 +107,16 @@ export function useVoiceCascade({
   const handleError = useCallback(async (error: string) => {
     console.log('[VoiceCascade] Error:', error, 'count:', errorCount)
 
+    const sarvamLangCode: SarvamLanguageCode = LANGUAGE_TO_SARVAM_CODE[language] || 'hi-IN'
+
     if (error === 'KEYBOARD_FALLBACK' || errorCount >= 2) {
       // Third error (or explicit fallback) - switch to keyboard
       storeSwitchToKeyboard()
       onKeyboardFallback?.()
-      
+
       await speakWithSarvam({
         text: 'कोई बात नहीं। अब बटन दबाकर चुनें।',
-        languageCode: language as any,
+        languageCode: sarvamLangCode,
         pace: 0.85,
       })
       return
@@ -120,7 +124,7 @@ export function useVoiceCascade({
 
     // First or second error - gentle retry with voice
     incrementError()
-    
+
     // Wait a moment, then reprompt
     setTimeout(async () => {
       const newCount = errorCount + 1
@@ -136,15 +140,17 @@ export function useVoiceCascade({
     resetErrors()
     isListeningRef.current = true
 
+    const sarvamLangCode: SarvamLanguageCode = LANGUAGE_TO_SARVAM_CODE[language] || 'hi-IN'
+
     const config: VoiceEngineConfig = {
-      language,
+      language: sarvamLangCode,
       inputType,
       isElderly,
       useSarvam: true,
       confidenceThreshold,
       onStateChange: (state) => {
         console.log('[VoiceCascade] State:', state)
-        
+
         if (state === 'LISTENING') {
           setState('listening')
         } else if (state === 'PROCESSING') {

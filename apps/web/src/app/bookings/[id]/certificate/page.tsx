@@ -23,14 +23,14 @@ export default function CertificatePage({ params }: { params: { id: string } }) 
                             Back
                         </button>
                         <div className="flex items-center gap-4">
-                            <span className="text-sm text-gray-500 dark:text-gray-400 hidden sm:block">
+                            <span className="text-lg text-gray-500 dark:text-gray-400 hidden sm:block">
                                 Order #HPJ-{params.id}
                             </span>
                             <button
                                 onClick={handlePrint}
-                                className="bg-[#ec7f13] hover:bg-[#d16d0c] text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 shadow-lg shadow-[#ec7f13]/30 transition-all"
+                                className="bg-[#ec7f13] hover:bg-[#d16d0c] text-white px-4 py-2 rounded-lg text-lg font-medium flex items-center gap-2 shadow-lg shadow-[#ec7f13]/30 transition-all"
                             >
-                                <span className="material-symbols-outlined text-sm">download</span>
+                                <span className="material-symbols-outlined text-lg">download</span>
                                 <span className="hidden sm:inline">Download PDF</span>
                             </button>
                         </div>
@@ -86,7 +86,7 @@ export default function CertificatePage({ params }: { params: { id: string } }) 
                                 <div className="flex-grow flex flex-col justify-center w-full my-4">
                                     {/* Names */}
                                     <div className="text-center mb-8">
-                                        <p className="text-gray-500 mb-2 uppercase text-xs tracking-widest">
+                                        <p className="text-gray-500 mb-2 uppercase text-base tracking-widest">
                                             Blessed Union Of
                                         </p>
                                         <h2 className="text-2xl sm:text-3xl font-semibold text-gray-800">
@@ -101,13 +101,13 @@ export default function CertificatePage({ params }: { params: { id: string } }) 
                                             <span className="material-symbols-outlined text-[#ec7f13] mb-1 text-xl">
                                                 event
                                             </span>
-                                            <p className="text-sm text-gray-500 uppercase tracking-wide">
+                                            <p className="text-lg text-gray-500 uppercase tracking-wide">
                                                 Date
                                             </p>
                                             <p className="text-xl font-bold text-gray-800">
                                                 16 December 2024
                                             </p>
-                                            <p className="text-xs text-gray-500">
+                                            <p className="text-base text-gray-500">
                                                 Monday, Margashirsha Shukla Paksha
                                             </p>
                                         </div>
@@ -115,23 +115,23 @@ export default function CertificatePage({ params }: { params: { id: string } }) 
                                             <span className="material-symbols-outlined text-[#ec7f13] mb-1 text-xl">
                                                 schedule
                                             </span>
-                                            <p className="text-sm text-gray-500 uppercase tracking-wide">
+                                            <p className="text-lg text-gray-500 uppercase tracking-wide">
                                                 Muhurat Time
                                             </p>
                                             <p className="text-xl font-bold text-gray-800">
                                                 10:00 AM - 12:45 PM
                                             </p>
-                                            <p className="text-xs text-gray-500">
+                                            <p className="text-base text-gray-500">
                                                 Abhijit Muhurat Included
                                             </p>
                                         </div>
                                     </div>
                                     {/* Planetary Details */}
                                     <div className="mt-8 text-center max-w-2xl mx-auto">
-                                        <h3 className="text-[#ec7f13] font-bold text-sm uppercase tracking-wider mb-2">
+                                        <h3 className="text-[#ec7f13] font-bold text-lg uppercase tracking-wider mb-2">
                                             Planetary Alignment
                                         </h3>
-                                        <p className="text-gray-600 text-sm leading-relaxed">
+                                        <p className="text-gray-600 text-lg leading-relaxed">
                                             Sun in Sagittarius, Moon in Rohini Nakshatra. Jupiter
                                             (Guru) aspecting the 7th house ensures long-term
                                             prosperity. Venus is exalted, signifying strong affection
@@ -143,14 +143,14 @@ export default function CertificatePage({ params }: { params: { id: string } }) 
                                 {/* Footer / Verification */}
                                 <div className="w-full flex flex-col sm:flex-row justify-between items-end border-t border-[#ec7f13]/20 pt-6 mt-4">
                                     <div className="text-center sm:text-left mb-4 sm:mb-0">
-                                        <p className="text-xs text-gray-400 mb-1">Prepared by</p>
+                                        <p className="text-base text-gray-400 mb-1">Prepared by</p>
                                         <div
                                             className="font-serif text-2xl text-[#ec7f13] font-bold italic"
                                             style={{ fontFamily: "cursive" }}
                                         >
                                             Pandit R.K. Shastri
                                         </div>
-                                        <p className="text-xs text-gray-500 mt-1">
+                                        <p className="text-base text-gray-500 mt-1">
                                             Certified Astrologer, Varanasi
                                         </p>
                                     </div>
@@ -164,7 +164,7 @@ export default function CertificatePage({ params }: { params: { id: string } }) 
                                             <p className="text-[10px] text-gray-400 uppercase tracking-wider">
                                                 Scan to Verify
                                             </p>
-                                            <p className="text-xs font-bold text-gray-800">
+                                            <p className="text-base font-bold text-gray-800">
                                                 ID: HPJ-88
                                             </p>
                                         </div>
@@ -186,12 +186,12 @@ export default function CertificatePage({ params }: { params: { id: string } }) 
                                 <h3 className="font-bold text-lg text-gray-900 dark:text-white">
                                     Certificate Status
                                 </h3>
-                                <span className="px-3 py-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-xs font-bold rounded-full uppercase tracking-wide">
+                                <span className="px-5 py-3 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-base font-bold rounded-full uppercase tracking-wide">
                                     Ready
                                 </span>
                             </div>
                             <div className="space-y-4">
-                                <div className="flex justify-between items-center text-sm">
+                                <div className="flex justify-between items-center text-lg">
                                     <span className="text-gray-500 dark:text-gray-400">
                                         Generated On
                                     </span>
@@ -199,7 +199,7 @@ export default function CertificatePage({ params }: { params: { id: string } }) 
                                         14 Oct 2024
                                     </span>
                                 </div>
-                                <div className="flex justify-between items-center text-sm">
+                                <div className="flex justify-between items-center text-lg">
                                     <span className="text-gray-500 dark:text-gray-400">
                                         Validity
                                     </span>
@@ -207,7 +207,7 @@ export default function CertificatePage({ params }: { params: { id: string } }) 
                                         Lifetime Digital
                                     </span>
                                 </div>
-                                <div className="flex justify-between items-center text-sm">
+                                <div className="flex justify-between items-center text-lg">
                                     <span className="text-gray-500 dark:text-gray-400">
                                         Astrologer
                                     </span>
@@ -225,11 +225,11 @@ export default function CertificatePage({ params }: { params: { id: string } }) 
                             </h3>
                             <div className="space-y-3">
                                 <button className="w-full flex items-center justify-center gap-2 bg-[#ec7f13] hover:bg-[#d16d0c] text-white p-3 rounded-lg transition-colors font-medium">
-                                    <span className="material-symbols-outlined text-sm">share</span>
+                                    <span className="material-symbols-outlined text-lg">share</span>
                                     Share via WhatsApp
                                 </button>
                                 <button className="w-full flex items-center justify-center gap-2 bg-white dark:bg-[#2d241b] border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 p-3 rounded-lg transition-colors font-medium">
-                                    <span className="material-symbols-outlined text-sm">email</span>
+                                    <span className="material-symbols-outlined text-lg">email</span>
                                     Email to Client
                                 </button>
                             </div>
@@ -242,7 +242,7 @@ export default function CertificatePage({ params }: { params: { id: string } }) 
                                 </span>
                                 <div>
                                     <h4 className="font-bold text-[#ec7f13] mb-1">Did you know?</h4>
-                                    <p className="text-sm text-gray-600 dark:text-gray-300">
+                                    <p className="text-lg text-gray-600 dark:text-gray-300">
                                         This Muhurat includes the{" "}
                                         <span className="font-semibold">Abhijit Muhurat</span>, which
                                         is considered highly auspicious for removing all obstacles

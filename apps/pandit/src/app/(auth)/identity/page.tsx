@@ -270,7 +270,7 @@ export default function IdentityConfirmationPage() {
           {/* Joining Free Badge */}
           <motion.div variants={itemVariants} className="flex items-center justify-center gap-2 bg-secondary-container/30 py-3 rounded-full border border-secondary/10 mb-4">
             <span className="material-symbols-outlined text-secondary material-symbols-filled">check_circle</span>
-            <span className="font-label text-on-secondary-container font-semibold tracking-wide">Joining free</span>
+            <span className="font-label text-on-secondary-container font-semibold tracking-wide">पूर्णतः निःशुल्क</span>
           </motion.div>
 
           {/* Primary CTA Button */}
@@ -280,7 +280,7 @@ export default function IdentityConfirmationPage() {
             onClick={handleManualConfirm}
             className="w-full h-16 bg-gradient-to-b from-primary-container to-primary text-white font-headline text-lg font-bold rounded-2xl shadow-[0px_12px_24px_rgba(144,77,0,0.2)] active:scale-95 transition-transform flex items-center justify-center gap-3"
           >
-            <span>हाँ, मैं पंडित हूँ — Registration शुरू करें</span>
+            <span>हाँ, मैं पंडित हूँ — पंजीकरण शुरू करें</span>
             <span className="material-symbols-outlined">arrow_forward</span>
           </motion.button>
         </motion.div>

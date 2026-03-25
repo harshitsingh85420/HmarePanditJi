@@ -1,28 +1,22 @@
 "use client";
 
-const OPTIONS = [
-  { value: "en", label: "English" },
-  { value: "hi", label: "Hindi" },
-];
-
 export interface LanguageSwitcherProps {
   value?: string;
   onChange?: (value: string) => void;
 }
 
 export function LanguageSwitcher({ value = "en", onChange }: LanguageSwitcherProps) {
+  const isHindi = value === "hi";
+
   return (
-    <select
-      value={value}
-      onChange={(e) => onChange?.(e.target.value)}
-      className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700"
-      aria-label="Language"
+    <button
+      onClick={() => onChange?.(isHindi ? "en" : "hi")}
+      className="min-h-[56px] px-6 flex items-center gap-3 text-[22px] font-bold text-text-primary active:opacity-50 focus:ring-2 focus:ring-saffron focus:outline-none border-2 border-border-default rounded-full bg-surface-card hover:bg-surface-muted transition-colors"
+      aria-label="भाषा बदलें / Change Language"
     >
-      {OPTIONS.map((opt) => (
-        <option key={opt.value} value={opt.value}>
-          {opt.label}
-        </option>
-      ))}
-    </select>
+      <span className={isHindi ? "text-saffron" : ""}>हिन्दी</span>
+      <span className="text-[18px] text-text-secondary">/</span>
+      <span className={!isHindi ? "text-saffron" : ""}>English</span>
+    </button>
   );
 }

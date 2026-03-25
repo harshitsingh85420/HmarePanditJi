@@ -66,7 +66,7 @@ export function Header({
   function NavItem({ link }: { link: NavLink }) {
     const isActive = currentPath === link.href;
     const className = [
-      "flex items-center gap-1.5 text-sm font-medium px-3 py-2 rounded-lg transition-colors",
+      "flex items-center gap-1.5 text-[22px] font-medium px-5 py-4 rounded-lg transition-colors",
       isActive
         ? "bg-primary/10 text-primary font-bold"
         : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800",
@@ -76,7 +76,7 @@ export function Header({
       return (
         <LinkComponent href={link.href} className={className}>
           {link.icon && (
-            <span className="material-symbols-outlined text-base">{link.icon}</span>
+            <span className="material-symbols-outlined text-[24px]">{link.icon}</span>
           )}
           {link.label}
         </LinkComponent>
@@ -90,7 +90,7 @@ export function Header({
         aria-current={isActive ? "page" : undefined}
       >
         {link.icon && (
-          <span className="material-symbols-outlined text-base">{link.icon}</span>
+          <span className="material-symbols-outlined text-[24px]">{link.icon}</span>
         )}
         {link.label}
       </button>
@@ -103,12 +103,12 @@ export function Header({
         {/* Logo */}
         <div className="flex items-center gap-2 flex-shrink-0">
           <span
-            className={`material-symbols-outlined text-2xl ${titleColor}`}
+            className={`material-symbols-outlined text-[32px] ${titleColor}`}
             style={{ fontVariationSettings: "'FILL' 1" }}
           >
             temple_hindu
           </span>
-          <span className="text-xl font-bold text-slate-900 dark:text-slate-100 hidden sm:block">
+          <span className="text-[26px] font-bold text-slate-900 dark:text-slate-100 hidden sm:block">
             HmarePanditJi
           </span>
         </div>
@@ -124,23 +124,23 @@ export function Header({
         <div className="flex items-center gap-2 ml-auto">
           {isAuthenticated ? (
             <>
-              <span className="hidden sm:block text-sm font-medium text-slate-700 dark:text-slate-300 truncate max-w-[120px]">
+              <span className="hidden sm:block text-[22px] font-medium text-slate-700 dark:text-slate-300 truncate max-w-[120px]">
                 {userName}
               </span>
               <button
                 onClick={onLogoutClick}
-                className="flex items-center gap-1 text-sm font-medium text-slate-500 hover:text-red-500 transition-colors px-3 py-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-950"
+                className="flex items-center gap-1 text-[22px] font-medium text-slate-500 hover:text-red-500 transition-colors px-3 py-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-950 min-h-[56px]"
               >
-                <span className="material-symbols-outlined text-base">logout</span>
+                <span className="material-symbols-outlined text-[24px]">logout</span>
                 <span className="hidden sm:block">Logout</span>
               </button>
             </>
           ) : (
             <button
               onClick={onLoginClick}
-              className="h-9 px-4 text-sm font-bold bg-primary hover:bg-primary/90 text-white rounded-xl shadow-lg shadow-primary/20 transition-all"
+              className="min-h-[72px] px-6 text-[26px] font-bold bg-primary hover:bg-primary/90 text-white rounded-2xl shadow-lg shadow-primary/20 transition-all"
             >
-              Login / Register
+              लॉगिन करें
             </button>
           )}
 

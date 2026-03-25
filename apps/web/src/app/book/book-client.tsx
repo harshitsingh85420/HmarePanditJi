@@ -154,11 +154,11 @@ function StepConfirmDetails({
           <div className="flex-1 min-w-0">
             <p className="font-bold text-slate-900 dark:text-slate-100">{pandit.displayName}</p>
             <div className="flex items-center gap-1 mt-0.5">
-              <span className="material-symbols-outlined text-amber-400 text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-              <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">{pandit.averageRating.toFixed(1)}</span>
-              <span className="text-xs text-slate-400">({pandit.totalReviews} reviews)</span>
+              <span className="material-symbols-outlined text-amber-400 text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+              <span className="text-lg font-semibold text-slate-700 dark:text-slate-300">{pandit.averageRating.toFixed(1)}</span>
+              <span className="text-base text-slate-400">({pandit.totalReviews} reviews)</span>
             </div>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-base text-slate-500 mt-0.5">
               {pandit.experienceYears} yrs exp · {pandit.city}
             </p>
           </div>
@@ -174,12 +174,12 @@ function StepConfirmDetails({
               <span className="material-symbols-outlined text-primary text-base">temple_hindu</span>
             </span>
             <div>
-              <p className="text-xs text-slate-400 uppercase tracking-wide font-semibold">Ceremony</p>
+              <p className="text-base text-slate-400 uppercase tracking-wide font-semibold">Ceremony</p>
               <p className="font-semibold text-slate-900 dark:text-slate-100">
                 {ritual.name}
-                <span className="ml-2 text-slate-400 font-normal text-sm">({ritual.nameHindi})</span>
+                <span className="ml-2 text-slate-400 font-normal text-lg">({ritual.nameHindi})</span>
               </p>
-              <p className="text-xs text-slate-500">Duration ~{ritual.durationHours}h</p>
+              <p className="text-base text-slate-500">Duration ~{ritual.durationHours}h</p>
             </div>
           </div>
 
@@ -188,7 +188,7 @@ function StepConfirmDetails({
               <span className="material-symbols-outlined text-primary text-base">calendar_month</span>
             </span>
             <div>
-              <p className="text-xs text-slate-400 uppercase tracking-wide font-semibold">Preferred Date</p>
+              <p className="text-base text-slate-400 uppercase tracking-wide font-semibold">Preferred Date</p>
               <p className="font-semibold text-slate-900 dark:text-slate-100">
                 {date
                   ? new Date(date).toLocaleDateString("en-IN", {
@@ -201,7 +201,7 @@ function StepConfirmDetails({
         </div>
       </Card>
 
-      <p className="text-xs text-slate-400 text-center">
+      <p className="text-base text-slate-400 text-center">
         You can adjust the date and time in the next step.
       </p>
 
@@ -262,28 +262,28 @@ function StepEventDetails({
 
       {/* Date & Time */}
       <Card variant="default" padding="md">
-        <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
+        <h3 className="text-lg font-bold text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
           <span className="material-symbols-outlined text-primary text-base">schedule</span>
           Date & Time
         </h3>
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Date *</label>
+            <label className="block text-base font-semibold text-slate-600 dark:text-slate-400 mb-1">Date *</label>
             <input
               type="date"
               min={todayISO()}
               value={date}
               onChange={(e) => onChange("date", e.target.value)}
-              className="w-full h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary/50"
+              className="w-full h-14 px-5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary/50"
             />
-            {errors.date && <p className="text-xs text-red-500 mt-1">{errors.date}</p>}
+            {errors.date && <p className="text-base text-red-500 mt-1">{errors.date}</p>}
           </div>
           <div>
-            <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Time *</label>
+            <label className="block text-base font-semibold text-slate-600 dark:text-slate-400 mb-1">Time *</label>
             <select
               value={time}
               onChange={(e) => onChange("time", e.target.value)}
-              className="w-full h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary/50"
+              className="w-full h-14 px-5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary/50"
             >
               <option value="">Select time</option>
               {TIME_SLOTS.map((t) => (
@@ -294,7 +294,7 @@ function StepEventDetails({
                 </option>
               ))}
             </select>
-            {errors.time && <p className="text-xs text-red-500 mt-1">{errors.time}</p>}
+            {errors.time && <p className="text-base text-red-500 mt-1">{errors.time}</p>}
           </div>
         </div>
 
@@ -311,7 +311,7 @@ function StepEventDetails({
               muhuratEnabled ? "translate-x-5" : "translate-x-0"
             }`} />
           </button>
-          <label className="text-sm font-medium text-slate-700 dark:text-slate-300 cursor-pointer" onClick={() => onChange("muhuratEnabled", !muhuratEnabled)}>
+          <label className="text-lg font-medium text-slate-700 dark:text-slate-300 cursor-pointer" onClick={() => onChange("muhuratEnabled", !muhuratEnabled)}>
             Specify Muhurat
           </label>
         </div>
@@ -321,63 +321,63 @@ function StepEventDetails({
             placeholder="e.g. 07:14 AM — 08:52 AM (as per Panchangam)"
             value={muhuratText}
             onChange={(e) => onChange("muhuratText", e.target.value)}
-            className="mt-2 w-full h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary/50"
+            className="mt-2 w-full h-14 px-5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary/50"
           />
         )}
       </Card>
 
       {/* Venue */}
       <Card variant="default" padding="md">
-        <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
+        <h3 className="text-lg font-bold text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
           <span className="material-symbols-outlined text-primary text-base">location_on</span>
           Venue Address
         </h3>
         <div className="space-y-3">
           <div>
-            <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Address Line 1 *</label>
+            <label className="block text-base font-semibold text-slate-600 dark:text-slate-400 mb-1">Address Line 1 *</label>
             <input
               type="text"
               placeholder="House/Flat No., Street Name"
               value={venue.addressLine1}
               onChange={(e) => onChange("venue.addressLine1", e.target.value)}
-              className="w-full h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary/50"
+              className="w-full h-14 px-5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary/50"
             />
-            {errors.addressLine1 && <p className="text-xs text-red-500 mt-1">{errors.addressLine1}</p>}
+            {errors.addressLine1 && <p className="text-base text-red-500 mt-1">{errors.addressLine1}</p>}
           </div>
           <div>
-            <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Address Line 2</label>
+            <label className="block text-base font-semibold text-slate-600 dark:text-slate-400 mb-1">Address Line 2</label>
             <input
               type="text"
               placeholder="Colony, Area (optional)"
               value={venue.addressLine2}
               onChange={(e) => onChange("venue.addressLine2", e.target.value)}
-              className="w-full h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary/50"
+              className="w-full h-14 px-5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary/50"
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Landmark</label>
+            <label className="block text-base font-semibold text-slate-600 dark:text-slate-400 mb-1">Landmark</label>
             <input
               type="text"
               placeholder="Near metro, temple, etc. (optional)"
               value={venue.landmark}
               onChange={(e) => onChange("venue.landmark", e.target.value)}
-              className="w-full h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary/50"
+              className="w-full h-14 px-5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary/50"
             />
           </div>
           <div className="grid grid-cols-3 gap-3">
             <div className="col-span-2">
-              <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">City *</label>
+              <label className="block text-base font-semibold text-slate-600 dark:text-slate-400 mb-1">City *</label>
               <input
                 type="text"
                 placeholder="City"
                 value={venue.city}
                 onChange={(e) => onChange("venue.city", e.target.value)}
-                className="w-full h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary/50"
+                className="w-full h-14 px-5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary/50"
               />
-              {errors.city && <p className="text-xs text-red-500 mt-1">{errors.city}</p>}
+              {errors.city && <p className="text-base text-red-500 mt-1">{errors.city}</p>}
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">PIN *</label>
+              <label className="block text-base font-semibold text-slate-600 dark:text-slate-400 mb-1">PIN *</label>
               <input
                 type="text"
                 inputMode="numeric"
@@ -385,9 +385,9 @@ function StepEventDetails({
                 placeholder="110001"
                 value={venue.postalCode}
                 onChange={(e) => onChange("venue.postalCode", e.target.value.replace(/\D/g, ""))}
-                className="w-full h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary/50"
+                className="w-full h-14 px-5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary/50"
               />
-              {errors.postalCode && <p className="text-xs text-red-500 mt-1">{errors.postalCode}</p>}
+              {errors.postalCode && <p className="text-base text-red-500 mt-1">{errors.postalCode}</p>}
             </div>
           </div>
         </div>
@@ -395,13 +395,13 @@ function StepEventDetails({
 
       {/* Attendees + requirements */}
       <Card variant="default" padding="md">
-        <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
+        <h3 className="text-lg font-bold text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
           <span className="material-symbols-outlined text-primary text-base">groups</span>
           Additional Info
         </h3>
         <div className="space-y-3">
           <div>
-            <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Expected Attendees</label>
+            <label className="block text-base font-semibold text-slate-600 dark:text-slate-400 mb-1">Expected Attendees</label>
             <input
               type="number"
               min="1"
@@ -409,17 +409,17 @@ function StepEventDetails({
               placeholder="e.g. 25"
               value={numberOfAttendees}
               onChange={(e) => onChange("numberOfAttendees", e.target.value)}
-              className="w-full h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary/50"
+              className="w-full h-14 px-5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary/50"
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Special Requirements</label>
+            <label className="block text-base font-semibold text-slate-600 dark:text-slate-400 mb-1">Special Requirements</label>
             <textarea
               rows={3}
               placeholder="Any specific rituals, language preference, or special arrangements needed…"
               value={specialRequirements}
               onChange={(e) => onChange("specialRequirements", e.target.value)}
-              className="w-full px-3 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
+              className="w-full px-5 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
             />
           </div>
         </div>
@@ -467,20 +467,20 @@ function StepPricing({
 
       <Card variant="default" padding="md">
         <div className="space-y-3">
-          <div className="flex items-center justify-between py-1">
+          <div className="flex items-center justify-between py-3">
             <div>
-              <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">Dakshina</p>
-              <p className="text-xs text-slate-400">{ritual.name} · {pandit.displayName}</p>
+              <p className="text-lg font-semibold text-slate-700 dark:text-slate-300">Dakshina</p>
+              <p className="text-base text-slate-400">{ritual.name} · {pandit.displayName}</p>
             </div>
-            <p className="text-sm font-bold text-slate-900 dark:text-slate-100">{rupees(pricing.dakshina)}</p>
+            <p className="text-lg font-bold text-slate-900 dark:text-slate-100">{rupees(pricing.dakshina)}</p>
           </div>
 
-          <div className="flex items-center justify-between py-1">
+          <div className="flex items-center justify-between py-3">
             <div>
-              <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">Platform Fee</p>
-              <p className="text-xs text-slate-400">10% of dakshina (GST included)</p>
+              <p className="text-lg font-semibold text-slate-700 dark:text-slate-300">Platform Fee</p>
+              <p className="text-base text-slate-400">10% of dakshina (GST included)</p>
             </div>
-            <p className="text-sm font-bold text-slate-900 dark:text-slate-100">{rupees(pricing.platformFee)}</p>
+            <p className="text-lg font-bold text-slate-900 dark:text-slate-100">{rupees(pricing.platformFee)}</p>
           </div>
 
           <div className="border-t border-slate-100 dark:border-slate-800 pt-3 flex items-center justify-between">
@@ -495,8 +495,8 @@ function StepPricing({
         <div className="flex items-start gap-2.5 p-3 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/30">
           <span className="material-symbols-outlined text-blue-500 text-lg flex-shrink-0 mt-0.5">directions_car</span>
           <div>
-            <p className="text-xs font-bold text-blue-700 dark:text-blue-400">Travel Arrangements</p>
-            <p className="text-xs text-blue-600 dark:text-blue-300 mt-0.5">
+            <p className="text-base font-bold text-blue-700 dark:text-blue-400">Travel Arrangements</p>
+            <p className="text-base text-blue-600 dark:text-blue-300 mt-0.5">
               Travel arrangements will be coordinated by our team after booking. There are no additional travel charges.
             </p>
           </div>
@@ -505,8 +505,8 @@ function StepPricing({
         <div className="flex items-start gap-2.5 p-3 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800/30">
           <span className="material-symbols-outlined text-amber-500 text-lg flex-shrink-0 mt-0.5">herbs</span>
           <div>
-            <p className="text-xs font-bold text-amber-700 dark:text-amber-400">Puja Samagri</p>
-            <p className="text-xs text-amber-600 dark:text-amber-300 mt-0.5">
+            <p className="text-base font-bold text-amber-700 dark:text-amber-400">Puja Samagri</p>
+            <p className="text-base text-amber-600 dark:text-amber-300 mt-0.5">
               Samagri list will be shared after confirmation. You can arrange it yourself or opt for our samagri service (quoted separately).
             </p>
           </div>
@@ -567,18 +567,18 @@ function StepPayment({
 
       <Card variant="elevated" padding="md">
         <div className="flex items-center gap-3 mb-4">
-          <span className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+          <span className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
             <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>lock</span>
           </span>
           <div>
             <p className="font-semibold text-slate-900 dark:text-slate-100">Secure Payment</p>
-            <p className="text-xs text-slate-400">256-bit SSL encrypted · Powered by Razorpay</p>
+            <p className="text-base text-slate-400">256-bit SSL encrypted · Powered by Razorpay</p>
           </div>
         </div>
 
         <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 mb-4">
           <div className="flex items-center justify-between">
-            <p className="text-sm text-slate-600 dark:text-slate-400">Amount to pay</p>
+            <p className="text-lg text-slate-600 dark:text-slate-400">Amount to pay</p>
             <p className="text-2xl font-bold text-primary">{rupees(pricing.total)}</p>
           </div>
         </div>
@@ -603,7 +603,7 @@ function StepPayment({
             {/* Dev mode notice */}
             <div className="flex items-start gap-2 p-3 rounded-lg bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800/30 mb-4">
               <span className="material-symbols-outlined text-yellow-500 text-base flex-shrink-0">info</span>
-              <p className="text-xs text-yellow-700 dark:text-yellow-300">
+              <p className="text-base text-yellow-700 dark:text-yellow-300">
                 <strong>Test mode:</strong> Razorpay test keys. Use card 4111 1111 1111 1111 or UPI success@razorpay.
               </p>
             </div>
@@ -611,7 +611,7 @@ function StepPayment({
             {error && (
               <div className="flex items-start gap-2 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 mb-4">
                 <span className="material-symbols-outlined text-red-500 text-base flex-shrink-0">error</span>
-                <p className="text-xs text-red-600 dark:text-red-400">{error}</p>
+                <p className="text-base text-red-600 dark:text-red-400">{error}</p>
               </div>
             )}
 
@@ -669,7 +669,7 @@ function StepConfirmation({ booking }: { booking: BookingResult }) {
           </span>
         </div>
         <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">Booking Confirmed!</h2>
-        <p className="text-sm text-slate-500 mt-1">
+        <p className="text-lg text-slate-500 mt-1">
           Payment received · Awaiting pandit acceptance
         </p>
       </div>
@@ -677,21 +677,21 @@ function StepConfirmation({ booking }: { booking: BookingResult }) {
       <Card variant="elevated" padding="md">
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <p className="text-xs text-slate-400 uppercase tracking-wide font-semibold">Booking Number</p>
-            <p className="font-bold text-primary text-sm">{booking.bookingNumber}</p>
+            <p className="text-base text-slate-400 uppercase tracking-wide font-semibold">Booking Number</p>
+            <p className="font-bold text-primary text-lg">{booking.bookingNumber}</p>
           </div>
           <div className="border-t border-slate-100 dark:border-slate-800 pt-3 grid grid-cols-2 gap-3">
             <div>
-              <p className="text-xs text-slate-400 uppercase tracking-wide font-semibold mb-1">Ceremony</p>
-              <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{booking.ritual.name}</p>
+              <p className="text-base text-slate-400 uppercase tracking-wide font-semibold mb-1">Ceremony</p>
+              <p className="text-lg font-semibold text-slate-900 dark:text-slate-100">{booking.ritual.name}</p>
             </div>
             <div>
-              <p className="text-xs text-slate-400 uppercase tracking-wide font-semibold mb-1">Pandit</p>
-              <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{booking.pandit.displayName}</p>
+              <p className="text-base text-slate-400 uppercase tracking-wide font-semibold mb-1">Pandit</p>
+              <p className="text-lg font-semibold text-slate-900 dark:text-slate-100">{booking.pandit.displayName}</p>
             </div>
             <div>
-              <p className="text-xs text-slate-400 uppercase tracking-wide font-semibold mb-1">Date</p>
-              <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+              <p className="text-base text-slate-400 uppercase tracking-wide font-semibold mb-1">Date</p>
+              <p className="text-lg font-semibold text-slate-900 dark:text-slate-100">
                 {new Date(booking.eventDate).toLocaleDateString("en-IN", {
                   day: "numeric", month: "short", year: "numeric",
                 })}
@@ -699,8 +699,8 @@ function StepConfirmation({ booking }: { booking: BookingResult }) {
             </div>
             {booking.eventTime && (
               <div>
-                <p className="text-xs text-slate-400 uppercase tracking-wide font-semibold mb-1">Time</p>
-                <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{booking.eventTime}</p>
+                <p className="text-base text-slate-400 uppercase tracking-wide font-semibold mb-1">Time</p>
+                <p className="text-lg font-semibold text-slate-900 dark:text-slate-100">{booking.eventTime}</p>
               </div>
             )}
           </div>
@@ -709,7 +709,7 @@ function StepConfirmation({ booking }: { booking: BookingResult }) {
 
       <div className="flex items-start gap-2.5 p-3 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/30">
         <span className="material-symbols-outlined text-blue-500 text-lg flex-shrink-0 mt-0.5">notifications</span>
-        <p className="text-xs text-blue-600 dark:text-blue-300">
+        <p className="text-base text-blue-600 dark:text-blue-300">
           The pandit has been notified. You&apos;ll receive an SMS once the booking is confirmed (typically within 2 hours).
         </p>
       </div>
@@ -948,8 +948,8 @@ export default function BookClient() {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm text-slate-500">Loading…</p>
+          <div className="w-14 h-14 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          <p className="text-lg text-slate-500">Loading…</p>
         </div>
       </div>
     );
@@ -964,7 +964,7 @@ export default function BookClient() {
         </p>
         <Link
           href="/search"
-          className="h-10 px-6 bg-primary text-white font-bold rounded-xl shadow-lg shadow-primary/20 flex items-center gap-2"
+          className="h-14 px-6 bg-primary text-white font-bold rounded-xl shadow-lg shadow-primary/20 flex items-center gap-2"
         >
           Find a Pandit
         </Link>
@@ -983,11 +983,11 @@ export default function BookClient() {
         </span>
         <div className="text-center">
           <p className="font-bold text-slate-900 dark:text-slate-100 text-lg">Login Required</p>
-          <p className="text-sm text-slate-500 mt-1">Please login to book a pandit.</p>
+          <p className="text-lg text-slate-500 mt-1">Please login to book a pandit.</p>
         </div>
         <button
           onClick={openLoginModal}
-          className="h-10 px-6 bg-primary text-white font-bold rounded-xl shadow-lg shadow-primary/20 flex items-center gap-2"
+          className="h-14 px-6 bg-primary text-white font-bold rounded-xl shadow-lg shadow-primary/20 flex items-center gap-2"
         >
           <span className="material-symbols-outlined text-base">login</span>
           Login / Register
@@ -1005,18 +1005,18 @@ export default function BookClient() {
         <div className="mb-6">
           <Link
             href={`/pandit/${panditId}`}
-            className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-primary transition-colors mb-4"
+            className="inline-flex items-center gap-1.5 text-lg text-slate-500 hover:text-primary transition-colors mb-4"
           >
             <span className="material-symbols-outlined text-base">arrow_back</span>
             Back to Profile
           </Link>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Book a Pandit</h1>
-          <p className="text-sm text-slate-500 mt-1">Complete the form below to confirm your booking.</p>
+          <p className="text-lg text-slate-500 mt-1">Complete the form below to confirm your booking.</p>
         </div>
 
         {/* Step Indicator */}
         {step < 4 && (
-          <div className="mb-8 px-2">
+          <div className="mb-8 px-4">
             <StepIndicator steps={STEPS.slice(0, 4)} currentStep={step} />
           </div>
         )}

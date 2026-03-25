@@ -29,9 +29,9 @@ export function useAmbientNoise() {
         setNoiseLevel(average)
         setAmbientNoise(average)
 
-        // BUG-004 CRITICAL FIX: Show UI warning when noise is too high
-        if (average > 65) {
-          // Increment error count to trigger keyboard suggestion
+        // BUG-MEDIUM-04 FIX: Increased threshold from 65 to 75 to prevent false-triggering
+        if (average > 75) {
+          // Increment error count to trigger keyboard fallback
           useVoiceStore.getState().incrementError()
         }
 

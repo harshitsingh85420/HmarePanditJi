@@ -31,7 +31,7 @@ export default function CTAButton({
     'primary': 'bg-primary text-white shadow-cta',
     'primary-dk': 'bg-primary-dk text-white shadow-cta-dk',
     'secondary': 'bg-white text-primary border-2 border-primary',
-    'ghost': 'bg-transparent text-vedic-gold text-base font-normal h-11',
+    'ghost': 'bg-transparent text-saffron text-base font-normal h-11',
   }
 
   return (

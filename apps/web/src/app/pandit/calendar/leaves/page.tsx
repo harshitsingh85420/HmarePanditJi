@@ -22,11 +22,11 @@ export default function LeavesManagementPage() {
                             </span>
                         </div>
                         <div className="flex items-center gap-6">
-                            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-                                <span className="material-symbols-outlined text-[#f49d25] text-sm">
+                            <div className="hidden md:flex items-center gap-2 px-5 py-3.5 rounded-full bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                                <span className="material-symbols-outlined text-[#f49d25] text-lg">
                                     sync
                                 </span>
-                                <span className="text-sm font-medium">Google Calendar Sync</span>
+                                <span className="text-lg font-medium">Google Calendar Sync</span>
                                 <div className="relative inline-flex items-center cursor-pointer ml-2">
                                     <input defaultChecked className="sr-only peer" type="checkbox" />
                                     <div className="w-9 h-5 bg-gray-300 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:bg-[#f49d25] transition-colors relative">
@@ -47,16 +47,16 @@ export default function LeavesManagementPage() {
                         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
                             Blackout &amp; Festival Dates
                         </h1>
-                        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                        <p className="mt-1 text-lg text-gray-500 dark:text-gray-400">
                             Block dates for personal leave or manage festival availability.
                         </p>
                     </div>
                     <div className="flex items-center gap-3">
-                        <button className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-[#2d2418] border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                        <button className="px-4 py-2 text-lg font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-[#2d2418] border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                             Reset Changes
                         </button>
-                        <button className="px-4 py-2 text-sm font-medium text-white bg-[#f49d25] hover:bg-[#d68212] rounded-lg shadow-sm transition-colors flex items-center gap-2">
-                            <span className="material-symbols-outlined text-sm">save</span>
+                        <button className="px-4 py-2 text-lg font-medium text-white bg-[#f49d25] hover:bg-[#d68212] rounded-lg shadow-sm transition-colors flex items-center gap-2">
+                            <span className="material-symbols-outlined text-lg">save</span>
                             Save Changes
                         </button>
                     </div>
@@ -74,7 +74,7 @@ export default function LeavesManagementPage() {
                                         event_busy
                                     </span>
                                 </div>
-                                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                                <p className="text-lg font-medium text-gray-500 dark:text-gray-400">
                                     Current Status
                                 </p>
                                 <h3 className="text-lg font-semibold mt-1 text-gray-900 dark:text-white">
@@ -82,8 +82,8 @@ export default function LeavesManagementPage() {
                                     <span className="text-[#f49d25] font-bold">4 days</span> in
                                     November
                                 </h3>
-                                <div className="mt-3 flex items-center gap-2 text-xs text-[#f49d25] bg-[#f49d25]/10 w-fit px-2 py-1 rounded-md">
-                                    <span className="material-symbols-outlined text-sm">
+                                <div className="mt-3 flex items-center gap-2 text-base text-[#f49d25] bg-[#f49d25]/10 w-fit px-4 py-3 rounded-md">
+                                    <span className="material-symbols-outlined text-lg">
                                         info
                                     </span>
                                     <span>Includes 2 festival days</span>
@@ -95,14 +95,14 @@ export default function LeavesManagementPage() {
                                         event_available
                                     </span>
                                 </div>
-                                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                                <p className="text-lg font-medium text-gray-500 dark:text-gray-400">
                                     Next Confirmed Booking
                                 </p>
                                 <h3 className="text-lg font-semibold mt-1 text-gray-900 dark:text-white">
                                     Griha Pravesh - Nov 18
                                 </h3>
-                                <div className="mt-3 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                                    <span className="material-symbols-outlined text-sm">
+                                <div className="mt-3 flex items-center gap-2 text-base text-gray-500 dark:text-gray-400">
+                                    <span className="material-symbols-outlined text-lg">
                                         schedule
                                     </span>
                                     <span>10:00 AM - 02:00 PM</span>
@@ -136,26 +136,26 @@ export default function LeavesManagementPage() {
                             {/* Calendar Grid would go here - keeping it simlified for prompt */}
                             <div className="w-full text-center py-10 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-dashed border-gray-300 dark:border-gray-700">
                                 <p className="text-gray-500">Interactive Calendar Grid</p>
-                                <p className="text-xs text-gray-400 mt-1">(Select dates to toggle availability)</p>
+                                <p className="text-base text-gray-400 mt-1">(Select dates to toggle availability)</p>
                             </div>
 
                             {/* Legend */}
                             <div className="mt-6 flex flex-wrap gap-4 items-center justify-center border-t border-gray-100 dark:border-gray-700 pt-4">
                                 <div className="flex items-center gap-2">
                                     <div className="w-3 h-3 rounded-full bg-white border border-gray-300"></div>
-                                    <span className="text-xs text-gray-600 dark:text-gray-400">Available</span>
+                                    <span className="text-base text-gray-600 dark:text-gray-400">Available</span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <div className="w-3 h-3 rounded-full bg-[#f49d25]"></div>
-                                    <span className="text-xs text-gray-600 dark:text-gray-400">Blocked (You)</span>
+                                    <span className="text-base text-gray-600 dark:text-gray-400">Blocked (You)</span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <div className="w-3 h-3 rounded-full bg-green-100 border border-green-300"></div>
-                                    <span className="text-xs text-gray-600 dark:text-gray-400">Booked</span>
+                                    <span className="text-base text-gray-600 dark:text-gray-400">Booked</span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <div className="w-3 h-3 rounded-full bg-[#f49d25]/10 border border-[#f49d25]"></div>
-                                    <span className="text-xs text-gray-600 dark:text-gray-400">Festival</span>
+                                    <span className="text-base text-gray-600 dark:text-gray-400">Festival</span>
                                 </div>
                             </div>
                         </div>
@@ -169,7 +169,7 @@ export default function LeavesManagementPage() {
                                 <h3 className="font-semibold text-gray-900 dark:text-white">
                                     Upcoming Festivals
                                 </h3>
-                                <span className="text-xs bg-[#f49d25]/10 text-[#f49d25] px-2 py-0.5 rounded-full font-medium">
+                                <span className="text-base bg-[#f49d25]/10 text-[#f49d25] px-4 py-2 rounded-full font-medium">
                                     High Demand
                                 </span>
                             </div>
@@ -178,26 +178,26 @@ export default function LeavesManagementPage() {
                                 <div className="relative pl-4 border-l-2 border-[#f49d25]">
                                     <div className="flex justify-between items-start">
                                         <div>
-                                            <h4 className="text-sm font-bold text-gray-900 dark:text-white">
+                                            <h4 className="text-lg font-bold text-gray-900 dark:text-white">
                                                 Diwali (Deepavali)
                                             </h4>
-                                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                                            <p className="text-base text-gray-500 dark:text-gray-400 mt-0.5">
                                                 Nov 12, 2024
                                             </p>
                                         </div>
-                                        <button className="text-xs font-medium text-[#f49d25] hover:text-[#d68212] underline">
+                                        <button className="text-base font-medium text-[#f49d25] hover:text-[#d68212] underline">
                                             View
                                         </button>
                                     </div>
-                                    <p className="text-xs text-gray-500 mt-2 mb-3 leading-relaxed">
+                                    <p className="text-base text-gray-500 mt-2 mb-3 leading-relaxed">
                                         Peak demand for Lakshmi Puja. Consider your availability
                                         carefully.
                                     </p>
                                     <div className="flex gap-2">
-                                        <button className="flex-1 px-3 py-1.5 text-xs font-medium text-white bg-[#f49d25] hover:bg-[#d68212] rounded transition-colors">
+                                        <button className="flex-1 px-5 py-3.5 text-base font-medium text-white bg-[#f49d25] hover:bg-[#d68212] rounded transition-colors">
                                             Block Day
                                         </button>
-                                        <button className="flex-1 px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-colors border border-transparent">
+                                        <button className="flex-1 px-5 py-3.5 text-base font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-colors border border-transparent">
                                             Mark Available
                                         </button>
                                     </div>
@@ -208,12 +208,12 @@ export default function LeavesManagementPage() {
                                 <div className="relative pl-4 border-l-2 border-gray-300 dark:border-gray-600">
                                     <div className="flex justify-between items-start">
                                         <div>
-                                            <h4 className="text-sm font-bold text-gray-900 dark:text-white">Govardhan Puja</h4>
-                                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Nov 13, 2024</p>
+                                            <h4 className="text-lg font-bold text-gray-900 dark:text-white">Govardhan Puja</h4>
+                                            <p className="text-base text-gray-500 dark:text-gray-400 mt-0.5">Nov 13, 2024</p>
                                         </div>
                                     </div>
                                     <div className="flex gap-2 mt-3">
-                                        <button className="flex-1 px-3 py-1.5 text-xs font-medium text-[#f49d25] bg-[#f49d25]/10 hover:bg-[#f49d25]/20 rounded transition-colors border border-[#f49d25]/20">
+                                        <button className="flex-1 px-5 py-3.5 text-base font-medium text-[#f49d25] bg-[#f49d25]/10 hover:bg-[#f49d25]/20 rounded transition-colors border border-[#f49d25]/20">
                                             Block Day
                                         </button>
                                     </div>
@@ -223,18 +223,18 @@ export default function LeavesManagementPage() {
                             {/* Bulk Action Footer */}
                             <div className="bg-[#f49d25]/5 p-4 border-t border-[#f49d25]/10">
                                 <div className="flex items-center gap-2 mb-2">
-                                    <span className="material-symbols-outlined text-[#f49d25] text-sm">
+                                    <span className="material-symbols-outlined text-[#f49d25] text-lg">
                                         auto_awesome
                                     </span>
-                                    <span className="text-xs font-bold text-[#d68212] dark:text-[#f49d25]">
+                                    <span className="text-base font-bold text-[#d68212] dark:text-[#f49d25]">
                                         Smart Suggestion
                                     </span>
                                 </div>
-                                <p className="text-xs text-gray-600 dark:text-gray-400 mb-3">
+                                <p className="text-base text-gray-600 dark:text-gray-400 mb-3">
                                     You have 3 upcoming festival days unmarked. Most pandits mark
                                     these as 'Available' for higher earnings.
                                 </p>
-                                <button className="w-full py-2 text-xs font-bold text-[#f49d25] border border-[#f49d25] hover:bg-[#f49d25] hover:text-white rounded-lg transition-all">
+                                <button className="w-full py-2 text-base font-bold text-[#f49d25] border border-[#f49d25] hover:bg-[#f49d25] hover:text-white rounded-lg transition-all">
                                     Review Suggestions
                                 </button>
                             </div>

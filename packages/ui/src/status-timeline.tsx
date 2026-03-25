@@ -23,64 +23,62 @@ export function StatusTimeline({ steps, className = "" }: StatusTimelineProps) {
         const ts =
           step.timestamp instanceof Date
             ? step.timestamp.toLocaleString("en-IN", {
-                day: "2-digit",
-                month: "short",
-                hour: "2-digit",
-                minute: "2-digit",
-              })
+              day: "2-digit",
+              month: "short",
+              hour: "2-digit",
+              minute: "2-digit",
+            })
             : step.timestamp;
 
         return (
-          <div key={i} className="flex gap-3">
-            {/* Dot + line */}
+          <div key={i} className="flex gap-4">
+            {/* Dot + line - ACC-009 & ACC-010 FIX: Larger indicators for elderly */}
             <div className="flex flex-col items-center">
               <div
                 className={[
-                  "w-8 h-8 rounded-full flex items-center justify-center shrink-0 border-2 transition-colors",
+                  "w-12 h-12 rounded-full flex items-center justify-center shrink-0 border-3 transition-colors",
                   step.isActive
                     ? "bg-amber-500 border-amber-500 text-white"
                     : step.isCompleted
-                    ? "bg-green-500 border-green-500 text-white"
-                    : "bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-400",
+                      ? "bg-green-500 border-green-500 text-white"
+                      : "bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-400",
                 ].join(" ")}
               >
                 {step.isCompleted ? (
-                  <span className="material-symbols-outlined text-sm">check</span>
+                  <span className="material-symbols-outlined text-xl">check</span>
                 ) : step.icon ? (
-                  <span className="material-symbols-outlined text-sm">{step.icon}</span>
+                  <span className="material-symbols-outlined text-xl">{step.icon}</span>
                 ) : (
-                  <span className="w-2 h-2 rounded-full bg-current" />
+                  <span className="w-3 h-3 rounded-full bg-current" />
                 )}
               </div>
               {!isLast && (
                 <div
-                  className={`w-0.5 flex-1 min-h-[24px] mt-1 ${
-                    step.isCompleted
+                  className={`w-1 flex-1 min-h-[32px] mt-2 ${step.isCompleted
                       ? "bg-green-400 dark:bg-green-600"
                       : "bg-slate-200 dark:bg-slate-700"
-                  }`}
+                    }`}
                 />
               )}
             </div>
 
-            {/* Content */}
-            <div className={`pb-6 flex-1 min-w-0 ${isLast ? "pb-0" : ""}`}>
+            {/* Content - ACC-010 FIX: Larger text for elderly readability */}
+            <div className={`pb-8 flex-1 min-w-0 ${isLast ? "pb-0" : ""}`}>
               <p
-                className={`text-sm font-semibold ${
-                  step.isActive
+                className={`text-base font-semibold ${step.isActive
                     ? "text-amber-600 dark:text-amber-400"
                     : step.isCompleted
-                    ? "text-slate-800 dark:text-slate-200"
-                    : "text-slate-400 dark:text-slate-500"
-                }`}
+                      ? "text-slate-800 dark:text-slate-200"
+                      : "text-slate-400 dark:text-slate-500"
+                  }`}
               >
                 {step.label}
               </p>
               {step.description && (
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{step.description}</p>
+                <p className="text-base text-slate-500 dark:text-slate-400 mt-1">{step.description}</p>
               )}
               {ts && (
-                <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{ts}</p>
+                <p className="text-base text-slate-400 dark:text-slate-500 mt-1">{ts}</p>
               )}
             </div>
           </div>

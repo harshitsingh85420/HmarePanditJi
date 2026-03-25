@@ -19,8 +19,10 @@ export function VoiceOverlay({ question, interimText }: VoiceOverlayProps) {
   // BUG-003/018 FIX: Use confidence value to show low confidence warning
   const showLowConfidence = confidence > 0 && confidence < 0.7
 
-  // Noise level interpretation
-  const isHighNoise = ambientNoiseLevel > 65
+  // BUG-MEDIUM-04 FIX: Raised threshold from 65dB to 85dB to prevent false-triggering
+  // 65dB is normal conversation level - should NOT trigger warning
+  // 85dB+ is genuinely loud (temple bells, heavy traffic, crowds)
+  const isHighNoise = ambientNoiseLevel > 85
   const isMediumNoise = ambientNoiseLevel > 40
 
   // UI-015 FIX: Fast speech detection based on transcript length
@@ -52,7 +54,7 @@ export function VoiceOverlay({ question, interimText }: VoiceOverlayProps) {
               <div className="text-[64px] mb-4">⏰</div>
 
               {/* Large bold title */}
-              <p className="text-[24px] font-bold text-vedic-brown mb-2">
+              <p className="text-[24px] font-bold text-text-primary mb-2">
                 {errorCount === 1 ? 'समय समाप्त' : errorCount === 2 ? 'फिर समय समाप्त' : 'अंतिम प्रयास'}
               </p>
 
@@ -94,7 +96,7 @@ export function VoiceOverlay({ question, interimText }: VoiceOverlayProps) {
             exit={{ opacity: 0 }}
             className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-saffron-light/20 to-transparent h-32 saffron-glow-active"
           >
-            <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex items-end gap-1 h-8">
+            <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex items-end gap-1 h-12">
               {[...Array(5)].map((_, i) => (
                 <motion.div
                   key={i}
@@ -129,7 +131,7 @@ export function VoiceOverlay({ question, interimText }: VoiceOverlayProps) {
             </div>
 
             {/* Noise level bars */}
-            <div className="flex items-end gap-1 h-8">
+            <div className="flex items-end gap-1 h-12">
               {[6, 10, 14, 18, 22].map((height, i) => {
                 let barColor = 'bg-trust-green'
                 if (isHighNoise) barColor = 'bg-error-red'
@@ -157,12 +159,12 @@ export function VoiceOverlay({ question, interimText }: VoiceOverlayProps) {
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
-                className="mt-2 flex items-center gap-2 bg-error-red-bg border-2 border-error-red rounded-lg px-3 py-2"
+                className="mt-2 flex items-center gap-2 bg-error-red-bg border-2 border-error-red rounded-lg px-5 py-3"
               >
                 <span className="text-[24px]">⚠️</span>
                 <div>
                   <p className="text-[18px] font-bold text-error-red">बहुत ज़्यादा शोर!</p>
-                  <p className="text-[14px] text-text-secondary">कीबोर्ड का उपयोग करें</p>
+                  <p className="text-[18px] text-text-secondary font-medium">कीबोर्ड का उपयोग करें</p>
                 </div>
               </motion.div>
             )}
@@ -172,20 +174,20 @@ export function VoiceOverlay({ question, interimText }: VoiceOverlayProps) {
 
       {/* Question display */}
       <div className="absolute bottom-32 left-4 right-4">
-        <div className="bg-surface-card rounded-card shadow-card p-4">
-          <p className="text-text-primary font-medium mb-2">{question}</p>
+        <div className="bg-surface-card rounded-card shadow-card p-5">
+          <p className="text-text-primary font-medium mb-3 text-[18px]">{question}</p>
 
           {/* BUG-003/018 FIX: Low confidence warning */}
           {showLowConfidence && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-3 p-3 bg-warning-amber-bg border-2 border-warning-amber rounded-lg flex items-center gap-2"
+              className="mb-3 p-4 bg-warning-amber-bg border-2 border-warning-amber rounded-lg flex items-center gap-3"
             >
               <span className="text-[28px]">❓</span>
               <div>
-                <p className="text-[16px] font-bold text-warning-amber">साफ़ नहीं सुनाई दिया</p>
-                <p className="text-[14px] text-text-secondary">कृपया फिर से बोलें या कीबोर्ड का उपयोग करें</p>
+                <p className="text-[18px] font-bold text-warning-amber">साफ़ नहीं सुनाई दिया</p>
+                <p className="text-[18px] text-text-secondary font-medium">कृपया फिर से बोलें या कीबोर्ड का उपयोग करें</p>
               </div>
             </motion.div>
           )}
@@ -195,12 +197,12 @@ export function VoiceOverlay({ question, interimText }: VoiceOverlayProps) {
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-3 p-3 bg-warning-amber-bg border-2 border-warning-amber rounded-lg flex items-center gap-2"
+              className="mb-3 p-4 bg-warning-amber-bg border-2 border-warning-amber rounded-lg flex items-center gap-3"
             >
               <span className="text-[28px]">🐢</span>
               <div>
-                <p className="text-[16px] font-bold text-warning-amber">थोड़ा धीरे बोलें</p>
-                <p className="text-[14px] text-text-secondary">ताकि मैं सही से समझ सकूं</p>
+                <p className="text-[18px] font-bold text-warning-amber">थोड़ा धीरे बोलें</p>
+                <p className="text-[18px] text-text-secondary font-medium">ताकि मैं सही से समझ सकूं</p>
               </div>
             </motion.div>
           )}

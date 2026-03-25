@@ -85,7 +85,7 @@ export default function FavoritesPage() {
     if (authLoading) {
         return (
             <div className="min-h-screen bg-[#f8f7f5] flex items-center justify-center">
-                <div className="w-8 h-8 border-2 border-[#f49d25] border-t-transparent rounded-full animate-spin" />
+                <div className="w-12 h-12 border-2 border-[#f49d25] border-t-transparent rounded-full animate-spin" />
             </div>
         );
     }
@@ -98,8 +98,8 @@ export default function FavoritesPage() {
                         <span className="material-symbols-outlined text-3xl text-rose-500" style={{ fontVariationSettings: "'FILL' 1" }}>favorite</span>
                     </div>
                     <h2 className="text-slate-700 font-semibold text-lg mb-2">Sign in to view favorites</h2>
-                    <p className="text-slate-400 text-sm mb-6">Save your favorite pandits for quick booking.</p>
-                    <button onClick={openLoginModal} className="px-6 py-2.5 bg-[#f49d25] hover:bg-[#e08c14] text-white rounded-xl font-semibold text-sm transition-colors">
+                    <p className="text-slate-400 text-lg mb-6">Save your favorite pandits for quick booking.</p>
+                    <button onClick={openLoginModal} className="px-6 py-2.5 bg-[#f49d25] hover:bg-[#e08c14] text-white rounded-xl font-semibold text-lg transition-colors">
                         Sign In
                     </button>
                 </div>
@@ -113,12 +113,12 @@ export default function FavoritesPage() {
             <div className="bg-white border-b border-slate-100">
                 <div className="max-w-2xl mx-auto px-4 py-6">
                     <div className="flex items-center gap-3 mb-1">
-                        <button onClick={() => router.push("/dashboard")} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors" aria-label="Back">
+                        <button onClick={() => router.push("/dashboard")} className="w-12 h-12 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors" aria-label="Back">
                             <span className="material-symbols-outlined text-slate-500">arrow_back</span>
                         </button>
                         <h1 className="text-xl font-bold text-slate-800">My Favorites</h1>
                     </div>
-                    <p className="text-sm text-slate-400 ml-11">Pandits you&apos;ve saved for quick access</p>
+                    <p className="text-lg text-slate-400 ml-11">Pandits you&apos;ve saved for quick access</p>
                 </div>
             </div>
 
@@ -143,9 +143,9 @@ export default function FavoritesPage() {
                             <span className="material-symbols-outlined text-3xl text-rose-400">favorite_border</span>
                         </div>
                         <h3 className="text-slate-700 font-semibold text-lg mb-1">No favorites yet</h3>
-                        <p className="text-slate-400 text-sm mb-6">Browse pandits and tap the ❤️ to save them here.</p>
-                        <Link href="/search" className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#f49d25] hover:bg-[#e08c14] text-white rounded-xl font-medium text-sm transition-colors">
-                            <span className="material-symbols-outlined text-sm">search</span>
+                        <p className="text-slate-400 text-lg mb-6">Browse pandits and tap the ❤️ to save them here.</p>
+                        <Link href="/search" className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#f49d25] hover:bg-[#e08c14] text-white rounded-xl font-medium text-lg transition-colors">
+                            <span className="material-symbols-outlined text-lg">search</span>
                             Find a Pandit
                         </Link>
                     </div>
@@ -167,9 +167,9 @@ export default function FavoritesPage() {
                                         <Link href={`/pandit/${fav.panditId}`} className="hover:text-[#f49d25] transition-colors">
                                             <h3 className="font-semibold text-slate-800 truncate">{fav.displayName}</h3>
                                         </Link>
-                                        <div className="flex items-center gap-2 text-xs text-slate-400 mt-0.5">
+                                        <div className="flex items-center gap-2 text-base text-slate-400 mt-0.5">
                                             <span className="flex items-center gap-0.5">
-                                                <span className="material-symbols-outlined text-[#f49d25] text-xs" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                                                <span className="material-symbols-outlined text-[#f49d25] text-base" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
                                                 {fav.averageRating}
                                             </span>
                                             <span>·</span>
@@ -179,7 +179,7 @@ export default function FavoritesPage() {
                                         </div>
                                         <div className="flex flex-wrap gap-1 mt-2">
                                             {fav.specializations.slice(0, 3).map((s) => (
-                                                <span key={s} className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 font-medium">{s}</span>
+                                                <span key={s} className="text-[10px] px-4 py-2 rounded-full bg-slate-100 text-slate-500 font-medium">{s}</span>
                                             ))}
                                         </div>
                                     </div>
@@ -187,7 +187,7 @@ export default function FavoritesPage() {
                                         <button
                                             onClick={() => removeFavorite(fav)}
                                             disabled={removing === fav.id}
-                                            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-rose-50 transition-colors group"
+                                            className="w-12 h-12 flex items-center justify-center rounded-full hover:bg-rose-50 transition-colors group"
                                             title="Remove from favorites"
                                         >
                                             {removing === fav.id ? (
@@ -200,7 +200,7 @@ export default function FavoritesPage() {
                                         </button>
                                         <Link
                                             href={`/booking/new?panditId=${fav.panditId}`}
-                                            className="text-xs px-3 py-1.5 bg-[#f49d25]/10 text-[#c47c0e] rounded-lg hover:bg-[#f49d25]/20 transition-colors font-medium"
+                                            className="text-base px-5 py-3.5 bg-[#f49d25]/10 text-[#c47c0e] rounded-lg hover:bg-[#f49d25]/20 transition-colors font-medium"
                                         >
                                             Book
                                         </Link>
@@ -214,7 +214,7 @@ export default function FavoritesPage() {
 
             {/* Toast */}
             {toast && (
-                <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-slate-800 text-white px-5 py-3 rounded-xl shadow-lg text-sm font-medium animate-[slideUp_0.3s_ease-out]">
+                <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-slate-800 text-white px-5 py-3 rounded-xl shadow-lg text-lg font-medium animate-[slideUp_0.3s_ease-out]">
                     {toast}
                 </div>
             )}

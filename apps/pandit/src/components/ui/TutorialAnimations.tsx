@@ -121,7 +121,7 @@ export function TutorialHeroIllustration({
   const glowMap = {
     saffron: 'from-saffron/30 to-saffron-light/20',
     green: 'from-trust-green/30 to-trust-green-bg/20',
-    gold: 'from-vedic-gold/30 to-vedic-gold-light/20',
+    gold: 'from-saffron/30 to-saffron-light/20',
   }
 
   return (
@@ -231,7 +231,7 @@ export function TutorialTextContent({
     <div className={`flex flex-col ${alignMap[align]} gap-2`}>
       {title && (
         <EntranceAnimation type="slide-up" delay={delay}>
-          <h1 className="text-4xl font-bold leading-tight text-vedic-brown font-devanagari">
+          <h1 className="text-4xl font-bold leading-tight text-text-primary font-devanagari">
             {title}
           </h1>
         </EntranceAnimation>
@@ -253,7 +253,7 @@ export function TutorialTextContent({
           type="fade-in"
           delay={stagger ? delay + 0.3 : delay}
         >
-          <p className="text-2xl text-vedic-brown-2 font-normal mt-2 font-devanagari">
+          <p className="text-2xl text-text-primary-2 font-normal mt-2 font-devanagari">
             {description}
           </p>
         </EntranceAnimation>
@@ -264,7 +264,7 @@ export function TutorialTextContent({
           type="shimmer"
           delay={stagger ? delay + 0.45 : delay}
         >
-          <p className="text-2xl italic text-vedic-gold leading-relaxed font-devanagari shimmer-text">
+          <p className="text-2xl italic text-saffron leading-relaxed font-devanagari shimmer-text">
             {highlight}
           </p>
         </EntranceAnimation>

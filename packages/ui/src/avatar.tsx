@@ -13,29 +13,30 @@ const sizeMap: Record<
   string,
   { container: string; badge: string; icon: string; text: string }
 > = {
+  // ACC-009 & ACC-010 FIX: Larger avatars and text for elderly users
   sm: {
-    container: "w-8 h-8",
-    badge: "w-3.5 h-3.5 -bottom-0.5 -right-0.5 border",
-    icon: "text-[8px]",
-    text: "text-xs",
-  },
-  md: {
     container: "w-12 h-12",
-    badge: "w-4 h-4 -bottom-1 -right-1 border-2",
-    icon: "text-[10px]",
-    text: "text-sm",
-  },
-  lg: {
-    container: "w-16 h-16",
     badge: "w-5 h-5 -bottom-1 -right-1 border-2",
-    icon: "text-xs",
+    icon: "text-[10px]",
     text: "text-base",
   },
-  xl: {
-    container: "w-24 h-24",
+  md: {
+    container: "w-16 h-16",
     badge: "w-6 h-6 -bottom-1.5 -right-1.5 border-2",
+    icon: "text-xs",
+    text: "text-lg",
+  },
+  lg: {
+    container: "w-20 h-20",
+    badge: "w-7 h-7 -bottom-1.5 -right-1.5 border-2",
     icon: "text-sm",
     text: "text-xl",
+  },
+  xl: {
+    container: "w-28 h-28",
+    badge: "w-8 h-8 -bottom-2 -right-2 border-2",
+    icon: "text-base",
+    text: "text-2xl",
   },
 };
 

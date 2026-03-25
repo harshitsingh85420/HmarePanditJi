@@ -227,7 +227,7 @@ export default function BookingDetailClient({ bookingId }: { bookingId: string }
         <aside className="w-full lg:w-72 flex flex-col gap-6">
           <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
             <h3 className="text-slate-900 dark:text-white font-bold text-lg mb-4">Booking Details</h3>
-            <p className="text-primary font-bold text-sm mb-1 uppercase tracking-wider">Booking ID</p>
+            <p className="text-primary font-bold text-lg mb-1 uppercase tracking-wider">Booking ID</p>
             <p className="text-slate-500 dark:text-slate-400 text-lg font-mono mb-6">{booking.bookingNumber}</p>
 
             <nav className="flex flex-col gap-1">
@@ -253,8 +253,8 @@ export default function BookingDetailClient({ bookingId }: { bookingId: string }
                 <div className="flex items-center gap-3">
                   <span className="material-symbols-outlined text-red-500">picture_as_pdf</span>
                   <div className="flex flex-col">
-                    <span className="text-sm font-semibold text-slate-900 dark:text-white">Booking Receipt</span>
-                    <span className="text-xs text-slate-500">1.2 MB</span>
+                    <span className="text-lg font-semibold text-slate-900 dark:text-white">Booking Receipt</span>
+                    <span className="text-base text-slate-500">1.2 MB</span>
                   </div>
                 </div>
                 <span className="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">download</span>
@@ -263,8 +263,8 @@ export default function BookingDetailClient({ bookingId }: { bookingId: string }
                 <div className="flex items-center gap-3">
                   <span className="material-symbols-outlined text-red-500">picture_as_pdf</span>
                   <div className="flex flex-col">
-                    <span className="text-sm font-semibold text-slate-900 dark:text-white">Muhurat Patrika</span>
-                    <span className="text-xs text-slate-500">2.4 MB</span>
+                    <span className="text-lg font-semibold text-slate-900 dark:text-white">Muhurat Patrika</span>
+                    <span className="text-base text-slate-500">2.4 MB</span>
                   </div>
                 </div>
                 <span className="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">download</span>
@@ -285,15 +285,15 @@ export default function BookingDetailClient({ bookingId }: { bookingId: string }
               </div>
               <div>
                 <p className="font-bold text-slate-900 dark:text-white">{booking.pandit.displayName}</p>
-                <div className="flex items-center text-amber-500 text-xs">
-                  <span className="material-symbols-outlined text-sm font-fill">star</span>
+                <div className="flex items-center text-amber-500 text-base">
+                  <span className="material-symbols-outlined text-lg font-fill">star</span>
                   <span className="ml-1 font-semibold">{booking.pandit.averageRating || "New"}</span>
                 </div>
               </div>
             </div>
             <button
               onClick={() => router.push(`/pandit/${booking.pandit.id}`)}
-              className="mt-4 w-full py-2 border border-slate-200 rounded-lg text-sm text-slate-600 font-medium hover:bg-slate-50 transition-colors"
+              className="mt-4 w-full py-2 border border-slate-200 rounded-lg text-lg text-slate-600 font-medium hover:bg-slate-50 transition-colors"
             >
               View Profile
             </button>
@@ -312,7 +312,7 @@ export default function BookingDetailClient({ bookingId }: { bookingId: string }
                 {booking.ritual.name} · {formatDate(booking.eventDate)}
               </p>
             </div>
-            <div className={`px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2 w-fit ${isCancelled ? "bg-red-100 text-red-700" : "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
+            <div className={`px-4 py-2 rounded-full text-lg font-bold flex items-center gap-2 w-fit ${isCancelled ? "bg-red-100 text-red-700" : "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
               }`}>
               <span className="material-symbols-outlined text-base">
                 {isCancelled ? "cancel" : "check_circle"}
@@ -397,9 +397,9 @@ export default function BookingDetailClient({ bookingId }: { bookingId: string }
                         {step.title}
                       </p>
                       <p className="text-slate-500 dark:text-slate-400 mt-2 flex items-center gap-1">
-                        <span className="material-symbols-outlined text-sm">calendar_today</span> {step.time}
+                        <span className="material-symbols-outlined text-lg">calendar_today</span> {step.time}
                       </p>
-                      <p className="text-slate-400 text-sm mt-1">Location: {step.location}</p>
+                      <p className="text-slate-400 text-lg mt-1">Location: {step.location}</p>
                     </div>
                   </div>
                 );
@@ -418,7 +418,7 @@ export default function BookingDetailClient({ bookingId }: { bookingId: string }
                 <span className="material-symbols-outlined">my_location</span>
               </div>
               <h4 className="text-slate-900 dark:text-white font-bold mb-1">Track Pandit</h4>
-              <p className="text-slate-500 dark:text-slate-400 text-sm">Real-time GPS tracking</p>
+              <p className="text-slate-500 dark:text-slate-400 text-lg">Real-time GPS tracking</p>
             </button>
 
             {/* Chat */}
@@ -427,7 +427,7 @@ export default function BookingDetailClient({ bookingId }: { bookingId: string }
                 <span className="material-symbols-outlined">forum</span>
               </div>
               <h4 className="text-slate-900 dark:text-white font-bold mb-1">Chat</h4>
-              <p className="text-slate-500 dark:text-slate-400 text-sm">Discuss ritual details</p>
+              <p className="text-slate-500 dark:text-slate-400 text-lg">Discuss ritual details</p>
             </button>
 
             {/* View Samagri */}
@@ -436,7 +436,7 @@ export default function BookingDetailClient({ bookingId }: { bookingId: string }
                 <span className="material-symbols-outlined">inventory_2</span>
               </div>
               <h4 className="text-slate-900 dark:text-white font-bold mb-1">Samagri List</h4>
-              <p className="text-slate-500 dark:text-slate-400 text-sm">Required items checklist</p>
+              <p className="text-slate-500 dark:text-slate-400 text-lg">Required items checklist</p>
             </button>
 
             {/* Support */}
@@ -445,7 +445,7 @@ export default function BookingDetailClient({ bookingId }: { bookingId: string }
                 <span className="material-symbols-outlined">support_agent</span>
               </div>
               <h4 className="text-slate-900 dark:text-white font-bold mb-1">Support</h4>
-              <p className="text-slate-500 dark:text-slate-400 text-sm">24/7 Concierge help</p>
+              <p className="text-slate-500 dark:text-slate-400 text-lg">24/7 Concierge help</p>
             </button>
           </div>
 

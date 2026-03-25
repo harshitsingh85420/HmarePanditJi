@@ -15,7 +15,7 @@ export default function TravelItineraryPage({ params }: { params: { id: string }
                 {/* Header Section */}
                 <div className="flex flex-wrap justify-between items-end gap-4 p-4 mb-4">
                     <div className="flex flex-col gap-2">
-                        <span className="px-3 py-1 bg-[#f49d25]/20 text-[#f49d25] text-xs font-bold rounded-full w-max">
+                        <span className="px-5 py-3 bg-[#f49d25]/20 text-[#f49d25] text-base font-bold rounded-full w-max">
                             Active Journey
                         </span>
                         <h1 className="text-slate-900 dark:text-white text-3xl md:text-4xl font-black leading-tight tracking-[-0.033em]">
@@ -27,7 +27,7 @@ export default function TravelItineraryPage({ params }: { params: { id: string }
                     </div>
                     <button
                         onClick={() => router.push(`/bookings/${id}/track`)}
-                        className="flex items-center gap-2 rounded-lg bg-white dark:bg-slate-800 border border-[#f49d25]/30 px-5 py-2.5 text-slate-700 dark:text-slate-200 text-sm font-bold shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-all"
+                        className="flex items-center gap-2 rounded-lg bg-white dark:bg-slate-800 border border-[#f49d25]/30 px-5 py-2.5 text-slate-700 dark:text-slate-200 text-lg font-bold shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-all"
                     >
                         <span className="material-symbols-outlined text-[#f49d25]">map</span>
                         View Route Map
@@ -50,7 +50,7 @@ export default function TravelItineraryPage({ params }: { params: { id: string }
                                                 : "border-transparent text-slate-500 dark:text-slate-400 hover:text-[#f49d25]"
                                             }`}
                                     >
-                                        <p className="text-sm font-bold tracking-[0.015em]">{day}</p>
+                                        <p className="text-lg font-bold tracking-[0.015em]">{day}</p>
                                     </button>
                                 );
                             }
@@ -60,7 +60,7 @@ export default function TravelItineraryPage({ params }: { params: { id: string }
                                 <span className="material-symbols-outlined text-[18px]">
                                     account_balance_wallet
                                 </span>
-                                <p className="text-sm font-bold tracking-[0.015em]">
+                                <p className="text-lg font-bold tracking-[0.015em]">
                                     Digital Wallet
                                 </p>
                             </div>
@@ -76,7 +76,7 @@ export default function TravelItineraryPage({ params }: { params: { id: string }
                                 October 24: Varanasi Departure
                             </h2>
                             <button className="bg-[#f49d25] text-white font-bold px-6 py-2 rounded-lg hover:bg-[#f49d25]/90 transition-all flex items-center gap-2 shadow-lg shadow-[#f49d25]/20">
-                                <span className="material-symbols-outlined text-sm">
+                                <span className="material-symbols-outlined text-lg">
                                     location_on
                                 </span>
                                 I'M HERE
@@ -121,7 +121,7 @@ export default function TravelItineraryPage({ params }: { params: { id: string }
                                         </p>
                                     </div>
                                     <div className="bg-[#f49d25]/5 p-3 rounded-lg border border-[#f49d25]/20">
-                                        <p className="text-xs font-bold text-[#f49d25] uppercase">
+                                        <p className="text-base font-bold text-[#f49d25] uppercase">
                                             Gate
                                         </p>
                                         <p className="text-lg font-black text-[#f49d25]">A24</p>
@@ -143,10 +143,10 @@ export default function TravelItineraryPage({ params }: { params: { id: string }
                                     Radisson Blu Plaza, Delhi Airport
                                 </p>
                                 <div className="mt-3 flex gap-3">
-                                    <button className="text-[#f49d25] text-sm font-bold border border-[#f49d25]/30 px-4 py-1.5 rounded-lg hover:bg-[#f49d25]/10 transition-colors">
+                                    <button className="text-[#f49d25] text-lg font-bold border border-[#f49d25]/30 px-4 py-3.5 rounded-lg hover:bg-[#f49d25]/10 transition-colors">
                                         View Voucher
                                     </button>
-                                    <button className="text-slate-500 dark:text-slate-400 text-sm font-bold border border-slate-200 dark:border-slate-700 px-4 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                                    <button className="text-slate-500 dark:text-slate-400 text-lg font-bold border border-slate-200 dark:border-slate-700 px-4 py-3.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
                                         Call Hotel
                                     </button>
                                 </div>
@@ -160,7 +160,7 @@ export default function TravelItineraryPage({ params }: { params: { id: string }
                     <div className="bg-gradient-to-br from-[#f49d25] to-orange-600 rounded-xl p-6 text-white shadow-xl">
                         <div className="flex justify-between items-start mb-6">
                             <div>
-                                <p className="text-white/80 text-xs font-bold uppercase tracking-wider">
+                                <p className="text-white/80 text-base font-bold uppercase tracking-wider">
                                     Ticket Voucher
                                 </p>
                                 <p className="text-xl font-bold">Air India AI-402</p>
@@ -171,10 +171,10 @@ export default function TravelItineraryPage({ params }: { params: { id: string }
                         </div>
                         <div className="flex justify-between items-end">
                             <div>
-                                <p className="text-xs text-white/70">Seat</p>
+                                <p className="text-base text-white/70">Seat</p>
                                 <p className="text-lg font-bold">12A</p>
                             </div>
-                            <button className="bg-white/20 hover:bg-white/30 backdrop-blur-md px-4 py-2 rounded-lg text-sm font-bold transition-all">
+                            <button className="bg-white/20 hover:bg-white/30 backdrop-blur-md px-4 py-2 rounded-lg text-lg font-bold transition-all">
                                 View All Tickets
                             </button>
                         </div>
@@ -185,7 +185,7 @@ export default function TravelItineraryPage({ params }: { params: { id: string }
                                 <span className="material-symbols-outlined">celebration</span>
                             </div>
                             <div>
-                                <p className="text-xs font-bold text-[#f49d25] uppercase">
+                                <p className="text-base font-bold text-[#f49d25] uppercase">
                                     Upcoming Puja
                                 </p>
                                 <p className="text-slate-900 dark:text-white font-bold">
@@ -194,10 +194,10 @@ export default function TravelItineraryPage({ params }: { params: { id: string }
                             </div>
                         </div>
                         <div className="flex gap-2">
-                            <button className="flex-1 bg-[#f49d25] text-white text-xs font-bold py-3 rounded-lg opacity-50 cursor-not-allowed">
+                            <button className="flex-1 bg-[#f49d25] text-white text-base font-bold py-3 rounded-lg opacity-50 cursor-not-allowed">
                                 MARK PUJA START
                             </button>
-                            <button className="flex-1 bg-slate-100 dark:bg-slate-700 text-slate-400 text-xs font-bold py-3 rounded-lg cursor-not-allowed">
+                            <button className="flex-1 bg-slate-100 dark:bg-slate-700 text-slate-400 text-base font-bold py-3 rounded-lg cursor-not-allowed">
                                 MARK COMPLETE
                             </button>
                         </div>

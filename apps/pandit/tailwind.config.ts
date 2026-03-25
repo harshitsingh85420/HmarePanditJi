@@ -1,10 +1,15 @@
 import type { Config } from 'tailwindcss'
+import path from 'path'
 
 const config: Config = {
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
+    // Monorepo: Scan workspace packages for Tailwind classes
+    path.join(__dirname, '../../packages/ui/src/**/*.{js,ts,jsx,tsx,mdx}'),
+    path.join(__dirname, '../../packages/ui/components/**/*.{js,ts,jsx,tsx,mdx}'),
+    path.join(__dirname, '../../packages/utils/src/**/*.{js,ts,jsx,tsx,mdx}'),
   ],
   theme: {
     extend: {
@@ -76,12 +81,16 @@ const config: Config = {
         'headline': ['Noto Serif', 'serif'],
       },
       fontSize: {
-        'hero': ['28px', { lineHeight: '1.2', fontWeight: '700' }],
-        'title': ['22px', { lineHeight: '1.3', fontWeight: '600' }],
-        'body': ['18px', { lineHeight: '1.5', fontWeight: '400' }],
-        'body-sm': ['16px', { lineHeight: '1.5', fontWeight: '400' }],
-        'label': ['14px', { lineHeight: '1.5', fontWeight: '400' }],
-        'micro': ['12px', { lineHeight: '1.4', fontWeight: '400' }],
+        // ELDERLY ACCESSIBILITY: Minimum 16px font sizes for 60+ demographic
+        'hero': ['32px', { lineHeight: '1.2', fontWeight: '700' }],
+        'title': ['26px', { lineHeight: '1.3', fontWeight: '600' }],
+        'body': ['20px', { lineHeight: '1.5', fontWeight: '400' }],
+        'body-sm': ['18px', { lineHeight: '1.5', fontWeight: '400' }],
+        'label': ['16px', { lineHeight: '1.5', fontWeight: '500' }],
+        'micro': ['16px', { lineHeight: '1.4', fontWeight: '400' }],
+        // ALIASES for accessibility compliance
+        'xs': ['16px', { lineHeight: '1.4', fontWeight: '400' }],  // Mapped from 12px
+        'sm': ['18px', { lineHeight: '1.5', fontWeight: '400' }],  // Mapped from 14px
       },
       spacing: {
         'screen-x': '20px',
@@ -179,13 +188,15 @@ const config: Config = {
         },
       },
       minHeight: {
-        'touch': '64px',  // WET HAND RELIABILITY - 64px minimum for temple environments
-        'btn': '64px',
-        'btn-sm': '56px',
-        'confirm': '64px',
+        'touch': '72px',  // ELDERLY ACCESSIBILITY: 72px minimum for temple environments (wet hands)
+        'btn': '72px',
+        'btn-sm': '64px',
+        'confirm': '72px',
+        'input': '72px',  // Input fields minimum height
       },
       minWidth: {
-        'touch': '64px',  // WET HAND RELIABILITY - 64px minimum
+        'touch': '72px',  // ELDERLY ACCESSIBILITY: 72px minimum touch target
+        'btn': '72px',
       },
     },
   },

@@ -52,7 +52,7 @@ export default function TopBar({
             <motion.button
               whileTap={{ scale: 0.9 }}
               onClick={onLanguageChange}
-              className="flex items-center gap-2 px-3 py-3 rounded-full border border-outline-variant/30 text-saffron font-medium text-lg hover:bg-saffron/5 transition-colors"
+              className="flex items-center gap-2 px-5 py-3 rounded-full border border-outline-variant/30 text-saffron font-medium text-lg hover:bg-saffron/5 transition-colors"
               aria-label="Change language"
             >
               <span className="material-symbols-outlined text-[20px]">language</span>

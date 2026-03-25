@@ -60,10 +60,10 @@ export function Header() {
                     </div>
 
                     <nav className={`absolute left-0 top-16 w-full flex-col bg-white p-4 shadow-lg md:static md:flex md:w-auto md:flex-row md:items-center md:gap-8 md:bg-transparent md:p-0 md:shadow-none ${isMenuOpen ? "flex" : "hidden"}`}>
-                        <Link href="/" className="text-sm font-medium text-gray-700 hover:text-amber-600">Home</Link>
-                        <Link href="/search" className="text-sm font-medium text-gray-700 hover:text-amber-600">Find Pandits</Link>
-                        <Link href="/muhurat" className="text-sm font-medium text-gray-700 hover:text-amber-600">Muhurat Explorer</Link>
-                        <Link href="/about" className="text-sm font-medium text-gray-700 hover:text-amber-600">About</Link>
+                        <Link href="/" className="text-lg font-medium text-gray-700 hover:text-amber-600">Home</Link>
+                        <Link href="/search" className="text-lg font-medium text-gray-700 hover:text-amber-600">Find Pandits</Link>
+                        <Link href="/muhurat" className="text-lg font-medium text-gray-700 hover:text-amber-600">Muhurat Explorer</Link>
+                        <Link href="/about" className="text-lg font-medium text-gray-700 hover:text-amber-600">About</Link>
                     </nav>
 
                     <div className="flex items-center gap-4">
@@ -79,14 +79,14 @@ export function Header() {
                             </button>
                         )}
                         {!loading && !isAuthenticated && (
-                            <Button variant="outline" onClick={() => router.push("/login")}>
-                                Login / Register
+                            <Button variant="outline" onClick={() => router.push("/login")} className="min-h-[72px] px-6 text-[26px] font-bold">
+                                लॉगिन करें
                             </Button>
                         )}
 
                         {!loading && isAuthenticated && user && user.role === 'CUSTOMER' && (
                             <div className="flex items-center gap-4">
-                                <Link href="/dashboard" className="text-sm font-medium text-amber-600 hover:text-amber-700 hidden md:block">
+                                <Link href="/dashboard" className="text-lg font-medium text-amber-600 hover:text-amber-700 hidden md:block">
                                     My Bookings
                                 </Link>
                                 <Link href="/dashboard/profile">

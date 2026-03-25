@@ -56,22 +56,48 @@ function OnboardingContent() {
   useWakeLock(true)
 
   useEffect(() => {
-    const saved = loadOnboardingState()
-
     // Check for reset parameter (for testing or restarting)
     const resetParam = searchParams?.get('reset')
     if (resetParam === 'true') {
       // Clear onboarding state and start fresh
       clearOnboardingState()
       setState({ ...DEFAULT_STATE, firstEverOpen: true })
+      setIsLoaded(true)
+      setIsMounted(true)
+      return
+    }
+
+    // Allow direct deep-linking to a specific phase (used by Registration Back button).
+    const phaseParam = searchParams?.get('phase') as OnboardingPhase | null
+    if (phaseParam) {
+      const saved = loadOnboardingState()
+      setState({ ...saved, phase: phaseParam })
+      setIsLoaded(true)
+      setIsMounted(true)
+      return
+    }
+
+    // BUG-CRITICAL-01 FIX: For fresh onboarding sessions, ALWAYS reset to Hindi
+    // A user landing on /onboarding should NEVER see Tamil or any other language
+    // This is the onboarding ENTRY point - language selection happens AFTER this screen
+    // Only restore state if user was in middle of TUTORIAL (not language selection)
+    const saved = loadOnboardingState()
+
+    // Check if user was in middle of tutorial screens (TUTORIAL_* phases)
+    const isInTutorial = saved.phase.startsWith('TUTORIAL_')
+
+    if (isInTutorial && saved.tutorialStarted && saved.selectedLanguage) {
+      // User was in middle of tutorial - restore their language choice
+      setState(saved)
     } else {
-      // Allow direct deep-linking to a specific phase (used by Registration Back button).
-      const phaseParam = searchParams?.get('phase') as OnboardingPhase | null
-      if (phaseParam) {
-        setState({ ...saved, phase: phaseParam })
-      } else {
-        setState(saved)
+      // Fresh user OR user stuck in language selection flow - RESET EVERYTHING
+      // This prevents Tamil/Hindi leakage from previous incomplete sessions
+      try {
+        clearOnboardingState()
+      } catch {
+        // Ignore clear errors
       }
+      setState({ ...DEFAULT_STATE, firstEverOpen: true })
     }
 
     setIsLoaded(true)
@@ -359,7 +385,7 @@ function OnboardingContent() {
   }
 
   return (
-    <div className="min-h-screen bg-vedic-cream">
+    <div className="min-h-screen bg-surface-base">
       {renderScreen()}
       {/* Language bottom sheet — always available (only render after mount to prevent hydration errors) */}
       {isMounted && (

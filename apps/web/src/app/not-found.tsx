@@ -20,7 +20,7 @@ export default function NotFound() {
               temple_hindu
             </span>
           </div>
-          <div className="absolute top-0 right-1/2 translate-x-20 -translate-y-2 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+          <div className="absolute top-0 right-1/2 translate-x-20 -translate-y-2 w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
             <span className="material-symbols-outlined text-xl text-primary">search_off</span>
           </div>
         </div>
@@ -32,21 +32,21 @@ export default function NotFound() {
         <p className="text-slate-500 dark:text-slate-400 text-base mb-1">
           यह पेज नहीं मिला — यह शायद हटा दिया गया है या URL गलत है।
         </p>
-        <p className="text-slate-400 text-sm mb-8">
+        <p className="text-slate-400 text-lg mb-8">
           This page doesn&apos;t exist or has been moved.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center mb-8">
           <Link
             href="/"
-            className="h-11 px-6 inline-flex items-center justify-center gap-2 bg-primary text-white font-bold rounded-lg text-sm hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
+            className="h-11 px-6 inline-flex items-center justify-center gap-2 bg-primary text-white font-bold rounded-lg text-lg hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
           >
             <span className="material-symbols-outlined text-base">home</span>
             होम पर जाएं — Go Home
           </Link>
           <Link
             href="/pandits"
-            className="h-11 px-6 inline-flex items-center justify-center gap-2 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-semibold rounded-lg text-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+            className="h-11 px-6 inline-flex items-center justify-center gap-2 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-semibold rounded-lg text-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
           >
             <span className="material-symbols-outlined text-base">groups</span>
             Find Pandits
@@ -54,7 +54,7 @@ export default function NotFound() {
         </div>
 
         {/* Quick links */}
-        <div className="text-sm text-slate-400">
+        <div className="text-lg text-slate-400">
           <p className="mb-3 font-semibold text-slate-500 dark:text-slate-400">Popular pages</p>
           <div className="flex flex-wrap justify-center gap-x-4 gap-y-1">
             {[

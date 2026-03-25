@@ -157,34 +157,36 @@ export default function OTPScreen({ mobile, language, onVerified, onBack }: Prop
   };
 
   return (
-    <main className="min-h-dvh max-w-[390px] mx-auto bg-surface-base font-hind text-text-primary flex flex-col shadow-2xl">
+    <main className="min-h-dvh max-w-[390px] mx-auto bg-surface-base font-body text-text-primary flex flex-col shadow-2xl">
       {/* Header - shrink-0 to prevent compression */}
       <header className="pt-8 px-6 pb-2 flex items-center gap-3 shrink-0">
-        <button onClick={onBack} className="w-[56px] h-[56px] -ml-2 flex items-center justify-center text-saffron hover:bg-black/5 rounded-full" aria-label="Go back">
-          <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+        <button onClick={onBack} className="w-[72px] h-[72px] -ml-2 flex items-center justify-center text-saffron hover:bg-saffron-light rounded-full min-h-[72px] min-w-[72px] focus:ring-4 focus:ring-saffron focus:outline-none" aria-label="पीछे जाएं">
+          <svg width="40" height="40" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
             <path d="M15 18l-6-6 6-6" />
           </svg>
         </button>
-        <h1 className="text-[20px] font-bold text-text-primary">Registration — Step 2/4</h1>
+        <div className="flex-1">
+          <h1 className="text-[36px] font-bold text-text-primary">पंजीकरण</h1>
+          <p className="text-[32px] font-bold text-saffron">कदम 2 / 4</p>
+        </div>
       </header>
 
-      {/* Progress - shrink-0 to prevent compression */}
+      {/* Progress - shrink-0 to prevent compression - Bold and Clear for Elderly */}
       <div className="px-6 pb-4 shrink-0">
-        <div className="flex gap-1.5">
+        <div className="flex gap-3">
           {[1, 2, 3, 4].map(i => (
-            <div key={i} className={`flex-1 h-1.5 rounded-full transition-colors ${i <= 2 ? 'bg-saffron' : 'bg-vedic-border'}`} />
+            <div key={i} className={`flex-1 h-16 rounded-full transition-colors ${i <= 2 ? 'bg-saffron' : 'bg-surface-dim'}`} />
           ))}
         </div>
-        <p className="text-lgs text-saffron mt-1">OTP Verification</p>
       </div>
 
       {/* Content - flex-grow with overflow-y-auto for scroll on small screens */}
       <div className="flex-grow flex flex-col items-center px-6 pt-2 overflow-y-auto">
         {/* Title */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-8">
-          <h2 className="text-[26px] font-bold text-text-primary">🔐 OTP दर्ज करें</h2>
-          <p className="text-[16px] text-saffron mt-2">
-            <span className="font-semibold text-text-primary">+91 {formatted}</span> पर भेजा गया
+          <h2 className="text-[40px] font-bold text-text-primary">🔐 OTP दर्ज करें</h2>
+          <p className="text-[24px] text-saffron mt-3 font-medium">
+            <span className="font-bold text-text-primary">+91 {formatted}</span> पर भेजा गया
           </p>
         </motion.div>
 
@@ -195,22 +197,22 @@ export default function OTPScreen({ mobile, language, onVerified, onBack }: Prop
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
-              className="w-full mb-4 flex items-center gap-3 px-4 py-2.5 bg-saffron-lt rounded-xl border border-saffron/20"
+              className="w-full mb-4 flex items-center gap-3 px-5 py-5 bg-saffron-lt rounded-2xl border-3 border-saffron/40 min-h-[88px] shadow-card"
             >
-              <div className="flex items-end gap-1 h-5 shrink-0">
-                <div className="w-1.5 bg-saffron rounded-full animate-voice-bar" />
-                <div className="w-1.5 bg-saffron rounded-full animate-voice-bar-2" />
-                <div className="w-1.5 bg-saffron rounded-full animate-voice-bar-3" />
+              <div className="flex items-end gap-2 h-14 shrink-0">
+                <div className="w-3 bg-saffron rounded-full animate-voice-bar" />
+                <div className="w-3 bg-saffron rounded-full animate-voice-bar-2" />
+                <div className="w-3 bg-saffron rounded-full animate-voice-bar-3" />
               </div>
-              <span className="text-[14px] text-text-primary truncate">
+              <span className="text-[28px] text-text-primary truncate font-medium">
                 {isSpeaking ? 'बोल रहा हूँ...' : (transcript || 'OTP बोलें...')}
               </span>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* OTP Input Boxes */}
-        <div className="flex gap-3 mb-6">
+        {/* OTP Input Boxes - Larger for elderly */}
+        <div className="flex gap-4 mb-6">
           {otp.map((digit, i) => (
             <input
               key={i}
@@ -220,35 +222,34 @@ export default function OTPScreen({ mobile, language, onVerified, onBack }: Prop
               value={digit}
               onChange={(e) => handleOtpInput(i, e.target.value)}
               onKeyDown={(e) => handleKeyDown(i, e)}
-              className={`w-12 h-14 text-center text-[24px] font-bold rounded-xl border-2 transition-colors bg-white focus:outline-none ${digit ? 'border-saffron text-text-primary' : 'border-outline-variant text-vedic-border'
-                } focus:border-saffron`}
+              className={`w-20 h-24 text-center text-[40px] font-bold rounded-xl border-3 transition-colors bg-surface-card focus:outline-none ${digit ? 'border-saffron text-text-primary' : 'border-border-default text-text-disabled'
+                } focus:border-saffron min-h-[96px] min-w-[80px]`}
             />
           ))}
         </div>
 
-        {error && <p className="text-error text-[14px] mb-4 text-center">{error}</p>}
+        {error && <p className="text-error text-[20px] mb-4 text-center font-medium">{error}</p>}
 
         {/* Resend */}
         <div className="text-center mb-8">
           {resendTimer > 0 ? (
-            <p className="text-saffron text-[14px]">OTP दोबारा भेजें ({resendTimer}s)</p>
+            <p className="text-saffron text-[22px] font-medium">OTP दोबारा भेजें ({resendTimer}s)</p>
           ) : (
             <button
               onClick={() => {
                 setResendTimer(30);
                 setError('');
-                const languageCode = LANGUAGE_TO_SARVAM_CODE[language] || 'hi-IN'; // BUG-003 FIX: Use dynamic language
+                const languageCode = LANGUAGE_TO_SARVAM_CODE[language] || 'hi-IN';
                 void speakWithSarvam({
                   text: 'नया OTP भेजा गया।',
                   languageCode,
                   onEnd: () => startSTT(),
                 }).catch((err) => {
                   console.error('TTS resend failed:', err);
-                  // Still start STT even if TTS fails
                   startSTT();
                 });
               }}
-              className="min-h-[56px] text-text-primary text-[16px] font-semibold underline focus:ring-2 focus:ring-primary focus:outline-none"
+              className="min-h-[80px] text-text-primary text-[22px] font-semibold underline focus:ring-4 focus:ring-saffron focus:outline-none px-8 py-4"
             >
               OTP दोबारा भेजें
             </button>
@@ -256,20 +257,20 @@ export default function OTPScreen({ mobile, language, onVerified, onBack }: Prop
         </div>
 
         {/* Helptext */}
-        <p className="text-[13px] text-saffron text-center">
+        <p className="text-[22px] text-text-secondary text-center font-medium">
           OTP नहीं आया? Spam folder check करें या ऊपर Resend दबाएं।
         </p>
       </div>
 
       {/* Footer */}
-      <footer className="px-6 pb-10 pt-3 bg-surface-base/90 backdrop-blur-sm border-t border-outline-variant shrink-0">
+      <footer className="px-6 pb-10 pt-3 bg-surface-base/90 backdrop-blur-sm border-t-3 border-border-default shrink-0">
         <motion.button
           whileTap={{ scale: 0.97 }}
           disabled={!otp.every(d => d !== '')}
           onClick={() => submitOTP(otp.join(''))}
-          className={`w-full h-16 rounded-2xl flex items-center justify-center text-[20px] font-bold transition-all ${otp.every(d => d !== '')
-            ? 'bg-saffron text-white shadow-cta'
-            : 'bg-vedic-border/30 text-saffron cursor-not-allowed'
+          className={`w-full min-h-[88px] rounded-2xl flex items-center justify-center text-[26px] font-bold transition-all ${otp.every(d => d !== '')
+            ? 'bg-saffron text-white shadow-btn-saffron'
+            : 'bg-surface-dim text-saffron cursor-not-allowed'
             }`}
         >
           Verify करें →

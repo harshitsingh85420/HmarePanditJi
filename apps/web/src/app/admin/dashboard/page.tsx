@@ -14,7 +14,7 @@ export default function AdminDashboardPage() {
                     </div>
                     <div className="flex flex-col">
                         <h1 className="text-base font-bold leading-tight">HmarePanditJi</h1>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                        <p className="text-base text-slate-500 dark:text-slate-400">
                             Admin Control Center
                         </p>
                     </div>
@@ -22,45 +22,45 @@ export default function AdminDashboardPage() {
                 <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
                     <Link
                         href="/admin/dashboard"
-                        className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-[#f49d25]/10 text-[#f49d25]"
+                        className="flex items-center gap-3 px-5 py-2.5 rounded-lg bg-[#f49d25]/10 text-[#f49d25]"
                     >
                         <span className="material-symbols-outlined">dashboard</span>
-                        <p className="text-sm font-semibold">Metrics</p>
+                        <p className="text-lg font-semibold">Metrics</p>
                     </Link>
                     <Link
                         href="/admin/travel"
-                        className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 cursor-pointer"
+                        className="flex items-center gap-3 px-5 py-2.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 cursor-pointer"
                     >
                         <span className="material-symbols-outlined">map</span>
-                        <p className="text-sm font-medium">Travel Ops</p>
+                        <p className="text-lg font-medium">Travel Ops</p>
                     </Link>
                     <Link
                         href="/admin/verifications"
-                        className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 cursor-pointer"
+                        className="flex items-center gap-3 px-5 py-2.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 cursor-pointer"
                     >
                         <span className="material-symbols-outlined">verified_user</span>
-                        <p className="text-sm font-medium">Verification Queue</p>
+                        <p className="text-lg font-medium">Verification Queue</p>
                     </Link>
                     <Link
                         href="/admin/finance"
-                        className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 cursor-pointer"
+                        className="flex items-center gap-3 px-5 py-2.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 cursor-pointer"
                     >
                         <span className="material-symbols-outlined">payments</span>
-                        <p className="text-sm font-medium">Finance</p>
+                        <p className="text-lg font-medium">Finance</p>
                     </Link>
                     <Link
                         href="/admin/support"
-                        className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 cursor-pointer"
+                        className="flex items-center gap-3 px-5 py-2.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 cursor-pointer"
                     >
                         <span className="material-symbols-outlined">support_agent</span>
-                        <p className="text-sm font-medium">Support</p>
+                        <p className="text-lg font-medium">Support</p>
                     </Link>
                     <Link
                         href="#"
-                        className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 cursor-pointer"
+                        className="flex items-center gap-3 px-5 py-2.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 cursor-pointer"
                     >
                         <span className="material-symbols-outlined">settings</span>
-                        <p className="text-sm font-medium">Settings</p>
+                        <p className="text-lg font-medium">Settings</p>
                     </Link>
                 </nav>
                 <div className="p-4 mt-auto border-t border-slate-200 dark:border-white/10">
@@ -73,8 +73,8 @@ export default function AdminDashboardPage() {
                             }}
                         ></div>
                         <div className="flex flex-col">
-                            <p className="text-sm font-semibold">Rajesh Kumar</p>
-                            <p className="text-xs text-slate-500">Super Admin</p>
+                            <p className="text-lg font-semibold">Rajesh Kumar</p>
+                            <p className="text-base text-slate-500">Super Admin</p>
                         </div>
                     </div>
                 </div>
@@ -96,7 +96,7 @@ export default function AdminDashboardPage() {
                                 search
                             </span>
                             <input
-                                className="w-64 pl-10 pr-4 py-1.5 bg-slate-100 dark:bg-white/5 border-none rounded-lg text-sm focus:ring-2 focus:ring-[#f49d25]/50"
+                                className="w-64 pl-10 pr-4 py-3.5 bg-slate-100 dark:bg-white/5 border-none rounded-lg text-lg focus:ring-2 focus:ring-[#f49d25]/50"
                                 placeholder="Search Pandit or Service ID..."
                                 type="text"
                             />
@@ -113,7 +113,7 @@ export default function AdminDashboardPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         <div className="p-6 rounded-xl bg-white dark:bg-[#221a10] border border-slate-200 dark:border-white/10 shadow-sm">
                             <div className="flex items-center justify-between mb-2">
-                                <p className="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                <p className="text-lg font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                                     Total Bookings
                                 </p>
                                 <span className="material-symbols-outlined text-[#f49d25]">
@@ -122,14 +122,14 @@ export default function AdminDashboardPage() {
                             </div>
                             <div className="flex items-end gap-2">
                                 <p className="text-3xl font-bold">1,245</p>
-                                <p className="text-[#0bda19] text-sm font-medium mb-1">
+                                <p className="text-[#0bda19] text-lg font-medium mb-1">
                                     +12%
                                 </p>
                             </div>
                         </div>
                         <div className="p-6 rounded-xl bg-white dark:bg-[#221a10] border border-slate-200 dark:border-white/10 shadow-sm">
                             <div className="flex items-center justify-between mb-2">
-                                <p className="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                <p className="text-lg font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                                     Active Pandits
                                 </p>
                                 <span className="material-symbols-outlined text-[#f49d25]">
@@ -138,14 +138,14 @@ export default function AdminDashboardPage() {
                             </div>
                             <div className="flex items-end gap-2">
                                 <p className="text-3xl font-bold">512</p>
-                                <p className="text-[#0bda19] text-sm font-medium mb-1">
+                                <p className="text-[#0bda19] text-lg font-medium mb-1">
                                     +5%
                                 </p>
                             </div>
                         </div>
                         <div className="p-6 rounded-xl bg-white dark:bg-[#221a10] border border-slate-200 dark:border-white/10 shadow-sm">
                             <div className="flex items-center justify-between mb-2">
-                                <p className="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                <p className="text-lg font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                                     Live Travels
                                 </p>
                                 <span className="material-symbols-outlined text-[#f49d25]">
@@ -154,14 +154,14 @@ export default function AdminDashboardPage() {
                             </div>
                             <div className="flex items-end gap-2">
                                 <p className="text-3xl font-bold">42</p>
-                                <p className="text-[#fa3f38] text-sm font-medium mb-1">
+                                <p className="text-[#fa3f38] text-lg font-medium mb-1">
                                     -2%
                                 </p>
                             </div>
                         </div>
                         <div className="p-6 rounded-xl bg-white dark:bg-[#221a10] border border-slate-200 dark:border-white/10 shadow-sm">
                             <div className="flex items-center justify-between mb-2">
-                                <p className="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                <p className="text-lg font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                                     Revenue
                                 </p>
                                 <span className="material-symbols-outlined text-[#f49d25]">
@@ -170,7 +170,7 @@ export default function AdminDashboardPage() {
                             </div>
                             <div className="flex items-end gap-2">
                                 <p className="text-3xl font-bold">₹82.4L</p>
-                                <p className="text-[#0bda19] text-sm font-medium mb-1">
+                                <p className="text-[#0bda19] text-lg font-medium mb-1">
                                     +18%
                                 </p>
                             </div>
@@ -185,7 +185,7 @@ export default function AdminDashboardPage() {
                                     <h3 className="text-lg font-bold">
                                         Live Pandit Journeys (Central India)
                                     </h3>
-                                    <div className="flex gap-2 text-xs font-medium">
+                                    <div className="flex gap-2 text-base font-medium">
                                         <span className="flex items-center gap-1">
                                             <span className="size-2 rounded-full bg-[#0bda19]"></span>{" "}
                                             On Time
@@ -230,14 +230,14 @@ export default function AdminDashboardPage() {
                                     {/* Delayed Item 1 */}
                                     <div className="p-4 rounded-lg bg-white dark:bg-[#221a10] border border-[#fa3f38]/30 shadow-sm">
                                         <div className="flex justify-between items-start mb-2">
-                                            <h4 className="font-bold text-sm">
+                                            <h4 className="font-bold text-lg">
                                                 Pandit Sharma Ji
                                             </h4>
-                                            <span className="px-2 py-0.5 rounded bg-[#fa3f38] text-white text-[10px] font-bold">
+                                            <span className="px-4 py-2 rounded bg-[#fa3f38] text-white text-[10px] font-bold">
                                                 45m DELAY
                                             </span>
                                         </div>
-                                        <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
+                                        <p className="text-base text-slate-500 dark:text-slate-400 mb-3">
                                             Route: Indore -&gt; Ujjain (Mahakal Puja)
                                         </p>
                                         <div className="flex items-center justify-between">
@@ -245,11 +245,11 @@ export default function AdminDashboardPage() {
                                                 <span className="text-[10px] font-bold text-[#f49d25] uppercase">
                                                     Backup Status:
                                                 </span>
-                                                <span className="px-2 py-0.5 rounded bg-[#0bda19]/20 text-[#0bda19] text-[10px] font-bold">
+                                                <span className="px-4 py-2 rounded bg-[#0bda19]/20 text-[#0bda19] text-[10px] font-bold">
                                                     READY
                                                 </span>
                                             </div>
-                                            <button className="bg-[#f49d25] text-white text-xs font-bold px-3 py-1 rounded">
+                                            <button className="bg-[#f49d25] text-white text-base font-bold px-5 py-3 rounded">
                                                 REASSIGN
                                             </button>
                                         </div>
@@ -257,14 +257,14 @@ export default function AdminDashboardPage() {
                                     {/* Delayed Item 2 */}
                                     <div className="p-4 rounded-lg bg-white dark:bg-[#221a10] border border-[#fa3f38]/30 shadow-sm opacity-90">
                                         <div className="flex justify-between items-start mb-2">
-                                            <h4 className="font-bold text-sm">
+                                            <h4 className="font-bold text-lg">
                                                 Pandit Dubey Ji
                                             </h4>
-                                            <span className="px-2 py-0.5 rounded bg-[#fa3f38] text-white text-[10px] font-bold">
+                                            <span className="px-4 py-2 rounded bg-[#fa3f38] text-white text-[10px] font-bold">
                                                 20m DELAY
                                             </span>
                                         </div>
-                                        <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
+                                        <p className="text-base text-slate-500 dark:text-slate-400 mb-3">
                                             Route: Bhopal -&gt; Vidisha (Havan)
                                         </p>
                                         <div className="flex items-center justify-between">
@@ -272,17 +272,17 @@ export default function AdminDashboardPage() {
                                                 <span className="text-[10px] font-bold text-[#f49d25] uppercase">
                                                     Backup Status:
                                                 </span>
-                                                <span className="px-2 py-0.5 rounded bg-slate-200 dark:bg-white/10 text-slate-500 text-[10px] font-bold">
+                                                <span className="px-4 py-2 rounded bg-slate-200 dark:bg-white/10 text-slate-500 text-[10px] font-bold">
                                                     PENDING
                                                 </span>
                                             </div>
-                                            <button className="bg-[#f49d25] text-white text-xs font-bold px-3 py-1 rounded">
+                                            <button className="bg-[#f49d25] text-white text-base font-bold px-5 py-3 rounded">
                                                 CONTACT
                                             </button>
                                         </div>
                                     </div>
                                 </div>
-                                <button className="w-full mt-6 py-3 bg-[#fa3f38] text-white rounded-lg font-bold text-sm hover:bg-[#fa3f38]/90 transition-colors">
+                                <button className="w-full mt-6 py-3 bg-[#fa3f38] text-white rounded-lg font-bold text-lg hover:bg-[#fa3f38]/90 transition-colors">
                                     VIEW ALL CRITICAL ALERTS (4)
                                 </button>
                             </div>
@@ -293,14 +293,14 @@ export default function AdminDashboardPage() {
                     <div className="p-6 rounded-xl bg-white dark:bg-[#221a10] border border-slate-200 dark:border-white/10 shadow-sm overflow-hidden mb-8">
                         <div className="flex items-center justify-between mb-6">
                             <h3 className="text-lg font-bold">Live Travel Operations Log</h3>
-                            <button className="text-sm font-semibold text-[#f49d25]">
+                            <button className="text-lg font-semibold text-[#f49d25]">
                                 Export CSV
                             </button>
                         </div>
                         <div className="overflow-x-auto">
                             <table className="w-full text-left">
                                 <thead className="border-b border-slate-200 dark:border-white/10">
-                                    <tr className="text-xs text-slate-500 uppercase tracking-wider">
+                                    <tr className="text-base text-slate-500 uppercase tracking-wider">
                                         <th className="px-4 py-3 font-medium">Pandit ID</th>
                                         <th className="px-4 py-3 font-medium">Service Type</th>
                                         <th className="px-4 py-3 font-medium">
@@ -314,7 +314,7 @@ export default function AdminDashboardPage() {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-200 dark:divide-white/10">
-                                    <tr className="text-sm">
+                                    <tr className="text-lg">
                                         <td className="px-4 py-4 font-medium">#PJ-4512</td>
                                         <td className="px-4 py-4">Griha Pravesh Puja</td>
                                         <td className="px-4 py-4 text-slate-500">
@@ -322,7 +322,7 @@ export default function AdminDashboardPage() {
                                         </td>
                                         <td className="px-4 py-4">12 mins</td>
                                         <td className="px-4 py-4">
-                                            <span className="px-2 py-1 rounded-full bg-[#0bda19]/10 text-[#0bda19] text-[10px] font-bold">
+                                            <span className="px-4 py-3 rounded-full bg-[#0bda19]/10 text-[#0bda19] text-[10px] font-bold">
                                                 LOW
                                             </span>
                                         </td>
@@ -334,7 +334,7 @@ export default function AdminDashboardPage() {
                                             </button>
                                         </td>
                                     </tr>
-                                    <tr className="text-sm">
+                                    <tr className="text-lg">
                                         <td className="px-4 py-4 font-medium">#PJ-9821</td>
                                         <td className="px-4 py-4">Satyanarayan Katha</td>
                                         <td className="px-4 py-4 text-slate-500">
@@ -342,7 +342,7 @@ export default function AdminDashboardPage() {
                                         </td>
                                         <td className="px-4 py-4">34 mins</td>
                                         <td className="px-4 py-4">
-                                            <span className="px-2 py-1 rounded-full bg-[#f49d25]/10 text-[#f49d25] text-[10px] font-bold">
+                                            <span className="px-4 py-3 rounded-full bg-[#f49d25]/10 text-[#f49d25] text-[10px] font-bold">
                                                 MEDIUM
                                             </span>
                                         </td>
@@ -354,7 +354,7 @@ export default function AdminDashboardPage() {
                                             </button>
                                         </td>
                                     </tr>
-                                    <tr className="text-sm">
+                                    <tr className="text-lg">
                                         <td className="px-4 py-4 font-medium">#PJ-1102</td>
                                         <td className="px-4 py-4">Vastu Shanti</td>
                                         <td className="px-4 py-4 text-slate-500">
@@ -362,7 +362,7 @@ export default function AdminDashboardPage() {
                                         </td>
                                         <td className="px-4 py-4">5 mins</td>
                                         <td className="px-4 py-4">
-                                            <span className="px-2 py-1 rounded-full bg-[#0bda19]/10 text-[#0bda19] text-[10px] font-bold">
+                                            <span className="px-4 py-3 rounded-full bg-[#0bda19]/10 text-[#0bda19] text-[10px] font-bold">
                                                 LOW
                                             </span>
                                         </td>

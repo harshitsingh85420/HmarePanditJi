@@ -13,11 +13,11 @@ export default function RefundPage() {
         <h1 className="text-3xl font-black text-slate-900 dark:text-slate-100 mb-3">
           Refund &amp; Cancellation Policy
         </h1>
-        <p className="text-slate-500 text-sm">Last updated: January 2025</p>
+        <p className="text-slate-500 text-lg">Last updated: January 2025</p>
       </div>
 
       <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/50 rounded-xl p-5 mb-10">
-        <p className="text-sm text-green-800 dark:text-green-300 font-medium">
+        <p className="text-lg text-green-800 dark:text-green-300 font-medium">
           हम आपकी सहायता के लिए प्रतिबद्ध हैं — We believe in transparent, fair, and fast refunds. Your trust is our priority.
         </p>
       </div>
@@ -35,8 +35,8 @@ export default function RefundPage() {
             { timing: "Less than 24 hours before ceremony", refund: "No Refund", badge: "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400" },
           ].map((row) => (
             <div key={row.timing} className="grid grid-cols-[1fr_auto] gap-4 px-6 py-4 items-center">
-              <p className="text-sm text-slate-700 dark:text-slate-300">{row.timing}</p>
-              <span className={`text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap ${row.badge}`}>
+              <p className="text-lg text-slate-700 dark:text-slate-300">{row.timing}</p>
+              <span className={`text-base font-bold px-5 py-3 rounded-full whitespace-nowrap ${row.badge}`}>
                 {row.refund}
               </span>
             </div>
@@ -55,8 +55,8 @@ export default function RefundPage() {
             "Confirm cancellation. You will receive an SMS confirmation immediately.",
             "Refund (if applicable) will be credited to the original payment method within 5–7 business days.",
           ].map((step, i) => (
-            <li key={i} className="flex items-start gap-3 text-sm text-slate-600 dark:text-slate-400">
-              <span className="w-6 h-6 rounded-full bg-primary/10 text-primary font-bold text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
+            <li key={i} className="flex items-start gap-3 text-lg text-slate-600 dark:text-slate-400">
+              <span className="w-6 h-6 rounded-full bg-primary/10 text-primary font-bold text-base flex items-center justify-center flex-shrink-0 mt-0.5">
                 {i + 1}
               </span>
               {step}
@@ -70,7 +70,7 @@ export default function RefundPage() {
         <h2 className="font-bold text-slate-900 dark:text-slate-100 mb-2">
           Pandit Cancellation / Our Backup Guarantee
         </h2>
-        <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-4">
+        <p className="text-lg text-slate-600 dark:text-slate-400 leading-relaxed mb-4">
           If your assigned pandit cancels for any reason, HmarePanditJi will:
         </p>
         <ul className="space-y-2">
@@ -79,7 +79,7 @@ export default function RefundPage() {
             "Notify you via SMS and WhatsApp within 30 minutes of the cancellation.",
             "If no suitable backup is available within 4 hours, you are entitled to a full refund regardless of timing.",
           ].map((point, i) => (
-            <li key={i} className="flex items-start gap-2 text-sm text-slate-600 dark:text-slate-400">
+            <li key={i} className="flex items-start gap-2 text-lg text-slate-600 dark:text-slate-400">
               <span className="material-symbols-outlined text-green-500 text-base mt-0.5 flex-shrink-0" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
               {point}
             </li>
@@ -90,14 +90,14 @@ export default function RefundPage() {
       {/* Travel costs */}
       <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-6 mb-10">
         <h2 className="font-bold text-slate-900 dark:text-slate-100 mb-3">Travel Reimbursement Refund</h2>
-        <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+        <p className="text-lg text-slate-600 dark:text-slate-400 leading-relaxed">
           Travel costs (train/flight/car) are non-refundable once tickets are purchased, except in cases of pandit cancellation by us. In such cases, the full travel amount is refunded within 2 business days.
         </p>
       </div>
 
       {/* Contact for refund */}
       <div className="bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 p-5">
-        <p className="text-sm text-slate-600 dark:text-slate-400">
+        <p className="text-lg text-slate-600 dark:text-slate-400">
           Refund questions? WhatsApp us at{" "}
           <a
             href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "919999999999"}`}

@@ -27,7 +27,7 @@ export function NetworkBanner() {
                   <p className="text-[18px] font-bold text-trust-green">
                     आप फिर से ऑनलाइन हैं
                   </p>
-                  <p className="text-[14px] text-text-secondary">
+                  <p className="text-[16px] text-text-secondary font-medium">
                     कनेक्शन ठीक हो गया
                   </p>
                 </div>
@@ -41,7 +41,7 @@ export function NetworkBanner() {
                   <p className="text-[20px] font-bold text-warning-amber">
                     इंटरनेट नहीं है
                   </p>
-                  <p className="text-[14px] text-text-secondary">
+                  <p className="text-[16px] text-text-secondary font-medium">
                     कनेक्शन ठीक होने पर पुनः प्रयास करें
                   </p>
                 </div>

@@ -22,26 +22,26 @@ export default function AnalyticsPage() {
                             <div className="hidden md:flex ml-8 space-x-8">
                                 <Link
                                     href="/pandit/analytics"
-                                    className="inline-flex items-center px-1 pt-1 border-b-2 border-[#ec7f13] text-sm font-medium text-gray-900 dark:text-white"
+                                    className="inline-flex items-center px-1 pt-1 border-b-2 border-[#ec7f13] text-lg font-medium text-gray-900 dark:text-white"
                                 >
                                     Market Watch
                                 </Link>
                                 <Link
                                     href="/pandit/inventory"
-                                    className="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                                    className="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-lg font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
                                 >
                                     My Inventory
                                 </Link>
                                 <Link
                                     href="/pandit/bookings"
-                                    className="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                                    className="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-lg font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
                                 >
                                     Bookings
                                 </Link>
                             </div>
                         </div>
                         <div className="flex items-center gap-4">
-                            <div className="hidden md:flex items-center px-3 py-1 bg-[#f8f7f6] dark:bg-[#221910] rounded-full border border-gray-200 dark:border-gray-700 text-sm">
+                            <div className="hidden md:flex items-center px-5 py-3 bg-[#f8f7f6] dark:bg-[#221910] rounded-full border border-gray-200 dark:border-gray-700 text-lg">
                                 <span className="material-symbols-outlined text-gray-400 text-lg mr-2">
                                     location_on
                                 </span>
@@ -54,7 +54,7 @@ export default function AnalyticsPage() {
                                 <span className="absolute top-2 right-2 block h-2 w-2 rounded-full bg-[#ec7f13] ring-2 ring-white dark:ring-[#2a2018]"></span>
                                 <span className="material-symbols-outlined">notifications</span>
                             </button>
-                            <div className="h-8 w-8 rounded-full bg-[#ec7f13]/20 flex items-center justify-center overflow-hidden border border-[#ec7f13]/30">
+                            <div className="h-12 w-12 rounded-full bg-[#ec7f13]/20 flex items-center justify-center overflow-hidden border border-[#ec7f13]/30">
                                 <div
                                     className="h-full w-full bg-cover"
                                     style={{
@@ -76,14 +76,14 @@ export default function AnalyticsPage() {
                         <h2 className="text-2xl font-bold leading-7 text-gray-900 dark:text-white sm:truncate sm:text-3xl sm:tracking-tight">
                             Market Intelligence Dashboard
                         </h2>
-                        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                        <p className="mt-1 text-lg text-gray-500 dark:text-gray-400">
                             Real-time Samagri prices and inventory alerts for your upcoming
                             rituals.
                         </p>
                     </div>
                     <div className="mt-4 flex md:ml-4 md:mt-0">
                         <button
-                            className="inline-flex items-center rounded-md bg-white dark:bg-[#2a2018] px-3 py-2 text-sm font-semibold text-gray-900 dark:text-gray-200 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"
+                            className="inline-flex items-center rounded-md bg-white dark:bg-[#2a2018] px-5 py-2 text-lg font-semibold text-gray-900 dark:text-gray-200 shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"
                             type="button"
                         >
                             <span className="material-symbols-outlined text-lg mr-2">
@@ -92,7 +92,7 @@ export default function AnalyticsPage() {
                             Export Report
                         </button>
                         <button
-                            className="ml-3 inline-flex items-center rounded-md bg-[#ec7f13] px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#ec7f13]/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ec7f13]"
+                            className="ml-3 inline-flex items-center rounded-md bg-[#ec7f13] px-5 py-2 text-lg font-semibold text-white shadow-sm hover:bg-[#ec7f13]/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ec7f13]"
                             type="button"
                         >
                             <span className="material-symbols-outlined text-lg mr-2">add</span>
@@ -114,7 +114,7 @@ export default function AnalyticsPage() {
                                     </span>
                                     Urgent Market Alerts
                                 </h3>
-                                <span className="inline-flex items-center rounded-full bg-red-50 dark:bg-red-900/30 px-2 py-1 text-xs font-medium text-red-700 dark:text-red-400 ring-1 ring-inset ring-red-600/10">
+                                <span className="inline-flex items-center rounded-full bg-red-50 dark:bg-red-900/30 px-4 py-3 text-base font-medium text-red-700 dark:text-red-400 ring-1 ring-inset ring-red-600/10">
                                     3 New
                                 </span>
                             </div>
@@ -128,14 +128,14 @@ export default function AnalyticsPage() {
                                     </div>
                                     <div className="flex-auto">
                                         <div className="flex items-baseline justify-between gap-x-4">
-                                            <p className="text-sm font-semibold leading-6 text-gray-900 dark:text-white">
+                                            <p className="text-lg font-semibold leading-6 text-gray-900 dark:text-white">
                                                 Ghee Price Surge (Patna)
                                             </p>
-                                            <p className="flex-none text-xs text-gray-500 dark:text-gray-400">
+                                            <p className="flex-none text-base text-gray-500 dark:text-gray-400">
                                                 1h ago
                                             </p>
                                         </div>
-                                        <p className="mt-1 line-clamp-2 text-sm leading-6 text-gray-600 dark:text-gray-300">
+                                        <p className="mt-1 line-clamp-2 text-lg leading-6 text-gray-600 dark:text-gray-300">
                                             Prices have surged by{" "}
                                             <span className="font-bold text-red-600 dark:text-red-400">
                                                 +15%
@@ -154,14 +154,14 @@ export default function AnalyticsPage() {
                                     </div>
                                     <div className="flex-auto">
                                         <div className="flex items-baseline justify-between gap-x-4">
-                                            <p className="text-sm font-semibold leading-6 text-gray-900 dark:text-white">
+                                            <p className="text-lg font-semibold leading-6 text-gray-900 dark:text-white">
                                                 Marigold Availability High
                                             </p>
-                                            <p className="flex-none text-xs text-gray-500 dark:text-gray-400">
+                                            <p className="flex-none text-base text-gray-500 dark:text-gray-400">
                                                 3h ago
                                             </p>
                                         </div>
-                                        <p className="mt-1 line-clamp-2 text-sm leading-6 text-gray-600 dark:text-gray-300">
+                                        <p className="mt-1 line-clamp-2 text-lg leading-6 text-gray-600 dark:text-gray-300">
                                             Market supply is high. Prices dropping by{" "}
                                             <span className="font-bold text-green-600 dark:text-green-400">
                                                 -5%
@@ -180,14 +180,14 @@ export default function AnalyticsPage() {
                                     </div>
                                     <div className="flex-auto">
                                         <div className="flex items-baseline justify-between gap-x-4">
-                                            <p className="text-sm font-semibold leading-6 text-gray-900 dark:text-white">
+                                            <p className="text-lg font-semibold leading-6 text-gray-900 dark:text-white">
                                                 Rice Supply Delay (Delhi Route)
                                             </p>
-                                            <p className="flex-none text-xs text-gray-500 dark:text-gray-400">
+                                            <p className="flex-none text-base text-gray-500 dark:text-gray-400">
                                                 5h ago
                                             </p>
                                         </div>
-                                        <p className="mt-1 line-clamp-2 text-sm leading-6 text-gray-600 dark:text-gray-300">
+                                        <p className="mt-1 line-clamp-2 text-lg leading-6 text-gray-600 dark:text-gray-300">
                                             Transport strike affecting supply chain. Expect 2-3
                                             day delays for premium Basmati stocks.
                                         </p>
@@ -203,13 +203,13 @@ export default function AnalyticsPage() {
                                     Samagri Price Trends (30 Days)
                                 </h3>
                                 <div className="flex gap-2">
-                                    <span className="inline-flex items-center rounded-md bg-gray-50 dark:bg-gray-800 px-2 py-1 text-xs font-medium text-gray-600 dark:text-gray-400 ring-1 ring-inset ring-gray-500/10 cursor-pointer">
+                                    <span className="inline-flex items-center rounded-md bg-gray-50 dark:bg-gray-800 px-4 py-3 text-base font-medium text-gray-600 dark:text-gray-400 ring-1 ring-inset ring-gray-500/10 cursor-pointer">
                                         Ghee
                                     </span>
-                                    <span className="inline-flex items-center rounded-md bg-white dark:bg-[#2a2018] px-2 py-1 text-xs font-medium text-gray-400 ring-1 ring-inset ring-gray-300 dark:ring-gray-700 cursor-pointer">
+                                    <span className="inline-flex items-center rounded-md bg-white dark:bg-[#2a2018] px-4 py-3 text-base font-medium text-gray-400 ring-1 ring-inset ring-gray-300 dark:ring-gray-700 cursor-pointer">
                                         Rice
                                     </span>
-                                    <span className="inline-flex items-center rounded-md bg-white dark:bg-[#2a2018] px-2 py-1 text-xs font-medium text-gray-400 ring-1 ring-inset ring-gray-300 dark:ring-gray-700 cursor-pointer">
+                                    <span className="inline-flex items-center rounded-md bg-white dark:bg-[#2a2018] px-4 py-3 text-base font-medium text-gray-400 ring-1 ring-inset ring-gray-300 dark:ring-gray-700 cursor-pointer">
                                         Flowers
                                     </span>
                                 </div>
@@ -278,7 +278,7 @@ export default function AnalyticsPage() {
                                     </svg>
                                 </div>
                             </div>
-                            <div className="flex justify-between mt-2 text-xs text-gray-500 dark:text-gray-400 px-2">
+                            <div className="flex justify-between mt-2 text-base text-gray-500 dark:text-gray-400 px-4">
                                 <span>1 Nov</span>
                                 <span>8 Nov</span>
                                 <span>15 Nov</span>
@@ -294,7 +294,7 @@ export default function AnalyticsPage() {
                         <div className="bg-gradient-to-br from-[#ec7f13] to-orange-600 rounded-xl shadow-lg p-6 text-white relative overflow-hidden">
                             <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-2xl"></div>
                             <h3 className="text-xl font-bold mb-2">Margins impacted!</h3>
-                            <p className="text-orange-100 text-sm mb-6">
+                            <p className="text-orange-100 text-lg mb-6">
                                 Recent price surges in Ghee and Camphor might reduce your puja
                                 package margin by <span className="font-bold text-white">₹250</span>{" "}
                                 per booking.
@@ -303,7 +303,7 @@ export default function AnalyticsPage() {
                                 <span className="material-symbols-outlined">currency_rupee</span>
                                 Update Package Prices
                             </button>
-                            <div className="mt-4 text-xs text-orange-200 text-center">
+                            <div className="mt-4 text-base text-orange-200 text-center">
                                 Last updated: 14 days ago
                             </div>
                         </div>
@@ -320,7 +320,7 @@ export default function AnalyticsPage() {
                                 {/* Item 1 */}
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-3">
-                                        <div className="h-10 w-10 rounded-lg bg-gray-100 dark:bg-gray-800 p-1">
+                                        <div className="h-14 w-14 rounded-lg bg-gray-100 dark:bg-gray-800 p-1">
                                             <div
                                                 className="h-full w-full bg-cover rounded-md"
                                                 style={{
@@ -330,14 +330,14 @@ export default function AnalyticsPage() {
                                             ></div>
                                         </div>
                                         <div>
-                                            <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                            <p className="text-lg font-medium text-gray-900 dark:text-white">
                                                 Pure Ghee
                                             </p>
-                                            <p className="text-xs text-gray-500">2 kg in stock</p>
+                                            <p className="text-base text-gray-500">2 kg in stock</p>
                                         </div>
                                     </div>
                                     <div className="text-right">
-                                        <span className="inline-flex items-center rounded-full bg-red-50 dark:bg-red-900/20 px-2 py-1 text-xs font-medium text-red-700 dark:text-red-400">
+                                        <span className="inline-flex items-center rounded-full bg-red-50 dark:bg-red-900/20 px-4 py-3 text-base font-medium text-red-700 dark:text-red-400">
                                             Low
                                         </span>
                                     </div>
@@ -345,7 +345,7 @@ export default function AnalyticsPage() {
                                 {/* Item 2 */}
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-3">
-                                        <div className="h-10 w-10 rounded-lg bg-gray-100 dark:bg-gray-800 p-1">
+                                        <div className="h-14 w-14 rounded-lg bg-gray-100 dark:bg-gray-800 p-1">
                                             <div
                                                 className="h-full w-full bg-cover rounded-md"
                                                 style={{
@@ -355,16 +355,16 @@ export default function AnalyticsPage() {
                                             ></div>
                                         </div>
                                         <div>
-                                            <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                            <p className="text-lg font-medium text-gray-900 dark:text-white">
                                                 Basmati Rice
                                             </p>
-                                            <p className="text-xs text-gray-500">
+                                            <p className="text-base text-gray-500">
                                                 15 kg in stock
                                             </p>
                                         </div>
                                     </div>
                                     <div className="text-right">
-                                        <span className="inline-flex items-center rounded-full bg-green-50 dark:bg-green-900/20 px-2 py-1 text-xs font-medium text-green-700 dark:text-green-400">
+                                        <span className="inline-flex items-center rounded-full bg-green-50 dark:bg-green-900/20 px-4 py-3 text-base font-medium text-green-700 dark:text-green-400">
                                             Good
                                         </span>
                                     </div>
@@ -372,7 +372,7 @@ export default function AnalyticsPage() {
                                 {/* Item 3 */}
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-3">
-                                        <div className="h-10 w-10 rounded-lg bg-gray-100 dark:bg-gray-800 p-1">
+                                        <div className="h-14 w-14 rounded-lg bg-gray-100 dark:bg-gray-800 p-1">
                                             <div
                                                 className="h-full w-full bg-cover rounded-md"
                                                 style={{
@@ -382,22 +382,22 @@ export default function AnalyticsPage() {
                                             ></div>
                                         </div>
                                         <div>
-                                            <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                            <p className="text-lg font-medium text-gray-900 dark:text-white">
                                                 Agarbatti
                                             </p>
-                                            <p className="text-xs text-gray-500">
+                                            <p className="text-base text-gray-500">
                                                 5 pkts in stock
                                             </p>
                                         </div>
                                     </div>
                                     <div className="text-right">
-                                        <span className="inline-flex items-center rounded-full bg-yellow-50 dark:bg-yellow-900/20 px-2 py-1 text-xs font-medium text-yellow-700 dark:text-yellow-400">
+                                        <span className="inline-flex items-center rounded-full bg-yellow-50 dark:bg-yellow-900/20 px-4 py-3 text-base font-medium text-yellow-700 dark:text-yellow-400">
                                             Medium
                                         </span>
                                     </div>
                                 </div>
                             </div>
-                            <button className="w-full mt-6 text-[#ec7f13] text-sm font-medium hover:text-orange-700 dark:hover:text-orange-400 flex items-center justify-center gap-1">
+                            <button className="w-full mt-6 text-[#ec7f13] text-lg font-medium hover:text-orange-700 dark:hover:text-orange-400 flex items-center justify-center gap-1">
                                 View Full Inventory
                                 <span className="material-symbols-outlined text-lg">
                                     arrow_forward
@@ -407,7 +407,7 @@ export default function AnalyticsPage() {
 
                         {/* Regional Map Widget */}
                         <div className="bg-white dark:bg-[#2a2018] rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-6">
-                            <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
                                 Supply Hub Status
                             </h3>
                             <div className="aspect-video w-full rounded-lg bg-gray-100 dark:bg-gray-800 overflow-hidden relative">
@@ -429,7 +429,7 @@ export default function AnalyticsPage() {
                                     title="Stable Supply"
                                 ></div>
                                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-3">
-                                    <p className="text-xs text-white font-medium">
+                                    <p className="text-base text-white font-medium">
                                         Patna Region: <span className="text-red-300">High Demand</span>
                                     </p>
                                 </div>
@@ -442,7 +442,7 @@ export default function AnalyticsPage() {
             {/* Simple Footer */}
             <footer className="bg-white dark:bg-[#2a2018] border-t border-[#ec7f13]/10 dark:border-[#ec7f13]/20 mt-auto">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                    <p className="text-center text-sm text-gray-500 dark:text-gray-400">
+                    <p className="text-center text-lg text-gray-500 dark:text-gray-400">
                         © 2023 HmarePanditJi App. Serving the spiritual community.
                     </p>
                 </div>

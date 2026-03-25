@@ -26,10 +26,10 @@ export default function GuestCheckoutPage() {
             {/* Navbar */}
             <nav className="w-full bg-white dark:bg-[#18181b] border-b border-gray-100 dark:border-[#27272a] py-4 px-6 md:px-12 flex justify-between items-center shadow-sm relative z-20">
                 <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-[#ec7f13] flex items-center justify-center text-white font-bold text-lg">H</div>
+                    <div className="w-12 h-12 rounded-lg bg-[#ec7f13] flex items-center justify-center text-white font-bold text-lg">H</div>
                     <span className="text-xl font-bold tracking-tight text-gray-900 dark:text-white">HmarePanditJi</span>
                 </div>
-                <div className="text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                <div className="text-lg font-medium text-gray-500 dark:text-gray-400 flex items-center gap-1">
                     <span className="material-symbols-outlined text-[#ec7f13] text-base">lock</span> Secure Checkout
                 </div>
             </nav>
@@ -50,11 +50,11 @@ export default function GuestCheckoutPage() {
                         <div className="absolute inset-0 opacity-5 pointer-events-none" style={{ backgroundImage: "radial-gradient(circle at center, #ec7f13 1px, transparent 1px)", backgroundSize: "20px 20px" }}></div>
 
                         <div className="relative z-10">
-                            <div className="inline-flex items-center gap-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-3 py-1 rounded-full text-xs font-semibold mb-6 shadow-sm border border-green-200 dark:border-green-800">
-                                <span className="material-symbols-outlined text-sm">check_circle</span> Cart Saved
+                            <div className="inline-flex items-center gap-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-5 py-3 rounded-full text-base font-semibold mb-6 shadow-sm border border-green-200 dark:border-green-800">
+                                <span className="material-symbols-outlined text-lg">check_circle</span> Cart Saved
                             </div>
                             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 leading-tight">Your booking is almost ready</h2>
-                            <p className="text-gray-600 dark:text-gray-400 text-sm mb-8">Review your selection before finalizing your Muhurat.</p>
+                            <p className="text-gray-600 dark:text-gray-400 text-lg mb-8">Review your selection before finalizing your Muhurat.</p>
 
                             {/* Booking Card */}
                             <div className="bg-white dark:bg-[#18181b] rounded-xl p-4 shadow-sm border border-gray-200 dark:border-[#27272a] flex gap-4 items-start transition-transform hover:scale-[1.01] duration-300">
@@ -63,13 +63,13 @@ export default function GuestCheckoutPage() {
                                 </div>
                                 <div className="flex-grow">
                                     <h3 className="font-bold text-gray-900 dark:text-white text-lg">Varanasi Pandit</h3>
-                                    <p className="text-xs text-[#ec7f13] font-medium mb-2 uppercase tracking-wide">Wedding Rituals</p>
+                                    <p className="text-base text-[#ec7f13] font-medium mb-2 uppercase tracking-wide">Wedding Rituals</p>
                                     <div className="space-y-1.5">
-                                        <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                                        <div className="flex items-center gap-2 text-lg text-gray-600 dark:text-gray-400">
                                             <span className="material-symbols-outlined text-base text-gray-400">calendar_today</span>
                                             <span>Dec 16, 2023 • 9:00 AM</span>
                                         </div>
-                                        <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                                        <div className="flex items-center gap-2 text-lg text-gray-600 dark:text-gray-400">
                                             <span className="material-symbols-outlined text-base text-gray-400">location_on</span>
                                             <span>Delhi, NCR</span>
                                         </div>
@@ -82,10 +82,10 @@ export default function GuestCheckoutPage() {
                             <div className="flex items-center gap-3">
                                 <div className="flex -space-x-3">
                                     {[1, 2, 3].map(i => (
-                                        <div key={i} className="w-8 h-8 rounded-full border-2 border-white dark:border-[#27272a] bg-gray-300 flex items-center justify-center text-[10px] text-gray-600 font-bold">U{i}</div>
+                                        <div key={i} className="w-12 h-12 rounded-full border-2 border-white dark:border-[#27272a] bg-gray-300 flex items-center justify-center text-[10px] text-gray-600 font-bold">U{i}</div>
                                     ))}
                                 </div>
-                                <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">Join 15,000+ devotees today</p>
+                                <p className="text-base text-gray-500 dark:text-gray-400 font-medium">Join 15,000+ devotees today</p>
                             </div>
                         </div>
                     </div>
@@ -100,7 +100,7 @@ export default function GuestCheckoutPage() {
 
                             <form className="space-y-6" onSubmit={handleSendOtp}>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" htmlFor="phone">Mobile Number</label>
+                                    <label className="block text-lg font-medium text-gray-700 dark:text-gray-300 mb-2" htmlFor="phone">Mobile Number</label>
                                     <div className="relative">
                                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                             <span className="text-gray-500 dark:text-gray-400 font-medium">+91</span>
@@ -137,7 +137,7 @@ export default function GuestCheckoutPage() {
 
                             {/* Trust Indicators */}
                             <div className="mt-10 pt-8 border-t border-gray-100 dark:border-[#27272a]">
-                                <p className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-4">Member Benefits</p>
+                                <p className="text-base font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-4">Member Benefits</p>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-6">
                                     {[
                                         { icon: "location_on", label: "Track Live", desc: "Real-time pandit tracking" },
@@ -150,15 +150,15 @@ export default function GuestCheckoutPage() {
                                                 <span className="material-symbols-outlined text-lg">{item.icon}</span>
                                             </div>
                                             <div>
-                                                <h4 className="text-sm font-semibold text-gray-900 dark:text-white">{item.label}</h4>
-                                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{item.desc}</p>
+                                                <h4 className="text-lg font-semibold text-gray-900 dark:text-white">{item.label}</h4>
+                                                <p className="text-base text-gray-500 dark:text-gray-400 mt-0.5">{item.desc}</p>
                                             </div>
                                         </div>
                                     ))}
                                 </div>
                             </div>
 
-                            <p className="text-xs text-center text-gray-400 dark:text-gray-500 mt-8">
+                            <p className="text-base text-center text-gray-400 dark:text-gray-500 mt-8">
                                 By continuing, you agree to HmarePanditJi's <a href="#" className="underline hover:text-[#ec7f13]">Terms of Service</a> and <a href="#" className="underline hover:text-[#ec7f13]">Privacy Policy</a>.
                             </p>
                         </div>
@@ -167,7 +167,7 @@ export default function GuestCheckoutPage() {
             </main>
 
             <footer className="bg-white dark:bg-[#18181b] py-4 text-center border-t border-gray-100 dark:border-[#27272a] relative z-20">
-                <p className="text-xs text-gray-400">© 2023 HmarePanditJi. All rights reserved. Om Shanti.</p>
+                <p className="text-base text-gray-400">© 2023 HmarePanditJi. All rights reserved. Om Shanti.</p>
             </footer>
         </div>
     );

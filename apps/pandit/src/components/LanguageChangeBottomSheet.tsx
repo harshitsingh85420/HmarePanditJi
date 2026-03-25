@@ -39,19 +39,19 @@ export default function LanguageChangeBottomSheet({
         animate={{ y: 0 }}
         exit={{ y: '100%' }}
         transition={{ type: 'spring' as const, damping: 25, stiffness: 300 }}
-        className="relative bg-white rounded-t-[24px] shadow-2xl flex flex-col max-h-[85vh]"
+        className="relative bg-surface-card rounded-t-[24px] shadow-2xl flex flex-col max-h-[85vh]"
       >
         {/* Drag handle */}
         <div className="flex justify-center pt-3 pb-2">
-          <div className="w-12 h-1.5 bg-vedic-border rounded-full" />
+          <div className="w-12 h-1.5 bg-surface-dim rounded-full" />
         </div>
 
         {/* Header - UI-012 FIX: Large, clear header */}
-        <div className="px-6 py-4 border-b border-vedic-border">
+        <div className="px-6 py-4 border-b border-border-default">
           <div className="flex items-center gap-3 mb-2">
             <span className="text-[40px]">🌐</span>
             <div>
-              <h2 className="text-[24px] font-bold text-vedic-brown">भाषा बदलें</h2>
+              <h2 className="text-[24px] font-bold text-text-primary">भाषा बदलें</h2>
               <p className="text-[16px] text-text-secondary">Change Language</p>
             </div>
           </div>
@@ -81,20 +81,20 @@ export default function LanguageChangeBottomSheet({
                     'min-h-[72px] flex items-center gap-3 p-4 rounded-xl border-2 text-left transition-all',
                     isActive
                       ? 'bg-primary-lt border-primary shadow-sm'
-                      : 'bg-white border-vedic-border hover:border-primary/50',
+                      : 'bg-white border-border-default hover:border-primary/50',
                   ].join(' ')}
                 >
                   <span className="text-[32px] font-bold text-saffron">
                     {display.scriptChar}
                   </span>
                   <div className="flex-1">
-                    <p className={`text-[16px] font-bold ${isActive ? 'text-primary' : 'text-vedic-brown'}`}>
+                    <p className={`text-[20px] font-bold ${isActive ? 'text-primary' : 'text-text-primary'}`}>
                       {display.nativeName}
                     </p>
-                    <p className="text-[14px] text-text-secondary">{display.latinName}</p>
+                    <p className="text-[18px] text-text-secondary font-medium">{display.latinName}</p>
                   </div>
                   {isActive && (
-                    <span className="text-[24px] text-primary">✓</span>
+                    <span className="text-[28px] text-primary">✓</span>
                   )}
                 </motion.button>
               )
@@ -103,7 +103,7 @@ export default function LanguageChangeBottomSheet({
         </div>
 
         {/* Close button - UI-012 FIX: 64px height for wet hands */}
-        <div className="px-6 py-4 border-t border-vedic-border bg-vedic-cream">
+        <div className="px-6 py-4 border-t border-border-default bg-surface-base">
           <motion.button
             whileTap={{ scale: 0.97 }}
             onClick={onClose}

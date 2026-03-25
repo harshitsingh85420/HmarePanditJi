@@ -3,11 +3,14 @@
  * Supports: Hindi, Tamil, Telugu, Bengali, Marathi, Gujarati, Kannada, Malayalam
  */
 
+import type { SupportedLanguage } from './onboarding-store';
+
 export type TutorialLanguage = 'Hindi' | 'Tamil' | 'Telugu' | 'Bengali' | 'Marathi' | 'Gujarati' | 'Kannada' | 'Malayalam' | 'English'
 
-/** Safely resolve any language string to a TutorialLanguage key (fallback: Hindi) */
-export function getTutorialLang(language?: string): TutorialLanguage {
+/** Safely resolve SupportedLanguage to a TutorialLanguage key (fallback: Hindi) */
+export function getTutorialLang(language?: SupportedLanguage): TutorialLanguage {
   const known: TutorialLanguage[] = ['Hindi', 'Tamil', 'Telugu', 'Bengali', 'Marathi', 'Gujarati', 'Kannada', 'Malayalam', 'English']
+  if (!language) return 'Hindi'
   return (known.includes(language as TutorialLanguage) ? language : 'Hindi') as TutorialLanguage
 }
 

@@ -16,7 +16,7 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
           <h3 className="text-slate-900 dark:text-white font-bold text-lg mb-4">
             Booking Details
           </h3>
-          <p className="text-[#ee9d2b] font-bold text-sm mb-1 uppercase tracking-wider">
+          <p className="text-[#ee9d2b] font-bold text-lg mb-1 uppercase tracking-wider">
             Booking ID
           </p>
           <p className="text-slate-500 dark:text-slate-400 text-lg font-mono mb-6">
@@ -73,10 +73,10 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
                     picture_as_pdf
                   </span>
                   <div className="flex flex-col">
-                    <span className="text-sm font-semibold text-slate-900 dark:text-white">
+                    <span className="text-lg font-semibold text-slate-900 dark:text-white">
                       {doc.name}
                     </span>
-                    <span className="text-xs text-slate-500">{doc.size}</span>
+                    <span className="text-base text-slate-500">{doc.size}</span>
                   </div>
                 </div>
                 <span className="material-symbols-outlined text-slate-400 group-hover:text-[#ee9d2b] transition-colors">
@@ -100,7 +100,7 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
               Wedding Ceremony of Rahul &amp; Priya
             </p>
           </div>
-          <div className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2 w-fit">
+          <div className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-4 py-2 rounded-full text-lg font-bold flex items-center gap-2 w-fit">
             <span className="material-symbols-outlined text-base">
               check_circle
             </span>
@@ -167,7 +167,7 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
                   Departed Varanasi
                 </p>
                 <p className="text-slate-500 dark:text-slate-400 mt-2 flex items-center gap-1">
-                  <span className="material-symbols-outlined text-sm">
+                  <span className="material-symbols-outlined text-lg">
                     calendar_today
                   </span>{" "}
                   Dec 14, 10:00 PM
@@ -185,13 +185,13 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
                   ETA Delhi 8:00 AM
                 </p>
                 <p className="text-slate-500 dark:text-slate-400 mt-2 flex items-center gap-1">
-                  <span className="material-symbols-outlined text-sm">
+                  <span className="material-symbols-outlined text-lg">
                     calendar_today
                   </span>{" "}
                   Dec 15
                 </p>
-                <div className="mt-3 flex items-center gap-2 px-3 py-1 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded text-sm font-medium w-fit">
-                  <span className="material-symbols-outlined text-sm animate-pulse">
+                <div className="mt-3 flex items-center gap-2 px-5 py-3 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded text-lg font-medium w-fit">
+                  <span className="material-symbols-outlined text-lg animate-pulse">
                     local_shipping
                   </span>
                   Currently passing through Kanpur
@@ -209,12 +209,12 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
                   Wedding Muhurat
                 </p>
                 <p className="text-slate-500 dark:text-slate-400 mt-2 flex items-center gap-1">
-                  <span className="material-symbols-outlined text-sm">
+                  <span className="material-symbols-outlined text-lg">
                     calendar_today
                   </span>{" "}
                   Dec 16, 4:30 AM
                 </p>
-                <p className="text-slate-400 text-sm mt-1">
+                <p className="text-slate-400 text-lg mt-1">
                   Location: Grand Hyatt Ballroom, New Delhi
                 </p>
               </div>
@@ -261,7 +261,7 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
               <h4 className="text-slate-900 dark:text-white font-bold mb-1">
                 {item.title}
               </h4>
-              <p className="text-slate-500 dark:text-slate-400 text-sm">
+              <p className="text-slate-500 dark:text-slate-400 text-lg">
                 {item.desc}
               </p>
             </div>

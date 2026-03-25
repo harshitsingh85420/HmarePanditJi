@@ -59,9 +59,10 @@ export function Button({
   };
 
   const sizes: Record<string, string> = {
-    sm: "h-8 px-3 text-xs gap-1.5",
-    md: "h-10 px-5 text-sm gap-2",
-    lg: "h-12 px-6 text-base gap-2",
+    // ACC-009 FIX: Larger touch targets for elderly users (min 52px)
+    sm: "h-[52px] px-4 text-base gap-2",
+    md: "h-[56px] px-6 text-lg gap-2",
+    lg: "h-[64px] px-8 text-xl gap-3",
   };
 
   return (

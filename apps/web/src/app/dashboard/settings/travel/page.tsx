@@ -45,7 +45,7 @@ export default function TravelPreferencesPage() {
                         onChange={(e) => setDistance(Number(e.target.value))}
                         className="w-full h-2 bg-[#e6e2db] dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-[#f29e0d]"
                     />
-                    <div className="flex justify-between text-sm text-[#8a7b60] dark:text-gray-400">
+                    <div className="flex justify-between text-lg text-[#8a7b60] dark:text-gray-400">
                         <span>0 km</span>
                         <span>5000 km</span>
                     </div>
@@ -72,7 +72,7 @@ export default function TravelPreferencesPage() {
                                 <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#f29e0d]"></div>
                             </label>
                         </div>
-                        <div className="space-y-2 text-sm">
+                        <div className="space-y-2 text-lg">
                             <div className="flex justify-between text-[#8a7b60] dark:text-gray-400">
                                 <span>Fuel Rate</span>
                                 <span className="font-medium text-[#181511] dark:text-white">
@@ -98,7 +98,7 @@ export default function TravelPreferencesPage() {
                                 <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#f29e0d]"></div>
                             </label>
                         </div>
-                        <div className="space-y-2 text-sm">
+                        <div className="space-y-2 text-lg">
                             <div className="flex justify-between text-[#8a7b60] dark:text-gray-400">
                                 <span>Preference</span>
                                 <span className="font-medium text-[#181511] dark:text-white">
@@ -118,7 +118,7 @@ export default function TravelPreferencesPage() {
                                 <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#f29e0d]"></div>
                             </label>
                         </div>
-                        <div className="space-y-2 text-sm">
+                        <div className="space-y-2 text-lg">
                             <div className="flex justify-between text-[#8a7b60] dark:text-gray-400">
                                 <span>Preference</span>
                                 <span className="font-medium text-[#181511] dark:text-white">
@@ -138,7 +138,7 @@ export default function TravelPreferencesPage() {
                                 <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#f29e0d]"></div>
                             </label>
                         </div>
-                        <div className="space-y-2 text-sm">
+                        <div className="space-y-2 text-lg">
                             <div className="flex justify-between text-[#8a7b60] dark:text-gray-400">
                                 <span>Type</span>
                                 <span className="font-medium text-[#181511] dark:text-white">
@@ -162,7 +162,7 @@ export default function TravelPreferencesPage() {
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="font-semibold text-slate-900 dark:text-white">Minimum Rating</p>
-                            <p className="text-sm text-[#8a7b60] dark:text-gray-400">
+                            <p className="text-lg text-[#8a7b60] dark:text-gray-400">
                                 Minimum standard for overnight stays
                             </p>
                         </div>
@@ -179,7 +179,7 @@ export default function TravelPreferencesPage() {
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="font-semibold text-slate-900 dark:text-white">No Shared Room</p>
-                            <p className="text-sm text-[#8a7b60] dark:text-gray-400">
+                            <p className="text-lg text-[#8a7b60] dark:text-gray-400">
                                 Private accommodation only
                             </p>
                         </div>
@@ -210,17 +210,17 @@ export default function TravelPreferencesPage() {
                         </div>
                         <div>
                             <p className="font-semibold text-slate-900 dark:text-white">Need Assistant for Large Ceremonies</p>
-                            <p className="text-sm text-[#8a7b60] dark:text-gray-400">
+                            <p className="text-lg text-[#8a7b60] dark:text-gray-400">
                                 Require one additional Sahayak for events with 50+ attendees.
                             </p>
                         </div>
                     </div>
                     <div className="mt-4">
-                        <label className="block text-sm font-semibold mb-2 text-slate-900 dark:text-white">
+                        <label className="block text-lg font-semibold mb-2 text-slate-900 dark:text-white">
                             Additional Notes
                         </label>
                         <textarea
-                            className="w-full p-4 rounded-lg border border-[#e6e2db] dark:border-[#3d3220] bg-[#f8f7f5] dark:bg-[#342a1b] text-sm focus:border-[#f29e0d] focus:ring-[#f29e0d] outline-none min-h-[100px] text-slate-900 dark:text-white"
+                            className="w-full p-4 rounded-lg border border-[#e6e2db] dark:border-[#3d3220] bg-[#f8f7f5] dark:bg-[#342a1b] text-lg focus:border-[#f29e0d] focus:ring-[#f29e0d] outline-none min-h-[100px] text-slate-900 dark:text-white"
                             placeholder="Add any other specific travel or stay requirements..."
                         ></textarea>
                     </div>

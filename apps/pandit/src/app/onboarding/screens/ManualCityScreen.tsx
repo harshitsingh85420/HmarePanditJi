@@ -14,7 +14,7 @@ interface ManualCityScreenProps {
 const POPULAR_CITIES_ROW1 = ['दिल्ली', 'वाराणसी', 'पटना', 'लखनऊ'];
 const POPULAR_CITIES_ROW2 = ['मुंबई', 'जयपुर', 'कोलकाता', 'हरिद्वार'];
 
-// BUG-006 FIX: Expanded Hindi → English city name mapping (100+ major Indian cities)
+// Expanded Hindi → English city name mapping (100+ major Indian cities)
 const HINDI_TO_ENGLISH_CITIES: Record<string, string> = {
   // National Capital Region
   'दिल्ली': 'Delhi',
@@ -128,7 +128,6 @@ const HINDI_TO_ENGLISH_CITIES: Record<string, string> = {
   'राजसमंद': 'Rajsamand',
   'डूंगरपुर': 'Dungarpur',
   'बांसवाड़ा': 'Banswara',
-  // 'प्रतापगढ़': 'Pratapgarh',  // Already in UP section
 
   // West Bengal
   'कोलकाता': 'Kolkata',
@@ -225,7 +224,6 @@ const HINDI_TO_ENGLISH_CITIES: Record<string, string> = {
   'जमुई': 'Jamui',
   'झाझा': 'Jhajha',
   'नवादा': 'Nawada',
-  // 'औरंगाबाद': 'Aurangabad',  // Already in UP section
 
   // Gujarat
   'अहमदाबाद': 'Ahmedabad',
@@ -278,7 +276,7 @@ const HINDI_TO_ENGLISH_CITIES: Record<string, string> = {
   'कृष्णगिरि': 'Krishnagiri',
   'धर्मपुरी': 'Dharmapuri',
   'करूर': 'Karur',
-  'पudukkottai': 'Pudukkottai',
+  'पुदुकोट्टै': 'Pudukkottai',
   'शिवगंगा': 'Sivaganga',
   'विरुधुनगर': 'Virudhunagar',
   'तूतुकुड़ी': 'Thoothukudi',
@@ -318,7 +316,7 @@ const HINDI_TO_ENGLISH_CITIES: Record<string, string> = {
   'बीदर': 'Bidar',
   'रायचूर': 'Raichur',
   'बेल्लारी': 'Bellary',
-  'हospet': 'Hospet',
+  'होसपेट': 'Hospet',
   'हम्पी': 'Hampi',
   'बादामी': 'Badami',
   'ऐहोल': 'Aihole',
@@ -355,8 +353,6 @@ const HINDI_TO_ENGLISH_CITIES: Record<string, string> = {
 
   // Haryana
   'चंडीगढ़': 'Chandigarh',
-  // 'फरीदाबाद': 'Faridabad',  // Already in UP section
-  // 'गुरुग्राम': 'Gurugram',  // Already in NCR section
   'पानीपत': 'Panipat',
   'अंबाला': 'Ambala',
   'यमुनानगर': 'Yamunanagar',
@@ -383,7 +379,6 @@ const HINDI_TO_ENGLISH_CITIES: Record<string, string> = {
   'कांगड़ा': 'Kangra',
   'चंबा': 'Chamba',
   'मंडी': 'Mandi',
-  // 'हमीरपुर': 'Hamirpur',  // Already in UP section
   'बिलासपुर': 'Bilaspur',
   'सोलन': 'Solan',
   'सिरमौर': 'Sirmaur',
@@ -460,8 +455,6 @@ const HINDI_TO_ENGLISH_CITIES: Record<string, string> = {
   'चित्तूर': 'Chittoor',
 
   // Assam
-  // 'गुवाहाटी': 'Guwahati',  // Already in NE section
-  // 'दिसपुर': 'Dispur',
   'सिलचर': 'Silchar',
   'जोरहाट': 'Jorhat',
   'दिब्रूगढ़': 'Dibrugarh',
@@ -527,67 +520,76 @@ export default function ManualCityScreen({ onCitySelected, onBack, onLanguageCha
 
   return (
     <main className="relative mx-auto min-h-dvh max-w-[390px] flex flex-col overflow-hidden bg-surface-base shadow-xl w-full">
-      {/* Top Bar */}
-      <header className="flex items-center justify-between px-4 py-4">
-        <div className="flex items-center gap-2">
-          {/* UX-008 FIX: Haptic feedback, ACC-008 FIX: Focus indicators, ACC-009 FIX: Larger touch target */}
-          <button
-            onClick={() => {
-              if (navigator.vibrate) navigator.vibrate(10);
-              onBack();
-            }}
-            aria-label="Go back"
-            className="min-h-[56px] min-w-[56px] p-1 active:opacity-50 text-text-primary focus:ring-2 focus:ring-primary focus:outline-none"
-          >
-            <svg fill="none" height="24" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" width="24">
-              <path d="m15 18-6-6 6-6"></path>
-            </svg>
-          </button>
-          <div className="flex items-center gap-1 font-bold text-lg text-text-primary">
-            <span className="text-lgrimary">ॐ</span>
-            <span>HmarePanditJi</span>
-          </div>
+      {/* Top Bar with Prominent Om Symbol */}
+      <header className="flex flex-col items-center pt-6 pb-2 px-4">
+        {/* Large Om Symbol - Trust Signal for Vedic App */}
+        <div className="mb-2">
+          <span className="text-[80px] font-bold font-body text-saffron animate-gentle-float" aria-label="पवित्र ओम प्रतीक">
+            ॐ
+          </span>
         </div>
-        {/* UX-008 FIX: Haptic feedback, ACC-009 FIX: Larger language switcher with text label */}
+        <div className="flex items-center gap-2 font-bold font-body text-[28px] text-text-primary">
+          <span className="text-[40px] text-saffron">ॐ</span>
+          <span>HmarePanditJi</span>
+        </div>
+      </header>
+
+      {/* Back and Language Row */}
+      <div className="flex items-center justify-between px-6 py-3">
+        {/* Back button with haptic feedback and larger touch target */}
+        <button
+          onClick={() => {
+            if (navigator.vibrate) navigator.vibrate(10);
+            onBack();
+          }}
+          aria-label="पीछे जाएं"
+          className="min-h-[72px] min-w-[72px] p-1 active:opacity-50 text-text-primary focus:ring-4 focus:ring-saffron focus:outline-none rounded-full hover:bg-surface-muted"
+        >
+          <svg fill="none" height="40" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" viewBox="0 0 24 24" width="40">
+            <path d="m15 18-6-6 6-6"></path>
+          </svg>
+        </button>
+        {/* Language switcher with text label - ACC-009 FIX: Larger touch target */}
         <button
           onClick={() => {
             if (navigator.vibrate) navigator.vibrate(10);
             onLanguageChange?.();
           }}
-          aria-label="Language"
-          className="min-h-[56px] px-3 flex items-center gap-2 text-[18px] font-semibold text-text-primary active:opacity-50 focus:ring-2 focus:ring-primary focus:outline-none"
+          aria-label="भाषा बदलें / Change Language"
+          className="min-h-[72px] px-6 flex items-center gap-3 text-[24px] font-bold font-body text-text-primary active:opacity-50 focus:ring-4 focus:ring-saffron focus:outline-none border-3 border-border-default rounded-2xl bg-surface-card hover:bg-surface-muted transition-colors shadow-card"
         >
-          <span>🌐</span>
-          <span className="hidden sm:inline">हिन्दी / English</span>
+          <span>हिन्दी</span>
+          <span className="text-[24px] text-text-secondary">/</span>
+          <span>English</span>
         </button>
-      </header>
+      </div>
 
       {/* Content Area */}
       <section className="flex-grow px-6 pt-4 flex flex-col gap-6">
 
         {/* Reassurance and Title */}
-        <div className="text-center space-y-1">
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-[22px] text-saffron font-medium">
+        <div className="text-center space-y-2">
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-[28px] font-body text-saffron font-bold">
             कोई बात नहीं।
           </motion.p>
-          <motion.h1 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-[32px] font-bold leading-tight text-text-primary">
+          <motion.h1 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-[40px] font-body font-bold leading-tight text-text-primary">
             अपना शहर बताइए
           </motion.h1>
         </div>
 
-        {/* Voice Input Box - UX-008 FIX: Haptic feedback */}
+        {/* Voice Input Box - Haptic feedback */}
         <motion.div
           whileTap={{ scale: 0.98 }}
           onClick={() => {
             if (navigator.vibrate) navigator.vibrate(10);
             handleMicTap();
           }}
-          className="relative bg-saffron-lt border-2 border-saffron rounded-[16px] p-5 flex items-center gap-4 cursor-pointer overflow-hidden shadow-sm active:scale-95 transition-transform"
+          className="relative bg-saffron-lt border-3 border-saffron rounded-2xl p-6 flex items-center gap-5 cursor-pointer overflow-hidden shadow-card active:scale-95 transition-transform min-h-[120px]"
         >
-          <div className="relative flex items-center justify-center w-12 h-12 shrink-0">
+          <div className="relative flex items-center justify-center w-20 h-20 shrink-0">
             {isListening && (
               <>
-                {/* UI-004 FIX: More visible pulse animation for bright sunlight */}
+                {/* More visible pulse animation for bright sunlight */}
                 <motion.div
                   animate={{ scale: [0.8, 1.8], opacity: [1, 0.3] }}
                   transition={{ duration: 1.5, repeat: Infinity }}
@@ -600,8 +602,8 @@ export default function ManualCityScreen({ onCitySelected, onBack, onLanguageCha
                 />
               </>
             )}
-            <div className="relative bg-saffron rounded-full p-2.5 z-10">
-              <svg fill="none" height="24" stroke="white" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" width="24">
+            <div className="relative bg-saffron rounded-full p-4 z-10">
+              <svg fill="none" height="40" stroke="white" strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" viewBox="0 0 24 24" width="40">
                 <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
                 <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
                 <line x1="12" x2="12" y1="19" y2="22"></line>
@@ -610,41 +612,40 @@ export default function ManualCityScreen({ onCitySelected, onBack, onLanguageCha
           </div>
 
           <div className="flex flex-col min-w-0">
-            <span className="text-[20px] font-bold text-text-primary truncate">
+            <span className="text-[30px] font-body font-bold text-text-primary truncate">
               {isListening ? 'सुन रहा हूँ...' : (cityInput || 'अपना शहर बोलें')}
             </span>
-            <span className="text-[16px] text-saffron">जैसे: &apos;वाराणसी&apos; या &apos;दिल्ली&apos;</span>
+            <span className="text-[24px] font-body text-saffron font-medium">जैसे: &apos;वाराणसी&apos; या &apos;दिल्ली&apos;</span>
           </div>
         </motion.div>
 
         {/* Voice error */}
         {voiceError && (
-          <p className="text-error text-lg text-center -mt-2">{voiceError}</p>
+          <p className="text-error text-[26px] font-body text-center font-bold -mt-2">{voiceError}</p>
         )}
 
         {/* Divider */}
-        <div className="flex items-center gap-4 text-lg font-medium text-saffron/60">
-          <div className="h-[1px] flex-grow bg-vedic-border"></div>
+        <div className="flex items-center gap-4 text-[24px] font-body font-bold text-saffron/60">
+          <div className="h-[3px] flex-grow bg-surface-dim"></div>
           <span>या नीचे से चुनें</span>
-          <div className="h-[1px] flex-grow bg-vedic-border"></div>
+          <div className="h-[3px] flex-grow bg-surface-dim"></div>
         </div>
 
         {/* Text Search Bar */}
-        <div className="relative bg-white border border-outline-variant rounded-xl px-4 py-3.5 flex items-center gap-3 shadow-sm">
-          <svg fill="none" height="20" stroke="#9B7B52" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" width="20">
+        <div className="relative bg-surface-card border-3 border-border-default rounded-2xl px-6 py-5 flex items-center gap-4 shadow-card min-h-[96px]">
+          <svg fill="none" height="40" stroke="#FF8C00" strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" viewBox="0 0 24 24" width="40">
             <circle cx="11" cy="11" r="8"></circle>
             <path d="m21 21-4.3-4.3"></path>
           </svg>
           <input
             ref={inputRef}
             type="text"
-            className="text-[18px] text-text-primary bg-transparent outline-none w-full placeholder-vedic-gold/60"
+            className="text-[30px] font-body text-text-primary bg-transparent outline-none w-full placeholder-text-placeholder font-bold"
             placeholder="अपना शहर लिखें..."
             value={cityInput}
             onChange={(e) => setCityInput(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && cityInput.trim().length > 1) {
-                // Convert Hindi city name to English using mapping
                 const englishCity = HINDI_TO_ENGLISH_CITIES[cityInput.trim()] || cityInput.trim();
                 onCitySelected(englishCity);
               }
@@ -653,11 +654,10 @@ export default function ManualCityScreen({ onCitySelected, onBack, onLanguageCha
           {cityInput.trim().length > 1 && (
             <button
               onClick={() => {
-                // Convert Hindi city name to English using mapping
                 const englishCity = HINDI_TO_ENGLISH_CITIES[cityInput.trim()] || cityInput.trim();
                 onCitySelected(englishCity);
               }}
-              className="bg-saffron text-white text-lg font-bold px-4 py-3 min-h-[56px] rounded-lg active:scale-95 shrink-0 focus:ring-2 focus:ring-primary focus:outline-none"
+              className="bg-saffron text-white text-[26px] font-body font-bold px-8 py-5 min-h-[80px] rounded-2xl active:scale-95 shrink-0 focus:ring-4 focus:ring-saffron focus:outline-none shadow-btn-saffron"
             >
               ठीक है
             </button>
@@ -665,25 +665,23 @@ export default function ManualCityScreen({ onCitySelected, onBack, onLanguageCha
         </div>
 
         {/* Popular Cities */}
-        <div className="space-y-3">
-          <h2 className="text-[16px] font-semibold text-text-primary-2">लोकप्रिय शहर</h2>
+        <div className="space-y-4">
+          <h2 className="text-[28px] font-body font-bold text-text-secondary">लोकप्रिय शहर</h2>
 
           {[POPULAR_CITIES_ROW1, POPULAR_CITIES_ROW2].map((row, rIdx) => (
-            <div key={rIdx} className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+            <div key={rIdx} className="flex gap-4 overflow-x-auto no-scrollbar pb-2">
               {row.map((city, cIdx) => (
                 <motion.button
                   key={cIdx}
                   initial={{ x: 20, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
                   transition={{ delay: 0.05 * (rIdx * 4 + cIdx) }}
-                  // UX-008 FIX: Haptic feedback, ACC-008 FIX: Focus indicators, ACC-009 FIX: Larger touch target
                   onClick={() => {
                     if (navigator.vibrate) navigator.vibrate(10);
-                    // Convert Hindi city name to English using mapping
                     const englishCity = HINDI_TO_ENGLISH_CITIES[city] || city;
                     onCitySelected(englishCity);
                   }}
-                  className="whitespace-nowrap px-5 py-2 min-h-[56px] bg-white border-2 border-saffron text-lgrimary rounded-full font-semibold text-lg active:bg-saffron-lt shrink-0 focus:ring-2 focus:ring-primary focus:outline-none"
+                  className="whitespace-nowrap px-10 py-5 min-h-[88px] bg-surface-card border-3 border-saffron text-text-primary rounded-2xl font-body font-bold text-[28px] active:bg-saffron-light shrink-0 focus:ring-4 focus:ring-saffron focus:outline-none hover:border-saffron/60 shadow-card"
                 >
                   {city}
                 </motion.button>
@@ -698,24 +696,23 @@ export default function ManualCityScreen({ onCitySelected, onBack, onLanguageCha
         <div className="flex items-center gap-3">
           {isListening && (
             <>
-              <div className="flex items-end gap-1 h-6">
-                <div className="w-1.5 bg-saffron rounded-full animate-voice-bar"></div>
-                <div className="w-1.5 bg-saffron rounded-full animate-voice-bar-2 h-full"></div>
-                <div className="w-1.5 bg-saffron rounded-full animate-voice-bar-3"></div>
+              <div className="flex items-end gap-2 h-8">
+                <div className="w-3 bg-saffron rounded-full animate-voice-bar"></div>
+                <div className="w-3 bg-saffron rounded-full animate-voice-bar-2 h-full"></div>
+                <div className="w-3 bg-saffron rounded-full animate-voice-bar-3"></div>
               </div>
-              <span className="text-lgrimary font-medium">सुन रहा हूँ...</span>
+              <span className="text-[26px] font-body text-text-primary font-bold">सुन रहा हूँ...</span>
             </>
           )}
         </div>
 
-        {/* BUG-020 FIX: Added onClick handler to toggle keyboard input */}
-        {/* BUG-021 FIX: Added min-h-[56px] min-w-[56px] for elderly accessibility */}
+        {/* Keyboard toggle button with larger touch target */}
         <button
           aria-label="Toggle keyboard"
           onClick={() => inputRef.current?.focus()}
-          className="min-h-[56px] min-w-[56px] p-3 bg-white rounded-full shadow-md border border-outline-variant active:scale-95 transition-transform"
+          className="min-h-[72px] min-w-[72px] p-4 bg-surface-card rounded-2xl shadow-card border-3 border-border-default active:scale-95 transition-transform focus:ring-4 focus:ring-saffron focus:outline-none"
         >
-          <svg fill="none" height="24" stroke="#2D1B00" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" width="24">
+          <svg fill="none" height="40" stroke="#FF8C00" strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" viewBox="0 0 24 24" width="40">
             <rect height="16" rx="2" width="20" x="2" y="4"></rect>
             <path d="M6 8h.01"></path><path d="M10 8h.01"></path><path d="M14 8h.01"></path><path d="M18 8h.01"></path>
             <path d="M8 12h.01"></path><path d="M12 12h.01"></path><path d="M16 12h.01"></path>

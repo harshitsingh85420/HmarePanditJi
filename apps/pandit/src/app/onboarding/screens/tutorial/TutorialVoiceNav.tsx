@@ -8,6 +8,7 @@ import { speak, startListening, stopListening, stopSpeaking } from '@/lib/voice-
 import TutorialShell from './TutorialShell';
 import { TutorialScreenProps } from './types';
 import { TUTORIAL_TRANSLATIONS, getTutorialLang } from '@/lib/tutorial-translations';
+import type { SupportedLanguage } from '@/lib/onboarding-store';
 
 type DemoState = 'ready' | 'listening' | 'success';
 
@@ -59,7 +60,7 @@ export default function TutorialVoiceNav({
   };
 
   const { stopFlow } = useSarvamVoiceFlow({
-    language: language as any,
+    language,
     script: TUTORIAL_VOICE_NAV.scripts.main.hindi,
     autoListen: false,
     onIntent: () => { },
@@ -90,7 +91,7 @@ export default function TutorialVoiceNav({
       language={language}
     >
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-6">
-        <h1 className="text-[30px] font-bold leading-tight text-vedic-brown">{t.title}</h1>
+        <h1 className="text-[30px] font-bold leading-tight text-text-primary">{t.title}</h1>
       </motion.div>
 
       <motion.div
@@ -99,19 +100,19 @@ export default function TutorialVoiceNav({
         transition={{ delay: 0.1 }}
         className="flex flex-col items-center mb-6"
       >
-        <div className="w-40 h-40 bg-primary-lt rounded-full flex flex-col items-center justify-center relative mb-2">
+        <div className="min-h-[192px] min-w-[192px] bg-primary-lt rounded-full flex flex-col items-center justify-center relative mb-2">
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-20 h-20 rounded-full border-2 border-primary/20" />
-            <div className="absolute w-28 h-28 rounded-full border-2 border-primary/10" />
+            <div className="min-h-[96px] min-w-[96px] rounded-full border-4 border-primary/20" />
+            <div className="absolute min-h-[128px] min-w-[128px] rounded-full border-4 border-primary/10" />
           </div>
-          <div className="absolute left-5 top-12 h-10 w-10 rounded-full border-2 border-primary/30 border-r-transparent border-b-transparent rotate-[-35deg]" />
-          <div className="absolute right-5 top-12 h-10 w-10 rounded-full border-2 border-primary/30 border-l-transparent border-b-transparent rotate-[35deg]" />
-          <span className="text-[64px] relative z-10">🎤</span>
-          <div className="absolute bottom-4 right-4 bg-white border border-primary/30 rounded-full px-2 py-1 text-[12px] font-bold text-primary shadow-sm">
+          <div className="absolute left-8 top-16 min-h-[56px] min-w-[56px] rounded-full border-2 border-primary/30 border-r-transparent border-b-transparent rotate-[-35deg]" />
+          <div className="absolute right-8 top-16 min-h-[56px] min-w-[56px] rounded-full border-2 border-primary/30 border-l-transparent border-b-transparent rotate-[35deg]" />
+          <span className="text-[72px] relative z-10">🎤</span>
+          <div className="absolute bottom-4 right-4 bg-white border border-primary/30 rounded-full px-5 py-2 text-[16px] font-bold text-primary shadow-sm">
             {t.voiceBadge || 'हाँ'}
           </div>
         </div>
-        <p className="text-[16px] text-vedic-gold">{t.speakTypes || 'बोलो → लिखाई हो जाती है'}</p>
+        <p className="text-[18px] text-saffron font-medium">{t.speakTypes || 'बोलो → लिखाई हो जाती है'}</p>
       </motion.div>
 
       <motion.div
@@ -120,22 +121,22 @@ export default function TutorialVoiceNav({
         transition={{ delay: 0.2 }}
         className="text-center mb-4"
       >
-        <p className="text-[16px] text-vedic-brown-2 mb-2">{t.whenYouSee || 'जब यह दिखे:'}</p>
-        <div className="inline-flex items-center gap-2 bg-primary-lt border border-primary px-3 py-1.5 rounded-full mb-3">
-          <div className="flex gap-0.5 items-end h-4">
+        <p className="text-[18px] text-text-primary-2 mb-2">{t.whenYouSee || 'जब यह दिखे:'}</p>
+        <div className="inline-flex items-center gap-2 bg-primary-lt border border-primary px-4 py-2 rounded-full mb-3 min-h-[56px]">
+          <div className="flex gap-0.5 items-end h-6">
             {[2, 4, 3].map((height, index) => (
               <motion.div
                 key={index}
                 animate={{ scaleY: [1, 2, 1] }}
                 transition={{ duration: 0.8, repeat: Infinity, delay: index * 0.15 }}
-                className="w-1 bg-primary rounded-full"
-                style={{ height: height * 3 }}
+                className="w-2 bg-primary rounded-full"
+                style={{ height: height * 4 }}
               />
             ))}
           </div>
-          <span className="text-[14px] font-medium text-primary">{t.listening || 'सुन रहा हूँ...'}</span>
+          <span className="text-[18px] font-bold text-primary">{t.listening || 'सुन रहा हूँ...'}</span>
         </div>
-        <p className="text-[28px] font-bold text-vedic-brown">{t.thenSpeak || 'तब बोलिए।'}</p>
+        <p className="text-[28px] font-bold text-text-primary">{t.thenSpeak || 'तब बोलिए।'}</p>
       </motion.div>
 
       <motion.div
@@ -165,7 +166,7 @@ export default function TutorialVoiceNav({
             )}
             <span className="text-[44px] relative z-10">🎤</span>
           </div>
-          <p className="text-[18px] text-vedic-brown-2">{helperText || t.demoText}</p>
+          <p className="text-[18px] text-text-primary-2">{helperText || t.demoText}</p>
         </div>
 
         <AnimatePresence>
@@ -188,15 +189,15 @@ export default function TutorialVoiceNav({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5 }}
-        className="text-center space-y-1"
+        className="text-center space-y-2"
       >
-        <p className="text-[15px] text-vedic-gold">{t.keyboardFallback || 'अगर बोलने में दिक्कत हो:'}</p>
-        <p className="text-[15px] font-medium text-vedic-brown-2">{t.keyboardAlways || '⌨️ Keyboard हमेशा नीचे है'}</p>
+        <p className="text-[17px] text-saffron">{t.keyboardFallback || 'अगर बोलने में दिक्कत हो:'}</p>
+        <p className="text-[17px] font-medium text-text-primary-2">{t.keyboardAlways || '⌨️ Keyboard हमेशा नीचे है'}</p>
       </motion.div>
 
       {ctaPulse && (
         <div className="mt-4 flex justify-center">
-          <div className="rounded-full bg-primary-lt px-4 py-2 text-[14px] font-medium text-primary animate-pulse">
+          <div className="rounded-full bg-primary-lt px-5 py-3 text-[16px] font-medium text-primary animate-pulse min-h-[52px]">
             अगले बटन से भी आगे बढ़ सकते हैं
           </div>
         </div>

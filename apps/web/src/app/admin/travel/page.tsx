@@ -23,25 +23,25 @@ export default function AdminTravelPage() {
                             </Link>
                             <nav className="flex items-center gap-6">
                                 <Link
-                                    className="text-slate-600 dark:text-slate-300 text-sm font-medium hover:text-[#f49d25] transition-colors"
+                                    className="text-slate-600 dark:text-slate-300 text-lg font-medium hover:text-[#f49d25] transition-colors"
                                     href="/admin/dashboard"
                                 >
                                     Dashboard
                                 </Link>
                                 <a
-                                    className="text-slate-600 dark:text-slate-300 text-sm font-medium hover:text-[#f49d25] transition-colors"
+                                    className="text-slate-600 dark:text-slate-300 text-lg font-medium hover:text-[#f49d25] transition-colors"
                                     href="#"
                                 >
                                     Religious Services
                                 </a>
                                 <Link
-                                    className="text-[#f49d25] text-sm font-bold border-b-2 border-[#f49d25] py-1"
+                                    className="text-[#f49d25] text-lg font-bold border-b-2 border-[#f49d25] py-3"
                                     href="/admin/travel"
                                 >
                                     Travel Ops
                                 </Link>
                                 <a
-                                    className="text-slate-600 dark:text-slate-300 text-sm font-medium hover:text-[#f49d25] transition-colors"
+                                    className="text-slate-600 dark:text-slate-300 text-lg font-medium hover:text-[#f49d25] transition-colors"
                                     href="#"
                                 >
                                     Risk Management
@@ -49,7 +49,7 @@ export default function AdminTravelPage() {
                             </nav>
                         </div>
                         <div className="flex flex-1 justify-end gap-4 items-center">
-                            <label className="flex flex-col min-w-40 h-10 max-w-64">
+                            <label className="flex flex-col min-w-40 h-14 max-w-64">
                                 <div className="flex w-full flex-1 items-stretch rounded-lg h-full bg-slate-100 dark:bg-zinc-800">
                                     <div className="text-slate-400 flex items-center justify-center pl-4">
                                         <span className="material-symbols-outlined text-[20px]">
@@ -57,7 +57,7 @@ export default function AdminTravelPage() {
                                         </span>
                                     </div>
                                     <input
-                                        className="form-input flex w-full min-w-0 flex-1 border-none bg-transparent focus:ring-0 h-full placeholder:text-slate-400 px-2 text-sm font-normal"
+                                        className="form-input flex w-full min-w-0 flex-1 border-none bg-transparent focus:ring-0 h-full placeholder:text-slate-400 px-4 text-lg font-normal"
                                         placeholder="Search trips, pandits..."
                                     />
                                 </div>
@@ -92,7 +92,7 @@ export default function AdminTravelPage() {
                             <div className="flex flex-col gap-1">
                                 <div className="flex items-center gap-2">
                                     <span className="flex size-3 bg-green-500 rounded-full animate-pulse"></span>
-                                    <p className="text-[#f49d25] text-sm font-bold uppercase tracking-wider">
+                                    <p className="text-[#f49d25] text-lg font-bold uppercase tracking-wider">
                                         Live Monitoring
                                     </p>
                                 </div>
@@ -114,7 +114,7 @@ export default function AdminTravelPage() {
                         {/* Stats Bar */}
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                             <div className="bg-white dark:bg-[#18181b] p-4 rounded-xl border border-slate-200 dark:border-zinc-800">
-                                <p className="text-slate-500 text-xs font-bold uppercase">
+                                <p className="text-slate-500 text-base font-bold uppercase">
                                     Total Active Travels
                                 </p>
                                 <p className="text-2xl font-black text-slate-900 dark:text-white">
@@ -122,19 +122,19 @@ export default function AdminTravelPage() {
                                 </p>
                             </div>
                             <div className="bg-white dark:bg-[#18181b] p-4 rounded-xl border border-slate-200 dark:border-zinc-800 border-l-4 border-l-green-500">
-                                <p className="text-slate-500 text-xs font-bold uppercase">
+                                <p className="text-slate-500 text-base font-bold uppercase">
                                     On Track
                                 </p>
                                 <p className="text-2xl font-black text-green-500">112</p>
                             </div>
                             <div className="bg-white dark:bg-[#18181b] p-4 rounded-xl border border-slate-200 dark:border-zinc-800 border-l-4 border-l-[#f49d25]">
-                                <p className="text-slate-500 text-xs font-bold uppercase">
+                                <p className="text-slate-500 text-base font-bold uppercase">
                                     Delayed
                                 </p>
                                 <p className="text-2xl font-black text-[#f49d25]">9</p>
                             </div>
                             <div className="bg-white dark:bg-[#18181b] p-4 rounded-xl border border-slate-200 dark:border-zinc-800 border-l-4 border-l-red-500">
-                                <p className="text-slate-500 text-xs font-bold uppercase">
+                                <p className="text-slate-500 text-base font-bold uppercase">
                                     Emergency / Blocked
                                 </p>
                                 <p className="text-2xl font-black text-red-500">3</p>
@@ -145,19 +145,19 @@ export default function AdminTravelPage() {
                             {/* Left: List View */}
                             <div className="lg:col-span-8 flex flex-col gap-4">
                                 <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-                                    <button className="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-[#f49d25] text-white px-4 text-sm font-bold">
+                                    <button className="flex h-14 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-[#f49d25] text-white px-4 text-lg font-bold">
                                         All Travels{" "}
                                         <span className="bg-white/20 px-1.5 rounded">
                                             124
                                         </span>
                                     </button>
-                                    <button className="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-slate-300 px-4 text-sm font-medium">
+                                    <button className="flex h-14 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-slate-300 px-4 text-lg font-medium">
                                         Delayed{" "}
                                         <span className="bg-[#f49d25]/20 text-[#f49d25] px-1.5 rounded">
                                             9
                                         </span>
                                     </button>
-                                    <button className="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-slate-300 px-4 text-sm font-medium">
+                                    <button className="flex h-14 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-slate-300 px-4 text-lg font-medium">
                                         Emergency{" "}
                                         <span className="bg-red-500/20 text-red-500 px-1.5 rounded">
                                             3
@@ -168,22 +168,22 @@ export default function AdminTravelPage() {
                                     <table className="w-full text-left">
                                         <thead className="bg-slate-50 dark:bg-zinc-800/50 border-b border-slate-200 dark:border-zinc-800">
                                             <tr>
-                                                <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase">
+                                                <th className="px-4 py-3 text-base font-bold text-slate-500 uppercase">
                                                     Trip ID
                                                 </th>
-                                                <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase">
+                                                <th className="px-4 py-3 text-base font-bold text-slate-500 uppercase">
                                                     Service
                                                 </th>
-                                                <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase">
+                                                <th className="px-4 py-3 text-base font-bold text-slate-500 uppercase">
                                                     Status
                                                 </th>
-                                                <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase">
+                                                <th className="px-4 py-3 text-base font-bold text-slate-500 uppercase">
                                                     Current Location
                                                 </th>
-                                                <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase">
+                                                <th className="px-4 py-3 text-base font-bold text-slate-500 uppercase">
                                                     ETA Offset
                                                 </th>
-                                                <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase">
+                                                <th className="px-4 py-3 text-base font-bold text-slate-500 uppercase">
                                                     Action
                                                 </th>
                                             </tr>
@@ -195,27 +195,27 @@ export default function AdminTravelPage() {
                                                 </td>
                                                 <td className="px-4 py-4">
                                                     <div className="flex flex-col">
-                                                        <span className="text-sm font-bold">
+                                                        <span className="text-lg font-bold">
                                                             Mumbai Wedding
                                                         </span>
-                                                        <span className="text-xs text-slate-400">
+                                                        <span className="text-base text-slate-400">
                                                             Pandit G. Sharma
                                                         </span>
                                                     </div>
                                                 </td>
                                                 <td className="px-4 py-4">
-                                                    <span className="bg-[#f49d25] text-white text-[10px] font-black uppercase px-2 py-1 rounded">
+                                                    <span className="bg-[#f49d25] text-white text-[10px] font-black uppercase px-4 py-3 rounded">
                                                         Delayed
                                                     </span>
                                                 </td>
-                                                <td className="px-4 py-4 text-sm">
+                                                <td className="px-4 py-4 text-lg">
                                                     Kalyan Junction
                                                 </td>
-                                                <td className="px-4 py-4 text-[#f49d25] font-bold text-sm">
+                                                <td className="px-4 py-4 text-[#f49d25] font-bold text-lg">
                                                     +45 min
                                                 </td>
                                                 <td className="px-4 py-4">
-                                                    <button className="text-[#f49d25] text-xs font-black hover:underline uppercase">
+                                                    <button className="text-[#f49d25] text-base font-black hover:underline uppercase">
                                                         Manage
                                                     </button>
                                                 </td>
@@ -226,27 +226,27 @@ export default function AdminTravelPage() {
                                                 </td>
                                                 <td className="px-4 py-4">
                                                     <div className="flex flex-col">
-                                                        <span className="text-sm font-bold">
+                                                        <span className="text-lg font-bold">
                                                             Varanasi Puja
                                                         </span>
-                                                        <span className="text-xs text-slate-400">
+                                                        <span className="text-base text-slate-400">
                                                             Pandit R. Mishra
                                                         </span>
                                                     </div>
                                                 </td>
                                                 <td className="px-4 py-4">
-                                                    <span className="bg-green-500 text-white text-[10px] font-black uppercase px-2 py-1 rounded">
+                                                    <span className="bg-green-500 text-white text-[10px] font-black uppercase px-4 py-3 rounded">
                                                         On Track
                                                     </span>
                                                 </td>
-                                                <td className="px-4 py-4 text-sm">
+                                                <td className="px-4 py-4 text-lg">
                                                     Varanasi Cantt
                                                 </td>
-                                                <td className="px-4 py-4 text-green-500 font-bold text-sm">
+                                                <td className="px-4 py-4 text-green-500 font-bold text-lg">
                                                     On Time
                                                 </td>
                                                 <td className="px-4 py-4">
-                                                    <button className="text-slate-400 text-xs font-black hover:underline uppercase">
+                                                    <button className="text-slate-400 text-base font-black hover:underline uppercase">
                                                         View
                                                     </button>
                                                 </td>
@@ -257,27 +257,27 @@ export default function AdminTravelPage() {
                                                 </td>
                                                 <td className="px-4 py-4">
                                                     <div className="flex flex-col">
-                                                        <span className="text-sm font-bold">
+                                                        <span className="text-lg font-bold">
                                                             Delhi Havan
                                                         </span>
-                                                        <span className="text-xs text-slate-400">
+                                                        <span className="text-base text-slate-400">
                                                             Pandit A. Tiwari
                                                         </span>
                                                     </div>
                                                 </td>
                                                 <td className="px-4 py-4">
-                                                    <span className="bg-red-500 text-white text-[10px] font-black uppercase px-2 py-1 rounded">
+                                                    <span className="bg-red-500 text-white text-[10px] font-black uppercase px-4 py-3 rounded">
                                                         Emergency
                                                     </span>
                                                 </td>
-                                                <td className="px-4 py-4 text-sm">
+                                                <td className="px-4 py-4 text-lg">
                                                     New Delhi
                                                 </td>
-                                                <td className="px-4 py-4 text-red-500 font-bold text-sm">
+                                                <td className="px-4 py-4 text-red-500 font-bold text-lg">
                                                     Stopped
                                                 </td>
                                                 <td className="px-4 py-4">
-                                                    <button className="text-red-500 text-xs font-black hover:underline uppercase animate-pulse">
+                                                    <button className="text-red-500 text-base font-black hover:underline uppercase animate-pulse">
                                                         Alert Admin
                                                     </button>
                                                 </td>
@@ -315,7 +315,7 @@ export default function AdminTravelPage() {
                                                     <div className="absolute top-0 right-0 size-2 bg-red-500 rounded-full animate-ping"></div>
                                                 </div>
                                             </div>
-                                            <div className="absolute bottom-2 left-2 bg-black/60 backdrop-blur-sm text-white text-[10px] px-2 py-1 rounded">
+                                            <div className="absolute bottom-2 left-2 bg-black/60 backdrop-blur-sm text-white text-[10px] px-4 py-3 rounded">
                                                 GPS: 19.2344° N, 73.1298° E
                                             </div>
                                         </div>
@@ -326,10 +326,10 @@ export default function AdminTravelPage() {
                                                     Train Status
                                                 </span>
                                                 <div className="flex items-center gap-1">
-                                                    <span className="material-symbols-outlined text-[#f49d25] text-sm">
+                                                    <span className="material-symbols-outlined text-[#f49d25] text-lg">
                                                         train
                                                     </span>
-                                                    <span className="text-sm font-bold text-[#f49d25]">
+                                                    <span className="text-lg font-bold text-[#f49d25]">
                                                         45 min delay
                                                     </span>
                                                 </div>
@@ -338,7 +338,7 @@ export default function AdminTravelPage() {
                                                 <span className="text-[10px] uppercase font-bold text-slate-400">
                                                     Next Stop
                                                 </span>
-                                                <span className="text-sm font-bold">
+                                                <span className="text-lg font-bold">
                                                     Thane Jn.
                                                 </span>
                                             </div>
@@ -353,22 +353,22 @@ export default function AdminTravelPage() {
                                                     </span>
                                                 </div>
                                                 <div className="flex flex-col">
-                                                    <span className="text-sm font-bold">
+                                                    <span className="text-lg font-bold">
                                                         Rahul Malhotra
                                                     </span>
-                                                    <span className="text-xs text-slate-400">
+                                                    <span className="text-base text-slate-400">
                                                         Customer (Wedding Host)
                                                     </span>
                                                 </div>
                                             </div>
                                             <div className="flex gap-2">
                                                 <button className="size-8 rounded-lg bg-green-500 text-white flex items-center justify-center">
-                                                    <span className="material-symbols-outlined text-sm">
+                                                    <span className="material-symbols-outlined text-lg">
                                                         call
                                                     </span>
                                                 </button>
                                                 <button className="size-8 rounded-lg bg-[#f49d25] text-white flex items-center justify-center">
-                                                    <span className="material-symbols-outlined text-sm">
+                                                    <span className="material-symbols-outlined text-lg">
                                                         chat
                                                     </span>
                                                 </button>
@@ -376,20 +376,20 @@ export default function AdminTravelPage() {
                                         </div>
                                         {/* Action Panel */}
                                         <div className="flex flex-col gap-2 pt-2">
-                                            <button className="w-full py-2 bg-slate-100 dark:bg-zinc-800 text-slate-900 dark:text-white rounded-lg font-bold text-sm flex items-center justify-center gap-2 border border-slate-200 dark:border-zinc-700">
-                                                <span className="material-symbols-outlined text-sm">
+                                            <button className="w-full py-2 bg-slate-100 dark:bg-zinc-800 text-slate-900 dark:text-white rounded-lg font-bold text-lg flex items-center justify-center gap-2 border border-slate-200 dark:border-zinc-700">
+                                                <span className="material-symbols-outlined text-lg">
                                                     campaign
                                                 </span>{" "}
                                                 Alert Customer
                                             </button>
-                                            <button className="w-full py-2 bg-slate-100 dark:bg-zinc-800 text-slate-900 dark:text-white rounded-lg font-bold text-sm flex items-center justify-center gap-2 border border-slate-200 dark:border-zinc-700">
-                                                <span className="material-symbols-outlined text-sm">
+                                            <button className="w-full py-2 bg-slate-100 dark:bg-zinc-800 text-slate-900 dark:text-white rounded-lg font-bold text-lg flex items-center justify-center gap-2 border border-slate-200 dark:border-zinc-700">
+                                                <span className="material-symbols-outlined text-lg">
                                                     local_taxi
                                                 </span>{" "}
                                                 Arrange Cab from Kalyan
                                             </button>
                                             <div className="mt-4 p-4 border-2 border-dashed border-red-500/50 rounded-xl bg-red-500/5 flex flex-col gap-4">
-                                                <button className="w-full py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-black text-sm flex items-center justify-center gap-2 shadow-lg shadow-red-500/20">
+                                                <button className="w-full py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-black text-lg flex items-center justify-center gap-2 shadow-lg shadow-red-500/20">
                                                     <span className="material-symbols-outlined">
                                                         verified_user
                                                     </span>{" "}
@@ -402,7 +402,7 @@ export default function AdminTravelPage() {
                                                     </p>
                                                     <div className="flex flex-col gap-2">
                                                         <div className="flex items-center justify-between bg-white dark:bg-zinc-900 p-2 rounded border border-red-500/20">
-                                                            <span className="text-xs font-medium">
+                                                            <span className="text-base font-medium">
                                                                 Pandit V. Kulkarni
                                                             </span>
                                                             <span className="text-[10px] bg-green-500/10 text-green-500 px-1 rounded">
@@ -410,7 +410,7 @@ export default function AdminTravelPage() {
                                                             </span>
                                                         </div>
                                                         <div className="flex items-center justify-between bg-white dark:bg-zinc-900 p-2 rounded border border-red-500/20 opacity-60">
-                                                            <span className="text-xs font-medium">
+                                                            <span className="text-base font-medium">
                                                                 Pandit M. Joshi
                                                             </span>
                                                             <span className="text-[10px] bg-slate-500/10 text-slate-500 px-1 rounded">
@@ -449,7 +449,7 @@ export default function AdminTravelPage() {
                                     </span>
                                 </div>
                             </div>
-                            <div className="text-xs text-slate-400 font-medium">
+                            <div className="text-base text-slate-400 font-medium">
                                 © 2024 HmarePanditJi Operations - Internal Use Only
                             </div>
                         </div>

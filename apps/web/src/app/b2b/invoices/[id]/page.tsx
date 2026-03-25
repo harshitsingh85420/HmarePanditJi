@@ -35,7 +35,7 @@ export default function CorporateInvoicePage({ params }: { params: { id: string 
             {/* Top Navigation (No Print) */}
             <nav className="no-print w-full bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 h-16 flex items-center justify-between px-6 lg:px-8 sticky top-0 z-50">
                 <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded bg-[#0f49bd] flex items-center justify-center text-white font-bold text-lg">
+                    <div className="w-12 h-12 rounded bg-[#0f49bd] flex items-center justify-center text-white font-bold text-lg">
                         H
                     </div>
                     <span className="font-bold text-lg tracking-tight text-slate-900 dark:text-white">
@@ -44,12 +44,12 @@ export default function CorporateInvoicePage({ params }: { params: { id: string 
                     </span>
                 </div>
                 <div className="flex items-center gap-4">
-                    <div className="hidden md:flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+                    <div className="hidden md:flex items-center gap-2 text-lg text-slate-500 dark:text-slate-400">
                         <span className="w-2 h-2 rounded-full bg-green-500"></span>
                         <span>System Operational</span>
                     </div>
-                    <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden">
-                        <span className="material-icons text-slate-500 text-sm">
+                    <div className="w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden">
+                        <span className="material-icons text-slate-500 text-lg">
                             person
                         </span>
                     </div>
@@ -61,7 +61,7 @@ export default function CorporateInvoicePage({ params }: { params: { id: string 
                 {/* Action Toolbar (No Print) */}
                 <div className="no-print w-full max-w-5xl mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <div>
-                        <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-1">
+                        <div className="flex items-center gap-2 text-lg text-slate-500 dark:text-slate-400 mb-1">
                             <a className="hover:text-[#0f49bd]" href="#">
                                 Invoices
                             </a>
@@ -76,7 +76,7 @@ export default function CorporateInvoicePage({ params }: { params: { id: string 
                     </div>
                     <div className="flex items-center gap-3">
                         <button
-                            className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm text-sm font-medium"
+                            className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm text-lg font-medium"
                             onClick={handlePrint}
                         >
                             <span className="material-icons text-[18px]">
@@ -84,13 +84,13 @@ export default function CorporateInvoicePage({ params }: { params: { id: string 
                             </span>
                             Print
                         </button>
-                        <button className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm text-sm font-medium">
+                        <button className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm text-lg font-medium">
                             <span className="material-icons text-[18px]">
                                 email
                             </span>
                             Email
                         </button>
-                        <button className="flex items-center gap-2 px-4 py-2 bg-[#0f49bd] hover:bg-[#0f49bd]/90 text-white rounded-lg transition-colors shadow-md text-sm font-medium">
+                        <button className="flex items-center gap-2 px-4 py-2 bg-[#0f49bd] hover:bg-[#0f49bd]/90 text-white rounded-lg transition-colors shadow-md text-lg font-medium">
                             <span className="material-icons text-[18px]">
                                 download
                             </span>
@@ -103,7 +103,7 @@ export default function CorporateInvoicePage({ params }: { params: { id: string 
                 <div className="invoice-container w-full max-w-5xl bg-white dark:bg-slate-900 shadow-xl rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 relative">
                     {/* Status Badge */}
                     <div className="absolute top-0 right-0 p-8 no-print">
-                        <div className="border-2 border-green-600 text-green-600 font-bold px-4 py-1 rounded uppercase tracking-widest text-sm transform rotate-12 opacity-80">
+                        <div className="border-2 border-green-600 text-green-600 font-bold px-4 py-3 rounded uppercase tracking-widest text-lg transform rotate-12 opacity-80">
                             PAID
                         </div>
                     </div>
@@ -115,14 +115,14 @@ export default function CorporateInvoicePage({ params }: { params: { id: string 
                             <div>
                                 <div className="flex items-center gap-2 mb-4">
                                     {/* Logo Placeholder */}
-                                    <div className="w-10 h-10 rounded bg-[#0f49bd] flex items-center justify-center text-white font-bold text-xl">
+                                    <div className="w-14 h-14 rounded bg-[#0f49bd] flex items-center justify-center text-white font-bold text-xl">
                                         H
                                     </div>
                                     <span className="font-bold text-2xl tracking-tight text-slate-900 dark:text-white">
                                         HmarePanditJi
                                     </span>
                                 </div>
-                                <div className="text-sm text-slate-500 dark:text-slate-400 space-y-1">
+                                <div className="text-lg text-slate-500 dark:text-slate-400 space-y-1">
                                     <p className="font-medium text-slate-900 dark:text-white">
                                         HmarePanditJi Logistics Pvt Ltd
                                     </p>
@@ -136,7 +136,7 @@ export default function CorporateInvoicePage({ params }: { params: { id: string 
                                 <h2 className="text-4xl font-light text-[#0f49bd] mb-2">
                                     INVOICE
                                 </h2>
-                                <div className="text-sm space-y-2">
+                                <div className="text-lg space-y-2">
                                     <div className="flex justify-between md:justify-end gap-8 border-b border-slate-100 dark:border-slate-800 pb-1">
                                         <span className="text-slate-500 dark:text-slate-400">
                                             Invoice No:
@@ -168,14 +168,14 @@ export default function CorporateInvoicePage({ params }: { params: { id: string 
                         {/* Bill To / Service Info */}
                         <div className="flex flex-col md:flex-row gap-8 mb-12">
                             <div className="flex-1">
-                                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
+                                <h3 className="text-base font-bold text-slate-400 uppercase tracking-wider mb-3">
                                     Bill To
                                 </h3>
                                 <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-lg border border-slate-100 dark:border-slate-800">
                                     <p className="font-bold text-lg text-[#0f49bd] mb-1">
                                         TechNova Solutions Pvt Ltd
                                     </p>
-                                    <div className="text-sm text-slate-600 dark:text-slate-300 space-y-1">
+                                    <div className="text-lg text-slate-600 dark:text-slate-300 space-y-1">
                                         <p>Attn: Finance Department</p>
                                         <p>Prestige Tech Park, Marathahalli</p>
                                         <p>Bangalore, Karnataka, 560103</p>
@@ -195,14 +195,14 @@ export default function CorporateInvoicePage({ params }: { params: { id: string 
                                 </div>
                             </div>
                             <div className="flex-1">
-                                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
+                                <h3 className="text-base font-bold text-slate-400 uppercase tracking-wider mb-3">
                                     Service Details
                                 </h3>
                                 <div className="bg-[#0f49bd]/5 dark:bg-[#0f49bd]/10 p-4 rounded-lg border border-[#0f49bd]/10">
                                     <p className="font-bold text-lg text-slate-900 dark:text-white mb-1">
                                         Vedic Wedding Logistics
                                     </p>
-                                    <div className="text-sm text-slate-600 dark:text-slate-300 space-y-1">
+                                    <div className="text-lg text-slate-600 dark:text-slate-300 space-y-1">
                                         <p>
                                             <span className="font-medium text-[#0f49bd]">
                                                 Event:
@@ -223,10 +223,10 @@ export default function CorporateInvoicePage({ params }: { params: { id: string 
                                             Oct 20, 2023
                                         </p>
                                         <div className="mt-3 flex gap-2">
-                                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                                            <span className="inline-flex items-center px-4 py-2 rounded text-base font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
                                                 Logistics
                                             </span>
-                                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200">
+                                            <span className="inline-flex items-center px-4 py-2 rounded text-base font-medium bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200">
                                                 Religious Service
                                             </span>
                                         </div>
@@ -237,7 +237,7 @@ export default function CorporateInvoicePage({ params }: { params: { id: string 
 
                         {/* Itemized Table */}
                         <div className="mb-8 overflow-hidden rounded-lg border border-slate-200 dark:border-slate-700">
-                            <table className="w-full text-sm text-left">
+                            <table className="w-full text-lg text-left">
                                 <thead className="bg-[#0f49bd] text-white">
                                     <tr>
                                         <th className="py-3 px-4 font-semibold w-12">#</th>
@@ -268,7 +268,7 @@ export default function CorporateInvoicePage({ params }: { params: { id: string 
                                             <p className="font-medium text-slate-900 dark:text-white">
                                                 Head Pandit Dakshina (Vedic Rituals)
                                             </p>
-                                            <p className="text-xs text-slate-500">
+                                            <p className="text-base text-slate-500">
                                                 Honorarium for 3 Priests for 4 hours
                                             </p>
                                         </td>
@@ -294,7 +294,7 @@ export default function CorporateInvoicePage({ params }: { params: { id: string 
                                             <p className="font-medium text-slate-900 dark:text-white">
                                                 Premium Samagri Kit
                                             </p>
-                                            <p className="text-xs text-slate-500">
+                                            <p className="text-base text-slate-500">
                                                 Complete puja items, flowers, and fruits
                                             </p>
                                         </td>
@@ -320,7 +320,7 @@ export default function CorporateInvoicePage({ params }: { params: { id: string 
                                             <p className="font-medium text-slate-900 dark:text-white">
                                                 Travel &amp; Logistics
                                             </p>
-                                            <p className="text-xs text-slate-500">
+                                            <p className="text-base text-slate-500">
                                                 Transportation for team and materials
                                             </p>
                                         </td>
@@ -346,7 +346,7 @@ export default function CorporateInvoicePage({ params }: { params: { id: string 
                                             <p className="font-medium text-slate-900 dark:text-white">
                                                 Accommodation Handling
                                             </p>
-                                            <p className="text-xs text-slate-500">
+                                            <p className="text-base text-slate-500">
                                                 Overnight stay arrangement near venue
                                             </p>
                                         </td>
@@ -372,7 +372,7 @@ export default function CorporateInvoicePage({ params }: { params: { id: string 
                                             <p className="font-medium text-[#0f49bd]">
                                                 Platform Facilitation Fee
                                             </p>
-                                            <p className="text-xs text-slate-500">
+                                            <p className="text-base text-slate-500">
                                                 Service charge for booking via
                                                 HmarePanditJi
                                             </p>
@@ -399,10 +399,10 @@ export default function CorporateInvoicePage({ params }: { params: { id: string 
                             {/* Left: Notes & Bank Info */}
                             <div className="w-full md:w-1/2 md:pr-12 mb-8 md:mb-0">
                                 <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-lg border border-slate-200 dark:border-slate-700 mb-6">
-                                    <h4 className="text-sm font-bold text-slate-700 dark:text-white mb-2">
+                                    <h4 className="text-lg font-bold text-slate-700 dark:text-white mb-2">
                                         Bank Details for Wire Transfer
                                     </h4>
-                                    <div className="text-xs text-slate-600 dark:text-slate-400 grid grid-cols-2 gap-y-1">
+                                    <div className="text-base text-slate-600 dark:text-slate-400 grid grid-cols-2 gap-y-1">
                                         <span>Bank Name:</span>
                                         <span className="font-medium text-slate-800 dark:text-slate-300">
                                             HDFC Bank
@@ -422,10 +422,10 @@ export default function CorporateInvoicePage({ params }: { params: { id: string 
                                     </div>
                                 </div>
                                 <div>
-                                    <h4 className="text-sm font-bold text-slate-700 dark:text-white mb-1">
+                                    <h4 className="text-lg font-bold text-slate-700 dark:text-white mb-1">
                                         Terms &amp; Conditions
                                     </h4>
-                                    <ul className="list-disc list-inside text-xs text-slate-500 dark:text-slate-400 space-y-1">
+                                    <ul className="list-disc list-inside text-base text-slate-500 dark:text-slate-400 space-y-1">
                                         <li>
                                             Payment is due within 15 days of invoice date.
                                         </li>
@@ -446,17 +446,17 @@ export default function CorporateInvoicePage({ params }: { params: { id: string 
                             </div>
                             {/* Right: Calculations */}
                             <div className="w-full md:w-1/2 md:pl-8">
-                                <div className="space-y-3 text-sm">
+                                <div className="space-y-3 text-lg">
                                     <div className="flex justify-between text-slate-600 dark:text-slate-300">
                                         <span>Subtotal</span>
                                         <span className="font-medium">₹78,500.00</span>
                                     </div>
                                     {/* Tax Detail: Exempt Item */}
-                                    <div className="flex justify-between text-slate-500 dark:text-slate-400 text-xs italic">
+                                    <div className="flex justify-between text-slate-500 dark:text-slate-400 text-base italic">
                                         <span>(Less: GST Exempt Dakshina)</span>
                                         <span>(- ₹51,000.00)</span>
                                     </div>
-                                    <div className="flex justify-between text-slate-500 dark:text-slate-400 text-xs italic pb-2 border-b border-slate-100 dark:border-slate-800">
+                                    <div className="flex justify-between text-slate-500 dark:text-slate-400 text-base italic pb-2 border-b border-slate-100 dark:border-slate-800">
                                         <span>Taxable Value</span>
                                         <span>₹27,500.00</span>
                                     </div>
@@ -476,7 +476,7 @@ export default function CorporateInvoicePage({ params }: { params: { id: string 
                                             ₹83,900.00
                                         </span>
                                     </div>
-                                    <div className="text-right text-xs text-slate-500 mt-1">
+                                    <div className="text-right text-base text-slate-500 mt-1">
                                         (Eighty-Three Thousand Nine Hundred Rupees Only)
                                     </div>
                                 </div>
@@ -494,7 +494,7 @@ export default function CorporateInvoicePage({ params }: { params: { id: string 
                                         />
                                         <div className="h-px w-48 bg-slate-300 dark:bg-slate-600 ml-auto"></div>
                                     </div>
-                                    <p className="text-xs font-bold text-slate-700 dark:text-white mt-1">
+                                    <p className="text-base font-bold text-slate-700 dark:text-white mt-1">
                                         Authorized Signatory
                                     </p>
                                     <p className="text-[10px] text-slate-500">
@@ -507,10 +507,10 @@ export default function CorporateInvoicePage({ params }: { params: { id: string 
 
                     {/* Footer Strip */}
                     <div className="bg-slate-50 dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 p-6 text-center">
-                        <p className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-1">
+                        <p className="text-lg font-medium text-slate-600 dark:text-slate-300 mb-1">
                             Thank you for your business!
                         </p>
-                        <p className="text-xs text-slate-400">
+                        <p className="text-base text-slate-400">
                             This is a computer-generated invoice and does not require a
                             physical signature.
                         </p>

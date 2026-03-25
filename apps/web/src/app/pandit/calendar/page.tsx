@@ -25,20 +25,20 @@ export default function PanditCalendarPage() {
                 </div>
                 <div className="flex flex-1 justify-end gap-8">
                     <div className="hidden md:flex items-center gap-9">
-                        <Link href="/pandit/dashboard" className="text-sm font-medium leading-normal hover:text-[#f29e0d] transition-colors">
+                        <Link href="/pandit/dashboard" className="text-lg font-medium leading-normal hover:text-[#f29e0d] transition-colors">
                             Dashboard
                         </Link>
-                        <Link href="/pandit/calendar" className="text-sm font-bold leading-normal text-[#f29e0d]">
+                        <Link href="/pandit/calendar" className="text-lg font-bold leading-normal text-[#f29e0d]">
                             Calendar
                         </Link>
-                        <Link href="/pandit/bookings" className="text-sm font-medium leading-normal hover:text-[#f29e0d] transition-colors">
+                        <Link href="/pandit/bookings" className="text-lg font-medium leading-normal hover:text-[#f29e0d] transition-colors">
                             Bookings
                         </Link>
-                        <Link href="/pandit/earnings" className="text-sm font-medium leading-normal hover:text-[#f29e0d] transition-colors">
+                        <Link href="/pandit/earnings" className="text-lg font-medium leading-normal hover:text-[#f29e0d] transition-colors">
                             Earnings
                         </Link>
                     </div>
-                    <button className="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#f29e0d] text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-orange-600 transition-all">
+                    <button className="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-14 px-4 bg-[#f29e0d] text-white text-lg font-bold leading-normal tracking-[0.015em] hover:bg-orange-600 transition-all">
                         <span className="truncate">Sync Google Calendar</span>
                     </button>
                     <div
@@ -57,7 +57,7 @@ export default function PanditCalendarPage() {
                     <div className="lg:col-span-3 flex flex-col gap-6">
                         <div className="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
                             <h1 className="text-xl font-bold mb-1">Work Calendar</h1>
-                            <p className="text-slate-500 text-sm mb-6">
+                            <p className="text-slate-500 text-lg mb-6">
                                 High-stakes schedule management
                             </p>
                             <div className="space-y-4">
@@ -66,11 +66,11 @@ export default function PanditCalendarPage() {
                                     className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-[#f29e0d]/10 text-[#f29e0d] font-semibold hover:bg-[#f29e0d]/20 transition-all"
                                 >
                                     <span className="material-symbols-outlined">event_busy</span>
-                                    <span className="text-sm">Block Festival Period</span>
+                                    <span className="text-lg">Block Festival Period</span>
                                 </button>
                                 <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-all">
                                     <span className="material-symbols-outlined">repeat_on</span>
-                                    <span className="text-sm">Set Repeat Off</span>
+                                    <span className="text-lg">Set Repeat Off</span>
                                 </button>
                             </div>
                         </div>
@@ -81,10 +81,10 @@ export default function PanditCalendarPage() {
                                     info
                                 </span>
                                 <div>
-                                    <p className="text-sm font-bold text-orange-900 dark:text-orange-200">
+                                    <p className="text-lg font-bold text-orange-900 dark:text-orange-200">
                                         Travel Days Auto-blocked
                                     </p>
-                                    <p className="text-xs text-orange-800/80 dark:text-orange-300/80 mt-1">
+                                    <p className="text-base text-orange-800/80 dark:text-orange-300/80 mt-1">
                                         Calendar intelligently blocks buffer time for venue travel
                                         based on location distance.
                                     </p>
@@ -92,16 +92,16 @@ export default function PanditCalendarPage() {
                             </div>
                         </div>
                         {/* Legend */}
-                        <div className="px-2">
-                            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">
+                        <div className="px-4">
+                            <h3 className="text-base font-bold uppercase tracking-wider text-slate-400 mb-3">
                                 Legend
                             </h3>
                             <div className="space-y-2">
-                                <div className="flex items-center gap-2 text-sm">
+                                <div className="flex items-center gap-2 text-lg">
                                     <span className="w-3 h-3 rounded-full bg-[#f29e0d]"></span>
                                     <span>Wedding / Muhurat</span>
                                 </div>
-                                <div className="flex items-center gap-2 text-sm">
+                                <div className="flex items-center gap-2 text-lg">
                                     <span className="w-3 h-3 rounded-full bg-slate-400"></span>
                                     <span>Travel Buffer</span>
                                 </div>
@@ -131,7 +131,7 @@ export default function PanditCalendarPage() {
                                         (day) => (
                                             <div
                                                 key={day}
-                                                className="text-center text-xs font-bold text-slate-400 py-2"
+                                                className="text-center text-base font-bold text-slate-400 py-2"
                                             >
                                                 {day}
                                             </div>
@@ -143,7 +143,7 @@ export default function PanditCalendarPage() {
                                     {[24, 25, 26, 27, 28, 29, 30].map((d) => (
                                         <div
                                             key={d}
-                                            className="aspect-square flex flex-col items-center justify-center text-sm text-slate-300"
+                                            className="aspect-square flex flex-col items-center justify-center text-lg text-slate-300"
                                         >
                                             {d}
                                         </div>
@@ -158,7 +158,7 @@ export default function PanditCalendarPage() {
                                         return (
                                             <button
                                                 key={day}
-                                                className={`aspect-square flex flex-col items-center justify-center text-sm relative rounded-lg ${isToday
+                                                className={`aspect-square flex flex-col items-center justify-center text-lg relative rounded-lg ${isToday
                                                         ? "bg-[#f29e0d] text-white font-bold shadow-md ring-4 ring-[#f29e0d]/20"
                                                         : "hover:bg-slate-50 dark:hover:bg-slate-800"
                                                     }`}
@@ -194,7 +194,7 @@ export default function PanditCalendarPage() {
                         <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 flex-1 flex flex-col">
                             <div className="p-6 border-b border-slate-100 dark:border-slate-800">
                                 <h3 className="text-lg font-bold">Monday, Dec 16</h3>
-                                <p className="text-sm text-slate-500">3 events scheduled</p>
+                                <p className="text-lg text-slate-500">3 events scheduled</p>
                             </div>
                             <div className="flex-1 p-6 space-y-6">
                                 {/* Timeline Entry */}
@@ -202,13 +202,13 @@ export default function PanditCalendarPage() {
                                     <div className="absolute left-0 top-1.5 w-3 h-3 bg-slate-400 rounded-full border-2 border-white dark:border-slate-900 z-10"></div>
                                     <div className="absolute left-[5px] top-4 w-[2px] h-[calc(100%+24px)] bg-slate-100 dark:bg-slate-800"></div>
                                     <div className="flex flex-col">
-                                        <span className="text-xs font-bold text-slate-400 uppercase">
+                                        <span className="text-base font-bold text-slate-400 uppercase">
                                             8:00 AM
                                         </span>
-                                        <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                                        <span className="text-lg font-semibold text-slate-700 dark:text-slate-300">
                                             Travel to Venue
                                         </span>
-                                        <span className="text-xs text-slate-500">
+                                        <span className="text-base text-slate-500">
                                             Destination: Grand Heritage Resort, Jaipur
                                         </span>
                                     </div>
@@ -218,20 +218,20 @@ export default function PanditCalendarPage() {
                                     <div className="absolute left-0 top-1.5 w-3 h-3 bg-[#f29e0d] rounded-full border-2 border-white dark:border-slate-900 z-10"></div>
                                     <div className="absolute left-[5px] top-4 w-[2px] h-[calc(100%+24px)] bg-slate-100 dark:bg-slate-800"></div>
                                     <div className="flex flex-col bg-[#f29e0d]/5 p-3 rounded-lg border border-[#f29e0d]/10">
-                                        <span className="text-xs font-bold text-[#f29e0d] uppercase">
+                                        <span className="text-base font-bold text-[#f29e0d] uppercase">
                                             10:00 AM
                                         </span>
                                         <span className="text-base font-bold text-slate-900 dark:text-slate-100">
                                             Wedding Muhurat
                                         </span>
-                                        <span className="text-sm text-slate-600 dark:text-slate-400">
+                                        <span className="text-lg text-slate-600 dark:text-slate-400">
                                             Client: Sharma-Mehta Wedding
                                         </span>
                                         <div className="mt-2 flex gap-2">
-                                            <button className="px-2 py-1 text-[10px] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md">
+                                            <button className="px-4 py-3 text-[10px] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md">
                                                 View Details
                                             </button>
-                                            <button className="px-2 py-1 text-[10px] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md">
+                                            <button className="px-4 py-3 text-[10px] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md">
                                                 Contact Host
                                             </button>
                                         </div>
@@ -241,20 +241,20 @@ export default function PanditCalendarPage() {
                                 <div className="relative pl-8">
                                     <div className="absolute left-0 top-1.5 w-3 h-3 bg-[#f29e0d] rounded-full border-2 border-white dark:border-slate-900 z-10"></div>
                                     <div className="flex flex-col">
-                                        <span className="text-xs font-bold text-slate-400 uppercase">
+                                        <span className="text-base font-bold text-slate-400 uppercase">
                                             2:00 PM
                                         </span>
-                                        <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                                        <span className="text-lg font-semibold text-slate-700 dark:text-slate-300">
                                             Post-ceremony rituals
                                         </span>
-                                        <span className="text-xs text-slate-500">
+                                        <span className="text-base text-slate-500">
                                             Estimated duration: 1.5 hours
                                         </span>
                                     </div>
                                 </div>
                             </div>
                             <div className="p-6 bg-slate-50 dark:bg-slate-800/50 mt-auto rounded-b-xl">
-                                <button className="w-full py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-semibold hover:shadow-sm transition-all">
+                                <button className="w-full py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-lg font-semibold hover:shadow-sm transition-all">
                                     Add Custom Event
                                 </button>
                             </div>
@@ -265,7 +265,7 @@ export default function PanditCalendarPage() {
 
             {/* Footer */}
             <footer className="bg-white dark:bg-[#221b10] border-t border-slate-200 dark:border-slate-800 p-6 text-center mt-auto">
-                <p className="text-sm text-slate-500">
+                <p className="text-lg text-slate-500">
                     © 2024 HmarePanditJi Pandit App • Professional Management Suite
                 </p>
             </footer>

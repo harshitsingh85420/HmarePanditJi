@@ -41,17 +41,17 @@ function UserMenu() {
   if (!user) {
     return (
       <div className="flex items-center gap-2">
-        {/* Guest pill badge — desktop only */}
-        <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 text-amber-700 dark:text-amber-300 text-xs font-semibold rounded-full">
-          <span className="material-symbols-outlined text-xs">explore</span>
-          Exploring as Guest
+        {/* Guest pill badge — desktop only - Hindi text for accessibility */}
+        <span className="hidden sm:inline-flex items-center gap-1.5 px-5 py-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 text-amber-700 dark:text-amber-300 text-[22px] font-bold rounded-full">
+          <span className="material-symbols-outlined text-[22px]">explore</span>
+          अतिथि के रूप में देख रहे हैं
         </span>
         <button
           onClick={openLoginModal}
-          className="h-9 px-4 text-sm font-bold bg-primary hover:bg-primary/90 text-white rounded-lg shadow-lg shadow-primary/20 transition-all inline-flex items-center gap-1.5"
+          className="min-h-[72px] px-6 text-[26px] font-bold bg-primary hover:bg-primary/90 text-white rounded-2xl shadow-lg shadow-primary/20 transition-all inline-flex items-center gap-2"
         >
-          <span className="material-symbols-outlined text-base">login</span>
-          Login
+          <span className="material-symbols-outlined text-[28px]">login</span>
+          लॉगिन करें
         </button>
       </div>
     );
@@ -70,7 +70,7 @@ function UserMenu() {
   return (
     <div className="relative" ref={menuRef}>
       <button
-        className="flex items-center gap-2 h-10 px-3 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+        className="flex items-center gap-2 h-14 px-5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
         aria-label="User menu"
@@ -79,17 +79,17 @@ function UserMenu() {
           <img
             src={user.avatarUrl}
             alt={user.fullName ?? "User"}
-            className="w-8 h-8 rounded-full object-cover"
+            className="w-12 h-12 rounded-full object-cover"
           />
         ) : (
-          <span className="w-8 h-8 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center flex-shrink-0">
+          <span className="w-12 h-12 rounded-full bg-primary text-white text-base font-bold flex items-center justify-center flex-shrink-0">
             {initials}
           </span>
         )}
-        <span className="text-sm font-medium text-slate-700 dark:text-slate-200 hidden sm:block max-w-[120px] truncate">
+        <span className="text-lg font-medium text-slate-700 dark:text-slate-200 hidden sm:block max-w-[120px] truncate">
           {user.fullName ?? user.phone}
         </span>
-        <span className="material-symbols-outlined text-sm text-slate-400">
+        <span className="material-symbols-outlined text-lg text-slate-400">
           expand_more
         </span>
       </button>
@@ -97,15 +97,15 @@ function UserMenu() {
       {open && (
         <div className="absolute right-0 top-full mt-2 w-52 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-100 dark:border-slate-800 py-2 z-50">
           <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800">
-            <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">
+            <p className="text-lg font-semibold text-slate-900 dark:text-slate-100 truncate">
               {user.fullName ?? "User"}
             </p>
-            <p className="text-xs text-slate-400 mt-0.5">{user.phone}</p>
+            <p className="text-base text-slate-400 mt-0.5">{user.phone}</p>
           </div>
 
           <Link
             href="/bookings"
-            className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+            className="flex items-center gap-2.5 px-4 py-2.5 text-lg text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
             onClick={() => setOpen(false)}
           >
             <span className="material-symbols-outlined text-base">calendar_month</span>
@@ -113,7 +113,7 @@ function UserMenu() {
           </Link>
           <Link
             href="/dashboard/favorites"
-            className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+            className="flex items-center gap-2.5 px-4 py-2.5 text-lg text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
             onClick={() => setOpen(false)}
           >
             <span className="material-symbols-outlined text-base">favorite</span>
@@ -121,7 +121,7 @@ function UserMenu() {
           </Link>
           <Link
             href="/profile"
-            className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+            className="flex items-center gap-2.5 px-4 py-2.5 text-lg text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
             onClick={() => setOpen(false)}
           >
             <span className="material-symbols-outlined text-base">person</span>
@@ -130,7 +130,7 @@ function UserMenu() {
 
           <div className="border-t border-slate-100 dark:border-slate-800 mt-1 pt-1">
             <button
-              className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+              className="w-full flex items-center gap-2.5 px-4 py-2.5 text-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
               onClick={() => {
                 setOpen(false);
                 logout();
@@ -178,7 +178,7 @@ export default function LandingHeader() {
                 key={l.href}
                 href={l.href}
                 className={[
-                  "text-sm font-medium px-3 py-2 rounded-lg transition-colors",
+                  "text-lg font-medium px-5 py-2 rounded-lg transition-colors",
                   pathname === l.href
                     ? "text-primary bg-primary/10 font-bold"
                     : "text-slate-600 dark:text-slate-300 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800",
@@ -194,7 +194,7 @@ export default function LandingHeader() {
             {/* For Pandits button */}
             <a
               href={PANDIT_PORTAL_URL}
-              className="hidden sm:inline-flex items-center gap-1.5 h-9 px-4 text-sm font-semibold bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-lg shadow-md shadow-orange-500/30 transition-all"
+              className="hidden sm:inline-flex items-center gap-1.5 h-9 px-4 text-lg font-semibold bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-lg shadow-md shadow-orange-500/30 transition-all"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -237,7 +237,7 @@ export default function LandingHeader() {
                 key={l.href}
                 href={l.href}
                 className={[
-                  "text-sm font-medium px-3 py-2 rounded-lg transition-colors",
+                  "text-lg font-medium px-5 py-2 rounded-lg transition-colors",
                   pathname === l.href
                     ? "text-primary bg-primary/10 font-bold"
                     : "text-slate-600 dark:text-slate-300 hover:text-primary hover:bg-slate-100 dark:hover:bg-slate-800",
@@ -253,7 +253,7 @@ export default function LandingHeader() {
               href={PANDIT_PORTAL_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 mt-2 h-10 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-lg shadow-md text-sm font-semibold transition-all"
+              className="flex items-center justify-center gap-2 mt-2 h-14 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-lg shadow-md text-lg font-semibold transition-all"
               onClick={() => setOpen(false)}
             >
               <span className="material-symbols-outlined text-base">work</span>
@@ -262,21 +262,21 @@ export default function LandingHeader() {
 
             {!user && (
               <>
-                <div className="mt-2 px-3 py-2">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 text-amber-700 dark:text-amber-300 text-xs font-semibold rounded-full">
-                    <span className="material-symbols-outlined text-xs">explore</span>
-                    Exploring as Guest
+                <div className="mt-2 px-5 py-2">
+                  <span className="inline-flex items-center gap-1.5 px-5 py-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 text-amber-700 dark:text-amber-300 text-[22px] font-bold rounded-full">
+                    <span className="material-symbols-outlined text-[22px]">explore</span>
+                    अतिथि के रूप में देख रहे हैं
                   </span>
                 </div>
                 <button
-                  className="mt-1 h-10 flex items-center justify-center gap-2 text-sm font-bold bg-primary text-white rounded-lg shadow-lg shadow-primary/20"
+                  className="mt-1 min-h-[72px] flex items-center justify-center gap-2 text-[26px] font-bold bg-primary text-white rounded-2xl shadow-lg shadow-primary/20"
                   onClick={() => {
                     setOpen(false);
                     openLoginModal();
                   }}
                 >
-                  <span className="material-symbols-outlined text-base">login</span>
-                  Login / Register
+                  <span className="material-symbols-outlined text-[28px]">login</span>
+                  लॉगिन करें
                 </button>
               </>
             )}

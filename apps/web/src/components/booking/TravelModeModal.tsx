@@ -63,7 +63,7 @@ export function TravelModeModal({
                             </span>
                             Choose Travel Mode for {panditName}
                         </h1>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                        <p className="text-lg text-gray-500 dark:text-gray-400 mt-1">
                             Select the most convenient travel option. All expenses are verified.
                         </p>
                     </div>
@@ -117,13 +117,13 @@ export function TravelModeModal({
                                     <h3 className="font-bold text-gray-900 dark:text-white mb-1">
                                         {mode.label}
                                     </h3>
-                                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                                    <p className="text-base font-semibold text-gray-500 uppercase tracking-wider mb-2">
                                         {mode.subLabel}
                                     </p>
-                                    <ul className="text-sm text-gray-600 dark:text-gray-300 space-y-2 mb-6 flex-grow">
+                                    <ul className="text-lg text-gray-600 dark:text-gray-300 space-y-2 mb-6 flex-grow">
                                         {mode.features.map((feat, i) => (
                                             <li key={i} className="flex items-start gap-2">
-                                                <span className="material-symbols-outlined text-xs mt-1 text-green-600">
+                                                <span className="material-symbols-outlined text-base mt-1 text-green-600">
                                                     done
                                                 </span>
                                                 {feat}
@@ -135,7 +135,7 @@ export function TravelModeModal({
                                             {mode.price}
                                         </p>
                                         <button
-                                            className={`w-full py-2 font-bold rounded-lg text-sm transition-transform active:scale-95 ${isActive
+                                            className={`w-full py-2 font-bold rounded-lg text-lg transition-transform active:scale-95 ${isActive
                                                     ? "bg-[#f49d25] text-white"
                                                     : "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white group-hover:bg-[#f49d25]/20 group-hover:text-[#f49d25]"
                                                 }`}
@@ -161,7 +161,7 @@ export function TravelModeModal({
                                 <div className="space-y-3">
                                     {activeMode?.id === "SELF-DRIVE" ? (
                                         <>
-                                            <div className="flex justify-between text-sm">
+                                            <div className="flex justify-between text-lg">
                                                 <span className="text-gray-500 dark:text-gray-400">
                                                     Distance (220km) x Rate (₹15/km)
                                                 </span>
@@ -169,7 +169,7 @@ export function TravelModeModal({
                                                     ₹3,300
                                                 </span>
                                             </div>
-                                            <div className="flex justify-between text-sm">
+                                            <div className="flex justify-between text-lg">
                                                 <span className="text-gray-500 dark:text-gray-400">
                                                     Estimated Tolls & Parking
                                                 </span>
@@ -177,7 +177,7 @@ export function TravelModeModal({
                                                     ₹450
                                                 </span>
                                             </div>
-                                            <div className="flex justify-between text-sm">
+                                            <div className="flex justify-between text-lg">
                                                 <span className="text-gray-500 dark:text-gray-400">
                                                     Driver Allowance (Per Day)
                                                 </span>
@@ -187,7 +187,7 @@ export function TravelModeModal({
                                             </div>
                                         </>
                                     ) : (
-                                        <div className="flex justify-between text-sm">
+                                        <div className="flex justify-between text-lg">
                                             <span className="text-gray-500 dark:text-gray-400">
                                                 Fare Ticket Price
                                             </span>
@@ -207,7 +207,7 @@ export function TravelModeModal({
                                     </div>
                                 </div>
                                 <div className="mt-4 flex items-center gap-2 text-[11px] text-gray-400 uppercase tracking-widest bg-white dark:bg-black/20 p-2 rounded border border-dashed border-gray-200 dark:border-gray-700">
-                                    <span className="material-symbols-outlined text-sm">
+                                    <span className="material-symbols-outlined text-lg">
                                         verified_user
                                     </span>
                                     Verified transparent pricing
@@ -235,7 +235,7 @@ export function TravelModeModal({
                                         <p className="font-medium text-gray-900 dark:text-white">
                                             I will provide meals & stay
                                         </p>
-                                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                                        <p className="text-base text-gray-500 dark:text-gray-400">
                                             Host takes care of Satvik meals and lodging
                                         </p>
                                     </div>
@@ -250,7 +250,7 @@ export function TravelModeModal({
                                         <p className="font-medium text-gray-900 dark:text-white">
                                             Add Food Allowance
                                         </p>
-                                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                                        <p className="text-base text-gray-500 dark:text-gray-400">
                                             ₹500/day will be added to the final billing
                                         </p>
                                     </div>
@@ -260,7 +260,7 @@ export function TravelModeModal({
                                 <span className="material-symbols-outlined text-[#f49d25]">
                                     info
                                 </span>
-                                <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
+                                <p className="text-base text-gray-600 dark:text-gray-400 leading-relaxed">
                                     Pandit Ji usually arrives 30 minutes before the Muhurat.
                                     Please ensure the travel route is accessible.
                                 </p>
@@ -273,9 +273,9 @@ export function TravelModeModal({
                 <div className="px-8 py-6 border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-[#2d2116] flex flex-col sm:flex-row justify-between items-center gap-4">
                     <button
                         onClick={onClose}
-                        className="text-gray-500 dark:text-gray-400 text-sm font-semibold hover:text-gray-700 flex items-center gap-1"
+                        className="text-gray-500 dark:text-gray-400 text-lg font-semibold hover:text-gray-700 flex items-center gap-1"
                     >
-                        <span className="material-symbols-outlined text-sm">
+                        <span className="material-symbols-outlined text-lg">
                             arrow_back
                         </span>
                         Back to Dakshina Details

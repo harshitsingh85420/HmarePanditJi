@@ -19,7 +19,10 @@ export function ErrorOverlay({ onRetry, onUseKeyboard }: ErrorOverlayProps) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const isFinalError = state === 'error_3'
 
-  const isHighNoise = ambientNoiseLevel > 65
+  // BUG-MEDIUM-04 FIX: Raised threshold from 65dB to 85dB to prevent false-triggering
+  // 65dB is normal conversation level - should NOT trigger warning
+  // 85dB+ is genuinely loud (temple bells, heavy traffic, crowds)
+  const isHighNoise = ambientNoiseLevel > 85
 
   // BUG-004 FIX: Show noise warning if noise level is high
   const shouldShowNoiseWarning = isHighNoise

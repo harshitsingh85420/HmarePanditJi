@@ -45,7 +45,7 @@ export function VoiceSearchModal({ isOpen, onClose }: VoiceSearchModalProps) {
             <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 dark:border-[#393328] px-6 lg:px-10 py-5">
                 <div className="flex items-center gap-8">
                     <div className="flex items-center gap-4">
-                        <div className="w-8 h-8 text-[#f29e0d]">
+                        <div className="w-12 h-12 text-[#f29e0d]">
                             <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
                                 <path
                                     d="M24 4C25.7818 14.2173 33.7827 22.2182 44 24C33.7827 25.7818 25.7818 33.7827 24 44C22.2182 33.7827 14.2173 25.7818 4 24C14.2173 22.2182 22.2182 14.2173 24 4Z"
@@ -59,8 +59,8 @@ export function VoiceSearchModal({ isOpen, onClose }: VoiceSearchModalProps) {
                     </div>
                 </div>
                 <div className="flex items-center gap-6">
-                    <div className="hidden sm:flex items-center gap-2 bg-slate-200 dark:bg-[#393328] rounded-full px-4 py-1.5 text-xs text-slate-600 dark:text-[#baaf9c]">
-                        <span className="material-symbols-outlined text-sm">language</span>
+                    <div className="hidden sm:flex items-center gap-2 bg-slate-200 dark:bg-[#393328] rounded-full px-4 py-3.5 text-base text-slate-600 dark:text-[#baaf9c]">
+                        <span className="material-symbols-outlined text-lg">language</span>
                         <span>Hindi, English, Maithili</span>
                     </div>
                     <button
@@ -124,7 +124,7 @@ export function VoiceSearchModal({ isOpen, onClose }: VoiceSearchModalProps) {
                 <div className="mt-auto w-full pb-12">
                     {!transcript && (
                         <div className="flex flex-col items-center gap-6 animate-in fade-in delay-200">
-                            <p className="text-slate-500 dark:text-[#baaf9c] text-sm font-bold leading-normal tracking-wider uppercase">
+                            <p className="text-slate-500 dark:text-[#baaf9c] text-lg font-bold leading-normal tracking-wider uppercase">
                                 Try saying
                             </p>
                             <div className="flex flex-wrap justify-center gap-3">
@@ -135,7 +135,7 @@ export function VoiceSearchModal({ isOpen, onClose }: VoiceSearchModalProps) {
                                 ].map((s) => (
                                     <button
                                         key={s}
-                                        className="bg-white dark:bg-[#393328] hover:bg-slate-50 dark:hover:bg-[#4a4336] text-slate-700 dark:text-white px-5 py-3 rounded-xl text-sm transition-all border border-slate-200 dark:border-[#4a4336] shadow-sm"
+                                        className="bg-white dark:bg-[#393328] hover:bg-slate-50 dark:hover:bg-[#4a4336] text-slate-700 dark:text-white px-5 py-3 rounded-xl text-lg transition-all border border-slate-200 dark:border-[#4a4336] shadow-sm"
                                     >
                                         "{s}"
                                     </button>

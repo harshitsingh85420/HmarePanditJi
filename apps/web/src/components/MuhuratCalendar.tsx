@@ -23,7 +23,7 @@ export function MuhuratCalendar({ muhuratDates }: { muhuratDates: MuhuratDateDat
 
     const days = [];
     for (let i = 0; i < firstDayOfMonth; i++) {
-        days.push(<div key={`empty-${i}`} className="h-10 w-full"></div>);
+        days.push(<div key={`empty-${i}`} className="h-14 w-full"></div>);
     }
 
     for (let d = 1; d <= daysInMonth; d++) {
@@ -32,7 +32,7 @@ export function MuhuratCalendar({ muhuratDates }: { muhuratDates: MuhuratDateDat
         const isToday = today.getDate() === d && today.getMonth() === currentMonth;
         const isPast = new Date(currentYear, currentMonth, d) < new Date(today.setHours(0, 0, 0, 0));
 
-        let cellClass = "relative flex h-10 w-full items-center justify-center rounded-lg text-sm font-medium transition-colors ";
+        let cellClass = "relative flex h-14 w-full items-center justify-center rounded-lg text-lg font-medium transition-colors ";
 
         if (muhurat && !isPast) {
             cellClass += "cursor-pointer hover:bg-amber-100 text-gray-900 ";
@@ -72,7 +72,7 @@ export function MuhuratCalendar({ muhuratDates }: { muhuratDates: MuhuratDateDat
             </div>
             <div className="grid grid-cols-7 gap-1 text-center mb-2">
                 {weekDays.map(day => (
-                    <div key={day} className="text-xs font-semibold text-gray-400 uppercase tracking-wider">{day}</div>
+                    <div key={day} className="text-base font-semibold text-gray-400 uppercase tracking-wider">{day}</div>
                 ))}
             </div>
             <div className="grid grid-cols-7 gap-1">

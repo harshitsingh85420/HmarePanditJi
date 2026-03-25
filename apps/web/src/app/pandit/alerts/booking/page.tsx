@@ -55,7 +55,7 @@ export default function BookingAlertPage() {
                                 <div className="flex h-16 w-20 items-center justify-center rounded-xl bg-white dark:bg-gray-800 shadow-sm border border-red-100 dark:border-red-900/30">
                                     <p className="text-2xl font-black text-red-600">{mins}</p>
                                 </div>
-                                <p className="text-xs font-semibold mt-2 uppercase tracking-widest text-red-500">
+                                <p className="text-base font-semibold mt-2 uppercase tracking-widest text-red-500">
                                     Minutes
                                 </p>
                             </div>
@@ -63,7 +63,7 @@ export default function BookingAlertPage() {
                                 <div className="flex h-16 w-20 items-center justify-center rounded-xl bg-white dark:bg-gray-800 shadow-sm border border-red-100 dark:border-red-900/30">
                                     <p className="text-2xl font-black text-red-600">{secs}</p>
                                 </div>
-                                <p className="text-xs font-semibold mt-2 uppercase tracking-widest text-red-500">
+                                <p className="text-base font-semibold mt-2 uppercase tracking-widest text-red-500">
                                     Seconds
                                 </p>
                             </div>
@@ -87,7 +87,7 @@ export default function BookingAlertPage() {
                                         <span className="material-symbols-outlined text-[#135bec]">
                                             distance
                                         </span>
-                                        <span className="font-bold text-sm text-[#135bec]">
+                                        <span className="font-bold text-lg text-[#135bec]">
                                             1,200 km away
                                         </span>
                                     </div>
@@ -103,7 +103,7 @@ export default function BookingAlertPage() {
                                                 New Delhi, NCR Region
                                             </p>
                                         </div>
-                                        <span className="bg-[#135bec]/10 text-[#135bec] px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+                                        <span className="bg-[#135bec]/10 text-[#135bec] px-5 py-3 rounded-full text-base font-bold uppercase tracking-wider">
                                             High Stakes
                                         </span>
                                     </div>
@@ -113,7 +113,7 @@ export default function BookingAlertPage() {
                                                 directions_car
                                             </span>
                                             <div>
-                                                <p className="text-xs text-gray-500 uppercase font-bold">
+                                                <p className="text-base text-gray-500 uppercase font-bold">
                                                     Travel Type
                                                 </p>
                                                 <p className="font-semibold">Self-Drive (Your Car)</p>
@@ -124,7 +124,7 @@ export default function BookingAlertPage() {
                                                 inventory_2
                                             </span>
                                             <div>
-                                                <p className="text-xs text-gray-500 uppercase font-bold">
+                                                <p className="text-base text-gray-500 uppercase font-bold">
                                                     Samagri
                                                 </p>
                                                 <p className="font-semibold">Premium Package</p>
@@ -203,7 +203,7 @@ export default function BookingAlertPage() {
                                     </button>
                                 </div>
                                 <div className="mt-8 pt-6 border-t border-gray-100 dark:border-gray-800 text-center">
-                                    <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed uppercase tracking-tighter font-bold">
+                                    <p className="text-base text-gray-500 dark:text-gray-400 leading-relaxed uppercase tracking-tighter font-bold">
                                         Note: Accepting this booking requires availability for all 3
                                         days. Penalty applies for cancellations within 48h of start
                                         time.

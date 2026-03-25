@@ -21,19 +21,19 @@ export default function EcoNirmalyaPage() {
                         <div className="hidden md:block">
                             <div className="ml-10 flex items-baseline space-x-4">
                                 <a
-                                    className="px-3 py-2 rounded-md text-sm font-medium text-[#115e59] hover:bg-[#ccfbf1] transition-colors"
+                                    className="px-5 py-2 rounded-md text-lg font-medium text-[#115e59] hover:bg-[#ccfbf1] transition-colors"
                                     href="#"
                                 >
                                     Our Mission
                                 </a>
                                 <a
-                                    className="px-3 py-2 rounded-md text-sm font-medium text-[#115e59] hover:bg-[#ccfbf1] transition-colors"
+                                    className="px-5 py-2 rounded-md text-lg font-medium text-[#115e59] hover:bg-[#ccfbf1] transition-colors"
                                     href="#"
                                 >
                                     Process
                                 </a>
                                 <a
-                                    className="px-3 py-2 rounded-md text-sm font-medium bg-[#0d9488] text-white shadow-lg shadow-[#2dd4bf]/40 hover:bg-[#0f766e] transition-all transform hover:-translate-y-0.5"
+                                    className="px-5 py-2 rounded-md text-lg font-medium bg-[#0d9488] text-white shadow-lg shadow-[#2dd4bf]/40 hover:bg-[#0f766e] transition-all transform hover:-translate-y-0.5"
                                     href="#"
                                 >
                                     Book Collection
@@ -47,8 +47,8 @@ export default function EcoNirmalyaPage() {
             {/* Hero Section */}
             <header className="pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden relative">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-[#ccfbf1] text-[#0f766e] uppercase tracking-wide mb-6 animate-fade-in-up">
-                        <span className="material-icons text-xs mr-1">
+                    <span className="inline-flex items-center px-5 py-3 rounded-full text-base font-semibold bg-[#ccfbf1] text-[#0f766e] uppercase tracking-wide mb-6 animate-fade-in-up">
+                        <span className="material-icons text-base mr-1">
                             recycling
                         </span>
                         Respectful Disposal
@@ -185,7 +185,7 @@ export default function EcoNirmalyaPage() {
                             </li>
                         </ul>
                         <div className="mt-auto">
-                            <p className="text-[#99f6e4] text-sm uppercase tracking-wider font-bold mb-2">
+                            <p className="text-[#99f6e4] text-lg uppercase tracking-wider font-bold mb-2">
                                 Partnered with
                             </p>
                             <div className="flex items-center gap-4 opacity-80 mix-blend-screen">
@@ -198,7 +198,7 @@ export default function EcoNirmalyaPage() {
                     <div className="bg-[#f0fdfa] p-8 md:p-12 md:w-1/2">
                         <form className="space-y-4">
                             <div>
-                                <label className="block text-sm font-medium text-[#134e4a] mb-1">
+                                <label className="block text-lg font-medium text-[#134e4a] mb-1">
                                     Pickup Date
                                 </label>
                                 <div className="relative">
@@ -212,7 +212,7 @@ export default function EcoNirmalyaPage() {
                                 </div>
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-[#134e4a] mb-1">
+                                <label className="block text-lg font-medium text-[#134e4a] mb-1">
                                     Quantity (Approx)
                                 </label>
                                 <select className="w-full pl-10 pr-4 py-3 bg-white border border-[#ccfbf1] rounded-xl focus:ring-2 focus:ring-[#0d9488] focus:border-transparent outline-none text-[#134e4a]">
@@ -226,7 +226,7 @@ export default function EcoNirmalyaPage() {
                                 {/* Placeholder alignment fix needed in real implementation */}
                             </div>
                             <div className="flex items-center justify-between py-4">
-                                <span className="text-sm font-medium text-[#134e4a] text-opacity-80">
+                                <span className="text-lg font-medium text-[#134e4a] text-opacity-80">
                                     Service Fee
                                 </span>
                                 <span className="text-2xl font-bold text-[#0d9488]">
@@ -246,7 +246,7 @@ export default function EcoNirmalyaPage() {
             </section>
 
             {/* Footer */}
-            <footer className="mt-auto bg-[#134e4a] py-8 text-center text-[#99f6e4] text-sm">
+            <footer className="mt-auto bg-[#134e4a] py-8 text-center text-[#99f6e4] text-lg">
                 <p>
                     © 2024 HmarePanditJi Eco-Initiative. Working towards a cleaner
                     Ganges.

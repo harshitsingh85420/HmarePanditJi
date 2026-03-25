@@ -28,7 +28,7 @@ export default function SamagriComparisonPage() {
                     <div className="bg-white dark:bg-slate-900/50 p-1 rounded-xl border border-slate-200 dark:border-slate-800 inline-flex">
                         <button
                             onClick={() => setActiveTab("fixed")}
-                            className={`px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${activeTab === "fixed"
+                            className={`px-6 py-2.5 rounded-lg text-lg font-bold transition-all ${activeTab === "fixed"
                                     ? "bg-[#ec5b13] text-white shadow-lg"
                                     : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
                                 }`}
@@ -37,7 +37,7 @@ export default function SamagriComparisonPage() {
                         </button>
                         <button
                             onClick={() => setActiveTab("custom")}
-                            className={`px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${activeTab === "custom"
+                            className={`px-6 py-2.5 rounded-lg text-lg font-bold transition-all ${activeTab === "custom"
                                     ? "bg-[#ec5b13] text-white shadow-lg"
                                     : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
                                 }`}
@@ -52,13 +52,13 @@ export default function SamagriComparisonPage() {
                             <table className="w-full text-left">
                                 <thead className="bg-slate-50 dark:bg-slate-800/50">
                                     <tr>
-                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                        <th className="px-6 py-4 text-base font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                                             Puja Item
                                         </th>
-                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                        <th className="px-6 py-4 text-base font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                                             Market Avg
                                         </th>
-                                        <th className="px-6 py-4 text-xs font-bold text-[#ec5b13] uppercase tracking-wider">
+                                        <th className="px-6 py-4 text-base font-bold text-[#ec5b13] uppercase tracking-wider">
                                             HmarePanditJi Price
                                         </th>
                                     </tr>
@@ -116,11 +116,11 @@ export default function SamagriComparisonPage() {
                         {/* Add Item Search */}
                         <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20">
                             <div className="relative max-w-sm">
-                                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">
+                                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">
                                     search
                                 </span>
                                 <input
-                                    className="w-full pl-10 pr-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-[#ec5b13] focus:border-[#ec5b13] transition-all text-slate-900 dark:text-white"
+                                    className="w-full pl-10 pr-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-lg focus:ring-[#ec5b13] focus:border-[#ec5b13] transition-all text-slate-900 dark:text-white"
                                     placeholder="Add more items to list..."
                                     type="text"
                                 />
@@ -135,10 +135,10 @@ export default function SamagriComparisonPage() {
                                 verified_user
                             </span>
                             <div>
-                                <p className="text-xs font-bold uppercase tracking-wide text-[#ec5b13]">
+                                <p className="text-base font-bold uppercase tracking-wide text-[#ec5b13]">
                                     Reliability
                                 </p>
-                                <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                                <p className="text-lg font-medium text-slate-700 dark:text-slate-300">
                                     100% Refund if Pandit doesn't arrive
                                 </p>
                             </div>
@@ -148,10 +148,10 @@ export default function SamagriComparisonPage() {
                                 high_quality
                             </span>
                             <div>
-                                <p className="text-xs font-bold uppercase tracking-wide text-emerald-600">
+                                <p className="text-base font-bold uppercase tracking-wide text-emerald-600">
                                     Quality
                                 </p>
-                                <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                                <p className="text-lg font-medium text-slate-700 dark:text-slate-300">
                                     ISO Certified Samagri Quality Check
                                 </p>
                             </div>
@@ -161,10 +161,10 @@ export default function SamagriComparisonPage() {
                                 groups
                             </span>
                             <div>
-                                <p className="text-xs font-bold uppercase tracking-wide text-blue-600">
+                                <p className="text-base font-bold uppercase tracking-wide text-blue-600">
                                     Vetting
                                 </p>
-                                <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                                <p className="text-lg font-medium text-slate-700 dark:text-slate-300">
                                     Background Verified Vedic Pandits
                                 </p>
                             </div>
@@ -184,23 +184,23 @@ export default function SamagriComparisonPage() {
                             </h2>
                             <div className="space-y-4 mb-6">
                                 <div className="flex justify-between text-slate-500 dark:text-slate-400">
-                                    <span className="text-sm font-medium">
+                                    <span className="text-lg font-medium">
                                         Market Average Total
                                     </span>
-                                    <span className="text-sm font-bold line-through">₹1,455</span>
+                                    <span className="text-lg font-bold line-through">₹1,455</span>
                                 </div>
                                 <div className="flex justify-between items-center text-[#ec5b13]">
-                                    <span className="text-sm font-bold">HmarePanditJi Total</span>
+                                    <span className="text-lg font-bold">HmarePanditJi Total</span>
                                     <span className="text-xl font-black">₹1,214</span>
                                 </div>
                                 <div className="h-px bg-slate-100 dark:bg-slate-800"></div>
                                 <div className="bg-emerald-50 dark:bg-emerald-950/30 p-4 rounded-xl border border-emerald-100 dark:border-emerald-900/50">
                                     <div className="flex justify-between items-center">
                                         <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400">
-                                            <span className="material-symbols-outlined text-sm">
+                                            <span className="material-symbols-outlined text-lg">
                                                 savings
                                             </span>
-                                            <span className="text-sm font-bold">
+                                            <span className="text-lg font-bold">
                                                 Your Total Savings
                                             </span>
                                         </div>
@@ -240,13 +240,13 @@ export default function SamagriComparisonPage() {
                                 </span>
                             </div>
                             <h3 className="text-white font-bold mb-2">Need Help?</h3>
-                            <p className="text-slate-300 text-sm mb-4">
+                            <p className="text-slate-300 text-lg mb-4">
                                 Our spiritual consultants are available 24/7 to help you curate
                                 the perfect puja list.
                             </p>
-                            <button className="flex items-center gap-2 text-[#ec5b13] font-bold text-sm hover:underline">
+                            <button className="flex items-center gap-2 text-[#ec5b13] font-bold text-lg hover:underline">
                                 Chat with us
-                                <span className="material-symbols-outlined text-sm">chat</span>
+                                <span className="material-symbols-outlined text-lg">chat</span>
                             </button>
                         </div>
                     </div>
@@ -257,7 +257,7 @@ export default function SamagriComparisonPage() {
             <div className="lg:hidden fixed bottom-0 left-0 right-0 p-4 bg-white/90 dark:bg-[#221610]/90 backdrop-blur border-t border-slate-200 dark:border-slate-800 z-50">
                 <div className="flex items-center justify-between gap-4">
                     <div>
-                        <p className="text-xs font-bold text-slate-500 uppercase">Grand Total</p>
+                        <p className="text-base font-bold text-slate-500 uppercase">Grand Total</p>
                         <p className="text-xl font-black text-[#ec5b13]">₹1,214</p>
                     </div>
                     <button
@@ -265,7 +265,7 @@ export default function SamagriComparisonPage() {
                         className="flex-1 py-3 bg-[#ec5b13] text-white rounded-xl font-bold shadow-lg shadow-[#ec5b13]/30 flex items-center justify-center gap-2"
                     >
                         Proceed
-                        <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                        <span className="material-symbols-outlined text-lg">arrow_forward</span>
                     </button>
                 </div>
             </div>

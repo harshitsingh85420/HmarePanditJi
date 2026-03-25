@@ -21,21 +21,21 @@ export default function EarningsPage() {
                 </div>
                 <div className="flex flex-1 justify-end gap-8 items-center">
                     <nav className="hidden md:flex items-center gap-9">
-                        <Link href="/pandit/dashboard" className="text-sm font-medium leading-normal hover:text-[#f4a825] transition-colors">
+                        <Link href="/pandit/dashboard" className="text-lg font-medium leading-normal hover:text-[#f4a825] transition-colors">
                             Dashboard
                         </Link>
-                        <Link href="/pandit/earnings" className="text-[#f4a825] text-sm font-bold leading-normal border-b-2 border-[#f4a825] pb-1">
+                        <Link href="/pandit/earnings" className="text-[#f4a825] text-lg font-bold leading-normal border-b-2 border-[#f4a825] pb-1">
                             Earnings
                         </Link>
-                        <Link href="/pandit/calendar" className="text-sm font-medium leading-normal hover:text-[#f4a825] transition-colors">
+                        <Link href="/pandit/calendar" className="text-lg font-medium leading-normal hover:text-[#f4a825] transition-colors">
                             Schedule
                         </Link>
-                        <Link href="/pandit/profile" className="text-sm font-medium leading-normal hover:text-[#f4a825] transition-colors">
+                        <Link href="/pandit/profile" className="text-lg font-medium leading-normal hover:text-[#f4a825] transition-colors">
                             Profile
                         </Link>
                     </nav>
                     <div className="flex items-center gap-4">
-                        <button className="hidden md:flex min-w-[84px] cursor-pointer items-center justify-center rounded-lg h-10 px-4 bg-[#f4a825] text-[#181511] text-sm font-bold leading-normal hover:bg-[#f4a825]/90 transition-colors">
+                        <button className="hidden md:flex min-w-[84px] cursor-pointer items-center justify-center rounded-lg h-14 px-4 bg-[#f4a825] text-[#181511] text-lg font-bold leading-normal hover:bg-[#f4a825]/90 transition-colors">
                             Logout
                         </button>
                         <div
@@ -65,7 +65,7 @@ export default function EarningsPage() {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div className="col-span-1 md:col-span-2 flex flex-col justify-between gap-6 rounded-xl p-8 bg-white dark:bg-[#2d2418] border border-[#e6e2db] dark:border-[#3d3428] shadow-sm">
                             <div className="flex flex-col gap-2">
-                                <p className="text-[#8a7b60] dark:text-[#a89980] text-sm font-semibold uppercase tracking-wider">
+                                <p className="text-[#8a7b60] dark:text-[#a89980] text-lg font-semibold uppercase tracking-wider">
                                     Available Balance
                                 </p>
                                 <p className="text-5xl font-black text-[#181511] dark:text-[#f4a825]">
@@ -91,13 +91,13 @@ export default function EarningsPage() {
                                 <span className="material-symbols-outlined">description</span>
                                 <p className="font-bold">Tax Summary</p>
                             </div>
-                            <p className="text-sm text-[#8a7b60] dark:text-[#a89980]">
+                            <p className="text-lg text-[#8a7b60] dark:text-[#a89980]">
                                 View your TDS certificates and annual tax statements for the current
                                 financial year.
                             </p>
-                            <button className="mt-auto flex items-center gap-2 text-sm font-bold text-[#181511] dark:text-[#f8f7f5] hover:underline underline-offset-4">
+                            <button className="mt-auto flex items-center gap-2 text-lg font-bold text-[#181511] dark:text-[#f8f7f5] hover:underline underline-offset-4">
                                 View Documents
-                                <span className="material-symbols-outlined text-sm">
+                                <span className="material-symbols-outlined text-lg">
                                     arrow_forward
                                 </span>
                             </button>
@@ -111,7 +111,7 @@ export default function EarningsPage() {
                                 <p className="text-[#181511] dark:text-[#f8f7f5] text-xl font-bold">
                                     Earnings Breakdown
                                 </p>
-                                <select className="bg-[#f8f7f5] dark:bg-[#2d2418] border-none rounded-lg text-sm font-medium py-1 px-3 dark:text-white">
+                                <select className="bg-[#f8f7f5] dark:bg-[#2d2418] border-none rounded-lg text-lg font-medium py-3 px-5 dark:text-white">
                                     <option>This Month</option>
                                     <option>Last 3 Months</option>
                                     <option>Yearly</option>
@@ -136,11 +136,11 @@ export default function EarningsPage() {
                                 <div className="flex-1 w-full flex flex-col gap-6">
                                     <div className="flex flex-col gap-2">
                                         <div className="flex justify-between items-end">
-                                            <span className="text-sm font-bold flex items-center gap-2 dark:text-white">
+                                            <span className="text-lg font-bold flex items-center gap-2 dark:text-white">
                                                 <span className="size-3 rounded-full bg-[#f4a825]"></span>{" "}
                                                 Dakshina
                                             </span>
-                                            <span className="text-sm font-black dark:text-white">81%</span>
+                                            <span className="text-lg font-black dark:text-white">81%</span>
                                         </div>
                                         <div className="h-2 w-full bg-[#f5f3f0] dark:bg-[#2d2418] rounded-full overflow-hidden">
                                             <div
@@ -151,11 +151,11 @@ export default function EarningsPage() {
                                     </div>
                                     <div className="flex flex-col gap-2">
                                         <div className="flex justify-between items-end">
-                                            <span className="text-sm font-bold flex items-center gap-2 dark:text-white">
+                                            <span className="text-lg font-bold flex items-center gap-2 dark:text-white">
                                                 <span className="size-3 rounded-full bg-[#fcd581]"></span>{" "}
                                                 Travel Reimbursement
                                             </span>
-                                            <span className="text-sm font-black dark:text-white">15%</span>
+                                            <span className="text-lg font-black dark:text-white">15%</span>
                                         </div>
                                         <div className="h-2 w-full bg-[#f5f3f0] dark:bg-[#2d2418] rounded-full overflow-hidden">
                                             <div
@@ -166,11 +166,11 @@ export default function EarningsPage() {
                                     </div>
                                     <div className="flex flex-col gap-2">
                                         <div className="flex justify-between items-end">
-                                            <span className="text-sm font-bold flex items-center gap-2 dark:text-white">
+                                            <span className="text-lg font-bold flex items-center gap-2 dark:text-white">
                                                 <span className="size-3 rounded-full bg-[#e6e2db]"></span>{" "}
                                                 Food Allowance
                                             </span>
-                                            <span className="text-sm font-black dark:text-white">4%</span>
+                                            <span className="text-lg font-black dark:text-white">4%</span>
                                         </div>
                                         <div className="h-2 w-full bg-[#f5f3f0] dark:bg-[#2d2418] rounded-full overflow-hidden">
                                             <div
@@ -186,11 +186,11 @@ export default function EarningsPage() {
 
                     {/* Recent Transactions */}
                     <div className="flex flex-col gap-4 mb-20">
-                        <div className="flex items-center justify-between px-2">
+                        <div className="flex items-center justify-between px-4">
                             <h3 className="text-xl font-bold dark:text-white">Recent Transactions</h3>
                             <button
                                 onClick={() => router.push('/pandit/earnings/history')}
-                                className="text-[#f4a825] text-sm font-bold hover:underline"
+                                className="text-[#f4a825] text-lg font-bold hover:underline"
                             >
                                 View All
                             </button>
@@ -209,7 +209,7 @@ export default function EarningsPage() {
                                         <p className="font-bold text-[#181511] dark:text-[#f8f7f5]">
                                             Delhi Wedding - Grand Hyatt
                                         </p>
-                                        <p className="text-xs text-[#8a7b60] dark:text-[#a89980]">
+                                        <p className="text-base text-[#8a7b60] dark:text-[#a89980]">
                                             Oct 24, 2023 • Vivah Sanskar
                                         </p>
                                     </div>
@@ -218,7 +218,7 @@ export default function EarningsPage() {
                                     <p className="font-black text-[#181511] dark:text-[#f8f7f5]">
                                         ₹52,750
                                     </p>
-                                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-[#078810]/10 text-[#078810] uppercase">
+                                    <span className="inline-flex items-center px-4 py-2 rounded text-[10px] font-bold bg-[#078810]/10 text-[#078810] uppercase">
                                         <span className="size-1.5 rounded-full bg-[#078810] mr-1.5"></span>{" "}
                                         Paid
                                     </span>
@@ -234,7 +234,7 @@ export default function EarningsPage() {
                                         <p className="font-bold text-[#181511] dark:text-[#f8f7f5]">
                                             Griha Pravesh - Noida Sec 150
                                         </p>
-                                        <p className="text-xs text-[#8a7b60] dark:text-[#a89980]">
+                                        <p className="text-base text-[#8a7b60] dark:text-[#a89980]">
                                             Oct 22, 2023 • Puja Services
                                         </p>
                                     </div>
@@ -243,7 +243,7 @@ export default function EarningsPage() {
                                     <p className="font-black text-[#181511] dark:text-[#f8f7f5]">
                                         ₹12,500
                                     </p>
-                                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-[#078810]/10 text-[#078810] uppercase">
+                                    <span className="inline-flex items-center px-4 py-2 rounded text-[10px] font-bold bg-[#078810]/10 text-[#078810] uppercase">
                                         <span className="size-1.5 rounded-full bg-[#078810] mr-1.5"></span>{" "}
                                         Paid
                                     </span>
@@ -259,7 +259,7 @@ export default function EarningsPage() {
                                         <p className="font-bold text-[#181511] dark:text-[#f8f7f5]">
                                             Travel Reimbursement - Mumbai
                                         </p>
-                                        <p className="text-xs text-[#8a7b60] dark:text-[#a89980]">
+                                        <p className="text-base text-[#8a7b60] dark:text-[#a89980]">
                                             Oct 20, 2023 • Airfare &amp; Taxi
                                         </p>
                                     </div>
@@ -268,7 +268,7 @@ export default function EarningsPage() {
                                     <p className="font-black text-[#181511] dark:text-[#f8f7f5]">
                                         ₹8,400
                                     </p>
-                                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-[#078810]/10 text-[#078810] uppercase">
+                                    <span className="inline-flex items-center px-4 py-2 rounded text-[10px] font-bold bg-[#078810]/10 text-[#078810] uppercase">
                                         <span className="size-1.5 rounded-full bg-[#078810] mr-1.5"></span>{" "}
                                         Paid
                                     </span>

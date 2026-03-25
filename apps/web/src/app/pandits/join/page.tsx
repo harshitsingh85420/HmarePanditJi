@@ -54,8 +54,8 @@ export default function PanditsJoinPage() {
 
       {/* Hero */}
       <div className="text-center mb-16">
-        <div className="inline-flex items-center gap-2 bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-full mb-6">
-          <span className="material-symbols-outlined text-sm">verified</span>
+        <div className="inline-flex items-center gap-2 bg-primary/10 text-primary text-base font-bold uppercase tracking-wider px-4 py-2 rounded-full mb-6">
+          <span className="material-symbols-outlined text-lg">verified</span>
           Pandit Partner Programme
         </div>
         <h1 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-slate-100 tracking-tight mb-5">
@@ -74,7 +74,7 @@ export default function PanditsJoinPage() {
           <span className="material-symbols-outlined text-xl">login</span>
           Open Pandit Portal
         </a>
-        <p className="text-sm text-slate-400 mt-3">Free to join · No commission on first 3 bookings</p>
+        <p className="text-lg text-slate-400 mt-3">Free to join · No commission on first 3 bookings</p>
       </div>
 
       {/* Benefits */}
@@ -92,7 +92,7 @@ export default function PanditsJoinPage() {
                 <span className="material-symbols-outlined text-xl text-primary">{b.icon}</span>
               </div>
               <h3 className="font-bold text-slate-900 dark:text-slate-100 mb-2">{b.title}</h3>
-              <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">{b.desc}</p>
+              <p className="text-lg text-slate-500 dark:text-slate-400 leading-relaxed">{b.desc}</p>
             </div>
           ))}
         </div>
@@ -110,7 +110,7 @@ export default function PanditsJoinPage() {
                 <span className="text-white font-black text-lg">{s.step}</span>
               </div>
               <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-2">{s.title}</h3>
-              <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">{s.desc}</p>
+              <p className="text-lg text-slate-500 dark:text-slate-400 leading-relaxed">{s.desc}</p>
             </div>
           ))}
         </div>

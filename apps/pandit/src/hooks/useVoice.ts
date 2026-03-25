@@ -193,7 +193,10 @@ export function useVoice({
         analyser.getByteFrequencyData(data)
         const avg = data.reduce((a, b) => a + b, 0) / data.length
 
-        if (avg > 65) {
+        // BUG-MEDIUM-04 FIX: Raised threshold from 65dB to 85dB to prevent false-triggering
+        // 65dB is normal conversation level - should NOT trigger warning
+        // 85dB+ is genuinely loud (temple bells, heavy traffic, crowds)
+        if (avg > 85) {
           onNoiseDetected?.()
         }
 

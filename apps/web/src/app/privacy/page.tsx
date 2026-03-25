@@ -66,11 +66,11 @@ export default function PrivacyPage() {
     <div className="max-w-[800px] mx-auto px-4 sm:px-6 py-16">
       <div className="mb-10">
         <h1 className="text-3xl font-black text-slate-900 dark:text-slate-100 mb-3">Privacy Policy</h1>
-        <p className="text-slate-500 text-sm">Last updated: January 2025 · In compliance with IT Act 2000 and DPDP Act 2023</p>
+        <p className="text-slate-500 text-lg">Last updated: January 2025 · In compliance with IT Act 2000 and DPDP Act 2023</p>
       </div>
 
       <div className="bg-primary/5 border border-primary/20 rounded-xl p-5 mb-10">
-        <p className="text-sm text-primary font-medium">
+        <p className="text-lg text-primary font-medium">
           आपकी गोपनीयता हमारी प्राथमिकता है — Your privacy matters to us. We only collect what we need to serve you.
         </p>
       </div>
@@ -79,13 +79,13 @@ export default function PrivacyPage() {
         {SECTIONS.map((section) => (
           <div key={section.title} className="border-b border-slate-100 dark:border-slate-800 pb-8 last:border-0">
             <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-3">{section.title}</h2>
-            <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed whitespace-pre-line">{section.body}</p>
+            <p className="text-slate-600 dark:text-slate-400 text-lg leading-relaxed whitespace-pre-line">{section.body}</p>
           </div>
         ))}
       </div>
 
       <div className="mt-10 p-5 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800">
-        <p className="text-sm text-slate-600 dark:text-slate-400">
+        <p className="text-lg text-slate-600 dark:text-slate-400">
           For privacy-related inquiries, contact us at{" "}
           <a href="mailto:privacy@hmarepanditji.com" className="text-primary hover:underline">
             privacy@hmarepanditji.com

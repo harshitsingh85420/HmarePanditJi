@@ -18,15 +18,15 @@ export default function LiveTrackingPage({ params }: { params: { id: string } })
                         <h2 className="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-tight hidden sm:block">HmarePanditJi</h2>
                     </Link>
                     <div className="hidden md:flex items-center gap-6">
-                        <Link href="/dashboard" className="text-slate-600 dark:text-slate-300 text-sm font-medium hover:text-[#137fec] transition-colors">Dashboard</Link>
-                        <Link href="/dashboard/bookings" className="text-slate-600 dark:text-slate-300 text-sm font-medium hover:text-[#137fec] transition-colors">Bookings</Link>
-                        <span className="text-[#137fec] text-sm font-bold border-b-2 border-[#137fec] py-5">Live Tracking</span>
+                        <Link href="/dashboard" className="text-slate-600 dark:text-slate-300 text-lg font-medium hover:text-[#137fec] transition-colors">Dashboard</Link>
+                        <Link href="/dashboard/bookings" className="text-slate-600 dark:text-slate-300 text-lg font-medium hover:text-[#137fec] transition-colors">Bookings</Link>
+                        <span className="text-[#137fec] text-lg font-bold border-b-2 border-[#137fec] py-5">Live Tracking</span>
                     </div>
                 </div>
                 <div className="flex items-center gap-4">
                     <button
                         onClick={() => router.back()}
-                        className="px-4 py-2 text-sm font-bold text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                        className="px-4 py-2 text-lg font-bold text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
                     >
                         Back to Booking
                     </button>
@@ -48,7 +48,7 @@ export default function LiveTrackingPage({ params }: { params: { id: string } })
                     <div className="absolute top-6 left-6 z-10 flex flex-col gap-3">
                         <div className="flex bg-white dark:bg-[#101922] rounded-xl shadow-xl p-1 border border-slate-200 dark:border-slate-800 w-full max-w-xs">
                             <input
-                                className="bg-transparent border-none focus:ring-0 text-sm w-full dark:text-white placeholder:text-slate-400 pl-3"
+                                className="bg-transparent border-none focus:ring-0 text-lg w-full dark:text-white placeholder:text-slate-400 pl-3"
                                 placeholder="Search route..."
                                 type="text"
                             />
@@ -57,9 +57,9 @@ export default function LiveTrackingPage({ params }: { params: { id: string } })
                     </div>
 
                     <div className="absolute bottom-10 right-[400px] z-10 hidden lg:flex flex-col gap-2">
-                        <button className="h-10 w-10 flex items-center justify-center bg-white dark:bg-[#101922] rounded-lg shadow-lg text-slate-600 dark:text-slate-300 hover:text-[#137fec] transition-colors"><span className="material-symbols-outlined">add</span></button>
-                        <button className="h-10 w-10 flex items-center justify-center bg-white dark:bg-[#101922] rounded-lg shadow-lg text-slate-600 dark:text-slate-300 hover:text-[#137fec] transition-colors"><span className="material-symbols-outlined">remove</span></button>
-                        <button className="h-10 w-10 flex items-center justify-center bg-[#137fec] text-white rounded-lg shadow-lg mt-2"><span className="material-symbols-outlined">my_location</span></button>
+                        <button className="h-14 w-14 flex items-center justify-center bg-white dark:bg-[#101922] rounded-lg shadow-lg text-slate-600 dark:text-slate-300 hover:text-[#137fec] transition-colors"><span className="material-symbols-outlined">add</span></button>
+                        <button className="h-14 w-14 flex items-center justify-center bg-white dark:bg-[#101922] rounded-lg shadow-lg text-slate-600 dark:text-slate-300 hover:text-[#137fec] transition-colors"><span className="material-symbols-outlined">remove</span></button>
+                        <button className="h-14 w-14 flex items-center justify-center bg-[#137fec] text-white rounded-lg shadow-lg mt-2"><span className="material-symbols-outlined">my_location</span></button>
                     </div>
 
                     {/* Simulated Route Overlay */}
@@ -73,7 +73,7 @@ export default function LiveTrackingPage({ params }: { params: { id: string } })
                                 <div className="bg-[#137fec] text-white p-2 rounded-full shadow-xl ring-4 ring-white dark:ring-[#101922]">
                                     <span className="material-symbols-outlined">directions_car</span>
                                 </div>
-                                <div className="mt-2 bg-white dark:bg-[#101922] px-3 py-1 rounded-full shadow-lg text-xs font-bold border border-[#137fec]/30 text-slate-900 dark:text-white">
+                                <div className="mt-2 bg-white dark:bg-[#101922] px-5 py-3 rounded-full shadow-lg text-base font-bold border border-[#137fec]/30 text-slate-900 dark:text-white">
                                     Pandit En Route
                                 </div>
                             </div>
@@ -89,7 +89,7 @@ export default function LiveTrackingPage({ params }: { params: { id: string } })
                                         <h3 className="text-lg font-bold text-slate-900 dark:text-white">Near Agra Highway</h3>
                                         <div className="flex items-center gap-2 mt-1">
                                             <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                                            <p className="text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase tracking-wide">On Time</p>
+                                            <p className="text-emerald-600 dark:text-emerald-400 text-base font-bold uppercase tracking-wide">On Time</p>
                                         </div>
                                     </div>
                                     <div className="bg-[#137fec]/10 p-2 rounded-xl text-[#137fec]">
@@ -109,16 +109,16 @@ export default function LiveTrackingPage({ params }: { params: { id: string } })
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-3 mb-3">
-                                    <button className="flex items-center justify-center gap-2 bg-[#137fec] text-white font-bold py-3 rounded-xl hover:bg-[#137fec]/90 transition-all shadow-lg shadow-[#137fec]/20 text-sm">
-                                        <span className="material-symbols-outlined text-sm">call</span> Call
+                                    <button className="flex items-center justify-center gap-2 bg-[#137fec] text-white font-bold py-3 rounded-xl hover:bg-[#137fec]/90 transition-all shadow-lg shadow-[#137fec]/20 text-lg">
+                                        <span className="material-symbols-outlined text-lg">call</span> Call
                                     </button>
-                                    <button className="flex items-center justify-center gap-2 bg-slate-100 dark:bg-white/10 text-slate-900 dark:text-white font-bold py-3 rounded-xl hover:bg-slate-200 dark:hover:bg-white/20 transition-all text-sm">
-                                        <span className="material-symbols-outlined text-sm">chat</span> Message
+                                    <button className="flex items-center justify-center gap-2 bg-slate-100 dark:bg-white/10 text-slate-900 dark:text-white font-bold py-3 rounded-xl hover:bg-slate-200 dark:hover:bg-white/20 transition-all text-lg">
+                                        <span className="material-symbols-outlined text-lg">chat</span> Message
                                     </button>
                                 </div>
 
-                                <button className="w-full flex items-center justify-center gap-2 text-slate-500 hover:text-[#137fec] text-xs font-medium py-2 transition-colors">
-                                    <span className="material-symbols-outlined text-sm">support_agent</span> Contact Support
+                                <button className="w-full flex items-center justify-center gap-2 text-slate-500 hover:text-[#137fec] text-base font-medium py-2 transition-colors">
+                                    <span className="material-symbols-outlined text-lg">support_agent</span> Contact Support
                                 </button>
                             </div>
                         </div>
@@ -129,7 +129,7 @@ export default function LiveTrackingPage({ params }: { params: { id: string } })
                 <aside className="hidden lg:flex w-96 bg-white dark:bg-[#101922] border-l border-slate-200 dark:border-slate-800 z-30 flex-col h-full shadow-2xl">
                     <div className="p-6 border-b border-slate-200 dark:border-slate-800">
                         <h2 className="text-xl font-bold text-slate-900 dark:text-white">Journey Timeline</h2>
-                        <p className="text-slate-500 dark:text-slate-400 text-sm">更新 live every 30s</p>
+                        <p className="text-slate-500 dark:text-slate-400 text-lg">更新 live every 30s</p>
                     </div>
 
                     <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
@@ -143,9 +143,9 @@ export default function LiveTrackingPage({ params }: { params: { id: string } })
                                     <span className="material-symbols-outlined text-[14px] font-bold">check</span>
                                 </div>
                                 <div>
-                                    <h4 className="font-bold text-slate-900 dark:text-white text-sm">Journey Started</h4>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Varanasi HQ</p>
-                                    <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 mt-1">4:00 PM</p>
+                                    <h4 className="font-bold text-slate-900 dark:text-white text-lg">Journey Started</h4>
+                                    <p className="text-base text-slate-500 dark:text-slate-400 mt-0.5">Varanasi HQ</p>
+                                    <p className="text-base font-bold text-emerald-600 dark:text-emerald-400 mt-1">4:00 PM</p>
                                 </div>
                             </div>
 
@@ -154,9 +154,9 @@ export default function LiveTrackingPage({ params }: { params: { id: string } })
                                     <span className="material-symbols-outlined text-[14px] font-bold">check</span>
                                 </div>
                                 <div>
-                                    <h4 className="font-bold text-slate-900 dark:text-white text-sm">Crossed Kanpur</h4>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Highway Checkpoint</p>
-                                    <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 mt-1">8:45 PM</p>
+                                    <h4 className="font-bold text-slate-900 dark:text-white text-lg">Crossed Kanpur</h4>
+                                    <p className="text-base text-slate-500 dark:text-slate-400 mt-0.5">Highway Checkpoint</p>
+                                    <p className="text-base font-bold text-emerald-600 dark:text-emerald-400 mt-1">8:45 PM</p>
                                 </div>
                             </div>
 
@@ -167,12 +167,12 @@ export default function LiveTrackingPage({ params }: { params: { id: string } })
                                 </div>
                                 <div className="flex-1">
                                     <h4 className="font-bold text-slate-900 dark:text-white text-base">Approaching Agra</h4>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">42 km remaining to checkpoint</p>
-                                    <p className="text-xs font-bold text-amber-500 mt-1">Status: In Transit</p>
+                                    <p className="text-base text-slate-500 dark:text-slate-400 mt-0.5">42 km remaining to checkpoint</p>
+                                    <p className="text-base font-bold text-amber-500 mt-1">Status: In Transit</p>
 
                                     <div className="mt-3 p-3 bg-slate-50 dark:bg-white/5 rounded-lg border border-slate-100 dark:border-white/5 flex gap-3 items-center">
                                         <span className="material-symbols-outlined text-amber-500">traffic</span>
-                                        <p className="text-xs text-slate-500 dark:text-slate-400 italic leading-tight">"Moderate traffic reported near Yamuna Expressway."</p>
+                                        <p className="text-base text-slate-500 dark:text-slate-400 italic leading-tight">"Moderate traffic reported near Yamuna Expressway."</p>
                                     </div>
                                 </div>
                             </div>
@@ -183,9 +183,9 @@ export default function LiveTrackingPage({ params }: { params: { id: string } })
                                     <span className="material-symbols-outlined text-[14px]">radio_button_unchecked</span>
                                 </div>
                                 <div>
-                                    <h4 className="font-bold text-slate-900 dark:text-white text-sm">Mathura Transit</h4>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Scheduled Stop</p>
-                                    <p className="text-xs font-medium text-slate-400 mt-1">Est. 12:15 AM</p>
+                                    <h4 className="font-bold text-slate-900 dark:text-white text-lg">Mathura Transit</h4>
+                                    <p className="text-base text-slate-500 dark:text-slate-400 mt-0.5">Scheduled Stop</p>
+                                    <p className="text-base font-medium text-slate-400 mt-1">Est. 12:15 AM</p>
                                 </div>
                             </div>
 
@@ -194,9 +194,9 @@ export default function LiveTrackingPage({ params }: { params: { id: string } })
                                     <span className="material-symbols-outlined text-[14px]">location_on</span>
                                 </div>
                                 <div>
-                                    <h4 className="font-bold text-slate-900 dark:text-white text-sm">Delhi (Venue)</h4>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Final Destination</p>
-                                    <p className="text-xs font-medium text-slate-400 mt-1">Est. 02:20 AM</p>
+                                    <h4 className="font-bold text-slate-900 dark:text-white text-lg">Delhi (Venue)</h4>
+                                    <p className="text-base text-slate-500 dark:text-slate-400 mt-0.5">Final Destination</p>
+                                    <p className="text-base font-medium text-slate-400 mt-1">Est. 02:20 AM</p>
                                 </div>
                             </div>
                         </div>
@@ -211,8 +211,8 @@ export default function LiveTrackingPage({ params }: { params: { id: string } })
                                 </div>
                             </div>
                             <div>
-                                <p className="font-bold text-sm text-slate-900 dark:text-white">Pandit Vishnu Shastri</p>
-                                <div className="flex items-center text-amber-500 text-xs">
+                                <p className="font-bold text-lg text-slate-900 dark:text-white">Pandit Vishnu Shastri</p>
+                                <div className="flex items-center text-amber-500 text-base">
                                     <span className="material-symbols-outlined text-[14px] fill-current">star</span>
                                     <span className="ml-1 font-bold">4.8</span>
                                     <span className="ml-1 text-slate-400 font-normal">(120 reviews)</span>

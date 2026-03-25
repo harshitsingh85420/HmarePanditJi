@@ -22,25 +22,25 @@ export default function VoiceSearchPage() {
                             </div>
                             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
                                 <a
-                                    className="border-[#f49d25] text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                                    className="border-[#f49d25] text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-lg font-medium"
                                     href="#"
                                 >
                                     Home
                                 </a>
                                 <a
-                                    className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                                    className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-lg font-medium"
                                     href="#"
                                 >
                                     Muhurat
                                 </a>
                                 <a
-                                    className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                                    className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-lg font-medium"
                                     href="#"
                                 >
                                     Pujas
                                 </a>
                                 <a
-                                    className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                                    className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-lg font-medium"
                                     href="#"
                                 >
                                     Pandits
@@ -56,13 +56,13 @@ export default function VoiceSearchPage() {
                             </button>
                             <div className="flex items-center gap-3">
                                 <a
-                                    className="text-sm font-medium text-gray-700 hover:text-gray-900 hidden sm:block"
+                                    className="text-lg font-medium text-gray-700 hover:text-gray-900 hidden sm:block"
                                     href="#"
                                 >
                                     Login
                                 </a>
                                 <a
-                                    className="bg-[#f49d25] hover:bg-[#d97f0a] text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition-colors"
+                                    className="bg-[#f49d25] hover:bg-[#d97f0a] text-white px-4 py-2 rounded-lg text-lg font-medium shadow-sm transition-colors"
                                     href="#"
                                 >
                                     Book Now
@@ -93,8 +93,8 @@ export default function VoiceSearchPage() {
 
                                 {/* Search Box Container */}
                                 <div className="mt-8 sm:max-w-xl sm:mx-auto lg:mx-0 bg-white p-2 rounded-2xl shadow-lg border border-gray-100 relative">
-                                    <div className="absolute -top-3 right-4 bg-green-100 text-green-800 text-xs font-semibold px-2 py-0.5 rounded-full border border-green-200 flex items-center gap-1">
-                                        <span className="material-symbols-outlined text-sm">
+                                    <div className="absolute -top-3 right-4 bg-green-100 text-green-800 text-base font-semibold px-4 py-2 rounded-full border border-green-200 flex items-center gap-1">
+                                        <span className="material-symbols-outlined text-lg">
                                             mic
                                         </span>{" "}
                                         Voice Enabled
@@ -148,8 +148,8 @@ export default function VoiceSearchPage() {
                                             <span>Find</span>
                                         </button>
                                     </form>
-                                    <div className="mt-2 px-2 flex items-center gap-2 text-xs text-gray-500">
-                                        <span className="bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded border border-gray-200">
+                                    <div className="mt-2 px-4 flex items-center gap-2 text-base text-gray-500">
+                                        <span className="bg-gray-100 text-gray-600 px-1.5 py-2 rounded border border-gray-200">
                                             Tip
                                         </span>
                                         <span>
@@ -162,7 +162,7 @@ export default function VoiceSearchPage() {
                                     </div>
                                 </div>
 
-                                <div className="mt-6 flex items-center gap-4 text-sm text-gray-500">
+                                <div className="mt-6 flex items-center gap-4 text-lg text-gray-500">
                                     <div className="flex items-center gap-1">
                                         <span
                                             className="material-symbols-outlined text-green-500 text-lg filled"
@@ -212,22 +212,22 @@ export default function VoiceSearchPage() {
                                         </span>
                                         Auspicious Dates
                                     </h3>
-                                    <span className="text-xs font-medium bg-white px-2 py-1 rounded text-[#f49d25] border border-orange-100">
+                                    <span className="text-base font-medium bg-white px-4 py-3 rounded text-[#f49d25] border border-orange-100">
                                         Feb 2026
                                     </span>
                                 </div>
                                 <div className="space-y-3">
                                     <div className="flex items-center justify-between bg-white p-3 rounded-xl shadow-sm border border-gray-100 cursor-pointer hover:border-[#f49d25] transition-colors group">
                                         <div className="flex items-center gap-3">
-                                            <div className="bg-orange-100 text-[#f49d25] w-10 h-10 rounded-lg flex flex-col items-center justify-center font-bold leading-none">
-                                                <span className="text-xs">FEB</span>
+                                            <div className="bg-orange-100 text-[#f49d25] w-14 h-14 rounded-lg flex flex-col items-center justify-center font-bold leading-none">
+                                                <span className="text-base">FEB</span>
                                                 <span className="text-lg">15</span>
                                             </div>
                                             <div>
-                                                <p className="text-sm font-semibold text-gray-900">
+                                                <p className="text-lg font-semibold text-gray-900">
                                                     Vivah Muhurat
                                                 </p>
-                                                <p className="text-xs text-gray-500">
+                                                <p className="text-base text-gray-500">
                                                     Shubh Lagna Available
                                                 </p>
                                             </div>
@@ -238,15 +238,15 @@ export default function VoiceSearchPage() {
                                     </div>
                                     <div className="flex items-center justify-between bg-white p-3 rounded-xl shadow-sm border border-gray-100 cursor-pointer hover:border-[#f49d25] transition-colors group">
                                         <div className="flex items-center gap-3">
-                                            <div className="bg-orange-100 text-[#f49d25] w-10 h-10 rounded-lg flex flex-col items-center justify-center font-bold leading-none">
-                                                <span className="text-xs">FEB</span>
+                                            <div className="bg-orange-100 text-[#f49d25] w-14 h-14 rounded-lg flex flex-col items-center justify-center font-bold leading-none">
+                                                <span className="text-base">FEB</span>
                                                 <span className="text-lg">18</span>
                                             </div>
                                             <div>
-                                                <p className="text-sm font-semibold text-gray-900">
+                                                <p className="text-lg font-semibold text-gray-900">
                                                     Griha Pravesh
                                                 </p>
-                                                <p className="text-xs text-gray-500">
+                                                <p className="text-base text-gray-500">
                                                     Amrit Siddhi Yoga
                                                 </p>
                                             </div>
@@ -257,11 +257,11 @@ export default function VoiceSearchPage() {
                                     </div>
                                 </div>
                                 <a
-                                    className="mt-4 text-sm text-[#f49d25] font-medium flex items-center hover:underline"
+                                    className="mt-4 text-lg text-[#f49d25] font-medium flex items-center hover:underline"
                                     href="#"
                                 >
                                     View Full Calendar{" "}
-                                    <span className="material-symbols-outlined text-sm ml-1">
+                                    <span className="material-symbols-outlined text-lg ml-1">
                                         arrow_forward
                                     </span>
                                 </a>
@@ -306,7 +306,7 @@ export default function VoiceSearchPage() {
                                             <h3 className="font-medium text-gray-900">
                                                 {service.name}
                                             </h3>
-                                            <p className="text-xs text-gray-500 mt-1">
+                                            <p className="text-base text-gray-500 mt-1">
                                                 {service.price}
                                             </p>
                                         </div>
@@ -326,12 +326,12 @@ export default function VoiceSearchPage() {
                             <h2 className="text-2xl font-bold text-gray-900">
                                 Verified Pandits Near You
                             </h2>
-                            <p className="mt-1 text-sm text-gray-500">
+                            <p className="mt-1 text-lg text-gray-500">
                                 Experienced Vedic scholars ready to visit your home
                             </p>
                         </div>
                         <a
-                            className="text-[#f49d25] font-medium text-sm hover:underline hidden sm:block"
+                            className="text-[#f49d25] font-medium text-lg hover:underline hidden sm:block"
                             href="#"
                         >
                             View All Pandits
@@ -396,7 +396,7 @@ export default function VoiceSearchPage() {
                                 Hmare<span className="text-[#f49d25]">PanditJi</span>
                             </span>
                         </div>
-                        <p className="text-gray-400 text-sm max-w-sm">
+                        <p className="text-gray-400 text-lg max-w-sm">
                             Bringing the sanctity of Vedic rituals to your doorstep. Verified
                             pandits, transparent pricing, and managed logistics for a divine
                             experience.
@@ -404,7 +404,7 @@ export default function VoiceSearchPage() {
                     </div>
                     <div>
                         <h3 className="text-lg font-semibold mb-4">Company</h3>
-                        <ul className="space-y-2 text-gray-400 text-sm">
+                        <ul className="space-y-2 text-gray-400 text-lg">
                             <li>
                                 <a className="hover:text-white" href="#">
                                     About Us
@@ -463,7 +463,7 @@ function PanditCard({
                     <div className="flex-1">
                         <div className="flex justify-between items-start">
                             <h3 className="font-bold text-lg text-gray-900">{name}</h3>
-                            <span className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
+                            <span className="bg-green-100 text-green-700 text-base px-4 py-2 rounded-full font-medium flex items-center gap-1">
                                 <span
                                     className="material-symbols-outlined text-[14px] filled"
                                     style={{ fontVariationSettings: "'FILL' 1" }}
@@ -473,20 +473,20 @@ function PanditCard({
                                 Verified
                             </span>
                         </div>
-                        <p className="text-sm text-gray-500 mt-0.5">
+                        <p className="text-lg text-gray-500 mt-0.5">
                             {location} • {exp}
                         </p>
                         <div className="flex items-center gap-1 mt-1">
                             <span
-                                className="material-symbols-outlined text-yellow-400 text-sm filled"
+                                className="material-symbols-outlined text-yellow-400 text-lg filled"
                                 style={{ fontVariationSettings: "'FILL' 1" }}
                             >
                                 star
                             </span>
-                            <span className="text-sm font-bold text-gray-900">
+                            <span className="text-lg font-bold text-gray-900">
                                 {rating}
                             </span>
-                            <span className="text-xs text-gray-400">
+                            <span className="text-base text-gray-400">
                                 ({reviews} reviews)
                             </span>
                         </div>
@@ -496,7 +496,7 @@ function PanditCard({
                     {languages.map((lang) => (
                         <span
                             key={lang}
-                            className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-md"
+                            className="px-4 py-3 bg-gray-100 text-gray-600 text-base rounded-md"
                         >
                             {lang}
                         </span>
@@ -504,10 +504,10 @@ function PanditCard({
                 </div>
                 <div className="mt-4 pt-4 border-t border-gray-100 grid grid-cols-2 gap-4">
                     <div>
-                        <p className="text-xs text-gray-500">Dakshina from</p>
+                        <p className="text-base text-gray-500">Dakshina from</p>
                         <p className="font-bold text-gray-900">{price}</p>
                     </div>
-                    <button className="w-full bg-orange-50 hover:bg-orange-100 text-[#f49d25] font-medium py-2 rounded-lg text-sm transition-colors">
+                    <button className="w-full bg-orange-50 hover:bg-orange-100 text-[#f49d25] font-medium py-2 rounded-lg text-lg transition-colors">
                         View Profile
                     </button>
                 </div>

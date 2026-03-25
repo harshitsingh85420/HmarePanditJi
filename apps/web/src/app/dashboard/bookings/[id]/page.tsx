@@ -83,7 +83,7 @@ export default function BookingDetailPage() {
     if (authLoading || loading) {
         return (
             <div className="min-h-screen bg-[#f8f7f5] flex items-center justify-center">
-                <div className="w-8 h-8 border-2 border-[#f49d25] border-t-transparent rounded-full animate-spin" />
+                <div className="w-12 h-12 border-2 border-[#f49d25] border-t-transparent rounded-full animate-spin" />
             </div>
         );
     }
@@ -96,10 +96,10 @@ export default function BookingDetailPage() {
                         <span className="material-symbols-outlined text-3xl text-rose-500">error</span>
                     </div>
                     <h2 className="text-slate-700 font-semibold text-lg mb-2">Error Loading Booking</h2>
-                    <p className="text-slate-400 text-sm mb-6">{error || "Booking not found"}</p>
+                    <p className="text-slate-400 text-lg mb-6">{error || "Booking not found"}</p>
                     <button
                         onClick={() => router.push("/dashboard/bookings")}
-                        className="px-6 py-2 bg-slate-200 text-slate-700 rounded-lg text-sm font-semibold"
+                        className="px-6 py-2 bg-slate-200 text-slate-700 rounded-lg text-lg font-semibold"
                     >
                         Back to Bookings
                     </button>
@@ -121,7 +121,7 @@ export default function BookingDetailPage() {
                 <aside className="w-full lg:w-72 flex flex-col gap-6">
                     <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
                         <h3 className="text-slate-900 font-bold text-lg mb-4">Booking Details</h3>
-                        <p className="text-[#f49d25] font-bold text-sm mb-1 uppercase tracking-wider">Booking ID</p>
+                        <p className="text-[#f49d25] font-bold text-lg mb-1 uppercase tracking-wider">Booking ID</p>
                         <p className="text-slate-500 text-lg font-mono mb-6">{booking.bookingNumber}</p>
                         <nav className="flex flex-col gap-1">
                             <a className="flex items-center gap-3 px-4 py-3 rounded-lg bg-[#f49d25]/10 text-[#f49d25] font-bold" href="#">
@@ -146,8 +146,8 @@ export default function BookingDetailPage() {
                                 <div className="flex items-center gap-3">
                                     <span className="material-symbols-outlined text-red-500">picture_as_pdf</span>
                                     <div className="flex flex-col">
-                                        <span className="text-sm font-semibold text-slate-900">Itinerary</span>
-                                        <span className="text-xs text-slate-500">1.2 MB</span>
+                                        <span className="text-lg font-semibold text-slate-900">Itinerary</span>
+                                        <span className="text-base text-slate-500">1.2 MB</span>
                                     </div>
                                 </div>
                                 <span className="material-symbols-outlined text-slate-400 group-hover:text-[#f49d25] transition-colors">download</span>
@@ -156,8 +156,8 @@ export default function BookingDetailPage() {
                                 <div className="flex items-center gap-3">
                                     <span className="material-symbols-outlined text-red-500">picture_as_pdf</span>
                                     <div className="flex flex-col">
-                                        <span className="text-sm font-semibold text-slate-900">Muhurat Patrika</span>
-                                        <span className="text-xs text-slate-500">2.4 MB</span>
+                                        <span className="text-lg font-semibold text-slate-900">Muhurat Patrika</span>
+                                        <span className="text-base text-slate-500">2.4 MB</span>
                                     </div>
                                 </div>
                                 <span className="material-symbols-outlined text-slate-400 group-hover:text-[#f49d25] transition-colors">download</span>
@@ -175,13 +175,13 @@ export default function BookingDetailPage() {
                             <p className="text-slate-600 text-lg mt-1">{booking.ritual.name} Ceremony</p>
                         </div>
                         {booking.paymentStatus === 'CAPTURED' && (
-                            <div className="bg-green-100 text-green-700 px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2 w-fit">
+                            <div className="bg-green-100 text-green-700 px-4 py-2 rounded-full text-lg font-bold flex items-center gap-2 w-fit">
                                 <span className="material-symbols-outlined text-base">check_circle</span>
                                 Payment Verified
                             </div>
                         )}
                         {booking.paymentStatus === 'PENDING' && (
-                            <div className="bg-orange-100 text-orange-700 px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2 w-fit">
+                            <div className="bg-orange-100 text-orange-700 px-4 py-2 rounded-full text-lg font-bold flex items-center gap-2 w-fit">
                                 <span className="material-symbols-outlined text-base">pending</span>
                                 Payment Pending
                             </div>
@@ -228,7 +228,7 @@ export default function BookingDetailPage() {
                                 </div>
                                 <div>
                                     <h3 className="text-lg font-bold text-blue-900">Looking for the perfect Pandit Ji...</h3>
-                                    <p className="text-blue-700 text-sm">We made a request to top rated pandits in your area. You will be notified once assigned.</p>
+                                    <p className="text-blue-700 text-lg">We made a request to top rated pandits in your area. You will be notified once assigned.</p>
                                 </div>
                             </div>
                         </div>
@@ -251,7 +251,7 @@ export default function BookingDetailPage() {
                                 <div className="flex flex-col pt-1">
                                     <p className="text-slate-900 font-bold text-lg leading-none">Booking Confirmed</p>
                                     <p className="text-slate-500 mt-2 flex items-center gap-1">
-                                        <span className="material-symbols-outlined text-sm">calendar_today</span> {new Date(booking.eventDate).toLocaleDateString()}
+                                        <span className="material-symbols-outlined text-lg">calendar_today</span> {new Date(booking.eventDate).toLocaleDateString()}
                                     </p>
                                 </div>
                             </div>
@@ -265,7 +265,7 @@ export default function BookingDetailPage() {
                                     <div className="flex flex-col pt-1">
                                         <p className="text-slate-900 font-bold text-lg leading-none">Pandit En Route</p>
                                         <p className="text-slate-500 mt-2 flex items-center gap-1">
-                                            <span className="material-symbols-outlined text-sm">schedule</span> On the way
+                                            <span className="material-symbols-outlined text-lg">schedule</span> On the way
                                         </p>
                                     </div>
                                 </div>
@@ -279,9 +279,9 @@ export default function BookingDetailPage() {
                                 <div className="flex flex-col pt-1">
                                     <p className={`font-bold text-lg leading-none ${isConfirmed ? 'text-[#f49d25]' : 'text-slate-400'}`}>{booking.ritual.name} Muhurat</p>
                                     <p className="text-slate-500 mt-2 flex items-center gap-1">
-                                        <span className="material-symbols-outlined text-sm">calendar_today</span> {new Date(booking.eventDate).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}
+                                        <span className="material-symbols-outlined text-lg">calendar_today</span> {new Date(booking.eventDate).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}
                                     </p>
-                                    <p className="text-slate-400 text-sm mt-1">Location: {booking.venueCity}</p>
+                                    <p className="text-slate-400 text-lg mt-1">Location: {booking.venueCity}</p>
                                 </div>
                             </div>
                         </div>
@@ -295,7 +295,7 @@ export default function BookingDetailPage() {
                                 <span className="material-symbols-outlined">my_location</span>
                             </div>
                             <h4 className="text-slate-900 font-bold mb-1">Track Pandit</h4>
-                            <p className="text-slate-500 text-sm">Real-time GPS tracking</p>
+                            <p className="text-slate-500 text-lg">Real-time GPS tracking</p>
                         </Link>
                         {/* Chat with Pandit */}
                         <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow group cursor-pointer">
@@ -303,7 +303,7 @@ export default function BookingDetailPage() {
                                 <span className="material-symbols-outlined">forum</span>
                             </div>
                             <h4 className="text-slate-900 font-bold mb-1">Chat with Pandit</h4>
-                            <p className="text-slate-500 text-sm">Discuss ritual details</p>
+                            <p className="text-slate-500 text-lg">Discuss ritual details</p>
                         </div>
                         {/* View Samagri List */}
                         <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow group cursor-pointer">
@@ -311,7 +311,7 @@ export default function BookingDetailPage() {
                                 <span className="material-symbols-outlined">inventory_2</span>
                             </div>
                             <h4 className="text-slate-900 font-bold mb-1">View Samagri List</h4>
-                            <p className="text-slate-500 text-sm">Required items checklist</p>
+                            <p className="text-slate-500 text-lg">Required items checklist</p>
                         </div>
                         {/* Support */}
                         <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow group cursor-pointer">
@@ -319,7 +319,7 @@ export default function BookingDetailPage() {
                                 <span className="material-symbols-outlined">support_agent</span>
                             </div>
                             <h4 className="text-slate-900 font-bold mb-1">Support</h4>
-                            <p className="text-slate-500 text-sm">24/7 Concierge help</p>
+                            <p className="text-slate-500 text-lg">24/7 Concierge help</p>
                         </div>
                     </div>
                 </main>

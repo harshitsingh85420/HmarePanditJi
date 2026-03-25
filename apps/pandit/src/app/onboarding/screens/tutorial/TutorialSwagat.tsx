@@ -4,13 +4,14 @@ import { useSarvamVoiceFlow } from '@/lib/hooks/useSarvamVoiceFlow';
 import { TUTORIAL_SWAGAT } from '@/lib/voice-scripts';
 import TutorialShell from './TutorialShell';
 import { TUTORIAL_TRANSLATIONS, getTutorialLang } from '@/lib/tutorial-translations';
+import type { SupportedLanguage } from '@/lib/onboarding-store';
 
 interface Props {
   currentDot: number;
   onNext: () => void;
   onBack: () => void;
   onSkip: () => void;
-  language?: string;
+  language?: SupportedLanguage;
   onLanguageChange?: () => void;
 }
 
@@ -20,7 +21,7 @@ export default function TutorialSwagat({ currentDot, onNext, onBack, onSkip, lan
   const t = TUTORIAL_TRANSLATIONS[lang].screens.S01;
 
   const { isListening } = useSarvamVoiceFlow({
-    language: language as any,
+    language,
     script: TUTORIAL_SWAGAT.scripts.main.hindi,
     autoListen: true,
     listenTimeoutMs: 12000,
@@ -69,22 +70,22 @@ export default function TutorialSwagat({ currentDot, onNext, onBack, onSkip, lan
 
       {/* Greeting Text — from translations */}
       <div className="text-center space-y-1 mb-6">
-        <h1 className="text-[40px] font-bold leading-tight text-vedic-brown">{t.greeting}</h1>
+        <h1 className="text-[40px] font-bold leading-tight text-text-primary">{t.greeting}</h1>
         <h2 className="text-[40px] font-bold text-primary leading-tight">{t.welcome}</h2>
-        <p className="text-[22px] text-vedic-brown-2 font-normal mt-2">{t.subtitle}</p>
+        <p className="text-[22px] text-text-primary-2 font-normal mt-2">{t.subtitle}</p>
       </div>
 
       {/* Mool Mantra — from translations */}
       <div className="flex flex-col items-center text-center mb-6">
-        <div className="w-20 h-[1px] bg-vedic-border mb-4" />
-        <p className="text-[18px] italic text-vedic-gold leading-relaxed">
+        <div className="w-20 h-[1px] bg-surface-dim mb-4" />
+        <p className="text-[18px] italic text-saffron leading-relaxed">
           {t.moolMantra1}<br />{t.moolMantra2}
         </p>
       </div>
 
       {/* Direct Skip Link — from translations */}
       <div className="text-center mt-2">
-        <button onClick={onSkip} className="text-vedic-gold text-[16px] underline decoration-1 underline-offset-4 active:opacity-50">
+        <button onClick={onSkip} className="text-saffron text-[16px] underline decoration-1 underline-offset-4 active:opacity-50">
           {t.cta}
         </button>
       </div>

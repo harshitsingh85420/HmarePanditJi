@@ -39,8 +39,9 @@ export function Badge({
   };
 
   const sizes: Record<string, string> = {
-    sm: "text-[10px] px-2 py-0.5",
-    md: "text-xs px-2.5 py-1",
+    // ACC-010 FIX: Larger badge text for elderly users (minimum readable size)
+    sm: "text-[13px] px-3 py-1",
+    md: "text-base px-4 py-1.5",
   };
 
   return (

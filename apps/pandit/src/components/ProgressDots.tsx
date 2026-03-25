@@ -21,11 +21,11 @@ export default function ProgressDots({ total, current, onDotClick }: ProgressDot
               'rounded-full transition-all duration-300',
               isCurrent
                 // P1 FIX: Increased from 12px to 16px for elderly visibility
-                ? 'w-4 h-4 bg-primary ring-2 ring-primary/25 ring-offset-1'
+                ? 'w-4 h-4 bg-saffron ring-2 ring-saffron/25 ring-offset-1'
                 // P1 FIX: Increased from 10px to 14px for elderly visibility
                 : isCompleted
-                  ? 'w-[14px] h-[14px] bg-primary cursor-pointer'
-                  : 'w-[14px] h-[14px] bg-vedic-border cursor-default',
+                  ? 'w-[14px] h-[14px] bg-saffron cursor-pointer'
+                  : 'w-[14px] h-[14px] bg-surface-dim cursor-default',
             ].join(' ')}
             aria-label={`Step ${dotNum}`}
             disabled={!isCompleted}

@@ -20,19 +20,19 @@ export default function NRIBookingPage() {
                             </div>
                             <div className="hidden md:flex items-center gap-6">
                                 <a
-                                    className="text-[#1a2b4b]/70 dark:text-white/70 hover:text-[#f29e0d] text-sm font-semibold transition-colors"
+                                    className="text-[#1a2b4b]/70 dark:text-white/70 hover:text-[#f29e0d] text-lg font-semibold transition-colors"
                                     href="#"
                                 >
                                     Ceremonies
                                 </a>
                                 <a
-                                    className="text-[#1a2b4b]/70 dark:text-white/70 hover:text-[#f29e0d] text-sm font-semibold transition-colors"
+                                    className="text-[#1a2b4b]/70 dark:text-white/70 hover:text-[#f29e0d] text-lg font-semibold transition-colors"
                                     href="#"
                                 >
                                     Muhurat Finders
                                 </a>
                                 <a
-                                    className="text-[#1a2b4b]/70 dark:text-white/70 hover:text-[#f29e0d] text-sm font-semibold transition-colors"
+                                    className="text-[#1a2b4b]/70 dark:text-white/70 hover:text-[#f29e0d] text-lg font-semibold transition-colors"
                                     href="#"
                                 >
                                     Global Logistics
@@ -41,23 +41,23 @@ export default function NRIBookingPage() {
                         </div>
                         <div className="flex items-center gap-4">
                             <div className="flex bg-[#1a2b4b]/5 dark:bg-white/10 p-1 rounded-lg">
-                                <button className="px-3 py-1.5 text-xs font-bold rounded-md bg-white dark:bg-[#1a2b4b] shadow-sm text-[#1a2b4b] dark:text-white">
+                                <button className="px-5 py-3.5 text-base font-bold rounded-md bg-white dark:bg-[#1a2b4b] shadow-sm text-[#1a2b4b] dark:text-white">
                                     USD
                                 </button>
-                                <button className="px-3 py-1.5 text-xs font-bold text-[#1a2b4b]/60 dark:text-white/60">
+                                <button className="px-5 py-3.5 text-base font-bold text-[#1a2b4b]/60 dark:text-white/60">
                                     GBP
                                 </button>
-                                <button className="px-3 py-1.5 text-xs font-bold text-[#1a2b4b]/60 dark:text-white/60">
+                                <button className="px-5 py-3.5 text-base font-bold text-[#1a2b4b]/60 dark:text-white/60">
                                     INR
                                 </button>
                             </div>
-                            <button className="flex items-center justify-center rounded-lg h-10 px-4 bg-[#f29e0d] text-[#1a2b4b] text-sm font-bold shadow-md hover:bg-[#f29e0d]/90 transition-all">
+                            <button className="flex items-center justify-center rounded-lg h-14 px-4 bg-[#f29e0d] text-[#1a2b4b] text-lg font-bold shadow-md hover:bg-[#f29e0d]/90 transition-all">
                                 <span className="material-symbols-outlined mr-2">
                                     public
                                 </span>
                                 International Booking
                             </button>
-                            <button className="flex items-center justify-center rounded-lg h-10 w-10 bg-[#1a2b4b]/5 dark:bg-white/10 text-[#1a2b4b] dark:text-white">
+                            <button className="flex items-center justify-center rounded-lg h-14 w-14 bg-[#1a2b4b]/5 dark:bg-white/10 text-[#1a2b4b] dark:text-white">
                                 <span className="material-symbols-outlined">
                                     account_circle
                                 </span>
@@ -70,7 +70,7 @@ export default function NRIBookingPage() {
                             {/* Hero Section for NRI */}
                             <div className="mb-10 p-8 rounded-2xl bg-gradient-to-r from-[#1a2b4b] to-[#1a2b4b]/80 text-white relative overflow-hidden">
                                 <div className="relative z-10 max-w-2xl">
-                                    <span className="inline-block px-3 py-1 bg-[#f29e0d]/20 text-[#f29e0d] border border-[#f29e0d]/30 rounded-full text-xs font-bold uppercase tracking-wider mb-4">
+                                    <span className="inline-block px-5 py-3 bg-[#f29e0d]/20 text-[#f29e0d] border border-[#f29e0d]/30 rounded-full text-base font-bold uppercase tracking-wider mb-4">
                                         Exclusively for Global Families
                                     </span>
                                     <h1 className="text-4xl md:text-5xl font-black leading-tight tracking-tight mb-4">
@@ -84,7 +84,7 @@ export default function NRIBookingPage() {
                                             <span className="material-symbols-outlined text-[#f29e0d]">
                                                 currency_exchange
                                             </span>
-                                            <span className="text-sm font-medium">
+                                            <span className="text-lg font-medium">
                                                 Forex Payments Supported
                                             </span>
                                         </div>
@@ -92,7 +92,7 @@ export default function NRIBookingPage() {
                                             <span className="material-symbols-outlined text-[#f29e0d]">
                                                 videocam
                                             </span>
-                                            <span className="text-sm font-medium">
+                                            <span className="text-lg font-medium">
                                                 Live 4K HDR Streaming Included
                                             </span>
                                         </div>
@@ -119,7 +119,7 @@ export default function NRIBookingPage() {
                                             </span>
                                             Smart Muhurat Timing
                                         </h3>
-                                        <button className="text-[#f29e0d] text-sm font-bold flex items-center">
+                                        <button className="text-[#f29e0d] text-lg font-bold flex items-center">
                                             Change Date{" "}
                                             <span className="material-symbols-outlined ml-1">
                                                 calendar_month
@@ -128,24 +128,24 @@ export default function NRIBookingPage() {
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div className="p-6 rounded-xl bg-[#f8f7f5] dark:bg-[#221b10] border border-[#1a2b4b]/5">
-                                            <p className="text-[#1a2b4b]/50 dark:text-white/50 text-xs font-bold uppercase mb-1">
+                                            <p className="text-[#1a2b4b]/50 dark:text-white/50 text-base font-bold uppercase mb-1">
                                                 Standard Time (IST)
                                             </p>
                                             <p className="text-3xl font-black text-[#1a2b4b] dark:text-white">
                                                 10:00 AM
                                             </p>
-                                            <p className="text-sm font-medium text-[#1a2b4b]/60 dark:text-white/60">
+                                            <p className="text-lg font-medium text-[#1a2b4b]/60 dark:text-white/60">
                                                 New Delhi, India
                                             </p>
                                         </div>
                                         <div className="p-6 rounded-xl bg-[#f29e0d]/10 border border-[#f29e0d]/20">
-                                            <p className="text-[#f29e0d] text-xs font-bold uppercase mb-1">
+                                            <p className="text-[#f29e0d] text-base font-bold uppercase mb-1">
                                                 Your Local Time (GMT)
                                             </p>
                                             <p className="text-3xl font-black text-[#1a2b4b] dark:text-white">
                                                 04:30 AM
                                             </p>
-                                            <p className="text-sm font-medium text-[#1a2b4b]/60 dark:text-white/60">
+                                            <p className="text-lg font-medium text-[#1a2b4b]/60 dark:text-white/60">
                                                 London, United Kingdom
                                             </p>
                                         </div>
@@ -154,7 +154,7 @@ export default function NRIBookingPage() {
                                         <span className="material-symbols-outlined text-yellow-600">
                                             info
                                         </span>
-                                        <p className="text-sm text-yellow-800 dark:text-yellow-200 leading-snug">
+                                        <p className="text-lg text-yellow-800 dark:text-yellow-200 leading-snug">
                                             We will automatically send calendar invites with localized meeting links to all family members globally.
                                         </p>
                                     </div>
@@ -170,7 +170,7 @@ export default function NRIBookingPage() {
                                     </h3>
                                     <div className="space-y-6">
                                         <div className="flex flex-col gap-3">
-                                            <label className="text-sm font-bold text-[#1a2b4b]/70 dark:text-white/70">
+                                            <label className="text-lg font-bold text-[#1a2b4b]/70 dark:text-white/70">
                                                 International Flight Booking
                                             </label>
                                             <div className="flex items-center justify-between p-3 rounded-lg border border-[#1a2b4b]/10 dark:border-white/10">
@@ -178,7 +178,7 @@ export default function NRIBookingPage() {
                                                     <span className="material-symbols-outlined text-[#1a2b4b]/50">
                                                         luggage
                                                     </span>
-                                                    <span className="text-sm font-medium">
+                                                    <span className="text-lg font-medium">
                                                         Business Class Req.
                                                     </span>
                                                 </div>
@@ -190,20 +190,20 @@ export default function NRIBookingPage() {
                                             </div>
                                         </div>
                                         <div className="flex flex-col gap-3">
-                                            <label className="text-sm font-bold text-[#1a2b4b]/70 dark:text-white/70">
+                                            <label className="text-lg font-bold text-[#1a2b4b]/70 dark:text-white/70">
                                                 Visa Processing
                                             </label>
                                             <div className="p-4 bg-[#1a2b4b]/5 dark:bg-white/5 rounded-lg border-l-4 border-[#f29e0d]">
-                                                <p className="text-xs font-bold mb-1">
+                                                <p className="text-base font-bold mb-1">
                                                     Visa Status: Required
                                                 </p>
-                                                <p className="text-xs text-[#1a2b4b]/60 dark:text-white/60">
+                                                <p className="text-base text-[#1a2b4b]/60 dark:text-white/60">
                                                     Express sponsorship assistance will be
                                                     added to your invoice.
                                                 </p>
                                             </div>
                                         </div>
-                                        <button className="w-full py-3 bg-[#1a2b4b] text-white dark:bg-white dark:text-[#1a2b4b] rounded-xl font-bold text-sm shadow-lg">
+                                        <button className="w-full py-3 bg-[#1a2b4b] text-white dark:bg-white dark:text-[#1a2b4b] rounded-xl font-bold text-lg shadow-lg">
                                             Add Travel Package
                                         </button>
                                     </div>
@@ -223,38 +223,38 @@ export default function NRIBookingPage() {
                                     </div>
                                     <div className="space-y-4">
                                         <div className="flex flex-col gap-1.5">
-                                            <label className="text-xs font-bold text-[#1a2b4b]/50 dark:text-white/50 uppercase tracking-wider">
+                                            <label className="text-base font-bold text-[#1a2b4b]/50 dark:text-white/50 uppercase tracking-wider">
                                                 Local Point of Contact
                                             </label>
                                             <input
-                                                className="w-full h-12 bg-[#f8f7f5] dark:bg-[#221b10] border-none rounded-xl focus:ring-2 focus:ring-[#f29e0d] text-sm"
+                                                className="w-full h-12 bg-[#f8f7f5] dark:bg-[#221b10] border-none rounded-xl focus:ring-2 focus:ring-[#f29e0d] text-lg"
                                                 placeholder="Full Name in India"
                                                 type="text"
                                             />
                                         </div>
                                         <div className="grid grid-cols-2 gap-4">
                                             <div className="flex flex-col gap-1.5">
-                                                <label className="text-xs font-bold text-[#1a2b4b]/50 dark:text-white/50 uppercase tracking-wider">
+                                                <label className="text-base font-bold text-[#1a2b4b]/50 dark:text-white/50 uppercase tracking-wider">
                                                     Contact Number
                                                 </label>
                                                 <input
-                                                    className="w-full h-12 bg-[#f8f7f5] dark:bg-[#221b10] border-none rounded-xl focus:ring-2 focus:ring-[#f29e0d] text-sm"
+                                                    className="w-full h-12 bg-[#f8f7f5] dark:bg-[#221b10] border-none rounded-xl focus:ring-2 focus:ring-[#f29e0d] text-lg"
                                                     placeholder="+91 00000 00000"
                                                     type="tel"
                                                 />
                                             </div>
                                             <div className="flex flex-col gap-1.5">
-                                                <label className="text-xs font-bold text-[#1a2b4b]/50 dark:text-white/50 uppercase tracking-wider">
+                                                <label className="text-base font-bold text-[#1a2b4b]/50 dark:text-white/50 uppercase tracking-wider">
                                                     Relationship
                                                 </label>
-                                                <select className="w-full h-12 bg-[#f8f7f5] dark:bg-[#221b10] border-none rounded-xl focus:ring-2 focus:ring-[#f29e0d] text-sm">
+                                                <select className="w-full h-12 bg-[#f8f7f5] dark:bg-[#221b10] border-none rounded-xl focus:ring-2 focus:ring-[#f29e0d] text-lg">
                                                     <option>Brother</option>
                                                     <option>Father</option>
                                                     <option>Local Organizer</option>
                                                 </select>
                                             </div>
                                         </div>
-                                        <button className="w-full py-2 border-2 border-dashed border-[#1a2b4b]/10 dark:border-white/10 rounded-xl text-sm font-bold text-[#1a2b4b]/40 dark:text-white/40 flex items-center justify-center gap-2 hover:border-[#f29e0d]/50 hover:text-[#f29e0d] transition-all">
+                                        <button className="w-full py-2 border-2 border-dashed border-[#1a2b4b]/10 dark:border-white/10 rounded-xl text-lg font-bold text-[#1a2b4b]/40 dark:text-white/40 flex items-center justify-center gap-2 hover:border-[#f29e0d]/50 hover:text-[#f29e0d] transition-all">
                                             <span className="material-symbols-outlined">
                                                 add_circle
                                             </span>{" "}
@@ -273,19 +273,19 @@ export default function NRIBookingPage() {
                                             Premium Summary
                                         </h3>
                                         <div className="space-y-3">
-                                            <div className="flex justify-between text-sm">
+                                            <div className="flex justify-between text-lg">
                                                 <span className="text-[#1a2b4b]/60 dark:text-white/60">
                                                     Global Service Fee
                                                 </span>
                                                 <span className="font-bold">$849.00</span>
                                             </div>
-                                            <div className="flex justify-between text-sm">
+                                            <div className="flex justify-between text-lg">
                                                 <span className="text-[#1a2b4b]/60 dark:text-white/60">
                                                     Travel &amp; Visa Mgmt
                                                 </span>
                                                 <span className="font-bold">$220.00</span>
                                             </div>
-                                            <div className="flex justify-between text-sm">
+                                            <div className="flex justify-between text-lg">
                                                 <span className="text-[#1a2b4b]/60 dark:text-white/60">
                                                     4K Streaming Setup
                                                 </span>
@@ -296,7 +296,7 @@ export default function NRIBookingPage() {
                                             <div className="h-px bg-[#1a2b4b]/10 dark:bg-white/10 my-4"></div>
                                             <div className="flex justify-between items-end">
                                                 <div>
-                                                    <p className="text-xs font-bold text-[#1a2b4b]/50 dark:text-white/50 uppercase">
+                                                    <p className="text-base font-bold text-[#1a2b4b]/50 dark:text-white/50 uppercase">
                                                         Total Booking Amount
                                                     </p>
                                                     <p className="text-3xl font-black text-[#1a2b4b] dark:text-white">
@@ -323,7 +323,7 @@ export default function NRIBookingPage() {
                                     <span className="material-symbols-outlined">
                                         security
                                     </span>
-                                    <span className="text-sm font-bold">
+                                    <span className="text-lg font-bold">
                                         SSL Secure Checkout
                                     </span>
                                 </div>
@@ -331,7 +331,7 @@ export default function NRIBookingPage() {
                                     <span className="material-symbols-outlined">
                                         verified_user
                                     </span>
-                                    <span className="text-sm font-bold">
+                                    <span className="text-lg font-bold">
                                         Certified Pandits Only
                                     </span>
                                 </div>
@@ -339,7 +339,7 @@ export default function NRIBookingPage() {
                                     <span className="material-symbols-outlined">
                                         sentiment_very_satisfied
                                     </span>
-                                    <span className="text-sm font-bold">
+                                    <span className="text-lg font-bold">
                                         5000+ Global Families
                                     </span>
                                 </div>
@@ -347,7 +347,7 @@ export default function NRIBookingPage() {
                                     <span className="material-symbols-outlined">
                                         language
                                     </span>
-                                    <span className="text-sm font-bold">
+                                    <span className="text-lg font-bold">
                                         Multi-lingual Support
                                     </span>
                                 </div>
@@ -361,26 +361,26 @@ export default function NRIBookingPage() {
                                 <span className="material-symbols-outlined text-[#f29e0d]">
                                     temple_hindu
                                 </span>
-                                <p className="text-xs font-medium">
+                                <p className="text-base font-medium">
                                     © 2024 HmarePanditJi International Services. All rights
                                     reserved.
                                 </p>
                             </div>
                             <div className="flex gap-6">
                                 <a
-                                    className="text-xs font-bold text-[#1a2b4b]/60 dark:text-white/60"
+                                    className="text-base font-bold text-[#1a2b4b]/60 dark:text-white/60"
                                     href="#"
                                 >
                                     Privacy Policy
                                 </a>
                                 <a
-                                    className="text-xs font-bold text-[#1a2b4b]/60 dark:text-white/60"
+                                    className="text-base font-bold text-[#1a2b4b]/60 dark:text-white/60"
                                     href="#"
                                 >
                                     NRI Support Center
                                 </a>
                                 <a
-                                    className="text-xs font-bold text-[#1a2b4b]/60 dark:text-white/60"
+                                    className="text-base font-bold text-[#1a2b4b]/60 dark:text-white/60"
                                     href="#"
                                 >
                                     Refund Policy

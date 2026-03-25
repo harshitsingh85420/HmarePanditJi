@@ -29,7 +29,7 @@ export default function SearchPage({ searchParams }: SearchPageProps) {
     <Suspense
       fallback={
         <div className="min-h-screen bg-[#f8f7f5] flex items-center justify-center">
-          <span className="text-slate-400 text-sm">Loading…</span>
+          <span className="text-slate-400 text-lg">Loading…</span>
         </div>
       }
     >

@@ -85,18 +85,18 @@ export function LanguageChangeWidget({ currentLanguage, onLanguageChange }: Lang
         animate={{ scale: 1 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-24 right-4 z-50 w-14 h-14 bg-saffron rounded-full shadow-btn-saffron flex items-center justify-center gap-2 border-2 border-white"
-        aria-label="Change language"
+        className="fixed bottom-24 right-24 z-50 min-h-[72px] min-w-[72px] bg-saffron rounded-full shadow-btn-saffron flex items-center justify-center gap-2 border-2 border-white px-4 focus:ring-2 focus:ring-saffron focus:outline-none"
+        aria-label="भाषा बदलें / Change Language"
       >
-        <span className="material-symbols-outlined text-white text-2xl">
-          {isOpen ? 'close' : 'language'}
+        <span className="text-[20px] font-bold text-white font-devanagari">
+          {isOpen ? 'बंद करें' : 'भाषा'}
         </span>
       </motion.button>
 
       {/* Language Badge */}
-      <div className="fixed bottom-24 right-20 z-50 bg-surface-card rounded-full px-3 py-1.5 shadow-card flex items-center gap-2 border-2 border-saffron/30">
-        <span className="text-lg">{currentLang?.flag}</span>
-        <span className="text-sm font-semibold text-text-primary font-devanagari">
+      <div className="fixed bottom-24 right-4 z-50 bg-surface-card rounded-full px-5 py-3 shadow-card flex items-center gap-2 border-2 border-saffron/30">
+        <span className="text-[24px]">{currentLang?.flag}</span>
+        <span className="text-[20px] font-bold text-text-primary font-devanagari">
           {currentLanguage === 'Hindi' ? 'हिंदी' : currentLanguage}
         </span>
       </div>
@@ -124,17 +124,17 @@ export function LanguageChangeWidget({ currentLanguage, onLanguageChange }: Lang
             >
               {/* Drag Handle & Header */}
               <div className="pt-3 pb-2 flex flex-col items-center">
-                <div className="w-12 h-1.5 bg-surface-dim rounded-full mb-4" data-purpose="drag-handle" />
+                <div className="w-16 h-2 bg-surface-dim rounded-full mb-4" data-purpose="drag-handle" />
                 <div className="w-full px-6 flex justify-between items-center">
-                  <h1 className="text-xl font-bold text-text-primary font-devanagari">
+                  <h1 className="text-[22px] font-bold text-text-primary font-devanagari">
                     भाषा बदलें <span className="text-text-placeholder font-normal">/ Change Language</span>
                   </h1>
                   <button
-                    className="p-2 text-text-placeholder hover:text-text-secondary transition-colors"
+                    className="min-h-[56px] min-w-[56px] p-2 text-text-placeholder hover:text-text-secondary transition-colors rounded-full hover:bg-surface-muted"
                     onClick={() => setIsOpen(false)}
                     aria-label="Close"
                   >
-                    <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                   </button>
@@ -150,7 +150,7 @@ export function LanguageChangeWidget({ currentLanguage, onLanguageChange }: Lang
                     </svg>
                   </span>
                   <input
-                    className="w-full pl-10 pr-4 py-2.5 bg-surface-muted border-none rounded-xl text-sm focus:ring-2 focus:ring-saffron focus:bg-surface-card transition-all font-devanagari"
+                    className="w-full pl-10 pr-4 py-4 min-h-[56px] bg-surface-muted border-none rounded-xl text-[18px] focus:ring-2 focus:ring-saffron focus:bg-surface-card transition-all font-devanagari"
                     placeholder="भाषा खोजें / Search Language..."
                     type="text"
                   />
@@ -161,17 +161,17 @@ export function LanguageChangeWidget({ currentLanguage, onLanguageChange }: Lang
               <div className="flex-grow overflow-y-auto px-6 py-4">
                 {/* Current Selection */}
                 <div className="mb-6">
-                  <h2 className="text-xs uppercase tracking-wider text-text-placeholder font-semibold mb-3">
+                  <h2 className="text-[18px] font-bold text-text-placeholder mb-3">
                     वर्तमान भाषा / Current
                   </h2>
                   <div className="flex items-center justify-between p-4 bg-saffron-light rounded-2xl border border-saffron/20">
                     <div className="flex items-center gap-3">
-                      <span className="text-2xl">{currentLang?.flag}</span>
+                      <span className="text-[28px]">{currentLang?.flag}</span>
                       <div>
                         <p className="font-bold text-text-primary leading-tight font-devanagari">
                           {currentLang?.native}
                         </p>
-                        <p className="text-xs text-text-secondary">{currentLanguage}</p>
+                        <p className="text-[16px] text-text-secondary">{currentLanguage}</p>
                       </div>
                     </div>
                     <div className="bg-saffron text-white rounded-full p-1">
@@ -184,7 +184,7 @@ export function LanguageChangeWidget({ currentLanguage, onLanguageChange }: Lang
 
                 {/* Language Grid */}
                 <div className="mb-8">
-                  <h2 className="text-xs uppercase tracking-wider text-text-placeholder font-semibold mb-3">
+                  <h2 className="text-[18px] font-bold text-text-placeholder mb-3">
                     अन्य भाषाएं / Other Languages
                   </h2>
                   <div className="grid grid-cols-2 gap-3">
@@ -193,14 +193,14 @@ export function LanguageChangeWidget({ currentLanguage, onLanguageChange }: Lang
                         key={lang.name}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => handleLanguageSelect(lang.name)}
-                        className="flex items-center gap-3 p-3 border border-border-default rounded-xl hover:bg-saffron-light/50 text-left transition-colors"
+                        className="flex items-center gap-3 p-4 min-h-[72px] border border-border-default rounded-xl hover:bg-saffron-light/50 text-left transition-colors"
                       >
-                        <div className="w-8 h-8 rounded-full bg-saffron-light flex items-center justify-center text-sm font-bold text-saffron">
+                        <div className="min-h-[56px] min-w-[56px] rounded-full bg-saffron-light flex items-center justify-center text-[22px] font-bold text-saffron">
                           {lang.initial}
                         </div>
                         <div>
-                          <p className="font-semibold text-text-primary text-sm font-devanagari">{lang.native}</p>
-                          <p className="text-[10px] text-text-secondary">{lang.name}</p>
+                          <p className="font-bold text-text-primary text-[20px] font-devanagari">{lang.native}</p>
+                          <p className="text-[18px] text-text-secondary">{lang.name}</p>
                         </div>
                       </motion.button>
                     ))}

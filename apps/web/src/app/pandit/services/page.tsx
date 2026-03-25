@@ -16,50 +16,50 @@ export default function ServicesPage() {
                     </div>
                     <div>
                         <h1 className="text-lg font-bold leading-none">HmarePanditJi</h1>
-                        <p className="text-xs text-slate-500 dark:text-zinc-400">Pandit Dashboard</p>
+                        <p className="text-base text-slate-500 dark:text-zinc-400">Pandit Dashboard</p>
                     </div>
                 </div>
-                <nav className="flex-1 px-3 space-y-1">
+                <nav className="flex-1 px-5 space-y-1">
                     <Link
                         href="/pandit/dashboard"
-                        className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors"
+                        className="flex items-center gap-3 px-5 py-2.5 rounded-lg text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors"
                     >
                         <span className="material-symbols-outlined text-[20px]">dashboard</span>
-                        <span className="text-sm font-medium">Overview</span>
+                        <span className="text-lg font-medium">Overview</span>
                     </Link>
                     <Link
                         href="/pandit/services"
-                        className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-[#ec5b13]/10 border-l-4 border-[#ec5b13] text-[#ec5b13] transition-colors"
+                        className="flex items-center gap-3 px-5 py-2.5 rounded-lg bg-[#ec5b13]/10 border-l-4 border-[#ec5b13] text-[#ec5b13] transition-colors"
                     >
                         <span className="material-symbols-outlined text-[20px]">inventory_2</span>
-                        <span className="text-sm font-medium">My Packages</span>
+                        <span className="text-lg font-medium">My Packages</span>
                     </Link>
                     <Link
                         href="/pandit/analytics"
-                        className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors"
+                        className="flex items-center gap-3 px-5 py-2.5 rounded-lg text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors"
                     >
                         <span className="material-symbols-outlined text-[20px]">
                             notifications_active
                         </span>
-                        <span className="text-sm font-medium">Price Alerts</span>
+                        <span className="text-lg font-medium">Price Alerts</span>
                     </Link>
                     <Link
                         href="#"
-                        className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors"
+                        className="flex items-center gap-3 px-5 py-2.5 rounded-lg text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors"
                     >
                         <span className="material-symbols-outlined text-[20px]">public</span>
-                        <span className="text-sm font-medium">Regional Settings</span>
+                        <span className="text-lg font-medium">Regional Settings</span>
                     </Link>
                     <Link
                         href="#"
-                        className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors"
+                        className="flex items-center gap-3 px-5 py-2.5 rounded-lg text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors"
                     >
                         <span className="material-symbols-outlined text-[20px]">help</span>
-                        <span className="text-sm font-medium">Support</span>
+                        <span className="text-lg font-medium">Support</span>
                     </Link>
                 </nav>
                 <div className="p-4 border-t border-slate-200 dark:border-zinc-800">
-                    <button className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-[#ec5b13] text-white rounded-xl font-semibold text-sm hover:bg-[#ec5b13]/90 shadow-lg shadow-[#ec5b13]/20 transition-all">
+                    <button className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-[#ec5b13] text-white rounded-xl font-semibold text-lg hover:bg-[#ec5b13]/90 shadow-lg shadow-[#ec5b13]/20 transition-all">
                         <span className="material-symbols-outlined text-[20px]">add_circle</span>
                         Add New Package
                     </button>
@@ -71,7 +71,7 @@ export default function ServicesPage() {
                 {/* Header */}
                 <header className="sticky top-0 z-10 bg-white/80 dark:bg-[#18181b]/80 backdrop-blur-md border-b border-slate-200 dark:border-zinc-800 px-8 py-4 flex items-center justify-between">
                     <div className="flex flex-col">
-                        <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-zinc-400 mb-1">
+                        <div className="flex items-center gap-2 text-base text-slate-500 dark:text-zinc-400 mb-1">
                             <span>My Packages</span>
                             <span className="material-symbols-outlined text-[14px]">
                                 chevron_right
@@ -86,7 +86,7 @@ export default function ServicesPage() {
                                 search
                             </span>
                             <input
-                                className="pl-10 pr-4 py-2 bg-slate-100 dark:bg-zinc-800 border-none rounded-xl text-sm focus:ring-2 focus:ring-[#ec5b13]/50 w-64 text-slate-900 dark:text-white"
+                                className="pl-10 pr-4 py-2 bg-slate-100 dark:bg-zinc-800 border-none rounded-xl text-lg focus:ring-2 focus:ring-[#ec5b13]/50 w-64 text-slate-900 dark:text-white"
                                 placeholder="Search samagri..."
                                 type="text"
                                 value={searchTerm}
@@ -97,7 +97,7 @@ export default function ServicesPage() {
                             <button className="p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-zinc-800 rounded-lg">
                                 <span className="material-symbols-outlined">settings</span>
                             </button>
-                            <div className="w-10 h-10 rounded-full bg-[#ec5b13]/20 flex items-center justify-center text-[#ec5b13] font-bold overflow-hidden">
+                            <div className="w-14 h-14 rounded-full bg-[#ec5b13]/20 flex items-center justify-center text-[#ec5b13] font-bold overflow-hidden">
                                 <div
                                     className="w-full h-full bg-cover"
                                     style={{
@@ -115,7 +115,7 @@ export default function ServicesPage() {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div className="bg-white dark:bg-[#18181b] p-6 rounded-2xl border border-slate-200 dark:border-zinc-800 shadow-sm">
                             <div className="flex justify-between items-start mb-4">
-                                <p className="text-sm font-medium text-slate-500 dark:text-zinc-400">
+                                <p className="text-lg font-medium text-slate-500 dark:text-zinc-400">
                                     Fixed Package Price
                                 </p>
                                 <span className="bg-[#ec5b13]/10 text-[#ec5b13] p-2 rounded-lg">
@@ -126,7 +126,7 @@ export default function ServicesPage() {
                             </div>
                             <div className="flex items-end gap-3">
                                 <h3 className="text-3xl font-black">₹8,000</h3>
-                                <span className="text-emerald-500 text-sm font-bold flex items-center mb-1">
+                                <span className="text-emerald-500 text-lg font-bold flex items-center mb-1">
                                     <span className="material-symbols-outlined text-[16px]">
                                         trending_up
                                     </span>
@@ -136,7 +136,7 @@ export default function ServicesPage() {
                         </div>
                         <div className="bg-white dark:bg-[#18181b] p-6 rounded-2xl border border-slate-200 dark:border-zinc-800 shadow-sm">
                             <div className="flex justify-between items-start mb-4">
-                                <p className="text-sm font-medium text-slate-500 dark:text-zinc-400">
+                                <p className="text-lg font-medium text-slate-500 dark:text-zinc-400">
                                     Total Samagri Items
                                 </p>
                                 <span className="bg-blue-500/10 text-blue-500 p-2 rounded-lg">
@@ -147,14 +147,14 @@ export default function ServicesPage() {
                             </div>
                             <div className="flex items-end gap-3">
                                 <h3 className="text-3xl font-black">42 Items</h3>
-                                <span className="text-blue-500 text-sm font-medium flex items-center mb-1">
+                                <span className="text-blue-500 text-lg font-medium flex items-center mb-1">
                                     +3 recently added
                                 </span>
                             </div>
                         </div>
                         <div className="bg-[#ec5b13]/5 dark:bg-[#ec5b13]/10 p-6 rounded-2xl border border-[#ec5b13]/20 shadow-sm relative overflow-hidden">
                             <div className="flex justify-between items-start mb-4 relative z-10">
-                                <p className="text-sm font-bold text-[#ec5b13]">
+                                <p className="text-lg font-bold text-[#ec5b13]">
                                     Inventory Alert
                                 </p>
                                 <span className="material-symbols-outlined text-[#ec5b13] text-[24px] animate-pulse">
@@ -165,7 +165,7 @@ export default function ServicesPage() {
                                 <p className="text-slate-700 dark:text-zinc-200 text-lg font-bold">
                                     Ghee prices up 15%
                                 </p>
-                                <p className="text-sm text-slate-600 dark:text-zinc-400 mt-1 italic">
+                                <p className="text-lg text-slate-600 dark:text-zinc-400 mt-1 italic">
                                     Market trend in Delhi NCR region
                                 </p>
                             </div>
@@ -182,18 +182,18 @@ export default function ServicesPage() {
                         <div className="px-6 py-5 border-b border-slate-200 dark:border-zinc-800 flex flex-wrap items-center justify-between gap-4">
                             <div>
                                 <h3 className="text-lg font-bold">Itemized Samagri List</h3>
-                                <p className="text-sm text-slate-500 dark:text-zinc-400">
+                                <p className="text-lg text-slate-500 dark:text-zinc-400">
                                     Manage items and regional specific inclusions
                                 </p>
                             </div>
                             <div className="flex gap-3">
-                                <button className="flex items-center gap-2 px-4 py-2 border border-[#ec5b13] text-[#ec5b13] rounded-xl font-semibold text-sm hover:bg-[#ec5b13] hover:text-white transition-all">
+                                <button className="flex items-center gap-2 px-4 py-2 border border-[#ec5b13] text-[#ec5b13] rounded-xl font-semibold text-lg hover:bg-[#ec5b13] hover:text-white transition-all">
                                     <span className="material-symbols-outlined text-[18px]">
                                         mic
                                     </span>
                                     Add Item (Voice)
                                 </button>
-                                <button className="flex items-center gap-2 px-4 py-2 bg-[#ec5b13] text-white rounded-xl font-semibold text-sm hover:bg-[#ec5b13]/90 transition-all">
+                                <button className="flex items-center gap-2 px-4 py-2 bg-[#ec5b13] text-white rounded-xl font-semibold text-lg hover:bg-[#ec5b13]/90 transition-all">
                                     <span className="material-symbols-outlined text-[18px]">
                                         add
                                     </span>
@@ -205,19 +205,19 @@ export default function ServicesPage() {
                             <table className="w-full text-left border-collapse">
                                 <thead>
                                     <tr className="bg-slate-50 dark:bg-zinc-800/50">
-                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">
+                                        <th className="px-6 py-4 text-base font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">
                                             Samagri Item
                                         </th>
-                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">
+                                        <th className="px-6 py-4 text-base font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">
                                             Quantity
                                         </th>
-                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">
+                                        <th className="px-6 py-4 text-base font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">
                                             Regional Rule
                                         </th>
-                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">
+                                        <th className="px-6 py-4 text-base font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-wider">
                                             Price Impact
                                         </th>
-                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-wider text-right">
+                                        <th className="px-6 py-4 text-base font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-wider text-right">
                                             Actions
                                         </th>
                                     </tr>
@@ -227,7 +227,7 @@ export default function ServicesPage() {
                                     <tr className="hover:bg-slate-50 dark:hover:bg-zinc-800/30 transition-colors group">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-lg bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-orange-600">
+                                                <div className="w-12 h-12 rounded-lg bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-orange-600">
                                                     <span className="material-symbols-outlined text-[20px]">spa</span>
                                                 </div>
                                                 <span className="font-semibold text-slate-900 dark:text-white">
@@ -237,7 +237,7 @@ export default function ServicesPage() {
                                         </td>
                                         <td className="px-6 py-4 font-medium">2 kg</td>
                                         <td className="px-6 py-4">
-                                            <span className="px-2.5 py-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 rounded-lg text-xs font-bold border border-zinc-200 dark:border-zinc-700">
+                                            <span className="px-4.5 py-3 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 rounded-lg text-base font-bold border border-zinc-200 dark:border-zinc-700">
                                                 Universal
                                             </span>
                                         </td>
@@ -265,7 +265,7 @@ export default function ServicesPage() {
                                     <tr className="hover:bg-slate-50 dark:hover:bg-zinc-800/30 transition-colors group">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600">
+                                                <div className="w-12 h-12 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600">
                                                     <span className="material-symbols-outlined text-[20px]">
                                                         gesture
                                                     </span>
@@ -277,7 +277,7 @@ export default function ServicesPage() {
                                         </td>
                                         <td className="px-6 py-4 font-medium">5 Units</td>
                                         <td className="px-6 py-4">
-                                            <span className="px-2.5 py-1 bg-orange-100 dark:bg-orange-900/20 text-[#ec5b13] rounded-lg text-xs font-bold border border-[#ec5b13]/20">
+                                            <span className="px-4.5 py-3 bg-orange-100 dark:bg-orange-900/20 text-[#ec5b13] rounded-lg text-base font-bold border border-[#ec5b13]/20">
                                                 North India Only
                                             </span>
                                         </td>
@@ -303,7 +303,7 @@ export default function ServicesPage() {
                                     <tr className="hover:bg-slate-50 dark:hover:bg-zinc-800/30 transition-colors group">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600">
+                                                <div className="w-12 h-12 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600">
                                                     <span className="material-symbols-outlined text-[20px]">
                                                         water_drop
                                                     </span>
@@ -315,7 +315,7 @@ export default function ServicesPage() {
                                         </td>
                                         <td className="px-6 py-4 font-medium">500 ml</td>
                                         <td className="px-6 py-4">
-                                            <span className="px-2.5 py-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 rounded-lg text-xs font-bold border border-zinc-200 dark:border-zinc-700">
+                                            <span className="px-4.5 py-3 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 rounded-lg text-base font-bold border border-zinc-200 dark:border-zinc-700">
                                                 Universal
                                             </span>
                                         </td>
@@ -341,7 +341,7 @@ export default function ServicesPage() {
                                     <tr className="hover:bg-slate-50 dark:hover:bg-zinc-800/30 transition-colors group">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-lg bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center text-yellow-600">
+                                                <div className="w-12 h-12 rounded-lg bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center text-yellow-600">
                                                     <span className="material-symbols-outlined text-[20px]">
                                                         nutrition
                                                     </span>
@@ -353,7 +353,7 @@ export default function ServicesPage() {
                                         </td>
                                         <td className="px-6 py-4 font-medium">2 grams</td>
                                         <td className="px-6 py-4">
-                                            <span className="px-2.5 py-1 bg-orange-100 dark:bg-orange-900/20 text-[#ec5b13] rounded-lg text-xs font-bold border border-[#ec5b13]/20">
+                                            <span className="px-4.5 py-3 bg-orange-100 dark:bg-orange-900/20 text-[#ec5b13] rounded-lg text-base font-bold border border-[#ec5b13]/20">
                                                 Elite Packages Only
                                             </span>
                                         </td>
@@ -379,7 +379,7 @@ export default function ServicesPage() {
                             </table>
                         </div>
                         <div className="p-4 bg-slate-50 dark:bg-zinc-800/30 border-t border-slate-200 dark:border-zinc-800 text-center">
-                            <button className="text-[#ec5b13] font-bold text-sm hover:underline underline-offset-4">
+                            <button className="text-[#ec5b13] font-bold text-lg hover:underline underline-offset-4">
                                 Load 38 more items
                             </button>
                         </div>
@@ -397,21 +397,21 @@ export default function ServicesPage() {
                             <div className="space-y-4">
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-xs font-bold uppercase text-slate-400 mb-1">
+                                        <label className="block text-base font-bold uppercase text-slate-400 mb-1">
                                             Item Name
                                         </label>
                                         <input
-                                            className="w-full bg-slate-50 dark:bg-zinc-800 border-none rounded-xl py-3 px-4 focus:ring-2 focus:ring-[#ec5b13]/50 text-sm text-slate-900 dark:text-white"
+                                            className="w-full bg-slate-50 dark:bg-zinc-800 border-none rounded-xl py-3 px-4 focus:ring-2 focus:ring-[#ec5b13]/50 text-lg text-slate-900 dark:text-white"
                                             placeholder="e.g. Incense Sticks"
                                             type="text"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-bold uppercase text-slate-400 mb-1">
+                                        <label className="block text-base font-bold uppercase text-slate-400 mb-1">
                                             Quantity
                                         </label>
                                         <input
-                                            className="w-full bg-slate-50 dark:bg-zinc-800 border-none rounded-xl py-3 px-4 focus:ring-2 focus:ring-[#ec5b13]/50 text-sm text-slate-900 dark:text-white"
+                                            className="w-full bg-slate-50 dark:bg-zinc-800 border-none rounded-xl py-3 px-4 focus:ring-2 focus:ring-[#ec5b13]/50 text-lg text-slate-900 dark:text-white"
                                             placeholder="e.g. 2 Packets"
                                             type="text"
                                         />
@@ -429,13 +429,13 @@ export default function ServicesPage() {
                             <h4 className="font-bold text-[#ec5b13] text-lg">
                                 Voice Smart Input
                             </h4>
-                            <p className="text-slate-500 dark:text-zinc-400 text-sm max-w-[280px] mt-1">
+                            <p className="text-slate-500 dark:text-zinc-400 text-lg max-w-[280px] mt-1">
                                 "Add 5 liters of Desi Ghee for North India rituals"
                             </p>
                             <div className="flex gap-1 mt-4">
                                 <div className="w-1 h-4 bg-[#ec5b13] rounded-full animate-bounce"></div>
                                 <div
-                                    className="w-1 h-8 bg-[#ec5b13] rounded-full animate-bounce"
+                                    className="w-1 h-12 bg-[#ec5b13] rounded-full animate-bounce"
                                     style={{ animationDelay: "0.1s" }}
                                 ></div>
                                 <div
@@ -443,7 +443,7 @@ export default function ServicesPage() {
                                     style={{ animationDelay: "0.2s" }}
                                 ></div>
                                 <div
-                                    className="w-1 h-8 bg-[#ec5b13] rounded-full animate-bounce"
+                                    className="w-1 h-12 bg-[#ec5b13] rounded-full animate-bounce"
                                     style={{ animationDelay: "0.3s" }}
                                 ></div>
                                 <div
@@ -461,15 +461,15 @@ export default function ServicesPage() {
                         <span className="material-symbols-outlined text-emerald-500">
                             check_circle
                         </span>
-                        <span className="text-sm font-medium">
+                        <span className="text-lg font-medium">
                             All changes auto-saved to Draft
                         </span>
                     </div>
                     <div className="flex gap-4">
-                        <button className="px-6 py-2.5 border border-slate-200 dark:border-zinc-700 rounded-xl font-bold text-sm hover:bg-slate-50 dark:hover:bg-zinc-800 transition-colors">
+                        <button className="px-6 py-2.5 border border-slate-200 dark:border-zinc-700 rounded-xl font-bold text-lg hover:bg-slate-50 dark:hover:bg-zinc-800 transition-colors">
                             Discard Changes
                         </button>
-                        <button className="px-8 py-2.5 bg-[#ec5b13] text-white rounded-xl font-bold text-sm shadow-lg shadow-[#ec5b13]/30 hover:bg-[#ec5b13]/90 transition-all">
+                        <button className="px-8 py-2.5 bg-[#ec5b13] text-white rounded-xl font-bold text-lg shadow-lg shadow-[#ec5b13]/30 hover:bg-[#ec5b13]/90 transition-all">
                             Publish Updated Package
                         </button>
                     </div>

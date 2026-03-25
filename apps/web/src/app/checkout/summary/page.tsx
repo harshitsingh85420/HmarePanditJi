@@ -26,10 +26,10 @@ export default function BookingSummaryPage() {
                         </p>
                     </div>
                     <div className="text-right">
-                        <p className="text-[#181511] dark:text-white text-sm font-medium">
+                        <p className="text-[#181511] dark:text-white text-lg font-medium">
                             Step 1 of 3: Booking Summary
                         </p>
-                        <p className="text-[#f49d25] text-xs font-bold">Next: Payment</p>
+                        <p className="text-[#f49d25] text-base font-bold">Next: Payment</p>
                     </div>
                 </div>
                 <div className="rounded-full bg-[#e6e1db] dark:bg-[#3d3326] h-2 overflow-hidden">
@@ -52,7 +52,7 @@ export default function BookingSummaryPage() {
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
                             <div className="flex flex-col border-b border-[#f5f3f0] dark:border-[#3d3326] pb-2">
-                                <span className="text-[#8a7960] text-xs uppercase tracking-wider font-semibold">
+                                <span className="text-[#8a7960] text-base uppercase tracking-wider font-semibold">
                                     Event Type
                                 </span>
                                 <span className="text-[#181511] dark:text-white font-medium">
@@ -60,7 +60,7 @@ export default function BookingSummaryPage() {
                                 </span>
                             </div>
                             <div className="flex flex-col border-b border-[#f5f3f0] dark:border-[#3d3326] pb-2">
-                                <span className="text-[#8a7960] text-xs uppercase tracking-wider font-semibold">
+                                <span className="text-[#8a7960] text-base uppercase tracking-wider font-semibold">
                                     Primary Pandit
                                 </span>
                                 <span className="text-[#181511] dark:text-white font-medium">
@@ -68,7 +68,7 @@ export default function BookingSummaryPage() {
                                 </span>
                             </div>
                             <div className="flex flex-col border-b border-[#f5f3f0] dark:border-[#3d3326] pb-2">
-                                <span className="text-[#8a7960] text-xs uppercase tracking-wider font-semibold">
+                                <span className="text-[#8a7960] text-base uppercase tracking-wider font-semibold">
                                     Date &amp; Muhurat
                                 </span>
                                 <span className="text-[#181511] dark:text-white font-medium">
@@ -76,7 +76,7 @@ export default function BookingSummaryPage() {
                                 </span>
                             </div>
                             <div className="flex flex-col border-b border-[#f5f3f0] dark:border-[#3d3326] pb-2">
-                                <span className="text-[#8a7960] text-xs uppercase tracking-wider font-semibold">
+                                <span className="text-[#8a7960] text-base uppercase tracking-wider font-semibold">
                                     Venue
                                 </span>
                                 <span className="text-[#181511] dark:text-white font-medium">
@@ -103,7 +103,7 @@ export default function BookingSummaryPage() {
                                     <p className="text-[#181511] dark:text-white font-semibold">
                                         Pandit Dakshina
                                     </p>
-                                    <p className="text-[#8a7960] text-xs">
+                                    <p className="text-[#8a7960] text-base">
                                         Standard professional fees for main ritual
                                     </p>
                                 </div>
@@ -115,7 +115,7 @@ export default function BookingSummaryPage() {
                                     <p className="text-[#181511] dark:text-white font-semibold">
                                         Samagri Package (Premium)
                                     </p>
-                                    <p className="text-[#8a7960] text-xs">
+                                    <p className="text-[#8a7960] text-base">
                                         A-grade organic herbs, ghee, and curated ritual kit
                                     </p>
                                 </div>
@@ -123,10 +123,10 @@ export default function BookingSummaryPage() {
                             </div>
                             {/* Logistics Breakdown */}
                             <div className="bg-[#f8f7f5] dark:bg-[#32291d] p-4 rounded-lg space-y-3">
-                                <p className="text-xs font-bold text-[#f49d25] uppercase tracking-widest mb-1">
+                                <p className="text-base font-bold text-[#f49d25] uppercase tracking-widest mb-1">
                                     Logistics &amp; Travel
                                 </p>
-                                <div className="flex justify-between text-sm">
+                                <div className="flex justify-between text-lg">
                                     <span className="text-[#8a7960]">
                                         Travel Allowance (Self-Drive: 600km @ ₹12/km)
                                     </span>
@@ -134,7 +134,7 @@ export default function BookingSummaryPage() {
                                         ₹7,200
                                     </span>
                                 </div>
-                                <div className="flex justify-between text-sm">
+                                <div className="flex justify-between text-lg">
                                     <span className="text-[#8a7960]">
                                         Food Allowance (2 Meals)
                                     </span>
@@ -142,7 +142,7 @@ export default function BookingSummaryPage() {
                                         ₹800
                                     </span>
                                 </div>
-                                <div className="flex justify-between text-sm">
+                                <div className="flex justify-between text-lg">
                                     <span className="text-[#8a7960]">
                                         Accommodation (3-Star Nearby)
                                     </span>
@@ -157,7 +157,7 @@ export default function BookingSummaryPage() {
                                     <p className="text-[#181511] dark:text-white font-semibold">
                                         Platform Convenience Fee
                                     </p>
-                                    <p className="text-[#8a7960] text-xs">
+                                    <p className="text-[#8a7960] text-base">
                                         Service &amp; automated logistics handling
                                     </p>
                                 </div>
@@ -184,7 +184,7 @@ export default function BookingSummaryPage() {
                             <div className="p-3 border-2 border-[#f49d25]/20 bg-[#f49d25]/5 rounded-lg flex items-center justify-between gap-3">
                                 <div className="flex-1">
                                     <div className="flex items-center gap-1">
-                                        <p className="text-sm font-bold text-[#181511] dark:text-white">
+                                        <p className="text-lg font-bold text-[#181511] dark:text-white">
                                             Premium Backup
                                         </p>
                                         <span className="text-[10px] bg-[#f49d25] text-white px-1 rounded">
@@ -194,7 +194,7 @@ export default function BookingSummaryPage() {
                                     <p className="text-[11px] text-[#8a7960]">
                                         Guaranteed replacement within 2 hrs if emergency
                                     </p>
-                                    <p className="text-xs font-bold text-[#f49d25] mt-1">
+                                    <p className="text-base font-bold text-[#f49d25] mt-1">
                                         + ₹9,999
                                     </p>
                                 </div>
@@ -213,13 +213,13 @@ export default function BookingSummaryPage() {
                             {/* Muhurat Consultation */}
                             <div className="p-3 border border-[#e6e1db] dark:border-[#3d3326] rounded-lg flex items-center justify-between gap-3">
                                 <div className="flex-1">
-                                    <p className="text-sm font-bold text-[#181511] dark:text-white">
+                                    <p className="text-lg font-bold text-[#181511] dark:text-white">
                                         Muhurat Consultation
                                     </p>
                                     <p className="text-[11px] text-[#8a7960]">
                                         15-min call for optimal timing adjustment
                                     </p>
-                                    <p className="text-xs font-bold text-[#f49d25] mt-1">
+                                    <p className="text-base font-bold text-[#f49d25] mt-1">
                                         + ₹1,100
                                     </p>
                                 </div>
@@ -232,7 +232,7 @@ export default function BookingSummaryPage() {
                                             : "bg-[#f49d25]/20 hover:bg-[#f49d25] text-[#f49d25] hover:text-white"
                                         }`}
                                 >
-                                    <span className="material-symbols-outlined text-sm">
+                                    <span className="material-symbols-outlined text-lg">
                                         {addons.muhurat ? "check" : "add"}
                                     </span>
                                 </button>
@@ -240,13 +240,13 @@ export default function BookingSummaryPage() {
                             {/* Nirmalya Visarjan */}
                             <div className="p-3 border border-[#e6e1db] dark:border-[#3d3326] rounded-lg flex items-center justify-between gap-3">
                                 <div className="flex-1">
-                                    <p className="text-sm font-bold text-[#181511] dark:text-white">
+                                    <p className="text-lg font-bold text-[#181511] dark:text-white">
                                         Nirmalya Visarjan
                                     </p>
                                     <p className="text-[11px] text-[#8a7960]">
                                         Eco-friendly floral waste management
                                     </p>
-                                    <p className="text-xs font-bold text-[#f49d25] mt-1">
+                                    <p className="text-base font-bold text-[#f49d25] mt-1">
                                         + ₹500
                                     </p>
                                 </div>
@@ -259,7 +259,7 @@ export default function BookingSummaryPage() {
                                             : "bg-[#f49d25]/20 hover:bg-[#f49d25] text-[#f49d25] hover:text-white"
                                         }`}
                                 >
-                                    <span className="material-symbols-outlined text-sm">
+                                    <span className="material-symbols-outlined text-lg">
                                         {addons.visarjan ? "check" : "add"}
                                     </span>
                                 </button>
@@ -285,9 +285,9 @@ export default function BookingSummaryPage() {
                                     ).toLocaleString()}
                                 </span>
                             </div>
-                            <div className="flex justify-between items-center text-[#f49d25] text-sm font-bold bg-[#f49d25]/5 p-2 rounded">
+                            <div className="flex justify-between items-center text-[#f49d25] text-lg font-bold bg-[#f49d25]/5 p-2 rounded">
                                 <span className="flex items-center gap-1">
-                                    <span className="material-symbols-outlined text-sm">
+                                    <span className="material-symbols-outlined text-lg">
                                         local_offer
                                     </span>{" "}
                                     PANDIT10 Applied
@@ -326,8 +326,8 @@ export default function BookingSummaryPage() {
                     </section>
 
                     <div className="flex flex-col gap-4 text-center mt-6">
-                        <p className="text-sm text-[#8a7960] flex items-center justify-center gap-1">
-                            <span className="material-symbols-outlined text-sm text-green-500">
+                        <p className="text-lg text-[#8a7960] flex items-center justify-center gap-1">
+                            <span className="material-symbols-outlined text-lg text-green-500">
                                 verified_user
                             </span>
                             Secure 256-bit encrypted checkout

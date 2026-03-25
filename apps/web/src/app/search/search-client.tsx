@@ -204,7 +204,7 @@ function EnhancedPanditCard({
                 </span>
               )}
             </div>
-            <p className="mb-3 text-sm text-slate-600 dark:text-slate-400">
+            <p className="mb-3 text-lg text-slate-600 dark:text-slate-400">
               {pandit.specializations[0] ? "Ritual Specialist" : "Scholar"} from{" "}
               <span className="font-bold text-slate-900 dark:text-white">
                 {pandit.city}
@@ -226,7 +226,7 @@ function EnhancedPanditCard({
                 {pandit.overallRating}
               </span>
             </div>
-            <span className="text-xs text-slate-500">
+            <span className="text-base text-slate-500">
               ({pandit.totalReviews} reviews)
             </span>
           </div>
@@ -234,11 +234,11 @@ function EnhancedPanditCard({
 
         {/* Info Grid */}
         <div className="mb-4 mt-2 grid grid-cols-2 gap-4">
-          <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+          <div className="flex items-center gap-2 text-lg text-slate-600 dark:text-slate-400">
             <span className="material-symbols-outlined text-lg">school</span>
             <span>{pandit.experienceYears}+ Years Exp</span>
           </div>
-          <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+          <div className="flex items-center gap-2 text-lg text-slate-600 dark:text-slate-400">
             <span className="material-symbols-outlined text-lg">
               calendar_month
             </span>
@@ -248,7 +248,7 @@ function EnhancedPanditCard({
 
         {/* Travel Tabs */}
         <div className="mt-auto border-t border-slate-100 pt-4 dark:border-white/10">
-          <div className="mb-4 flex gap-4 border-b border-slate-50 text-xs font-bold text-slate-400 dark:border-white/5">
+          <div className="mb-4 flex gap-4 border-b border-slate-50 text-base font-bold text-slate-400 dark:border-white/5">
             {pandit.travelModes.map((t, idx) => (
               <button
                 key={t.mode}
@@ -256,7 +256,7 @@ function EnhancedPanditCard({
               >
                 <span>{t.label}</span>
                 <span
-                  className={`text-sm ${idx === 0 ? "font-black" : "font-medium"}`}
+                  className={`text-lg ${idx === 0 ? "font-black" : "font-medium"}`}
                 >
                   ₹{(t.price / 1000).toFixed(0)}k
                 </span>
@@ -267,18 +267,18 @@ function EnhancedPanditCard({
               <>
                 <button className="flex min-w-[60px] cursor-not-allowed flex-col items-center gap-1 border-b-2 border-transparent pb-2 opacity-50 hover:text-slate-600">
                   <span>TRAIN</span>
-                  <span className="text-sm">--</span>
+                  <span className="text-lg">--</span>
                 </button>
                 <button className="flex min-w-[60px] cursor-not-allowed flex-col items-center gap-1 border-b-2 border-transparent pb-2 opacity-50 hover:text-slate-600">
                   <span>FLIGHT</span>
-                  <span className="text-sm">--</span>
+                  <span className="text-lg">--</span>
                 </button>
               </>
             )}
           </div>
 
           <div className="flex items-center justify-between gap-4">
-            <div className="max-w-[200px] text-xs leading-tight text-slate-500">
+            <div className="max-w-[200px] text-base leading-tight text-slate-500">
               <p>
                 {pandit.travelModes[0]?.label === "SELF-DRIVE"
                   ? "Self-drive includes fuel & tolls."
@@ -288,13 +288,13 @@ function EnhancedPanditCard({
             <div className="flex gap-2">
               <button
                 onClick={() => router.push(`/pandit/${pandit.id}`)}
-                className="rounded-lg border border-[#f2a20d] px-3 py-2 text-xs font-bold text-[#f2a20d] transition-colors hover:bg-[#f2a20d]/5"
+                className="rounded-lg border border-[#f2a20d] px-5 py-2 text-base font-bold text-[#f2a20d] transition-colors hover:bg-[#f2a20d]/5"
               >
                 Profile
               </button>
               <button
                 onClick={() => onBook(pandit.id)}
-                className="rounded-lg bg-[#f2a20d] px-5 py-2 text-sm font-bold text-white shadow-md transition-colors hover:bg-[#f2a20d]/90"
+                className="rounded-lg bg-[#f2a20d] px-5 py-2 text-lg font-bold text-white shadow-md transition-colors hover:bg-[#f2a20d]/90"
               >
                 Book Now
               </button>
@@ -326,7 +326,7 @@ function Sidebar({
           </h3>
           <button
             onClick={onReset}
-            className="text-xs font-bold uppercase tracking-wider text-[#f2a20d] hover:underline"
+            className="text-base font-bold uppercase tracking-wider text-[#f2a20d] hover:underline"
           >
             Clear All
           </button>
@@ -339,10 +339,10 @@ function Sidebar({
           >
             <div className="flex items-center justify-between">
               <div className="flex flex-col">
-                <span className="text-sm font-bold text-[#f2a20d]">
+                <span className="text-lg font-bold text-[#f2a20d]">
                   Search All India
                 </span>
-                <span className="text-xs text-slate-500">
+                <span className="text-base text-slate-500">
                   Broaden your search
                 </span>
               </div>
@@ -368,7 +368,7 @@ function Sidebar({
                 : "transition-all"
             }
           >
-            <h4 className="mb-3 text-xs font-bold uppercase tracking-widest text-slate-400">
+            <h4 className="mb-3 text-base font-bold uppercase tracking-widest text-slate-400">
               Regions Coverage
             </h4>
             <div className="space-y-2">
@@ -388,7 +388,7 @@ function Sidebar({
                     }}
                     className="h-5 w-5 rounded border-slate-300 bg-white text-[#f2a20d] focus:ring-[#f2a20d] dark:bg-white/5"
                   />
-                  <span className="text-sm text-slate-700 transition-colors group-hover:text-[#f2a20d] dark:text-slate-300">
+                  <span className="text-lg text-slate-700 transition-colors group-hover:text-[#f2a20d] dark:text-slate-300">
                     {region}
                   </span>
                 </label>
@@ -397,7 +397,7 @@ function Sidebar({
           </div>
 
           <div className="border-t border-slate-100 pt-4 dark:border-white/10">
-            <h4 className="mb-3 text-xs font-bold uppercase tracking-widest text-slate-400">
+            <h4 className="mb-3 text-base font-bold uppercase tracking-widest text-slate-400">
               Experience
             </h4>
             <div className="space-y-2">
@@ -413,7 +413,7 @@ function Sidebar({
                     onChange={() => onChange({ experience: exp })}
                     className="bg-white text-[#f2a20d] focus:ring-[#f2a20d] dark:bg-white/5"
                   />
-                  <span className="text-sm text-slate-700 transition-colors group-hover:text-[#f2a20d] dark:text-slate-300">
+                  <span className="text-lg text-slate-700 transition-colors group-hover:text-[#f2a20d] dark:text-slate-300">
                     {exp}
                   </span>
                 </label>
@@ -423,7 +423,7 @@ function Sidebar({
 
           <button
             onClick={onApply}
-            className="w-full rounded-lg bg-[#f2a20d] py-3 text-sm font-bold text-white shadow-md transition-all hover:bg-[#f2a20d]/90 active:scale-95"
+            className="w-full rounded-lg bg-[#f2a20d] py-3 text-lg font-bold text-white shadow-md transition-all hover:bg-[#f2a20d]/90 active:scale-95"
           >
             Update Results
           </button>
@@ -438,7 +438,7 @@ function Sidebar({
           <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-30"></div>
         </div>
         <div className="relative z-20">
-          <p className="mb-1 text-xs font-medium text-[#f2a20d]">
+          <p className="mb-1 text-base font-medium text-[#f2a20d]">
             Upcoming Events
           </p>
           <h4 className="text-xl font-bold leading-tight">
@@ -611,7 +611,7 @@ export default function SearchClient({
                     </span>
                   )}
                 </h1>
-                <p className="mt-1 text-sm text-slate-500">
+                <p className="mt-1 text-lg text-slate-500">
                   {!loading && `${pagination.total} verified pandits`}
                   {filters.city && (
                     <>
@@ -625,13 +625,13 @@ export default function SearchClient({
                 </p>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-sm text-slate-500">Sort by:</span>
+                <span className="text-lg text-slate-500">Sort by:</span>
                 <select
                   value={filters.sort}
                   onChange={(e) => {
                     updateFilters({ sort: e.target.value });
                   }}
-                  className="rounded-lg border-slate-200 bg-white text-sm font-medium text-slate-900 focus:border-[#f2a20d] focus:ring-[#f2a20d] dark:border-white/10 dark:bg-[#1a140d] dark:text-white"
+                  className="rounded-lg border-slate-200 bg-white text-lg font-medium text-slate-900 focus:border-[#f2a20d] focus:ring-[#f2a20d] dark:border-white/10 dark:bg-[#1a140d] dark:text-white"
                 >
                   <option>Best Match</option>
                   <option>Rating</option>
@@ -644,24 +644,24 @@ export default function SearchClient({
 
             <div className="flex flex-wrap gap-2">
               {filters.searchAllIndia && (
-                <span className="inline-flex items-center rounded-full border border-[#f2a20d]/20 bg-[#f2a20d]/10 px-3 py-1 text-xs font-bold text-[#f2a20d]">
-                  <span className="material-symbols-outlined mr-1 text-sm">
+                <span className="inline-flex items-center rounded-full border border-[#f2a20d]/20 bg-[#f2a20d]/10 px-5 py-3 text-base font-bold text-[#f2a20d]">
+                  <span className="material-symbols-outlined mr-1 text-lg">
                     check_circle
                   </span>{" "}
                   Search All India: ON
                 </span>
               )}
               {filters.ritual && (
-                <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
-                  <span className="material-symbols-outlined mr-1 text-sm">
+                <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-100 px-5 py-3 text-base font-bold text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
+                  <span className="material-symbols-outlined mr-1 text-lg">
                     auto_stories
                   </span>{" "}
                   {filters.ritual}
                 </span>
               )}
               {filters.date && (
-                <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
-                  <span className="material-symbols-outlined mr-1 text-sm">
+                <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-100 px-5 py-3 text-base font-bold text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
+                  <span className="material-symbols-outlined mr-1 text-lg">
                     calendar_month
                   </span>{" "}
                   {filters.date}
@@ -670,7 +670,7 @@ export default function SearchClient({
             </div>
 
             {error && (
-              <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-600 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">
+              <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-lg text-red-600 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">
                 {error}
                 <button
                   onClick={applyFilters}
@@ -696,12 +696,12 @@ export default function SearchClient({
                   search_off
                 </span>
                 <p className="font-semibold text-slate-500">No pandits found</p>
-                <p className="mt-1 text-sm text-slate-400">
+                <p className="mt-1 text-lg text-slate-400">
                   Try adjusting your filters or search all India
                 </p>
                 <button
                   onClick={resetFilters}
-                  className="mt-4 text-sm font-bold text-[#f2a20d] hover:underline"
+                  className="mt-4 text-lg font-bold text-[#f2a20d] hover:underline"
                 >
                   Clear All Filters
                 </button>
@@ -722,7 +722,7 @@ export default function SearchClient({
               <div className="mt-8 flex justify-center">
                 <button
                   onClick={loadMore}
-                  className="rounded-lg border border-slate-200 bg-white px-8 py-3 text-sm font-bold text-slate-900 transition-colors hover:bg-slate-50 dark:border-white/10 dark:bg-[#1a140d] dark:text-white dark:hover:bg-white/5"
+                  className="rounded-lg border border-slate-200 bg-white px-8 py-3 text-lg font-bold text-slate-900 transition-colors hover:bg-slate-50 dark:border-white/10 dark:bg-[#1a140d] dark:text-white dark:hover:bg-white/5"
                 >
                   Load More ({pagination.total - pandits.length} more)
                 </button>

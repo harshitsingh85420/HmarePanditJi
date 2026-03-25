@@ -489,26 +489,26 @@ export default function MobileNumberScreen() {
             className="mb-4"
           >
             {/* Transcription display - UI-014 FIX */}
-            <div className="bg-saffron-lt rounded-xl px-4 py-3 mb-3 border-2 border-saffron/30">
-              <p className="text-[14px] text-text-secondary mb-1">आपने बोला:</p>
-              <p className="text-[20px] font-bold text-text-primary min-h-[28px]">
+            <div className="bg-saffron-lt rounded-xl px-4 py-4 mb-3 border-2 border-saffron/30">
+              <p className="text-[22px] text-text-secondary mb-2 font-medium">आपने बोला:</p>
+              <p className="text-[26px] font-bold text-text-primary min-h-[64px]">
                 {transcribedText || "बोल रहे हैं..."}
               </p>
               {confidence && confidence < 0.7 && (
-                <p className="text-[14px] text-warning-amber mt-1 flex items-center gap-1">
-                  <span>⚠️</span> साफ़ नहीं सुनाई दिया
+                <p className="text-[22px] text-warning-amber mt-2 flex items-center gap-2 font-medium">
+                  <span className="text-[28px]">⚠️</span> साफ़ नहीं सुनाई दिया
                 </p>
               )}
             </div>
 
             {/* Listening indicator */}
             <div className="flex items-center justify-center gap-2">
-              <div className="flex items-end gap-1 h-6">
-                <div className="w-1.5 bg-saffron rounded-full animate-voice-bar" />
-                <div className="w-1.5 bg-saffron rounded-full animate-voice-bar-2" />
-                <div className="w-1.5 bg-saffron rounded-full animate-voice-bar-3" />
+              <div className="flex items-end gap-1 h-8">
+                <div className="w-2 bg-saffron rounded-full animate-voice-bar" />
+                <div className="w-2 bg-saffron rounded-full animate-voice-bar-2" />
+                <div className="w-2 bg-saffron rounded-full animate-voice-bar-3" />
               </div>
-              <span className="text-saffron text-[16px] font-semibold">सुन रहा हूँ...</span>
+              <span className="text-saffron text-[20px] font-semibold">सुन रहा हूँ...</span>
             </div>
           </motion.div>
         )}

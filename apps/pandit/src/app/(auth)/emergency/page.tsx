@@ -229,7 +229,7 @@ export default function EmergencySOSPage() {
             variants={itemVariants}
             className="mt-8 text-center"
           >
-            <p className="text-text-placeholder text-sm px-10 font-devanagari">
+            <p className="text-text-placeholder text-[16px] px-10 font-devanagari">
               यह सुविधा 24/7 सक्रिय है। किसी भी दुर्घटना या असुरक्षा की स्थिति में इसका उपयोग करें।
             </p>
           </motion.footer>

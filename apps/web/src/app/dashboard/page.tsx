@@ -32,13 +32,13 @@ export default function DashboardPage() {
               search
             </span>
             <input
-              className="w-full border-none focus:ring-0 bg-transparent text-sm py-3 text-slate-900 dark:text-white"
+              className="w-full border-none focus:ring-0 bg-transparent text-lg py-3 text-slate-900 dark:text-white"
               placeholder="Which puja are you planning?"
             />
           </div>
           <div className="flex items-center px-4 gap-4">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-[#8a7960] uppercase">
+              <span className="text-base font-bold text-[#8a7960] uppercase">
                 Search All India
               </span>
               <div
@@ -49,14 +49,14 @@ export default function DashboardPage() {
             </div>
             <Link
               href="/search"
-              className="bg-[#f49d25] hover:bg-[#f49d25]/90 text-black font-bold py-2 px-6 rounded-lg text-sm transition-all whitespace-nowrap flex items-center justify-center"
+              className="bg-[#f49d25] hover:bg-[#f49d25]/90 text-black font-bold py-2 px-6 rounded-lg text-lg transition-all whitespace-nowrap flex items-center justify-center"
             >
               Explore Now
             </Link>
           </div>
         </div>
         <div className="mt-6 flex items-center gap-3">
-          <span className="text-white/80 text-sm">Or use voice search:</span>
+          <span className="text-white/80 text-lg">Or use voice search:</span>
           {/* This button could trigger the voice modal */}
           <button className="size-12 rounded-full bg-[#f49d25] text-black flex items-center justify-center hover:scale-105 transition-transform shadow-lg">
             <span className="material-symbols-outlined">mic</span>
@@ -72,7 +72,7 @@ export default function DashboardPage() {
           </h2>
           <Link
             href="/search"
-            className="text-[#f49d25] font-semibold text-sm hover:underline"
+            className="text-[#f49d25] font-semibold text-lg hover:underline"
           >
             View All
           </Link>
@@ -91,7 +91,7 @@ export default function DashboardPage() {
                 <span className="material-symbols-outlined text-4xl text-[#f49d25]">
                   {item.icon}
                 </span>
-                <span className="font-bold text-sm text-slate-900 dark:text-white">
+                <span className="font-bold text-lg text-slate-900 dark:text-white">
                   {item.label}
                 </span>
               </div>
@@ -108,15 +108,15 @@ export default function DashboardPage() {
               <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
                 Muhurat Explorer
               </h2>
-              <p className="text-[#8a7960] text-sm">
+              <p className="text-[#8a7960] text-lg">
                 Find auspicious dates for your upcoming ceremonies
               </p>
             </div>
             <div className="flex items-center gap-4 bg-[#f5f3f0] dark:bg-[#3a2f1f] p-1 rounded-lg">
-              <button className="px-4 py-1.5 rounded-md bg-white dark:bg-[#221a10] shadow-sm text-sm font-bold text-slate-900 dark:text-white">
+              <button className="px-4 py-3.5 rounded-md bg-white dark:bg-[#221a10] shadow-sm text-lg font-bold text-slate-900 dark:text-white">
                 Monthly
               </button>
-              <button className="px-4 py-1.5 rounded-md text-[#8a7960] text-sm font-bold">
+              <button className="px-4 py-3.5 rounded-md text-[#8a7960] text-lg font-bold">
                 Weekly
               </button>
             </div>
@@ -126,7 +126,7 @@ export default function DashboardPage() {
             {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
               <div
                 key={day}
-                className="bg-[#fdfcfb] dark:bg-[#2a2216] py-3 text-center text-xs font-bold uppercase text-[#8a7960]"
+                className="bg-[#fdfcfb] dark:bg-[#2a2216] py-3 text-center text-base font-bold uppercase text-[#8a7960]"
               >
                 {day}
               </div>
@@ -147,10 +147,10 @@ export default function DashboardPage() {
             <div className="bg-[#fdf5e8] dark:bg-[#f49d25]/10 min-h-[100px] p-2 border-2 border-[#f49d25]">
               <span className="font-bold text-slate-900 dark:text-white">3</span>
               <div className="mt-2 space-y-1">
-                <span className="block bg-[#f49d25] text-white text-[10px] font-bold px-1 py-0.5 rounded leading-none">
+                <span className="block bg-[#f49d25] text-white text-[10px] font-bold px-1 py-2 rounded leading-none">
                   Wedding
                 </span>
-                <span className="block bg-orange-200 dark:bg-orange-800 text-orange-900 dark:text-orange-100 text-[10px] font-bold px-1 py-0.5 rounded leading-none">
+                <span className="block bg-orange-200 dark:bg-orange-800 text-orange-900 dark:text-orange-100 text-[10px] font-bold px-1 py-2 rounded leading-none">
                   Griha Pravesh
                 </span>
               </div>
@@ -166,7 +166,7 @@ export default function DashboardPage() {
             <div className="bg-[#fdf5e8] dark:bg-[#f49d25]/10 min-h-[100px] p-2">
               <span className="font-bold text-[#f49d25]">9</span>
               <div className="mt-2">
-                <span className="block bg-[#f49d25] text-white text-[10px] font-bold px-1 py-0.5 rounded leading-none text-center">
+                <span className="block bg-[#f49d25] text-white text-[10px] font-bold px-1 py-2 rounded leading-none text-center">
                   Navratri Start
                 </span>
               </div>
@@ -235,8 +235,8 @@ export default function DashboardPage() {
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   src={pandit.img}
                 />
-                <div className="absolute top-3 right-3 bg-white/90 dark:bg-[#221a10]/90 backdrop-blur px-2 py-1 rounded text-xs font-bold flex items-center gap-1 text-slate-900 dark:text-white">
-                  <span className="material-symbols-outlined text-xs text-[#f49d25] fill-1">
+                <div className="absolute top-3 right-3 bg-white/90 dark:bg-[#221a10]/90 backdrop-blur px-4 py-3 rounded text-base font-bold flex items-center gap-1 text-slate-900 dark:text-white">
+                  <span className="material-symbols-outlined text-base text-[#f49d25] fill-1">
                     star
                   </span>{" "}
                   {pandit.rating}
@@ -246,18 +246,18 @@ export default function DashboardPage() {
                 <h3 className="font-bold text-lg mb-1 text-slate-900 dark:text-white">
                   {pandit.name}
                 </h3>
-                <p className="text-[#8a7960] text-sm mb-3">{pandit.spec}</p>
+                <p className="text-[#8a7960] text-lg mb-3">{pandit.spec}</p>
                 <div className="flex items-center gap-2 mb-4">
-                  <span className="text-xs px-2 py-0.5 bg-[#f5f3f0] dark:bg-[#3a2f1f] text-slate-600 dark:text-slate-300 rounded">
+                  <span className="text-base px-4 py-2 bg-[#f5f3f0] dark:bg-[#3a2f1f] text-slate-600 dark:text-slate-300 rounded">
                     10+ Yrs Exp
                   </span>
-                  <span className="text-xs px-2 py-0.5 bg-[#f5f3f0] dark:bg-[#3a2f1f] text-slate-600 dark:text-slate-300 rounded">
+                  <span className="text-base px-4 py-2 bg-[#f5f3f0] dark:bg-[#3a2f1f] text-slate-600 dark:text-slate-300 rounded">
                     Verified
                   </span>
                 </div>
                 <Link
                   href="/pandits/p1"
-                  className="w-full block text-center py-2.5 rounded-lg border-2 border-[#f49d25] text-[#f49d25] font-bold text-sm hover:bg-[#f49d25] hover:text-white transition-all"
+                  className="w-full block text-center py-2.5 rounded-lg border-2 border-[#f49d25] text-[#f49d25] font-bold text-lg hover:bg-[#f49d25] hover:text-white transition-all"
                 >
                   View Profile
                 </Link>

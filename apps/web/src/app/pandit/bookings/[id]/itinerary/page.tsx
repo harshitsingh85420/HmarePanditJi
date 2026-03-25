@@ -14,7 +14,7 @@ export default function ItineraryPage({ params }: { params: { id: string } }) {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between h-16 items-center">
                         <div className="flex items-center gap-3 text-[#0f49bd]">
-                            <div className="w-8 h-8 rounded-lg bg-[#0f49bd] flex items-center justify-center text-white">
+                            <div className="w-12 h-12 rounded-lg bg-[#0f49bd] flex items-center justify-center text-white">
                                 <span className="material-symbols-outlined text-lg">temple_hindu</span>
                             </div>
                             <span className="font-bold text-xl tracking-tight text-slate-800 dark:text-white">
@@ -33,10 +33,10 @@ export default function ItineraryPage({ params }: { params: { id: string } }) {
                             </a>
                             <div className="flex items-center gap-2 pl-4 border-l border-slate-200 dark:border-slate-700">
                                 <div
-                                    className="h-8 w-8 rounded-full object-cover ring-2 ring-[#0f49bd]/20 bg-cover bg-center"
+                                    className="h-12 w-12 rounded-full object-cover ring-2 ring-[#0f49bd]/20 bg-cover bg-center"
                                     style={{ backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuDJLqVuq7woky_3uNPYwubgxaqt5SavlzXPUiAfeT4lVXQMAdFvOVKdqOgRiuS4b-3uCx8VuCbEVTJUm_l84rkaCJk3FEwdZ4rwD2UxF6heDgayFwKcXERtgu3G0pT1J7bxDDI1_JhSxR37ETtopJ-TUAg_jUC4KvFZDZ5HPQuAdzQu90B8Ps04Qm82fjuU0cHRv5Gvq0rZDq-l31iL-4If9kwIw0W4fB_EdrJN9H_2uzTAI31JfiQoSCFmzzJLIChDeOkE3Nwt03Y")' }}
                                 ></div>
-                                <span className="text-sm font-medium">Pt. Sharma</span>
+                                <span className="text-lg font-medium">Pt. Sharma</span>
                             </div>
                         </div>
                     </div>
@@ -54,10 +54,10 @@ export default function ItineraryPage({ params }: { params: { id: string } }) {
                             <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
                                 <div>
                                     <div className="flex items-center gap-2 mb-2">
-                                        <span className="px-2.5 py-0.5 rounded-full bg-[#0f49bd]/10 text-[#0f49bd] text-xs font-bold uppercase tracking-wide">
+                                        <span className="px-4.5 py-2 rounded-full bg-[#0f49bd]/10 text-[#0f49bd] text-base font-bold uppercase tracking-wide">
                                             Upcoming Assignment
                                         </span>
-                                        <span className="text-slate-400 dark:text-slate-500 text-xs font-medium">
+                                        <span className="text-slate-400 dark:text-slate-500 text-base font-medium">
                                             • Oct 24, 2024
                                         </span>
                                     </div>
@@ -75,10 +75,10 @@ export default function ItineraryPage({ params }: { params: { id: string } }) {
                                 {/* Food Allowance Widget */}
                                 <div className="bg-[#eef4ff]/50 dark:bg-[#0f49bd]/10 rounded-xl p-4 min-w-[240px] border border-[#0f49bd]/10">
                                     <div className="flex justify-between items-center mb-2">
-                                        <span className="text-sm font-semibold text-[#0f49bd] dark:text-blue-300">
+                                        <span className="text-lg font-semibold text-[#0f49bd] dark:text-blue-300">
                                             Food Allowance
                                         </span>
-                                        <span className="text-xs bg-white dark:bg-slate-800 px-2 py-0.5 rounded text-slate-600 dark:text-slate-300 shadow-sm">
+                                        <span className="text-base bg-white dark:bg-slate-800 px-4 py-2 rounded text-slate-600 dark:text-slate-300 shadow-sm">
                                             Daily
                                         </span>
                                     </div>
@@ -86,7 +86,7 @@ export default function ItineraryPage({ params }: { params: { id: string } }) {
                                         <span className="text-2xl font-bold text-slate-900 dark:text-white">
                                             ₹1,000
                                         </span>
-                                        <span className="text-xs text-slate-500 mb-1">/ day</span>
+                                        <span className="text-base text-slate-500 mb-1">/ day</span>
                                     </div>
                                     <div className="w-full bg-white dark:bg-slate-800 h-2 rounded-full overflow-hidden">
                                         <div
@@ -94,7 +94,7 @@ export default function ItineraryPage({ params }: { params: { id: string } }) {
                                             style={{ width: "100%" }}
                                         ></div>
                                     </div>
-                                    <div className="mt-2 text-xs text-slate-500 dark:text-slate-400 flex justify-between">
+                                    <div className="mt-2 text-base text-slate-500 dark:text-slate-400 flex justify-between">
                                         <span>Available</span>
                                         <span>₹1,000 left</span>
                                     </div>
@@ -107,8 +107,8 @@ export default function ItineraryPage({ params }: { params: { id: string } }) {
                             {/* Segment 1: Cab Pickup */}
                             <div className="relative pl-8 md:pl-12">
                                 {/* Timeline Dot */}
-                                <div className="absolute left-0 top-0 -ml-3 md:-ml-[1.15rem] w-6 h-6 md:w-10 md:h-10 rounded-full bg-white dark:bg-[#151c2c] border-2 md:border-4 border-[#0f49bd] flex items-center justify-center z-10 shadow-sm">
-                                    <span className="material-symbols-outlined text-[#0f49bd] text-xs md:text-base">
+                                <div className="absolute left-0 top-0 -ml-3 md:-ml-[1.15rem] w-6 h-6 md:w-14 md:h-14 rounded-full bg-white dark:bg-[#151c2c] border-2 md:border-4 border-[#0f49bd] flex items-center justify-center z-10 shadow-sm">
+                                    <span className="material-symbols-outlined text-[#0f49bd] text-base md:text-base">
                                         local_taxi
                                     </span>
                                 </div>
@@ -119,11 +119,11 @@ export default function ItineraryPage({ params }: { params: { id: string } }) {
                                                 <h3 className="text-lg font-bold text-slate-900 dark:text-white">
                                                     Cab to Airport
                                                 </h3>
-                                                <p className="text-slate-500 dark:text-slate-400 text-sm">
+                                                <p className="text-slate-500 dark:text-slate-400 text-lg">
                                                     08:00 AM • Uber Premier
                                                 </p>
                                             </div>
-                                            <span className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs font-semibold rounded-full">
+                                            <span className="px-5 py-3 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-base font-semibold rounded-full">
                                                 Confirmed
                                             </span>
                                         </div>
@@ -135,12 +135,12 @@ export default function ItineraryPage({ params }: { params: { id: string } }) {
                                                     style={{ backgroundImage: 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuCVD9-2SPEWstIFaQ86t2JJH-lFnNOCpd-XCEJ7zulK8e7DRnKmShRQZ_R_osCSgaPp_vZblFGoDNulzJs5xsyi9i6uEBg5picHspO26m00excqd5B8h2ZwPuhuG1oD_rko0B7uuiF1s594b3omGZeEE4BFF4FputCRy6B7dG5Pp46qgsnC3HiEodb5jIM87GYtUhkcmXb7wvjHciWU6BhLk5jJ_q0yusY3HCGbNkbwSRuGEHDRCsWvd8QG0WDBbG1IidXku40fvF0")' }}
                                                 ></div>
                                                 <div>
-                                                    <p className="font-semibold text-sm">Rajesh Kumar</p>
-                                                    <p className="text-xs text-slate-500">
+                                                    <p className="font-semibold text-lg">Rajesh Kumar</p>
+                                                    <p className="text-base text-slate-500">
                                                         Maruti Swift • KA 01 MJ 2023
                                                     </p>
-                                                    <div className="flex items-center gap-1 mt-1 text-[#0f49bd] text-xs font-medium cursor-pointer hover:underline">
-                                                        <span className="material-symbols-outlined text-sm">
+                                                    <div className="flex items-center gap-1 mt-1 text-[#0f49bd] text-base font-medium cursor-pointer hover:underline">
+                                                        <span className="material-symbols-outlined text-lg">
                                                             call
                                                         </span>{" "}
                                                         Call Driver
@@ -150,27 +150,27 @@ export default function ItineraryPage({ params }: { params: { id: string } }) {
                                             {/* Location Info */}
                                             <div className="space-y-3">
                                                 <div className="flex gap-3">
-                                                    <span className="material-symbols-outlined text-green-600 text-sm mt-0.5">
+                                                    <span className="material-symbols-outlined text-green-600 text-lg mt-0.5">
                                                         radio_button_checked
                                                     </span>
                                                     <div>
-                                                        <p className="text-xs text-slate-500 uppercase font-semibold">
+                                                        <p className="text-base text-slate-500 uppercase font-semibold">
                                                             Pickup
                                                         </p>
-                                                        <p className="text-sm font-medium text-slate-800 dark:text-slate-200">
+                                                        <p className="text-lg font-medium text-slate-800 dark:text-slate-200">
                                                             Home, Indiranagar 12th Main
                                                         </p>
                                                     </div>
                                                 </div>
                                                 <div className="flex gap-3">
-                                                    <span className="material-symbols-outlined text-red-500 text-sm mt-0.5">
+                                                    <span className="material-symbols-outlined text-red-500 text-lg mt-0.5">
                                                         location_on
                                                     </span>
                                                     <div>
-                                                        <p className="text-xs text-slate-500 uppercase font-semibold">
+                                                        <p className="text-base text-slate-500 uppercase font-semibold">
                                                             Drop
                                                         </p>
-                                                        <p className="text-sm font-medium text-slate-800 dark:text-slate-200">
+                                                        <p className="text-lg font-medium text-slate-800 dark:text-slate-200">
                                                             Kempegowda Int'l Airport (BLR)
                                                         </p>
                                                     </div>
@@ -180,18 +180,18 @@ export default function ItineraryPage({ params }: { params: { id: string } }) {
                                         <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
                                             <button
                                                 onClick={() => router.push(`/pandit/bookings/${params.id}/live`)}
-                                                className="flex-1 bg-[#0f49bd] hover:bg-[#0f49bd]/90 text-white px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors flex items-center justify-center gap-2"
+                                                className="flex-1 bg-[#0f49bd] hover:bg-[#0f49bd]/90 text-white px-4 py-2.5 rounded-lg text-lg font-semibold transition-colors flex items-center justify-center gap-2"
                                             >
-                                                <span className="material-symbols-outlined text-sm">
+                                                <span className="material-symbols-outlined text-lg">
                                                     check_circle
                                                 </span>
                                                 I'm Here
                                             </button>
                                             <button
                                                 onClick={() => router.push(`/pandit/bookings/${params.id}/live`)}
-                                                className="flex-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
+                                                className="flex-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 px-4 py-2.5 rounded-lg text-lg font-medium transition-colors flex items-center justify-center gap-2"
                                             >
-                                                <span className="material-symbols-outlined text-sm">
+                                                <span className="material-symbols-outlined text-lg">
                                                     map
                                                 </span>
                                                 Track on Map
@@ -204,8 +204,8 @@ export default function ItineraryPage({ params }: { params: { id: string } }) {
                             {/* Segment 2: Flight */}
                             <div className="relative pl-8 md:pl-12">
                                 {/* Timeline Dot */}
-                                <div className="absolute left-0 top-0 -ml-3 md:-ml-[1.15rem] w-6 h-6 md:w-10 md:h-10 rounded-full bg-white dark:bg-[#151c2c] border-2 md:border-4 border-slate-300 dark:border-slate-600 flex items-center justify-center z-10">
-                                    <span className="material-symbols-outlined text-slate-500 dark:text-slate-400 text-xs md:text-base">
+                                <div className="absolute left-0 top-0 -ml-3 md:-ml-[1.15rem] w-6 h-6 md:w-14 md:h-14 rounded-full bg-white dark:bg-[#151c2c] border-2 md:border-4 border-slate-300 dark:border-slate-600 flex items-center justify-center z-10">
+                                    <span className="material-symbols-outlined text-slate-500 dark:text-slate-400 text-base md:text-base">
                                         flight
                                     </span>
                                 </div>
@@ -220,7 +220,7 @@ export default function ItineraryPage({ params }: { params: { id: string } }) {
                                                 </div>
                                                 <div>
                                                     <h3 className="text-lg font-bold text-slate-900 dark:text-white">Bangalore to Delhi</h3>
-                                                    <div className="flex items-center gap-2 text-sm text-slate-500">
+                                                    <div className="flex items-center gap-2 text-lg text-slate-500">
                                                         <span className="font-medium text-slate-700 dark:text-slate-300">Indigo 6E-453</span>
                                                         <span>•</span>
                                                         <span>2h 45m</span>
@@ -228,7 +228,7 @@ export default function ItineraryPage({ params }: { params: { id: string } }) {
                                                 </div>
                                             </div>
                                             <div className="text-right hidden sm:block">
-                                                <p className="text-xs text-slate-500 uppercase font-semibold">PNR Number</p>
+                                                <p className="text-base text-slate-500 uppercase font-semibold">PNR Number</p>
                                                 <p className="text-xl font-mono font-bold text-slate-900 dark:text-white tracking-wider select-all">H6T9P</p>
                                             </div>
                                         </div>
@@ -237,29 +237,29 @@ export default function ItineraryPage({ params }: { params: { id: string } }) {
                                             {/* Flight Path Line */}
                                             <div className="absolute top-1/2 left-16 right-16 h-0.5 bg-slate-200 dark:bg-slate-700 -z-10"></div>
                                             <div className="absolute top-1/2 left-[45%] md:left-1/2 -translate-y-1/2 bg-white dark:bg-[#151c2c] p-1 rounded-full border border-slate-200 dark:border-slate-700 text-slate-400">
-                                                <span className="material-symbols-outlined text-sm rotate-90 block">flight</span>
+                                                <span className="material-symbols-outlined text-lg rotate-90 block">flight</span>
                                             </div>
                                             <div className="text-center">
                                                 <p className="text-2xl font-bold text-slate-900 dark:text-white">11:30</p>
-                                                <p className="text-sm font-medium text-slate-500">BLR</p>
-                                                <p className="text-xs text-slate-400 mt-1">Terminal 1</p>
+                                                <p className="text-lg font-medium text-slate-500">BLR</p>
+                                                <p className="text-base text-slate-400 mt-1">Terminal 1</p>
                                             </div>
                                             <div className="text-center">
                                                 <p className="text-2xl font-bold text-slate-900 dark:text-white">14:15</p>
-                                                <p className="text-sm font-medium text-slate-500">DEL</p>
-                                                <p className="text-xs text-slate-400 mt-1">Terminal 3</p>
+                                                <p className="text-lg font-medium text-slate-500">DEL</p>
+                                                <p className="text-base text-slate-400 mt-1">Terminal 3</p>
                                             </div>
                                         </div>
 
                                         <div className="flex flex-col sm:flex-row gap-3">
-                                            <button className="flex-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2">
-                                                <span className="material-symbols-outlined text-sm">
+                                            <button className="flex-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 px-4 py-2.5 rounded-lg text-lg font-medium transition-colors flex items-center justify-center gap-2">
+                                                <span className="material-symbols-outlined text-lg">
                                                     qr_code
                                                 </span>
                                                 View Boarding Pass
                                             </button>
-                                            <button className="flex-1 bg-[#0f49bd] hover:bg-[#0f49bd]/90 text-white px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors flex items-center justify-center gap-2">
-                                                <span className="material-symbols-outlined text-sm">
+                                            <button className="flex-1 bg-[#0f49bd] hover:bg-[#0f49bd]/90 text-white px-4 py-2.5 rounded-lg text-lg font-semibold transition-colors flex items-center justify-center gap-2">
+                                                <span className="material-symbols-outlined text-lg">
                                                     flight_takeoff
                                                 </span>
                                                 I've Boarded
@@ -272,8 +272,8 @@ export default function ItineraryPage({ params }: { params: { id: string } }) {
                             {/* Segment 3: Cab Drop */}
                             <div className="relative pl-8 md:pl-12 pb-4">
                                 {/* Timeline Dot */}
-                                <div className="absolute left-0 top-0 -ml-3 md:-ml-[1.15rem] w-6 h-6 md:w-10 md:h-10 rounded-full bg-white dark:bg-[#151c2c] border-2 md:border-4 border-slate-300 dark:border-slate-600 flex items-center justify-center z-10">
-                                    <span className="material-symbols-outlined text-slate-500 dark:text-slate-400 text-xs md:text-base">directions_car</span>
+                                <div className="absolute left-0 top-0 -ml-3 md:-ml-[1.15rem] w-6 h-6 md:w-14 md:h-14 rounded-full bg-white dark:bg-[#151c2c] border-2 md:border-4 border-slate-300 dark:border-slate-600 flex items-center justify-center z-10">
+                                    <span className="material-symbols-outlined text-slate-500 dark:text-slate-400 text-base md:text-base">directions_car</span>
                                 </div>
                             </div>
                         </div>
@@ -303,9 +303,9 @@ export default function ItineraryPage({ params }: { params: { id: string } }) {
                                     <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                         <button
                                             onClick={() => router.push(`/pandit/bookings/${params.id}/live`)}
-                                            className="bg-white dark:bg-slate-800 text-slate-900 dark:text-white px-4 py-2 rounded-lg shadow-lg font-medium text-sm flex items-center gap-2 transform translate-y-2 group-hover:translate-y-0 transition-transform"
+                                            className="bg-white dark:bg-slate-800 text-slate-900 dark:text-white px-4 py-2 rounded-lg shadow-lg font-medium text-lg flex items-center gap-2 transform translate-y-2 group-hover:translate-y-0 transition-transform"
                                         >
-                                            <span className="material-symbols-outlined text-[#0f49bd] text-sm">
+                                            <span className="material-symbols-outlined text-[#0f49bd] text-lg">
                                                 open_in_new
                                             </span>
                                             Open Full Map
@@ -313,11 +313,11 @@ export default function ItineraryPage({ params }: { params: { id: string } }) {
                                     </div>
                                 </div>
                                 <div className="p-4 bg-[#f6f6f8] dark:bg-background-dark">
-                                    <p className="text-xs text-slate-500 mb-1">Current Status</p>
-                                    <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">
+                                    <p className="text-base text-slate-500 mb-1">Current Status</p>
+                                    <p className="text-lg font-semibold text-slate-800 dark:text-slate-200">
                                         En route to Airport
                                     </p>
-                                    <p className="text-xs text-slate-500 mt-1">
+                                    <p className="text-base text-slate-500 mt-1">
                                         Est. Arrival: 09:15 AM
                                     </p>
                                 </div>
@@ -329,13 +329,13 @@ export default function ItineraryPage({ params }: { params: { id: string } }) {
                                         <span className="material-symbols-outlined">emergency</span>
                                     </div>
                                     <div>
-                                        <h4 className="font-bold text-red-900 dark:text-red-300 text-sm">
+                                        <h4 className="font-bold text-red-900 dark:text-red-300 text-lg">
                                             Need Help?
                                         </h4>
-                                        <p className="text-xs text-red-700 dark:text-red-400 mt-1 mb-2">
+                                        <p className="text-base text-red-700 dark:text-red-400 mt-1 mb-2">
                                             Support is available 24/7 for travelers.
                                         </p>
-                                        <button className="text-xs font-bold text-red-600 dark:text-red-400 hover:underline">
+                                        <button className="text-base font-bold text-red-600 dark:text-red-400 hover:underline">
                                             Contact Support Team
                                         </button>
                                     </div>
@@ -349,7 +349,7 @@ export default function ItineraryPage({ params }: { params: { id: string } }) {
             <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-[#151c2c] border-t border-slate-200 dark:border-slate-800 p-4 z-40 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
                 <div className="flex items-center justify-between gap-4 max-w-7xl mx-auto">
                     <div>
-                        <p className="text-xs text-slate-500 uppercase font-bold">Next Action</p>
+                        <p className="text-base text-slate-500 uppercase font-bold">Next Action</p>
                         <p className="font-semibold text-slate-900 dark:text-white">Reach Airport by 09:30 AM</p>
                     </div>
                     <button

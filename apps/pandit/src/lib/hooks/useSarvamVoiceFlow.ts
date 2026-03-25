@@ -80,22 +80,37 @@ export function useSarvamVoiceFlow({
   onNoiseHighRef.current = onNoiseHigh;
 
   // VOICE-008 FIX: Start ambient noise monitoring on mount
+  // BUG-MEDIUM-04 FIX: Add calibration delay to prevent false-triggering from audio context initialization
   useEffect(() => {
     if (disabled) return;
 
+    // BUG-MEDIUM-04 FIX: Don't act on noise events during 5-second calibration period
+    let calibrationComplete = false;
+    const calibrationTimer = setTimeout(() => {
+      calibrationComplete = true;
+    }, 5000);
+
     cleanupNoiseRef.current = startAmbientNoiseMonitoring(
       (level) => {
-        // Noise is too high (>65dB)
+        // BUG-MEDIUM-04 FIX: Only trigger after calibration period
+        if (!calibrationComplete) return;
+
+        // BUG-MEDIUM-04 FIX: Noise threshold is 85 (RMS ~68+, temple bells, heavy traffic, crowds)
+        // Scale: 0-20 (silence), 20-40 (normal room), 40-60 (conversation), 60-75 (loud), 75-85 (very loud), 85+ (painful)
+        // Only triggers in genuinely loud environments after 5-second calibration + 5-second rolling average
         noiseTooHighRef.current = true;
+        console.log(`[useSarvamVoiceFlow] High ambient noise detected (${level}) - using keyboard fallback`);
         onNoiseHighRef.current?.(level);
       },
       () => {
-        // Noise is normal
+        // BUG-MEDIUM-04 FIX: Only update after calibration period
+        if (!calibrationComplete) return;
         noiseTooHighRef.current = false;
       }
     );
 
     return () => {
+      clearTimeout(calibrationTimer);
       cleanupNoiseRef.current?.();
     };
   }, [disabled]);
@@ -127,18 +142,34 @@ export function useSarvamVoiceFlow({
     if (!mountedRef.current || disabled) return;
 
     // VOICE-008 FIX: Check ambient noise before attempting voice interaction
+    // BUG-MEDIUM-04 FIX: If noise is too high (>85, RMS ~68+ like temple bells), skip voice and use keyboard
+    // Scale: 0-20 (silence), 20-40 (normal room), 40-60 (conversation), 60-75 (loud), 75-85 (very loud), 85+ (painful)
     if (noiseTooHighRef.current) {
-      console.warn('[useSarvamVoiceFlow] Ambient noise too high, skipping voice interaction');
-      // Trigger keyboard fallback immediately
+      console.log('[useSarvamVoiceFlow] High ambient noise detected - using keyboard fallback');
+
+      // Immediately trigger the 3-error cascade to force keyboard
       const currentErrorCount = useVoiceStore.getState().errorCount;
-      if (currentErrorCount >= MAX_ERRORS_BEFORE_KEYBOARD - 1) {
-        // Force keyboard mode after noise-related skip
-        useVoiceStore.getState().switchToKeyboard();
-        setVoiceFlowState('idle');
-        return;
+
+      // Force keyboard mode after noise-related skip (don't wait for 3 errors)
+      if (currentErrorCount < MAX_ERRORS_BEFORE_KEYBOARD) {
+        // Set error count to max to trigger keyboard fallback
+        useVoiceStore.getState().resetErrors();
+        for (let i = 0; i < MAX_ERRORS_BEFORE_KEYBOARD; i++) {
+          incrementError();
+        }
       }
-      incrementError();
-      setVoiceState('error_1');
+
+      // Switch to keyboard mode immediately
+      useVoiceStore.getState().switchToKeyboard();
+      setVoiceFlowState('idle');
+
+      // Announce the switch to keyboard due to noise
+      void speakWithSarvam({
+        text: 'शोर बहुत ज्यादा है। कीबोर्ड का उपयोग करें।',
+        languageCode: sarvamLangCode,
+        pace: 0.85,
+      });
+
       return;
     }
 
@@ -193,11 +224,26 @@ export function useSarvamVoiceFlow({
           setVoiceFlowState('idle');
           // STATE-002 FIX: Use handler (won't reset errors for timeout)
           handleIntentWithReset('MAX_REPROMPTS_REACHED');
+
+          // VOICE-007 FIX: After 3 errors, automatically switch to keyboard
+          const errorCount = useVoiceStore.getState().errorCount;
+          if (errorCount >= MAX_ERRORS_BEFORE_KEYBOARD) {
+            console.log('[useSarvamVoiceFlow] 3 errors reached, switching to keyboard');
+            useVoiceStore.getState().switchToKeyboard();
+
+            // Announce the switch
+            void speakWithSarvam({
+              text: 'कीबोर्ड का उपयोग करें।',
+              languageCode: sarvamLangCode,
+              pace: 0.85,
+            });
+          }
+
           stopFlow(); // Explicitly stop the flow
         }
       }
     );
-  }, [deepgramLang, disabled, effectiveListenTimeoutMs, incrementError, repromptScript, sarvamLangCode, setVoiceState, handleIntentWithReset]);
+  }, [deepgramLang, disabled, effectiveListenTimeoutMs, incrementError, repromptScript, sarvamLangCode, setVoiceState, handleIntentWithReset, stopFlow]);
 
   restartListeningRef.current = restartListening;
 

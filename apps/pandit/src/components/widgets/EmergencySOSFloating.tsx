@@ -117,7 +117,7 @@ export function EmergencySOSFloating({ isVisible = true }: EmergencySOSFloatingP
         animate={{ scale: 1 }}
         whileTap={{ scale: 0.9 }}
         onClick={handleExpand}
-        className="min-w-[48px] min-h-[48px] bg-surface-card rounded-full shadow-card flex items-center justify-center border-2 border-saffron/30"
+        className="min-w-[56px] min-h-[56px] bg-surface-card rounded-full shadow-card flex items-center justify-center border-2 border-saffron/30 focus:ring-2 focus:ring-saffron focus:outline-none"
         aria-label={isExpanded ? 'Close emergency options' : 'Expand emergency options'}
       >
         <span className={`material-symbols-outlined text-saffron text-2xl transition-transform ${isExpanded ? 'rotate-180' : ''}`}>
@@ -129,10 +129,10 @@ export function EmergencySOSFloating({ isVisible = true }: EmergencySOSFloatingP
       <motion.div
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
-        className="bg-saffron text-white px-3 py-1.5 rounded-full shadow-sm flex items-center gap-1"
+        className="bg-saffron text-white px-4 py-2 rounded-full shadow-sm flex items-center gap-2"
       >
-        <span className="material-symbols-outlined text-sm">emergency</span>
-        <span className="font-devanagari font-bold text-sm">SOS आपातकालीन</span>
+        <span className="material-symbols-outlined text-base">emergency</span>
+        <span className="font-devanagari font-bold text-base">SOS आपातकालीन</span>
       </motion.div>
     </div>
   )

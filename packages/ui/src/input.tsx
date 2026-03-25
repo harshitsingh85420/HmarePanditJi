@@ -30,10 +30,13 @@ export function Input({
   const baseClasses = [
     "w-full bg-white dark:bg-slate-800",
     "border border-slate-200 dark:border-slate-700 rounded-lg",
-    "text-sm text-slate-900 dark:text-slate-100",
+    // ACC-010 FIX: Larger text for elderly users (minimum 16px)
+    "text-base text-slate-900 dark:text-slate-100",
     "placeholder:text-slate-400",
     "focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary",
     "disabled:opacity-50 disabled:cursor-not-allowed",
+    // ACC-009 FIX: Larger touch target (min 52px height)
+    "min-h-[56px]",
     error ? "border-red-400 focus:ring-red-400" : "",
   ];
 
@@ -47,7 +50,8 @@ export function Input({
         {label && (
           <label
             htmlFor={inputId}
-            className="text-sm font-medium text-slate-700 dark:text-slate-300"
+            // ACC-010 FIX: Larger label text for elderly users
+            className="text-base font-medium text-slate-700 dark:text-slate-300"
           >
             {label}
           </label>
@@ -69,12 +73,14 @@ export function Input({
           {...(props as unknown as React.TextareaHTMLAttributes<HTMLTextAreaElement>)}
         />
         {error && (
-          <p id={`${inputId}-error`} className="text-xs text-red-500">
+          // ACC-010 FIX: Larger error text for elderly visibility
+          <p id={`${inputId}-error`} className="text-base text-red-500 font-medium">
             {error}
           </p>
         )}
         {helperText && !error && (
-          <p id={`${inputId}-hint`} className="text-xs text-slate-400">
+          // ACC-010 FIX: Larger helper text for elderly visibility
+          <p id={`${inputId}-hint`} className="text-base text-slate-400">
             {helperText}
           </p>
         )}
@@ -87,14 +93,16 @@ export function Input({
       {label && (
         <label
           htmlFor={inputId}
-          className="text-sm font-medium text-slate-700 dark:text-slate-300"
+          // ACC-010 FIX: Larger label text for elderly users (minimum 16px)
+          className="text-base font-medium text-slate-700 dark:text-slate-300"
         >
           {label}
         </label>
       )}
       <div className="relative">
         {variant === "phone" && (
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-500 font-medium pointer-events-none select-none">
+          // ACC-010 FIX: Larger phone prefix text
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-base text-slate-500 font-medium pointer-events-none select-none">
             +91
           </span>
         )}
@@ -139,12 +147,14 @@ export function Input({
         )}
       </div>
       {error && (
-        <p id={`${inputId}-error`} className="text-xs text-red-500">
+        // ACC-010 FIX: Larger error text for elderly visibility
+        <p id={`${inputId}-error`} className="text-base text-red-500 font-medium">
           {error}
         </p>
       )}
       {helperText && !error && (
-        <p id={`${inputId}-hint`} className="text-xs text-slate-400">
+        // ACC-010 FIX: Larger helper text for elderly visibility
+        <p id={`${inputId}-hint`} className="text-base text-slate-400">
           {helperText}
         </p>
       )}

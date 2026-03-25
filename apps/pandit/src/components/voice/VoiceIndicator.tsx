@@ -19,16 +19,16 @@ interface VoiceIndicatorProps {
  * @uses WaveformVisualizer - Synchronized voice bars
  * @uses saffron-glow-active - Holy aura effect when listening
  */
-export function VoiceIndicator({ 
-  state, 
+export function VoiceIndicator({
+  state,
   size = 'md',
   className = '',
   showLabel = true,
 }: VoiceIndicatorProps) {
   const sizeMap = {
-    sm: { barHeight: 'sm' as const, containerSize: 'w-12 h-12', labelSize: 'text-sm' },
-    md: { barHeight: 'md' as const, containerSize: 'w-16 h-16', labelSize: 'text-base' },
-    lg: { barHeight: 'lg' as const, containerSize: 'w-20 h-20', labelSize: 'text-lg' },
+    sm: { barHeight: 'sm' as const, containerSize: 'w-12 h-12', labelSize: 'text-base' },
+    md: { barHeight: 'md' as const, containerSize: 'w-16 h-16', labelSize: 'text-lg' },
+    lg: { barHeight: 'lg' as const, containerSize: 'w-20 h-20', labelSize: 'text-xl' },
   }
 
   const { barHeight, containerSize, labelSize } = sizeMap[size]
@@ -63,7 +63,7 @@ export function VoiceIndicator({
       <div className={`${containerSize} ${className} relative flex items-center justify-center`}>
         {/* Saffron glow effect - holy aura */}
         <div className="absolute inset-0 bg-saffron/20 rounded-full blur-lg saffron-glow-active" />
-        
+
         {/* Animated pulse ring */}
         <motion.div
           className="absolute inset-0 rounded-full border-2 border-saffron/30"
@@ -77,12 +77,12 @@ export function VoiceIndicator({
             ease: 'easeInOut',
           }}
         />
-        
+
         {/* Waveform bars */}
         <div className="relative z-10 w-full h-full flex items-center justify-center">
-          <WaveformVisualizer 
-            barCount={5} 
-            height={barHeight} 
+          <WaveformVisualizer
+            barCount={5}
+            height={barHeight}
             animated={true}
             gap={size === 'sm' ? 2 : 4}
           />
@@ -113,7 +113,7 @@ export function VoiceIndicator({
             ease: 'easeInOut',
           }}
         />
-        
+
         {/* Center dots */}
         <div className="relative z-10 flex items-center gap-1">
           {[0, 1, 2].map((i) => (

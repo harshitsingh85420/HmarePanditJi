@@ -106,7 +106,7 @@ export default async function PanditProfilePage({ params }: PageProps) {
       <Suspense
         fallback={
           <div className="min-h-screen bg-[#f8f7f5] flex items-center justify-center">
-            <span className="text-slate-400 text-sm">Loading profile…</span>
+            <span className="text-slate-400 text-lg">Loading profile…</span>
           </div>
         }
       >

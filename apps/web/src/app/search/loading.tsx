@@ -7,7 +7,7 @@ export default function SearchLoading() {
       {/* Filter pills skeleton */}
       <div className="flex gap-3 mb-8">
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="h-8 w-24 bg-slate-100 dark:bg-slate-800 rounded-full" />
+          <div key={i} className="h-12 w-24 bg-slate-100 dark:bg-slate-800 rounded-full" />
         ))}
       </div>
 
@@ -29,7 +29,7 @@ export default function SearchLoading() {
               <div className="h-6 w-20 bg-slate-100 dark:bg-slate-800 rounded-full" />
               <div className="h-6 w-20 bg-slate-100 dark:bg-slate-800 rounded-full" />
             </div>
-            <div className="h-10 w-full bg-slate-100 dark:bg-slate-800 rounded-lg" />
+            <div className="h-14 w-full bg-slate-100 dark:bg-slate-800 rounded-lg" />
           </div>
         ))}
       </div>

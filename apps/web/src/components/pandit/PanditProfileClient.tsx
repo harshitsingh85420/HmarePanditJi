@@ -93,11 +93,11 @@ export function PanditProfileClient({ panditId }: PanditProfileClientProps) {
                                 </div>
                                 <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#f49d25]/10 text-[#f49d25] border border-[#f49d25]/20 hover:bg-[#f49d25]/20 transition-all">
                                     <span className="material-symbols-outlined">play_circle</span>
-                                    <span className="font-bold text-sm">Watch Intro</span>
+                                    <span className="font-bold text-lg">Watch Intro</span>
                                 </button>
                             </div>
                             <p className="text-[#8a7960] dark:text-[#b0a08a] mt-2 flex items-center gap-2">
-                                <span className="material-symbols-outlined text-sm">
+                                <span className="material-symbols-outlined text-lg">
                                     location_on
                                 </span>
                                 Varanasi, UP | 15+ Years Experience | 500+ Ceremonies
@@ -110,21 +110,21 @@ export function PanditProfileClient({ panditId }: PanditProfileClientProps) {
                                         </span>
                                         <span className="text-xl font-bold">4.9</span>
                                     </div>
-                                    <span className="text-[#8a7960] text-xs">128 Reviews</span>
+                                    <span className="text-[#8a7960] text-base">128 Reviews</span>
                                 </div>
-                                <div className="h-8 w-px bg-[#f49d25]/20"></div>
+                                <div className="h-12 w-px bg-[#f49d25]/20"></div>
                                 <div className="flex flex-col">
                                     <span className="text-xl font-bold text-[#181511] dark:text-white">
                                         500+
                                     </span>
-                                    <span className="text-[#8a7960] text-xs">Ceremonies</span>
+                                    <span className="text-[#8a7960] text-base">Ceremonies</span>
                                 </div>
-                                <div className="h-8 w-px bg-[#f49d25]/20"></div>
+                                <div className="h-12 w-px bg-[#f49d25]/20"></div>
                                 <div className="flex flex-col items-center">
                                     <span className="material-symbols-outlined text-green-600">
                                         verified
                                     </span>
-                                    <span className="text-[#8a7960] text-xs">Verified</span>
+                                    <span className="text-[#8a7960] text-base">Verified</span>
                                 </div>
                             </div>
                         </div>
@@ -157,7 +157,7 @@ export function PanditProfileClient({ panditId }: PanditProfileClientProps) {
                         <h2 className="text-2xl font-bold text-[#181511] dark:text-white">
                             Choose Pūjā Samagri
                         </h2>
-                        <span className="px-3 py-1 rounded-full bg-[#f49d25]/10 text-[#f49d25] text-xs font-bold uppercase tracking-wider">
+                        <span className="px-5 py-3 rounded-full bg-[#f49d25]/10 text-[#f49d25] text-base font-bold uppercase tracking-wider">
                             Customizable
                         </span>
                     </div>
@@ -200,7 +200,7 @@ export function PanditProfileClient({ panditId }: PanditProfileClientProps) {
                                         onClick={() => setSelectedPackage(pkg.name)}
                                     >
                                         {pkg.isPopular && (
-                                            <div className="absolute top-0 right-0 bg-[#f49d25] text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg">
+                                            <div className="absolute top-0 right-0 bg-[#f49d25] text-white text-[10px] font-bold px-5 py-3 rounded-bl-lg">
                                                 POPULAR
                                             </div>
                                         )}
@@ -212,13 +212,13 @@ export function PanditProfileClient({ panditId }: PanditProfileClientProps) {
                                                 ₹{pkg.price.toLocaleString()}
                                             </span>
                                         </div>
-                                        <ul className="space-y-2 text-sm text-[#8a7960] mb-6 min-h-[100px]">
+                                        <ul className="space-y-2 text-lg text-[#8a7960] mb-6 min-h-[100px]">
                                             {pkg.features.map((feat, i) => (
                                                 <li
                                                     key={i}
                                                     className="flex gap-2 items-center font-medium text-[#181511] dark:text-slate-300"
                                                 >
-                                                    <span className="material-symbols-outlined text-[#f49d25] text-sm">
+                                                    <span className="material-symbols-outlined text-[#f49d25] text-lg">
                                                         check_circle
                                                     </span>{" "}
                                                     {feat}
@@ -242,14 +242,14 @@ export function PanditProfileClient({ panditId }: PanditProfileClientProps) {
                             <h3 className="font-bold mb-4 text-[#181511] dark:text-white">
                                 Custom List Comparison
                             </h3>
-                            <p className="text-sm text-[#8a7960] mb-4">
+                            <p className="text-lg text-[#8a7960] mb-4">
                                 You have selected a custom list of items.
                             </p>
                             <Link
                                 href="/samagri/compare"
                                 className="text-[#f49d25] font-bold hover:underline flex items-center gap-1"
                             >
-                                Launch Comparison Tool <span className="material-symbols-outlined text-sm">open_in_new</span>
+                                Launch Comparison Tool <span className="material-symbols-outlined text-lg">open_in_new</span>
                             </Link>
                         </div>
                     )}
@@ -272,7 +272,7 @@ export function PanditProfileClient({ panditId }: PanditProfileClientProps) {
                                     <span className="font-bold text-[#181511] dark:text-white">
                                         Dakshina
                                     </span>
-                                    <span className="text-xs text-[#8a7960]">
+                                    <span className="text-base text-[#8a7960]">
                                         Ritual service fee
                                     </span>
                                 </div>
@@ -285,22 +285,22 @@ export function PanditProfileClient({ panditId }: PanditProfileClientProps) {
                             <div className="space-y-3 p-4 bg-[#f8f7f5] dark:bg-[#2d2116] rounded-xl border border-[#f49d25]/10">
                                 <div className="flex justify-between items-start">
                                     <div className="flex flex-col">
-                                        <span className="font-bold text-sm text-[#181511] dark:text-white">
+                                        <span className="font-bold text-lg text-[#181511] dark:text-white">
                                             Travel: {travelMode}
                                         </span>
-                                        <span className="text-xs text-[#8a7960]">
+                                        <span className="text-base text-[#8a7960]">
                                             12.4 km distance
                                         </span>
                                     </div>
                                     <button
                                         onClick={() => setIsTravelModalOpen(true)}
-                                        className="text-[#f49d25] text-xs font-bold underline"
+                                        className="text-[#f49d25] text-base font-bold underline"
                                     >
                                         Change
                                     </button>
                                 </div>
                                 <div className="space-y-1 pt-2 border-t border-[#f49d25]/5">
-                                    <div className="flex justify-between font-bold text-sm mt-1 text-slate-800 dark:text-slate-200">
+                                    <div className="flex justify-between font-bold text-lg mt-1 text-slate-800 dark:text-slate-200">
                                         <span>Travel Subtotal</span>
                                         <span>₹{travelCost}</span>
                                     </div>
@@ -310,14 +310,14 @@ export function PanditProfileClient({ panditId }: PanditProfileClientProps) {
                             {/* Food Allowance */}
                             <div className="flex justify-between items-center">
                                 <div className="flex flex-col">
-                                    <span className="font-bold text-sm text-[#181511] dark:text-white">
+                                    <span className="font-bold text-lg text-[#181511] dark:text-white">
                                         Food Allowance
                                     </span>
-                                    <span className="text-xs text-[#8a7960]">
+                                    <span className="text-base text-[#8a7960]">
                                         Hygienic Sattvik meal
                                     </span>
                                 </div>
-                                <span className="font-bold text-sm dark:text-white">
+                                <span className="font-bold text-lg dark:text-white">
                                     ₹{foodAllowance}
                                 </span>
                             </div>
@@ -325,11 +325,11 @@ export function PanditProfileClient({ panditId }: PanditProfileClientProps) {
                             {/* Samagri */}
                             <div className="flex justify-between items-center">
                                 <div className="flex flex-col">
-                                    <span className="font-bold text-sm text-[#181511] dark:text-white">
+                                    <span className="font-bold text-lg text-[#181511] dark:text-white">
                                         Samagri: {samagriType === 'fixed' ? selectedPackage : 'Custom'}
                                     </span>
                                 </div>
-                                <span className="font-bold text-sm dark:text-white">
+                                <span className="font-bold text-lg dark:text-white">
                                     ₹{samagriPrice.toLocaleString()}
                                 </span>
                             </div>
@@ -337,10 +337,10 @@ export function PanditProfileClient({ panditId }: PanditProfileClientProps) {
                             <div className="pt-4 border-t-2 border-dashed border-[#f49d25]/20">
                                 <div className="flex justify-between items-end mb-6">
                                     <div className="flex flex-col">
-                                        <span className="text-xs font-bold uppercase text-[#8a7960]">
+                                        <span className="text-base font-bold uppercase text-[#8a7960]">
                                             Grand Total
                                         </span>
-                                        <span className="text-xs text-[#f49d25]">
+                                        <span className="text-base text-[#f49d25]">
                                             GST (18%) included
                                         </span>
                                     </div>
@@ -365,10 +365,10 @@ export function PanditProfileClient({ panditId }: PanditProfileClientProps) {
                             verified_user
                         </span>
                         <div className="flex flex-col">
-                            <span className="font-bold text-sm text-slate-900 dark:text-white">
+                            <span className="font-bold text-lg text-slate-900 dark:text-white">
                                 HmarePanditJi Guarantee
                             </span>
-                            <span className="text-xs text-[#8a7960]">
+                            <span className="text-base text-[#8a7960]">
                                 100% Refund if Pandit doesn't arrive on time.
                             </span>
                         </div>

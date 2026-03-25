@@ -233,9 +233,9 @@ export default function WelcomePage() {
                 <div
                   key={index}
                   className={`h-2 rounded-full transition-all duration-300 ${index < currentScriptIndex
-                    ? 'w-8 bg-saffron'
+                    ? 'w-12 bg-saffron'
                     : index === currentScriptIndex
-                      ? 'w-8 bg-saffron/50 animate-pulse'
+                      ? 'w-12 bg-saffron/50 animate-pulse'
                       : 'w-2 bg-border-default'
                     }`}
                 />
@@ -341,7 +341,7 @@ export default function WelcomePage() {
                 disabled={isPlaying}
                 className="w-full text-text-secondary text-[18px] underline decoration-1 underline-offset-4 disabled:opacity-50"
               >
-                Registration पर सीधे जाएं
+                पंजीकरण पर सीधे जाएं
               </motion.button>
             </motion.div>
           )}

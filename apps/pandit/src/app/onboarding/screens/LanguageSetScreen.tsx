@@ -48,7 +48,7 @@ export default function LanguageSetScreen({ language, onComplete }: LanguageSetS
   }, [langInfo.latinName, onComplete]);
 
   return (
-    <main className="w-full min-h-dvh max-w-[390px] mx-auto bg-vedic-cream relative overflow-hidden flex flex-col items-center justify-center text-center px-8">
+    <main className="w-full min-h-dvh max-w-[390px] mx-auto bg-surface-base relative overflow-hidden flex flex-col items-center justify-center text-center px-8">
       {/* Radial Background Overlay - Using diya-halo CSS class */}
       <div className="absolute inset-0 pointer-events-none diya-halo" />
 
@@ -90,7 +90,7 @@ export default function LanguageSetScreen({ language, onComplete }: LanguageSetS
         animate={{ opacity: 1, filter: 'blur(0px)', y: 0 }}
         transition={{ duration: 0.8, delay: 1.2 }}
       >
-        <h1 className="text-[40px] font-bold text-vedic-brown mb-4 leading-tight">
+        <h1 className="text-[40px] font-bold text-text-primary mb-4 leading-tight">
           बहुत अच्छा!
         </h1>
       </motion.div>
@@ -100,7 +100,7 @@ export default function LanguageSetScreen({ language, onComplete }: LanguageSetS
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 1.5 }}
       >
-        <p className="text-[22px] text-vedic-brown-2 leading-relaxed">
+        <p className="text-[22px] text-text-secondary leading-relaxed">
           अब हम आपसे {langInfo.nativeName} में बात करेंगे।
         </p>
       </motion.div>

@@ -93,7 +93,7 @@ export default function VoiceTutorialScreen({ onLanguageChange, onComplete }: Vo
   };
 
   return (
-    <main className="bg-surface-base font-hind text-text-baserimary min-h-dvh max-w-[390px] mx-auto flex flex-col shadow-2xl">
+    <main className="bg-surface-base font-body text-text-primary min-h-dvh max-w-[390px] mx-auto flex flex-col shadow-2xl">
       {/* TopBar with SkipButton in top-right */}
       <TopBar showBack={false} onLanguageChange={onLanguageChange} />
       <div className="flex justify-end px-4 -mt-1">
@@ -128,19 +128,19 @@ export default function VoiceTutorialScreen({ onLanguageChange, onComplete }: Vo
 
       {/* Instruction */}
       <div className="text-center mt-6 px-6">
-        <p className="text-[18px] font-medium text-text-baserimary">
+        <p className="text-[20px] font-medium text-text-primary">
           जब यह दिखे:{' '}
-          <span className="inline-flex items-center px-2 py-0.5 bg-saffron-lt border border-saffron rounded-full mx-1 text-[14px] text-saffron font-semibold">
+          <span className="inline-flex items-center px-6 py-3 bg-saffron-lt border border-saffron rounded-full mx-1 text-[18px] text-saffron font-semibold min-h-[64px]">
             🎤 सुन रहा हूँ
           </span>
         </p>
-        <p className="text-[28px] font-bold text-text-baserimary mt-2">
+        <p className="text-[32px] font-bold text-text-primary mt-3">
           तब बोलिए।
         </p>
       </div>
 
       {/* Divider */}
-      <div className="w-full h-px bg-vedic-border my-5" />
+      <div className="w-full h-[2px] bg-surface-dim my-5" />
 
       {/* Interactive Demo Box */}
       <div className="px-6 flex-1">
@@ -160,7 +160,7 @@ export default function VoiceTutorialScreen({ onLanguageChange, onComplete }: Vo
             <span className="text-[44px] leading-none relative z-10">🎤</span>
           </div>
 
-          <p className="text-[18px] text-text-baserimary-2 font-medium">
+          <p className="text-[18px] text-text-secondary font-medium">
             हाँ या नहीं बोलकर देखें
           </p>
 
@@ -177,19 +177,19 @@ export default function VoiceTutorialScreen({ onLanguageChange, onComplete }: Vo
         </div>
 
         {/* Fallback note */}
-        <p className="text-center text-[14px] text-text-baserimary-2 mt-4">
+        <p className="text-center text-[16px] text-text-secondary mt-4">
           अगर बोलने में दिक्कत हो:
         </p>
-        <p className="text-center text-[14px] text-text-baserimary-2">
+        <p className="text-center text-[16px] text-text-secondary">
           ⌨️ Keyboard हमेशा नीचे है
         </p>
       </div>
 
-      {/* CTA Footer */}
+      {/* CTA Footer - ACC-009 FIX: Larger touch target */}
       <footer className="px-6 pb-10 pt-4">
         <button
           onClick={onComplete}
-          className="w-full py-4 bg-saffron text-white rounded-2xl text-[20px] font-bold shadow-cta active:scale-[0.98] transition-transform"
+          className="w-full min-h-[72px] bg-saffron text-white rounded-2xl text-[22px] font-bold shadow-btn-saffron active:scale-[0.98] transition-transform"
         >
           समझ गया, आगे चलें →
         </button>

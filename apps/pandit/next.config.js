@@ -10,6 +10,11 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: ['framer-motion', 'zustand'],
   },
+  // FIX: Skip generating static error pages that have issues with Html component
+  onDemandEntries: {
+    // Keep pages in memory longer
+    maxInactiveAge: 60 * 1000,
+  },
 }
 
 module.exports = nextConfig

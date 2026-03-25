@@ -219,7 +219,7 @@ export function GurujiAIChat() {
                             🕉️
                         </div>
                         <div className="flex-1 min-w-0">
-                            <p className="text-white font-bold text-sm leading-tight">
+                            <p className="text-white font-bold text-lg leading-tight">
                                 Guruji AI
                             </p>
                             <p className="text-white/80 text-[11px] leading-tight">
@@ -257,7 +257,7 @@ export function GurujiAIChat() {
 
                     {/* Error banner */}
                     {puterError && (
-                        <div className="px-4 py-2 bg-red-50 text-red-600 text-xs border-b border-red-100">
+                        <div className="px-4 py-2 bg-red-50 text-red-600 text-base border-b border-red-100">
                             ⚠️ {puterError}
                         </div>
                     )}
@@ -276,7 +276,7 @@ export function GurujiAIChat() {
                             >
                                 {/* Avatar */}
                                 <div
-                                    className="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-xs mt-0.5"
+                                    className="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-base mt-0.5"
                                     style={{
                                         background:
                                             msg.role === "assistant"
@@ -289,7 +289,7 @@ export function GurujiAIChat() {
 
                                 {/* Bubble */}
                                 <div
-                                    className={`max-w-[78%] rounded-2xl px-3 py-2 text-sm leading-relaxed whitespace-pre-wrap break-words ${msg.role === "user"
+                                    className={`max-w-[78%] rounded-2xl px-5 py-2 text-lg leading-relaxed whitespace-pre-wrap break-words ${msg.role === "user"
                                             ? "rounded-tr-sm text-white"
                                             : "rounded-tl-sm text-gray-800"
                                         }`}
@@ -320,7 +320,7 @@ export function GurujiAIChat() {
                         {/* Typing indicator */}
                         {isLoading && (
                             <div className="flex gap-2">
-                                <div className="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-xs"
+                                <div className="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-base"
                                     style={{ background: "linear-gradient(135deg,#f59e0b,#d97706)" }}>
                                     🕉️
                                 </div>
@@ -347,12 +347,12 @@ export function GurujiAIChat() {
 
                     {/* Quick suggestions (only when last message is from assistant & messages ≤ 2) */}
                     {messages.length <= 2 && !isLoading && (
-                        <div className="px-3 pb-2 flex gap-2 flex-wrap flex-shrink-0 border-t border-gray-100 pt-2">
+                        <div className="px-5 pb-2 flex gap-2 flex-wrap flex-shrink-0 border-t border-gray-100 pt-2">
                             {QUICK_SUGGESTIONS.slice(0, 3).map((s) => (
                                 <button
                                     key={s}
                                     onClick={() => sendMessage(s)}
-                                    className="text-[11px] px-3 py-1.5 rounded-full border border-amber-300 text-amber-700 bg-amber-50 hover:bg-amber-100 transition-colors whitespace-nowrap"
+                                    className="text-[11px] px-5 py-3.5 rounded-full border border-amber-300 text-amber-700 bg-amber-50 hover:bg-amber-100 transition-colors whitespace-nowrap"
                                     disabled={!puterReady}
                                 >
                                     {s}
@@ -363,7 +363,7 @@ export function GurujiAIChat() {
 
                     {/* Input area */}
                     <div
-                        className="flex items-end gap-2 px-3 py-3 flex-shrink-0 border-t border-gray-100"
+                        className="flex items-end gap-2 px-5 py-3 flex-shrink-0 border-t border-gray-100"
                         style={{ background: "#fff" }}
                     >
                         <textarea
@@ -379,7 +379,7 @@ export function GurujiAIChat() {
                                     : "AI loading..."
                             }
                             disabled={!puterReady || isLoading}
-                            className="flex-1 resize-none rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-sm outline-none focus:border-amber-400 focus:bg-white transition-colors placeholder:text-gray-400 disabled:opacity-50"
+                            className="flex-1 resize-none rounded-xl border border-gray-200 bg-gray-50 px-5 py-2 text-lg outline-none focus:border-amber-400 focus:bg-white transition-colors placeholder:text-gray-400 disabled:opacity-50"
                             style={{ maxHeight: "120px", lineHeight: "1.5" }}
                             onInput={(e) => {
                                 const t = e.currentTarget;

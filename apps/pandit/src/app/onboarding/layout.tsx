@@ -29,22 +29,30 @@ export default function OnboardingLayout({
   }
 
   return (
-    <div className="screen-always-on min-h-screen bg-vedic-cream relative">
-      {/* Top Bar with Language Toggle */}
-      <header className="sticky top-0 z-50 bg-vedic-cream border-b border-vedic-border">
-        <div className="flex items-center justify-between px-4 h-16">
-          <div className="flex items-center gap-2">
-            <span className="text-2xl text-primary">ॐ</span>
-            <span className="text-lg font-semibold text-vedic-brown">HmarePanditJi</span>
+    <div className="screen-always-on min-h-screen bg-surface-base relative">
+      {/* Top Bar with Large Prominent Om Symbol and Textual Language Toggle */}
+      <header className="sticky top-0 z-50 bg-surface-base border-b border-border-default">
+        <div className="flex flex-col items-center pt-4 pb-2 px-4">
+          {/* Large Om Symbol - Primary Trust Signal for Vedic App */}
+          <div className="mb-1">
+            <span className="text-[56px] font-bold text-saffron animate-gentle-float" aria-label="Sacred Om Symbol">
+              ॐ
+            </span>
           </div>
+          <div className="flex items-center gap-2 font-bold text-[22px] text-text-primary">
+            <span className="text-[32px] text-saffron">ॐ</span>
+            <span>HmarePanditJi</span>
+          </div>
+        </div>
+        <div className="flex items-center justify-center pb-4">
           <button
             onClick={handleLanguageChange}
-            className="min-h-[56px] px-4 flex items-center gap-2 bg-primary-lt border-2 border-primary rounded-full hover:bg-primary/20 transition-colors active:scale-95"
+            className="min-h-[56px] px-6 flex items-center gap-3 bg-surface-muted border-2 border-saffron/30 rounded-full hover:bg-saffron-light transition-colors active:scale-95 focus:ring-2 focus:ring-primary focus:outline-none"
             aria-label="Change language / भाषा बदलें"
           >
-            <span className="text-[16px] font-bold text-primary">हिन्दी</span>
-            <span className="text-[14px] text-vedic-gold">/</span>
-            <span className="text-[14px] font-medium text-vedic-gold">English</span>
+            <span className="text-[20px] font-bold text-saffron">हिन्दी</span>
+            <span className="text-[18px] text-text-secondary">/</span>
+            <span className="text-[18px] font-medium text-text-secondary">English</span>
           </button>
         </div>
       </header>

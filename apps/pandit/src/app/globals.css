@@ -43,18 +43,74 @@
     scroll-behavior: smooth;
   }
 
-  /* UI-016 FIX: Larger touch targets for wet hand reliability */
+  /* UI-016 FIX: Larger touch targets for wet hand reliability - ENFORCED 56px minimum */
   @media (pointer: coarse) {
 
     button,
     a,
     [role="button"],
     input[type="button"],
-    input[type="submit"] {
-      min-height: 52px;
-      min-width: 52px;
-      padding: 12px 16px;
+    input[type="submit"],
+    input[type="checkbox"],
+    input[type="radio"],
+    select,
+    option {
+      min-height: 56px;
+      min-width: 56px;
+      padding: 14px 18px;
+      touch-action: manipulation;
     }
+
+    /* Extra large touch targets for primary CTAs */
+    button[type="submit"],
+    button[aria-label*="लॉगिन"],
+    button[aria-label*="जुड़ें"],
+    .primary-action {
+      min-height: 64px;
+      min-width: 64px;
+      padding: 16px 24px;
+    }
+  }
+
+  /* ALWAYS enforce 56px minimum touch targets for elderly users (not just coarse pointer) */
+  button,
+  a,
+  [role="button"],
+  input[type="button"],
+  input[type="submit"] {
+    min-height: 56px;
+    min-width: 56px;
+  }
+
+  /* ELDERLY ACCESSIBILITY: Force minimum 16px font sizes - override text-xs and text-sm */
+  .text-xs,
+  .text-sm {
+    font-size: 18px !important;
+  }
+
+  /* Enforce minimum 16px on all text elements for elderly readability */
+  p,
+  span,
+  label,
+  div,
+  li,
+  td,
+  th {
+    font-size: min(16px, 1rem);
+  }
+
+  /* Exceptions for already-sized elements */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  .text-hero,
+  .text-title,
+  .text-body,
+  .text-body-sm {
+    font-size: inherit;
   }
 }
 

@@ -125,11 +125,12 @@ function ToastItem({
       </span>
 
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-bold text-slate-900 dark:text-slate-100">
+        <p className="text-base font-bold text-slate-900 dark:text-slate-100">
           {item.title}
         </p>
         {item.message && (
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+          // ACC-010 FIX: Larger message text for elderly readability
+          <p className="text-base text-slate-500 dark:text-slate-400 mt-1">
             {item.message}
           </p>
         )}

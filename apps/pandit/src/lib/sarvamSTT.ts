@@ -71,25 +71,25 @@ export const SARVAM_PROMPTS: Record<string, string> = {
 
 export function getSTTProvider(language: string): 'sarvam' | 'deepgram' {
   const lang = language.toLowerCase()
-  
+
   // Sarvam excels at regional Indian languages
   const sarvamLanguages = [
     'bhojpuri', 'maithili', 'bengali', 'bangla', 'tamil', 'telugu',
     'kannada', 'malayalam', 'marathi', 'gujarati', 'odia', 'punjabi',
     'assamese', 'sanskrit'
   ]
-  
+
   if (sarvamLanguages.some(l => lang.includes(l))) {
     return 'sarvam'
   }
-  
+
   // For Hindi and English, use Deepgram Nova-3 (better latency for common languages)
   // But if user has strong accent, prefer Sarvam
   if (lang.includes('hindi') || lang.includes('hi-')) {
     // Check if Bhojpuri/Maithili influence detected (code-mixing)
     return 'sarvam' // Prefer Sarvam for Indian Hindi due to accent handling
   }
-  
+
   // Default to Sarvam for Indian users
   return 'sarvam'
 }
@@ -171,23 +171,24 @@ class SarvamSTTEngine {
       const noiseLevel = await this.checkAmbientNoise()
       this.lastNoiseLevel = noiseLevel
 
-      // If noise is too high (>65dB), warn user but continue
-      // The UI should show a keyboard fallback suggestion
-      if (noiseLevel > 65) {
+      // If noise is too high (>75dB), warn user but continue
+      // Typical silence: 0-20, Normal room: 20-40, Loud: 40-60, Very loud: 60-75, Extremely loud: 75+
+      // BUG-MEDIUM-04 FIX: Increased threshold from 65 to 75 to prevent false-triggering in quiet environments
+      if (noiseLevel > 75) {
         console.warn('[SarvamSTT] High ambient noise detected:', noiseLevel, 'dB')
         options.onNoiseLevel?.(noiseLevel)
       }
 
       // Step 3: Get a session token from our API route
-      const tokenResponse = await fetch('/api/stt-token', { 
+      const tokenResponse = await fetch('/api/stt-token', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       })
-      
+
       if (!tokenResponse.ok) {
         throw new Error(`Failed to get STT token: ${tokenResponse.statusText}`)
       }
-      
+
       const { apiKey } = await tokenResponse.json()
 
       // Step 4: Determine provider (Sarvam vs Deepgram)
@@ -200,7 +201,7 @@ class SarvamSTTEngine {
 
       this.ws.onopen = () => {
         console.log('[SarvamSTT] WebSocket connected')
-        
+
         // Send configuration message first (required before audio)
         const config = {
           api_key: apiKey,
@@ -213,7 +214,7 @@ class SarvamSTTEngine {
           sampling_rate: 16000,
           audio_format: 'pcm',
         }
-        
+
         this.ws!.send(JSON.stringify({ type: 'config', ...config }))
         console.log('[SarvamSTT] Sent config:', config)
 
@@ -244,7 +245,7 @@ class SarvamSTTEngine {
             const confidence = data.confidence || 0.5
 
             console.log('[SarvamSTT] Final transcript:', transcript, 'confidence:', confidence)
-            
+
             this.stopListening()
             this.processTranscript(transcript, confidence, inputType)
           } else if (data.type === 'vad_silence') {
@@ -268,14 +269,14 @@ class SarvamSTTEngine {
       this.ws.onclose = (event) => {
         console.log('[SarvamSTT] WebSocket closed:', event.code, event.reason)
         this.isListening = false
-        
+
         // Clean up audio stream
         this.cleanupAudio()
       }
 
     } catch (error: any) {
       console.error('[SarvamSTT] Start listening failed:', error)
-      
+
       if (error.name === 'NotAllowedError') {
         this.options.onError?.('mic_denied')
       } else if (error.name === 'NotFoundError') {
@@ -285,7 +286,7 @@ class SarvamSTTEngine {
       } else {
         this.options.onError?.('mic_error')
       }
-      
+
       this.cleanupAudio()
     }
   }
@@ -309,13 +310,13 @@ class SarvamSTTEngine {
         setTimeout(() => {
           const data = new Uint8Array(this.analyserNode!.frequencyBinCount)
           this.analyserNode!.getByteFrequencyData(data)
-          
+
           // Calculate average volume (RMS approximation)
           const avgDb = data.reduce((a, b) => a + b, 0) / data.length
-          
+
           // Convert to approximate dB (0-100 scale)
           const noiseLevel = Math.min(100, Math.max(0, avgDb * 1.5))
-          
+
           resolve(Math.round(noiseLevel))
         }, 500)
       })
@@ -357,7 +358,7 @@ class SarvamSTTEngine {
       console.log('[SarvamSTT] Started audio streaming at 100ms intervals')
     } catch (err: any) {
       console.error('[SarvamSTT] MediaRecorder setup failed:', err)
-      
+
       // Fallback: try audio/webm without codecs specification
       try {
         this.mediaRecorder = new MediaRecorder(this.audioStream, {
@@ -458,10 +459,10 @@ class SarvamSTTEngine {
     }
 
     let text = transcript.toLowerCase()
-    
+
     // Strip preambles
     text = text.replace(/^(mera number|hamara number|number|ye number|is number|mera mobile|phone number|mobile|cell number)\s*/gi, '')
-    
+
     // Strip country code
     text = text.replace(/^(\+91|91|plus 91)\s*/, '')
 
@@ -473,7 +474,7 @@ class SarvamSTTEngine {
     if (numericOnly.length === 12 && numericOnly.startsWith('91')) {
       return numericOnly.slice(2)
     }
-    
+
     // Return first 10 digits
     return numericOnly.slice(0, 10)
   }
@@ -496,13 +497,13 @@ class SarvamSTTEngine {
     }
 
     let text = transcript.toLowerCase()
-    
+
     // Strip OTP preambles
     text = text.replace(/^(otp|code|verification code|otp code)\s*/gi, '')
 
     const words = text.split(/[\s,]+/)
     const digits = words.map(w => HINDI_DIGITS[w] || w.replace(/[^0-9]/g, '')).join('')
-    
+
     return digits.replace(/[^0-9]/g, '').slice(0, 6)
   }
 
@@ -511,15 +512,15 @@ class SarvamSTTEngine {
    */
   private normalizeYesNo(transcript: string): string | null {
     const text = transcript.toLowerCase().trim()
-    
+
     const YES_WORDS = [
-      'haan', 'ha', 'haa', 'hanji', 'haanji', 'bilkul', 'sahi', 'theek', 
+      'haan', 'ha', 'haa', 'hanji', 'haanji', 'bilkul', 'sahi', 'theek',
       'ji haan', 'yes', 'correct', 'zaroor', 'thik hai', 'sahi hai', 'haan haan',
       'haan ji', 'thik', 'sahi', 'accha', 'ok', 'okay'
     ]
-    
+
     const NO_WORDS = [
-      'nahi', 'nahin', 'no', 'naa', 'galat', 'badlen', 'mat karo', 
+      'nahi', 'nahin', 'no', 'naa', 'galat', 'badlen', 'mat karo',
       'nahi chahiye', 'galat hai', 'na ji', 'nahin ji', 'mat', 'nahi nahi'
     ]
 
@@ -527,12 +528,12 @@ class SarvamSTTEngine {
     if (YES_WORDS.some(word => text.includes(word))) {
       return 'haan'
     }
-    
+
     // Check for no
     if (NO_WORDS.some(word => text.includes(word))) {
       return 'nahi'
     }
-    
+
     return null
   }
 
@@ -542,7 +543,7 @@ class SarvamSTTEngine {
   private normalizeDate(transcript: string): string {
     // Basic normalization - can be enhanced
     let text = transcript.trim()
-    
+
     // Convert Hindi number words to digits (basic mapping)
     const HINDI_NUMBERS: Record<string, string> = {
       'ek': '1', 'do': '2', 'teen': '3', 'chaar': '4', 'paanch': '5',
@@ -562,10 +563,10 @@ class SarvamSTTEngine {
    */
   private handleError(error: string): void {
     this.stopListening()
-    
+
     const errorCount = this.incrementErrorCount()
     console.log('[SarvamSTT] Error count:', errorCount, 'error:', error)
-    
+
     if (errorCount >= 3) {
       // Third error - suggest keyboard fallback
       this.options.onError?.('keyboard_fallback')
@@ -579,13 +580,13 @@ class SarvamSTTEngine {
    */
   stopListening(): void {
     console.log('[SarvamSTT] Stopping listening')
-    
+
     // Clear timers
     if (this.silenceTimer) {
       clearTimeout(this.silenceTimer)
       this.silenceTimer = null
     }
-    
+
     if (this.noiseCheckInterval) {
       clearInterval(this.noiseCheckInterval)
       this.noiseCheckInterval = null
@@ -609,7 +610,7 @@ class SarvamSTTEngine {
 
     // Clean up audio
     this.cleanupAudio()
-    
+
     this.isListening = false
   }
 

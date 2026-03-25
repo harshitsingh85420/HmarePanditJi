@@ -15,7 +15,7 @@ export default function BankVerificationPage() {
                                 arrow_back
                             </span>
                         </button>
-                        <div className="flex items-center space-x-2 bg-white/20 px-3 py-1 rounded-full text-xs font-medium backdrop-blur-sm">
+                        <div className="flex items-center space-x-2 bg-white/20 px-5 py-3 rounded-full text-base font-medium backdrop-blur-sm">
                             <span className="w-2 h-2 rounded-full bg-yellow-300 animate-pulse"></span>
                             <span>Verification Pending</span>
                         </div>
@@ -25,7 +25,7 @@ export default function BankVerificationPage() {
                         <br />
                         Payout Setup
                     </h1>
-                    <p className="text-white/90 text-sm">
+                    <p className="text-white/90 text-lg">
                         Secure your earnings with HmarePanditJi
                     </p>
                 </header>
@@ -39,10 +39,10 @@ export default function BankVerificationPage() {
                             </span>
                         </div>
                         <div>
-                            <h3 className="font-semibold text-gray-800 text-sm mb-1">
+                            <h3 className="font-semibold text-gray-800 text-lg mb-1">
                                 Auto-Credit Enabled
                             </h3>
-                            <p className="text-xs text-gray-600 leading-relaxed">
+                            <p className="text-base text-gray-600 leading-relaxed">
                                 Your payments will be auto-credited to this account within 24
                                 hours after every successful Puja.
                             </p>
@@ -52,7 +52,7 @@ export default function BankVerificationPage() {
                     <div className="space-y-6 flex-1">
                         {/* Account Number */}
                         <div className="group">
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                            <label className="block text-lg font-semibold text-gray-700 mb-2">
                                 Account Number
                             </label>
                             <div className="relative flex items-center">
@@ -79,7 +79,7 @@ export default function BankVerificationPage() {
 
                         {/* Confirm Account Number */}
                         <div className="group">
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                            <label className="block text-lg font-semibold text-gray-700 mb-2">
                                 Confirm Account Number
                             </label>
                             <div className="relative flex items-center">
@@ -107,11 +107,11 @@ export default function BankVerificationPage() {
                         {/* IFSC Code */}
                         <div className="group">
                             <div className="flex justify-between items-center mb-2">
-                                <label className="block text-sm font-semibold text-gray-700">
+                                <label className="block text-lg font-semibold text-gray-700">
                                     IFSC Code
                                 </label>
                                 <a
-                                    className="text-xs text-[#f09942] font-medium hover:underline"
+                                    className="text-base text-[#f09942] font-medium hover:underline"
                                     href="#"
                                 >
                                     Find IFSC
@@ -138,7 +138,7 @@ export default function BankVerificationPage() {
                                 </button>
                             </div>
                             {/* Hidden success state manually togglable if functionality added */}
-                            <div className="hidden mt-2 flex items-center gap-1.5 text-xs text-green-600 font-medium">
+                            <div className="hidden mt-2 flex items-center gap-1.5 text-base text-green-600 font-medium">
                                 <span className="material-symbols-outlined text-[14px]">
                                     check_circle
                                 </span>
@@ -150,7 +150,7 @@ export default function BankVerificationPage() {
 
                         {/* UPI ID */}
                         <div className="group">
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                            <label className="block text-lg font-semibold text-gray-700 mb-2">
                                 UPI ID <span className="text-gray-400 font-normal">(Optional)</span>
                             </label>
                             <div className="relative flex items-center">
@@ -173,7 +173,7 @@ export default function BankVerificationPage() {
                                     </span>
                                 </button>
                             </div>
-                            <p className="text-xs text-gray-500 mt-2">
+                            <p className="text-base text-gray-500 mt-2">
                                 For faster small payments and reimbursements.
                             </p>
                         </div>
@@ -182,7 +182,7 @@ export default function BankVerificationPage() {
 
                 {/* Footer Action */}
                 <div className="p-6 bg-white border-t border-gray-100">
-                    <div className="flex items-center gap-3 mb-4 text-xs text-gray-500 bg-gray-50 p-3 rounded-lg">
+                    <div className="flex items-center gap-3 mb-4 text-base text-gray-500 bg-gray-50 p-3 rounded-lg">
                         <span className="material-symbols-outlined text-[16px] text-gray-400">
                             lock
                         </span>

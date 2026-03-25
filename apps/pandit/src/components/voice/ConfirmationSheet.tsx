@@ -83,7 +83,7 @@ export function ConfirmationSheet({
           >
             {/* Handle bar */}
             <div className="flex justify-center pt-3 pb-2">
-              <div className="w-8 h-1 bg-border-default rounded-full" />
+              <div className="w-12 h-1 bg-border-default rounded-full" />
             </div>
 
             <div className="px-6 pb-6 flex flex-col gap-5">
@@ -121,7 +121,7 @@ export function ConfirmationSheet({
                     transition={{ duration: 1, ease: 'linear' }}
                   />
                 </div>
-                <span className="text-text-secondary text-base font-mono w-8 text-right">
+                <span className="text-text-secondary text-base font-mono w-12 text-right">
                   {countdown}s
                 </span>
               </div>

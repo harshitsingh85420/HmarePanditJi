@@ -46,7 +46,7 @@ export default function HelpScreen({ onLanguageChange, onBack }: HelpScreenProps
         </p>
 
         {/* Divider */}
-        <div className="w-full h-px bg-vedic-border my-6" />
+        <div className="w-full h-[2px] bg-surface-dim my-6" />
 
         {/* Help Cards */}
         <section className="w-full space-y-3">
@@ -62,7 +62,7 @@ export default function HelpScreen({ onLanguageChange, onBack }: HelpScreenProps
             </div>
             <div className="text-left">
               <p className="text-[20px] font-bold text-white">हमारी Team से बात करें</p>
-              <p className="text-[15px] text-white/85">1800-HMJ-HELP | बिल्कुल Free</p>
+              <p className="text-[16px] text-white/85 mt-0.5">1800-HMJ-HELP | बिल्कुल Free</p>
             </div>
           </a>
 
@@ -78,22 +78,22 @@ export default function HelpScreen({ onLanguageChange, onBack }: HelpScreenProps
             </div>
             <div className="text-left">
               <p className="text-[18px] font-bold text-white">WhatsApp पर लिखें</p>
-              <p className="text-[14px] text-white/90">Message भेजें, जवाब आएगा</p>
+              <p className="text-[16px] text-white/90 mt-0.5">Message भेजें, जवाब आएगा</p>
             </div>
           </a>
         </section>
 
         {/* "या" Divider */}
         <div className="flex items-center gap-3 my-5 w-full">
-          <div className="flex-1 h-px bg-vedic-border" />
-          <span className="text-[15px] text-saffron font-medium">─── या ───</span>
-          <div className="flex-1 h-px bg-vedic-border" />
+          <div className="flex-1 h-[2px] bg-surface-dim" />
+          <span className="text-[18px] text-saffron font-medium">─── या ───</span>
+          <div className="flex-1 h-[2px] bg-surface-dim" />
         </div>
 
         {/* Back link */}
         <button
           onClick={onBack}
-          className="text-saffron font-semibold border-b-2 border-saffron-lt pb-0.5 hover:border-saffron transition-colors text-[16px]"
+          className="text-[18px] font-semibold border-b-2 border-saffron-lt pb-0.5 hover:border-saffron transition-colors"
         >
           वापस जाएं / खुद करें
         </button>
@@ -101,7 +101,7 @@ export default function HelpScreen({ onLanguageChange, onBack }: HelpScreenProps
 
       {/* Footer hours note */}
       <footer className="text-center pb-8 pt-4">
-        <p className="text-[14px] text-saffron">
+        <p className="text-[16px] text-saffron">
           सुबह 8 बजे – रात 10 बजे
         </p>
       </footer>

@@ -14,13 +14,13 @@ export default function ProfilePage() {
                 {/* Sidebar Navigation */}
                 <aside className="w-full lg:w-64 shrink-0 flex flex-col gap-6">
                     <div>
-                        <h3 className="text-[#baaf9c] text-xs font-bold uppercase tracking-wider mb-4 px-3">
+                        <h3 className="text-[#baaf9c] text-base font-bold uppercase tracking-wider mb-4 px-5">
                             Account Settings
                         </h3>
                         <nav className="flex flex-col gap-1">
                             <Link
                                 href="/dashboard/profile"
-                                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-white font-medium bg-[#393328] border-l-4 border-[#f29e0d]"
+                                className="flex items-center gap-3 px-5 py-2.5 rounded-lg text-white font-medium bg-[#393328] border-l-4 border-[#f29e0d]"
                             >
                                 <span className="material-symbols-outlined text-[#f29e0d]">
                                     person
@@ -29,21 +29,21 @@ export default function ProfilePage() {
                             </Link>
                             <Link
                                 href="/dashboard/profile/family"
-                                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#baaf9c] hover:bg-[#393328] hover:text-white transition-all"
+                                className="flex items-center gap-3 px-5 py-2.5 rounded-lg text-[#baaf9c] hover:bg-[#393328] hover:text-white transition-all"
                             >
                                 <span className="material-symbols-outlined">group</span>
                                 My Family
                             </Link>
                             <Link
                                 href="#"
-                                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#baaf9c] hover:bg-[#393328] hover:text-white transition-all"
+                                className="flex items-center gap-3 px-5 py-2.5 rounded-lg text-[#baaf9c] hover:bg-[#393328] hover:text-white transition-all"
                             >
                                 <span className="material-symbols-outlined">location_on</span>
                                 Saved Addresses
                             </Link>
                             <Link
                                 href="#"
-                                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#baaf9c] hover:bg-[#393328] hover:text-white transition-all"
+                                className="flex items-center gap-3 px-5 py-2.5 rounded-lg text-[#baaf9c] hover:bg-[#393328] hover:text-white transition-all"
                             >
                                 <span className="material-symbols-outlined">payments</span>
                                 Payment Methods
@@ -51,21 +51,21 @@ export default function ProfilePage() {
                         </nav>
                     </div>
                     <div className="mt-4">
-                        <h3 className="text-[#baaf9c] text-xs font-bold uppercase tracking-wider mb-4 px-3">
+                        <h3 className="text-[#baaf9c] text-base font-bold uppercase tracking-wider mb-4 px-5">
                             Preferences
                         </h3>
-                        <div className="flex flex-col gap-4 px-3">
+                        <div className="flex flex-col gap-4 px-5">
                             <div className="flex items-center justify-between">
-                                <span className="text-sm text-white">
+                                <span className="text-lg text-white">
                                     Booking Notifications
                                 </span>
-                                <button className="relative inline-flex h-5 w-10 shrink-0 cursor-pointer items-center rounded-full bg-[#f29e0d] transition-colors focus:outline-none">
+                                <button className="relative inline-flex h-5 w-14 shrink-0 cursor-pointer items-center rounded-full bg-[#f29e0d] transition-colors focus:outline-none">
                                     <span className="translate-x-5 inline-block h-4 w-4 transform rounded-full bg-white transition-transform"></span>
                                 </button>
                             </div>
                             <div className="flex items-center justify-between">
-                                <span className="text-sm text-white">Travel Updates</span>
-                                <button className="relative inline-flex h-5 w-10 shrink-0 cursor-pointer items-center rounded-full bg-[#393328] transition-colors focus:outline-none">
+                                <span className="text-lg text-white">Travel Updates</span>
+                                <button className="relative inline-flex h-5 w-14 shrink-0 cursor-pointer items-center rounded-full bg-[#393328] transition-colors focus:outline-none">
                                     <span className="translate-x-1 inline-block h-4 w-4 transform rounded-full bg-white transition-transform"></span>
                                 </button>
                             </div>
@@ -82,17 +82,17 @@ export default function ProfilePage() {
                                 <h2 className="text-2xl font-bold text-white mb-1">
                                     My Profile
                                 </h2>
-                                <p className="text-[#baaf9c] text-sm">
+                                <p className="text-[#baaf9c] text-lg">
                                     Personal details and religious identifiers
                                 </p>
                             </div>
-                            <button className="text-[#f29e0d] border border-[#f29e0d]/30 hover:bg-[#f29e0d]/10 px-4 py-2 rounded-lg text-sm font-semibold transition-all">
+                            <button className="text-[#f29e0d] border border-[#f29e0d]/30 hover:bg-[#f29e0d]/10 px-4 py-2 rounded-lg text-lg font-semibold transition-all">
                                 Edit Details
                             </button>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             <div className="flex flex-col gap-2">
-                                <label className="text-sm font-medium text-[#baaf9c]">
+                                <label className="text-lg font-medium text-[#baaf9c]">
                                     Full Name
                                 </label>
                                 <div className="bg-[#393328]/50 p-3 rounded-lg border border-[#393328] text-white">
@@ -100,7 +100,7 @@ export default function ProfilePage() {
                                 </div>
                             </div>
                             <div className="flex flex-col gap-2">
-                                <label className="text-sm font-medium text-[#baaf9c]">
+                                <label className="text-lg font-medium text-[#baaf9c]">
                                     Gotra
                                 </label>
                                 <div className="bg-[#393328]/50 p-3 rounded-lg border border-[#393328] text-white">
@@ -108,7 +108,7 @@ export default function ProfilePage() {
                                 </div>
                             </div>
                             <div className="flex flex-col gap-2">
-                                <label className="text-sm font-medium text-[#baaf9c]">
+                                <label className="text-lg font-medium text-[#baaf9c]">
                                     Preferred Language
                                 </label>
                                 <div className="bg-[#393328]/50 p-3 rounded-lg border border-[#393328] text-white">
@@ -125,13 +125,13 @@ export default function ProfilePage() {
                                 <h2 className="text-2xl font-bold text-white mb-1">
                                     My Family
                                 </h2>
-                                <p className="text-[#baaf9c] text-sm">
+                                <p className="text-[#baaf9c] text-lg">
                                     Add family members for personalized rituals
                                 </p>
                             </div>
                             <button
                                 onClick={() => router.push('/dashboard/profile/family')}
-                                className="flex items-center gap-2 bg-[#f29e0d]/20 text-[#f29e0d] px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#f29e0d]/30 transition-all"
+                                className="flex items-center gap-2 bg-[#f29e0d]/20 text-[#f29e0d] px-4 py-2 rounded-lg text-lg font-bold hover:bg-[#f29e0d]/30 transition-all"
                             >
                                 <span className="material-symbols-outlined text-base">add</span>
                                 Add Member
@@ -144,7 +144,7 @@ export default function ProfilePage() {
                                 </div>
                                 <div className="flex-1">
                                     <h4 className="text-white font-semibold">Priya Sharma</h4>
-                                    <p className="text-[#baaf9c] text-xs">
+                                    <p className="text-[#baaf9c] text-base">
                                         Spouse • Gotra: Bharadwaj
                                     </p>
                                 </div>
@@ -160,7 +160,7 @@ export default function ProfilePage() {
                                 </div>
                                 <div className="flex-1">
                                     <h4 className="text-white font-semibold">Aryan Sharma</h4>
-                                    <p className="text-[#baaf9c] text-xs">
+                                    <p className="text-[#baaf9c] text-base">
                                         Son • Gotra: Vatsa
                                     </p>
                                 </div>
@@ -180,7 +180,7 @@ export default function ProfilePage() {
                                 <h2 className="text-xl font-bold text-white">
                                     Saved Addresses
                                 </h2>
-                                <button className="text-[#f29e0d] text-sm font-semibold hover:underline">
+                                <button className="text-[#f29e0d] text-lg font-semibold hover:underline">
                                     Manage All
                                 </button>
                             </div>
@@ -191,7 +191,7 @@ export default function ProfilePage() {
                                     </span>
                                     <div>
                                         <h4 className="text-white font-medium">Home (Gurugram)</h4>
-                                        <p className="text-[#baaf9c] text-xs leading-relaxed mt-1">
+                                        <p className="text-[#baaf9c] text-base leading-relaxed mt-1">
                                             402, Lotus Towers, Sector 45, Gurugram, Haryana - 122003
                                         </p>
                                     </div>
@@ -205,7 +205,7 @@ export default function ProfilePage() {
                                 <h2 className="text-xl font-bold text-white">
                                     Payment Methods
                                 </h2>
-                                <button className="text-[#f29e0d] text-sm font-semibold hover:underline">
+                                <button className="text-[#f29e0d] text-lg font-semibold hover:underline">
                                     Add New
                                 </button>
                             </div>
@@ -219,7 +219,7 @@ export default function ProfilePage() {
                                             <h4 className="text-white font-medium">
                                                 HDFC Bank Debit Card
                                             </h4>
-                                            <p className="text-[#baaf9c] text-xs mt-1">
+                                            <p className="text-[#baaf9c] text-base mt-1">
                                                 **** **** 4589
                                             </p>
                                         </div>
@@ -239,11 +239,11 @@ export default function ProfilePage() {
                                 <h2 className="text-2xl font-bold text-white mb-1">
                                     My Pandits
                                 </h2>
-                                <p className="text-[#baaf9c] text-sm">
+                                <p className="text-[#baaf9c] text-lg">
                                     Trusted family Pandits and Kul Purohits
                                 </p>
                             </div>
-                            <button className="text-[#f29e0d] text-sm font-semibold border border-[#f29e0d]/20 px-4 py-2 rounded-lg hover:bg-[#f29e0d]/5 transition-all">
+                            <button className="text-[#f29e0d] text-lg font-semibold border border-[#f29e0d]/20 px-4 py-2 rounded-lg hover:bg-[#f29e0d]/5 transition-all">
                                 Find New Pandit
                             </button>
                         </div>
@@ -261,22 +261,22 @@ export default function ProfilePage() {
                                         <h4 className="text-white font-bold text-lg">
                                             Pandit Rajeshwar Jha
                                         </h4>
-                                        <span className="bg-[#f29e0d]/20 text-[#f29e0d] text-[10px] font-bold px-1.5 py-0.5 rounded">
+                                        <span className="bg-[#f29e0d]/20 text-[#f29e0d] text-[10px] font-bold px-1.5 py-2 rounded">
                                             Kul Purohit
                                         </span>
                                     </div>
-                                    <p className="text-[#baaf9c] text-sm mt-0.5">
+                                    <p className="text-[#baaf9c] text-lg mt-0.5">
                                         Specialist: Satyanarayan Katha, Griha Pravesh
                                     </p>
                                     <div className="flex items-center gap-4 mt-2">
-                                        <div className="flex items-center gap-1 text-[#f29e0d] text-xs font-semibold">
-                                            <span className="material-symbols-outlined text-sm">
+                                        <div className="flex items-center gap-1 text-[#f29e0d] text-base font-semibold">
+                                            <span className="material-symbols-outlined text-lg">
                                                 star
                                             </span>
                                             4.9 (120+)
                                         </div>
-                                        <div className="flex items-center gap-1 text-[#baaf9c] text-xs">
-                                            <span className="material-symbols-outlined text-sm">
+                                        <div className="flex items-center gap-1 text-[#baaf9c] text-base">
+                                            <span className="material-symbols-outlined text-lg">
                                                 schedule
                                             </span>
                                             Available Tomorrow

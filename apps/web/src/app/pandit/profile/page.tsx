@@ -20,19 +20,19 @@ export default function ProfilePage() {
                         </h2>
                     </Link>
                     <nav className="hidden md:flex items-center gap-9">
-                        <Link href="/pandit/dashboard" className="text-sm font-medium hover:text-[#f49d25] transition-colors">
+                        <Link href="/pandit/dashboard" className="text-lg font-medium hover:text-[#f49d25] transition-colors">
                             Dashboard
                         </Link>
-                        <Link href="/pandit/bookings" className="text-sm font-medium hover:text-[#f49d25] transition-colors">
+                        <Link href="/pandit/bookings" className="text-lg font-medium hover:text-[#f49d25] transition-colors">
                             Bookings
                         </Link>
-                        <Link href="/pandit/profile" className="text-sm font-medium text-[#f49d25] transition-colors">
+                        <Link href="/pandit/profile" className="text-lg font-medium text-[#f49d25] transition-colors">
                             Profile
                         </Link>
                     </nav>
                 </div>
                 <div className="flex flex-1 justify-end gap-6 items-center">
-                    <div className="hidden lg:flex items-center bg-[#f49d25]/5 rounded-lg h-10 px-4 w-64 text-[#8a7960]">
+                    <div className="hidden lg:flex items-center bg-[#f49d25]/5 rounded-lg h-14 px-4 w-64 text-[#8a7960]">
                         <span className="material-symbols-outlined mr-2">search</span>
                         <input
                             type="text"
@@ -40,7 +40,7 @@ export default function ProfilePage() {
                             className="bg-transparent border-none outline-none text-base w-full placeholder:text-[#8a7960] text-[#181511]"
                         />
                     </div>
-                    <button className="hidden md:flex min-w-[84px] cursor-pointer items-center justify-center rounded-lg h-10 px-4 bg-[#f49d25] text-white text-sm font-bold tracking-[0.015em] hover:bg-[#f49d25]/90 transition-all">
+                    <button className="hidden md:flex min-w-[84px] cursor-pointer items-center justify-center rounded-lg h-14 px-4 bg-[#f49d25] text-white text-lg font-bold tracking-[0.015em] hover:bg-[#f49d25]/90 transition-all">
                         <span>Logout</span>
                     </button>
                     <div
@@ -56,11 +56,11 @@ export default function ProfilePage() {
             <main className="max-w-[1280px] mx-auto w-full px-6 py-8">
                 {/* Breadcrumbs */}
                 <div className="flex flex-wrap gap-2 pb-6">
-                    <Link href="/pandit/dashboard" className="text-[#8a7960] text-sm font-medium hover:text-[#f49d25] transition-colors">
+                    <Link href="/pandit/dashboard" className="text-[#8a7960] text-lg font-medium hover:text-[#f49d25] transition-colors">
                         Dashboard
                     </Link>
-                    <span className="text-[#8a7960] text-sm font-medium">/</span>
-                    <span className="text-[#181511] dark:text-white text-sm font-bold">
+                    <span className="text-[#8a7960] text-lg font-medium">/</span>
+                    <span className="text-[#181511] dark:text-white text-lg font-bold">
                         Pandit Sharma Ji Profile
                     </span>
                 </div>
@@ -92,11 +92,11 @@ export default function ProfilePage() {
                                             <span className="material-symbols-outlined">
                                                 edit
                                             </span>
-                                            <span className="font-bold text-sm">Edit Profile</span>
+                                            <span className="font-bold text-lg">Edit Profile</span>
                                         </button>
                                     </div>
                                     <p className="text-[#8a7960] dark:text-[#b0a08a] mt-2 flex items-center gap-2">
-                                        <span className="material-symbols-outlined text-sm">
+                                        <span className="material-symbols-outlined text-lg">
                                             location_on
                                         </span>
                                         Varanasi, UP | 15+ Years Experience | 500+ Ceremonies
@@ -109,25 +109,25 @@ export default function ProfilePage() {
                                                 </span>
                                                 <span className="text-xl font-bold">4.9</span>
                                             </div>
-                                            <span className="text-[#8a7960] text-xs">
+                                            <span className="text-[#8a7960] text-base">
                                                 128 Reviews
                                             </span>
                                         </div>
-                                        <div className="h-8 w-px bg-[#f49d25]/20"></div>
+                                        <div className="h-12 w-px bg-[#f49d25]/20"></div>
                                         <div className="flex flex-col">
                                             <span className="text-xl font-bold text-[#181511] dark:text-white">
                                                 500+
                                             </span>
-                                            <span className="text-[#8a7960] text-xs">
+                                            <span className="text-[#8a7960] text-base">
                                                 Ceremonies
                                             </span>
                                         </div>
-                                        <div className="h-8 w-px bg-[#f49d25]/20"></div>
+                                        <div className="h-12 w-px bg-[#f49d25]/20"></div>
                                         <div className="flex flex-col items-center">
                                             <span className="material-symbols-outlined text-green-600">
                                                 verified
                                             </span>
-                                            <span className="text-[#8a7960] text-xs">Verified</span>
+                                            <span className="text-[#8a7960] text-base">Verified</span>
                                         </div>
                                     </div>
                                 </div>
@@ -160,10 +160,10 @@ export default function ProfilePage() {
                             </p>
                             <h4 className="font-bold text-[#181511] dark:text-white mt-4">Languages Spoken</h4>
                             <div className="flex gap-2">
-                                <span className="px-3 py-1 bg-[#f49d25]/10 text-[#f49d25] rounded-full text-sm font-medium">Hindi</span>
-                                <span className="px-3 py-1 bg-[#f49d25]/10 text-[#f49d25] rounded-full text-sm font-medium">Sanskrit</span>
-                                <span className="px-3 py-1 bg-[#f49d25]/10 text-[#f49d25] rounded-full text-sm font-medium">English</span>
-                                <span className="px-3 py-1 bg-[#f49d25]/10 text-[#f49d25] rounded-full text-sm font-medium">Bhojpuri</span>
+                                <span className="px-5 py-3 bg-[#f49d25]/10 text-[#f49d25] rounded-full text-lg font-medium">Hindi</span>
+                                <span className="px-5 py-3 bg-[#f49d25]/10 text-[#f49d25] rounded-full text-lg font-medium">Sanskrit</span>
+                                <span className="px-5 py-3 bg-[#f49d25]/10 text-[#f49d25] rounded-full text-lg font-medium">English</span>
+                                <span className="px-5 py-3 bg-[#f49d25]/10 text-[#f49d25] rounded-full text-lg font-medium">Bhojpuri</span>
                             </div>
                         </section>
 
@@ -176,7 +176,7 @@ export default function ProfilePage() {
                             <div className="w-full bg-[#f8f7f5] dark:bg-white/10 rounded-full h-4 mb-2">
                                 <div className="bg-[#f49d25] h-4 rounded-full" style={{ width: "85%" }}></div>
                             </div>
-                            <p className="text-sm text-[#8a7960] mb-6">Your profile is <strong>85% complete</strong>. Add more gallery photos to reach 100%.</p>
+                            <p className="text-lg text-[#8a7960] mb-6">Your profile is <strong>85% complete</strong>. Add more gallery photos to reach 100%.</p>
 
                             <button className="w-full bg-[#f49d25] hover:bg-[#f49d25]/90 text-white font-bold py-3 rounded-xl shadow-lg shadow-[#f49d25]/20 transition-all mb-3">
                                 Upload New Photos
@@ -191,8 +191,8 @@ export default function ProfilePage() {
                                 verified_user
                             </span>
                             <div className="flex flex-col">
-                                <span className="font-bold text-sm">Identity Verified</span>
-                                <span className="text-xs text-[#8a7960]">
+                                <span className="font-bold text-lg">Identity Verified</span>
+                                <span className="text-base text-[#8a7960]">
                                     Aadhar & Pan Card verified on Jan 2024.
                                 </span>
                             </div>
@@ -203,7 +203,7 @@ export default function ProfilePage() {
 
             <footer className="bg-white dark:bg-[#1c1917] mt-12 border-t border-[#f49d25]/10 py-12 px-10">
                 <div className="max-w-[1280px] mx-auto flex flex-col md:flex-row justify-between gap-8">
-                    <p className="text-[#8a7960] text-sm text-center w-full">
+                    <p className="text-[#8a7960] text-lg text-center w-full">
                         © 2024 HmarePanditJi Spiritual Services Pvt Ltd. All rights reserved.
                     </p>
                 </div>

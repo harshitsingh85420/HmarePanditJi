@@ -313,7 +313,7 @@ export function MuhuratPageClient() {
             key={puja}
             onClick={() => handleFilterChange(puja)}
             className={[
-              "px-4 py-2 text-sm font-semibold rounded-full border transition-all",
+              "px-4 py-2 text-lg font-semibold rounded-full border transition-all",
               activePuja === puja
                 ? "bg-primary text-white border-primary shadow-md shadow-primary/20"
                 : "bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-primary/40 hover:text-primary",
@@ -356,7 +356,7 @@ export function MuhuratPageClient() {
             {DAY_NAMES.map((d) => (
               <div
                 key={d}
-                className="text-center text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase py-2"
+                className="text-center text-base font-semibold text-slate-400 dark:text-slate-500 uppercase py-2"
               >
                 {d}
               </div>
@@ -389,7 +389,7 @@ export function MuhuratPageClient() {
                     if (count > 0) handleDateClick(day);
                   }}
                   className={[
-                    "relative aspect-square flex flex-col items-center justify-center rounded-xl text-sm transition-all",
+                    "relative aspect-square flex flex-col items-center justify-center rounded-xl text-lg transition-all",
                     // Selected
                     isSelected
                       ? "bg-primary text-white font-bold shadow-lg shadow-primary/30 ring-2 ring-primary/40"
@@ -423,22 +423,22 @@ export function MuhuratPageClient() {
           </div>
 
           {loading && (
-            <p className="text-xs text-slate-400 text-center mt-4 animate-pulse">
+            <p className="text-base text-slate-400 text-center mt-4 animate-pulse">
               Loading muhurat dates...
             </p>
           )}
 
           {/* Legend */}
           <div className="flex items-center gap-4 mt-5 pt-4 border-t border-slate-100 dark:border-slate-800">
-            <div className="flex items-center gap-1.5 text-xs text-slate-400">
+            <div className="flex items-center gap-1.5 text-base text-slate-400">
               <span className="w-3 h-3 rounded bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700" />
               Auspicious date
             </div>
-            <div className="flex items-center gap-1.5 text-xs text-slate-400">
+            <div className="flex items-center gap-1.5 text-base text-slate-400">
               <span className="w-3 h-3 rounded ring-2 ring-primary" />
               Today
             </div>
-            <div className="flex items-center gap-1.5 text-xs text-slate-400">
+            <div className="flex items-center gap-1.5 text-base text-slate-400">
               <span className="w-3 h-3 rounded bg-primary" />
               Selected
             </div>
@@ -458,7 +458,7 @@ export function MuhuratPageClient() {
           </h3>
 
           {upcoming.length === 0 ? (
-            <p className="text-sm text-slate-400">
+            <p className="text-lg text-slate-400">
               No upcoming muhurat dates found.
             </p>
           ) : (
@@ -474,7 +474,7 @@ export function MuhuratPageClient() {
                     className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-left group"
                   >
                     <div className="w-11 h-11 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 flex flex-col items-center justify-center flex-shrink-0">
-                      <span className="text-xs font-bold text-primary leading-none">
+                      <span className="text-base font-bold text-primary leading-none">
                         {dayNum}
                       </span>
                       <span className="text-[9px] text-amber-600 dark:text-amber-400 uppercase font-semibold leading-none mt-0.5">
@@ -482,14 +482,14 @@ export function MuhuratPageClient() {
                       </span>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 truncate">
+                      <p className="text-lg font-semibold text-slate-800 dark:text-slate-200 truncate">
                         {entry.pujaType}
                       </p>
-                      <p className="text-xs text-slate-400 truncate">
+                      <p className="text-base text-slate-400 truncate">
                         {entry.timeWindow}
                       </p>
                     </div>
-                    <span className="material-symbols-outlined text-sm text-slate-300 group-hover:text-primary transition-colors">
+                    <span className="material-symbols-outlined text-lg text-slate-300 group-hover:text-primary transition-colors">
                       arrow_forward
                     </span>
                   </button>
@@ -513,7 +513,7 @@ export function MuhuratPageClient() {
               </span>
               Auspicious Pujas for {formatDateHindi(selectedDate)}
             </h3>
-            <p className="text-sm text-slate-400 mb-6">
+            <p className="text-lg text-slate-400 mb-6">
               Click &ldquo;Find Pandits&rdquo; to book a verified Pandit for your
               chosen ceremony.
             </p>
@@ -532,7 +532,7 @@ export function MuhuratPageClient() {
                 <span className="material-symbols-outlined text-4xl text-slate-300 dark:text-slate-600">
                   event_busy
                 </span>
-                <p className="text-sm text-slate-400 mt-3">
+                <p className="text-lg text-slate-400 mt-3">
                   No auspicious muhurats found for this date. Try another date or
                   puja type.
                 </p>
@@ -549,8 +549,8 @@ export function MuhuratPageClient() {
                         <h4 className="text-base font-bold text-slate-900 dark:text-slate-100">
                           {puja.pujaType} Muhurat
                         </h4>
-                        <div className="flex items-center gap-1.5 mt-1 text-sm text-primary font-semibold">
-                          <span className="material-symbols-outlined text-sm">
+                        <div className="flex items-center gap-1.5 mt-1 text-lg text-primary font-semibold">
+                          <span className="material-symbols-outlined text-lg">
                             schedule
                           </span>
                           {puja.timeWindow}
@@ -565,14 +565,14 @@ export function MuhuratPageClient() {
                     </div>
 
                     {puja.significance && (
-                      <p className="text-sm text-slate-500 dark:text-slate-400 mb-4 leading-relaxed">
+                      <p className="text-lg text-slate-500 dark:text-slate-400 mb-4 leading-relaxed">
                         {puja.significance}
                       </p>
                     )}
 
                     <a
                       href={`/search?ritual=${encodeURIComponent(puja.pujaType)}&date=${selectedDate}&muhurat=${encodeURIComponent(puja.timeWindow)}`}
-                      className="inline-flex items-center gap-1.5 text-sm font-bold text-primary hover:text-primary/80 transition-colors"
+                      className="inline-flex items-center gap-1.5 text-lg font-bold text-primary hover:text-primary/80 transition-colors"
                     >
                       Find Pandits for This
                       <span className="material-symbols-outlined text-base">

@@ -24,17 +24,17 @@ export default function LiveTrackingPage({ params }: { params: { id: string } })
                     <nav className="hidden md:flex items-center gap-9">
                         <Link
                             href="/pandit/dashboard"
-                            className="text-[#111318] dark:text-gray-300 text-sm font-medium leading-normal hover:text-[#135bec] transition-colors"
+                            className="text-[#111318] dark:text-gray-300 text-lg font-medium leading-normal hover:text-[#135bec] transition-colors"
                         >
                             Dashboard
                         </Link>
                         <Link
                             href={`/pandit/bookings/${params.id}`}
-                            className="text-[#111318] dark:text-gray-300 text-sm font-medium leading-normal hover:text-[#135bec] transition-colors"
+                            className="text-[#111318] dark:text-gray-300 text-lg font-medium leading-normal hover:text-[#135bec] transition-colors"
                         >
                             Booking
                         </Link>
-                        <span className="text-[#135bec] text-sm font-bold leading-normal">
+                        <span className="text-[#135bec] text-lg font-bold leading-normal">
                             Live Track
                         </span>
                     </nav>
@@ -110,13 +110,13 @@ export default function LiveTrackingPage({ params }: { params: { id: string } })
                                 onClick={() => router.back()}
                                 className="text-gray-500 hover:text-[#135bec] transition-colors flex items-center gap-1"
                             >
-                                <span className="material-symbols-outlined text-sm">arrow_back</span>
-                                <span className="text-sm font-medium">Itinerary</span>
+                                <span className="material-symbols-outlined text-lg">arrow_back</span>
+                                <span className="text-lg font-medium">Itinerary</span>
                             </button>
-                            <span className="material-symbols-outlined text-xs text-gray-400">
+                            <span className="material-symbols-outlined text-base text-gray-400">
                                 chevron_right
                             </span>
-                            <span className="text-sm font-bold">Live Journey Tracking</span>
+                            <span className="text-lg font-bold">Live Journey Tracking</span>
                         </div>
 
                         {/* Toggle Sidebar Button (Mobile) */}
@@ -133,17 +133,17 @@ export default function LiveTrackingPage({ params }: { params: { id: string } })
                 <aside className={`${isSidebarOpen ? 'translate-x-0' : 'translate-x-full'} md:translate-x-0 transition-transform duration-300 absolute md:relative right-0 top-0 bottom-0 w-full md:w-[400px] bg-white dark:bg-[#101622] border-l border-[#f0f2f4] dark:border-gray-800 overflow-y-auto flex flex-col p-6 shadow-2xl z-20 h-full`}>
                     {/* Trip Summary Card */}
                     <div className="bg-[#135bec] text-white rounded-xl p-6 mb-6 shadow-lg shadow-[#135bec]/20">
-                        <p className="text-blue-100 text-xs font-bold tracking-widest uppercase opacity-80 mb-1">
+                        <p className="text-blue-100 text-base font-bold tracking-widest uppercase opacity-80 mb-1">
                             Live Journey Status
                         </p>
                         <h3 className="text-2xl font-bold mb-4">En Route to Delhi</h3>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="bg-white/10 rounded-lg p-3">
                                 <div className="flex items-center gap-2 mb-1">
-                                    <span className="material-symbols-outlined text-sm">
+                                    <span className="material-symbols-outlined text-lg">
                                         schedule
                                     </span>
-                                    <span className="text-xs font-medium uppercase opacity-70">
+                                    <span className="text-base font-medium uppercase opacity-70">
                                         ETA
                                     </span>
                                 </div>
@@ -151,10 +151,10 @@ export default function LiveTrackingPage({ params }: { params: { id: string } })
                             </div>
                             <div className="bg-white/10 rounded-lg p-3">
                                 <div className="flex items-center gap-2 mb-1">
-                                    <span className="material-symbols-outlined text-sm">
+                                    <span className="material-symbols-outlined text-lg">
                                         location_on
                                     </span>
-                                    <span className="text-xs font-medium uppercase opacity-70">
+                                    <span className="text-base font-medium uppercase opacity-70">
                                         Next Stop
                                     </span>
                                 </div>
@@ -165,7 +165,7 @@ export default function LiveTrackingPage({ params }: { params: { id: string } })
 
                     {/* Timeline Tracking */}
                     <div className="flex-1 mb-8">
-                        <h4 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-6 px-2">
+                        <h4 className="text-lg font-bold text-gray-400 uppercase tracking-widest mb-6 px-4">
                             Journey Timeline
                         </h4>
                         <div className="relative pl-8">
@@ -177,7 +177,7 @@ export default function LiveTrackingPage({ params }: { params: { id: string } })
                             {/* Milestone 1 */}
                             <div className="relative mb-8">
                                 <div className="absolute -left-[25px] top-0 bg-[#135bec] text-white size-6 rounded-full flex items-center justify-center border-4 border-white dark:border-[#101622]">
-                                    <span className="material-symbols-outlined text-xs font-bold">
+                                    <span className="material-symbols-outlined text-base font-bold">
                                         check
                                     </span>
                                 </div>
@@ -185,7 +185,7 @@ export default function LiveTrackingPage({ params }: { params: { id: string } })
                                     <p className="font-bold text-[#111318] dark:text-white">
                                         Departed Varanasi
                                     </p>
-                                    <p className="text-sm text-gray-500">
+                                    <p className="text-lg text-gray-500">
                                         6:00 AM • Started on time
                                     </p>
                                 </div>
@@ -193,7 +193,7 @@ export default function LiveTrackingPage({ params }: { params: { id: string } })
                             {/* Milestone 2 */}
                             <div className="relative mb-8">
                                 <div className="absolute -left-[25px] top-0 bg-[#135bec] text-white size-6 rounded-full flex items-center justify-center border-4 border-white dark:border-[#101622]">
-                                    <span className="material-symbols-outlined text-xs font-bold">
+                                    <span className="material-symbols-outlined text-base font-bold">
                                         check
                                     </span>
                                 </div>
@@ -201,7 +201,7 @@ export default function LiveTrackingPage({ params }: { params: { id: string } })
                                     <p className="font-bold text-[#111318] dark:text-white">
                                         Passed Kanpur
                                     </p>
-                                    <p className="text-sm text-gray-500">
+                                    <p className="text-lg text-gray-500">
                                         9:30 AM • Ahead of schedule
                                     </p>
                                 </div>
@@ -213,7 +213,7 @@ export default function LiveTrackingPage({ params }: { params: { id: string } })
                                 </div>
                                 <div>
                                     <p className="font-bold text-[#135bec]">Approaching Agra</p>
-                                    <p className="text-sm text-gray-500">
+                                    <p className="text-lg text-gray-500">
                                         In Transit • Current Location
                                     </p>
                                 </div>

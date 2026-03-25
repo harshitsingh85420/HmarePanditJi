@@ -69,14 +69,14 @@ export function QuickSearch() {
   };
 
   const inputClass =
-    "w-full h-11 px-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-700 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors";
+    "w-full h-11 px-5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-lg text-slate-700 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors";
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-800 p-4 md:p-6">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         {/* Puja Type */}
         <div>
-          <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5 block">
+          <label className="text-base font-semibold text-slate-500 dark:text-slate-400 mb-1.5 block">
             Puja Type
           </label>
           <select
@@ -95,11 +95,11 @@ export function QuickSearch() {
 
         {/* City */}
         <div className="relative" ref={sugRef}>
-          <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5 block">
+          <label className="text-base font-semibold text-slate-500 dark:text-slate-400 mb-1.5 block">
             City / Location
           </label>
           <div className="relative">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400 pointer-events-none">
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-lg text-slate-400 pointer-events-none">
               location_on
             </span>
             <input
@@ -116,7 +116,7 @@ export function QuickSearch() {
             />
           </div>
           {showSuggestions && (
-            <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg z-20 py-1 max-h-40 overflow-y-auto">
+            <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg z-20 py-3 max-h-40 overflow-y-auto">
               {suggestions.map((s) => (
                 <button
                   key={s}
@@ -125,9 +125,9 @@ export function QuickSearch() {
                     setCity(s);
                     setShowSuggestions(false);
                   }}
-                  className="w-full text-left px-3 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                  className="w-full text-left px-5 py-2 text-lg text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
                 >
-                  <span className="material-symbols-outlined text-sm text-slate-400 align-middle mr-1.5">
+                  <span className="material-symbols-outlined text-lg text-slate-400 align-middle mr-1.5">
                     location_on
                   </span>
                   {s}
@@ -139,11 +139,11 @@ export function QuickSearch() {
 
         {/* Date */}
         <div>
-          <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5 block">
+          <label className="text-base font-semibold text-slate-500 dark:text-slate-400 mb-1.5 block">
             Date
           </label>
           <div className="relative">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400 pointer-events-none">
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-lg text-slate-400 pointer-events-none">
               calendar_today
             </span>
             <input
@@ -160,7 +160,7 @@ export function QuickSearch() {
         <div className="flex items-end">
           <button
             onClick={handleSearch}
-            className="w-full h-11 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl shadow-lg shadow-primary/20 transition-all text-sm inline-flex items-center justify-center gap-2"
+            className="w-full h-11 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl shadow-lg shadow-primary/20 transition-all text-lg inline-flex items-center justify-center gap-2"
           >
             <span className="material-symbols-outlined text-lg">search</span>
             Search Pandits

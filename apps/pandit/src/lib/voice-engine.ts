@@ -78,17 +78,30 @@ export const VOICE_TIMEOUTS = {
 // AMBIENT NOISE DETECTION
 // ─────────────────────────────────────────────────────────────
 
-export const AMBIENT_NOISE_THRESHOLD_DB = 65  // Temple bells, crowds, etc.
+// BUG-MEDIUM-04 FIX: Threshold set to 85 to prevent false-triggering in quiet environments
+// Noise scale is 0-100 (linear mapping from RMS 0-80):
+// - 0-20: Silence/very quiet (RMS 0-5)
+// - 20-40: Normal room/quiet office (RMS 5-15)
+// - 40-60: Moderate noise/conversation (RMS 15-30)
+// - 60-75: Loud environment (RMS 30-50)
+// - 75-85: Very loud (RMS 50-68)
+// - 85+: Extremely loud - triggers keyboard fallback (RMS 68+, temple bells, heavy traffic, crowds)
+export const AMBIENT_NOISE_THRESHOLD_DB = 85
 
 let audioContext: AudioContext | null = null
 let noiseAnalyser: AnalyserNode | null = null
 let noiseSource: MediaStreamAudioSourceNode | null = null
 let noiseStream: MediaStream | null = null
 let noiseCheckInterval: ReturnType<typeof setInterval> | null = null
+let calibrationTimeout: ReturnType<typeof setTimeout> | null = null
 
 /**
  * Start monitoring ambient noise level using Web Audio API.
  * Returns cleanup function to stop monitoring.
+ *
+ * BUG-MEDIUM-04 FIX: Extended calibration period to 5 seconds with smoothing
+ * to prevent false-triggering from audio context initialization pop or device-specific baseline.
+ * Uses rolling average over 10 samples (5 seconds) before triggering onNoiseHigh.
  */
 export function startAmbientNoiseMonitoring(
   onNoiseHigh: (level: number) => void,
@@ -102,6 +115,17 @@ export function startAmbientNoiseMonitoring(
     noiseAnalyser = audioContext.createAnalyser()
     noiseAnalyser.fftSize = 512
     noiseAnalyser.smoothingTimeConstant = 0.8
+
+    // BUG-MEDIUM-04 FIX: Extended calibration period - ignore first 5 seconds of measurements
+    // This prevents false positives from audio context initialization pop and device warm-up
+    let calibrationComplete = false
+    calibrationTimeout = setTimeout(() => {
+      calibrationComplete = true
+    }, 5000)
+
+    // BUG-MEDIUM-04 FIX: Rolling average buffer to smooth out spurious spikes
+    const noiseBuffer: number[] = []
+    const BUFFER_SIZE = 10 // Average over 10 samples (5 seconds at 500ms intervals)
 
     // Request mic access for noise monitoring
     navigator.mediaDevices.getUserMedia({ audio: true })
@@ -124,9 +148,23 @@ export function startAmbientNoiseMonitoring(
           }
           const rms = Math.sqrt(sum / dataArray.length)
 
-          // Convert to approximate dB (0-100 scale)
-          // Typical silence: 0-20, Normal room: 20-40, Loud: 40-60, Very loud: 60+
-          const noiseLevel = Math.min(100, Math.max(0, rms * 1.5))
+          // BUG-MEDIUM-04 FIX: Calibrated dB calculation using proper reference level
+          // Web Audio analyser returns 0-255 values. Typical readings:
+          // - Silence/very quiet: RMS 0-5 (0-20 on our scale)
+          // - Normal room/quiet office: RMS 5-15 (20-40 on our scale)
+          // - Moderate noise/conversation: RMS 15-30 (40-60 on our scale)
+          // - Loud environment: RMS 30-50 (60-75 on our scale)
+          // - Very loud (temple bells, traffic): RMS 50-80 (75-90 on our scale)
+          // - Clipping/distortion: RMS 80+ (90-100 on our scale)
+          //
+          // Using linear mapping: RMS 0-80 -> noiseLevel 0-100
+          // Threshold of 85 means RMS ~68+, which is genuinely loud (temple bells, heavy traffic)
+          let noiseLevel = 0
+          if (rms > 0) {
+            // Linear mapping: RMS 0-80 maps to 0-100
+            // RMS of 68+ (threshold 85) is very loud environment
+            noiseLevel = Math.min(100, Math.max(0, (rms / 80) * 100))
+          }
 
           // Update store with current noise level
           try {
@@ -135,11 +173,20 @@ export function startAmbientNoiseMonitoring(
             useVoiceStore.getState().setAmbientNoise(Math.round(noiseLevel))
           } catch { /* Store not available */ }
 
-          // Check if noise exceeds threshold
-          if (noiseLevel > AMBIENT_NOISE_THRESHOLD_DB) {
-            onNoiseHigh(Math.round(noiseLevel))
-          } else {
-            onNoiseNormal()
+          // BUG-MEDIUM-04 FIX: Rolling average to prevent false triggers from spurious spikes
+          noiseBuffer.push(noiseLevel)
+          if (noiseBuffer.length > BUFFER_SIZE) {
+            noiseBuffer.shift()
+          }
+
+          // Only trigger onNoiseHigh after calibration AND with sustained high noise
+          if (calibrationComplete && noiseBuffer.length === BUFFER_SIZE) {
+            const avgNoise = noiseBuffer.reduce((a, b) => a + b, 0) / BUFFER_SIZE
+            if (avgNoise > AMBIENT_NOISE_THRESHOLD_DB) {
+              onNoiseHigh(Math.round(avgNoise))
+            } else {
+              onNoiseNormal()
+            }
           }
         }, 500)  // Check every 500ms
       })
@@ -151,6 +198,10 @@ export function startAmbientNoiseMonitoring(
   }
 
   return () => {
+    if (calibrationTimeout) {
+      clearTimeout(calibrationTimeout)
+      calibrationTimeout = null
+    }
     stopAmbientNoiseMonitoring()
   }
 }
@@ -655,8 +706,10 @@ export function startListeningWithSarvam(config: VoiceEngineConfig): () => void 
     onNoiseLevel: (dbLevel: number) => {
       onNoiseLevel?.(dbLevel)
 
-      // If noise is too high, warn user
-      if (dbLevel > 65) {
+      // BUG-MEDIUM-04 FIX: Raised threshold from 65dB to 85dB to prevent false-triggering
+      // 65dB is normal conversation level - should NOT trigger warning
+      // 85dB+ is genuinely loud (temple bells, heavy traffic, crowds)
+      if (dbLevel > AMBIENT_NOISE_THRESHOLD_DB) {
         setGlobalVoiceState('NOISE_WARNING')
         onStateChange?.('NOISE_WARNING')
       }

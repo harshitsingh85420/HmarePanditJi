@@ -16,17 +16,17 @@ export default function NRILiveStreamPage() {
                     </div>
                     <div className="h-6 w-px bg-gray-700 mx-2"></div>
                     <div>
-                        <h1 className="text-sm font-semibold text-white truncate max-w-[200px] sm:max-w-md">
+                        <h1 className="text-lg font-semibold text-white truncate max-w-[200px] sm:max-w-md">
                             Sharma Family Griha Pravesh Puja
                         </h1>
-                        <div className="flex items-center gap-2 text-xs text-red-500 font-bold animate-pulse">
+                        <div className="flex items-center gap-2 text-base text-red-500 font-bold animate-pulse">
                             <span className="w-2 h-2 rounded-full bg-red-500"></span>
                             LIVE NOW
                         </div>
                     </div>
                 </div>
                 {/* World Clocks */}
-                <div className="flex items-center gap-6 text-xs text-gray-400 font-mono hidden md:flex">
+                <div className="flex items-center gap-6 text-base text-gray-400 font-mono hidden md:flex">
                     <div className="text-center">
                         <div className="text-gray-500 mb-0.5">San Francisco</div>
                         <div className="text-white">08:45 PM</div>
@@ -37,7 +37,7 @@ export default function NRILiveStreamPage() {
                     </div>
                     <div className="text-center relative">
                         <div className="text-[#fcb040] mb-0.5 font-bold">New Delhi</div>
-                        <div className="text-white font-bold bg-[#fcb040]/10 px-2 rounded">
+                        <div className="text-white font-bold bg-[#fcb040]/10 px-4 rounded">
                             09:15 AM
                         </div>
                         <span className="absolute -top-1 -right-1 flex h-2 w-2">
@@ -48,11 +48,11 @@ export default function NRILiveStreamPage() {
                 </div>
                 {/* Actions */}
                 <div className="flex items-center gap-3">
-                    <button className="bg-white/10 hover:bg-white/20 p-2 rounded-full transition-colors flex items-center text-xs gap-1 font-medium">
-                        <span className="material-icons text-sm">share</span>
+                    <button className="bg-white/10 hover:bg-white/20 p-2 rounded-full transition-colors flex items-center text-base gap-1 font-medium">
+                        <span className="material-icons text-lg">share</span>
                         <span className="hidden sm:inline">Invite</span>
                     </button>
-                    <button className="bg-[#e50914] hover:bg-[#b2070f] text-white px-4 py-1.5 rounded-full text-xs font-bold transition-all shadow-md shadow-red-900/20">
+                    <button className="bg-[#e50914] hover:bg-[#b2070f] text-white px-4 py-3.5 rounded-full text-base font-bold transition-all shadow-md shadow-red-900/20">
                         Leave Room
                     </button>
                 </div>
@@ -73,7 +73,7 @@ export default function NRILiveStreamPage() {
                     {/* Video Overlay Controls (Hover) */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between p-6">
                         <div className="flex justify-between items-start">
-                            <div className="bg-black/50 backdrop-blur px-3 py-1 rounded text-xs font-mono">
+                            <div className="bg-black/50 backdrop-blur px-5 py-3 rounded text-base font-mono">
                                 <span className="text-[#fcb040]">HD</span> • 4K HDR •
                                 60fps
                             </div>
@@ -98,7 +98,7 @@ export default function NRILiveStreamPage() {
                                 <div className="absolute left-0 top-0 bottom-0 w-[95%] bg-[#e50914] z-10"></div>
                                 <div className="absolute left-[95%] top-1/2 -translate-y-1/2 h-3 w-3 bg-white rounded-full z-20 scale-0 group-hover/timeline:scale-100 transition-transform"></div>
                             </div>
-                            <div className="text-xs font-mono">
+                            <div className="text-base font-mono">
                                 -00:12 / <span className="text-gray-400">Live</span>
                             </div>
                             <div className="flex gap-3">
@@ -117,17 +117,17 @@ export default function NRILiveStreamPage() {
                     {/* Current Muhurat Status (Overlay) */}
                     <div className="absolute top-8 left-8 bg-black/60 backdrop-blur-md border border-[#fcb040]/30 rounded-xl p-4 max-w-xs shadow-2xl transform transition-transform hover:scale-105 cursor-pointer">
                         <div className="flex items-start gap-3">
-                            <div className="w-10 h-10 rounded-full border-2 border-[#fcb040] p-0.5 animate-spin-slow">
+                            <div className="w-14 h-14 rounded-full border-2 border-[#fcb040] p-0.5 animate-spin-slow">
                                 <div className="w-full h-full rounded-full bg-[url('https://lh3.googleusercontent.com/aida-public/AB6AXuDUeFzEE5FeUu8xkg2hnNh4D5Q1MnO9XHnUcj4PBy3MIRwuuGfIciR5Lg1CuqFTYZF4oYwiyH2LjlO1ENhJw4uuP_lqskuqQX6xNBZ0xseWU9ht-c75yCPr7GppMUdlrAJWapUb--i5seYJuTctFDEgq9dKdTbtQJYvAMqBe1ggJuRL80gMIsxjnEFRW1ljJX6zNmqM4BO8FKlh9BhlFAZMPntZ6uX2a-C6-8hTjUu15_-z5T-yWNHIhm5D-aldM8AoPfg_GKkC2Es')] bg-cover bg-center"></div>
                             </div>
                             <div>
                                 <p className="text-[10px] uppercase font-bold text-[#fcb040] tracking-wider mb-0.5">
                                     Current Ritual
                                 </p>
-                                <h3 className="text-sm font-bold text-white leading-tight">
+                                <h3 className="text-lg font-bold text-white leading-tight">
                                     Ganesh Stapana &amp; Kalash Puja
                                 </h3>
-                                <div className="mt-2 text-xs text-gray-300 flex items-center gap-1">
+                                <div className="mt-2 text-base text-gray-300 flex items-center gap-1">
                                     <span className="material-icons text-[12px]">
                                         hourglass_top
                                     </span>
@@ -142,18 +142,18 @@ export default function NRILiveStreamPage() {
                 <aside className="w-[350px] lg:w-[400px] bg-[#18181b] border-l border-gray-800 flex flex-col z-10 shadow-xl">
                     {/* Tab Navigation */}
                     <div className="flex border-b border-gray-800">
-                        <button className="flex-1 py-3 text-sm font-bold text-[#fcb040] border-b-2 border-[#fcb040] bg-[#fcb040]/5">
+                        <button className="flex-1 py-3 text-lg font-bold text-[#fcb040] border-b-2 border-[#fcb040] bg-[#fcb040]/5">
                             Live Interactions
                         </button>
-                        <button className="flex-1 py-3 text-sm font-bold text-gray-400 hover:text-white hover:bg-white/5 transition-colors">
+                        <button className="flex-1 py-3 text-lg font-bold text-gray-400 hover:text-white hover:bg-white/5 transition-colors">
                             Ritual Guide
                         </button>
                     </div>
 
                     {/* Digital Puja Thali Action Area */}
                     <div className="p-4 border-b border-gray-800 bg-gradient-to-b from-[#18181b] to-[#121214]">
-                        <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-2">
-                            <span className="material-icons text-sm text-[#fcb040]">
+                        <h4 className="text-base font-bold text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                            <span className="material-icons text-lg text-[#fcb040]">
                                 spa
                             </span>
                             Digital Offerings
@@ -200,37 +200,37 @@ export default function NRILiveStreamPage() {
                     <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
                         {/* System Message */}
                         <div className="text-center my-4">
-                            <span className="bg-gray-800 text-gray-400 text-[10px] px-3 py-1 rounded-full font-mono uppercase">
+                            <span className="bg-gray-800 text-gray-400 text-[10px] px-5 py-3 rounded-full font-mono uppercase">
                                 Puja Started at 09:00 AM IST
                             </span>
                         </div>
                         {/* Message 1 */}
                         <div className="flex gap-3 animate-fade-in-up">
-                            <div className="h-8 w-8 rounded-full bg-purple-600 flex items-center justify-center text-xs font-bold text-white shrink-0">
+                            <div className="h-12 w-12 rounded-full bg-purple-600 flex items-center justify-center text-base font-bold text-white shrink-0">
                                 R
                             </div>
                             <div>
                                 <div className="flex items-baseline gap-2">
-                                    <span className="text-xs font-bold text-gray-300">
+                                    <span className="text-base font-bold text-gray-300">
                                         Rajiv (Brother)
                                     </span>
                                     <span className="text-[10px] text-gray-500">
                                         09:05 AM
                                     </span>
                                 </div>
-                                <p className="text-sm text-gray-300 bg-[#27272a] p-2 rounded-r-lg rounded-bl-lg mt-0.5 border border-gray-700">
+                                <p className="text-lg text-gray-300 bg-[#27272a] p-2 rounded-r-lg rounded-bl-lg mt-0.5 border border-gray-700">
                                     Om Gan Ganpataye Namah 🙏 The decoration looks beautiful!
                                 </p>
                             </div>
                         </div>
                         {/* Message 2 (Donation/Dakshina) */}
                         <div className="flex gap-3 animate-fade-in-up">
-                            <div className="h-8 w-8 rounded-full bg-green-600 flex items-center justify-center text-xs font-bold text-white shrink-0">
+                            <div className="h-12 w-12 rounded-full bg-green-600 flex items-center justify-center text-base font-bold text-white shrink-0">
                                 S
                             </div>
                             <div className="w-full">
                                 <div className="flex items-baseline gap-2">
-                                    <span className="text-xs font-bold text-gray-300">
+                                    <span className="text-base font-bold text-gray-300">
                                         Sunita Mami (USA)
                                     </span>
                                     <span className="text-[10px] text-gray-500">
@@ -239,14 +239,14 @@ export default function NRILiveStreamPage() {
                                 </div>
                                 <div className="mt-1 bg-gradient-to-r from-green-900/40 to-[#27272a] border border-green-800 p-2 rounded-r-lg rounded-bl-lg">
                                     <div className="flex items-center gap-2 mb-1">
-                                        <span className="material-icons text-green-400 text-sm">
+                                        <span className="material-icons text-green-400 text-lg">
                                             paid
                                         </span>
-                                        <span className="text-xs font-bold text-green-400">
+                                        <span className="text-base font-bold text-green-400">
                                             Sent Dakshina: $51.00
                                         </span>
                                     </div>
-                                    <p className="text-sm text-gray-300">
+                                    <p className="text-lg text-gray-300">
                                         Blessings for the new home. Miss being there! ❤️
                                     </p>
                                 </div>
@@ -254,19 +254,19 @@ export default function NRILiveStreamPage() {
                         </div>
                         {/* Message 3 */}
                         <div className="flex gap-3 animate-fade-in-up">
-                            <div className="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center text-xs font-bold text-white shrink-0">
+                            <div className="h-12 w-12 rounded-full bg-blue-600 flex items-center justify-center text-base font-bold text-white shrink-0">
                                 A
                             </div>
                             <div>
                                 <div className="flex items-baseline gap-2">
-                                    <span className="text-xs font-bold text-gray-300">
+                                    <span className="text-base font-bold text-gray-300">
                                         Amit (Cousin)
                                     </span>
                                     <span className="text-[10px] text-gray-500">
                                         09:14 AM
                                     </span>
                                 </div>
-                                <p className="text-sm text-gray-300 bg-[#27272a] p-2 rounded-r-lg rounded-bl-lg mt-0.5 border border-gray-700">
+                                <p className="text-lg text-gray-300 bg-[#27272a] p-2 rounded-r-lg rounded-bl-lg mt-0.5 border border-gray-700">
                                     Pandit ji's chanting is so clear today. Great audio quality!
                                 </p>
                             </div>
@@ -279,7 +279,7 @@ export default function NRILiveStreamPage() {
                             <input
                                 type="text"
                                 placeholder="Send blessings or message..."
-                                className="w-full bg-[#0f0f11] text-gray-200 text-sm rounded-full pl-4 pr-12 py-3 border border-gray-700 focus:border-[#fcb040] focus:ring-1 focus:ring-[#fcb040] outline-none transition-all placeholder-gray-600"
+                                className="w-full bg-[#0f0f11] text-gray-200 text-lg rounded-full pl-4 pr-12 py-3 border border-gray-700 focus:border-[#fcb040] focus:ring-1 focus:ring-[#fcb040] outline-none transition-all placeholder-gray-600"
                             />
                             <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-1">
                                 <button className="p-1.5 rounded-full hover:bg-gray-700 text-gray-400 hover:text-[#fcb040] transition-colors">

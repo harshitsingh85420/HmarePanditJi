@@ -219,8 +219,8 @@ export default function RazorpayCheckout({
   if (state === "loading") {
     return (
       <div className="flex flex-col items-center gap-3 py-8">
-        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-        <p className="text-sm text-slate-500">
+        <div className="w-14 h-14 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+        <p className="text-lg text-slate-500">
           {razorpayKey === "rzp_test_mock" ? "Simulating payment…" : "Opening payment window…"}
         </p>
       </div>
@@ -230,9 +230,9 @@ export default function RazorpayCheckout({
   if (state === "processing") {
     return (
       <div className="flex flex-col items-center gap-3 py-8">
-        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-        <p className="text-sm text-slate-500">Verifying payment…</p>
-        <p className="text-xs text-slate-400">Please don&apos;t close this page.</p>
+        <div className="w-14 h-14 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+        <p className="text-lg text-slate-500">Verifying payment…</p>
+        <p className="text-base text-slate-400">Please don&apos;t close this page.</p>
       </div>
     );
   }
@@ -243,8 +243,8 @@ export default function RazorpayCheckout({
         <div className="flex items-start gap-2.5 p-3.5 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30">
           <span className="material-symbols-outlined text-red-500 text-lg flex-shrink-0 mt-0.5">error</span>
           <div>
-            <p className="text-sm font-semibold text-red-700 dark:text-red-400">Payment failed</p>
-            <p className="text-xs text-red-600 dark:text-red-300 mt-0.5">{errorMsg}</p>
+            <p className="text-lg font-semibold text-red-700 dark:text-red-400">Payment failed</p>
+            <p className="text-base text-red-600 dark:text-red-300 mt-0.5">{errorMsg}</p>
           </div>
         </div>
         <button
@@ -264,8 +264,8 @@ export default function RazorpayCheckout({
       <div className="flex items-start gap-2.5 p-3.5 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/30">
         <span className="material-symbols-outlined text-amber-500 text-lg flex-shrink-0 mt-0.5">info</span>
         <div>
-          <p className="text-sm font-semibold text-amber-700 dark:text-amber-400">Payment cancelled</p>
-          <p className="text-xs text-amber-600 dark:text-amber-300 mt-0.5">
+          <p className="text-lg font-semibold text-amber-700 dark:text-amber-400">Payment cancelled</p>
+          <p className="text-base text-amber-600 dark:text-amber-300 mt-0.5">
             Your booking is saved. Complete the payment to confirm your slot.
           </p>
         </div>

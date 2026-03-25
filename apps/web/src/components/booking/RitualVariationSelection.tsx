@@ -48,7 +48,7 @@ export function RitualVariationSelection({ onSelect, selectedVariation }: Ritual
                 <span className="material-symbols-outlined text-[#f49d25]">location_on</span>
                 Regional Variation
             </h2>
-            <p className="text-sm text-slate-500 mb-6">
+            <p className="text-lg text-slate-500 mb-6">
                 Select your community style to ensure Pandit Ji follows the correct vidhi.
             </p>
 
@@ -58,7 +58,7 @@ export function RitualVariationSelection({ onSelect, selectedVariation }: Ritual
                     <button
                         key={region.id}
                         onClick={() => setActiveTab(region.id)}
-                        className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-semibold transition-all ${activeTab === region.id
+                        className={`flex-shrink-0 px-4 py-2 rounded-full text-lg font-semibold transition-all ${activeTab === region.id
                                 ? "bg-[#f49d25] text-white shadow-md shadow-[#f49d25]/20"
                                 : "bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200"
                             }`}
@@ -83,7 +83,7 @@ export function RitualVariationSelection({ onSelect, selectedVariation }: Ritual
                         >
                             <div className="flex items-start gap-4">
                                 <div
-                                    className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${isSelected ? "bg-[#f49d25] text-white" : "bg-slate-100 text-slate-500 group-hover:bg-[#f49d25]/10 group-hover:text-[#f49d25]"
+                                    className={`w-14 h-14 rounded-full flex items-center justify-center shrink-0 ${isSelected ? "bg-[#f49d25] text-white" : "bg-slate-100 text-slate-500 group-hover:bg-[#f49d25]/10 group-hover:text-[#f49d25]"
                                         }`}
                                 >
                                     <span className="material-symbols-outlined text-xl">{v.icon}</span>
@@ -92,7 +92,7 @@ export function RitualVariationSelection({ onSelect, selectedVariation }: Ritual
                                     <h3 className={`font-bold mb-1 ${isSelected ? "text-[#f49d25]" : "text-slate-800"}`}>
                                         {v.label}
                                     </h3>
-                                    <p className="text-xs text-slate-500 leading-relaxed">{v.desc}</p>
+                                    <p className="text-base text-slate-500 leading-relaxed">{v.desc}</p>
                                 </div>
                             </div>
                             {isSelected && (
@@ -106,8 +106,8 @@ export function RitualVariationSelection({ onSelect, selectedVariation }: Ritual
                     );
                 })}
             </div>
-            <div className="mt-4 p-3 bg-blue-50 text-blue-700 text-xs rounded-lg flex items-start gap-2">
-                <span className="material-symbols-outlined text-sm shrink-0 mt-0.5">info</span>
+            <div className="mt-4 p-3 bg-blue-50 text-blue-700 text-base rounded-lg flex items-start gap-2">
+                <span className="material-symbols-outlined text-lg shrink-0 mt-0.5">info</span>
                 <p>Don't see your community? Select "Standard Vedic" or describe in "Special Instructions" later.</p>
             </div>
         </div>

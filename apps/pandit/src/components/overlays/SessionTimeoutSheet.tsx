@@ -40,7 +40,7 @@ export function SessionTimeoutSheet() {
       >
         <div className="bg-surface-card rounded-t-[20px] shadow-sheet px-6 py-5">
           <div className="flex justify-center mb-4">
-            <div className="w-8 h-1 bg-border-default rounded-pill" />
+            <div className="w-12 h-1 bg-border-default rounded-pill" />
           </div>
 
           <div className="flex items-center gap-3 mb-4">

@@ -94,16 +94,16 @@ export default function LocationPermissionScreen({
   return (
     <main className="relative mx-auto min-h-dvh w-full flex flex-col bg-surface-base">
       {/* TopBar Component Reference */}
-      <div className="h-[56px] px-4 flex items-center justify-between border-b border-outline-variant sticky top-0 bg-surface-base z-50">
+      <div className="h-[72px] px-4 flex items-center justify-between border-b border-outline-variant sticky top-0 bg-surface-base z-50">
         <div className="flex items-center gap-2">
           {showBack && onBack && (
             <button
               onClick={onBack}
-              // ACC-001 FIX: Increased to 48x48px, ACC-008 FIX: Added focus indicators
-              className="w-[52px] h-[52px] flex items-center justify-center text-saffron rounded-full active:bg-black/5 focus:ring-2 focus:ring-primary focus:outline-none"
+              // ACC-001 FIX: Increased to 64x64px, ACC-008 FIX: Added focus indicators
+              className="w-[64px] h-[64px] flex items-center justify-center text-saffron rounded-full active:bg-black/5 focus:ring-2 focus:ring-primary focus:outline-none"
               aria-label="Go back"
             >
-              <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
             </button>
@@ -111,25 +111,25 @@ export default function LocationPermissionScreen({
           {!showBack && (
             <button
               onClick={() => { }}
-              // ACC-001 FIX: Increased to 48x48px, ACC-008 FIX: Added focus indicators
-              className="w-[52px] h-[52px] flex items-center justify-center text-saffron rounded-full active:bg-black/5 focus:ring-2 focus:ring-primary focus:outline-none"
+              // ACC-001 FIX: Increased to 64x64px, ACC-008 FIX: Added focus indicators
+              className="w-[64px] h-[64px] flex items-center justify-center text-saffron rounded-full active:bg-black/5 focus:ring-2 focus:ring-primary focus:outline-none"
               aria-label="Exit"
             >
-              <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           )}
-          <span className="text-[24px] text-saffron">ॐ</span>
-          <h1 className="text-[18px] font-semibold text-text-baserimary">HmarePanditJi</h1>
+          <span className="text-[32px] text-saffron">ॐ</span>
+          <h1 className="text-[20px] font-bold text-text-primary">HmarePanditJi</h1>
         </div>
-        {/* ACC-009 FIX: Larger language switcher with focus indicator */}
+        {/* ACC-009 FIX: Larger language switcher with text label */}
         <button
           onClick={onLanguageChange}
-          className="w-[56px] h-[56px] flex items-center justify-center text-[28px] text-saffron rounded-full active:opacity-50 focus:ring-2 focus:ring-primary focus:outline-none"
-          aria-label="Change language / भाषा बदलें"
+          className="min-h-[64px] px-6 flex items-center gap-2 text-[20px] font-bold text-text-primary active:opacity-50 focus:ring-2 focus:ring-saffron focus:outline-none border-2 border-border-default rounded-full bg-surface-card"
+          aria-label="Language switcher"
         >
-          🌐
+          <span>हिन्दी / English</span>
         </button>
       </div>
 
@@ -147,10 +147,10 @@ export default function LocationPermissionScreen({
           <div className="absolute top-[35%] left-[50%] -translate-x-1/2 -translate-y-1/2 z-20">
             {/* Pulse Rings */}
             <div className="absolute top-8 left-1/2 -translate-x-1/2">
-              <motion.div animate={{ scale: [0.8, 1.5], opacity: [0.6, 0] }} transition={{ duration: 3, repeat: Infinity, ease: 'easeOut' }} className="absolute w-8 h-[52px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-saffron"></motion.div>
+              <motion.div animate={{ scale: [0.8, 1.5], opacity: [0.6, 0] }} transition={{ duration: 3, repeat: Infinity, ease: 'easeOut' }} className="absolute w-12 h-[52px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-saffron"></motion.div>
             </div>
 
-            <motion.svg initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.6 }} className="w-8 h-[52px] text-saffron" fill="currentColor" viewBox="0 0 24 24">
+            <motion.svg initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.6 }} className="w-12 h-[52px] text-saffron" fill="currentColor" viewBox="0 0 24 24">
               <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"></path>
             </motion.svg>
           </div>
@@ -159,7 +159,7 @@ export default function LocationPermissionScreen({
 
       {/* TitleSection */}
       <section className="mt-4 px-4">
-        <h2 className="text-[26px] font-bold text-text-baserimary leading-tight">
+        <h2 className="text-[26px] font-bold text-text-primary leading-tight">
           आपका शहर जानना क्यों ज़रूरी है?
         </h2>
       </section>
@@ -173,11 +173,11 @@ export default function LocationPermissionScreen({
           { title: 'आपके शहर की पूजाएं मिलेंगी', desc: 'दूर-दराज़ की नहीं' },
           { title: 'ग्राहक आपको ढूंढ पाएंगे', desc: 'नए ग्राहक, नई आमदनी' }].map((item, idx) => (
             <motion.div key={idx} initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 * (idx + 1) }} className="flex items-start gap-4">
-              <div className="flex-shrink-0 w-6 h-6 rounded-full bg-saffron flex items-center justify-center mt-1">
-                <span className="text-white text-lgs">✓</span>
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-saffron flex items-center justify-center mt-1">
+                <span className="text-white text-[20px]">✓</span>
               </div>
               <div>
-                <h3 className="text-[20px] font-bold text-text-baserimary">{item.title}</h3>
+                <h3 className="text-[20px] font-bold text-text-primary">{item.title}</h3>
                 <p className="text-[18px] font-semibold text-text-secondary">{item.desc}</p>
               </div>
             </motion.div>
@@ -186,8 +186,8 @@ export default function LocationPermissionScreen({
 
         {/* Privacy Card */}
         <div className="mt-8 p-4 bg-success-lt rounded-xl flex items-center gap-3">
-          <span className="text-[20px]">🔒</span>
-          <p className="text-[16px] font-semibold text-success leading-snug">
+          <span className="text-[24px]">🔒</span>
+          <p className="text-[18px] font-bold text-success leading-snug">
             आपका पूरा पता कभी नहीं दिखेगा किसी को भी
           </p>
         </div>
@@ -203,19 +203,19 @@ export default function LocationPermissionScreen({
             className="w-full bg-error-red-bg border-2 border-error-red rounded-xl p-4 flex items-center gap-3"
           >
             <span className="text-[24px]">⚠️</span>
-            <p className="text-[16px] font-semibold text-error-red">{error}</p>
+            <p className="text-[18px] font-bold text-error-red">{error}</p>
           </div>
         )}
 
         <button
           onClick={handleAllowClick}
           disabled={loading}
-          // ACC-001 FIX: Increased height to 56px, ACC-008 FIX: Added focus indicators
-          className="w-full bg-saffron text-white py-4 rounded-xl text-[18px] font-bold active:scale-[0.98] transition-transform shadow-md focus:ring-2 focus:ring-primary focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+          // ACC-001 FIX: Increased height to 72px, ACC-008 FIX: Added focus indicators
+          className="w-full bg-saffron text-white py-4 min-h-[72px] rounded-2xl text-[22px] font-bold active:scale-[0.98] transition-transform shadow-btn-saffron focus:ring-2 focus:ring-primary focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? (
             <span className="flex items-center justify-center gap-2">
-              <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+              <svg className="animate-spin h-6 w-6" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
               </svg>
@@ -228,7 +228,7 @@ export default function LocationPermissionScreen({
         <button
           onClick={onDenied}
           // ACC-001 FIX: Increased touch target, ACC-008 FIX: Added focus indicators
-          className="w-full text-saffron text-[18px] font-medium text-center block active:opacity-75 py-3 focus:ring-2 focus:ring-primary focus:outline-none rounded-lg"
+          className="w-full text-saffron text-[20px] font-bold text-center block active:opacity-75 py-4 min-h-[72px] focus:ring-2 focus:ring-primary focus:outline-none rounded-2xl"
         >
           छोड़ें — हाथ से भरूँगा
         </button>

@@ -64,7 +64,7 @@ export default function ProfilePage() {
   if (loading || !user) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
-        <span className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        <span className="w-12 h-12 border-2 border-primary border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -82,7 +82,7 @@ export default function ProfilePage() {
         </div>
         <div>
           <h1 className="text-2xl font-black text-slate-900 dark:text-slate-100">My Profile</h1>
-          <p className="text-sm text-slate-500">{user.phone}</p>
+          <p className="text-lg text-slate-500">{user.phone}</p>
         </div>
       </div>
 
@@ -91,14 +91,14 @@ export default function ProfilePage() {
 
         {/* Phone (read-only) */}
         <div>
-          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+          <label className="block text-lg font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
             Mobile Number
           </label>
-          <div className="flex items-center gap-2 h-12 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-500 text-sm">
+          <div className="flex items-center gap-2 h-12 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-500 text-lg">
             <span className="material-symbols-outlined text-base text-slate-400">phone</span>
             {user.phone}
-            <span className="ml-auto flex items-center gap-1 text-green-600 text-xs font-semibold">
-              <span className="material-symbols-outlined text-sm">verified</span>
+            <span className="ml-auto flex items-center gap-1 text-green-600 text-base font-semibold">
+              <span className="material-symbols-outlined text-lg">verified</span>
               Verified
             </span>
           </div>
@@ -106,7 +106,7 @@ export default function ProfilePage() {
 
         {/* Full Name */}
         <div>
-          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+          <label className="block text-lg font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
             Full Name
           </label>
           <div className="relative">
@@ -118,14 +118,14 @@ export default function ProfilePage() {
               value={fullName}
               onChange={(e) => { setFullName(e.target.value); setSaved(false); }}
               placeholder="Ramesh Kumar"
-              className="w-full h-12 pl-10 pr-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+              className="w-full h-12 pl-10 pr-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
             />
           </div>
         </div>
 
         {/* Email */}
         <div>
-          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+          <label className="block text-lg font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
             Email <span className="text-slate-400 font-normal">(optional)</span>
           </label>
           <div className="relative">
@@ -137,13 +137,13 @@ export default function ProfilePage() {
               value={email}
               onChange={(e) => { setEmail(e.target.value); setSaved(false); }}
               placeholder="ramesh@example.com"
-              className="w-full h-12 pl-10 pr-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+              className="w-full h-12 pl-10 pr-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
             />
           </div>
         </div>
 
         {error && (
-          <p className="text-red-500 text-sm flex items-center gap-1.5">
+          <p className="text-red-500 text-lg flex items-center gap-1.5">
             <span className="material-symbols-outlined text-base">error</span>
             {error}
           </p>
@@ -177,14 +177,14 @@ export default function ProfilePage() {
       <div className="mt-6 grid grid-cols-2 gap-3">
         <a
           href="/bookings"
-          className="flex items-center gap-2.5 p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 hover:border-primary/30 transition-all text-sm font-semibold text-slate-700 dark:text-slate-200"
+          className="flex items-center gap-2.5 p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 hover:border-primary/30 transition-all text-lg font-semibold text-slate-700 dark:text-slate-200"
         >
           <span className="material-symbols-outlined text-primary">calendar_month</span>
           My Bookings
         </a>
         <a
           href="/search"
-          className="flex items-center gap-2.5 p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 hover:border-primary/30 transition-all text-sm font-semibold text-slate-700 dark:text-slate-200"
+          className="flex items-center gap-2.5 p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 hover:border-primary/30 transition-all text-lg font-semibold text-slate-700 dark:text-slate-200"
         >
           <span className="material-symbols-outlined text-primary">manage_search</span>
           Find a Pandit

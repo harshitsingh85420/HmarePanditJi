@@ -7,6 +7,7 @@ import { TUTORIAL_DUAL_MODE } from '@/lib/voice-scripts';
 import TutorialShell from './TutorialShell';
 import { TutorialScreenProps } from './types';
 import { TUTORIAL_TRANSLATIONS, getTutorialLang } from '@/lib/tutorial-translations';
+import type { SupportedLanguage } from '@/lib/onboarding-store';
 
 export default function TutorialDualMode({
   currentDot,
@@ -19,7 +20,7 @@ export default function TutorialDualMode({
   const t = TUTORIAL_TRANSLATIONS[lang].screens.S08;
 
   const { isListening } = useSarvamVoiceFlow({
-    language: language as any,
+    language,
     script: TUTORIAL_DUAL_MODE.scripts.main.hindi,
     autoListen: true,
     listenTimeoutMs: 12000,
@@ -50,7 +51,7 @@ export default function TutorialDualMode({
         animate={{ opacity: 1, y: 0 }}
         className="text-center space-y-1 mb-6"
       >
-        <h1 className="text-[28px] font-bold text-vedic-brown leading-tight">{t.title}</h1>
+        <h1 className="text-[28px] font-bold text-text-primary leading-tight">{t.title}</h1>
         <h1 className="text-[28px] font-bold text-primary leading-tight">{t.subtitle}</h1>
       </motion.div>
 
@@ -59,14 +60,14 @@ export default function TutorialDualMode({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="p-4 rounded-xl border-2 border-primary bg-primary/10 shadow-cta"
+          className="p-5 rounded-xl border-2 border-primary bg-primary/10 shadow-cta"
         >
           <div className="text-[36px] text-center mb-2">📱</div>
-          <p className="text-[17px] font-bold text-vedic-brown text-center mb-3">Smartphone</p>
-          <ul className="space-y-1.5">
+          <p className="text-[18px] font-bold text-text-primary text-center mb-3">Smartphone</p>
+          <ul className="space-y-2">
             {['Video Call', 'Chat', 'Voice Alerts', 'Maps'].map((feature) => (
-              <li key={feature} className="flex items-center gap-2 text-[14px] text-vedic-brown">
-                <span className="text-primary font-bold">✓</span> {feature}
+              <li key={feature} className="flex items-center gap-2 text-[16px] text-text-primary">
+                <span className="text-primary font-bold text-[18px]">✓</span> {feature}
               </li>
             ))}
           </ul>
@@ -76,11 +77,11 @@ export default function TutorialDualMode({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="p-4 rounded-xl border border-vedic-border bg-white shadow-card"
+          className="p-5 rounded-xl border border-border-default bg-white shadow-card"
         >
           <div className="text-[36px] text-center mb-2">📟</div>
-          <p className="text-[17px] font-bold text-vedic-gold text-center mb-3">Keypad Phone</p>
-          <ul className="space-y-1.5">
+          <p className="text-[18px] font-bold text-saffron text-center mb-3">Keypad Phone</p>
+          <ul className="space-y-2">
             {[
               { label: 'Call आएगी', italic: false },
               { label: '1 = हाँ', italic: false },
@@ -89,9 +90,9 @@ export default function TutorialDualMode({
             ].map(({ label, italic }) => (
               <li
                 key={label}
-                className={`flex items-center gap-2 text-[14px] text-vedic-brown ${italic ? 'italic text-[12px]' : ''}`}
+                className={`flex items-center gap-2 text-[16px] text-text-primary ${italic ? 'italic text-[16px]' : ''}`}
               >
-                <span className="text-vedic-gold font-bold">✓</span> {label}
+                <span className="text-saffron font-bold text-[18px]">✓</span> {label}
               </li>
             ))}
           </ul>
@@ -106,8 +107,8 @@ export default function TutorialDualMode({
       >
         <span className="text-[36px] shrink-0">👨‍👩‍👦</span>
         <div>
-          <p className="text-[20px] font-bold text-vedic-brown leading-snug">{t.family}</p>
-          <p className="text-[16px] text-vedic-brown-2 mt-1">पूजा आपको मिलेगी, पैसे आपके खाते में।</p>
+          <p className="text-[20px] font-bold text-text-primary leading-snug">{t.family}</p>
+          <p className="text-[16px] text-text-primary-2 mt-1">पूजा आपको मिलेगी, पैसे आपके खाते में।</p>
         </div>
       </motion.div>
     </TutorialShell>

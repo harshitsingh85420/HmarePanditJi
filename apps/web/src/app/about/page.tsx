@@ -17,8 +17,8 @@ export default function AboutPage() {
     <div className="max-w-[1100px] mx-auto px-4 sm:px-6 py-16">
       {/* Header */}
       <div className="text-center mb-16">
-        <div className="inline-flex items-center gap-2 bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-full mb-6">
-          <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>temple_hindu</span>
+        <div className="inline-flex items-center gap-2 bg-primary/10 text-primary text-base font-bold uppercase tracking-wider px-4 py-2 rounded-full mb-6">
+          <span className="material-symbols-outlined text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>temple_hindu</span>
           Our Story
         </div>
         <h1 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-slate-100 mb-4 tracking-tight">
@@ -49,7 +49,7 @@ export default function AboutPage() {
               <span className="material-symbols-outlined text-xl text-primary">{item.icon}</span>
             </div>
             <h3 className="font-bold text-slate-900 dark:text-slate-100 mb-2">{item.title}</h3>
-            <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">{item.desc}</p>
+            <p className="text-lg text-slate-500 dark:text-slate-400 leading-relaxed">{item.desc}</p>
           </div>
         ))}
       </div>
@@ -58,7 +58,7 @@ export default function AboutPage() {
       <div className="space-y-6 mb-16">
         {TEAM.map((card) => (
           <div key={card.name} className="bg-white dark:bg-slate-900 rounded-2xl p-6 md:p-8 border border-slate-100 dark:border-slate-800">
-            <p className="text-xs font-bold uppercase tracking-wider text-primary mb-1">{card.role}</p>
+            <p className="text-base font-bold uppercase tracking-wider text-primary mb-1">{card.role}</p>
             <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-3">{card.name}</h3>
             <p className="text-slate-500 dark:text-slate-400 leading-relaxed">{card.bio}</p>
           </div>
@@ -74,7 +74,7 @@ export default function AboutPage() {
         ].map((stat) => (
           <div key={stat.label} className="text-center bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-100 dark:border-slate-800">
             <p className="text-3xl font-black text-primary">{stat.value}</p>
-            <p className="text-sm text-slate-500 mt-1">{stat.label}</p>
+            <p className="text-lg text-slate-500 mt-1">{stat.label}</p>
           </div>
         ))}
       </div>

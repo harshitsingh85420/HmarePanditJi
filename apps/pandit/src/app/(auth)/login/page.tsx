@@ -85,19 +85,19 @@ export default function IdentityConfirmation() {
     <main className="min-h-dvh flex flex-col px-6 pt-16 bg-surface-base">
       {/* Top Bar with Back Button */}
       <header className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <button
             onClick={handleBack}
-            className="w-[56px] h-[56px] flex items-center justify-center text-saffron rounded-full active:bg-black/5"
+            className="min-h-[64px] min-w-[64px] flex items-center justify-center text-saffron rounded-full active:bg-black/5 border-2 border-saffron/30"
             aria-label="Go back"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </button>
           <div className="flex items-center gap-2">
-            <span className="text-2xl text-saffron">ॐ</span>
-            <span className="text-lg font-bold text-text-primary">HmarePanditJi</span>
+            <span className="text-[40px] text-saffron font-bold">ॐ</span>
+            <span className="text-[22px] font-bold text-text-primary">HmarePanditJi</span>
           </div>
         </div>
       </header>
@@ -108,17 +108,17 @@ export default function IdentityConfirmation() {
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className="w-24 h-24 bg-saffron-light rounded-full flex items-center justify-center mb-6 mx-auto"
+          className="min-h-[96px] min-w-[96px] bg-saffron-light rounded-full flex items-center justify-center mb-6 mx-auto"
         >
-          <span className="text-[32px]">🧑‍🦳</span>
+          <span className="text-[48px]">🧑‍🦳</span>
         </motion.div>
 
         {/* Title - ACC-010 FIX: Larger text for elderly visibility */}
-        <h1 className="text-[28px] font-bold text-text-primary text-center mb-2">
-          पहले से पंजीकृत? लॉगिन करें
+        <h1 className="text-[36px] font-bold text-text-primary text-center mb-3">
+          पहले से पंजीकृत?
         </h1>
-        <p className="text-text-secondary text-center mb-8">
-          क्या यह आपका खाता है?
+        <p className="text-[28px] font-bold text-saffron text-center mb-8">
+          लॉगिन करें
         </p>
 
         {/* Identity Card - ACC-010 FIX: Larger text for elderly visibility */}
@@ -128,18 +128,18 @@ export default function IdentityConfirmation() {
           className="bg-surface-card rounded-card shadow-card p-6 mb-8"
         >
           <div className="flex items-center gap-4 mb-4">
-            <div className="w-16 h-16 bg-saffron-light rounded-full flex items-center justify-center">
-              <span className="text-[28px]">🧑‍🦳</span>
+            <div className="min-h-[72px] min-w-[72px] bg-saffron-light rounded-full flex items-center justify-center">
+              <span className="text-[36px]">🧑‍🦳</span>
             </div>
             <div>
-              <h2 className="text-[20px] font-bold text-text-primary">पंडित रामेश्वर शर्मा</h2>
-              <p className="text-[16px] text-text-secondary">वाराणसी, उत्तर प्रदेश</p>
+              <h2 className="text-[24px] font-bold text-text-primary">पंडित रामेश्वर शर्मा</h2>
+              <p className="text-[18px] text-text-secondary">वाराणसी, उत्तर प्रदेश</p>
             </div>
           </div>
 
           <div className="border-t border-border-default pt-4">
-            <div className="flex items-center gap-2 text-[16px] text-text-secondary">
-              <span className="material-symbols-outlined text-trust-green filled">check_circle</span>
+            <div className="flex items-center gap-3 text-[18px] text-text-secondary">
+              <span className="material-symbols-outlined text-[24px] text-trust-green filled">check_circle</span>
               <span>आधार सत्यापित</span>
             </div>
           </div>
@@ -148,12 +148,12 @@ export default function IdentityConfirmation() {
         {/* Voice indicator */}
         {isListening && (
           <div className="flex items-center justify-center gap-2 mb-6">
-            <div className="flex items-end gap-1 h-6">
-              <div className="w-1.5 bg-saffron rounded-full animate-voice-bar" />
-              <div className="w-1.5 bg-saffron rounded-full animate-voice-bar-2" />
-              <div className="w-1.5 bg-saffron rounded-full animate-voice-bar-3" />
+            <div className="flex items-end gap-1 h-12">
+              <div className="w-2 bg-saffron rounded-full animate-voice-bar" />
+              <div className="w-2 bg-saffron rounded-full animate-voice-bar-2" />
+              <div className="w-2 bg-saffron rounded-full animate-voice-bar-3" />
             </div>
-            <span className="text-saffron text-[18px]">सुन रहा हूँ...</span>
+            <span className="text-saffron text-[22px] font-bold">सुन रहा हूँ...</span>
           </div>
         )}
 
@@ -161,20 +161,20 @@ export default function IdentityConfirmation() {
         <div className="space-y-3">
           <button
             onClick={handleConfirm}
-            className="w-full min-h-[56px] bg-saffron text-white font-bold text-[18px] rounded-btn shadow-btn-saffron active:scale-[0.97] focus:ring-2 focus:ring-primary focus:outline-none"
+            className="w-full min-h-[64px] bg-saffron text-white font-bold text-[22px] rounded-btn shadow-btn-saffron active:scale-[0.97] focus:ring-2 focus:ring-primary focus:outline-none"
           >
             हाँ, यह मैं हूँ
           </button>
           <button
             onClick={handleNotMatch}
-            className="w-full min-h-[56px] border-2 border-saffron text-saffron font-bold text-[18px] rounded-btn active:scale-[0.97] focus:ring-2 focus:ring-primary focus:outline-none"
+            className="w-full min-h-[64px] border-2 border-saffron text-saffron font-bold text-[22px] rounded-btn active:scale-[0.97] focus:ring-2 focus:ring-primary focus:outline-none"
           >
             नहीं, यह मैं नहीं हूँ
           </button>
         </div>
 
         {/* Voice hint - ACC-010 FIX: Larger text for elderly visibility */}
-        <p className="mt-6 text-center text-[18px] text-text-placeholder">
+        <p className="mt-6 text-center text-[20px] text-text-placeholder">
           🎤 &quot;हाँ&quot;, &quot;नहीं&quot;, या &quot;पीछे जाएं&quot; बोलें
         </p>
       </div>

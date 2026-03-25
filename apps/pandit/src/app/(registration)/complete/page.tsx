@@ -148,7 +148,7 @@ export default function RegistrationCompletePage() {
                   }}
                 >
                   <div className={`w-full h-full rounded-full ${randomColor === '#FF8C00' ? 'bg-saffron' :
-                    randomColor === '#FFD700' ? 'bg-vedic-gold' :
+                    randomColor === '#FFD700' ? 'bg-saffron' :
                       randomColor === '#1B6D24' ? 'bg-trust-green' :
                         'bg-error-red'
                     }`} />
@@ -224,7 +224,7 @@ export default function RegistrationCompletePage() {
                   <span className={`material-symbols-outlined text-xl ${item.color}`}>
                     {item.icon}
                   </span>
-                  <span className="text-text-secondary text-sm font-devanagari">
+                  <span className="text-text-secondary text-[16px] font-devanagari">
                     {item.label}
                   </span>
                 </motion.div>
@@ -241,7 +241,7 @@ export default function RegistrationCompletePage() {
                   <p className="font-bold text-text-primary font-devanagari">
                     {data.name || 'पंडित जी'}
                   </p>
-                  <p className="text-text-secondary text-sm font-devanagari">
+                  <p className="text-text-secondary text-[16px] font-devanagari">
                     {data.city || 'शहर'}, {data.state || 'राज्य'}
                   </p>
                 </div>
@@ -273,7 +273,7 @@ export default function RegistrationCompletePage() {
                     <h3 className={`font-bold ${step.iconColor} font-devanagari`}>
                       {step.title}
                     </h3>
-                    <p className="text-text-secondary text-sm font-devanagari">
+                    <p className="text-text-secondary text-[16px] font-devanagari">
                       {step.description}
                     </p>
                   </div>
@@ -302,7 +302,7 @@ export default function RegistrationCompletePage() {
             variants={itemVariants}
             className="mt-8 mb-4 text-center"
           >
-            <p className="text-text-secondary text-sm mb-3 font-devanagari">
+            <p className="text-text-secondary text-[16px] mb-3 font-devanagari">
               कोई सहायता चाहिए?
             </p>
             <div className="flex items-center justify-center gap-2 text-saffron">
@@ -311,7 +311,7 @@ export default function RegistrationCompletePage() {
                 +91 1800-PANDIT
               </span>
             </div>
-            <p className="text-text-placeholder text-xs mt-2 font-devanagari">
+            <p className="text-text-placeholder text-[16px] mt-2 font-devanagari">
               हम 24/7 उपलब्ध हैं
             </p>
           </motion.footer>

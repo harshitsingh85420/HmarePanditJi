@@ -6,8 +6,8 @@ export default function RootLoading() {
         <div className="lg:w-1/2 space-y-4">
           <div className="h-6 w-36 bg-slate-200 dark:bg-slate-700 rounded-full" />
           <div className="space-y-3">
-            <div className="h-10 w-full bg-slate-200 dark:bg-slate-700 rounded-xl" />
-            <div className="h-10 w-4/5 bg-slate-200 dark:bg-slate-700 rounded-xl" />
+            <div className="h-14 w-full bg-slate-200 dark:bg-slate-700 rounded-xl" />
+            <div className="h-14 w-4/5 bg-slate-200 dark:bg-slate-700 rounded-xl" />
           </div>
           <div className="h-4 w-full bg-slate-100 dark:bg-slate-800 rounded" />
           <div className="h-4 w-3/4 bg-slate-100 dark:bg-slate-800 rounded" />

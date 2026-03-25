@@ -54,11 +54,11 @@ export default function TermsPage() {
     <div className="max-w-[800px] mx-auto px-4 sm:px-6 py-16">
       <div className="mb-10">
         <h1 className="text-3xl font-black text-slate-900 dark:text-slate-100 mb-3">Terms of Service</h1>
-        <p className="text-slate-500 text-sm">Last updated: January 2025 · Effective: Delhi-NCR Phase 1 Launch</p>
+        <p className="text-slate-500 text-lg">Last updated: January 2025 · Effective: Delhi-NCR Phase 1 Launch</p>
       </div>
 
       <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 rounded-xl p-5 mb-10">
-        <p className="text-sm text-amber-800 dark:text-amber-300 font-medium">
+        <p className="text-lg text-amber-800 dark:text-amber-300 font-medium">
           यह नियम और शर्तें पढ़ें — Please read these Terms carefully before using HmarePanditJi. Using our platform means you accept these terms.
         </p>
       </div>
@@ -67,13 +67,13 @@ export default function TermsPage() {
         {SECTIONS.map((section) => (
           <div key={section.title} className="border-b border-slate-100 dark:border-slate-800 pb-8 last:border-0">
             <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-3">{section.title}</h2>
-            <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">{section.body}</p>
+            <p className="text-slate-600 dark:text-slate-400 text-lg leading-relaxed">{section.body}</p>
           </div>
         ))}
       </div>
 
       <div className="mt-10 p-5 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800">
-        <p className="text-sm text-slate-600 dark:text-slate-400">
+        <p className="text-lg text-slate-600 dark:text-slate-400">
           For questions about these Terms, contact us at{" "}
           <a href="mailto:legal@hmarepanditji.com" className="text-primary hover:underline">
             legal@hmarepanditji.com

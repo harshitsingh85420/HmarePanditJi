@@ -42,7 +42,7 @@ export default function PujaCompletionPage({ params }: { params: { id: string } 
                                 }}
                             ></div>
                             <div className="absolute -bottom-2 -right-2 bg-green-500 text-white p-1 rounded-full border-2 border-white">
-                                <span className="material-symbols-outlined text-sm block">
+                                <span className="material-symbols-outlined text-lg block">
                                     check
                                 </span>
                             </div>
@@ -54,7 +54,7 @@ export default function PujaCompletionPage({ params }: { params: { id: string } 
                             <p className="text-[#f49d25] font-semibold">
                                 Vedic Scholar &amp; Chief Priest
                             </p>
-                            <p className="text-[#8a7960] dark:text-gray-400 text-sm mt-1">
+                            <p className="text-[#8a7960] dark:text-gray-400 text-lg mt-1">
                                 Ganesh Puja completed on 25th Oct, 2023 • 10:30 AM
                             </p>
                         </div>
@@ -80,7 +80,7 @@ export default function PujaCompletionPage({ params }: { params: { id: string } 
                             <h3 className="text-[#181511] dark:text-white font-bold text-lg">
                                 Completion Certificate
                             </h3>
-                            <p className="text-[#8a7960] dark:text-gray-400 text-sm">
+                            <p className="text-[#8a7960] dark:text-gray-400 text-lg">
                                 Official Muhurat Document verified by HmarePanditJi
                             </p>
                         </div>
@@ -104,7 +104,7 @@ export default function PujaCompletionPage({ params }: { params: { id: string } 
                             <h3 className="text-[#181511] dark:text-white font-bold text-lg">
                                 Mantra Recording
                             </h3>
-                            <p className="text-[#8a7960] dark:text-gray-400 text-sm">
+                            <p className="text-[#8a7960] dark:text-gray-400 text-lg">
                                 Personalized digital audio blessing &amp; chanting
                             </p>
                         </div>
@@ -125,7 +125,7 @@ export default function PujaCompletionPage({ params }: { params: { id: string } 
                             <h3 className="text-[#181511] dark:text-white font-bold text-lg">
                                 E-Receipt
                             </h3>
-                            <p className="text-[#8a7960] dark:text-gray-400 text-sm">
+                            <p className="text-[#8a7960] dark:text-gray-400 text-lg">
                                 Complete transaction &amp; samagri summary
                             </p>
                         </div>
@@ -150,7 +150,7 @@ export default function PujaCompletionPage({ params }: { params: { id: string } 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                         {/* Pandit Rating */}
                         <div className="flex flex-col items-center gap-3">
-                            <p className="font-semibold text-sm uppercase tracking-wider text-[#8a7960]">
+                            <p className="font-semibold text-lg uppercase tracking-wider text-[#8a7960]">
                                 The Pandit
                             </p>
                             <div className="flex gap-1 text-[#f49d25]">
@@ -166,7 +166,7 @@ export default function PujaCompletionPage({ params }: { params: { id: string } 
                         </div>
                         {/* Samagri Rating */}
                         <div className="flex flex-col items-center gap-3">
-                            <p className="font-semibold text-sm uppercase tracking-wider text-[#8a7960]">
+                            <p className="font-semibold text-lg uppercase tracking-wider text-[#8a7960]">
                                 Samagri Quality
                             </p>
                             <div className="flex gap-1 text-[#f49d25]">
@@ -182,7 +182,7 @@ export default function PujaCompletionPage({ params }: { params: { id: string } 
                         </div>
                         {/* Punctuality Rating */}
                         <div className="flex flex-col items-center gap-3">
-                            <p className="font-semibold text-sm uppercase tracking-wider text-[#8a7960]">
+                            <p className="font-semibold text-lg uppercase tracking-wider text-[#8a7960]">
                                 Punctuality
                             </p>
                             <div className="flex gap-1 text-[#f49d25]">

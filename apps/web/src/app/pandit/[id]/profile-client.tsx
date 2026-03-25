@@ -393,10 +393,10 @@ function AvailabilityCalendar({ panditId }: { panditId: string }) {
             chevron_left
           </span>
         </button>
-        <span className="text-sm font-bold text-slate-800 dark:text-slate-100">
+        <span className="text-lg font-bold text-slate-800 dark:text-slate-100">
           {MONTH_NAMES[viewMonth - 1]} {viewYear}
           {fetching && (
-            <span className="ml-2 text-xs font-normal text-slate-400">
+            <span className="ml-2 text-base font-normal text-slate-400">
               loading…
             </span>
           )}
@@ -417,7 +417,7 @@ function AvailabilityCalendar({ panditId }: { panditId: string }) {
         {DAY_NAMES.map((d) => (
           <span
             key={d}
-            className="py-1 text-center text-[10px] font-bold uppercase text-slate-400"
+            className="py-3 text-center text-[10px] font-bold uppercase text-slate-400"
           >
             {d}
           </span>
@@ -453,7 +453,7 @@ function AvailabilityCalendar({ panditId }: { panditId: string }) {
             <div
               key={day}
               title={info?.reason}
-              className={`flex h-8 w-full items-center justify-center rounded-lg text-xs font-medium transition-colors ${cls}`}
+              className={`flex h-12 w-full items-center justify-center rounded-lg text-base font-medium transition-colors ${cls}`}
             >
               {day}
             </div>
@@ -463,19 +463,19 @@ function AvailabilityCalendar({ panditId }: { panditId: string }) {
 
       {/* Legend */}
       <div className="mt-4 flex flex-wrap items-center gap-4 border-t border-slate-100 pt-3 dark:border-slate-800">
-        <span className="flex items-center gap-1.5 text-xs text-slate-500">
+        <span className="flex items-center gap-1.5 text-base text-slate-500">
           <span className="h-3 w-3 rounded border border-green-300 bg-green-100 dark:bg-green-900/30" />
           Available
         </span>
-        <span className="flex items-center gap-1.5 text-xs text-slate-500">
+        <span className="flex items-center gap-1.5 text-base text-slate-500">
           <span className="h-3 w-3 rounded border border-orange-300 bg-orange-100 dark:bg-orange-900/30" />
           Booked
         </span>
-        <span className="flex items-center gap-1.5 text-xs text-slate-500">
+        <span className="flex items-center gap-1.5 text-base text-slate-500">
           <span className="h-3 w-3 rounded border border-red-200 bg-red-50 dark:bg-red-900/20" />
           Blocked
         </span>
-        <span className="flex items-center gap-1.5 text-xs text-slate-500">
+        <span className="flex items-center gap-1.5 text-base text-slate-500">
           <span className="ring-primary h-3 w-3 rounded ring-2" />
           Today
         </span>
@@ -520,7 +520,7 @@ function RatingBreakdown({
             </span>
           ))}
         </div>
-        <div className="mt-1 text-xs text-slate-400">
+        <div className="mt-1 text-base text-slate-400">
           {reviews.length} reviews
         </div>
       </div>
@@ -529,9 +529,9 @@ function RatingBreakdown({
       <div className="w-full flex-1 space-y-1.5">
         {counts.map(({ star, count }) => (
           <div key={star} className="flex items-center gap-3">
-            <span className="w-4 text-xs text-slate-500">{star}</span>
+            <span className="w-4 text-base text-slate-500">{star}</span>
             <span
-              className="material-symbols-outlined text-xs text-orange-500"
+              className="material-symbols-outlined text-base text-orange-500"
               style={{ fontVariationSettings: "'FILL' 1" }}
             >
               star
@@ -542,7 +542,7 @@ function RatingBreakdown({
                 style={{ width: `${(count / max) * 100}%` }}
               />
             </div>
-            <span className="w-4 text-xs text-slate-400">{count}</span>
+            <span className="w-4 text-base text-slate-400">{count}</span>
           </div>
         ))}
       </div>
@@ -569,7 +569,7 @@ function ReviewCard({ review }: { review: ReviewItem }) {
             </span>
           </div>
           <div>
-            <div className="text-sm font-bold text-slate-800 dark:text-slate-100">
+            <div className="text-lg font-bold text-slate-800 dark:text-slate-100">
               {review.isAnonymous ? "Anonymous" : review.customerName}
             </div>
             <div className="mt-0.5 flex items-center gap-2">
@@ -582,7 +582,7 @@ function ReviewCard({ review }: { review: ReviewItem }) {
             </div>
           </div>
         </div>
-        <span className="flex-shrink-0 text-xs text-slate-400">
+        <span className="flex-shrink-0 text-base text-slate-400">
           {new Date(review.date).toLocaleDateString("en-IN", {
             day: "numeric",
             month: "short",
@@ -599,7 +599,7 @@ function ReviewCard({ review }: { review: ReviewItem }) {
               className="flex items-center gap-1 text-[10px] text-slate-500"
             >
               <span
-                className="material-symbols-outlined text-xs text-orange-400"
+                className="material-symbols-outlined text-base text-orange-400"
                 style={{ fontVariationSettings: "'FILL' 1" }}
               >
                 star
@@ -611,7 +611,7 @@ function ReviewCard({ review }: { review: ReviewItem }) {
       )}
 
       {review.comment && (
-        <p className="mt-3 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+        <p className="mt-3 text-lg leading-relaxed text-slate-600 dark:text-slate-400">
           {review.comment}
         </p>
       )}
@@ -630,7 +630,7 @@ function Gallery({ images }: { images: string[] }) {
         <span className="material-symbols-outlined mb-3 text-5xl text-slate-300">
           photo_library
         </span>
-        <p className="text-sm text-slate-400">Gallery photos coming soon</p>
+        <p className="text-lg text-slate-400">Gallery photos coming soon</p>
       </div>
     );
   }
@@ -698,20 +698,20 @@ function ShareButton({ name }: { name: string }) {
     <div className="flex items-center gap-2">
       <button
         onClick={copyLink}
-        className="flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800"
+        className="flex items-center gap-1.5 rounded-lg border border-slate-200 px-5 py-3.5 text-base font-semibold text-slate-600 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800"
         title="Copy link"
       >
-        <span className="material-symbols-outlined text-sm">
+        <span className="material-symbols-outlined text-lg">
           {copied ? "check" : "link"}
         </span>
         {copied ? "Copied!" : "Share"}
       </button>
       <button
         onClick={shareWhatsApp}
-        className="flex items-center gap-1.5 rounded-lg border border-green-200 px-3 py-1.5 text-xs font-semibold text-green-600 transition-colors hover:bg-green-50 dark:border-green-800 dark:hover:bg-green-900/20"
+        className="flex items-center gap-1.5 rounded-lg border border-green-200 px-5 py-3.5 text-base font-semibold text-green-600 transition-colors hover:bg-green-50 dark:border-green-800 dark:hover:bg-green-900/20"
         title="Share on WhatsApp"
       >
-        <span className="material-symbols-outlined text-sm">whatsapp</span>
+        <span className="material-symbols-outlined text-lg">whatsapp</span>
         WhatsApp
       </button>
     </div>
@@ -759,7 +759,7 @@ function StickyBookingBar({
         <select
           value={selectedService}
           onChange={(e) => setSelectedService(e.target.value)}
-          className="focus:ring-primary min-w-0 flex-1 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-xs text-slate-700 focus:outline-none focus:ring-2 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+          className="focus:ring-primary min-w-0 flex-1 rounded-xl border border-slate-200 bg-slate-50 px-5 py-2.5 text-base text-slate-700 focus:outline-none focus:ring-2 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
         >
           {services.map((s) => (
             <option key={s.name} value={s.name}>
@@ -774,7 +774,7 @@ function StickyBookingBar({
           value={date}
           min={new Date().toISOString().split("T")[0]}
           onChange={(e) => setDate(e.target.value)}
-          className="focus:ring-primary w-32 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-xs text-slate-700 focus:outline-none focus:ring-2 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+          className="focus:ring-primary w-32 rounded-xl border border-slate-200 bg-slate-50 px-5 py-2.5 text-base text-slate-700 focus:outline-none focus:ring-2 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
         />
 
         {/* WhatsApp */}
@@ -789,7 +789,7 @@ function StickyBookingBar({
         {/* Book */}
         <button
           onClick={handleBook}
-          className="bg-primary hover:bg-primary/90 shadow-primary/20 flex-shrink-0 whitespace-nowrap rounded-xl px-4 py-2.5 text-xs font-black text-white shadow-lg transition-colors"
+          className="bg-primary hover:bg-primary/90 shadow-primary/20 flex-shrink-0 whitespace-nowrap rounded-xl px-4 py-2.5 text-base font-black text-white shadow-lg transition-colors"
         >
           {price > 0 ? `₹${(price / 1000).toFixed(0)}k बुक करें` : "Book Now"}
         </button>
@@ -924,7 +924,7 @@ export default function ProfileClient({
               <button
                 key={item.id}
                 onClick={() => scrollTo(item.id)}
-                className="hover:text-primary hover:bg-primary/10 flex-shrink-0 rounded-full px-4 py-1.5 text-xs font-semibold text-slate-600 transition-colors dark:text-slate-400"
+                className="hover:text-primary hover:bg-primary/10 flex-shrink-0 rounded-full px-4 py-3.5 text-base font-semibold text-slate-600 transition-colors dark:text-slate-400"
               >
                 {item.label}
               </button>
@@ -991,13 +991,13 @@ export default function ProfileClient({
                 className="mt-1 inline-flex items-center gap-1 hover:underline"
               >
                 <Rating value={profile.averageRating} size="md" />
-                <span className="text-sm text-slate-500">
+                <span className="text-lg text-slate-500">
                   ({profile.totalReviews} reviews)
                 </span>
               </button>
 
               {/* Meta row */}
-              <div className="mt-2 flex flex-wrap items-center gap-4 text-sm text-slate-500 dark:text-slate-400">
+              <div className="mt-2 flex flex-wrap items-center gap-4 text-lg text-slate-500 dark:text-slate-400">
                 <span className="flex items-center gap-1">
                   <span className="material-symbols-outlined text-base text-slate-400">
                     location_on
@@ -1024,16 +1024,16 @@ export default function ProfileClient({
                 {profile.languages.map((lang) => (
                   <span
                     key={lang}
-                    className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-xs text-slate-600 dark:bg-slate-800 dark:text-slate-400"
+                    className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-4.5 py-3 text-base text-slate-600 dark:bg-slate-800 dark:text-slate-400"
                   >
-                    <span className="material-symbols-outlined text-xs">
+                    <span className="material-symbols-outlined text-base">
                       translate
                     </span>
                     {lang}
                   </span>
                 ))}
                 {profile.sect && (
-                  <span className="bg-primary/10 text-primary rounded-full px-2.5 py-1 text-xs">
+                  <span className="bg-primary/10 text-primary rounded-full px-4.5 py-3 text-base">
                     {profile.sect}
                   </span>
                 )}
@@ -1058,7 +1058,7 @@ export default function ProfileClient({
                     href={`https://wa.me/919999999999?text=${encodeURIComponent(`Hi! I want to book ${profile.displayName} for a ceremony.`)}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex h-12 items-center gap-2 rounded-xl border-2 border-green-200 px-5 text-sm font-bold text-green-600 transition-colors hover:bg-green-50 dark:border-green-800 dark:hover:bg-green-900/20"
+                    className="flex h-12 items-center gap-2 rounded-xl border-2 border-green-200 px-5 text-lg font-bold text-green-600 transition-colors hover:bg-green-50 dark:border-green-800 dark:hover:bg-green-900/20"
                   >
                     <span className="material-symbols-outlined text-base">
                       whatsapp
@@ -1080,12 +1080,12 @@ export default function ProfileClient({
             परिचय (About)
           </h2>
 
-          <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+          <p className="text-lg leading-relaxed text-slate-600 dark:text-slate-400">
             {profile.bio || "Profile description coming soon."}
           </p>
 
           {profile.gotra && (
-            <p className="mt-2 text-xs text-slate-400">
+            <p className="mt-2 text-base text-slate-400">
               Gotra:{" "}
               <span className="font-semibold text-slate-600 dark:text-slate-300">
                 {profile.gotra}
@@ -1095,14 +1095,14 @@ export default function ProfileClient({
 
           {profile.specializations.length > 0 && (
             <div className="mt-4">
-              <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              <p className="mb-2 text-base font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                 Specializations
               </p>
               <div className="flex flex-wrap gap-2">
                 {profile.specializations.map((s) => (
                   <span
                     key={s}
-                    className="bg-primary/10 text-primary rounded-full px-3 py-1 text-xs font-semibold"
+                    className="bg-primary/10 text-primary rounded-full px-5 py-3 text-base font-semibold"
                   >
                     {s}
                   </span>
@@ -1144,20 +1144,20 @@ export default function ProfileClient({
               >
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-sm font-bold text-slate-800 dark:text-slate-100">
+                    <span className="text-lg font-bold text-slate-800 dark:text-slate-100">
                       {service.name}
                     </span>
-                    <span className="text-xs text-slate-400">
+                    <span className="text-base text-slate-400">
                       {service.nameHindi}
                     </span>
-                    <span className="flex items-center gap-0.5 text-xs text-slate-400">
-                      <span className="material-symbols-outlined text-xs">
+                    <span className="flex items-center gap-0.5 text-base text-slate-400">
+                      <span className="material-symbols-outlined text-base">
                         schedule
                       </span>
                       {service.durationHours}h
                     </span>
                   </div>
-                  <p className="mt-0.5 text-xs text-slate-400">
+                  <p className="mt-0.5 text-base text-slate-400">
                     {service.description}
                   </p>
                 </div>
@@ -1167,7 +1167,7 @@ export default function ProfileClient({
                     size="sm"
                     onClick={() => handleBook(service.name)}
                     leftIcon={
-                      <span className="material-symbols-outlined text-sm">
+                      <span className="material-symbols-outlined text-lg">
                         calendar_add_on
                       </span>
                     }
@@ -1180,8 +1180,8 @@ export default function ProfileClient({
           </div>
 
           <div className="border-t border-amber-100 bg-amber-50 px-5 py-3 dark:border-amber-800/30 dark:bg-amber-900/10">
-            <p className="flex items-start gap-1.5 text-xs text-amber-700 dark:text-amber-400">
-              <span className="material-symbols-outlined flex-shrink-0 text-sm">
+            <p className="flex items-start gap-1.5 text-base text-amber-700 dark:text-amber-400">
+              <span className="material-symbols-outlined flex-shrink-0 text-lg">
                 info
               </span>
               * यह दक्षिणा की राशि है। Travel और Samagri का खर्च अलग से जोड़ा
@@ -1230,7 +1230,7 @@ export default function ProfileClient({
               <div className="flex justify-center p-5">
                 <button
                   onClick={() => setReviewsShown((n) => n + 5)}
-                  className="text-primary flex items-center gap-2 text-sm font-bold hover:underline"
+                  className="text-primary flex items-center gap-2 text-lg font-bold hover:underline"
                 >
                   Load More Reviews
                   <span className="material-symbols-outlined text-base">
@@ -1273,7 +1273,7 @@ export default function ProfileClient({
 function VerificationBadge({ label, done }: { label: string; done: boolean }) {
   return (
     <span
-      className={`flex items-center gap-1.5 text-xs font-semibold ${done ? "text-green-600 dark:text-green-400" : "text-slate-400"}`}
+      className={`flex items-center gap-1.5 text-base font-semibold ${done ? "text-green-600 dark:text-green-400" : "text-slate-400"}`}
     >
       <span
         className="material-symbols-outlined text-base"

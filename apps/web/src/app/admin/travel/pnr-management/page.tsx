@@ -4,25 +4,25 @@ import React from "react";
 
 export default function AdminPnrManagementPage() {
     return (
-        <div className="bg-[#f8fafc] text-[#1e293b] font-sans antialiased min-h-screen flex text-sm">
+        <div className="bg-[#f8fafc] text-[#1e293b] font-sans antialiased min-h-screen flex text-lg">
             {/* Sidebar */}
             <aside className="w-64 bg-slate-900 h-screen fixed left-0 top-0 z-20 flex flex-col border-r border-slate-800">
                 <div className="p-6 border-b border-slate-800">
                     <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-[#137fec] flex items-center justify-center text-white font-bold">
+                        <div className="w-12 h-12 rounded-lg bg-[#137fec] flex items-center justify-center text-white font-bold">
                             HP
                         </div>
                         <h1 className="text-white font-bold text-lg tracking-tight">
                             HmarePanditJi
                         </h1>
                     </div>
-                    <p className="text-xs text-slate-400 mt-1 pl-11">
+                    <p className="text-base text-slate-400 mt-1 pl-11">
                         Admin Console
                     </p>
                 </div>
-                <nav className="flex-1 overflow-y-auto py-6 px-3 space-y-1">
+                <nav className="flex-1 overflow-y-auto py-6 px-5 space-y-1">
                     <a
-                        className="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
+                        className="flex items-center gap-3 px-4 py-3 text-lg font-medium rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
                         href="#"
                     >
                         <span className="material-symbols-outlined text-[20px]">
@@ -31,20 +31,20 @@ export default function AdminPnrManagementPage() {
                         Dashboard
                     </a>
                     <a
-                        className="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-white bg-[#137fec] transition-colors"
+                        className="flex items-center gap-3 px-4 py-3 text-lg font-medium rounded-lg text-white bg-[#137fec] transition-colors"
                         href="#"
                     >
                         <span className="material-symbols-outlined text-[20px]">
                             train
                         </span>
                         Travel Queue
-                        <span className="ml-auto bg-[#0f65bd] text-white text-[10px] px-2 py-0.5 rounded-full font-bold">
+                        <span className="ml-auto bg-[#0f65bd] text-white text-[10px] px-4 py-2 rounded-full font-bold">
                             7
                         </span>
                     </a>
                     {/* Other links... */}
                     <a
-                        className="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
+                        className="flex items-center gap-3 px-4 py-3 text-lg font-medium rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
                         href="#"
                     >
                         <span className="material-symbols-outlined text-[20px]">
@@ -58,7 +58,7 @@ export default function AdminPnrManagementPage() {
             {/* Main Content */}
             <main className="ml-64 flex-1 bg-[#f8fafc] min-h-screen">
                 <header className="h-16 bg-white border-b border-[#e2e8f0] flex items-center justify-between px-8 sticky top-0 z-10">
-                    <div className="flex items-center gap-2 text-sm text-[#64748b]">
+                    <div className="flex items-center gap-2 text-lg text-[#64748b]">
                         <a className="hover:text-[#137fec]" href="#">
                             Travel Queue
                         </a>
@@ -111,16 +111,16 @@ export default function AdminPnrManagementPage() {
                             {/* Requirement Card */}
                             <div className="bg-white border border-[#e2e8f0] rounded-xl shadow-sm p-5">
                                 <div className="flex justify-between items-start mb-4">
-                                    <h3 className="text-sm font-semibold text-[#64748b] uppercase tracking-wider">
+                                    <h3 className="text-lg font-semibold text-[#64748b] uppercase tracking-wider">
                                         Journey Requirement
                                     </h3>
-                                    <span className="bg-amber-100 text-amber-800 text-xs font-semibold px-2.5 py-0.5 rounded-full border border-amber-200">
+                                    <span className="bg-amber-100 text-amber-800 text-base font-semibold px-4.5 py-2 rounded-full border border-amber-200">
                                         Pending Booking
                                     </span>
                                 </div>
                                 <div className="flex items-center gap-4 mb-6">
                                     <div className="flex-1">
-                                        <p className="text-xs text-[#64748b]">From</p>
+                                        <p className="text-base text-[#64748b]">From</p>
                                         <p className="font-semibold text-lg text-[#1e293b]">
                                             Varanasi (BSB)
                                         </p>
@@ -129,29 +129,29 @@ export default function AdminPnrManagementPage() {
                                         <span className="material-symbols-outlined text-[#64748b]">
                                             arrow_right_alt
                                         </span>
-                                        <span className="text-[10px] text-[#64748b] font-medium bg-slate-100 px-2 py-0.5 rounded-full">
+                                        <span className="text-[10px] text-[#64748b] font-medium bg-slate-100 px-4 py-2 rounded-full">
                                             TRAIN
                                         </span>
                                     </div>
                                     <div className="flex-1 text-right">
-                                        <p className="text-xs text-[#64748b]">To</p>
+                                        <p className="text-base text-[#64748b]">To</p>
                                         <p className="font-semibold text-lg text-[#1e293b]">
                                             Ayodhya (AY)
                                         </p>
                                     </div>
                                 </div>
                                 <div className="space-y-3 pt-4 border-t border-[#e2e8f0]">
-                                    <div className="flex justify-between text-sm">
+                                    <div className="flex justify-between text-lg">
                                         <span className="text-[#64748b]">Travel Date</span>
                                         <span className="font-medium">Dec 15, 2026</span>
                                     </div>
-                                    <div className="flex justify-between text-sm">
+                                    <div className="flex justify-between text-lg">
                                         <span className="text-[#64748b]">
                                             Preferred Class
                                         </span>
                                         <span className="font-medium">3AC / CC</span>
                                     </div>
-                                    <div className="flex justify-between text-sm">
+                                    <div className="flex justify-between text-lg">
                                         <span className="text-[#64748b]">Budget Limit</span>
                                         <span className="font-medium text-green-600">
                                             ₹1,800
@@ -165,7 +165,7 @@ export default function AdminPnrManagementPage() {
                         <div className="col-span-12 lg:col-span-8 space-y-6">
                             <div className="bg-white border border-[#e2e8f0] rounded-xl shadow-sm p-6">
                                 <div className="flex items-center gap-3 mb-6">
-                                    <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-bold text-sm">
+                                    <span className="flex items-center justify-center w-12 h-12 rounded-full bg-blue-100 text-blue-600 font-bold text-lg">
                                         1
                                     </span>
                                     <h2 className="text-lg font-bold text-[#1e293b]">
@@ -175,22 +175,22 @@ export default function AdminPnrManagementPage() {
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                                     <div>
-                                        <label className="block text-sm font-medium text-[#1e293b] mb-1.5">
+                                        <label className="block text-lg font-medium text-[#1e293b] mb-1.5">
                                             Transport Mode
                                         </label>
-                                        <select className="w-full rounded-lg border-[#e2e8f0] text-sm focus:ring-[#137fec] focus:border-[#137fec] shadow-sm bg-slate-50">
+                                        <select className="w-full rounded-lg border-[#e2e8f0] text-lg focus:ring-[#137fec] focus:border-[#137fec] shadow-sm bg-slate-50">
                                             <option value="TRAIN">Train (IRCTC)</option>
                                             <option value="FLIGHT">Flight</option>
                                             <option value="BUS">Bus</option>
                                         </select>
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-[#1e293b] mb-1.5">
+                                        <label className="block text-lg font-medium text-[#1e293b] mb-1.5">
                                             PNR / Booking ID{" "}
                                             <span className="text-red-500">*</span>
                                         </label>
                                         <input
-                                            className="w-full rounded-lg border-[#e2e8f0] text-sm focus:ring-[#137fec] focus:border-[#137fec] shadow-sm font-mono uppercase"
+                                            className="w-full rounded-lg border-[#e2e8f0] text-lg focus:ring-[#137fec] focus:border-[#137fec] shadow-sm font-mono uppercase"
                                             placeholder="e.g. 2456789012"
                                             type="text"
                                         />
@@ -200,29 +200,29 @@ export default function AdminPnrManagementPage() {
                                 {/* More Fields */}
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                                     <div>
-                                        <label className="block text-sm font-medium text-[#1e293b] mb-1.5">Train/Flight No.</label>
-                                        <input className="w-full rounded-lg border-[#e2e8f0] text-sm focus:ring-[#137fec] focus:border-[#137fec] shadow-sm uppercase" placeholder="e.g. 12345" type="text" />
+                                        <label className="block text-lg font-medium text-[#1e293b] mb-1.5">Train/Flight No.</label>
+                                        <input className="w-full rounded-lg border-[#e2e8f0] text-lg focus:ring-[#137fec] focus:border-[#137fec] shadow-sm uppercase" placeholder="e.g. 12345" type="text" />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-[#1e293b] mb-1.5">Class/Coach</label>
-                                        <input className="w-full rounded-lg border-[#e2e8f0] text-sm focus:ring-[#137fec] focus:border-[#137fec] shadow-sm uppercase" placeholder="e.g. 3AC" type="text" />
+                                        <label className="block text-lg font-medium text-[#1e293b] mb-1.5">Class/Coach</label>
+                                        <input className="w-full rounded-lg border-[#e2e8f0] text-lg focus:ring-[#137fec] focus:border-[#137fec] shadow-sm uppercase" placeholder="e.g. 3AC" type="text" />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-[#1e293b] mb-1.5">Seat/Berth No.</label>
-                                        <input className="w-full rounded-lg border-[#e2e8f0] text-sm focus:ring-[#137fec] focus:border-[#137fec] shadow-sm uppercase" placeholder="e.g. 45 / LOWER" type="text" />
+                                        <label className="block text-lg font-medium text-[#1e293b] mb-1.5">Seat/Berth No.</label>
+                                        <input className="w-full rounded-lg border-[#e2e8f0] text-lg focus:ring-[#137fec] focus:border-[#137fec] shadow-sm uppercase" placeholder="e.g. 45 / LOWER" type="text" />
                                     </div>
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                                     <div>
-                                        <label className="block text-sm font-medium text-[#1e293b] mb-1.5">Departure Time</label>
-                                        <input className="w-full rounded-lg border-[#e2e8f0] text-sm focus:ring-[#137fec] focus:border-[#137fec] shadow-sm" type="time" defaultValue="08:30" />
+                                        <label className="block text-lg font-medium text-[#1e293b] mb-1.5">Departure Time</label>
+                                        <input className="w-full rounded-lg border-[#e2e8f0] text-lg focus:ring-[#137fec] focus:border-[#137fec] shadow-sm" type="time" defaultValue="08:30" />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-[#1e293b] mb-1.5">Actual Cost (₹)</label>
+                                        <label className="block text-lg font-medium text-[#1e293b] mb-1.5">Actual Cost (₹)</label>
                                         <div className="relative">
                                             <span className="absolute left-3 top-2 text-slate-500">₹</span>
-                                            <input className="w-full rounded-lg border-[#e2e8f0] text-sm focus:ring-[#137fec] focus:border-[#137fec] shadow-sm pl-7" placeholder="0.00" type="number" />
+                                            <input className="w-full rounded-lg border-[#e2e8f0] text-lg focus:ring-[#137fec] focus:border-[#137fec] shadow-sm pl-7" placeholder="0.00" type="number" />
                                         </div>
                                     </div>
                                 </div>
@@ -231,7 +231,7 @@ export default function AdminPnrManagementPage() {
                             {/* Notify Card */}
                             <div className="bg-white border border-[#e2e8f0] rounded-xl shadow-sm p-6 border-t-4 border-t-[#f49d25]">
                                 <div className="flex items-center gap-3 mb-6">
-                                    <span className="flex items-center justify-center w-8 h-8 rounded-full bg-orange-100 text-orange-600 font-bold text-sm">2</span>
+                                    <span className="flex items-center justify-center w-12 h-12 rounded-full bg-orange-100 text-orange-600 font-bold text-lg">2</span>
                                     <h2 className="text-lg font-bold text-[#1e293b]">Notify Pandit Ji</h2>
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -241,17 +241,17 @@ export default function AdminPnrManagementPage() {
                                         <div className="bg-white h-full rounded-2xl overflow-hidden flex flex-col">
                                             <div className="bg-slate-100 px-4 py-3 border-b border-slate-200 pt-8">
                                                 <div className="flex items-center gap-2">
-                                                    <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-green-600">
-                                                        <span className="material-symbols-outlined text-sm">sms</span>
+                                                    <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-green-600">
+                                                        <span className="material-symbols-outlined text-lg">sms</span>
                                                     </div>
                                                     <div>
-                                                        <p className="text-xs font-bold text-slate-700">HP-PANDIT</p>
+                                                        <p className="text-base font-bold text-slate-700">HP-PANDIT</p>
                                                         <p className="text-[10px] text-slate-400">now</p>
                                                     </div>
                                                 </div>
                                             </div>
                                             <div className="p-4 bg-slate-50 flex-1">
-                                                <div className="bg-white p-3 rounded-lg rounded-tl-none shadow-sm border border-slate-100 text-sm text-slate-700 leading-relaxed">
+                                                <div className="bg-white p-3 rounded-lg rounded-tl-none shadow-sm border border-slate-100 text-lg text-slate-700 leading-relaxed">
                                                     Pranam Pandit Ji 🙏,<br /><br />
                                                     Your travel for the Ayodhya event is booked!<br /><br />
                                                     <strong>Train:</strong> 12345 (Ganga Express)<br />

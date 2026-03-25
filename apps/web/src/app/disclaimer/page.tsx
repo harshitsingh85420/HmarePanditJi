@@ -59,7 +59,7 @@ export default function DisclaimerPage() {
           <p className="mt-3 text-gray-600">
             Important information about the use of HmarePanditJi platform.
           </p>
-          <p className="mt-2 text-sm text-gray-400">Last updated: February 2025</p>
+          <p className="mt-2 text-lg text-gray-400">Last updated: February 2025</p>
         </div>
       </section>
 
@@ -69,7 +69,7 @@ export default function DisclaimerPage() {
           {SECTIONS.map((s) => (
             <div key={s.title}>
               <h2 className="text-lg font-semibold text-gray-900">{s.title}</h2>
-              <p className="mt-2 text-sm leading-relaxed text-gray-600">{s.body}</p>
+              <p className="mt-2 text-lg leading-relaxed text-gray-600">{s.body}</p>
             </div>
           ))}
         </div>
@@ -77,7 +77,7 @@ export default function DisclaimerPage() {
         {/* Contact */}
         <div className="mt-12 rounded-xl border border-orange-100 bg-orange-50 p-6">
           <h3 className="text-base font-semibold text-gray-900">Questions?</h3>
-          <p className="mt-1 text-sm text-gray-600">
+          <p className="mt-1 text-lg text-gray-600">
             If you have questions about this disclaimer, contact us at{" "}
             <a href="mailto:legal@hmarepanditji.com" className="text-[#f49d25] hover:underline">
               legal@hmarepanditji.com
@@ -90,7 +90,7 @@ export default function DisclaimerPage() {
         </div>
 
         {/* Governing Law */}
-        <p className="mt-8 text-xs text-gray-400 text-center">
+        <p className="mt-8 text-base text-gray-400 text-center">
           This disclaimer is governed by the laws of India. Any disputes arising shall be subject
           to the exclusive jurisdiction of the courts in New Delhi, India.
         </p>

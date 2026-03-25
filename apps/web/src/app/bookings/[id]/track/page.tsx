@@ -33,7 +33,7 @@ export default function LiveTrackingPage({ params }: { params: { id: string } })
                 <div className="absolute top-6 left-20 z-10 flex flex-col gap-3">
                     <div className="flex bg-white dark:bg-slate-900 rounded-xl shadow-xl p-1 border border-slate-200 dark:border-slate-800">
                         <input
-                            className="bg-transparent border-none focus:ring-0 text-sm w-64 text-slate-900 dark:text-white placeholder:text-slate-400"
+                            className="bg-transparent border-none focus:ring-0 text-lg w-64 text-slate-900 dark:text-white placeholder:text-slate-400"
                             placeholder="Search route..."
                             type="text"
                         />
@@ -65,7 +65,7 @@ export default function LiveTrackingPage({ params }: { params: { id: string } })
                             <div className="bg-[#137fec] text-white p-2 rounded-full shadow-xl animate-pulse">
                                 <span className="material-symbols-outlined">directions_car</span>
                             </div>
-                            <div className="mt-2 bg-white dark:bg-slate-900 px-3 py-1 rounded-full shadow-lg text-xs font-bold border border-[#137fec] text-slate-900 dark:text-white">
+                            <div className="mt-2 bg-white dark:bg-slate-900 px-5 py-3 rounded-full shadow-lg text-base font-bold border border-[#137fec] text-slate-900 dark:text-white">
                                 Vishnu Shastri
                             </div>
                         </div>
@@ -84,7 +84,7 @@ export default function LiveTrackingPage({ params }: { params: { id: string } })
                                 </h3>
                                 <div className="flex items-center gap-2 mt-1">
                                     <span className="flex h-2 w-2 rounded-full bg-emerald-500"></span>
-                                    <p className="text-emerald-600 dark:text-emerald-400 text-sm font-semibold">
+                                    <p className="text-emerald-600 dark:text-emerald-400 text-lg font-semibold">
                                         Current Status: On Time
                                     </p>
                                 </div>
@@ -96,7 +96,7 @@ export default function LiveTrackingPage({ params }: { params: { id: string } })
                             </div>
                         </div>
                         <div className="bg-slate-100 dark:bg-slate-800/50 p-4 rounded-xl mb-6">
-                            <p className="text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider font-bold mb-1">
+                            <p className="text-slate-500 dark:text-slate-400 text-base uppercase tracking-wider font-bold mb-1">
                                 Estimated Arrival
                             </p>
                             <p className="text-2xl font-black text-slate-900 dark:text-white">
@@ -109,16 +109,16 @@ export default function LiveTrackingPage({ params }: { params: { id: string } })
                         <div className="flex flex-col gap-3">
                             <div className="grid grid-cols-2 gap-3">
                                 <button className="flex items-center justify-center gap-2 bg-[#137fec] text-white font-bold py-3 rounded-xl hover:bg-[#137fec]/90 transition-all shadow-lg shadow-[#137fec]/25">
-                                    <span className="material-symbols-outlined text-sm">call</span>
+                                    <span className="material-symbols-outlined text-lg">call</span>
                                     Call Pandit
                                 </button>
                                 <button className="flex items-center justify-center gap-2 bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-white font-bold py-3 rounded-xl hover:bg-slate-300 dark:hover:bg-slate-700 transition-all">
-                                    <span className="material-symbols-outlined text-sm">chat</span>
+                                    <span className="material-symbols-outlined text-lg">chat</span>
                                     Message
                                 </button>
                             </div>
-                            <button className="flex items-center justify-center gap-2 text-slate-500 hover:text-[#137fec] text-sm font-medium py-2 transition-colors">
-                                <span className="material-symbols-outlined text-sm">
+                            <button className="flex items-center justify-center gap-2 text-slate-500 hover:text-[#137fec] text-lg font-medium py-2 transition-colors">
+                                <span className="material-symbols-outlined text-lg">
                                     contact_support
                                 </span>
                                 Contact Backup Support
@@ -134,7 +134,7 @@ export default function LiveTrackingPage({ params }: { params: { id: string } })
                     <h2 className="text-xl font-bold text-slate-900 dark:text-white">
                         Journey Timeline
                     </h2>
-                    <p className="text-slate-500 dark:text-slate-400 text-sm">
+                    <p className="text-slate-500 dark:text-slate-400 text-lg">
                         Varanasi → Delhi Route
                     </p>
                 </div>
@@ -154,10 +154,10 @@ export default function LiveTrackingPage({ params }: { params: { id: string } })
                                 <h4 className="font-bold text-slate-900 dark:text-white">
                                     Journey Started
                                 </h4>
-                                <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+                                <p className="text-lg text-slate-500 dark:text-slate-400 mt-0.5">
                                     Varanasi HQ
                                 </p>
-                                <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 mt-1">
+                                <p className="text-lg font-semibold text-emerald-600 dark:text-emerald-400 mt-1">
                                     4:00 PM ✓
                                 </p>
                             </div>
@@ -174,10 +174,10 @@ export default function LiveTrackingPage({ params }: { params: { id: string } })
                                 <h4 className="font-bold text-slate-900 dark:text-white">
                                     Crossed Kanpur
                                 </h4>
-                                <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+                                <p className="text-lg text-slate-500 dark:text-slate-400 mt-0.5">
                                     Highway Checkpoint 4
                                 </p>
-                                <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 mt-1">
+                                <p className="text-lg font-semibold text-emerald-600 dark:text-emerald-400 mt-1">
                                     8:45 PM ✓
                                 </p>
                             </div>
@@ -194,15 +194,15 @@ export default function LiveTrackingPage({ params }: { params: { id: string } })
                                 <h4 className="font-bold text-slate-900 dark:text-white text-lg">
                                     Approaching Agra
                                 </h4>
-                                <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+                                <p className="text-lg text-slate-500 dark:text-slate-400 mt-0.5">
                                     Distance: 42km left
                                 </p>
-                                <p className="text-sm font-bold text-amber-500 mt-1">
+                                <p className="text-lg font-bold text-amber-500 mt-1">
                                     10:00 PM 🟡 (In Transit)
                                 </p>
                                 <div className="mt-3 p-3 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700">
                                     <div className="flex items-center gap-3">
-                                        <span className="text-xs text-slate-500 dark:text-slate-400 italic">
+                                        <span className="text-base text-slate-500 dark:text-slate-400 italic">
                                             "Traffic reported near Yamuna Expressway. Minor delay
                                             possible."
                                         </span>
@@ -218,8 +218,8 @@ export default function LiveTrackingPage({ params }: { params: { id: string } })
                             </div>
                             <div className="flex flex-col">
                                 <h4 className="font-bold dark:text-white">Mathura Transit</h4>
-                                <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Scheduled Stop</p>
-                                <p className="text-sm font-medium mt-1">Est. 12:15 AM</p>
+                                <p className="text-lg text-slate-500 dark:text-slate-400 mt-0.5">Scheduled Stop</p>
+                                <p className="text-lg font-medium mt-1">Est. 12:15 AM</p>
                             </div>
                         </div>
 
@@ -230,8 +230,8 @@ export default function LiveTrackingPage({ params }: { params: { id: string } })
                             </div>
                             <div className="flex flex-col">
                                 <h4 className="font-bold dark:text-white">Delhi (Destination)</h4>
-                                <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Pooja Venue</p>
-                                <p className="text-sm font-medium mt-1">Est. 02:20 AM</p>
+                                <p className="text-lg text-slate-500 dark:text-slate-400 mt-0.5">Pooja Venue</p>
+                                <p className="text-lg font-medium mt-1">Est. 02:20 AM</p>
                             </div>
                         </div>
 
@@ -246,17 +246,17 @@ export default function LiveTrackingPage({ params }: { params: { id: string } })
                         }}></div>
                         <div>
                             <p className="font-bold text-slate-900 dark:text-white">Vishnu Shastri</p>
-                            <div className="flex items-center text-amber-500 text-xs gap-1">
+                            <div className="flex items-center text-amber-500 text-base gap-1">
                                 <div className="flex">
-                                    <span className="material-symbols-outlined text-xs fill-1">star</span>
-                                    <span className="material-symbols-outlined text-xs fill-1">star</span>
-                                    <span className="material-symbols-outlined text-xs fill-1">star</span>
-                                    <span className="material-symbols-outlined text-xs fill-1">star</span>
-                                    <span className="material-symbols-outlined text-xs fill-1">star_half</span>
+                                    <span className="material-symbols-outlined text-base fill-1">star</span>
+                                    <span className="material-symbols-outlined text-base fill-1">star</span>
+                                    <span className="material-symbols-outlined text-base fill-1">star</span>
+                                    <span className="material-symbols-outlined text-base fill-1">star</span>
+                                    <span className="material-symbols-outlined text-base fill-1">star_half</span>
                                 </div>
                                 <span className="font-semibold text-slate-700 dark:text-slate-300">4.8 (120 reviews)</span>
                             </div>
-                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                            <p className="text-base text-slate-500 dark:text-slate-400 mt-1">
                                 Expert in Satyanarayan Pooja
                             </p>
                         </div>

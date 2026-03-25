@@ -17,7 +17,7 @@ export default function CancellationPolicyPage() {
                                 HmarePanditJi
                             </span>
                         </div>
-                        <div className="hidden md:flex space-x-8 text-sm font-medium text-gray-600 dark:text-gray-300">
+                        <div className="hidden md:flex space-x-8 text-lg font-medium text-gray-600 dark:text-gray-300">
                             <a
                                 className="hover:text-[#ec7f13] transition-colors"
                                 href="#"
@@ -41,7 +41,7 @@ export default function CancellationPolicyPage() {
                             </a>
                         </div>
                         <div className="flex items-center">
-                            <button className="bg-[#ec7f13]/10 hover:bg-[#ec7f13]/20 text-[#ec7f13] px-4 py-2 rounded-lg text-sm font-semibold transition-colors">
+                            <button className="bg-[#ec7f13]/10 hover:bg-[#ec7f13]/20 text-[#ec7f13] px-4 py-2 rounded-lg text-lg font-semibold transition-colors">
                                 Sign In
                             </button>
                         </div>
@@ -55,8 +55,8 @@ export default function CancellationPolicyPage() {
                 <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-[#ec7f13]/5 to-transparent pointer-events-none"></div>
                 <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#ec7f13]/5 rounded-full blur-3xl -translate-x-1/2 translate-y-1/2 pointer-events-none"></div>
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#ec7f13]/10 text-[#ec7f13] text-xs font-semibold uppercase tracking-wider mb-6">
-                        <span className="material-icons text-sm">gavel</span>
+                    <div className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-[#ec7f13]/10 text-[#ec7f13] text-base font-semibold uppercase tracking-wider mb-6">
+                        <span className="material-icons text-lg">gavel</span>
                         Policy Framework v2.4
                     </div>
                     <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
@@ -88,7 +88,7 @@ export default function CancellationPolicyPage() {
                                 event.
                             </p>
                         </div>
-                        <div className="text-sm text-gray-500 dark:text-gray-500 italic">
+                        <div className="text-lg text-gray-500 dark:text-gray-500 italic">
                             *Timings are calculated from the scheduled start time (IST).
                         </div>
                     </div>
@@ -101,14 +101,14 @@ export default function CancellationPolicyPage() {
                                 <div className="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 p-2 rounded-lg">
                                     <span className="material-icons">calendar_today</span>
                                 </div>
-                                <span className="text-emerald-600 dark:text-emerald-400 text-sm font-semibold bg-emerald-50 dark:bg-emerald-900/10 px-2 py-1 rounded">
+                                <span className="text-emerald-600 dark:text-emerald-400 text-lg font-semibold bg-emerald-50 dark:bg-emerald-900/10 px-4 py-3 rounded">
                                     Best Value
                                 </span>
                             </div>
                             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
                                 More than 7 Days
                             </h3>
-                            <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
+                            <p className="text-lg text-gray-500 dark:text-gray-400 mb-6">
                                 Before the scheduled event
                             </p>
                             <div className="mt-auto pt-6 border-t border-gray-100 dark:border-gray-800">
@@ -116,11 +116,11 @@ export default function CancellationPolicyPage() {
                                     <span className="text-3xl font-bold text-gray-900 dark:text-white">
                                         90%
                                     </span>
-                                    <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                                    <span className="text-lg font-medium text-gray-500 dark:text-gray-400">
                                         Refund
                                     </span>
                                 </div>
-                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                                <p className="text-base text-gray-500 dark:text-gray-400 mt-2">
                                     10% deduction covers payment gateway &amp; admin
                                     processing fees.
                                 </p>
@@ -137,7 +137,7 @@ export default function CancellationPolicyPage() {
                             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
                                 2 to 7 Days
                             </h3>
-                            <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
+                            <p className="text-lg text-gray-500 dark:text-gray-400 mb-6">
                                 Before the scheduled event
                             </p>
                             <div className="mt-auto pt-6 border-t border-gray-100 dark:border-gray-800">
@@ -145,11 +145,11 @@ export default function CancellationPolicyPage() {
                                     <span className="text-3xl font-bold text-gray-900 dark:text-white">
                                         50%
                                     </span>
-                                    <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                                    <span className="text-lg font-medium text-gray-500 dark:text-gray-400">
                                         Refund
                                     </span>
                                 </div>
-                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                                <p className="text-base text-gray-500 dark:text-gray-400 mt-2">
                                     Covers Pandit's reservation hold. Partial refund
                                     processed within 5 days.
                                 </p>
@@ -168,7 +168,7 @@ export default function CancellationPolicyPage() {
                             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
                                 Less than 48 Hours
                             </h3>
-                            <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
+                            <p className="text-lg text-gray-500 dark:text-gray-400 mb-6">
                                 Before the scheduled event
                             </p>
                             <div className="mt-auto pt-6 border-t border-gray-100 dark:border-gray-800">
@@ -177,7 +177,7 @@ export default function CancellationPolicyPage() {
                                         No Refund
                                     </span>
                                 </div>
-                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                                <p className="text-base text-gray-500 dark:text-gray-400 mt-2">
                                     Funds are disbursed to the Pandit and preparations are
                                     finalized.
                                 </p>
@@ -194,8 +194,8 @@ export default function CancellationPolicyPage() {
                         <div className="p-8 md:p-12 relative z-10 grid md:grid-cols-2 gap-10 items-center">
                             {/* Left Content */}
                             <div>
-                                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#ec7f13] text-white text-xs font-bold uppercase tracking-wider mb-6 shadow-sm">
-                                    <span className="material-icons text-sm">
+                                <div className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-[#ec7f13] text-white text-base font-bold uppercase tracking-wider mb-6 shadow-sm">
+                                    <span className="material-icons text-lg">
                                         verified_user
                                     </span>
                                     Trust Guarantee
@@ -216,7 +216,7 @@ export default function CancellationPolicyPage() {
                                 <div className="flex flex-col gap-4">
                                     <div className="flex items-start gap-3">
                                         <div className="mt-1 bg-green-100 dark:bg-green-900/30 p-1 rounded text-green-600 dark:text-green-400">
-                                            <span className="material-icons text-sm font-bold">
+                                            <span className="material-icons text-lg font-bold">
                                                 check
                                             </span>
                                         </div>
@@ -224,7 +224,7 @@ export default function CancellationPolicyPage() {
                                             <h4 className="font-semibold text-gray-900 dark:text-white">
                                                 100% Instant Refund
                                             </h4>
-                                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                                            <p className="text-lg text-gray-500 dark:text-gray-400">
                                                 Full booking amount returned to your source
                                                 account immediately.
                                             </p>
@@ -232,7 +232,7 @@ export default function CancellationPolicyPage() {
                                     </div>
                                     <div className="flex items-start gap-3">
                                         <div className="mt-1 bg-green-100 dark:bg-green-900/30 p-1 rounded text-green-600 dark:text-green-400">
-                                            <span className="material-icons text-sm font-bold">
+                                            <span className="material-icons text-lg font-bold">
                                                 check
                                             </span>
                                         </div>
@@ -240,7 +240,7 @@ export default function CancellationPolicyPage() {
                                             <h4 className="font-semibold text-gray-900 dark:text-white">
                                                 Instant Backup Arrangement
                                             </h4>
-                                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                                            <p className="text-lg text-gray-500 dark:text-gray-400">
                                                 We deploy a backup Pandit from our reserve
                                                 pool at no extra cost to you.
                                             </p>
@@ -256,7 +256,7 @@ export default function CancellationPolicyPage() {
                                             <span className="material-icons">shield</span>
                                         </div>
                                         <div>
-                                            <div className="text-sm text-gray-500 dark:text-gray-400">
+                                            <div className="text-lg text-gray-500 dark:text-gray-400">
                                                 Coverage Status
                                             </div>
                                             <div className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-1">
@@ -270,26 +270,26 @@ export default function CancellationPolicyPage() {
                                     </div>
                                     <div className="space-y-4">
                                         <div className="flex justify-between items-center bg-white dark:bg-[#2a2018] p-3 rounded-lg border border-gray-100 dark:border-gray-700">
-                                            <span className="text-sm text-gray-600 dark:text-gray-300">
+                                            <span className="text-lg text-gray-600 dark:text-gray-300">
                                                 Pandit No-Show
                                             </span>
-                                            <span className="text-sm font-bold text-[#ec7f13]">
+                                            <span className="text-lg font-bold text-[#ec7f13]">
                                                 Covered
                                             </span>
                                         </div>
                                         <div className="flex justify-between items-center bg-white dark:bg-[#2a2018] p-3 rounded-lg border border-gray-100 dark:border-gray-700">
-                                            <span className="text-sm text-gray-600 dark:text-gray-300">
+                                            <span className="text-lg text-gray-600 dark:text-gray-300">
                                                 Late Arrival (&gt;1 hr)
                                             </span>
-                                            <span className="text-sm font-bold text-[#ec7f13]">
+                                            <span className="text-lg font-bold text-[#ec7f13]">
                                                 Covered
                                             </span>
                                         </div>
                                         <div className="flex justify-between items-center bg-white dark:bg-[#2a2018] p-3 rounded-lg border border-gray-100 dark:border-gray-700">
-                                            <span className="text-sm text-gray-600 dark:text-gray-300">
+                                            <span className="text-lg text-gray-600 dark:text-gray-300">
                                                 Misconduct
                                             </span>
-                                            <span className="text-sm font-bold text-[#ec7f13]">
+                                            <span className="text-lg font-bold text-[#ec7f13]">
                                                 Covered
                                             </span>
                                         </div>
@@ -318,7 +318,7 @@ export default function CancellationPolicyPage() {
                                     </span>
                                 </span>
                             </summary>
-                            <div className="text-gray-600 dark:text-gray-300 px-5 pb-5 pt-0 leading-relaxed text-sm">
+                            <div className="text-gray-600 dark:text-gray-300 px-5 pb-5 pt-0 leading-relaxed text-lg">
                                 You can cancel directly from your "My Bookings" dashboard.
                                 The system automatically calculates your refund amount
                                 based on the time remaining until your event.
@@ -336,7 +336,7 @@ export default function CancellationPolicyPage() {
                                     </span>
                                 </span>
                             </summary>
-                            <div className="text-gray-600 dark:text-gray-300 px-5 pb-5 pt-0 leading-relaxed text-sm">
+                            <div className="text-gray-600 dark:text-gray-300 px-5 pb-5 pt-0 leading-relaxed text-lg">
                                 If the Pandit is delayed by more than 30 minutes, please
                                 contact our emergency helpline. If delay exceeds 60
                                 minutes, it falls under our Partial Fallback Liability,
@@ -355,7 +355,7 @@ export default function CancellationPolicyPage() {
                                     </span>
                                 </span>
                             </summary>
-                            <div className="text-gray-600 dark:text-gray-300 px-5 pb-5 pt-0 leading-relaxed text-sm">
+                            <div className="text-gray-600 dark:text-gray-300 px-5 pb-5 pt-0 leading-relaxed text-lg">
                                 Refunds are processed by HmarePanditJi within 24 hours.
                                 However, depending on your bank or credit card provider,
                                 it may take 5-7 business days for the amount to reflect
@@ -398,7 +398,7 @@ export default function CancellationPolicyPage() {
                             HmarePanditJi
                         </span>
                     </div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                    <div className="text-lg text-gray-500 dark:text-gray-400">
                         © 2023 HmarePanditJi. All rights reserved.
                     </div>
                 </div>

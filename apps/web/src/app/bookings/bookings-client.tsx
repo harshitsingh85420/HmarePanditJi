@@ -122,8 +122,8 @@ function BookingCardSkeleton() {
       </div>
       <div className="h-px bg-slate-100" />
       <div className="flex gap-2">
-        <div className="h-8 w-20 bg-slate-200 rounded-lg" />
-        <div className="h-8 w-20 bg-slate-200 rounded-lg" />
+        <div className="h-12 w-20 bg-slate-200 rounded-lg" />
+        <div className="h-12 w-20 bg-slate-200 rounded-lg" />
       </div>
     </div>
   );
@@ -155,18 +155,18 @@ function BookingCard({
       {/* Header */}
       <div className="flex items-start justify-between gap-2 mb-4">
         <div>
-          <p className="text-xs text-slate-400 font-mono">{booking.bookingNumber}</p>
+          <p className="text-base text-slate-400 font-mono">{booking.bookingNumber}</p>
           <h3 className="font-semibold text-slate-800 mt-0.5">
             {booking.ritual.name}
             {booking.ritual.nameHindi && (
-              <span className="ml-1.5 text-slate-400 font-normal text-sm">
+              <span className="ml-1.5 text-slate-400 font-normal text-lg">
                 ({booking.ritual.nameHindi})
               </span>
             )}
           </h3>
         </div>
         <span
-          className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full border shrink-0 ${STATUS_COLORS[booking.status]}`}
+          className={`flex items-center gap-1.5 text-base font-medium px-4.5 py-3 rounded-full border shrink-0 ${STATUS_COLORS[booking.status]}`}
         >
           <span className={`w-1.5 h-1.5 rounded-full ${STATUS_DOT[booking.status]}`} />
           {STATUS_LABEL[booking.status]}
@@ -175,7 +175,7 @@ function BookingCard({
 
       {/* Pandit Row */}
       <div className="flex items-center gap-3 mb-4">
-        <div className="w-10 h-10 rounded-full bg-[#f49d25]/10 border border-[#f49d25]/20 flex items-center justify-center shrink-0 overflow-hidden">
+        <div className="w-14 h-14 rounded-full bg-[#f49d25]/10 border border-[#f49d25]/20 flex items-center justify-center shrink-0 overflow-hidden">
           {booking.pandit.profilePhotoUrl ? (
             <img
               src={booking.pandit.profilePhotoUrl}
@@ -187,14 +187,14 @@ function BookingCard({
           )}
         </div>
         <div>
-          <p className="text-sm font-medium text-slate-700">{booking.pandit.displayName}</p>
-          <p className="text-xs text-slate-400">Verified Pandit Ji</p>
+          <p className="text-lg font-medium text-slate-700">{booking.pandit.displayName}</p>
+          <p className="text-base text-slate-400">Verified Pandit Ji</p>
         </div>
       </div>
 
       {/* Date / Venue */}
       <div className="space-y-1.5 mb-4">
-        <div className="flex items-center gap-2 text-sm text-slate-600">
+        <div className="flex items-center gap-2 text-lg text-slate-600">
           <span className="material-symbols-outlined text-base text-[#f49d25]">calendar_month</span>
           <span>
             {formatDate(booking.eventDate)}
@@ -203,7 +203,7 @@ function BookingCard({
             )}
           </span>
         </div>
-        <div className="flex items-center gap-2 text-sm text-slate-600">
+        <div className="flex items-center gap-2 text-lg text-slate-600">
           <span className="material-symbols-outlined text-base text-[#f49d25]">location_on</span>
           <span className="truncate">
             {booking.venueAddress.line1}, {booking.venueAddress.city}
@@ -219,13 +219,13 @@ function BookingCard({
         className="flex items-center justify-between"
         onClick={(e) => e.stopPropagation()}
       >
-        <p className="text-sm font-semibold text-slate-800">
+        <p className="text-lg font-semibold text-slate-800">
           ₹{booking.pricing.total.toLocaleString("en-IN")}
           {booking.paymentStatus === "PAID" && (
-            <span className="ml-1.5 text-xs font-normal text-green-600">Paid</span>
+            <span className="ml-1.5 text-base font-normal text-green-600">Paid</span>
           )}
           {booking.paymentStatus === "REFUNDED" && (
-            <span className="ml-1.5 text-xs font-normal text-blue-600">Refunded</span>
+            <span className="ml-1.5 text-base font-normal text-blue-600">Refunded</span>
           )}
         </p>
 
@@ -236,9 +236,9 @@ function BookingCard({
               href={`https://wa.me/${WA}?text=${whatsappMsg}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 text-xs px-3 py-1.5 bg-[#25D366]/10 text-[#128C4C] rounded-lg hover:bg-[#25D366]/20 transition-colors font-medium"
+              className="flex items-center gap-1.5 text-base px-5 py-3.5 bg-[#25D366]/10 text-[#128C4C] rounded-lg hover:bg-[#25D366]/20 transition-colors font-medium"
             >
-              <span className="material-symbols-outlined text-sm">chat</span>
+              <span className="material-symbols-outlined text-lg">chat</span>
               Contact
             </a>
           )}
@@ -247,9 +247,9 @@ function BookingCard({
           {isCancellable && (
             <button
               onClick={() => onCancelClick(booking)}
-              className="flex items-center gap-1.5 text-xs px-3 py-1.5 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors font-medium"
+              className="flex items-center gap-1.5 text-base px-5 py-3.5 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors font-medium"
             >
-              <span className="material-symbols-outlined text-sm">cancel</span>
+              <span className="material-symbols-outlined text-lg">cancel</span>
               Cancel
             </button>
           )}
@@ -258,9 +258,9 @@ function BookingCard({
           {isRateable && (
             <button
               onClick={() => onRateClick(booking)}
-              className="flex items-center gap-1.5 text-xs px-3 py-1.5 bg-[#f49d25]/10 text-[#c47c0e] rounded-lg hover:bg-[#f49d25]/20 transition-colors font-medium"
+              className="flex items-center gap-1.5 text-base px-5 py-3.5 bg-[#f49d25]/10 text-[#c47c0e] rounded-lg hover:bg-[#f49d25]/20 transition-colors font-medium"
             >
-              <span className="material-symbols-outlined text-sm">star</span>
+              <span className="material-symbols-outlined text-lg">star</span>
               Rate
             </button>
           )}
@@ -269,9 +269,9 @@ function BookingCard({
           {["COMPLETED", "CANCELLED", "REFUNDED"].includes(booking.status) && (
             <Link
               href={`/search?ritual=${booking.ritual.name}`}
-              className="flex items-center gap-1.5 text-xs px-3 py-1.5 bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200 transition-colors font-medium"
+              className="flex items-center gap-1.5 text-base px-5 py-3.5 bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200 transition-colors font-medium"
             >
-              <span className="material-symbols-outlined text-sm">replay</span>
+              <span className="material-symbols-outlined text-lg">replay</span>
               Rebook
             </Link>
           )}
@@ -308,13 +308,13 @@ function EmptyState({ tab }: { tab: Tab }) {
         <span className="material-symbols-outlined text-3xl text-[#f49d25]">{icon}</span>
       </div>
       <h3 className="text-slate-700 font-semibold text-lg mb-1">{title}</h3>
-      <p className="text-slate-400 text-sm mb-6">{sub}</p>
+      <p className="text-slate-400 text-lg mb-6">{sub}</p>
       {tab !== "past" && (
         <Link
           href="/search"
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#f49d25] hover:bg-[#e08c14] text-white rounded-xl font-medium text-sm transition-colors"
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#f49d25] hover:bg-[#e08c14] text-white rounded-xl font-medium text-lg transition-colors"
         >
-          <span className="material-symbols-outlined text-sm">search</span>
+          <span className="material-symbols-outlined text-lg">search</span>
           Find a Pandit
         </Link>
       )}
@@ -360,12 +360,12 @@ function CancelModal({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center gap-3 mb-5">
-          <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+          <div className="w-14 h-14 rounded-full bg-red-100 flex items-center justify-center">
             <span className="material-symbols-outlined text-red-500">cancel</span>
           </div>
           <div>
             <h2 className="font-semibold text-slate-800">Cancel Booking</h2>
-            <p className="text-xs text-slate-400">{booking.bookingNumber}</p>
+            <p className="text-base text-slate-400">{booking.bookingNumber}</p>
           </div>
         </div>
 
@@ -380,12 +380,12 @@ function CancelModal({
               {refundPct > 0 ? "payments" : "money_off"}
             </span>
             <span
-              className={`text-sm font-semibold ${refundPct > 0 ? "text-green-700" : "text-red-600"}`}
+              className={`text-lg font-semibold ${refundPct > 0 ? "text-green-700" : "text-red-600"}`}
             >
               {refundPct > 0 ? `${refundPct}% refund eligible` : "No refund"}
             </span>
           </div>
-          <p className="text-xs text-slate-500">
+          <p className="text-base text-slate-500">
             {refundPct > 0
               ? `₹${Math.round((booking.pricing.total * refundPct) / 100).toLocaleString("en-IN")} will be refunded within 5–7 business days.`
               : "Cancellations within 24 hours of the event are non-refundable."}
@@ -393,13 +393,13 @@ function CancelModal({
         </div>
 
         {/* Reason */}
-        <p className="text-sm font-medium text-slate-700 mb-2">Reason for cancellation</p>
+        <p className="text-lg font-medium text-slate-700 mb-2">Reason for cancellation</p>
         <div className="space-y-2 mb-5">
           {REASONS.map((r) => (
             <button
               key={r}
               onClick={() => setReason(r)}
-              className={`w-full text-left text-sm px-3.5 py-2.5 rounded-xl border transition-colors ${
+              className={`w-full text-left text-lg px-5.5 py-2.5 rounded-xl border transition-colors ${
                 reason === r
                   ? "bg-[#f49d25]/10 border-[#f49d25] text-[#c47c0e] font-medium"
                   : "border-slate-200 text-slate-600 hover:bg-slate-50"
@@ -413,14 +413,14 @@ function CancelModal({
         <div className="flex gap-3">
           <button
             onClick={onClose}
-            className="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 transition-colors"
+            className="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-lg font-medium hover:bg-slate-50 transition-colors"
           >
             Keep Booking
           </button>
           <button
             onClick={() => onConfirm(reason)}
             disabled={!reason || loading}
-            className="flex-1 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 disabled:opacity-50 text-white text-sm font-semibold transition-colors"
+            className="flex-1 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 disabled:opacity-50 text-white text-lg font-semibold transition-colors"
           >
             {loading ? "Cancelling…" : "Cancel Booking"}
           </button>
@@ -522,11 +522,11 @@ function ReviewModal({
         <div className="sticky top-0 bg-white border-b border-slate-100 px-6 py-4 flex items-center justify-between">
           <div>
             <h2 className="font-semibold text-slate-800">Rate Your Experience</h2>
-            <p className="text-xs text-slate-400 mt-0.5">{booking.pandit.displayName}</p>
+            <p className="text-base text-slate-400 mt-0.5">{booking.pandit.displayName}</p>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors"
+            className="w-12 h-12 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors"
           >
             <span className="material-symbols-outlined text-slate-400">close</span>
           </button>
@@ -549,7 +549,7 @@ function ReviewModal({
                     </span>
                   ))}
                 </div>
-                <p className="text-xs text-slate-500 mt-0.5">Overall rating</p>
+                <p className="text-base text-slate-500 mt-0.5">Overall rating</p>
               </div>
             </div>
           )}
@@ -563,8 +563,8 @@ function ReviewModal({
                     {icon}
                   </span>
                   <div className="min-w-0">
-                    <p className="text-sm font-medium text-slate-700">{label}</p>
-                    <p className="text-xs text-slate-400">{labelHi}</p>
+                    <p className="text-lg font-medium text-slate-700">{label}</p>
+                    <p className="text-base text-slate-400">{labelHi}</p>
                   </div>
                 </div>
                 <StarRow
@@ -577,7 +577,7 @@ function ReviewModal({
 
           {/* Comment */}
           <div>
-            <label className="text-sm font-medium text-slate-700 block mb-1.5">
+            <label className="text-lg font-medium text-slate-700 block mb-1.5">
               Your Review
               <span className="text-slate-400 font-normal ml-1">(min. 10 characters)</span>
             </label>
@@ -586,9 +586,9 @@ function ReviewModal({
               onChange={(e) => setComment(e.target.value)}
               placeholder="Share your experience with future customers…"
               rows={3}
-              className="w-full border border-slate-200 rounded-xl p-3 text-sm text-slate-700 placeholder-slate-400 resize-none focus:outline-none focus:ring-2 focus:ring-[#f49d25]/40 focus:border-[#f49d25] transition"
+              className="w-full border border-slate-200 rounded-xl p-3 text-lg text-slate-700 placeholder-slate-400 resize-none focus:outline-none focus:ring-2 focus:ring-[#f49d25]/40 focus:border-[#f49d25] transition"
             />
-            <p className="text-xs text-slate-400 mt-1">{comment.length} / 500 characters</p>
+            <p className="text-base text-slate-400 mt-1">{comment.length} / 500 characters</p>
           </div>
 
           {/* Anonymous toggle */}
@@ -606,12 +606,12 @@ function ReviewModal({
               }`}
             >
               {anonymous && (
-                <span className="material-symbols-outlined text-white text-sm">check</span>
+                <span className="material-symbols-outlined text-white text-lg">check</span>
               )}
             </div>
             <div>
-              <p className="text-sm font-medium text-slate-700">Post anonymously</p>
-              <p className="text-xs text-slate-400">Your name won&apos;t be shown on the review</p>
+              <p className="text-lg font-medium text-slate-700">Post anonymously</p>
+              <p className="text-base text-slate-400">Your name won&apos;t be shown on the review</p>
             </div>
           </button>
         </div>
@@ -621,7 +621,7 @@ function ReviewModal({
           <button
             onClick={() => onSubmit({ ratings, comment, anonymous })}
             disabled={!canSubmit || loading}
-            className="w-full py-3 rounded-xl bg-[#f49d25] hover:bg-[#e08c14] disabled:opacity-50 text-white font-semibold text-sm transition-colors"
+            className="w-full py-3 rounded-xl bg-[#f49d25] hover:bg-[#e08c14] disabled:opacity-50 text-white font-semibold text-lg transition-colors"
           >
             {loading ? "Submitting…" : "Submit Review"}
           </button>
@@ -744,8 +744,8 @@ export default function BookingsClient() {
     return (
       <div className="min-h-screen bg-[#f8f7f5] flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-2 border-[#f49d25] border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm text-slate-400">Loading…</p>
+          <div className="w-12 h-12 border-2 border-[#f49d25] border-t-transparent rounded-full animate-spin" />
+          <p className="text-lg text-slate-400">Loading…</p>
         </div>
       </div>
     );
@@ -759,10 +759,10 @@ export default function BookingsClient() {
             <span className="material-symbols-outlined text-3xl text-[#f49d25]">lock</span>
           </div>
           <h2 className="text-slate-700 font-semibold text-lg mb-2">Sign in to view bookings</h2>
-          <p className="text-slate-400 text-sm mb-6">Your bookings will appear here after signing in.</p>
+          <p className="text-slate-400 text-lg mb-6">Your bookings will appear here after signing in.</p>
           <button
             onClick={openLoginModal}
-            className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#f49d25] hover:bg-[#e08c14] text-white rounded-xl font-semibold text-sm transition-colors"
+            className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#f49d25] hover:bg-[#e08c14] text-white rounded-xl font-semibold text-lg transition-colors"
           >
             Sign In
           </button>
@@ -780,14 +780,14 @@ export default function BookingsClient() {
             <div className="flex items-center gap-3 mb-1">
               <button
                 onClick={() => router.back()}
-                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors"
+                className="w-12 h-12 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors"
                 aria-label="Go back"
               >
                 <span className="material-symbols-outlined text-slate-500">arrow_back</span>
               </button>
               <h1 className="text-xl font-bold text-slate-800">My Bookings</h1>
             </div>
-            <p className="text-sm text-slate-400 ml-11">
+            <p className="text-lg text-slate-400 ml-11">
               Manage your ceremonies and puja appointments
             </p>
           </div>
@@ -799,7 +799,7 @@ export default function BookingsClient() {
                 <button
                   key={key}
                   onClick={() => setTab(key)}
-                  className={`flex items-center gap-1.5 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                  className={`flex items-center gap-1.5 px-4 py-3 text-lg font-medium border-b-2 transition-colors ${
                     tab === key
                       ? "border-[#f49d25] text-[#c47c0e]"
                       : "border-transparent text-slate-500 hover:text-slate-700"
@@ -818,10 +818,10 @@ export default function BookingsClient() {
           {error && (
             <div className="mb-4 flex items-center gap-3 bg-red-50 border border-red-200 rounded-xl p-4">
               <span className="material-symbols-outlined text-red-500">error</span>
-              <p className="text-sm text-red-600">{error}</p>
+              <p className="text-lg text-red-600">{error}</p>
               <button
                 onClick={fetchBookings}
-                className="ml-auto text-xs text-red-600 underline"
+                className="ml-auto text-base text-red-600 underline"
               >
                 Retry
               </button>

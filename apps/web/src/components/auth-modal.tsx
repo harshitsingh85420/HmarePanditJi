@@ -331,16 +331,16 @@ export default function AuthModal() {
             <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-1">
               Welcome back
             </h2>
-            <p className="text-slate-500 dark:text-slate-400 text-sm mb-6">
+            <p className="text-slate-500 dark:text-slate-400 text-lg mb-6">
               Enter your mobile number to continue
             </p>
 
-            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+            <label className="block text-lg font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
               Mobile Number
             </label>
             <div className="flex gap-2 mb-5">
               {/* +91 prefix */}
-              <div className="flex items-center gap-1.5 px-3 h-12 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-600 dark:text-slate-300 font-medium text-sm flex-shrink-0">
+              <div className="flex items-center gap-1.5 px-5 h-12 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-600 dark:text-slate-300 font-medium text-lg flex-shrink-0">
                 <span className="material-symbols-outlined text-base text-primary">phone</span>
                 +91
               </div>
@@ -365,8 +365,8 @@ export default function AuthModal() {
             </div>
 
             {error && (
-              <p className="text-red-500 text-xs mb-4 flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-sm">error</span>
+              <p className="text-red-500 text-base mb-4 flex items-center gap-1.5">
+                <span className="material-symbols-outlined text-lg">error</span>
                 {error}
               </p>
             )}
@@ -389,7 +389,7 @@ export default function AuthModal() {
               )}
             </button>
 
-            <p className="text-center text-xs text-slate-400 mt-4">
+            <p className="text-center text-base text-slate-400 mt-4">
               By continuing, you agree to our Terms of Service
             </p>
           </div>
@@ -399,7 +399,7 @@ export default function AuthModal() {
         {step === "otp" && (
           <div>
             <button
-              className="flex items-center gap-1 text-sm text-slate-500 hover:text-primary mb-4 transition-colors"
+              className="flex items-center gap-1 text-lg text-slate-500 hover:text-primary mb-4 transition-colors"
               onClick={() => { setStep("phone"); setOtp(""); setError(""); }}
             >
               <span className="material-symbols-outlined text-base">arrow_back</span>
@@ -409,7 +409,7 @@ export default function AuthModal() {
             <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-1">
               Verify OTP
             </h2>
-            <p className="text-slate-500 dark:text-slate-400 text-sm mb-6">
+            <p className="text-slate-500 dark:text-slate-400 text-lg mb-6">
               Enter the 6-digit code sent to{" "}
               <span className="font-semibold text-slate-700 dark:text-slate-200">
                 +91 {phone.slice(0, 5)} {phone.slice(5)}
@@ -421,8 +421,8 @@ export default function AuthModal() {
             </div>
 
             {error && (
-              <p className="text-red-500 text-xs mb-4 flex items-center justify-center gap-1.5">
-                <span className="material-symbols-outlined text-sm">error</span>
+              <p className="text-red-500 text-base mb-4 flex items-center justify-center gap-1.5">
+                <span className="material-symbols-outlined text-lg">error</span>
                 {error}
               </p>
             )}
@@ -447,7 +447,7 @@ export default function AuthModal() {
 
             <div className="text-center mt-4">
               {countdown > 0 ? (
-                <p className="text-xs text-slate-400">
+                <p className="text-base text-slate-400">
                   Resend OTP in{" "}
                   <span className="font-semibold text-slate-600 dark:text-slate-300">
                     {countdown}s
@@ -460,7 +460,7 @@ export default function AuthModal() {
                     setError("");
                     handleSendOtp();
                   }}
-                  className="text-xs text-primary font-semibold hover:underline"
+                  className="text-base text-primary font-semibold hover:underline"
                 >
                   Resend OTP
                 </button>
@@ -470,7 +470,7 @@ export default function AuthModal() {
             {/* Dev OTP display */}
             {process.env.NODE_ENV === "development" && devOtp && (
               <div className="mt-4 text-center bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl px-4 py-3">
-                <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 mb-1">
+                <p className="text-base font-semibold text-amber-700 dark:text-amber-400 mb-1">
                   DEV MODE — Your OTP
                 </p>
                 <button
@@ -485,7 +485,7 @@ export default function AuthModal() {
               </div>
             )}
             {process.env.NODE_ENV === "development" && !devOtp && (
-              <p className="mt-4 text-center text-xs text-amber-600 bg-amber-50 dark:bg-amber-900/20 rounded-lg px-3 py-2">
+              <p className="mt-4 text-center text-base text-amber-600 bg-amber-50 dark:bg-amber-900/20 rounded-lg px-5 py-2">
                 Dev mode: OTP will appear here after sending
               </p>
             )}
@@ -507,7 +507,7 @@ export default function AuthModal() {
             <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-1">
               Welcome!
             </h2>
-            <p className="text-slate-500 dark:text-slate-400 text-sm mb-6">
+            <p className="text-slate-500 dark:text-slate-400 text-lg mb-6">
               {isNewUser
                 ? "Complete your profile to get personalized recommendations"
                 : "Your phone has been verified"}
@@ -515,7 +515,7 @@ export default function AuthModal() {
 
             <div className="space-y-4 mb-5">
               <div>
-                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                <label className="block text-lg font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                   Full Name <span className="text-red-400">*</span>
                 </label>
                 <div className="relative">
@@ -535,7 +535,7 @@ export default function AuthModal() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                <label className="block text-lg font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                   Email{" "}
                   <span className="text-slate-400 font-normal">(optional)</span>
                 </label>
@@ -556,8 +556,8 @@ export default function AuthModal() {
             </div>
 
             {error && (
-              <p className="text-red-500 text-xs mb-4 flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-sm">error</span>
+              <p className="text-red-500 text-base mb-4 flex items-center gap-1.5">
+                <span className="material-symbols-outlined text-lg">error</span>
                 {error}
               </p>
             )}
@@ -582,7 +582,7 @@ export default function AuthModal() {
 
             <button
               onClick={handleSkipProfile}
-              className="w-full mt-3 text-sm text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors py-2"
+              className="w-full mt-3 text-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors py-2"
             >
               Skip for now
             </button>

@@ -75,7 +75,7 @@ export default function LanguageChoiceConfirmScreen({
   }, [langInfo.latinName, onConfirm, onReject]);
 
   return (
-    <main className="font-hind text-vedic-brown w-full min-h-dvh max-w-[390px] mx-auto bg-vedic-cream flex flex-col shadow-2xl">
+    <main className="font-hind text-text-primary w-full min-h-dvh max-w-[390px] mx-auto bg-surface-base flex flex-col shadow-2xl">
       <TopBar showBack onBack={onReject} onLanguageChange={onLanguageChange} />
 
       {/* Center Content */}
@@ -87,23 +87,23 @@ export default function LanguageChoiceConfirmScreen({
           transition={{ duration: 0.7, type: 'spring' as const }}
           className="space-y-2"
         >
-          <h1 className="text-[56px] font-bold text-primary leading-tight">
+          <h1 className="text-[56px] font-bold text-saffron leading-tight">
             {langInfo.nativeName}
           </h1>
-          <p className="text-[24px] font-normal text-vedic-gold">
+          <p className="text-[24px] font-normal text-text-secondary">
             {langInfo.latinName}
           </p>
         </motion.div>
 
         {/* Decorative divider */}
-        <div className="w-[60px] h-px bg-vedic-border mx-auto" />
+        <div className="w-[60px] h-px bg-border-default mx-auto" />
 
         {/* Question */}
         <motion.h2
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="text-[26px] font-semibold text-vedic-brown"
+          className="text-[26px] font-semibold text-text-primary"
         >
           क्या यही भाषा सही है?
         </motion.h2>
@@ -120,7 +120,7 @@ export default function LanguageChoiceConfirmScreen({
           onClick={() => {
             speak('Bahut achha.', 'hi-IN', () => onConfirm());
           }}
-          className="w-full bg-primary text-white text-[20px] font-semibold py-4 rounded-2xl shadow-cta active:scale-[0.98] transition-transform"
+          className="w-full bg-saffron text-white text-[20px] font-semibold min-h-[64px] rounded-2xl shadow-cta active:scale-[0.98] transition-transform"
         >
           हाँ, यही भाषा चाहिए
         </button>
@@ -128,7 +128,7 @@ export default function LanguageChoiceConfirmScreen({
           onClick={() => {
             speak('Theek hai, phir se chunte hain.', 'hi-IN', () => onReject());
           }}
-          className="w-full bg-transparent text-vedic-gold text-[18px] font-medium py-2 hover:underline"
+          className="w-full bg-transparent text-saffron text-[18px] font-medium min-h-[56px] hover:underline"
         >
           नहीं, फिर से चुनूँगा
         </button>

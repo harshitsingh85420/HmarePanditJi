@@ -18,13 +18,13 @@ export default function EmergencyBackupPage() {
                             <h1 className="text-xl font-bold uppercase tracking-wider">
                                 Emergency Protocol Active
                             </h1>
-                            <p className="text-xs font-medium text-white/90">
+                            <p className="text-base font-medium text-white/90">
                                 Pandit Delay Detected • Backup Search In Progress
                             </p>
                         </div>
                     </div>
                     <div className="hidden md:block text-right">
-                        <p className="text-xs font-bold uppercase opacity-80">
+                        <p className="text-base font-bold uppercase opacity-80">
                             Reference ID
                         </p>
                         <p className="font-mono text-lg font-bold">SOS-2023-892</p>
@@ -88,15 +88,15 @@ export default function EmergencyBackupPage() {
                         {/* Countdown / Estimated Arrival */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div className="bg-[#fff1f2] dark:bg-[#881337]/20 p-4 rounded-xl border border-[#ffe4e6] dark:border-[#881337]/40 text-center">
-                                <p className="text-xs font-bold text-[#881337] dark:text-[#fecdd3] uppercase mb-1">
+                                <p className="text-base font-bold text-[#881337] dark:text-[#fecdd3] uppercase mb-1">
                                     New ETA
                                 </p>
                                 <p className="text-3xl font-black text-[#e11d48]">
-                                    15 <span className="text-sm font-medium">min</span>
+                                    15 <span className="text-lg font-medium">min</span>
                                 </p>
                             </div>
                             <div className="bg-[#fff1f2] dark:bg-[#881337]/20 p-4 rounded-xl border border-[#ffe4e6] dark:border-[#881337]/40 text-center">
-                                <p className="text-xs font-bold text-[#881337] dark:text-[#fecdd3] uppercase mb-1">
+                                <p className="text-base font-bold text-[#881337] dark:text-[#fecdd3] uppercase mb-1">
                                     Backup Pandit
                                 </p>
                                 <p className="text-lg font-bold text-[#e11d48] truncate">
@@ -104,7 +104,7 @@ export default function EmergencyBackupPage() {
                                 </p>
                             </div>
                             <div className="bg-[#fff1f2] dark:bg-[#881337]/20 p-4 rounded-xl border border-[#ffe4e6] dark:border-[#881337]/40 text-center">
-                                <p className="text-xs font-bold text-[#881337] dark:text-[#fecdd3] uppercase mb-1">
+                                <p className="text-base font-bold text-[#881337] dark:text-[#fecdd3] uppercase mb-1">
                                     Cost Adjustment
                                 </p>
                                 <p className="text-lg font-bold text-[#e11d48]">
@@ -116,11 +116,11 @@ export default function EmergencyBackupPage() {
 
                     {/* Action Footer */}
                     <div className="bg-gray-50 dark:bg-[#881337]/10 px-6 py-4 border-t border-gray-100 dark:border-[#881337]/20 flex justify-between items-center">
-                        <p className="text-sm font-medium text-gray-500 dark:text-gray-400 italic">
+                        <p className="text-lg font-medium text-gray-500 dark:text-gray-400 italic">
                             System is automatically contacting 3 nearby premium Pandits...
                         </p>
-                        <button className="text-sm font-bold text-[#e11d48] hover:underline flex items-center gap-1">
-                            <span className="material-icons text-sm">phone</span>
+                        <button className="text-lg font-bold text-[#e11d48] hover:underline flex items-center gap-1">
+                            <span className="material-icons text-lg">phone</span>
                             Call Support Override
                         </button>
                     </div>
@@ -131,7 +131,7 @@ export default function EmergencyBackupPage() {
                     <p className="font-bold text-[#881337] dark:text-[#fecdd3]">
                         Don't Panic. We have this under control.
                     </p>
-                    <p className="text-sm text-[#881337]/80 dark:text-[#fecdd3]/80">
+                    <p className="text-lg text-[#881337]/80 dark:text-[#fecdd3]/80">
                         Our 24/7 Ops team has been alerted and is manually monitoring this
                         situation.
                     </p>

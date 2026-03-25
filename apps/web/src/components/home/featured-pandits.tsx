@@ -75,7 +75,7 @@ export function FeaturedPandits() {
         <span className="material-symbols-outlined text-5xl text-slate-300 dark:text-slate-600">
           person_search
         </span>
-        <p className="text-sm text-slate-400 mt-3">
+        <p className="text-lg text-slate-400 mt-3">
           Featured pandits will appear here once the API is running.
         </p>
       </div>
@@ -87,13 +87,13 @@ export function FeaturedPandits() {
       {/* Scroll buttons (desktop) */}
       <button
         onClick={() => scroll("left")}
-        className="absolute -left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white dark:bg-slate-800 rounded-full shadow-lg border border-slate-200 dark:border-slate-700 items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-700 transition-all hidden md:flex opacity-0 group-hover:opacity-100"
+        className="absolute -left-4 top-1/2 -translate-y-1/2 z-10 w-14 h-14 bg-white dark:bg-slate-800 rounded-full shadow-lg border border-slate-200 dark:border-slate-700 items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-700 transition-all hidden md:flex opacity-0 group-hover:opacity-100"
       >
         <span className="material-symbols-outlined text-slate-600 dark:text-slate-300">chevron_left</span>
       </button>
       <button
         onClick={() => scroll("right")}
-        className="absolute -right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white dark:bg-slate-800 rounded-full shadow-lg border border-slate-200 dark:border-slate-700 items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-700 transition-all hidden md:flex opacity-0 group-hover:opacity-100"
+        className="absolute -right-4 top-1/2 -translate-y-1/2 z-10 w-14 h-14 bg-white dark:bg-slate-800 rounded-full shadow-lg border border-slate-200 dark:border-slate-700 items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-700 transition-all hidden md:flex opacity-0 group-hover:opacity-100"
       >
         <span className="material-symbols-outlined text-slate-600 dark:text-slate-300">chevron_right</span>
       </button>

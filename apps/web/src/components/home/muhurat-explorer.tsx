@@ -104,7 +104,7 @@ export function MuhuratExplorer() {
         {DAY_NAMES.map((d) => (
           <div
             key={d}
-            className="text-center text-[10px] font-semibold text-slate-400 uppercase py-1"
+            className="text-center text-[10px] font-semibold text-slate-400 uppercase py-3"
           >
             {d}
           </div>
@@ -131,7 +131,7 @@ export function MuhuratExplorer() {
               {...(count > 0 ? { href: `/muhurat?date=${dateStr}` } : {})}
               title={tooltip}
               className={[
-                "relative flex flex-col items-center justify-center h-10 rounded-lg text-sm transition-colors",
+                "relative flex flex-col items-center justify-center h-14 rounded-lg text-lg transition-colors",
                 todayMark
                   ? "border-2 border-primary font-bold text-primary"
                   : count > 0
@@ -149,23 +149,23 @@ export function MuhuratExplorer() {
       </div>
 
       {loading && (
-        <p className="text-xs text-slate-400 text-center mt-3 animate-pulse">
+        <p className="text-base text-slate-400 text-center mt-3 animate-pulse">
           Loading muhurat dates...
         </p>
       )}
 
       {/* Legend + link */}
       <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
-        <div className="flex items-center gap-1.5 text-xs text-slate-400">
+        <div className="flex items-center gap-1.5 text-base text-slate-400">
           <span className="w-2 h-2 rounded-full bg-primary" />
           Auspicious date
         </div>
         <a
           href="/muhurat"
-          className="text-xs font-semibold text-primary hover:text-primary/80 transition-colors inline-flex items-center gap-0.5"
+          className="text-base font-semibold text-primary hover:text-primary/80 transition-colors inline-flex items-center gap-0.5"
         >
           View Full Calendar
-          <span className="material-symbols-outlined text-sm">arrow_forward</span>
+          <span className="material-symbols-outlined text-lg">arrow_forward</span>
         </a>
       </div>
     </div>

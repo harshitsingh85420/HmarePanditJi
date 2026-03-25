@@ -56,16 +56,17 @@ export function Select({
   const selectedOption = options.find((o) => o.value === value);
   const filtered = searchable && search
     ? options.filter((o) =>
-        o.label.toLowerCase().includes(search.toLowerCase()),
-      )
+      o.label.toLowerCase().includes(search.toLowerCase()),
+    )
     : options;
 
   return (
     <div ref={ref} className={`flex flex-col gap-1.5 w-full ${className}`}>
       {label && (
+        // ACC-010 FIX: Larger label text for elderly users
         <label
           htmlFor={selectId}
-          className="text-sm font-medium text-slate-700 dark:text-slate-300"
+          className="text-base font-medium text-slate-700 dark:text-slate-300"
         >
           {label}
         </label>
@@ -78,9 +79,11 @@ export function Select({
           onClick={() => !disabled && setOpen((o) => !o)}
           disabled={disabled}
           className={[
-            "w-full flex items-center justify-between py-3 pl-4 pr-10 text-left",
+            // ACC-009 FIX: Larger touch target (min 56px height)
+            "w-full flex items-center justify-between py-4 pl-4 pr-10 text-left min-h-[56px]",
             "bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg",
-            "text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary",
+            // ACC-010 FIX: Larger text for elderly users
+            "text-base focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary",
             "disabled:opacity-50 disabled:cursor-not-allowed",
             error ? "border-red-400 focus:ring-red-400" : "",
             selectedOption
@@ -105,14 +108,15 @@ export function Select({
         {open && (
           <div className="absolute z-30 mt-1 w-full bg-white dark:bg-slate-900 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
             {searchable && (
-              <div className="p-2 border-b border-slate-100 dark:border-slate-800">
+              <div className="p-3 border-b border-slate-100 dark:border-slate-800">
                 <input
                   ref={inputRef}
                   type="text"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Search..."
-                  className="w-full px-3 py-1.5 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded focus:outline-none focus:ring-1 focus:ring-primary"
+                  // ACC-010 FIX: Larger search input text for elderly users
+                  className="w-full px-4 py-3 text-base bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded focus:outline-none focus:ring-1 focus:ring-primary min-h-[52px]"
                 />
               </div>
             )}
@@ -122,7 +126,8 @@ export function Select({
               className="max-h-60 overflow-y-auto py-1"
             >
               {filtered.length === 0 ? (
-                <li className="px-4 py-2 text-sm text-slate-400">
+                // ACC-010 FIX: Larger "no results" text
+                <li className="px-4 py-3 text-base text-slate-400">
                   No options found
                 </li>
               ) : (
@@ -137,7 +142,8 @@ export function Select({
                       setSearch("");
                     }}
                     className={[
-                      "px-4 py-2 text-sm cursor-pointer transition-colors",
+                      // ACC-009 & ACC-010 FIX: Larger options with bigger touch targets
+                      "px-4 py-3 text-base cursor-pointer transition-colors min-h-[52px] flex items-center",
                       opt.value === value
                         ? "bg-primary/10 text-primary font-medium"
                         : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800",
@@ -153,7 +159,8 @@ export function Select({
       </div>
 
       {error && (
-        <p className="text-xs text-red-500">{error}</p>
+        // ACC-010 FIX: Larger error text
+        <p className="text-base text-red-500 font-medium">{error}</p>
       )}
     </div>
   );

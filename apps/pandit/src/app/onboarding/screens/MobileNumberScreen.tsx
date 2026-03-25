@@ -189,35 +189,37 @@ export default function MobileNumberScreen({ language, onComplete, onBack }: Pro
     : '';
 
   return (
-    <main className="min-h-dvh max-w-[390px] mx-auto bg-surface-base font-hind text-text-primary flex flex-col shadow-2xl relative">
+    <main className="min-h-dvh max-w-[390px] mx-auto bg-surface-base font-body text-text-primary flex flex-col shadow-2xl relative">
       {/* Header - shrink-0 to prevent compression */}
       <header className="pt-8 px-6 pb-2 flex items-center gap-3 shrink-0">
-        <button onClick={onBack} className="w-[56px] h-[56px] -ml-2 flex items-center justify-center text-saffron hover:bg-black/5 rounded-full" aria-label="Go back">
-          <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+        <button onClick={onBack} className="w-[72px] h-[72px] -ml-2 flex items-center justify-center text-saffron hover:bg-saffron-light rounded-full min-h-[72px] min-w-[72px] focus:ring-4 focus:ring-saffron focus:outline-none" aria-label="पीछे जाएं">
+          <svg width="40" height="40" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
             <path d="M15 18l-6-6 6-6" />
           </svg>
         </button>
-        <h1 className="text-[20px] font-bold text-text-primary">Registration — Step 1/4</h1>
+        <div className="flex-1">
+          <h1 className="text-[36px] font-bold text-text-primary">पंजीकरण</h1>
+          <p className="text-[32px] font-bold text-saffron">कदम 1 / 4</p>
+        </div>
       </header>
 
-      {/* Progress - shrink-0 to prevent compression */}
+      {/* Progress - shrink-0 to prevent compression - Bold and Clear for Elderly */}
       <div className="px-6 pb-4 shrink-0">
-        <div className="flex gap-1.5">
+        <div className="flex gap-3">
           {[1, 2, 3, 4].map(i => (
-            <div key={i} className={`flex-1 h-1.5 rounded-full transition-colors ${i === 1 ? 'bg-saffron' : 'bg-vedic-border'}`} />
+            <div key={i} className={`flex-1 h-16 rounded-full transition-colors ${i === 1 ? 'bg-saffron' : 'bg-surface-dim'}`} />
           ))}
         </div>
-        <p className="text-lgs text-saffron mt-1">Mobile Number</p>
       </div>
 
       {/* Content - flex-grow with overflow-y-auto for scroll on small screens */}
       <div className="flex-grow flex flex-col items-center px-6 pt-2 overflow-y-auto">
         {/* Title */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-8 w-full">
-          <h2 className="text-[26px] font-bold text-text-primary leading-tight">
+          <h2 className="text-[40px] font-bold text-text-primary leading-tight">
             📱 आपका मोबाइल नंबर?
           </h2>
-          <p className="text-[16px] text-saffron mt-2">
+          <p className="text-[24px] text-saffron mt-3 font-medium">
             OTP से verify होगा — बिल्कुल safe
           </p>
         </motion.div>
@@ -229,26 +231,26 @@ export default function MobileNumberScreen({ language, onComplete, onBack }: Pro
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="w-full mb-4 flex items-center justify-between gap-3 px-4 py-2 bg-saffron-lt rounded-xl border border-saffron/20"
+              className="w-full mb-4 flex items-center justify-between gap-3 px-5 py-5 bg-saffron-lt rounded-2xl border-3 border-saffron/40 min-h-[88px] shadow-card"
             >
               {isMicOff ? (
-                <div className="flex items-center gap-2 text-red-600">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <div className="flex items-center gap-3 text-red-600">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
                     <path d="M1 1l22 22M9 9v3a3 3 0 005.12 2.12M15 9.34V4a3 3 0 00-5.94-.6" strokeLinecap="round" strokeLinejoin="round" />
                     <path d="M17 16.95A7 7 0 015 12v-2m14 0v2a7 7 0 01-.11 1.23" strokeLinecap="round" strokeLinejoin="round" />
                     <line x1="12" y1="19" x2="12" y2="23" strokeLinecap="round" strokeLinejoin="round" />
                     <line x1="8" y1="23" x2="16" y2="23" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
-                  <span className="text-[14px] font-medium">Mic Off</span>
+                  <span className="text-[26px] font-medium">Mic Off</span>
                 </div>
               ) : (
                 <div className="flex items-center gap-2 overflow-hidden">
-                  <div className="flex items-end gap-1 h-5 shrink-0">
-                    <div className="w-1.5 bg-saffron rounded-full animate-voice-bar" />
-                    <div className="w-1.5 bg-saffron rounded-full animate-voice-bar-2" />
-                    <div className="w-1.5 bg-saffron rounded-full animate-voice-bar-3" />
+                  <div className="flex items-end gap-2 h-14 shrink-0">
+                    <div className="w-3 bg-saffron rounded-full animate-voice-bar" />
+                    <div className="w-3 bg-saffron rounded-full animate-voice-bar-2" />
+                    <div className="w-3 bg-saffron rounded-full animate-voice-bar-3" />
                   </div>
-                  <span className="text-[14px] text-text-primary truncate">
+                  <span className="text-[28px] text-text-primary truncate font-medium">
                     {isSpeaking ? 'बोल रहा हूँ...' : (transcript || 'नंबर बोलें...')}
                   </span>
                 </div>
@@ -256,9 +258,9 @@ export default function MobileNumberScreen({ language, onComplete, onBack }: Pro
 
               <button
                 onClick={toggleMic}
-                className={`px-4 py-2 min-h-[56px] rounded-full text-lg font-medium border transition-colors shrink-0 focus:ring-2 focus:ring-primary focus:outline-none ${isMicOff
+                className={`px-8 py-5 min-h-[80px] rounded-2xl text-[22px] font-bold border-3 transition-colors shrink-0 focus:ring-4 focus:ring-saffron focus:outline-none ${isMicOff
                   ? 'bg-saffron text-white border-saffron'
-                  : 'bg-white text-text-primary border-outline-variant'
+                  : 'bg-white text-text-primary border-border-default'
                   }`}
               >
                 {isMicOff ? 'Mic On' : 'Mic Off'}
@@ -269,17 +271,17 @@ export default function MobileNumberScreen({ language, onComplete, onBack }: Pro
 
         {/* BUG-003 FIX: Keyboard toggle - shown when keyboard mode is active */}
         {isKeyboardMode && (
-          <div className="w-full mb-4 flex items-center justify-between gap-3 px-4 py-2 bg-surface-muted rounded-xl border border-outline-variant">
-            <div className="flex items-center gap-2 text-text-lgrimary">
-              <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <div className="w-full mb-4 flex items-center justify-between gap-3 px-5 py-5 bg-surface-muted rounded-2xl border-3 border-border-default min-h-[88px] shadow-card">
+            <div className="flex items-center gap-3 text-text-primary">
+              <svg width="32" height="32" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
                 <rect x="2" y="4" width="20" height="16" rx="2" />
                 <path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M6 12h.01M10 12h.01M14 12h.01M18 12h.01M7 16h10" />
               </svg>
-              <span className="text-[14px] font-medium">Keyboard Mode</span>
+              <span className="text-[26px] font-medium">Keyboard Mode</span>
             </div>
             <button
               onClick={handleKeyboardToggle}
-              className="px-4 py-2 min-h-[56px] rounded-full text-lg font-medium border border-outline-variant bg-white text-text-primary hover:bg-saffron-lt transition-colors focus:ring-2 focus:ring-primary focus:outline-none"
+              className="px-8 py-5 min-h-[80px] rounded-2xl text-[22px] font-bold border-3 border-border-default bg-white text-text-primary hover:bg-saffron-lt transition-colors focus:ring-4 focus:ring-saffron focus:outline-none"
             >
               Voice वापस लाएं
             </button>
@@ -287,22 +289,22 @@ export default function MobileNumberScreen({ language, onComplete, onBack }: Pro
         )}
 
         {/* Number Display */}
-        <div className={`w-full text-center py-5 rounded-2xl border-2 mb-4 transition-colors ${mobile.length === 10 ? 'border-success bg-success-lt' : 'border-saffron/30 bg-white'
+        <div className={`w-full text-center py-8 rounded-2xl border-3 mb-4 transition-colors ${mobile.length === 10 ? 'border-success bg-success-lt' : 'border-saffron/30 bg-surface-card'
           }`}>
           {mobile.length > 0 ? (
             <div>
-              <span className="text-[14px] text-saffron">+91 </span>
-              <span className="text-[32px] font-bold text-text-primary tracking-widest">{formatted}</span>
-              {mobile.length === 10 && <span className="block text-[14px] text-success mt-1">✓ नंबर पूरा है</span>}
+              <span className="text-[26px] text-saffron">+91 </span>
+              <span className="text-[42px] font-bold text-text-primary tracking-widest">{formatted}</span>
+              {mobile.length === 10 && <span className="block text-[24px] text-success mt-3 font-bold">✓ नंबर पूरा है</span>}
             </div>
           ) : (
-            <span className="text-[22px] text-vedic-border">_ _ _ _ _ _ _ _ _ _</span>
+            <span className="text-[32px] text-surface-dim">_ _ _ _ _ _ _ _ _ _</span>
           )}
         </div>
 
-        {error && <p className="text-error text-[14px] mb-3 text-center">{error}</p>}
+        {error && <p className="text-error text-[24px] mb-4 text-center font-bold">{error}</p>}
 
-        {/* Text input for manual */}
+        {/* Text input for manual - Larger touch target */}
         <input
           ref={inputRef}
           type="tel"
@@ -310,22 +312,22 @@ export default function MobileNumberScreen({ language, onComplete, onBack }: Pro
           value={mobile}
           onChange={handleTextInputChange}
           placeholder="या यहाँ टाइप करें"
-          className="w-full px-4 py-3 border-2 border-outline-variant rounded-xl text-center text-[18px] bg-white focus:border-saffron focus:outline-none mb-4 text-text-primary"
+          className="w-full px-8 py-6 min-h-[88px] border-3 border-border-default rounded-2xl text-center text-[32px] bg-surface-card focus:border-saffron focus:outline-none text-text-primary mb-4 font-bold shadow-input"
         />
 
-        {/* On-screen Keypad */}
-        <div className="grid grid-cols-3 gap-3 w-full mb-6">
+        {/* On-screen Keypad - Larger buttons for elderly */}
+        <div className="grid grid-cols-3 gap-4 w-full mb-6">
           {['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', '⌫'].map((key, i) => {
             if (!key) return <div key={i} />;
             const isDelete = key === '⌫';
             return (
               <motion.button
                 key={key}
-                whileTap={{ scale: 0.93 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => isDelete ? handleDelete() : handleKeypadInput(key)}
-                className={`h-14 rounded-xl text-[22px] font-bold transition-colors ${isDelete
-                  ? 'bg-vedic-border/40 text-saffron'
-                  : 'bg-white border border-outline-variant text-text-primary active:bg-saffron-lt'
+                className={`min-h-[88px] rounded-2xl text-[32px] font-bold transition-colors border-3 ${isDelete
+                  ? 'bg-surface-dim text-saffron border-surface-dim'
+                  : 'bg-surface-card text-text-primary border-border-default active:bg-saffron-lt'
                   }`}
               >
                 {key}
@@ -336,12 +338,12 @@ export default function MobileNumberScreen({ language, onComplete, onBack }: Pro
       </div>
 
       {/* Footer CTA - BUG-005 FIX: Use z-50 to stay above overlays */}
-      <footer className="px-6 pb-10 pt-3 bg-surface-base/90 backdrop-blur-sm border-t border-outline-variant shrink-0 relative z-50">
+      <footer className="px-6 pb-10 pt-3 bg-surface-base/90 backdrop-blur-sm border-t-3 border-border-default shrink-0 relative z-50">
         {/* BUG-003 FIX: Only show confirmation UI for voice input, not keyboard */}
         {confirming && !keyboardEntered ? (
-          <div className="space-y-3">
-            <p className="text-center text-[16px] text-text-primary font-medium">क्या यह नंबर सही है?</p>
-            <div className="flex gap-3">
+          <div className="space-y-4">
+            <p className="text-center text-[26px] text-text-primary font-bold">क्या यह नंबर सही है?</p>
+            <div className="flex gap-4">
               <motion.button
                 whileTap={{ scale: 0.97 }}
                 onClick={() => {
@@ -350,14 +352,14 @@ export default function MobileNumberScreen({ language, onComplete, onBack }: Pro
                   updateMobile(''); // BUG-001 FIX: Clear store as well
                   restartListening();
                 }}
-                className="flex-1 h-14 border-2 border-outline-variant rounded-2xl text-[18px] font-bold text-saffron"
+                className="flex-1 min-h-[88px] border-3 border-border-default rounded-2xl text-[26px] font-bold text-saffron bg-surface-card hover:bg-saffron-lt"
               >
                 ✗ नहीं
               </motion.button>
               <motion.button
                 whileTap={{ scale: 0.97 }}
                 onClick={() => handleSubmit(mobile)}
-                className="flex-1 h-14 bg-saffron-dk text-white rounded-2xl text-[18px] font-bold shadow-cta-dk"
+                className="flex-1 min-h-[88px] bg-saffron text-white rounded-2xl text-[26px] font-bold shadow-btn-saffron"
               >
                 ✓ हाँ →
               </motion.button>
@@ -372,9 +374,9 @@ export default function MobileNumberScreen({ language, onComplete, onBack }: Pro
               setKeyboardEntered(false);
               handleSubmit(mobile);
             }}
-            className={`w-full h-16 rounded-2xl flex items-center justify-center text-[20px] font-bold transition-all ${mobile.length === 10
-              ? 'bg-saffron text-white shadow-cta'
-              : 'bg-vedic-border/30 text-saffron cursor-not-allowed'
+            className={`w-full min-h-[88px] rounded-2xl flex items-center justify-center text-[26px] font-bold transition-all ${mobile.length === 10
+              ? 'bg-saffron text-white shadow-btn-saffron'
+              : 'bg-surface-dim text-saffron cursor-not-allowed'
               }`}
           >
             {keyboardEntered ? 'आगे बढ़ें →' : 'OTP भेजें →'}

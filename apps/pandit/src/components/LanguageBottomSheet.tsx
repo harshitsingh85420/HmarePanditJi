@@ -45,7 +45,7 @@ export default function LanguageBottomSheet({
       <div className="relative bg-surface-card rounded-t-[20px] shadow-2xl flex flex-col max-h-[90vh] animate-slide-up">
         {/* Drag handle */}
         <div className="flex justify-center pt-3 pb-1">
-          <div className="w-10 h-1 bg-outline-variant rounded-full" />
+          <div className="w-14 h-1 bg-outline-variant rounded-full" />
         </div>
         {/* Header - ACC-010 FIX: Larger text and textual language labels */}
         <div className="flex items-center justify-between px-4 py-3">
@@ -61,7 +61,7 @@ export default function LanguageBottomSheet({
         </div>
         {/* Search */}
         <div className="px-4 pb-3">
-          <div className="flex items-center gap-2 bg-surface-muted rounded-xl px-3 h-[56px]">
+          <div className="flex items-center gap-2 bg-surface-muted rounded-xl px-5 h-[56px]">
             <svg width="20" height="20" fill="none" stroke="#9B7B52" strokeWidth="2" viewBox="0 0 24 24">
               <circle cx="11" cy="11" r="8" />
               <path d="M21 21l-4.3-4.3" strokeLinecap="round" />

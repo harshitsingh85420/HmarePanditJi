@@ -5,13 +5,14 @@ import { useSarvamVoiceFlow } from '@/lib/hooks/useSarvamVoiceFlow';
 import { TUTORIAL_DAKSHINA } from '@/lib/voice-scripts';
 import TutorialShell from './TutorialShell';
 import { TUTORIAL_TRANSLATIONS, getTutorialLang } from '@/lib/tutorial-translations';
+import type { SupportedLanguage } from '@/lib/onboarding-store';
 
 interface Props {
   currentDot: number;
   onNext: () => void;
   onBack: () => void;
   onSkip: () => void;
-  language?: string;
+  language?: SupportedLanguage;
   onLanguageChange?: () => void;
 }
 
@@ -20,7 +21,7 @@ export default function TutorialDakshina({ currentDot, onNext, onBack, onSkip, l
   const t = TUTORIAL_TRANSLATIONS[lang].screens.S03;
 
   const { isListening } = useSarvamVoiceFlow({
-    language: language as any,
+    language,
     script: TUTORIAL_DAKSHINA.scripts.main.hindi,
     autoListen: true,
     listenTimeoutMs: 12000,
@@ -46,7 +47,7 @@ export default function TutorialDakshina({ currentDot, onNext, onBack, onSkip, l
     <TutorialShell currentDot={currentDot} onNext={onNext} onBack={onBack} onSkip={onSkip} isListening={isListening} language={language}>
       {/* Headline */}
       <motion.section initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-6 text-center">
-        <h1 className="text-[34px] font-bold leading-tight text-vedic-brown">{t.title}</h1>
+        <h1 className="text-[34px] font-bold leading-tight text-text-primary">{t.title}</h1>
       </motion.section>
 
       {/* Illustration */}
@@ -71,13 +72,13 @@ export default function TutorialDakshina({ currentDot, onNext, onBack, onSkip, l
           <div className="flex flex-col gap-2 text-left">
             <div className="flex items-start gap-2">
               <span className="text-xl">😒</span>
-              <div className="bg-white px-3 py-1.5 rounded-lg rounded-tl-none shadow-sm text-[16px] border border-red-100">
+              <div className="bg-white px-5 py-3.5 rounded-lg rounded-tl-none shadow-sm text-[16px] border border-red-100">
                 &quot;1,500 में हो जाएगा?&quot;
               </div>
             </div>
             <div className="flex items-start gap-2 self-end flex-row-reverse">
               <span className="text-xl">😔</span>
-              <div className="bg-white/60 px-3 py-1.5 rounded-lg rounded-tr-none shadow-sm text-[16px] italic border border-red-100">
+              <div className="bg-white/60 px-5 py-3.5 rounded-lg rounded-tr-none shadow-sm text-[16px] italic border border-red-100">
                 (चुप रह गए...)
               </div>
             </div>
@@ -85,7 +86,7 @@ export default function TutorialDakshina({ currentDot, onNext, onBack, onSkip, l
         </motion.article>
 
         {/* Arrow connector */}
-        <div className="text-center text-[20px] text-vedic-gold">↓</div>
+        <div className="text-center text-[20px] text-saffron">↓</div>
 
         {/* AFTER Card */}
         <motion.article
@@ -97,10 +98,10 @@ export default function TutorialDakshina({ currentDot, onNext, onBack, onSkip, l
           </header>
           <div className="bg-white rounded-xl p-3 text-left border border-green-200 shadow-sm">
             <div className="flex justify-between items-center mb-1">
-              <span className="font-bold text-vedic-brown text-[18px]">सत्यनारायण पूजा</span>
+              <span className="font-bold text-text-primary text-[18px]">सत्यनारायण पूजा</span>
             </div>
             <div className="text-success font-bold text-[24px]">आपकी दक्षिणा: ₹2,100</div>
-            <div className="text-[16px] text-vedic-gold">(पहले से तय)</div>
+            <div className="text-[16px] text-saffron">(पहले से तय)</div>
           </div>
           <footer className="mt-2 text-[16px] font-medium text-green-800 text-left">
             ग्राहक को Booking से पहले ही पता है।
@@ -110,9 +111,9 @@ export default function TutorialDakshina({ currentDot, onNext, onBack, onSkip, l
 
       {/* Trust Message */}
       <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="text-center">
-        <p className="text-vedic-gold leading-relaxed">
+        <p className="text-saffron leading-relaxed">
           आप दक्षिणा खुद तय करते हैं।<br />
-          <span className="font-bold text-vedic-brown">Platform कभी नहीं बदलेगी।</span>
+          <span className="font-bold text-text-primary">Platform कभी नहीं बदलेगी।</span>
         </p>
       </motion.section>
     </TutorialShell>

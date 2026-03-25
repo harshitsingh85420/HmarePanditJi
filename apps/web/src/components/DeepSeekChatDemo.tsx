@@ -35,7 +35,7 @@ export default function DeepSeekChatDemo() {
                 </h2>
                 <button
                     onClick={clearChat}
-                    className="text-sm text-red-600 hover:text-red-700 font-medium"
+                    className="text-lg text-red-600 hover:text-red-700 font-medium"
                 >
                     Clear Chat
                 </button>
@@ -47,7 +47,7 @@ export default function DeepSeekChatDemo() {
                     <div className="text-center text-slate-400 py-20">
                         <span className="text-4xl mb-2 block">🙏</span>
                         <p>Ask me anything about Hindu rituals, pujas, or pandit booking!</p>
-                        <p className="text-sm mt-2">Example: "How do I book a pandit for Griha Pravesh?"</p>
+                        <p className="text-lg mt-2">Example: "How do I book a pandit for Griha Pravesh?"</p>
                     </div>
                 ) : (
                     <div className="space-y-4">
@@ -63,7 +63,7 @@ export default function DeepSeekChatDemo() {
                                             : 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white'
                                     }`}
                                 >
-                                    <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                                    <p className="text-lg whitespace-pre-wrap">{msg.content}</p>
                                 </div>
                             </div>
                         ))}
@@ -81,7 +81,7 @@ export default function DeepSeekChatDemo() {
                     </div>
                 )}
                 {error && (
-                    <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-3 rounded-lg text-sm mt-4">
+                    <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-3 rounded-lg text-lg mt-4">
                         ⚠️ {error}
                     </div>
                 )}
@@ -107,7 +107,7 @@ export default function DeepSeekChatDemo() {
             </form>
 
             {/* Model Info */}
-            <div className="mt-4 text-center text-xs text-slate-400">
+            <div className="mt-4 text-center text-base text-slate-400">
                 Powered by DeepSeek-V3 • {process.env.NODE_ENV === 'development' ? 'Dev Mode' : 'Production'}
             </div>
         </div>

@@ -7,13 +7,17 @@ import { speakWithSarvam } from '@/lib/sarvam-tts'
 
 /**
  * Ambient Noise Pre-Check Flow
- * 
+ *
  * As specified in HPJ_Voice_Complete_Guide.md:
- * - Detects ambient noise >65dB before STT session starts
+ * - Detects ambient noise >85dB before STT session starts (temple bells, heavy traffic, crowds)
  * - Interrupts flow with friendly warning
  * - Suggests keyboard mode or quieter location
  * - Prevents Pandit Ji from getting frustrated by failed voice input
- * 
+ *
+ * BUG-MEDIUM-04 FIX: Threshold raised from 65dB to 85dB to prevent false-triggering
+ * in quiet/normal environments. 65dB is normal conversation level.
+ * 85dB is genuinely loud (temple bells, heavy traffic, crowds).
+ *
  * Usage: Wrap voice input screens with this component or use the hook
  */
 
@@ -36,7 +40,7 @@ export function NoiseWarningOverlay({
   }, [ambientNoiseLevel])
 
   useEffect(() => {
-    if (isVisible && ambientNoiseLevel > 65) {
+    if (isVisible && ambientNoiseLevel > 85) {
       // Play warning voice
       void speakWithSarvam({
         text: 'मंदिर में शोर है। कृपया शांत जगह जाएं या बटन दबाकर चुनें।',
@@ -60,15 +64,16 @@ export function NoiseWarningOverlay({
         suggestion: 'थोड़ा शांत कोने में जाएं',
       }
     } else {
-      return {
-        title: 'शोर है',
-        subtitle: 'पृष्ठभूमि में आवाज़ें हैं',
-        suggestion: 'ध्यान से सुनने की कोशिश करें',
-      }
+      // BUG-MEDIUM-04 FIX: Don't show warning for normal noise levels (<75dB)
+      // This is normal conversation/room noise - completely fine for voice input
+      return null
     }
   }
 
   const message = getNoiseMessage(noiseLevel)
+
+  // BUG-MEDIUM-04 FIX: Don't render overlay if noise level is normal (<75dB)
+  if (!message) return null
 
   return (
     <AnimatePresence>
@@ -109,7 +114,7 @@ export function NoiseWarningOverlay({
                   <h3 className="font-bold text-white text-lg font-devanagari">
                     {message.title}
                   </h3>
-                  <p className="text-white/90 text-sm font-devanagari">
+                  <p className="text-white/90 text-[16px] font-devanagari">
                     {message.subtitle}
                   </p>
                 </div>
@@ -120,7 +125,7 @@ export function NoiseWarningOverlay({
             <div className="p-4">
               <div className="mb-4">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-text-secondary text-sm font-devanagari">
+                  <span className="text-text-secondary text-[16px] font-devanagari">
                     शोर का स्तर
                   </span>
                   <span className={`font-bold ${noiseLevel > 85 ? 'text-red-600' :
@@ -149,10 +154,10 @@ export function NoiseWarningOverlay({
                 {/* Threshold Marker */}
                 <div className="relative mt-1">
                   <div
-                    className="absolute w-0.5 h-2 bg-red-600 left-2/3"
+                    className="absolute w-0.5 h-2 bg-red-600 left-[85%]"
                   />
-                  <span className="absolute text-xs text-red-600 -top-5 left-2/3">
-                    सीमा (65%)
+                  <span className="absolute text-[16px] text-red-600 -top-6 left-[85%] font-bold">
+                    सीमा (85%)
                   </span>
                 </div>
               </div>
@@ -163,7 +168,7 @@ export function NoiseWarningOverlay({
                   <span className="material-symbols-outlined text-warning-amber text-lg flex-shrink-0">
                     tips_and_updates
                   </span>
-                  <p className="text-warning-amber text-sm font-devanagari">
+                  <p className="text-warning-amber text-[16px] font-devanagari font-bold">
                     {message.suggestion}
                   </p>
                 </div>
@@ -208,6 +213,9 @@ export function NoiseWarningOverlay({
 /**
  * Hook to check ambient noise before starting voice input
  * Returns whether it's safe to start listening
+ *
+ * BUG-MEDIUM-04 FIX: Threshold raised from 65 to 85 to prevent false-triggering
+ * in normal environments.
  */
 export function useAmbientNoiseCheck() {
   const { ambientNoiseLevel, setAmbientNoise } = useVoiceStore()
@@ -222,7 +230,8 @@ export function useAmbientNoiseCheck() {
     await new Promise(resolve => setTimeout(resolve, 1000))
 
     const level = ambientNoiseLevel
-    const isHigh = level > 65
+    // BUG-MEDIUM-04 FIX: Raised threshold from 65 to 85
+    const isHigh = level > 85
 
     setIsNoiseHigh(isHigh)
     setIsChecking(false)

@@ -17,7 +17,7 @@ export default function AdminFinancePage() {
                         HmarePanditJi
                     </Link>
                     <div className="h-6 w-px bg-slate-300 dark:bg-slate-700 mx-2"></div>
-                    <nav className="flex items-center gap-6 text-sm font-medium text-slate-500 dark:text-slate-400">
+                    <nav className="flex items-center gap-6 text-lg font-medium text-slate-500 dark:text-slate-400">
                         <Link
                             className="hover:text-[#0f49bd] transition-colors"
                             href="/admin/dashboard"
@@ -59,10 +59,10 @@ export default function AdminFinancePage() {
                     </button>
                     <div className="flex items-center gap-3 pl-4 border-l border-slate-200 dark:border-slate-700">
                         <div className="text-right hidden md:block">
-                            <p className="text-sm font-semibold text-slate-800 dark:text-white">
+                            <p className="text-lg font-semibold text-slate-800 dark:text-white">
                                 Amit V.
                             </p>
-                            <p className="text-xs text-slate-500">
+                            <p className="text-base text-slate-500">
                                 Finance Manager
                             </p>
                         </div>
@@ -87,7 +87,7 @@ export default function AdminFinancePage() {
                             <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
                                 Payout Reconciliation
                             </h1>
-                            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                            <p className="text-lg text-slate-500 dark:text-slate-400 mt-1">
                                 Review pending claims and approve batch payments.
                             </p>
                         </div>
@@ -96,10 +96,10 @@ export default function AdminFinancePage() {
                                 event
                             </span>
                             <div>
-                                <p className="text-xs text-slate-500 dark:text-slate-400 uppercase font-semibold">
+                                <p className="text-base text-slate-500 dark:text-slate-400 uppercase font-semibold">
                                     Next Scheduled Batch
                                 </p>
-                                <p className="text-sm font-bold text-slate-800 dark:text-white">
+                                <p className="text-lg font-bold text-slate-800 dark:text-white">
                                     Tue, 24 Oct 2023
                                 </p>
                             </div>
@@ -109,13 +109,13 @@ export default function AdminFinancePage() {
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-start justify-between group hover:border-[#0f49bd]/30 transition-colors">
                             <div>
-                                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                <p className="text-base font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                                     Total Payable
                                 </p>
                                 <h3 className="text-2xl font-bold text-slate-900 dark:text-white mt-1">
                                     ₹1,24,500
                                 </h3>
-                                <p className="text-xs text-slate-500 mt-1">
+                                <p className="text-base text-slate-500 mt-1">
                                     45 Bookings Pending
                                 </p>
                             </div>
@@ -127,16 +127,16 @@ export default function AdminFinancePage() {
                         </div>
                         <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border-l-4 border-l-red-500 border-y border-r border-slate-200 dark:border-slate-700 shadow-sm flex items-start justify-between group">
                             <div>
-                                <p className="text-xs font-semibold text-red-600 dark:text-red-400 uppercase tracking-wider">
+                                <p className="text-base font-semibold text-red-600 dark:text-red-400 uppercase tracking-wider">
                                     Discrepancies
                                 </p>
                                 <h3 className="text-2xl font-bold text-slate-900 dark:text-white mt-1">
                                     3{" "}
-                                    <span className="text-sm font-normal text-slate-500">
+                                    <span className="text-lg font-normal text-slate-500">
                                         Bookings
                                     </span>
                                 </h3>
-                                <p className="text-xs text-red-600 dark:text-red-400 mt-1 font-medium">
+                                <p className="text-base text-red-600 dark:text-red-400 mt-1 font-medium">
                                     Action Required
                                 </p>
                             </div>
@@ -148,14 +148,14 @@ export default function AdminFinancePage() {
                         </div>
                         <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-start justify-between group hover:border-[#0f49bd]/30 transition-colors">
                             <div>
-                                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                <p className="text-base font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                                     Processed (Oct)
                                 </p>
                                 <h3 className="text-2xl font-bold text-slate-900 dark:text-white mt-1">
                                     ₹4,50,000
                                 </h3>
-                                <p className="text-xs text-green-600 mt-1 flex items-center gap-1">
-                                    <span className="material-symbols-outlined text-xs">
+                                <p className="text-base text-green-600 mt-1 flex items-center gap-1">
+                                    <span className="material-symbols-outlined text-base">
                                         trending_up
                                     </span>
                                     +12% vs Sep
@@ -168,7 +168,7 @@ export default function AdminFinancePage() {
                             </div>
                         </div>
                         <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-center gap-3">
-                            <button className="w-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-white py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 border border-slate-200 dark:border-slate-600">
+                            <button className="w-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-white py-2 rounded-lg text-lg font-medium transition-colors flex items-center justify-center gap-2 border border-slate-200 dark:border-slate-600">
                                 <span className="material-symbols-outlined text-lg">
                                     file_download
                                 </span>
@@ -180,21 +180,21 @@ export default function AdminFinancePage() {
                     <div className="flex flex-wrap items-center justify-between gap-4 mt-2">
                         {/* Tabs */}
                         <div className="bg-slate-100 dark:bg-slate-800 p-1 rounded-lg flex gap-1 border border-slate-200 dark:border-slate-700">
-                            <button className="px-4 py-1.5 rounded-md bg-white dark:bg-slate-700 shadow-sm text-[#0f49bd] font-semibold text-sm transition-all">
+                            <button className="px-4 py-3.5 rounded-md bg-white dark:bg-slate-700 shadow-sm text-[#0f49bd] font-semibold text-lg transition-all">
                                 Pending Reconciliation
                             </button>
-                            <button className="px-4 py-1.5 rounded-md text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-sm font-medium transition-all">
+                            <button className="px-4 py-3.5 rounded-md text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-lg font-medium transition-all">
                                 Payout History
                             </button>
                         </div>
                         {/* Filters */}
                         <div className="flex items-center gap-3 flex-1 justify-end">
-                            <label className="flex items-center gap-2 cursor-pointer bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-2 rounded-lg hover:bg-slate-50 transition-colors">
+                            <label className="flex items-center gap-2 cursor-pointer bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-5 py-2 rounded-lg hover:bg-slate-50 transition-colors">
                                 <input
                                     className="form-checkbox rounded text-red-500 border-slate-300 focus:ring-red-500 w-4 h-4"
                                     type="checkbox"
                                 />
-                                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                                <span className="text-lg font-medium text-slate-700 dark:text-slate-300">
                                     Show Discrepancies Only
                                 </span>
                             </label>
@@ -203,12 +203,12 @@ export default function AdminFinancePage() {
                                     search
                                 </span>
                                 <input
-                                    className="pl-10 pr-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:ring-[#0f49bd] focus:border-[#0f49bd] w-64 dark:text-white"
+                                    className="pl-10 pr-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-lg focus:ring-[#0f49bd] focus:border-[#0f49bd] w-64 dark:text-white"
                                     placeholder="Search ID or Pandit..."
                                     type="text"
                                 />
                             </div>
-                            <button className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 text-sm font-medium">
+                            <button className="flex items-center gap-2 px-5 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 text-lg font-medium">
                                 <span className="material-symbols-outlined text-lg">
                                     filter_list
                                 </span>
@@ -231,31 +231,31 @@ export default function AdminFinancePage() {
                                                 type="checkbox"
                                             />
                                         </th>
-                                        <th className="py-3 px-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider w-32">
+                                        <th className="py-3 px-4 text-base font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider w-32">
                                             Status
                                         </th>
-                                        <th className="py-3 px-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                        <th className="py-3 px-4 text-base font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                                             Booking ID
                                         </th>
-                                        <th className="py-3 px-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                        <th className="py-3 px-4 text-base font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                                             Pandit Name
                                         </th>
-                                        <th className="py-3 px-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-right">
+                                        <th className="py-3 px-4 text-base font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-right">
                                             Dakshina
                                         </th>
-                                        <th className="py-3 px-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-right">
+                                        <th className="py-3 px-4 text-base font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-right">
                                             Travel Reimb.
                                         </th>
-                                        <th className="py-3 px-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-right">
+                                        <th className="py-3 px-4 text-base font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-right">
                                             Food Allw.
                                         </th>
-                                        <th className="py-3 px-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-right text-red-500">
+                                        <th className="py-3 px-4 text-base font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-right text-red-500">
                                             Plat. Fee
                                         </th>
-                                        <th className="py-3 px-4 text-xs font-bold text-[#0f49bd] dark:text-blue-400 uppercase tracking-wider text-right bg-[#0f49bd]/5 dark:bg-[#0f49bd]/10 border-l border-[#0f49bd]/10">
+                                        <th className="py-3 px-4 text-base font-bold text-[#0f49bd] dark:text-blue-400 uppercase tracking-wider text-right bg-[#0f49bd]/5 dark:bg-[#0f49bd]/10 border-l border-[#0f49bd]/10">
                                             Net Payout
                                         </th>
-                                        <th className="py-3 px-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider w-24">
+                                        <th className="py-3 px-4 text-base font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider w-24">
                                             Actions
                                         </th>
                                     </tr>
@@ -270,37 +270,37 @@ export default function AdminFinancePage() {
                                             />
                                         </td>
                                         <td className="py-3 px-4">
-                                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-800">
+                                            <span className="inline-flex items-center gap-1.5 px-4.5 py-3 rounded-full text-base font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-800">
                                                 <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
                                                 Verified
                                             </span>
                                         </td>
-                                        <td className="py-3 px-4 text-sm font-medium text-slate-700 dark:text-slate-300 font-mono">
+                                        <td className="py-3 px-4 text-lg font-medium text-slate-700 dark:text-slate-300 font-mono">
                                             #HPJ-9921
                                         </td>
                                         <td className="py-3 px-4">
                                             <div className="flex items-center gap-2">
-                                                <div className="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-600 flex items-center justify-center text-xs font-bold text-slate-600 dark:text-slate-200">
+                                                <div className="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-600 flex items-center justify-center text-base font-bold text-slate-600 dark:text-slate-200">
                                                     S
                                                 </div>
-                                                <span className="text-sm font-medium text-slate-900 dark:text-white">
+                                                <span className="text-lg font-medium text-slate-900 dark:text-white">
                                                     Pt. Sharma
                                                 </span>
                                             </div>
                                         </td>
-                                        <td className="py-3 px-4 text-sm text-slate-600 dark:text-slate-400 text-right font-mono">
+                                        <td className="py-3 px-4 text-lg text-slate-600 dark:text-slate-400 text-right font-mono">
                                             ₹2,100
                                         </td>
-                                        <td className="py-3 px-4 text-sm text-slate-600 dark:text-slate-400 text-right font-mono">
+                                        <td className="py-3 px-4 text-lg text-slate-600 dark:text-slate-400 text-right font-mono">
                                             ₹500
                                         </td>
-                                        <td className="py-3 px-4 text-sm text-slate-600 dark:text-slate-400 text-right font-mono">
+                                        <td className="py-3 px-4 text-lg text-slate-600 dark:text-slate-400 text-right font-mono">
                                             ₹200
                                         </td>
-                                        <td className="py-3 px-4 text-sm text-red-500 text-right font-mono">
+                                        <td className="py-3 px-4 text-lg text-red-500 text-right font-mono">
                                             -₹200
                                         </td>
-                                        <td className="py-3 px-4 text-sm font-bold text-[#0f49bd] dark:text-blue-400 text-right font-mono bg-[#0f49bd]/5 dark:bg-[#0f49bd]/10 border-l border-[#0f49bd]/10 group-hover:bg-[#0f49bd]/10 dark:group-hover:bg-[#0f49bd]/20">
+                                        <td className="py-3 px-4 text-lg font-bold text-[#0f49bd] dark:text-blue-400 text-right font-mono bg-[#0f49bd]/5 dark:bg-[#0f49bd]/10 border-l border-[#0f49bd]/10 group-hover:bg-[#0f49bd]/10 dark:group-hover:bg-[#0f49bd]/20">
                                             ₹2,600
                                         </td>
                                         <td className="py-3 px-4">
@@ -324,32 +324,32 @@ export default function AdminFinancePage() {
                                             />
                                         </td>
                                         <td className="py-3 px-4">
-                                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400 border border-red-200 dark:border-red-800 animate-pulse">
+                                            <span className="inline-flex items-center gap-1.5 px-4.5 py-3 rounded-full text-base font-medium bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400 border border-red-200 dark:border-red-800 animate-pulse">
                                                 <span className="material-symbols-outlined text-[14px]">
                                                     warning
                                                 </span>
                                                 Discrepancy
                                             </span>
                                         </td>
-                                        <td className="py-3 px-4 text-sm font-medium text-slate-700 dark:text-slate-300 font-mono">
+                                        <td className="py-3 px-4 text-lg font-medium text-slate-700 dark:text-slate-300 font-mono">
                                             #HPJ-9945
                                         </td>
                                         <td className="py-3 px-4">
                                             <div className="flex items-center gap-2">
-                                                <div className="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-600 flex items-center justify-center text-xs font-bold text-slate-600 dark:text-slate-200">
+                                                <div className="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-600 flex items-center justify-center text-base font-bold text-slate-600 dark:text-slate-200">
                                                     V
                                                 </div>
-                                                <span className="text-sm font-medium text-slate-900 dark:text-white">
+                                                <span className="text-lg font-medium text-slate-900 dark:text-white">
                                                     Pt. Verma
                                                 </span>
                                             </div>
                                         </td>
-                                        <td className="py-3 px-4 text-sm text-slate-600 dark:text-slate-400 text-right font-mono">
+                                        <td className="py-3 px-4 text-lg text-slate-600 dark:text-slate-400 text-right font-mono">
                                             ₹5,100
                                         </td>
                                         <td className="py-3 px-4 text-right font-mono">
                                             <div className="flex flex-col items-end">
-                                                <span className="text-sm text-red-600 font-bold">
+                                                <span className="text-lg text-red-600 font-bold">
                                                     ₹800
                                                 </span>
                                                 <span className="text-[10px] text-slate-400 line-through">
@@ -357,13 +357,13 @@ export default function AdminFinancePage() {
                                                 </span>
                                             </div>
                                         </td>
-                                        <td className="py-3 px-4 text-sm text-slate-600 dark:text-slate-400 text-right font-mono">
+                                        <td className="py-3 px-4 text-lg text-slate-600 dark:text-slate-400 text-right font-mono">
                                             ₹200
                                         </td>
-                                        <td className="py-3 px-4 text-sm text-red-500 text-right font-mono">
+                                        <td className="py-3 px-4 text-lg text-red-500 text-right font-mono">
                                             -₹500
                                         </td>
-                                        <td className="py-3 px-4 text-sm font-bold text-slate-400 text-right font-mono bg-[#0f49bd]/5 dark:bg-[#0f49bd]/10 border-l border-[#0f49bd]/10 opacity-50">
+                                        <td className="py-3 px-4 text-lg font-bold text-slate-400 text-right font-mono bg-[#0f49bd]/5 dark:bg-[#0f49bd]/10 border-l border-[#0f49bd]/10 opacity-50">
                                             ₹5,600
                                         </td>
                                         <td className="py-3 px-4 flex items-center gap-2">
@@ -383,12 +383,12 @@ export default function AdminFinancePage() {
                         </div>
                         {/* Footer Pagination & Action */}
                         <div className="border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 flex items-center justify-between shrink-0 z-20 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
-                            <div className="text-sm text-slate-500 dark:text-slate-400">
+                            <div className="text-lg text-slate-500 dark:text-slate-400">
                                 Showing 1-6 of 45 items
                             </div>
                             <div className="flex items-center gap-6">
                                 <div className="text-right flex flex-col justify-center">
-                                    <span className="text-xs text-slate-500 dark:text-slate-400">
+                                    <span className="text-base text-slate-500 dark:text-slate-400">
                                         Selected for Payment
                                     </span>
                                     <span className="text-lg font-bold text-[#0f49bd] dark:text-blue-400">

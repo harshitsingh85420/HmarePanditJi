@@ -19,12 +19,12 @@ export default function FamilyGotraSetupPage() {
                                 HmarePanditJi
                             </span>
                         </div>
-                        <div className="flex items-center space-x-8 text-sm font-medium text-[#756c64] dark:text-gray-400">
+                        <div className="flex items-center space-x-8 text-lg font-medium text-[#756c64] dark:text-gray-400">
                             <button
                                 onClick={() => router.back()}
                                 className="flex items-center gap-2 hover:text-[#ee8c2b] transition-colors"
                             >
-                                <span className="material-symbols-outlined text-sm">arrow_back</span>
+                                <span className="material-symbols-outlined text-lg">arrow_back</span>
                                 Back
                             </button>
                         </div>
@@ -64,31 +64,31 @@ export default function FamilyGotraSetupPage() {
                             ></div>
                             <div className="absolute bottom-6 left-6 right-6 z-20 text-white">
                                 <div className="flex items-center gap-2 mb-2 text-[#fff5eb]">
-                                    <span className="material-symbols-outlined text-sm">
+                                    <span className="material-symbols-outlined text-lg">
                                         verified
                                     </span>
-                                    <span className="text-xs uppercase tracking-wider font-semibold">
+                                    <span className="text-base uppercase tracking-wider font-semibold">
                                         Verified Pandits
                                     </span>
                                 </div>
-                                <p className="font-medium text-sm text-gray-200">
+                                <p className="font-medium text-lg text-gray-200">
                                     "The purity of the ritual begins with the correct
                                     identification of the self through Gotra."
                                 </p>
                             </div>
                         </div>
                         {/* Step Indicator */}
-                        <div className="flex items-center gap-4 text-sm font-medium text-[#756c64] dark:text-gray-500">
+                        <div className="flex items-center gap-4 text-lg font-medium text-[#756c64] dark:text-gray-500">
                             <div className="flex items-center gap-2">
                                 <div className="w-2 h-2 rounded-full bg-[#ee8c2b]"></div>
                                 <span>Basic Info</span>
                             </div>
-                            <div className="h-px w-8 bg-[#ee8c2b]"></div>
+                            <div className="h-px w-12 bg-[#ee8c2b]"></div>
                             <div className="flex items-center gap-2 text-[#ee8c2b] font-bold">
                                 <div className="w-2 h-2 rounded-full bg-[#ee8c2b] ring-4 ring-[#ee8c2b]/20"></div>
                                 <span>Lineage</span>
                             </div>
-                            <div className="h-px w-8 bg-gray-300 dark:bg-gray-700"></div>
+                            <div className="h-px w-12 bg-gray-300 dark:bg-gray-700"></div>
                             <div className="flex items-center gap-2">
                                 <div className="w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-700"></div>
                                 <span>Preferences</span>
@@ -100,7 +100,7 @@ export default function FamilyGotraSetupPage() {
                     <div className="lg:col-span-7">
                         {/* Mobile Progress Header (Visible only on small screens) */}
                         <div className="lg:hidden mb-8">
-                            <div className="flex justify-between items-center text-sm mb-2">
+                            <div className="flex justify-between items-center text-lg mb-2">
                                 <span className="text-[#ee8c2b] font-bold">Step 2 of 4</span>
                                 <span className="text-[#756c64]">Lineage</span>
                             </div>
@@ -130,10 +130,10 @@ export default function FamilyGotraSetupPage() {
                                     info
                                 </span>
                                 <div>
-                                    <h4 className="text-sm font-bold text-gray-900 dark:text-white mb-1">
+                                    <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
                                         Why do we ask this?
                                     </h4>
-                                    <p className="text-sm text-[#756c64] dark:text-gray-300 leading-relaxed">
+                                    <p className="text-lg text-[#756c64] dark:text-gray-300 leading-relaxed">
                                         Knowing your Gotra and Veda ensures the correct
                                         pronunciation of the 'Sankalp'—the solemn vow taken before
                                         any ritual. It connects the offering directly to your
@@ -146,7 +146,7 @@ export default function FamilyGotraSetupPage() {
                                 {/* Gotra Field */}
                                 <div>
                                     <label
-                                        className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2"
+                                        className="block text-lg font-semibold text-gray-700 dark:text-gray-200 mb-2"
                                         htmlFor="gotra"
                                     >
                                         Your Gotra <span className="text-[#ee8c2b]">*</span>
@@ -164,12 +164,12 @@ export default function FamilyGotraSetupPage() {
                                             type="text"
                                         />
                                         <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                            <span className="text-xs text-gray-400 bg-gray-100 dark:bg-gray-600 px-2 py-0.5 rounded">
+                                            <span className="text-base text-gray-400 bg-gray-100 dark:bg-gray-600 px-4 py-2 rounded">
                                                 Autofill
                                             </span>
                                         </div>
                                     </div>
-                                    <p className="mt-1.5 text-xs text-[#756c64] dark:text-gray-500">
+                                    <p className="mt-1.5 text-base text-[#756c64] dark:text-gray-500">
                                         Start typing to select from our database of Vedic Rishis.
                                     </p>
                                 </div>
@@ -178,7 +178,7 @@ export default function FamilyGotraSetupPage() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
                                         <label
-                                            className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2"
+                                            className="block text-lg font-semibold text-gray-700 dark:text-gray-200 mb-2"
                                             htmlFor="veda"
                                         >
                                             Veda
@@ -204,11 +204,11 @@ export default function FamilyGotraSetupPage() {
                                     </div>
                                     <div>
                                         <label
-                                            className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2"
+                                            className="block text-lg font-semibold text-gray-700 dark:text-gray-200 mb-2"
                                             htmlFor="shakha"
                                         >
                                             Shakha / Sutra{" "}
-                                            <span className="text-xs font-normal text-gray-500">
+                                            <span className="text-base font-normal text-gray-500">
                                                 (Optional)
                                             </span>
                                         </label>
@@ -229,7 +229,7 @@ export default function FamilyGotraSetupPage() {
                                         type="checkbox"
                                     />
                                     <label
-                                        className="text-sm text-[#756c64] dark:text-gray-400 select-none cursor-pointer"
+                                        className="text-lg text-[#756c64] dark:text-gray-400 select-none cursor-pointer"
                                         htmlFor="unknown_veda"
                                     >
                                         I don't know my Veda/Shakha details
@@ -241,7 +241,7 @@ export default function FamilyGotraSetupPage() {
                                 {/* Kula Devta */}
                                 <div>
                                     <label
-                                        className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2"
+                                        className="block text-lg font-semibold text-gray-700 dark:text-gray-200 mb-2"
                                         htmlFor="kuladevta"
                                     >
                                         Kula-Devta / Devi (Family Deity)
@@ -259,7 +259,7 @@ export default function FamilyGotraSetupPage() {
                                             type="text"
                                         />
                                     </div>
-                                    <p className="mt-1.5 text-xs text-[#756c64] dark:text-gray-500">
+                                    <p className="mt-1.5 text-base text-[#756c64] dark:text-gray-500">
                                         This helps match you with Pandits familiar with your deity's
                                         specific worship style.
                                     </p>
@@ -270,7 +270,7 @@ export default function FamilyGotraSetupPage() {
                                     <button
                                         type="button"
                                         onClick={() => router.push('/dashboard/profile')}
-                                        className="text-sm font-semibold text-gray-500 hover:text-[#ee8c2b] transition-colors"
+                                        className="text-lg font-semibold text-gray-500 hover:text-[#ee8c2b] transition-colors"
                                     >
                                         Skip for now
                                     </button>
@@ -289,7 +289,7 @@ export default function FamilyGotraSetupPage() {
                         </div>
 
                         {/* Trust signals below form */}
-                        <div className="mt-6 flex justify-center items-center gap-6 text-xs text-[#756c64] dark:text-gray-500">
+                        <div className="mt-6 flex justify-center items-center gap-6 text-base text-[#756c64] dark:text-gray-500">
                             <div className="flex items-center gap-1.5">
                                 <span className="material-symbols-outlined text-base text-green-600">
                                     lock

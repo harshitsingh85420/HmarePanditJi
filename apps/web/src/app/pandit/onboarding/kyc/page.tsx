@@ -37,7 +37,7 @@ export default function VideoKYCPage() {
                     <h1 className="text-[#137fec] tracking-tight text-[32px] font-bold leading-tight">
                         Namaste Pandit Ji!
                     </h1>
-                    <p className="text-slate-600 dark:text-slate-400 text-sm font-normal leading-normal mt-2">
+                    <p className="text-slate-600 dark:text-slate-400 text-lg font-normal leading-normal mt-2">
                         Please record a short video reciting your name and Aadhaar number.
                     </p>
                 </div>
@@ -56,7 +56,7 @@ export default function VideoKYCPage() {
 
                         {/* REC Indicator */}
                         {isRecording && (
-                            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-red-500 flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold text-white uppercase tracking-wider animate-pulse">
+                            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-red-500 flex items-center gap-1.5 px-5 py-3 rounded-full text-[10px] font-bold text-white uppercase tracking-wider animate-pulse">
                                 <span className="size-2 rounded-full bg-white"></span> REC
                             </div>
                         )}
@@ -82,7 +82,7 @@ export default function VideoKYCPage() {
                         <div className={`flex items-center justify-center size-12 rounded-full bg-[#137fec]/20 text-[#137fec] transition-all ${isRecording ? 'scale-110' : ''}`}>
                             <span className="material-symbols-outlined fill-1">mic</span>
                         </div>
-                        <p className="text-[#137fec] text-sm font-medium animate-pulse">
+                        <p className="text-[#137fec] text-lg font-medium animate-pulse">
                             {isRecording ? "Listening..." : recordingComplete ? "Recorded Successfully" : "Ready to Record"}
                         </p>
                     </div>
@@ -95,7 +95,7 @@ export default function VideoKYCPage() {
                             <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
                                 Live Transcription
                             </span>
-                            <span className="material-symbols-outlined text-[#137fec] text-sm cursor-pointer hover:underline">
+                            <span className="material-symbols-outlined text-[#137fec] text-lg cursor-pointer hover:underline">
                                 edit
                             </span>
                         </div>
@@ -155,7 +155,7 @@ export default function VideoKYCPage() {
                 </button>
                 <button
                     onClick={() => router.push('/pandit/dashboard')}
-                    className="w-full text-slate-500 dark:text-slate-400 font-semibold py-2 text-sm hover:text-[#137fec] transition-colors"
+                    className="w-full text-slate-500 dark:text-slate-400 font-semibold py-2 text-lg hover:text-[#137fec] transition-colors"
                 >
                     Skip for now
                 </button>

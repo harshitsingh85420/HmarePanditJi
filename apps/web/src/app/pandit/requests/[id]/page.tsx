@@ -25,14 +25,14 @@ export default function BookingRequestPage({ params }: { params: { id: string } 
                 {/* Urgent Banner */}
                 <div className="bg-[#f48525]/10 border-y border-[#f48525]/20 px-4 py-3">
                     <div className="flex items-center justify-between mb-2">
-                        <p className="text-[#f48525] text-xs font-bold uppercase tracking-wider">
+                        <p className="text-[#f48525] text-base font-bold uppercase tracking-wider">
                             New Booking Request
                         </p>
-                        <div className="flex items-center gap-1.5 bg-white dark:bg-[#f48525] px-2 py-1 rounded shadow-sm">
-                            <span className="material-symbols-outlined text-sm text-[#f48525] dark:text-white">
+                        <div className="flex items-center gap-1.5 bg-white dark:bg-[#f48525] px-4 py-3 rounded shadow-sm">
+                            <span className="material-symbols-outlined text-lg text-[#f48525] dark:text-white">
                                 timer
                             </span>
-                            <p className="text-[#f48525] dark:text-white text-sm font-bold font-mono leading-none">
+                            <p className="text-[#f48525] dark:text-white text-lg font-bold font-mono leading-none">
                                 04:59
                             </p>
                         </div>
@@ -64,7 +64,7 @@ export default function BookingRequestPage({ params }: { params: { id: string } 
                         {/* Map Overlays */}
                         <div className="absolute bottom-3 left-3 bg-white/90 dark:bg-[#221810]/90 backdrop-blur-sm p-2 rounded-lg text-[10px] font-semibold border border-[#f48525]/20">
                             <div className="flex items-center gap-1 text-[#181411] dark:text-white">
-                                <span className="material-symbols-outlined text-xs text-[#f48525]">
+                                <span className="material-symbols-outlined text-base text-[#f48525]">
                                     navigation
                                 </span>
                                 12.4 km (45 mins)
@@ -76,7 +76,7 @@ export default function BookingRequestPage({ params }: { params: { id: string } 
                 {/* Event Details Card */}
                 <div className="px-4 py-2">
                     <div className="bg-[#f8f7f5] dark:bg-[#221810]/30 rounded-xl p-4 border border-[#e6e0db] dark:border-[#3d2c1d]">
-                        <h3 className="text-sm font-bold text-[#f48525] mb-3 uppercase tracking-wide">
+                        <h3 className="text-lg font-bold text-[#f48525] mb-3 uppercase tracking-wide">
                             Event Overview
                         </h3>
                         <div className="space-y-4">
@@ -106,7 +106,7 @@ export default function BookingRequestPage({ params }: { params: { id: string } 
                                         <p className="text-[13px] text-[#8a7460] dark:text-[#c7b8a9]">
                                             Dates
                                         </p>
-                                        <p className="text-sm font-semibold text-[#181411] dark:text-white">
+                                        <p className="text-lg font-semibold text-[#181411] dark:text-white">
                                             Dec 15 - 17
                                         </p>
                                     </div>
@@ -121,7 +121,7 @@ export default function BookingRequestPage({ params }: { params: { id: string } 
                                         <p className="text-[13px] text-[#8a7460] dark:text-[#c7b8a9]">
                                             Travel
                                         </p>
-                                        <p className="text-sm font-semibold text-[#181411] dark:text-white">
+                                        <p className="text-lg font-semibold text-[#181411] dark:text-white">
                                             Self-Drive
                                         </p>
                                     </div>
@@ -137,7 +137,7 @@ export default function BookingRequestPage({ params }: { params: { id: string } 
                                     <p className="text-[13px] text-[#8a7460] dark:text-[#c7b8a9]">
                                         Samagri
                                     </p>
-                                    <p className="text-sm font-semibold text-[#181411] dark:text-white">
+                                    <p className="text-lg font-semibold text-[#181411] dark:text-white">
                                         Premium Package (Full Kit)
                                     </p>
                                 </div>
@@ -148,14 +148,14 @@ export default function BookingRequestPage({ params }: { params: { id: string } 
 
                 {/* Earnings Breakdown */}
                 <div className="px-4 py-4">
-                    <h3 className="text-sm font-bold text-[#181411] dark:text-white mb-3 flex items-center gap-2">
+                    <h3 className="text-lg font-bold text-[#181411] dark:text-white mb-3 flex items-center gap-2">
                         <span className="material-symbols-outlined text-[#f48525]">
                             payments
                         </span>
                         Earnings Breakdown
                     </h3>
                     <div className="space-y-3">
-                        <div className="flex justify-between items-center text-sm">
+                        <div className="flex justify-between items-center text-lg">
                             <span className="text-[#8a7460] dark:text-[#c7b8a9]">
                                 Dakshina (Service Fee)
                             </span>
@@ -163,7 +163,7 @@ export default function BookingRequestPage({ params }: { params: { id: string } 
                                 ₹40,000
                             </span>
                         </div>
-                        <div className="flex justify-between items-center text-sm">
+                        <div className="flex justify-between items-center text-lg">
                             <span className="text-[#8a7460] dark:text-[#c7b8a9]">
                                 Travel Allowance
                             </span>
@@ -171,7 +171,7 @@ export default function BookingRequestPage({ params }: { params: { id: string } 
                                 ₹2,500
                             </span>
                         </div>
-                        <div className="flex justify-between items-center text-sm">
+                        <div className="flex justify-between items-center text-lg">
                             <span className="text-[#8a7460] dark:text-[#c7b8a9]">
                                 Food &amp; Stay Allowance
                             </span>
@@ -179,7 +179,7 @@ export default function BookingRequestPage({ params }: { params: { id: string } 
                                 ₹3,250
                             </span>
                         </div>
-                        <div className="flex justify-between items-center text-sm">
+                        <div className="flex justify-between items-center text-lg">
                             <span className="text-[#8a7460] dark:text-[#c7b8a9]">
                                 Samagri Reimbursement
                             </span>

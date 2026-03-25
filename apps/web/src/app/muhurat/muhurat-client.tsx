@@ -51,7 +51,7 @@ export default function MuhuratClient() {
       <aside className="w-full lg:w-72 flex flex-col gap-6">
         <div className="flex flex-col gap-2 p-2">
           <h1 className="text-2xl font-bold font-serif text-slate-900 dark:text-white">Muhurat Explorer</h1>
-          <p className="text-slate-500 dark:text-slate-400 text-sm">Find auspicious timings for your sacred events.</p>
+          <p className="text-slate-500 dark:text-slate-400 text-lg">Find auspicious timings for your sacred events.</p>
         </div>
 
         <nav className="flex flex-col gap-1">
@@ -78,8 +78,8 @@ export default function MuhuratClient() {
         </nav>
 
         <div className="mt-auto p-4 rounded-2xl bg-gradient-to-br from-[#f29e0d]/20 to-transparent border border-[#f29e0d]/20">
-          <p className="text-xs font-bold text-[#f29e0d] uppercase tracking-widest mb-2">Pro Tip</p>
-          <p className="text-sm text-slate-600 dark:text-slate-300">Golden dates are highly auspicious (Sarvartha Siddhi Yoga).</p>
+          <p className="text-base font-bold text-[#f29e0d] uppercase tracking-widest mb-2">Pro Tip</p>
+          <p className="text-lg text-slate-600 dark:text-slate-300">Golden dates are highly auspicious (Sarvartha Siddhi Yoga).</p>
         </div>
       </aside>
 
@@ -108,15 +108,15 @@ export default function MuhuratClient() {
               </div>
             </div>
             <div className="flex gap-2 bg-slate-100 dark:bg-white/10 p-1 rounded-lg">
-              <button className="px-4 py-1.5 rounded-md text-sm font-medium bg-white dark:bg-[#221b10] shadow-sm text-slate-900 dark:text-white">Month</button>
-              <button className="px-4 py-1.5 rounded-md text-sm font-medium text-slate-500 hover:text-slate-700 dark:hover:text-slate-300">Week</button>
+              <button className="px-4 py-3.5 rounded-md text-lg font-medium bg-white dark:bg-[#221b10] shadow-sm text-slate-900 dark:text-white">Month</button>
+              <button className="px-4 py-3.5 rounded-md text-lg font-medium text-slate-500 hover:text-slate-700 dark:hover:text-slate-300">Week</button>
             </div>
           </div>
 
           {/* Calendar Grid */}
           <div className="grid grid-cols-7 bg-slate-200 dark:bg-white/10 rounded-xl overflow-hidden gap-px border border-slate-200 dark:border-white/10">
             {weekDays.map(day => (
-              <div key={day} className="bg-slate-50 dark:bg-[#221b10]/50 py-3 text-center text-xs font-bold uppercase tracking-wider text-slate-500">
+              <div key={day} className="bg-slate-50 dark:bg-[#221b10]/50 py-3 text-center text-base font-bold uppercase tracking-wider text-slate-500">
                 {day}
               </div>
             ))}
@@ -142,7 +142,7 @@ export default function MuhuratClient() {
                     }`}
                   onClick={() => handleDateSelect(day)}
                 >
-                  <span className={`flex items-center justify-center w-8 h-8 rounded-full font-bold text-sm
+                  <span className={`flex items-center justify-center w-12 h-12 rounded-full font-bold text-lg
                     ${isSelected
                       ? "bg-[#f29e0d] text-[#221b10]"
                       : pujaCount > 0
@@ -154,7 +154,7 @@ export default function MuhuratClient() {
 
                   {pujaCount > 0 && (
                     <div className="mt-2 flex flex-col gap-1">
-                      <div className={`text-[10px] px-1.5 py-0.5 rounded font-bold w-fit
+                      <div className={`text-[10px] px-1.5 py-2 rounded font-bold w-fit
                         ${isSelected
                           ? "bg-[#f29e0d]/30 text-[#221b10] dark:text-[#f29e0d]"
                           : "bg-[#f29e0d]/10 text-[#f29e0d]"
@@ -177,7 +177,7 @@ export default function MuhuratClient() {
             <h3 className="text-xl font-bold font-serif text-slate-900 dark:text-white">
               Puja List for {format(selectedDate, "MMM d")}
             </h3>
-            <span className="text-xs bg-[#f29e0d]/20 text-[#f29e0d] px-2 py-1 rounded-full font-bold uppercase tracking-wider">Auspicious</span>
+            <span className="text-base bg-[#f29e0d]/20 text-[#f29e0d] px-4 py-3 rounded-full font-bold uppercase tracking-wider">Auspicious</span>
           </div>
 
           <div className="space-y-4">
@@ -195,20 +195,20 @@ export default function MuhuratClient() {
                     </div>
                     <div>
                       <p className="font-bold text-lg text-slate-900 dark:text-white">{puja.title}</p>
-                      <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 text-sm">
+                      <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 text-lg">
                         <span className="material-symbols-outlined text-base">schedule</span>
                         <span>{puja.time}</span>
                       </div>
                     </div>
                   </div>
                 </div>
-                <button className="w-full py-2.5 rounded-lg border border-[#f29e0d] text-[#f29e0d] font-bold text-sm hover:bg-[#f29e0d] hover:text-[#221b10] transition-all">
+                <button className="w-full py-2.5 rounded-lg border border-[#f29e0d] text-[#f29e0d] font-bold text-lg hover:bg-[#f29e0d] hover:text-[#221b10] transition-all">
                   Search Pandits
                 </button>
               </div>
             ))}
-            <button className="w-full py-4 bg-slate-100 dark:bg-white/10 rounded-xl text-slate-500 dark:text-slate-400 font-medium text-sm flex items-center justify-center gap-2 hover:bg-slate-200 dark:hover:bg-white/20 transition-colors">
-              View 4 more pujas <span className="material-symbols-outlined text-sm">expand_more</span>
+            <button className="w-full py-4 bg-slate-100 dark:bg-white/10 rounded-xl text-slate-500 dark:text-slate-400 font-medium text-lg flex items-center justify-center gap-2 hover:bg-slate-200 dark:hover:bg-white/20 transition-colors">
+              View 4 more pujas <span className="material-symbols-outlined text-lg">expand_more</span>
             </button>
           </div>
         </div>
@@ -216,8 +216,8 @@ export default function MuhuratClient() {
         <div className="bg-gradient-to-br from-[#f29e0d]/30 to-[#f29e0d]/5 rounded-2xl p-6 border border-[#f29e0d]/20 relative overflow-hidden group">
           <div className="relative z-10">
             <h4 className="text-lg font-bold font-serif mb-2 text-slate-900 dark:text-white">Panchang Insights</h4>
-            <p className="text-sm text-slate-700 dark:text-slate-300 mb-4 leading-relaxed">Today's Tithi: Shukla Paksha Dashami. Nakshatra: Revati.</p>
-            <a className="text-sm font-bold text-[#f29e0d] flex items-center gap-1 hover:gap-2 transition-all" href="#">Detailed View <span className="material-symbols-outlined text-base">arrow_forward</span></a>
+            <p className="text-lg text-slate-700 dark:text-slate-300 mb-4 leading-relaxed">Today's Tithi: Shukla Paksha Dashami. Nakshatra: Revati.</p>
+            <a className="text-lg font-bold text-[#f29e0d] flex items-center gap-1 hover:gap-2 transition-all" href="#">Detailed View <span className="material-symbols-outlined text-base">arrow_forward</span></a>
           </div>
           <span className="material-symbols-outlined absolute -right-4 -bottom-4 text-8xl text-[#f29e0d]/10 rotate-12 group-hover:rotate-0 transition-transform duration-500 select-none">brightness_high</span>
         </div>

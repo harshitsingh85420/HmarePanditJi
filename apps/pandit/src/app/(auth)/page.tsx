@@ -62,14 +62,19 @@ export default function HomePage() {
 
       {/* Top Bar */}
       <header className="sticky top-0 z-50 bg-surface-base">
-        <div className="flex items-center justify-between px-6 py-4">
-          <h1 className="font-serif text-lg font-bold text-saffron tracking-tight flex items-center gap-2">
-            <span className="text-2xl shimmer-text">ॐ</span>
+        <div className="flex items-center justify-between px-6 py-5">
+          <h1 className="font-serif text-[26px] font-bold text-saffron tracking-tight flex items-center gap-3">
+            <span className="text-[40px] shimmer-text">ॐ</span>
             <span className="shimmer-text">HmarePanditJi</span>
-            <span className="text-xl">🪔</span>
+            <span className="text-[32px]">🪔</span>
           </h1>
-          <button className="w-[56px] h-[56px] flex items-center justify-center rounded-full bg-surface-container-lowest shadow-sm text-saffron transition-transform active:scale-90">
-            <span className="material-symbols-outlined">language</span>
+          <button
+            className="min-h-[80px] px-10 flex items-center gap-4 rounded-full bg-surface-container-lowest shadow-sm text-[28px] font-bold text-saffron transition-transform active:scale-90 border-3 border-saffron/40 focus:ring-4 focus:ring-saffron focus:outline-none hover:bg-saffron-lt"
+            aria-label="भाषा बदलें / Change Language"
+          >
+            <span className="font-devanagari">हिन्दी</span>
+            <span className="text-[22px] text-text-secondary font-devanagari">/</span>
+            <span>English</span>
           </button>
         </div>
       </header>
@@ -138,43 +143,43 @@ export default function HomePage() {
             <motion.button
               whileTap={{ scale: 0.98 }}
               onClick={handleCustomerEntry}
-              className="w-full relative overflow-hidden p-8 rounded-3xl bg-indigo-50/60 border border-indigo-100/50 shadow-sm flex flex-col items-center justify-center text-center active:scale-[0.98] transition-all"
+              className="w-full relative overflow-hidden p-8 rounded-3xl bg-indigo-50/60 border border-indigo-100/50 shadow-sm flex flex-col items-center justify-center text-center active:scale-[0.98] transition-all min-h-[280px]"
             >
-              <div className="mb-4 text-5xl">🙏</div>
-              <h2 className="text-2xl font-bold text-indigo-900 font-devanagari mb-2">
+              <div className="mb-4 text-6xl">🙏</div>
+              <h2 className="text-[32px] font-bold text-indigo-900 font-devanagari mb-3">
                 मुझे पंडित चाहिए
               </h2>
-              <p className="text-indigo-700/80 text-sm">Find verified priests for your rituals</p>
+              <p className="text-indigo-700/80 text-[22px] font-devanagari">सत्यापित पंडित पाएं अपनी पूजा के लिए</p>
               <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-indigo-200/20 rounded-full blur-2xl" />
             </motion.button>
           </motion.div>
 
           {/* Card 2: Pandit (Primary Elevated) - Matching homepage_e_01 reference */}
           <motion.div variants={itemVariants}>
-            <motion.button
+            <motion.div
               whileTap={{ scale: 0.98 }}
               onClick={handlePanditEntry}
-              className="w-full relative overflow-hidden p-8 rounded-3xl bg-surface-container-lowest shadow-[0px_8px_24px_rgba(144,77,0,0.08)] flex flex-col items-center justify-center text-center border-l-4 border-saffron active:scale-[0.98] transition-all"
+              className="w-full relative overflow-hidden p-8 rounded-3xl bg-surface-container-lowest shadow-[0px_8px_24px_rgba(144,77,0,0.08)] flex flex-col items-center justify-center text-center border-l-4 border-saffron active:scale-[0.98] transition-all min-h-[320px] cursor-pointer"
             >
               {/* Badge */}
-              <div className="absolute top-4 right-4 bg-trust-green-bg text-trust-green px-3 py-1 rounded-full text-sm font-bold flex items-center gap-1">
-                <span className="w-2 h-2 rounded-full bg-trust-green" />
-                Joining free
+              <div className="absolute top-4 right-4 bg-trust-green-bg text-trust-green px-6 py-4 rounded-full text-[20px] font-bold flex items-center gap-2">
+                <span className="w-3 h-3 rounded-full bg-trust-green" />
+                पूर्णतः निःशुल्क
               </div>
 
-              <div className="mb-4 text-5xl shimmer-text">🪔</div>
-              <h2 className="text-2xl font-bold text-text-primary font-devanagari mb-6">
-                क्या आप एक पंडित हैं?
+              <div className="mb-4 text-6xl shimmer-text">🪔</div>
+              <h2 className="text-[32px] font-bold text-text-primary font-devanagari mb-6">
+                पंडित जी के रूप में जुड़ें 🪔
               </h2>
 
-              <button className="w-full h-14 bg-gradient-to-b from-primary-container to-tertiary-container text-white font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 px-6 active:scale-95 transition-transform">
-                <span className="font-bold text-lg">Pandit Ke Roop Mein Judein 🪔</span>
-              </button>
+              <div className="w-full min-h-[72px] bg-saffron text-white font-bold rounded-2xl shadow-lg flex items-center justify-center gap-3 px-8">
+                <span className="font-bold text-[26px] font-devanagari">अभी पंजीकरण करें 🪔</span>
+              </div>
 
-              <p className="mt-4 text-text-secondary text-sm font-devanagari">
+              <p className="mt-5 text-text-secondary text-[22px] font-devanagari">
                 पंजीकरण में मात्र २ मिनट लगेंगे
               </p>
-            </motion.button>
+            </motion.div>
           </motion.div>
         </motion.div>
 
@@ -185,21 +190,23 @@ export default function HomePage() {
           transition={{ delay: 0.6 }}
           className="mt-12 flex flex-col items-center gap-6"
         >
-          <div className="flex items-center gap-2">
-            <span className="text-text-secondary font-devanagari">पहले से जुड़े हैं?</span>
-            <a className="text-saffron font-bold decoration-saffron/30 underline underline-offset-4 min-h-[56px] min-w-[56px] flex items-center justify-center" href="/login">
-              लॉगिन करें
-            </a>
-          </div>
+          <motion.a
+            href="/login"
+            className="w-full max-w-md min-h-[96px] bg-surface-card border-3 border-saffron/40 rounded-2xl flex flex-col items-center justify-center px-8 py-6 shadow-card active:scale-[0.98] transition-transform hover:bg-saffron-lt"
+            aria-label="पहले से पंजीकृत हैं? लॉगिन करें"
+          >
+            <span className="text-[32px] font-bold text-saffron font-devanagari">पहले से पंजीकृत?</span>
+            <span className="text-[34px] font-bold text-text-primary font-devanagari mt-2">लॉगिन करें →</span>
+          </motion.a>
 
           {/* Help & Support Section */}
-          <div className="flex flex-col items-center bg-surface-muted w-full py-4 rounded-2xl gap-1">
-            <span className="text-lgs text-text-secondary uppercase tracking-widest font-bold">
+          <div className="flex flex-col items-center bg-surface-muted w-full py-10 rounded-2xl gap-4">
+            <span className="text-[24px] text-text-secondary uppercase tracking-widest font-bold">
               Help & Support
             </span>
-            <div className="flex items-center gap-2 text-saffron">
-              <span className="material-symbols-outlined text-lg">support_agent</span>
-              <span className="font-bold text-lg">+91 1800-PANDIT</span>
+            <div className="flex items-center gap-4 text-saffron">
+              <span className="material-symbols-outlined text-[40px]">support_agent</span>
+              <span className="font-bold text-[32px]">+91 1800-PANDIT</span>
             </div>
           </div>
         </motion.footer>
