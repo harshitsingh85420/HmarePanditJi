@@ -12,8 +12,8 @@ export function useSession() {
   const { data } = useRegistrationStore()
 
   // BUG-006 CRITICAL FIX: Use useRef for timers to prevent loss after re-render
-  const idleTimerRef = useRef<NodeJS.Timeout | undefined>(undefined);
-  const warningTimerRef = useRef<NodeJS.Timeout | undefined>(undefined);
+  const idleTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const warningTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   // BUG-SESSION FIX: Proper two-stage timeout with correct timer cleanup
   const resetTimer = useCallback(() => {

@@ -1,121 +1,117 @@
-'use client';
-import React from 'react';
-import { motion } from 'framer-motion';
-import { useSarvamVoiceFlow } from '@/lib/hooks/useSarvamVoiceFlow';
-import { TUTORIAL_DAKSHINA } from '@/lib/voice-scripts';
-import TutorialShell from './TutorialShell';
-import { TUTORIAL_TRANSLATIONS, getTutorialLang } from '@/lib/tutorial-translations';
-import type { SupportedLanguage } from '@/lib/onboarding-store';
+'use client'
 
-interface Props {
-  currentDot: number;
-  onNext: () => void;
-  onBack: () => void;
-  onSkip: () => void;
-  language?: SupportedLanguage;
-  onLanguageChange?: () => void;
+import { useEffect, useState } from 'react'
+import { speak, startListening, stopListening, detectIntent } from '@/lib/voice-engine'
+import TopBar from '@/components/ui/TopBar'
+import ProgressDots from '@/components/ui/ProgressDots'
+import CTAButton from '@/components/ui/CTAButton'
+import SkipButton from '@/components/ui/SkipButton'
+import { SupportedLanguage } from '@/lib/onboarding-store'
+
+interface TutorialDakshinaProps {
+  language: SupportedLanguage
+  onLanguageChange: () => void
+  currentDot: number
+  onNext: () => void
+  onBack: () => void
+  onSkip: () => void
 }
 
-export default function TutorialDakshina({ currentDot, onNext, onBack, onSkip, language = 'Hindi' }: Props) {
-  const lang = getTutorialLang(language);
-  const t = TUTORIAL_TRANSLATIONS[lang].screens.S03;
+export default function TutorialDakshina({
+  onNext,
+  onSkip,
+}: TutorialDakshinaProps) {
+  const [currentLine, setCurrentLine] = useState(0)
 
-  const { isListening } = useSarvamVoiceFlow({
-    language,
-    script: TUTORIAL_DAKSHINA.scripts.main.hindi,
-    autoListen: true,
-    listenTimeoutMs: 12000,
-    repromptScript: 'कृपया आगे बोलें।',
-    repromptTimeoutMs: 12000,
-    initialDelayMs: 500,
-    pauseAfterMs: 1200,
-    onIntent: (intent) => {
-      const lower = typeof intent === 'string' ? intent.toLowerCase() : '';
-      if (
-        lower.includes('aage') || lower.includes('haan') ||
-        lower.includes('ha') || lower.includes('yes') ||
-        lower.includes('agle') || lower.includes('chalein') ||
-        lower.includes('next') || lower.includes('agla') ||
-        lower.includes('forward')
-      ) {
-        onNext();
-      }
-    },
-  });
+  const LINES = [
+    'कितनी बार ऐसा हुआ है कि आपने दो घंटे की पूजा की — और ग्राहक ने कह दिया, भैया, तीन हज़ार नहीं, दो हज़ार ले लो।',
+    'आप कुछ नहीं बोल पाए।',
+    'अब नहीं होगा यह।',
+    'आप खुद दक्षिणा तय करेंगे — platform कभी नहीं बदलेगी।',
+    'ग्राहक को booking से पहले ही पता होता है — कितना देना है।',
+    'मोलभाव खत्म।',
+    'आगे बोलें।',
+  ]
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      playLine(0)
+    }, 500)
+
+    return () => {
+      clearTimeout(timer)
+      stopListening()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const playLine = (index: number) => {
+    if (index >= LINES.length) {
+      startListeningForResponse()
+      return
+    }
+
+    setCurrentLine(index)
+    const pause = index === 1 || index === 5 ? 800 : 300
+    speak(LINES[index], 'hi-IN', () => {
+      setTimeout(() => playLine(index + 1), pause)
+    })
+  }
+
+  const startListeningForResponse = () => {
+    startListening({
+      language: 'hi-IN',
+      onResult: (result) => {
+        const intent = detectIntent(result.transcript)
+        if (intent === 'FORWARD') {
+          handleContinue()
+        } else if (intent === 'SKIP') {
+          onSkip()
+        }
+      },
+      onError: () => { },
+    })
+  }
+
+  const handleContinue = () => {
+    stopListening()
+    speak('बहुत अच्छा।', 'hi-IN', () => {
+      setTimeout(onNext, 1000)
+    })
+  }
 
   return (
-    <TutorialShell currentDot={currentDot} onNext={onNext} onBack={onBack} onSkip={onSkip} isListening={isListening} language={language}>
-      {/* Headline */}
-      <motion.section initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-6 text-center">
-        <h1 className="text-[34px] font-bold leading-tight text-text-primary">{t.title}</h1>
-      </motion.section>
-
-      {/* Illustration */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.05 }}
-        className="flex items-center justify-center gap-2 mb-6"
-      >
-        <span className="text-[40px]">💵🤝</span>
-        <span className="text-[36px] font-bold text-error">✕</span>
-      </motion.div>
-
-      {/* Contrast Cards */}
-      <div className="space-y-2 mb-6">
-        {/* BEFORE Card */}
-        <motion.article
-          initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.1 }}
-          className="bg-error-lt rounded-2xl p-4 border border-red-200 shadow-sm"
-        >
-          <header className="flex items-center gap-2 mb-3">
-            <span className="font-bold text-red-700">{t.before}</span>
-          </header>
-          <div className="flex flex-col gap-2 text-left">
-            <div className="flex items-start gap-2">
-              <span className="text-xl">😒</span>
-              <div className="bg-white px-5 py-3.5 rounded-lg rounded-tl-none shadow-sm text-[16px] border border-red-100">
-                &quot;1,500 में हो जाएगा?&quot;
-              </div>
-            </div>
-            <div className="flex items-start gap-2 self-end flex-row-reverse">
-              <span className="text-xl">😔</span>
-              <div className="bg-white/60 px-5 py-3.5 rounded-lg rounded-tr-none shadow-sm text-[16px] italic border border-red-100">
-                (चुप रह गए...)
-              </div>
-            </div>
+    <div className="min-h-screen flex flex-col bg-vedic-cream">
+      <TopBar showBack={true} onLanguageChange={onSkip} />
+      <ProgressDots total={12} current={3} />
+      <main className="flex-1 px-6 py-8">
+        <h1 className="text-2xl font-bold text-vedic-brown text-center mb-4">
+          तय दक्षिणा
+        </h1>
+        <div className="text-6xl text-center mb-6">💰</div>
+        <div className="bg-error-lt border-2 border-error rounded-xl px-6 py-4 mb-8">
+          <p className="text-error text-center font-bold">
+            ❌ मोलभाव नहीं
+          </p>
+        </div>
+        <div className="bg-success-lt border-2 border-success rounded-xl px-6 py-4 mb-8">
+          <p className="text-success text-center font-bold">
+            ✅ तय दक्षिणा
+          </p>
+        </div>
+        <div className="w-full space-y-4">
+          <CTAButton
+            label="आगे"
+            onClick={handleContinue}
+            variant="primary"
+            height="tall"
+            aria-label="Continue to next tutorial screen"
+          />
+          <div className="flex justify-center">
+            <SkipButton label="Skip करें →" onClick={onSkip} />
           </div>
-        </motion.article>
-
-        {/* Arrow connector */}
-        <div className="text-center text-[20px] text-saffron">↓</div>
-
-        {/* AFTER Card */}
-        <motion.article
-          initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.25 }}
-          className="bg-success-lt rounded-2xl p-4 border border-green-200 shadow-sm"
-        >
-          <header className="flex items-center gap-2 mb-3">
-            <span className="font-bold text-green-700">{t.after}</span>
-          </header>
-          <div className="bg-white rounded-xl p-3 text-left border border-green-200 shadow-sm">
-            <div className="flex justify-between items-center mb-1">
-              <span className="font-bold text-text-primary text-[18px]">सत्यनारायण पूजा</span>
-            </div>
-            <div className="text-success font-bold text-[24px]">आपकी दक्षिणा: ₹2,100</div>
-            <div className="text-[16px] text-saffron">(पहले से तय)</div>
-          </div>
-          <footer className="mt-2 text-[16px] font-medium text-green-800 text-left">
-            ग्राहक को Booking से पहले ही पता है।
-          </footer>
-        </motion.article>
-      </div>
-
-      {/* Trust Message */}
-      <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="text-center">
-        <p className="text-saffron leading-relaxed">
-          आप दक्षिणा खुद तय करते हैं।<br />
-          <span className="font-bold text-text-primary">Platform कभी नहीं बदलेगी।</span>
-        </p>
-      </motion.section>
-    </TutorialShell>
-  );
+        </div>
+      </main>
+    </div>
+  )
 }

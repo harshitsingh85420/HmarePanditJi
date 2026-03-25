@@ -4,9 +4,11 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { speakWithSarvam } from '@/lib/sarvam-tts'
+import { useVoiceStore } from '@/stores/voiceStore'
 
 export default function MicDeniedRecovery() {
   const router = useRouter()
+  const { switchToKeyboard } = useVoiceStore()
   const [micEnabled, setMicEnabled] = useState(false)
 
   useEffect(() => {
@@ -48,7 +50,9 @@ export default function MicDeniedRecovery() {
   }
 
   const handleContinueWithoutVoice = () => {
-    router.push('/onboarding/permissions/location')
+    // ISSUE 6 FIX: Enable keyboard mode before continuing
+    switchToKeyboard()
+    router.push('/permissions/location')
   }
 
   return (
@@ -78,10 +82,30 @@ export default function MicDeniedRecovery() {
           यह ऐप आपकी आवाज़ से चलता है
         </p>
 
+        {/* ISSUE 6 FIX: Keyboard fallback info card */}
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          className="bg-surface-card rounded-card shadow-card p-6 mb-8"
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <span className="text-4xl">⌨️</span>
+            <div>
+              <h2 className="text-lg font-bold text-text-primary mb-1">
+                कोई बात नहीं
+              </h2>
+              <p className="text-text-secondary text-base">
+                आवाज़ नहीं? कोई बात नहीं। Keyboard भी है।
+              </p>
+            </div>
+          </div>
+        </motion.div>
+
         {/* Info Card */}
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.1 }}
           className="bg-warning-amber-bg border-2 border-warning-amber rounded-card p-6 mb-8"
         >
           <div className="flex items-start gap-3 mb-4">
@@ -131,11 +155,13 @@ export default function MicDeniedRecovery() {
             फिर से कोशिश करें
           </button>
 
+          {/* ISSUE 6 FIX: Prominent keyboard fallback button */}
           <button
             onClick={handleContinueWithoutVoice}
-            className="w-full min-h-[56px] text-text-secondary font-medium underline-offset-2 active:opacity-70 focus:ring-2 focus:ring-primary focus:outline-none"
+            className="w-full min-h-[72px] bg-white border-2 border-saffron text-saffron font-bold text-[18px] rounded-xl flex items-center justify-center gap-3 active:bg-saffron/10 focus:ring-2 focus:ring-primary focus:outline-none"
           >
-            बिना आवाज़ के जारी रखें
+            <span className="text-3xl">⌨️</span>
+            <span>Keyboard इस्तेमाल करें</span>
           </button>
         </div>
       </div>

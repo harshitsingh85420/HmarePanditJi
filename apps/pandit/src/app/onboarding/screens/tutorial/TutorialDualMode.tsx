@@ -1,116 +1,121 @@
-'use client';
+'use client'
 
-import React from 'react';
-import { motion } from 'framer-motion';
-import { useSarvamVoiceFlow } from '@/lib/hooks/useSarvamVoiceFlow';
-import { TUTORIAL_DUAL_MODE } from '@/lib/voice-scripts';
-import TutorialShell from './TutorialShell';
-import { TutorialScreenProps } from './types';
-import { TUTORIAL_TRANSLATIONS, getTutorialLang } from '@/lib/tutorial-translations';
-import type { SupportedLanguage } from '@/lib/onboarding-store';
+import { useEffect, useState } from 'react'
+import { speak, startListening, stopListening, detectIntent } from '@/lib/voice-engine'
+import TopBar from '@/components/ui/TopBar'
+import ProgressDots from '@/components/ui/ProgressDots'
+import CTAButton from '@/components/ui/CTAButton'
+import SkipButton from '@/components/ui/SkipButton'
+import { SupportedLanguage } from '@/lib/onboarding-store'
+
+interface TutorialDualModeProps {
+  language: SupportedLanguage
+  onLanguageChange: () => void
+  currentDot: number
+  onNext: () => void
+  onBack: () => void
+  onSkip: () => void
+}
 
 export default function TutorialDualMode({
-  currentDot,
   onNext,
-  onBack,
   onSkip,
-  language = 'Hindi',
-}: TutorialScreenProps) {
-  const lang = getTutorialLang(language);
-  const t = TUTORIAL_TRANSLATIONS[lang].screens.S08;
+}: TutorialDualModeProps) {
+  const [currentLine, setCurrentLine] = useState(0)
 
-  const { isListening } = useSarvamVoiceFlow({
-    language,
-    script: TUTORIAL_DUAL_MODE.scripts.main.hindi,
-    autoListen: true,
-    listenTimeoutMs: 12000,
-    repromptScript: 'कृपया आगे बोलें।',
-    repromptTimeoutMs: 12000,
-    initialDelayMs: 400,
-    pauseAfterMs: 1000,
-    onIntent: (intent) => {
-      if (intent === 'FORWARD' || intent === 'YES') onNext();
-      else if (intent === 'BACK') onBack();
-      else if (intent === 'SKIP') onSkip();
-    },
-  });
+  const LINES = [
+    'चाहे आपके पास smartphone हो या keypad phone — दोनों से काम चलेगा।',
+    'Smartphone वाले को app में सब कुछ मिलेगा — video call, chat, alerts।',
+    'Keypad phone वाले के पास नई booking आने पर call आएगी — number दबाओ, booking accept करो।',
+    'और अगर registration में बेटा या परिवार मदद करे — कोई बात नहीं।',
+    'पूजा आपको मिलेगी। पैसे आपके खाते में।',
+    'आगे बोलें।',
+  ]
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      playLine(0)
+    }, 400)
+
+    return () => {
+      clearTimeout(timer)
+      stopListening()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const playLine = (index: number) => {
+    if (index >= LINES.length) {
+      startListeningForResponse()
+      return
+    }
+
+    setCurrentLine(index)
+    speak(LINES[index], 'hi-IN', () => {
+      setTimeout(() => playLine(index + 1), 300)
+    })
+  }
+
+  const startListeningForResponse = () => {
+    startListening({
+      language: 'hi-IN',
+      onResult: (result) => {
+        const intent = detectIntent(result.transcript)
+        if (intent === 'FORWARD') {
+          handleContinue()
+        } else if (intent === 'SKIP') {
+          onSkip()
+        }
+      },
+      onError: () => { },
+    })
+  }
+
+  const handleContinue = () => {
+    stopListening()
+    speak('बहुत अच्छा।', 'hi-IN', () => {
+      setTimeout(onNext, 1000)
+    })
+  }
 
   return (
-    <TutorialShell
-      currentDot={currentDot}
-      onNext={onNext}
-      onBack={onBack}
-      onSkip={onSkip}
-      isListening={isListening}
-      showKeyboardToggle
-      onKeyboardToggle={() => { }}
-      language={language}
-    >
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-center space-y-1 mb-6"
-      >
-        <h1 className="text-[28px] font-bold text-text-primary leading-tight">{t.title}</h1>
-        <h1 className="text-[28px] font-bold text-primary leading-tight">{t.subtitle}</h1>
-      </motion.div>
-
-      <div className="grid grid-cols-2 gap-3 mb-5">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="p-5 rounded-xl border-2 border-primary bg-primary/10 shadow-cta"
-        >
-          <div className="text-[36px] text-center mb-2">📱</div>
-          <p className="text-[18px] font-bold text-text-primary text-center mb-3">Smartphone</p>
-          <ul className="space-y-2">
-            {['Video Call', 'Chat', 'Voice Alerts', 'Maps'].map((feature) => (
-              <li key={feature} className="flex items-center gap-2 text-[16px] text-text-primary">
-                <span className="text-primary font-bold text-[18px]">✓</span> {feature}
-              </li>
-            ))}
-          </ul>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="p-5 rounded-xl border border-border-default bg-white shadow-card"
-        >
-          <div className="text-[36px] text-center mb-2">📟</div>
-          <p className="text-[18px] font-bold text-saffron text-center mb-3">Keypad Phone</p>
-          <ul className="space-y-2">
-            {[
-              { label: 'Call आएगी', italic: false },
-              { label: '1 = हाँ', italic: false },
-              { label: '2 = ना', italic: false },
-              { label: 'बस!', italic: true },
-            ].map(({ label, italic }) => (
-              <li
-                key={label}
-                className={`flex items-center gap-2 text-[16px] text-text-primary ${italic ? 'italic text-[16px]' : ''}`}
-              >
-                <span className="text-saffron font-bold text-[18px]">✓</span> {label}
-              </li>
-            ))}
-          </ul>
-        </motion.div>
-      </div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="bg-primary-lt border-2 border-dashed border-primary rounded-card p-5 min-h-[148px] flex items-start gap-4"
-      >
-        <span className="text-[36px] shrink-0">👨‍👩‍👦</span>
-        <div>
-          <p className="text-[20px] font-bold text-text-primary leading-snug">{t.family}</p>
-          <p className="text-[16px] text-text-primary-2 mt-1">पूजा आपको मिलेगी, पैसे आपके खाते में।</p>
+    <div className="min-h-screen flex flex-col bg-vedic-cream">
+      <TopBar showBack={true} onLanguageChange={onSkip} />
+      <ProgressDots total={12} current={8} />
+      <main className="flex-1 px-6 py-8">
+        <h1 className="text-2xl font-bold text-vedic-brown text-center mb-4">
+          Dual Mode
+        </h1>
+        <div className="grid grid-cols-2 gap-4 mb-8">
+          <div className="bg-white border-2 border-vedic-border rounded-xl p-4 text-center">
+            <div className="text-4xl mb-2">📱</div>
+            <p className="font-bold text-vedic-brown mb-2">Smartphone</p>
+            <p className="text-vedic-gold text-sm">Full app features</p>
+          </div>
+          <div className="bg-white border-2 border-vedic-border rounded-xl p-4 text-center">
+            <div className="text-4xl mb-2">📞</div>
+            <p className="font-bold text-vedic-brown mb-2">Keypad Phone</p>
+            <p className="text-vedic-gold text-sm">Call-based booking</p>
+          </div>
         </div>
-      </motion.div>
-    </TutorialShell>
-  );
+        <div className="bg-primary-lt border-2 border-primary rounded-xl px-6 py-4 mb-8">
+          <p className="text-vedic-brown text-center">
+            👨‍👩‍👦 परिवार मदद करे — कोई बात नहीं
+          </p>
+        </div>
+        <div className="w-full space-y-4">
+          <CTAButton
+            label="आगे"
+            onClick={handleContinue}
+            variant="primary"
+            height="tall"
+            aria-label="Continue to next tutorial screen"
+          />
+          <div className="flex justify-center">
+            <SkipButton label="Skip करें →" onClick={onSkip} />
+          </div>
+        </div>
+      </main>
+    </div>
+  )
 }

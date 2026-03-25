@@ -1,481 +1,155 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&family=Public+Sans:wght@300;400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  :root {
-    --font-devanagari: 'Noto Sans Devanagari', sans-serif;
-    --font-serif: 'Noto Serif', serif;
-    --font-body: 'Public Sans', sans-serif;
-    --font-label: 'Noto Sans Devanagari', sans-serif;
-    --font-headline: 'Noto Serif', serif;
-  }
-
-  html {
-    font-family: var(--font-body);
-    background-color: #FBF9F3;
-    color: #1B1C19;
-    -webkit-tap-highlight-color: transparent;
-    -webkit-text-size-adjust: 100%;
-  }
-
-  body {
-    min-height: 100dvh;
-    overflow-x: hidden;
-  }
-
-  * {
-    box-sizing: border-box;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
-
-  button,
-  a {
-    -webkit-user-select: none;
-    user-select: none;
-  }
-
-  html {
-    scroll-behavior: smooth;
-  }
-
-  /* UI-016 FIX: Larger touch targets for wet hand reliability - ENFORCED 56px minimum */
-  @media (pointer: coarse) {
-
-    button,
-    a,
-    [role="button"],
-    input[type="button"],
-    input[type="submit"],
-    input[type="checkbox"],
-    input[type="radio"],
-    select,
-    option {
-      min-height: 56px;
-      min-width: 56px;
-      padding: 14px 18px;
-      touch-action: manipulation;
-    }
-
-    /* Extra large touch targets for primary CTAs */
-    button[type="submit"],
-    button[aria-label*="लॉगिन"],
-    button[aria-label*="जुड़ें"],
-    .primary-action {
-      min-height: 64px;
-      min-width: 64px;
-      padding: 16px 24px;
-    }
-  }
-
-  /* ALWAYS enforce 56px minimum touch targets for elderly users (not just coarse pointer) */
-  button,
-  a,
-  [role="button"],
-  input[type="button"],
-  input[type="submit"] {
-    min-height: 56px;
-    min-width: 56px;
-  }
-
-  /* ELDERLY ACCESSIBILITY: Force minimum 16px font sizes - override text-xs and text-sm */
-  .text-xs,
-  .text-sm {
-    font-size: 18px !important;
-  }
-
-  /* Enforce minimum 16px on all text elements for elderly readability */
-  p,
-  span,
-  label,
-  div,
-  li,
-  td,
-  th {
-    font-size: min(16px, 1rem);
-  }
-
-  /* Exceptions for already-sized elements */
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6,
-  .text-hero,
-  .text-title,
-  .text-body,
-  .text-body-sm {
-    font-size: inherit;
-  }
+/* ─────── Prevent iOS text size adjustment ─────── */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
-@layer components {
-
-  /* Material Symbols configuration */
-  .material-symbols-outlined {
-    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-    font-family: 'Material Symbols Outlined';
-    display: inline-block;
-    line-height: 1;
-    text-transform: none;
-    letter-spacing: normal;
-    word-wrap: normal;
-    white-space: nowrap;
-  }
-
-  .material-symbols-outlined.filled {
-    font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-  }
-
-  /* Utility class for filled material icons - replaces inline style */
-  .material-symbols-filled {
-    font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-  }
-
-  /* Animation delay utilities for voice bars */
-  .delay-100 {
-    animation-delay: 0.1s;
-  }
-
-  .delay-150 {
-    animation-delay: 0.15s;
-  }
-
-  .delay-200 {
-    animation-delay: 0.2s;
-  }
-
-  .delay-300 {
-    animation-delay: 0.3s;
-  }
-
-  .delay-400 {
-    animation-delay: 0.4s;
-  }
-
-  .delay-500 {
-    animation-delay: 0.5s;
-  }
-
-  .delay-600 {
-    animation-delay: 0.6s;
-  }
-
-  /* Devanagari text utility */
-  .text-devanagari {
-    font-family: var(--font-devanagari);
-  }
-
-  /* Saffron glow effect */
-  .saffron-glow {
-    box-shadow: 0 0 40px rgba(255, 140, 0, 0.15);
-  }
-
-  /* Sacred gradient background */
-  .bg-sacred {
-    background: radial-gradient(circle at top right, rgba(255, 140, 0, 0.12) 0%, rgba(255, 253, 247, 0) 55%);
-  }
-
-  /* Diya halo effect */
-  .diya-halo {
-    background: radial-gradient(circle, rgba(255, 140, 0, 0.15) 0%, rgba(255, 253, 247, 0) 70%);
-  }
-
-  /* Waveform bars */
-  .waveform-bar {
-    width: 8px;
-    border-radius: 4px;
-    background: linear-gradient(to top, #904D00, #FF8C00);
-    animation: waveform 1.2s ease-in-out infinite alternate;
-  }
-
-  .waveform-bar:nth-child(2) {
-    animation-delay: 0.2s;
-  }
-
-  .waveform-bar:nth-child(3) {
-    animation-delay: 0.4s;
-  }
-
-  .waveform-bar:nth-child(4) {
-    animation-delay: 0.6s;
-  }
-
-  .waveform-bar:nth-child(5) {
-    animation-delay: 0.8s;
-  }
-
-  /* Celebration background */
-  .celebration-bg {
-    background: radial-gradient(circle, rgba(255, 140, 0, 0.08) 0%, rgba(255, 255, 255, 1) 70%);
-  }
-
-  /* Glow ring */
-  .glow-ring {
-    box-shadow: 0 0 20px 4px rgba(255, 140, 0, 0.3);
-  }
-
-  /* Safe area padding */
-  .pb-safe {
-    padding-bottom: env(safe-area-inset-bottom, 16px);
-  }
-
-  .pt-safe {
-    padding-top: env(safe-area-inset-top, 0px);
-  }
-
-  /* Voice bar animations - UI-003 FIX: Slower, more calming animation for elderly users */
-  .voice-bar {
-    width: 6px;
-    background-color: #FF8C00;
-    border-radius: 3px;
-    animation: voice-bar 1.8s ease-in-out infinite;
-  }
-
-  .voice-bar:nth-child(2) {
-    animation-delay: 0.3s;
-  }
-
-  .voice-bar:nth-child(3) {
-    animation-delay: 0.6s;
-  }
-
-  @keyframes voice-bar {
-
-    0%,
-    100% {
-      height: 8px;
-    }
-
-    50% {
-      height: 24px;
-    }
-  }
+/* ─────── Remove iOS tap highlight ─────── */
+* {
+  -webkit-tap-highlight-color: transparent;
 }
 
-@keyframes waveform {
-  0% {
-    transform: scaleY(0.3);
-  }
+/* ─────── Prevent scrollbar from causing layout shift ─────── */
+body {
+  overflow-x: hidden;
+  background-color: #FFFBF5;
+}
 
+/* ─────── Custom scrollbar (subtle) ─────── */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #F0E6D3;
+  border-radius: 2px;
+}
+
+/* ─────── Hide scrollbar for horizontal scroll chips ─────── */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ─────── Screen timeout override for Part 0 screens ─────── */
+/* Applied via JS wakeLock API — CSS placeholder only */
+.screen-always-on {
+  touch-action: manipulation;
+}
+
+/* ─────── Voice bar animations ─────── */
+.voice-bar {
+  width: 6px;
+  background-color: #F09942;
+  border-radius: 3px;
+  animation: voice-bar 1.2s ease-in-out infinite;
+}
+
+.voice-bar:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.voice-bar:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes voice-bar {
+
+  0%,
   100% {
-    transform: scaleY(1);
+    height: 8px;
+  }
+
+  50% {
+    height: 24px;
   }
 }
 
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-
-  100% {
-    transform: rotate(360deg);
-  }
+/* ─────── Saffron gradient splash ─────── */
+.splash-gradient {
+  background: linear-gradient(180deg, #F09942 0%, #F5C07A 50%, #FFFBF5 100%);
 }
 
-/* Shimmer text animation - subtle glow sweep on religious icons */
-@keyframes shimmer {
-  0% {
-    background-position: -1000px 0;
-  }
-
-  100% {
-    background-position: 1000px 0;
-  }
-}
-
+/* ─────── Shimmer text (for OM/Script icon) ─────── */
 .shimmer-text {
-  background: linear-gradient(90deg,
-      rgba(255, 140, 0, 0) 0%,
-      rgba(255, 140, 0, 0.3) 50%,
-      rgba(255, 140, 0, 0) 100%);
-  background-size: 1000px 100%;
-  animation: shimmer 3s ease-in-out infinite;
+  background: linear-gradient(90deg, #F09942 25%, #FFD7A8 50%, #F09942 75%);
+  background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  animation: shimmer 2s linear infinite;
 }
 
-/* SOS pulse animation */
-@keyframes sos-pulse {
+@keyframes shimmer {
   0% {
-    transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(255, 140, 0, 0.7);
-  }
-
-  70% {
-    transform: scale(1);
-    box-shadow: 0 0 0 20px rgba(255, 140, 0, 0);
+    background-position: -200% 0;
   }
 
   100% {
-    transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(255, 140, 0, 0);
+    background-position: 200% 0;
   }
 }
 
-.sos-pulse {
-  animation: sos-pulse 2s infinite;
+/* ─────── Diya halo effect ─────── */
+.diya-halo {
+  background: radial-gradient(circle, rgba(255, 140, 0, 0.15) 0%, rgba(255, 253, 247, 0) 70%);
 }
 
-/* Enhanced saffron-glow for active voice states */
-.saffron-glow-active {
-  box-shadow: 0 0 60px rgba(255, 140, 0, 0.25), 0 0 20px rgba(255, 140, 0, 0.15);
-  animation: glow-pulse 2s ease-in-out infinite;
+/* ─────── Celebration background ─────── */
+.celebration-bg {
+  background: radial-gradient(circle, rgba(255, 140, 0, 0.08) 0%, rgba(255, 255, 255, 1) 70%);
 }
 
-@keyframes glow-pulse {
-
-  0%,
-  100% {
-    box-shadow: 0 0 40px rgba(255, 140, 0, 0.15);
-  }
-
-  50% {
-    box-shadow: 0 0 60px rgba(255, 140, 0, 0.25), 0 0 20px rgba(255, 140, 0, 0.15);
-  }
+/* ─────── Glow ring ─────── */
+.glow-ring {
+  box-shadow: 0 0 20px 4px rgba(255, 140, 0, 0.3);
 }
 
-/* Splash gradient for onboarding */
-.splash-gradient {
-  background: radial-gradient(circle at top right, rgba(255, 140, 0, 0.15) 0%, rgba(255, 253, 247, 0) 60%),
-    radial-gradient(circle at bottom left, rgba(255, 140, 0, 0.08) 0%, rgba(255, 253, 247, 0) 50%);
+/* ─────── SVG animation helpers ─────── */
+.draw-circle {
+  stroke-dasharray: 252;
+  stroke-dashoffset: 252;
+  animation: draw-circle 0.8s ease-out forwards;
 }
 
-/* Radial gradient utility */
-.bg-gradient-radial {
-  background: radial-gradient(circle, var(--tw-gradient-stops));
+.draw-check {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: draw-check 0.5s ease-out 0.8s forwards;
 }
 
-/* Animation utilities for tutorial screens */
-@keyframes scale-spring {
-  0% {
-    transform: scale(0.8);
-    opacity: 0;
-  }
-
-  50% {
-    transform: scale(1.05);
-  }
-
-  100% {
-    transform: scale(1);
-    opacity: 1;
+@keyframes draw-circle {
+  to {
+    stroke-dashoffset: 0;
   }
 }
 
-.animate-scale-spring {
-  animation: scale-spring 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-}
-
-@keyframes pin-drop {
-  0% {
-    transform: translateY(-20px) scale(1.2);
-    opacity: 0;
-  }
-
-  50% {
-    transform: translateY(0) scale(1);
-    opacity: 1;
-  }
-
-  70% {
-    transform: scale(1.1);
-    opacity: 1;
-  }
-
-  100% {
-    transform: scale(1);
-    opacity: 1;
+@keyframes draw-check {
+  to {
+    stroke-dashoffset: 0;
   }
 }
 
-.animate-pin-drop {
-  animation: pin-drop 0.6s ease-out forwards;
+/* ─────── Accordion animation ─────── */
+.accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
 }
 
-@keyframes gentle-float {
-
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
-.animate-gentle-float {
-  animation: gentle-float 4s ease-in-out infinite;
-}
-
-.animate-glow {
-  animation: pulse-glow 3s ease-in-out infinite;
-}
-
-@keyframes pulse-glow {
-
-  0%,
-  100% {
-    opacity: 0.6;
-    transform: scale(1);
-  }
-
-  50% {
-    opacity: 1;
-    transform: scale(1.1);
-  }
-}
-
-/* Glow pulse animation for premium cards */
-@keyframes glow-pulse-slow {
-
-  0%,
-  100% {
-    box-shadow: 0 0 20px rgba(255, 140, 0, 0.1);
-  }
-
-  50% {
-    box-shadow: 0 0 30px rgba(255, 140, 0, 0.2);
-  }
-}
-
-.animate-glow-pulse {
-  animation: glow-pulse-slow 3s ease-in-out infinite;
-}
-
-/* Accessibility: Reduced motion support */
-@media (prefers-reduced-motion: reduce) {
-
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-
-  /* Keep essential animations for voice states */
-  .saffron-glow-active,
-  .sos-pulse {
-    animation: none !important;
-    box-shadow: 0 0 20px rgba(255, 140, 0, 0.15);
-  }
-
-  /* Keep shimmer but make it static */
-  .shimmer-text {
-    background: linear-gradient(90deg,
-        rgba(255, 140, 0, 0) 0%,
-        rgba(255, 140, 0, 0.3) 50%,
-        rgba(255, 140, 0, 0) 100%);
-    background-size: 1000px 100%;
-    animation: none !important;
-  }
+.accordion-content.open {
+  max-height: 200px;
 }

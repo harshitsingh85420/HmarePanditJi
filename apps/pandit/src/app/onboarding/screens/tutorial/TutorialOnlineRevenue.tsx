@@ -1,99 +1,122 @@
-'use client';
-import React from 'react';
-import { motion } from 'framer-motion';
-import { useSarvamVoiceFlow } from '@/lib/hooks/useSarvamVoiceFlow';
-import { TUTORIAL_ONLINE_REVENUE } from '@/lib/voice-scripts';
-import TutorialShell from './TutorialShell';
-import { TUTORIAL_TRANSLATIONS, getTutorialLang } from '@/lib/tutorial-translations';
-import type { SupportedLanguage } from '@/lib/onboarding-store';
+'use client'
 
-interface Props { currentDot: number; onNext: () => void; onBack: () => void; onSkip: () => void; language?: SupportedLanguage; onLanguageChange?: () => void; }
+import { useEffect, useState } from 'react'
+import { speak, startListening, stopListening, detectIntent } from '@/lib/voice-engine'
+import TopBar from '@/components/ui/TopBar'
+import ProgressDots from '@/components/ui/ProgressDots'
+import CTAButton from '@/components/ui/CTAButton'
+import SkipButton from '@/components/ui/SkipButton'
+import { SupportedLanguage } from '@/lib/onboarding-store'
 
-export default function TutorialOnlineRevenue({ currentDot, onNext, onBack, onSkip, language = 'Hindi' }: Props) {
-  const lang = getTutorialLang(language);
-  const t = TUTORIAL_TRANSLATIONS[lang].screens.S04;
+interface TutorialOnlineRevenueProps {
+  language: SupportedLanguage
+  onLanguageChange: () => void
+  currentDot: number
+  onNext: () => void
+  onBack: () => void
+  onSkip: () => void
+}
 
-  const { isListening } = useSarvamVoiceFlow({
-    language,
-    script: TUTORIAL_ONLINE_REVENUE.scripts.main.hindi,
-    autoListen: true,
-    listenTimeoutMs: 12000,
-    repromptScript: 'कृपया आगे बोलें।',
-    repromptTimeoutMs: 12000,
-    initialDelayMs: 400,
-    pauseAfterMs: 1000,
-    onIntent: (intent) => {
-      const lower = typeof intent === 'string' ? intent.toLowerCase() : '';
-      if (lower.includes('aage') || lower.includes('haan') || lower.includes('forward')) {
-        onNext();
-      }
-    },
-  });
+export default function TutorialOnlineRevenue({
+  onNext,
+  onSkip,
+}: TutorialOnlineRevenueProps) {
+  const [currentLine, setCurrentLine] = useState(0)
+
+  const LINES = [
+    'दो बिल्कुल नए तरीके हैं — जो आप शायद अभी तक नहीं जानते।',
+    'पहला — घर बैठे पूजा। Video call से पूजा कराइए। दुनिया भर के ग्राहक मिलेंगे — NRI भी।',
+    'एक पूजा में दो हज़ार से पाँच हज़ार रुपये।',
+    'दूसरा — पंडित से बात। Phone, video, या chat पर धार्मिक सलाह दीजिए।',
+    'बीस रुपये से पचास रुपये प्रति मिनट।',
+    'उदाहरण के तौर पर — बीस मिनट की एक call में आठ सौ रुपये सीधे आपको।',
+    'दोनों मिलाकर — चालीस हज़ार रुपये अलग से हर महीने।',
+    'आगे बोलें।',
+  ]
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      playLine(0)
+    }, 400)
+
+    return () => {
+      clearTimeout(timer)
+      stopListening()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const playLine = (index: number) => {
+    if (index >= LINES.length) {
+      startListeningForResponse()
+      return
+    }
+
+    setCurrentLine(index)
+    speak(LINES[index], 'hi-IN', () => {
+      setTimeout(() => playLine(index + 1), 300)
+    })
+  }
+
+  const startListeningForResponse = () => {
+    startListening({
+      language: 'hi-IN',
+      onResult: (result) => {
+        const intent = detectIntent(result.transcript)
+        if (intent === 'FORWARD') {
+          handleContinue()
+        } else if (intent === 'SKIP') {
+          onSkip()
+        }
+      },
+      onError: () => { },
+    })
+  }
+
+  const handleContinue = () => {
+    stopListening()
+    speak('बहुत अच्छा।', 'hi-IN', () => {
+      setTimeout(onNext, 1000)
+    })
+  }
 
   return (
-    <TutorialShell currentDot={currentDot} onNext={onNext} onBack={onBack} onSkip={onSkip} isListening={isListening}>
-      {/* Title */}
-      <div className="text-center mb-6">
-        <h1 className="text-[30px] font-bold text-text-primary leading-tight">{t.title}</h1>
-        <p className="text-[18px] italic text-saffron mt-1">{t.subtitle}</p>
-      </div>
-
-      {/* Feature Cards */}
-      <div className="space-y-5">
-        {/* Card 1: Ghar Baithe Pooja */}
-        <motion.div
-          initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.1 }}
-          className="bg-primary-lt border-2 border-primary rounded-card p-6 shadow-sm"
-        >
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-[64px] h-[64px] bg-white rounded-2xl flex items-center justify-center shadow-sm animate-gentle-float shrink-0">
-              <span className="text-[28px]">📹</span>
+    <div className="min-h-screen flex flex-col bg-vedic-cream">
+      <TopBar showBack={true} onLanguageChange={onSkip} />
+      <ProgressDots total={12} current={4} />
+      <main className="flex-1 px-6 py-8">
+        <h1 className="text-2xl font-bold text-vedic-brown text-center mb-4">
+          ऑनलाइन कमाई
+        </h1>
+        <div className="grid grid-cols-1 gap-4 mb-8">
+          <div className="bg-white border-2 border-vedic-border rounded-xl p-4">
+            <div className="flex items-center gap-3 mb-2">
+              <span className="text-3xl">📱</span>
+              <p className="font-bold text-vedic-brown">घर बैठे पूजा</p>
             </div>
-            <h3 className="font-bold text-text-primary text-[22px]">घर बैठे पूजा</h3>
+            <p className="text-vedic-gold text-sm">₹2,000 - ₹5,000 per pooja</p>
           </div>
-          <p className="text-[17px] text-text-primary-2 mb-4 leading-snug">
-            Video call से पूजा कराएं। दुनिया भर के ग्राहक मिलेंगे — NRI भी।
-          </p>
-          <div className="inline-flex items-center px-5 py-3 bg-white border border-success rounded-full">
-            <span className="text-success font-bold text-[18px]">₹2,000 – ₹5,000 <span className="text-[16px] font-normal text-saffron">प्रति पूजा</span></span>
-          </div>
-        </motion.div>
-
-        {/* Card 2: Pandit Se Baat */}
-        <motion.div
-          initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.25 }}
-          className="bg-white border border-border-default rounded-card p-6 shadow-card"
-        >
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-[64px] h-[64px] bg-primary-lt rounded-2xl flex items-center justify-center shadow-sm shrink-0">
-              <span className="text-[28px]">🎓</span>
+          <div className="bg-white border-2 border-vedic-border rounded-xl p-4">
+            <div className="flex items-center gap-3 mb-2">
+              <span className="text-3xl">💬</span>
+              <p className="font-bold text-vedic-brown">पंडित से बात</p>
             </div>
-            <h3 className="font-bold text-text-primary text-[22px]">पंडित से बात</h3>
+            <p className="text-vedic-gold text-sm">₹20 - ₹50 per minute</p>
           </div>
-          <p className="text-[17px] text-text-primary-2 mb-4 leading-snug">
-            Phone / Video / Chat पर सलाह दें। आपका ज्ञान अब बिकेगा।
-          </p>
-          <div className="inline-flex items-center px-5 py-3 bg-success-lt border border-success/30 rounded-full mb-4">
-            <span className="text-success font-medium text-[16px]">₹20 – ₹50 प्रति मिनट</span>
+        </div>
+        <div className="w-full space-y-4">
+          <CTAButton
+            label="आगे"
+            onClick={handleContinue}
+            variant="primary"
+            height="tall"
+            aria-label="Continue to next tutorial screen"
+          />
+          <div className="flex justify-center">
+            <SkipButton label="Skip करें →" onClick={onSkip} />
           </div>
-          {/* Worked example — key line */}
-          <div className="bg-primary-lt rounded-xl px-5 py-3 border border-primary/20">
-            <p className="text-[18px] font-bold text-primary">उदाहरण: 20 मिनट = ₹800 आपको</p>
-          </div>
-        </motion.div>
-
-        {/* Summary Strip */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
-          className="flex justify-center"
-        >
-          <div className="bg-primary/10 border border-primary border-dashed px-6 py-4 rounded-xl w-full text-center">
-            <p className="text-text-primary font-semibold text-[18px]">
-              दोनों मिलाकर <span className="text-primary text-[24px] font-bold">₹40,000+</span> अलग से हर महीने
-            </p>
-          </div>
-        </motion.div>
-      </div>
-    </TutorialShell>
-  );
+        </div>
+      </main>
+    </div>
+  )
 }

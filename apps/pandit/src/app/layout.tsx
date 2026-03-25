@@ -1,10 +1,17 @@
 import type { Metadata, Viewport } from 'next'
+import { Hind } from 'next/font/google'
 import './globals.css'
-import ClientProviders from '@/components/ClientProviders'
+
+const hind = Hind({
+  subsets: ['latin', 'devanagari'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-hind',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
-  title: 'HmarePanditJi — Pandit Partner',
-  description: 'Join HmarePanditJi as a verified Pandit partner',
+  title: 'HmarePanditJi — Pandit App',
+  description: 'App Pandit ke liye hai, Pandit App ke liye nahi.',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
@@ -18,12 +25,8 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: '#FBF9F3',
-  viewportFit: 'cover',
+  themeColor: '#F09942',
 }
-
-// FIX: Force dynamic rendering to prevent Zustand store access during static generation
-export const dynamic = 'force-dynamic'
 
 export default function RootLayout({
   children,
@@ -31,10 +34,14 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="hi" className="light" suppressHydrationWarning>
-      <body className="bg-surface-base font-body text-text-primary selection:bg-saffron-light antialiased">
-        <div className="min-h-dvh max-w-[430px] mx-auto bg-surface-base relative">
-          <ClientProviders>{children}</ClientProviders>
+    <html lang="hi" className={hind.variable}>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      </head>
+      <body className="font-hind bg-vedic-cream text-vedic-brown antialiased">
+        <div className="relative mx-auto w-full max-w-[430px] min-h-screen overflow-x-hidden">
+          {children}
         </div>
       </body>
     </html>

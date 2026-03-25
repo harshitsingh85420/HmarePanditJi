@@ -67,7 +67,7 @@ function ProfileNameScreen({
     <main className="min-h-dvh max-w-[390px] mx-auto bg-surface-base font-body text-text-primary flex flex-col shadow-2xl">
       {/* Large Prominent Om Symbol - Trust Signal for Vedic App */}
       <div className="text-center py-8 bg-gradient-to-b from-saffron-light/50 to-transparent border-b-2 border-saffron/30">
-        <p className="text-[120px] font-bold text-saffron animate-gentle-float drop-shadow-lg" aria-label="पवित्र ओम प्रतीक" style={{ textShadow: '0 0 60px rgba(255, 140, 0, 0.4)' }}>ॐ</p>
+        <p className="text-[120px] font-bold text-saffron animate-gentle-float drop-shadow-lg om-glow" aria-label="पवित्र ओम प्रतीक">ॐ</p>
         <p className="text-[32px] font-bold text-saffron mt-3 font-devanagari">स्वागतम्</p>
       </div>
 
@@ -208,7 +208,7 @@ function ProfileCityScreen({
     <main className="min-h-dvh max-w-[390px] mx-auto bg-surface-base font-body text-text-primary flex flex-col shadow-2xl">
       {/* Large Prominent Om Symbol - Trust Signal */}
       <div className="text-center py-8 bg-gradient-to-b from-saffron-light/50 to-transparent border-b-2 border-saffron/30">
-        <p className="text-[120px] font-bold text-saffron animate-gentle-float drop-shadow-lg" aria-label="पवित्र ओम प्रतीक" style={{ textShadow: '0 0 60px rgba(255, 140, 0, 0.4)' }}>ॐ</p>
+        <p className="text-[120px] font-bold text-saffron animate-gentle-float drop-shadow-lg om-glow" aria-label="पवित्र ओम प्रतीक">ॐ</p>
         <p className="text-[32px] font-bold text-saffron mt-3 font-devanagari">स्वागतम्</p>
       </div>
 
@@ -311,7 +311,7 @@ function RegistrationCompleteScreen({ name, language }: { name: string; language
     <main className="min-h-dvh max-w-[390px] mx-auto bg-surface-base font-body text-text-primary flex flex-col items-center justify-center shadow-2xl px-6 text-center">
       {/* Large Prominent Om Symbol */}
       <div className="text-center py-8 bg-gradient-to-b from-saffron-light/50 to-transparent border-b-2 border-saffron/30 w-full absolute top-0 left-0 right-0">
-        <p className="text-[120px] font-bold text-saffron animate-gentle-float drop-shadow-lg" aria-label="पवित्र ओम प्रतीक" style={{ textShadow: '0 0 60px rgba(255, 140, 0, 0.4)' }}>ॐ</p>
+        <p className="text-[120px] font-bold text-saffron animate-gentle-float drop-shadow-lg om-glow" aria-label="पवित्र ओम प्रतीक">ॐ</p>
         <p className="text-[32px] font-bold text-saffron mt-3 font-devanagari">स्वागतम्</p>
       </div>
       <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: 'spring' as const }}>
@@ -367,7 +367,7 @@ export default function RegistrationFlow({ onBack }: { onBack: () => void }) {
       <main className="min-h-dvh max-w-[390px] mx-auto bg-surface-base font-body flex flex-col shadow-2xl">
         {/* Large Prominent Om Symbol */}
         <div className="text-center py-8 bg-gradient-to-b from-saffron-light/50 to-transparent border-b-2 border-saffron/30">
-          <p className="text-[120px] font-bold text-saffron animate-gentle-float drop-shadow-lg" aria-label="पवित्र ओम प्रतीक" style={{ textShadow: '0 0 60px rgba(255, 140, 0, 0.4)' }}>ॐ</p>
+          <p className="text-[120px] font-bold text-saffron animate-gentle-float om-glow" aria-label="पवित्र ओम प्रतीक">ॐ</p>
           <p className="text-[32px] font-bold text-saffron mt-3 font-devanagari">स्वागतम्</p>
         </div>
         <header className="pt-6 px-6 pb-2 flex items-center gap-3 shrink-0">

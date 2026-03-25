@@ -21,9 +21,9 @@ export function Card({
   padding = 'default',
 }: CardProps) {
   const variantClasses = {
-    default: 'bg-surface-card shadow-card',
-    muted: 'bg-surface-muted',
-    highlighted: 'bg-surface-card shadow-card-saffron',
+    default: 'bg-white shadow-card',
+    muted: 'bg-vedic-cream',
+    highlighted: 'bg-white shadow-card-hover',
   }
 
   const paddingClasses = {

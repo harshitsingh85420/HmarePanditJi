@@ -40,7 +40,7 @@ export function useVoice({
   const { setState, setTranscribedText, setConfidence, incrementError, resetErrors } = useVoiceStore()
 
   const recognitionRef = useRef<SpeechRecognition | null>(null)
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const analyserRef = useRef<AnalyserNode | null>(null)
   const streamRef = useRef<MediaStream | null>(null)
 
@@ -50,8 +50,8 @@ export function useVoice({
   const [confidence, setLocalConfidence] = useState(0)
   const [isSpeaking, setIsSpeaking] = useState(false)
 
-  // BUG-015 FIX: Reduced timeout from 18000ms (8000+10000) to 8000ms
-  const LISTEN_TIMEOUT = isElderly ? 10000 : 8000
+  // BUG-015 FIX: Timeout configuration - 8s normal, 12s elderly
+  const LISTEN_TIMEOUT = isElderly ? 12000 : 8000
 
   const isSupported = typeof window !== 'undefined' &&
     ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)

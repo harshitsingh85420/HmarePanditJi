@@ -22,13 +22,14 @@ export default function LocationPermissionScreen() {
   }, [navigate, setSection])
 
   useEffect(() => {
+    // ISSUE 7 FIX: Pre-education voice BEFORE permission dialog
     const timer = setTimeout(() => {
       void speakWithSarvam({
-        text: 'हमें आपकी लोकेशन की अनुमति दें — ताकि हम आपके शहर की पूजाएं दिखा सकें। हाँ बोलें या नीचे बटन दबाएं।',
+        text: 'हमें location की अनुमति दें — ताकि हम आपके शहर की पूजाएं दिखा सकें। आपका exact location किसी को नहीं दिखेगा। कृपया "Allow" बोलें या नीचे "Allow" बटन दबाएं।',
         languageCode: 'hi-IN',
         pace: 0.82,
       })
-    }, 500)
+    }, 600)
     return () => clearTimeout(timer)
   }, [])
 

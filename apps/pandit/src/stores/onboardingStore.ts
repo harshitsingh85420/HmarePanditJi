@@ -17,8 +17,7 @@ const DEFAULT_STATE: OnboardingState = {
   helpRequested: false,
 }
 
-interface OnboardingStore {
-  data: OnboardingState
+interface OnboardingStore extends OnboardingState {
   setPhase: (phase: OnboardingPhase) => void
   setSelectedLanguage: (language: SupportedLanguage) => void
   setDetectedCity: (city: string, state: string) => void
@@ -35,59 +34,50 @@ interface OnboardingStore {
 
 export const useOnboardingStore = create<OnboardingStore>()(
   persist(
-    (set) => ({
-      data: DEFAULT_STATE,
+    (set, get) => ({
+      ...DEFAULT_STATE,
 
-      setPhase: (phase) => set((state) => ({
-        data: { ...state.data, phase }
-      })),
+      setPhase: (phase) => set({ phase }),
 
-      setSelectedLanguage: (language) => set((state) => ({
-        data: { ...state.data, selectedLanguage: language }
-      })),
+      setSelectedLanguage: (language) => set({ selectedLanguage: language }),
 
-      setDetectedCity: (city, stateStr) => set((state) => ({
-        data: { ...state.data, detectedCity: city, detectedState: stateStr }
-      })),
+      setDetectedCity: (city, stateStr) => set({ detectedCity: city, detectedState: stateStr }),
 
-      setLanguageConfirmed: (confirmed) => set((state) => ({
-        data: { ...state.data, languageConfirmed: confirmed }
-      })),
+      setLanguageConfirmed: (confirmed) => set({ languageConfirmed: confirmed }),
 
-      setPendingLanguage: (language) => set((state) => ({
-        data: { ...state.data, pendingLanguage: language }
-      })),
+      setPendingLanguage: (language) => set({ pendingLanguage: language }),
 
-      setTutorialStarted: (started) => set((state) => ({
-        data: { ...state.data, tutorialStarted: started }
-      })),
+      setTutorialStarted: (started) => set({ tutorialStarted: started }),
 
-      setTutorialCompleted: (completed) => set((state) => ({
-        data: { ...state.data, tutorialCompleted: completed }
-      })),
+      setTutorialCompleted: (completed) => set({ tutorialCompleted: completed }),
 
-      setCurrentTutorialScreen: (screen) => set((state) => ({
-        data: { ...state.data, currentTutorialScreen: screen }
-      })),
+      setCurrentTutorialScreen: (screen) => set({ currentTutorialScreen: screen }),
 
-      setVoiceTutorialSeen: (seen) => set((state) => ({
-        data: { ...state.data, voiceTutorialSeen: seen }
-      })),
+      setVoiceTutorialSeen: (seen) => set({ voiceTutorialSeen: seen }),
 
-      setHelpRequested: (requested) => set((state) => ({
-        data: { ...state.data, helpRequested: requested }
-      })),
+      setHelpRequested: (requested) => set({ helpRequested: requested }),
 
-      setLanguage: (language) => set((state) => ({
-        data: { ...state.data, selectedLanguage: language, languageConfirmed: true }
-      })),
+      setLanguage: (language) => set({ selectedLanguage: language, languageConfirmed: true }),
 
-      reset: () => set({ data: DEFAULT_STATE }),
+      reset: () => set(DEFAULT_STATE),
     }),
     {
       name: 'hpj-onboarding',
       storage: createJSONStorage(() => localStorage),
-      partialize: (state) => ({ data: state.data }),
+      partialize: (state) => ({
+        phase: state.phase,
+        selectedLanguage: state.selectedLanguage,
+        detectedCity: state.detectedCity,
+        detectedState: state.detectedState,
+        languageConfirmed: state.languageConfirmed,
+        pendingLanguage: state.pendingLanguage,
+        tutorialStarted: state.tutorialStarted,
+        tutorialCompleted: state.tutorialCompleted,
+        currentTutorialScreen: state.currentTutorialScreen,
+        voiceTutorialSeen: state.voiceTutorialSeen,
+        firstEverOpen: state.firstEverOpen,
+        helpRequested: state.helpRequested,
+      }),
     }
   )
 )

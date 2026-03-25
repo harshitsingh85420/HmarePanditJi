@@ -502,3 +502,119 @@ export const ALL_SCREEN_IDS = [
   'S-0.11',    // 4 Guarantees
   'S-0.12',    // Final Decision CTA
 ] as const
+
+// ─────────────────────────────────────────────────────────────
+// INTENT DETECTION FOR TUTORIAL COMMANDS
+// Detects "Skip", "Forward", "Back", "Help" commands
+// ─────────────────────────────────────────────────────────────
+
+export type TutorialIntent = 'SKIP' | 'FORWARD' | 'BACK' | 'HELP' | null
+
+export function detectTutorialIntent(transcript: string): TutorialIntent {
+  const normalized = transcript.toLowerCase().trim()
+
+  // Skip intent
+  if (
+    normalized.includes('skip') ||
+    normalized.includes('chodo') ||
+    normalized.includes('chor do') ||
+    normalized.includes('baad mein') ||
+    normalized.includes('baad me') ||
+    normalized.includes('seedha chalo') ||
+    normalized.includes('registration')
+  ) {
+    return 'SKIP'
+  }
+
+  // Forward/Next intent
+  if (
+    normalized.includes('aage') ||
+    normalized.includes('agla') ||
+    normalized.includes('next') ||
+    normalized.includes('continue') ||
+    normalized.includes('samajh gaya') ||
+    normalized.includes('theek hai') ||
+    normalized.includes('dekhein') ||
+    normalized.includes('dikhao')
+  ) {
+    return 'FORWARD'
+  }
+
+  // Back/Previous intent
+  if (
+    normalized.includes('pichhe') ||
+    normalized.includes('wapas') ||
+    normalized.includes('pehle wala') ||
+    normalized.includes('back') ||
+    normalized.includes('previous') ||
+    normalized.includes('wapas jao') ||
+    normalized.includes('pichle screen')
+  ) {
+    return 'BACK'
+  }
+
+  // Help intent
+  if (
+    normalized.includes('madad') ||
+    normalized.includes('help') ||
+    normalized.includes('samajh nahi') ||
+    normalized.includes('samajha nahi') ||
+    normalized.includes('dikkat') ||
+    normalized.includes('problem') ||
+    normalized.includes('mushkil') ||
+    normalized.includes('sahayata')
+  ) {
+    return 'HELP'
+  }
+
+  return null
+}
+
+// ─────────────────────────────────────────────────────────────
+// LANGUAGE NAME DETECTION
+// Detects when user speaks a language name in S-0.0.4
+// ─────────────────────────────────────────────────────────────
+
+export function detectLanguageName(transcript: string): string | null {
+  const normalized = transcript.toLowerCase().trim()
+  const languageAliases: Record<string, string> = {
+    'hindi': 'Hindi',
+    'hindee': 'Hindi',
+    'bhojpuri': 'Bhojpuri',
+    'bhojpori': 'Bhojpuri',
+    'bhojpuriya': 'Bhojpuri',
+    'maithili': 'Maithili',
+    'maithil': 'Maithili',
+    'bengali': 'Bengali',
+    'bangla': 'Bengali',
+    'bangali': 'Bengali',
+    'tamil': 'Tamil',
+    'tamizh': 'Tamil',
+    'tameel': 'Tamil',
+    'telugu': 'Telugu',
+    'telegu': 'Telugu',
+    'kannada': 'Kannada',
+    'kannad': 'Kannada',
+    'malayalam': 'Malayalam',
+    'malayali': 'Malayalam',
+    'marathi': 'Marathi',
+    'gujarati': 'Gujarati',
+    'gujrati': 'Gujarati',
+    'gujarathi': 'Gujarati',
+    'sanskrit': 'Sanskrit',
+    'sanskrith': 'Sanskrit',
+    'english': 'English',
+    'angrezi': 'English',
+    'odia': 'Odia',
+    'oriya': 'Odia',
+    'punjabi': 'Punjabi',
+    'panjabi': 'Punjabi',
+    'assamese': 'Assamese',
+  }
+
+  for (const [alias, language] of Object.entries(languageAliases)) {
+    if (normalized.includes(alias)) return language
+  }
+
+  return null
+}

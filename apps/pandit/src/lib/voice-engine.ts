@@ -78,15 +78,14 @@ export const VOICE_TIMEOUTS = {
 // AMBIENT NOISE DETECTION
 // ─────────────────────────────────────────────────────────────
 
-// BUG-MEDIUM-04 FIX: Threshold set to 85 to prevent false-triggering in quiet environments
+// CRITICAL: 65dB threshold per Tech Lead review
 // Noise scale is 0-100 (linear mapping from RMS 0-80):
 // - 0-20: Silence/very quiet (RMS 0-5)
 // - 20-40: Normal room/quiet office (RMS 5-15)
 // - 40-60: Moderate noise/conversation (RMS 15-30)
-// - 60-75: Loud environment (RMS 30-50)
-// - 75-85: Very loud (RMS 50-68)
-// - 85+: Extremely loud - triggers keyboard fallback (RMS 68+, temple bells, heavy traffic, crowds)
-export const AMBIENT_NOISE_THRESHOLD_DB = 85
+// - 60-65: Elevated noise (suggest keyboard in temple environment)
+// - 65+: Very loud - triggers keyboard fallback (temple bells, heavy traffic, crowds)
+export const AMBIENT_NOISE_THRESHOLD_DB = 65
 
 let audioContext: AudioContext | null = null
 let noiseAnalyser: AnalyserNode | null = null

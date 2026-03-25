@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useRegistrationStore } from '@/stores/registrationStore'
 import { useVoiceStore } from '@/stores/voiceStore'
+import { useUIStore } from '@/stores/uiStore'
 import { useNavigationStore } from '@/stores/navigationStore'
 import { useSarvamVoiceFlow } from '@/lib/hooks/useSarvamVoiceFlow'
 import { speakWithSarvam, stopCurrentSpeech } from '@/lib/sarvam-tts'
@@ -163,6 +164,7 @@ function normalizeMobile(transcript: string): string {
 export default function MobileNumberScreen() {
   const router = useRouter()
   const { setMobile, setCurrentStep, markStepComplete } = useRegistrationStore()
+  const { setSessionSaveNotice } = useUIStore()
   const { navigate, setSection } = useNavigationStore()
   const { transcribedText, confidence, resetErrors, switchToKeyboard, errorCount, incrementError } = useVoiceStore()
 
@@ -174,6 +176,7 @@ export default function MobileNumberScreen() {
   const [showConfirm, setShowConfirm] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [networkError, setNetworkError] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const [showLanguageSheet, setShowLanguageSheet] = useState(false)
   const [isMicOff, setIsMicOff] = useState(false)
@@ -198,6 +201,10 @@ export default function MobileNumberScreen() {
     // BUG-019 FIX: Start ambient noise detection
     void startNoiseDetection()
 
+    // ISSUE 8 FIX: Show session save notice on first step
+    setSessionSaveNotice(true)
+    const noticeTimer = setTimeout(() => setSessionSaveNotice(false), 4000)
+
     // BUG-001 FIX: If mobile number exists, show confirmation sheet
     if (storedMobile && storedMobile.length === 10) {
       switchToKeyboard()
@@ -208,12 +215,13 @@ export default function MobileNumberScreen() {
     return () => {
       stopCurrentSpeech()
       stopNoiseDetection()
+      clearTimeout(noticeTimer)
       // ARCH-010 FIX: Also cleanup registration store listeners to prevent memory leaks
       if (typeof window !== 'undefined') {
         // Cleanup is handled by the store's cleanup function
       }
     }
-  }, [storedMobile, navigate, setSection, startNoiseDetection, stopNoiseDetection, switchToKeyboard])
+  }, [storedMobile, navigate, setSection, startNoiseDetection, stopNoiseDetection, switchToKeyboard, setSessionSaveNotice])
 
   // NAV-001 FIX: Handle browser back button (popstate event)
   useEffect(() => {
@@ -318,8 +326,27 @@ export default function MobileNumberScreen() {
   })
 
   const handleConfirm = useCallback(async () => {
-    if (mobile.length !== 10) {
-      console.warn('[MobilePage] Mobile length is not 10:', mobile)
+    // ISSUE 2 FIX: Validate 10-digit mobile number with Indian prefix
+    const digits = mobile.replace(/[^0-9]/g, '')
+    if (digits.length !== 10) {
+      setError('मोबाइल नंबर 10 अंकों का होना चाहिए।')
+      speakWithSarvam({
+        text: 'मोबाइल नंबर 10 अंकों का होना चाहिए। कृपया फिर से बोलें या लिखें।',
+        languageCode: 'hi-IN',
+      }).catch((err) => {
+        console.warn('[MobilePage] TTS failed for validation error:', err)
+      })
+      return
+    }
+    // Validate Indian mobile prefix (6-9)
+    if (!/^[6-9]\d{9}$/.test(digits)) {
+      setError('अमान्य नंबर। भारतीय मोबाइल 6, 7, 8, या 9 से शुरू होता है।')
+      speakWithSarvam({
+        text: 'अमान्य नंबर। भारतीय मोबाइल 6, 7, 8, या 9 से शुरू होता है।',
+        languageCode: 'hi-IN',
+      }).catch((err) => {
+        console.warn('[MobilePage] TTS failed for prefix error:', err)
+      })
       return
     }
 
@@ -327,7 +354,7 @@ export default function MobileNumberScreen() {
     setNetworkError(null)
     try {
       // BUG-001 FIX: Update store AND localStorage synchronously before navigation
-      setMobile(mobile)
+      setMobile(digits)
       markStepComplete('mobile')
       setCurrentStep('mobile')
 

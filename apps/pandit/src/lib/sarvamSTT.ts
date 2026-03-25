@@ -171,10 +171,10 @@ class SarvamSTTEngine {
       const noiseLevel = await this.checkAmbientNoise()
       this.lastNoiseLevel = noiseLevel
 
-      // If noise is too high (>75dB), warn user but continue
+      // If noise is too high (>65dB), warn user but continue
       // Typical silence: 0-20, Normal room: 20-40, Loud: 40-60, Very loud: 60-75, Extremely loud: 75+
-      // BUG-MEDIUM-04 FIX: Increased threshold from 65 to 75 to prevent false-triggering in quiet environments
-      if (noiseLevel > 75) {
+      // CRITICAL: 65dB threshold per Tech Lead review - temple bells, crowds, traffic trigger keyboard fallback
+      if (noiseLevel > 65) {
         console.warn('[SarvamSTT] High ambient noise detected:', noiseLevel, 'dB')
         options.onNoiseLevel?.(noiseLevel)
       }

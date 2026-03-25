@@ -1,12 +1,5 @@
 ﻿'use client'
 
-import { clsx } from 'clsx'
-import { twMerge } from 'tailwind-merge'
-
-function cn(...inputs: (string | undefined | false | null)[]) {
-  return twMerge(clsx(inputs))
-}
-
 interface InputProps {
   value: string
   onChange: (value: string) => void
@@ -20,7 +13,7 @@ interface InputProps {
   autoFocus?: boolean
 }
 
-export function Input({
+export default function Input({
   value,
   onChange,
   placeholder,
@@ -33,9 +26,9 @@ export function Input({
   autoFocus,
 }: InputProps) {
   return (
-    <div className={cn('w-full', className)}>
+    <div className={className}>
       {label && (
-        <label className="block text-lg font-medium text-text-secondary mb-2">
+        <label className="block text-base font-medium text-vedic-brown mb-2">
           {label}
         </label>
       )}
@@ -47,18 +40,18 @@ export function Input({
         disabled={disabled}
         maxLength={maxLength}
         autoFocus={autoFocus}
-        className={cn(
-          'w-full h-14 px-4',
-          'text-lg text-text-saffron',
-          'bg-surface-card border-2 rounded-btn',
-          'placeholder:text-text-lglaceholder',
-          'focus:outline-none focus:border-saffron focus:ring-2 focus:ring-saffron-light',
-          'disabled:opacity-50 disabled:cursor-not-allowed',
-          error ? 'border-error-red' : 'border-border-default',
-        )}
+        className={`
+          w-full h-14 px-4
+          text-lg text-vedic-brown
+          bg-white border-2 rounded-btn
+          placeholder:text-vedic-gold
+          focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/25
+          disabled:opacity-50 disabled:cursor-not-allowed
+          ${error ? 'border-error' : 'border-vedic-border'}
+        `}
       />
       {error && (
-        <p className="mt-2 text-lg text-error-red">{error}</p>
+        <p className="mt-2 text-base text-error">{error}</p>
       )}
     </div>
   )

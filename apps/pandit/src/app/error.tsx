@@ -1,15 +1,10 @@
+/**
+ * Error page for App Router
+ * Displayed when an error occurs (500)
+ */
 'use client'
 
-// FIX: Force client-side rendering for error page
-export const dynamic = 'force-dynamic'
-
-export default function Error({
-  error,
-  reset,
-}: {
-  error: Error & { digest?: string }
-  reset: () => void
-}) {
+export default function Error() {
   return (
     <div className="min-h-dvh flex flex-col items-center justify-center bg-surface-base px-6">
       <div className="text-center space-y-6 max-w-md">
@@ -19,7 +14,7 @@ export default function Error({
           Maaf kijiye, kuch technical dikkat aa gayi. Kripya page refresh karein.
         </p>
         <button
-          onClick={reset}
+          onClick={() => window.location.reload()}
           className="w-full h-14 bg-primary-container text-white font-bold rounded-btn flex items-center justify-center gap-2 shadow-btn-saffron"
         >
           <span className="material-symbols-outlined">refresh</span>

@@ -36,7 +36,6 @@ export function WaveformBar({
       style={{
         width: '6px',
         borderRadius: '3px',
-        background: 'linear-gradient(to top, #904D00, #FF8C00)',
       }}
       animate={animated ? {
         height: [min, max, min],

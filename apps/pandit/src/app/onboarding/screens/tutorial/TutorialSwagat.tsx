@@ -1,94 +1,118 @@
-'use client';
-import React from 'react';
-import { useSarvamVoiceFlow } from '@/lib/hooks/useSarvamVoiceFlow';
-import { TUTORIAL_SWAGAT } from '@/lib/voice-scripts';
-import TutorialShell from './TutorialShell';
-import { TUTORIAL_TRANSLATIONS, getTutorialLang } from '@/lib/tutorial-translations';
-import type { SupportedLanguage } from '@/lib/onboarding-store';
+'use client'
 
-interface Props {
-  currentDot: number;
-  onNext: () => void;
-  onBack: () => void;
-  onSkip: () => void;
-  language?: SupportedLanguage;
-  onLanguageChange?: () => void;
+import { useEffect, useState } from 'react'
+import { speak, startListening, stopListening, detectIntent } from '@/lib/voice-engine'
+import TopBar from '@/components/ui/TopBar'
+import ProgressDots from '@/components/ui/ProgressDots'
+import CTAButton from '@/components/ui/CTAButton'
+import SkipButton from '@/components/ui/SkipButton'
+import { SupportedLanguage } from '@/lib/onboarding-store'
+
+interface TutorialSwagatProps {
+  language: SupportedLanguage
+  onLanguageChange: () => void
+  currentDot: number
+  onNext: () => void
+  onBack: () => void
+  onSkip: () => void
 }
 
-export default function TutorialSwagat({ currentDot, onNext, onBack, onSkip, language = 'Hindi' }: Props) {
-  // BUG-007 FIX: Derive translations from language prop so runtime language switch works
-  const lang = getTutorialLang(language);
-  const t = TUTORIAL_TRANSLATIONS[lang].screens.S01;
+export default function TutorialSwagat({
+  onNext,
+  onSkip,
+}: TutorialSwagatProps) {
+  const [currentLine, setCurrentLine] = useState(0)
 
-  const { isListening } = useSarvamVoiceFlow({
-    language,
-    script: TUTORIAL_SWAGAT.scripts.main.hindi,
-    autoListen: true,
-    listenTimeoutMs: 12000,
-    repromptScript: 'कृपया जानें बोलें या Skip बोलें।',
-    repromptTimeoutMs: 12000,
-    initialDelayMs: 500,
-    pauseAfterMs: 1000,
-    onIntent: (intent) => {
-      const lower = typeof intent === 'string' ? intent.toLowerCase() : '';
-      if (lower.includes('skip') || lower.includes('registration') || lower.includes('seedhe')) {
-        onSkip();
-      } else if (
-        lower.includes('jaanen') ||
-        lower.includes('jaane') ||
-        lower.includes('haan') ||
-        lower.includes('ha') ||
-        lower.includes('yes') ||
-        lower.includes('aage') ||
-        lower.includes('forward')
-      ) {
-        onNext();
+  const LINES = [
+    'नमस्ते पंडित जी। HmarePanditJi पर आपका बहुत-बहुत स्वागत है।',
+    'यह platform आपके लिए ही बना है।',
+    'अगले दो मिनट में हम देखेंगे कि यह app आपकी आमदनी में क्या बदलाव ला सकता है।',
+    'हमारा Mool Mantra याद रखिए — App पंडित के लिए है, पंडित App के लिए नहीं।',
+    'अगर सीधे Registration करना हो तो Skip बोलें। नहीं तो जानें बोलें।',
+  ]
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      playLine(0)
+    }, 500)
+
+    return () => {
+      clearTimeout(timer)
+      stopListening()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const playLine = (index: number) => {
+    if (index >= LINES.length) {
+      startListeningForResponse()
+      return
+    }
+
+    setCurrentLine(index)
+    speak(LINES[index], 'hi-IN', () => {
+      if (index < LINES.length - 1) {
+        setTimeout(() => playLine(index + 1), 400)
+      } else {
+        startListeningForResponse()
       }
-    },
-  });
+    })
+  }
+
+  const startListeningForResponse = () => {
+    startListening({
+      language: 'hi-IN',
+      onResult: (result) => {
+        const intent = detectIntent(result.transcript)
+        if (intent === 'SKIP' || intent === 'FORWARD') {
+          onNext()
+        } else if (intent === 'BACK') {
+          playLine(0)
+        }
+      },
+      onError: () => { },
+    })
+  }
+
+  const handleContinue = () => {
+    stopListening()
+    speak('बहुत अच्छा।', 'hi-IN', () => {
+      setTimeout(onNext, 1000)
+    })
+  }
+
+  const handleSkip = () => {
+    stopListening()
+    onSkip()
+  }
 
   return (
-    <TutorialShell
-      currentDot={currentDot}
-      onNext={onNext}
-      onBack={onBack}
-      onSkip={onSkip}
-      nextLabel={undefined}
-      isListening={isListening}
-      showVoiceBar={true}
-      language={language}
-    >
-      {/* Hero Illustration */}
-      <div className="relative mb-8 flex justify-center">
-        <div className="relative w-[200px] h-[200px] flex items-center justify-center">
-          <div className="absolute w-[200px] h-[200px] bg-primary/12 rounded-full blur-xl animate-glow-pulse" />
-          <div className="relative z-10 w-[200px] h-[200px] bg-primary-lt rounded-full flex items-center justify-center">
-            <span className="animate-gentle-float text-[96px] leading-none">🧘</span>
+    <div className="min-h-screen flex flex-col bg-vedic-cream">
+      <TopBar showBack={false} onLanguageChange={onSkip} />
+      <ProgressDots total={12} current={1} />
+      <main className="flex-1 px-6 py-8 flex flex-col items-center justify-center">
+        <div className="text-6xl mb-6">🙏</div>
+        <h1 className="text-2xl font-bold text-vedic-brown text-center mb-4">
+          स्वागत है
+        </h1>
+        <div className="bg-primary-lt border border-primary rounded-xl px-6 py-4 mb-8">
+          <p className="text-vedic-brown text-center italic">
+            "App पंडित के लिए है, पंडित App के लिए नहीं।"
+          </p>
+        </div>
+        <div className="w-full space-y-4">
+          <CTAButton
+            label="जानें"
+            onClick={handleContinue}
+            variant="primary"
+            height="tall"
+            aria-label="Continue to next tutorial screen"
+          />
+          <div className="flex justify-center">
+            <SkipButton label="Skip करें →" onClick={handleSkip} />
           </div>
         </div>
-      </div>
-
-      {/* Greeting Text — from translations */}
-      <div className="text-center space-y-1 mb-6">
-        <h1 className="text-[40px] font-bold leading-tight text-text-primary">{t.greeting}</h1>
-        <h2 className="text-[40px] font-bold text-primary leading-tight">{t.welcome}</h2>
-        <p className="text-[22px] text-text-primary-2 font-normal mt-2">{t.subtitle}</p>
-      </div>
-
-      {/* Mool Mantra — from translations */}
-      <div className="flex flex-col items-center text-center mb-6">
-        <div className="w-20 h-[1px] bg-surface-dim mb-4" />
-        <p className="text-[18px] italic text-saffron leading-relaxed">
-          {t.moolMantra1}<br />{t.moolMantra2}
-        </p>
-      </div>
-
-      {/* Direct Skip Link — from translations */}
-      <div className="text-center mt-2">
-        <button onClick={onSkip} className="text-saffron text-[16px] underline decoration-1 underline-offset-4 active:opacity-50">
-          {t.cta}
-        </button>
-      </div>
-    </TutorialShell>
-  );
+      </main>
+    </div>
+  )
 }

@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import { useSession } from '@/hooks/useSession'
+import { useNetwork } from '@/hooks/useNetwork'
 import { SessionTimeoutSheet } from '@/components/overlays/SessionTimeout'
+import { NetworkBanner } from '@/components/overlays/NetworkBanner'
 import { useUIStore } from '@/stores/uiStore'
 import { useRegistrationStore } from '@/stores/registrationStore'
 import LanguageBottomSheet from '@/components/LanguageBottomSheet'
@@ -11,6 +13,7 @@ import { LANGUAGE_TO_BCP47 } from '@/lib/voice-engine'
 
 export default function RegistrationLayout({ children }: { children: React.ReactNode }) {
   useSession()
+  useNetwork() // ISSUE 9 FIX: Initialize network hook
   const [isMounted, setIsMounted] = useState(false)
   const { showSessionTimeout } = useUIStore()
   const { data } = useRegistrationStore()
@@ -46,6 +49,9 @@ export default function RegistrationLayout({ children }: { children: React.React
 
   return (
     <div className="min-h-dvh flex flex-col bg-surface-base relative">
+      {/* ISSUE 9 FIX: Network Banner - shows when offline */}
+      <NetworkBanner />
+
       {/* Top Bar with Language Toggle - Available on ALL registration screens */}
       <header className="sticky top-0 z-50 bg-surface-base border-b-2 border-saffron/30">
         <div className="flex items-center justify-between px-6 h-[72px]">

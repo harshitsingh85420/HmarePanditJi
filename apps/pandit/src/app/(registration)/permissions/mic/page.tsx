@@ -45,12 +45,9 @@ export default function MicPermissionScreen() {
         router.push('/permissions/location')
       }, 1500)
     } catch (err: any) {
+      // ISSUE 5 FIX: Redirect to mic-denied recovery screen on deny
       if (err.name === 'NotAllowedError') {
-        setError('mic_denied')
-        void speakWithSarvam({
-          text: 'माइक्रोफ़ोन की अनुमति नहीं मिली। कृपया सेटिंग्स में जाकर अनुमति दें।',
-          languageCode: 'hi-IN',
-        })
+        router.push('/permissions/mic-denied')
       } else {
         setError('mic_error')
         void speakWithSarvam({
@@ -62,8 +59,8 @@ export default function MicPermissionScreen() {
   }
 
   const handleSkip = () => {
-    setCurrentStep('mic_permission')
-    router.push('/permissions/location')
+    // ISSUE 5 FIX: Redirect to mic-denied recovery screen on explicit skip
+    router.push('/permissions/mic-denied')
   }
 
   const handleRetry = () => {

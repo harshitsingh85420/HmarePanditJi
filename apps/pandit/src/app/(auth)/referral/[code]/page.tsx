@@ -15,7 +15,7 @@ export default function ReferralLandingPage() {
   const [isValid, setIsValid] = useState<boolean | null>(null)
   const [referrerName, setReferrerName] = useState('')
 
-  const referralCode = params.code as string
+  const referralCode = (params?.code as string) ?? ''
 
   useEffect(() => {
     navigate(`/referral/${referralCode}`, 'identity')

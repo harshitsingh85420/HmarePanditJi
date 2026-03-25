@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { LanguageChangeWidget } from '@/components/widgets/LanguageChangeWidget'
+import { EmergencySOSFloating } from '@/components/widgets/EmergencySOSFloating'
 import type { SupportedLanguage } from '@/components/widgets/LanguageChangeWidget'
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
@@ -20,6 +21,8 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         currentLanguage={currentLanguage}
         onLanguageChange={handleLanguageChange}
       />
+      {/* Emergency SOS Floating Button - Always accessible for safety */}
+      <EmergencySOSFloating isVisible={true} />
     </div>
   )
 }

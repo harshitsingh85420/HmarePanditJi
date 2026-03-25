@@ -89,10 +89,22 @@ export default function ProfileDetails() {
   })
 
   const handleContinue = (nameValue: string) => {
-    if (nameValue.trim().length < 3) {
-      setError('कृपया अपना पूरा नाम दर्ज करें')
+    // ISSUE 11 FIX: Add comprehensive profile validation
+    const trimmedName = nameValue.trim()
+
+    if (trimmedName.length < 2) {
+      setError('कृपया पूरा नाम भरें।')
       void speakWithSarvam({
-        text: 'कृपया अपना पूरा नाम दर्ज करें',
+        text: 'कृपया पूरा नाम भरें।',
+        languageCode: 'hi-IN',
+      })
+      return
+    }
+
+    if (trimmedName.length > 50) {
+      setError('नाम बहुत लंबा है।')
+      void speakWithSarvam({
+        text: 'नाम 50 अक्षरों से छोटा होना चाहिए।',
         languageCode: 'hi-IN',
       })
       return
@@ -102,7 +114,7 @@ export default function ProfileDetails() {
     if (isSubmitting) return
 
     setIsSubmitting(true)
-    setName(nameValue)
+    setName(trimmedName)
     markStepComplete('profile')
     setCurrentStep('complete')
 

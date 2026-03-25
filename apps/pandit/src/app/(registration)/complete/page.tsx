@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { useRegistrationStore } from '@/stores/registrationStore'
+import { useUIStore } from '@/stores/uiStore'
 import { useNavigationStore } from '@/stores/navigationStore'
 import TopBar from '@/components/TopBar'
 import { speakWithSarvam } from '@/lib/sarvam-tts'
@@ -34,6 +35,7 @@ const itemVariants = {
 export default function RegistrationCompletePage() {
   const router = useRouter()
   const { data, setCurrentStep, markStepComplete } = useRegistrationStore()
+  const { triggerCelebration } = useUIStore()
   const { setSection } = useNavigationStore()
   const [showConfetti, setShowConfetti] = useState(true)
   const [celebrationPlayed, setCelebrationPlayed] = useState(false)
@@ -42,7 +44,10 @@ export default function RegistrationCompletePage() {
     setSection('registration-complete')
     setCurrentStep('complete')
     markStepComplete('complete')
-  }, [setSection, setCurrentStep, markStepComplete])
+
+    // ISSUE 10 FIX: Trigger celebration with confetti
+    triggerCelebration('Registration Complete')
+  }, [setSection, setCurrentStep, markStepComplete, triggerCelebration])
 
   useEffect(() => {
     // Play celebration sound and voice

@@ -1,117 +1,164 @@
-'use client';
-import React from 'react';
-import { motion } from 'framer-motion';
-import { useSarvamVoiceFlow } from '@/lib/hooks/useSarvamVoiceFlow';
-import { TUTORIAL_CTA } from '@/lib/voice-scripts';
-import { TutorialScreenProps } from './types';
-import { TUTORIAL_TRANSLATIONS, getTutorialLang } from '@/lib/tutorial-translations';
-import type { SupportedLanguage } from '@/lib/onboarding-store';
+'use client'
 
-interface TutorialCTAProps extends TutorialScreenProps {
-  onRegisterNow: () => void;
-  onLater: () => void;
+import { useEffect, useState } from 'react'
+import { speak, startListening, stopListening, detectIntent } from '@/lib/voice-engine'
+import TopBar from '@/components/ui/TopBar'
+import ProgressDots from '@/components/ui/ProgressDots'
+import CTAButton from '@/components/ui/CTAButton'
+import SkipButton from '@/components/ui/SkipButton'
+import { SupportedLanguage } from '@/lib/onboarding-store'
+
+interface TutorialCTAProps {
+  language: SupportedLanguage
+  onLanguageChange: () => void
+  currentDot: number
+  onNext: () => void
+  onBack: () => void
+  onSkip: () => void
+  onRegisterNow: () => void
+  onLater: () => void
 }
 
 export default function TutorialCTA({
-  language = 'Hindi',
+  onNext,
+  onSkip,
   onRegisterNow,
   onLater,
 }: TutorialCTAProps) {
-  const lang = getTutorialLang(language);
-  const t = TUTORIAL_TRANSLATIONS[lang].screens.S12;
+  const [currentLine, setCurrentLine] = useState(0)
+  const [decisionMade, setDecisionMade] = useState<'none' | 'yes' | 'later'>('none')
 
-  const { isListening } = useSarvamVoiceFlow({
-    language,
-    script: TUTORIAL_CTA.scripts.main.hindi,
-    repromptScript: TUTORIAL_CTA.scripts.onTimeout?.hindi,
-    initialDelayMs: 300,
-    pauseAfterMs: 800,
-    onIntent: (intent) => {
-      if (intent === 'YES' || intent === 'FORWARD') onRegisterNow();
-      else if (intent === 'SKIP' || intent === 'NO') onLater();
-    },
-  });
+  const LINES = [
+    'बस इतना था HmarePanditJi का परिचय।',
+    'अब आप registration शुरू कर सकते हैं — बिल्कुल मुफ़्त, दस मिनट लगेंगे।',
+    'क्या आप अभी शुरू करना चाहेंगे? हाँ बोलें या नीचे button दबाएं।',
+    'अगर कोई सवाल हो — screen पर helpline number है — बिल्कुल free।',
+  ]
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      playLine(0)
+    }, 500)
+
+    return () => {
+      clearTimeout(timer)
+      stopListening()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const playLine = (index: number) => {
+    if (index >= LINES.length) {
+      startListeningForDecision()
+      return
+    }
+
+    setCurrentLine(index)
+    speak(LINES[index], 'hi-IN', () => {
+      setTimeout(() => playLine(index + 1), 300)
+    })
+  }
+
+  const startListeningForDecision = () => {
+    startListening({
+      language: 'hi-IN',
+      onResult: (result) => {
+        const intent = detectIntent(result.transcript)
+        if (intent === 'YES') {
+          handleYes()
+        } else if (intent === 'NO' || intent === 'SKIP') {
+          handleLater()
+        }
+      },
+      onError: () => { },
+    })
+  }
+
+  const handleYes = () => {
+    setDecisionMade('yes')
+    stopListening()
+    speak('बहुत अच्छा! अब हम registration शुरू करते हैं।', 'hi-IN', () => {
+      setTimeout(onRegisterNow, 1500)
+    })
+  }
+
+  const handleLater = () => {
+    setDecisionMade('later')
+    stopListening()
+    speak('ठीक है। जब भी तैयार हों, app खोलें और Registration button दबाएं।', 'hi-IN', () => {
+      setTimeout(onLater, 1500)
+    })
+  }
+
+  const handleContinue = () => {
+    handleYes()
+  }
 
   return (
-    <main className="min-h-dvh max-w-[390px] mx-auto bg-surface-base font-hind text-text-primary flex flex-col shadow-2xl relative overflow-hidden">
-      {/* Progress Dots + Completion Badge */}
-      <header className="pt-10 px-6 flex flex-col items-center gap-3">
-        <div className="flex gap-2 flex-wrap justify-center">
-          {Array.from({ length: 12 }).map((_, i) => (
-            <span key={i} className="w-3 h-3 rounded-full bg-saffron" />
-          ))}
-        </div>
-        <p className="text-[20px] font-bold text-trust-green">{t.progressBadge || '✓ Tutorial पूरा हुआ'}</p>
-      </header>
-
-      {/* Main Content */}
-      <section className="flex-1 flex flex-col items-center px-8 pt-8 text-center">
-        {/* Hero Illustration */}
-        <div className="relative w-[220px] h-[220px] flex items-center justify-center mb-10">
-          <div className="absolute inset-0 bg-saffron-light/30 rounded-full" />
-          <div className="absolute inset-0 bg-saffron/12 rounded-full blur-xl" />
-          <motion.span
-            animate={{ y: [0, -10, 0] }}
-            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-            className="relative z-10 text-[110px] leading-none"
-          >
-            🧘
-          </motion.span>
-        </div>
-
-        {/* Headlines */}
-        <div className="space-y-5">
-          <h1 className="text-[36px] font-bold leading-tight text-text-primary">
-            {t.title}
-          </h1>
+    <div className="min-h-screen flex flex-col bg-vedic-cream">
+      <TopBar showBack={true} onLanguageChange={onSkip} />
+      <ProgressDots total={12} current={12} />
+      <main className="flex-1 px-6 py-8">
+        <h1 className="text-2xl font-bold text-vedic-brown text-center mb-4">
+          अब आप तैयार हैं!
+        </h1>
+        <div className="text-6xl text-center mb-6">🎉</div>
+        <div className="bg-white border-2 border-vedic-border rounded-xl p-6 mb-8">
+          <p className="font-bold text-vedic-brown mb-4 text-center">आपको मिलेगा:</p>
           <div className="space-y-2">
-            <p className="text-[26px] font-bold text-trust-green">{t.subtitle.split('।')[0]}।</p>
-            <p className="text-[24px] font-normal text-text-gold">{t.subtitle.split('। ')[1] ?? ''}</p>
+            <div className="flex items-center gap-2">
+              <span className="text-success">✓</span>
+              <span className="text-vedic-brown-2 text-sm">Fixed Dakshina - no bargaining</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-success">✓</span>
+              <span className="text-vedic-brown-2 text-sm">Instant Payment - 2 min to bank</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-success">✓</span>
+              <span className="text-vedic-brown-2 text-sm">3 Income Streams</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-success">✓</span>
+              <span className="text-vedic-brown-2 text-sm">Travel + Calendar - automatic</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-success">✓</span>
+              <span className="text-vedic-brown-2 text-sm">Voice Navigation - no typing</span>
+            </div>
           </div>
         </div>
-
-        {/* Voice listening indicator */}
-        {isListening && (
-          <div className="mt-8 flex items-center gap-3 px-6 py-4 bg-saffron-light rounded-full">
-            <span className="w-4 h-4 rounded-full bg-saffron animate-pulse" />
-            <span className="text-[20px] font-bold text-text-primary">{t.voicePrompt || "'हाँ' बोलें या बटन दबाएं"}</span>
+        <div className="bg-vedic-brown text-vedic-cream rounded-xl px-6 py-4 mb-8">
+          <div className="flex items-center justify-center gap-2">
+            <span className="text-xl">📞</span>
+            <div className="text-center">
+              <p className="text-sm font-bold">कोई सवाल?</p>
+              <p className="text-xs text-primary">Helpline: 1800-XXX-XXXX (Free)</p>
+            </div>
           </div>
-        )}
-
-        {/* Divider */}
-        <div className="w-full h-px bg-border-default/40 my-10" />
-
-        {/* Action Buttons */}
-        <div className="w-full space-y-5">
-          <motion.button
-            whileTap={{ scale: 0.97 }}
-            onClick={onRegisterNow}
-            className="w-full min-h-[80px] bg-saffron-dark text-white rounded-2xl flex items-center justify-center gap-3 text-[26px] font-bold shadow-cta-dk outline outline-2 outline-offset-2 outline-saffron/30 active:scale-95 transition-transform hover:bg-saffron"
-          >
-            {t.cta}
-          </motion.button>
-          <motion.button
-            whileTap={{ scale: 0.97 }}
-            onClick={onLater}
-            className="w-full min-h-[72px] bg-surface-card text-saffron border-3 border-border-default rounded-2xl text-[22px] font-bold active:scale-95 transition-transform hover:bg-saffron-lt"
-          >
-            {t.later}
-          </motion.button>
         </div>
-      </section>
-
-      {/* Footer — Helpline */}
-      <footer className="pb-10 px-8 text-center space-y-3 mt-8">
-        <div className="flex items-center justify-center gap-3 flex-wrap">
-          <span className="text-[24px]">📞</span>
-          <span className="text-[20px] font-bold text-text-gold">{t.helpQuestion || 'कोई सवाल?'}</span>
-          <a className="text-[24px] font-bold text-saffron-dark tracking-wide" href="tel:1800435000">
-            1800-HPJ-HELP
-          </a>
-          <span className="text-[18px] text-text-gold">(Toll Free)</span>
+        <div className="w-full space-y-4">
+          <CTAButton
+            label="हाँ, Registration शुरू करें"
+            onClick={handleContinue}
+            variant="primary-dk"
+            height="tall"
+            disabled={decisionMade !== 'none'}
+            aria-label="Start registration now"
+          />
+          <CTAButton
+            label="बाद में करूँगा"
+            onClick={handleLater}
+            variant="secondary"
+            height="tall"
+            disabled={decisionMade !== 'none'}
+            aria-label="Do registration later"
+          />
+          <div className="flex justify-center pt-2">
+            <SkipButton label="Skip करें →" onClick={onSkip} />
+          </div>
         </div>
-        <p className="text-[18px] text-text-gold">{t.helpHours || 'सुबह 8 बजे – रात 10 बजे'}</p>
-      </footer>
-    </main>
-  );
+      </main>
+    </div>
+  )
 }
