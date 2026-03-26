@@ -5,43 +5,80 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-// Hindi number word mappings
+// Hindi number word mappings (includes Bhojpuri and Maithili variants)
 export const NUMBER_WORDS: Record<string, string> = {
+  // 1 - Hindi/Bhojpuri/Maithili/English
   'ek': '1',
   'aik': '1',
   'one': '1',
   'एक': '1',
+  // 2 - Hindi/Bhojpuri/Maithili/English
   'do': '2',
   'two': '2',
   'दो': '2',
+  'doh': '2',
+  'dus': '2',
+  // 3 - Hindi/Bhojpuri/Maithili/English
   'teen': '3',
   'three': '3',
   'तीन': '3',
+  'tin': '3',
+  // 4 - Hindi/Bhojpuri/Maithili/English
   'char': '4',
   'chaar': '4',
   'four': '4',
   'चार': '4',
+  'chari': '4',
+  'chaur': '4',
+  // 5 - Hindi/Bhojpuri/Maithili/English
   'paanch': '5',
   'paaanch': '5',
   'five': '5',
   'पांच': '5',
+  'panch': '5',
+  // 6 - Hindi/Bhojpuri/Maithili/English
   'chhah': '6',
   'chhe': '6',
   'six': '6',
   'छह': '6',
+  'che': '6',
+  // 7 - Hindi/Bhojpuri/Maithili/English
   'saat': '7',
   'seven': '7',
   'सात': '7',
+  'sat': '7',
+  // 8 - Hindi/Bhojpuri/Maithili/English
   'aath': '8',
   'eight': '8',
   'आठ': '8',
+  'ath': '8',
+  // 9 - Hindi/Bhojpuri/Maithili/English
   'nau': '9',
   'nine': '9',
   'नौ': '9',
+  'naua': '9',
+  'nawan': '9',
+  'नऊ': '9',
+  'नउ': '9',
+  // 0 - Hindi/Bhojpuri/Maithili/English
   'shoonya': '0',
   'zero': '0',
   'sifar': '0',
   'शून्य': '0',
+  'siphar': '0',
+  'सिफर': '0',
+  // Bhojpuri specific
+  'दुइ': '2',
+  'तिन': '3',
+  'चारी': '4',
+  'पाँच': '5',
+  'छः': '6',
+  'सात': '7',
+  'आठ': '8',
+  'नऊ': '9',
+  // Maithili specific
+  'चारि': '4',
+  'दुइ': '2',
 }
 
 // Preamble words to strip
@@ -87,15 +124,22 @@ export function normalizeOtpInput(transcript: string): string {
 
 export function normalizeYesNo(transcript: string): 'yes' | 'no' | null {
   const text = transcript.toLowerCase().trim()
-  const YES_WORDS = ['haan', 'ha', 'yes', 'haa', 'bilkul', 'sahi', 'theek', 'ji haan', 'हाँ', 'हां']
-  const NO_WORDS = ['nahi', 'nahin', 'no', 'nhi', 'naa', 'badlen', 'galat', 'नहीं', 'नही']
 
-  for (const word of YES_WORDS) {
-    if (text.includes(word)) return 'yes'
-  }
+  // Use word boundary matching to avoid false positives
+  // Check for NO first to handle conflicting inputs like "haan nahi"
+  const NO_WORDS = ['nahi', 'nahin', 'no', 'nhi', 'naa', 'badlen', 'galat', 'नहीं', 'नही']
   for (const word of NO_WORDS) {
-    if (text.includes(word)) return 'no'
+    // Use Unicode-aware word boundary matching
+    const regex = new RegExp(`(^|\\s)${word}($|\\s)`, 'i')
+    if (regex.test(text)) return 'no'
   }
+
+  const YES_WORDS = ['haan', 'ha', 'yes', 'haa', 'bilkul', 'sahi', 'theek', 'हाँ', 'हां', 'जी हाँ']
+  for (const word of YES_WORDS) {
+    const regex = new RegExp(`(^|\\s)${word}($|\\s)`, 'i')
+    if (regex.test(text)) return 'yes'
+  }
+
   return null
 }
 

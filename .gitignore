@@ -43,4 +43,4 @@ all_pages*.txt
 build_*.txt
 
 # AI Tool internals
-.claude/
+.claude/".env.local" 

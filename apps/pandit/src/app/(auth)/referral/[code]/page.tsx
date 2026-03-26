@@ -1,11 +1,19 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, FormEvent } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { useRegistrationStore } from '@/stores/registrationStore'
 import { useNavigationStore } from '@/stores/navigationStore'
 import { speakWithSarvam } from '@/lib/sarvam-tts'
+
+interface ReferralValidationResponse {
+  valid: boolean
+  referrerName?: string
+  benefit?: string
+  referrerBenefit?: string
+  error?: string
+}
 
 export default function ReferralLandingPage() {
   const router = useRouter()
@@ -14,30 +22,53 @@ export default function ReferralLandingPage() {
   const { navigate, setSection } = useNavigationStore()
   const [isValid, setIsValid] = useState<boolean | null>(null)
   const [referrerName, setReferrerName] = useState('')
+  const [benefit, setBenefit] = useState('')
+  // const [loading, setLoading] = useState(true) // eslint-disable-line @typescript-eslint/no-unused-vars
+
+  // Manual entry state
+  const [manualCode, setManualCode] = useState('')
+  const [validatingManual, setValidatingManual] = useState(false)
+  const [manualError, setManualError] = useState('')
 
   const referralCode = (params?.code as string) ?? ''
 
   useEffect(() => {
     navigate(`/referral/${referralCode}`, 'identity')
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     setSection('identity')
   }, [navigate, referralCode])
 
   useEffect(() => {
-    // Validate referral code (in real app, this would be an API call)
+    // Validate referral code from URL
     const validateCode = async () => {
-      // Simulated validation - in production, fetch from API
-      const validCodes = ['PANDIT2024', 'SHARMA123', 'KASHI42', 'VARANASI']
-      const isValidCode = validCodes.some(code =>
-        code.toLowerCase() === referralCode.toLowerCase() ||
-        referralCode.length >= 6
-      )
+      if (!referralCode || referralCode.length < 6) {
+        setIsValid(false)
+        setLoading(false)
+        return
+      }
 
-      setIsValid(isValidCode)
+      try {
+        const response = await fetch('/api/referral/validate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code: referralCode }),
+        })
 
-      if (isValidCode) {
-        setReferralCode(referralCode.toUpperCase())
-        // Simulated referrer name
-        setReferrerName('पंडित जी')
+        const data: ReferralValidationResponse = await response.json()
+
+        if (data.valid) {
+          setIsValid(true)
+          setReferrerName(data.referrerName || 'Pandit Ji')
+          setBenefit(data.benefit || '')
+          setReferralCode(referralCode.toUpperCase())
+        } else {
+          setIsValid(false)
+        }
+      } catch (error) {
+        console.error('[Referral] Validation error:', error)
+        setIsValid(false)
+      } finally {
+        setLoading(false)
       }
     }
 
@@ -70,6 +101,55 @@ export default function ReferralLandingPage() {
 
   const handleGoHome = () => {
     router.push('/')
+  }
+
+  // F-DEV2-05: Manual referral code validation
+  const handleManualValidate = async (e: FormEvent) => {
+    e.preventDefault()
+    setManualError('')
+
+    // Validate format: 6-10 alphanumeric
+    const codeFormat = /^[A-Za-z0-9]{6,10}$/
+    if (!codeFormat.test(manualCode)) {
+      setManualError('Code must be 6-10 alphanumeric characters')
+      return
+    }
+
+    setValidatingManual(true)
+
+    try {
+      const response = await fetch('/api/referral/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: manualCode }),
+      })
+
+      const data: ReferralValidationResponse = await response.json()
+
+      if (data.valid) {
+        setReferralCode(manualCode.toUpperCase())
+        setReferrerName(data.referrerName || 'Pandit Ji')
+        setBenefit(data.benefit || '')
+        setIsValid(true)
+        setManualCode('')
+
+        void speakWithSarvam({
+          text: `बहुत अच्छा! ${data.referrerName} ने आपको आमंत्रित किया है।`,
+          languageCode: 'hi-IN',
+        })
+      } else {
+        setManualError(data.error || 'Invalid code')
+        void speakWithSarvam({
+          text: 'यह कोड मान्य नहीं है। कृपया जांचें और फिर से कोशिश करें।',
+          languageCode: 'hi-IN',
+        })
+      }
+    } catch (error) {
+      console.error('[Referral] Manual validation error:', error)
+      setManualError('Validation failed. Please try again.')
+    } finally {
+      setValidatingManual(false)
+    }
   }
 
   if (isValid === null) {
@@ -119,21 +199,29 @@ export default function ReferralLandingPage() {
               </div>
 
               <div className="border-t border-white/20 pt-4">
-                <p className="text-white/90 text-base mb-2">आपको मिलेगा:</p>
-                <ul className="space-y-2 text-base">
+                <p className="text-white/90 text-base font-bold mb-3">
+                  आपको मिलेगा:
+                </p>
+                <ul className="space-y-2 text-base mb-4">
                   <li className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-lg">check</span>
-                    <span>प्राथमिकता समर्थन</span>
+                    <span className="material-symbols-outlined text-lg">payments</span>
+                    <span>₹100 का welcome bonus</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-lg">check</span>
-                    <span>विशेष ऑफ़र</span>
+                    <span className="material-symbols-outlined text-lg">discount</span>
+                    <span>First booking पर 10% discount</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-lg">check</span>
-                    <span>त्वरित सत्यापन</span>
+                    <span className="material-symbols-outlined text-lg">emoji_events</span>
+                    <span>Referrer को ₹50 मिलेंगे</span>
                   </li>
                 </ul>
+
+                {benefit && (
+                  <p className="text-white/70 text-sm italic">
+                    {benefit}
+                  </p>
+                )}
               </div>
             </motion.div>
 
@@ -216,16 +304,63 @@ export default function ReferralLandingPage() {
                 </div>
               </div>
 
-              <p className="text-text-secondary text-base">
+              <p className="text-text-secondary text-base mb-4">
                 कृपया अपने रेफरल कोड की जांच करें या अपने मित्र से सही कोड प्राप्त करें।
               </p>
+            </motion.div>
+
+            {/* Manual Entry Form */}
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="bg-surface-card rounded-card shadow-card p-6 mb-8"
+            >
+              <h2 className="text-lg font-bold text-text-primary mb-4">
+                या मैन्युअल कोड दर्ज करें
+              </h2>
+              <form onSubmit={handleManualValidate} className="space-y-4">
+                <div>
+                  <input
+                    type="text"
+                    value={manualCode}
+                    onChange={(e) => setManualCode(e.target.value.toUpperCase())}
+                    placeholder="REFERRAL CODE"
+                    maxLength={10}
+                    className="w-full h-14 px-4 text-lg border-2 border-border-default rounded-btn focus:border-saffron focus:outline-none bg-surface-card uppercase tracking-wider"
+                    aria-label="Enter referral code manually"
+                  />
+                  {manualError && (
+                    <p className="mt-2 text-lg text-error-red">{manualError}</p>
+                  )}
+                  {validatingManual && (
+                    <div className="flex items-center gap-2 mt-2">
+                      <div className="w-4 h-4 border-2 border-saffron border-t-transparent rounded-full animate-spin" />
+                      <p className="text-text-secondary text-base">Validating...</p>
+                    </div>
+                  )}
+                </div>
+                <button
+                  type="submit"
+                  disabled={validatingManual || manualCode.length < 6}
+                  className="w-full min-h-[56px] bg-saffron text-white font-bold text-lg rounded-btn shadow-btn-saffron active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {validatingManual ? 'Validating...' : 'Apply Code'}
+                </button>
+              </form>
             </motion.div>
 
             {/* Action buttons */}
             <div className="space-y-3">
               <button
+                onClick={handleContinue}
+                className="w-full min-h-[56px] border-2 border-saffron text-saffron font-bold text-lg rounded-btn active:scale-[0.97] focus:ring-2 focus:ring-primary focus:outline-none"
+              >
+                बिना referral के जारी रखें
+              </button>
+              <button
                 onClick={handleGoHome}
-                className="w-full min-h-[56px] bg-saffron text-white font-bold text-lg rounded-btn shadow-btn-saffron active:scale-[0.97] focus:ring-2 focus:ring-primary focus:outline-none"
+                className="w-full min-h-[56px] text-text-secondary font-medium underline-offset-2 active:opacity-70 focus:ring-2 focus:ring-primary focus:outline-none"
               >
                 होमपेज पर जाएं
               </button>

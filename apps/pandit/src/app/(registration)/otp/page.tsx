@@ -11,6 +11,7 @@ import { ConfirmationSheet } from '@/components/voice/ConfirmationSheet'
 import { ErrorOverlay } from '@/components/voice/ErrorOverlay'
 import { listenOnce } from '@/lib/deepgram-stt'
 import { useAmbientNoise } from '@/hooks/useAmbientNoise'
+import { isWebOTPSupported, readOTPAuto, extractOTPFromSMS } from '@/lib/webotp'
 
 const NUMBER_WORDS: Record<string, string> = {
   'ek': '1', 'do': '2', 'teen': '3', 'char': '4', 'chaar': '4',
@@ -46,6 +47,8 @@ export default function OTPScreen() {
   const [networkError, setNetworkError] = useState<string | null>(null)
   const [isLocked, setIsLocked] = useState(false)
   const [isListening, setIsListening] = useState(false)
+  // const [webotpLoading, setWebotpLoading] = useState(true) // eslint-disable-line @typescript-eslint/no-unused-vars
+  // const [manualFallback, setManualFallback] = useState(false) // eslint-disable-line @typescript-eslint/no-unused-vars
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
 
   const formattedMobile = data.mobile ? `${data.mobile.slice(0, 5)} ${data.mobile.slice(5)}` : ''
@@ -73,22 +76,47 @@ export default function OTPScreen() {
       return
     }
 
-    // Auto-read OTP using WebOTP API (Android only)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if ('credentials' in navigator && 'PublicKeyCredential' in window) {
-      (navigator.credentials as any).get({
-        otp: { transport: ['sms'] },
-        signal: AbortSignal.timeout(30000),
-      }).then((credential: any) => {
-        const code = credential.code
-        if (code && code.length === 6) {
-          const otpArray = code.split('')
-          setOtpLocal(otpArray)
-          handleOTPSubmit(code)
-        }
-      }).catch(() => {
-        // Silently fail - user can enter manually
-      })
+    // F-DEV2-01: WebOTP Auto-Read Implementation
+    const webotpSupported = isWebOTPSupported()
+    console.log('[OTP Page] WebOTP supported:', webotpSupported)
+
+    if (webotpSupported) {
+      setWebotpLoading(true)
+
+      // Read OTP with 6s timeout
+      readOTPAuto(6000)
+        .then((otpCode) => {
+          setWebotpLoading(false)
+
+          if (otpCode) {
+            // Extract and fill OTP
+            const cleanOTP = extractOTPFromSMS(otpCode) ?? otpCode.slice(0, 6)
+            const otpArray = cleanOTP.split('')
+            setOtpLocal(otpArray)
+
+            // Show user the code first (500ms delay)
+            setTimeout(() => {
+              handleOTPSubmit(cleanOTP)
+            }, 500)
+          } else {
+            // WebOTP failed/timed out - show manual fallback
+            setManualFallback(true)
+            void speakWithSarvam({
+              text: 'OTP नहीं आया? मैन्युअली टाइप करें',
+              languageCode: 'hi-IN',
+            })
+            inputRefs.current[0]?.focus()
+          }
+        })
+        .catch((err) => {
+          console.error('[OTP Page] WebOTP error:', err)
+          setWebotpLoading(false)
+          setManualFallback(true)
+          inputRefs.current[0]?.focus()
+        })
+    } else {
+      setWebotpLoading(false)
+      setManualFallback(true)
     }
 
     // BUG-010 FIX: Voice prompt with STT listening
@@ -220,11 +248,11 @@ export default function OTPScreen() {
       markStepComplete('otp')
       setCurrentStep('otp')
       void speakWithSarvam({
-        text: 'बहुत अच्छा। OTP सही है। अब प्रोफाइल बना रहे हैं।',
+        text: 'बहुत अच्छा। OTP सही है। अब माइक्रोफ़ोन अनुमति दें।',
         languageCode: 'hi-IN',
       })
       setTimeout(() => {
-        router.push('/profile')
+        router.push('/permissions/mic')
       }, 1500)
     } catch (error) {
       // BUG-017 FIX: Don't decrement attempts or increment errorCount on network errors
@@ -364,7 +392,7 @@ export default function OTPScreen() {
       {/* Progress - Fixed below header */}
       <div className="px-6 pb-4 bg-surface-base">
         <div className="flex items-center justify-center gap-2 mb-2">
-          {['mobile', 'otp', 'profile'].map((step, i) => (
+          {['mobile', 'otp', 'profile'].map((step, _i) => (
             <div
               key={step}
               className={`h-2 rounded-full transition-all ${step === 'otp' ? 'w-6 bg-saffron' : 'w-2 bg-border-default'

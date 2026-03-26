@@ -1,6 +1,7 @@
 'use client'
 
 import { sttEngine, type STTOptions } from './sarvamSTT'
+import { deepgramEngine, type DeepgramSTTOptions } from './deepgramSTT'
 
 // ─────────────────────────────────────────────────────────────
 // TYPES
@@ -35,11 +36,24 @@ export type VoiceEngineConfig = {
   onNoiseLevel?: (dbLevel: number) => void  // Ambient noise level callback
 }
 
-type BrowserSpeechRecognitionCtor = new () => SpeechRecognition
+type BrowserSpeechRecognitionCtor = new () => any
 
 type BrowserSpeechWindow = Window & typeof globalThis & {
   SpeechRecognition?: BrowserSpeechRecognitionCtor
   webkitSpeechRecognition?: BrowserSpeechRecognitionCtor
+}
+
+// SpeechRecognition type for TypeScript
+interface SpeechRecognitionLike {
+  continuous: boolean
+  interimResults: boolean
+  lang: string
+  maxAlternatives: number
+  start: () => void
+  stop: () => void
+  onresult: ((event: any) => void) | null
+  onerror: ((event: any) => void) | null
+  onend: (() => void) | null
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -450,7 +464,7 @@ export function stopSpeaking(): void {
 // STT (SPEECH TO TEXT)
 // ─────────────────────────────────────────────────────────────
 
-let recognition: SpeechRecognition | null = null
+let recognition: SpeechRecognitionLike | null = null
 let listenTimeout: ReturnType<typeof setTimeout> | null = null
 
 export function startListening(config: VoiceEngineConfig): () => void {
@@ -497,7 +511,7 @@ export function startListening(config: VoiceEngineConfig): () => void {
     onError,
   } = config
 
-  const rec = new SpeechRecognition()
+  const rec = new SpeechRecognition() as unknown as SpeechRecognitionLike
   recognition = rec
 
   rec.continuous = false
@@ -508,7 +522,7 @@ export function startListening(config: VoiceEngineConfig): () => void {
   setGlobalVoiceState('LISTENING')
   onStateChange?.('LISTENING')
 
-  rec.onresult = (event: SpeechRecognitionEvent) => {
+  rec.onresult = (event: any) => {
     clearListenTimeout()
     onStateChange?.('PROCESSING')
 
@@ -540,7 +554,7 @@ export function startListening(config: VoiceEngineConfig): () => void {
     }
   }
 
-  rec.onerror = (event: SpeechRecognitionErrorEvent) => {
+  rec.onerror = (event: any) => {
     clearListenTimeout()
     console.warn('[VoiceEngine] STT error:', event.error)
     setGlobalVoiceState('IDLE')
@@ -745,6 +759,161 @@ export function startListeningWithSarvam(config: VoiceEngineConfig): () => void 
  */
 export function isSarvamAvailable(): boolean {
   return !!(typeof window !== 'undefined' && process.env.NEXT_PUBLIC_SARVAM_API_KEY && sttEngine)
+}
+
+/**
+ * Check if Deepgram AI is configured and available
+ */
+export function isDeepgramAvailable(): boolean {
+  return !!(typeof window !== 'undefined' && process.env.NEXT_PUBLIC_DEEPGRAM_API_KEY && deepgramEngine)
+}
+
+/**
+ * Get STT engine based on language and availability
+ * Routing logic:
+ * - Hindi + Deepgram available → Deepgram Nova-3 (better latency for common languages)
+ * - Regional languages (Tamil, Bengali, etc.) → Sarvam
+ * - Deepgram fails → fallback to Sarvam
+ * - Both fail → Web Speech API (last resort)
+ */
+export function getSTTEngine(language: string): 'sarvam' | 'deepgram' {
+  const lang = language.toLowerCase()
+
+  // Sarvam excels at regional Indian languages
+  const sarvamLanguages = [
+    'bhojpuri', 'maithili', 'bengali', 'bangla', 'tamil', 'telugu',
+    'kannada', 'malayalam', 'marathi', 'gujarati', 'odia', 'punjabi',
+    'assamese', 'sanskrit'
+  ]
+
+  if (sarvamLanguages.some(l => lang.includes(l))) {
+    return 'sarvam'
+  }
+
+  // For Hindi and English, prefer Deepgram Nova-3 if available (better latency)
+  if ((lang.includes('hindi') || lang.includes('hi-') || lang.includes('english') || lang.includes('en-')) && isDeepgramAvailable()) {
+    return 'deepgram'
+  }
+
+  // Default to Sarvam for Indian users (better accent handling)
+  return 'sarvam'
+}
+
+/**
+ * Start listening with unified voice engine (Deepgram → Sarvam → Web Speech fallback chain)
+ */
+export function startListeningWithFallback(config: VoiceEngineConfig): () => void {
+  if (typeof window === 'undefined') return () => { }
+
+  const {
+    language = 'hi-IN',
+    inputType = 'text',
+    isElderly = false,
+    confidenceThreshold = 0.65,
+    onStateChange,
+    onResult,
+    onError,
+    onInterimResult,
+    onNoiseLevel,
+  } = config
+
+  // Determine which engine to use
+  const preferredEngine = getSTTEngine(language)
+  console.log('[VoiceEngine] Preferred STT engine:', preferredEngine, 'for language:', language)
+
+  let fallbackAttempted = false
+
+  // Try preferred engine first
+  const tryStartListening = (engineType: 'deepgram' | 'sarvam'): (() => void) => {
+    const commonOptions = {
+      language,
+      inputType,
+      isElderly,
+      onInterimResult,
+      onNoiseLevel,
+      onFinalResult: (transcript: string, confidence: number) => {
+        setGlobalVoiceState('PROCESSING')
+        onStateChange?.('PROCESSING')
+
+        const normalizedConfidence = Math.min(1, Math.max(0, confidence))
+
+        if (normalizedConfidence >= confidenceThreshold) {
+          setGlobalVoiceState('SUCCESS')
+          onStateChange?.('SUCCESS')
+          onResult?.({
+            transcript,
+            confidence: normalizedConfidence,
+            isFinal: true,
+          })
+        } else {
+          setGlobalVoiceState('FAILURE')
+          onStateChange?.('FAILURE')
+          onError?.('LOW_CONFIDENCE')
+        }
+      },
+      onSilenceDetected: () => {
+        setGlobalVoiceState('IDLE')
+        onStateChange?.('IDLE')
+        onError?.('SILENCE_TIMEOUT')
+      },
+      onError: (error: string) => {
+        console.warn(`[VoiceEngine] ${engineType.toUpperCase()} STT error:`, error)
+
+        if (error === 'keyboard_fallback') {
+          onError?.('KEYBOARD_FALLBACK')
+          return
+        }
+
+        // Try fallback if not already attempted
+        if (!fallbackAttempted) {
+          fallbackAttempted = true
+          const fallbackEngine = engineType === 'deepgram' ? 'sarvam' : 'deepgram'
+          const isFallbackAvailable = fallbackEngine === 'deepgram' ? isDeepgramAvailable() : isSarvamAvailable()
+
+          if (isFallbackAvailable) {
+            console.log(`[VoiceEngine] Falling back to ${fallbackEngine.toUpperCase()}`)
+            tryStartListening(fallbackEngine)
+            return
+          }
+        }
+
+        // Both engines failed - fall back to Web Speech API
+        setGlobalVoiceState('FAILURE')
+        onStateChange?.('FAILURE')
+        console.log('[VoiceEngine] Falling back to Web Speech API')
+        startListening(config)
+      },
+    }
+
+    setGlobalVoiceState('LISTENING')
+    onStateChange?.('LISTENING')
+
+    if (engineType === 'deepgram' && deepgramEngine) {
+      deepgramEngine.startListening(commonOptions).catch((err: any) => {
+        console.error('[VoiceEngine] Deepgram STT start failed:', err)
+        commonOptions.onError(err.message || 'STT_START_FAILED')
+      })
+
+      return () => {
+        deepgramEngine?.stopListening()
+      }
+    } else if (engineType === 'sarvam' && sttEngine) {
+      sttEngine.startListening(commonOptions).catch((err: any) => {
+        console.error('[VoiceEngine] Sarvam STT start failed:', err)
+        commonOptions.onError(err.message || 'STT_START_FAILED')
+      })
+
+      return () => {
+        sttEngine?.stopListening()
+      }
+    } else {
+      // Engine not available - try fallback
+      commonOptions.onError('ENGINE_NOT_AVAILABLE')
+      return () => { }
+    }
+  }
+
+  return tryStartListening(preferredEngine)
 }
 
 /**

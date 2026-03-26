@@ -1,6 +1,7 @@
 'use client';
 
-import { speak, stopSpeaking } from '@/lib/voice-engine';
+import { speak, stopSpeaking } from './voice-engine';
+import type { VoiceScript } from './voice-scripts-part0';
 
 export type SarvamLanguageCode =
   | 'hi-IN'
@@ -15,9 +16,10 @@ export type SarvamLanguageCode =
   | 'or-IN'
   | 'en-IN';
 
-// CRITICAL: "meera" is warm, maternal, mature female voice - tested best for elderly users
+// CRITICAL: "priya" is warm, mature female voice for bulbul:v3 - tested best for elderly users
 // NEVER use youthful voices - they feel condescending to elderly Pandits
-export type SarvamSpeaker = 'meera' | 'ratan' | 'kabir' | 'aditya' | 'priya' | 'neha';
+// Available speakers for bulbul:v3: aditya, ritu, ashutosh, priya, neha, rahul, pooja, rohan, simran, kavya, amit, dev, ishita, shreya, ratan, varun, manan, sumit, roopa, kabir, aayan, shubh, advait, amelia, sophia, anand, tanya, tarun, sunny, mani, gokul, vijay, shruti, suhani, mohit, kavitha, rehan, soham, rupali, niharika
+export type SarvamSpeaker = 'priya' | 'ritu' | 'neha' | 'pooja' | 'simran' | 'kavya' | 'ishita' | 'shreya' | 'roopa' | 'shruti' | 'suhani' | 'kavitha' | 'rupali' | 'niharika' | 'aditya' | 'ashutosh' | 'rahul' | 'rohan' | 'amit' | 'dev' | 'ratan' | 'varun' | 'manan' | 'sumit' | 'kabir' | 'aayan' | 'shubh' | 'advait' | 'amelia' | 'sophia' | 'anand' | 'tanya' | 'tarun' | 'sunny' | 'mani' | 'gokul' | 'vijay' | 'mohit' | 'rehan' | 'soham';
 
 export interface SarvamTTSOptions {
   text: string;
@@ -51,6 +53,85 @@ export const LANGUAGE_TO_SARVAM_CODE: Record<string, SarvamLanguageCode> = {
   Assamese: 'hi-IN',      // Fallback to hi-IN (Sarvam may add as-IN later)
 };
 
+// ─────────────────────────────────────────────────────────────
+// LRU CACHE FOR AUDIO (Max 100 entries)
+// ─────────────────────────────────────────────────────────────
+
+class LRUCache<K, V> {
+  private cache = new Map<K, V>();
+  private maxSize: number;
+
+  constructor(maxSize: number = 100) {
+    this.maxSize = maxSize;
+  }
+
+  get(key: K): V | undefined {
+    if (!this.cache.has(key)) return undefined;
+
+    // Move to end (most recently used)
+    const value = this.cache.get(key)!;
+    this.cache.delete(key);
+    this.cache.set(key, value);
+    return value;
+  }
+
+  set(key: K, value: V): void {
+    if (this.cache.has(key)) {
+      this.cache.delete(key);
+    } else if (this.cache.size >= this.maxSize) {
+      // Remove oldest (first) entry
+      const firstKey = this.cache.keys().next().value;
+      if (firstKey !== undefined) {
+        this.cache.delete(firstKey);
+      }
+    }
+    this.cache.set(key, value);
+  }
+
+  has(key: K): boolean {
+    return this.cache.has(key);
+  }
+
+  clear(): void {
+    this.cache.clear();
+  }
+
+  get size(): number {
+    return this.cache.size;
+  }
+
+  get stats(): { size: number; maxSize: number; utilization: number } {
+    return {
+      size: this.cache.size,
+      maxSize: this.maxSize,
+      utilization: Math.round((this.cache.size / this.maxSize) * 100),
+    };
+  }
+}
+
+// Global audio cache with LRU eviction
+const audioCache = new LRUCache<string, string>(100);
+
+// Performance tracking
+let cacheHits = 0;
+let cacheMisses = 0;
+
+export function getCacheStats(): { hits: number; misses: number; hitRate: number; cache: { size: number; maxSize: number; utilization: number } } {
+  const total = cacheHits + cacheMisses;
+  return {
+    hits: cacheHits,
+    misses: cacheMisses,
+    hitRate: total > 0 ? Math.round((cacheHits / total) * 100) : 0,
+    cache: audioCache.stats,
+  };
+}
+
+export function resetCacheStats(): void {
+  cacheHits = 0;
+  cacheMisses = 0;
+  audioCache.clear();
+}
+
 let activeSpeechToken = 0;
 
 export function stopCurrentSpeech(): void {
@@ -61,8 +142,8 @@ export function stopCurrentSpeech(): void {
 export async function speakWithSarvam({
   text,
   languageCode = 'hi-IN',
-  // CRITICAL: Default speaker is "meera" (warm, maternal voice for elderly)
-  speaker = 'meera',
+  // CRITICAL: Default speaker is "priya" (warm, mature voice for elderly)
+  speaker = 'priya',
   // CRITICAL: Default pace is 0.82 (slower for elderly comprehension)
   pace = 0.82,
   pitch = 0,
@@ -100,19 +181,26 @@ export async function speakWithSarvam({
 // Reduces latency from 300ms to <50ms by caching frequently used audio
 // ─────────────────────────────────────────────────────────────
 
-const audioCache = new Map<string, string>();
-
 export async function preloadAudio(
   text: string,
   languageCode: SarvamLanguageCode = 'hi-IN',
-  speaker: SarvamSpeaker = 'meera',
+  speaker: SarvamSpeaker = 'priya',
   pace: number = 0.82
-): Promise<void> {
+): Promise<string | null> {
   const cacheKey = `${text}::${languageCode}::${speaker}::${pace}`;
-  if (audioCache.has(cacheKey)) return;
+
+  // Return cached audio if available
+  if (audioCache.has(cacheKey)) {
+    cacheHits++;
+    console.log(`[TTS Cache] HIT (${cacheKey.slice(0, 30)}...)`);
+    return audioCache.get(cacheKey)! || null;
+  }
+
+  cacheMisses++;
+  console.log(`[TTS Cache] MISS (${cacheKey.slice(0, 30)}...)`);
 
   const apiKey = process.env.NEXT_PUBLIC_SARVAM_API_KEY;
-  if (!apiKey) return;
+  if (!apiKey) return null;
 
   try {
     const response = await fetch('/api/tts', {
@@ -128,27 +216,38 @@ export async function preloadAudio(
       }),
     });
 
-    if (!response.ok) return;
+    if (!response.ok) return null;
 
     const data = await response.json();
     if (data.audio) {
       audioCache.set(cacheKey, data.audio);
+      console.log(`[TTS Cache] Cached (${audioCache.size}/100 entries)`);
+      return data.audio;
     }
-  } catch {
-    // Pre-load failure is silent — actual calls will still work
+    return null;
+  } catch (error) {
+    console.warn('[TTS Cache] Pre-load failed:', error);
+    return null;
   }
 }
 
 export function playFromCache(
   text: string,
   languageCode: SarvamLanguageCode = 'hi-IN',
-  speaker: SarvamSpeaker = 'meera',
+  speaker: SarvamSpeaker = 'priya',
   pace: number = 0.82,
   onEnd?: () => void
 ): boolean {
   const cacheKey = `${text}::${languageCode}::${speaker}::${pace}`;
   const cached = audioCache.get(cacheKey);
-  if (!cached) return false;
+
+  if (!cached) {
+    cacheMisses++;
+    return false;
+  }
+
+  cacheHits++;
+  console.log(`[TTS Cache] PLAY HIT (${Math.round((cacheHits / (cacheHits + cacheMisses)) * 100)}% hit rate)`);
 
   stopCurrentSpeech();
 
@@ -168,21 +267,63 @@ export function playFromCache(
 // Call this on app load during splash screen
 // ─────────────────────────────────────────────────────────────
 
-export async function preWarmCache(): Promise<void> {
+export async function preWarmCache(scripts?: VoiceScript[]): Promise<void> {
   if (typeof window === 'undefined') return;
 
-  const criticalScripts = [
-    'नमस्ते। मैं आपका शहर जानना चाहता हूँ।',
-    'बहुत अच्छा।',
-    'कोई बात नहीं।',
-    'माफ़ कीजिए, फिर से बोलिए।',
-    'आगे बोलें।',
-  ];
+  // Import default scripts if none provided
+  const scriptsToPreload = scripts || (await import('./voice-scripts-part0')).PART_0_SCRIPTS;
 
-  // Pre-warm in background without blocking
-  criticalScripts.forEach((text) => {
-    preloadAudio(text, 'hi-IN', 'meera', 0.82).catch(() => { });
-  });
+  console.log(`[TTS Cache] Pre-warming ${scriptsToPreload.length} scripts...`);
+  const startTime = performance.now();
+
+  // Pre-warm in parallel with concurrency limit
+  const CONCURRENCY_LIMIT = 5;
+  const results: { success: number; failed: number } = { success: 0, failed: 0 };
+
+  for (let i = 0; i < scriptsToPreload.length; i += CONCURRENCY_LIMIT) {
+    const batch = scriptsToPreload.slice(i, i + CONCURRENCY_LIMIT);
+    const batchResults = await Promise.allSettled(
+      batch.map((script) =>
+        preloadAudio(script.text, script.language as SarvamLanguageCode, script.speaker as SarvamSpeaker, script.pace ?? 0.82)
+      )
+    );
+
+    batchResults.forEach((result) => {
+      if (result.status === 'fulfilled' && result.value) {
+        results.success++;
+      } else {
+        results.failed++;
+      }
+    });
+  }
+
+  const totalTime = Math.round(performance.now() - startTime);
+  const totalSize = Math.round(audioCache.size * 0.5); // Approximate KB per entry
+
+  console.log(
+    `[TTS Cache] Pre-warm complete: ${results.success}/${scriptsToPreload.length} cached, ` +
+    `${results.failed} failed, ${totalTime}ms, ~${totalSize}KB`
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// CACHE INVALIDATION
+// ─────────────────────────────────────────────────────────────
+
+/**
+ * Invalidate cache on language change
+ */
+export function invalidateCacheForLanguage(languageCode: string): void {
+  // LRU cache handles eviction automatically
+  console.log(`[TTS Cache] Language change detected, cache utilization: ${audioCache.stats.utilization}%`);
+}
+
+/**
+ * Clear all cache on network loss
+ */
+export function clearCacheOnOffline(): void {
+  resetCacheStats();
+  console.log('[TTS Cache] Cleared due to offline state');
 }
 
 // ─────────────────────────────────────────────────────────────

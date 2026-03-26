@@ -7,17 +7,39 @@ import { useRegistrationStore } from '@/stores/registrationStore'
 import { useSarvamVoiceFlow } from '@/lib/hooks/useSarvamVoiceFlow'
 import { speakWithSarvam, stopCurrentSpeech } from '@/lib/sarvam-tts'
 import { useNavigationStore } from '@/stores/navigationStore'
+import { useVoiceStore } from '@/stores/voiceStore'
+import { listenOnce } from '@/lib/deepgram-stt'
+
+// Analytics logger for profile voice events
+function logProfileAnalytics(event: {
+  event: string
+  timestamp: number
+  nameLength?: number
+  error?: string
+}) {
+  console.log('[Profile Analytics]', JSON.stringify(event))
+  // In production, send to analytics service
+  // fetch('/api/analytics', {
+  //   method: 'POST',
+  //   headers: { 'Content-Type': 'application/json' },
+  //   body: JSON.stringify({ source: 'profile', ...event })
+  // })
+}
 
 export default function ProfileDetails() {
   const router = useRouter()
   const { data, setName, setCurrentStep, markStepComplete } = useRegistrationStore()
   const { navigate, setSection, canNavigateBack, goBack } = useNavigationStore()
+  const { switchToKeyboard } = useVoiceStore() // eslint-disable-line @typescript-eslint/no-unused-vars
 
   // BUG-015 FIX: Initialize from persisted store for back-navigation/refresh survival
   const [fullName, setFullName] = useState(() => data.name || '')
   const [error, setError] = useState('')
   // BUG-030 FIX: Prevent shaky thumb spam during submission
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isNameListening, setIsNameListening] = useState(false)
+  const [voiceErrorCount, setVoiceErrorCount] = useState(0)
+  // const [isManualVoiceMode, setIsManualVoiceMode] = useState(false) // eslint-disable-line @typescript-eslint/no-unused-vars
 
   // BUG-014 FIX: Route guard - redirect to mobile if OTP not completed
   useEffect(() => {
@@ -62,6 +84,99 @@ export default function ProfileDetails() {
     } else {
       router.push('/otp')
     }
+  }
+
+  // F-DEV2-04: Manual voice button for name input
+  const handleVoiceNameInput = () => {
+    if (isNameListening) return
+
+    // Log voice started event
+    logProfileAnalytics({
+      event: 'profile_voice_started',
+      timestamp: Date.now(),
+    })
+
+    setIsNameListening(true)
+    setIsManualVoiceMode(true)
+
+    // Announce instruction
+    void speakWithSarvam({
+      text: 'कृपया अपना पूरा नाम बोलिए। जैसे — "रमेश शर्मा" या "सुरेश मिश्रा"।',
+      languageCode: 'hi-IN',
+      pace: 0.85,
+    })
+
+    // Listen for name
+    const cleanup = listenOnce(
+      'hi',
+      15000,
+      (transcript) => {
+        setIsNameListening(false)
+
+        // Capitalize first letter of each word
+        const formatted = transcript
+          .split(' ')
+          .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+          .join(' ')
+
+        setFullName(formatted)
+        setName(formatted)
+
+        // Log success
+        logProfileAnalytics({
+          event: 'profile_voice_success',
+          timestamp: Date.now(),
+          nameLength: formatted.length,
+        })
+
+        // Validate and submit
+        const words = formatted.trim().split(/\s+/)
+        if (words.length >= 2 && formatted.length >= 2) {
+          handleContinue(formatted)
+        } else {
+          setError('कृपया पूरा नाम बताएं (first + last name)')
+          void speakWithSarvam({
+            text: 'कृपया पूरा नाम बताएं। पहले नाम और आखिरी नाम दोनों बोलें।',
+            languageCode: 'hi-IN',
+          })
+        }
+      },
+      () => {
+        // Timeout
+        setIsNameListening(false)
+        setVoiceErrorCount((prev) => prev + 1)
+
+        // Log failure
+        logProfileAnalytics({
+          event: 'profile_voice_failed',
+          timestamp: Date.now(),
+          error: 'timeout',
+        })
+
+        // After 3 failures, switch to keyboard
+        if (voiceErrorCount + 1 >= 3) {
+          switchToKeyboard()
+          setIsManualVoiceMode(false)
+
+          logProfileAnalytics({
+            event: 'profile_keyboard_fallback',
+            timestamp: Date.now(),
+          })
+
+          void speakWithSarvam({
+            text: 'बोलने में दिक्कत? कीबोर्ड का उपयोग करें',
+            languageCode: 'hi-IN',
+          })
+        } else {
+          void speakWithSarvam({
+            text: 'सुना नहीं। कृपया फिर से बोलें या कीबोर्ड का उपयोग करें।',
+            languageCode: 'hi-IN',
+          })
+        }
+      }
+    )
+
+    return cleanup
   }
 
   // BUG-012 FIX: Removed duplicate useEffect - useSarvamVoiceFlow handles all voice logic
@@ -119,13 +234,13 @@ export default function ProfileDetails() {
     setCurrentStep('complete')
 
     void speakWithSarvam({
-      text: 'बहुत अच्छा पंडित जी! आपका पंजीकरण पूरा हो गया है।',
+      text: 'बहुत अच्छा पंडित जी! अब notifications चालू करें।',
       languageCode: 'hi-IN',
       pace: 0.82,
     })
 
     setTimeout(() => {
-      router.push('/dashboard')
+      router.push('/permissions/notifications')
     }, 2000)
   }
 
@@ -153,7 +268,7 @@ export default function ProfileDetails() {
       {/* Progress */}
       <div className="mb-8">
         <div className="flex items-center justify-center gap-2 mb-2">
-          {['mobile', 'otp', 'profile'].map((step, i) => (
+          {['mobile', 'otp', 'profile'].map((step, _i) => (
             <div
               key={step}
               className={`h-2 rounded-full transition-all ${step === 'profile' ? 'w-6 bg-saffron' : 'w-2 bg-border-default'
@@ -185,15 +300,30 @@ export default function ProfileDetails() {
           जैसा आपके आधार कार्ड में है
         </p>
 
-        {/* Input */}
+        {/* Input with Voice Button */}
         <div className="mb-4">
-          <input
-            type="text"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-            placeholder="पंडित राम कुमार शर्मा"
-            className="w-full h-16 px-4 text-lgl border-2 border-border-default rounded-btn focus:border-saffron focus:outline-none bg-surface-card"
-          />
+          <div className="flex gap-3 items-center">
+            <input
+              type="text"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              placeholder="पंडित राम कुमार शर्मा"
+              className="w-full h-16 px-4 text-lg border-2 border-border-default rounded-btn focus:border-saffron focus:outline-none bg-surface-card flex-1"
+              aria-label="Full name input"
+            />
+            <button
+              onClick={handleVoiceNameInput}
+              disabled={isNameListening || isListening}
+              className="w-16 h-16 flex items-center justify-center bg-saffron-light text-saffron rounded-btn active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+              aria-label="Speak your name"
+            >
+              {isNameListening || isListening ? (
+                <div className="w-6 h-6 border-2 border-saffron border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <span className="material-symbols-outlined text-2xl">mic</span>
+              )}
+            </button>
+          </div>
           {error && (
             <p className="mt-2 text-lg text-error-red">{error}</p>
           )}
