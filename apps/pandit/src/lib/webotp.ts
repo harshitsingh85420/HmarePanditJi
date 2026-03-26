@@ -2,6 +2,43 @@
  * WebOTP API Utility
  * Provides automatic SMS OTP reading on Android Chrome/Edge
  * Falls back to manual input on unsupported browsers
+ * 
+ * ## SMS Format Documentation
+ * 
+ * For WebOTP to work correctly, SMS messages MUST follow this format:
+ * 
+ * ```
+ * Your HmarePanditJi OTP is: 123456. Valid for 10 minutes.
+ * ```
+ * 
+ * ### Required Elements:
+ * - **6-digit OTP code** (e.g., 123456) - MUST be present
+ * - **App identifier** (e.g., "HmarePanditJi") - Helps user identify sender
+ * - **Validity period** (e.g., "Valid for 10 minutes") - User guidance
+ * 
+ * ### Optional Elements (for better UX):
+ * - `@domain.com #123456` format for origin-bound OTPs (Chrome requirement)
+ * - Example: `Your HmarePanditJi OTP is 123456. @hmarepanditji.com #123456`
+ * 
+ * ### SMS Gateway Configuration:
+ * 
+ * For production SMS providers (Twilio, MSG91, etc.), use this template:
+ * 
+ * ```
+ * Your HmarePanditJi OTP is: {OTP}. Valid for 10 minutes. Do not share this code.
+ * ```
+ * 
+ * ### Testing:
+ * 
+ * For local testing without SMS, use Chrome DevTools:
+ * 1. Open DevTools > Application > WebOTP
+ * 2. Click "Start WebOTP"
+ * 3. Enter test OTP: 123456
+ * 
+ * ### Browser Support:
+ * - ✅ Chrome/Edge on Android 9+
+ * - ❌ iOS Safari (manual entry fallback)
+ * - ❌ Desktop browsers (manual entry fallback)
  */
 
 interface WebOTPAnalytics {

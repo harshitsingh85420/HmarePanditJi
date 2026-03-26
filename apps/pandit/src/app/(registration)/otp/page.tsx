@@ -40,15 +40,16 @@ export default function OTPScreen() {
   })
   const [error, setError] = useState('')
   const [attemptsLeft, setAttemptsLeft] = useState(3)
-  const [resendTimer, setResendTimer] = useState(30)
+  const [resendTimer, setResendTimer] = useState(60) // F-DEV2: 60s resend cooldown per task card
   const [showConfirm, setShowConfirm] = useState(false)
   const [errorCount, setErrorCount] = useState(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [networkError, setNetworkError] = useState<string | null>(null)
   const [isLocked, setIsLocked] = useState(false)
   const [isListening, setIsListening] = useState(false)
-  // const [webotpLoading, setWebotpLoading] = useState(true) // eslint-disable-line @typescript-eslint/no-unused-vars
-  // const [manualFallback, setManualFallback] = useState(false) // eslint-disable-line @typescript-eslint/no-unused-vars
+  const [webotpLoading, setWebotpLoading] = useState(true)
+  const [manualFallback, setManualFallback] = useState(false)
+  const [pasteSuccess, setPasteSuccess] = useState(false)
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
 
   const formattedMobile = data.mobile ? `${data.mobile.slice(0, 5)} ${data.mobile.slice(5)}` : ''
@@ -189,6 +190,41 @@ export default function OTPScreen() {
     router.push('/mobile')
   }
 
+  // F-DEV2-03: Paste from clipboard functionality
+  const handlePasteFromClipboard = async () => {
+    try {
+      const clipboardText = await navigator.clipboard.readText()
+      const digits = clipboardText.replace(/\D/g, '').slice(0, 6)
+
+      if (digits.length === 6) {
+        const otpArray = digits.split('')
+        setOtpLocal(otpArray)
+        setPasteSuccess(true)
+
+        // Show success feedback
+        void speakWithSarvam({
+          text: 'OTP paste हो गया।',
+          languageCode: 'hi-IN',
+        })
+
+        // Auto-submit after 1 second
+        setTimeout(() => {
+          handleOTPSubmit(digits)
+        }, 1000)
+
+        // Reset success message
+        setTimeout(() => setPasteSuccess(false), 2000)
+      } else if (digits.length > 0) {
+        setError(`केवल ${digits.length} अंक मिले। 6 अंक चाहिए।`)
+      } else {
+        setError('Clipboard में कोई OTP नहीं मिला')
+      }
+    } catch (err) {
+      console.error('[OTP Page] Clipboard read failed:', err)
+      setError('Clipboard access नहीं मिला। कृपया मैन्युअली टाइप करें।')
+    }
+  }
+
   const handleOTPChange = (index: number, value: string) => {
     if (value.length > 1) value = value.slice(0, 1)
 
@@ -319,7 +355,7 @@ export default function OTPScreen() {
   }, [switchToKeyboard])
 
   const handleResend = () => {
-    setResendTimer(30)
+    setResendTimer(60) // F-DEV2: Changed from 30s to 60s per task card requirement
     setAttemptsLeft(3)
     setIsLocked(false)
     setError('')
@@ -426,6 +462,48 @@ export default function OTPScreen() {
         <p className={`text-center text-lg font-medium mb-8 ${isLocked || attemptsLeft <= 0 ? 'text-error-red' : 'text-saffron'}`}>
           {isLocked || attemptsLeft <= 0 ? 'खाता लॉक हो गया' : `${attemptsLeft} प्रयास बाकी`}
         </p>
+
+        {/* WebOTP Loading State */}
+        {webotpLoading && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="bg-saffron-light/30 border-2 border-saffron rounded-xl p-6 mb-6 text-center"
+          >
+            <div className="flex justify-center mb-4">
+              <div className="w-12 h-12 border-4 border-saffron border-t-transparent rounded-full animate-spin" />
+            </div>
+            <p className="text-saffron font-bold text-lg">SMS आ रहा है...</p>
+            <p className="text-text-secondary text-sm mt-2">कृपया प्रतीक्षा करें</p>
+          </motion.div>
+        )}
+
+        {/* Manual Fallback with Paste Button */}
+        {manualFallback && !webotpLoading && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-surface-card border-2 border-border-default rounded-xl p-4 mb-6"
+          >
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-text-secondary text-sm">मैन्युअल एंट्री</p>
+              <button
+                onClick={handlePasteFromClipboard}
+                className="flex items-center gap-2 px-4 py-2 bg-saffron text-white rounded-lg text-sm font-bold hover:bg-saffron-dark active:scale-95 transition-all min-h-[44px]"
+                aria-label="Clipboard से OTP paste करें"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2" />
+                  <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+                </svg>
+                Paste OTP
+              </button>
+            </div>
+            {pasteSuccess && (
+              <p className="text-success text-sm font-bold">✓ OTP paste हो गया!</p>
+            )}
+          </motion.div>
+        )}
 
         {/* OTP Input */}
         <div className="flex gap-2 justify-center mb-6">

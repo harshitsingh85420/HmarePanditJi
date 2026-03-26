@@ -6,13 +6,13 @@ import { NextRequest, NextResponse } from 'next/server';
 // Uses server-side SARVAM_API_KEY (never exposed to browser)
 // ─────────────────────────────────────────────────────────────
 
-// BUG-048 FIX: Simple in-memory rate limiting (10 requests per minute per IP)
+// BUG-048 FIX: Simple in-memory rate limiting (100 requests per minute per IP)
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
 
 function checkRateLimit(ip: string): { allowed: boolean; remaining: number } {
   const now = Date.now();
   const windowMs = 60 * 1000; // 1 minute window
-  const maxRequests = 10;
+  const maxRequests = 100;
 
   const limit = rateLimitMap.get(ip) || { count: 0, resetTime: now + windowMs };
 
@@ -96,8 +96,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'text is required' }, { status: 400 });
   }
 
-  if (body.text.length > 2000) {
-    return NextResponse.json({ error: 'text too long (max 2000 chars)' }, { status: 400 });
+  if (body.text.length > 2500) {
+    return NextResponse.json({ error: 'text too long (max 2500 chars)' }, { status: 400 });
   }
 
   const apiKey = process.env.SARVAM_API_KEY;
@@ -145,7 +145,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No audio in response' }, { status: 502 });
     }
 
-    return NextResponse.json({ audio: data.audios[0] });
+    return NextResponse.json({ audioBase64: data.audios[0] });
 
   } catch (error) {
     console.error('[TTS Route] Fetch error:', error);

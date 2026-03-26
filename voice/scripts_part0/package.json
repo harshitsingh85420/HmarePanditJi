@@ -1,0 +1,16 @@
+{
+  "name": "@hmarepanditji/voice-scripts-part0",
+  "version": "1.0.0",
+  "description": "Voice script generator for HmarePanditJi Part 0 (S-0.1 to S-0.12)",
+  "scripts": {
+    "generate": "ts-node generate.ts",
+    "generate:js": "node generate.js"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "ts-node": "^10.9.0",
+    "@types/node": "^20.0.0"
+  },
+  "author": "Dr. Priya Sharma <priya.sharma@hmarepanditji.org>",
+  "license": "MIT"
+}

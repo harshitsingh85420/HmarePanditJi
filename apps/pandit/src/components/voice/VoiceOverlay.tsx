@@ -2,14 +2,18 @@
 
 import { motion, AnimatePresence } from 'framer-motion'
 import { useVoiceStore } from '@/stores/voiceStore'
+import { useEffect, useRef } from 'react'
 
 interface VoiceOverlayProps {
   question: string
   interimText?: string
+  onSilenceTimeout?: () => void
 }
 
-export function VoiceOverlay({ question, interimText }: VoiceOverlayProps) {
-  const { state, transcribedText, confidence, ambientNoiseLevel, errorCount } = useVoiceStore()
+export function VoiceOverlay({ question, interimText, onSilenceTimeout }: VoiceOverlayProps) {
+  const { state, transcribedText, confidence, ambientNoiseLevel, errorCount, setState } = useVoiceStore()
+  const silenceTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const lastTranscriptRef = useRef<string>('')
 
   const isListening = state === 'listening'
   const isProcessing = state === 'processing'
@@ -32,8 +36,39 @@ export function VoiceOverlay({ question, interimText }: VoiceOverlayProps) {
   // The ErrorOverlay has better UX with retry/keyboard buttons
   const showTimeoutInVoiceOverlay = false // Disabled - ErrorOverlay handles timeout now
 
+  // Auto-hide after 3s silence
+  useEffect(() => {
+    if (!isListening) {
+      if (silenceTimerRef.current) {
+        clearTimeout(silenceTimerRef.current)
+      }
+      return
+    }
+
+    // Check if transcript has changed
+    if (transcribedText !== lastTranscriptRef.current) {
+      lastTranscriptRef.current = transcribedText
+      // Reset timer on new speech
+      if (silenceTimerRef.current) {
+        clearTimeout(silenceTimerRef.current)
+      }
+    } else if (transcribedText) {
+      // Start silence timer if we have text but no new input
+      silenceTimerRef.current = setTimeout(() => {
+        onSilenceTimeout?.()
+        setState('confirming')
+      }, 3000)
+    }
+
+    return () => {
+      if (silenceTimerRef.current) {
+        clearTimeout(silenceTimerRef.current)
+      }
+    }
+  }, [isListening, transcribedText, onSilenceTimeout, setState])
+
   return (
-    <div className="fixed inset-0 z-40 pointer-events-none">
+    <div className="fixed inset-0 z-40 pointer-events-none" role="region" aria-label="Voice input overlay">
       {/* TIMEOUT OVERLAY - DISABLED: ErrorOverlay now handles timeout with better UX */}
       {/* CRITICAL FIX: Prevents multiple overlays from stacking and blocking UI */}
       <AnimatePresence>
@@ -87,6 +122,36 @@ export function VoiceOverlay({ question, interimText }: VoiceOverlayProps) {
         )}
       </AnimatePresence>
 
+      {/* Pulsing ring animation for listening state */}
+      <AnimatePresence>
+        {isListening && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+            aria-hidden="true"
+          >
+            <div className="relative">
+              {/* Outer pulsing ring */}
+              <motion.div
+                initial={{ scale: 0.8, opacity: 0.6 }}
+                animate={{ scale: 1.5, opacity: 0 }}
+                transition={{ duration: 2, repeat: Infinity, repeatType: 'restart' }}
+                className="absolute inset-0 rounded-full border-4 border-saffron/30"
+              />
+              {/* Inner pulsing ring */}
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0.4 }}
+                animate={{ scale: 1.3, opacity: 0 }}
+                transition={{ duration: 2, repeat: Infinity, repeatType: 'restart', delay: 0.5 }}
+                className="absolute inset-0 rounded-full border-4 border-saffron/20"
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Voice wave animation with saffron-glow */}
       <AnimatePresence>
         {isListening && (
@@ -95,18 +160,21 @@ export function VoiceOverlay({ question, interimText }: VoiceOverlayProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-saffron-light/20 to-transparent h-32 saffron-glow-active"
+            role="status"
+            aria-label="Voice waveform visualization"
           >
             <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex items-end gap-1 h-12">
               {[...Array(5)].map((_, i) => (
                 <motion.div
                   key={i}
-                  className="waveform-bar"
+                  className="waveform-bar bg-gradient-to-t from-saffron to-orange-400"
                   animate={{ scaleY: [0.3, 1, 0.3] }}
                   transition={{
                     duration: 1.2,
                     repeat: Infinity,
                     delay: i * 0.2,
                   }}
+                  aria-hidden="true"
                 />
               ))}
             </div>

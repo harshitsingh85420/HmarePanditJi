@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from 'next/server'
 // Keeps SARVAM_API_KEY on server (never exposed to browser)
 // ─────────────────────────────────────────────────────────────
 
-// Simple in-memory token cache with expiration
+// Simple in-memory token cache with expiration (Redis/memory cache)
 interface TokenCache {
   token: string
   expiresAt: number
@@ -16,21 +16,32 @@ const tokenCache = new Map<string, TokenCache>()
 
 /**
  * Generate a short-lived session token for STT WebSocket connection
- * In production, this should implement proper JWT-based authentication
- * For now, we return the API key with a short expiration window
+ * Token validity: 60 seconds
  */
 export async function POST(request: NextRequest) {
   try {
+    const body = await request.json()
+    const { sessionId } = body
+
+    // Validate sessionId
+    if (!sessionId || typeof sessionId !== 'string') {
+      return NextResponse.json(
+        { error: 'sessionId is required' },
+        { status: 400 }
+      )
+    }
+
     // Get client IP for rate limiting and caching
     const ip = request.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown'
+    const cacheKey = `${ip}:${sessionId}`
     const now = Date.now()
 
-    // Check if we have a valid cached token for this IP
-    const cached = tokenCache.get(ip)
+    // Check if we have a valid cached token for this session
+    const cached = tokenCache.get(cacheKey)
     if (cached && cached.expiresAt > now) {
       // Return cached token (still valid)
       return NextResponse.json({
-        apiKey: cached.token,
+        token: cached.token,
         expiresAt: cached.expiresAt,
         cached: true,
       })
@@ -50,15 +61,15 @@ export async function POST(request: NextRequest) {
     const tokenExpiresAt = now + 60000
 
     // Cache the token
-    tokenCache.set(ip, {
+    tokenCache.set(cacheKey, {
       token: apiKey,
       expiresAt: tokenExpiresAt,
     })
 
     // Clean up expired tokens periodically (every 2 minutes)
-    // In production, use a proper cleanup strategy or Redis with TTL
     setTimeout(() => {
-      for (const [key, value] of tokenCache.entries()) {
+      const entries = Array.from(tokenCache.entries())
+      for (const [key, value] of entries) {
         if (value.expiresAt <= Date.now()) {
           tokenCache.delete(key)
         }
@@ -66,7 +77,7 @@ export async function POST(request: NextRequest) {
     }, 120000)
 
     return NextResponse.json({
-      apiKey,
+      token: apiKey,
       expiresAt: tokenExpiresAt,
       cached: false,
     })

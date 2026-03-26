@@ -9,7 +9,8 @@ export default function SkipButton({ label = 'Skip करें →', onClick }:
   return (
     <button
       onClick={onClick}
-      className="text-vedic-gold text-base font-normal py-2 px-1 min-h-[44px] flex items-center"
+      className="text-vedic-gold text-base font-normal py-2 px-1 min-h-[72px] min-w-[72px] flex items-center"
+      aria-label={typeof label === 'string' ? label : 'Skip'}
     >
       {label}
     </button>
