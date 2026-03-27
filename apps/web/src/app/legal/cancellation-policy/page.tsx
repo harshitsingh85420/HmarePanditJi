@@ -60,7 +60,7 @@ export default function CancellationPolicyPage() {
                         Policy Framework v2.4
                     </div>
                     <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
-                        Transparent Cancellations &amp; <br className="hidden md:block" />{" "}
+                        Transparent Cancellations &amp; <br className="hidden md:block" />{&quot; &quot;}
                         Our Promise to You
                     </h1>
                     <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto leading-relaxed">
@@ -150,7 +150,7 @@ export default function CancellationPolicyPage() {
                                     </span>
                                 </div>
                                 <p className="text-base text-gray-500 dark:text-gray-400 mt-2">
-                                    Covers Pandit's reservation hold. Partial refund
+                                    Covers Pandit&apos;s reservation hold. Partial refund
                                     processed within 5 days.
                                 </p>
                             </div>
@@ -207,10 +207,10 @@ export default function CancellationPolicyPage() {
                                     Religious ceremonies are high-stakes events. We take
                                     full responsibility for our service network. If the
                                     assigned Pandit fails to arrive due to unforeseen
-                                    circumstances, our{" "}
+                                    circumstances, our{&quot; &quot;}
                                     <span className="text-[#ec7f13] font-semibold">
                                         Safety Net
-                                    </span>{" "}
+                                    </span>{&quot; &quot;}
                                     activates immediately.
                                 </p>
                                 <div className="flex flex-col gap-4">
@@ -319,7 +319,7 @@ export default function CancellationPolicyPage() {
                                 </span>
                             </summary>
                             <div className="text-gray-600 dark:text-gray-300 px-5 pb-5 pt-0 leading-relaxed text-lg">
-                                You can cancel directly from your "My Bookings" dashboard.
+                                You can cancel directly from your &quot;My Bookings&quot; dashboard.
                                 The system automatically calculates your refund amount
                                 based on the time remaining until your event.
                             </div>

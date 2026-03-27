@@ -29,8 +29,8 @@ export default defineConfig({
   
   // Reporter configuration
   reporter: [
-    ['html', { outputFolder: 'e2e/results/report.html' }],
-    ['json', { outputFile: 'e2e/results/results.json' }],
+    ['html', { outputFolder: 'e2e/playwright-report' }],
+    ['json', { outputFile: 'e2e/playwright-report/results.json' }],
     ['list'],
   ],
   

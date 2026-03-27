@@ -19,82 +19,82 @@ export interface SamagriModalProps {
 // Mock Data matching the UI design perfectly
 const COMPARISON_ITEMS = [
     {
-        id: "ghee",
-        name: "Desi Ghee",
-        quantity: "1 KG",
+        id: &quot;ghee&quot;,
+        name: &quot;Desi Ghee&quot;,
+        quantity: &quot;1 KG&quot;,
         premium: {
-            brand: "Amul Pure (1kg)",
+            brand: &quot;Amul Pure (1kg)&quot;,
             price: 650,
-            image: "https://lh3.googleusercontent.com/aida-public/AB6AXuADMDvKfUZd31jnD2lZtBn5_nhOFPic93Y2TSccOXWGKH5bkYXdR6ZxxASRMkFA2CH2cAZtP86vKMYHSLcLVx2aqlnZb4Ou8mdaNFfU7DcpQH2uSh5iNM4bGQPsaBc8zFwrMqehunLbZzX0cETSOUZXaHHJzCkUBLTqx_ctHa4w3-eIfxtQ39sDFRYD4dikBq36cOnAxLayBPyfLfNfaadtyba5VBwYULeLHhlndixXSEle8RmrdXKdgNyWB0YbvBhyy3Rclp2n96o",
+            image: &quot;https://lh3.googleusercontent.com/aida-public/AB6AXuADMDvKfUZd31jnD2lZtBn5_nhOFPic93Y2TSccOXWGKH5bkYXdR6ZxxASRMkFA2CH2cAZtP86vKMYHSLcLVx2aqlnZb4Ou8mdaNFfU7DcpQH2uSh5iNM4bGQPsaBc8zFwrMqehunLbZzX0cETSOUZXaHHJzCkUBLTqx_ctHa4w3-eIfxtQ39sDFRYD4dikBq36cOnAxLayBPyfLfNfaadtyba5VBwYULeLHhlndixXSEle8RmrdXKdgNyWB0YbvBhyy3Rclp2n96o&quot;,
         },
         market: {
-            label: "Local Dairy",
+            label: &quot;Local Dairy&quot;,
             price: 530,
-            savings: "18% less",
+            savings: &quot;18% less&quot;,
             defaultQty: 1,
         },
     },
     {
-        id: "camphor",
-        name: "Camphor",
-        quantity: "200g",
+        id: &quot;camphor&quot;,
+        name: &quot;Camphor&quot;,
+        quantity: &quot;200g&quot;,
         premium: {
-            brand: "Mangal Deep (200g)",
+            brand: &quot;Mangal Deep (200g)&quot;,
             price: 240,
-            image: "https://lh3.googleusercontent.com/aida-public/AB6AXuAq9nSiPkQ-kp4eUi7TN1teueP16CWvKxxHuLKrLeu24-Ue1WTT2RnqG6xMmOeuBmSTRZLXq1w6nBTyG3cuW8CYBsLGG6fFOZd0Eu18flaCkrSstZSIy4t1b1xl1LrVnquhvbeCph-ZLCMCknSX2VQgY39MlBQCmbW06C-VcTuNXIKvf4vhhf0tbQdKpRdp3E3M88xDJbpO1RXR6uAVYux5ScUEB2ztbWexuD6ukrXacX66KtvA7I8zV_friFsdZa4Tj-zNc7dbh0o",
+            image: &quot;https://lh3.googleusercontent.com/aida-public/AB6AXuAq9nSiPkQ-kp4eUi7TN1teueP16CWvKxxHuLKrLeu24-Ue1WTT2RnqG6xMmOeuBmSTRZLXq1w6nBTyG3cuW8CYBsLGG6fFOZd0Eu18flaCkrSstZSIy4t1b1xl1LrVnquhvbeCph-ZLCMCknSX2VQgY39MlBQCmbW06C-VcTuNXIKvf4vhhf0tbQdKpRdp3E3M88xDJbpO1RXR6uAVYux5ScUEB2ztbWexuD6ukrXacX66KtvA7I8zV_friFsdZa4Tj-zNc7dbh0o&quot;,
         },
         market: {
-            label: "Loose Camphor",
+            label: &quot;Loose Camphor&quot;,
             price: 145,
-            savings: "40% less",
+            savings: &quot;40% less&quot;,
             defaultQty: 1,
         },
     },
     {
-        id: "coconut",
-        name: "Whole Coconut",
-        quantity: "2 Pcs",
+        id: &quot;coconut&quot;,
+        name: &quot;Whole Coconut&quot;,
+        quantity: &quot;2 Pcs&quot;,
         premium: {
-            brand: "Large, With Water",
+            brand: &quot;Large, With Water&quot;,
             price: 50,
-            image: "https://lh3.googleusercontent.com/aida-public/AB6AXuB1yAa3CetZwkeyCKUqesqKZPcp89TOSFJX9uvzjKwrErR35I2k2eL4Yo9rpuTadJRqp3WUleOVf-cSL2B4K5IdvMe7rZNYS9HlWKOVvC2Kuox6C7LhPlJLStG1zYKLUpnYdybBzV2SZxawB5V8c2uRre6BirjkKecYbyguzFwgEfdcemw2ZehrhfaCXsx4hoICtHxNU_UkFQe21ZXvVjz4gBPMLINNMNlGAG-XpFphuHetV4h_KqfH97_Niln4BAnnkSqp77dwvzw",
+            image: &quot;https://lh3.googleusercontent.com/aida-public/AB6AXuB1yAa3CetZwkeyCKUqesqKZPcp89TOSFJX9uvzjKwrErR35I2k2eL4Yo9rpuTadJRqp3WUleOVf-cSL2B4K5IdvMe7rZNYS9HlWKOVvC2Kuox6C7LhPlJLStG1zYKLUpnYdybBzV2SZxawB5V8c2uRre6BirjkKecYbyguzFwgEfdcemw2ZehrhfaCXsx4hoICtHxNU_UkFQe21ZXvVjz4gBPMLINNMNlGAG-XpFphuHetV4h_KqfH97_Niln4BAnnkSqp77dwvzw&quot;,
         },
         market: {
-            label: "Standard Size",
+            label: &quot;Standard Size&quot;,
             price: 40,
-            savings: "20% less",
+            savings: &quot;20% less&quot;,
             defaultQty: 2,
         },
     },
     {
-        id: "kumkum",
-        name: "Kumkum",
-        quantity: "50g",
+        id: &quot;kumkum&quot;,
+        name: &quot;Kumkum&quot;,
+        quantity: &quot;50g&quot;,
         premium: {
-            brand: "Organic (50g)",
+            brand: &quot;Organic (50g)&quot;,
             price: 80,
-            image: "https://lh3.googleusercontent.com/aida-public/AB6AXuApiCSiz9pqLYv7omSJu5WXKrDqjUDIC0-jzrmHIi41kt2pT6iludUq0ttFwx-fIyajfMyCyba0hJJpo9PGwx3kl8Btp7BBUdX21TXUnCaliWotQjWzYpWsTpQ2Yz7yNhINjT2swUe1ngD3PfwfKv__VC1CVw_rnjvupz4l2okSKSZ3i9KmrB7Q9z5Jf3nT9NcPVD0jAegreWMw8_HPEfu243jfeam0ugsMqzm_skk11HfdKvOqJPIkf3NyC1iOmmkvqGRgEb_DeOk",
+            image: &quot;https://lh3.googleusercontent.com/aida-public/AB6AXuApiCSiz9pqLYv7omSJu5WXKrDqjUDIC0-jzrmHIi41kt2pT6iludUq0ttFwx-fIyajfMyCyba0hJJpo9PGwx3kl8Btp7BBUdX21TXUnCaliWotQjWzYpWsTpQ2Yz7yNhINjT2swUe1ngD3PfwfKv__VC1CVw_rnjvupz4l2okSKSZ3i9KmrB7Q9z5Jf3nT9NcPVD0jAegreWMw8_HPEfu243jfeam0ugsMqzm_skk11HfdKvOqJPIkf3NyC1iOmmkvqGRgEb_DeOk&quot;,
         },
         market: {
-            label: "Local Pack",
+            label: &quot;Local Pack&quot;,
             price: 40,
-            savings: "50% less",
+            savings: &quot;50% less&quot;,
             defaultQty: 1,
         },
     },
     {
-        id: "supari",
-        name: "Supari",
-        quantity: "100g",
+        id: &quot;supari&quot;,
+        name: &quot;Supari&quot;,
+        quantity: &quot;100g&quot;,
         premium: {
-            brand: "Whole Premium (100g)",
+            brand: &quot;Whole Premium (100g)&quot;,
             price: 120,
-            image: "https://lh3.googleusercontent.com/aida-public/AB6AXuBcfdjXgSUgv8gsdb0-CZlouCFT-VF_Q7bw_AZQQ1-JKo-5gnayZSRZtqW59pQ72uQVDMsS7IoTIFA3EQ-au6gStnsU9sKrTWTlx-yjNNYSaJ-RFC7p3krS6xdq851JnvMvRT57DNHIJ27lHY9skkCvBssge9PNEgxn_70dsyLtbUxMTtxyF7b_4t09StSGRVIWg1LXsO2BJg_c25-KgL9nJjsnHYP3T8YJ-tMm_9aVdQESEdE-xjsqXrDVPCqovEe1S84aK6FEkfg",
+            image: &quot;https://lh3.googleusercontent.com/aida-public/AB6AXuBcfdjXgSUgv8gsdb0-CZlouCFT-VF_Q7bw_AZQQ1-JKo-5gnayZSRZtqW59pQ72uQVDMsS7IoTIFA3EQ-au6gStnsU9sKrTWTlx-yjNNYSaJ-RFC7p3krS6xdq851JnvMvRT57DNHIJ27lHY9skkCvBssge9PNEgxn_70dsyLtbUxMTtxyF7b_4t09StSGRVIWg1LXsO2BJg_c25-KgL9nJjsnHYP3T8YJ-tMm_9aVdQESEdE-xjsqXrDVPCqovEe1S84aK6FEkfg&quot;,
         },
         market: {
-            label: "Loose Market",
+            label: &quot;Loose Market&quot;,
             price: 90,
-            savings: "25% less",
+            savings: &quot;25% less&quot;,
             defaultQty: 1,
         },
     },
@@ -106,7 +106,7 @@ export function SamagriModal({ panditId, pujaType, onSelect, onClose }: SamagriM
     const marketTotal = 5200;
     const savings = panditTotal - marketTotal;
 
-    // Track custom list items. Initially all "market" items are selected in custom list logic
+    // Track custom list items. Initially all &quot;market&quot; items are selected in custom list logic
     const [customCounts, setCustomCounts] = useState<Record<string, number>>(
         COMPARISON_ITEMS.reduce((acc, item) => ({ ...acc, [item.id]: item.market.defaultQty }), {})
     );
@@ -135,7 +135,7 @@ export function SamagriModal({ panditId, pujaType, onSelect, onClose }: SamagriM
                 <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100 dark:border-slate-700 bg-white dark:bg-[#2a2018] shrink-0">
                     <div>
                         <h1 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white">Compare & Choose Your Samagri Kit</h1>
-                        <p className="text-lg text-slate-500 dark:text-slate-400 mt-1">Review the sourcing options for your {pujaType || "Ceremony"}</p>
+                        <p className="text-lg text-slate-500 dark:text-slate-400 mt-1">Review the sourcing options for your {pujaType || &quot;Ceremony&quot;}</p>
                     </div>
                     <button
                         onClick={onClose}
@@ -147,13 +147,13 @@ export function SamagriModal({ panditId, pujaType, onSelect, onClose }: SamagriM
 
                 {/* Sticky Comparison Header */}
                 <div className="grid grid-cols-12 gap-4 px-6 py-4 bg-[#f8f7f6] dark:bg-[#221910] border-b border-slate-200 dark:border-slate-700 shrink-0">
-                    {/* Left Column Header: Pandit's Package */}
+                    {/* Left Column Header: Pandit&apos;s Package */}
                     <div className="col-span-5 flex flex-col justify-between h-full pr-4 border-r border-slate-200 dark:border-slate-700 border-dashed">
                         <div className="flex items-start justify-between mb-2">
                             <div>
                                 <div className="flex items-center gap-2 mb-1">
                                     <span className="material-symbols-outlined text-slate-500 text-lg">verified</span>
-                                    <h2 className="font-semibold text-slate-700 dark:text-slate-200">Pandit's Fixed Package</h2>
+                                    <h2 className="font-semibold text-slate-700 dark:text-slate-200">Pandit&apos;s Fixed Package</h2>
                                 </div>
                                 <span className="text-base font-medium bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-4 py-2 rounded-full">Premium Brands</span>
                             </div>
@@ -278,7 +278,7 @@ export function SamagriModal({ panditId, pujaType, onSelect, onClose }: SamagriM
                 {/* Sticky Footer Actions */}
                 <div className="bg-white dark:bg-[#2a2018] p-6 border-t border-slate-100 dark:border-slate-700 shrink-0 grid grid-cols-2 gap-4">
                     <button
-                        onClick={() => onSelect({ type: "package", totalCost: panditTotal, items: [] })}
+                        onClick={() => onSelect({ type: &quot;package&quot;, totalCost: panditTotal, items: [] })}
                         className="flex flex-col items-center justify-center p-4 rounded-xl border-2 border-transparent hover:border-slate-200 hover:bg-slate-50 dark:hover:bg-[#32281e] transition-all group"
                     >
                         <span className="text-slate-500 dark:text-slate-400 text-lg font-medium mb-1">Pandit&apos;s Choice</span>
@@ -286,7 +286,7 @@ export function SamagriModal({ panditId, pujaType, onSelect, onClose }: SamagriM
                         <span className="text-base text-slate-400 mt-1 group-hover:text-slate-600 dark:group-hover:text-slate-300">Pay ₹{panditTotal.toLocaleString()}</span>
                     </button>
                     <button
-                        onClick={() => onSelect({ type: "custom", totalCost: currentCustomTotal, items: customCounts as any })}
+                        onClick={() => onSelect({ type: &quot;custom&quot;, totalCost: currentCustomTotal, items: customCounts as any })}
                         className="flex flex-col items-center justify-center p-4 rounded-xl bg-[#ec7f13] hover:bg-[#b05e0e] transition-all text-white shadow-lg shadow-[#ec7f13]/30 relative overflow-hidden group"
                     >
                         <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -mr-10 -mt-10 blur-xl"></div>

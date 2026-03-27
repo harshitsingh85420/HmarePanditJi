@@ -11,7 +11,7 @@ export default function ContactPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const text = `Name: ${form.name}\nPhone: ${form.phone}\nCity: ${form.city}\n\n${form.message}`;
-    window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(text)}`, "_blank");
+    window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(text)}`, &quot;_blank&quot;);
     setSent(true);
   };
 
@@ -30,38 +30,38 @@ export default function ContactPage() {
         <div className="space-y-6">
           {[
             {
-              icon: "chat",
-              title: "WhatsApp Support",
-              subtitle: "सबसे तेज़ जवाब — Fastest Response",
-              detail: `+${WHATSAPP.replace("91", "+91 ")}`,
-              href: `https://wa.me/${WHATSAPP}?text=${encodeURIComponent("Namaste! I need help with my booking.")}`,
-              color: "text-green-500",
-              bg: "bg-green-500/10",
+              icon: &quot;chat&quot;,
+              title: &quot;WhatsApp Support&quot;,
+              subtitle: &quot;सबसे तेज़ जवाब — Fastest Response&quot;,
+              detail: `+${WHATSAPP.replace(&quot;91&quot;, &quot;+91 &quot;)}`,
+              href: `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(&quot;Namaste! I need help with my booking.&quot;)}`,
+              color: &quot;text-green-500&quot;,
+              bg: &quot;bg-green-500/10&quot;,
             },
             {
-              icon: "mail",
-              title: "Email Support",
-              subtitle: "Response within 24 hours",
-              detail: "support@hmarepanditji.com",
-              href: "mailto:support@hmarepanditji.com",
-              color: "text-primary",
-              bg: "bg-primary/10",
+              icon: &quot;mail&quot;,
+              title: &quot;Email Support&quot;,
+              subtitle: &quot;Response within 24 hours&quot;,
+              detail: &quot;support@hmarepanditji.com&quot;,
+              href: &quot;mailto:support@hmarepanditji.com&quot;,
+              color: &quot;text-primary&quot;,
+              bg: &quot;bg-primary/10&quot;,
             },
             {
-              icon: "location_on",
-              title: "Service Area",
-              subtitle: "Phase 1 Launch",
-              detail: "Delhi, Noida, Gurgaon, Faridabad, Ghaziabad",
-              color: "text-amber-500",
-              bg: "bg-amber-500/10",
+              icon: &quot;location_on&quot;,
+              title: &quot;Service Area&quot;,
+              subtitle: &quot;Phase 1 Launch&quot;,
+              detail: &quot;Delhi, Noida, Gurgaon, Faridabad, Ghaziabad&quot;,
+              color: &quot;text-amber-500&quot;,
+              bg: &quot;bg-amber-500/10&quot;,
             },
             {
-              icon: "schedule",
-              title: "Support Hours",
-              subtitle: "हर दिन — Every Day",
-              detail: "6:00 AM – 10:00 PM IST",
-              color: "text-violet-500",
-              bg: "bg-violet-500/10",
+              icon: &quot;schedule&quot;,
+              title: &quot;Support Hours&quot;,
+              subtitle: &quot;हर दिन — Every Day&quot;,
+              detail: &quot;6:00 AM – 10:00 PM IST&quot;,
+              color: &quot;text-violet-500&quot;,
+              bg: &quot;bg-violet-500/10&quot;,
             },
           ].map((item) => (
             <div key={item.title} className="flex items-start gap-4 bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-100 dark:border-slate-800">
@@ -99,9 +99,9 @@ export default function ContactPage() {
               <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-6">Send us a message</h2>
               <form onSubmit={handleSubmit} className="space-y-4">
                 {[
-                  { key: "name", label: "Your Name", placeholder: "e.g. Ramesh Gupta", type: "text" },
-                  { key: "phone", label: "Mobile Number", placeholder: "+91 99999 88888", type: "tel" },
-                  { key: "city", label: "City", placeholder: "Delhi, Noida, Gurgaon...", type: "text" },
+                  { key: &quot;name&quot;, label: &quot;Your Name&quot;, placeholder: &quot;e.g. Ramesh Gupta&quot;, type: &quot;text&quot; },
+                  { key: &quot;phone&quot;, label: &quot;Mobile Number&quot;, placeholder: &quot;+91 99999 88888&quot;, type: &quot;tel&quot; },
+                  { key: &quot;city&quot;, label: &quot;City&quot;, placeholder: &quot;Delhi, Noida, Gurgaon...&quot;, type: &quot;text&quot; },
                 ].map((field) => (
                   <div key={field.key}>
                     <label className="text-base font-semibold text-slate-500 uppercase tracking-wider block mb-1.5">{field.label}</label>

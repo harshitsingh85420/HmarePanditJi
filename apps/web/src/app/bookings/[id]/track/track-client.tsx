@@ -43,25 +43,25 @@ export default function TrackClient({ bookingId }: { bookingId: string }) {
 
     const [booking, setBooking] = useState<BookingDetail | null>(null);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
+    const [error, setError] = useState(&quot;&quot;);
 
     const fetchBooking = useCallback(async () => {
         if (!accessToken) return;
         setLoading(true);
-        setError("");
+        setError(&quot;&quot;);
         try {
             const res = await fetch(`${API}/bookings/${bookingId}`, {
                 headers: { Authorization: `Bearer ${accessToken}` },
             });
             if (res.status === 404) {
-                setError("Booking not found.");
+                setError(&quot;Booking not found.&quot;);
                 return;
             }
             if (!res.ok) throw new Error();
             const json = await res.json();
             setBooking(json.data ?? json);
         } catch {
-            setError("Could not load tracking details.");
+            setError(&quot;Could not load tracking details.&quot;);
         } finally {
             setLoading(false);
         }
@@ -106,7 +106,7 @@ export default function TrackClient({ bookingId }: { bookingId: string }) {
                     <div className="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
                         <span className="material-symbols-outlined text-3xl">error</span>
                     </div>
-                    <h2 className="text-lg font-bold text-slate-800 mb-2">{error || "Tracking unavailable"}</h2>
+                    <h2 className="text-lg font-bold text-slate-800 mb-2">{error || &quot;Tracking unavailable&quot;}</h2>
                     <button
                         onClick={() => router.back()}
                         className="text-primary hover:underline font-medium text-lg"
@@ -214,7 +214,7 @@ export default function TrackClient({ bookingId }: { bookingId: string }) {
             <aside className="w-full lg:w-96 bg-white dark:bg-[#101922] border-l border-slate-200 dark:border-slate-800 z-30 flex flex-col h-full overflow-hidden shadow-2xl lg:shadow-none">
                 <div className="p-6 border-b border-slate-200 dark:border-slate-800 shrink-0">
                     <h2 className="text-xl font-bold dark:text-white text-slate-900">Journey Timeline</h2>
-                    <p className="text-slate-500 dark:text-slate-400 text-lg">Varanasi → {booking.venueAddress.city || "Delhi"} Route</p>
+                    <p className="text-slate-500 dark:text-slate-400 text-lg">Varanasi → {booking.venueAddress.city || &quot;Delhi&quot;} Route</p>
                 </div>
 
                 <div className="flex-1 overflow-y-auto p-6 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700">
@@ -260,7 +260,7 @@ export default function TrackClient({ bookingId }: { bookingId: string }) {
                                 <div className="mt-3 p-3 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700 w-full">
                                     <div className="flex items-center gap-3">
                                         <div className="size-10 rounded-lg bg-cover shrink-0 bg-slate-200" style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuAD2hXxB9Oz9hMQZgbqOe75bUcWr3UIM-1PBVTnxPs065tEh4FFk-DDIW5F8XbNepxAe1cWUY_8JYxNlF5F0QWIa8IjG5Jm4rr3dwNwELv4uHFj_EpdKkHfSE82h9NQyBPlGYjfMPtQeVBO4mSV-zmJZFccR_bsriTXat4CBU4t_h-9D3H9jqU1BnqL-gbmTYt-EmNCbzAmXK9ecYRO9GcOm4FCPCt4hz8KdBifqOoyBvRhycRGkTFNsmec1cr_5d7m_rZOu82dGNg')" }}></div>
-                                        <span className="text-base text-slate-500 dark:text-slate-400 italic">"Traffic reported near Yamuna Expressway. Minor delay possible."</span>
+                                        <span className="text-base text-slate-500 dark:text-slate-400 italic">&quot;Traffic reported near Yamuna Expressway. Minor delay possible.&quot;</span>
                                     </div>
                                 </div>
                             </div>
@@ -284,7 +284,7 @@ export default function TrackClient({ bookingId }: { bookingId: string }) {
                                 <span className="material-symbols-outlined text-[16px]">location_on</span>
                             </div>
                             <div className="flex flex-col">
-                                <h4 className="font-bold dark:text-white text-slate-800">{booking.venueAddress.city || "Delhi"} (Destination)</h4>
+                                <h4 className="font-bold dark:text-white text-slate-800">{booking.venueAddress.city || &quot;Delhi&quot;} (Destination)</h4>
                                 <p className="text-lg text-slate-500 dark:text-slate-400 mt-0.5">Pooja Venue</p>
                                 <p className="text-lg font-medium mt-1 text-slate-400">Est. 02:20 AM</p>
                             </div>
@@ -310,9 +310,9 @@ export default function TrackClient({ bookingId }: { bookingId: string }) {
                                         <span key={i} className="material-symbols-outlined text-base" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
                                     ))}
                                 </div>
-                                <span className="ml-1 font-semibold">{booking.pandit.averageRating ? booking.pandit.averageRating.toFixed(1) : "New"} ({booking.pandit.totalBookings || 0} bookings)</span>
+                                <span className="ml-1 font-semibold">{booking.pandit.averageRating ? booking.pandit.averageRating.toFixed(1) : &quot;New&quot;} ({booking.pandit.totalBookings || 0} bookings)</span>
                             </div>
-                            <p className="text-base text-slate-500 dark:text-slate-400 mt-1">Expert in {booking.category || "Vedic Rituals"}</p>
+                            <p className="text-base text-slate-500 dark:text-slate-400 mt-1">Expert in {booking.category || &quot;Vedic Rituals&quot;}</p>
                         </div>
                     </div>
                 </div>

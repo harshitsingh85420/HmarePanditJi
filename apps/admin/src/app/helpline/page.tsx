@@ -195,14 +195,14 @@ export default function HelplineDashboard() {
                 {/* Tabs */}
                 <div className="flex border-b border-slate-200 dark:border-slate-700">
                     <button
-                        onClick={() => setActiveTab("communication")}
-                        className={`flex-1 py-3 text-sm font-medium ${activeTab === "communication" ? "text-[#0f49bd] border-b-2 border-[#0f49bd] bg-[#0f49bd]/5 dark:bg-[#0f49bd]/10" : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300"}`}
+                        onClick={() => setActiveTab(&quot;communication&quot;)}
+                        className={`flex-1 py-3 text-sm font-medium ${activeTab === &quot;communication&quot; ? &quot;text-[#0f49bd] border-b-2 border-[#0f49bd] bg-[#0f49bd]/5 dark:bg-[#0f49bd]/10&quot; : &quot;text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300&quot;}`}
                     >
                         Communication
                     </button>
                     <button
-                        onClick={() => setActiveTab("timeline")}
-                        className={`flex-1 py-3 text-sm font-medium ${activeTab === "timeline" ? "text-[#0f49bd] border-b-2 border-[#0f49bd] bg-[#0f49bd]/5 dark:bg-[#0f49bd]/10" : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300"}`}
+                        onClick={() => setActiveTab(&quot;timeline&quot;)}
+                        className={`flex-1 py-3 text-sm font-medium ${activeTab === &quot;timeline&quot; ? &quot;text-[#0f49bd] border-b-2 border-[#0f49bd] bg-[#0f49bd]/5 dark:bg-[#0f49bd]/10&quot; : &quot;text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300&quot;}`}
                     >
                         Timeline &amp; Notes
                     </button>

@@ -3,8 +3,9 @@
 import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { EmergencySOSFloating } from './EmergencySOSFloating'
-import { LanguageChangeWidget, type SupportedLanguage } from './LanguageChangeWidget'
+import { LanguageChangeWidget } from './LanguageChangeWidget'
 import { useLanguageStore } from '@/stores/languageStore'
+import type { SupportedLanguage } from '@/lib/onboarding-store'
 
 /**
  * App Overlays Component

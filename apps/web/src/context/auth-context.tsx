@@ -42,23 +42,23 @@ interface AuthContextValue {
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
-const STORAGE_KEY = "hpj_token";
+const STORAGE_KEY = &quot;hpj_token&quot;;
 export const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api/v1";
+  process.env.NEXT_PUBLIC_API_URL ?? &quot;http://localhost:3001/api/v1&quot;;
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 /** Save token to localStorage + cookie */
 export function saveTokens(token: string, _refresh?: string) {
-  if (typeof window === "undefined") return;
+  if (typeof window === &quot;undefined&quot;) return;
   localStorage.setItem(STORAGE_KEY, token);
   document.cookie = `hpj_token=${token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
 }
 
 function clearTokens() {
-  if (typeof window === "undefined") return;
+  if (typeof window === &quot;undefined&quot;) return;
   localStorage.removeItem(STORAGE_KEY);
-  document.cookie = "hpj_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+  document.cookie = &quot;hpj_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT&quot;;
 }
 
 // ── Context ───────────────────────────────────────────────────────────────────
@@ -104,7 +104,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     async function boot() {
-      if (typeof window === "undefined") {
+      if (typeof window === &quot;undefined&quot;) {
         setLoading(false);
         return;
       }
@@ -136,10 +136,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = useCallback(() => {
     const token =
       accessToken ??
-      (typeof window !== "undefined" ? localStorage.getItem(STORAGE_KEY) : null);
+      (typeof window !== &quot;undefined&quot; ? localStorage.getItem(STORAGE_KEY) : null);
     if (token) {
       fetch(`${API_BASE}/auth/logout`, {
-        method: "POST",
+        method: &quot;POST&quot;,
         headers: { Authorization: `Bearer ${token}` },
       }).catch(() => {});
     }

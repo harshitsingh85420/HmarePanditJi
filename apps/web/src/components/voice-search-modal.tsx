@@ -11,17 +11,17 @@ interface VoiceSearchModalProps {
 export function VoiceSearchModal({ isOpen, onClose }: VoiceSearchModalProps) {
     const router = useRouter();
     const [listening, setListening] = useState(false);
-    const [transcript, setTranscript] = useState("");
+    const [transcript, setTranscript] = useState(&quot;&quot;);
     const [waveformHeight, setWaveformHeight] = useState<number[]>([]);
 
     // Simulation of listening
     useEffect(() => {
         if (isOpen) {
             setListening(true);
-            setTranscript("");
+            setTranscript(&quot;&quot;);
             // Simulate speaking after 1s
             const t1 = setTimeout(() => {
-                setTranscript("Main December mein Delhi mein wedding ke liye Maithil Brahmin Pandit chahiye");
+                setTranscript(&quot;Main December mein Delhi mein wedding ke liye Maithil Brahmin Pandit chahiye&quot;);
                 setListening(false);
             }, 3000);
 
@@ -76,7 +76,7 @@ export function VoiceSearchModal({ isOpen, onClose }: VoiceSearchModalProps) {
             <main className="flex-1 flex flex-col items-center justify-center px-4 max-w-4xl mx-auto w-full">
                 <div className="text-center mb-12">
                     <p className="text-[#f29e0d] text-lg font-medium tracking-widest uppercase mb-8">
-                        {listening ? "Listening..." : "Processing complete"}
+                        {listening ? &quot;Listening...&quot; : &quot;Processing complete&quot;}
                     </p>
                     {/* Large Pulsating Microphone Area */}
                     <div className="relative flex items-center justify-center">
@@ -107,11 +107,11 @@ export function VoiceSearchModal({ isOpen, onClose }: VoiceSearchModalProps) {
                 <div className="text-center max-w-2xl min-h-[120px]">
                     {transcript ? (
                         <h1 className="text-2xl md:text-4xl font-bold leading-tight tracking-tight mb-8 animate-in fade-in slide-in-from-bottom-4">
-                            "Main <span className="text-[#f29e0d]">December</span> mein{" "}
-                            <span className="text-[#f29e0d]">Delhi</span> mein{" "}
-                            <span className="text-[#f29e0d]">wedding</span> ke liye{" "}
-                            <span className="text-[#f29e0d]">Maithil Brahmin Pandit</span>{" "}
-                            chahiye"
+                            &quot;Main <span className="text-[#f29e0d]">December</span> mein{&quot; &quot;}
+                            <span className="text-[#f29e0d]">Delhi</span> mein{&quot; &quot;}
+                            <span className="text-[#f29e0d]">wedding</span> ke liye{&quot; &quot;}
+                            <span className="text-[#f29e0d]">Maithil Brahmin Pandit</span>{&quot; &quot;}
+                            chahiye&quot;
                         </h1>
                     ) : (
                         <h1 className="text-2xl md:text-4xl font-bold leading-tight tracking-tight text-slate-300 dark:text-white/20 mb-8">
@@ -129,15 +129,15 @@ export function VoiceSearchModal({ isOpen, onClose }: VoiceSearchModalProps) {
                             </p>
                             <div className="flex flex-wrap justify-center gap-3">
                                 {[
-                                    "Kal subah Satyanarayan puja ke liye",
-                                    "Grah Pravesh muhurat in November",
-                                    "Top rated Pandits in South Delhi",
+                                    &quot;Kal subah Satyanarayan puja ke liye&quot;,
+                                    &quot;Grah Pravesh muhurat in November&quot;,
+                                    &quot;Top rated Pandits in South Delhi&quot;,
                                 ].map((s) => (
                                     <button
                                         key={s}
                                         className="bg-white dark:bg-[#393328] hover:bg-slate-50 dark:hover:bg-[#4a4336] text-slate-700 dark:text-white px-5 py-3 rounded-xl text-lg transition-all border border-slate-200 dark:border-[#4a4336] shadow-sm"
                                     >
-                                        "{s}"
+                                        &quot;{s}&quot;
                                     </button>
                                 ))}
                             </div>
@@ -153,8 +153,8 @@ export function VoiceSearchModal({ isOpen, onClose }: VoiceSearchModalProps) {
                                 Cancel
                             </button>
                             <button
-                                onClick={() => router.push("/search?q=" + encodeURIComponent(transcript))}
-                                className="px-8 py-3 rounded-xl bg-[#f29e0d] text-[#181511] font-bold shadow-lg shadow-[#f29e0d]/20 hover:bg-[#f29e0d]/90 transition-colors"
+                                onClick={() => router.push(&quot;/search?q=" + encodeURIComponent(transcript))}
+                                className="px-8 py-3 rounded-xl bg-[#f29e0d] text-[#181511] font-bold shadow-lg shadow-[#f29e0d]/20 hover:bg-[#f29e0d]/90 transition-colors&quot;
                             >
                                 Search Pandits
                             </button>

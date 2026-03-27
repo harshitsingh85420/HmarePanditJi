@@ -137,14 +137,14 @@ export function VoiceOverlay({ question, interimText, onSilenceTimeout }: VoiceO
               <motion.div
                 initial={{ scale: 0.8, opacity: 0.6 }}
                 animate={{ scale: 1.5, opacity: 0 }}
-                transition={{ duration: 2, repeat: Infinity, repeatType: 'restart' }}
+                transition={{ duration: 2, repeat: Infinity, repeatType: 'loop' as const }}
                 className="absolute inset-0 rounded-full border-4 border-saffron/30"
               />
               {/* Inner pulsing ring */}
               <motion.div
                 initial={{ scale: 0.9, opacity: 0.4 }}
                 animate={{ scale: 1.3, opacity: 0 }}
-                transition={{ duration: 2, repeat: Infinity, repeatType: 'restart', delay: 0.5 }}
+                transition={{ duration: 2, repeat: Infinity, repeatType: 'loop' as const, delay: 0.5 }}
                 className="absolute inset-0 rounded-full border-4 border-saffron/20"
               />
             </div>

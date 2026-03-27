@@ -29,8 +29,8 @@ async function getPandit(id: string) {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const pandit = await getPandit(params.id);
-  const name = pandit?.displayName ?? "Verified Pandit Ji";
-  const city = pandit?.city ?? "Delhi-NCR";
+  const name = pandit?.displayName ?? &quot;Verified Pandit Ji&quot;;
+  const city = pandit?.city ?? &quot;Delhi-NCR&quot;;
   const rating = pandit?.averageRating ?? 4.9;
   const reviews = pandit?.totalReviews ?? 0;
 
@@ -45,10 +45,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     openGraph: {
       title,
       description,
-      type: "profile",
+      type: &quot;profile&quot;,
       images: pandit?.profilePhotoUrl ? [{ url: pandit.profilePhotoUrl }] : [],
     },
-    twitter: { card: "summary_large_image", title, description },
+    twitter: { card: &quot;summary_large_image&quot;, title, description },
     robots: { index: true, follow: true },
   };
 }
@@ -57,32 +57,32 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 function JsonLd({ panditId }: { panditId: string }) {
   const schema = {
-    "@context": "https://schema.org",
-    "@graph": [
+    &quot;@context&quot;: &quot;https://schema.org&quot;,
+    &quot;@graph&quot;: [
       {
-        "@type": "Person",
-        "@id": `https://hmarepanditji.in/pandit/${panditId}`,
-        name: "Pandit Ji",
-        jobTitle: "Vedic Priest",
+        &quot;@type&quot;: &quot;Person&quot;,
+        &quot;@id&quot;: `https://hmarepanditji.in/pandit/${panditId}`,
+        name: &quot;Pandit Ji&quot;,
+        jobTitle: &quot;Vedic Priest&quot;,
         worksFor: {
-          "@type": "Organization",
-          name: "HmarePanditJi",
-          url: "https://hmarepanditji.in",
+          &quot;@type&quot;: &quot;Organization&quot;,
+          name: &quot;HmarePanditJi&quot;,
+          url: &quot;https://hmarepanditji.in&quot;,
         },
         address: {
-          "@type": "PostalAddress",
-          addressRegion: "Delhi",
-          addressCountry: "IN",
+          &quot;@type&quot;: &quot;PostalAddress&quot;,
+          addressRegion: &quot;Delhi&quot;,
+          addressCountry: &quot;IN&quot;,
         },
-        knowsAbout: ["Hindu Rituals", "Vedic Ceremonies", "Sanskrit"],
+        knowsAbout: [&quot;Hindu Rituals&quot;, &quot;Vedic Ceremonies&quot;, &quot;Sanskrit&quot;],
       },
       {
-        "@type": "LocalBusiness",
-        name: "HmarePanditJi",
-        description: "Book Aadhaar-verified Hindu priests for ceremonies in Delhi-NCR.",
-        url: "https://hmarepanditji.in",
-        areaServed: "Delhi NCR, India",
-        "@id": "https://hmarepanditji.in",
+        &quot;@type&quot;: &quot;LocalBusiness&quot;,
+        name: &quot;HmarePanditJi&quot;,
+        description: &quot;Book Aadhaar-verified Hindu priests for ceremonies in Delhi-NCR.&quot;,
+        url: &quot;https://hmarepanditji.in&quot;,
+        areaServed: &quot;Delhi NCR, India&quot;,
+        &quot;@id&quot;: &quot;https://hmarepanditji.in&quot;,
       },
     ],
   };

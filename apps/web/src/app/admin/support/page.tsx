@@ -14,7 +14,7 @@ export default function AdminSupportPage() {
                             H
                         </div>
                         <span className="font-bold text-lg tracking-tight text-slate-900 dark:text-white">
-                            HmarePanditJi{" "}
+                            HmarePanditJi{&quot; &quot;}
                             <span className="text-[#0f49bd] font-normal">
                                 Admin
                             </span>
@@ -169,19 +169,19 @@ export default function AdminSupportPage() {
                                     <span className="flex items-center gap-1">
                                         <span className="material-symbols-outlined text-base">
                                             event
-                                        </span>{" "}
+                                        </span>{&quot; &quot;}
                                         14 Oct, 2023
                                     </span>
                                     <span className="flex items-center gap-1">
                                         <span className="material-symbols-outlined text-base">
                                             schedule
-                                        </span>{" "}
+                                        </span>{&quot; &quot;}
                                         Puja Time: 10:00 AM
                                     </span>
                                     <span className="flex items-center gap-1 text-[#0f49bd] dark:text-blue-400 font-medium">
                                         <span className="material-symbols-outlined text-base">
                                             person
-                                        </span>{" "}
+                                        </span>{&quot; &quot;}
                                         Cust: Mr. Rahul Kapoor
                                     </span>
                                 </div>
@@ -375,7 +375,7 @@ export default function AdminSupportPage() {
                             </button>
                         </div>
                         <div className="text-base text-center text-slate-500">
-                            Currently viewing:{" "}
+                            Currently viewing:{&quot; &quot;}
                             <span className="font-bold">Customer Chat</span>
                         </div>
                     </div>
@@ -403,7 +403,7 @@ export default function AdminSupportPage() {
                             <div className="bg-[#0f49bd] text-white rounded-2xl rounded-tr-none p-3 shadow-md max-w-[85%]">
                                 <p className="text-lg">
                                     Namaste Mr. Kapoor. We are tracking the
-                                    Pandit's location. He is stuck in heavy
+                                    Pandit&apos;s location. He is stuck in heavy
                                     traffic. We are arranging a backup.
                                 </p>
                                 <span className="text-[10px] text-blue-100 mt-1 block">

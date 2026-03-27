@@ -142,7 +142,7 @@ export default function ItineraryPage({ params }: { params: { id: string } }) {
                                                     <div className="flex items-center gap-1 mt-1 text-[#0f49bd] text-base font-medium cursor-pointer hover:underline">
                                                         <span className="material-symbols-outlined text-lg">
                                                             call
-                                                        </span>{" "}
+                                                        </span>{&quot; &quot;}
                                                         Call Driver
                                                     </div>
                                                 </div>
@@ -171,7 +171,7 @@ export default function ItineraryPage({ params }: { params: { id: string } }) {
                                                             Drop
                                                         </p>
                                                         <p className="text-lg font-medium text-slate-800 dark:text-slate-200">
-                                                            Kempegowda Int'l Airport (BLR)
+                                                            Kempegowda Int&apos;l Airport (BLR)
                                                         </p>
                                                     </div>
                                                 </div>
@@ -185,7 +185,7 @@ export default function ItineraryPage({ params }: { params: { id: string } }) {
                                                 <span className="material-symbols-outlined text-lg">
                                                     check_circle
                                                 </span>
-                                                I'm Here
+                                                I&apos;m Here
                                             </button>
                                             <button
                                                 onClick={() => router.push(`/pandit/bookings/${params.id}/live`)}
@@ -262,7 +262,7 @@ export default function ItineraryPage({ params }: { params: { id: string } }) {
                                                 <span className="material-symbols-outlined text-lg">
                                                     flight_takeoff
                                                 </span>
-                                                I've Boarded
+                                                I&apos;ve Boarded
                                             </button>
                                         </div>
                                     </div>

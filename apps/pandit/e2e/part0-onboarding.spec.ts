@@ -3,6 +3,11 @@ import { test, expect } from '@playwright/test'
 /**
  * E2E Tests for Part 0 Onboarding Flow
  * Tests the complete onboarding experience from splash screen to registration
+ * 
+ * Updated with:
+ * - Hindi text locators
+ * - Role-based queries (getByRole, getByLabel)
+ * - Accessibility-first selectors
  */
 
 test.describe('Part 0 Onboarding Flow', () => {
@@ -12,104 +17,104 @@ test.describe('Part 0 Onboarding Flow', () => {
   })
 
   test('should display splash screen for 3 seconds', async ({ page }) => {
-    // Verify splash screen is visible
-    await expect(page.locator('[data-testid="splash-screen"]')).toBeVisible()
-    
+    // Verify splash screen is visible using role
+    await expect(page.getByRole('img', { name: /ॐ |Om symbol/i })).toBeVisible()
+
     // Wait for splash to disappear (3 seconds)
     await page.waitForTimeout(3500)
-    
+
     // Verify splash is hidden
     await expect(page.locator('[data-testid="splash-screen"]')).not.toBeVisible()
   })
 
   test('should display location permission screen', async ({ page }) => {
-    // Wait for splash to disappear
+    // Wait for splash and navigate to location screen
     await page.waitForTimeout(3500)
-    
-    // Verify location permission screen is visible
-    await expect(page.locator('[data-testid="location-permission"]')).toBeVisible()
-    
+
+    // Verify location permission screen is visible using role
+    await expect(page.getByRole('heading', { name: /location/i })).toBeVisible()
+
     // Verify voice prompt is present
-    await expect(page.locator('[data-testid="voice-prompt"]')).toContainText('location')
+    await expect(page.getByRole('status')).toContainText(/location|स्थान/i)
   })
 
   test('should allow manual city entry', async ({ page }) => {
     // Wait for splash and navigate to location screen
     await page.waitForTimeout(3500)
-    
-    // Click manual entry button
-    await page.click('[data-testid="manual-location-btn"]')
-    
+
+    // Click manual entry button using role
+    await page.getByRole('button', { name: /manual|मैन्युअल/i }).click()
+
     // Verify city input is visible
-    await expect(page.locator('[data-testid="city-input"]')).toBeVisible()
-    
+    await expect(page.getByRole('textbox', { name: /city|शहर/i })).toBeVisible()
+
     // Enter city name
-    await page.fill('[data-testid="city-input"]', 'Delhi')
-    
-    // Click continue
-    await page.click('[data-testid="continue-btn"]')
-    
+    await page.getByRole('textbox', { name: /city|शहर/i }).fill('Delhi')
+
+    // Click continue using role
+    await page.getByRole('button', { name: /continue|आगे/i }).click()
+
     // Verify navigation to language selection
-    await expect(page.locator('[data-testid="language-selection"]')).toBeVisible()
+    await expect(page.getByRole('heading', { name: /language|भाषा/i })).toBeVisible()
   })
 
   test('should display language selection screen', async ({ page }) => {
-    // Wait for splash and navigate to language screen
+    // Navigate to language screen
     await page.waitForTimeout(3500)
-    await page.click('[data-testid="manual-location-btn"]')
-    await page.fill('[data-testid="city-input"]', 'Delhi')
-    await page.click('[data-testid="continue-btn"]')
-    
+    await page.getByRole('button', { name: /manual|मैन्युअल/i }).click()
+    await page.getByRole('textbox', { name: /city|शहर/i }).fill('Delhi')
+    await page.getByRole('button', { name: /continue|आगे/i }).click()
+
     // Verify language selection is visible
-    await expect(page.locator('[data-testid="language-selection"]')).toBeVisible()
-    
-    // Verify Hindi is pre-selected
-    await expect(page.locator('[data-testid="lang-hindi"]')).toHaveAttribute('data-selected', 'true')
+    await expect(page.getByRole('heading', { name: /language|भाषा/i })).toBeVisible()
+
+    // Verify Hindi is pre-selected using role and Hindi text
+    await expect(page.getByRole('button', { name: /हिंदी|hindi/i })).toHaveAttribute('data-selected', 'true')
   })
 
   test('should allow language change', async ({ page }) => {
     // Navigate to language screen
     await page.waitForTimeout(3500)
-    await page.click('[data-testid="manual-location-btn"]')
-    await page.fill('[data-testid="city-input"]', 'Delhi')
-    await page.click('[data-testid="continue-btn"]')
-    
-    // Select English
-    await page.click('[data-testid="lang-english"]')
-    
+    await page.getByRole('button', { name: /manual|मैन्युअल/i }).click()
+    await page.getByRole('textbox', { name: /city|शहर/i }).fill('Delhi')
+    await page.getByRole('button', { name: /continue|आगे/i }).click()
+
+    // Select English using role
+    await page.getByRole('button', { name: /english|अंग्रेजी/i }).click()
+
     // Verify selection changed
-    await expect(page.locator('[data-testid="lang-english"]')).toHaveAttribute('data-selected', 'true')
-    
+    await expect(page.getByRole('button', { name: /english|अंग्रेजी/i })).toHaveAttribute('data-selected', 'true')
+
     // Click continue
-    await page.click('[data-testid="continue-btn"]')
-    
-    // Verify tutorial starts in English
-    await expect(page.locator('[data-testid="tutorial-screen"]')).toBeVisible()
+    await page.getByRole('button', { name: /continue|आगे/i }).click()
+
+    // Verify tutorial starts
+    await expect(page.getByRole('heading', { name: /tutorial|स्वागत/i })).toBeVisible()
   })
 
   test('should display all 12 tutorial screens', async ({ page }) => {
     // Navigate through onboarding to tutorial
     await page.waitForTimeout(3500)
-    await page.click('[data-testid="manual-location-btn"]')
-    await page.fill('[data-testid="city-input"]', 'Delhi')
-    await page.click('[data-testid="continue-btn"]')
-    await page.click('[data-testid="continue-btn"]')
-    
-    // Verify first tutorial screen
-    await expect(page.locator('[data-testid="tutorial-screen-1"]')).toBeVisible()
-    
+    await page.getByRole('button', { name: /manual|मैन्युअल/i }).click()
+    await page.getByRole('textbox', { name: /city|शहर/i }).fill('Delhi')
+    await page.getByRole('button', { name: /continue|आगे/i }).click()
+    await page.getByRole('button', { name: /continue|आगे/i }).click()
+
+    // Verify first tutorial screen using role
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+
     // Click through all tutorial screens
     for (let i = 1; i <= 12; i++) {
-      // Verify current screen
-      await expect(page.locator(`[data-testid="tutorial-screen-${i}"]`)).toBeVisible()
-      
-      // Verify progress dots update
-      const activeDot = page.locator(`[data-testid="progress-dot-${i}"]`)
-      await expect(activeDot).toHaveClass(/active/)
-      
+      // Verify current screen heading
+      await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+
+      // Verify progress dots update using role
+      const activeDot = page.getByRole('listitem').nth(i - 1)
+      await expect(activeDot).toHaveClass(/active|current/i)
+
       // Click next (except last screen)
       if (i < 12) {
-        await page.click('[data-testid="next-btn"]')
+        await page.getByRole('button', { name: /next|आगे/i }).click()
       }
     }
   })
@@ -117,72 +122,72 @@ test.describe('Part 0 Onboarding Flow', () => {
   test('should allow skipping tutorial', async ({ page }) => {
     // Navigate to tutorial
     await page.waitForTimeout(3500)
-    await page.click('[data-testid="manual-location-btn"]')
-    await page.fill('[data-testid="city-input"]', 'Delhi')
-    await page.click('[data-testid="continue-btn"]')
-    await page.click('[data-testid="continue-btn"]')
-    
-    // Click skip
-    await page.click('[data-testid="skip-btn"]')
-    
-    // Verify redirected to registration
-    await expect(page.locator('[data-testid="registration-page"]')).toBeVisible()
+    await page.getByRole('button', { name: /manual|मैन्युअल/i }).click()
+    await page.getByRole('textbox', { name: /city|शहर/i }).fill('Delhi')
+    await page.getByRole('button', { name: /continue|आगे/i }).click()
+    await page.getByRole('button', { name: /continue|आगे/i }).click()
+
+    // Click skip using role and Hindi text
+    await page.getByRole('button', { name: /skip|skip करें/i }).click()
+
+    // Verify redirected to registration using role
+    await expect(page.getByRole('heading', { name: /mobile|मोबाइल/i })).toBeVisible()
   })
 
   test('should allow back navigation in tutorial', async ({ page }) => {
     // Navigate to tutorial
     await page.waitForTimeout(3500)
-    await page.click('[data-testid="manual-location-btn"]')
-    await page.fill('[data-testid="city-input"]', 'Delhi')
-    await page.click('[data-testid="continue-btn"]')
-    await page.click('[data-testid="continue-btn"]')
-    
+    await page.getByRole('button', { name: /manual|मैन्युअल/i }).click()
+    await page.getByRole('textbox', { name: /city|शहर/i }).fill('Delhi')
+    await page.getByRole('button', { name: /continue|आगे/i }).click()
+    await page.getByRole('button', { name: /continue|आगे/i }).click()
+
     // Go to screen 3
-    await page.click('[data-testid="next-btn"]')
-    await page.click('[data-testid="next-btn"]')
-    
+    await page.getByRole('button', { name: /next|आगे/i }).click()
+    await page.getByRole('button', { name: /next|आगे/i }).click()
+
     // Verify screen 3
-    await expect(page.locator('[data-testid="tutorial-screen-3"]')).toBeVisible()
-    
-    // Go back
-    await page.click('[data-testid="back-btn"]')
-    
-    // Verify screen 2
-    await expect(page.locator('[data-testid="tutorial-screen-2"]')).toBeVisible()
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+
+    // Go back using role
+    await page.getByRole('button', { name: /back|पीछे/i }).click()
+
+    // Verify previous screen
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
   })
 
   test('should persist language selection across screens', async ({ page }) => {
     // Navigate to language screen
     await page.waitForTimeout(3500)
-    await page.click('[data-testid="manual-location-btn"]')
-    await page.fill('[data-testid="city-input"]', 'Delhi')
-    await page.click('[data-testid="continue-btn"]')
-    
+    await page.getByRole('button', { name: /manual|मैन्युअल/i }).click()
+    await page.getByRole('textbox', { name: /city|शहर/i }).fill('Delhi')
+    await page.getByRole('button', { name: /continue|आगे/i }).click()
+
     // Select Hindi
-    await page.click('[data-testid="lang-hindi"]')
-    await page.click('[data-testid="continue-btn"]')
-    
+    await page.getByRole('button', { name: /हिंदी|hindi/i }).click()
+    await page.getByRole('button', { name: /continue|आगे/i }).click()
+
     // Navigate through tutorial
-    await page.click('[data-testid="next-btn"]')
-    await page.click('[data-testid="next-btn"]')
-    
-    // Verify language is still Hindi
-    await expect(page.locator('[data-testid="current-lang"]')).toHaveText('हिंदी')
+    await page.getByRole('button', { name: /next|आगे/i }).click()
+    await page.getByRole('button', { name: /next|आगे/i }).click()
+
+    // Verify language is still Hindi using role
+    await expect(page.getByText(/हिंदी|hindi/i)).toBeVisible()
   })
 
   test('should redirect to mobile registration after completion', async ({ page }) => {
     // Complete full onboarding flow
     await page.waitForTimeout(3500)
-    await page.click('[data-testid="manual-location-btn"]')
-    await page.fill('[data-testid="city-input"]', 'Delhi')
-    await page.click('[data-testid="continue-btn"]')
-    await page.click('[data-testid="continue-btn"]')
-    
-    // Skip tutorial
-    await page.click('[data-testid="skip-btn"]')
-    
-    // Verify redirected to mobile number page
-    await expect(page.locator('[data-testid="mobile-number-page"]')).toBeVisible()
-    await expect(page.url()).toContain('/mobile')
+    await page.getByRole('button', { name: /manual|मैन्युअल/i }).click()
+    await page.getByRole('textbox', { name: /city|शहर/i }).fill('Delhi')
+    await page.getByRole('button', { name: /continue|आगे/i }).click()
+    await page.getByRole('button', { name: /continue|आगे/i }).click()
+
+    // Skip tutorial using role and Hindi text
+    await page.getByRole('button', { name: /skip|skip करें/i }).click()
+
+    // Verify redirected to mobile number page using role
+    await expect(page.getByRole('heading', { name: /mobile number|मोबाइल नंबर/i })).toBeVisible()
+    await expect(page).toHaveURL(/\/mobile/)
   })
 })

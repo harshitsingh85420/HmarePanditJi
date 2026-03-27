@@ -170,7 +170,7 @@ export default function JobPayoutPage({ params }: { params: { id: string } }) {
                                             <span className="inline-flex items-center px-4.5 py-2 rounded-full text-base font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
                                                 <span className="material-symbols-outlined text-[10px] mr-1">
                                                     verified
-                                                </span>{" "}
+                                                </span>{&quot; &quot;}
                                                 Approved
                                             </span>
                                         </td>

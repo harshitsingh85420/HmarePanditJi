@@ -28,24 +28,24 @@ export default function CancellationsPage() {
 
     // Override State
     const [overrideChecked, setOverrideChecked] = useState(false);
-    const [customRefundAmount, setCustomRefundAmount] = useState<number | "">("");
-    const [overrideReason, setOverrideReason] = useState("");
-    const [rejectionReason, setRejectionReason] = useState("");
+    const [customRefundAmount, setCustomRefundAmount] = useState<number | "">(&quot;&quot;);
+    const [overrideReason, setOverrideReason] = useState(&quot;&quot;);
+    const [rejectionReason, setRejectionReason] = useState(&quot;&quot;);
     const [processing, setProcessing] = useState(false);
 
     const fetchCancellations = async () => {
         setLoading(true);
         try {
-            const token = localStorage.getItem("token");
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/cancellations`, {
+            const token = localStorage.getItem(&quot;token&quot;);
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || &apos;http://localhost:3001/api/v1&apos;}/admin/cancellations`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             const json = await res.json();
             if (json.success) {
                 // Filter specifically for requested to keep the queue clean, but the API might return all cancelled.
-                // We'll trust the API or filter it here.
+                // We&apos;ll trust the API or filter it here.
                 const data = json.data?.data || json.data || [];
-                const queue = Array.isArray(data) ? data.filter(c => c.status === "CANCELLATION_REQUESTED") : [];
+                const queue = Array.isArray(data) ? data.filter(c => c.status === &quot;CANCELLATION_REQUESTED&quot;) : [];
                 setCancellations(queue);
             }
         } catch (e) {
@@ -69,12 +69,12 @@ export default function CancellationsPage() {
         const refundable = total - platformFee;
 
         let percent = 0;
-        let pText = "";
+        let pText = &quot;&quot;;
 
-        if (days > 7) { percent = 0.9; pText = "> 7 days (90%)"; }
-        else if (days >= 3) { percent = 0.5; pText = "3-7 days (50%)"; }
-        else if (days >= 1) { percent = 0.2; pText = "1-3 days (20%)"; }
-        else { percent = 0; pText = "Same day (0%)"; }
+        if (days > 7) { percent = 0.9; pText = &quot;> 7 days (90%)&quot;; }
+        else if (days >= 3) { percent = 0.5; pText = &quot;3-7 days (50%)&quot;; }
+        else if (days >= 1) { percent = 0.2; pText = &quot;1-3 days (20%)&quot;; }
+        else { percent = 0; pText = &quot;Same day (0%)&quot;; }
 
         return {
             percent,
@@ -91,24 +91,24 @@ export default function CancellationsPage() {
         const days = calculateDaysUntil(c.eventDate);
         const policy = calculateRefundPolicy(days, c.grandTotal);
         setCustomRefundAmount(policy.amount);
-        setOverrideReason("");
-        setRejectionReason("");
+        setOverrideReason(&quot;&quot;);
+        setRejectionReason(&quot;&quot;);
         setModalOpen(true);
     };
 
     const approveCancellation = async () => {
-        if (overrideChecked && !overrideReason) return alert("Provider override reason if changing default amount.");
+        if (overrideChecked && !overrideReason) return alert(&quot;Provider override reason if changing default amount.&quot;);
         setProcessing(true);
         try {
-            const token = localStorage.getItem("token");
+            const token = localStorage.getItem(&quot;token&quot;);
             const days = calculateDaysUntil(selectedCancel.eventDate);
             const policy = calculateRefundPolicy(days, selectedCancel.grandTotal);
             const amt = overrideChecked ? Number(customRefundAmount) : policy.amount;
 
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/bookings/${selectedCancel.id}/cancel-approve`, {
-                method: "POST",
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || &apos;http://localhost:3001/api/v1&apos;}/admin/bookings/${selectedCancel.id}/cancel-approve`, {
+                method: &quot;POST&quot;,
                 headers: {
-                    "Content-Type": "application/json",
+                    &quot;Content-Type&quot;: &quot;application/json&quot;,
                     Authorization: `Bearer ${token}`
                 },
                 body: JSON.stringify({
@@ -118,44 +118,44 @@ export default function CancellationsPage() {
             });
             const json = await res.json();
             if (json.success) {
-                alert("Cancellation approved and refund initiated!");
+                alert(&quot;Cancellation approved and refund initiated!&quot;);
                 setModalOpen(false);
                 fetchCancellations();
             } else {
-                alert(json.message || "Failed to approve cancellation");
+                alert(json.message || &quot;Failed to approve cancellation&quot;);
             }
         } catch (e) {
             console.error(e);
-            alert("Error approving cancellation");
+            alert(&quot;Error approving cancellation&quot;);
         } finally {
             setProcessing(false);
         }
     };
 
     const rejectCancellation = async () => {
-        if (!rejectionReason) return alert("Provide a rejection reason.");
+        if (!rejectionReason) return alert(&quot;Provide a rejection reason.&quot;);
         setProcessing(true);
         try {
-            const token = localStorage.getItem("token");
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/bookings/${selectedCancel.id}/cancel-reject`, {
-                method: "POST",
+            const token = localStorage.getItem(&quot;token&quot;);
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || &apos;http://localhost:3001/api/v1&apos;}/admin/bookings/${selectedCancel.id}/cancel-reject`, {
+                method: &quot;POST&quot;,
                 headers: {
-                    "Content-Type": "application/json",
+                    &quot;Content-Type&quot;: &quot;application/json&quot;,
                     Authorization: `Bearer ${token}`
                 },
                 body: JSON.stringify({ rejectionReason })
             });
             const json = await res.json();
             if (json.success) {
-                alert("Cancellation rejected.");
+                alert(&quot;Cancellation rejected.&quot;);
                 setModalOpen(false);
                 fetchCancellations();
             } else {
-                alert(json.message || "Failed to reject cancellation");
+                alert(json.message || &quot;Failed to reject cancellation&quot;);
             }
         } catch (e) {
             console.error(e);
-            alert("Error rejecting cancellation");
+            alert(&quot;Error rejecting cancellation&quot;);
         } finally {
             setProcessing(false);
         }
@@ -172,7 +172,7 @@ export default function CancellationsPage() {
                 <CardContent className="py-4 text-sm text-muted-foreground flex items-center justify-between">
                     <div>
                         <span className="font-semibold text-foreground">Refund Policy: </span>
-                        {">7 days: 90% | 3-7 days: 50% | 1-3 days: 20% | Same day: 0% | Platform Fee: Non-refundable"}
+                        {&quot;>7 days: 90% | 3-7 days: 50% | 1-3 days: 20% | Same day: 0% | Platform Fee: Non-refundable&quot;}
                     </div>
                 </CardContent>
             </Card>
@@ -208,7 +208,7 @@ export default function CancellationsPage() {
                                             </a>
                                         </TableCell>
                                         <TableCell>
-                                            <div className="font-medium">{c.customer?.name || "Customer"}</div>
+                                            <div className="font-medium">{c.customer?.name || &quot;Customer&quot;}</div>
                                             <div className="text-xs text-muted-foreground">{c.customer?.phone}</div>
                                         </TableCell>
                                         <TableCell>
@@ -261,7 +261,7 @@ export default function CancellationsPage() {
                                     </div>
                                     <div>
                                         <span className="text-muted-foreground block">Cancel Reason:</span>
-                                        <span className="font-medium">{selectedCancel.cancellationReason || "N/A"}</span>
+                                        <span className="font-medium">{selectedCancel.cancellationReason || &quot;N/A&quot;}</span>
                                     </div>
                                     <div>
                                         <span className="text-muted-foreground block">Days Until Event:</span>
@@ -346,7 +346,7 @@ export default function CancellationsPage() {
                         <div className="space-x-2">
                             <Button variant="outline" onClick={() => setModalOpen(false)}>Close</Button>
                             <Button onClick={approveCancellation} className="bg-indigo-600 hover:bg-indigo-700" disabled={processing}>
-                                {processing ? "Processing..." : "✅ Approve & Refund"}
+                                {processing ? &quot;Processing...&quot; : &quot;✅ Approve & Refund&quot;}
                             </Button>
                         </div>
                     </DialogFooter>

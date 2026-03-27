@@ -7,14 +7,53 @@ import { SessionTimeoutSheet } from '@/components/overlays/SessionTimeout'
 import { NetworkBanner } from '@/components/overlays/NetworkBanner'
 import { useUIStore } from '@/stores/uiStore'
 import { useRegistrationStore } from '@/stores/registrationStore'
+import { useNavigationStore } from '@/stores/navigationStore'
 import LanguageBottomSheet from '@/components/LanguageBottomSheet'
+import { HelpButton } from '@/components/HelpButton'
 import { SupportedLanguage, loadOnboardingState } from '@/lib/onboarding-store'
 import { LANGUAGE_TO_BCP47 } from '@/lib/voice-engine'
+import { stopSpeaking } from '@/lib/voice-engine'
+
+/**
+ * Error Boundary for Registration Layout
+ * Catches errors in registration-related screens
+ */
+function RegistrationErrorBoundary({
+  error,
+  reset,
+}: {
+  error: Error
+  reset: () => void
+}) {
+  return (
+    <div className="min-h-dvh flex flex-col items-center justify-center p-6 bg-surface-base">
+      <div className="text-center space-y-6 max-w-md">
+        <div className="text-6xl">🙏</div>
+        <h1 className="font-headline text-2xl font-bold text-primary">
+          कुछ गलत हो गया
+        </h1>
+        <p className="text-text-secondary font-devanagari">
+          माफ़ कीजिए, पंजीकरण प्रक्रिया में तकनीकी दिक्कत आई। कृपया पुनः प्रयास करें।
+        </p>
+        <button
+          onClick={reset}
+          className="w-full min-h-[56px] bg-primary-container text-white font-bold rounded-btn flex items-center justify-center gap-2 shadow-btn-saffron"
+        >
+          <span className="material-symbols-outlined">refresh</span>
+          पुनः प्रयास करें
+        </button>
+      </div>
+    </div>
+  )
+}
 
 export default function RegistrationLayout({ children }: { children: React.ReactNode }) {
   useSession()
-  useNetwork() // ISSUE 9 FIX: Initialize network hook
+  useNetwork()
+  const { goBack } = useNavigationStore()
   const [isMounted, setIsMounted] = useState(false)
+  const [hasError, setHasError] = useState(false)
+  const [error, setError] = useState<Error | null>(null)
   const { showSessionTimeout } = useUIStore()
   const { data } = useRegistrationStore()
 
@@ -22,6 +61,52 @@ export default function RegistrationLayout({ children }: { children: React.React
   useEffect(() => {
     setIsMounted(true)
   }, [])
+
+  // Browser back button handling for registration flow
+  useEffect(() => {
+    const handlePopState = () => {
+      console.log('[RegistrationLayout] Back button pressed')
+      // Stop any active voice recognition
+      stopSpeaking()
+
+      // Use navigation store to handle back
+      const previousPath = goBack()
+      if (previousPath) {
+        console.log('[RegistrationLayout] Navigating back to:', previousPath)
+      }
+      // If no previous path, allow default browser back
+    }
+
+    window.addEventListener('popstate', handlePopState)
+    return () => {
+      window.removeEventListener('popstate', handlePopState)
+      stopSpeaking() // Cleanup on unmount
+    }
+  }, [goBack])
+
+  // Simple error boundary using error event listener
+  useEffect(() => {
+    const errorHandler = (event: ErrorEvent) => {
+      if (event.message.includes('register') || event.message.includes('profile') || event.message.includes('otp')) {
+        setHasError(true)
+        setError(new Error(event.message))
+      }
+    }
+
+    window.addEventListener('error', errorHandler)
+    return () => window.removeEventListener('error', errorHandler)
+  }, [])
+
+  const resetError = () => {
+    setHasError(false)
+    setError(null)
+    // Force reload of registration flow
+    window.location.reload()
+  }
+
+  if (hasError && error) {
+    return <RegistrationErrorBoundary error={error} reset={resetError} />
+  }
 
   // BUG-005 FIX: Sync language from onboarding state to registration store
   useEffect(() => {
@@ -40,6 +125,11 @@ export default function RegistrationLayout({ children }: { children: React.React
 
   const handleLanguageSelect = (_language: SupportedLanguage) => {
     // Language select handler
+  }
+
+  const handleHelpClick = () => {
+    console.log('[RegistrationLayout] Help button clicked')
+    // Could open a help modal or navigate to help page
   }
 
   // Don't render layout until mounted to prevent hydration issues
@@ -88,6 +178,9 @@ export default function RegistrationLayout({ children }: { children: React.React
         onSelect={handleLanguageSelect}
         onClose={() => { }}
       />
+
+      {/* Help Button - Prominent floating help for elderly users */}
+      <HelpButton onClick={handleHelpClick} isVisible={true} />
     </div>
   )
 }

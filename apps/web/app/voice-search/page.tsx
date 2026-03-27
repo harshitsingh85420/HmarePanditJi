@@ -96,7 +96,7 @@ export default function VoiceSearchPage() {
                             <div className="mt-8 flex flex-col sm:flex-row items-center gap-4 text-[#baaf9c] text-sm">
                                 <span className="text-xs uppercase font-bold tracking-widest">Voice Settings:</span>
                                 <div className="flex gap-6">
-                                    {["Hindi", "English", "Maithili"].map((lang) => (
+                                    {[&quot;Hindi&quot;, &quot;English&quot;, &quot;Maithili&quot;].map((lang) => (
                                         <label key={lang} className={`flex items-center gap-2 cursor-pointer transition-colors ${activeLang === lang ? "text-[#f29e0d]" : "hover:text-white"}`} onClick={() => setActiveLang(lang)}>
                                             <span className={`w-2 h-2 rounded-full ${activeLang === lang ? "bg-[#f29e0d]" : "bg-[#393328]"}`}></span>
                                             {lang}

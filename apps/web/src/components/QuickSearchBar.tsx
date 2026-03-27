@@ -31,9 +31,9 @@ export function QuickSearchBar() {
 
     const handleSearch = () => {
         const params = new URLSearchParams();
-        if (pujaType) params.set("pujaType", pujaType);
-        if (city) params.set("city", city);
-        if (date) params.set("date", date);
+        if (pujaType) params.set(&quot;pujaType&quot;, pujaType);
+        if (city) params.set(&quot;city&quot;, city);
+        if (date) params.set(&quot;date&quot;, date);
 
         router.push(`/search?${params.toString()}`);
     };

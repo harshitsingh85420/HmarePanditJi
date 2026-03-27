@@ -97,7 +97,6 @@ export default function ProfileDetails() {
     })
 
     setIsNameListening(true)
-    setIsManualVoiceMode(true)
 
     // Announce instruction
     void speakWithSarvam({
@@ -156,7 +155,6 @@ export default function ProfileDetails() {
         // After 3 failures, switch to keyboard
         if (voiceErrorCount + 1 >= 3) {
           switchToKeyboard()
-          setIsManualVoiceMode(false)
 
           logProfileAnalytics({
             event: 'profile_keyboard_fallback',
@@ -345,15 +343,17 @@ export default function ProfileDetails() {
         <button
           onClick={handleSubmit}
           disabled={!fullName.trim() || isSubmitting}
-          className="w-full h-16 bg-saffron text-white font-bold text-lg rounded-btn shadow-btn-saffron active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full min-h-[72px] h-auto px-4 py-3 bg-saffron text-white font-bold text-[20px] rounded-btn shadow-btn-saffron active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed focus:ring-2 focus:ring-primary focus:outline-none"
         >
-          {isSubmitting ? 'पंजीकरण हो रहा है...' : 'पंजीकरण पूरा करें ✓'}
+          <span className="text-center block break-words line-clamp-2">
+            {isSubmitting ? 'पंजीकरण हो रहा है...' : 'पंजीकरण पूरा करें ✓'}
+          </span>
         </button>
       </div>
 
       {/* Footer hint */}
       <p className="pb-8 text-center text-lg text-text-lglaceholder">
-        🎤 &quot;नाम बोलें&quot; या &quot;पीछे जाएं&quot; बोलें
+        🎤 "नाम बोलें" या "पीछे जाएं" बोलें
       </p>
     </main>
   )

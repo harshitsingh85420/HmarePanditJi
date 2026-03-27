@@ -2,7 +2,7 @@ export function ItineraryTimeline({ booking }: { booking: any }) {
     if (!booking.travelRequired) {
         return (
             <div className="bg-white rounded-xl border border-gray-200 p-6">
-                <h3 className="font-bold text-gray-900 mb-4">{new Date(booking.eventDate).toLocaleDateString("hi-IN", { month: "long", day: "numeric", year: "numeric" })}</h3>
+                <h3 className="font-bold text-gray-900 mb-4">{new Date(booking.eventDate).toLocaleDateString(&quot;hi-IN&quot;, { month: &quot;long&quot;, day: &quot;numeric&quot;, year: &quot;numeric&quot; })}</h3>
                 <div className="relative pl-6 border-l-2 border-orange-200 ml-4 pb-2">
                     <div className="absolute w-4 h-4 bg-orange-100 border-2 border-orange-500 rounded-full -left-[9px] top-1"></div>
                     <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 mb-2 shadow-sm">
@@ -10,13 +10,13 @@ export function ItineraryTimeline({ booking }: { booking: any }) {
                             <span>🕉️</span> MUHURAT WINDOW
                         </div>
                         <p className="font-bold text-gray-900 text-lg">{booking.eventType}</p>
-                        <p className="text-orange-700 font-medium">शुभ मुहूर्त: {booking.muhuratTime || "निर्धारित नहीं"}</p>
+                        <p className="text-orange-700 font-medium">शुभ मुहूर्त: {booking.muhuratTime || &quot;निर्धारित नहीं&quot;}</p>
                         <p className="text-gray-600 text-sm mt-2 flex items-start gap-1">
                             <span className="mt-0.5 text-gray-400">📍</span>
                             <span>{booking.venueAddress}, {booking.venueCity}</span>
                         </p>
                     </div>
-                    <p className="text-sm font-medium text-gray-500">Pt. {booking.pandit?.name || "Pandit"} will arrive 30 minutes prior.</p>
+                    <p className="text-sm font-medium text-gray-500">Pt. {booking.pandit?.name || &quot;Pandit&quot;} will arrive 30 minutes prior.</p>
                 </div>
             </div>
         );
@@ -53,7 +53,7 @@ export function ItineraryTimeline({ booking }: { booking: any }) {
                                 <span>🕉️</span> MUHURAT WINDOW
                             </div>
                             <p className="font-bold text-gray-900">{booking.eventType}</p>
-                            <p className="text-orange-700 font-medium text-sm mt-1">शुभ मुहूर्त: {booking.muhuratTime || "निर्धारित नहीं"}</p>
+                            <p className="text-orange-700 font-medium text-sm mt-1">शुभ मुहूर्त: {booking.muhuratTime || &quot;निर्धारित नहीं&quot;}</p>
                         </div>
                     </div>
                 </div>

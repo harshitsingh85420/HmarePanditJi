@@ -80,7 +80,7 @@ export function PriceBreakdown({
             <div className="flex items-center gap-2">
               <span className="font-semibold text-slate-700 dark:text-slate-300">{fmt(totalGst)}</span>
               <span className="material-symbols-outlined text-sm">
-                {gstOpen ? "expand_less" : "expand_more"}
+                {gstOpen ? &quot;expand_less&quot; : &quot;expand_more&quot;}
               </span>
             </div>
           </button>

@@ -30,9 +30,9 @@ export function TravelOptionsTab({
 
             setLoading(true);
             try {
-                const res = await fetch("/api/travel/calculate", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
+                const res = await fetch(&quot;/api/travel/calculate&quot;, {
+                    method: &quot;POST&quot;,
+                    headers: { &quot;Content-Type&quot;: &quot;application/json&quot; },
                     body: JSON.stringify({
                         fromCity: panditLocation,
                         toCity: customerCity,
@@ -46,7 +46,7 @@ export function TravelOptionsTab({
                     // fallback / mock if route not fully ready
                     setOptions([
                         {
-                            mode: "TRAIN",
+                            mode: &quot;TRAIN&quot;,
                             totalCost: 4300,
                             distanceKm: 845,
                             estimatedDriveHours: 11,
@@ -65,7 +65,7 @@ export function TravelOptionsTab({
     }, [panditLocation, customerCity]);
 
     // Support typical cities for demo
-    const supportedCities = ["Delhi", "Varanasi", "Mumbai", "Bangalore", "Ayodhya", "Haridwar", "Chennai"];
+    const supportedCities = [&quot;Delhi&quot;, &quot;Varanasi&quot;, &quot;Mumbai&quot;, &quot;Bangalore&quot;, &quot;Ayodhya&quot;, &quot;Haridwar&quot;, &quot;Chennai&quot;];
 
     return (
         <div>
@@ -79,7 +79,7 @@ export function TravelOptionsTab({
                     onChange={(e) => {
                         setCustomerCity(e.target.value);
                         const params = new URLSearchParams(searchParams.toString());
-                        params.set("city", e.target.value);
+                        params.set(&quot;city&quot;, e.target.value);
                         router.replace(`?${params.toString()}`, { scroll: false });
                     }}
                 >
@@ -118,7 +118,7 @@ export function TravelOptionsTab({
                                 <div className="flex flex-col md:flex-row justify-between mb-6">
                                     <div>
                                         <h4 className="text-xl font-bold text-gray-900 mb-2 flex items-center gap-2">
-                                            {opt.mode === "TRAIN" ? "🚂 Train (3AC)" : opt.mode === "FLIGHT" ? "✈️ Flight" : "🚗 Cab / Self-Drive"}
+                                            {opt.mode === &quot;TRAIN&quot; ? &quot;🚂 Train (3AC)&quot; : opt.mode === &quot;FLIGHT&quot; ? &quot;✈️ Flight&quot; : &quot;🚗 Cab / Self-Drive&quot;}
                                         </h4>
                                         <p className="text-gray-600 font-medium flex items-center gap-2">
                                             <span className="text-lg font-bold text-orange-600">₹{opt.totalCost} total</span>
@@ -134,7 +134,7 @@ export function TravelOptionsTab({
                                     </div>
                                     <div className="mt-4 md:mt-0 items-end flex flex-col space-y-3">
                                         <span className="bg-blue-50 text-blue-700 font-bold px-3 py-1 text-xs rounded-full border border-blue-200">
-                                            Best for: {opt.mode === "TRAIN" ? "Budget friendly" : opt.mode === "FLIGHT" ? "Fastest arrival" : "Convenience"}
+                                            Best for: {opt.mode === &quot;TRAIN&quot; ? &quot;Budget friendly&quot; : opt.mode === &quot;FLIGHT&quot; ? &quot;Fastest arrival&quot; : &quot;Convenience&quot;}
                                         </span>
                                         <Link
                                             href={`/booking/new?panditId=${panditId}&travelMode=${opt.mode}&fromCity=${panditLocation}&toCity=${customerCity}`}
@@ -152,7 +152,7 @@ export function TravelOptionsTab({
                                     <div className="pl-5 mt-4 space-y-2 text-sm text-gray-600 bg-orange-50/50 p-4 rounded-xl border border-orange-100/50">
                                         {opt.breakdown && Object.entries(opt.breakdown).map(([k, v]) => (
                                             <div key={k} className="flex justify-between items-center border-b border-orange-100/50 pb-2 last:border-0 last:pb-0">
-                                                <span className="capitalize">{k.replace(/([A-Z])/g, ' $1').trim()}</span>
+                                                <span className="capitalize">{k.replace(/([A-Z])/g, &apos; $1&apos;).trim()}</span>
                                                 <span className="font-semibold text-gray-900">₹{v as number}</span>
                                             </div>
                                         ))}

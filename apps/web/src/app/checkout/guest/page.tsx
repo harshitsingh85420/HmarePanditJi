@@ -113,7 +113,7 @@ export default function GuestCheckoutPage() {
                                             required
                                             type="tel"
                                             value={phone}
-                                            onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
+                                            onChange={(e) => setPhone(e.target.value.replace(/\D/g, &quot;&quot;))}
                                             maxLength={10}
                                         />
                                         <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
@@ -126,7 +126,7 @@ export default function GuestCheckoutPage() {
                                     type="submit"
                                     disabled={loading || phone.length !== 10}
                                 >
-                                    {loading ? "Sending..." : (
+                                    {loading ? &quot;Sending...&quot; : (
                                         <>
                                             Send OTP
                                             <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
@@ -140,10 +140,10 @@ export default function GuestCheckoutPage() {
                                 <p className="text-base font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-4">Member Benefits</p>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-6">
                                     {[
-                                        { icon: "location_on", label: "Track Live", desc: "Real-time pandit tracking" },
-                                        { icon: "auto_awesome", label: "Digital Blessings", desc: "Access rituals anytime" },
-                                        { icon: "support_agent", label: "24/7 Support", desc: "Dedicated travel assistance" },
-                                        { icon: "verified_user", label: "Secure Payments", desc: "100% money back guarantee" },
+                                        { icon: &quot;location_on&quot;, label: &quot;Track Live&quot;, desc: &quot;Real-time pandit tracking&quot; },
+                                        { icon: &quot;auto_awesome&quot;, label: &quot;Digital Blessings&quot;, desc: &quot;Access rituals anytime&quot; },
+                                        { icon: &quot;support_agent&quot;, label: &quot;24/7 Support&quot;, desc: &quot;Dedicated travel assistance&quot; },
+                                        { icon: &quot;verified_user&quot;, label: &quot;Secure Payments&quot;, desc: &quot;100% money back guarantee&quot; },
                                     ].map((item, i) => (
                                         <div key={i} className="flex items-start gap-3">
                                             <div className="p-1.5 rounded bg-[#ec7f13]/10 text-[#ec7f13]">
@@ -159,7 +159,7 @@ export default function GuestCheckoutPage() {
                             </div>
 
                             <p className="text-base text-center text-gray-400 dark:text-gray-500 mt-8">
-                                By continuing, you agree to HmarePanditJi's <a href="#" className="underline hover:text-[#ec7f13]">Terms of Service</a> and <a href="#" className="underline hover:text-[#ec7f13]">Privacy Policy</a>.
+                                By continuing, you agree to HmarePanditJi&apos;s <a href="#" className="underline hover:text-[#ec7f13]">Terms of Service</a> and <a href="#" className="underline hover:text-[#ec7f13]">Privacy Policy</a>.
                             </p>
                         </div>
                     </div>

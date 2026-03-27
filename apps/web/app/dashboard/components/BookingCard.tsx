@@ -56,7 +56,7 @@ export function BookingCard({ booking }: { booking: any }) {
                 <div className="flex flex-col items-end shrink-0 gap-2">
                     <Badge variant={badge.variant}>{badge.label}</Badge>
                     <div className="font-bold text-gray-900 mt-auto">
-                        ₹{booking.grandTotal.toLocaleString("en-IN")}
+                        ₹{booking.grandTotal.toLocaleString(&quot;en-IN&quot;)}
                     </div>
                 </div>
             </div>

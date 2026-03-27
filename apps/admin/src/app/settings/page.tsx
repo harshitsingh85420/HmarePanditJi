@@ -32,7 +32,7 @@ export default function SettingsPage() {
     setSaving(true);
     // Simulate API call for saving settings
     setTimeout(() => {
-      alert("Settings saved successfully! (Note: Core functionality uses hardcoded values in Phase 1)");
+      alert(&quot;Settings saved successfully! (Note: Core functionality uses hardcoded values in Phase 1)&quot;);
       setSaving(false);
     }, 800);
   };
@@ -45,7 +45,7 @@ export default function SettingsPage() {
           <p className="text-muted-foreground mt-1">Configure core application rules and fees</p>
         </div>
         <Button onClick={saveSettings} disabled={saving} className="bg-indigo-600 hover:bg-indigo-700 w-32">
-          {saving ? "Saving..." : "Save Settings"}
+          {saving ? &quot;Saving...&quot; : &quot;Save Settings&quot;}
         </Button>
       </div>
 
@@ -61,7 +61,7 @@ export default function SettingsPage() {
               <Input
                 type="number"
                 value={settings.platformFee}
-                onChange={e => handleChange("platformFee", Number(e.target.value))}
+                onChange={e => handleChange(&quot;platformFee&quot;, Number(e.target.value))}
               />
             </div>
             <div className="space-y-2">
@@ -69,7 +69,7 @@ export default function SettingsPage() {
               <Input
                 type="number"
                 value={settings.travelFee}
-                onChange={e => handleChange("travelFee", Number(e.target.value))}
+                onChange={e => handleChange(&quot;travelFee&quot;, Number(e.target.value))}
               />
             </div>
             <div className="space-y-2">
@@ -77,7 +77,7 @@ export default function SettingsPage() {
               <Input
                 type="number"
                 value={settings.samagriFee}
-                onChange={e => handleChange("samagriFee", Number(e.target.value))}
+                onChange={e => handleChange(&quot;samagriFee&quot;, Number(e.target.value))}
               />
             </div>
             <div className="space-y-2">
@@ -85,7 +85,7 @@ export default function SettingsPage() {
               <Input
                 type="number"
                 value={settings.backupGuarantee}
-                onChange={e => handleChange("backupGuarantee", Number(e.target.value))}
+                onChange={e => handleChange(&quot;backupGuarantee&quot;, Number(e.target.value))}
               />
             </div>
           </CardContent>
@@ -102,7 +102,7 @@ export default function SettingsPage() {
               <Input
                 type="number"
                 value={settings.foodDaily}
-                onChange={e => handleChange("foodDaily", Number(e.target.value))}
+                onChange={e => handleChange(&quot;foodDaily&quot;, Number(e.target.value))}
               />
             </div>
           </CardContent>
@@ -119,7 +119,7 @@ export default function SettingsPage() {
               <Input
                 type="number"
                 value={settings.refund7}
-                onChange={e => handleChange("refund7", Number(e.target.value))}
+                onChange={e => handleChange(&quot;refund7&quot;, Number(e.target.value))}
               />
             </div>
             <div className="space-y-2">
@@ -127,7 +127,7 @@ export default function SettingsPage() {
               <Input
                 type="number"
                 value={settings.refund3_7}
-                onChange={e => handleChange("refund3_7", Number(e.target.value))}
+                onChange={e => handleChange(&quot;refund3_7&quot;, Number(e.target.value))}
               />
             </div>
             <div className="space-y-2">
@@ -135,7 +135,7 @@ export default function SettingsPage() {
               <Input
                 type="number"
                 value={settings.refund1_3}
-                onChange={e => handleChange("refund1_3", Number(e.target.value))}
+                onChange={e => handleChange(&quot;refund1_3&quot;, Number(e.target.value))}
               />
             </div>
             <div className="space-y-2">
@@ -143,7 +143,7 @@ export default function SettingsPage() {
               <Input
                 type="number"
                 value={settings.refund0}
-                onChange={e => handleChange("refund0", Number(e.target.value))}
+                onChange={e => handleChange(&quot;refund0&quot;, Number(e.target.value))}
                 disabled
                 className="bg-muted text-muted-foreground"
               />
@@ -167,7 +167,7 @@ export default function SettingsPage() {
                 type="checkbox"
                 className="h-4 w-4 rounded border-gray-300"
                 checked={settings.mockMode}
-                onChange={e => handleChange("mockMode", e.target.checked)}
+                onChange={e => handleChange(&quot;mockMode&quot;, e.target.checked)}
               />
             </div>
             <div className="flex items-center justify-between">

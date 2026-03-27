@@ -267,7 +267,7 @@ export default function NRILiveStreamPage() {
                                     </span>
                                 </div>
                                 <p className="text-lg text-gray-300 bg-[#27272a] p-2 rounded-r-lg rounded-bl-lg mt-0.5 border border-gray-700">
-                                    Pandit ji's chanting is so clear today. Great audio quality!
+                                    Pandit ji&apos;s chanting is so clear today. Great audio quality!
                                 </p>
                             </div>
                         </div>

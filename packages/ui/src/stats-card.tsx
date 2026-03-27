@@ -52,7 +52,7 @@ export function StatsCard({
             className="material-symbols-outlined text-sm"
             style={{ fontVariationSettings: "'FILL' 1" }}
           >
-            {isPositive ? "trending_up" : "trending_down"}
+            {isPositive ? &quot;trending_up&quot; : &quot;trending_down&quot;}
           </span>
           {Math.abs(trend.value)}% vs last month
         </div>

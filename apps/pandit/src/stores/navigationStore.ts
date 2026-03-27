@@ -1,5 +1,41 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { persist, createJSONStorage } from 'zustand/middleware'
+
+// BUG-024 FIX: Custom storage wrapper that handles QuotaExceededError gracefully
+const createSafeLocalStorage = () => {
+  return {
+    getItem: (key: string) => {
+      try {
+        return localStorage.getItem(key)
+      } catch (error) {
+        // Silently fail - storage might be unavailable
+        console.warn('[navigationStore] getItem failed:', error)
+        return null
+      }
+    },
+    setItem: (key: string, value: string) => {
+      try {
+        localStorage.setItem(key, value)
+      } catch (error) {
+        // BUG-024: Handle QuotaExceededError gracefully - don't crash the app
+        if (error instanceof DOMException && error.name === 'QuotaExceededError') {
+          console.warn('[navigationStore] Storage full - cannot persist data. User data may be lost on page reload.')
+        } else {
+          console.warn('[navigationStore] setItem failed:', error)
+        }
+        // Silently fail - don't throw, don't crash the app
+      }
+    },
+    removeItem: (key: string) => {
+      try {
+        localStorage.removeItem(key)
+      } catch (error) {
+        // Silently fail - storage might be unavailable
+        console.warn('[navigationStore] removeItem failed:', error)
+      }
+    },
+  }
+}
 
 export type AppSection =
   | 'homepage'
@@ -116,6 +152,8 @@ export const useNavigationStore = create<NavigationState>()(
     }),
     {
       name: 'hpj-navigation',
+      // BUG-024 FIX: Use safe storage wrapper that handles QuotaExceededError
+      storage: createJSONStorage(() => createSafeLocalStorage()),
       partialize: (state) => ({
         history: state.history,
         currentSection: state.currentSection,

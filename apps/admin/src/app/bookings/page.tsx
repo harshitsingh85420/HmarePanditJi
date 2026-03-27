@@ -23,14 +23,14 @@ export default function AllBookingsPage() {
   const [loading, setLoading] = useState(true);
 
   // Filters state
-  const [status, setStatus] = useState("");
-  const [dateFrom, setDateFrom] = useState("");
-  const [dateTo, setDateTo] = useState("");
-  const [city, setCity] = useState("");
-  const [pandit, setPandit] = useState("");
-  const [customer, setCustomer] = useState("");
-  const [paymentStatus, setPaymentStatus] = useState("");
-  const [travelStatus, setTravelStatus] = useState("");
+  const [status, setStatus] = useState(&quot;&quot;);
+  const [dateFrom, setDateFrom] = useState(&quot;&quot;);
+  const [dateTo, setDateTo] = useState(&quot;&quot;);
+  const [city, setCity] = useState(&quot;&quot;);
+  const [pandit, setPandit] = useState(&quot;&quot;);
+  const [customer, setCustomer] = useState(&quot;&quot;);
+  const [paymentStatus, setPaymentStatus] = useState(&quot;&quot;);
+  const [travelStatus, setTravelStatus] = useState(&quot;&quot;);
   const [page, setPage] = useState(1);
   const limit = 20;
   const [total, setTotal] = useState(0);
@@ -38,20 +38,20 @@ export default function AllBookingsPage() {
   const fetchBookings = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem(&quot;token&quot;);
       const qs = new URLSearchParams();
-      if (status && status !== "ALL") qs.append("status", status);
-      if (dateFrom) qs.append("dateFrom", dateFrom);
-      if (dateTo) qs.append("dateTo", dateTo);
-      if (city) qs.append("city", city);
-      if (pandit) qs.append("pandit", pandit);
-      if (customer) qs.append("customer", customer);
-      if (paymentStatus && paymentStatus !== "ALL") qs.append("paymentStatus", paymentStatus);
-      if (travelStatus && travelStatus !== "ALL") qs.append("travelStatus", travelStatus);
-      qs.append("page", page.toString());
-      qs.append("limit", limit.toString());
+      if (status && status !== &quot;ALL&quot;) qs.append(&quot;status&quot;, status);
+      if (dateFrom) qs.append(&quot;dateFrom&quot;, dateFrom);
+      if (dateTo) qs.append(&quot;dateTo&quot;, dateTo);
+      if (city) qs.append(&quot;city&quot;, city);
+      if (pandit) qs.append(&quot;pandit&quot;, pandit);
+      if (customer) qs.append(&quot;customer&quot;, customer);
+      if (paymentStatus && paymentStatus !== &quot;ALL&quot;) qs.append(&quot;paymentStatus&quot;, paymentStatus);
+      if (travelStatus && travelStatus !== &quot;ALL&quot;) qs.append(&quot;travelStatus&quot;, travelStatus);
+      qs.append(&quot;page&quot;, page.toString());
+      qs.append(&quot;limit&quot;, limit.toString());
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/bookings?${qs.toString()}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || &apos;http://localhost:3001/api/v1&apos;}/admin/bookings?${qs.toString()}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const json = await res.json();
@@ -77,28 +77,28 @@ export default function AllBookingsPage() {
   };
 
   const handleResetFilters = () => {
-    setStatus("ALL");
-    setDateFrom("");
-    setDateTo("");
-    setCity("");
-    setPandit("");
-    setCustomer("");
-    setPaymentStatus("ALL");
-    setTravelStatus("ALL");
+    setStatus(&quot;ALL&quot;);
+    setDateFrom(&quot;&quot;);
+    setDateTo(&quot;&quot;);
+    setCity(&quot;&quot;);
+    setPandit(&quot;&quot;);
+    setCustomer(&quot;&quot;);
+    setPaymentStatus(&quot;ALL&quot;);
+    setTravelStatus(&quot;ALL&quot;);
     setPage(1);
     setTimeout(() => fetchBookings(), 0);
   };
 
   const exportCSV = () => {
     const csvRows = [
-      ["BookingID", "Customer", "Pandit", "Event", "Date", "Status", "Amount", "Payment", "Travel"]
+      [&quot;BookingID&quot;, &quot;Customer&quot;, &quot;Pandit&quot;, &quot;Event&quot;, &quot;Date&quot;, &quot;Status&quot;, &quot;Amount&quot;, &quot;Payment&quot;, &quot;Travel&quot;]
     ];
 
     bookings.forEach(b => {
       csvRows.push([
         b.bookingNumber,
-        b.customer?.name || "N/A",
-        b.pandit?.name || "N/A",
+        b.customer?.name || &quot;N/A&quot;,
+        b.pandit?.name || &quot;N/A&quot;,
         b.eventType,
         new Date(b.eventDate).toLocaleDateString(),
         b.status,
@@ -108,12 +108,12 @@ export default function AllBookingsPage() {
       ]);
     });
 
-    const csvString = csvRows.map(row => row.join(",")).join("\n");
-    const blob = new Blob([csvString], { type: "text/csv" });
+    const csvString = csvRows.map(row => row.join(&quot;,&quot;)).join(&quot;\n&quot;);
+    const blob = new Blob([csvString], { type: &quot;text/csv&quot; });
     const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
+    const a = document.createElement(&quot;a&quot;);
     a.href = url;
-    a.download = `bookings_export_${new Date().toISOString().split("T")[0]}.csv`;
+    a.download = `bookings_export_${new Date().toISOString().split(&quot;T&quot;)[0]}.csv`;
     a.click();
   };
 
@@ -262,12 +262,12 @@ export default function AllBookingsPage() {
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    {b.travelStatus !== "NOT_REQUIRED" && (
+                    {b.travelStatus !== &quot;NOT_REQUIRED&quot; && (
                       <Badge variant="outline" className={`text-[10px] ${b.travelStatus === 'BOOKED' ? 'bg-indigo-50 text-indigo-700' : ''}`}>
                         {b.travelStatus}
                       </Badge>
                     )}
-                    {b.travelStatus === "NOT_REQUIRED" && <span className="text-xs text-muted-foreground">-</span>}
+                    {b.travelStatus === &quot;NOT_REQUIRED&quot; && <span className="text-xs text-muted-foreground">-</span>}
                   </TableCell>
                   <TableCell>
                     <a href={`/bookings/${b.id}?reassign=true`} className="text-xs text-muted-foreground hover:text-indigo-600 border p-1 rounded mr-2" title="Reassign">

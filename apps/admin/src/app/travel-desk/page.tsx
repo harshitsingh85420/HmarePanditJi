@@ -13,13 +13,13 @@ export default function TravelDeskPage() {
     const [markBookedModal, setMarkBookedModal] = useState<{ isOpen: boolean; bookingId: string | null; bookingData?: any }>({ isOpen: false, bookingId: null });
 
     const [bookedForm, setBookedForm] = useState({
-        pnr: "", carrier: "", actualCost: "", notes: ""
+        pnr: &quot;&quot;, carrier: &quot;&quot;, actualCost: &quot;&quot;, notes: &quot;&quot;
     });
 
     const fetchQueue = () => {
         setLoading(true);
-        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/travel-queue?tab=${activeTab}`, {
-            headers: { Authorization: `Bearer ${localStorage.getItem("adminToken") || ""}` }
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || &apos;http://localhost:3001/api/v1&apos;}/admin/travel-queue?tab=${activeTab}`, {
+            headers: { Authorization: `Bearer ${localStorage.getItem(&quot;adminToken&quot;) || &quot;&quot;}` }
         })
             .then(res => res.json())
             .then(data => {
@@ -37,11 +37,11 @@ export default function TravelDeskPage() {
 
     const handleCalculateSave = async (data: any) => {
         try {
-            await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/bookings/${calculatorModal.bookingId}/travel-calculate`, {
-                method: "PATCH",
+            await fetch(`${process.env.NEXT_PUBLIC_API_URL || &apos;http://localhost:3001/api/v1&apos;}/admin/bookings/${calculatorModal.bookingId}/travel-calculate`, {
+                method: &quot;PATCH&quot;,
                 headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${localStorage.getItem("adminToken") || ""}`
+                    &quot;Content-Type&quot;: &quot;application/json&quot;,
+                    Authorization: `Bearer ${localStorage.getItem(&quot;adminToken&quot;) || &quot;&quot;}`
                 },
                 body: JSON.stringify(data)
             });
@@ -54,11 +54,11 @@ export default function TravelDeskPage() {
 
     const handleMarkBooked = async () => {
         try {
-            await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/bookings/${markBookedModal.bookingId}/travel-booked`, {
-                method: "PATCH",
+            await fetch(`${process.env.NEXT_PUBLIC_API_URL || &apos;http://localhost:3001/api/v1&apos;}/admin/bookings/${markBookedModal.bookingId}/travel-booked`, {
+                method: &quot;PATCH&quot;,
                 headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${localStorage.getItem("adminToken") || ""}`
+                    &quot;Content-Type&quot;: &quot;application/json&quot;,
+                    Authorization: `Bearer ${localStorage.getItem(&quot;adminToken&quot;) || &quot;&quot;}`
                 },
                 body: JSON.stringify({
                     travelBookingDetails: { reference: bookedForm.pnr, carrier: bookedForm.carrier, notes: bookedForm.notes },
@@ -66,7 +66,7 @@ export default function TravelDeskPage() {
                 })
             });
             setMarkBookedModal({ isOpen: false, bookingId: null });
-            setBookedForm({ pnr: "", carrier: "", actualCost: "", notes: "" });
+            setBookedForm({ pnr: &quot;&quot;, carrier: &quot;&quot;, actualCost: &quot;&quot;, notes: &quot;&quot; });
             fetchQueue();
         } catch (e) {
             console.error(e);
@@ -77,16 +77,16 @@ export default function TravelDeskPage() {
         const text = `Booking: ${b.bookingNumber}
 Pandit: ${b.pandit?.name} (Ph: ${b.pandit?.phone})
 From: ${b.pandit?.panditProfile?.location} → To: ${b.venueCity}
-Event Date: ${format(new Date(b.eventDate), 'dd MMM yyyy')}
-Mode: ${b.travelMode || "Transport"}`;
+Event Date: ${format(new Date(b.eventDate), &apos;dd MMM yyyy&apos;)}
+Mode: ${b.travelMode || &quot;Transport&quot;}`;
         navigator.clipboard.writeText(text);
-        alert("Copied to clipboard!");
+        alert(&quot;Copied to clipboard!&quot;);
     };
 
     const tabs = [
-        { id: "pending", label: "Needs Travel", icon: "🔴", desc: "Urgent" },
-        { id: "calculating", label: "In Progress", icon: "🟡", desc: "Costing" },
-        { id: "booked", label: "Booked", icon: "✅", desc: "Done" },
+        { id: &quot;pending&quot;, label: &quot;Needs Travel&quot;, icon: &quot;🔴&quot;, desc: &quot;Urgent&quot; },
+        { id: &quot;calculating&quot;, label: &quot;In Progress&quot;, icon: &quot;🟡&quot;, desc: &quot;Costing&quot; },
+        { id: &quot;booked&quot;, label: &quot;Booked&quot;, icon: &quot;✅&quot;, desc: &quot;Done&quot; },
     ];
 
     return (
@@ -107,8 +107,8 @@ Mode: ${b.travelMode || "Transport"}`;
                         key={t.id}
                         onClick={() => setActiveTab(t.id)}
                         className={`px-5 py-2.5 rounded-lg font-bold text-sm transition-all flex items-center gap-2 ${activeTab === t.id
-                            ? "bg-white text-slate-900 shadow-sm"
-                            : "text-slate-500 hover:text-slate-700 hover:bg-slate-200/50"
+                            ? &quot;bg-white text-slate-900 shadow-sm&quot;
+                            : &quot;text-slate-500 hover:text-slate-700 hover:bg-slate-200/50&quot;
                             }`}
                     >
                         <span>{t.icon}</span>
@@ -130,10 +130,10 @@ Mode: ${b.travelMode || "Transport"}`;
                 ) : (
                     bookings.map(b => {
                         const hrsToEvent = differenceInHours(new Date(b.eventDate), new Date());
-                        let urgTheme = "bg-white border-slate-200";
+                        let urgTheme = &quot;bg-white border-slate-200&quot;;
                         let urgBadge = null;
 
-                        if (activeTab === "pending" && hrsToEvent < 48) {
+                        if (activeTab === &quot;pending&quot; && hrsToEvent < 48) {
                             urgTheme = hrsToEvent < 24 ? "border-red-300 bg-red-50/30 ring-1 ring-red-100" : "border-amber-300 bg-amber-50/30";
                             urgBadge = hrsToEvent < 24 ? (
                                 <div className="bg-red-500 text-white text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-t-xl text-center w-full absolute top-0 inset-x-0">🚨 Event in {hrsToEvent} hours!</div>
@@ -153,7 +153,7 @@ Mode: ${b.travelMode || "Transport"}`;
                                             {b.bookingNumber}
                                         </Link>
                                         <p className="text-slate-800 font-bold mt-1.5 flex items-center gap-2">
-                                            {b.eventType} <span className="text-slate-300">•</span> {format(new Date(b.eventDate), 'dd MMM yyyy, p')}
+                                            {b.eventType} <span className="text-slate-300">•</span> {format(new Date(b.eventDate), &apos;dd MMM yyyy, p&apos;)}
                                         </p>
 
                                         <div className="grid grid-cols-2 gap-4 mt-6">
@@ -165,7 +165,7 @@ Mode: ${b.travelMode || "Transport"}`;
                                             <div>
                                                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Pandit</p>
                                                 <p className="text-sm font-bold text-slate-700 truncate">{b.pandit?.name}</p>
-                                                <p className="text-xs text-slate-500 mt-0.5">{b.pandit?.panditProfile?.location || "Unknown"} <span className="text-blue-500 font-semibold cursor-pointer ml-1">📱 {b.pandit?.phone}</span></p>
+                                                <p className="text-xs text-slate-500 mt-0.5">{b.pandit?.panditProfile?.location || &quot;Unknown&quot;} <span className="text-blue-500 font-semibold cursor-pointer ml-1">📱 {b.pandit?.phone}</span></p>
                                             </div>
                                         </div>
                                     </div>
@@ -185,23 +185,23 @@ Mode: ${b.travelMode || "Transport"}`;
                                         <div className="bg-slate-50 rounded-xl p-3 text-xs text-slate-600 font-medium space-y-2 border border-slate-100">
                                             <div className="flex justify-between">
                                                 <span className="text-slate-400 font-bold">MODE</span>
-                                                <span className="font-bold text-slate-800">{b.travelMode || "Transport"}</span>
+                                                <span className="font-bold text-slate-800">{b.travelMode || &quot;Transport&quot;}</span>
                                             </div>
                                             <div className="flex justify-between">
                                                 <span className="text-slate-400 font-bold">EST. COST</span>
-                                                <span className="font-bold text-slate-800">₹{b.calculatedTravelCost || "---"}</span>
+                                                <span className="font-bold text-slate-800">₹{b.calculatedTravelCost || &quot;---&quot;}</span>
                                             </div>
                                         </div>
                                     </div>
 
                                     {/* RIGHT Actions */}
                                     <div className="w-full md:w-56 flex flex-col gap-3 pl-0 md:pl-6 mt-6 md:mt-0 shrink-0">
-                                        {activeTab !== "booked" && (
+                                        {activeTab !== &quot;booked&quot; && (
                                             <button
                                                 onClick={() => setCalculatorModal({ isOpen: true, bookingId: b.id, bookingData: b })}
                                                 className="w-full bg-white border-2 border-slate-200 hover:border-blue-500 hover:text-blue-700 text-slate-700 font-bold py-2.5 px-4 rounded-xl shadow-sm transition-all focus:ring-4 focus:ring-blue-100 active:scale-95"
                                             >
-                                                {b.calculatedTravelCost ? "Edit Calculator" : "🧮 Calculate"}
+                                                {b.calculatedTravelCost ? &quot;Edit Calculator&quot; : &quot;🧮 Calculate&quot;}
                                             </button>
                                         )}
 
@@ -212,10 +212,10 @@ Mode: ${b.travelMode || "Transport"}`;
                                             📋 Copy Details
                                         </button>
 
-                                        {activeTab !== "booked" && (
+                                        {activeTab !== &quot;booked&quot; && (
                                             <button
                                                 onClick={() => {
-                                                    setBookedForm({ ...bookedForm, actualCost: String(b.calculatedTravelCost || "") });
+                                                    setBookedForm({ ...bookedForm, actualCost: String(b.calculatedTravelCost || &quot;&quot;) });
                                                     setMarkBookedModal({ isOpen: true, bookingId: b.id, bookingData: b });
                                                 }}
                                                 className="w-full bg-green-500 hover:bg-green-600 text-white font-black py-3 px-4 rounded-xl shadow-md shadow-green-500/20 transition-all active:scale-95 mt-2 flex items-center justify-center gap-2 group"
@@ -225,7 +225,7 @@ Mode: ${b.travelMode || "Transport"}`;
                                             </button>
                                         )}
 
-                                        {activeTab === "booked" && (
+                                        {activeTab === &quot;booked&quot; && (
                                             <div className="bg-green-50 border border-green-200 p-3 rounded-xl text-center">
                                                 <p className="text-xs font-black text-green-600 uppercase tracking-wider mb-1">Actual Cost</p>
                                                 <p className="text-2xl tracking-tight font-black text-green-700">₹{b.travelCost}</p>

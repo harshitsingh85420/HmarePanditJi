@@ -120,7 +120,7 @@ export default function NRIBookingPage() {
                                             Smart Muhurat Timing
                                         </h3>
                                         <button className="text-[#f29e0d] text-lg font-bold flex items-center">
-                                            Change Date{" "}
+                                            Change Date{&quot; &quot;}
                                             <span className="material-symbols-outlined ml-1">
                                                 calendar_month
                                             </span>
@@ -257,7 +257,7 @@ export default function NRIBookingPage() {
                                         <button className="w-full py-2 border-2 border-dashed border-[#1a2b4b]/10 dark:border-white/10 rounded-xl text-lg font-bold text-[#1a2b4b]/40 dark:text-white/40 flex items-center justify-center gap-2 hover:border-[#f29e0d]/50 hover:text-[#f29e0d] transition-all">
                                             <span className="material-symbols-outlined">
                                                 add_circle
-                                            </span>{" "}
+                                            </span>{&quot; &quot;}
                                             Add Another Contact
                                         </button>
                                     </div>

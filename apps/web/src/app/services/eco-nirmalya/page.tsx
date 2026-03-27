@@ -14,7 +14,7 @@ export default function EcoNirmalyaPage() {
                                 spa
                             </span>
                             <span className="font-bold text-xl tracking-tight text-[#0f766e]">
-                                HmarePanditJi{" "}
+                                HmarePanditJi{&quot; &quot;}
                                 <span className="text-[#134e4a] font-light">Eco</span>
                             </span>
                         </div>
@@ -110,7 +110,7 @@ export default function EcoNirmalyaPage() {
                                     Collection
                                 </h3>
                                 <p className="text-center text-gray-600 leading-relaxed">
-                                    Our uniformed 'Eco-Sahayaks' collect the floral waste
+                                    Our uniformed &apos;Eco-Sahayaks&apos; collect the floral waste
                                     directly from your doorstep in specialized biodegradable
                                     bags.
                                 </p>
@@ -222,7 +222,7 @@ export default function EcoNirmalyaPage() {
                                 </select>
                                 <span className="material-icons absolute left-3 top-3.5 text-transparent text-lg pointer-events-none">
                                     shopping_bag
-                                </span>{" "}
+                                </span>{&quot; &quot;}
                                 {/* Placeholder alignment fix needed in real implementation */}
                             </div>
                             <div className="flex items-center justify-between py-4">

@@ -49,7 +49,7 @@ export default function CancellationPolicyPage() {
                 <ul className="list-disc pl-5 mt-2 space-y-2 text-gray-700">
                     <li><strong>Platform fees are entirely non-refundable</strong> regardless of when the cancellation occurs.</li>
                     <li>Refunds are processed within <strong>5-7 business days</strong> to the original payment method.</li>
-                    <li>How to cancel: You can cancel directly from your User Dashboard under "My Bookings" or by contacting our support team at support@hmarepanditji.com.</li>
+                    <li>How to cancel: You can cancel directly from your User Dashboard under &quot;My Bookings&quot; or by contacting our support team at support@hmarepanditji.com.</li>
                 </ul>
             </div>
         </>

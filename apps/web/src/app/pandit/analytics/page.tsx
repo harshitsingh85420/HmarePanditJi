@@ -136,10 +136,10 @@ export default function AnalyticsPage() {
                                             </p>
                                         </div>
                                         <p className="mt-1 line-clamp-2 text-lg leading-6 text-gray-600 dark:text-gray-300">
-                                            Prices have surged by{" "}
+                                            Prices have surged by{&quot; &quot;}
                                             <span className="font-bold text-red-600 dark:text-red-400">
                                                 +15%
-                                            </span>{" "}
+                                            </span>{&quot; &quot;}
                                             due to local festival demand. Consider stocking up now
                                             or adjusting package rates.
                                         </p>
@@ -162,7 +162,7 @@ export default function AnalyticsPage() {
                                             </p>
                                         </div>
                                         <p className="mt-1 line-clamp-2 text-lg leading-6 text-gray-600 dark:text-gray-300">
-                                            Market supply is high. Prices dropping by{" "}
+                                            Market supply is high. Prices dropping by{&quot; &quot;}
                                             <span className="font-bold text-green-600 dark:text-green-400">
                                                 -5%
                                             </span>
@@ -296,7 +296,7 @@ export default function AnalyticsPage() {
                             <h3 className="text-xl font-bold mb-2">Margins impacted!</h3>
                             <p className="text-orange-100 text-lg mb-6">
                                 Recent price surges in Ghee and Camphor might reduce your puja
-                                package margin by <span className="font-bold text-white">₹250</span>{" "}
+                                package margin by <span className="font-bold text-white">₹250</span>{&quot; &quot;}
                                 per booking.
                             </p>
                             <button className="w-full bg-white text-[#ec7f13] font-bold py-3 px-4 rounded-lg shadow-sm hover:bg-orange-50 transition flex items-center justify-center gap-2">

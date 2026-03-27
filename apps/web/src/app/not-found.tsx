@@ -58,10 +58,10 @@ export default function NotFound() {
           <p className="mb-3 font-semibold text-slate-500 dark:text-slate-400">Popular pages</p>
           <div className="flex flex-wrap justify-center gap-x-4 gap-y-1">
             {[
-              { href: "/search", label: "Search Pandits" },
-              { href: "/about", label: "About Us" },
-              { href: "/contact", label: "Contact" },
-              { href: "/terms", label: "Terms" },
+              { href: &quot;/search&quot;, label: &quot;Search Pandits&quot; },
+              { href: &quot;/about&quot;, label: &quot;About Us&quot; },
+              { href: &quot;/contact&quot;, label: &quot;Contact&quot; },
+              { href: &quot;/terms&quot;, label: &quot;Terms&quot; },
             ].map((link) => (
               <Link
                 key={link.href}

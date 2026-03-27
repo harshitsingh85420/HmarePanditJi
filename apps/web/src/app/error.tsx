@@ -55,7 +55,7 @@ export default function GlobalError({
         </div>
 
         <p className="mt-8 text-base text-slate-400">
-          Need help?{" "}
+          Need help?{&quot; &quot;}
           <a
             href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "919999999999"}`}
             className="text-primary underline"

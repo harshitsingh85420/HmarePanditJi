@@ -2,6 +2,8 @@
  * HmarePanditJi — Complete Voice Script Library
  * All 22 screens (S-0.0.1 through S-0.12) with exact Hindi Devanagari scripts
  * From: HPJ_Voice_System_Complete.md
+ *
+ * BUG-001 FIX: Added timing configuration for elderly-friendly pacing
  */
 
 import type { SupportedLanguage } from '@/lib/onboarding-store'
@@ -11,6 +13,10 @@ export interface VoiceScript {
   roman?: string     // Roman transliteration (developer reference)
   english?: string   // English meaning (developer reference)
   durationSec?: number
+  // BUG-001 FIX: Elderly-friendly timing configuration
+  initialDelayMs?: number   // Delay before starting speech (800ms for elderly)
+  pauseAfterMs?: number     // Pause after speech before listening (1000ms)
+  listenTimeoutMs?: number  // Timeout for listening (20000ms for elderly)
 }
 
 export interface ScreenVoiceScripts {

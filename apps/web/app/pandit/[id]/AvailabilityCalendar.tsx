@@ -51,7 +51,7 @@ export function AvailabilityCalendar({ panditId }: { panditId: string }) {
         }
     };
 
-    const monthName = new Date(year, month - 1).toLocaleString('default', { month: 'long' });
+    const monthName = new Date(year, month - 1).toLocaleString(&apos;default&apos;, { month: &apos;long&apos; });
     const isPastMonth = year < today.getFullYear() || (year === today.getFullYear() && month < today.getMonth() + 1);
 
     return (
@@ -84,7 +84,7 @@ export function AvailabilityCalendar({ panditId }: { panditId: string }) {
                     </div>
                 ) : (
                     <div className="grid grid-cols-7 gap-3">
-                        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(d => (
+                        {[&quot;Sun&quot;, &quot;Mon&quot;, &quot;Tue&quot;, &quot;Wed&quot;, &quot;Thu&quot;, &quot;Fri&quot;, &quot;Sat&quot;].map(d => (
                             <div key={d} className="text-center text-xs font-bold uppercase text-gray-400 pb-2">{d}</div>
                         ))}
 
@@ -94,22 +94,22 @@ export function AvailabilityCalendar({ panditId }: { panditId: string }) {
                         ))}
 
                         {dates.map((dObj) => {
-                            const dayNum = parseInt(dObj.date.split('-')[2], 10);
+                            const dayNum = parseInt(dObj.date.split(&apos;-&apos;)[2], 10);
                             const { status, reason } = dObj;
 
-                            let bgClass = "bg-gray-50 text-gray-400 border border-gray-100";
-                            let ringClass = "";
+                            let bgClass = &quot;bg-gray-50 text-gray-400 border border-gray-100&quot;;
+                            let ringClass = &quot;&quot;;
 
-                            if (status === "available") {
-                                bgClass = "bg-green-50 text-green-700 hover:bg-green-100 cursor-pointer border border-green-200 font-bold shadow-sm";
-                                ringClass = "hover:ring-2 hover:ring-green-400 hover:ring-offset-2";
-                            } else if (status === "booked") {
-                                bgClass = "bg-orange-100 text-orange-800 border-none opacity-80 cursor-not-allowed";
-                                ringClass = "border border-orange-200";
-                            } else if (status === "blocked") {
-                                bgClass = "bg-red-50 text-red-800 border-none opacity-80 cursor-not-allowed text-xs flex flex-col items-center justify-center p-0 line-through decoration-red-300";
-                            } else if (status === "past") {
-                                bgClass = "bg-gray-100 text-gray-400 border border-gray-100 cursor-not-allowed opacity-50";
+                            if (status === &quot;available&quot;) {
+                                bgClass = &quot;bg-green-50 text-green-700 hover:bg-green-100 cursor-pointer border border-green-200 font-bold shadow-sm&quot;;
+                                ringClass = &quot;hover:ring-2 hover:ring-green-400 hover:ring-offset-2&quot;;
+                            } else if (status === &quot;booked&quot;) {
+                                bgClass = &quot;bg-orange-100 text-orange-800 border-none opacity-80 cursor-not-allowed&quot;;
+                                ringClass = &quot;border border-orange-200&quot;;
+                            } else if (status === &quot;blocked&quot;) {
+                                bgClass = &quot;bg-red-50 text-red-800 border-none opacity-80 cursor-not-allowed text-xs flex flex-col items-center justify-center p-0 line-through decoration-red-300&quot;;
+                            } else if (status === &quot;past&quot;) {
+                                bgClass = &quot;bg-gray-100 text-gray-400 border border-gray-100 cursor-not-allowed opacity-50&quot;;
                             }
 
                             return (
@@ -117,7 +117,7 @@ export function AvailabilityCalendar({ panditId }: { panditId: string }) {
                                     key={dObj.date}
                                     title={status === "available" ? "Available" : status === "booked" ? "1 booking" : reason || status}
                                     onClick={() => {
-                                        if (status === "available") {
+                                        if (status === &quot;available&quot;) {
                                             router.push(`/booking/new?panditId=${panditId}&date=${dObj.date}`);
                                         }
                                     }}

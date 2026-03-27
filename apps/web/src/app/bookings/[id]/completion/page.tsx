@@ -61,8 +61,8 @@ export default function PujaCompletionPage({ params }: { params: { id: string } 
                     </div>
                     <div className="bg-[#f49d25]/5 dark:bg-[#f49d25]/10 p-4 rounded-lg border border-[#f49d25]/20 max-w-lg text-center">
                         <p className="text-[#181511] dark:text-gray-200 italic">
-                            "Pandit Vishnu Shastri has shared Digital Blessings with you. These
-                            sacred assets are now available in your vault."
+                            &quot;Pandit Vishnu Shastri has shared Digital Blessings with you. These
+                            sacred assets are now available in your vault.&quot;
                         </p>
                     </div>
                 </div>
@@ -88,7 +88,7 @@ export default function PujaCompletionPage({ params }: { params: { id: string } 
                             onClick={() => router.push(`/bookings/${id}/certificate`)}
                             className="w-full mt-2 flex items-center justify-center gap-2 bg-[#f49d25]/10 text-[#f49d25] py-3 rounded-lg font-bold hover:bg-[#f49d25] hover:text-white transition-all"
                         >
-                            <span className="material-symbols-outlined">download</span>{" "}
+                            <span className="material-symbols-outlined">download</span>{&quot; &quot;}
                             Download PDF
                         </button>
                     </div>
@@ -130,7 +130,7 @@ export default function PujaCompletionPage({ params }: { params: { id: string } 
                             </p>
                         </div>
                         <button className="w-full mt-2 flex items-center justify-center gap-2 bg-[#f49d25]/10 text-[#f49d25] py-3 rounded-lg font-bold hover:bg-[#f49d25] hover:text-white transition-all">
-                            <span className="material-symbols-outlined">download</span>{" "}
+                            <span className="material-symbols-outlined">download</span>{&quot; &quot;}
                             Download Receipt
                         </button>
                     </div>

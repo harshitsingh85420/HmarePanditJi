@@ -7,7 +7,7 @@ export interface ModalProps {
   onClose: () => void;
   title?: string;
   children: React.ReactNode;
-  size?: "sm" | "md" | "lg" | "full";
+  size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | &quot;full&quot;;
 }
 
 export function Modal({
@@ -15,33 +15,33 @@ export function Modal({
   onClose,
   title,
   children,
-  size = "md",
+  size = &quot;md&quot;,
 }: ModalProps) {
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === &quot;Escape&quot;) onClose();
     },
     [onClose],
   );
 
   useEffect(() => {
     if (isOpen) {
-      document.addEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = "hidden";
+      document.addEventListener(&quot;keydown&quot;, handleKeyDown);
+      document.body.style.overflow = &quot;hidden&quot;;
     }
     return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = "";
+      document.removeEventListener(&quot;keydown&quot;, handleKeyDown);
+      document.body.style.overflow = &quot;&quot;;
     };
   }, [isOpen, handleKeyDown]);
 
   if (!isOpen) return null;
 
   const sizes: Record<string, string> = {
-    sm: "max-w-sm",
-    md: "max-w-md",
-    lg: "max-w-2xl",
-    full: "max-w-full mx-4 sm:mx-8 h-[calc(100vh-4rem)]",
+    sm: &quot;max-w-sm&quot;,
+    md: &quot;max-w-md&quot;,
+    lg: &quot;max-w-2xl&quot;,
+    full: &quot;max-w-full mx-4 sm:mx-8 h-[calc(100vh-4rem)]&quot;,
   };
 
   return (

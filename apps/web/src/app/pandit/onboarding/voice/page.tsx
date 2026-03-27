@@ -12,7 +12,7 @@ export default function VoiceProfileSetupPage() {
         setIsListening(true);
         // Simulate listening delay
         setTimeout(() => {
-            setTranscript("Mera naam Rajesh Sharma hai, aur mera number 9876543210 hai.");
+            setTranscript(&quot;Mera naam Rajesh Sharma hai, aur mera number 9876543210 hai.&quot;);
             setIsListening(false);
         }, 3000);
     };
@@ -109,7 +109,7 @@ export default function VoiceProfileSetupPage() {
                             </div>
                         ) : transcript ? (
                             <div className="w-full bg-[#f8f6f6] dark:bg-[#211114] p-6 rounded-lg border border-dashed border-[#e5dcdd] dark:border-[#3d2a2d] mb-8 animate-in slide-in-from-bottom-4">
-                                <p className="text-[#886369] dark:text-[#b09498] italic text-lg">"{transcript}"</p>
+                                <p className="text-[#886369] dark:text-[#b09498] italic text-lg">&quot;{transcript}&quot;</p>
                             </div>
                         ) : (
                             <div className="h-12 mb-8"></div> // Spacer
@@ -156,7 +156,7 @@ export default function VoiceProfileSetupPage() {
                             Skip for now
                         </button>
                         <button
-                            onClick={() => router.push('/pandit/onboarding/kyc')}
+                            onClick={() => router.push(&apos;/pandit/onboarding/kyc&apos;)}
                             className="flex-[2] py-4 px-6 bg-[#cf1736] text-white rounded-xl font-bold shadow-md hover:bg-[#cf1736]/90 transition-all transform hover:-translate-y-0.5"
                         >
                             Save and Continue
@@ -165,7 +165,7 @@ export default function VoiceProfileSetupPage() {
 
                     <div className="mt-12 text-center">
                         <p className="text-lg text-[#886369] dark:text-[#b09498]">
-                            Need help? Call our support at{" "}
+                            Need help? Call our support at{&quot; &quot;}
                             <a className="text-[#cf1736] font-bold hover:underline" href="#">
                                 1800-PANDIT
                             </a>

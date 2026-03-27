@@ -19,7 +19,15 @@
     "db:push": "pnpm --filter @hmarepanditji/db push",
     "db:migrate": "pnpm --filter @hmarepanditji/db migrate",
     "db:seed": "pnpm --filter @hmarepanditji/db seed",
-    "db:studio": "pnpm --filter @hmarepanditji/db studio"
+    "db:studio": "pnpm --filter @hmarepanditji/db studio",
+    "ts:check": "pnpm --filter @hmarepanditji/pandit tsc --noEmit",
+    "ts:analyze": "node scripts/analyze-ts-errors.js",
+    "build:verify": "node scripts/verify-build.js",
+    "build:pandit": "pnpm --filter @hmarepanditji/pandit build",
+    "build:admin": "pnpm --filter @hmarepanditji/admin build",
+    "build:web": "pnpm --filter @hmarepanditji/web build",
+    "deploy:pandit": "cd apps/pandit && vercel --prod",
+    "deploy:pandit:preview": "cd apps/pandit && vercel --env=preview"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^7.0.0",

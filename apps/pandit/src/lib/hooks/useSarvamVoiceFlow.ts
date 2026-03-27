@@ -39,12 +39,12 @@ interface UseSarvamVoiceFlowResult {
   isNoiseTooHigh: boolean;    // VOICE-008 FIX: Expose noise status
 }
 
-// BUG-002 FIX: Reduced timeouts for faster keyboard fallback (was 12000ms)
-const DEFAULT_TIMEOUT_MS = 8000;
-// BUG-ACCESSIBILITY FIX: Increased elderly timeout to 25s for slower speakers (reserved for future use)
-// const ELDERLY_TIMEOUT_MS = 25000;
-// VOICE-005 FIX: Maximum reprompts before forcing exit (prevents infinite loop)
-const MAX_REPROMPTS = 2;
+// BUG-001 FIX: Increased timeout for elderly users to have enough time to respond
+const DEFAULT_TIMEOUT_MS = 12000;  // 12s for regular users (was 8s)
+// BUG-001 FIX: Increased elderly timeout to 20s for slower speakers (reserved for future use)
+const ELDERLY_TIMEOUT_MS = 20000;  // 20s for elderly users (was 12s commented out)
+// BUG-001 FIX: Increased reprompts to 3 for better elderly accommodation (was 2)
+const MAX_REPROMPTS = 3;
 // VOICE-008 FIX: Maximum errors before automatic keyboard fallback
 const MAX_ERRORS_BEFORE_KEYBOARD = 3;
 
@@ -53,11 +53,11 @@ export function useSarvamVoiceFlow({
   script,
   onIntent,
   autoListen = true,
-  listenTimeoutMs = DEFAULT_TIMEOUT_MS, // BUG-002 FIX: Reduced from 12000ms to 8000ms
+  listenTimeoutMs = DEFAULT_TIMEOUT_MS, // BUG-001 FIX: Increased from 8000ms to 12000ms for elderly users
   repromptScript,
-  repromptTimeoutMs = DEFAULT_TIMEOUT_MS, // BUG-002 FIX: Reduced from 12000ms to 8000ms
-  initialDelayMs = 500,
-  pauseAfterMs = 300,
+  repromptTimeoutMs = DEFAULT_TIMEOUT_MS, // BUG-001 FIX: Increased from 8000ms to 12000ms
+  initialDelayMs = 800,  // BUG-001 FIX: Increased from 500ms to 800ms for elderly comprehension
+  pauseAfterMs = 1000,  // BUG-001 FIX: Increased from 300ms to 1000ms for TTS completion
   disabled = false,
   onScriptComplete,
   onNoiseHigh,

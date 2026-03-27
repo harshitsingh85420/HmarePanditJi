@@ -18,7 +18,7 @@ export default function BookingAlertPage() {
     const formatTime = (seconds: number) => {
         const mins = Math.floor(seconds / 60);
         const secs = seconds % 60;
-        return { mins: mins.toString().padStart(2, '0'), secs: secs.toString().padStart(2, '0') };
+        return { mins: mins.toString().padStart(2, &apos;0&apos;), secs: secs.toString().padStart(2, &apos;0&apos;) };
     };
 
     const { mins, secs } = formatTime(timeLeft);
@@ -99,7 +99,7 @@ export default function BookingAlertPage() {
                                             <p className="text-gray-500 dark:text-gray-400 flex items-center gap-1">
                                                 <span className="material-symbols-outlined text-base">
                                                     location_on
-                                                </span>{" "}
+                                                </span>{&quot; &quot;}
                                                 New Delhi, NCR Region
                                             </p>
                                         </div>
@@ -138,7 +138,7 @@ export default function BookingAlertPage() {
                                 <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
                                     <span className="material-symbols-outlined text-[#135bec]">
                                         receipt_long
-                                    </span>{" "}
+                                    </span>{&quot; &quot;}
                                     Earnings Breakdown
                                 </h3>
                                 <div className="space-y-4">
@@ -184,7 +184,7 @@ export default function BookingAlertPage() {
                                 </h3>
                                 <div className="space-y-4">
                                     <button
-                                        onClick={() => router.push('/pandit/bookings/123/itinerary')} // Assuming accept goes to itinerary prep
+                                        onClick={() => router.push(&apos;/pandit/bookings/123/itinerary&apos;)} // Assuming accept goes to itinerary prep
                                         className="w-full bg-[#135bec] hover:bg-[#135bec]/90 text-white font-bold py-5 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-[#135bec]/20 transition-all active:scale-95"
                                     >
                                         <span className="material-symbols-outlined">

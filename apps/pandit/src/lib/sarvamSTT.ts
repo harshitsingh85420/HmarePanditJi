@@ -640,6 +640,63 @@ class SarvamSTTEngine {
   getCurrentNoiseLevel(): number {
     return this.lastNoiseLevel
   }
+
+  /**
+   * Explicit cleanup method for WebSocket and audio resources
+   * Call this on component unmount to prevent memory leaks
+   */
+  cleanup(): void {
+    console.log('[SarvamSTT] Cleaning up resources')
+
+    // Close WebSocket
+    if (this.ws) {
+      try {
+        this.ws.close()
+      } catch { /* ignore */ }
+      this.ws = null
+    }
+
+    // Stop MediaRecorder
+    if (this.mediaRecorder) {
+      try {
+        this.mediaRecorder.stop()
+      } catch { /* ignore */ }
+      this.mediaRecorder = null
+    }
+
+    // Stop audio stream tracks
+    if (this.audioStream) {
+      this.audioStream.getTracks().forEach(track => track.stop())
+      this.audioStream = null
+    }
+
+    // Clear noise check interval
+    if (this.noiseCheckInterval) {
+      clearInterval(this.noiseCheckInterval)
+      this.noiseCheckInterval = null
+    }
+
+    // Clear silence timer
+    if (this.silenceTimer) {
+      clearTimeout(this.silenceTimer)
+      this.silenceTimer = null
+    }
+
+    // Clean up audio context and analyser
+    if (this.analyserNode) {
+      this.analyserNode.disconnect()
+      this.analyserNode = null
+    }
+
+    if (this.audioContext) {
+      this.audioContext.close()
+      this.audioContext = null
+    }
+
+    // Reset state
+    this.isListening = false
+    this.options = {}
+  }
 }
 
 // ─────────────────────────────────────────────────────────────

@@ -12,7 +12,7 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api/v
 
 // ---------- OTP Input ----------
 function OtpInput({ onComplete }: { onComplete: (otp: string) => void }) {
-  const [digits, setDigits] = useState(["", "", "", "", "", ""]);
+  const [digits, setDigits] = useState([&quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;]);
   const refs = useRef<(HTMLInputElement | null)[]>([]);
 
   function handleChange(i: number, val: string) {
@@ -21,11 +21,11 @@ function OtpInput({ onComplete }: { onComplete: (otp: string) => void }) {
     next[i] = val;
     setDigits(next);
     if (val && i < 5) refs.current[i + 1]?.focus();
-    if (next.every((d) => d)) onComplete(next.join(""));
+    if (next.every((d) => d)) onComplete(next.join(&quot;&quot;));
   }
 
   function handleKeyDown(i: number, e: React.KeyboardEvent) {
-    if (e.key === "Backspace" && !digits[i] && i > 0) {
+    if (e.key === &quot;Backspace&quot; && !digits[i] && i > 0) {
       refs.current[i - 1]?.focus();
     }
   }
@@ -53,16 +53,16 @@ function OtpInput({ onComplete }: { onComplete: (otp: string) => void }) {
 function LoginPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectParam = searchParams.get("redirect");
-  const nextParam = searchParams.get("next");
+  const redirectParam = searchParams.get(&quot;redirect&quot;);
+  const nextParam = searchParams.get(&quot;next&quot;);
 
-  const [role, setRole] = useState<Role>("CUSTOMER");
-  const [step, setStep] = useState<Step>("phone");
-  const [phone, setPhone] = useState("");
-  const [phoneError, setPhoneError] = useState("");
-  const [name, setName] = useState("");
+  const [role, setRole] = useState<Role>(&quot;CUSTOMER&quot;);
+  const [step, setStep] = useState<Step>(&quot;phone&quot;);
+  const [phone, setPhone] = useState(&quot;&quot;);
+  const [phoneError, setPhoneError] = useState(&quot;&quot;);
+  const [name, setName] = useState(&quot;&quot;);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(&quot;&quot;);
   const [countdown, setCountdown] = useState(0);
 
   // Countdown timer for OTP resend
@@ -79,26 +79,26 @@ function LoginPageContent() {
   async function handleSendOtp(e?: React.FormEvent) {
     e?.preventDefault();
     if (!validatePhone(phone)) {
-      setPhoneError("Enter a valid 10-digit Indian mobile number");
+      setPhoneError(&quot;Enter a valid 10-digit Indian mobile number&quot;);
       return;
     }
-    setPhoneError("");
+    setPhoneError(&quot;&quot;);
     setLoading(true);
-    setError("");
+    setError(&quot;&quot;);
     try {
       const res = await fetch(`${API_BASE}/auth/send-otp`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: &quot;POST&quot;,
+        headers: { &quot;Content-Type&quot;: &quot;application/json&quot; },
         body: JSON.stringify({ phone: `+91${phone}`, role }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        throw new Error((data as { message?: string }).message || "Failed to send OTP");
+        throw new Error((data as { message?: string }).message || &quot;Failed to send OTP&quot;);
       }
-      setStep("otp");
+      setStep(&quot;otp&quot;);
       setCountdown(30);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to send OTP. Please try again.");
+      setError(err instanceof Error ? err.message : &quot;Failed to send OTP. Please try again.&quot;);
     } finally {
       setLoading(false);
     }
@@ -106,29 +106,29 @@ function LoginPageContent() {
 
   async function handleVerifyOtp(otp: string) {
     setLoading(true);
-    setError("");
+    setError(&quot;&quot;);
     try {
       const res = await fetch(`${API_BASE}/auth/verify-otp`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: &quot;POST&quot;,
+        headers: { &quot;Content-Type&quot;: &quot;application/json&quot; },
         body: JSON.stringify({ phone: `+91${phone}`, otp, role }),
       });
       const data = await res.json();
       if (!res.ok) {
-        throw new Error((data as { message?: string; error?: { message?: string } }).message || data.error?.message || "Invalid OTP");
+        throw new Error((data as { message?: string; error?: { message?: string } }).message || data.error?.message || &quot;Invalid OTP&quot;);
       }
 
       const { token, user } = data.data;
-      localStorage.setItem("hpj_token", token);
-      localStorage.setItem("hpj_user", JSON.stringify(user));
+      localStorage.setItem(&quot;hpj_token&quot;, token);
+      localStorage.setItem(&quot;hpj_user&quot;, JSON.stringify(user));
 
       if (user.isNewUser) {
-        setStep("name");
+        setStep(&quot;name&quot;);
       } else {
         handleRedirect(user);
       }
     } catch (err: any) {
-      setError(err.message || "OTP verification failed");
+      setError(err.message || &quot;OTP verification failed&quot;);
     } finally {
       setLoading(false);
     }
@@ -139,11 +139,11 @@ function LoginPageContent() {
     if (!name.trim()) return;
     setLoading(true);
     try {
-      const token = localStorage.getItem("hpj_token");
+      const token = localStorage.getItem(&quot;hpj_token&quot;);
       const res = await fetch(`${API_BASE}/auth/me`, {
-        method: "PATCH",
+        method: &quot;PATCH&quot;,
         headers: {
-          "Content-Type": "application/json",
+          &quot;Content-Type&quot;: &quot;application/json&quot;,
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ name: name.trim() }),
@@ -151,30 +151,30 @@ function LoginPageContent() {
       const data = await res.json();
       if (res.ok) {
         const updatedUser = data.data?.user ?? data.data;
-        localStorage.setItem("hpj_user", JSON.stringify(updatedUser));
+        localStorage.setItem(&quot;hpj_user&quot;, JSON.stringify(updatedUser));
         handleRedirect(updatedUser);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not update profile");
+      setError(err instanceof Error ? err.message : &quot;Could not update profile&quot;);
     }
     setLoading(false);
   }
 
   function handleRedirect(user: { role: string; panditProfile?: { verificationStatus: string } }) {
-    if (user.role === "PANDIT") {
+    if (user.role === &quot;PANDIT&quot;) {
       const status = user.panditProfile?.verificationStatus;
-      const dest = status === "PENDING" && !nextParam
-        ? "http://localhost:3002/onboarding"
-        : nextParam || "http://localhost:3002/dashboard";
+      const dest = status === &quot;PENDING&quot; && !nextParam
+        ? &quot;http://localhost:3002/onboarding&quot;
+        : nextParam || &quot;http://localhost:3002/dashboard&quot;;
       window.location.href = dest;
-    } else if (user.role === "ADMIN") {
-      window.location.href = nextParam || "http://localhost:3003/";
+    } else if (user.role === &quot;ADMIN&quot;) {
+      window.location.href = nextParam || &quot;http://localhost:3003/&quot;;
     } else {
-      router.push(nextParam || "/");
+      router.push(nextParam || &quot;/&quot;);
     }
   }
 
-  const maskedPhone = `+91 ${"X".repeat(5)}-${phone.slice(-5)}`;
+  const maskedPhone = `+91 ${&quot;X&quot;.repeat(5)}-${phone.slice(-5)}`;
 
   return (
     <div className="min-h-[calc(100vh-120px)] flex items-stretch">
@@ -190,9 +190,9 @@ function LoginPageContent() {
 
         <div className="space-y-4 w-full">
           {[
-            { icon: "🔒", title: "Verified Pandits", desc: "Aadhaar & Video KYC certified" },
-            { icon: "💳", title: "Transparent Pricing", desc: "No hidden costs, ever" },
-            { icon: "✈️", title: "Travel Managed", desc: "We handle all logistics" },
+            { icon: &quot;🔒&quot;, title: &quot;Verified Pandits&quot;, desc: &quot;Aadhaar & Video KYC certified&quot; },
+            { icon: &quot;💳&quot;, title: &quot;Transparent Pricing&quot;, desc: &quot;No hidden costs, ever&quot; },
+            { icon: &quot;✈️&quot;, title: &quot;Travel Managed&quot;, desc: &quot;We handle all logistics&quot; },
           ].map((b) => (
             <div key={b.title} className="flex items-center gap-4 bg-white/15 rounded-xl px-4 py-3 backdrop-blur-sm border border-white/20">
               <span className="text-2xl">{b.icon}</span>
@@ -220,30 +220,30 @@ function LoginPageContent() {
             {/* Role Toggle */}
             <div className="flex gap-2 mb-6 p-1 bg-gray-100 rounded-pill">
               <button
-                onClick={() => setRole("CUSTOMER")}
-                className={`flex-1 py-2 px-4 rounded-pill text-sm font-bold transition-all ${role === "CUSTOMER"
-                    ? "bg-primary text-white shadow-md"
-                    : "text-gray-600 hover:text-gray-900"
+                onClick={() => setRole(&quot;CUSTOMER&quot;)}
+                className={`flex-1 py-2 px-4 rounded-pill text-sm font-bold transition-all ${role === &quot;CUSTOMER&quot;
+                    ? &quot;bg-primary text-white shadow-md&quot;
+                    : &quot;text-gray-600 hover:text-gray-900&quot;
                   }`}
               >
-                🙏 I'm a Customer
+                🙏 I&apos;m a Customer
               </button>
               <button
-                onClick={() => setRole("PANDIT")}
-                className={`flex-1 py-2 px-4 rounded-pill text-sm font-bold transition-all ${role === "PANDIT"
-                    ? "bg-amber-600 text-white shadow-md"
-                    : "text-gray-600 hover:text-gray-900"
+                onClick={() => setRole(&quot;PANDIT&quot;)}
+                className={`flex-1 py-2 px-4 rounded-pill text-sm font-bold transition-all ${role === &quot;PANDIT&quot;
+                    ? &quot;bg-amber-600 text-white shadow-md&quot;
+                    : &quot;text-gray-600 hover:text-gray-900&quot;
                   }`}
               >
-                📿 I'm a Pandit
+                📿 I&apos;m a Pandit
               </button>
             </div>
 
             {/* Title */}
             <h1 className="text-2xl font-extrabold text-gray-900 mb-1">
-              {role === "PANDIT" ? "Namaste Pandit Ji 🙏" : "Welcome back"}
+              {role === &quot;PANDIT&quot; ? &quot;Namaste Pandit Ji 🙏&quot; : &quot;Welcome back&quot;}
             </h1>
-            {role === "PANDIT" && (
+            {role === &quot;PANDIT&quot; && (
               <p className="text-sm text-amber-700 mb-4">Welcome Pandit Ji! Join 500+ verified priests.</p>
             )}
 
@@ -255,7 +255,7 @@ function LoginPageContent() {
             )}
 
             {/* STEP 1: Phone */}
-            {step === "phone" && (
+            {step === &quot;phone&quot; && (
               <form onSubmit={handleSendOtp} className="space-y-4">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1">Mobile Number</label>
@@ -268,8 +268,8 @@ function LoginPageContent() {
                       placeholder="9876543210"
                       value={phone}
                       onChange={(e) => {
-                        setPhone(e.target.value.replace(/\D/g, "").slice(0, 10));
-                        setPhoneError("");
+                        setPhone(e.target.value.replace(/\D/g, &quot;&quot;).slice(0, 10));
+                        setPhoneError(&quot;&quot;);
                       }}
                       className="flex-1 px-4 py-3 border border-gray-200 rounded-r-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary/30 text-sm"
                     />
@@ -283,21 +283,21 @@ function LoginPageContent() {
                   className={`w-full py-3 rounded-btn font-bold text-white transition-all ${role === "PANDIT" ? "bg-amber-600 hover:bg-amber-700" : "bg-primary hover:bg-primary/90"
                     } disabled:opacity-60`}
                 >
-                  {loading ? "Sending..." : "Send OTP →"}
+                  {loading ? &quot;Sending...&quot; : &quot;Send OTP →&quot;}
                 </button>
 
                 <p className="text-xs text-center text-gray-500">
-                  No account needed — we'll create one for you
+                  No account needed — we&apos;ll create one for you
                 </p>
               </form>
             )}
 
             {/* STEP 2: OTP */}
-            {step === "otp" && (
+            {step === &quot;otp&quot; && (
               <div>
                 <p className="text-sm text-gray-600 mb-1">
-                  OTP sent to <strong>{maskedPhone}</strong>{" "}
-                  <button onClick={() => { setStep("phone"); setError(""); }} className="text-primary text-xs underline ml-1">
+                  OTP sent to <strong>{maskedPhone}</strong>{&quot; &quot;}
+                  <button onClick={() => { setStep(&quot;phone&quot;); setError(&quot;&quot;); }} className="text-primary text-xs underline ml-1">
                     Change
                   </button>
                 </p>
@@ -313,7 +313,7 @@ function LoginPageContent() {
 
                 <div className="text-center mt-2">
                   {countdown > 0 ? (
-                    <p className="text-xs text-gray-500">Resend OTP in 00:{String(countdown).padStart(2, "0")}</p>
+                    <p className="text-xs text-gray-500">Resend OTP in 00:{String(countdown).padStart(2, &quot;0&quot;)}</p>
                   ) : (
                     <button
                       onClick={() => handleSendOtp()}
@@ -327,12 +327,12 @@ function LoginPageContent() {
             )}
 
             {/* STEP 3: Name (new users) */}
-            {step === "name" && (
+            {step === &quot;name&quot; && (
               <form onSubmit={handleSubmitName} className="space-y-4">
                 <p className="text-sm text-gray-600">
-                  {role === "PANDIT"
-                    ? "Welcome! Please enter your name to continue."
-                    : "What should we call you?"}
+                  {role === &quot;PANDIT&quot;
+                    ? &quot;Welcome! Please enter your name to continue.&quot;
+                    : &quot;What should we call you?&quot;}
                 </p>
                 <input
                   type="text"
@@ -342,9 +342,9 @@ function LoginPageContent() {
                   className="w-full px-4 py-3 border border-gray-200 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary/30 text-sm"
                   autoFocus
                 />
-                {role === "PANDIT" && (
+                {role === &quot;PANDIT&quot; && (
                   <div className="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 text-xs text-amber-800">
-                    📋 After login, you'll complete your profile to start receiving bookings. Takes about 10 minutes.
+                    📋 After login, you&apos;ll complete your profile to start receiving bookings. Takes about 10 minutes.
                   </div>
                 )}
                 <button
@@ -353,15 +353,15 @@ function LoginPageContent() {
                   className={`w-full py-3 rounded-btn font-bold text-white transition-all ${role === "PANDIT" ? "bg-amber-600 hover:bg-amber-700" : "bg-primary hover:bg-primary/90"
                     } disabled:opacity-60`}
                 >
-                  {loading ? "Saving..." : "Get Started →"}
+                  {loading ? &quot;Saving...&quot; : &quot;Get Started →&quot;}
                 </button>
               </form>
             )}
 
             {/* Guest mode link (Customer only) */}
-            {role === "CUSTOMER" && step === "phone" && (
+            {role === &quot;CUSTOMER&quot; && step === &quot;phone&quot; && (
               <p className="text-center text-sm text-gray-500 mt-6">
-                Just exploring?{" "}
+                Just exploring?{&quot; &quot;}
                 <Link href="/" className="text-primary font-semibold hover:underline">
                   Continue as Guest →
                 </Link>

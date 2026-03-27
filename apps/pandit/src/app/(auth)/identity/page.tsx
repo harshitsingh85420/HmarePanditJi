@@ -39,7 +39,7 @@ export default function IdentityConfirmationPage() {
     // Welcome voice intro on mount
     const timer = setTimeout(() => {
       void speakWithSarvam({
-        text: 'नमस्ते। क्या आप भारतीय नागरिक हैं? यह पुष्टि करें कि आपकी पहचान सही है।',
+        text: 'नमस्ते पंडित जी। क्या आप एक पंडित हैं? यह app केवल पंडितों के लिए बना है।',
         languageCode: 'hi-IN',
       })
     }, 500)
@@ -135,7 +135,7 @@ export default function IdentityConfirmationPage() {
       <div className="fixed inset-0 bg-sacred pointer-events-none -z-10" />
 
       {/* Diya halo effect behind main content - matching identity_confirmation_e_02 */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[500px] diya-halo rounded-full -z-10 blur-3xl" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[400px] xs:w-[450px] sm:w-[500px] h-[400px] xs:h-[450px] sm:h-[500px] diya-halo rounded-full -z-10 blur-3xl" />
 
       {/* Top Bar */}
       <TopBar
@@ -225,7 +225,7 @@ export default function IdentityConfirmationPage() {
                   animate={{ opacity: 1 }}
                   className="mt-3 text-saffron font-medium text-center font-devanagari"
                 >
-                  आपने कहा: &quot;{transcribedText}&quot;
+                  आपने कहा: "{transcribedText}"
                 </motion.p>
               )}
             </div>
@@ -278,10 +278,10 @@ export default function IdentityConfirmationPage() {
             variants={itemVariants}
             whileTap={{ scale: 0.98 }}
             onClick={handleManualConfirm}
-            className="w-full h-16 bg-gradient-to-b from-primary-container to-primary text-white font-headline text-lg font-bold rounded-2xl shadow-[0px_12px_24px_rgba(144,77,0,0.2)] active:scale-95 transition-transform flex items-center justify-center gap-3"
+            className="w-full min-h-[72px] h-auto px-4 py-3 bg-gradient-to-b from-primary-container to-primary text-white font-headline text-[20px] font-bold rounded-2xl shadow-[0px_12px_24px_rgba(144,77,0,0.2)] active:scale-95 transition-transform flex items-center justify-center gap-3"
           >
-            <span>हाँ, मैं पंडित हूँ — पंजीकरण शुरू करें</span>
-            <span className="material-symbols-outlined">arrow_forward</span>
+            <span className="text-center block break-words line-clamp-2">हाँ, मैं पंडित हूँ — पंजीकरण शुरू करें</span>
+            <span className="material-symbols-outlined flex-shrink-0">arrow_forward</span>
           </motion.button>
         </motion.div>
       </main>

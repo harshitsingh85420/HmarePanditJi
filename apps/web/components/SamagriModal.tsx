@@ -39,7 +39,7 @@ export function SamagriModal({
     onClose,
 }: SamagriModalProps) {
     const { setSelection, setIsCartOpen, selection: currentCart } = useSamagriCart();
-    const [activeTab, setActiveTab] = useState<"PANDIT" | "CUSTOM">("PANDIT");
+    const [activeTab, setActiveTab] = useState<"PANDIT" | "CUSTOM">(&quot;PANDIT&quot;);
     const [selectedPackageId, setSelectedPackageId] = useState<string | null>(
         packages.length > 0 ? packages[0].id : null
     );
@@ -56,11 +56,11 @@ export function SamagriModal({
     }, [packages, selectedPackageId]);
 
     useEffect(() => {
-        if (activeTab === "CUSTOM" && catalog.length === 0) {
-            const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1";
+        if (activeTab === &quot;CUSTOM&quot; && catalog.length === 0) {
+            const apiBase = process.env.NEXT_PUBLIC_API_URL || &quot;http://localhost:3001/api/v1&quot;;
             fetch(`${apiBase}/samagri/catalog?pujaType=${encodeURIComponent(pujaType)}`)
                 .then((res) => {
-                    if (!res.ok) throw new Error("Catalog fetch failed");
+                    if (!res.ok) throw new Error(&quot;Catalog fetch failed&quot;);
                     return res.json();
                 })
                 .then((data) => {
@@ -80,19 +80,19 @@ export function SamagriModal({
     const handleAddToCart = () => {
         if (currentCart) {
             const confirmReplace = window.confirm(
-                "You already have Samagri in your cart. Replace your existing selection?"
+                &quot;You already have Samagri in your cart. Replace your existing selection?&quot;
             );
             if (!confirmReplace) return;
         }
 
         let newSelection: SamagriSelection;
 
-        if (activeTab === "PANDIT") {
+        if (activeTab === &quot;PANDIT&quot;) {
             const pkg = packages.find((p) => p.id === selectedPackageId);
             if (!pkg) return;
 
             newSelection = {
-                source: "PANDIT_PACKAGE",
+                source: &quot;PANDIT_PACKAGE&quot;,
                 panditId,
                 pujaType,
                 packageId: pkg.id,
@@ -120,12 +120,12 @@ export function SamagriModal({
             });
 
             if (itemsList.length === 0) {
-                alert("Please select at least one item.");
+                alert(&quot;Please select at least one item.&quot;);
                 return;
             }
 
             newSelection = {
-                source: "PLATFORM_CUSTOM",
+                source: &quot;PLATFORM_CUSTOM&quot;,
                 panditId,
                 pujaType,
                 items: itemsList,
@@ -180,7 +180,7 @@ export function SamagriModal({
         <Modal isOpen={isOpen} onClose={onClose} size="lg">
             <div className="p-6 max-h-[90vh] overflow-y-auto w-full">
                 <h2 className="text-2xl font-bold mb-1">🌸 Samagri for {pujaType}</h2>
-                <p className="text-gray-500 mb-6">Choose how you'd like to arrange the ritual materials</p>
+                <p className="text-gray-500 mb-6">Choose how you&apos;d like to arrange the ritual materials</p>
 
                 <div className="flex border-b border-gray-200 mb-6">
                     <button
@@ -188,25 +188,25 @@ export function SamagriModal({
                             ? "border-orange-500 text-orange-600"
                             : "border-transparent text-gray-500 hover:bg-gray-50"
                             }`}
-                        onClick={() => setActiveTab("PANDIT")}
+                        onClick={() => setActiveTab(&quot;PANDIT&quot;)}
                     >
-                        Pandit Ji's Package
+                        Pandit Ji&apos;s Package
                     </button>
                     <button
                         className={`flex-1 py-3 text-center font-medium font-bold border-b-2 transition-colors ${activeTab === "CUSTOM"
                             ? "border-blue-500 text-blue-600"
                             : "border-transparent text-gray-500 hover:bg-gray-50"
                             }`}
-                        onClick={() => setActiveTab("CUSTOM")}
+                        onClick={() => setActiveTab(&quot;CUSTOM&quot;)}
                     >
                         Build Your Own List
                     </button>
                 </div>
 
-                {activeTab === "PANDIT" && (
+                {activeTab === &quot;PANDIT&quot; && (
                     <div className="space-y-4">
                         <h3 className="text-lg font-bold flex items-center gap-2">
-                            📦 Pandit Ji's Recommended Samagri Packages
+                            📦 Pandit Ji&apos;s Recommended Samagri Packages
                         </h3>
                         <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-amber-800 text-sm">
                             ⚠️ These packages are fixed and non-negotiable. The price and included items are set by Pandit Ji.
@@ -238,7 +238,7 @@ export function SamagriModal({
                                         onClick={(e) => { e.stopPropagation(); setExpandedPackageId(expandedPackageId === pkg.id ? null : pkg.id); }}
                                         className="text-xs font-bold text-orange-600 flex items-center gap-1"
                                     >
-                                        {expandedPackageId === pkg.id ? "Hide Items ▴" : "View Items ▾"}
+                                        {expandedPackageId === pkg.id ? &quot;Hide Items ▴&quot; : &quot;View Items ▾&quot;}
                                     </button>
 
                                     {expandedPackageId === pkg.id && (
@@ -273,10 +273,10 @@ export function SamagriModal({
                     </div>
                 )}
 
-                {activeTab === "CUSTOM" && (
+                {activeTab === &quot;CUSTOM&quot; && (
                     <div className="space-y-4">
                         <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-blue-800 text-sm mb-4">
-                            ℹ️ You'll source these items locally or we'll connect you with our vendors.
+                            ℹ️ You&apos;ll source these items locally or we&apos;ll connect you with our vendors.
                         </div>
 
                         <div className="space-y-3">
@@ -286,14 +286,14 @@ export function SamagriModal({
                                         className="w-full flex justify-between items-center p-3 bg-gray-50 font-bold hover:bg-gray-100 transition"
                                         onClick={() => setExpandedCategories(prev => ({ ...prev, [cat.name]: !prev[cat.name] }))}
                                     >
-                                        <span>{expandedCategories[cat.name] ? "▼" : "▶"} {cat.name} ({cat.items.length} items)</span>
+                                        <span>{expandedCategories[cat.name] ? &quot;▼&quot; : &quot;▶&quot;} {cat.name} ({cat.items.length} items)</span>
                                     </button>
                                     {expandedCategories[cat.name] && (
                                         <div className="divide-y divide-gray-100">
                                             {cat.items.map((item: any) => {
                                                 const isSelected = !!customItems[item.id];
-                                                // Check if it's in standard package
-                                                const standardPkg = packages.find(p => p.packageName === "Standard");
+                                                // Check if it&apos;s in standard package
+                                                const standardPkg = packages.find(p => p.packageName === &quot;Standard&quot;);
                                                 const isInStandard = standardPkg?.items?.some(i => i.itemName.toLowerCase().includes(item.name.toLowerCase()));
 
                                                 return (
@@ -308,7 +308,7 @@ export function SamagriModal({
                                                             <div>
                                                                 <div className="font-medium text-gray-900">{item.name} <span className="text-xs text-gray-500">({item.unit})</span></div>
                                                                 {isInStandard && (
-                                                                    <div className="text-[10px] text-amber-600 font-medium">✨ In Pandit's {standardPkg?.packageName}</div>
+                                                                    <div className="text-[10px] text-amber-600 font-medium">✨ In Pandit&apos;s {standardPkg?.packageName}</div>
                                                                 )}
                                                             </div>
                                                         </div>
@@ -339,7 +339,7 @@ export function SamagriModal({
                                 <div className="text-gray-900 font-bold text-lg">Your Custom List: ₹{customTotal}</div>
                                 {packages.length > 0 && (
                                     <div className="text-sm text-gray-500 font-medium mt-1">
-                                        vs. Pandit's {packages[packages.length - 1].packageName} Package: ₹{packages[packages.length - 1].fixedPrice}
+                                        vs. Pandit&apos;s {packages[packages.length - 1].packageName} Package: ₹{packages[packages.length - 1].fixedPrice}
                                         {packages[packages.length - 1].fixedPrice > customTotal && (
                                             <span className="text-green-600 ml-1">— You save ₹{packages[packages.length - 1].fixedPrice - customTotal}</span>
                                         )}

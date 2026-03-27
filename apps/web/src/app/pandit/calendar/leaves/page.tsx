@@ -78,7 +78,7 @@ export default function LeavesManagementPage() {
                                     Current Status
                                 </p>
                                 <h3 className="text-lg font-semibold mt-1 text-gray-900 dark:text-white">
-                                    Unavailable for{" "}
+                                    Unavailable for{&quot; &quot;}
                                     <span className="text-[#f49d25] font-bold">4 days</span> in
                                     November
                                 </h3>
@@ -232,7 +232,7 @@ export default function LeavesManagementPage() {
                                 </div>
                                 <p className="text-base text-gray-600 dark:text-gray-400 mb-3">
                                     You have 3 upcoming festival days unmarked. Most pandits mark
-                                    these as 'Available' for higher earnings.
+                                    these as &apos;Available&apos; for higher earnings.
                                 </p>
                                 <button className="w-full py-2 text-base font-bold text-[#f49d25] border border-[#f49d25] hover:bg-[#f49d25] hover:text-white rounded-lg transition-all">
                                     Review Suggestions

@@ -263,7 +263,7 @@ export default function B2BBookingsPage() {
                                             </div>
                                         ) : (
                                             <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
-                                                {booking.backup === 'Not Required' ? (
+                                                {booking.backup === &apos;Not Required&apos; ? (
                                                     <span className="material-symbols-outlined text-slate-400 text-sm">remove_circle_outline</span>
                                                 ) : (
                                                     <span className="material-symbols-outlined text-green-500 text-sm">check_circle</span>

@@ -1,1 +1,0 @@
-apps/pandit/app/onboarding/screens/tutorial/

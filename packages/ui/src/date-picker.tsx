@@ -21,15 +21,15 @@ export interface DatePickerProps {
   className?: string;
 }
 
-const DAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+const DAYS = [&quot;Su&quot;, &quot;Mo&quot;, &quot;Tu&quot;, &quot;We&quot;, &quot;Th&quot;, &quot;Fr&quot;, &quot;Sa&quot;];
 const MONTHS = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
+  &quot;January&quot;, &quot;February&quot;, &quot;March&quot;, &quot;April&quot;, &quot;May&quot;, &quot;June&quot;,
+  &quot;July&quot;, &quot;August&quot;, &quot;September&quot;, &quot;October&quot;, &quot;November&quot;, &quot;December&quot;,
 ];
 
 function formatIndian(date: Date): string {
-  const d = String(date.getDate()).padStart(2, "0");
-  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, &quot;0&quot;);
+  const m = String(date.getMonth() + 1).padStart(2, &quot;0&quot;);
   const y = date.getFullYear();
   return `${d}/${m}/${y}`;
 }
@@ -46,13 +46,13 @@ export function DatePicker({
   value,
   onChange,
   label,
-  placeholder = "DD/MM/YYYY",
+  placeholder = &quot;DD/MM/YYYY&quot;,
   minDate,
   maxDate,
   highlightedDates = [],
   disabled = false,
   error,
-  className = "",
+  className = &quot;&quot;,
 }: DatePickerProps) {
   const today = new Date();
   const [open, setOpen] = useState(false);
@@ -65,8 +65,8 @@ export function DatePicker({
         setOpen(false);
       }
     }
-    document.addEventListener("mousedown", handleOutside);
-    return () => document.removeEventListener("mousedown", handleOutside);
+    document.addEventListener(&quot;mousedown&quot;, handleOutside);
+    return () => document.removeEventListener(&quot;mousedown&quot;, handleOutside);
   }, []);
 
   const year = cursor.getFullYear();
@@ -96,7 +96,7 @@ export function DatePicker({
     return false;
   }
 
-  const inputId = label?.toLowerCase().replace(/\s+/g, "-") ?? "date-picker";
+  const inputId = label?.toLowerCase().replace(/\s+/g, &quot;-&quot;) ?? &quot;date-picker&quot;;
 
   return (
     <div ref={ref} className={`relative w-full ${className}`}>
@@ -116,17 +116,17 @@ export function DatePicker({
         onClick={() => !disabled && setOpen((o) => !o)}
         disabled={disabled}
         className={[
-          "w-full flex items-center gap-2 pl-10 pr-4 py-3 text-left",
-          "bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl",
-          "text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary",
-          "disabled:opacity-50 disabled:cursor-not-allowed",
-          error ? "border-red-400 focus:ring-red-400" : "",
+          &quot;w-full flex items-center gap-2 pl-10 pr-4 py-3 text-left&quot;,
+          &quot;bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl&quot;,
+          &quot;text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary&quot;,
+          &quot;disabled:opacity-50 disabled:cursor-not-allowed&quot;,
+          error ? &quot;border-red-400 focus:ring-red-400&quot; : &quot;&quot;,
           value
-            ? "text-slate-900 dark:text-slate-100"
-            : "text-slate-400",
+            ? &quot;text-slate-900 dark:text-slate-100&quot;
+            : &quot;text-slate-400&quot;,
         ]
           .filter(Boolean)
-          .join(" ")}
+          .join(&quot; &quot;)}
         aria-haspopup="dialog"
         aria-expanded={open}
       >
@@ -201,16 +201,16 @@ export function DatePicker({
                   onClick={() => pickDay(day)}
                   disabled={isOff}
                   className={[
-                    "relative flex items-center justify-center h-8 w-full text-sm rounded-lg transition-colors",
+                    &quot;relative flex items-center justify-center h-8 w-full text-sm rounded-lg transition-colors&quot;,
                     isSelected
-                      ? "bg-primary text-white font-bold"
+                      ? &quot;bg-primary text-white font-bold&quot;
                       : isToday
-                        ? "border border-primary text-primary font-bold"
-                        : "hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300",
-                    isOff ? "opacity-30 cursor-not-allowed" : "",
+                        ? &quot;border border-primary text-primary font-bold&quot;
+                        : &quot;hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300&quot;,
+                    isOff ? &quot;opacity-30 cursor-not-allowed&quot; : &quot;&quot;,
                   ]
                     .filter(Boolean)
-                    .join(" ")}
+                    .join(&quot; &quot;)}
                   title={highlight?.label}
                 >
                   {day}

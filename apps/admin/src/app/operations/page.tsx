@@ -46,11 +46,11 @@ const MOCK_TRIPS: Trip[] = [
 ];
 
 export default function TravelOperationsPage() {
-  const [filter, setFilter] = useState<"All" | "Delayed" | "Emergency">("All");
-  const [selectedTripId, setSelectedTripId] = useState<string>("HPJ-1257");
+  const [filter, setFilter] = useState<"All" | "Delayed" | "Emergency">(&quot;All&quot;);
+  const [selectedTripId, setSelectedTripId] = useState<string>(&quot;HPJ-1257&quot;);
 
   const filteredTrips = MOCK_TRIPS.filter(t => {
-    if (filter === "All") return true;
+    if (filter === &quot;All&quot;) return true;
     return t.status === filter;
   });
 
@@ -106,20 +106,20 @@ export default function TravelOperationsPage() {
           <div className="lg:col-span-8 flex flex-col gap-4 h-full">
             <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide shrink-0">
               <button
-                onClick={() => setFilter("All")}
-                className={`flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg px-4 text-sm font-bold transition-colors ${filter === 'All' ? 'bg-[#f49d25] text-white' : 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-slate-300'}`}
+                onClick={() => setFilter(&quot;All&quot;)}
+                className={`flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg px-4 text-sm font-bold transition-colors ${filter === &apos;All&apos; ? &apos;bg-[#f49d25] text-white&apos; : &apos;bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-slate-300&apos;}`}
               >
                 All Travels <span className="bg-white/20 px-1.5 rounded">124</span>
               </button>
               <button
-                onClick={() => setFilter("Delayed")}
-                className={`flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg px-4 text-sm font-medium transition-colors ${filter === 'Delayed' ? 'bg-[#f49d25] text-white' : 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-slate-300'}`}
+                onClick={() => setFilter(&quot;Delayed&quot;)}
+                className={`flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg px-4 text-sm font-medium transition-colors ${filter === &apos;Delayed&apos; ? &apos;bg-[#f49d25] text-white&apos; : &apos;bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-slate-300&apos;}`}
               >
                 Delayed <span className={`${filter === 'Delayed' ? 'bg-white/20 text-white' : 'bg-[#f49d25]/20 text-[#f49d25]'} px-1.5 rounded`}>9</span>
               </button>
               <button
-                onClick={() => setFilter("Emergency")}
-                className={`flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg px-4 text-sm font-medium transition-colors ${filter === 'Emergency' ? 'bg-red-500 text-white' : 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-slate-300'}`}
+                onClick={() => setFilter(&quot;Emergency&quot;)}
+                className={`flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg px-4 text-sm font-medium transition-colors ${filter === &apos;Emergency&apos; ? &apos;bg-red-500 text-white&apos; : &apos;bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-slate-300&apos;}`}
               >
                 Emergency <span className={`${filter === 'Emergency' ? 'bg-white/20 text-white' : 'bg-red-500/20 text-red-500'} px-1.5 rounded`}>3</span>
               </button>
@@ -142,7 +142,7 @@ export default function TravelOperationsPage() {
                     <tr
                       key={trip.id}
                       onClick={() => setSelectedTripId(trip.id)}
-                      className={`cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-zinc-800/50 ${selectedTripId === trip.id ? 'bg-[#f49d25]/5 dark:bg-[#f49d25]/10' : ''} ${trip.status === 'Delayed' ? 'border-l-4 border-l-[#f49d25]' : trip.status === 'Emergency' ? 'border-l-4 border-l-red-500' : ''}`}
+                      className={`cursor-pointer transition-colors hover:bg-slate-50 dark:hover:bg-zinc-800/50 ${selectedTripId === trip.id ? &apos;bg-[#f49d25]/5 dark:bg-[#f49d25]/10&apos; : ''} ${trip.status === &apos;Delayed&apos; ? &apos;border-l-4 border-l-[#f49d25]&apos; : trip.status === &apos;Emergency&apos; ? &apos;border-l-4 border-l-red-500&apos; : ''}`}
                     >
                       <td className="px-4 py-4 font-bold text-slate-900 dark:text-white">{trip.id}</td>
                       <td className="px-4 py-4">
@@ -168,7 +168,7 @@ export default function TravelOperationsPage() {
                       </td>
                       <td className="px-4 py-4">
                         <button className={`text-xs font-black hover:underline uppercase ${trip.status === 'Emergency' ? 'text-red-500 animate-pulse' : 'text-[#f49d25]'}`}>
-                          {trip.status === 'Emergency' ? 'Alert Admin' : 'Manage'}
+                          {trip.status === &apos;Emergency&apos; ? &apos;Alert Admin&apos; : &apos;Manage&apos;}
                         </button>
                       </td>
                     </tr>
@@ -250,10 +250,10 @@ export default function TravelOperationsPage() {
                       <span className="material-symbols-outlined text-sm">campaign</span> Alert Customer
                     </button>
                     <button className="w-full py-2 bg-slate-100 dark:bg-zinc-800 text-slate-900 dark:text-white rounded-lg font-bold text-sm flex items-center justify-center gap-2 border border-slate-200 dark:border-zinc-700 hover:bg-slate-200 dark:hover:bg-zinc-700 transition-colors">
-                      <span className="material-symbols-outlined text-sm">local_taxi</span> Arrange Cab from {selectedTrip.location.split(' ')[0]}
+                      <span className="material-symbols-outlined text-sm">local_taxi</span> Arrange Cab from {selectedTrip.location.split(&apos; &apos;)[0]}
                     </button>
 
-                    {selectedTrip.status !== 'On Track' && (
+                    {selectedTrip.status !== &apos;On Track&apos; && (
                       <div className="mt-4 p-4 border-2 border-dashed border-red-500/50 rounded-xl bg-red-500/5 flex flex-col gap-4">
                         <button className="w-full py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-black text-sm flex items-center justify-center gap-2 shadow-lg shadow-red-500/20 transition-colors">
                           <span className="material-symbols-outlined">verified_user</span> ACTIVATE BACKUP PANDIT
@@ -263,7 +263,7 @@ export default function TravelOperationsPage() {
                             <p className="text-[10px] uppercase font-bold text-red-500 mb-2">Available Local Backups</p>
                             <div className="flex flex-col gap-2">
                               {selectedTrip.backupOptions.map((backup, idx) => (
-                                <div key={idx} className={`flex items-center justify-between bg-white dark:bg-zinc-900 p-2 rounded border border-red-500/20 ${idx > 0 ? 'opacity-60' : ''}`}>
+                                <div key={idx} className={`flex items-center justify-between bg-white dark:bg-zinc-900 p-2 rounded border border-red-500/20 ${idx > 0 ? &apos;opacity-60&apos; : ''}`}>
                                   <span className="text-xs font-medium text-slate-900 dark:text-white">{backup.name}</span>
                                   <span className={`text-[10px] px-1 rounded ${idx === 0 ? 'bg-green-500/10 text-green-500' : 'bg-slate-500/10 text-slate-500'}`}>
                                     {backup.distance}

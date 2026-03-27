@@ -1,11 +1,10 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { motion, AnimatePresence, Variants } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { speak, startListening, stopListening, detectIntent } from '@/lib/voice-engine'
 import TopBar from '@/components/ui/TopBar'
 import ProgressDots from '@/components/ui/ProgressDots'
-import CTAButton from '@/components/ui/CTAButton'
 import SkipButton from '@/components/ui/SkipButton'
 import VoiceIndicator from '@/components/ui/VoiceIndicator'
 import type { SupportedLanguage } from '@/lib/onboarding-store'
@@ -19,15 +18,10 @@ interface TutorialOnlineRevenueProps {
   onSkip: () => void
 }
 
-export default function TutorialOnlineRevenue({
-  onNext,
-  onSkip,
-}: TutorialOnlineRevenueProps) {
+export default function TutorialOnlineRevenue({ onNext, onSkip, onBack }: TutorialOnlineRevenueProps) {
   const [currentLine, setCurrentLine] = useState(0)
   const [isListening, setIsListening] = useState(false)
   const [showCards, setShowCards] = useState(false)
-  const [showCalculation, setShowCalculation] = useState(false)
-  const [displayAmount, setDisplayAmount] = useState(0)
 
   const LINES = [
     'दो बिल्कुल नए तरीके हैं — जो आप शायद अभी तक नहीं जानते।',
@@ -40,350 +34,40 @@ export default function TutorialOnlineRevenue({
     'आगे बोलें।',
   ]
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      playLine(0)
-    }, 400)
-
-    return () => {
-      clearTimeout(timer)
-      stopListening()
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  useEffect(() => { const timer = setTimeout(() => { playLine(0) }, 200); return () => { clearTimeout(timer); stopListening(); } }, [])
 
   const playLine = (index: number) => {
-    if (index >= LINES.length) {
-      setShowCards(true)
-      startListeningForResponse()
-      return
-    }
-
+    if (index >= LINES.length) { setShowCards(true); startListeningForResponse(); return; }
     setCurrentLine(index)
-    speak(LINES[index], 'hi-IN', () => {
-      // Trigger calculation animation at line 6
-      if (index === 5) {
-        setTimeout(() => setShowCalculation(true), 500)
-      }
-      setTimeout(() => playLine(index + 1), 400)
-    })
+    speak(LINES[index], 'hi-IN', () => { setTimeout(() => playLine(index + 1), 150) })
   }
 
   const startListeningForResponse = () => {
     setIsListening(true)
-    startListening({
-      language: 'hi-IN',
-      onResult: (result) => {
-        const intent = detectIntent(result.transcript)
-        if (intent === 'FORWARD') {
-          handleContinue()
-        } else if (intent === 'SKIP') {
-          onSkip()
-        }
-      },
-      onError: () => {
-        setIsListening(false)
-      },
-    })
+    startListening({ language: 'hi-IN', onResult: (result) => {
+      const intent = detectIntent(result.transcript)
+      if (intent === 'FORWARD' || intent === 'SKIP') handleContinue()
+      else if (intent === 'BACK') playLine(0)
+    }, onError: () => {} })
   }
 
-  const handleContinue = () => {
-    stopListening()
-    setIsListening(false)
-    speak('बहुत अच्छा।', 'hi-IN', () => {
-      setTimeout(onNext, 1000)
-    })
-  }
-
-  // Animate counter from 0 to target
-  useEffect(() => {
-    if (showCalculation) {
-      const targetAmount = 40000
-      const duration = 2000 // 2 seconds
-      const steps = 60
-      const increment = targetAmount / steps
-      const intervalTime = duration / steps
-
-      let current = 0
-      const interval = setInterval(() => {
-        current += increment
-        if (current >= targetAmount) {
-          setDisplayAmount(targetAmount)
-          clearInterval(interval)
-        } else {
-          setDisplayAmount(Math.floor(current))
-        }
-      }, intervalTime)
-
-      return () => clearInterval(interval)
-    }
-  }, [showCalculation])
-
-  // Animation variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.25,
-        delayChildren: 0.3,
-      },
-    },
-  }
-
-  const cardVariants = {
-    hidden: { opacity: 0, x: -50, scale: 0.9 },
-    visible: {
-      opacity: 1,
-      x: 0,
-      scale: 1,
-      transition: {
-        duration: 0.5,
-        type: 'spring',
-        stiffness: 100,
-      },
-    },
-    hover: {
-      scale: 1.03,
-      y: -5,
-      boxShadow: '0 12px 24px rgba(0,0,0,0.1)',
-      transition: { duration: 0.2 },
-    },
-  }
-
-  const iconVariants = {
-    hidden: { scale: 0, rotate: -180 },
-    visible: {
-      scale: 1,
-      rotate: 0,
-      transition: {
-        delay: 0.3,
-        type: 'spring',
-        stiffness: 200,
-        duration: 0.6,
-      },
-    },
-  }
-
-  const moneyCounterVariants = {
-    hidden: { opacity: 0, scale: 0.5 },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      transition: {
-        delay: 0.5,
-        type: 'spring',
-        stiffness: 200,
-      },
-    },
-  }
-
-  const revenueStreams = [
-    {
-      icon: '🏠',
-      title: 'घर बैठे पूजा',
-      desc: 'Video call से पूजा',
-      range: '₹2,000 - ₹5,000',
-      subtext: 'per pooja',
-      gradient: 'from-blue-50 to-indigo-50',
-      borderColor: 'border-blue-200',
-      iconBg: 'bg-blue-100',
-    },
-    {
-      icon: '💬',
-      title: 'पंडित से बात',
-      desc: 'धार्मिक सलाह',
-      range: '₹20 - ₹50',
-      subtext: 'per minute',
-      gradient: 'from-purple-50 to-pink-50',
-      borderColor: 'border-purple-200',
-      iconBg: 'bg-purple-100',
-    },
-  ]
+  const handleContinue = () => { stopListening(); setIsListening(false); speak('बहुत अच्छा।', 'hi-IN', () => setTimeout(onNext, 600)) }
 
   return (
-    <div className="min-h-screen flex flex-col bg-vedic-cream">
-      <TopBar showBack={true} onLanguageChange={onSkip} />
+    <main className="w-full min-h-dvh max-w-[390px] xs:max-w-[430px] mx-auto bg-vedic-cream flex flex-col">
+      <TopBar showBack onBack={onBack} onLanguageChange={onBack} />
       <ProgressDots total={12} current={4} />
-
-      <main className="flex-1 px-6 py-8 overflow-y-auto">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-6"
-        >
-          <h1 className="text-2xl font-bold text-vedic-brown mb-2">
-            ऑनलाइन कमाई
-          </h1>
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            className="text-sm text-vedic-gold"
-          >
-            दो नए तरीके
-          </motion.p>
-        </motion.div>
-
-        {/* Dual Revenue Cards */}
-        <AnimatePresence>
-          {showCards && (
-            <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-              className="space-y-4 mb-8"
-            >
-              {revenueStreams.map((stream, i) => (
-                <motion.div
-                  key={i}
-                  variants={cardVariants}
-                  whileHover="hover"
-                  className={`bg-gradient-to-br ${stream.gradient} ${stream.borderColor} border-2 rounded-2xl p-5 shadow-sm`}
-                >
-                  <div className="flex items-start gap-4">
-                    {/* Icon with animation */}
-                    <motion.div
-                      variants={iconVariants}
-                      className={`${stream.iconBg} w-16 h-16 rounded-2xl flex items-center justify-center text-3xl flex-shrink-0`}
-                    >
-                      {stream.icon}
-                    </motion.div>
-
-                    {/* Content */}
-                    <div className="flex-1">
-                      <h3 className="font-bold text-vedic-brown text-lg mb-1">
-                        {stream.title}
-                      </h3>
-                      <p className="text-vedic-gold text-sm mb-3">
-                        {stream.desc}
-                      </p>
-
-                      {/* Income Range with animation */}
-                      <motion.div
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.5 + i * 0.2 }}
-                        className="bg-white/70 rounded-lg px-3 py-2 inline-block"
-                      >
-                        <p className={`font-bold text-lg ${i === 0 ? 'text-blue-600' : 'text-purple-600'}`}>
-                          {stream.range}
-                        </p>
-                        <p className="text-xs text-vedic-gold">
-                          {stream.subtext}
-                        </p>
-                      </motion.div>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Income Calculation Animation */}
-        <AnimatePresence>
-          {showCalculation && (
-            <motion.div
-              initial={{ opacity: 0, y: 30, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -30 }}
-              transition={{ duration: 0.5, type: 'spring' }}
-              className="bg-gradient-to-br from-primary-lt to-amber-50 border-2 border-primary rounded-2xl p-6 mb-8 text-center"
-            >
-              <motion.div
-                variants={moneyCounterVariants}
-                initial="hidden"
-                animate="visible"
-              >
-                <p className="text-vedic-gold text-sm mb-2">
-                  उदाहरण: 20 मिनट की call
-                </p>
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.3 }}
-                  className="text-4xl mb-3"
-                >
-                  💰
-                </motion.div>
-                <motion.p
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.5 }}
-                  className="text-vedic-brown text-sm mb-3"
-                >
-                  ₹40 × 20 मिनट =
-                </motion.p>
-                <motion.div
-                  initial={{ scale: 0.5, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ delay: 0.7, type: 'spring', stiffness: 200 }}
-                  className="text-5xl font-bold text-primary mb-2"
-                >
-                  ₹{displayAmount.toLocaleString('hi-IN')}
-                </motion.div>
-                <motion.p
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 1 }}
-                  className="text-success font-semibold text-sm"
-                >
-                  ✅ हर महीने अलग से
-                </motion.p>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Additional Info */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.5 }}
-          className="bg-white border-2 border-vedic-border rounded-xl p-4 mb-8"
-        >
-          <div className="flex items-center gap-3">
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 1.7, type: 'spring' }}
-              className="text-2xl"
-            >
-              🌍
-            </motion.div>
-            <div>
-              <p className="font-bold text-vedic-brown text-sm">
-                worldwide ग्राहक
-              </p>
-              <p className="text-xs text-vedic-gold">
-                NRI सहित सभी जगह से
-              </p>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Voice Indicator */}
-        <div className="h-12 flex items-center justify-center mb-4">
-          <VoiceIndicator isListening={isListening} label="बोल रहे हैं..." />
+      <div className="flex-1 px-4 xs:px-6 py-6 xs:py-8 overflow-y-auto">
+        <div className="text-center mb-6 xs:mb-8">
+          <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="text-5xl xs:text-6xl sm:text-7xl mb-4 xs:mb-6">💻</motion.div>
+          <h1 className="text-xl xs:text-2xl sm:text-3xl font-bold text-vedic-brown mb-2 xs:mb-4">ऑनलाइन कमाई</h1>
+          <div className="space-y-2 xs:space-y-3">{LINES.map((line, idx) => (<p key={idx} className={`text-sm xs:text-base sm:text-lg text-vedic-brown transition-opacity ${idx === currentLine ? 'opacity-100' : 'opacity-30'}`}>{line}</p>))}</div>
         </div>
-
-        {/* CTA Buttons */}
-        <div className="w-full space-y-4">
-          <CTAButton
-            label="आगे"
-            onClick={handleContinue}
-            variant="primary"
-            height="tall"
-            aria-label="Continue to next tutorial screen"
-          />
-          <div className="flex justify-center">
-            <SkipButton label="Skip करें →" onClick={onSkip} />
-          </div>
-        </div>
-      </main>
-    </div>
+        {showCards && (<VoiceIndicator isListening={isListening} />)}
+        {showCards && (<div className="grid grid-cols-1 gap-3 xs:gap-4 mt-6 xs:mt-8"><div className="bg-saffron-lt border-2 border-saffron rounded-2xl p-4 xs:p-6"><p className="text-3xl xs:text-4xl mb-2">📹</p><p className="text-base xs:text-lg font-bold">घर बैठे पूजा</p><p className="text-sm xs:text-base text-text-secondary mt-1">Video call से — ₹2000-5000</p></div><div className="bg-saffron-lt border-2 border-saffron rounded-2xl p-4 xs:p-6"><p className="text-3xl xs:text-4xl mb-2">📞</p><p className="text-base xs:text-lg font-bold">पंडित से बात</p><p className="text-sm xs:text-base text-text-secondary mt-1">₹20-50/मिनट — 20 min = ₹800</p></div></div>)}
+      </div>
+      <div className="px-4 xs:px-6 pb-6 xs:pb-8 pt-4 xs:pt-6 bg-surface-base/90 backdrop-blur-sm border-t border-border-default"><button onClick={handleContinue} className="w-full min-h-[52px] xs:min-h-[56px] sm:min-h-[72px] bg-saffron text-white rounded-2xl text-lg xs:text-xl sm:text-2xl font-bold shadow-btn-saffron active:scale-[0.98]">आगे बढ़ें →</button></div>
+      <SkipButton label="Skip" onClick={onSkip} />
+    </main>
   )
 }

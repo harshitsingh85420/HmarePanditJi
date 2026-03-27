@@ -345,7 +345,7 @@ export class LanguageSwitcher {
   ): Promise<ScreenVoiceScripts> {
     const translatedScripts: ScreenVoiceScripts = {
       screenId: sourceScript.screenId,
-      scripts: {},
+      scripts: {} as ScreenVoiceScripts['scripts'],
     };
 
     // Translate each script in the screen
@@ -563,5 +563,4 @@ export function getLanguageInfo(code: string): LanguageInfo | null {
 // EXPORTS
 // ─────────────────────────────────────────────────────────────
 
-export { LanguageSwitcher };
 export default switcher;

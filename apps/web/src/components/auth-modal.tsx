@@ -20,13 +20,13 @@ function OtpInput({
   disabled?: boolean;
 }) {
   const inputs = useRef<(HTMLInputElement | null)[]>([]);
-  const digits = value.padEnd(6, "").split("").slice(0, 6);
+  const digits = value.padEnd(6, &quot;&quot;).split(&quot;&quot;).slice(0, 6);
 
   const handleChange = (index: number, char: string) => {
-    const cleaned = char.replace(/\D/g, "").slice(-1);
+    const cleaned = char.replace(/\D/g, &quot;&quot;).slice(-1);
     const next = [...digits];
     next[index] = cleaned;
-    const joined = next.join("").replace(/\s/g, "");
+    const joined = next.join(&quot;&quot;).replace(/\s/g, &quot;&quot;);
     onChange(joined);
     if (cleaned && index < 5) {
       inputs.current[index + 1]?.focus();
@@ -34,14 +34,14 @@ function OtpInput({
   };
 
   const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Backspace" && !digits[index] && index > 0) {
+    if (e.key === &quot;Backspace&quot; && !digits[index] && index > 0) {
       inputs.current[index - 1]?.focus();
     }
   };
 
   const handlePaste = (e: React.ClipboardEvent) => {
     e.preventDefault();
-    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+    const pasted = e.clipboardData.getData(&quot;text&quot;).replace(/\D/g, &quot;&quot;).slice(0, 6);
     onChange(pasted);
     const nextIndex = Math.min(pasted.length, 5);
     inputs.current[nextIndex]?.focus();
@@ -57,19 +57,19 @@ function OtpInput({
           inputMode="numeric"
           pattern="\d*"
           maxLength={1}
-          value={digits[i] ?? ""}
+          value={digits[i] ?? &quot;&quot;}
           onChange={(e) => handleChange(i, e.target.value)}
           onKeyDown={(e) => handleKeyDown(i, e)}
           disabled={disabled}
           className={[
-            "w-11 h-13 text-center text-xl font-bold rounded-xl border-2 transition-all",
-            "focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20",
-            "bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100",
+            &quot;w-11 h-13 text-center text-xl font-bold rounded-xl border-2 transition-all&quot;,
+            &quot;focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20&quot;,
+            &quot;bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100&quot;,
             digits[i]
-              ? "border-primary bg-primary/5"
-              : "border-slate-200 dark:border-slate-700",
-            disabled ? "opacity-50 cursor-not-allowed" : "",
-          ].join(" ")}
+              ? &quot;border-primary bg-primary/5&quot;
+              : &quot;border-slate-200 dark:border-slate-700&quot;,
+            disabled ? &quot;opacity-50 cursor-not-allowed&quot; : &quot;&quot;,
+          ].join(&quot; &quot;)}
           aria-label={`OTP digit ${i + 1}`}
         />
       ))}
@@ -82,17 +82,17 @@ function OtpInput({
 export default function AuthModal() {
   const { loginModalOpen, closeLoginModal, login } = useAuth();
 
-  const [step, setStep] = useState<Step>("phone");
-  const [phone, setPhone] = useState("");
-  const [otp, setOtp] = useState("");
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [error, setError] = useState("");
+  const [step, setStep] = useState<Step>(&quot;phone&quot;);
+  const [phone, setPhone] = useState(&quot;&quot;);
+  const [otp, setOtp] = useState(&quot;&quot;);
+  const [fullName, setFullName] = useState(&quot;&quot;);
+  const [email, setEmail] = useState(&quot;&quot;);
+  const [error, setError] = useState(&quot;&quot;);
   const [loading, setLoading] = useState(false);
   const [countdown, setCountdown] = useState(0);
-  const [accessTokenTemp, setAccessTokenTemp] = useState("");
+  const [accessTokenTemp, setAccessTokenTemp] = useState(&quot;&quot;);
   const [isNewUser, setIsNewUser] = useState(false);
-  const [devOtp, setDevOtp] = useState("");
+  const [devOtp, setDevOtp] = useState(&quot;&quot;);
 
   const phoneRef = useRef<HTMLInputElement>(null);
   const nameRef = useRef<HTMLInputElement>(null);
@@ -101,15 +101,15 @@ export default function AuthModal() {
   // Reset on open
   useEffect(() => {
     if (loginModalOpen) {
-      setStep("phone");
-      setPhone("");
-      setOtp("");
-      setFullName("");
-      setEmail("");
-      setError("");
+      setStep(&quot;phone&quot;);
+      setPhone(&quot;&quot;);
+      setOtp(&quot;&quot;);
+      setFullName(&quot;&quot;);
+      setEmail(&quot;&quot;);
+      setError(&quot;&quot;);
       setLoading(false);
       setCountdown(0);
-      setDevOtp("");
+      setDevOtp(&quot;&quot;);
       setTimeout(() => phoneRef.current?.focus(), 50);
     }
   }, [loginModalOpen]);
@@ -139,40 +139,40 @@ export default function AuthModal() {
   useEffect(() => {
     if (!loginModalOpen) return;
     const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") closeLoginModal();
+      if (e.key === &quot;Escape&quot;) closeLoginModal();
     };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
+    window.addEventListener(&quot;keydown&quot;, handler);
+    return () => window.removeEventListener(&quot;keydown&quot;, handler);
   }, [loginModalOpen, closeLoginModal]);
 
   // ── Step 1: Send OTP ───────────────────────────────────────────────────────
 
   const handleSendOtp = async () => {
-    setError("");
-    const cleaned = phone.replace(/\s/g, "");
+    setError(&quot;&quot;);
+    const cleaned = phone.replace(/\s/g, &quot;&quot;);
     if (!/^[6-9]\d{9}$/.test(cleaned)) {
-      setError("Please enter a valid 10-digit Indian mobile number");
+      setError(&quot;Please enter a valid 10-digit Indian mobile number&quot;);
       return;
     }
     setLoading(true);
     try {
       const res = await fetch(`${API_BASE}/auth/request-otp`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: `+91${cleaned}`, role: "CUSTOMER" }),
+        method: &quot;POST&quot;,
+        headers: { &quot;Content-Type&quot;: &quot;application/json&quot; },
+        body: JSON.stringify({ phone: `+91${cleaned}`, role: &quot;CUSTOMER&quot; }),
         signal: AbortSignal.timeout(10000),
       });
       const json = await res.json();
       if (!res.ok) {
-        setError(json.message ?? "Failed to send OTP. Please try again.");
+        setError(json.message ?? &quot;Failed to send OTP. Please try again.&quot;);
         return;
       }
       if (json.data?.devOtp) setDevOtp(json.data.devOtp);
-      setStep("otp");
+      setStep(&quot;otp&quot;);
       startCountdown(60);
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Network error";
-      setError(message.includes("timeout") ? "Request timed out. Check your connection." : "Failed to send OTP. Please try again.");
+      const message = err instanceof Error ? err.message : &quot;Network error&quot;;
+      setError(message.includes(&quot;timeout&quot;) ? &quot;Request timed out. Check your connection.&quot; : &quot;Failed to send OTP. Please try again.&quot;);
     } finally {
       setLoading(false);
     }
@@ -181,23 +181,23 @@ export default function AuthModal() {
   // ── Step 2: Verify OTP ────────────────────────────────────────────────────
 
   const handleVerifyOtp = async () => {
-    setError("");
+    setError(&quot;&quot;);
     if (otp.length !== 6) {
-      setError("Please enter the complete 6-digit OTP");
+      setError(&quot;Please enter the complete 6-digit OTP&quot;);
       return;
     }
     setLoading(true);
     try {
-      const cleaned = phone.replace(/\s/g, "");
+      const cleaned = phone.replace(/\s/g, &quot;&quot;);
       const res = await fetch(`${API_BASE}/auth/verify-otp`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: &quot;POST&quot;,
+        headers: { &quot;Content-Type&quot;: &quot;application/json&quot; },
         body: JSON.stringify({ phone: `+91${cleaned}`, otp }),
         signal: AbortSignal.timeout(10000),
       });
       const json = await res.json();
       if (!res.ok) {
-        setError(json.message ?? "Invalid OTP. Please try again.");
+        setError(json.message ?? &quot;Invalid OTP. Please try again.&quot;);
         return;
       }
 
@@ -211,14 +211,14 @@ export default function AuthModal() {
       setIsNewUser(isNew);
 
       if (isNew && !userData?.name) {
-        setStep("profile");
+        setStep(&quot;profile&quot;);
         setTimeout(() => nameRef.current?.focus(), 50);
       } else {
         login(token, userData as AuthUser);
         closeLoginModal();
       }
     } catch {
-      setError("Failed to verify OTP. Please try again.");
+      setError(&quot;Failed to verify OTP. Please try again.&quot;);
     } finally {
       setLoading(false);
     }
@@ -227,7 +227,7 @@ export default function AuthModal() {
   // ── Step 3: Profile completion ────────────────────────────────────────────
 
   const handleProfileSubmit = async () => {
-    setError("");
+    setError(&quot;&quot;);
     if (fullName.trim().length < 2) {
       setError("Please enter your full name (at least 2 characters)");
       return;
@@ -238,9 +238,9 @@ export default function AuthModal() {
       if (email.trim()) body.email = email.trim();
 
       const res = await fetch(`${API_BASE}/auth/me`, {
-        method: "PATCH",
+        method: &quot;PATCH&quot;,
         headers: {
-          "Content-Type": "application/json",
+          &quot;Content-Type&quot;: &quot;application/json&quot;,
           Authorization: `Bearer ${accessTokenTemp}`,
         },
         body: JSON.stringify(body),
@@ -248,13 +248,13 @@ export default function AuthModal() {
       });
       const json = await res.json();
       if (!res.ok) {
-        setError(json.message ?? "Failed to save profile. Please try again.");
+        setError(json.message ?? &quot;Failed to save profile. Please try again.&quot;);
         return;
       }
       login(accessTokenTemp, json.data?.user as AuthUser);
       closeLoginModal();
     } catch {
-      setError("Failed to save profile. Please try again.");
+      setError(&quot;Failed to save profile. Please try again.&quot;);
     } finally {
       setLoading(false);
     }
@@ -278,7 +278,7 @@ export default function AuthModal() {
   // ── Auto-submit OTP when all 6 digits are entered ─────────────────────────
 
   useEffect(() => {
-    if (otp.length === 6 && step === "otp" && !loading) {
+    if (otp.length === 6 && step === &quot;otp&quot; && !loading) {
       handleVerifyOtp();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -326,7 +326,7 @@ export default function AuthModal() {
         </div>
 
         {/* ── STEP 1: Phone ─────────────────────────────────────────────── */}
-        {step === "phone" && (
+        {step === &quot;phone&quot; && (
           <div>
             <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-1">
               Welcome back
@@ -352,11 +352,11 @@ export default function AuthModal() {
                 maxLength={10}
                 value={phone}
                 onChange={(e) => {
-                  setError("");
-                  setPhone(e.target.value.replace(/\D/g, "").slice(0, 10));
+                  setError(&quot;&quot;);
+                  setPhone(e.target.value.replace(/\D/g, &quot;&quot;).slice(0, 10));
                 }}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter") handleSendOtp();
+                  if (e.key === &quot;Enter&quot;) handleSendOtp();
                 }}
                 placeholder="98765 43210"
                 className="flex-1 h-12 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-base font-medium focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
@@ -396,11 +396,11 @@ export default function AuthModal() {
         )}
 
         {/* ── STEP 2: OTP ───────────────────────────────────────────────── */}
-        {step === "otp" && (
+        {step === &quot;otp&quot; && (
           <div>
             <button
               className="flex items-center gap-1 text-lg text-slate-500 hover:text-primary mb-4 transition-colors"
-              onClick={() => { setStep("phone"); setOtp(""); setError(""); }}
+              onClick={() => { setStep(&quot;phone&quot;); setOtp(&quot;&quot;); setError(&quot;&quot;); }}
             >
               <span className="material-symbols-outlined text-base">arrow_back</span>
               Change number
@@ -410,14 +410,14 @@ export default function AuthModal() {
               Verify OTP
             </h2>
             <p className="text-slate-500 dark:text-slate-400 text-lg mb-6">
-              Enter the 6-digit code sent to{" "}
+              Enter the 6-digit code sent to{&quot; &quot;}
               <span className="font-semibold text-slate-700 dark:text-slate-200">
                 +91 {phone.slice(0, 5)} {phone.slice(5)}
               </span>
             </p>
 
             <div className="mb-5">
-              <OtpInput value={otp} onChange={(v) => { setOtp(v); setError(""); }} disabled={loading} />
+              <OtpInput value={otp} onChange={(v) => { setOtp(v); setError(&quot;&quot;); }} disabled={loading} />
             </div>
 
             {error && (
@@ -448,7 +448,7 @@ export default function AuthModal() {
             <div className="text-center mt-4">
               {countdown > 0 ? (
                 <p className="text-base text-slate-400">
-                  Resend OTP in{" "}
+                  Resend OTP in{&quot; &quot;}
                   <span className="font-semibold text-slate-600 dark:text-slate-300">
                     {countdown}s
                   </span>
@@ -456,8 +456,8 @@ export default function AuthModal() {
               ) : (
                 <button
                   onClick={() => {
-                    setOtp("");
-                    setError("");
+                    setOtp(&quot;&quot;);
+                    setError(&quot;&quot;);
                     handleSendOtp();
                   }}
                   className="text-base text-primary font-semibold hover:underline"
@@ -468,7 +468,7 @@ export default function AuthModal() {
             </div>
 
             {/* Dev OTP display */}
-            {process.env.NODE_ENV === "development" && devOtp && (
+            {process.env.NODE_ENV === &quot;development&quot; && devOtp && (
               <div className="mt-4 text-center bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl px-4 py-3">
                 <p className="text-base font-semibold text-amber-700 dark:text-amber-400 mb-1">
                   DEV MODE — Your OTP
@@ -484,7 +484,7 @@ export default function AuthModal() {
                 <p className="text-[10px] text-amber-500 mt-1">Click the code to auto-fill</p>
               </div>
             )}
-            {process.env.NODE_ENV === "development" && !devOtp && (
+            {process.env.NODE_ENV === &quot;development&quot; && !devOtp && (
               <p className="mt-4 text-center text-base text-amber-600 bg-amber-50 dark:bg-amber-900/20 rounded-lg px-5 py-2">
                 Dev mode: OTP will appear here after sending
               </p>
@@ -493,7 +493,7 @@ export default function AuthModal() {
         )}
 
         {/* ── STEP 3: Profile Completion ────────────────────────────────── */}
-        {step === "profile" && (
+        {step === &quot;profile&quot; && (
           <div>
             <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mb-4">
               <span
@@ -509,8 +509,8 @@ export default function AuthModal() {
             </h2>
             <p className="text-slate-500 dark:text-slate-400 text-lg mb-6">
               {isNewUser
-                ? "Complete your profile to get personalized recommendations"
-                : "Your phone has been verified"}
+                ? &quot;Complete your profile to get personalized recommendations&quot;
+                : &quot;Your phone has been verified&quot;}
             </p>
 
             <div className="space-y-4 mb-5">
@@ -526,8 +526,8 @@ export default function AuthModal() {
                     ref={nameRef}
                     type="text"
                     value={fullName}
-                    onChange={(e) => { setFullName(e.target.value); setError(""); }}
-                    onKeyDown={(e) => { if (e.key === "Enter") handleProfileSubmit(); }}
+                    onChange={(e) => { setFullName(e.target.value); setError(&quot;&quot;); }}
+                    onKeyDown={(e) => { if (e.key === &quot;Enter&quot;) handleProfileSubmit(); }}
                     placeholder="Ramesh Kumar"
                     className="w-full h-12 pl-10 pr-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-base focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
                   />
@@ -536,7 +536,7 @@ export default function AuthModal() {
 
               <div>
                 <label className="block text-lg font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                  Email{" "}
+                  Email{&quot; &quot;}
                   <span className="text-slate-400 font-normal">(optional)</span>
                 </label>
                 <div className="relative">
@@ -546,8 +546,8 @@ export default function AuthModal() {
                   <input
                     type="email"
                     value={email}
-                    onChange={(e) => { setEmail(e.target.value); setError(""); }}
-                    onKeyDown={(e) => { if (e.key === "Enter") handleProfileSubmit(); }}
+                    onChange={(e) => { setEmail(e.target.value); setError(&quot;&quot;); }}
+                    onKeyDown={(e) => { if (e.key === &quot;Enter&quot;) handleProfileSubmit(); }}
                     placeholder="ramesh@example.com"
                     className="w-full h-12 pl-10 pr-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-base focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
                   />

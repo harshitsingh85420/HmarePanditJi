@@ -2,6 +2,42 @@ import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import type { OnboardingState, OnboardingPhase, SupportedLanguage } from '@/lib/onboarding-store'
 
+// BUG-024 FIX: Custom storage wrapper that handles QuotaExceededError gracefully
+const createSafeLocalStorage = () => {
+  return {
+    getItem: (key: string) => {
+      try {
+        return localStorage.getItem(key)
+      } catch (error) {
+        // Silently fail - storage might be unavailable
+        console.warn('[onboardingStore] getItem failed:', error)
+        return null
+      }
+    },
+    setItem: (key: string, value: string) => {
+      try {
+        localStorage.setItem(key, value)
+      } catch (error) {
+        // BUG-024: Handle QuotaExceededError gracefully - don't crash the app
+        if (error instanceof DOMException && error.name === 'QuotaExceededError') {
+          console.warn('[onboardingStore] Storage full - cannot persist data. User data may be lost on page reload.')
+        } else {
+          console.warn('[onboardingStore] setItem failed:', error)
+        }
+        // Silently fail - don't throw, don't crash the app
+      }
+    },
+    removeItem: (key: string) => {
+      try {
+        localStorage.removeItem(key)
+      } catch (error) {
+        // Silently fail - storage might be unavailable
+        console.warn('[onboardingStore] removeItem failed:', error)
+      }
+    },
+  }
+}
+
 const DEFAULT_STATE: OnboardingState = {
   phase: 'SPLASH',
   selectedLanguage: 'Hindi',
@@ -63,7 +99,8 @@ export const useOnboardingStore = create<OnboardingStore>()(
     }),
     {
       name: 'hpj-onboarding',
-      storage: createJSONStorage(() => localStorage),
+      // BUG-024 FIX: Use safe storage wrapper that handles QuotaExceededError
+      storage: createJSONStorage(() => createSafeLocalStorage()),
       partialize: (state) => ({
         phase: state.phase,
         selectedLanguage: state.selectedLanguage,

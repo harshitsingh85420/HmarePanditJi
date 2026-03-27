@@ -228,12 +228,12 @@ export default function BookingSummaryPage() {
                                         setAddons({ ...addons, muhurat: !addons.muhurat })
                                     }
                                     className={`p-1 rounded transition-colors ${addons.muhurat
-                                            ? "bg-[#f49d25] text-white"
-                                            : "bg-[#f49d25]/20 hover:bg-[#f49d25] text-[#f49d25] hover:text-white"
+                                            ? &quot;bg-[#f49d25] text-white&quot;
+                                            : &quot;bg-[#f49d25]/20 hover:bg-[#f49d25] text-[#f49d25] hover:text-white&quot;
                                         }`}
                                 >
                                     <span className="material-symbols-outlined text-lg">
-                                        {addons.muhurat ? "check" : "add"}
+                                        {addons.muhurat ? &quot;check&quot; : &quot;add&quot;}
                                     </span>
                                 </button>
                             </div>
@@ -255,12 +255,12 @@ export default function BookingSummaryPage() {
                                         setAddons({ ...addons, visarjan: !addons.visarjan })
                                     }
                                     className={`p-1 rounded transition-colors ${addons.visarjan
-                                            ? "bg-[#f49d25] text-white"
-                                            : "bg-[#f49d25]/20 hover:bg-[#f49d25] text-[#f49d25] hover:text-white"
+                                            ? &quot;bg-[#f49d25] text-white&quot;
+                                            : &quot;bg-[#f49d25]/20 hover:bg-[#f49d25] text-[#f49d25] hover:text-white&quot;
                                         }`}
                                 >
                                     <span className="material-symbols-outlined text-lg">
-                                        {addons.visarjan ? "check" : "add"}
+                                        {addons.visarjan ? &quot;check&quot; : &quot;add&quot;}
                                     </span>
                                 </button>
                             </div>
@@ -289,7 +289,7 @@ export default function BookingSummaryPage() {
                                 <span className="flex items-center gap-1">
                                     <span className="material-symbols-outlined text-lg">
                                         local_offer
-                                    </span>{" "}
+                                    </span>{&quot; &quot;}
                                     PANDIT10 Applied
                                 </span>
                                 <span>-₹4,650</span>
@@ -315,7 +315,7 @@ export default function BookingSummaryPage() {
                             </p>
                         </div>
                         <button
-                            onClick={() => router.push('/checkout/payment')}
+                            onClick={() => router.push(&apos;/checkout/payment&apos;)}
                             className="w-full bg-[#f49d25] hover:bg-[#f49d25]/90 text-white font-bold py-5 flex items-center justify-center gap-2 text-lg transition-all group"
                         >
                             Proceed to Payment

@@ -11,31 +11,31 @@ export default function ProfilePage() {
 
     // Editing states
     const [isEditingSectionA, setIsEditingSectionA] = useState(false);
-    const [formDataSectionA, setFormDataSectionA] = useState({ name: "", email: "", preferredLanguages: [] as string[] });
+    const [formDataSectionA, setFormDataSectionA] = useState({ name: &quot;&quot;, email: &quot;&quot;, preferredLanguages: [] as string[] });
 
     // Addresses
     const [addresses, setAddresses] = useState<any[]>([]);
     const [showAddressForm, setShowAddressForm] = useState(false);
     const [addressForm, setAddressForm] = useState({
-        id: "",
-        label: "Home",
-        fullAddress: "",
-        city: "",
-        state: "Delhi",
-        pincode: "",
-        landmark: "",
+        id: &quot;&quot;,
+        label: &quot;Home&quot;,
+        fullAddress: &quot;&quot;,
+        city: &quot;&quot;,
+        state: &quot;Delhi&quot;,
+        pincode: &quot;&quot;,
+        landmark: &quot;&quot;,
         isDefault: false
     });
 
     const [isLoading, setIsLoading] = useState(true);
     const [saveLoading, setSaveLoading] = useState(false);
 
-    const SUPPORTED_LANGUAGES = ["Hindi", "Sanskrit", "English", "Bhojpuri", "Maithili"];
+    const SUPPORTED_LANGUAGES = [&quot;Hindi&quot;, &quot;Sanskrit&quot;, &quot;English&quot;, &quot;Bhojpuri&quot;, &quot;Maithili&quot;];
 
     const fetchProfile = async () => {
         try {
-            const token = localStorage.getItem("token");
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/customers/me`, {
+            const token = localStorage.getItem(&quot;token&quot;);
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || &apos;http://localhost:3001&apos;}/api/customers/me`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (res.ok) {
@@ -45,8 +45,8 @@ export default function ProfilePage() {
                 setUser(profileData.user);
                 setAddresses(profileData.addresses || []);
                 setFormDataSectionA({
-                    name: profileData.user.name || "",
-                    email: profileData.user.email || "",
+                    name: profileData.user.name || &quot;&quot;,
+                    email: profileData.user.email || &quot;&quot;,
                     preferredLanguages: profileData.preferredLanguages || []
                 });
             }
@@ -64,13 +64,13 @@ export default function ProfilePage() {
     const handleSaveSectionA = async () => {
         setSaveLoading(true);
         try {
-            const token = localStorage.getItem("token");
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/customers/me`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+            const token = localStorage.getItem(&quot;token&quot;);
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || &apos;http://localhost:3001&apos;}/api/customers/me`, {
+                method: &quot;PUT&quot;,
+                headers: { &quot;Content-Type&quot;: &quot;application/json&quot;, Authorization: `Bearer ${token}` },
                 body: JSON.stringify(formDataSectionA)
             });
-            if (!res.ok) throw new Error("Failed to update profile");
+            if (!res.ok) throw new Error(&quot;Failed to update profile&quot;);
             await fetchProfile();
             setIsEditingSectionA(false);
         } catch (err: any) {
@@ -125,7 +125,7 @@ export default function ProfilePage() {
                             />
                         ) : (
                             <div className="bg-[#393328]/50 p-3 rounded-lg border border-[#393328] text-white overflow-hidden text-ellipsis whitespace-nowrap">
-                                {user?.name || "Not provided"}
+                                {user?.name || &quot;Not provided&quot;}
                             </div>
                         )}
                     </div>
@@ -154,7 +154,7 @@ export default function ProfilePage() {
                             </select>
                         ) : (
                             <div className="bg-[#393328]/50 p-3 rounded-lg border border-[#393328] text-white overflow-hidden text-ellipsis whitespace-nowrap">
-                                {profile?.preferredLanguages?.join(", ") || "English & Hindi"}
+                                {profile?.preferredLanguages?.join(&quot;, &quot;) || &quot;English & Hindi&quot;}
                             </div>
                         )}
                     </div>
@@ -169,7 +169,7 @@ export default function ProfilePage() {
                         <p className="text-[#baaf9c] text-sm">Add family members for personalized rituals</p>
                     </div>
                     <button
-                        onClick={() => router.push('/dashboard/family')}
+                        onClick={() => router.push(&apos;/dashboard/family&apos;)}
                         className="flex items-center gap-2 bg-[#f29e0d]/20 text-[#f29e0d] px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#f29e0d]/30 transition-all">
                         <span className="material-symbols-outlined text-base">add</span>
                         Manage members
@@ -182,17 +182,17 @@ export default function ProfilePage() {
                             <span className="material-symbols-outlined">person</span>
                         </div>
                         <div className="flex-1">
-                            <h4 className="text-white font-semibold">You ({user?.name || "User"})</h4>
-                            <p className="text-[#baaf9c] text-xs">Gotra: {(profile as any)?.gotra || "Not specified"}</p>
+                            <h4 className="text-white font-semibold">You ({user?.name || &quot;User&quot;})</h4>
+                            <p className="text-[#baaf9c] text-xs">Gotra: {(profile as any)?.gotra || &quot;Not specified&quot;}</p>
                         </div>
-                        <button onClick={() => router.push('/dashboard/family')} className="text-[#baaf9c] hover:text-white transition-colors">
+                        <button onClick={() => router.push(&apos;/dashboard/family&apos;)} className="text-[#baaf9c] hover:text-white transition-colors">
                             <span className="material-symbols-outlined text-xl">edit</span>
                         </button>
                     </div>
                     {(profile as any)?.familyMembers?.slice(0, 1).map((member: any, i: number) => (
                         <div key={i} className="flex items-center gap-4 p-4 rounded-xl border border-[#393328] bg-[#181511]/30">
                             <div className="size-12 rounded-full bg-[#f29e0d]/10 flex items-center justify-center text-[#f29e0d]">
-                                <span className="material-symbols-outlined">{member.relation === 'Wife' ? 'woman' : 'person'}</span>
+                                <span className="material-symbols-outlined">{member.relation === &apos;Wife&apos; ? &apos;woman&apos; : &apos;person&apos;}</span>
                             </div>
                             <div className="flex-1">
                                 <h4 className="text-white font-semibold">{member.name}</h4>
@@ -208,7 +208,7 @@ export default function ProfilePage() {
                 <section className="bg-[#27231b] rounded-xl p-8 border border-[#393328] shadow-xl">
                     <div className="flex justify-between items-center mb-6">
                         <h2 className="text-xl font-bold text-white">Saved Addresses</h2>
-                        <button onClick={() => router.push('/dashboard/addresses')} className="text-[#f29e0d] text-sm font-semibold hover:underline">Manage All</button>
+                        <button onClick={() => router.push(&apos;/dashboard/addresses&apos;)} className="text-[#f29e0d] text-sm font-semibold hover:underline">Manage All</button>
                     </div>
                     <div className="space-y-4">
                         {addresses.length > 0 ? addresses.map((addr) => (
@@ -260,13 +260,13 @@ export default function ProfilePage() {
                         <h2 className="text-2xl font-bold text-white mb-1">My Pandits</h2>
                         <p className="text-[#baaf9c] text-sm">Trusted family Pandits and Kul Purohits</p>
                     </div>
-                    <button onClick={() => router.push('/search')} className="text-[#f29e0d] text-sm font-semibold border border-[#f29e0d]/20 px-4 py-2 rounded-lg hover:bg-[#f29e0d]/5 transition-all hidden md:block">
+                    <button onClick={() => router.push(&apos;/search&apos;)} className="text-[#f29e0d] text-sm font-semibold border border-[#f29e0d]/20 px-4 py-2 rounded-lg hover:bg-[#f29e0d]/5 transition-all hidden md:block">
                         Find New Pandit
                     </button>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div onClick={() => router.push('/dashboard/favorites')} className="flex items-center gap-5 p-5 rounded-xl bg-[#181511]/30 border border-[#393328] group hover:border-[#f29e0d]/40 transition-all cursor-pointer">
+                    <div onClick={() => router.push(&apos;/dashboard/favorites&apos;)} className="flex items-center gap-5 p-5 rounded-xl bg-[#181511]/30 border border-[#393328] group hover:border-[#f29e0d]/40 transition-all cursor-pointer">
                         <div className="size-16 rounded-lg bg-[#393328] flex items-center justify-center text-[#baaf9c] shadow-lg border border-[#393328]">
                             <span className="material-symbols-outlined text-3xl">self_improvement</span>
                         </div>

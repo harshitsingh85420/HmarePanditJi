@@ -1,40 +1,40 @@
 import React from "react";
 
 export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: "default" | "outlined" | "elevated";
-  padding?: "none" | "sm" | "md" | "lg";
+  variant?: &quot;default&quot; | &quot;outlined&quot; | &quot;elevated&quot;;
+  padding?: &quot;none&quot; | &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot;;
   header?: React.ReactNode;
   footer?: React.ReactNode;
 }
 
 export function Card({
   children,
-  variant = "default",
-  padding = "md",
+  variant = &quot;default&quot;,
+  padding = &quot;md&quot;,
   header,
   footer,
   onClick,
-  className = "",
+  className = &quot;&quot;,
   ...props
 }: CardProps) {
-  const base = "bg-white dark:bg-slate-900 rounded-xl overflow-hidden";
+  const base = &quot;bg-white dark:bg-slate-900 rounded-xl overflow-hidden&quot;;
 
   const variants: Record<string, string> = {
-    default: "border border-slate-100 dark:border-slate-800 shadow-sm",
-    outlined: "border-2 border-slate-200 dark:border-slate-700",
-    elevated: "border border-slate-100 dark:border-slate-800 shadow-lg",
+    default: &quot;border border-slate-100 dark:border-slate-800 shadow-sm&quot;,
+    outlined: &quot;border-2 border-slate-200 dark:border-slate-700&quot;,
+    elevated: &quot;border border-slate-100 dark:border-slate-800 shadow-lg&quot;,
   };
 
   const paddings: Record<string, string> = {
-    none: "",
-    sm: "p-3",
-    md: "p-5",
-    lg: "p-6",
+    none: &quot;&quot;,
+    sm: &quot;p-3&quot;,
+    md: &quot;p-5&quot;,
+    lg: &quot;p-6&quot;,
   };
 
   const clickable = onClick
-    ? "cursor-pointer hover:shadow-md transition-shadow"
-    : "";
+    ? &quot;cursor-pointer hover:shadow-md transition-shadow&quot;
+    : &quot;&quot;;
 
   return (
     <div
@@ -45,7 +45,7 @@ export function Card({
       onKeyDown={
         onClick
           ? (e) => {
-              if (e.key === "Enter" || e.key === " ") {
+              if (e.key === &quot;Enter&quot; || e.key === &quot; &quot;) {
                 e.preventDefault();
                 onClick(e as unknown as React.MouseEvent<HTMLDivElement>);
               }

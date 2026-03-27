@@ -78,13 +78,13 @@ export function NotificationsPermissionScreen() {
           text: 'Notification की अनुमति नहीं मिली। कोई बात नहीं, आप आगे बढ़ सकते हैं।',
           languageCode: 'hi-IN',
         })
-        
+
         // Still proceed - notifications are optional
         handleSkip()
       }
     } catch (error) {
       console.error('[Notifications] Enable failed:', error)
-      
+
       void speakWithSarvam({
         text: 'Notification सेटअप में त्रुटि। कोई बात नहीं, आप आगे बढ़ सकते हैं।',
         languageCode: 'hi-IN',

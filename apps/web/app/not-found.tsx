@@ -4,7 +4,7 @@ export default function NotFound() {
             <span className="text-6xl mb-6">🔍</span>
             <h2 className="text-3xl font-black text-gray-900 mb-4 tracking-tight">Page not found</h2>
             <p className="text-lg text-gray-500 mb-8 max-w-md">
-                The page you're looking for doesn't exist or has been moved.
+                The page you&apos;re looking for doesn&apos;t exist or has been moved.
             </p>
             <a
                 href="/search"

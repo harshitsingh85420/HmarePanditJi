@@ -3,8 +3,8 @@ import type { AppTheme } from "./tokens";
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary" | "outline" | "ghost" | "danger";
-  size?: "sm" | "md" | "lg";
+  variant?: &quot;primary&quot; | &quot;secondary&quot; | &quot;outline&quot; | &quot;ghost&quot; | &quot;danger&quot;;
+  size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot;;
   loading?: boolean;
   fullWidth?: boolean;
   leftIcon?: React.ReactNode;
@@ -14,55 +14,55 @@ export interface ButtonProps
 
 const themeColors: Record<AppTheme, { bg: string; ring: string }> = {
   customer: {
-    bg: "bg-[#f49d25] hover:bg-[#d4850f]",
-    ring: "focus:ring-[#f49d25]",
+    bg: &quot;bg-[#f49d25] hover:bg-[#d4850f]&quot;,
+    ring: &quot;focus:ring-[#f49d25]&quot;,
   },
   pandit: {
-    bg: "bg-[#f09942] hover:bg-[#c77a2a]",
-    ring: "focus:ring-[#f09942]",
+    bg: &quot;bg-[#f09942] hover:bg-[#c77a2a]&quot;,
+    ring: &quot;focus:ring-[#f09942]&quot;,
   },
   admin: {
-    bg: "bg-[#137fec] hover:bg-[#0d5cb8]",
-    ring: "focus:ring-[#137fec]",
+    bg: &quot;bg-[#137fec] hover:bg-[#0d5cb8]&quot;,
+    ring: &quot;focus:ring-[#137fec]&quot;,
   },
 };
 
 export function Button({
   children,
-  variant = "primary",
-  size = "md",
+  variant = &quot;primary&quot;,
+  size = &quot;md&quot;,
   loading = false,
   fullWidth = false,
   leftIcon,
   rightIcon,
   appTheme,
-  className = "",
+  className = &quot;&quot;,
   disabled,
   ...props
 }: ButtonProps) {
   const base =
-    "inline-flex items-center justify-center font-semibold rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none";
+    &quot;inline-flex items-center justify-center font-semibold rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none&quot;;
 
   const themed = appTheme ? themeColors[appTheme] : null;
 
   const variants: Record<string, string> = {
     primary: themed
       ? `${themed.bg} text-white shadow-sm ${themed.ring}`
-      : "bg-primary hover:bg-primary/90 text-white shadow-sm focus:ring-primary",
+      : &quot;bg-primary hover:bg-primary/90 text-white shadow-sm focus:ring-primary&quot;,
     secondary:
-      "bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 focus:ring-slate-400",
+      &quot;bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 focus:ring-slate-400&quot;,
     outline:
-      "border-2 border-slate-200 bg-transparent text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800 focus:ring-slate-400",
+      &quot;border-2 border-slate-200 bg-transparent text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800 focus:ring-slate-400&quot;,
     ghost:
-      "bg-transparent text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800 focus:ring-slate-400",
-    danger: "bg-red-500 hover:bg-red-600 text-white focus:ring-red-400",
+      &quot;bg-transparent text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800 focus:ring-slate-400&quot;,
+    danger: &quot;bg-red-500 hover:bg-red-600 text-white focus:ring-red-400&quot;,
   };
 
   const sizes: Record<string, string> = {
     // ACC-009 FIX: Larger touch targets for elderly users (min 52px)
-    sm: "h-[52px] px-4 text-base gap-2",
-    md: "h-[56px] px-6 text-lg gap-2",
-    lg: "h-[64px] px-8 text-xl gap-3",
+    sm: &quot;h-[52px] px-4 text-base gap-2&quot;,
+    md: &quot;h-[56px] px-6 text-lg gap-2&quot;,
+    lg: &quot;h-[64px] px-8 text-xl gap-3&quot;,
   };
 
   return (

@@ -789,16 +789,16 @@ test.describe('Navigation Tests', () => {
 // ============================================================================
 
 test.describe('Error Handling Tests', () => {
-  
-  test('should handle network errors gracefully', async ({ page }) => {
+
+  test('should handle network errors gracefully', async ({ page, context }) => {
     // Simulate offline mode
-    await page.setOffline(true)
-    
+    await context.setOffline(true)
+
     await page.goto('/onboarding')
-    
+
     // Should show offline banner
     await expect(page.locator('[data-testid="offline-banner"]')).toBeVisible()
-    
+
     // Should not crash
     await expect(page.locator('[data-testid="splash-screen"]')).toBeVisible()
   })

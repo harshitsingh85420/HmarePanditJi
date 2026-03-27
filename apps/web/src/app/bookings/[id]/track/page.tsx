@@ -100,7 +100,7 @@ export default function LiveTrackingPage({ params }: { params: { id: string } })
                                 Estimated Arrival
                             </p>
                             <p className="text-2xl font-black text-slate-900 dark:text-white">
-                                4h 20m{" "}
+                                4h 20m{&quot; &quot;}
                                 <span className="text-slate-400 text-base font-normal">
                                     at 02:20 AM
                                 </span>
@@ -203,8 +203,8 @@ export default function LiveTrackingPage({ params }: { params: { id: string } })
                                 <div className="mt-3 p-3 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700">
                                     <div className="flex items-center gap-3">
                                         <span className="text-base text-slate-500 dark:text-slate-400 italic">
-                                            "Traffic reported near Yamuna Expressway. Minor delay
-                                            possible."
+                                            &quot;Traffic reported near Yamuna Expressway. Minor delay
+                                            possible.&quot;
                                         </span>
                                     </div>
                                 </div>

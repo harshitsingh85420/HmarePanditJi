@@ -62,7 +62,7 @@ export default function PanditCalendarPage() {
                             </p>
                             <div className="space-y-4">
                                 <button
-                                    onClick={() => router.push('/pandit/calendar/leaves')}
+                                    onClick={() => router.push(&apos;/pandit/calendar/leaves&apos;)}
                                     className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-[#f29e0d]/10 text-[#f29e0d] font-semibold hover:bg-[#f29e0d]/20 transition-all"
                                 >
                                     <span className="material-symbols-outlined">event_busy</span>
@@ -127,7 +127,7 @@ export default function PanditCalendarPage() {
                             </div>
                             <div className="p-4">
                                 <div className="grid grid-cols-7 mb-2">
-                                    {["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"].map(
+                                    {[&quot;SUN&quot;, &quot;MON&quot;, &quot;TUE&quot;, &quot;WED&quot;, &quot;THU&quot;, &quot;FRI&quot;, &quot;SAT&quot;].map(
                                         (day) => (
                                             <div
                                                 key={day}

@@ -154,8 +154,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               {`
                 window.dataLayer = window.dataLayer || [];
                 function gtag(){dataLayer.push(arguments);}
-                gtag('js', new Date());
-                gtag('config', '${GA_ID}', { page_path: window.location.pathname });
+                gtag(&apos;js&apos;, new Date());
+                gtag(&apos;config&apos;, '${GA_ID}&apos;, { page_path: window.location.pathname });
               `}
             </Script>
           </>
@@ -169,7 +169,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
                 t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
                 y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-              })(window,document,"clarity","script","${CLARITY_ID}");
+              })(window,document,&quot;clarity&quot;,&quot;script&quot;,&quot;${CLARITY_ID}&quot;);
             `}
           </Script>
         )}

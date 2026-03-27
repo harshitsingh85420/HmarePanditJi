@@ -1,11 +1,10 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { motion, AnimatePresence, Variants } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { speak, startListening, stopListening, detectIntent } from '@/lib/voice-engine'
 import TopBar from '@/components/ui/TopBar'
 import ProgressDots from '@/components/ui/ProgressDots'
-import CTAButton from '@/components/ui/CTAButton'
 import SkipButton from '@/components/ui/SkipButton'
 import VoiceIndicator from '@/components/ui/VoiceIndicator'
 import type { SupportedLanguage } from '@/lib/onboarding-store'
@@ -19,430 +18,51 @@ interface TutorialGuaranteesProps {
   onSkip: () => void
 }
 
-export default function TutorialGuarantees({
-  onNext,
-  onSkip,
-}: TutorialGuaranteesProps) {
+export default function TutorialGuarantees({ onNext, onSkip, onBack }: TutorialGuaranteesProps) {
   const [currentLine, setCurrentLine] = useState(0)
   const [isListening, setIsListening] = useState(false)
-  const [revealedCards, setRevealedCards] = useState<number[]>([])
+  const [showCards, setShowCards] = useState(false)
 
   const LINES = [
-    'यह रहे HmarePanditJi के चार वादे।',
-    'एक — सम्मान। Verified badge, izzat बनी रहे, कोई मोलभाव नहीं।',
-    'दो — सुविधा। आवाज़ से सब काम, यात्रा की planning अपने आप।',
-    'तीन — सुरक्षा। पैसा तय, तुरंत मिलेगा, कोई धोखा नहीं।',
-    'चार — समृद्धि। Offline, online, backup — तीन जगह से नया पैसा।',
-    'तीन लाख से ज़्यादा पंडिट पहले से जुड़ चुके हैं।',
-    'अब Registration की बारी।',
+    'चार वादे — हमारी प्रतिबद्धता।',
+    'पहला — सुरक्षित भुगतान।',
+    'दूसरा — असली ग्राहक।',
+    'तीसरा — 24x7 सहायता।',
+    'चौथा — पारदर्शी कमीशन।',
+    'आगे बोलें।',
   ]
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      playLine(0)
-    }, 400)
-
-    return () => {
-      clearTimeout(timer)
-      stopListening()
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
+  useEffect(() => { const timer = setTimeout(() => { playLine(0) }, 200); return () => { clearTimeout(timer); stopListening(); } }, [])
   const playLine = (index: number) => {
-    if (index >= LINES.length) {
-      startListeningForResponse()
-      return
-    }
-
+    if (index >= LINES.length) { setShowCards(true); startListeningForResponse(); return; }
     setCurrentLine(index)
-
-    // Reveal cards one by one
-    if (index >= 1 && index <= 4) {
-      setRevealedCards(prev => {
-        if (!prev.includes(index - 1)) {
-          return [...prev, index - 1]
-        }
-        return prev
-      })
-    }
-
-    speak(LINES[index], 'hi-IN', () => {
-      setTimeout(() => playLine(index + 1), 400)
-    })
+    speak(LINES[index], 'hi-IN', () => { setTimeout(() => playLine(index + 1), 150) })
   }
-
   const startListeningForResponse = () => {
     setIsListening(true)
-    startListening({
-      language: 'hi-IN',
-      onResult: (result) => {
-        const intent = detectIntent(result.transcript)
-        if (intent === 'FORWARD') {
-          handleContinue()
-        } else if (intent === 'SKIP') {
-          onSkip()
-        }
-      },
-      onError: () => {
-        setIsListening(false)
-      },
-    })
+    startListening({ language: 'hi-IN', onResult: (result) => {
+      const intent = detectIntent(result.transcript)
+      if (intent === 'FORWARD' || intent === 'SKIP') handleContinue()
+      else if (intent === 'BACK') playLine(0)
+    }, onError: () => {} })
   }
-
-  const handleContinue = () => {
-    stopListening()
-    setIsListening(false)
-    speak('बहुत अच्छा।', 'hi-IN', () => {
-      setTimeout(onNext, 1000)
-    })
-  }
-
-  // Animation variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.15,
-      },
-    },
-  }
-
-  const cardVariants = {
-    hidden: { opacity: 0, y: 50, scale: 0.9 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      transition: {
-        duration: 0.5,
-        type: 'spring',
-        stiffness: 100,
-      },
-    },
-    hover: {
-      scale: 1.03,
-      y: -5,
-      boxShadow: '0 12px 24px rgba(0,0,0,0.15)',
-      transition: { duration: 0.2 },
-    },
-  }
-
-  const iconVariants = {
-    hidden: { scale: 0, rotate: -180 },
-    visible: {
-      scale: 1,
-      rotate: 0,
-      transition: {
-        delay: 0.2,
-        type: 'spring',
-        stiffness: 200,
-        duration: 0.6,
-      },
-    },
-  }
-
-  const numberBadgeVariants = {
-    hidden: { scale: 0 },
-    visible: {
-      scale: 1,
-      transition: {
-        delay: 0.1,
-        type: 'spring',
-        stiffness: 200,
-      },
-    },
-  }
-
-  const checkMarkVariants = {
-    hidden: { pathLength: 0, opacity: 0 },
-    visible: (i: number) => ({
-      pathLength: 1,
-      opacity: 1,
-      transition: {
-        delay: 0.3 + i * 0.15,
-        duration: 0.4,
-        ease: 'easeInOut',
-      },
-    }),
-  }
-
-  const socialProofVariants = {
-    hidden: { opacity: 0, scale: 0.8 },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      transition: {
-        delay: 0.5,
-        type: 'spring',
-        stiffness: 200,
-      },
-    },
-  }
-
-  const crowdVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.8,
-      },
-    },
-  }
-
-  const personVariants = {
-    hidden: { scale: 0, y: 20 },
-    visible: {
-      scale: 1,
-      y: 0,
-      transition: {
-        type: 'spring',
-        stiffness: 200,
-      },
-    },
-  }
-
-  const guarantees = [
-    {
-      num: 1,
-      icon: '🏅',
-      title: 'सम्मान (Samman)',
-      desc: 'Verified badge, no bargaining',
-      gradient: 'from-amber-50 to-orange-50',
-      borderColor: 'border-amber-200',
-      iconBg: 'bg-amber-100',
-      textColor: 'text-amber-700',
-    },
-    {
-      num: 2,
-      icon: '🎤',
-      title: 'सुविधा (Suwidha)',
-      desc: 'Voice-first, auto travel',
-      gradient: 'from-blue-50 to-indigo-50',
-      borderColor: 'border-blue-200',
-      iconBg: 'bg-blue-100',
-      textColor: 'text-blue-700',
-    },
-    {
-      num: 3,
-      icon: '🔒',
-      title: 'सुरक्षा (Suraksha)',
-      desc: 'Fixed money, instant payment',
-      gradient: 'from-green-50 to-emerald-50',
-      borderColor: 'border-green-200',
-      iconBg: 'bg-green-100',
-      textColor: 'text-green-700',
-    },
-    {
-      num: 4,
-      icon: '💰',
-      title: 'समृद्धि (Samriddhi)',
-      desc: '3 income streams',
-      gradient: 'from-purple-50 to-pink-50',
-      borderColor: 'border-purple-200',
-      iconBg: 'bg-purple-100',
-      textColor: 'text-purple-700',
-    },
-  ]
+  const handleContinue = () => { stopListening(); setIsListening(false); speak('बहुत अच्छा।', 'hi-IN', () => setTimeout(onNext, 600)) }
 
   return (
-    <div className="min-h-screen flex flex-col bg-vedic-cream">
-      <TopBar showBack={true} onLanguageChange={onSkip} />
+    <main className="w-full min-h-dvh max-w-[390px] xs:max-w-[430px] mx-auto bg-vedic-cream flex flex-col">
+      <TopBar showBack onBack={onBack} onLanguageChange={onBack} />
       <ProgressDots total={12} current={11} />
-
-      <main className="flex-1 px-6 py-8 overflow-y-auto">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-6"
-        >
-          <h1 className="text-2xl font-bold text-vedic-brown mb-2">
-            4 Guarantees
-          </h1>
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            className="text-sm text-vedic-gold"
-          >
-            HmarePanditJi के वादे
-          </motion.p>
-        </motion.div>
-
-        {/* Four Guarantee Cards */}
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="space-y-3 mb-8"
-        >
-          {guarantees.map((guarantee, i) => (
-            <motion.div
-              key={i}
-              variants={cardVariants}
-              whileHover="hover"
-              initial="hidden"
-              animate={revealedCards.includes(i) ? 'visible' : 'hidden'}
-              className={`bg-gradient-to-br ${guarantee.gradient} ${guarantee.borderColor} border-2 rounded-xl p-4 shadow-sm cursor-pointer`}
-            >
-              <div className="flex items-start gap-3">
-                {/* Number Badge */}
-                <motion.div
-                  variants={numberBadgeVariants}
-                  className={`${guarantee.iconBg} w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0`}
-                >
-                  <span className={`font-bold ${guarantee.textColor} text-sm`}>
-                    {guarantee.num}
-                  </span>
-                </motion.div>
-
-                {/* Icon */}
-                <motion.div
-                  variants={iconVariants}
-                  className="text-3xl flex-shrink-0"
-                >
-                  {guarantee.icon}
-                </motion.div>
-
-                {/* Content */}
-                <div className="flex-1">
-                  <h3 className={`font-bold ${guarantee.textColor} mb-1`}>
-                    {guarantee.title}
-                  </h3>
-                  <p className="text-xs text-vedic-brown-2">
-                    {guarantee.desc}
-                  </p>
-                </div>
-
-                {/* Check Mark */}
-                <motion.svg
-                  custom={i}
-                  variants={checkMarkVariants}
-                  initial="hidden"
-                  animate={revealedCards.includes(i) ? 'visible' : 'hidden'}
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  className={`${guarantee.textColor} flex-shrink-0`}
-                >
-                  <motion.path
-                    d="M20 6L9 17l-5-5"
-                    variants={checkMarkVariants}
-                  />
-                </motion.svg>
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
-
-        {/* Social Proof */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1 }}
-          className="bg-gradient-to-br from-primary-lt to-amber-50 border-2 border-primary rounded-2xl p-6 mb-8 text-center"
-        >
-          <motion.div
-            variants={socialProofVariants}
-            initial="hidden"
-            animate="visible"
-          >
-            {/* Crowd Animation */}
-            <motion.div
-              variants={crowdVariants}
-              initial="hidden"
-              animate="visible"
-              className="flex justify-center gap-1 mb-4"
-            >
-              {Array.from({ length: 9 }).map((_, i) => (
-                <motion.div
-                  key={i}
-                  variants={personVariants}
-                  className="text-2xl"
-                >
-                  👨‍🏫
-                </motion.div>
-              ))}
-            </motion.div>
-
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.2 }}
-              className="text-vedic-brown font-semibold mb-2"
-            >
-              3,00,000+ पंडिट joined
-            </motion.p>
-
-            <motion.div
-              initial={{ scaleX: 0 }}
-              animate={{ scaleX: 1 }}
-              transition={{ delay: 1.4, duration: 0.4 }}
-              className="h-0.5 bg-primary w-32 mx-auto my-3"
-            />
-
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.6 }}
-              className="text-sm text-vedic-gold"
-            >
-              आप भी जुड़िए
-            </motion.p>
-          </motion.div>
-        </motion.div>
-
-        {/* Next Step Teaser */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 2 }}
-          className="bg-white border-2 border-vedic-border rounded-xl p-4 mb-8 flex items-center gap-4"
-        >
-          <motion.div
-            initial={{ scale: 0, rotate: -180 }}
-            animate={{ scale: 1, rotate: 0 }}
-            transition={{ delay: 2.2, type: 'spring' }}
-            className="text-4xl"
-          >
-            📝
-          </motion.div>
-          <div>
-            <p className="font-bold text-vedic-brown text-sm">
-              अब Registration की बारी
-            </p>
-            <p className="text-xs text-vedic-gold">
-              बिल्कुल मुफ़्त, 10 मिनट लगेंगे
-            </p>
-          </div>
-        </motion.div>
-
-        {/* Voice Indicator */}
-        <div className="h-12 flex items-center justify-center mb-4">
-          <VoiceIndicator isListening={isListening} label="बोल रहे हैं..." />
+      <div className="flex-1 px-4 xs:px-6 py-6 xs:py-8 overflow-y-auto">
+        <div className="text-center mb-6 xs:mb-8">
+          <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="text-5xl xs:text-6xl sm:text-7xl mb-4 xs:mb-6">🛡️</motion.div>
+          <h1 className="text-xl xs:text-2xl sm:text-3xl font-bold text-vedic-brown mb-2 xs:mb-4">4 वादे</h1>
+          <div className="space-y-2 xs:space-y-3">{LINES.map((line, idx) => (<p key={idx} className={`text-sm xs:text-base sm:text-lg text-vedic-brown transition-opacity ${idx === currentLine ? 'opacity-100' : 'opacity-30'}`}>{line}</p>))}</div>
         </div>
-
-        {/* CTA Buttons */}
-        <div className="w-full space-y-4">
-          <CTAButton
-            label="Registration शुरू करें"
-            onClick={handleContinue}
-            variant="primary-dk"
-            height="tall"
-            aria-label="Start registration process"
-          />
-          <div className="flex justify-center">
-            <SkipButton label="Skip करें →" onClick={onSkip} />
-          </div>
-        </div>
-      </main>
-    </div>
+        {showCards && (<VoiceIndicator isListening={isListening} />)}
+        {showCards && (<div className="grid grid-cols-1 xs:grid-cols-2 gap-3 xs:gap-4 mt-6 xs:mt-8"><div className="bg-success-lt border-2 border-success rounded-2xl p-3 xs:p-4"><p className="text-2xl xs:text-3xl mb-1">🔒</p><p className="text-sm xs:text-base font-bold text-success">सुरक्षित भुगतान</p></div><div className="bg-saffron-lt border-2 border-saffron rounded-2xl p-3 xs:p-4"><p className="text-2xl xs:text-3xl mb-1">✓</p><p className="text-sm xs:text-base font-bold">असली ग्राहक</p></div><div className="bg-surface-card border-2 border-border-default rounded-2xl p-3 xs:p-4"><p className="text-2xl xs:text-3xl mb-1">📞</p><p className="text-sm xs:text-base font-bold">24x7 सहायता</p></div><div className="bg-saffron-lt border-2 border-saffron rounded-2xl p-3 xs:p-4"><p className="text-2xl xs:text-3xl mb-1">💰</p><p className="text-sm xs:text-base font-bold">पारदर्शी कमीशन</p></div></div>)}
+      </div>
+      <div className="px-4 xs:px-6 pb-6 xs:pb-8 pt-4 xs:pt-6 bg-surface-base/90 backdrop-blur-sm border-t border-border-default"><button onClick={handleContinue} className="w-full min-h-[52px] xs:min-h-[56px] sm:min-h-[72px] bg-saffron text-white rounded-2xl text-lg xs:text-xl sm:text-2xl font-bold shadow-btn-saffron active:scale-[0.98]">आगे बढ़ें →</button></div>
+      <SkipButton label="Skip" onClick={onSkip} />
+    </main>
   )
 }

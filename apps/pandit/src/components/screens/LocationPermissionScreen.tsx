@@ -71,7 +71,7 @@ export function LocationPermissionScreen() {
           text: 'लोकेशन की अनुमति नहीं मिली। कृपया सेटिंग्स में जाकर अनुमति दें।',
           languageCode: 'hi-IN',
         })
-      } else if (err.name === 'TimeoutError') {
+      } else if ((err as { name?: string }).name === 'TimeoutError') {
         setError('timeout')
         void speakWithSarvam({
           text: 'लोकेशन लेने में समय लग रहा है। कृपया फिर से कोशिश करें।',

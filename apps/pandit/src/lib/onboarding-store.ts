@@ -221,7 +221,15 @@ export function loadOnboardingState(): OnboardingState {
     const parsed = JSON.parse(raw) as Partial<OnboardingState>
     const validated = validateOnboardingState(parsed)
 
-    return { ...DEFAULT_STATE, ...validated, firstEverOpen: false }
+    const state = { ...DEFAULT_STATE, ...validated, firstEverOpen: false }
+
+    // BUG-002 FIX: Check for desktop language preference (overrides saved state)
+    const desktopLang = localStorage.getItem('hpj_preferred_language')
+    if (desktopLang && ALL_LANGUAGES.includes(desktopLang as SupportedLanguage)) {
+      state.selectedLanguage = desktopLang as SupportedLanguage
+    }
+
+    return state
   } catch (error) {
     console.warn('[onboarding-store] Load failed, using defaults:', error)
     return { ...DEFAULT_STATE, firstEverOpen: true }

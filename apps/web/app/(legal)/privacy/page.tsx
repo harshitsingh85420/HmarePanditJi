@@ -33,7 +33,7 @@ export default function PrivacyPage() {
             </p>
             <ul>
                 <li><strong>With Pandits:</strong> Your verified booking details and address.</li>
-                <li><strong>With Customers:</strong> The assigned Pandit's profile and contact info.</li>
+                <li><strong>With Customers:</strong> The assigned Pandit&apos;s profile and contact info.</li>
                 <li><strong>With Service Providers:</strong> Payment processors (Razorpay) and communication services (Twilio).</li>
             </ul>
             <p>We do not sell your personal data to third parties.</p>

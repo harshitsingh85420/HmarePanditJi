@@ -19,12 +19,12 @@ export default function MyBookingsPage() {
         setLoading(true);
         try {
             let url = `${API_URL}/bookings/customer/my?page=1&limit=50`;
-            if (statusFilter !== "All") {
+            if (statusFilter !== &quot;All&quot;) {
                 url += `&status=${statusFilter.toUpperCase()}`;
             }
 
             const res = await fetch(url, {
-                headers: { "Authorization": `Bearer ${accessToken}` }
+                headers: { &quot;Authorization&quot;: `Bearer ${accessToken}` }
             });
             const data = await res.json();
             if (data.success) {
@@ -48,10 +48,10 @@ export default function MyBookingsPage() {
     }, [activeTab, fetchBookings, authLoading, accessToken]);
 
     const tabs = [
-        { key: "All", label: "All" },
-        { key: "Upcoming", label: "Upcoming" },
-        { key: "Completed", label: "Completed" },
-        { key: "Cancelled", label: "Cancelled" },
+        { key: &quot;All&quot;, label: &quot;All&quot; },
+        { key: &quot;Upcoming&quot;, label: &quot;Upcoming&quot; },
+        { key: &quot;Completed&quot;, label: &quot;Completed&quot; },
+        { key: &quot;Cancelled&quot;, label: &quot;Cancelled&quot; },
     ];
 
     return (

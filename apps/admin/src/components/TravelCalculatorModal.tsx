@@ -12,7 +12,7 @@ export default function TravelCalculatorModal({ booking, onClose, onSave }: Trav
     const [returnCost, setReturnCost] = useState<number>(0);
     const [localCab, setLocalCab] = useState<number>(0);
     const [accommodation, setAccommodation] = useState<number>(0);
-    const [notes, setNotes] = useState("");
+    const [notes, setNotes] = useState(&quot;&quot;);
 
     const totalCost = cost + returnCost + localCab + accommodation;
 

@@ -15,8 +15,8 @@ export default function ActivityFeed() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/activity-feed?limit=20`, {
-            headers: { Authorization: `Bearer ${localStorage.getItem("adminToken") || ""}` }
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || &apos;http://localhost:3001/api/v1&apos;}/admin/activity-feed?limit=20`, {
+            headers: { Authorization: `Bearer ${localStorage.getItem(&quot;adminToken&quot;) || &quot;&quot;}` }
         })
             .then(res => res.json())
             .then(data => {

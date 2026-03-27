@@ -106,7 +106,7 @@ export default function AdminTravelPage() {
                             </div>
                             <div className="flex gap-2">
                                 <button className="bg-[#f49d25] text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 hover:bg-[#f49d25]/90">
-                                    <span className="material-symbols-outlined">add</span>{" "}
+                                    <span className="material-symbols-outlined">add</span>{&quot; &quot;}
                                     New Manual Trip
                                 </button>
                             </div>
@@ -146,19 +146,19 @@ export default function AdminTravelPage() {
                             <div className="lg:col-span-8 flex flex-col gap-4">
                                 <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
                                     <button className="flex h-14 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-[#f49d25] text-white px-4 text-lg font-bold">
-                                        All Travels{" "}
+                                        All Travels{&quot; &quot;}
                                         <span className="bg-white/20 px-1.5 rounded">
                                             124
                                         </span>
                                     </button>
                                     <button className="flex h-14 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-slate-300 px-4 text-lg font-medium">
-                                        Delayed{" "}
+                                        Delayed{&quot; &quot;}
                                         <span className="bg-[#f49d25]/20 text-[#f49d25] px-1.5 rounded">
                                             9
                                         </span>
                                     </button>
                                     <button className="flex h-14 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-slate-300 px-4 text-lg font-medium">
-                                        Emergency{" "}
+                                        Emergency{&quot; &quot;}
                                         <span className="bg-red-500/20 text-red-500 px-1.5 rounded">
                                             3
                                         </span>
@@ -379,20 +379,20 @@ export default function AdminTravelPage() {
                                             <button className="w-full py-2 bg-slate-100 dark:bg-zinc-800 text-slate-900 dark:text-white rounded-lg font-bold text-lg flex items-center justify-center gap-2 border border-slate-200 dark:border-zinc-700">
                                                 <span className="material-symbols-outlined text-lg">
                                                     campaign
-                                                </span>{" "}
+                                                </span>{&quot; &quot;}
                                                 Alert Customer
                                             </button>
                                             <button className="w-full py-2 bg-slate-100 dark:bg-zinc-800 text-slate-900 dark:text-white rounded-lg font-bold text-lg flex items-center justify-center gap-2 border border-slate-200 dark:border-zinc-700">
                                                 <span className="material-symbols-outlined text-lg">
                                                     local_taxi
-                                                </span>{" "}
+                                                </span>{&quot; &quot;}
                                                 Arrange Cab from Kalyan
                                             </button>
                                             <div className="mt-4 p-4 border-2 border-dashed border-red-500/50 rounded-xl bg-red-500/5 flex flex-col gap-4">
                                                 <button className="w-full py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-black text-lg flex items-center justify-center gap-2 shadow-lg shadow-red-500/20">
                                                     <span className="material-symbols-outlined">
                                                         verified_user
-                                                    </span>{" "}
+                                                    </span>{&quot; &quot;}
                                                     ACTIVATE BACKUP PANDIT
                                                 </button>
                                                 <div>

@@ -7,38 +7,19 @@ import { speakWithSarvam, stopCurrentSpeech } from '@/lib/sarvam-tts'
 import { useOnboardingStore } from '@/stores/onboardingStore'
 import { LANGUAGE_LIST_SCREEN } from '@/lib/voice-scripts'
 import { replaceScriptPlaceholders } from '@/lib/voice-scripts'
-
-const LANGUAGES = [
-  { code: 'Hindi', name: 'हिंदी', script: 'Devanagari' },
-  { code: 'Bhojpuri', name: 'भोजपुरी', script: 'Devanagari' },
-  { code: 'Maithili', name: 'मैथिली', script: 'Devanagari' },
-  { code: 'Bengali', name: 'বাংলা', script: 'Bengali' },
-  { code: 'Tamil', name: 'தமிழ்', script: 'Tamil' },
-  { code: 'Telugu', name: 'తెలుగు', script: 'Telugu' },
-  { code: 'Kannada', name: 'ಕನ್ನಡ', script: 'Kannada' },
-  { code: 'Malayalam', name: 'മലയാളം', script: 'Malayalam' },
-  { code: 'Marathi', name: 'मराठी', script: 'Devanagari' },
-  { code: 'Gujarati', name: 'ગુજરાતી', script: 'Gujarati' },
-  { code: 'Punjabi', name: 'ਪੰਜਾਬੀ', script: 'Gurmukhi' },
-  { code: 'Odia', name: 'ଓଡ଼ିଆ', script: 'Odia' },
-  { code: 'Assamese', name: 'অসমীয়া', script: 'Assamese' },
-  { code: 'Sanskrit', name: 'संस्कृत', script: 'Devanagari' },
-  { code: 'English', name: 'English', script: 'Latin' },
-]
+import { ALL_LANGUAGES, LANGUAGE_DISPLAY, type SupportedLanguage } from '@/lib/onboarding-store'
 
 export default function LanguageListScreen() {
   const router = useRouter()
   const { setPhase, setPendingLanguage } = useOnboardingStore()
   const [searchQuery, setSearchQuery] = useState('')
-  const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null)
+  const [selectedLanguage, setSelectedLanguage] = useState<SupportedLanguage | null>(null)
   const [showKeyboard, setShowKeyboard] = useState(false)
   const hasSpokenRef = useRef(false)
   const isMountedRef = useRef(true)
 
   useEffect(() => {
     isMountedRef.current = true
-
-    // Voice prompt on screen load
     const timer = setTimeout(() => {
       if (isMountedRef.current && !hasSpokenRef.current) {
         hasSpokenRef.current = true
@@ -48,223 +29,79 @@ export default function LanguageListScreen() {
         })
       }
     }, 600)
-
-    return () => {
-      isMountedRef.current = false
-      clearTimeout(timer)
-      stopCurrentSpeech()
-    }
+    return () => { isMountedRef.current = false; clearTimeout(timer); stopCurrentSpeech(); }
   }, [])
 
-  const handleLanguageSelect = (langCode: string, langName: string) => {
-    setSelectedLanguage(langCode)
-    setPendingLanguage(langCode as any)
-
-    // Speak confirmation
-    const langDetectedScript = LANGUAGE_LIST_SCREEN.scripts.onLanguageDetected
-    if (langDetectedScript) {
-      const script = replaceScriptPlaceholders(
-        langDetectedScript,
-        { LANGUAGE: langName }
-      )
-      void speakWithSarvam({
-        text: script.hindi,
-        languageCode: 'hi-IN',
-      })
-    }
-
-    // Auto-advance to confirmation after 1.5 seconds
-    setTimeout(() => {
-      setPhase('LANGUAGE_CHOICE_CONFIRM')
-      router.push('/language-choice')
-    }, 1500)
+  const handleSelect = (lang: SupportedLanguage) => {
+    setSelectedLanguage(lang)
+    setPendingLanguage(lang)
+    void speakWithSarvam({
+      text: `${lang} — क्या यह सही है? 'हाँ' बोलें।`,
+      languageCode: 'hi-IN',
+    })
+    setTimeout(() => router.push('/language-confirm'), 500)
   }
 
-  const filteredLanguages = LANGUAGES.filter(
-    (lang) =>
-      lang.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      lang.code.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  const filteredLanguages = ALL_LANGUAGES.filter(lang => {
+    const info = LANGUAGE_DISPLAY[lang]
+    return info.latinName.toLowerCase().includes(searchQuery.toLowerCase()) || info.nativeName.includes(searchQuery)
+  })
 
   return (
-    <main className="relative mx-auto min-h-dvh w-full flex flex-col bg-surface-base">
-      {/* TopBar */}
-      <div className="h-[72px] px-4 flex items-center justify-between border-b border-outline-variant sticky top-0 bg-surface-base z-50">
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => {
-              stopCurrentSpeech()
-              setPhase('LANGUAGE_CONFIRM')
-              router.push('/language-confirm')
-            }}
-            className="w-[64px] h-[64px] flex items-center justify-center text-saffron rounded-full active:bg-black/5 focus:ring-2 focus:ring-primary focus:outline-none"
-            aria-label="Go back"
-          >
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-          </button>
-          <span className="text-[32px] text-saffron">ॐ</span>
-          <h1 className="text-[20px] font-bold text-text-primary">HmarePanditJi</h1>
-        </div>
-        <button
-          onClick={() => { }}
-          className="min-h-[64px] px-6 flex items-center gap-2 text-[20px] font-bold text-text-primary active:opacity-50 focus:ring-2 focus:ring-saffron focus:outline-none border-2 border-border-default rounded-full bg-surface-card"
-          aria-label="Language switcher"
-        >
-          <span>हिन्दी / English</span>
+    <main className="w-full min-h-dvh max-w-[390px] xs:max-w-[430px] mx-auto bg-surface-base relative flex flex-col overflow-hidden shadow-2xl">
+      {/* Top Bar */}
+      <header className="min-h-[52px] xs:min-h-[56px] sm:min-h-[72px] px-4 xs:px-6 flex items-center justify-between border-b border-border-default sticky top-0 bg-surface-base z-50">
+        <button onClick={() => router.back()} className="min-h-[52px] xs:min-h-[56px] min-w-[52px] xs:min-w-[56px] p-2 hover:bg-black/5 rounded-full transition-colors active:scale-95" aria-label="Go back">
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" /></svg>
         </button>
+        <button onClick={() => {}} className="min-h-[52px] xs:min-h-[56px] min-w-[52px] xs:min-w-[56px] text-2xl active:opacity-50">🌐</button>
+      </header>
+
+      {/* Title */}
+      <div className="px-4 xs:px-6 pt-4 xs:pt-5 pb-3 xs:pb-4">
+        <h1 className="text-xl xs:text-2xl sm:text-[28px] font-bold text-text-primary leading-tight">अपनी भाषा चुनें</h1>
       </div>
 
-      {/* Illustration Area */}
-      <section className="mt-4 px-4 flex justify-center">
-        <div className="w-[280px] h-[120px] relative flex items-center justify-center">
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.5 }}
-            className="text-center"
-          >
-            <span className="text-[64px]">🌐</span>
-            <div className="mt-2 text-[18px] font-bold text-text-secondary font-devanagari">
-              अपनी भाषा चुनें
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Title Section */}
-      <section className="mt-4 px-4 text-center">
-        <h2 className="text-[26px] font-bold text-text-primary leading-tight font-devanagari">
-          15 भाषाएं उपलब्ध
-        </h2>
-        <p className="text-[18px] text-text-secondary mt-2 font-devanagari">
-          बोलें या नीचे से छूकर चुनें
-        </p>
-      </section>
-
-      {/* Content Body */}
-      <section className="px-4 flex-grow mt-6">
-        {/* Search Input with Keyboard Toggle */}
-        <div className="relative mb-6">
-          <input
-            type={showKeyboard ? 'text' : 'text'}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="भाषा खोजें / Search language..."
-            className="w-full min-h-[72px] px-6 py-4 bg-surface-card border-2 border-border-default rounded-2xl text-[20px] font-devanagari focus:outline-none focus:border-saffron focus:ring-2 focus:ring-saffron/20"
-            aria-label="Search for language"
-          />
-          <button
-            onClick={() => setShowKeyboard(!showKeyboard)}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-[28px] p-2 hover:bg-surface-dim rounded-full active:scale-95 transition-transform focus:ring-2 focus:ring-saffron focus:outline-none"
-            aria-label={showKeyboard ? 'Hide keyboard' : 'Show keyboard'}
-          >
-            {showKeyboard ? '🔍' : '⌨️'}
-          </button>
-        </div>
-
-        {/* Voice Input Hint */}
-        <div className="mb-6 p-4 bg-saffron-lt rounded-xl flex items-center gap-3">
-          <span className="text-[32px]">🎤</span>
-          <p className="text-[18px] font-bold text-text-primary font-devanagari">
-            उदाहरण: "हिंदी", "Tamil", "Bengali"
-          </p>
-        </div>
-
-        {/* Keyboard Toggle Button */}
-        <div className="mb-4 flex justify-end">
-          <button
-            onClick={() => setShowKeyboard(!showKeyboard)}
-            className="min-h-[56px] px-6 flex items-center gap-2 text-[18px] font-bold text-saffron active:opacity-50 focus:ring-2 focus:ring-saffron focus:outline-none rounded-full"
-            aria-label="Toggle keyboard input"
-          >
-            {showKeyboard ? (
-              <>
-                <span>🎤</span>
-                <span>आवाज़ इनपुट</span>
-              </>
-            ) : (
-              <>
-                <span>⌨️</span>
-                <span>कीबोर्ड इनपुट</span>
-              </>
-            )}
-          </button>
-        </div>
-
-        {/* Language Grid */}
-        <div className="grid grid-cols-2 gap-3">
-          {filteredLanguages.map((lang, idx) => (
-            <motion.button
-              key={lang.code}
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: idx * 0.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => handleLanguageSelect(lang.code, lang.name)}
-              className={`min-h-[100px] p-4 rounded-2xl border-2 flex flex-col items-center justify-center gap-2 transition-all focus:ring-2 focus:ring-saffron focus:outline-none ${selectedLanguage === lang.code
-                ? 'bg-saffron text-white border-saffron'
-                : 'bg-surface-card text-text-primary border-border-default hover:border-saffron/50'
-                }`}
-            >
-              <span className="text-[28px] font-bold">{lang.name}</span>
-              <span className="text-[14px] opacity-70">{lang.script}</span>
-            </motion.button>
-          ))}
-        </div>
-
-        {/* Selection Confirmation */}
-        {selectedLanguage && (
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            className="mt-6 p-6 bg-success-lt rounded-2xl flex items-center gap-4"
-          >
-            <span className="text-[32px]">✅</span>
-            <div>
-              <p className="text-[20px] font-bold text-success font-devanagari">
-                {LANGUAGES.find((l) => l.code === selectedLanguage)?.name} चुना गया
-              </p>
-              <p className="text-[16px] text-text-secondary font-devanagari">
-                आगे बढ़ रहे हैं...
-              </p>
-            </div>
-          </motion.div>
-        )}
-      </section>
-
-      {/* Footer */}
-      <footer className="p-6 space-y-4 mb-6">
-        {/* Loading State */}
-        {selectedLanguage && (
-          <div className="flex items-center justify-center gap-2 text-success">
-            <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-            </svg>
-            <span className="text-[16px] font-bold font-devanagari">आगे बढ़ रहे हैं...</span>
+      {/* Voice Search */}
+      <section className="px-4 xs:px-6 mb-3 xs:mb-4">
+        <div onClick={() => setShowKeyboard(!showKeyboard)} className="bg-saffron-lt border-2 border-saffron rounded-2xl p-3 xs:p-4 flex items-center gap-3 xs:gap-4 cursor-pointer active:scale-[0.98] transition-transform">
+          <div className="relative w-14 h-14 xs:w-16 xs:h-16 flex items-center justify-center bg-white rounded-full shadow-sm">
+            <svg className="h-6 w-6 xs:h-7 xs:w-7 text-saffron relative z-10" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
           </div>
-        )}
-        <button
-          onClick={() => {
-            if (selectedLanguage) {
-              setPhase('LANGUAGE_CHOICE_CONFIRM')
-              router.push('/language-choice')
-            }
-          }}
-          disabled={!selectedLanguage}
-          className="w-full bg-saffron text-white py-4 min-h-[72px] rounded-2xl text-[22px] font-bold active:scale-[0.98] transition-transform shadow-btn-saffron focus:ring-2 focus:ring-primary focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
-          aria-label="Continue to language confirmation"
-        >
-          आगे बढ़ें →
-        </button>
-      </footer>
+          <div>
+            <p className="text-lg xs:text-xl sm:text-[24px] font-bold text-text-primary">{showKeyboard ? 'भाषा खोजें...' : 'भाषा का नाम बोलें'}</p>
+            <p className="text-base xs:text-lg sm:text-[22px] text-saffron mt-1">जैसे: 'Hindi', 'Tamil', 'Bengali'</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Divider */}
+      <div className="px-4 xs:px-6 mb-3 xs:mb-4 text-center"><span className="text-saffron/60 text-sm xs:text-base sm:text-lg font-medium">─── या नीचे से चुनें ───</span></div>
+
+      {/* Text Search */}
+      <section className="px-4 xs:px-6 mb-3 xs:mb-4">
+        <div className="relative">
+          <span className="absolute inset-y-0 left-2 xs:left-3 flex items-center"><svg className="h-5 w-5 xs:h-6 xs:w-6 text-saffron/60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg></span>
+          <input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full bg-white border border-outline-variant rounded-xl py-3 xs:py-4 pl-10 xs:pl-12 pr-3 xs:pr-4 text-text-primary placeholder-saffron/60 focus:outline-none focus:ring-2 focus:ring-primary focus:border-saffron transition-all text-base xs:text-lg sm:text-[22px] min-h-[52px] xs:min-h-[56px] sm:min-h-[80px]" placeholder="भाषा खोजें..." type="text" />
+        </div>
+      </section>
+
+      {/* Language Grid */}
+      <section className="px-4 xs:px-6 flex-1 overflow-y-auto pb-6 xs:pb-8">
+        <div className="grid grid-cols-2 gap-2 xs:gap-3">
+          {filteredLanguages.map((lang, idx) => {
+            const info = LANGUAGE_DISPLAY[lang]
+            const isSelected = selectedLanguage === lang
+            return (
+              <motion.button key={lang} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.04 * idx }} onClick={() => handleSelect(lang)} className={`relative flex flex-col items-center justify-center min-h-[52px] xs:min-h-[56px] sm:min-h-[96px] rounded-xl px-3 xs:px-4 sm:px-5 transition-all ${isSelected ? 'bg-saffron-lt border-2 border-saffron' : 'bg-white border border-outline-variant hover:border-saffron'}`}>
+                <span className={`text-lg xs:text-xl sm:text-[26px] font-bold leading-tight ${isSelected ? 'text-saffron' : 'text-text-primary'}`}>{info.nativeName}</span>
+                <span className="text-sm xs:text-base sm:text-[22px] text-saffron leading-tight mt-1">{info.latinName}</span>
+                {isSelected && (<div className="absolute top-1 xs:top-2 right-1 xs:right-2"><svg className="h-4 w-4 xs:h-5 xs:w-5 text-saffron" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg></div>)}
+              </motion.button>
+            )
+          })}
+        </div>
+      </section>
     </main>
   )
 }

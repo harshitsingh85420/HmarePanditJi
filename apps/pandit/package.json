@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --port 3002",
+    "dev:insights": "next dev --port 3002",
     "build": "next build",
     "start": "next start --port 3002",
     "lint": "next lint",
@@ -11,7 +12,10 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui"
+    "test:e2e:ui": "playwright test --ui",
+    "lighthouse": "lhci autorun",
+    "analyze": "ANALYZE=true next build",
+    "sentry:sourcemaps": "sentry-cli sourcemaps inject .next && sentry-cli sourcemaps upload .next"
   },
   "dependencies": {
     "@deepgram/sdk": "^5.0.0",
@@ -19,6 +23,7 @@
     "@hmarepanditji/ui": "workspace:*",
     "@hmarepanditji/utils": "workspace:*",
     "@hookform/resolvers": "^3.3.0",
+    "@sentry/nextjs": "^8.0.0",
     "axios": "^1.7.0",
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
@@ -34,7 +39,10 @@
     "zustand": "^5.0.12"
   },
   "devDependencies": {
+    "@lhci/cli": "^0.13.0",
+    "@next/bundle-analyzer": "14.2.0",
     "@playwright/test": "^1.58.2",
+    "@sentry/cli": "^2.30.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@types/node": "^20.12.0",

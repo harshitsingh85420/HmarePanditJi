@@ -224,7 +224,7 @@ export default function MuhuratExplorerCalendar() {
 <div className="bg-gradient-to-br from-primary/30 to-primary/5 rounded-2xl p-6 border border-primary/20 relative overflow-hidden group">
 <div className="relative z-10">
 <h4 className="text-lg font-bold font-display mb-2">Panchang Insights</h4>
-<p className="text-lg text-slate-700 dark:text-slate-300 mb-4 leading-relaxed">Today's Tithi: Shukla Paksha Dashami. Nakshatra: Revati.</p>
+<p className="text-lg text-slate-700 dark:text-slate-300 mb-4 leading-relaxed">Today&apos;s Tithi: Shukla Paksha Dashami. Nakshatra: Revati.</p>
 <a className="text-lg font-bold text-primary flex items-center gap-1" href="/">Detailed View <span className="material-symbols-outlined text-base">arrow_forward</span></a>
 </div>
 <span className="material-symbols-outlined absolute -right-4 -bottom-4 text-8xl text-primary/10 rotate-12 group-hover:rotate-0 transition-transform duration-500">brightness_high</span>

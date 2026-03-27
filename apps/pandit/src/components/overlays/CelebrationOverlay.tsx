@@ -60,7 +60,7 @@ export function CelebrationOverlay() {
             <motion.div
               initial={{ scale: 0.8, opacity: 0.6 }}
               animate={{ scale: 1.5, opacity: 0 }}
-              transition={{ duration: 1.4, repeat: Infinity, repeatType: 'restart' }}
+              transition={{ duration: 1.4, repeat: Infinity, repeatType: 'loop' as const }}
               className="absolute inset-0 rounded-full glow-ring"
               aria-hidden="true"
             />

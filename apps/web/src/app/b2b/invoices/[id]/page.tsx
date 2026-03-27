@@ -5,7 +5,7 @@ import React from "react";
 export default function CorporateInvoicePage({ params }: { params: { id: string } }) {
     // In a real app, we would use params.id to fetch invoice data
     const handlePrint = () => {
-        if (typeof window !== "undefined") {
+        if (typeof window !== &quot;undefined&quot;) {
             window.print();
         }
     };
@@ -39,7 +39,7 @@ export default function CorporateInvoicePage({ params }: { params: { id: string 
                         H
                     </div>
                     <span className="font-bold text-lg tracking-tight text-slate-900 dark:text-white">
-                        HmarePanditJi{" "}
+                        HmarePanditJi{&quot; &quot;}
                         <span className="text-[#0f49bd] font-normal">B2B</span>
                     </span>
                 </div>
@@ -182,13 +182,13 @@ export default function CorporateInvoicePage({ params }: { params: { id: string 
                                         <p className="mt-2">
                                             <span className="font-medium text-slate-500">
                                                 GSTIN:
-                                            </span>{" "}
+                                            </span>{&quot; &quot;}
                                             29AAACT3829K1Z5
                                         </p>
                                         <p>
                                             <span className="font-medium text-slate-500">
                                                 PO Ref:
-                                            </span>{" "}
+                                            </span>{&quot; &quot;}
                                             TN-EVT-2309
                                         </p>
                                     </div>
@@ -206,20 +206,20 @@ export default function CorporateInvoicePage({ params }: { params: { id: string 
                                         <p>
                                             <span className="font-medium text-[#0f49bd]">
                                                 Event:
-                                            </span>{" "}
+                                            </span>{&quot; &quot;}
                                             Annual Corporate Diwali Puja &amp;
                                             Celebration
                                         </p>
                                         <p>
                                             <span className="font-medium text-[#0f49bd]">
                                                 Venue:
-                                            </span>{" "}
+                                            </span>{&quot; &quot;}
                                             TechNova Campus, Main Hall
                                         </p>
                                         <p>
                                             <span className="font-medium text-[#0f49bd]">
                                                 Date:
-                                            </span>{" "}
+                                            </span>{&quot; &quot;}
                                             Oct 20, 2023
                                         </p>
                                         <div className="mt-3 flex gap-2">

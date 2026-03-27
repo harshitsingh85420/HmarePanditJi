@@ -20,18 +20,19 @@ export default function CTAButton({
   height = 'normal',
 }: CTAButtonProps) {
   const baseClass = [
-    'flex items-center justify-center gap-2 rounded-btn font-bold text-xl',
+    'flex items-center justify-center gap-2 rounded-btn font-bold text-[20px]',
     'transition-transform active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed',
+    'focus:ring-2 focus:ring-primary focus:outline-none focus:ring-offset-2',
     fullWidth ? 'w-full' : 'px-8',
-    // P1 FIX: Changed tall variant from 72px to 64px (standard)
-    height === 'tall' ? 'h-16' : 'h-16',
+    // P1 FIX: Increased height for elderly users (72px minimum)
+    height === 'tall' ? 'min-h-[72px] h-auto px-4 py-3' : 'min-h-[72px] h-auto px-4 py-3',
   ]
 
   const variantClass: Record<string, string> = {
     'primary': 'bg-primary text-white shadow-cta',
     'primary-dk': 'bg-primary-dk text-white shadow-cta-dk',
     'secondary': 'bg-white text-primary border-2 border-primary',
-    'ghost': 'bg-transparent text-saffron text-base font-normal h-11',
+    'ghost': 'bg-transparent text-saffron text-base font-normal min-h-[56px] h-auto px-4 py-3',
   }
 
   return (
@@ -45,7 +46,9 @@ export default function CTAButton({
           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
         </svg>
-      ) : label}
+      ) : (
+        <span className="text-center block break-words line-clamp-2">{label}</span>
+      )}
     </button>
   )
 }

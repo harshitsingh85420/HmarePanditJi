@@ -101,7 +101,7 @@ interface TutorialHeroIllustrationProps {
  * TutorialHeroIllustration Component
  * Premium animated hero illustration for tutorial screens
  * Replaces generic emoji with spiritual illustrations
- * 
+ *
  * @description UI-024: Enhanced tutorial visuals for Pandit Ji engagement
  */
 export function TutorialHeroIllustration({

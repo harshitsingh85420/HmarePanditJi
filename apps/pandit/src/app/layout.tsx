@@ -14,7 +14,6 @@ export const metadata: Metadata = {
   description: 'App Pandit ke liye hai, Pandit App ke liye nahi.',
   manifest: '/manifest.json',
   appleWebApp: {
-    capable: true,
     statusBarStyle: 'default',
     title: 'HmarePanditJi',
   },
@@ -34,12 +33,14 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="hi" className={hind.variable}>
+    <html lang="hi" className={hind.variable} suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+        <meta name="mobile-web-app-capable" content="yes" />
       </head>
-      <body className="font-hind bg-vedic-cream text-vedic-brown antialiased">
+      <body className="font-hind bg-vedic-cream text-vedic-brown antialiased" suppressHydrationWarning>
         <div className="relative mx-auto w-full max-w-[430px] min-h-screen overflow-x-hidden">
           {children}
         </div>

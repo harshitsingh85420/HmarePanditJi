@@ -46,11 +46,11 @@ export function FeaturedPandits() {
     return () => controller.abort();
   }, []);
 
-  const scroll = (dir: "left" | "right") => {
+  const scroll = (dir: &quot;left&quot; | &quot;right&quot;) => {
     if (!scrollRef.current) return;
     scrollRef.current.scrollBy({
-      left: dir === "left" ? -320 : 320,
-      behavior: "smooth",
+      left: dir === &quot;left&quot; ? -320 : 320,
+      behavior: &quot;smooth&quot;,
     });
   };
 
@@ -86,13 +86,13 @@ export function FeaturedPandits() {
     <div className="relative group">
       {/* Scroll buttons (desktop) */}
       <button
-        onClick={() => scroll("left")}
+        onClick={() => scroll(&quot;left&quot;)}
         className="absolute -left-4 top-1/2 -translate-y-1/2 z-10 w-14 h-14 bg-white dark:bg-slate-800 rounded-full shadow-lg border border-slate-200 dark:border-slate-700 items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-700 transition-all hidden md:flex opacity-0 group-hover:opacity-100"
       >
         <span className="material-symbols-outlined text-slate-600 dark:text-slate-300">chevron_left</span>
       </button>
       <button
-        onClick={() => scroll("right")}
+        onClick={() => scroll(&quot;right&quot;)}
         className="absolute -right-4 top-1/2 -translate-y-1/2 z-10 w-14 h-14 bg-white dark:bg-slate-800 rounded-full shadow-lg border border-slate-200 dark:border-slate-700 items-center justify-center hover:bg-slate-50 dark:hover:bg-slate-700 transition-all hidden md:flex opacity-0 group-hover:opacity-100"
       >
         <span className="material-symbols-outlined text-slate-600 dark:text-slate-300">chevron_right</span>

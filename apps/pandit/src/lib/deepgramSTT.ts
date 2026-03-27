@@ -382,7 +382,7 @@ class DeepgramSTTEngine {
           finalConfidence = 0.3
         }
         break
-      case 'yes_no':
+      case 'yes_no': {
         const answer = this.normalizeYesNo(transcript)
         if (answer) {
           processedText = answer
@@ -391,6 +391,7 @@ class DeepgramSTTEngine {
           finalConfidence = 0.2
         }
         break
+      }
       case 'name':
         processedText = transcript
           .split(' ')

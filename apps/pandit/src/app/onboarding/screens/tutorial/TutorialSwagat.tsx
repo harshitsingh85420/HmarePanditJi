@@ -18,6 +18,7 @@ interface TutorialSwagatProps {
 }
 
 export default function TutorialSwagat({
+  onBack,
   onNext,
   onSkip,
 }: TutorialSwagatProps) {
@@ -34,13 +35,12 @@ export default function TutorialSwagat({
   useEffect(() => {
     const timer = setTimeout(() => {
       playLine(0)
-    }, 500)
+    }, 200) // Reduced from 500ms
 
     return () => {
       clearTimeout(timer)
       stopListening()
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const playLine = (index: number) => {
@@ -52,7 +52,7 @@ export default function TutorialSwagat({
     setCurrentLine(index)
     speak(LINES[index], 'hi-IN', () => {
       if (index < LINES.length - 1) {
-        setTimeout(() => playLine(index + 1), 400)
+        setTimeout(() => playLine(index + 1), 200) // Reduced from 400ms
       } else {
         startListeningForResponse()
       }
@@ -77,7 +77,7 @@ export default function TutorialSwagat({
   const handleContinue = () => {
     stopListening()
     speak('बहुत अच्छा।', 'hi-IN', () => {
-      setTimeout(onNext, 1000)
+      setTimeout(onNext, 600) // Reduced from 1000ms
     })
   }
 
@@ -87,32 +87,29 @@ export default function TutorialSwagat({
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-vedic-cream">
+    <div className="min-h-screen w-full max-w-[390px] xs:max-w-[430px] mx-auto flex flex-col bg-vedic-cream">
       <TopBar showBack={false} onLanguageChange={onSkip} />
       <ProgressDots total={12} current={1} />
-      <main className="flex-1 px-6 py-8 flex flex-col items-center justify-center">
-        <div className="text-6xl mb-6">🙏</div>
-        <h1 className="text-2xl font-bold text-vedic-brown text-center mb-4">
+      <main className="flex-1 px-4 xs:px-6 py-6 xs:py-8 flex flex-col items-center justify-center">
+        <div className="text-5xl xs:text-6xl mb-4 xs:mb-6">🙏</div>
+        <h1 className="text-xl xs:text-2xl font-bold text-vedic-brown text-center mb-3 xs:mb-4">
           स्वागत है
         </h1>
-        <div className="bg-primary-lt border border-primary rounded-xl px-6 py-4 mb-8">
-          <p className="text-vedic-brown text-center italic">
+        <div className="bg-primary-lt border border-primary rounded-xl px-4 xs:px-6 py-3 xs:py-4 mb-6 xs:mb-8">
+          <p className="text-vedic-brown text-center text-sm xs:text-base sm:text-lg italic">
             "App पंडित के लिए है, पंडित App के लिए नहीं।"
           </p>
         </div>
-        <div className="w-full space-y-4">
-          <CTAButton
-            label="जानें"
-            onClick={handleContinue}
-            variant="primary"
-            height="tall"
-            aria-label="Continue to next tutorial screen"
-          />
-          <div className="flex justify-center">
-            <SkipButton label="Skip करें →" onClick={handleSkip} />
-          </div>
+        <div className="space-y-2 xs:space-y-3">
+          {LINES.map((line, idx) => (
+            <p key={idx} className={`text-center transition-opacity duration-300 ${idx === currentLine ? 'opacity-100' : 'opacity-30'} text-sm xs:text-base sm:text-lg text-vedic-brown`}>
+              {line}
+            </p>
+          ))}
         </div>
       </main>
+      <CTAButton onClick={handleContinue} label="आगे बढ़ें →" />
+      <SkipButton label="Skip" onClick={handleSkip} />
     </div>
   )
 }

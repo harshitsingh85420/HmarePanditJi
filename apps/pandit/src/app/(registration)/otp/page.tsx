@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
@@ -421,7 +421,7 @@ export default function OTPScreen() {
         </button>
         <div className="flex items-center gap-2">
           <span className="text-2xl text-saffron">ॐ</span>
-          <span className="text-lg font-bold text-text-lgrimary">HmarePanditJi</span>
+          <span className="text-lg font-bold text-text-primary">HmarePanditJi</span>
         </div>
       </header>
 
@@ -437,7 +437,7 @@ export default function OTPScreen() {
           ))}
         </div>
         <p className="text-center text-lg text-text-secondary">
-          Step 2 of 3
+          चरण 2 / 3
         </p>
       </div>
 
@@ -449,12 +449,12 @@ export default function OTPScreen() {
           animate={{ scale: 1, opacity: 1 }}
           className="w-24 h-24 bg-saffron-light rounded-full flex items-center justify-center mb-6 mx-auto"
         >
-          <span className="text-lgxl">🔐</span>
+          <span className="text-3xl">🔐</span>
         </motion.div>
 
         {/* Title */}
-        <h1 className="text-2xl font-bold text-text-lgrimary text-center mb-2">
-          OTP Verification
+        <h1 className="text-2xl font-bold text-text-primary text-center mb-2">
+          OTP सत्यापन
         </h1>
         <p className="text-text-secondary text-center mb-2">
           {formattedMobile ? `${formattedMobile} पर भेजा गया` : ''}
@@ -578,24 +578,24 @@ export default function OTPScreen() {
             await handleOTPSubmit(otpValue)
           }}
           disabled={otp.every(d => d === '') || isSubmitting || isLocked || attemptsLeft <= 0}
-          className="w-full h-16 bg-saffron text-white font-bold text-lg rounded-btn shadow-btn-saffron active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          className="w-full min-h-[72px] h-auto px-4 py-3 bg-saffron text-white font-bold text-[20px] rounded-btn shadow-btn-saffron active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 focus:ring-2 focus:ring-primary focus:outline-none"
         >
           {isLocked || attemptsLeft <= 0 ? (
-            <span>खाता लॉक हो गया</span>
+            <span className="text-center block break-words line-clamp-2">खाता लॉक हो गया</span>
           ) : isSubmitting ? (
             <>
               <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
               </svg>
-              <span>सत्यापित हो रहा है...</span>
+              <span className="text-center block break-words line-clamp-2">सत्यापित हो रहा है...</span>
             </>
           ) : (
-            <span>Verify OTP →</span>
+            <span className="text-center block break-words line-clamp-2">सत्यापित करें →</span>
           )}
         </button>
-        <p className="pt-3 text-center text-base text-text-lglaceholder">
-          🎤 &quot;एक दो तीन...&quot; बोलें या टाइप करें
+        <p className="pt-3 text-center text-[18px] text-text-placeholder">
+          🎤 "एक दो तीन..." बोलें या टाइप करें
         </p>
       </footer>
 

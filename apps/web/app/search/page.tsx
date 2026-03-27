@@ -54,21 +54,21 @@ function SearchPageContent() {
     const [showMobileFilter, setShowMobileFilter] = useState(false);
 
     // Filters from URL
-    const pujaType = searchParams.get("pujaType") || "";
-    const city = searchParams.get("city") || "";
-    const date = searchParams.get("date") || "";
-    const budget = searchParams.get("budget") || "";
-    const minRating = searchParams.get("rating") || "";
-    const lang = searchParams.get("lang") || "";
-    const travelMode = searchParams.get("travelMode") || "";
-    const distance = searchParams.get("distance") || "";
-    const sort = searchParams.get("sort") || "rating";
-    const pageParam = parseInt(searchParams.get("page") || "1", 10);
+    const pujaType = searchParams.get(&quot;pujaType&quot;) || &quot;&quot;;
+    const city = searchParams.get(&quot;city&quot;) || &quot;&quot;;
+    const date = searchParams.get(&quot;date&quot;) || &quot;&quot;;
+    const budget = searchParams.get(&quot;budget&quot;) || &quot;&quot;;
+    const minRating = searchParams.get(&quot;rating&quot;) || &quot;&quot;;
+    const lang = searchParams.get(&quot;lang&quot;) || &quot;&quot;;
+    const travelMode = searchParams.get(&quot;travelMode&quot;) || &quot;&quot;;
+    const distance = searchParams.get(&quot;distance&quot;) || &quot;&quot;;
+    const sort = searchParams.get(&quot;sort&quot;) || &quot;rating&quot;;
+    const pageParam = parseInt(searchParams.get(&quot;page&quot;) || &quot;1&quot;, 10);
 
     const [loginModalOpen, setLoginModalOpen] = useState(false);
-    const [redirectUrl, setRedirectUrl] = useState("");
+    const [redirectUrl, setRedirectUrl] = useState(&quot;&quot;);
 
-    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    const token = typeof window !== &quot;undefined&quot; ? localStorage.getItem(&quot;token&quot;) : null;
 
     // Local state for UI inputs (to avoid spamming URL updates on every keystroke)
     const [localCity, setLocalCity] = useState(city);
@@ -85,7 +85,7 @@ function SearchPageContent() {
             params.delete(key);
         }
         // reset page to 1 when filters change
-        if (key !== "page") params.set("page", "1");
+        if (key !== &quot;page&quot;) params.set(&quot;page&quot;, &quot;1&quot;);
         router.push(`/search?${params.toString()}`);
     };
 
@@ -95,20 +95,20 @@ function SearchPageContent() {
         setLoading(true);
         try {
             const q = new URLSearchParams();
-            if (pujaType) q.append("pujaType", pujaType);
-            if (city) q.append("city", city);
-            if (date) q.append("date", date);
-            if (minRating) q.append("minRating", minRating);
-            if (lang) q.append("language", lang);
-            if (travelMode && travelMode !== "ANY") q.append("travelMode", travelMode);
-            if (budget) q.append("maxDakshina", budget);
-            if (distance) q.append("maxDistance", distance);
-            q.append("sort", sort);
-            q.append("page", pageParam.toString());
-            q.append("limit", "12");
+            if (pujaType) q.append(&quot;pujaType&quot;, pujaType);
+            if (city) q.append(&quot;city&quot;, city);
+            if (date) q.append(&quot;date&quot;, date);
+            if (minRating) q.append(&quot;minRating&quot;, minRating);
+            if (lang) q.append(&quot;language&quot;, lang);
+            if (travelMode && travelMode !== &quot;ANY&quot;) q.append(&quot;travelMode&quot;, travelMode);
+            if (budget) q.append(&quot;maxDakshina&quot;, budget);
+            if (distance) q.append(&quot;maxDistance&quot;, distance);
+            q.append(&quot;sort&quot;, sort);
+            q.append(&quot;page&quot;, pageParam.toString());
+            q.append(&quot;limit&quot;, &quot;12&quot;);
 
             const res = await fetch(`${API_BASE}/pandits?${q.toString()}`);
-            if (!res.ok) throw new Error("Failed to load pandits");
+            if (!res.ok) throw new Error(&quot;Failed to load pandits&quot;);
             const data = await res.json();
 
             if (pageParam === 1) {
@@ -147,7 +147,7 @@ function SearchPageContent() {
         const requests = currentPandits
             .filter((p) => p.location.toLowerCase() !== city.toLowerCase())
             .map((p) => ({
-                fromCity: p.location.split(",")[0].trim(),
+                fromCity: p.location.split(&quot;,&quot;)[0].trim(),
                 toCity: city,
                 panditId: p.id,
             }));
@@ -156,8 +156,8 @@ function SearchPageContent() {
 
         try {
             const res = await fetch(`${API_BASE}/travel/batch-calculate`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
+                method: &quot;POST&quot;,
+                headers: { &quot;Content-Type&quot;: &quot;application/json&quot; },
                 body: JSON.stringify({
                     requests: requests.slice(0, 20), // batch-limit 20
                     eventDays: 1,
@@ -168,7 +168,7 @@ function SearchPageContent() {
                 setTravelOptions((prev) => ({ ...prev, ...data.data.results }));
             }
         } catch (err) {
-            console.error("Travel calc failed", err);
+            console.error(&quot;Travel calc failed&quot;, err);
         }
     }, [city]);
 
@@ -210,11 +210,11 @@ function SearchPageContent() {
         setFavorites(prev => isFav ? prev.filter(id => id !== panditId) : [...prev, panditId]);
         try {
             await fetch(`${API_BASE}/customers/me/favorites/${panditId}`, {
-                method: "POST",
+                method: &quot;POST&quot;,
                 headers: { Authorization: `Bearer ${token}` }
             });
         } catch (err) {
-            console.error("Toggle fav failed", err);
+            console.error(&quot;Toggle fav failed&quot;, err);
             // Revert optimism
             setFavorites(prev => isFav ? [...prev, panditId] : prev.filter(id => id !== panditId));
         }
@@ -240,7 +240,7 @@ function SearchPageContent() {
                 <div className="lg:hidden p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-white dark:bg-background-dark">
                     <h2 className="text-lg font-bold">Search Filters</h2>
                     <Button variant="outline" size="sm" onClick={() => setShowMobileFilter(!showMobileFilter)}>
-                        {showMobileFilter ? 'Hide Filters' : `Filters ${numFiltersApplied > 0 ? `(${numFiltersApplied})` : ''}`}
+                        {showMobileFilter ? &apos;Hide Filters&apos; : `Filters ${numFiltersApplied > 0 ? `(${numFiltersApplied})` : ''}`}
                     </Button>
                 </div>
 
@@ -252,7 +252,7 @@ function SearchPageContent() {
                         <h2 className="text-lg font-bold">Advanced Filters</h2>
                         <div className="flex items-center gap-2">
                             {numFiltersApplied > 0 && (
-                                <button onClick={() => router.push("/search")} className="text-primary text-xs font-semibold uppercase tracking-wider hover:underline">Reset</button>
+                                <button onClick={() => router.push(&quot;/search&quot;)} className="text-primary text-xs font-semibold uppercase tracking-wider hover:underline">Reset</button>
                             )}
                             <button className="lg:hidden text-slate-500 font-bold ml-4" onClick={() => setShowMobileFilter(false)}>✕</button>
                         </div>
@@ -267,7 +267,7 @@ function SearchPageContent() {
                                 <select
                                     className="w-full pl-10 pr-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-primary outline-none focus:border-primary"
                                     value={pujaType}
-                                    onChange={(e) => updateFilters("pujaType", e.target.value)}
+                                    onChange={(e) => updateFilters(&quot;pujaType&quot;, e.target.value)}
                                 >
                                     <option value="">Any Service</option>
                                     {SUPPORTED_PUJA_TYPES.map(p => <option key={p} value={p}>{p}</option>)}
@@ -287,8 +287,8 @@ function SearchPageContent() {
                                         className="w-full pl-10 pr-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-primary focus:border-primary outline-none"
                                         value={localCity}
                                         onChange={(e) => setLocalCity(e.target.value)}
-                                        onBlur={() => updateFilters("city", localCity)}
-                                        onKeyDown={(e) => e.key === "Enter" && updateFilters("city", localCity)}
+                                        onBlur={() => updateFilters(&quot;city&quot;, localCity)}
+                                        onKeyDown={(e) => e.key === &quot;Enter&quot; && updateFilters(&quot;city&quot;, localCity)}
                                     />
                                 </div>
 
@@ -302,8 +302,8 @@ function SearchPageContent() {
                                         className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-primary"
                                         value={localDistance}
                                         onChange={(e) => setLocalDistance(parseInt(e.target.value, 10))}
-                                        onMouseUp={() => updateFilters("distance", localDistance.toString())}
-                                        onTouchEnd={() => updateFilters("distance", localDistance.toString())}
+                                        onMouseUp={() => updateFilters(&quot;distance&quot;, localDistance.toString())}
+                                        onTouchEnd={() => updateFilters(&quot;distance&quot;, localDistance.toString())}
                                     />
                                 </div>
                             </div>
@@ -318,14 +318,14 @@ function SearchPageContent() {
                                     className="w-full pl-10 pr-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:ring-primary focus:border-primary outline-none"
                                     type="date"
                                     value={localDate}
-                                    onChange={(e) => { setLocalDate(e.target.value); updateFilters("date", e.target.value); }}
+                                    onChange={(e) => { setLocalDate(e.target.value); updateFilters(&quot;date&quot;, e.target.value); }}
                                 />
                             </div>
                             {muhuratCount !== null && (
                                 <div className="mt-2 text-xs text-orange-600 bg-orange-50/50 p-2 rounded-lg border border-orange-200 flex flex-col gap-1">
                                     <span className="font-bold flex items-center gap-1">
                                         <span className="material-symbols-outlined text-sm">auto_awesome</span>
-                                        {muhuratCount} auspicious muhurat{muhuratCount !== 1 ? 's' : ''} on this date!
+                                        {muhuratCount} auspicious muhurat{muhuratCount !== 1 ? &apos;s&apos; : ''} on this date!
                                     </span>
                                 </div>
                             )}
@@ -344,8 +344,8 @@ function SearchPageContent() {
                                 min="5000" max="100000" step="5000"
                                 value={localBudget}
                                 onChange={(e) => setLocalBudget(parseInt(e.target.value, 10))}
-                                onMouseUp={() => updateFilters("budget", localBudget.toString())}
-                                onTouchEnd={() => updateFilters("budget", localBudget.toString())}
+                                onMouseUp={() => updateFilters(&quot;budget&quot;, localBudget.toString())}
+                                onTouchEnd={() => updateFilters(&quot;budget&quot;, localBudget.toString())}
                             />
                         </div>
 
@@ -353,14 +353,14 @@ function SearchPageContent() {
                         <div>
                             <label className="block text-sm font-semibold mb-3">Minimum Rating</label>
                             <div className="grid grid-cols-4 gap-2">
-                                {["Any", "3", "4", "4.5"].map(r => (
+                                {[&quot;Any&quot;, &quot;3&quot;, &quot;4&quot;, &quot;4.5&quot;].map(r => (
                                     <button
                                         key={r}
-                                        onClick={() => updateFilters("rating", r === "Any" ? null : r)}
-                                        className={`flex items-center justify-center gap-1 py-2 text-xs font-bold rounded-xl transition-colors ${minRating === r || (r === "Any" && !minRating) ? 'bg-primary/10 text-primary border border-primary shadow-sm shadow-primary/10' : 'bg-white border border-slate-200 text-slate-600 hover:border-primary hover:text-primary dark:bg-slate-800 dark:border-slate-700 dark:text-slate-400'}`}
+                                        onClick={() => updateFilters(&quot;rating&quot;, r === &quot;Any&quot; ? null : r)}
+                                        className={`flex items-center justify-center gap-1 py-2 text-xs font-bold rounded-xl transition-colors ${minRating === r || (r === &quot;Any&quot; && !minRating) ? &apos;bg-primary/10 text-primary border border-primary shadow-sm shadow-primary/10&apos; : &apos;bg-white border border-slate-200 text-slate-600 hover:border-primary hover:text-primary dark:bg-slate-800 dark:border-slate-700 dark:text-slate-400&apos;}`}
                                     >
-                                        {r !== "Any" && <span className="material-symbols-outlined text-[10px] fill-1">star</span>}
-                                        {r === "Any" ? "Any" : `${r}+`}
+                                        {r !== &quot;Any&quot; && <span className="material-symbols-outlined text-[10px] fill-1">star</span>}
+                                        {r === &quot;Any&quot; ? &quot;Any&quot; : `${r}+`}
                                     </button>
                                 ))}
                             </div>
@@ -373,10 +373,10 @@ function SearchPageContent() {
                                 {TRAVEL_MODES.map(tm => (
                                     <button
                                         key={tm.value}
-                                        onClick={() => updateFilters("travelMode", tm.value)}
+                                        onClick={() => updateFilters(&quot;travelMode&quot;, tm.value)}
                                         className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium transition-all ${travelMode === tm.value
-                                            ? 'border border-primary bg-primary text-white shadow-md'
-                                            : 'bg-white border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-primary hover:text-primary dark:bg-slate-800'
+                                            ? &apos;border border-primary bg-primary text-white shadow-md&apos;
+                                            : &apos;bg-white border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-primary hover:text-primary dark:bg-slate-800&apos;
                                             }`}
                                     >
                                         {tm.label}
@@ -396,7 +396,7 @@ function SearchPageContent() {
 
                 {/* Main Content Area */}
                 <section className="flex-1 p-4 lg:p-10 spiritual-pattern relative min-h-screen">
-                    {!token && <div className="mb-6"><GuestBanner onLoginClick={() => router.push("/login")} /></div>}
+                    {!token && <div className="mb-6"><GuestBanner onLoginClick={() => router.push(&quot;/login&quot;)} /></div>}
 
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                         <div>
@@ -406,17 +406,17 @@ function SearchPageContent() {
                                 <h2 className="text-2xl font-bold">{total} Pandits match your search</h2>
                             )}
                             <p className="text-slate-500 text-sm mt-1">
-                                {city || pujaType ? `Found in ${city || 'all regions'} ${pujaType ? `for ${pujaType}` : ''}` : 'Showing all verified Pandits'}
+                                {city || pujaType ? `Found in ${city || &apos;all regions&apos;} ${pujaType ? `for ${pujaType}` : ''}` : &apos;Showing all verified Pandits&apos;}
                             </p>
 
                             {/* Active Filters Pills inline */}
                             {numFiltersApplied > 0 && (
                                 <div className="flex flex-wrap gap-2 mt-3">
-                                    {pujaType && <span className="bg-white border border-slate-200 shadow-sm text-slate-700 px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wide flex items-center">{pujaType} <button onClick={() => removeFilter("pujaType")} className="ml-1 hover:text-red-500 font-black text-xs">×</button></span>}
-                                    {city && <span className="bg-white border border-slate-200 shadow-sm text-slate-700 px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wide flex items-center">{city} <button onClick={() => removeFilter("city")} className="ml-1 hover:text-red-500 font-black text-xs">×</button></span>}
-                                    {date && <span className="bg-white border border-slate-200 shadow-sm text-slate-700 px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wide flex items-center">{date} <button onClick={() => removeFilter("date")} className="ml-1 hover:text-red-500 font-black text-xs">×</button></span>}
-                                    {travelMode && travelMode !== "ANY" && <span className="bg-white border border-slate-200 shadow-sm text-slate-700 px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wide flex items-center">Travel: {travelMode.replace('_', ' ')} <button onClick={() => removeFilter("travelMode")} className="ml-1 hover:text-red-500 font-black text-xs">×</button></span>}
-                                    {budget && <span className="bg-white border border-slate-200 shadow-sm text-slate-700 px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wide flex items-center">&lt;₹{parseInt(budget, 10) / 1000}k <button onClick={() => removeFilter("budget")} className="ml-1 hover:text-red-500 font-black text-xs">×</button></span>}
+                                    {pujaType && <span className="bg-white border border-slate-200 shadow-sm text-slate-700 px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wide flex items-center">{pujaType} <button onClick={() => removeFilter(&quot;pujaType&quot;)} className="ml-1 hover:text-red-500 font-black text-xs">×</button></span>}
+                                    {city && <span className="bg-white border border-slate-200 shadow-sm text-slate-700 px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wide flex items-center">{city} <button onClick={() => removeFilter(&quot;city&quot;)} className="ml-1 hover:text-red-500 font-black text-xs">×</button></span>}
+                                    {date && <span className="bg-white border border-slate-200 shadow-sm text-slate-700 px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wide flex items-center">{date} <button onClick={() => removeFilter(&quot;date&quot;)} className="ml-1 hover:text-red-500 font-black text-xs">×</button></span>}
+                                    {travelMode && travelMode !== &quot;ANY&quot; && <span className="bg-white border border-slate-200 shadow-sm text-slate-700 px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wide flex items-center">Travel: {travelMode.replace(&apos;_&apos;, &apos; &apos;)} <button onClick={() => removeFilter(&quot;travelMode&quot;)} className="ml-1 hover:text-red-500 font-black text-xs">×</button></span>}
+                                    {budget && <span className="bg-white border border-slate-200 shadow-sm text-slate-700 px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wide flex items-center">&lt;₹{parseInt(budget, 10) / 1000}k <button onClick={() => removeFilter(&quot;budget&quot;)} className="ml-1 hover:text-red-500 font-black text-xs">×</button></span>}
                                 </div>
                             )}
                         </div>
@@ -426,7 +426,7 @@ function SearchPageContent() {
                             <select
                                 className="bg-transparent border-none text-sm font-bold text-slate-800 dark:text-slate-200 focus:ring-0 cursor-pointer p-0"
                                 value={sort}
-                                onChange={(e) => updateFilters("sort", e.target.value)}
+                                onChange={(e) => updateFilters(&quot;sort&quot;, e.target.value)}
                             >
                                 <option value="rating">Best Match</option>
                                 <option value="price_asc">Price: Low to High</option>
@@ -450,7 +450,7 @@ function SearchPageContent() {
                             <p className="text-slate-500 max-w-sm mb-6">
                                 Try expanding your budget, adjusting the distance filter, changing travel modes, or selecting a different date.
                             </p>
-                            <button className="bg-primary hover:bg-orange-500 text-white font-bold py-3 px-8 rounded-xl shadow-md transition-all" onClick={() => router.push("/search")}>Clear All Filters</button>
+                            <button className="bg-primary hover:bg-orange-500 text-white font-bold py-3 px-8 rounded-xl shadow-md transition-all" onClick={() => router.push(&quot;/search&quot;)}>Clear All Filters</button>
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
@@ -459,8 +459,8 @@ function SearchPageContent() {
                                 const options = Array.isArray(rawOptions) ? rawOptions.map((o: unknown) => {
                                     const opt = o as { mode?: string; totalCost?: number; description?: string };
                                     return {
-                                        mode: (opt.mode?.toLowerCase() || 'self_drive') as any,
-                                        label: opt.mode || 'Self Drive',
+                                        mode: (opt.mode?.toLowerCase() || &apos;self_drive&apos;) as any,
+                                        label: opt.mode || &apos;Self Drive&apos;,
                                         totalCost: opt.totalCost || 0,
                                         price: opt.totalCost || 0,
                                         description: opt.description
@@ -471,7 +471,7 @@ function SearchPageContent() {
                                     <div key={p.id} className="relative group min-w-0">
                                         <button
                                             onClick={() => toggleFavorite(p.id)}
-                                            className={`absolute top-4 right-4 z-10 w-9 h-9 flex justify-center items-center rounded-full shadow-md bg-white border border-slate-100 transition-all ${favorites.includes(p.id) ? 'text-red-500 hover:scale-110' : 'text-slate-400 hover:text-red-500 opacity-0 group-hover:opacity-100'}`}
+                                            className={`absolute top-4 right-4 z-10 w-9 h-9 flex justify-center items-center rounded-full shadow-md bg-white border border-slate-100 transition-all ${favorites.includes(p.id) ? &apos;text-red-500 hover:scale-110&apos; : &apos;text-slate-400 hover:text-red-500 opacity-0 group-hover:opacity-100&apos;}`}
                                         >
                                             <span className={`material-symbols-outlined ${favorites.includes(p.id) ? 'fill-1' : ''} text-lg block leading-none`}>favorite</span>
                                         </button>
@@ -486,8 +486,8 @@ function SearchPageContent() {
                                             specializations={p.specializations}
                                             isVerified={p.verificationStatus === "VERIFIED"}
                                             travelModes={options.length > 0 ? options.map(o => ({
-                                                mode: (o.mode?.toUpperCase() || "SELF_DRIVE") as any,
-                                                label: o.label || "Self Drive",
+                                                mode: (o.mode?.toUpperCase() || &quot;SELF_DRIVE&quot;) as any,
+                                                label: o.label || &quot;Self Drive&quot;,
                                                 price: o.price || 0,
                                                 description: o.description
                                             })) : undefined}
@@ -504,7 +504,7 @@ function SearchPageContent() {
                     {total > pandits.length && !loading && (
                         <div className="mt-12 flex justify-center">
                             <button
-                                onClick={() => updateFilters("page", (pageParam + 1).toString())}
+                                onClick={() => updateFilters(&quot;page&quot;, (pageParam + 1).toString())}
                                 className="flex items-center gap-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-8 py-4 rounded-xl font-bold text-sm shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer"
                             >
                                 Load More Results

@@ -79,12 +79,12 @@ export default function DashboardPage() {
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {[
-            { label: "Wedding", icon: "favorite" },
-            { label: "Griha Pravesh", icon: "home" },
-            { label: "Satyanarayan", icon: "festival" },
-            { label: "Namkaran", icon: "child_care" },
-            { label: "Vidhya Arambha", icon: "auto_stories" },
-            { label: "More", icon: "more_horiz" },
+            { label: &quot;Wedding&quot;, icon: &quot;favorite&quot; },
+            { label: &quot;Griha Pravesh&quot;, icon: &quot;home&quot; },
+            { label: &quot;Satyanarayan&quot;, icon: &quot;festival&quot; },
+            { label: &quot;Namkaran&quot;, icon: &quot;child_care&quot; },
+            { label: &quot;Vidhya Arambha&quot;, icon: &quot;auto_stories&quot; },
+            { label: &quot;More&quot;, icon: &quot;more_horiz&quot; },
           ].map((item, idx) => (
             <div key={idx} className="group cursor-pointer">
               <div className="aspect-square rounded-2xl bg-[#fdf5e8] dark:bg-[#3a2f1f] flex flex-col items-center justify-center gap-3 border-2 border-transparent group-hover:border-[#f49d25] transition-all">
@@ -123,7 +123,7 @@ export default function DashboardPage() {
           </div>
           <div className="grid grid-cols-7 gap-px bg-[#e6e1db] dark:bg-[#3a2f1f] rounded-xl overflow-hidden border border-[#e6e1db] dark:border-[#3a2f1f]">
             {/* Calendar Header */}
-            {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+            {[&quot;Sun&quot;, &quot;Mon&quot;, &quot;Tue&quot;, &quot;Wed&quot;, &quot;Thu&quot;, &quot;Fri&quot;, &quot;Sat&quot;].map((day) => (
               <div
                 key={day}
                 className="bg-[#fdfcfb] dark:bg-[#2a2216] py-3 text-center text-base font-bold uppercase text-[#8a7960]"
@@ -201,28 +201,28 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[
             {
-              name: "Pandit Sharma Ji",
-              spec: "Vedic Astrology & Weddings",
+              name: &quot;Pandit Sharma Ji&quot;,
+              spec: &quot;Vedic Astrology & Weddings&quot;,
               rating: 4.9,
-              img: "https://lh3.googleusercontent.com/aida-public/AB6AXuA0gilJzZZBjbdG1_-a7y9QqKsMtncPw0rhX2J-FNqMNKNWhVgUjPsJ9HXoiDYe-SF6wBoGu5OTUGYX9GPuqNovU2F-_IhMKz3YpYyntRsERGLGMnSwoVT0rmBORPQtmOVvhS2SvHSL_yiKm9PYrqEfR7TfpZzcfp4rvlWqrBPD4D9z3JjYwoyEzATRGmaT74BsOzScZIOu7RNsuSCYNaOXZT8Np9TZJVFqSvw3pW3XnfyHl-2rsWmEzWiUoIBC3zfBUTiKE3HPXqo",
+              img: &quot;https://lh3.googleusercontent.com/aida-public/AB6AXuA0gilJzZZBjbdG1_-a7y9QqKsMtncPw0rhX2J-FNqMNKNWhVgUjPsJ9HXoiDYe-SF6wBoGu5OTUGYX9GPuqNovU2F-_IhMKz3YpYyntRsERGLGMnSwoVT0rmBORPQtmOVvhS2SvHSL_yiKm9PYrqEfR7TfpZzcfp4rvlWqrBPD4D9z3JjYwoyEzATRGmaT74BsOzScZIOu7RNsuSCYNaOXZT8Np9TZJVFqSvw3pW3XnfyHl-2rsWmEzWiUoIBC3zfBUTiKE3HPXqo&quot;,
             },
             {
-              name: "Acharya Manoj Pathak",
-              spec: "Griha Pravesh & Shanti Puja",
+              name: &quot;Acharya Manoj Pathak&quot;,
+              spec: &quot;Griha Pravesh & Shanti Puja&quot;,
               rating: 4.8,
-              img: "https://lh3.googleusercontent.com/aida-public/AB6AXuAEYU6iXqJ1Vjsnf8MeJbW_M9W7UYoqQ7UhDbHjP-uhuw__ayLodE8KscwxFyWnu_JAkzf6EurY9AnxyYlVW3sBDuHmQGpzjmfCxfDknwkH-FJZpSvL9GchAiU_r6NjaBT6o9z5IRIlMzjoCFEDUM4eDufUUN8fbyTV00Wrp-EMWrmUqU2VdvHhoIu6DCrRSR_8Uj5MN46vhX3ZSigsVVrxYAgJa_tCvSTRtgqJXSURXalBbLcYy6jS-IWBLwyNAMsZTF3qxrkw6uI",
+              img: &quot;https://lh3.googleusercontent.com/aida-public/AB6AXuAEYU6iXqJ1Vjsnf8MeJbW_M9W7UYoqQ7UhDbHjP-uhuw__ayLodE8KscwxFyWnu_JAkzf6EurY9AnxyYlVW3sBDuHmQGpzjmfCxfDknwkH-FJZpSvL9GchAiU_r6NjaBT6o9z5IRIlMzjoCFEDUM4eDufUUN8fbyTV00Wrp-EMWrmUqU2VdvHhoIu6DCrRSR_8Uj5MN46vhX3ZSigsVVrxYAgJa_tCvSTRtgqJXSURXalBbLcYy6jS-IWBLwyNAMsZTF3qxrkw6uI&quot;,
             },
             {
-              name: "Pandit Rajesh Dixit",
-              spec: "Bhagwat Katha & Havan",
+              name: &quot;Pandit Rajesh Dixit&quot;,
+              spec: &quot;Bhagwat Katha & Havan&quot;,
               rating: 5.0,
-              img: "https://lh3.googleusercontent.com/aida-public/AB6AXuC8-zW6_51dECd9HoZ-2avrMCsqKLAkNl6OrjbjYlftnjWEzzmq3H6125vwiQ61eIb4-HDjJ6DnWsvlZ4VVRUgewfsMS8RjYJkUCpa1d26e5EptwC3Bi_Ax-c_ChZmJLSijfjMa8K1ndFbCxea213ex5-wDpQvEsj3D-s6q8q6kfYHP4BAy5NJIGc8ajOXPelI_b4_AHB3skcjo-TVaLu6kJqA5YpXY0iFjwWNSAdrYX_6iT-M3dKAXZFg0SMSoVupcGKd_7KTiBI8",
+              img: &quot;https://lh3.googleusercontent.com/aida-public/AB6AXuC8-zW6_51dECd9HoZ-2avrMCsqKLAkNl6OrjbjYlftnjWEzzmq3H6125vwiQ61eIb4-HDjJ6DnWsvlZ4VVRUgewfsMS8RjYJkUCpa1d26e5EptwC3Bi_Ax-c_ChZmJLSijfjMa8K1ndFbCxea213ex5-wDpQvEsj3D-s6q8q6kfYHP4BAy5NJIGc8ajOXPelI_b4_AHB3skcjo-TVaLu6kJqA5YpXY0iFjwWNSAdrYX_6iT-M3dKAXZFg0SMSoVupcGKd_7KTiBI8&quot;,
             },
             {
-              name: "Acharya Vinay Tiwari",
-              spec: "Astrology & Matchmaking",
+              name: &quot;Acharya Vinay Tiwari&quot;,
+              spec: &quot;Astrology & Matchmaking&quot;,
               rating: 4.7,
-              img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBxFL8pLsvu4LqHfcqV8hyBP9CzqCTrNXGPLxQoXxz3q3uZ4abiMxbwKz-RTOrDfWtK8ewpj3RAqFp6sVkyGwW_cioJRtcQ1bkQEKXlua8-q9BDX8N8IbkUDEXXonrUYqCmqzn6lYWnMK-3P7DA7MdrtGYMwHTh25cF0bAdnRyibNwxYtd4Q4gsqsbNWhq6Ks6f81Wv_kIAwflqVjrvk6xmBLBf_62m4hCfsQOwt1LuA77-4fiVnGOklkdu6xDk3NPZFlrFwKmvedI",
+              img: &quot;https://lh3.googleusercontent.com/aida-public/AB6AXuBxFL8pLsvu4LqHfcqV8hyBP9CzqCTrNXGPLxQoXxz3q3uZ4abiMxbwKz-RTOrDfWtK8ewpj3RAqFp6sVkyGwW_cioJRtcQ1bkQEKXlua8-q9BDX8N8IbkUDEXXonrUYqCmqzn6lYWnMK-3P7DA7MdrtGYMwHTh25cF0bAdnRyibNwxYtd4Q4gsqsbNWhq6Ks6f81Wv_kIAwflqVjrvk6xmBLBf_62m4hCfsQOwt1LuA77-4fiVnGOklkdu6xDk3NPZFlrFwKmvedI&quot;,
             },
           ].map((pandit, idx) => (
             <div
@@ -238,7 +238,7 @@ export default function DashboardPage() {
                 <div className="absolute top-3 right-3 bg-white/90 dark:bg-[#221a10]/90 backdrop-blur px-4 py-3 rounded text-base font-bold flex items-center gap-1 text-slate-900 dark:text-white">
                   <span className="material-symbols-outlined text-base text-[#f49d25] fill-1">
                     star
-                  </span>{" "}
+                  </span>{&quot; &quot;}
                   {pandit.rating}
                 </div>
               </div>

@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
@@ -456,7 +456,7 @@ export default function MobileNumberScreen() {
           </button>
           <div className="flex items-center gap-2">
             <span className="text-2xl text-saffron">ॐ</span>
-            <span className="text-lg font-bold text-text-lgrimary">HmarePanditJi</span>
+            <span className="text-lg font-bold text-text-primary">HmarePanditJi</span>
           </div>
         </div>
         {/* UI-012 FIX: Large language button in reachable area, UX-008 FIX: Haptic feedback */}
@@ -485,7 +485,7 @@ export default function MobileNumberScreen() {
           ))}
         </div>
         <p className="text-center text-lg text-text-secondary">
-          Step 1 of 3
+          चरण 1 / 3
         </p>
       </div>
 
@@ -497,12 +497,12 @@ export default function MobileNumberScreen() {
           animate={{ scale: 1, opacity: 1 }}
           className="w-24 h-24 bg-saffron-light rounded-full flex items-center justify-center mb-6 mx-auto"
         >
-          <span className="text-lgxl">📱</span>
+          <span className="text-3xl">📱</span>
         </motion.div>
 
         {/* Title */}
-        <h1 className="text-2xl font-bold text-text-lgrimary text-center mb-2">
-          Mobile Number
+        <h1 className="text-2xl font-bold text-text-primary text-center mb-2">
+          मोबाइल नंबर
         </h1>
         <p className="text-text-secondary text-center mb-8">
           10-digit मोबाइल नंबर दर्ज करें
@@ -568,7 +568,7 @@ export default function MobileNumberScreen() {
             handleConfirm();
           }}
           disabled={mobile.length !== 10 || isSubmitting}
-          className="w-full h-[64px] bg-saffron text-white font-bold text-[18px] rounded-xl shadow-btn-saffron active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 focus:ring-2 focus:ring-primary focus:outline-none"
+          className="w-full min-h-[72px] h-auto px-4 py-3 bg-saffron text-white font-bold text-[20px] rounded-xl shadow-btn-saffron active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 focus:ring-2 focus:ring-primary focus:outline-none"
         >
           {isSubmitting ? (
             <>
@@ -576,10 +576,10 @@ export default function MobileNumberScreen() {
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
               </svg>
-              <span>OTP भेज रहे हैं...</span>
+              <span className="text-center block break-words line-clamp-2">OTP भेज रहे हैं...</span>
             </>
           ) : (
-            <span>आगे बढ़ें →</span>
+            <span className="text-center block break-words line-clamp-2">आगे बढ़ें →</span>
           )}
         </button>
 
@@ -592,7 +592,7 @@ export default function MobileNumberScreen() {
               if (navigator.vibrate) navigator.vibrate(10);
               handleUseKeyboard();
             }}
-            className="w-full mt-3 h-[56px] bg-white border-2 border-saffron text-saffron font-bold text-[16px] rounded-xl flex items-center justify-center gap-2 active:bg-saffron/10 focus:ring-2 focus:ring-primary focus:outline-none"
+            className="w-full mt-3 min-h-[64px] h-auto px-4 py-3 bg-white border-2 border-saffron text-saffron font-bold text-[20px] rounded-xl flex items-center justify-center gap-2 active:bg-saffron/10 focus:ring-2 focus:ring-primary focus:outline-none"
           >
             <motion.span
               animate={{ rotate: [0, 10, -10, 0] }}
@@ -600,12 +600,12 @@ export default function MobileNumberScreen() {
             >
               ⌨️
             </motion.span>
-            <span>कीबोर्ड का उपयोग करें</span>
+            <span className="text-center block break-words line-clamp-2">कीबोर्ड का उपयोग करें</span>
           </motion.button>
         )}
 
-        <p className="pt-3 text-center text-[16px] text-text-lglaceholder">
-          🎤 &quot;नौ आठ सात...&quot; बोलें या टाइप करें
+        <p className="pt-3 text-center text-[18px] text-text-placeholder">
+          🎤 "नौ आठ सात..." बोलें या टाइप करें
         </p>
       </footer>
 

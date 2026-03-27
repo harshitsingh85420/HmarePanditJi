@@ -444,7 +444,7 @@ export function detectLanguageFromBrowser(): LanguageCode | null {
  */
 export function getBestLanguage(
   preferredLanguages: string[],
-  availableLanguages: LanguageCode[] = SUPPORTED_LANGUAGES as readonly LanguageCode[]
+  availableLanguages: readonly LanguageCode[] = SUPPORTED_LANGUAGES as readonly LanguageCode[]
 ): LanguageCode {
   for (const pref of preferredLanguages) {
     const normalized = normalizeLanguageCode(pref);

@@ -19,29 +19,29 @@ export function Badge({
 }: BadgeProps) {
   const variants: Record<string, string> = {
     success:
-      "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+      &quot;bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400&quot;,
     warning:
-      "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400",
-    error: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
-    info: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
+      &quot;bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400&quot;,
+    error: &quot;bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400&quot;,
+    info: &quot;bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400&quot;,
     neutral:
-      "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400",
-    custom: "",
+      &quot;bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400&quot;,
+    custom: &quot;&quot;,
   };
 
   const dotColors: Record<string, string> = {
-    success: "bg-green-500",
-    warning: "bg-orange-500",
-    error: "bg-red-500",
-    info: "bg-blue-500",
-    neutral: "bg-slate-400",
-    custom: "bg-current",
+    success: &quot;bg-green-500&quot;,
+    warning: &quot;bg-orange-500&quot;,
+    error: &quot;bg-red-500&quot;,
+    info: &quot;bg-blue-500&quot;,
+    neutral: &quot;bg-slate-400&quot;,
+    custom: &quot;bg-current&quot;,
   };
 
   const sizes: Record<string, string> = {
     // ACC-010 FIX: Larger badge text for elderly users (minimum readable size)
-    sm: "text-[13px] px-3 py-1",
-    md: "text-base px-4 py-1.5",
+    sm: &quot;text-[13px] px-3 py-1&quot;,
+    md: &quot;text-base px-4 py-1.5&quot;,
   };
 
   return (

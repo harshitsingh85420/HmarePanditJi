@@ -18,9 +18,9 @@ export function ServicesTab({
     const [isSamagriModalOpen, setIsSamagriModalOpen] = useState(false);
     const [selectedPujaService, setSelectedPujaService] = useState<string | null>(null);
     const router = useRouter();
-    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    const token = typeof window !== &quot;undefined&quot; ? localStorage.getItem(&quot;token&quot;) : null;
     const [loginModalOpen, setLoginModalOpen] = useState(false);
-    const [redirectUrl, setRedirectUrl] = useState("");
+    const [redirectUrl, setRedirectUrl] = useState(&quot;&quot;);
 
     const handleOpenSamagri = (pujaType: string) => {
         setSelectedPujaService(pujaType);
@@ -66,7 +66,7 @@ export function ServicesTab({
                                         {/* Samagri integration view */}
                                         <div className="mt-2 pt-2 border-t border-gray-200 flex items-center justify-between">
                                             <div className="text-gray-700 font-medium">
-                                                Samagri: {samagriStartPrice > 0 ? `₹${samagriStartPrice}+` : "Platform / Pandit"}
+                                                Samagri: {samagriStartPrice > 0 ? `₹${samagriStartPrice}+` : &quot;Platform / Pandit&quot;}
                                             </div>
                                             <button
                                                 onClick={() => handleOpenSamagri(service.pujaType)}

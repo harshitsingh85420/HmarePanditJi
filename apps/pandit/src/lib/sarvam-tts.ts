@@ -134,6 +134,31 @@ export function resetCacheStats(): void {
 
 let activeSpeechToken = 0;
 
+/**
+ * Cancel current speech and clear queue
+ * Call this on route change or component unmount
+ */
+export function cancelCurrentSpeech(): void {
+  activeSpeechToken += 1;
+  stopSpeaking();
+  // Also cancel Web Speech API to clear any queued utterances
+  if (typeof window !== 'undefined' && window.speechSynthesis) {
+    window.speechSynthesis.cancel();
+  }
+}
+
+/**
+ * Reset TTS engine state
+ * Call this on screen change to clear cache and reset state
+ */
+export function resetTTS(): void {
+  cancelCurrentSpeech();
+  audioCache.clear();
+  cacheHits = 0;
+  cacheMisses = 0;
+  console.log('[TTS] Reset complete');
+}
+
 export function stopCurrentSpeech(): void {
   activeSpeechToken += 1;
   stopSpeaking();

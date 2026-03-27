@@ -389,7 +389,6 @@ export function clearTranslateCache(): void {
 // EXPORTS
 // ─────────────────────────────────────────────────────────────
 
-export { SarvamTranslateEngine };
 export default engine;
 
 /**

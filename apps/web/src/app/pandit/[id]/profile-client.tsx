@@ -240,7 +240,7 @@ async function fetchProfile(id: string): Promise<PanditProfile> {
         signal: AbortSignal.timeout(5000),
       }),
     ]);
-    if (!panditRes.ok) throw new Error("not found");
+    if (!panditRes.ok) throw new Error(&quot;not found&quot;);
     const { data: pandit } = await panditRes.json();
     const reviewsBody = reviewsRes.ok ? await reviewsRes.json() : { data: [] };
     const rawReviews: Record<string, unknown>[] = Array.isArray(
@@ -255,7 +255,7 @@ async function fetchProfile(id: string): Promise<PanditProfile> {
         nameHindi: String(s.pujaType),
         durationHours: Number(s.durationHours) || 2,
         basePrice: Number(s.dakshinaAmount) || 0,
-        description: String(s.description ?? ""),
+        description: String(s.description ?? &quot;&quot;),
       }),
     );
 
@@ -266,16 +266,16 @@ async function fetchProfile(id: string): Promise<PanditProfile> {
       displayName:
         ((pandit.user as Record<string, unknown>)?.name as string) ??
         pandit.name ??
-        "Pandit Ji",
-      bio: pandit.bio ?? "",
+        &quot;Pandit Ji&quot;,
+      bio: pandit.bio ?? &quot;&quot;,
       experienceYears: pandit.experienceYears ?? 0,
       specializations: pandit.specializations ?? [],
       languages: pandit.languages ?? [],
       sect: undefined,
       gotra: undefined,
-      city: pandit.location ?? "Delhi",
-      state: "",
-      isVerified: pandit.verificationStatus === "VERIFIED",
+      city: pandit.location ?? &quot;Delhi&quot;,
+      state: &quot;&quot;,
+      isVerified: pandit.verificationStatus === &quot;VERIFIED&quot;,
       profilePhotoUrl: pandit.profilePhotoUrl,
       galleryImages: [],
       averageRating: (rs.avgRating as number) ?? pandit.rating ?? 0,
@@ -287,15 +287,15 @@ async function fetchProfile(id: string): Promise<PanditProfile> {
       services: services.length > 0 ? services : MOCK_SERVICES,
       reviews: rawReviews.map((r) => ({
         id: String(r.id),
-        customerName: String(r.reviewerName ?? "Customer"),
-        isAnonymous: r.reviewerName === "Anonymous",
+        customerName: String(r.reviewerName ?? &quot;Customer&quot;),
+        isAnonymous: r.reviewerName === &quot;Anonymous&quot;,
         overallRating: Number(r.overallRating),
         ritualKnowledge: undefined,
         punctuality: undefined,
         communication: undefined,
         comment: r.comment as string | undefined,
-        ceremony: String(r.pujaType ?? "Puja Service"),
-        date: String(r.createdAt ?? new Date().toISOString()).split("T")[0],
+        ceremony: String(r.pujaType ?? &quot;Puja Service&quot;),
+        date: String(r.createdAt ?? new Date().toISOString()).split(&quot;T&quot;)[0],
       })),
     };
   } catch {
@@ -305,7 +305,7 @@ async function fetchProfile(id: string): Promise<PanditProfile> {
 
 // ── Availability Calendar ─────────────────────────────────────────────────────
 
-type DayStatus = "available" | "booked" | "blocked" | "past";
+type DayStatus = &quot;available&quot; | &quot;booked&quot; | &quot;blocked&quot; | &quot;past&quot;;
 interface DayInfo {
   date: string;
   status: DayStatus;
@@ -336,20 +336,20 @@ function AvailabilityCalendar({ panditId }: { panditId: string }) {
       .finally(() => setFetching(false));
   }, [panditId, viewMonth, viewYear]);
 
-  const DAY_NAMES = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+  const DAY_NAMES = [&quot;Su&quot;, &quot;Mo&quot;, &quot;Tu&quot;, &quot;We&quot;, &quot;Th&quot;, &quot;Fr&quot;, &quot;Sa&quot;];
   const MONTH_NAMES = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
+    &quot;January&quot;,
+    &quot;February&quot;,
+    &quot;March&quot;,
+    &quot;April&quot;,
+    &quot;May&quot;,
+    &quot;June&quot;,
+    &quot;July&quot;,
+    &quot;August&quot;,
+    &quot;September&quot;,
+    &quot;October&quot;,
+    &quot;November&quot;,
+    &quot;December&quot;,
   ];
 
   const firstDay = new Date(viewYear, viewMonth - 1, 1).getDay();
@@ -431,23 +431,23 @@ function AvailabilityCalendar({ panditId }: { panditId: string }) {
         ))}
         {Array.from({ length: daysInMonth }).map((_, i) => {
           const day = i + 1;
-          const dateStr = `${viewYear}-${String(viewMonth).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+          const dateStr = `${viewYear}-${String(viewMonth).padStart(2, &quot;0&quot;)}-${String(day).padStart(2, &quot;0&quot;)}`;
           const info = dayData.get(dateStr);
-          const status = info?.status ?? (fetching ? "past" : "available");
+          const status = info?.status ?? (fetching ? &quot;past&quot; : &quot;available&quot;);
           const isToday =
             day === today.getDate() &&
             viewMonth === today.getMonth() + 1 &&
             viewYear === today.getFullYear();
 
           const cls = isToday
-            ? "ring-2 ring-primary font-bold text-primary"
-            : status === "past"
-              ? "text-slate-300 dark:text-slate-700"
-              : status === "available"
-                ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 cursor-pointer hover:bg-green-200"
-                : status === "booked"
-                  ? "bg-orange-100 dark:bg-orange-900/30 text-orange-500 cursor-not-allowed"
-                  : "bg-red-50 dark:bg-red-900/20 text-red-400 cursor-not-allowed";
+            ? &quot;ring-2 ring-primary font-bold text-primary&quot;
+            : status === &quot;past&quot;
+              ? &quot;text-slate-300 dark:text-slate-700&quot;
+              : status === &quot;available&quot;
+                ? &quot;bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 cursor-pointer hover:bg-green-200&quot;
+                : status === &quot;booked&quot;
+                  ? &quot;bg-orange-100 dark:bg-orange-900/30 text-orange-500 cursor-not-allowed&quot;
+                  : &quot;bg-red-50 dark:bg-red-900/20 text-red-400 cursor-not-allowed&quot;;
 
           return (
             <div
@@ -554,9 +554,9 @@ function RatingBreakdown({
 
 function ReviewCard({ review }: { review: ReviewItem }) {
   const subRatings = [
-    { label: "Knowledge", value: review.ritualKnowledge },
-    { label: "Punctuality", value: review.punctuality },
-    { label: "Communication", value: review.communication },
+    { label: &quot;Knowledge&quot;, value: review.ritualKnowledge },
+    { label: &quot;Punctuality&quot;, value: review.punctuality },
+    { label: &quot;Communication&quot;, value: review.communication },
   ].filter((r) => r.value !== undefined);
 
   return (
@@ -570,7 +570,7 @@ function ReviewCard({ review }: { review: ReviewItem }) {
           </div>
           <div>
             <div className="text-lg font-bold text-slate-800 dark:text-slate-100">
-              {review.isAnonymous ? "Anonymous" : review.customerName}
+              {review.isAnonymous ? &quot;Anonymous&quot; : review.customerName}
             </div>
             <div className="mt-0.5 flex items-center gap-2">
               <Rating
@@ -583,10 +583,10 @@ function ReviewCard({ review }: { review: ReviewItem }) {
           </div>
         </div>
         <span className="flex-shrink-0 text-base text-slate-400">
-          {new Date(review.date).toLocaleDateString("en-IN", {
-            day: "numeric",
-            month: "short",
-            year: "numeric",
+          {new Date(review.date).toLocaleDateString(&quot;en-IN&quot;, {
+            day: &quot;numeric&quot;,
+            month: &quot;short&quot;,
+            year: &quot;numeric&quot;,
           })}
         </span>
       </div>
@@ -691,7 +691,7 @@ function ShareButton({ name }: { name: string }) {
 
   function shareWhatsApp() {
     const text = `Check out ${name} on HmarePanditJi: ${window.location.href}`;
-    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, &quot;_blank&quot;);
   }
 
   return (
@@ -702,9 +702,9 @@ function ShareButton({ name }: { name: string }) {
         title="Copy link"
       >
         <span className="material-symbols-outlined text-lg">
-          {copied ? "check" : "link"}
+          {copied ? &quot;check&quot; : &quot;link&quot;}
         </span>
-        {copied ? "Copied!" : "Share"}
+        {copied ? &quot;Copied!&quot; : &quot;Share&quot;}
       </button>
       <button
         onClick={shareWhatsApp}
@@ -729,26 +729,26 @@ function StickyBookingBar({
 }) {
   const router = useRouter();
   const [selectedService, setSelectedService] = useState(
-    services[0]?.name ?? "",
+    services[0]?.name ?? &quot;&quot;,
   );
-  const [date, setDate] = useState("");
+  const [date, setDate] = useState(&quot;&quot;);
 
   const price =
     services.find((s) => s.name === selectedService)?.basePrice ?? 0;
 
   function handleBook() {
     const params = new URLSearchParams();
-    params.set("panditId", panditId);
-    if (selectedService) params.set("ritual", selectedService);
-    if (date) params.set("date", date);
+    params.set(&quot;panditId&quot;, panditId);
+    if (selectedService) params.set(&quot;ritual&quot;, selectedService);
+    if (date) params.set(&quot;date&quot;, date);
     router.push(`/book?${params.toString()}`);
   }
 
   function handleWhatsApp() {
-    const text = `Namaste! Main ${selectedService || "puja"} ke liye booking karna chahta hoon.${date ? ` Date: ${date}` : ""}`;
+    const text = `Namaste! Main ${selectedService || &quot;puja&quot;} ke liye booking karna chahta hoon.${date ? ` Date: ${date}` : &quot;&quot;}`;
     window.open(
       `https://wa.me/919999999999?text=${encodeURIComponent(text)}`,
-      "_blank",
+      &quot;_blank&quot;,
     );
   }
 
@@ -791,7 +791,7 @@ function StickyBookingBar({
           onClick={handleBook}
           className="bg-primary hover:bg-primary/90 shadow-primary/20 flex-shrink-0 whitespace-nowrap rounded-xl px-4 py-2.5 text-base font-black text-white shadow-lg transition-colors"
         >
-          {price > 0 ? `₹${(price / 1000).toFixed(0)}k बुक करें` : "Book Now"}
+          {price > 0 ? `₹${(price / 1000).toFixed(0)}k बुक करें` : &quot;Book Now&quot;}
         </button>
       </div>
     </div>
@@ -801,17 +801,17 @@ function StickyBookingBar({
 // ── Section Nav ───────────────────────────────────────────────────────────────
 
 const NAV_ITEMS = [
-  { id: "about", label: "परिचय" },
-  { id: "services", label: "Services" },
-  { id: "gallery", label: "Gallery" },
-  { id: "reviews", label: "Reviews" },
-  { id: "availability", label: "Availability" },
+  { id: &quot;about&quot;, label: &quot;परिचय&quot; },
+  { id: &quot;services&quot;, label: &quot;Services&quot; },
+  { id: &quot;gallery&quot;, label: &quot;Gallery&quot; },
+  { id: &quot;reviews&quot;, label: &quot;Reviews&quot; },
+  { id: &quot;availability&quot;, label: &quot;Availability&quot; },
 ];
 
 function scrollTo(id: string) {
   document
     .getElementById(id)
-    ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    ?.scrollIntoView({ behavior: &quot;smooth&quot;, block: &quot;start&quot; });
 }
 
 // ── Main Component ────────────────────────────────────────────────────────────
@@ -830,7 +830,7 @@ export default function ProfileClient({
   const reviewsRef = useRef<HTMLDivElement>(null);
   const { isAuthenticated, loading: authLoading } = useAuth();
   const [loginModalOpen, setLoginModalOpen] = useState(false);
-  const [redirectUrl, setRedirectUrl] = useState("");
+  const [redirectUrl, setRedirectUrl] = useState(&quot;&quot;);
 
   useEffect(() => {
     if (initialData) {
@@ -844,23 +844,23 @@ export default function ProfileClient({
         nameHindi: String(s.pujaType),
         durationHours: Number(s.durationHours) || 2,
         basePrice: Number(s.dakshinaAmount) || 0,
-        description: String(s.description ?? ""),
+        description: String(s.description ?? &quot;&quot;),
       }));
       setProfile({
         id: panditId,
         displayName:
           ((d.user as Record<string, unknown>)?.name as string) ??
           (d.name as string) ??
-          "Pandit Ji",
-        bio: (d.bio as string) ?? "",
+          &quot;Pandit Ji&quot;,
+        bio: (d.bio as string) ?? &quot;&quot;,
         experienceYears: (d.experienceYears as number) ?? 0,
         specializations: (d.specializations as string[]) ?? [],
         languages: (d.languages as string[]) ?? [],
         sect: undefined,
         gotra: undefined,
-        city: (d.location as string) ?? "Delhi",
-        state: "",
-        isVerified: d.verificationStatus === "VERIFIED",
+        city: (d.location as string) ?? &quot;Delhi&quot;,
+        state: &quot;&quot;,
+        isVerified: d.verificationStatus === &quot;VERIFIED&quot;,
         profilePhotoUrl: d.profilePhotoUrl as string | undefined,
         galleryImages: [],
         averageRating: (rs.avgRating as number) ?? (d.rating as number) ?? 0,
@@ -886,7 +886,7 @@ export default function ProfileClient({
     (service?: string) => {
       if (authLoading) return;
       const params = new URLSearchParams({ panditId });
-      if (service) params.set("ritual", service);
+      if (service) params.set(&quot;ritual&quot;, service);
 
       if (!isAuthenticated) {
         setRedirectUrl(`/booking/new?${params.toString()}`);
@@ -986,7 +986,7 @@ export default function ProfileClient({
               {/* Rating — clickable → reviews */}
               <button
                 onClick={() =>
-                  reviewsRef.current?.scrollIntoView({ behavior: "smooth" })
+                  reviewsRef.current?.scrollIntoView({ behavior: &quot;smooth&quot; })
                 }
                 className="mt-1 inline-flex items-center gap-1 hover:underline"
               >
@@ -1003,7 +1003,7 @@ export default function ProfileClient({
                     location_on
                   </span>
                   {profile.city}
-                  {profile.state ? `, ${profile.state}` : ""}
+                  {profile.state ? `, ${profile.state}` : &quot;&quot;}
                 </span>
                 <span className="flex items-center gap-1">
                   <span className="material-symbols-outlined text-base text-slate-400">
@@ -1081,12 +1081,12 @@ export default function ProfileClient({
           </h2>
 
           <p className="text-lg leading-relaxed text-slate-600 dark:text-slate-400">
-            {profile.bio || "Profile description coming soon."}
+            {profile.bio || &quot;Profile description coming soon.&quot;}
           </p>
 
           {profile.gotra && (
             <p className="mt-2 text-base text-slate-400">
-              Gotra:{" "}
+              Gotra:{&quot; &quot;}
               <span className="font-semibold text-slate-600 dark:text-slate-300">
                 {profile.gotra}
               </span>
@@ -1279,7 +1279,7 @@ function VerificationBadge({ label, done }: { label: string; done: boolean }) {
         className="material-symbols-outlined text-base"
         style={done ? { fontVariationSettings: "'FILL' 1" } : {}}
       >
-        {done ? "check_circle" : "radio_button_unchecked"}
+        {done ? &quot;check_circle&quot; : &quot;radio_button_unchecked&quot;}
       </span>
       {label}
     </span>

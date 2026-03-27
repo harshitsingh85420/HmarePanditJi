@@ -86,7 +86,7 @@ export default function AdminPnrManagementPage() {
                                 Travel Detail &amp; PNR Entry
                             </h1>
                             <p className="text-[#64748b] mt-1">
-                                Confirm ticket details for Pandit Ji's journey
+                                Confirm ticket details for Pandit Ji&apos;s journey
                             </p>
                         </div>
                         <div className="flex gap-3">
@@ -186,7 +186,7 @@ export default function AdminPnrManagementPage() {
                                     </div>
                                     <div>
                                         <label className="block text-lg font-medium text-[#1e293b] mb-1.5">
-                                            PNR / Booking ID{" "}
+                                            PNR / Booking ID{&quot; &quot;}
                                             <span className="text-red-500">*</span>
                                         </label>
                                         <input

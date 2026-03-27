@@ -67,18 +67,8 @@ export const NUMBER_WORDS: Record<string, string> = {
   'शून्य': '0',
   'siphar': '0',
   'सिफर': '0',
-  // Bhojpuri specific
-  'दुइ': '2',
-  'तिन': '3',
-  'चारी': '4',
-  'पाँच': '5',
-  'छः': '6',
-  'सात': '7',
-  'आठ': '8',
-  'नऊ': '9',
   // Maithili specific
   'चारि': '4',
-  'दुइ': '2',
 }
 
 // Preamble words to strip

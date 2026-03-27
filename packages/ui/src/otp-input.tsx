@@ -28,7 +28,7 @@ export function OtpInput({ length = 6, onComplete, disabled = false }: OtpInputP
     };
 
     const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Backspace' && !otp[index] && index > 0) {
+        if (e.key === &apos;Backspace&apos; && !otp[index] && index > 0) {
             inputRefs.current[index - 1]?.focus();
         }
     };
@@ -45,7 +45,7 @@ export function OtpInput({ length = 6, onComplete, disabled = false }: OtpInputP
                     value={digit}
                     onChange={(e) => handleChange(i, e.target.value)}
                     onKeyDown={(e) => handleKeyDown(i, e)}
-                    className={`w-12 h-14 text-center text-2xl font-bold border-2 rounded-xl focus:ring-2 outline-none transition-all ${digit ? 'border-orange-500 bg-orange-50 text-orange-700' : 'border-gray-200'} focus:border-orange-500 focus:ring-orange-200`}
+                    className={`w-12 h-14 text-center text-2xl font-bold border-2 rounded-xl focus:ring-2 outline-none transition-all ${digit ? &apos;border-orange-500 bg-orange-50 text-orange-700&apos; : &apos;border-gray-200&apos;} focus:border-orange-500 focus:ring-orange-200`}
                     disabled={disabled}
                 />
             ))}

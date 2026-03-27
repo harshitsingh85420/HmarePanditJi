@@ -83,7 +83,7 @@ export default function VideoKYCPage() {
                             <span className="material-symbols-outlined fill-1">mic</span>
                         </div>
                         <p className="text-[#137fec] text-lg font-medium animate-pulse">
-                            {isRecording ? "Listening..." : recordingComplete ? "Recorded Successfully" : "Ready to Record"}
+                            {isRecording ? &quot;Listening...&quot; : recordingComplete ? &quot;Recorded Successfully&quot; : &quot;Ready to Record&quot;}
                         </p>
                     </div>
                 </div>
@@ -100,7 +100,7 @@ export default function VideoKYCPage() {
                             </span>
                         </div>
                         <p className="text-slate-800 dark:text-slate-200 italic font-medium leading-relaxed">
-                            "Mera naam Rajesh Sharma hai, aur mera number..."
+                            &quot;Mera naam Rajesh Sharma hai, aur mera number...&quot;
                         </p>
                     </div>
                 )}
@@ -145,7 +145,7 @@ export default function VideoKYCPage() {
             {/* Sticky Footer Actions */}
             <footer className="absolute bottom-0 left-0 right-0 p-4 bg-white dark:bg-[#101922]/80 backdrop-blur-lg border-t border-slate-200 dark:border-slate-800 flex flex-col gap-3">
                 <button
-                    onClick={() => router.push('/pandit/dashboard')}
+                    onClick={() => router.push(&apos;/pandit/dashboard&apos;)}
                     className="w-full bg-[#137fec] hover:bg-[#137fec]/90 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-[#137fec]/20 flex items-center justify-center gap-2 transform active:scale-95"
                 >
                     Save and Continue
@@ -154,7 +154,7 @@ export default function VideoKYCPage() {
                     </span>
                 </button>
                 <button
-                    onClick={() => router.push('/pandit/dashboard')}
+                    onClick={() => router.push(&apos;/pandit/dashboard&apos;)}
                     className="w-full text-slate-500 dark:text-slate-400 font-semibold py-2 text-lg hover:text-[#137fec] transition-colors"
                 >
                     Skip for now

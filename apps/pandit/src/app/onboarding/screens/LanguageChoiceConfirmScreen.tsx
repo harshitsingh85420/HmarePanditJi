@@ -49,12 +49,10 @@ export default function LanguageChoiceConfirmScreen({
             onError: () => { },
           });
 
-          // 12s timeout: remind
           timeout12s = setTimeout(() => {
             speak(`${langInfo.latinName} — sahi hai? Button dabaiye.`, 'hi-IN');
           }, 12000);
 
-          // 24s timeout: auto-confirm
           timeout24s = setTimeout(() => {
             onConfirm();
           }, 24000);
@@ -75,11 +73,11 @@ export default function LanguageChoiceConfirmScreen({
   }, [langInfo.latinName, onConfirm, onReject]);
 
   return (
-    <main className="font-hind text-text-primary w-full min-h-dvh max-w-[390px] mx-auto bg-surface-base flex flex-col shadow-2xl">
+    <main className="font-hind text-text-primary w-full min-h-dvh max-w-[390px] xs:max-w-[430px] mx-auto bg-surface-base flex flex-col shadow-2xl">
       <TopBar showBack onBack={onReject} onLanguageChange={onLanguageChange} />
 
       {/* Center Content */}
-      <div className="flex-1 flex flex-col items-center justify-center w-full text-center px-6 space-y-6">
+      <div className="flex-1 flex flex-col items-center justify-center w-full text-center px-4 xs:px-6 space-y-4 xs:space-y-6">
         {/* Language Display */}
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
@@ -87,52 +85,42 @@ export default function LanguageChoiceConfirmScreen({
           transition={{ duration: 0.7, type: 'spring' as const }}
           className="space-y-2"
         >
-          <h1 className="text-[56px] font-bold text-saffron leading-tight">
+          <h1 className="text-4xl xs:text-5xl sm:text-[56px] font-bold text-saffron leading-tight">
             {langInfo.nativeName}
           </h1>
-          <p className="text-[24px] font-normal text-text-secondary">
+          <p className="text-lg xs:text-xl sm:text-[24px] font-normal text-text-secondary">
             {langInfo.latinName}
           </p>
         </motion.div>
 
         {/* Decorative divider */}
-        <div className="w-[60px] h-px bg-border-default mx-auto" />
-
-        {/* Question */}
-        <motion.h2
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="text-[26px] font-semibold text-text-primary"
-        >
-          क्या यही भाषा सही है?
-        </motion.h2>
+        <div className="w-12 xs:w-[60px] h-px bg-border-default mx-auto" />
 
         {/* Voice Indicator */}
-        <div className="flex justify-center">
-          <VoiceIndicator isListening />
-        </div>
-      </div>
+        <VoiceIndicator isListening={isListeningRef.current} />
 
-      {/* Action Footer */}
-      <footer className="w-full space-y-4 px-6 pb-12 relative">
-        <button
-          onClick={() => {
-            speak('Bahut achha.', 'hi-IN', () => onConfirm());
-          }}
-          className="w-full bg-saffron text-white text-[20px] font-semibold min-h-[64px] rounded-2xl shadow-cta active:scale-[0.98] transition-transform"
-        >
-          हाँ, यही भाषा चाहिए
-        </button>
-        <button
-          onClick={() => {
-            speak('Theek hai, phir se chunte hain.', 'hi-IN', () => onReject());
-          }}
-          className="w-full bg-transparent text-saffron text-[18px] font-medium min-h-[56px] hover:underline"
-        >
-          नहीं, फिर से चुनूँगा
-        </button>
-      </footer>
+        {/* Action Buttons */}
+        <div className="grid grid-cols-2 gap-3 xs:gap-4 w-full max-w-sm px-4">
+          <motion.button
+            whileTap={{ scale: 0.97 }}
+            onClick={onReject}
+            className="min-h-[52px] xs:min-h-[56px] sm:min-h-[72px] border-3 border-border-default rounded-2xl text-lg xs:text-xl sm:text-2xl font-bold text-saffron bg-surface-card active:bg-saffron-light"
+          >
+            ✗ नहीं
+          </motion.button>
+          <motion.button
+            whileTap={{ scale: 0.97 }}
+            onClick={onConfirm}
+            className="min-h-[52px] xs:min-h-[56px] sm:min-h-[72px] bg-saffron text-white rounded-2xl text-lg xs:text-xl sm:text-2xl font-bold shadow-btn-saffron"
+          >
+            ✓ हाँ
+          </motion.button>
+        </div>
+
+        <p className="text-sm xs:text-base text-text-secondary px-4">
+          या नीचे बटन दबाएं
+        </p>
+      </div>
     </main>
   );
 }

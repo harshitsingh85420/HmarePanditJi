@@ -74,11 +74,11 @@ export default function TermsPage() {
 
       <div className="mt-10 p-5 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800">
         <p className="text-lg text-slate-600 dark:text-slate-400">
-          For questions about these Terms, contact us at{" "}
+          For questions about these Terms, contact us at{&quot; &quot;}
           <a href="mailto:legal@hmarepanditji.com" className="text-primary hover:underline">
             legal@hmarepanditji.com
-          </a>{" "}
-          or WhatsApp us at{" "}
+          </a>{&quot; &quot;}
+          or WhatsApp us at{&quot; &quot;}
           <a href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "919999999999"}`} className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
             +91 (your number)
           </a>.

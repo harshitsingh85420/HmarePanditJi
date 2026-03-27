@@ -129,7 +129,7 @@ export default function EmergencyBackupPage() {
                 {/* Reassurance Block */}
                 <div className="text-center space-y-2 opacity-80">
                     <p className="font-bold text-[#881337] dark:text-[#fecdd3]">
-                        Don't Panic. We have this under control.
+                        Don&apos;t Panic. We have this under control.
                     </p>
                     <p className="text-lg text-[#881337]/80 dark:text-[#fecdd3]/80">
                         Our 24/7 Ops team has been alerted and is manually monitoring this

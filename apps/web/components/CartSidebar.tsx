@@ -27,7 +27,7 @@ export function CartSidebar() {
         const { panditId, pujaType, source, packageId } = selection;
         const url = `/booking/new?panditId=${panditId}&pujaType=${encodeURIComponent(
             pujaType
-        )}&samagriSource=${source}${packageId ? `&samagriPackageId=${packageId}` : ""
+        )}&samagriSource=${source}${packageId ? `&samagriPackageId=${packageId}` : &quot;&quot;
             }`;
 
         if (!token) {
@@ -76,10 +76,10 @@ export function CartSidebar() {
                                 <p className="font-bold">{selection.pujaType}</p>
                             </div>
 
-                            {selection.source === "PANDIT_PACKAGE" ? (
+                            {selection.source === &quot;PANDIT_PACKAGE&quot; ? (
                                 <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
                                     <span className="inline-block bg-amber-100 text-amber-800 text-xs px-2 py-1 rounded font-bold mb-3">
-                                        📦 Pandit Ji's Package (Fixed)
+                                        📦 Pandit Ji&apos;s Package (Fixed)
                                     </span>
                                     <h3 className="font-bold text-lg">{selection.packageName} Package</h3>
                                     <p className="text-sm text-amber-800 mt-1">
@@ -115,9 +115,9 @@ export function CartSidebar() {
                                     </p>
                                 </div>
                                 <p className="text-xs text-right text-gray-500 mb-6">
-                                    {selection.source === "PANDIT_PACKAGE"
-                                        ? "(Fixed package price)"
-                                        : "(Platform sourcing price)"}
+                                    {selection.source === &quot;PANDIT_PACKAGE&quot;
+                                        ? &quot;(Fixed package price)&quot;
+                                        : &quot;(Platform sourcing price)&quot;}
                                 </p>
 
                                 <div className="flex flex-col gap-3">

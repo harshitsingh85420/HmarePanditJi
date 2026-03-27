@@ -30,14 +30,14 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({ steps, className
 
                         {/* Status Icon */}
                         <div className="flex-shrink-0 relative z-10 w-8 h-8 flex items-center justify-center mr-4">
-                            {step.status === 'completed' && (
+                            {step.status === &apos;completed&apos; && (
                                 <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center border-2 border-white shadow-sm inset-0 absolute">
                                     <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                                     </svg>
                                 </div>
                             )}
-                            {step.status === 'active' && (
+                            {step.status === &apos;active&apos; && (
                                 <>
                                     <div className="absolute inset-0 rounded-full bg-orange-400 animate-ping opacity-75"></div>
                                     <div className="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center border-2 border-white shadow-sm relative z-10">
@@ -45,7 +45,7 @@ export const StatusTimeline: React.FC<StatusTimelineProps> = ({ steps, className
                                     </div>
                                 </>
                             )}
-                            {step.status === 'pending' && (
+                            {step.status === &apos;pending&apos; && (
                                 <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center border-2 border-gray-300 relative z-10">
                                 </div>
                             )}

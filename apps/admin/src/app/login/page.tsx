@@ -90,14 +90,14 @@ export default function AdminLoginPage() {
             disabled={loading}
             className="mt-6 w-full rounded-lg bg-primary py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary/90 disabled:opacity-50"
           >
-            {loading ? "Signing in..." : "Sign In"}
+            {loading ? &quot;Signing in...&quot; : &quot;Sign In&quot;}
           </button>
 
           <button
             type="button"
             onClick={() => {
-              localStorage.removeItem("adminToken");
-              window.location.href = "/login";
+              localStorage.removeItem(&quot;adminToken&quot;);
+              window.location.href = &quot;/login&quot;;
             }}
             className="mt-2 w-full text-xs text-slate-500 hover:text-white"
           >

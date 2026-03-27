@@ -43,8 +43,8 @@ export function QuickSearch() {
       if (sugRef.current && !sugRef.current.contains(e.target as Node))
         setShowSuggestions(false);
     };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
+    document.addEventListener(&quot;mousedown&quot;, handler);
+    return () => document.removeEventListener(&quot;mousedown&quot;, handler);
   }, []);
 
   const handleCityInput = (val: string) => {
@@ -62,14 +62,14 @@ export function QuickSearch() {
 
   const handleSearch = () => {
     const p = new URLSearchParams();
-    if (pujaType) p.set("ritual", pujaType);
-    if (city) p.set("city", city);
-    if (date) p.set("date", date);
+    if (pujaType) p.set(&quot;ritual&quot;, pujaType);
+    if (city) p.set(&quot;city&quot;, city);
+    if (date) p.set(&quot;date&quot;, date);
     router.push(`/search?${p.toString()}`);
   };
 
   const inputClass =
-    "w-full h-11 px-5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-lg text-slate-700 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors";
+    &quot;w-full h-11 px-5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-lg text-slate-700 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors&quot;;
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-800 p-4 md:p-6">
@@ -150,7 +150,7 @@ export function QuickSearch() {
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              min={new Date().toISOString().split("T")[0]}
+              min={new Date().toISOString().split(&quot;T&quot;)[0]}
               className={`${inputClass} pl-9`}
             />
           </div>

@@ -61,32 +61,32 @@ interface BookingOrder {
 // ── Constants ─────────────────────────────────────────────────────────────────
 
 const STEPS = [
-  { label: "Details", icon: "person" },
-  { label: "Event", icon: "event" },
-  { label: "Pricing", icon: "payments" },
-  { label: "Payment", icon: "credit_card" },
-  { label: "Confirmed", icon: "check_circle" },
+  { label: &quot;Details&quot;, icon: &quot;person&quot; },
+  { label: &quot;Event&quot;, icon: &quot;event&quot; },
+  { label: &quot;Pricing&quot;, icon: &quot;payments&quot; },
+  { label: &quot;Payment&quot;, icon: &quot;credit_card&quot; },
+  { label: &quot;Confirmed&quot;, icon: &quot;check_circle&quot; },
 ];
 
 const MOCK_PANDITS: Record<string, PanditInfo> = {
   default: {
-    id: "mock",
-    displayName: "Pt. Ramesh Sharma",
+    id: &quot;mock&quot;,
+    displayName: &quot;Pt. Ramesh Sharma&quot;,
     profilePhotoUrl: null,
     averageRating: 4.8,
     totalReviews: 124,
-    city: "Delhi",
+    city: &quot;Delhi&quot;,
     experienceYears: 15,
-    specializations: ["Griha Pravesh", "Vivah"],
+    specializations: [&quot;Griha Pravesh&quot;, &quot;Vivah&quot;],
     basePricing: { dakshina: 5100 },
   },
 };
 
 const MOCK_RITUALS: Record<string, RitualInfo> = {
   default: {
-    id: "mock",
-    name: "Griha Pravesh",
-    nameHindi: "गृह प्रवेश",
+    id: &quot;mock&quot;,
+    name: &quot;Griha Pravesh&quot;,
+    nameHindi: &quot;गृह प्रवेश&quot;,
     durationHours: 2,
     basePriceMin: 4100,
     basePriceMax: 8100,
@@ -94,21 +94,21 @@ const MOCK_RITUALS: Record<string, RitualInfo> = {
 };
 
 const TIME_SLOTS = [
-  "05:30", "06:00", "06:30", "07:00", "07:30", "08:00",
-  "08:30", "09:00", "09:30", "10:00", "10:30", "11:00",
-  "11:30", "12:00", "14:00", "15:00", "16:00", "17:00",
+  &quot;05:30&quot;, &quot;06:00&quot;, &quot;06:30&quot;, &quot;07:00&quot;, &quot;07:30&quot;, &quot;08:00&quot;,
+  &quot;08:30&quot;, &quot;09:00&quot;, &quot;09:30&quot;, &quot;10:00&quot;, &quot;10:30&quot;, &quot;11:00&quot;,
+  &quot;11:30&quot;, &quot;12:00&quot;, &quot;14:00&quot;, &quot;15:00&quot;, &quot;16:00&quot;, &quot;17:00&quot;,
 ];
 
 // ── Helper: format ₹ ─────────────────────────────────────────────────────────
 
 function rupees(amount: number) {
-  return `₹${amount.toLocaleString("en-IN")}`;
+  return `₹${amount.toLocaleString(&quot;en-IN&quot;)}`;
 }
 
 // ── Helper: today min date ────────────────────────────────────────────────────
 
 function todayISO() {
-  return new Date().toISOString().split("T")[0];
+  return new Date().toISOString().split(&quot;T&quot;)[0];
 }
 
 // ── Step 1: Confirm Details ───────────────────────────────────────────────────
@@ -125,10 +125,10 @@ function StepConfirmDetails({
   onNext: () => void;
 }) {
   const initials = pandit.displayName
-    .split(" ")
+    .split(&quot; &quot;)
     .slice(0, 2)
     .map((w) => w[0])
-    .join("")
+    .join(&quot;&quot;)
     .toUpperCase();
 
   return (
@@ -191,10 +191,10 @@ function StepConfirmDetails({
               <p className="text-base text-slate-400 uppercase tracking-wide font-semibold">Preferred Date</p>
               <p className="font-semibold text-slate-900 dark:text-slate-100">
                 {date
-                  ? new Date(date).toLocaleDateString("en-IN", {
-                      weekday: "long", day: "numeric", month: "long", year: "numeric",
+                  ? new Date(date).toLocaleDateString(&quot;en-IN&quot;, {
+                      weekday: &quot;long&quot;, day: &quot;numeric&quot;, month: &quot;long&quot;, year: &quot;numeric&quot;,
                     })
-                  : "Not selected"}
+                  : &quot;Not selected&quot;}
               </p>
             </div>
           </div>
@@ -245,11 +245,11 @@ function StepEventDetails({
 
   const validate = () => {
     const e: Record<string, string> = {};
-    if (!date) e.date = "Please select a date";
-    if (!time) e.time = "Please select a time";
-    if (!venue.addressLine1.trim()) e.addressLine1 = "Address is required";
-    if (!venue.city.trim()) e.city = "City is required";
-    if (!/^\d{6}$/.test(venue.postalCode)) e.postalCode = "Enter a valid 6-digit PIN code";
+    if (!date) e.date = &quot;Please select a date&quot;;
+    if (!time) e.time = &quot;Please select a time&quot;;
+    if (!venue.addressLine1.trim()) e.addressLine1 = &quot;Address is required&quot;;
+    if (!venue.city.trim()) e.city = &quot;City is required&quot;;
+    if (!/^\d{6}$/.test(venue.postalCode)) e.postalCode = &quot;Enter a valid 6-digit PIN code&quot;;
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -273,7 +273,7 @@ function StepEventDetails({
               type="date"
               min={todayISO()}
               value={date}
-              onChange={(e) => onChange("date", e.target.value)}
+              onChange={(e) => onChange(&quot;date&quot;, e.target.value)}
               className="w-full h-14 px-5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary/50"
             />
             {errors.date && <p className="text-base text-red-500 mt-1">{errors.date}</p>}
@@ -282,14 +282,14 @@ function StepEventDetails({
             <label className="block text-base font-semibold text-slate-600 dark:text-slate-400 mb-1">Time *</label>
             <select
               value={time}
-              onChange={(e) => onChange("time", e.target.value)}
+              onChange={(e) => onChange(&quot;time&quot;, e.target.value)}
               className="w-full h-14 px-5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary/50"
             >
               <option value="">Select time</option>
               {TIME_SLOTS.map((t) => (
                 <option key={t} value={t}>
-                  {new Date(`2000-01-01T${t}`).toLocaleTimeString("en-IN", {
-                    hour: "2-digit", minute: "2-digit", hour12: true,
+                  {new Date(`2000-01-01T${t}`).toLocaleTimeString(&quot;en-IN&quot;, {
+                    hour: &quot;2-digit&quot;, minute: &quot;2-digit&quot;, hour12: true,
                   })}
                 </option>
               ))}
@@ -302,16 +302,16 @@ function StepEventDetails({
         <div className="mt-3 flex items-center gap-3">
           <button
             type="button"
-            onClick={() => onChange("muhuratEnabled", !muhuratEnabled)}
+            onClick={() => onChange(&quot;muhuratEnabled&quot;, !muhuratEnabled)}
             className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${
-              muhuratEnabled ? "bg-primary" : "bg-slate-200 dark:bg-slate-700"
+              muhuratEnabled ? &quot;bg-primary&quot; : &quot;bg-slate-200 dark:bg-slate-700&quot;
             }`}
           >
             <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${
               muhuratEnabled ? "translate-x-5" : "translate-x-0"
             }`} />
           </button>
-          <label className="text-lg font-medium text-slate-700 dark:text-slate-300 cursor-pointer" onClick={() => onChange("muhuratEnabled", !muhuratEnabled)}>
+          <label className="text-lg font-medium text-slate-700 dark:text-slate-300 cursor-pointer" onClick={() => onChange(&quot;muhuratEnabled&quot;, !muhuratEnabled)}>
             Specify Muhurat
           </label>
         </div>
@@ -320,7 +320,7 @@ function StepEventDetails({
             type="text"
             placeholder="e.g. 07:14 AM — 08:52 AM (as per Panchangam)"
             value={muhuratText}
-            onChange={(e) => onChange("muhuratText", e.target.value)}
+            onChange={(e) => onChange(&quot;muhuratText&quot;, e.target.value)}
             className="mt-2 w-full h-14 px-5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary/50"
           />
         )}
@@ -339,7 +339,7 @@ function StepEventDetails({
               type="text"
               placeholder="House/Flat No., Street Name"
               value={venue.addressLine1}
-              onChange={(e) => onChange("venue.addressLine1", e.target.value)}
+              onChange={(e) => onChange(&quot;venue.addressLine1&quot;, e.target.value)}
               className="w-full h-14 px-5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary/50"
             />
             {errors.addressLine1 && <p className="text-base text-red-500 mt-1">{errors.addressLine1}</p>}
@@ -350,7 +350,7 @@ function StepEventDetails({
               type="text"
               placeholder="Colony, Area (optional)"
               value={venue.addressLine2}
-              onChange={(e) => onChange("venue.addressLine2", e.target.value)}
+              onChange={(e) => onChange(&quot;venue.addressLine2&quot;, e.target.value)}
               className="w-full h-14 px-5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary/50"
             />
           </div>
@@ -360,7 +360,7 @@ function StepEventDetails({
               type="text"
               placeholder="Near metro, temple, etc. (optional)"
               value={venue.landmark}
-              onChange={(e) => onChange("venue.landmark", e.target.value)}
+              onChange={(e) => onChange(&quot;venue.landmark&quot;, e.target.value)}
               className="w-full h-14 px-5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary/50"
             />
           </div>
@@ -371,7 +371,7 @@ function StepEventDetails({
                 type="text"
                 placeholder="City"
                 value={venue.city}
-                onChange={(e) => onChange("venue.city", e.target.value)}
+                onChange={(e) => onChange(&quot;venue.city&quot;, e.target.value)}
                 className="w-full h-14 px-5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary/50"
               />
               {errors.city && <p className="text-base text-red-500 mt-1">{errors.city}</p>}
@@ -384,7 +384,7 @@ function StepEventDetails({
                 maxLength={6}
                 placeholder="110001"
                 value={venue.postalCode}
-                onChange={(e) => onChange("venue.postalCode", e.target.value.replace(/\D/g, ""))}
+                onChange={(e) => onChange(&quot;venue.postalCode&quot;, e.target.value.replace(/\D/g, &quot;&quot;))}
                 className="w-full h-14 px-5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary/50"
               />
               {errors.postalCode && <p className="text-base text-red-500 mt-1">{errors.postalCode}</p>}
@@ -408,7 +408,7 @@ function StepEventDetails({
               max="500"
               placeholder="e.g. 25"
               value={numberOfAttendees}
-              onChange={(e) => onChange("numberOfAttendees", e.target.value)}
+              onChange={(e) => onChange(&quot;numberOfAttendees&quot;, e.target.value)}
               className="w-full h-14 px-5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary/50"
             />
           </div>
@@ -418,7 +418,7 @@ function StepEventDetails({
               rows={3}
               placeholder="Any specific rituals, language preference, or special arrangements needed…"
               value={specialRequirements}
-              onChange={(e) => onChange("specialRequirements", e.target.value)}
+              onChange={(e) => onChange(&quot;specialRequirements&quot;, e.target.value)}
               className="w-full px-5 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
             />
           </div>
@@ -652,7 +652,7 @@ function StepPayment({
 
 function StepConfirmation({ booking }: { booking: BookingResult }) {
   const message = encodeURIComponent(
-    `I just booked ${booking.pandit.displayName} for ${booking.ritual.name} on ${new Date(booking.eventDate).toLocaleDateString("en-IN")}. Booking #${booking.bookingNumber} — HmarePanditJi`,
+    `I just booked ${booking.pandit.displayName} for ${booking.ritual.name} on ${new Date(booking.eventDate).toLocaleDateString(&quot;en-IN&quot;)}. Booking #${booking.bookingNumber} — HmarePanditJi`,
   );
   const whatsappUrl = `https://wa.me/?text=${message}`;
 
@@ -692,8 +692,8 @@ function StepConfirmation({ booking }: { booking: BookingResult }) {
             <div>
               <p className="text-base text-slate-400 uppercase tracking-wide font-semibold mb-1">Date</p>
               <p className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                {new Date(booking.eventDate).toLocaleDateString("en-IN", {
-                  day: "numeric", month: "short", year: "numeric",
+                {new Date(booking.eventDate).toLocaleDateString(&quot;en-IN&quot;, {
+                  day: &quot;numeric&quot;, month: &quot;short&quot;, year: &quot;numeric&quot;,
                 })}
               </p>
             </div>
@@ -742,9 +742,9 @@ export default function BookClient() {
   const router = useRouter();
   const { user, loading: authLoading, accessToken, openLoginModal } = useAuth();
 
-  const panditId = searchParams.get("panditId") ?? "";
-  const ritualId = searchParams.get("ritualId") ?? "";
-  const dateParam = searchParams.get("date") ?? "";
+  const panditId = searchParams.get(&quot;panditId&quot;) ?? &quot;&quot;;
+  const ritualId = searchParams.get(&quot;ritualId&quot;) ?? &quot;&quot;;
+  const dateParam = searchParams.get(&quot;date&quot;) ?? &quot;&quot;;
 
   const [step, setStep] = useState(0);
   const [pandit, setPandit] = useState<PanditInfo | null>(null);
@@ -753,19 +753,19 @@ export default function BookClient() {
 
   // Event form state
   const [date, setDate] = useState(dateParam || todayISO());
-  const [time, setTime] = useState("08:00");
+  const [time, setTime] = useState(&quot;08:00&quot;);
   const [muhuratEnabled, setMuhuratEnabled] = useState(false);
-  const [muhuratText, setMuhuratText] = useState("");
+  const [muhuratText, setMuhuratText] = useState(&quot;&quot;);
   const [venue, setVenue] = useState<VenueAddress>({
-    addressLine1: "", addressLine2: "", landmark: "",
-    city: "Delhi", state: "Delhi", postalCode: "",
+    addressLine1: &quot;&quot;, addressLine2: &quot;&quot;, landmark: &quot;&quot;,
+    city: &quot;Delhi&quot;, state: &quot;Delhi&quot;, postalCode: &quot;&quot;,
   });
-  const [numberOfAttendees, setNumberOfAttendees] = useState("");
-  const [specialRequirements, setSpecialRequirements] = useState("");
+  const [numberOfAttendees, setNumberOfAttendees] = useState(&quot;&quot;);
+  const [specialRequirements, setSpecialRequirements] = useState(&quot;&quot;);
 
   // Payment state
   const [payLoading, setPayLoading] = useState(false);
-  const [payError, setPayError] = useState("");
+  const [payError, setPayError] = useState(&quot;&quot;);
   const [bookingOrder, setBookingOrder] = useState<BookingOrder | null>(null);
   const [confirmedBooking, setConfirmedBooking] = useState<BookingResult | null>(null);
 
@@ -790,7 +790,7 @@ export default function BookClient() {
                 profilePhotoUrl: p.profilePhotoUrl ?? null,
                 averageRating: p.averageRating ?? 4.5,
                 totalReviews: p.totalReviews ?? 0,
-                city: p.city ?? "Delhi",
+                city: p.city ?? &quot;Delhi&quot;,
                 experienceYears: p.experienceYears ?? 0,
                 specializations: p.specializations ?? [],
                 basePricing: p.basePricing ?? {},
@@ -815,7 +815,7 @@ export default function BookClient() {
               setRitual({
                 id: r.id,
                 name: r.name,
-                nameHindi: r.nameHindi ?? "",
+                nameHindi: r.nameHindi ?? &quot;&quot;,
                 durationHours: r.durationHours ?? 2,
                 basePriceMin: r.basePriceMin ?? 4100,
                 basePriceMax: r.basePriceMax ?? 8100,
@@ -833,8 +833,8 @@ export default function BookClient() {
   }, [panditId, ritualId]);
 
   // Apply mocks if fetch failed
-  const resolvedPandit = pandit ?? { ...MOCK_PANDITS.default, id: panditId || "mock" };
-  const resolvedRitual = ritual ?? { ...MOCK_RITUALS.default, id: ritualId || "mock" };
+  const resolvedPandit = pandit ?? { ...MOCK_PANDITS.default, id: panditId || &quot;mock&quot; };
+  const resolvedRitual = ritual ?? { ...MOCK_RITUALS.default, id: ritualId || &quot;mock&quot; };
 
   // ── Pricing calculation ──────────────────────────────────────────────────────
 
@@ -846,13 +846,13 @@ export default function BookClient() {
   // ── Form field change handler ────────────────────────────────────────────────
 
   const handleChange = useCallback((key: string, value: string | boolean) => {
-    if (key === "date") setDate(value as string);
-    else if (key === "time") setTime(value as string);
-    else if (key === "muhuratEnabled") setMuhuratEnabled(value as boolean);
-    else if (key === "muhuratText") setMuhuratText(value as string);
-    else if (key === "numberOfAttendees") setNumberOfAttendees(value as string);
-    else if (key === "specialRequirements") setSpecialRequirements(value as string);
-    else if (key.startsWith("venue.")) {
+    if (key === &quot;date&quot;) setDate(value as string);
+    else if (key === &quot;time&quot;) setTime(value as string);
+    else if (key === &quot;muhuratEnabled&quot;) setMuhuratEnabled(value as boolean);
+    else if (key === &quot;muhuratText&quot;) setMuhuratText(value as string);
+    else if (key === &quot;numberOfAttendees&quot;) setNumberOfAttendees(value as string);
+    else if (key === &quot;specialRequirements&quot;) setSpecialRequirements(value as string);
+    else if (key.startsWith(&quot;venue.&quot;)) {
       const field = key.slice(6) as keyof VenueAddress;
       setVenue((v) => ({ ...v, [field]: value as string }));
     }
@@ -867,13 +867,13 @@ export default function BookClient() {
     }
 
     setPayLoading(true);
-    setPayError("");
+    setPayError(&quot;&quot;);
 
     try {
       const bookingRes = await fetch(`${API_BASE}/bookings`, {
-        method: "POST",
+        method: &quot;POST&quot;,
         headers: {
-          "Content-Type": "application/json",
+          &quot;Content-Type&quot;: &quot;application/json&quot;,
           Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({
@@ -899,7 +899,7 @@ export default function BookClient() {
 
       if (!bookingRes.ok) {
         const errJson = await bookingRes.json().catch(() => ({}));
-        throw new Error((errJson as { message?: string }).message ?? "Failed to create booking");
+        throw new Error((errJson as { message?: string }).message ?? &quot;Failed to create booking&quot;);
       }
 
       const bookingJson = await bookingRes.json() as { data: { booking: { id: string; bookingNumber: string }; order: { orderId: string; amount: number; currency: string; key: string } } };
@@ -915,7 +915,7 @@ export default function BookClient() {
         key: order.key,
       });
     } catch (err) {
-      setPayError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+      setPayError(err instanceof Error ? err.message : &quot;Something went wrong. Please try again.&quot;);
     } finally {
       setPayLoading(false);
     }
@@ -931,8 +931,8 @@ export default function BookClient() {
   const handlePaySuccess = useCallback((confirmedBk: unknown) => {
     const bk = confirmedBk as { id?: string; bookingNumber?: string; eventDate?: string; eventTime?: string } | null;
     setConfirmedBooking({
-      id: bk?.id ?? bookingOrder?.bookingId ?? "",
-      bookingNumber: bk?.bookingNumber ?? bookingOrder?.bookingNumber ?? "",
+      id: bk?.id ?? bookingOrder?.bookingId ?? &quot;&quot;,
+      bookingNumber: bk?.bookingNumber ?? bookingOrder?.bookingNumber ?? &quot;&quot;,
       eventDate: bk?.eventDate ?? new Date(`${date}T${time}:00`).toISOString(),
       eventTime: bk?.eventTime ?? time,
       pandit: { displayName: resolvedPandit.displayName },
@@ -1061,10 +1061,10 @@ export default function BookClient() {
             error={payError}
             onPay={handlePay}
             onBack={() => setStep(2)}
-            customerName={user?.fullName ?? user?.phone ?? "Customer"}
+            customerName={user?.fullName ?? user?.phone ?? &quot;Customer&quot;}
             customerEmail={user?.email ?? undefined}
             customerPhone={user?.phone}
-            accessToken={accessToken ?? ""}
+            accessToken={accessToken ?? &quot;&quot;}
             onPaySuccess={handlePaySuccess}
           />
         )}

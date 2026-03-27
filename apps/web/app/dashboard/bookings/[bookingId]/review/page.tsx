@@ -26,26 +26,26 @@ export default function ReviewSubmissionPage() {
     const [isAnonymous, setIsAnonymous] = useState(false);
     const [photoUrls, setPhotoUrls] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState("");
+    const [error, setError] = useState(&quot;&quot;);
     const [success, setSuccess] = useState(false);
     const [pandit, setPandit] = useState<PanditSummary | null>(null);
 
     useEffect(() => {
         const fetchBookingDetails = async () => {
             try {
-                const token = localStorage.getItem("token");
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/bookings/${bookingId}`, {
+                const token = localStorage.getItem(&quot;token&quot;);
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || &apos;http://localhost:3001&apos;}/api/bookings/${bookingId}`, {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }
                 });
-                if (!res.ok) throw new Error("Could not load booking");
+                if (!res.ok) throw new Error(&quot;Could not load booking&quot;);
                 const data = await res.json();
                 // Assume data.data.pandit is available
                 if (data.data && data.data.pandit) {
                     setPandit({
                         id: data.data.pandit.id,
-                        name: data.data.pandit.name || "Pandit Ji",
+                        name: data.data.pandit.name || &quot;Pandit Ji&quot;,
                         photoUrl: data.data.pandit.panditProfile?.profilePhotoUrl
                     });
                 }
@@ -59,7 +59,7 @@ export default function ReviewSubmissionPage() {
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         if (overall === 0) {
-            setError("Please select an overall rating");
+            setError(&quot;Please select an overall rating&quot;);
             return;
         }
         if (comment.length > 0 && comment.length < 20) {
@@ -126,12 +126,12 @@ export default function ReviewSubmissionPage() {
 
     const getStarLabel = (rating: number) => {
         switch (rating) {
-            case 1: return "Poor";
-            case 2: return "Fair";
-            case 3: return "Good";
-            case 4: return "Very Good";
-            case 5: return "Excellent";
-            default: return "";
+            case 1: return &quot;Poor&quot;;
+            case 2: return &quot;Fair&quot;;
+            case 3: return &quot;Good&quot;;
+            case 4: return &quot;Very Good&quot;;
+            case 5: return &quot;Excellent&quot;;
+            default: return &quot;&quot;;
         }
     };
 
@@ -252,7 +252,7 @@ export default function ReviewSubmissionPage() {
                     {error && <div className="text-red-500 text-sm font-medium p-3 bg-red-50 rounded-lg">{error}</div>}
 
                     <Button type="submit" disabled={isLoading} variant="primary" className="w-full py-4 text-lg mt-6 shadow-lg shadow-amber-200">
-                        {isLoading ? "Submitting..." : "🙏 Submit Review"}
+                        {isLoading ? &quot;Submitting...&quot; : &quot;🙏 Submit Review&quot;}
                     </Button>
                 </form>
             </Card>

@@ -185,51 +185,51 @@ export default function BookingWizardClient() {
 
   const [step, setStep] = useState<WizardStep>(0);
   const [form, setForm] = useState<BookingFormData>({
-    ritualId: "",
-    ritualName: "",
-    eventDate: "",
-    eventTime: "09:00",
+    ritualId: &quot;&quot;,
+    ritualName: &quot;&quot;,
+    eventDate: &quot;&quot;,
+    eventTime: &quot;09:00&quot;,
     attendees: 11,
     isMultiDay: false,
-    endDate: "",
-    venueLine1: "",
-    venueLine2: "",
-    venueCity: "Delhi",
-    venuePincode: "",
-    venueState: "Delhi",
-    gotra: "",
+    endDate: &quot;&quot;,
+    venueLine1: &quot;&quot;,
+    venueLine2: &quot;&quot;,
+    venueCity: &quot;Delhi&quot;,
+    venuePincode: &quot;&quot;,
+    venueState: &quot;Delhi&quot;,
+    gotra: &quot;&quot;,
     familyMembers: [],
-    panditId: searchParams.get("panditId") ?? "",
-    panditName: "",
+    panditId: searchParams.get(&quot;panditId&quot;) ?? &quot;&quot;,
+    panditName: &quot;&quot;,
     dakshina: 0,
-    travelMode: "",
+    travelMode: &quot;&quot;,
     travelCost: 0,
-    foodArrangement: "CUSTOMER_PROVIDES",
+    foodArrangement: &quot;CUSTOMER_PROVIDES&quot;,
     foodCost: 0,
-    accommodationArrangement: "NOT_NEEDED",
+    accommodationArrangement: &quot;NOT_NEEDED&quot;,
     accommodationCost: 0,
     localTransportNeeded: false,
     localTransportCost: 0,
-    ritualVariation: "",
-    samagri: "PANDIT_PACKAGE",
-    specialInstructions: "",
-    orderId: "",
-    bookingId: "",
-    bookingNumber: "",
+    ritualVariation: &quot;&quot;,
+    samagri: &quot;PANDIT_PACKAGE&quot;,
+    specialInstructions: &quot;&quot;,
+    orderId: &quot;&quot;,
+    bookingId: &quot;&quot;,
+    bookingNumber: &quot;&quot;,
   });
 
   const [rituals, setRituals] = useState<Ritual[]>(RITUALS_FALLBACK);
   const [pandits, setPandits] = useState<PanditOption[]>(PANDITS_FALLBACK);
   const [travelOptions, setTravelOptions] = useState<TravelOption[]>(TRAVEL_FALLBACK);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(&quot;&quot;);
   const [paymentReady, setPaymentReady] = useState(false);
 
   // Samagri integration
   const { samagriItem, hasSamagri, setSamagriItem } = useCart();
   const [showSamagriModal, setShowSamagriModal] = useState(false);
-  const [familyInput, setFamilyInput] = useState("");
-  const [contactImportMessage, setContactImportMessage] = useState("");
+  const [familyInput, setFamilyInput] = useState(&quot;&quot;);
+  const [contactImportMessage, setContactImportMessage] = useState(&quot;&quot;);
   const [muhuratConsultation, setMuhuratConsultation] = useState(false);
 
   // Add-ons state
@@ -240,12 +240,12 @@ export default function BookingWizardClient() {
 
   // pre-fill ritual from URL
   useEffect(() => {
-    const ritual = searchParams.get("ritual");
+    const ritual = searchParams.get(&quot;ritual&quot;);
     if (ritual) {
       const found = rituals.find((r) => r.name === ritual);
       if (found) set({ ritualId: found.id, ritualName: found.name, dakshina: found.baseDakshina ?? 0 });
     }
-    const date = searchParams.get("date");
+    const date = searchParams.get(&quot;date&quot;);
     if (date) set({ eventDate: date });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -263,7 +263,7 @@ export default function BookingWizardClient() {
   // fetch pandits when ritual changes
   useEffect(() => {
     if (!form.ritualName) return;
-    const p = new URLSearchParams({ ritual: form.ritualName, limit: "10" });
+    const p = new URLSearchParams({ ritual: form.ritualName, limit: &quot;10&quot; });
     fetch(`${API_BASE}/pandits?${p.toString()}`, { signal: AbortSignal.timeout(5000) })
       .then((r) => r.ok ? r.json() : Promise.reject())
       .then((j) => {
@@ -272,9 +272,9 @@ export default function BookingWizardClient() {
           setPandits(
             data.map((p: Record<string, unknown>) => ({
               id: String(p.id),
-              displayName: String(p.displayName ?? p.name ?? ""),
-              profilePhotoUrl: (p.profilePhotoUrl as string) ?? "",
-              city: String(p.city ?? ""),
+              displayName: String(p.displayName ?? p.name ?? &quot;&quot;),
+              profilePhotoUrl: (p.profilePhotoUrl as string) ?? &quot;&quot;,
+              city: String(p.city ?? &quot;&quot;),
               averageRating: Number(p.averageRating ?? 0),
               totalReviews: Number(p.totalReviews ?? 0),
               specializations: Array.isArray(p.specializations) ? p.specializations as string[] : [],
@@ -291,7 +291,7 @@ export default function BookingWizardClient() {
   }
 
   async function importFromContacts() {
-    if (typeof navigator === "undefined") return;
+    if (typeof navigator === &quot;undefined&quot;) return;
     const nav = navigator as Navigator & {
       contacts?: {
         select?: (props: string[], options?: { multiple?: boolean }) => Promise<Array<{ name?: string[] }>>;
@@ -299,12 +299,12 @@ export default function BookingWizardClient() {
     };
 
     if (!nav.contacts?.select) {
-      setContactImportMessage("Contacts access is not supported on this browser. Please type family names manually.");
+      setContactImportMessage(&quot;Contacts access is not supported on this browser. Please type family names manually.&quot;);
       return;
     }
 
     try {
-      const picked = await nav.contacts.select(["name"], { multiple: true });
+      const picked = await nav.contacts.select([&quot;name&quot;], { multiple: true });
       const names = picked
         .map((c) => c.name?.[0]?.trim())
         .filter((n): n is string => !!n && n.length > 0);
@@ -313,12 +313,12 @@ export default function BookingWizardClient() {
         set({
           familyMembers: Array.from(new Set([...form.familyMembers, ...names])).slice(0, 10),
         });
-        setContactImportMessage(`${names.length} family member${names.length > 1 ? "s" : ""} imported from contacts.`);
+        setContactImportMessage(`${names.length} family member${names.length > 1 ? &quot;s&quot; : &quot;&quot;} imported from contacts.`);
       } else {
-        setContactImportMessage("No contact names were selected.");
+        setContactImportMessage(&quot;No contact names were selected.&quot;);
       }
     } catch {
-      setContactImportMessage("Contacts permission denied or cancelled. You can continue by entering names manually.");
+      setContactImportMessage(&quot;Contacts permission denied or cancelled. You can continue by entering names manually.&quot;);
     }
   }
 
@@ -330,8 +330,8 @@ export default function BookingWizardClient() {
     if (!pandit) return;
     try {
       const res = await fetch(`${API_BASE}/travel/calculate`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: &quot;POST&quot;,
+        headers: { &quot;Content-Type&quot;: &quot;application/json&quot; },
         body: JSON.stringify({
           fromCity: pandit.city,
           toCity: form.venueCity,
@@ -377,10 +377,10 @@ export default function BookingWizardClient() {
     !!form.venueCity &&
     selectedPandit.city.trim().toLowerCase() !== form.venueCity.trim().toLowerCase();
   const travelDays = isOutstation ? 2 : 0;
-  const pujaMealAllowanceDays = form.foodArrangement === "PLATFORM_ALLOWANCE" ? eventDays : 0;
+  const pujaMealAllowanceDays = form.foodArrangement === &quot;PLATFORM_ALLOWANCE&quot; ? eventDays : 0;
   const foodAllowanceDays = travelDays + pujaMealAllowanceDays;
   const localTransportCost = isOutstation && form.localTransportNeeded ? form.localTransportCost : 0;
-  const accommodationCost = isOutstation && form.accommodationArrangement === "PLATFORM_BOOKS" ? form.accommodationCost : 0;
+  const accommodationCost = isOutstation && form.accommodationArrangement === &quot;PLATFORM_BOOKS&quot; ? form.accommodationCost : 0;
   const effectiveTravelCost = form.travelCost + localTransportCost;
 
   const platformFee = Math.round(form.dakshina * PLATFORM_FEE_PCT);
@@ -406,9 +406,9 @@ export default function BookingWizardClient() {
     if (!selectedPandit || isOutstation) return;
     setForm((prev) => {
       if (
-        prev.travelMode === "LOCAL" &&
+        prev.travelMode === &quot;LOCAL&quot; &&
         prev.travelCost === 0 &&
-        prev.accommodationArrangement === "NOT_NEEDED" &&
+        prev.accommodationArrangement === &quot;NOT_NEEDED&quot; &&
         prev.accommodationCost === 0 &&
         prev.localTransportNeeded === false &&
         prev.localTransportCost === 0
@@ -417,9 +417,9 @@ export default function BookingWizardClient() {
       }
       return {
         ...prev,
-        travelMode: "LOCAL",
+        travelMode: &quot;LOCAL&quot;,
         travelCost: 0,
-        accommodationArrangement: "NOT_NEEDED",
+        accommodationArrangement: &quot;NOT_NEEDED&quot;,
         accommodationCost: 0,
         localTransportNeeded: false,
         localTransportCost: 0,
@@ -430,8 +430,8 @@ export default function BookingWizardClient() {
   useEffect(() => {
     if (!isOutstation) return;
     setForm((prev) => {
-      if (prev.accommodationArrangement !== "NOT_NEEDED") return prev;
-      return { ...prev, accommodationArrangement: "CUSTOMER_ARRANGES" };
+      if (prev.accommodationArrangement !== &quot;NOT_NEEDED&quot;) return prev;
+      return { ...prev, accommodationArrangement: &quot;CUSTOMER_ARRANGES&quot; };
     });
   }, [isOutstation]);
 
@@ -457,8 +457,8 @@ export default function BookingWizardClient() {
         return !!form.ritualVariation;
       case 4:
         if (!samagriItem) return false;
-        if (form.samagri === "PANDIT_PACKAGE" && samagriItem.type !== "package") return false;
-        if (form.samagri === "PLATFORM_CUSTOM" && samagriItem.type !== "custom") return false;
+        if (form.samagri === &quot;PANDIT_PACKAGE&quot; && samagriItem.type !== &quot;package&quot;) return false;
+        if (form.samagri === &quot;PLATFORM_CUSTOM&quot; && samagriItem.type !== &quot;custom&quot;) return false;
         return true;
       case 5:
         return false; // payment handles progression
@@ -475,21 +475,21 @@ export default function BookingWizardClient() {
       return;
     }
     setLoading(true);
-    setError("");
+    setError(&quot;&quot;);
     try {
       // Create booking
       const bookingRes = await fetch(`${API_BASE}/bookings`, {
-        method: "POST",
+        method: &quot;POST&quot;,
         headers: {
-          "Content-Type": "application/json",
+          &quot;Content-Type&quot;: &quot;application/json&quot;,
           Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({
           eventType: form.ritualName,
           panditId: form.panditId,
-          eventDate: new Date(`${form.eventDate}T${form.eventTime || '09:00'}:00`).toISOString(),
+          eventDate: new Date(`${form.eventDate}T${form.eventTime || &apos;09:00&apos;}:00`).toISOString(),
           muhuratTime: form.eventTime,
-          venueAddress: `${form.venueLine1}${form.venueLine2 ? ", " + form.venueLine2 : ""}${form.venueState ? ", " + form.venueState : ""}`,
+          venueAddress: `${form.venueLine1}${form.venueLine2 ? &quot;, &quot; + form.venueLine2 : &quot;&quot;}${form.venueState ? &quot;, &quot; + form.venueState : &quot;&quot;}`,
           venueCity: form.venueCity,
           venuePincode: form.venuePincode,
           attendees: form.attendees,
@@ -501,27 +501,27 @@ export default function BookingWizardClient() {
           foodAllowanceDays,
           accommodationArrangement: form.accommodationArrangement,
 
-          samagriPreference: form.samagri === "PANDIT_PACKAGE" ? "PANDIT_BRINGS" : "CUSTOMER_ARRANGES",
+          samagriPreference: form.samagri === &quot;PANDIT_PACKAGE&quot; ? &quot;PANDIT_BRINGS&quot; : &quot;CUSTOMER_ARRANGES&quot;,
           samagriAmount: samagriCost,
           samagriNotes: samagriItem
-            ? `${samagriItem.type === "package" ? "Pandit fixed package" : "Platform custom list"} | Total: ${fmt(samagriItem.totalCost)}`
+            ? `${samagriItem.type === &quot;package&quot; ? &quot;Pandit fixed package&quot; : &quot;Platform custom list&quot;} | Total: ${fmt(samagriItem.totalCost)}`
             : undefined,
           specialInstructions: [
             form.specialInstructions,
-            form.gotra ? `Gotra: ${form.gotra}` : "",
-            form.familyMembers.length > 0 ? `Family members: ${form.familyMembers.join(", ")}` : "",
-            `Samagri path: ${form.samagri === "PANDIT_PACKAGE" ? "Pandit's Fixed Package" : "Platform Custom List"}.`,
-            isOutstation ? `Accommodation: ${form.accommodationArrangement}.` : "Local booking (no accommodation required).",
-            form.localTransportNeeded ? `Local transport arranged via platform (${fmt(form.localTransportCost)}).` : "",
-            muhuratConsultation ? "Muhurat consultation requested (â‚¹499)." : "Muhurat consultation skipped.",
-            addons.backup ? "Backup Guarantee added (â‚¹9,999)." : "",
-          ].filter(Boolean).join(" | "),
+            form.gotra ? `Gotra: ${form.gotra}` : &quot;&quot;,
+            form.familyMembers.length > 0 ? `Family members: ${form.familyMembers.join(&quot;, &quot;)}` : &quot;&quot;,
+            `Samagri path: ${form.samagri === &quot;PANDIT_PACKAGE&quot; ? &quot;Pandit&apos;s Fixed Package&quot; : &quot;Platform Custom List&quot;}.`,
+            isOutstation ? `Accommodation: ${form.accommodationArrangement}.` : &quot;Local booking (no accommodation required).&quot;,
+            form.localTransportNeeded ? `Local transport arranged via platform (${fmt(form.localTransportCost)}).` : &quot;&quot;,
+            muhuratConsultation ? &quot;Muhurat consultation requested (â‚¹499).&quot; : &quot;Muhurat consultation skipped.&quot;,
+            addons.backup ? &quot;Backup Guarantee added (â‚¹9,999).&quot; : &quot;&quot;,
+          ].filter(Boolean).join(&quot; | &quot;),
         }),
       });
 
       if (!bookingRes.ok) {
         const j = await bookingRes.json().catch(() => ({}));
-        throw new Error((j as { message?: string }).message ?? "Could not create booking");
+        throw new Error((j as { message?: string }).message ?? &quot;Could not create booking&quot;);
       }
 
       const bookingJson = await bookingRes.json();
@@ -531,9 +531,9 @@ export default function BookingWizardClient() {
 
       // Create payment order
       const payRes = await fetch(`${API_BASE}/payments/create-order`, {
-        method: "POST",
+        method: &quot;POST&quot;,
         headers: {
-          "Content-Type": "application/json",
+          &quot;Content-Type&quot;: &quot;application/json&quot;,
           Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({ bookingId }),
@@ -541,7 +541,7 @@ export default function BookingWizardClient() {
 
       if (!payRes.ok) {
         const j = await payRes.json().catch(() => ({}));
-        throw new Error((j as { message?: string }).message ?? "Could not create payment order");
+        throw new Error((j as { message?: string }).message ?? &quot;Could not create payment order&quot;);
       }
 
       const payJson = await payRes.json();
@@ -553,14 +553,14 @@ export default function BookingWizardClient() {
       });
       setPaymentReady(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+      setError(err instanceof Error ? err.message : &quot;Something went wrong. Please try again.&quot;);
       // For demo/mock mode, simulate success
       if (!form.bookingId) {
         const mockId = `bk_mock_${Date.now()}`;
         const mockNumber = `HPJ-${Date.now().toString(36).toUpperCase()}`;
         set({ bookingId: mockId, bookingNumber: mockNumber, orderId: `order_mock_${Date.now()}` });
         setPaymentReady(true);
-        setError("");
+        setError(&quot;&quot;);
       }
     } finally {
       setLoading(false);
@@ -578,13 +578,13 @@ export default function BookingWizardClient() {
   function next() {
     if (step === 1 && !isOutstation) {
       set({
-        travelMode: "LOCAL",
+        travelMode: &quot;LOCAL&quot;,
         travelCost: 0,
-        accommodationArrangement: "NOT_NEEDED",
+        accommodationArrangement: &quot;NOT_NEEDED&quot;,
         accommodationCost: 0,
         localTransportNeeded: false,
         localTransportCost: 0,
-        foodArrangement: "CUSTOMER_PROVIDES",
+        foodArrangement: &quot;CUSTOMER_PROVIDES&quot;,
       });
       setStep(3);
       return;
@@ -637,7 +637,7 @@ export default function BookingWizardClient() {
           <h1 className="text-2xl font-bold text-slate-800 mb-2">Booking Confirmed!</h1>
           <p className="text-slate-500 mb-2">Your booking has been placed successfully.</p>
           <div className="inline-block bg-[#f49d25]/10 text-[#c47c0e] px-4 py-2 rounded-xl text-sm font-bold mb-6">
-            {form.bookingNumber || "HPJ-XXXXXX"}
+            {form.bookingNumber || &quot;HPJ-XXXXXX&quot;}
           </div>
           <div className="bg-slate-50 rounded-xl p-4 text-left space-y-2 mb-6">
             <div className="flex items-center gap-2 text-sm text-slate-600">
@@ -646,7 +646,7 @@ export default function BookingWizardClient() {
             </div>
             <div className="flex items-center gap-2 text-sm text-slate-600">
               <span className="material-symbols-outlined text-base text-[#f49d25]">calendar_month</span>
-              <span>{new Date(form.eventDate).toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</span>
+              <span>{new Date(form.eventDate).toLocaleDateString(&quot;en-IN&quot;, { weekday: &quot;long&quot;, day: &quot;numeric&quot;, month: &quot;long&quot;, year: &quot;numeric&quot; })}</span>
             </div>
             <div className="flex items-center gap-2 text-sm text-slate-600">
               <span className="material-symbols-outlined text-base text-[#f49d25]">person</span>
@@ -663,13 +663,13 @@ export default function BookingWizardClient() {
           </div>
           <div className="flex gap-3">
             <button
-              onClick={() => router.push("/dashboard/bookings")}
+              onClick={() => router.push(&quot;/dashboard/bookings&quot;)}
               className="flex-1 py-3 rounded-xl border border-slate-200 text-slate-600 font-medium hover:bg-slate-50 transition-colors text-sm"
             >
               View Bookings
             </button>
             <button
-              onClick={() => router.push("/")}
+              onClick={() => router.push(&quot;/&quot;)}
               className="flex-1 py-3 rounded-xl bg-[#f49d25] hover:bg-[#e08c14] text-white font-semibold transition-colors text-sm"
             >
               Go Home
@@ -712,14 +712,14 @@ export default function BookingWizardClient() {
                 value={form.ritualId}
                 onChange={(e) => {
                   const r = rituals.find((r) => r.id === e.target.value);
-                  set({ ritualId: e.target.value, ritualName: r?.name ?? "", dakshina: r?.baseDakshina ?? 0 });
+                  set({ ritualId: e.target.value, ritualName: r?.name ?? &quot;&quot;, dakshina: r?.baseDakshina ?? 0 });
                 }}
                 className="w-full px-4 py-2.5 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#f49d25]/40 focus:border-[#f49d25] text-slate-700"
               >
                 <option value="">Select a ceremony</option>
                 {rituals.map((r) => (
                   <option key={r.id} value={r.id}>
-                    {r.name} {r.nameHindi ? `(${r.nameHindi})` : ""} {r.durationMinutes ? `Â· ${r.durationMinutes} min` : ""}
+                    {r.name} {r.nameHindi ? `(${r.nameHindi})` : &quot;&quot;} {r.durationMinutes ? `Â· ${r.durationMinutes} min` : &quot;&quot;}
                   </option>
                 ))}
               </select>
@@ -766,7 +766,7 @@ export default function BookingWizardClient() {
                   <input
                     type="checkbox"
                     checked={form.isMultiDay}
-                    onChange={(e) => set({ isMultiDay: e.target.checked, endDate: e.target.checked ? form.endDate : "" })}
+                    onChange={(e) => set({ isMultiDay: e.target.checked, endDate: e.target.checked ? form.endDate : &quot;&quot; })}
                     className="accent-[#f49d25]"
                   />
                   This ceremony spans multiple days
@@ -815,7 +815,7 @@ export default function BookingWizardClient() {
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">Pincode <span className="text-red-400">*</span></label>
                 <input
                   value={form.venuePincode}
-                  onChange={(e) => set({ venuePincode: e.target.value.replace(/\D/g, "").slice(0, 6) })}
+                  onChange={(e) => set({ venuePincode: e.target.value.replace(/\D/g, &quot;&quot;).slice(0, 6) })}
                   placeholder="110001"
                   maxLength={6}
                   className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#f49d25]/40 focus:border-[#f49d25] text-slate-700"
@@ -859,7 +859,7 @@ export default function BookingWizardClient() {
                       const nextName = familyInput.trim();
                       if (!nextName) return;
                       set({ familyMembers: Array.from(new Set([...form.familyMembers, nextName])).slice(0, 10) });
-                      setFamilyInput("");
+                      setFamilyInput(&quot;&quot;);
                     }}
                     className="px-3 py-2 text-xs font-semibold rounded-lg bg-[#f49d25] text-white hover:bg-[#e08c14]"
                   >
@@ -896,7 +896,7 @@ export default function BookingWizardClient() {
                 <span className="material-symbols-outlined text-[#f49d25]">person</span>
                 Select a Pandit
               </h2>
-              <p className="text-sm text-slate-400 mb-5">Choose a verified pandit for your {form.ritualName || "ceremony"}</p>
+              <p className="text-sm text-slate-400 mb-5">Choose a verified pandit for your {form.ritualName || &quot;ceremony&quot;}</p>
 
               <div className="space-y-3">
                 {pandits.map((p) => {
@@ -906,8 +906,8 @@ export default function BookingWizardClient() {
                       key={p.id}
                       onClick={() => set({ panditId: p.id, panditName: p.displayName, dakshina: p.baseDakshina })}
                       className={`w-full text-left p-4 rounded-xl border-2 transition-all ${selected
-                        ? "border-[#f49d25] bg-[#f49d25]/5 shadow-md"
-                        : "border-slate-100 bg-white hover:border-slate-200 hover:shadow-sm"
+                        ? &quot;border-[#f49d25] bg-[#f49d25]/5 shadow-md&quot;
+                        : &quot;border-slate-100 bg-white hover:border-slate-200 hover:shadow-sm&quot;
                         }`}
                     >
                       <div className="flex items-start gap-3">
@@ -984,11 +984,11 @@ export default function BookingWizardClient() {
                   {travelOptions.map((t) => {
                     const selected = form.travelMode === t.mode;
                     const icons: Record<string, string> = {
-                      SELF_DRIVE: "directions_car",
-                      CAB: "local_taxi",
-                      TRAIN: "train",
-                      FLIGHT: "flight",
-                      BUS: "directions_bus",
+                      SELF_DRIVE: &quot;directions_car&quot;,
+                      CAB: &quot;local_taxi&quot;,
+                      TRAIN: &quot;train&quot;,
+                      FLIGHT: &quot;flight&quot;,
+                      BUS: &quot;directions_bus&quot;,
                     };
                     return (
                       <div
@@ -997,13 +997,13 @@ export default function BookingWizardClient() {
                           set({
                             travelMode: t.mode,
                             travelCost: t.totalCost,
-                            localTransportNeeded: t.mode === "SELF_DRIVE" ? false : form.localTransportNeeded,
-                            localTransportCost: t.mode === "SELF_DRIVE" ? 0 : form.localTransportCost,
+                            localTransportNeeded: t.mode === &quot;SELF_DRIVE&quot; ? false : form.localTransportNeeded,
+                            localTransportCost: t.mode === &quot;SELF_DRIVE&quot; ? 0 : form.localTransportCost,
                           })
                         }
                         className={`relative group cursor-pointer border-2 rounded-xl p-5 flex flex-col h-full transition-all hover:shadow-md ${selected
-                          ? "border-primary bg-primary/5"
-                          : "border-slate-100 bg-white hover:border-primary/50"
+                          ? &quot;border-primary bg-primary/5&quot;
+                          : &quot;border-slate-100 bg-white hover:border-primary/50&quot;
                           }`}
                       >
                         {selected && (
@@ -1015,13 +1015,13 @@ export default function BookingWizardClient() {
                           }`}>
                           <span className={`material-symbols-outlined text-3xl ${selected ? "text-primary" : "text-slate-400 group-hover:text-primary"
                             }`}>
-                            {icons[t.mode] ?? "route"}
+                            {icons[t.mode] ?? &quot;route&quot;}
                           </span>
                         </div>
 
                         <h3 className="font-bold text-slate-900 mb-1">{t.label}</h3>
                         <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
-                          {t.estimatedDuration ? `Est. ${t.estimatedDuration}` : "Standard Travel"}
+                          {t.estimatedDuration ? `Est. ${t.estimatedDuration}` : &quot;Standard Travel&quot;}
                         </p>
 
                         <div className="mt-auto pt-4">
@@ -1030,7 +1030,7 @@ export default function BookingWizardClient() {
                             ? "bg-primary text-white"
                             : "bg-slate-100 text-slate-900 group-hover:bg-primary/20 group-hover:text-primary"
                             }`}>
-                            {selected ? "Selected" : "Select"}
+                            {selected ? &quot;Selected&quot; : &quot;Select&quot;}
                           </button>
                         </div>
                       </div>
@@ -1046,13 +1046,13 @@ export default function BookingWizardClient() {
                   <div className="space-y-4">
                     {[
                       {
-                        value: "CUSTOMER_PROVIDES" as FoodArrangement,
-                        label: "Yes, I will provide meals on puja days",
+                        value: &quot;CUSTOMER_PROVIDES&quot; as FoodArrangement,
+                        label: &quot;Yes, I will provide meals on puja days&quot;,
                         desc: `Travel days (${travelDays}) still include mandatory food allowance.`,
                       },
                       {
-                        value: "PLATFORM_ALLOWANCE" as FoodArrangement,
-                        label: "No, please add food allowance",
+                        value: &quot;PLATFORM_ALLOWANCE&quot; as FoodArrangement,
+                        label: &quot;No, please add food allowance&quot;,
                         desc: `${fmt(FOOD_PER_DAY)} added per day. Current allowance days: ${foodAllowanceDays}.`,
                       },
                     ].map((opt) => {
@@ -1069,7 +1069,7 @@ export default function BookingWizardClient() {
                             onChange={() =>
                               set({
                                 foodArrangement: opt.value,
-                                foodCost: FOOD_PER_DAY * (travelDays + (opt.value === "PLATFORM_ALLOWANCE" ? eventDays : 0)),
+                                foodCost: FOOD_PER_DAY * (travelDays + (opt.value === &quot;PLATFORM_ALLOWANCE&quot; ? eventDays : 0)),
                               })
                             }
                             className="w-5 h-5 text-primary border-slate-300 focus:ring-primary accent-primary"
@@ -1096,8 +1096,8 @@ export default function BookingWizardClient() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {[
-                      { value: "CUSTOMER_ARRANGES", label: "Customer will arrange hotel" },
-                      { value: "PLATFORM_BOOKS", label: "Book via platform" },
+                      { value: &quot;CUSTOMER_ARRANGES&quot;, label: &quot;Customer will arrange hotel&quot; },
+                      { value: &quot;PLATFORM_BOOKS&quot;, label: &quot;Book via platform&quot; },
                     ].map((opt) => {
                       const active = form.accommodationArrangement === opt.value;
                       return (
@@ -1106,16 +1106,16 @@ export default function BookingWizardClient() {
                           type="button"
                           onClick={() =>
                             set({
-                              accommodationArrangement: opt.value as BookingFormData["accommodationArrangement"],
+                              accommodationArrangement: opt.value as BookingFormData[&quot;accommodationArrangement&quot;],
                               accommodationCost:
-                                opt.value === "PLATFORM_BOOKS"
+                                opt.value === &quot;PLATFORM_BOOKS&quot;
                                   ? (form.accommodationCost > 0 ? form.accommodationCost : 3000)
                                   : 0,
                             })
                           }
                           className={`text-left p-4 rounded-xl border-2 transition-all ${active
-                            ? "border-primary bg-primary/5"
-                            : "border-slate-100 hover:border-slate-200"
+                            ? &quot;border-primary bg-primary/5&quot;
+                            : &quot;border-slate-100 hover:border-slate-200&quot;
                             }`}
                         >
                           <p className="text-sm font-semibold text-slate-800">{opt.label}</p>
@@ -1124,7 +1124,7 @@ export default function BookingWizardClient() {
                     })}
                   </div>
 
-                  {form.accommodationArrangement === "PLATFORM_BOOKS" && (
+                  {form.accommodationArrangement === &quot;PLATFORM_BOOKS&quot; && (
                     <div>
                       <label className="block text-sm font-medium text-slate-700 mb-1.5">Estimated Hotel Cost</label>
                       <input
@@ -1138,7 +1138,7 @@ export default function BookingWizardClient() {
                     </div>
                   )}
 
-                  {form.travelMode !== "SELF_DRIVE" && (
+                  {form.travelMode !== &quot;SELF_DRIVE&quot; && (
                     <div className="rounded-xl border border-slate-200 p-4">
                       <label className="flex items-center gap-2 text-sm font-medium text-slate-800">
                         <input
@@ -1193,20 +1193,20 @@ export default function BookingWizardClient() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
                 {[
                   {
-                    value: "PANDIT_PACKAGE" as SamagriOption,
-                    label: "Pandit's Fixed Package",
-                    icon: "inventory_2",
-                    badge: "Fixed Package",
-                    badgeClass: "bg-amber-100 text-amber-700",
-                    desc: "Pre-defined item list and fixed non-negotiable package cost.",
+                    value: &quot;PANDIT_PACKAGE&quot; as SamagriOption,
+                    label: &quot;Pandit&apos;s Fixed Package&quot;,
+                    icon: &quot;inventory_2&quot;,
+                    badge: &quot;Fixed Package&quot;,
+                    badgeClass: &quot;bg-amber-100 text-amber-700&quot;,
+                    desc: &quot;Pre-defined item list and fixed non-negotiable package cost.&quot;,
                   },
                   {
-                    value: "PLATFORM_CUSTOM" as SamagriOption,
-                    label: "Platform Custom List",
-                    icon: "shopping_cart",
-                    badge: "Custom List",
-                    badgeClass: "bg-blue-100 text-blue-700",
-                    desc: "Build your own item list with platform market pricing.",
+                    value: &quot;PLATFORM_CUSTOM&quot; as SamagriOption,
+                    label: &quot;Platform Custom List&quot;,
+                    icon: &quot;shopping_cart&quot;,
+                    badge: &quot;Custom List&quot;,
+                    badgeClass: &quot;bg-blue-100 text-blue-700&quot;,
+                    desc: &quot;Build your own item list with platform market pricing.&quot;,
                   },
                 ].map((opt) => {
                   const active = form.samagri === opt.value;
@@ -1218,13 +1218,13 @@ export default function BookingWizardClient() {
                         set({ samagri: opt.value });
                         if (
                           samagriItem &&
-                          ((opt.value === "PANDIT_PACKAGE" && samagriItem.type !== "package") ||
-                            (opt.value === "PLATFORM_CUSTOM" && samagriItem.type !== "custom"))
+                          ((opt.value === &quot;PANDIT_PACKAGE&quot; && samagriItem.type !== &quot;package&quot;) ||
+                            (opt.value === &quot;PLATFORM_CUSTOM&quot; && samagriItem.type !== &quot;custom&quot;))
                         ) {
                           setSamagriItem(null);
                         }
                       }}
-                      className={`p-4 rounded-xl border-2 transition-all text-left ${active ? "border-[#f49d25] bg-[#f49d25]/5" : "border-slate-100 hover:border-slate-200"
+                      className={`p-4 rounded-xl border-2 transition-all text-left ${active ? &quot;border-[#f49d25] bg-[#f49d25]/5&quot; : &quot;border-slate-100 hover:border-slate-200&quot;
                         }`}
                     >
                       <div className="flex items-start justify-between gap-2">
@@ -1240,16 +1240,16 @@ export default function BookingWizardClient() {
 
               <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
                 {samagriItem && (
-                  ((form.samagri === "PANDIT_PACKAGE" && samagriItem.type === "package") ||
-                    (form.samagri === "PLATFORM_CUSTOM" && samagriItem.type === "custom"))
+                  ((form.samagri === &quot;PANDIT_PACKAGE&quot; && samagriItem.type === &quot;package&quot;) ||
+                    (form.samagri === &quot;PLATFORM_CUSTOM&quot; && samagriItem.type === &quot;custom&quot;))
                 ) ? (
                   <div className="flex items-center justify-between gap-4">
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <span className="font-semibold text-slate-800">
-                          {samagriItem.type === "package"
-                            ? `${samagriItem.packageName || "Fixed"} Package`
-                            : "Custom Item List"}
+                          {samagriItem.type === &quot;package&quot;
+                            ? `${samagriItem.packageName || &quot;Fixed&quot;} Package`
+                            : &quot;Custom Item List&quot;}
                         </span>
                         <span className="px-2 py-0.5 bg-green-100 text-green-700 text-[10px] font-bold rounded-full uppercase">
                           Selected
@@ -1270,16 +1270,16 @@ export default function BookingWizardClient() {
                 ) : (
                   <div className="text-center py-2">
                     <p className="text-sm text-slate-500 mb-3">
-                      {form.samagri === "PANDIT_PACKAGE"
-                        ? "Select a fixed package from Pandit Ji."
-                        : "Build your custom samagri list."}
+                      {form.samagri === &quot;PANDIT_PACKAGE&quot;
+                        ? &quot;Select a fixed package from Pandit Ji.&quot;
+                        : &quot;Build your custom samagri list.&quot;}
                     </p>
                     <button
                       type="button"
                       onClick={() => setShowSamagriModal(true)}
                       className="px-4 py-2 bg-[#f49d25] text-white text-sm font-semibold rounded-lg hover:bg-[#e08c14] transition-colors"
                     >
-                      {form.samagri === "PANDIT_PACKAGE" ? "Select Fixed Package" : "Build Custom List"}
+                      {form.samagri === &quot;PANDIT_PACKAGE&quot; ? &quot;Select Fixed Package&quot; : &quot;Build Custom List&quot;}
                     </button>
                   </div>
                 )}
@@ -1325,7 +1325,7 @@ export default function BookingWizardClient() {
                   <div className="flex flex-col border-b border-[#f5f3f0] dark:border-[#3d3326] pb-2">
                     <span className="text-[#8a7960] text-xs uppercase tracking-wider font-semibold">Date & Time</span>
                     <span className="text-[#181511] dark:text-white font-medium">
-                      {new Date(form.eventDate).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}
+                      {new Date(form.eventDate).toLocaleDateString(&quot;en-IN&quot;, { day: &quot;numeric&quot;, month: &quot;long&quot;, year: &quot;numeric&quot; })}
                       {form.eventTime && ` · ${form.eventTime}`}
                     </span>
                   </div>
@@ -1356,7 +1356,7 @@ export default function BookingWizardClient() {
                   {samagriCost > 0 && (
                     <div className="flex justify-between items-start py-2">
                       <div>
-                        <p className="text-[#181511] dark:text-white font-semibold flex items-center gap-1">Samagri Package <span className="text-[10px] px-1.5 py-0.5 rounded bg-green-100 text-green-700 font-bold uppercase tracking-wider ml-1">{samagriItem?.type === "package" ? "Standard" : "Custom"}</span></p>
+                        <p className="text-[#181511] dark:text-white font-semibold flex items-center gap-1">Samagri Package <span className="text-[10px] px-1.5 py-0.5 rounded bg-green-100 text-green-700 font-bold uppercase tracking-wider ml-1">{samagriItem?.type === &quot;package&quot; ? &quot;Standard&quot; : &quot;Custom&quot;}</span></p>
                         <p className="text-[#8a7960] text-xs">Including organic materials and essentials</p>
                       </div>
                       <span className="font-semibold">{fmt(samagriCost)}</span>
@@ -1378,7 +1378,7 @@ export default function BookingWizardClient() {
                     )}
                     {foodAllowance > 0 && (
                       <div className="flex justify-between text-sm">
-                        <span className="text-[#8a7960]">Food Allowance ({foodAllowanceDays} day{foodAllowanceDays > 1 ? "s" : ""})</span>
+                        <span className="text-[#8a7960]">Food Allowance ({foodAllowanceDays} day{foodAllowanceDays > 1 ? &quot;s&quot; : &quot;&quot;})</span>
                         <span className="font-medium text-[#181511] dark:text-white">{fmt(foodAllowance)}</span>
                       </div>
                     )}
@@ -1442,9 +1442,9 @@ export default function BookingWizardClient() {
                       </div>
                       <button
                         onClick={() => setMuhuratConsultation(!muhuratConsultation)}
-                        className={`w-7 h-7 flex items-center justify-center rounded transition-colors ${muhuratConsultation ? "bg-[#f49d25] text-white" : "bg-[#f49d25]/10 hover:bg-[#f49d25] text-[#f49d25] hover:text-white"}`}
+                        className={`w-7 h-7 flex items-center justify-center rounded transition-colors ${muhuratConsultation ? &quot;bg-[#f49d25] text-white&quot; : &quot;bg-[#f49d25]/10 hover:bg-[#f49d25] text-[#f49d25] hover:text-white&quot;}`}
                       >
-                        <span className="material-symbols-outlined text-sm font-bold">{muhuratConsultation ? "check" : "add"}</span>
+                        <span className="material-symbols-outlined text-sm font-bold">{muhuratConsultation ? &quot;check&quot; : &quot;add&quot;}</span>
                       </button>
                     </div>
                   </div>
@@ -1458,9 +1458,9 @@ export default function BookingWizardClient() {
                     </div>
                     <button
                       onClick={() => setAddons(prev => ({ ...prev, visarjan: !prev.visarjan }))}
-                      className={`w-7 h-7 flex items-center justify-center rounded transition-colors ${addons.visarjan ? "bg-[#f49d25] text-white" : "bg-[#f49d25]/10 hover:bg-[#f49d25] text-[#f49d25] hover:text-white"}`}
+                      className={`w-7 h-7 flex items-center justify-center rounded transition-colors ${addons.visarjan ? &quot;bg-[#f49d25] text-white&quot; : &quot;bg-[#f49d25]/10 hover:bg-[#f49d25] text-[#f49d25] hover:text-white&quot;}`}
                     >
-                      <span className="material-symbols-outlined text-sm font-bold">{addons.visarjan ? "check" : "add"}</span>
+                      <span className="material-symbols-outlined text-sm font-bold">{addons.visarjan ? &quot;check&quot; : &quot;add&quot;}</span>
                     </button>
                   </div>
                 </div>
@@ -1501,9 +1501,9 @@ export default function BookingWizardClient() {
                     disabled={loading}
                     className="w-full bg-[#f49d25] hover:bg-[#e08c14] text-white font-bold py-5 flex items-center justify-center gap-2 text-lg transition-all group disabled:opacity-70 disabled:cursor-not-allowed"
                   >
-                    {loading ? "Processing..." : (
+                    {loading ? &quot;Processing...&quot; : (
                       <>
-                        {grandTotal > 5000 ? `Pay Advance (${fmt(payableNow)})` : "Proceed to Payment"}
+                        {grandTotal > 5000 ? `Pay Advance (${fmt(payableNow)})` : &quot;Proceed to Payment&quot;}
                         <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
                       </>
                     )}
@@ -1559,7 +1559,7 @@ export default function BookingWizardClient() {
                 disabled={!canNext()}
                 className="flex-1 py-3 rounded-xl bg-[#f49d25] hover:bg-[#e08c14] disabled:opacity-50 text-white font-bold text-sm transition-all"
               >
-                {step === 4 ? (user ? "Review & Pay" : "Login & Continue") : "Continue"}
+                {step === 4 ? (user ? &quot;Review & Pay&quot; : &quot;Login & Continue&quot;) : &quot;Continue&quot;}
               </button>
             </div>
           </div>
@@ -1573,7 +1573,7 @@ export default function BookingWizardClient() {
             panditId={form.panditId}
             pujaType={form.ritualName}
             onSelect={(selection) => {
-              set({ samagri: selection.type === "package" ? "PANDIT_PACKAGE" : "PLATFORM_CUSTOM" });
+              set({ samagri: selection.type === &quot;package&quot; ? &quot;PANDIT_PACKAGE&quot; : &quot;PLATFORM_CUSTOM&quot; });
               setSamagriItem({ ...selection, pujaType: form.ritualName });
               setShowSamagriModal(false);
             }}

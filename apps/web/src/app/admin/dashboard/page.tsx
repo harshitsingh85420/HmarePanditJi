@@ -187,15 +187,15 @@ export default function AdminDashboardPage() {
                                     </h3>
                                     <div className="flex gap-2 text-base font-medium">
                                         <span className="flex items-center gap-1">
-                                            <span className="size-2 rounded-full bg-[#0bda19]"></span>{" "}
+                                            <span className="size-2 rounded-full bg-[#0bda19]"></span>{&quot; &quot;}
                                             On Time
                                         </span>
                                         <span className="flex items-center gap-1">
-                                            <span className="size-2 rounded-full bg-[#f49d25]"></span>{" "}
+                                            <span className="size-2 rounded-full bg-[#f49d25]"></span>{&quot; &quot;}
                                             Minor Delay
                                         </span>
                                         <span className="flex items-center gap-1">
-                                            <span className="size-2 rounded-full bg-[#fa3f38]"></span>{" "}
+                                            <span className="size-2 rounded-full bg-[#fa3f38]"></span>{&quot; &quot;}
                                             Critical
                                         </span>
                                     </div>

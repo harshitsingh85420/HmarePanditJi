@@ -130,7 +130,7 @@ export default function ProfilePage() {
                                 </p>
                             </div>
                             <button
-                                onClick={() => router.push('/dashboard/profile/family')}
+                                onClick={() => router.push(&apos;/dashboard/profile/family&apos;)}
                                 className="flex items-center gap-2 bg-[#f29e0d]/20 text-[#f29e0d] px-4 py-2 rounded-lg text-lg font-bold hover:bg-[#f29e0d]/30 transition-all"
                             >
                                 <span className="material-symbols-outlined text-base">add</span>

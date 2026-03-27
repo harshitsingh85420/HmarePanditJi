@@ -172,7 +172,7 @@ export default function LiveTrackingPage({ params }: { params: { id: string } })
 
                                     <div className="mt-3 p-3 bg-slate-50 dark:bg-white/5 rounded-lg border border-slate-100 dark:border-white/5 flex gap-3 items-center">
                                         <span className="material-symbols-outlined text-amber-500">traffic</span>
-                                        <p className="text-base text-slate-500 dark:text-slate-400 italic leading-tight">"Moderate traffic reported near Yamuna Expressway."</p>
+                                        <p className="text-base text-slate-500 dark:text-slate-400 italic leading-tight">&quot;Moderate traffic reported near Yamuna Expressway.&quot;</p>
                                     </div>
                                 </div>
                             </div>

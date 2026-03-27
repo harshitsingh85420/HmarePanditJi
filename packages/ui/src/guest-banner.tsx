@@ -3,14 +3,14 @@ import React from "react";
 
 export interface GuestBannerProps {
   onLoginClick: () => void;
-  variant?: "sticky" | "inline";
+  variant?: &quot;sticky&quot; | &quot;inline&quot;;
   className?: string;
 }
 
 export function GuestBanner({
   onLoginClick,
-  variant = "inline",
-  className = "",
+  variant = &quot;inline&quot;,
+  className = &quot;&quot;,
 }: GuestBannerProps) {
   return (
     <div

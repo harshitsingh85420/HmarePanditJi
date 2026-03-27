@@ -23,7 +23,7 @@ export default function ReferralLandingPage() {
   const [isValid, setIsValid] = useState<boolean | null>(null)
   const [referrerName, setReferrerName] = useState('')
   const [benefit, setBenefit] = useState('')
-  // const [loading, setLoading] = useState(true) // eslint-disable-line @typescript-eslint/no-unused-vars
+  const [isLoading, setIsLoading] = useState(true)
 
   // Manual entry state
   const [manualCode, setManualCode] = useState('')
@@ -43,7 +43,7 @@ export default function ReferralLandingPage() {
     const validateCode = async () => {
       if (!referralCode || referralCode.length < 6) {
         setIsValid(false)
-        setLoading(false)
+        setIsLoading(false)
         return
       }
 
@@ -68,7 +68,7 @@ export default function ReferralLandingPage() {
         console.error('[Referral] Validation error:', error)
         setIsValid(false)
       } finally {
-        setLoading(false)
+        setIsLoading(false)
       }
     }
 
@@ -111,7 +111,7 @@ export default function ReferralLandingPage() {
     // Validate format: 6-10 alphanumeric
     const codeFormat = /^[A-Za-z0-9]{6,10}$/
     if (!codeFormat.test(manualCode)) {
-      setManualError('Code must be 6-10 alphanumeric characters')
+      setManualError('कोड 6-10 अक्षरों का होना चाहिए')
       return
     }
 
@@ -193,7 +193,7 @@ export default function ReferralLandingPage() {
               <div className="flex items-center gap-3 mb-4">
                 <span className="material-symbols-outlined text-3xl">card_giftcard</span>
                 <div>
-                  <p className="text-white/80 text-base">Referral Code</p>
+                  <p className="text-white/80 text-base">रेफरल कोड</p>
                   <p className="text-2xl font-bold">{referralCode.toUpperCase()}</p>
                 </div>
               </div>
@@ -270,7 +270,7 @@ export default function ReferralLandingPage() {
             <div className="space-y-3">
               <button
                 onClick={handleContinue}
-                className="w-full min-h-[56px] bg-saffron text-white font-bold text-lg rounded-btn shadow-btn-saffron active:scale-[0.97] focus:ring-2 focus:ring-primary focus:outline-none"
+                className="w-full min-h-[52px] xs:min-h-[56px] sm:min-h-[72px] bg-saffron text-white font-bold text-lg rounded-2xl shadow-btn-saffron active:scale-[0.97] focus:ring-2 focus:ring-primary focus:outline-none"
               >
                 पंजीकरण शुरू करें →
               </button>
@@ -327,25 +327,18 @@ export default function ReferralLandingPage() {
                     onChange={(e) => setManualCode(e.target.value.toUpperCase())}
                     placeholder="REFERRAL CODE"
                     maxLength={10}
-                    className="w-full h-14 px-4 text-lg border-2 border-border-default rounded-btn focus:border-saffron focus:outline-none bg-surface-card uppercase tracking-wider"
+                    className="w-full min-h-[52px] xs:min-h-[56px] px-4 text-lg border-2 border-border-default rounded-2xl focus:border-saffron focus:outline-none bg-surface-card uppercase tracking-wider"
                     aria-label="Enter referral code manually"
                   />
-                  {manualError && (
-                    <p className="mt-2 text-lg text-error-red">{manualError}</p>
-                  )}
-                  {validatingManual && (
-                    <div className="flex items-center gap-2 mt-2">
-                      <div className="w-4 h-4 border-2 border-saffron border-t-transparent rounded-full animate-spin" />
-                      <p className="text-text-secondary text-base">Validating...</p>
-                    </div>
-                  )}
+                  {manualError && (<p className="mt-2 text-base xs:text-lg text-error-red">{manualError}</p>)}
+                  {validatingManual && (<div className="flex items-center gap-2 mt-2"><div className="w-4 h-4 border-2 border-saffron border-t-transparent rounded-full animate-spin" /><p className="text-text-secondary text-base">जांच हो रही है...</p></div>)}
                 </div>
                 <button
                   type="submit"
                   disabled={validatingManual || manualCode.length < 6}
-                  className="w-full min-h-[56px] bg-saffron text-white font-bold text-lg rounded-btn shadow-btn-saffron active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full min-h-[52px] xs:min-h-[56px] sm:min-h-[72px] bg-saffron text-white font-bold text-lg rounded-2xl shadow-btn-saffron active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {validatingManual ? 'Validating...' : 'Apply Code'}
+                  {validatingManual ? 'जांच हो रही है...' : 'कोड लगाएं'}
                 </button>
               </form>
             </motion.div>
@@ -354,13 +347,13 @@ export default function ReferralLandingPage() {
             <div className="space-y-3">
               <button
                 onClick={handleContinue}
-                className="w-full min-h-[56px] border-2 border-saffron text-saffron font-bold text-lg rounded-btn active:scale-[0.97] focus:ring-2 focus:ring-primary focus:outline-none"
+                className="w-full min-h-[52px] xs:min-h-[56px] sm:min-h-[72px] border-2 border-saffron text-saffron font-bold text-lg rounded-2xl active:scale-[0.97] focus:ring-2 focus:ring-primary focus:outline-none"
               >
                 बिना referral के जारी रखें
               </button>
               <button
                 onClick={handleGoHome}
-                className="w-full min-h-[56px] text-text-secondary font-medium underline-offset-2 active:opacity-70 focus:ring-2 focus:ring-primary focus:outline-none"
+                className="w-full min-h-[52px] xs:min-h-[56px] text-text-secondary font-medium underline-offset-4 active:opacity-70 focus:ring-2 focus:ring-primary focus:outline-none"
               >
                 होमपेज पर जाएं
               </button>

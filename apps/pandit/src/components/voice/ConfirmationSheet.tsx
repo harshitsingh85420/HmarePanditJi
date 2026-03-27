@@ -21,7 +21,7 @@ interface ConfirmationSheetProps {
  * - Bottom sheet slide-up animation
  * - Transcribed text (large font)
  * - "हाँ, सही है" (green) button
- * - "नहीं, बदलें" (red) button  
+ * - "नहीं, बदलें" (red) button
  * - 15s countdown auto-dismiss
  * 
  * Accessibility:

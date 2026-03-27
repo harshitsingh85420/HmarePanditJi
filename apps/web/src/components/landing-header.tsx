@@ -29,8 +29,8 @@ function UserMenu() {
         setOpen(false);
       }
     };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
+    document.addEventListener(&quot;mousedown&quot;, handler);
+    return () => document.removeEventListener(&quot;mousedown&quot;, handler);
   }, [open]);
 
   /* ── Guest state ── */
@@ -60,10 +60,10 @@ function UserMenu() {
   /* ── Authenticated state ── */
   const initials = user.fullName
     ? user.fullName
-      .split(" ")
+      .split(&quot; &quot;)
       .slice(0, 2)
       .map((w) => w[0])
-      .join("")
+      .join(&quot;&quot;)
       .toUpperCase()
     : user.phone.slice(-2);
 
@@ -98,7 +98,7 @@ function UserMenu() {
         <div className="absolute right-0 top-full mt-2 w-52 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-100 dark:border-slate-800 py-2 z-50">
           <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800">
             <p className="text-lg font-semibold text-slate-900 dark:text-slate-100 truncate">
-              {user.fullName ?? "User"}
+              {user.fullName ?? &quot;User&quot;}
             </p>
             <p className="text-base text-slate-400 mt-0.5">{user.phone}</p>
           </div>
@@ -223,7 +223,7 @@ export default function LandingHeader() {
               aria-expanded={open}
             >
               <span className="material-symbols-outlined text-slate-600 dark:text-slate-300">
-                {open ? "close" : "menu"}
+                {open ? &quot;close&quot; : &quot;menu&quot;}
               </span>
             </button>
           </div>

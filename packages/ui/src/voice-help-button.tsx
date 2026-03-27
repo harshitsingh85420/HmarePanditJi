@@ -15,7 +15,7 @@ export function useVoiceHelp() {
   };
 }
 
-export function VoiceHelpButton({ label = "Voice Help" }: VoiceHelpButtonProps) {
+export function VoiceHelpButton({ label = &quot;Voice Help&quot; }: VoiceHelpButtonProps) {
   return (
     <button
       type="button"

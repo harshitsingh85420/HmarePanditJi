@@ -1,22 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { speakWithSarvam } from '@/lib/sarvam-tts'
+import type { SupportedLanguage } from '@/lib/onboarding-store'
 
-export type SupportedLanguage =
-  | 'Hindi'
-  | 'Bhojpuri'
-  | 'Maithili'
-  | 'Bengali'
-  | 'Tamil'
-  | 'Telugu'
-  | 'Kannada'
-  | 'Malayalam'
-  | 'Marathi'
-  | 'Gujarati'
-  | 'Punjabi'
-  | 'English'
+export type { SupportedLanguage } from '@/lib/onboarding-store'
 
 interface LanguageChangeWidgetProps {
   currentLanguage: SupportedLanguage
@@ -54,15 +43,40 @@ const sheetVariants = {
  * Language Change Widget - Bottom Sheet Design
  * Matches language_change_widget_s_0.0.w HTML reference
  * Provides accessible language switching for Pandit Ji
+ *
+ * BUG-002 FIX: Persists language selection to localStorage
+ * Storage key: 'hpj_preferred_language'
+ * Fallback: Hindi if no preference saved
  */
 export function LanguageChangeWidget({ currentLanguage, onLanguageChange }: LanguageChangeWidgetProps) {
   const [isOpen, setIsOpen] = useState(false)
+  const [selectedLanguage, setSelectedLanguage] = useState<SupportedLanguage>(currentLanguage)
+
+  // BUG-002 FIX: Persist language selection to localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined' && selectedLanguage) {
+      localStorage.setItem('hpj_preferred_language', selectedLanguage)
+    }
+  }, [selectedLanguage])
+
+  // BUG-002 FIX: Load persisted language on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('hpj_preferred_language')
+      if (saved && selectedLanguage !== saved) {
+        setSelectedLanguage(saved as SupportedLanguage)
+      }
+    }
+  }, [selectedLanguage])
 
   const handleLanguageSelect = async (lang: SupportedLanguage) => {
     if (lang === currentLanguage) {
       setIsOpen(false)
       return
     }
+
+    // BUG-002 FIX: Update local state for persistence
+    setSelectedLanguage(lang)
 
     // Announce language change
     await speakWithSarvam({
@@ -75,7 +89,8 @@ export function LanguageChangeWidget({ currentLanguage, onLanguageChange }: Lang
     setIsOpen(false)
   }
 
-  const currentLang = LANGUAGES.find(l => l.name === currentLanguage)
+  // Use selectedLanguage for current display (includes persisted value)
+  const currentLang = LANGUAGES.find(l => l.name === (selectedLanguage || currentLanguage))
 
   return (
     <>

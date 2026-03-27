@@ -12,9 +12,9 @@ export interface VoiceButtonProps {
 
 export const VoiceButton: React.FC<VoiceButtonProps> = ({
     textToSpeak,
-    lang = 'hi-IN',
+    lang = &apos;hi-IN&apos;,
     className = '',
-    label = "सुने"
+    label = &quot;सुने&quot;
 }) => {
     const [speaking, setSpeaking] = useState(false);
 

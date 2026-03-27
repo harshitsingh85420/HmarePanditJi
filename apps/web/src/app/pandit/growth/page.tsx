@@ -81,7 +81,7 @@ export default function GrowthPage() {
                                 <span className="text-[#8a7460] dark:text-[#c4b5a6] flex items-center gap-1 text-lg">
                                     <span className="material-symbols-outlined text-lg">
                                         location_on
-                                    </span>{" "}
+                                    </span>{&quot; &quot;}
                                     Varanasi, India
                                 </span>
                             </div>

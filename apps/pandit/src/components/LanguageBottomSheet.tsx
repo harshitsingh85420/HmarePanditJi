@@ -1,6 +1,6 @@
 ﻿'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ALL_LANGUAGES, LANGUAGE_DISPLAY, SupportedLanguage } from '@/lib/onboarding-store'
 
 interface LanguageBottomSheetProps {
@@ -17,6 +17,24 @@ export default function LanguageBottomSheet({
   onClose,
 }: LanguageBottomSheetProps) {
   const [search, setSearch] = useState('')
+  const [selectedLanguage, setSelectedLanguage] = useState<SupportedLanguage>(currentLanguage)
+
+  // BUG-002 FIX: Persist language selection to localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined' && selectedLanguage) {
+      localStorage.setItem('hpj_preferred_language', selectedLanguage)
+    }
+  }, [selectedLanguage])
+
+  // BUG-002 FIX: Load persisted language on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('hpj_preferred_language')
+      if (saved && selectedLanguage !== saved) {
+        setSelectedLanguage(saved as SupportedLanguage)
+      }
+    }
+  }, [])
 
   // Safety check: Default to 'Hindi' if currentLanguage is undefined
   const safeCurrentLanguage = currentLanguage || 'Hindi'
@@ -97,7 +115,10 @@ export default function LanguageBottomSheet({
               return (
                 <button
                   key={lang}
-                  onClick={() => onSelect(lang)}
+                  onClick={() => {
+                    setSelectedLanguage(lang)
+                    onSelect(lang)
+                  }}
                   className={[
                     'flex items-center gap-2 p-4 rounded-xl border text-left transition-colors min-h-[72px]',
                     isActive

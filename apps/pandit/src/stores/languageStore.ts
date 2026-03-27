@@ -1,19 +1,6 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
-
-export type SupportedLanguage =
-  | 'Hindi'
-  | 'Bhojpuri'
-  | 'Maithili'
-  | 'Bengali'
-  | 'Tamil'
-  | 'Telugu'
-  | 'Kannada'
-  | 'Malayalam'
-  | 'Marathi'
-  | 'Gujarati'
-  | 'Punjabi'
-  | 'English'
+import { SupportedLanguage } from '@/lib/onboarding-store'
 
 interface LanguageState {
   currentLanguage: SupportedLanguage

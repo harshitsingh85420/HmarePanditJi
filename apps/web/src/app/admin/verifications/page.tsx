@@ -63,7 +63,7 @@ export default function VerificationsQueuePage() {
                         {/* Selected Applicant */}
                         <div
                             className={`p-4 cursor-pointer border-l-4 ${selectedId === 'APID-20934' ? 'bg-[#137fec]/5 border-[#137fec]' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50 border-transparent transition-colors'}`}
-                            onClick={() => setSelectedId('APID-20934')}
+                            onClick={() => setSelectedId(&apos;APID-20934&apos;)}
                         >
                             <div className="flex justify-between items-start mb-2">
                                 <span className="text-[10px] font-bold uppercase tracking-wider text-[#137fec]">
@@ -93,7 +93,7 @@ export default function VerificationsQueuePage() {
                         {/* Other Applicants */}
                         <div
                             className={`p-4 cursor-pointer border-l-4 ${selectedId === 'APID-20935' ? 'bg-[#137fec]/5 border-[#137fec]' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50 border-transparent transition-colors'}`}
-                            onClick={() => setSelectedId('APID-20935')}
+                            onClick={() => setSelectedId(&apos;APID-20935&apos;)}
                         >
                             <div className="flex justify-between items-start mb-2">
                                 <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
@@ -122,7 +122,7 @@ export default function VerificationsQueuePage() {
                         </div>
                         <div
                             className={`p-4 cursor-pointer border-l-4 ${selectedId === 'APID-20936' ? 'bg-[#137fec]/5 border-[#137fec]' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50 border-transparent transition-colors'}`}
-                            onClick={() => setSelectedId('APID-20936')}
+                            onClick={() => setSelectedId(&apos;APID-20936&apos;)}
                         >
                             <div className="flex justify-between items-start mb-2">
                                 <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
@@ -167,13 +167,13 @@ export default function VerificationsQueuePage() {
                                     <span className="flex items-center gap-1">
                                         <span className="material-symbols-outlined text-base text-green-500">
                                             check_circle
-                                        </span>{" "}
+                                        </span>{&quot; &quot;}
                                         Application Complete
                                     </span>
                                     <span className="flex items-center gap-1">
                                         <span className="material-symbols-outlined text-base">
                                             location_on
-                                        </span>{" "}
+                                        </span>{&quot; &quot;}
                                         Varanasi (Central HQ)
                                     </span>
                                 </div>
@@ -275,8 +275,8 @@ export default function VerificationsQueuePage() {
                                     </div>
                                 </div>
                                 <p className="mt-3 text-[11px] text-slate-500 leading-relaxed italic">
-                                    "Mantra pronunciation clarity is high. Minor dialect variations
-                                    noted in Gayatri Mantra recital."
+                                    &quot;Mantra pronunciation clarity is high. Minor dialect variations
+                                    noted in Gayatri Mantra recital.&quot;
                                 </p>
                             </div>
                         </div>

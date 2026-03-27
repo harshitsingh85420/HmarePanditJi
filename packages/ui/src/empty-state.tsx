@@ -13,11 +13,11 @@ export interface EmptyStateProps {
 }
 
 export function EmptyState({
-  icon = "inbox",
+  icon = &quot;inbox&quot;,
   title,
   description,
   action,
-  className = "",
+  className = &quot;&quot;,
 }: EmptyStateProps) {
   return (
     <div

@@ -15,18 +15,18 @@ export function MuhuratPatrika({ booking }: { booking: any }) {
                     </div>
                     <div className="flex justify-between border-b border-orange-100 pb-2">
                         <span className="font-bold text-gray-500 w-24">दिनांक:</span>
-                        <span className="font-bold text-gray-900 text-right">{new Date(booking.eventDate).toLocaleDateString("hi-IN")}</span>
+                        <span className="font-bold text-gray-900 text-right">{new Date(booking.eventDate).toLocaleDateString(&quot;hi-IN&quot;)}</span>
                     </div>
                     <div className="flex justify-between border-b border-orange-100 pb-2">
                         <span className="font-bold text-gray-500 w-24">मुहूर्त:</span>
-                        <span className="font-bold text-orange-700 text-right">{booking.muhuratTime || "निर्धारित नहीं"}</span>
+                        <span className="font-bold text-orange-700 text-right">{booking.muhuratTime || &quot;निर्धारित नहीं&quot;}</span>
                     </div>
 
                     <div className="h-px bg-transparent my-1"></div>
 
                     <div className="flex justify-between border-b border-orange-100 pb-2">
                         <span className="font-bold text-gray-500 w-24">कर्ता:</span>
-                        <span className="font-bold text-gray-900 text-right">{booking.customer?.name || "यजमान"}</span>
+                        <span className="font-bold text-gray-900 text-right">{booking.customer?.name || &quot;यजमान&quot;}</span>
                     </div>
                     <div className="flex justify-between border-b border-orange-100 pb-2">
                         <span className="font-bold text-gray-500 w-24">स्थान:</span>
@@ -34,7 +34,7 @@ export function MuhuratPatrika({ booking }: { booking: any }) {
                     </div>
                     <div className="flex justify-between pt-1">
                         <span className="font-bold text-gray-500 w-24">पुरोहित:</span>
-                        <span className="font-bold text-gray-900 text-right">Pt. {booking.pandit?.name || "___"}</span>
+                        <span className="font-bold text-gray-900 text-right">Pt. {booking.pandit?.name || &quot;___&quot;}</span>
                     </div>
                 </div>
 

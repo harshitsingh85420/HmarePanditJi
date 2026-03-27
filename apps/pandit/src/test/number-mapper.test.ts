@@ -3,6 +3,7 @@
  * Tests Hindi/Bhojpuri/Maithili number word to digit conversion
  */
 
+import { describe, it, expect } from 'vitest';
 import {
   convertNumberWordsToDigits,
   extractMobileNumber,

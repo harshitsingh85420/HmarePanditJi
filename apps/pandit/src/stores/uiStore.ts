@@ -11,6 +11,7 @@ interface UIStore {
   showSessionTimeout: boolean
   setOnline: (isOnline: boolean) => void
   setNetworkBanner: (show: boolean) => void
+  dismissNetworkBanner: () => void
   setHelpSheet: (isOpen: boolean) => void
   setSessionTimeout: (isOpen: boolean) => void
   setSessionSaveNotice: (isVisible: boolean) => void
@@ -31,6 +32,7 @@ const defaultState: UIStore = {
   showSessionTimeout: false,
   setOnline: () => { },
   setNetworkBanner: () => { },
+  dismissNetworkBanner: () => { },
   setHelpSheet: () => { },
   setSessionTimeout: () => { },
   setSessionSaveNotice: () => { },
@@ -60,6 +62,7 @@ export const useUIStore = create<UIStore>()((set) => ({
   },
 
   setNetworkBanner: (show) => set({ showNetworkBanner: show }),
+  dismissNetworkBanner: () => set({ showNetworkBanner: false }),
   setHelpSheet: (helpSheetOpen) => set({ helpSheetOpen }),
   setSessionTimeout: (showSessionTimeout) => set({ showSessionTimeout }),
   setSessionSaveNotice: (sessionSaveNoticeVisible) => set({ sessionSaveNoticeVisible }),

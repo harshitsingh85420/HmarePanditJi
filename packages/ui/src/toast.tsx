@@ -33,7 +33,7 @@ const ToastContext = createContext<ToastContextValue | null>(null);
 
 export function useToast() {
   const ctx = useContext(ToastContext);
-  if (!ctx) throw new Error("useToast must be used inside <ToastProvider>");
+  if (!ctx) throw new Error(&quot;useToast must be used inside <ToastProvider>&quot;);
   return ctx;
 }
 
@@ -93,10 +93,10 @@ const variantConfig: Record<
   ToastVariant,
   { icon: string; bar: string; text: string }
 > = {
-  success: { icon: "check_circle", bar: "bg-green-500", text: "text-green-600" },
-  error: { icon: "error", bar: "bg-red-500", text: "text-red-600" },
-  warning: { icon: "warning", bar: "bg-orange-500", text: "text-orange-600" },
-  info: { icon: "info", bar: "bg-blue-500", text: "text-blue-600" },
+  success: { icon: &quot;check_circle&quot;, bar: &quot;bg-green-500&quot;, text: &quot;text-green-600&quot; },
+  error: { icon: &quot;error&quot;, bar: &quot;bg-red-500&quot;, text: &quot;text-red-600&quot; },
+  warning: { icon: &quot;warning&quot;, bar: &quot;bg-orange-500&quot;, text: &quot;text-orange-600&quot; },
+  info: { icon: &quot;info&quot;, bar: &quot;bg-blue-500&quot;, text: &quot;text-blue-600&quot; },
 };
 
 function ToastItem({

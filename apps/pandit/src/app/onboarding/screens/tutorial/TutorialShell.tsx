@@ -50,8 +50,8 @@ export default function TutorialShell({
   const label = nextLabel || translations.next;
 
   return (
-    <main className="min-h-dvh max-w-[390px] mx-auto bg-surface-base font-hind text-text-primary flex flex-col shadow-2xl relative overflow-hidden">
-      <header className="pt-10 px-6 flex justify-between items-center shrink-0">
+    <main className="min-h-dvh w-full max-w-[390px] xs:max-w-[430px] mx-auto bg-surface-base font-hind text-text-primary flex flex-col shadow-2xl relative overflow-hidden">
+      <header className="pt-8 xs:pt-10 px-4 xs:px-6 flex justify-between items-center shrink-0">
         <div className="flex gap-1.5 flex-wrap max-w-[250px]">
           {Array.from({ length: totalDots }).map((_, index) => (
             <span
@@ -64,13 +64,13 @@ export default function TutorialShell({
         {/* UI-005 FIX: Skip button with proper touch target (52px minimum) */}
         <button
           onClick={onSkip}
-          className="min-w-[64px] min-h-[52px] px-5 text-[16px] font-semibold text-saffron rounded-full border-2 border-saffron/30 active:bg-saffron-light active:opacity-50 shrink-0"
+          className="min-w-[52px] xs:min-w-[56px] min-h-[52px] xs:min-h-[56px] px-4 xs:px-5 text-sm xs:text-base sm:text-[16px] font-semibold text-saffron rounded-full border-2 border-saffron/30 active:bg-saffron-light active:opacity-50 shrink-0"
         >
           {translations.skip}
         </button>
       </header>
 
-      <div className="flex-grow overflow-y-auto px-6 py-6">
+      <div className="flex-grow overflow-y-auto px-4 xs:px-6 py-4 xs:py-6">
         {children}
       </div>
 
@@ -83,7 +83,7 @@ export default function TutorialShell({
             <motion.button
               whileTap={{ scale: 0.97 }}
               onClick={onNext}
-              className={`w-full h-16 ${nextButtonClasses} text-text-primary rounded-2xl flex items-center justify-center text-[20px] font-bold active:scale-95 transition-transform gap-2`}
+              className={`w-full min-h-[52px] xs:min-h-[56px] sm:min-h-[64px] ${nextButtonClasses} text-text-primary rounded-2xl flex items-center justify-center text-base xs:text-lg sm:text-[20px] font-bold active:scale-95 transition-transform gap-2`}
             >
               {label}
             </motion.button>
@@ -91,7 +91,7 @@ export default function TutorialShell({
             {onBack && (
               <button
                 onClick={onBack}
-                className="w-full text-center text-[16px] font-medium text-saffron min-h-[52px] py-3 rounded-full border-2 border-saffron/30 active:bg-saffron-light"
+                className="w-full text-center text-sm xs:text-base sm:text-[16px] font-medium text-saffron min-h-[52px] xs:min-h-[56px] py-3 rounded-full border-2 border-saffron/30 active:bg-saffron-light"
               >
                 {translations.back}
               </button>
@@ -99,11 +99,11 @@ export default function TutorialShell({
           </div>
         </ScreenFooter>
       ) : (
-        <footer className="px-6 pb-10 pt-3 space-y-3 shrink-0 bg-surface-base/90 backdrop-blur-sm border-t border-border-default">
+        <footer className="px-4 xs:px-6 pb-8 xs:pb-10 pt-2 xs:pt-3 space-y-3 shrink-0 bg-surface-base/90 backdrop-blur-sm border-t border-border-default">
           <motion.button
             whileTap={{ scale: 0.97 }}
             onClick={onNext}
-            className={`w-full h-16 ${nextButtonClasses} text-text-primary rounded-2xl flex items-center justify-center text-[20px] font-bold active:scale-95 transition-transform gap-2`}
+            className={`w-full min-h-[52px] xs:min-h-[56px] sm:min-h-[64px] ${nextButtonClasses} text-text-primary rounded-2xl flex items-center justify-center text-base xs:text-lg sm:text-[20px] font-bold active:scale-95 transition-transform gap-2`}
           >
             {label}
           </motion.button>
@@ -111,7 +111,7 @@ export default function TutorialShell({
           {onBack && (
             <button
               onClick={onBack}
-              className="w-full text-center text-[16px] font-medium text-saffron min-h-[52px] py-3 rounded-full border-2 border-saffron/30 active:bg-saffron-light"
+              className="w-full text-center text-sm xs:text-base sm:text-[16px] font-medium text-saffron min-h-[52px] xs:min-h-[56px] py-3 rounded-full border-2 border-saffron/30 active:bg-saffron-light"
             >
               {translations.back}
             </button>

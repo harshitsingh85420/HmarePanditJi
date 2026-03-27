@@ -98,12 +98,12 @@ function riskBarColor(score: number) {
 }
 
 export default function VerificationPage() {
-  const [activeTab, setActiveTab] = useState<"PENDING" | "REVIEW">("PENDING");
-  const [selectedId, setSelectedId] = useState("1");
-  const [search, setSearch] = useState("");
-  const [note, setNote] = useState("");
+  const [activeTab, setActiveTab] = useState<"PENDING" | "REVIEW">(&quot;PENDING&quot;);
+  const [selectedId, setSelectedId] = useState(&quot;1&quot;);
+  const [search, setSearch] = useState(&quot;&quot;);
+  const [note, setNote] = useState(&quot;&quot;);
   const [loading, setLoading] = useState(false);
-  const [toast, setToast] = useState("");
+  const [toast, setToast] = useState(&quot;&quot;);
 
   const filteredApplicants = APPLICANTS.filter(
     (a) =>
@@ -114,15 +114,15 @@ export default function VerificationPage() {
 
   const selected = APPLICANTS.find((a) => a.id === selectedId) ?? APPLICANTS[0];
 
-  const pendingCount = APPLICANTS.filter((a) => a.status === "PENDING").length;
-  const reviewCount = APPLICANTS.filter((a) => a.status === "REVIEW").length;
+  const pendingCount = APPLICANTS.filter((a) => a.status === &quot;PENDING&quot;).length;
+  const reviewCount = APPLICANTS.filter((a) => a.status === &quot;REVIEW&quot;).length;
 
   const showToast = (msg: string) => {
     setToast(msg);
-    setTimeout(() => setToast(""), 3000);
+    setTimeout(() => setToast(&quot;&quot;), 3000);
   };
 
-  const handleDecision = async (decision: "APPROVE" | "REJECT" | "REQUEST_INFO") => {
+  const handleDecision = async (decision: &quot;APPROVE&quot; | &quot;REJECT&quot; | &quot;REQUEST_INFO&quot;) => {
     setLoading(true);
     // Simulating API call
     setTimeout(() => {
@@ -133,7 +133,7 @@ export default function VerificationPage() {
         REQUEST_INFO: `📋 Info requested from ${selected.name}`,
       };
       showToast(msgs[decision]);
-      setNote("");
+      setNote(&quot;&quot;);
     }, 1000);
   };
 
@@ -160,19 +160,19 @@ export default function VerificationPage() {
         {/* Tabs */}
         <div className="flex p-2 gap-2 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 sticky top-0">
           <button
-            onClick={() => setActiveTab("PENDING")}
-            className={`flex-1 py-1.5 rounded text-xs font-semibold transition-colors ${activeTab === "PENDING"
-              ? "bg-[#137fec] text-white"
-              : "bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white"
+            onClick={() => setActiveTab(&quot;PENDING&quot;)}
+            className={`flex-1 py-1.5 rounded text-xs font-semibold transition-colors ${activeTab === &quot;PENDING&quot;
+              ? &quot;bg-[#137fec] text-white&quot;
+              : &quot;bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white&quot;
               }`}
           >
             PENDING ({pendingCount})
           </button>
           <button
-            onClick={() => setActiveTab("REVIEW")}
-            className={`flex-1 py-1.5 rounded text-xs font-semibold transition-colors ${activeTab === "REVIEW"
-              ? "bg-[#137fec] text-white"
-              : "bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white"
+            onClick={() => setActiveTab(&quot;REVIEW&quot;)}
+            className={`flex-1 py-1.5 rounded text-xs font-semibold transition-colors ${activeTab === &quot;REVIEW&quot;
+              ? &quot;bg-[#137fec] text-white&quot;
+              : &quot;bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white&quot;
               }`}
           >
             REVIEWS ({reviewCount})
@@ -191,8 +191,8 @@ export default function VerificationPage() {
                   key={applicant.id}
                   onClick={() => setSelectedId(applicant.id)}
                   className={`w-full text-left p-4 transition-colors ${isSelected
-                    ? "bg-[#137fec]/5 border-l-4 border-[#137fec]"
-                    : "hover:bg-slate-50 dark:hover:bg-slate-800/50 border-l-4 border-transparent"
+                    ? &quot;bg-[#137fec]/5 border-l-4 border-[#137fec]&quot;
+                    : &quot;hover:bg-slate-50 dark:hover:bg-slate-800/50 border-l-4 border-transparent&quot;
                     }`}
                 >
                   {/* App ID + Time */}
@@ -289,7 +289,7 @@ export default function VerificationPage() {
                   <div className="space-y-3">
                     <div className="flex justify-between items-center text-sm py-2 border-b border-dashed border-slate-100 dark:border-slate-800">
                       <span className="text-slate-500 font-medium">ID Number</span>
-                      <span className="font-mono font-semibold dark:text-white">{selected.aadhaar?.number ?? "XXXX XXXX XXXX"}</span>
+                      <span className="font-mono font-semibold dark:text-white">{selected.aadhaar?.number ?? &quot;XXXX XXXX XXXX&quot;}</span>
                     </div>
                     <div className="flex justify-between items-center text-sm py-2 border-b border-dashed border-slate-100 dark:border-slate-800">
                       <span className="text-slate-500 font-medium">Name Match</span>
@@ -377,7 +377,7 @@ export default function VerificationPage() {
                     {selected.academic?.checks?.map(check => (
                       <div key={check.label} className="flex items-center gap-2">
                         <span className={`material-symbols-outlined text-base ${check.done ? 'text-green-500' : 'text-slate-300'}`}>
-                          {check.done ? 'check_circle' : 'radio_button_unchecked'}
+                          {check.done ? &apos;check_circle&apos; : &apos;radio_button_unchecked&apos;}
                         </span>
                         <span className={`text-xs ${check.done ? 'text-slate-700 dark:text-slate-300' : 'text-slate-400'}`}>{check.label}</span>
                       </div>
@@ -423,21 +423,21 @@ export default function VerificationPage() {
           </div>
           <div className="flex items-center gap-3">
             <button
-              onClick={() => handleDecision("REJECT")}
+              onClick={() => handleDecision(&quot;REJECT&quot;)}
               disabled={loading}
               className="px-4 py-2 text-red-500 border border-red-500/20 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg text-sm font-bold transition-colors disabled:opacity-50"
             >
               REJECT
             </button>
             <button
-              onClick={() => handleDecision("REQUEST_INFO")}
+              onClick={() => handleDecision(&quot;REQUEST_INFO&quot;)}
               disabled={loading}
               className="px-4 py-2 text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-sm font-bold transition-colors disabled:opacity-50"
             >
               REQUEST INFO
             </button>
             <button
-              onClick={() => handleDecision("APPROVE")}
+              onClick={() => handleDecision(&quot;APPROVE&quot;)}
               disabled={loading}
               className="px-8 py-2 bg-[#137fec] hover:bg-blue-600 text-white rounded-lg text-sm font-bold shadow-lg shadow-[#137fec]/20 transition-colors disabled:opacity-50 flex items-center gap-2"
             >

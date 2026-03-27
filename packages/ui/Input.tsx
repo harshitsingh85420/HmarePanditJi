@@ -7,7 +7,7 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
     helperText?: string;
     leftIcon?: ReactNode;
     rightIcon?: ReactNode;
-    prefixStr?: string; // e.g., "+91"
+    prefixStr?: string; // e.g., &quot;+91&quot;
     theme?: Theme;
 }
 
@@ -21,7 +21,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(({
     theme = 'customer',
     className = '',
     id,
-    type = 'text',
+    type = &apos;text&apos;,
     disabled,
     ...props
 }, ref) => {

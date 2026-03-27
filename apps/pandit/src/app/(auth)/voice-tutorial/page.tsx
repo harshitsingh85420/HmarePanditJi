@@ -1,121 +1,30 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import React, { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { speakWithSarvam, stopCurrentSpeech } from '@/lib/sarvam-tts'
+import { useRouter } from 'next/navigation'
 import { useOnboardingStore } from '@/stores/onboardingStore'
-import { VOICE_TUTORIAL_SCREEN } from '@/lib/voice-scripts'
-import { useVoice } from '@/hooks/useVoice'
 
-export default function VoiceTutorialScreen() {
+export default function VoiceTutorialPage() {
   const router = useRouter()
-  const { setPhase, setVoiceTutorialSeen } = useOnboardingStore()
+  const { phase, setPhase } = useOnboardingStore()
+  const [isListening, setIsListening] = useState(false)
   const [hasInteracted, setHasInteracted] = useState(false)
-  const [successCount, setSuccessCount] = useState(0)
-  const hasSpokenRef = useRef(false)
-  const isMountedRef = useRef(true)
-
-  const {
-    isListening,
-    startListening,
-    speak,
-    isSpeaking,
-  } = useVoice({
-    language: 'hi-IN',
-    inputType: 'yes_no',
-    isElderly: true,
-    onResult: (text) => {
-      handleVoiceResult(text)
-    },
-  })
 
   useEffect(() => {
-    isMountedRef.current = true
+    void speakWithSarvam({
+      text: 'यह app आपकी आवाज़ से चलता है। जब mic दिखे, तब बोलिए।',
+      languageCode: 'hi-IN',
+    })
+  }, [])
 
-    // Voice prompt on screen load
-    const timer = setTimeout(() => {
-      if (isMountedRef.current && !hasSpokenRef.current) {
-        hasSpokenRef.current = true
-        void speakWithSarvam({
-          text: VOICE_TUTORIAL_SCREEN.scripts.main.hindi,
-          languageCode: 'hi-IN',
-        })
-        // Start listening after voice completes (8 seconds + buffer)
-        setTimeout(() => {
-          if (isMountedRef.current) {
-            startListening()
-          }
-        }, 8500)
-      }
-    }, 600)
-
-    return () => {
-      isMountedRef.current = false
-      clearTimeout(timer)
-      stopCurrentSpeech()
-    }
-  }, [startListening])
-
-  const handleVoiceResult = (text: string) => {
-    const normalizedText = text.toLowerCase().trim()
-
-    // Check for yes/no responses
-    if (
-      normalizedText.includes('हाँ') ||
-      normalizedText.includes('haan') ||
-      normalizedText.includes('yes') ||
-      normalizedText.includes('हां')
-    ) {
-      handleSuccess()
-    } else if (
-      normalizedText.includes('नहीं') ||
-      normalizedText.includes('nahi') ||
-      normalizedText.includes('no') ||
-      normalizedText.includes('नही')
-    ) {
-      handleRetry()
-    }
-  }
-
-  const handleSuccess = () => {
-    setSuccessCount((prev) => prev + 1)
-    setHasInteracted(true)
-
-    // Speak success message
-    const successScript = VOICE_TUTORIAL_SCREEN.scripts.onSuccess
-    if (successScript) {
-      void speakWithSarvam({
-        text: successScript.hindi,
-        languageCode: 'hi-IN',
-      })
-    }
-
-    // Auto-advance after success
+  const startListening = () => {
+    setIsListening(true)
     setTimeout(() => {
-      setVoiceTutorialSeen(true)
-      setPhase('TUTORIAL_SWAGAT')
-      router.push('/welcome')
+      setIsListening(false)
+      setHasInteracted(true)
     }, 2000)
-  }
-
-  const handleRetry = () => {
-    setHasInteracted(true)
-
-    // Speak retry message
-    const timeoutScript = VOICE_TUTORIAL_SCREEN.scripts.onTimeout
-    if (timeoutScript) {
-      void speakWithSarvam({
-        text: timeoutScript.hindi,
-        languageCode: 'hi-IN',
-      })
-    }
-  }
-
-  const handleManualContinue = () => {
-    setVoiceTutorialSeen(true)
-    setPhase('TUTORIAL_SWAGAT')
-    router.push('/welcome')
   }
 
   const handleManualTry = () => {
@@ -124,9 +33,9 @@ export default function VoiceTutorialScreen() {
   }
 
   return (
-    <main className="relative mx-auto min-h-dvh w-full flex flex-col bg-surface-base">
+    <main className="relative mx-auto min-h-dvh w-full max-w-[390px] xs:max-w-[430px] flex flex-col bg-surface-base">
       {/* TopBar */}
-      <div className="h-[72px] px-4 flex items-center justify-between border-b border-outline-variant sticky top-0 bg-surface-base z-50">
+      <div className="min-h-[52px] xs:min-h-[56px] sm:min-h-[72px] px-4 xs:px-6 flex items-center justify-between border-b border-outline-variant sticky top-0 bg-surface-base z-50">
         <div className="flex items-center gap-2">
           <button
             onClick={() => {
@@ -134,24 +43,19 @@ export default function VoiceTutorialScreen() {
               setPhase('LANGUAGE_SET')
               router.push('/language-set')
             }}
-            className="w-[64px] h-[64px] flex items-center justify-center text-saffron rounded-full active:bg-black/5 focus:ring-2 focus:ring-primary focus:outline-none"
+            className="w-12 h-12 xs:w-14 xs:h-14 sm:w-16 sm:h-16 flex items-center justify-center text-saffron rounded-full active:bg-black/5 focus:ring-2 focus:ring-primary focus:outline-none"
             aria-label="Go back"
           >
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 19l-7-7 7-7"
-              />
+            <svg className="w-6 h-6 xs:w-7 xs:h-7 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </button>
-          <span className="text-[32px] text-saffron">ॐ</span>
-          <h1 className="text-[20px] font-bold text-text-primary">HmarePanditJi</h1>
+          <span className="text-2xl xs:text-3xl sm:text-[32px] text-saffron">ॐ</span>
+          <h1 className="text-base xs:text-lg sm:text-[20px] font-bold text-text-primary">HmarePanditJi</h1>
         </div>
         <button
           onClick={() => { }}
-          className="min-h-[64px] px-6 flex items-center gap-2 text-[20px] font-bold text-text-primary active:opacity-50 focus:ring-2 focus:ring-saffron focus:outline-none border-2 border-border-default rounded-full bg-surface-card"
+          className="min-h-[52px] xs:min-h-[56px] sm:min-h-[64px] px-4 xs:px-6 flex items-center gap-2 text-sm xs:text-base sm:text-[20px] font-bold text-text-primary active:opacity-50 focus:ring-2 focus:ring-saffron focus:outline-none border-2 border-border-default rounded-full bg-surface-card"
           aria-label="Language switcher"
         >
           <span>हिन्दी / English</span>
@@ -159,29 +63,14 @@ export default function VoiceTutorialScreen() {
       </div>
 
       {/* Illustration Area */}
-      <section className="mt-4 px-4 flex justify-center">
-        <div className="w-[280px] h-[160px] relative flex items-center justify-center">
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.5 }}
-            className="text-center"
-          >
+      <section className="mt-2 xs:mt-4 px-4 flex justify-center">
+        <div className="w-full max-w-[280px] h-32 xs:h-36 sm:h-[160px] relative flex items-center justify-center">
+          <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.5 }} className="text-center">
             {/* Animated Microphone */}
             <motion.div
-              animate={
-                isListening
-                  ? {
-                    scale: [1, 1.1, 1],
-                    rotate: [0, 5, -5, 0],
-                  }
-                  : {}
-              }
-              transition={{
-                duration: 0.8,
-                repeat: isListening ? Infinity : 0,
-              }}
-              className="text-[80px] inline-block"
+              animate={isListening ? { scale: [1, 1.1, 1], rotate: [0, 5, -5, 0] } : {}}
+              transition={{ duration: 0.8, repeat: isListening ? Infinity : 0 }}
+              className="text-6xl xs:text-7xl sm:text-[80px] inline-block"
             >
               🎤
             </motion.div>
@@ -190,143 +79,60 @@ export default function VoiceTutorialScreen() {
       </section>
 
       {/* Title Section */}
-      <section className="mt-4 px-4 text-center">
-        <h2 className="text-[26px] font-bold text-text-primary leading-tight font-devanagari">
+      <section className="mt-2 xs:mt-4 px-4 text-center">
+        <h2 className="text-xl xs:text-2xl sm:text-[26px] font-bold text-text-primary leading-tight font-devanagari">
           आवाज़ से चलता है
         </h2>
-        <p className="text-[18px] text-text-secondary mt-2 font-devanagari">
+        <p className="text-sm xs:text-base sm:text-[18px] text-text-secondary mt-1 xs:mt-2 font-devanagari">
           यह app आपकी आवाज़ से चलता है
         </p>
       </section>
 
       {/* Content Body */}
-      <section className="px-4 flex-grow mt-6">
+      <section className="px-4 xs:px-6 flex-grow mt-4 xs:mt-6">
         {/* Instruction Card */}
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.2 }}
-          className="p-6 bg-saffron-lt rounded-2xl border-2 border-saffron/30"
-        >
-          <div className="flex items-start gap-4">
-            <span className="text-[40px]">💡</span>
+        <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 }} className="p-4 xs:p-6 bg-saffron-lt rounded-2xl border-2 border-saffron/30">
+          <div className="flex items-start gap-3 xs:gap-4">
+            <span className="text-3xl xs:text-4xl sm:text-[40px]">💡</span>
             <div>
-              <p className="text-[18px] font-bold text-text-primary font-devanagari leading-snug">
+              <p className="text-base xs:text-lg sm:text-[18px] font-bold text-text-primary font-devanagari leading-snug">
                 जब orange mic दिखे और "सुन रहा हूँ" लिखा हो
               </p>
-              <p className="text-[16px] text-text-secondary mt-2 font-devanagari">
+              <p className="text-sm xs:text-base sm:text-[16px] text-text-secondary mt-1 xs:mt-2 font-devanagari">
                 तब बोलिए — "हाँ" या "नहीं"
               </p>
             </div>
           </div>
         </motion.div>
 
-        {/* Interactive Voice Demo Area */}
-        <div className="mt-6 p-6 bg-surface-card rounded-2xl border-2 border-border-default">
-          <h3 className="text-[20px] font-bold text-text-primary font-devanagari mb-4 text-center">
-            अभी कोशिश करें
-          </h3>
-
-          {/* Voice Status Indicator */}
-          <div className="flex flex-col items-center gap-4">
-            {/* Mic Button */}
-            <motion.button
-              whileTap={{ scale: 0.95 }}
+        {/* Interactive Demo */}
+        <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.4 }} className="mt-4 xs:mt-6 p-4 xs:p-6 bg-saffron-lt/50 rounded-2xl border-2 border-dashed border-saffron">
+          <div className="text-center">
+            <p className="text-sm xs:text-base sm:text-lg font-medium text-text-secondary mb-3 xs:mb-4">अभी कोशिश करें</p>
+            <button
               onClick={handleManualTry}
-              disabled={isListening || isSpeaking}
-              className={`w-[100px] h-[100px] rounded-full flex items-center justify-center text-[48px] transition-all focus:ring-4 focus:ring-saffron focus:outline-none ${isListening
-                  ? 'bg-saffron text-white animate-pulse'
-                  : isSpeaking
-                    ? 'bg-surface-dim text-text-secondary'
-                    : 'bg-saffron-lt text-saffron'
-                }`}
-              aria-label="Tap to speak"
+              className={`w-20 h-20 xs:w-24 xs:h-24 sm:w-[100px] sm:h-[100px] rounded-full flex items-center justify-center text-4xl xs:text-5xl sm:text-[48px] transition-all focus:ring-4 focus:ring-saffron focus:outline-none ${isListening ? 'bg-saffron text-white scale-110' : 'bg-white border-2 border-saffron'}`}
             >
               🎤
-            </motion.button>
-
-            {/* Status Text */}
-            <div className="text-center">
-              {isListening ? (
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-1">
-                    <div className="w-1 h-6 bg-saffron rounded-full animate-voice-bar"></div>
-                    <div className="w-1 h-6 bg-saffron rounded-full animate-voice-bar animation-delay-200"></div>
-                    <div className="w-1 h-6 bg-saffron rounded-full animate-voice-bar animation-delay-400"></div>
-                  </div>
-                  <span className="text-[18px] font-bold text-saffron font-devanagari">
-                    सुन रहा हूँ...
-                  </span>
-                </div>
-              ) : isSpeaking ? (
-                <span className="text-[16px] text-text-secondary font-devanagari">
-                  बोला जा रहा है...
-                </span>
-              ) : (
-                <span className="text-[16px] text-text-secondary font-devanagari">
-                  mic छूएं और "हाँ" बोलें
-                </span>
-              )}
-            </div>
+            </button>
+            {hasInteracted && (
+              <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-sm xs:text-base sm:text-lg text-success font-bold mt-3 xs:mt-4">
+                ✅ बहुत अच्छा!
+              </motion.p>
+            )}
           </div>
-
-          {/* Success State */}
-          {successCount > 0 && (
-            <motion.div
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              className="mt-6 p-4 bg-success-lt rounded-xl flex items-center gap-3"
-            >
-              <span className="text-[32px]">✅</span>
-              <div>
-                <p className="text-[18px] font-bold text-success font-devanagari">
-                  वाह! बिल्कुल सही
-                </p>
-                <p className="text-[15px] text-text-secondary font-devanagari">
-                  आप बहुत अच्छा कर रहे हैं
-                </p>
-              </div>
-            </motion.div>
-          )}
-        </div>
-
-        {/* Tips */}
-        <div className="mt-6 space-y-3">
-          {[
-            { icon: '🗣️', text: 'धीरे और साफ़ बोलें' },
-            { icon: '📱', text: 'Phone को मुंह के पास रखें' },
-            { icon: '🔇', text: 'शांत जगह पर रहें' },
-          ].map((tip, idx) => (
-            <motion.div
-              key={idx}
-              initial={{ x: -20, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 0.1 * (idx + 4) }}
-              className="flex items-center gap-3 p-3 bg-surface-muted rounded-xl"
-            >
-              <span className="text-[24px]">{tip.icon}</span>
-              <span className="text-[16px] text-text-secondary font-devanagari">
-                {tip.text}
-              </span>
-            </motion.div>
-          ))}
-        </div>
+        </motion.div>
       </section>
 
-      {/* Footer Buttons */}
-      <footer className="p-6 space-y-4 mb-6">
-        {/* Continue Button */}
-        <button
-          onClick={handleManualContinue}
-          className="w-full bg-saffron text-white py-4 min-h-[72px] rounded-2xl text-[22px] font-bold active:scale-[0.98] transition-transform shadow-btn-saffron focus:ring-2 focus:ring-primary focus:outline-none"
+      {/* Footer */}
+      <footer className="px-4 xs:px-6 pb-6 xs:pb-8 pt-3 xs:pt-4 bg-surface-base/90 backdrop-blur-sm border-t border-border-default">
+        <motion.button
+          whileTap={{ scale: 0.97 }}
+          onClick={() => router.push('/mobile')}
+          className="w-full bg-saffron text-white py-3 xs:py-4 min-h-[52px] xs:min-h-[56px] sm:min-h-[72px] rounded-2xl text-lg xs:text-xl sm:text-[22px] font-bold active:scale-[0.98] transition-transform shadow-btn-saffron focus:ring-2 focus:ring-primary focus:outline-none"
         >
-          आगे बढ़ें →
-        </button>
-
-        {/* Keyboard Fallback */}
-        <p className="text-center text-[16px] text-text-secondary font-devanagari">
-          आवाज़ में दिक्कत? आगे बढ़ें — keyboard भी है
-        </p>
+          समझ गया, आगे बढ़ें →
+        </motion.button>
       </footer>
     </main>
   )

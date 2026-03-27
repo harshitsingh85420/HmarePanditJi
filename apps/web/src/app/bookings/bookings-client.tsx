@@ -55,53 +55,53 @@ const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api/v1";
 const WA = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "919999999999";
 
 const TAB_STATUSES: Record<Tab, BookingStatus[]> = {
-  upcoming: ["PENDING", "CONFIRMED", "IN_PROGRESS"],
-  past: ["COMPLETED"],
-  cancelled: ["CANCELLED", "REFUNDED"],
+  upcoming: [&quot;PENDING&quot;, &quot;CONFIRMED&quot;, &quot;IN_PROGRESS&quot;],
+  past: [&quot;COMPLETED&quot;],
+  cancelled: [&quot;CANCELLED&quot;, &quot;REFUNDED&quot;],
 };
 
 const STATUS_LABEL: Record<BookingStatus, string> = {
-  PENDING: "Pending",
-  CONFIRMED: "Confirmed",
-  IN_PROGRESS: "In Progress",
-  COMPLETED: "Completed",
-  CANCELLED: "Cancelled",
-  REFUNDED: "Refunded",
+  PENDING: &quot;Pending&quot;,
+  CONFIRMED: &quot;Confirmed&quot;,
+  IN_PROGRESS: &quot;In Progress&quot;,
+  COMPLETED: &quot;Completed&quot;,
+  CANCELLED: &quot;Cancelled&quot;,
+  REFUNDED: &quot;Refunded&quot;,
 };
 
 const STATUS_COLORS: Record<BookingStatus, string> = {
-  PENDING: "bg-amber-100 text-amber-700 border-amber-200",
-  CONFIRMED: "bg-blue-100 text-blue-700 border-blue-200",
-  IN_PROGRESS: "bg-purple-100 text-purple-700 border-purple-200",
-  COMPLETED: "bg-green-100 text-green-700 border-green-200",
-  CANCELLED: "bg-red-100 text-red-700 border-red-200",
-  REFUNDED: "bg-slate-100 text-slate-600 border-slate-200",
+  PENDING: &quot;bg-amber-100 text-amber-700 border-amber-200&quot;,
+  CONFIRMED: &quot;bg-blue-100 text-blue-700 border-blue-200&quot;,
+  IN_PROGRESS: &quot;bg-purple-100 text-purple-700 border-purple-200&quot;,
+  COMPLETED: &quot;bg-green-100 text-green-700 border-green-200&quot;,
+  CANCELLED: &quot;bg-red-100 text-red-700 border-red-200&quot;,
+  REFUNDED: &quot;bg-slate-100 text-slate-600 border-slate-200&quot;,
 };
 
 const STATUS_DOT: Record<BookingStatus, string> = {
-  PENDING: "bg-amber-400",
-  CONFIRMED: "bg-blue-500",
-  IN_PROGRESS: "bg-purple-500",
-  COMPLETED: "bg-green-500",
-  CANCELLED: "bg-red-400",
-  REFUNDED: "bg-slate-400",
+  PENDING: &quot;bg-amber-400&quot;,
+  CONFIRMED: &quot;bg-blue-500&quot;,
+  IN_PROGRESS: &quot;bg-purple-500&quot;,
+  COMPLETED: &quot;bg-green-500&quot;,
+  CANCELLED: &quot;bg-red-400&quot;,
+  REFUNDED: &quot;bg-slate-400&quot;,
 };
 
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("en-IN", {
-    weekday: "short",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
+  return new Date(iso).toLocaleDateString(&quot;en-IN&quot;, {
+    weekday: &quot;short&quot;,
+    day: &quot;numeric&quot;,
+    month: &quot;long&quot;,
+    year: &quot;numeric&quot;,
   });
 }
 
 function formatTime(t?: string) {
-  if (!t) return "";
-  const [h, m] = t.split(":").map(Number);
-  const ampm = h >= 12 ? "PM" : "AM";
+  if (!t) return &quot;&quot;;
+  const [h, m] = t.split(&quot;:&quot;).map(Number);
+  const ampm = h >= 12 ? &quot;PM&quot; : &quot;AM&quot;;
   const hour = h % 12 || 12;
-  return `${hour}:${m.toString().padStart(2, "0")} ${ampm}`;
+  return `${hour}:${m.toString().padStart(2, &quot;0&quot;)} ${ampm}`;
 }
 
 // ── Skeleton ──────────────────────────────────────────────────────────────────
@@ -141,8 +141,8 @@ function BookingCard({
   onRateClick: (b: BookingSummary) => void;
 }) {
   const router = useRouter();
-  const isCancellable = ["PENDING", "CONFIRMED"].includes(booking.status);
-  const isRateable = booking.status === "COMPLETED" && !booking.hasReview;
+  const isCancellable = [&quot;PENDING&quot;, &quot;CONFIRMED&quot;].includes(booking.status);
+  const isRateable = booking.status === &quot;COMPLETED&quot; && !booking.hasReview;
   const whatsappMsg = encodeURIComponent(
     `Namaste! I have a booking #${booking.bookingNumber} for ${booking.ritual.name} on ${formatDate(booking.eventDate)}. I need help.`
   );
@@ -220,18 +220,18 @@ function BookingCard({
         onClick={(e) => e.stopPropagation()}
       >
         <p className="text-lg font-semibold text-slate-800">
-          ₹{booking.pricing.total.toLocaleString("en-IN")}
-          {booking.paymentStatus === "PAID" && (
+          ₹{booking.pricing.total.toLocaleString(&quot;en-IN&quot;)}
+          {booking.paymentStatus === &quot;PAID&quot; && (
             <span className="ml-1.5 text-base font-normal text-green-600">Paid</span>
           )}
-          {booking.paymentStatus === "REFUNDED" && (
+          {booking.paymentStatus === &quot;REFUNDED&quot; && (
             <span className="ml-1.5 text-base font-normal text-blue-600">Refunded</span>
           )}
         </p>
 
         <div className="flex items-center gap-2">
           {/* Contact Pandit */}
-          {["CONFIRMED", "IN_PROGRESS"].includes(booking.status) && booking.pandit.phone && (
+          {[&quot;CONFIRMED&quot;, &quot;IN_PROGRESS&quot;].includes(booking.status) && booking.pandit.phone && (
             <a
               href={`https://wa.me/${WA}?text=${whatsappMsg}`}
               target="_blank"
@@ -266,7 +266,7 @@ function BookingCard({
           )}
 
           {/* Rebook */}
-          {["COMPLETED", "CANCELLED", "REFUNDED"].includes(booking.status) && (
+          {[&quot;COMPLETED&quot;, &quot;CANCELLED&quot;, &quot;REFUNDED&quot;].includes(booking.status) && (
             <Link
               href={`/search?ritual=${booking.ritual.name}`}
               className="flex items-center gap-1.5 text-base px-5 py-3.5 bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200 transition-colors font-medium"
@@ -286,19 +286,19 @@ function BookingCard({
 function EmptyState({ tab }: { tab: Tab }) {
   const messages: Record<Tab, { icon: string; title: string; sub: string }> = {
     upcoming: {
-      icon: "event",
-      title: "No upcoming bookings",
-      sub: "Your next ceremony will appear here once you book.",
+      icon: &quot;event&quot;,
+      title: &quot;No upcoming bookings&quot;,
+      sub: &quot;Your next ceremony will appear here once you book.&quot;,
     },
     past: {
-      icon: "history",
-      title: "No past bookings yet",
-      sub: "Completed ceremonies will show up here.",
+      icon: &quot;history&quot;,
+      title: &quot;No past bookings yet&quot;,
+      sub: &quot;Completed ceremonies will show up here.&quot;,
     },
     cancelled: {
-      icon: "cancel",
-      title: "No cancelled bookings",
-      sub: "You haven't cancelled any bookings.",
+      icon: &quot;cancel&quot;,
+      title: &quot;No cancelled bookings&quot;,
+      sub: &quot;You haven&apos;t cancelled any bookings.&quot;,
     },
   };
   const { icon, title, sub } = messages[tab];
@@ -309,7 +309,7 @@ function EmptyState({ tab }: { tab: Tab }) {
       </div>
       <h3 className="text-slate-700 font-semibold text-lg mb-1">{title}</h3>
       <p className="text-slate-400 text-lg mb-6">{sub}</p>
-      {tab !== "past" && (
+      {tab !== &quot;past&quot; && (
         <Link
           href="/search"
           className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#f49d25] hover:bg-[#e08c14] text-white rounded-xl font-medium text-lg transition-colors"
@@ -335,13 +335,13 @@ function CancelModal({
   onConfirm: (reason: string) => void;
   loading: boolean;
 }) {
-  const [reason, setReason] = useState("");
+  const [reason, setReason] = useState(&quot;&quot;);
   const REASONS = [
-    "Change of plans",
-    "Found another pandit",
-    "Family emergency",
-    "Rescheduling required",
-    "Other",
+    &quot;Change of plans&quot;,
+    &quot;Found another pandit&quot;,
+    &quot;Family emergency&quot;,
+    &quot;Rescheduling required&quot;,
+    &quot;Other&quot;,
   ];
 
   const hoursUntil = (new Date(booking.eventDate).getTime() - Date.now()) / 36e5;
@@ -371,24 +371,24 @@ function CancelModal({
 
         {/* Refund Info */}
         <div
-          className={`rounded-xl p-4 mb-5 ${refundPct > 0 ? "bg-green-50 border border-green-200" : "bg-red-50 border border-red-200"}`}
+          className={`rounded-xl p-4 mb-5 ${refundPct > 0 ? &quot;bg-green-50 border border-green-200&quot; : &quot;bg-red-50 border border-red-200&quot;}`}
         >
           <div className="flex items-center gap-2 mb-1">
             <span
-              className={`material-symbols-outlined text-base ${refundPct > 0 ? "text-green-600" : "text-red-500"}`}
+              className={`material-symbols-outlined text-base ${refundPct > 0 ? &quot;text-green-600&quot; : &quot;text-red-500&quot;}`}
             >
-              {refundPct > 0 ? "payments" : "money_off"}
+              {refundPct > 0 ? &quot;payments&quot; : &quot;money_off&quot;}
             </span>
             <span
-              className={`text-lg font-semibold ${refundPct > 0 ? "text-green-700" : "text-red-600"}`}
+              className={`text-lg font-semibold ${refundPct > 0 ? &quot;text-green-700&quot; : &quot;text-red-600&quot;}`}
             >
-              {refundPct > 0 ? `${refundPct}% refund eligible` : "No refund"}
+              {refundPct > 0 ? `${refundPct}% refund eligible` : &quot;No refund&quot;}
             </span>
           </div>
           <p className="text-base text-slate-500">
             {refundPct > 0
-              ? `₹${Math.round((booking.pricing.total * refundPct) / 100).toLocaleString("en-IN")} will be refunded within 5–7 business days.`
-              : "Cancellations within 24 hours of the event are non-refundable."}
+              ? `₹${Math.round((booking.pricing.total * refundPct) / 100).toLocaleString(&quot;en-IN&quot;)} will be refunded within 5–7 business days.`
+              : &quot;Cancellations within 24 hours of the event are non-refundable.&quot;}
           </p>
         </div>
 
@@ -401,8 +401,8 @@ function CancelModal({
               onClick={() => setReason(r)}
               className={`w-full text-left text-lg px-5.5 py-2.5 rounded-xl border transition-colors ${
                 reason === r
-                  ? "bg-[#f49d25]/10 border-[#f49d25] text-[#c47c0e] font-medium"
-                  : "border-slate-200 text-slate-600 hover:bg-slate-50"
+                  ? &quot;bg-[#f49d25]/10 border-[#f49d25] text-[#c47c0e] font-medium&quot;
+                  : &quot;border-slate-200 text-slate-600 hover:bg-slate-50&quot;
               }`}
             >
               {r}
@@ -422,7 +422,7 @@ function CancelModal({
             disabled={!reason || loading}
             className="flex-1 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 disabled:opacity-50 text-white text-lg font-semibold transition-colors"
           >
-            {loading ? "Cancelling…" : "Cancel Booking"}
+            {loading ? &quot;Cancelling…&quot; : &quot;Cancel Booking&quot;}
           </button>
         </div>
       </div>
@@ -433,14 +433,14 @@ function CancelModal({
 // ── Review Modal ──────────────────────────────────────────────────────────────
 
 const SUB_RATINGS = [
-  { key: "punctuality", label: "Punctuality", labelHi: "समय पर पहुंचे", icon: "schedule" },
-  { key: "knowledge", label: "Knowledge", labelHi: "विद्वत्ता", icon: "menu_book" },
-  { key: "conduct", label: "Conduct", labelHi: "व्यवहार", icon: "handshake" },
-  { key: "accuracy", label: "Ritual Accuracy", labelHi: "शुद्धता", icon: "verified" },
-  { key: "samagri", label: "Samagri", labelHi: "सामग्री", icon: "inventory_2" },
+  { key: &quot;punctuality&quot;, label: &quot;Punctuality&quot;, labelHi: &quot;समय पर पहुंचे&quot;, icon: &quot;schedule&quot; },
+  { key: &quot;knowledge&quot;, label: &quot;Knowledge&quot;, labelHi: &quot;विद्वत्ता&quot;, icon: &quot;menu_book&quot; },
+  { key: &quot;conduct&quot;, label: &quot;Conduct&quot;, labelHi: &quot;व्यवहार&quot;, icon: &quot;handshake&quot; },
+  { key: &quot;accuracy&quot;, label: &quot;Ritual Accuracy&quot;, labelHi: &quot;शुद्धता&quot;, icon: &quot;verified&quot; },
+  { key: &quot;samagri&quot;, label: &quot;Samagri&quot;, labelHi: &quot;सामग्री&quot;, icon: &quot;inventory_2&quot; },
 ] as const;
 
-type SubRatingKey = (typeof SUB_RATINGS)[number]["key"];
+type SubRatingKey = (typeof SUB_RATINGS)[number][&quot;key&quot;];
 
 function StarRow({
   value,
@@ -497,7 +497,7 @@ function ReviewModal({
     accuracy: 0,
     samagri: 0,
   });
-  const [comment, setComment] = useState("");
+  const [comment, setComment] = useState(&quot;&quot;);
   const [anonymous, setAnonymous] = useState(false);
 
   const overall =
@@ -596,8 +596,8 @@ function ReviewModal({
             onClick={() => setAnonymous((v) => !v)}
             className={`flex items-center gap-3 w-full p-3.5 rounded-xl border transition-colors text-left ${
               anonymous
-                ? "border-slate-300 bg-slate-50"
-                : "border-slate-200 bg-white hover:bg-slate-50"
+                ? &quot;border-slate-300 bg-slate-50&quot;
+                : &quot;border-slate-200 bg-white hover:bg-slate-50&quot;
             }`}
           >
             <div
@@ -623,7 +623,7 @@ function ReviewModal({
             disabled={!canSubmit || loading}
             className="w-full py-3 rounded-xl bg-[#f49d25] hover:bg-[#e08c14] disabled:opacity-50 text-white font-semibold text-lg transition-colors"
           >
-            {loading ? "Submitting…" : "Submit Review"}
+            {loading ? &quot;Submitting…&quot; : &quot;Submit Review&quot;}
           </button>
         </div>
       </div>
@@ -637,10 +637,10 @@ export default function BookingsClient() {
   const { user, accessToken, openLoginModal, loading: authLoading } = useAuth();
   const router = useRouter();
 
-  const [tab, setTab] = useState<Tab>("upcoming");
+  const [tab, setTab] = useState<Tab>(&quot;upcoming&quot;);
   const [bookings, setBookings] = useState<BookingSummary[]>([]);
   const [loadingBookings, setLoadingBookings] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(&quot;&quot;);
 
   const [cancelTarget, setCancelTarget] = useState<BookingSummary | null>(null);
   const [cancelLoading, setCancelLoading] = useState(false);
@@ -652,17 +652,17 @@ export default function BookingsClient() {
   const fetchBookings = useCallback(async () => {
     if (!accessToken) return;
     setLoadingBookings(true);
-    setError("");
+    setError(&quot;&quot;);
     try {
-      const statuses = TAB_STATUSES[tab].join(",");
+      const statuses = TAB_STATUSES[tab].join(&quot;,&quot;);
       const res = await fetch(`${API}/bookings/my?status=${statuses}&limit=20`, {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
-      if (!res.ok) throw new Error("Failed to load bookings");
+      if (!res.ok) throw new Error(&quot;Failed to load bookings&quot;);
       const json = await res.json();
       setBookings(json.data ?? []);
     } catch {
-      setError("Could not load bookings. Please try again.");
+      setError(&quot;Could not load bookings. Please try again.&quot;);
     } finally {
       setLoadingBookings(false);
     }
@@ -684,9 +684,9 @@ export default function BookingsClient() {
     setCancelLoading(true);
     try {
       const res = await fetch(`${API}/bookings/${cancelTarget.id}/cancel`, {
-        method: "POST",
+        method: &quot;POST&quot;,
         headers: {
-          "Content-Type": "application/json",
+          &quot;Content-Type&quot;: &quot;application/json&quot;,
           Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({ reason }),
@@ -695,7 +695,7 @@ export default function BookingsClient() {
       setCancelTarget(null);
       fetchBookings();
     } catch {
-      alert("Could not cancel booking. Please try again or contact support.");
+      alert(&quot;Could not cancel booking. Please try again or contact support.&quot;);
     } finally {
       setCancelLoading(false);
     }
@@ -711,9 +711,9 @@ export default function BookingsClient() {
     setRateLoading(true);
     try {
       const res = await fetch(`${API}/bookings/${rateTarget.id}/review`, {
-        method: "POST",
+        method: &quot;POST&quot;,
         headers: {
-          "Content-Type": "application/json",
+          &quot;Content-Type&quot;: &quot;application/json&quot;,
           Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify(data),
@@ -722,16 +722,16 @@ export default function BookingsClient() {
       setRateTarget(null);
       fetchBookings();
     } catch {
-      alert("Could not submit review. Please try again.");
+      alert(&quot;Could not submit review. Please try again.&quot;);
     } finally {
       setRateLoading(false);
     }
   };
 
   const TABS: { key: Tab; label: string; icon: string }[] = [
-    { key: "upcoming", label: "Upcoming", icon: "event_upcoming" },
-    { key: "past", label: "Past", icon: "history" },
-    { key: "cancelled", label: "Cancelled", icon: "cancel" },
+    { key: &quot;upcoming&quot;, label: &quot;Upcoming&quot;, icon: &quot;event_upcoming&quot; },
+    { key: &quot;past&quot;, label: &quot;Past&quot;, icon: &quot;history&quot; },
+    { key: &quot;cancelled&quot;, label: &quot;Cancelled&quot;, icon: &quot;cancel&quot; },
   ];
 
   const filteredBookings = bookings.filter((b) =>
@@ -801,8 +801,8 @@ export default function BookingsClient() {
                   onClick={() => setTab(key)}
                   className={`flex items-center gap-1.5 px-4 py-3 text-lg font-medium border-b-2 transition-colors ${
                     tab === key
-                      ? "border-[#f49d25] text-[#c47c0e]"
-                      : "border-transparent text-slate-500 hover:text-slate-700"
+                      ? &quot;border-[#f49d25] text-[#c47c0e]&quot;
+                      : &quot;border-transparent text-slate-500 hover:text-slate-700&quot;
                   }`}
                 >
                   <span className="material-symbols-outlined text-base">{icon}</span>

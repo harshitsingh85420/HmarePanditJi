@@ -20,14 +20,14 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
             Booking ID
           </p>
           <p className="text-slate-500 dark:text-slate-400 text-lg font-mono mb-6">
-            HPJ-{id || "1256"}
+            HPJ-{id || &quot;1256&quot;}
           </p>
           <nav className="flex flex-col gap-1">
             <Link
               href={`/bookings/${id}`}
               className="flex items-center gap-3 px-4 py-3 rounded-lg bg-[#ee9d2b]/10 text-[#ee9d2b] font-bold"
             >
-              <span className="material-symbols-outlined">dashboard</span>{" "}
+              <span className="material-symbols-outlined">dashboard</span>{&quot; &quot;}
               Overview
             </Link>
             <Link
@@ -40,14 +40,14 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
               href="#"
               className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors font-medium"
             >
-              <span className="material-symbols-outlined">payments</span>{" "}
+              <span className="material-symbols-outlined">payments</span>{&quot; &quot;}
               Payments
             </Link>
             <Link
               href="#"
               className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors font-medium"
             >
-              <span className="material-symbols-outlined">settings</span>{" "}
+              <span className="material-symbols-outlined">settings</span>{&quot; &quot;}
               Settings
             </Link>
           </nav>
@@ -58,15 +58,15 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
           </h3>
           <div className="flex flex-col gap-3">
             {[
-              { name: "Itinerary", size: "1.2 MB", link: `/bookings/${id}/itinerary` },
-              { name: "Hotel Voucher", size: "840 KB", link: "#" },
-              { name: "Muhurat Patrika", size: "2.4 MB", link: `/bookings/${id}/certificate` },
-              { name: "Completion Report", size: "1.8 MB", link: `/bookings/${id}/completion` },
+              { name: &quot;Itinerary&quot;, size: &quot;1.2 MB&quot;, link: `/bookings/${id}/itinerary` },
+              { name: &quot;Hotel Voucher&quot;, size: &quot;840 KB&quot;, link: &quot;#&quot; },
+              { name: &quot;Muhurat Patrika&quot;, size: &quot;2.4 MB&quot;, link: `/bookings/${id}/certificate` },
+              { name: &quot;Completion Report&quot;, size: &quot;1.8 MB&quot;, link: `/bookings/${id}/completion` },
             ].map((doc, idx) => (
               <div
                 key={idx}
                 className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-slate-800 group cursor-pointer hover:bg-[#ee9d2b]/5 transition-colors"
-                onClick={() => doc.link !== "#" && router.push(doc.link)}
+                onClick={() => doc.link !== &quot;#&quot; && router.push(doc.link)}
               >
                 <div className="flex items-center gap-3">
                   <span className="material-symbols-outlined text-red-500">
@@ -94,7 +94,7 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
             <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white leading-tight">
-              Booking Confirmed - HPJ-{id || "1256"}
+              Booking Confirmed - HPJ-{id || &quot;1256&quot;}
             </h1>
             <p className="text-slate-600 dark:text-slate-400 text-lg mt-1">
               Wedding Ceremony of Rahul &amp; Priya
@@ -150,7 +150,7 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
           <h3 className="text-slate-900 dark:text-white font-bold text-xl mb-8 flex items-center gap-2">
             <span className="material-symbols-outlined text-[#ee9d2b]">
               route
-            </span>{" "}
+            </span>{&quot; &quot;}
             Transit Timeline
           </h3>
           <div className="relative flex flex-col gap-0">
@@ -169,7 +169,7 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
                 <p className="text-slate-500 dark:text-slate-400 mt-2 flex items-center gap-1">
                   <span className="material-symbols-outlined text-lg">
                     calendar_today
-                  </span>{" "}
+                  </span>{&quot; &quot;}
                   Dec 14, 10:00 PM
                 </p>
               </div>
@@ -187,7 +187,7 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
                 <p className="text-slate-500 dark:text-slate-400 mt-2 flex items-center gap-1">
                   <span className="material-symbols-outlined text-lg">
                     calendar_today
-                  </span>{" "}
+                  </span>{&quot; &quot;}
                   Dec 15
                 </p>
                 <div className="mt-3 flex items-center gap-2 px-5 py-3 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded text-lg font-medium w-fit">
@@ -211,7 +211,7 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
                 <p className="text-slate-500 dark:text-slate-400 mt-2 flex items-center gap-1">
                   <span className="material-symbols-outlined text-lg">
                     calendar_today
-                  </span>{" "}
+                  </span>{&quot; &quot;}
                   Dec 16, 4:30 AM
                 </p>
                 <p className="text-slate-400 text-lg mt-1">
@@ -226,28 +226,28 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[
             {
-              title: "Track Pandit",
-              desc: "Real-time GPS tracking",
-              icon: "my_location",
+              title: &quot;Track Pandit&quot;,
+              desc: &quot;Real-time GPS tracking&quot;,
+              icon: &quot;my_location&quot;,
               link: `/bookings/${id}/track`,
             },
             {
-              title: "Chat with Pandit",
-              desc: "Discuss ritual details",
-              icon: "forum",
-              link: "#",
+              title: &quot;Chat with Pandit&quot;,
+              desc: &quot;Discuss ritual details&quot;,
+              icon: &quot;forum&quot;,
+              link: &quot;#&quot;,
             },
             {
-              title: "View Samagri List",
-              desc: "Required items checklist",
-              icon: "inventory_2",
+              title: &quot;View Samagri List&quot;,
+              desc: &quot;Required items checklist&quot;,
+              icon: &quot;inventory_2&quot;,
               link: `/bookings/${id}/samagri`,
             },
             {
-              title: "Support",
-              desc: "24/7 Concierge help",
-              icon: "support_agent",
-              link: "#",
+              title: &quot;Support&quot;,
+              desc: &quot;24/7 Concierge help&quot;,
+              icon: &quot;support_agent&quot;,
+              link: &quot;#&quot;,
             },
           ].map((item, idx) => (
             <div

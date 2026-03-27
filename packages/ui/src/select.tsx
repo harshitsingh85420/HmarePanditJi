@@ -25,26 +25,26 @@ export function Select({
   onChange,
   label,
   error,
-  placeholder = "Select...",
+  placeholder = &quot;Select...&quot;,
   searchable = false,
   disabled = false,
-  className = "",
+  className = &quot;&quot;,
 }: SelectProps) {
   const [open, setOpen] = useState(false);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(&quot;&quot;);
   const ref = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const selectId = label?.toLowerCase().replace(/\s+/g, "-") ?? "select";
+  const selectId = label?.toLowerCase().replace(/\s+/g, &quot;-&quot;) ?? &quot;select&quot;;
 
   useEffect(() => {
     function handleOutside(e: MouseEvent) {
       if (ref.current && !ref.current.contains(e.target as Node)) {
         setOpen(false);
-        setSearch("");
+        setSearch(&quot;&quot;);
       }
     }
-    document.addEventListener("mousedown", handleOutside);
-    return () => document.removeEventListener("mousedown", handleOutside);
+    document.addEventListener(&quot;mousedown&quot;, handleOutside);
+    return () => document.removeEventListener(&quot;mousedown&quot;, handleOutside);
   }, []);
 
   useEffect(() => {
@@ -80,18 +80,18 @@ export function Select({
           disabled={disabled}
           className={[
             // ACC-009 FIX: Larger touch target (min 56px height)
-            "w-full flex items-center justify-between py-4 pl-4 pr-10 text-left min-h-[56px]",
-            "bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg",
+            &quot;w-full flex items-center justify-between py-4 pl-4 pr-10 text-left min-h-[56px]&quot;,
+            &quot;bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg&quot;,
             // ACC-010 FIX: Larger text for elderly users
-            "text-base focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary",
-            "disabled:opacity-50 disabled:cursor-not-allowed",
-            error ? "border-red-400 focus:ring-red-400" : "",
+            &quot;text-base focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary&quot;,
+            &quot;disabled:opacity-50 disabled:cursor-not-allowed&quot;,
+            error ? &quot;border-red-400 focus:ring-red-400&quot; : &quot;&quot;,
             selectedOption
-              ? "text-slate-900 dark:text-slate-100"
-              : "text-slate-400",
+              ? &quot;text-slate-900 dark:text-slate-100&quot;
+              : &quot;text-slate-400&quot;,
           ]
             .filter(Boolean)
-            .join(" ")}
+            .join(&quot; &quot;)}
           aria-haspopup="listbox"
           aria-expanded={open}
         >
@@ -102,7 +102,7 @@ export function Select({
           aria-hidden="true"
           className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg pointer-events-none"
         >
-          {open ? "expand_less" : "expand_more"}
+          {open ? &quot;expand_less&quot; : &quot;expand_more&quot;}
         </span>
 
         {open && (
@@ -126,7 +126,7 @@ export function Select({
               className="max-h-60 overflow-y-auto py-1"
             >
               {filtered.length === 0 ? (
-                // ACC-010 FIX: Larger "no results" text
+                // ACC-010 FIX: Larger &quot;no results&quot; text
                 <li className="px-4 py-3 text-base text-slate-400">
                   No options found
                 </li>
@@ -139,15 +139,15 @@ export function Select({
                     onClick={() => {
                       onChange?.(opt.value);
                       setOpen(false);
-                      setSearch("");
+                      setSearch(&quot;&quot;);
                     }}
                     className={[
                       // ACC-009 & ACC-010 FIX: Larger options with bigger touch targets
-                      "px-4 py-3 text-base cursor-pointer transition-colors min-h-[52px] flex items-center",
+                      &quot;px-4 py-3 text-base cursor-pointer transition-colors min-h-[52px] flex items-center&quot;,
                       opt.value === value
-                        ? "bg-primary/10 text-primary font-medium"
-                        : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800",
-                    ].join(" ")}
+                        ? &quot;bg-primary/10 text-primary font-medium&quot;
+                        : &quot;text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800&quot;,
+                    ].join(&quot; &quot;)}
                   >
                     {opt.label}
                   </li>

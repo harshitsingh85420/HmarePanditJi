@@ -1,201 +1,120 @@
-'use client'
+'use client';
 
-import { useEffect, useRef } from 'react'
-import { useRouter } from 'next/navigation'
-import { motion } from 'framer-motion'
-import { speakWithSarvam, stopCurrentSpeech } from '@/lib/sarvam-tts'
-import { useOnboardingStore } from '@/stores/onboardingStore'
-import { TUTORIAL_SWAGAT } from '@/lib/voice-scripts'
-import ProgressDots from '@/components/ProgressDots'
+import React, { useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { speakWithSarvam } from '@/lib/sarvam-tts';
+import { useRouter } from 'next/navigation';
 
-export default function WelcomeScreen() {
-  const router = useRouter()
-  const { setPhase, selectedLanguage } = useOnboardingStore()
-  const hasSpokenRef = useRef(false)
-  const isMountedRef = useRef(true)
+export default function WelcomePage() {
+  const router = useRouter();
 
   useEffect(() => {
-    isMountedRef.current = true
-
-    // Voice prompt on screen load
-    const timer = setTimeout(() => {
-      if (isMountedRef.current && !hasSpokenRef.current) {
-        hasSpokenRef.current = true
-        void speakWithSarvam({
-          text: TUTORIAL_SWAGAT.scripts.main.hindi,
-          languageCode: 'hi-IN',
-        })
-      }
-    }, 600)
-
-    return () => {
-      isMountedRef.current = false
-      clearTimeout(timer)
-      stopCurrentSpeech()
-    }
-  }, [])
-
-  const handleSkip = () => {
-    setPhase('REGISTRATION')
-    router.push('/mobile')
-  }
-
-  const handleContinue = () => {
-    setPhase('TUTORIAL_INCOME')
-    router.push('/dashboard')
-  }
+    void speakWithSarvam({
+      text: 'स्वागत है पंडित जी। आइए आपका परिचय करवाते हैं।',
+      languageCode: 'hi-IN',
+    });
+  }, []);
 
   return (
-    <main className="relative mx-auto min-h-dvh w-full flex flex-col bg-surface-base">
-      {/* Sacred Gradient Backdrop */}
-      <div className="fixed inset-0 bg-sacred pointer-events-none -z-10" />
-
-      {/* TopBar */}
-      <div className="h-[72px] px-4 flex items-center justify-between border-b border-outline-variant sticky top-0 bg-surface-base/90 z-50 backdrop-blur-sm">
+    <main className="w-full min-h-dvh max-w-[390px] xs:max-w-[430px] mx-auto bg-surface-base flex flex-col relative overflow-hidden">
+      {/* Top Bar */}
+      <div className="min-h-[52px] xs:min-h-[56px] sm:min-h-[72px] px-4 xs:px-6 flex items-center justify-between border-b border-outline-variant sticky top-0 bg-surface-base/90 z-50 backdrop-blur-sm">
         <div className="flex items-center gap-2">
-          <span className="text-[32px] text-saffron">ॐ</span>
-          <h1 className="text-[20px] font-bold text-text-primary">HmarePanditJi</h1>
+          <span className="text-2xl xs:text-3xl sm:text-[32px] text-saffron">ॐ</span>
+          <h1 className="text-base xs:text-lg sm:text-[20px] font-bold text-text-primary">HmarePanditJi</h1>
         </div>
         <button
-          onClick={() => { }}
-          className="min-h-[64px] px-6 flex items-center gap-2 text-[20px] font-bold text-text-primary active:opacity-50 focus:ring-2 focus:ring-saffron focus:outline-none border-2 border-border-default rounded-full bg-surface-card"
-          aria-label="Language switcher"
+          onClick={() => {}}
+          className="min-h-[52px] xs:min-h-[56px] sm:min-h-[64px] px-4 xs:px-6 flex items-center gap-2 text-sm xs:text-base sm:text-[20px] font-bold text-text-primary active:opacity-50 focus:ring-2 focus:ring-saffron focus:outline-none border-2 border-border-default rounded-full bg-surface-card"
         >
-          <span>हिन्दी / English</span>
+          हिन्दी / English
         </button>
       </div>
 
-      {/* Progress Dots */}
-      <ProgressDots total={12} current={1} />
-
-      {/* Illustration Area */}
-      <section className="mt-4 px-4 flex justify-center">
-        <div className="w-[320px] h-[200px] relative flex items-center justify-center">
+      {/* Content */}
+      <div className="flex-grow px-4 xs:px-6 py-6 xs:py-8 overflow-y-auto">
+        {/* Illustration */}
+        <div className="w-full max-w-[320px] h-40 xs:h-44 sm:h-[200px] relative flex items-center justify-center mx-auto mb-6 xs:mb-8">
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.6 }}
-            className="text-center"
+            className="text-6xl xs:text-7xl sm:text-[80px] mb-2 xs:mb-4"
           >
-            {/* Animated Welcome Illustration */}
-            <motion.div
-              animate={{ y: [0, -10, 0] }}
-              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-              className="text-[80px] mb-4"
-            >
-              🙏
-            </motion.div>
-            <div className="flex items-center justify-center gap-2">
-              <motion.div
-                animate={{ scale: [1, 1.2, 1] }}
-                transition={{ duration: 1.5, repeat: Infinity }}
-                className="w-3 h-3 bg-saffron rounded-full"
-              />
-              <motion.div
-                animate={{ scale: [1, 1.2, 1] }}
-                transition={{ duration: 1.5, repeat: Infinity, delay: 0.3 }}
-                className="w-3 h-3 bg-saffron rounded-full"
-              />
-              <motion.div
-                animate={{ scale: [1, 1.2, 1] }}
-                transition={{ duration: 1.5, repeat: Infinity, delay: 0.6 }}
-                className="w-3 h-3 bg-saffron rounded-full"
-              />
-            </div>
+            🙏
           </motion.div>
         </div>
-      </section>
 
-      {/* Title Section */}
-      <section className="mt-4 px-4 text-center">
-        <motion.h2
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          className="text-[28px] font-bold text-text-primary leading-tight font-devanagari"
-        >
-          नमस्ते पंडित जी
-        </motion.h2>
-        <motion.p
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          className="text-[20px] text-text-secondary mt-2 font-devanagari"
-        >
-          HmarePanditJi में आपका बहुत-बहुत स्वागत है
-        </motion.p>
-      </section>
+        {/* Title */}
+        <h2 className="text-xl xs:text-2xl sm:text-[28px] font-bold text-text-primary leading-tight font-devanagari text-center mb-1 xs:mb-2">
+          नमस्ते पंडित जी!
+        </h2>
+        <p className="text-base xs:text-lg sm:text-[20px] text-text-secondary mt-1 xs:mt-2 font-devanagari text-center">
+          आपका हार्दिक स्वागत है
+        </p>
 
-      {/* Content Body */}
-      <section className="px-4 flex-grow mt-8">
-        {/* Welcome Card */}
-        <motion.div
-          initial={{ y: 30, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          className="p-6 bg-saffron-lt rounded-2xl border-2 border-saffron/30"
-        >
-          <div className="flex items-start gap-4">
-            <span className="text-[40px]">✨</span>
+        {/* Feature Cards */}
+        <div className="space-y-4 xs:space-y-6 mt-6 xs:mt-8">
+          {/* Card 1 */}
+          <motion.div
+            initial={{ x: -20, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            className="bg-white border-2 border-border-default rounded-2xl p-4 xs:p-5 flex items-start gap-3 xs:gap-4 shadow-card"
+          >
+            <span className="text-3xl xs:text-4xl sm:text-[40px]">✨</span>
             <div>
-              <p className="text-[18px] font-bold text-text-primary font-devanagari leading-snug">
-                यह platform आपके लिए ही बना है
+              <p className="text-base xs:text-lg sm:text-[18px] font-bold text-text-primary font-devanagari leading-snug">
+                नए ग्राहक, नई आमदनी
               </p>
-              <p className="text-[16px] text-text-secondary mt-2 font-devanagari">
-                अगले दो मिनट में हम देखेंगे कि यह app आपकी आमदनी में क्या बदलाव ला सकता है
+              <p className="text-sm xs:text-base sm:text-[16px] text-text-secondary mt-1 xs:mt-2 font-devanagari">
+                आपके क्षेत्र के ग्राहक आपको सीधे संपर्क करेंगे
               </p>
             </div>
-          </div>
-        </motion.div>
+          </motion.div>
 
-        {/* Mool Mantra Card */}
-        <motion.div
-          initial={{ y: 30, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.6 }}
-          className="mt-6 p-6 bg-surface-card rounded-2xl border-2 border-border-default"
-        >
-          <div className="flex items-start gap-4">
-            <span className="text-[40px]">🕉️</span>
+          {/* Card 2 */}
+          <motion.div
+            initial={{ x: -20, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.4 }}
+            className="bg-saffron-lt border-2 border-saffron rounded-2xl p-4 xs:p-5 flex items-start gap-3 xs:gap-4 shadow-card"
+          >
+            <span className="text-3xl xs:text-4xl sm:text-[40px]">🕉️</span>
             <div>
-              <p className="text-[16px] font-bold text-text-secondary font-devanagari">
-                हमारा Mool Mantra याद रखिए
+              <p className="text-sm xs:text-base sm:text-[16px] font-bold text-text-secondary font-devanagari">
+                हमारा वादा
               </p>
-              <p className="text-[20px] font-bold text-saffron mt-2 font-devanagari leading-snug">
+              <p className="text-base xs:text-lg sm:text-[20px] font-bold text-saffron mt-1 xs:mt-2 font-devanagari leading-snug">
                 App पंडित के लिए है, पंडित App के लिए नहीं
               </p>
             </div>
-          </div>
-        </motion.div>
-
-        {/* Voice Listening Indicator */}
-        <div className="mt-6 flex items-center justify-center gap-2">
-          <div className="flex items-center gap-1">
-            <div className="w-1 h-6 bg-saffron rounded-full animate-voice-bar"></div>
-            <div className="w-1 h-6 bg-saffron rounded-full animate-voice-bar animation-delay-200"></div>
-            <div className="w-1 h-6 bg-saffron rounded-full animate-voice-bar animation-delay-400"></div>
-          </div>
-          <span className="text-[16px] text-text-secondary font-devanagari ml-2">
-            सुन रहा हूँ... "Skip" या "जानें" बोलें
-          </span>
+          </motion.div>
         </div>
-      </section>
+
+        {/* CTA Text */}
+        <p className="text-sm xs:text-base sm:text-[16px] text-text-secondary font-devanagari mt-6 xs:mt-8 text-center ml-1 xs:ml-2">
+          आगे बढ़ने के लिए नीचे बटन दबाएं
+        </p>
+      </div>
 
       {/* Footer Buttons */}
-      <footer className="p-6 space-y-4 mb-6">
-        <button
-          onClick={handleContinue}
-          className="w-full bg-saffron text-white py-4 min-h-[72px] rounded-2xl text-[22px] font-bold active:scale-[0.98] transition-transform shadow-btn-saffron focus:ring-2 focus:ring-primary focus:outline-none"
+      <footer className="px-4 xs:px-6 pb-6 xs:pb-8 pt-3 xs:pt-4 bg-surface-base/90 backdrop-blur-sm border-t border-border-default">
+        <motion.button
+          whileTap={{ scale: 0.97 }}
+          onClick={() => router.push('/location-permission')}
+          className="w-full bg-saffron text-white py-3 xs:py-4 min-h-[52px] xs:min-h-[56px] sm:min-h-[72px] rounded-2xl text-lg xs:text-xl sm:text-[22px] font-bold active:scale-[0.98] transition-transform shadow-btn-saffron focus:ring-2 focus:ring-primary focus:outline-none"
         >
-          जानें →
-        </button>
-        <button
-          onClick={handleSkip}
-          className="w-full bg-surface-card text-text-primary py-4 min-h-[72px] rounded-2xl text-[20px] font-bold border-2 border-border-default active:scale-[0.98] transition-transform focus:ring-2 focus:ring-saffron focus:outline-none"
+          आगे बढ़ें →
+        </motion.button>
+        <motion.button
+          whileTap={{ scale: 0.97 }}
+          onClick={() => router.push('/tutorial')}
+          className="w-full bg-surface-card text-text-primary py-3 xs:py-4 min-h-[52px] xs:min-h-[56px] sm:min-h-[72px] rounded-2xl text-base xs:text-lg sm:text-[20px] font-bold border-2 border-border-default active:scale-[0.98] transition-transform focus:ring-2 focus:ring-saffron focus:outline-none mt-3 xs:mt-4"
         >
-          Skip — सीधे Registration
-        </button>
+          जानें — कैसे काम करता है
+        </motion.button>
       </footer>
     </main>
-  )
+  );
 }

@@ -13,12 +13,12 @@ export default function AboutPage() {
                 <h1 className="text-4xl md:text-5xl font-black tracking-tight text-gray-900 mb-4 mt-0">
                     About Hmare<span className="text-orange-600">PanditJi</span>
                 </h1>
-                <p className="text-xl text-orange-600 font-medium italic">"Sanskriti ko Digital Disha"</p>
+                <p className="text-xl text-orange-600 font-medium italic">&quot;Sanskriti ko Digital Disha&quot;</p>
             </div>
 
             <h2>What We Do</h2>
             <p className="lead text-lg text-gray-700">
-                HmarePanditJi is a modern platform bridging the gap between authentic Vedic traditions and today's digital convenience. We connect families and individuals with highly qualified, rigorously verified Pandits for sacred ceremonies, rituals, and Pujas across India.
+                HmarePanditJi is a modern platform bridging the gap between authentic Vedic traditions and today&apos;s digital convenience. We connect families and individuals with highly qualified, rigorously verified Pandits for sacred ceremonies, rituals, and Pujas across India.
             </p>
 
             <div className="grid md:grid-cols-3 gap-6 my-10 not-prose">

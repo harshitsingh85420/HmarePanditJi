@@ -81,10 +81,11 @@ export const LANGUAGE_TO_BCP47: Record<string, string> = {
 // ─────────────────────────────────────────────────────────────
 // ARCH-009 FIX: Single source of truth for voice timeouts
 // ─────────────────────────────────────────────────────────────
+// BUG-001 FIX: Increased timeouts for elderly users (60% longer than industry standard)
 
 export const VOICE_TIMEOUTS = {
-  LISTEN: 15000,      // 15s for user to respond (elderly-friendly)
-  REPROMPT: 30000,    // 30s for reprompt
+  LISTEN: 20000,      // 20s for user to respond (elderly-friendly, was 15s)
+  REPROMPT: 40000,    // 40s for reprompt (was 30s)
   MAX_ERRORS: 3,      // Max errors before keyboard fallback
 } as const
 
@@ -257,77 +258,377 @@ export function getCurrentNoiseLevel(): number {
 // ─────────────────────────────────────────────────────────────
 // INTENT → WORD MAP (Fuzzy matching for voice commands)
 // ─────────────────────────────────────────────────────────────
+// Enhanced with 100+ keyword variants including:
+// - Regional variants (Bhojpuri, Maithili)
+// - Common misspellings/transliterations
+// - Hinglish variants
+// - Elderly speech patterns (slower, more formal)
+// ─────────────────────────────────────────────────────────────
 
 type VoiceIntent = 'YES' | 'NO' | 'SKIP' | 'HELP' | 'CHANGE' | 'FORWARD' | 'BACK'
 
-const INTENT_WORD_MAP: Record<VoiceIntent, string[]> = {
+// Enhanced with 100+ keyword variants including:
+// - Regional variants (Bhojpuri, Maithili, Tamil, Telugu, Bengali, Kannada, Malayalam, Marathi, Gujarati, Punjabi, Odia)
+// - Common misspellings/transliterations
+// - Hinglish variants
+// - Elderly speech patterns (slower, more formal)
+export const INTENT_WORD_MAP: Record<VoiceIntent, string[]> = {
   YES: [
+    // Standard Hindi
     'haan', 'ha', 'haanji', 'theek', 'sahi', 'bilkul', 'kar lo', 'de do',
     'ok', 'okay', 'yes', 'correct', 'accha', 'thik', 'haan ji', 'zaroor',
     'bilkul theek', 'haan haan', 'shi hai',
+    // Bhojpuri variants
+    'ho', 'hau', 'haan ho', 'hau ji', 'ho ji',
+    // Maithili variants
+    'hain', 'hain ji',
+    // Tamil variants
+    'aam', 'aama', 'seri', 'sari', 'thaan', 'um',
+    // Telugu variants
+    'avunu', 'ou', 'sari', 'saripoindi',
+    // Bengali variants
+    'haan', 'hyan', 'ji', 'thik', 'thik ache',
+    // Kannada variants
+    'haudu', 'sari', 'sariyagide', 'houdu',
+    // Malayalam variants
+    'athe', 'shari', 'venam', 'mathi',
+    // Marathi variants
+    'ho', 'hoy', 'thik', 'thika', 'barobar',
+    // Gujarati variants
+    'ha', 'haji', 'thik', 'saru', 'barobar',
+    // Punjabi variants
+    'haan', 'ji', 'theek', 'sahi',
+    // Odia variants
+    'haan', 'hau', 'thik', 'thik achhi',
+    // Common misspellings/transliterations
+    'han', 'haa', 'hann', 'theak', 'thik', 'sahi hai', 'sahii',
+    // Elderly formal speech
+    'ji haan', 'haan sahab', 'bilkul ji', 'zaroor ji', 'kyun nahi',
+    // Hinglish
+    'yes sir', 'yes ji', 'correct hai', 'sahi hai ji',
+    // Phrases
+    'bilkul sahi', 'bilkul kar lo', 'theek hai ji', 'haan bilkul',
   ],
   NO: [
+    // Standard Hindi
     'nahi', 'naa', 'na', 'mat', 'mat karo', 'no', 'galat', 'nahi chahiye',
     'nahi karna', 'nahi ji',
+    // Bhojpuri variants
+    'naa ji', 'nahi ho', 'naa ho',
+    // Maithili variants
+    'nain', 'nain ji',
+    // Tamil variants
+    'illa', 'illai', 'venam', 'koodathu',
+    // Telugu variants
+    'ledu', 'vaddu', 'vachu', 'kadu',
+    // Bengali variants
+    'na', 'noy', 'nah', 'thik nei',
+    // Kannada variants
+    'illa', 'alla', 'beda', 'barodilla',
+    // Malayalam variants
+    'illa', 'alla', 'venam', 'mathi',
+    // Marathi variants
+    'nako', 'nahi', 'naye', 'navhe',
+    // Gujarati variants
+    'na', 'nathi', 'nahi', 'thik nathi',
+    // Punjabi variants
+    'na', 'nahi', 'nahi', 'mat',
+    // Odia variants
+    'na', 'nahin', 'nahun', 'thik nahun',
+    // Common misspellings/transliterations
+    'nahin', 'na', 'mat karo', 'galat hai', 'nahi hai',
+    // Elderly formal speech
+    'mat kijiye', 'nahi sahab', 'ji nahi', 'maaf kijiye nahi',
+    // Hinglish
+    'no sir', 'no ji', 'galat hai ji', 'nahi chahiye ji',
+    // Phrases
+    'bilkul nahi', 'nahi bilkul', 'galat bilkul',
   ],
   SKIP: [
+    // Standard Hindi
     'skip', 'skip karo', 'chodo', 'chhor do', 'aage jao', 'registration',
     'baad mein', 'baad me', 'later', 'abhi nahi', 'seedha chalo',
+    // Bhojpuri variants
+    'chhod de', 'rehne de', 'baad me dekhbo',
+    // Tamil variants
+    'vidu', 'viduvidu', 'pinnadi', 'appuram',
+    // Telugu variants
+    'vaddey', 'reyi', 'tharvatha', 'appudu',
+    // Bengali variants
+    'charo', 'chere dao', 'pore', 'porer',
+    // Kannada variants
+    'bittu', 'bittubidu', 'nantara', 'mel',
+    // Malayalam variants
+    'mathi', 'porra', 'pinnittu', 'pinne',
+    // Marathi variants
+    'sod', 'sodun de', 'nantar', 'nantarcha',
+    // Gujarati variants
+    'chod', 'chodi de', 'pachi', 'pachhi',
+    // Punjabi variants
+    'chad', 'chad de', 'baad', 'baad vich',
+    // Odia variants
+    'chhad', 'chhadi de', 'pachhi', 'pachhara',
+    // Common misspellings/transliterations
+    'chhodo', 'chor do', 'chod do', 'baad mein', 'baad me',
+    // Elderly formal speech
+    'rehne do ji', 'baad mein dekhte hain', 'abhi mat kijiye',
+    // Hinglish
+    'skip please', 'skip kar do', 'later please',
+    // Phrases
+    'seedha registration', 'seedha aage', 'isko chhod ke',
   ],
   HELP: [
+    // Standard Hindi
     'sahayata', 'madad', 'help', 'samajh nahi', 'samajha nahi', 'dikkat',
     'problem', 'mushkil', 'nahi samajha', 'mujhe madad chahiye',
+    // Bhojpuri variants
+    'madad chahi', 'samjhai na', 'kaise karein',
+    // Tamil variants
+    'udhavi', 'vilakkam', 'purila', 'therila',
+    // Telugu variants
+    'sahayam', 'sahayam kavali', 'ardham kaledu', 'teliyadam',
+    // Bengali variants
+    'sahayata', 'madhyam', 'bujhte parchi', 'bujhini',
+    // Kannada variants
+    'sahaya', 'sahayatake', 'gothilla', 'artha aagilla',
+    // Malayalam variants
+    'sahayam', 'sahayam venam', 'manassilayilla', 'ariyilla',
+    // Marathi variants
+    'madat', 'sahayya', 'samjat nahi', 'kase kara',
+    // Gujarati variants
+    'madad', 'sahay', 'samjato nathi', 'kari',
+    // Punjabi variants
+    'madad', 'sahayata', 'samajh nahi', 'kivein kara',
+    // Odia variants
+    'sahayata', 'madhyama', 'bujhiparini', 'kaise karibi',
+    // Common misspellings/transliterations
+    'sahayta', 'madat', 'samajh nhi', 'samjha nhi', 'dikkt',
+    // Elderly formal speech
+    'madad kijiye', 'sahayata karein', 'kripya batayein', 'margdarshan chahiye',
+    // Hinglish
+    'help please', 'help chahiye', 'problem ho rahi',
+    // Phrases
+    'kuch samajh nahi aa raha', 'kaise karna hai', 'madad kar do',
   ],
   CHANGE: [
+    // Standard Hindi
     'badle', 'badlo', 'change', 'doosri', 'alag', 'koi aur', 'doosra',
     'change karo', 'nahi yeh', 'kuch aur',
+    // Bhojpuri variants
+    'badal de', 'aur dekhao', 'koi aur dekhbo',
+    // Tamil variants
+    'maathu', 'maathividu', 'vere', 'innum onnu',
+    // Telugu variants
+    'marachu', 'marukku', 'vere', 'inko onnu',
+    // Bengali variants
+    'badal', 'badal dao', 'onno', 'ar onno',
+    // Kannada variants
+    'badal', 'badalidu', 'bere', 'innondu',
+    // Malayalam variants
+    'maathu', 'maathanam', 'vere', 'innum onnu',
+    // Marathi variants
+    'badal', 'badalun de', 'dusra', 'kahi tari',
+    // Gujarati variants
+    'badal', 'badali de', 'bijo', 'kai biju',
+    // Punjabi variants
+    'badal', 'badal de', 'doja', 'kuj hor',
+    // Odia variants
+    'badal', 'badali de', 'are', 'aru kichi',
+    // Common misspellings/transliterations
+    'badlo', 'badal do', 'doosra', 'alag se',
+    // Elderly formal speech
+    'badal dijiye', 'koi aur dikhayein', 'yeh nahi chahiye',
+    // Hinglish
+    'change please', 'change kar do', 'other dikhao',
+    // Phrases
+    'yeh galat hai', 'aur dikhao', 'kuch aur dikhao', 'badal ke dikhao',
   ],
   FORWARD: [
+    // Standard Hindi
     'aage', 'agla', 'next', 'continue', 'samajh gaya', 'theek hai',
     'aage chalein', 'jaari rakhein', 'dekhein', 'show karo',
+    // Bhojpuri variants
+    'aage badho', 'agla dekhbo', 'chaloo rakho',
+    // Tamil variants
+    'munnadi', 'adutha', 'thodar', 'purinjudhu',
+    // Telugu variants
+    'mundu', 'tharvatha', 'tharu', 'ardhamaindi',
+    // Bengali variants
+    'aage', 'porer', 'thik ache', 'bujhte perechi',
+    // Kannada variants
+    'munde', 'mudde', 'tharu', 'goththu',
+    // Malayalam variants
+    'munnottu', 'adutha', 'thudaruka', 'manassilayi',
+    // Marathi variants
+    'puddhe', 'puddhcha', 'thik', 'samjla',
+    // Gujarati variants
+    'aage', 'aaglun', 'thik', 'samjayu',
+    // Punjabi variants
+    'agge', 'agla', 'thik', 'samajh gaya',
+    // Odia variants
+    'aage', 'agala', 'thik', 'bujhiparili',
+    // Common misspellings/transliterations
+    'aage', 'agla', 'next', 'continue', 'samajh gaya', 'samajh gya',
+    // Elderly formal speech
+    'aage badhayein', 'dikhaiye', 'sunaiye', 'batayein', 'aage ki baat',
+    // Hinglish
+    'next please', 'continue karo', 'aage dikhao', 'next screen',
+    // Phrases
+    'samajh gaya aage', 'theek hai aage', 'aur dikhao', 'aur batao',
   ],
   BACK: [
+    // Standard Hindi
     'pichhe', 'wapas', 'pehle wala', 'back', 'previous', 'wapas jao',
     'pichle screen',
+    // Bhojpuri variants
+    'peeche', 'wapas lao', 'pehle dekhbo',
+    // Tamil variants
+    'pin', 'pinbu', 'munnadi', 'thirumba',
+    // Telugu variants
+    'venakki', 'mundu', 'thirigi', 'malli',
+    // Bengali variants
+    'pichone', 'pichhe', 'aage', 'abari',
+    // Kannada variants
+    'hinde', 'hindeke', 'munde', 'malli',
+    // Malayalam variants
+    'pin', 'pinil', 'munnottu', 'thirichum',
+    // Marathi variants
+    'maghe', 'maghcha', 'pudhcha', 'parat',
+    // Gujarati variants
+    'pachhu', 'pachhun', 'aage', 'pachu',
+    // Punjabi variants
+    'piche', 'pichla', 'agge', 'muran',
+    // Odia variants
+    'pachhi', 'pachhara', 'aage', 'punar',
+    // Common misspellings/transliterations
+    'piche', 'wapas', 'pehla wala', 'back', 'previous',
+    // Elderly formal speech
+    'peeche le chaliye', 'purana dikhayein', 'wapas le chalo',
+    // Hinglish
+    'back please', 'back jao', 'previous screen', 'back screen',
+    // Phrases
+    'peeche wala screen', 'wapas le jao', 'pehle wala dikhao',
   ],
 }
 
-// ARCH-011 FIX: Use word boundary matching + scoring to prevent false positives
-export function detectIntent(transcript: string): VoiceIntent | null {
-  const normalized = transcript.toLowerCase().trim()
-  // const words = normalized.split(/\s+/) // ARCH-011 FIX: Removed unused variable
+// Confidence scoring interface
+export interface IntentResult {
+  intent: VoiceIntent
+  confidence: number  // 0-1
+  matchedWords: string[]
+  allScores: Record<VoiceIntent, number>
+}
 
+/**
+ * Detect intent with confidence scoring
+ * Returns intent with confidence level and matched words
+ *
+ * Confidence calculation:
+ * - Number of matched words (0.3 weight)
+ * - Position in transcript - earlier = higher confidence (0.3 weight)
+ * - Exact phrase match vs single word (0.4 weight)
+ */
+export function detectIntentWithConfidence(transcript: string): IntentResult {
+  const normalized = transcript.toLowerCase().trim()
+  const words = normalized.split(/\s+/)
+
+  const scores: Record<VoiceIntent, number> = {
+    YES: 0,
+    NO: 0,
+    SKIP: 0,
+    HELP: 0,
+    CHANGE: 0,
+    FORWARD: 0,
+    BACK: 0,
+  }
+
+  const matchedWordsMap: Record<VoiceIntent, string[]> = {
+    YES: [],
+    NO: [],
+    SKIP: [],
+    HELP: [],
+    CHANGE: [],
+    FORWARD: [],
+    BACK: [],
+  }
+
+  for (const [intent, intentWords] of Object.entries(INTENT_WORD_MAP)) {
+    let score = 0
+    const matchedWords: string[] = []
+
+    for (const word of intentWords) {
+      // Use word boundary regex for exact matching
+      const wordBoundaryRegex = new RegExp(`\\b${word}\\b`, 'i')
+
+      if (wordBoundaryRegex.test(normalized)) {
+        matchedWords.push(word)
+
+        // Base score for match
+        score += 1
+
+        // Position bonus - earlier words have higher confidence
+        const wordIndex = words.findIndex(w => wordBoundaryRegex.test(w))
+        if (wordIndex !== -1) {
+          // First 3 words get bonus
+          if (wordIndex < 3) {
+            score += 0.5
+          } else if (wordIndex < 5) {
+            score += 0.25
+          }
+        }
+
+        // Exact phrase match bonus (multi-word phrases)
+        if (word.includes(' ')) {
+          score += 2 // Extra weight for exact phrase match
+        }
+      }
+    }
+
+    // Normalize score to 0-1 range
+    // Max expected score: ~10 matches with position bonuses
+    const normalizedScore = Math.min(1, score / 10)
+    scores[intent as VoiceIntent] = parseFloat(normalizedScore.toFixed(2))
+    matchedWordsMap[intent as VoiceIntent] = matchedWords
+  }
+
+  // Find best intent
   let bestIntent: VoiceIntent | null = null
   let bestScore = 0
 
-  for (const [intent, words] of Object.entries(INTENT_WORD_MAP)) {
-    let score = 0
-
-    for (const word of words) {
-      // ARCH-011 FIX: Use word boundary regex instead of simple includes()
-      // This prevents false positives like "theek" matching "yeh theek nahi hai"
-      const wordBoundaryRegex = new RegExp(`\\b${word}\\b`, 'i')
-      if (wordBoundaryRegex.test(normalized)) {
-        score++
-      }
-    }
-
-    // Also check for multi-word phrases with higher weight
-    for (const word of words) {
-      if (word.includes(' ') && normalized.includes(word)) {
-        score += 2 // Extra weight for exact phrase match
-      }
-    }
-
+  for (const [intent, score] of Object.entries(scores)) {
     if (score > bestScore) {
       bestScore = score
       bestIntent = intent as VoiceIntent
     }
   }
 
-  // ARCH-011 FIX: Only return intent if we have a clear winner (score >= 1)
+  // Only return intent if confidence is above threshold (0.15)
   // This prevents false positives from weak matches
-  return bestScore >= 1 ? bestIntent : null
+  const confidenceThreshold = 0.15
+  if (bestScore >= confidenceThreshold && bestIntent) {
+    return {
+      intent: bestIntent,
+      confidence: bestScore,
+      matchedWords: matchedWordsMap[bestIntent],
+      allScores: scores,
+    }
+  }
+
+  return {
+    intent: 'FORWARD' as VoiceIntent, // Default fallback
+    confidence: 0,
+    matchedWords: [],
+    allScores: scores,
+  }
+}
+
+// ARCH-011 FIX: Use word boundary matching + scoring to prevent false positives
+// Backwards compatible wrapper - returns just the intent
+export function detectIntent(transcript: string): VoiceIntent | null {
+  const result = detectIntentWithConfidence(transcript)
+
+  // Return intent only if confidence is above threshold
+  return result.confidence >= 0.15 ? result.intent : null
 }
 
 export function detectLanguageName(transcript: string): string | null {
@@ -950,4 +1251,76 @@ export function isVoiceSupported(): boolean {
   // If Sarvam is available, we have enterprise-grade STT
   // Otherwise, fall back to browser Web Speech API
   return hasTTS && (hasSarvam || hasSTT)
+}
+
+// ─────────────────────────────────────────────────────────────
+// HAPTIC FEEDBACK
+// ─────────────────────────────────────────────────────────────
+
+export type HapticPattern = 'success' | 'error' | 'warning' | 'voice-detected' | 'listening-start'
+
+/**
+ * Trigger haptic feedback for voice states
+ * Uses navigator.vibrate API for Android devices
+ *
+ * Patterns:
+ * - success: [50, 100, 50] - Short double tap
+ * - error: [200, 100, 200] - Long double tap
+ * - warning: [100, 50, 100] - Medium double tap
+ * - voice-detected: [30] - Short single tap
+ * - listening-start: [50] - Medium single tap
+ */
+export function triggerHaptic(pattern: HapticPattern): void {
+  if (typeof window === 'undefined' || !navigator.vibrate) {
+    return // Haptics not supported
+  }
+
+  try {
+    const patterns: Record<HapticPattern, number | number[]> = {
+      'success': [50, 100, 50],      // Short double tap for successful recognition
+      'error': [200, 100, 200],      // Long double tap for errors
+      'warning': [100, 50, 100],     // Medium double tap for warnings
+      'voice-detected': [30],        // Short single tap when voice detected
+      'listening-start': [50],       // Medium single tap when listening starts
+    }
+
+    navigator.vibrate(patterns[pattern])
+  } catch (err) {
+    console.warn('[VoiceEngine] Haptic feedback failed:', err)
+  }
+}
+
+/**
+ * Trigger success haptic when voice recognition succeeds
+ */
+export function triggerSuccessHaptic(): void {
+  triggerHaptic('success')
+}
+
+/**
+ * Trigger error haptic when voice recognition fails
+ */
+export function triggerErrorHaptic(): void {
+  triggerHaptic('error')
+}
+
+/**
+ * Trigger warning haptic for high noise or low confidence
+ */
+export function triggerWarningHaptic(): void {
+  triggerHaptic('warning')
+}
+
+/**
+ * Trigger voice detected haptic when user starts speaking
+ */
+export function triggerVoiceDetectedHaptic(): void {
+  triggerHaptic('voice-detected')
+}
+
+/**
+ * Trigger listening start haptic when microphone opens
+ */
+export function triggerListeningStartHaptic(): void {
+  triggerHaptic('listening-start')
 }

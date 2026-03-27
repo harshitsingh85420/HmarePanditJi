@@ -15,7 +15,7 @@ export default function [ScreenName]Page() {
       <h1 className="font-serif text-xl font-bold text-saffron-dark text-center">
         [Screen Name] — Coming Soon
       </h1>
-      <button onClick={() => router.push('/mobile')} className="text-saffron underline text-sm">
+      <button onClick={() => router.push(&apos;/mobile&apos;)} className="text-saffron underline text-sm">
         Skip to Mobile →
       </button>
     </div>

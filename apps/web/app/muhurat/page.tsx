@@ -129,7 +129,7 @@ export default function MuhuratExplorerPage() {
                             </div>
 
                             <div className="grid grid-cols-7 gap-px bg-slate-200 dark:bg-white/10 rounded-xl overflow-hidden border border-slate-200 dark:border-white/10">
-                                {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+                                {[&quot;Sun&quot;, &quot;Mon&quot;, &quot;Tue&quot;, &quot;Wed&quot;, &quot;Thu&quot;, &quot;Fri&quot;, &quot;Sat&quot;].map((day) => (
                                     <div key={day} className="bg-slate-50 dark:bg-[#221b10]/50 py-3 text-center text-xs font-bold uppercase tracking-wider text-slate-500">
                                         {day}
                                     </div>
@@ -192,10 +192,10 @@ export default function MuhuratExplorerPage() {
 
                             <div className="space-y-4">
                                 {[
-                                    { title: "Wedding", time: "7:00 AM - 12:00 PM", icon: "favorite" },
-                                    { title: "Griha Pravesh", time: "9:00 AM - 11:00 AM", icon: "house" },
-                                    { title: "Namkaran Sanskar", time: "10:30 AM - 1:00 PM", icon: "child_care" },
-                                    { title: "Vahan Puja", time: "3:00 PM - 5:00 PM", icon: "precision_manufacturing" }
+                                    { title: &quot;Wedding&quot;, time: &quot;7:00 AM - 12:00 PM&quot;, icon: &quot;favorite&quot; },
+                                    { title: &quot;Griha Pravesh&quot;, time: &quot;9:00 AM - 11:00 AM&quot;, icon: &quot;house&quot; },
+                                    { title: &quot;Namkaran Sanskar&quot;, time: &quot;10:30 AM - 1:00 PM&quot;, icon: &quot;child_care&quot; },
+                                    { title: &quot;Vahan Puja&quot;, time: &quot;3:00 PM - 5:00 PM&quot;, icon: &quot;precision_manufacturing&quot; }
                                 ].map((item, i) => (
                                     <div key={i} className="p-4 rounded-xl border border-slate-100 dark:border-white/10 hover:border-[#f29e0d]/50 transition-colors bg-slate-50/50 dark:bg-white/5 group relative overflow-hidden text-left">
                                         <div className="flex items-start justify-between gap-4 mb-3">

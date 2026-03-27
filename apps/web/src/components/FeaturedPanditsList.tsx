@@ -25,11 +25,11 @@ export function FeaturedPanditsList({ pandits }: { pandits: any[] }) {
     const handleFavorite = (id: string) => {
         if (loading) return;
         if (!isAuthenticated) {
-            setRedirectUrl("");
+            setRedirectUrl(&quot;&quot;);
             setLoginModalOpen(true);
         } else {
             // Future: Implement favorite logic with proper API calls
-            console.log("Added to favorites:", id);
+            console.log(&quot;Added to favorites:&quot;, id);
         }
     };
 
@@ -52,7 +52,7 @@ export function FeaturedPanditsList({ pandits }: { pandits: any[] }) {
                     rating={pandit.averageRating || 5}
                     totalReviews={pandit.totalReviews || 0}
                     specializations={pandit.pujaServices?.slice(0, 3).map((s: any) => s.pujaType) || []}
-                    location={`${pandit.city}${pandit.state ? `, ${pandit.state}` : ""}`}
+                    location={`${pandit.city}${pandit.state ? `, ${pandit.state}` : &quot;&quot;}`}
                     isVerified={pandit.isVerified}
                     onBook={handleBook}
                     onViewProfile={handleViewProfile}

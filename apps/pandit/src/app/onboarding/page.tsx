@@ -56,9 +56,11 @@ function OnboardingContent() {
   useWakeLock(true)
 
   useEffect(() => {
+    console.log('[Onboarding] useEffect running, current phase:', state.phase)
     // Check for reset parameter (for testing or restarting)
     const resetParam = searchParams?.get('reset')
     if (resetParam === 'true') {
+      console.log('[Onboarding] Reset parameter found, clearing state')
       // Clear onboarding state and start fresh
       clearOnboardingState()
       setState({ ...DEFAULT_STATE, firstEverOpen: true })
@@ -82,9 +84,11 @@ function OnboardingContent() {
     // This is the onboarding ENTRY point - language selection happens AFTER this screen
     // Only restore state if user was in middle of TUTORIAL (not language selection)
     const saved = loadOnboardingState()
+    console.log('[Onboarding] Loaded saved state:', saved)
 
     // Check if user was in middle of tutorial screens (TUTORIAL_* phases)
     const isInTutorial = saved.phase.startsWith('TUTORIAL_')
+    console.log('[Onboarding] isInTutorial:', isInTutorial)
 
     if (isInTutorial && saved.tutorialStarted && saved.selectedLanguage) {
       // User was in middle of tutorial - restore their language choice
@@ -102,7 +106,7 @@ function OnboardingContent() {
 
     setIsLoaded(true)
     setIsMounted(true)
-  }, [searchParams])
+  }, [])
 
   // BUG-007 FIX: Handle navigation to registration when phase changes
   useEffect(() => {
@@ -282,17 +286,18 @@ function OnboardingContent() {
     onSkip: handleTutorialSkip,
   }
 
-  // Force re-render when language changes
-  const tutorialKey = `${state.phase}-${state.selectedLanguage}`
+  // Force re-render when phase or language changes
+  const screenKey = `${state.phase}-${state.selectedLanguage}`
 
   const renderScreen = () => {
     switch (state.phase) {
       case 'SPLASH':
-        return <SplashScreen onComplete={handleSplashToLocation} />
+        return <SplashScreen key={screenKey} onComplete={handleSplashToLocation} />
 
       case 'LOCATION_PERMISSION':
         return (
           <LocationPermissionScreen
+            key={screenKey}
             {...commonProps}
             onGranted={handleLocationToLanguageConfirm}
             onDenied={handleLocationToManual}
@@ -303,6 +308,7 @@ function OnboardingContent() {
       case 'MANUAL_CITY':
         return (
           <ManualCityScreen
+            key={screenKey}
             {...commonProps}
             onCitySelected={handleManualToLanguageConfirm}
             onBack={() => goToPhase('LOCATION_PERMISSION')}
@@ -312,6 +318,7 @@ function OnboardingContent() {
       case 'LANGUAGE_CONFIRM':
         return (
           <LanguageConfirmScreen
+            key={screenKey}
             {...commonProps}
             detectedCity={state.detectedCity || ''}
             onConfirm={handleLanguageConfirmToSet}
@@ -322,6 +329,7 @@ function OnboardingContent() {
       case 'LANGUAGE_LIST':
         return (
           <LanguageListScreen
+            key={screenKey}
             {...commonProps}
             onSelect={handleLanguageListToChoiceConfirm}
             onBack={() => goToPhase('LANGUAGE_CONFIRM')}
@@ -331,6 +339,7 @@ function OnboardingContent() {
       case 'LANGUAGE_CHOICE_CONFIRM':
         return (
           <LanguageChoiceConfirmScreen
+            key={screenKey}
             {...commonProps}
             pendingLanguage={state.pendingLanguage ?? 'Hindi'}
             onConfirm={handleLanguageChoiceConfirmToSet}
@@ -339,40 +348,40 @@ function OnboardingContent() {
         )
 
       case 'LANGUAGE_SET':
-        return <LanguageSetScreen language={state.selectedLanguage} onComplete={handleLanguageSetToVoiceTutorial} />
+        return <LanguageSetScreen key={screenKey} language={state.selectedLanguage} onComplete={handleLanguageSetToVoiceTutorial} />
 
       case 'HELP':
-        return <HelpScreen {...commonProps} onBack={handleHelpBack} />
+        return <HelpScreen key={screenKey} />
 
       case 'VOICE_TUTORIAL':
-        return <VoiceTutorialScreen {...commonProps} onComplete={handleLanguageSetToVoiceTutorial} />
+        return <VoiceTutorialScreen key={screenKey} {...commonProps} onComplete={handleLanguageSetToVoiceTutorial} />
 
       case 'TUTORIAL_SWAGAT':
-        return <TutorialSwagat key={tutorialKey} {...tutorialProps} />
+        return <TutorialSwagat key={`${screenKey}-swagat`} {...tutorialProps} />
       case 'TUTORIAL_INCOME':
-        return <TutorialIncome key={tutorialKey} {...tutorialProps} />
+        return <TutorialIncome key={`${screenKey}-income`} {...tutorialProps} />
       case 'TUTORIAL_DAKSHINA':
-        return <TutorialDakshina key={tutorialKey} {...tutorialProps} />
+        return <TutorialDakshina key={`${screenKey}-dakshina`} {...tutorialProps} />
       case 'TUTORIAL_ONLINE_REVENUE':
-        return <TutorialOnlineRevenue key={tutorialKey} {...tutorialProps} />
+        return <TutorialOnlineRevenue key={`${screenKey}-revenue`} {...tutorialProps} />
       case 'TUTORIAL_BACKUP':
-        return <TutorialBackup key={tutorialKey} {...tutorialProps} />
+        return <TutorialBackup key={`${screenKey}-backup`} {...tutorialProps} />
       case 'TUTORIAL_PAYMENT':
-        return <TutorialPayment key={tutorialKey} {...tutorialProps} />
+        return <TutorialPayment key={`${screenKey}-payment`} {...tutorialProps} />
       case 'TUTORIAL_VOICE_NAV':
-        return <TutorialVoiceNav key={tutorialKey} {...tutorialProps} />
+        return <TutorialVoiceNav key={`${screenKey}-voicenav`} {...tutorialProps} />
       case 'TUTORIAL_DUAL_MODE':
-        return <TutorialDualMode key={tutorialKey} {...tutorialProps} />
+        return <TutorialDualMode key={`${screenKey}-dualmode`} {...tutorialProps} />
       case 'TUTORIAL_TRAVEL':
-        return <TutorialTravel key={tutorialKey} {...tutorialProps} />
+        return <TutorialTravel key={`${screenKey}-travel`} {...tutorialProps} />
       case 'TUTORIAL_VIDEO_VERIFY':
-        return <TutorialVideoVerify key={tutorialKey} {...tutorialProps} />
+        return <TutorialVideoVerify key={`${screenKey}-videoverify`} {...tutorialProps} />
       case 'TUTORIAL_GUARANTEES':
-        return <TutorialGuarantees key={tutorialKey} {...tutorialProps} />
+        return <TutorialGuarantees key={`${screenKey}-guarantees`} {...tutorialProps} />
       case 'TUTORIAL_CTA':
         return (
           <TutorialCTA
-            key={tutorialKey}
+            key={`${screenKey}-cta`}
             {...tutorialProps}
             onRegisterNow={handleRegistrationNow}
             onLater={handleLater}

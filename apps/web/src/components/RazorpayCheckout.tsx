@@ -44,7 +44,7 @@ export interface RazorpayCheckoutProps {
   /** Amount in paisa (INR × 100) */
   amount: number;
   currency?: string;
-  /** Pass "rzp_test_mock" to skip real Razorpay modal in dev mode */
+  /** Pass &quot;rzp_test_mock&quot; to skip real Razorpay modal in dev mode */
   razorpayKey: string;
   bookingId: string;
   bookingNumber: string;
@@ -57,19 +57,19 @@ export interface RazorpayCheckoutProps {
   onDismiss?: () => void;
 }
 
-type CheckoutState = "loading" | "processing" | "dismissed" | "error";
+type CheckoutState = &quot;loading&quot; | &quot;processing&quot; | &quot;dismissed&quot; | &quot;error&quot;;
 
 // ── Helper ────────────────────────────────────────────────────────────────────
 
 function rupees(paise: number) {
-  return `₹${Math.round(paise / 100).toLocaleString("en-IN")}`;
+  return `₹${Math.round(paise / 100).toLocaleString(&quot;en-IN&quot;)}`;
 }
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
 /**
  * Loads the Razorpay checkout.js script, opens the payment modal, and verifies
- * the payment on the backend. In dev mode (key === "rzp_test_mock") it skips
+ * the payment on the backend. In dev mode (key === &quot;rzp_test_mock&quot;) it skips
  * the modal and simulates a successful payment directly.
  *
  * The component auto-opens the modal on mount.
@@ -78,7 +78,7 @@ function rupees(paise: number) {
 export default function RazorpayCheckout({
   orderId,
   amount,
-  currency = "INR",
+  currency = &quot;INR&quot;,
   razorpayKey,
   bookingId,
   bookingNumber,
@@ -90,8 +90,8 @@ export default function RazorpayCheckout({
   onFailure,
   onDismiss,
 }: RazorpayCheckoutProps) {
-  const [state, setState] = useState<CheckoutState>("loading");
-  const [errorMsg, setErrorMsg] = useState("");
+  const [state, setState] = useState<CheckoutState>(&quot;loading&quot;);
+  const [errorMsg, setErrorMsg] = useState(&quot;&quot;);
   // Track mount to avoid double-open in strict mode
   const openedRef = useRef(false);
 
@@ -99,12 +99,12 @@ export default function RazorpayCheckout({
 
   const verify = useCallback(
     async (paymentId: string, rzpOrderId: string, signature: string) => {
-      setState("processing");
+      setState(&quot;processing&quot;);
       try {
         const res = await fetch(`${API_BASE}/payments/verify`, {
-          method: "POST",
+          method: &quot;POST&quot;,
           headers: {
-            "Content-Type": "application/json",
+            &quot;Content-Type&quot;: &quot;application/json&quot;,
             Authorization: `Bearer ${accessToken}`,
           },
           body: JSON.stringify({
@@ -118,15 +118,15 @@ export default function RazorpayCheckout({
 
         if (!res.ok) {
           const j = await res.json().catch(() => ({}));
-          throw new Error((j as { message?: string }).message ?? "Payment verification failed");
+          throw new Error((j as { message?: string }).message ?? &quot;Payment verification failed&quot;);
         }
 
         const j = await res.json() as { data?: { booking?: unknown } };
         onSuccess(j.data?.booking);
       } catch (err) {
-        const msg = err instanceof Error ? err.message : "Verification failed. Please contact support.";
+        const msg = err instanceof Error ? err.message : &quot;Verification failed. Please contact support.&quot;;
         setErrorMsg(msg);
-        setState("error");
+        setState(&quot;error&quot;);
         onFailure?.(msg);
       }
     },
@@ -136,13 +136,13 @@ export default function RazorpayCheckout({
   // ── Load checkout.js script ──────────────────────────────────────────────
 
   const loadScript = useCallback((): Promise<void> => {
-    if (typeof window !== "undefined" && window.Razorpay) return Promise.resolve();
+    if (typeof window !== &quot;undefined&quot; && window.Razorpay) return Promise.resolve();
     return new Promise((resolve, reject) => {
-      const script = document.createElement("script");
-      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      const script = document.createElement(&quot;script&quot;);
+      script.src = &quot;https://checkout.razorpay.com/v1/checkout.js&quot;;
       script.async = true;
       script.onload = () => resolve();
-      script.onerror = () => reject(new Error("Failed to load Razorpay checkout"));
+      script.onerror = () => reject(new Error(&quot;Failed to load Razorpay checkout&quot;));
       document.head.appendChild(script);
     });
   }, []);
@@ -150,14 +150,14 @@ export default function RazorpayCheckout({
   // ── Open Razorpay modal (or simulate in dev mode) ────────────────────────
 
   const openModal = useCallback(async () => {
-    setState("loading");
-    setErrorMsg("");
+    setState(&quot;loading&quot;);
+    setErrorMsg(&quot;&quot;);
 
     // Dev mode: simulate payment without real Razorpay
-    if (razorpayKey === "rzp_test_mock") {
+    if (razorpayKey === &quot;rzp_test_mock&quot;) {
       // Small delay for UX realism
       await new Promise((r) => setTimeout(r, 600));
-      await verify(`pay_mock_${Date.now()}`, orderId, "mock_signature_dev");
+      await verify(`pay_mock_${Date.now()}`, orderId, &quot;mock_signature_dev&quot;);
       return;
     }
 
@@ -165,9 +165,9 @@ export default function RazorpayCheckout({
     try {
       await loadScript();
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Failed to load payment module";
+      const msg = err instanceof Error ? err.message : &quot;Failed to load payment module&quot;;
       setErrorMsg(msg);
-      setState("error");
+      setState(&quot;error&quot;);
       return;
     }
 
@@ -176,16 +176,16 @@ export default function RazorpayCheckout({
       key: razorpayKey,
       amount,
       currency,
-      name: "HmarePanditJi",
+      name: &quot;HmarePanditJi&quot;,
       description: `Booking #${bookingNumber}`,
-      image: "/logo.png",
+      image: &quot;/logo.png&quot;,
       order_id: orderId,
       prefill: {
         name: customerName,
         ...(customerEmail ? { email: customerEmail } : {}),
         ...(customerPhone ? { contact: customerPhone } : {}),
       },
-      theme: { color: "#FF6B00" },
+      theme: { color: &quot;#FF6B00&quot; },
       handler: (response) => {
         void verify(
           response.razorpay_payment_id,
@@ -195,7 +195,7 @@ export default function RazorpayCheckout({
       },
       modal: {
         ondismiss: () => {
-          setState("dismissed");
+          setState(&quot;dismissed&quot;);
           onDismiss?.();
         },
       },
@@ -204,7 +204,7 @@ export default function RazorpayCheckout({
     const rzp = new window.Razorpay(options);
     rzp.open();
     // After open() the modal is visible; state will be updated via handler / ondismiss
-    // We don't set a specific "open" state since the modal overlays the page
+    // We don&apos;t set a specific &quot;open&quot; state since the modal overlays the page
   }, [razorpayKey, orderId, amount, currency, bookingNumber, customerName, customerEmail, customerPhone, verify, loadScript, onDismiss]);
 
   // Auto-open on mount
@@ -216,18 +216,18 @@ export default function RazorpayCheckout({
 
   // ── Render ────────────────────────────────────────────────────────────────
 
-  if (state === "loading") {
+  if (state === &quot;loading&quot;) {
     return (
       <div className="flex flex-col items-center gap-3 py-8">
         <div className="w-14 h-14 border-4 border-primary border-t-transparent rounded-full animate-spin" />
         <p className="text-lg text-slate-500">
-          {razorpayKey === "rzp_test_mock" ? "Simulating payment…" : "Opening payment window…"}
+          {razorpayKey === &quot;rzp_test_mock&quot; ? &quot;Simulating payment…&quot; : &quot;Opening payment window…&quot;}
         </p>
       </div>
     );
   }
 
-  if (state === "processing") {
+  if (state === &quot;processing&quot;) {
     return (
       <div className="flex flex-col items-center gap-3 py-8">
         <div className="w-14 h-14 border-4 border-primary border-t-transparent rounded-full animate-spin" />
@@ -237,7 +237,7 @@ export default function RazorpayCheckout({
     );
   }
 
-  if (state === "error") {
+  if (state === &quot;error&quot;) {
     return (
       <div className="space-y-3">
         <div className="flex items-start gap-2.5 p-3.5 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30">
@@ -258,7 +258,7 @@ export default function RazorpayCheckout({
     );
   }
 
-  // state === "dismissed"
+  // state === &quot;dismissed&quot;
   return (
     <div className="space-y-3">
       <div className="flex items-start gap-2.5 p-3.5 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/30">

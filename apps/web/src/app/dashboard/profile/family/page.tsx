@@ -72,8 +72,8 @@ export default function FamilyGotraSetupPage() {
                                     </span>
                                 </div>
                                 <p className="font-medium text-lg text-gray-200">
-                                    "The purity of the ritual begins with the correct
-                                    identification of the self through Gotra."
+                                    &quot;The purity of the ritual begins with the correct
+                                    identification of the self through Gotra.&quot;
                                 </p>
                             </div>
                         </div>
@@ -135,7 +135,7 @@ export default function FamilyGotraSetupPage() {
                                     </h4>
                                     <p className="text-lg text-[#756c64] dark:text-gray-300 leading-relaxed">
                                         Knowing your Gotra and Veda ensures the correct
-                                        pronunciation of the 'Sankalp'—the solemn vow taken before
+                                        pronunciation of the &apos;Sankalp&apos;—the solemn vow taken before
                                         any ritual. It connects the offering directly to your
                                         ancestors.
                                     </p>
@@ -207,7 +207,7 @@ export default function FamilyGotraSetupPage() {
                                             className="block text-lg font-semibold text-gray-700 dark:text-gray-200 mb-2"
                                             htmlFor="shakha"
                                         >
-                                            Shakha / Sutra{" "}
+                                            Shakha / Sutra{&quot; &quot;}
                                             <span className="text-base font-normal text-gray-500">
                                                 (Optional)
                                             </span>
@@ -221,7 +221,7 @@ export default function FamilyGotraSetupPage() {
                                     </div>
                                 </div>
 
-                                {/* I don't know toggle */}
+                                {/* I don&apos;t know toggle */}
                                 <div className="flex items-center gap-2">
                                     <input
                                         className="h-4 w-4 text-[#ee8c2b] focus:ring-[#ee8c2b] border-gray-300 rounded"
@@ -232,7 +232,7 @@ export default function FamilyGotraSetupPage() {
                                         className="text-lg text-[#756c64] dark:text-gray-400 select-none cursor-pointer"
                                         htmlFor="unknown_veda"
                                     >
-                                        I don't know my Veda/Shakha details
+                                        I don&apos;t know my Veda/Shakha details
                                     </label>
                                 </div>
 
@@ -260,7 +260,7 @@ export default function FamilyGotraSetupPage() {
                                         />
                                     </div>
                                     <p className="mt-1.5 text-base text-[#756c64] dark:text-gray-500">
-                                        This helps match you with Pandits familiar with your deity's
+                                        This helps match you with Pandits familiar with your deity&apos;s
                                         specific worship style.
                                     </p>
                                 </div>
@@ -269,14 +269,14 @@ export default function FamilyGotraSetupPage() {
                                 <div className="pt-6 flex flex-col-reverse sm:flex-row items-center justify-between gap-4">
                                     <button
                                         type="button"
-                                        onClick={() => router.push('/dashboard/profile')}
+                                        onClick={() => router.push(&apos;/dashboard/profile&apos;)}
                                         className="text-lg font-semibold text-gray-500 hover:text-[#ee8c2b] transition-colors"
                                     >
                                         Skip for now
                                     </button>
                                     <button
                                         type="button"
-                                        onClick={() => router.push('/dashboard/profile')}
+                                        onClick={() => router.push(&apos;/dashboard/profile&apos;)}
                                         className="w-full sm:w-auto inline-flex justify-center items-center px-8 py-3.5 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-[#ee8c2b] hover:bg-[#d97b1f] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ee8c2b] transition-all duration-200 transform hover:-translate-y-0.5 shadow-[#ee8c2b]/30"
                                     >
                                         Save &amp; Continue
