@@ -27,6 +27,8 @@ import LanguageChoiceConfirmScreen from './screens/LanguageChoiceConfirmScreen'
 import LanguageSetScreen from './screens/LanguageSetScreen'
 import HelpScreen from './screens/HelpScreen'
 import VoiceTutorialScreen from './screens/VoiceTutorialScreen'
+import MicPermissionScreen from './screens/MicPermissionScreen'
+import MicDeniedRecoveryScreen from './screens/MicDeniedRecoveryScreen'
 
 import TutorialSwagat from './screens/tutorial/TutorialSwagat'
 import TutorialIncome from './screens/tutorial/TutorialIncome'
@@ -42,6 +44,7 @@ import TutorialGuarantees from './screens/tutorial/TutorialGuarantees'
 import TutorialCTA from './screens/tutorial/TutorialCTA'
 
 import LanguageBottomSheet from '@/components/LanguageBottomSheet'
+import VoiceTutorialOverlay from '@/components/overlays/VoiceTutorialOverlay'
 
 // Inner component that uses useSearchParams (wrapped in Suspense)
 function OnboardingContent() {
@@ -51,6 +54,8 @@ function OnboardingContent() {
   const [isLoaded, setIsLoaded] = useState(false)
   const [showLanguageSheet, setShowLanguageSheet] = useState(false)
   const [isMounted, setIsMounted] = useState(false)
+  const [showMicPermission, setShowMicPermission] = useState(false)
+  const [showMicDeniedRecovery, setShowMicDeniedRecovery] = useState(false)
 
   // Enable wake lock during onboarding to prevent screen sleep
   useWakeLock(true)
@@ -231,6 +236,8 @@ function OnboardingContent() {
 
   const handleLanguageSetToVoiceTutorial = useCallback(() => {
     if (state.firstEverOpen && !state.voiceTutorialSeen) {
+      // Show mic permission screen first for first-time users
+      setShowMicPermission(true)
       updateState({
         voiceTutorialSeen: true,
         phase: 'VOICE_TUTORIAL',
@@ -239,6 +246,28 @@ function OnboardingContent() {
       updateState({ phase: 'TUTORIAL_SWAGAT' })
     }
   }, [state.firstEverOpen, state.voiceTutorialSeen, updateState])
+
+  // ─── MIC PERMISSION HANDLERS ───────────────────────────
+
+  const handleMicPermissionGranted = useCallback(() => {
+    setShowMicPermission(false)
+    handleLanguageSetToVoiceTutorial()
+  }, [handleLanguageSetToVoiceTutorial])
+
+  const handleMicPermissionDenied = useCallback(() => {
+    setShowMicPermission(false)
+    setShowMicDeniedRecovery(true)
+  }, [])
+
+  const handleContinueWithKeyboard = useCallback(() => {
+    setShowMicDeniedRecovery(false)
+    handleLanguageSetToVoiceTutorial()
+  }, [handleLanguageSetToVoiceTutorial])
+
+  const handleRetryMicPermission = useCallback(() => {
+    setShowMicDeniedRecovery(false)
+    setShowMicPermission(true)
+  }, [])
 
   // ─── LANGUAGE SHEET ───────────────────────────────────────
 
@@ -395,7 +424,27 @@ function OnboardingContent() {
 
   return (
     <div className="min-h-screen bg-surface-base">
-      {renderScreen()}
+      {/* Mic Permission Flow - Show after Language Set if first ever open */}
+      {showMicPermission && (
+        <MicPermissionScreen
+          language={state.selectedLanguage}
+          onGranted={handleMicPermissionGranted}
+          onDenied={handleMicPermissionDenied}
+        />
+      )}
+
+      {/* Mic Denied Recovery Screen */}
+      {showMicDeniedRecovery && (
+        <MicDeniedRecoveryScreen
+          language={state.selectedLanguage}
+          onContinueWithKeyboard={handleContinueWithKeyboard}
+          onRetryPermission={handleRetryMicPermission}
+        />
+      )}
+
+      {/* Main Onboarding Flow - Only show if mic permission flow is not active */}
+      {!showMicPermission && !showMicDeniedRecovery && renderScreen()}
+
       {/* Language bottom sheet — always available (only render after mount to prevent hydration errors) */}
       {isMounted && (
         <LanguageBottomSheet
@@ -421,3 +470,6 @@ export default function OnboardingPage() {
     </Suspense>
   )
 }
+
+// SSR FIX: Disable static generation for pages using Zustand stores
+export const dynamic = 'force-dynamic'

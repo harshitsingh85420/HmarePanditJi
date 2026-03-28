@@ -1,11 +1,12 @@
 'use client'
 
+// SSR FIX: Disable static generation for pages using Zustand stores
+export const dynamic = 'force-dynamic'
+
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useEffect, useState } from 'react'
-import { useRegistrationStore } from '@/stores/registrationStore'
-import { useUIStore } from '@/stores/uiStore'
-import { useNavigationStore } from '@/stores/navigationStore'
+import { useSafeRegistrationStore, useSafeUIStore, useSafeNavigationStore } from '@/lib/stores/ssr-safe-stores'
 import TopBar from '@/components/TopBar'
 import { speakWithSarvam } from '@/lib/sarvam-tts'
 import { TempleIllustration } from '@/components/illustrations/PremiumIcons'
@@ -34,9 +35,11 @@ const itemVariants = {
 
 export default function RegistrationCompletePage() {
   const router = useRouter()
-  const { data, setCurrentStep, markStepComplete } = useRegistrationStore()
-  const { triggerCelebration } = useUIStore()
-  const { setSection } = useNavigationStore()
+
+  // SSR FIX: Use safe store hooks that don't throw during SSR
+  const { data, setCurrentStep, markStepComplete } = useSafeRegistrationStore()
+  const { triggerCelebration } = useSafeUIStore()
+  const { setSection } = useSafeNavigationStore()
   const [showConfetti, setShowConfetti] = useState(true)
   const [celebrationPlayed, setCelebrationPlayed] = useState(false)
 

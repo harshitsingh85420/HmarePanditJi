@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { speak, startListening, stopListening, detectIntent } from '@/lib/voice-engine'
+import { speakWithSarvam, stopCurrentSpeech } from '@/lib/sarvam-tts'
+import { useSarvamVoiceFlow } from '@/lib/hooks/useSarvamVoiceFlow'
 import TopBar from '@/components/ui/TopBar'
 import ProgressDots from '@/components/ui/ProgressDots'
 import CTAButton from '@/components/ui/CTAButton'
@@ -23,6 +24,8 @@ export default function TutorialSwagat({
   onSkip,
 }: TutorialSwagatProps) {
   const [currentLine, setCurrentLine] = useState(0)
+  const [keyboardMode, setKeyboardMode] = useState(false)
+  const isMountedRef = useState(true)[0]
 
   const LINES = [
     'नमस्ते पंडित जी। HmarePanditJi पर आपका बहुत-बहुत स्वागत है।',
@@ -32,57 +35,82 @@ export default function TutorialSwagat({
     'अगर सीधे Registration करना हो तो Skip बोलें। नहीं तो जानें बोलें।',
   ]
 
+  // Voice flow for tutorial playback
+  const { isListening, isSpeaking, voiceFlowState } = useSarvamVoiceFlow({
+    language: 'Hindi',
+    script: currentLine < LINES.length ? LINES[currentLine] : 'अगर सीधे Registration करना हो तो Skip बोलें। नहीं तो जानें बोलें।',
+    repromptScript: 'जानें बोलें या Skip बोलें',
+    initialDelayMs: 200,
+    pauseAfterMs: 1000,
+    autoListen: currentLine >= LINES.length && !keyboardMode,
+    onIntent: (intentOrRaw) => {
+      if (!isMountedRef) return;
+
+      const lower = intentOrRaw.toLowerCase();
+
+      // Check for keyboard fallback
+      if (lower.includes('keyboard') || lower.includes('कीबोर्ड') || lower.includes('skip')) {
+        setKeyboardMode(true);
+        onNext();
+        return;
+      }
+
+      // Check for forward/yes
+      if (lower.includes('jaane') || lower.includes('aage') || lower.includes('forward') || lower.includes('haan') || lower.includes('yes')) {
+        handleContinue();
+      }
+      // Check for back
+      else if (lower.includes('peeche') || lower.includes('back') || lower.includes('pichla')) {
+        playLine(0);
+      }
+    },
+    onNoiseHigh: () => {
+      setKeyboardMode(true);
+      onNext();
+    },
+  });
+
   useEffect(() => {
     const timer = setTimeout(() => {
       playLine(0)
-    }, 200) // Reduced from 500ms
+    }, 200)
 
     return () => {
       clearTimeout(timer)
-      stopListening()
+      stopCurrentSpeech()
     }
   }, [])
 
   const playLine = (index: number) => {
     if (index >= LINES.length) {
-      startListeningForResponse()
-      return
+      return;
     }
 
     setCurrentLine(index)
-    speak(LINES[index], 'hi-IN', () => {
-      if (index < LINES.length - 1) {
-        setTimeout(() => playLine(index + 1), 200) // Reduced from 400ms
-      } else {
-        startListeningForResponse()
-      }
-    })
-  }
-
-  const startListeningForResponse = () => {
-    startListening({
-      language: 'hi-IN',
-      onResult: (result) => {
-        const intent = detectIntent(result.transcript)
-        if (intent === 'SKIP' || intent === 'FORWARD') {
-          onNext()
-        } else if (intent === 'BACK') {
-          playLine(0)
+    void speakWithSarvam({
+      text: LINES[index],
+      languageCode: 'hi-IN',
+      onEnd: () => {
+        if (index < LINES.length - 1) {
+          setTimeout(() => playLine(index + 1), 400)
         }
       },
-      onError: () => { },
     })
   }
 
   const handleContinue = () => {
-    stopListening()
-    speak('बहुत अच्छा।', 'hi-IN', () => {
-      setTimeout(onNext, 600) // Reduced from 1000ms
+    stopCurrentSpeech()
+    void speakWithSarvam({
+      text: 'बहुत अच्छा।',
+      languageCode: 'hi-IN',
+      onEnd: () => {
+        setTimeout(onNext, 600)
+      },
     })
   }
 
   const handleSkip = () => {
-    stopListening()
+    stopCurrentSpeech()
     onSkip()
   }
 
@@ -100,16 +128,26 @@ export default function TutorialSwagat({
             "App पंडित के लिए है, पंडित App के लिए नहीं।"
           </p>
         </div>
-        <div className="space-y-2 xs:space-y-3">
+        <div className="space-y-2 xs:space-y-3 w-full max-w-sm">
           {LINES.map((line, idx) => (
-            <p key={idx} className={`text-center transition-opacity duration-300 ${idx === currentLine ? 'opacity-100' : 'opacity-30'} text-sm xs:text-base sm:text-lg text-vedic-brown`}>
+            <p
+              key={idx}
+              className={`text-sm xs:text-base sm:text-lg text-vedic-brown text-center transition-opacity ${idx === currentLine ? 'opacity-100 font-semibold' : 'opacity-40'
+                }`}
+            >
               {line}
             </p>
           ))}
         </div>
       </main>
-      <CTAButton onClick={handleContinue} label="आगे बढ़ें →" />
-      <SkipButton label="Skip" onClick={handleSkip} />
+      <div className="px-4 xs:px-6 pb-6 xs:pb-8 pt-4 xs:pt-4">
+        <CTAButton
+          label="आगे बढ़ें →"
+          onClick={handleContinue}
+          disabled={voiceFlowState === 'speaking' || voiceFlowState === 'listening'}
+        />
+        <SkipButton label="Skip — सीधे Registration" onClick={handleSkip} />
+      </div>
     </div>
   )
 }

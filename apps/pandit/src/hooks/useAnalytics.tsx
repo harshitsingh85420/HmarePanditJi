@@ -14,9 +14,8 @@ export function usePageViewTracking() {
   useEffect(() => {
     if (!pathname) return
 
-    const url = searchParams.toString()
-      ? `${pathname}?${searchParams.toString()}`
-      : pathname
+    const queryString = searchParams?.toString() ?? ''
+    const url = queryString ? `${pathname}?${queryString}` : pathname
 
     // Track page view in Sentry
     Sentry.addBreadcrumb({
@@ -29,7 +28,7 @@ export function usePageViewTracking() {
     Sentry.startSpan({
       op: 'navigation',
       name: url,
-    }, () => {})
+    }, () => { })
   }, [pathname, searchParams])
 }
 

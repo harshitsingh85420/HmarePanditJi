@@ -1,10 +1,14 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 
+// SSR FIX: Check if we're on client side before accessing localStorage
+const isClient = typeof window !== 'undefined'
+
 // BUG-024 FIX: Custom storage wrapper that handles QuotaExceededError gracefully
 const createSafeLocalStorage = () => {
   return {
     getItem: (key: string) => {
+      if (!isClient) return null
       try {
         return localStorage.getItem(key)
       } catch (error) {
@@ -14,6 +18,7 @@ const createSafeLocalStorage = () => {
       }
     },
     setItem: (key: string, value: string) => {
+      if (!isClient) return
       try {
         localStorage.setItem(key, value)
       } catch (error) {
@@ -27,6 +32,7 @@ const createSafeLocalStorage = () => {
       }
     },
     removeItem: (key: string) => {
+      if (!isClient) return
       try {
         localStorage.removeItem(key)
       } catch (error) {
@@ -232,4 +238,16 @@ if (typeof window !== 'undefined') {
       }
     }
   })
+}
+
+// SSR-Safe getter - use this in server-side code or during hydration
+export function getRegistrationStoreState() {
+  if (!isClient) {
+    return { data: initialData }
+  }
+  try {
+    return useRegistrationStore.getState()
+  } catch {
+    return { data: initialData }
+  }
 }

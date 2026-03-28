@@ -1,9 +1,12 @@
 'use client'
 
+// SSR FIX: Disable static generation for pages using Zustand stores
+export const dynamic = 'force-dynamic'
+
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
-import { useNavigationStore } from '@/stores/navigationStore'
+import { useSafeNavigationStore } from '@/lib/stores/ssr-safe-stores'
 import { speakWithSarvam } from '@/lib/sarvam-tts'
 import TopBar from '@/components/TopBar'
 import { LanguageChangeWidget } from '@/components/widgets/LanguageChangeWidget'
@@ -24,7 +27,10 @@ const itemVariants = {
 
 export default function EmergencySOSPage() {
   const router = useRouter()
-  const { setSection } = useNavigationStore()
+
+  // SSR FIX: Use safe store hook that doesn't throw during SSR
+  const { setSection } = useSafeNavigationStore()
+
   const [sosSent, setSosSent] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [currentLanguage, setCurrentLanguage] = useState<SupportedLanguage>('Hindi')

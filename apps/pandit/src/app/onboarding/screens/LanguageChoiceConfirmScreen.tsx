@@ -80,17 +80,56 @@ export default function LanguageChoiceConfirmScreen({
       <div className="flex-1 flex flex-col items-center justify-center w-full text-center px-4 xs:px-6 space-y-4 xs:space-y-6">
         {/* Language Display */}
         <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
+          initial={{ scale: 0.5, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.7, type: 'spring' as const }}
-          className="space-y-2"
+          transition={{ duration: 0.8, type: 'spring', bounce: 0.4 }}
+          className="flex flex-col items-center gap-6 xs:gap-8"
         >
-          <h1 className="text-4xl xs:text-5xl sm:text-[56px] font-bold text-saffron leading-tight">
-            {langInfo.nativeName}
-          </h1>
-          <p className="text-lg xs:text-xl sm:text-[24px] font-normal text-text-secondary">
-            {langInfo.latinName}
-          </p>
+          {/* Glow Effect Behind Emoji */}
+          <div className="relative">
+            <div className="absolute inset-0 bg-saffron/20 blur-3xl rounded-full animate-pulse" />
+            <motion.span
+              className="relative text-7xl xs:text-8xl sm:text-9xl"
+              initial={{ y: -50, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.3, type: 'spring', bounce: 0.5 }}
+            >
+              {langInfo.emoji}
+            </motion.span>
+          </div>
+
+          {/* Language Display */}
+          <div className="text-center space-y-3 xs:space-y-4">
+            {/* Short Name (Hero) */}
+            <motion.h1
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.4 }}
+              className="text-5xl xs:text-6xl sm:text-[72px] font-bold text-saffron leading-tight"
+            >
+              {langInfo.shortName}
+            </motion.h1>
+
+            {/* Script Character */}
+            <motion.p
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.5 }}
+              className="text-2xl xs:text-3xl text-vedic-gold"
+            >
+              {langInfo.scriptChar}
+            </motion.p>
+
+            {/* Full Native Name */}
+            <motion.p
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.6 }}
+              className="text-lg xs:text-xl text-text-secondary mt-4"
+            >
+              {langInfo.nativeName}
+            </motion.p>
+          </div>
         </motion.div>
 
         {/* Decorative divider */}

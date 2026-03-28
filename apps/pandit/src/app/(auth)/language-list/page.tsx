@@ -1,17 +1,22 @@
 'use client'
 
+// SSR FIX: Disable static generation for pages using Zustand stores
+export const dynamic = 'force-dynamic'
+
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { speakWithSarvam, stopCurrentSpeech } from '@/lib/sarvam-tts'
-import { useOnboardingStore } from '@/stores/onboardingStore'
+import { useSafeOnboardingStore } from '@/lib/stores/ssr-safe-stores'
 import { LANGUAGE_LIST_SCREEN } from '@/lib/voice-scripts'
 import { replaceScriptPlaceholders } from '@/lib/voice-scripts'
 import { ALL_LANGUAGES, LANGUAGE_DISPLAY, type SupportedLanguage } from '@/lib/onboarding-store'
 
 export default function LanguageListScreen() {
   const router = useRouter()
-  const { setPhase, setPendingLanguage } = useOnboardingStore()
+
+  // SSR FIX: Use safe store hook that doesn't throw during SSR
+  const { setPhase, setPendingLanguage } = useSafeOnboardingStore()
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedLanguage, setSelectedLanguage] = useState<SupportedLanguage | null>(null)
   const [showKeyboard, setShowKeyboard] = useState(false)
@@ -26,6 +31,7 @@ export default function LanguageListScreen() {
         void speakWithSarvam({
           text: LANGUAGE_LIST_SCREEN.scripts.main.hindi,
           languageCode: 'hi-IN',
+          pace: 0.88,
         })
       }
     }, 600)
@@ -35,9 +41,17 @@ export default function LanguageListScreen() {
   const handleSelect = (lang: SupportedLanguage) => {
     setSelectedLanguage(lang)
     setPendingLanguage(lang)
+
+    // Use the onLanguageDetected script with placeholder replacement
+    const detectedScript = replaceScriptPlaceholders(
+      LANGUAGE_LIST_SCREEN.scripts.onLanguageDetected ?? LANGUAGE_LIST_SCREEN.scripts.main,
+      { LANGUAGE: lang }
+    )
+
     void speakWithSarvam({
-      text: `${lang} — क्या यह सही है? 'हाँ' बोलें।`,
+      text: detectedScript.hindi,
       languageCode: 'hi-IN',
+      pace: 0.90,
     })
     setTimeout(() => router.push('/language-confirm'), 500)
   }
@@ -54,7 +68,7 @@ export default function LanguageListScreen() {
         <button onClick={() => router.back()} className="min-h-[52px] xs:min-h-[56px] min-w-[52px] xs:min-w-[56px] p-2 hover:bg-black/5 rounded-full transition-colors active:scale-95" aria-label="Go back">
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" /></svg>
         </button>
-        <button onClick={() => {}} className="min-h-[52px] xs:min-h-[56px] min-w-[52px] xs:min-w-[56px] text-2xl active:opacity-50">🌐</button>
+        <button onClick={() => { }} className="min-h-[52px] xs:min-h-[56px] min-w-[52px] xs:min-w-[56px] text-2xl active:opacity-50">🌐</button>
       </header>
 
       {/* Title */}
@@ -93,10 +107,45 @@ export default function LanguageListScreen() {
             const info = LANGUAGE_DISPLAY[lang]
             const isSelected = selectedLanguage === lang
             return (
-              <motion.button key={lang} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.04 * idx }} onClick={() => handleSelect(lang)} className={`relative flex flex-col items-center justify-center min-h-[52px] xs:min-h-[56px] sm:min-h-[96px] rounded-xl px-3 xs:px-4 sm:px-5 transition-all ${isSelected ? 'bg-saffron-lt border-2 border-saffron' : 'bg-white border border-outline-variant hover:border-saffron'}`}>
-                <span className={`text-lg xs:text-xl sm:text-[26px] font-bold leading-tight ${isSelected ? 'text-saffron' : 'text-text-primary'}`}>{info.nativeName}</span>
-                <span className="text-sm xs:text-base sm:text-[22px] text-saffron leading-tight mt-1">{info.latinName}</span>
-                {isSelected && (<div className="absolute top-1 xs:top-2 right-1 xs:right-2"><svg className="h-4 w-4 xs:h-5 xs:w-5 text-saffron" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg></div>)}
+              <motion.button
+                key={lang}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.04 * idx }}
+                onClick={() => handleSelect(lang)}
+                className={`relative flex flex-col items-center justify-center min-h-[64px] xs:min-h-[72px] sm:min-h-[96px] rounded-xl px-3 xs:px-4 sm:px-5 transition-all ${isSelected ? 'bg-saffron-lt border-2 border-saffron' : 'bg-white border border-outline-variant hover:border-saffron'
+                  }`}
+              >
+                {/* Emoji + Compact Display */}
+                <div className="flex flex-col items-center gap-1">
+                  {/* Emoji (only for unselected state) */}
+                  {!isSelected && (
+                    <span className="text-2xl xs:text-3xl mb-1" aria-hidden="true">
+                      {info.emoji}
+                    </span>
+                  )}
+
+                  {/* Short Name (2-4 chars) */}
+                  <span className={`text-xl xs:text-2xl font-bold leading-tight ${isSelected ? 'text-saffron' : 'text-text-primary'
+                    }`}>
+                    {info.shortName}
+                  </span>
+
+                  {/* Script Character */}
+                  <span className={`text-xs ${isSelected ? 'text-saffron/70' : 'text-vedic-gold'
+                    }`}>
+                    {info.scriptChar}
+                  </span>
+                </div>
+
+                {/* Checkmark for selected state */}
+                {isSelected && (
+                  <div className="absolute top-1 xs:top-2 right-1 xs:right-2">
+                    <svg className="h-4 w-4 xs:h-5 xs:w-5 text-saffron" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                )}
               </motion.button>
             )
           })}

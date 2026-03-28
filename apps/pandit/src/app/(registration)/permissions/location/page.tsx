@@ -1,13 +1,18 @@
 'use client'
 
+// SSR FIX: Disable static generation for pages using Zustand stores
+export const dynamic = 'force-dynamic'
+
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { speakWithSarvam } from '@/lib/sarvam-tts'
-import { useOnboardingStore } from '@/stores/onboardingStore'
+import { useSafeOnboardingStore } from '@/lib/stores/ssr-safe-stores'
 
 export default function LocationPermissionPage() {
   const router = useRouter()
-  const { setPhase } = useOnboardingStore()
+
+  // SSR FIX: Use safe store hook that doesn't throw during SSR
+  const { setPhase } = useSafeOnboardingStore()
 
   useEffect(() => {
     setPhase('LOCATION_PERMISSION')

@@ -1,10 +1,12 @@
 'use client'
 
+// SSR FIX: Disable static generation for pages using Zustand stores
+export const dynamic = 'force-dynamic'
+
 import { useEffect, useState, FormEvent } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { useRegistrationStore } from '@/stores/registrationStore'
-import { useNavigationStore } from '@/stores/navigationStore'
+import { useSafeRegistrationStore, useSafeNavigationStore } from '@/lib/stores/ssr-safe-stores'
 import { speakWithSarvam } from '@/lib/sarvam-tts'
 
 interface ReferralValidationResponse {
@@ -18,8 +20,10 @@ interface ReferralValidationResponse {
 export default function ReferralLandingPage() {
   const router = useRouter()
   const params = useParams()
-  const { setReferralCode, setCurrentStep } = useRegistrationStore()
-  const { navigate, setSection } = useNavigationStore()
+
+  // SSR FIX: Use safe store hooks that don't throw during SSR
+  const { setReferralCode, setCurrentStep } = useSafeRegistrationStore()
+  const { navigate, setSection } = useSafeNavigationStore()
   const [isValid, setIsValid] = useState<boolean | null>(null)
   const [referrerName, setReferrerName] = useState('')
   const [benefit, setBenefit] = useState('')

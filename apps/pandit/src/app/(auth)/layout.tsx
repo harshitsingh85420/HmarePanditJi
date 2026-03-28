@@ -4,9 +4,13 @@ import { useState, useEffect } from 'react'
 import { LanguageChangeWidget } from '@/components/widgets/LanguageChangeWidget'
 import { EmergencySOSFloating } from '@/components/widgets/EmergencySOSFloating'
 import { HelpButton } from '@/components/HelpButton'
-import { useNavigationStore } from '@/stores/navigationStore'
+import { useSafeNavigationStore } from '@/lib/stores/ssr-safe-stores'
 import { stopSpeaking } from '@/lib/voice-engine'
+import { useHydration } from '@/hooks/useHydration'
 import type { SupportedLanguage } from '@/components/widgets/LanguageChangeWidget'
+
+// SSR FIX: Disable static generation for pages using Zustand stores
+export const dynamic = 'force-dynamic'
 
 /**
  * Error Boundary for Auth Layout
@@ -42,10 +46,13 @@ function AuthErrorBoundary({
 }
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
-  const { goBack } = useNavigationStore()
+  const hydrated = useHydration()
   const [currentLanguage, setCurrentLanguage] = useState<SupportedLanguage>('Hindi')
   const [hasError, setHasError] = useState(false)
   const [error, setError] = useState<Error | null>(null)
+
+  // SSR FIX: Use safe store hook that doesn't throw during SSR
+  const { goBack } = useSafeNavigationStore()
 
   const handleLanguageChange = (language: SupportedLanguage) => {
     setCurrentLanguage(language)
@@ -58,12 +65,28 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
     window.location.reload()
   }
 
+  // Browser back button handling - only after hydration
+  useEffect(() => {
+    if (!hydrated) return
+
+    const handlePopState = () => {
+      console.log('[AuthLayout] Back button pressed')
+      stopSpeaking()
+      goBack()
+    }
+
+    window.addEventListener('popstate', handlePopState)
+    return () => window.removeEventListener('popstate', handlePopState)
+  }, [goBack, hydrated])
+
   const handleHelpClick = () => {
     console.log('[AuthLayout] Help button clicked')
   }
 
   // Browser back button handling for auth flow
   useEffect(() => {
+    if (!hydrated) return // SSR FIX: Skip until hydrated
+
     const handlePopState = () => {
       console.log('[AuthLayout] Back button pressed')
       // Stop any active voice recognition
@@ -81,7 +104,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       window.removeEventListener('popstate', handlePopState)
       stopSpeaking()
     }
-  }, [goBack])
+  }, [goBack, hydrated])
 
   // Error boundary using error event listener
   useEffect(() => {

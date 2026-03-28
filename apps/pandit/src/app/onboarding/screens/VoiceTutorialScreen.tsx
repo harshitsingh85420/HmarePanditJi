@@ -2,7 +2,8 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { speak, startListening, stopListening, stopSpeaking } from '@/lib/voice-engine';
+import { speakWithSarvam, stopCurrentSpeech } from '@/lib/sarvam-tts';
+import { useSarvamVoiceFlow } from '@/lib/hooks/useSarvamVoiceFlow';
 import { SupportedLanguage } from '@/lib/onboarding-store';
 import TopBar from '@/components/TopBar';
 import SkipButton from '@/components/SkipButton';
@@ -19,79 +20,64 @@ export default function VoiceTutorialScreen({
   onComplete
 }: VoiceTutorialScreenProps) {
   const [demoState, setDemoState] = useState<'listening' | 'success'>('listening');
-  const cleanupRef = useRef<(() => void) | undefined>(undefined);
-  const timeout20sRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const successFadeRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const [keyboardMode, setKeyboardMode] = useState(false);
+  const isMountedRef = useRef(true);
 
-  // Get language code for TTS
-  const langCode = language === 'Hindi' ? 'hi-IN' : 'hi-IN' // Default to Hindi for now
+  // Voice flow for voice tutorial
+  const { isListening, isSpeaking, voiceFlowState } = useSarvamVoiceFlow({
+    language,
+    script: 'एक छोटी सी बात। यह ऐप आपकी आवाज़ से चलता है। जब माइक दिखे तब बोलिए। अभी कोशिश कीजिए — हाँ या नहीं बोलें।',
+    repromptScript: 'हाँ या नहीं बोलें, या कीबोर्ड से आगे बढ़ें।',
+    initialDelayMs: 800,
+    pauseAfterMs: 1000,
+    autoListen: !keyboardMode,
+    onIntent: (intentOrRaw) => {
+      if (!isMountedRef.current) return;
+
+      const lower = intentOrRaw.toLowerCase();
+
+      // Check for keyboard fallback
+      if (lower.includes('keyboard') || lower.includes('कीबोर्ड') || lower.includes('skip')) {
+        setKeyboardMode(true);
+        onComplete();
+        return;
+      }
+
+      // Any voice response completes the tutorial
+      if (lower.includes('haan') || lower.includes('ha') || lower.includes('yes') || lower.includes('nahi') || lower.includes('no')) {
+        setDemoState('success');
+        void speakWithSarvam({
+          text: 'बहुत अच्छा! आपने वॉइस नेविगेशन समझ लिया।',
+          languageCode: 'hi-IN',
+          onEnd: () => {
+            setTimeout(() => onComplete(), 1500);
+          },
+        });
+      }
+    },
+    onNoiseHigh: () => {
+      setKeyboardMode(true);
+      onComplete();
+    },
+  });
 
   useEffect(() => {
-    // 3-line voice script on mount with 500ms initial delay
-    const initTimer = setTimeout(() => {
-      speak(
-        'एक छोटी सी बात। यह ऐप आपकी आवाज़ से चलता है।',
-        langCode,
-        () => {
-          setTimeout(() => {
-            speak(
-              "जब यह नारंगी माइक दिखे और 'सुन रहा हूँ' लिखा हो — तब बोलिए।",
-              'hi-IN',
-              () => {
-                setTimeout(() => {
-                  speak(
-                    "अभी कोशिश कीजिए — हाँ या नहीं बोलिए।",
-                    'hi-IN',
-                    () => {
-                      setTimeout(() => {
-                        cleanupRef.current = startListening({
-                          language: 'hi-IN',
-                          onResult: () => {
-                            handleVoiceDetected();
-                          },
-                          onError: () => { },
-                        });
-
-                        timeout20sRef.current = setTimeout(() => {
-                          stopListening();
-                          speak(
-                            'कोई बात नहीं अगर बोलने में दिक्कत हो। नीचे कीबोर्ड भी है। आगे चलें बटन दबाइए।',
-                            'hi-IN'
-                          );
-                        }, 20000);
-                      }, 500);
-                    }
-                  );
-                }, 600);
-              }
-            );
-          }, 600);
+    isMountedRef.current = true;
+    if (!keyboardMode) {
+      const timer = setTimeout(() => {
+        if (isMountedRef.current) {
+          void speakWithSarvam({
+            text: 'यह ऐप आपकी आवाज़ से चलता है',
+            languageCode: 'hi-IN',
+          });
         }
-      );
-    }, 500);
-
-    return () => {
-      clearTimeout(initTimer);
-      clearTimeout(timeout20sRef.current);
-      clearTimeout(successFadeRef.current);
-      cleanupRef.current?.();
-      stopListening();
-      stopSpeaking();
-    };
-  }, []);
-
-  const handleVoiceDetected = () => {
-    clearTimeout(timeout20sRef.current);
-    cleanupRef.current?.();
-    stopListening();
-    setDemoState('success');
-
-    speak('Wah! Bilkul sahi. Aap bahut achchha kar rahe hain.', 'hi-IN');
-
-    successFadeRef.current = setTimeout(() => {
-      setDemoState('listening');
-    }, 2000);
-  };
+      }, 500);
+      return () => {
+        clearTimeout(timer);
+        stopCurrentSpeech();
+      };
+    }
+  }, [keyboardMode]);
 
   return (
     <main className="bg-surface-base font-body text-text-primary min-h-dvh w-full max-w-[390px] xs:max-w-[430px] mx-auto flex flex-col shadow-2xl">

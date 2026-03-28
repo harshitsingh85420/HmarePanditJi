@@ -1,5 +1,8 @@
 'use client';
 
+// SSR FIX: Disable static generation for pages using Zustand stores
+export const dynamic = 'force-dynamic';
+
 import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { speakWithSarvam } from '@/lib/sarvam-tts';
@@ -24,7 +27,7 @@ export default function WelcomePage() {
           <h1 className="text-base xs:text-lg sm:text-[20px] font-bold text-text-primary">HmarePanditJi</h1>
         </div>
         <button
-          onClick={() => {}}
+          onClick={() => { }}
           className="min-h-[52px] xs:min-h-[56px] sm:min-h-[64px] px-4 xs:px-6 flex items-center gap-2 text-sm xs:text-base sm:text-[20px] font-bold text-text-primary active:opacity-50 focus:ring-2 focus:ring-saffron focus:outline-none border-2 border-border-default rounded-full bg-surface-card"
         >
           हिन्दी / English

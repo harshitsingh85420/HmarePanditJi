@@ -1,24 +1,31 @@
 'use client'
 
+// SSR FIX: Disable static generation for pages using Zustand stores
+export const dynamic = 'force-dynamic'
+
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { speakWithSarvam, stopCurrentSpeech } from '@/lib/sarvam-tts'
-import { useOnboardingStore } from '@/stores/onboardingStore'
+import { useSafeOnboardingStore } from '@/lib/stores/ssr-safe-stores'
 
 export default function LanguageChoicePage() {
   const router = useRouter()
-  const { setPhase } = useOnboardingStore()
+
+  // SSR FIX: Use safe store hook that doesn't throw during SSR
+  const { setPhase } = useSafeOnboardingStore()
 
   useEffect(() => {
     void speakWithSarvam({ text: 'कृपया अपनी भाषा चुनें।', languageCode: 'hi-IN' })
   }, [])
 
   const handleSelect = (lang: string) => {
-    void speakWithSarvam({ text: `${lang} चुनी गई।`, languageCode: 'hi-IN', onEnd: () => {
-      setPhase('LANGUAGE_CONFIRM')
-      router.push('/language-confirm')
-    }})
+    void speakWithSarvam({
+      text: `${lang} चुनी गई।`, languageCode: 'hi-IN', onEnd: () => {
+        setPhase('LANGUAGE_CONFIRM')
+        router.push('/language-confirm')
+      }
+    })
   }
 
   return (
@@ -32,7 +39,7 @@ export default function LanguageChoicePage() {
           <span className="text-2xl xs:text-3xl sm:text-[32px] text-saffron">ॐ</span>
           <h1 className="text-base xs:text-lg sm:text-[20px] font-bold text-text-primary">HmarePanditJi</h1>
         </div>
-        <button onClick={() => {}} className="min-h-[52px] xs:min-h-[56px] sm:min-h-[64px] px-4 xs:px-6 flex items-center gap-2 text-sm xs:text-base sm:text-[20px] font-bold text-text-primary active:opacity-50 focus:ring-2 focus:ring-saffron focus:outline-none border-2 border-border-default rounded-full bg-surface-card"><span>हिन्दी / English</span></button>
+        <button onClick={() => { }} className="min-h-[52px] xs:min-h-[56px] sm:min-h-[64px] px-4 xs:px-6 flex items-center gap-2 text-sm xs:text-base sm:text-[20px] font-bold text-text-primary active:opacity-50 focus:ring-2 focus:ring-saffron focus:outline-none border-2 border-border-default rounded-full bg-surface-card"><span>हिन्दी / English</span></button>
       </div>
 
       {/* Illustration */}

@@ -75,3 +75,33 @@ export const useUIStore = create<UIStore>()((set) => ({
   dismissCelebration: () => set({ showCelebration: false }),
   setCelebrationStepName: (celebrationStepName) => set({ celebrationStepName }),
 }))
+
+// SSR-Safe getter - use this in server-side code or during hydration
+export function getUIStoreState() {
+  if (typeof window === 'undefined') {
+    return {
+      isOnline: true,
+      showNetworkBanner: false,
+      helpSheetOpen: false,
+      sessionTimeoutOpen: false,
+      sessionSaveNoticeVisible: false,
+      showCelebration: false,
+      celebrationStepName: '',
+      showSessionTimeout: false,
+    }
+  }
+  try {
+    return useUIStore.getState()
+  } catch {
+    return {
+      isOnline: true,
+      showNetworkBanner: false,
+      helpSheetOpen: false,
+      sessionTimeoutOpen: false,
+      sessionSaveNoticeVisible: false,
+      showCelebration: false,
+      celebrationStepName: '',
+      showSessionTimeout: false,
+    }
+  }
+}

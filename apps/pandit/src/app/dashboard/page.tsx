@@ -1,13 +1,18 @@
 ﻿'use client'
 
+// SSR FIX: Disable static generation for pages using Zustand stores
+export const dynamic = 'force-dynamic'
+
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useRegistrationStore } from '@/stores/registrationStore'
+import { useSafeRegistrationStore } from '@/lib/stores/ssr-safe-stores'
 import { speakWithSarvam } from '@/lib/sarvam-tts'
 
 export default function DashboardPage() {
   const router = useRouter()
-  const { data } = useRegistrationStore()
+
+  // SSR FIX: Use safe store hook that doesn't throw during SSR
+  const { data } = useSafeRegistrationStore()
 
   // BUG-013 FIX: Check if registration is complete, redirect if not
   useEffect(() => {

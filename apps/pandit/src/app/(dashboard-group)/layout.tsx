@@ -5,7 +5,10 @@ import { useSession } from '@/hooks/useSession'
 import { useNetwork } from '@/hooks/useNetwork'
 import { SessionTimeoutSheet } from '@/components/overlays/SessionTimeout'
 import { NetworkBanner } from '@/components/overlays/NetworkBanner'
-import { useUIStore } from '@/stores/uiStore'
+import { useSafeUIStore } from '@/lib/stores/ssr-safe-stores'
+
+// SSR FIX: Disable static generation for pages using Zustand stores
+export const dynamic = 'force-dynamic'
 
 /**
  * Error Boundary for Dashboard Layout
@@ -45,7 +48,9 @@ export default function DashboardGroupLayout({ children }: { children: React.Rea
   useNetwork()
   const [hasError, setHasError] = useState(false)
   const [error, setError] = useState<Error | null>(null)
-  const { showSessionTimeout } = useUIStore()
+
+  // SSR FIX: Use safe store hook that doesn't throw during SSR
+  const { showSessionTimeout } = useSafeUIStore()
 
   // Error boundary using error event listener
   useEffect(() => {

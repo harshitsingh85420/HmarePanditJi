@@ -13,6 +13,7 @@
   word-wrap: normal;
   white-space: nowrap;
 }
+
 .material-symbols-outlined.material-symbols-filled,
 .material-symbols-filled {
   font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
@@ -23,15 +24,29 @@
   background: radial-gradient(circle at top right, rgba(255, 140, 0, 0.12) 0%, rgba(255, 253, 247, 0) 55%);
 }
 
+/* ─────── Sacred gradient for homepage ─────── */
+.sacred-gradient {
+  background: linear-gradient(135deg, #FF8C00 0%, #FFFDF7 40%, #FFFDF7 100%);
+}
+
 /* ─────── Saffron glow active (voice button pulse) ─────── */
 .saffron-glow-active {
   box-shadow: 0 0 0 0 rgba(240, 153, 66, 0.4);
   animation: saffron-glow-ring 2s ease-out infinite;
 }
+
 @keyframes saffron-glow-ring {
-  0% { box-shadow: 0 0 0 0 rgba(240, 153, 66, 0.4); }
-  70% { box-shadow: 0 0 0 12px rgba(240, 153, 66, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(240, 153, 66, 0); }
+  0% {
+    box-shadow: 0 0 0 0 rgba(240, 153, 66, 0.4);
+  }
+
+  70% {
+    box-shadow: 0 0 0 12px rgba(240, 153, 66, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(240, 153, 66, 0);
+  }
 }
 
 
@@ -160,18 +175,17 @@ body {
   0% {
     background-position: -1000px 0;
   }
+
   100% {
     background-position: 1000px 0;
   }
 }
 
 .animate-shimmer {
-  background: linear-gradient(
-    90deg,
-    rgba(255, 251, 245, 0.5) 0%,
-    rgba(255, 251, 245, 0.8) 50%,
-    rgba(255, 251, 245, 0.5) 100%
-  );
+  background: linear-gradient(90deg,
+      rgba(255, 251, 245, 0.5) 0%,
+      rgba(255, 251, 245, 0.8) 50%,
+      rgba(255, 251, 245, 0.5) 100%);
   background-size: 1000px 100%;
   animation: shimmer 2s infinite linear;
 }
@@ -219,6 +233,7 @@ body {
 
 /* ─────── Responsive Container ─────── */
 @layer components {
+
   /* Main app container - constrains width on large screens */
   .container-responsive {
     @apply w-full mx-auto px-4 xs:px-5 sm:px-6 md:px-8 lg:px-12;
@@ -256,56 +271,29 @@ body {
 
   /* Primary button - large touch target */
   .btn-responsive-primary {
-    @apply w-full min-h-[52px] xs:min-h-[56px] sm:min-h-[60px]
-           px-6 xs:px-8 py-4
-           text-lg xs:text-xl sm:text-2xl
-           font-bold rounded-2xl
-           bg-saffron text-white
-           shadow-btn-saffron
-           active:scale-[0.98] transition-transform;
+    @apply w-full min-h-[52px] xs:min-h-[56px] sm:min-h-[60px] px-6 xs:px-8 py-4 text-lg xs:text-xl sm:text-2xl font-bold rounded-2xl bg-saffron text-white shadow-btn-saffron active:scale-[0.98] transition-transform;
   }
 
   /* Secondary button - outlined */
   .btn-responsive-secondary {
-    @apply w-full min-h-[52px] xs:min-h-[56px] sm:min-h-[60px]
-           px-6 xs:px-8 py-4
-           text-lg xs:text-xl sm:text-2xl
-           font-semibold rounded-2xl
-           border-2 border-saffron text-saffron
-           active:bg-saffron-light transition-colors;
+    @apply w-full min-h-[52px] xs:min-h-[56px] sm:min-h-[60px] px-6 xs:px-8 py-4 text-lg xs:text-xl sm:text-2xl font-semibold rounded-2xl border-2 border-saffron text-saffron active:bg-saffron-light transition-colors;
   }
 
   /* Tertiary button - text only */
   .btn-responsive-tertiary {
-    @apply w-full min-h-[52px] xs:min-h-[56px]
-           px-6 py-4
-           text-lg xs:text-xl
-           font-medium text-saffron
-           underline
-           active:bg-saffron-light transition-colors;
+    @apply w-full min-h-[52px] xs:min-h-[56px] px-6 py-4 text-lg xs:text-xl font-medium text-saffron underline active:bg-saffron-light transition-colors;
   }
 
   /* ─────── Responsive Inputs ─────── */
 
   .input-responsive {
-    @apply w-full min-h-[52px] xs:min-h-[56px] sm:min-h-[60px]
-           px-4 xs:px-5 py-4
-           text-lg xs:text-xl sm:text-2xl
-           bg-surface-card
-           border-2 border-border-default
-           rounded-2xl
-           focus:border-saffron focus:outline-none
-           focus:ring-4 focus:ring-saffron/20;
+    @apply w-full min-h-[52px] xs:min-h-[56px] sm:min-h-[60px] px-4 xs:px-5 py-4 text-lg xs:text-xl sm:text-2xl bg-surface-card border-2 border-border-default rounded-2xl focus:border-saffron focus:outline-none focus:ring-4 focus:ring-saffron/20;
   }
 
   /* ─────── Responsive Cards ─────── */
 
   .card-responsive {
-    @apply w-full
-           p-4 xs:p-5 sm:p-6
-           bg-surface-card
-           rounded-2xl
-           shadow-card;
+    @apply w-full p-4 xs:p-5 sm:p-6 bg-surface-card rounded-2xl shadow-card;
   }
 
   /* ─────── Responsive Spacing ─────── */

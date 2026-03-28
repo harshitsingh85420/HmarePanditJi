@@ -2,8 +2,12 @@
 
 import { useEffect, useState } from 'react'
 import { HelpButton } from '@/components/HelpButton'
-import { useNavigationStore } from '@/stores/navigationStore'
+import { useSafeNavigationStore } from '@/lib/stores/ssr-safe-stores'
 import { stopSpeaking } from '@/lib/voice-engine'
+import { useHydration } from '@/hooks/useHydration'
+
+// SSR FIX: Disable static generation for pages using Zustand stores
+export const dynamic = 'force-dynamic'
 
 /**
  * Error Boundary for Onboarding Layout
@@ -43,9 +47,12 @@ export default function OnboardingLayout({
 }: {
   children: React.ReactNode
 }) {
-  const { goBack } = useNavigationStore()
+  const hydrated = useHydration()
   const [hasError, setHasError] = useState(false)
   const [error, setError] = useState<Error | null>(null)
+
+  // SSR FIX: Use safe store hook that doesn't throw during SSR
+  const { goBack } = useSafeNavigationStore()
 
   const handleHelpClick = () => {
     console.log('[OnboardingLayout] Help button clicked')
@@ -72,6 +79,8 @@ export default function OnboardingLayout({
 
   // Browser back button handling for onboarding flow
   useEffect(() => {
+    if (!hydrated) return // Skip until hydrated
+
     const handlePopState = () => {
       console.log('[OnboardingLayout] Back button pressed')
       // Stop any active voice recognition
@@ -92,7 +101,7 @@ export default function OnboardingLayout({
       window.removeEventListener('popstate', handlePopState)
       stopSpeaking()
     }
-  }, [goBack])
+  }, [goBack, hydrated])
 
   // Error boundary using error event listener
   useEffect(() => {

@@ -130,21 +130,27 @@ export const LANGUAGE_LIST_SCREEN: ScreenVoiceScripts = {
     main: {
       hindi: 'कृपया अपनी भाषा का नाम बोलिए। जैसे — भोजपुरी, Tamil, Telugu, Bengali — या नीचे से चुनें।',
       roman: 'Kripya apni bhasha ka naam boliye. Jaise — Bhojpuri, Tamil, Telugu, Bengali — ya neeche se chunein.',
+      english: 'Please say your language name. For example — Bhojpuri, Tamil, Telugu, Bengali — or select from below.',
       durationSec: 5,
+      initialDelayMs: 400,
+      pauseAfterMs: 300,
     },
     onLanguageDetected: {
       hindi: '{LANGUAGE}? सही है?',
       roman: '{LANGUAGE}? Sahi hai?',
+      english: '{LANGUAGE}? Is this correct?',
       durationSec: 2,
     },
     reprompt: {
       hindi: 'आवाज़ नहीं पहचान पाया। नीचे से भाषा छूकर चुनें।',
       roman: 'Aawaz nahi pehchaan paya. Neeche se bhasha chhookar chunein.',
+      english: 'Could not recognize voice. Please select language by touching below.',
       durationSec: 3,
     },
     onUnsupported: {
       hindi: 'अभी यह भाषा उपलब्ध नहीं है। सबसे नज़दीकी भाषा — हिंदी या English — चल सकती है।',
       roman: 'Abhi yeh bhasha uplabdh nahi hai. Sabse najdeeki bhasha — Hindi ya English — chal sakti hai.',
+      english: 'This language is not yet available. Closest language — Hindi or English — will work.',
       durationSec: 4,
     },
   },
@@ -156,21 +162,33 @@ export const LANGUAGE_CHOICE_CONFIRM_SCREEN: ScreenVoiceScripts = {
     main: {
       hindi: 'आपने {LANGUAGE} कही। सही है? हाँ बोलें या नहीं बोलें।',
       roman: 'Aapne {LANGUAGE} kahi. Sahi hai? Haan bolein ya Nahi bolein.',
+      english: 'You said {LANGUAGE}. Is this correct? Say Yes or No.',
       durationSec: 3,
+      initialDelayMs: 300,
+      pauseAfterMs: 600,
     },
     onYesConfirmed: {
       hindi: 'बहुत अच्छा।',
       roman: 'Bahut achha.',
+      english: 'Very good.',
       durationSec: 1,
     },
     onNoSaid: {
       hindi: 'ठीक है, फिर से चुनते हैं।',
       roman: 'Theek hai, phir se chunte hain.',
+      english: 'Okay, let us choose again.',
       durationSec: 2,
     },
     reprompt: {
       hindi: '{LANGUAGE} — सही है? बटन दबाइए।',
       roman: '{LANGUAGE} — sahi hai? Button dabaiye.',
+      english: '{LANGUAGE} — correct? Press the button.',
+      durationSec: 2,
+    },
+    onTimeout12s: {
+      hindi: '{LANGUAGE} — सही है? बटन दबाइए।',
+      roman: '{LANGUAGE} — sahi hai? Button dabaiye.',
+      english: '{LANGUAGE} — correct? Press the button.',
       durationSec: 2,
     },
   },
@@ -182,6 +200,75 @@ export const LANGUAGE_SET_SCREEN: ScreenVoiceScripts = {
     main: {
       hindi: 'बहुत अच्छा! अब हम आपसे {LANGUAGE} में बात करेंगे।',
       roman: 'Bahut achha! Ab hum aapse {LANGUAGE} mein baat karenge.',
+      english: 'Very good! Now we will speak to you in {LANGUAGE}.',
+      durationSec: 3,
+      initialDelayMs: 200,
+    },
+    // Multi-language celebration scripts (spoken in confirmed language where possible)
+    celebrationHindi: {
+      hindi: 'बहुत अच्छा! अब हम आपसे हिंदी में बात करेंगे।',
+      roman: 'Bahut achha! Ab hum aapse Hindi mein baat karenge.',
+      english: 'Very good! Now we will speak to you in Hindi.',
+      durationSec: 3,
+    },
+    celebrationBhojpuri: {
+      hindi: 'बहुत अच्छा! भोजपुरी सेट हो गई। हम आपसे इसी भाषा में बात करेंगे।',
+      roman: 'Bahut achha! Bhojpuri set ho gayi. Hum aapse isi bhasha mein baat karenge.',
+      english: 'Very good! Bhojpuri is set. We will speak to you in this language.',
+      durationSec: 3,
+    },
+    celebrationTamil: {
+      hindi: 'Romba nalla! Tamil set aachu. Ab hum aapse Tamil mein baat karenge.',
+      roman: 'Romba nalla! Tamil set aachu. Ab hum aapse Tamil mein baat karenge.',
+      english: 'Very good! Tamil is set. Now we will speak to you in Tamil.',
+      durationSec: 3,
+    },
+    celebrationTelugu: {
+      hindi: 'Chala manchidi! Telugu set aindi. Ab hum aapse Telugu mein baat karenge.',
+      roman: 'Chala manchidi! Telugu set aindi. Ab hum aapse Telugu mein baat karenge.',
+      english: 'Very good! Telugu is set. Now we will speak to you in Telugu.',
+      durationSec: 3,
+    },
+    celebrationBengali: {
+      hindi: 'Khub bhalo! Bengali set hoyeche. Ab hum aapse Bengali mein baat karenge.',
+      roman: 'Khub bhalo! Bengali set hoyeche. Ab hum aapse Bengali mein baat karenge.',
+      english: 'Very good! Bengali is set. Now we will speak to you in Bengali.',
+      durationSec: 3,
+    },
+    celebrationKannada: {
+      hindi: 'Tumba chennagide! Kannada set aagide. Eega nimma halige Kannadadalli maatanadteevi.',
+      roman: 'Tumba chennagide! Kannada set aagide. Eega nimma halige Kannadadalli maatanadteevi.',
+      english: 'Very good! Kannada is set. Now we will speak to you in Kannada.',
+      durationSec: 3,
+    },
+    celebrationMalayalam: {
+      hindi: 'Ethra nallathu! Malayalam set aayi. Innu nammal Malayalamil samsarikum.',
+      roman: 'Ethra nallathu! Malayalam set aayi. Innu nammal Malayalamil samsarikum.',
+      english: 'Very good! Malayalam is set. Now we will speak to you in Malayalam.',
+      durationSec: 3,
+    },
+    celebrationMarathi: {
+      hindi: 'Khup changal! Marathi set zali. Aata aapan Marathit bolu.',
+      roman: 'Khup changal! Marathi set zali. Aata aapan Marathit bolu.',
+      english: 'Very good! Marathi is set. Now we will speak to you in Marathi.',
+      durationSec: 3,
+    },
+    celebrationGujarati: {
+      hindi: 'Panu saru! Gujarati set thai gayu. Have tame Gujarati ma vaat karishu.',
+      roman: 'Panu saru! Gujarati set thai gayu. Have tame Gujarati ma vaat karishu.',
+      english: 'Very good! Gujarati is set. Now we will speak to you in Gujarati.',
+      durationSec: 3,
+    },
+    celebrationPunjabi: {
+      hindi: 'Bahut changa! Punjabi set ho gayi. Hun asin tusi Punjabi vich gall karange.',
+      roman: 'Bahut changa! Punjabi set ho gayi. Hun asin tusi Punjabi vich gall karange.',
+      english: 'Very good! Punjabi is set. Now we will speak to you in Punjabi.',
+      durationSec: 3,
+    },
+    celebrationEnglish: {
+      hindi: 'Very good! English is set. Now we will speak to you in English.',
+      roman: 'Very good! English is set. Now we will speak to you in English.',
+      english: 'Very good! English is set. Now we will speak to you in English.',
       durationSec: 3,
     },
   },
@@ -623,4 +710,40 @@ export function detectLanguageName(transcript: string): string | null {
   }
 
   return null
+}
+
+// ─────────────────────────────────────────────────────────────
+// CELEBRATION SCRIPT HELPER FOR LANGUAGE SET SCREEN
+// Returns the appropriate celebration script for the confirmed language
+// ─────────────────────────────────────────────────────────────
+
+/**
+ * Get celebration script for the confirmed language
+ * @param language - The confirmed language (e.g., 'Hindi', 'Tamil', 'Telugu')
+ * @returns The celebration VoiceScript for that language
+ */
+export function getCelebrationScript(language: SupportedLanguage): VoiceScript {
+  const scriptMap: Record<SupportedLanguage, keyof typeof LANGUAGE_SET_SCREEN['scripts']> = {
+    Hindi: 'celebrationHindi',
+    Bhojpuri: 'celebrationBhojpuri',
+    Maithili: 'celebrationHindi', // Falls back to Hindi since Maithili TTS is limited
+    Bengali: 'celebrationBengali',
+    Tamil: 'celebrationTamil',
+    Telugu: 'celebrationTelugu',
+    Kannada: 'celebrationKannada',
+    Malayalam: 'celebrationMalayalam',
+    Marathi: 'celebrationMarathi',
+    Gujarati: 'celebrationGujarati',
+    Sanskrit: 'celebrationHindi', // Falls back to Hindi
+    English: 'celebrationEnglish',
+    Odia: 'celebrationHindi', // Falls back to Hindi
+    Punjabi: 'celebrationPunjabi',
+    Assamese: 'celebrationHindi', // Falls back to Hindi
+  }
+
+  const scriptKey = scriptMap[language] || 'celebrationHindi'
+  const script = LANGUAGE_SET_SCREEN.scripts[scriptKey]
+
+  // Fallback to main script if celebration script not found
+  return script || LANGUAGE_SET_SCREEN.scripts.main
 }

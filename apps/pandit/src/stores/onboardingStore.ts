@@ -2,10 +2,14 @@ import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import type { OnboardingState, OnboardingPhase, SupportedLanguage } from '@/lib/onboarding-store'
 
+// SSR FIX: Check if we're on client side before accessing localStorage
+const isClient = typeof window !== 'undefined'
+
 // BUG-024 FIX: Custom storage wrapper that handles QuotaExceededError gracefully
 const createSafeLocalStorage = () => {
   return {
     getItem: (key: string) => {
+      if (!isClient) return null
       try {
         return localStorage.getItem(key)
       } catch (error) {
@@ -15,6 +19,7 @@ const createSafeLocalStorage = () => {
       }
     },
     setItem: (key: string, value: string) => {
+      if (!isClient) return
       try {
         localStorage.setItem(key, value)
       } catch (error) {
@@ -28,6 +33,7 @@ const createSafeLocalStorage = () => {
       }
     },
     removeItem: (key: string) => {
+      if (!isClient) return
       try {
         localStorage.removeItem(key)
       } catch (error) {
@@ -115,6 +121,20 @@ export const useOnboardingStore = create<OnboardingStore>()(
         firstEverOpen: state.firstEverOpen,
         helpRequested: state.helpRequested,
       }),
+      // SSR FIX: Skip hydration on server, will hydrate on client
+      skipHydration: true,
     }
   )
 )
+
+// SSR-Safe getter - use this in server-side code or during hydration
+export function getOnboardingStoreState() {
+  if (!isClient) {
+    return DEFAULT_STATE
+  }
+  try {
+    return useOnboardingStore.getState()
+  } catch {
+    return DEFAULT_STATE
+  }
+}

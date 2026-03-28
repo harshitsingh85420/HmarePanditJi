@@ -1,5 +1,8 @@
 'use client'
 
+// SSR FIX: Disable static generation for pages using Zustand stores
+export const dynamic = 'force-dynamic'
+
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { loadOnboardingState } from '@/lib/onboarding-store'
@@ -19,19 +22,19 @@ export default function RootPage() {
 
   useEffect(() => {
     const state = loadOnboardingState()
-    
+
     // If user has completed onboarding, go to dashboard
     if (state.tutorialCompleted) {
       router.push('/dashboard')
       return
     }
-    
+
     // If first time user, show Homepage (E-01)
     if (state.firstEverOpen) {
       router.push('/identity')
       return
     }
-    
+
     // Resume from last screen (onboarding flow)
     router.push('/onboarding')
   }, [router])

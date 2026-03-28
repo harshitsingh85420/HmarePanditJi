@@ -42,15 +42,67 @@ export default function LanguageSetScreen({ language, onComplete }: LanguageSetS
       </div>
 
       {/* Success Icon */}
-      <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: 'spring' }} className="text-center z-10">
-        <div className="text-7xl xs:text-8xl sm:text-9xl mb-4 xs:mb-6">✅</div>
-        <h1 className="text-3xl xs:text-4xl sm:text-5xl font-bold text-text-primary mb-2 xs:mb-4">भाषा सेट हो गई!</h1>
-        <div className="bg-white border-3 border-saffron rounded-2xl p-6 xs:p-8 shadow-card">
-          <p className="text-5xl xs:text-6xl sm:text-7xl mb-2 xs:mb-4">{langInfo.scriptChar}</p>
-          <p className="text-2xl xs:text-3xl sm:text-4xl font-bold text-saffron">{langInfo.nativeName}</p>
-          <p className="text-lg xs:text-xl sm:text-2xl text-text-secondary mt-2">{langInfo.latinName}</p>
+      <motion.div
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ type: 'spring' }}
+        className="text-center z-10 flex flex-col items-center"
+      >
+        {/* Animated Emoji with Glow */}
+        <div className="relative mb-6 xs:mb-8">
+          <motion.div
+            className="absolute inset-0 bg-saffron/20 blur-3xl rounded-full"
+            animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          />
+          <motion.span
+            className="relative text-8xl xs:text-9xl"
+            initial={{ y: -100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.2, type: 'spring', bounce: 0.5 }}
+          >
+            {langInfo.emoji}
+          </motion.span>
         </div>
-        <p className="text-base xs:text-lg sm:text-xl text-text-secondary mt-6 xs:mt-8">आगे बढ़ रहे हैं...</p>
+
+        {/* Text Section */}
+        <div className="space-y-3 xs:space-y-4">
+          <motion.h1
+            className="text-6xl xs:text-7xl font-bold text-saffron"
+            initial={{ scale: 0.5, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.4, type: 'spring' }}
+          >
+            {langInfo.shortName}
+          </motion.h1>
+
+          <motion.p
+            className="text-2xl xs:text-3xl text-vedic-gold"
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.5 }}
+          >
+            {langInfo.scriptChar}
+          </motion.p>
+
+          <motion.p
+            className="text-xl xs:text-2xl text-text-primary"
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.6 }}
+          >
+            {langInfo.nativeName}
+          </motion.p>
+
+          <motion.p
+            className="text-lg xs:text-xl text-text-secondary mt-4"
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.7 }}
+          >
+            सेट हो गई ✓
+          </motion.p>
+        </div>
       </motion.div>
     </main>
   );

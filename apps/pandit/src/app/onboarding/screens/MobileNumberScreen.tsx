@@ -1,12 +1,12 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
 import { speakWithSarvam, stopCurrentSpeech } from '@/lib/sarvam-tts';
 import { useSarvamVoiceFlow } from '@/lib/hooks/useSarvamVoiceFlow';
 import { loadOnboardingState, saveOnboardingState } from '@/lib/onboarding-store';
 import type { SupportedLanguage } from '@/lib/onboarding-store';
+import { readOTPAuto } from '@/lib/webotp';
 
 interface MobileNumberScreenProps {
   language: SupportedLanguage;
@@ -23,12 +23,13 @@ export default function MobileNumberScreen({ language, onComplete, onBack }: Mob
   const [isKeyboardMode, setIsKeyboardMode] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const { isListening, isSpeaking, voiceFlowState, restartListening } = useSarvamVoiceFlow({
+  const { restartListening } = useSarvamVoiceFlow({
     language,
     script: 'अपना मोबाइल नंबर बोलें — जैसे 9876543210।',
     repromptScript: 'नंबर बोलें — 10 अंक।',
-    initialDelayMs: 800,  // BUG-001 FIX: Increased from 600ms for elderly comprehension
-    pauseAfterMs: 1000,  // BUG-001 FIX: Increased from 500ms for TTS completion
+    initialDelayMs: 800,
+    pauseAfterMs: 1000,
+    autoListen: !isKeyboardMode && !isMicOff,
     onIntent: (intentOrRaw) => {
       if (intentOrRaw.startsWith('RAW:')) {
         const raw = intentOrRaw.slice(4).trim().replace(/\D/g, '');
@@ -66,28 +67,6 @@ export default function MobileNumberScreen({ language, onComplete, onBack }: Mob
     }
   }, [keyboardEntered]);
 
-  const handleKeypadInput = (digit: string) => {
-    if (mobile.length < 10) {
-      const newMobile = mobile + digit;
-      setMobile(newMobile);
-      if (newMobile.length === 10) {
-        setError('');
-        if (!keyboardEntered) {
-          setConfirming(true);
-          void speakWithSarvam({
-            text: `${newMobile.slice(0, 5)} ${newMobile.slice(5)} — क्या यह सही है?`,
-            languageCode: 'hi-IN',
-          });
-        }
-      }
-    }
-  };
-
-  const handleDelete = () => {
-    setMobile(mobile.slice(0, -1));
-    setConfirming(false);
-  };
-
   const handleTextInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/\D/g, '').slice(0, 10);
     setMobile(value);
@@ -98,8 +77,22 @@ export default function MobileNumberScreen({ language, onComplete, onBack }: Mob
     }
   };
 
-  const handleSubmit = (number: string) => {
+  const handleSubmit = async (number: string) => {
     if (number.length === 10) {
+      // Save registration phase
+      const saved = loadOnboardingState();
+      saveOnboardingState({ ...saved, phase: 'REGISTRATION' });
+
+      // Try WebOTP auto-read on supported devices
+      if (typeof window !== 'undefined' && 'credentials' in navigator) {
+        const otp = await readOTPAuto(8000);
+
+        if (otp) {
+          // OTP auto-read successful - will be used by OTP screen
+          console.log('[MobileNumberScreen] OTP auto-read successful:', otp.substring(0, 2) + '****');
+        }
+      }
+
       onComplete(number);
     } else {
       setError('कृपया 10 अंक बताइए');
@@ -119,207 +112,155 @@ export default function MobileNumberScreen({ language, onComplete, onBack }: Mob
     }
   };
 
-  const updateMobile = (newMobile: string) => {
-    setMobile(newMobile);
-  };
-
   const formatted = mobile
     ? `${mobile.slice(0, 5)} ${mobile.slice(5)}`.trim()
     : '';
 
   return (
-    <main className="min-h-dvh w-full max-w-[390px] xs:max-w-[430px] mx-auto bg-surface-base font-body text-text-primary flex flex-col shadow-2xl relative">
-      {/* Header - shrink-0 to prevent compression */}
-      <header className="pt-6 xs:pt-8 px-4 xs:px-6 pb-2 flex items-center gap-2 xs:gap-3 shrink-0">
-        <button onClick={onBack} className="w-16 h-16 xs:w-20 xs:h-20 -ml-2 xs:-ml-3 flex items-center justify-center text-saffron hover:bg-saffron-light rounded-full min-h-[52px] xs:min-h-[56px] min-w-[52px] xs:min-w-[56px] focus:ring-4 focus:ring-saffron focus:outline-none" aria-label="पीछे जाएं">
-          <svg width="32" height="32" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
-            <path d="M15 18l-6-6 6-6" />
+    <main className="min-h-dvh w-full max-w-[390px] xs:max-w-[430px] mx-auto bg-[#FFFDF7] font-body text-[#1b1c19] flex flex-col shadow-2xl relative">
+      {/* Top Bar: Progress & Navigation */}
+      <header className="w-full top-0 sticky z-50 px-6 py-4 flex items-center gap-6 bg-[#fbf9f3]">
+        <button
+          onClick={onBack}
+          className="w-12 h-12 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors active:scale-95 duration-200"
+          aria-label="Go back"
+        >
+          <svg className="w-6 h-6 text-[#904d00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
         </button>
-        <div className="flex-1">
-          <h1 className="text-3xl xs:text-4xl sm:text-[36px] font-bold text-text-primary">पंजीकरण</h1>
-          <p className="text-2xl xs:text-3xl sm:text-[32px] font-bold text-saffron">कदम 1 / 4</p>
+        <div className="flex-1 flex gap-2">
+          {/* Progress Pills (1 of 6) */}
+          <div className="h-2 flex-1 rounded-full bg-[#ff8c00]"></div>
+          <div className="h-2 flex-1 rounded-full bg-[#e4e2dd] opacity-40"></div>
+          <div className="h-2 flex-1 rounded-full bg-[#e4e2dd] opacity-40"></div>
+          <div className="h-2 flex-1 rounded-full bg-[#e4e2dd] opacity-40"></div>
+          <div className="h-2 flex-1 rounded-full bg-[#e4e2dd] opacity-40"></div>
+          <div className="h-2 flex-1 rounded-full bg-[#e4e2dd] opacity-40"></div>
         </div>
+        <span className="font-label text-sm font-bold text-[#904d00]">1/6</span>
       </header>
 
-      {/* Progress - shrink-0 to prevent compression - Bold and Clear for Elderly */}
-      <div className="px-4 xs:px-6 pb-3 xs:pb-4 shrink-0">
-        <div className="flex gap-2 xs:gap-3">
-          {[1, 2, 3, 4].map(i => (
-            <div key={i} className={`flex-1 h-12 xs:h-14 sm:h-16 rounded-full transition-colors ${i === 1 ? 'bg-saffron' : 'bg-surface-dim'}`} />
-          ))}
-        </div>
-      </div>
-
-      {/* Content - flex-grow with overflow-y-auto for scroll on small screens */}
-      <div className="flex-grow flex flex-col items-center px-4 xs:px-6 pt-2 overflow-y-auto">
-        {/* Title */}
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-6 xs:mb-8 w-full">
-          <h2 className="text-3xl xs:text-4xl sm:text-[40px] font-bold text-text-primary leading-tight">
-            📱 आपका मोबाइल नंबर?
-          </h2>
-          <p className="text-lg xs:text-xl sm:text-[24px] text-saffron mt-2 xs:mt-3 font-medium">
-            OTP से verify होगा — बिल्कुल safe
+      {/* Main Content */}
+      <div className="flex-1 px-6 pt-10 pb-32 max-w-xl mx-auto w-full">
+        {/* Animated Entrance Card */}
+        <div className="bg-[#f5f3ee] rounded-3xl p-8 shadow-[0px_8px_24px_rgba(144,77,0,0.04)] border-l-4 border-[#ff8c00]">
+          <div className="flex items-center justify-between mb-8">
+            <h1 className="font-headline text-3xl font-bold text-[#1b1c19] leading-tight">
+              आपका मोबाइल नंबर क्या है?
+            </h1>
+            {/* Saved Status Badge */}
+            {mobile.length === 10 && (
+              <div className="flex items-center gap-1.5 px-3 py-1 bg-[#a0f399] text-[#002204] rounded-full text-sm font-medium">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                Saved
+              </div>
+            )}
+          </div>
+          <p className="text-[#564334] text-lg mb-10 leading-[150%]">
+            हम आपके पंजीकरण के लिए एक ओटीपी भेजेंगे।
           </p>
-        </motion.div>
 
-        {/* Voice listening indicator */}
-        <AnimatePresence>
-          {!isKeyboardMode && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="w-full mb-3 xs:mb-4 flex items-center justify-between gap-2 xs:gap-3 px-4 xs:px-5 py-4 xs:py-5 bg-saffron-lt rounded-2xl border-3 border-saffron/40 min-h-[52px] xs:min-h-[56px] sm:min-h-[88px] shadow-card"
-            >
-              {isMicOff ? (
-                <div className="flex items-center gap-2 xs:gap-3 text-red-600">
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                    <path d="M1 1l22 22M9 9v3a3 3 0 005.12 2.12M15 9.34V4a3 3 0 00-5.94-.6" strokeLinecap="round" strokeLinejoin="round" />
-                    <path d="M17 16.95A7 7 0 015 12v-2m14 0v2a7 7 0 01-.11 1.23" strokeLinecap="round" strokeLinejoin="round" />
-                    <line x1="12" y1="19" x2="12" y2="23" strokeLinecap="round" strokeLinejoin="round" />
-                    <line x1="8" y1="23" x2="16" y2="23" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                  <span className="text-xl xs:text-2xl sm:text-[26px] font-medium">Mic Off</span>
-                </div>
-              ) : (
-                <div className="flex items-center gap-1 xs:gap-2 overflow-hidden">
-                  <div className="flex items-end gap-1 xs:gap-2 h-10 xs:h-14 shrink-0">
-                    <div className="w-2 xs:w-3 bg-saffron rounded-full animate-voice-bar" />
-                    <div className="w-2 xs:w-3 bg-saffron rounded-full animate-voice-bar-2" />
-                    <div className="w-2 xs:w-3 bg-saffron rounded-full animate-voice-bar-3" />
-                  </div>
-                  <span className="text-xl xs:text-2xl sm:text-[28px] text-text-primary truncate font-medium">
-                    {isSpeaking ? 'बोल रहा हूँ...' : 'नंबर बोलें...'}
-                  </span>
-                </div>
-              )}
-
-              <button
-                onClick={() => setIsMicOff(!isMicOff)}
-                className={`px-6 xs:px-8 py-4 xs:py-5 min-h-[52px] xs:min-h-[56px] sm:min-h-[80px] rounded-2xl text-lg xs:text-xl sm:text-[22px] font-bold border-3 transition-colors shrink-0 focus:ring-4 focus:ring-saffron focus:outline-none ${isMicOff
-                  ? 'bg-saffron text-white border-saffron'
-                  : 'bg-white text-text-primary border-border-default'
-                  }`}
-              >
-                {isMicOff ? 'Mic On' : 'Mic Off'}
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* BUG-003 FIX: Keyboard toggle - shown when keyboard mode is active */}
-        {isKeyboardMode && (
-          <div className="w-full mb-3 xs:mb-4 flex items-center justify-between gap-2 xs:gap-3 px-4 xs:px-5 py-4 xs:py-5 bg-surface-muted rounded-2xl border-3 border-border-default min-h-[52px] xs:min-h-[56px] sm:min-h-[88px] shadow-card">
-            <div className="flex items-center gap-2 xs:gap-3 text-text-primary">
-              <svg width="28" height="28" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
-                <rect x="2" y="4" width="20" height="16" rx="2" />
-                <path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M6 12h.01M10 12h.01M14 12h.01M18 12h.01M7 16h10" />
-              </svg>
-              <span className="text-xl xs:text-2xl sm:text-[26px] font-medium">Keyboard Mode</span>
+          {/* Large Input Field Section */}
+          <div className="relative group">
+            <label className="block font-label font-bold text-[#904d00] mb-3 text-lg">मोबाइल नंबर</label>
+            <div className="flex items-center gap-4 p-5 bg-[#f5f3ee] rounded-2xl border-2 border-transparent group-focus-within:border-[#ff8c00] group-focus-within:shadow-[0_0_12px_rgba(255,140,0,0.15)] transition-all">
+              {/* Flag/Code Section */}
+              <div className="flex items-center gap-2 pr-4 border-r border-[#ddc1ae]/30">
+                <img
+                  alt="India Flag"
+                  className="w-8 h-auto rounded-sm"
+                  src="https://upload.wikimedia.org/wikipedia/commons/4/41/Flag_of_India.svg"
+                  style={{ width: '32px', height: '24px', objectFit: 'cover' }}
+                />
+                <span className="text-2xl font-bold text-[#1b1c19]">+91</span>
+              </div>
+              {/* Input Area */}
+              <input
+                ref={inputRef}
+                type="tel"
+                maxLength={10}
+                value={formatted.replace(/\s/g, '')}
+                onChange={handleTextInputChange}
+                placeholder="00000 00000"
+                className="w-full bg-transparent border-none focus:ring-0 text-3xl font-bold tracking-widest text-[#1b1c19] placeholder:text-[#897362]/40"
+              />
             </div>
-            <button
-              onClick={handleKeyboardToggle}
-              className="px-6 xs:px-8 py-4 xs:py-5 min-h-[52px] xs:min-h-[56px] sm:min-h-[80px] rounded-2xl text-lg xs:text-xl sm:text-[22px] font-bold border-3 border-border-default bg-white text-text-primary hover:bg-saffron-lt transition-colors focus:ring-4 focus:ring-saffron focus:outline-none"
-            >
-              Voice वापस लाएं
-            </button>
           </div>
-        )}
 
-        {/* Number Display */}
-        <div className={`w-full text-center py-6 xs:py-8 rounded-2xl border-3 mb-3 xs:mb-4 transition-colors ${mobile.length === 10 ? 'border-success bg-success-lt' : 'border-saffron/30 bg-surface-card'
-          }`}>
-          {mobile.length > 0 ? (
-            <div>
-              <span className="text-xl xs:text-2xl sm:text-[26px] text-saffron">+91 </span>
-              <span className="text-3xl xs:text-4xl sm:text-[42px] font-bold text-text-primary tracking-widest">{formatted}</span>
-              {mobile.length === 10 && <span className="block text-lg xs:text-xl sm:text-[24px] text-success mt-2 xs:mt-3 font-bold">✓ नंबर पूरा है</span>}
-            </div>
-          ) : (
-            <span className="text-2xl xs:text-3xl sm:text-[32px] text-surface-dim">_ _ _ _ _ _ _ _ _ _</span>
-          )}
+          {/* Contextual Help */}
+          <div className="mt-8 p-4 bg-[#fbf9f3] rounded-xl flex items-start gap-4 italic text-[#564334]">
+            <svg className="w-6 h-6 text-[#904d00] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+            <p className="text-base leading-relaxed">
+              आपकी गोपनीयता हमारे लिए पवित्र है। हम कभी भी आपके नंबर का दुरुपयोग नहीं करेंगे।
+            </p>
+          </div>
         </div>
 
-        {error && <p className="text-error text-lg xs:text-xl sm:text-[24px] mb-3 xs:mb-4 text-center font-bold">{error}</p>}
-
-        {/* Text input for manual - Larger touch target */}
-        <input
-          ref={inputRef}
-          type="tel"
-          maxLength={10}
-          value={mobile}
-          onChange={handleTextInputChange}
-          placeholder="या यहाँ टाइप करें"
-          className="w-full px-6 xs:px-8 py-4 xs:py-6 min-h-[52px] xs:min-h-[56px] sm:min-h-[88px] border-3 border-border-default rounded-2xl text-center text-2xl xs:text-3xl sm:text-[32px] bg-surface-card focus:border-saffron focus:outline-none text-text-primary mb-3 xs:mb-4 font-bold shadow-input"
-        />
-
-        {/* On-screen Keypad - Larger buttons for elderly */}
-        <div className="grid grid-cols-3 gap-3 xs:gap-4 w-full mb-6">
-          {['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', '⌫'].map((key, i) => {
-            if (!key) return <div key={i} />;
-            const isDelete = key === '⌫';
-            return (
-              <motion.button
-                key={key}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => isDelete ? handleDelete() : handleKeypadInput(key)}
-                className={`min-h-[52px] xs:min-h-[56px] sm:min-h-[88px] rounded-2xl text-2xl xs:text-3xl sm:text-[32px] font-bold transition-colors border-3 ${isDelete
-                  ? 'bg-surface-dim text-saffron border-surface-dim'
-                  : 'bg-surface-card text-text-primary border-border-default active:bg-saffron-lt'
-                  }`}
-              >
-                {key}
-              </motion.button>
-            );
-          })}
+        {/* Asymmetric Decorative Element */}
+        <div className="mt-12 flex justify-end opacity-20">
+          <svg className="w-24 h-24 text-[#904d00] transform rotate-12" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 22a7 7 0 007-7c0-2-1-3.5-3-5.5C17.5 7.5 16 4 16 2a1 1 0 00-2 0c0 1.5-1 4-2.5 6.5C10.5 11 9 13 9 15a7 7 0 007 7z" />
+          </svg>
         </div>
       </div>
 
-      {/* Footer CTA - BUG-005 FIX: Use z-50 to stay above overlays */}
-      <footer className="px-4 xs:px-6 pb-8 xs:pb-10 pt-2 xs:pt-3 bg-surface-base/90 backdrop-blur-sm border-t-3 border-border-default shrink-0 relative z-50">
-        {/* BUG-003 FIX: Only show confirmation UI for voice input, not keyboard */}
-        {confirming && !keyboardEntered ? (
-          <div className="space-y-3 xs:space-y-4">
-            <p className="text-center text-xl xs:text-2xl sm:text-[26px] text-text-primary font-bold">क्या यह नंबर सही है?</p>
-            <div className="flex gap-3 xs:gap-4">
-              <motion.button
-                whileTap={{ scale: 0.97 }}
-                onClick={() => {
-                  setConfirming(false);
-                  setMobile('');
-                  updateMobile('');
-                  restartListening();
-                }}
-                className="flex-1 min-h-[52px] xs:min-h-[56px] sm:min-h-[88px] border-3 border-border-default rounded-2xl text-lg xs:text-xl sm:text-[26px] font-bold text-saffron bg-surface-card hover:bg-saffron-lt"
-              >
-                ✗ नहीं
-              </motion.button>
-              <motion.button
-                whileTap={{ scale: 0.97 }}
-                onClick={() => handleSubmit(mobile)}
-                className="flex-1 min-h-[52px] xs:min-h-[56px] sm:min-h-[88px] bg-saffron text-white rounded-2xl text-lg xs:text-xl sm:text-[26px] font-bold shadow-btn-saffron"
-              >
-                ✓ हाँ →
-              </motion.button>
-            </div>
-          </div>
-        ) : (
+      {/* Bottom Action Area */}
+      <footer className="fixed bottom-0 left-0 w-full z-50 pointer-events-none">
+        {/* Floating Action Button for Next */}
+        <div className="max-w-xl mx-auto px-6 mb-24 flex justify-end pointer-events-auto">
           <motion.button
-            whileTap={{ scale: 0.97 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => handleSubmit(mobile)}
             disabled={mobile.length !== 10}
-            onClick={() => {
-              setKeyboardEntered(false);
-              handleSubmit(mobile);
-            }}
-            className={`w-full min-h-[52px] xs:min-h-[56px] sm:min-h-[88px] rounded-2xl flex items-center justify-center text-lg xs:text-xl sm:text-[26px] font-bold transition-all ${mobile.length === 10
-              ? 'bg-saffron text-white shadow-btn-saffron'
-              : 'bg-surface-dim text-saffron cursor-not-allowed'
+            className={`h-16 px-8 rounded-2xl flex items-center gap-3 transition-all ${mobile.length === 10
+              ? 'bg-gradient-to-tr from-[#904d00] to-[#f89100] text-white shadow-lg'
+              : 'bg-[#e4e2dd] text-[#897362] cursor-not-allowed'
               }`}
           >
-            {keyboardEntered ? 'आगे बढ़ें →' : 'OTP भेजें →'}
+            <span className="font-bold text-xl">आगे बढ़ें</span>
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            </svg>
           </motion.button>
-        )}
+        </div>
+
+        {/* Voice-Keyboard Toggle Bar */}
+        <div className="w-full bg-[#e4e2dd] px-6 py-4 flex justify-between items-center pointer-events-auto shadow-[0px_-4px_16px_rgba(144,77,0,0.06)]">
+          <button
+            onClick={handleKeyboardToggle}
+            className={`flex items-center gap-2 font-bold px-4 py-2 rounded-lg transition-colors ${isKeyboardMode
+              ? 'text-[#904d00] bg-[#f0eee8]'
+              : 'text-[#564334] hover:bg-[#f0eee8]'
+              }`}
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <rect x="2" y="4" width="20" height="16" rx="2" strokeWidth={2} />
+              <path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M6 12h.01M10 12h.01M14 12h.01M18 12h.01M7 16h10" strokeWidth={2} />
+            </svg>
+            <span>कीबोर्ड</span>
+          </button>
+          <div className="h-8 w-px bg-[#ddc1ae]/50"></div>
+          <button
+            onClick={() => {
+              setIsKeyboardMode(false);
+              setIsMicOff(false);
+            }}
+            className={`flex items-center gap-2 font-medium px-4 py-2 rounded-lg transition-colors ${!isKeyboardMode
+              ? 'text-[#1b1c19] bg-[#f0eee8]'
+              : 'text-[#564334] hover:bg-[#f0eee8]'
+              }`}
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+            </svg>
+            <span>बोलकर लिखें</span>
+          </button>
+        </div>
       </footer>
     </main>
   );

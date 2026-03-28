@@ -1,15 +1,20 @@
 'use client'
 
+// SSR FIX: Disable static generation for pages using Zustand stores
+export const dynamic = 'force-dynamic'
+
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { speakWithSarvam, stopCurrentSpeech } from '@/lib/sarvam-tts'
-import { useOnboardingStore } from '@/stores/onboardingStore'
+import { useSafeOnboardingStore } from '@/lib/stores/ssr-safe-stores'
 import { LOCATION_PERMISSION_SCREEN } from '@/lib/voice-scripts'
 
 export default function LocationPermissionScreen() {
   const router = useRouter()
-  const { setPhase, setDetectedCity } = useOnboardingStore()
+
+  // SSR FIX: Use safe store hook that doesn't throw during SSR
+  const { setPhase, setDetectedCity } = useSafeOnboardingStore()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const hasSpokenRef = useRef(false)
@@ -55,7 +60,7 @@ export default function LocationPermissionScreen() {
       {/* TopBar */}
       <div className="min-h-[52px] xs:min-h-[56px] sm:min-h-[72px] px-4 xs:px-6 flex items-center justify-between border-b border-outline-variant sticky top-0 bg-surface-base z-50">
         <div className="flex items-center gap-2"><span className="text-2xl xs:text-3xl sm:text-[32px] text-saffron">ॐ</span><h1 className="text-base xs:text-lg sm:text-[20px] font-bold text-text-primary">HmarePanditJi</h1></div>
-        <button onClick={() => {}} className="min-h-[52px] xs:min-h-[56px] sm:min-h-[64px] px-4 xs:px-6 flex items-center gap-2 text-sm xs:text-base sm:text-[20px] font-bold text-text-primary active:opacity-50 focus:ring-2 focus:ring-saffron focus:outline-none border-2 border-border-default rounded-full bg-surface-card"><span>हिन्दी / English</span></button>
+        <button onClick={() => { }} className="min-h-[52px] xs:min-h-[56px] sm:min-h-[64px] px-4 xs:px-6 flex items-center gap-2 text-sm xs:text-base sm:text-[20px] font-bold text-text-primary active:opacity-50 focus:ring-2 focus:ring-saffron focus:outline-none border-2 border-border-default rounded-full bg-surface-card"><span>हिन्दी / English</span></button>
       </div>
 
       {/* Illustration */}

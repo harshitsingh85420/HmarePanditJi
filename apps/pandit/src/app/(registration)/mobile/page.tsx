@@ -1,12 +1,12 @@
 'use client'
 
+// SSR FIX: Disable static generation for pages using Zustand stores
+export const dynamic = 'force-dynamic'
+
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useRegistrationStore } from '@/stores/registrationStore'
-import { useVoiceStore } from '@/stores/voiceStore'
-import { useUIStore } from '@/stores/uiStore'
-import { useNavigationStore } from '@/stores/navigationStore'
+import { useSafeRegistrationStore, useSafeVoiceStore, useSafeUIStore, useSafeNavigationStore } from '@/lib/stores/ssr-safe-stores'
 import { useSarvamVoiceFlow } from '@/lib/hooks/useSarvamVoiceFlow'
 import { speakWithSarvam, stopCurrentSpeech } from '@/lib/sarvam-tts'
 import { ConfirmationSheet } from '@/components/voice/ConfirmationSheet'
@@ -163,15 +163,20 @@ function normalizeMobile(transcript: string): string {
 
 export default function MobileNumberScreen() {
   const router = useRouter()
-  const { setMobile, setCurrentStep, markStepComplete } = useRegistrationStore()
-  const { setSessionSaveNotice } = useUIStore()
-  const { navigate, setSection } = useNavigationStore()
-  const { transcribedText, confidence, resetErrors, switchToKeyboard, errorCount, incrementError } = useVoiceStore()
+
+  // SSR FIX: Use safe store hooks that don't throw during SSR
+  const { setMobile, setCurrentStep, markStepComplete } = useSafeRegistrationStore()
+  const { setSessionSaveNotice } = useSafeUIStore()
+  const { navigate, setSection } = useSafeNavigationStore()
+  const { transcribedText, confidence, resetErrors, switchToKeyboard, errorCount, incrementError } = useSafeVoiceStore()
+
+  // SSR FIX: Use safe store hook that returns full store object
+  const { data } = useSafeRegistrationStore()
 
   // BUG-001 CRITICAL FIX: Initialize from store DIRECTLY, not empty string
   // This prevents the race condition where component mounts with empty mobile
   // and user sees flash of empty field on back navigation
-  const storedMobile = useRegistrationStore(state => state.data.mobile);
+  const storedMobile = data.mobile;
   const [mobile, setMobileLocal] = useState(storedMobile || '')
   const [showConfirm, setShowConfirm] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -235,6 +240,8 @@ export default function MobileNumberScreen() {
       try {
         if (mobile && mobile.length > 0) {
           setMobile(mobile)
+          // SSR FIX: Use require to access store on client only
+          const { useRegistrationStore } = require('@/stores/registrationStore')
           const currentState = useRegistrationStore.getState().data
           const newData = { ...currentState, mobile, lastSavedAt: Date.now() }
           localStorage.setItem('hpj-registration', JSON.stringify({ data: newData }))
@@ -257,6 +264,8 @@ export default function MobileNumberScreen() {
     try {
       if (mobile && mobile.length > 0) {
         setMobile(mobile)
+        // SSR FIX: Use require to access store on client only
+        const { useRegistrationStore } = require('@/stores/registrationStore')
         const currentState = useRegistrationStore.getState().data
         const newData = { ...currentState, mobile, lastSavedAt: Date.now() }
         localStorage.setItem('hpj-registration', JSON.stringify({ data: newData }))
@@ -360,6 +369,8 @@ export default function MobileNumberScreen() {
 
       // CRITICAL: Force immediate localStorage write before any async operations
       try {
+        // SSR FIX: Use require to access store on client only
+        const { useRegistrationStore } = require('@/stores/registrationStore')
         const currentState = useRegistrationStore.getState().data
         const newData = { ...currentState, mobile, lastSavedAt: Date.now() }
         localStorage.setItem('hpj-registration', JSON.stringify({ data: newData }))
@@ -423,6 +434,8 @@ export default function MobileNumberScreen() {
     // This ensures back navigation works even if Zustand persist is slow
     if (digits.length > 0) {
       try {
+        // SSR FIX: Use require to access store on client only
+        const { useRegistrationStore } = require('@/stores/registrationStore')
         const currentState = useRegistrationStore.getState().data
         const newData = { ...currentState, mobile: digits, lastSavedAt: Date.now() }
         localStorage.setItem('hpj-registration', JSON.stringify({ data: newData }))

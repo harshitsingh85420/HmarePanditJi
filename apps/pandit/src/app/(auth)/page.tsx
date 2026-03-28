@@ -1,14 +1,19 @@
 'use client'
 
+// SSR FIX: Disable static generation for pages using Zustand stores
+export const dynamic = 'force-dynamic'
+
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { useEffect, useRef } from 'react'
 import { speakWithSarvam } from '@/lib/sarvam-tts'
-import { useOnboardingStore } from '@/stores/onboardingStore'
+import { useSafeOnboardingStore } from '@/lib/stores/ssr-safe-stores'
 
 export default function SplashScreen() {
   const router = useRouter()
-  const { setPhase } = useOnboardingStore()
+
+  // SSR FIX: Use safe store hook that doesn't throw during SSR
+  const { setPhase } = useSafeOnboardingStore()
   const hasNavigated = useRef(false)
 
   useEffect(() => {

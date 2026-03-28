@@ -105,3 +105,31 @@ export function getErrorCount(): number {
     return 0
   }
 }
+
+// SSR-Safe getter - use this in server-side code or during hydration
+export function getVoiceStoreState() {
+  if (typeof window === 'undefined') {
+    return {
+      state: 'idle' as const,
+      transcribedText: '',
+      confidence: 0,
+      currentQuestion: '',
+      errorCount: 0,
+      ambientNoiseLevel: 0,
+      isKeyboardMode: false,
+    }
+  }
+  try {
+    return useVoiceStore.getState()
+  } catch {
+    return {
+      state: 'idle' as const,
+      transcribedText: '',
+      confidence: 0,
+      currentQuestion: '',
+      errorCount: 0,
+      ambientNoiseLevel: 0,
+      isKeyboardMode: false,
+    }
+  }
+}

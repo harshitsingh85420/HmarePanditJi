@@ -1,13 +1,14 @@
 ﻿'use client'
 
+// SSR FIX: Disable static generation for pages using Zustand stores
+export const dynamic = 'force-dynamic'
+
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { useRegistrationStore } from '@/stores/registrationStore'
+import { useSafeRegistrationStore, useSafeNavigationStore, useSafeVoiceStore } from '@/lib/stores/ssr-safe-stores'
 import { useSarvamVoiceFlow } from '@/lib/hooks/useSarvamVoiceFlow'
 import { speakWithSarvam, stopCurrentSpeech } from '@/lib/sarvam-tts'
-import { useNavigationStore } from '@/stores/navigationStore'
-import { useVoiceStore } from '@/stores/voiceStore'
 import { listenOnce } from '@/lib/deepgram-stt'
 
 // Analytics logger for profile voice events
@@ -28,9 +29,11 @@ function logProfileAnalytics(event: {
 
 export default function ProfileDetails() {
   const router = useRouter()
-  const { data, setName, setCurrentStep, markStepComplete } = useRegistrationStore()
-  const { navigate, setSection, canNavigateBack, goBack } = useNavigationStore()
-  const { switchToKeyboard } = useVoiceStore() // eslint-disable-line @typescript-eslint/no-unused-vars
+
+  // SSR FIX: Use safe store hooks that don't throw during SSR
+  const { data, setName, setCurrentStep, markStepComplete } = useSafeRegistrationStore()
+  const { navigate, setSection, canNavigateBack, goBack } = useSafeNavigationStore()
+  const { switchToKeyboard } = useSafeVoiceStore() // eslint-disable-line @typescript-eslint/no-unused-vars
 
   // BUG-015 FIX: Initialize from persisted store for back-navigation/refresh survival
   const [fullName, setFullName] = useState(() => data.name || '')

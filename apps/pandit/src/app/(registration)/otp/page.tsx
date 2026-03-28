@@ -1,11 +1,12 @@
 'use client'
 
+// SSR FIX: Disable static generation for pages using Zustand stores
+export const dynamic = 'force-dynamic'
+
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useRegistrationStore } from '@/stores/registrationStore'
-import { useVoiceStore } from '@/stores/voiceStore'
-import { useNavigationStore } from '@/stores/navigationStore'
+import { useSafeRegistrationStore, useSafeVoiceStore, useSafeNavigationStore } from '@/lib/stores/ssr-safe-stores'
 import { speakWithSarvam, stopCurrentSpeech } from '@/lib/sarvam-tts'
 import { ConfirmationSheet } from '@/components/voice/ConfirmationSheet'
 import { ErrorOverlay } from '@/components/voice/ErrorOverlay'
@@ -28,9 +29,11 @@ function normalizeOTP(transcript: string): string {
 
 export default function OTPScreen() {
   const router = useRouter()
-  const { data, setOtp, markStepComplete, setCurrentStep } = useRegistrationStore()
-  const { navigate, setSection } = useNavigationStore()
-  const { resetErrors, switchToKeyboard, setState: setVoiceState } = useVoiceStore()
+
+  // SSR FIX: Use safe store hooks that don't throw during SSR
+  const { data, setOtp, markStepComplete, setCurrentStep } = useSafeRegistrationStore()
+  const { navigate, setSection } = useSafeNavigationStore()
+  const { resetErrors, switchToKeyboard, setState: setVoiceState } = useSafeVoiceStore()
 
   const [otp, setOtpLocal] = useState<string[]>(() => {
     if (data.otp && data.otp.length === 6) {

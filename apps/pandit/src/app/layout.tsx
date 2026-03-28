@@ -1,6 +1,12 @@
 import type { Metadata, Viewport } from 'next'
 import { Hind } from 'next/font/google'
 import './globals.css'
+import dynamic from 'next/dynamic'
+
+// SSR FIX: Load StoreHydration only on client to prevent localStorage access during SSR
+const StoreHydrationClient = dynamic(() => import('@/components/StoreHydrationClient').then(mod => mod.StoreHydrationClient), {
+  ssr: false,
+})
 
 const hind = Hind({
   subsets: ['latin', 'devanagari'],
@@ -41,6 +47,8 @@ export default function RootLayout({
         <meta name="mobile-web-app-capable" content="yes" />
       </head>
       <body className="font-hind bg-vedic-cream text-vedic-brown antialiased" suppressHydrationWarning>
+        {/* SSR FIX: Hydrate Zustand persist stores after initial render - CLIENT SIDE ONLY */}
+        <StoreHydrationClient />
         <div className="relative mx-auto w-full max-w-[430px] min-h-screen overflow-x-hidden">
           {children}
         </div>

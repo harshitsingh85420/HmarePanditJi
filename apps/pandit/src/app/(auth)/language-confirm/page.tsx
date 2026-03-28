@@ -1,21 +1,33 @@
 'use client'
 
+// SSR FIX: Disable static generation for pages using Zustand stores
+export const dynamic = 'force-dynamic'
+
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { speakWithSarvam } from '@/lib/sarvam-tts'
-import { useOnboardingStore } from '@/stores/onboardingStore'
-import { LANGUAGE_DISPLAY } from '@/lib/onboarding-store'
+import { useSafeOnboardingStore } from '@/lib/stores/ssr-safe-stores'
+import { LANGUAGE_DISPLAY, type SupportedLanguage } from '@/lib/onboarding-store'
+import { LANGUAGE_CHOICE_CONFIRM_SCREEN, replaceScriptPlaceholders } from '@/lib/voice-scripts'
 
 export default function LanguageConfirmScreen() {
   const router = useRouter()
-  const { pendingLanguage, setPhase, setSelectedLanguage } = useOnboardingStore()
-  const langInfo = LANGUAGE_DISPLAY[pendingLanguage || 'Hindi']
+
+  // SSR FIX: Use safe store hook that doesn't throw during SSR
+  const { pendingLanguage, setPhase, setSelectedLanguage } = useSafeOnboardingStore()
+  const langInfo = LANGUAGE_DISPLAY[(pendingLanguage || 'Hindi') as SupportedLanguage]
 
   useEffect(() => {
+    const script = replaceScriptPlaceholders(
+      LANGUAGE_CHOICE_CONFIRM_SCREEN.scripts.main,
+      { LANGUAGE: langInfo.latinName }
+    )
+
     void speakWithSarvam({
-      text: `आपने ${langInfo.latinName} चुनी। क्या यह सही है? 'हाँ' बोलें।`,
+      text: script.hindi,
       languageCode: 'hi-IN',
+      pace: 0.90,
     })
   }, [langInfo])
 
@@ -23,12 +35,15 @@ export default function LanguageConfirmScreen() {
     if (pendingLanguage) {
       setSelectedLanguage(pendingLanguage)
       setPhase('LANGUAGE_SET')
-      void speakWithSarvam({ text: 'बहुत अच्छा! भाषा सेट हो रही है।', languageCode: 'hi-IN' })
+      const yesScript = LANGUAGE_CHOICE_CONFIRM_SCREEN.scripts.onYesConfirmed
+      void speakWithSarvam({ text: yesScript?.hindi ?? 'बहुत अच्छा।', languageCode: 'hi-IN' })
       setTimeout(() => router.push('/language-set'), 500)
     }
   }
 
   const handleChange = () => {
+    const noScript = LANGUAGE_CHOICE_CONFIRM_SCREEN.scripts.onNoSaid
+    void speakWithSarvam({ text: noScript?.hindi ?? 'ठीक है, फिर से चुनते हैं।', languageCode: 'hi-IN' })
     router.push('/language-list')
   }
 
@@ -37,17 +52,62 @@ export default function LanguageConfirmScreen() {
       {/* Top Bar */}
       <header className="min-h-[52px] xs:min-h-[56px] sm:min-h-[72px] px-4 xs:px-6 flex items-center justify-between border-b border-border-default">
         <button onClick={handleChange} className="min-h-[52px] xs:min-h-[56px] min-w-[52px] xs:min-w-[56px] p-2 hover:bg-black/5 rounded-full" aria-label="Go back"><svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" /></svg></button>
-        <button onClick={() => {}} className="min-h-[52px] xs:min-h-[56px] min-w-[52px] xs:min-w-[56px] text-2xl active:opacity-50">🌐</button>
+        <button onClick={() => { }} className="min-h-[52px] xs:min-h-[56px] min-w-[52px] xs:min-w-[56px] text-2xl active:opacity-50">🌐</button>
       </header>
 
       {/* Content */}
       <div className="flex-1 flex flex-col items-center justify-center px-4 xs:px-6 py-6 xs:py-8">
         {/* Language Card */}
-        <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.7, type: 'spring' }} className="space-y-4 xs:space-y-6 text-center">
-          <div className="text-6xl xs:text-7xl sm:text-8xl">{langInfo.scriptChar}</div>
-          <div>
-            <h1 className="text-4xl xs:text-5xl sm:text-[56px] font-bold text-saffron leading-tight">{langInfo.nativeName}</h1>
-            <p className="text-lg xs:text-xl sm:text-[24px] font-normal text-text-secondary mt-2">{langInfo.latinName}</p>
+        <motion.div
+          initial={{ scale: 0.5, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.8, type: 'spring', bounce: 0.4 }}
+          className="flex flex-col items-center gap-6 xs:gap-8"
+        >
+          {/* Glow Effect Behind Emoji */}
+          <div className="relative">
+            <div className="absolute inset-0 bg-saffron/20 blur-3xl rounded-full animate-pulse" />
+            <motion.span
+              className="relative text-7xl xs:text-8xl sm:text-9xl"
+              initial={{ y: -50, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.3, type: 'spring', bounce: 0.5 }}
+            >
+              {langInfo.emoji}
+            </motion.span>
+          </div>
+
+          {/* Language Display */}
+          <div className="text-center space-y-3 xs:space-y-4">
+            {/* Short Name (Hero) */}
+            <motion.h1
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.4 }}
+              className="text-5xl xs:text-6xl sm:text-[72px] font-bold text-saffron leading-tight"
+            >
+              {langInfo.shortName}
+            </motion.h1>
+
+            {/* Script Character */}
+            <motion.p
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.5 }}
+              className="text-2xl xs:text-3xl text-vedic-gold"
+            >
+              {langInfo.scriptChar}
+            </motion.p>
+
+            {/* Full Native Name */}
+            <motion.p
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.6 }}
+              className="text-lg xs:text-xl text-text-secondary mt-4"
+            >
+              {langInfo.nativeName}
+            </motion.p>
           </div>
         </motion.div>
 

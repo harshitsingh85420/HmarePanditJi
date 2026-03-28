@@ -1,11 +1,12 @@
 'use client'
 
+// SSR FIX: Disable static generation for pages using Zustand stores
+export const dynamic = 'force-dynamic'
+
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
-import { useRegistrationStore } from '@/stores/registrationStore'
-import { useNavigationStore } from '@/stores/navigationStore'
-import { useVoiceStore } from '@/stores/voiceStore'
+import { useSafeRegistrationStore, useSafeNavigationStore, useSafeVoiceStore } from '@/lib/stores/ssr-safe-stores'
 import TopBar from '@/components/TopBar'
 import { speakWithSarvam } from '@/lib/sarvam-tts'
 import { startListeningWithSarvam, type VoiceEngineConfig } from '@/lib/voice-engine'
@@ -26,8 +27,10 @@ const itemVariants = {
 
 export default function IdentityConfirmationPage() {
   const router = useRouter()
-  const { setSection } = useNavigationStore()
-  const { transcribedText, resetErrors } = useVoiceStore()
+
+  // SSR FIX: Use safe store hooks that don't throw during SSR
+  const { setSection } = useSafeNavigationStore()
+  const { transcribedText, resetErrors } = useSafeVoiceStore()
   const [isListening, setIsListening] = useState(false)
   const [confirmed, setConfirmed] = useState(false)
 

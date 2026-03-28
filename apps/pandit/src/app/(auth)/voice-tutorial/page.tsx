@@ -1,14 +1,19 @@
 'use client'
 
+// SSR FIX: Disable static generation for pages using Zustand stores
+export const dynamic = 'force-dynamic'
+
 import React, { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { speakWithSarvam, stopCurrentSpeech } from '@/lib/sarvam-tts'
 import { useRouter } from 'next/navigation'
-import { useOnboardingStore } from '@/stores/onboardingStore'
+import { useSafeOnboardingStore } from '@/lib/stores/ssr-safe-stores'
 
 export default function VoiceTutorialPage() {
   const router = useRouter()
-  const { phase, setPhase } = useOnboardingStore()
+
+  // SSR FIX: Use safe store hook that doesn't throw during SSR
+  const { phase, setPhase } = useSafeOnboardingStore()
   const [isListening, setIsListening] = useState(false)
   const [hasInteracted, setHasInteracted] = useState(false)
 

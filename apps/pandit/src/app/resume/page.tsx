@@ -1,10 +1,12 @@
 ﻿'use client'
 
+// SSR FIX: Disable static generation for pages using Zustand stores
+export const dynamic = 'force-dynamic'
+
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { useRegistrationStore } from '@/stores/registrationStore'
-import { useNavigationStore } from '@/stores/navigationStore'
+import { useSafeRegistrationStore, useSafeNavigationStore } from '@/lib/stores/ssr-safe-stores'
 import { speakWithSarvam } from '@/lib/sarvam-tts'
 
 const STEP_LABELS: Record<string, { title: string; subtitle: string; icon: string }> = {
@@ -49,8 +51,10 @@ function getNextIncompleteStep(data: any): string | null {
 
 export default function ResumeRegistrationScreen() {
   const router = useRouter()
-  const { data, reset } = useRegistrationStore()
-  const { navigate, setSection } = useNavigationStore()
+
+  // SSR FIX: Use safe store hooks that don't throw during SSR
+  const { data, reset } = useSafeRegistrationStore()
+  const { navigate, setSection } = useSafeNavigationStore()
 
   useEffect(() => {
     navigate('/resume', 'part1-registration')
@@ -100,7 +104,7 @@ export default function ResumeRegistrationScreen() {
     router.push('/onboarding')
   }
 
-  const completedCount = data.completedSteps.filter(s => ['mobile', 'otp', 'profile'].includes(s)).length
+  const completedCount = data.completedSteps.filter((s: string) => ['mobile', 'otp', 'profile'].includes(s)).length
   const totalSteps = 3
   const progressPercent = Math.round((completedCount / totalSteps) * 100)
 
@@ -176,8 +180,8 @@ export default function ResumeRegistrationScreen() {
           </h2>
           <div className="space-y-3">
             {data.completedSteps
-              .filter(step => ['mobile', 'otp', 'profile'].includes(step))
-              .map((step) => {
+              .filter((step: string) => ['mobile', 'otp', 'profile'].includes(step))
+              .map((step: string) => {
                 const stepInfo = STEP_LABELS[step]
                 if (!stepInfo) return null
                 return (

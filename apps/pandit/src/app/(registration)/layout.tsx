@@ -5,14 +5,16 @@ import { useSession } from '@/hooks/useSession'
 import { useNetwork } from '@/hooks/useNetwork'
 import { SessionTimeoutSheet } from '@/components/overlays/SessionTimeout'
 import { NetworkBanner } from '@/components/overlays/NetworkBanner'
-import { useUIStore } from '@/stores/uiStore'
-import { useRegistrationStore } from '@/stores/registrationStore'
-import { useNavigationStore } from '@/stores/navigationStore'
+import { useSafeUIStore, useSafeRegistrationStore, useSafeNavigationStore } from '@/lib/stores/ssr-safe-stores'
 import LanguageBottomSheet from '@/components/LanguageBottomSheet'
 import { HelpButton } from '@/components/HelpButton'
 import { SupportedLanguage, loadOnboardingState } from '@/lib/onboarding-store'
 import { LANGUAGE_TO_BCP47 } from '@/lib/voice-engine'
 import { stopSpeaking } from '@/lib/voice-engine'
+import { useHydration } from '@/hooks/useHydration'
+
+// SSR FIX: Disable static generation for pages using Zustand stores
+export const dynamic = 'force-dynamic'
 
 /**
  * Error Boundary for Registration Layout
@@ -50,20 +52,25 @@ function RegistrationErrorBoundary({
 export default function RegistrationLayout({ children }: { children: React.ReactNode }) {
   useSession()
   useNetwork()
-  const { goBack } = useNavigationStore()
+  const hydrated = useHydration()
   const [isMounted, setIsMounted] = useState(false)
   const [hasError, setHasError] = useState(false)
   const [error, setError] = useState<Error | null>(null)
-  const { showSessionTimeout } = useUIStore()
-  const { data } = useRegistrationStore()
+
+  // SSR FIX: Use safe store hooks that don't throw during SSR
+  const { showSessionTimeout } = useSafeUIStore()
+  const { goBack } = useSafeNavigationStore()
+  const { data } = useSafeRegistrationStore()
 
   // Fix hydration: Only render after mount
   useEffect(() => {
     setIsMounted(true)
   }, [])
 
-  // Browser back button handling for registration flow
+  // Browser back button handling for registration flow - only after hydration
   useEffect(() => {
+    if (!hydrated) return
+
     const handlePopState = () => {
       console.log('[RegistrationLayout] Back button pressed')
       // Stop any active voice recognition
@@ -74,15 +81,14 @@ export default function RegistrationLayout({ children }: { children: React.React
       if (previousPath) {
         console.log('[RegistrationLayout] Navigating back to:', previousPath)
       }
-      // If no previous path, allow default browser back
     }
 
     window.addEventListener('popstate', handlePopState)
     return () => {
       window.removeEventListener('popstate', handlePopState)
-      stopSpeaking() // Cleanup on unmount
+      stopSpeaking()
     }
-  }, [goBack])
+  }, [goBack, hydrated])
 
   // Simple error boundary using error event listener
   useEffect(() => {
@@ -115,6 +121,8 @@ export default function RegistrationLayout({ children }: { children: React.React
       const bcp47Code = LANGUAGE_TO_BCP47[onboardingState.selectedLanguage] || 'hi'
       // Convert BCP-47 code to registration store format (e.g., 'hi-IN' -> 'hi')
       const langCode = bcp47Code.split('-')[0]
+      // SSR FIX: Use safe store reference
+      const { useRegistrationStore } = require('@/stores/registrationStore')
       useRegistrationStore.getState().setLanguage(langCode)
     }
   }, [])

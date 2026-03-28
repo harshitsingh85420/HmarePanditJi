@@ -1,10 +1,14 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 
+// SSR FIX: Check if we're on client side before accessing localStorage
+const isClient = typeof window !== 'undefined'
+
 // BUG-024 FIX: Custom storage wrapper that handles QuotaExceededError gracefully
 const createSafeLocalStorage = () => {
   return {
     getItem: (key: string) => {
+      if (!isClient) return null
       try {
         return localStorage.getItem(key)
       } catch (error) {
@@ -14,6 +18,7 @@ const createSafeLocalStorage = () => {
       }
     },
     setItem: (key: string, value: string) => {
+      if (!isClient) return
       try {
         localStorage.setItem(key, value)
       } catch (error) {
@@ -27,6 +32,7 @@ const createSafeLocalStorage = () => {
       }
     },
     removeItem: (key: string) => {
+      if (!isClient) return
       try {
         localStorage.removeItem(key)
       } catch (error) {
@@ -67,6 +73,7 @@ interface NavigationState {
 
 // ARCH-004 FIX: Add persist middleware to navigation store
 // This ensures navigation state survives page reloads/browser restarts
+// SSR FIX: Use skipHydration to prevent localStorage access during SSR
 export const useNavigationStore = create<NavigationState>()(
   persist(
     (set, get) => ({
@@ -159,9 +166,35 @@ export const useNavigationStore = create<NavigationState>()(
         currentSection: state.currentSection,
         forwardHistory: state.forwardHistory,
       }),
+      // SSR FIX: Skip hydration on server, will hydrate on client
+      skipHydration: true,
     }
   )
 )
+
+// SSR-Safe getter - use this in server-side code or during hydration
+export function getNavigationStoreState() {
+  if (!isClient) {
+    return {
+      history: [],
+      currentSection: 'homepage' as AppSection,
+      canGoBack: false,
+      canGoForward: false,
+      forwardHistory: [],
+    }
+  }
+  try {
+    return useNavigationStore.getState()
+  } catch {
+    return {
+      history: [],
+      currentSection: 'homepage' as AppSection,
+      canGoBack: false,
+      canGoForward: false,
+      forwardHistory: [],
+    }
+  }
+}
 
 // Helper to determine section from path
 export function getSectionFromPath(pathname: string): AppSection {

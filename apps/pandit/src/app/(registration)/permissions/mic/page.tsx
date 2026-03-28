@@ -1,5 +1,8 @@
 'use client'
 
+// SSR FIX: Disable static generation for pages using Zustand stores
+export const dynamic = 'force-dynamic'
+
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useRouter } from 'next/navigation'

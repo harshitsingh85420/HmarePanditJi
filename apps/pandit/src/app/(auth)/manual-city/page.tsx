@@ -1,10 +1,13 @@
 'use client'
 
+// SSR FIX: Disable static generation for pages using Zustand stores
+export const dynamic = 'force-dynamic'
+
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { speakWithSarvam, stopCurrentSpeech } from '@/lib/sarvam-tts'
-import { useOnboardingStore } from '@/stores/onboardingStore'
+import { useSafeOnboardingStore } from '@/lib/stores/ssr-safe-stores'
 import { MANUAL_CITY_SCREEN } from '@/lib/voice-scripts'
 import { CITY_LANGUAGE_MAP } from '@/lib/onboarding-store'
 
@@ -12,7 +15,9 @@ const POPULAR_CITIES = ['Varanasi', 'Delhi', 'Lucknow', 'Patna', 'Haridwar', 'Ri
 
 export default function ManualCityScreen() {
   const router = useRouter()
-  const { setPhase, setDetectedCity, setSelectedLanguage } = useOnboardingStore()
+
+  // SSR FIX: Use safe store hook that doesn't throw during SSR
+  const { setPhase, setDetectedCity, setSelectedLanguage } = useSafeOnboardingStore()
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCity, setSelectedCity] = useState<string | null>(null)
   const [isConfirming, setIsConfirming] = useState(false)
@@ -73,7 +78,7 @@ export default function ManualCityScreen() {
             <path d="m15 18-6-6 6-6"></path>
           </svg>
         </button>
-        <button onClick={() => {}} aria-label="भाषा बदलें" className="min-h-[52px] xs:min-h-[56px] sm:min-h-[72px] px-4 xs:px-6 flex items-center gap-2 xs:gap-3 text-lg xs:text-xl sm:text-[24px] font-bold font-body text-text-primary active:opacity-50 focus:ring-4 focus:ring-saffron focus:outline-none border-3 border-border-default rounded-2xl bg-surface-card hover:bg-surface-muted transition-colors shadow-card"><span>हिन्दी</span><span className="text-lg xs:text-xl sm:text-[24px] text-text-secondary">/</span><span>English</span></button>
+        <button onClick={() => { }} aria-label="भाषा बदलें" className="min-h-[52px] xs:min-h-[56px] sm:min-h-[72px] px-4 xs:px-6 flex items-center gap-2 xs:gap-3 text-lg xs:text-xl sm:text-[24px] font-bold font-body text-text-primary active:opacity-50 focus:ring-4 focus:ring-saffron focus:outline-none border-3 border-border-default rounded-2xl bg-surface-card hover:bg-surface-muted transition-colors shadow-card"><span>हिन्दी</span><span className="text-lg xs:text-xl sm:text-[24px] text-text-secondary">/</span><span>English</span></button>
       </div>
 
       {/* Content */}
