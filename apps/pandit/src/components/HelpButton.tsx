@@ -47,7 +47,7 @@ export function HelpButton({ onClick, isVisible = true }: HelpButtonProps) {
       animate={{ scale: 1, opacity: 1 }}
       whileTap={{ scale: 0.95 }}
       onClick={handleHelpClick}
-      className="fixed bottom-24 right-4 w-16 h-16 bg-saffron text-white rounded-full shadow-lg z-40 flex items-center justify-center focus:ring-4 focus:ring-saffron/50 focus:outline-none saffron-glow-active"
+      className="fixed bottom-6 left-4 w-14 h-14 bg-saffron text-white rounded-full shadow-lg z-40 flex items-center justify-center focus:ring-4 focus:ring-saffron/50 focus:outline-none"
       aria-label="सहायता - Help"
       title="सहायता - Help"
     >

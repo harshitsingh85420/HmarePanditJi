@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx vercel:*)",
+      "Bash(pnpm turbo:*)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(find /c/Users/ss -name auth.json -path *vercel*)",
+      "Bash(ls C:/Users/ss/Documents/HmarePanditJi/apps/pandit/src/app/'\\(auth\\)'/page.tsx)"
+    ]
+  }
+}

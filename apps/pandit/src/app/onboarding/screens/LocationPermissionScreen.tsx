@@ -2,8 +2,6 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { speakWithSarvam, stopCurrentSpeech } from '@/lib/sarvam-tts';
-import { useSarvamVoiceFlow } from '@/lib/hooks/useSarvamVoiceFlow';
 import type { SupportedLanguage } from '@/lib/onboarding-store';
 
 interface LocationPermissionScreenProps {
@@ -17,78 +15,23 @@ interface LocationPermissionScreenProps {
 
 export default function LocationPermissionScreen({
   language,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onLanguageChange,
   onGranted,
   onDenied,
   onBack,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   showBack = true
 }: LocationPermissionScreenProps) {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [keyboardMode, setKeyboardMode] = useState(false);
-  const isMountedRef = React.useRef(true);
-
-  // Voice flow for location permission screen
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { voiceFlowState } = useSarvamVoiceFlow({
-    language,
-    script: 'नमस्ते पंडित जी। मैं आपका शहर जानना चाहता हूँ। लोकेशन अनुमति दें या हाथ से चुनें।',
-    repromptScript: 'लोकेशन अनुमति दें या "कीबोर्ड" बोलें।',
-    initialDelayMs: 800,
-    pauseAfterMs: 1000,
-    autoListen: !keyboardMode,
-    onIntent: (intentOrRaw) => {
-      if (!isMountedRef.current) return;
-
-      const lower = intentOrRaw.toLowerCase();
-
-      // Check for keyboard fallback request
-      if (lower.includes('keyboard') || lower.includes('कीबोर्ड') || lower.includes('type') || lower.includes('टाइप')) {
-        setKeyboardMode(true);
-        return;
-      }
-
-      // Check for yes/allow
-      if (lower.includes('haan') || lower.includes('ha') || lower.includes('yes') || lower.includes('sahi') || lower.includes('allow') || lower.includes('deen')) {
-        handleAllowClick();
-      }
-      // Check for no/deny
-      else if (lower.includes('nahi') || lower.includes('no') || lower.includes('nahin') || lower.includes('mat') || lower.includes('chhoden')) {
-        onDenied();
-      }
-    },
-    onNoiseHigh: () => {
-      setKeyboardMode(true);
-    },
-  });
-
-  useEffect(() => {
-    isMountedRef.current = true;
-    const timer = setTimeout(() => {
-      if (isMountedRef.current && !keyboardMode) {
-        void speakWithSarvam({
-          text: 'नमस्ते पंडित जी। मैं आपका शहर जानना चाहता हूँ।',
-          languageCode: 'hi-IN',
-        });
-      }
-    }, 500);
-
-    return () => {
-      isMountedRef.current = false;
-      clearTimeout(timer);
-      stopCurrentSpeech();
-    };
-  }, [keyboardMode]);
 
   const handleAllowClick = () => {
     setLoading(true);
     setError(null);
+
     if (!navigator.geolocation) {
-      setError("Geolocation is not supported by your browser");
-      onDenied();
+      setError('Geolocation not supported');
+      setTimeout(() => onDenied(), 2000);
       return;
     }
 
@@ -97,152 +40,214 @@ export default function LocationPermissionScreen({
         try {
           const { latitude, longitude } = position.coords;
           const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`);
-          if (!res.ok) throw new Error("Reverse geocode failed");
+          if (!res.ok) throw new Error('Reverse geocode failed');
 
           const data = await res.json();
-          const city = data.address.city || data.address.town || data.address.village || 'Unknown City';
-          const stateStr = data.address.state || 'Unknown State';
+          const city = data.address.city || data.address.town || data.address.village || 'Unknown';
+          const stateStr = data.address.state || 'Unknown';
 
           onGranted(city, stateStr);
         } catch (e) {
           console.error(e);
           setError('शहर पहचानने में समस्या हुई। कृपया हाथ से चुनें।');
-          setTimeout(() => {
-            onDenied();
-          }, 2000);
+          setTimeout(() => onDenied(), 2000);
         } finally {
           setLoading(false);
         }
       },
       (error) => {
-        console.warn("Location denied:", error);
+        console.warn('Location denied:', error);
         setError('लोकेशन अनुमति नहीं दी गई। कृपया हाथ से चुनें।');
-        setTimeout(() => {
-          onDenied();
-        }, 2000);
+        setTimeout(() => onDenied(), 2000);
       },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0
-      }
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
   };
 
   return (
     <main className="font-body min-h-screen flex flex-col bg-[#fbf9f3]">
-      {/* Top Navigation Placeholder */}
-      <header className="flex justify-between items-center px-6 py-4 w-full sticky top-0 z-50 bg-[#fbf9f3]">
-        <div className="font-serif text-[#904d00] text-xl font-bold">Sujatam</div>
-        <button
+      {/* Header */}
+      <motion.header
+        className="flex justify-between items-center px-6 py-4 w-full sticky top-0 z-50 bg-[#fbf9f3]"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+      >
+        <motion.span
+          className="font-serif text-[#904d00] text-xl font-bold"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+        >
+          Sujatam
+        </motion.span>
+        <motion.button
           onClick={onBack}
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          transition={{ delay: 0.3 }}
           className="h-8 w-8 rounded-full bg-[#eae8e2] flex items-center justify-center hover:bg-[#e4e2dd] transition-colors"
           aria-label="Close"
         >
           <svg className="w-5 h-5 text-[#904d00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
-        </button>
-      </header>
+        </motion.button>
+      </motion.header>
 
       <div className="flex-1 flex flex-col px-8 pb-10 max-w-lg mx-auto w-full">
-        {/* Hero Illustration Section */}
-        <div className="relative w-full aspect-square max-h-[300px] flex items-center justify-center mb-10 overflow-hidden">
-          {/* Decorative Background Glow */}
-          <div className="absolute w-64 h-64 bg-[#ff8c00]/10 rounded-full blur-3xl"></div>
+        {/* Map Illustration */}
+        <motion.div
+          className="relative w-full aspect-square max-h-[280px] flex items-center justify-center mb-8"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
+        >
+          {/* Background Glow */}
+          <motion.div
+            className="absolute w-56 h-56 bg-[#ff8c00]/10 rounded-full blur-3xl"
+            animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
+            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+          />
 
-          <div className="relative w-full h-full flex items-center justify-center">
-            {/* India Map Outline Placeholder */}
-            <div className="relative w-4/5 h-4/5">
-              <img
-                className="w-full h-full object-contain opacity-40 grayscale sepia brightness-110"
-                alt="Minimalist flat map of India with saffron highlights"
-                src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/India_location_map.svg/570px-India_location_map.svg.png"
+          <div className="relative w-4/5 h-4/5">
+            {/* Inline SVG Map of India - Better Outline */}
+            <svg
+              className="w-full h-full opacity-40 grayscale sepia brightness-110"
+              viewBox="0 0 200 240"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              {/* India Outline - Simplified but recognizable */}
+              <path
+                d="M75 35C80 30 90 25 100 25C110 25 120 30 125 35C130 40 135 45 138 52C140 58 142 65 142 72C142 78 140 82 138 86C135 90 132 95 130 100C128 105 126 110 126 118C126 125 128 132 132 138C136 144 140 150 142 158C144 165 143 172 140 178C137 184 132 188 126 192C120 196 115 200 112 205C110 210 108 215 105 218C102 220 98 220 95 218C92 215 90 210 88 205C85 200 80 196 74 192C68 188 63 184 60 178C57 172 56 165 58 158C60 150 64 144 68 138C72 132 74 125 74 118C74 110 72 105 70 100C68 95 65 90 62 86C60 82 58 78 58 72C58 65 60 58 62 52C65 45 70 40 75 35Z"
+                fill="#904d00"
+                stroke="#904d00"
+                strokeWidth="1.5"
+                strokeLinejoin="round"
+              />
+              {/* Kashmir region */}
+              <path
+                d="M85 28C90 25 95 25 100 25C105 25 110 25 115 28C118 30 120 32 120 35"
+                stroke="#904d00"
+                strokeWidth="1.2"
+                strokeLinecap="round"
+                fill="none"
+              />
+              {/* Northeast states hint */}
+              <path
+                d="M142 55C148 58 152 62 155 68C157 72 156 76 153 78C150 80 146 78 144 75C142 72 141 68 142 62C142 58 142 55 142 55Z"
+                stroke="#904d00"
+                strokeWidth="1.2"
+                fill="none"
+              />
+              {/* Major cities markers */}
+              <circle cx="95" cy="55" r="2.5" fill="#ff8c00" />
+              <circle cx="100" cy="65" r="2.5" fill="#ff8c00" />
+              <circle cx="92" cy="80" r="2.5" fill="#ff8c00" />
+              <circle cx="105" cy="95" r="2.5" fill="#ff8c00" />
+              <circle cx="98" cy="115" r="2.5" fill="#ff8c00" />
+              <circle cx="108" cy="135" r="2.5" fill="#ff8c00" />
+              <circle cx="102" cy="155" r="2.5" fill="#ff8c00" />
+              <circle cx="95" cy="175" r="2.5" fill="#ff8c00" />
+            </svg>
+
+            {/* Pulsing Circles */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+              <motion.div
+                className="absolute w-20 h-20 border-2 border-[#ff8c00] rounded-full -translate-x-1/2 -translate-y-1/2"
+                initial={{ scale: 0.8, opacity: 0.4 }}
+                animate={{ scale: 1.8, opacity: 0 }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeOut" }}
+              />
+              <motion.div
+                className="absolute w-20 h-20 border-2 border-[#ff8c00] rounded-full -translate-x-1/2 -translate-y-1/2"
+                initial={{ scale: 0.8, opacity: 0.4 }}
+                animate={{ scale: 1.8, opacity: 0 }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeOut", delay: 0.8 }}
               />
 
-              {/* Pulsing Saffron Signal Circles */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                <motion.div
-                  animate={{ scale: [0.8, 1.5], opacity: [0.5, 0] }}
-                  transition={{ duration: 2, repeat: Infinity, ease: "easeOut" }}
-                  className="absolute w-24 h-24 border-2 border-[#ff8c00] rounded-full"
-                />
-                <motion.div
-                  animate={{ scale: [0.8, 1.5], opacity: [0.5, 0] }}
-                  transition={{ duration: 2, repeat: Infinity, ease: "easeOut", delay: 0.5 }}
-                  className="absolute w-24 h-24 border-2 border-[#ff8c00] rounded-full"
-                />
-
-                {/* Saffron Pin */}
-                <div className="relative z-10 flex flex-col items-center">
-                  <svg className="w-16 h-16 text-[#ff8c00] drop-shadow-lg" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
-                  </svg>
-                  <div className="w-8 h-2 bg-[#1b1c19]/10 rounded-full blur-[2px] mt-1"></div>
-                </div>
-              </div>
+              {/* Pin Icon */}
+              <motion.div
+                className="relative z-10"
+                animate={{ y: [0, -6, 0] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              >
+                <svg className="w-14 h-14 text-[#ff8c00] drop-shadow-lg" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+                </svg>
+              </motion.div>
             </div>
           </div>
-        </div>
+        </motion.div>
 
-        {/* Content Section */}
-        <div className="space-y-8">
-          <div className="text-center">
-            <h1 className="font-headline text-3xl font-bold text-[#1b1c19] leading-tight mb-4">
+        {/* Content */}
+        <motion.div
+          className="space-y-6 flex-1"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+        >
+          <div className="text-center space-y-4">
+            <motion.h1
+              className="font-headline text-2xl font-bold text-[#1b1c19] leading-tight"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+            >
               आपका शहर जानना क्यों ज़रूरी है?
-            </h1>
+            </motion.h1>
 
-            {/* Privacy Pill */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#f5f3ee] rounded-full border border-[#ddc1ae]/20 shadow-sm">
+            <motion.div
+              className="inline-flex items-center gap-2 px-4 py-2 bg-[#f5f3ee] rounded-full border border-[#ddc1ae]/20"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.6 }}
+            >
               <svg className="w-5 h-5 text-[#564334]" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
               </svg>
-              <span className="text-[#564334] font-medium text-sm">आपका पूरा पता कभी नहीं दिखेगा</span>
-            </div>
+              <span className="text-[#564334] font-medium text-sm">🔒 आपका पूरा पता कभी नहीं दिखेगा</span>
+            </motion.div>
           </div>
 
-          {/* Benefit Rows */}
-          <div className="space-y-6 pt-2">
-            {/* Row 1 */}
-            <div className="flex items-start gap-5">
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#ffdcc3] flex items-center justify-center">
-                <svg className="w-5 h-5 text-[#904d00] font-bold" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <p className="text-[18px] font-medium text-[#1b1c19] leading-snug pt-1">
-                आपकी भाषा खुद सेट हो जाएगी
-              </p>
-            </div>
-
-            {/* Row 2 */}
-            <div className="flex items-start gap-5">
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#ffdcc3] flex items-center justify-center">
-                <svg className="w-5 h-5 text-[#904d00] font-bold" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <p className="text-[18px] font-medium text-[#1b1c19] leading-snug pt-1">
-                आपके शहर की पूजाएं मिलेंगी
-              </p>
-            </div>
-
-            {/* Row 3 */}
-            <div className="flex items-start gap-5">
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#ffdcc3] flex items-center justify-center">
-                <svg className="w-5 h-5 text-[#904d00] font-bold" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <p className="text-[18px] font-medium text-[#1b1c19] leading-snug pt-1">
-                ग्राहक आपको ढूंढ पाएंगे
-              </p>
-            </div>
+          {/* Benefits */}
+          <div className="space-y-4 pt-2">
+            {[
+              { main: 'आपकी भाषा खुद सेट हो जाएगी', sub: 'टाइपिंग की ज़रूरत नहीं' },
+              { main: 'आपके शहर की पूजाएं मिलेंगी', sub: 'दूर-दराज़ की नहीं' },
+              { main: 'ग्राहक आपको ढूंढ पाएंगे', sub: 'नए ग्राहक, नई आमदनी' }
+            ].map((item, index) => (
+              <motion.div
+                key={index}
+                className="flex items-start gap-4"
+                initial={{ opacity: 0, x: -15 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.7 + (index * 0.15) }}
+              >
+                <div className="flex-shrink-0 w-7 h-7 rounded-full bg-[#ffdcc3] flex items-center justify-center">
+                  <svg className="w-4 h-4 text-[#904d00]" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <p className="text-[17px] font-medium text-[#1b1c19] leading-snug pt-0.5">{item.main}</p>
+                  <p className="text-[14px] text-[#564334] mt-0.5">{item.sub}</p>
+                </div>
+              </motion.div>
+            ))}
           </div>
-        </div>
+        </motion.div>
 
-        {/* Action Section */}
-        <div className="mt-auto pt-12 flex flex-col gap-4">
+        {/* Action Buttons */}
+        <motion.div
+          className="mt-auto pt-8 space-y-3"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1 }}
+        >
           {/* Error Banner */}
           {error && (
             <div className="w-full bg-[#ffdad6] border-2 border-[#ba1a1a] rounded-xl p-4 flex items-center gap-3 mb-2">
@@ -254,10 +259,10 @@ export default function LocationPermissionScreen({
           )}
 
           <motion.button
-            whileTap={{ scale: 0.95 }}
+            whileTap={{ scale: 0.98 }}
             onClick={handleAllowClick}
             disabled={loading}
-            className="w-full h-14 bg-gradient-to-b from-[#ff8c00] to-[#f89100] text-white font-bold text-lg rounded-xl shadow-[0px_8px_24px_rgba(144,77,0,0.15)] active:scale-95 transition-transform flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full h-14 bg-gradient-to-b from-[#ff8c00] to-[#f89100] text-white font-bold text-lg rounded-xl shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? (
               <>
@@ -277,18 +282,15 @@ export default function LocationPermissionScreen({
             )}
           </motion.button>
 
-          <button
-            onClick={() => setKeyboardMode(true)}
-            className="w-full py-4 text-[#564334] font-medium text-base hover:bg-[#f5f3ee] rounded-lg transition-colors"
+          <motion.button
+            whileTap={{ scale: 0.98 }}
+            onClick={() => onDenied()}
+            disabled={loading}
+            className="w-full py-4 text-[#564334] font-medium hover:bg-[#f5f3ee] rounded-lg transition-colors disabled:opacity-50"
           >
             छोड़ें — हाथ से भरूँगा
-          </button>
-        </div>
-      </div>
-
-      {/* Decorative Corner Element (Asymmetry) */}
-      <div className="fixed bottom-0 right-0 w-32 h-32 pointer-events-none opacity-5">
-        <div className="w-full h-full bg-gradient-to-br from-[#904d00]/20 to-transparent rounded-full blur-2xl"></div>
+          </motion.button>
+        </motion.div>
       </div>
     </main>
   );

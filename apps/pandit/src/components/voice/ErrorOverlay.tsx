@@ -106,7 +106,7 @@ export function ErrorOverlay({ onRetry, onUseKeyboard }: ErrorOverlayProps) {
       title: 'Keyboard से जवाब दीजिए',
       message: 'आवाज़ नहीं समझ आई। कृपया टाइप करें।',
       icon: 'keyboard',
-      iconColor: 'text-text-saffron',
+      iconColor: 'text-saffron',
       bgColor: 'bg-surface-card',
       borderColor: 'border-border-default',
       showRetry: false,
@@ -151,7 +151,7 @@ export function ErrorOverlay({ onRetry, onUseKeyboard }: ErrorOverlayProps) {
                 </span>
               </motion.div>
               <div className="flex-1">
-                <h3 id="error-overlay-title" className="text-lg font-bold text-text-saffron">{error.title}</h3>
+                <h3 id="error-overlay-title" className="text-lg font-bold text-saffron">{error.title}</h3>
                 <p id="error-overlay-description" className="text-text-secondary text-lg">{error.message}</p>
               </div>
             </div>

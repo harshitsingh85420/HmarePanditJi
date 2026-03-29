@@ -1,10 +1,15 @@
 import type { Metadata, Viewport } from 'next'
 import { Hind } from 'next/font/google'
 import './globals.css'
-import dynamic from 'next/dynamic'
+import NextDynamic from 'next/dynamic'
+
+// SSR FIX: Force dynamic rendering for all pages
+// This prevents "useContext" errors during build since all pages use Zustand stores
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 // SSR FIX: Load StoreHydration only on client to prevent localStorage access during SSR
-const StoreHydrationClient = dynamic(() => import('@/components/StoreHydrationClient').then(mod => mod.StoreHydrationClient), {
+const StoreHydrationClient = NextDynamic(() => import('@/components/StoreHydrationClient').then(mod => mod.StoreHydrationClient), {
   ssr: false,
 })
 

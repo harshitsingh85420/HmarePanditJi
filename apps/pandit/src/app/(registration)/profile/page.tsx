@@ -263,7 +263,7 @@ export default function ProfileDetails() {
           </svg>
         </button>
         <span className="text-2xl text-saffron">ॐ</span>
-        <span className="text-lg font-bold text-text-lgrimary">HmarePanditJi</span>
+        <span className="text-lg font-bold text-text-primary">HmarePanditJi</span>
       </header>
 
       {/* Progress */}
@@ -290,11 +290,11 @@ export default function ProfileDetails() {
           animate={{ scale: 1, opacity: 1 }}
           className="w-24 h-24 bg-saffron-light rounded-full flex items-center justify-center mb-6 mx-auto"
         >
-          <span className="text-lgxl">👤</span>
+          <span className="text-3xl">👤</span>
         </motion.div>
 
         {/* Title */}
-        <h1 className="text-2xl font-bold text-text-lgrimary text-center mb-2">
+        <h1 className="text-2xl font-bold text-text-primary text-center mb-2">
           आपका नाम
         </h1>
         <p className="text-text-secondary text-center mb-8">
@@ -355,7 +355,7 @@ export default function ProfileDetails() {
       </div>
 
       {/* Footer hint */}
-      <p className="pb-8 text-center text-lg text-text-lglaceholder">
+      <p className="pb-8 text-center text-lg text-text-placeholder">
         🎤 "नाम बोलें" या "पीछे जाएं" बोलें
       </p>
     </main>

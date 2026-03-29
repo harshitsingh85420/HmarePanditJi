@@ -94,27 +94,23 @@ export function LanguageChangeWidget({ currentLanguage, onLanguageChange }: Lang
 
   return (
     <>
-      {/* Language Toggle Button - Floating */}
+      {/* Language Toggle Button - Compact pill at top-right */}
       <motion.button
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-24 right-24 z-50 min-h-[72px] min-w-[72px] bg-saffron rounded-full shadow-btn-saffron flex items-center justify-center gap-2 border-2 border-white px-4 focus:ring-2 focus:ring-saffron focus:outline-none"
+        className="fixed top-4 right-4 z-30 min-h-[44px] bg-surface-card rounded-full shadow-card flex items-center gap-2 border border-saffron/30 px-4 py-2 focus:ring-2 focus:ring-saffron focus:outline-none"
         aria-label="भाषा बदलें / Change Language"
       >
-        <span className="text-[20px] font-bold text-white font-devanagari">
-          {isOpen ? 'बंद करें' : 'भाषा'}
+        <span className="text-lg">{currentLang?.flag}</span>
+        <span className="text-base font-bold text-text-primary">
+          {currentLang?.initial || 'हि'}
         </span>
+        <svg className="w-4 h-4 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
       </motion.button>
-
-      {/* Language Badge */}
-      <div className="fixed bottom-24 right-4 z-50 bg-surface-card rounded-full px-5 py-3 shadow-card flex items-center gap-2 border-2 border-saffron/30">
-        <span className="text-[24px]">{currentLang?.flag}</span>
-        <span className="text-[20px] font-bold text-text-primary font-devanagari">
-          {currentLanguage === 'Hindi' ? 'हिंदी' : currentLanguage}
-        </span>
-      </div>
 
       {/* Bottom Sheet Overlay */}
       <AnimatePresence>
@@ -186,7 +182,7 @@ export function LanguageChangeWidget({ currentLanguage, onLanguageChange }: Lang
                         <p className="font-bold text-text-primary leading-tight font-devanagari">
                           {currentLang?.native}
                         </p>
-                        <p className="text-[16px] text-text-secondary">{currentLanguage}</p>
+                        <p className="text-lg text-text-secondary">{currentLanguage}</p>
                       </div>
                     </div>
                     <div className="bg-saffron text-white rounded-full p-1">

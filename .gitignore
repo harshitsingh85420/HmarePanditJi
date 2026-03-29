@@ -44,3 +44,4 @@ build_*.txt
 
 # AI Tool internals
 .claude/".env.local" 
+.vercel

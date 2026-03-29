@@ -8,7 +8,7 @@ export default function KeyboardToggle({ onClick }: KeyboardToggleProps) {
   return (
     <button
       onClick={onClick}
-      className="flex items-center gap-1 text-vedic-gold text-sm py-2 px-2 min-h-[44px]"
+      className="flex items-center gap-2 text-vedic-gold text-lg py-2 px-3 min-h-[52px]"
       aria-label="Use keyboard instead"
     >
       <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">

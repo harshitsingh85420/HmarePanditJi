@@ -681,7 +681,7 @@ export default function MobileNumberScreen() {
                     </span>
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-lg font-bold text-text-lgrimary">नेटवर्क त्रुटि</h3>
+                    <h3 className="text-lg font-bold text-text-primary">नेटवर्क त्रुटि</h3>
                     <p className="text-text-secondary text-lg">{networkError}</p>
                   </div>
                 </div>

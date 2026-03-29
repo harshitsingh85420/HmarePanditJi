@@ -1,5 +1,8 @@
 'use client'
 
+// SSR FIX: Force dynamic rendering to prevent build errors
+export const dynamic = 'force-dynamic'
+
 import { useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { speakWithSarvam } from '@/lib/sarvam-tts'

@@ -1,15 +1,7 @@
-/**
- * Not Found page for App Router
- * Displayed when a route is not found (404)
- *
- * Designed for elderly users with:
- * - Large text (20px+)
- * - 72px minimum touch targets
- * - Bilingual messages (Hindi/English)
- * - Voice announcement
- * - Focus indicators
- */
 'use client'
+
+// SSR FIX: Force dynamic rendering to prevent build errors
+export const dynamic = 'force-dynamic'
 
 import { useEffect } from 'react'
 import { motion } from 'framer-motion'

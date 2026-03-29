@@ -38,7 +38,7 @@ export function EmergencySOSFloating({ isVisible = true }: EmergencySOSFloatingP
   if (!isVisible) return null
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-3">
+    <div className="fixed bottom-6 right-4 z-50 flex flex-col items-end gap-3">
       <AnimatePresence>
         {isExpanded && (
           <>
@@ -54,7 +54,7 @@ export function EmergencySOSFloating({ isVisible = true }: EmergencySOSFloatingP
               }}
               className="min-h-[56px] px-4 bg-surface-card rounded-2xl shadow-card flex items-center gap-3 border-l-4 border-saffron"
             >
-              <div className="w-10 h-10 rounded-xl bg-saffron-lt flex items-center justify-center flex-shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-saffron-light flex items-center justify-center flex-shrink-0">
                 <svg className="w-6 h-6 text-saffron" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
                 </svg>
@@ -85,49 +85,22 @@ export function EmergencySOSFloating({ isVisible = true }: EmergencySOSFloatingP
         )}
       </AnimatePresence>
 
-      {/* Main SOS Button */}
+      {/* Main SOS Button - tap to expand, long-press to go to emergency */}
       <motion.button
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         whileTap={{ scale: 0.9 }}
-        onClick={handleSOSPress}
-        className="relative min-w-[72px] min-h-[72px] bg-saffron rounded-full shadow-btn-saffron flex items-center justify-center border-4 border-white"
+        onClick={isExpanded ? handleSOSPress : handleExpand}
+        className="relative min-w-[56px] min-h-[56px] w-14 h-14 bg-error-red rounded-full shadow-lg flex items-center justify-center border-2 border-white"
         aria-label="Emergency SOS"
       >
-        <div className="absolute inset-0 rounded-full bg-saffron/20 animate-ping" />
-        <svg className="w-9 h-9 text-white relative z-10" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-        </svg>
+        {!isExpanded && (
+          <div className="absolute inset-0 rounded-full bg-error-red/20 animate-ping" />
+        )}
+        <span className="text-white font-bold text-base relative z-10">
+          {isExpanded ? '🆘' : 'SOS'}
+        </span>
       </motion.button>
-
-      {/* Expand Toggle */}
-      <motion.button
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        whileTap={{ scale: 0.9 }}
-        onClick={handleExpand}
-        className="min-w-[56px] min-h-[56px] bg-surface-card rounded-full shadow-card flex items-center justify-center border-2 border-saffron/30"
-        aria-label={isExpanded ? 'Close emergency options' : 'Expand emergency options'}
-      >
-        <svg
-          className={`w-6 h-6 text-saffron transition-transform ${isExpanded ? 'rotate-180' : ''}`}
-          fill="none" stroke="currentColor" viewBox="0 0 24 24"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
-        </svg>
-      </motion.button>
-
-      {/* SOS Label Badge */}
-      <motion.div
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        className="bg-saffron text-white px-4 py-2 rounded-full shadow-btn-saffron flex items-center gap-2"
-      >
-        <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-        </svg>
-        <span className="font-bold text-base">SOS आपातकालीन</span>
-      </motion.div>
     </div>
   )
 }

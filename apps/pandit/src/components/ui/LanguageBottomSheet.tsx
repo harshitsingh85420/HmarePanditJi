@@ -38,16 +38,16 @@ export default function LanguageBottomSheet({
         <div className="flex items-center justify-between px-4 py-3">
           <div>
             <h2 className="text-lg font-bold text-vedic-brown">भाषा बदलें</h2>
-            <p className="text-sm text-vedic-gold">Change Language</p>
+            <p className="text-lg text-vedic-gold">Change Language</p>
           </div>
-          <button onClick={onClose} className="w-10 h-10 flex items-center justify-center text-vedic-gold">
+          <button onClick={onClose} className="w-14 h-14 flex items-center justify-center text-vedic-gold">
             <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
               <path d="M18 6L6 18M6 6l12 12" />
             </svg>
           </button>
         </div>
         <div className="px-4 pb-3">
-          <div className="flex items-center gap-2 bg-gray-100 rounded-xl px-3 h-11">
+          <div className="flex items-center gap-2 bg-gray-100 rounded-xl px-3 h-14">
             <svg width="18" height="18" fill="none" stroke="#9B7B52" strokeWidth="2" viewBox="0 0 24 24">
               <circle cx="11" cy="11" r="8" />
               <path d="M21 21l-4.3-4.3" strokeLinecap="round" />
@@ -67,7 +67,7 @@ export default function LanguageBottomSheet({
               <span className="text-2xl">{LANGUAGE_DISPLAY[currentLanguage].scriptChar}</span>
               <div>
                 <p className="font-bold text-vedic-brown text-base">{LANGUAGE_DISPLAY[currentLanguage].nativeName}</p>
-                <p className="text-sm text-vedic-gold">{LANGUAGE_DISPLAY[currentLanguage].latinName}</p>
+                <p className="text-lg text-vedic-gold">{LANGUAGE_DISPLAY[currentLanguage].latinName}</p>
               </div>
             </div>
             <span className="text-primary font-bold text-xl">✓</span>
@@ -93,10 +93,10 @@ export default function LanguageBottomSheet({
                     {display.scriptChar}
                   </span>
                   <div>
-                    <p className={`font-semibold text-sm ${isActive ? 'text-primary' : 'text-vedic-brown'}`}>
+                    <p className={`font-semibold text-lg ${isActive ? 'text-primary' : 'text-vedic-brown'}`}>
                       {display.nativeName}
                     </p>
-                    <p className="text-xs text-vedic-gold">{display.latinName}</p>
+                    <p className="text-lg text-vedic-gold">{display.latinName}</p>
                   </div>
                 </button>
               )

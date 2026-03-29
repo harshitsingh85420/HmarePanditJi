@@ -222,7 +222,7 @@ export function ConfirmButtons({
         <span className="material-symbols-outlined text-lg filled" aria-hidden="true">
           {confirmIcon}
         </span>
-        <span>{confirmLabel}</span>
+        <span className="text-center break-words line-clamp-2 flex-1">{confirmLabel}</span>
       </motion.button>
 
       <motion.button
@@ -240,7 +240,7 @@ export function ConfirmButtons({
         <span className="material-symbols-outlined text-lg" aria-hidden="true">
           {retryIcon}
         </span>
-        <span>{retryLabel}</span>
+        <span className="text-center break-words line-clamp-2 flex-1">{retryLabel}</span>
       </motion.button>
     </div>
   )

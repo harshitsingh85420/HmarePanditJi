@@ -122,7 +122,7 @@ export default function ResumeRegistrationScreen() {
         </motion.div>
 
         {/* Title */}
-        <h1 className="text-2xl font-bold text-text-saffron text-center mb-2">
+        <h1 className="text-2xl font-bold text-saffron text-center mb-2">
           पंजीकरण जारी रखें
         </h1>
         <p className="text-text-secondary text-center mb-8">
@@ -138,7 +138,7 @@ export default function ResumeRegistrationScreen() {
           {/* Progress bar */}
           <div className="mb-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-lg font-medium text-text-saffron">प्रगति</span>
+              <span className="text-lg font-medium text-saffron">प्रगति</span>
               <span className="text-lg font-bold text-saffron">{progressPercent}%</span>
             </div>
             <div className="w-full h-3 bg-surface-muted rounded-full overflow-hidden">
@@ -160,7 +160,7 @@ export default function ResumeRegistrationScreen() {
             </div>
             <div className="flex-1">
               <p className="text-text-secondary text-lgs font-medium">अगला चरण:</p>
-              <p className="text-text-saffron font-bold text-lg">{stepInfo.title}</p>
+              <p className="text-saffron font-bold text-lg">{stepInfo.title}</p>
               <p className="text-text-secondary text-lg">{stepInfo.subtitle}</p>
             </div>
             <span className="material-symbols-outlined text-saffron">arrow_forward</span>
@@ -174,7 +174,7 @@ export default function ResumeRegistrationScreen() {
           transition={{ delay: 0.2 }}
           className="bg-surface-card rounded-card shadow-card p-6 mb-8"
         >
-          <h2 className="text-lg font-bold text-text-saffron mb-4 flex items-center gap-2">
+          <h2 className="text-lg font-bold text-saffron mb-4 flex items-center gap-2">
             <span className="material-symbols-outlined text-trust-green filled">check_circle</span>
             पूरे हुए चरण
           </h2>
@@ -193,7 +193,7 @@ export default function ResumeRegistrationScreen() {
                       check_circle
                     </span>
                     <div>
-                      <p className="text-text-saffron font-medium text-lg">{stepInfo.title}</p>
+                      <p className="text-saffron font-medium text-lg">{stepInfo.title}</p>
                       <p className="text-text-secondary text-lgs">{stepInfo.subtitle}</p>
                     </div>
                   </div>
@@ -227,8 +227,8 @@ export default function ResumeRegistrationScreen() {
       </div>
 
       {/* Footer note */}
-      <p className="pb-8 text-center text-lgs text-text-lglaceholder">
-        Session ID: {data.sessionId.slice(-8)}
+      <p className="pb-8 text-center text-lg text-text-placeholder" suppressHydrationWarning>
+        Session ID: {data.sessionId?.slice(-8) || ''}
       </p>
     </main>
   )

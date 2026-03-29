@@ -415,7 +415,7 @@ export default function OTPScreen() {
       <header className="flex items-center gap-2 px-6 pt-4 pb-2 bg-surface-base sticky top-0 z-20">
         <button
           onClick={handleBack}
-          className="w-12 h-12 flex items-center justify-center text-saffron rounded-full active:bg-black/5"
+          className="w-14 h-14 flex items-center justify-center text-saffron rounded-full active:bg-black/5"
           aria-label="Go back"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -643,7 +643,7 @@ export default function OTPScreen() {
                     </span>
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-lg font-bold text-text-lgrimary">नेटवर्क त्रुटि</h3>
+                    <h3 className="text-lg font-bold text-text-primary">नेटवर्क त्रुटि</h3>
                     <p className="text-text-secondary text-lg">{networkError}</p>
                   </div>
                 </div>

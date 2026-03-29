@@ -84,10 +84,9 @@ function OnboardingContent() {
       return
     }
 
-    // BUG-CRITICAL-01 FIX: For fresh onboarding sessions, ALWAYS reset to Hindi
-    // A user landing on /onboarding should NEVER see Tamil or any other language
-    // This is the onboarding ENTRY point - language selection happens AFTER this screen
-    // Only restore state if user was in middle of TUTORIAL (not language selection)
+    // BUG-CRITICAL-01 FIX: For fresh onboarding sessions, ALWAYS reset to SPLASH phase
+    // A user landing on /onboarding should ALWAYS start from the beginning
+    // Only restore state if user was in middle of TUTORIAL (not language selection or location)
     const saved = loadOnboardingState()
     console.log('[Onboarding] Loaded saved state:', saved)
 
@@ -95,18 +94,20 @@ function OnboardingContent() {
     const isInTutorial = saved.phase.startsWith('TUTORIAL_')
     console.log('[Onboarding] isInTutorial:', isInTutorial)
 
+    // FORCE SPLASH phase for all users except those in middle of tutorial
     if (isInTutorial && saved.tutorialStarted && saved.selectedLanguage) {
       // User was in middle of tutorial - restore their language choice
       setState(saved)
     } else {
-      // Fresh user OR user stuck in language selection flow - RESET EVERYTHING
+      // Fresh user OR user stuck in location/language flow - RESET EVERYTHING to SPLASH
       // This prevents Tamil/Hindi leakage from previous incomplete sessions
       try {
         clearOnboardingState()
       } catch {
         // Ignore clear errors
       }
-      setState({ ...DEFAULT_STATE, firstEverOpen: true })
+      // FORCE phase to SPLASH
+      setState({ ...DEFAULT_STATE, firstEverOpen: true, phase: 'SPLASH' })
     }
 
     setIsLoaded(true)
@@ -123,6 +124,7 @@ function OnboardingContent() {
   const updateState = useCallback((updates: Partial<OnboardingState>) => {
     setState(prev => {
       const next = { ...prev, ...updates }
+      console.log('[Onboarding] updateState:', { prev, next })
       saveOnboardingState(next)
       return next
     })
@@ -131,6 +133,7 @@ function OnboardingContent() {
   // ─── PHASE TRANSITION HANDLERS ───────────────────────────
 
   const goToPhase = useCallback((phase: OnboardingPhase) => {
+    console.log('[Onboarding] goToPhase called with:', phase)
     stopSpeaking()
     updateState({ phase })
   }, [updateState])
@@ -175,6 +178,7 @@ function OnboardingContent() {
   // ─── PART 0.0 NAVIGATION HANDLERS ───────────────────────────
 
   const handleSplashToLocation = useCallback(() => {
+    console.log('[Onboarding] handleSplashToLocation called')
     goToPhase('LOCATION_PERMISSION')
   }, [goToPhase])
 
@@ -295,11 +299,7 @@ function OnboardingContent() {
   // ─── RENDER ───────────────────────────────────────────────
 
   if (!isLoaded) {
-    return (
-      <div className="min-h-screen splash-gradient flex items-center justify-center">
-        <span className="text-white text-5xl animate-glow-pulse">ॐ</span>
-      </div>
-    )
+    return null
   }
 
   const commonProps = {
@@ -319,6 +319,7 @@ function OnboardingContent() {
   const screenKey = `${state.phase}-${state.selectedLanguage}`
 
   const renderScreen = () => {
+    console.log('[Onboarding] renderScreen, current phase:', state.phase)
     switch (state.phase) {
       case 'SPLASH':
         return <SplashScreen key={screenKey} onComplete={handleSplashToLocation} />
