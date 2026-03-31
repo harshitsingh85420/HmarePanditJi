@@ -90,8 +90,8 @@ export default function CertificatePage({ params }: { params: { id: string } }) 
                                             Blessed Union Of
                                         </p>
                                         <h2 className="text-2xl sm:text-3xl font-semibold text-gray-800">
-                                            Vikram Sharma{&quot; &quot;}
-                                            <span className="text-[#ec7f13] mx-2">&amp;</span> Anjali
+                                            Vikram Sharma{" "}
+                                            <span className="text-[#ec7f13] mx-2">&</span> Anjali
                                             Gupta
                                         </h2>
                                     </div>
@@ -243,7 +243,7 @@ export default function CertificatePage({ params }: { params: { id: string } }) 
                                 <div>
                                     <h4 className="font-bold text-[#ec7f13] mb-1">Did you know?</h4>
                                     <p className="text-lg text-gray-600 dark:text-gray-300">
-                                        This Muhurat includes the{&quot; &quot;}
+                                        This Muhurat includes the{" "}
                                         <span className="font-semibold">Abhijit Muhurat</span>, which
                                         is considered highly auspicious for removing all obstacles
                                         (doshas).

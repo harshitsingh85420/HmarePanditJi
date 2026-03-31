@@ -27,19 +27,19 @@ export default function SamagriComparisonPage() {
                     {/* Tabbed Switcher */}
                     <div className="bg-white dark:bg-slate-900/50 p-1 rounded-xl border border-slate-200 dark:border-slate-800 inline-flex">
                         <button
-                            onClick={() => setActiveTab(&quot;fixed&quot;)}
-                            className={`px-6 py-2.5 rounded-lg text-lg font-bold transition-all ${activeTab === &quot;fixed&quot;
-                                    ? &quot;bg-[#ec5b13] text-white shadow-lg&quot;
-                                    : &quot;text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200&quot;
+                            onClick={() => setActiveTab("fixed")}
+                            className={`px-6 py-2.5 rounded-lg text-lg font-bold transition-all ${activeTab === "fixed"
+                                    ? "bg-[#ec5b13] text-white shadow-lg"
+                                    : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
                                 }`}
                         >
                             Pandit Fixed Packages
                         </button>
                         <button
-                            onClick={() => setActiveTab(&quot;custom&quot;)}
-                            className={`px-6 py-2.5 rounded-lg text-lg font-bold transition-all ${activeTab === &quot;custom&quot;
-                                    ? &quot;bg-[#ec5b13] text-white shadow-lg&quot;
-                                    : &quot;text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200&quot;
+                            onClick={() => setActiveTab("custom")}
+                            className={`px-6 py-2.5 rounded-lg text-lg font-bold transition-all ${activeTab === "custom"
+                                    ? "bg-[#ec5b13] text-white shadow-lg"
+                                    : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
                                 }`}
                         >
                             Build Custom List
@@ -139,7 +139,7 @@ export default function SamagriComparisonPage() {
                                     Reliability
                                 </p>
                                 <p className="text-lg font-medium text-slate-700 dark:text-slate-300">
-                                    100% Refund if Pandit doesn&apos;t arrive
+                                    100% Refund if Pandit doesn't arrive
                                 </p>
                             </div>
                         </div>
@@ -218,7 +218,7 @@ export default function SamagriComparisonPage() {
                             </div>
                             <div className="space-y-3">
                                 <button
-                                    onClick={() => router.push(&apos;/booking/new&apos;)}
+                                    onClick={() => router.push('/booking/new')}
                                     className="w-full py-4 bg-[#ec5b13] hover:bg-[#ec5b13]/90 text-white rounded-xl font-bold shadow-lg shadow-[#ec5b13]/30 flex items-center justify-center gap-2 transition-transform active:scale-95"
                                 >
                                     Proceed to Booking
@@ -261,7 +261,7 @@ export default function SamagriComparisonPage() {
                         <p className="text-xl font-black text-[#ec5b13]">₹1,214</p>
                     </div>
                     <button
-                        onClick={() => router.push(&apos;/booking/new&apos;)}
+                        onClick={() => router.push('/booking/new')}
                         className="flex-1 py-3 bg-[#ec5b13] text-white rounded-xl font-bold shadow-lg shadow-[#ec5b13]/30 flex items-center justify-center gap-2"
                     >
                         Proceed

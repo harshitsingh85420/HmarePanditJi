@@ -26,10 +26,10 @@ export function PriceDisplay({
   className = "",
 }: PriceDisplayProps) {
   const sizes: Record<string, string> = {
-    sm: &quot;text-base font-bold&quot;,
-    md: &quot;text-lg font-bold&quot;,
-    lg: &quot;text-2xl font-bold&quot;,
-    featured: &quot;text-xl font-black text-primary&quot;,
+    sm: "text-base font-bold",
+    md: "text-lg font-bold",
+    lg: "text-2xl font-bold",
+    featured: "text-xl font-black text-primary",
   };
 
   return (

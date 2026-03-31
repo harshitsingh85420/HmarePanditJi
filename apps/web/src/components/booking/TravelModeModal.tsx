@@ -11,30 +11,30 @@ interface TravelModeModalProps {
 
 const TRAVEL_MODES = [
     {
-        id: &quot;SELF-DRIVE&quot;,
-        label: &quot;SELF-DRIVE&quot;,
-        subLabel: &quot;Pandit&apos;s Own Car&quot;,
-        icon: &quot;directions_car&quot;,
-        features: [&quot;Maximum flexibility&quot;, &quot;Easy Samagri transport&quot;],
-        price: &quot;₹15/km + Tolls&quot;,
+        id: "SELF-DRIVE",
+        label: "SELF-DRIVE",
+        subLabel: "Pandit's Own Car",
+        icon: "directions_car",
+        features: ["Maximum flexibility", "Easy Samagri transport"],
+        price: "₹15/km + Tolls",
         estTotal: 4250,
     },
     {
-        id: &quot;TRAIN&quot;,
-        label: &quot;TRAIN&quot;,
-        subLabel: &quot;3AC Comfort&quot;,
-        icon: &quot;train&quot;,
-        features: [&quot;Highly economical&quot;, &quot;Reliable & comfortable&quot;],
-        price: &quot;Fixed: ₹1,200&quot;,
+        id: "TRAIN",
+        label: "TRAIN",
+        subLabel: "3AC Comfort",
+        icon: "train",
+        features: ["Highly economical", "Reliable & comfortable"],
+        price: "Fixed: ₹1,200",
         estTotal: 1200,
     },
     {
-        id: &quot;FLIGHT&quot;,
-        label: &quot;FLIGHT&quot;,
-        subLabel: &quot;Economy Class&quot;,
-        icon: &quot;flight&quot;,
-        features: [&quot;Fastest travel time&quot;, &quot;Airport transfers included&quot;],
-        price: &quot;Fixed: ₹4,500&quot;,
+        id: "FLIGHT",
+        label: "FLIGHT",
+        subLabel: "Economy Class",
+        icon: "flight",
+        features: ["Fastest travel time", "Airport transfers included"],
+        price: "Fixed: ₹4,500",
         estTotal: 4500,
     },
 ];
@@ -43,9 +43,9 @@ export function TravelModeModal({
     isOpen,
     onClose,
     onConfirm,
-    panditName = &quot;Pandit Ji&quot;,
+    panditName = "Pandit Ji",
 }: TravelModeModalProps) {
-    const [selectedMode, setSelectedMode] = useState(&quot;SELF-DRIVE&quot;);
+    const [selectedMode, setSelectedMode] = useState("SELF-DRIVE");
 
     if (!isOpen) return null;
 
@@ -88,8 +88,8 @@ export function TravelModeModal({
                                     key={mode.id}
                                     onClick={() => setSelectedMode(mode.id)}
                                     className={`relative group cursor-pointer border-2 rounded-xl p-5 flex flex-col h-full transition-all hover:shadow-md ${isActive
-                                            ? &quot;border-[#f49d25] bg-[#f49d25]/5&quot;
-                                            : &quot;border-gray-100 dark:border-gray-800 bg-white dark:bg-[#362a1e] hover:border-[#f49d25]/50&quot;
+                                            ? "border-[#f49d25] bg-[#f49d25]/5"
+                                            : "border-gray-100 dark:border-gray-800 bg-white dark:bg-[#362a1e] hover:border-[#f49d25]/50"
                                         }`}
                                 >
                                     {isActive && (
@@ -140,7 +140,7 @@ export function TravelModeModal({
                                                     : "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white group-hover:bg-[#f49d25]/20 group-hover:text-[#f49d25]"
                                                 }`}
                                         >
-                                            {isActive ? &quot;Selected&quot; : `Select ${mode.label}`}
+                                            {isActive ? "Selected" : `Select ${mode.label}`}
                                         </button>
                                     </div>
                                 </div>
@@ -159,7 +159,7 @@ export function TravelModeModal({
                             </h2>
                             <div className="bg-gray-50 dark:bg-[#362a1e] rounded-lg p-5 border border-gray-100 dark:border-gray-800">
                                 <div className="space-y-3">
-                                    {activeMode?.id === &quot;SELF-DRIVE&quot; ? (
+                                    {activeMode?.id === "SELF-DRIVE" ? (
                                         <>
                                             <div className="flex justify-between text-lg">
                                                 <span className="text-gray-500 dark:text-gray-400">

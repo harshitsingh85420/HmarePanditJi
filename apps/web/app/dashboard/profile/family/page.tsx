@@ -44,13 +44,13 @@ export default function FamilySetupPage() {
     const [showMemberForm, setShowMemberForm] = useState(false);
     const [editingIndex, setEditingIndex] = useState<number | null>(null);
     const [memberForm, setMemberForm] = useState<FamilyMember>({
-        name: &quot;&quot;, relation: &quot;Spouse&quot;, dob: &quot;&quot;, nakshatra: &quot;&quot;, rashi: &quot;&quot;
+        name: "", relation: "Spouse", dob: "", nakshatra: "", rashi: ""
     });
 
     const fetchFamilyInfo = async () => {
         try {
-            const token = localStorage.getItem(&quot;token&quot;);
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || &apos;http://localhost:3001&apos;}/api/customers/me/family`, {
+            const token = localStorage.getItem("token");
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/customers/me/family`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (res.ok) {
@@ -61,7 +61,7 @@ export default function FamilySetupPage() {
                     if (COMMON_GOTRAS.includes(data.data.gotra)) {
                         setGotraType(data.data.gotra);
                     } else {
-                        setGotraType(&quot;Other&quot;);
+                        setGotraType("Other");
                         setCustomGotra(data.data.gotra);
                     }
                 }
@@ -69,7 +69,7 @@ export default function FamilySetupPage() {
                 if (data.data.familyMembers) {
                     setFamilyMembers(data.data.familyMembers.map((m: any) => ({
                         ...m,
-                        dob: m.dob ? new Date(m.dob).toISOString().split(&apos;T&apos;)[0] : &quot;&quot;
+                        dob: m.dob ? new Date(m.dob).toISOString().split('T')[0] : ""
                     })));
                 }
             }
@@ -86,17 +86,17 @@ export default function FamilySetupPage() {
 
     const handleSaveAll = async () => {
         setSaveLoading(true);
-        setError(&quot;&quot;);
-        setSuccess(&quot;&quot;);
+        setError("");
+        setSuccess("");
 
         try {
-            const finalGotra = gotraType === &quot;Other&quot; ? customGotra : gotraType;
+            const finalGotra = gotraType === "Other" ? customGotra : gotraType;
 
-            const token = localStorage.getItem(&quot;token&quot;);
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || &apos;http://localhost:3001&apos;}/api/customers/me/family`, {
-                method: &quot;PUT&quot;,
+            const token = localStorage.getItem("token");
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/customers/me/family`, {
+                method: "PUT",
                 headers: {
-                    &quot;Content-Type&quot;: &quot;application/json&quot;,
+                    "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`
                 },
                 body: JSON.stringify({
@@ -109,10 +109,10 @@ export default function FamilySetupPage() {
                 })
             });
 
-            if (!res.ok) throw new Error(&quot;Failed to save family details&quot;);
+            if (!res.ok) throw new Error("Failed to save family details");
 
-            setSuccess(&quot;Family details saved successfully!&quot;);
-            setTimeout(() => setSuccess(&quot;&quot;), 3000);
+            setSuccess("Family details saved successfully!");
+            setTimeout(() => setSuccess(""), 3000);
             await fetchFamilyInfo();
         } catch (err: any) {
             setError(err.message);
@@ -123,7 +123,7 @@ export default function FamilySetupPage() {
 
     const handleSaveMember = () => {
         if (!memberForm.name.trim()) {
-            alert(&quot;Name is required&quot;);
+            alert("Name is required");
             return;
         }
 
@@ -136,7 +136,7 @@ export default function FamilySetupPage() {
         }
 
         setShowMemberForm(false);
-        setMemberForm({ name: &quot;&quot;, relation: &quot;Spouse&quot;, dob: &quot;&quot;, nakshatra: &quot;&quot;, rashi: &quot;&quot; });
+        setMemberForm({ name: "", relation: "Spouse", dob: "", nakshatra: "", rashi: "" });
         setEditingIndex(null);
     };
 
@@ -147,7 +147,7 @@ export default function FamilySetupPage() {
     };
 
     const removeMember = (index: number) => {
-        if (!confirm(&quot;Remove this family member?&quot;)) return;
+        if (!confirm("Remove this family member?")) return;
         setFamilyMembers(familyMembers.filter((_, i) => i !== index));
     };
 
@@ -197,7 +197,7 @@ export default function FamilySetupPage() {
                                 {COMMON_GOTRAS.map(g => <option key={g} value={g}>{g}</option>)}
                             </select>
 
-                            {gotraType === &quot;Other&quot; && (
+                            {gotraType === "Other" && (
                                 <Input
                                     placeholder="Enter your gotra"
                                     value={customGotra}
@@ -233,7 +233,7 @@ export default function FamilySetupPage() {
 
                 {showMemberForm && (
                     <div className="bg-amber-50/50 p-5 rounded-xl border border-amber-200 mb-6 flex flex-col gap-4">
-                        <h3 className="font-bold text-amber-800 mb-2">{editingIndex !== null ? &apos;Edit Family Member&apos; : &apos;Add New Family Member&apos;}</h3>
+                        <h3 className="font-bold text-amber-800 mb-2">{editingIndex !== null ? 'Edit Family Member' : 'Add New Family Member'}</h3>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <label className="text-xs font-semibold text-gray-600 uppercase mapping tracking-wider">Name *</label>
@@ -281,10 +281,10 @@ export default function FamilySetupPage() {
                             <Button type="button" variant="outline" onClick={() => {
                                 setShowMemberForm(false);
                                 setEditingIndex(null);
-                                setMemberForm({ name: &quot;&quot;, relation: &quot;Spouse&quot;, dob: &quot;&quot;, nakshatra: &quot;&quot;, rashi: &quot;&quot; });
+                                setMemberForm({ name: "", relation: "Spouse", dob: "", nakshatra: "", rashi: "" });
                             }}>Cancel</Button>
                             <Button type="button" variant="primary" onClick={handleSaveMember}>
-                                {editingIndex !== null ? &apos;Update Member&apos; : &apos;Add Member&apos;}
+                                {editingIndex !== null ? 'Update Member' : 'Add Member'}
                             </Button>
                         </div>
                     </div>
@@ -335,7 +335,7 @@ export default function FamilySetupPage() {
                     Cancel & Go Back
                 </Link>
                 <Button onClick={handleSaveAll} disabled={saveLoading} size="lg" className="min-w-[200px] shadow-lg shadow-amber-200/50 hover:shadow-amber-300 transition-shadow">
-                    {saveLoading ? &quot;Saving all...&quot; : &quot;Save Preferences&quot;}
+                    {saveLoading ? "Saving all..." : "Save Preferences"}
                 </Button>
             </div>
         </div>

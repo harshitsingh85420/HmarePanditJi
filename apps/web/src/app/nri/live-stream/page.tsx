@@ -125,7 +125,7 @@ export default function NRILiveStreamPage() {
                                     Current Ritual
                                 </p>
                                 <h3 className="text-lg font-bold text-white leading-tight">
-                                    Ganesh Stapana &amp; Kalash Puja
+                                    Ganesh Stapana & Kalash Puja
                                 </h3>
                                 <div className="mt-2 text-base text-gray-300 flex items-center gap-1">
                                     <span className="material-icons text-[12px]">
@@ -267,7 +267,7 @@ export default function NRILiveStreamPage() {
                                     </span>
                                 </div>
                                 <p className="text-lg text-gray-300 bg-[#27272a] p-2 rounded-r-lg rounded-bl-lg mt-0.5 border border-gray-700">
-                                    Pandit ji&apos;s chanting is so clear today. Great audio quality!
+                                    Pandit ji's chanting is so clear today. Great audio quality!
                                 </p>
                             </div>
                         </div>

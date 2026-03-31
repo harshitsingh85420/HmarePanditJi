@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 import type { SupportedLanguage } from '@/lib/onboarding-store';
 
 interface LocationPermissionScreenProps {
@@ -21,9 +22,11 @@ export default function LocationPermissionScreen({
   onBack,
   showBack = true
 }: LocationPermissionScreenProps) {
-
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showExitConfirm, setShowExitConfirm] = useState(false);
+  const [showSujatamInfo, setShowSujatamInfo] = useState(false);
 
   const handleAllowClick = () => {
     setLoading(true);
@@ -64,6 +67,19 @@ export default function LocationPermissionScreen({
     );
   };
 
+  const handleExitConfirm = () => {
+    setShowExitConfirm(true);
+  };
+
+  const handleExitCancel = () => {
+    setShowExitConfirm(false);
+  };
+
+  const handleExitProceed = () => {
+    setShowExitConfirm(false);
+    router.push('/');
+  };
+
   return (
     <main className="font-body min-h-screen flex flex-col bg-[#fbf9f3]">
       {/* Header */}
@@ -73,29 +89,132 @@ export default function LocationPermissionScreen({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
       >
-        <motion.span
-          className="font-serif text-[#904d00] text-xl font-bold"
+        <motion.div
+          className="flex items-center gap-2"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
         >
-          Sujatam
-        </motion.span>
+          <span className="font-serif text-[#904d00] text-xl font-bold">
+            Sujatam
+          </span>
+          <button
+            onClick={() => setShowSujatamInfo(true)}
+            className="w-6 h-6 rounded-full bg-[#ff8c00]/20 flex items-center justify-center hover:bg-[#ff8c00]/30 transition-colors"
+            aria-label="Sujatam के बारे में जानें"
+          >
+            <svg className="w-4 h-4 text-[#ff8c00]" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 11-2 0 1 1 0 012 0zm-1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clipRule="evenodd" />
+            </svg>
+          </button>
+        </motion.div>
         <motion.button
-          onClick={onBack}
+          onClick={handleExitConfirm}
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
           transition={{ delay: 0.3 }}
-          className="h-8 w-8 rounded-full bg-[#eae8e2] flex items-center justify-center hover:bg-[#e4e2dd] transition-colors"
-          aria-label="Close"
+          className="h-10 w-10 rounded-full bg-[#eae8e2] flex items-center justify-center hover:bg-[#e4e2dd] transition-colors"
+          aria-label="वापस जाएं"
         >
-          <svg className="w-5 h-5 text-[#904d00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          <svg className="w-6 h-6 text-[#904d00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
           </svg>
         </motion.button>
       </motion.header>
+
+      {/* Sujatam Info Bottom Sheet */}
+      <AnimatePresence>
+        {showSujatamInfo && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowSujatamInfo(false)}
+              className="fixed inset-0 bg-black/40 z-50"
+            />
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl p-6 z-50 max-w-lg mx-auto"
+            >
+              <div className="w-12 h-1.5 bg-[#e4e2dd] rounded-full mx-auto mb-6" />
+              <h3 className="font-headline text-2xl font-bold text-[#1b1c19] mb-3">
+                Sujatam का मतलब?
+              </h3>
+              <p className="text-[#564334] text-lg leading-relaxed mb-4">
+                <span className="font-bold text-[#ff8c00]">"सुजतम"</span> संस्कृत शब्द है जिसका अर्थ है — <span className="font-bold text-[#1b6d24]">"अच्छी खबर"</span> या <span className="font-bold text-[#1b6d24]">"शुभ समाचार"</span>
+              </p>
+              <p className="text-[#564334] text-lg leading-relaxed mb-6">
+                यह App आपके लिए <span className="font-bold">नए ग्राहक</span>, <span className="font-bold">नई आमदनी</span>, और <span className="font-bold">नई पहचान</span> लेकर आया है।
+              </p>
+              <div className="flex items-center gap-3 p-4 bg-[#fff3e0] rounded-2xl border-2 border-[#ff8c00]/30 mb-6">
+                <div className="w-12 h-12 bg-[#ff8c00] rounded-full flex items-center justify-center flex-shrink-0">
+                  <span className="text-white text-2xl font-bold">ॐ</span>
+                </div>
+                <div>
+                  <p className="text-[#904d00] font-bold text-base">HmarePanditJi का परिवार</p>
+                  <p className="text-[#564334] text-sm">पंडित जी के लिए समर्पित</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowSujatamInfo(false)}
+                className="w-full h-14 bg-gradient-to-b from-[#ff8c00] to-[#f89100] text-white font-bold text-lg rounded-xl shadow-lg"
+              >
+                समझ गया
+              </button>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Exit Confirmation Bottom Sheet */}
+      <AnimatePresence>
+        {showExitConfirm && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={handleExitCancel}
+              className="fixed inset-0 bg-black/40 z-50"
+            />
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl p-6 z-50 max-w-lg mx-auto"
+            >
+              <div className="w-12 h-1.5 bg-[#e4e2dd] rounded-full mx-auto mb-6" />
+              <h3 className="font-headline text-2xl font-bold text-[#1b1c19] mb-3">
+                वापस जाएंगे?
+              </h3>
+              <p className="text-[#564334] text-lg leading-relaxed mb-6">
+                आपका progress save नहीं होगा। क्या आप सुनिश्चित हैं?
+              </p>
+              <div className="space-y-3">
+                <button
+                  onClick={handleExitProceed}
+                  className="w-full h-14 bg-[#ba1a1a] text-white font-bold text-lg rounded-xl"
+                >
+                  हाँ, वापस जाना है
+                </button>
+                <button
+                  onClick={handleExitCancel}
+                  className="w-full h-14 bg-[#f5f3ee] text-[#564334] font-bold text-lg rounded-xl border-2 border-[#e4e2dd]"
+                >
+                  नहीं, यहीं रहूँगा
+                </button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       <div className="flex-1 flex flex-col px-8 pb-10 max-w-lg mx-auto w-full">
         {/* Map Illustration */}
@@ -113,45 +232,61 @@ export default function LocationPermissionScreen({
           />
 
           <div className="relative w-4/5 h-4/5">
-            {/* Inline SVG Map of India - Better Outline */}
+            {/* Improved India Map SVG - More recognizable outline */}
             <svg
-              className="w-full h-full opacity-40 grayscale sepia brightness-110"
+              className="w-full h-full opacity-50"
               viewBox="0 0 200 240"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
             >
-              {/* India Outline - Simplified but recognizable */}
+              {/* Gradient definition */}
+              <defs>
+                <linearGradient id="indiaGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#FF8C00" stopOpacity="0.3" />
+                  <stop offset="100%" stopColor="#F89100" stopOpacity="0.5" />
+                </linearGradient>
+              </defs>
+
+              {/* Main India outline - More geographically accurate */}
               <path
-                d="M75 35C80 30 90 25 100 25C110 25 120 30 125 35C130 40 135 45 138 52C140 58 142 65 142 72C142 78 140 82 138 86C135 90 132 95 130 100C128 105 126 110 126 118C126 125 128 132 132 138C136 144 140 150 142 158C144 165 143 172 140 178C137 184 132 188 126 192C120 196 115 200 112 205C110 210 108 215 105 218C102 220 98 220 95 218C92 215 90 210 88 205C85 200 80 196 74 192C68 188 63 184 60 178C57 172 56 165 58 158C60 150 64 144 68 138C72 132 74 125 74 118C74 110 72 105 70 100C68 95 65 90 62 86C60 82 58 78 58 72C58 65 60 58 62 52C65 45 70 40 75 35Z"
-                fill="#904d00"
-                stroke="#904d00"
-                strokeWidth="1.5"
+                d="M80 25C85 22 92 20 100 20C108 20 115 22 120 25C125 28 130 32 133 38C136 44 138 50 139 56C140 62 142 68 145 72C148 76 152 78 155 78C158 78 160 76 161 73C162 70 161 67 159 65C157 63 156 61 156 58C156 55 158 53 161 52C163 51 165 52 166 54C167 56 167 59 165 62C163 65 162 68 162 72C162 78 160 84 156 89C152 94 149 99 147 105C145 111 144 117 144 124C144 131 145 137 147 142C149 147 150 152 150 157C150 162 148 167 145 172C142 177 138 181 133 185C128 189 123 192 118 195C113 198 109 202 106 207C103 212 101 217 100 220C99 223 97 224 95 223C93 222 91 219 90 215C89 211 87 208 84 205C81 202 77 199 72 197C67 195 63 192 60 188C57 184 55 179 54 173C53 167 53 161 55 156C57 151 60 146 64 142C68 138 71 133 73 127C75 121 76 115 76 109C76 103 75 98 73 94C71 90 68 86 64 83C60 80 57 76 55 71C53 66 52 61 53 56C54 51 56 46 60 42C64 38 68 35 72 32C76 29 78 27 80 25Z"
+                fill="url(#indiaGradient)"
+                stroke="#FF8C00"
+                strokeWidth="2"
                 strokeLinejoin="round"
               />
-              {/* Kashmir region */}
+
+              {/* Kashmir region indication */}
               <path
-                d="M85 28C90 25 95 25 100 25C105 25 110 25 115 28C118 30 120 32 120 35"
-                stroke="#904d00"
-                strokeWidth="1.2"
+                d="M88 22C93 19 98 18 103 19C108 20 112 22 115 25"
+                stroke="#FF8C00"
+                strokeWidth="1.5"
                 strokeLinecap="round"
-                fill="none"
+                strokeDasharray="4 3"
+                opacity="0.6"
               />
-              {/* Northeast states hint */}
-              <path
-                d="M142 55C148 58 152 62 155 68C157 72 156 76 153 78C150 80 146 78 144 75C142 72 141 68 142 62C142 58 142 55 142 55Z"
-                stroke="#904d00"
-                strokeWidth="1.2"
+
+              {/* Northeast region indication */}
+              <ellipse
+                cx="162"
+                cy="68"
+                rx="12"
+                ry="18"
+                stroke="#FF8C00"
+                strokeWidth="1.5"
+                strokeDasharray="4 3"
                 fill="none"
+                opacity="0.6"
               />
-              {/* Major cities markers */}
-              <circle cx="95" cy="55" r="2.5" fill="#ff8c00" />
-              <circle cx="100" cy="65" r="2.5" fill="#ff8c00" />
-              <circle cx="92" cy="80" r="2.5" fill="#ff8c00" />
-              <circle cx="105" cy="95" r="2.5" fill="#ff8c00" />
-              <circle cx="98" cy="115" r="2.5" fill="#ff8c00" />
-              <circle cx="108" cy="135" r="2.5" fill="#ff8c00" />
-              <circle cx="102" cy="155" r="2.5" fill="#ff8c00" />
-              <circle cx="95" cy="175" r="2.5" fill="#ff8c00" />
+
+              {/* Major city markers */}
+              <circle cx="98" cy="58" r="3" fill="#FF8C00" opacity="0.8" />
+              <circle cx="105" cy="75" r="3" fill="#FF8C00" opacity="0.8" />
+              <circle cx="95" cy="95" r="3" fill="#FF8C00" opacity="0.8" />
+              <circle cx="110" cy="115" r="3" fill="#FF8C00" opacity="0.8" />
+              <circle cx="102" cy="140" r="3" fill="#FF8C00" opacity="0.8" />
+              <circle cx="108" cy="165" r="3" fill="#FF8C00" opacity="0.8" />
+              <circle cx="100" cy="190" r="3" fill="#FF8C00" opacity="0.8" />
             </svg>
 
             {/* Pulsing Circles */}

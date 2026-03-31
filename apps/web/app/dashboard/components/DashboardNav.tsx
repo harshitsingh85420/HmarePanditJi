@@ -24,7 +24,7 @@ export function DashboardNav() {
                     <nav className="flex flex-col gap-1">
                         {topLinks.map((link) => {
                             // simple active check
-                            const active = pathname.includes(link.href);
+                            const active = pathname?.includes(link.href) ?? false;
                             return (
                                 <Link key={link.href} href={link.href}>
                                     <span className={`flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-all ${active ? "bg-[#393328] border-l-4 border-[#f29e0d] text-white" : "text-[#baaf9c] hover:bg-[#393328] hover:text-white"}`}>
@@ -59,12 +59,12 @@ export function DashboardNav() {
             {/* Mobile Bottom Nav (Dark Theme) */}
             <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-[#181511] border-t border-[#393328] z-50 px-2 flex justify-between items-center shadow-lg pb-safe">
                 {[
-                    { href: &quot;/dashboard&quot;, label: &quot;Home&quot;, icon: &quot;home&quot; },
-                    { href: &quot;/dashboard/bookings&quot;, label: &quot;Bookings&quot;, icon: &quot;list_alt&quot; },
-                    { href: &quot;/dashboard/favorites&quot;, label: &quot;Pandits&quot;, icon: &quot;self_improvement&quot; },
-                    { href: &quot;/dashboard/profile&quot;, label: &quot;Profile&quot;, icon: &quot;person&quot; }
+                    { href: "/dashboard", label: "Home", icon: "home" },
+                    { href: "/dashboard/bookings", label: "Bookings", icon: "list_alt" },
+                    { href: "/dashboard/favorites", label: "Pandits", icon: "self_improvement" },
+                    { href: "/dashboard/profile", label: "Profile", icon: "person" }
                 ].map((link) => {
-                    const active = (link.href === &quot;/dashboard&quot; && pathname === &quot;/dashboard&quot;) || (link.href !== &quot;/dashboard&quot; && pathname.includes(link.href));
+                    const active = (link.href === "/dashboard" && pathname === "/dashboard") || (link.href !== "/dashboard" && (pathname?.includes(link.href) ?? false));
                     return (
                         <Link key={link.href} href={link.href} className="flex-1 flex flex-col items-center gap-1 py-3 px-2">
                             <span className={`material-symbols-outlined text-[24px] ${active ? "text-[#f29e0d] font-bold" : "text-[#baaf9c]"}`}>

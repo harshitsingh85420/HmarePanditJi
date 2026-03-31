@@ -124,7 +124,7 @@ export default function LiveTrackingPage({ params }: { params: { id: string } })
                             className="md:hidden absolute bottom-6 right-6 bg-[#135bec] text-white p-3 rounded-full shadow-lg z-20"
                             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                         >
-                            <span className="material-symbols-outlined">{isSidebarOpen ? &apos;close&apos; : &apos;menu&apos;}</span>
+                            <span className="material-symbols-outlined">{isSidebarOpen ? 'close' : 'menu'}</span>
                         </button>
                     </div>
                 </div>

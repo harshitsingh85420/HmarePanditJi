@@ -219,7 +219,7 @@ export default function WeddingPlannerDashboardPage() {
                                         <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                                             <td className="px-6 py-4">
                                                 <p className="font-semibold text-lg">
-                                                    Aditi &amp; Rahul
+                                                    Aditi & Rahul
                                                 </p>
                                                 <p className="text-base text-slate-400">
                                                     ID: HP-9021
@@ -254,7 +254,7 @@ export default function WeddingPlannerDashboardPage() {
                                         <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                                             <td className="px-6 py-4">
                                                 <p className="font-semibold text-lg">
-                                                    Priya &amp; Amit
+                                                    Priya & Amit
                                                 </p>
                                                 <p className="text-base text-slate-400">
                                                     ID: HP-9044
@@ -289,7 +289,7 @@ export default function WeddingPlannerDashboardPage() {
                                         <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                                             <td className="px-6 py-4">
                                                 <p className="font-semibold text-lg">
-                                                    Sanya &amp; Vikram
+                                                    Sanya & Vikram
                                                 </p>
                                                 <p className="text-base text-slate-400">
                                                     ID: HP-9088
@@ -488,7 +488,7 @@ export default function WeddingPlannerDashboardPage() {
                                     </div>
                                 </div>
                                 <p className="text-[10px] text-slate-500 dark:text-slate-400 mb-4">
-                                    Specialization: Maharashtrian &amp; Marwari
+                                    Specialization: Maharashtrian & Marwari
                                     Rituals
                                 </p>
                                 <button className="w-full border border-[#1152d4] text-[#1152d4] text-[10px] font-bold py-3.5 rounded uppercase hover:bg-[#1152d4] hover:text-white transition-all">

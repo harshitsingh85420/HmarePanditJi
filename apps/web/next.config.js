@@ -16,6 +16,20 @@ const nextConfig = {
     ],
   },
 
+  // Configure experimental features for App Router
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '2mb',
+    },
+  },
+
+  // Skip static generation of error routes - they will be rendered dynamically
+  // This prevents "Html import" errors during build
+  onDemandEntries: {
+    // Keep pages in memory longer
+    maxInactiveAge: 60 * 1000,
+  },
+
   async headers() {
     return [
       {

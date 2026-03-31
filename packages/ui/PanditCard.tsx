@@ -52,18 +52,18 @@ export interface PanditCardProps {
 
 const getTravelModeIcon = (mode: string) => {
     const m = mode.toLowerCase();
-    if (m.includes(&apos;flight&apos;)) return &apos;flight&apos;;
-    if (m.includes(&apos;train&apos;)) return &apos;train&apos;;
-    if (m.includes(&apos;cab&apos;)) return &apos;local_taxi&apos;;
-    return &apos;directions_car&apos;;
+    if (m.includes('flight')) return 'flight';
+    if (m.includes('train')) return 'train';
+    if (m.includes('cab')) return 'local_taxi';
+    return 'directions_car';
 };
 
 const getTravelModeName = (mode: string) => {
     const m = mode.toLowerCase();
-    if (m.includes(&apos;flight&apos;)) return &apos;FLIGHT&apos;;
-    if (m.includes(&apos;train&apos;)) return &apos;TRAIN&apos;;
-    if (m.includes(&apos;cab&apos;)) return &apos;CAB&apos;;
-    return &apos;SELF-DRIVE&apos;;
+    if (m.includes('flight')) return 'FLIGHT';
+    if (m.includes('train')) return 'TRAIN';
+    if (m.includes('cab')) return 'CAB';
+    return 'SELF-DRIVE';
 };
 
 export const PanditCard: React.FC<PanditCardProps> = (props) => {
@@ -75,7 +75,7 @@ export const PanditCard: React.FC<PanditCardProps> = (props) => {
     const totalReviews = props.pandit?.totalReviews ?? props.totalReviews ?? 0;
     const location = props.pandit?.location || props.location || '';
     const specializations = props.pandit?.specializations || props.specializations || [];
-    const isVerified = props.pandit?.verificationStatus === &apos;VERIFIED&apos; || props.isVerified || false;
+    const isVerified = props.pandit?.verificationStatus === 'VERIFIED' || props.isVerified || false;
     const travelOptions = props.travelOptions || props.travelModes || [];
 
     const [selectedTravel, setSelectedTravel] = useState(0);
@@ -154,13 +154,13 @@ export const PanditCard: React.FC<PanditCardProps> = (props) => {
                                     key={i}
                                     onClick={() => setSelectedTravel(i)}
                                     className={`pb-3 border-b-2 flex flex-col items-center gap-1 whitespace-nowrap transition-colors ${isSelected
-                                            ? &apos;border-orange-500 text-orange-500&apos;
-                                            : &apos;border-transparent hover:text-slate-600&apos;
+                                            ? 'border-orange-500 text-orange-500'
+                                            : 'border-transparent hover:text-slate-600'
                                         }`}
                                 >
                                     <span>{getTravelModeName(opt.mode)}</span>
                                     <span className={`text-sm ${isSelected ? 'font-black' : ''}`}>
-                                        ₹{price >= 1000 ? `${(price / 1000).toFixed(1).replace(&apos;.0&apos;, '')}k` : price}
+                                        ₹{price >= 1000 ? `${(price / 1000).toFixed(1).replace('.0', '')}k` : price}
                                     </span>
                                 </button>
                             );
@@ -178,7 +178,7 @@ export const PanditCard: React.FC<PanditCardProps> = (props) => {
                                 Profile
                             </button>
                             <button
-                                onClick={() => props.onBook(id, travelOptions[selectedTravel]?.mode || &apos;SELF_DRIVE&apos;)}
+                                onClick={() => props.onBook(id, travelOptions[selectedTravel]?.mode || 'SELF_DRIVE')}
                                 className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2.5 px-6 rounded-xl transition-all shadow-md shadow-orange-500/20 text-sm whitespace-nowrap"
                             >
                                 Book Now
@@ -195,7 +195,7 @@ export const PanditCard: React.FC<PanditCardProps> = (props) => {
                         View Profile
                     </button>
                     <button
-                        onClick={() => props.onBook(id, &apos;SELF_DRIVE&apos;)}
+                        onClick={() => props.onBook(id, 'SELF_DRIVE')}
                         className="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-xl transition-all shadow-md shadow-orange-500/20 text-sm"
                     >
                         Book Now

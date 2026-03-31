@@ -18,27 +18,27 @@ export default function ProfilePage() {
   useEffect(() => {
     if (!loading && !user) {
       openLoginModal();
-      router.replace(&quot;/&quot;);
+      router.replace("/");
     }
   }, [loading, user, openLoginModal, router]);
 
   // Pre-fill form from current user
   useEffect(() => {
     if (user) {
-      setFullName(user.fullName ?? &quot;&quot;);
-      setEmail(user.email ?? &quot;&quot;);
+      setFullName(user.fullName ?? "");
+      setEmail(user.email ?? "");
     }
   }, [user]);
 
   const handleSave = async () => {
     if (!accessToken) return;
-    setError(&quot;&quot;);
+    setError("");
     setSaving(true);
     try {
       const res = await fetch(`${API_BASE}/auth/me`, {
-        method: &quot;PATCH&quot;,
+        method: "PATCH",
         headers: {
-          &quot;Content-Type&quot;: &quot;application/json&quot;,
+          "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({
@@ -48,14 +48,14 @@ export default function ProfilePage() {
       });
       const json = await res.json();
       if (!res.ok) {
-        setError(json.message ?? &quot;Failed to save. Please try again.&quot;);
+        setError(json.message ?? "Failed to save. Please try again.");
         return;
       }
       setUser(json.data?.user ?? null);
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch {
-      setError(&quot;Network error. Please try again.&quot;);
+      setError("Network error. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -70,7 +70,7 @@ export default function ProfilePage() {
   }
 
   const initials = user.fullName
-    ? user.fullName.split(&quot; &quot;).slice(0, 2).map((w) => w[0]).join(&quot;&quot;).toUpperCase()
+    ? user.fullName.split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase()
     : user.phone.slice(-2);
 
   return (

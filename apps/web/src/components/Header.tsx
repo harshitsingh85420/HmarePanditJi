@@ -17,7 +17,7 @@ export function Header() {
     useEffect(() => {
         if (!loading) {
             if (!isAuthenticated) {
-                const dismissed = sessionStorage.getItem(&quot;hpj_guest_dismissed&quot;);
+                const dismissed = sessionStorage.getItem("hpj_guest_dismissed");
                 if (!dismissed) {
                     setShowGuestBanner(true);
                 }
@@ -28,7 +28,7 @@ export function Header() {
     }, [loading, isAuthenticated]);
 
     const handleDismissBanner = () => {
-        sessionStorage.setItem(&quot;hpj_guest_dismissed&quot;, &quot;true&quot;);
+        sessionStorage.setItem("hpj_guest_dismissed", "true");
         setShowGuestBanner(false);
     };
 
@@ -38,7 +38,7 @@ export function Header() {
                 <div className="relative">
                     <GuestBanner
                         variant="inline"
-                        onLoginClick={() => router.push(&quot;/login&quot;)}
+                        onLoginClick={() => router.push("/login")}
                         className="rounded-none border-x-0 border-t-0 bg-amber-50"
                     />
                     <button
@@ -79,12 +79,12 @@ export function Header() {
                             </button>
                         )}
                         {!loading && !isAuthenticated && (
-                            <Button variant="outline" onClick={() => router.push(&quot;/login&quot;)} className="min-h-[72px] px-6 text-[26px] font-bold">
+                            <Button variant="outline" onClick={() => router.push("/login")} className="min-h-[72px] px-6 text-[26px] font-bold">
                                 लॉगिन करें
                             </Button>
                         )}
 
-                        {!loading && isAuthenticated && user && user.role === &apos;CUSTOMER&apos; && (
+                        {!loading && isAuthenticated && user && user.role === 'CUSTOMER' && (
                             <div className="flex items-center gap-4">
                                 <Link href="/dashboard" className="text-lg font-medium text-amber-600 hover:text-amber-700 hidden md:block">
                                     My Bookings
@@ -100,7 +100,7 @@ export function Header() {
                             onClick={() => setIsMenuOpen(!isMenuOpen)}
                             aria-label="Toggle Menu"
                         >
-                            <span className="material-symbols-outlined">{isMenuOpen ? &quot;close&quot; : &quot;menu&quot;}</span>
+                            <span className="material-symbols-outlined">{isMenuOpen ? "close" : "menu"}</span>
                         </button>
                     </div>
                 </div>

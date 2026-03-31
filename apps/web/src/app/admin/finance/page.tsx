@@ -131,7 +131,7 @@ export default function AdminFinancePage() {
                                     Discrepancies
                                 </p>
                                 <h3 className="text-2xl font-bold text-slate-900 dark:text-white mt-1">
-                                    3{&quot; &quot;}
+                                    3{" "}
                                     <span className="text-lg font-normal text-slate-500">
                                         Bookings
                                     </span>

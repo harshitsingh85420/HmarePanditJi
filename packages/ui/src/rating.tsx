@@ -5,7 +5,7 @@ import React, { useState } from "react";
 export interface RatingProps {
   value: number;
   onChange?: (value: number) => void;
-  size?: &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot;;
+  size?: "sm" | "md" | "lg";
   showValue?: boolean;
   className?: string;
 }
@@ -13,18 +13,18 @@ export interface RatingProps {
 export function Rating({
   value,
   onChange,
-  size = &quot;md&quot;,
+  size = "md",
   showValue = true,
-  className = &quot;&quot;,
+  className = "",
 }: RatingProps) {
   const [hoverValue, setHoverValue] = useState(0);
   const isInput = !!onChange;
   const displayValue = hoverValue || value;
 
   const sizes: Record<string, { star: string; text: string }> = {
-    sm: { star: &quot;text-base&quot;, text: &quot;text-xs&quot; },
-    md: { star: &quot;text-xl&quot;, text: &quot;text-sm&quot; },
-    lg: { star: &quot;text-2xl&quot;, text: &quot;text-base&quot; },
+    sm: { star: "text-base", text: "text-xs" },
+    md: { star: "text-xl", text: "text-sm" },
+    lg: { star: "text-2xl", text: "text-base" },
   };
 
   const { star, text } = sizes[size];

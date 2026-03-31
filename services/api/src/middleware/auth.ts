@@ -2,7 +2,8 @@ import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { env } from "../config/env";
 import { sendUnauthorized, sendForbidden } from "../utils/response";
-import { Role } from "@hmarepanditji/db";
+
+type Role = "CUSTOMER" | "PANDIT" | "ADMIN";
 
 interface JwtPayload {
   id?: string;

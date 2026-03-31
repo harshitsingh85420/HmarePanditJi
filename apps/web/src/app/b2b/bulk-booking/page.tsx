@@ -15,7 +15,7 @@ export default function BulkBookingDashboardPage() {
                                 H
                             </div>
                             <span className="font-bold text-lg tracking-tight text-gray-900 dark:text-white">
-                                HmarePanditJi{&quot; &quot;}
+                                HmarePanditJi{" "}
                                 <span className="text-[#0f49bd] font-normal text-lg bg-[#0f49bd]/10 px-1.5 py-2 rounded ml-1">
                                     B2B
                                 </span>
@@ -228,10 +228,10 @@ export default function BulkBookingDashboardPage() {
                                         Client / ID
                                     </th>
                                     <th className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                                        Date &amp; Time
+                                        Date & Time
                                     </th>
                                     <th className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                                        Venue &amp; Location
+                                        Venue & Location
                                     </th>
                                     <th className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
                                         Pandit Assigned
@@ -434,7 +434,7 @@ export default function BulkBookingDashboardPage() {
                                         <span className="inline-flex items-center px-4.5 py-3 rounded-full text-base font-medium bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800">
                                             <span className="material-icons text-[14px] mr-1">
                                                 warning
-                                            </span>{&quot; &quot;}
+                                            </span>{" "}
                                             Issue
                                         </span>
                                     </td>

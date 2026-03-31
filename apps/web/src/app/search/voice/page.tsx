@@ -80,7 +80,7 @@ export default function VoiceSearchPage() {
                         <main className="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
                             <div className="sm:text-center lg:text-left">
                                 <h1 className="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
-                                    <span className="block xl:inline">Authentic Vedic</span>{&quot; &quot;}
+                                    <span className="block xl:inline">Authentic Vedic</span>{" "}
                                     <span className="block text-[#f49d25] xl:inline">
                                         Pandits for your Home
                                     </span>
@@ -96,7 +96,7 @@ export default function VoiceSearchPage() {
                                     <div className="absolute -top-3 right-4 bg-green-100 text-green-800 text-base font-semibold px-4 py-2 rounded-full border border-green-200 flex items-center gap-1">
                                         <span className="material-symbols-outlined text-lg">
                                             mic
-                                        </span>{&quot; &quot;}
+                                        </span>{" "}
                                         Voice Enabled
                                     </div>
                                     <form className="flex flex-col sm:flex-row gap-2">
@@ -153,10 +153,10 @@ export default function VoiceSearchPage() {
                                             Tip
                                         </span>
                                         <span>
-                                            Press the{&quot; &quot;}
+                                            Press the{" "}
                                             <span className="font-bold text-[#f49d25]">
                                                 mic button
-                                            </span>{&quot; &quot;}
+                                            </span>{" "}
                                             to speak in Hindi or English
                                         </span>
                                     </div>
@@ -260,7 +260,7 @@ export default function VoiceSearchPage() {
                                     className="mt-4 text-lg text-[#f49d25] font-medium flex items-center hover:underline"
                                     href="#"
                                 >
-                                    View Full Calendar{&quot; &quot;}
+                                    View Full Calendar{" "}
                                     <span className="material-symbols-outlined text-lg ml-1">
                                         arrow_forward
                                     </span>
@@ -276,24 +276,24 @@ export default function VoiceSearchPage() {
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                                 {[
                                     {
-                                        name: &quot;Griha Pravesh&quot;,
-                                        price: &quot;Starting ₹2100&quot;,
-                                        icon: &quot;home_work&quot;,
+                                        name: "Griha Pravesh",
+                                        price: "Starting ₹2100",
+                                        icon: "home_work",
                                     },
                                     {
-                                        name: &quot;Vivah Sanskar&quot;,
-                                        price: &quot;Starting ₹11000&quot;,
-                                        icon: &quot;diversity_3&quot;,
+                                        name: "Vivah Sanskar",
+                                        price: "Starting ₹11000",
+                                        icon: "diversity_3",
                                     },
                                     {
-                                        name: &quot;Satyanarayan&quot;,
-                                        price: &quot;Starting ₹1500&quot;,
-                                        icon: &quot;menu_book&quot;,
+                                        name: "Satyanarayan",
+                                        price: "Starting ₹1500",
+                                        icon: "menu_book",
                                     },
                                     {
-                                        name: &quot;Havan&quot;,
-                                        price: &quot;Starting ₹2500&quot;,
-                                        icon: &quot;local_fire_department&quot;,
+                                        name: "Havan",
+                                        price: "Starting ₹2500",
+                                        icon: "local_fire_department",
                                     },
                                 ].map((service, index) => (
                                     <div key={index} className="group cursor-pointer">
@@ -437,7 +437,7 @@ function PanditCard({
     languages,
     price,
     image,
-    className = &quot;&quot;,
+    className = "",
 }: {
     name: string;
     location: string;
@@ -469,7 +469,7 @@ function PanditCard({
                                     style={{ fontVariationSettings: "'FILL' 1" }}
                                 >
                                     verified
-                                </span>{&quot; &quot;}
+                                </span>{" "}
                                 Verified
                             </span>
                         </div>

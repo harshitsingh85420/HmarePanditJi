@@ -19,7 +19,7 @@ export default function TermsPage() {
 
             <h2>1. Platform Overview and Role</h2>
             <p>
-                HmarePanditJi (&quot;the Platform&quot;) operates as an intermediary connecting customers seeking Hindu religious services with verified independent Pandits. The Platform facilitates discovery, booking, and payment but is not the employer of any Pandit listed on the site.
+                HmarePanditJi ("the Platform") operates as an intermediary connecting customers seeking Hindu religious services with verified independent Pandits. The Platform facilitates discovery, booking, and payment but is not the employer of any Pandit listed on the site.
             </p>
 
             <h2>2. User Eligibility</h2>
@@ -29,7 +29,7 @@ export default function TermsPage() {
 
             <h2>3. Account Creation and Verification</h2>
             <p>
-                Customers must provide accurate contact information. Pandits must undergo our rigorous verification process, including identity checks (Aadhaar/PAN), video KYC, and credential verification before they are listed as &quot;Verified.&quot;
+                Customers must provide accurate contact information. Pandits must undergo our rigorous verification process, including identity checks (Aadhaar/PAN), video KYC, and credential verification before they are listed as "Verified."
             </p>
 
             <h2>4. Booking Process and Obligations</h2>

@@ -17,7 +17,7 @@ export const GuestBanner: React.FC<GuestBannerProps> = ({
 
     useEffect(() => {
         // Check sessionStorage to see if user dismissed it in this session
-        const isDismissed = sessionStorage.getItem(&apos;guestBannerDismissed&apos;);
+        const isDismissed = sessionStorage.getItem('guestBannerDismissed');
         if (!isDismissed) {
             setIsVisible(true);
         }
@@ -25,7 +25,7 @@ export const GuestBanner: React.FC<GuestBannerProps> = ({
 
     const handleDismiss = () => {
         setIsVisible(false);
-        sessionStorage.setItem(&apos;guestBannerDismissed&apos;, &apos;true&apos;);
+        sessionStorage.setItem('guestBannerDismissed', 'true');
     };
 
     if (!isVisible) return null;

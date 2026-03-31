@@ -2,32 +2,32 @@ import React from "react";
 
 export interface IconProps extends React.HTMLAttributes<HTMLSpanElement> {
   name: string;
-  size?: &quot;xs&quot; | &quot;sm&quot; | &quot;md&quot; | &quot;lg&quot; | &quot;xl&quot; | number;
+  size?: "xs" | "sm" | "md" | "lg" | "xl" | number;
   filled?: boolean;
-  &quot;aria-label&quot;?: string;
+  "aria-label"?: string;
 }
 
 const sizeMap: Record<string, string> = {
-  xs: &quot;text-sm&quot;,
-  sm: &quot;text-base&quot;,
-  md: &quot;text-xl&quot;,
-  lg: &quot;text-2xl&quot;,
-  xl: &quot;text-3xl&quot;,
+  xs: "text-sm",
+  sm: "text-base",
+  md: "text-xl",
+  lg: "text-2xl",
+  xl: "text-3xl",
 };
 
 export function Icon({
   name,
-  size = &quot;md&quot;,
+  size = "md",
   filled = false,
-  className = &quot;&quot;,
+  className = "",
   style,
-  &quot;aria-label&quot;: ariaLabel,
+  "aria-label": ariaLabel,
   ...props
 }: IconProps) {
   const sizeClass =
-    typeof size === &quot;number&quot; ? &quot;&quot; : sizeMap[size] ?? sizeMap.md;
+    typeof size === "number" ? "" : sizeMap[size] ?? sizeMap.md;
   const sizeStyle =
-    typeof size === &quot;number&quot; ? { fontSize: size } : undefined;
+    typeof size === "number" ? { fontSize: size } : undefined;
 
   return (
     <span

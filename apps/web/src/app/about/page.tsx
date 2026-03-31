@@ -25,7 +25,7 @@ export default function AboutPage() {
           About HmarePanditJi
         </h1>
         <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed">
-          India&apos;s first platform for booking Aadhaar-verified Hindu priests with integrated travel logistics and a zero-cancellation guarantee.
+          India's first platform for booking Aadhaar-verified Hindu priests with integrated travel logistics and a zero-cancellation guarantee.
         </p>
       </div>
 
@@ -40,9 +40,9 @@ export default function AboutPage() {
       {/* What makes us different */}
       <div className="grid md:grid-cols-3 gap-6 mb-16">
         {[
-          { icon: &quot;verified_user&quot;, title: &quot;Aadhaar Verified&quot;, desc: &quot;Every pandit completes Aadhaar ID verification, video KYC, and a background check before joining our platform.&quot; },
-          { icon: &quot;commute&quot;, title: &quot;Travel Guaranteed&quot;, desc: &quot;We book and pay for pandit travel to outstation ceremonies. Car, train, or flight — the pandit always arrives.&quot; },
-          { icon: &quot;backup&quot;, title: &quot;Backup Assurance&quot;, desc: &quot;If a pandit cancels for any reason, we place a qualified replacement within hours. Your muhurat is sacred.&quot; },
+          { icon: "verified_user", title: "Aadhaar Verified", desc: "Every pandit completes Aadhaar ID verification, video KYC, and a background check before joining our platform." },
+          { icon: "commute", title: "Travel Guaranteed", desc: "We book and pay for pandit travel to outstation ceremonies. Car, train, or flight — the pandit always arrives." },
+          { icon: "backup", title: "Backup Assurance", desc: "If a pandit cancels for any reason, we place a qualified replacement within hours. Your muhurat is sacred." },
         ].map((item) => (
           <div key={item.title} className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-100 dark:border-slate-800">
             <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
@@ -68,9 +68,9 @@ export default function AboutPage() {
       {/* Stats */}
       <div className="grid grid-cols-3 gap-6 mb-16">
         {[
-          { value: &quot;50,000+&quot;, label: &quot;Ceremonies Completed&quot; },
-          { value: &quot;2,500+&quot;, label: &quot;Verified Pandits&quot; },
-          { value: &quot;Delhi-NCR&quot;, label: &quot;Phase 1 Region&quot; },
+          { value: "50,000+", label: "Ceremonies Completed" },
+          { value: "2,500+", label: "Verified Pandits" },
+          { value: "Delhi-NCR", label: "Phase 1 Region" },
         ].map((stat) => (
           <div key={stat.label} className="text-center bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-100 dark:border-slate-800">
             <p className="text-3xl font-black text-primary">{stat.value}</p>

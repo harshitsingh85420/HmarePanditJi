@@ -22,8 +22,8 @@ export default function SupportLogPage() {
     const [loading, setLoading] = useState(true);
 
     // Filters
-    const [statusFilter, setStatusFilter] = useState(&quot;ALL&quot;);
-    const [priorityFilter, setPriorityFilter] = useState(&quot;ALL&quot;);
+    const [statusFilter, setStatusFilter] = useState(ALL);
+    const [priorityFilter, setPriorityFilter] = useState(ALL);
 
     // Modal state
     const [logModalOpen, setLogModalOpen] = useState(false);
@@ -31,28 +31,28 @@ export default function SupportLogPage() {
     const [selectedTicket, setSelectedTicket] = useState<any>(null);
 
     // Form state
-    const [source, setSource] = useState(&quot;Phone Call&quot;);
-    const [type, setType] = useState(&quot;General Inquiry&quot;);
-    const [relatedBookingId, setRelatedBookingId] = useState(&quot;&quot;);
-    const [relatedUserId, setRelatedUserId] = useState(&quot;&quot;);
-    const [subject, setSubject] = useState(&quot;&quot;);
-    const [description, setDescription] = useState(&quot;&quot;);
-    const [priority, setPriority] = useState(&quot;MEDIUM&quot;);
-    const [status, setStatus] = useState(&quot;OPEN&quot;);
+    const [source, setSource] = useState(Phone Call);
+    const [type, setType] = useState(General Inquiry);
+    const [relatedBookingId, setRelatedBookingId] = useState();
+    const [relatedUserId, setRelatedUserId] = useState();
+    const [subject, setSubject] = useState();
+    const [description, setDescription] = useState();
+    const [priority, setPriority] = useState(MEDIUM);
+    const [status, setStatus] = useState(OPEN);
 
     // Detail modal state
-    const [resolution, setResolution] = useState(&quot;&quot;);
-    const [updateStatus, setUpdateStatus] = useState(&quot;&quot;);
+    const [resolution, setResolution] = useState();
+    const [updateStatus, setUpdateStatus] = useState();
 
     const fetchTickets = async () => {
         setLoading(true);
         try {
-            const token = localStorage.getItem(&quot;token&quot;);
+            const token = localStorage.getItem(token);
             const qs = new URLSearchParams();
-            if (statusFilter !== &quot;ALL&quot;) qs.append(&quot;status&quot;, statusFilter);
-            if (priorityFilter !== &quot;ALL&quot;) qs.append(&quot;priority&quot;, priorityFilter);
+            if (statusFilter !== ALL) qs.append(status, statusFilter);
+            if (priorityFilter !== ALL) qs.append(priority, priorityFilter);
 
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || &apos;http://localhost:3001/api/v1&apos;}/admin/support-tickets?${qs.toString()}`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/support-tickets?${qs.toString()}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             const json = await res.json();
@@ -71,31 +71,31 @@ export default function SupportLogPage() {
     }, [statusFilter, priorityFilter]);
 
     const handleLogNewTicket = () => {
-        setSource(&quot;Phone Call&quot;);
-        setType(&quot;General Inquiry&quot;);
-        setRelatedBookingId(&quot;&quot;);
-        setRelatedUserId(&quot;&quot;);
-        setSubject(&quot;&quot;);
-        setDescription(&quot;&quot;);
-        setPriority(&quot;MEDIUM&quot;);
-        setStatus(&quot;OPEN&quot;);
+        setSource(Phone Call);
+        setType(General Inquiry);
+        setRelatedBookingId();
+        setRelatedUserId();
+        setSubject();
+        setDescription();
+        setPriority(MEDIUM);
+        setStatus(OPEN);
         setLogModalOpen(true);
     };
 
     const submitTicket = async () => {
-        if (!subject || !description) return alert(&quot;Subject and Description are required&quot;);
+        if (!subject || !description) return alert(Subject and Description are required);
         try {
-            const token = localStorage.getItem(&quot;token&quot;);
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || &apos;http://localhost:3001/api/v1&apos;}/admin/support-tickets`, {
-                method: &quot;POST&quot;,
-                headers: { &quot;Content-Type&quot;: &quot;application/json&quot;, Authorization: `Bearer ${token}` },
+            const token = localStorage.getItem(token);
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/support-tickets`, {
+                method: POST,
+                headers: { Content-Type: application/json, Authorization: `Bearer ${token}` },
                 body: JSON.stringify({
                     source, type, relatedBookingId, relatedUserId, subject, description, priority, status
                 })
             });
             const json = await res.json();
             if (json.success) {
-                alert(&quot;Ticket logged successfully&quot;);
+                alert(Ticket logged successfully);
                 setLogModalOpen(false);
                 fetchTickets();
             } else {
@@ -103,28 +103,28 @@ export default function SupportLogPage() {
             }
         } catch (e) {
             console.error(e);
-            alert(&quot;Error logging ticket&quot;);
+            alert(Error logging ticket);
         }
     };
 
     const handleRowClick = (ticket: any) => {
         setSelectedTicket(ticket);
-        setResolution(ticket.resolution || &quot;&quot;);
+        setResolution(ticket.resolution || );
         setUpdateStatus(ticket.status);
         setDetailModalOpen(true);
     };
 
     const saveTicketUpdate = async () => {
         try {
-            const token = localStorage.getItem(&quot;token&quot;);
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || &apos;http://localhost:3001/api/v1&apos;}/admin/support-tickets/${selectedTicket.id}`, {
-                method: &quot;PATCH&quot;,
-                headers: { &quot;Content-Type&quot;: &quot;application/json&quot;, Authorization: `Bearer ${token}` },
+            const token = localStorage.getItem(token);
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/support-tickets/${selectedTicket.id}`, {
+                method: PATCH,
+                headers: { Content-Type: application/json, Authorization: `Bearer ${token}` },
                 body: JSON.stringify({ status: updateStatus, resolution })
             });
             const json = await res.json();
             if (json.success) {
-                alert(&quot;Ticket updated&quot;);
+                alert(Ticket updated);
                 setDetailModalOpen(false);
                 fetchTickets();
             } else {
@@ -335,8 +335,8 @@ export default function SupportLogPage() {
                                 <div className="grid grid-cols-2 gap-2 text-xs">
                                     <span className="text-muted-foreground">Source: <b className="text-foreground">{selectedTicket.source}</b></span>
                                     <span className="text-muted-foreground">Type: <b className="text-foreground">{selectedTicket.type}</b></span>
-                                    <span className="text-muted-foreground">Booking: <a href={`/bookings/${selectedTicket.relatedBookingId}`} className="text-indigo-600 underline font-bold">{selectedTicket.relatedBookingId || &apos;N/A&apos;}</a></span>
-                                    <span className="text-muted-foreground">User: <b className="text-foreground">{selectedTicket.relatedUserId || &apos;N/A&apos;}</b></span>
+                                    <span className="text-muted-foreground">Booking: <a href={`/bookings/${selectedTicket.relatedBookingId}`} className="text-indigo-600 underline font-bold">{selectedTicket.relatedBookingId || 'N/A'}</a></span>
+                                    <span className="text-muted-foreground">User: <b className="text-foreground">{selectedTicket.relatedUserId || 'N/A'}</b></span>
                                     <span className="text-muted-foreground col-span-2 mt-1">Logged: <b className="text-foreground">{new Date(selectedTicket.createdAt).toLocaleString()}</b></span>
                                 </div>
                             </div>

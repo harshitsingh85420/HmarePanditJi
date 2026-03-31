@@ -17,17 +17,27 @@ export default function ManualCityScreen({ onCitySelected, onBack, onLanguageCha
   const [cityInput, setCityInput] = useState('');
   const [isListening, setIsListening] = useState(false);
   const [voiceError, setVoiceError] = useState('');
+  const [showVoicePrompt, setShowVoicePrompt] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleMicTap = () => {
     setVoiceError('');
     setIsListening(true);
+    // Simulate voice listening - in production this will use Web Speech API or Sarvam STT
     setTimeout(() => {
       setIsListening(false);
       const cities = Object.keys(HINDI_TO_ENGLISH_CITIES);
       const random = cities[Math.floor(Math.random() * cities.length)];
       setCityInput(random);
     }, 2000);
+  };
+
+  const handleVoicePromptOpen = () => {
+    setShowVoicePrompt(true);
+  };
+
+  const handleVoicePromptClose = () => {
+    setShowVoicePrompt(false);
   };
 
   useEffect(() => {
@@ -98,7 +108,7 @@ export default function ManualCityScreen({ onCitySelected, onBack, onLanguageCha
           whileTap={{ scale: 0.98 }}
           onClick={() => {
             if (navigator.vibrate) navigator.vibrate(10);
-            handleMicTap();
+            handleVoicePromptOpen();
           }}
           className="relative bg-saffron-lt border-3 border-saffron rounded-2xl p-4 xs:p-6 flex items-center gap-3 xs:gap-5 cursor-pointer overflow-hidden shadow-card active:scale-95 transition-transform min-h-[52px] xs:min-h-[56px] sm:min-h-[120px]"
         >
@@ -128,9 +138,21 @@ export default function ManualCityScreen({ onCitySelected, onBack, onLanguageCha
 
           <div className="flex flex-col min-w-0">
             <span className="text-xl xs:text-2xl sm:text-[30px] font-body font-bold text-text-primary truncate">
-              {isListening ? 'सुन रहा हूँ...' : (cityInput || 'अपना शहर बोलें')}
+              {isListening ? 'सुन रहा हूँ...' : (cityInput || 'नाम बता दूंगा')}
             </span>
-            <span className="text-base xs:text-lg sm:text-[24px] font-body text-saffron font-medium">जैसे: 'वाराणसी' या 'दिल्ली'</span>
+            <span className="text-base xs:text-lg sm:text-[24px] font-body text-saffron font-medium">
+              {isListening ? 'बोल रहे हैं...' : 'माइक पर टैप करें'}
+            </span>
+          </div>
+
+          {/* Info badge */}
+          <div className="absolute top-2 right-2 xs:top-3 xs:right-3">
+            <span className="inline-flex items-center gap-1 px-2 py-1 xs:px-3 xs:py-1.5 bg-saffron text-white text-xs xs:text-sm font-bold rounded-full">
+              <svg className="w-3 h-3 xs:w-4 xs:h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              <span className="hidden xs:inline">आसान</span>
+            </span>
           </div>
         </motion.div>
 
@@ -235,6 +257,83 @@ export default function ManualCityScreen({ onCitySelected, onBack, onLanguageCha
           </svg>
         </button>
       </footer>
+
+      {/* Voice Input Prompt Bottom Sheet */}
+      {showVoicePrompt && (
+        <>
+          <div
+            className="fixed inset-0 bg-black/40 z-50"
+            onClick={handleVoicePromptClose}
+          />
+          <div className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl p-6 z-50 max-w-lg mx-auto animate-slide-up">
+            <div className="w-12 h-1.5 bg-[#e4e2dd] rounded-full mx-auto mb-6" />
+
+            <div className="text-center mb-6">
+              <h3 className="font-headline text-2xl font-bold text-[#1b1c19] mb-2">
+                कैसे बोलें?
+              </h3>
+              <p className="text-[#564334] text-lg">
+                माइक पर टैप करें और अपना शहर बोलें
+              </p>
+            </div>
+
+            {/* Examples */}
+            <div className="space-y-3 mb-6">
+              <div className="flex items-center gap-3 p-3 bg-[#fff3e0] rounded-xl border-2 border-[#ff8c00]/30">
+                <div className="w-10 h-10 bg-[#ff8c00] rounded-full flex items-center justify-center flex-shrink-0">
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <p className="text-[#904d00] font-bold text-base">उदाहरण 1</p>
+                  <p className="text-[#564334] text-sm">"वाराणसी"</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 p-3 bg-[#fff3e0] rounded-xl border-2 border-[#ff8c00]/30">
+                <div className="w-10 h-10 bg-[#ff8c00] rounded-full flex items-center justify-center flex-shrink-0">
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <p className="text-[#904d00] font-bold text-base">उदाहरण 2</p>
+                  <p className="text-[#564334] text-sm">"दिल्ली"</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="space-y-3">
+              <button
+                onClick={() => {
+                  handleVoicePromptClose();
+                  handleMicTap();
+                }}
+                className="w-full h-14 bg-gradient-to-b from-[#ff8c00] to-[#f89100] text-white font-bold text-lg rounded-xl shadow-lg flex items-center justify-center gap-2"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                </svg>
+                बोलना शुरू करें
+              </button>
+
+              <button
+                onClick={handleVoicePromptClose}
+                className="w-full h-14 bg-[#f5f3ee] text-[#564334] font-bold text-lg rounded-xl border-2 border-[#e4e2dd]"
+              >
+                रद्द करें
+              </button>
+            </div>
+
+            {/* Help Text */}
+            <p className="text-center text-[#897362] text-sm mt-4">
+              साफ़ आवाज़ में बोलें • शोर मुक्त जगह चुनें
+            </p>
+          </div>
+        </>
+      )}
     </main>
   );
 }

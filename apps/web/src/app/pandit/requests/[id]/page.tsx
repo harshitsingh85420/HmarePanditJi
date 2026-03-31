@@ -173,7 +173,7 @@ export default function BookingRequestPage({ params }: { params: { id: string } 
                         </div>
                         <div className="flex justify-between items-center text-lg">
                             <span className="text-[#8a7460] dark:text-[#c7b8a9]">
-                                Food &amp; Stay Allowance
+                                Food & Stay Allowance
                             </span>
                             <span className="font-medium text-[#181411] dark:text-white">
                                 ₹3,250
@@ -210,7 +210,7 @@ export default function BookingRequestPage({ params }: { params: { id: string } 
             <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white/80 dark:bg-[#1a130d]/80 backdrop-blur-md border-t border-[#e6e0db] dark:border-[#3d2c1d] px-4 pb-8 pt-4">
                 <div className="flex flex-col gap-3">
                     <button
-                        onClick={() => alert(&quot;Accepted! In a real app, this would confirm the booking.&quot;)}
+                        onClick={() => alert("Accepted! In a real app, this would confirm the booking.")}
                         className="w-full bg-[#f48525] hover:bg-[#f48525]/90 text-white font-bold py-4 rounded-xl shadow-lg shadow-[#f48525]/20 transition-all active:scale-95 flex items-center justify-center gap-2"
                     >
                         <span className="material-symbols-outlined">check_circle</span>

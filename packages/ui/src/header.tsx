@@ -12,28 +12,28 @@ export interface NavLink {
 
 const navLinks: Record<AppType, NavLink[]> = {
   web: [
-    { label: &quot;Find Pandits&quot;, href: &quot;/pandits&quot;, icon: &quot;search&quot; },
-    { label: &quot;Rituals&quot;, href: &quot;/rituals&quot;, icon: &quot;auto_awesome&quot; },
-    { label: &quot;My Bookings&quot;, href: &quot;/bookings&quot;, icon: &quot;calendar_month&quot; },
+    { label: "Find Pandits", href: "/pandits", icon: "search" },
+    { label: "Rituals", href: "/rituals", icon: "auto_awesome" },
+    { label: "My Bookings", href: "/bookings", icon: "calendar_month" },
   ],
   pandit: [
-    { label: &quot;Dashboard&quot;, href: &quot;/dashboard&quot;, icon: &quot;dashboard&quot; },
-    { label: &quot;Bookings&quot;, href: &quot;/bookings&quot;, icon: &quot;calendar_month&quot; },
-    { label: &quot;Earnings&quot;, href: &quot;/earnings&quot;, icon: &quot;payments&quot; },
-    { label: &quot;Profile&quot;, href: &quot;/profile&quot;, icon: &quot;person&quot; },
+    { label: "Dashboard", href: "/dashboard", icon: "dashboard" },
+    { label: "Bookings", href: "/bookings", icon: "calendar_month" },
+    { label: "Earnings", href: "/earnings", icon: "payments" },
+    { label: "Profile", href: "/profile", icon: "person" },
   ],
   admin: [
-    { label: &quot;Dashboard&quot;, href: &quot;/admin/dashboard&quot;, icon: &quot;dashboard&quot; },
-    { label: &quot;Pandits&quot;, href: &quot;/admin/pandits&quot;, icon: &quot;manage_accounts&quot; },
-    { label: &quot;Bookings&quot;, href: &quot;/admin/bookings&quot;, icon: &quot;calendar_month&quot; },
-    { label: &quot;Payments&quot;, href: &quot;/admin/payments&quot;, icon: &quot;payments&quot; },
+    { label: "Dashboard", href: "/admin/dashboard", icon: "dashboard" },
+    { label: "Pandits", href: "/admin/pandits", icon: "manage_accounts" },
+    { label: "Bookings", href: "/admin/bookings", icon: "calendar_month" },
+    { label: "Payments", href: "/admin/payments", icon: "payments" },
   ],
 };
 
 const primaryColors: Record<AppType, string> = {
-  web: &quot;text-amber-600&quot;,
-  pandit: &quot;text-orange-600&quot;,
-  admin: &quot;text-purple-600&quot;,
+  web: "text-amber-600",
+  pandit: "text-orange-600",
+  admin: "text-purple-600",
 };
 
 export interface HeaderProps {
@@ -50,10 +50,10 @@ export interface HeaderProps {
 }
 
 export function Header({
-  appType = &quot;web&quot;,
+  appType = "web",
   isAuthenticated = false,
   userName,
-  currentPath = &quot;&quot;,
+  currentPath = "",
   onLoginClick,
   onLogoutClick,
   onNavClick,
@@ -66,11 +66,11 @@ export function Header({
   function NavItem({ link }: { link: NavLink }) {
     const isActive = currentPath === link.href;
     const className = [
-      &quot;flex items-center gap-1.5 text-[22px] font-medium px-5 py-4 rounded-lg transition-colors&quot;,
+      "flex items-center gap-1.5 text-[22px] font-medium px-5 py-4 rounded-lg transition-colors",
       isActive
-        ? &quot;bg-primary/10 text-primary font-bold&quot;
-        : &quot;text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800&quot;,
-    ].join(&quot; &quot;);
+        ? "bg-primary/10 text-primary font-bold"
+        : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800",
+    ].join(" ");
 
     if (LinkComponent) {
       return (
@@ -87,7 +87,7 @@ export function Header({
       <button
         onClick={() => onNavClick?.(link.href)}
         className={className}
-        aria-current={isActive ? &quot;page&quot; : undefined}
+        aria-current={isActive ? "page" : undefined}
       >
         {link.icon && (
           <span className="material-symbols-outlined text-[24px]">{link.icon}</span>
@@ -152,7 +152,7 @@ export function Header({
             aria-expanded={mobileOpen}
           >
             <span className="material-symbols-outlined text-slate-600 dark:text-slate-300">
-              {mobileOpen ? &quot;close&quot; : &quot;menu&quot;}
+              {mobileOpen ? "close" : "menu"}
             </span>
           </button>
         </div>

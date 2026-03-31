@@ -31,7 +31,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         try {
             // Replace with your actual API endpoint base URL if needed.
             // Assuming /api is mapped in Next.js rewrites or absolute URL
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || &apos;http://localhost:3001&apos;;
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
             const response = await fetch(`${apiUrl}/auth/me`, {
                 headers: {
                     Authorization: `Bearer ${authToken}`
@@ -39,7 +39,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             });
 
             if (!response.ok) {
-                throw new Error(&apos;Failed to validate token&apos;);
+                throw new Error('Failed to validate token');
             }
 
             const data = await response.json();
@@ -47,11 +47,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 setUser(data.data.user);
                 setToken(authToken);
             } else {
-                throw new Error(&apos;Invalid user data&apos;);
+                throw new Error('Invalid user data');
             }
         } catch (error) {
-            console.error(&apos;Auth validation error:&apos;, error);
-            localStorage.removeItem(&apos;hpj_token&apos;);
+            console.error('Auth validation error:', error);
+            localStorage.removeItem('hpj_token');
             setUser(null);
             setToken(null);
         } finally {
@@ -60,7 +60,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     useEffect(() => {
-        const storedToken = localStorage.getItem(&apos;hpj_token&apos;);
+        const storedToken = localStorage.getItem('hpj_token');
         if (storedToken) {
             fetchUser(storedToken);
         } else {
@@ -69,18 +69,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }, []);
 
     const login = (newToken: string, newUser: AuthUser) => {
-        localStorage.setItem(&apos;hpj_token&apos;, newToken);
+        localStorage.setItem('hpj_token', newToken);
         document.cookie = `hpj_token=${newToken}; path=/; max-age=${7 * 24 * 60 * 60}`;
         setToken(newToken);
         setUser(newUser);
     };
 
     const logout = () => {
-        localStorage.removeItem(&apos;hpj_token&apos;);
-        document.cookie = &apos;hpj_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT&apos;;
+        localStorage.removeItem('hpj_token');
+        document.cookie = 'hpj_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
         setToken(null);
         setUser(null);
-        window.location.href = &apos;/&apos;;
+        window.location.href = '/';
     };
 
     const refreshUser = async () => {
@@ -106,25 +106,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 export const useAuth = () => {
     const context = useContext(AuthContext);
     if (context === undefined) {
-        throw new Error(&apos;useAuth must be used within an AuthProvider&apos;);
+        throw new Error('useAuth must be used within an AuthProvider');
     }
     return context;
 };
 
-export function useRequireAuth(requiredRole?: &apos;CUSTOMER&apos; | &apos;PANDIT&apos; | &apos;ADMIN&apos;) {
+export function useRequireAuth(requiredRole?: 'CUSTOMER' | 'PANDIT' | 'ADMIN') {
     const { user, loading, isAuthenticated } = useAuth();
     const [isAccessDenied, setIsAccessDenied] = useState(false);
 
     useEffect(() => {
         if (!loading) {
             if (!user) {
-                const loginBase = process.env.NEXT_PUBLIC_WEB_URL || &apos;http://localhost:3000&apos;;
+                const loginBase = process.env.NEXT_PUBLIC_WEB_URL || 'http://localhost:3000';
                 const redirectParam = requiredRole ? `&redirect=${requiredRole.toLowerCase()}` : '';
                 window.location.href = `${loginBase}/login?next=${encodeURIComponent(window.location.pathname)}${redirectParam}`;
             } else if (requiredRole && user.role !== requiredRole) {
                 setIsAccessDenied(true);
                 // Also redirect if needed, but we keep isAccessDenied for backward compatibility with AuthGuard
-                // window.location.href = &apos;/unauthorized&apos;;
+                // window.location.href = '/unauthorized';
             }
         }
     }, [user, loading, requiredRole]);
@@ -133,7 +133,7 @@ export function useRequireAuth(requiredRole?: &apos;CUSTOMER&apos; | &apos;PANDI
 }
 
 
-export const AuthGuard = ({ children, role }: { children: ReactNode, role?: &apos;CUSTOMER&apos; | &apos;PANDIT&apos; | &apos;ADMIN&apos; }) => {
+export const AuthGuard = ({ children, role }: { children: ReactNode, role?: 'CUSTOMER' | 'PANDIT' | 'ADMIN' }) => {
     const { loading, isAccessDenied, isAuthenticated } = useRequireAuth(role);
 
     if (loading || !isAuthenticated) {
@@ -152,7 +152,7 @@ export const AuthGuard = ({ children, role }: { children: ReactNode, role?: &apo
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">Access Denied</h1>
                 <p className="text-gray-600 mb-6 max-w-md">You do not have the required permissions to access this page. Please log in with the appropriate account.</p>
                 <button
-                    onClick={() => window.location.href = &apos;/&apos;}
+                    onClick={() => window.location.href = '/'}
                     className="px-6 py-3 bg-orange-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all"
                 >
                     Return Home

@@ -21,7 +21,7 @@ export default function BankVerificationPage() {
                         </div>
                     </div>
                     <h1 className="text-2xl font-bold leading-tight mb-2">
-                        Bank Verification &amp;
+                        Bank Verification &
                         <br />
                         Payout Setup
                     </h1>
@@ -192,7 +192,7 @@ export default function BankVerificationPage() {
                         </p>
                     </div>
                     <button className="w-full bg-gray-900 text-white py-4 rounded-xl font-semibold text-lg shadow-lg shadow-gray-200 hover:bg-gray-800 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
-                        <span>Verify &amp; Save</span>
+                        <span>Verify & Save</span>
                         <span className="material-symbols-outlined text-[20px]">
                             arrow_forward
                         </span>

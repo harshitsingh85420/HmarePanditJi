@@ -83,10 +83,10 @@ export default function AdminPnrManagementPage() {
                     <div className="flex items-start justify-between mb-8">
                         <div>
                             <h1 className="text-2xl font-bold text-[#1e293b]">
-                                Travel Detail &amp; PNR Entry
+                                Travel Detail & PNR Entry
                             </h1>
                             <p className="text-[#64748b] mt-1">
-                                Confirm ticket details for Pandit Ji&apos;s journey
+                                Confirm ticket details for Pandit Ji's journey
                             </p>
                         </div>
                         <div className="flex gap-3">
@@ -186,7 +186,7 @@ export default function AdminPnrManagementPage() {
                                     </div>
                                     <div>
                                         <label className="block text-lg font-medium text-[#1e293b] mb-1.5">
-                                            PNR / Booking ID{&quot; &quot;}
+                                            PNR / Booking ID{" "}
                                             <span className="text-red-500">*</span>
                                         </label>
                                         <input
@@ -267,7 +267,7 @@ export default function AdminPnrManagementPage() {
                                         <div className="pt-4 flex gap-3">
                                             <button className="bg-[#137fec] hover:bg-[#0f65bd] text-white font-medium py-2.5 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 w-full shadow-lg shadow-blue-500/30">
                                                 <span className="material-symbols-outlined">send</span>
-                                                Confirm &amp; Send to Pandit
+                                                Confirm & Send to Pandit
                                             </button>
                                         </div>
                                     </div>

@@ -19,7 +19,7 @@ export function MuhuratCalendar({ muhuratDates }: { muhuratDates: MuhuratDateDat
     const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
     const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
 
-    const muhuratMap = new Map(muhuratDates.map(d => [d.date.split(&quot;T&quot;)[0], d]));
+    const muhuratMap = new Map(muhuratDates.map(d => [d.date.split("T")[0], d]));
 
     const days = [];
     for (let i = 0; i < firstDayOfMonth; i++) {
@@ -63,12 +63,12 @@ export function MuhuratCalendar({ muhuratDates }: { muhuratDates: MuhuratDateDat
         );
     }
 
-    const weekDays = [&quot;Sun&quot;, &quot;Mon&quot;, &quot;Tue&quot;, &quot;Wed&quot;, &quot;Thu&quot;, &quot;Fri&quot;, &quot;Sat&quot;];
+    const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
     return (
         <div className="w-full bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
             <div className="mb-4 text-center font-semibold text-gray-800">
-                {today.toLocaleString(&quot;default&quot;, { month: &quot;long&quot; })} {currentYear}
+                {today.toLocaleString("default", { month: "long" })} {currentYear}
             </div>
             <div className="grid grid-cols-7 gap-1 text-center mb-2">
                 {weekDays.map(day => (

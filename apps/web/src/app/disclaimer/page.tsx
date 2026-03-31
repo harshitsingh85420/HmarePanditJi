@@ -78,11 +78,11 @@ export default function DisclaimerPage() {
         <div className="mt-12 rounded-xl border border-orange-100 bg-orange-50 p-6">
           <h3 className="text-base font-semibold text-gray-900">Questions?</h3>
           <p className="mt-1 text-lg text-gray-600">
-            If you have questions about this disclaimer, contact us at{&quot; &quot;}
+            If you have questions about this disclaimer, contact us at{" "}
             <a href="mailto:legal@hmarepanditji.com" className="text-[#f49d25] hover:underline">
               legal@hmarepanditji.com
-            </a>{&quot; &quot;}
-            or call{&quot; &quot;}
+            </a>{" "}
+            or call{" "}
             <a href="tel:+911234567890" className="text-[#f49d25] hover:underline">
               +91 12345 67890
             </a>.

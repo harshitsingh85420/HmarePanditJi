@@ -15,38 +15,38 @@ const sizeMap: Record<
 > = {
   // ACC-009 & ACC-010 FIX: Larger avatars and text for elderly users
   sm: {
-    container: &quot;w-12 h-12&quot;,
-    badge: &quot;w-5 h-5 -bottom-1 -right-1 border-2&quot;,
-    icon: &quot;text-[10px]&quot;,
-    text: &quot;text-base&quot;,
+    container: "w-12 h-12",
+    badge: "w-5 h-5 -bottom-1 -right-1 border-2",
+    icon: "text-[10px]",
+    text: "text-base",
   },
   md: {
-    container: &quot;w-16 h-16&quot;,
-    badge: &quot;w-6 h-6 -bottom-1.5 -right-1.5 border-2&quot;,
-    icon: &quot;text-xs&quot;,
-    text: &quot;text-lg&quot;,
+    container: "w-16 h-16",
+    badge: "w-6 h-6 -bottom-1.5 -right-1.5 border-2",
+    icon: "text-xs",
+    text: "text-lg",
   },
   lg: {
-    container: &quot;w-20 h-20&quot;,
-    badge: &quot;w-7 h-7 -bottom-1.5 -right-1.5 border-2&quot;,
-    icon: &quot;text-sm&quot;,
-    text: &quot;text-xl&quot;,
+    container: "w-20 h-20",
+    badge: "w-7 h-7 -bottom-1.5 -right-1.5 border-2",
+    icon: "text-sm",
+    text: "text-xl",
   },
   xl: {
-    container: &quot;w-28 h-28&quot;,
-    badge: &quot;w-8 h-8 -bottom-2 -right-2 border-2&quot;,
-    icon: &quot;text-base&quot;,
-    text: &quot;text-2xl&quot;,
+    container: "w-28 h-28",
+    badge: "w-8 h-8 -bottom-2 -right-2 border-2",
+    icon: "text-base",
+    text: "text-2xl",
   },
 };
 
 function getInitials(name: string): string {
   return name
-    .split(&quot; &quot;)
+    .split(" ")
     .map((w) => w[0])
     .filter(Boolean)
     .slice(0, 2)
-    .join(&quot;&quot;)
+    .join("")
     .toUpperCase();
 }
 
@@ -54,12 +54,12 @@ export function Avatar({
   src,
   name,
   alt,
-  size = &quot;md&quot;,
+  size = "md",
   verifiedBadge = false,
-  className = &quot;&quot;,
+  className = "",
 }: AvatarProps) {
   const s = sizeMap[size];
-  const label = alt ?? name ?? &quot;User&quot;;
+  const label = alt ?? name ?? "User";
 
   return (
     <div

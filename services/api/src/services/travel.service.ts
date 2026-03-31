@@ -271,7 +271,8 @@ export async function getCities(): Promise<string[]> {
   const records = await prisma.cityDistance.findMany({
     select: { fromCity: true, toCity: true },
   });
-  return [...new Set(records.flatMap((r) => [r.fromCity, r.toCity]))].sort();
+  const cities = records.flatMap((r: any) => [r.fromCity, r.toCity]);
+  return [...new Set(cities as string[])].sort();
 }
 
 export async function calculateAllOptions(

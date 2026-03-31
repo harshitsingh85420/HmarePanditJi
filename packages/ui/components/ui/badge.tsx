@@ -5,17 +5,17 @@ function cn(...classes: (string | undefined | false)[]) {
 }
 
 const variants: Record<string, string> = {
-    default: &quot;bg-indigo-600 text-white border-transparent&quot;,
-    secondary: &quot;bg-gray-100 text-gray-800 border-transparent&quot;,
-    destructive: &quot;bg-red-600 text-white border-transparent&quot;,
-    outline: &quot;text-gray-700 border-gray-300&quot;,
+    default: "bg-indigo-600 text-white border-transparent",
+    secondary: "bg-gray-100 text-gray-800 border-transparent",
+    destructive: "bg-red-600 text-white border-transparent",
+    outline: "text-gray-700 border-gray-300",
 };
 
 interface BadgeProps extends React.HTMLAttributes<HTMLDivElement> {
     variant?: keyof typeof variants;
 }
 
-export function Badge({ className, variant = &quot;default&quot;, ...props }: BadgeProps) {
+export function Badge({ className, variant = "default", ...props }: BadgeProps) {
     return (
         <div
             className={cn(

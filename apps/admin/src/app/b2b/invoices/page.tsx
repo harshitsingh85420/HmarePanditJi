@@ -102,7 +102,7 @@ export default function B2BInvoicePage() {
                             <div className="bg-[#0f49bd]/5 dark:bg-[#0f49bd]/10 p-4 rounded-lg border border-[#0f49bd]/10">
                                 <p className="font-bold text-lg text-slate-900 dark:text-white mb-1">Vedic Wedding Logistics</p>
                                 <div className="text-sm text-slate-600 dark:text-slate-300 space-y-1">
-                                    <p><span className="font-medium text-[#0f49bd]">Event:</span> Annual Corporate Diwali Puja &amp; Celebration</p>
+                                    <p><span className="font-medium text-[#0f49bd]">Event:</span> Annual Corporate Diwali Puja & Celebration</p>
                                     <p><span className="font-medium text-[#0f49bd]">Venue:</span> TechNova Campus, Main Hall</p>
                                     <p><span className="font-medium text-[#0f49bd]">Date:</span> Oct 20, 2023</p>
                                     <div className="mt-3 flex gap-2">
@@ -157,7 +157,7 @@ export default function B2BInvoicePage() {
                                 <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
                                     <td className="py-4 px-4 text-slate-500">03</td>
                                     <td className="py-4 px-4">
-                                        <p className="font-medium text-slate-900 dark:text-white">Travel &amp; Logistics</p>
+                                        <p className="font-medium text-slate-900 dark:text-white">Travel & Logistics</p>
                                         <p className="text-xs text-slate-500">Transportation for team and materials</p>
                                     </td>
                                     <td className="py-4 px-4 text-center text-slate-500">996412</td>
@@ -205,7 +205,7 @@ export default function B2BInvoicePage() {
                                 </div>
                             </div>
                             <div>
-                                <h4 className="text-sm font-bold text-slate-700 dark:text-white mb-1">Terms &amp; Conditions</h4>
+                                <h4 className="text-sm font-bold text-slate-700 dark:text-white mb-1">Terms & Conditions</h4>
                                 <ul className="list-disc list-inside text-xs text-slate-500 dark:text-slate-400 space-y-1">
                                     <li>Payment is due within 15 days of invoice date.</li>
                                     <li>Late payments may incur a 2% monthly interest charge.</li>

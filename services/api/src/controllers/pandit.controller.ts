@@ -150,13 +150,13 @@ export async function getPandits(req: Request, res: Response, next: NextFunction
         }
 
         if (sort === "price_asc") {
-            filtered.sort((a, b) => {
+            filtered.sort((a: any, b: any) => {
                 const aPrice = Math.min(...a.pujaServices.map((s: any) => s.dakshinaAmount));
                 const bPrice = Math.min(...b.pujaServices.map((s: any) => s.dakshinaAmount));
                 return aPrice - bPrice;
             });
         } else if (sort === "price_desc") {
-            filtered.sort((a, b) => {
+            filtered.sort((a: any, b: any) => {
                 const aPrice = Math.max(...a.pujaServices.map((s: any) => s.dakshinaAmount));
                 const bPrice = Math.max(...b.pujaServices.map((s: any) => s.dakshinaAmount));
                 return bPrice - aPrice;
@@ -171,7 +171,7 @@ export async function getPandits(req: Request, res: Response, next: NextFunction
             }
             distanceMap.set(city, 0);
 
-            filtered.sort((a, b) => {
+            filtered.sort((a: any, b: any) => {
                 const distA = distanceMap.get(a.location) ?? 9999;
                 const distB = distanceMap.get(b.location) ?? 9999;
                 return distA - distB;
@@ -277,7 +277,7 @@ export async function getPanditReviewsHandler(req: Request, res: Response, next:
             }
         });
 
-        const formatted = reviews.map(r => ({
+        const formatted = reviews.map((r: any) => ({
             id: r.id,
             overallRating: r.overallRating,
             comment: r.comment,
@@ -325,8 +325,8 @@ export async function getPanditAvailabilityHandler(req: Request, res: Response, 
         const daysInMonth = new Date(year, month, 0).getDate();
         const datesStatus = [];
 
-        const bookedDays = new Set(bookings.map(b => b.eventDate.getDate()));
-        const blockedDaysMap = new Map(blockedDates.map(b => [b.date.getDate(), b.reason]));
+        const bookedDays = new Set(bookings.map((b: any) => b.eventDate.getDate()));
+        const blockedDaysMap = new Map(blockedDates.map((b: any) => [b.date.getDate(), b.reason]));
 
         const today = new Date();
         const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month - 1;

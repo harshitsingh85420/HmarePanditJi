@@ -19,7 +19,7 @@ async function getPanditById(id: string) {
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
     const pandit = await getPanditById(params.id);
-    if (!pandit) return { title: &quot;Pandit Not Found | HmarePanditJi&quot; };
+    if (!pandit) return { title: "Pandit Not Found | HmarePanditJi" };
     const shortBio = pandit.bio?.substring(0, 150) || `Book ${pandit.user.name} for your next puja on HmarePanditJi.`;
     return {
         title: `${pandit.user.name} — Verified Pandit | HmarePanditJi`,
@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 export default async function PanditProfilePage({ params }: { params: { id: string } }) {
     const pandit = await getPanditById(params.id);
 
-    if (!pandit || pandit.verificationStatus !== &quot;VERIFIED&quot;) {
+    if (!pandit || pandit.verificationStatus !== "VERIFIED") {
         notFound();
     }
 
@@ -57,10 +57,10 @@ export default async function PanditProfilePage({ params }: { params: { id: stri
 
     // Render hero banner
     const travelBadge = maxTravelDistance > 500
-        ? &quot;✈️ Available All-India&quot;
+        ? "✈️ Available All-India"
         : maxTravelDistance > 100
-            ? &quot;🚗 Regional Travel&quot;
-            : &quot;📍 Local (Delhi-NCR)&quot;;
+            ? "🚗 Regional Travel"
+            : "📍 Local (Delhi-NCR)";
 
     const formattedRating = Number(reviewSummary?.avgRating || rating || 0).toFixed(1);
     const totalRev = reviewSummary?.totalReviews || totalReviews || 0;
@@ -73,7 +73,7 @@ export default async function PanditProfilePage({ params }: { params: { id: stri
             <div>
                 <h3 className="text-xl font-bold text-gray-900 mb-4">About Pandit Ji</h3>
                 <p className="text-gray-600 leading-relaxed whitespace-pre-line">
-                    {bio || &quot;Hi, I am an experienced Pandit Ji available for all types of Pujas and Anushthans. My rituals follow authentic Vedic traditions.&quot;}
+                    {bio || "Hi, I am an experienced Pandit Ji available for all types of Pujas and Anushthans. My rituals follow authentic Vedic traditions."}
                 </p>
             </div>
 
@@ -194,7 +194,7 @@ export default async function PanditProfilePage({ params }: { params: { id: stri
                                         {user.name}
                                         <span className="material-symbols-outlined text-green-600 text-2xl" title="Verified Vedic Priest">verified</span>
                                     </h1>
-                                    <p className="text-[#f49d25] font-semibold text-lg mt-1">{specializations?.[0] || &apos;Vedic Priest & Ritual Expert&apos;}</p>
+                                    <p className="text-[#f49d25] font-semibold text-lg mt-1">{specializations?.[0] || 'Vedic Priest & Ritual Expert'}</p>
                                 </div>
                                 <button className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-lg bg-[#f49d25]/10 text-[#f49d25] border border-[#f49d25]/20 hover:bg-[#f49d25]/20 transition-all">
                                     <span className="material-symbols-outlined">play_circle</span>
@@ -221,8 +221,8 @@ export default async function PanditProfilePage({ params }: { params: { id: stri
                                 </div>
                                 <div className="h-8 w-px bg-[#f49d25]/20"></div>
                                 <div className="flex flex-col items-center justify-center">
-                                    <span className="text-sm font-bold text-[#181511] dark:text-white mt-1">{travelBadge.split(&apos; &apos;)[0]}</span>
-                                    <span className="text-[#8a7960] text-xs">{travelBadge.split(&apos; &apos;).slice(1).join(&apos; &apos;)}</span>
+                                    <span className="text-sm font-bold text-[#181511] dark:text-white mt-1">{travelBadge.split(' ')[0]}</span>
+                                    <span className="text-[#8a7960] text-xs">{travelBadge.split(' ').slice(1).join(' ')}</span>
                                 </div>
                             </div>
                         </div>
@@ -284,7 +284,7 @@ function ReviewSummary({ reviewSummary, panditId }: { reviewSummary: any, pandit
                 <div className="md:col-span-4 text-center border-b md:border-b-0 md:border-r border-gray-100 pb-6 md:pb-0 md:pr-6 flex flex-col justify-center">
                     <div className="text-6xl font-black text-gray-900 mb-2">{ratingNum}</div>
                     <div className="flex items-center justify-center gap-1 text-orange-400 text-xl mb-2">
-                        {&apos;★★★★★&apos;.split('').map((star, i) => (
+                        {'★★★★★'.split('').map((star, i) => (
                             <span key={i} className={i < Math.round(avgRating) ? "text-orange-500" : "text-gray-200"}>{star}</span>
                         ))}
                     </div>
@@ -324,9 +324,9 @@ function ReviewSummary({ reviewSummary, panditId }: { reviewSummary: any, pandit
     );
 }
 
-// Client component wrapper for reviews pagination (simulated here with server fetch for initial, but usually should be client component if interactive. Let&apos;s make it a simple list for now)
+// Client component wrapper for reviews pagination (simulated here with server fetch for initial, but usually should be client component if interactive. Let's make it a simple list for now)
 async function ReviewList({ panditId }: { panditId: string }) {
-    const res = await fetch(`http://localhost:3001/api/v1/pandits/${panditId}/reviews?page=1&limit=5`, { cache: &apos;no-store&apos; });
+    const res = await fetch(`http://localhost:3001/api/v1/pandits/${panditId}/reviews?page=1&limit=5`, { cache: 'no-store' });
     if (!res.ok) return null;
     const json = await res.json();
     const reviews = json.data;
@@ -351,8 +351,8 @@ async function ReviewList({ panditId }: { panditId: string }) {
                             </div>
                         </div>
                         <div className="text-orange-400 text-sm">
-                            {&apos;★&apos;.repeat(Math.round(review.overallRating))}
-                            <span className="text-gray-300">{&apos;★&apos;.repeat(5 - Math.round(review.overallRating))}</span>
+                            {'★'.repeat(Math.round(review.overallRating))}
+                            <span className="text-gray-300">{'★'.repeat(5 - Math.round(review.overallRating))}</span>
                         </div>
                     </div>
                     <div className="inline-block px-3 py-1 bg-gray-100 text-gray-600 rounded-lg text-xs font-medium mb-3">

@@ -69,7 +69,7 @@ export const OtpInput: React.FC<OtpInputProps> = ({
     };
 
     const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>, index: number) => {
-        if (e.key === &apos;Backspace&apos;) {
+        if (e.key === 'Backspace') {
             if (otp[index] === '' && index > 0) {
                 // Box is empty, move up one and clear it
                 const newOtp = [...otp];
@@ -87,7 +87,7 @@ export const OtpInput: React.FC<OtpInputProps> = ({
 
     const handlePaste = (e: ClipboardEvent<HTMLInputElement>) => {
         e.preventDefault();
-        const pastedData = e.clipboardData.getData(&apos;text&apos;).slice(0, length).replace(/\D/g, '');
+        const pastedData = e.clipboardData.getData('text').slice(0, length).replace(/\D/g, '');
 
         if (pastedData) {
             const newOtp = [...otp];
@@ -127,7 +127,7 @@ export const OtpInput: React.FC<OtpInputProps> = ({
                     type="text"
                     inputMode="numeric"
                     disabled={disabled}
-                    value={value === '' ? '' : (showValues[index] ? value : &apos;•&apos;)}
+                    value={value === '' ? '' : (showValues[index] ? value : '•')}
                     onChange={(e) => handleChange(e, index)}
                     onKeyDown={(e) => handleKeyDown(e, index)}
                     onPaste={handlePaste}

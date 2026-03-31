@@ -9,24 +9,24 @@ export interface FooterProps {
 }
 
 const quickLinks = [
-  { label: &quot;About&quot;, href: &quot;/about&quot; },
-  { label: &quot;Search Pandits&quot;, href: &quot;/search&quot; },
-  { label: &quot;Muhurat Calendar&quot;, href: &quot;/muhurat&quot; },
-  { label: &quot;How it Works&quot;, href: &quot;/#how-it-works&quot; },
+  { label: "About", href: "/about" },
+  { label: "Search Pandits", href: "/search" },
+  { label: "Muhurat Calendar", href: "/muhurat" },
+  { label: "How it Works", href: "/#how-it-works" },
 ];
 
 const supportLinks = [
-  { label: &quot;Contact Us&quot;, href: &quot;/contact&quot; },
-  { label: &quot;Terms of Service&quot;, href: &quot;/legal/terms&quot; },
-  { label: &quot;Privacy Policy&quot;, href: &quot;/legal/privacy&quot; },
-  { label: &quot;Refund Policy&quot;, href: &quot;/legal/cancellation&quot; },
-  { label: &quot;Disclaimer&quot;, href: &quot;/legal/terms&quot; }, // Placeholder
+  { label: "Contact Us", href: "/contact" },
+  { label: "Terms of Service", href: "/legal/terms" },
+  { label: "Privacy Policy", href: "/legal/privacy" },
+  { label: "Refund Policy", href: "/legal/cancellation" },
+  { label: "Disclaimer", href: "/legal/terms" }, // Placeholder
 ];
 
 const socialLinks: { icon: string; href: string; label: string }[] = [
-  { icon: &quot;chat&quot;, href: &quot;https://wa.me/919999999999&quot;, label: &quot;WhatsApp&quot; },
-  { icon: &quot;mail&quot;, href: &quot;mailto:support@hmarepanditji.com&quot;, label: &quot;Email&quot; },
-  { icon: &quot;call&quot;, href: &quot;tel:+919999999999&quot;, label: &quot;Phone&quot; },
+  { icon: "chat", href: "https://wa.me/919999999999", label: "WhatsApp" },
+  { icon: "mail", href: "mailto:support@hmarepanditji.com", label: "Email" },
+  { icon: "call", href: "tel:+919999999999", label: "Phone" },
 ];
 
 export function Footer({ LinkComponent }: FooterProps) {
@@ -54,7 +54,7 @@ export function Footer({ LinkComponent }: FooterProps) {
   }
 
   const linkClass =
-    &quot;text-sm text-slate-400 hover:text-slate-200 transition-colors&quot;;
+    "text-sm text-slate-400 hover:text-slate-200 transition-colors";
 
   return (
     <footer className="bg-slate-900 dark:bg-slate-950 text-white">
@@ -158,13 +158,13 @@ export function Footer({ LinkComponent }: FooterProps) {
         <div className="mt-10 pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-slate-500">
             &copy; {new Date().getFullYear()} HmarePanditJi. All rights reserved.
-            Made with{&quot; &quot;}
+            Made with{" "}
             <span
               className="material-symbols-outlined text-xs text-red-500 align-middle"
               style={{ fontVariationSettings: "'FILL' 1" }}
             >
               favorite
-            </span>{&quot; &quot;}
+            </span>{" "}
             in India.
           </p>
           <div className="flex items-center gap-1 text-xs text-slate-500">

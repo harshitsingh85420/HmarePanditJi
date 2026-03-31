@@ -172,7 +172,7 @@ export default function LaunchChecklist() {
                 <p>This checklist uses Local Storage. Do not clear browser cache if you want to keep your progress.</p>
                 <button
                     onClick={() => {
-                        if (window.confirm(&quot;Are you sure you want to reset all progress?&quot;)) {
+                        if (window.confirm(Are you sure you want to reset all progress?)) {
                             setCheckedItems({});
                             localStorage.removeItem(CHECKLIST_KEY);
                         }

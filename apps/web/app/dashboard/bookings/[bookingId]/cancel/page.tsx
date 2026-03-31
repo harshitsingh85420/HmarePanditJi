@@ -19,23 +19,23 @@ interface BookingInfo {
 export default function CancellationRequestPage() {
     const router = useRouter();
     const params = useParams();
-    const bookingId = params.bookingId as string;
+    const bookingId = params?.bookingId as string | undefined;
 
     const [booking, setBooking] = useState<BookingInfo | null>(null);
-    const [reason, setReason] = useState(&quot;&quot;);
-    const [otherReason, setOtherReason] = useState(&quot;&quot;);
+    const [reason, setReason] = useState("");
+    const [otherReason, setOtherReason] = useState("");
     const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState(&quot;&quot;);
+    const [error, setError] = useState("");
     const [success, setSuccess] = useState(false);
 
     useEffect(() => {
         const fetchBooking = async () => {
             try {
-                const token = localStorage.getItem(&quot;token&quot;);
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || &apos;http://localhost:3001&apos;}/api/bookings/${bookingId}`, {
+                const token = localStorage.getItem("token");
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/bookings/${bookingId}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
-                if (!res.ok) throw new Error(&quot;Failed to load booking&quot;);
+                if (!res.ok) throw new Error("Failed to load booking");
                 const data = await res.json();
 
                 if (data.data && data.data.booking) {
@@ -47,7 +47,7 @@ export default function CancellationRequestPage() {
                         eventDate: b.eventDate,
                         grandTotal: b.grandTotal,
                         platformFee: b.platformFee,
-                        panditName: b.pandit?.name || &quot;Pandit Ji&quot;
+                        panditName: b.pandit?.name || "Pandit Ji"
                     });
                 }
             } catch (err) {
@@ -82,25 +82,25 @@ export default function CancellationRequestPage() {
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         if (!reason) {
-            setError(&quot;Please select a reason for cancellation&quot;);
+            setError("Please select a reason for cancellation");
             return;
         }
 
-        const finalReason = reason === &quot;Other&quot; ? otherReason : reason;
-        if (reason === &quot;Other&quot; && !finalReason.trim()) {
-            setError(&quot;Please specify your reason&quot;);
+        const finalReason = reason === "Other" ? otherReason : reason;
+        if (reason === "Other" && !finalReason.trim()) {
+            setError("Please specify your reason");
             return;
         }
 
         setIsLoading(true);
-        setError(&quot;&quot;);
+        setError("");
 
         try {
-            const token = localStorage.getItem(&quot;token&quot;);
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || &apos;http://localhost:3001&apos;}/api/bookings/${bookingId}/cancel-request`, {
-                method: &quot;POST&quot;,
+            const token = localStorage.getItem("token");
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/bookings/${bookingId}/cancel-request`, {
+                method: "POST",
                 headers: {
-                    &quot;Content-Type&quot;: &quot;application/json&quot;,
+                    "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`
                 },
                 body: JSON.stringify({ reason: finalReason }),
@@ -108,7 +108,7 @@ export default function CancellationRequestPage() {
 
             if (!res.ok) {
                 const errData = await res.json();
-                throw new Error(errData.message || &quot;Failed to submit cancellation&quot;);
+                throw new Error(errData.message || "Failed to submit cancellation");
             }
 
             setSuccess(true);
@@ -183,7 +183,7 @@ export default function CancellationRequestPage() {
                     <p className="text-sm text-gray-600 mb-4 border-b pb-4">
                         Days until event: <strong className="text-black">{refundData.days}</strong>
                         <br />
-                        Policy: {refundData.days > 7 ? &quot;> 7 days → 100% refund&quot; : refundData.days >= 3 ? &quot;3-7 days → 50% refund&quot; : &quot;< 3 days → No refund"}
+                        Policy: {refundData.days > 7 ? "> 7 days → 100% refund" : refundData.days >= 3 ? "3-7 days → 50% refund" : "< 3 days → No refund"}
                     </p>
 
                     <div className="space-y-2 text-sm">
@@ -219,7 +219,7 @@ export default function CancellationRequestPage() {
                     <h3 className="font-bold mb-4 text-gray-800">Reason for Cancellation <span className="text-red-500">*</span></h3>
 
                     <div className="space-y-3 mb-6">
-                        {[&quot;Date/time change needed&quot;, &quot;Found a different pandit&quot;, &quot;Personal/family reasons&quot;, &quot;Financial reasons&quot;, &quot;Event postponed&quot;, &quot;Other&quot;].map(option => (
+                        {["Date/time change needed", "Found a different pandit", "Personal/family reasons", "Financial reasons", "Event postponed", "Other"].map(option => (
                             <label key={option} className="flex items-center gap-3 cursor-pointer">
                                 <input
                                     type="radio"
@@ -234,7 +234,7 @@ export default function CancellationRequestPage() {
                         ))}
                     </div>
 
-                    {reason === &quot;Other&quot; && (
+                    {reason === "Other" && (
                         <div className="mb-6">
                             <textarea
                                 placeholder="Please specify..."
@@ -249,7 +249,7 @@ export default function CancellationRequestPage() {
 
                     <Button type="submit" disabled={isLoading} variant="danger" className="w-full py-3 text-base flex items-center justify-center gap-2">
                         <XCircle className="w-5 h-5" />
-                        {isLoading ? &quot;Processing...&quot; : &quot;Confirm Cancellation&quot;}
+                        {isLoading ? "Processing..." : "Confirm Cancellation"}
                     </Button>
                 </form>
             </Card>

@@ -54,7 +54,7 @@ export default function EarningsPage() {
                     {/* Page Title & Subtitle */}
                     <div className="flex flex-col gap-2">
                         <h1 className="text-2xl md:text-4xl font-black leading-tight tracking-[-0.033em] text-[#181511] dark:text-[#f8f7f5]">
-                            Earnings &amp; Wallet
+                            Earnings & Wallet
                         </h1>
                         <p className="text-[#8a7b60] dark:text-[#a89980] text-base font-normal">
                             Manage your professional dakshina, reimbursements and tax compliance.
@@ -137,7 +137,7 @@ export default function EarningsPage() {
                                     <div className="flex flex-col gap-2">
                                         <div className="flex justify-between items-end">
                                             <span className="text-lg font-bold flex items-center gap-2 dark:text-white">
-                                                <span className="size-3 rounded-full bg-[#f4a825]"></span>{&quot; &quot;}
+                                                <span className="size-3 rounded-full bg-[#f4a825]"></span>{" "}
                                                 Dakshina
                                             </span>
                                             <span className="text-lg font-black dark:text-white">81%</span>
@@ -152,7 +152,7 @@ export default function EarningsPage() {
                                     <div className="flex flex-col gap-2">
                                         <div className="flex justify-between items-end">
                                             <span className="text-lg font-bold flex items-center gap-2 dark:text-white">
-                                                <span className="size-3 rounded-full bg-[#fcd581]"></span>{&quot; &quot;}
+                                                <span className="size-3 rounded-full bg-[#fcd581]"></span>{" "}
                                                 Travel Reimbursement
                                             </span>
                                             <span className="text-lg font-black dark:text-white">15%</span>
@@ -167,7 +167,7 @@ export default function EarningsPage() {
                                     <div className="flex flex-col gap-2">
                                         <div className="flex justify-between items-end">
                                             <span className="text-lg font-bold flex items-center gap-2 dark:text-white">
-                                                <span className="size-3 rounded-full bg-[#e6e2db]"></span>{&quot; &quot;}
+                                                <span className="size-3 rounded-full bg-[#e6e2db]"></span>{" "}
                                                 Food Allowance
                                             </span>
                                             <span className="text-lg font-black dark:text-white">4%</span>
@@ -189,7 +189,7 @@ export default function EarningsPage() {
                         <div className="flex items-center justify-between px-4">
                             <h3 className="text-xl font-bold dark:text-white">Recent Transactions</h3>
                             <button
-                                onClick={() => router.push(&apos;/pandit/earnings/history&apos;)}
+                                onClick={() => router.push('/pandit/earnings/history')}
                                 className="text-[#f4a825] text-lg font-bold hover:underline"
                             >
                                 View All
@@ -198,7 +198,7 @@ export default function EarningsPage() {
                         <div className="flex flex-col gap-3">
                             {/* Transaction Item 1 */}
                             <div
-                                onClick={() => router.push(&apos;/pandit/earnings/123&apos;)}
+                                onClick={() => router.push('/pandit/earnings/123')}
                                 className="flex items-center justify-between p-4 rounded-xl bg-white dark:bg-[#2d2418] border border-[#e6e2db] dark:border-[#3d3428] hover:border-[#f4a825]/50 transition-colors cursor-pointer"
                             >
                                 <div className="flex items-center gap-4">
@@ -219,7 +219,7 @@ export default function EarningsPage() {
                                         ₹52,750
                                     </p>
                                     <span className="inline-flex items-center px-4 py-2 rounded text-[10px] font-bold bg-[#078810]/10 text-[#078810] uppercase">
-                                        <span className="size-1.5 rounded-full bg-[#078810] mr-1.5"></span>{&quot; &quot;}
+                                        <span className="size-1.5 rounded-full bg-[#078810] mr-1.5"></span>{" "}
                                         Paid
                                     </span>
                                 </div>
@@ -244,7 +244,7 @@ export default function EarningsPage() {
                                         ₹12,500
                                     </p>
                                     <span className="inline-flex items-center px-4 py-2 rounded text-[10px] font-bold bg-[#078810]/10 text-[#078810] uppercase">
-                                        <span className="size-1.5 rounded-full bg-[#078810] mr-1.5"></span>{&quot; &quot;}
+                                        <span className="size-1.5 rounded-full bg-[#078810] mr-1.5"></span>{" "}
                                         Paid
                                     </span>
                                 </div>
@@ -260,7 +260,7 @@ export default function EarningsPage() {
                                             Travel Reimbursement - Mumbai
                                         </p>
                                         <p className="text-base text-[#8a7b60] dark:text-[#a89980]">
-                                            Oct 20, 2023 • Airfare &amp; Taxi
+                                            Oct 20, 2023 • Airfare & Taxi
                                         </p>
                                     </div>
                                 </div>
@@ -269,7 +269,7 @@ export default function EarningsPage() {
                                         ₹8,400
                                     </p>
                                     <span className="inline-flex items-center px-4 py-2 rounded text-[10px] font-bold bg-[#078810]/10 text-[#078810] uppercase">
-                                        <span className="size-1.5 rounded-full bg-[#078810] mr-1.5"></span>{&quot; &quot;}
+                                        <span className="size-1.5 rounded-full bg-[#078810] mr-1.5"></span>{" "}
                                         Paid
                                     </span>
                                 </div>

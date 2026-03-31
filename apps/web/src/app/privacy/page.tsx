@@ -86,7 +86,7 @@ export default function PrivacyPage() {
 
       <div className="mt-10 p-5 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800">
         <p className="text-lg text-slate-600 dark:text-slate-400">
-          For privacy-related inquiries, contact us at{&quot; &quot;}
+          For privacy-related inquiries, contact us at{" "}
           <a href="mailto:privacy@hmarepanditji.com" className="text-primary hover:underline">
             privacy@hmarepanditji.com
           </a>

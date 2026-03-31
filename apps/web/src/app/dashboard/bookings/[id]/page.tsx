@@ -36,7 +36,8 @@ interface BookingDetail {
 }
 
 export default function BookingDetailPage() {
-    const { id } = useParams<{ id: string }>();
+    const params = useParams<{ id: string }>();
+    const id = params?.id;
     const { user, accessToken, loading: authLoading } = useAuth();
     const router = useRouter();
 
@@ -46,7 +47,7 @@ export default function BookingDetailPage() {
 
     useEffect(() => {
         if (!authLoading && !user) {
-            router.push(&quot;/login&quot;);
+            router.push("/login");
             return;
         }
 
@@ -59,19 +60,19 @@ export default function BookingDetailPage() {
                 });
 
                 if (!res.ok) {
-                    if (res.status === 404) throw new Error(&quot;Booking not found&quot;);
-                    if (res.status === 403) throw new Error(&quot;Access denied&quot;);
-                    throw new Error(&quot;Failed to fetch booking&quot;);
+                    if (res.status === 404) throw new Error("Booking not found");
+                    if (res.status === 403) throw new Error("Access denied");
+                    throw new Error("Failed to fetch booking");
                 }
 
                 const json = await res.json();
                 if (json.success && json.data?.booking) {
                     setBooking(json.data.booking);
                 } else {
-                    throw new Error(&quot;Invalid response format&quot;);
+                    throw new Error("Invalid response format");
                 }
             } catch (err) {
-                setError(err instanceof Error ? err.message : &quot;Something went wrong&quot;);
+                setError(err instanceof Error ? err.message : "Something went wrong");
             } finally {
                 setLoading(false);
             }
@@ -96,9 +97,9 @@ export default function BookingDetailPage() {
                         <span className="material-symbols-outlined text-3xl text-rose-500">error</span>
                     </div>
                     <h2 className="text-slate-700 font-semibold text-lg mb-2">Error Loading Booking</h2>
-                    <p className="text-slate-400 text-lg mb-6">{error || &quot;Booking not found&quot;}</p>
+                    <p className="text-slate-400 text-lg mb-6">{error || "Booking not found"}</p>
                     <button
-                        onClick={() => router.push(&quot;/dashboard/bookings&quot;)}
+                        onClick={() => router.push("/dashboard/bookings")}
                         className="px-6 py-2 bg-slate-200 text-slate-700 rounded-lg text-lg font-semibold"
                     >
                         Back to Bookings
@@ -110,9 +111,9 @@ export default function BookingDetailPage() {
 
     // Derived state for UI
     const isPanditAssigned = !!booking.pandit;
-    const isConfirmed = booking.status === &quot;CONFIRMED&quot; || booking.status === &quot;PANDIT_EN_ROUTE&quot; || booking.status === &quot;PANDIT_ARRIVED&quot; || booking.status === &quot;PUJA_IN_PROGRESS&quot; || booking.status === &quot;COMPLETED&quot;;
-    const panditName = booking.pandit?.displayName || &quot;Pending Assignment&quot;;
-    const panditAvatar = booking.pandit?.user?.avatarUrl || &quot;https://lh3.googleusercontent.com/aida-public/AB6AXuCWGErik0iadlnlp_8yBDqC-V3kyRE-UqjHKiW5SPBm4DG_GLDpXEY3Ce0VimJgZf3ZktjJ2JeNpH04TZUjMQ5OYcWLABUMn4WLj4sRiQwChWMvCKImwesPjObgzXjWUggU7uni_5ZLz1hKsqaR73KIh-_HLMyImDgxVxBbTsNE9Z9zQ3eFSJziwR73r4tIcR7wmZgBHElgwQ8fxXJnJ_Y9_M_G6q3LEinusfwPwdN9VHaktGktcmqi5uhJIKGBWuKLYDssPahW9Hg&quot;; // Fallback URL from HTML
+    const isConfirmed = booking.status === "CONFIRMED" || booking.status === "PANDIT_EN_ROUTE" || booking.status === "PANDIT_ARRIVED" || booking.status === "PUJA_IN_PROGRESS" || booking.status === "COMPLETED";
+    const panditName = booking.pandit?.displayName || "Pending Assignment";
+    const panditAvatar = booking.pandit?.user?.avatarUrl || "https://lh3.googleusercontent.com/aida-public/AB6AXuCWGErik0iadlnlp_8yBDqC-V3kyRE-UqjHKiW5SPBm4DG_GLDpXEY3Ce0VimJgZf3ZktjJ2JeNpH04TZUjMQ5OYcWLABUMn4WLj4sRiQwChWMvCKImwesPjObgzXjWUggU7uni_5ZLz1hKsqaR73KIh-_HLMyImDgxVxBbTsNE9Z9zQ3eFSJziwR73r4tIcR7wmZgBHElgwQ8fxXJnJ_Y9_M_G6q3LEinusfwPwdN9VHaktGktcmqi5uhJIKGBWuKLYDssPahW9Hg"; // Fallback URL from HTML
 
     return (
         <div className="min-h-screen bg-[#f8f7f5] pb-20">
@@ -174,13 +175,13 @@ export default function BookingDetailPage() {
                             <h1 className="text-3xl font-extrabold text-slate-900 leading-tight">Booking {booking.status}</h1>
                             <p className="text-slate-600 text-lg mt-1">{booking.ritual.name} Ceremony</p>
                         </div>
-                        {booking.paymentStatus === &apos;CAPTURED&apos; && (
+                        {booking.paymentStatus === 'CAPTURED' && (
                             <div className="bg-green-100 text-green-700 px-4 py-2 rounded-full text-lg font-bold flex items-center gap-2 w-fit">
                                 <span className="material-symbols-outlined text-base">check_circle</span>
                                 Payment Verified
                             </div>
                         )}
-                        {booking.paymentStatus === &apos;PENDING&apos; && (
+                        {booking.paymentStatus === 'PENDING' && (
                             <div className="bg-orange-100 text-orange-700 px-4 py-2 rounded-full text-lg font-bold flex items-center gap-2 w-fit">
                                 <span className="material-symbols-outlined text-base">pending</span>
                                 Payment Pending
@@ -257,7 +258,7 @@ export default function BookingDetailPage() {
                             </div>
 
                             {/* Timeline Item 2: Pandit En Route (Conditional) */}
-                            {(booking.status === &quot;PANDIT_EN_ROUTE&quot; || booking.status === &quot;PANDIT_ARRIVED&quot; || booking.status === &quot;COMPLETED&quot;) && (
+                            {(booking.status === "PANDIT_EN_ROUTE" || booking.status === "PANDIT_ARRIVED" || booking.status === "COMPLETED") && (
                                 <div className="flex items-start gap-6 pb-10 relative">
                                     <div className="z-10 size-14 flex items-center justify-center rounded-full bg-[#f49d25]/20 text-[#f49d25] border-4 border-white">
                                         <span className="material-symbols-outlined">directions_car</span>
@@ -279,7 +280,7 @@ export default function BookingDetailPage() {
                                 <div className="flex flex-col pt-1">
                                     <p className={`font-bold text-lg leading-none ${isConfirmed ? 'text-[#f49d25]' : 'text-slate-400'}`}>{booking.ritual.name} Muhurat</p>
                                     <p className="text-slate-500 mt-2 flex items-center gap-1">
-                                        <span className="material-symbols-outlined text-lg">calendar_today</span> {new Date(booking.eventDate).toLocaleString([], { dateStyle: &apos;medium&apos;, timeStyle: &apos;short&apos; })}
+                                        <span className="material-symbols-outlined text-lg">calendar_today</span> {new Date(booking.eventDate).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}
                                     </p>
                                     <p className="text-slate-400 text-lg mt-1">Location: {booking.venueCity}</p>
                                 </div>

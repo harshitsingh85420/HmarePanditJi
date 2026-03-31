@@ -12,7 +12,7 @@ interface SelectContextValue {
     setOpen: (o: boolean) => void;
 }
 
-const SelectContext = React.createContext<SelectContextValue>({ value: &quot;&quot;, onValueChange: () => { }, open: false, setOpen: () => { } });
+const SelectContext = React.createContext<SelectContextValue>({ value: "", onValueChange: () => { }, open: false, setOpen: () => { } });
 
 export function Select({ value, onValueChange, children }: { value?: string; onValueChange?: (v: string) => void; children: React.ReactNode }) {
     const [open, setOpen] = useState(false);
@@ -30,7 +30,7 @@ export function SelectTrigger({ className, children, ...props }: React.ButtonHTM
             type="button"
             onClick={() => setOpen(!open)}
             className={cn(
-                &quot;flex h-10 w-full items-center justify-between rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500&quot;,
+                "flex h-10 w-full items-center justify-between rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500",
                 className
             )}
             {...props}
@@ -43,7 +43,7 @@ export function SelectTrigger({ className, children, ...props }: React.ButtonHTM
 
 export function SelectValue({ placeholder }: { placeholder?: string }) {
     const { value } = React.useContext(SelectContext);
-    return <span className={value ? "" : "text-gray-400"}>{value || placeholder || &quot;Select...&quot;}</span>;
+    return <span className={value ? "" : "text-gray-400"}>{value || placeholder || "Select..."}</span>;
 }
 
 export function SelectContent({ children, className }: { children: React.ReactNode; className?: string }) {
@@ -54,8 +54,8 @@ export function SelectContent({ children, className }: { children: React.ReactNo
         function handleClick(e: MouseEvent) {
             if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
         }
-        if (open) document.addEventListener(&quot;mousedown&quot;, handleClick);
-        return () => document.removeEventListener(&quot;mousedown&quot;, handleClick);
+        if (open) document.addEventListener("mousedown", handleClick);
+        return () => document.removeEventListener("mousedown", handleClick);
     }, [open, setOpen]);
 
     if (!open) return null;
@@ -72,8 +72,8 @@ export function SelectItem({ value, children, className }: { value: string; chil
         <div
             onClick={() => { ctx.onValueChange(value); ctx.setOpen(false); }}
             className={cn(
-                &quot;relative flex cursor-pointer select-none items-center rounded-sm px-3 py-2 text-sm hover:bg-gray-100&quot;,
-                ctx.value === value && &quot;bg-indigo-50 text-indigo-700 font-medium&quot;,
+                "relative flex cursor-pointer select-none items-center rounded-sm px-3 py-2 text-sm hover:bg-gray-100",
+                ctx.value === value && "bg-indigo-50 text-indigo-700 font-medium",
                 className
             )}
         >

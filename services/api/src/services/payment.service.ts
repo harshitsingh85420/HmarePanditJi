@@ -1,6 +1,6 @@
 import Razorpay from "razorpay";
 import crypto from "crypto";
-import { prisma, BookingStatus, PaymentStatus } from "@hmarepanditji/db";
+import { prisma } from "@hmarepanditji/db";
 import { env } from "../config/env";
 import { logger } from "../utils/logger";
 import { AppError } from "../middleware/errorHandler";
@@ -158,7 +158,7 @@ export async function createRazorpayOrder(bookingId: string, customerId: string)
     where: { id: booking.id },
     data: {
       razorpayOrderId: order.id,
-      paymentStatus: PaymentStatus.PENDING,
+      paymentStatus: "PENDING",
     },
   });
 
@@ -219,7 +219,7 @@ export async function processPaymentSuccess(
     throw new AppError("Booking not found", 404, "BOOKING_NOT_FOUND");
   }
 
-  if (booking.paymentStatus === PaymentStatus.CAPTURED) {
+  if (booking.paymentStatus === "CAPTURED") {
     // Idempotent — return existing booking.
     return booking;
   }
@@ -235,14 +235,14 @@ export async function processPaymentSuccess(
     accommodationCost: booking.accommodationCost,
   });
 
-  const updated = await prisma.$transaction(async (tx) => {
+  const updated = await prisma.$transaction(async (tx: any) => {
     const updatedBooking = await tx.booking.update({
       where: { id: booking.id },
       data: {
         razorpayPaymentId,
         razorpayOrderId: razorpayOrderId ?? booking.razorpayOrderId,
-        paymentStatus: PaymentStatus.CAPTURED,
-        status: BookingStatus.PANDIT_REQUESTED,
+        paymentStatus: "CAPTURED",
+        status: "PANDIT_REQUESTED",
         panditPayout,
       },
     });
@@ -251,7 +251,7 @@ export async function processPaymentSuccess(
       data: {
         bookingId: booking.id,
         fromStatus: previousStatus,
-        toStatus: BookingStatus.PANDIT_REQUESTED,
+        toStatus: "PANDIT_REQUESTED",
         updatedById: booking.customerId,
       },
     });

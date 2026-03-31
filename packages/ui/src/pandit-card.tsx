@@ -39,19 +39,19 @@ export interface PanditCardProps {
 }
 
 const modeIcons: Record<TravelMode, string> = {
-  SELF_DRIVE: &quot;directions_car&quot;,
-  TRAIN: &quot;train&quot;,
-  FLIGHT: &quot;flight&quot;,
+  SELF_DRIVE: "directions_car",
+  TRAIN: "train",
+  FLIGHT: "flight",
 };
 
 const modeEmoji: Record<TravelMode, string> = {
-  SELF_DRIVE: &quot;🚗&quot;,
-  TRAIN: &quot;🚆&quot;,
-  FLIGHT: &quot;✈️&quot;,
+  SELF_DRIVE: "🚗",
+  TRAIN: "🚆",
+  FLIGHT: "✈️",
 };
 
 function isTravelModePrice(item: TravelMode | TravelModePrice): item is TravelModePrice {
-  return typeof item === &quot;object&quot; && &quot;price&quot; in item;
+  return typeof item === "object" && "price" in item;
 }
 
 export function PanditCard({
@@ -75,7 +75,7 @@ export function PanditCard({
   onViewProfile,
   onBook,
   onFavorite,
-  className = &quot;&quot;,
+  className = "",
 }: PanditCardProps) {
   const displayRating = overallRating ?? rating ?? 0;
   const displayPhoto = avatarUrl ?? photoUrl;
@@ -86,12 +86,12 @@ export function PanditCard({
     (t): t is TravelModePrice => isTravelModePrice(t),
   );
   const travelModeStrings: TravelMode[] = travelModes.filter(
-    (t): t is TravelMode => typeof t === &quot;string&quot;,
+    (t): t is TravelMode => typeof t === "string",
   );
   const hasPrices = travelPrices.length > 0;
 
   const [activeMode, setActiveMode] = useState<TravelMode>(
-    hasPrices ? travelPrices[0].mode : travelModeStrings[0] ?? &quot;SELF_DRIVE&quot;,
+    hasPrices ? travelPrices[0].mode : travelModeStrings[0] ?? "SELF_DRIVE",
   );
 
   const lowestPrice = hasPrices
@@ -109,7 +109,7 @@ export function PanditCard({
             onFavorite(id);
           }}
           className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm shadow-sm flex items-center justify-center text-slate-400 hover:text-red-500 hover:scale-110 transition-all"
-          title={isFavorite ? &quot;Remove from favorites&quot; : &quot;Add to favorites&quot;}
+          title={isFavorite ? "Remove from favorites" : "Add to favorites"}
         >
           <span className={`material-symbols-outlined text-lg ${isFavorite ? "text-red-500 fill-current font-variation-fill-1" : ""}`}>
             favorite
@@ -204,14 +204,14 @@ export function PanditCard({
                   key={t.mode}
                   onClick={() => setActiveMode(t.mode)}
                   className={[
-                    &quot;flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-semibold transition-all whitespace-nowrap&quot;,
+                    "flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-semibold transition-all whitespace-nowrap",
                     isActive
-                      ? &quot;border-primary bg-primary/10 text-primary&quot;
-                      : &quot;border-slate-200 dark:border-slate-700 text-slate-500 hover:border-primary/50&quot;,
-                  ].join(&quot; &quot;)}
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-slate-200 dark:border-slate-700 text-slate-500 hover:border-primary/50",
+                  ].join(" ")}
                 >
                   <span>{modeEmoji[t.mode]}</span>
-                  {t.label}: ₹{t.price.toLocaleString(&quot;en-IN&quot;)}
+                  {t.label}: ₹{t.price.toLocaleString("en-IN")}
                 </button>
               );
             })}
@@ -229,7 +229,7 @@ export function PanditCard({
         <div className="flex items-center gap-3">
           {lowestPrice !== undefined && (
             <span className="text-sm font-bold text-slate-900 dark:text-slate-100">
-              From ₹{lowestPrice.toLocaleString(&quot;en-IN&quot;)}
+              From ₹{lowestPrice.toLocaleString("en-IN")}
             </span>
           )}
           {!hasPrices && travelModeStrings.length > 0 && (

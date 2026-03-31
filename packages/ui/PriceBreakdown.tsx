@@ -30,7 +30,7 @@ export const PriceBreakdown: React.FC<PriceBreakdownProps> = ({
     theme = 'customer',
     showGstDetails = true,
     className = '',
-    role = &apos;CUSTOMER&apos;,
+    role = 'CUSTOMER',
 }) => {
     const [isGstExpanded, setIsGstExpanded] = useState(false);
     const currentTheme = themes[theme] || themes.customer;
@@ -40,7 +40,7 @@ export const PriceBreakdown: React.FC<PriceBreakdownProps> = ({
     } as React.CSSProperties;
 
     const formatCurrency = (amount: number) => {
-        return `₹${amount.toLocaleString(&apos;en-IN&apos;)}`;
+        return `₹${amount.toLocaleString('en-IN')}`;
     };
 
     return (
@@ -65,12 +65,12 @@ export const PriceBreakdown: React.FC<PriceBreakdownProps> = ({
             {/* Travel Cost */}
             {breakdown.travelCost !== undefined && breakdown.travelCost > 0 && (
                 <div className="flex justify-between items-center text-gray-800">
-                    <span>{role === &apos;PANDIT&apos; ? &apos;यात्रा खर्च&apos; : &apos;Travel Cost&apos;}</span>
+                    <span>{role === 'PANDIT' ? 'यात्रा खर्च' : 'Travel Cost'}</span>
                     <span className="font-medium">{formatCurrency(breakdown.travelCost)}</span>
                 </div>
             )}
 
-            {role === &apos;CUSTOMER&apos; && (
+            {role === 'CUSTOMER' && (
                 <>
                     {/* Platform Fee */}
                     <div className="flex justify-between items-center text-gray-500">
@@ -125,7 +125,7 @@ export const PriceBreakdown: React.FC<PriceBreakdownProps> = ({
 
             {/* Total / Grand Total */}
             <div className="flex justify-between items-center text-lg font-bold">
-                <span className="text-gray-900">{role === &apos;PANDIT&apos; ? &apos;कुल आमदनी&apos; : &apos;Grand Total&apos;}</span>
+                <span className="text-gray-900">{role === 'PANDIT' ? 'कुल आमदनी' : 'Grand Total'}</span>
                 <span className="text-[var(--price-primary)]">{formatCurrency(breakdown.grandTotal)}</span>
             </div>
         </div>

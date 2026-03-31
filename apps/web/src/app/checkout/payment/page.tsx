@@ -79,13 +79,13 @@ export default function SecurePaymentPage() {
                                 <h4 className="text-base font-bold text-slate-400 uppercase tracking-widest mb-4">Saved Cards</h4>
                                 <div className="flex flex-wrap gap-4">
                                     <div
-                                        onClick={() => setPaymentMethod(&apos;card&apos;)}
-                                        className={`flex items-center gap-4 p-4 border-2 rounded-xl w-full md:w-72 cursor-pointer relative overflow-hidden transition-all ${paymentMethod === &apos;card&apos;
-                                            ? &apos;border-[#135bec] bg-[#135bec]/5&apos;
-                                            : &apos;border-slate-200 hover:border-slate-300&apos;
+                                        onClick={() => setPaymentMethod('card')}
+                                        className={`flex items-center gap-4 p-4 border-2 rounded-xl w-full md:w-72 cursor-pointer relative overflow-hidden transition-all ${paymentMethod === 'card'
+                                            ? 'border-[#135bec] bg-[#135bec]/5'
+                                            : 'border-slate-200 hover:border-slate-300'
                                             }`}
                                     >
-                                        {paymentMethod === &apos;card&apos; && (
+                                        {paymentMethod === 'card' && (
                                             <div className="absolute top-2 right-2">
                                                 <span className="material-symbols-outlined text-[#135bec] text-lg">check_circle</span>
                                             </div>
@@ -106,15 +106,15 @@ export default function SecurePaymentPage() {
                                 <h4 className="text-base font-bold text-slate-400 uppercase tracking-widest mb-4">Fast UPI Payment</h4>
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                     {[
-                                        { name: &quot;Google Pay&quot;, icon: &quot;account_balance_wallet&quot; },
-                                        { name: &quot;PhonePe&quot;, icon: &quot;payments&quot; },
-                                        { name: &quot;Any UPI App&quot;, icon: &quot;qr_code_2&quot; },
-                                        { name: &quot;Paytm&quot;, icon: &quot;send_to_mobile&quot; }
+                                        { name: "Google Pay", icon: "account_balance_wallet" },
+                                        { name: "PhonePe", icon: "payments" },
+                                        { name: "Any UPI App", icon: "qr_code_2" },
+                                        { name: "Paytm", icon: "send_to_mobile" }
                                     ].map((upi) => (
                                         <button
                                             key={upi.name}
-                                            onClick={() => setPaymentMethod(&apos;upi&apos;)}
-                                            className={`flex flex-col items-center justify-center p-4 border rounded-xl hover:border-[#135bec] transition-all bg-white dark:bg-slate-900 group ${paymentMethod === &apos;upi&apos; ? &apos;border-[#135bec] bg-[#135bec]/5&apos; : &apos;border-slate-200 dark:border-slate-800&apos;
+                                            onClick={() => setPaymentMethod('upi')}
+                                            className={`flex flex-col items-center justify-center p-4 border rounded-xl hover:border-[#135bec] transition-all bg-white dark:bg-slate-900 group ${paymentMethod === 'upi' ? 'border-[#135bec] bg-[#135bec]/5' : 'border-slate-200 dark:border-slate-800'
                                                 }`}
                                         >
                                             <span className={`material-symbols-outlined text-2xl group-hover:text-[#135bec] ${paymentMethod === 'upi' ? 'text-[#135bec]' : 'text-slate-400'}`}>{upi.icon}</span>
@@ -125,7 +125,7 @@ export default function SecurePaymentPage() {
                             </div>
 
                             {/* Credit/Debit Card Form */}
-                            {paymentMethod === &apos;card&apos; && (
+                            {paymentMethod === 'card' && (
                                 <div className="animate-in fade-in slide-in-from-top-4 duration-300">
                                     <h4 className="text-base font-bold text-slate-400 uppercase tracking-widest mb-4">Credit or Debit Card Details</h4>
                                     <div className="grid grid-cols-2 gap-4">
@@ -173,7 +173,7 @@ export default function SecurePaymentPage() {
                                 </label>
                             </div>
                             <button
-                                onClick={() => router.push(&apos;/bookings/123?status=success&apos;)}
+                                onClick={() => router.push('/bookings/123?status=success')}
                                 className="w-full bg-[#135bec] hover:bg-[#135bec]/90 text-white font-bold py-4 rounded-xl shadow-lg shadow-[#135bec]/25 transition-all flex items-center justify-center gap-2"
                             >
                                 <span>Pay ₹79,868 Securely</span>

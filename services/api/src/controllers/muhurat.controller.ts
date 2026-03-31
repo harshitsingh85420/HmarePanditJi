@@ -79,7 +79,7 @@ export async function getMuhuratDates(req: Request, res: Response, next: NextFun
       group.pujaTypes.add(d.pujaType);
     }
 
-    const result = Array.from(groupedMap.values()).map(g => ({
+    const result = Array.from(groupedMap.values()).map((g: { date: string; count: number; pujaTypes: Set<string> }) => ({
       date: g.date,
       count: g.count,
       pujaTypes: Array.from(g.pujaTypes),
@@ -121,7 +121,7 @@ export async function getUpcomingMuhurat(req: Request, res: Response, next: Next
       select: { date: true, pujaType: true, timeWindow: true, significance: true }
     });
 
-    const result = dates.map(d => ({
+    const result = dates.map((d: any) => ({
       ...d,
       date: d.date.toISOString().split("T")[0],
     }));
@@ -239,7 +239,7 @@ export async function getSuggestedMuhurat(req: Request, res: Response, next: Nex
 
     const responseData = {
       pujaType,
-      suggestions: entries.map((e) => ({
+      suggestions: entries.map((e: any) => ({
         id: e.id,
         date: e.date,
         timeWindow: e.timeWindow,

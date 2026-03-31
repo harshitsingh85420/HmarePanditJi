@@ -12,40 +12,40 @@ interface PanditProfileClientProps {
 export function PanditProfileClient({ panditId }: PanditProfileClientProps) {
     const router = useRouter();
     const [activeTab, setActiveTab] = useState("bio");
-    const [samagriType, setSamagriType] = useState<"fixed" | "custom">(&quot;fixed&quot;);
-    const [selectedPackage, setSelectedPackage] = useState(&quot;Standard&quot;);
+    const [samagriType, setSamagriType] = useState<"fixed" | "custom">("fixed");
+    const [selectedPackage, setSelectedPackage] = useState("Standard");
     const [isTravelModalOpen, setIsTravelModalOpen] = useState(false);
-    const [travelMode, setTravelMode] = useState(&quot;SELF-DRIVE&quot;);
+    const [travelMode, setTravelMode] = useState("SELF-DRIVE");
 
     const packages = [
         {
-            name: &quot;Basic&quot;,
+            name: "Basic",
             price: 1200,
             features: [
-                &quot;Essential Flowers & Bel-patra&quot;,
-                &quot;Roli, Akshat, Chandan&quot;,
-                &quot;Basic Diya & Bati&quot;,
+                "Essential Flowers & Bel-patra",
+                "Roli, Akshat, Chandan",
+                "Basic Diya & Bati",
             ],
         },
         {
-            name: &quot;Standard&quot;,
+            name: "Standard",
             price: 2500,
             isPopular: true,
             features: [
-                &quot;Everything in Basic&quot;,
-                &quot;Fruits (5 types)&quot;,
-                &quot;Gangajal & Honey (Pure)&quot;,
-                &quot;Havan Samagri (500g)&quot;,
+                "Everything in Basic",
+                "Fruits (5 types)",
+                "Gangajal & Honey (Pure)",
+                "Havan Samagri (500g)",
             ],
         },
         {
-            name: &quot;Premium&quot;,
+            name: "Premium",
             price: 5000,
             features: [
-                &quot;Everything in Standard&quot;,
-                &quot;Pure Ghee (1kg)&quot;,
-                &quot;Brass Puja Thali Gift&quot;,
-                &quot;Complete Havan Setup&quot;,
+                "Everything in Standard",
+                "Pure Ghee (1kg)",
+                "Brass Puja Thali Gift",
+                "Complete Havan Setup",
             ],
         },
     ];
@@ -56,14 +56,14 @@ export function PanditProfileClient({ panditId }: PanditProfileClientProps) {
     };
 
     const getSamagriPrice = () => {
-        if (samagriType === &quot;custom&quot;) return 1214; // Mock custom price from design
+        if (samagriType === "custom") return 1214; // Mock custom price from design
         const pkg = packages.find((p) => p.name === selectedPackage);
         return pkg ? pkg.price : 0;
     };
 
     const dakshina = 5100;
     const foodAllowance = 500;
-    const travelCost = travelMode === &quot;SELF-DRIVE&quot; ? 348 : 1200; // Mock logic
+    const travelCost = travelMode === "SELF-DRIVE" ? 348 : 1200; // Mock logic
     const samagriPrice = getSamagriPrice();
     const total = dakshina + foodAllowance + travelCost + samagriPrice;
 
@@ -134,14 +134,14 @@ export function PanditProfileClient({ panditId }: PanditProfileClientProps) {
                 {/* Tabs Menu */}
                 <div className="border-b border-[#f49d25]/10">
                     <div className="flex gap-8 overflow-x-auto no-scrollbar">
-                        {[&quot;Bio & Experience&quot;, &quot;Gallery&quot;, &quot;Certificates&quot;, &quot;Reviews&quot;].map(
+                        {["Bio & Experience", "Gallery", "Certificates", "Reviews"].map(
                             (tab) => (
                                 <button
                                     key={tab}
                                     onClick={() => setActiveTab(tab.toLowerCase())}
                                     className={`pb-3 font-medium whitespace-nowrap border-b-2 transition-colors ${activeTab === tab.toLowerCase()
-                                            ? &quot;border-[#f49d25] text-[#f49d25] font-bold&quot;
-                                            : &quot;border-transparent text-[#8a7960] hover:text-[#f49d25]&quot;
+                                            ? "border-[#f49d25] text-[#f49d25] font-bold"
+                                            : "border-transparent text-[#8a7960] hover:text-[#f49d25]"
                                         }`}
                                 >
                                     {tab}
@@ -164,29 +164,29 @@ export function PanditProfileClient({ panditId }: PanditProfileClientProps) {
                     {/* Samagri Tabs */}
                     <div className="bg-[#f49d25]/5 p-1 rounded-lg flex w-fit">
                         <button
-                            onClick={() => setSamagriType(&quot;fixed&quot;)}
-                            className={`px-6 py-2 rounded-md font-bold shadow-sm transition-all ${samagriType === &quot;fixed&quot;
-                                    ? &quot;bg-white dark:bg-[#2d2116] text-[#f49d25]&quot;
-                                    : &quot;text-[#8a7960] hover:text-[#f49d25]&quot;
+                            onClick={() => setSamagriType("fixed")}
+                            className={`px-6 py-2 rounded-md font-bold shadow-sm transition-all ${samagriType === "fixed"
+                                    ? "bg-white dark:bg-[#2d2116] text-[#f49d25]"
+                                    : "text-[#8a7960] hover:text-[#f49d25]"
                                 }`}
                         >
-                            Pandit&apos;s Fixed Packages
+                            Pandit's Fixed Packages
                         </button>
                         <button
                             onClick={() => {
-                                setSamagriType(&quot;custom&quot;);
+                                setSamagriType("custom");
                                 // In a real app, this might navigate or open modal
                             }}
-                            className={`px-6 py-2 rounded-md font-bold transition-all ${samagriType === &quot;custom&quot;
-                                    ? &quot;bg-white dark:bg-[#2d2116] text-[#f49d25] shadow-sm&quot;
-                                    : &quot;text-[#8a7960] hover:text-[#f49d25]&quot;
+                            className={`px-6 py-2 rounded-md font-bold transition-all ${samagriType === "custom"
+                                    ? "bg-white dark:bg-[#2d2116] text-[#f49d25] shadow-sm"
+                                    : "text-[#8a7960] hover:text-[#f49d25]"
                                 }`}
                         >
                             Build Custom List
                         </button>
                     </div>
 
-                    {samagriType === &quot;fixed&quot; ? (
+                    {samagriType === "fixed" ? (
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             {packages.map((pkg) => {
                                 const isSelected = selectedPackage === pkg.name;
@@ -220,7 +220,7 @@ export function PanditProfileClient({ panditId }: PanditProfileClientProps) {
                                                 >
                                                     <span className="material-symbols-outlined text-[#f49d25] text-lg">
                                                         check_circle
-                                                    </span>{&quot; &quot;}
+                                                    </span>{" "}
                                                     {feat}
                                                 </li>
                                             ))}
@@ -231,7 +231,7 @@ export function PanditProfileClient({ panditId }: PanditProfileClientProps) {
                                                     : "border border-[#f49d25] text-[#f49d25] hover:bg-[#f49d25]/5"
                                                 }`}
                                         >
-                                            {isSelected ? &quot;Selected&quot; : &quot;Select&quot;}
+                                            {isSelected ? "Selected" : "Select"}
                                         </button>
                                     </div>
                                 );
@@ -326,7 +326,7 @@ export function PanditProfileClient({ panditId }: PanditProfileClientProps) {
                             <div className="flex justify-between items-center">
                                 <div className="flex flex-col">
                                     <span className="font-bold text-lg text-[#181511] dark:text-white">
-                                        Samagri: {samagriType === &apos;fixed&apos; ? selectedPackage : &apos;Custom&apos;}
+                                        Samagri: {samagriType === 'fixed' ? selectedPackage : 'Custom'}
                                     </span>
                                 </div>
                                 <span className="font-bold text-lg dark:text-white">
@@ -349,7 +349,7 @@ export function PanditProfileClient({ panditId }: PanditProfileClientProps) {
                                     </span>
                                 </div>
                                 <button
-                                    onClick={() => router.push(&apos;/booking/new&apos;)}
+                                    onClick={() => router.push('/booking/new')}
                                     className="w-full bg-[#f49d25] hover:bg-[#f49d25]/90 text-white font-bold py-4 rounded-xl shadow-lg shadow-[#f49d25]/20 transition-all flex items-center justify-center gap-2"
                                 >
                                     Proceed to Booking
@@ -369,7 +369,7 @@ export function PanditProfileClient({ panditId }: PanditProfileClientProps) {
                                 HmarePanditJi Guarantee
                             </span>
                             <span className="text-base text-[#8a7960]">
-                                100% Refund if Pandit doesn&apos;t arrive on time.
+                                100% Refund if Pandit doesn't arrive on time.
                             </span>
                         </div>
                     </div>

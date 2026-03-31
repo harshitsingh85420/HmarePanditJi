@@ -82,7 +82,7 @@ export default function PanditDashboardPage() {
                             </span>
                             <span className={`font-bold text-lg flex items-center gap-1 ${isOnline ? 'text-green-600' : 'text-gray-400'}`}>
                                 <span className={`size-2 rounded-full ${isOnline ? 'bg-green-600 animate-pulse' : 'bg-gray-400'}`}></span>
-                                {isOnline ? &apos;ONLINE&apos; : &apos;OFFLINE&apos;}
+                                {isOnline ? 'ONLINE' : 'OFFLINE'}
                             </span>
                         </div>
                         <label className="relative flex h-[31px] w-[51px] cursor-pointer items-center rounded-full border-none bg-gray-200 dark:bg-gray-700 p-0.5 transition-all">
@@ -169,10 +169,10 @@ export default function PanditDashboardPage() {
                 <div className="px-4 mb-8">
                     <div className="flex items-center justify-between mb-4">
                         <h2 className="text-[#181411] dark:text-white text-[22px] font-bold leading-tight tracking-[-0.015em]">
-                            Today&apos;s Schedule
+                            Today's Schedule
                         </h2>
                         <button
-                            onClick={() => router.push(&apos;/pandit/calendar&apos;)}
+                            onClick={() => router.push('/pandit/calendar')}
                             className="text-[#f09942] text-lg font-bold flex items-center gap-1 hover:underline"
                         >
                             View Calendar
@@ -199,14 +199,14 @@ export default function PanditDashboardPage() {
                                         <p className="text-lg text-gray-500 flex items-center gap-1">
                                             <span className="material-symbols-outlined text-lg">
                                                 location_on
-                                            </span>{&quot; &quot;}
+                                            </span>{" "}
                                             Delhi (South)
                                         </p>
                                         <p className="text-lg text-gray-500 flex items-center gap-1">
                                             <span className="material-symbols-outlined text-lg">
                                                 person
-                                            </span>{&quot; &quot;}
-                                            Mr. Sharma&apos;s Family
+                                            </span>{" "}
+                                            Mr. Sharma's Family
                                         </p>
                                     </div>
                                 </div>
@@ -215,11 +215,11 @@ export default function PanditDashboardPage() {
                                 <button className="flex-1 md:flex-none px-4 py-2 bg-[#f09942] hover:bg-[#e08c14] text-white text-lg font-bold rounded-lg flex items-center justify-center gap-2 transition-all shadow-sm">
                                     <span className="material-symbols-outlined text-lg">
                                         directions
-                                    </span>{&quot; &quot;}
+                                    </span>{" "}
                                     Directions
                                 </button>
                                 <button
-                                    onClick={() => router.push(&apos;/pandit/bookings/123&apos;)}
+                                    onClick={() => router.push('/pandit/bookings/123')}
                                     className="flex-1 md:flex-none px-4 py-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-[#181411] dark:text-white text-lg font-bold rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-all"
                                 >
                                     Details
@@ -244,13 +244,13 @@ export default function PanditDashboardPage() {
                                         <p className="text-lg text-gray-500 flex items-center gap-1">
                                             <span className="material-symbols-outlined text-lg">
                                                 location_on
-                                            </span>{&quot; &quot;}
+                                            </span>{" "}
                                             Local (2km away)
                                         </p>
                                         <p className="text-lg text-gray-500 flex items-center gap-1">
                                             <span className="material-symbols-outlined text-lg">
                                                 person
-                                            </span>{&quot; &quot;}
+                                            </span>{" "}
                                             Mrs. Verma
                                         </p>
                                     </div>
@@ -260,7 +260,7 @@ export default function PanditDashboardPage() {
                                 <button className="flex-1 md:flex-none px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-lg font-bold rounded-lg flex items-center justify-center gap-2 cursor-not-allowed opacity-70">
                                     <span className="material-symbols-outlined text-lg">
                                         schedule
-                                    </span>{&quot; &quot;}
+                                    </span>{" "}
                                     Wait
                                 </button>
                                 <button className="flex-1 md:flex-none px-4 py-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-[#181411] dark:text-white text-lg font-bold rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-all">
@@ -299,7 +299,7 @@ export default function PanditDashboardPage() {
                                 <button className="bg-white/90 dark:bg-gray-800/90 backdrop-blur px-6 py-2 rounded-full text-[#f09942] font-bold shadow-lg flex items-center gap-2 hover:scale-105 transition-transform">
                                     <span className="material-symbols-outlined text-lg">
                                         navigation
-                                    </span>{&quot; &quot;}
+                                    </span>{" "}
                                     Open Travel View
                                 </button>
                             </div>

@@ -29,8 +29,8 @@ export default function FavoritesPage() {
     const fetchFavorites = async () => {
         setIsLoading(true);
         try {
-            const token = localStorage.getItem(&quot;token&quot;);
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || &apos;http://localhost:3001&apos;}/api/customers/me/favorites`, {
+            const token = localStorage.getItem("token");
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/customers/me/favorites`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (res.ok) {
@@ -49,12 +49,12 @@ export default function FavoritesPage() {
     }, []);
 
     const removeFavorite = async (panditId: string) => {
-        if (!confirm(&quot;Remove from favorites?&quot;)) return;
+        if (!confirm("Remove from favorites?")) return;
 
         try {
-            const token = localStorage.getItem(&quot;token&quot;);
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || &apos;http://localhost:3001&apos;}/api/customers/me/favorites/${panditId}`, {
-                method: &quot;DELETE&quot;,
+            const token = localStorage.getItem("token");
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/customers/me/favorites/${panditId}`, {
+                method: "DELETE",
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (res.ok) {

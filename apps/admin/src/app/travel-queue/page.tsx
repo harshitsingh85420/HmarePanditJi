@@ -86,25 +86,25 @@ const MOCK_DATA: TravelBooking[] = [
 
 function StatusBadge({ status }: { status: string }) {
   if (status === "ON_TRACK") return <span className="bg-green-500 text-white text-[10px] font-black uppercase px-2 py-1 rounded">On Track</span>;
-  if (status === &quot;DELAYED&quot;) return <span className="bg-[#f49d25] text-white text-[10px] font-black uppercase px-2 py-1 rounded">Delayed</span>;
-  if (status === &quot;EMERGENCY&quot;) return <span className="bg-red-500 text-white text-[10px] font-black uppercase px-2 py-1 rounded">Emergency</span>;
+  if (status === DELAYED) return <span className="bg-[#f49d25] text-white text-[10px] font-black uppercase px-2 py-1 rounded">Delayed</span>;
+  if (status === EMERGENCY) return <span className="bg-red-500 text-white text-[10px] font-black uppercase px-2 py-1 rounded">Emergency</span>;
   return <span className="bg-slate-500 text-white text-[10px] font-black uppercase px-2 py-1 rounded">{status}</span>;
 }
 
 function ETAText({ status, text }: { status: string, text: string }) {
-  if (status === &quot;ON_TRACK&quot;) return <span className="text-green-500 font-bold text-sm">{text}</span>;
-  if (status === &quot;DELAYED&quot;) return <span className="text-[#f49d25] font-bold text-sm">{text}</span>;
-  if (status === &quot;EMERGENCY&quot;) return <span className="text-red-500 font-bold text-sm">{text}</span>;
+  if (status === ON_TRACK) return <span className="text-green-500 font-bold text-sm">{text}</span>;
+  if (status === DELAYED) return <span className="text-[#f49d25] font-bold text-sm">{text}</span>;
+  if (status === EMERGENCY) return <span className="text-red-500 font-bold text-sm">{text}</span>;
   return <span className="text-slate-500 font-bold text-sm">{text}</span>;
 }
 
 // ── Main Page Component ──────────────────────────────────────────────────────
 
 export default function TravelOperationsPage() {
-  const [activeTab, setActiveTab] = useState(&quot;ALL&quot;);
+  const [activeTab, setActiveTab] = useState(ALL);
   const [selectedTrip, setSelectedTrip] = useState<TravelBooking | null>(MOCK_DATA[0]);
 
-  const filtered = activeTab === &quot;ALL&quot; ? MOCK_DATA : MOCK_DATA.filter(d => d.status === activeTab);
+  const filtered = activeTab === ALL ? MOCK_DATA : MOCK_DATA.filter(d => d.status === activeTab);
 
   return (
     <div className="min-h-screen bg-[#f8f7f5] dark:bg-[#221a10] font-sans text-slate-900 dark:text-slate-100 flex flex-col">
@@ -157,20 +157,20 @@ export default function TravelOperationsPage() {
           <div className="lg:col-span-8 flex flex-col gap-4">
             <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
               <button
-                onClick={() => setActiveTab(&quot;ALL&quot;)}
-                className={`flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg px-4 text-sm font-bold transition-all ${activeTab === &quot;ALL&quot; ? &quot;bg-[#f49d25] text-white&quot; : &quot;bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300&quot;}`}
+                onClick={() => setActiveTab(ALL)}
+                className={`flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg px-4 text-sm font-bold transition-all ${activeTab === ALL ? bg-[#f49d25] text-white : bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300}`}
               >
                 All Travels <span className="bg-white/20 px-1.5 rounded">124</span>
               </button>
               <button
-                onClick={() => setActiveTab(&quot;DELAYED&quot;)}
-                className={`flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg px-4 text-sm font-medium transition-all ${activeTab === &quot;DELAYED&quot; ? &quot;bg-[#f49d25] text-white&quot; : &quot;bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300&quot;}`}
+                onClick={() => setActiveTab(DELAYED)}
+                className={`flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg px-4 text-sm font-medium transition-all ${activeTab === DELAYED ? bg-[#f49d25] text-white : bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300}`}
               >
                 Delayed <span className="bg-[#f49d25]/20 text-[#f49d25] px-1.5 rounded">9</span>
               </button>
               <button
-                onClick={() => setActiveTab(&quot;EMERGENCY&quot;)}
-                className={`flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg px-4 text-sm font-medium transition-all ${activeTab === &quot;EMERGENCY&quot; ? &quot;bg-[#f49d25] text-white&quot; : &quot;bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300&quot;}`}
+                onClick={() => setActiveTab(EMERGENCY)}
+                className={`flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg px-4 text-sm font-medium transition-all ${activeTab === EMERGENCY ? bg-[#f49d25] text-white : bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300}`}
               >
                 Emergency <span className="bg-red-500/20 text-red-500 px-1.5 rounded">3</span>
               </button>
@@ -193,7 +193,7 @@ export default function TravelOperationsPage() {
                     <tr
                       key={trip.id}
                       onClick={() => setSelectedTrip(trip)}
-                      className={`cursor-pointer hover:bg-slate-50 dark:hover:bg-white/5 transition-colors ${selectedTrip?.id === trip.id ? &quot;bg-slate-50 dark:bg-white/5&quot; : &quot;&quot;} ${trip.status === &quot;DELAYED&quot; ? &quot;border-l-4 border-l-[#f49d25] bg-[#f49d25]/5&quot; : &quot;&quot;} ${trip.status === &quot;EMERGENCY&quot; ? &quot;border-l-4 border-l-red-500 bg-red-500/5&quot; : &quot;&quot;}`}
+                      className={`cursor-pointer hover:bg-slate-50 dark:hover:bg-white/5 transition-colors ${selectedTrip?.id === trip.id ? bg-slate-50 dark:bg-white/5 : } ${trip.status === DELAYED ? border-l-4 border-l-[#f49d25] bg-[#f49d25]/5 : } ${trip.status === EMERGENCY ? border-l-4 border-l-red-500 bg-red-500/5 : }`}
                     >
                       <td className="px-4 py-4 font-bold text-slate-900 dark:text-white">{trip.tripId}</td>
                       <td className="px-4 py-4">
@@ -252,12 +252,12 @@ export default function TravelOperationsPage() {
                       <span className="text-[10px] uppercase font-bold text-slate-400">Train Status</span>
                       <div className="flex items-center gap-1">
                         <span className="material-symbols-outlined text-[#f49d25] text-sm">train</span>
-                        <span className="text-sm font-bold text-[#f49d25]">{selectedTrip.trainStatus || &quot;N/A&quot;}</span>
+                        <span className="text-sm font-bold text-[#f49d25]">{selectedTrip.trainStatus || N/A}</span>
                       </div>
                     </div>
                     <div className="flex flex-col gap-1">
                       <span className="text-[10px] uppercase font-bold text-slate-400">Next Stop</span>
-                      <span className="text-sm font-bold dark:text-white">{selectedTrip.nextStop || &quot;N/A&quot;}</span>
+                      <span className="text-sm font-bold dark:text-white">{selectedTrip.nextStop || N/A}</span>
                     </div>
                   </div>
                   <hr className="border-slate-100 dark:border-white/10" />

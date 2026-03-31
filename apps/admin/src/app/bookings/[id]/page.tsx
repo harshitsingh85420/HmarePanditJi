@@ -52,33 +52,33 @@ interface Booking {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  CREATED: &quot;bg-slate-500&quot;, PENDING: &quot;bg-yellow-500&quot;, CONFIRMED: &quot;bg-blue-500&quot;,
-  TRAVEL_BOOKED: &quot;bg-indigo-500&quot;, PANDIT_EN_ROUTE: &quot;bg-purple-500&quot;, PANDIT_ARRIVED: &quot;bg-violet-500&quot;,
-  PUJA_IN_PROGRESS: &quot;bg-orange-500&quot;, COMPLETED: &quot;bg-green-500&quot;, CANCELLED: &quot;bg-red-500&quot;, REFUNDED: &quot;bg-pink-500&quot;,
+  CREATED: "bg-slate-500", PENDING: "bg-yellow-500", CONFIRMED: "bg-blue-500",
+  TRAVEL_BOOKED: "bg-indigo-500", PANDIT_EN_ROUTE: "bg-purple-500", PANDIT_ARRIVED: "bg-violet-500",
+  PUJA_IN_PROGRESS: "bg-orange-500", COMPLETED: "bg-green-500", CANCELLED: "bg-red-500", REFUNDED: "bg-pink-500",
 };
 
 const MOCK: Booking = {
-  id: &quot;bk-mock-1&quot;, bookingNumber: &quot;BK-240201-001&quot;, eventType: &quot;Griha Pravesh&quot;, eventDate: &quot;2025-03-15T10:00:00Z&quot;,
-  eventEndDate: null, muhuratTime: &quot;10:30 AM - 12:00 PM&quot;, status: &quot;CONFIRMED&quot;,
-  venueAddress: &quot;A-123, Sector 45, Gurgaon, Haryana&quot;, venueCity: &quot;Gurgaon&quot;, venuePincode: &quot;122003&quot;,
-  venueLatitude: 28.4595, venueLongitude: 77.0266, attendees: 50, specialInstructions: &quot;Need extra chairs. Gate code is #4567.&quot;,
-  travelRequired: true, travelMode: &quot;car&quot;, travelDistanceKm: 85, travelStatus: &quot;PENDING&quot;,
-  travelBookingRef: null, travelNotes: null, foodArrangement: &quot;CUSTOMER_PROVIDES&quot;, samagriPreference: &quot;PANDIT_PROVIDES&quot;,
+  id: "bk-mock-1", bookingNumber: "BK-240201-001", eventType: "Griha Pravesh", eventDate: "2025-03-15T10:00:00Z",
+  eventEndDate: null, muhuratTime: "10:30 AM - 12:00 PM", status: "CONFIRMED",
+  venueAddress: "A-123, Sector 45, Gurgaon, Haryana", venueCity: "Gurgaon", venuePincode: "122003",
+  venueLatitude: 28.4595, venueLongitude: 77.0266, attendees: 50, specialInstructions: "Need extra chairs. Gate code is #4567.",
+  travelRequired: true, travelMode: "car", travelDistanceKm: 85, travelStatus: "PENDING",
+  travelBookingRef: null, travelNotes: null, foodArrangement: "CUSTOMER_PROVIDES", samagriPreference: "PANDIT_PROVIDES",
   dakshinaAmount: 11000, travelCost: 2500, foodAllowanceAmount: 500, accommodationCost: 0,
   platformFee: 1650, platformFeeGst: 297, travelServiceFee: 125, travelServiceFeeGst: 23,
-  grandTotal: 16095, panditPayout: 14000, payoutStatus: &quot;PENDING&quot;, paymentStatus: &quot;PAID&quot;,
-  cancelledBy: null, cancellationReason: null, refundAmount: 0, refundStatus: &quot;NONE&quot;,
-  adminNotes: null, createdAt: &quot;2025-02-01T12:00:00Z&quot;,
-  pandit: { id: &quot;p1&quot;, displayName: &quot;Pandit Ramesh Sharma&quot;, city: &quot;Old Delhi&quot;, profilePhotoUrl: null },
-  customer: { user: { fullName: &quot;Vikram Malhotra&quot;, phone: &quot;+919876543210&quot;, email: &quot;vikram@email.com&quot; } },
-  ritual: { name: &quot;Griha Pravesh&quot;, nameHindi: &quot;गृह प्रवेश&quot; },
+  grandTotal: 16095, panditPayout: 14000, payoutStatus: "PENDING", paymentStatus: "PAID",
+  cancelledBy: null, cancellationReason: null, refundAmount: 0, refundStatus: "NONE",
+  adminNotes: null, createdAt: "2025-02-01T12:00:00Z",
+  pandit: { id: "p1", displayName: "Pandit Ramesh Sharma", city: "Old Delhi", profilePhotoUrl: null },
+  customer: { user: { fullName: "Vikram Malhotra", phone: "+919876543210", email: "vikram@email.com" } },
+  ritual: { name: "Griha Pravesh", nameHindi: "गृह प्रवेश" },
 };
 
 export default function AdminBookingDetailPage({ params }: { params: { id: string } }) {
   const [booking, setBooking] = useState<Booking>(MOCK);
-  const [adminNotes, setAdminNotes] = useState(&quot;&quot;);
-  const [statusOverride, setStatusOverride] = useState(&quot;&quot;);
-  const [toast, setToast] = useState(&quot;&quot;);
+  const [adminNotes, setAdminNotes] = useState("");
+  const [statusOverride, setStatusOverride] = useState("");
+  const [toast, setToast] = useState("");
 
   useEffect(() => {
     fetchBooking();
@@ -86,7 +86,7 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
 
   async function fetchBooking() {
     try {
-      const token = localStorage.getItem(&quot;admin_token&quot;);
+      const token = localStorage.getItem("admin_token");
       const res = await fetch(`${API}/bookings/${params.id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -94,7 +94,7 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
         const json = await res.json();
         if (json.data) {
           setBooking(json.data);
-          setAdminNotes(json.data.adminNotes ?? &quot;&quot;);
+          setAdminNotes(json.data.adminNotes ?? "");
         }
       }
     } catch { /* use mock */ }
@@ -102,28 +102,28 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
 
   async function updateBooking() {
     try {
-      const token = localStorage.getItem(&quot;admin_token&quot;);
+      const token = localStorage.getItem("admin_token");
       const body: Record<string, string> = {};
       if (statusOverride) body.status = statusOverride;
-      if (adminNotes !== (booking.adminNotes ?? &quot;&quot;)) body.adminNotes = adminNotes;
+      if (adminNotes !== (booking.adminNotes ?? "")) body.adminNotes = adminNotes;
 
       if (!Object.keys(body).length) return;
 
       const res = await fetch(`${API}/admin/bookings/${params.id}`, {
-        method: &quot;PATCH&quot;,
-        headers: { &quot;Content-Type&quot;: &quot;application/json&quot;, Authorization: `Bearer ${token}` },
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify(body),
       });
       if (res.ok) {
-        showToast(&quot;Booking updated&quot;);
+        showToast("Booking updated");
         fetchBooking();
       }
-    } catch { showToast(&quot;Update failed&quot;); }
+    } catch { showToast("Update failed"); }
   }
 
   function showToast(msg: string) {
     setToast(msg);
-    setTimeout(() => setToast(&quot;&quot;), 3000);
+    setTimeout(() => setToast(""), 3000);
   }
 
   const b = booking;
@@ -145,7 +145,7 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
         <div className="mt-2 flex items-center gap-4">
           <h1 className="text-2xl font-bold text-white">{b.bookingNumber}</h1>
           <span className={`rounded-full px-3 py-1 text-xs font-semibold text-white ${STATUS_COLORS[b.status] ?? "bg-slate-600"}`}>
-            {b.status.replace(/_/g, &quot; &quot;)}
+            {b.status.replace(/_/g, & quot; ")}
           </span>
           <span className={`rounded-full px-3 py-1 text-xs font-semibold ${b.paymentStatus === "PAID" ? "bg-green-500/10 text-green-400 border border-green-500/20" : "bg-yellow-500/10 text-yellow-400 border border-yellow-500/20"}`}>
             {b.paymentStatus}
@@ -170,23 +170,23 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
               </div>
               <div>
                 <p className="text-xs text-slate-400">Date</p>
-                <p className="font-medium text-white">{new Date(b.eventDate).toLocaleDateString(&quot;en-IN&quot;, { weekday: &quot;short&quot;, day: &quot;numeric&quot;, month: &quot;long&quot;, year: &quot;numeric&quot; })}</p>
+                <p className="font-medium text-white">{new Date(b.eventDate).toLocaleDateString(& quot;en-IN", {weekday: "short", day: "numeric", month: "long", year: "numeric" })}</p>
               </div>
               <div>
                 <p className="text-xs text-slate-400">Muhurat Time</p>
-                <p className="font-medium text-white">{b.muhuratTime ?? &quot;Not specified&quot;}</p>
+                <p className="font-medium text-white">{b.muhuratTime ?? & quot;Not specified"}</p>
               </div>
               <div>
                 <p className="text-xs text-slate-400">Attendees</p>
-                <p className="font-medium text-white">{b.attendees ?? &quot;—&quot;}</p>
+                <p className="font-medium text-white">{b.attendees ?? & quot;—"}</p>
               </div>
               <div>
                 <p className="text-xs text-slate-400">Food Arrangement</p>
-                <p className="font-medium text-white capitalize">{b.foodArrangement.replace(/_/g, &quot; &quot;).toLowerCase()}</p>
+                <p className="font-medium text-white capitalize">{b.foodArrangement.replace(/_/g, & quot; ").toLowerCase()}</p>
               </div>
               <div>
                 <p className="text-xs text-slate-400">Samagri</p>
-                <p className="font-medium text-white capitalize">{b.samagriPreference.replace(/_/g, &quot; &quot;).toLowerCase()}</p>
+                <p className="font-medium text-white capitalize">{b.samagriPreference.replace(/_/g, & quot; ").toLowerCase()}</p>
               </div>
             </div>
             {b.specialInstructions && (
@@ -222,22 +222,22 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
           <section className="rounded-xl border border-slate-800 bg-slate-900 p-5">
             <h2 className="mb-3 text-sm font-semibold text-white flex items-center gap-2">
               <span className="material-symbols-outlined text-primary text-lg">directions_car</span>
-              Travel &amp; Logistics
+              Travel & Logistics
             </h2>
             {b.travelRequired ? (
               <div className="grid grid-cols-3 gap-4 text-sm">
                 <div>
                   <p className="text-xs text-slate-400">Travel Mode</p>
-                  <p className="font-medium text-white capitalize">{b.travelMode ?? &quot;TBD&quot;}</p>
+                  <p className="font-medium text-white capitalize">{b.travelMode ?? & quot;TBD"}</p>
                 </div>
                 <div>
                   <p className="text-xs text-slate-400">Distance</p>
-                  <p className="font-medium text-white">{b.travelDistanceKm ? `${b.travelDistanceKm} km` : &quot;—&quot;}</p>
+                  <p className="font-medium text-white">{b.travelDistanceKm ? `${b.travelDistanceKm} km` : & quot;—"}</p>
                 </div>
                 <div>
                   <p className="text-xs text-slate-400">Travel Status</p>
                   <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium text-white ${STATUS_COLORS[b.travelStatus] ?? "bg-slate-600"}`}>
-                    {b.travelStatus.replace(/_/g, &quot; &quot;)}
+                    {b.travelStatus.replace(/_/g, & quot; ")}
                   </span>
                 </div>
                 {b.travelBookingRef && (
@@ -267,57 +267,57 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-slate-400">Dakshina</span>
-                <span className="text-white">{&quot;\u20B9&quot;}{b.dakshinaAmount.toLocaleString(&quot;en-IN&quot;)}</span>
+                <span className="text-white">{& quot;\u20B9"}{b.dakshinaAmount.toLocaleString(& quot;en-IN")}</span>
               </div>
               {b.travelCost > 0 && (
                 <div className="flex justify-between">
                   <span className="text-slate-400">Travel Cost</span>
-                  <span className="text-white">{&quot;\u20B9&quot;}{b.travelCost.toLocaleString(&quot;en-IN&quot;)}</span>
+                  <span className="text-white">{& quot;\u20B9"}{b.travelCost.toLocaleString(& quot;en-IN")}</span>
                 </div>
               )}
               {b.foodAllowanceAmount > 0 && (
                 <div className="flex justify-between">
                   <span className="text-slate-400">Food Allowance</span>
-                  <span className="text-white">{&quot;\u20B9&quot;}{b.foodAllowanceAmount.toLocaleString(&quot;en-IN&quot;)}</span>
+                  <span className="text-white">{& quot;\u20B9"}{b.foodAllowanceAmount.toLocaleString(& quot;en-IN")}</span>
                 </div>
               )}
               {b.accommodationCost > 0 && (
                 <div className="flex justify-between">
                   <span className="text-slate-400">Accommodation</span>
-                  <span className="text-white">{&quot;\u20B9&quot;}{b.accommodationCost.toLocaleString(&quot;en-IN&quot;)}</span>
+                  <span className="text-white">{& quot;\u20B9"}{b.accommodationCost.toLocaleString(& quot;en-IN")}</span>
                 </div>
               )}
               <div className="border-t border-slate-800 pt-2 flex justify-between">
                 <span className="text-slate-400">Platform Fee (15%)</span>
-                <span className="text-slate-300">{&quot;\u20B9&quot;}{b.platformFee.toLocaleString(&quot;en-IN&quot;)}</span>
+                <span className="text-slate-300">{& quot;\u20B9"}{b.platformFee.toLocaleString(& quot;en-IN")}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-400">Platform GST (18%)</span>
-                <span className="text-slate-300">{&quot;\u20B9&quot;}{b.platformFeeGst.toLocaleString(&quot;en-IN&quot;)}</span>
+                <span className="text-slate-300">{& quot;\u20B9"}{b.platformFeeGst.toLocaleString(& quot;en-IN")}</span>
               </div>
               {b.travelServiceFee > 0 && (
                 <>
                   <div className="flex justify-between">
                     <span className="text-slate-400">Travel Service Fee (5%)</span>
-                    <span className="text-slate-300">{&quot;\u20B9&quot;}{b.travelServiceFee.toLocaleString(&quot;en-IN&quot;)}</span>
+                    <span className="text-slate-300">{& quot;\u20B9"}{b.travelServiceFee.toLocaleString(& quot;en-IN")}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-400">Travel Service GST (18%)</span>
-                    <span className="text-slate-300">{&quot;\u20B9&quot;}{b.travelServiceFeeGst.toLocaleString(&quot;en-IN&quot;)}</span>
+                    <span className="text-slate-300">{& quot;\u20B9"}{b.travelServiceFeeGst.toLocaleString(& quot;en-IN")}</span>
                   </div>
                 </>
               )}
               <div className="border-t border-slate-700 pt-2 flex justify-between font-bold text-base">
                 <span className="text-white">Grand Total</span>
-                <span className="text-green-400">{&quot;\u20B9&quot;}{b.grandTotal.toLocaleString(&quot;en-IN&quot;)}</span>
+                <span className="text-green-400">{& quot;\u20B9"}{b.grandTotal.toLocaleString(& quot;en-IN")}</span>
               </div>
               <div className="border-t border-slate-800 pt-2 flex justify-between">
                 <span className="text-slate-400">Pandit Payout</span>
-                <span className="text-primary font-semibold">{&quot;\u20B9&quot;}{b.panditPayout.toLocaleString(&quot;en-IN&quot;)}</span>
+                <span className="text-primary font-semibold">{& quot;\u20B9"}{b.panditPayout.toLocaleString(& quot;en-IN")}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-400">Platform Revenue</span>
-                <span className="text-blue-400 font-semibold">{&quot;\u20B9&quot;}{(b.grandTotal - b.panditPayout).toLocaleString(&quot;en-IN&quot;)}</span>
+                <span className="text-blue-400 font-semibold">{& quot;\u20B9"}{(b.grandTotal - b.panditPayout).toLocaleString(& quot;en-IN")}</span>
               </div>
             </div>
           </section>
@@ -328,7 +328,7 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
           {/* Customer */}
           <section className="rounded-xl border border-slate-800 bg-slate-900 p-5">
             <h2 className="mb-3 text-sm font-semibold text-white">Customer</h2>
-            <p className="text-sm font-medium text-white">{b.customer?.user?.fullName ?? &quot;—&quot;}</p>
+            <p className="text-sm font-medium text-white">{b.customer?.user?.fullName ?? & quot;—"}</p>
             <p className="text-xs text-slate-400 mt-0.5">{b.customer?.user?.phone}</p>
             {b.customer?.user?.email && <p className="text-xs text-slate-400">{b.customer.user.email}</p>}
             <div className="mt-3 flex gap-2">
@@ -369,40 +369,40 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-400">Amount</span>
-                <span className="text-white font-semibold">{&quot;\u20B9&quot;}{b.panditPayout.toLocaleString(&quot;en-IN&quot;)}</span>
+                <span className="text-white font-semibold">{& quot;\u20B9"}{b.panditPayout.toLocaleString(& quot;en-IN")}</span>
               </div>
             </div>
           </section>
 
           {/* Refund Info (if applicable) */}
-          {(b.status === &quot;CANCELLED&quot; || b.status === &quot;REFUNDED&quot; || b.refundStatus !== &quot;NONE&quot;) && (
-            <section className="rounded-xl border border-red-500/20 bg-red-500/5 p-5">
-              <h2 className="mb-3 text-sm font-semibold text-red-400">Cancellation / Refund</h2>
-              <div className="space-y-2 text-sm">
-                {b.cancelledBy && (
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Cancelled By</span>
-                    <span className="text-white capitalize">{b.cancelledBy.toLowerCase()}</span>
-                  </div>
-                )}
-                {b.cancellationReason && (
-                  <div>
-                    <p className="text-xs text-slate-400 mb-0.5">Reason</p>
-                    <p className="text-sm text-slate-300">{b.cancellationReason}</p>
-                  </div>
-                )}
+          {(b.status === & quot;CANCELLED" || b.status === "REFUNDED" || b.refundStatus !== "NONE") && (
+          <section className="rounded-xl border border-red-500/20 bg-red-500/5 p-5">
+            <h2 className="mb-3 text-sm font-semibold text-red-400">Cancellation / Refund</h2>
+            <div className="space-y-2 text-sm">
+              {b.cancelledBy && (
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Refund Status</span>
-                  <span className="text-white">{b.refundStatus}</span>
+                  <span className="text-slate-400">Cancelled By</span>
+                  <span className="text-white capitalize">{b.cancelledBy.toLowerCase()}</span>
                 </div>
-                {b.refundAmount > 0 && (
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Refund Amount</span>
-                    <span className="text-red-400 font-semibold">{&quot;\u20B9&quot;}{b.refundAmount.toLocaleString(&quot;en-IN&quot;)}</span>
-                  </div>
-                )}
+              )}
+              {b.cancellationReason && (
+                <div>
+                  <p className="text-xs text-slate-400 mb-0.5">Reason</p>
+                  <p className="text-sm text-slate-300">{b.cancellationReason}</p>
+                </div>
+              )}
+              <div className="flex justify-between">
+                <span className="text-slate-400">Refund Status</span>
+                <span className="text-white">{b.refundStatus}</span>
               </div>
-            </section>
+              {b.refundAmount > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Refund Amount</span>
+                  <span className="text-red-400 font-semibold">{& quot;\u20B9"}{b.refundAmount.toLocaleString(& quot;en-IN")}</span>
+                </div>
+              )}
+            </div>
+          </section>
           )}
 
           {/* Admin Actions */}
@@ -417,8 +417,8 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
                 className="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white focus:border-primary focus:outline-none"
               >
                 <option value="">No change</option>
-                {[&quot;PENDING&quot;, &quot;CONFIRMED&quot;, &quot;COMPLETED&quot;, &quot;CANCELLED&quot;, &quot;REFUNDED&quot;].map((s) => (
-                  <option key={s} value={s}>{s}</option>
+                {[& quot;PENDING", "CONFIRMED", "COMPLETED", "CANCELLED", "REFUNDED"].map((s) => (
+                <option key={s} value={s}>{s}</option>
                 ))}
               </select>
             </div>
@@ -444,7 +444,7 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
 
           {/* Meta */}
           <div className="rounded-lg bg-slate-800/50 p-3 text-xs text-slate-500">
-            <p>Created: {new Date(b.createdAt).toLocaleString(&quot;en-IN&quot;)}</p>
+            <p>Created: {new Date(b.createdAt).toLocaleString(& quot;en-IN")}</p>
             <p>Booking ID: {b.id}</p>
           </div>
         </div>

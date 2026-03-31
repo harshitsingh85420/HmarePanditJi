@@ -165,7 +165,7 @@ export default function BookingRequestPage({ params }: { params: { id: string } 
                             </div>
                             <div className="flex justify-between items-center text-lg">
                                 <span className="text-[#8a7460] dark:text-[#c7b8a9]">
-                                    Food &amp; Stay Allowance
+                                    Food & Stay Allowance
                                 </span>
                                 <span className="font-medium">₹3,250</span>
                             </div>

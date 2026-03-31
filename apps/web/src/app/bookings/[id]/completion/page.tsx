@@ -52,7 +52,7 @@ export default function PujaCompletionPage({ params }: { params: { id: string } 
                                 Pandit Vishnu Shastri
                             </h2>
                             <p className="text-[#f49d25] font-semibold">
-                                Vedic Scholar &amp; Chief Priest
+                                Vedic Scholar & Chief Priest
                             </p>
                             <p className="text-[#8a7960] dark:text-gray-400 text-lg mt-1">
                                 Ganesh Puja completed on 25th Oct, 2023 • 10:30 AM
@@ -61,8 +61,8 @@ export default function PujaCompletionPage({ params }: { params: { id: string } 
                     </div>
                     <div className="bg-[#f49d25]/5 dark:bg-[#f49d25]/10 p-4 rounded-lg border border-[#f49d25]/20 max-w-lg text-center">
                         <p className="text-[#181511] dark:text-gray-200 italic">
-                            &quot;Pandit Vishnu Shastri has shared Digital Blessings with you. These
-                            sacred assets are now available in your vault.&quot;
+                            "Pandit Vishnu Shastri has shared Digital Blessings with you. These
+                            sacred assets are now available in your vault."
                         </p>
                     </div>
                 </div>
@@ -88,7 +88,7 @@ export default function PujaCompletionPage({ params }: { params: { id: string } 
                             onClick={() => router.push(`/bookings/${id}/certificate`)}
                             className="w-full mt-2 flex items-center justify-center gap-2 bg-[#f49d25]/10 text-[#f49d25] py-3 rounded-lg font-bold hover:bg-[#f49d25] hover:text-white transition-all"
                         >
-                            <span className="material-symbols-outlined">download</span>{&quot; &quot;}
+                            <span className="material-symbols-outlined">download</span>{" "}
                             Download PDF
                         </button>
                     </div>
@@ -105,7 +105,7 @@ export default function PujaCompletionPage({ params }: { params: { id: string } 
                                 Mantra Recording
                             </h3>
                             <p className="text-[#8a7960] dark:text-gray-400 text-lg">
-                                Personalized digital audio blessing &amp; chanting
+                                Personalized digital audio blessing & chanting
                             </p>
                         </div>
                         <button className="w-full mt-2 flex items-center justify-center gap-2 bg-[#f49d25] text-white py-3 rounded-lg font-bold hover:bg-[#f49d25]/90 transition-all shadow-lg shadow-[#f49d25]/20">
@@ -126,11 +126,11 @@ export default function PujaCompletionPage({ params }: { params: { id: string } 
                                 E-Receipt
                             </h3>
                             <p className="text-[#8a7960] dark:text-gray-400 text-lg">
-                                Complete transaction &amp; samagri summary
+                                Complete transaction & samagri summary
                             </p>
                         </div>
                         <button className="w-full mt-2 flex items-center justify-center gap-2 bg-[#f49d25]/10 text-[#f49d25] py-3 rounded-lg font-bold hover:bg-[#f49d25] hover:text-white transition-all">
-                            <span className="material-symbols-outlined">download</span>{&quot; &quot;}
+                            <span className="material-symbols-outlined">download</span>{" "}
                             Download Receipt
                         </button>
                     </div>

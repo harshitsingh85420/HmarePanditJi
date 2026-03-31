@@ -37,17 +37,17 @@ export default function TravelItineraryPage({ params }: { params: { id: string }
                 {/* Tabs */}
                 <div className="pb-6 px-4">
                     <div className="flex border-b border-slate-200 dark:border-slate-700 gap-8 overflow-x-auto no-scrollbar">
-                        {[&quot;Day 1: Travel&quot;, &quot;Day 2: Wedding Puja&quot;, &quot;Day 3: Return&quot;].map(
-                            (day) => { // Extract &quot;Day X&quot; part for simple state matching
-                                const tabKey = day.split(&quot;:&quot;)[0];
+                        {["Day 1: Travel", "Day 2: Wedding Puja", "Day 3: Return"].map(
+                            (day) => { // Extract "Day X" part for simple state matching
+                                const tabKey = day.split(":")[0];
                                 const isActive = activeTab === tabKey;
                                 return (
                                     <button
                                         key={day}
                                         onClick={() => setActiveTab(tabKey)}
                                         className={`flex flex-col items-center justify-center border-b-[3px] pb-3 pt-2 whitespace-nowrap transition-colors ${isActive
-                                                ? &quot;border-[#f49d25] text-[#f49d25]&quot;
-                                                : &quot;border-transparent text-slate-500 dark:text-slate-400 hover:text-[#f49d25]&quot;
+                                                ? "border-[#f49d25] text-[#f49d25]"
+                                                : "border-transparent text-slate-500 dark:text-slate-400 hover:text-[#f49d25]"
                                             }`}
                                     >
                                         <p className="text-lg font-bold tracking-[0.015em]">{day}</p>
@@ -69,7 +69,7 @@ export default function TravelItineraryPage({ params }: { params: { id: string }
                 </div>
 
                 {/* Timeline Section */}
-                {activeTab === &quot;Day 1&quot; && (
+                {activeTab === "Day 1" && (
                     <div className="bg-white dark:bg-slate-800/50 rounded-xl p-6 shadow-sm border border-[#f49d25]/10 animate-in fade-in slide-in-from-bottom-4 duration-500">
                         <div className="flex items-center justify-between mb-8">
                             <h2 className="text-slate-900 dark:text-white text-xl font-bold leading-tight">
@@ -79,7 +79,7 @@ export default function TravelItineraryPage({ params }: { params: { id: string }
                                 <span className="material-symbols-outlined text-lg">
                                     location_on
                                 </span>
-                                I&apos;M HERE
+                                I'M HERE
                             </button>
                         </div>
                         <div className="grid grid-cols-[48px_1fr] gap-x-4">

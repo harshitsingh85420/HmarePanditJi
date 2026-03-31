@@ -47,7 +47,7 @@ export default function DeepSeekChatDemo() {
                     <div className="text-center text-slate-400 py-20">
                         <span className="text-4xl mb-2 block">🙏</span>
                         <p>Ask me anything about Hindu rituals, pujas, or pandit booking!</p>
-                        <p className="text-lg mt-2">Example: &quot;How do I book a pandit for Griha Pravesh?&quot;</p>
+                        <p className="text-lg mt-2">Example: "How do I book a pandit for Griha Pravesh?"</p>
                     </div>
                 ) : (
                     <div className="space-y-4">
@@ -102,13 +102,13 @@ export default function DeepSeekChatDemo() {
                     disabled={isLoading || !input.trim()}
                     className="px-6 py-2 bg-[#1152d4] text-white rounded-lg font-medium hover:bg-[#0d42a3] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
-                    {isLoading ? &apos;Sending...&apos; : &apos;Send&apos;}
+                    {isLoading ? 'Sending...' : 'Send'}
                 </button>
             </form>
 
             {/* Model Info */}
             <div className="mt-4 text-center text-base text-slate-400">
-                Powered by DeepSeek-V3 • {process.env.NODE_ENV === &apos;development&apos; ? &apos;Dev Mode&apos; : &apos;Production&apos;}
+                Powered by DeepSeek-V3 • {process.env.NODE_ENV === 'development' ? 'Dev Mode' : 'Production'}
             </div>
         </div>
     );

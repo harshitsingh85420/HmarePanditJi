@@ -121,23 +121,23 @@ export function MuhuratExplorer() {
           const matches = getMuhuratInfo(day);
           const count = matches.length;
           const todayMark = isToday(day);
-          const dateStr = `${year}-${String(month + 1).padStart(2, &quot;0&quot;)}-${String(day).padStart(2, &quot;0&quot;)}`;
-          const tooltip = count > 0 ? matches.map((m) => m.pujaType).join(&quot;, &quot;) : undefined;
+          const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+          const tooltip = count > 0 ? matches.map((m) => m.pujaType).join(", ") : undefined;
 
-          const Cell = count > 0 ? &quot;a&quot; : &quot;span&quot;;
+          const Cell = count > 0 ? "a" : "span";
           return (
             <Cell
               key={day}
               {...(count > 0 ? { href: `/muhurat?date=${dateStr}` } : {})}
               title={tooltip}
               className={[
-                &quot;relative flex flex-col items-center justify-center h-14 rounded-lg text-lg transition-colors&quot;,
+                "relative flex flex-col items-center justify-center h-14 rounded-lg text-lg transition-colors",
                 todayMark
-                  ? &quot;border-2 border-primary font-bold text-primary&quot;
+                  ? "border-2 border-primary font-bold text-primary"
                   : count > 0
-                    ? &quot;hover:bg-amber-50 dark:hover:bg-amber-900/20 cursor-pointer font-medium text-slate-700 dark:text-slate-300&quot;
-                    : &quot;text-slate-400 dark:text-slate-500&quot;,
-              ].join(&quot; &quot;)}
+                    ? "hover:bg-amber-50 dark:hover:bg-amber-900/20 cursor-pointer font-medium text-slate-700 dark:text-slate-300"
+                    : "text-slate-400 dark:text-slate-500",
+              ].join(" ")}
             >
               {day}
               {count > 0 && (

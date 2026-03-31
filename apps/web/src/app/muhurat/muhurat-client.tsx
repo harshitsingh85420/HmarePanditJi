@@ -10,7 +10,7 @@ export default function MuhuratClient() {
   const router = useRouter();
 
   // Parse date from URL or default to today
-  const urlDate = searchParams.get("date");
+  const urlDate = searchParams?.get("date");
   const initialDate = urlDate && isValid(parseISO(urlDate)) ? parseISO(urlDate) : new Date();
 
   // State for the currently viewed month (calendar view)
@@ -20,8 +20,8 @@ export default function MuhuratClient() {
   const selectedDate = initialDate;
 
   const handleDateSelect = (day: Date) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set(&quot;date&quot;, format(day, &quot;yyyy-MM-dd&quot;));
+    const params = new URLSearchParams(searchParams?.toString() ?? "");
+    params.set("date", format(day, "yyyy-MM-dd"));
     router.push(`/muhurat?${params.toString()}`);
     // setCurrentDate(day); // Keep calendar on current month view
   };
@@ -35,7 +35,7 @@ export default function MuhuratClient() {
   const startDay = getDay(currentMonthStart);
   const paddingDays = Array(startDay).fill(null);
 
-  const weekDays = [&quot;Sun&quot;, &quot;Mon&quot;, &quot;Tue&quot;, &quot;Wed&quot;, &quot;Thu&quot;, &quot;Fri&quot;, &quot;Sat&quot;];
+  const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   // Mock function to determine if a day has pujas (for visual similarity)
   const getPujaCount = (day: Date) => {
@@ -90,7 +90,7 @@ export default function MuhuratClient() {
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-4">
               <h2 className="text-2xl font-bold font-serif text-slate-900 dark:text-white">
-                {format(currentDate, &quot;MMMM yyyy&quot;)}
+                {format(currentDate, "MMMM yyyy")}
               </h2>
               <div className="flex gap-1">
                 <button
@@ -146,8 +146,8 @@ export default function MuhuratClient() {
                     ${isSelected
                       ? "bg-[#f29e0d] text-[#221b10]"
                       : pujaCount > 0
-                        ? &quot;bg-[#f29e0d]/20 text-[#f29e0d]&quot;
-                        : &quot;text-slate-700 dark:text-slate-300&quot;
+                        ? "bg-[#f29e0d]/20 text-[#f29e0d]"
+                        : "text-slate-700 dark:text-slate-300"
                     }`}>
                     {dayNum}
                   </span>
@@ -159,7 +159,7 @@ export default function MuhuratClient() {
                           ? "bg-[#f29e0d]/30 text-[#221b10] dark:text-[#f29e0d]"
                           : "bg-[#f29e0d]/10 text-[#f29e0d]"
                         }`}>
-                        {pujaCount} Pujas{isSelected && &quot; Today&quot;}
+                        {pujaCount} Pujas{isSelected && " Today"}
                       </div>
                     </div>
                   )}
@@ -175,17 +175,17 @@ export default function MuhuratClient() {
         <div className="bg-white dark:bg-[#1a140d] rounded-2xl border border-slate-200 dark:border-white/10 p-6 flex flex-col gap-6 shadow-sm">
           <div className="flex items-center justify-between">
             <h3 className="text-xl font-bold font-serif text-slate-900 dark:text-white">
-              Puja List for {format(selectedDate, &quot;MMM d&quot;)}
+              Puja List for {format(selectedDate, "MMM d")}
             </h3>
             <span className="text-base bg-[#f29e0d]/20 text-[#f29e0d] px-4 py-3 rounded-full font-bold uppercase tracking-wider">Auspicious</span>
           </div>
 
           <div className="space-y-4">
             {[
-              { title: &quot;Wedding&quot;, time: &quot;7:00 AM - 12:00 PM&quot;, icon: &quot;favorite&quot; },
-              { title: &quot;Griha Pravesh&quot;, time: &quot;9:00 AM - 11:00 AM&quot;, icon: &quot;house&quot; },
-              { title: &quot;Namkaran Sanskar&quot;, time: &quot;10:30 AM - 1:00 PM&quot;, icon: &quot;child_care&quot; },
-              { title: &quot;Vahan Puja&quot;, time: &quot;3:00 PM - 5:00 PM&quot;, icon: &quot;precision_manufacturing&quot; },
+              { title: "Wedding", time: "7:00 AM - 12:00 PM", icon: "favorite" },
+              { title: "Griha Pravesh", time: "9:00 AM - 11:00 AM", icon: "house" },
+              { title: "Namkaran Sanskar", time: "10:30 AM - 1:00 PM", icon: "child_care" },
+              { title: "Vahan Puja", time: "3:00 PM - 5:00 PM", icon: "precision_manufacturing" },
             ].map((puja, idx) => (
               <div key={idx} className="p-4 rounded-xl border border-slate-100 dark:border-white/10 hover:border-[#f29e0d]/50 transition-colors bg-slate-50/50 dark:bg-white/5 group">
                 <div className="flex items-start justify-between gap-4 mb-3">
@@ -216,7 +216,7 @@ export default function MuhuratClient() {
         <div className="bg-gradient-to-br from-[#f29e0d]/30 to-[#f29e0d]/5 rounded-2xl p-6 border border-[#f29e0d]/20 relative overflow-hidden group">
           <div className="relative z-10">
             <h4 className="text-lg font-bold font-serif mb-2 text-slate-900 dark:text-white">Panchang Insights</h4>
-            <p className="text-lg text-slate-700 dark:text-slate-300 mb-4 leading-relaxed">Today&apos;s Tithi: Shukla Paksha Dashami. Nakshatra: Revati.</p>
+            <p className="text-lg text-slate-700 dark:text-slate-300 mb-4 leading-relaxed">Today's Tithi: Shukla Paksha Dashami. Nakshatra: Revati.</p>
             <a className="text-lg font-bold text-[#f29e0d] flex items-center gap-1 hover:gap-2 transition-all" href="#">Detailed View <span className="material-symbols-outlined text-base">arrow_forward</span></a>
           </div>
           <span className="material-symbols-outlined absolute -right-4 -bottom-4 text-8xl text-[#f29e0d]/10 rotate-12 group-hover:rotate-0 transition-transform duration-500 select-none">brightness_high</span>

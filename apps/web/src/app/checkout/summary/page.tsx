@@ -69,7 +69,7 @@ export default function BookingSummaryPage() {
                             </div>
                             <div className="flex flex-col border-b border-[#f5f3f0] dark:border-[#3d3326] pb-2">
                                 <span className="text-[#8a7960] text-base uppercase tracking-wider font-semibold">
-                                    Date &amp; Muhurat
+                                    Date & Muhurat
                                 </span>
                                 <span className="text-[#181511] dark:text-white font-medium">
                                     Nov 24, 2024 (09:30 AM - 02:00 PM)
@@ -124,7 +124,7 @@ export default function BookingSummaryPage() {
                             {/* Logistics Breakdown */}
                             <div className="bg-[#f8f7f5] dark:bg-[#32291d] p-4 rounded-lg space-y-3">
                                 <p className="text-base font-bold text-[#f49d25] uppercase tracking-widest mb-1">
-                                    Logistics &amp; Travel
+                                    Logistics & Travel
                                 </p>
                                 <div className="flex justify-between text-lg">
                                     <span className="text-[#8a7960]">
@@ -158,7 +158,7 @@ export default function BookingSummaryPage() {
                                         Platform Convenience Fee
                                     </p>
                                     <p className="text-[#8a7960] text-base">
-                                        Service &amp; automated logistics handling
+                                        Service & automated logistics handling
                                     </p>
                                 </div>
                                 <span className="font-semibold dark:text-white">₹1,499</span>
@@ -228,12 +228,12 @@ export default function BookingSummaryPage() {
                                         setAddons({ ...addons, muhurat: !addons.muhurat })
                                     }
                                     className={`p-1 rounded transition-colors ${addons.muhurat
-                                            ? &quot;bg-[#f49d25] text-white&quot;
-                                            : &quot;bg-[#f49d25]/20 hover:bg-[#f49d25] text-[#f49d25] hover:text-white&quot;
+                                            ? "bg-[#f49d25] text-white"
+                                            : "bg-[#f49d25]/20 hover:bg-[#f49d25] text-[#f49d25] hover:text-white"
                                         }`}
                                 >
                                     <span className="material-symbols-outlined text-lg">
-                                        {addons.muhurat ? &quot;check&quot; : &quot;add&quot;}
+                                        {addons.muhurat ? "check" : "add"}
                                     </span>
                                 </button>
                             </div>
@@ -255,12 +255,12 @@ export default function BookingSummaryPage() {
                                         setAddons({ ...addons, visarjan: !addons.visarjan })
                                     }
                                     className={`p-1 rounded transition-colors ${addons.visarjan
-                                            ? &quot;bg-[#f49d25] text-white&quot;
-                                            : &quot;bg-[#f49d25]/20 hover:bg-[#f49d25] text-[#f49d25] hover:text-white&quot;
+                                            ? "bg-[#f49d25] text-white"
+                                            : "bg-[#f49d25]/20 hover:bg-[#f49d25] text-[#f49d25] hover:text-white"
                                         }`}
                                 >
                                     <span className="material-symbols-outlined text-lg">
-                                        {addons.visarjan ? &quot;check&quot; : &quot;add&quot;}
+                                        {addons.visarjan ? "check" : "add"}
                                     </span>
                                 </button>
                             </div>
@@ -289,7 +289,7 @@ export default function BookingSummaryPage() {
                                 <span className="flex items-center gap-1">
                                     <span className="material-symbols-outlined text-lg">
                                         local_offer
-                                    </span>{&quot; &quot;}
+                                    </span>{" "}
                                     PANDIT10 Applied
                                 </span>
                                 <span>-₹4,650</span>
@@ -315,7 +315,7 @@ export default function BookingSummaryPage() {
                             </p>
                         </div>
                         <button
-                            onClick={() => router.push(&apos;/checkout/payment&apos;)}
+                            onClick={() => router.push('/checkout/payment')}
                             className="w-full bg-[#f49d25] hover:bg-[#f49d25]/90 text-white font-bold py-5 flex items-center justify-center gap-2 text-lg transition-all group"
                         >
                             Proceed to Payment

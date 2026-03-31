@@ -14,7 +14,7 @@ export default function AdminSupportPage() {
                             H
                         </div>
                         <span className="font-bold text-lg tracking-tight text-slate-900 dark:text-white">
-                            HmarePanditJi{&quot; &quot;}
+                            HmarePanditJi{" "}
                             <span className="text-[#0f49bd] font-normal">
                                 Admin
                             </span>
@@ -169,19 +169,19 @@ export default function AdminSupportPage() {
                                     <span className="flex items-center gap-1">
                                         <span className="material-symbols-outlined text-base">
                                             event
-                                        </span>{&quot; &quot;}
+                                        </span>{" "}
                                         14 Oct, 2023
                                     </span>
                                     <span className="flex items-center gap-1">
                                         <span className="material-symbols-outlined text-base">
                                             schedule
-                                        </span>{&quot; &quot;}
+                                        </span>{" "}
                                         Puja Time: 10:00 AM
                                     </span>
                                     <span className="flex items-center gap-1 text-[#0f49bd] dark:text-blue-400 font-medium">
                                         <span className="material-symbols-outlined text-base">
                                             person
-                                        </span>{&quot; &quot;}
+                                        </span>{" "}
                                         Cust: Mr. Rahul Kapoor
                                     </span>
                                 </div>
@@ -351,7 +351,7 @@ export default function AdminSupportPage() {
                             Communication
                         </button>
                         <button className="flex-1 py-3 text-lg font-medium text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300">
-                            Timeline &amp; Notes
+                            Timeline & Notes
                         </button>
                     </div>
                     {/* Comm Context */}
@@ -375,7 +375,7 @@ export default function AdminSupportPage() {
                             </button>
                         </div>
                         <div className="text-base text-center text-slate-500">
-                            Currently viewing:{&quot; &quot;}
+                            Currently viewing:{" "}
                             <span className="font-bold">Customer Chat</span>
                         </div>
                     </div>
@@ -403,7 +403,7 @@ export default function AdminSupportPage() {
                             <div className="bg-[#0f49bd] text-white rounded-2xl rounded-tr-none p-3 shadow-md max-w-[85%]">
                                 <p className="text-lg">
                                     Namaste Mr. Kapoor. We are tracking the
-                                    Pandit&apos;s location. He is stuck in heavy
+                                    Pandit's location. He is stuck in heavy
                                     traffic. We are arranging a backup.
                                 </p>
                                 <span className="text-[10px] text-blue-100 mt-1 block">
@@ -426,7 +426,7 @@ export default function AdminSupportPage() {
                                 Confirm Location
                             </button>
                             <button className="whitespace-nowrap px-5 py-3 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-full text-base text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600 transition-colors">
-                                Apology &amp; Delay
+                                Apology & Delay
                             </button>
                             <button className="whitespace-nowrap px-5 py-3 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-full text-base text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600 transition-colors">
                                 Send Backup Details

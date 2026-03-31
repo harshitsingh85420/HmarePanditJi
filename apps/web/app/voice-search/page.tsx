@@ -71,7 +71,7 @@ export default function VoiceSearchPage() {
                     {/* Speech Output Transcript */}
                     <div className="text-center max-w-2xl px-6">
                         <h1 className="text-white text-3xl md:text-4xl font-bold leading-tight tracking-tight mb-8" style={{ fontFamily: '"Space Grotesk", sans-serif' }}>
-                            &quot;Main <span className="text-[#f29e0d]">December</span> mein <span className="text-[#f29e0d]">Delhi</span> mein <span className="text-[#f29e0d]">wedding</span> ke liye <span className="text-[#f29e0d]">Maithil Brahmin Pandit</span> chahiye&quot;
+                            "Main <span className="text-[#f29e0d]">December</span> mein <span className="text-[#f29e0d]">Delhi</span> mein <span className="text-[#f29e0d]">wedding</span> ke liye <span className="text-[#f29e0d]">Maithil Brahmin Pandit</span> chahiye"
                         </h1>
                     </div>
 
@@ -82,13 +82,13 @@ export default function VoiceSearchPage() {
 
                             <div className="flex flex-wrap justify-center gap-3">
                                 <button className="bg-[#393328] hover:bg-[#4a4336] text-white px-5 py-3 rounded-xl text-sm transition-all border border-[#4a4336]">
-                                    &quot;Kal subah Satyanarayan puja ke liye&quot;
+                                    "Kal subah Satyanarayan puja ke liye"
                                 </button>
                                 <button className="bg-[#393328] hover:bg-[#4a4336] text-white px-5 py-3 rounded-xl text-sm transition-all border border-[#4a4336]">
-                                    &quot;Grah Pravesh muhurat in November&quot;
+                                    "Grah Pravesh muhurat in November"
                                 </button>
                                 <button className="bg-[#393328] hover:bg-[#4a4336] text-white px-5 py-3 rounded-xl text-sm transition-all border border-[#4a4336]">
-                                    &quot;Top rated Pandits in South Delhi&quot;
+                                    "Top rated Pandits in South Delhi"
                                 </button>
                             </div>
 
@@ -96,7 +96,7 @@ export default function VoiceSearchPage() {
                             <div className="mt-8 flex flex-col sm:flex-row items-center gap-4 text-[#baaf9c] text-sm">
                                 <span className="text-xs uppercase font-bold tracking-widest">Voice Settings:</span>
                                 <div className="flex gap-6">
-                                    {[&quot;Hindi&quot;, &quot;English&quot;, &quot;Maithili&quot;].map((lang) => (
+                                    {["Hindi", "English", "Maithili"].map((lang) => (
                                         <label key={lang} className={`flex items-center gap-2 cursor-pointer transition-colors ${activeLang === lang ? "text-[#f29e0d]" : "hover:text-white"}`} onClick={() => setActiveLang(lang)}>
                                             <span className={`w-2 h-2 rounded-full ${activeLang === lang ? "bg-[#f29e0d]" : "bg-[#393328]"}`}></span>
                                             {lang}

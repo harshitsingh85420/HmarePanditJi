@@ -1,0 +1,51 @@
+src/controllers/muhurat.controller.ts(124,30): error TS7006: Parameter 'd' implicitly has an 'any' type.
+src/controllers/muhurat.controller.ts(242,33): error TS7006: Parameter 'e' implicitly has an 'any' type.
+src/controllers/pandit.controller.ts(153,28): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/controllers/pandit.controller.ts(153,31): error TS7006: Parameter 'b' implicitly has an 'any' type.
+src/controllers/pandit.controller.ts(159,28): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/controllers/pandit.controller.ts(159,31): error TS7006: Parameter 'b' implicitly has an 'any' type.
+src/controllers/pandit.controller.ts(174,28): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/controllers/pandit.controller.ts(174,31): error TS7006: Parameter 'b' implicitly has an 'any' type.
+src/controllers/pandit.controller.ts(280,39): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/controllers/pandit.controller.ts(328,49): error TS7006: Parameter 'b' implicitly has an 'any' type.
+src/controllers/pandit.controller.ts(329,57): error TS7006: Parameter 'b' implicitly has an 'any' type.
+src/middleware/auth.ts(5,10): error TS2305: Module '"@hmarepanditji/db"' has no exported member 'Role'.
+src/middleware/roleGuard.ts(2,10): error TS2305: Module '"@hmarepanditji/db"' has no exported member 'Role'.
+src/routes/pandit.routes.ts(444,51): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+src/routes/pandit.routes.ts(444,56): error TS7006: Parameter 'b' implicitly has an 'any' type.
+src/routes/pandit.routes.ts(445,48): error TS7006: Parameter 'b' implicitly has an 'any' type.
+src/routes/pandit.routes.ts(445,93): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+src/routes/pandit.routes.ts(445,98): error TS7006: Parameter 'b' implicitly has an 'any' type.
+src/routes/pandit.routes.ts(446,51): error TS7006: Parameter 'b' implicitly has an 'any' type.
+src/routes/pandit.routes.ts(446,96): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+src/routes/pandit.routes.ts(446,101): error TS7006: Parameter 'b' implicitly has an 'any' type.
+src/routes/pandit.routes.ts(448,53): error TS7006: Parameter 'b' implicitly has an 'any' type.
+src/routes/pandit.routes.ts(448,94): error TS7006: Parameter 'b' implicitly has an 'any' type.
+src/routes/pandit.routes.ts(492,46): error TS7006: Parameter 'b' implicitly has an 'any' type.
+src/routes/pandit.routes.ts(648,102): error TS7006: Parameter 'acc' implicitly has an 'any' type.
+src/routes/pandit.routes.ts(648,107): error TS7006: Parameter 'b' implicitly has an 'any' type.
+src/routes/pandit.routes.ts(1092,30): error TS7006: Parameter 'b' implicitly has an 'any' type.
+src/routes/pandit.routes.ts(1145,41): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/routes/pandit.routes.ts(1278,43): error TS7006: Parameter 'b' implicitly has an 'any' type.
+src/routes/pandit.routes.ts(1282,44): error TS7006: Parameter 'b' implicitly has an 'any' type.
+src/routes/pandit.routes.ts(1294,21): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/routes/pandit.routes.ts(1308,134): error TS7006: Parameter 'b' implicitly has an 'any' type.
+src/routes/pandit.routes.ts(1318,36): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/routes/pandit.routes.ts(1356,42): error TS2339: Property 'DbNull' does not exist on type 'typeof Prisma'.
+src/services/booking.service.ts(3,3): error TS2305: Module '"@hmarepanditji/db"' has no exported member 'BookingStatus'.
+src/services/booking.service.ts(4,3): error TS2305: Module '"@hmarepanditji/db"' has no exported member 'TravelStatus'.
+src/services/booking.service.ts(5,3): error TS2305: Module '"@hmarepanditji/db"' has no exported member 'FoodArrangement'.
+src/services/booking.service.ts(6,3): error TS2305: Module '"@hmarepanditji/db"' has no exported member 'SamagriPreference'.
+src/services/booking.service.ts(7,3): error TS2305: Module '"@hmarepanditji/db"' has no exported member 'TravelMode'.
+src/services/booking.service.ts(8,3): error TS2305: Module '"@hmarepanditji/db"' has no exported member 'AccommodationArrangement'.
+src/services/kyc.service.ts(119,29): error TS7006: Parameter 'p' implicitly has an 'any' type.
+src/services/notification.service.ts(109,13): error TS7006: Parameter 'err' implicitly has an 'any' type.
+src/services/payment.service.ts(3,18): error TS2305: Module '"@hmarepanditji/db"' has no exported member 'BookingStatus'.
+src/services/payment.service.ts(3,33): error TS2305: Module '"@hmarepanditji/db"' has no exported member 'PaymentStatus'.
+src/services/payment.service.ts(238,52): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+src/services/travel.service.ts(274,3): error TS2322: Type 'unknown[]' is not assignable to type 'string[]'.
+  Type 'unknown' is not assignable to type 'string'.
+src/services/travel.service.ts(274,39): error TS7006: Parameter 'r' implicitly has an 'any' type.
+undefined
+E:\HmarePanditJi\hmarepanditji\services\api:
+ ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command failed with exit code 2: tsc --noEmit

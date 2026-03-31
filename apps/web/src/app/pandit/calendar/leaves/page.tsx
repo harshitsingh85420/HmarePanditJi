@@ -45,7 +45,7 @@ export default function LeavesManagementPage() {
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                     <div>
                         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                            Blackout &amp; Festival Dates
+                            Blackout & Festival Dates
                         </h1>
                         <p className="mt-1 text-lg text-gray-500 dark:text-gray-400">
                             Block dates for personal leave or manage festival availability.
@@ -78,7 +78,7 @@ export default function LeavesManagementPage() {
                                     Current Status
                                 </p>
                                 <h3 className="text-lg font-semibold mt-1 text-gray-900 dark:text-white">
-                                    Unavailable for{&quot; &quot;}
+                                    Unavailable for{" "}
                                     <span className="text-[#f49d25] font-bold">4 days</span> in
                                     November
                                 </h3>
@@ -232,7 +232,7 @@ export default function LeavesManagementPage() {
                                 </div>
                                 <p className="text-base text-gray-600 dark:text-gray-400 mb-3">
                                     You have 3 upcoming festival days unmarked. Most pandits mark
-                                    these as &apos;Available&apos; for higher earnings.
+                                    these as 'Available' for higher earnings.
                                 </p>
                                 <button className="w-full py-2 text-base font-bold text-[#f49d25] border border-[#f49d25] hover:bg-[#f49d25] hover:text-white rounded-lg transition-all">
                                     Review Suggestions

@@ -112,7 +112,7 @@ export default function ProfilePage() {
                                     Preferred Language
                                 </label>
                                 <div className="bg-[#393328]/50 p-3 rounded-lg border border-[#393328] text-white">
-                                    Hindi &amp; English
+                                    Hindi & English
                                 </div>
                             </div>
                         </div>
@@ -130,7 +130,7 @@ export default function ProfilePage() {
                                 </p>
                             </div>
                             <button
-                                onClick={() => router.push(&apos;/dashboard/profile/family&apos;)}
+                                onClick={() => router.push('/dashboard/profile/family')}
                                 className="flex items-center gap-2 bg-[#f29e0d]/20 text-[#f29e0d] px-4 py-2 rounded-lg text-lg font-bold hover:bg-[#f29e0d]/30 transition-all"
                             >
                                 <span className="material-symbols-outlined text-base">add</span>

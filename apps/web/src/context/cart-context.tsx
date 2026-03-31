@@ -27,9 +27,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
         setSamagriItemState(item);
         // Optionally persist to localStorage
         if (item) {
-            localStorage.setItem(&quot;hpj_samagri&quot;, JSON.stringify(item));
+            localStorage.setItem("hpj_samagri", JSON.stringify(item));
         } else {
-            localStorage.removeItem(&quot;hpj_samagri&quot;);
+            localStorage.removeItem("hpj_samagri");
         }
     }, []);
 

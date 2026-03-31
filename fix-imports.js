@@ -1,48 +1,56 @@
 const fs = require('fs');
 const path = require('path');
-const BASE = 'C:/Users/ss/Documents/HmarePanditJi/apps/pandit/src/app/onboarding/screens';
 
-const screens = [
-  'tutorial/TutorialOnlineRevenue.tsx',
-  'tutorial/TutorialBackup.tsx',
-  'tutorial/TutorialVoiceNav.tsx',
-];
+function fixImports(filePath) {
+  let content = fs.readFileSync(filePath, 'utf8');
+  const original = content;
 
-const OLD = "import { speak, startListening, stopListening, stopSpeaking } from '@/lib/voice-engine';";
-const NEW = "import { useSarvamVoiceFlow } from '@/lib/hooks/useSarvamVoiceFlow';";
+  // Fix @/ imports - map to correct relative paths based on file location
+  const dir = path.dirname(filePath);
+  const relativeToRoot = path.relative(path.join(__dirname, 'apps', 'web', 'app'), dir);
+  const depth = relativeToRoot.split(path.sep).filter(Boolean).length + 1;
+  const prefix = '../'.repeat(depth) || './';
 
-for (const screen of screens) {
-  const fp = path.join(BASE, screen);
-  let content = fs.readFileSync(fp, 'utf8');
-  if (content.includes(OLD)) {
-    content = content.replace(OLD, NEW);
-    fs.writeFileSync(fp, content);
-    console.log('Updated: ' + screen);
-  } else {
-    console.log('Already updated or not found: ' + screen);
+  // Replace @/components with relative path
+  content = content.replace(/@\/components\/LoginModal/g, `${prefix}src/components/LoginModal`);
+  content = content.replace(/@\/components/g, `${prefix}components`);
+  content = content.replace(/@\/context/g, `${prefix}context`);
+  content = content.replace(/@\/hooks/g, `${prefix}src/hooks`);
+  content = content.replace(/@\/lib/g, `${prefix}src/lib`);
+
+  if (content !== original) {
+    fs.writeFileSync(filePath, content, 'utf8');
+    console.log(`Fixed imports: ${filePath}`);
+    return true;
   }
+  return false;
 }
 
-// Also fix LanguageSetScreen and HelpScreen
-const simpleScreens = [
-  { file: 'LanguageSetScreen.tsx', old: "import { speak, stopSpeaking } from '@/lib/voice-engine';", newImp: "import { speakWithSarvam, stopCurrentSpeech } from '@/lib/sarvam-tts';" },
-  { file: 'HelpScreen.tsx', old: "import { speak, stopSpeaking } from '@/lib/voice-engine';", newImp: "import { speakWithSarvam, stopCurrentSpeech } from '@/lib/sarvam-tts';" },
-  { file: 'ManualCityScreen.tsx', old: "import { startListening, stopListening, speak, stopSpeaking } from '@/lib/voice-engine';", newImp: "import { useSarvamVoiceFlow, detectCityName } from '@/lib/hooks/useSarvamVoiceFlow';\nimport { speakWithSarvam, stopCurrentSpeech } from '@/lib/sarvam-tts';" },
-  { file: 'LanguageListScreen.tsx', old: "import { speak, startListening, stopListening, stopSpeaking, detectLanguageName } from '@/lib/voice-engine';", newImp: "import { useSarvamVoiceFlow, detectLanguageName } from '@/lib/hooks/useSarvamVoiceFlow';\nimport { speakWithSarvam, stopCurrentSpeech } from '@/lib/sarvam-tts';" },
-  { file: 'LanguageChoiceConfirmScreen.tsx', old: "import { speak, startListening, stopListening, stopSpeaking } from '@/lib/voice-engine';", newImp: "import { useSarvamVoiceFlow } from '@/lib/hooks/useSarvamVoiceFlow';" },
-  { file: 'VoiceTutorialScreen.tsx', old: "import { speak, startListening, stopListening, stopSpeaking } from '@/lib/voice-engine';", newImp: "import { useSarvamVoiceFlow } from '@/lib/hooks/useSarvamVoiceFlow';" },
-];
-
-for (const { file, old, newImp } of simpleScreens) {
-  const fp = path.join(BASE, file);
-  let content = fs.readFileSync(fp, 'utf8');
-  if (content.includes(old)) {
-    content = content.replace(old, newImp);
-    fs.writeFileSync(fp, content);
-    console.log('Updated: ' + file);
-  } else {
-    console.log('Not found/already done: ' + file);
+function walkDir(dir) {
+  let files = [];
+  try {
+    const items = fs.readdirSync(dir);
+    for (const item of items) {
+      const fullPath = path.join(dir, item);
+      const stat = fs.statSync(fullPath);
+      if (stat.isDirectory()) {
+        files = files.concat(walkDir(fullPath));
+      } else if (/\.(tsx|ts)$/.test(item)) {
+        files.push(fullPath);
+      }
+    }
+  } catch (err) {
+    console.error(`Error reading ${dir}:`, err.message);
   }
+  return files;
 }
 
-console.log('\nAll done!');
+const appDir = path.join(__dirname, 'apps', 'web', 'app');
+const files = walkDir(appDir);
+
+let fixed = 0;
+for (const file of files) {
+  if (fixImports(file)) fixed++;
+}
+
+console.log(`\nTotal files fixed: ${fixed}`);

@@ -106,7 +106,7 @@ function MuhuratWidget() {
   const now = new Date();
   const year = now.getFullYear();
   const month = now.getMonth() + 1;
-  const todayStr = `${year}-${String(month).padStart(2, &quot;0&quot;)}-${String(now.getDate()).padStart(2, &quot;0&quot;)}`;
+  const todayStr = `${year}-${String(month).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
 
   useEffect(() => {
     async function fetchData() {
@@ -224,7 +224,7 @@ function MuhuratWidget() {
               <div key={i} className="bg-white rounded-lg px-4 py-3 border border-amber-100 flex items-center gap-3 text-sm">
                 <span className="text-amber-500 font-bold">📅</span>
                 <span className="text-gray-800 font-medium">
-                  {new Date(u.date).toLocaleDateString(&quot;en-IN&quot;, { day: &quot;numeric&quot;, month: &quot;short&quot; })}
+                  {new Date(u.date).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
                 </span>
                 <span className="text-gray-500">·</span>
                 <span className="text-gray-700">{u.pujaType}</span>
@@ -370,21 +370,21 @@ export default function HomePage() {
   const [showTutorial, setShowTutorial] = useState(false);
   const [tutorialIndex, setTutorialIndex] = useState(0);
   const [showLocationPrompt, setShowLocationPrompt] = useState(false);
-  const [locationMessage, setLocationMessage] = useState(&quot;&quot;);
+  const [locationMessage, setLocationMessage] = useState("");
 
   useEffect(() => {
-    const savedLanguage = localStorage.getItem(&quot;hpj_language&quot;);
-    const tutorialSeen = localStorage.getItem(&quot;hpj_tutorial_seen&quot;) === &quot;1&quot;;
-    const locationPrompted = localStorage.getItem(&quot;hpj_location_prompted&quot;) === &quot;1&quot;;
+    const savedLanguage = localStorage.getItem("hpj_language");
+    const tutorialSeen = localStorage.getItem("hpj_tutorial_seen") === "1";
+    const locationPrompted = localStorage.getItem("hpj_location_prompted") === "1";
 
     if (!savedLanguage) {
       setShowLanguageModal(true);
       return;
     }
 
-    setLanguage(savedLanguage === &quot;hi&quot; ? &quot;hi&quot; : &quot;en&quot;);
+    setLanguage(savedLanguage === "hi" ? "hi" : "en");
 
-    if (!tutorialSeen || searchParams.get(&quot;tutorial&quot;) === &quot;1&quot;) {
+    if (!tutorialSeen || searchParams?.get("tutorial") === "1") {
       setShowTutorial(true);
       setTutorialIndex(0);
     }
@@ -399,12 +399,12 @@ export default function HomePage() {
       setShowTutorial(true);
       setTutorialIndex(0);
     };
-    window.addEventListener(&quot;hpj-open-tutorial&quot;, openTutorial);
-    return () => window.removeEventListener(&quot;hpj-open-tutorial&quot;, openTutorial);
+    window.addEventListener("hpj-open-tutorial", openTutorial);
+    return () => window.removeEventListener("hpj-open-tutorial", openTutorial);
   }, []);
 
-  function handleLanguageSelect(nextLanguage: &quot;en&quot; | &quot;hi&quot;) {
-    localStorage.setItem(&quot;hpj_language&quot;, nextLanguage);
+  function handleLanguageSelect(nextLanguage: "en" | "hi") {
+    localStorage.setItem("hpj_language", nextLanguage);
     setLanguage(nextLanguage);
     setShowLanguageModal(false);
     setShowTutorial(true);
@@ -413,7 +413,7 @@ export default function HomePage() {
 
   function closeTutorial(markSeen: boolean) {
     if (markSeen) {
-      localStorage.setItem(&quot;hpj_tutorial_seen&quot;, &quot;1&quot;);
+      localStorage.setItem("hpj_tutorial_seen", "1");
     }
     setShowTutorial(false);
   }
@@ -427,24 +427,24 @@ export default function HomePage() {
   }
 
   function skipLocationPrompt() {
-    localStorage.setItem(&quot;hpj_location_prompted&quot;, &quot;1&quot;);
+    localStorage.setItem("hpj_location_prompted", "1");
     setShowLocationPrompt(false);
   }
 
   function requestLocation() {
     if (!navigator.geolocation) {
-      setLocationMessage(&quot;Location is not supported on this device. You can set city manually.&quot;);
+      setLocationMessage("Location is not supported on this device. You can set city manually.");
       skipLocationPrompt();
       return;
     }
 
     navigator.geolocation.getCurrentPosition(
       () => {
-        setLocationMessage(&quot;Location enabled. Nearby pandits and muhurat accuracy are now improved.&quot;);
+        setLocationMessage("Location enabled. Nearby pandits and muhurat accuracy are now improved.");
         skipLocationPrompt();
       },
       () => {
-        setLocationMessage(&quot;Location was skipped. You can continue in guest mode and set city manually.&quot;);
+        setLocationMessage("Location was skipped. You can continue in guest mode and set city manually.");
         skipLocationPrompt();
       },
     );
@@ -460,13 +460,13 @@ export default function HomePage() {
             <p className="text-sm text-gray-500 mb-5">Continue in your preferred language.</p>
             <div className="grid grid-cols-2 gap-3">
               <button
-                onClick={() => handleLanguageSelect(&quot;en&quot;)}
+                onClick={() => handleLanguageSelect("en")}
                 className="rounded-xl border border-slate-200 px-4 py-3 font-semibold text-slate-700 hover:bg-slate-50"
               >
                 Continue in English
               </button>
               <button
-                onClick={() => handleLanguageSelect(&quot;hi&quot;)}
+                onClick={() => handleLanguageSelect("hi")}
                 className="rounded-xl border border-amber-300 px-4 py-3 font-semibold text-amber-700 bg-amber-50 hover:bg-amber-100"
               >
                 Hindi mein jaari rakhein
@@ -505,7 +505,7 @@ export default function HomePage() {
                 onClick={nextTutorialSlide}
                 className="px-4 py-2 rounded-lg bg-[#f49d25] text-sm font-semibold text-white hover:bg-[#e08c14]"
               >
-                {tutorialIndex === TUTORIAL_SLIDES.length - 1 ? &quot;Start Exploring&quot; : &quot;Next&quot;}
+                {tutorialIndex === TUTORIAL_SLIDES.length - 1 ? "Start Exploring" : "Next"}
               </button>
             </div>
           </div>
@@ -616,12 +616,12 @@ export default function HomePage() {
 
         <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">
           {[
-            { label: &quot;Wedding&quot;, icon: &quot;favorite&quot;, bg: &quot;bg-amber-50&quot; },
-            { label: &quot;Griha Pravesh&quot;, icon: &quot;home&quot;, bg: &quot;bg-amber-50&quot; },
-            { label: &quot;Satyanarayan&quot;, icon: &quot;festival&quot;, bg: &quot;bg-amber-50&quot; },
-            { label: &quot;Namkaran&quot;, icon: &quot;child_care&quot;, bg: &quot;bg-amber-50&quot; },
-            { label: &quot;Vidhya Arambha&quot;, icon: &quot;auto_stories&quot;, bg: &quot;bg-amber-50&quot; },
-            { label: &quot;More&quot;, icon: &quot;more_horiz&quot;, bg: &quot;bg-amber-50&quot; },
+            { label: "Wedding", icon: "favorite", bg: "bg-amber-50" },
+            { label: "Griha Pravesh", icon: "home", bg: "bg-amber-50" },
+            { label: "Satyanarayan", icon: "festival", bg: "bg-amber-50" },
+            { label: "Namkaran", icon: "child_care", bg: "bg-amber-50" },
+            { label: "Vidhya Arambha", icon: "auto_stories", bg: "bg-amber-50" },
+            { label: "More", icon: "more_horiz", bg: "bg-amber-50" },
           ].map((c) => (
             <Link
               key={c.label}

@@ -8,7 +8,7 @@ export interface ModalProps {
     title?: React.ReactNode;
     children: React.ReactNode;
     footer?: React.ReactNode;
-    size?: 'sm' | 'md' | 'lg' | &apos;full&apos;;
+    size?: 'sm' | 'md' | 'lg' | 'full';
     closeOnOverlayClick?: boolean;
 }
 
@@ -38,14 +38,14 @@ export const Modal: React.FC<ModalProps> = ({
 
     useEffect(() => {
         const handleEsc = (e: KeyboardEvent) => {
-            if (e.key === &apos;Escape&apos;) onClose();
+            if (e.key === 'Escape') onClose();
         };
         if (isOpen) {
-            document.addEventListener(&apos;keydown&apos;, handleEsc);
-            document.body.style.overflow = &apos;hidden&apos;;
+            document.addEventListener('keydown', handleEsc);
+            document.body.style.overflow = 'hidden';
         }
         return () => {
-            document.removeEventListener(&apos;keydown&apos;, handleEsc);
+            document.removeEventListener('keydown', handleEsc);
             document.body.style.overflow = '';
         };
     }, [isOpen, onClose]);
@@ -59,10 +59,10 @@ export const Modal: React.FC<ModalProps> = ({
     };
 
     const sizeClass = {
-        sm: &apos;max-w-sm&apos;,
-        md: &apos;max-w-md&apos;,
-        lg: &apos;max-w-lg&apos;,
-        full: &apos;max-w-full m-4&apos;,
+        sm: 'max-w-sm',
+        md: 'max-w-md',
+        lg: 'max-w-lg',
+        full: 'max-w-full m-4',
     }[size];
 
     return (

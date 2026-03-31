@@ -5,14 +5,18 @@ export function middleware(request: NextRequest) {
     const token = request.cookies.get('hpj_token')?.value
         || request.headers.get('authorization')?.replace('Bearer ', '');
 
-    if (!token) {
-        // If we're already on a public route, don't redirect
-        if (request.nextUrl.pathname === '/login' || request.nextUrl.pathname.startsWith('/_next')) {
-            return NextResponse.next();
-        }
+    // Public routes that don't require authentication
+    const publicRoutes = ['/login', '/onboarding', '/mobile', '/otp', '/register'];
+    const isPublicRoute = publicRoutes.some(route =>
+        request.nextUrl.pathname === route ||
+        request.nextUrl.pathname.startsWith('/onboarding/')
+    );
 
+    if (!token && !isPublicRoute && !request.nextUrl.pathname.startsWith('/_next')) {
+        // Use relative URL for login redirect
         const loginUrl = new URL(
-            `http://localhost:3000/login?redirect=pandit&next=${request.nextUrl.pathname}`
+            `/login?redirect=pandit&next=${request.nextUrl.pathname}`,
+            request.url
         );
         return NextResponse.redirect(loginUrl);
     }
@@ -21,5 +25,5 @@ export function middleware(request: NextRequest) {
 
 export const config = {
     matcher: ['/dashboard/:path*', '/onboarding/:path*', '/bookings/:path*',
-        '/calendar/:path*', '/earnings/:path*', '/profile/:path*'],
+        '/calendar/:path*', '/earnings/:path*', '/profile/:path*', '/login', '/mobile', '/otp', '/register'],
 };

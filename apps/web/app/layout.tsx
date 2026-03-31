@@ -8,6 +8,10 @@ import { AuthProvider } from "../src/context/auth-context";
 import { CartProvider } from "../src/context/cart-context";
 import AuthModal from "../src/components/auth-modal";
 
+// Force dynamic rendering to prevent context errors during static generation
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 const webUrl = process.env.NEXT_PUBLIC_WEB_URL || "http://localhost:3000";
 
 export const metadata: Metadata = {

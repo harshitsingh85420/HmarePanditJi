@@ -85,23 +85,23 @@ interface BookingDetail {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-const API = process.env.NEXT_PUBLIC_API_URL ?? &quot;http://localhost:3001/api/v1&quot;;
+const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api/v1";
 
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString(&quot;en-IN&quot;, {
-    weekday: &quot;long&quot;,
-    day: &quot;numeric&quot;,
-    month: &quot;long&quot;,
-    year: &quot;numeric&quot;,
+  return new Date(iso).toLocaleDateString("en-IN", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
   });
 }
 
 function formatTime(t?: string) {
-  if (!t) return &quot;&quot;;
-  const [h, m] = t.split(&quot;:&quot;).map(Number);
-  const ampm = h >= 12 ? &quot;PM&quot; : &quot;AM&quot;;
+  if (!t) return "";
+  const [h, m] = t.split(":").map(Number);
+  const ampm = h >= 12 ? "PM" : "AM";
   const hour = h % 12 || 12;
-  return `${hour}:${m.toString().padStart(2, &quot;0&quot;)} ${ampm}`;
+  return `${hour}:${m.toString().padStart(2, "0")} ${ampm}`;
 }
 
 // ── Skeleton ──────────────────────────────────────────────────────────────────
@@ -130,25 +130,25 @@ export default function BookingDetailClient({ bookingId }: { bookingId: string }
 
   const [booking, setBooking] = useState<BookingDetail | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(&quot;&quot;);
+  const [error, setError] = useState("");
 
   const fetchBooking = useCallback(async () => {
     if (!accessToken) return;
     setLoading(true);
-    setError(&quot;&quot;);
+    setError("");
     try {
       const res = await fetch(`${API}/bookings/${bookingId}`, {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
       if (res.status === 404) {
-        setError(&quot;Booking not found.&quot;);
+        setError("Booking not found.");
         return;
       }
       if (!res.ok) throw new Error();
       const json = await res.json();
       setBooking(json.data ?? json);
     } catch {
-      setError(&quot;Could not load booking details. Please try again.&quot;);
+      setError("Could not load booking details. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -168,9 +168,9 @@ export default function BookingDetailClient({ bookingId }: { bookingId: string }
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="text-center">
-          <h2 className="text-xl font-bold text-slate-800 mb-2">{error || &quot;Booking not found&quot;}</h2>
+          <h2 className="text-xl font-bold text-slate-800 mb-2">{error || "Booking not found"}</h2>
           <button
-            onClick={() => router.push(&quot;/bookings&quot;)}
+            onClick={() => router.push("/bookings")}
             className="text-primary hover:underline font-medium"
           >
             Back to Bookings
@@ -181,40 +181,40 @@ export default function BookingDetailClient({ bookingId }: { bookingId: string }
   }
 
   // Derived State
-  const isConfirmed = booking.status === &quot;CONFIRMED&quot;;
-  const isInProgress = booking.status === &quot;IN_PROGRESS&quot;;
-  const isCompleted = booking.status === &quot;COMPLETED&quot;;
-  const isCancelled = [&quot;CANCELLED&quot;, &quot;REFUNDED&quot;].includes(booking.status);
+  const isConfirmed = booking.status === "CONFIRMED";
+  const isInProgress = booking.status === "IN_PROGRESS";
+  const isCompleted = booking.status === "COMPLETED";
+  const isCancelled = ["CANCELLED", "REFUNDED"].includes(booking.status);
 
   // Design-specific mock data for timeline (since backend might not have full GPS tracking yet)
   const timelineEvents = [
     {
-      status: &quot;done&quot;,
-      title: &quot;Booking Confirmed&quot;,
-      location: &quot;Online&quot;,
+      status: "done",
+      title: "Booking Confirmed",
+      location: "Online",
       time: formatDate(booking.createdAt),
-      icon: &quot;check_circle&quot;,
+      icon: "check_circle",
     },
     {
-      status: isConfirmed || isInProgress || isCompleted ? &quot;done&quot; : &quot;future&quot;,
-      title: &quot;Pandit Assigned&quot;,
+      status: isConfirmed || isInProgress || isCompleted ? "done" : "future",
+      title: "Pandit Assigned",
       location: `${booking.pandit.displayName} accepted request`,
-      time: booking.panditAcceptedAt ? formatTime(booking.panditAcceptedAt.split(&quot;T&quot;)[1]) : &quot;Pending&quot;,
-      icon: &quot;person_check&quot;,
+      time: booking.panditAcceptedAt ? formatTime(booking.panditAcceptedAt.split("T")[1]) : "Pending",
+      icon: "person_check",
     },
     {
-      status: isInProgress ? &quot;current&quot; : isCompleted ? &quot;done&quot; : &quot;future&quot;,
-      title: isInProgress ? &quot;En Route / In Progress&quot; : &quot;Ceremony Started&quot;,
+      status: isInProgress ? "current" : isCompleted ? "done" : "future",
+      title: isInProgress ? "En Route / In Progress" : "Ceremony Started",
       location: `Transit to ${booking.venueAddress.city}`,
-      time: &quot;Live Status&quot;,
-      icon: &quot;directions_car&quot;,
+      time: "Live Status",
+      icon: "directions_car",
     },
     {
-      status: isCompleted ? &quot;done&quot; : &quot;future&quot;,
-      title: &quot;Ceremony Completion&quot;,
+      status: isCompleted ? "done" : "future",
+      title: "Ceremony Completion",
       location: booking.venueAddress.city,
-      time: &quot;Scheduled&quot;,
-      icon: &quot;temple_hindu&quot;,
+      time: "Scheduled",
+      icon: "temple_hindu",
     }
   ];
 
@@ -287,7 +287,7 @@ export default function BookingDetailClient({ bookingId }: { bookingId: string }
                 <p className="font-bold text-slate-900 dark:text-white">{booking.pandit.displayName}</p>
                 <div className="flex items-center text-amber-500 text-base">
                   <span className="material-symbols-outlined text-lg font-fill">star</span>
-                  <span className="ml-1 font-semibold">{booking.pandit.averageRating || &quot;New&quot;}</span>
+                  <span className="ml-1 font-semibold">{booking.pandit.averageRating || "New"}</span>
                 </div>
               </div>
             </div>
@@ -306,7 +306,7 @@ export default function BookingDetailClient({ bookingId }: { bookingId: string }
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
               <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white leading-tight">
-                {isCancelled ? &quot;Booking Cancelled&quot; : &quot;Booking Confirmed&quot;}
+                {isCancelled ? "Booking Cancelled" : "Booking Confirmed"}
               </h1>
               <p className="text-slate-600 dark:text-slate-400 text-lg mt-1">
                 {booking.ritual.name} · {formatDate(booking.eventDate)}
@@ -315,7 +315,7 @@ export default function BookingDetailClient({ bookingId }: { bookingId: string }
             <div className={`px-4 py-2 rounded-full text-lg font-bold flex items-center gap-2 w-fit ${isCancelled ? "bg-red-100 text-red-700" : "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
               }`}>
               <span className="material-symbols-outlined text-base">
-                {isCancelled ? &quot;cancel&quot; : &quot;check_circle&quot;}
+                {isCancelled ? "cancel" : "check_circle"}
               </span>
               {booking.status}
             </div>
@@ -341,7 +341,7 @@ export default function BookingDetailClient({ bookingId }: { bookingId: string }
                       {booking.pandit.displayName} is assigned
                     </h2>
                     <p className="text-white/80">
-                      {isInProgress ? &quot;Currently en route to your location.&quot; : &quot;Scheduled to arrive on time.&quot;}
+                      {isInProgress ? "Currently en route to your location." : "Scheduled to arrive on time."}
                     </p>
                   </div>
                 </div>
@@ -372,17 +372,17 @@ export default function BookingDetailClient({ bookingId }: { bookingId: string }
               <div className="absolute left-[27px] top-6 bottom-6 w-1 bg-slate-100 dark:bg-slate-800"></div>
 
               {timelineEvents.map((step, idx) => {
-                let bgColor = &quot;bg-slate-100&quot;;
-                let textColor = &quot;text-slate-400&quot;;
-                let ring = &quot;&quot;;
+                let bgColor = "bg-slate-100";
+                let textColor = "text-slate-400";
+                let ring = "";
 
-                if (step.status === &quot;done&quot;) {
-                  bgColor = &quot;bg-primary/20&quot;;
-                  textColor = &quot;text-primary&quot;;
-                } else if (step.status === &quot;current&quot;) {
-                  bgColor = &quot;bg-primary&quot;;
-                  textColor = &quot;text-white&quot;;
-                  ring = &quot;ring-4 ring-primary/20&quot;;
+                if (step.status === "done") {
+                  bgColor = "bg-primary/20";
+                  textColor = "text-primary";
+                } else if (step.status === "current") {
+                  bgColor = "bg-primary";
+                  textColor = "text-white";
+                  ring = "ring-4 ring-primary/20";
                 }
 
                 return (

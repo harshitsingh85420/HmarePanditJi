@@ -1,11 +1,5 @@
 import {
   prisma,
-  BookingStatus,
-  TravelStatus,
-  FoodArrangement,
-  SamagriPreference,
-  TravelMode,
-  AccommodationArrangement,
 } from "@hmarepanditji/db";
 import { generateBookingNumber } from "../utils/helpers";
 import { AppError } from "../middleware/errorHandler";
@@ -54,11 +48,11 @@ export interface CreateBookingInput {
   // Travel & logistics
   travelMode?: string;
   travelCost?: number;
-  foodArrangement?: FoodArrangement;
+  foodArrangement?: string;
   foodAllowanceDays?: number;
-  accommodationArrangement?: AccommodationArrangement | string;
+  accommodationArrangement?: string;
   // Samagri
-  samagriPreference?: SamagriPreference;
+  samagriPreference?: string;
   samagriNotes?: string;
   samagriAmount?: number;
   // Financials (auto-calculated if not provided)
@@ -89,7 +83,7 @@ export async function createBooking(input: CreateBookingInput) {
   const conflict = await prisma.booking.findFirst({
     where: {
       panditId: input.panditId,
-      status: { in: [BookingStatus.CONFIRMED, BookingStatus.CREATED] },
+      status: { in: ["CONFIRMED", "CREATED"] },
       eventDate: { gte: dayStart, lt: dayEnd },
     },
   });
@@ -124,16 +118,16 @@ export async function createBooking(input: CreateBookingInput) {
       attendees: input.attendees,
       dakshinaAmount: input.dakshinaAmount,
       // Travel & logistics
-      travelMode: input.travelMode as TravelMode | undefined,
+      travelMode: input.travelMode as any,
       travelCost: input.travelCost ?? 0,
       travelRequired: !!input.travelMode,
-      travelStatus: input.travelMode ? TravelStatus.PENDING : TravelStatus.NOT_REQUIRED,
-      foodArrangement: input.foodArrangement ?? FoodArrangement.CUSTOMER_PROVIDES,
+      travelStatus: input.travelMode ? "PENDING" : "NOT_REQUIRED",
+      foodArrangement: (input.foodArrangement ?? "CUSTOMER_PROVIDES") as any,
       foodAllowanceDays,
       foodAllowanceAmount,
-      accommodationArrangement: (input.accommodationArrangement as AccommodationArrangement) ?? AccommodationArrangement.NOT_NEEDED,
+      accommodationArrangement: (input.accommodationArrangement ?? "NOT_NEEDED") as any,
       // Samagri
-      samagriPreference: input.samagriPreference ?? SamagriPreference.CUSTOMER_ARRANGES,
+      samagriPreference: (input.samagriPreference ?? "CUSTOMER_ARRANGES") as any,
       samagriAmount: input.samagriAmount ?? 0,
       samagriNotes: input.samagriNotes,
       // Financials
@@ -143,7 +137,7 @@ export async function createBooking(input: CreateBookingInput) {
       travelServiceFeeGst: Math.round((input.travelServiceFee ?? fin.travelServiceFee ?? 0) * 0.18),
       grandTotal: input.grandTotal ?? fin.grandTotal,
       panditPayout: input.panditPayout ?? fin.panditPayout,
-      status: BookingStatus.CREATED,
+      status: "CREATED",
       paymentStatus: "PENDING",
     },
     include: {
@@ -216,13 +210,13 @@ export async function listMyBookings(
   let statusFilter: any = {};
   if (status) {
     if (status === "UPCOMING") {
-      statusFilter = { status: { in: ["CREATED", "PANDIT_REQUESTED", "CONFIRMED", "TRAVEL_BOOKED", "PANDIT_EN_ROUTE", "PANDIT_ARRIVED", "PUJA_IN_PROGRESS"] as BookingStatus[] } };
+      statusFilter = { status: { in: ["CREATED", "PANDIT_REQUESTED", "CONFIRMED", "TRAVEL_BOOKED", "PANDIT_EN_ROUTE", "PANDIT_ARRIVED", "PUJA_IN_PROGRESS"] } };
     } else if (status === "COMPLETED") {
-      statusFilter = { status: "COMPLETED" as BookingStatus };
+      statusFilter = { status: "COMPLETED" };
     } else if (status === "CANCELLED") {
-      statusFilter = { status: { in: ["CANCELLATION_REQUESTED", "CANCELLED", "REFUNDED"] as BookingStatus[] } };
+      statusFilter = { status: { in: ["CANCELLATION_REQUESTED", "CANCELLED", "REFUNDED"] } };
     } else {
-      statusFilter = { status: status as BookingStatus };
+      statusFilter = { status: status };
     }
   }
 

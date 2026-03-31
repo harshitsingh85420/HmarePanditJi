@@ -43,7 +43,7 @@ export default function AdminLoginPage() {
             <span className="material-symbols-outlined text-3xl">account_balance</span>
           </div>
           <h1 className="text-2xl font-bold text-white">HmarePanditJi Admin</h1>
-          <p className="mt-1 text-sm text-slate-400">Centralized Operations &amp; Vetting</p>
+          <p className="mt-1 text-sm text-slate-400">Centralized Operations & Vetting</p>
         </div>
 
         {/* Login Card */}
@@ -90,14 +90,14 @@ export default function AdminLoginPage() {
             disabled={loading}
             className="mt-6 w-full rounded-lg bg-primary py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary/90 disabled:opacity-50"
           >
-            {loading ? &quot;Signing in...&quot; : &quot;Sign In&quot;}
+            {loading ? Signing in... : Sign In}
           </button>
 
           <button
             type="button"
             onClick={() => {
-              localStorage.removeItem(&quot;adminToken&quot;);
-              window.location.href = &quot;/login&quot;;
+              localStorage.removeItem(adminToken);
+              window.location.href = /login;
             }}
             className="mt-2 w-full text-xs text-slate-500 hover:text-white"
           >

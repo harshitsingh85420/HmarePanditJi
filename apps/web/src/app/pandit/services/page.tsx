@@ -430,7 +430,7 @@ export default function ServicesPage() {
                                 Voice Smart Input
                             </h4>
                             <p className="text-slate-500 dark:text-zinc-400 text-lg max-w-[280px] mt-1">
-                                &quot;Add 5 liters of Desi Ghee for North India rituals&quot;
+                                "Add 5 liters of Desi Ghee for North India rituals"
                             </p>
                             <div className="flex gap-1 mt-4">
                                 <div className="w-1 h-4 bg-[#ec5b13] rounded-full animate-bounce"></div>

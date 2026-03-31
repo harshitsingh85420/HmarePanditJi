@@ -9,7 +9,7 @@ export default function HelplineDashboard() {
     return (
         <div className="flex h-[calc(100vh-64px)] overflow-hidden bg-[#f6f6f8] dark:bg-[#101622] text-slate-800 dark:text-slate-100 font-sans">
 
-            {/* ── Left Panel: Queue ──────────────────────────────────────────────── */}
+            {/*  Left Panel: Queue  */}
             <aside className="w-80 bg-white dark:bg-[#1a2234] border-r border-slate-200 dark:border-slate-700 flex flex-col shrink-0 z-10">
                 <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
                     <h2 className="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
@@ -38,7 +38,7 @@ export default function HelplineDashboard() {
                         <h3 className="text-sm font-bold text-slate-800 dark:text-white mb-0.5">Pandit Delayed - Mumbai</h3>
                         <div className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1 mb-2">
                             <span className="material-symbols-outlined text-[14px]">location_on</span>
-                            Ganesh Puja • Andheri West
+                            Ganesh Puja  Andheri West
                         </div>
                         <div className="flex items-center justify-between mt-2 pt-2 border-t border-[#0f49bd]/10">
                             <div className="flex items-center gap-1 text-xs text-orange-600 font-medium">
@@ -58,7 +58,7 @@ export default function HelplineDashboard() {
                         <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-0.5">Samagri Kit Incomplete</h3>
                         <div className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1 mb-2">
                             <span className="material-symbols-outlined text-[14px]">inventory_2</span>
-                            Satyanarayan • Delhi
+                            Satyanarayan  Delhi
                         </div>
                     </div>
 
@@ -71,13 +71,13 @@ export default function HelplineDashboard() {
                         <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-0.5">Booking Modification</h3>
                         <div className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1 mb-2">
                             <span className="material-symbols-outlined text-[14px]">edit_calendar</span>
-                            Griha Pravesh • Pune
+                            Griha Pravesh  Pune
                         </div>
                     </div>
                 </div>
             </aside>
 
-            {/* ── Center Panel: Operational View ─────────────────────────────────── */}
+            {/*  Center Panel: Operational View  */}
             <section className="flex-1 flex flex-col min-w-0 bg-[#f6f6f8] dark:bg-[#101622] relative">
                 {/* Ticket Header */}
                 <div className="bg-white dark:bg-[#1a2234] border-b border-slate-200 dark:border-slate-700 px-6 py-4 shadow-sm z-10">
@@ -128,7 +128,7 @@ export default function HelplineDashboard() {
                                 {/* Tooltip */}
                                 <div className="absolute top-14 left-1/2 -translate-x-1/2 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs px-3 py-2 rounded shadow-xl whitespace-nowrap border border-slate-200 dark:border-slate-700">
                                     <p className="font-bold">Pandit Sharma (Assigned)</p>
-                                    <p className="text-red-500">Stuck in traffic • 15km away</p>
+                                    <p className="text-red-500">Stuck in traffic  15km away</p>
                                     <p className="text-slate-400">ETA: 45 mins</p>
                                 </div>
                             </div>
@@ -146,7 +146,7 @@ export default function HelplineDashboard() {
                                 {/* Tooltip */}
                                 <div className="absolute top-12 left-1/2 -translate-x-1/2 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs px-3 py-2 rounded shadow-xl whitespace-nowrap border border-slate-200 dark:border-slate-700 opacity-90">
                                     <p className="font-bold">Pandit Verma (Backup)</p>
-                                    <p className="text-green-600">Available • 3km away</p>
+                                    <p className="text-green-600">Available  3km away</p>
                                     <p className="text-slate-400">ETA: 10 mins</p>
                                 </div>
                             </div>
@@ -190,21 +190,21 @@ export default function HelplineDashboard() {
                 </div>
             </section>
 
-            {/* ── Right Panel: Communication & Actions ───────────────────────────── */}
+            {/*  Right Panel: Communication & Actions  */}
             <aside className="w-96 bg-white dark:bg-[#1a2234] border-l border-slate-200 dark:border-slate-700 flex flex-col shrink-0 z-10">
                 {/* Tabs */}
                 <div className="flex border-b border-slate-200 dark:border-slate-700">
                     <button
-                        onClick={() => setActiveTab(&quot;communication&quot;)}
-                        className={`flex-1 py-3 text-sm font-medium ${activeTab === &quot;communication&quot; ? &quot;text-[#0f49bd] border-b-2 border-[#0f49bd] bg-[#0f49bd]/5 dark:bg-[#0f49bd]/10&quot; : &quot;text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300&quot;}`}
+                        onClick={() => setActiveTab(communication)}
+                        className={`flex-1 py-3 text-sm font-medium ${activeTab === communication ? text-[#0f49bd] border-b-2 border-[#0f49bd] bg-[#0f49bd]/5 dark:bg-[#0f49bd]/10 : text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300}`}
                     >
                         Communication
                     </button>
                     <button
-                        onClick={() => setActiveTab(&quot;timeline&quot;)}
-                        className={`flex-1 py-3 text-sm font-medium ${activeTab === &quot;timeline&quot; ? &quot;text-[#0f49bd] border-b-2 border-[#0f49bd] bg-[#0f49bd]/5 dark:bg-[#0f49bd]/10&quot; : &quot;text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300&quot;}`}
+                        onClick={() => setActiveTab(timeline)}
+                        className={`flex-1 py-3 text-sm font-medium ${activeTab === timeline ? text-[#0f49bd] border-b-2 border-[#0f49bd] bg-[#0f49bd]/5 dark:bg-[#0f49bd]/10 : text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300}`}
                     >
-                        Timeline &amp; Notes
+                        Timeline & Notes
                     </button>
                 </div>
 
@@ -238,7 +238,7 @@ export default function HelplineDashboard() {
                     <div className="flex gap-3 flex-row-reverse">
                         <div className="w-8 h-8 rounded-full bg-[#0f49bd]/20 flex items-center justify-center text-[#0f49bd] font-bold text-xs shrink-0">You</div>
                         <div className="bg-[#0f49bd] text-white rounded-2xl rounded-tr-none p-3 shadow-md max-w-[85%]">
-                            <p className="text-sm">Namaste Mr. Kapoor. We are tracking the Pandit&apos;s location. He is stuck in heavy traffic. We are arranging a backup.</p>
+                            <p className="text-sm">Namaste Mr. Kapoor. We are tracking the Pandit's location. He is stuck in heavy traffic. We are arranging a backup.</p>
                             <span className="text-[10px] text-blue-100 mt-1 block">09:54 AM</span>
                         </div>
                     </div>
@@ -254,7 +254,7 @@ export default function HelplineDashboard() {
                     {/* Quick Chips */}
                     <div className="flex gap-2 mb-3 overflow-x-auto pb-1 scrollbar-hide">
                         <button className="whitespace-nowrap px-3 py-1 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-full text-xs text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600 transition-colors">Confirm Location</button>
-                        <button className="whitespace-nowrap px-3 py-1 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-full text-xs text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600 transition-colors">Apology &amp; Delay</button>
+                        <button className="whitespace-nowrap px-3 py-1 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-full text-xs text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600 transition-colors">Apology & Delay</button>
                         <button className="whitespace-nowrap px-3 py-1 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-full text-xs text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600 transition-colors">Send Backup Details</button>
                     </div>
 

@@ -8,10 +8,10 @@ export interface LoginModalProps {
     isOpen: boolean;
     onClose: () => void;
     redirectAfterLogin?: string;
-    role?: &apos;CUSTOMER&apos; | &apos;PANDIT&apos;;
+    role?: 'CUSTOMER' | 'PANDIT';
 }
 
-export function LoginModal({ isOpen, onClose, redirectAfterLogin, role = &apos;CUSTOMER&apos; }: LoginModalProps) {
+export function LoginModal({ isOpen, onClose, redirectAfterLogin, role = 'CUSTOMER' }: LoginModalProps) {
     const handleSuccess = () => {
         onClose();
         if (redirectAfterLogin) {

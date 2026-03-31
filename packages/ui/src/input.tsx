@@ -3,7 +3,7 @@ import React from "react";
 export type InputVariant = "text" | "phone" | "textarea" | "search";
 
 export interface InputProps
-  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, &quot;size&quot;> {
+  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "size"> {
   variant?: InputVariant;
   label?: string;
   error?: string;
@@ -14,37 +14,37 @@ export interface InputProps
 }
 
 export function Input({
-  variant = &quot;text&quot;,
+  variant = "text",
   label,
   error,
   helperText,
   leftIcon,
   rightIcon,
   rows = 4,
-  className = &quot;&quot;,
+  className = "",
   id,
   ...props
 }: InputProps) {
-  const inputId = id ?? label?.toLowerCase().replace(/\s+/g, &quot;-&quot;);
+  const inputId = id ?? label?.toLowerCase().replace(/\s+/g, "-");
 
   const baseClasses = [
-    &quot;w-full bg-white dark:bg-slate-800&quot;,
-    &quot;border border-slate-200 dark:border-slate-700 rounded-lg&quot;,
+    "w-full bg-white dark:bg-slate-800",
+    "border border-slate-200 dark:border-slate-700 rounded-lg",
     // ACC-010 FIX: Larger text for elderly users (minimum 16px)
-    &quot;text-base text-slate-900 dark:text-slate-100&quot;,
-    &quot;placeholder:text-slate-400&quot;,
-    &quot;focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary&quot;,
-    &quot;disabled:opacity-50 disabled:cursor-not-allowed&quot;,
+    "text-base text-slate-900 dark:text-slate-100",
+    "placeholder:text-slate-400",
+    "focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary",
+    "disabled:opacity-50 disabled:cursor-not-allowed",
     // ACC-009 FIX: Larger touch target (min 52px height)
-    &quot;min-h-[56px]&quot;,
-    error ? &quot;border-red-400 focus:ring-red-400&quot; : &quot;&quot;,
+    "min-h-[56px]",
+    error ? "border-red-400 focus:ring-red-400" : "",
   ];
 
   const hasLeftContent =
-    !!leftIcon || variant === &quot;phone&quot; || variant === &quot;search&quot;;
-  const paddingLeft = hasLeftContent ? &quot;pl-10&quot; : &quot;pl-4&quot;;
+    !!leftIcon || variant === "phone" || variant === "search";
+  const paddingLeft = hasLeftContent ? "pl-10" : "pl-4";
 
-  if (variant === &quot;textarea&quot;) {
+  if (variant === "textarea") {
     return (
       <div className="flex flex-col gap-1.5 w-full">
         {label && (
@@ -100,18 +100,18 @@ export function Input({
         </label>
       )}
       <div className="relative">
-        {variant === &quot;phone&quot; && (
+        {variant === "phone" && (
           // ACC-010 FIX: Larger phone prefix text
           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-base text-slate-500 font-medium pointer-events-none select-none">
             +91
           </span>
         )}
-        {variant === &quot;search&quot; && !leftIcon && (
+        {variant === "search" && !leftIcon && (
           <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg pointer-events-none">
             search
           </span>
         )}
-        {leftIcon && variant !== &quot;phone&quot; && (
+        {leftIcon && variant !== "phone" && (
           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
             {leftIcon}
           </span>

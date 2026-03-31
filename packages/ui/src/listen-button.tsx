@@ -17,7 +17,7 @@ export function ListenButton({ onClick, disabled = false, children }: ListenButt
       className="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-3 py-2 text-sm font-semibold text-white disabled:opacity-50"
     >
       <span className="material-symbols-outlined text-base">hearing</span>
-      {children ?? &quot;Listen&quot;}
+      {children ?? "Listen"}
     </button>
   );
 }

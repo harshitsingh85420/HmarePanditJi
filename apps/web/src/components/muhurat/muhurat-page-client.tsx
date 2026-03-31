@@ -25,24 +25,24 @@ const MONTH_NAMES = [
 const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 const HINDI_DAYS: Record<number, string> = {
-  0: &quot;Ravivaar (Sunday)&quot;,
-  1: &quot;Somvaar (Monday)&quot;,
-  2: &quot;Mangalvaar (Tuesday)&quot;,
-  3: &quot;Budhvaar (Wednesday)&quot;,
-  4: &quot;Guruvaar (Thursday)&quot;,
-  5: &quot;Shukravaar (Friday)&quot;,
-  6: &quot;Shanivaar (Saturday)&quot;,
+  0: "Ravivaar (Sunday)",
+  1: "Somvaar (Monday)",
+  2: "Mangalvaar (Tuesday)",
+  3: "Budhvaar (Wednesday)",
+  4: "Guruvaar (Thursday)",
+  5: "Shukravaar (Friday)",
+  6: "Shanivaar (Saturday)",
 };
 
 const PUJA_FILTERS = [
-  &quot;All Pujas&quot;,
-  &quot;Vivah&quot;,
-  &quot;Griha Pravesh&quot;,
-  &quot;Satyanarayan Katha&quot;,
-  &quot;Mundan&quot;,
-  &quot;Havan&quot;,
-  &quot;Ganesh Puja&quot;,
-  &quot;Other&quot;,
+  "All Pujas",
+  "Vivah",
+  "Griha Pravesh",
+  "Satyanarayan Katha",
+  "Mundan",
+  "Havan",
+  "Ganesh Puja",
+  "Other",
 ];
 
 const KNOWN_PUJAS = new Set(PUJA_FILTERS.slice(1, -1));
@@ -54,12 +54,12 @@ function formatDateHindi(dateStr: string): string {
   const day = d.getUTCDate();
   const month = MONTH_NAMES[d.getUTCMonth()];
   const year = d.getUTCFullYear();
-  const dayName = HINDI_DAYS[d.getUTCDay()] ?? &quot;&quot;;
+  const dayName = HINDI_DAYS[d.getUTCDay()] ?? "";
   return `${day} ${month} ${year}, ${dayName}`;
 }
 
 function dateKey(y: number, m: number, d: number): string {
-  return `${y}-${String(m + 1).padStart(2, &quot;0&quot;)}-${String(d).padStart(2, &quot;0&quot;)}`;
+  return `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
 }
 
 function isPast(y: number, m: number, d: number): boolean {
@@ -82,8 +82,8 @@ export function MuhuratPageClient() {
   const detailRef = useRef<HTMLDivElement>(null);
 
   // Parse URL params
-  const urlDate = searchParams.get(&quot;date&quot;);
-  const urlPuja = searchParams.get(&quot;pujaType&quot;);
+  const urlDate = searchParams?.get("date");
+  const urlPuja = searchParams?.get("pujaType");
 
   const today = new Date();
   const initialMonth = urlDate ? new Date(urlDate).getUTCMonth() : today.getMonth();
@@ -91,7 +91,7 @@ export function MuhuratPageClient() {
 
   const [month, setMonth] = useState(initialMonth);
   const [year, setYear] = useState(initialYear);
-  const [activePuja, setActivePuja] = useState(urlPuja || &quot;All Pujas&quot;);
+  const [activePuja, setActivePuja] = useState(urlPuja || "All Pujas");
   const [muhurats, setMuhurats] = useState<MuhuratEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState<string | null>(urlDate || null);
@@ -107,9 +107,9 @@ export function MuhuratPageClient() {
       setLoading(true);
       try {
         const pujaParam =
-          activePuja !== &quot;All Pujas&quot; && activePuja !== &quot;Other&quot;
+          activePuja !== "All Pujas" && activePuja !== "Other"
             ? `&pujaType=${encodeURIComponent(activePuja)}`
-            : &quot;&quot;;
+            : "";
         const res = await fetch(
           `${API_URL}/muhurat/dates?month=${month + 1}&year=${year}${pujaParam}`,
           { signal: controller.signal },
@@ -119,8 +119,8 @@ export function MuhuratPageClient() {
           let raw: MuhuratEntry[] = json.data?.dates ?? json.data ?? [];
           if (!Array.isArray(raw)) raw = [];
 
-          // Client-side &quot;Other&quot; filter
-          if (activePuja === &quot;Other&quot;) {
+          // Client-side "Other" filter
+          if (activePuja === "Other") {
             raw = raw.filter((m) => !KNOWN_PUJAS.has(m.pujaType));
           }
 
@@ -245,12 +245,12 @@ export function MuhuratPageClient() {
     setSelectedDate(dk);
     fetchPujasForDate(dk);
     // Update URL
-    const params = new URLSearchParams(searchParams.toString());
-    params.set(&quot;date&quot;, dk);
+    const params = new URLSearchParams(searchParams?.toString() ?? "");
+    params.set("date", dk);
     router.replace(`/muhurat?${params.toString()}`, { scroll: false });
     // Scroll to detail
     setTimeout(() => {
-      detailRef.current?.scrollIntoView({ behavior: &quot;smooth&quot;, block: &quot;start&quot; });
+      detailRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 100);
   };
 
@@ -264,21 +264,21 @@ export function MuhuratPageClient() {
     const dk = dateKey(y, m, day);
     setSelectedDate(dk);
     fetchPujasForDate(dk);
-    const params = new URLSearchParams(searchParams.toString());
-    params.set(&quot;date&quot;, dk);
+    const params = new URLSearchParams(searchParams?.toString() ?? "");
+    params.set("date", dk);
     router.replace(`/muhurat?${params.toString()}`, { scroll: false });
     setTimeout(() => {
-      detailRef.current?.scrollIntoView({ behavior: &quot;smooth&quot;, block: &quot;start&quot; });
+      detailRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 100);
   };
 
   const handleFilterChange = (puja: string) => {
     setActivePuja(puja);
-    const params = new URLSearchParams(searchParams.toString());
-    if (puja !== &quot;All Pujas&quot;) {
-      params.set(&quot;pujaType&quot;, puja);
+    const params = new URLSearchParams(searchParams?.toString() ?? "");
+    if (puja !== "All Pujas") {
+      params.set("pujaType", puja);
     } else {
-      params.delete(&quot;pujaType&quot;);
+      params.delete("pujaType");
     }
     router.replace(`/muhurat?${params.toString()}`, { scroll: false });
   };
@@ -313,11 +313,11 @@ export function MuhuratPageClient() {
             key={puja}
             onClick={() => handleFilterChange(puja)}
             className={[
-              &quot;px-4 py-2 text-lg font-semibold rounded-full border transition-all&quot;,
+              "px-4 py-2 text-lg font-semibold rounded-full border transition-all",
               activePuja === puja
-                ? &quot;bg-primary text-white border-primary shadow-md shadow-primary/20&quot;
-                : &quot;bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-primary/40 hover:text-primary&quot;,
-            ].join(&quot; &quot;)}
+                ? "bg-primary text-white border-primary shadow-md shadow-primary/20"
+                : "bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-primary/40 hover:text-primary",
+            ].join(" ")}
           >
             {puja}
           </button>
@@ -389,32 +389,32 @@ export function MuhuratPageClient() {
                     if (count > 0) handleDateClick(day);
                   }}
                   className={[
-                    &quot;relative aspect-square flex flex-col items-center justify-center rounded-xl text-lg transition-all&quot;,
+                    "relative aspect-square flex flex-col items-center justify-center rounded-xl text-lg transition-all",
                     // Selected
                     isSelected
-                      ? &quot;bg-primary text-white font-bold shadow-lg shadow-primary/30 ring-2 ring-primary/40&quot;
+                      ? "bg-primary text-white font-bold shadow-lg shadow-primary/30 ring-2 ring-primary/40"
                       : // Today
-                        isToday
-                        ? &quot;ring-2 ring-primary font-bold text-primary&quot;
+                      isToday
+                        ? "ring-2 ring-primary font-bold text-primary"
                         : // Auspicious
-                          hasAuspicious
-                          ? &quot;bg-amber-50 dark:bg-amber-900/15 hover:bg-amber-100 dark:hover:bg-amber-900/30 cursor-pointer font-medium text-slate-800 dark:text-slate-200&quot;
+                        hasAuspicious
+                          ? "bg-amber-50 dark:bg-amber-900/15 hover:bg-amber-100 dark:hover:bg-amber-900/30 cursor-pointer font-medium text-slate-800 dark:text-slate-200"
                           : // Past
-                            past
-                            ? &quot;text-slate-300 dark:text-slate-600 cursor-default&quot;
+                          past
+                            ? "text-slate-300 dark:text-slate-600 cursor-default"
                             : // Normal
-                              &quot;text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800&quot;,
-                  ].join(&quot; &quot;)}
+                            "text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800",
+                  ].join(" ")}
                 >
                   <span className="leading-none">{day}</span>
                   {count > 0 && !isSelected && (
                     <span className="text-[9px] mt-0.5 leading-none text-primary font-bold">
-                      {count === 1 ? &quot;1 puja&quot; : `${count} pujas`}
+                      {count === 1 ? "1 puja" : `${count} pujas`}
                     </span>
                   )}
                   {count > 0 && isSelected && (
                     <span className="text-[9px] mt-0.5 leading-none text-white/80 font-medium">
-                      {count === 1 ? &quot;1 puja&quot; : `${count} pujas`}
+                      {count === 1 ? "1 puja" : `${count} pujas`}
                     </span>
                   )}
                 </button>

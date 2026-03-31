@@ -173,7 +173,7 @@ export default function EarningsHistoryPage() {
                                                     Samagri Reimbursement
                                                 </p>
                                                 <p className="text-base text-[#94a3b8]">
-                                                    Pooja Materials &amp; Flowers
+                                                    Pooja Materials & Flowers
                                                 </p>
                                             </div>
                                         </div>
@@ -225,7 +225,7 @@ export default function EarningsHistoryPage() {
                                                 </span>
                                             </div>
                                             <div>
-                                                <p className="font-bold text-lg">Food &amp; Lodging</p>
+                                                <p className="font-bold text-lg">Food & Lodging</p>
                                                 <p className="text-base text-[#94a3b8]">2 Days Stay</p>
                                             </div>
                                         </div>

@@ -17,25 +17,26 @@ export default function BookingDetailPage() {
     const params = useParams();
     const router = useRouter();
     const { accessToken, loading: authLoading } = useAuth();
+    const bookingId = params?.bookingId as string | undefined;
 
     const [booking, setBooking] = useState<any>(null);
     const [history, setHistory] = useState<any[]>([]);
-    const [activeTab, setActiveTab] = useState(&quot;Overview&quot;);
+    const [activeTab, setActiveTab] = useState("Overview");
     const [loading, setLoading] = useState(true);
     const [showCompletionModal, setShowCompletionModal] = useState(false);
 
     const fetchBookingInfo = useCallback(async () => {
-        if (!accessToken) return;
+        if (!accessToken || !bookingId) return;
         try {
             const [bRes, hRes] = await Promise.all([
-                fetch(`${API_URL}/bookings/${params.bookingId}`, { headers: { Authorization: `Bearer ${accessToken}` } }),
-                fetch(`${API_URL}/bookings/${params.bookingId}/status-history`, { headers: { Authorization: `Bearer ${accessToken}` } })
+                fetch(`${API_URL}/bookings/${bookingId}`, { headers: { Authorization: `Bearer ${accessToken}` } }),
+                fetch(`${API_URL}/bookings/${bookingId}/status-history`, { headers: { Authorization: `Bearer ${accessToken}` } })
             ]);
             const [bData, hData] = await Promise.all([bRes.json(), hRes.json()]);
 
             if (bData.success) {
                 setBooking(bData.data.booking);
-                if (bData.data.booking.status === &quot;COMPLETED&quot;) {
+                if (bData.data.booking.status === "COMPLETED") {
                     setShowCompletionModal(true);
                 }
             }
@@ -45,11 +46,11 @@ export default function BookingDetailPage() {
         } finally {
             setLoading(false);
         }
-    }, [params.bookingId, accessToken]);
+    }, [bookingId, accessToken]);
 
     useEffect(() => {
         if (!authLoading) {
-            if (!accessToken) router.push(&quot;/login&quot;);
+            if (!accessToken) router.push("/login");
             else fetchBookingInfo();
 
             // Setup polling every 60s
@@ -64,24 +65,24 @@ export default function BookingDetailPage() {
     if (!booking) return <div className="text-center py-20 text-gray-500">Booking not found.</div>;
 
     const tabs = [
-        { key: &quot;Overview&quot;, label: &quot;Overview&quot;, icon: &quot;assignment&quot; },
-        { key: &quot;Itinerary&quot;, label: &quot;Itinerary&quot;, icon: &quot;map&quot; },
-        { key: &quot;Documents&quot;, label: &quot;Documents&quot;, icon: &quot;description&quot; },
+        { key: "Overview", label: "Overview", icon: "assignment" },
+        { key: "Itinerary", label: "Itinerary", icon: "map" },
+        { key: "Documents", label: "Documents", icon: "description" },
     ];
 
     // Map history to StatusTimeline steps
     const timelineSteps: any[] = history.map((h: any) => ({
-        label: h.toStatus.replace(/_/g, &quot; &quot;),
+        label: h.toStatus.replace(/_/g, " "),
         description: h.note,
         timestamp: new Date(h.createdAt),
         isCompleted: true
     }));
 
     // Add pending steps based on current status
-    const allStatuses = [&quot;CREATED&quot;, &quot;CONFIRMED&quot;, &quot;TRAVEL_BOOKED&quot;, &quot;PANDIT_EN_ROUTE&quot;, &quot;PANDIT_ARRIVED&quot;, &quot;PUJA_IN_PROGRESS&quot;, &quot;COMPLETED&quot;];
+    const allStatuses = ["CREATED", "CONFIRMED", "TRAVEL_BOOKED", "PANDIT_EN_ROUTE", "PANDIT_ARRIVED", "PUJA_IN_PROGRESS", "COMPLETED"];
     const currentStatusIndex = allStatuses.indexOf(booking.status);
 
-    if (currentStatusIndex >= 0 && booking.status !== &quot;COMPLETED&quot; && booking.status !== &quot;CANCELLED&quot;) {
+    if (currentStatusIndex >= 0 && booking.status !== "COMPLETED" && booking.status !== "CANCELLED") {
         for (let i = currentStatusIndex; i < allStatuses.length; i++) {
             if (i === currentStatusIndex) {
                 timelineSteps.push({ label: allStatuses[i].replace(/_/g, " "), isActive: true, timestamp: new Date() });
@@ -124,7 +125,7 @@ export default function BookingDetailPage() {
                         <p className="text-gray-500 font-medium">Booking ID: {booking.bookingNumber}</p>
                     </div>
                     <Badge variant={booking.status === "COMPLETED" ? "success" : booking.status === "CANCELLED" ? "error" : "info"} className="w-fit text-sm px-3 py-1">
-                        {booking.status.replace(/_/g, &quot; &quot;)}
+                        {booking.status.replace(/_/g, " ")}
                     </Badge>
                 </div>
             </div>
@@ -136,7 +137,7 @@ export default function BookingDetailPage() {
             <Tabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
 
             {/* OVERVIEW TAB */}
-            {activeTab === &quot;Overview&quot; && (
+            {activeTab === "Overview" && (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="md:col-span-2 space-y-6">
                         {/* Details Card */}
@@ -180,7 +181,7 @@ export default function BookingDetailPage() {
                                 <h3 className="font-bold text-gray-900 text-lg mb-4">Assigned Pandit</h3>
                                 <div className="flex items-center gap-4 mb-4">
                                     <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center text-orange-600 font-bold text-2xl border-2 border-orange-200">
-                                        {booking.pandit.name?.charAt(0) || &quot;P&quot;}
+                                        {booking.pandit.name?.charAt(0) || "P"}
                                     </div>
                                     <div>
                                         <h4 className="font-bold text-gray-900 text-lg">Pt. {booking.pandit.name}</h4>
@@ -224,17 +225,17 @@ export default function BookingDetailPage() {
 
                         {/* Actions */}
                         <div className="flex flex-col gap-3">
-                            {[&quot;PANDIT_EN_ROUTE&quot;, &quot;PANDIT_ARRIVED&quot;].includes(booking.status) && (
+                            {["PANDIT_EN_ROUTE", "PANDIT_ARRIVED"].includes(booking.status) && (
                                 <Link href={`/dashboard/bookings/${booking.id}/track`} className="w-full flex items-center justify-center gap-2 bg-[#137fec] text-white font-bold py-3 rounded-xl hover:bg-[#137fec]/90 transition-all shadow-md">
                                     <MapPin size={18} /> Live Track Pandit
                                 </Link>
                             )}
-                            {booking.status === &quot;COMPLETED&quot; && !booking.review && (
+                            {booking.status === "COMPLETED" && !booking.review && (
                                 <Button size="lg" className="w-full text-lg" onClick={() => router.push(`/dashboard/bookings/${booking.id}/review`)}>
                                     ⭐ Write Review
                                 </Button>
                             )}
-                            {[&quot;CREATED&quot;, &quot;PANDIT_REQUESTED&quot;, &quot;CONFIRMED&quot;, &quot;TRAVEL_BOOKED&quot;].includes(booking.status) && (
+                            {["CREATED", "PANDIT_REQUESTED", "CONFIRMED", "TRAVEL_BOOKED"].includes(booking.status) && (
                                 <Button variant="outline" className="w-full border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 hover:border-red-300" onClick={() => router.push(`/dashboard/bookings/${booking.id}/cancel`)}>
                                     Cancel Booking
                                 </Button>
@@ -245,32 +246,32 @@ export default function BookingDetailPage() {
             )}
 
             {/* ITINERARY TAB */}
-            {activeTab === &quot;Itinerary&quot; && (
+            {activeTab === "Itinerary" && (
                 <ItineraryTimeline booking={booking} />
             )}
 
             {/* DOCUMENTS TAB */}
-            {activeTab === &quot;Documents&quot; && (
+            {activeTab === "Documents" && (
                 <div className="space-y-4">
                     <DocumentCard
                         title="Booking Confirmation Receipt"
                         icon="📄"
                         actionText="Download PDF"
                         description="Auto-generated formal receipt for your booking"
-                        onAction={() => alert(&quot;Downloading receipt...&quot;)}
+                        onAction={() => alert("Downloading receipt...")}
                     />
 
-                    {[&quot;CONFIRMED&quot;, &quot;TRAVEL_BOOKED&quot;, &quot;PANDIT_EN_ROUTE&quot;, &quot;PANDIT_ARRIVED&quot;, &quot;PUJA_IN_PROGRESS&quot;, &quot;COMPLETED&quot;].includes(booking.status) && (
+                    {["CONFIRMED", "TRAVEL_BOOKED", "PANDIT_EN_ROUTE", "PANDIT_ARRIVED", "PUJA_IN_PROGRESS", "COMPLETED"].includes(booking.status) && (
                         <DocumentCard
                             title="Muhurat Patrika"
                             icon="🕉️"
                             actionText="View Certificate"
                             description="Auspicious Timing Certificate"
-                            onAction={() => setActiveTab(&quot;Muhurat&quot;)}
+                            onAction={() => setActiveTab("Muhurat")}
                         />
                     )}
 
-                    {booking.status === &quot;COMPLETED&quot; && (
+                    {booking.status === "COMPLETED" && (
                         <DocumentCard
                             title="Puja Completion Certificate"
                             icon="📜"
@@ -279,21 +280,21 @@ export default function BookingDetailPage() {
                         />
                     )}
 
-                    {booking.travelRequired && [&quot;TRAVEL_BOOKED&quot;, &quot;PANDIT_EN_ROUTE&quot;, &quot;PANDIT_ARRIVED&quot;, &quot;PUJA_IN_PROGRESS&quot;, &quot;COMPLETED&quot;].includes(booking.status) && (
+                    {booking.travelRequired && ["TRAVEL_BOOKED", "PANDIT_EN_ROUTE", "PANDIT_ARRIVED", "PUJA_IN_PROGRESS", "COMPLETED"].includes(booking.status) && (
                         <DocumentCard
                             title="Travel Tickets & Voucher"
                             icon="🎫"
                             actionText="View Documents"
                             description="Tickets arranged by platform"
-                            onAction={() => alert(&quot;Viewing travel docs...&quot;)}
+                            onAction={() => alert("Viewing travel docs...")}
                         />
                     )}
                 </div>
             )}
 
-            {activeTab === &quot;Muhurat&quot; && (
+            {activeTab === "Muhurat" && (
                 <div className="pt-4">
-                    <button onClick={() => setActiveTab(&quot;Documents&quot;)} className="text-orange-600 hover:underline text-sm font-medium mb-4 flex items-center gap-1">
+                    <button onClick={() => setActiveTab("Documents")} className="text-orange-600 hover:underline text-sm font-medium mb-4 flex items-center gap-1">
                         <span className="material-symbols-outlined text-sm">arrow_back</span> Back to Documents
                     </button>
                     <MuhuratPatrika booking={booking} />

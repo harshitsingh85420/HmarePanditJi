@@ -116,7 +116,7 @@ export async function getKYCQueue(page: number = 1, limit: number = 20) {
     ]);
 
     return {
-        queue: pandits.map((p) => ({
+        queue: pandits.map((p: any) => ({
             panditId: p.id,
             userId: p.userId,
             displayName: p.displayName,

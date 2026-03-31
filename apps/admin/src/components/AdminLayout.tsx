@@ -7,22 +7,22 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     const pathname = usePathname();
 
     React.useEffect(() => {
-        if (!pathname.startsWith(&quot;/login&quot;) && !localStorage.getItem(&quot;adminToken&quot;)) {
-            window.location.href = &quot;/login&quot;;
+        if (!pathname.startsWith("/login") && !localStorage.getItem("adminToken")) {
+            window.location.href = "/login";
         }
     }, [pathname]);
 
     const getPageTitle = (path: string) => {
         switch (true) {
-            case path === &quot;/&quot;: return &quot;Dashboard&quot;;
-            case path.startsWith(&quot;/travel-desk&quot;): return &quot;Travel Operations Desk&quot;;
-            case path.startsWith(&quot;/bookings&quot;): return &quot;All Bookings&quot;;
-            case path.startsWith(&quot;/pandits&quot;): return &quot;Pandit Directory&quot;;
-            case path.startsWith(&quot;/payouts&quot;): return &quot;Payout Queue&quot;;
-            case path.startsWith(&quot;/cancellations&quot;): return &quot;Cancellation Queue&quot;;
-            case path.startsWith(&quot;/support&quot;): return &quot;Helpline Log&quot;;
-            case path.startsWith(&quot;/settings&quot;): return &quot;Platform Settings&quot;;
-            default: return &quot;Admin Center&quot;;
+            case path === "/": return "Dashboard";
+            case path.startsWith("/travel-desk"): return "Travel Operations Desk";
+            case path.startsWith("/bookings"): return "All Bookings";
+            case path.startsWith("/pandits"): return "Pandit Directory";
+            case path.startsWith("/payouts"): return "Payout Queue";
+            case path.startsWith("/cancellations"): return "Cancellation Queue";
+            case path.startsWith("/support"): return "Helpline Log";
+            case path.startsWith("/settings"): return "Platform Settings";
+            default: return "Admin Center";
         }
     };
 

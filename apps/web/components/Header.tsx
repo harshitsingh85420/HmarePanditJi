@@ -15,8 +15,8 @@ function GuestBanner({ onSignIn }: { onSignIn: () => void }) {
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
-    const stored = sessionStorage.getItem(&quot;guestBannerDismissed&quot;);
-    if (stored === &quot;1&quot;) setDismissed(true);
+    const stored = sessionStorage.getItem("guestBannerDismissed");
+    if (stored === "1") setDismissed(true);
   }, []);
 
   if (dismissed) return null;
@@ -37,7 +37,7 @@ function GuestBanner({ onSignIn }: { onSignIn: () => void }) {
         <button
           type="button"
           onClick={() => {
-            sessionStorage.setItem(&quot;guestBannerDismissed&quot;, &quot;1&quot;);
+            sessionStorage.setItem("guestBannerDismissed", "1");
             setDismissed(true);
           }}
           className="text-amber-600 hover:text-amber-900 font-bold text-base leading-none"
@@ -56,22 +56,22 @@ export default function Header() {
   const { user, loading, openLoginModal } = useAuth();
 
   const isGuest = !loading && !user;
-  const userInitial = (user?.fullName || user?.name || &quot;U&quot;).charAt(0).toUpperCase();
-  const panditAppUrl = process.env.NEXT_PUBLIC_PANDIT_APP_URL || &quot;http://localhost:3002&quot;;
+  const userInitial = (user?.fullName || user?.name || "U").charAt(0).toUpperCase();
+  const panditAppUrl = process.env.NEXT_PUBLIC_PANDIT_APP_URL || "http://localhost:3002";
 
   const navLinks: NavLink[] = [
-    { href: &quot;/&quot;, label: &quot;Home&quot; },
-    { href: &quot;/search&quot;, label: &quot;Find Pandits&quot; },
-    { href: &quot;/muhurat&quot;, label: &quot;Muhurat Explorer&quot; },
-    { href: panditAppUrl, label: &quot;For Pandits&quot;, external: true },
+    { href: "/", label: "Home" },
+    { href: "/search", label: "Find Pandits" },
+    { href: "/muhurat", label: "Muhurat Explorer" },
+    { href: panditAppUrl, label: "For Pandits", external: true },
   ];
 
   const replayTutorial = () => {
-    if (pathname !== &quot;/&quot;) {
-      window.location.href = &quot;/?tutorial=1&quot;;
+    if (pathname !== "/") {
+      window.location.href = "/?tutorial=1";
       return;
     }
-    window.dispatchEvent(new Event(&quot;hpj-open-tutorial&quot;));
+    window.dispatchEvent(new Event("hpj-open-tutorial"));
   };
 
   return (
@@ -199,7 +199,7 @@ export default function Header() {
                   key={link.href}
                   href={link.href}
                   onClick={() => setMobileOpen(false)}
-                  className={`block text-base font-semibold py-2 transition-colors hover:text-primary ${pathname === link.href ? &quot;text-primary&quot; : &quot;text-gray-800&quot;
+                  className={`block text-base font-semibold py-2 transition-colors hover:text-primary ${pathname === link.href ? "text-primary" : "text-gray-800"
                     }`}
                 >
                   {link.label}

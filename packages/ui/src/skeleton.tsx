@@ -17,13 +17,13 @@ function Pulse({ className = "" }: { className?: string }) {
 }
 
 export function Skeleton({
-  variant = &quot;text&quot;,
+  variant = "text",
   lines = 3,
   width,
   height,
-  className = &quot;&quot;,
+  className = "",
 }: SkeletonProps) {
-  if (variant === &quot;card&quot;) {
+  if (variant === "card") {
     return (
       <div
         className={`bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-5 ${className}`}
@@ -38,7 +38,7 @@ export function Skeleton({
     );
   }
 
-  if (variant === &quot;avatar&quot;) {
+  if (variant === "avatar") {
     return (
       <Pulse
         className={`rounded-full flex-shrink-0 ${width ?? "w-12"} ${height ?? "h-12"} ${className}`}
@@ -46,7 +46,7 @@ export function Skeleton({
     );
   }
 
-  if (variant === &quot;rectangle&quot;) {
+  if (variant === "rectangle") {
     return (
       <Pulse
         className={`rounded-lg ${width ?? "w-full"} ${height ?? "h-24"} ${className}`}
@@ -54,7 +54,7 @@ export function Skeleton({
     );
   }
 
-  if (variant === &quot;profile&quot;) {
+  if (variant === "profile") {
     return (
       <div
         className={`flex items-center gap-4 ${className}`}
@@ -71,7 +71,7 @@ export function Skeleton({
     );
   }
 
-  if (variant === &quot;table-row&quot;) {
+  if (variant === "table-row") {
     return (
       <div
         className={`flex items-center gap-4 py-3 border-b border-slate-100 dark:border-slate-800 ${className}`}

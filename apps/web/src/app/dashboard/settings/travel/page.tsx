@@ -229,7 +229,7 @@ export default function TravelPreferencesPage() {
 
             <div className="flex flex-col sm:flex-row gap-4 mb-20">
                 <button
-                    onClick={() => router.push(&apos;/dashboard&apos;)}
+                    onClick={() => router.push('/dashboard')}
                     className="flex-1 py-3 px-6 rounded-lg bg-[#f29e0d] text-white font-bold text-lg hover:bg-orange-600 transition-colors shadow-lg shadow-[#f29e0d]/20"
                 >
                     Save Preferences

@@ -8,10 +8,10 @@ export default function PanditVerificationDetail() {
     const router = useRouter();
     const [pandit, setPandit] = useState<any>(null);
     const [loading, setLoading] = useState(true);
-    const [adminNotes, setAdminNotes] = useState(&quot;&quot;);
+    const [adminNotes, setAdminNotes] = useState("");
     const [modalType, setModalType] = useState<"APPROVE" | "REJECT" | "MORE_INFO" | null>(null);
-    const [rejectReason, setRejectReason] = useState(&quot;&quot;);
-    const [rejectDetail, setRejectDetail] = useState(&quot;&quot;);
+    const [rejectReason, setRejectReason] = useState("");
+    const [rejectDetail, setRejectDetail] = useState("");
     const [requestedDocs, setRequestedDocs] = useState<string[]>([]);
 
     const [videoChecks, setVideoChecks] = useState({
@@ -20,9 +20,9 @@ export default function PanditVerificationDetail() {
     const allVideoChecked = Object.values(videoChecks).every(Boolean);
 
     const [docVerdicts, setDocVerdicts] = useState<{ [key: string]: 'PASS' | 'FAIL' | 'RE_UPLOAD' | null }>({
-        &apos;Aadhaar Front&apos;: null, &apos;Aadhaar Back&apos;: null, &apos;Selfie with Aadhaar&apos;: null
+        'Aadhaar Front': null, 'Aadhaar Back': null, 'Selfie with Aadhaar': null
     });
-    const allDocsChecked = Object.values(docVerdicts).every(v => v === &apos;PASS&apos;);
+    const allDocsChecked = Object.values(docVerdicts).every(v => v === 'PASS');
 
     const canApprove = allVideoChecked && allDocsChecked;
 
@@ -35,38 +35,38 @@ export default function PanditVerificationDetail() {
 
     useEffect(() => {
         fetch(`http://localhost:3001/api/admin/pandits/${panditId}`, {
-            headers: { Authorization: `Bearer ${localStorage.getItem(&quot;adminToken&quot;) || &quot;&quot;}` }
+            headers: { Authorization: `Bearer ${localStorage.getItem("adminToken") || ""}` }
         })
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
                     setPandit(data.data);
-                    setAdminNotes(data.data.adminNotes || &quot;&quot;);
+                    setAdminNotes(data.data.adminNotes || "");
                 }
                 setLoading(false);
             })
             .catch(() => setLoading(false));
     }, [panditId]);
 
-    const handleAction = async (action: &quot;APPROVE&quot; | &quot;REJECT&quot; | &quot;REQUEST_INFO&quot;) => {
+    const handleAction = async (action: "APPROVE" | "REJECT" | "REQUEST_INFO") => {
         try {
             const body: any = { action, notes: adminNotes };
-            if (action === &quot;REJECT&quot;) body.reason = `${rejectReason} - ${rejectDetail}`;
-            if (action === &quot;REQUEST_INFO&quot;) body.requestedDocuments = requestedDocs;
+            if (action === "REJECT") body.reason = `${rejectReason} - ${rejectDetail}`;
+            if (action === "REQUEST_INFO") body.requestedDocuments = requestedDocs;
 
             await fetch(`http://localhost:3001/api/admin/pandits/${panditId}/verify`, {
-                method: &quot;PATCH&quot;,
+                method: "PATCH",
                 headers: {
-                    &quot;Content-Type&quot;: &quot;application/json&quot;,
-                    Authorization: `Bearer ${localStorage.getItem(&quot;adminToken&quot;) || &quot;&quot;}`
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${localStorage.getItem("adminToken") || ""}`
                 },
                 body: JSON.stringify(body)
             });
             alert(`Pandit ${action.toLowerCase()}ed successfully.`);
-            router.push(&quot;/pandits&quot;);
+            router.push("/pandits");
         } catch (e) {
             console.error(e);
-            alert(&quot;An error occurred&quot;);
+            alert("An error occurred");
         }
     };
 
@@ -85,7 +85,7 @@ export default function PanditVerificationDetail() {
                     <div className="flex-1 min-w-0">
                         <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
                             <div>
-                                <h1 className="text-3xl font-black text-slate-900 tracking-tight">{pandit.title || &quot;Pt.&quot;} {pandit.user?.name}</h1>
+                                <h1 className="text-3xl font-black text-slate-900 tracking-tight">{pandit.title || "Pt."} {pandit.user?.name}</h1>
                                 <p className="text-lg text-slate-500 font-medium mt-1">{pandit.location}</p>
                             </div>
                             <div className="flex flex-wrap gap-2 text-xs font-bold uppercase tracking-wider">
@@ -95,7 +95,7 @@ export default function PanditVerificationDetail() {
                                             'bg-slate-100 text-slate-600 border-slate-200'
                                     }`}>
                                     {/* eslint-disable-next-line react/no-unescaped-entities */}
-                                    {pandit.verificationStatus.replace(/_/g, &quot;&nbsp;&quot;).replace(/&nbsp;/g, &quot; &quot;)}
+                                    {pandit.verificationStatus.replace(/_/g, "&nbsp;").replace(/&nbsp;/g, " ")}
                                 </span>
                             </div>
                         </div>
@@ -114,7 +114,7 @@ export default function PanditVerificationDetail() {
                             </div>
                             <div>
                                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Registered On</p>
-                                <p className="font-bold text-slate-800">{format(new Date(pandit.createdAt), &quot;dd MMM yyyy&quot;)}</p>
+                                <p className="font-bold text-slate-800">{format(new Date(pandit.createdAt), "dd MMM yyyy")}</p>
                             </div>
                             <div>
                                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Profile Complete</p>
@@ -135,13 +135,13 @@ export default function PanditVerificationDetail() {
                     </h2>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        {[&quot;Aadhaar Front&quot;, &quot;Aadhaar Back&quot;, &quot;Selfie with Aadhaar&quot;].map((docName, i) => {
+                        {["Aadhaar Front", "Aadhaar Back", "Selfie with Aadhaar"].map((docName, i) => {
                             const url = pandit.documentUrls ? pandit.documentUrls[i] : null;
                             return (
                                 <div key={i} className="border border-slate-200 rounded-xl overflow-hidden flex flex-col">
                                     <div
                                         onClick={() => url && setDocumentScale({ url })}
-                                        className={`h-48 bg-slate-100 relative ${url ? &quot;cursor-pointer group&quot; : &quot;&quot;}`}
+                                        className={`h-48 bg-slate-100 relative ${url ? "cursor-pointer group" : ""}`}
                                     >
                                         {url ? (
                                             <>
@@ -158,17 +158,17 @@ export default function PanditVerificationDetail() {
                                         <p className="font-bold text-slate-800 text-sm mb-3">{docName}</p>
                                         <div className="flex flex-col gap-2 mt-auto">
                                             <button
-                                                onClick={() => setDocVerdicts({ ...docVerdicts, [docName]: &apos;PASS&apos; })}
-                                                className={`w-full py-1.5 rounded transition-colors text-xs font-bold border ${docVerdicts[docName] === &apos;PASS&apos; ? &apos;bg-green-100 text-green-700 border-green-300 shadow-inner&apos; : &apos;bg-white border-slate-200 text-slate-600 hover:bg-slate-50&apos;}`}
+                                                onClick={() => setDocVerdicts({ ...docVerdicts, [docName]: 'PASS' })}
+                                                className={`w-full py-1.5 rounded transition-colors text-xs font-bold border ${docVerdicts[docName] === 'PASS' ? 'bg-green-100 text-green-700 border-green-300 shadow-inner' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'}`}
                                             >✅ Looks Good</button>
                                             <div className="flex gap-2">
                                                 <button
-                                                    onClick={() => setDocVerdicts({ ...docVerdicts, [docName]: &apos;FAIL&apos; })}
-                                                    className={`flex-1 py-1.5 rounded transition-colors text-[10px] font-bold border ${docVerdicts[docName] === &apos;FAIL&apos; ? &apos;bg-red-100 text-red-700 border-red-300 shadow-inner&apos; : &apos;bg-white border-slate-200 text-slate-600 hover:bg-slate-50&apos;}`}
+                                                    onClick={() => setDocVerdicts({ ...docVerdicts, [docName]: 'FAIL' })}
+                                                    className={`flex-1 py-1.5 rounded transition-colors text-[10px] font-bold border ${docVerdicts[docName] === 'FAIL' ? 'bg-red-100 text-red-700 border-red-300 shadow-inner' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'}`}
                                                 >❌ Fake/Unclear</button>
                                                 <button
-                                                    onClick={() => setDocVerdicts({ ...docVerdicts, [docName]: &apos;RE_UPLOAD&apos; })}
-                                                    className={`flex-1 py-1.5 rounded transition-colors text-[10px] font-bold border ${docVerdicts[docName] === &apos;RE_UPLOAD&apos; ? &apos;bg-amber-100 text-amber-900 border-amber-300 shadow-inner&apos; : &apos;bg-white border-slate-200 text-slate-600 hover:bg-slate-50&apos;}`}
+                                                    onClick={() => setDocVerdicts({ ...docVerdicts, [docName]: 'RE_UPLOAD' })}
+                                                    className={`flex-1 py-1.5 rounded transition-colors text-[10px] font-bold border ${docVerdicts[docName] === 'RE_UPLOAD' ? 'bg-amber-100 text-amber-900 border-amber-300 shadow-inner' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'}`}
                                                 >🔄 Re-upload</button>
                                             </div>
                                         </div>
@@ -199,12 +199,12 @@ export default function PanditVerificationDetail() {
                         <h3 className="font-bold text-slate-800 mb-4">Mandatory Checklist</h3>
                         <div className="space-y-3 flex-1 overflow-y-auto">
                             {[
-                                { k: &apos;face&apos;, l: &apos;Face clearly visible and matches Aadhaar photo&apos; },
-                                { k: &apos;name&apos;, l: &apos;Pandit stated their full name correctly&apos; },
-                                { k: &apos;experience&apos;, l: &apos;Stated experience and city properly&apos; },
-                                { k: &apos;mantra&apos;, l: &apos;Mantra pronunciation is clear and correct&apos; },
-                                { k: &apos;aadhaar&apos;, l: &apos;Aadhaar card visible and held by person&apos; },
-                                { k: &apos;genuine&apos;, l: &apos;No signs of impersonation or manipulation&apos; },
+                                { k: 'face', l: 'Face clearly visible and matches Aadhaar photo' },
+                                { k: 'name', l: 'Pandit stated their full name correctly' },
+                                { k: 'experience', l: 'Stated experience and city properly' },
+                                { k: 'mantra', l: 'Mantra pronunciation is clear and correct' },
+                                { k: 'aadhaar', l: 'Aadhaar card visible and held by person' },
+                                { k: 'genuine', l: 'No signs of impersonation or manipulation' },
                             ].map((item) => (
                                 <label key={item.k} className="flex gap-3 cursor-pointer group">
                                     <div className={`w-5 h-5 rounded border flex shrink-0 items-center justify-center transition-colors mt-0.5 ${videoChecks[item.k as keyof typeof videoChecks] ? "bg-blue-600 border-blue-600" : "bg-white border-slate-300 group-hover:border-blue-400"
@@ -221,7 +221,7 @@ export default function PanditVerificationDetail() {
                         </div>
 
                         <div className={`mt-6 p-4 rounded-xl text-center font-bold text-sm ${allVideoChecked ? 'bg-green-100 text-green-800 border border-green-200' : 'bg-amber-100 text-amber-800 border border-amber-200'}`}>
-                            {allVideoChecked ? &quot;All conditions met for Video KYC.&quot; : &quot;Please verify all checkboxes to proceed.&quot;}
+                            {allVideoChecked ? "All conditions met for Video KYC." : "Please verify all checkboxes to proceed."}
                         </div>
                     </div>
                 </div>
@@ -234,9 +234,9 @@ export default function PanditVerificationDetail() {
                         </h2>
                         <div className="space-y-4">
                             <div><p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Aadhaar & PAN</p>
-                                <p className="font-bold text-slate-800 font-mono tracking-wider">{pandit.aadhaarNumber?.replace(/(\d{4})$/, &apos;XXXX&apos;) || &apos;---&apos;}</p></div>
+                                <p className="font-bold text-slate-800 font-mono tracking-wider">{pandit.aadhaarNumber?.replace(/(\d{4})$/, 'XXXX') || '---'}</p></div>
                             <div><p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Bio</p>
-                                <p className="text-sm font-medium text-slate-600 leading-relaxed bg-slate-50 p-3 rounded-lg border border-slate-100">{pandit.bio || &apos;No bio provided&apos;}</p></div>
+                                <p className="text-sm font-medium text-slate-600 leading-relaxed bg-slate-50 p-3 rounded-lg border border-slate-100">{pandit.bio || 'No bio provided'}</p></div>
                             <div><p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Languages</p>
                                 <div className="flex flex-wrap gap-2 mt-1">
                                     {(pandit.languages || []).map((l: string) => <span key={l} className="bg-slate-100 px-3 py-1 rounded-full text-xs font-bold text-slate-600 border border-slate-200">{l}</span>)}
@@ -286,20 +286,20 @@ export default function PanditVerificationDetail() {
                     <div className="flex-[1.2] flex flex-col justify-end gap-3">
                         <div className="flex gap-3 h-14">
                             <button
-                                onClick={() => setModalType(&quot;MORE_INFO&quot;)}
+                                onClick={() => setModalType("MORE_INFO")}
                                 className="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-black rounded-xl shadow-md shadow-amber-500/20 active:scale-95 transition-all text-sm flex items-center justify-center gap-2"
                             >
                                 📝 REQUEST INFO
                             </button>
                             <button
-                                onClick={() => setModalType(&quot;REJECT&quot;)}
+                                onClick={() => setModalType("REJECT")}
                                 className="flex-1 bg-white border-2 border-red-200 text-red-600 hover:bg-red-50 hover:border-red-500 font-black rounded-xl active:scale-95 transition-all text-sm flex items-center justify-center gap-2"
                             >
                                 ❌ REJECT
                             </button>
                         </div>
                         <button
-                            onClick={() => setModalType(&quot;APPROVE&quot;)}
+                            onClick={() => setModalType("APPROVE")}
                             disabled={!canApprove}
                             className="w-full h-14 bg-[#0a864d] hover:bg-[#086a3d] text-white font-black rounded-xl shadow-lg shadow-green-500/30 active:scale-95 transition-all text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed group"
                         >
@@ -357,7 +357,7 @@ export default function PanditVerificationDetail() {
                     <div className="bg-white w-full max-w-lg rounded-3xl p-8 shadow-2xl relative animate-in fade-in zoom-in duration-200">
                         <button onClick={() => setModalType(null)} className="absolute top-6 right-6 text-slate-400 hover:bg-slate-100 p-2 rounded-full transition-colors"><span className="material-symbols-outlined text-xl leading-none">close</span></button>
 
-                        {modalType === &quot;APPROVE&quot; && (
+                        {modalType === "APPROVE" && (
                             <>
                                 <h2 className="text-2xl font-black text-slate-900 mb-6 flex items-center gap-2">
                                     <span className="material-symbols-outlined text-green-500 text-3xl">verified</span>
@@ -373,12 +373,12 @@ export default function PanditVerificationDetail() {
                                 </ul>
                                 <div className="flex gap-3">
                                     <button onClick={() => setModalType(null)} className="flex-1 py-3.5 rounded-xl font-bold text-slate-600 hover:bg-slate-100 transition-colors">Cancel</button>
-                                    <button onClick={() => handleAction(&quot;APPROVE&quot;)} className="flex-[2] bg-[#0a864d] hover:bg-[#086a3d] text-white font-black py-3.5 rounded-xl shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2">Confirm Approval</button>
+                                    <button onClick={() => handleAction("APPROVE")} className="flex-[2] bg-[#0a864d] hover:bg-[#086a3d] text-white font-black py-3.5 rounded-xl shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2">Confirm Approval</button>
                                 </div>
                             </>
                         )}
 
-                        {modalType === &quot;REJECT&quot; && (
+                        {modalType === "REJECT" && (
                             <>
                                 <h2 className="text-2xl font-black text-slate-900 mb-6 flex items-center gap-2">
                                     <span className="material-symbols-outlined text-red-500 text-3xl">block</span>
@@ -402,12 +402,12 @@ export default function PanditVerificationDetail() {
                                 </div>
                                 <div className="flex gap-3">
                                     <button onClick={() => setModalType(null)} className="flex-1 py-3.5 rounded-xl font-bold text-slate-600 hover:bg-slate-100 transition-colors">Cancel</button>
-                                    <button onClick={() => handleAction(&quot;REJECT&quot;)} disabled={!rejectReason} className="flex-[2] bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-black py-3.5 rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2">Confirm Rejection</button>
+                                    <button onClick={() => handleAction("REJECT")} disabled={!rejectReason} className="flex-[2] bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-black py-3.5 rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2">Confirm Rejection</button>
                                 </div>
                             </>
                         )}
 
-                        {modalType === &quot;MORE_INFO&quot; && (
+                        {modalType === "MORE_INFO" && (
                             <>
                                 <h2 className="text-2xl font-black text-slate-900 mb-6 flex items-center gap-2">
                                     <span className="material-symbols-outlined text-amber-500 text-3xl">history_edu</span>
@@ -415,7 +415,7 @@ export default function PanditVerificationDetail() {
                                 </h2>
                                 <p className="text-sm text-slate-600 font-medium mb-4">Select the documents the pandit needs to re-upload:</p>
                                 <div className="grid grid-cols-2 gap-3 mb-6">
-                                    {[&quot;Aadhaar Front&quot;, &quot;Aadhaar Back&quot;, &quot;Selfie&quot;, &quot;Video KYC&quot;].map(doc => (
+                                    {["Aadhaar Front", "Aadhaar Back", "Selfie", "Video KYC"].map(doc => (
                                         <label key={doc} className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-colors ${requestedDocs.includes(doc) ? "border-amber-500 bg-amber-50 text-amber-900" : "border-slate-200 hover:bg-slate-50 text-slate-700"}`}>
                                             <input type="checkbox" checked={requestedDocs.includes(doc)} onChange={(e) => {
                                                 if (e.target.checked) setRequestedDocs([...requestedDocs, doc]);
@@ -427,7 +427,7 @@ export default function PanditVerificationDetail() {
                                 </div>
                                 <div className="flex gap-3">
                                     <button onClick={() => setModalType(null)} className="flex-1 py-3.5 rounded-xl font-bold text-slate-600 hover:bg-slate-100 transition-colors">Cancel</button>
-                                    <button onClick={() => handleAction(&quot;REQUEST_INFO&quot;)} disabled={requestedDocs.length === 0} className="flex-[2] bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white font-black py-3.5 rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2">Send Request</button>
+                                    <button onClick={() => handleAction("REQUEST_INFO")} disabled={requestedDocs.length === 0} className="flex-[2] bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white font-black py-3.5 rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2">Send Request</button>
                                 </div>
                             </>
                         )}

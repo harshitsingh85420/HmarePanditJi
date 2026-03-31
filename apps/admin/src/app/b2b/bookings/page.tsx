@@ -195,8 +195,8 @@ export default function B2BBookingsPage() {
                                     <input type="checkbox" className="rounded border-slate-300 text-[#0f49bd] focus:ring-[#0f49bd] bg-white dark:bg-slate-800" />
                                 </th>
                                 <th className="px-6 py-4 border-b border-slate-200 dark:border-slate-700">Client / ID</th>
-                                <th className="px-6 py-4 border-b border-slate-200 dark:border-slate-700">Date &amp; Time</th>
-                                <th className="px-6 py-4 border-b border-slate-200 dark:border-slate-700">Venue &amp; Location</th>
+                                <th className="px-6 py-4 border-b border-slate-200 dark:border-slate-700">Date & Time</th>
+                                <th className="px-6 py-4 border-b border-slate-200 dark:border-slate-700">Venue & Location</th>
                                 <th className="px-6 py-4 border-b border-slate-200 dark:border-slate-700">Pandit Assigned</th>
                                 <th className="px-6 py-4 border-b border-slate-200 dark:border-slate-700 text-center">Status</th>
                                 <th className="px-6 py-4 border-b border-slate-200 dark:border-slate-700">Backup Status</th>
@@ -263,7 +263,7 @@ export default function B2BBookingsPage() {
                                             </div>
                                         ) : (
                                             <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
-                                                {booking.backup === &apos;Not Required&apos; ? (
+                                                {booking.backup === 'Not Required' ? (
                                                     <span className="material-symbols-outlined text-slate-400 text-sm">remove_circle_outline</span>
                                                 ) : (
                                                     <span className="material-symbols-outlined text-green-500 text-sm">check_circle</span>

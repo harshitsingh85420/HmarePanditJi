@@ -15,19 +15,19 @@ interface Customer {
 }
 
 const MOCK_CUSTOMERS: Customer[] = [
-  { id: "1", name: "Aryan Gupta", phone: "+91 99887 76655", city: "Delhi", bookings: 8, totalSpent: "₹1,12,000", lastBooking: "15 Feb 2024", joinedDate: "Mar 2023", status: "ACTIVE" },
-  { id: "2", name: "Priya Mehta", phone: "+91 88776 65544", city: "Noida", bookings: 3, totalSpent: "₹24,500", lastBooking: "14 Feb 2024", joinedDate: "Aug 2023", status: "ACTIVE" },
-  { id: "3", name: "Ravi Verma", phone: "+91 77665 54433", city: "Gurgaon", bookings: 5, totalSpent: "₹58,000", lastBooking: "13 Feb 2024", joinedDate: "Jun 2023", status: "ACTIVE" },
-  { id: "4", name: "Sunita Singh", phone: "+91 66554 43322", city: "Delhi", bookings: 1, totalSpent: "₹5,500", lastBooking: "12 Feb 2024", joinedDate: "Jan 2024", status: "INACTIVE" },
-  { id: "5", name: "Amit Sharma", phone: "+91 55443 32211", city: "Faridabad", bookings: 12, totalSpent: "₹1,80,000", lastBooking: "16 Feb 2024", joinedDate: "Feb 2023", status: "ACTIVE" },
-  { id: "6", name: "Kavita Joshi", phone: "+91 44332 21100", city: "Noida", bookings: 2, totalSpent: "₹27,000", lastBooking: "17 Feb 2024", joinedDate: "Nov 2023", status: "ACTIVE" },
-  { id: "7", name: "Deepak Kumar", phone: "+91 33221 10099", city: "Delhi", bookings: 0, totalSpent: "₹0", lastBooking: "—", joinedDate: "Feb 2024", status: "BLOCKED" },
+  { id: "1", name: "Aryan Gupta", phone: "+91 99887 76655", city: "Delhi", bookings: 8, totalSpent: "1,12,000", lastBooking: "15 Feb 2024", joinedDate: "Mar 2023", status: "ACTIVE" },
+  { id: "2", name: "Priya Mehta", phone: "+91 88776 65544", city: "Noida", bookings: 3, totalSpent: "24,500", lastBooking: "14 Feb 2024", joinedDate: "Aug 2023", status: "ACTIVE" },
+  { id: "3", name: "Ravi Verma", phone: "+91 77665 54433", city: "Gurgaon", bookings: 5, totalSpent: "58,000", lastBooking: "13 Feb 2024", joinedDate: "Jun 2023", status: "ACTIVE" },
+  { id: "4", name: "Sunita Singh", phone: "+91 66554 43322", city: "Delhi", bookings: 1, totalSpent: "5,500", lastBooking: "12 Feb 2024", joinedDate: "Jan 2024", status: "INACTIVE" },
+  { id: "5", name: "Amit Sharma", phone: "+91 55443 32211", city: "Faridabad", bookings: 12, totalSpent: "1,80,000", lastBooking: "16 Feb 2024", joinedDate: "Feb 2023", status: "ACTIVE" },
+  { id: "6", name: "Kavita Joshi", phone: "+91 44332 21100", city: "Noida", bookings: 2, totalSpent: "27,000", lastBooking: "17 Feb 2024", joinedDate: "Nov 2023", status: "ACTIVE" },
+  { id: "7", name: "Deepak Kumar", phone: "+91 33221 10099", city: "Delhi", bookings: 0, totalSpent: "0", lastBooking: "", joinedDate: "Feb 2024", status: "BLOCKED" },
 ];
 
 const MOCK_HISTORY = [
-  { no: "BK-8821", ceremony: "Vivah Puja", pandit: "Ramesh Sharma", date: "15 Feb 2024", amount: "₹21,000", status: "CONFIRMED" },
-  { no: "BK-8810", ceremony: "Griha Pravesh", pandit: "Suresh Mishra", date: "5 Jan 2024", amount: "₹8,500", status: "COMPLETED" },
-  { no: "BK-8800", ceremony: "Satyanarayan", pandit: "Dinesh Tiwari", date: "12 Dec 2023", amount: "₹6,000", status: "COMPLETED" },
+  { no: "BK-8821", ceremony: "Vivah Puja", pandit: "Ramesh Sharma", date: "15 Feb 2024", amount: "21,000", status: "CONFIRMED" },
+  { no: "BK-8810", ceremony: "Griha Pravesh", pandit: "Suresh Mishra", date: "5 Jan 2024", amount: "8,500", status: "COMPLETED" },
+  { no: "BK-8800", ceremony: "Satyanarayan", pandit: "Dinesh Tiwari", date: "12 Dec 2023", amount: "6,000", status: "COMPLETED" },
 ];
 
 const STATUS_STYLES = {
@@ -39,9 +39,9 @@ const STATUS_STYLES = {
 export default function CustomersPage() {
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [toast, setToast] = useState(&quot;&quot;);
+  const [toast, setToast] = useState("");
 
-  const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(&quot;&quot;), 3000); };
+  const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(""), 3000); };
 
   const filtered = MOCK_CUSTOMERS.filter(
     (c) =>
@@ -68,10 +68,10 @@ export default function CustomersPage() {
       {/* Stats Row */}
       <div className="grid grid-cols-4 gap-4 mb-6">
         {[
-          { label: &quot;Total Customers&quot;, value: &quot;1,842&quot;, icon: &quot;people&quot;, color: &quot;text-primary&quot;, bg: &quot;bg-primary/10&quot; },
-          { label: &quot;Active (30d)&quot;, value: &quot;1,124&quot;, icon: &quot;person_check&quot;, color: &quot;text-green-500&quot;, bg: &quot;bg-green-500/10&quot; },
-          { label: &quot;New This Week&quot;, value: &quot;68&quot;, icon: &quot;person_add&quot;, color: &quot;text-violet-500&quot;, bg: &quot;bg-violet-500/10&quot; },
-          { label: &quot;Avg Lifetime Value&quot;, value: &quot;₹24,800&quot;, icon: &quot;currency_rupee&quot;, color: &quot;text-amber-500&quot;, bg: &quot;bg-amber-500/10&quot; },
+          { label: Total Customers, value: 1,842, icon: people, color: text-primary, bg: bg-primary/10 },
+          { label: Active (30d), value: 1,124, icon: person_check, color: text-green-500, bg: bg-green-500/10 },
+          { label: New This Week, value: 68, icon: person_add, color: text-violet-500, bg: bg-violet-500/10 },
+          { label: Avg Lifetime Value, value: 24,800, icon: currency_rupee, color: text-amber-500, bg: bg-amber-500/10 },
         ].map((stat) => (
           <div key={stat.label} className="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 p-4 shadow-sm">
             <div className={`w-10 h-10 rounded-xl ${stat.bg} flex items-center justify-center mb-3`}>
@@ -100,7 +100,7 @@ export default function CustomersPage() {
               <button
                 key={customer.id}
                 onClick={() => setSelectedId(selectedId === customer.id ? null : customer.id)}
-                className={`w-full grid grid-cols-[2fr_1fr_1fr_1fr_1fr_auto] gap-4 px-5 py-4 text-left border-b border-slate-50 dark:border-slate-800 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 ${selectedId === customer.id ? &quot;bg-primary/5 dark:bg-primary/10&quot; : &quot;&quot;}`}
+                className={`w-full grid grid-cols-[2fr_1fr_1fr_1fr_1fr_auto] gap-4 px-5 py-4 text-left border-b border-slate-50 dark:border-slate-800 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 ${selectedId === customer.id ? bg-primary/5 dark:bg-primary/10 : }`}
               >
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-full bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center text-violet-600 dark:text-violet-400 font-bold text-sm flex-shrink-0">
@@ -141,12 +141,12 @@ export default function CustomersPage() {
 
             <div className="p-5 space-y-4">
               {[
-                { label: &quot;Phone&quot;, value: selected.phone },
-                { label: &quot;City&quot;, value: selected.city },
-                { label: &quot;Total Bookings&quot;, value: String(selected.bookings) },
-                { label: &quot;Total Spent&quot;, value: selected.totalSpent },
-                { label: &quot;Joined&quot;, value: selected.joinedDate },
-                { label: &quot;Last Booking&quot;, value: selected.lastBooking },
+                { label: Phone, value: selected.phone },
+                { label: City, value: selected.city },
+                { label: Total Bookings, value: String(selected.bookings) },
+                { label: Total Spent, value: selected.totalSpent },
+                { label: Joined, value: selected.joinedDate },
+                { label: Last Booking, value: selected.lastBooking },
               ].map((row) => (
                 <div key={row.label} className="flex justify-between text-sm">
                   <span className="text-slate-500">{row.label}</span>
@@ -162,7 +162,7 @@ export default function CustomersPage() {
                     <div key={h.no} className="flex items-center justify-between py-2 border-b border-slate-50 dark:border-slate-800 last:border-0">
                       <div>
                         <p className="text-xs font-bold text-primary">{h.no}</p>
-                        <p className="text-xs text-slate-500">{h.ceremony} · {h.date}</p>
+                        <p className="text-xs text-slate-500">{h.ceremony}  {h.date}</p>
                       </div>
                       <span className="text-xs font-bold text-slate-900 dark:text-white">{h.amount}</span>
                     </div>
@@ -171,11 +171,11 @@ export default function CustomersPage() {
               </div>
 
               <div className="grid grid-cols-2 gap-2 pt-2">
-                <button onClick={() => showToast(&quot;SMS sent&quot;)} className="py-2.5 rounded-xl text-xs font-bold bg-primary text-white hover:bg-primary/90 transition-colors">Send SMS</button>
-                {selected.status === &quot;BLOCKED&quot; ? (
-                  <button onClick={() => showToast(&quot;Customer unblocked&quot;)} className="py-2.5 rounded-xl text-xs font-bold bg-green-100 text-green-700 hover:bg-green-200 transition-colors">Unblock</button>
+                <button onClick={() => showToast(SMS sent)} className="py-2.5 rounded-xl text-xs font-bold bg-primary text-white hover:bg-primary/90 transition-colors">Send SMS</button>
+                {selected.status === BLOCKED ? (
+                  <button onClick={() => showToast(Customer unblocked)} className="py-2.5 rounded-xl text-xs font-bold bg-green-100 text-green-700 hover:bg-green-200 transition-colors">Unblock</button>
                 ) : (
-                  <button onClick={() => showToast(&quot;Customer blocked&quot;)} className="py-2.5 rounded-xl text-xs font-bold text-red-600 border border-red-200 dark:border-red-900/50 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">Block</button>
+                  <button onClick={() => showToast(Customer blocked)} className="py-2.5 rounded-xl text-xs font-bold text-red-600 border border-red-200 dark:border-red-900/50 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">Block</button>
                 )}
               </div>
             </div>

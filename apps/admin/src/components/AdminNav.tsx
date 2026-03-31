@@ -20,7 +20,7 @@ export default function AdminNav() {
   const pathname = usePathname();
 
   const isActive = (href: string) => {
-    if (href === &quot;/&quot;) return pathname === &quot;/&quot;;
+    if (href === "/") return pathname === "/";
     return pathname.startsWith(href);
   };
 

@@ -64,7 +64,7 @@ export function CartIcon() {
 
                         {/* Content */}
                         <div className="p-4">
-                            {samagriItem?.type === &quot;package&quot; ? (
+                            {samagriItem?.type === "package" ? (
                                 <div className="space-y-3">
                                     <div className="flex items-start gap-3">
                                         <div className={`w-14 h-14 rounded-lg flex items-center justify-center text-white text-base font-bold ${samagriItem.packageName === "Basic"
@@ -85,7 +85,7 @@ export function CartIcon() {
                                         </div>
                                         <div className="text-right">
                                             <div className="font-bold text-primary">
-                                                ₹{samagriItem.totalCost.toLocaleString(&quot;en-IN&quot;)}
+                                                ₹{samagriItem.totalCost.toLocaleString("en-IN")}
                                             </div>
                                         </div>
                                     </div>
@@ -113,7 +113,7 @@ export function CartIcon() {
                                     <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
                                         <span className="text-lg text-slate-600">Estimated Cost</span>
                                         <span className="font-bold text-primary">
-                                            ₹{samagriItem?.totalCost.toLocaleString(&quot;en-IN&quot;)}
+                                            ₹{samagriItem?.totalCost.toLocaleString("en-IN")}
                                         </span>
                                     </div>
                                 </div>

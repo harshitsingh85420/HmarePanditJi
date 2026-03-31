@@ -34,7 +34,7 @@ export default function FavoritesPage() {
     const [favorites, setFavorites] = useState<FavoritePandit[]>([]);
     const [loading, setLoading] = useState(true);
     const [removing, setRemoving] = useState<string | null>(null);
-    const [toast, setToast] = useState(&quot;&quot;);
+    const [toast, setToast] = useState("");
 
     useEffect(() => {
         if (!authLoading && !user) openLoginModal();
@@ -68,15 +68,15 @@ export default function FavoritesPage() {
         setRemoving(fav.id);
         try {
             await fetch(`${API_BASE}/customers/favorites/${fav.panditId}`, {
-                method: &quot;DELETE&quot;,
+                method: "DELETE",
                 headers: { Authorization: `Bearer ${accessToken}` },
             });
             setFavorites((prev) => prev.filter((f) => f.id !== fav.id));
             setToast(`${fav.displayName} removed from favorites`);
-            setTimeout(() => setToast(&quot;&quot;), 3000);
+            setTimeout(() => setToast(""), 3000);
         } catch {
-            setToast(&quot;Could not remove. Try again.&quot;);
-            setTimeout(() => setToast(&quot;&quot;), 3000);
+            setToast("Could not remove. Try again.");
+            setTimeout(() => setToast(""), 3000);
         } finally {
             setRemoving(null);
         }
@@ -113,12 +113,12 @@ export default function FavoritesPage() {
             <div className="bg-white border-b border-slate-100">
                 <div className="max-w-2xl mx-auto px-4 py-6">
                     <div className="flex items-center gap-3 mb-1">
-                        <button onClick={() => router.push(&quot;/dashboard&quot;)} className="w-12 h-12 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors" aria-label="Back">
+                        <button onClick={() => router.push("/dashboard")} className="w-12 h-12 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors" aria-label="Back">
                             <span className="material-symbols-outlined text-slate-500">arrow_back</span>
                         </button>
                         <h1 className="text-xl font-bold text-slate-800">My Favorites</h1>
                     </div>
-                    <p className="text-lg text-slate-400 ml-11">Pandits you&apos;ve saved for quick access</p>
+                    <p className="text-lg text-slate-400 ml-11">Pandits you've saved for quick access</p>
                 </div>
             </div>
 

@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm install)",
+      "Bash(pnpm run *)",
+      "Bash(select-object *)",
+      "Bash(npm run *)",
+      "Bash(turbo *)"
+    ]
+  },
+  "$version": 3
+}

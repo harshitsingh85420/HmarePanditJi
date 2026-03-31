@@ -120,7 +120,7 @@ export default function NRIBookingPage() {
                                             Smart Muhurat Timing
                                         </h3>
                                         <button className="text-[#f29e0d] text-lg font-bold flex items-center">
-                                            Change Date{&quot; &quot;}
+                                            Change Date{" "}
                                             <span className="material-symbols-outlined ml-1">
                                                 calendar_month
                                             </span>
@@ -257,7 +257,7 @@ export default function NRIBookingPage() {
                                         <button className="w-full py-2 border-2 border-dashed border-[#1a2b4b]/10 dark:border-white/10 rounded-xl text-lg font-bold text-[#1a2b4b]/40 dark:text-white/40 flex items-center justify-center gap-2 hover:border-[#f29e0d]/50 hover:text-[#f29e0d] transition-all">
                                             <span className="material-symbols-outlined">
                                                 add_circle
-                                            </span>{&quot; &quot;}
+                                            </span>{" "}
                                             Add Another Contact
                                         </button>
                                     </div>
@@ -281,7 +281,7 @@ export default function NRIBookingPage() {
                                             </div>
                                             <div className="flex justify-between text-lg">
                                                 <span className="text-[#1a2b4b]/60 dark:text-white/60">
-                                                    Travel &amp; Visa Mgmt
+                                                    Travel & Visa Mgmt
                                                 </span>
                                                 <span className="font-bold">$220.00</span>
                                             </div>
@@ -312,7 +312,7 @@ export default function NRIBookingPage() {
                                         </div>
                                     </div>
                                     <button className="w-full h-14 bg-[#f29e0d] text-[#1a2b4b] text-lg font-black rounded-xl shadow-xl shadow-[#f29e0d]/20 hover:scale-[1.02] active:scale-[0.98] transition-all mt-6">
-                                        Confirm &amp; Secure Payment
+                                        Confirm & Secure Payment
                                     </button>
                                 </div>
                             </div>

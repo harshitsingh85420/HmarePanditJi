@@ -85,7 +85,7 @@ export default function ProfilePage() {
                                                 Pandit Sharma Ji
                                             </h1>
                                             <p className="text-[#f49d25] font-semibold text-lg">
-                                                Expert in Vedic Rituals &amp; Vivah Sanskar
+                                                Expert in Vedic Rituals & Vivah Sanskar
                                             </p>
                                         </div>
                                         <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#f49d25]/10 text-[#f49d25] border border-[#f49d25]/20 hover:bg-[#f49d25]/20 transition-all">
@@ -138,7 +138,7 @@ export default function ProfilePage() {
                         <div className="border-b border-[#f49d25]/10">
                             <div className="flex gap-8 overflow-x-auto no-scrollbar">
                                 <button className="border-b-2 border-[#f49d25] text-[#f49d25] pb-3 font-bold whitespace-nowrap">
-                                    Bio &amp; Experience
+                                    Bio & Experience
                                 </button>
                                 <button className="border-b-2 border-transparent text-[#8a7960] hover:text-[#f49d25] pb-3 font-medium whitespace-nowrap">
                                     Gallery of Ceremonies

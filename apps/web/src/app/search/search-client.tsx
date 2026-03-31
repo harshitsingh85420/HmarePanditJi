@@ -72,14 +72,14 @@ const REGIONS = [
 
 function mapSortToApi(sort: string): string {
   const map: Record<string, string> = {
-    &quot;Best Match&quot;: &quot;rating&quot;,
-    Rating: &quot;rating&quot;,
-    &quot;Price (Low → High)&quot;: &quot;price_asc&quot;,
-    &quot;Price (High → Low)&quot;: &quot;price_desc&quot;,
-    Distance: &quot;distance&quot;,
-    Experience: &quot;rating&quot;,
+    "Best Match": "rating",
+    Rating: "rating",
+    "Price (Low → High)": "price_asc",
+    "Price (High → Low)": "price_desc",
+    Distance: "distance",
+    Experience: "rating",
   };
-  return map[sort] ?? &quot;rating&quot;;
+  return map[sort] ?? "rating";
 }
 
 function mapPanditToResult(p: Record<string, unknown>): PanditResult {
@@ -88,28 +88,28 @@ function mapPanditToResult(p: Record<string, unknown>): PanditResult {
   const travelModes = modes.map((mode) => ({
     mode,
     price: 0,
-    label: mode.replace(&quot;_&quot;, &quot;-&quot;),
-    duration: &quot;&quot;,
+    label: mode.replace("_", "-"),
+    duration: "",
   }));
 
   return {
     id: String(p.id),
-    name: String(p.name ?? &quot;Pandit Ji&quot;),
+    name: String(p.name ?? "Pandit Ji"),
     avatarUrl: p.profilePhotoUrl as string | undefined,
-    isVerified: p.verificationStatus === &quot;VERIFIED&quot;,
-    badges: p.verificationStatus === &quot;VERIFIED&quot; ? [&quot;Verified Vedic&quot;] : [],
+    isVerified: p.verificationStatus === "VERIFIED",
+    badges: p.verificationStatus === "VERIFIED" ? ["Verified Vedic"] : [],
     overallRating: Number(p.rating) || 0,
     totalReviews: Number(p.totalReviews) || 0,
-    city: String(p.location ?? &quot;&quot;),
+    city: String(p.location ?? ""),
     languages: (p.languages as string[]) ?? [],
     experienceYears: Number(p.experienceYears) || 0,
     specializations: (p.specializations as string[]) ?? [],
     travelModes:
       travelModes.length > 0
         ? travelModes
-        : [{ mode: &quot;SELF_DRIVE&quot;, price: 0, label: &quot;SELF-DRIVE&quot;, duration: &quot;&quot; }],
+        : [{ mode: "SELF_DRIVE", price: 0, label: "SELF-DRIVE", duration: "" }],
     willingToTravel: Number(prefs.maxDistanceKm ?? 0) > 0,
-    description: ((p.specializations as string[]) ?? []).join(&quot;, &quot;),
+    description: ((p.specializations as string[]) ?? []).join(", "),
   };
 }
 
@@ -125,27 +125,27 @@ async function fetchPandits(
   page = 1,
 ): Promise<{ pandits: PanditResult[]; pagination: PaginationInfo }> {
   const params = new URLSearchParams();
-  if (filters.ritual) params.set(&quot;pujaType&quot;, filters.ritual);
-  if (filters.city) params.set(&quot;city&quot;, filters.city);
-  if (filters.date) params.set(&quot;date&quot;, filters.date);
+  if (filters.ritual) params.set("pujaType", filters.ritual);
+  if (filters.city) params.set("city", filters.city);
+  if (filters.date) params.set("date", filters.date);
   if (filters.minBudget > 0)
-    params.set(&quot;minDakshina&quot;, String(filters.minBudget));
+    params.set("minDakshina", String(filters.minBudget));
   if (filters.maxBudget < 50000)
     params.set("maxDakshina", String(filters.maxBudget));
   if (filters.travel) params.set("travelMode", filters.travel);
   if (filters.minRating) params.set("minRating", filters.minRating);
   if (filters.languages.length > 0)
-    params.set(&quot;language&quot;, filters.languages[0]);
+    params.set("language", filters.languages[0]);
   if (filters.maxDistanceKm > 0 && filters.city)
-    params.set(&quot;maxDistance&quot;, String(filters.maxDistanceKm));
-  params.set(&quot;sort&quot;, mapSortToApi(filters.sort));
-  params.set(&quot;page&quot;, String(page));
-  params.set(&quot;limit&quot;, &quot;10&quot;);
+    params.set("maxDistance", String(filters.maxDistanceKm));
+  params.set("sort", mapSortToApi(filters.sort));
+  params.set("page", String(page));
+  params.set("limit", "10");
 
   const res = await fetch(`${API_URL}/pandits?${params.toString()}`, {
     signal: AbortSignal.timeout(8000),
   });
-  if (!res.ok) throw new Error(&quot;Failed to fetch pandits&quot;);
+  if (!res.ok) throw new Error("Failed to fetch pandits");
   const body = await res.json();
   const rawPandits: Record<string, unknown>[] = body.data?.pandits ?? [];
   return {
@@ -205,7 +205,7 @@ function EnhancedPanditCard({
               )}
             </div>
             <p className="mb-3 text-lg text-slate-600 dark:text-slate-400">
-              {pandit.specializations[0] ? &quot;Ritual Specialist&quot; : &quot;Scholar&quot;} from{&quot; &quot;}
+              {pandit.specializations[0] ? "Ritual Specialist" : "Scholar"} from{" "}
               <span className="font-bold text-slate-900 dark:text-white">
                 {pandit.city}
               </span>
@@ -280,9 +280,9 @@ function EnhancedPanditCard({
           <div className="flex items-center justify-between gap-4">
             <div className="max-w-[200px] text-base leading-tight text-slate-500">
               <p>
-                {pandit.travelModes[0]?.label === &quot;SELF-DRIVE&quot;
-                  ? &quot;Self-drive includes fuel & tolls.&quot;
-                  : &quot;Includes tickets & airport transfer.&quot;}
+                {pandit.travelModes[0]?.label === "SELF-DRIVE"
+                  ? "Self-drive includes fuel & tolls."
+                  : "Includes tickets & airport transfer."}
               </p>
             </div>
             <div className="flex gap-2">
@@ -401,7 +401,7 @@ function Sidebar({
               Experience
             </h4>
             <div className="space-y-2">
-              {[&quot;15+ Years&quot;, &quot;10+ Years&quot;, &quot;5+ Years&quot;].map((exp) => (
+              {["15+ Years", "10+ Years", "5+ Years"].map((exp) => (
                 <label
                   key={exp}
                   className="group flex cursor-pointer items-center gap-3"
@@ -463,7 +463,7 @@ export default function SearchClient({
   const searchParams = useSearchParams();
   const { isAuthenticated, loading: authLoading } = useAuth();
   const [loginModalOpen, setLoginModalOpen] = useState(false);
-  const [redirectUrl, setRedirectUrl] = useState(&quot;&quot;);
+  const [redirectUrl, setRedirectUrl] = useState("");
 
   const handleBook = (id: string) => {
     if (authLoading) return;
@@ -478,21 +478,21 @@ export default function SearchClient({
   const defaultFilters = (
     params: Record<string, string | undefined>,
   ): SearchFilters => ({
-    ritual: params.ritual || &quot;&quot;,
-    city: params.city || &quot;&quot;,
-    date: params.date || &quot;&quot;,
+    ritual: params.ritual || "",
+    city: params.city || "",
+    date: params.date || "",
     minBudget: Number(params.minBudget) || 0,
     maxBudget: Number(params.maxBudget) || 50000,
-    travel: params.travel || &quot;&quot;,
-    minRating: params.minRating || &quot;&quot;,
-    languages: params.languages ? params.languages.split(&quot;,&quot;) : [],
-    sort: params.sort || &quot;Best Match&quot;,
+    travel: params.travel || "",
+    minRating: params.minRating || "",
+    languages: params.languages ? params.languages.split(",") : [],
+    sort: params.sort || "Best Match",
     maxDistanceKm: Number(params.maxDistanceKm) || 50,
-    searchAllIndia: params.searchAllIndia === &quot;true&quot;,
+    searchAllIndia: params.searchAllIndia === "true",
     regions: params.regions
-      ? params.regions.split(&quot;,&quot;)
-      : [&quot;Varanasi (Kashi)&quot;, &quot;Ujjain (Avantika)&quot;],
-    experience: params.experience || &quot;10+ Years&quot;,
+      ? params.regions.split(",")
+      : ["Varanasi (Kashi)", "Ujjain (Avantika)"],
+    experience: params.experience || "10+ Years",
   });
 
   const [filters, setFilters] = useState<SearchFilters>(() =>
@@ -517,7 +517,7 @@ export default function SearchClient({
       setPandits(result.pandits);
       setPagination(result.pagination);
     } catch (err) {
-      setError(&quot;Failed to load pandits. Please try again.&quot;);
+      setError("Failed to load pandits. Please try again.");
       setPandits([]);
     } finally {
       setLoading(false);
@@ -549,7 +549,7 @@ export default function SearchClient({
     }
   };
 
-  const location = filters.city || &quot;Delhi&quot;;
+  const location = filters.city || "Delhi";
 
   return (
     <div className="min-h-screen bg-[#f8f7f5] dark:bg-[#221c10]">
@@ -604,7 +604,7 @@ export default function SearchClient({
                 <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
                   {filters.ritual
                     ? `${filters.ritual} Pandits`
-                    : &quot;Top-tier Pandits&quot;}
+                    : "Top-tier Pandits"}
                   {loading && (
                     <span className="ml-3 text-base font-normal text-slate-400">
                       Loading…
@@ -615,8 +615,8 @@ export default function SearchClient({
                   {!loading && `${pagination.total} verified pandits`}
                   {filters.city && (
                     <>
-                      {&quot; &quot;}
-                      in{&quot; &quot;}
+                      {" "}
+                      in{" "}
                       <span className="font-bold text-[#f2a20d]">
                         {location}
                       </span>
@@ -647,7 +647,7 @@ export default function SearchClient({
                 <span className="inline-flex items-center rounded-full border border-[#f2a20d]/20 bg-[#f2a20d]/10 px-5 py-3 text-base font-bold text-[#f2a20d]">
                   <span className="material-symbols-outlined mr-1 text-lg">
                     check_circle
-                  </span>{&quot; &quot;}
+                  </span>{" "}
                   Search All India: ON
                 </span>
               )}
@@ -655,7 +655,7 @@ export default function SearchClient({
                 <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-100 px-5 py-3 text-base font-bold text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
                   <span className="material-symbols-outlined mr-1 text-lg">
                     auto_stories
-                  </span>{&quot; &quot;}
+                  </span>{" "}
                   {filters.ritual}
                 </span>
               )}
@@ -663,7 +663,7 @@ export default function SearchClient({
                 <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-100 px-5 py-3 text-base font-bold text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
                   <span className="material-symbols-outlined mr-1 text-lg">
                     calendar_month
-                  </span>{&quot; &quot;}
+                  </span>{" "}
                   {filters.date}
                 </span>
               )}

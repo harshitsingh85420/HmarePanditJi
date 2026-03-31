@@ -13,17 +13,18 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1
 export default function BookingConfirmedPage() {
     const params = useParams();
     const { accessToken } = useAuth();
+    const bookingId = params?.bookingId as string | undefined;
 
     const [booking, setBooking] = useState<any>(null);
     const [loading, setLoading] = useState(true);
 
     const fetchBooking = useCallback(async () => {
-        if (!accessToken) return;
+        if (!accessToken || !bookingId) return;
         try {
-            const res = await fetch(`${API_URL}/bookings/${params.bookingId}`, {
+            const res = await fetch(`${API_URL}/bookings/${bookingId}`, {
                 headers: { Authorization: `Bearer ${accessToken}` }
             });
-            const data = await res.json();
+            const data: any = await res.json();
             if (data.success) {
                 setBooking(data.data.booking);
             }
@@ -32,7 +33,7 @@ export default function BookingConfirmedPage() {
         } finally {
             setLoading(false);
         }
-    }, [params.bookingId, accessToken]);
+    }, [bookingId, accessToken]);
 
     useEffect(() => {
         if (accessToken) fetchBooking();
@@ -40,22 +41,23 @@ export default function BookingConfirmedPage() {
 
     const copyDetails = () => {
         if (!booking) return;
-        const txt = `🙏 Puja booked via HmarePanditJi!\nBooking ID: ${booking.bookingNumber}\nEvent: ${booking.eventType}\nDate: ${new Date(booking.eventDate).toLocaleDateString(&quot;hi-IN&quot;)}\nPandit: Pt. ${booking.pandit?.name || &apos;TBA&apos;}`;
-        navigator.clipboard.writeText(txt);
-        alert(&quot;Copied to clipboard!&quot;);
+        const txt = `🙏 Puja booked via HmarePanditJi!\nBooking ID: ${booking.bookingNumber}\nEvent: ${booking.eventType}\nDate: ${new Date(booking.eventDate).toLocaleDateString("hi-IN")}\nPandit: Pt. ${booking.pandit?.name || 'TBA'}`;
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        (globalThis as any).navigator?.clipboard?.writeText(txt);
+        (globalThis as any).alert?.("Copied to clipboard!");
     };
 
     const shareWhatsApp = () => {
         if (!booking) return;
-        const txt = encodeURIComponent(`🙏 Puja booked via HmarePanditJi!\n\nEvent: ${booking.eventType} on ${new Date(booking.eventDate).toLocaleDateString(&quot;hi-IN&quot;)}\nPandit: Pt. ${booking.pandit?.name || &quot;TBA&quot;} (Verified)\nBooking: ${booking.bookingNumber}\n\nTrack booking: https://hmarepanditji.com`);
-        window.open(`https://wa.me/?text=${txt}`, &quot;_blank&quot;);
+        const txt = encodeURIComponent(`🙏 Puja booked via HmarePanditJi!\n\nEvent: ${booking.eventType} on ${new Date(booking.eventDate).toLocaleDateString("hi-IN")}\nPandit: Pt. ${booking.pandit?.name || "TBA"} (Verified)\nBooking: ${booking.bookingNumber}\n\nTrack booking: https://hmarepanditji.com`);
+        (globalThis as any).open?.(`https://wa.me/?text=${txt}`, "_blank");
     };
 
     if (loading) return <div className="min-h-screen pt-32 text-center">Loading booking confirmation...</div>;
     if (!booking) return <div className="min-h-screen pt-32 text-center text-red-500">Booking not found.</div>;
 
     const d = new Date(booking.eventDate);
-    const formattedDate = d.toLocaleDateString(&quot;hi-IN&quot;, { weekday: &quot;long&quot;, year: &quot;numeric&quot;, month: &quot;long&quot;, day: &quot;numeric&quot; });
+    const formattedDate = d.toLocaleDateString("hi-IN", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
 
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -89,7 +91,7 @@ export default function BookingConfirmedPage() {
                                 </div>
                                 <div className="text-right">
                                     <p className="text-xs uppercase tracking-widest font-bold text-gray-500 mb-1">Amount Paid</p>
-                                    <p className="text-2xl font-black text-gray-900">₹{booking.grandTotal?.toLocaleString(&quot;en-IN&quot;)}</p>
+                                    <p className="text-2xl font-black text-gray-900">₹{booking.grandTotal?.toLocaleString("en-IN")}</p>
                                 </div>
                             </div>
 
@@ -104,11 +106,11 @@ export default function BookingConfirmedPage() {
                                 </div>
                                 <div className="md:col-span-2 flex items-center gap-3">
                                     <div className="w-12 h-12 bg-white rounded-full border-2 border-orange-200 flex items-center justify-center font-bold text-orange-600 text-lg shadow-sm">
-                                        {booking.pandit?.name?.charAt(0) || &quot;P&quot;}
+                                        {booking.pandit?.name?.charAt(0) || "P"}
                                     </div>
                                     <div>
                                         <p className="text-sm text-gray-500 font-medium leading-tight">Assigned Pandit</p>
-                                        <p className="font-bold text-gray-900">Pt. {booking.pandit?.name || &quot;Pending Assignment&quot;}</p>
+                                        <p className="font-bold text-gray-900">Pt. {booking.pandit?.name || "Pending Assignment"}</p>
                                     </div>
                                 </div>
                             </div>
@@ -144,7 +146,7 @@ export default function BookingConfirmedPage() {
                                 <div className="mt-1 opacity-40">⏳</div>
                                 <div>
                                     <p className="font-bold text-gray-900">Track Journey</p>
-                                    <p className="text-sm text-gray-500">You can track the pandit&apos;s real-time location on the day of the event.</p>
+                                    <p className="text-sm text-gray-500">You can track the pandit's real-time location on the day of the event.</p>
                                 </div>
                             </div>
                         </div>

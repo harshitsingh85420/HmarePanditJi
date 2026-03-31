@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { LoginModal } from "@/components/LoginModal";
+import { LoginModal } from "../../../src/components/LoginModal";
 
 interface BookingCTAProps {
     panditId: string;

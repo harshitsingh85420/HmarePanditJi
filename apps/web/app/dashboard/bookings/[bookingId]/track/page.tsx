@@ -10,14 +10,15 @@ export default function LiveTrackingPage() {
   const params = useParams();
   const router = useRouter();
   const { accessToken } = useAuth();
+  const bookingId = params?.bookingId as string | undefined;
   const [booking, setBooking] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchBooking = async () => {
-      if (!accessToken) return;
+      if (!accessToken || !bookingId) return;
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || &quot;http://localhost:3001/api/v1&quot;}/bookings/${params.bookingId}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1"}/bookings/${bookingId}`, {
           headers: { Authorization: `Bearer ${accessToken}` }
         });
         const data = await res.json();
@@ -31,7 +32,7 @@ export default function LiveTrackingPage() {
       }
     };
     fetchBooking();
-  }, [accessToken, params.bookingId]);
+  }, [accessToken, bookingId]);
 
   if (loading) return <div className="h-screen flex items-center justify-center dark:bg-[#101922] dark:text-white">Loading tracking data...</div>;
   if (!booking) return <div className="h-screen flex items-center justify-center dark:bg-[#101922] dark:text-white">Unable to track this booking.</div>;
@@ -78,7 +79,7 @@ export default function LiveTrackingPage() {
                   <span className="material-symbols-outlined">directions_car</span>
                 </div>
                 <div className="mt-2 bg-white dark:bg-slate-900 px-3 py-1 rounded-full shadow-lg text-xs font-bold border border-[#137fec] text-slate-900 dark:text-white">
-                  Pt. {booking.pandit?.name || &quot;Pandit&quot;}
+                  Pt. {booking.pandit?.name || "Pandit"}
                 </div>
               </div>
             </div>
@@ -91,10 +92,10 @@ export default function LiveTrackingPage() {
             <div className="p-6">
               <div className="flex items-start justify-between mb-4">
                 <div>
-                  <h3 className="text-xl font-bold dark:text-white">Pt. {booking.pandit?.name || &quot;Pandit&quot;} is approaching venue</h3>
+                  <h3 className="text-xl font-bold dark:text-white">Pt. {booking.pandit?.name || "Pandit"} is approaching venue</h3>
                   <div className="flex items-center gap-2 mt-1">
                     <span className="flex h-2 w-2 rounded-full bg-emerald-500"></span>
-                    <p className="text-emerald-600 dark:text-emerald-400 text-sm font-semibold">Current Status: {booking.status === &quot;PANDIT_EN_ROUTE&quot; ? &quot;On Time&quot; : &quot;Scheduled&quot;}</p>
+                    <p className="text-emerald-600 dark:text-emerald-400 text-sm font-semibold">Current Status: {booking.status === "PANDIT_EN_ROUTE" ? "On Time" : "Scheduled"}</p>
                   </div>
                 </div>
                 <div className="bg-[#137fec]/10 p-3 rounded-xl">
@@ -129,7 +130,7 @@ export default function LiveTrackingPage() {
           <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
             <div>
               <h2 className="text-xl font-bold dark:text-white">Journey Timeline</h2>
-              <p className="text-slate-500 dark:text-slate-400 text-sm">{booking.pandit?.city || &quot;HQ&quot;} → {booking.venueCity} Route</p>
+              <p className="text-slate-500 dark:text-slate-400 text-sm">{booking.pandit?.city || "HQ"} → {booking.venueCity} Route</p>
             </div>
             <Link href={`/dashboard/bookings/${booking.id}`} className="p-2 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
               <span className="material-symbols-outlined">close</span>
@@ -148,7 +149,7 @@ export default function LiveTrackingPage() {
                 </div>
                 <div className="flex flex-col">
                   <h4 className="font-bold dark:text-white">Journey Started</h4>
-                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">{booking.pandit?.city || &quot;Varanasi&quot;} HQ</p>
+                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">{booking.pandit?.city || "Varanasi"} HQ</p>
                   <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 mt-1">4:00 PM ✓</p>
                 </div>
               </div>
@@ -178,7 +179,7 @@ export default function LiveTrackingPage() {
                   <div className="mt-3 p-3 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700">
                     <div className="flex items-center gap-3">
                       <div className="h-10 w-10 rounded-lg bg-cover bg-slate-200"></div>
-                      <span className="text-xs text-slate-500 dark:text-slate-400 italic">&quot;Traffic reported near Yamuna Expressway. Minor delay possible.&quot;</span>
+                      <span className="text-xs text-slate-500 dark:text-slate-400 italic">"Traffic reported near Yamuna Expressway. Minor delay possible."</span>
                     </div>
                   </div>
                 </div>

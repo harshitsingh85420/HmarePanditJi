@@ -98,12 +98,12 @@ function riskBarColor(score: number) {
 }
 
 export default function VerificationPage() {
-  const [activeTab, setActiveTab] = useState<"PENDING" | "REVIEW">(&quot;PENDING&quot;);
-  const [selectedId, setSelectedId] = useState(&quot;1&quot;);
-  const [search, setSearch] = useState(&quot;&quot;);
-  const [note, setNote] = useState(&quot;&quot;);
+  const [activeTab, setActiveTab] = useState<"PENDING" | "REVIEW">(PENDING);
+  const [selectedId, setSelectedId] = useState(1);
+  const [search, setSearch] = useState();
+  const [note, setNote] = useState();
   const [loading, setLoading] = useState(false);
-  const [toast, setToast] = useState(&quot;&quot;);
+  const [toast, setToast] = useState();
 
   const filteredApplicants = APPLICANTS.filter(
     (a) =>
@@ -114,15 +114,15 @@ export default function VerificationPage() {
 
   const selected = APPLICANTS.find((a) => a.id === selectedId) ?? APPLICANTS[0];
 
-  const pendingCount = APPLICANTS.filter((a) => a.status === &quot;PENDING&quot;).length;
-  const reviewCount = APPLICANTS.filter((a) => a.status === &quot;REVIEW&quot;).length;
+  const pendingCount = APPLICANTS.filter((a) => a.status === PENDING).length;
+  const reviewCount = APPLICANTS.filter((a) => a.status === REVIEW).length;
 
   const showToast = (msg: string) => {
     setToast(msg);
-    setTimeout(() => setToast(&quot;&quot;), 3000);
+    setTimeout(() => setToast(), 3000);
   };
 
-  const handleDecision = async (decision: &quot;APPROVE&quot; | &quot;REJECT&quot; | &quot;REQUEST_INFO&quot;) => {
+  const handleDecision = async (decision: APPROVE | REJECT | REQUEST_INFO) => {
     setLoading(true);
     // Simulating API call
     setTimeout(() => {
@@ -133,7 +133,7 @@ export default function VerificationPage() {
         REQUEST_INFO: `📋 Info requested from ${selected.name}`,
       };
       showToast(msgs[decision]);
-      setNote(&quot;&quot;);
+      setNote();
     }, 1000);
   };
 
@@ -160,19 +160,19 @@ export default function VerificationPage() {
         {/* Tabs */}
         <div className="flex p-2 gap-2 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 sticky top-0">
           <button
-            onClick={() => setActiveTab(&quot;PENDING&quot;)}
-            className={`flex-1 py-1.5 rounded text-xs font-semibold transition-colors ${activeTab === &quot;PENDING&quot;
-              ? &quot;bg-[#137fec] text-white&quot;
-              : &quot;bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white&quot;
+            onClick={() => setActiveTab(PENDING)}
+            className={`flex-1 py-1.5 rounded text-xs font-semibold transition-colors ${activeTab === PENDING
+              ? bg-[#137fec] text-white
+              : bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white
               }`}
           >
             PENDING ({pendingCount})
           </button>
           <button
-            onClick={() => setActiveTab(&quot;REVIEW&quot;)}
-            className={`flex-1 py-1.5 rounded text-xs font-semibold transition-colors ${activeTab === &quot;REVIEW&quot;
-              ? &quot;bg-[#137fec] text-white&quot;
-              : &quot;bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white&quot;
+            onClick={() => setActiveTab(REVIEW)}
+            className={`flex-1 py-1.5 rounded text-xs font-semibold transition-colors ${activeTab === REVIEW
+              ? bg-[#137fec] text-white
+              : bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white
               }`}
           >
             REVIEWS ({reviewCount})
@@ -191,8 +191,8 @@ export default function VerificationPage() {
                   key={applicant.id}
                   onClick={() => setSelectedId(applicant.id)}
                   className={`w-full text-left p-4 transition-colors ${isSelected
-                    ? &quot;bg-[#137fec]/5 border-l-4 border-[#137fec]&quot;
-                    : &quot;hover:bg-slate-50 dark:hover:bg-slate-800/50 border-l-4 border-transparent&quot;
+                    ? bg-[#137fec]/5 border-l-4 border-[#137fec]
+                    : hover:bg-slate-50 dark:hover:bg-slate-800/50 border-l-4 border-transparent
                     }`}
                 >
                   {/* App ID + Time */}
@@ -289,7 +289,7 @@ export default function VerificationPage() {
                   <div className="space-y-3">
                     <div className="flex justify-between items-center text-sm py-2 border-b border-dashed border-slate-100 dark:border-slate-800">
                       <span className="text-slate-500 font-medium">ID Number</span>
-                      <span className="font-mono font-semibold dark:text-white">{selected.aadhaar?.number ?? &quot;XXXX XXXX XXXX&quot;}</span>
+                      <span className="font-mono font-semibold dark:text-white">{selected.aadhaar?.number ?? XXXX XXXX XXXX}</span>
                     </div>
                     <div className="flex justify-between items-center text-sm py-2 border-b border-dashed border-slate-100 dark:border-slate-800">
                       <span className="text-slate-500 font-medium">Name Match</span>
@@ -307,7 +307,7 @@ export default function VerificationPage() {
               <section className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
                 <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-800/40">
                   <h3 className="font-bold flex items-center gap-2 text-slate-900 dark:text-white">
-                    <span className="material-symbols-outlined text-red-500 text-xl">videocam</span> Video KYC &amp; Phonetics
+                    <span className="material-symbols-outlined text-red-500 text-xl">videocam</span> Video KYC & Phonetics
                   </h3>
                   <div className="flex gap-2">
                     <span className="px-2 py-1 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[10px] font-bold uppercase rounded">Speed: 1.2x</span>
@@ -334,7 +334,7 @@ export default function VerificationPage() {
                             <span>{note.time}</span>
                             <span>{note.label}</span>
                           </div>
-                          <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed italic">&quot;{note.note}&quot;</p>
+                          <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed italic">{note.note}</p>
                         </div>
                       )) : (
                         <p className="text-xs text-slate-400 italic">No specific phonetic notes generated.</p>
@@ -377,7 +377,7 @@ export default function VerificationPage() {
                     {selected.academic?.checks?.map(check => (
                       <div key={check.label} className="flex items-center gap-2">
                         <span className={`material-symbols-outlined text-base ${check.done ? 'text-green-500' : 'text-slate-300'}`}>
-                          {check.done ? &apos;check_circle&apos; : &apos;radio_button_unchecked&apos;}
+                          {check.done ? 'check_circle' : 'radio_button_unchecked'}
                         </span>
                         <span className={`text-xs ${check.done ? 'text-slate-700 dark:text-slate-300' : 'text-slate-400'}`}>{check.label}</span>
                       </div>
@@ -423,21 +423,21 @@ export default function VerificationPage() {
           </div>
           <div className="flex items-center gap-3">
             <button
-              onClick={() => handleDecision(&quot;REJECT&quot;)}
+              onClick={() => handleDecision(REJECT)}
               disabled={loading}
               className="px-4 py-2 text-red-500 border border-red-500/20 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg text-sm font-bold transition-colors disabled:opacity-50"
             >
               REJECT
             </button>
             <button
-              onClick={() => handleDecision(&quot;REQUEST_INFO&quot;)}
+              onClick={() => handleDecision(REQUEST_INFO)}
               disabled={loading}
               className="px-4 py-2 text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg text-sm font-bold transition-colors disabled:opacity-50"
             >
               REQUEST INFO
             </button>
             <button
-              onClick={() => handleDecision(&quot;APPROVE&quot;)}
+              onClick={() => handleDecision(APPROVE)}
               disabled={loading}
               className="px-8 py-2 bg-[#137fec] hover:bg-blue-600 text-white rounded-lg text-sm font-bold shadow-lg shadow-[#137fec]/20 transition-colors disabled:opacity-50 flex items-center gap-2"
             >

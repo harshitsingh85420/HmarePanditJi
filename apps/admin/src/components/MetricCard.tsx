@@ -10,15 +10,15 @@ interface MetricCardProps {
 
 export default function MetricCard({ title, value, subtitle, colorPreset, onClick }: MetricCardProps) {
     const colors = {
-        green: &quot;bg-green-50 text-green-700 border-green-200&quot;,
-        blue: &quot;bg-blue-50 text-blue-700 border-blue-200&quot;,
-        amber: &quot;bg-amber-50 text-amber-700 border-amber-200&quot;,
+        green: "bg-green-50 text-green-700 border-green-200",
+        blue: "bg-blue-50 text-blue-700 border-blue-200",
+        amber: "bg-amber-50 text-amber-700 border-amber-200",
     };
 
     const bgColors = {
-        green: &quot;bg-green-600&quot;,
-        blue: &quot;bg-blue-600&quot;,
-        amber: &quot;bg-amber-500&quot;,
+        green: "bg-green-600",
+        blue: "bg-blue-600",
+        amber: "bg-amber-500",
     };
 
     return (

@@ -13,8 +13,8 @@ export default function AdminSidebar() {
     });
 
     useEffect(() => {
-        fetch(`${process.env.NEXT_PUBLIC_API_URL || &apos;http://localhost:3001/api/v1&apos;}/admin/dashboard-stats`, {
-            headers: { Authorization: `Bearer ${localStorage.getItem(&quot;adminToken&quot;) || ''}` }
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/dashboard-stats`, {
+            headers: { Authorization: `Bearer ${localStorage.getItem("adminToken") || ''}` }
         })
             .then((res) => res.json())
             .then((data) => {
@@ -31,14 +31,14 @@ export default function AdminSidebar() {
     }, []);
 
     const navItems = [
-        { label: &quot;Dashboard&quot;, href: &quot;/&quot;, icon: &quot;stacked_bar_chart&quot;, badge: 0 },
-        { label: &quot;Travel Desk&quot;, href: &quot;/travel-desk&quot;, icon: &quot;flight_takeoff&quot;, badge: badges.travel },
-        { label: &quot;All Bookings&quot;, href: &quot;/bookings&quot;, icon: &quot;book_online&quot;, badge: 0 },
-        { label: &quot;Pandits&quot;, href: &quot;/pandits&quot;, icon: &quot;how_to_reg&quot;, badge: badges.verify },
-        { label: &quot;Payouts&quot;, href: &quot;/payouts&quot;, icon: &quot;currency_rupee&quot;, badge: badges.payouts },
-        { label: &quot;Cancellations&quot;, href: &quot;/cancellations&quot;, icon: &quot;cancel&quot;, badge: badges.cancellations },
-        { label: &quot;Support Log&quot;, href: &quot;/support&quot;, icon: &quot;support_agent&quot;, badge: 0 },
-        { label: &quot;Settings&quot;, href: &quot;/settings&quot;, icon: &quot;settings&quot;, badge: 0 },
+        { label: "Dashboard", href: "/", icon: "stacked_bar_chart", badge: 0 },
+        { label: "Travel Desk", href: "/travel-desk", icon: "flight_takeoff", badge: badges.travel },
+        { label: "All Bookings", href: "/bookings", icon: "book_online", badge: 0 },
+        { label: "Pandits", href: "/pandits", icon: "how_to_reg", badge: badges.verify },
+        { label: "Payouts", href: "/payouts", icon: "currency_rupee", badge: badges.payouts },
+        { label: "Cancellations", href: "/cancellations", icon: "cancel", badge: badges.cancellations },
+        { label: "Support Log", href: "/support", icon: "support_agent", badge: 0 },
+        { label: "Settings", href: "/settings", icon: "settings", badge: 0 },
     ];
 
     return (
@@ -54,7 +54,7 @@ export default function AdminSidebar() {
 
             <nav className="flex-1 py-4 px-3 overflow-y-auto space-y-1">
                 {navItems.map((item) => {
-                    const isActive = pathname === item.href || (item.href !== &quot;/&quot; && pathname.startsWith(item.href));
+                    const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
                     return (
                         <Link
                             key={item.href}
@@ -98,8 +98,8 @@ export default function AdminSidebar() {
                 </div>
                 <button
                     onClick={() => {
-                        localStorage.removeItem(&quot;adminToken&quot;);
-                        window.location.href = &quot;/login&quot;;
+                        localStorage.removeItem("adminToken");
+                        window.location.href = "/login";
                     }}
                     className="w-full mt-3 text-sm text-slate-500 hover:text-red-600 font-semibold text-left flex items-center gap-2 group p-2 hover:bg-red-50 rounded-lg transition-colors"
                 >

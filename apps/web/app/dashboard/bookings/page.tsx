@@ -19,12 +19,12 @@ export default function MyBookingsPage() {
         setLoading(true);
         try {
             let url = `${API_URL}/bookings/customer/my?page=1&limit=50`;
-            if (statusFilter !== &quot;All&quot;) {
+            if (statusFilter !== "All") {
                 url += `&status=${statusFilter.toUpperCase()}`;
             }
 
             const res = await fetch(url, {
-                headers: { &quot;Authorization&quot;: `Bearer ${accessToken}` }
+                headers: { "Authorization": `Bearer ${accessToken}` }
             });
             const data = await res.json();
             if (data.success) {
@@ -48,10 +48,10 @@ export default function MyBookingsPage() {
     }, [activeTab, fetchBookings, authLoading, accessToken]);
 
     const tabs = [
-        { key: &quot;All&quot;, label: &quot;All&quot; },
-        { key: &quot;Upcoming&quot;, label: &quot;Upcoming&quot; },
-        { key: &quot;Completed&quot;, label: &quot;Completed&quot; },
-        { key: &quot;Cancelled&quot;, label: &quot;Cancelled&quot; },
+        { key: "All", label: "All" },
+        { key: "Upcoming", label: "Upcoming" },
+        { key: "Completed", label: "Completed" },
+        { key: "Cancelled", label: "Cancelled" },
     ];
 
     return (
@@ -69,7 +69,7 @@ export default function MyBookingsPage() {
                     <div className="text-center py-20 bg-white rounded-xl border border-gray-100 flex flex-col items-center">
                         <div className="text-5xl mb-4">🪔</div>
                         <h3 className="text-xl font-bold text-gray-800 mb-2">अभी तक कोई बुकिंग नहीं है</h3>
-                        <p className="text-gray-500 mb-6 max-w-sm">You haven&apos;t made any bookings yet.</p>
+                        <p className="text-gray-500 mb-6 max-w-sm">You haven't made any bookings yet.</p>
                         <Link href="/search" className="bg-orange-600 text-white px-8 py-3 rounded-full font-medium inline-block hover:bg-orange-700 transition">
                             Explore Pandits →
                         </Link>

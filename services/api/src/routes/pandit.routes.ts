@@ -441,11 +441,11 @@ router.get("/earnings/summary", authenticate, roleGuard("PANDIT"), async (req, r
       select: { bankName: true, bankAccountNumber: true }
     });
 
-    const totalEarned = completedBookings.reduce((sum, b) => sum + (b.panditPayout || 0), 0);
-    const totalPaid = completedBookings.filter(b => b.payoutStatus === "COMPLETED").reduce((sum, b) => sum + (b.panditPayout || 0), 0);
-    const totalPending = completedBookings.filter(b => b.payoutStatus !== "COMPLETED").reduce((sum, b) => sum + (b.panditPayout || 0), 0);
+    const totalEarned = completedBookings.reduce((sum: number, b: any) => sum + (b.panditPayout || 0), 0);
+    const totalPaid = completedBookings.filter((b: any) => b.payoutStatus === "COMPLETED").reduce((sum: number, b: any) => sum + (b.panditPayout || 0), 0);
+    const totalPending = completedBookings.filter((b: any) => b.payoutStatus !== "COMPLETED").reduce((sum: number, b: any) => sum + (b.panditPayout || 0), 0);
 
-    const pendingPayouts = completedBookings.filter(b => b.payoutStatus !== "COMPLETED").map(b => ({
+    const pendingPayouts = completedBookings.filter((b: any) => b.payoutStatus !== "COMPLETED").map((b: any) => ({
       bookingId: b.id,
       bookingNumber: `HPJ-${b.id.substring(0, 8).toUpperCase()}`,
       eventType: b.eventType,
@@ -489,7 +489,7 @@ router.get("/earnings/summary", authenticate, roleGuard("PANDIT"), async (req, r
       },
       monthlyTotals,
       pendingPayouts,
-      bookingEarnings: completedBookings.map(b => ({
+      bookingEarnings: completedBookings.map((b: any) => ({
         bookingId: b.id,
         bookingNumber: `HPJ-${b.id.substring(0, 8).toUpperCase()}`,
         eventType: b.eventType,
@@ -645,7 +645,7 @@ router.get("/dashboard-summary", authenticate, roleGuard("PANDIT"), async (req, 
       upcomingBookings,
       pendingRequests,
       earningsSummary: {
-        thisMonthTotal: thisMonthEarningsAgg._sum.panditPayout || completedBookingsThisMonth.reduce((acc, b) => acc + (b.panditPayout || 0), 0) || 32500,
+        thisMonthTotal: thisMonthEarningsAgg._sum.panditPayout || completedBookingsThisMonth.reduce((acc: number, b: any) => acc + (b.panditPayout || 0), 0) || 32500,
         pendingPayout: pendingPayoutAgg._sum.panditPayout || 8200,
         thisMonthBookingsCount: completedBookingsThisMonth.length || 5,
         pendingBookingsCount: 2,
@@ -1089,7 +1089,7 @@ router.get("/calendar", authenticate, roleGuard("PANDIT"), async (req, res, next
     if (currentGroup) blockedDates.push({ ...currentGroup });
 
     sendSuccess(res, {
-      bookings: bookings.map(b => ({
+      bookings: bookings.map((b: any) => ({
         id: b.id,
         eventType: b.eventType,
         eventDate: b.eventDate.toISOString(),
@@ -1098,7 +1098,7 @@ router.get("/calendar", authenticate, roleGuard("PANDIT"), async (req, res, next
         status: b.status,
         customerName: b.customer?.name || "Customer"
       })),
-      blockedDates: blockedDates.map(b => ({
+      blockedDates: blockedDates.map((b: any) => ({
         id: b.id,
         startDate: b.startDate.toISOString(),
         endDate: b.endDate.toISOString(),
@@ -1142,7 +1142,7 @@ router.post("/blackout-dates", authenticate, roleGuard("PANDIT"), async (req, re
       return res.status(409).json({
         success: false,
         error: "BOOKING_CONFLICT",
-        conflictingDates: conflicts.map(c => c.eventDate.toISOString().split("T")[0])
+        conflictingDates: conflicts.map((c: any) => c.eventDate.toISOString().split("T")[0])
       });
     }
 
@@ -1270,16 +1270,16 @@ router.get("/me/growth", authenticate, roleGuard("PANDIT"), async (req, res, nex
       { name: "महागुरु (Mahaguru)", slug: "mahaguru", icon: "🌟", minBookings: 100, maxBookings: 999999 }
     ];
 
-    const tier = tiers.find(t => completedBookings >= t.minBookings && completedBookings <= t.maxBookings) || tiers[0];
-    const nextTier = tiers.find(t => t.minBookings > completedBookings);
+    const tier = tiers.find((t: any) => completedBookings >= t.minBookings && completedBookings <= t.maxBookings) || tiers[0];
+    const nextTier = tiers.find((t: any) => t.minBookings > completedBookings);
 
     const bookings = await prisma.booking.findMany({ where: { panditId } });
 
-    const acceptedCount = bookings.filter(b => b.status !== "PANDIT_REQUESTED" && b.status !== "CANCELLATION_REQUESTED").length;
+    const acceptedCount = bookings.filter((b: any) => b.status !== "PANDIT_REQUESTED" && b.status !== "CANCELLATION_REQUESTED").length;
     const totalRequests = bookings.length;
     const acceptanceRate = totalRequests > 0 ? Math.round((acceptedCount / totalRequests) * 100) : 100;
 
-    const completedCount = bookings.filter(b => b.status === "COMPLETED").length;
+    const completedCount = bookings.filter((b: any) => b.status === "COMPLETED").length;
     const completionRate = acceptedCount > 0 ? Math.round((completedCount / acceptedCount) * 100) : 100;
 
     const reviews = await prisma.review.findMany({
@@ -1291,7 +1291,7 @@ router.get("/me/growth", authenticate, roleGuard("PANDIT"), async (req, res, nex
 
     const ratingDistribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 } as Record<number, number>;
     let avgSum = 0;
-    reviews.forEach(r => {
+    reviews.forEach((r: any) => {
       ratingDistribution[Math.round(r.overallRating)] = (ratingDistribution[Math.round(r.overallRating)] || 0) + 1;
       avgSum += r.overallRating;
     });
@@ -1305,7 +1305,7 @@ router.get("/me/growth", authenticate, roleGuard("PANDIT"), async (req, res, nex
         badges: [
           { id: "first_puja", name: "पहली पूजा", icon: "🌅", description: "पहली बुकिंग पूरी की", earned: completedCount >= 1 },
           { id: "five_star", name: "5 स्टार", icon: "⭐", description: "10 5-star reviews मिले", earned: (ratingDistribution[5] || 0) >= 10 },
-          { id: "vivah_expert", name: "विवाह विशेषज्ञ", icon: "📿", description: "10 vivah pujas completed", earned: bookings.filter(b => b.eventType === "Vivah Puja" && b.status === "COMPLETED").length >= 10 },
+          { id: "vivah_expert", name: "विवाह विशेषज्ञ", icon: "📿", description: "10 vivah pujas completed", earned: bookings.filter((b: any) => b.eventType === "Vivah Puja" && b.status === "COMPLETED").length >= 10 },
           { id: "full_profile", name: "पूर्ण प्रोफाइल", icon: "💯", description: "All onboarding steps + verified", earned: panditProfile.verificationStatus === "VERIFIED" }
         ],
         performance: {
@@ -1315,7 +1315,7 @@ router.get("/me/growth", authenticate, roleGuard("PANDIT"), async (req, res, nex
           ratingDistribution,
           avgResponseTimeMinutes: 45
         },
-        recentReviews: reviews.map(r => ({
+        recentReviews: reviews.map((r: any) => ({
           customerNameMasked: r.reviewer?.name ? r.reviewer.name.split(' ')[0] + " " + (r.reviewer.name.split(' ')[1]?.[0] || "") + "." : "Customer",
           rating: r.overallRating,
           comment: r.comment,
@@ -1353,7 +1353,12 @@ router.get("/me/samagri/customer-requests", authenticate, roleGuard("PANDIT"), a
         panditId,
         samagriPreference: "CUSTOMER_ARRANGES",
         status: "COMPLETED",
-        samagriCustomList: { not: Prisma.DbNull }
+        samagriCustomList: {
+          path: [],
+          not: {
+            type: "JsonNull"
+          }
+        }
       },
       orderBy: { eventDate: "desc" },
       take: 10

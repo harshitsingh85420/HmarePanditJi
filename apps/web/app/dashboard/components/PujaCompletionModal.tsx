@@ -14,13 +14,13 @@ export function PujaCompletionModal({ booking, onClose }: { booking: any, onClos
         }
 
         setTimeout(() => setShow(true), 100);
-        localStorage.setItem(key, &quot;true&quot;);
+        localStorage.setItem(key, "true");
     }, [booking.id, onClose]);
 
     const blessings = [
-        &quot;शुभ हो! भगवान आपकी सभी मनोकामनाएं पूरी करें।&quot;,
-        &quot;ॐ सर्वे भवन्तु सुखिनः। सभी सुखी हों।&quot;,
-        &quot;आपके परिवार पर सदा भगवान की कृपा बनी रहे।&quot;
+        "शुभ हो! भगवान आपकी सभी मनोकामनाएं पूरी करें।",
+        "ॐ सर्वे भवन्तु सुखिनः। सभी सुखी हों।",
+        "आपके परिवार पर सदा भगवान की कृपा बनी रहे।"
     ];
     const randomBlessing = blessings[Math.floor(Math.random() * blessings.length)];
 
@@ -44,17 +44,17 @@ export function PujaCompletionModal({ booking, onClose }: { booking: any, onClos
                 <p className="text-gray-500 font-bold mb-6 relative z-10">Puja Completed Successfully!</p>
 
                 <div className="bg-gradient-to-br from-orange-50 to-[#fff8f0] border border-orange-200/50 p-5 rounded-2xl mb-8 relative z-10 text-orange-800 font-medium shadow-inner shadow-orange-100/50">
-                    &quot;{randomBlessing}&quot;
+                    "{randomBlessing}"
                 </div>
 
                 {booking.pandit && (
                     <div className="flex items-center justify-center gap-4 mb-8 relative z-10 bg-gray-50/80 backdrop-blur-sm p-3 rounded-2xl border border-gray-100 border-b-2">
                         <div className="w-12 h-12 bg-gradient-to-br from-gray-200 to-gray-300 rounded-full overflow-hidden border-[3px] border-white shadow-sm flex items-center justify-center text-lg font-bold text-gray-500">
-                            {booking.pandit.name?.charAt(0) || &quot;P&quot;}
+                            {booking.pandit.name?.charAt(0) || "P"}
                         </div>
                         <div className="text-left">
                             <div className="font-bold text-[11px] text-gray-400 uppercase tracking-widest leading-tight">Conducted by</div>
-                            <div className="font-bold text-gray-900">Pt. {booking.pandit.name || &quot;Unknown&quot;}</div>
+                            <div className="font-bold text-gray-900">Pt. {booking.pandit.name || "Unknown"}</div>
                         </div>
                     </div>
                 )}

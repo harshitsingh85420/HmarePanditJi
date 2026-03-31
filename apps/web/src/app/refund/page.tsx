@@ -11,7 +11,7 @@ export default function RefundPage() {
     <div className="max-w-[800px] mx-auto px-4 sm:px-6 py-16">
       <div className="mb-10">
         <h1 className="text-3xl font-black text-slate-900 dark:text-slate-100 mb-3">
-          Refund &amp; Cancellation Policy
+          Refund & Cancellation Policy
         </h1>
         <p className="text-slate-500 text-lg">Last updated: January 2025</p>
       </div>
@@ -29,10 +29,10 @@ export default function RefundPage() {
         </div>
         <div className="divide-y divide-slate-50 dark:divide-slate-800">
           {[
-            { timing: &quot;More than 72 hours before ceremony&quot;, refund: &quot;100% Full Refund&quot;, badge: &quot;bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400&quot; },
-            { timing: &quot;48–72 hours before ceremony&quot;, refund: &quot;90% Refund&quot;, badge: &quot;bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400&quot; },
-            { timing: &quot;24–48 hours before ceremony&quot;, refund: &quot;75% Refund&quot;, badge: &quot;bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400&quot; },
-            { timing: &quot;Less than 24 hours before ceremony&quot;, refund: &quot;No Refund&quot;, badge: &quot;bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400&quot; },
+            { timing: "More than 72 hours before ceremony", refund: "100% Full Refund", badge: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" },
+            { timing: "48–72 hours before ceremony", refund: "90% Refund", badge: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" },
+            { timing: "24–48 hours before ceremony", refund: "75% Refund", badge: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400" },
+            { timing: "Less than 24 hours before ceremony", refund: "No Refund", badge: "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400" },
           ].map((row) => (
             <div key={row.timing} className="grid grid-cols-[1fr_auto] gap-4 px-6 py-4 items-center">
               <p className="text-lg text-slate-700 dark:text-slate-300">{row.timing}</p>
@@ -49,11 +49,11 @@ export default function RefundPage() {
         <h2 className="font-bold text-slate-900 dark:text-slate-100 mb-4">How to Cancel a Booking</h2>
         <ol className="space-y-3">
           {[
-            &quot;Log in to your HmarePanditJi account.&quot;,
-            &quot;Go to \&quot;My Bookings\&quot; and select the booking you wish to cancel.&quot;,
-            &quot;Click \&quot;Cancel Booking\&quot; and select a reason.&quot;,
-            &quot;Confirm cancellation. You will receive an SMS confirmation immediately.&quot;,
-            &quot;Refund (if applicable) will be credited to the original payment method within 5–7 business days.&quot;,
+            "Log in to your HmarePanditJi account.",
+            "Go to \"My Bookings\" and select the booking you wish to cancel.",
+            "Click \"Cancel Booking\" and select a reason.",
+            "Confirm cancellation. You will receive an SMS confirmation immediately.",
+            "Refund (if applicable) will be credited to the original payment method within 5–7 business days.",
           ].map((step, i) => (
             <li key={i} className="flex items-start gap-3 text-lg text-slate-600 dark:text-slate-400">
               <span className="w-6 h-6 rounded-full bg-primary/10 text-primary font-bold text-base flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -75,9 +75,9 @@ export default function RefundPage() {
         </p>
         <ul className="space-y-2">
           {[
-            &quot;Immediately assign a qualified backup pandit at no extra charge.&quot;,
-            &quot;Notify you via SMS and WhatsApp within 30 minutes of the cancellation.&quot;,
-            &quot;If no suitable backup is available within 4 hours, you are entitled to a full refund regardless of timing.&quot;,
+            "Immediately assign a qualified backup pandit at no extra charge.",
+            "Notify you via SMS and WhatsApp within 30 minutes of the cancellation.",
+            "If no suitable backup is available within 4 hours, you are entitled to a full refund regardless of timing.",
           ].map((point, i) => (
             <li key={i} className="flex items-start gap-2 text-lg text-slate-600 dark:text-slate-400">
               <span className="material-symbols-outlined text-green-500 text-base mt-0.5 flex-shrink-0" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
@@ -98,7 +98,7 @@ export default function RefundPage() {
       {/* Contact for refund */}
       <div className="bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 p-5">
         <p className="text-lg text-slate-600 dark:text-slate-400">
-          Refund questions? WhatsApp us at{&quot; &quot;}
+          Refund questions? WhatsApp us at{" "}
           <a
             href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "919999999999"}`}
             className="text-primary hover:underline"
@@ -106,8 +106,8 @@ export default function RefundPage() {
             rel="noopener noreferrer"
           >
             our support number
-          </a>{&quot; &quot;}
-          or email{&quot; &quot;}
+          </a>{" "}
+          or email{" "}
           <a href="mailto:support@hmarepanditji.com" className="text-primary hover:underline">
             support@hmarepanditji.com
           </a>

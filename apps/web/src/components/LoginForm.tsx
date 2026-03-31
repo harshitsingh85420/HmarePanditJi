@@ -8,16 +8,16 @@ import Link from 'next/link';
 
 interface LoginFormProps {
     onSuccess?: () => void;
-    defaultRole?: &apos;CUSTOMER&apos; | &apos;PANDIT&apos;;
+    defaultRole?: 'CUSTOMER' | 'PANDIT';
     hideGuestLink?: boolean;
 }
 
-export function LoginForm({ onSuccess, defaultRole = &apos;CUSTOMER&apos;, hideGuestLink = false }: LoginFormProps) {
+export function LoginForm({ onSuccess, defaultRole = 'CUSTOMER', hideGuestLink = false }: LoginFormProps) {
     const router = useRouter();
     const searchParams = useSearchParams();
     const { login } = useAuth();
 
-    const nextParam = searchParams?.get(&apos;next&apos;);
+    const nextParam = searchParams?.get('next');
 
     const [role, setRole] = useState<'CUSTOMER' | 'PANDIT'>(defaultRole);
     const [step, setStep] = useState<1 | 2 | 3>(1);
@@ -40,24 +40,24 @@ export function LoginForm({ onSuccess, defaultRole = &apos;CUSTOMER&apos;, hideG
         setError('');
         const fullPhone = `+91${phone}`;
         if (!/^\+91[6-9]\d{9}$/.test(fullPhone)) {
-            setError(&apos;Enter a valid 10-digit mobile number&apos;);
+            setError('Enter a valid 10-digit mobile number');
             return;
         }
         setLoading(true);
         try {
             const res = await fetch(`${API_BASE}/auth/request-otp`, {
-                method: &apos;POST&apos;,
-                headers: { &apos;Content-Type&apos;: &apos;application/json&apos; },
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ phone: fullPhone, role }),
             });
             const data = await res.json();
             if (!res.ok || !data.success) {
-                throw new Error(data.message || &apos;Failed to send OTP&apos;);
+                throw new Error(data.message || 'Failed to send OTP');
             }
             setStep(2);
             setCountdown(30);
         } catch (err: unknown) {
-            const message = err instanceof Error ? err.message : &apos;Error occurred while sending OTP&apos;;
+            const message = err instanceof Error ? err.message : 'Error occurred while sending OTP';
             setError(message);
         } finally {
             setLoading(false);
@@ -70,13 +70,13 @@ export function LoginForm({ onSuccess, defaultRole = &apos;CUSTOMER&apos;, hideG
         const fullPhone = `+91${phone}`;
         try {
             const res = await fetch(`${API_BASE}/auth/verify-otp`, {
-                method: &apos;POST&apos;,
-                headers: { &apos;Content-Type&apos;: &apos;application/json&apos; },
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ phone: fullPhone, otp: otpString, role }),
             });
             const data = await res.json();
             if (!res.ok || !data.success) {
-                throw new Error(data.message || &apos;Invalid OTP&apos;);
+                throw new Error(data.message || 'Invalid OTP');
             }
 
             const token: string = data.data.token ?? data.data.accessToken;
@@ -94,7 +94,7 @@ export function LoginForm({ onSuccess, defaultRole = &apos;CUSTOMER&apos;, hideG
                 handleLoginSuccess(userData);
             }
         } catch (err: unknown) {
-            const message = err instanceof Error ? err.message : &apos;Invalid OTP&apos;;
+            const message = err instanceof Error ? err.message : 'Invalid OTP';
             setError(message);
         } finally {
             if (step !== 3) setLoading(false);
@@ -104,28 +104,28 @@ export function LoginForm({ onSuccess, defaultRole = &apos;CUSTOMER&apos;, hideG
     const handleNameSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!name.trim()) {
-            setError(&apos;Please enter your name&apos;);
+            setError('Please enter your name');
             return;
         }
         setLoading(true);
         try {
-            const token = localStorage.getItem(&apos;hpj_token&apos;);
+            const token = localStorage.getItem('hpj_token');
             const res = await fetch(`${API_BASE}/auth/me`, {
-                method: &apos;PATCH&apos;,
+                method: 'PATCH',
                 headers: {
-                    &apos;Content-Type&apos;: &apos;application/json&apos;,
-                    &apos;Authorization&apos;: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
                 },
                 body: JSON.stringify({ name }),
             });
             const data = await res.json();
             if (!res.ok || !data.success) {
-                throw new Error(data.message || &apos;Failed to update name&apos;);
+                throw new Error(data.message || 'Failed to update name');
             }
             login(token as string, data.data.user);
             handleLoginSuccess(data.data.user);
         } catch (err: unknown) {
-            const message = err instanceof Error ? err.message : &apos;An error occurred&apos;;
+            const message = err instanceof Error ? err.message : 'An error occurred';
             setError(message);
         } finally {
             setLoading(false);
@@ -138,49 +138,49 @@ export function LoginForm({ onSuccess, defaultRole = &apos;CUSTOMER&apos;, hideG
             return;
         }
 
-        const redirectParam = searchParams?.get(&apos;redirect&apos;);
+        const redirectParam = searchParams?.get('redirect');
 
         if (redirectParam === 'admin') {
-            if (user.role !== &apos;ADMIN&apos;) {
-                setError(&apos;Unauthorized&apos;);
+            if (user.role !== 'ADMIN') {
+                setError('Unauthorized');
                 return;
             }
-            window.location.href = process.env.NEXT_PUBLIC_ADMIN_URL || &apos;http://localhost:3003/&apos;;
+            window.location.href = process.env.NEXT_PUBLIC_ADMIN_URL || 'http://localhost:3003/';
             return;
         }
 
-        if (user.role === &apos;PANDIT&apos;) {
-            const panditUrl = process.env.NEXT_PUBLIC_PANDIT_URL || &apos;http://localhost:3002&apos;;
-            if (user.panditProfile?.verificationStatus === &apos;PENDING&apos; && !nextParam) {
+        if (user.role === 'PANDIT') {
+            const panditUrl = process.env.NEXT_PUBLIC_PANDIT_URL || 'http://localhost:3002';
+            if (user.panditProfile?.verificationStatus === 'PENDING' && !nextParam) {
                 window.location.href = `${panditUrl}/onboarding`;
             } else {
                 window.location.href = nextParam || `${panditUrl}/dashboard`;
             }
-        } else if (user.role === &apos;CUSTOMER&apos;) {
-            router.push(nextParam || &apos;/&apos;);
-        } else if (user.role === &apos;ADMIN&apos;) {
-            window.location.href = process.env.NEXT_PUBLIC_ADMIN_URL || &apos;http://localhost:3003/&apos;;
+        } else if (user.role === 'CUSTOMER') {
+            router.push(nextParam || '/');
+        } else if (user.role === 'ADMIN') {
+            window.location.href = process.env.NEXT_PUBLIC_ADMIN_URL || 'http://localhost:3003/';
         }
     };
 
-    const activeColor = role === &apos;PANDIT&apos; ? &apos;bg-[#f09942]&apos; : &apos;bg-[#f49d25]&apos;;
-    const textColor = role === &apos;PANDIT&apos; ? &apos;text-[#f09942]&apos; : &apos;text-[#f49d25]&apos;;
+    const activeColor = role === 'PANDIT' ? 'bg-[#f09942]' : 'bg-[#f49d25]';
+    const textColor = role === 'PANDIT' ? 'text-[#f09942]' : 'text-[#f49d25]';
 
     return (
         <div className="w-full">
             {/* Role toggle */}
             <div className="flex bg-gray-100 rounded-2xl p-2 mb-8">
                 <button
-                    onClick={() => { setRole(&apos;CUSTOMER&apos;); setStep(1); setError(''); }}
-                    className={`flex-1 py-5 px-6 rounded-2xl font-bold text-[22px] transition-all duration-300 min-h-[72px] ${role === &apos;CUSTOMER&apos; ? &apos;bg-white shadow-md text-[#f49d25]&apos; : &apos;text-gray-500 hover:text-gray-700&apos;}`}
+                    onClick={() => { setRole('CUSTOMER'); setStep(1); setError(''); }}
+                    className={`flex-1 py-5 px-6 rounded-2xl font-bold text-[22px] transition-all duration-300 min-h-[72px] ${role === 'CUSTOMER' ? 'bg-white shadow-md text-[#f49d25]' : 'text-gray-500 hover:text-gray-700'}`}
                     disabled={loading || step === 3}
                     type="button"
                 >
                     🙏 मैं ग्राहक हूँ
                 </button>
                 <button
-                    onClick={() => { setRole(&apos;PANDIT&apos;); setStep(1); setError(''); }}
-                    className={`flex-1 py-5 px-6 rounded-2xl font-bold text-[22px] transition-all duration-300 min-h-[72px] ${role === &apos;PANDIT&apos; ? &apos;bg-white shadow-md text-[#f09942]&apos; : &apos;text-gray-500 hover:text-gray-700&apos;}`}
+                    onClick={() => { setRole('PANDIT'); setStep(1); setError(''); }}
+                    className={`flex-1 py-5 px-6 rounded-2xl font-bold text-[22px] transition-all duration-300 min-h-[72px] ${role === 'PANDIT' ? 'bg-white shadow-md text-[#f09942]' : 'text-gray-500 hover:text-gray-700'}`}
                     disabled={loading || step === 3}
                     type="button"
                 >
@@ -189,7 +189,7 @@ export function LoginForm({ onSuccess, defaultRole = &apos;CUSTOMER&apos;, hideG
             </div>
 
             <div className="mb-6 text-center">
-                {role === &apos;CUSTOMER&apos; ? (
+                {role === 'CUSTOMER' ? (
                     <h2 className="text-gray-700 font-bold text-[28px]">स्वागतम्</h2>
                 ) : (
                     <div>
@@ -258,7 +258,7 @@ export function LoginForm({ onSuccess, defaultRole = &apos;CUSTOMER&apos;, hideG
                         <div className="text-center mt-4">
                             {countdown > 0 ? (
                                 <p className="text-[20px] text-gray-400 font-medium">
-                                    OTP फिर से भेजें 00:{countdown.toString().padStart(2, &apos;0&apos;)} में
+                                    OTP फिर से भेजें 00:{countdown.toString().padStart(2, '0')} में
                                 </p>
                             ) : (
                                 <button
@@ -278,7 +278,7 @@ export function LoginForm({ onSuccess, defaultRole = &apos;CUSTOMER&apos;, hideG
                 {step === 3 && (
                     <form onSubmit={handleNameSubmit} className="space-y-6">
                         <div className="text-center mb-4">
-                            {role === &apos;PANDIT&apos; ? (
+                            {role === 'PANDIT' ? (
                                 <>
                                     <h3 className="text-[26px] font-bold text-gray-900 mb-3">स्वागतम्! कृपया जारी रखने के लिए अपना नाम दर्ज करें।</h3>
                                     <div className="p-6 mt-3 rounded-2xl bg-orange-50 text-orange-800 text-[22px] font-bold text-left min-h-[120px] border-3 border-orange-200">
@@ -309,14 +309,14 @@ export function LoginForm({ onSuccess, defaultRole = &apos;CUSTOMER&apos;, hideG
                             {loading ? (
                                 <span className="w-8 h-8 border-3 border-white border-t-transparent rounded-full animate-spin" />
                             ) : (
-                                &apos;शुरू करें →&apos;
+                                'शुरू करें →'
                             )}
                         </button>
                     </form>
                 )}
             </div>
 
-            {!hideGuestLink && role === &apos;CUSTOMER&apos; && step === 1 && (
+            {!hideGuestLink && role === 'CUSTOMER' && step === 1 && (
                 <div className="text-center mt-8 pt-6 border-t border-gray-100">
                     <span className="text-[20px] text-gray-400 font-medium">सिर्फ देख रहे हैं? </span>
                     <Link href="/" className={`font-bold text-[22px] ${textColor} hover:underline`}>
@@ -326,7 +326,7 @@ export function LoginForm({ onSuccess, defaultRole = &apos;CUSTOMER&apos;, hideG
             )}
 
             {/* Accessibility: Login link for returning Pandits - Hindi text */}
-            {role === &apos;PANDIT&apos; && step === 1 && (
+            {role === 'PANDIT' && step === 1 && (
                 <div className="text-center mt-6 pt-6 border-t border-gray-100">
                     <Link href="/login" className={`font-bold text-[24px] ${textColor} hover:underline`}>
                         पहले से पंजीकृत? लॉगिन करें

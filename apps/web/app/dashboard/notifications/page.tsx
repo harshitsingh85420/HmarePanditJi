@@ -25,8 +25,8 @@ export default function NotificationPage() {
     const fetchNotifications = async () => {
         setIsLoading(true);
         try {
-            const token = localStorage.getItem(&quot;token&quot;);
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || &apos;http://localhost:3001&apos;}/api/notifications/my`, {
+            const token = localStorage.getItem("token");
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/notifications/my`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (res.ok) {
@@ -54,9 +54,9 @@ export default function NotificationPage() {
         setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
 
         try {
-            const token = localStorage.getItem(&quot;token&quot;);
-            await fetch(`${process.env.NEXT_PUBLIC_API_URL || &apos;http://localhost:3001&apos;}/api/notifications/${id}/read`, {
-                method: &quot;PATCH&quot;,
+            const token = localStorage.getItem("token");
+            await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/notifications/${id}/read`, {
+                method: "PATCH",
                 headers: { Authorization: `Bearer ${token}` }
             });
         } catch (err) {
@@ -71,9 +71,9 @@ export default function NotificationPage() {
         // Optimistic
         setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
         try {
-            const token = localStorage.getItem(&quot;token&quot;);
-            await fetch(`${process.env.NEXT_PUBLIC_API_URL || &apos;http://localhost:3001&apos;}/api/notifications/read-all`, {
-                method: &quot;PATCH&quot;,
+            const token = localStorage.getItem("token");
+            await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/notifications/read-all`, {
+                method: "PATCH",
                 headers: { Authorization: `Bearer ${token}` }
             });
         } catch (err) {
@@ -86,11 +86,11 @@ export default function NotificationPage() {
 
     const getIcon = (type: string) => {
         switch (type) {
-            case &quot;BOOKING&quot;: return <Calendar className="w-5 h-5 text-blue-500" />;
-            case &quot;TRAVEL&quot;: return <Plane className="w-5 h-5 text-indigo-500" />;
-            case &quot;STATUS&quot;: return <MapPin className="w-5 h-5 text-orange-500" />;
-            case &quot;PAYMENT&quot;: return <CreditCard className="w-5 h-5 text-green-500" />;
-            case &quot;REVIEW&quot;: return <Star className="w-5 h-5 text-amber-500" />;
+            case "BOOKING": return <Calendar className="w-5 h-5 text-blue-500" />;
+            case "TRAVEL": return <Plane className="w-5 h-5 text-indigo-500" />;
+            case "STATUS": return <MapPin className="w-5 h-5 text-orange-500" />;
+            case "PAYMENT": return <CreditCard className="w-5 h-5 text-green-500" />;
+            case "REVIEW": return <Star className="w-5 h-5 text-amber-500" />;
             default: return <Info className="w-5 h-5 text-gray-500" />;
         }
     };
@@ -98,13 +98,13 @@ export default function NotificationPage() {
     const getNotificationLink = (n: NotificationData) => {
         const d = n.data || {};
         switch (n.type) {
-            case &quot;BOOKING&quot;:
-            case &quot;STATUS&quot;:
-            case &quot;PAYMENT&quot;:
+            case "BOOKING":
+            case "STATUS":
+            case "PAYMENT":
                 return d.bookingId ? `/dashboard/bookings/${d.bookingId}` : null;
-            case &quot;TRAVEL&quot;:
+            case "TRAVEL":
                 return d.bookingId ? `/dashboard/bookings/${d.bookingId}?tab=itinerary` : null;
-            case &quot;REVIEW&quot;:
+            case "REVIEW":
                 return d.bookingId ? `/dashboard/bookings/${d.bookingId}/review` : null;
             default:
                 return null; // No link for normal system messages
@@ -118,7 +118,7 @@ export default function NotificationPage() {
     };
 
     const formatRelativeTime = (isoString: string) => {
-        const rtf = new Intl.RelativeTimeFormat(&quot;en&quot;, { numeric: &quot;auto&quot; });
+        const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
         const diffInMs = new Date(isoString).getTime() - Date.now();
         const diffInMins = Math.round(diffInMs / (1000 * 60));
         const diffInHours = Math.round(diffInMs / (1000 * 60 * 60));
@@ -159,7 +159,7 @@ export default function NotificationPage() {
                         disabled={isMarkingAll}
                     >
                         <Check className="w-4 h-4 mr-2" />
-                        {isMarkingAll ? &quot;Marking...&quot; : &quot;Mark all as read&quot;}
+                        {isMarkingAll ? "Marking..." : "Mark all as read"}
                     </Button>
                 )}
             </div>
@@ -170,13 +170,13 @@ export default function NotificationPage() {
                         <Bell className="w-8 h-8 text-gray-400" />
                     </div>
                     <p className="font-medium text-lg text-gray-800">No notifications yet</p>
-                    <p className="mt-1">When you get updates, they&apos;ll show up here.</p>
+                    <p className="mt-1">When you get updates, they'll show up here.</p>
                 </Card>
             ) : (
                 <div className="space-y-3">
                     {notifications.map(n => {
                         const hasLink = !!getNotificationLink(n);
-                        const Wrapper = hasLink ? &apos;div&apos; : &apos;div&apos;;
+                        const Wrapper = hasLink ? 'div' : 'div';
 
                         return (
                             <Card

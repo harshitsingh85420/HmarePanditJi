@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { SamagriModal } from "../../../components/SamagriModal";
-import { LoginModal } from "@/components/LoginModal";
+import { LoginModal } from "../../../src/components/LoginModal";
 
 export function ServicesTab({
     panditId,
@@ -18,9 +18,9 @@ export function ServicesTab({
     const [isSamagriModalOpen, setIsSamagriModalOpen] = useState(false);
     const [selectedPujaService, setSelectedPujaService] = useState<string | null>(null);
     const router = useRouter();
-    const token = typeof window !== &quot;undefined&quot; ? localStorage.getItem(&quot;token&quot;) : null;
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
     const [loginModalOpen, setLoginModalOpen] = useState(false);
-    const [redirectUrl, setRedirectUrl] = useState(&quot;&quot;);
+    const [redirectUrl, setRedirectUrl] = useState("");
 
     const handleOpenSamagri = (pujaType: string) => {
         setSelectedPujaService(pujaType);
@@ -66,7 +66,7 @@ export function ServicesTab({
                                         {/* Samagri integration view */}
                                         <div className="mt-2 pt-2 border-t border-gray-200 flex items-center justify-between">
                                             <div className="text-gray-700 font-medium">
-                                                Samagri: {samagriStartPrice > 0 ? `₹${samagriStartPrice}+` : &quot;Platform / Pandit&quot;}
+                                                Samagri: {samagriStartPrice > 0 ? `₹${samagriStartPrice}+` : "Platform / Pandit"}
                                             </div>
                                             <button
                                                 onClick={() => handleOpenSamagri(service.pujaType)}

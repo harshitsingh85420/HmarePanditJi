@@ -44,14 +44,14 @@ export function GurujiAIChat() {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<ChatMessage[]>([
         {
-            id: &quot;welcome&quot;,
-            role: &quot;assistant&quot;,
+            id: "welcome",
+            role: "assistant",
             content:
-                &quot;🙏 Namaste! Main Guruji AI hoon — HmarePanditJi ka virtual advisor.\n\nMain aapki help kar sakta hoon:\n• Sahi pandit dhundhne mein\n• Muhurat suggest karne mein\n• Puja samagri ki jankari mein\n• Ritual ki significance samjhane mein\n\nAap kya jaanna chahte hain?&quot;,
+                "🙏 Namaste! Main Guruji AI hoon — HmarePanditJi ka virtual advisor.\n\nMain aapki help kar sakta hoon:\n• Sahi pandit dhundhne mein\n• Muhurat suggest karne mein\n• Puja samagri ki jankari mein\n• Ritual ki significance samjhane mein\n\nAap kya jaanna chahte hain?",
             timestamp: new Date(),
         },
     ]);
-    const [input, setInput] = useState(&quot;&quot;);
+    const [input, setInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [puterReady, setPuterReady] = useState(false);
     const [puterError, setPuterError] = useState<string | null>(null);
@@ -64,7 +64,7 @@ export function GurujiAIChat() {
             .then(() => setPuterReady(true))
             .catch(() =>
                 setPuterError(
-                    &quot;AI service could not be loaded. Please refresh the page.&quot;
+                    "AI service could not be loaded. Please refresh the page."
                 )
             );
     }, []);
@@ -85,7 +85,7 @@ export function GurujiAIChat() {
 
     const buildHistory = useCallback((): PuterMessage[] => {
         const history: PuterMessage[] = [
-            { role: &quot;system&quot;, content: PANDIT_ADVISOR_SYSTEM_PROMPT },
+            { role: "system", content: PANDIT_ADVISOR_SYSTEM_PROMPT },
         ];
         messages.forEach((m) => {
             history.push({ role: m.role, content: m.content });
@@ -100,37 +100,37 @@ export function GurujiAIChat() {
 
             const userMsg: ChatMessage = {
                 id: uid(),
-                role: &quot;user&quot;,
+                role: "user",
                 content: trimmed,
                 timestamp: new Date(),
             };
             setMessages((prev) => [...prev, userMsg]);
-            setInput(&quot;&quot;);
+            setInput("");
             setIsLoading(true);
 
             try {
                 const history = buildHistory();
-                history.push({ role: &quot;user&quot;, content: trimmed });
+                history.push({ role: "user", content: trimmed });
 
                 const reply = await chatMultiTurn(history);
 
                 const assistantMsg: ChatMessage = {
                     id: uid(),
-                    role: &quot;assistant&quot;,
-                    content: reply || &quot;Kshama karein, koi jawab nahi mila. Dobara try karein. 🙏&quot;,
+                    role: "assistant",
+                    content: reply || "Kshama karein, koi jawab nahi mila. Dobara try karein. 🙏",
                     timestamp: new Date(),
                 };
                 setMessages((prev) => [...prev, assistantMsg]);
             } catch (err: unknown) {
                 const errorMsg: ChatMessage = {
                     id: uid(),
-                    role: &quot;assistant&quot;,
+                    role: "assistant",
                     content:
-                        &quot;Maafi chahta hoon! Abhi AI service temporarily unavailable hai. Please thodi der mein dobara try karein. 🙏&quot;,
+                        "Maafi chahta hoon! Abhi AI service temporarily unavailable hai. Please thodi der mein dobara try karein. 🙏",
                     timestamp: new Date(),
                 };
                 setMessages((prev) => [...prev, errorMsg]);
-                console.error(&quot;[GurujiAI] Error calling puter AI:&quot;, err);
+                console.error("[GurujiAI] Error calling puter AI:", err);
             } finally {
                 setIsLoading(false);
             }
@@ -139,7 +139,7 @@ export function GurujiAIChat() {
     );
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-        if (e.key === &quot;Enter&quot; && !e.shiftKey) {
+        if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
             sendMessage(input);
         }
@@ -157,8 +157,8 @@ export function GurujiAIChat() {
                 aria-label="Open Guruji AI Chat"
                 className="fixed bottom-24 right-6 z-50 w-14 h-14 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95"
                 style={{
-                    background: &quot;linear-gradient(135deg, #f59e0b 0%, #d97706 100%)&quot;,
-                    boxShadow: &quot;0 8px 32px rgba(245,158,11,0.45)&quot;,
+                    background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
+                    boxShadow: "0 8px 32px rgba(245,158,11,0.45)",
                 }}
             >
                 {isOpen ? (
@@ -229,7 +229,7 @@ export function GurujiAIChat() {
                                         Powered by Claude · HmarePanditJi
                                     </>
                                 ) : (
-                                    &quot;Loading AI...&quot;
+                                    "Loading AI..."
                                 )}
                             </p>
                         </div>
@@ -284,7 +284,7 @@ export function GurujiAIChat() {
                                                 : "#e5e7eb",
                                     }}
                                 >
-                                    {msg.role === &quot;assistant&quot; ? &quot;🕉️&quot; : &quot;👤&quot;}
+                                    {msg.role === "assistant" ? "🕉️" : "👤"}
                                 </div>
 
                                 {/* Bubble */}
@@ -375,15 +375,15 @@ export function GurujiAIChat() {
                             onKeyDown={handleKeyDown}
                             placeholder={
                                 puterReady
-                                    ? &quot;Apna sawal puchein... (Enter to send)&quot;
-                                    : &quot;AI loading...&quot;
+                                    ? "Apna sawal puchein... (Enter to send)"
+                                    : "AI loading..."
                             }
                             disabled={!puterReady || isLoading}
                             className="flex-1 resize-none rounded-xl border border-gray-200 bg-gray-50 px-5 py-2 text-lg outline-none focus:border-amber-400 focus:bg-white transition-colors placeholder:text-gray-400 disabled:opacity-50"
-                            style={{ maxHeight: &quot;120px&quot;, lineHeight: &quot;1.5&quot; }}
+                            style={{ maxHeight: "120px", lineHeight: "1.5" }}
                             onInput={(e) => {
                                 const t = e.currentTarget;
-                                t.style.height = &quot;auto&quot;;
+                                t.style.height = "auto";
                                 t.style.height = `${Math.min(t.scrollHeight, 120)}px`;
                             }}
                         />
@@ -395,8 +395,8 @@ export function GurujiAIChat() {
                             style={{
                                 background:
                                     puterReady && !isLoading && input.trim()
-                                        ? &quot;linear-gradient(135deg,#f59e0b,#d97706)&quot;
-                                        : &quot;#e5e7eb&quot;,
+                                        ? "linear-gradient(135deg,#f59e0b,#d97706)"
+                                        : "#e5e7eb",
                             }}
                         >
                             <svg

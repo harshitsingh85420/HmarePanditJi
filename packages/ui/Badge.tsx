@@ -2,14 +2,14 @@ import React from 'react';
 import { Theme, themes } from './tokens';
 
 export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
-    variant?: &apos;success&apos; | &apos;warning&apos; | &apos;error&apos; | &apos;info&apos; | &apos;neutral&apos; | 'primary';
+    variant?: 'success' | 'warning' | 'error' | 'info' | 'neutral' | 'primary';
     size?: 'sm' | 'md';
     dot?: boolean;
     theme?: Theme;
 }
 
 export const Badge = React.forwardRef<HTMLSpanElement, BadgeProps>(({
-    variant = &apos;neutral&apos;,
+    variant = 'neutral',
     size = 'md',
     dot = false,
     theme = 'customer',
@@ -25,25 +25,25 @@ export const Badge = React.forwardRef<HTMLSpanElement, BadgeProps>(({
         '--badge-primary-dark': currentTheme.primaryDark,
     } as React.CSSProperties;
 
-    const sizeClass = size === 'sm' ? &apos;px-2 py-0.5 text-xs&apos; : &apos;px-2.5 py-1 text-sm&apos;;
-    const dotSizeClass = size === 'sm' ? &apos;w-1.5 h-1.5&apos; : &apos;w-2 h-2&apos;;
+    const sizeClass = size === 'sm' ? 'px-2 py-0.5 text-xs' : 'px-2.5 py-1 text-sm';
+    const dotSizeClass = size === 'sm' ? 'w-1.5 h-1.5' : 'w-2 h-2';
 
     const variantClasses = {
-        success: &apos;bg-green-100 text-green-800&apos;,
-        warning: &apos;bg-amber-100 text-amber-800&apos;,
-        error: &apos;bg-red-100 text-red-800&apos;,
-        info: &apos;bg-blue-100 text-blue-800&apos;,
-        neutral: &apos;bg-gray-100 text-gray-800&apos;,
-        primary: &apos;bg-[var(--badge-primary-light)] text-[var(--badge-primary-dark)]&apos;,
+        success: 'bg-green-100 text-green-800',
+        warning: 'bg-amber-100 text-amber-800',
+        error: 'bg-red-100 text-red-800',
+        info: 'bg-blue-100 text-blue-800',
+        neutral: 'bg-gray-100 text-gray-800',
+        primary: 'bg-[var(--badge-primary-light)] text-[var(--badge-primary-dark)]',
     };
 
     const dotClasses = {
-        success: &apos;bg-green-500&apos;,
-        warning: &apos;bg-amber-500&apos;,
-        error: &apos;bg-red-500&apos;,
-        info: &apos;bg-blue-500&apos;,
-        neutral: &apos;bg-gray-500&apos;,
-        primary: &apos;bg-[var(--badge-primary)]&apos;,
+        success: 'bg-green-500',
+        warning: 'bg-amber-500',
+        error: 'bg-red-500',
+        info: 'bg-blue-500',
+        neutral: 'bg-gray-500',
+        primary: 'bg-[var(--badge-primary)]',
     };
 
     return (

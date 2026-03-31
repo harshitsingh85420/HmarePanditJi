@@ -91,7 +91,7 @@ export default function VerificationDetailPage({ params }: { params: { id: strin
                                 <p className="text-slate-500 flex items-center gap-2">
                                     <span className="material-symbols-outlined text-lg">
                                         location_on
-                                    </span>{&quot; &quot;}
+                                    </span>{" "}
                                     Varanasi, UP • Joined Oct 2023 • ID: #{params.id}
                                 </p>
                             </div>
@@ -154,7 +154,7 @@ export default function VerificationDetailPage({ params }: { params: { id: strin
                                 <h3 className="font-bold flex items-center gap-2">
                                     <span className="material-symbols-outlined text-[#ec5b13]">
                                         fingerprint
-                                    </span>{&quot; &quot;}
+                                    </span>{" "}
                                     Aadhaar Verification
                                 </h3>
                                 <span className="px-4.5 py-3 bg-green-500/10 text-green-500 text-base font-bold rounded-full border border-green-500/20">
@@ -210,7 +210,7 @@ export default function VerificationDetailPage({ params }: { params: { id: strin
                                         <span className="text-lg font-semibold text-green-500 flex items-center gap-1">
                                             <span className="material-symbols-outlined text-base">
                                                 check_circle
-                                            </span>{&quot; &quot;}
+                                            </span>{" "}
                                             Verified
                                         </span>
                                     </div>
@@ -223,8 +223,8 @@ export default function VerificationDetailPage({ params }: { params: { id: strin
                                 <h3 className="font-bold flex items-center gap-2">
                                     <span className="material-symbols-outlined text-[#ec5b13]">
                                         videocam
-                                    </span>{&quot; &quot;}
-                                    Video KYC &amp; Phonetics Analysis
+                                    </span>{" "}
+                                    Video KYC & Phonetics Analysis
                                 </h3>
                                 <div className="flex gap-2">
                                     <span className="px-4 py-3 bg-slate-200 dark:bg-[#3d2b21] text-slate-600 dark:text-slate-300 text-[10px] font-bold uppercase rounded">
@@ -260,8 +260,8 @@ export default function VerificationDetailPage({ params }: { params: { id: strin
                                                 <span>High Confidence</span>
                                             </div>
                                             <p className="text-base dark:text-slate-300 leading-relaxed italic">
-                                                &quot;Gayatri Mantra recital clarity is exceptionally high.
-                                                Phoneme &apos;bhargo&apos; pronounced correctly.&quot;
+                                                "Gayatri Mantra recital clarity is exceptionally high.
+                                                Phoneme 'bhargo' pronounced correctly."
                                             </p>
                                         </div>
                                         <div className="space-y-1">
@@ -270,8 +270,8 @@ export default function VerificationDetailPage({ params }: { params: { id: strin
                                                 <span>Standard</span>
                                             </div>
                                             <p className="text-base dark:text-slate-300 leading-relaxed italic">
-                                                &quot;Sanskrit diction flow is consistent with traditional
-                                                Varanasi school of thought.&quot;
+                                                "Sanskrit diction flow is consistent with traditional
+                                                Varanasi school of thought."
                                             </p>
                                         </div>
                                         <div className="space-y-1">
@@ -280,8 +280,8 @@ export default function VerificationDetailPage({ params }: { params: { id: strin
                                                 <span>Note</span>
                                             </div>
                                             <p className="text-base dark:text-slate-300 leading-relaxed italic">
-                                                &quot;Visual presence: Calm and professional. Background
-                                                matches reported location.&quot;
+                                                "Visual presence: Calm and professional. Background
+                                                matches reported location."
                                             </p>
                                         </div>
                                     </div>
@@ -298,7 +298,7 @@ export default function VerificationDetailPage({ params }: { params: { id: strin
                                 <h3 className="font-bold flex items-center gap-2">
                                     <span className="material-symbols-outlined text-orange-500">
                                         school
-                                    </span>{&quot; &quot;}
+                                    </span>{" "}
                                     Academic Credentials
                                 </h3>
                             </div>
@@ -350,7 +350,7 @@ export default function VerificationDetailPage({ params }: { params: { id: strin
                                 <h3 className="font-bold flex items-center gap-2">
                                     <span className="material-symbols-outlined text-[#ec5b13]">
                                         gavel
-                                    </span>{&quot; &quot;}
+                                    </span>{" "}
                                     Background Check
                                 </h3>
                             </div>

@@ -5,7 +5,7 @@ import React from "react";
 export default function CorporateInvoicePage({ params }: { params: { id: string } }) {
     // In a real app, we would use params.id to fetch invoice data
     const handlePrint = () => {
-        if (typeof window !== &quot;undefined&quot;) {
+        if (typeof window !== "undefined") {
             window.print();
         }
     };
@@ -39,7 +39,7 @@ export default function CorporateInvoicePage({ params }: { params: { id: string 
                         H
                     </div>
                     <span className="font-bold text-lg tracking-tight text-slate-900 dark:text-white">
-                        HmarePanditJi{&quot; &quot;}
+                        HmarePanditJi{" "}
                         <span className="text-[#0f49bd] font-normal">B2B</span>
                     </span>
                 </div>
@@ -182,13 +182,13 @@ export default function CorporateInvoicePage({ params }: { params: { id: string 
                                         <p className="mt-2">
                                             <span className="font-medium text-slate-500">
                                                 GSTIN:
-                                            </span>{&quot; &quot;}
+                                            </span>{" "}
                                             29AAACT3829K1Z5
                                         </p>
                                         <p>
                                             <span className="font-medium text-slate-500">
                                                 PO Ref:
-                                            </span>{&quot; &quot;}
+                                            </span>{" "}
                                             TN-EVT-2309
                                         </p>
                                     </div>
@@ -206,20 +206,20 @@ export default function CorporateInvoicePage({ params }: { params: { id: string 
                                         <p>
                                             <span className="font-medium text-[#0f49bd]">
                                                 Event:
-                                            </span>{&quot; &quot;}
-                                            Annual Corporate Diwali Puja &amp;
+                                            </span>{" "}
+                                            Annual Corporate Diwali Puja &
                                             Celebration
                                         </p>
                                         <p>
                                             <span className="font-medium text-[#0f49bd]">
                                                 Venue:
-                                            </span>{&quot; &quot;}
+                                            </span>{" "}
                                             TechNova Campus, Main Hall
                                         </p>
                                         <p>
                                             <span className="font-medium text-[#0f49bd]">
                                                 Date:
-                                            </span>{&quot; &quot;}
+                                            </span>{" "}
                                             Oct 20, 2023
                                         </p>
                                         <div className="mt-3 flex gap-2">
@@ -318,7 +318,7 @@ export default function CorporateInvoicePage({ params }: { params: { id: string 
                                         </td>
                                         <td className="py-4 px-4">
                                             <p className="font-medium text-slate-900 dark:text-white">
-                                                Travel &amp; Logistics
+                                                Travel & Logistics
                                             </p>
                                             <p className="text-base text-slate-500">
                                                 Transportation for team and materials
@@ -423,7 +423,7 @@ export default function CorporateInvoicePage({ params }: { params: { id: string 
                                 </div>
                                 <div>
                                     <h4 className="text-lg font-bold text-slate-700 dark:text-white mb-1">
-                                        Terms &amp; Conditions
+                                        Terms & Conditions
                                     </h4>
                                     <ul className="list-disc list-inside text-base text-slate-500 dark:text-slate-400 space-y-1">
                                         <li>

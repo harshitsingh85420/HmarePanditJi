@@ -10,7 +10,7 @@ export interface SkeletonProps {
 }
 
 export const Skeleton: React.FC<SkeletonProps> = ({
-    variant = &apos;text&apos;,
+    variant = 'text',
     width,
     height,
     count = 1,
@@ -19,20 +19,20 @@ export const Skeleton: React.FC<SkeletonProps> = ({
 }) => {
     const getVariantStyles = () => {
         switch (variant) {
-            case &apos;circular&apos;:
-                return &apos;rounded-full w-10 h-10&apos;; // Default size
-            case &apos;rectangular&apos;:
-                return &apos;rounded-md w-full h-24&apos;; // Default size
-            case &apos;text&apos;:
+            case 'circular':
+                return 'rounded-full w-10 h-10'; // Default size
+            case 'rectangular':
+                return 'rounded-md w-full h-24'; // Default size
+            case 'text':
             default:
-                return &apos;rounded w-full h-4 mt-1 mb-1&apos;;
+                return 'rounded w-full h-4 mt-1 mb-1';
         }
     };
 
     const getStyleObj = () => {
         let s: React.CSSProperties = { ...style };
-        if (width) s.width = typeof width === &apos;number&apos; ? `${width}px` : width;
-        if (height) s.height = typeof height === &apos;number&apos; ? `${height}px` : height;
+        if (width) s.width = typeof width === 'number' ? `${width}px` : width;
+        if (height) s.height = typeof height === 'number' ? `${height}px` : height;
         return s;
     };
 

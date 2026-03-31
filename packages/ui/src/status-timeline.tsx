@@ -22,11 +22,11 @@ export function StatusTimeline({ steps, className = "" }: StatusTimelineProps) {
         const isLast = i === steps.length - 1;
         const ts =
           step.timestamp instanceof Date
-            ? step.timestamp.toLocaleString(&quot;en-IN&quot;, {
-              day: &quot;2-digit&quot;,
-              month: &quot;short&quot;,
-              hour: &quot;2-digit&quot;,
-              minute: &quot;2-digit&quot;,
+            ? step.timestamp.toLocaleString("en-IN", {
+              day: "2-digit",
+              month: "short",
+              hour: "2-digit",
+              minute: "2-digit",
             })
             : step.timestamp;
 

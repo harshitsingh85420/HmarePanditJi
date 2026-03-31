@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
-import { Role } from "@hmarepanditji/db";
 import { sendForbidden, sendUnauthorized } from "../utils/response";
+
+type Role = "CUSTOMER" | "PANDIT" | "ADMIN";
 
 /**
  * Middleware factory — restricts route to users whose role is in the allowed list.

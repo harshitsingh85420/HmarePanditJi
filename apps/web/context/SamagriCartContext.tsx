@@ -37,12 +37,12 @@ export function SamagriCartProvider({ children }: { children: React.ReactNode })
     const [isInitialized, setIsInitialized] = useState(false);
 
     useEffect(() => {
-        const stored = sessionStorage.getItem(&quot;samagriSelection&quot;);
+        const stored = sessionStorage.getItem("samagriSelection");
         if (stored) {
             try {
                 setSelectionState(JSON.parse(stored));
             } catch (err) {
-                console.error(&quot;Failed to parse samagri selection&quot;, err);
+                console.error("Failed to parse samagri selection", err);
             }
         }
         setIsInitialized(true);
@@ -51,15 +51,15 @@ export function SamagriCartProvider({ children }: { children: React.ReactNode })
     const setSelection = (newSelection: SamagriSelection | null) => {
         setSelectionState(newSelection);
         if (newSelection) {
-            sessionStorage.setItem(&quot;samagriSelection&quot;, JSON.stringify(newSelection));
+            sessionStorage.setItem("samagriSelection", JSON.stringify(newSelection));
         } else {
-            sessionStorage.removeItem(&quot;samagriSelection&quot;);
+            sessionStorage.removeItem("samagriSelection");
         }
     };
 
     const clearCart = () => {
         setSelectionState(null);
-        sessionStorage.removeItem(&quot;samagriSelection&quot;);
+        sessionStorage.removeItem("samagriSelection");
     };
 
     if (!isInitialized) return null; // or a tiny loader to avoid hydration mismatch
