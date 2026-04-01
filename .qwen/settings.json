@@ -5,7 +5,10 @@
       "Bash(pnpm run *)",
       "Bash(select-object *)",
       "Bash(npm run *)",
-      "Bash(turbo *)"
+      "Bash(turbo *)",
+      "Bash(timeout *)",
+      "Bash(curl *)",
+      "Bash(select-string *)"
     ]
   },
   "$version": 3
