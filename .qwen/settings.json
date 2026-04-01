@@ -8,7 +8,8 @@
       "Bash(turbo *)",
       "Bash(timeout *)",
       "Bash(curl *)",
-      "Bash(select-string *)"
+      "Bash(select-string *)",
+      "Bash(git merge *)"
     ]
   },
   "$version": 3
