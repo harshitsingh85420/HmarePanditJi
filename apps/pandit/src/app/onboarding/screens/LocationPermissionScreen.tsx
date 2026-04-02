@@ -77,7 +77,11 @@ export default function LocationPermissionScreen({
 
   const handleExitProceed = () => {
     setShowExitConfirm(false);
-    router.push('/');
+    if (onBack) {
+      onBack();
+    } else {
+      router.push('/');
+    }
   };
 
   return (
