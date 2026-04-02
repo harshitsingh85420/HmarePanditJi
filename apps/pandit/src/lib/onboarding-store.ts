@@ -296,27 +296,28 @@ export function isPart1Phase(phase: OnboardingPhase): boolean {
 // ─────────────────────────────────────────────────────────────
 
 export const LANGUAGE_DISPLAY: Record<SupportedLanguage, {
-  nativeName: string      // Full name (for screen readers, accessibility)
+  nativeName: string      // Full name in native script (for screen readers, accessibility)
   shortName: string       // Compact display (2-4 chars for UI buttons/cards)
   latinName: string       // English name (reference only)
+  latinScriptName: string // Language name written in Latin/Romanized script
   scriptChar: string      // Single character representing the script
   emoji: string           // Flag/cultural emoji
 }> = {
-  Hindi: { nativeName: 'हिंदी', shortName: 'हि', latinName: 'Hindi', scriptChar: 'अ', emoji: '🇮🇳' },
-  Bhojpuri: { nativeName: 'भोजपुरी', shortName: 'भो', latinName: 'Bhojpuri', scriptChar: 'भ', emoji: '🌾' },
-  Maithili: { nativeName: 'मैथिली', shortName: 'मै', latinName: 'Maithili', scriptChar: 'म', emoji: '🪔' },
-  Bengali: { nativeName: 'বাংলা', shortName: 'বা', latinName: 'Bengali', scriptChar: 'ব', emoji: '🐟' },
-  Tamil: { nativeName: 'தமிழ்', shortName: 'த', latinName: 'Tamil', scriptChar: 'த', emoji: '🌺' },
-  Telugu: { nativeName: 'తెలుగు', shortName: 'తె', latinName: 'Telugu', scriptChar: 'తె', emoji: '🌴' },
-  Kannada: { nativeName: 'ಕನ್ನಡ', shortName: 'ಕ', latinName: 'Kannada', scriptChar: 'ಕ', emoji: '🏔️' },
-  Malayalam: { nativeName: 'മലയാളം', shortName: 'മ', latinName: 'Malayalam', scriptChar: 'മ', emoji: '🌿' },
-  Marathi: { nativeName: 'मराठी', shortName: 'म', latinName: 'Marathi', scriptChar: 'म', emoji: '🟠' },
-  Gujarati: { nativeName: 'ગુજરાતી', shortName: 'ગુ', latinName: 'Gujarati', scriptChar: 'ગ', emoji: '🦚' },
-  Sanskrit: { nativeName: 'संस्कृत', shortName: 'सं', latinName: 'Sanskrit', scriptChar: 'ॐ', emoji: '📜' },
-  English: { nativeName: 'English', shortName: 'En', latinName: 'English', scriptChar: 'A', emoji: '🌐' },
-  Odia: { nativeName: 'ଓଡ଼ିଆ', shortName: 'ଓ', latinName: 'Odia', scriptChar: 'ଓ', emoji: '🌊' },
-  Punjabi: { nativeName: 'ਪੰਜਾਬੀ', shortName: 'ਪੰ', latinName: 'Punjabi', scriptChar: 'ਪ', emoji: '🌻' },
-  Assamese: { nativeName: 'অসমীয়া', shortName: 'অ', latinName: 'Assamese', scriptChar: 'অ', emoji: '🦅' },
+  Hindi: { nativeName: 'हिंदी', shortName: 'हि', latinName: 'Hindi', latinScriptName: 'Hindi', scriptChar: 'अ', emoji: '🇮🇳' },
+  Bhojpuri: { nativeName: 'भोजपुरी', shortName: 'भो', latinName: 'Bhojpuri', latinScriptName: 'Bhojpuri', scriptChar: 'भ', emoji: '🌾' },
+  Maithili: { nativeName: 'मैथिली', shortName: 'मै', latinName: 'Maithili', latinScriptName: 'Maithili', scriptChar: 'म', emoji: '🪔' },
+  Bengali: { nativeName: 'বাংলা', shortName: 'বা', latinName: 'Bengali', latinScriptName: 'Bangla', scriptChar: 'ব', emoji: '🐟' },
+  Tamil: { nativeName: 'தமிழ்', shortName: 'த', latinName: 'Tamil', latinScriptName: 'Tamil', scriptChar: 'த', emoji: '🌺' },
+  Telugu: { nativeName: 'తెలుగు', shortName: 'తె', latinName: 'Telugu', latinScriptName: 'Telugu', scriptChar: 'తె', emoji: '🌴' },
+  Kannada: { nativeName: 'ಕನ್ನಡ', shortName: 'ಕ', latinName: 'Kannada', latinScriptName: 'Kannada', scriptChar: 'ಕ', emoji: '🏔️' },
+  Malayalam: { nativeName: 'മലയാളം', shortName: 'മ', latinName: 'Malayalam', latinScriptName: 'Malayalam', scriptChar: 'മ', emoji: '🌿' },
+  Marathi: { nativeName: 'मराठी', shortName: 'म', latinName: 'Marathi', latinScriptName: 'Marathi', scriptChar: 'म', emoji: '🟠' },
+  Gujarati: { nativeName: 'ગુજરાતી', shortName: 'ગુ', latinName: 'Gujarati', latinScriptName: 'Gujarati', scriptChar: 'ગ', emoji: '🦚' },
+  Sanskrit: { nativeName: 'संस्कृत', shortName: 'सं', latinName: 'Sanskrit', latinScriptName: 'Sanskrit', scriptChar: 'ॐ', emoji: '📜' },
+  English: { nativeName: 'English', shortName: 'En', latinName: 'English', latinScriptName: 'English', scriptChar: 'A', emoji: '🌐' },
+  Odia: { nativeName: 'ଓଡ଼ିଆ', shortName: 'ଓ', latinName: 'Odia', latinScriptName: 'Odia', scriptChar: 'ଓ', emoji: '🌊' },
+  Punjabi: { nativeName: 'ਪੰਜਾਬੀ', shortName: 'ਪੰ', latinName: 'Punjabi', latinScriptName: 'Punjabi', scriptChar: 'ਪ', emoji: '🌻' },
+  Assamese: { nativeName: 'অসমীয়া', shortName: 'অ', latinName: 'Assamese', latinScriptName: 'Assamese', scriptChar: 'অ', emoji: '🦅' },
 }
 
 // All supported languages as an ordered array for the selection grid
