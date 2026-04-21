@@ -4,10 +4,14 @@
 // TYPES
 // ─────────────────────────────────────────────────────────────
 
+import { logger } from '@/utils/logger'
+
 export type SupportedLanguage =
   | 'Hindi' | 'Bhojpuri' | 'Maithili' | 'Bengali' | 'Tamil'
   | 'Telugu' | 'Kannada' | 'Malayalam' | 'Marathi' | 'Gujarati'
   | 'Sanskrit' | 'English' | 'Odia' | 'Punjabi' | 'Assamese'
+
+export type ScriptPreference = 'native' | 'latin'
 
 export type OnboardingPhase =
   | 'SPLASH'
@@ -17,6 +21,7 @@ export type OnboardingPhase =
   | 'LANGUAGE_LIST'
   | 'LANGUAGE_CHOICE_CONFIRM'
   | 'LANGUAGE_SET'
+  | 'SCRIPT_CHOICE'
   | 'HELP'
   | 'VOICE_TUTORIAL'
   | 'TUTORIAL_SWAGAT'
@@ -41,6 +46,9 @@ export interface OnboardingState {
   detectedState: string
   languageConfirmed: boolean
   pendingLanguage: SupportedLanguage | null // language picked in list, awaiting confirmation
+
+  // Script preference
+  scriptPreference: ScriptPreference | null // 'native' for native script, 'latin' for English letters
 
   // Tutorial state
   tutorialStarted: boolean
@@ -68,6 +76,7 @@ export const DEFAULT_STATE: OnboardingState = {
   detectedState: '',
   languageConfirmed: false,
   pendingLanguage: null,
+  scriptPreference: null,
   tutorialStarted: false,
   tutorialCompleted: false,
   currentTutorialScreen: 1,
@@ -157,7 +166,7 @@ export function detectLanguageFromCity(city: string): SupportedLanguage {
 // STATE-001 FIX: Valid phases for validation
 const VALID_PHASES: OnboardingPhase[] = [
   'SPLASH', 'LOCATION_PERMISSION', 'MANUAL_CITY', 'LANGUAGE_CONFIRM',
-  'LANGUAGE_LIST', 'LANGUAGE_CHOICE_CONFIRM', 'LANGUAGE_SET', 'HELP',
+  'LANGUAGE_LIST', 'LANGUAGE_CHOICE_CONFIRM', 'LANGUAGE_SET', 'SCRIPT_CHOICE', 'HELP',
   'VOICE_TUTORIAL', 'TUTORIAL_SWAGAT', 'TUTORIAL_INCOME', 'TUTORIAL_DAKSHINA',
   'TUTORIAL_ONLINE_REVENUE', 'TUTORIAL_BACKUP', 'TUTORIAL_PAYMENT',
   'TUTORIAL_VOICE_NAV', 'TUTORIAL_DUAL_MODE', 'TUTORIAL_TRAVEL',
@@ -208,6 +217,13 @@ function validateOnboardingState(parsed: Partial<OnboardingState>): Partial<Onbo
     validated.pendingLanguage = null
   }
 
+  // Validate scriptPreference
+  if (parsed.scriptPreference && (parsed.scriptPreference === 'native' || parsed.scriptPreference === 'latin')) {
+    validated.scriptPreference = parsed.scriptPreference
+  } else {
+    validated.scriptPreference = null
+  }
+
   return validated
 }
 
@@ -231,7 +247,7 @@ export function loadOnboardingState(): OnboardingState {
 
     return state
   } catch (error) {
-    console.warn('[onboarding-store] Load failed, using defaults:', error)
+    logger.warn('[onboarding-store] Load failed, using defaults:', error)
     return { ...DEFAULT_STATE, firstEverOpen: true }
   }
 }
@@ -251,7 +267,7 @@ export function clearOnboardingState(): void {
     localStorage.removeItem(STORAGE_KEY)
   } catch (error) {
     // BUG-050 FIX: Log error instead of silently ignoring
-    console.error('[onboarding-store] Failed to clear onboarding state:', error);
+    logger.error('[onboarding-store] Failed to clear onboarding state:', error);
     // Re-throw for caller to handle if needed
     throw error;
   }
@@ -294,6 +310,87 @@ export function isPart1Phase(phase: OnboardingPhase): boolean {
 // ─────────────────────────────────────────────────────────────
 // LANGUAGE DISPLAY HELPERS
 // ─────────────────────────────────────────────────────────────
+
+// Brand name translations for different script preferences
+export const BRAND_NAME_TRANSLATION: Record<SupportedLanguage, {
+  native: string
+  latin: string
+}> = {
+  'Hindi': {
+    native: 'हमारेपंडितजी',
+    latin: 'HmarePanditJi',
+  },
+  'Bhojpuri': {
+    native: 'हमारेपंडितजी',
+    latin: 'HmarePanditJi',
+  },
+  'Maithili': {
+    native: 'हमरेपंडितजी',
+    latin: 'HamrePanditJi',
+  },
+  'Bengali': {
+    native: 'আমাদেরপণ্ডিতজী',
+    latin: 'AmaderPanditJi',
+  },
+  'Tamil': {
+    native: 'நமத்பண்டித்ஜீ',
+    latin: 'NamathPanditJi',
+  },
+  'Telugu': {
+    native: 'మనపండిత్‌జీ',
+    latin: 'ManaPanditJi',
+  },
+  'Kannada': {
+    native: 'ನಮಪಂಡಿತಜೀ',
+    latin: 'NamaPanditJi',
+  },
+  'Malayalam': {
+    native: 'നമത്പണ്ഡിതജീ',
+    latin: 'NamathPanditJi',
+  },
+  'Marathi': {
+    native: 'आमारेपंडितजी',
+    latin: 'AamarePanditJi',
+  },
+  'Gujarati': {
+    native: 'આપડાપંડિતજી',
+    latin: 'AapdaPanditJi',
+  },
+  'Sanskrit': {
+    native: 'अस्माकपण्डितजी',
+    latin: 'AsmakaPanditJi',
+  },
+  'English': {
+    native: 'OurPanditJi',
+    latin: 'OurPanditJi',
+  },
+  'Odia': {
+    native: 'ଆମପଣ୍ଡିତଜୀ',
+    latin: 'AmaPanditJi',
+  },
+  'Punjabi': {
+    native: 'ਸਾਡੇਪੰਡਿਤਜੀ',
+    latin: 'SaadePanditJi',
+  },
+  'Assamese': {
+    native: 'আমাৰপণ্ডিতজী',
+    latin: 'AmarPanditJi',
+  },
+}
+
+// Helper function to get brand name in the correct script
+export function getBrandName(language: SupportedLanguage, scriptPreference: 'native' | 'latin' | null): string {
+  const translation = BRAND_NAME_TRANSLATION[language]
+  if (!translation) return 'HmarePanditJi' // Fallback
+
+  // If native script is preferred, return native name
+  if (scriptPreference === 'native') {
+    return translation.native
+  }
+
+  // Otherwise return latin name
+  return translation.latin
+}
 
 export const LANGUAGE_DISPLAY: Record<SupportedLanguage, {
   nativeName: string      // Full name in native script (for screen readers, accessibility)

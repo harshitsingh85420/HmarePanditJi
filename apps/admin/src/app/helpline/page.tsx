@@ -120,7 +120,7 @@ export default function HelplineDashboard() {
                             <div className="relative">
                                 <div className="w-12 h-12 rounded-full bg-red-500/20 animate-ping absolute inset-0"></div>
                                 <div className="w-12 h-12 bg-white dark:bg-slate-800 rounded-full shadow-lg p-1 border-2 border-red-500 flex items-center justify-center relative z-10 transform transition hover:scale-110">
-                                    <img className="w-full h-full rounded-full object-cover" alt="Portrait of Pandit Sharma" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCeuRFjcZeIwwYs7HWxkDRjaessPx3cQJhDNitRFPlyh4IDxPK9d0JLwzACozNoeieUp2mSlokGz_X8yPxGK0-fzYSQbn3Jga3P-EPcr0mI39DHwBXgjsHTClKw1CkXiNIT3kiB_X5CkHXR7O_9bGwZB5A05pHdNDEc_48Xa4R85opTQWWqYzRSgiTYGFaL6mviWwmyKAhsaj2rfDiRRpjZSo40HAaibBanYUi93HgiW30OAoMoY4fCRuBdL_2zBwTO-CfTBMy23XM" />
+                                    <Image className="w-full h-full rounded-full object-cover" alt="Portrait of Pandit Sharma" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCeuRFjcZeIwwYs7HWxkDRjaessPx3cQJhDNitRFPlyh4IDxPK9d0JLwzACozNoeieUp2mSlokGz_X8yPxGK0-fzYSQbn3Jga3P-EPcr0mI39DHwBXgjsHTClKw1CkXiNIT3kiB_X5CkHXR7O_9bGwZB5A05pHdNDEc_48Xa4R85opTQWWqYzRSgiTYGFaL6mviWwmyKAhsaj2rfDiRRpjZSo40HAaibBanYUi93HgiW30OAoMoY4fCRuBdL_2zBwTO-CfTBMy23XM" width={48} height={48} />
                                     <div className="absolute -bottom-1 -right-1 bg-red-500 text-white rounded-full p-1 border-2 border-white dark:border-slate-800">
                                         <span className="material-symbols-outlined text-[10px] block">warning</span>
                                     </div>
@@ -138,7 +138,7 @@ export default function HelplineDashboard() {
                         <div className="absolute top-[55%] left-[55%] pointer-events-auto group">
                             <div className="relative">
                                 <div className="w-10 h-10 bg-white dark:bg-slate-800 rounded-full shadow-lg p-1 border-2 border-green-500 flex items-center justify-center transform transition hover:scale-110">
-                                    <img className="w-full h-full rounded-full object-cover" alt="Portrait of Pandit Verma" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBI2yUWvSvXPKZ5ufTS4tmnGB7yDYrCLz0p0YpVdnKm_P1wUdDld1YbYG1z38yheetMuL9qdM1SLa0H_x5robTmHbXqW0To9evYo_aFoN_UcqH7Xo54sMZV2VJ_m6jr-u0QkD6RgkeaCwW9GwYevAHsx1kL_fNP_C2oQ9WQCd_ULn05_kkQZk71AWGCqO-ZCCHu408Cutm15ot9Hd6z1a-PQnhAuFuj88Sq9cb0WUsDQRO1CxgMP9EZB_Mg162Ct3rH8Yek9d-3gJI" />
+                                    <Image className="w-full h-full rounded-full object-cover" alt="Portrait of Pandit Verma" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBI2yUWvSvXPKZ5ufTS4tmnGB7yDYrCLz0p0YpVdnKm_P1wUdDld1YbYG1z38yheetMuL9qdM1SLa0H_x5robTmHbXqW0To9evYo_aFoN_UcqH7Xo54sMZV2VJ_m6jr-u0QkD6RgkeaCwW9GwYevAHsx1kL_fNP_C2oQ9WQCd_ULn05_kkQZk71AWGCqO-ZCCHu408Cutm15ot9Hd6z1a-PQnhAuFuj88Sq9cb0WUsDQRO1CxgMP9EZB_Mg162Ct3rH8Yek9d-3gJI" width={40} height={40} />
                                     <div className="absolute -bottom-1 -right-1 bg-green-500 text-white rounded-full p-0.5 border-2 border-white dark:border-slate-800">
                                         <span className="material-symbols-outlined text-[10px] block">check</span>
                                     </div>
@@ -195,14 +195,14 @@ export default function HelplineDashboard() {
                 {/* Tabs */}
                 <div className="flex border-b border-slate-200 dark:border-slate-700">
                     <button
-                        onClick={() => setActiveTab(communication)}
-                        className={`flex-1 py-3 text-sm font-medium ${activeTab === communication ? text-[#0f49bd] border-b-2 border-[#0f49bd] bg-[#0f49bd]/5 dark:bg-[#0f49bd]/10 : text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300}`}
+                        onClick={() => setActiveTab("communication")}
+                        className={`flex-1 py-3 text-sm font-medium ${activeTab === "communication" ? "text-[#0f49bd] border-b-2 border-[#0f49bd] bg-[#0f49bd]/5 dark:bg-[#0f49bd]/10" : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300"}`}
                     >
                         Communication
                     </button>
                     <button
-                        onClick={() => setActiveTab(timeline)}
-                        className={`flex-1 py-3 text-sm font-medium ${activeTab === timeline ? text-[#0f49bd] border-b-2 border-[#0f49bd] bg-[#0f49bd]/5 dark:bg-[#0f49bd]/10 : text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300}`}
+                        onClick={() => setActiveTab("timeline")}
+                        className={`flex-1 py-3 text-sm font-medium ${activeTab === "timeline" ? "text-[#0f49bd] border-b-2 border-[#0f49bd] bg-[#0f49bd]/5 dark:bg-[#0f49bd]/10" : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300"}`}
                     >
                         Timeline & Notes
                     </button>
@@ -238,7 +238,7 @@ export default function HelplineDashboard() {
                     <div className="flex gap-3 flex-row-reverse">
                         <div className="w-8 h-8 rounded-full bg-[#0f49bd]/20 flex items-center justify-center text-[#0f49bd] font-bold text-xs shrink-0">You</div>
                         <div className="bg-[#0f49bd] text-white rounded-2xl rounded-tr-none p-3 shadow-md max-w-[85%]">
-                            <p className="text-sm">Namaste Mr. Kapoor. We are tracking the Pandit's location. He is stuck in heavy traffic. We are arranging a backup.</p>
+                            <p className="text-sm">Namaste Mr. Kapoor. We are tracking the Pandit&apos;s location. He is stuck in heavy traffic. We are arranging a backup.</p>
                             <span className="text-[10px] text-blue-100 mt-1 block">09:54 AM</span>
                         </div>
                     </div>

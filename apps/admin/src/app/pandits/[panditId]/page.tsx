@@ -4,7 +4,8 @@ import { format } from "date-fns";
 import { useParams, useRouter } from "next/navigation";
 
 export default function PanditVerificationDetail() {
-    const { panditId } = useParams();
+    const params = useParams();
+    const panditId = params?.panditId as string | undefined;
     const router = useRouter();
     const [pandit, setPandit] = useState<any>(null);
     const [loading, setLoading] = useState(true);
@@ -80,7 +81,7 @@ export default function PanditVerificationDetail() {
             <div className="bg-white border-b border-slate-200">
                 <div className="max-w-5xl mx-auto p-8 flex flex-col md:flex-row gap-8 items-start">
                     <div className="w-32 h-32 rounded-2xl bg-slate-200 shrink-0 border-4 border-white shadow-xl overflow-hidden relative group">
-                        <img src={pandit.profilePhotoUrl || "https://ui-avatars.com/api/?name=" + pandit.user?.name} className="w-full h-full object-cover" />
+                        <img src={pandit.profilePhotoUrl || "https://ui-avatars.com/api/?name=" + pandit.user?.name} alt={`Profile photo of ${pandit.user?.name || "Pandit"}`} className="w-full h-full object-cover" />
                     </div>
                     <div className="flex-1 min-w-0">
                         <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
@@ -145,7 +146,7 @@ export default function PanditVerificationDetail() {
                                     >
                                         {url ? (
                                             <>
-                                                <img src={url} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                                                <img src={url} alt={`Document: ${docName}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
                                                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
                                                     <span className="material-symbols-outlined text-white opacity-0 group-hover:opacity-100 drop-shadow-md text-3xl">zoom_in</span>
                                                 </div>

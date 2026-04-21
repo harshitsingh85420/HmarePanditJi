@@ -55,13 +55,13 @@ export function Card({
       {...props}
     >
       {header && (
-        <div className="px-5 py-3 border-b border-slate-100 dark:border-slate-800">
+        <div className="border-b border-slate-100 px-5 py-3 dark:border-slate-800">
           {header}
         </div>
       )}
       <div className={paddings[padding]}>{children}</div>
       {footer && (
-        <div className="px-5 py-3 border-t border-slate-100 dark:border-slate-800">
+        <div className="border-t border-slate-100 px-5 py-3 dark:border-slate-800">
           {footer}
         </div>
       )}

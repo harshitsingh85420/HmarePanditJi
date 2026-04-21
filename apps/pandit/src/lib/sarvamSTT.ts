@@ -596,7 +596,10 @@ class SarvamSTTEngine {
     if (this.ws) {
       try {
         this.ws.close()
-      } catch { /* ignore */ }
+      } catch (error) {
+        console.warn('[SarvamSTT] Failed to close WebSocket:', error);
+        /* ignore */
+      }
       this.ws = null
     }
 
@@ -604,7 +607,10 @@ class SarvamSTTEngine {
     if (this.mediaRecorder) {
       try {
         this.mediaRecorder.stop()
-      } catch { /* ignore */ }
+      } catch (error) {
+        console.warn('[SarvamSTT] Failed to stop MediaRecorder:', error);
+        /* ignore */
+      }
       this.mediaRecorder = null
     }
 
@@ -652,7 +658,10 @@ class SarvamSTTEngine {
     if (this.ws) {
       try {
         this.ws.close()
-      } catch { /* ignore */ }
+      } catch (error) {
+        console.warn('[SarvamSTT] Failed to close WebSocket:', error);
+        /* ignore */
+      }
       this.ws = null
     }
 
@@ -660,7 +669,10 @@ class SarvamSTTEngine {
     if (this.mediaRecorder) {
       try {
         this.mediaRecorder.stop()
-      } catch { /* ignore */ }
+      } catch (error) {
+        console.warn('[SarvamSTT] Failed to stop MediaRecorder:', error);
+        /* ignore */
+      }
       this.mediaRecorder = null
     }
 

@@ -1,32 +1,32 @@
-import { Request, Response, NextFunction } from "express";
-import { sendForbidden, sendUnauthorized } from "../utils/response";
+import { FastifyRequest, FastifyReply } from "fastify";
+import { throwForbidden, throwUnauthorized } from "../utils/response";
 
 type Role = "CUSTOMER" | "PANDIT" | "ADMIN";
 
 /**
- * Middleware factory — restricts route to users whose role is in the allowed list.
+ * Fastify preHandler hook factory — restricts route to users whose role is in the allowed list.
  * Must be used AFTER authenticate().
  *
  * @example
- *   router.get("/admin/stats", authenticate, roleGuard("ADMIN"), handler)
- *   router.patch("/pandits/me", authenticate, roleGuard("PANDIT"), handler)
- *   router.post("/bookings", authenticate, roleGuard("CUSTOMER", "ADMIN"), handler)
+ *   fastify.get("/admin/stats", { preHandler: [authenticate, requireRole("ADMIN")] }, handler)
+ *   fastify.patch("/pandits/me", { preHandler: [authenticate, requireRole("PANDIT")] }, handler)
  */
-export function roleGuard(...roles: Role[]) {
-  return (req: Request, res: Response, next: NextFunction): void => {
+export function requireRole(...roles: Role[]) {
+  return async (request: FastifyRequest, _reply: FastifyReply): Promise<void> => {
+    const req = request as any;
     if (!req.user) {
-      sendUnauthorized(res);
-      return;
+      throwUnauthorized();
     }
 
     if (!roles.includes(req.user.role)) {
-      sendForbidden(
-        res,
+      throwForbidden(
         `This action requires one of the following roles: ${roles.join(", ")}`,
       );
-      return;
     }
-
-    next();
   };
 }
+
+/**
+ * Alias for backward compatibility with route imports
+ */
+export const roleGuard = requireRole;

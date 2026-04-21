@@ -9,7 +9,26 @@
       "Bash(timeout *)",
       "Bash(curl *)",
       "Bash(select-string *)",
-      "Bash(git merge *)"
+      "Bash(git merge *)",
+      "Bash(taskkill *)",
+      "Bash(findstr *)",
+      "Bash(netstat *)",
+      "Bash(start-sleep *)",
+      "Bash(remove-item *)",
+      "Bash(pnpm *)",
+      "Bash(npx *)",
+      "Bash(tasklist *)",
+      "Bash(out-string)",
+      "Bash(dir *)",
+      "Bash(type *)",
+      "Bash(tee-object *)",
+      "Bash($lintoutput)",
+      "Bash(echo.)",
+      "Bash(echo *)",
+      "Bash(cd *)",
+      "Bash(registration)",
+      "Bash(/otp)",
+      "Bash(powershell *)"
     ]
   },
   "$version": 3

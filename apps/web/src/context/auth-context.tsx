@@ -7,6 +7,7 @@ import React, {
   useEffect,
   useCallback,
 } from "react";
+import { logger } from "@/utils/logger";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -42,24 +43,8 @@ interface AuthContextValue {
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
-const STORAGE_KEY = "hpj_token";
 export const API_BASE =
   process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api/v1";
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-/** Save token to localStorage + cookie */
-export function saveTokens(token: string, _refresh?: string) {
-  if (typeof window === "undefined") return;
-  localStorage.setItem(STORAGE_KEY, token);
-  document.cookie = `hpj_token=${token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
-}
-
-function clearTokens() {
-  if (typeof window === "undefined") return;
-  localStorage.removeItem(STORAGE_KEY);
-  document.cookie = "hpj_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-}
 
 // ── Context ───────────────────────────────────────────────────────────────────
 
@@ -67,12 +52,12 @@ const AuthContext = createContext<AuthContextValue>({
   user: null,
   loading: true,
   isAuthenticated: false,
-  openLoginModal: () => {},
-  closeLoginModal: () => {},
+  openLoginModal: () => { console.warn('useAuth called outside AuthProvider'); },
+  closeLoginModal: () => { console.warn('useAuth called outside AuthProvider'); },
   loginModalOpen: false,
-  login: () => {},
-  logout: () => {},
-  setUser: () => {},
+  login: () => { console.warn('useAuth called outside AuthProvider'); },
+  logout: () => { console.warn('useAuth called outside AuthProvider'); },
+  setUser: () => { console.warn('useAuth called outside AuthProvider'); },
   accessToken: null,
 });
 
@@ -84,23 +69,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const [accessToken, setAccessToken] = useState<string | null>(null);
 
-  // ── Fetch /auth/me with token ──────────────────────────────────────────────
-
-  const fetchMe = useCallback(async (token: string): Promise<AuthUser | null> => {
-    try {
-      const res = await fetch(`${API_BASE}/auth/me`, {
-        headers: { Authorization: `Bearer ${token}` },
-        signal: AbortSignal.timeout(8000),
-      });
-      if (!res.ok) return null;
-      const json = await res.json();
-      return (json.data?.user ?? null) as AuthUser | null;
-    } catch {
-      return null;
-    }
-  }, []);
-
-  // ── Bootstrap: check localStorage on mount ────────────────────────────────
+  // ── Bootstrap: fetch /auth/me (browser sends HttpOnly cookie automatically) ──
 
   useEffect(() => {
     async function boot() {
@@ -108,45 +77,55 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setLoading(false);
         return;
       }
-      const token = localStorage.getItem(STORAGE_KEY);
-      if (token) {
-        const me = await fetchMe(token);
-        if (me) {
-          setUserState(me);
-          setAccessToken(token);
-        } else {
-          clearTokens();
+
+      try {
+        // Browser automatically sends hpj_token HttpOnly cookie
+        const res = await fetch(`${API_BASE}/auth/me`, {
+          credentials: "include", // CRITICAL: sends cookies
+          signal: AbortSignal.timeout(8000),
+        });
+
+        if (res.ok) {
+          const json = await res.json();
+          const me = json.data?.user ?? null;
+          if (me) {
+            setUserState(me);
+          }
         }
+      } catch (error) {
+        // User not logged in or network error
+        logger.debug("Auth bootstrap failed:", error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     }
     boot();
-  }, [fetchMe]);
+  }, []);
 
   // ── Login ─────────────────────────────────────────────────────────────────
 
-  const login = useCallback((token: string, newUser: AuthUser) => {
-    saveTokens(token);
-    setAccessToken(token);
+  const login = useCallback((_token: string, newUser: AuthUser) => {
+    // Backend sets HttpOnly cookie automatically
+    setAccessToken(_token);
     setUserState(newUser);
   }, []);
 
   // ── Logout ────────────────────────────────────────────────────────────────
 
-  const logout = useCallback(() => {
-    const token =
-      accessToken ??
-      (typeof window !== "undefined" ? localStorage.getItem(STORAGE_KEY) : null);
-    if (token) {
-      fetch(`${API_BASE}/auth/logout`, {
+  const logout = useCallback(async () => {
+    try {
+      // Backend clears HttpOnly cookie
+      await fetch(`${API_BASE}/auth/logout`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-      }).catch(() => {});
+        credentials: "include", // CRITICAL: sends/removes cookies
+      });
+    } catch (error) {
+      console.error("Logout failed:", error);
+    } finally {
+      setAccessToken(null);
+      setUserState(null);
     }
-    clearTokens();
-    setAccessToken(null);
-    setUserState(null);
-  }, [accessToken]);
+  }, []);
 
   // ── Modal helpers ─────────────────────────────────────────────────────────
 

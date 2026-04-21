@@ -288,6 +288,27 @@ export const processRefundSchema = z.object({
     notes: z.string().max(500).optional(),
 });
 
+// ─── Additional Required Schemas ─────────────────────────────────────────────
+
+export const submitReviewSchema = createReviewSchema;
+
+export const panditSearchSchema = searchPanditsSchema;
+
+export const idParamSchema = z.object({
+    id: z.string().cuid('Invalid ID format'),
+});
+
+export const dateRangeSchema = z.object({
+    startDate: z.coerce.date(),
+    endDate: z.coerce.date(),
+}).refine(data => data.endDate >= data.startDate, {
+    message: 'End date must be after start date',
+});
+
+export const ratingSchema = z.object({
+    rating: z.number().min(1, 'Minimum rating is 1').max(5, 'Maximum rating is 5'),
+});
+
 // ─── Helper Functions ────────────────────────────────────────────────────────
 
 /**

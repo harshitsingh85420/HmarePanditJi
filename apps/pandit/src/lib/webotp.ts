@@ -60,7 +60,6 @@ export function isWebOTPSupported(): boolean {
   if (!('credentials' in navigator)) return false
 
   // Check for OTP credential support
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   if (!('OTPCredential' in window)) return false
 
   // Check for Android Chrome/Edge
@@ -126,7 +125,6 @@ export async function readOTPAuto(timeoutMs = 6000): Promise<string | null> {
   analytics.requested = Date.now()
 
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const credential = await (navigator.credentials as any).get({
       otp: { transport: ['sms'] },
       signal: controller.signal,

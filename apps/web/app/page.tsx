@@ -123,8 +123,11 @@ function MuhuratWidget() {
           const u = await upcomingRes.json();
           setUpcomingDates(u.data?.dates || []);
         }
-      } catch { }
-      setLoading(false);
+      } catch (error) {
+        console.error('Failed to fetch muhurat data:', error);
+      } finally {
+        setLoading(false);
+      }
     }
     fetchData();
   }, [month, year]);

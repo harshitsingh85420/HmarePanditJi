@@ -1,12 +1,24 @@
 ﻿'use client'
 
+import { SupportedLanguage, getBrandName, ScriptPreference } from '@/lib/onboarding-store'
+
 interface TopBarProps {
   showBack?: boolean
   onBack?: () => void
   onLanguageChange?: () => void
+  language?: SupportedLanguage
+  scriptPreference?: ScriptPreference | null
 }
 
-export default function TopBar({ showBack = false, onBack, onLanguageChange }: TopBarProps) {
+export default function TopBar({
+  showBack = false,
+  onBack,
+  onLanguageChange,
+  language = 'Hindi',
+  scriptPreference = null
+}: TopBarProps) {
+  const brandName = getBrandName(language, scriptPreference)
+
   return (
     <header className="flex items-center justify-between px-4 h-14 bg-vedic-cream border-b border-vedic-border sticky top-0 z-50">
       <div className="flex items-center gap-2">
@@ -23,7 +35,7 @@ export default function TopBar({ showBack = false, onBack, onLanguageChange }: T
         )}
         <div className="flex items-center gap-1.5">
           <span className="text-xl text-primary font-bold">ॐ</span>
-          <span className="text-lg font-semibold text-vedic-brown">HmarePanditJi</span>
+          <span className="text-lg font-semibold text-vedic-brown">{brandName}</span>
         </div>
       </div>
       <button

@@ -545,7 +545,7 @@ export default function SearchClient({
       fetchPandits(filters, pagination.page + 1).then((result) => {
         setPandits((prev) => [...prev, ...result.pandits]);
         setPagination(result.pagination);
-      });
+      }).catch((err) => console.error('Failed to load more pandits:', err));
     }
   };
 

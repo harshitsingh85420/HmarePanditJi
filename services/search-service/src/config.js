@@ -13,7 +13,7 @@ const config = {
 
     // PostgreSQL — reads from same DB as API service
     database: {
-        connectionString: process.env.DATABASE_URL || 'postgresql://hpj_user:hpj_password_dev@localhost:5432/hmarepanditji',
+        connectionString: process.env.DATABASE_URL || (() => { throw new Error('DATABASE_URL environment variable is required'); })(),
     },
 
     // Elasticsearch
@@ -25,7 +25,7 @@ const config = {
 
     // JWT — same secret as API service for token validation
     jwt: {
-        secret: process.env.JWT_SECRET || 'dev_jwt_secret_min_32_characters_long_placeholder',
+        secret: process.env.JWT_SECRET || (() => { throw new Error('JWT_SECRET environment variable is required'); })(),
     },
 
     // Redis — for muhurat caching (24h TTL)

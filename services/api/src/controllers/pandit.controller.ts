@@ -1,24 +1,74 @@
-import { Request, Response, NextFunction } from "express";
+import { FastifyRequest, FastifyReply } from "fastify";
 import { prisma } from "@hmarepanditji/db";
 import { parsePagination } from "../utils/helpers";
 
-export async function getPandits(req: Request, res: Response, next: NextFunction) {
+interface PanditQueryParams {
+    pujaType?: string;
+    city?: string;
+    date?: string;
+    minRating?: string;
+    minDakshina?: string;
+    maxDakshina?: string;
+    language?: string;
+    travelMode?: string;
+    maxDistance?: string;
+    sort?: string;
+    verificationStatus?: string;
+    page?: string;
+    limit?: string;
+}
+
+interface PujaServiceFilter {
+    isActive: boolean;
+    pujaType?: string;
+    dakshinaAmount?: { gte?: number; lte?: number };
+}
+
+interface RawPandit {
+    id: string;
+    user: { id: string; name: string | null; phone: string | null };
+    location: string | null;
+    rating: number;
+    totalReviews: number;
+    experienceYears: number;
+    specializations: string[];
+    languages: string[];
+    profilePhotoUrl: string | null;
+    isOnline: boolean;
+    verificationStatus: string;
+    travelPreferences: unknown;
+    completedBookings: number;
+    pujaServices: Array<{ pujaType: string; dakshinaAmount: number | null; durationHours: number | null }>;
+}
+
+interface FilteredPandit extends RawPandit {
+    name: string;
+}
+
+interface DateStatusEntry {
+    date: string;
+    status: "past" | "blocked" | "booked" | "available";
+    reason?: string | null;
+}
+
+export async function getPandits(request: FastifyRequest, reply: FastifyReply) {
     try {
-        const { page, limit, skip } = parsePagination(req.query as Record<string, unknown>);
+        const query = request.query as PanditQueryParams & Record<string, unknown>;
+        const { page, limit, skip } = parsePagination(query);
 
-        const pujaType = req.query.pujaType as string;
-        const city = req.query.city as string;
-        const date = req.query.date as string;
-        const minRating = req.query.minRating ? Number(req.query.minRating) : undefined;
-        const minDakshina = req.query.minDakshina ? Number(req.query.minDakshina) : undefined;
-        const maxDakshina = req.query.maxDakshina ? Number(req.query.maxDakshina) : undefined;
-        const language = req.query.language as string;
-        const travelMode = req.query.travelMode as string;
-        const maxDistance = req.query.maxDistance ? Number(req.query.maxDistance) : undefined;
-        const sort = req.query.sort as string;
-        const verificationStatus = req.query.verificationStatus ? String(req.query.verificationStatus) : "VERIFIED";
+        const pujaType = query.pujaType as string;
+        const city = query.city as string;
+        const date = query.date as string;
+        const minRating = query.minRating ? Number(query.minRating) : undefined;
+        const minDakshina = query.minDakshina ? Number(query.minDakshina) : undefined;
+        const maxDakshina = query.maxDakshina ? Number(query.maxDakshina) : undefined;
+        const language = query.language as string;
+        const travelMode = query.travelMode as string;
+        const maxDistance = query.maxDistance ? Number(query.maxDistance) : undefined;
+        const sort = query.sort as string;
+        const verificationStatus = query.verificationStatus ? String(query.verificationStatus) : "VERIFIED";
 
-        const conditions: any[] = [];
+        const conditions: Record<string, unknown>[] = [];
 
         // Default verification filter
         conditions.push({ verificationStatus });
@@ -50,7 +100,7 @@ export async function getPandits(req: Request, res: Response, next: NextFunction
         }
 
         if (pujaType || minDakshina !== undefined || maxDakshina !== undefined) {
-            const serviceFilter: any = { isActive: true };
+            const serviceFilter: PujaServiceFilter = { isActive: true };
             if (pujaType) serviceFilter.pujaType = pujaType;
             if (minDakshina !== undefined) serviceFilter.dakshinaAmount = { gte: minDakshina };
             if (maxDakshina !== undefined) {
@@ -77,7 +127,7 @@ export async function getPandits(req: Request, res: Response, next: NextFunction
                 }
             });
 
-            // The bookings are linked to user.id, not panditProfile.id. 
+            // The bookings are linked to user.id, not panditProfile.id.
             // We ensure the associated user doesn't have a booking.
             conditions.push({
                 user: {
@@ -93,7 +143,7 @@ export async function getPandits(req: Request, res: Response, next: NextFunction
 
         const where = { AND: conditions };
 
-        const orderByMap: Record<string, any> = {
+        const orderByMap: Record<string, Record<string, "asc" | "desc">> = {
             rating: { rating: "desc" },
         };
         const orderBy = orderByMap[sort] ?? { rating: "desc" };
@@ -120,10 +170,10 @@ export async function getPandits(req: Request, res: Response, next: NextFunction
                 },
             },
             orderBy,
-        });
+        }) as RawPandit[];
 
         // In-memory filters for travel Preferences JSON and price sorting etc.
-        let filtered = rawPandits.map((p: any) => ({
+        let filtered: FilteredPandit[] = rawPandits.map((p) => ({
             ...p,
             id: p.user.id, // we map id to User ID so frontend uses this for booking
             name: p.user?.name || "Pandit",
@@ -142,23 +192,23 @@ export async function getPandits(req: Request, res: Response, next: NextFunction
         }));
 
         if (travelMode) {
-            filtered = filtered.filter((p: any) => {
-                const prefs = p.travelPreferences as any;
-                if (!prefs || !prefs.preferredModes) return false;
-                return prefs.preferredModes.includes(travelMode);
+            filtered = filtered.filter((p) => {
+                const prefs = p.travelPreferences as Record<string, unknown> | null;
+                if (!prefs || !Array.isArray(prefs.preferredModes)) return false;
+                return (prefs.preferredModes as string[]).includes(travelMode);
             });
         }
 
         if (sort === "price_asc") {
-            filtered.sort((a: any, b: any) => {
-                const aPrice = Math.min(...a.pujaServices.map((s: any) => s.dakshinaAmount));
-                const bPrice = Math.min(...b.pujaServices.map((s: any) => s.dakshinaAmount));
+            filtered.sort((a, b) => {
+                const aPrice = Math.min(...a.pujaServices.map((s) => s.dakshinaAmount ?? 0));
+                const bPrice = Math.min(...b.pujaServices.map((s) => s.dakshinaAmount ?? 0));
                 return aPrice - bPrice;
             });
         } else if (sort === "price_desc") {
-            filtered.sort((a: any, b: any) => {
-                const aPrice = Math.max(...a.pujaServices.map((s: any) => s.dakshinaAmount));
-                const bPrice = Math.max(...b.pujaServices.map((s: any) => s.dakshinaAmount));
+            filtered.sort((a, b) => {
+                const aPrice = Math.max(...a.pujaServices.map((s) => s.dakshinaAmount ?? 0));
+                const bPrice = Math.max(...b.pujaServices.map((s) => s.dakshinaAmount ?? 0));
                 return bPrice - aPrice;
             });
         } else if (sort === "distance" && city) {
@@ -171,9 +221,9 @@ export async function getPandits(req: Request, res: Response, next: NextFunction
             }
             distanceMap.set(city, 0);
 
-            filtered.sort((a: any, b: any) => {
-                const distA = distanceMap.get(a.location) ?? 9999;
-                const distB = distanceMap.get(b.location) ?? 9999;
+            filtered.sort((a, b) => {
+                const distA = distanceMap.get(a.location ?? "") ?? 9999;
+                const distB = distanceMap.get(b.location ?? "") ?? 9999;
                 return distA - distB;
             });
         }
@@ -181,7 +231,7 @@ export async function getPandits(req: Request, res: Response, next: NextFunction
         const total = filtered.length;
         const paginatedPandits = filtered.slice(skip, skip + limit);
 
-        return res.status(200).json({
+        return reply.code(200).send({
             success: true,
             data: {
                 pandits: paginatedPandits,
@@ -194,13 +244,14 @@ export async function getPandits(req: Request, res: Response, next: NextFunction
             }
         });
     } catch (err) {
-        next(err);
+        throw err;
     }
 }
 
-export async function getPanditProfileById(req: Request, res: Response, next: NextFunction) {
+export async function getPanditProfileById(request: FastifyRequest, reply: FastifyReply) {
     try {
-        const panditId = req.params.id;
+        const params = request.params as Record<string, string>;
+        const panditId = params.id;
         const pandit = await prisma.panditProfile.findUnique({
             where: { userId: panditId, verificationStatus: "VERIFIED" },
             include: {
@@ -211,7 +262,7 @@ export async function getPanditProfileById(req: Request, res: Response, next: Ne
         });
 
         if (!pandit) {
-            return res.status(404).json({ success: false, message: "Pandit not found or not verified" });
+            return reply.code(404).send({ success: false, message: "Pandit not found or not verified" });
         }
 
         const aggregations = await prisma.review.aggregate({
@@ -253,17 +304,19 @@ export async function getPanditProfileById(req: Request, res: Response, next: Ne
             reviewSummary,
         };
 
-        return res.status(200).json({ success: true, data: responseData });
+        return reply.code(200).send({ success: true, data: responseData });
     } catch (err) {
-        next(err);
+        throw err;
     }
 }
 
-export async function getPanditReviewsHandler(req: Request, res: Response, next: NextFunction) {
+export async function getPanditReviewsHandler(request: FastifyRequest, reply: FastifyReply) {
     try {
-        const panditId = req.params.id;
-        const page = parseInt(req.query.page as string) || 1;
-        const limit = parseInt(req.query.limit as string) || 5;
+        const params = request.params as Record<string, string>;
+        const query = request.query as Record<string, string | undefined>;
+        const panditId = params.id;
+        const page = parseInt(query.page || "1");
+        const limit = parseInt(query.limit || "5");
         const skip = (page - 1) * limit;
 
         const reviews = await prisma.review.findMany({
@@ -277,7 +330,7 @@ export async function getPanditReviewsHandler(req: Request, res: Response, next:
             }
         });
 
-        const formatted = reviews.map((r: any) => ({
+        const formatted = reviews.map((r) => ({
             id: r.id,
             overallRating: r.overallRating,
             comment: r.comment,
@@ -286,20 +339,22 @@ export async function getPanditReviewsHandler(req: Request, res: Response, next:
             pujaType: r.booking?.eventType ?? "Puja Service"
         }));
 
-        return res.status(200).json({ success: true, data: formatted });
+        return reply.code(200).send({ success: true, data: formatted });
     } catch (err) {
-        next(err);
+        throw err;
     }
 }
 
-export async function getPanditAvailabilityHandler(req: Request, res: Response, next: NextFunction) {
+export async function getPanditAvailabilityHandler(request: FastifyRequest, reply: FastifyReply) {
     try {
-        const panditId = req.params.id;
-        const month = parseInt(req.query.month as string);
-        const year = parseInt(req.query.year as string);
+        const params = request.params as Record<string, string>;
+        const query = request.query as Record<string, string | undefined>;
+        const panditId = params.id;
+        const month = parseInt(query.month || "0");
+        const year = parseInt(query.year || "0");
 
         if (!month || !year) {
-            return res.status(400).json({ success: false, message: "month and year are required" });
+            return reply.code(400).send({ success: false, message: "month and year are required" });
         }
 
         const startOfMonth = new Date(year, month - 1, 1);
@@ -323,10 +378,10 @@ export async function getPanditAvailabilityHandler(req: Request, res: Response, 
         });
 
         const daysInMonth = new Date(year, month, 0).getDate();
-        const datesStatus = [];
+        const datesStatus: DateStatusEntry[] = [];
 
-        const bookedDays = new Set(bookings.map((b: any) => b.eventDate.getDate()));
-        const blockedDaysMap = new Map(blockedDates.map((b: any) => [b.date.getDate(), b.reason]));
+        const bookedDays = new Set(bookings.map((b) => b.eventDate.getDate()));
+        const blockedDaysMap = new Map<number, string | null>(blockedDates.map((b) => [b.date.getDate(), b.reason]));
 
         const today = new Date();
         const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month - 1;
@@ -348,8 +403,8 @@ export async function getPanditAvailabilityHandler(req: Request, res: Response, 
             }
         }
 
-        return res.status(200).json({ success: true, data: datesStatus });
+        return reply.code(200).send({ success: true, data: datesStatus });
     } catch (err) {
-        next(err);
+        throw err;
     }
 }

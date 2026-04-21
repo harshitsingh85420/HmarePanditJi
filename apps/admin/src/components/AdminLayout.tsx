@@ -2,17 +2,19 @@
 import React from "react";
 import AdminSidebar from "./AdminSidebar";
 import { usePathname } from "next/navigation";
+import { ADMIN_TOKEN_KEY } from '@hmarepanditji/utils';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
 
     React.useEffect(() => {
-        if (!pathname.startsWith("/login") && !localStorage.getItem("adminToken")) {
+        if (pathname && !pathname.startsWith("/login") && !localStorage.getItem(ADMIN_TOKEN_KEY)) {
             window.location.href = "/login";
         }
     }, [pathname]);
 
-    const getPageTitle = (path: string) => {
+    const getPageTitle = (path: string | null) => {
+        if (!path) return "Admin Center";
         switch (true) {
             case path === "/": return "Dashboard";
             case path.startsWith("/travel-desk"): return "Travel Operations Desk";

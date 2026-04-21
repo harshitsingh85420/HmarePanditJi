@@ -3,6 +3,15 @@ import { NotificationService } from "../services/notification.service";
 import { getNotificationTemplate } from "../services/notification-templates";
 import { logger } from "../utils/logger";
 
+/**
+ * Review Reminder Job - Phase 1 (Simple setInterval)
+ *
+ * ⚠️ TODO Phase 2: Replace with proper job queue (Bull/BullMQ + Redis)
+ * - setInterval resets on server restart, risking missed/duplicate reminders
+ * - No retry logic for failed notifications
+ * - No distributed locking (runs on every instance in multi-node setup)
+ * - BullMQ would provide: persistence, retries, delayed jobs, monitoring
+ */
 export function startReviewReminderJob() {
     const notificationService = new NotificationService();
 

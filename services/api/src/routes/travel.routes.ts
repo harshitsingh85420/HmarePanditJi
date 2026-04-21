@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { FastifyInstance } from "fastify";
 import {
   calculateTravel,
   getTravelDistance,
@@ -6,18 +6,16 @@ import {
   batchCalculateTravel,
 } from "../controllers/travel.controller";
 
-const router: Router = Router();
+export default async function travelRoutes(fastify: FastifyInstance, _opts: any) {
+  /** POST /travel/calculate — Calculate travel costs (single mode or all options) */
+  fastify.post("/calculate", calculateTravel);
 
-/** POST /travel/calculate — Calculate travel costs (single mode or all options) */
-router.post("/calculate", calculateTravel);
+  /** POST /travel/batch-calculate — Calculate travel costs for multiple pandits */
+  fastify.post("/batch-calculate", batchCalculateTravel);
 
-/** POST /travel/batch-calculate — Calculate travel costs for multiple pandits */
-router.post("/batch-calculate", batchCalculateTravel);
+  /** GET /travel/distance — Get distance between two cities */
+  fastify.get("/distance", getTravelDistance);
 
-/** GET /travel/distance — Get distance between two cities */
-router.get("/distance", getTravelDistance);
-
-/** GET /travel/cities — List all cities in distance matrix */
-router.get("/cities", getTravelCities);
-
-export default router;
+  /** GET /travel/cities — List all cities in distance matrix */
+  fastify.get("/cities", getTravelCities);
+}

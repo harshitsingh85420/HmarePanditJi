@@ -2,8 +2,10 @@ import React from "react";
 
 export type InputVariant = "text" | "phone" | "textarea" | "search";
 
-export interface InputProps
-  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "size"> {
+export interface InputProps extends Omit<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  "size"
+> {
   variant?: InputVariant;
   label?: string;
   error?: string;
@@ -46,7 +48,7 @@ export function Input({
 
   if (variant === "textarea") {
     return (
-      <div className="flex flex-col gap-1.5 w-full">
+      <div className="flex w-full flex-col gap-1.5">
         {label && (
           <label
             htmlFor={inputId}
@@ -59,7 +61,7 @@ export function Input({
         <textarea
           id={inputId}
           rows={rows}
-          className={[...baseClasses, "py-3 px-4 resize-y", className]
+          className={[...baseClasses, "resize-y px-4 py-3", className]
             .filter(Boolean)
             .join(" ")}
           aria-describedby={
@@ -74,7 +76,10 @@ export function Input({
         />
         {error && (
           // ACC-010 FIX: Larger error text for elderly visibility
-          <p id={`${inputId}-error`} className="text-base text-red-500 font-medium">
+          <p
+            id={`${inputId}-error`}
+            className="text-base font-medium text-red-500"
+          >
             {error}
           </p>
         )}
@@ -89,7 +94,7 @@ export function Input({
   }
 
   return (
-    <div className="flex flex-col gap-1.5 w-full">
+    <div className="flex w-full flex-col gap-1.5">
       {label && (
         <label
           htmlFor={inputId}
@@ -102,17 +107,17 @@ export function Input({
       <div className="relative">
         {variant === "phone" && (
           // ACC-010 FIX: Larger phone prefix text
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-base text-slate-500 font-medium pointer-events-none select-none">
+          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 select-none text-base font-medium text-slate-500">
             +91
           </span>
         )}
         {variant === "search" && !leftIcon && (
-          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg pointer-events-none">
+          <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-lg text-slate-400">
             search
           </span>
         )}
         {leftIcon && variant !== "phone" && (
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
             {leftIcon}
           </span>
         )}
@@ -148,7 +153,10 @@ export function Input({
       </div>
       {error && (
         // ACC-010 FIX: Larger error text for elderly visibility
-        <p id={`${inputId}-error`} className="text-base text-red-500 font-medium">
+        <p
+          id={`${inputId}-error`}
+          className="text-base font-medium text-red-500"
+        >
           {error}
         </p>
       )}

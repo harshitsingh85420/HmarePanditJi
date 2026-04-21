@@ -50,7 +50,9 @@ const modeEmoji: Record<TravelMode, string> = {
   FLIGHT: "✈️",
 };
 
-function isTravelModePrice(item: TravelMode | TravelModePrice): item is TravelModePrice {
+function isTravelModePrice(
+  item: TravelMode | TravelModePrice,
+): item is TravelModePrice {
   return typeof item === "object" && "price" in item;
 }
 
@@ -91,7 +93,7 @@ export function PanditCard({
   const hasPrices = travelPrices.length > 0;
 
   const [activeMode, setActiveMode] = useState<TravelMode>(
-    hasPrices ? travelPrices[0].mode : travelModeStrings[0] ?? "SELF_DRIVE",
+    hasPrices ? travelPrices[0].mode : (travelModeStrings[0] ?? "SELF_DRIVE"),
   );
 
   const lowestPrice = hasPrices
@@ -100,7 +102,7 @@ export function PanditCard({
 
   return (
     <div
-      className={`bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden hover:shadow-md transition-shadow relative ${className}`}
+      className={`relative overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm transition-shadow hover:shadow-md dark:border-slate-800 dark:bg-slate-900 ${className}`}
     >
       {onFavorite && (
         <button
@@ -108,16 +110,18 @@ export function PanditCard({
             e.stopPropagation();
             onFavorite(id);
           }}
-          className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm shadow-sm flex items-center justify-center text-slate-400 hover:text-red-500 hover:scale-110 transition-all"
+          className="absolute right-4 top-4 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 text-slate-400 shadow-sm backdrop-blur-sm transition-all hover:scale-110 hover:text-red-500"
           title={isFavorite ? "Remove from favorites" : "Add to favorites"}
         >
-          <span className={`material-symbols-outlined text-lg ${isFavorite ? "text-red-500 fill-current font-variation-fill-1" : ""}`}>
+          <span
+            className={`material-symbols-outlined text-lg ${isFavorite ? "font-variation-fill-1 fill-current text-red-500" : ""}`}
+          >
             favorite
           </span>
         </button>
       )}
       <div className="flex gap-4 p-5">
-        <div className="flex-shrink-0 relative group">
+        <div className="group relative flex-shrink-0">
           <Avatar
             src={displayPhoto}
             name={name}
@@ -131,7 +135,7 @@ export function PanditCard({
               const u = new SpeechSynthesisUtterance(text);
               window.speechSynthesis.speak(u);
             }}
-            className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-white shadow-md flex items-center justify-center text-slate-500 hover:text-primary hover:scale-110 transition-all opacity-0 group-hover:opacity-100"
+            className="hover:text-primary absolute -bottom-2 -right-2 flex h-8 w-8 items-center justify-center rounded-full bg-white text-slate-500 opacity-0 shadow-md transition-all hover:scale-110 group-hover:opacity-100"
             title="Read details"
             aria-label="Read details aloud"
           >
@@ -140,9 +144,9 @@ export function PanditCard({
         </div>
 
         {/* Info */}
-        <div className="flex-1 min-w-0">
+        <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 truncate">
+            <h3 className="truncate text-base font-bold text-slate-900 dark:text-slate-100">
               {name}
             </h3>
             {isVerified && (
@@ -152,14 +156,14 @@ export function PanditCard({
             )}
           </div>
 
-          <div className="flex items-center gap-2 mt-1">
+          <div className="mt-1 flex items-center gap-2">
             <Rating value={displayRating} size="sm" showValue />
             <span className="text-xs text-slate-400">
               ({totalReviews} reviews)
             </span>
           </div>
 
-          <div className="flex items-center gap-3 mt-1.5 text-xs text-slate-500">
+          <div className="mt-1.5 flex items-center gap-3 text-xs text-slate-500">
             {displayLocation && (
               <span className="flex items-center gap-0.5">
                 <span className="material-symbols-outlined text-sm">
@@ -167,7 +171,7 @@ export function PanditCard({
                 </span>
                 {displayLocation}
                 {distanceKm !== undefined && distanceKm > 0 && (
-                  <span className="text-slate-400 ml-1">• {distanceKm} km</span>
+                  <span className="ml-1 text-slate-400">• {distanceKm} km</span>
                 )}
               </span>
             )}
@@ -177,14 +181,14 @@ export function PanditCard({
           </div>
 
           {displayBadges.length > 0 && (
-            <div className="flex flex-wrap gap-1 mt-2">
+            <div className="mt-2 flex flex-wrap gap-1">
               {displayBadges.slice(0, 3).map((s) => (
                 <Badge key={s} variant="neutral" size="sm">
                   {s}
                 </Badge>
               ))}
               {displayBadges.length > 3 && (
-                <span className="text-[10px] text-slate-400 self-center">
+                <span className="self-center text-[10px] text-slate-400">
                   +{displayBadges.length - 3} more
                 </span>
               )}
@@ -196,7 +200,7 @@ export function PanditCard({
       {/* Travel mode tabs with prices */}
       {hasPrices && (
         <div className="px-5 pb-3">
-          <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+          <div className="scrollbar-hide flex gap-2 overflow-x-auto">
             {travelPrices.map((t) => {
               const isActive = activeMode === t.mode;
               return (
@@ -204,10 +208,10 @@ export function PanditCard({
                   key={t.mode}
                   onClick={() => setActiveMode(t.mode)}
                   className={[
-                    "flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-semibold transition-all whitespace-nowrap",
+                    "flex items-center gap-1.5 whitespace-nowrap rounded-xl border px-3 py-2 text-xs font-semibold transition-all",
                     isActive
                       ? "border-primary bg-primary/10 text-primary"
-                      : "border-slate-200 dark:border-slate-700 text-slate-500 hover:border-primary/50",
+                      : "hover:border-primary/50 border-slate-200 text-slate-500 dark:border-slate-700",
                   ].join(" ")}
                 >
                   <span>{modeEmoji[t.mode]}</span>
@@ -217,7 +221,7 @@ export function PanditCard({
             })}
           </div>
           {travelPrices.find((t) => t.mode === activeMode)?.description && (
-            <p className="text-[10px] text-slate-400 mt-1.5 pl-1">
+            <p className="mt-1.5 pl-1 text-[10px] text-slate-400">
               {travelPrices.find((t) => t.mode === activeMode)?.description}
             </p>
           )}
@@ -225,7 +229,7 @@ export function PanditCard({
       )}
 
       {/* Footer */}
-      <div className="flex items-center justify-between px-5 py-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
+      <div className="flex items-center justify-between border-t border-slate-100 bg-slate-50/50 px-5 py-3 dark:border-slate-800 dark:bg-slate-800/30">
         <div className="flex items-center gap-3">
           {lowestPrice !== undefined && (
             <span className="text-sm font-bold text-slate-900 dark:text-slate-100">
@@ -250,14 +254,14 @@ export function PanditCard({
           {onBook && (
             <button
               onClick={() => onBook(id, activeMode)}
-              className="text-xs font-bold bg-primary text-white px-4 py-2 rounded-xl hover:bg-primary/90 transition-colors shadow-sm shadow-primary/20"
+              className="bg-primary hover:bg-primary/90 shadow-primary/20 rounded-xl px-4 py-2 text-xs font-bold text-white shadow-sm transition-colors"
             >
               Book Now
             </button>
           )}
           <button
             onClick={() => onViewProfile?.(id)}
-            className="text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
+            className="text-primary hover:text-primary/80 text-sm font-semibold transition-colors"
           >
             View Profile
           </button>

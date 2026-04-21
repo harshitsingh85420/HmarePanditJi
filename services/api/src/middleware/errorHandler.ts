@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import { FastifyRequest, FastifyReply } from "fastify";
 import { ZodError } from "zod";
 import { logger } from "../utils/logger";
 
@@ -14,48 +14,54 @@ export class AppError extends Error {
   }
 }
 
-export function errorHandler(
-  err: Error,
-  _req: Request,
-  res: Response,
-  _next: NextFunction,
-): void {
+/**
+ * Fastify error handler — catches AppError, ZodError, and generic errors
+ */
+export async function errorHandler(
+  error: Error,
+  request: FastifyRequest,
+  reply: FastifyReply,
+): Promise<void> {
   // Zod validation errors
-  if (err instanceof ZodError) {
-    res.status(422).json({
+  if (error instanceof ZodError) {
+    return reply.code(422).send({
       success: false,
       message: "Validation failed",
       error: {
         code: "VALIDATION_ERROR",
-        details: err.flatten().fieldErrors,
+        details: error.flatten().fieldErrors,
       },
     });
-    return;
   }
 
   // Known application errors
-  if (err instanceof AppError) {
-    res.status(err.statusCode).json({
+  if (error instanceof AppError) {
+    return reply.code(error.statusCode).send({
       success: false,
-      message: err.message,
-      error: { code: err.code },
+      message: error.message,
+      error: { code: error.code },
     });
-    return;
   }
 
   // Unexpected errors
-  console.error('[API Error]', err);
-  logger.error("Unhandled error", { message: err.message, stack: err.stack });
+  logger.error("Unhandled error", { message: error.message, stack: error.stack });
 
-  const statusCode = (err as any).statusCode || 500;
-  res.status(statusCode).json({
-    error: err.message || 'Internal Server Error',
-    statusCode: statusCode,
+  const statusCode = (error as any).statusCode || 500;
+  return reply.code(statusCode).send({
+    success: false,
+    message: error.message || "Internal Server Error",
+    error: { code: "INTERNAL_ERROR" },
   });
 }
 
-export function notFoundHandler(_req: Request, res: Response): void {
-  res.status(404).json({
+/**
+ * Fastify 404 handler
+ */
+export async function notFoundHandler(
+  request: FastifyRequest,
+  reply: FastifyReply,
+): Promise<void> {
+  return reply.code(404).send({
     success: false,
     message: "Route not found",
     error: { code: "NOT_FOUND" },

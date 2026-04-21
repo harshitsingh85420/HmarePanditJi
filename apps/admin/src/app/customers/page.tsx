@@ -68,10 +68,10 @@ export default function CustomersPage() {
       {/* Stats Row */}
       <div className="grid grid-cols-4 gap-4 mb-6">
         {[
-          { label: Total Customers, value: 1,842, icon: people, color: text-primary, bg: bg-primary/10 },
-          { label: Active (30d), value: 1,124, icon: person_check, color: text-green-500, bg: bg-green-500/10 },
-          { label: New This Week, value: 68, icon: person_add, color: text-violet-500, bg: bg-violet-500/10 },
-          { label: Avg Lifetime Value, value: 24,800, icon: currency_rupee, color: text-amber-500, bg: bg-amber-500/10 },
+          { label: "Total Customers", value: "1,842", icon: "people", color: "text-primary", bg: "bg-primary/10" },
+          { label: "Active (30d)", value: "1,124", icon: "person_check", color: "text-green-500", bg: "bg-green-500/10" },
+          { label: "New This Week", value: "68", icon: "person_add", color: "text-violet-500", bg: "bg-violet-500/10" },
+          { label: "Avg Lifetime Value", value: "24,800", icon: "currency_rupee", color: "text-amber-500", bg: "bg-amber-500/10" },
         ].map((stat) => (
           <div key={stat.label} className="bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800 p-4 shadow-sm">
             <div className={`w-10 h-10 rounded-xl ${stat.bg} flex items-center justify-center mb-3`}>
@@ -100,7 +100,7 @@ export default function CustomersPage() {
               <button
                 key={customer.id}
                 onClick={() => setSelectedId(selectedId === customer.id ? null : customer.id)}
-                className={`w-full grid grid-cols-[2fr_1fr_1fr_1fr_1fr_auto] gap-4 px-5 py-4 text-left border-b border-slate-50 dark:border-slate-800 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 ${selectedId === customer.id ? bg-primary/5 dark:bg-primary/10 : }`}
+                className={`w-full grid grid-cols-[2fr_1fr_1fr_1fr_1fr_auto] gap-4 px-5 py-4 text-left border-b border-slate-50 dark:border-slate-800 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 ${selectedId === customer.id ? "bg-primary/5 dark:bg-primary/10" : ""}`}
               >
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-full bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center text-violet-600 dark:text-violet-400 font-bold text-sm flex-shrink-0">
@@ -141,12 +141,12 @@ export default function CustomersPage() {
 
             <div className="p-5 space-y-4">
               {[
-                { label: Phone, value: selected.phone },
-                { label: City, value: selected.city },
-                { label: Total Bookings, value: String(selected.bookings) },
-                { label: Total Spent, value: selected.totalSpent },
-                { label: Joined, value: selected.joinedDate },
-                { label: Last Booking, value: selected.lastBooking },
+                { label: "Phone", value: selected.phone },
+                { label: "City", value: selected.city },
+                { label: "Total Bookings", value: String(selected.bookings) },
+                { label: "Total Spent", value: selected.totalSpent },
+                { label: "Joined", value: selected.joinedDate },
+                { label: "Last Booking", value: selected.lastBooking },
               ].map((row) => (
                 <div key={row.label} className="flex justify-between text-sm">
                   <span className="text-slate-500">{row.label}</span>
@@ -171,11 +171,11 @@ export default function CustomersPage() {
               </div>
 
               <div className="grid grid-cols-2 gap-2 pt-2">
-                <button onClick={() => showToast(SMS sent)} className="py-2.5 rounded-xl text-xs font-bold bg-primary text-white hover:bg-primary/90 transition-colors">Send SMS</button>
-                {selected.status === BLOCKED ? (
-                  <button onClick={() => showToast(Customer unblocked)} className="py-2.5 rounded-xl text-xs font-bold bg-green-100 text-green-700 hover:bg-green-200 transition-colors">Unblock</button>
+                <button onClick={() => showToast("SMS sent")} className="py-2.5 rounded-xl text-xs font-bold bg-primary text-white hover:bg-primary/90 transition-colors">Send SMS</button>
+                {selected.status === "BLOCKED" ? (
+                  <button onClick={() => showToast("Customer unblocked")} className="py-2.5 rounded-xl text-xs font-bold bg-green-100 text-green-700 hover:bg-green-200 transition-colors">Unblock</button>
                 ) : (
-                  <button onClick={() => showToast(Customer blocked)} className="py-2.5 rounded-xl text-xs font-bold text-red-600 border border-red-200 dark:border-red-900/50 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">Block</button>
+                  <button onClick={() => showToast("Customer blocked")} className="py-2.5 rounded-xl text-xs font-bold text-red-600 border border-red-200 dark:border-red-900/50 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">Block</button>
                 )}
               </div>
             </div>

@@ -76,12 +76,12 @@ function ToastContainer({
   if (toasts.length === 0) return null;
   return (
     <div
-      className="fixed top-4 right-4 z-[60] flex flex-col gap-2 w-full max-w-sm"
+      className="fixed right-4 top-4 z-[60] flex w-full max-w-sm flex-col gap-2"
       aria-live="polite"
       aria-label="Notifications"
     >
       {toasts.map((t) => (
-        <ToastItem key={t.id} item={t} onDismiss={onDismiss} />
+        <ToastItemView key={t.id} item={t} onDismiss={onDismiss} />
       ))}
     </div>
   );
@@ -93,13 +93,17 @@ const variantConfig: Record<
   ToastVariant,
   { icon: string; bar: string; text: string }
 > = {
-  success: { icon: "check_circle", bar: "bg-green-500", text: "text-green-600" },
+  success: {
+    icon: "check_circle",
+    bar: "bg-green-500",
+    text: "text-green-600",
+  },
   error: { icon: "error", bar: "bg-red-500", text: "text-red-600" },
   warning: { icon: "warning", bar: "bg-orange-500", text: "text-orange-600" },
   info: { icon: "info", bar: "bg-blue-500", text: "text-blue-600" },
 };
 
-function ToastItem({
+function ToastItemView({
   item,
   onDismiss,
 }: {
@@ -110,27 +114,29 @@ function ToastItem({
 
   return (
     <div
-      className="relative bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-slate-100 dark:border-slate-800 overflow-hidden flex items-start gap-3 p-4"
+      className="relative flex items-start gap-3 overflow-hidden rounded-2xl border border-slate-100 bg-white p-4 shadow-lg dark:border-slate-800 dark:bg-slate-900"
       role="alert"
     >
       {/* Accent bar */}
-      <div className={`absolute left-0 top-0 bottom-0 w-1 ${cfg.bar} rounded-l-2xl`} />
+      <div
+        className={`absolute bottom-0 left-0 top-0 w-1 ${cfg.bar} rounded-l-2xl`}
+      />
 
       <span
-        className={`material-symbols-outlined text-xl mt-0.5 ${cfg.text} ml-1`}
+        className={`material-symbols-outlined mt-0.5 text-xl ${cfg.text} ml-1`}
         style={{ fontVariationSettings: "'FILL' 1" }}
         aria-hidden="true"
       >
         {cfg.icon}
       </span>
 
-      <div className="flex-1 min-w-0">
+      <div className="min-w-0 flex-1">
         <p className="text-base font-bold text-slate-900 dark:text-slate-100">
           {item.title}
         </p>
         {item.message && (
           // ACC-010 FIX: Larger message text for elderly readability
-          <p className="text-base text-slate-500 dark:text-slate-400 mt-1">
+          <p className="mt-1 text-base text-slate-500 dark:text-slate-400">
             {item.message}
           </p>
         )}
@@ -138,10 +144,10 @@ function ToastItem({
 
       <button
         onClick={() => onDismiss(item.id)}
-        className="flex-shrink-0 p-0.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+        className="flex-shrink-0 rounded-lg p-0.5 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
         aria-label="Dismiss notification"
       >
-        <span className="material-symbols-outlined text-slate-400 text-lg">
+        <span className="material-symbols-outlined text-lg text-slate-400">
           close
         </span>
       </button>
@@ -149,4 +155,4 @@ function ToastItem({
   );
 }
 
-export { ToastItem as Toast };
+export { ToastItemView as Toast };

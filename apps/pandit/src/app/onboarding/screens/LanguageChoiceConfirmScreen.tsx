@@ -3,24 +3,28 @@
 import React, { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { speak, startListening, stopListening, stopSpeaking } from '@/lib/voice-engine';
-import { LANGUAGE_DISPLAY, SupportedLanguage } from '@/lib/onboarding-store';
+import { LANGUAGE_DISPLAY, SupportedLanguage, ScriptPreference } from '@/lib/onboarding-store';
 import TopBar from '@/components/TopBar';
 import VoiceIndicator from '@/components/VoiceIndicator';
 
 interface LanguageChoiceConfirmScreenProps {
   language: SupportedLanguage;
+  scriptPreference?: ScriptPreference | null;
   onLanguageChange: () => void;
   pendingLanguage: SupportedLanguage;
   onConfirm: () => void;
   onReject: () => void;
+  onBack?: () => void;
 }
 
 export default function LanguageChoiceConfirmScreen({
   language: _language,
+  scriptPreference = null,
   onLanguageChange,
   pendingLanguage,
   onConfirm,
   onReject,
+  onBack,
 }: LanguageChoiceConfirmScreenProps) {
   const langInfo = LANGUAGE_DISPLAY[pendingLanguage] || { nativeName: pendingLanguage, latinName: pendingLanguage };
   const isListeningRef = useRef(false);
@@ -74,7 +78,13 @@ export default function LanguageChoiceConfirmScreen({
 
   return (
     <main className="font-hind text-text-primary w-full min-h-dvh max-w-[390px] xs:max-w-[430px] mx-auto bg-surface-base flex flex-col shadow-2xl">
-      <TopBar showBack onBack={onReject} onLanguageChange={onLanguageChange} />
+      <TopBar
+        showBack
+        onBack={onBack ?? onReject}
+        onLanguageChange={onLanguageChange}
+        language={pendingLanguage}
+        scriptPreference={scriptPreference}
+      />
 
       {/* Center Content */}
       <div className="flex-1 flex flex-col items-center justify-center w-full text-center px-4 xs:px-6 space-y-4 xs:space-y-6">

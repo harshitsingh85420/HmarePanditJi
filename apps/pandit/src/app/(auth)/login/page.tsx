@@ -18,7 +18,7 @@ export default function LoginPage() {
     script: 'क्या यह आप हैं? हाँ या नहीं बोलें।',
     initialDelayMs: 500,
     pauseAfterMs: 500,
-    onIntent: (intent) => {
+    onIntent: (intent: string) => {
       if (intent === 'YES') handleConfirm()
       else if (intent === 'NO') handleNotMatch()
     },

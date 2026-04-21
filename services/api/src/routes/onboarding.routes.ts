@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { FastifyInstance } from "fastify";
 import { authenticate } from "../middleware/auth";
 import { roleGuard } from "../middleware/roleGuard";
 import {
@@ -10,15 +10,13 @@ import {
     onboardingComplete
 } from "../controllers/onboarding.controller";
 
-const router: Router = Router();
+export default async function onboardingRoutes(fastify: FastifyInstance, _opts: any) {
+    const authPreHandler = [authenticate, roleGuard("PANDIT")];
 
-router.use(authenticate, roleGuard("PANDIT"));
-
-router.post("/step1", onboardingStep1);
-router.post("/step2", onboardingStep2);
-router.post("/step3", onboardingStep3);
-router.post("/step4", onboardingStep4);
-router.post("/step5", onboardingStep5);
-router.post("/complete", onboardingComplete);
-
-export default router;
+    fastify.post("/step1", { preHandler: authPreHandler }, onboardingStep1);
+    fastify.post("/step2", { preHandler: authPreHandler }, onboardingStep2);
+    fastify.post("/step3", { preHandler: authPreHandler }, onboardingStep3);
+    fastify.post("/step4", { preHandler: authPreHandler }, onboardingStep4);
+    fastify.post("/step5", { preHandler: authPreHandler }, onboardingStep5);
+    fastify.post("/complete", { preHandler: authPreHandler }, onboardingComplete);
+}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ADMIN_TOKEN_KEY } from '@hmarepanditji/utils';
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1";
 
@@ -25,7 +26,7 @@ export default function AdminLoginPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Login failed");
 
-      localStorage.setItem("adminToken", data.data.accessToken);
+      localStorage.setItem(ADMIN_TOKEN_KEY, data.data.accessToken);
       window.location.href = "/";
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Something went wrong");
@@ -90,14 +91,14 @@ export default function AdminLoginPage() {
             disabled={loading}
             className="mt-6 w-full rounded-lg bg-primary py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary/90 disabled:opacity-50"
           >
-            {loading ? Signing in... : Sign In}
+            {loading ? "Signing in..." : "Sign In"}
           </button>
 
           <button
             type="button"
             onClick={() => {
-              localStorage.removeItem(adminToken);
-              window.location.href = /login;
+              localStorage.removeItem(ADMIN_TOKEN_KEY);
+              window.location.href = "/login";
             }}
             className="mt-2 w-full text-xs text-slate-500 hover:text-white"
           >
@@ -108,11 +109,6 @@ export default function AdminLoginPage() {
             Authorized personnel only. Access is logged and monitored.
           </p>
         </form>
-
-        {/* Dev hint */}
-        <div className="mt-4 rounded-lg border border-slate-800 bg-slate-900/50 p-3 text-center text-xs text-slate-500">
-          <span className="text-yellow-500">Dev Mode:</span> Use admin@hmarepanditji.com / admin123
-        </div>
       </div>
     </main>
   );

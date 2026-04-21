@@ -6,11 +6,12 @@ export const dynamic = 'force-dynamic'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
-import { useSafeRegistrationStore, useSafeNavigationStore, useSafeVoiceStore } from '@/lib/stores/ssr-safe-stores'
+import { useSafeNavigationStore, useSafeVoiceStore } from '@/lib/stores/ssr-safe-stores'
 import TopBar from '@/components/TopBar'
 import { speakWithSarvam } from '@/lib/sarvam-tts'
 import { startListeningWithSarvam, type VoiceEngineConfig } from '@/lib/voice-engine'
 import { DiyaIllustration } from '@/components/illustrations/PremiumIcons'
+import { logger } from '@/utils/logger'
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -32,7 +33,6 @@ export default function IdentityConfirmationPage() {
   const { setSection } = useSafeNavigationStore()
   const { transcribedText, resetErrors } = useSafeVoiceStore()
   const [isListening, setIsListening] = useState(false)
-  const [confirmed, setConfirmed] = useState(false)
 
   useEffect(() => {
     setSection('identity-confirmation')
@@ -61,18 +61,17 @@ export default function IdentityConfirmationPage() {
       isElderly: true,
       useSarvam: true,
       confidenceThreshold: 0.6,
-      onStateChange: (state) => {
-        console.log('[Identity] Voice state:', state)
+      onStateChange: (state: string) => {
+        logger.debug('[Identity] Voice state:', state)
         if (state === 'IDLE' || state === 'SUCCESS' || state === 'FAILURE') {
           setIsListening(false)
         }
       },
-      onResult: (result) => {
-        console.log('[Identity] Voice result:', result)
+      onResult: (result: { transcript: string }) => {
+        logger.debug('[Identity] Voice result:', result)
         const answer = result.transcript.toLowerCase()
 
         if (answer.includes('haan') || answer.includes('yes') || answer.includes('correct')) {
-          setConfirmed(true)
           void speakWithSarvam({
             text: 'धन्यवाद। आपकी पहचान की पुष्टि हो गई है। अब आगे बढ़ते हैं।',
             languageCode: 'hi-IN',
@@ -92,13 +91,12 @@ export default function IdentityConfirmationPage() {
 
         setIsListening(false)
       },
-      onError: (error) => {
-        console.warn('[Identity] Voice error:', error)
+      onError: (error: string) => {
+        logger.warn('[Identity] Voice error:', error)
         setIsListening(false)
 
         if (error === 'KEYBOARD_FALLBACK') {
           // Show keyboard options
-          setConfirmed(true)
           router.push('/language')
         }
       },
@@ -112,23 +110,12 @@ export default function IdentityConfirmationPage() {
   }
 
   const handleManualConfirm = () => {
-    setConfirmed(true)
     void speakWithSarvam({
       text: 'धन्यवाद। आपकी पहचान की पुष्टि हो गई है।',
       languageCode: 'hi-IN',
     })
     setTimeout(() => {
       router.push('/language')
-    }, 1000)
-  }
-
-  const handleManualDeny = () => {
-    void speakWithSarvam({
-      text: 'कोई बात नहीं।',
-      languageCode: 'hi-IN',
-    })
-    setTimeout(() => {
-      router.push('/')
     }, 1000)
   }
 

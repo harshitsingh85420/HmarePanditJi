@@ -1,6 +1,6 @@
 import Razorpay from "razorpay";
 import crypto from "crypto";
-import { prisma } from "@hmarepanditji/db";
+import { prisma, BookingStatus, PaymentStatus } from "@hmarepanditji/db";
 import { env } from "../config/env";
 import { logger } from "../utils/logger";
 import { AppError } from "../middleware/errorHandler";

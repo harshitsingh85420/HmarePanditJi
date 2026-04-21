@@ -1,11 +1,12 @@
 import { useState, useCallback } from 'react';
 import { useToast } from '@hmarepanditji/ui';
+import type { RazorpayOptions, RazorpayResponse } from '@hmarepanditji/types';
 
 export function useRazorpay() {
     const [isProcessing, setIsProcessing] = useState(false);
     const { toast } = useToast();
 
-    const loadRazorpayScript = () => {
+    const loadRazorpayScript = (): Promise<boolean> => {
         return new Promise((resolve) => {
             const existingScript = document.getElementById('razorpay-checkout-js');
             if (existingScript) return resolve(true);
@@ -22,8 +23,8 @@ export function useRazorpay() {
     const openCheckout = useCallback(async (
         orderId: string,
         amount: number,
-        booking: any,
-        user: any,
+        booking: Record<string, unknown>,
+        user: Record<string, unknown>,
         onSuccess: (bookingNumber: string) => void
     ) => {
         setIsProcessing(true);
@@ -35,8 +36,8 @@ export function useRazorpay() {
             return;
         }
 
-        const options = {
-            key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_YourKeyHere',
+        const options: RazorpayOptions = {
+            key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || (() => { throw new Error('NEXT_PUBLIC_RAZORPAY_KEY_ID environment variable is required'); })(),
             amount: amount * 100, // expecting rupees as input, converting to paise
             currency: 'INR',
             name: 'HmarePanditJi',
@@ -44,10 +45,10 @@ export function useRazorpay() {
             order_id: orderId,
             theme: { color: '#f49d25' },
             prefill: {
-                name: user?.name || '',
-                contact: user?.phone || '',
+                name: String(user?.name || ''),
+                contact: String(user?.phone || ''),
             },
-            handler: async (response: any) => {
+            handler: async (response: RazorpayResponse) => {
                 try {
                     // Verify payment
                     const result = await fetch('/api/payments/verify', {
@@ -85,8 +86,8 @@ export function useRazorpay() {
             }
         };
 
-        const rzp = new (window as any).Razorpay(options);
-        rzp.on('payment.failed', function (response: any) {
+        const rzp = new window.Razorpay(options);
+        rzp.on('payment.failed', function (response: { error: { description: string } }) {
             toast({ variant: 'error', title: 'Error', message: 'Payment Failed: ' + response.error.description });
         });
         rzp.open();

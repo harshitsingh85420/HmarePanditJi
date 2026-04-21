@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import TravelCalculatorModal from "../../components/TravelCalculatorModal";
 import { format, differenceInHours } from "date-fns";
 import Link from "next/link";
+import { ADMIN_TOKEN_KEY } from '@hmarepanditji/utils';
 
 export default function TravelDeskPage() {
     const [activeTab, setActiveTab] = useState("pending");
@@ -13,13 +14,13 @@ export default function TravelDeskPage() {
     const [markBookedModal, setMarkBookedModal] = useState<{ isOpen: boolean; bookingId: string | null; bookingData?: any }>({ isOpen: false, bookingId: null });
 
     const [bookedForm, setBookedForm] = useState({
-        pnr: , carrier: , actualCost: , notes: 
+        pnr: "", carrier: "", actualCost: "", notes: ""
     });
 
     const fetchQueue = () => {
         setLoading(true);
         fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/travel-queue?tab=${activeTab}`, {
-            headers: { Authorization: `Bearer ${localStorage.getItem(adminToken) || }` }
+            headers: { Authorization: `Bearer ${localStorage.getItem(ADMIN_TOKEN_KEY) || ""}` }
         })
             .then(res => res.json())
             .then(data => {
@@ -38,10 +39,10 @@ export default function TravelDeskPage() {
     const handleCalculateSave = async (data: any) => {
         try {
             await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/bookings/${calculatorModal.bookingId}/travel-calculate`, {
-                method: PATCH,
+                method: "PATCH",
                 headers: {
-                    Content-Type: application/json,
-                    Authorization: `Bearer ${localStorage.getItem(adminToken) || }`
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${localStorage.getItem(ADMIN_TOKEN_KEY) || ""}`
                 },
                 body: JSON.stringify(data)
             });
@@ -55,10 +56,10 @@ export default function TravelDeskPage() {
     const handleMarkBooked = async () => {
         try {
             await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/bookings/${markBookedModal.bookingId}/travel-booked`, {
-                method: PATCH,
+                method: "PATCH",
                 headers: {
-                    Content-Type: application/json,
-                    Authorization: `Bearer ${localStorage.getItem(adminToken) || }`
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${localStorage.getItem(ADMIN_TOKEN_KEY) || ""}`
                 },
                 body: JSON.stringify({
                     travelBookingDetails: { reference: bookedForm.pnr, carrier: bookedForm.carrier, notes: bookedForm.notes },
@@ -66,7 +67,7 @@ export default function TravelDeskPage() {
                 })
             });
             setMarkBookedModal({ isOpen: false, bookingId: null });
-            setBookedForm({ pnr: , carrier: , actualCost: , notes:  });
+            setBookedForm({ pnr: "", carrier: "", actualCost: "", notes: "" });
             fetchQueue();
         } catch (e) {
             console.error(e);
@@ -78,15 +79,15 @@ export default function TravelDeskPage() {
 Pandit: ${b.pandit?.name} (Ph: ${b.pandit?.phone})
 From: ${b.pandit?.panditProfile?.location} → To: ${b.venueCity}
 Event Date: ${format(new Date(b.eventDate), 'dd MMM yyyy')}
-Mode: ${b.travelMode || Transport}`;
+Mode: ${b.travelMode || "Transport"}`;
         navigator.clipboard.writeText(text);
-        alert(Copied to clipboard!);
+        alert("Copied to clipboard!");
     };
 
     const tabs = [
-        { id: pending, label: Needs Travel, icon: 🔴, desc: Urgent },
-        { id: calculating, label: In Progress, icon: 🟡, desc: Costing },
-        { id: booked, label: Booked, icon: ✅, desc: Done },
+        { id: "pending", label: "Needs Travel", icon: "🔴", desc: "Urgent" },
+        { id: "calculating", label: "In Progress", icon: "🟡", desc: "Costing" },
+        { id: "booked", label: "Booked", icon: "✅", desc: "Done" },
     ];
 
     return (
@@ -107,8 +108,8 @@ Mode: ${b.travelMode || Transport}`;
                         key={t.id}
                         onClick={() => setActiveTab(t.id)}
                         className={`px-5 py-2.5 rounded-lg font-bold text-sm transition-all flex items-center gap-2 ${activeTab === t.id
-                            ? bg-white text-slate-900 shadow-sm
-                            : text-slate-500 hover:text-slate-700 hover:bg-slate-200/50
+                            ? "bg-white text-slate-900 shadow-sm"
+                            : "text-slate-500 hover:text-slate-700 hover:bg-slate-200/50"
                             }`}
                     >
                         <span>{t.icon}</span>
@@ -130,10 +131,10 @@ Mode: ${b.travelMode || Transport}`;
                 ) : (
                     bookings.map(b => {
                         const hrsToEvent = differenceInHours(new Date(b.eventDate), new Date());
-                        let urgTheme = bg-white border-slate-200;
+                        let urgTheme = "bg-white border-slate-200";
                         let urgBadge = null;
 
-                        if (activeTab === pending && hrsToEvent < 48) {
+                        if (activeTab === "pending" && hrsToEvent < 48) {
                             urgTheme = hrsToEvent < 24 ? "border-red-300 bg-red-50/30 ring-1 ring-red-100" : "border-amber-300 bg-amber-50/30";
                             urgBadge = hrsToEvent < 24 ? (
                                 <div className="bg-red-500 text-white text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-t-xl text-center w-full absolute top-0 inset-x-0">🚨 Event in {hrsToEvent} hours!</div>
@@ -165,7 +166,7 @@ Mode: ${b.travelMode || Transport}`;
                                             <div>
                                                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Pandit</p>
                                                 <p className="text-sm font-bold text-slate-700 truncate">{b.pandit?.name}</p>
-                                                <p className="text-xs text-slate-500 mt-0.5">{b.pandit?.panditProfile?.location || Unknown} <span className="text-blue-500 font-semibold cursor-pointer ml-1">📱 {b.pandit?.phone}</span></p>
+                                                <p className="text-xs text-slate-500 mt-0.5">{b.pandit?.panditProfile?.location || "Unknown"} <span className="text-blue-500 font-semibold cursor-pointer ml-1">📱 {b.pandit?.phone}</span></p>
                                             </div>
                                         </div>
                                     </div>
@@ -185,23 +186,23 @@ Mode: ${b.travelMode || Transport}`;
                                         <div className="bg-slate-50 rounded-xl p-3 text-xs text-slate-600 font-medium space-y-2 border border-slate-100">
                                             <div className="flex justify-between">
                                                 <span className="text-slate-400 font-bold">MODE</span>
-                                                <span className="font-bold text-slate-800">{b.travelMode || Transport}</span>
+                                                <span className="font-bold text-slate-800">{b.travelMode || "Transport"}</span>
                                             </div>
                                             <div className="flex justify-between">
                                                 <span className="text-slate-400 font-bold">EST. COST</span>
-                                                <span className="font-bold text-slate-800">₹{b.calculatedTravelCost || ---}</span>
+                                                <span className="font-bold text-slate-800">₹{b.calculatedTravelCost || "---"}</span>
                                             </div>
                                         </div>
                                     </div>
 
                                     {/* RIGHT Actions */}
                                     <div className="w-full md:w-56 flex flex-col gap-3 pl-0 md:pl-6 mt-6 md:mt-0 shrink-0">
-                                        {activeTab !== booked && (
+                                        {activeTab !== "booked" && (
                                             <button
                                                 onClick={() => setCalculatorModal({ isOpen: true, bookingId: b.id, bookingData: b })}
                                                 className="w-full bg-white border-2 border-slate-200 hover:border-blue-500 hover:text-blue-700 text-slate-700 font-bold py-2.5 px-4 rounded-xl shadow-sm transition-all focus:ring-4 focus:ring-blue-100 active:scale-95"
                                             >
-                                                {b.calculatedTravelCost ? Edit Calculator : 🧮 Calculate}
+                                                {b.calculatedTravelCost ? "Edit Calculator" : "🧮 Calculate"}
                                             </button>
                                         )}
 
@@ -212,10 +213,10 @@ Mode: ${b.travelMode || Transport}`;
                                             📋 Copy Details
                                         </button>
 
-                                        {activeTab !== booked && (
+                                        {activeTab !== "booked" && (
                                             <button
                                                 onClick={() => {
-                                                    setBookedForm({ ...bookedForm, actualCost: String(b.calculatedTravelCost || ) });
+                                                    setBookedForm({ ...bookedForm, actualCost: String(b.calculatedTravelCost || "") });
                                                     setMarkBookedModal({ isOpen: true, bookingId: b.id, bookingData: b });
                                                 }}
                                                 className="w-full bg-green-500 hover:bg-green-600 text-white font-black py-3 px-4 rounded-xl shadow-md shadow-green-500/20 transition-all active:scale-95 mt-2 flex items-center justify-center gap-2 group"
@@ -225,7 +226,7 @@ Mode: ${b.travelMode || Transport}`;
                                             </button>
                                         )}
 
-                                        {activeTab === booked && (
+                                        {activeTab === "booked" && (
                                             <div className="bg-green-50 border border-green-200 p-3 rounded-xl text-center">
                                                 <p className="text-xs font-black text-green-600 uppercase tracking-wider mb-1">Actual Cost</p>
                                                 <p className="text-2xl tracking-tight font-black text-green-700">₹{b.travelCost}</p>

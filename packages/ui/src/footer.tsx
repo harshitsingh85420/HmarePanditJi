@@ -57,12 +57,12 @@ export function Footer({ LinkComponent }: FooterProps) {
     "text-sm text-slate-400 hover:text-slate-200 transition-colors";
 
   return (
-    <footer className="bg-slate-900 dark:bg-slate-950 text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+    <footer className="bg-slate-900 text-white dark:bg-slate-950">
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {/* Brand */}
           <div>
-            <div className="flex items-center gap-2 mb-4">
+            <div className="mb-4 flex items-center gap-2">
               <span
                 className="material-symbols-outlined text-2xl text-amber-400"
                 style={{ fontVariationSettings: "'FILL' 1" }}
@@ -71,23 +71,23 @@ export function Footer({ LinkComponent }: FooterProps) {
               </span>
               <span className="text-lg font-bold">HmarePanditJi</span>
             </div>
-            <p className="text-sm text-slate-400 italic leading-relaxed">
+            <p className="text-sm italic leading-relaxed text-slate-400">
               Sanskriti ko Digital Disha
             </p>
-            <p className="text-xs text-slate-500 mt-2 leading-relaxed">
+            <p className="mt-2 text-xs leading-relaxed text-slate-500">
               India&rsquo;s first platform for booking verified Hindu priests.
               Delhi-NCR Phase 1.
             </p>
             {/* Social icons */}
-            <div className="flex gap-2 mt-5">
+            <div className="mt-5 flex gap-2">
               {socialLinks.map((s) => (
                 <a
                   key={s.label}
                   href={s.href}
                   aria-label={s.label}
-                  className="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 flex items-center justify-center transition-colors"
+                  className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-800 transition-colors hover:bg-slate-700"
                 >
-                  <span className="material-symbols-outlined text-slate-400 text-base">
+                  <span className="material-symbols-outlined text-base text-slate-400">
                     {s.icon}
                   </span>
                 </a>
@@ -97,7 +97,7 @@ export function Footer({ LinkComponent }: FooterProps) {
 
           {/* Quick Links */}
           <div>
-            <h4 className="text-sm font-bold uppercase tracking-wider text-slate-300 mb-4">
+            <h4 className="mb-4 text-sm font-bold uppercase tracking-wider text-slate-300">
               Quick Links
             </h4>
             <ul className="space-y-2">
@@ -113,7 +113,7 @@ export function Footer({ LinkComponent }: FooterProps) {
 
           {/* Support */}
           <div>
-            <h4 className="text-sm font-bold uppercase tracking-wider text-slate-300 mb-4">
+            <h4 className="mb-4 text-sm font-bold uppercase tracking-wider text-slate-300">
               Support
             </h4>
             <ul className="space-y-2">
@@ -129,21 +129,21 @@ export function Footer({ LinkComponent }: FooterProps) {
 
           {/* Newsletter */}
           <div>
-            <h4 className="text-sm font-bold uppercase tracking-wider text-slate-300 mb-4">
+            <h4 className="mb-4 text-sm font-bold uppercase tracking-wider text-slate-300">
               Stay Updated
             </h4>
-            <p className="text-sm text-slate-400 mb-3">
+            <p className="mb-3 text-sm text-slate-400">
               Get updates on upcoming festivals and special puja packages.
             </p>
             <div className="flex gap-2">
               <input
                 type="email"
                 placeholder="your@email.com"
-                className="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                className="focus:border-primary focus:ring-primary flex-1 rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-1"
                 aria-label="Email for newsletter"
               />
               <button
-                className="px-3 py-2 bg-primary hover:bg-primary/90 text-white rounded-xl text-sm font-bold transition-all"
+                className="bg-primary hover:bg-primary/90 rounded-xl px-3 py-2 text-sm font-bold text-white transition-all"
                 aria-label="Subscribe"
               >
                 <span className="material-symbols-outlined text-base">
@@ -155,12 +155,12 @@ export function Footer({ LinkComponent }: FooterProps) {
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-10 pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-slate-800 pt-6 sm:flex-row">
           <p className="text-xs text-slate-500">
-            &copy; {new Date().getFullYear()} HmarePanditJi. All rights reserved.
-            Made with{" "}
+            &copy; {new Date().getFullYear()} HmarePanditJi. All rights
+            reserved. Made with{" "}
             <span
-              className="material-symbols-outlined text-xs text-red-500 align-middle"
+              className="material-symbols-outlined align-middle text-xs text-red-500"
               style={{ fontVariationSettings: "'FILL' 1" }}
             >
               favorite

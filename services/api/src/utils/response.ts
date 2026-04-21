@@ -1,4 +1,5 @@
-import { Response } from "express";
+import { FastifyReply } from "fastify";
+import { AppError } from "../middleware/errorHandler";
 
 export interface ApiResponse<T = unknown> {
   success: boolean;
@@ -17,70 +18,99 @@ export interface ApiResponse<T = unknown> {
 }
 
 export function sendSuccess<T>(
-  res: Response,
+  reply: FastifyReply,
   data: T,
   message = "Success",
   statusCode = 200,
   meta?: ApiResponse["meta"],
-): Response {
+): void {
   const body: ApiResponse<T> = { success: true, data, message };
   if (meta) body.meta = meta;
-  return res.status(statusCode).json(body);
+  void reply.code(statusCode).send(body);
 }
 
 export function sendCreated<T>(
-  res: Response,
+  reply: FastifyReply,
   data: T,
   message = "Created successfully",
-): Response {
-  return sendSuccess(res, data, message, 201);
+): void {
+  sendSuccess(reply, data, message, 201);
 }
 
 export function sendError(
-  res: Response,
+  reply: FastifyReply,
   message: string,
   statusCode = 400,
   code = "BAD_REQUEST",
   details?: string | Record<string, unknown>,
-): Response {
+): void {
   const body: ApiResponse = {
     success: false,
     message,
     error: { code, details },
   };
-  return res.status(statusCode).json(body);
+  void reply.code(statusCode).send(body);
 }
 
-export function sendUnauthorized(
-  res: Response,
+/**
+ * Fastify-compatible error creators (throw AppError instead of sending response)
+ */
+export function createError(
+  message: string,
+  statusCode = 400,
+  code = "BAD_REQUEST",
+  details?: string | Record<string, unknown>,
+): never {
+  throw new AppError(message, statusCode, code);
+}
+
+export function throwUnauthorized(
   message = "Unauthorized",
-): Response {
-  return sendError(res, message, 401, "UNAUTHORIZED");
+  code = "UNAUTHORIZED",
+): never {
+  throw new AppError(message, 401, code);
+}
+
+export function throwForbidden(
+  message = "Forbidden",
+  code = "FORBIDDEN",
+): never {
+  throw new AppError(message, 403, code);
+}
+
+/**
+ * Legacy Express wrappers (for backward compatibility during migration)
+ */
+export function sendUnauthorized(
+  reply: FastifyReply,
+  message = "Unauthorized",
+): void {
+  sendError(reply, message, 401, "UNAUTHORIZED");
 }
 
 export function sendForbidden(
-  res: Response,
+  reply: FastifyReply,
   message = "Forbidden",
-): Response {
-  return sendError(res, message, 403, "FORBIDDEN");
+): void {
+  sendError(reply, message, 403, "FORBIDDEN");
 }
 
 export function sendNotFound(
-  res: Response,
+  reply: FastifyReply,
   resource = "Resource",
-): Response {
-  return sendError(res, `${resource} not found`, 404, "NOT_FOUND");
+): void {
+  sendError(reply, `${resource} not found`, 404, "NOT_FOUND");
 }
 
 export function sendPaginated<T>(
-  res: Response,
+  reply: FastifyReply,
   data: T[],
   total: number,
   page: number,
   limit: number,
   message = "Success",
-): Response {
-  return sendSuccess(res, data, message, 200, {
+): void {
+  sendSuccess(reply, data, message, 200, {
     page,
     limit,
     total,

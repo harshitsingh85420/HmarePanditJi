@@ -1,6 +1,6 @@
 'use client'
 
-// SSR FIX: Force dynamic rendering to prevent build errors
+// Prevent static generation for error pages
 export const dynamic = 'force-dynamic'
 
 import { useEffect } from 'react'

@@ -54,12 +54,16 @@ export const preloadCriticalChunks = () => {
   if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
     requestIdleCallback(() => {
       // Preload illustrations
-      loadIllustration('OmSymbol').catch(() => {})
+      loadIllustration('OmSymbol').catch((err) => {
+        console.warn('Failed to preload OmSymbol illustration:', err);
+      });
       // Preload emergency SOS
-      import('@/components/emergency/EmergencySOS').catch(() => {})
-    })
+      import('@/components/emergency/EmergencySOS').catch((err) => {
+        console.warn('Failed to preload EmergencySOS component:', err);
+      });
+    });
   }
-}
+};
 
 /**
  * Helper hook to load components with loading state

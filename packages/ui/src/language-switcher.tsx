@@ -5,17 +5,20 @@ export interface LanguageSwitcherProps {
   onChange?: (value: string) => void;
 }
 
-export function LanguageSwitcher({ value = "en", onChange }: LanguageSwitcherProps) {
+export function LanguageSwitcher({
+  value = "en",
+  onChange,
+}: LanguageSwitcherProps) {
   const isHindi = value === "hi";
 
   return (
     <button
       onClick={() => onChange?.(isHindi ? "en" : "hi")}
-      className="min-h-[56px] px-6 flex items-center gap-3 text-[22px] font-bold text-text-primary active:opacity-50 focus:ring-2 focus:ring-saffron focus:outline-none border-2 border-border-default rounded-full bg-surface-card hover:bg-surface-muted transition-colors"
+      className="text-text-primary focus:ring-saffron border-border-default bg-surface-card hover:bg-surface-muted flex min-h-[56px] items-center gap-3 rounded-full border-2 px-6 text-[22px] font-bold transition-colors focus:outline-none focus:ring-2 active:opacity-50"
       aria-label="भाषा बदलें / Change Language"
     >
       <span className={isHindi ? "text-saffron" : ""}>हिन्दी</span>
-      <span className="text-[18px] text-text-secondary">/</span>
+      <span className="text-text-secondary text-[18px]">/</span>
       <span className={!isHindi ? "text-saffron" : ""}>English</span>
     </button>
   );

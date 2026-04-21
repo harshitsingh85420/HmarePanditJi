@@ -27,7 +27,6 @@ export default function ReferralLandingPage() {
   const [isValid, setIsValid] = useState<boolean | null>(null)
   const [referrerName, setReferrerName] = useState('')
   const [benefit, setBenefit] = useState('')
-  const [isLoading, setIsLoading] = useState(true)
 
   // Manual entry state
   const [manualCode, setManualCode] = useState('')
@@ -47,7 +46,6 @@ export default function ReferralLandingPage() {
     const validateCode = async () => {
       if (!referralCode || referralCode.length < 6) {
         setIsValid(false)
-        setIsLoading(false)
         return
       }
 
@@ -71,8 +69,6 @@ export default function ReferralLandingPage() {
       } catch (error) {
         console.error('[Referral] Validation error:', error)
         setIsValid(false)
-      } finally {
-        setIsLoading(false)
       }
     }
 

@@ -1,13 +1,61 @@
-import { Request, Response, NextFunction } from "express";
+import { FastifyRequest, FastifyReply } from "fastify";
 import { prisma } from "@hmarepanditji/db";
-import { sendSuccess } from "../utils/response";
 import { AppError } from "../middleware/errorHandler";
 import { SUPPORTED_PUJA_TYPES } from "../config/constants";
 
-const cacheTTL = 3600 * 1000; // 1 hour
-const datesCache = new Map<string, { data: any; expiry: number }>();
-const pujasForDateCache = new Map<string, { data: any; expiry: number }>();
-const upcomingCache = new Map<string, { data: any; expiry: number }>();
+// Bounded TTL cache with size limit to prevent memory leaks
+class BoundedTTLCache<T> {
+  private store = new Map<string, { data: T; expiry: number }>();
+  constructor(private maxSize: number, private defaultTTL: number) { }
+
+  get(key: string): T | undefined {
+    const entry = this.store.get(key);
+    if (!entry) return undefined;
+    if (entry.expiry <= Date.now()) {
+      this.store.delete(key);
+      return undefined;
+    }
+    return entry.data;
+  }
+
+  set(key: string, data: T, ttl?: number) {
+    // Evict expired entries first
+    const now = Date.now();
+    for (const [k, v] of this.store.entries()) {
+      if (v.expiry <= now) this.store.delete(k);
+    }
+    // If still at capacity, evict oldest
+    if (this.store.size >= this.maxSize) {
+      const oldest = this.store.keys().next().value;
+      if (oldest !== undefined) this.store.delete(oldest);
+    }
+    this.store.set(key, { data, expiry: now + (ttl ?? this.defaultTTL) });
+  }
+}
+
+const CACHE_TTL = 3600 * 1000; // 1 hour
+const MAX_CACHE_SIZE = 200; // per-cache entry limit
+
+interface MuhuratDateGroup {
+  date: string;
+  count: number;
+  pujaTypes: string[];
+}
+
+interface MuhuratDateEntry {
+  date: string;
+  pujaType: string | null;
+  timeWindow: string | null;
+  significance: string | null;
+}
+
+const datesCache = new BoundedTTLCache<MuhuratDateGroup[]>(MAX_CACHE_SIZE, CACHE_TTL);
+const pujasForDateCache = new BoundedTTLCache<MuhuratDateEntry[]>(MAX_CACHE_SIZE, CACHE_TTL);
+const upcomingCache = new BoundedTTLCache<MuhuratDateEntry[]>(MAX_CACHE_SIZE, CACHE_TTL);
+
+function successBody<T>(data: T): { success: boolean; data: T; message: string } {
+  return { success: true, data, message: "Success" };
+}
 
 /**
  * GET /muhurat/dates
@@ -15,15 +63,14 @@ const upcomingCache = new Map<string, { data: any; expiry: number }>();
  * Query: ?month=M&year=Y&pujaType=X
  * Groups by date, counts pujas, returns { dates: [{ date, count, pujaTypes: string[] }] }
  */
-export async function getMuhuratDates(req: Request, res: Response, next: NextFunction) {
+export async function getMuhuratDates(request: FastifyRequest, reply: FastifyReply) {
   try {
-    const { from, to, month, year, pujaType } = req.query as {
-      from?: string;
-      to?: string;
-      month?: string;
-      year?: string;
-      pujaType?: string;
-    };
+    const query = request.query as Record<string, string | undefined>;
+    const from = query.from;
+    const to = query.to;
+    const month = query.month;
+    const year = query.year;
+    const pujaType = query.pujaType;
 
     let fromDate: Date;
     let toDate: Date;
@@ -53,8 +100,8 @@ export async function getMuhuratDates(req: Request, res: Response, next: NextFun
 
     const cacheKey = `${fromDate.toISOString()}_${toDate.toISOString()}_${pujaType || "all"}`;
     const cached = datesCache.get(cacheKey);
-    if (cached && cached.expiry > Date.now()) {
-      return sendSuccess(res, { dates: cached.data });
+    if (cached !== undefined) {
+      return reply.send(successBody({ dates: cached }));
     }
 
     const filter: Record<string, unknown> = pujaType && pujaType !== "all" ? { pujaType } : {};
@@ -79,17 +126,17 @@ export async function getMuhuratDates(req: Request, res: Response, next: NextFun
       group.pujaTypes.add(d.pujaType);
     }
 
-    const result = Array.from(groupedMap.values()).map((g: { date: string; count: number; pujaTypes: Set<string> }) => ({
+    const result = Array.from(groupedMap.values()).map((g) => ({
       date: g.date,
       count: g.count,
       pujaTypes: Array.from(g.pujaTypes),
     }));
 
-    datesCache.set(cacheKey, { data: result, expiry: Date.now() + cacheTTL });
+    datesCache.set(cacheKey, result);
 
-    sendSuccess(res, { dates: result });
+    return reply.send(successBody({ dates: result }));
   } catch (err) {
-    next(err);
+    throw err;
   }
 }
 
@@ -98,15 +145,16 @@ export async function getMuhuratDates(req: Request, res: Response, next: NextFun
  * Get next N muhurat dates from today
  * Query: ?limit=10&pujaType=Vivah
  */
-export async function getUpcomingMuhurat(req: Request, res: Response, next: NextFunction) {
+export async function getUpcomingMuhurat(request: FastifyRequest, reply: FastifyReply) {
   try {
-    const limit = parseInt(req.query.limit as string) || 10;
-    const pujaType = req.query.pujaType as string;
+    const query = request.query as Record<string, string | undefined>;
+    const limit = parseInt(query.limit || "10");
+    const pujaType = query.pujaType;
 
     const cacheKey = `${limit}_${pujaType || "all"}`;
     const cached = upcomingCache.get(cacheKey);
-    if (cached && cached.expiry > Date.now()) {
-      return sendSuccess(res, { dates: cached.data });
+    if (cached !== undefined) {
+      return reply.send(successBody({ dates: cached }));
     }
 
     const today = new Date();
@@ -121,16 +169,16 @@ export async function getUpcomingMuhurat(req: Request, res: Response, next: Next
       select: { date: true, pujaType: true, timeWindow: true, significance: true }
     });
 
-    const result = dates.map((d: any) => ({
+    const result = dates.map((d: { date: Date; pujaType: string | null; timeWindow: string | null; significance: string | null }): { date: string; pujaType: string | null; timeWindow: string | null; significance: string | null } => ({
       ...d,
       date: d.date.toISOString().split("T")[0],
     }));
 
-    upcomingCache.set(cacheKey, { data: result, expiry: Date.now() + cacheTTL });
+    upcomingCache.set(cacheKey, result);
 
-    sendSuccess(res, { dates: result });
+    return reply.send(successBody({ dates: result }));
   } catch (err) {
-    next(err);
+    throw err;
   }
 }
 
@@ -139,17 +187,19 @@ export async function getUpcomingMuhurat(req: Request, res: Response, next: Next
  * Get all pujas available on a specific date.
  * Query: ?date=2026-03-15&pujaType=Vivah
  */
-export async function getPujasForDate(req: Request, res: Response, next: NextFunction) {
+export async function getPujasForDate(request: FastifyRequest, reply: FastifyReply) {
   try {
-    const { date, pujaType } = req.query as { date?: string; pujaType?: string };
+    const query = request.query as Record<string, string | undefined>;
+    const date = query.date;
+    const pujaType = query.pujaType;
     if (!date) {
       throw new AppError("Query param 'date' is required", 400, "VALIDATION_ERROR");
     }
 
     const cacheKey = `${date}_${pujaType || "all"}`;
     const cached = pujasForDateCache.get(cacheKey);
-    if (cached && cached.expiry > Date.now()) {
-      return sendSuccess(res, { muhurats: cached.data });
+    if (cached !== undefined) {
+      return reply.send(successBody({ muhurats: cached }));
     }
 
     const targetDate = new Date(date);
@@ -170,15 +220,28 @@ export async function getPujasForDate(req: Request, res: Response, next: NextFun
       select: { pujaType: true, timeWindow: true, significance: true, source: true }
     });
 
-    pujasForDateCache.set(cacheKey, { data: entries, expiry: Date.now() + cacheTTL });
+    pujasForDateCache.set(cacheKey, entries as any);
 
-    sendSuccess(res, { muhurats: entries });
+    return reply.send(successBody({ muhurats: entries }));
   } catch (err) {
-    next(err);
+    throw err;
   }
 }
 
-const suggestedCache = new Map<string, { data: any; expiry: number }>();
+interface SuggestedMuhuratResponse {
+  pujaType: string;
+  suggestions: Array<{
+    id: string;
+    date: Date;
+    timeWindow: string | null;
+    significance: string | null;
+    source: string | null;
+  }>;
+  hasMuhurat: boolean;
+  supportedPujaTypes: string[];
+}
+
+const suggestedCache = new BoundedTTLCache<SuggestedMuhuratResponse>(MAX_CACHE_SIZE, CACHE_TTL);
 
 /**
  * GET /muhurat/suggest
@@ -186,13 +249,12 @@ const suggestedCache = new Map<string, { data: any; expiry: number }>();
  * Query: { pujaType, from?: "YYYY-MM-DD", to?: "YYYY-MM-DD" }
  * If no range given, returns next 5 upcoming dates from today.
  */
-export async function getSuggestedMuhurat(req: Request, res: Response, next: NextFunction) {
+export async function getSuggestedMuhurat(request: FastifyRequest, reply: FastifyReply) {
   try {
-    const { pujaType, from, to } = req.query as {
-      pujaType?: string;
-      from?: string;
-      to?: string;
-    };
+    const query = request.query as Record<string, string | undefined>;
+    const pujaType = query.pujaType;
+    const from = query.from;
+    const to = query.to;
 
     if (!pujaType) {
       throw new AppError("Query param 'pujaType' is required", 400, "VALIDATION_ERROR");
@@ -200,8 +262,8 @@ export async function getSuggestedMuhurat(req: Request, res: Response, next: Nex
 
     const cacheKey = `${pujaType}_${from || "null"}_${to || "null"}`;
     const cached = suggestedCache.get(cacheKey);
-    if (cached && cached.expiry > Date.now()) {
-      return sendSuccess(res, cached.data);
+    if (cached !== undefined) {
+      return reply.send(successBody(cached));
     }
 
     let fromDate: Date;
@@ -239,7 +301,7 @@ export async function getSuggestedMuhurat(req: Request, res: Response, next: Nex
 
     const responseData = {
       pujaType,
-      suggestions: entries.map((e: any) => ({
+      suggestions: entries.map((e: { id: string; date: Date; timeWindow: string | null; significance: string | null; source: string | null }): { id: string; date: Date; timeWindow: string | null; significance: string | null; source: string | null } => ({
         id: e.id,
         date: e.date,
         timeWindow: e.timeWindow,
@@ -250,10 +312,10 @@ export async function getSuggestedMuhurat(req: Request, res: Response, next: Nex
       supportedPujaTypes: SUPPORTED_PUJA_TYPES,
     };
 
-    suggestedCache.set(cacheKey, { data: responseData, expiry: Date.now() + cacheTTL });
+    suggestedCache.set(cacheKey, responseData as any);
 
-    sendSuccess(res, responseData);
+    return reply.send(successBody(responseData));
   } catch (err) {
-    next(err);
+    throw err;
   }
 }

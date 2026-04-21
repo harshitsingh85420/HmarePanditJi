@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import SearchClient from "./search-client";
+import SearchClient from "../../src/app/search/search-client";
 
 export const metadata: Metadata = {
   title: "Find a Pandit — HmarePanditJi",

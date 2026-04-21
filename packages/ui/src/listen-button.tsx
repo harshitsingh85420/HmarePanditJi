@@ -8,7 +8,11 @@ export interface ListenButtonProps {
   children?: ReactNode;
 }
 
-export function ListenButton({ onClick, disabled = false, children }: ListenButtonProps) {
+export function ListenButton({
+  onClick,
+  disabled = false,
+  children,
+}: ListenButtonProps) {
   return (
     <button
       type="button"

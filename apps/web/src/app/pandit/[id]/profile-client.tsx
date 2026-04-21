@@ -332,7 +332,9 @@ function AvailabilityCalendar({ panditId }: { panditId: string }) {
           setDayData(map);
         }
       })
-      .catch(() => {})
+      .catch((err) => {
+        console.error('Failed to fetch pandit availability:', err);
+      })
       .finally(() => setFetching(false));
   }, [panditId, viewMonth, viewYear]);
 
@@ -686,7 +688,7 @@ function ShareButton({ name }: { name: string }) {
     navigator.clipboard.writeText(window.location.href).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    });
+    }).catch((err) => console.error('Failed to copy link:', err));
   }
 
   function shareWhatsApp() {
@@ -877,6 +879,9 @@ export default function ProfileClient({
     } else {
       fetchProfile(panditId).then((p) => {
         setProfile(p);
+        setLoading(false);
+      }).catch((err) => {
+        console.error('Failed to fetch pandit profile:', err);
         setLoading(false);
       });
     }

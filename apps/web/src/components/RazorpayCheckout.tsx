@@ -1,36 +1,10 @@
 "use client";
 
-import React, { useEffect, useCallback, useRef, useState } from "react";
+import { useEffect, useCallback, useRef, useState } from "react";
 import { API_BASE } from "../context/auth-context";
+import type { RazorpayOptions, RazorpayResponse } from "@hmarepanditji/types";
 
-// ── Razorpay global types ─────────────────────────────────────────────────────
-
-declare global {
-  interface Window {
-    Razorpay: new (options: RazorpayOptions) => RazorpayInstance;
-  }
-}
-
-interface RazorpayOptions {
-  key: string;
-  amount: number;
-  currency: string;
-  name: string;
-  description: string;
-  image?: string;
-  order_id: string;
-  prefill?: { name?: string; email?: string; contact?: string };
-  notes?: Record<string, string>;
-  theme?: { color: string };
-  handler: (response: RazorpaySuccessResponse) => void;
-  modal?: { ondismiss?: () => void };
-}
-
-interface RazorpaySuccessResponse {
-  razorpay_payment_id: string;
-  razorpay_order_id: string;
-  razorpay_signature: string;
-}
+// Razorpay types are imported from @hmarepanditji/types - no need to declare globally
 
 interface RazorpayInstance {
   open(): void;
@@ -190,7 +164,7 @@ export default function RazorpayCheckout({
         void verify(
           response.razorpay_payment_id,
           response.razorpay_order_id,
-          response.razorpay_signature,
+          response.razorpay_signature || "",
         );
       },
       modal: {

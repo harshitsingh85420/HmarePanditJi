@@ -179,7 +179,10 @@ export function LoginForm({ onSuccess, defaultRole = 'CUSTOMER', hideGuestLink =
                     🙏 मैं ग्राहक हूँ
                 </button>
                 <button
-                    onClick={() => { setRole('PANDIT'); setStep(1); setError(''); }}
+                    onClick={() => {
+                        const panditUrl = process.env.NEXT_PUBLIC_PANDIT_URL || 'http://localhost:3002';
+                        window.location.href = panditUrl;
+                    }}
                     className={`flex-1 py-5 px-6 rounded-2xl font-bold text-[22px] transition-all duration-300 min-h-[72px] ${role === 'PANDIT' ? 'bg-white shadow-md text-[#f09942]' : 'text-gray-500 hover:text-gray-700'}`}
                     disabled={loading || step === 3}
                     type="button"

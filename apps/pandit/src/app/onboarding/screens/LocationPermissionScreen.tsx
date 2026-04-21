@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import type { SupportedLanguage } from '@/lib/onboarding-store';
+import IndiaMapSVG from '@/components/IndiaMapSVG';
 
 interface LocationPermissionScreenProps {
   language: SupportedLanguage;
@@ -26,7 +27,6 @@ export default function LocationPermissionScreen({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showExitConfirm, setShowExitConfirm] = useState(false);
-  const [showSujatamInfo, setShowSujatamInfo] = useState(false);
 
   const handleAllowClick = () => {
     setLoading(true);
@@ -99,18 +99,12 @@ export default function LocationPermissionScreen({
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
         >
+          <div className="w-10 h-10 bg-[#ff8c00] rounded-full flex items-center justify-center flex-shrink-0">
+            <span className="text-white text-2xl font-bold">ॐ</span>
+          </div>
           <span className="font-serif text-[#904d00] text-xl font-bold">
-            Sujatam
+            HmarePanditJi
           </span>
-          <button
-            onClick={() => setShowSujatamInfo(true)}
-            className="w-6 h-6 rounded-full bg-[#ff8c00]/20 flex items-center justify-center hover:bg-[#ff8c00]/30 transition-colors"
-            aria-label="Sujatam के बारे में जानें"
-          >
-            <svg className="w-4 h-4 text-[#ff8c00]" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 11-2 0 1 1 0 012 0zm-1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clipRule="evenodd" />
-            </svg>
-          </button>
         </motion.div>
         <motion.button
           onClick={handleExitConfirm}
@@ -127,54 +121,6 @@ export default function LocationPermissionScreen({
           </svg>
         </motion.button>
       </motion.header>
-
-      {/* Sujatam Info Bottom Sheet */}
-      <AnimatePresence>
-        {showSujatamInfo && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowSujatamInfo(false)}
-              className="fixed inset-0 bg-black/40 z-50"
-            />
-            <motion.div
-              initial={{ y: '100%' }}
-              animate={{ y: 0 }}
-              exit={{ y: '100%' }}
-              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl p-6 z-50 max-w-lg mx-auto"
-            >
-              <div className="w-12 h-1.5 bg-[#e4e2dd] rounded-full mx-auto mb-6" />
-              <h3 className="font-headline text-2xl font-bold text-[#1b1c19] mb-3">
-                Sujatam का मतलब?
-              </h3>
-              <p className="text-[#564334] text-lg leading-relaxed mb-4">
-                <span className="font-bold text-[#ff8c00]">"सुजतम"</span> संस्कृत शब्द है जिसका अर्थ है — <span className="font-bold text-[#1b6d24]">"अच्छी खबर"</span> या <span className="font-bold text-[#1b6d24]">"शुभ समाचार"</span>
-              </p>
-              <p className="text-[#564334] text-lg leading-relaxed mb-6">
-                यह App आपके लिए <span className="font-bold">नए ग्राहक</span>, <span className="font-bold">नई आमदनी</span>, और <span className="font-bold">नई पहचान</span> लेकर आया है।
-              </p>
-              <div className="flex items-center gap-3 p-4 bg-[#fff3e0] rounded-2xl border-2 border-[#ff8c00]/30 mb-6">
-                <div className="w-12 h-12 bg-[#ff8c00] rounded-full flex items-center justify-center flex-shrink-0">
-                  <span className="text-white text-2xl font-bold">ॐ</span>
-                </div>
-                <div>
-                  <p className="text-[#904d00] font-bold text-base">HmarePanditJi का परिवार</p>
-                  <p className="text-[#564334] text-sm">पंडित जी के लिए समर्पित</p>
-                </div>
-              </div>
-              <button
-                onClick={() => setShowSujatamInfo(false)}
-                className="w-full h-14 bg-gradient-to-b from-[#ff8c00] to-[#f89100] text-white font-bold text-lg rounded-xl shadow-lg"
-              >
-                समझ गया
-              </button>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
 
       {/* Exit Confirmation Bottom Sheet */}
       <AnimatePresence>
@@ -236,62 +182,8 @@ export default function LocationPermissionScreen({
           />
 
           <div className="relative w-4/5 h-4/5">
-            {/* Improved India Map SVG - More recognizable outline */}
-            <svg
-              className="w-full h-full opacity-50"
-              viewBox="0 0 200 240"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              {/* Gradient definition */}
-              <defs>
-                <linearGradient id="indiaGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#FF8C00" stopOpacity="0.3" />
-                  <stop offset="100%" stopColor="#F89100" stopOpacity="0.5" />
-                </linearGradient>
-              </defs>
-
-              {/* Main India outline - More geographically accurate */}
-              <path
-                d="M80 25C85 22 92 20 100 20C108 20 115 22 120 25C125 28 130 32 133 38C136 44 138 50 139 56C140 62 142 68 145 72C148 76 152 78 155 78C158 78 160 76 161 73C162 70 161 67 159 65C157 63 156 61 156 58C156 55 158 53 161 52C163 51 165 52 166 54C167 56 167 59 165 62C163 65 162 68 162 72C162 78 160 84 156 89C152 94 149 99 147 105C145 111 144 117 144 124C144 131 145 137 147 142C149 147 150 152 150 157C150 162 148 167 145 172C142 177 138 181 133 185C128 189 123 192 118 195C113 198 109 202 106 207C103 212 101 217 100 220C99 223 97 224 95 223C93 222 91 219 90 215C89 211 87 208 84 205C81 202 77 199 72 197C67 195 63 192 60 188C57 184 55 179 54 173C53 167 53 161 55 156C57 151 60 146 64 142C68 138 71 133 73 127C75 121 76 115 76 109C76 103 75 98 73 94C71 90 68 86 64 83C60 80 57 76 55 71C53 66 52 61 53 56C54 51 56 46 60 42C64 38 68 35 72 32C76 29 78 27 80 25Z"
-                fill="url(#indiaGradient)"
-                stroke="#FF8C00"
-                strokeWidth="2"
-                strokeLinejoin="round"
-              />
-
-              {/* Kashmir region indication */}
-              <path
-                d="M88 22C93 19 98 18 103 19C108 20 112 22 115 25"
-                stroke="#FF8C00"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeDasharray="4 3"
-                opacity="0.6"
-              />
-
-              {/* Northeast region indication */}
-              <ellipse
-                cx="162"
-                cy="68"
-                rx="12"
-                ry="18"
-                stroke="#FF8C00"
-                strokeWidth="1.5"
-                strokeDasharray="4 3"
-                fill="none"
-                opacity="0.6"
-              />
-
-              {/* Major city markers */}
-              <circle cx="98" cy="58" r="3" fill="#FF8C00" opacity="0.8" />
-              <circle cx="105" cy="75" r="3" fill="#FF8C00" opacity="0.8" />
-              <circle cx="95" cy="95" r="3" fill="#FF8C00" opacity="0.8" />
-              <circle cx="110" cy="115" r="3" fill="#FF8C00" opacity="0.8" />
-              <circle cx="102" cy="140" r="3" fill="#FF8C00" opacity="0.8" />
-              <circle cx="108" cy="165" r="3" fill="#FF8C00" opacity="0.8" />
-              <circle cx="100" cy="190" r="3" fill="#FF8C00" opacity="0.8" />
-            </svg>
+            {/* Highly Accurate India Map SVG */}
+            <IndiaMapSVG className="w-full h-full opacity-60 text-[#FF8C00] drop-shadow-md" />
 
             {/* Pulsing Circles */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
@@ -348,7 +240,7 @@ export default function LocationPermissionScreen({
               <svg className="w-5 h-5 text-[#564334]" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
               </svg>
-              <span className="text-[#564334] font-medium text-sm">🔒 आपका पूरा पता कभी नहीं दिखेगा</span>
+              <span className="text-[#564334] font-medium text-sm">आपका पूरा पता कभी नहीं दिखेगा</span>
             </motion.div>
           </div>
 
@@ -427,7 +319,7 @@ export default function LocationPermissionScreen({
             disabled={loading}
             className="w-full py-4 text-[#564334] font-medium hover:bg-[#f5f3ee] rounded-lg transition-colors disabled:opacity-50"
           >
-            छोड़ें — हाथ से भरूँगा
+            बाद में
           </motion.button>
         </motion.div>
       </div>

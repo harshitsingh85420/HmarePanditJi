@@ -6,7 +6,7 @@ export function middleware(request: NextRequest) {
         || request.headers.get('authorization')?.replace('Bearer ', '');
 
     // Public routes that don't require authentication
-    const publicRoutes = ['/login', '/onboarding', '/mobile', '/otp', '/register'];
+    const publicRoutes = ['/', '/login', '/onboarding', '/mobile', '/otp', '/register'];
     const isPublicRoute = publicRoutes.some(route =>
         request.nextUrl.pathname === route ||
         request.nextUrl.pathname.startsWith('/onboarding/')
@@ -24,6 +24,6 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ['/dashboard/:path*', '/onboarding/:path*', '/bookings/:path*',
+    matcher: ['/', '/dashboard/:path*', '/onboarding/:path*', '/bookings/:path*',
         '/calendar/:path*', '/earnings/:path*', '/profile/:path*', '/login', '/mobile', '/otp', '/register'],
 };

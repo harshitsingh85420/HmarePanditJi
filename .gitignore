@@ -16,6 +16,8 @@ build/
 .env
 .env.local
 .env.*.local
+.env.vercel
+.continue-config.json
 
 # IDE
 .vscode/
@@ -41,7 +43,28 @@ yarn-debug.log*
 *.log
 all_pages*.txt
 build_*.txt
+*_lint.txt
+lint_check*.txt
+lint_v*.txt
+lint_final*.txt
+ts_errors*.txt
+tsc_*.txt
+api_errors.txt
+latest_errors.txt
+err_count.txt
+errors.txt
+temp_errors*.txt
+lint-output.json
+lint.json
 
 # AI Tool internals
-.claude/".env.local" 
+.claude/
 .vercel
+
+# Temporary files
+'
+$null
+*.svg
+*_obj.json
+ai-agent.html
+map.txt

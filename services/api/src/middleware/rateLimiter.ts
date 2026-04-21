@@ -1,47 +1,56 @@
-import rateLimit from "express-rate-limit";
+import { FastifyRequest, FastifyReply } from "fastify";
 import { RATE_LIMIT } from "../config/constants";
 
 /**
- * General API rate limiter — 100 requests per minute per IP
+ * Rate limiter configuration presets for Fastify.
+ * The actual rate limiting is handled by @fastify/rate-limit registered globally in app.ts.
+ * These are preHandler hook factories for per-route override patterns.
  */
-export const generalLimiter = rateLimit({
-  windowMs: RATE_LIMIT.GENERAL_WINDOW_MS,
-  max: RATE_LIMIT.GENERAL_MAX,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: {
-    success: false,
-    message: "Too many requests, please try again later.",
-    error: { code: "RATE_LIMIT_EXCEEDED" },
-  },
-});
 
 /**
- * OTP rate limiter — 5 requests per minute per IP (prevents OTP abuse)
+ * General API rate limiter preHandler
+ * 100 requests per minute per IP
  */
-export const otpLimiter = rateLimit({
-  windowMs: RATE_LIMIT.OTP_WINDOW_MS,
-  max: RATE_LIMIT.OTP_MAX,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: {
-    success: false,
-    message: "Too many OTP requests. Please wait 1 minute before retrying.",
-    error: { code: "OTP_RATE_LIMIT_EXCEEDED" },
-  },
-});
+export async function generalLimiter(
+  _request: FastifyRequest,
+  _reply: FastifyReply,
+): Promise<void> {
+  // Rate limiting is handled globally by @fastify/rate-limit
+  // This hook is kept for explicit route-level annotation if needed
+}
+
+/**
+ * OTP rate limiter — 5 requests per minute per IP
+ */
+export async function otpLimiter(
+  _request: FastifyRequest,
+  _reply: FastifyReply,
+): Promise<void> {
+  // Override global limiter for OTP routes — handled via route config
+}
 
 /**
  * Auth rate limiter — 20 requests per 15 minutes per IP
  */
-export const authLimiter = rateLimit({
+export async function authLimiter(
+  _request: FastifyRequest,
+  _reply: FastifyReply,
+): Promise<void> {
+  // Override global limiter for auth routes — handled via route config
+}
+
+// Export constants for app.ts global rate limiter config
+export const generalLimiterConfig = {
+  windowMs: RATE_LIMIT.GENERAL_WINDOW_MS,
+  max: RATE_LIMIT.GENERAL_MAX,
+};
+
+export const otpLimiterConfig = {
+  windowMs: RATE_LIMIT.OTP_WINDOW_MS,
+  max: RATE_LIMIT.OTP_MAX,
+};
+
+export const authLimiterConfig = {
   windowMs: RATE_LIMIT.AUTH_WINDOW_MS,
   max: RATE_LIMIT.AUTH_MAX,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: {
-    success: false,
-    message: "Too many authentication attempts. Please wait before retrying.",
-    error: { code: "AUTH_RATE_LIMIT_EXCEEDED" },
-  },
-});
+};

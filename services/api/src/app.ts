@@ -1,11 +1,15 @@
-import express from "express";
-import cors from "cors";
-import helmet from "helmet";
-import morgan from "morgan";
+import Fastify, { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
+import fastifyCors from "@fastify/cors";
+import fastifyHelmet from "@fastify/helmet";
+import fastifyMultipart from "@fastify/multipart";
+import fastifyRateLimit from "@fastify/rate-limit";
+import fastifyStatic from "@fastify/static";
+import fastifyCookie from "@fastify/cookie";
+import { join } from "path";
 
 import { env } from "./config/env";
 import { API_PREFIX, ALLOWED_ORIGINS } from "./config/constants";
-import { generalLimiter } from "./middleware/rateLimiter";
+import { generalLimiterConfig } from "./middleware/rateLimiter";
 import { errorHandler, notFoundHandler } from "./middleware/errorHandler";
 
 import authRoutes from "./routes/auth.routes";
@@ -24,13 +28,33 @@ import voiceRoutes from "./routes/voice.routes";
 import kycRoutes from "./routes/kyc.routes";
 import onboardingRoutes from "./routes/onboarding.routes";
 import uploadRoutes from "./routes/upload.routes";
+import aiRoutes from "./routes/ai.routes";
 
-const app: express.Application = express();
+const app: FastifyInstance = Fastify({
+  logger: {
+    level: env.NODE_ENV === "production" ? "info" : "debug",
+    transport:
+      env.NODE_ENV === "development"
+        ? {
+          target: "pino-pretty",
+          options: {
+            translateTime: "HH:MM:ss Z",
+            ignore: "pid,hostname",
+          },
+        }
+        : undefined,
+  },
+  bodyLimit: 10 * 1024 * 1024, // 10mb
+});
 
-// ── Security ──────────────────────────────────────────────────────────────────
-app.use(helmet());
+// ── Register Plugins ──────────────────────────────────────────────────────────
 
-// ── CORS ──────────────────────────────────────────────────────────────────────
+// Security headers (replaces helmet)
+app.register(fastifyHelmet, {
+  contentSecurityPolicy: env.NODE_ENV === "development" ? false : undefined,
+});
+
+// CORS (replaces cors)
 const allowedOrigins = [
   ...ALLOWED_ORIGINS,
   env.WEB_URL,
@@ -38,38 +62,53 @@ const allowedOrigins = [
   env.ADMIN_URL,
 ].filter(Boolean);
 
-app.use(
-  cors({
-    origin: allowedOrigins,
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+app.register(fastifyCors, {
+  origin: allowedOrigins,
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+});
+
+// Rate limiting (replaces express-rate-limit)
+app.register(fastifyRateLimit, {
+  max: generalLimiterConfig.max,
+  timeWindow: generalLimiterConfig.windowMs,
+  keyGenerator: (request: FastifyRequest) => request.ip || "0.0.0.0",
+  errorResponseBuilder: (
+    request: FastifyRequest,
+    context: { after: string },
+  ) => ({
+    statusCode: 429,
+    error: "Too Many Requests",
+    message: "Rate limit exceeded. Please try again later.",
+    retryAfter: context.after,
   }),
-);
+});
 
-// ── Logging ───────────────────────────────────────────────────────────────────
-if (env.NODE_ENV !== "test") {
-  app.use(morgan(env.NODE_ENV === "production" ? "combined" : "dev"));
-}
+// Multipart/form-data (replaces multer)
+app.register(fastifyMultipart, {
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10mb
+  },
+});
 
-// ── Body Parsing ──────────────────────────────────────────────────────────────
-app.use(express.json({ limit: "10mb" }));
-app.use(express.urlencoded({ extended: true, limit: "10mb" }));
-
-// ── Rate Limiting ─────────────────────────────────────────────────────────────
-app.use(generalLimiter);
+// Cookie support (for HttpOnly session tokens)
+app.register(fastifyCookie, {
+  secret: env.JWT_SECRET,
+});
 
 // ── Health Check (no versioning, no auth) ────────────────────────────────────
-app.get("/health", (_req, res) => {
-  res.json({ status: "ok", timestamp: new Date(), version: "1.0.0" });
+app.get("/health", async (_request: FastifyRequest, reply: FastifyReply) => {
+  return reply.send({ status: "ok", timestamp: new Date(), version: "1.0.0" });
 });
-app.get("/api/health", (_req, res) => {
-  res.json({ status: "ok", timestamp: new Date(), version: "1.0.0" });
+
+app.get("/api/health", async (_request: FastifyRequest, reply: FastifyReply) => {
+  return reply.send({ status: "ok", timestamp: new Date(), version: "1.0.0" });
 });
 
 // ── API Root ──────────────────────────────────────────────────────────────────
-app.get(API_PREFIX, (_req, res) => {
-  res.json({
+app.get(API_PREFIX, async (_request: FastifyRequest, reply: FastifyReply) => {
+  return reply.send({
     success: true,
     data: {
       name: "HmarePanditJi API",
@@ -91,6 +130,7 @@ app.get(API_PREFIX, (_req, res) => {
         muhurat: `${API_PREFIX}/muhurat`,
         samagri: `${API_PREFIX}/samagri`,
         voice: `${API_PREFIX}/voice`,
+        ai: `${API_PREFIX}/ai`,
         kyc: `${API_PREFIX}/admin/kyc`,
       },
     },
@@ -98,29 +138,34 @@ app.get(API_PREFIX, (_req, res) => {
 });
 
 // ── Routes ────────────────────────────────────────────────────────────────────
-app.use(`${API_PREFIX}/auth`, authRoutes);
-app.use(`${API_PREFIX}/customers`, customerRoutes);
-app.use(`${API_PREFIX}/pandits`, panditRoutes);
-app.use(`${API_PREFIX}/rituals`, ritualRoutes);
-app.use(`${API_PREFIX}/bookings`, bookingRoutes);
-app.use(`${API_PREFIX}/payments`, paymentRoutes);
-app.use(`${API_PREFIX}/reviews`, reviewRoutes);
-app.use(`${API_PREFIX}/admin`, adminRoutes);
-app.use(`${API_PREFIX}/notifications`, notificationRoutes);
-app.use(`${API_PREFIX}/travel`, travelRoutes);
-app.use(`${API_PREFIX}/muhurat`, muhuratRoutes);
-app.use(API_PREFIX, samagriRoutes);
-app.use(`${API_PREFIX}/voice`, voiceRoutes);
-app.use(`${API_PREFIX}/admin/kyc`, kycRoutes);
-app.use(`${API_PREFIX}/pandits/onboarding`, onboardingRoutes);
-app.use(`${API_PREFIX}/upload`, uploadRoutes);
-// Serve uploaded files statically
-app.use("/uploads", express.static("public/uploads"));
+app.register(authRoutes, { prefix: `${API_PREFIX}/auth` });
+app.register(customerRoutes, { prefix: `${API_PREFIX}/customers` });
+app.register(panditRoutes, { prefix: `${API_PREFIX}/pandits` });
+app.register(ritualRoutes, { prefix: `${API_PREFIX}/rituals` });
+app.register(bookingRoutes, { prefix: `${API_PREFIX}/bookings` });
+app.register(paymentRoutes, { prefix: `${API_PREFIX}/payments` });
+app.register(reviewRoutes, { prefix: `${API_PREFIX}/reviews` });
+app.register(adminRoutes, { prefix: `${API_PREFIX}/admin` });
+app.register(notificationRoutes, { prefix: `${API_PREFIX}/notifications` });
+app.register(travelRoutes, { prefix: `${API_PREFIX}/travel` });
+app.register(muhuratRoutes, { prefix: `${API_PREFIX}/muhurat` });
+app.register(samagriRoutes, { prefix: API_PREFIX });
+app.register(voiceRoutes, { prefix: `${API_PREFIX}/voice` });
+app.register(kycRoutes, { prefix: `${API_PREFIX}/admin/kyc` });
+app.register(onboardingRoutes, { prefix: `${API_PREFIX}/pandits/onboarding` });
+app.register(uploadRoutes, { prefix: `${API_PREFIX}/upload` });
+app.register(aiRoutes, { prefix: `${API_PREFIX}/ai` });
 
-// ── 404 ───────────────────────────────────────────────────────────────────────
-app.use(notFoundHandler);
+// Serve uploaded files statically (replaces express.static)
+app.register(fastifyStatic, {
+  root: join(process.cwd(), "public/uploads"),
+  prefix: "/uploads",
+});
+
+// ── 404 Handler ───────────────────────────────────────────────────────────────
+app.setNotFoundHandler(notFoundHandler);
 
 // ── Global Error Handler ──────────────────────────────────────────────────────
-app.use(errorHandler);
+app.setErrorHandler(errorHandler);
 
 export default app;

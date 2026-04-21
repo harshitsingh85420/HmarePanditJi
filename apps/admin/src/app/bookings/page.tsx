@@ -23,14 +23,14 @@ export default function AllBookingsPage() {
   const [loading, setLoading] = useState(true);
 
   // Filters state
-  const [status, setStatus] = useState();
-  const [dateFrom, setDateFrom] = useState();
-  const [dateTo, setDateTo] = useState();
-  const [city, setCity] = useState();
-  const [pandit, setPandit] = useState();
-  const [customer, setCustomer] = useState();
-  const [paymentStatus, setPaymentStatus] = useState();
-  const [travelStatus, setTravelStatus] = useState();
+  const [status, setStatus] = useState<string>("ALL");
+  const [dateFrom, setDateFrom] = useState<string>("");
+  const [dateTo, setDateTo] = useState<string>("");
+  const [city, setCity] = useState<string>("");
+  const [pandit, setPandit] = useState<string>("");
+  const [customer, setCustomer] = useState<string>("");
+  const [paymentStatus, setPaymentStatus] = useState<string>("ALL");
+  const [travelStatus, setTravelStatus] = useState<string>("ALL");
   const [page, setPage] = useState(1);
   const limit = 20;
   const [total, setTotal] = useState(0);
@@ -38,18 +38,18 @@ export default function AllBookingsPage() {
   const fetchBookings = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem(token);
+      const token = localStorage.getItem("adminToken");
       const qs = new URLSearchParams();
-      if (status && status !== ALL) qs.append(status, status);
-      if (dateFrom) qs.append(dateFrom, dateFrom);
-      if (dateTo) qs.append(dateTo, dateTo);
-      if (city) qs.append(city, city);
-      if (pandit) qs.append(pandit, pandit);
-      if (customer) qs.append(customer, customer);
-      if (paymentStatus && paymentStatus !== ALL) qs.append(paymentStatus, paymentStatus);
-      if (travelStatus && travelStatus !== ALL) qs.append(travelStatus, travelStatus);
-      qs.append(page, page.toString());
-      qs.append(limit, limit.toString());
+      if (status && status !== "ALL") qs.append("status", status);
+      if (dateFrom) qs.append("dateFrom", dateFrom);
+      if (dateTo) qs.append("dateTo", dateTo);
+      if (city) qs.append("city", city);
+      if (pandit) qs.append("pandit", pandit);
+      if (customer) qs.append("customer", customer);
+      if (paymentStatus && paymentStatus !== "ALL") qs.append("paymentStatus", paymentStatus);
+      if (travelStatus && travelStatus !== "ALL") qs.append("travelStatus", travelStatus);
+      qs.append("page", page.toString());
+      qs.append("limit", limit.toString());
 
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/bookings?${qs.toString()}`, {
         headers: { Authorization: `Bearer ${token}` }
@@ -77,28 +77,28 @@ export default function AllBookingsPage() {
   };
 
   const handleResetFilters = () => {
-    setStatus(ALL);
-    setDateFrom();
-    setDateTo();
-    setCity();
-    setPandit();
-    setCustomer();
-    setPaymentStatus(ALL);
-    setTravelStatus(ALL);
+    setStatus("ALL");
+    setDateFrom("");
+    setDateTo("");
+    setCity("");
+    setPandit("");
+    setCustomer("");
+    setPaymentStatus("ALL");
+    setTravelStatus("ALL");
     setPage(1);
     setTimeout(() => fetchBookings(), 0);
   };
 
   const exportCSV = () => {
     const csvRows = [
-      [BookingID, Customer, Pandit, Event, Date, Status, Amount, Payment, Travel]
+      ["BookingID", "Customer", "Pandit", "Event", "Date", "Status", "Amount", "Payment", "Travel"]
     ];
 
     bookings.forEach(b => {
       csvRows.push([
         b.bookingNumber,
-        b.customer?.name || N / A,
-        b.pandit?.name || N / A,
+        b.customer?.name || "N/A",
+        b.pandit?.name || "N/A",
         b.eventType,
         new Date(b.eventDate).toLocaleDateString(),
         b.status,
@@ -262,12 +262,12 @@ export default function AllBookingsPage() {
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    {b.travelStatus !== NOT_REQUIRED && (
+                    {b.travelStatus !== "NOT_REQUIRED" && (
                       <Badge variant="outline" className={`text-[10px] ${b.travelStatus === 'BOOKED' ? 'bg-indigo-50 text-indigo-700' : ''}`}>
                         {b.travelStatus}
                       </Badge>
                     )}
-                    {b.travelStatus === NOT_REQUIRED && <span className="text-xs text-muted-foreground">-</span>}
+                    {b.travelStatus === "NOT_REQUIRED" && <span className="text-xs text-muted-foreground">-</span>}
                   </TableCell>
                   <TableCell>
                     <a href={`/bookings/${b.id}?reassign=true`} className="text-xs text-muted-foreground hover:text-indigo-600 border p-1 rounded mr-2" title="Reassign">

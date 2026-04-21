@@ -33,7 +33,6 @@ export function ErrorOverlay({ onRetry, onUseKeyboard }: ErrorOverlayProps) {
   const isError3 = state === 'error_3'
 
   // BUG-002 FIX: On V-07 (error_3), let pointer events pass through to keyboard toggle behind
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const isFinalError = state === 'error_3'
 
   // BUG-MEDIUM-04 FIX: Raised threshold from 65dB to 85dB to prevent false-triggering

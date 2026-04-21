@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import { logger } from '@/utils/logger'
 
 /**
  * Prevents the screen from sleeping during the onboarding flow.
@@ -27,7 +28,7 @@ export function useWakeLock(enabled: boolean = true) {
         }
       } catch (err) {
         // Wake lock not granted — not critical
-        console.debug('[WakeLock] Not acquired:', err)
+        logger.debug('[WakeLock] Not acquired:', err)
       }
     }
 
@@ -45,7 +46,9 @@ export function useWakeLock(enabled: boolean = true) {
       released = true
       document.removeEventListener('visibilitychange', handleVisibilityChange)
       if (wakeLockRef.current) {
-        wakeLockRef.current.release().catch(() => {})
+        wakeLockRef.current.release().catch((err) => {
+          logger.debug('[WakeLock] Failed to release:', err)
+        })
         wakeLockRef.current = null
       }
     }

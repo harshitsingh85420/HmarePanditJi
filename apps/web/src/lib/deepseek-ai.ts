@@ -1,19 +1,16 @@
 /**
  * deepseek-ai.ts
  * --------------
- * DeepSeek AI integration using official REST API.
+ * DeepSeek AI integration using backend proxy (API keys stay on server).
  * Supports DeepSeek-V3 (deepseek-chat) and DeepSeek-R1 (deepseek-reasoner).
- * 
- * API Docs: https://api-docs.deepseek.com/
- * Get API Key: https://platform.deepseek.com/
+ *
+ * API keys are stored on the backend server and never exposed to the client.
  */
 
 // --------------------------------------------------------------------------
 // Configuration
 // --------------------------------------------------------------------------
-export const DEEPSEEK_API_KEY = process.env.NEXT_PUBLIC_DEEPSEEK_API_KEY || process.env.DEEPSEEK_API_KEY || '';
-export const DEEPSEEK_MODEL = process.env.NEXT_PUBLIC_DEEPSEEK_MODEL || process.env.DEEPSEEK_MODEL || 'deepseek-chat';
-export const DEEPSEEK_BASE_URL = 'https://api.deepseek.com';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 // --------------------------------------------------------------------------
 // Types
@@ -72,23 +69,19 @@ Restrictions:
 • Always end with a warm spiritual greeting like "🙏 Jai Shri Ram" or "🙏 Om Namah Shivaya".`;
 
 // --------------------------------------------------------------------------
-// Helper: Chat with DeepSeek (Server-side or API route)
+// Helper: Chat with DeepSeek (via backend proxy)
 // --------------------------------------------------------------------------
 export async function chatWithDeepSeek(
     userMessage: string,
     options: DeepSeekChatOptions = {}
 ): Promise<string> {
     const {
-        model = DEEPSEEK_MODEL,
+        model = 'deepseek-chat',
         temperature = 0.7,
         max_tokens = 1024,
         top_p = 1,
         system_prompt = PANDIT_ADVISOR_SYSTEM_PROMPT,
     } = options;
-
-    if (!DEEPSEEK_API_KEY) {
-        throw new Error('DEEPSEEK_API_KEY is not configured. Please set it in your .env file.');
-    }
 
     const messages: DeepSeekMessage[] = [];
     if (system_prompt) {
@@ -96,11 +89,17 @@ export async function chatWithDeepSeek(
     }
     messages.push({ role: 'user', content: userMessage });
 
-    const response = await fetch(`${DEEPSEEK_BASE_URL}/chat/completions`, {
+    // Get auth token from localStorage
+    const token = localStorage.getItem('hpj_token');
+    if (!token) {
+        throw new Error('Authentication required. Please login to use AI chat.');
+    }
+
+    const response = await fetch(`${API_BASE}/ai/deepseek/chat`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${DEEPSEEK_API_KEY}`,
+            'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
             model,
@@ -108,16 +107,16 @@ export async function chatWithDeepSeek(
             temperature,
             max_tokens,
             top_p,
-            stream: false,
         }),
     });
 
     if (!response.ok) {
-        const error = await response.text();
-        throw new Error(`DeepSeek API error: ${response.status} - ${error}`);
+        const error = await response.json().catch(() => ({ message: 'Unknown error' }));
+        throw new Error(error.message || `DeepSeek API error: ${response.status}`);
     }
 
-    const data: DeepSeekChatResponse = await response.json();
+    const json = await response.json();
+    const data: DeepSeekChatResponse = json.data;
     return data.choices[0]?.message?.content || '';
 }
 
@@ -129,21 +128,23 @@ export async function chatMultiTurn(
     options: DeepSeekChatOptions = {}
 ): Promise<string> {
     const {
-        model = DEEPSEEK_MODEL,
+        model = 'deepseek-chat',
         temperature = 0.7,
         max_tokens = 1024,
         top_p = 1,
     } = options;
 
-    if (!DEEPSEEK_API_KEY) {
-        throw new Error('DEEPSEEK_API_KEY is not configured. Please set it in your .env file.');
+    // Get auth token from localStorage
+    const token = localStorage.getItem('hpj_token');
+    if (!token) {
+        throw new Error('Authentication required. Please login to use AI chat.');
     }
 
-    const response = await fetch(`${DEEPSEEK_BASE_URL}/chat/completions`, {
+    const response = await fetch(`${API_BASE}/ai/deepseek/chat`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${DEEPSEEK_API_KEY}`,
+            'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
             model,
@@ -151,16 +152,16 @@ export async function chatMultiTurn(
             temperature,
             max_tokens,
             top_p,
-            stream: false,
         }),
     });
 
     if (!response.ok) {
-        const error = await response.text();
-        throw new Error(`DeepSeek API error: ${response.status} - ${error}`);
+        const error = await response.json().catch(() => ({ message: 'Unknown error' }));
+        throw new Error(error.message || `DeepSeek API error: ${response.status}`);
     }
 
-    const data: DeepSeekChatResponse = await response.json();
+    const json = await response.json();
+    const data: DeepSeekChatResponse = json.data;
     return data.choices[0]?.message?.content || '';
 }
 
@@ -172,74 +173,31 @@ export async function* chatStream(
     options: DeepSeekChatOptions = {}
 ): AsyncGenerator<string, void, unknown> {
     const {
-        model = DEEPSEEK_MODEL,
+        model = 'deepseek-chat',
         temperature = 0.7,
         max_tokens = 1024,
         top_p = 1,
     } = options;
 
-    if (!DEEPSEEK_API_KEY) {
-        throw new Error('DEEPSEEK_API_KEY is not configured. Please set it in your .env file.');
+    // Get auth token from localStorage
+    const token = localStorage.getItem('hpj_token');
+    if (!token) {
+        throw new Error('Authentication required. Please login to use AI chat.');
     }
 
-    const response = await fetch(`${DEEPSEEK_BASE_URL}/chat/completions`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${DEEPSEEK_API_KEY}`,
-        },
-        body: JSON.stringify({
-            model,
-            messages,
-            temperature,
-            max_tokens,
-            top_p,
-            stream: true,
-        }),
-    });
-
-    if (!response.ok) {
-        const error = await response.text();
-        throw new Error(`DeepSeek API error: ${response.status} - ${error}`);
-    }
-
-    const reader = response.body?.getReader();
-    if (!reader) throw new Error('No response body');
-
-    const decoder = new TextDecoder();
-    let buffer = '';
-
-    while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n');
-        buffer = lines.pop() || '';
-
-        for (const line of lines) {
-            const trimmed = line.trim();
-            if (trimmed.startsWith('data: ')) {
-                const data = trimmed.slice(6);
-                if (data === '[DONE]') return;
-
-                try {
-                    const parsed = JSON.parse(data);
-                    const chunk = parsed.choices?.[0]?.delta?.content;
-                    if (chunk) yield chunk;
-                } catch {
-                    // Ignore parse errors
-                }
-            }
-        }
-    }
+    // Note: Streaming would require implementing SSE support in the backend route
+    // For now, use non-streaming version
+    const content = await chatMultiTurn(messages, options);
+    yield content;
 }
 
 // --------------------------------------------------------------------------
-// Utility: Check if DeepSeek is configured
+// Utility: Check if DeepSeek is available
 // --------------------------------------------------------------------------
 export function isDeepSeekConfigured(): boolean {
-    return !!DEEPSEEK_API_KEY && DEEPSEEK_API_KEY.length > 10;
+    // Since we're using backend proxy, we assume it's configured
+    // Backend will return 503 if not configured
+    return true;
 }
 
 // --------------------------------------------------------------------------

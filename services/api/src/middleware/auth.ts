@@ -1,11 +1,11 @@
-import { Request, Response, NextFunction } from "express";
+import { FastifyRequest, FastifyReply } from "fastify";
 import jwt from "jsonwebtoken";
 import { env } from "../config/env";
-import { sendUnauthorized, sendForbidden } from "../utils/response";
+import { throwUnauthorized, throwForbidden } from "../utils/response";
 
-type Role = "CUSTOMER" | "PANDIT" | "ADMIN";
+export type Role = "CUSTOMER" | "PANDIT" | "ADMIN";
 
-interface JwtPayload {
+export interface JwtPayload {
   id?: string;
   userId?: string;
   phone: string;
@@ -14,16 +14,32 @@ interface JwtPayload {
   name?: string;
 }
 
-export function authenticate(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): void {
-  const authHeader = req.headers.authorization;
+export interface UserPayload {
+  id: string;
+  phone: string;
+  role: Role;
+  isVerified: boolean;
+  name?: string;
+}
+
+// Extend FastifyRequest to include user
+declare module "fastify" {
+  interface FastifyRequest {
+    user: UserPayload | null;
+  }
+}
+
+/**
+ * Fastify authentication hook - returns user payload or throws
+ */
+export async function authenticate(
+  request: FastifyRequest,
+  _reply: FastifyReply,
+): Promise<void> {
+  const authHeader = request.headers.authorization;
 
   if (!authHeader?.startsWith("Bearer ")) {
-    sendUnauthorized(res, "Missing or invalid Authorization header");
-    return;
+    throwUnauthorized("Missing or invalid Authorization header");
   }
 
   const token = authHeader.slice(7);
@@ -32,64 +48,40 @@ export function authenticate(
     const payload = jwt.verify(token, env.JWT_SECRET) as JwtPayload;
     const resolvedUserId = payload.id || payload.userId;
     if (!resolvedUserId) {
-      sendUnauthorized(res, "Invalid token payload");
-      return;
+      throwUnauthorized("Invalid token payload");
     }
-    req.user = {
+    request.user = {
       id: resolvedUserId,
       phone: payload.phone,
       role: payload.role,
       isVerified: payload.isVerified,
       name: payload.name,
     };
-    next();
   } catch (err) {
     if (err instanceof jwt.TokenExpiredError) {
-      sendUnauthorized(res, "Token expired");
+      throwUnauthorized("Token expired");
     } else {
-      sendUnauthorized(res, "Invalid token");
+      throwUnauthorized("Invalid token");
     }
   }
 }
 
-/** Spec alias — same as authenticate */
+/**
+ * Spec alias — same as authenticate
+ */
 export const authenticateToken = authenticate;
 
 /**
- * Middleware factory — restricts route to users whose role is in the allowed list.
- * Must be used AFTER authenticate() / authenticateToken().
+ * Optional authentication — fails silently for guest mode
  */
-export function requireRole(...roles: Role[]) {
-  return (req: Request, res: Response, next: NextFunction): void => {
-    if (!req.user) {
-      sendUnauthorized(res);
-      return;
-    }
-    if (!roles.includes(req.user.role)) {
-      sendForbidden(
-        res,
-        `Insufficient permissions. Required roles: ${roles.join(", ")}`,
-      );
-      return;
-    }
-    next();
-  };
-}
-
-/**
- * Optional authentication — same as authenticate but on failure just sets
- * req.user = undefined and calls next(). Never returns an error.
- * Guest mode depends on this.
- */
-export function optionalAuth(
-  req: Request,
-  _res: Response,
-  next: NextFunction,
-): void {
-  const authHeader = req.headers.authorization;
+export async function optionalAuth(
+  request: FastifyRequest,
+  _reply: FastifyReply,
+): Promise<void> {
+  const authHeader = request.headers.authorization;
 
   if (!authHeader?.startsWith("Bearer ")) {
-    next();
+    request.user = null;
     return;
   }
 
@@ -99,10 +91,10 @@ export function optionalAuth(
     const payload = jwt.verify(token, env.JWT_SECRET) as JwtPayload;
     const resolvedUserId = payload.id || payload.userId;
     if (!resolvedUserId) {
-      next();
+      request.user = null;
       return;
     }
-    req.user = {
+    request.user = {
       id: resolvedUserId,
       phone: payload.phone,
       role: payload.role,
@@ -111,7 +103,6 @@ export function optionalAuth(
     };
   } catch {
     // Token invalid or expired — continue as guest
+    request.user = null;
   }
-
-  next();
 }

@@ -25,7 +25,6 @@ export default function OTPScreen({ language, mobile, onComplete, onBack }: OTPS
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const [autoReadStarted, setAutoReadStarted] = useState(false);
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { voiceFlowState } = useSarvamVoiceFlow({
     language,
     script: 'OTP बोलें — 6 अंक।',
@@ -70,7 +69,7 @@ export default function OTPScreen({ language, mobile, onComplete, onBack }: OTPS
       setAutoReadStarted(true);
       void handleAutoReadOTP();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Intentionally run only on mount - initializes OTP screen (load state, speak prompt, start WebOTP)
   }, []);
 
   useEffect(() => {

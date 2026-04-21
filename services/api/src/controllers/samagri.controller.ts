@@ -1,24 +1,41 @@
-import { Request, Response } from "express";
+import { FastifyRequest, FastifyReply } from "fastify";
 import { prisma } from "@hmarepanditji/db";
 import fs from "fs";
 import path from "path";
+
+interface SamagriPackageBody {
+    packageName: string;
+    pujaType: string;
+    fixedPrice: number;
+    items: Array<{ itemName: string; quantity: string | number }>;
+    isActive?: boolean;
+}
+
+// Use a simpler interface that doesn't conflict with FastifyRequest
+interface AuthenticatedPanditRequest {
+    user: {
+        panditId: string;
+    };
+}
 
 /**
  * GET /api/v1/pandits/:id/samagri-packages
  * Get all active samagri packages for a pandit (optionally filtered by puja type)
  */
-export async function getPanditSamagriPackages(req: Request, res: Response) {
-    try {
-        const { id } = req.params;
-        const { pujaType } = req.query;
+export async function getPanditSamagriPackages(request: FastifyRequest, reply: FastifyReply) {
+    const params = request.params as Record<string, string>;
+    const query = request.query as Record<string, string | undefined>;
+    const id = params.id;
+    const pujaType = query.pujaType;
 
-        const where: any = {
+    try {
+        const where: Record<string, unknown> = {
             panditProfileId: id,
             isActive: true,
         };
 
         if (pujaType) {
-            where.pujaType = pujaType as string;
+            where.pujaType = pujaType;
         }
 
         const packages = await prisma.samagriPackage.findMany({
@@ -26,10 +43,10 @@ export async function getPanditSamagriPackages(req: Request, res: Response) {
             orderBy: { fixedPrice: "asc" },
         });
 
-        res.json(packages);
+        return reply.send(packages);
     } catch (error) {
         console.error("Error fetching samagri packages:", error);
-        res.status(500).json({ error: "Failed to fetch samagri packages" });
+        return reply.code(500).send({ error: "Failed to fetch samagri packages" });
     }
 }
 
@@ -37,37 +54,39 @@ export async function getPanditSamagriPackages(req: Request, res: Response) {
  * POST /api/v1/pandits/me/samagri-packages
  * Create a new samagri package (authenticated pandit only)
  */
-export async function createSamagriPackage(req: Request, res: Response) {
+export async function createSamagriPackage(request: FastifyRequest, reply: FastifyReply) {
     try {
-        const panditId = (req as any).user?.panditId;
+        const authRequest = request as unknown as unknown as AuthenticatedPanditRequest;
+        const panditId = authRequest.user?.panditId;
 
         if (!panditId) {
-            return res.status(401).json({ error: "Unauthorized - Pandit authentication required" });
+            return reply.code(401).send({ error: "Unauthorized - Pandit authentication required" });
         }
 
-        const { packageName, pujaType, fixedPrice, items } = req.body;
+        const body = request.body as SamagriPackageBody;
+        const { packageName, pujaType, fixedPrice, items } = body;
 
         // Validation
         if (!packageName || !pujaType || !fixedPrice || !items || !Array.isArray(items)) {
-            return res.status(400).json({
+            return reply.code(400).send({
                 error: "Missing required fields: packageName, pujaType, fixedPrice, items",
             });
         }
 
         if (!["Basic", "Standard", "Premium"].includes(packageName)) {
-            return res.status(400).json({
+            return reply.code(400).send({
                 error: "packageName must be one of: Basic, Standard, Premium",
             });
         }
 
         if (typeof fixedPrice !== "number" || fixedPrice <= 0) {
-            return res.status(400).json({ error: "fixedPrice must be a positive number" });
+            return reply.code(400).send({ error: "fixedPrice must be a positive number" });
         }
 
         // Validate items structure
         for (const item of items) {
             if (!item.itemName || !item.quantity) {
-                return res.status(400).json({
+                return reply.code(400).send({
                     error: "Each item must have itemName and quantity",
                 });
             }
@@ -87,14 +106,14 @@ export async function createSamagriPackage(req: Request, res: Response) {
                 fixedPrice,
                 items,
                 isActive: true,
-                packageType: packageTypeMapping[packageName as string] || "BASIC",
+                packageType: packageTypeMapping[packageName] || "BASIC",
             },
         });
 
-        res.status(201).json(samagriPackage);
+        return reply.code(201).send(samagriPackage);
     } catch (error) {
         console.error("Error creating samagri package:", error);
-        res.status(500).json({ error: "Failed to create samagri package" });
+        return reply.code(500).send({ error: "Failed to create samagri package" });
     }
 }
 
@@ -102,13 +121,15 @@ export async function createSamagriPackage(req: Request, res: Response) {
  * PUT /api/v1/pandits/me/samagri-packages/:id
  * Update a samagri package (authenticated pandit only, own packages)
  */
-export async function updateSamagriPackage(req: Request, res: Response) {
+export async function updateSamagriPackage(request: FastifyRequest, reply: FastifyReply) {
     try {
-        const panditId = (req as any).user?.panditId;
-        const { id } = req.params;
+        const authRequest = request as unknown as AuthenticatedPanditRequest;
+        const panditId = authRequest.user?.panditId;
+        const params = request.params as Record<string, string>;
+        const id = params.id;
 
         if (!panditId) {
-            return res.status(401).json({ error: "Unauthorized" });
+            return reply.code(401).send({ error: "Unauthorized" });
         }
 
         // Check ownership
@@ -117,20 +138,21 @@ export async function updateSamagriPackage(req: Request, res: Response) {
         });
 
         if (!existing) {
-            return res.status(404).json({ error: "Samagri package not found" });
+            return reply.code(404).send({ error: "Samagri package not found" });
         }
 
         if (existing.panditProfileId !== panditId) {
-            return res.status(403).json({ error: "Forbidden - Not your package" });
+            return reply.code(403).send({ error: "Forbidden - Not your package" });
         }
 
-        const { packageName, pujaType, fixedPrice, items, isActive } = req.body;
+        const body = request.body as Partial<SamagriPackageBody>;
+        const { packageName, pujaType, fixedPrice, items, isActive } = body;
 
-        const updateData: any = {};
+        const updateData: Record<string, unknown> = {};
 
         if (packageName !== undefined) {
             if (!["Basic", "Standard", "Premium"].includes(packageName)) {
-                return res.status(400).json({
+                return reply.code(400).send({
                     error: "packageName must be one of: Basic, Standard, Premium",
                 });
             }
@@ -140,13 +162,13 @@ export async function updateSamagriPackage(req: Request, res: Response) {
         if (pujaType !== undefined) updateData.pujaType = pujaType;
         if (fixedPrice !== undefined) {
             if (typeof fixedPrice !== "number" || fixedPrice <= 0) {
-                return res.status(400).json({ error: "fixedPrice must be a positive number" });
+                return reply.code(400).send({ error: "fixedPrice must be a positive number" });
             }
             updateData.fixedPrice = fixedPrice;
         }
         if (items !== undefined) {
             if (!Array.isArray(items)) {
-                return res.status(400).json({ error: "items must be an array" });
+                return reply.code(400).send({ error: "items must be an array" });
             }
             updateData.items = items;
         }
@@ -157,10 +179,10 @@ export async function updateSamagriPackage(req: Request, res: Response) {
             data: updateData,
         });
 
-        res.json(updated);
+        return reply.send(updated);
     } catch (error) {
         console.error("Error updating samagri package:", error);
-        res.status(500).json({ error: "Failed to update samagri package" });
+        return reply.code(500).send({ error: "Failed to update samagri package" });
     }
 }
 
@@ -168,13 +190,15 @@ export async function updateSamagriPackage(req: Request, res: Response) {
  * DELETE /api/v1/pandits/me/samagri-packages/:id
  * Delete a samagri package (soft delete - set isActive = false)
  */
-export async function deleteSamagriPackage(req: Request, res: Response) {
+export async function deleteSamagriPackage(request: FastifyRequest, reply: FastifyReply) {
     try {
-        const panditId = (req as any).user?.panditId;
-        const { id } = req.params;
+        const authRequest = request as unknown as AuthenticatedPanditRequest;
+        const panditId = authRequest.user?.panditId;
+        const params = request.params as Record<string, string>;
+        const id = params.id;
 
         if (!panditId) {
-            return res.status(401).json({ error: "Unauthorized" });
+            return reply.code(401).send({ error: "Unauthorized" });
         }
 
         // Check ownership
@@ -183,11 +207,11 @@ export async function deleteSamagriPackage(req: Request, res: Response) {
         });
 
         if (!existing) {
-            return res.status(404).json({ error: "Samagri package not found" });
+            return reply.code(404).send({ error: "Samagri package not found" });
         }
 
         if (existing.panditProfileId !== panditId) {
-            return res.status(403).json({ error: "Forbidden - Not your package" });
+            return reply.code(403).send({ error: "Forbidden - Not your package" });
         }
 
         // Soft delete (set isActive = false)
@@ -196,10 +220,10 @@ export async function deleteSamagriPackage(req: Request, res: Response) {
             data: { isActive: false },
         });
 
-        res.json({ message: "Samagri package deleted successfully", package: deleted });
+        return reply.send({ message: "Samagri package deleted successfully", package: deleted });
     } catch (error) {
         console.error("Error deleting samagri package:", error);
-        res.status(500).json({ error: "Failed to delete samagri package" });
+        return reply.code(500).send({ error: "Failed to delete samagri package" });
     }
 }
 
@@ -207,12 +231,13 @@ export async function deleteSamagriPackage(req: Request, res: Response) {
  * GET /api/v1/pandits/me/samagri-packages
  * Get all samagri packages for the authenticated pandit (including inactive)
  */
-export async function getMySamagriPackages(req: Request, res: Response) {
+export async function getMySamagriPackages(request: FastifyRequest, reply: FastifyReply) {
     try {
-        const panditId = (req as any).user?.panditId;
+        const authRequest = request as unknown as AuthenticatedPanditRequest;
+        const panditId = authRequest.user?.panditId;
 
         if (!panditId) {
-            return res.status(401).json({ error: "Unauthorized" });
+            return reply.code(401).send({ error: "Unauthorized" });
         }
 
         const packages = await prisma.samagriPackage.findMany({
@@ -220,10 +245,10 @@ export async function getMySamagriPackages(req: Request, res: Response) {
             orderBy: [{ pujaType: "asc" }, { fixedPrice: "asc" }],
         });
 
-        res.json(packages);
+        return reply.send(packages);
     } catch (error) {
         console.error("Error fetching my samagri packages:", error);
-        res.status(500).json({ error: "Failed to fetch samagri packages" });
+        return reply.code(500).send({ error: "Failed to fetch samagri packages" });
     }
 }
 
@@ -231,20 +256,18 @@ export async function getMySamagriPackages(req: Request, res: Response) {
  * GET /api/v1/samagri/catalog
  * Get samagri catalog based on puja type
  */
-export async function getSamagriCatalog(req: Request, res: Response) {
+export async function getSamagriCatalog(request: FastifyRequest, reply: FastifyReply) {
     try {
-        const { pujaType } = req.query;
-
         // Basic implementation reading from local JSON
         const catalogPath = path.join(__dirname, "../data/samagri-catalog.json");
         const data = fs.readFileSync(catalogPath, "utf-8");
-        const catalog = JSON.parse(data);
+        const catalog: unknown = JSON.parse(data);
 
-        // Here we could filter by pujaType if the catalog supported it, 
+        // Here we could filter by pujaType if the catalog supported it,
         // for Phase 1 we return the general catalog
-        res.json(catalog);
+        return reply.send(catalog);
     } catch (error) {
         console.error("Error fetching samagri catalog:", error);
-        res.status(500).json({ error: "Failed to fetch samagri catalog" });
+        return reply.code(500).send({ error: "Failed to fetch samagri catalog" });
     }
 }

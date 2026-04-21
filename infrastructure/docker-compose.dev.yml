@@ -1,9 +1,13 @@
 version: '3.8'
-# Development overrides — use with:
-# docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+# ⚠️ WARNING: This file contains DEVELOPMENT-ONLY security configurations
+# ⚠️ DO NOT use in production or staging environments
+# ⚠️ POSTGRES_HOST_AUTH_METHOD: trust allows password-less access (dev only)
+#
+# Use with: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
 services:
   postgres:
     environment:
+      # ⚠️ SECURITY RISK: No password required - ONLY for local development
       POSTGRES_HOST_AUTH_METHOD: trust
     logging:
       driver: "json-file"

@@ -1,6 +1,7 @@
 'use client';
 
 import { SarvamLanguageCode } from '@/lib/sarvam-tts';
+import { logger } from '@/utils/logger';
 
 // ─────────────────────────────────────────────────────────────
 // VOICE PRELOADER
@@ -46,13 +47,8 @@ const CRITICAL_PRELOADS: Array<{ text: string; lang: SarvamLanguageCode }> = [
 export async function preloadCriticalAudio(): Promise<void> {
   if (typeof window === 'undefined') return;
 
-  const apiKey = process.env.NEXT_PUBLIC_SARVAM_API_KEY;
-  if (!apiKey) {
-    console.warn('[VoicePreloader] Sarvam API key not configured, skipping pre-load');
-    return;
-  }
-
-  console.log('[VoicePreloader] Pre-loading', CRITICAL_PRELOADS.length, 'audio clips...');
+  // Use backend proxy route - API key stays on server
+  logger.info('[VoicePreloader] Pre-loading', CRITICAL_PRELOADS.length, 'audio clips...');
 
   // Pre-load in batches to avoid rate limiting
   const BATCH_SIZE = 5;
@@ -79,7 +75,7 @@ export async function preloadCriticalAudio(): Promise<void> {
           results.success++;
         } else {
           results.failed++;
-          console.warn('[VoicePreloader] Failed to preload:', item.text.substring(0, 30) + '...');
+          logger.warn('[VoicePreloader] Failed to preload:', item.text.substring(0, 30) + '...');
         }
       } catch (error) {
         results.failed++;
@@ -95,7 +91,7 @@ export async function preloadCriticalAudio(): Promise<void> {
     }
   }
 
-  console.log(
+  logger.info(
     `[VoicePreloader] Complete - Success: ${results.success}, Failed: ${results.failed}`
   );
 }

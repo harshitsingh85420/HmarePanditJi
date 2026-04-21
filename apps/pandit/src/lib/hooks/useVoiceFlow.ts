@@ -135,8 +135,7 @@ export function useVoiceFlow({
       stopSpeaking()
       stopSTT()
     }
-    // Run only once on mount
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Intentionally run only on mount - initializes the voice flow lifecycle (TTS -> STT) for the screen
   }, [])
 
   return { voiceState, isListening }

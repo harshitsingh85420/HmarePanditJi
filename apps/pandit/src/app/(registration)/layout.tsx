@@ -6,6 +6,7 @@ import { useNetwork } from '@/hooks/useNetwork'
 import { SessionTimeoutSheet } from '@/components/overlays/SessionTimeout'
 import { NetworkBanner } from '@/components/overlays/NetworkBanner'
 import { useSafeUIStore, useSafeRegistrationStore, useSafeNavigationStore } from '@/lib/stores/ssr-safe-stores'
+import { useRegistrationStore } from '@/stores/registrationStore'
 import LanguageBottomSheet from '@/components/LanguageBottomSheet'
 import { HelpButton } from '@/components/HelpButton'
 import { SupportedLanguage, loadOnboardingState } from '@/lib/onboarding-store'
@@ -103,6 +104,18 @@ export default function RegistrationLayout({ children }: { children: React.React
     return () => window.removeEventListener('error', errorHandler)
   }, [])
 
+  // BUG-005 FIX: Sync language from onboarding state to registration store
+  // NOTE: Must be before any conditional returns to satisfy rules of hooks
+  useEffect(() => {
+    const onboardingState = loadOnboardingState()
+    if (onboardingState.selectedLanguage) {
+      const bcp47Code = LANGUAGE_TO_BCP47[onboardingState.selectedLanguage] || 'hi'
+      // Convert BCP-47 code to registration store format (e.g., 'hi-IN' -> 'hi')
+      const langCode = bcp47Code.split('-')[0]
+      useRegistrationStore.getState().setLanguage(langCode)
+    }
+  }, [])
+
   const resetError = () => {
     setHasError(false)
     setError(null)
@@ -113,19 +126,6 @@ export default function RegistrationLayout({ children }: { children: React.React
   if (hasError && error) {
     return <RegistrationErrorBoundary error={error} reset={resetError} />
   }
-
-  // BUG-005 FIX: Sync language from onboarding state to registration store
-  useEffect(() => {
-    const onboardingState = loadOnboardingState()
-    if (onboardingState.selectedLanguage) {
-      const bcp47Code = LANGUAGE_TO_BCP47[onboardingState.selectedLanguage] || 'hi'
-      // Convert BCP-47 code to registration store format (e.g., 'hi-IN' -> 'hi')
-      const langCode = bcp47Code.split('-')[0]
-      // SSR FIX: Use safe store reference
-      const { useRegistrationStore } = require('@/stores/registrationStore')
-      useRegistrationStore.getState().setLanguage(langCode)
-    }
-  }, [])
 
   const handleLanguageChange = () => {
     // Language change handler

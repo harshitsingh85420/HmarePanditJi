@@ -48,7 +48,7 @@ export function Rating({
         ))}
         {showValue && (
           <span
-            className={`${text} font-bold text-slate-900 dark:text-slate-100 ml-1`}
+            className={`${text} ml-1 font-bold text-slate-900 dark:text-slate-100`}
           >
             {value.toFixed(1)}
           </span>
@@ -68,7 +68,7 @@ export function Rating({
           type="button"
           onClick={() => onChange(i)}
           onMouseEnter={() => setHoverValue(i)}
-          className={`material-symbols-outlined ${star} transition-colors cursor-pointer ${
+          className={`material-symbols-outlined ${star} cursor-pointer transition-colors ${
             i <= displayValue
               ? "text-amber-400"
               : "text-slate-200 dark:text-slate-600"
@@ -81,7 +81,7 @@ export function Rating({
       ))}
       {showValue && displayValue > 0 && (
         <span
-          className={`${text} font-bold text-slate-900 dark:text-slate-100 ml-1`}
+          className={`${text} ml-1 font-bold text-slate-900 dark:text-slate-100`}
         >
           {displayValue.toFixed(1)}
         </span>

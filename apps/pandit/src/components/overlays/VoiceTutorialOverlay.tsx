@@ -27,7 +27,7 @@ export default function VoiceTutorialOverlay({
       text: 'जब यह दिखे, तब बोलिए।',
       languageCode,
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Intentionally run only on mount - speaks the tutorial instruction once when overlay opens
   }, []);
 
   const handleMicClick = () => {

@@ -229,7 +229,10 @@ function LoginPageContent() {
                 🙏 I'm a Customer
               </button>
               <button
-                onClick={() => setRole("PANDIT")}
+                onClick={() => {
+                  const panditUrl = process.env.NEXT_PUBLIC_PANDIT_URL || 'http://localhost:3002';
+                  window.location.href = panditUrl;
+                }}
                 className={`flex-1 py-2 px-4 rounded-pill text-sm font-bold transition-all ${role === "PANDIT"
                   ? "bg-amber-600 text-white shadow-md"
                   : "text-gray-600 hover:text-gray-900"

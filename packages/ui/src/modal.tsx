@@ -60,22 +60,22 @@ export function Modal({
 
       {/* Panel */}
       <div
-        className={`relative w-full ${sizes[size]} bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-800 ${
+        className={`relative w-full ${sizes[size]} rounded-2xl border border-slate-100 bg-white shadow-2xl dark:border-slate-800 dark:bg-slate-900 ${
           size === "full" ? "flex flex-col overflow-hidden" : ""
         }`}
       >
         {/* Header */}
         {title && (
-          <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex-shrink-0">
+          <div className="flex flex-shrink-0 items-center justify-between border-b border-slate-100 px-6 py-4 dark:border-slate-800">
             <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
               {title}
             </h2>
             <button
               onClick={onClose}
-              className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              className="rounded-lg p-1 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
               aria-label="Close modal"
             >
-              <span className="material-symbols-outlined text-slate-500 text-xl">
+              <span className="material-symbols-outlined text-xl text-slate-500">
                 close
               </span>
             </button>

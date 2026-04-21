@@ -25,9 +25,8 @@ export function Icon({
   ...props
 }: IconProps) {
   const sizeClass =
-    typeof size === "number" ? "" : sizeMap[size] ?? sizeMap.md;
-  const sizeStyle =
-    typeof size === "number" ? { fontSize: size } : undefined;
+    typeof size === "number" ? "" : (sizeMap[size] ?? sizeMap.md);
+  const sizeStyle = typeof size === "number" ? { fontSize: size } : undefined;
 
   return (
     <span

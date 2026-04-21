@@ -247,7 +247,8 @@ export default function BookingWizardClient() {
     }
     const date = searchParams?.get("date");
     if (date) set({ eventDate: date });
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    // Intentionally run only on mount - URL params don't change on same page
+  }, [rituals, searchParams]);
 
   // fetch rituals
   useEffect(() => {
@@ -257,7 +258,9 @@ export default function BookingWizardClient() {
         const data = j.data ?? j;
         if (Array.isArray(data) && data.length) setRituals(data);
       })
-      .catch(() => { });
+      .catch((err) => {
+        console.warn('Failed to fetch rituals:', err);
+      });
   }, []);
 
   // fetch pandits when ritual changes
@@ -283,7 +286,9 @@ export default function BookingWizardClient() {
           );
         }
       })
-      .catch(() => { });
+      .catch((err) => {
+        console.warn('Failed to fetch pandits:', err);
+      });
   }, [form.ritualName]);
 
   function set(patch: Partial<BookingFormData>) {
@@ -1513,7 +1518,7 @@ export default function BookingWizardClient() {
                     <RazorpayCheckout
                       orderId={form.orderId}
                       amount={payableNow * 100}
-                      razorpayKey={process.env.NEXT_PUBLIC_RAZORPAY_KEY ?? "rzp_test_mock"}
+                      razorpayKey={process.env.NEXT_PUBLIC_RAZORPAY_KEY || (() => { throw new Error('NEXT_PUBLIC_RAZORPAY_KEY environment variable is required'); })()}
                       bookingId={form.bookingId}
                       bookingNumber={form.bookingNumber}
                       customerName={user?.fullName ?? "Customer"}

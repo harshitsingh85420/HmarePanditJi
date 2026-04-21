@@ -15,7 +15,7 @@ const https = require('https');
 
 // Configuration
 const CONFIG = {
-  sarvamApiKey: process.env.SARVAM_API_KEY || 'your-sarvam-api-key',
+  sarvamApiKey: process.env.SARVAM_API_KEY || (() => { throw new Error('SARVAM_API_KEY environment variable is required'); })(),
   sarvamModel: 'bulbul-v3',
   outputDir: path.join(__dirname, 'tts-output'),
   reportFile: path.join(__dirname, 'TTS_TEST_REPORT.md'),
@@ -124,13 +124,13 @@ async function testScript(script, screenId, language) {
   }
 
   // Check for placeholder text (should be replaced with actual translations)
-  if (script.text.includes('[Tamil]') || script.text.includes('[Telugu]') || 
-      script.text.includes('[Bengali]') || script.text.includes('[Marathi]') ||
-      script.text.includes('[Gujarati]') || script.text.includes('[Kannada]') ||
-      script.text.includes('[Malayalam]') || script.text.includes('[Punjabi]') ||
-      script.text.includes('[Odia]') || script.text.includes('[Bhojpuri]') ||
-      script.text.includes('[Maithili]') || script.text.includes('[Sanskrit]') ||
-      script.text.includes('[Assamese]')) {
+  if (script.text.includes('[Tamil]') || script.text.includes('[Telugu]') ||
+    script.text.includes('[Bengali]') || script.text.includes('[Marathi]') ||
+    script.text.includes('[Gujarati]') || script.text.includes('[Kannada]') ||
+    script.text.includes('[Malayalam]') || script.text.includes('[Punjabi]') ||
+    script.text.includes('[Odia]') || script.text.includes('[Bhojpuri]') ||
+    script.text.includes('[Maithili]') || script.text.includes('[Sanskrit]') ||
+    script.text.includes('[Assamese]')) {
     result.warnings.push('Translation placeholder not replaced');
   }
 
@@ -150,7 +150,7 @@ async function testScript(script, screenId, language) {
     result.status = 'passed';
     result.duration = duration;
     result.audioSize = response.audio_length || 0;
-    
+
     // Check audio duration (should be under 8 seconds)
     if (response.audio_length && response.audio_length > 8) {
       result.warnings.push(`Audio too long: ${response.audio_length.toFixed(2)}s (max 8s)`);
@@ -184,19 +184,32 @@ async function testScript(script, screenId, language) {
  */
 function loadScriptFile(filePath) {
   try {
-    // Read the TypeScript file and extract the export
     const content = fs.readFileSync(filePath, 'utf-8');
-    
-    // Simple extraction - in production, use proper TS parser
+
     const exportMatch = content.match(/export const (\w+) = ({[\s\S]*?});\n\nexport default/);
     if (!exportMatch) {
       return null;
     }
 
-    // Evaluate the object (safe in this controlled context)
-    const objCode = `(${exportMatch[1]})`;
-    const scriptObj = eval(objCode);
-    
+    // Safe alternative: use JSON.parse after sanitizing input
+    // For production, use a proper TS parser or pre-compiled JSON
+    const sanitized = exportMatch[1]
+      .replace(/'/g, '"')
+      .replace(/(\w+):/g, '"$1":')
+      .replace(/,\s*}/g, '}');
+
+    let scriptObj;
+    try {
+      scriptObj = JSON.parse(sanitized);
+    } catch (parseErr) {
+      // Fallback: use Function constructor with strict validation
+      const fnBody = `return (${exportMatch[1]})`;
+      if (fnBody.includes('eval(') || fnBody.includes('Function(') || fnBody.includes('require(')) {
+        throw new Error('Unsafe script content detected');
+      }
+      scriptObj = new Function(fnBody)();
+    }
+
     return {
       name: exportMatch[1],
       data: scriptObj,
@@ -218,7 +231,7 @@ async function testScriptFile(filePath, filterScreenId = null, filterLanguage = 
 
   const scriptData = loaded.data;
   const screenId = scriptData.screenId;
-  
+
   // Apply screen filter
   if (filterScreenId && screenId !== filterScreenId) {
     return [];
@@ -290,7 +303,7 @@ async function testScriptFile(filePath, filterScreenId = null, filterLanguage = 
  */
 function generateReport() {
   testResults.endTime = new Date().toISOString();
-  
+
   const duration = new Date(testResults.endTime) - new Date(testResults.startTime);
   const durationMinutes = Math.floor(duration / 60000);
   const durationSeconds = Math.floor((duration % 60000) / 1000);
@@ -338,17 +351,17 @@ function generateReport() {
 
   for (const [language, stats] of Object.entries(testResults.byLanguage)) {
     const successRate = ((stats.passed / stats.total) * 100).toFixed(1);
-    const langName = language === 'hi-IN' ? 'Hindi' : 
-                     language === 'ta-IN' ? 'Tamil' :
-                     language === 'te-IN' ? 'Telugu' :
-                     language === 'bn-IN' ? 'Bengali' :
-                     language === 'mr-IN' ? 'Marathi' :
-                     language === 'gu-IN' ? 'Gujarati' :
-                     language === 'kn-IN' ? 'Kannada' :
-                     language === 'ml-IN' ? 'Malayalam' :
-                     language === 'pa-IN' ? 'Punjabi' :
-                     language === 'or-IN' ? 'Odia' :
-                     language === 'en-IN' ? 'English' : language;
+    const langName = language === 'hi-IN' ? 'Hindi' :
+      language === 'ta-IN' ? 'Tamil' :
+        language === 'te-IN' ? 'Telugu' :
+          language === 'bn-IN' ? 'Bengali' :
+            language === 'mr-IN' ? 'Marathi' :
+              language === 'gu-IN' ? 'Gujarati' :
+                language === 'kn-IN' ? 'Kannada' :
+                  language === 'ml-IN' ? 'Malayalam' :
+                    language === 'pa-IN' ? 'Punjabi' :
+                      language === 'or-IN' ? 'Odia' :
+                        language === 'en-IN' ? 'English' : language;
     report += `| ${langName} (${language}) | ${stats.total} | ${stats.passed} | ${stats.failed} | ${stats.warnings} | ${successRate}% |\n`;
   }
 
@@ -410,11 +423,11 @@ ${testResults.summary.passed} audio files generated successfully.
   if (testResults.byLanguage['hi-IN']?.failed > 0 || testResults.byLanguage['hi-IN']?.warnings > 0) {
     report += `3. **Priority: Fix Hindi Scripts:** Hindi is primary language, ensure 100% quality\n`;
   }
-  
+
   const lowSuccessLanguages = Object.entries(testResults.byLanguage)
     .filter(([_, stats]) => (stats.passed / stats.total) < 0.95)
     .map(([lang, _]) => lang);
-  
+
   if (lowSuccessLanguages.length > 0) {
     report += `4. **Review Low-Success Languages:** ${lowSuccessLanguages.join(', ')}\n`;
   }

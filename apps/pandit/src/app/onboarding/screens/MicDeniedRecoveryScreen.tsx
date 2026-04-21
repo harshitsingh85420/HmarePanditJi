@@ -17,7 +17,6 @@ export default function MicDeniedRecoveryScreen({
   language,
   onContinueWithKeyboard,
   onRetryPermission,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onBack
 }: MicDeniedRecoveryScreenProps) {
 

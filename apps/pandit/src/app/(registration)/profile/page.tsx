@@ -3,13 +3,14 @@
 // SSR FIX: Disable static generation for pages using Zustand stores
 export const dynamic = 'force-dynamic'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { useSafeRegistrationStore, useSafeNavigationStore, useSafeVoiceStore } from '@/lib/stores/ssr-safe-stores'
 import { useSarvamVoiceFlow } from '@/lib/hooks/useSarvamVoiceFlow'
 import { speakWithSarvam, stopCurrentSpeech } from '@/lib/sarvam-tts'
 import { listenOnce } from '@/lib/deepgram-stt'
+import LanguageBottomSheet from '@/components/LanguageBottomSheet'
 
 // Analytics logger for profile voice events
 function logProfileAnalytics(event: {
@@ -33,16 +34,16 @@ export default function ProfileDetails() {
   // SSR FIX: Use safe store hooks that don't throw during SSR
   const { data, setName, setCurrentStep, markStepComplete } = useSafeRegistrationStore()
   const { navigate, setSection, canNavigateBack, goBack } = useSafeNavigationStore()
-  const { switchToKeyboard } = useSafeVoiceStore() // eslint-disable-line @typescript-eslint/no-unused-vars
+  const { switchToKeyboard } = useSafeVoiceStore()
 
   // BUG-015 FIX: Initialize from persisted store for back-navigation/refresh survival
   const [fullName, setFullName] = useState(() => data.name || '')
   const [error, setError] = useState('')
+  const [showLanguageSheet, setShowLanguageSheet] = useState(false)
   // BUG-030 FIX: Prevent shaky thumb spam during submission
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isNameListening, setIsNameListening] = useState(false)
   const [voiceErrorCount, setVoiceErrorCount] = useState(0)
-  // const [isManualVoiceMode, setIsManualVoiceMode] = useState(false) // eslint-disable-line @typescript-eslint/no-unused-vars
 
   // BUG-014 FIX: Route guard - redirect to mobile if OTP not completed
   useEffect(() => {
@@ -250,24 +251,38 @@ export default function ProfileDetails() {
   }
 
   return (
-    <main className="min-h-dvh flex flex-col px-6 pt-16 bg-surface-base">
-      {/* Top Bar with Back Button */}
-      <header className="flex items-center gap-2 mb-8">
+    <main className="min-h-dvh flex flex-col bg-[#FFFBF5] relative overflow-hidden">
+      {/* Background Decor */}
+      <div className="absolute top-0 left-0 w-full h-96 bg-gradient-to-b from-saffron/10 to-transparent rounded-b-[40%] opacity-60 -z-10" />
+
+      {/* Top Bar - Saffron header */}
+      <header className="sticky top-0 z-50 flex items-center justify-between px-5 pt-4 pb-3 bg-saffron/95 backdrop-blur-md shadow-lg">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleBack}
+            className="w-12 h-12 flex items-center justify-center text-white bg-white/20 rounded-full active:bg-white/30 transition-all"
+            aria-label="Go back"
+          >
+            <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <div className="flex items-center gap-2">
+            <span className="text-3xl text-white" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.3)' }}>ॐ</span>
+            <span className="text-lg font-bold text-white" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.3)' }}>HmarePanditJi</span>
+          </div>
+        </div>
         <button
-          onClick={handleBack}
-          className="w-[56px] h-[56px] flex items-center justify-center text-saffron rounded-full active:bg-black/5"
-          aria-label="Go back"
+          onClick={() => setShowLanguageSheet(true)}
+          className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm text-white active:bg-white/30 transition-all flex items-center justify-center"
+          aria-label="Change language"
         >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
+          <span className="text-2xl">🌐</span>
         </button>
-        <span className="text-2xl text-saffron">ॐ</span>
-        <span className="text-lg font-bold text-text-primary">HmarePanditJi</span>
       </header>
 
       {/* Progress */}
-      <div className="mb-8">
+      <div className="px-6 pb-4 bg-[#FFFBF5]/80 backdrop-blur-sm">
         <div className="flex items-center justify-center gap-2 mb-2">
           {['mobile', 'otp', 'profile'].map((step, _i) => (
             <div
@@ -283,7 +298,7 @@ export default function ProfileDetails() {
       </div>
 
       {/* Content */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col px-6 pt-8">
         {/* Illustration */}
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
@@ -358,6 +373,14 @@ export default function ProfileDetails() {
       <p className="pb-8 text-center text-lg text-text-placeholder">
         🎤 "नाम बोलें" या "पीछे जाएं" बोलें
       </p>
+
+      {/* Language Bottom Sheet */}
+      <LanguageBottomSheet
+        isOpen={showLanguageSheet}
+        currentLanguage="Hindi"
+        onSelect={() => setShowLanguageSheet(false)}
+        onClose={() => setShowLanguageSheet(false)}
+      />
     </main>
   )
 }

@@ -4,11 +4,13 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { speakWithSarvam } from '@/lib/sarvam-tts';
 import { useSarvamVoiceFlow } from '@/lib/hooks/useSarvamVoiceFlow';
-import type { SupportedLanguage } from '@/lib/onboarding-store';
+import type { SupportedLanguage, ScriptPreference } from '@/lib/onboarding-store';
+import { getBrandName } from '@/lib/onboarding-store';
 import { LANGUAGE_TO_SARVAM_CODE } from '@/lib/sarvam-tts';
 
 interface MicPermissionScreenProps {
   language: SupportedLanguage;
+  scriptPreference: ScriptPreference | null;
   onGranted: () => void;
   onDenied: () => void;
   onBack?: () => void;
@@ -16,19 +18,34 @@ interface MicPermissionScreenProps {
 
 export default function MicPermissionScreen({
   language,
+  scriptPreference,
   onGranted,
   onDenied,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onBack
 }: MicPermissionScreenProps) {
   const [permissionGranted, setPermissionGranted] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const isLatin = scriptPreference === 'latin';
+  const brandName = getBrandName(language, scriptPreference);
+
+  const TITLE = isLatin ? 'Yeh app aapki awaaz se chalega 🎙️' : 'यह ऐप आपकी आवाज़ से चलेगा 🎙️';
+  const DESC = isLatin ? 'Is app mein aapko kuch bhi type karne ki zaroorat nahi. Bas boliye aur apna kaam karein.' : 'इस ऐप में आपको कुछ भी टाइप करने की ज़रूरत नहीं। बस बोलें और अपना काम करें।';
+  const STEP1 = isLatin ? 'Aap boliye' : 'आप बोलें';
+  const STEP2 = isLatin ? 'App sune' : 'ऐप सुने';
+  const STEP3 = isLatin ? 'Ho gaya!' : 'हो गया!';
+  const SAFETY_TITLE = isLatin ? 'Aapki awaaz kabhi record nahi hoti' : 'आपकी आवाज़ कभी रिकॉर्ड नहीं होती';
+  const SAFETY_DESC = isLatin ? 'Sirf tab sunta hai jab aap bol rahe hain' : 'सिर्फ़ तब सुनता है जब आप बोल रहे हैं';
+  const CTA_TEXT = isLatin ? 'Theek hai, Microphone kholein' : 'ठीक है, माइक्रोफ़ोन खोलें';
+  const DENY_TEXT = isLatin ? 'Nahi chahiye — Main type karna chahta hoon' : 'नहीं चाहिए — मैं टाइप करना चाहता हूँ';
+  const VOICE_PROMPT = isLatin ? 'This app will run on your voice. Please allow microphone access.' : 'यह App आपकी आवाज़ से चलेगा। Microphone की अनुमति दें।';
+  const SUCCESS_MSG = isLatin ? 'Great! Microphone is ON.' : 'बहुत अच्छा! Microphone चालू है।';
+  const ERROR_MSG = isLatin ? 'Microphone permission denied. No problem, you can use keyboard too.' : 'Microphone अनुमति नहीं दी गई। कोई बात नहीं, आप कीबोर्ड से भी कर सकते हैं।';
+
   const { voiceFlowState } = useSarvamVoiceFlow({
     language,
-    script: 'यह App आपकी आवाज़ से चलेगा। Microphone की अनुमति दें।',
-    repromptScript: 'Microphone खोलें या "कीबोर्ड" बोलें।',
+    script: VOICE_PROMPT,
+    repromptScript: isLatin ? 'Open microphone or say "keyboard"' : 'Microphone खोलें या "कीबोर्ड" बोलें।',
     initialDelayMs: 800,
     pauseAfterMs: 1000,
     onIntent: (intentOrRaw) => {
@@ -47,38 +64,77 @@ export default function MicPermissionScreen({
 
   useEffect(() => {
     const languageCode = LANGUAGE_TO_SARVAM_CODE[language] || 'hi-IN';
+
+    // Check if mic is available before trying to speak
+    const checkMicAvailability = async () => {
+      try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const hasMic = devices.some(d => d.kind === 'audioinput');
+        console.log('[MicPermission] Mic available:', hasMic);
+        if (!hasMic) {
+          console.log('[MicPermission] No mic detected, suggesting keyboard mode');
+          // Auto-switch to keyboard mode after short delay
+          setTimeout(() => {
+            onDenied();
+          }, 1500);
+        }
+      } catch (err) {
+        console.warn('[MicPermission] Cannot check devices:', err);
+      }
+    };
+
+    checkMicAvailability();
+
     void speakWithSarvam({
-      text: 'यह App आपकी आवाज़ से चलेगा। Microphone की अनुमति दें।',
+      text: VOICE_PROMPT,
       languageCode,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleRequestPermission = async () => {
+    console.log('[MicPermission] handleRequestPermission called');
+
+    // Check if mediaDevices is available
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      console.error('[MicPermission] MediaDevices API not available');
+      setError(isLatin ? 'Microphone not supported on this browser' : 'Microphone इस ब्राउज़र पर समर्थित नहीं है');
+      setTimeout(() => {
+        console.log('[MicPermission] Calling onDenied due to unsupported API');
+        onDenied();
+      }, 2000);
+      return;
+    }
+
     try {
+      console.log('[MicPermission] Calling getUserMedia...');
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      console.log('[MicPermission] Microphone stream obtained');
       // Permission granted - stop the stream immediately
       stream.getTracks().forEach(track => track.stop());
       setPermissionGranted(true);
 
+      console.log('[MicPermission] Calling onGranted...');
       const languageCode = LANGUAGE_TO_SARVAM_CODE[language] || 'hi-IN';
       void speakWithSarvam({
-        text: 'बहुत अच्छा! Microphone चालू है।',
+        text: SUCCESS_MSG,
         languageCode,
         onEnd: () => {
+          console.log('[MicPermission] Speech ended, calling onGranted callback');
           setTimeout(onGranted, 500);
         },
       });
     } catch (err) {
-      console.error('Microphone permission denied:', err);
-      setError('Microphone अनुमति नहीं दी गई');
+      console.error('[MicPermission] Microphone permission denied:', err);
+      setError(isLatin ? 'Mic permission denied' : 'Microphone अनुमति नहीं दी गई');
 
       const languageCode = LANGUAGE_TO_SARVAM_CODE[language] || 'hi-IN';
       void speakWithSarvam({
-        text: 'Microphone अनुमति नहीं दी गई। कोई बात नहीं, आप कीबोर्ड से भी कर सकते हैं।',
+        text: ERROR_MSG,
         languageCode,
       });
 
+      console.log('[MicPermission] Calling onDenied after error');
       setTimeout(() => {
         onDenied();
       }, 2000);
@@ -94,14 +150,14 @@ export default function MicPermissionScreen({
             <button
               onClick={onBack}
               className="p-2 hover:bg-surface-container rounded-full transition-colors"
-              aria-label="Go back"
+              aria-label="वापस जाएं"
             >
               <svg className="w-6 h-6 text-[#904d00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
             </button>
           )}
-          <h1 className="font-serif text-2xl font-bold leading-[150%] text-[#904d00]">सहायता</h1>
+          <h1 className="font-serif text-2xl font-bold leading-[150%] text-[#904d00]">{brandName}</h1>
         </div>
         <div className="w-10 h-10 rounded-full bg-[#e4e2dd] flex items-center justify-center overflow-hidden border-2 border-[#ff8c00]/20">
           <div className="w-full h-full bg-gradient-to-br from-[#ff8c00]/20 to-[#f89100]/10 flex items-center justify-center">
@@ -150,10 +206,10 @@ export default function MicPermissionScreen({
         {/* Typography Section */}
         <div className="text-center space-y-4 mb-10">
           <h2 className="font-headline text-3xl font-bold text-[#904d00] leading-tight">
-            यह App आपकी आवाज़ से चलेगा 🎙️
+            {TITLE}
           </h2>
           <p className="text-[#564334] text-lg leading-relaxed">
-            Is app mein aapko kuch bhi type karne ki zaroorat nahi. बस बोलें और अपना काम करें।
+            {DESC}
           </p>
         </div>
 
@@ -163,7 +219,7 @@ export default function MicPermissionScreen({
             <svg className="w-8 h-8 text-[#904d00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
             </svg>
-            <span className="text-sm font-bold text-[#904d00]">Aap bolein</span>
+            <span className="text-sm font-bold text-[#904d00]">{STEP1}</span>
           </div>
           <svg className="w-8 h-8 text-[#ddc1ae] opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
@@ -172,7 +228,7 @@ export default function MicPermissionScreen({
             <svg className="w-8 h-8 text-[#904d00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
             </svg>
-            <span className="text-sm font-bold text-[#904d00]">App sune</span>
+            <span className="text-sm font-bold text-[#904d00]">{STEP2}</span>
           </div>
           <svg className="w-8 h-8 text-[#ddc1ae] opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
@@ -181,7 +237,7 @@ export default function MicPermissionScreen({
             <svg className="w-8 h-8 text-[#1b6d24]" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
             </svg>
-            <span className="text-sm font-bold text-[#1b6d24]">Ho gaya!</span>
+            <span className="text-sm font-bold text-[#1b6d24]">{STEP3}</span>
           </div>
         </div>
 
@@ -193,59 +249,33 @@ export default function MicPermissionScreen({
             </svg>
           </div>
           <div className="space-y-1">
-            <p className="font-bold text-[#002204] text-lg">Aapki awaaz kabhi record nahi hoti</p>
-            <p className="text-[#217128] text-base opacity-90">Sirf tab sunta hai jab aap bol rahe hain</p>
+            <p className="font-bold text-[#002204] text-lg">{SAFETY_TITLE}</p>
+            <p className="text-[#217128] text-base opacity-90">{SAFETY_DESC}</p>
           </div>
         </div>
 
         {/* CTA Section */}
         <div className="w-full space-y-6 flex flex-col items-center">
           <motion.button
+            type="button"
             whileTap={{ scale: 0.95 }}
             onClick={handleRequestPermission}
             className="w-full h-14 bg-[#ff8c00] text-white font-bold text-xl rounded-xl shadow-lg shadow-[#ff8c00]/30 flex items-center justify-center gap-3 active:scale-95 transition-transform"
           >
-            ठीक है, Microphone खोलें
+            {CTA_TEXT}
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
             </svg>
           </motion.button>
           <button
+            type="button"
             onClick={onDenied}
             className="text-stone-500 font-medium text-lg underline underline-offset-4 hover:text-stone-700 transition-colors"
           >
-            Nahi chahiye — Main type karna chahta hoon
+            {DENY_TEXT}
           </button>
         </div>
       </div>
-
-      {/* Bottom Navigation Bar */}
-      <nav className="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 pb-4 pt-2 bg-[#fbf9f3] shadow-[0px_-4px_16px_rgba(144,77,0,0.05)] rounded-t-3xl">
-        <div className="flex flex-col items-center justify-center text-stone-600 px-4 py-2 min-h-[56px] hover:bg-[#ff8c00]/10 transition-all active:scale-90 duration-150">
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-          </svg>
-          <span className="text-[12px] font-medium leading-[150%]">मुख्य</span>
-        </div>
-        <div className="flex flex-col items-center justify-center text-stone-600 px-4 py-2 min-h-[56px] hover:bg-[#ff8c00]/10 transition-all active:scale-90 duration-150">
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-          </svg>
-          <span className="text-[12px] font-medium leading-[150%]">यजमान</span>
-        </div>
-        <div className="flex flex-col items-center justify-center text-stone-600 px-4 py-2 min-h-[56px] hover:bg-[#ff8c00]/10 transition-all active:scale-90 duration-150">
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-          </svg>
-          <span className="text-[12px] font-medium leading-[150%]">पंजीकरण</span>
-        </div>
-        <div className="flex flex-col items-center justify-center bg-[#ff8c00] text-white rounded-2xl px-6 py-2 min-h-[56px] shadow-md shadow-[#ff8c00]/20">
-          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
-          </svg>
-          <span className="text-[12px] font-medium leading-[150%]">सहायता</span>
-        </div>
-      </nav>
     </main>
   );
 }

@@ -23,8 +23,18 @@ export interface DatePickerProps {
 
 const DAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 const MONTHS = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
 ];
 
 function formatIndian(date: Date): string {
@@ -103,7 +113,7 @@ export function DatePicker({
       {label && (
         <label
           htmlFor={inputId}
-          className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5"
+          className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300"
         >
           {label}
         </label>
@@ -116,21 +126,19 @@ export function DatePicker({
         onClick={() => !disabled && setOpen((o) => !o)}
         disabled={disabled}
         className={[
-          "w-full flex items-center gap-2 pl-10 pr-4 py-3 text-left",
-          "bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl",
-          "text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary",
-          "disabled:opacity-50 disabled:cursor-not-allowed",
+          "flex w-full items-center gap-2 py-3 pl-10 pr-4 text-left",
+          "rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800",
+          "focus:ring-primary focus:border-primary text-sm focus:outline-none focus:ring-2",
+          "disabled:cursor-not-allowed disabled:opacity-50",
           error ? "border-red-400 focus:ring-red-400" : "",
-          value
-            ? "text-slate-900 dark:text-slate-100"
-            : "text-slate-400",
+          value ? "text-slate-900 dark:text-slate-100" : "text-slate-400",
         ]
           .filter(Boolean)
           .join(" ")}
         aria-haspopup="dialog"
         aria-expanded={open}
       >
-        <span className="material-symbols-outlined absolute left-3 text-slate-400 text-lg pointer-events-none">
+        <span className="material-symbols-outlined pointer-events-none absolute left-3 text-lg text-slate-400">
           calendar_today
         </span>
         {value ? formatIndian(value) : placeholder}
@@ -139,18 +147,18 @@ export function DatePicker({
       {/* Calendar dropdown */}
       {open && (
         <div
-          className="absolute z-30 mt-2 w-72 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-800 p-4"
+          className="absolute z-30 mt-2 w-72 rounded-2xl border border-slate-100 bg-white p-4 shadow-xl dark:border-slate-800 dark:bg-slate-900"
           role="dialog"
           aria-label="Date picker"
         >
           {/* Month navigation */}
-          <div className="flex items-center justify-between mb-3">
+          <div className="mb-3 flex items-center justify-between">
             <button
               onClick={prevMonth}
-              className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              className="rounded-lg p-1 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
               aria-label="Previous month"
             >
-              <span className="material-symbols-outlined text-slate-500 text-lg">
+              <span className="material-symbols-outlined text-lg text-slate-500">
                 chevron_left
               </span>
             </button>
@@ -159,21 +167,21 @@ export function DatePicker({
             </span>
             <button
               onClick={nextMonth}
-              className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              className="rounded-lg p-1 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
               aria-label="Next month"
             >
-              <span className="material-symbols-outlined text-slate-500 text-lg">
+              <span className="material-symbols-outlined text-lg text-slate-500">
                 chevron_right
               </span>
             </button>
           </div>
 
           {/* Day names */}
-          <div className="grid grid-cols-7 mb-1">
+          <div className="mb-1 grid grid-cols-7">
             {DAYS.map((d) => (
               <span
                 key={d}
-                className="text-center text-[10px] font-bold text-slate-400 uppercase py-1"
+                className="py-1 text-center text-[10px] font-bold uppercase text-slate-400"
               >
                 {d}
               </span>
@@ -201,13 +209,13 @@ export function DatePicker({
                   onClick={() => pickDay(day)}
                   disabled={isOff}
                   className={[
-                    "relative flex items-center justify-center h-8 w-full text-sm rounded-lg transition-colors",
+                    "relative flex h-8 w-full items-center justify-center rounded-lg text-sm transition-colors",
                     isSelected
-                      ? "bg-primary text-white font-bold"
+                      ? "bg-primary font-bold text-white"
                       : isToday
-                        ? "border border-primary text-primary font-bold"
-                        : "hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300",
-                    isOff ? "opacity-30 cursor-not-allowed" : "",
+                        ? "border-primary text-primary border font-bold"
+                        : "text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800",
+                    isOff ? "cursor-not-allowed opacity-30" : "",
                   ]
                     .filter(Boolean)
                     .join(" ")}
@@ -216,7 +224,7 @@ export function DatePicker({
                   {day}
                   {highlight && (
                     <span
-                      className="absolute bottom-0.5 w-1 h-1 rounded-full"
+                      className="absolute bottom-0.5 h-1 w-1 rounded-full"
                       style={{
                         backgroundColor: highlight.color ?? "#f59e0b",
                       }}
@@ -229,10 +237,13 @@ export function DatePicker({
 
           {/* Clear */}
           {value && (
-            <div className="mt-3 border-t border-slate-100 dark:border-slate-800 pt-3">
+            <div className="mt-3 border-t border-slate-100 pt-3 dark:border-slate-800">
               <button
-                onClick={() => { onChange(null); setOpen(false); }}
-                className="w-full text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+                onClick={() => {
+                  onChange(null);
+                  setOpen(false);
+                }}
+                className="w-full text-xs text-slate-400 transition-colors hover:text-slate-600 dark:hover:text-slate-300"
               >
                 Clear date
               </button>
@@ -242,7 +253,7 @@ export function DatePicker({
       )}
 
       {error && (
-        <p className="mt-1 text-xs text-red-500 flex items-center gap-1">
+        <p className="mt-1 flex items-center gap-1 text-xs text-red-500">
           <span className="material-symbols-outlined text-sm">error</span>
           {error}
         </p>

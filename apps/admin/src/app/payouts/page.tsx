@@ -28,23 +28,23 @@ export default function PayoutsPage() {
   const [payouts, setPayouts] = useState<any[]>([]);
   const [stats, setStats] = useState<any>({});
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState(PENDING);
+  const [tab, setTab] = useState("PENDING");
 
   const [selectedPayout, setSelectedPayout] = useState<any | null>(null);
   const [processModalOpen, setProcessModalOpen] = useState(false);
 
   // Form state
-  const [paymentMethod, setPaymentMethod] = useState(BANK_TRANSFER);
-  const [transactionRef, setTransactionRef] = useState();
-  const [paymentDate, setPaymentDate] = useState(new Date().toISOString().split(T)[0]);
-  const [notes, setNotes] = useState();
+  const [paymentMethod, setPaymentMethod] = useState("BANK_TRANSFER");
+  const [transactionRef, setTransactionRef] = useState<string | undefined>();
+  const [paymentDate, setPaymentDate] = useState(new Date().toISOString().split("T")[0]);
+  const [notes, setNotes] = useState<string | undefined>();
   const [processing, setProcessing] = useState(false);
 
   const fetchPayouts = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem(token);
-      const statusQuery = tab === ALL ?  : `?status=${tab}`;
+      const token = localStorage.getItem("adminToken");
+      const statusQuery = tab === "ALL" ? "" : `?status=${tab}`;
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/payouts${statusQuery}`, {
         headers: {
           Authorization: `Bearer ${token}`
@@ -68,22 +68,22 @@ export default function PayoutsPage() {
 
   const handleProcessPayoutClick = (p: any) => {
     setSelectedPayout(p);
-    setTransactionRef();
-    setNotes();
-    setPaymentMethod(BANK_TRANSFER);
-    setPaymentDate(new Date().toISOString().split(T)[0]);
+    setTransactionRef(undefined);
+    setNotes(undefined);
+    setPaymentMethod("BANK_TRANSFER");
+    setPaymentDate(new Date().toISOString().split("T")[0]);
     setProcessModalOpen(true);
   };
 
   const confirmPayout = async () => {
-    if (!transactionRef) return alert(Please enter a transaction reference number);
+    if (!transactionRef) return alert("Please enter a transaction reference number");
     setProcessing(true);
     try {
-      const token = localStorage.getItem(token);
+      const token = localStorage.getItem("adminToken");
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/payouts/${selectedPayout.id}/complete`, {
-        method: PATCH,
+        method: "PATCH",
         headers: {
-          Content-Type: application/json,
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`
         },
         body: JSON.stringify({
@@ -95,45 +95,45 @@ export default function PayoutsPage() {
       });
       const json = await res.json();
       if (json.success) {
-        alert(Payout processed successfully!);
+        alert("Payout processed successfully!");
         setProcessModalOpen(false);
         fetchPayouts();
       } else {
-        alert(json.message || Failed to process payout);
+        alert(json.message || "Failed to process payout");
       }
     } catch (e) {
       console.error(e);
-      alert(Error processing payout);
+      alert("Error processing payout");
     } finally {
       setProcessing(false);
     }
   };
 
   const exportCSV = () => {
-    const completed = payouts.filter(p => p.payoutStatus === COMPLETED);
+    const completed = payouts.filter(p => p.payoutStatus === "COMPLETED");
     const csvRows = [
-      [BookingID, PanditName, PanditPhone, Amount, BankAccount, IFSC, TransactionRef, ProcessedDate]
+      ["BookingID", "PanditName", "PanditPhone", "Amount", "BankAccount", "IFSC", "TransactionRef", "ProcessedDate"]
     ];
 
     completed.forEach(p => {
       csvRows.push([
         p.bookingNumber,
-        p.pandit?.name || N/A,
-        p.pandit?.phone || N/A,
+        p.pandit?.name || "N/A",
+        p.pandit?.phone || "N/A",
         p.panditPayout.toString(),
-        p.pandit?.bankDetails?.accountNumber || N/A,
-        p.pandit?.bankDetails?.ifscCode || N/A,
-        p.payoutReference || N/A,
-        p.payoutCompletedAt ? new Date(p.payoutCompletedAt).toLocaleString() : N/A
+        p.pandit?.bankDetails?.accountNumber || "N/A",
+        p.pandit?.bankDetails?.ifscCode || "N/A",
+        p.payoutReference || "N/A",
+        p.payoutCompletedAt ? new Date(p.payoutCompletedAt).toLocaleString() : "N/A"
       ]);
     });
 
-    const csvString = csvRows.map(row => row.join(,)).join(\n);
-    const blob = new Blob([csvString], { type: text/csv });
+    const csvString = csvRows.map(row => row.join(",")).join("\n");
+    const blob = new Blob([csvString], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
-    const a = document.createElement(a);
+    const a = document.createElement("a");
     a.href = url;
-    a.download = completed_payouts.csv;
+    a.download = "completed_payouts.csv";
     a.click();
   };
 
@@ -144,7 +144,7 @@ export default function PayoutsPage() {
           <h1 className="text-3xl font-bold tracking-tight">Payout Queue</h1>
           <p className="text-muted-foreground mt-1">Process pandit payouts after puja completion</p>
         </div>
-        {tab === COMPLETED && (
+        {tab === "COMPLETED" && (
           <Button onClick={exportCSV} variant="outline">📥 Export CSV</Button>
         )}
       </div>
@@ -185,8 +185,8 @@ export default function PayoutsPage() {
                   <TableHead>Event</TableHead>
                   <TableHead>Amount</TableHead>
                   <TableHead>Bank</TableHead>
-                  {tab !== PENDING && <TableHead>Status</TableHead>}
-                  {tab === COMPLETED && <TableHead>Transaction Ref</TableHead>}
+                  {tab !== "PENDING" && <TableHead>Status</TableHead>}
+                  {tab === "COMPLETED" && <TableHead>Transaction Ref</TableHead>}
                   <TableHead>Action</TableHead>
                 </TableRow>
               </TableHeader>
@@ -205,7 +205,7 @@ export default function PayoutsPage() {
                       </TableCell>
                       <TableCell>
                         <div className="font-medium">{p.pandit?.name}</div>
-                        <div className="text-xs text-muted-foreground">{p.pandit?.city || Unknown City}</div>
+                        <div className="text-xs text-muted-foreground">{p.pandit?.city || "Unknown City"}</div>
                       </TableCell>
                       <TableCell>
                         <div>{p.eventType}</div>
@@ -222,23 +222,23 @@ export default function PayoutsPage() {
                       <TableCell>
                         <div className="text-sm">SBI — XXXX4321 {/* Masked in real data */}</div>
                       </TableCell>
-                      {tab !== PENDING && (
+                      {tab !== "PENDING" && (
                         <TableCell>
                           <Badge variant={p.payoutStatus === "COMPLETED" ? "default" : "secondary"}>
                             {p.payoutStatus}
                           </Badge>
                         </TableCell>
                       )}
-                      {tab === COMPLETED && (
+                      {tab === "COMPLETED" && (
                         <TableCell>
-                          <div className="text-sm font-mono">{p.payoutReference || N/A}</div>
+                          <div className="text-sm font-mono">{p.payoutReference || "N/A"}</div>
                           <div className="text-xs text-muted-foreground">
-                            {p.payoutCompletedAt ? new Date(p.payoutCompletedAt).toLocaleDateString() : }
+                            {p.payoutCompletedAt ? new Date(p.payoutCompletedAt).toLocaleDateString() : ""}
                           </div>
                         </TableCell>
                       )}
                       <TableCell>
-                        {p.payoutStatus === PENDING ? (
+                        {p.payoutStatus === "PENDING" ? (
                           <Button size="sm" onClick={() => handleProcessPayoutClick(p)}>Process Payout</Button>
                         ) : (
                           <Button size="sm" variant="outline" disabled>Processed</Button>
@@ -332,7 +332,7 @@ export default function PayoutsPage() {
           <DialogFooter>
             <Button variant="outline" onClick={() => setProcessModalOpen(false)}>Cancel</Button>
             <Button onClick={confirmPayout} disabled={processing}>
-              {processing ? Processing... : 💰 Confirm Payout}
+              {processing ? "Processing..." : "💰 Confirm Payout"}
             </Button>
           </DialogFooter>
         </DialogContent>

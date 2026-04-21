@@ -17,7 +17,7 @@ export default function PanditVerificationQueue() {
     if (search.trim()) query += `&search=${encodeURIComponent(search)}`;
 
     fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/pandits${query}`, {
-      headers: { Authorization: `Bearer ${localStorage.getItem(adminToken) || }` }
+      headers: { Authorization: `Bearer ${localStorage.getItem("adminToken") || ""}` }
     })
       .then(res => res.json())
       .then(data => {
@@ -44,10 +44,10 @@ export default function PanditVerificationQueue() {
   }, [activeTab, search]);
 
   const tabs = [
-    { id: pending, label: 📝 Pending Review, count: activeTab === pending ? totalPending : undefined },
-    { id: verified, label: ✅ Verified },
-    { id: rejected, label: ❌ Rejected },
-    { id: all, label: All Pandits },
+    { id: "pending", label: "📝 Pending Review", count: activeTab === "pending" ? totalPending : undefined },
+    { id: "verified", label: "✅ Verified" },
+    { id: "rejected", label: "❌ Rejected" },
+    { id: "all", label: "All Pandits" },
   ];
 
   return (
@@ -57,7 +57,7 @@ export default function PanditVerificationQueue() {
           <h1 className="text-3xl font-black tracking-tight text-slate-800 mb-2">Pandit Verification Queue</h1>
           <p className="text-slate-500 font-medium">
             <span className="font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md">{totalPending} pandits</span> awaiting review
-            {totalPending > 0 && activeTab === pending && (
+            {totalPending > 0 && activeTab === "pending" && (
               <span className="ml-2 hidden sm:inline">| Average wait: {stats.avgWaitHours} hours | Oldest pending: {stats.oldestPendingDays} days</span>
             )}
           </p>
@@ -80,13 +80,13 @@ export default function PanditVerificationQueue() {
             key={t.id}
             onClick={() => setActiveTab(t.id)}
             className={`whitespace-nowrap px-5 py-2.5 rounded-lg font-bold text-sm transition-all flex items-center gap-2 ${activeTab === t.id
-              ? bg-white text-slate-900 shadow-sm
-              : text-slate-500 hover:text-slate-700 hover:bg-slate-200/50
+              ? "bg-white text-slate-900 shadow-sm"
+              : "text-slate-500 hover:text-slate-700 hover:bg-slate-200/50"
               }`}
           >
             {t.label}
             {t.count !== undefined && (
-              <span className={`ml-1.5 px-2 py-0.5 rounded-full text-xs bg-slate-100 ${activeTab === t.id && t.count > 0 ? bg-red-100 text-red-700 : }`}>
+              <span className={`ml-1.5 px-2 py-0.5 rounded-full text-xs bg-slate-100 ${activeTab === t.id && t.count > 0 ? "bg-red-100 text-red-700" : ""}`}>
                 {t.count}
               </span>
             )}
@@ -128,7 +128,7 @@ export default function PanditVerificationQueue() {
                         {p.user?.phone?.replace(/(\d{4})$/, 'XXXX')}
                       </div>
                     </td>
-                    <td className="px-6 py-4 font-medium text-slate-700">{p.location || Unknown}</td>
+                    <td className="px-6 py-4 font-medium text-slate-700">{p.location || "Unknown"}</td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="font-medium text-slate-600 bg-slate-100 px-3 py-1 rounded-full text-xs">
                         {formatDistanceToNow(new Date(p.updatedAt), { addSuffix: true })}

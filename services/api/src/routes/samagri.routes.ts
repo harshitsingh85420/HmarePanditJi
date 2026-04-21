@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { FastifyInstance } from "fastify";
 import {
     getSamagriCatalog,
     getPanditSamagriPackages,
@@ -9,26 +9,24 @@ import {
 } from "../controllers/samagri.controller";
 import { authenticate } from "../middleware/auth";
 
-const router: Router = Router();
+export default async function samagriRoutes(fastify: FastifyInstance, _opts: any) {
+    /**
+     * Public route - Get samagri catalog
+     */
+    fastify.get("/samagri/catalog", getSamagriCatalog);
 
-/**
- * Public route - Get samagri catalog
- */
-router.get("/samagri/catalog", getSamagriCatalog);
+    /**
+     * Public route - Get samagri packages for a specific pandit
+     * Used by customers to see what packages a pandit offers
+     */
+    fastify.get("/pandits/:id/samagri-packages", getPanditSamagriPackages);
 
-/**
- * Public route - Get samagri packages for a specific pandit
- * Used by customers to see what packages a pandit offers
- */
-router.get("/pandits/:id/samagri-packages", getPanditSamagriPackages);
-
-/**
- * Protected routes - Pandit managing their own packages
- * Requires authentication
- */
-router.get("/pandits/me/samagri-packages", authenticate, getMySamagriPackages);
-router.post("/pandits/me/samagri-packages", authenticate, createSamagriPackage);
-router.put("/pandits/me/samagri-packages/:id", authenticate, updateSamagriPackage);
-router.delete("/pandits/me/samagri-packages/:id", authenticate, deleteSamagriPackage);
-
-export default router;
+    /**
+     * Protected routes - Pandit managing their own packages
+     * Requires authentication
+     */
+    fastify.get("/pandits/me/samagri-packages", { preHandler: [authenticate] }, getMySamagriPackages);
+    fastify.post("/pandits/me/samagri-packages", { preHandler: [authenticate] }, createSamagriPackage);
+    fastify.put("/pandits/me/samagri-packages/:id", { preHandler: [authenticate] }, updateSamagriPackage);
+    fastify.delete("/pandits/me/samagri-packages/:id", { preHandler: [authenticate] }, deleteSamagriPackage);
+}

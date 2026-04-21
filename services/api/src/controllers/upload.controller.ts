@@ -1,20 +1,39 @@
-import { Request, Response, NextFunction } from "express";
+import { FastifyRequest, FastifyReply } from "fastify";
+import path from "path";
+import fs from "fs";
 import { AppError } from "../middleware/errorHandler";
-import { sendSuccess } from "../utils/response";
 
-export const handleUpload = async (req: Request, res: Response, next: NextFunction) => {
+export const handleUpload = async (request: FastifyRequest, reply: FastifyReply) => {
     try {
-        if (!req.file) {
+        const file = await request.file();
+
+        if (!file) {
             throw new AppError("No file uploaded", 400);
         }
 
-        // In a real application, upload to S3/Cloudinary and get URL.
-        // For demo/phase 1, assume multer saved it to local public/uploads directory.
-        // Let's create a faux URL
-        const fileUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
+        // Ensure upload directory exists
+        const uploadDir = path.join(process.cwd(), "public", "uploads");
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+        }
 
-        sendSuccess(res, { url: fileUrl }, "File uploaded successfully");
+        // Generate unique filename
+        const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+        const userId = (request as any).user?.id || "anonymous";
+        const fileType = (request.params as any).type || "file";
+        const filename = `${userId}_${fileType}_${uniqueSuffix}${path.extname(file.filename)}`;
+        const filepath = path.join(uploadDir, filename);
+
+        // Save file
+        const fileBuffer = await file.toBuffer();
+        fs.writeFileSync(filepath, fileBuffer);
+
+        // Generate file URL
+        const fileUrl = `/uploads/${filename}`;
+
+        return reply.send({ success: true, data: { url: fileUrl }, message: "File uploaded successfully" });
     } catch (err) {
-        next(err);
+        if (err instanceof AppError) throw err;
+        throw new AppError("File upload failed", 500);
     }
 };

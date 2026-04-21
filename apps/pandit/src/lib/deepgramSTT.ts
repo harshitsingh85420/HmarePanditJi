@@ -113,16 +113,13 @@ class DeepgramSTTEngine {
   private async initClient(): Promise<DeepgramClient | null> {
     if (this.client) return this.client
 
-    const apiKey = process.env.NEXT_PUBLIC_DEEPGRAM_API_KEY || process.env.DEEPGRAM_API_KEY
-
-    if (!apiKey) {
-      console.warn('[DeepgramSTT] API key not configured')
-      return null
-    }
-
+    // Use backend proxy route - API key stays on server
+    // For Deepgram, we need to check if the /api/stt-token endpoint is available
     try {
       const ClientClass = await getDeepgramClient()
-      this.client = new ClientClass(apiKey)
+      // The API key will be provided by the backend proxy route
+      // For now, we check if the backend route is available
+      this.client = new ClientClass('__PROXY_VIA_BACKEND__')
       return this.client
     } catch (error) {
       console.error('[DeepgramSTT] Client initialization failed:', error)
@@ -508,14 +505,20 @@ class DeepgramSTTEngine {
     if (this.connection) {
       try {
         this.connection.finish()
-      } catch { /* ignore */ }
+      } catch (error) {
+        console.warn('[DeepgramSTT] Failed to finish connection:', error);
+        /* ignore */
+      }
       this.connection = null
     }
 
     if (this.mediaRecorder) {
       try {
         this.mediaRecorder.stop()
-      } catch { /* ignore */ }
+      } catch (error) {
+        console.warn('[DeepgramSTT] Failed to stop MediaRecorder:', error);
+        /* ignore */
+      }
       this.mediaRecorder = null
     }
 

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import { useAuth, saveTokens, API_BASE, type AuthUser } from "../context/auth-context";
+import { useAuth, API_BASE, type AuthUser } from "../context/auth-context";
 
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -206,7 +206,7 @@ export default function AuthModal() {
       const isNew: boolean = json.data.isNewUser ?? json.data.user?.isNewUser ?? false;
       const userData = json.data.user;
 
-      saveTokens(token);
+      // Backend sets HttpOnly cookie automatically
       setAccessTokenTemp(token);
       setIsNewUser(isNew);
 
@@ -277,12 +277,14 @@ export default function AuthModal() {
 
   // ── Auto-submit OTP when all 6 digits are entered ─────────────────────────
 
+  const handleVerifyOtpRef = useRef(handleVerifyOtp);
+  handleVerifyOtpRef.current = handleVerifyOtp;
+
   useEffect(() => {
     if (otp.length === 6 && step === "otp" && !loading) {
-      handleVerifyOtp();
+      handleVerifyOtpRef.current();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [otp]);
+  }, [otp, step, loading]);
 
   if (!loginModalOpen) return null;
 

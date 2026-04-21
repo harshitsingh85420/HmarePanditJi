@@ -242,12 +242,12 @@ class DeepgramSTTEngine {
 
   stopListening(): void {
     if (this.ws) {
-      try { this.ws.close() } catch { /* noop */ }
+      try { this.ws.close() } catch (error) { console.warn('[DeepgramSTT] Failed to close WebSocket:', error); /* noop */ }
       this.ws = null
     }
 
     if (this.mediaRecorder) {
-      try { this.mediaRecorder.stop() } catch { /* noop */ }
+      try { this.mediaRecorder.stop() } catch (error) { console.warn('[DeepgramSTT] Failed to stop MediaRecorder:', error); /* noop */ }
       this.mediaRecorder = null
     }
 

@@ -6,12 +6,11 @@ import { speakWithSarvam, stopCurrentSpeech } from '@/lib/sarvam-tts'
 import { useSarvamVoiceFlow } from '@/lib/hooks/useSarvamVoiceFlow'
 import TopBar from '@/components/ui/TopBar'
 import ProgressDots from '@/components/ui/ProgressDots'
-import SkipButton from '@/components/ui/SkipButton'
-import VoiceIndicator from '@/components/ui/VoiceIndicator'
-import type { SupportedLanguage } from '@/lib/onboarding-store'
+import { SupportedLanguage, ScriptPreference } from '@/lib/onboarding-store'
 
 interface TutorialPaymentProps {
   language: SupportedLanguage
+  scriptPreference: ScriptPreference | null
   onLanguageChange: () => void
   currentDot: number
   onNext: () => void
@@ -19,50 +18,121 @@ interface TutorialPaymentProps {
   onSkip: () => void
 }
 
-export default function TutorialPayment({ onNext, onSkip, onBack }: TutorialPaymentProps) {
-  const [currentLine, setCurrentLine] = useState(0)
-  const [showCards, setShowCards] = useState(false)
+export default function TutorialPayment({
+  language,
+  scriptPreference,
+  onLanguageChange,
+  onBack,
+  onNext,
+  onSkip,
+}: TutorialPaymentProps) {
   const [keyboardMode, setKeyboardMode] = useState(false)
-  const isMountedRef = useState(true)[0]
+  const isLatin = scriptPreference === 'latin'
 
-  const LINES = ['पूजा के तुरंत बाद — पैसा खाते में।', 'कोई उधारी नहीं। कोई झंझट नहीं।', 'UPI, कार्ड, या कैश — सब चलेगा।', 'सीधे आपके बैंक खाते में।', 'आगे बोलें।']
+  const TITLE = isLatin ? 'Turant' : 'तुरंत'
+  const SUBTITLE = isLatin ? 'Bhugtan' : 'भुगतान'
+  const DESCRIPTION = isLatin ? 'Bhakt online bhugtan karega. Dakshina alag se lene ki zaroorat nahi. Paisa seedhe aapke account mein — bina kisi jhanjhat ke.' : 'भक्त ऑनलाइन भुगतान करेगा। दक्षिणा अलग से लेने की ज़रूरत नहीं। पैसा सीधे आपके खाते में — बिना किसी झंझट के।'
+  const CTA_LABEL = isLatin ? 'Samajh gaya — Aage Badhein 💳' : 'समझ गया — आगे बढ़ें 💳'
+  const SKIP_LABEL = isLatin ? 'Skip karein' : 'Skip करें'
+  const VOICE_STATUS = isLatin ? 'Playing voice for you...' : 'आपके लिए बोल रहा हूँ...'
+  const EMOJI = '💳'
 
-  const { isListening, isSpeaking, voiceFlowState } = useSarvamVoiceFlow({
+  const { voiceFlowState } = useSarvamVoiceFlow({
     language: 'Hindi',
-    script: currentLine < LINES.length ? LINES[currentLine] : 'आगे बोलें या Skip बोलें',
-    repromptScript: 'आगे बोलें या Skip बोलें',
+    script: isLatin ? 'Bhakt online bhugtan karega. Dakshina alag se lene ki zaroorat nahi. Paisa seedhe aapke account mein — bina kisi jhanjhat ke.' : 'भक्त ऑनलाइन भुगतान करेगा। दक्षिणा अलग से लेने की ज़रूरत नहीं। पैसा सीधे आपके खाते में — बिना किसी झंझट के।',
+    repromptScript: isLatin ? 'Jaaniye boliye ya Skip boliye' : 'जानें बोलें या Skip बोलें',
     initialDelayMs: 200,
-    pauseAfterMs: 800,
-    autoListen: currentLine >= LINES.length && !keyboardMode,
+    pauseAfterMs: 1000,
+    autoListen: !keyboardMode,
     onIntent: (intentOrRaw) => {
-      if (!isMountedRef) return;
-      const lower = intentOrRaw.toLowerCase();
-      if (lower.includes('keyboard') || lower.includes('कीबोर्ड') || lower.includes('skip')) { setKeyboardMode(true); handleContinue(); return; }
-      if (lower.includes('aage') || lower.includes('forward') || lower.includes('haan') || lower.includes('yes')) { handleContinue(); }
-      else if (lower.includes('peeche') || lower.includes('back')) { playLine(0); }
+      const lower = intentOrRaw.toLowerCase()
+      if (lower.includes('keyboard') || lower.includes('कीबोर्ड') || lower.includes('skip')) {
+        setKeyboardMode(true)
+        onNext()
+        return
+      }
+      if (lower.includes('aage') || lower.includes('forward') || lower.includes('haan') || lower.includes('yes')) {
+        handleContinue()
+      }
     },
-    onNoiseHigh: () => { setKeyboardMode(true); handleContinue(); },
-  });
+    onNoiseHigh: () => {
+      setKeyboardMode(true)
+      onNext()
+    },
+  })
 
-  useEffect(() => { const timer = setTimeout(() => { playLine(0) }, 200); return () => { clearTimeout(timer); stopCurrentSpeech(); } }, [])
-  const playLine = (index: number) => { if (index >= LINES.length) { setShowCards(true); return; } setCurrentLine(index); void speakWithSarvam({ text: LINES[index], languageCode: 'hi-IN', onEnd: () => { setTimeout(() => playLine(index + 1), 300) } }) }
-  const handleContinue = () => { stopCurrentSpeech(); void speakWithSarvam({ text: 'बहुत अच्छा।', languageCode: 'hi-IN', onEnd: () => setTimeout(onNext, 600) }) }
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      void speakWithSarvam({ text: isLatin ? 'Bhakt online bhugtan karega. Paisa seedhe aapke account mein aayega.' : 'भक्त ऑनलाइन भुगतान करेगा। पैसा सीधे आपके खाते में आएगा।', languageCode: 'hi-IN' })
+    }, 200)
+    return () => { clearTimeout(timer); stopCurrentSpeech() }
+  }, [])
+
+  const handleContinue = () => {
+    stopCurrentSpeech()
+    void speakWithSarvam({
+      text: isLatin ? 'Bahut achha.' : 'बहुत अच्छा।',
+      languageCode: 'hi-IN',
+      onEnd: () => setTimeout(onNext, 600),
+    })
+  }
+
+  const handleSkip = () => {
+    stopCurrentSpeech()
+    onSkip()
+  }
 
   return (
-    <main className="w-full min-h-dvh max-w-[390px] xs:max-w-[430px] mx-auto bg-vedic-cream flex flex-col">
-      <TopBar showBack onBack={onBack} onLanguageChange={onBack} />
-      <ProgressDots total={12} current={6} />
-      <div className="flex-1 px-4 xs:px-6 py-6 xs:py-8 overflow-y-auto">
-        <div className="text-center mb-6 xs:mb-8">
-          <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="text-5xl xs:text-6xl sm:text-7xl mb-4 xs:mb-6">💳</motion.div>
-          <h1 className="text-xl xs:text-2xl sm:text-3xl font-bold text-vedic-brown mb-2 xs:mb-4">तुरंत भुगतान</h1>
-          <div className="space-y-2 xs:space-y-3">{LINES.map((line, idx) => (<p key={idx} className={`text-sm xs:text-base sm:text-lg text-vedic-brown transition-opacity ${idx === currentLine ? 'opacity-100 font-semibold' : 'opacity-30'}`}>{line}</p>))}</div>
+    <div className="min-h-screen w-full max-w-[390px] xs:max-w-[430px] mx-auto flex flex-col bg-[#fbf9f3] selection:bg-[#ff8c00]/30 relative overflow-hidden">
+      {/* Background Decoration */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#ff8c00]/5 to-transparent opacity-5" />
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 opacity-20">
+          <span className="text-9xl">{EMOJI}</span>
         </div>
-        <VoiceIndicator isListening={isListening} />
-        {showCards && (<div className="space-y-3 xs:space-y-4 mt-6 xs:mt-8"><motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="bg-success-lt border-2 border-success rounded-xl p-4 text-center"><div className="text-4xl mb-2">✅</div><p className="font-bold text-success">पैसा सीधे खाते में</p></motion.div></div>)}
       </div>
-      <div className="px-4 xs:px-6 pb-6 xs:pb-8 pt-4 xs:pt-6 bg-surface-base/90 backdrop-blur-sm border-t border-border-default"><button onClick={handleContinue} className="w-full min-h-[52px] xs:min-h-[56px] sm:min-h-[72px] bg-saffron text-white rounded-2xl text-lg xs:text-xl sm:text-2xl font-bold shadow-btn-saffron active:scale-[0.98]">आगे बढ़ें →</button></div>
-      <SkipButton label="Skip" onClick={onSkip} />
-    </main>
+
+      {/* Top Bar */}
+      <TopBar showBack={true} onBack={onBack} onLanguageChange={onLanguageChange} language={language} scriptPreference={scriptPreference} />
+
+      {/* Progress Dots */}
+      <ProgressDots total={12} current={6} />
+
+      {/* Main Content */}
+      <main className="relative z-10 flex-grow flex flex-col items-center px-6 xs:px-8 pt-6 pb-32 max-w-2xl mx-auto w-full">
+        {/* Voice Playing Indicator */}
+        <motion.div className="flex flex-col items-center mb-8" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }}>
+          <div className="flex items-end justify-center space-x-1.5 h-12 mb-3">
+            {[8, 12, 6, 10, 4].map((height, i) => (
+              <motion.div key={i} className="w-1 bg-[#ff8c00] rounded-full" animate={{ height: [height, height * 2, height] }} transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut", delay: i * 0.2 }} />
+            ))}
+          </div>
+          <p className="text-[#ff8c00] font-medium text-sm tracking-wide">{VOICE_STATUS}</p>
+        </motion.div>
+
+        {/* Content Card */}
+        <motion.div className="w-full bg-white rounded-3xl p-6 xs:p-8 shadow-[0px_8px_24px_rgba(144,77,0,0.08)] mb-8 border-l-4 border-[#ff8c00]" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.4 }}>
+          <h1 className="font-headline text-2xl xs:text-3xl font-bold text-[#904d00] mb-3 leading-relaxed">
+            {TITLE} {SUBTITLE && <span className="text-[#ff8c00]">{SUBTITLE}</span>}
+          </h1>
+          <p className="text-[#1b1c19] text-base xs:text-lg leading-[180%] font-medium">{DESCRIPTION}</p>
+        </motion.div>
+
+        {/* CTA Buttons */}
+        <motion.div className="w-full space-y-4" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.6 }}>
+          <button onClick={handleContinue} className="w-full h-16 bg-gradient-to-b from-[#ff8c00] to-[#f89100] text-white rounded-xl font-bold text-xl shadow-lg flex items-center justify-center hover:scale-[0.98] transition-transform active:scale-95">
+            {CTA_LABEL}
+          </button>
+          <button onClick={handleSkip} className="w-full h-16 border-2 border-[#ddc1ae] text-[#564334] rounded-xl font-bold text-xl hover:bg-[#f5f3ee] transition-colors active:scale-95">
+            {SKIP_LABEL}
+          </button>
+        </motion.div>
+      </main>
+
+      {/* Decorative Corner */}
+      <div className="fixed top-0 right-0 p-4 opacity-10 pointer-events-none z-0">
+        <span className="text-6xl text-[#ff8c00]">🕉️</span>
+      </div>
+    </div>
   )
 }

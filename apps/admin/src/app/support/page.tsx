@@ -22,8 +22,8 @@ export default function SupportLogPage() {
     const [loading, setLoading] = useState(true);
 
     // Filters
-    const [statusFilter, setStatusFilter] = useState(ALL);
-    const [priorityFilter, setPriorityFilter] = useState(ALL);
+    const [statusFilter, setStatusFilter] = useState("ALL");
+    const [priorityFilter, setPriorityFilter] = useState("ALL");
 
     // Modal state
     const [logModalOpen, setLogModalOpen] = useState(false);
@@ -31,26 +31,26 @@ export default function SupportLogPage() {
     const [selectedTicket, setSelectedTicket] = useState<any>(null);
 
     // Form state
-    const [source, setSource] = useState(Phone Call);
-    const [type, setType] = useState(General Inquiry);
-    const [relatedBookingId, setRelatedBookingId] = useState();
-    const [relatedUserId, setRelatedUserId] = useState();
-    const [subject, setSubject] = useState();
-    const [description, setDescription] = useState();
-    const [priority, setPriority] = useState(MEDIUM);
-    const [status, setStatus] = useState(OPEN);
+    const [source, setSource] = useState("Phone Call");
+    const [type, setType] = useState("General Inquiry");
+    const [relatedBookingId, setRelatedBookingId] = useState<string | undefined>();
+    const [relatedUserId, setRelatedUserId] = useState<string | undefined>();
+    const [subject, setSubject] = useState("");
+    const [description, setDescription] = useState("");
+    const [priority, setPriority] = useState("MEDIUM");
+    const [status, setStatus] = useState("OPEN");
 
     // Detail modal state
-    const [resolution, setResolution] = useState();
-    const [updateStatus, setUpdateStatus] = useState();
+    const [resolution, setResolution] = useState("");
+    const [updateStatus, setUpdateStatus] = useState("");
 
     const fetchTickets = async () => {
         setLoading(true);
         try {
-            const token = localStorage.getItem(token);
+            const token = localStorage.getItem("adminToken");
             const qs = new URLSearchParams();
-            if (statusFilter !== ALL) qs.append(status, statusFilter);
-            if (priorityFilter !== ALL) qs.append(priority, priorityFilter);
+            if (statusFilter !== "ALL") qs.append("status", statusFilter);
+            if (priorityFilter !== "ALL") qs.append("priority", priorityFilter);
 
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/support-tickets?${qs.toString()}`, {
                 headers: { Authorization: `Bearer ${token}` }
@@ -71,31 +71,31 @@ export default function SupportLogPage() {
     }, [statusFilter, priorityFilter]);
 
     const handleLogNewTicket = () => {
-        setSource(Phone Call);
-        setType(General Inquiry);
-        setRelatedBookingId();
-        setRelatedUserId();
-        setSubject();
-        setDescription();
-        setPriority(MEDIUM);
-        setStatus(OPEN);
+        setSource("Phone Call");
+        setType("General Inquiry");
+        setRelatedBookingId(undefined);
+        setRelatedUserId(undefined);
+        setSubject("");
+        setDescription("");
+        setPriority("MEDIUM");
+        setStatus("OPEN");
         setLogModalOpen(true);
     };
 
     const submitTicket = async () => {
-        if (!subject || !description) return alert(Subject and Description are required);
+        if (!subject || !description) return alert("Subject and Description are required");
         try {
-            const token = localStorage.getItem(token);
+            const token = localStorage.getItem("adminToken");
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/support-tickets`, {
-                method: POST,
-                headers: { Content-Type: application/json, Authorization: `Bearer ${token}` },
+                method: "POST",
+                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                 body: JSON.stringify({
                     source, type, relatedBookingId, relatedUserId, subject, description, priority, status
                 })
             });
             const json = await res.json();
             if (json.success) {
-                alert(Ticket logged successfully);
+                alert("Ticket logged successfully");
                 setLogModalOpen(false);
                 fetchTickets();
             } else {
@@ -103,28 +103,28 @@ export default function SupportLogPage() {
             }
         } catch (e) {
             console.error(e);
-            alert(Error logging ticket);
+            alert("Error logging ticket");
         }
     };
 
     const handleRowClick = (ticket: any) => {
         setSelectedTicket(ticket);
-        setResolution(ticket.resolution || );
+        setResolution(ticket.resolution || "");
         setUpdateStatus(ticket.status);
         setDetailModalOpen(true);
     };
 
     const saveTicketUpdate = async () => {
         try {
-            const token = localStorage.getItem(token);
+            const token = localStorage.getItem("adminToken");
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/support-tickets/${selectedTicket.id}`, {
-                method: PATCH,
-                headers: { Content-Type: application/json, Authorization: `Bearer ${token}` },
+                method: "PATCH",
+                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                 body: JSON.stringify({ status: updateStatus, resolution })
             });
             const json = await res.json();
             if (json.success) {
-                alert(Ticket updated);
+                alert("Ticket updated");
                 setDetailModalOpen(false);
                 fetchTickets();
             } else {

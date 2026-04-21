@@ -69,11 +69,11 @@ export function Avatar({
         <img
           src={src}
           alt={label}
-          className="w-full h-full object-cover rounded-full bg-slate-200 dark:bg-slate-700"
+          className="h-full w-full rounded-full bg-slate-200 object-cover dark:bg-slate-700"
         />
       ) : (
         <div
-          className="w-full h-full flex items-center justify-center rounded-full bg-primary/10 text-primary font-bold"
+          className="bg-primary/10 text-primary flex h-full w-full items-center justify-center rounded-full font-bold"
           aria-label={label}
         >
           {name ? (
@@ -88,7 +88,7 @@ export function Avatar({
 
       {verifiedBadge && (
         <span
-          className={`absolute ${s.badge} bg-green-500 text-white rounded-full flex items-center justify-center border-white dark:border-slate-900`}
+          className={`absolute ${s.badge} flex items-center justify-center rounded-full border-white bg-green-500 text-white dark:border-slate-900`}
           aria-label="Verified"
         >
           <span

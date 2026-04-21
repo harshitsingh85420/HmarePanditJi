@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { ADMIN_TOKEN_KEY } from '@hmarepanditji/utils';
 
 export default function AdminSidebar() {
     const pathname = usePathname();
@@ -14,7 +15,7 @@ export default function AdminSidebar() {
 
     useEffect(() => {
         fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/dashboard-stats`, {
-            headers: { Authorization: `Bearer ${localStorage.getItem("adminToken") || ''}` }
+            headers: { Authorization: `Bearer ${localStorage.getItem(ADMIN_TOKEN_KEY) || ''}` }
         })
             .then((res) => res.json())
             .then((data) => {
@@ -27,7 +28,10 @@ export default function AdminSidebar() {
                     });
                 }
             })
-            .catch(() => { });
+            .catch((err) => {
+                console.error('Failed to fetch admin badges:', err);
+            });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const navItems = [
@@ -54,7 +58,7 @@ export default function AdminSidebar() {
 
             <nav className="flex-1 py-4 px-3 overflow-y-auto space-y-1">
                 {navItems.map((item) => {
-                    const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
+                    const isActive = pathname === item.href || (item.href !== "/" && pathname && pathname.startsWith(item.href));
                     return (
                         <Link
                             key={item.href}
@@ -98,7 +102,7 @@ export default function AdminSidebar() {
                 </div>
                 <button
                     onClick={() => {
-                        localStorage.removeItem("adminToken");
+                        localStorage.removeItem(ADMIN_TOKEN_KEY);
                         window.location.href = "/login";
                     }}
                     className="w-full mt-3 text-sm text-slate-500 hover:text-red-600 font-semibold text-left flex items-center gap-2 group p-2 hover:bg-red-50 rounded-lg transition-colors"

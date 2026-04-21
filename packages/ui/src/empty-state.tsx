@@ -21,27 +21,27 @@ export function EmptyState({
 }: EmptyStateProps) {
   return (
     <div
-      className={`flex flex-col items-center justify-center text-center py-16 px-6 ${className}`}
+      className={`flex flex-col items-center justify-center px-6 py-16 text-center ${className}`}
       role="status"
       aria-label={title}
     >
-      <div className="w-20 h-20 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4">
+      <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-2xl bg-slate-100 dark:bg-slate-800">
         <span className="material-symbols-outlined text-4xl text-slate-400">
           {icon}
         </span>
       </div>
-      <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-1">
+      <h3 className="mb-1 text-lg font-bold text-slate-900 dark:text-slate-100">
         {title}
       </h3>
       {description && (
-        <p className="text-sm text-slate-500 dark:text-slate-400 max-w-xs mb-6">
+        <p className="mb-6 max-w-xs text-sm text-slate-500 dark:text-slate-400">
           {description}
         </p>
       )}
       {action && (
         <button
           onClick={action.onClick}
-          className="inline-flex items-center gap-1.5 h-10 px-5 text-sm font-bold bg-primary hover:bg-primary/90 text-white rounded-xl shadow-lg shadow-primary/20 transition-all"
+          className="bg-primary hover:bg-primary/90 shadow-primary/20 inline-flex h-10 items-center gap-1.5 rounded-xl px-5 text-sm font-bold text-white shadow-lg transition-all"
         >
           {action.icon && (
             <span className="material-symbols-outlined text-base">

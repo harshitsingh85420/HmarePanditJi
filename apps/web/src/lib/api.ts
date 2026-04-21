@@ -1,10 +1,13 @@
+export const REVALIDATE_SHORT = 300; // 5 minutes
+export const REVALIDATE_LONG = 3600; // 1 hour
+
 const API_BASE = process.env.API_URL || 'http://localhost:3001';
 
 export async function getFeaturedPandits() {
     try {
         const res = await fetch(
             `${API_BASE}/api/pandits?sort=rating_desc&limit=6&verificationStatus=VERIFIED`,
-            { next: { revalidate: 300 } } // ISR: revalidate every 5 minutes
+            { next: { revalidate: REVALIDATE_SHORT } } // ISR: revalidate every 5 minutes
         );
         if (!res.ok) return [];
         const data = await res.json();
@@ -19,7 +22,7 @@ export async function getMuhuratDates(month: number, year: number) {
     try {
         const res = await fetch(
             `${API_BASE}/api/muhurat/dates?month=${month}&year=${year}`,
-            { next: { revalidate: 3600 } } // revalidate hourly
+            { next: { revalidate: REVALIDATE_LONG } } // revalidate hourly
         );
         if (!res.ok) return [];
         const data = await res.json();
@@ -34,7 +37,7 @@ export async function getUpcomingMuhurat(limit: number = 3) {
     try {
         const res = await fetch(
             `${API_BASE}/api/muhurat/upcoming?limit=${limit}`,
-            { next: { revalidate: 3600 } }
+            { next: { revalidate: REVALIDATE_LONG } }
         );
         if (!res.ok) return [];
         const data = await res.json();

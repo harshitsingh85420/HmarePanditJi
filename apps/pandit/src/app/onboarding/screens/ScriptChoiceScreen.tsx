@@ -1,8 +1,8 @@
 'use client'
 
-import React, { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { SupportedLanguage, LANGUAGE_DISPLAY } from '@/lib/onboarding-store'
+import React from 'react'
+import { motion } from 'framer-motion'
+import { SupportedLanguage, LANGUAGE_DISPLAY, getBrandName } from '@/lib/onboarding-store'
 
 interface ScriptChoiceScreenProps {
   language: SupportedLanguage
@@ -19,19 +19,9 @@ export default function ScriptChoiceScreen({
   onChangeLanguage,
   onBack
 }: ScriptChoiceScreenProps) {
-  const [showExitConfirm, setShowExitConfirm] = useState(false)
   const langInfo = LANGUAGE_DISPLAY[language]
 
   const handleBackClick = () => {
-    setShowExitConfirm(true)
-  }
-
-  const handleExitCancel = () => {
-    setShowExitConfirm(false)
-  }
-
-  const handleExitProceed = () => {
-    setShowExitConfirm(false)
     if (onBack) {
       onBack()
     }
@@ -74,50 +64,6 @@ export default function ScriptChoiceScreen({
         <div className="w-10" /> {/* Spacer for center alignment */}
       </motion.header>
 
-      {/* Exit Confirmation Bottom Sheet */}
-      <AnimatePresence>
-        {showExitConfirm && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={handleExitCancel}
-              className="fixed inset-0 bg-black/40 z-50"
-            />
-            <motion.div
-              initial={{ y: '100%' }}
-              animate={{ y: 0 }}
-              exit={{ y: '100%' }}
-              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl p-6 z-50 max-w-lg mx-auto"
-            >
-              <div className="w-12 h-1.5 bg-[#e4e2dd] rounded-full mx-auto mb-6" />
-              <h3 className="font-headline text-2xl font-bold text-[#1b1c19] mb-3">
-                वापस जाएंगे?
-              </h3>
-              <p className="text-[#564334] text-lg leading-relaxed mb-6">
-                आपका progress save नहीं होगा। क्या आप सुनिश्चित हैं?
-              </p>
-              <div className="space-y-3">
-                <button
-                  onClick={handleExitProceed}
-                  className="w-full h-14 bg-[#ba1a1a] text-white font-bold text-lg rounded-xl"
-                >
-                  हाँ, वापस जाना है
-                </button>
-                <button
-                  onClick={handleExitCancel}
-                  className="w-full h-14 bg-[#f5f3ee] text-[#564334] font-bold text-lg rounded-xl border-2 border-[#e4e2dd]"
-                >
-                  नहीं, यहीं रहूँगा
-                </button>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
-
       <div className="flex-1 flex flex-col px-6 pb-8 max-w-lg mx-auto w-full">
         {/* Language Info Card */}
         <motion.div
@@ -128,7 +74,7 @@ export default function ScriptChoiceScreen({
         >
           <div className="text-center mb-6">
             <p className="text-[#564334] text-sm font-medium mb-2">
-              You selected
+              आपने चुनी है
             </p>
             <div className="inline-flex items-center gap-3 bg-white rounded-2xl px-6 py-4 shadow-lg border-2 border-[#ff8c00]/20">
               <span className="text-4xl">{langInfo.emoji}</span>
@@ -152,10 +98,10 @@ export default function ScriptChoiceScreen({
           transition={{ duration: 0.5, delay: 0.3 }}
         >
           <h1 className="font-headline text-2xl font-bold text-[#1b1c19] mb-3">
-            How would you like to read?
+            आप कैसे पढ़ना चाहेंगे?
           </h1>
           <p className="text-[#564334] text-lg leading-relaxed">
-            Choose your preferred script style
+            अपनी पसंदीदा स्क्रिप्ट शैली चुनें
           </p>
         </motion.div>
 
@@ -179,14 +125,14 @@ export default function ScriptChoiceScreen({
               <div className="flex items-center gap-2 mb-1">
                 <span className="text-2xl">🇮🇳</span>
                 <h3 className="font-headline text-xl font-bold text-[#1b1c19]">
-                  Pure {langInfo.latinName}
+                  शुद्ध {langInfo.nativeName}
                 </h3>
               </div>
               <p className="text-[#564334] text-base mb-2">
-                {langInfo.nativeName} ({langInfo.latinName} Script)
+                {langInfo.nativeName} ({langInfo.nativeName} लिपि)
               </p>
               <p className="text-[#8a7960] text-sm">
-                Everything in {langInfo.latinName} script
+                सब कुछ {langInfo.nativeName} लिपि में
               </p>
             </div>
             <div className="w-8 h-8 rounded-full bg-[#f5f3ee] flex items-center justify-center group-hover:bg-[#ff8c00] transition-colors">
@@ -209,22 +155,23 @@ export default function ScriptChoiceScreen({
         >
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#4CAF50] to-[#45a049] flex items-center justify-center flex-shrink-0 shadow-lg">
-              <span className="text-white text-2xl font-bold">
-                A
-              </span>
+              <div className="flex flex-col items-center leading-none">
+                <span className="text-white text-xl font-bold">{langInfo.scriptChar}</span>
+                <span className="text-white/80 text-[10px] font-bold">a</span>
+              </div>
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
                 <span className="text-2xl">🌍</span>
                 <h3 className="font-headline text-xl font-bold text-[#1b1c19]">
-                  {langInfo.latinName} + English
+                  {langInfo.nativeName} + अंग्रेज़ी
                 </h3>
               </div>
               <p className="text-[#564334] text-base mb-2">
-                {langInfo.latinName} (English letters)
+                {langInfo.nativeName} (अंग्रेज़ी अक्षरों में)
               </p>
               <p className="text-[#8a7960] text-sm">
-                {langInfo.latinName} written in English script
+                {langInfo.nativeName} अंग्रेज़ी लिपि में लिखी हुई
               </p>
             </div>
             <div className="w-8 h-8 rounded-full bg-[#f5f3ee] flex items-center justify-center group-hover:bg-[#ff8c00] transition-colors">
@@ -247,7 +194,7 @@ export default function ScriptChoiceScreen({
           </div>
           <div className="relative flex justify-center">
             <span className="bg-[#fbf9f3] px-4 text-[#8a7960] text-sm font-medium">
-              OR
+              या
             </span>
           </div>
         </motion.div>
@@ -265,7 +212,7 @@ export default function ScriptChoiceScreen({
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
           </svg>
-          Change Language
+          भाषा बदलें
         </motion.button>
 
         {/* Help Text */}
@@ -275,7 +222,7 @@ export default function ScriptChoiceScreen({
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.8 }}
         >
-          💡 You can change this setting anytime in app settings
+          💡 आप सेटिंग्स में कभी भी यह बदल सकते हैं
         </motion.p>
       </div>
     </main>

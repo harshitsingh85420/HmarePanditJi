@@ -28,15 +28,15 @@ export default function CancellationsPage() {
 
     // Override State
     const [overrideChecked, setOverrideChecked] = useState(false);
-    const [customRefundAmount, setCustomRefundAmount] = useState<number | "">();
-    const [overrideReason, setOverrideReason] = useState();
-    const [rejectionReason, setRejectionReason] = useState();
+    const [customRefundAmount, setCustomRefundAmount] = useState<number | "">("");
+    const [overrideReason, setOverrideReason] = useState("");
+    const [rejectionReason, setRejectionReason] = useState("");
     const [processing, setProcessing] = useState(false);
 
     const fetchCancellations = async () => {
         setLoading(true);
         try {
-            const token = localStorage.getItem(token);
+            const token = localStorage.getItem("adminToken");
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/cancellations`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -45,7 +45,7 @@ export default function CancellationsPage() {
                 // Filter specifically for requested to keep the queue clean, but the API might return all cancelled.
                 // We'll trust the API or filter it here.
                 const data = json.data?.data || json.data || [];
-                const queue = Array.isArray(data) ? data.filter(c => c.status === CANCELLATION_REQUESTED) : [];
+                const queue = Array.isArray(data) ? data.filter(c => c.status === "CANCELLATION_REQUESTED") : [];
                 setCancellations(queue);
             }
         } catch (e) {
@@ -57,6 +57,7 @@ export default function CancellationsPage() {
 
     useEffect(() => {
         fetchCancellations();
+        // Intentionally run only on mount - fetches cancellation queue once on page load
     }, []);
 
     const calculateDaysUntil = (eventDate: string) => {
@@ -91,8 +92,8 @@ export default function CancellationsPage() {
         const days = calculateDaysUntil(c.eventDate);
         const policy = calculateRefundPolicy(days, c.grandTotal);
         setCustomRefundAmount(policy.amount);
-        setOverrideReason();
-        setRejectionReason();
+        setOverrideReason("");
+        setRejectionReason("");
         setModalOpen(true);
     };
 
@@ -100,7 +101,7 @@ export default function CancellationsPage() {
         if (overrideChecked && !overrideReason) return alert("Provider override reason if changing default amount.");
         setProcessing(true);
         try {
-            const token = localStorage.getItem("token");
+            const token = localStorage.getItem("adminToken");
             const days = calculateDaysUntil(selectedCancel.eventDate);
             const policy = calculateRefundPolicy(days, selectedCancel.grandTotal);
             const amt = overrideChecked ? Number(customRefundAmount) : policy.amount;
@@ -172,7 +173,7 @@ export default function CancellationsPage() {
                 <CardContent className="py-4 text-sm text-muted-foreground flex items-center justify-between">
                     <div>
                         <span className="font-semibold text-foreground">Refund Policy: </span>
-                        {> 7 days: 90% | 3-7 days: 50% | 1-3 days: 20% | Same day: 0% | Platform Fee: Non-refundable}
+                        {"> 7 days: 90% | 3-7 days: 50% | 1-3 days: 20% | Same day: 0% | Platform Fee: Non-refundable"}
                     </div>
                 </CardContent>
             </Card>
@@ -208,7 +209,7 @@ export default function CancellationsPage() {
                                             </a>
                                         </TableCell>
                                         <TableCell>
-                                            <div className="font-medium">{c.customer?.name || Customer}</div>
+                                            <div className="font-medium">{c.customer?.name || "Customer"}</div>
                                             <div className="text-xs text-muted-foreground">{c.customer?.phone}</div>
                                         </TableCell>
                                         <TableCell>
@@ -261,7 +262,7 @@ export default function CancellationsPage() {
                                     </div>
                                     <div>
                                         <span className="text-muted-foreground block">Cancel Reason:</span>
-                                        <span className="font-medium">{selectedCancel.cancellationReason || N / A}</span>
+                                        <span className="font-medium">{selectedCancel.cancellationReason || "N/A"}</span>
                                     </div>
                                     <div>
                                         <span className="text-muted-foreground block">Days Until Event:</span>
@@ -346,7 +347,7 @@ export default function CancellationsPage() {
                         <div className="space-x-2">
                             <Button variant="outline" onClick={() => setModalOpen(false)}>Close</Button>
                             <Button onClick={approveCancellation} className="bg-indigo-600 hover:bg-indigo-700" disabled={processing}>
-                                {processing ? Processing... :  Approve & Refund}
+                                {processing ? "Processing..." : "Approve & Refund"}
                             </Button>
                         </div>
                     </DialogFooter>

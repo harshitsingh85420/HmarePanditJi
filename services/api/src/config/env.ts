@@ -23,8 +23,7 @@ const envSchema = z.object({
 
   JWT_SECRET: z
     .string()
-    .min(32, "JWT_SECRET must be at least 32 characters")
-    .default("dev_jwt_secret_min_32_characters_long_placeholder"),
+    .min(32, "JWT_SECRET must be at least 32 characters"),
   JWT_EXPIRY: z.string().default("7d"),
 
   WEB_URL: z.string().default("http://localhost:3000"),
@@ -65,6 +64,11 @@ const envSchema = z.object({
   // Google Maps
   GOOGLE_MAPS_API_KEY: z.string().default(""),
 
+  // AI & Voice Services (Server-side only - never expose to client)
+  DEEPSEEK_API_KEY: z.string().default(""),
+  SARVAM_API_KEY: z.string().default(""),
+  DEEPGRAM_API_KEY: z.string().default(""),
+
   // Platform Business Config (paise)
   PLATFORM_COMMISSION_PERCENT: z.coerce.number().default(20),
   TRAVEL_SERVICE_FEE_PERCENT: z.coerce.number().default(10),
@@ -73,6 +77,9 @@ const envSchema = z.object({
   FOOD_ALLOWANCE_PER_DAY_PAISE: z.coerce.number().default(100000),
   SELF_DRIVE_RATE_PER_KM_PAISE: z.coerce.number().default(1200),
   BACKUP_FEE_PAISE: z.coerce.number().default(50000),
+
+  // Admin Users (JSON string: [{username, password}])
+  ADMIN_USERS: z.string().default("[]"),
 });
 
 const parsed = envSchema.safeParse(process.env);

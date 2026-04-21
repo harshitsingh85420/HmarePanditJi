@@ -16,7 +16,7 @@ export default function LanguageListScreen() {
   const router = useRouter()
 
   // SSR FIX: Use safe store hook that doesn't throw during SSR
-  const { setPhase, setPendingLanguage } = useSafeOnboardingStore()
+  const { setPendingLanguage } = useSafeOnboardingStore()
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedLanguage, setSelectedLanguage] = useState<SupportedLanguage | null>(null)
   const [showKeyboard, setShowKeyboard] = useState(false)
@@ -68,7 +68,8 @@ export default function LanguageListScreen() {
         <button onClick={() => router.back()} className="min-h-[52px] xs:min-h-[56px] min-w-[52px] xs:min-w-[56px] p-2 hover:bg-black/5 rounded-full transition-colors active:scale-95" aria-label="Go back">
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" /></svg>
         </button>
-        <button onClick={() => { }} className="min-h-[52px] xs:min-h-[56px] min-w-[52px] xs:min-w-[56px] text-2xl active:opacity-50">🌐</button>
+        {/* TODO: Implement language/global settings menu when feature is ready */}
+        <button onClick={() => { /* no-op: language settings feature not yet implemented */ }} className="min-h-[52px] xs:min-h-[56px] min-w-[52px] xs:min-w-[56px] text-2xl active:opacity-50" aria-label="Language settings">🌐</button>
       </header>
 
       {/* Title */}
@@ -103,7 +104,7 @@ export default function LanguageListScreen() {
       {/* Language Grid */}
       <section className="px-4 xs:px-6 flex-1 overflow-y-auto pb-6 xs:pb-8">
         <div className="grid grid-cols-2 gap-2 xs:gap-3">
-          {filteredLanguages.map((lang, idx) => {
+          {filteredLanguages.map((lang: SupportedLanguage, idx: number) => {
             const info = LANGUAGE_DISPLAY[lang]
             const isSelected = selectedLanguage === lang
             return (

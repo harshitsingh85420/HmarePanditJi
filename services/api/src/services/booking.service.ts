@@ -1,8 +1,16 @@
 import {
   prisma,
+  BookingStatus,
+  TravelStatus,
+  FoodArrangement,
+  SamagriPreference,
+  TravelMode,
+  AccommodationArrangement,
 } from "@hmarepanditji/db";
 import { generateBookingNumber } from "../utils/helpers";
 import { AppError } from "../middleware/errorHandler";
+import { NotificationService } from "./notification.service";
+import { getNotificationTemplate } from "./notification-templates";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -146,11 +154,10 @@ export async function createBooking(input: CreateBookingInput) {
   });
 
 
-  const notificationService = new (require('./notification.service').NotificationService)();
-  const getTemplate = require('./notification-templates').getNotificationTemplate;
+  const notificationService = new NotificationService();
 
   // Template 1 -> Customer
-  const t1 = getTemplate("BOOKING_CREATED", { id: booking.id.substring(0, 8).toUpperCase(), pujaType: input.eventType, date: input.eventDate.toISOString().split('T')[0] });
+  const t1 = getNotificationTemplate("BOOKING_CREATED", { id: booking.id.substring(0, 8).toUpperCase(), pujaType: input.eventType, date: input.eventDate.toISOString().split('T')[0] });
   await notificationService.notify({
     userId: input.customerId,
     type: "BOOKING_CREATED",
@@ -161,7 +168,7 @@ export async function createBooking(input: CreateBookingInput) {
 
   // Template 2 -> Pandit
   if (input.panditId) {
-    const p1 = getTemplate("NEW_BOOKING_REQUEST", { pujaType: input.eventType, date: input.eventDate.toISOString().split('T')[0], city: input.venueCity, amount: booking.panditPayout || input.dakshinaAmount });
+    const p1 = getNotificationTemplate("NEW_BOOKING_REQUEST", { pujaType: input.eventType, date: input.eventDate.toISOString().split('T')[0], city: input.venueCity, amount: booking.panditPayout || input.dakshinaAmount });
     await notificationService.notify({
       userId: input.panditId,
       type: "NEW_BOOKING_REQUEST",

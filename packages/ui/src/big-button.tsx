@@ -9,7 +9,12 @@ export interface BigButtonProps {
   children: ReactNode;
 }
 
-export function BigButton({ onClick, disabled = false, className = "", children }: BigButtonProps) {
+export function BigButton({
+  onClick,
+  disabled = false,
+  className = "",
+  children,
+}: BigButtonProps) {
   return (
     <button
       type="button"

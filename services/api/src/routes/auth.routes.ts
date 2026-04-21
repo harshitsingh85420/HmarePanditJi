@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { z } from "zod";
 import { authenticate } from "../middleware/auth";
 import { otpLimiter, authLimiter } from "../middleware/rateLimiter";
@@ -10,8 +10,6 @@ import {
   updateMe,
   adminLogin,
 } from "../controllers/auth.controller";
-
-const router: Router = Router();
 
 // ── Schemas ───────────────────────────────────────────────────────────────────
 
@@ -48,69 +46,65 @@ const updateProfileSchema = z.object({
 
 // ── Routes ────────────────────────────────────────────────────────────────────
 
-/**
- * POST /auth/request-otp
- * Send OTP to a phone number.
- */
-router.post(
-  "/request-otp",
-  otpLimiter,
-  validate(requestOtpSchema),
-  sendOtp
-);
+export default async function authRoutes(fastify: FastifyInstance, _opts: any) {
+  /**
+   * POST /auth/request-otp
+   * Send OTP to a phone number.
+   */
+  fastify.post(
+    "/request-otp",
+    { preHandler: [otpLimiter, validate(requestOtpSchema)] },
+    sendOtp
+  );
 
-/**
- * POST /auth/send-otp
- * Alias for /request-otp (spec compatibility).
- */
-router.post(
-  "/send-otp",
-  otpLimiter,
-  validate(requestOtpSchema),
-  sendOtp
-);
+  /**
+   * POST /auth/send-otp
+   * Alias for /request-otp (spec compatibility).
+   */
+  fastify.post(
+    "/send-otp",
+    { preHandler: [otpLimiter, validate(requestOtpSchema)] },
+    sendOtp
+  );
 
-/**
- * POST /auth/verify-otp
- * Verify OTP and return access + refresh tokens.
- */
-router.post(
-  "/verify-otp",
-  authLimiter,
-  validate(verifyOtpSchema),
-  verifyOtp
-);
+  /**
+   * POST /auth/verify-otp
+   * Verify OTP and return access + refresh tokens.
+   */
+  fastify.post(
+    "/verify-otp",
+    { preHandler: [authLimiter, validate(verifyOtpSchema)] },
+    verifyOtp
+  );
 
-/**
- * POST /auth/admin-login
- * Login for Admin panel
- */
-router.post("/admin-login", adminLogin);
+  /**
+   * POST /auth/admin-login
+   * Login for Admin panel
+   */
+  fastify.post("/admin-login", {}, adminLogin);
 
-/**
- * POST /auth/logout
- * Invalidate the current session.
- */
-router.post("/logout", authenticate, (req, res) => {
-  // JWT-only auth: client clears tokens from localStorage.
-  res.json({ success: true, message: "Logged out successfully" });
-});
+  /**
+   * POST /auth/logout
+   * Invalidate the current session.
+   */
+  fastify.post("/logout", { preHandler: [authenticate] }, async (req: FastifyRequest, reply: FastifyReply) => {
+    // JWT-only auth: client clears tokens from localStorage.
+    return reply.send({ success: true, message: "Logged out successfully" });
+  });
 
-/**
- * GET /auth/me
- * Return the currently authenticated user's full profile.
- */
-router.get("/me", authenticate, getMe);
+  /**
+   * GET /auth/me
+   * Return the currently authenticated user's full profile.
+   */
+  fastify.get("/me", { preHandler: [authenticate] }, getMe);
 
-/**
- * PATCH /auth/me
- * Update profile.
- */
-router.patch(
-  "/me",
-  authenticate,
-  validate(updateProfileSchema),
-  updateMe
-);
-
-export default router;
+  /**
+   * PATCH /auth/me
+   * Update profile.
+   */
+  fastify.patch(
+    "/me",
+    { preHandler: [authenticate, validate(updateProfileSchema)] },
+    updateMe
+  );
+}

@@ -5,17 +5,17 @@
 
 // ─── TYPED ENUMS (spec-required) ─────────────────────
 export enum Role { CUSTOMER = 'CUSTOMER', PANDIT = 'PANDIT', ADMIN = 'ADMIN' }
-export enum VerificationStatus { PENDING='PENDING', DOCUMENTS_SUBMITTED='DOCUMENTS_SUBMITTED', VIDEO_KYC_DONE='VIDEO_KYC_DONE', VERIFIED='VERIFIED', REJECTED='REJECTED' }
-export enum BookingStatus { CREATED='CREATED', PANDIT_REQUESTED='PANDIT_REQUESTED', CONFIRMED='CONFIRMED', TRAVEL_BOOKED='TRAVEL_BOOKED', PANDIT_EN_ROUTE='PANDIT_EN_ROUTE', PANDIT_ARRIVED='PANDIT_ARRIVED', PUJA_IN_PROGRESS='PUJA_IN_PROGRESS', COMPLETED='COMPLETED', CANCELLATION_REQUESTED='CANCELLATION_REQUESTED', CANCELLED='CANCELLED', REFUNDED='REFUNDED' }
-export enum TravelMode { SELF_DRIVE='SELF_DRIVE', TRAIN='TRAIN', FLIGHT='FLIGHT', CAB='CAB', BUS='BUS' }
-export enum TravelStatus { NOT_REQUIRED='NOT_REQUIRED', PENDING='PENDING', BOOKED='BOOKED', IN_TRANSIT='IN_TRANSIT', ARRIVED='ARRIVED' }
-export enum SamagriPreference { PANDIT_BRINGS='PANDIT_BRINGS', CUSTOMER_ARRANGES='CUSTOMER_ARRANGES', NEED_HELP='NEED_HELP' }
-export enum PaymentStatus { PENDING='PENDING', AUTHORIZED='AUTHORIZED', CAPTURED='CAPTURED', FAILED='FAILED', REFUNDED='REFUNDED' }
-export enum PayoutStatus { PENDING='PENDING', PROCESSING='PROCESSING', COMPLETED='COMPLETED', FAILED='FAILED' }
-export enum RefundStatus { NONE='NONE', PENDING='PENDING', PROCESSING='PROCESSING', COMPLETED='COMPLETED', FAILED='FAILED' }
-export enum FoodArrangement { CUSTOMER_PROVIDES='CUSTOMER_PROVIDES', PLATFORM_ALLOWANCE='PLATFORM_ALLOWANCE' }
-export enum AccommodationArrangement { NOT_NEEDED='NOT_NEEDED', CUSTOMER_ARRANGES='CUSTOMER_ARRANGES', PLATFORM_BOOKS='PLATFORM_BOOKS' }
-export enum PackageType { BASIC='BASIC', STANDARD='STANDARD', PREMIUM='PREMIUM' }
+export enum VerificationStatus { PENDING = 'PENDING', DOCUMENTS_SUBMITTED = 'DOCUMENTS_SUBMITTED', VIDEO_KYC_DONE = 'VIDEO_KYC_DONE', VERIFIED = 'VERIFIED', REJECTED = 'REJECTED' }
+export enum BookingStatus { CREATED = 'CREATED', PANDIT_REQUESTED = 'PANDIT_REQUESTED', CONFIRMED = 'CONFIRMED', TRAVEL_BOOKED = 'TRAVEL_BOOKED', PANDIT_EN_ROUTE = 'PANDIT_EN_ROUTE', PANDIT_ARRIVED = 'PANDIT_ARRIVED', PUJA_IN_PROGRESS = 'PUJA_IN_PROGRESS', COMPLETED = 'COMPLETED', CANCELLATION_REQUESTED = 'CANCELLATION_REQUESTED', CANCELLED = 'CANCELLED', REFUNDED = 'REFUNDED' }
+export enum TravelMode { SELF_DRIVE = 'SELF_DRIVE', TRAIN = 'TRAIN', FLIGHT = 'FLIGHT', CAB = 'CAB', BUS = 'BUS' }
+export enum TravelStatus { NOT_REQUIRED = 'NOT_REQUIRED', PENDING = 'PENDING', BOOKED = 'BOOKED', IN_TRANSIT = 'IN_TRANSIT', ARRIVED = 'ARRIVED' }
+export enum SamagriPreference { PANDIT_BRINGS = 'PANDIT_BRINGS', CUSTOMER_ARRANGES = 'CUSTOMER_ARRANGES', NEED_HELP = 'NEED_HELP' }
+export enum PaymentStatus { PENDING = 'PENDING', AUTHORIZED = 'AUTHORIZED', CAPTURED = 'CAPTURED', FAILED = 'FAILED', REFUNDED = 'REFUNDED' }
+export enum PayoutStatus { PENDING = 'PENDING', PROCESSING = 'PROCESSING', COMPLETED = 'COMPLETED', FAILED = 'FAILED' }
+export enum RefundStatus { NONE = 'NONE', PENDING = 'PENDING', PROCESSING = 'PROCESSING', COMPLETED = 'COMPLETED', FAILED = 'FAILED' }
+export enum FoodArrangement { CUSTOMER_PROVIDES = 'CUSTOMER_PROVIDES', PLATFORM_ALLOWANCE = 'PLATFORM_ALLOWANCE' }
+export enum AccommodationArrangement { NOT_NEEDED = 'NOT_NEEDED', CUSTOMER_ARRANGES = 'CUSTOMER_ARRANGES', PLATFORM_BOOKS = 'PLATFORM_BOOKS' }
+export enum PackageType { BASIC = 'BASIC', STANDARD = 'STANDARD', PREMIUM = 'PREMIUM' }
 
 // ─── PRICING BREAKDOWN INTERFACE ─────────────────────
 export interface PricingBreakdown {
@@ -34,34 +34,41 @@ export interface PricingBreakdown {
 }
 
 // ─── ENUMS (legacy string unions — kept for backward compat) ─────────────────
+// NOTE: These are lowercase string union types for use in UI/display contexts.
+// The uppercase enums above are for Prisma/database operations.
+// They share names but serve different purposes.
+
 export type UserType = 'customer' | 'pandit' | 'admin';
 export type UserRole = 'customer' | 'pandit' | 'admin';
 
 export type UserStatus =
-  | 'pending'      // Just registered, OTP verified
-  | 'active'       // KYC approved (pandits) or profile complete (customers)
-  | 'suspended'    // Admin action
-  | 'rejected';    // KYC rejected
+  | 'pending'
+  | 'active'
+  | 'suspended'
+  | 'rejected';
 
-export type VerificationStatus =
+// Renamed to avoid collision with VerificationStatus enum
+export type VerificationStatusDisplay =
   | 'not_started'
   | 'pending'
   | 'under_review'
   | 'verified'
   | 'rejected';
 
-export type BookingStatus =
-  | 'draft'           // Customer building booking, not submitted
-  | 'requested'       // Submitted, waiting pandit acceptance
-  | 'confirmed'       // Pandit accepted + payment done
-  | 'pandit_en_route' // Pandit started travel
-  | 'pandit_arrived'  // Pandit reached venue
-  | 'in_progress'     // Puja started
-  | 'completed'       // Puja done, awaiting review
-  | 'cancelled'       // By customer or pandit
-  | 'refunded';       // Money returned
+// Renamed to avoid collision with BookingStatus enum
+export type BookingStatusDisplay =
+  | 'draft'
+  | 'requested'
+  | 'confirmed'
+  | 'pandit_en_route'
+  | 'pandit_arrived'
+  | 'in_progress'
+  | 'completed'
+  | 'cancelled'
+  | 'refunded';
 
-export type TravelMode =
+// Renamed to avoid collision with TravelMode enum
+export type TravelModeDisplay =
   | 'self_drive'
   | 'cab'
   | 'bike'
@@ -74,15 +81,15 @@ export type SamagriChoice = 'pandit_package' | 'custom_list' | 'self_arranged';
 export type PackageTier = 'basic' | 'standard' | 'premium';
 
 export type PujaType =
-  | 'vivah'           // Wedding
-  | 'griha_pravesh'   // House warming
-  | 'satyanarayan'    // Satyanarayan katha
-  | 'mundan'          // First haircut ceremony
-  | 'annaprashan'     // First rice feeding
-  | 'namkaran'        // Naming ceremony
-  | 'shradh'          // Death anniversary
-  | 'rudrabhishek'    // Shiva abhishek
-  | 'katha'           // Religious discourse
+  | 'vivah'
+  | 'griha_pravesh'
+  | 'satyanarayan'
+  | 'mundan'
+  | 'annaprashan'
+  | 'namkaran'
+  | 'shradh'
+  | 'rudrabhishek'
+  | 'katha'
   | 'ganesh_puja'
   | 'durga_puja'
   | 'lakshmi_puja'
@@ -93,8 +100,11 @@ export type PujaType =
   | 'sai_puja'
   | 'pitru_paksha';
 
-export type PaymentStatus = 'pending' | 'captured' | 'failed' | 'refunded';
-export type PayoutStatus = 'pending' | 'processing' | 'processed' | 'failed';
+// Renamed to avoid collision with PaymentStatus enum
+export type PaymentStatusDisplay = 'pending' | 'captured' | 'failed' | 'refunded';
+
+// Renamed to avoid collision with PayoutStatus enum
+export type PayoutStatusDisplay = 'pending' | 'processing' | 'processed' | 'failed';
 
 export type NotificationType =
   | 'booking_request'
@@ -408,3 +418,6 @@ export interface KYCDocument {
   url: string;
   verified: boolean;
 }
+
+// ─── Razorpay Payment Types ──────────────────────────
+export * from './razorpay';

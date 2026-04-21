@@ -18,9 +18,9 @@ export function LazyIllustration({ name, size = 'md', animated = true }: LazyIll
 
     const loadIllustration = async () => {
       try {
-        const module = await import(`@/components/illustrations/${name}.tsx`)
+        const mod = await import(`@/components/illustrations/${name}.tsx`)
         if (mounted) {
-          setIllustration(() => module.default)
+          setIllustration(() => mod.default)
         }
       } catch (err) {
         console.error(`Failed to load illustration: ${name}`, err)
@@ -40,11 +40,10 @@ export function LazyIllustration({ name, size = 'md', animated = true }: LazyIll
   if (error) {
     // Fallback emoji illustration
     return (
-      <div className={`flex items-center justify-center bg-saffron-lt rounded-full ${
-        size === 'lg' ? 'w-48 h-48 text-7xl' :
-        size === 'md' ? 'w-32 h-32 text-5xl' :
-        'w-20 h-20 text-3xl'
-      }`}>
+      <div className={`flex items-center justify-center bg-saffron-lt rounded-full ${size === 'lg' ? 'w-48 h-48 text-7xl' :
+          size === 'md' ? 'w-32 h-32 text-5xl' :
+            'w-20 h-20 text-3xl'
+        }`}>
         🙏
       </div>
     )

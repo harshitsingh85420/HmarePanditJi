@@ -37,6 +37,11 @@ export default function VoiceTutorialPage() {
     startListening()
   }
 
+  const handleLanguageSwitch = () => {
+    // TODO: Implement language switcher - toggle between Hindi/English UI
+    console.log('[VoiceTutorialPage] Language switch clicked')
+  }
+
   return (
     <main className="relative mx-auto min-h-dvh w-full max-w-[390px] xs:max-w-[430px] flex flex-col bg-surface-base">
       {/* TopBar */}
@@ -59,7 +64,7 @@ export default function VoiceTutorialPage() {
           <h1 className="text-base xs:text-lg sm:text-[20px] font-bold text-text-primary">HmarePanditJi</h1>
         </div>
         <button
-          onClick={() => { }}
+          onClick={handleLanguageSwitch}
           className="min-h-[52px] xs:min-h-[56px] sm:min-h-[64px] px-4 xs:px-6 flex items-center gap-2 text-sm xs:text-base sm:text-[20px] font-bold text-text-primary active:opacity-50 focus:ring-2 focus:ring-saffron focus:outline-none border-2 border-border-default rounded-full bg-surface-card"
           aria-label="Language switcher"
         >

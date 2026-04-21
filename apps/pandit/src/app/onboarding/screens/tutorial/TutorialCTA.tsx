@@ -1,71 +1,142 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { speakWithSarvam } from '@/lib/sarvam-tts'
-import { useRouter } from 'next/navigation'
+import { speakWithSarvam, stopCurrentSpeech } from '@/lib/sarvam-tts'
+import { useSarvamVoiceFlow } from '@/lib/hooks/useSarvamVoiceFlow'
 import TopBar from '@/components/ui/TopBar'
 import ProgressDots from '@/components/ui/ProgressDots'
-import type { SupportedLanguage } from '@/lib/onboarding-store'
+import { SupportedLanguage, ScriptPreference } from '@/lib/onboarding-store'
 
 interface TutorialCTAProps {
   language: SupportedLanguage
+  scriptPreference: ScriptPreference | null
   onLanguageChange: () => void
   currentDot: number
   onNext: () => void
   onBack: () => void
   onSkip: () => void
-  onRegisterNow?: () => void
-  onLater?: () => void
+  onRegisterNow: () => void
+  onLater: () => void
 }
 
 export default function TutorialCTA({
   language,
+  scriptPreference,
   onLanguageChange,
   onBack,
   onNext,
   onSkip,
   onRegisterNow,
   onLater,
-  currentDot
 }: TutorialCTAProps) {
-  const router = useRouter()
+  const [keyboardMode, setKeyboardMode] = useState(false)
+  const isLatin = scriptPreference === 'latin'
 
-  const handleStart = () => {
-    if (onRegisterNow) {
-      onRegisterNow()
-    } else {
-      void speakWithSarvam({ text: 'चलिए शुरू करते हैं।', languageCode: 'hi-IN', onEnd: () => router.push('/mobile') })
-    }
+  const TITLE = isLatin ? 'Ab' : 'अब'
+  const SUBTITLE = isLatin ? 'Registration Karein' : 'रजिस्ट्रेशन करें'
+  const DESCRIPTION = isLatin ? 'Sab kuch tayar hai. Ab bas apna registration complete karein. Kuch dino mein video satyapan hoga aur aapki seva shuru ho jayegi. Namaste! 🙏' : 'सब कुछ तैयार है। अब बस अपना रजिस्ट्रेशन पूरा करें। कुछ दिनों में वीडियो सत्यापन होगा और आपकी सेवा शुरू हो जाएगी। नमस्ते! 🙏'
+  const CTA_LABEL = isLatin ? 'Registration Karein 🎯' : 'रजिस्ट्रेशन करें 🎯'
+  const SKIP_LABEL = isLatin ? 'Skip karein' : 'Skip करें'
+  const VOICE_STATUS = isLatin ? 'Playing voice for you...' : 'आपके लिए बोल रहा हूँ...'
+  const EMOJI = '🎯'
+
+  const { voiceFlowState } = useSarvamVoiceFlow({
+    language: 'Hindi',
+    script: isLatin ? 'Sab kuch tayar hai. Ab bas apna registration complete karein. Video satyapan hoga aur aapki seva shuru ho jayegi. Namaste!' : 'सब कुछ तैयार है। अब बस अपना रजिस्ट्रेशन पूरा करें। वीडियो सत्यापन होगा और आपकी सेवा शुरू हो जाएगी। नमस्ते!',
+    repromptScript: isLatin ? 'Jaaniye boliye ya Skip boliye' : 'जानें बोलें या Skip बोलें',
+    initialDelayMs: 200,
+    pauseAfterMs: 1000,
+    autoListen: !keyboardMode,
+    onIntent: (intentOrRaw) => {
+      const lower = intentOrRaw.toLowerCase()
+      if (lower.includes('keyboard') || lower.includes('कीबोर्ड') || lower.includes('skip')) {
+        setKeyboardMode(true)
+        onNext()
+        return
+      }
+      if (lower.includes('aage') || lower.includes('forward') || lower.includes('haan') || lower.includes('yes')) {
+        handleContinue()
+      }
+    },
+    onNoiseHigh: () => {
+      setKeyboardMode(true)
+      onNext()
+    },
+  })
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      void speakWithSarvam({ text: isLatin ? 'Sab kuch tayar hai. Ab bas apna registration complete karein. Namaste!' : 'सब कुछ तैयार है। अब बस अपना रजिस्ट्रेशन पूरा करें। नमस्ते!', languageCode: 'hi-IN' })
+    }, 200)
+    return () => { clearTimeout(timer); stopCurrentSpeech() }
+  }, [])
+
+  const handleContinue = () => {
+    stopCurrentSpeech()
+    void speakWithSarvam({
+      text: isLatin ? 'Bahut achha.' : 'बहुत अच्छा।',
+      languageCode: 'hi-IN',
+      onEnd: () => setTimeout(onNext, 600),
+    })
   }
 
-  const handleLaterClick = () => {
-    if (onLater) {
-      onLater()
-    } else {
-      void speakWithSarvam({ text: 'ठीक है। जब चाहें शुरू करें।', languageCode: 'hi-IN', onEnd: () => router.push('/dashboard') })
-    }
+  const handleSkip = () => {
+    stopCurrentSpeech()
+    onSkip()
   }
 
   return (
-    <main className="w-full min-h-dvh max-w-[390px] xs:max-w-[430px] mx-auto bg-vedic-cream flex flex-col">
-      <TopBar showBack onBack={onBack} onLanguageChange={onLanguageChange} />
+    <div className="min-h-screen w-full max-w-[390px] xs:max-w-[430px] mx-auto flex flex-col bg-[#fbf9f3] selection:bg-[#ff8c00]/30 relative overflow-hidden">
+      {/* Background Decoration */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#ff8c00]/5 to-transparent opacity-5" />
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 opacity-20">
+          <span className="text-9xl">{EMOJI}</span>
+        </div>
+      </div>
+
+      {/* Top Bar */}
+      <TopBar showBack={true} onBack={onBack} onLanguageChange={onLanguageChange} language={language} scriptPreference={scriptPreference} />
+
+      {/* Progress Dots */}
       <ProgressDots total={12} current={12} />
-      <div className="flex-1 px-4 xs:px-6 py-6 xs:py-8 flex flex-col items-center justify-center">
-        <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: 'spring' }} className="text-center">
-          <div className="text-7xl xs:text-8xl sm:text-9xl mb-4 xs:mb-6">🎉</div>
-          <h1 className="text-2xl xs:text-3xl sm:text-4xl font-bold text-vedic-brown mb-2 xs:mb-4">बधाई हो!</h1>
-          <p className="text-base xs:text-lg sm:text-xl text-text-secondary mb-6 xs:mb-8">आपने ट्यूटोरियल पूरा कर लिया</p>
-          <div className="bg-saffron-lt border-2 border-saffron rounded-2xl p-6 xs:p-8 mb-6 xs:mb-8">
-            <p className="text-lg xs:text-xl sm:text-2xl font-bold text-text-primary mb-2 xs:mb-4">अब क्या होगा?</p>
-            <ul className="text-sm xs:text-base sm:text-lg text-text-secondary space-y-2 xs:space-y-3 text-left"><li>✓ 10 मिनट में Registration</li><li>✓ बिल्कुल मुफ़्त</li><li>✓ पहली पूजा 24 घंटे में</li></ul>
+
+      {/* Main Content */}
+      <main className="relative z-10 flex-grow flex flex-col items-center px-6 xs:px-8 pt-6 pb-32 max-w-2xl mx-auto w-full">
+        {/* Voice Playing Indicator */}
+        <motion.div className="flex flex-col items-center mb-8" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }}>
+          <div className="flex items-end justify-center space-x-1.5 h-12 mb-3">
+            {[8, 12, 6, 10, 4].map((height, i) => (
+              <motion.div key={i} className="w-1 bg-[#ff8c00] rounded-full" animate={{ height: [height, height * 2, height] }} transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut", delay: i * 0.2 }} />
+            ))}
           </div>
+          <p className="text-[#ff8c00] font-medium text-sm tracking-wide">{VOICE_STATUS}</p>
         </motion.div>
+
+        {/* Content Card */}
+        <motion.div className="w-full bg-white rounded-3xl p-6 xs:p-8 shadow-[0px_8px_24px_rgba(144,77,0,0.08)] mb-8 border-l-4 border-[#ff8c00]" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.4 }}>
+          <h1 className="font-headline text-2xl xs:text-3xl font-bold text-[#904d00] mb-3 leading-relaxed">
+            {TITLE} {SUBTITLE && <span className="text-[#ff8c00]">{SUBTITLE}</span>}
+          </h1>
+          <p className="text-[#1b1c19] text-base xs:text-lg leading-[180%] font-medium">{DESCRIPTION}</p>
+        </motion.div>
+
+        {/* CTA Buttons */}
+        <motion.div className="w-full space-y-4" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.6 }}>
+          <button onClick={onRegisterNow} className="w-full h-16 bg-gradient-to-b from-[#ff8c00] to-[#f89100] text-white rounded-xl font-bold text-xl shadow-lg flex items-center justify-center hover:scale-[0.98] transition-transform active:scale-95">
+            {CTA_LABEL}
+          </button>
+          <button onClick={onLater} className="w-full h-16 border-2 border-[#ddc1ae] text-[#564334] rounded-xl font-bold text-xl hover:bg-[#f5f3ee] transition-colors active:scale-95">
+            {SKIP_LABEL}
+          </button>
+        </motion.div>
+      </main>
+
+      {/* Decorative Corner */}
+      <div className="fixed top-0 right-0 p-4 opacity-10 pointer-events-none z-0">
+        <span className="text-6xl text-[#ff8c00]">🕉️</span>
       </div>
-      <div className="px-4 xs:px-6 pb-6 xs:pb-8 pt-4 xs:pt-6 bg-surface-base/90 backdrop-blur-sm border-t border-border-default">
-        <motion.button whileTap={{ scale: 0.97 }} onClick={handleStart} className="w-full min-h-[52px] xs:min-h-[56px] sm:min-h-[72px] bg-saffron text-white rounded-2xl text-lg xs:text-xl sm:text-2xl font-bold shadow-btn-saffron active:scale-[0.98]">Registration शुरू करें →</motion.button>
-        <button onClick={onBack} className="w-full min-h-[52px] xs:min-h-[56px] text-center text-base xs:text-lg text-saffron font-medium mt-3 xs:mt-4 underline underline-offset-4 active:bg-saffron-light rounded-xl">बाद में करूँगा</button>
-      </div>
-    </main>
+    </div>
   )
 }

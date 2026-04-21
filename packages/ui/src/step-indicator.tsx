@@ -21,7 +21,7 @@ export function StepIndicator({
 }: StepIndicatorProps) {
   return (
     <div
-      className={`flex items-center w-full ${className}`}
+      className={`flex w-full items-center ${className}`}
       role="list"
       aria-label="Progress steps"
     >
@@ -35,19 +35,19 @@ export function StepIndicator({
         return (
           <React.Fragment key={idx}>
             <div
-              className="flex flex-col items-center flex-shrink-0"
+              className="flex flex-shrink-0 flex-col items-center"
               role="listitem"
               aria-current={isActive ? "step" : undefined}
             >
               {/* ACC-009 & ACC-010 FIX: Larger step indicators for elderly users */}
               <div
                 className={[
-                  "w-14 h-14 rounded-full flex items-center justify-center border-3 transition-all",
+                  "border-3 flex h-14 w-14 items-center justify-center rounded-full transition-all",
                   isDone
                     ? "bg-primary border-primary text-white"
                     : isActive
-                      ? "bg-white border-primary text-primary dark:bg-slate-900"
-                      : "bg-white border-slate-200 text-slate-400 dark:bg-slate-900 dark:border-slate-700",
+                      ? "border-primary text-primary bg-white dark:bg-slate-900"
+                      : "border-slate-200 bg-white text-slate-400 dark:border-slate-700 dark:bg-slate-900",
                 ]
                   .filter(Boolean)
                   .join(" ")}
@@ -68,17 +68,18 @@ export function StepIndicator({
                 )}
               </div>
               <span
-                className={`mt-2 text-base font-bold text-center max-w-[100px] leading-tight ${isActive
+                className={`mt-2 max-w-[100px] text-center text-base font-bold leading-tight ${
+                  isActive
                     ? "text-primary"
                     : isDone
                       ? "text-slate-600 dark:text-slate-300"
                       : "text-slate-400"
-                  }`}
+                }`}
               >
                 {step.label}
               </span>
               {step.description && (
-                <span className="text-sm text-slate-400 text-center max-w-[100px] leading-tight">
+                <span className="max-w-[100px] text-center text-sm leading-tight text-slate-400">
                   {step.description}
                 </span>
               )}
@@ -86,8 +87,9 @@ export function StepIndicator({
 
             {!isLast && (
               <div
-                className={`flex-1 h-1 mt-[-20px] mx-2 transition-all ${isDone ? "bg-primary" : "bg-slate-200 dark:bg-slate-700"
-                  }`}
+                className={`mx-2 mt-[-20px] h-1 flex-1 transition-all ${
+                  isDone ? "bg-primary" : "bg-slate-200 dark:bg-slate-700"
+                }`}
               />
             )}
           </React.Fragment>

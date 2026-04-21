@@ -6,7 +6,23 @@ import { PanditCard, TravelMode } from "@hmarepanditji/ui";
 import { useAuth } from "../context/auth-context";
 import { LoginModal } from "./LoginModal";
 
-export function FeaturedPanditsList({ pandits }: { pandits: any[] }) {
+interface FeaturedPandit {
+    id: string;
+    displayName?: string;
+    profilePhotoUrl?: string;
+    averageRating?: number;
+    totalReviews?: number;
+    pujaServices?: Array<{ pujaType: string }>;
+    city: string;
+    state?: string;
+    isVerified?: boolean;
+    user?: {
+        name?: string;
+        avatarUrl?: string;
+    };
+}
+
+export function FeaturedPanditsList({ pandits }: { pandits: FeaturedPandit[] }) {
     const router = useRouter();
     const { isAuthenticated, loading } = useAuth();
     const [loginModalOpen, setLoginModalOpen] = React.useState(false);
@@ -28,8 +44,7 @@ export function FeaturedPanditsList({ pandits }: { pandits: any[] }) {
             setRedirectUrl("");
             setLoginModalOpen(true);
         } else {
-            // Future: Implement favorite logic with proper API calls
-            console.log("Added to favorites:", id);
+            // TODO: Implement favorite toggle via API endpoint
         }
     };
 
@@ -43,7 +58,7 @@ export function FeaturedPanditsList({ pandits }: { pandits: any[] }) {
 
     return (
         <>
-            {pandits.map((pandit: any) => (
+            {pandits.map((pandit) => (
                 <PanditCard
                     key={pandit.id}
                     id={pandit.id}
@@ -51,7 +66,7 @@ export function FeaturedPanditsList({ pandits }: { pandits: any[] }) {
                     avatarUrl={pandit.profilePhotoUrl || pandit.user?.avatarUrl}
                     rating={pandit.averageRating || 5}
                     totalReviews={pandit.totalReviews || 0}
-                    specializations={pandit.pujaServices?.slice(0, 3).map((s: any) => s.pujaType) || []}
+                    specializations={pandit.pujaServices?.slice(0, 3).map((s) => s.pujaType) || []}
                     location={`${pandit.city}${pandit.state ? `, ${pandit.state}` : ""}`}
                     isVerified={pandit.isVerified}
                     onBook={handleBook}

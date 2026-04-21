@@ -11,7 +11,7 @@ export interface SkeletonProps {
 function Pulse({ className = "" }: { className?: string }) {
   return (
     <div
-      className={`animate-pulse bg-slate-200 dark:bg-slate-700 rounded ${className}`}
+      className={`animate-pulse rounded bg-slate-200 dark:bg-slate-700 ${className}`}
     />
   );
 }
@@ -26,13 +26,13 @@ export function Skeleton({
   if (variant === "card") {
     return (
       <div
-        className={`bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-5 ${className}`}
+        className={`rounded-2xl border border-slate-100 bg-white p-5 dark:border-slate-800 dark:bg-slate-900 ${className}`}
         aria-busy="true"
         aria-label="Loading..."
       >
-        <Pulse className="h-40 w-full rounded-xl mb-4" />
-        <Pulse className="h-4 w-3/4 mb-2" />
-        <Pulse className="h-4 w-1/2 mb-4" />
+        <Pulse className="mb-4 h-40 w-full rounded-xl" />
+        <Pulse className="mb-2 h-4 w-3/4" />
+        <Pulse className="mb-4 h-4 w-1/2" />
         <Pulse className="h-10 w-full rounded-xl" />
       </div>
     );
@@ -41,7 +41,7 @@ export function Skeleton({
   if (variant === "avatar") {
     return (
       <Pulse
-        className={`rounded-full flex-shrink-0 ${width ?? "w-12"} ${height ?? "h-12"} ${className}`}
+        className={`flex-shrink-0 rounded-full ${width ?? "w-12"} ${height ?? "h-12"} ${className}`}
       />
     );
   }
@@ -61,7 +61,7 @@ export function Skeleton({
         aria-busy="true"
         aria-label="Loading..."
       >
-        <Pulse className="w-16 h-16 rounded-full flex-shrink-0" />
+        <Pulse className="h-16 w-16 flex-shrink-0 rounded-full" />
         <div className="flex-1 space-y-2">
           <Pulse className="h-4 w-2/3" />
           <Pulse className="h-3 w-1/2" />
@@ -74,11 +74,11 @@ export function Skeleton({
   if (variant === "table-row") {
     return (
       <div
-        className={`flex items-center gap-4 py-3 border-b border-slate-100 dark:border-slate-800 ${className}`}
+        className={`flex items-center gap-4 border-b border-slate-100 py-3 dark:border-slate-800 ${className}`}
         aria-busy="true"
         aria-label="Loading..."
       >
-        <Pulse className="w-10 h-10 rounded-full flex-shrink-0" />
+        <Pulse className="h-10 w-10 flex-shrink-0 rounded-full" />
         <Pulse className="h-4 flex-1" />
         <Pulse className="h-4 w-24" />
         <Pulse className="h-6 w-16 rounded" />

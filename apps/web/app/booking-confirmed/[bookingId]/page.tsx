@@ -42,8 +42,9 @@ export default function BookingConfirmedPage() {
     const copyDetails = () => {
         if (!booking) return;
         const txt = `🙏 Puja booked via HmarePanditJi!\nBooking ID: ${booking.bookingNumber}\nEvent: ${booking.eventType}\nDate: ${new Date(booking.eventDate).toLocaleDateString("hi-IN")}\nPandit: Pt. ${booking.pandit?.name || 'TBA'}`;
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-        (globalThis as any).navigator?.clipboard?.writeText(txt);
+        navigator?.clipboard?.writeText(txt).catch((err) => {
+            console.warn('Failed to copy to clipboard:', err);
+        });
         (globalThis as any).alert?.("Copied to clipboard!");
     };
 

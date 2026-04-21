@@ -51,7 +51,11 @@ export type { StatsCardProps } from "./stats-card";
 
 // ── Complex / Composite ──────────────────────────────────────────────────────
 export { PanditCard } from "./pandit-card";
-export type { PanditCardProps, TravelMode, TravelModePrice } from "./pandit-card";
+export type {
+  PanditCardProps,
+  TravelMode,
+  TravelModePrice,
+} from "./pandit-card";
 
 export { StepIndicator } from "./step-indicator";
 export type { StepIndicatorProps, Step } from "./step-indicator";
@@ -60,7 +64,10 @@ export { DatePicker } from "./date-picker";
 export type { DatePickerProps, HighlightedDate } from "./date-picker";
 
 export { PriceBreakdown } from "./price-breakdown";
-export type { PriceBreakdownProps, PriceBreakdownData } from "./price-breakdown";
+export type {
+  PriceBreakdownProps,
+  PriceBreakdownData,
+} from "./price-breakdown";
 
 export { StatusTimeline } from "./status-timeline";
 export type { StatusTimelineProps, TimelineStep } from "./status-timeline";

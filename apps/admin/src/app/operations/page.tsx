@@ -46,11 +46,11 @@ const MOCK_TRIPS: Trip[] = [
 ];
 
 export default function TravelOperationsPage() {
-  const [filter, setFilter] = useState<"All" | "Delayed" | "Emergency">(All);
-  const [selectedTripId, setSelectedTripId] = useState<string>(HPJ-1257);
+  const [filter, setFilter] = useState<"All" | "Delayed" | "Emergency">("All");
+  const [selectedTripId, setSelectedTripId] = useState<string>("HPJ-1257");
 
   const filteredTrips = MOCK_TRIPS.filter(t => {
-    if (filter === All) return true;
+    if (filter === "All") return true;
     return t.status === filter;
   });
 
@@ -106,19 +106,19 @@ export default function TravelOperationsPage() {
           <div className="lg:col-span-8 flex flex-col gap-4 h-full">
             <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide shrink-0">
               <button
-                onClick={() => setFilter(All)}
+                onClick={() => setFilter("All")}
                 className={`flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg px-4 text-sm font-bold transition-colors ${filter === 'All' ? 'bg-[#f49d25] text-white' : 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-slate-300'}`}
               >
                 All Travels <span className="bg-white/20 px-1.5 rounded">124</span>
               </button>
               <button
-                onClick={() => setFilter(Delayed)}
+                onClick={() => setFilter("Delayed")}
                 className={`flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg px-4 text-sm font-medium transition-colors ${filter === 'Delayed' ? 'bg-[#f49d25] text-white' : 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-slate-300'}`}
               >
                 Delayed <span className={`${filter === 'Delayed' ? 'bg-white/20 text-white' : 'bg-[#f49d25]/20 text-[#f49d25]'} px-1.5 rounded`}>9</span>
               </button>
               <button
-                onClick={() => setFilter(Emergency)}
+                onClick={() => setFilter("Emergency")}
                 className={`flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg px-4 text-sm font-medium transition-colors ${filter === 'Emergency' ? 'bg-red-500 text-white' : 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-slate-300'}`}
               >
                 Emergency <span className={`${filter === 'Emergency' ? 'bg-white/20 text-white' : 'bg-red-500/20 text-red-500'} px-1.5 rounded`}>3</span>
@@ -153,16 +153,16 @@ export default function TravelOperationsPage() {
                       </td>
                       <td className="px-4 py-4">
                         <span className={`text-[10px] font-black uppercase px-2 py-1 rounded ${trip.status === 'Delayed' ? 'bg-[#f49d25] text-white' :
-                            trip.status === 'Emergency' ? 'bg-red-500 text-white' :
-                              'bg-green-500 text-white'
+                          trip.status === 'Emergency' ? 'bg-red-500 text-white' :
+                            'bg-green-500 text-white'
                           }`}>
                           {trip.status}
                         </span>
                       </td>
                       <td className="px-4 py-4 text-sm">{trip.location}</td>
                       <td className={`px-4 py-4 font-bold text-sm ${trip.status === 'Delayed' ? 'text-[#f49d25]' :
-                          trip.status === 'Emergency' ? 'text-red-500' :
-                            'text-green-500'
+                        trip.status === 'Emergency' ? 'text-red-500' :
+                          'text-green-500'
                         }`}>
                         {trip.etaOffset}
                       </td>

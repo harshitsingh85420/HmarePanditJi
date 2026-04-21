@@ -177,7 +177,7 @@ export function MuhuratPageClient() {
     };
     fetchUpcoming();
     return () => controller.abort();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Intentionally run only on mount - upcoming dates are fetched once and don't depend on component state
   }, []);
 
   // ── Fetch pujas for selected date ────────────────────────────────────────
@@ -209,8 +209,8 @@ export function MuhuratPageClient() {
     if (urlDate) {
       fetchPujasForDate(urlDate);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    // Intentionally run only on mount - fetches detail for the initial URL date parameter
+  }, [urlDate, fetchPujasForDate]);
 
   // ── Calendar helpers ─────────────────────────────────────────────────────
 

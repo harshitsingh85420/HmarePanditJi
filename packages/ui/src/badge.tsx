@@ -46,11 +46,11 @@ export function Badge({
 
   return (
     <span
-      className={`inline-flex items-center gap-1 font-semibold uppercase tracking-wider rounded-full ${variants[variant]} ${sizes[size]} ${className}`}
+      className={`inline-flex items-center gap-1 rounded-full font-semibold uppercase tracking-wider ${variants[variant]} ${sizes[size]} ${className}`}
     >
       {dot && (
         <span
-          className={`w-1.5 h-1.5 rounded-full ${dotColors[variant]}`}
+          className={`h-1.5 w-1.5 rounded-full ${dotColors[variant]}`}
           aria-hidden="true"
         />
       )}

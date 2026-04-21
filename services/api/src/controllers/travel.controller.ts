@@ -1,6 +1,5 @@
-import { Request, Response, NextFunction } from "express";
+import { FastifyRequest, FastifyReply } from "fastify";
 import { z } from "zod";
-import { sendSuccess } from "../utils/response";
 import { AppError } from "../middleware/errorHandler";
 import {
   getDistance,
@@ -9,10 +8,45 @@ import {
   calculateForMode,
   type TravelModeType,
   type FoodArrangementType,
+  type TravelCalculation,
+  type DistanceResult,
 } from "../services/travel.service";
 
-// Simple in-memory cache for travel calculations
-const travelCache = new Map<string, { data: any; expiry: number }>();
+// Simple in-memory cache for travel calculations with size limit
+const MAX_CACHE_SIZE = 500;
+const travelCache = new Map<string, { data: TravelCalculation[]; expiry: number }>();
+
+function cleanupExpiredCache() {
+  const now = Date.now();
+  for (const [key, entry] of travelCache.entries()) {
+    if (entry.expiry <= now) {
+      travelCache.delete(key);
+    }
+  }
+}
+
+function setTravelCache(key: string, value: { data: TravelCalculation[]; expiry: number }) {
+  // Evict expired entries first
+  cleanupExpiredCache();
+  // If still at capacity, evict oldest (first inserted)
+  if (travelCache.size >= MAX_CACHE_SIZE) {
+    const oldestKey = travelCache.keys().next().value;
+    if (oldestKey !== undefined) {
+      travelCache.delete(oldestKey);
+    }
+  }
+  travelCache.set(key, value);
+}
+
+interface SuccessResponse<T> {
+  success: boolean;
+  data: T;
+  message: string;
+}
+
+function successBody<T>(data: T): SuccessResponse<T> {
+  return { success: true, data, message: "Success" };
+}
 
 const calculateSchema = z.object({
   fromCity: z.string().min(1),
@@ -27,9 +61,9 @@ const calculateSchema = z.object({
  * Calculate travel cost. If travelMode specified, calculate that mode only.
  * Otherwise, calculate all available options.
  */
-export async function calculateTravel(req: Request, res: Response, next: NextFunction) {
+export async function calculateTravel(request: FastifyRequest, reply: FastifyReply) {
   try {
-    const body = calculateSchema.parse(req.body);
+    const body = calculateSchema.parse(request.body);
 
     const distance = await getDistance(body.fromCity, body.toCity);
     if (!distance) {
@@ -47,11 +81,11 @@ export async function calculateTravel(req: Request, res: Response, next: NextFun
         body.eventDays,
         body.foodArrangement as FoodArrangementType,
       );
-      sendSuccess(res, {
+      return reply.send(successBody({
         distanceKm: distance.distanceKm,
         estimatedDriveHours: distance.estimatedDriveHours,
         options: [calc],
-      });
+      }));
     } else {
       const result = await calculateAllOptions({
         fromCity: body.fromCity,
@@ -59,10 +93,10 @@ export async function calculateTravel(req: Request, res: Response, next: NextFun
         eventDays: body.eventDays,
         foodArrangement: body.foodArrangement as FoodArrangementType,
       });
-      sendSuccess(res, result);
+      return reply.send(successBody(result));
     }
   } catch (err) {
-    next(err);
+    throw err;
   }
 }
 
@@ -79,53 +113,55 @@ const batchCalculateSchema = z.object({
 /**
  * POST /travel/batch-calculate
  */
-export async function batchCalculateTravel(req: Request, res: Response, next: NextFunction) {
+export async function batchCalculateTravel(request: FastifyRequest, reply: FastifyReply) {
   try {
-    const body = batchCalculateSchema.parse(req.body);
-    const results: Record<string, any> = {};
+    const body = batchCalculateSchema.parse(request.body);
+    const results: Record<string, TravelCalculation[]> = {};
 
-    await Promise.all(body.requests.map(async (request) => {
-      const cacheKey = `travel:${request.fromCity}:${request.toCity}:${body.eventDays}:${body.foodArrangement}`;
+    await Promise.all(body.requests.map(async (requestItem) => {
+      const cacheKey = `travel:${requestItem.fromCity}:${requestItem.toCity}:${body.eventDays}:${body.foodArrangement}`;
 
       const cached = travelCache.get(cacheKey);
       if (cached && cached.expiry > Date.now()) {
-        results[request.panditId] = cached.data;
+        results[requestItem.panditId] = cached.data;
         return;
       }
 
       try {
         const options = await calculateAllOptions({
-          fromCity: request.fromCity,
-          toCity: request.toCity,
+          fromCity: requestItem.fromCity,
+          toCity: requestItem.toCity,
           eventDays: body.eventDays,
           foodArrangement: body.foodArrangement as FoodArrangementType,
         });
 
-        // Cache for 30 min
-        travelCache.set(cacheKey, {
+        // Cache for 30 min (bounded by MAX_CACHE_SIZE)
+        setTravelCache(cacheKey, {
           data: options.options,
           expiry: Date.now() + 30 * 60 * 1000
         });
 
-        results[request.panditId] = options.options;
+        results[requestItem.panditId] = options.options;
       } catch (err) {
         // Distance not found or error calculating, just return empty array
-        results[request.panditId] = [];
+        results[requestItem.panditId] = [];
       }
     }));
 
-    sendSuccess(res, { results });
+    return reply.send(successBody({ results }));
   } catch (err) {
-    next(err);
+    throw err;
   }
 }
 
 /**
  * GET /travel/distance?from=Delhi&to=Varanasi
  */
-export async function getTravelDistance(req: Request, res: Response, next: NextFunction) {
+export async function getTravelDistance(request: FastifyRequest, reply: FastifyReply) {
   try {
-    const { from, to } = req.query as { from?: string; to?: string };
+    const query = request.query as Record<string, string | undefined>;
+    const from = query.from;
+    const to = query.to;
     if (!from || !to) {
       throw new AppError("Query params 'from' and 'to' are required", 400, "VALIDATION_ERROR");
     }
@@ -135,25 +171,25 @@ export async function getTravelDistance(req: Request, res: Response, next: NextF
       throw new AppError(`Distance not found between ${from} and ${to}`, 404, "NOT_FOUND");
     }
 
-    sendSuccess(res, {
+    return reply.send(successBody({
       fromCity: from,
       toCity: to,
       distanceKm: result.distanceKm,
       estimatedDriveHours: result.estimatedDriveHours,
-    });
+    }));
   } catch (err) {
-    next(err);
+    throw err;
   }
 }
 
 /**
  * GET /travel/cities
  */
-export async function getTravelCities(_req: Request, res: Response, next: NextFunction) {
+export async function getTravelCities(_request: FastifyRequest, reply: FastifyReply) {
   try {
     const cities = await getCities();
-    sendSuccess(res, { cities });
+    return reply.send(successBody({ cities }));
   } catch (err) {
-    next(err);
+    throw err;
   }
 }

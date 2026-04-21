@@ -3,18 +3,19 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import TopBar from '@/components/TopBar';
-import { ALL_LANGUAGES, LANGUAGE_DISPLAY, type SupportedLanguage } from '@/lib/onboarding-store';
+import { ALL_LANGUAGES, LANGUAGE_DISPLAY, type SupportedLanguage, type ScriptPreference } from '@/lib/onboarding-store';
 import { speakWithSarvam, stopCurrentSpeech } from '@/lib/sarvam-tts';
 import { useSarvamVoiceFlow } from '@/lib/hooks/useSarvamVoiceFlow';
 
 interface LanguageListScreenProps {
   language: SupportedLanguage | null;
+  scriptPreference?: ScriptPreference | null;
   onSelect: (lang: SupportedLanguage) => void;
   onBack: () => void;
   onLanguageChange: () => void;
 }
 
-export default function LanguageListScreen({ language, onSelect, onBack, onLanguageChange }: LanguageListScreenProps) {
+export default function LanguageListScreen({ language, scriptPreference = null, onSelect, onBack, onLanguageChange }: LanguageListScreenProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [keyboardMode, setKeyboardMode] = useState(false);
   const isMountedRef = React.useRef(true);
@@ -127,7 +128,13 @@ export default function LanguageListScreen({ language, onSelect, onBack, onLangu
 
   return (
     <main className="w-full min-h-dvh max-w-[390px] xs:max-w-[430px] mx-auto bg-surface-base relative flex flex-col overflow-hidden shadow-2xl">
-      <TopBar showBack onBack={onBack} onLanguageChange={onLanguageChange} />
+      <TopBar
+        showBack
+        onBack={onBack}
+        onLanguageChange={onLanguageChange}
+        language={language || 'Hindi'}
+        scriptPreference={scriptPreference}
+      />
 
       {/* Title */}
       <div className="px-4 xs:px-6 pt-4 xs:pt-5 pb-3 xs:pb-4">
@@ -213,8 +220,8 @@ export default function LanguageListScreen({ language, onSelect, onBack, onLangu
                 transition={{ delay: 0.04 * idx }}
                 onClick={() => onSelect(lang)}
                 className={`relative flex flex-col items-center justify-center min-h-[64px] xs:min-h-[72px] sm:min-h-[96px] rounded-xl px-3 xs:px-4 sm:px-5 transition-all ${isSelected
-                    ? 'bg-saffron-lt border-2 border-saffron'
-                    : 'bg-white border border-outline-variant hover:border-saffron'
+                  ? 'bg-saffron-lt border-2 border-saffron'
+                  : 'bg-white border border-outline-variant hover:border-saffron'
                   }`}
               >
                 {/* Emoji + Compact Display */}

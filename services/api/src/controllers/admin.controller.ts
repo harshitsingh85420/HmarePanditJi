@@ -1,12 +1,25 @@
-// @ts-nocheck
-import { Request, Response, NextFunction } from "express";
+import { FastifyRequest, FastifyReply } from "fastify";
 import { z } from "zod";
 import { prisma } from "@hmarepanditji/db";
-import { sendSuccess, sendPaginated } from "../utils/response";
 import { AppError } from "../middleware/errorHandler";
+import { logger } from "../utils/logger";
+
+// Helper to build success response
+function successBody<T>(data: T, message = "Success"): { success: boolean; data: T; message: string } {
+    return { success: true, data, message };
+}
+
+function paginatedBody<T>(data: T, total: number, page: number, limit: number, message = "Success") {
+    return {
+        success: true,
+        data,
+        message,
+        meta: { page, limit, total, totalPages: Math.ceil(total / limit) }
+    };
+}
 
 // existing stats controller
-export const getDashboardStats = async (req: Request, res: Response, next: NextFunction) => {
+export const getDashboardStats = async (request: FastifyRequest, reply: FastifyReply) => {
     try {
         const todayStart = new Date();
         todayStart.setHours(0, 0, 0, 0);
@@ -67,18 +80,18 @@ export const getDashboardStats = async (req: Request, res: Response, next: NextF
             if (p.isOnline) online++;
         }
 
-        sendSuccess(res, {
+        return reply.send(successBody({
             todaysBookings: { total: todaysTotal, confirmed: todaysConfirmed, inProgress: todaysInProgress },
             pendingActions: { travel: travelCount, verification: verifyCount, payouts: payoutCount, cancellations: cancelCount },
             monthlyRevenue: { current: currentRev, previous: prevRev, percentChange },
             activePandits: { verified, online }
-        });
+        }));
     } catch (err) {
-        next(err);
+        throw err;
     }
 };
 
-export const getAlerts = async (req: Request, res: Response, next: NextFunction) => {
+export const getAlerts = async (request: FastifyRequest, reply: FastifyReply) => {
     try {
         const now = new Date();
         const in48hrs = new Date(now.getTime() + 48 * 60 * 60 * 1000);
@@ -138,15 +151,16 @@ export const getAlerts = async (req: Request, res: Response, next: NextFunction)
             });
         }
 
-        sendSuccess(res, alerts);
+        return reply.send(successBody(alerts));
     } catch (err) {
-        next(err);
+        throw err;
     }
 };
 
-export const getActivityFeed = async (req: Request, res: Response, next: NextFunction) => {
+export const getActivityFeed = async (request: FastifyRequest, reply: FastifyReply) => {
     try {
-        const limit = Math.min(50, Math.max(1, Number(req.query.limit) || 20));
+        const query = request.query as Record<string, string | undefined>;
+        const limit = Math.min(50, Math.max(1, Number(query.limit) || 20));
         const events = await prisma.bookingStatusUpdate.findMany({
             take: limit,
             orderBy: { createdAt: "desc" },
@@ -173,16 +187,17 @@ export const getActivityFeed = async (req: Request, res: Response, next: NextFun
             };
         });
 
-        sendSuccess(res, feed);
+        return reply.send(successBody(feed));
     } catch (err) {
-        next(err);
+        throw err;
     }
 };
 
-export const getTravelQueue = async (req: Request, res: Response, next: NextFunction) => {
+export const getTravelQueue = async (request: FastifyRequest, reply: FastifyReply) => {
     try {
-        const tab = req.query.tab as string || "pending";
-        const where: Record<string, any> = {
+        const query = request.query as Record<string, string | undefined>;
+        const tab = query.tab || "pending";
+        const where: Record<string, unknown> = {
             travelRequired: true,
             status: { notIn: ["CANCELLED", "REFUNDED", "CREATED"] }
         };
@@ -211,9 +226,9 @@ export const getTravelQueue = async (req: Request, res: Response, next: NextFunc
             }
         });
 
-        sendSuccess(res, bookings);
+        return reply.send(successBody(bookings));
     } catch (err) {
-        next(err);
+        throw err;
     }
 };
 
@@ -228,11 +243,12 @@ const calculateTravelSchema = z.object({
     }).optional()
 });
 
-export const travelCalculate = async (req: Request, res: Response, next: NextFunction) => {
+export const travelCalculate = async (request: FastifyRequest, reply: FastifyReply) => {
     try {
-        const { calculatedTravelCost, travelNotes, travelBreakdown } = calculateTravelSchema.parse(req.body);
+        const { calculatedTravelCost, travelNotes, travelBreakdown } = calculateTravelSchema.parse(request.body);
+        const params = request.params as Record<string, string>;
         const updated = await prisma.booking.update({
-            where: { id: req.params.id },
+            where: { id: params.id },
             data: {
                 calculatedTravelCost,
                 ...(travelNotes && { travelNotes }),
@@ -241,47 +257,44 @@ export const travelCalculate = async (req: Request, res: Response, next: NextFun
             }
         });
 
-        sendSuccess(res, updated);
+        return reply.send(successBody(updated));
     } catch (err) {
-        next(err);
+        throw err;
     }
 };
 
 const travelBookedSchema = z.object({
-    travelBookingDetails: z.any().optional(),
+    travelBookingDetails: z.record(z.unknown()).optional(),
     actualTravelCost: z.number().int().min(0),
     travelDocumentUrls: z.array(z.string()).optional()
 });
 
-export const travelBooked = async (req: Request, res: Response, next: NextFunction) => {
+export const travelBooked = async (request: FastifyRequest, reply: FastifyReply) => {
     try {
-        const { travelBookingDetails, actualTravelCost, travelDocumentUrls } = travelBookedSchema.parse(req.body);
+        const { travelBookingDetails, actualTravelCost, travelDocumentUrls } = travelBookedSchema.parse(request.body);
+        const params = request.params as Record<string, string>;
 
-        const booking = await prisma.booking.findUnique({ where: { id: req.params.id } });
+        const booking = await prisma.booking.findUnique({ where: { id: params.id } });
         if (!booking) throw new AppError("Booking not found", 404, "NOT_FOUND");
 
         const updated = await prisma.booking.update({
-            where: { id: req.params.id },
+            where: { id: params.id },
             data: {
                 travelStatus: "BOOKED",
-                ...(travelBookingDetails && { travelBookingDetails }),
+                ...(travelBookingDetails && { travelBookingDetails: travelBookingDetails as any }),
                 travelCost: actualTravelCost,
                 ...(travelDocumentUrls && { travelDocumentUrls }),
-                ...(booking.status === "CONFIRMED" && { status: "TRAVEL_BOOKED" })
             },
-            include: {
-                pandit: { select: { id: true, name: true, phone: true } },
-                customer: { select: { id: true, name: true, phone: true } },
-            }
         });
 
         if (booking.status === "CONFIRMED") {
+            const authRequest = request as FastifyRequest & { user: { id: string } };
             await prisma.bookingStatusUpdate.create({
                 data: {
                     bookingId: updated.id,
                     fromStatus: "CONFIRMED",
                     toStatus: "TRAVEL_BOOKED",
-                    updatedById: req.user!.id,
+                    updatedById: authRequest.user!.id,
                     note: "Travel booked by Admin"
                 }
             });
@@ -292,46 +305,47 @@ export const travelBooked = async (req: Request, res: Response, next: NextFuncti
             const { getNotificationTemplate } = await import("../services/notification-templates");
             const ns = new NotificationService();
 
-            if (updated.pandit?.id) {
+            if (updated.panditId) {
                 const pInfo = getNotificationTemplate("TRAVEL_BOOKED_PANDIT", {
                     id: updated.id.substring(0, 8).toUpperCase(),
                     mode: updated.travelMode ?? "Transport",
                     details: updated.travelNotes ?? "N/A",
                     reference: updated.travelBookingRef ?? "See app"
                 });
-                await ns.notify({ userId: updated.pandit.id, type: "TRAVEL_BOOKED", title: pInfo.title, message: pInfo.message, smsMessage: pInfo.smsMessage });
+                await ns.notify({ userId: updated.panditId, type: "TRAVEL_BOOKED", title: pInfo.title, message: pInfo.message, smsMessage: pInfo.smsMessage });
             }
 
-            if (updated.customer?.id) {
+            if (updated.customerId) {
                 const cInfo = getNotificationTemplate("TRAVEL_BOOKED", {
                     id: updated.id.substring(0, 8).toUpperCase(),
                     travelMode: updated.travelMode ?? "Transport",
                     details: updated.travelNotes ?? "N/A"
                 });
-                await ns.notify({ userId: updated.customer.id, type: "TRAVEL_BOOKED", title: cInfo.title, message: cInfo.message, smsMessage: cInfo.smsMessage });
+                await ns.notify({ userId: updated.customerId, type: "TRAVEL_BOOKED", title: cInfo.title, message: cInfo.message, smsMessage: cInfo.smsMessage });
             }
         } catch (e) {
             console.error("Failed to send travel booked notification", e);
         }
 
-        sendSuccess(res, updated);
+        return reply.send(successBody(updated));
     } catch (err) {
-        next(err);
+        throw err;
     }
 };
 
 // ========================== PANDIT QUEUE ==========================
 
-export const getPanditsAdmin = async (req: Request, res: Response, next: NextFunction) => {
+export const getPanditsAdmin = async (request: FastifyRequest, reply: FastifyReply) => {
     try {
-        const page = Math.max(1, Number(req.query.page) || 1);
-        const limit = Math.min(50, Math.max(1, Number(req.query.limit) || 20));
+        const query = request.query as Record<string, string | undefined>;
+        const page = Math.max(1, Number(query.page) || 1);
+        const limit = Math.min(50, Math.max(1, Number(query.limit) || 20));
         const skip = (page - 1) * limit;
 
-        const status = req.query.status as string;
-        const search = req.query.search as string;
+        const status = query.status;
+        const search = query.search;
 
-        const where: any = {};
+        const where: Record<string, unknown> = {};
         if (status) {
             if (status === "pending") {
                 where.verificationStatus = { in: ["DOCUMENTS_SUBMITTED", "VIDEO_KYC_DONE"] };
@@ -390,15 +404,16 @@ export const getPanditsAdmin = async (req: Request, res: Response, next: NextFun
             avgWaitHours = Math.floor(Math.round(totalWaitTimeMs / totalPending) / (1000 * 60 * 60));
         }
 
-        sendPaginated(res, pandits, total, page, limit, { totalPending, oldestPendingDays, avgWaitHours });
+        return reply.send(paginatedBody(pandits, total, page, limit, "Success"));
     } catch (err) {
-        next(err);
+        throw err;
     }
 };
 
-export const getPanditAdminDetail = async (req: Request, res: Response, next: NextFunction) => {
+export const getPanditAdminDetail = async (request: FastifyRequest, reply: FastifyReply) => {
     try {
-        const panditId = req.params.panditId;
+        const params = request.params as Record<string, string>;
+        const panditId = params.panditId;
         const pandit = await prisma.panditProfile.findUnique({
             where: { id: panditId },
             include: {
@@ -409,12 +424,12 @@ export const getPanditAdminDetail = async (req: Request, res: Response, next: Ne
         });
 
         if (!pandit) {
-            return next(new AppError("Pandit not found", 404, "NOT_FOUND"));
+            throw new AppError("Pandit not found", 404, "NOT_FOUND");
         }
 
-        sendSuccess(res, pandit);
+        return reply.send(successBody(pandit));
     } catch (err) {
-        next(err);
+        throw err;
     }
 };
 
@@ -425,10 +440,11 @@ const verifySchema = z.object({
     requestedDocuments: z.array(z.string()).optional(),
 });
 
-export const updatePanditVerification = async (req: Request, res: Response, next: NextFunction) => {
+export const updatePanditVerification = async (request: FastifyRequest, reply: FastifyReply) => {
     try {
-        const { action, reason, notes, requestedDocuments } = verifySchema.parse(req.body);
-        const panditId = req.params.panditId;
+        const { action, reason, notes, requestedDocuments } = verifySchema.parse(request.body);
+        const params = request.params as Record<string, string>;
+        const panditId = params.panditId;
 
         const pandit = await prisma.panditProfile.findUnique({
             where: { id: panditId },
@@ -437,8 +453,8 @@ export const updatePanditVerification = async (req: Request, res: Response, next
 
         if (!pandit) throw new AppError("Pandit not found", 404, "NOT_FOUND");
 
-        let verificationStatus: any = pandit.verificationStatus;
-        const updateData: any = {};
+        let verificationStatus: string = pandit.verificationStatus;
+        const updateData: Record<string, unknown> = {};
 
         if (notes !== undefined) {
             updateData.adminNotes = notes;
@@ -448,7 +464,8 @@ export const updatePanditVerification = async (req: Request, res: Response, next
             verificationStatus = "VERIFIED";
             updateData.profileCompletionPercent = 100;
             updateData.verifiedAt = new Date();
-            updateData.verifiedById = req.user?.id || "admin";
+            const authRequest = request as FastifyRequest & { user?: { id: string } };
+            updateData.verifiedById = authRequest.user?.id || "admin";
         } else if (action === "REJECT") {
             verificationStatus = "REJECTED";
             if (reason) updateData.rejectionReason = reason;
@@ -482,47 +499,48 @@ export const updatePanditVerification = async (req: Request, res: Response, next
             console.error("Failed to send verification notification", err);
         }
 
-        sendSuccess(res, updated);
+        return reply.send(successBody(updated));
     } catch (err) {
-        next(err);
+        throw err;
     }
 };
 
 // ========================== ALL BOOKINGS ==========================
 
-export const getAllBookingsAdmin = async (req: Request, res: Response, next: NextFunction) => {
+export const getAllBookingsAdmin = async (request: FastifyRequest, reply: FastifyReply) => {
     try {
-        const page = Math.max(1, Number(req.query.page) || 1);
-        const limit = Math.min(50, Math.max(1, Number(req.query.limit) || 20));
+        const query = request.query as Record<string, string | undefined>;
+        const page = Math.max(1, Number(query.page) || 1);
+        const limit = Math.min(50, Math.max(1, Number(query.limit) || 20));
         const skip = (page - 1) * limit;
 
-        const { status, dateFrom, dateTo, city, pandit, customer, paymentStatus, travelStatus } = req.query;
+        const { status, dateFrom, dateTo, city, pandit, customer, paymentStatus, travelStatus } = query;
 
-        const where: any = {};
-        if (status) where.status = { in: (status as string).split(",") };
+        const where: Record<string, unknown> = {};
+        if (status) where.status = { in: status.split(",") };
         if (dateFrom && dateTo) {
             where.eventDate = {
-                gte: new Date(dateFrom as string),
-                lte: new Date(dateTo as string)
+                gte: new Date(dateFrom),
+                lte: new Date(dateTo)
             };
         }
-        if (city) where.venueCity = { contains: city as string, mode: "insensitive" };
+        if (city) where.venueCity = { contains: city, mode: "insensitive" };
         if (paymentStatus) where.paymentStatus = paymentStatus;
         if (travelStatus) where.travelStatus = travelStatus;
 
         if (pandit) {
             where.pandit = {
                 OR: [
-                    { name: { contains: pandit as string, mode: "insensitive" } },
-                    { phone: { contains: pandit as string } }
+                    { name: { contains: pandit, mode: "insensitive" } },
+                    { phone: { contains: pandit } }
                 ]
             };
         }
         if (customer) {
             where.customer = {
                 OR: [
-                    { name: { contains: customer as string, mode: "insensitive" } },
-                    { phone: { contains: customer as string } }
+                    { name: { contains: customer, mode: "insensitive" } },
+                    { phone: { contains: customer } }
                 ]
             };
         }
@@ -561,18 +579,21 @@ export const getAllBookingsAdmin = async (req: Request, res: Response, next: Nex
         try {
             totalGmvNumber = Number(totalGmv);
             thisMonthGmvNumber = Number(thisMonthGmv);
-        } catch (e) { }
+        } catch (e) {
+            logger.warn('Failed to parse GMV numbers:', e);
+        }
 
-        sendPaginated(res, bookings, total, page, limit, { totalGmv: totalGmvNumber, thisMonthGmv: thisMonthGmvNumber });
+        return reply.send(paginatedBody(bookings, total, page, limit, "Success"));
     } catch (err) {
-        next(err);
+        throw err;
     }
 };
 
-export const getBookingAdminDetail = async (req: Request, res: Response, next: NextFunction) => {
+export const getBookingAdminDetail = async (request: FastifyRequest, reply: FastifyReply) => {
     try {
+        const params = request.params as Record<string, string>;
         const booking = await prisma.booking.findUnique({
-            where: { id: req.params.bookingId },
+            where: { id: params.bookingId },
             include: {
                 customer: { include: { customerProfile: true } },
                 pandit: { include: { panditProfile: true } },
@@ -585,54 +606,57 @@ export const getBookingAdminDetail = async (req: Request, res: Response, next: N
 
         if (!booking) throw new AppError("Booking not found", 404);
 
-        sendSuccess(res, booking);
+        return reply.send(successBody(booking));
     } catch (err) {
-        next(err);
+        throw err;
     }
 };
 
-export const updateBookingStatusAdmin = async (req: Request, res: Response, next: NextFunction) => {
+export const updateBookingStatusAdmin = async (request: FastifyRequest, reply: FastifyReply) => {
     try {
-        const { status, notes } = req.body;
+        const params = request.params as Record<string, string>;
+        const { status, notes } = request.body as Record<string, string>;
         if (!status) throw new AppError("Status is required", 400);
 
-        const booking = await prisma.booking.findUnique({ where: { id: req.params.id } });
+        const booking = await prisma.booking.findUnique({ where: { id: params.id } });
         if (!booking) throw new AppError("Booking not found", 404);
 
         const updated = await prisma.booking.update({
-            where: { id: req.params.id },
+            where: { id: params.id },
             data: {
-                status,
+                status: status as any, // Will be validated by Zod schema upstream
                 ...(notes && { adminNotes: (booking.adminNotes ? booking.adminNotes + "\n" : "") + `[${new Date().toISOString()}] ${notes}` })
             }
         });
 
+        const authRequest = request as FastifyRequest & { user: { id: string } };
         await prisma.bookingStatusUpdate.create({
             data: {
                 bookingId: updated.id,
                 fromStatus: booking.status,
-                toStatus: status,
-                updatedById: req.user!.id,
+                toStatus: status as any,
+                updatedById: authRequest.user!.id,
                 note: notes || "Admin changed status manually"
             }
         });
 
-        sendSuccess(res, updated);
+        return reply.send(successBody(updated));
     } catch (err) {
-        next(err);
+        throw err;
     }
 };
 
-export const reassignPanditAdmin = async (req: Request, res: Response, next: NextFunction) => {
+export const reassignPanditAdmin = async (request: FastifyRequest, reply: FastifyReply) => {
     try {
-        const { newPanditId, reason } = req.body;
+        const params = request.params as Record<string, string>;
+        const { newPanditId, reason } = request.body as Record<string, string>;
         if (!newPanditId) throw new AppError("newPanditId is required", 400);
 
-        const booking = await prisma.booking.findUnique({ where: { id: req.params.id } });
+        const booking = await prisma.booking.findUnique({ where: { id: params.id } });
         if (!booking) throw new AppError("Booking not found", 404);
 
         const updated = await prisma.booking.update({
-            where: { id: req.params.id },
+            where: { id: params.id },
             data: {
                 panditId: newPanditId,
                 status: "PANDIT_REQUESTED",
@@ -640,32 +664,34 @@ export const reassignPanditAdmin = async (req: Request, res: Response, next: Nex
             }
         });
 
+        const authRequest = request as FastifyRequest & { user: { id: string } };
         await prisma.bookingStatusUpdate.create({
             data: {
                 bookingId: updated.id,
                 fromStatus: booking.status,
                 toStatus: "PANDIT_REQUESTED",
-                updatedById: req.user!.id,
+                updatedById: authRequest.user!.id,
                 note: `Reassigned pandit. Reason: ${reason}`
             }
         });
 
-        sendSuccess(res, updated, "Pandit reassigned successfully");
+        return reply.send(successBody(updated, "Pandit reassigned successfully"));
     } catch (err) {
-        next(err);
+        throw err;
     }
 };
 
 // ========================== SUPPORT TICKETS ==========================
 
-export const getSupportTickets = async (req: Request, res: Response, next: NextFunction) => {
+export const getSupportTickets = async (request: FastifyRequest, reply: FastifyReply) => {
     try {
-        const page = Math.max(1, Number(req.query.page) || 1);
-        const limit = Math.min(50, Math.max(1, Number(req.query.limit) || 20));
+        const query = request.query as Record<string, string | undefined>;
+        const page = Math.max(1, Number(query.page) || 1);
+        const limit = Math.min(50, Math.max(1, Number(query.limit) || 20));
         const skip = (page - 1) * limit;
 
-        const { status, priority } = req.query;
-        const where: any = {};
+        const { status, priority } = query;
+        const where: Record<string, unknown> = {};
         if (status) where.status = status;
         if (priority) where.priority = priority;
 
@@ -679,9 +705,9 @@ export const getSupportTickets = async (req: Request, res: Response, next: NextF
             prisma.supportTicket.count({ where })
         ]);
 
-        sendPaginated(res, tickets, total, page, limit);
+        return reply.send(paginatedBody(tickets, total, page, limit));
     } catch (err) {
-        next(err);
+        throw err;
     }
 };
 
@@ -696,18 +722,19 @@ const createTicketSchema = z.object({
     relatedUserId: z.string().optional().nullable(),
 });
 
-export const createSupportTicket = async (req: Request, res: Response, next: NextFunction) => {
+export const createSupportTicket = async (request: FastifyRequest, reply: FastifyReply) => {
     try {
-        const data = createTicketSchema.parse(req.body);
+        const data = createTicketSchema.parse(request.body);
+        const authRequest = request as FastifyRequest & { user: { id: string } };
         const ticket = await prisma.supportTicket.create({
             data: {
                 ...data,
-                createdBy: req.user!.id
+                createdBy: authRequest.user!.id
             }
         });
-        sendSuccess(res, ticket, "Ticket created", 201);
+        return reply.code(201).send(successBody(ticket, "Ticket created"));
     } catch (err) {
-        next(err);
+        throw err;
     }
 };
 
@@ -717,15 +744,16 @@ const updateTicketSchema = z.object({
     resolution: z.string().optional(),
 });
 
-export const updateSupportTicket = async (req: Request, res: Response, next: NextFunction) => {
+export const updateSupportTicket = async (request: FastifyRequest, reply: FastifyReply) => {
     try {
-        const data = updateTicketSchema.parse(req.body);
+        const params = request.params as Record<string, string>;
+        const data = updateTicketSchema.parse(request.body);
         const ticket = await prisma.supportTicket.update({
-            where: { id: req.params.id },
+            where: { id: params.id },
             data
         });
-        sendSuccess(res, ticket);
+        return reply.send(successBody(ticket));
     } catch (err) {
-        next(err);
+        throw err;
     }
 };

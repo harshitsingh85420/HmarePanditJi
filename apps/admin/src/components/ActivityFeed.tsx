@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { formatDistanceToNow } from "date-fns";
 import Link from "next/link";
+import { ADMIN_TOKEN_KEY } from '@hmarepanditji/utils';
 
 interface FeedItem {
     id: string;
@@ -16,7 +17,7 @@ export default function ActivityFeed() {
 
     useEffect(() => {
         fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/activity-feed?limit=20`, {
-            headers: { Authorization: `Bearer ${localStorage.getItem("adminToken") || ""}` }
+            headers: { Authorization: `Bearer ${localStorage.getItem(ADMIN_TOKEN_KEY) || ""}` }
         })
             .then(res => res.json())
             .then(data => {
@@ -26,6 +27,7 @@ export default function ActivityFeed() {
                 setLoading(false);
             })
             .catch(() => setLoading(false));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     if (loading) {

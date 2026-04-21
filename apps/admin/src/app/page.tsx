@@ -8,7 +8,7 @@ export default function AdminDashboardPage() {
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem(adminToken) || ;
+    const token = localStorage.getItem("adminToken") || "";
     fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/dashboard-stats`, { headers: { Authorization: `Bearer ${token}` } })
       .then(async (res) => {
         const statsData = await res.json();
@@ -29,7 +29,7 @@ export default function AdminDashboardPage() {
             <span className="material-symbols-outlined text-[#f49d25]">calendar_month</span>
           </div>
           <div className="flex items-end gap-2">
-            <p className="text-3xl font-bold">{stats?.todaysBookings?.total || 1,245}</p>
+            <p className="text-3xl font-bold">{stats?.todaysBookings?.total || 1245}</p>
             <p className="text-[#0bda19] text-sm font-medium mb-1">+12%</p>
           </div>
         </div>
@@ -62,7 +62,7 @@ export default function AdminDashboardPage() {
             <span className="material-symbols-outlined text-[#f49d25]">payments</span>
           </div>
           <div className="flex items-end gap-2">
-            <p className="text-3xl font-bold">₹{stats?.monthlyRevenue?.current ? (stats.monthlyRevenue.current / 100000).toFixed(1) + 'L' : 82.4L}</p>
+            <p className="text-3xl font-bold">₹{stats?.monthlyRevenue?.current ? (stats.monthlyRevenue.current / 100000).toFixed(1) + 'L' : "82.4L"}</p>
             <p className="text-[#0bda19] text-sm font-medium mb-1">
               +{stats?.monthlyRevenue?.percentChange || 18}%
             </p>
@@ -111,7 +111,7 @@ export default function AdminDashboardPage() {
                   <h4 className="font-bold text-sm dark:text-white">Pandit Sharma Ji</h4>
                   <span className="px-2 py-0.5 rounded bg-[#fa3f38] text-white text-[10px] font-bold">45m DELAY</span>
                 </div>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">Route: Indore -> Ujjain (Mahakal Puja)</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">Route: Indore &rarr; Ujjain (Mahakal Puja)</p>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] font-bold text-[#f49d25] uppercase">Backup Status:</span>
@@ -127,7 +127,7 @@ export default function AdminDashboardPage() {
                   <h4 className="font-bold text-sm dark:text-white">Pandit Dubey Ji</h4>
                   <span className="px-2 py-0.5 rounded bg-[#fa3f38] text-white text-[10px] font-bold">20m DELAY</span>
                 </div>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">Route: Bhopal -> Vidisha (Havan)</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">Route: Bhopal &rarr; Vidisha (Havan)</p>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] font-bold text-[#f49d25] uppercase">Backup Status:</span>

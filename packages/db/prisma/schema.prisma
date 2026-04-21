@@ -353,6 +353,7 @@ model Booking {
   cancellationReason      String?
   cancellationRequestedAt DateTime?
   cancelledAt             DateTime?
+  adminNotes              String?      @db.Text
   refundAmount            Int          @default(0)
   refundStatus            RefundStatus @default(NONE)
   refundReference         String?

@@ -182,10 +182,13 @@ export function startAmbientNoiseMonitoring(
 
           // Update store with current noise level
           try {
-            // eslint-disable-next-line @typescript-eslint/no-var-requires
+            // eslint-disable-next-line @typescript-eslint/no-require-imports
             const { useVoiceStore } = require('@/stores/voiceStore')
             useVoiceStore.getState().setAmbientNoise(Math.round(noiseLevel))
-          } catch { /* Store not available */ }
+          } catch (error) {
+            console.warn('[VoiceEngine] Failed to update voice store:', error);
+            /* Store not available */
+          }
 
           // BUG-MEDIUM-04 FIX: Rolling average to prevent false triggers from spurious spikes
           noiseBuffer.push(noiseLevel)
@@ -247,7 +250,7 @@ export function stopAmbientNoiseMonitoring(): void {
 export function getCurrentNoiseLevel(): number {
   if (typeof window === 'undefined') return 0
   try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { getAmbientNoiseLevel } = require('@/stores/voiceStore')
     return getAmbientNoiseLevel()
   } catch {
@@ -799,7 +802,7 @@ export function startListening(config: VoiceEngineConfig): () => void {
   }
 
   if (recognition) {
-    try { recognition.stop() } catch { /* noop */ }
+    try { recognition.stop() } catch (error) { console.warn('[VoiceEngine] recognition.stop() failed:', error); /* noop */ }
     recognition = null
   }
 
@@ -876,7 +879,7 @@ export function startListening(config: VoiceEngineConfig): () => void {
 
   listenTimeout = setTimeout(() => {
     if (recognition) {
-      try { recognition.stop() } catch { /* noop */ }
+      try { recognition.stop() } catch (error) { console.warn('[VoiceEngine] recognition.stop() in timeout failed:', error); /* noop */ }
       recognition = null
     }
     setGlobalVoiceState('IDLE')
@@ -887,7 +890,7 @@ export function startListening(config: VoiceEngineConfig): () => void {
   return () => {
     clearListenTimeout()
     if (recognition) {
-      try { recognition.stop() } catch { /* noop */ }
+      try { recognition.stop() } catch (error) { console.warn('[VoiceEngine] recognition.stop() in cleanup failed:', error); /* noop */ }
       recognition = null
     }
   }
@@ -903,7 +906,7 @@ function clearListenTimeout(): void {
 export function stopListening(): void {
   clearListenTimeout()
   if (recognition) {
-    try { recognition.stop() } catch { /* noop */ }
+    try { recognition.stop() } catch (error) { console.warn('[VoiceEngine] recognition.stop() in stopListening failed:', error); /* noop */ }
     recognition = null
   }
   if (globalVoiceState === 'LISTENING' || globalVoiceState === 'PROCESSING') {
@@ -955,7 +958,7 @@ export function startListeningWithSarvam(config: VoiceEngineConfig): () => void 
   } = config
 
   // Check if Sarvam should be used (and is available)
-  const shouldUseSarvam = useSarvam && process.env.NEXT_PUBLIC_SARVAM_API_KEY
+  const shouldUseSarvam = useSarvam && typeof window !== 'undefined'; // Use Sarvam if requested (backend will validate)
 
   if (!shouldUseSarvam) {
     // Fall back to Web Speech API
@@ -1059,14 +1062,14 @@ export function startListeningWithSarvam(config: VoiceEngineConfig): () => void 
  * Check if Sarvam AI is configured and available
  */
 export function isSarvamAvailable(): boolean {
-  return !!(typeof window !== 'undefined' && process.env.NEXT_PUBLIC_SARVAM_API_KEY && sttEngine)
+  return !!(typeof window !== 'undefined' && sttEngine)
 }
 
 /**
  * Check if Deepgram AI is configured and available
  */
 export function isDeepgramAvailable(): boolean {
-  return !!(typeof window !== 'undefined' && process.env.NEXT_PUBLIC_DEEPGRAM_API_KEY && deepgramEngine)
+  return !!(typeof window !== 'undefined' && deepgramEngine)
 }
 
 /**

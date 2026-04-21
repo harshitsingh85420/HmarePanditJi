@@ -25,6 +25,7 @@ import LanguageConfirmScreen from './screens/LanguageConfirmScreen'
 import LanguageListScreen from './screens/LanguageListScreen'
 import LanguageChoiceConfirmScreen from './screens/LanguageChoiceConfirmScreen'
 import LanguageSetScreen from './screens/LanguageSetScreen'
+import ScriptChoiceScreen from './screens/ScriptChoiceScreen'
 import HelpScreen from './screens/HelpScreen'
 import VoiceTutorialScreen from './screens/VoiceTutorialScreen'
 import MicPermissionScreen from './screens/MicPermissionScreen'
@@ -55,17 +56,16 @@ function OnboardingContent() {
   const [showLanguageSheet, setShowLanguageSheet] = useState(false)
   const [isMounted, setIsMounted] = useState(false)
   const [showMicPermission, setShowMicPermission] = useState(false)
+  const [pendingScriptPreference, setPendingScriptPreference] = useState<'native' | 'latin' | null>(null)
   const [showMicDeniedRecovery, setShowMicDeniedRecovery] = useState(false)
 
   // Enable wake lock during onboarding to prevent screen sleep
   useWakeLock(true)
 
   useEffect(() => {
-    console.log('[Onboarding] useEffect running, current phase:', state.phase)
     // Check for reset parameter (for testing or restarting)
     const resetParam = searchParams?.get('reset')
     if (resetParam === 'true') {
-      console.log('[Onboarding] Reset parameter found, clearing state')
       // Clear onboarding state and start fresh
       clearOnboardingState()
       setState({ ...DEFAULT_STATE, firstEverOpen: true })
@@ -88,11 +88,9 @@ function OnboardingContent() {
     // A user landing on /onboarding should ALWAYS start from the beginning
     // Only restore state if user was in middle of TUTORIAL (not language selection or location)
     const saved = loadOnboardingState()
-    console.log('[Onboarding] Loaded saved state:', saved)
 
     // Check if user was in middle of tutorial screens (TUTORIAL_* phases)
     const isInTutorial = saved.phase.startsWith('TUTORIAL_')
-    console.log('[Onboarding] isInTutorial:', isInTutorial)
 
     // FORCE SPLASH phase for all users except those in middle of tutorial
     if (isInTutorial && saved.tutorialStarted && saved.selectedLanguage) {
@@ -121,6 +119,12 @@ function OnboardingContent() {
     }
   }, [state.phase, state.tutorialCompleted, router])
 
+  // Navigate to Customer App login page
+  const navigateToCustomerApp = useCallback(() => {
+    const customerAppUrl = process.env.NEXT_PUBLIC_WEB_URL || 'http://localhost:3000'
+    window.location.href = `${customerAppUrl}/login`
+  }, [])
+
   const updateState = useCallback((updates: Partial<OnboardingState>) => {
     setState(prev => {
       const next = { ...prev, ...updates }
@@ -148,9 +152,15 @@ function OnboardingContent() {
   }, [state.phase, updateState])
 
   const handleTutorialBack = useCallback(() => {
+    // Special case: First tutorial screen goes back to Script Choice
+    if (state.phase === 'TUTORIAL_SWAGAT') {
+      console.log('[Onboarding] Back from first tutorial, going to Script Choice');
+      updateState({ phase: 'SCRIPT_CHOICE' });
+      return;
+    }
     const prev = getPrevTutorialPhase(state.phase)
     updateState({ phase: prev, currentTutorialScreen: getTutorialDotNumber(prev) })
-  }, [state.phase, updateState])
+  }, [state.phase, updateState]);
 
   // BUG-008 FIX: Skip directly to registration without double navigation
   const handleTutorialSkip = useCallback(() => {
@@ -213,8 +223,12 @@ function OnboardingContent() {
   }, [updateState])
 
   const handleLanguageConfirmToList = useCallback(() => {
-    goToPhase('LANGUAGE_LIST')
-  }, [goToPhase])
+    // Open the language bottom sheet instead of navigating to LANGUAGE_LIST
+    stopSpeaking()
+    if (typeof window !== 'undefined') {
+      setShowLanguageSheet(true)
+    }
+  }, [])
 
   const handleLanguageListToChoiceConfirm = useCallback((lang: SupportedLanguage) => {
     updateState({
@@ -238,35 +252,82 @@ function OnboardingContent() {
     updateState({ pendingLanguage: null, phase: 'LANGUAGE_LIST' })
   }, [updateState])
 
-  const handleLanguageSetToVoiceTutorial = useCallback(() => {
-    if (state.firstEverOpen && !state.voiceTutorialSeen) {
-      // Show mic permission screen first for first-time users
-      setShowMicPermission(true)
-      updateState({
-        voiceTutorialSeen: true,
-        phase: 'VOICE_TUTORIAL',
-      })
-    } else {
-      updateState({ phase: 'TUTORIAL_SWAGAT' })
+  const handleLanguageSetToScriptChoice = useCallback(() => {
+    updateState({ phase: 'SCRIPT_CHOICE' })
+  }, [updateState])
+
+  const handleScriptChoiceToVoiceTutorial = useCallback((scriptPref: 'native' | 'latin') => {
+    // Set pending script preference IMMEDIATELY (not waiting for setState)
+    setPendingScriptPreference(scriptPref);
+
+    const isFirstTime = state.firstEverOpen && !state.voiceTutorialSeen;
+
+    // For first-time users: DON'T change phase (stay on SCRIPT_CHOICE), just show mic overlay
+    if (isFirstTime) {
+      setShowMicPermission(true);
+      return; // Don't update state.phase yet
     }
-  }, [state.firstEverOpen, state.voiceTutorialSeen, updateState])
+
+    // For returning users: just go to tutorial
+    setState(prev => ({
+      ...prev,
+      scriptPreference: scriptPref,
+      phase: 'TUTORIAL_SWAGAT' as OnboardingPhase,
+    }));
+  }, [state.firstEverOpen, state.voiceTutorialSeen]);
+
+  const handleLanguageSetToVoiceTutorial = useCallback(() => {
+    // Skip mic permission - already done or not first time
+    // Go directly to tutorial
+    updateState({ phase: 'TUTORIAL_SWAGAT' })
+  }, [updateState])
 
   // ─── MIC PERMISSION HANDLERS ───────────────────────────
 
   const handleMicPermissionGranted = useCallback(() => {
-    setShowMicPermission(false)
-    handleLanguageSetToVoiceTutorial()
-  }, [handleLanguageSetToVoiceTutorial])
+    console.log('[Onboarding] Mic permission GRANTED, proceeding to tutorial');
+    const scriptPref = pendingScriptPreference || state.scriptPreference;
+    console.log('[Onboarding] Using scriptPreference:', scriptPref);
+    setShowMicPermission(false);
+    setPendingScriptPreference(null);
+    // NOW update state with script preference and phase
+    setState(prev => ({
+      ...prev,
+      scriptPreference: scriptPref,
+      voiceTutorialSeen: true,
+      phase: 'TUTORIAL_SWAGAT' as OnboardingPhase,
+    }));
+  }, [pendingScriptPreference, state.scriptPreference]);
 
   const handleMicPermissionDenied = useCallback(() => {
-    setShowMicPermission(false)
-    setShowMicDeniedRecovery(true)
-  }, [])
+    console.log('[Onboarding] Mic permission DENIED, going to tutorial with keyboard mode');
+    const scriptPref = pendingScriptPreference || state.scriptPreference;
+    console.log('[Onboarding] Preserving scriptPreference:', scriptPref);
+    setShowMicPermission(false);
+    setPendingScriptPreference(null);
+    // Preserve script preference and go directly to tutorial
+    setState(prev => ({
+      ...prev,
+      scriptPreference: scriptPref,
+      voiceTutorialSeen: true,
+      phase: 'TUTORIAL_SWAGAT' as OnboardingPhase,
+    }));
+  }, [pendingScriptPreference, state.scriptPreference]);
 
   const handleContinueWithKeyboard = useCallback(() => {
-    setShowMicDeniedRecovery(false)
-    handleLanguageSetToVoiceTutorial()
-  }, [handleLanguageSetToVoiceTutorial])
+    console.log('[Onboarding] Continue with keyboard clicked');
+    const scriptPref = pendingScriptPreference || state.scriptPreference;
+    console.log('[Onboarding] Using scriptPreference:', scriptPref);
+    setShowMicDeniedRecovery(false);
+    setPendingScriptPreference(null);
+    // Update state with script preference and go to tutorial
+    setState(prev => ({
+      ...prev,
+      scriptPreference: scriptPref,
+      voiceTutorialSeen: true,
+      phase: 'TUTORIAL_SWAGAT' as OnboardingPhase,
+    }));
+  }, [pendingScriptPreference, state.scriptPreference]);
 
   const handleRetryMicPermission = useCallback(() => {
     setShowMicDeniedRecovery(false)
@@ -299,7 +360,12 @@ function OnboardingContent() {
   // ─── RENDER ───────────────────────────────────────────────
 
   if (!isLoaded) {
-    return null
+    // Show a minimal splash placeholder while loading
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-saffron to-saffron-light flex items-center justify-center">
+        <span className="text-white text-6xl animate-pulse">ॐ</span>
+      </div>
+    )
   }
 
   const commonProps = {
@@ -309,20 +375,20 @@ function OnboardingContent() {
 
   const tutorialProps = {
     ...commonProps,
+    scriptPreference: state.scriptPreference,
     currentDot: getTutorialDotNumber(state.phase),
     onNext: handleTutorialNext,
     onBack: handleTutorialBack,
     onSkip: handleTutorialSkip,
   }
 
-  // Force re-render when phase or language changes
-  const screenKey = `${state.phase}-${state.selectedLanguage}`
+  // Force re-render when phase, language, or script preference changes
+  const screenKey = `${state.phase}-${state.selectedLanguage}-${state.scriptPreference ?? 'none'}`
 
   const renderScreen = () => {
-    console.log('[Onboarding] renderScreen, current phase:', state.phase)
     switch (state.phase) {
       case 'SPLASH':
-        return <SplashScreen key={screenKey} onComplete={handleSplashToLocation} />
+        return <SplashScreen key={screenKey} onComplete={handleSplashToLocation} onExit={navigateToCustomerApp} />
 
       case 'LOCATION_PERMISSION':
         return (
@@ -330,8 +396,8 @@ function OnboardingContent() {
             key={screenKey}
             {...commonProps}
             onGranted={handleLocationToLanguageConfirm}
-            onDenied={handleLocationToManual}
-            onBack={() => goToPhase('SPLASH')}
+            onDenied={() => goToPhase('TUTORIAL_SWAGAT')}
+            onBack={() => navigateToCustomerApp()}
           />
         )
 
@@ -353,6 +419,7 @@ function OnboardingContent() {
             detectedCity={state.detectedCity || ''}
             onConfirm={handleLanguageConfirmToSet}
             onChange={handleLanguageConfirmToList}
+            onBack={() => goToPhase('LOCATION_PERMISSION')}
           />
         )
 
@@ -361,8 +428,9 @@ function OnboardingContent() {
           <LanguageListScreen
             key={screenKey}
             {...commonProps}
+            scriptPreference={state.scriptPreference}
             onSelect={handleLanguageListToChoiceConfirm}
-            onBack={() => goToPhase('LANGUAGE_CONFIRM')}
+            onBack={() => goToPhase('LOCATION_PERMISSION')}
           />
         )
 
@@ -371,20 +439,39 @@ function OnboardingContent() {
           <LanguageChoiceConfirmScreen
             key={screenKey}
             {...commonProps}
+            scriptPreference={state.scriptPreference}
             pendingLanguage={state.pendingLanguage ?? 'Hindi'}
             onConfirm={handleLanguageChoiceConfirmToSet}
             onReject={handleLanguageChoiceRejectToList}
+            onBack={() => goToPhase('LOCATION_PERMISSION')}
           />
         )
 
       case 'LANGUAGE_SET':
-        return <LanguageSetScreen key={screenKey} language={state.selectedLanguage} onComplete={handleLanguageSetToVoiceTutorial} />
+        return <LanguageSetScreen key={screenKey} language={state.selectedLanguage} onComplete={handleLanguageSetToScriptChoice} />
+
+      case 'SCRIPT_CHOICE':
+        return (
+          <ScriptChoiceScreen
+            key={screenKey}
+            language={state.selectedLanguage}
+            onChooseNative={() => handleScriptChoiceToVoiceTutorial('native')}
+            onChooseLatin={() => handleScriptChoiceToVoiceTutorial('latin')}
+            onChangeLanguage={() => {
+              stopSpeaking()
+              if (typeof window !== 'undefined') {
+                setShowLanguageSheet(true)
+              }
+            }}
+            onBack={() => goToPhase('LANGUAGE_CONFIRM')}
+          />
+        )
 
       case 'HELP':
         return <HelpScreen key={screenKey} />
 
       case 'VOICE_TUTORIAL':
-        return <VoiceTutorialScreen key={screenKey} {...commonProps} onComplete={handleLanguageSetToVoiceTutorial} />
+        return <VoiceTutorialScreen key={screenKey} {...commonProps} scriptPreference={state.scriptPreference} onComplete={handleLanguageSetToVoiceTutorial} />
 
       case 'TUTORIAL_SWAGAT':
         return <TutorialSwagat key={`${screenKey}-swagat`} {...tutorialProps} />
@@ -429,8 +516,14 @@ function OnboardingContent() {
       {showMicPermission && (
         <MicPermissionScreen
           language={state.selectedLanguage}
+          scriptPreference={pendingScriptPreference ?? state.scriptPreference}
           onGranted={handleMicPermissionGranted}
           onDenied={handleMicPermissionDenied}
+          onBack={() => {
+            setShowMicPermission(false);
+            setPendingScriptPreference(null);
+            goToPhase('LANGUAGE_SET');
+          }}
         />
       )}
 

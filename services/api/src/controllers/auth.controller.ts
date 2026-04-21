@@ -1,10 +1,18 @@
-import { Request, Response } from "express";
+import { FastifyRequest, FastifyReply } from "fastify";
 import { z } from "zod";
 import jwt from "jsonwebtoken";
 import { prisma } from "../lib/prisma";
 import { env } from "../config/env";
-import { sendSuccess } from "../utils/response";
 import { AppError } from "../middleware/errorHandler";
+
+// Cookie configuration for HttpOnly tokens
+const AUTH_COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: env.NODE_ENV === "production",
+  sameSite: "strict" as const,
+  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  path: "/",
+};
 
 // Phase 1 simplification: In-memory OTP store
 type OTPRecord = {
@@ -17,7 +25,8 @@ const OTPStore = new Map<string, OTPRecord>();
 
 const phoneRegex = /^\+91[6-9]\d{9}$/;
 
-export const sendOtp = async (req: Request, res: Response) => {
+export const sendOtp = async (request: FastifyRequest, reply: FastifyReply) => {
+  const req = request as any;
   const { phone, role } = req.body;
 
   if (!phone || !phoneRegex.test(phone)) {
@@ -32,7 +41,6 @@ export const sendOtp = async (req: Request, res: Response) => {
   if (env.MOCK_OTP === "true") {
     console.log(`[MOCK OTP] Phone: ${phone}, OTP: ${otp}`);
   } else {
-    // In production: use Firebase Admin SDK to send real OTP
     console.log(`[MOCK OTP] Phone: ${phone}, OTP: ${otp} (Fallback since mock is off)`);
   }
 
@@ -43,10 +51,11 @@ export const sendOtp = async (req: Request, res: Response) => {
     expiresAt: Date.now() + 10 * 60 * 1000,
   });
 
-  return sendSuccess(res, { message: "OTP sent", expiresIn: 600 });
+  return reply.send({ success: true, data: { message: "OTP sent", expiresIn: 600 }, message: "Success" });
 };
 
-export const verifyOtp = async (req: Request, res: Response) => {
+export const verifyOtp = async (request: FastifyRequest, reply: FastifyReply) => {
+  const req = request as any;
   const { phone, otp, role, name } = req.body;
 
   if (!phone || !otp) {
@@ -184,33 +193,38 @@ export const verifyOtp = async (req: Request, res: Response) => {
   if (user.role === "PANDIT" && user.panditProfile) {
     profileCompleted = user.panditProfile.verificationStatus !== "PENDING";
   } else if (user.role === "CUSTOMER" && user.customerProfile) {
-    // any addresses?
     // @ts-ignore
     profileCompleted = user.customerProfile.addresses && user.customerProfile.addresses.length > 0;
   }
 
-  return sendSuccess(res, {
-    token,
-    user: {
-      id: user.id,
-      phone: user.phone,
-      role: user.role,
-      name: user.name,
-      isVerified: user.isVerified,
-      isNewUser,
-      profileCompleted,
-      ...(user.role === "PANDIT" && user.panditProfile ? {
-        panditProfile: {
-          verificationStatus: user.panditProfile.verificationStatus,
-          completedSteps: 0
-        }
-      } : {})
+  // MIGRATION 2: Set HttpOnly cookie instead of returning token in response
+  await reply.setCookie("hpj_token", token, AUTH_COOKIE_OPTIONS);
+
+  return reply.send({
+    success: true,
+    data: {
+      user: {
+        id: user.id,
+        phone: user.phone,
+        role: user.role,
+        name: user.name,
+        isVerified: user.isVerified,
+        isNewUser,
+        profileCompleted,
+        ...(user.role === "PANDIT" && user.panditProfile ? {
+          panditProfile: {
+            verificationStatus: user.panditProfile.verificationStatus,
+            completedSteps: 0
+          }
+        } : {})
+      },
     },
+    message: "Success"
   });
 };
 
-export const getMe = async (req: Request, res: Response) => {
-  // @ts-ignore
+export const getMe = async (request: FastifyRequest, reply: FastifyReply) => {
+  const req = request as any;
   const userId = req.user?.id || req.user?.userId;
 
   if (!userId) {
@@ -227,7 +241,6 @@ export const getMe = async (req: Request, res: Response) => {
       },
       panditProfile: {
         include: {
-          // count only for perf
           _count: {
             select: {
               pujaServices: true,
@@ -243,100 +256,86 @@ export const getMe = async (req: Request, res: Response) => {
     throw new AppError("User not found", 404);
   }
 
-  return sendSuccess(res, { user });
+  return reply.send({ success: true, data: { user }, message: "Success" });
 };
 
-export const updateMe = async (req: Request, res: Response) => {
-  // @ts-ignore
+export const updateMe = async (request: FastifyRequest, reply: FastifyReply) => {
+  const req = request as any;
   const userId = req.user?.id || req.user?.userId;
 
   if (!userId) {
     throw new AppError("Unauthorized", 401);
   }
 
-  const { name, email, preferredLanguages, gotra } = req.body;
-
-  let existingUser = await prisma.user.findUnique({
-    where: { id: userId },
+  const schema = z.object({
+    name: z.string().min(2).max(100).optional(),
+    email: z.string().email().optional().nullable(),
   });
 
-  if (!existingUser) {
-    throw new AppError("User not found", 404);
-  }
+  const { name, email } = schema.parse(req.body);
 
-  const updatedUser = await prisma.user.update({
+  const user = await prisma.user.update({
     where: { id: userId },
-    data: {
-      name: name !== undefined ? name : undefined,
-      email: email !== undefined ? email : undefined,
-    },
+    data: { name, email },
     include: {
-      customerProfile: true,
-      panditProfile: true,
-    }
-  });
-
-  if (existingUser.role === "CUSTOMER" && (preferredLanguages || gotra)) {
-    const updateData: any = {};
-    if (preferredLanguages) updateData.preferredLanguages = preferredLanguages;
-    if (gotra) updateData.gotra = gotra;
-
-    await prisma.customerProfile.upsert({
-      where: { userId },
-      update: updateData,
-      create: {
-        userId,
-        ...updateData,
+      customerProfile: {
+        include: {
+          addresses: true,
+        },
       },
-    });
-  }
-
-  // fetch full updated obj
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    include: {
-      customerProfile: true,
       panditProfile: true,
-    }
+    },
   });
 
-  return sendSuccess(res, { user });
+  return reply.send({ success: true, data: { user }, message: "Success" });
 };
 
-export const adminLogin = async (req: Request, res: Response) => {
-  const { email, password } = req.body;
+export const logout = async (_request: FastifyRequest, reply: FastifyReply) => {
+  // Clear HttpOnly cookie
+  await reply.clearCookie("hpj_token", { path: "/" });
+  return reply.send({ success: true, data: { message: "Logged out successfully" }, message: "Success" });
+};
 
-  if (email === "admin@hmarepanditji.com" && password === "admin123") {
-    let adminUser = await prisma.user.findFirst({
-      where: { role: "ADMIN", email: "admin@hmarepanditji.com" }
-    });
+export const adminLogin = async (request: FastifyRequest, reply: FastifyReply) => {
+  const req = request as any;
+  const { username, password } = req.body;
 
-    if (!adminUser) {
-      adminUser = await prisma.user.create({
-        data: {
-          phone: "+910000000000",
-          email: "admin@hmarepanditji.com",
-          name: "Admin",
-          role: "ADMIN",
-          isVerified: true
-        }
-      });
-    }
+  const adminUsers = JSON.parse(env.ADMIN_USERS) as Array<{ username: string; password: string }>;
+  const adminUser = adminUsers.find(
+    (u: { username: string; password: string }) => u.username === username && u.password === password
+  );
 
-    const token = jwt.sign(
-      {
-        id: adminUser.id,
-        userId: adminUser.id,
-        role: "ADMIN",
-        name: "Admin",
-        isVerified: true
-      },
-      env.JWT_SECRET,
-      { expiresIn: "7d" }
-    );
-
-    return sendSuccess(res, { accessToken: token });
+  if (!adminUser) {
+    throw new AppError("Invalid admin credentials", 401);
   }
 
-  throw new AppError("Invalid credentials", 401);
+  const token = jwt.sign(
+    {
+      id: "admin",
+      userId: "admin",
+      phone: "",
+      role: "ADMIN",
+      name: adminUser.username,
+      isVerified: true,
+    },
+    env.JWT_SECRET,
+    { expiresIn: "7d" }
+  );
+
+  // Set HttpOnly cookie
+  await reply.setCookie("hpj_token", token, AUTH_COOKIE_OPTIONS);
+
+  return reply.send({
+    success: true,
+    data: {
+      token,
+      user: {
+        id: "admin",
+        name: adminUser.username,
+        role: "ADMIN",
+        isVerified: true,
+      },
+    },
+    message: "Success"
+  });
 };

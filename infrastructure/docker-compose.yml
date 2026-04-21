@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   postgres:
-    image: postgres:15-alpine
+    image: postgres:16-alpine
     container_name: hpj-postgres
     environment:
       POSTGRES_DB: hmarepanditji
@@ -13,20 +13,20 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ../migrations:/docker-entrypoint-initdb.d
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U hpj_user -d hmarepanditji"]
+      test: [ "CMD-SHELL", "pg_isready -U hpj_user -d hmarepanditji" ]
       interval: 10s
       timeout: 5s
       retries: 5
 
   redis:
-    image: redis:7-alpine
+    image: redis:7.2-alpine
     container_name: hpj-redis
     ports:
       - "6379:6379"
     volumes:
       - redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 10s
 
   elasticsearch:
@@ -41,7 +41,7 @@ services:
     volumes:
       - es_data:/usr/share/elasticsearch/data
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health"]
+      test: [ "CMD-SHELL", "curl -f http://localhost:9200/_cluster/health" ]
       interval: 30s
 
 volumes:

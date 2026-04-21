@@ -2,6 +2,7 @@
   "name": "hmarepanditji",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "packageManager": "pnpm@9.1.0",
   "workspaces": [
     "apps/*",
@@ -27,18 +28,25 @@
     "build:admin": "pnpm --filter @hmarepanditji/admin build",
     "build:web": "pnpm --filter @hmarepanditji/web build",
     "deploy:pandit": "cd apps/pandit && vercel --prod",
-    "deploy:pandit:preview": "cd apps/pandit && vercel --env=preview"
+    "deploy:pandit:preview": "cd apps/pandit && vercel --env=preview",
+    "prepare": "husky"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^7.0.0",
-    "@typescript-eslint/parser": "^7.0.0",
+    "@eslint/js": "^8.57.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
     "eslint": "^8.57.0",
+    "eslint-config-next": "^14.2.22",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-react": "^7.34.0",
     "eslint-plugin-react-hooks": "^4.6.0",
+    "globals": "^15.0.0",
+    "husky": "^9.0.0",
+    "lint-staged": "^15.0.0",
     "prettier": "^3.2.0",
     "prettier-plugin-tailwindcss": "^0.5.0",
     "turbo": "^2.0.0",
-    "typescript": "^5.4.0"
+    "typescript": "^5.4.0",
+    "vercel": "^39.0.0"
   }
 }

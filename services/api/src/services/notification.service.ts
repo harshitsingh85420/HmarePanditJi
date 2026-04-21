@@ -106,16 +106,16 @@ export async function sendNotification(input: SendNotificationInput): Promise<vo
         data: (input.metadata ?? {}) as object,
       },
     })
-    .catch((err: any) => logger.error("Failed to save notification to DB:", err));
+    .catch((err: Error) => logger.error("Failed to save notification to DB:", err));
 
   let dispatchPromise: Promise<void> = Promise.resolve();
   if (input.phone) {
     if (input.channel === "SMS") {
-      dispatchPromise = sendSms(input.phone, input.message).catch((err: any) =>
+      dispatchPromise = sendSms(input.phone, input.message).catch((err) =>
         logger.error(`[SMS] Failed for ${input.phone}:`, err),
       );
     } else if (input.channel === "WHATSAPP") {
-      dispatchPromise = sendWhatsApp(input.phone, input.message).catch((err: any) =>
+      dispatchPromise = sendWhatsApp(input.phone, input.message).catch((err) =>
         logger.error(`[WA] Failed for ${input.phone}:`, err),
       );
     }

@@ -2,6 +2,7 @@
 
 import { speak, stopSpeaking } from './voice-engine';
 import type { VoiceScript } from './voice-scripts-part0';
+import { logger } from '@/utils/logger';
 
 export type SarvamLanguageCode =
   | 'hi-IN'
@@ -19,7 +20,7 @@ export type SarvamLanguageCode =
 // CRITICAL: "priya" is warm, mature female voice for bulbul:v3 - tested best for elderly users
 // NEVER use youthful voices - they feel condescending to elderly Pandits
 // Available speakers for bulbul:v3: aditya, ritu, ashutosh, priya, neha, rahul, pooja, rohan, simran, kavya, amit, dev, ishita, shreya, ratan, varun, manan, sumit, roopa, kabir, aayan, shubh, advait, amelia, sophia, anand, tanya, tarun, sunny, mani, gokul, vijay, shruti, suhani, mohit, kavitha, rehan, soham, rupali, niharika
-export type SarvamSpeaker = 'priya' | 'ritu' | 'neha' | 'pooja' | 'simran' | 'kavya' | 'ishita' | 'shreya' | 'roopa' | 'shruti' | 'suhani' | 'kavitha' | 'rupali' | 'niharika' | 'aditya' | 'ashutosh' | 'rahul' | 'rohan' | 'amit' | 'dev' | 'ratan' | 'varun' | 'manan' | 'sumit' | 'kabir' | 'aayan' | 'shubh' | 'advait' | 'amelia' | 'sophia' | 'anand' | 'tanya' | 'tarun' | 'sunny' | 'mani' | 'gokul' | 'vijay' | 'mohit' | 'rehan' | 'soham';
+export type SarvamSpeaker = 'meera' | 'priya' | 'ritu' | 'neha' | 'pooja' | 'simran' | 'kavya' | 'ishita' | 'shreya' | 'roopa' | 'shruti' | 'suhani' | 'kavitha' | 'rupali' | 'niharika' | 'aditya' | 'ashutosh' | 'rahul' | 'rohan' | 'amit' | 'dev' | 'ratan' | 'varun' | 'manan' | 'sumit' | 'kabir' | 'aayan' | 'shubh' | 'advait' | 'amelia' | 'sophia' | 'anand' | 'tanya' | 'tarun' | 'sunny' | 'mani' | 'gokul' | 'vijay' | 'mohit' | 'rehan' | 'soham';
 
 export interface SarvamTTSOptions {
   text: string;
@@ -224,9 +225,7 @@ export async function preloadAudio(
   cacheMisses++;
   console.log(`[TTS Cache] MISS (${cacheKey.slice(0, 30)}...)`);
 
-  const apiKey = process.env.NEXT_PUBLIC_SARVAM_API_KEY;
-  if (!apiKey) return null;
-
+  // Use backend proxy route - API key stays on server
   try {
     const response = await fetch('/api/tts', {
       method: 'POST',
