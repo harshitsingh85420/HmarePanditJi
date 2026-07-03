@@ -29,6 +29,7 @@ import kycRoutes from "./routes/kyc.routes";
 import onboardingRoutes from "./routes/onboarding.routes";
 import uploadRoutes from "./routes/upload.routes";
 import aiRoutes from "./routes/ai.routes";
+import { submitOnboarding } from "./controllers/onboarding.controller";
 import { authenticate } from "./middleware/auth";
 import { roleGuard } from "./middleware/roleGuard";
 import {
@@ -165,6 +166,8 @@ app.addHook("preHandler", async (request, reply) => {
 });
 
 // ── Routes ────────────────────────────────────────────────────────────────────
+app.post(`${API_PREFIX}/pandit/onboarding`, { preHandler: [authenticate, roleGuard("PANDIT")] }, submitOnboarding);
+app.post(`${API_PREFIX}/pandits/onboarding`, { preHandler: [authenticate, roleGuard("PANDIT")] }, submitOnboarding);
 app.get(`${API_PREFIX}/pandit/samagri-packages`, { preHandler: [authenticate, roleGuard("PANDIT")] }, getSamagriPackages);
 app.post(`${API_PREFIX}/pandit/samagri-packages`, { preHandler: [authenticate, roleGuard("PANDIT")] }, saveSamagriPackages);
 app.get(`${API_PREFIX}/pandits/samagri-packages`, { preHandler: [authenticate, roleGuard("PANDIT")] }, getSamagriPackages);

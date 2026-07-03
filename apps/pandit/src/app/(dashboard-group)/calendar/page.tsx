@@ -281,17 +281,17 @@ export default function CalendarPage() {
         <div className="flex justify-center items-center gap-4 text-[16px] text-softgrey font-hindi py-1 bg-white border border-saffron-100 rounded-btn">
           <div className="flex items-center gap-1.5">
             <span className="text-[16px]">🟠</span>
-            <span>{hi.calendar.bookingLegend}</span>
+            <span>{hi.calendar.booking}</span>
           </div>
           <span>·</span>
           <div className="flex items-center gap-1.5">
             <span className="text-[16px]">✖</span>
-            <span>{hi.calendar.closedLegend}</span>
+            <span>{hi.calendar.blocked}</span>
           </div>
           <span>·</span>
           <div className="flex items-center gap-1.5">
             <span className="text-[16px] border border-saffron-100 w-4 h-4 bg-white rounded flex items-center justify-center" />
-            <span>{hi.calendar.openLegend}</span>
+            <span>{hi.calendar.available}</span>
           </div>
         </div>
       </main>

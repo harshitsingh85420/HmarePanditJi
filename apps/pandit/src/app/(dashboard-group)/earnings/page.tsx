@@ -127,7 +127,7 @@ export default function EarningsPage() {
           </h3>
 
           {pendingPayouts.length === 0 ? (
-            <p className="text-[16px] text-softgrey font-hindi text-center py-4">कोई लंबित राशि नहीं है</p>
+            <p className="text-[16px] text-softgrey font-hindi text-center py-4">No pending payouts</p>
           ) : (
             <div className="flex flex-col gap-3">
               {pendingPayouts.map((p) => {
@@ -142,7 +142,7 @@ export default function EarningsPage() {
                     <div className="flex flex-col items-end gap-1.5">
                       <span className="text-[18px] font-bold text-leaf-700 font-mono">₹{p.amount.toLocaleString("en-IN")}</span>
                       <span className="bg-amber-100 text-amber-800 text-[12px] font-bold px-2 py-0.5 rounded-full font-hindi">
-                        {hi.earnings.inProcess}
+                        {hi.earnings.processing}
                       </span>
                     </div>
                   </Card>
@@ -159,7 +159,7 @@ export default function EarningsPage() {
           </h3>
 
           {paidPayouts.length === 0 ? (
-            <p className="text-[16px] text-softgrey font-hindi text-center py-4">कोई भुगतान प्राप्त नहीं हुआ है</p>
+            <p className="text-[16px] text-softgrey font-hindi text-center py-4">No paid payouts yet</p>
           ) : (
             <div className="flex flex-col gap-3">
               {paidPayouts.map((p) => {
@@ -170,7 +170,7 @@ export default function EarningsPage() {
                       <span className="text-[18px] font-bold text-ink font-hindi">{title}</span>
                       {p.paidAt && (
                         <span className="text-[14px] text-softgrey font-hindi">
-                          {hi.earnings.paidOn}: {formatHindiDate(p.paidAt)}
+                          {hi.earnings.paid}: {formatHindiDate(p.paidAt)}
                         </span>
                       )}
                     </div>

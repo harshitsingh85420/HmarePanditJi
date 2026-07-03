@@ -8,30 +8,30 @@ export interface GreetingHeaderProps {
 }
 
 export function GreetingHeader({ firstName }: GreetingHeaderProps) {
-  const [greeting, setGreeting] = useState<string>(hi.design.afternoon);
-  const [shloka, setShloka] = useState<string>(hi.design.shloka1);
+  const [greeting, setGreeting] = useState<string>("Namaste");
+  const [shloka, setShloka] = useState<string>("Om Namah Shivaya");
 
   useEffect(() => {
     const now = new Date();
     const hours = now.getHours();
     const date = now.getDate();
 
-    let greet: string = hi.design.afternoon;
+    let greet = "Namaste";
     if (hours >= 4 && hours < 11) {
-      greet = hi.design.morning;
+      greet = "Shubh Prabhat";
     } else if (hours >= 11 && hours < 17) {
-      greet = hi.design.afternoon;
+      greet = "Namaste";
     } else if (hours >= 17 && hours < 21) {
-      greet = hi.design.evening;
+      greet = "Shubh Sandhya";
     } else {
-      greet = hi.design.night;
+      greet = "Shubh Ratri";
     }
     setGreeting(greet);
 
     const shlokas = [
-      hi.design.shloka1,
-      hi.design.shloka2,
-      hi.design.shloka3,
+      "Om Namah Shivaya",
+      "Om Ganesha Namaha",
+      "Om Namo Narayanaya",
     ];
     setShloka(shlokas[date % 3]);
   }, []);

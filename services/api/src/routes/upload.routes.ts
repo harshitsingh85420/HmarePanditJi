@@ -4,10 +4,7 @@ import { roleGuard } from "../middleware/roleGuard";
 import { handleUpload } from "../controllers/upload.controller";
 
 export default async function uploadRoutes(fastify: FastifyInstance, _opts: any) {
-    fastify.post("/:type", {
-        preHandler: [
-            authenticate,
-            roleGuard("PANDIT"),
-        ],
-    }, handleUpload);
+    const preHandlers = [authenticate, roleGuard("PANDIT")];
+    fastify.post("/:type", { preHandler: preHandlers }, handleUpload);
+    fastify.post("/", { preHandler: preHandlers }, handleUpload);
 }

@@ -68,7 +68,7 @@ export function NewBookingBanner({ onTap, className }: NewBookingBannerProps) {
           {hi.booking.newRequest}
         </span>
         <span className="text-[14px] font-medium opacity-90 leading-tight">
-          {hi.design.viewSub}
+          {hi.common.next}
         </span>
       </div>
     </button>

@@ -82,7 +82,7 @@ export default function BookingDetailPage() {
   if (!booking) {
     return (
       <div className="min-h-screen bg-cream text-ink flex flex-col">
-        <Header title={hi.samagri.title} showBack />
+        <Header title="Booking Details" showBack />
         <div className="flex-grow flex items-center justify-center p-6 text-center">
           <p className="text-danger text-[20px] font-bold">{errorMsg || "Booking not found."}</p>
         </div>
@@ -168,12 +168,16 @@ export default function BookingDetailPage() {
   const customerPhone = booking.customer?.phone || booking.customerPhone;
   const customerName = booking.customer?.name || booking.customerName || "यजमान";
   const pujaTitle = booking.pujaType || booking.eventType;
+  const journeyLabels = {
+    left: "घर से निकले",
+    started: "पूजा शुरू की",
+  };
 
   // Timeline config
   const timelineSteps = [
-    { step: 1, title: "घर से निकले", label: hi.booking.left },
+    { step: 1, title: "घर से निकले", label: journeyLabels.left },
     { step: 2, title: "स्थान पर पहुँचे", label: hi.booking.imHere },
-    { step: 3, title: "पूजा शुरू की", label: hi.booking.started },
+    { step: 3, title: "पूजा शुरू की", label: journeyLabels.started },
   ];
 
   if (showSuccessScreen) {

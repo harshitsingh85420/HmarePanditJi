@@ -24,6 +24,13 @@ interface BookingItem {
   status: string;
 }
 
+const bookingLabels = {
+  tabNew: "नई",
+  tabUpcoming: "आने वाली",
+  tabCompleted: "पूरी हुई",
+  noBookings: "कोई बुकिंग नहीं है",
+};
+
 export default function BookingsPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -102,7 +109,7 @@ export default function BookingsPage() {
           }`}
           style={{ minHeight: "56px" }}
         >
-          {hi.booking.tabNew}
+          {bookingLabels.tabNew}
         </button>
         <button
           onClick={() => setActiveTab("UPCOMING")}
@@ -111,7 +118,7 @@ export default function BookingsPage() {
           }`}
           style={{ minHeight: "56px" }}
         >
-          {hi.booking.tabUpcoming}
+          {bookingLabels.tabUpcoming}
         </button>
         <button
           onClick={() => setActiveTab("COMPLETED")}
@@ -120,7 +127,7 @@ export default function BookingsPage() {
           }`}
           style={{ minHeight: "56px" }}
         >
-          {hi.booking.tabCompleted}
+          {bookingLabels.tabCompleted}
         </button>
       </div>
 
@@ -130,7 +137,7 @@ export default function BookingsPage() {
           <div className="flex flex-col items-center justify-center py-20 text-center gap-2">
             <span className="text-[64px]">🌤️</span>
             <span className="text-[20px] font-bold text-softgrey font-hindi">
-              {hi.booking.noBookings}
+              {bookingLabels.noBookings}
             </span>
           </div>
         ) : (

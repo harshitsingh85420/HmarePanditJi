@@ -210,7 +210,6 @@ export default function HomePage() {
       {/* HEADER */}
       <Header title={`🙏 नमस्ते, ${firstName} जी`} showBack={false} />
 
-      {/* NEW BOOKING POLL BANNER */}
       <AnimatePresence>
         {newRequestBooking && (
           <motion.div
@@ -224,7 +223,7 @@ export default function HomePage() {
               className="text-white text-[18px] font-bold font-hindi flex items-center justify-center gap-2 mx-auto"
               style={{ minHeight: "56px" }}
             >
-              🚀 {hi.home.viewNewBooking}
+              {hi.booking.viewNewBooking}
             </button>
           </motion.div>
         )}

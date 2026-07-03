@@ -25,6 +25,31 @@ import { NewBookingBanner } from "@/components/moments/NewBookingBanner";
 import { GreetingHeader } from "@/components/moments/GreetingHeader";
 import { MoneyCount } from "@/components/moments/MoneyCount";
 
+const hiDesign = {
+  title: "डिजाइन सिस्टम",
+  buttons: "बटन प्रकार",
+  cards: "कार्ड प्रकार",
+  accentSaffron: "भगवा रंग",
+  accentGold: "सुनहरा रंग",
+  accentLeaf: "पत्ता रंग",
+  stats: "सांख्यिकी कार्ड",
+  pujaCount: "पूजा संख्या",
+  earnings: "कमाई सूची",
+  progress: "प्रगति संकेतक",
+  onlineTitle: "ऑनलाइन/ऑफलाइन स्विच",
+  statusChips: "स्टेटस चिप्स",
+  banners: "बैनर प्रकार",
+  emptyState: "खाली स्थिति",
+  demoTitle: "खाली स्थिति शीर्षक",
+  demoHint: "खाली स्थिति संकेत",
+  demos: "इंटरएक्टिव क्षण",
+  diyaBtn: "दीया लोडर चलाएं",
+  pulseBtn: "स्वीकृति पल्स चलाएं",
+  celebrationBtn: "उत्सव स्क्रीन चलाएं",
+  toastBtn: "टोस्ट दिखाएं",
+  toastMsg: "यह एक संदेश है",
+};
+
 export default function DesignSystemPage() {
   // Guard with process.env.NODE_ENV check (dev-only)
   if (process.env.NODE_ENV !== "development") {
@@ -53,7 +78,7 @@ export default function DesignSystemPage() {
   return (
     <div className="min-h-screen bg-cream text-ink font-hindi pb-32">
       {/* Sticky Header with Voice Toggle */}
-      <Header title={hi.design.title} showBack onBack={() => {}} />
+      <Header title={hiDesign.title} showBack onBack={() => {}} />
 
       {/* Main Container */}
       <main className="max-w-[430px] mx-auto px-4 pt-6 flex flex-col gap-8">
@@ -66,7 +91,7 @@ export default function DesignSystemPage() {
         {/* Section 2: Buttons Grid */}
         <section className="flex flex-col gap-4">
           <h2 className="t-title font-bold text-temple-600 border-b border-saffron-100 pb-2">
-            {hi.design.buttons}
+            {hiDesign.buttons}
           </h2>
           
           <div className="flex flex-col gap-4">
@@ -114,7 +139,7 @@ export default function DesignSystemPage() {
         {/* Section 3: Cards */}
         <section className="flex flex-col gap-4">
           <h2 className="t-title font-bold text-temple-600 border-b border-saffron-100 pb-2">
-            {hi.design.cards}
+            {hiDesign.cards}
           </h2>
 
           <div className="flex flex-col gap-4">
@@ -124,17 +149,17 @@ export default function DesignSystemPage() {
             </Card>
 
             <Card accent="saffron">
-              <h3 className="t-title font-semibold">{hi.design.accentSaffron}</h3>
+              <h3 className="t-title font-semibold">{hiDesign.accentSaffron}</h3>
               <p className="t-body mt-1">Accent card with saffron colored left border.</p>
             </Card>
 
             <Card accent="gold">
-              <h3 className="t-title font-semibold">{hi.design.accentGold}</h3>
+              <h3 className="t-title font-semibold">{hiDesign.accentGold}</h3>
               <p className="t-body mt-1">Accent card with gold colored left border.</p>
             </Card>
 
             <Card accent="leaf">
-              <h3 className="t-title font-semibold">{hi.design.accentLeaf}</h3>
+              <h3 className="t-title font-semibold">{hiDesign.accentLeaf}</h3>
               <p className="t-body mt-1">Accent card with leaf colored left border.</p>
             </Card>
           </div>
@@ -143,11 +168,11 @@ export default function DesignSystemPage() {
         {/* Section 4: StatCard */}
         <section className="flex flex-col gap-4">
           <h2 className="t-title font-bold text-temple-600 border-b border-saffron-100 pb-2">
-            {hi.design.stats}
+            {hiDesign.stats}
           </h2>
           
           <div className="grid grid-cols-2 gap-4">
-            <StatCard label={hi.design.pujaCount} value={14} emoji="📿" />
+            <StatCard label={hiDesign.pujaCount} value={14} emoji="📿" />
             <StatCard label={hi.earnings.paid} value={8400} emoji="💰" />
           </div>
         </section>
@@ -155,7 +180,7 @@ export default function DesignSystemPage() {
         {/* Section 5: EarningsRow with MoneyCount */}
         <section className="flex flex-col gap-4">
           <h2 className="t-title font-bold text-temple-600 border-b border-saffron-100 pb-2">
-            {hi.design.earnings}
+            {hiDesign.earnings}
           </h2>
 
           <Card>
@@ -178,7 +203,7 @@ export default function DesignSystemPage() {
         {/* Section 6: Progress Dots */}
         <section className="flex flex-col gap-4">
           <h2 className="t-title font-bold text-temple-600 border-b border-saffron-100 pb-2">
-            {hi.design.progress}
+            {hiDesign.progress}
           </h2>
           
           <Card className="py-6">
@@ -189,7 +214,7 @@ export default function DesignSystemPage() {
         {/* Section 7: Big Toggle */}
         <section className="flex flex-col gap-4">
           <h2 className="t-title font-bold text-temple-600 border-b border-saffron-100 pb-2">
-            {hi.design.onlineTitle}
+            {hiDesign.onlineTitle}
           </h2>
           
           <BigToggle value={isOnline} onChange={setIsOnline} />
@@ -198,7 +223,7 @@ export default function DesignSystemPage() {
         {/* Section 8: Status Chips */}
         <section className="flex flex-col gap-4">
           <h2 className="t-title font-bold text-temple-600 border-b border-saffron-100 pb-2">
-            {hi.design.statusChips}
+            {hiDesign.statusChips}
           </h2>
 
           <div className="flex flex-wrap gap-2">
@@ -213,7 +238,7 @@ export default function DesignSystemPage() {
         {/* Section 9: Booking Banner */}
         <section className="flex flex-col gap-4">
           <h2 className="t-title font-bold text-temple-600 border-b border-saffron-100 pb-2">
-            {hi.design.banners}
+            {hiDesign.banners}
           </h2>
           
           <NewBookingBanner onTap={() => alert("नई बुकिंग चुनी गई")} />
@@ -222,34 +247,34 @@ export default function DesignSystemPage() {
         {/* Section 10: Empty State */}
         <section className="flex flex-col gap-4">
           <h2 className="t-title font-bold text-temple-600 border-b border-saffron-100 pb-2">
-            {hi.design.emptyState}
+            {hiDesign.emptyState}
           </h2>
 
           <EmptyState
             emoji="📿"
-            title={hi.design.demoTitle}
-            hint={hi.design.demoHint}
+            title={hiDesign.demoTitle}
+            hint={hiDesign.demoHint}
           />
         </section>
 
         {/* Section 11: Demos (Signature Moments) */}
         <section className="flex flex-col gap-4">
           <h2 className="t-title font-bold text-temple-600 border-b border-saffron-100 pb-2">
-            {hi.design.demos}
+            {hiDesign.demos}
           </h2>
 
           <div className="flex flex-col gap-3">
             <Button variant="secondary" size="md" onClick={handleDiyaTrigger} fullWidth>
-              {hi.design.diyaBtn}
+              {hiDesign.diyaBtn}
             </Button>
             <Button variant="secondary" size="md" onClick={handlePulseTrigger} fullWidth>
-              {hi.design.pulseBtn}
+              {hiDesign.pulseBtn}
             </Button>
             <Button variant="secondary" size="md" onClick={() => setShowCelebration(true)} fullWidth>
-              {hi.design.celebrationBtn}
+              {hiDesign.celebrationBtn}
             </Button>
             <Button variant="secondary" size="md" onClick={() => setShowToast(true)} fullWidth>
-              {hi.design.toastBtn}
+              {hiDesign.toastBtn}
             </Button>
           </div>
         </section>
@@ -279,8 +304,8 @@ export default function DesignSystemPage() {
 
       {/* Toast message display */}
       <Toast
-        message={hi.design.toastMsg}
-        voiceText={hi.design.toastMsg}
+        message={hiDesign.toastMsg}
+        voiceText={hiDesign.toastMsg}
         show={showToast}
         onClose={() => setShowToast(false)}
       />

@@ -1,569 +1,793 @@
-'use client'
+"use client";
 
-import { useState, useEffect, useCallback, Suspense } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import {
-  OnboardingState,
-  OnboardingPhase,
-  SupportedLanguage,
-  DEFAULT_STATE,
-  detectLanguageFromCity,
-  loadOnboardingState,
-  saveOnboardingState,
-  clearOnboardingState,
-  getNextTutorialPhase,
-  getPrevTutorialPhase,
-  getTutorialDotNumber,
-} from '@/lib/onboarding-store'
-import { stopSpeaking } from '@/lib/voice-engine'
-import { useWakeLock } from '@/lib/hooks/useWakeLock'
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { hi } from "@/lib/strings";
+import { api } from "@/lib/api";
+import { Header } from "@/components/ui/Header";
+import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+import { SpeakOnMount } from "@/components/VoiceBar";
+import { useVoice } from "@/hooks/useVoice";
 
-import SplashScreen from './screens/SplashScreen'
-import LocationPermissionScreen from './screens/LocationPermissionScreen'
-import ManualCityScreen from './screens/ManualCityScreen'
-import LanguageConfirmScreen from './screens/LanguageConfirmScreen'
-import LanguageListScreen from './screens/LanguageListScreen'
-import LanguageChoiceConfirmScreen from './screens/LanguageChoiceConfirmScreen'
-import LanguageSetScreen from './screens/LanguageSetScreen'
-import ScriptChoiceScreen from './screens/ScriptChoiceScreen'
-import HelpScreen from './screens/HelpScreen'
-import VoiceTutorialScreen from './screens/VoiceTutorialScreen'
-import MicPermissionScreen from './screens/MicPermissionScreen'
-import MicDeniedRecoveryScreen from './screens/MicDeniedRecoveryScreen'
+interface DraftState {
+  step: number;
+  name: string;
+  city: string;
+  specializations: string[];
+  experience: number;
+  teamSize: number;
+  dakshina: Record<string, string>;
+  aadhaarUrl: string;
+  paymentType: "BANK" | "UPI";
+  bank: {
+    accountName: string;
+    accountNumber: string;
+    accountNumberConfirm: string;
+    ifsc: string;
+  };
+  upi: {
+    id: string;
+  };
+}
 
-import TutorialSwagat from './screens/tutorial/TutorialSwagat'
-import TutorialIncome from './screens/tutorial/TutorialIncome'
-import TutorialDakshina from './screens/tutorial/TutorialDakshina'
-import TutorialOnlineRevenue from './screens/tutorial/TutorialOnlineRevenue'
-import TutorialBackup from './screens/tutorial/TutorialBackup'
-import TutorialPayment from './screens/tutorial/TutorialPayment'
-import TutorialVoiceNav from './screens/tutorial/TutorialVoiceNav'
-import TutorialDualMode from './screens/tutorial/TutorialDualMode'
-import TutorialTravel from './screens/tutorial/TutorialTravel'
-import TutorialVideoVerify from './screens/tutorial/TutorialVideoVerify'
-import TutorialGuarantees from './screens/tutorial/TutorialGuarantees'
-import TutorialCTA from './screens/tutorial/TutorialCTA'
+const DEFAULT_DRAFT: DraftState = {
+  step: 1,
+  name: "",
+  city: "",
+  specializations: [],
+  experience: 0,
+  teamSize: 1,
+  dakshina: {},
+  aadhaarUrl: "",
+  paymentType: "BANK",
+  bank: {
+    accountName: "",
+    accountNumber: "",
+    accountNumberConfirm: "",
+    ifsc: "",
+  },
+  upi: {
+    id: "",
+  },
+};
 
-import LanguageBottomSheet from '@/components/LanguageBottomSheet'
-import VoiceTutorialOverlay from '@/components/overlays/VoiceTutorialOverlay'
+const SPEC_LIST = [
+  { id: "SATYANARAYAN", emoji: "📖" },
+  { id: "GRIHA_PRAVESH", emoji: "🏡" },
+  { id: "VIVAH", emoji: "💑" },
+  { id: "MUNDAN", emoji: "👶" },
+  { id: "NAAMKARAN", emoji: "🍼" },
+  { id: "HAVAN", emoji: "🔥" },
+  { id: "RUDRABHISHEK", emoji: "💦" },
+  { id: "SHRADH", emoji: "👵" },
+] as const;
 
-// Inner component that uses useSearchParams (wrapped in Suspense)
-function OnboardingContent() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const [state, setState] = useState<OnboardingState>(DEFAULT_STATE)
-  const [isLoaded, setIsLoaded] = useState(false)
-  const [showLanguageSheet, setShowLanguageSheet] = useState(false)
-  const [isMounted, setIsMounted] = useState(false)
-  const [showMicPermission, setShowMicPermission] = useState(false)
-  const [pendingScriptPreference, setPendingScriptPreference] = useState<'native' | 'latin' | null>(null)
-  const [showMicDeniedRecovery, setShowMicDeniedRecovery] = useState(false)
+export default function OnboardingPage() {
+  const router = useRouter();
+  const { speak } = useVoice();
 
-  // Enable wake lock during onboarding to prevent screen sleep
-  useWakeLock(true)
+  const [draft, setDraft] = useState<DraftState>(DEFAULT_DRAFT);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [showDoneScreen, setShowDoneScreen] = useState(false);
 
+  // Load draft from localStorage on mount
   useEffect(() => {
-    // Check for reset parameter (for testing or restarting)
-    const resetParam = searchParams?.get('reset')
-    if (resetParam === 'true') {
-      // Clear onboarding state and start fresh
-      clearOnboardingState()
-      setState({ ...DEFAULT_STATE, firstEverOpen: true })
-      setIsLoaded(true)
-      setIsMounted(true)
-      return
-    }
-
-    // Allow direct deep-linking to a specific phase (used by Registration Back button).
-    const phaseParam = searchParams?.get('phase') as OnboardingPhase | null
-    if (phaseParam) {
-      const saved = loadOnboardingState()
-      setState({ ...saved, phase: phaseParam })
-      setIsLoaded(true)
-      setIsMounted(true)
-      return
-    }
-
-    // BUG-CRITICAL-01 FIX: For fresh onboarding sessions, ALWAYS reset to SPLASH phase
-    // A user landing on /onboarding should ALWAYS start from the beginning
-    // Only restore state if user was in middle of TUTORIAL (not language selection or location)
-    const saved = loadOnboardingState()
-
-    // Check if user was in middle of tutorial screens (TUTORIAL_* phases)
-    const isInTutorial = saved.phase.startsWith('TUTORIAL_')
-
-    // FORCE SPLASH phase for all users except those in middle of tutorial
-    if (isInTutorial && saved.tutorialStarted && saved.selectedLanguage) {
-      // User was in middle of tutorial - restore their language choice
-      setState(saved)
-    } else {
-      // Fresh user OR user stuck in location/language flow - RESET EVERYTHING to SPLASH
-      // This prevents Tamil/Hindi leakage from previous incomplete sessions
+    const saved = localStorage.getItem("onboarding_draft");
+    if (saved) {
       try {
-        clearOnboardingState()
-      } catch {
-        // Ignore clear errors
+        const parsed = JSON.parse(saved);
+        setDraft({ ...DEFAULT_DRAFT, ...parsed });
+      } catch (e) {
+        console.warn("Failed to parse onboarding draft", e);
       }
-      // FORCE phase to SPLASH
-      setState({ ...DEFAULT_STATE, firstEverOpen: true, phase: 'SPLASH' })
+    }
+    setIsLoaded(true);
+  }, []);
+
+  // Save draft to localStorage on change
+  const updateDraft = (updates: Partial<DraftState>) => {
+    setDraft((prev) => {
+      const next = { ...prev, ...updates };
+      localStorage.setItem("onboarding_draft", JSON.stringify(next));
+      return next;
+    });
+  };
+
+  const updateBank = (updates: Partial<DraftState["bank"]>) => {
+    setDraft((prev) => {
+      const nextBank = { ...prev.bank, ...updates };
+      const next = { ...prev, bank: nextBank };
+      localStorage.setItem("onboarding_draft", JSON.stringify(next));
+      return next;
+    });
+  };
+
+  const updateUpi = (updates: Partial<DraftState["upi"]>) => {
+    setDraft((prev) => {
+      const nextUpi = { ...prev.upi, ...updates };
+      const next = { ...prev, upi: nextUpi };
+      localStorage.setItem("onboarding_draft", JSON.stringify(next));
+      return next;
+    });
+  };
+
+  const validateStep = (stepNum: number): boolean => {
+    setErrorMsg("");
+
+    if (stepNum === 1) {
+      if (!draft.name || draft.name.trim().length < 3) {
+        setErrorMsg(hi.onboarding.nameError);
+        speak(hi.common.error);
+        return false;
+      }
     }
 
-    setIsLoaded(true)
-    setIsMounted(true)
-  }, [])
-
-  // BUG-007 FIX: Handle navigation to registration when phase changes
-  useEffect(() => {
-    if (state.phase === 'REGISTRATION' && state.tutorialCompleted) {
-      router.push('/mobile')
+    if (stepNum === 2) {
+      if (!draft.city || draft.city.trim().length === 0) {
+        setErrorMsg(hi.onboarding.cityError);
+        speak(hi.common.error);
+        return false;
+      }
     }
-  }, [state.phase, state.tutorialCompleted, router])
 
-  // Navigate to Customer App login page
-  const navigateToCustomerApp = useCallback(() => {
-    const customerAppUrl = process.env.NEXT_PUBLIC_WEB_URL || 'http://localhost:3000'
-    window.location.href = `${customerAppUrl}/login`
-  }, [])
+    if (stepNum === 3) {
+      if (draft.specializations.length === 0) {
+        setErrorMsg(hi.onboarding.specError);
+        speak(hi.common.error);
+        return false;
+      }
+    }
 
-  const updateState = useCallback((updates: Partial<OnboardingState>) => {
-    setState(prev => {
-      const next = { ...prev, ...updates }
-      console.log('[Onboarding] updateState:', { prev, next })
-      saveOnboardingState(next)
-      return next
-    })
-  }, [])
+    if (stepNum === 4) {
+      // Experience is default 0-60, team is 1-10 (bound validations are in UI steppers)
+      return true;
+    }
 
-  // ─── PHASE TRANSITION HANDLERS ───────────────────────────
+    if (stepNum === 5) {
+      for (const spec of draft.specializations) {
+        const amount = Number(draft.dakshina[spec] || "");
+        if (isNaN(amount) || amount < 501 || amount > 500000) {
+          setErrorMsg(hi.onboarding.dakshinaError);
+          speak(hi.common.error);
+          return false;
+        }
+      }
+    }
 
-  const goToPhase = useCallback((phase: OnboardingPhase) => {
-    console.log('[Onboarding] goToPhase called with:', phase)
-    stopSpeaking()
-    updateState({ phase })
-  }, [updateState])
+    if (stepNum === 6) {
+      if (!draft.aadhaarUrl) {
+        setErrorMsg(hi.onboarding.aadhaarError);
+        speak(hi.common.error);
+        return false;
+      }
+    }
 
-  const handleTutorialNext = useCallback(() => {
-    const next = getNextTutorialPhase(state.phase)
-    if (next === 'REGISTRATION') {
-      updateState({ tutorialCompleted: true, phase: 'REGISTRATION' })
+    if (stepNum === 7) {
+      if (draft.paymentType === "BANK") {
+        if (!draft.bank.accountName.trim()) {
+          setErrorMsg(hi.onboarding.paymentError);
+          speak(hi.common.error);
+          return false;
+        }
+        if (!/^\d{9,18}$/.test(draft.bank.accountNumber)) {
+          setErrorMsg(hi.onboarding.paymentError);
+          speak(hi.common.error);
+          return false;
+        }
+        if (draft.bank.accountNumber !== draft.bank.accountNumberConfirm) {
+          setErrorMsg(hi.onboarding.accMismatch);
+          speak(hi.common.error);
+          return false;
+        }
+        if (!/^[A-Z]{4}0[A-Z0-9]{6}$/.test(draft.bank.ifsc)) {
+          setErrorMsg(hi.onboarding.paymentError);
+          speak(hi.common.error);
+          return false;
+        }
+      } else {
+        if (!/^[\w.\-]{2,}@[a-zA-Z]{2,}$/.test(draft.upi.id)) {
+          setErrorMsg(hi.onboarding.paymentError);
+          speak(hi.common.error);
+          return false;
+        }
+      }
+    }
+
+    return true;
+  };
+
+  const handleNext = async () => {
+    if (!validateStep(draft.step)) return;
+
+    if (draft.step < 7) {
+      updateDraft({ step: draft.step + 1 });
     } else {
-      updateState({ phase: next, currentTutorialScreen: getTutorialDotNumber(next) })
+      // Step 7 next => Submit full onboarding
+      await handleSubmit();
     }
-  }, [state.phase, updateState])
+  };
 
-  const handleTutorialBack = useCallback(() => {
-    // Special case: First tutorial screen goes back to Script Choice
-    if (state.phase === 'TUTORIAL_SWAGAT') {
-      console.log('[Onboarding] Back from first tutorial, going to Script Choice');
-      updateState({ phase: 'SCRIPT_CHOICE' });
+  const handleBack = () => {
+    setErrorMsg("");
+    if (draft.step > 1) {
+      updateDraft({ step: draft.step - 1 });
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    setErrorMsg("");
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const token = localStorage.getItem("pandit_token");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1"}/upload`, {
+        method: "POST",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        body: formData,
+      });
+
+      const json = await res.json();
+      setUploading(false);
+
+      if (json.success && json.data?.url) {
+        updateDraft({ aadhaarUrl: json.data.url });
+      } else {
+        setErrorMsg(json.error?.message || hi.common.error);
+        speak(hi.common.error);
+      }
+    } catch (err) {
+      setUploading(false);
+      setErrorMsg(hi.common.error);
+      speak(hi.common.error);
+    }
+  };
+
+  const handleSubmit = async () => {
+    setSubmitting(true);
+    setErrorMsg("");
+
+    const payload = {
+      name: draft.name,
+      city: draft.city,
+      specializations: draft.specializations,
+      experience: draft.experience,
+      teamSize: draft.teamSize,
+      dakshina: draft.dakshina,
+      aadhaarUrl: draft.aadhaarUrl,
+      payment: {
+        type: draft.paymentType,
+        bank: draft.paymentType === "BANK" ? {
+          accountName: draft.bank.accountName,
+          accountNumber: draft.bank.accountNumber,
+          ifsc: draft.bank.ifsc,
+        } : undefined,
+        upi: draft.paymentType === "UPI" ? {
+          id: draft.upi.id,
+        } : undefined,
+      },
+    };
+
+    const res = await api("/pandit/onboarding", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+
+    setSubmitting(false);
+
+    if (!res.success) {
+      setErrorMsg(res.error?.message || hi.common.error);
+      speak(hi.common.error);
       return;
     }
-    const prev = getPrevTutorialPhase(state.phase)
-    updateState({ phase: prev, currentTutorialScreen: getTutorialDotNumber(prev) })
-  }, [state.phase, updateState]);
 
-  // BUG-008 FIX: Skip directly to registration without double navigation
-  const handleTutorialSkip = useCallback(() => {
-    stopSpeaking()
-    updateState({ tutorialCompleted: true, phase: 'REGISTRATION' })
-    router.push('/mobile')
-  }, [updateState, router]) // eslint-disable-line react-hooks/exhaustive-deps -- router is needed
-
-  const handleRegistrationNow = useCallback(() => {
-    updateState({ tutorialCompleted: true })
-    router.push('/mobile')
-  }, [updateState, router])
-
-  const handleLater = useCallback(() => {
-    // "Later" navigates to the dashboard, preserving incomplete registration status
-    updateState({ tutorialCompleted: true })
-    router.push('/dashboard')
-  }, [updateState, router])
-
-  const handleHelpBack = useCallback(() => {
-    // Return to previous reasonable state
-    goToPhase('LANGUAGE_CONFIRM')
-  }, [goToPhase])
-
-  // ─── PART 0.0 NAVIGATION HANDLERS ───────────────────────────
-
-  const handleSplashToLocation = useCallback(() => {
-    console.log('[Onboarding] handleSplashToLocation called')
-    goToPhase('LOCATION_PERMISSION')
-  }, [goToPhase])
-
-  const handleLocationToManual = useCallback(() => {
-    goToPhase('MANUAL_CITY')
-  }, [goToPhase])
-
-  const handleLocationToLanguageConfirm = useCallback((city: string, stateStr: string) => {
-    const detectedLanguage = detectLanguageFromCity(city)
-    updateState({
-      detectedCity: city,
-      detectedState: stateStr,
-      selectedLanguage: detectedLanguage,
-      phase: 'LANGUAGE_CONFIRM',
-    })
-  }, [updateState])
-
-  const handleManualToLanguageConfirm = useCallback((city: string) => {
-    const detectedLanguage = detectLanguageFromCity(city)
-    updateState({
-      detectedCity: city,
-      selectedLanguage: detectedLanguage,
-      phase: 'LANGUAGE_CONFIRM',
-    })
-  }, [updateState])
-
-  const handleLanguageConfirmToSet = useCallback(() => {
-    updateState({
-      languageConfirmed: true,
-      phase: 'LANGUAGE_SET',
-    })
-  }, [updateState])
-
-  const handleLanguageConfirmToList = useCallback(() => {
-    // Open the language bottom sheet instead of navigating to LANGUAGE_LIST
-    stopSpeaking()
-    if (typeof window !== 'undefined') {
-      setShowLanguageSheet(true)
-    }
-  }, [])
-
-  const handleLanguageListToChoiceConfirm = useCallback((lang: SupportedLanguage) => {
-    updateState({
-      pendingLanguage: lang,
-      phase: 'LANGUAGE_CHOICE_CONFIRM',
-    })
-  }, [updateState])
-
-  const handleLanguageChoiceConfirmToSet = useCallback(() => {
-    if (state.pendingLanguage) {
-      updateState({
-        selectedLanguage: state.pendingLanguage,
-        pendingLanguage: null,
-        languageConfirmed: true,
-        phase: 'LANGUAGE_SET',
-      })
-    }
-  }, [state.pendingLanguage, updateState])
-
-  const handleLanguageChoiceRejectToList = useCallback(() => {
-    updateState({ pendingLanguage: null, phase: 'LANGUAGE_LIST' })
-  }, [updateState])
-
-  const handleLanguageSetToScriptChoice = useCallback(() => {
-    updateState({ phase: 'SCRIPT_CHOICE' })
-  }, [updateState])
-
-  const handleScriptChoiceToVoiceTutorial = useCallback((scriptPref: 'native' | 'latin') => {
-    // Set pending script preference IMMEDIATELY (not waiting for setState)
-    setPendingScriptPreference(scriptPref);
-
-    const isFirstTime = state.firstEverOpen && !state.voiceTutorialSeen;
-
-    // For first-time users: DON'T change phase (stay on SCRIPT_CHOICE), just show mic overlay
-    if (isFirstTime) {
-      setShowMicPermission(true);
-      return; // Don't update state.phase yet
-    }
-
-    // For returning users: just go to tutorial
-    setState(prev => ({
-      ...prev,
-      scriptPreference: scriptPref,
-      phase: 'TUTORIAL_SWAGAT' as OnboardingPhase,
-    }));
-  }, [state.firstEverOpen, state.voiceTutorialSeen]);
-
-  const handleLanguageSetToVoiceTutorial = useCallback(() => {
-    // Skip mic permission - already done or not first time
-    // Go directly to tutorial
-    updateState({ phase: 'TUTORIAL_SWAGAT' })
-  }, [updateState])
-
-  // ─── MIC PERMISSION HANDLERS ───────────────────────────
-
-  const handleMicPermissionGranted = useCallback(() => {
-    console.log('[Onboarding] Mic permission GRANTED, proceeding to tutorial');
-    const scriptPref = pendingScriptPreference || state.scriptPreference;
-    console.log('[Onboarding] Using scriptPreference:', scriptPref);
-    setShowMicPermission(false);
-    setPendingScriptPreference(null);
-    // NOW update state with script preference and phase
-    setState(prev => ({
-      ...prev,
-      scriptPreference: scriptPref,
-      voiceTutorialSeen: true,
-      phase: 'TUTORIAL_SWAGAT' as OnboardingPhase,
-    }));
-  }, [pendingScriptPreference, state.scriptPreference]);
-
-  const handleMicPermissionDenied = useCallback(() => {
-    console.log('[Onboarding] Mic permission DENIED, going to tutorial with keyboard mode');
-    const scriptPref = pendingScriptPreference || state.scriptPreference;
-    console.log('[Onboarding] Preserving scriptPreference:', scriptPref);
-    setShowMicPermission(false);
-    setPendingScriptPreference(null);
-    // Preserve script preference and go directly to tutorial
-    setState(prev => ({
-      ...prev,
-      scriptPreference: scriptPref,
-      voiceTutorialSeen: true,
-      phase: 'TUTORIAL_SWAGAT' as OnboardingPhase,
-    }));
-  }, [pendingScriptPreference, state.scriptPreference]);
-
-  const handleContinueWithKeyboard = useCallback(() => {
-    console.log('[Onboarding] Continue with keyboard clicked');
-    const scriptPref = pendingScriptPreference || state.scriptPreference;
-    console.log('[Onboarding] Using scriptPreference:', scriptPref);
-    setShowMicDeniedRecovery(false);
-    setPendingScriptPreference(null);
-    // Update state with script preference and go to tutorial
-    setState(prev => ({
-      ...prev,
-      scriptPreference: scriptPref,
-      voiceTutorialSeen: true,
-      phase: 'TUTORIAL_SWAGAT' as OnboardingPhase,
-    }));
-  }, [pendingScriptPreference, state.scriptPreference]);
-
-  const handleRetryMicPermission = useCallback(() => {
-    setShowMicDeniedRecovery(false)
-    setShowMicPermission(true)
-  }, [])
-
-  // ─── LANGUAGE SHEET ───────────────────────────────────────
-
-  const handleLanguageSheetOpen = useCallback(() => {
-    stopSpeaking()
-    // Fix hydration: Only update state after mount
-    if (typeof window !== 'undefined') {
-      setShowLanguageSheet(true)
-    }
-  }, [])
-
-  const handleLanguageSheetClose = useCallback(() => {
-    setShowLanguageSheet(false)
-  }, [])
-
-  const handleLanguageSheetSelect = useCallback((language: SupportedLanguage) => {
-    // Fix hydration: Ensure we're on client side
-    if (typeof window === 'undefined') return
-
-    setShowLanguageSheet(false)
-    updateState({ selectedLanguage: language, languageConfirmed: true })
-    // Show a brief toast — the language changes immediately
-  }, [updateState])
-
-  // ─── RENDER ───────────────────────────────────────────────
+    // Success: Clear localStorage draft and show Done Screen
+    localStorage.removeItem("onboarding_draft");
+    setShowDoneScreen(true);
+  };
 
   if (!isLoaded) {
-    // Show a minimal splash placeholder while loading
     return (
-      <div className="min-h-screen bg-gradient-to-b from-saffron to-saffron-light flex items-center justify-center">
-        <span className="text-white text-6xl animate-pulse">ॐ</span>
+      <div className="min-h-screen bg-cream flex items-center justify-center">
+        <span className="text-[20px] font-hindi font-bold">{hi.common.loading}</span>
       </div>
-    )
+    );
   }
 
-  const commonProps = {
-    language: state.selectedLanguage,
-    onLanguageChange: handleLanguageSheetOpen,
+  if (showDoneScreen) {
+    return (
+      <div className="fixed inset-0 bg-cream text-ink flex flex-col justify-between p-6 z-50">
+        <SpeakOnMount text={hi.onboarding.doneVoice} />
+        
+        <div className="flex-1 flex flex-col items-center justify-center text-center gap-6 max-w-[430px] mx-auto">
+          <span className="text-[100px] select-none leading-none">🎉</span>
+          <h1 className="text-[36px] font-bold text-temple-700 font-hindi">
+            {hi.onboarding.doneTitle}
+          </h1>
+          <p className="text-[20px] font-medium text-slate-700 font-hindi leading-relaxed">
+            {hi.onboarding.doneVoice}
+          </p>
+        </div>
+
+        <div className="max-w-[430px] mx-auto w-full pb-4">
+          <Button
+            variant="primary"
+            size="lg"
+            fullWidth
+            onClick={() => router.push("/home")}
+            style={{ minHeight: "64px", fontSize: "20px" }}
+          >
+            {hi.onboarding.homeBtn}
+          </Button>
+        </div>
+      </div>
+    );
   }
 
-  const tutorialProps = {
-    ...commonProps,
-    scriptPreference: state.scriptPreference,
-    currentDot: getTutorialDotNumber(state.phase),
-    onNext: handleTutorialNext,
-    onBack: handleTutorialBack,
-    onSkip: handleTutorialSkip,
-  }
-
-  // Force re-render when phase, language, or script preference changes
-  const screenKey = `${state.phase}-${state.selectedLanguage}-${state.scriptPreference ?? 'none'}`
-
-  const renderScreen = () => {
-    switch (state.phase) {
-      case 'SPLASH':
-        return <SplashScreen key={screenKey} onComplete={handleSplashToLocation} onExit={navigateToCustomerApp} />
-
-      case 'LOCATION_PERMISSION':
-        return (
-          <LocationPermissionScreen
-            key={screenKey}
-            {...commonProps}
-            onGranted={handleLocationToLanguageConfirm}
-            onDenied={() => goToPhase('TUTORIAL_SWAGAT')}
-            onBack={() => navigateToCustomerApp()}
-          />
-        )
-
-      case 'MANUAL_CITY':
-        return (
-          <ManualCityScreen
-            key={screenKey}
-            {...commonProps}
-            onCitySelected={handleManualToLanguageConfirm}
-            onBack={() => goToPhase('LOCATION_PERMISSION')}
-          />
-        )
-
-      case 'LANGUAGE_CONFIRM':
-        return (
-          <LanguageConfirmScreen
-            key={screenKey}
-            {...commonProps}
-            detectedCity={state.detectedCity || ''}
-            onConfirm={handleLanguageConfirmToSet}
-            onChange={handleLanguageConfirmToList}
-            onBack={() => goToPhase('LOCATION_PERMISSION')}
-          />
-        )
-
-      case 'LANGUAGE_LIST':
-        return (
-          <LanguageListScreen
-            key={screenKey}
-            {...commonProps}
-            scriptPreference={state.scriptPreference}
-            onSelect={handleLanguageListToChoiceConfirm}
-            onBack={() => goToPhase('LOCATION_PERMISSION')}
-          />
-        )
-
-      case 'LANGUAGE_CHOICE_CONFIRM':
-        return (
-          <LanguageChoiceConfirmScreen
-            key={screenKey}
-            {...commonProps}
-            scriptPreference={state.scriptPreference}
-            pendingLanguage={state.pendingLanguage ?? 'Hindi'}
-            onConfirm={handleLanguageChoiceConfirmToSet}
-            onReject={handleLanguageChoiceRejectToList}
-            onBack={() => goToPhase('LOCATION_PERMISSION')}
-          />
-        )
-
-      case 'LANGUAGE_SET':
-        return <LanguageSetScreen key={screenKey} language={state.selectedLanguage} onComplete={handleLanguageSetToScriptChoice} />
-
-      case 'SCRIPT_CHOICE':
-        return (
-          <ScriptChoiceScreen
-            key={screenKey}
-            language={state.selectedLanguage}
-            onChooseNative={() => handleScriptChoiceToVoiceTutorial('native')}
-            onChooseLatin={() => handleScriptChoiceToVoiceTutorial('latin')}
-            onChangeLanguage={() => {
-              stopSpeaking()
-              if (typeof window !== 'undefined') {
-                setShowLanguageSheet(true)
-              }
-            }}
-            onBack={() => goToPhase('LANGUAGE_CONFIRM')}
-          />
-        )
-
-      case 'HELP':
-        return <HelpScreen key={screenKey} />
-
-      case 'VOICE_TUTORIAL':
-        return <VoiceTutorialScreen key={screenKey} {...commonProps} scriptPreference={state.scriptPreference} onComplete={handleLanguageSetToVoiceTutorial} />
-
-      case 'TUTORIAL_SWAGAT':
-        return <TutorialSwagat key={`${screenKey}-swagat`} {...tutorialProps} />
-      case 'TUTORIAL_INCOME':
-        return <TutorialIncome key={`${screenKey}-income`} {...tutorialProps} />
-      case 'TUTORIAL_DAKSHINA':
-        return <TutorialDakshina key={`${screenKey}-dakshina`} {...tutorialProps} />
-      case 'TUTORIAL_ONLINE_REVENUE':
-        return <TutorialOnlineRevenue key={`${screenKey}-revenue`} {...tutorialProps} />
-      case 'TUTORIAL_BACKUP':
-        return <TutorialBackup key={`${screenKey}-backup`} {...tutorialProps} />
-      case 'TUTORIAL_PAYMENT':
-        return <TutorialPayment key={`${screenKey}-payment`} {...tutorialProps} />
-      case 'TUTORIAL_VOICE_NAV':
-        return <TutorialVoiceNav key={`${screenKey}-voicenav`} {...tutorialProps} />
-      case 'TUTORIAL_DUAL_MODE':
-        return <TutorialDualMode key={`${screenKey}-dualmode`} {...tutorialProps} />
-      case 'TUTORIAL_TRAVEL':
-        return <TutorialTravel key={`${screenKey}-travel`} {...tutorialProps} />
-      case 'TUTORIAL_VIDEO_VERIFY':
-        return <TutorialVideoVerify key={`${screenKey}-videoverify`} {...tutorialProps} />
-      case 'TUTORIAL_GUARANTEES':
-        return <TutorialGuarantees key={`${screenKey}-guarantees`} {...tutorialProps} />
-      case 'TUTORIAL_CTA':
-        return (
-          <TutorialCTA
-            key={`${screenKey}-cta`}
-            {...tutorialProps}
-            onRegisterNow={handleRegistrationNow}
-            onLater={handleLater}
-          />
-        )
-
-      default:
-        return <SplashScreen onComplete={() => goToPhase('LOCATION_PERMISSION')} />
-    }
-  }
+  // Get vocal instruction text
+  const stepVoices = [
+    hi.onboarding.step1Voice,
+    hi.onboarding.step2Voice,
+    hi.onboarding.step3Voice,
+    hi.onboarding.step4Voice,
+    hi.onboarding.step5Voice,
+    hi.onboarding.step6Voice,
+    hi.onboarding.step7Voice,
+  ];
+  const stepTitles = [
+    hi.onboarding.step1Title,
+    hi.onboarding.step2Title,
+    hi.onboarding.step3Title,
+    hi.onboarding.step4Title,
+    hi.onboarding.step5Title,
+    hi.onboarding.step6Title,
+    hi.onboarding.step7Title,
+  ];
 
   return (
-    <div className="min-h-screen bg-surface-base">
-      {/* Mic Permission Flow - Show after Language Set if first ever open */}
-      {showMicPermission && (
-        <MicPermissionScreen
-          language={state.selectedLanguage}
-          scriptPreference={pendingScriptPreference ?? state.scriptPreference}
-          onGranted={handleMicPermissionGranted}
-          onDenied={handleMicPermissionDenied}
-          onBack={() => {
-            setShowMicPermission(false);
-            setPendingScriptPreference(null);
-            goToPhase('LANGUAGE_SET');
-          }}
-        />
-      )}
+    <div className="min-h-screen bg-cream text-ink pb-28">
+      {/* Dynamic Header */}
+      <Header title={stepTitles[draft.step - 1]} showBack={draft.step > 1} onBack={handleBack} />
 
-      {/* Mic Denied Recovery Screen */}
-      {showMicDeniedRecovery && (
-        <MicDeniedRecoveryScreen
-          language={state.selectedLanguage}
-          onContinueWithKeyboard={handleContinueWithKeyboard}
-          onRetryPermission={handleRetryMicPermission}
-        />
-      )}
+      {/* Voice Assistant component */}
+      <SpeakOnMount text={stepVoices[draft.step - 1]} key={draft.step} />
 
-      {/* Main Onboarding Flow - Only show if mic permission flow is not active */}
-      {!showMicPermission && !showMicDeniedRecovery && renderScreen()}
+      <main className="max-w-[430px] mx-auto px-4 pt-4 flex flex-col gap-5">
+        
+        {/* HUGE PROGRESS DOTS */}
+        <div className="flex flex-col items-center gap-2 my-2">
+          <div className="flex gap-2">
+            {[1, 2, 3, 4, 5, 6, 7].map((s) => (
+              <div
+                key={s}
+                className={`w-4 h-4 rounded-full transition-all duration-200 ${
+                  s === draft.step
+                    ? "bg-saffron w-8"
+                    : s < draft.step
+                    ? "bg-saffron-300"
+                    : "bg-slate-300"
+                }`}
+              />
+            ))}
+          </div>
+          <span className="text-[16px] font-bold text-softgrey font-mono mt-1">
+            Step {draft.step} of 7
+          </span>
+        </div>
 
-      {/* Language bottom sheet — always available (only render after mount to prevent hydration errors) */}
-      {isMounted && (
-        <LanguageBottomSheet
-          isOpen={showLanguageSheet}
-          currentLanguage={state.selectedLanguage}
-          onSelect={handleLanguageSheetSelect}
-          onClose={handleLanguageSheetClose}
-        />
-      )}
+        {/* ERROR BOX */}
+        {errorMsg && (
+          <div className="px-4 py-3 bg-red-50 rounded-card border-2 border-danger/30">
+            <p className="text-danger text-[18px] font-bold text-center leading-snug font-hindi">
+              {errorMsg}
+            </p>
+          </div>
+        )}
+
+        {/* STEP-BY-STEP CONTENTS */}
+        <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-4">
+          
+          {/* STEP 1: Name */}
+          {draft.step === 1 && (
+            <div className="flex flex-col gap-2">
+              <label className="text-[18px] font-bold text-temple-700 font-hindi">
+                {hi.onboarding.step1Title}
+              </label>
+              <input
+                type="text"
+                value={draft.name}
+                onChange={(e) => updateDraft({ name: e.target.value })}
+                className="w-full h-[56px] px-3 border-2 border-saffron-300 rounded-btn text-[18px] text-ink bg-white focus:outline-none focus:border-saffron-500 font-hindi"
+                style={{ minHeight: "56px", fontSize: "18px" }}
+                placeholder="पंडित जी का नाम लिखें"
+              />
+            </div>
+          )}
+
+          {/* STEP 2: City */}
+          {draft.step === 2 && (
+            <div className="flex flex-col gap-2">
+              <label className="text-[18px] font-bold text-temple-700 font-hindi">
+                {hi.onboarding.step2Title}
+              </label>
+              <input
+                type="text"
+                list="cities"
+                value={draft.city}
+                onChange={(e) => updateDraft({ city: e.target.value })}
+                className="w-full h-[56px] px-3 border-2 border-saffron-300 rounded-btn text-[18px] text-ink bg-white focus:outline-none focus:border-saffron-500 font-hindi"
+                style={{ minHeight: "56px", fontSize: "18px" }}
+                placeholder="शहर चुनें या लिखें"
+              />
+              <datalist id="cities">
+                <option value="Delhi" />
+                <option value="Noida" />
+                <option value="Gurugram" />
+                <option value="Ghaziabad" />
+                <option value="Faridabad" />
+              </datalist>
+            </div>
+          )}
+
+          {/* STEP 3: Specializations */}
+          {draft.step === 3 && (
+            <div className="flex flex-col gap-3">
+              <label className="text-[18px] font-bold text-temple-700 font-hindi">
+                {hi.onboarding.step3Title}
+              </label>
+              
+              <div className="grid grid-cols-2 gap-3">
+                {SPEC_LIST.map((spec) => {
+                  const isSelected = draft.specializations.includes(spec.id);
+                  const labelText = (hi.onboarding.specializations as any)[spec.id] || spec.id;
+                  
+                  return (
+                    <div
+                      key={spec.id}
+                      onClick={() => {
+                        const nextSpecs = isSelected
+                          ? draft.specializations.filter((id) => id !== spec.id)
+                          : [...draft.specializations, spec.id];
+                        updateDraft({ specializations: nextSpecs });
+                      }}
+                      className={`h-[100px] rounded-card border-2 cursor-pointer flex flex-col items-center justify-center gap-1 select-none transition-all ${
+                        isSelected
+                          ? "bg-[#FF9933] border-[#FF9933] text-white shadow-md"
+                          : "bg-white border-saffron-200 text-ink"
+                      }`}
+                      style={{ height: "100px" }}
+                    >
+                      <span className="text-[28px]">{spec.emoji}</span>
+                      <span className="text-[16px] font-bold font-hindi text-center leading-tight">
+                        {isSelected && "✓ "}
+                        {labelText}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* STEP 4: Experience & Team */}
+          {draft.step === 4 && (
+            <div className="flex flex-col gap-6">
+              {/* Experience Stepper */}
+              <div className="flex flex-col gap-2">
+                <span className="text-[18px] font-bold text-temple-700 font-hindi">
+                  {hi.onboarding.experienceLabel}
+                </span>
+                <div className="flex items-center justify-between bg-slate-50 p-2 rounded-card border border-saffron-100">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (draft.experience > 0) {
+                        updateDraft({ experience: draft.experience - 1 });
+                      }
+                    }}
+                    className="w-16 h-16 bg-white border border-saffron-200 rounded-btn flex items-center justify-center text-[24px] font-bold text-saffron-600 active:scale-95 transition-transform"
+                    style={{ width: "64px", height: "64px" }}
+                  >
+                    −
+                  </button>
+                  <span className="text-[28px] font-bold font-mono">
+                    {draft.experience}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (draft.experience < 60) {
+                        updateDraft({ experience: draft.experience + 1 });
+                      }
+                    }}
+                    className="w-16 h-16 bg-white border border-saffron-200 rounded-btn flex items-center justify-center text-[24px] font-bold text-saffron-600 active:scale-95 transition-transform"
+                    style={{ width: "64px", height: "64px" }}
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+
+              {/* Team Size Stepper */}
+              <div className="flex flex-col gap-2">
+                <span className="text-[18px] font-bold text-temple-700 font-hindi">
+                  {hi.onboarding.teamLabel}
+                </span>
+                <div className="flex items-center justify-between bg-slate-50 p-2 rounded-card border border-saffron-100">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (draft.teamSize > 1) {
+                        updateDraft({ teamSize: draft.teamSize - 1 });
+                      }
+                    }}
+                    className="w-16 h-16 bg-white border border-saffron-200 rounded-btn flex items-center justify-center text-[24px] font-bold text-saffron-600 active:scale-95 transition-transform"
+                    style={{ width: "64px", height: "64px" }}
+                  >
+                    −
+                  </button>
+                  <span className="text-[28px] font-bold font-mono">
+                    {draft.teamSize}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (draft.teamSize < 10) {
+                        updateDraft({ teamSize: draft.teamSize + 1 });
+                      }
+                    }}
+                    className="w-16 h-16 bg-white border border-saffron-200 rounded-btn flex items-center justify-center text-[24px] font-bold text-saffron-600 active:scale-95 transition-transform"
+                    style={{ width: "64px", height: "64px" }}
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* STEP 5: Dakshina */}
+          {draft.step === 5 && (
+            <div className="flex flex-col gap-4">
+              <label className="text-[18px] font-bold text-temple-700 font-hindi border-b border-saffron-100 pb-2">
+                {hi.onboarding.step5Title}
+              </label>
+
+              <div className="flex flex-col gap-4">
+                {draft.specializations.map((spec) => {
+                  const labelText = (hi.onboarding.specializations as any)[spec] || spec;
+                  const currentRate = draft.dakshina[spec] || "";
+
+                  return (
+                    <div key={spec} className="flex flex-col gap-1.5 border-b border-slate-100 pb-3 last:border-0 last:pb-0">
+                      <span className="text-[18px] font-bold text-ink font-hindi">
+                        {labelText}
+                      </span>
+                      
+                      <div className="flex items-center bg-white border-2 border-saffron-300 rounded-btn px-3 focus-within:border-saffron-500">
+                        <span className="text-[18px] font-bold text-softgrey pr-2">₹</span>
+                        <input
+                          type="tel"
+                          inputMode="numeric"
+                          pattern="[0-9]*"
+                          value={currentRate}
+                          onChange={(e) => {
+                            const val = e.target.value.replace(/\D/g, "");
+                            updateDraft({
+                              dakshina: { ...draft.dakshina, [spec]: val },
+                            });
+                          }}
+                          className="w-full h-[56px] outline-none text-[18px] font-bold text-ink bg-transparent"
+                          style={{ minHeight: "56px", fontSize: "18px" }}
+                          placeholder="501 - 500000"
+                        />
+                      </div>
+                      
+                      <span className="text-[16px] text-softgrey font-hindi pl-1">
+                        {hi.onboarding.dakshinaHint}
+                        {Number(currentRate || 0).toLocaleString("en-IN")}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* STEP 6: Aadhaar Upload */}
+          {draft.step === 6 && (
+            <div className="flex flex-col gap-3">
+              <label className="text-[18px] font-bold text-temple-700 font-hindi">
+                {hi.onboarding.step6Title}
+              </label>
+
+              <label className="w-full min-h-[140px] border-2 border-dashed border-saffron-300 rounded-card flex flex-col items-center justify-center p-4 bg-saffron-50/10 cursor-pointer active:bg-saffron-50/30 transition-all select-none">
+                <input
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                />
+                
+                {uploading ? (
+                  <span className="text-[18px] font-bold text-saffron-600 font-hindi animate-pulse">
+                    {hi.common.loading}
+                  </span>
+                ) : (
+                  <span className="text-[18px] font-bold text-saffron-600 font-hindi text-center">
+                    {hi.onboarding.aadhaarLabel}
+                  </span>
+                )}
+              </label>
+
+              {draft.aadhaarUrl && (
+                <div className="mt-2 border-2 border-saffron-100 rounded-card overflow-hidden bg-white max-w-[200px] mx-auto shadow-sm">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={draft.aadhaarUrl}
+                    alt="Aadhaar Thumbnail"
+                    className="w-full h-[120px] object-cover"
+                  />
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* STEP 7: Bank/UPI */}
+          {draft.step === 7 && (
+            <div className="flex flex-col gap-4">
+              {/* TABS HEADER */}
+              <div className="flex bg-slate-100 rounded-btn p-1.5 border border-saffron-100">
+                <button
+                  type="button"
+                  onClick={() => updateDraft({ paymentType: "BANK" })}
+                  className={`flex-1 py-3 text-center rounded-btn font-bold text-[18px] font-hindi transition-all ${
+                    draft.paymentType === "BANK"
+                      ? "bg-white text-saffron-700 shadow-sm"
+                      : "text-softgrey"
+                  }`}
+                  style={{ minHeight: "56px" }}
+                >
+                  {hi.onboarding.bankTab}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => updateDraft({ paymentType: "UPI" })}
+                  className={`flex-1 py-3 text-center rounded-btn font-bold text-[18px] font-hindi transition-all ${
+                    draft.paymentType === "UPI"
+                      ? "bg-white text-saffron-700 shadow-sm"
+                      : "text-softgrey"
+                  }`}
+                  style={{ minHeight: "56px" }}
+                >
+                  {hi.onboarding.upiTab}
+                </button>
+              </div>
+
+              {/* BANK PAY DETAILS */}
+              {draft.paymentType === "BANK" ? (
+                <div className="flex flex-col gap-4">
+                  {/* Account Name */}
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[18px] font-bold text-temple-700 font-hindi">
+                      {hi.onboarding.accName}
+                    </label>
+                    <input
+                      type="text"
+                      value={draft.bank.accountName}
+                      onChange={(e) => updateBank({ accountName: e.target.value })}
+                      className="w-full h-[56px] px-3 border-2 border-saffron-300 rounded-btn text-[18px] text-ink bg-white focus:outline-none focus:border-saffron-500 font-hindi"
+                      style={{ minHeight: "56px", fontSize: "18px" }}
+                      placeholder="नाम लिखें"
+                    />
+                  </div>
+
+                  {/* Account Number */}
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[18px] font-bold text-temple-700 font-hindi">
+                      {hi.onboarding.accNumber}
+                    </label>
+                    <input
+                      type="tel"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      value={draft.bank.accountNumber}
+                      onChange={(e) => updateBank({ accountNumber: e.target.value.replace(/\D/g, "") })}
+                      className="w-full h-[56px] px-3 border-2 border-saffron-300 rounded-btn text-[18px] text-ink bg-white focus:outline-none focus:border-saffron-500 font-mono"
+                      style={{ minHeight: "56px", fontSize: "18px" }}
+                      placeholder="1234567890"
+                    />
+                  </div>
+
+                  {/* Confirm Account Number */}
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[18px] font-bold text-temple-700 font-hindi">
+                      {hi.onboarding.accNumberConfirm}
+                    </label>
+                    <input
+                      type="tel"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      value={draft.bank.accountNumberConfirm}
+                      onChange={(e) => updateBank({ accountNumberConfirm: e.target.value.replace(/\D/g, "") })}
+                      className="w-full h-[56px] px-3 border-2 border-saffron-300 rounded-btn text-[18px] text-ink bg-white focus:outline-none focus:border-saffron-500 font-mono"
+                      style={{ minHeight: "56px", fontSize: "18px" }}
+                      placeholder="1234567890"
+                    />
+                  </div>
+
+                  {/* IFSC Code */}
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[18px] font-bold text-temple-700 font-hindi">
+                      {hi.onboarding.ifscCode}
+                    </label>
+                    <input
+                      type="text"
+                      value={draft.bank.ifsc}
+                      onChange={(e) => updateBank({ ifsc: e.target.value.toUpperCase() })}
+                      className="w-full h-[56px] px-3 border-2 border-saffron-300 rounded-btn text-[18px] text-ink bg-white focus:outline-none focus:border-saffron-500 font-mono uppercase"
+                      style={{ minHeight: "56px", fontSize: "18px" }}
+                      placeholder="SBIN0001234"
+                    />
+                  </div>
+                </div>
+              ) : (
+                /* UPI PAY DETAILS */
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[18px] font-bold text-temple-700 font-hindi">
+                    {hi.onboarding.upiIdLabel}
+                  </label>
+                  <input
+                    type="text"
+                    value={draft.upi.id}
+                    onChange={(e) => updateUpi({ id: e.target.value })}
+                    className="w-full h-[56px] px-3 border-2 border-saffron-300 rounded-btn text-[18px] text-ink bg-white focus:outline-none focus:border-saffron-500 font-mono"
+                    style={{ minHeight: "56px", fontSize: "18px" }}
+                    placeholder="example@upi"
+                  />
+                </div>
+              )}
+            </div>
+          )}
+
+        </Card>
+      </main>
+
+      {/* FIXED FOOTER WITH SPLIT NAVIGATION BUTTONS */}
+      <footer className="fixed bottom-0 left-0 right-0 h-24 bg-white border-t border-saffron-100 flex p-3 gap-3 z-30">
+        <button
+          type="button"
+          onClick={handleBack}
+          disabled={draft.step === 1 || submitting}
+          className={`flex-1 h-16 rounded-btn flex items-center justify-center font-bold text-[20px] border-2 transition-all font-hindi active:scale-95 ${
+            draft.step === 1
+              ? "bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed"
+              : "bg-white border-saffron-300 text-saffron-700 hover:bg-saffron-50"
+          }`}
+          style={{ minHeight: "64px", fontSize: "20px" }}
+        >
+          {hi.common.back}
+        </button>
+        <button
+          type="button"
+          onClick={handleNext}
+          disabled={submitting}
+          className="flex-1 h-16 rounded-btn flex items-center justify-center font-bold text-[20px] bg-saffron hover:bg-saffron-600 text-white transition-all font-hindi active:scale-95 shadow-md"
+          style={{ minHeight: "64px", fontSize: "20px" }}
+        >
+          {submitting ? hi.common.loading : hi.common.next}
+        </button>
+      </footer>
     </div>
-  )
+  );
 }
-
-// Main export with Suspense boundary
-export default function OnboardingPage() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen splash-gradient flex items-center justify-center">
-        <span className="text-white text-5xl animate-glow-pulse">ॐ</span>
-      </div>
-    }>
-      <OnboardingContent />
-    </Suspense>
-  )
-}
-
-// SSR FIX: Disable static generation for pages using Zustand stores
-export const dynamic = 'force-dynamic'

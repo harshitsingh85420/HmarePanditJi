@@ -163,8 +163,8 @@ export default function SamagriPage() {
       return;
     }
 
-    setToastMsg(hi.samagri.saved);
-    speak(hi.samagri.saved);
+    setToastMsg(hi.common.save);
+    speak(hi.common.save);
 
     // Redirect to home menu after a short delay
     setTimeout(() => {
@@ -176,7 +176,7 @@ export default function SamagriPage() {
   return (
     <div className="min-h-screen bg-cream text-ink pb-20">
       <Header
-        title={hi.samagri.title}
+        title="Samagri"
         showBack={selectedPuja !== null}
         onBack={() => {
           setSelectedPuja(null);
@@ -213,7 +213,7 @@ export default function SamagriPage() {
         ) : (
           /* SCREEN 2: EDIT SAMAGRI PACKAGES */
           <>
-            <SpeakOnMount text={hi.samagri.introVoice} />
+            <SpeakOnMount text={hi.onboarding.step5Voice} />
 
             <div className="bg-white rounded-card shadow-card p-5 border border-saffron-100 flex flex-col gap-4">
               <div className="flex justify-between items-center border-b border-saffron-100 pb-3">
@@ -221,7 +221,7 @@ export default function SamagriPage() {
                   {selectedPuja}
                 </h2>
                 <span className="t-hint text-saffron-600 font-bold px-3 py-1 bg-saffron-50 rounded-full">
-                  {items.length} {hi.samagri.itemQty}
+                  {items.length} Items
                 </span>
               </div>
 
@@ -264,7 +264,7 @@ export default function SamagriPage() {
                     <div className="flex flex-col gap-3 p-4 bg-saffron-50/50 rounded-card border border-saffron-100 mt-2">
                       <input
                         type="text"
-                        placeholder={hi.samagri.itemName}
+                        placeholder="Item Name"
                         value={newItemName}
                         onChange={(e) => setNewItemName(e.target.value)}
                         className="w-full h-[56px] px-3 border-2 border-saffron-300 rounded-btn text-[18px] font-hindi text-ink bg-white focus:outline-none"
@@ -272,7 +272,7 @@ export default function SamagriPage() {
                       />
                       <input
                         type="text"
-                        placeholder={hi.samagri.itemQty}
+                        placeholder="Qty"
                         value={newItemQty}
                         onChange={(e) => setNewItemQty(e.target.value)}
                         className="w-full h-[56px] px-3 border-2 border-saffron-300 rounded-btn text-[18px] font-hindi text-ink bg-white focus:outline-none"
@@ -285,7 +285,7 @@ export default function SamagriPage() {
                           fullWidth
                           onClick={handleAddItem}
                         >
-                          {hi.samagri.addBtn}
+                          {hi.common.save}
                         </Button>
                         <Button
                           variant="secondary"
@@ -303,21 +303,21 @@ export default function SamagriPage() {
                       size="md"
                       onClick={() => setShowAddForm(true)}
                     >
-                      {hi.samagri.addItem}
+                      Add New Item
                     </Button>
                   )}
 
                   {/* TIER PRICING */}
                   <div className="flex flex-col gap-4 mt-4">
                     <h3 className="text-[18px] font-bold text-temple-600 font-hindi border-t border-saffron-100 pt-3">
-                      {hi.samagri.fixedPrice}
+                      {hi.booking.samagri}
                     </h3>
 
                     <div className="flex flex-col md:flex-row gap-3">
                       {/* Basic Tier */}
                       <div className="flex-1 bg-white p-3 rounded-card border-2 border-saffron-200 flex flex-col gap-2">
                         <span className="text-[18px] font-bold text-temple-700 font-hindi text-center">
-                          {hi.samagri.basic}
+                          Basic
                         </span>
                         <div className="flex items-center bg-white border border-saffron-300 rounded-btn px-2">
                           <span className="text-[18px] font-bold pr-2">₹</span>
@@ -326,7 +326,7 @@ export default function SamagriPage() {
                             pattern="[0-9]*"
                             value={prices.BASIC}
                             onChange={(e) =>
-                              setPrices({ ...prices, BASIC: e.target.value.replace(/\D/g, "") })
+                               setPrices({ ...prices, BASIC: e.target.value.replace(/\D/g, "") })
                             }
                             className="w-full h-[56px] outline-none text-[18px] font-bold text-ink"
                             style={{ minHeight: "56px", fontSize: "18px" }}
@@ -338,7 +338,7 @@ export default function SamagriPage() {
                       {/* Standard Tier */}
                       <div className="flex-1 bg-white p-3 rounded-card border-2 border-saffron-300 flex flex-col gap-2">
                         <span className="text-[18px] font-bold text-temple-700 font-hindi text-center">
-                          {hi.samagri.standard}
+                          Standard
                         </span>
                         <div className="flex items-center bg-white border border-saffron-300 rounded-btn px-2">
                           <span className="text-[18px] font-bold pr-2">₹</span>
@@ -347,7 +347,7 @@ export default function SamagriPage() {
                             pattern="[0-9]*"
                             value={prices.STANDARD}
                             onChange={(e) =>
-                              setPrices({ ...prices, STANDARD: e.target.value.replace(/\D/g, "") })
+                               setPrices({ ...prices, STANDARD: e.target.value.replace(/\D/g, "") })
                             }
                             className="w-full h-[56px] outline-none text-[18px] font-bold text-ink"
                             style={{ minHeight: "56px", fontSize: "18px" }}
@@ -359,7 +359,7 @@ export default function SamagriPage() {
                       {/* Premium Tier */}
                       <div className="flex-1 bg-white p-3 rounded-card border-2 border-saffron-200 flex flex-col gap-2">
                         <span className="text-[18px] font-bold text-temple-700 font-hindi text-center">
-                          {hi.samagri.premium}
+                          Premium
                         </span>
                         <div className="flex items-center bg-white border border-saffron-300 rounded-btn px-2">
                           <span className="text-[18px] font-bold pr-2">₹</span>
@@ -368,7 +368,7 @@ export default function SamagriPage() {
                             pattern="[0-9]*"
                             value={prices.PREMIUM}
                             onChange={(e) =>
-                              setPrices({ ...prices, PREMIUM: e.target.value.replace(/\D/g, "") })
+                               setPrices({ ...prices, PREMIUM: e.target.value.replace(/\D/g, "") })
                             }
                             className="w-full h-[56px] outline-none text-[18px] font-bold text-ink"
                             style={{ minHeight: "56px", fontSize: "18px" }}
@@ -386,7 +386,7 @@ export default function SamagriPage() {
                     loading={saving}
                     style={{ minHeight: "56px", fontSize: "18px", marginTop: "1rem" }}
                   >
-                    {hi.samagri.saveBtn}
+                    {hi.common.save}
                   </Button>
                 </>
               )}

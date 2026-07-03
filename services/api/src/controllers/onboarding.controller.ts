@@ -253,3 +253,229 @@ export const onboardingComplete = async (request: FastifyRequest, reply: Fastify
         throw err;
     }
 };
+
+export const submitOnboarding = async (request: FastifyRequest, reply: FastifyReply) => {
+    const req = request as AuthenticatedRequest;
+    const userId = req.user.id;
+
+    // Extract the body
+    const body = request.body as any;
+    const { name, city, specializations, experience, teamSize, dakshina, aadhaarUrl, payment } = body;
+
+    // Validate name
+    if (!name || name.trim().length < 3) {
+        return reply.status(400).send({
+            success: false,
+            error: { code: "validation_error", message: "Name must be at least 3 characters." }
+        });
+    }
+
+    // Validate city
+    if (!city || city.trim().length === 0) {
+        return reply.status(400).send({
+            success: false,
+            error: { code: "validation_error", message: "City is required." }
+        });
+    }
+
+    // Validate specializations
+    if (!Array.isArray(specializations) || specializations.length === 0) {
+        return reply.status(400).send({
+            success: false,
+            error: { code: "validation_error", message: "At least one specialization is required." }
+        });
+    }
+
+    const validSpecs = ["SATYANARAYAN", "GRIHA_PRAVESH", "VIVAH", "MUNDAN", "NAAMKARAN", "HAVAN", "RUDRABHISHEK", "SHRADH"];
+    for (const spec of specializations) {
+        if (!validSpecs.includes(spec)) {
+            return reply.status(400).send({
+                success: false,
+                error: { code: "validation_error", message: `Invalid specialization: ${spec}` }
+            });
+        }
+    }
+
+    // Validate experience and team size
+    const expNum = Number(experience);
+    if (isNaN(expNum) || expNum < 0 || expNum > 60) {
+        return reply.status(400).send({
+            success: false,
+            error: { code: "validation_error", message: "Experience must be between 0 and 60 years." }
+        });
+    }
+
+    const teamNum = Number(teamSize);
+    if (isNaN(teamNum) || teamNum < 1 || teamNum > 10) {
+        return reply.status(400).send({
+            success: false,
+            error: { code: "validation_error", message: "Team size must be between 1 and 10." }
+        });
+    }
+
+    // Validate dakshina rates
+    if (!dakshina || typeof dakshina !== "object") {
+        return reply.status(400).send({
+            success: false,
+            error: { code: "validation_error", message: "Dakshina rates are required." }
+        });
+    }
+    for (const spec of specializations) {
+        const rate = Number(dakshina[spec]);
+        if (isNaN(rate) || rate < 501 || rate > 500000) {
+            return reply.status(400).send({
+                success: false,
+                error: { code: "validation_error", message: `Dakshina rate for ${spec} must be between 501 and 500,000.` }
+            });
+        }
+    }
+
+    // Validate Aadhaar URL
+    if (!aadhaarUrl || typeof aadhaarUrl !== "string" || aadhaarUrl.trim().length === 0) {
+        return reply.status(400).send({
+            success: false,
+            error: { code: "validation_error", message: "Aadhaar photo upload is required." }
+        });
+    }
+
+    // Validate Payment
+    if (!payment || typeof payment !== "object") {
+        return reply.status(400).send({
+            success: false,
+            error: { code: "validation_error", message: "Payment details are required." }
+        });
+    }
+
+    let bankAccountName: string | null = null;
+    let bankAccountNumber: string | null = null;
+    let bankIfscCode: string | null = null;
+    let upiId: string | null = null;
+
+    let hasBank = false;
+    let hasUpi = false;
+
+    if (payment.type === "BANK") {
+        const { accountName, accountNumber, ifsc } = payment.bank || {};
+        if (!accountName || accountName.trim().length === 0) {
+            return reply.status(400).send({
+                success: false,
+                error: { code: "validation_error", message: "Account holder name is required." }
+            });
+        }
+        const accNumStr = String(accountNumber || "");
+        if (!/^\d{9,18}$/.test(accNumStr)) {
+            return reply.status(400).send({
+                success: false,
+                error: { code: "validation_error", message: "Account number must be numeric and between 9 and 18 digits." }
+            });
+        }
+        const ifscStr = String(ifsc || "").toUpperCase();
+        if (!/^[A-Z]{4}0[A-Z0-9]{6}$/.test(ifscStr)) {
+            return reply.status(400).send({
+                success: false,
+                error: { code: "validation_error", message: "Invalid IFSC code format." }
+            });
+        }
+        bankAccountName = accountName;
+        bankAccountNumber = Buffer.from(accNumStr).toString('base64');
+        bankIfscCode = ifscStr;
+        hasBank = true;
+    } else if (payment.type === "UPI") {
+        const upiVal = String(payment.upi?.id || "");
+        if (!/^[\w.\-]{2,}@[a-zA-Z]{2,}$/.test(upiVal)) {
+            return reply.status(400).send({
+                success: false,
+                error: { code: "validation_error", message: "Invalid UPI ID format." }
+            });
+        }
+        upiId = upiVal;
+        hasUpi = true;
+    } else {
+        return reply.status(400).send({
+            success: false,
+            error: { code: "validation_error", message: "Select either bank account or UPI." }
+        });
+    }
+
+    if (!hasBank && !hasUpi) {
+        return reply.status(400).send({
+            success: false,
+            error: { code: "validation_error", message: "At least one payment method (Bank or UPI) must be complete." }
+        });
+    }
+
+    try {
+        await prisma.$transaction(async (tx) => {
+            // Update User name
+            await tx.user.update({
+                where: { id: userId },
+                data: { name }
+            });
+
+            // Find or Create PanditProfile
+            let profile = await tx.panditProfile.findUnique({
+                where: { userId }
+            });
+
+            const profileData = {
+                fullName: name,
+                location: city,
+                city,
+                experienceYears: expNum,
+                yearsExperience: expNum,
+                teamSize: teamNum,
+                aadhaarDocUrl: aadhaarUrl,
+                aadhaarFrontUrl: aadhaarUrl,
+                specializations,
+                verificationStatus: "PENDING" as any,
+                bankAccountName,
+                bankAccountNumber,
+                bankIfscCode,
+                bankIfsc: bankIfscCode,
+                upiId
+            };
+
+            if (profile) {
+                profile = await tx.panditProfile.update({
+                    where: { id: profile.id },
+                    data: profileData
+                });
+            } else {
+                profile = await tx.panditProfile.create({
+                    data: {
+                        userId,
+                        ...profileData
+                    }
+                });
+            }
+
+            // Remove existing dakshina rates
+            await tx.dakshinaRate.deleteMany({
+                where: { panditId: profile.id }
+            });
+
+            // Write DakshinaRate rows
+            const ratesData = specializations.map((spec) => ({
+                panditId: profile.id,
+                pujaType: spec,
+                amount: Number(dakshina[spec])
+            }));
+
+            await tx.dakshinaRate.createMany({
+                data: ratesData
+            });
+        });
+
+        return reply.send({
+            success: true,
+            data: {
+                message: "Onboarding submitted successfully."
+            }
+        });
+    } catch (err: any) {
+        return reply.status(500).send({
+            success: false,
+            error: { code: "server_error", message: err.message || "Failed to submit onboarding." }
+        });
+    }
+};

@@ -131,9 +131,8 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-cream text-ink flex flex-col justify-between">
-      {/* Sticky top bar */}
       <Header
-        title={hi.design.title}
+        title={hi.welcome.title}
         showBack={step === 2}
         onBack={() => {
           setStep(1);

@@ -818,54 +818,54 @@ export const getPanditEarningsSummary = async (request: FastifyRequest, reply: F
   monthStart.setDate(1);
   monthStart.setHours(0, 0, 0, 0);
 
-  // today: sum of panditPayout where payoutCompletedAt is today
-  const todayBookings = await prisma.booking.findMany({
+  // today = sum of Payout.amount for payouts created today
+  const todayPayouts = await prisma.payout.findMany({
     where: {
       panditId: profile.id,
-      payoutCompletedAt: {
+      createdAt: {
         gte: todayStart,
         lte: todayEnd
       }
     },
-    select: { panditPayout: true }
+    select: { amount: true }
   });
-  const today = todayBookings.reduce((sum, b) => sum + (b.panditPayout || 0), 0);
+  const today = todayPayouts.reduce((sum, p) => sum + p.amount, 0);
 
-  // week: sum of panditPayout where payoutCompletedAt is this week
-  const weekBookings = await prisma.booking.findMany({
+  // week = sum of Payout.amount for payouts created this week
+  const weekPayouts = await prisma.payout.findMany({
     where: {
       panditId: profile.id,
-      payoutCompletedAt: {
+      createdAt: {
         gte: weekStart,
         lte: todayEnd
       }
     },
-    select: { panditPayout: true }
+    select: { amount: true }
   });
-  const week = weekBookings.reduce((sum, b) => sum + (b.panditPayout || 0), 0);
+  const week = weekPayouts.reduce((sum, p) => sum + p.amount, 0);
 
-  // month: sum of panditPayout where payoutCompletedAt is in current month
-  const monthBookings = await prisma.booking.findMany({
+  // month = current calendar month
+  const monthPayouts = await prisma.payout.findMany({
     where: {
       panditId: profile.id,
-      payoutCompletedAt: {
+      createdAt: {
         gte: monthStart,
         lte: todayEnd
       }
     },
-    select: { panditPayout: true }
+    select: { amount: true }
   });
-  const month = monthBookings.reduce((sum, b) => sum + (b.panditPayout || 0), 0);
+  const month = monthPayouts.reduce((sum, p) => sum + p.amount, 0);
 
-  // pendingPayout: sum of panditPayout where payoutStatus is PENDING
-  const pendingBookings = await prisma.booking.findMany({
+  // pendingPayout = sum where status=PENDING
+  const pendingPayouts = await prisma.payout.findMany({
     where: {
       panditId: profile.id,
-      payoutStatus: "PENDING"
+      status: "PENDING"
     },
-    select: { panditPayout: true }
+    select: { amount: true }
   });
-  const pendingPayout = pendingBookings.reduce((sum, b) => sum + (b.panditPayout || 0), 0);
+  const pendingPayout = pendingPayouts.reduce((sum, p) => sum + p.amount, 0);
 
   return reply.send({
     success: true,
