@@ -100,11 +100,11 @@ export default async function adminRoutes(fastify: FastifyInstance, _opts: any) 
             payoutReference: true,
             payoutCompletedAt: true,
             grandTotal: true,
-            pandit: {
+            panditUser: {
               select: {
                 id: true,
                 name: true,
-                panditProfile: {
+                pandit: {
                   select: {
                     city: true,
                   },
@@ -115,6 +115,18 @@ export default async function adminRoutes(fastify: FastifyInstance, _opts: any) 
         }),
         prisma.booking.count({ where }),
       ]);
+
+      const mappedBookings = bookings.map(b => {
+        const { panditUser, ...rest } = b as any;
+        return {
+          ...rest,
+          pandit: panditUser ? {
+            id: panditUser.id,
+            name: panditUser.name,
+            panditProfile: panditUser.pandit
+          } : null
+        };
+      });
 
       // Aggregate payout stats
       const stats = await prisma.booking.aggregate({
@@ -128,7 +140,7 @@ export default async function adminRoutes(fastify: FastifyInstance, _opts: any) 
       });
 
       sendSuccess(res, {
-        bookings,
+        bookings: mappedBookings,
         stats: {
           totalPayouts: stats._sum.panditPayout ?? 0,
           totalRevenue: stats._sum.grandTotal ?? 0,
@@ -231,7 +243,7 @@ export default async function adminRoutes(fastify: FastifyInstance, _opts: any) 
             refundStatus: true,
             refundReference: true,
             paymentStatus: true,
-            pandit: { select: { name: true, panditProfile: { select: { city: true } } } },
+            panditUser: { select: { name: true, pandit: { select: { city: true } } } },
             customer: {
               select: { name: true, phone: true }
             },
@@ -240,7 +252,18 @@ export default async function adminRoutes(fastify: FastifyInstance, _opts: any) 
         prisma.booking.count({ where }),
       ]);
 
-      sendPaginated(res, bookings, total, page, limit);
+      const mappedBookings = bookings.map(b => {
+        const { panditUser, ...rest } = b as any;
+        return {
+          ...rest,
+          pandit: panditUser ? {
+            name: panditUser.name,
+            panditProfile: panditUser.pandit
+          } : null
+        };
+      });
+
+      sendPaginated(res, mappedBookings, total, page, limit);
     } catch (err) {
       throw err;
     }

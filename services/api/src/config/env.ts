@@ -18,6 +18,8 @@ const envSchema = z.object({
   API_PORT: z.coerce.number().default(3001),
   MOCK_OTP: z.string().default("false"),
   MOCK_NOTIFICATIONS: z.string().default("false"),
+  REDIS_URL: z.string().default("redis://localhost:6379"),
+  OTP_DEV_MODE: z.string().default("false"),
 
   DATABASE_URL: z.string().url("DATABASE_URL must be a valid PostgreSQL URL"),
 

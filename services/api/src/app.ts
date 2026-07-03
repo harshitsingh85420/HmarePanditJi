@@ -29,6 +29,24 @@ import kycRoutes from "./routes/kyc.routes";
 import onboardingRoutes from "./routes/onboarding.routes";
 import uploadRoutes from "./routes/upload.routes";
 import aiRoutes from "./routes/ai.routes";
+import { authenticate } from "./middleware/auth";
+import { roleGuard } from "./middleware/roleGuard";
+import {
+  getSamagriPackages,
+  saveSamagriPackages,
+  patchPanditStatus,
+  getPanditBookings,
+  getPanditBookingById,
+  getPanditEarningsSummary,
+  acceptBooking,
+  rejectBooking,
+  postBookingJourney,
+  completeBooking,
+  getPanditPayouts,
+  getBlockedDates,
+  createBlockedDate,
+  deleteBlockedDate
+} from "./controllers/auth.controller";
 
 const app: FastifyInstance = Fastify({
   logger: {
@@ -137,7 +155,49 @@ app.get(API_PREFIX, async (_request: FastifyRequest, reply: FastifyReply) => {
   });
 });
 
+// Enforce role PANDIT on all /pandit/* or /pandits/* routes
+app.addHook("preHandler", async (request, reply) => {
+  const url = request.url;
+  if (url.startsWith(`${API_PREFIX}/pandits`) || url.startsWith(`${API_PREFIX}/pandit`)) {
+    await authenticate(request, reply);
+    await roleGuard("PANDIT")(request, reply);
+  }
+});
+
 // ── Routes ────────────────────────────────────────────────────────────────────
+app.get(`${API_PREFIX}/pandit/samagri-packages`, { preHandler: [authenticate, roleGuard("PANDIT")] }, getSamagriPackages);
+app.post(`${API_PREFIX}/pandit/samagri-packages`, { preHandler: [authenticate, roleGuard("PANDIT")] }, saveSamagriPackages);
+app.get(`${API_PREFIX}/pandits/samagri-packages`, { preHandler: [authenticate, roleGuard("PANDIT")] }, getSamagriPackages);
+app.post(`${API_PREFIX}/pandits/samagri-packages`, { preHandler: [authenticate, roleGuard("PANDIT")] }, saveSamagriPackages);
+
+// Singular paths
+app.patch(`${API_PREFIX}/pandit/status`, { preHandler: [authenticate, roleGuard("PANDIT")] }, patchPanditStatus);
+app.get(`${API_PREFIX}/pandit/bookings`, { preHandler: [authenticate, roleGuard("PANDIT")] }, getPanditBookings);
+app.get(`${API_PREFIX}/pandit/bookings/:id`, { preHandler: [authenticate, roleGuard("PANDIT")] }, getPanditBookingById);
+app.post(`${API_PREFIX}/pandit/bookings/:id/accept`, { preHandler: [authenticate, roleGuard("PANDIT")] }, acceptBooking);
+app.post(`${API_PREFIX}/pandit/bookings/:id/reject`, { preHandler: [authenticate, roleGuard("PANDIT")] }, rejectBooking);
+app.post(`${API_PREFIX}/pandit/bookings/:id/journey`, { preHandler: [authenticate, roleGuard("PANDIT")] }, postBookingJourney);
+app.post(`${API_PREFIX}/pandit/bookings/:id/complete`, { preHandler: [authenticate, roleGuard("PANDIT")] }, completeBooking);
+app.get(`${API_PREFIX}/pandit/earnings/summary`, { preHandler: [authenticate, roleGuard("PANDIT")] }, getPanditEarningsSummary);
+app.get(`${API_PREFIX}/pandit/payouts`, { preHandler: [authenticate, roleGuard("PANDIT")] }, getPanditPayouts);
+app.get(`${API_PREFIX}/pandit/blocked-dates`, { preHandler: [authenticate, roleGuard("PANDIT")] }, getBlockedDates);
+app.post(`${API_PREFIX}/pandit/blocked-dates`, { preHandler: [authenticate, roleGuard("PANDIT")] }, createBlockedDate);
+app.delete(`${API_PREFIX}/pandit/blocked-dates/:date`, { preHandler: [authenticate, roleGuard("PANDIT")] }, deleteBlockedDate);
+
+// Plural paths
+app.patch(`${API_PREFIX}/pandits/status`, { preHandler: [authenticate, roleGuard("PANDIT")] }, patchPanditStatus);
+app.get(`${API_PREFIX}/pandits/bookings`, { preHandler: [authenticate, roleGuard("PANDIT")] }, getPanditBookings);
+app.get(`${API_PREFIX}/pandits/bookings/:id`, { preHandler: [authenticate, roleGuard("PANDIT")] }, getPanditBookingById);
+app.post(`${API_PREFIX}/pandits/bookings/:id/accept`, { preHandler: [authenticate, roleGuard("PANDIT")] }, acceptBooking);
+app.post(`${API_PREFIX}/pandits/bookings/:id/reject`, { preHandler: [authenticate, roleGuard("PANDIT")] }, rejectBooking);
+app.post(`${API_PREFIX}/pandits/bookings/:id/journey`, { preHandler: [authenticate, roleGuard("PANDIT")] }, postBookingJourney);
+app.post(`${API_PREFIX}/pandits/bookings/:id/complete`, { preHandler: [authenticate, roleGuard("PANDIT")] }, completeBooking);
+app.get(`${API_PREFIX}/pandits/earnings/summary`, { preHandler: [authenticate, roleGuard("PANDIT")] }, getPanditEarningsSummary);
+app.get(`${API_PREFIX}/pandits/payouts`, { preHandler: [authenticate, roleGuard("PANDIT")] }, getPanditPayouts);
+app.get(`${API_PREFIX}/pandits/blocked-dates`, { preHandler: [authenticate, roleGuard("PANDIT")] }, getBlockedDates);
+app.post(`${API_PREFIX}/pandits/blocked-dates`, { preHandler: [authenticate, roleGuard("PANDIT")] }, createBlockedDate);
+app.delete(`${API_PREFIX}/pandits/blocked-dates/:date`, { preHandler: [authenticate, roleGuard("PANDIT")] }, deleteBlockedDate);
+
 app.register(authRoutes, { prefix: `${API_PREFIX}/auth` });
 app.register(customerRoutes, { prefix: `${API_PREFIX}/customers` });
 app.register(panditRoutes, { prefix: `${API_PREFIX}/pandits` });

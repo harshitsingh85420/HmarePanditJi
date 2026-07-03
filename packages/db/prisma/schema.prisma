@@ -21,6 +21,7 @@ enum VerificationStatus {
   VIDEO_KYC_DONE
   VERIFIED
   REJECTED
+  APPROVED
 }
 
 enum BookingStatus {
@@ -35,6 +36,10 @@ enum BookingStatus {
   CANCELLATION_REQUESTED
   CANCELLED
   REFUNDED
+  REQUESTED
+  ACCEPTED
+  REJECTED
+  IN_PROGRESS
 }
 
 enum TravelMode {
@@ -84,6 +89,7 @@ enum PayoutStatus {
   PROCESSING
   COMPLETED
   FAILED
+  PAID
 }
 
 enum RefundStatus {
@@ -108,6 +114,7 @@ model User {
   name        String?
   email       String?
   role        Role     @default(CUSTOMER)
+  language    String   @default("hi")
   isVerified  Boolean  @default(false)
   isActive    Boolean  @default(true)
   profileCompleted Boolean @default(false)
@@ -117,7 +124,7 @@ model User {
   updatedAt   DateTime @updatedAt
 
   customerProfile    CustomerProfile?
-  panditProfile      PanditProfile?
+  pandit             PanditProfile?
   bookingsAsCustomer Booking[]             @relation("CustomerBookings")
   bookingsAsPandit   Booking[]             @relation("PanditBookings")
   reviewsGiven       Review[]              @relation("ReviewsGiven")
@@ -210,7 +217,7 @@ model PanditProfile {
 
   // Newly added fields needed by kyc and voice routes
   displayName          String?
-  city                 String?
+  city                 String             @default("")
   state                String?
   sect                 String?
   gotra                String?
@@ -220,9 +227,23 @@ model PanditProfile {
   bankAccountAdded     Boolean @default(false)
   deviceInfo           Json?
 
-  pujaServices    PujaService[]
-  blockedDates    PanditBlockedDate[]
-  samagriPackages SamagriPackage[]
+  pujaServices       PujaService[]
+  panditBlockedDates PanditBlockedDate[]
+  samagriPackagesOld SamagriPackage[]    @relation("OldSamagriRelation")
+
+  // Spec fields:
+  fullName           String              @default("")
+  latitude           Float?
+  longitude          Float?
+  yearsExperience    Int                 @default(0)
+  photoUrl           String?
+  aadhaarDocUrl      String?
+  teamSize           Int                 @default(1)
+  bankIfsc           String?
+  dakshinaRates      DakshinaRate[]
+  samagriPackages    SamagriPackage[]    @relation("PanditSamagriRelation")
+  blockedDates       BlockedDate[]
+  bookings           Booking[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -248,21 +269,51 @@ model PujaService {
   @@index([pujaType])
 }
 
+model DakshinaRate {
+  id        String @id @default(cuid())
+  panditId  String
+  pandit    PanditProfile @relation(fields: [panditId], references: [id])
+  pujaType  String            // e.g. "SATYANARAYAN"
+  amount    Int               // rupees, integer only
+  @@unique([panditId, pujaType])
+}
+
 model SamagriPackage {
   id              String        @id @default(cuid())
-  panditProfileId String
-  panditProfile   PanditProfile @relation(fields: [panditProfileId], references: [id])
-  packageName     String        // "Basic", "Standard", "Premium"
-  packageType     PackageType
+  panditProfileId String?
+  panditProfile   PanditProfile? @relation("OldSamagriRelation", fields: [panditProfileId], references: [id])
+  packageName     String?        // "Basic", "Standard", "Premium"
+  packageType     PackageType?
   pujaType        String        // Which puja this package is for
-  fixedPrice      Int           // FIXED, non-negotiable, set by pandit
+  fixedPrice      Int?           // FIXED, non-negotiable, set by pandit
   // items: JSON array of { itemName: string, quantity: string, qualityNotes?: string }
   // Example: [{"itemName":"Desi Ghee","quantity":"500g","qualityNotes":"Shuddh cow ghee"}]
   items    Json
   isActive Boolean  @default(true)
   createdAt DateTime @default(now())
 
+  // Spec fields:
+  panditId        String         @default("")
+  pandit          PanditProfile  @relation("PanditSamagriRelation", fields: [panditId], references: [id])
+  tier            PackageTier    @default(BASIC)
+  price           Int            @default(0)
+
   @@index([panditProfileId])
+  @@unique([panditId, pujaType, tier])
+}
+
+enum PackageTier {
+  BASIC
+  STANDARD
+  PREMIUM
+}
+
+model BlockedDate {
+  id       String   @id @default(cuid())
+  panditId String
+  pandit   PanditProfile @relation(fields: [panditId], references: [id])
+  date     DateTime          // date only, time 00:00 UTC
+  @@unique([panditId, date])
 }
 
 model PanditBlockedDate {
@@ -285,10 +336,11 @@ model Booking {
 
   customerId String
   customer   User   @relation("CustomerBookings", fields: [customerId], references: [id])
-  panditId   String? // Null until pandit is assigned
-  pandit     User?   @relation("PanditBookings", fields: [panditId], references: [id])
+  
+  panditUserId String?
+  panditUser   User?   @relation("PanditBookings", fields: [panditUserId], references: [id])
 
-  status BookingStatus @default(CREATED)
+  status BookingStatus @default(REQUESTED)
 
   // Event details
   eventType        String   // "Vivah", "Griha Pravesh" etc.
@@ -363,6 +415,18 @@ model Booking {
   razorpayPaymentId String?
   paymentStatus     PaymentStatus @default(PENDING)
 
+  // Spec fields:
+  panditId        String         @default("")
+  pandit          PanditProfile  @relation(fields: [panditId], references: [id])
+  customerName    String         @default("")
+  customerPhone   String         @default("")
+  pujaType        String         @default("")
+  eventAddress    String         @default("")
+  travelAmount    Int            @default(0)
+  foodAllowance   Int            @default(0)
+  journeyStep     Int            @default(0)
+  acceptedAt      DateTime?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -370,7 +434,7 @@ model Booking {
   review        Review?
 
   @@index([customerId])
-  @@index([panditId])
+  @@index([panditUserId])
   @@index([status])
   @@index([eventDate])
   @@index([bookingNumber])
@@ -541,4 +605,14 @@ model Ritual {
   iconUrl          String?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
+}
+
+model Payout {
+  id         String   @id @default(cuid())
+  bookingId  String   @unique
+  panditId   String
+  amount     Int                  // dakshina - platformFee + travel + food + samagri
+  status     PayoutStatus @default(PENDING)   // enum: PENDING | PAID
+  createdAt  DateTime @default(now())
+  paidAt     DateTime?
 }

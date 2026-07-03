@@ -9,6 +9,8 @@ import {
   getMe,
   updateMe,
   adminLogin,
+  sendOtpNew,
+  verifyOtpNew,
 } from "../controllers/auth.controller";
 
 // ── Schemas ───────────────────────────────────────────────────────────────────
@@ -76,6 +78,18 @@ export default async function authRoutes(fastify: FastifyInstance, _opts: any) {
     { preHandler: [authLimiter, validate(verifyOtpSchema)] },
     verifyOtp
   );
+
+  /**
+   * POST /auth/otp/send
+   * Phone + OTP spec-compliant endpoint
+   */
+  fastify.post("/otp/send", {}, sendOtpNew);
+
+  /**
+   * POST /auth/otp/verify
+   * Phone + OTP spec-compliant endpoint
+   */
+  fastify.post("/otp/verify", {}, verifyOtpNew);
 
   /**
    * POST /auth/admin-login

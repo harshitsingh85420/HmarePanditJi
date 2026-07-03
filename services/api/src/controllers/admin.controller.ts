@@ -101,7 +101,7 @@ export const getAlerts = async (request: FastifyRequest, reply: FastifyReply) =>
         const [urgentTravel, pendingVerifications, pendingPayouts, cancellations] = await Promise.all([
             prisma.booking.findMany({
                 where: { eventDate: { lt: in48hrs, gt: now }, travelStatus: "PENDING", travelRequired: true },
-                select: { id: true, bookingNumber: true, eventDate: true, pandit: { select: { name: true } } },
+                select: { id: true, bookingNumber: true, eventDate: true, panditUser: { select: { name: true } } },
                 take: 10
             }),
             prisma.panditProfile.findMany({
@@ -111,7 +111,7 @@ export const getAlerts = async (request: FastifyRequest, reply: FastifyReply) =>
             }),
             prisma.booking.findMany({
                 where: { status: "COMPLETED", payoutStatus: "PENDING", updatedAt: { lt: ago48hrs } },
-                select: { id: true, bookingNumber: true, panditPayout: true, pandit: { select: { name: true } } },
+                select: { id: true, bookingNumber: true, panditPayout: true, panditUser: { select: { name: true } } },
                 take: 10
             }),
             prisma.booking.findMany({
@@ -125,7 +125,7 @@ export const getAlerts = async (request: FastifyRequest, reply: FastifyReply) =>
         for (const t of urgentTravel) {
             alerts.push({
                 type: "TRAVEL", severity: "HIGH",
-                message: `URGENT: Booking ${t.bookingNumber} has event in <48 hours, travel NOT booked. Pandit ${t.pandit?.name ?? '-'} needs travel arranged.`,
+                message: `URGENT: Booking ${t.bookingNumber} has event in <48 hours, travel NOT booked. Pandit ${t.panditUser?.name ?? '-'} needs travel arranged.`,
                 actionUrl: "/travel-desk", bookingId: t.id
             });
         }
@@ -139,7 +139,7 @@ export const getAlerts = async (request: FastifyRequest, reply: FastifyReply) =>
         for (const p of pendingPayouts) {
             alerts.push({
                 type: "PAYOUT", severity: "MEDIUM",
-                message: `₹${p.panditPayout} payout pending for ${p.pandit?.name ?? 'Pandit'} — Booking ${p.bookingNumber}.`,
+                message: `₹${p.panditPayout} payout pending for ${p.panditUser?.name ?? 'Pandit'} — Booking ${p.bookingNumber}.`,
                 actionUrl: "/payouts", bookingId: p.id
             });
         }
@@ -165,7 +165,7 @@ export const getActivityFeed = async (request: FastifyRequest, reply: FastifyRep
             take: limit,
             orderBy: { createdAt: "desc" },
             include: {
-                booking: { select: { bookingNumber: true, grandTotal: true, pandit: { select: { name: true } } } },
+                booking: { select: { bookingNumber: true, grandTotal: true, panditUser: { select: { name: true } } } },
                 updatedBy: { select: { name: true, role: true } }
             }
         });
@@ -174,7 +174,7 @@ export const getActivityFeed = async (request: FastifyRequest, reply: FastifyRep
             let icon = "📝";
             let msg = `${e.updatedBy.name} changed status to ${e.toStatus} for ${e.booking.bookingNumber}`;
             if (e.toStatus === "CONFIRMED") { icon = "✅"; msg = `Booking ${e.booking.bookingNumber} confirmed`; }
-            else if (e.toStatus === "COMPLETED") { icon = "🌸"; msg = `Pandit ${e.booking.pandit?.name} marked puja as completed (${e.booking.bookingNumber})`; }
+            else if (e.toStatus === "COMPLETED") { icon = "🌸"; msg = `Pandit ${e.booking.panditUser?.name ?? 'Pandit'} marked puja as completed (${e.booking.bookingNumber})`; }
             else if (e.toStatus === "CREATED") { icon = "🆕"; msg = `New booking ${e.booking.bookingNumber} created (₹${e.booking.grandTotal})`; }
             else if (e.toStatus === "TRAVEL_BOOKED") { icon = "✈️"; msg = `Travel booked for ${e.booking.bookingNumber}`; }
 
@@ -221,12 +221,25 @@ export const getTravelQueue = async (request: FastifyRequest, reply: FastifyRepl
                 venueAddress: true, travelMode: true, travelDistanceKm: true, travelStatus: true,
                 travelBookingRef: true, travelNotes: true, travelCost: true, status: true,
                 calculatedTravelCost: true, travelBreakdown: true, travelBookingDetails: true,
-                pandit: { select: { id: true, name: true, phone: true, panditProfile: { select: { location: true } } } },
+                panditUser: { select: { id: true, name: true, phone: true, pandit: { select: { location: true } } } },
                 customer: { select: { id: true, name: true, phone: true } }
             }
         });
 
-        return reply.send(successBody(bookings));
+        const mappedBookings = bookings.map(b => {
+            const { panditUser, ...rest } = b as any;
+            return {
+                ...rest,
+                pandit: panditUser ? {
+                    id: panditUser.id,
+                    name: panditUser.name,
+                    phone: panditUser.phone,
+                    panditProfile: panditUser.pandit
+                } : null
+            };
+        });
+
+        return reply.send(successBody(mappedBookings));
     } catch (err) {
         throw err;
     }
@@ -555,13 +568,21 @@ export const getAllBookingsAdmin = async (request: FastifyRequest, reply: Fastif
                     id: true, bookingNumber: true, eventType: true, eventDate: true, status: true,
                     grandTotal: true, paymentStatus: true, travelStatus: true, payoutStatus: true,
                     customer: { select: { id: true, name: true, phone: true } },
-                    pandit: { select: { id: true, name: true, phone: true } },
+                    panditUser: { select: { id: true, name: true, phone: true } },
                     createdAt: true
                 }
             }),
             prisma.booking.count({ where }),
             prisma.booking.aggregate({ where, _sum: { grandTotal: true } })
         ]);
+
+        const mappedBookings = bookings.map(b => {
+            const { panditUser, ...rest } = b as any;
+            return {
+                ...rest,
+                pandit: panditUser
+            };
+        });
 
         const totalGmv = stats._sum.grandTotal || 0;
 
@@ -583,7 +604,7 @@ export const getAllBookingsAdmin = async (request: FastifyRequest, reply: Fastif
             logger.warn('Failed to parse GMV numbers:', e);
         }
 
-        return reply.send(paginatedBody(bookings, total, page, limit, "Success"));
+        return reply.send(paginatedBody(mappedBookings, total, page, limit, "Success"));
     } catch (err) {
         throw err;
     }
@@ -596,7 +617,7 @@ export const getBookingAdminDetail = async (request: FastifyRequest, reply: Fast
             where: { id: params.bookingId },
             include: {
                 customer: { include: { customerProfile: true } },
-                pandit: { include: { panditProfile: true } },
+                panditUser: { include: { pandit: true } },
                 statusUpdates: {
                     include: { updatedBy: { select: { id: true, name: true, role: true } } },
                     orderBy: { createdAt: "desc" }
@@ -606,7 +627,25 @@ export const getBookingAdminDetail = async (request: FastifyRequest, reply: Fast
 
         if (!booking) throw new AppError("Booking not found", 404);
 
-        return reply.send(successBody(booking));
+        const mappedBooking = {
+            ...booking,
+            pandit: booking.panditUser ? {
+                id: booking.panditUser.id,
+                phone: booking.panditUser.phone,
+                name: booking.panditUser.name,
+                email: booking.panditUser.email,
+                avatarUrl: booking.panditUser.avatarUrl,
+                isVerified: booking.panditUser.isVerified,
+                role: booking.panditUser.role,
+                isActive: booking.panditUser.isActive,
+                createdAt: booking.panditUser.createdAt,
+                updatedAt: booking.panditUser.updatedAt,
+                panditProfile: booking.panditUser.pandit
+            } : null
+        };
+        delete (mappedBooking as any).panditUser;
+
+        return reply.send(successBody(mappedBooking));
     } catch (err) {
         throw err;
     }

@@ -1,98 +1,247 @@
-'use client'
+"use client";
 
-// SSR FIX: Disable static generation for pages using Zustand stores
-export const dynamic = 'force-dynamic'
-
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { motion } from 'framer-motion'
-import { speakWithSarvam } from '@/lib/sarvam-tts'
-import { useSarvamVoiceFlow } from '@/lib/hooks/useSarvamVoiceFlow'
+import React, { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
+import { hi } from "@/lib/strings";
+import { api } from "@/lib/api";
+import { Button } from "@/components/ui/Button";
+import { Header } from "@/components/ui/Header";
+import { SpeakOnMount } from "@/components/VoiceBar";
+import { useVoice } from "@/hooks/useVoice";
 
 export default function LoginPage() {
-  const router = useRouter()
-  const [isListening, setIsListening] = useState(false)
+  const router = useRouter();
+  const { speak } = useVoice();
 
-  const { isListening: voiceListening } = useSarvamVoiceFlow({
-    language: 'Hindi',
-    script: 'क्या यह आप हैं? हाँ या नहीं बोलें।',
-    initialDelayMs: 500,
-    pauseAfterMs: 500,
-    onIntent: (intent: string) => {
-      if (intent === 'YES') handleConfirm()
-      else if (intent === 'NO') handleNotMatch()
-    },
-  })
+  // Navigation states
+  const [step, setStep] = useState(1); // 1 = Phone Input, 2 = OTP Input
+  const [phone, setPhone] = useState("");
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+  const [countdown, setCountdown] = useState(30);
 
+  const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
+
+  // Countdown timer for OTP resend
   useEffect(() => {
-    setIsListening(voiceListening)
-  }, [voiceListening])
+    if (step === 2 && countdown > 0) {
+      const timer = setInterval(() => {
+        setCountdown((prev) => prev - 1);
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [step, countdown]);
 
-  const handleBack = () => router.back()
-  const handleConfirm = () => {
-    void speakWithSarvam({ text: 'स्वागत है!', languageCode: 'hi-IN', onEnd: () => router.push('/dashboard') })
-  }
-  const handleNotMatch = () => {
-    void speakWithSarvam({ text: 'कोई बात नहीं। नया पंजीकरण शुरू करते हैं।', languageCode: 'hi-IN', onEnd: () => router.push('/mobile') })
-  }
+  const handleSendOtp = async () => {
+    if (phone.length !== 10) {
+      setErrorMsg(hi.common.error);
+      speak(hi.common.error);
+      return;
+    }
+
+    setLoading(true);
+    setErrorMsg("");
+
+    const fullPhone = `+91${phone}`;
+    const res = await api("/auth/otp/send", {
+      method: "POST",
+      body: JSON.stringify({ phone: fullPhone }),
+    });
+
+    setLoading(false);
+
+    if (!res.success) {
+      setErrorMsg(hi.common.error);
+      speak(hi.common.error);
+      return;
+    }
+
+    setStep(2);
+    setCountdown(30);
+  };
+
+  const handleVerifyOtp = async (otpCode: string) => {
+    setLoading(true);
+    setErrorMsg("");
+
+    const fullPhone = `+91${phone}`;
+    const res = await api("/auth/otp/verify", {
+      method: "POST",
+      body: JSON.stringify({
+        phone: fullPhone,
+        otp: otpCode,
+        role: "PANDIT",
+      }),
+    });
+
+    setLoading(false);
+
+    if (!res.success) {
+      setErrorMsg(hi.common.error);
+      speak(hi.common.error);
+      return;
+    }
+
+    const { token, isNewUser, verificationStatus } = res.data;
+    localStorage.setItem("pandit_token", token);
+
+    // if isNewUser or profile incomplete (verificationStatus is PENDING) -> redirect /onboarding, else -> /home
+    if (isNewUser || verificationStatus === "PENDING") {
+      router.push("/onboarding");
+    } else {
+      router.push("/home");
+    }
+  };
+
+  const handleOtpChange = (value: string, index: number) => {
+    const numericValue = value.replace(/\D/g, "");
+    const newOtp = [...otp];
+    newOtp[index] = numericValue.slice(-1);
+    setOtp(newOtp);
+
+    // Auto-advance focus
+    if (numericValue && index < 5) {
+      inputRefs.current[index + 1]?.focus();
+    }
+
+    // Auto-verify if all 6 boxes are filled
+    const completeOtp = newOtp.join("");
+    if (completeOtp.length === 6) {
+      handleVerifyOtp(completeOtp);
+    }
+  };
+
+  const handleOtpKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
+    if (e.key === "Backspace") {
+      if (!otp[index] && index > 0) {
+        const newOtp = [...otp];
+        newOtp[index - 1] = "";
+        setOtp(newOtp);
+        inputRefs.current[index - 1]?.focus();
+      }
+    }
+  };
+
+  const handleResendOtp = async () => {
+    if (countdown > 0) return;
+    setOtp(["", "", "", "", "", ""]);
+    await handleSendOtp();
+  };
 
   return (
-    <main className="min-h-dvh flex flex-col px-4 xs:px-6 pt-12 xs:pt-16 bg-surface-base">
-      {/* Top Bar */}
-      <header className="flex items-center justify-between mb-6 xs:mb-8">
-        <div className="flex items-center gap-2 xs:gap-3">
-          <button onClick={handleBack} className="min-h-[52px] xs:min-h-[56px] sm:min-h-[64px] min-w-[52px] xs:min-w-[56px] sm:min-w-[64px] flex items-center justify-center text-saffron rounded-full active:bg-black/5 border-2 border-saffron/30" aria-label="Go back">
-            <svg className="w-10 h-10 xs:w-11 xs:h-11 sm:w-12 sm:h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
-          </button>
-          <div className="flex items-center gap-2">
-            <span className="text-3xl xs:text-4xl sm:text-[40px] text-saffron font-bold">ॐ</span>
-            <span className="text-lg xs:text-xl sm:text-[22px] font-bold text-text-primary">HmarePanditJi</span>
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-cream text-ink flex flex-col justify-between">
+      {/* Sticky top bar */}
+      <Header
+        title={hi.design.title}
+        showBack={step === 2}
+        onBack={() => {
+          setStep(1);
+          setOtp(["", "", "", "", "", ""]);
+          setErrorMsg("");
+        }}
+      />
 
-      {/* Content */}
-      <div className="flex-1 flex flex-col">
-        {/* Illustration */}
-        <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="min-h-[52px] xs:min-h-[56px] sm:min-h-[96px] min-w-[52px] xs:min-w-[56px] sm:min-w-[96px] bg-saffron-light rounded-full flex items-center justify-center mb-4 xs:mb-6 mx-auto">
-          <span className="text-4xl xs:text-5xl sm:text-[48px]">🧑‍🦳</span>
-        </motion.div>
+      {/* Main card viewport container */}
+      <main className="flex-grow flex flex-col justify-start px-4 pt-8 max-w-[430px] mx-auto w-full gap-6">
+        {step === 1 ? (
+          <>
+            {/* Screen 1: Phone input */}
+            <SpeakOnMount text={hi.auth.phoneVoice} />
 
-        {/* Title */}
-        <h1 className="text-3xl xs:text-4xl sm:text-[36px] font-bold text-text-primary text-center mb-2 xs:mb-3">पहले से पंजीकृत?</h1>
-        <p className="text-2xl xs:text-3xl sm:text-[28px] font-bold text-saffron text-center mb-6 xs:mb-8">लॉगिन करें</p>
+            <div className="bg-white rounded-card shadow-card p-5 flex flex-col gap-4">
+              <h2 className="t-title font-bold text-temple-600">
+                {hi.auth.phoneLabel}
+              </h2>
 
-        {/* Identity Card */}
-        <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="bg-surface-card rounded-card shadow-card p-4 xs:p-6 mb-6 xs:mb-8">
-          <div className="flex items-center gap-3 xs:gap-4 mb-3 xs:mb-4">
-            <div className="min-h-[52px] xs:min-h-[56px] sm:min-h-[72px] min-w-[52px] xs:min-w-[56px] sm:min-w-[72px] bg-saffron-light rounded-full flex items-center justify-center">
-              <span className="text-3xl xs:text-4xl sm:text-[36px]">🧑‍🦳</span>
+              <div className="flex items-center bg-white border-2 border-saffron-300 rounded-btn px-4 focus-within:ring-4 focus-within:ring-saffron-200 focus-within:border-saffron-500 transition-all">
+                <span className="text-[18px] font-bold text-ink pr-3 border-r border-saffron-200 mr-3 select-none">
+                  +91
+                </span>
+                <input
+                  type="tel"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  maxLength={10}
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
+                  className="bg-transparent border-none outline-none flex-grow h-[56px] text-[18px] font-bold text-ink"
+                  placeholder="XXXXXXXXXX"
+                  style={{ minHeight: "56px", fontSize: "18px" }}
+                />
+              </div>
+
+              <Button
+                variant="primary"
+                size="md"
+                fullWidth
+                onClick={handleSendOtp}
+                loading={loading}
+              >
+                {hi.common.next}
+              </Button>
             </div>
-            <div>
-              <h2 className="text-lg xs:text-xl sm:text-[24px] font-bold text-text-primary">पंडित रामेश्वर शर्मा</h2>
-              <p className="text-sm xs:text-base sm:text-[18px] text-text-secondary">वाराणसी, उत्तर प्रदेश</p>
+          </>
+        ) : (
+          <>
+            {/* Screen 2: OTP verification */}
+            <SpeakOnMount text={hi.auth.otpVoice} />
+
+            <div className="bg-white rounded-card shadow-card p-5 flex flex-col gap-4">
+              <h2 className="t-title font-bold text-temple-600">
+                {hi.auth.otpLabel}
+              </h2>
+
+              {/* 6 large OTP boxes */}
+              <div className="flex gap-2 justify-center my-4">
+                {otp.map((digit, idx) => (
+                  <input
+                    key={idx}
+                    ref={(el) => {
+                      inputRefs.current[idx] = el;
+                    }}
+                    type="tel"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    maxLength={1}
+                    value={digit}
+                    onChange={(e) => handleOtpChange(e.target.value, idx)}
+                    onKeyDown={(e) => handleOtpKeyDown(e, idx)}
+                    className="w-[48px] h-[56px] text-center border-2 border-saffron-300 rounded-btn text-[24px] font-bold text-ink bg-white focus:outline-none focus:border-saffron-500 focus:ring-4 focus:ring-saffron-200 transition-all"
+                    style={{ width: "48px", height: "56px" }}
+                  />
+                ))}
+              </div>
+
+              {/* Resend Link countdown timer */}
+              <div className="text-center mt-2">
+                {countdown > 0 ? (
+                  <span className="t-hint text-softgrey font-medium">
+                    {hi.auth.otpResend} ({countdown}s)
+                  </span>
+                ) : (
+                  <button
+                    onClick={handleResendOtp}
+                    className="text-saffron-600 hover:text-saffron-700 underline font-semibold text-[18px]"
+                    style={{ minHeight: "56px", fontSize: "18px" }}
+                  >
+                    {hi.auth.otpResend}
+                  </button>
+                )}
+              </div>
             </div>
+          </>
+        )}
+
+        {/* Display validation or generic API errors */}
+        {errorMsg && (
+          <div className="px-4 py-2 bg-red-50 rounded-card border border-danger/20">
+            <p className="text-danger text-[20px] font-semibold text-center leading-normal">
+              {errorMsg}
+            </p>
           </div>
-          <div className="border-t border-border-default pt-3 xs:pt-4">
-            <div className="flex items-center gap-2 xs:gap-3 text-sm xs:text-base sm:text-[18px] text-text-secondary">
-              <span className="material-symbols-outlined text-lg xs:text-xl sm:text-[24px] text-trust-green filled">check_circle</span>
-              <span>आधार सत्यापित</span>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Voice indicator */}
-        {isListening && (<div className="flex items-center justify-center gap-2 mb-4 xs:mb-6"><div className="flex items-end gap-1 h-10 xs:h-12"><div className="w-2 bg-saffron rounded-full animate-voice-bar" /><div className="w-2 bg-saffron rounded-full animate-voice-bar-2" /><div className="w-2 bg-saffron rounded-full animate-voice-bar-3" /></div><span className="text-saffron text-lg xs:text-xl sm:text-[22px] font-bold">सुन रहा हूँ...</span></div>)}
-
-        {/* Buttons */}
-        <div className="space-y-2 xs:space-y-3">
-          <button onClick={handleConfirm} className="w-full min-h-[52px] xs:min-h-[56px] sm:min-h-[64px] bg-saffron text-white font-bold text-lg xs:text-xl sm:text-[22px] rounded-2xl shadow-btn-saffron active:scale-[0.97] focus:ring-2 focus:ring-primary focus:outline-none">हाँ, यह मैं हूँ</button>
-          <button onClick={handleNotMatch} className="w-full min-h-[52px] xs:min-h-[56px] sm:min-h-[64px] border-2 border-saffron text-saffron font-bold text-lg xs:text-xl sm:text-[22px] rounded-2xl active:scale-[0.97] focus:ring-2 focus:ring-primary focus:outline-none">नहीं, यह मैं नहीं हूँ</button>
-        </div>
-
-        {/* Voice hint */}
-        <p className="mt-4 xs:mt-6 text-center text-base xs:text-lg sm:text-[20px] text-text-placeholder">🎤 'हाँ', 'नहीं', या 'पीछे जाएं' बोलें</p>
-      </div>
-    </main>
-  )
+        )}
+      </main>
+    </div>
+  );
 }

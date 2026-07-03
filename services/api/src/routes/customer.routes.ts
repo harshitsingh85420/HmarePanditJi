@@ -271,7 +271,7 @@ export default async function customerRoutes(fastify: FastifyInstance, _opts: an
               id: true,
               name: true,
               isVerified: true,
-              panditProfile: {
+              pandit: {
                 select: {
                   profilePhotoUrl: true,
                   rating: true,
@@ -287,7 +287,16 @@ export default async function customerRoutes(fastify: FastifyInstance, _opts: an
         }
       });
 
-      return sendSuccess(res, favorites);
+      const mappedFavorites = favorites.map(fav => {
+        const p = fav.pandit as any;
+        if (p && p.pandit) {
+          p.panditProfile = p.pandit;
+          delete p.pandit;
+        }
+        return fav;
+      });
+
+      return sendSuccess(res, mappedFavorites);
     } catch (err) {
       throw err;
     }

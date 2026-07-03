@@ -1,10 +1,9 @@
 import type { Metadata, Viewport } from 'next'
-import { Hind } from 'next/font/google'
+import { Tiro_Devanagari_Hindi, Noto_Sans_Devanagari } from 'next/font/google'
 import './globals.css'
 import NextDynamic from 'next/dynamic'
 
 // SSR FIX: Force dynamic rendering for all pages
-// This prevents "useContext" errors during build since all pages use Zustand stores
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
@@ -13,10 +12,17 @@ const StoreHydrationClient = NextDynamic(() => import('@/components/StoreHydrati
   ssr: false,
 })
 
-const hind = Hind({
-  subsets: ['latin', 'devanagari'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-hind',
+const tiroDevanagari = Tiro_Devanagari_Hindi({
+  weight: '400',
+  subsets: ['devanagari', 'latin'],
+  variable: '--font-tiro',
+  display: 'swap',
+})
+
+const notoDevanagari = Noto_Sans_Devanagari({
+  weight: ['400', '600', '700'],
+  subsets: ['devanagari', 'latin'],
+  variable: '--font-noto',
   display: 'swap',
 })
 
@@ -35,7 +41,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: '#F09942',
+  themeColor: '#FF8C1A',
 }
 
 export default function RootLayout({
@@ -44,14 +50,14 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="hi" className={hind.variable} suppressHydrationWarning>
+    <html lang="hi" className={`${tiroDevanagari.variable} ${notoDevanagari.variable}`} suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
         <meta name="mobile-web-app-capable" content="yes" />
       </head>
-      <body className="font-hind bg-vedic-cream text-vedic-brown antialiased" suppressHydrationWarning>
+      <body className="font-hindi text-ink bg-cream text-[18px] leading-[1.6] antialiased" suppressHydrationWarning>
         {/* SSR FIX: Hydrate Zustand persist stores after initial render - CLIENT SIDE ONLY */}
         <StoreHydrationClient />
         <div className="relative mx-auto w-full max-w-[430px] min-h-screen overflow-x-hidden">

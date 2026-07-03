@@ -377,4 +377,41 @@ body {
   .pr-safe {
     padding-right: env(safe-area-inset-right, 0px);
   }
+
+  /* ─────── Type Scale ─────── */
+  .t-hero {
+    font-size: 32px;
+    font-weight: 700;
+    color: theme('colors.temple.600');
+  }
+
+  .t-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: theme('colors.ink');
+  }
+
+  .t-body {
+    font-size: 18px;
+    font-weight: 400;
+    color: theme('colors.ink');
+  }
+
+  .t-hint {
+    font-size: 16px;
+    font-weight: 400;
+    color: theme('colors.softgrey');
+  }
+
+  .t-money {
+    font-size: 30px;
+    font-weight: 700;
+    color: theme('colors.leaf.700');
+  }
+
+  .t-money-hero {
+    font-size: 40px;
+    font-weight: 700;
+    color: theme('colors.leaf.700');
+  }
 }

@@ -76,9 +76,9 @@ export async function createBooking(input: CreateBookingInput) {
   // Verify pandit's User account is active and they have a pandit profile
   const panditUser = await prisma.user.findFirst({
     where: { id: input.panditId, role: "PANDIT", isActive: true },
-    include: { panditProfile: true },
+    include: { pandit: true },
   });
-  if (!panditUser?.panditProfile) {
+  if (!panditUser?.pandit) {
     throw new AppError("Pandit not available", 400, "PANDIT_UNAVAILABLE");
   }
 

@@ -20,85 +20,33 @@ const config: Config = {
     },
     extend: {
       colors: {
-        // PRIMARY PALETTE
-        'primary': '#F09942',
-        'primary-dk': '#DC6803',
-        'primary-lt': '#FEF3C7',
-
-        // SAFFRON — aliases for primary (used throughout the app)
-        'saffron': '#E08932',         // 3.8:1 on #FEF3C7 ✅ (was #F09942 = 3.1:1)
-        'saffron-dk': '#C06812',      // 5.2:1 on #FEF3C7 ✅
-        'saffron-lt': '#FEF3C7',
-        'saffron-light': '#FEF3C7',
-
-        // SURFACE PALETTE
-        'surface-base': '#FFFBF5',
-        'surface-card': '#FFFFFF',
-        'surface-muted': '#F5F3EE',
-        'surface-dim': '#E4E2DD',
-        'surface-high': '#EAE8E2',
-
-        // TEXT PALETTE - WCAG 2.1 AA Compliant (≥4.5:1 contrast on #FFFBF5)
-        'text-primary': '#1B1C19',    // 16.5:1 contrast ✅
-        'text-secondary': '#4A3728',  // 7.8:1 contrast ✅ (was #564334 = 4.2:1)
-        'text-placeholder': '#705A4A', // 5.2:1 contrast ✅ (was #897362 = 3.1:1)
-        'text-disabled': '#B0A090',   // 2.8:1 (decorative only)
-        'text-gold': '#9A7209',       // 5.1:1 contrast ✅
-        'text-gold-light': '#C49A3A', // 3.2:1 (large text only)
-
-        // VEDIC COLORS
-        'vedic-cream': '#FFFBF5',
-        'vedic-brown': '#2D1B00',
-        'vedic-brown-2': '#6B4F2A',
-        'vedic-gold': '#8B6A42',      // 4.8:1 on #FFFBF5 ✅ (was #9B7B52 = 3.5:1)
-        'vedic-border': '#F0E6D3',
-
-        // SEMANTIC COLORS
-        'trust-green': '#1B6D24',
-        'trust-green-bg': '#E8F5E9',
-        'trust-green-border': '#A5D6A7',
-        'warning-amber': '#F57C00',
-        'warning-amber-bg': '#FFF3E0',
-        'error-red': '#BA1A1A',
-        'error-red-bg': '#FFDAD6',
-        'error': '#DC2626',
-        'error-lt': '#FEE2E2',
-        'success': '#15803D',
-        'success-lt': '#DCFCE7',
-
-        // INDIGO
-        'indigo-tint': '#E8EAF6',
-        'indigo-border': '#9FA8DA',
-        'indigo-text': '#3F51B5',
-
-        // BORDERS
-        'border-default': '#C4B5A0',
-        'border-active': '#FF8C00',
-        'border-success': '#1B6D24',
-        'border-warm': '#DDC1AE',
-
-        // OTHER
-        'background': '#FFFBF5',
-        'on-background': '#1B1C19',
-        'on-surface': '#1B1C19',
-        'on-surface-variant': '#564334',
+        saffron: {
+          50:'#FFF8EE', 100:'#FFEFD6', 200:'#FFDCA8', 300:'#FFC470',
+          400:'#FFA940', 500:'#FF8C1A',
+          600:'#E67300', 700:'#BF5E00', 800:'#994B00', 900:'#7A3C00',
+        },
+        cream:  '#FFFBF4',
+        temple: {
+          500:'#8B2E2E', 600:'#742525', 700:'#5C1D1D',
+        },
+        leaf: {
+          100:'#E6F4EA', 500:'#1E8E3E', 700:'#137333',
+        },
+        gold:   '#D4A017',
+        ink:    '#3D2B1F',
+        softgrey:'#8A7B6E',
+        danger: '#C62828',
       },
       fontFamily: {
-        hind: ['Hind', 'sans-serif'],
-        body: ['Noto Sans Devanagari', 'Hind', 'sans-serif'],
+        hindi: ['var(--font-tiro)', 'var(--font-noto)', 'sans-serif'],
       },
       borderRadius: {
-        'card': '16px',
-        'btn': '12px',
-        'pill': '9999px',
+        card: '20px',
+        btn: '16px',
       },
       boxShadow: {
-        'card': '0 2px 16px rgba(0,0,0,0.08)',
-        'card-hover': '0 4px 24px rgba(0,0,0,0.12)',
-        'cta': '0 4px 12px rgba(240,153,66,0.35)',
-        'cta-dk': '0 6px 20px rgba(220,104,3,0.45)',
-        'btn-saffron': '0 4px 12px rgba(240,153,66,0.40)',
-        'voice': '0 2px 8px rgba(240,153,66,0.30)',
+        card: '0 2px 12px rgba(139,46,46,0.08)',
+        btn: '0 4px 14px rgba(255,140,26,0.35)',
       },
       keyframes: {
         'voice-bar': {
