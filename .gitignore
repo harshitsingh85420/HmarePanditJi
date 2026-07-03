@@ -1,3 +1,8 @@
+# AI Tool internals
+.agent/
+.qwen/
+tsc.log
+
 # Dependencies
 node_modules/
 .pnpm-store/

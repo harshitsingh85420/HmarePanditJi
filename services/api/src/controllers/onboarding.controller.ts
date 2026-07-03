@@ -382,7 +382,7 @@ export const submitOnboarding = async (request: FastifyRequest, reply: FastifyRe
         hasBank = true;
     } else if (payment.type === "UPI") {
         const upiVal = String(payment.upi?.id || "");
-        if (!/^[\w.\-]{2,}@[a-zA-Z]{2,}$/.test(upiVal)) {
+        if (!/^[\w.-]{2,}@[a-zA-Z]{2,}$/.test(upiVal)) {
             return reply.status(400).send({
                 success: false,
                 error: { code: "validation_error", message: "Invalid UPI ID format." }

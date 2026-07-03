@@ -1076,36 +1076,9 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
     }
   });
 
-  /**
-   * POST /pandits/bookings/:bookingId/rate-customer
-   */
-  fastify.post("/bookings/:bookingId/rate-customer", {
-    preHandler: [authenticate, roleGuard("PANDIT")],
-  }, async (request: any, reply: any) => {
-    try {
-      const req = request;
-      const res = reply;
-      const { punctuality, hospitality, foodArrangement, comment } = req.body;
-      const booking = await prisma.booking.findUnique({ where: { id: req.params.bookingId } });
-      if (!booking || booking.panditId !== req.user!.id) throw new AppError("Invalid booking", 400);
-
-      const rating = await prisma.customerRating.create({
-        data: {
-          bookingId: booking.id,
-          panditId: req.user!.id,
-          customerId: booking.customerId,
-          punctuality: parseInt(punctuality),
-          hospitality: parseInt(hospitality),
-          foodArrangement: parseInt(foodArrangement),
-          comment
-        }
-      });
-
-      sendSuccess(res, rating, "Customer rated successfully");
-    } catch (err) {
-      throw err;
-    }
-  });
+  // POST /bookings/:id/rate-customer is registered once at the bottom of this file
+  // (validated + upsert). A second unvalidated copy here crashed Fastify with
+  // FST_ERR_DUPLICATED_ROUTE.
 
   // ─── Calendar Endpoints ───────────────────────────────────────────────────────
 

@@ -187,19 +187,9 @@ app.get(`${API_PREFIX}/pandit/blocked-dates`, { preHandler: [authenticate, roleG
 app.post(`${API_PREFIX}/pandit/blocked-dates`, { preHandler: [authenticate, roleGuard("PANDIT")] }, createBlockedDate);
 app.delete(`${API_PREFIX}/pandit/blocked-dates/:date`, { preHandler: [authenticate, roleGuard("PANDIT")] }, deleteBlockedDate);
 
-// Plural paths
-app.patch(`${API_PREFIX}/pandits/status`, { preHandler: [authenticate, roleGuard("PANDIT")] }, patchPanditStatus);
-app.get(`${API_PREFIX}/pandits/bookings`, { preHandler: [authenticate, roleGuard("PANDIT")] }, getPanditBookings);
-app.get(`${API_PREFIX}/pandits/bookings/:id`, { preHandler: [authenticate, roleGuard("PANDIT")] }, getPanditBookingById);
-app.post(`${API_PREFIX}/pandits/bookings/:id/accept`, { preHandler: [authenticate, roleGuard("PANDIT")] }, acceptBooking);
-app.post(`${API_PREFIX}/pandits/bookings/:id/reject`, { preHandler: [authenticate, roleGuard("PANDIT")] }, rejectBooking);
-app.post(`${API_PREFIX}/pandits/bookings/:id/journey`, { preHandler: [authenticate, roleGuard("PANDIT")] }, postBookingJourney);
-app.post(`${API_PREFIX}/pandits/bookings/:id/complete`, { preHandler: [authenticate, roleGuard("PANDIT")] }, completeBooking);
-app.get(`${API_PREFIX}/pandits/earnings/summary`, { preHandler: [authenticate, roleGuard("PANDIT")] }, getPanditEarningsSummary);
-app.get(`${API_PREFIX}/pandits/payouts`, { preHandler: [authenticate, roleGuard("PANDIT")] }, getPanditPayouts);
-app.get(`${API_PREFIX}/pandits/blocked-dates`, { preHandler: [authenticate, roleGuard("PANDIT")] }, getBlockedDates);
-app.post(`${API_PREFIX}/pandits/blocked-dates`, { preHandler: [authenticate, roleGuard("PANDIT")] }, createBlockedDate);
-app.delete(`${API_PREFIX}/pandits/blocked-dates/:date`, { preHandler: [authenticate, roleGuard("PANDIT")] }, deleteBlockedDate);
+// Plural /pandits/* equivalents are served by the panditRoutes plugin (registered
+// below with prefix /pandits); registering them here too crashed Fastify with
+// FST_ERR_DUPLICATED_ROUTE. The pandit app only calls the singular /pandit/* paths.
 
 app.register(authRoutes, { prefix: `${API_PREFIX}/auth` });
 app.register(customerRoutes, { prefix: `${API_PREFIX}/customers` });
