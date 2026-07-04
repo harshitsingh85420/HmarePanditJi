@@ -30,7 +30,7 @@ export async function getPanditSamagriPackages(request: FastifyRequest, reply: F
 
     try {
         const where: Record<string, unknown> = {
-            panditProfileId: id,
+            panditId: id,
             isActive: true,
         };
 
@@ -100,7 +100,7 @@ export async function createSamagriPackage(request: FastifyRequest, reply: Fasti
 
         const samagriPackage = await prisma.samagriPackage.create({
             data: {
-                panditProfileId: panditId,
+                panditId,
                 packageName,
                 pujaType,
                 fixedPrice,
@@ -141,7 +141,7 @@ export async function updateSamagriPackage(request: FastifyRequest, reply: Fasti
             return reply.code(404).send({ error: "Samagri package not found" });
         }
 
-        if (existing.panditProfileId !== panditId) {
+        if (existing.panditId !== panditId) {
             return reply.code(403).send({ error: "Forbidden - Not your package" });
         }
 
@@ -210,7 +210,7 @@ export async function deleteSamagriPackage(request: FastifyRequest, reply: Fasti
             return reply.code(404).send({ error: "Samagri package not found" });
         }
 
-        if (existing.panditProfileId !== panditId) {
+        if (existing.panditId !== panditId) {
             return reply.code(403).send({ error: "Forbidden - Not your package" });
         }
 
@@ -241,7 +241,7 @@ export async function getMySamagriPackages(request: FastifyRequest, reply: Fasti
         }
 
         const packages = await prisma.samagriPackage.findMany({
-            where: { panditProfileId: panditId },
+            where: { panditId },
             orderBy: [{ pujaType: "asc" }, { fixedPrice: "asc" }],
         });
 

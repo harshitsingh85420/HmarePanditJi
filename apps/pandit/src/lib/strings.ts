@@ -1,4 +1,10 @@
 export const hi = {
+  nav: {
+    home: "होम",
+    bookings: "बुकिंग",
+    earnings: "कमाई",
+    calendar: "कैलेंडर",
+  },
   common: {
     next: "आगे बढ़ें",
     back: "पीछे जाएं",
@@ -79,8 +85,16 @@ export const hi = {
     offlineVoice: "आप अब ऑफलाइन हैं। कोई नई बुकिंग नहीं आएगी।",
     monthEarnings: "इस महीने की आमदनी",
     pendingVerification: "आपकी प्रोफ़ाइल सत्यापन में है। जल्द पूरा होगा।",
+    samagriLink: "🛍️ सामग्री पैकेज",
+  },
+  samagri: {
+    title: "सामग्री पैकेज",
+    itemNamePlaceholder: "सामग्री का नाम",
+    qtyPlaceholder: "मात्रा",
   },
   booking: {
+    detailsTitle: "बुकिंग विवरण",
+    requestTitle: "बुकिंग अनुरोध",
     newRequest: "नई बुकिंग आई है!",
     viewNewBooking: "नई बुकिंग देखें →",
     accept: "✅ स्वीकार करें",
@@ -107,6 +121,8 @@ export const hi = {
     paid: "मिल चुकी राशि",
     introVoice: "यहाँ आपकी सारी कमाई का हिसाब है। आने वाली राशि दो से तीन दिन में आपके खाते में पहुँचती है।",
     processing: "प्रोसेस में",
+    noPending: "कोई आने वाली राशि नहीं",
+    noPaid: "अभी तक कोई राशि नहीं मिली",
   },
   calendar: {
     title: "मेरा कैलेंडर",

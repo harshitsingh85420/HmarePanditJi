@@ -104,7 +104,7 @@ async function main() {
   await prisma.customerProfile.deleteMany();
   await prisma.samagriPackage.deleteMany();
   await prisma.pujaService.deleteMany();
-  await prisma.panditBlockedDate.deleteMany();
+  await prisma.blockedDate.deleteMany();
   await prisma.panditProfile.deleteMany();
   await prisma.supportTicket.deleteMany();
   await prisma.user.deleteMany();
@@ -170,7 +170,7 @@ async function main() {
     const user = await prisma.user.create({
       data: {
         phone: p.phone, name: p.name, role: Role.PANDIT, isVerified: p.verificationStatus === VerificationStatus.VERIFIED,
-        panditProfile: {
+        pandit: {
           create: {
             experienceYears: p.experienceYears || 0, languages: ['Hindi', 'Sanskrit'],
             verificationStatus: p.verificationStatus,
@@ -181,7 +181,8 @@ async function main() {
             samagriPackages: { create: p.packages || [] }
           }
         }
-      }
+      },
+      include: { pandit: true }
     });
     panditMap[`pandit${i + 1}`] = user;
   }
@@ -195,7 +196,7 @@ async function main() {
   // HPJ-001: Customer 1 → Pandit 1, COMPLETED, Satyanarayan, Delhi
   const b1 = await prisma.booking.create({
     data: {
-      bookingNumber: 'HPJ-001', customerId: customerMap.customer1.id, panditId: panditMap.pandit1.id,
+      bookingNumber: 'HPJ-001', customerId: customerMap.customer1.id, panditId: panditMap.pandit1.pandit.id,
       status: BookingStatus.COMPLETED, eventType: 'Satyanarayan Puja', eventDate: new Date('2026-05-03T00:00:00Z'),
       venueCity: 'Delhi', venueAddress: 'A-42, Sector 62, Noida, UP, 201301', venuePincode: '110001',
       travelRequired: false, dakshinaAmount: 3100, platformFee: 465, platformFeeGst: 83, grandTotal: 3648,
@@ -213,7 +214,7 @@ async function main() {
   // HPJ-002: Customer 1 → Pandit 2, CONFIRMED, Vivah, Delhi
   const b2 = await prisma.booking.create({
     data: {
-      bookingNumber: 'HPJ-002', customerId: customerMap.customer1.id, panditId: panditMap.pandit2.id,
+      bookingNumber: 'HPJ-002', customerId: customerMap.customer1.id, panditId: panditMap.pandit2.pandit.id,
       status: BookingStatus.CONFIRMED, eventType: 'Vivah', eventDate: new Date(new Date().getTime() + 5 * 24 * 60 * 60 * 1000),
       venueCity: 'Delhi', venueAddress: 'A-42, Sector 62, Noida, UP, 201301', venuePincode: '110001',
       travelRequired: true, travelStatus: TravelStatus.PENDING, dakshinaAmount: 25000, platformFee: 3750, platformFeeGst: 675, grandTotal: 29425,
@@ -229,7 +230,7 @@ async function main() {
   // HPJ-003: Customer 2 → Pandit 1, TRAVEL_BOOKED, Griha Pravesh
   const b3 = await prisma.booking.create({
     data: {
-      bookingNumber: 'HPJ-003', customerId: customerMap.customer2.id, panditId: panditMap.pandit1.id,
+      bookingNumber: 'HPJ-003', customerId: customerMap.customer2.id, panditId: panditMap.pandit1.pandit.id,
       status: BookingStatus.TRAVEL_BOOKED, eventType: 'Griha Pravesh', eventDate: new Date(new Date().getTime() + 2 * 24 * 60 * 60 * 1000),
       venueCity: 'Noida', venueAddress: 'C-15, Sector 4, Indirapuram, UP, 201014', venuePincode: '201301',
       travelRequired: true, travelStatus: TravelStatus.BOOKED, dakshinaAmount: 7000, platformFee: 1050, platformFeeGst: 189, grandTotal: 8239,
@@ -240,7 +241,7 @@ async function main() {
   // HPJ-004: Customer 3 → Pandit 2, PANDIT_REQUESTED, Mundan
   const b4 = await prisma.booking.create({
     data: {
-      bookingNumber: 'HPJ-004', customerId: customerMap.customer3.id, panditId: panditMap.pandit2.id,
+      bookingNumber: 'HPJ-004', customerId: customerMap.customer3.id, panditId: panditMap.pandit2.pandit.id,
       status: BookingStatus.PANDIT_REQUESTED, eventType: 'Mundan', eventDate: new Date('2026-06-04T00:00:00Z'),
       venueCity: 'Delhi', venueAddress: 'Delhi Address', venuePincode: '110001',
       dakshinaAmount: 5000, platformFee: 750, platformFeeGst: 135, grandTotal: 5885,
@@ -251,7 +252,7 @@ async function main() {
   // HPJ-005: Customer 2 → Pandit 1, CANCELLED, Satyanarayan
   const b5 = await prisma.booking.create({
     data: {
-      bookingNumber: 'HPJ-005', customerId: customerMap.customer2.id, panditId: panditMap.pandit1.id,
+      bookingNumber: 'HPJ-005', customerId: customerMap.customer2.id, panditId: panditMap.pandit1.pandit.id,
       status: BookingStatus.CANCELLED, eventType: 'Satyanarayan Puja', eventDate: new Date('2026-07-02T00:00:00Z'),
       venueCity: 'Delhi', venueAddress: 'Delhi Address', venuePincode: '110001',
       dakshinaAmount: 3100, platformFee: 465, platformFeeGst: 83, grandTotal: 3648,
@@ -263,7 +264,7 @@ async function main() {
   // HPJ-006: Customer 3 → Pandit 1, CREATED, Annaprashan
   const b6 = await prisma.booking.create({
     data: {
-      bookingNumber: 'HPJ-006', customerId: customerMap.customer3.id, panditId: panditMap.pandit1.id,
+      bookingNumber: 'HPJ-006', customerId: customerMap.customer3.id, panditId: panditMap.pandit1.pandit.id,
       status: BookingStatus.CREATED, eventType: 'Annaprashan', eventDate: new Date('2026-08-04T00:00:00Z'),
       venueCity: 'Delhi', venueAddress: 'Delhi Address', venuePincode: '110001',
       dakshinaAmount: 4000, platformFee: 600, platformFeeGst: 108, grandTotal: 4708,

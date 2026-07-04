@@ -127,7 +127,7 @@ export default function EarningsPage() {
           </h3>
 
           {pendingPayouts.length === 0 ? (
-            <p className="text-[16px] text-softgrey font-hindi text-center py-4">No pending payouts</p>
+            <p className="text-[16px] text-softgrey font-hindi text-center py-4">{hi.earnings.noPending}</p>
           ) : (
             <div className="flex flex-col gap-3">
               {pendingPayouts.map((p) => {
@@ -159,7 +159,7 @@ export default function EarningsPage() {
           </h3>
 
           {paidPayouts.length === 0 ? (
-            <p className="text-[16px] text-softgrey font-hindi text-center py-4">No paid payouts yet</p>
+            <p className="text-[16px] text-softgrey font-hindi text-center py-4">{hi.earnings.noPaid}</p>
           ) : (
             <div className="flex flex-col gap-3">
               {paidPayouts.map((p) => {

@@ -176,7 +176,7 @@ export default function SamagriPage() {
   return (
     <div className="min-h-screen bg-cream text-ink pb-20">
       <Header
-        title="Samagri"
+        title={hi.samagri.title}
         showBack={selectedPuja !== null}
         onBack={() => {
           setSelectedPuja(null);
@@ -264,7 +264,7 @@ export default function SamagriPage() {
                     <div className="flex flex-col gap-3 p-4 bg-saffron-50/50 rounded-card border border-saffron-100 mt-2">
                       <input
                         type="text"
-                        placeholder="Item Name"
+                        placeholder={hi.samagri.itemNamePlaceholder}
                         value={newItemName}
                         onChange={(e) => setNewItemName(e.target.value)}
                         className="w-full h-[56px] px-3 border-2 border-saffron-300 rounded-btn text-[18px] font-hindi text-ink bg-white focus:outline-none"
@@ -272,7 +272,7 @@ export default function SamagriPage() {
                       />
                       <input
                         type="text"
-                        placeholder="Qty"
+                        placeholder={hi.samagri.qtyPlaceholder}
                         value={newItemQty}
                         onChange={(e) => setNewItemQty(e.target.value)}
                         className="w-full h-[56px] px-3 border-2 border-saffron-300 rounded-btn text-[18px] font-hindi text-ink bg-white focus:outline-none"

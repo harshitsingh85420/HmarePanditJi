@@ -100,15 +100,11 @@ export default async function adminRoutes(fastify: FastifyInstance, _opts: any) 
             payoutReference: true,
             payoutCompletedAt: true,
             grandTotal: true,
-            panditUser: {
+            pandit: {
               select: {
                 id: true,
-                name: true,
-                pandit: {
-                  select: {
-                    city: true,
-                  },
-                },
+                city: true,
+                user: { select: { id: true, name: true } },
               },
             },
           },
@@ -117,13 +113,13 @@ export default async function adminRoutes(fastify: FastifyInstance, _opts: any) 
       ]);
 
       const mappedBookings = bookings.map(b => {
-        const { panditUser, ...rest } = b as any;
+        const { pandit, ...rest } = b as any;
         return {
           ...rest,
-          pandit: panditUser ? {
-            id: panditUser.id,
-            name: panditUser.name,
-            panditProfile: panditUser.pandit
+          pandit: pandit ? {
+            id: pandit.user?.id,
+            name: pandit.user?.name,
+            panditProfile: { city: pandit.city }
           } : null
         };
       });
@@ -243,7 +239,7 @@ export default async function adminRoutes(fastify: FastifyInstance, _opts: any) 
             refundStatus: true,
             refundReference: true,
             paymentStatus: true,
-            panditUser: { select: { name: true, pandit: { select: { city: true } } } },
+            pandit: { select: { city: true, user: { select: { name: true } } } },
             customer: {
               select: { name: true, phone: true }
             },
@@ -253,12 +249,12 @@ export default async function adminRoutes(fastify: FastifyInstance, _opts: any) 
       ]);
 
       const mappedBookings = bookings.map(b => {
-        const { panditUser, ...rest } = b as any;
+        const { pandit, ...rest } = b as any;
         return {
           ...rest,
-          pandit: panditUser ? {
-            name: panditUser.name,
-            panditProfile: panditUser.pandit
+          pandit: pandit ? {
+            name: pandit.user?.name,
+            panditProfile: { city: pandit.city }
           } : null
         };
       });

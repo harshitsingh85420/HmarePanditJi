@@ -27,8 +27,8 @@ export async function getPanditSamagriPackages(panditUserId: string, pujaType?: 
   });
   if (!panditProfile) throw new AppError("Pandit not found", 404, "NOT_FOUND");
 
-  const where: { panditProfileId: string; pujaType?: string; isActive: boolean } = {
-    panditProfileId: panditProfile.id,
+  const where: { panditId: string; pujaType?: string; isActive: boolean } = {
+    panditId: panditProfile.id,
     isActive: true,
   };
   if (pujaType) where.pujaType = pujaType;
@@ -51,7 +51,7 @@ export async function manageSamagriPackage(
   if (action === "create") {
     const existing = await prisma.samagriPackage.findFirst({
       where: {
-        panditProfileId,
+        panditId: panditProfileId,
         pujaType: data.pujaType,
         packageName: data.packageName,
       },
@@ -63,7 +63,7 @@ export async function manageSamagriPackage(
 
     return prisma.samagriPackage.create({
       data: {
-        panditProfileId,
+        panditId: panditProfileId,
         packageName: data.packageName,
         packageType: data.packageType,
         pujaType: data.pujaType,
@@ -76,7 +76,7 @@ export async function manageSamagriPackage(
 
   if (action === "update" && packageId) {
     const pkg = await prisma.samagriPackage.findUnique({ where: { id: packageId } });
-    if (!pkg || pkg.panditProfileId !== panditProfileId) {
+    if (!pkg || pkg.panditId !== panditProfileId) {
       throw new AppError("Package not found or unauthorized", 404);
     }
 
@@ -88,7 +88,7 @@ export async function manageSamagriPackage(
 
   if (action === "delete" && packageId) {
     const pkg = await prisma.samagriPackage.findUnique({ where: { id: packageId } });
-    if (!pkg || pkg.panditProfileId !== panditProfileId) {
+    if (!pkg || pkg.panditId !== panditProfileId) {
       throw new AppError("Package not found or unauthorized", 404);
     }
 

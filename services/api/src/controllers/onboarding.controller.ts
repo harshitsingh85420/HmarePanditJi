@@ -178,10 +178,10 @@ export const onboardingStep4 = async (request: FastifyRequest, reply: FastifyRep
         if (!profile) throw new AppError("Profile not found", 404);
 
         if (canBringSamagri) {
-            await prisma.samagriPackage.deleteMany({ where: { panditProfileId: profile.id } });
+            await prisma.samagriPackage.deleteMany({ where: { panditId: profile.id } });
 
             const samagriData = packages.map((pkg) => ({
-                panditProfileId: profile.id,
+                panditId: profile.id,
                 packageType: pkg.packageType,
                 packageName: pkg.name,
                 pujaType: "All",

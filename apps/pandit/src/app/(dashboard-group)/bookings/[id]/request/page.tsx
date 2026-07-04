@@ -79,7 +79,7 @@ export default function BookingRequestPage() {
   if (!booking) {
     return (
       <div className="min-h-screen bg-cream text-ink flex flex-col">
-        <Header title="Booking Request" showBack />
+        <Header title={hi.booking.requestTitle} showBack />
         <div className="flex-grow flex items-center justify-center p-6 text-center">
           <p className="text-danger text-[20px] font-bold">{errorMsg || "Booking not found."}</p>
         </div>
@@ -148,7 +148,7 @@ export default function BookingRequestPage() {
 
   return (
     <div className="min-h-screen bg-cream text-ink pb-24">
-      <Header title="Booking Request" showBack onBack={() => router.push("/bookings")} />
+      <Header title={hi.booking.requestTitle} showBack onBack={() => router.push("/bookings")} />
 
       {/* Composed speak sentence on mount */}
       <SpeakOnMount text={voiceIntroText} />

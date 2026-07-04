@@ -369,7 +369,7 @@ export default async function bookingRoutes(fastify: FastifyInstance, _opts: any
         where: { id: req.params.id },
         include: {
           customer: true,
-          panditUser: true,
+          pandit: { include: { user: true } },
         },
       });
 
@@ -382,10 +382,10 @@ export default async function bookingRoutes(fastify: FastifyInstance, _opts: any
       });
 
       // Fire notifications (non-blocking)
-      if (existing && existing.panditUser) {
+      if (existing && existing.pandit?.user) {
         const customerPhone = existing.customer.phone;
         const customerName = existing.customer.name ?? existing.customer.phone;
-        const panditName = existing.panditUser.name ?? "Pandit";
+        const panditName = existing.pandit.user.name ?? "Pandit";
 
         if (status === "CONFIRMED" && customerPhone) {
           notifyBookingConfirmedToCustomer({
@@ -427,7 +427,7 @@ export default async function bookingRoutes(fastify: FastifyInstance, _opts: any
 
       const existing = await prisma.booking.findUnique({
         where: { id: req.params.id },
-        include: { panditUser: true },
+        include: { pandit: { include: { user: true } } },
       });
 
       const booking = await prisma.booking.update({
@@ -441,11 +441,11 @@ export default async function bookingRoutes(fastify: FastifyInstance, _opts: any
       });
 
       // Notify pandit (non-blocking)
-      if (existing?.panditUser?.phone) {
+      if (existing?.pandit?.user?.phone) {
         notifyCancellationToAffected({
-          userId: existing.panditUser.id,
-          phone: existing.panditUser.phone,
-          name: existing.panditUser.name ?? "Pandit",
+          userId: existing.pandit.user.id,
+          phone: existing.pandit.user.phone,
+          name: existing.pandit.user.name ?? "Pandit",
           bookingNumber: existing.bookingNumber,
           reason: reason ?? "Customer cancelled",
           refundAmount: 0,

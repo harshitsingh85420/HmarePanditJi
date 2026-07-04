@@ -101,7 +101,7 @@ export const getAlerts = async (request: FastifyRequest, reply: FastifyReply) =>
         const [urgentTravel, pendingVerifications, pendingPayouts, cancellations] = await Promise.all([
             prisma.booking.findMany({
                 where: { eventDate: { lt: in48hrs, gt: now }, travelStatus: "PENDING", travelRequired: true },
-                select: { id: true, bookingNumber: true, eventDate: true, panditUser: { select: { name: true } } },
+                select: { id: true, bookingNumber: true, eventDate: true, pandit: { select: { user: { select: { name: true } } } } },
                 take: 10
             }),
             prisma.panditProfile.findMany({
@@ -111,7 +111,7 @@ export const getAlerts = async (request: FastifyRequest, reply: FastifyReply) =>
             }),
             prisma.booking.findMany({
                 where: { status: "COMPLETED", payoutStatus: "PENDING", updatedAt: { lt: ago48hrs } },
-                select: { id: true, bookingNumber: true, panditPayout: true, panditUser: { select: { name: true } } },
+                select: { id: true, bookingNumber: true, panditPayout: true, pandit: { select: { user: { select: { name: true } } } } },
                 take: 10
             }),
             prisma.booking.findMany({
@@ -125,7 +125,7 @@ export const getAlerts = async (request: FastifyRequest, reply: FastifyReply) =>
         for (const t of urgentTravel) {
             alerts.push({
                 type: "TRAVEL", severity: "HIGH",
-                message: `URGENT: Booking ${t.bookingNumber} has event in <48 hours, travel NOT booked. Pandit ${t.panditUser?.name ?? '-'} needs travel arranged.`,
+                message: `URGENT: Booking ${t.bookingNumber} has event in <48 hours, travel NOT booked. Pandit ${t.pandit?.user?.name ?? '-'} needs travel arranged.`,
                 actionUrl: "/travel-desk", bookingId: t.id
             });
         }
@@ -139,7 +139,7 @@ export const getAlerts = async (request: FastifyRequest, reply: FastifyReply) =>
         for (const p of pendingPayouts) {
             alerts.push({
                 type: "PAYOUT", severity: "MEDIUM",
-                message: `₹${p.panditPayout} payout pending for ${p.panditUser?.name ?? 'Pandit'} — Booking ${p.bookingNumber}.`,
+                message: `₹${p.panditPayout} payout pending for ${p.pandit?.user?.name ?? 'Pandit'} — Booking ${p.bookingNumber}.`,
                 actionUrl: "/payouts", bookingId: p.id
             });
         }
@@ -165,7 +165,7 @@ export const getActivityFeed = async (request: FastifyRequest, reply: FastifyRep
             take: limit,
             orderBy: { createdAt: "desc" },
             include: {
-                booking: { select: { bookingNumber: true, grandTotal: true, panditUser: { select: { name: true } } } },
+                booking: { select: { bookingNumber: true, grandTotal: true, pandit: { select: { user: { select: { name: true } } } } } },
                 updatedBy: { select: { name: true, role: true } }
             }
         });
@@ -174,7 +174,7 @@ export const getActivityFeed = async (request: FastifyRequest, reply: FastifyRep
             let icon = "📝";
             let msg = `${e.updatedBy.name} changed status to ${e.toStatus} for ${e.booking.bookingNumber}`;
             if (e.toStatus === "CONFIRMED") { icon = "✅"; msg = `Booking ${e.booking.bookingNumber} confirmed`; }
-            else if (e.toStatus === "COMPLETED") { icon = "🌸"; msg = `Pandit ${e.booking.panditUser?.name ?? 'Pandit'} marked puja as completed (${e.booking.bookingNumber})`; }
+            else if (e.toStatus === "COMPLETED") { icon = "🌸"; msg = `Pandit ${e.booking.pandit?.user?.name ?? 'Pandit'} marked puja as completed (${e.booking.bookingNumber})`; }
             else if (e.toStatus === "CREATED") { icon = "🆕"; msg = `New booking ${e.booking.bookingNumber} created (₹${e.booking.grandTotal})`; }
             else if (e.toStatus === "TRAVEL_BOOKED") { icon = "✈️"; msg = `Travel booked for ${e.booking.bookingNumber}`; }
 
@@ -221,20 +221,20 @@ export const getTravelQueue = async (request: FastifyRequest, reply: FastifyRepl
                 venueAddress: true, travelMode: true, travelDistanceKm: true, travelStatus: true,
                 travelBookingRef: true, travelNotes: true, travelCost: true, status: true,
                 calculatedTravelCost: true, travelBreakdown: true, travelBookingDetails: true,
-                panditUser: { select: { id: true, name: true, phone: true, pandit: { select: { location: true } } } },
+                pandit: { select: { id: true, location: true, user: { select: { id: true, name: true, phone: true } } } },
                 customer: { select: { id: true, name: true, phone: true } }
             }
         });
 
         const mappedBookings = bookings.map(b => {
-            const { panditUser, ...rest } = b as any;
+            const { pandit, ...rest } = b as any;
             return {
                 ...rest,
-                pandit: panditUser ? {
-                    id: panditUser.id,
-                    name: panditUser.name,
-                    phone: panditUser.phone,
-                    panditProfile: panditUser.pandit
+                pandit: pandit ? {
+                    id: pandit.user?.id,
+                    name: pandit.user?.name,
+                    phone: pandit.user?.phone,
+                    panditProfile: { id: pandit.id, location: pandit.location }
                 } : null
             };
         });
@@ -319,13 +319,16 @@ export const travelBooked = async (request: FastifyRequest, reply: FastifyReply)
             const ns = new NotificationService();
 
             if (updated.panditId) {
+                const panditProfile = await prisma.panditProfile.findUnique({ where: { id: updated.panditId }, select: { userId: true } });
                 const pInfo = getNotificationTemplate("TRAVEL_BOOKED_PANDIT", {
                     id: updated.id.substring(0, 8).toUpperCase(),
                     mode: updated.travelMode ?? "Transport",
                     details: updated.travelNotes ?? "N/A",
                     reference: updated.travelBookingRef ?? "See app"
                 });
-                await ns.notify({ userId: updated.panditId, type: "TRAVEL_BOOKED", title: pInfo.title, message: pInfo.message, smsMessage: pInfo.smsMessage });
+                if (panditProfile) {
+                    await ns.notify({ userId: panditProfile.userId, type: "TRAVEL_BOOKED", title: pInfo.title, message: pInfo.message, smsMessage: pInfo.smsMessage });
+                }
             }
 
             if (updated.customerId) {
@@ -568,7 +571,7 @@ export const getAllBookingsAdmin = async (request: FastifyRequest, reply: Fastif
                     id: true, bookingNumber: true, eventType: true, eventDate: true, status: true,
                     grandTotal: true, paymentStatus: true, travelStatus: true, payoutStatus: true,
                     customer: { select: { id: true, name: true, phone: true } },
-                    panditUser: { select: { id: true, name: true, phone: true } },
+                    pandit: { select: { id: true, user: { select: { id: true, name: true, phone: true } } } },
                     createdAt: true
                 }
             }),
@@ -577,10 +580,10 @@ export const getAllBookingsAdmin = async (request: FastifyRequest, reply: Fastif
         ]);
 
         const mappedBookings = bookings.map(b => {
-            const { panditUser, ...rest } = b as any;
+            const { pandit, ...rest } = b as any;
             return {
                 ...rest,
-                pandit: panditUser
+                pandit: pandit?.user ?? null
             };
         });
 
@@ -617,7 +620,7 @@ export const getBookingAdminDetail = async (request: FastifyRequest, reply: Fast
             where: { id: params.bookingId },
             include: {
                 customer: { include: { customerProfile: true } },
-                panditUser: { include: { pandit: true } },
+                pandit: { include: { user: true } },
                 statusUpdates: {
                     include: { updatedBy: { select: { id: true, name: true, role: true } } },
                     orderBy: { createdAt: "desc" }
@@ -629,21 +632,21 @@ export const getBookingAdminDetail = async (request: FastifyRequest, reply: Fast
 
         const mappedBooking = {
             ...booking,
-            pandit: booking.panditUser ? {
-                id: booking.panditUser.id,
-                phone: booking.panditUser.phone,
-                name: booking.panditUser.name,
-                email: booking.panditUser.email,
-                avatarUrl: booking.panditUser.avatarUrl,
-                isVerified: booking.panditUser.isVerified,
-                role: booking.panditUser.role,
-                isActive: booking.panditUser.isActive,
-                createdAt: booking.panditUser.createdAt,
-                updatedAt: booking.panditUser.updatedAt,
-                panditProfile: booking.panditUser.pandit
+            pandit: booking.pandit?.user ? {
+                id: booking.pandit.user.id,
+                phone: booking.pandit.user.phone,
+                name: booking.pandit.user.name,
+                email: booking.pandit.user.email,
+                avatarUrl: booking.pandit.user.avatarUrl,
+                isVerified: booking.pandit.user.isVerified,
+                role: booking.pandit.user.role,
+                isActive: booking.pandit.user.isActive,
+                createdAt: booking.pandit.user.createdAt,
+                updatedAt: booking.pandit.user.updatedAt,
+                panditProfile: (({ user: _u, ...profile }) => profile)(booking.pandit)
             } : null
         };
-        delete (mappedBooking as any).panditUser;
+        delete (mappedBooking as any).pandit;
 
         return reply.send(successBody(mappedBooking));
     } catch (err) {

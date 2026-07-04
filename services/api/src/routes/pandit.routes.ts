@@ -22,6 +22,13 @@ import { getNotificationTemplate } from "../services/notification-templates";
 const notificationService = new NotificationService();
 
 export default async function panditRoutes(fastify: FastifyInstance, _opts: any) {
+  // Booking.panditId references PanditProfile.id — resolve it from the authenticated user id
+  async function getProfileId(userId: string): Promise<string> {
+    const profile = await prisma.panditProfile.findUnique({ where: { userId }, select: { id: true } });
+    if (!profile) throw new AppError("Pandit profile not found", 404, "NOT_FOUND");
+    return profile.id;
+  }
+
   const updatePanditSchema = z.object({
     bio: z.string().max(500).optional(),
     specializations: z.array(z.string()).optional(),
@@ -306,9 +313,9 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
         const panditProfile = await prisma.panditProfile.findUnique({ where: { userId: req.user!.id } });
         if (!panditProfile) throw new AppError("Pandit profile not found", 404, "NOT_FOUND");
 
-        const created = await prisma.panditBlockedDate.createMany({
+        const created = await prisma.blockedDate.createMany({
           data: req.body.dates.map((d: string) => ({
-            panditProfileId: panditProfile.id,
+            panditId: panditProfile.id,
             date: new Date(d),
             reason: req.body.reason,
           })),
@@ -335,12 +342,12 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
       const panditProfile = await prisma.panditProfile.findUnique({ where: { userId: req.user!.id } });
       if (!panditProfile) throw new AppError("Pandit profile not found", 404, "NOT_FOUND");
 
-      const blocked = await prisma.panditBlockedDate.findFirst({
-        where: { id: req.params.id, panditProfileId: panditProfile.id },
+      const blocked = await prisma.blockedDate.findFirst({
+        where: { id: req.params.id, panditId: panditProfile.id },
       });
       if (!blocked) throw new AppError("Blocked date not found", 404, "NOT_FOUND");
 
-      await prisma.panditBlockedDate.delete({ where: { id: req.params.id } });
+      await prisma.blockedDate.delete({ where: { id: req.params.id } });
       sendSuccess(res, null, "Date unblocked successfully");
     } catch (err) {
       throw err;
@@ -442,7 +449,7 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
     try {
       const req = request;
       const res = reply;
-      const panditId = req.user!.id; // Note: pandit user ID
+      const panditId = await getProfileId(req.user!.id);
       const monthQuery = req.query.month as string;
       let startOfMonth, endOfMonth;
 
@@ -475,7 +482,7 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
       });
 
       const panditProfile = await prisma.panditProfile.findUnique({
-        where: { userId: panditId },
+        where: { userId: req.user!.id },
         select: { bankName: true, bankAccountNumber: true }
       });
 
@@ -561,7 +568,7 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
         where: { id: bookingId }
       });
 
-      if (!booking || booking.panditId !== req.user!.id) {
+      if (!booking || booking.panditId !== await getProfileId(req.user!.id)) {
         throw new AppError("Booking not found", 404);
       }
 
@@ -623,13 +630,13 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
     try {
       const req = request;
       const res = reply;
-      const panditId = req.user!.id; // pandit uses their own user id
       const panditProfile = await prisma.panditProfile.findUnique({
-        where: { userId: panditId },
+        where: { userId: req.user!.id },
         include: { user: { select: { name: true } } }
       });
 
       if (!panditProfile) throw new AppError("Profile not found", 404);
+      const panditId = panditProfile.id;
 
       const today = new Date();
       const startOfToday = new Date(today);
@@ -721,7 +728,7 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
       const res = reply;
       const pendingRequests = await prisma.booking.findMany({
         where: {
-          panditId: req.user!.id,
+          panditId: await getProfileId(req.user!.id),
           status: "PANDIT_REQUESTED",
           createdAt: { gte: new Date(Date.now() - 6 * 60 * 60 * 1000) }
         },
@@ -746,7 +753,7 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
 
-      const where: any = { panditId: req.user!.id };
+      const where: any = { panditId: await getProfileId(req.user!.id) };
       if (status) {
         where.status = { in: status.split(",") };
       }
@@ -786,7 +793,7 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
         }
       });
 
-      if (!booking || booking.panditId !== req.user!.id) {
+      if (!booking || booking.panditId !== await getProfileId(req.user!.id)) {
         throw new AppError("Booking not found", 404);
       }
       sendSuccess(res, booking);
@@ -808,7 +815,7 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
         where: { id: req.params.bookingId },
         include: { pandit: true }
       });
-      if (!booking || booking.panditId !== req.user!.id) throw new AppError("Invalid booking", 404);
+      if (!booking || booking.panditId !== await getProfileId(req.user!.id)) throw new AppError("Invalid booking", 404);
 
       const itinerary = {
         outboundDate: new Date(booking.eventDate).getTime() - 86400000,
@@ -858,7 +865,7 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
       const req = request;
       const res = reply;
       const booking = await prisma.booking.findUnique({ where: { id: req.params.bookingId } });
-      if (!booking || booking.panditId !== req.user!.id || booking.status !== "PANDIT_REQUESTED") {
+      if (!booking || booking.panditId !== await getProfileId(req.user!.id) || booking.status !== "PANDIT_REQUESTED") {
         throw new AppError("Invalid booking request", 400);
       }
 
@@ -900,7 +907,7 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
       const res = reply;
       const { reason } = req.body;
       const booking = await prisma.booking.findUnique({ where: { id: req.params.bookingId } });
-      if (!booking || booking.panditId !== req.user!.id || booking.status !== "PANDIT_REQUESTED") {
+      if (!booking || booking.panditId !== await getProfileId(req.user!.id) || booking.status !== "PANDIT_REQUESTED") {
         throw new AppError("Invalid booking request", 400);
       }
 
@@ -939,7 +946,7 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
       const req = request;
       const res = reply;
       const booking = await prisma.booking.findUnique({ where: { id: req.params.bookingId } });
-      if (!booking || booking.panditId !== req.user!.id) {
+      if (!booking || booking.panditId !== await getProfileId(req.user!.id)) {
         throw new AppError("Invalid booking", 400);
       }
       if (!["PANDIT_ARRIVED", "PUJA_IN_PROGRESS", "CONFIRMED"].includes(booking.status)) {
@@ -983,7 +990,7 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
       const req = request;
       const res = reply;
       const booking = await prisma.booking.findUnique({ where: { id: req.params.bookingId } });
-      if (!booking || booking.panditId !== req.user!.id) throw new AppError("Invalid booking", 400);
+      if (!booking || booking.panditId !== await getProfileId(req.user!.id)) throw new AppError("Invalid booking", 400);
 
       await prisma.$transaction([
         prisma.booking.update({
@@ -1018,7 +1025,7 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
       const req = request;
       const res = reply;
       const booking = await prisma.booking.findUnique({ where: { id: req.params.bookingId } });
-      if (!booking || booking.panditId !== req.user!.id) throw new AppError("Invalid booking", 400);
+      if (!booking || booking.panditId !== await getProfileId(req.user!.id)) throw new AppError("Invalid booking", 400);
 
       await prisma.$transaction([
         prisma.booking.update({
@@ -1053,7 +1060,7 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
       const req = request;
       const res = reply;
       const booking = await prisma.booking.findUnique({ where: { id: req.params.bookingId } });
-      if (!booking || booking.panditId !== req.user!.id) throw new AppError("Invalid booking", 400);
+      if (!booking || booking.panditId !== await getProfileId(req.user!.id)) throw new AppError("Invalid booking", 400);
 
       await prisma.$transaction([
         prisma.booking.update({
@@ -1105,7 +1112,7 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
 
       const bookings = await prisma.booking.findMany({
         where: {
-          panditId: req.user!.id,
+          panditId: panditProfile.id,
           eventDate: { gte: firstDay, lte: lastDay },
           status: { notIn: ["CANCELLED", "REFUNDED"] }
         },
@@ -1115,9 +1122,9 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
         }
       });
 
-      const rawBlockedDates = await prisma.panditBlockedDate.findMany({
+      const rawBlockedDates = await prisma.blockedDate.findMany({
         where: {
-          panditProfileId: panditProfile.id,
+          panditId: panditProfile.id,
           date: { gte: firstDay, lte: lastDay }
         },
         orderBy: { date: "asc" }
@@ -1202,7 +1209,7 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
 
       const conflicts = await prisma.booking.findMany({
         where: {
-          panditId: req.user!.id,
+          panditId: panditProfile.id,
           eventDate: { gte: start, lte: end },
           status: { in: ["CONFIRMED", "TRAVEL_BOOKED", "PANDIT_EN_ROUTE", "PANDIT_ARRIVED", "PUJA_IN_PROGRESS"] }
         },
@@ -1229,9 +1236,11 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
       }
 
       const created = await prisma.$transaction(
-        datesToBlock.map(d => prisma.panditBlockedDate.create({
-          data: {
-            panditProfileId: panditProfile.id,
+        datesToBlock.map(d => prisma.blockedDate.upsert({
+          where: { panditId_date: { panditId: panditProfile.id, date: d } },
+          update: { reason },
+          create: {
+            panditId: panditProfile.id,
             date: d,
             reason
           }
@@ -1264,14 +1273,14 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
       const panditProfile = await prisma.panditProfile.findUnique({ where: { userId: req.user!.id } });
       if (!panditProfile) throw new AppError("Pandit profile not found", 404);
 
-      const blocked = await prisma.panditBlockedDate.findFirst({
-        where: { id: req.params.id, panditProfileId: panditProfile.id }
+      const blocked = await prisma.blockedDate.findFirst({
+        where: { id: req.params.id, panditId: panditProfile.id }
       });
       if (!blocked) throw new AppError("Blocked date not found", 404);
 
       // We can just delete this single record for now. If it was a range, the user will have to delete them one by one
       // or we delete all matching records in that range. For phase 1 we do it exactly matching string `id`
-      await prisma.panditBlockedDate.delete({ where: { id: req.params.id } });
+      await prisma.blockedDate.delete({ where: { id: req.params.id } });
       sendSuccess(res, { success: true });
     } catch (err) {
       throw err;
@@ -1356,7 +1365,7 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
       const tier = tiers.find((t) => completedBookings >= t.minBookings && completedBookings <= t.maxBookings) || tiers[0];
       const nextTier = tiers.find((t) => t.minBookings > completedBookings);
 
-      const bookings = await prisma.booking.findMany({ where: { panditId } });
+      const bookings = await prisma.booking.findMany({ where: { panditId: panditProfile.id } });
 
       const acceptedCount = bookings.filter((b: { status: string }) => b.status !== "PANDIT_REQUESTED" && b.status !== "CANCELLATION_REQUESTED").length;
       const totalRequests = bookings.length;
@@ -1444,7 +1453,7 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
     try {
       const req = request;
       const res = reply;
-      const panditId = req.user!.id;
+      const panditId = await getProfileId(req.user!.id);
       const bookings = await prisma.booking.findMany({
         where: {
           panditId,
@@ -1522,7 +1531,7 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
       const res = reply;
       const booking = await prisma.booking.findUnique({ where: { id: req.params.id } });
       if (!booking) throw new AppError("Booking not found", 404);
-      if (booking.panditId !== req.user!.id) throw new AppError("Not your booking", 403);
+      if (booking.panditId !== await getProfileId(req.user!.id)) throw new AppError("Not your booking", 403);
       if (booking.status !== "COMPLETED") throw new AppError("Booking must be completed to rate customer", 400);
 
       const data = req.body;
@@ -1536,7 +1545,7 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
         },
         create: {
           bookingId: booking.id,
-          panditId: req.user!.id,
+          panditId: await getProfileId(req.user!.id),
           customerId: booking.customerId,
           punctuality: data.punctuality,
           hospitality: data.hospitality,

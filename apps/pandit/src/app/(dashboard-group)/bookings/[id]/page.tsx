@@ -82,7 +82,7 @@ export default function BookingDetailPage() {
   if (!booking) {
     return (
       <div className="min-h-screen bg-cream text-ink flex flex-col">
-        <Header title="Booking Details" showBack />
+        <Header title={hi.booking.detailsTitle} showBack />
         <div className="flex-grow flex items-center justify-center p-6 text-center">
           <p className="text-danger text-[20px] font-bold">{errorMsg || "Booking not found."}</p>
         </div>

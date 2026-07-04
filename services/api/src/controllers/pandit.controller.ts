@@ -127,15 +127,11 @@ export async function getPandits(request: FastifyRequest, reply: FastifyReply) {
                 }
             });
 
-            // The bookings are linked to user.id, not panditProfile.id.
-            // We ensure the associated user doesn't have a booking.
             conditions.push({
-                user: {
-                    bookingsAsPandit: {
-                        none: {
-                            eventDate: { gte: startOfDay, lte: endOfDay },
-                            status: { in: ["CONFIRMED", "TRAVEL_BOOKED", "PANDIT_EN_ROUTE", "PANDIT_ARRIVED", "PUJA_IN_PROGRESS"] }
-                        }
+                bookings: {
+                    none: {
+                        eventDate: { gte: startOfDay, lte: endOfDay },
+                        status: { in: ["CONFIRMED", "TRAVEL_BOOKED", "PANDIT_EN_ROUTE", "PANDIT_ARRIVED", "PUJA_IN_PROGRESS"] }
                     }
                 }
             });
@@ -360,18 +356,24 @@ export async function getPanditAvailabilityHandler(request: FastifyRequest, repl
         const startOfMonth = new Date(year, month - 1, 1);
         const endOfMonth = new Date(year, month, 0, 23, 59, 59, 999);
 
+        // Public route :id is the pandit's User.id; Booking/BlockedDate FK is PanditProfile.id
+        const profile = await prisma.panditProfile.findUnique({ where: { userId: panditId }, select: { id: true } });
+        if (!profile) {
+            return reply.code(404).send({ success: false, message: "Pandit not found" });
+        }
+
         const bookings = await prisma.booking.findMany({
             where: {
-                panditId,
+                panditId: profile.id,
                 eventDate: { gte: startOfMonth, lte: endOfMonth },
                 status: { in: ["CONFIRMED", "TRAVEL_BOOKED", "PANDIT_EN_ROUTE", "PANDIT_ARRIVED", "PUJA_IN_PROGRESS"] }
             },
             select: { eventDate: true }
         });
 
-        const blockedDates = await prisma.panditBlockedDate.findMany({
+        const blockedDates = await prisma.blockedDate.findMany({
             where: {
-                panditProfile: { userId: panditId },
+                panditId: profile.id,
                 date: { gte: startOfMonth, lte: endOfMonth }
             },
             select: { date: true, reason: true }

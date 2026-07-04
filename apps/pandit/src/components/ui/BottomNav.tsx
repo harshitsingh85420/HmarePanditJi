@@ -17,10 +17,10 @@ export interface BottomNavProps {
 
 export function BottomNav({ activeTab, onChange, className }: BottomNavProps) {
   const tabs = [
-    { label: "Home", emoji: "🏠" },
-    { label: "Bookings", emoji: "📿" },
-    { label: "Earnings", emoji: "💰" },
-    { label: "Calendar", emoji: "📅" },
+    { label: hi.nav.home, emoji: "🏠" },
+    { label: hi.nav.bookings, emoji: "📿" },
+    { label: hi.nav.earnings, emoji: "💰" },
+    { label: hi.nav.calendar, emoji: "📅" },
   ];
 
   return (

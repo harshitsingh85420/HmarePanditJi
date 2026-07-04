@@ -82,6 +82,8 @@ export async function createBooking(input: CreateBookingInput) {
     throw new AppError("Pandit not available", 400, "PANDIT_UNAVAILABLE");
   }
 
+  const panditProfileId = panditUser.pandit.id;
+
   // Check pandit availability: no CONFIRMED or CREATED booking on same calendar day
   const dayStart = new Date(input.eventDate);
   dayStart.setHours(0, 0, 0, 0);
@@ -90,7 +92,7 @@ export async function createBooking(input: CreateBookingInput) {
 
   const conflict = await prisma.booking.findFirst({
     where: {
-      panditId: input.panditId,
+      panditId: panditProfileId,
       status: { in: ["CONFIRMED", "CREATED"] },
       eventDate: { gte: dayStart, lt: dayEnd },
     },
@@ -112,7 +114,7 @@ export async function createBooking(input: CreateBookingInput) {
     data: {
       bookingNumber: generateBookingNumber(),
       customerId: input.customerId,
-      panditId: input.panditId,
+      panditId: panditProfileId,
       eventDate: input.eventDate,
       eventType: input.eventType,
       muhuratTime: input.muhuratTime,
@@ -189,7 +191,7 @@ export async function getBookingById(
     where: { id },
     include: {
       customer: true,  // customer IS the User
-      pandit: true,    // pandit IS the User
+      pandit: { include: { user: true } },  // pandit is the PanditProfile
       review: true,
       statusUpdates: { orderBy: { createdAt: "desc" }, take: 10 },
     },
@@ -199,7 +201,7 @@ export async function getBookingById(
 
   const isOwner =
     booking.customerId === requesterId ||
-    booking.panditId === requesterId ||
+    booking.pandit?.userId === requesterId ||
     requesterRole === "ADMIN";
 
   if (!isOwner) throw new AppError("Access denied", 403, "FORBIDDEN");
@@ -245,16 +247,18 @@ export async function listMyBookings(
   }
 
   if (role === "PANDIT") {
-    // panditId on Booking IS the User's ID
+    // Booking.panditId is the PanditProfile.id — resolve it from the user id
+    const profile = await prisma.panditProfile.findUnique({ where: { userId }, select: { id: true } });
+    if (!profile) return { bookings: [], total: 0 };
     const [bookings, total] = await prisma.$transaction([
       prisma.booking.findMany({
-        where: { panditId: userId, ...statusFilter },
+        where: { panditId: profile.id, ...statusFilter },
         include: { customer: true },
         orderBy: { createdAt: "desc" },
         skip,
         take: limit,
       }),
-      prisma.booking.count({ where: { panditId: userId, ...statusFilter } }),
+      prisma.booking.count({ where: { panditId: profile.id, ...statusFilter } }),
     ]);
     return { bookings, total };
   }

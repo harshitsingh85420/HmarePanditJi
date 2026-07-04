@@ -126,7 +126,6 @@ model User {
   customerProfile    CustomerProfile?
   pandit             PanditProfile?
   bookingsAsCustomer Booking[]             @relation("CustomerBookings")
-  bookingsAsPandit   Booking[]             @relation("PanditBookings")
   reviewsGiven       Review[]              @relation("ReviewsGiven")
   reviewsReceived    Review[]              @relation("ReviewsReceived")
   favoritePandits    FavoritePandit[]      @relation("CustomerFavorites")
@@ -228,8 +227,6 @@ model PanditProfile {
   deviceInfo           Json?
 
   pujaServices       PujaService[]
-  panditBlockedDates PanditBlockedDate[]
-  samagriPackagesOld SamagriPackage[]    @relation("OldSamagriRelation")
 
   // Spec fields:
   fullName           String              @default("")
@@ -280,8 +277,6 @@ model DakshinaRate {
 
 model SamagriPackage {
   id              String        @id @default(cuid())
-  panditProfileId String?
-  panditProfile   PanditProfile? @relation("OldSamagriRelation", fields: [panditProfileId], references: [id])
   packageName     String?        // "Basic", "Standard", "Premium"
   packageType     PackageType?
   pujaType        String        // Which puja this package is for
@@ -298,7 +293,7 @@ model SamagriPackage {
   tier            PackageTier    @default(BASIC)
   price           Int            @default(0)
 
-  @@index([panditProfileId])
+  @@index([panditId])
   @@unique([panditId, pujaType, tier])
 }
 
@@ -313,20 +308,8 @@ model BlockedDate {
   panditId String
   pandit   PanditProfile @relation(fields: [panditId], references: [id])
   date     DateTime          // date only, time 00:00 UTC
+  reason   String?
   @@unique([panditId, date])
-}
-
-model PanditBlockedDate {
-  id              String        @id @default(cuid())
-  panditProfileId String
-  panditProfile   PanditProfile @relation(fields: [panditProfileId], references: [id])
-  date            DateTime
-  reason          String?
-  isRecurring     Boolean       @default(false)
-  recurringRule   String?       // "EVERY_TUESDAY", "EVERY_MONTH_15"
-  createdAt       DateTime      @default(now())
-
-  @@index([panditProfileId])
   @@index([date])
 }
 
@@ -337,9 +320,6 @@ model Booking {
   customerId String
   customer   User   @relation("CustomerBookings", fields: [customerId], references: [id])
   
-  panditUserId String?
-  panditUser   User?   @relation("PanditBookings", fields: [panditUserId], references: [id])
-
   status BookingStatus @default(REQUESTED)
 
   // Event details
@@ -434,7 +414,7 @@ model Booking {
   review        Review?
 
   @@index([customerId])
-  @@index([panditUserId])
+  @@index([panditId])
   @@index([status])
   @@index([eventDate])
   @@index([bookingNumber])

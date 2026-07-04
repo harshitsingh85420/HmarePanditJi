@@ -322,6 +322,16 @@ export default function HomePage() {
             </span>
           </div>
         </Card>
+
+        {/* SAMAGRI PACKAGES LINK */}
+        <Card
+          className="p-4 bg-white border border-saffron-100 cursor-pointer"
+          onClick={() => router.push("/samagri")}
+        >
+          <span className="text-[20px] font-bold text-ink font-hindi">
+            {hi.home.samagriLink}
+          </span>
+        </Card>
       </main>
 
       {/* BOTTOM NAV */}
