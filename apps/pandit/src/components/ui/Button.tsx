@@ -48,7 +48,7 @@ export function Button({
       disabled={disabled || loading}
       onClick={onClick}
       className={cn(
-        "rounded-btn font-semibold flex items-center justify-center transition-all duration-200 select-none",
+        "rounded-btn font-semibold flex items-center justify-center transition-all duration-200 select-none relative",
         "focus-visible:ring-4 focus-visible:ring-saffron-200 focus:outline-none",
         fullWidth ? "w-full" : "px-6",
         variantStyles[variant],
@@ -58,13 +58,16 @@ export function Button({
       )}
       {...props}
     >
-      {loading ? (
-        <span className="flex items-center justify-center gap-2">
-          <span className="animate-spin motion-reduce:animate-none inline-block text-[22px]" role="img" aria-label="loading">🪔</span>
+      {loading && (
+        <span className="absolute inset-0 flex items-center justify-center">
+          <span className="animate-spin motion-reduce:animate-none inline-block text-[22px]" role="img" aria-label="loading">
+            🪔
+          </span>
         </span>
-      ) : (
-        children
       )}
+      <span className={cn("flex items-center justify-center gap-2", loading && "opacity-0")}>
+        {children}
+      </span>
     </button>
   );
 }

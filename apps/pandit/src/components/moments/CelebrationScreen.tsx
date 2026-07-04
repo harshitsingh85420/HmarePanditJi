@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { Button } from "../ui/Button";
+import { MoneyCount } from "./MoneyCount";
 
 export interface CelebrationScreenProps {
   emoji: string;
@@ -100,7 +101,7 @@ export function CelebrationScreen({
 
         {amount !== undefined && (
           <div className="t-money-hero my-2">
-            ₹{amount.toLocaleString("en-IN")}
+            <MoneyCount target={amount} className="t-money-hero" />
           </div>
         )}
 

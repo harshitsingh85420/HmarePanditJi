@@ -28,10 +28,10 @@ export function BigToggle({ value, onChange, className }: BigToggleProps) {
       )}
     >
       <span className="text-[20px] font-bold">
-        {value ? hi.home.goOffline : hi.home.goOnline}
+        {value ? hi.home.toggleOnline : hi.home.toggleOffline}
       </span>
       <span className="text-[14px] font-medium opacity-90 mt-0.5">
-        {value ? hi.home.onlineVoice : hi.home.offlineVoice}
+        {value ? hi.home.toggleOnlineSub : hi.home.toggleOfflineSub}
       </span>
     </button>
   );

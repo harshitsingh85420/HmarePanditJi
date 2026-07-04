@@ -60,7 +60,7 @@ export function Toast({ message, voiceText, show, onClose, className }: ToastPro
       {voiceText && (
         <button
           onClick={() => speak(voiceText)}
-          className="w-11 h-11 min-h-[44px] min-w-[44px] flex items-center justify-center bg-white/15 hover:bg-white/25 active:scale-90 rounded-full transition-all focus:outline-none focus:ring-2 focus:ring-white/50 text-[18px] flex-shrink-0"
+          className="w-14 h-14 min-h-[56px] min-w-[56px] flex items-center justify-center bg-white/15 hover:bg-white/25 active:scale-90 rounded-full transition-all focus:outline-none focus:ring-2 focus:ring-white/50 text-[18px] flex-shrink-0"
           aria-label="Replay Audio"
         >
           🔊

@@ -28,11 +28,11 @@ export function Header({ title, showBack = false, onBack, rightSlot, className }
       )}
     >
       {/* Left Back Button Slot */}
-      <div className="w-12 flex items-center justify-start flex-shrink-0">
+      <div className="w-14 flex items-center justify-start flex-shrink-0">
         {showBack && (
           <button
             onClick={onBack}
-            className="w-11 h-11 min-h-[44px] min-w-[44px] rounded-full bg-white shadow-card hover:bg-saffron-50 active:scale-90 flex items-center justify-center text-[18px] transition-all focus:outline-none focus:ring-2 focus:ring-saffron-200"
+            className="w-14 h-14 min-h-[56px] min-w-[56px] rounded-full bg-white shadow-card hover:bg-saffron-50 active:scale-90 flex items-center justify-center text-[18px] transition-all focus:outline-none focus:ring-2 focus:ring-saffron-200"
             aria-label="Go Back"
           >
             ←
@@ -46,13 +46,13 @@ export function Header({ title, showBack = false, onBack, rightSlot, className }
       </h1>
 
       {/* Right Voice Toggle Slot */}
-      <div className="w-12 flex items-center justify-end flex-shrink-0">
+      <div className="w-14 flex items-center justify-end flex-shrink-0">
         {rightSlot !== undefined ? (
           rightSlot
         ) : (
           <button
             onClick={toggle}
-            className="w-11 h-11 min-h-[44px] min-w-[44px] rounded-full bg-white shadow-card hover:bg-saffron-50 active:scale-90 flex items-center justify-center text-[20px] transition-all focus:outline-none focus:ring-2 focus:ring-saffron-200"
+            className="w-14 h-14 min-h-[56px] min-w-[56px] rounded-full bg-white shadow-card hover:bg-saffron-50 active:scale-90 flex items-center justify-center text-[20px] transition-all focus:outline-none focus:ring-2 focus:ring-saffron-200"
             aria-label={enabled ? "Mute Voice" : "Unmute Voice"}
           >
             {enabled ? "🔊" : "🔇"}

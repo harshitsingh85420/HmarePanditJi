@@ -4,6 +4,8 @@ import React from "react";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
+import { hi } from "../../lib/strings";
+
 function cn(...inputs: (string | undefined | false | null)[]) {
   return twMerge(clsx(inputs));
 }
@@ -23,32 +25,32 @@ export interface StatusChipProps {
 
 export function StatusChip({ status, className }: StatusChipProps) {
   let chipStyles = "bg-gray-100 text-softgrey";
-  let label = "✖ रद्द";
+  let label: string = hi.status.cancelled;
 
   switch (status) {
     case "REQUESTED":
       chipStyles = "bg-saffron-100 text-saffron-700";
-      label = "🔔 नई";
+      label = hi.status.requested;
       break;
     case "ACCEPTED":
       // Literals exception allowed: #E8F0FE for bg, #1A56DB for text
       chipStyles = "bg-[#E8F0FE] text-[#1A56DB]";
-      label = "📅 स्वीकृत";
+      label = hi.status.accepted;
       break;
     case "IN_PROGRESS":
       // Literals exception allowed: #FEF3C7 for bg, #92400E for text
       chipStyles = "bg-[#FEF3C7] text-[#92400E]";
-      label = "🚗 चालू";
+      label = hi.status.inProgress;
       break;
     case "COMPLETED":
       chipStyles = "bg-leaf-100 text-leaf-700";
-      label = "✅ पूर्ण";
+      label = hi.status.completed;
       break;
     case "REJECTED":
     case "CANCELLED":
     default:
       chipStyles = "bg-gray-100 text-softgrey";
-      label = "✖ रद्द";
+      label = hi.status.cancelled;
       break;
   }
 

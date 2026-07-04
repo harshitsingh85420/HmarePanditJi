@@ -94,42 +94,34 @@ export default function DesignSystemPage() {
             {hiDesign.buttons}
           </h2>
           
-          <div className="flex flex-col gap-4">
-            {/* Primary sizes */}
-            <div className="flex flex-col gap-3">
-              <span className="t-hint">Primary (md, lg, xl):</span>
-              <Button variant="primary" size="md" fullWidth>
-                {hi.common.save} (md - 56px)
-              </Button>
-              <Button variant="primary" size="lg" fullWidth>
-                {hi.common.next} (lg - 64px)
-              </Button>
-              <Button variant="primary" size="xl" fullWidth>
-                {hi.welcome.startBtn} (xl - 80px)
-              </Button>
-            </div>
-
-            {/* Other Variants */}
-            <div className="flex flex-col gap-3 mt-2">
-              <span className="t-hint">Other Variants:</span>
-              <Button variant="secondary" size="md" fullWidth>
-                {hi.common.back} (Secondary)
-              </Button>
-              <Button variant="success" size="md" fullWidth>
-                {hi.common.yes} (Success)
-              </Button>
-              <Button variant="danger-outline" size="md" fullWidth>
-                {hi.common.no} (Danger Outline)
-              </Button>
-              <Button variant="ghost" size="md" fullWidth>
-                {hi.common.help} (Ghost)
-              </Button>
-            </div>
+          <div className="flex flex-col gap-6">
+            {(["primary", "secondary", "success", "danger-outline", "ghost"] as const).map((variant) => (
+              <div key={variant} className="flex flex-col gap-2">
+                <span className="t-hint capitalize font-semibold">{variant} Variant (md, lg, xl):</span>
+                <div className="flex flex-col gap-3">
+                  <Button variant={variant} size="md" fullWidth>
+                    {hi.common.save} ({variant} md)
+                  </Button>
+                  <Button variant={variant} size="lg" fullWidth>
+                    {hi.common.next} ({variant} lg)
+                  </Button>
+                  <Button variant={variant} size="xl" fullWidth>
+                    {hi.welcome.startBtn} ({variant} xl)
+                  </Button>
+                </div>
+              </div>
+            ))}
 
             {/* Loading State */}
             <div className="flex flex-col gap-3 mt-2">
-              <span className="t-hint">Loading state:</span>
+              <span className="t-hint">Loading state (md, lg, xl):</span>
               <Button variant="primary" size="md" loading fullWidth>
+                {hi.common.next}
+              </Button>
+              <Button variant="primary" size="lg" loading fullWidth>
+                {hi.common.next}
+              </Button>
+              <Button variant="primary" size="xl" loading fullWidth>
                 {hi.common.next}
               </Button>
             </div>
@@ -217,7 +209,14 @@ export default function DesignSystemPage() {
             {hiDesign.onlineTitle}
           </h2>
           
-          <BigToggle value={isOnline} onChange={setIsOnline} />
+          <div className="flex flex-col gap-4">
+            <span className="t-hint">Offline State:</span>
+            <BigToggle value={false} onChange={() => {}} />
+            <span className="t-hint">Online State:</span>
+            <BigToggle value={true} onChange={() => {}} />
+            <span className="t-hint">Interactive:</span>
+            <BigToggle value={isOnline} onChange={setIsOnline} />
+          </div>
         </section>
 
         {/* Section 8: Status Chips */}

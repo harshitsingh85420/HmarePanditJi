@@ -4,6 +4,8 @@ import React from "react";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
+import { hi } from "../../lib/strings";
+
 function cn(...inputs: (string | undefined | false | null)[]) {
   return twMerge(clsx(inputs));
 }
@@ -62,7 +64,7 @@ export function ProgressDots({ total = 7, current, onDotClick, className }: Prog
         })}
       </div>
       <div className="t-hint text-center font-medium">
-        चरण {current} / {total}
+        {hi.onboarding.stepIndicator} {current} / {total}
       </div>
     </div>
   );
