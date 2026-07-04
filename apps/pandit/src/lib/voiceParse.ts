@@ -20,7 +20,7 @@ const HALF_WORDS: Record<string, number> = { "डेढ़":1.5,"डेढ":1.5,
 
 export function parseHindiNumber(raw: string): number | null {
   if (!raw) return null;
-  let t = raw.toLowerCase()
+  const t = raw.toLowerCase()
     .replace(/[₹,।.?!]/g, " ")
     .replace(/रुपये|रुपया|रुपए|rupaye|rupees|rs/g, " ")
     .replace(/\s+/g, " ").trim();

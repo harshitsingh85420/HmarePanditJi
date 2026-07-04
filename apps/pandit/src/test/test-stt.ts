@@ -5,8 +5,7 @@
  * Usage: Run in browser console or as part of test suite
  */
 
-import { sttEngine } from '../lib/sarvamSTT';
-import { deepgramEngine } from '../lib/deepgramSTT';
+import { sttEngine, deepgramEngine } from '../lib/deepgramSTT';
 import { convertNumberWordsToDigits } from '../lib/number-mapper';
 
 // ─────────────────────────────────────────────────────────────

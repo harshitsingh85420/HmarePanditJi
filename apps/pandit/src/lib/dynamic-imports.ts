@@ -30,7 +30,7 @@ export const EmergencySOSFloating = lazy(() => import('@/components/widgets/Emer
  * Language Widgets - Load language features lazily
  */
 export const LanguageChangeWidget = lazy(() => import('@/components/widgets/LanguageChangeWidget'))
-export const LanguageBottomSheet = lazy(() => import('@/components/LanguageBottomSheet'))
+export const LanguageBottomSheet = lazy(() => import('@/components/ui/LanguageBottomSheet'))
 
 /**
  * Session & Network Components

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import TopBar from '@/components/TopBar';
+import TopBar from '@/components/ui/TopBar';
 import { ALL_LANGUAGES, LANGUAGE_DISPLAY, type SupportedLanguage, type ScriptPreference } from '@/lib/onboarding-store';
 import { speakWithSarvam, stopCurrentSpeech } from '@/lib/sarvam-tts';
 import { useSarvamVoiceFlow } from '@/lib/hooks/useSarvamVoiceFlow';

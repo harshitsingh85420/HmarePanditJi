@@ -8,7 +8,7 @@ import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { useSafeNavigationStore } from '@/lib/stores/ssr-safe-stores'
 import { speakWithSarvam } from '@/lib/sarvam-tts'
-import TopBar from '@/components/TopBar'
+import TopBar from '@/components/ui/TopBar'
 import { LanguageChangeWidget } from '@/components/widgets/LanguageChangeWidget'
 import type { SupportedLanguage } from '@/components/widgets/LanguageChangeWidget'
 

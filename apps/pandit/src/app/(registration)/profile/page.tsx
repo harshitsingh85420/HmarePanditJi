@@ -9,8 +9,8 @@ import { motion } from 'framer-motion'
 import { useSafeRegistrationStore, useSafeNavigationStore, useSafeVoiceStore } from '@/lib/stores/ssr-safe-stores'
 import { useSarvamVoiceFlow } from '@/lib/hooks/useSarvamVoiceFlow'
 import { speakWithSarvam, stopCurrentSpeech } from '@/lib/sarvam-tts'
-import { listenOnce } from '@/lib/deepgram-stt'
-import LanguageBottomSheet from '@/components/LanguageBottomSheet'
+import { listenOnce } from '@/lib/deepgramSTT'
+import LanguageBottomSheet from '@/components/ui/LanguageBottomSheet'
 
 // Analytics logger for profile voice events
 function logProfileAnalytics(event: {

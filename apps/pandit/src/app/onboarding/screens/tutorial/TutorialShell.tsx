@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import ScreenFooter from '@/components/ScreenFooter';
+import ScreenFooter from '@/components/ui/ScreenFooter';
 import { TUTORIAL_TRANSLATIONS, type TutorialLanguage, getTutorialLang } from '@/lib/tutorial-translations';
 import type { SupportedLanguage } from '@/lib/onboarding-store';
 

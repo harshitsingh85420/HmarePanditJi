@@ -201,7 +201,7 @@ export default function OnboardingPage() {
           return false;
         }
       } else {
-        if (!/^[\w.\-]{2,}@[a-zA-Z]{2,}$/.test(draft.upi.id)) {
+        if (!/^[\w.-]{2,}@[a-zA-Z]{2,}$/.test(draft.upi.id)) {
           setErrorMsg(hi.onboarding.paymentError);
           speak(hi.common.error);
           return false;

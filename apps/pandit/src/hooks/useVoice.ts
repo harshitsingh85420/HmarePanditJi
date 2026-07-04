@@ -78,8 +78,7 @@ export function useVoice() {
       }
     }
     try {
-      const { stopActiveAudio } = require("@/lib/sarvam-tts");
-      stopActiveAudio();
+      import("@/lib/sarvam-tts").then(({ stopActiveAudio }) => stopActiveAudio());
     } catch (e) {
       // ignore
     }

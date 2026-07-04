@@ -4,8 +4,8 @@ import React, { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { speak, startListening, stopListening, stopSpeaking } from '@/lib/voice-engine';
 import { LANGUAGE_DISPLAY, SupportedLanguage, ScriptPreference } from '@/lib/onboarding-store';
-import TopBar from '@/components/TopBar';
-import VoiceIndicator from '@/components/VoiceIndicator';
+import TopBar from '@/components/ui/TopBar';
+import VoiceIndicator from '@/components/ui/VoiceIndicator';
 
 interface LanguageChoiceConfirmScreenProps {
   language: SupportedLanguage;

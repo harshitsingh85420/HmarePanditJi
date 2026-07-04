@@ -5,8 +5,8 @@ import { motion } from 'framer-motion';
 import { speakWithSarvam, stopCurrentSpeech } from '@/lib/sarvam-tts';
 import { useSarvamVoiceFlow } from '@/lib/hooks/useSarvamVoiceFlow';
 import { SupportedLanguage, ScriptPreference } from '@/lib/onboarding-store';
-import TopBar from '@/components/TopBar';
-import SkipButton from '@/components/SkipButton';
+import TopBar from '@/components/ui/TopBar';
+import SkipButton from '@/components/ui/SkipButton';
 
 interface VoiceTutorialScreenProps {
   language: SupportedLanguage;

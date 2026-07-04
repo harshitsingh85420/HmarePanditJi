@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { LiveTranscriptWindow } from './LiveTranscriptWindow'
-import CTAButton from './CTAButton'
+import CTAButton from './ui/CTAButton'
 
 /**
  * Example usage of LiveTranscriptWindow component

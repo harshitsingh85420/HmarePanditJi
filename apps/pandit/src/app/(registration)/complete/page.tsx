@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { useSafeRegistrationStore, useSafeUIStore, useSafeNavigationStore } from '@/lib/stores/ssr-safe-stores'
-import TopBar from '@/components/TopBar'
+import TopBar from '@/components/ui/TopBar'
 import { speakWithSarvam } from '@/lib/sarvam-tts'
 import { TempleIllustration } from '@/components/illustrations/PremiumIcons'
 

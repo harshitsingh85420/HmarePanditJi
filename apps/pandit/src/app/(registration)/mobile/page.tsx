@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Smartphone, Sparkles, ArrowRight, Loader2 } from 'lucide-react'
 import { useSafeRegistrationStore, useSafeNavigationStore } from '@/lib/stores/ssr-safe-stores'
-import LanguageBottomSheet from '@/components/LanguageBottomSheet'
+import LanguageBottomSheet from '@/components/ui/LanguageBottomSheet'
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'
 

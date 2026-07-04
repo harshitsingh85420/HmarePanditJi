@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { speakWithSarvam } from '@/lib/sarvam-tts'
-import TopBar from '@/components/TopBar'
+import TopBar from '@/components/ui/TopBar'
 import { WaveformVisualizer } from '@/components/voice/WaveformBar'
 import { SuccessCheckmark } from '@/components/ui/CompletionBadge'
 

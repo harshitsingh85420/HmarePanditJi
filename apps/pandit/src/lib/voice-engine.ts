@@ -1,7 +1,6 @@
 'use client'
 
-import { sttEngine, type STTOptions } from './sarvamSTT'
-import { deepgramEngine, type DeepgramSTTOptions } from './deepgramSTT'
+import { sttEngine, deepgramEngine, type STTOptions, type DeepgramSTTOptions } from './deepgramSTT'
 
 // ─────────────────────────────────────────────────────────────
 // TYPES

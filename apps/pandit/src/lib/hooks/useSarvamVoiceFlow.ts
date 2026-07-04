@@ -9,7 +9,7 @@ import {
   speakWithSarvam,
   stopCurrentSpeech,
 } from '@/lib/sarvam-tts';
-import { listenOnce } from '@/lib/deepgram-stt';
+import { listenOnce } from '@/lib/deepgramSTT';
 
 type VoiceIntentPayload = string;
 export type VoiceFlowState = 'idle' | 'speaking' | 'listening' | 'processing' | 'error';
