@@ -45,6 +45,15 @@ export function useVoice() {
         return;
       }
 
+      // Check if a recording is active (shared ref isListening via window property)
+      if ((window as any).isVoiceInputRecording) {
+        if (!(window as any).voiceSpeechQueue) {
+          (window as any).voiceSpeechQueue = [];
+        }
+        (window as any).voiceSpeechQueue.push(text);
+        return;
+      }
+
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = "hi-IN";
       utterance.rate = 0.9;
@@ -54,14 +63,32 @@ export function useVoice() {
   );
 
   const stop = useCallback(() => {
-    if (typeof window !== "undefined" && window.speechSynthesis) {
-      window.speechSynthesis.cancel();
+    if (typeof window !== "undefined") {
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+      (window as any).voiceSpeechQueue = [];
+    }
+  }, []);
+
+  const stopAll = useCallback(() => {
+    if (typeof window !== "undefined") {
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+    }
+    try {
+      const { stopActiveAudio } = require("@/lib/sarvam-tts");
+      stopActiveAudio();
+    } catch (e) {
+      // ignore
     }
   }, []);
 
   return {
     speak,
     stop,
+    stopAll,
     enabled: mounted ? enabled : true,
     toggle,
   };

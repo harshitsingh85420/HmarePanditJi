@@ -86,6 +86,8 @@ export const hi = {
     offlineVoice: "आप अब ऑफलाइन हैं। कोई नई बुकिंग नहीं आएगी।",
     monthEarnings: "इस महीने की आमदनी",
     pendingVerification: "आपकी प्रोफ़ाइल सत्यापन में है। जल्द पूरा होगा।",
+    rejectedTitle: "प्रोफ़ाइल में सुधार चाहिए",
+    resubmit: "दोबारा जमा करें",
     samagriLink: "🛍️ सामग्री पैकेज",
     toggleOnline: "🟢 आप ऑनलाइन हैं — बुकिंग चालू",
     toggleOnlineSub: "बंद करने के लिए दबाएं",
@@ -169,5 +171,10 @@ export const hi = {
     shloka1: "शुभ लाभ आपके साथ हो",
     shloka2: "सर्वे भवन्तु सुखिनः",
     shloka3: "आपका दिन मंगलमय हो",
+  },
+  settings: {
+    title: "सेटिंग्स",
+    voiceInputLabel: "आवाज़ से जवाब देना",
+    voiceInputDesc: "चालू करने पर आप बोलकर भी फ़ील्ड भर सकते हैं",
   },
 } as const;

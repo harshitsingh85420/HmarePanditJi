@@ -15,6 +15,7 @@ import { Toast } from "@/components/ui/Toast";
 import { SpeakOnMount } from "@/components/VoiceBar";
 import { useVoice } from "@/hooks/useVoice";
 import { DiyaLoader } from "@/components/moments/DiyaLoader";
+import { VoiceActionListener } from "@/components/voice/VoiceActionListener";
 
 interface Booking {
   id: string;
@@ -160,7 +161,10 @@ export default function HomePage() {
 
   // Status toggle handler (with optimistic updates and rollbacks)
   const handleToggleStatus = async () => {
-    if (profile?.panditProfile?.verificationStatus === "PENDING") {
+    const isApproved =
+      profile?.panditProfile?.verificationStatus === "APPROVED" ||
+      profile?.panditProfile?.verificationStatus === "VERIFIED";
+    if (!isApproved) {
       return; // disabled
     }
 
@@ -195,6 +199,10 @@ export default function HomePage() {
 
   const firstName = profile?.name ? profile.name.split(" ")[0] : "पंडित";
   const isPending = profile?.panditProfile?.verificationStatus === "PENDING";
+  const isApproved =
+    profile?.panditProfile?.verificationStatus === "APPROVED" ||
+    profile?.panditProfile?.verificationStatus === "VERIFIED";
+  const isRejected = profile?.panditProfile?.verificationStatus === "REJECTED";
 
   const formatTime = (dateStr: string) => {
     const d = new Date(dateStr);
@@ -205,10 +213,66 @@ export default function HomePage() {
     });
   };
 
+  const welcomeSpeakText = isOnline
+    ? "आप अभी ऑनलाइन हैं। नई बुकिंग के लिए तैयार रहें।"
+    : "आप अभी ऑफलाइन हैं। काम शुरू करने के लिए ऑनलाइन जाएं।";
+
+  const voiceCommands = [
+    {
+      keywords: ["ऑनलाइन", "online", "चालू", "chalu"],
+      action: async () => {
+        if (!isOnline) {
+          await handleToggleStatus();
+        }
+      },
+    },
+    {
+      keywords: ["ऑफलाइन", "offline", "बंद", "band"],
+      action: async () => {
+        if (isOnline) {
+          await handleToggleStatus();
+        }
+      },
+    },
+  ];
+
+  const HomeHeaderRightSlot = () => {
+    const { enabled, toggle } = useVoice();
+    return (
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => router.push("/settings")}
+          className="w-14 h-14 min-h-[56px] min-w-[56px] rounded-full bg-white shadow-card hover:bg-saffron-50 active:scale-90 flex items-center justify-center text-[20px] transition-all focus:outline-none focus:ring-2 focus:ring-saffron-200"
+          aria-label="Settings"
+        >
+          ⚙️
+        </button>
+        <button
+          onClick={toggle}
+          className="w-14 h-14 min-h-[56px] min-w-[56px] rounded-full bg-white shadow-card hover:bg-saffron-50 active:scale-90 flex items-center justify-center text-[20px] transition-all focus:outline-none focus:ring-2 focus:ring-saffron-200"
+          aria-label={enabled ? "Mute Voice" : "Unmute Voice"}
+        >
+          {enabled ? "🔊" : "🔇"}
+        </button>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-cream text-ink pb-28">
       {/* HEADER */}
-      <Header title={`🙏 नमस्ते, ${firstName} जी`} showBack={false} />
+      <Header
+        title={`🙏 नमस्ते, ${firstName} जी`}
+        showBack={false}
+        rightSlot={<HomeHeaderRightSlot />}
+      />
+
+      {/* Voice commands listener */}
+      <VoiceActionListener
+        commands={voiceCommands}
+        narratingText={welcomeSpeakText}
+        promptText={welcomeSpeakText}
+      />
 
       <AnimatePresence>
         {newRequestBooking && (
@@ -243,12 +307,41 @@ export default function HomePage() {
           </>
         )}
 
+        {/* REJECTED VERIFICATION BANNER */}
+        {isRejected && (
+          <>
+            <SpeakOnMount text={`${hi.home.rejectedTitle}。 ${profile?.panditProfile?.rejectionReason || ""}`} />
+            <div className="bg-red-50 border-2 border-red-300 rounded-card p-4 flex flex-col gap-3">
+              <div className="flex items-center gap-3">
+                <span className="text-[24px]">❌</span>
+                <div className="flex flex-col">
+                  <span className="text-[18px] font-bold text-red-800 font-hindi">
+                    {hi.home.rejectedTitle}
+                  </span>
+                  <span className="text-[16px] text-red-700 font-hindi mt-1 leading-snug">
+                    {profile?.panditProfile?.rejectionReason || "जानकारी में कुछ त्रुटि है।"}
+                  </span>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  router.push("/onboarding?step=6");
+                }}
+                className="w-full min-h-[56px] text-[18px] bg-red-600 hover:bg-red-700 text-white font-bold rounded-btn transition active:scale-[0.98] flex items-center justify-center"
+                style={{ minHeight: "56px" }}
+              >
+                {hi.home.resubmit}
+              </button>
+            </div>
+          </>
+        )}
+
         {/* STATUS TOGGLE BUTTON */}
         <button
           onClick={handleToggleStatus}
-          disabled={isPending}
+          disabled={!isApproved}
           className={`w-full h-20 rounded-btn flex items-center justify-center font-bold text-[22px] font-hindi shadow-md transition-all active:scale-[0.98] ${
-            isPending
+            !isApproved
               ? "bg-slate-200 text-softgrey cursor-not-allowed"
               : isOnline
               ? "bg-leaf-700 hover:bg-leaf-800 text-white"

@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { SpeakOnMount } from "@/components/VoiceBar";
 import { useVoice } from "@/hooks/useVoice";
+import { VoiceField } from "@/components/voice/VoiceField";
 
 interface DraftState {
   step: number;
@@ -76,15 +77,26 @@ export default function OnboardingPage() {
 
   // Load draft from localStorage on mount
   useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const urlStep = searchParams.get("step");
+
     const saved = localStorage.getItem("onboarding_draft");
+    let currentDraft = DEFAULT_DRAFT;
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        setDraft({ ...DEFAULT_DRAFT, ...parsed });
+        currentDraft = { ...DEFAULT_DRAFT, ...parsed };
       } catch (e) {
         console.warn("Failed to parse onboarding draft", e);
       }
     }
+
+    if (urlStep) {
+      currentDraft.step = parseInt(urlStep, 10);
+    }
+
+    setDraft(currentDraft);
+    localStorage.setItem("onboarding_draft", JSON.stringify(currentDraft));
     setIsLoaded(true);
   }, []);
 
@@ -398,44 +410,37 @@ export default function OnboardingPage() {
           
           {/* STEP 1: Name */}
           {draft.step === 1 && (
-            <div className="flex flex-col gap-2">
-              <label className="text-[18px] font-bold text-temple-700 font-hindi">
-                {hi.onboarding.step1Title}
-              </label>
-              <input
-                type="text"
-                value={draft.name}
-                onChange={(e) => updateDraft({ name: e.target.value })}
-                className="w-full h-[56px] px-3 border-2 border-saffron-300 rounded-btn text-[18px] text-ink bg-white focus:outline-none focus:border-saffron-500 font-hindi"
-                style={{ minHeight: "56px", fontSize: "18px" }}
-                placeholder="पंडित जी का नाम लिखें"
-              />
-            </div>
+            <VoiceField
+              label={hi.onboarding.step1Title}
+              promptText={hi.onboarding.step1Voice}
+              value={draft.name}
+              onChange={(val) => updateDraft({ name: val })}
+              mode="text"
+              required
+              onComplete={handleNext}
+              placeholder="पंडित जी का नाम लिखें"
+            />
           )}
 
           {/* STEP 2: City */}
           {draft.step === 2 && (
-            <div className="flex flex-col gap-2">
-              <label className="text-[18px] font-bold text-temple-700 font-hindi">
-                {hi.onboarding.step2Title}
-              </label>
-              <input
-                type="text"
-                list="cities"
-                value={draft.city}
-                onChange={(e) => updateDraft({ city: e.target.value })}
-                className="w-full h-[56px] px-3 border-2 border-saffron-300 rounded-btn text-[18px] text-ink bg-white focus:outline-none focus:border-saffron-500 font-hindi"
-                style={{ minHeight: "56px", fontSize: "18px" }}
-                placeholder="शहर चुनें या लिखें"
-              />
-              <datalist id="cities">
-                <option value="Delhi" />
-                <option value="Noida" />
-                <option value="Gurugram" />
-                <option value="Ghaziabad" />
-                <option value="Faridabad" />
-              </datalist>
-            </div>
+            <VoiceField
+              label={hi.onboarding.step2Title}
+              promptText={hi.onboarding.step2Voice}
+              value={draft.city}
+              onChange={(val) => updateDraft({ city: val })}
+              mode="choice"
+              choices={[
+                { label: "दिल्ली", value: "Delhi", keywords: ["दिल्ली", "delhi", "dilli", "देहली"] },
+                { label: "नोएडा", value: "Noida", keywords: ["नोएडा", "noida", "नोयडा"] },
+                { label: "गुरुग्राम", value: "Gurugram", keywords: ["गुरुग्राम", "gurugram", "gurgaon", "गुड़गांव", "गुड़गाँव"] },
+                { label: "गाज़ियाबाद", value: "Ghaziabad", keywords: ["गाज़ियाबाद", "ghaziabad", "गाजियाबाद"] },
+                { label: "फरीदाबाद", value: "Faridabad", keywords: ["फरीदाबाद", "faridabad"] }
+              ]}
+              required
+              onComplete={handleNext}
+              placeholder="शहर चुनें या लिखें"
+            />
           )}
 
           {/* STEP 3: Specializations */}
@@ -481,77 +486,22 @@ export default function OnboardingPage() {
           {/* STEP 4: Experience & Team */}
           {draft.step === 4 && (
             <div className="flex flex-col gap-6">
-              {/* Experience Stepper */}
-              <div className="flex flex-col gap-2">
-                <span className="text-[18px] font-bold text-temple-700 font-hindi">
-                  {hi.onboarding.experienceLabel}
-                </span>
-                <div className="flex items-center justify-between bg-slate-50 p-2 rounded-card border border-saffron-100">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (draft.experience > 0) {
-                        updateDraft({ experience: draft.experience - 1 });
-                      }
-                    }}
-                    className="w-16 h-16 bg-white border border-saffron-200 rounded-btn flex items-center justify-center text-[24px] font-bold text-saffron-600 active:scale-95 transition-transform"
-                    style={{ width: "64px", height: "64px" }}
-                  >
-                    −
-                  </button>
-                  <span className="text-[28px] font-bold font-mono">
-                    {draft.experience}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (draft.experience < 60) {
-                        updateDraft({ experience: draft.experience + 1 });
-                      }
-                    }}
-                    className="w-16 h-16 bg-white border border-saffron-200 rounded-btn flex items-center justify-center text-[24px] font-bold text-saffron-600 active:scale-95 transition-transform"
-                    style={{ width: "64px", height: "64px" }}
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
-
-              {/* Team Size Stepper */}
-              <div className="flex flex-col gap-2">
-                <span className="text-[18px] font-bold text-temple-700 font-hindi">
-                  {hi.onboarding.teamLabel}
-                </span>
-                <div className="flex items-center justify-between bg-slate-50 p-2 rounded-card border border-saffron-100">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (draft.teamSize > 1) {
-                        updateDraft({ teamSize: draft.teamSize - 1 });
-                      }
-                    }}
-                    className="w-16 h-16 bg-white border border-saffron-200 rounded-btn flex items-center justify-center text-[24px] font-bold text-saffron-600 active:scale-95 transition-transform"
-                    style={{ width: "64px", height: "64px" }}
-                  >
-                    −
-                  </button>
-                  <span className="text-[28px] font-bold font-mono">
-                    {draft.teamSize}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (draft.teamSize < 10) {
-                        updateDraft({ teamSize: draft.teamSize + 1 });
-                      }
-                    }}
-                    className="w-16 h-16 bg-white border border-saffron-200 rounded-btn flex items-center justify-center text-[24px] font-bold text-saffron-600 active:scale-95 transition-transform"
-                    style={{ width: "64px", height: "64px" }}
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
+              <VoiceField
+                label={hi.onboarding.experienceLabel}
+                promptText="आपकी पूजा-पाठ का अनुभव कितने साल का है?"
+                value={draft.experience ? String(draft.experience) : ""}
+                onChange={(val) => updateDraft({ experience: Number(val) || 0 })}
+                mode="number"
+                placeholder="अनुभव वर्ष लिखें"
+              />
+              <VoiceField
+                label={hi.onboarding.teamLabel}
+                promptText="आपके दल में कुल कितने पंडित हैं?"
+                value={draft.teamSize ? String(draft.teamSize) : ""}
+                onChange={(val) => updateDraft({ teamSize: Number(val) || 1 })}
+                mode="number"
+                placeholder="दल के सदस्यों की संख्या"
+              />
             </div>
           )}
 
@@ -568,34 +518,17 @@ export default function OnboardingPage() {
                   const currentRate = draft.dakshina[spec] || "";
 
                   return (
-                    <div key={spec} className="flex flex-col gap-1.5 border-b border-slate-100 pb-3 last:border-0 last:pb-0">
-                      <span className="text-[18px] font-bold text-ink font-hindi">
-                        {labelText}
-                      </span>
-                      
-                      <div className="flex items-center bg-white border-2 border-saffron-300 rounded-btn px-3 focus-within:border-saffron-500">
-                        <span className="text-[18px] font-bold text-softgrey pr-2">₹</span>
-                        <input
-                          type="tel"
-                          inputMode="numeric"
-                          pattern="[0-9]*"
-                          value={currentRate}
-                          onChange={(e) => {
-                            const val = e.target.value.replace(/\D/g, "");
-                            updateDraft({
-                              dakshina: { ...draft.dakshina, [spec]: val },
-                            });
-                          }}
-                          className="w-full h-[56px] outline-none text-[18px] font-bold text-ink bg-transparent"
-                          style={{ minHeight: "56px", fontSize: "18px" }}
-                          placeholder="501 - 500000"
-                        />
-                      </div>
-                      
-                      <span className="text-[16px] text-softgrey font-hindi pl-1">
-                        {hi.onboarding.dakshinaHint}
-                        {Number(currentRate || 0).toLocaleString("en-IN")}
-                      </span>
+                    <div key={spec} className="border-b border-slate-100 pb-3 last:border-0 last:pb-0">
+                      <VoiceField
+                        label={labelText}
+                        promptText={`${labelText} के लिए आपकी दक्षिणा राशि क्या है?`}
+                        value={currentRate}
+                        onChange={(val) => updateDraft({
+                          dakshina: { ...draft.dakshina, [spec]: val },
+                        })}
+                        mode="money"
+                        placeholder="501 - 500000"
+                      />
                     </div>
                   );
                 })}
@@ -678,19 +611,14 @@ export default function OnboardingPage() {
               {draft.paymentType === "BANK" ? (
                 <div className="flex flex-col gap-4">
                   {/* Account Name */}
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-[18px] font-bold text-temple-700 font-hindi">
-                      {hi.onboarding.accName}
-                    </label>
-                    <input
-                      type="text"
-                      value={draft.bank.accountName}
-                      onChange={(e) => updateBank({ accountName: e.target.value })}
-                      className="w-full h-[56px] px-3 border-2 border-saffron-300 rounded-btn text-[18px] text-ink bg-white focus:outline-none focus:border-saffron-500 font-hindi"
-                      style={{ minHeight: "56px", fontSize: "18px" }}
-                      placeholder="नाम लिखें"
-                    />
-                  </div>
+                  <VoiceField
+                    label={hi.onboarding.accName}
+                    promptText="खाताधारक का नाम क्या है?"
+                    value={draft.bank.accountName}
+                    onChange={(val) => updateBank({ accountName: val })}
+                    mode="text"
+                    placeholder="नाम लिखें"
+                  />
 
                   {/* Account Number */}
                   <div className="flex flex-col gap-1.5">
@@ -703,6 +631,7 @@ export default function OnboardingPage() {
                       pattern="[0-9]*"
                       value={draft.bank.accountNumber}
                       onChange={(e) => updateBank({ accountNumber: e.target.value.replace(/\D/g, "") })}
+                      onFocus={() => speak("सुरक्षा के लिए खाता नंबर लिखकर भरें")}
                       className="w-full h-[56px] px-3 border-2 border-saffron-300 rounded-btn text-[18px] text-ink bg-white focus:outline-none focus:border-saffron-500 font-mono"
                       style={{ minHeight: "56px", fontSize: "18px" }}
                       placeholder="1234567890"
@@ -720,6 +649,7 @@ export default function OnboardingPage() {
                       pattern="[0-9]*"
                       value={draft.bank.accountNumberConfirm}
                       onChange={(e) => updateBank({ accountNumberConfirm: e.target.value.replace(/\D/g, "") })}
+                      onFocus={() => speak("सुरक्षा के लिए खाता नंबर लिखकर भरें")}
                       className="w-full h-[56px] px-3 border-2 border-saffron-300 rounded-btn text-[18px] text-ink bg-white focus:outline-none focus:border-saffron-500 font-mono"
                       style={{ minHeight: "56px", fontSize: "18px" }}
                       placeholder="1234567890"
@@ -735,6 +665,7 @@ export default function OnboardingPage() {
                       type="text"
                       value={draft.bank.ifsc}
                       onChange={(e) => updateBank({ ifsc: e.target.value.toUpperCase() })}
+                      onFocus={() => speak("सुरक्षा के लिए खाता नंबर लिखकर भरें")}
                       className="w-full h-[56px] px-3 border-2 border-saffron-300 rounded-btn text-[18px] text-ink bg-white focus:outline-none focus:border-saffron-500 font-mono uppercase"
                       style={{ minHeight: "56px", fontSize: "18px" }}
                       placeholder="SBIN0001234"
@@ -751,6 +682,7 @@ export default function OnboardingPage() {
                     type="text"
                     value={draft.upi.id}
                     onChange={(e) => updateUpi({ id: e.target.value })}
+                    onFocus={() => speak("सुरक्षा के लिए यूपीआई आईडी लिखकर भरें")}
                     className="w-full h-[56px] px-3 border-2 border-saffron-300 rounded-btn text-[18px] text-ink bg-white focus:outline-none focus:border-saffron-500 font-mono"
                     style={{ minHeight: "56px", fontSize: "18px" }}
                     placeholder="example@upi"

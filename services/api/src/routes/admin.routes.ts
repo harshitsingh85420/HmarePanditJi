@@ -51,10 +51,172 @@ export default async function adminRoutes(fastify: FastifyInstance, _opts: any) 
   fastify.patch("/bookings/:id/travel-calculate", travelCalculate);
   fastify.patch("/bookings/:id/travel-booked", travelBooked);
 
+  fastify.post("/bookings/:id/cancel", async (request: any, reply: any) => {
+    const id = request.params.id;
+    const booking = await prisma.booking.findUnique({
+      where: { id }
+    });
+    if (!booking) {
+      return reply.status(404).send({ success: false, error: { message: "Booking not found" } });
+    }
+
+    if (booking.status !== "REQUESTED" && booking.status !== "ACCEPTED") {
+      return reply.status(400).send({
+        success: false,
+        error: { message: `Booking can only be cancelled in REQUESTED or ACCEPTED status. Current status is ${booking.status}.` }
+      });
+    }
+
+    const updated = await prisma.booking.update({
+      where: { id },
+      data: {
+        status: "CANCELLED"
+      }
+    });
+
+    return reply.send({ success: true, data: updated });
+  });
+
   // Pandit verification routes
   fastify.get("/pandits", getPanditsAdmin);
   fastify.get("/pandits/:panditId", getPanditAdminDetail);
   fastify.patch("/pandits/:panditId/verify", updatePanditVerification);
+
+  // Exact endpoints requested by ops spec:
+  fastify.post("/pandits/:id/approve", async (request: any, reply: any) => {
+    const id = request.params.id;
+    const pandit = await prisma.panditProfile.findUnique({
+      where: { id },
+      include: { user: true }
+    });
+    if (!pandit) {
+      return reply.status(404).send({ success: false, error: { message: "Pandit not found" } });
+    }
+
+    const updated = await prisma.panditProfile.update({
+      where: { id },
+      data: {
+        verificationStatus: "APPROVED",
+        verifiedAt: new Date(),
+        verifiedById: request.user?.id || "admin",
+        profileCompletionPercent: 100,
+      }
+    });
+
+    try {
+      const tmpl = getNotificationTemplate("VERIFICATION_APPROVED", {});
+      await notificationService.notify({ userId: pandit.userId, type: "VERIFICATION", title: tmpl.title, message: tmpl.message, smsMessage: tmpl.smsMessage });
+    } catch (err) {
+      console.error("Failed to send verification notification", err);
+    }
+
+    return reply.send({ success: true, data: updated });
+  });
+
+  fastify.post("/pandits/:id/reject", async (request: any, reply: any) => {
+    const id = request.params.id;
+    const { reason } = request.body || {};
+    if (!reason) {
+      return reply.status(400).send({ success: false, error: { message: "Reason is required" } });
+    }
+
+    const pandit = await prisma.panditProfile.findUnique({
+      where: { id },
+      include: { user: true }
+    });
+    if (!pandit) {
+      return reply.status(404).send({ success: false, error: { message: "Pandit not found" } });
+    }
+
+    const updated = await prisma.panditProfile.update({
+      where: { id },
+      data: {
+        verificationStatus: "REJECTED",
+        rejectionReason: reason,
+      }
+    });
+
+    try {
+      const tmpl = getNotificationTemplate("VERIFICATION_REJECTED", { reason });
+      await notificationService.notify({ userId: pandit.userId, type: "VERIFICATION", title: tmpl.title, message: tmpl.message, smsMessage: tmpl.smsMessage });
+    } catch (err) {
+      console.error("Failed to send verification notification", err);
+    }
+
+    return reply.send({ success: true, data: updated });
+  });
+
+  fastify.post("/pandits/:id/force-offline", async (request: any, reply: any) => {
+    const id = request.params.id;
+    const pandit = await prisma.panditProfile.findUnique({
+      where: { id }
+    });
+    if (!pandit) {
+      return reply.status(404).send({ success: false, error: { message: "Pandit not found" } });
+    }
+
+    const updated = await prisma.panditProfile.update({
+      where: { id },
+      data: {
+        isOnline: false
+      }
+    });
+
+    return reply.send({ success: true, data: updated });
+  });
+
+  fastify.post("/payouts/:id/mark-paid", async (request: any, reply: any) => {
+    const id = request.params.id;
+    
+    // Find Payout by ID or bookingId
+    let payout = await prisma.payout.findFirst({
+      where: {
+        OR: [
+          { id },
+          { bookingId: id }
+        ]
+      }
+    });
+
+    if (!payout) {
+      // If no Payout record exists, let's look up the Booking. If booking is completed, we can create a Payout record.
+      const booking = await prisma.booking.findUnique({
+        where: { id }
+      });
+      if (booking) {
+        payout = await prisma.payout.create({
+          data: {
+            bookingId: booking.id,
+            panditId: booking.panditId!,
+            amount: booking.panditPayout || 0,
+            status: "PENDING"
+          }
+        });
+      } else {
+        return reply.status(404).send({ success: false, error: { message: "Payout or Booking not found" } });
+      }
+    }
+
+    // Update Payout status to PAID + paidAt
+    const updatedPayout = await prisma.payout.update({
+      where: { id: payout.id },
+      data: {
+        status: "PAID",
+        paidAt: new Date()
+      }
+    });
+
+    // Also update corresponding Booking's payoutStatus and payoutCompletedAt
+    await prisma.booking.update({
+      where: { id: payout.bookingId },
+      data: {
+        payoutStatus: "COMPLETED",
+        payoutCompletedAt: new Date()
+      }
+    });
+
+    return reply.send({ success: true, data: updatedPayout });
+  });
 
 
   // ─── Payouts ─────────────────────────────────────────────────────────────────
@@ -104,7 +266,11 @@ export default async function adminRoutes(fastify: FastifyInstance, _opts: any) 
               select: {
                 id: true,
                 city: true,
-                user: { select: { id: true, name: true } },
+                bankAccountName: true,
+                bankAccountNumber: true,
+                bankIfscCode: true,
+                upiId: true,
+                user: { select: { id: true, name: true, phone: true } },
               },
             },
           },
@@ -119,6 +285,11 @@ export default async function adminRoutes(fastify: FastifyInstance, _opts: any) 
           pandit: pandit ? {
             id: pandit.user?.id,
             name: pandit.user?.name,
+            phone: pandit.user?.phone,
+            bankAccountName: pandit.bankAccountName,
+            bankAccountNumber: pandit.bankAccountNumber,
+            bankIfscCode: pandit.bankIfscCode,
+            upiId: pandit.upiId,
             panditProfile: { city: pandit.city }
           } : null
         };

@@ -1,6 +1,7 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { z } from "zod";
 import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
 import { prisma } from "../lib/prisma";
 import { env } from "../config/env";
 import { AppError } from "../middleware/errorHandler";
@@ -314,14 +315,19 @@ export const logout = async (_request: FastifyRequest, reply: FastifyReply) => {
 
 export const adminLogin = async (request: FastifyRequest, reply: FastifyReply) => {
   const req = request as any;
-  const { username, password } = req.body;
+  const { email, username, password } = req.body || {};
+  const inputEmail = email || username;
 
-  const adminUsers = JSON.parse(env.ADMIN_USERS) as Array<{ username: string; password: string }>;
-  const adminUser = adminUsers.find(
-    (u: { username: string; password: string }) => u.username === username && u.password === password
-  );
+  if (!inputEmail || !password) {
+    throw new AppError("Email and password are required", 400);
+  }
 
-  if (!adminUser) {
+  if (inputEmail !== env.ADMIN_EMAIL) {
+    throw new AppError("Invalid admin credentials", 401);
+  }
+
+  const isMatch = bcrypt.compareSync(password, env.ADMIN_PASSWORD_HASH);
+  if (!isMatch) {
     throw new AppError("Invalid admin credentials", 401);
   }
 
@@ -331,11 +337,11 @@ export const adminLogin = async (request: FastifyRequest, reply: FastifyReply) =
       userId: "admin",
       phone: "",
       role: "ADMIN",
-      name: adminUser.username,
+      name: "Admin",
       isVerified: true,
     },
     env.JWT_SECRET,
-    { expiresIn: "7d" }
+    { expiresIn: "12h" }
   );
 
   // Set HttpOnly cookie
@@ -347,7 +353,7 @@ export const adminLogin = async (request: FastifyRequest, reply: FastifyReply) =
       token,
       user: {
         id: "admin",
-        name: adminUser.username,
+        name: "Admin",
         role: "ADMIN",
         isVerified: true,
       },

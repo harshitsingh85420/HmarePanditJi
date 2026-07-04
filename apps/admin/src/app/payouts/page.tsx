@@ -1,62 +1,58 @@
 "use client";
+
 import React, { useState, useEffect } from "react";
-import {
-  Card, CardContent, CardHeader, CardTitle, CardDescription
-} from "@hmarepanditji/ui/components/ui/card";
-import { Button } from "@hmarepanditji/ui/components/ui/button";
-import { Badge } from "@hmarepanditji/ui/components/ui/badge";
-import { Input } from "@hmarepanditji/ui/components/ui/input";
-import {
-  Tabs, TabsList, TabsTrigger, TabsContent
-} from "@hmarepanditji/ui/components/ui/tabs";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@hmarepanditji/ui/components/ui/table";
-import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter
-} from "@hmarepanditji/ui/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@hmarepanditji/ui/components/ui/select";
-import { Label } from "@hmarepanditji/ui/components/ui/label";
-import { Textarea } from "@hmarepanditji/ui/components/ui/textarea";
+import { ADMIN_TOKEN_KEY } from "@hmarepanditji/utils";
+
+interface Pandit {
+  name: string;
+  phone: string;
+  bankAccountName?: string;
+  bankAccountNumber?: string;
+  bankIfscCode?: string;
+  upiId?: string;
+}
+
+interface PayoutBooking {
+  id: string;
+  bookingNumber: string;
+  eventType: string;
+  eventDate: string;
+  completedAt: string;
+  panditPayout: number;
+  payoutStatus: "PENDING" | "COMPLETED" | "PAID";
+  payoutCompletedAt: string;
+  pandit: Pandit;
+}
 
 export default function PayoutsPage() {
-  const [payouts, setPayouts] = useState<any[]>([]);
-  const [stats, setStats] = useState<any>({});
+  const [bookings, setBookings] = useState<PayoutBooking[]>([]);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState("PENDING");
-
-  const [selectedPayout, setSelectedPayout] = useState<any | null>(null);
-  const [processModalOpen, setProcessModalOpen] = useState(false);
-
-  // Form state
-  const [paymentMethod, setPaymentMethod] = useState("BANK_TRANSFER");
-  const [transactionRef, setTransactionRef] = useState<string | undefined>();
-  const [paymentDate, setPaymentDate] = useState(new Date().toISOString().split("T")[0]);
-  const [notes, setNotes] = useState<string | undefined>();
-  const [processing, setProcessing] = useState(false);
+  const [error, setError] = useState("");
+  const [activeTab, setActiveTab] = useState<"PENDING" | "PAID">("PENDING");
+  const [revealed, setRevealed] = useState<Record<string, boolean>>({});
 
   const fetchPayouts = async () => {
     setLoading(true);
+    setError("");
     try {
-      const token = localStorage.getItem("adminToken");
-      const statusQuery = tab === "ALL" ? "" : `?status=${tab}`;
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/payouts${statusQuery}`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
+      const token = localStorage.getItem(ADMIN_TOKEN_KEY) || "";
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1";
+      
+      // Query database for payouts. 
+      // Note: We use booking status query parameter if needed, but since our custom endpoint filters by payout status:
+      // We will fetch payouts and filter client-side or check the query param status.
+      const res = await fetch(`${baseUrl}/admin/payouts`, {
+        headers: { Authorization: `Bearer ${token}` }
       });
-      const json = await res.json();
-      if (json.success) {
-        setPayouts(json.data.bookings || []);
-        if (json.data.stats) setStats(json.data.stats);
+      const data = await res.json();
+      if (data.success) {
+        setBookings(data.data.bookings || []);
+      } else {
+        setError(data.error?.message || "Failed to load payouts queue");
       }
-    } catch (e) {
-      console.error(e);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to load payouts queue");
     } finally {
       setLoading(false);
     }
@@ -64,279 +60,194 @@ export default function PayoutsPage() {
 
   useEffect(() => {
     fetchPayouts();
-  }, [tab]);
+  }, []);
 
-  const handleProcessPayoutClick = (p: any) => {
-    setSelectedPayout(p);
-    setTransactionRef(undefined);
-    setNotes(undefined);
-    setPaymentMethod("BANK_TRANSFER");
-    setPaymentDate(new Date().toISOString().split("T")[0]);
-    setProcessModalOpen(true);
-  };
-
-  const confirmPayout = async () => {
-    if (!transactionRef) return alert("Please enter a transaction reference number");
-    setProcessing(true);
+  const handleMarkPaid = async (bookingId: string) => {
+    if (!confirm("Are you sure you want to mark this payout as PAID?")) return;
     try {
-      const token = localStorage.getItem("adminToken");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/payouts/${selectedPayout.id}/complete`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          transactionRef,
-          paymentMethod,
-          paymentDate,
-          notes
-        })
+      const token = localStorage.getItem(ADMIN_TOKEN_KEY) || "";
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1";
+      const res = await fetch(`${baseUrl}/admin/payouts/${bookingId}/mark-paid`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` }
       });
-      const json = await res.json();
-      if (json.success) {
-        alert("Payout processed successfully!");
-        setProcessModalOpen(false);
+      const data = await res.json();
+      if (data.success) {
+        alert("Marked as paid successfully");
         fetchPayouts();
       } else {
-        alert(json.message || "Failed to process payout");
+        alert(data.error?.message || "Operation failed");
       }
-    } catch (e) {
-      console.error(e);
-      alert("Error processing payout");
-    } finally {
-      setProcessing(false);
+    } catch (err) {
+      console.error(err);
+      alert("Operation failed");
     }
   };
 
-  const exportCSV = () => {
-    const completed = payouts.filter(p => p.payoutStatus === "COMPLETED");
-    const csvRows = [
-      ["BookingID", "PanditName", "PanditPhone", "Amount", "BankAccount", "IFSC", "TransactionRef", "ProcessedDate"]
-    ];
+  // Filter payouts based on tab
+  // PENDING = not COMPLETED / PAID
+  const filteredBookings = bookings.filter(b => {
+    const isPaid = b.payoutStatus === "COMPLETED" || b.payoutStatus === "PAID";
+    return activeTab === "PAID" ? isPaid : !isPaid;
+  });
 
-    completed.forEach(p => {
-      csvRows.push([
-        p.bookingNumber,
-        p.pandit?.name || "N/A",
-        p.pandit?.phone || "N/A",
-        p.panditPayout.toString(),
-        p.pandit?.bankDetails?.accountNumber || "N/A",
-        p.pandit?.bankDetails?.ifscCode || "N/A",
-        p.payoutReference || "N/A",
-        p.payoutCompletedAt ? new Date(p.payoutCompletedAt).toLocaleString() : "N/A"
-      ]);
-    });
+  const pendingCount = bookings.filter(b => b.payoutStatus !== "COMPLETED" && b.payoutStatus !== "PAID").length;
+  const pendingTotalAmount = bookings
+    .filter(b => b.payoutStatus !== "COMPLETED" && b.payoutStatus !== "PAID")
+    .reduce((sum, b) => sum + (b.panditPayout || 0), 0);
 
-    const csvString = csvRows.map(row => row.join(",")).join("\n");
-    const blob = new Blob([csvString], { type: "text/csv" });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "completed_payouts.csv";
-    a.click();
+  const getAgeInDays = (completedAtStr: string) => {
+    if (!completedAtStr) return 0;
+    const completedDate = new Date(completedAtStr);
+    const diffTime = Math.abs(new Date().getTime() - completedDate.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
   };
 
   return (
-    <div className="p-6 space-y-6 max-w-7xl mx-auto">
-      <div className="flex justify-between items-center">
+    <div className="p-6 max-w-7xl mx-auto space-y-6">
+      {/* Summary Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 border rounded-xl shadow-sm">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Payout Queue</h1>
-          <p className="text-muted-foreground mt-1">Process pandit payouts after puja completion</p>
+          <h2 className="text-xl font-bold text-slate-800">Payout Queue</h2>
+          <p className="text-sm text-slate-500 mt-1">Review completed booking payouts and record transactions</p>
         </div>
-        {tab === "COMPLETED" && (
-          <Button onClick={exportCSV} variant="outline">📥 Export CSV</Button>
-        )}
+        <div className="flex gap-6 items-center">
+          <div className="text-center md:text-right">
+            <span className="text-xs font-bold text-slate-400 uppercase">Pending Payouts</span>
+            <p className="text-2xl font-black text-slate-800">{pendingCount}</p>
+          </div>
+          <div className="text-center md:text-right border-l pl-6">
+            <span className="text-xs font-bold text-slate-400 uppercase">Total Pending</span>
+            <p className="text-2xl font-black text-leaf-600">₹{pendingTotalAmount.toLocaleString("en-IN")}</p>
+          </div>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Pending Payouts</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.pendingPayouts || 0}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Total Paid (Month)</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₹{stats.totalPayouts || 0}</div>
-          </CardContent>
-        </Card>
+      {error && (
+        <div className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">
+          {error}
+        </div>
+      )}
+
+      {/* Tabs list */}
+      <div className="flex border-b border-slate-200">
+        <button
+          onClick={() => setActiveTab("PENDING")}
+          className={`px-6 py-3 font-semibold text-sm border-b-2 transition ${activeTab === "PENDING" ? "border-blue-600 text-blue-600" : "border-transparent text-slate-500 hover:text-slate-700"}`}
+        >
+          PENDING ({pendingCount})
+        </button>
+        <button
+          onClick={() => setActiveTab("PAID")}
+          className={`px-6 py-3 font-semibold text-sm border-b-2 transition ${activeTab === "PAID" ? "border-blue-600 text-blue-600" : "border-transparent text-slate-500 hover:text-slate-700"}`}
+        >
+          PAID ({bookings.length - pendingCount})
+        </button>
       </div>
 
-      <Tabs value={tab} onValueChange={setTab}>
-        <TabsList>
-          <TabsTrigger value="PENDING">💰 Pending Payouts</TabsTrigger>
-          <TabsTrigger value="COMPLETED">✅ Completed</TabsTrigger>
-          <TabsTrigger value="ALL">All</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value={tab} className="mt-6">
-          <Card>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Booking</TableHead>
-                  <TableHead>Pandit</TableHead>
-                  <TableHead>Event</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Bank</TableHead>
-                  {tab !== "PENDING" && <TableHead>Status</TableHead>}
-                  {tab === "COMPLETED" && <TableHead>Transaction Ref</TableHead>}
-                  <TableHead>Action</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {loading ? (
-                  <TableRow><TableCell colSpan={8} className="text-center py-10">Loading...</TableCell></TableRow>
-                ) : payouts.length === 0 ? (
-                  <TableRow><TableCell colSpan={8} className="text-center py-10">No payouts found</TableCell></TableRow>
-                ) : (
-                  payouts.map((p) => (
-                    <TableRow key={p.id}>
-                      <TableCell>
-                        <a href={`/bookings/${p.id}`} className="text-indigo-600 hover:underline font-medium">
-                          {p.bookingNumber}
-                        </a>
-                      </TableCell>
-                      <TableCell>
-                        <div className="font-medium">{p.pandit?.name}</div>
-                        <div className="text-xs text-muted-foreground">{p.pandit?.city || "Unknown City"}</div>
-                      </TableCell>
-                      <TableCell>
-                        <div>{p.eventType}</div>
-                        <div className="text-xs text-muted-foreground">
-                          {new Date(p.eventDate).toLocaleDateString()}
-                        </div>
-                      </TableCell>
-                      <TableCell className="font-bold">
-                        ₹{p.panditPayout}
-                        <div className="text-xs font-normal text-muted-foreground">
-                          Fee: ₹{p.grandTotal - p.panditPayout}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="text-sm">SBI — XXXX4321 {/* Masked in real data */}</div>
-                      </TableCell>
-                      {tab !== "PENDING" && (
-                        <TableCell>
-                          <Badge variant={p.payoutStatus === "COMPLETED" ? "default" : "secondary"}>
-                            {p.payoutStatus}
-                          </Badge>
-                        </TableCell>
-                      )}
-                      {tab === "COMPLETED" && (
-                        <TableCell>
-                          <div className="text-sm font-mono">{p.payoutReference || "N/A"}</div>
-                          <div className="text-xs text-muted-foreground">
-                            {p.payoutCompletedAt ? new Date(p.payoutCompletedAt).toLocaleDateString() : ""}
+      {loading ? (
+        <div className="py-20 text-center font-medium text-slate-500">Loading payouts...</div>
+      ) : filteredBookings.length === 0 ? (
+        <div className="bg-white border rounded-xl p-12 text-center text-slate-500 font-medium">
+          No payouts found in this tab.
+        </div>
+      ) : (
+        <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                  <th className="px-6 py-4">Booking ID</th>
+                  <th className="px-6 py-4">Pandit Name & Phone</th>
+                  <th className="px-6 py-4">Puja & Event Date</th>
+                  <th className="px-6 py-4">Payout Amount</th>
+                  <th className="px-6 py-4">Bank/UPI Account Details</th>
+                  <th className="px-6 py-4">Puja Completed At</th>
+                  <th className="px-6 py-4">Age (Days)</th>
+                  {activeTab === "PENDING" && <th className="px-6 py-4 text-right">Actions</th>}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {filteredBookings.map((b) => {
+                  const age = getAgeInDays(b.completedAt);
+                  const isOld = age > 2;
+                  
+                  return (
+                    <tr key={b.id} className="hover:bg-slate-50/80 text-sm text-slate-700">
+                      <td className="px-6 py-4 font-bold text-slate-900">{b.bookingNumber}</td>
+                      <td className="px-6 py-4">
+                        <div className="font-semibold text-slate-800">{b.pandit?.name || "N/A"}</div>
+                        <div className="text-xs text-slate-500 font-mono mt-0.5">{b.pandit?.phone || "N/A"}</div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="font-semibold text-slate-800">{b.eventType}</div>
+                        <div className="text-xs text-slate-500 mt-0.5">{new Date(b.eventDate).toLocaleDateString()}</div>
+                      </td>
+                      <td className="px-6 py-4 font-bold text-slate-900">₹{b.panditPayout?.toLocaleString("en-IN")}</td>
+                      <td className="px-6 py-4">
+                        {b.pandit?.upiId ? (
+                          <div className="flex flex-col gap-1">
+                            <span className="text-xs font-bold text-slate-400 uppercase">UPI Method</span>
+                            {revealed[b.id] ? (
+                              <span className="font-mono font-semibold text-slate-800 bg-slate-50 px-2 py-1 rounded">{b.pandit.upiId}</span>
+                            ) : (
+                              <button 
+                                onClick={() => setRevealed(prev => ({ ...prev, [b.id]: true }))}
+                                className="text-xs text-blue-600 hover:underline text-left"
+                              >
+                                Click to reveal UPI
+                              </button>
+                            )}
                           </div>
-                        </TableCell>
-                      )}
-                      <TableCell>
-                        {p.payoutStatus === "PENDING" ? (
-                          <Button size="sm" onClick={() => handleProcessPayoutClick(p)}>Process Payout</Button>
+                        ) : b.pandit?.bankAccountNumber ? (
+                          <div className="space-y-1">
+                            <span className="text-xs font-bold text-slate-400 uppercase block">Bank Method</span>
+                            <div className="text-xs text-slate-700 font-medium">Last 4: ••••{b.pandit.bankAccountNumber.slice(-4)}</div>
+                            {revealed[b.id] ? (
+                              <div className="bg-slate-50 p-2 rounded border border-slate-100 text-xs font-mono space-y-0.5">
+                                <div>Acc Name: {b.pandit.bankAccountName || "N/A"}</div>
+                                <div>IFSC: {b.pandit.bankIfscCode || "N/A"}</div>
+                              </div>
+                            ) : (
+                              <button 
+                                onClick={() => setRevealed(prev => ({ ...prev, [b.id]: true }))}
+                                className="text-xs text-blue-600 hover:underline"
+                              >
+                                Click to reveal details
+                              </button>
+                            )}
+                          </div>
                         ) : (
-                          <Button size="sm" variant="outline" disabled>Processed</Button>
+                          <span className="text-red-500 text-xs font-bold uppercase">No Bank details</span>
                         )}
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </Card>
-        </TabsContent>
-      </Tabs>
-
-      <Dialog open={processModalOpen} onOpenChange={setProcessModalOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Process Payout</DialogTitle>
-            <DialogDescription>
-              Confirm payment details for {selectedPayout?.pandit?.name}
-            </DialogDescription>
-          </DialogHeader>
-
-          {selectedPayout && (
-            <div className="space-y-4 py-4">
-              <div className="bg-muted p-4 rounded-md space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Booking:</span>
-                  <span className="font-medium">{selectedPayout.bookingNumber}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Payout Amount:</span>
-                  <span className="font-bold text-lg">₹{selectedPayout.panditPayout}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Bank:</span>
-                  <span className="font-medium">State Bank of India</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Account:</span>
-                  <span className="font-medium">XXXXXXXX4321</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">IFSC:</span>
-                  <span className="font-medium">SBIN0001234</span>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Payment Method</Label>
-                  <Select value={paymentMethod} onValueChange={setPaymentMethod}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="BANK_TRANSFER">Bank Transfer (NEFT/IMPS)</SelectItem>
-                      <SelectItem value="UPI">UPI</SelectItem>
-                      <SelectItem value="CASH">Cash</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Transaction Reference (UTR / UPI Ref)</Label>
-                  <Input
-                    value={transactionRef}
-                    onChange={e => setTransactionRef(e.target.value)}
-                    placeholder="e.g. UTR123456789"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Payment Date</Label>
-                  <Input
-                    type="date"
-                    value={paymentDate}
-                    onChange={e => setPaymentDate(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Admin Notes (optional)</Label>
-                  <Textarea
-                    value={notes}
-                    onChange={e => setNotes(e.target.value)}
-                    placeholder="Internal notes about this payout"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setProcessModalOpen(false)}>Cancel</Button>
-            <Button onClick={confirmPayout} disabled={processing}>
-              {processing ? "Processing..." : "💰 Confirm Payout"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+                      </td>
+                      <td className="px-6 py-4 text-slate-500">
+                        {b.completedAt ? new Date(b.completedAt).toLocaleString() : "N/A"}
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`px-2.5 py-1 rounded-full font-bold text-xs ${isOld && activeTab === "PENDING" ? "bg-red-100 text-red-700 animate-pulse" : "bg-slate-100 text-slate-600"}`}>
+                          {age} Days
+                        </span>
+                      </td>
+                      {activeTab === "PENDING" && (
+                        <td className="px-6 py-4 text-right">
+                          <button
+                            onClick={() => handleMarkPaid(b.id)}
+                            className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-3 py-1.5 rounded transition"
+                          >
+                            MARK PAID
+                          </button>
+                        </td>
+                      )}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

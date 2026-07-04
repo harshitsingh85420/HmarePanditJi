@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { Header } from "@/components/ui/Header";
 import { SpeakOnMount } from "@/components/VoiceBar";
 import { useVoice } from "@/hooks/useVoice";
+import { VoiceField } from "@/components/voice/VoiceField";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -145,31 +146,16 @@ export default function LoginPage() {
       <main className="flex-grow flex flex-col justify-start px-4 pt-8 max-w-[430px] mx-auto w-full gap-6">
         {step === 1 ? (
           <>
-            {/* Screen 1: Phone input */}
-            <SpeakOnMount text={hi.auth.phoneVoice} />
-
             <div className="bg-white rounded-card shadow-card p-5 flex flex-col gap-4">
-              <h2 className="t-title font-bold text-temple-600">
-                {hi.auth.phoneLabel}
-              </h2>
-
-              <div className="flex items-center bg-white border-2 border-saffron-300 rounded-btn px-4 focus-within:ring-4 focus-within:ring-saffron-200 focus-within:border-saffron-500 transition-all">
-                <span className="text-[18px] font-bold text-ink pr-3 border-r border-saffron-200 mr-3 select-none">
-                  +91
-                </span>
-                <input
-                  type="tel"
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  maxLength={10}
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
-                  className="bg-transparent border-none outline-none flex-grow h-[56px] text-[18px] font-bold text-ink"
-                  placeholder="XXXXXXXXXX"
-                  style={{ minHeight: "56px", fontSize: "18px" }}
-                />
-              </div>
-
+              <VoiceField
+                label={hi.auth.phoneLabel}
+                promptText={hi.auth.phoneVoice}
+                value={phone}
+                onChange={setPhone}
+                mode="phone"
+                onComplete={handleSendOtp}
+                placeholder="XXXXXXXXXX"
+              />
               <Button
                 variant="primary"
                 size="md"
@@ -206,6 +192,11 @@ export default function LoginPage() {
                     value={digit}
                     onChange={(e) => handleOtpChange(e.target.value, idx)}
                     onKeyDown={(e) => handleOtpKeyDown(e, idx)}
+                    onFocus={() => {
+                      if (idx === 0) {
+                        speak("सुरक्षा के लिए ओ टी पी लिखकर भरें");
+                      }
+                    }}
                     className="w-[48px] h-[56px] text-center border-2 border-saffron-300 rounded-btn text-[24px] font-bold text-ink bg-white focus:outline-none focus:border-saffron-500 focus:ring-4 focus:ring-saffron-200 transition-all"
                     style={{ width: "48px", height: "56px" }}
                   />

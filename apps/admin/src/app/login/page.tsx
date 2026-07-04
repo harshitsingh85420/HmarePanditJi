@@ -26,7 +26,7 @@ export default function AdminLoginPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Login failed");
 
-      localStorage.setItem(ADMIN_TOKEN_KEY, data.data.accessToken);
+      localStorage.setItem(ADMIN_TOKEN_KEY, data.data.token);
       window.location.href = "/";
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Something went wrong");

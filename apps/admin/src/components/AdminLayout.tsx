@@ -17,16 +17,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         if (!path) return "Admin Center";
         switch (true) {
             case path === "/": return "Dashboard";
-            case path.startsWith("/travel-desk"): return "Travel Operations Desk";
-            case path.startsWith("/bookings"): return "All Bookings";
+            case path.startsWith("/verifications"): return "Pandit Verification Queue";
+            case path.startsWith("/bookings"): return "Booking Monitor";
             case path.startsWith("/pandits"): return "Pandit Directory";
             case path.startsWith("/payouts"): return "Payout Queue";
-            case path.startsWith("/cancellations"): return "Cancellation Queue";
-            case path.startsWith("/support"): return "Helpline Log";
-            case path.startsWith("/settings"): return "Platform Settings";
             default: return "Admin Center";
         }
     };
+
+    if (pathname && pathname.startsWith("/login")) {
+        return <div className="min-h-screen bg-slate-950">{children}</div>;
+    }
 
     return (
         <div className="flex h-screen bg-slate-50 overflow-hidden font-sans">

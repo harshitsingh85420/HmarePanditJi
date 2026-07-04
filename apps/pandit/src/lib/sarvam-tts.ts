@@ -134,6 +134,18 @@ export function resetCacheStats(): void {
 }
 
 let activeSpeechToken = 0;
+let activeAudio: HTMLAudioElement | null = null;
+
+export function stopActiveAudio(): void {
+  if (activeAudio) {
+    try {
+      activeAudio.pause();
+    } catch (e) {
+      // ignore
+    }
+    activeAudio = null;
+  }
+}
 
 /**
  * Cancel current speech and clear queue
@@ -142,6 +154,7 @@ let activeSpeechToken = 0;
 export function cancelCurrentSpeech(): void {
   activeSpeechToken += 1;
   stopSpeaking();
+  stopActiveAudio();
   // Also cancel Web Speech API to clear any queued utterances
   if (typeof window !== 'undefined' && window.speechSynthesis) {
     window.speechSynthesis.cancel();
@@ -163,6 +176,7 @@ export function resetTTS(): void {
 export function stopCurrentSpeech(): void {
   activeSpeechToken += 1;
   stopSpeaking();
+  stopActiveAudio();
 }
 
 export async function speakWithSarvam({
@@ -277,9 +291,19 @@ export function playFromCache(
 
   try {
     const audio = new Audio(`data:audio/mp3;base64,${cached}`);
-    audio.onended = () => onEnd?.();
-    audio.onerror = () => onEnd?.();
-    audio.play().catch(() => onEnd?.());
+    activeAudio = audio;
+    audio.onended = () => {
+      if (activeAudio === audio) activeAudio = null;
+      onEnd?.();
+    };
+    audio.onerror = () => {
+      if (activeAudio === audio) activeAudio = null;
+      onEnd?.();
+    };
+    audio.play().catch(() => {
+      if (activeAudio === audio) activeAudio = null;
+      onEnd?.();
+    });
     return true;
   } catch {
     return false;

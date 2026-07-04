@@ -13,6 +13,7 @@ import { Header } from "@/components/ui/Header";
 import { SpeakOnMount } from "@/components/VoiceBar";
 import { DiyaLoader } from "@/components/moments/DiyaLoader";
 import { useVoice } from "@/hooks/useVoice";
+import { VoiceActionListener } from "@/components/voice/VoiceActionListener";
 
 interface BookingDetail {
   id: string;
@@ -146,12 +147,25 @@ export default function BookingRequestPage() {
   // Speak mount voice composed sentence
   const voiceIntroText = `नई बुकिंग। ${pujaTitle} की बुकिंग। कुल कमाई ${total} रुपये।`;
 
+  const commands = [
+    {
+      keywords: ["स्वीकार", "sweekar", "accept", "हाँ करो", "haan karo"],
+      action: handleAccept,
+      confirmText: "आप बुकिंग स्वीकार कर रहे हैं. पक्का?",
+    },
+    {
+      keywords: ["अस्वीकार", "reject", "मना", "mana", "naa karo"],
+      action: handleReject,
+      confirmText: "आप बुकिंग अस्वीकार कर रहे हैं. पक्का?",
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-cream text-ink pb-24">
       <Header title={hi.booking.requestTitle} showBack onBack={() => router.push("/bookings")} />
 
-      {/* Composed speak sentence on mount */}
-      <SpeakOnMount text={voiceIntroText} />
+      {/* Voice actions listener */}
+      <VoiceActionListener commands={commands} narratingText={voiceIntroText} promptText={voiceIntroText} />
 
       <main className="max-w-[430px] mx-auto px-4 pt-4 flex flex-col gap-5">
         {/* CUSTOMER CARD */}

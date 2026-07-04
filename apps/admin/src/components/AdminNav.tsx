@@ -4,16 +4,10 @@ import { usePathname } from "next/navigation";
 
 const navLinks = [
   { href: "/", icon: "dashboard", label: "Dashboard" },
-  { href: "/verification", icon: "verified_user", label: "Verification" },
+  { href: "/verifications", icon: "verified_user", label: "Verifications" },
+  { href: "/payouts", icon: "payments", label: "Payouts" },
   { href: "/bookings", icon: "event_note", label: "Bookings" },
   { href: "/pandits", icon: "groups", label: "Pandits" },
-  { href: "/customers", icon: "people", label: "Customers" },
-  { href: "/operations", icon: "local_shipping", label: "Operations" },
-  { href: "/travel-queue", icon: "flight", label: "Travel" },
-  { href: "/cancellations", icon: "cancel", label: "Cancellations" },
-  { href: "/payouts", icon: "payments", label: "Payouts" },
-  { href: "/b2b/bookings", icon: "business_center", label: "B2B" },
-  { href: "/settings", icon: "settings", label: "Settings" },
 ] as const;
 
 export default function AdminNav() {

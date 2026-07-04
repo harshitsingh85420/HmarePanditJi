@@ -12,6 +12,7 @@ import { Header } from "@/components/ui/Header";
 import { SpeakOnMount } from "@/components/VoiceBar";
 import { DiyaLoader } from "@/components/moments/DiyaLoader";
 import { useVoice } from "@/hooks/useVoice";
+import { VoiceActionListener } from "@/components/voice/VoiceActionListener";
 
 interface BookingDetail {
   id: string;
@@ -180,6 +181,22 @@ export default function BookingDetailPage() {
     { step: 3, title: hi.booking.started, label: journeyLabels.started },
   ];
 
+  const voiceCommands = [];
+  if (booking.journeyStep < 3) {
+    voiceCommands.push({
+      keywords: ["पहुँच गया", "pahunch", "पहुंच", "arrived", "im here", "started", "left", "शुरू"],
+      action: handleJourneyNext,
+    });
+  } else if (booking.status !== "COMPLETED") {
+    voiceCommands.push({
+      keywords: ["पूजा संपन्न", "पूरी हो गई", "complete", "finished", "sampann"],
+      action: handleComplete,
+      confirmText: hi.booking.confirmCompleteTitle,
+    });
+  }
+
+  const screenVoiceText = `बुकिंग विवरण। ${pujaTitle}।`;
+
   if (showSuccessScreen) {
     const payoutAmount = booking.earnings?.totalToPandit || 0;
     return (
@@ -209,6 +226,13 @@ export default function BookingDetailPage() {
   return (
     <div className="min-h-screen bg-cream text-ink pb-24">
       <Header title={pujaTitle} showBack onBack={() => router.push("/bookings")} />
+
+      {/* Voice commands listener */}
+      <VoiceActionListener
+        commands={voiceCommands}
+        narratingText={screenVoiceText}
+        promptText={screenVoiceText}
+      />
 
       <main className="max-w-[430px] mx-auto px-4 pt-4 flex flex-col gap-5">
         {/* 1. STATUS HEADER */}

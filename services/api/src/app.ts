@@ -187,6 +187,83 @@ app.get(`${API_PREFIX}/pandit/blocked-dates`, { preHandler: [authenticate, roleG
 app.post(`${API_PREFIX}/pandit/blocked-dates`, { preHandler: [authenticate, roleGuard("PANDIT")] }, createBlockedDate);
 app.delete(`${API_PREFIX}/pandit/blocked-dates/:date`, { preHandler: [authenticate, roleGuard("PANDIT")] }, deleteBlockedDate);
 
+const handleSTT = async (request: FastifyRequest, reply: FastifyReply) => {
+  try {
+    const file = await request.file();
+    if (!file) {
+      return reply.send({ success: false, error: { code: "stt_failed" } });
+    }
+
+    const { DEEPGRAM_API_KEY } = env;
+    if (!DEEPGRAM_API_KEY || DEEPGRAM_API_KEY.length < 10) {
+      request.log.error("Deepgram is not configured");
+      return reply.send({ success: false, error: { code: "stt_failed" } });
+    }
+
+    const audioBuffer = await file.toBuffer();
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+    try {
+      const response = await fetch(
+        "https://api.deepgram.com/v1/listen?model=nova-2&language=hi&smart_format=true&punctuate=false",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Token ${DEEPGRAM_API_KEY}`,
+            "Content-Type": file.mimetype,
+          },
+          body: audioBuffer,
+          signal: controller.signal,
+        }
+      );
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        request.log.error(`Deepgram STT API error: ${response.status} ${errorText}`);
+        return reply.send({ success: false, error: { code: "stt_failed" } });
+      }
+
+      const data = (await response.json()) as any;
+      const transcript = data.results?.channels?.[0]?.alternatives?.[0]?.transcript || "";
+      const confidence = data.results?.channels?.[0]?.alternatives?.[0]?.confidence || 0;
+
+      return reply.send({
+        success: true,
+        data: {
+          transcript,
+          confidence,
+        },
+      });
+    } catch (err: any) {
+      clearTimeout(timeoutId);
+      request.log.error(`Deepgram STT call failed or timed out: ${err.message || err}`);
+      return reply.send({ success: false, error: { code: "stt_failed" } });
+    }
+  } catch (err: any) {
+    request.log.error(`STT route exception: ${err.message || err}`);
+    return reply.send({ success: false, error: { code: "stt_failed" } });
+  }
+};
+
+const sttRouteConfig = {
+  config: {
+    rateLimit: {
+      max: 30,
+      timeWindow: 60000,
+      keyGenerator: (request: FastifyRequest) => {
+        return (request as any).user?.id || request.ip || "0.0.0.0";
+      },
+    },
+  },
+  preHandler: [authenticate],
+};
+
+app.post("/api/stt", sttRouteConfig, handleSTT);
+app.post(`${API_PREFIX}/stt`, sttRouteConfig, handleSTT);
+
 // Plural /pandits/* equivalents are served by the panditRoutes plugin (registered
 // below with prefix /pandits); registering them here too crashed Fastify with
 // FST_ERR_DUPLICATED_ROUTE. The pandit app only calls the singular /pandit/* paths.

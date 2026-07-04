@@ -14,6 +14,7 @@ import { Toast } from "@/components/ui/Toast";
 import { SpeakOnMount } from "@/components/VoiceBar";
 import { DiyaLoader } from "@/components/moments/DiyaLoader";
 import { useVoice } from "@/hooks/useVoice";
+import { VoiceField } from "@/components/voice/VoiceField";
 
 interface SamagriItem {
   name: string;
@@ -241,13 +242,16 @@ export default function SamagriPage() {
                         <div className="text-[18px] font-bold text-ink flex-grow font-hindi leading-snug">
                           {item.name}
                         </div>
-                        <input
-                          type="text"
-                          value={item.qty}
-                          onChange={(e) => handleQtyChange(idx, e.target.value)}
-                          className="w-[110px] h-[56px] px-2 border-2 border-saffron-200 rounded-btn text-[18px] text-center font-bold text-ink bg-white focus:border-saffron-500 focus:outline-none"
-                          style={{ minHeight: "56px", fontSize: "18px" }}
-                        />
+                        <div className="w-[130px] flex-shrink-0">
+                          <VoiceField
+                            label=""
+                            promptText={`${item.name} की मात्रा बोलें`}
+                            value={item.qty}
+                            onChange={(val) => handleQtyChange(idx, val)}
+                            mode="number"
+                            placeholder="मात्रा"
+                          />
+                        </div>
                         <button
                           onClick={() => handleRemoveItem(idx)}
                           className="w-11 h-11 border-2 border-danger rounded-btn flex items-center justify-center text-danger hover:bg-red-50"
@@ -262,21 +266,21 @@ export default function SamagriPage() {
                   {/* ADD NEW ITEM FORM */}
                   {showAddForm ? (
                     <div className="flex flex-col gap-3 p-4 bg-saffron-50/50 rounded-card border border-saffron-100 mt-2">
-                      <input
-                        type="text"
-                        placeholder={hi.samagri.itemNamePlaceholder}
+                      <VoiceField
+                        label={hi.samagri.itemNamePlaceholder}
+                        promptText="सामग्री का नाम बोलें"
                         value={newItemName}
-                        onChange={(e) => setNewItemName(e.target.value)}
-                        className="w-full h-[56px] px-3 border-2 border-saffron-300 rounded-btn text-[18px] font-hindi text-ink bg-white focus:outline-none"
-                        style={{ minHeight: "56px", fontSize: "18px" }}
+                        onChange={setNewItemName}
+                        mode="text"
+                        placeholder={hi.samagri.itemNamePlaceholder}
                       />
-                      <input
-                        type="text"
-                        placeholder={hi.samagri.qtyPlaceholder}
+                      <VoiceField
+                        label={hi.samagri.qtyPlaceholder}
+                        promptText="सामग्री की मात्रा बोलें"
                         value={newItemQty}
-                        onChange={(e) => setNewItemQty(e.target.value)}
-                        className="w-full h-[56px] px-3 border-2 border-saffron-300 rounded-btn text-[18px] font-hindi text-ink bg-white focus:outline-none"
-                        style={{ minHeight: "56px", fontSize: "18px" }}
+                        onChange={setNewItemQty}
+                        mode="number"
+                        placeholder={hi.samagri.qtyPlaceholder}
                       />
                       <div className="flex gap-2">
                         <Button
@@ -315,66 +319,39 @@ export default function SamagriPage() {
 
                     <div className="flex flex-col md:flex-row gap-3">
                       {/* Basic Tier */}
-                      <div className="flex-1 bg-white p-3 rounded-card border-2 border-saffron-200 flex flex-col gap-2">
-                        <span className="text-[18px] font-bold text-temple-700 font-hindi text-center">
-                          Basic
-                        </span>
-                        <div className="flex items-center bg-white border border-saffron-300 rounded-btn px-2">
-                          <span className="text-[18px] font-bold pr-2">₹</span>
-                          <input
-                            type="tel"
-                            pattern="[0-9]*"
-                            value={prices.BASIC}
-                            onChange={(e) =>
-                               setPrices({ ...prices, BASIC: e.target.value.replace(/\D/g, "") })
-                            }
-                            className="w-full h-[56px] outline-none text-[18px] font-bold text-ink"
-                            style={{ minHeight: "56px", fontSize: "18px" }}
-                            placeholder="0"
-                          />
-                        </div>
+                      <div className="flex-1">
+                        <VoiceField
+                          label="Basic"
+                          promptText="बेसिक पैकेज की कीमत क्या है?"
+                          value={prices.BASIC}
+                          onChange={(val) => setPrices({ ...prices, BASIC: val })}
+                          mode="money"
+                          placeholder="₹ 0"
+                        />
                       </div>
 
                       {/* Standard Tier */}
-                      <div className="flex-1 bg-white p-3 rounded-card border-2 border-saffron-300 flex flex-col gap-2">
-                        <span className="text-[18px] font-bold text-temple-700 font-hindi text-center">
-                          Standard
-                        </span>
-                        <div className="flex items-center bg-white border border-saffron-300 rounded-btn px-2">
-                          <span className="text-[18px] font-bold pr-2">₹</span>
-                          <input
-                            type="tel"
-                            pattern="[0-9]*"
-                            value={prices.STANDARD}
-                            onChange={(e) =>
-                               setPrices({ ...prices, STANDARD: e.target.value.replace(/\D/g, "") })
-                            }
-                            className="w-full h-[56px] outline-none text-[18px] font-bold text-ink"
-                            style={{ minHeight: "56px", fontSize: "18px" }}
-                            placeholder="0"
-                          />
-                        </div>
+                      <div className="flex-1">
+                        <VoiceField
+                          label="Standard"
+                          promptText="स्टैंडर्ड पैकेज की कीमत क्या है?"
+                          value={prices.STANDARD}
+                          onChange={(val) => setPrices({ ...prices, STANDARD: val })}
+                          mode="money"
+                          placeholder="₹ 0"
+                        />
                       </div>
 
                       {/* Premium Tier */}
-                      <div className="flex-1 bg-white p-3 rounded-card border-2 border-saffron-200 flex flex-col gap-2">
-                        <span className="text-[18px] font-bold text-temple-700 font-hindi text-center">
-                          Premium
-                        </span>
-                        <div className="flex items-center bg-white border border-saffron-300 rounded-btn px-2">
-                          <span className="text-[18px] font-bold pr-2">₹</span>
-                          <input
-                            type="tel"
-                            pattern="[0-9]*"
-                            value={prices.PREMIUM}
-                            onChange={(e) =>
-                               setPrices({ ...prices, PREMIUM: e.target.value.replace(/\D/g, "") })
-                            }
-                            className="w-full h-[56px] outline-none text-[18px] font-bold text-ink"
-                            style={{ minHeight: "56px", fontSize: "18px" }}
-                            placeholder="0"
-                          />
-                        </div>
+                      <div className="flex-1">
+                        <VoiceField
+                          label="Premium"
+                          promptText="प्रीमियम पैकेज की कीमत क्या है?"
+                          value={prices.PREMIUM}
+                          onChange={(val) => setPrices({ ...prices, PREMIUM: val })}
+                          mode="money"
+                          placeholder="₹ 0"
+                        />
                       </div>
                     </div>
                   </div>

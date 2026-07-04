@@ -26,65 +26,47 @@ export const getDashboardStats = async (request: FastifyRequest, reply: FastifyR
         const todayEnd = new Date(todayStart);
         todayEnd.setDate(todayEnd.getDate() + 1);
 
-        const now = new Date();
-        const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-        const prevMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-        const prevMonthEnd = new Date(currentMonthStart);
-
         const [
-            todaysBookingsEvents,
-            monthlyRevenueCurrent,
-            monthlyRevenuePrev,
-            activePanditsVers,
-            travelCount,
-            verifyCount,
-            payoutCount,
-            cancelCount
+            todaysBookingsCount,
+            pendingVerificationsCount,
+            pendingPayoutsStats,
+            onlinePanditsCount
         ] = await Promise.all([
-            prisma.booking.findMany({
-                where: { eventDate: { gte: todayStart, lt: todayEnd } },
-                select: { status: true }
+            prisma.booking.count({
+                where: { eventDate: { gte: todayStart, lt: todayEnd } }
             }),
-            prisma.booking.aggregate({
-                where: { paymentStatus: "CAPTURED", updatedAt: { gte: currentMonthStart } },
-                _sum: { grandTotal: true },
+            prisma.panditProfile.count({
+                where: { verificationStatus: "PENDING" }
             }),
-            prisma.booking.aggregate({
-                where: { paymentStatus: "CAPTURED", updatedAt: { gte: prevMonthStart, lt: prevMonthEnd } },
-                _sum: { grandTotal: true },
+            prisma.payout.aggregate({
+                where: { status: "PENDING" },
+                _sum: { amount: true },
+                _count: true
             }),
-            prisma.panditProfile.findMany({ select: { verificationStatus: true, isOnline: true } }),
-            prisma.booking.count({ where: { travelRequired: true, travelStatus: "PENDING", status: { notIn: ["CANCELLED", "REFUNDED", "CREATED"] } } }),
-            prisma.panditProfile.count({ where: { verificationStatus: "DOCUMENTS_SUBMITTED" } }),
-            prisma.booking.count({ where: { paymentStatus: "CAPTURED", status: "COMPLETED", payoutStatus: "PENDING" } }),
-            prisma.booking.count({ where: { status: { in: ["CANCELLED", "REFUNDED"] }, refundStatus: "PENDING" } }),
+            prisma.panditProfile.count({
+                where: { isOnline: true }
+            })
         ]);
 
-        const todaysTotal = todaysBookingsEvents.length;
-        let todaysConfirmed = 0;
-        let todaysInProgress = 0;
-        for (const b of todaysBookingsEvents) {
-            if (b.status === "CONFIRMED") todaysConfirmed++;
-            else if (["PANDIT_EN_ROUTE", "PANDIT_ARRIVED", "PUJA_IN_PROGRESS"].includes(b.status)) todaysInProgress++;
-        }
-
-        const currentRev = monthlyRevenueCurrent._sum?.grandTotal ?? 0;
-        const prevRev = monthlyRevenuePrev._sum?.grandTotal ?? 0;
-        let percentChange = 0;
-        if (prevRev > 0) percentChange = Math.round(((currentRev - prevRev) / prevRev) * 100);
-
-        let verified = 0;
-        let online = 0;
-        for (const p of activePanditsVers) {
-            if (p.verificationStatus === "VERIFIED") verified++;
-            if (p.isOnline) online++;
-        }
-
         return reply.send(successBody({
-            todaysBookings: { total: todaysTotal, confirmed: todaysConfirmed, inProgress: todaysInProgress },
-            pendingActions: { travel: travelCount, verification: verifyCount, payouts: payoutCount, cancellations: cancelCount },
-            monthlyRevenue: { current: currentRev, previous: prevRev, percentChange },
-            activePandits: { verified, online }
+            todaysBookings: todaysBookingsCount,
+            pendingVerifications: pendingVerificationsCount,
+            pendingPayouts: {
+                count: pendingPayoutsStats._count || 0,
+                amount: pendingPayoutsStats._sum.amount || 0
+            },
+            onlinePandits: onlinePanditsCount,
+            // Keep extra structures for compatibility
+            pendingActions: {
+                verification: pendingVerificationsCount,
+                payouts: pendingPayoutsStats._count || 0,
+                travel: 0,
+                cancellations: 0
+            },
+            activePandits: {
+                online: onlinePanditsCount,
+                verified: 0
+            }
         }));
     } catch (err) {
         throw err;
@@ -363,12 +345,17 @@ export const getPanditsAdmin = async (request: FastifyRequest, reply: FastifyRep
 
         const where: Record<string, unknown> = {};
         if (status) {
-            if (status === "pending") {
-                where.verificationStatus = { in: ["DOCUMENTS_SUBMITTED", "VIDEO_KYC_DONE"] };
-            } else if (status === "verified") {
-                where.verificationStatus = "VERIFIED";
-            } else if (status === "rejected") {
+            const upperStatus = status.toUpperCase();
+            if (upperStatus === "PENDING") {
+                where.verificationStatus = "PENDING";
+            } else if (upperStatus === "APPROVED") {
+                where.verificationStatus = "APPROVED";
+            } else if (upperStatus === "REJECTED") {
                 where.verificationStatus = "REJECTED";
+            } else if (upperStatus === "VERIFIED") {
+                where.verificationStatus = "VERIFIED";
+            } else {
+                where.verificationStatus = upperStatus as any;
             }
         }
 

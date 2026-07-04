@@ -82,6 +82,8 @@ const envSchema = z.object({
 
   // Admin Users (JSON string: [{username, password}])
   ADMIN_USERS: z.string().default("[]"),
+  ADMIN_EMAIL: z.string().default("admin@hmarepanditji.com"),
+  ADMIN_PASSWORD_HASH: z.string().default("$2a$10$X56H2b.C/xRtfVbV07XUduP.p2.mpe6jKxG18M5rM/XzXy/vDpeM6"),
 });
 
 const parsed = envSchema.safeParse(process.env);
