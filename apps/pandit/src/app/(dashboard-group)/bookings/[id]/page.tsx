@@ -155,29 +155,29 @@ export default function BookingDetailPage() {
   // Status header config
   const getStatusConfig = (statusStr: string) => {
     if (statusStr === "ACCEPTED") {
-      return { label: "स्वीकृत", bg: "bg-[#E8F0FE] text-[#1A56DB]" };
+      return { label: hi.booking.statusAccepted, bg: "bg-[#E8F0FE] text-[#1A56DB]" };
     }
     if (statusStr === "COMPLETED") {
-      return { label: "संपन्न", bg: "bg-leaf-100 text-leaf-700" };
+      return { label: hi.booking.statusCompleted, bg: "bg-leaf-100 text-leaf-700" };
     }
     // Default / IN_PROGRESS / PUJA_IN_PROGRESS
-    return { label: "यात्रा में", bg: "bg-[#FEF3C7] text-[#92400E]" };
+    return { label: hi.booking.statusEnRoute, bg: "bg-[#FEF3C7] text-[#92400E]" };
   };
 
   const statusCfg = getStatusConfig(booking.status);
   const customerPhone = booking.customer?.phone || booking.customerPhone;
-  const customerName = booking.customer?.name || booking.customerName || "यजमान";
+  const customerName = booking.customer?.name || booking.customerName || hi.booking.yajman;
   const pujaTitle = booking.pujaType || booking.eventType;
   const journeyLabels = {
-    left: "घर से निकले",
-    started: "पूजा शुरू की",
+    left: hi.booking.left,
+    started: hi.booking.started,
   };
 
   // Timeline config
   const timelineSteps = [
-    { step: 1, title: "घर से निकले", label: journeyLabels.left },
-    { step: 2, title: "स्थान पर पहुँचे", label: hi.booking.imHere },
-    { step: 3, title: "पूजा शुरू की", label: journeyLabels.started },
+    { step: 1, title: hi.booking.left, label: journeyLabels.left },
+    { step: 2, title: hi.booking.arrived, label: hi.booking.imHere },
+    { step: 3, title: hi.booking.started, label: journeyLabels.started },
   ];
 
   if (showSuccessScreen) {
@@ -188,10 +188,10 @@ export default function BookingDetailPage() {
         <div className="flex-1 flex flex-col items-center justify-center text-center gap-6">
           <span className="text-[120px] select-none leading-none">🙏</span>
           <h1 className="text-[36px] font-bold text-temple-700 font-hindi">
-            पूजा संपन्न!
+            {hi.booking.pujaFinishedTitle}
           </h1>
           <p className="text-[22px] font-bold text-leaf-700 font-hindi leading-snug">
-            ₹{payoutAmount.toLocaleString("en-IN")} जल्द ही आपके खाते में आएगा
+            ₹{payoutAmount.toLocaleString("en-IN")} {hi.booking.payoutSoon}
           </p>
         </div>
 
@@ -200,7 +200,7 @@ export default function BookingDetailPage() {
           className="w-full h-20 bg-leaf-700 hover:bg-leaf-800 text-white font-bold text-[22px] rounded-btn shadow-lg active:scale-95 transition-transform"
           style={{ minHeight: "80px", fontSize: "22px" }}
         >
-          होम पर जाएं
+          {hi.booking.goToHome}
         </button>
       </div>
     );
@@ -213,7 +213,7 @@ export default function BookingDetailPage() {
       <main className="max-w-[430px] mx-auto px-4 pt-4 flex flex-col gap-5">
         {/* 1. STATUS HEADER */}
         <div className="flex justify-between items-center bg-white p-4 rounded-card border border-saffron-100 shadow-sm">
-          <span className="text-[18px] font-bold text-softgrey font-hindi">बुकिंग स्थिति</span>
+          <span className="text-[18px] font-bold text-softgrey font-hindi">{hi.booking.bookingStatus}</span>
           <div className={`inline-flex items-center justify-center h-10 px-5 rounded-full text-[18px] font-bold font-hindi select-none ${statusCfg.bg}`}>
             {statusCfg.label}
           </div>
@@ -222,7 +222,7 @@ export default function BookingDetailPage() {
         {/* 2. CUSTOMER CONTACT */}
         <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-4">
           <div className="flex flex-col gap-0.5">
-            <span className="text-[16px] text-softgrey font-hindi">यजमान का नाम</span>
+            <span className="text-[16px] text-softgrey font-hindi">{hi.booking.customerNameLabel}</span>
             <span className="text-[22px] font-bold text-ink font-hindi">{customerName}</span>
           </div>
 
@@ -231,14 +231,14 @@ export default function BookingDetailPage() {
             className="w-full h-16 bg-white border-2 border-saffron-500 hover:bg-saffron-50 text-saffron-700 font-bold text-[18px] rounded-btn shadow-sm flex items-center justify-center gap-2 active:scale-95 transition-all"
             style={{ minHeight: "64px", fontSize: "18px" }}
           >
-            📞 ग्राहक को फ़ोन करें
+            {hi.booking.callCustomer}
           </a>
         </Card>
 
         {/* 3. JOURNEY STEPS VERTICAL TIMELINE */}
         <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-6">
           <h4 className="text-[18px] font-bold text-softgrey font-hindi border-b border-saffron-100 pb-2">
-            पूजा यात्रा
+            {hi.booking.pujaJourney}
           </h4>
 
           <div className="flex flex-col gap-6 relative pl-4 border-l-2 border-saffron-100">
@@ -268,7 +268,7 @@ export default function BookingDetailPage() {
                     {/* ✅ Completed step detail */}
                     {isCompleted && (
                       <span className="text-[16px] text-leaf-700 font-bold font-hindi flex items-center gap-1">
-                        ✅ {timestamp ? formatHindiTime(timestamp) : "पूर्ण"}
+                        ✅ {timestamp ? formatHindiTime(timestamp) : hi.booking.completed}
                       </span>
                     )}
                   </div>
@@ -323,7 +323,7 @@ export default function BookingDetailPage() {
               className="bg-white rounded-card shadow-lg max-w-[360px] w-full p-5 flex flex-col gap-6 text-center border-2 border-saffron-300"
             >
               <h3 className="text-[22px] font-bold text-temple-700 font-hindi leading-snug">
-                क्या आप वाकई संपन्न करना चाहते हैं?
+                {hi.booking.confirmCompleteTitle}
               </h3>
               <div className="flex gap-4">
                 <button

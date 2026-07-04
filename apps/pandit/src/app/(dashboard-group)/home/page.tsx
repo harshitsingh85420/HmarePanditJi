@@ -325,7 +325,7 @@ export default function HomePage() {
 
         {/* SAMAGRI PACKAGES LINK */}
         <Card
-          className="p-4 bg-white border border-saffron-100 cursor-pointer"
+          className="p-4 bg-white border border-saffron-100 cursor-pointer min-h-[56px] flex items-center justify-center text-center"
           onClick={() => router.push("/samagri")}
         >
           <span className="text-[20px] font-bold text-ink font-hindi">

@@ -57,7 +57,7 @@ export function BottomNav({ activeTab, onChange, className }: BottomNavProps) {
             {/* Label */}
             <span
               className={cn(
-                "text-[14px] font-medium leading-none",
+                "text-[18px] font-medium leading-none",
                 isActive ? "text-saffron-500 font-bold" : "text-softgrey"
               )}
             >
