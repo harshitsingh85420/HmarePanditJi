@@ -73,19 +73,14 @@ app.register(fastifyHelmet, {
   contentSecurityPolicy: env.NODE_ENV === "development" ? false : undefined,
 });
 
-// CORS (replaces cors)
-const allowedOrigins = [
-  ...ALLOWED_ORIGINS,
-  env.WEB_URL,
-  env.PANDIT_URL,
-  env.ADMIN_URL,
-].filter(Boolean);
-
+// CORS
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || "").split(",").map(s => s.trim()).filter(Boolean);
 app.register(fastifyCors, {
-  origin: allowedOrigins,
+  origin: (origin, cb) => {
+    if (!origin || allowedOrigins.includes(origin)) cb(null, true);
+    else cb(new Error("Not allowed by CORS"), false);
+  },
   credentials: true,
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
 });
 
 // Rate limiting (replaces express-rate-limit)
@@ -117,13 +112,17 @@ app.register(fastifyCookie, {
 });
 
 // ── Health Check (no versioning, no auth) ────────────────────────────────────
-app.get("/health", async (_request: FastifyRequest, reply: FastifyReply) => {
-  return reply.send({ status: "ok", timestamp: new Date(), version: "1.0.0" });
-});
+app.get("/health", async () => ({
+  ok: true,
+  uptime: process.uptime(),
+  timestamp: new Date().toISOString(),
+}));
 
-app.get("/api/health", async (_request: FastifyRequest, reply: FastifyReply) => {
-  return reply.send({ status: "ok", timestamp: new Date(), version: "1.0.0" });
-});
+app.get("/api/health", async () => ({
+  ok: true,
+  uptime: process.uptime(),
+  timestamp: new Date().toISOString(),
+}));
 
 // ── API Root ──────────────────────────────────────────────────────────────────
 app.get(API_PREFIX, async (_request: FastifyRequest, reply: FastifyReply) => {

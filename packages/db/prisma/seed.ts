@@ -64,28 +64,58 @@ const PANDITS = [
       { pujaType: 'Annaprashan', dakshinaAmount: 4000, durationHours: 2 }
     ],
     packages: [
-      { packageName: 'Basic', packageType: PackageType.BASIC, pujaType: 'Satyanarayan Puja', fixedPrice: 1500, items: [] },
-      { packageName: 'Standard', packageType: PackageType.STANDARD, pujaType: 'Satyanarayan Puja', fixedPrice: 2500, items: [] },
-      { packageName: 'Premium', packageType: PackageType.PREMIUM, pujaType: 'Satyanarayan Puja', fixedPrice: 4000, items: [] }
+      { packageName: 'Basic', packageType: PackageType.BASIC, tier: 'BASIC', price: 1500, pujaType: 'Satyanarayan Puja', fixedPrice: 1500, items: [] },
+      { packageName: 'Standard', packageType: PackageType.STANDARD, tier: 'STANDARD', price: 2500, pujaType: 'Satyanarayan Puja', fixedPrice: 2500, items: [] },
+      { packageName: 'Premium', packageType: PackageType.PREMIUM, tier: 'PREMIUM', price: 4000, pujaType: 'Satyanarayan Puja', fixedPrice: 4000, items: [] }
     ]
   },
   {
     phone: '9876543211', name: 'Pt. Suresh Tiwari', verificationStatus: VerificationStatus.VERIFIED,
-    experienceYears: 25, rating: 4.6, totalReviews: 23, location: 'Haridwar',
-    travelPreferences: { maxDistanceKm: 1000, preferredModes: ['TRAIN', 'FLIGHT', 'CAB'] },
+    experienceYears: 25, rating: 4.6, totalReviews: 23, location: 'Noida',
+    travelPreferences: { maxDistanceKm: 100, preferredModes: ['CAB'] },
     services: [
       { pujaType: 'Vivah', dakshinaAmount: 25000, durationHours: 6 },
       { pujaType: 'Mundan', dakshinaAmount: 5000, durationHours: 2 }
     ],
-    packages: []
+    packages: [
+      { packageName: 'Basic', packageType: PackageType.BASIC, tier: 'BASIC', price: 2000, pujaType: 'Mundan', fixedPrice: 2000, items: [] }
+    ]
   },
   {
-    phone: '9876543212', name: 'Pt. Vinod Kumar', verificationStatus: VerificationStatus.DOCUMENTS_SUBMITTED,
-    experienceYears: 8, location: 'Varanasi', travelPreferences: {}, services: [], packages: []
+    phone: '9876543212', name: 'Pt. Vinod Kumar', verificationStatus: VerificationStatus.VERIFIED,
+    experienceYears: 8, rating: 4.5, totalReviews: 12, location: 'Gurgaon',
+    travelPreferences: { maxDistanceKm: 150, preferredModes: ['CAB'] },
+    services: [
+      { pujaType: 'Havan', dakshinaAmount: 2100, durationHours: 1.5 },
+      { pujaType: 'Ganesh Puja', dakshinaAmount: 1500, durationHours: 1 }
+    ],
+    packages: [
+      { packageName: 'Basic', packageType: PackageType.BASIC, tier: 'BASIC', price: 500, pujaType: 'Havan', fixedPrice: 500, items: [] }
+    ]
   },
   {
-    phone: '9876543213', name: 'Pt. Mohan Lal', verificationStatus: VerificationStatus.REJECTED,
-    experienceYears: 3, location: 'Jaipur', travelPreferences: {}, services: [], packages: []
+    phone: '9876543213', name: 'Pt. Mohan Lal', verificationStatus: VerificationStatus.VERIFIED,
+    experienceYears: 5, rating: 4.2, totalReviews: 8, location: 'Ghaziabad',
+    travelPreferences: { maxDistanceKm: 100, preferredModes: ['CAB'] },
+    services: [
+      { pujaType: 'Satyanarayan Puja', dakshinaAmount: 2500, durationHours: 2 },
+      { pujaType: 'Mundan', dakshinaAmount: 3500, durationHours: 2 }
+    ],
+    packages: [
+      { packageName: 'Basic', packageType: PackageType.BASIC, tier: 'BASIC', price: 1000, pujaType: 'Satyanarayan Puja', fixedPrice: 1000, items: [] }
+    ]
+  },
+  {
+    phone: '9876543214', name: 'Pt. Dinesh Shastri', verificationStatus: VerificationStatus.VERIFIED,
+    experienceYears: 12, rating: 4.7, totalReviews: 15, location: 'Greater Noida',
+    travelPreferences: { maxDistanceKm: 120, preferredModes: ['CAB'] },
+    services: [
+      { pujaType: 'Griha Pravesh', dakshinaAmount: 6500, durationHours: 3 },
+      { pujaType: 'Vastu Shanti', dakshinaAmount: 5500, durationHours: 2.5 }
+    ],
+    packages: [
+      { packageName: 'Basic', packageType: PackageType.BASIC, tier: 'BASIC', price: 3000, pujaType: 'Griha Pravesh', fixedPrice: 3000, items: [] }
+    ]
   }
 ];
 
@@ -98,19 +128,40 @@ async function main() {
   await prisma.review.deleteMany();
   await prisma.favoritePandit.deleteMany();
   await prisma.bookingStatusUpdate.deleteMany();
+  await prisma.payout.deleteMany();
   await prisma.booking.deleteMany();
   await prisma.address.deleteMany();
   await prisma.familyMember.deleteMany();
   await prisma.customerProfile.deleteMany();
   await prisma.samagriPackage.deleteMany();
+  await prisma.dakshinaRate.deleteMany();
   await prisma.pujaService.deleteMany();
   await prisma.blockedDate.deleteMany();
   await prisma.panditProfile.deleteMany();
   await prisma.supportTicket.deleteMany();
+  await prisma.adminLog.deleteMany();
+  await prisma.ritual.deleteMany();
   await prisma.user.deleteMany();
   await prisma.cityDistance.deleteMany();
   await prisma.muhuratDate.deleteMany();
   console.log('✅ Cleanup complete.');
+
+  console.log('🌱 Seeding Rituals (Puja Types)...');
+  const rituals = [
+    { name: "Vivah", nameHindi: "विवाह", durationHours: 6.0, basePriceMin: 15000, basePriceMax: 35000 },
+    { name: "Griha Pravesh", nameHindi: "गृह प्रवेश", durationHours: 3.0, basePriceMin: 5000, basePriceMax: 12000 },
+    { name: "Satyanarayan Puja", nameHindi: "सत्यनारायण पूजा", durationHours: 2.0, basePriceMin: 2100, basePriceMax: 5100 },
+    { name: "Mundan", nameHindi: "मुंडन", durationHours: 2.0, basePriceMin: 3100, basePriceMax: 7500 },
+    { name: "Annaprashan", nameHindi: "अन्नप्राशन", durationHours: 2.0, basePriceMin: 2500, basePriceMax: 6000 },
+    { name: "Naamkaran", nameHindi: "नामकरण", durationHours: 2.0, basePriceMin: 2500, basePriceMax: 6000 },
+    { name: "Havan", nameHindi: "हवन", durationHours: 1.5, basePriceMin: 1500, basePriceMax: 4100 },
+    { name: "Ganesh Puja", nameHindi: "गणेश पूजा", durationHours: 1.0, basePriceMin: 1100, basePriceMax: 3100 },
+    { name: "Lakshmi Puja", nameHindi: "लक्ष्मी पूजा", durationHours: 1.5, basePriceMin: 2100, basePriceMax: 5100 },
+    { name: "Vastu Shanti", nameHindi: "वास्तु शांति", durationHours: 2.5, basePriceMin: 5100, basePriceMax: 11000 }
+  ];
+  for (const r of rituals) {
+    await prisma.ritual.create({ data: r });
+  }
 
   console.log('🌱 Seeding City Distances...');
   for (const [from, to, dist, hrs] of CITY_DISTANCES) {
@@ -178,6 +229,12 @@ async function main() {
             totalReviews: p.totalReviews || 0,
             travelPreferences: p.travelPreferences || {},
             pujaServices: { create: p.services || [] },
+            dakshinaRates: {
+              create: p.services?.map(s => ({
+                pujaType: s.pujaType,
+                amount: s.dakshinaAmount
+              })) || []
+            },
             samagriPackages: { create: p.packages || [] }
           }
         }
@@ -293,19 +350,19 @@ async function main() {
   console.log('✅ Seed completed successfully!');
   console.log(`
 📊 Seeded Data Summary:
-   • 1 Admin, 3 Customers, 4 Pandits (2 verified, 1 pending, 1 rejected)
+   • 1 Admin, 3 Customers, 5 Pandits (5 verified)
    • 6 Bookings (1 completed, 1 confirmed, 1 travel_booked, 1 requested, 1 cancelled, 1 created)
    • 16 City Distances (8 pairs, bidirectional)
    • 20 Muhurat Dates (Vivah, Griha Pravesh, Satyanarayan, Mundan)
    • 3 Favorite Pandits
    • 1 Review
    • 5 Notifications
-   • 3 Samagri Packages (for Pandit 1)
+   • 7 Samagri Packages (across all pandits)
    
 🔑 Test Login Phones:
    Admin:    9000000001
    Customer: 9000000002 / 9000000003 / 9000000004
-   Pandit:   9876543210 (verified) / 9876543211 (verified)
+   Pandit:   9876543210 (verified) / 9876543211 (verified) / 9876543212 (verified) / 9876543213 (verified) / 9876543214 (verified)
    OTP:      Any 6 digits (MOCK_OTP=true)
   `);
 }

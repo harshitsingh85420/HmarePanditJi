@@ -2,22 +2,29 @@ services:
   - type: web
     name: hmarepanditji-api
     runtime: node
+    region: singapore
     plan: free
-    buildCommand: cd services/api && npm install && npx prisma generate --schema=../../packages/db/prisma/schema.prisma && npm run build
-    startCommand: node services/api/dist/index.js
+    buildCommand: npm i -g pnpm@9 && pnpm install --frozen-lockfile && pnpm --filter db exec prisma generate && pnpm --filter api build
+    startCommand: pnpm --filter api start
     healthCheckPath: /health
     envVars:
-      - key: NODE_ENV
-        value: production
       - key: DATABASE_URL
-        sync: false # set manually in Render dashboard
+        sync: false
+      - key: REDIS_URL
+        sync: false
       - key: JWT_SECRET
         sync: false
-      - key: WEB_URL
+      - key: OTP_DEV_MODE
+        value: "true"
+      - key: DEEPGRAM_API_KEY
         sync: false
-      - key: PANDIT_URL
+      - key: SARVAM_API_KEY
         sync: false
-      - key: ADMIN_URL
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD_HASH
         sync: false
       - key: ALLOWED_ORIGINS
         sync: false
+      - key: NODE_VERSION
+        value: "20"
