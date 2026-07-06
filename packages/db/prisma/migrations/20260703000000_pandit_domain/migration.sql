@@ -5,10 +5,8 @@ CREATE TYPE "PackageTier" AS ENUM ('BASIC', 'STANDARD', 'PREMIUM');
 ALTER TYPE "VerificationStatus" ADD VALUE 'APPROVED';
 
 -- AlterEnum
-ALTER TYPE "BookingStatus" ADD VALUE 'REQUESTED';
-ALTER TYPE "BookingStatus" ADD VALUE 'ACCEPTED';
-ALTER TYPE "BookingStatus" ADD VALUE 'REJECTED';
-ALTER TYPE "BookingStatus" ADD VALUE 'IN_PROGRESS';
+-- BookingStatus enum values moved to 20260702230000_booking_status_enum_values
+-- (must commit before they can be used as a default in this transaction).
 
 -- AlterEnum
 ALTER TYPE "PayoutStatus" ADD VALUE 'PAID';
@@ -34,8 +32,7 @@ ADD COLUMN     "longitude" DOUBLE PRECISION,
 ADD COLUMN     "photoUrl" TEXT,
 ADD COLUMN     "teamSize" INTEGER NOT NULL DEFAULT 1,
 ADD COLUMN     "yearsExperience" INTEGER NOT NULL DEFAULT 0,
-ALTER COLUMN "city" SET NOT NULL,
-ALTER COLUMN "city" SET DEFAULT '';
+ADD COLUMN     "city" TEXT NOT NULL DEFAULT '';
 
 -- AlterTable
 ALTER TABLE "SamagriPackage" ADD COLUMN     "panditId" TEXT NOT NULL DEFAULT '',
