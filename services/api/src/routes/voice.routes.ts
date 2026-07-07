@@ -12,6 +12,9 @@ import { roleGuard } from "../middleware/roleGuard";
 import { validate } from "../middleware/validator";
 import { sendSuccess } from "../utils/response";
 import { getRegistrationVoicePrompt, textToSpeech, speechToText } from "../services/bhashini.service";
+import crypto from "crypto";
+import { env } from "../config/env";
+import { isStorageConfigured, objectExists, getObjectBuffer, putObject } from "../lib/storage";
 import { submitAadhaar, submitVideoKYC } from "../services/kyc.service";
 import { prisma } from "@hmarepanditji/db";
 import { logger } from "../utils/logger";
@@ -89,7 +92,36 @@ export default async function voiceRoutes(fastify: FastifyInstance, _opts: any) 
             const req = request as any;
             const res = reply;
             const { text, language } = req.body as z.infer<typeof ttsSchema>;
+
+            // R2-backed audio cache. Hash EVERY parameter that affects the
+            // audio: provider, serviceId (pipeline), fixed gender, language,
+            // and the normalized text. Long dynamic texts are not cached.
+            const normalizedText = text.trim();
+            const serviceId = env.BHASHINI_PIPELINE_ID || "ai4bharat/indic-tts-coqui-hindi";
+            const cacheable = isStorageConfigured() && normalizedText.length <= 500;
+            const cacheKey = "tts/" + crypto
+                .createHash("sha256")
+                .update(`bhashini|${serviceId}|female|${language}|${normalizedText}`)
+                .digest("hex") + ".mp3";
+
+            if (cacheable && (await objectExists(cacheKey))) {
+                const cached = await getObjectBuffer(cacheKey);
+                res.header("x-tts-cache", "hit");
+                sendSuccess(res, { audio: cached.toString("base64"), text, language }, "Text-to-speech generated");
+                return;
+            }
+
             const audio = await textToSpeech(text, language);
+
+            if (cacheable && audio) {
+                try {
+                    await putObject(cacheKey, Buffer.from(audio, "base64"), "audio/wav");
+                } catch (err) {
+                    fastify.log.error({ err }, "[tts-cache] put failed — responding without cache");
+                }
+            }
+
+            res.header("x-tts-cache", "miss");
             sendSuccess(res, { audio, text, language }, "Text-to-speech generated");
         } catch (err) {
             throw err;

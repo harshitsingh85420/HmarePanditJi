@@ -1,4 +1,5 @@
 "use client";
+import { usePresignedUrl } from "@/hooks/usePresignedUrl";
 import React, { useEffect, useState } from "react";
 import { format } from "date-fns";
 import { useParams, useRouter } from "next/navigation";
@@ -146,7 +147,7 @@ export default function PanditVerificationDetail() {
                                     >
                                         {url ? (
                                             <>
-                                                <img src={url} alt={`Document: ${docName}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                                                <PresignedDocImg keyOrUrl={url} alt={`Document: ${docName}`} />
                                                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
                                                     <span className="material-symbols-outlined text-white opacity-0 group-hover:opacity-100 drop-shadow-md text-3xl">zoom_in</span>
                                                 </div>
@@ -332,11 +333,7 @@ export default function PanditVerificationDetail() {
 
                     <div className={`flex-1 overflow-auto flex items-center justify-center gap-8 ${documentScale.compareUrl ? 'flex-row' : ''}`}>
                         <div className="flex-1 h-full flex items-center justify-center bg-black/40 rounded-3xl border border-white/10 overflow-hidden relative">
-                            <img
-                                src={documentScale.url}
-                                style={{ transform: `scale(${imgState.scale}) rotate(${imgState.rotation}deg)` }}
-                                className="max-w-full max-h-full object-contain transition-transform duration-200"
-                            />
+                            <PresignedZoomImg keyOrUrl={documentScale.url} scale={imgState.scale} rotation={imgState.rotation} />
                         </div>
                         {documentScale.compareUrl && (
                             <div className="flex-1 h-full flex items-center justify-center bg-black/40 rounded-3xl border border-white/10 overflow-hidden relative">
@@ -438,5 +435,26 @@ export default function PanditVerificationDetail() {
             )}
 
         </div>
+    );
+}
+
+function PresignedDocImg({ keyOrUrl, alt }: { keyOrUrl: string; alt: string }) {
+    const { url, refresh } = usePresignedUrl(keyOrUrl);
+    if (!url) return <div className="w-full h-full flex items-center justify-center text-slate-400 text-xs">Loading…</div>;
+    /* eslint-disable-next-line @next/next/no-img-element */
+    return <img src={url} alt={alt} className="w-full h-full object-cover group-hover:scale-105 transition-transform" onError={() => refresh()} />;
+}
+
+function PresignedZoomImg({ keyOrUrl, scale, rotation }: { keyOrUrl: string; scale: number; rotation: number }) {
+    const { url, refresh } = usePresignedUrl(keyOrUrl);
+    if (!url) return <span className="text-slate-400">Loading…</span>;
+    /* eslint-disable-next-line @next/next/no-img-element */
+    return (
+        <img
+            src={url}
+            style={{ transform: `scale(${scale}) rotate(${rotation}deg)` }}
+            className="max-w-full max-h-full object-contain transition-transform duration-200"
+            onError={() => refresh()}
+        />
     );
 }

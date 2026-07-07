@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { ADMIN_TOKEN_KEY } from "@hmarepanditji/utils";
+import { usePresignedUrl } from "@/hooks/usePresignedUrl";
 
 interface User {
   name: string;
@@ -184,13 +185,7 @@ export default function VerificationsPage() {
                       </td>
                       <td className="px-6 py-4">
                         {aadhaarUrl ? (
-                          <button 
-                            onClick={() => setSelectedAadhaar(aadhaarUrl)}
-                            className="w-12 h-12 border rounded hover:scale-105 transition-transform overflow-hidden relative"
-                          >
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src={aadhaarUrl} alt="Aadhaar doc" className="w-full h-full object-cover" />
-                          </button>
+                          <AadhaarThumb keyOrUrl={aadhaarUrl} onOpen={() => setSelectedAadhaar(aadhaarUrl)} />
                         ) : (
                           <span className="text-red-500 font-medium">Missing</span>
                         )}
@@ -243,7 +238,7 @@ export default function VerificationsPage() {
             </button>
             <div className="p-2 flex items-center justify-center max-h-[80vh] overflow-auto bg-slate-100">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={selectedAadhaar} alt="Full Aadhaar" className="max-w-full max-h-[75vh] object-contain rounded" />
+              <PresignedFullImage keyOrUrl={selectedAadhaar} />
             </div>
           </div>
         </div>
@@ -304,5 +299,25 @@ export default function VerificationsPage() {
         </div>
       )}
     </div>
+  );
+}
+
+function AadhaarThumb({ keyOrUrl, onOpen }: { keyOrUrl: string; onOpen: () => void }) {
+  const { url, refresh } = usePresignedUrl(keyOrUrl);
+  if (!url) return <span className="text-slate-400 text-xs">…</span>;
+  return (
+    <button onClick={onOpen} className="w-12 h-12 border rounded hover:scale-105 transition-transform overflow-hidden relative">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={url} alt="Aadhaar doc" className="w-full h-full object-cover" onError={() => refresh()} />
+    </button>
+  );
+}
+
+function PresignedFullImage({ keyOrUrl }: { keyOrUrl: string }) {
+  const { url, refresh } = usePresignedUrl(keyOrUrl);
+  if (!url) return <span className="text-slate-400">Loading…</span>;
+  return (
+    /* eslint-disable-next-line @next/next/no-img-element */
+    <img src={url} alt="Full Aadhaar" className="max-w-full max-h-[75vh] object-contain rounded" onError={() => refresh()} />
   );
 }

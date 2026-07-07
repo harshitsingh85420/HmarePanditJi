@@ -30,6 +30,7 @@ import onboardingRoutes from "./routes/onboarding.routes";
 import uploadRoutes from "./routes/upload.routes";
 import aiRoutes from "./routes/ai.routes";
 import { submitOnboarding } from "./controllers/onboarding.controller";
+import { presignFile } from "./controllers/upload.controller";
 import { authenticate } from "./middleware/auth";
 import { roleGuard } from "./middleware/roleGuard";
 import {
@@ -285,6 +286,7 @@ app.register(voiceRoutes, { prefix: `${API_PREFIX}/voice` });
 app.register(kycRoutes, { prefix: `${API_PREFIX}/admin/kyc` });
 app.register(onboardingRoutes, { prefix: `${API_PREFIX}/pandits/onboarding` });
 app.register(uploadRoutes, { prefix: `${API_PREFIX}/upload` });
+app.get(`${API_PREFIX}/files/presign`, { preHandler: [authenticate] }, presignFile);
 app.register(aiRoutes, { prefix: `${API_PREFIX}/ai` });
 
 // Serve uploaded files statically (replaces express.static)

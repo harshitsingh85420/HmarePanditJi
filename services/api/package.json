@@ -7,9 +7,11 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "lint": "eslint src/",
-    "test": "tsx src/lib/earnings.test.ts && tsx src/lib/milestones.test.ts"
+    "test": "tsx src/lib/earnings.test.ts && tsx src/lib/milestones.test.ts && tsx src/lib/storage-keys.test.ts"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1080.0",
+    "@aws-sdk/s3-request-presigner": "^3.1080.0",
     "@fastify/auth": "^4.6.0",
     "@fastify/cookie": "^9.3.0",
     "@fastify/cors": "^9.0.0",

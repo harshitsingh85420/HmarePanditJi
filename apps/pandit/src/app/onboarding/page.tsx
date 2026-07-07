@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/Button";
 import { SpeakOnMount } from "@/components/VoiceBar";
 import { useVoice } from "@/hooks/useVoice";
 import { VoiceField } from "@/components/voice/VoiceField";
+import { usePresignedUrl } from "@/hooks/usePresignedUrl";
 
 interface DraftState {
   step: number;
@@ -251,8 +252,8 @@ export default function OnboardingPage() {
       const json = await res.json();
       setUploading(false);
 
-      if (json.success && json.data?.url) {
-        updateDraft({ aadhaarUrl: json.data.url });
+      if (json.success && (json.data?.key || json.data?.url)) {
+        updateDraft({ aadhaarUrl: json.data.key || json.data.url });
       } else {
         setErrorMsg(json.error?.message || hi.common.error);
         speak(hi.common.error);
@@ -563,16 +564,7 @@ export default function OnboardingPage() {
                 )}
               </label>
 
-              {draft.aadhaarUrl && (
-                <div className="mt-2 border-2 border-saffron-100 rounded-card overflow-hidden bg-white max-w-[200px] mx-auto shadow-sm">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={draft.aadhaarUrl}
-                    alt="Aadhaar Thumbnail"
-                    className="w-full h-[120px] object-cover"
-                  />
-                </div>
-              )}
+              {draft.aadhaarUrl && <AadhaarPreview keyOrUrl={draft.aadhaarUrl} />}
             </div>
           )}
 
@@ -720,6 +712,22 @@ export default function OnboardingPage() {
           {submitting ? hi.common.loading : hi.common.next}
         </button>
       </footer>
+    </div>
+  );
+}
+
+function AadhaarPreview({ keyOrUrl }: { keyOrUrl: string }) {
+  const { url, refresh } = usePresignedUrl(keyOrUrl);
+  if (!url) return null;
+  return (
+    <div className="mt-2 border-2 border-saffron-100 rounded-card overflow-hidden bg-white max-w-[200px] mx-auto shadow-sm">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={url}
+        alt="Aadhaar Thumbnail"
+        className="w-full h-[120px] object-cover"
+        onError={() => refresh()}
+      />
     </div>
   );
 }
