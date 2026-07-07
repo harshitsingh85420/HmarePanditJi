@@ -72,20 +72,16 @@ export function middleware(request: NextRequest) {
     'Content-Security-Policy',
     [
       "default-src 'self'",
-      // TODO: Remove 'unsafe-inline' from script-src once all inline scripts are migrated
-      // to external files or use nonce-based CSP. Currently kept for Next.js runtime
-      // hydration scripts and third-party widget inline scripts (e.g., analytics).
-      // 'strict-dynamic' already prevents most inline script execution, but 'unsafe-inline'
-      // is kept as a fallback during transition.
-      "script-src 'self' 'strict-dynamic' https://*.sentry.io https://*.vercel.app https://*.google-analytics.com https://*.analytics.google.com",
-      // TODO: Remove 'unsafe-inline' from style-src once Google Fonts stylesheet
-      // is self-hosted via next/font (which is already done for Hindi fonts).
-      // The Google Fonts link in layout.tsx can be removed once font loading is
-      // fully handled by Next.js font optimization, making this directive unnecessary.
-      "style-src 'self' https://fonts.googleapis.com",
+      // TODO: Move to nonce-based CSP. 'strict-dynamic' was declared here without
+      // implementing nonces, which blocked ALL Next.js hydration scripts in
+      // production. 'unsafe-inline'/'unsafe-eval' keep the app working until
+      // nonces are wired through.
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.sentry.io https://*.vercel.app https://*.google-analytics.com https://*.analytics.google.com",
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "img-src 'self' data: https: blob:",
       "font-src 'self' https://fonts.gstatic.com",
-      "connect-src 'self' https://*.sentry.io https://*.vercel.app https://*.google-analytics.com https://*.analytics.google.com https://api.hmarepanditji.com",
+      "connect-src 'self' https://*.sentry.io https://*.vercel.app https://*.google-analytics.com https://*.analytics.google.com https://api.hmarepanditji.com https://hmarepanditji.onrender.com https://api.deepgram.com wss://api.deepgram.com",
+      "media-src 'self' blob: data:",
       "frame-ancestors 'none'",
     ].join('; ')
   )
