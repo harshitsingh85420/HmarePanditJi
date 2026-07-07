@@ -90,9 +90,9 @@ export default function ResumeRegistrationScreen() {
   const handleContinue = () => {
     // BUG-025 FIX: Route to the NEXT incomplete step (no permissions in flow)
     const routes: Record<string, string> = {
-      mobile: '/mobile',
-      otp: '/otp',
-      profile: '/profile',
+      mobile: '/login',
+      otp: '/login',
+      profile: '/onboarding',
     }
     const route = routes[nextStep ?? 'mobile']
     router.push(route)

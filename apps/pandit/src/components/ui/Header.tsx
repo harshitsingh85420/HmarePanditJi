@@ -27,8 +27,9 @@ export function Header({ title, showBack = false, onBack, rightSlot, className }
         className
       )}
     >
-      {/* Left Back Button Slot */}
-      <div className="w-14 flex items-center justify-start flex-shrink-0">
+      {/* Left Back Button Slot — collapses when there is no back button so the
+          title gets the space instead of ellipsizing */}
+      <div className={showBack ? "w-14 flex items-center justify-start flex-shrink-0" : "hidden"}>
         {showBack && (
           <button
             onClick={onBack}
@@ -45,8 +46,9 @@ export function Header({ title, showBack = false, onBack, rightSlot, className }
         {title}
       </h1>
 
-      {/* Right Voice Toggle Slot */}
-      <div className="w-14 flex items-center justify-end flex-shrink-0">
+      {/* Right Voice Toggle Slot — min-width keeps the title centered for the
+          default single button, but the slot may grow (e.g. home passes two) */}
+      <div className="min-w-14 flex items-center justify-end flex-shrink-0">
         {rightSlot !== undefined ? (
           rightSlot
         ) : (

@@ -5,6 +5,8 @@ export const dynamic = 'force-dynamic'
 
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
+import { hi } from '@/lib/strings'
+import { SpeakOnMount } from '@/components/VoiceBar'
 
 export default function Homepage() {
   const router = useRouter()
@@ -16,6 +18,7 @@ export default function Homepage() {
 
       {/* Main Content */}
       <div className="min-h-screen flex flex-col px-6 pb-12 pt-4">
+        <SpeakOnMount text={hi.welcomeFlow.homepage} />
 
         {/* Top Bar */}
         <nav className="flex justify-between items-center w-full mb-10">
@@ -93,7 +96,7 @@ export default function Homepage() {
 
             {/* Primary Saffron Button */}
             <button
-              onClick={() => router.push('/mobile')}
+              onClick={() => router.push('/login')}
               className="w-full h-14 bg-gradient-to-b from-primary-container to-tertiary-container text-white font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 px-6 active:scale-95 transition-transform"
             >
               Pandit Ke Roop Mein Judein 🪔

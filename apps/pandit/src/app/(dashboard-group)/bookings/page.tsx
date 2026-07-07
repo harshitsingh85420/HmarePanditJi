@@ -11,6 +11,8 @@ import { Card } from "@/components/ui/Card";
 import { Header } from "@/components/ui/Header";
 import { BottomNav } from "@/components/ui/BottomNav";
 import { DiyaLoader } from "@/components/moments/DiyaLoader";
+import { SpeakOnMount } from "@/components/VoiceBar";
+import { VoiceActionListener } from "@/components/voice/VoiceActionListener";
 
 interface BookingItem {
   id: string;
@@ -99,6 +101,15 @@ export default function BookingsPage() {
   return (
     <div className="min-h-screen bg-cream text-ink pb-28">
       <Header title={hi.home.todayBookings} showBack={false} />
+      <SpeakOnMount text={hi.bookingsList.intro} />
+      <VoiceActionListener
+        commands={[
+          { keywords: ["नई", "नयी", "new"], action: () => setActiveTab("NEW") },
+          { keywords: ["आने वाली", "aane wali", "upcoming"], action: () => setActiveTab("UPCOMING") },
+          { keywords: ["पूरी", "पुरानी", "completed"], action: () => setActiveTab("COMPLETED") },
+          { keywords: ["होम", "home"], action: () => router.push("/home") },
+        ]}
+      />
 
       {/* Tabs bar */}
       <div className="flex bg-white border-b border-saffron-100 sticky top-[56px] z-20">

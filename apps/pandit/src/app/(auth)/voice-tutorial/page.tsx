@@ -138,7 +138,7 @@ export default function VoiceTutorialPage() {
       <footer className="px-4 xs:px-6 pb-6 xs:pb-8 pt-3 xs:pt-4 bg-surface-base/90 backdrop-blur-sm border-t border-border-default">
         <motion.button
           whileTap={{ scale: 0.97 }}
-          onClick={() => router.push('/mobile')}
+          onClick={() => router.push('/login')}
           className="w-full bg-saffron text-white py-3 xs:py-4 min-h-[52px] xs:min-h-[56px] sm:min-h-[72px] rounded-2xl text-lg xs:text-xl sm:text-[22px] font-bold active:scale-[0.98] transition-transform shadow-btn-saffron focus:ring-2 focus:ring-primary focus:outline-none"
         >
           समझ गया, आगे बढ़ें →

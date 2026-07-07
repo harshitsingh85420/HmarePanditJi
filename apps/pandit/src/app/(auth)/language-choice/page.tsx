@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { speakWithSarvam, stopCurrentSpeech } from '@/lib/sarvam-tts'
 import { useSafeOnboardingStore } from '@/lib/stores/ssr-safe-stores'
+import { VoiceActionListener } from '@/components/voice/VoiceActionListener'
 
 export default function LanguageChoicePage() {
   const router = useRouter()
@@ -30,6 +31,13 @@ export default function LanguageChoicePage() {
 
   return (
     <main className="w-full min-h-dvh max-w-[390px] xs:max-w-[430px] mx-auto bg-surface-base flex flex-col">
+      {/* Speaking a language name selects it — the two options this screen offers */}
+      <VoiceActionListener
+        commands={[
+          { keywords: ['हिंदी', 'हिन्दी', 'hindi', 'हाँ', 'haan'], action: () => handleSelect('Hindi') },
+          { keywords: ['english', 'अंग्रेज़ी', 'अंग्रेजी', 'इंग्लिश', 'दूसरी', 'बदलें'], action: () => router.push('/language-list') },
+        ]}
+      />
       {/* Top Bar */}
       <div className="min-h-[52px] xs:min-h-[56px] sm:min-h-[72px] px-4 xs:px-6 flex items-center justify-between border-b border-border-default">
         <div className="flex items-center gap-2">

@@ -197,7 +197,10 @@ export default function HomePage() {
     return <DiyaLoader />;
   }
 
-  const firstName = profile?.name ? profile.name.split(" ")[0] : "पंडित";
+  // Greeting name: skip honorific prefixes like "Pt." / "पं." so the header
+  // reads "नमस्ते, Ramesh जी" rather than "नमस्ते, Pt. जी"
+  const nameParts: string[] = (profile?.name || "").split(" ").filter((w: string) => !/^(pt\.?|पं\.?|pandit|पंडित)$/i.test(w));
+  const firstName = nameParts[0] || "पंडित";
   const isPending = profile?.panditProfile?.verificationStatus === "PENDING";
   const isApproved =
     profile?.panditProfile?.verificationStatus === "APPROVED" ||
@@ -239,17 +242,17 @@ export default function HomePage() {
   const HomeHeaderRightSlot = () => {
     const { enabled, toggle } = useVoice();
     return (
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5">
         <button
           onClick={() => router.push("/settings")}
-          className="w-14 h-14 min-h-[56px] min-w-[56px] rounded-full bg-white shadow-card hover:bg-saffron-50 active:scale-90 flex items-center justify-center text-[20px] transition-all focus:outline-none focus:ring-2 focus:ring-saffron-200"
+          className="w-11 h-11 min-h-[44px] min-w-[44px] rounded-full bg-white shadow-card hover:bg-saffron-50 active:scale-90 flex items-center justify-center text-[18px] transition-all focus:outline-none focus:ring-2 focus:ring-saffron-200"
           aria-label="Settings"
         >
           ⚙️
         </button>
         <button
           onClick={toggle}
-          className="w-14 h-14 min-h-[56px] min-w-[56px] rounded-full bg-white shadow-card hover:bg-saffron-50 active:scale-90 flex items-center justify-center text-[20px] transition-all focus:outline-none focus:ring-2 focus:ring-saffron-200"
+          className="w-11 h-11 min-h-[44px] min-w-[44px] rounded-full bg-white shadow-card hover:bg-saffron-50 active:scale-90 flex items-center justify-center text-[18px] transition-all focus:outline-none focus:ring-2 focus:ring-saffron-200"
           aria-label={enabled ? "Mute Voice" : "Unmute Voice"}
         >
           {enabled ? "🔊" : "🔇"}
@@ -259,10 +262,10 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-cream text-ink pb-28">
+    <div className="min-h-screen bg-cream text-ink pb-44">
       {/* HEADER */}
       <Header
-        title={`🙏 नमस्ते, ${firstName} जी`}
+        title={`नमस्ते, ${firstName} जी`}
         showBack={false}
         rightSlot={<HomeHeaderRightSlot />}
       />

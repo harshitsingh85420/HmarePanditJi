@@ -4,6 +4,7 @@
 export const dynamic = 'force-dynamic'
 
 import { useEffect, useRef, useState } from 'react'
+import { VoiceField } from '@/components/voice/VoiceField'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { speakWithSarvam, stopCurrentSpeech } from '@/lib/sarvam-tts'
@@ -13,12 +14,23 @@ import { CITY_LANGUAGE_MAP } from '@/lib/onboarding-store'
 
 const POPULAR_CITIES = ['Varanasi', 'Delhi', 'Lucknow', 'Patna', 'Haridwar', 'Rishikesh', 'Prayagraj', 'Ayodhya', 'Mathura', 'Vrindavan', 'Jaipur', 'Ujjain']
 
+// Spoken keywords for the NCR pilot cities; anything else falls through as free text
+const CITY_CHOICES = [
+  { label: 'दिल्ली (Delhi)', value: 'Delhi', keywords: ['दिल्ली', 'delhi', 'dilli'] },
+  { label: 'नोएडा (Noida)', value: 'Noida', keywords: ['नोएडा', 'noida'] },
+  { label: 'गुरुग्राम (Gurugram)', value: 'Gurugram', keywords: ['गुरुग्राम', 'गुड़गांव', 'gurugram', 'gurgaon'] },
+  { label: 'गाज़ियाबाद (Ghaziabad)', value: 'Ghaziabad', keywords: ['गाज़ियाबाद', 'गाजियाबाद', 'ghaziabad'] },
+  { label: 'फ़रीदाबाद (Faridabad)', value: 'Faridabad', keywords: ['फरीदाबाद', 'फ़रीदाबाद', 'faridabad'] },
+]
+
 export default function ManualCityScreen() {
   const router = useRouter()
 
   // SSR FIX: Use safe store hook that doesn't throw during SSR
   const { setPhase, setDetectedCity, setSelectedLanguage } = useSafeOnboardingStore()
   const [searchQuery, setSearchQuery] = useState('')
+  const searchQueryRef = useRef('')
+  useEffect(() => { searchQueryRef.current = searchQuery }, [searchQuery])
   const [selectedCity, setSelectedCity] = useState<string | null>(null)
   const [isConfirming, setIsConfirming] = useState(false)
   const hasSpokenRef = useRef(false)
@@ -86,34 +98,23 @@ export default function ManualCityScreen() {
         {/* Title */}
         <div className="text-center space-y-1 xs:space-y-2"><motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-xl xs:text-2xl sm:text-[28px] font-body text-saffron font-bold">कोई बात नहीं।</motion.p><motion.h1 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-3xl xs:text-4xl sm:text-[40px] font-body font-bold leading-tight text-text-primary">अपना शहर बताइए</motion.h1></div>
 
-        {/* Voice Input */}
-        <motion.div whileTap={{ scale: 0.98 }} className="relative bg-saffron-lt border-3 border-saffron rounded-2xl p-4 xs:p-6 flex items-center gap-3 xs:gap-5 cursor-pointer overflow-hidden shadow-card active:scale-95 transition-transform min-h-[52px] xs:min-h-[56px] sm:min-h-[120px]">
-          <div className="relative flex items-center justify-center w-16 h-16 xs:w-[68px] sm:w-20 sm:h-20 shrink-0">
-            <div className="relative bg-saffron rounded-full p-3 xs:p-4 z-10">
-              <svg className="w-8 h-8 xs:w-9 xs:h-9 sm:w-10 sm:h-10" fill="none" stroke="white" strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" viewBox="0 0 24 24">
-                <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
-                <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-                <line x1="12" x2="12" y1="19" y2="22"></line>
-              </svg>
-            </div>
-          </div>
-          <div className="flex flex-col min-w-0">
-            <span className="text-xl xs:text-2xl sm:text-[30px] font-body font-bold text-text-primary truncate">अपना शहर बोलें</span>
-            <span className="text-base xs:text-lg sm:text-[24px] font-body text-saffron font-medium">जैसे: 'वाराणसी' या 'दिल्ली'</span>
-          </div>
-        </motion.div>
+        {/* Voice-first city input (spoken choice with free-text + keyboard fallback) */}
+        <VoiceField
+          label="अपना शहर बताइए"
+          promptText="अपना शहर बोलें। जैसे: दिल्ली, नोएडा, या वाराणसी।"
+          value={searchQuery}
+          onChange={setSearchQuery}
+          mode="choice"
+          choices={CITY_CHOICES}
+          onComplete={() => {
+            const v = searchQueryRef.current.trim()
+            if (v.length > 1) handleSelect(v)
+          }}
+          placeholder="अपना शहर लिखें..."
+        />
 
         {/* Divider */}
         <div className="flex items-center gap-3 xs:gap-4 text-base xs:text-lg sm:text-[24px] font-body font-bold text-saffron/60"><div className="h-0.5 xs:h-[3px] flex-grow bg-surface-dim"></div><span>या नीचे से चुनें</span><div className="h-0.5 xs:h-[3px] flex-grow bg-surface-dim"></div></div>
-
-        {/* Search */}
-        <div className="relative bg-surface-card border-3 border-border-default rounded-2xl px-4 xs:px-6 py-4 xs:py-5 flex items-center gap-3 xs:gap-4 shadow-card min-h-[52px] xs:min-h-[56px] sm:min-h-[96px]">
-          <svg className="w-8 h-8 xs:w-9 xs:h-9 sm:w-10 sm:h-10" fill="none" stroke="#FF8C00" strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" viewBox="0 0 24 24">
-            <circle cx="11" cy="11" r="8"></circle>
-            <path d="m21 21-4.3-4.3"></path>
-          </svg>
-          <input type="text" className="text-xl xs:text-2xl sm:text-[30px] font-body text-text-primary bg-transparent outline-none w-full placeholder-text-placeholder font-bold" placeholder="अपना शहर लिखें..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && searchQuery.trim().length > 1) handleSelect(searchQuery.trim()); }} />
-        </div>
 
         {/* Cities */}
         <div className="space-y-3 xs:space-y-4"><h2 className="text-xl xs:text-2xl sm:text-[28px] font-body font-bold text-text-secondary">लोकप्रिय शहर</h2><div className="flex gap-3 xs:gap-4 overflow-x-auto no-scrollbar pb-2">{filteredCities.map((city, cIdx) => (<motion.button key={city} initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.05 * cIdx }} onClick={() => handleSelect(city)} className="whitespace-nowrap px-8 xs:px-10 py-4 xs:py-5 min-h-[52px] xs:min-h-[56px] sm:min-h-[88px] bg-surface-card border-3 border-saffron text-text-primary rounded-2xl font-body font-bold text-xl xs:text-2xl sm:text-[28px] active:bg-saffron-light shrink-0 focus:ring-4 focus:ring-saffron focus:outline-none hover:border-saffron/60 shadow-card">{city}</motion.button>))}</div></div>

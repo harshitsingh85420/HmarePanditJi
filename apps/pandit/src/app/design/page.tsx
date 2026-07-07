@@ -301,6 +301,52 @@ export default function DesignSystemPage() {
         />
       )}
 
+
+      {/* ── VOICE COVERAGE (dev checklist) ─────────────────────────────
+          Product law: every reachable screen interacts by voice unless the
+          pandit turns it off. This table is the manual audit of that law. */}
+      <section className="mt-12 p-4 bg-white rounded-card border border-saffron-100">
+        <h2 className="t-title font-bold mb-3">🔊 Voice coverage</h2>
+        <table className="w-full text-[13px] text-left">
+          <thead><tr><th className="pr-2">Route</th><th className="pr-2">Narration source</th><th>Voice input</th></tr></thead>
+          <tbody>
+            {[
+              ["/welcome", "speakWithSarvam (mount)", "—"],
+              ["/homepage", "hi.welcomeFlow.homepage (SpeakOnMount)", "—"],
+              ["/identity", "speakWithSarvam (mount)", "Deepgram STT"],
+              ["/language-choice", "speakWithSarvam (mount)", "VoiceActionListener (language names)"],
+              ["/language-list", "voice-scripts LANGUAGE_LIST_SCREEN + own-name-in-own-language on tap", "tap"],
+              ["/language-confirm", "speakWithSarvam (mount)", "tap"],
+              ["/language-set", "speakWithSarvam (mount)", "—"],
+              ["/location-permission", "voice-scripts LOCATION_PERMISSION_SCREEN", "tap"],
+              ["/manual-city", "voice-scripts MANUAL_CITY_SCREEN", "VoiceField choice (NCR cities + free text)"],
+              ["/help", "speakWithSarvam (mount)", "—"],
+              ["/voice-tutorial", "speakWithSarvam (mount + demo)", "mic demo"],
+              ["/emergency", "speakWithSarvam (mount)", "—"],
+              ["/emergency-sos", "speakWithSarvam (EmergencySOS)", "—"],
+              ["/login", "VoiceField prompts (phone, OTP)", "VoiceField phone + otp"],
+              ["/onboarding", "per-step voices (hi.onboarding.*)", "VoiceField all steps"],
+              ["/home", "VoiceActionListener narration", "online/offline commands"],
+              ["/bookings", "hi.bookingsList.intro (SpeakOnMount)", "VoiceActionListener (tabs + home)"],
+              ["/bookings/[id]", "SpeakOnMount (details)", "—"],
+              ["/bookings/[id]/request", "SpeakOnMount (earnings breakdown)", "accept/reject buttons"],
+              ["/earnings", "hi.earnings.introVoice", "—"],
+              ["/calendar", "hi.calendar.blockVoice", "tap"],
+              ["/samagri", "SpeakOnMount", "—"],
+              ["/settings", "hi.settingsScreen.intro + voiceOn/voiceOff on toggle", "narration only (by design)"],
+              ["/resume", "speakWithSarvam (mount)", "—"],
+              ["/(registration)/*", "redirects to /login | /onboarding", "n/a"],
+            ].map(([route, narration, input]) => (
+              <tr key={route} className="border-t border-saffron-50">
+                <td className="pr-2 py-1 font-mono">{route}</td>
+                <td className="pr-2 py-1">{narration}</td>
+                <td className="py-1">{input}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+
       {/* Toast message display */}
       <Toast
         message={hiDesign.toastMsg}

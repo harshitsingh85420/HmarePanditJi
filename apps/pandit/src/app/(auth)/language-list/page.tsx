@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic'
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { speakWithSarvam, stopCurrentSpeech } from '@/lib/sarvam-tts'
+import { speakWithSarvam, stopCurrentSpeech, LANGUAGE_TO_SARVAM_CODE } from '@/lib/sarvam-tts'
 import { useSafeOnboardingStore } from '@/lib/stores/ssr-safe-stores'
 import { LANGUAGE_LIST_SCREEN } from '@/lib/voice-scripts'
 import { replaceScriptPlaceholders } from '@/lib/voice-scripts'
@@ -48,12 +48,28 @@ export default function LanguageListScreen() {
       { LANGUAGE: lang }
     )
 
-    void speakWithSarvam({
-      text: detectedScript.hindi,
-      languageCode: 'hi-IN',
-      pace: 0.90,
-    })
-    setTimeout(() => router.push('/language-confirm'), 500)
+    // Product law: a tapped language first speaks its own name in its own
+    // language, THEN the Hindi confirmation — chained so neither cuts the
+    // other off.
+    const speakConfirmation = () => {
+      void speakWithSarvam({
+        text: detectedScript.hindi,
+        languageCode: 'hi-IN',
+        pace: 0.90,
+      })
+      setTimeout(() => router.push('/language-confirm'), 500)
+    }
+
+    const display = LANGUAGE_DISPLAY[lang]
+    if (display) {
+      void speakWithSarvam({
+        text: display.nativeName,
+        languageCode: LANGUAGE_TO_SARVAM_CODE[lang] || 'hi-IN',
+        onEnd: speakConfirmation,
+      })
+    } else {
+      speakConfirmation()
+    }
   }
 
   const filteredLanguages = ALL_LANGUAGES.filter(lang => {

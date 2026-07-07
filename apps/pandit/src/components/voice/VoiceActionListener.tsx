@@ -218,7 +218,7 @@ export function VoiceActionListener({
 
   // Render floating microphone button
   return (
-    <div className="fixed bottom-24 right-4 z-40 flex flex-col items-end gap-3 pointer-events-none">
+    <div className="fixed bottom-[76px] right-3 z-40 flex flex-col items-end gap-3 pointer-events-none">
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes pulse-ring {
           0% {

@@ -100,7 +100,7 @@ export function LanguageChangeWidget({ currentLanguage, onLanguageChange }: Lang
         animate={{ scale: 1 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed top-4 right-4 z-30 min-h-[44px] bg-surface-card rounded-full shadow-card flex items-center gap-2 border border-saffron/30 px-4 py-2 focus:ring-2 focus:ring-saffron focus:outline-none"
+        className="fixed top-20 right-4 z-20 min-h-[44px] bg-surface-card rounded-full shadow-card flex items-center gap-2 border border-saffron/30 px-4 py-2 focus:ring-2 focus:ring-saffron focus:outline-none"
         aria-label="भाषा बदलें / Change Language"
       >
         <span className="text-lg">{currentLang?.flag}</span>

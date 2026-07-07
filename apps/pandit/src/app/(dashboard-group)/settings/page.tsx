@@ -6,9 +6,12 @@ import { hi } from "@/lib/strings";
 import { Header } from "@/components/ui/Header";
 import { Card } from "@/components/ui/Card";
 import { BottomNav } from "@/components/ui/BottomNav";
+import { SpeakOnMount } from "@/components/VoiceBar";
+import { useVoice } from "@/hooks/useVoice";
 
 export default function SettingsPage() {
   const router = useRouter();
+  const { speak } = useVoice();
   const [voiceInputEnabled, setVoiceInputEnabled] = useState(true);
 
   useEffect(() => {
@@ -22,6 +25,9 @@ export default function SettingsPage() {
     const nextVal = !voiceInputEnabled;
     setVoiceInputEnabled(nextVal);
     localStorage.setItem("voice_input_enabled", String(nextVal));
+    // One clear spoken acknowledgement either way — when turning voice off,
+    // this is deliberately the LAST thing the app says.
+    speak(nextVal ? hi.settingsScreen.voiceOn : hi.settingsScreen.voiceOff);
   };
 
   return (
@@ -33,6 +39,7 @@ export default function SettingsPage() {
       />
 
       <main className="max-w-[430px] mx-auto px-4 pt-6 flex flex-col gap-6">
+        <SpeakOnMount text={hi.settingsScreen.intro} />
         <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-4">
           <div className="flex items-center justify-between min-h-[56px] py-2 gap-4">
             <div className="flex flex-col gap-1 flex-grow">
