@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { HINDI_TO_ENGLISH_CITIES } from '@/lib/cities';
+import { startListening } from '@/lib/voice-engine';
 
 interface ManualCityScreenProps {
   onCitySelected: (city: string) => void;
@@ -23,13 +24,28 @@ export default function ManualCityScreen({ onCitySelected, onBack, onLanguageCha
   const handleMicTap = () => {
     setVoiceError('');
     setIsListening(true);
-    // Simulate voice listening - in production this will use Web Speech API or Sarvam STT
-    setTimeout(() => {
-      setIsListening(false);
-      const cities = Object.keys(HINDI_TO_ENGLISH_CITIES);
-      const random = cities[Math.floor(Math.random() * cities.length)];
-      setCityInput(random);
-    }, 2000);
+    // Real browser STT (migrated from the retired (auth)/manual-city page —
+    // the old handler here only simulated listening with a random city)
+    startListening({
+      language: 'hi-IN',
+      onResult: ({ transcript }) => {
+        setIsListening(false);
+        const heard = transcript.trim();
+        if (!heard) {
+          setVoiceError('समझ नहीं आया, दोबारा बोलें');
+          return;
+        }
+        // Prefer a known city match; otherwise keep the free text
+        const known = Object.keys(HINDI_TO_ENGLISH_CITIES).find(
+          (c) => heard.includes(c) || c.includes(heard),
+        );
+        setCityInput(known || heard);
+      },
+      onError: () => {
+        setIsListening(false);
+        setVoiceError('समझ नहीं आया, दोबारा बोलें या नीचे लिखें');
+      },
+    });
   };
 
   const handleVoicePromptOpen = () => {

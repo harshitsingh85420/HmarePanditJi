@@ -210,9 +210,6 @@ export function getSectionFromPath(pathname: string): AppSection {
   if (pathname.includes('/identity')) {
     return 'identity-confirmation'
   }
-  if (pathname.includes('/welcome')) {
-    return 'welcome'
-  }
   if (pathname.includes('/dashboard')) {
     return 'dashboard'
   }

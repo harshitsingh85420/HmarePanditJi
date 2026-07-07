@@ -4,7 +4,7 @@ export const ROUTES = {
   IDENTITY: '/identity',
   REFERRAL: '/referral',
   LANGUAGE: '/language',
-  WELCOME: '/welcome',
+  WELCOME: '/onboarding', // /welcome page retired — canonical flow starts at onboarding
   MIC_PERMISSION: '/permissions/mic',
   MIC_DENIED: '/permissions/mic-denied',
   LOCATION_PERMISSION: '/permissions/location',

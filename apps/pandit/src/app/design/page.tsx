@@ -348,17 +348,10 @@ export default function DesignSystemPage() {
           <thead><tr><th className="pr-2">Route</th><th className="pr-2">Narration source</th><th>Voice input</th></tr></thead>
           <tbody>
             {[
-              ["/welcome", "speakWithSarvam (mount)", "—"],
               ["/homepage", "hi.welcomeFlow.homepage (SpeakOnMount)", "—"],
               ["/identity", "speakWithSarvam (mount)", "Deepgram STT"],
-              ["/language-choice", "speakWithSarvam (mount)", "VoiceActionListener (language names)"],
-              ["/language-list", "voice-scripts LANGUAGE_LIST_SCREEN + own-name-in-own-language on tap", "tap"],
-              ["/language-confirm", "speakWithSarvam (mount)", "tap"],
-              ["/language-set", "speakWithSarvam (mount)", "—"],
-              ["/location-permission", "voice-scripts LOCATION_PERMISSION_SCREEN", "tap"],
-              ["/manual-city", "voice-scripts MANUAL_CITY_SCREEN", "VoiceField choice (NCR cities + free text)"],
+              ["onboarding/screens/* (language, city, permissions)", "voice-scripts + own-name-in-own-language on tap", "real STT mic (migrated)"],
               ["/help", "speakWithSarvam (mount)", "—"],
-              ["/voice-tutorial", "speakWithSarvam (mount + demo)", "mic demo"],
               ["/emergency", "speakWithSarvam (mount)", "—"],
               ["/emergency-sos", "speakWithSarvam (EmergencySOS)", "—"],
               ["/login", "VoiceField prompts (phone, OTP)", "VoiceField phone + otp"],

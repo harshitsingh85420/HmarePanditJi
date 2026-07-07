@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import TopBar from '@/components/ui/TopBar';
 import { ALL_LANGUAGES, LANGUAGE_DISPLAY, type SupportedLanguage, type ScriptPreference } from '@/lib/onboarding-store';
-import { speakWithSarvam, stopCurrentSpeech } from '@/lib/sarvam-tts';
+import { speakWithSarvam, stopCurrentSpeech, LANGUAGE_TO_SARVAM_CODE } from '@/lib/sarvam-tts';
 import { useSarvamVoiceFlow } from '@/lib/hooks/useSarvamVoiceFlow';
 
 interface LanguageListScreenProps {
@@ -218,7 +218,19 @@ export default function LanguageListScreen({ language, scriptPreference = null, 
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.04 * idx }}
-                onClick={() => onSelect(lang)}
+                onClick={() => {
+                  // Product law: a tapped language speaks its own name in its
+                  // own language before the flow moves on (migrated from the
+                  // retired (auth)/language-list page).
+                  const d = LANGUAGE_DISPLAY[lang];
+                  if (d) {
+                    void speakWithSarvam({
+                      text: d.nativeName,
+                      languageCode: LANGUAGE_TO_SARVAM_CODE[lang] || 'hi-IN',
+                    });
+                  }
+                  onSelect(lang);
+                }}
                 className={`relative flex flex-col items-center justify-center min-h-[64px] xs:min-h-[72px] sm:min-h-[96px] rounded-xl px-3 xs:px-4 sm:px-5 transition-all ${isSelected
                   ? 'bg-saffron-lt border-2 border-saffron'
                   : 'bg-white border border-outline-variant hover:border-saffron'

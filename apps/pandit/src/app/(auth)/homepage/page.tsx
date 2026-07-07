@@ -28,7 +28,7 @@ export default function Homepage() {
             </span>
           </div>
           <button
-            onClick={() => router.push('/language-list')}
+            onClick={() => router.push('/onboarding')}
             className="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-lowest shadow-sm text-primary transition-transform active:scale-90"
           >
             <span className="material-symbols-outlined">language</span>
