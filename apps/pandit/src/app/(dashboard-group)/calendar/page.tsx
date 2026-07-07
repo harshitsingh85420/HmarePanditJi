@@ -99,6 +99,10 @@ export default function CalendarPage() {
   // Plain date maths helper
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
+  const monthHasBookings = bookings.some((b) => {
+    const d = new Date(b.eventDate);
+    return d.getFullYear() === currentDate.getFullYear() && d.getMonth() === month;
+  });
 
   const firstDayOfMonth = new Date(year, month, 1);
   const startDayOfWeek = firstDayOfMonth.getDay(); // 0 is Sunday, 1 is Monday etc.
@@ -197,7 +201,7 @@ export default function CalendarPage() {
       {/* BLOCK VOICE NARRATION ON MOUNT */}
       <SpeakOnMount text={hi.calendar.blockVoice} />
 
-      <main className="max-w-[430px] mx-auto px-4 pt-4 flex flex-col gap-4">
+      <main className="max-w-[430px] mx-auto px-4 pt-4 flex flex-col gap-4 page-enter">
         {/* MONTH SELECTOR BANNER */}
         <div className="flex items-center justify-between bg-white p-3 rounded-card border border-saffron-100 shadow-sm">
           <button
@@ -218,6 +222,14 @@ export default function CalendarPage() {
             ›
           </button>
         </div>
+
+        {/* EMPTY MONTH — gentle note above the grid */}
+        {!monthHasBookings && (
+          <div className="flex items-center justify-center gap-2 bg-white rounded-card border border-saffron-100 px-4 py-3">
+            <span className="text-[24px]" role="img" aria-hidden="true">📅</span>
+            <span className="t-hint text-softgrey font-hindi">{hi.empty.calendarEmptyTitle}</span>
+          </div>
+        )}
 
         {/* CUSTOM MONTH GRID CARD */}
         <Card className="p-4 bg-white border border-saffron-100 shadow-sm flex flex-col gap-4">

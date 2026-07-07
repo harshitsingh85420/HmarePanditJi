@@ -3,6 +3,7 @@
 import React from "react";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { vibrateTap } from "@/lib/sounds";
 
 function cn(...inputs: (string | undefined | false | null)[]) {
   return twMerge(clsx(inputs));
@@ -46,7 +47,11 @@ export function Button({
   return (
     <button
       disabled={disabled || loading}
-      onClick={onClick}
+      onClick={(e) => {
+        // Light haptic tap on primary actions (guarded for unsupported browsers)
+        if (variant === "primary" || variant === "success") vibrateTap();
+        onClick?.(e);
+      }}
       className={cn(
         "rounded-btn font-semibold flex items-center justify-center transition-all duration-200 select-none relative",
         "focus-visible:ring-4 focus-visible:ring-saffron-200 focus:outline-none",

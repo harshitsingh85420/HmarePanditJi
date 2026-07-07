@@ -9,6 +9,7 @@ import crypto from "crypto";
 import { storeOtpHash, getOtpHash, deleteOtpHash, checkRateLimit } from "../lib/redis";
 import { DEFAULT_SAMAGRI } from "@hmarepanditji/db";
 import { computeEarnings } from "../lib/earnings";
+import { checkAndAwardMilestones } from "../lib/milestones";
 
 // Cookie configuration for HttpOnly tokens
 const AUTH_COOKIE_OPTIONS = {
@@ -267,7 +268,19 @@ export const getMe = async (request: FastifyRequest, reply: FastifyReply) => {
   };
   delete (mappedUser as any).pandit;
 
-  return reply.send({ success: true, data: { user: mappedUser }, message: "Success" });
+  // Milestones — the app celebrates unseen ones once, then marks them seen;
+  // the full list powers the "आपकी प्रगति" card.
+  let milestones: Array<{ id: string; kind: string; achievedAt: Date; seenAt: Date | null }> = [];
+  if ((user as any).pandit) {
+    milestones = await prisma.panditMilestone.findMany({
+      where: { panditId: (user as any).pandit.id },
+      select: { id: true, kind: true, achievedAt: true, seenAt: true },
+      orderBy: { achievedAt: "asc" },
+    });
+  }
+  const unseenMilestones = milestones.filter((m) => m.seenAt === null);
+
+  return reply.send({ success: true, data: { user: mappedUser, milestones, unseenMilestones }, message: "Success" });
 };
 
 export const updateMe = async (request: FastifyRequest, reply: FastifyReply) => {
@@ -304,7 +317,19 @@ export const updateMe = async (request: FastifyRequest, reply: FastifyReply) => 
   };
   delete (mappedUser as any).pandit;
 
-  return reply.send({ success: true, data: { user: mappedUser }, message: "Success" });
+  // Milestones — the app celebrates unseen ones once, then marks them seen;
+  // the full list powers the "आपकी प्रगति" card.
+  let milestones: Array<{ id: string; kind: string; achievedAt: Date; seenAt: Date | null }> = [];
+  if ((user as any).pandit) {
+    milestones = await prisma.panditMilestone.findMany({
+      where: { panditId: (user as any).pandit.id },
+      select: { id: true, kind: true, achievedAt: true, seenAt: true },
+      orderBy: { achievedAt: "asc" },
+    });
+  }
+  const unseenMilestones = milestones.filter((m) => m.seenAt === null);
+
+  return reply.send({ success: true, data: { user: mappedUser, milestones, unseenMilestones }, message: "Success" });
 };
 
 export const logout = async (_request: FastifyRequest, reply: FastifyReply) => {
@@ -1140,10 +1165,33 @@ export const completeBooking = async (request: FastifyRequest, reply: FastifyRep
     })
   ]);
 
+  // Award any newly crossed milestones (idempotent) — never block completion
+  try {
+    await checkAndAwardMilestones(profile.id);
+  } catch (err) {
+    console.error("[milestones] award failed:", err);
+  }
+
   return reply.send({
     success: true,
     data: updatedBooking
   });
+};
+
+export const markMilestonesSeen = async (request: FastifyRequest, reply: FastifyReply) => {
+  const userId = (request as any).user?.id || (request as any).user?.userId;
+  if (!userId) {
+    return reply.status(401).send({ success: false, error: "Unauthorized" });
+  }
+  const profile = await prisma.panditProfile.findUnique({ where: { userId }, select: { id: true } });
+  if (!profile) {
+    return reply.status(404).send({ success: false, error: "Pandit profile not found" });
+  }
+  await prisma.panditMilestone.updateMany({
+    where: { panditId: profile.id, seenAt: null },
+    data: { seenAt: new Date() },
+  });
+  return reply.send({ success: true });
 };
 
 export const getPanditPayouts = async (request: FastifyRequest, reply: FastifyReply) => {

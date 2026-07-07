@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { hi } from "@/lib/strings";
 import { api } from "@/lib/api";
+import { vibrateConfirm } from "@/lib/sounds";
 import { motion, AnimatePresence } from "framer-motion";
 
 // UI Components
@@ -116,6 +117,7 @@ export default function BookingRequestPage() {
     }
 
     // Success announcements
+    vibrateConfirm();
     speak(hi.booking.acceptedVoice);
     router.push(`/bookings/${booking.id}`);
   };
@@ -167,7 +169,7 @@ export default function BookingRequestPage() {
       {/* Voice actions listener */}
       <VoiceActionListener commands={commands} narratingText={voiceIntroText} promptText={voiceIntroText} />
 
-      <main className="max-w-[430px] mx-auto px-4 pt-4 flex flex-col gap-5">
+      <main className="max-w-[430px] mx-auto px-4 pt-4 flex flex-col gap-5 page-enter">
         {/* CUSTOMER CARD */}
         <Card className="p-5 border-l-4 border-l-saffron-500 bg-white flex flex-col gap-3">
           <div className="flex justify-between items-center">

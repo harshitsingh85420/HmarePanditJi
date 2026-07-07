@@ -3,6 +3,11 @@
 import React, { useState } from "react";
 import { notFound } from "next/navigation";
 import { hi } from "@/lib/strings";
+import { PanchangStrip } from "@/components/moments/PanchangStrip";
+import { FestivalBanner } from "@/components/moments/FestivalBanner";
+import { PragatiCard } from "@/components/moments/PragatiCard";
+import { FESTIVALS_2026 } from "@/lib/festivals2026";
+import { playBell, playChime } from "@/lib/sounds";
 
 // UI Components
 import { Button } from "@/components/ui/Button";
@@ -301,6 +306,38 @@ export default function DesignSystemPage() {
         />
       )}
 
+
+      {/* ── WARMTH PASS SHOWCASE ─────────────────────────────────────── */}
+      <section className="mt-12 p-4 bg-white rounded-card border border-saffron-100 flex flex-col gap-4">
+        <h2 className="t-title font-bold">🪔 Warmth pass</h2>
+
+        <h3 className="t-hint font-bold uppercase">PanchangStrip</h3>
+        <PanchangStrip tithi="शुक्ल पक्ष, एकादशी" />
+
+        <h3 className="t-hint font-bold uppercase">FestivalBanner (forced: दिवाली)</h3>
+        <FestivalBanner festival={FESTIVALS_2026[FESTIVALS_2026.length - 1]} />
+
+        <h3 className="t-hint font-bold uppercase">Pragati card (3 earned)</h3>
+        <PragatiCard earnedKinds={["FIRST_BOOKING", "BOOKINGS_5", "EARNED_11K"]} />
+
+        <h3 className="t-hint font-bold uppercase">Milestone celebration + sounds</h3>
+        <div className="flex gap-3 flex-wrap">
+          <button className="min-h-[56px] px-4 bg-saffron-100 rounded-btn font-bold active:scale-[0.97]" onClick={() => setShowCelebration(true)}>
+            🌟 Trigger celebration
+          </button>
+          <button className="min-h-[56px] px-4 bg-saffron-100 rounded-btn font-bold active:scale-[0.97]" onClick={() => playBell()}>
+            🔔 Bell
+          </button>
+          <button className="min-h-[56px] px-4 bg-saffron-100 rounded-btn font-bold active:scale-[0.97]" onClick={() => playChime()}>
+            🎐 Chime
+          </button>
+        </div>
+
+        <h3 className="t-hint font-bold uppercase">Online glow</h3>
+        <div className="w-full h-16 rounded-btn bg-leaf-700 text-white flex items-center justify-center font-bold online-glow">
+          🟢 आप ऑनलाइन हैं
+        </div>
+      </section>
 
       {/* ── VOICE COVERAGE (dev checklist) ─────────────────────────────
           Product law: every reachable screen interacts by voice unless the

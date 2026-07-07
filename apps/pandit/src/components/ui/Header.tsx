@@ -10,7 +10,7 @@ function cn(...inputs: (string | undefined | false | null)[]) {
 }
 
 export interface HeaderProps {
-  title: string;
+  title: React.ReactNode;
   showBack?: boolean;
   onBack?: () => void;
   rightSlot?: React.ReactNode;

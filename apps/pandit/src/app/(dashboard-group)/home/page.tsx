@@ -16,6 +16,14 @@ import { SpeakOnMount } from "@/components/VoiceBar";
 import { useVoice } from "@/hooks/useVoice";
 import { DiyaLoader } from "@/components/moments/DiyaLoader";
 import { VoiceActionListener } from "@/components/voice/VoiceActionListener";
+import { PanchangStrip } from "@/components/moments/PanchangStrip";
+import { FestivalBanner } from "@/components/moments/FestivalBanner";
+import { PragatiCard } from "@/components/moments/PragatiCard";
+import { CelebrationScreen } from "@/components/moments/CelebrationScreen";
+import { milestoneLabel, milestoneEmoji } from "@/components/moments/PragatiCard";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { getActiveFestival, isFestivalDay } from "@/lib/festivals2026";
+import { playBell, playChime } from "@/lib/sounds";
 
 interface Booking {
   id: string;
@@ -54,6 +62,10 @@ export default function HomePage() {
   // Polling Alerts State
   const [newRequestBooking, setNewRequestBooking] = useState<Booking | null>(null);
 
+  // Milestones (dignity-first pragati)
+  const [milestones, setMilestones] = useState<Array<{ kind: string }>>([]);
+  const [celebratingMilestone, setCelebratingMilestone] = useState<string | null>(null);
+
   // Toast / Error Notifications
   const [toastMsg, setToastMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
@@ -73,6 +85,12 @@ export default function HomePage() {
     const user = meRes.data.user;
     setProfile(user);
     setIsOnline(user.panditProfile?.isOnline || false);
+    setMilestones(meRes.data.milestones || []);
+    const unseen = meRes.data.unseenMilestones || [];
+    if (unseen.length > 0) {
+      setCelebratingMilestone(unseen[0].kind);
+      playChime();
+    }
 
     // 2. Today's Bookings
     const bookingsRes = await api("/pandit/bookings?date=today");
@@ -101,25 +119,6 @@ export default function HomePage() {
     loadData();
   }, [router]);
 
-  // Audio synthesizer chime beep
-  const playChimeBeep = () => {
-    try {
-      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.type = "sine";
-      osc.frequency.setValueAtTime(880, ctx.currentTime);
-      gain.gain.setValueAtTime(0.2, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
-      osc.start();
-      osc.stop(ctx.currentTime + 0.4);
-    } catch (e) {
-      console.warn("Chime AudioContext beep failed:", e);
-    }
-  };
-
   // Polling for NEW REQUESTED bookings every 30 seconds
   useEffect(() => {
     const runPoll = async () => {
@@ -144,7 +143,7 @@ export default function HomePage() {
 
       // Alert if a new booking request is found
       if (newlyDiscovered) {
-        playChimeBeep();
+        playBell();
         speak(hi.booking.newRequest);
         setNewRequestBooking(newlyDiscovered);
       }
@@ -216,9 +215,13 @@ export default function HomePage() {
     });
   };
 
-  const welcomeSpeakText = isOnline
+  const activeFestival = getActiveFestival();
+  const festivalLine = activeFestival
+    ? ` ${activeFestival.name} ${hi.festival.greeting}। ${hi.festival.hint}`
+    : "";
+  const welcomeSpeakText = (isOnline
     ? "आप अभी ऑनलाइन हैं। नई बुकिंग के लिए तैयार रहें।"
-    : "आप अभी ऑफलाइन हैं। काम शुरू करने के लिए ऑनलाइन जाएं।";
+    : "आप अभी ऑफलाइन हैं। काम शुरू करने के लिए ऑनलाइन जाएं।") + festivalLine;
 
   const voiceCommands = [
     {
@@ -265,7 +268,7 @@ export default function HomePage() {
     <div className="min-h-screen bg-cream text-ink pb-44">
       {/* HEADER */}
       <Header
-        title={`नमस्ते, ${firstName} जी`}
+        title={<>{isFestivalDay() && <span className="animate-diya-sm mr-1" role="img" aria-hidden="true">🪔</span>}{`नमस्ते, ${firstName} जी`}</>}
         showBack={false}
         rightSlot={<HomeHeaderRightSlot />}
       />
@@ -296,7 +299,13 @@ export default function HomePage() {
         )}
       </AnimatePresence>
 
-      <main className="max-w-[430px] mx-auto px-4 pt-4 flex flex-col gap-4">
+      <main className="max-w-[430px] mx-auto px-4 pt-4 flex flex-col gap-4 page-enter">
+        {/* PANCHANG STRIP */}
+        <PanchangStrip />
+
+        {/* FESTIVAL BANNER (auto-hidden when no festival near) */}
+        <FestivalBanner />
+
         {/* PENDING VERIFICATION BANNER */}
         {isPending && (
           <>
@@ -347,7 +356,7 @@ export default function HomePage() {
             !isApproved
               ? "bg-slate-200 text-softgrey cursor-not-allowed"
               : isOnline
-              ? "bg-leaf-700 hover:bg-leaf-800 text-white"
+              ? "bg-leaf-700 hover:bg-leaf-800 text-white online-glow"
               : "bg-softgrey text-white"
           }`}
           style={{ minHeight: "80px", fontSize: "22px" }}
@@ -362,12 +371,12 @@ export default function HomePage() {
           </h3>
 
           {todayBookings.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-8 text-center gap-1.5">
-              <span className="text-[52px]">🌤️</span>
-              <p className="text-[18px] font-bold text-softgrey font-hindi">
-                {hi.home.noBookings}
-              </p>
-            </div>
+            <EmptyState
+              emoji="🌤️"
+              title={hi.empty.todayNoBookingsTitle}
+              hint={hi.empty.todayNoBookingsHint}
+              className="shadow-none py-8"
+            />
           ) : (
             <div className="flex flex-col gap-3">
               {todayBookings.map((b) => (
@@ -376,7 +385,11 @@ export default function HomePage() {
                   onClick={() =>
                     router.push(b.status === "REQUESTED" ? `/bookings/${b.id}/request` : `/bookings/${b.id}`)
                   }
-                  className="p-3 border-b border-slate-50 last:border-0 flex items-center justify-between cursor-pointer active:bg-slate-50 rounded-btn"
+                  className={`p-3 border-b border-slate-50 last:border-0 flex items-center justify-between cursor-pointer active:bg-slate-50 active:scale-[0.97] transition-transform rounded-btn border-l-4 ${
+                    b.status === "COMPLETED" ? "border-l-leaf-700" :
+                    b.status === "REQUESTED" ? "border-l-saffron-500" :
+                    "border-l-sky-500"
+                  }`}
                 >
                   <div className="flex flex-col">
                     {/* Time (28px bold) */}
@@ -419,6 +432,9 @@ export default function HomePage() {
           </div>
         </Card>
 
+        {/* PRAGATI (PROGRESS) CARD */}
+        <PragatiCard earnedKinds={milestones.map((m) => m.kind)} />
+
         {/* SAMAGRI PACKAGES LINK */}
         <Card
           className="p-4 bg-white border border-saffron-100 cursor-pointer min-h-[56px] flex items-center justify-center text-center"
@@ -444,6 +460,20 @@ export default function HomePage() {
             {errorMsg}
           </p>
         </div>
+      )}
+
+      {/* MILESTONE CELEBRATION */}
+      {celebratingMilestone && (
+        <CelebrationScreen
+          emoji={milestoneEmoji(celebratingMilestone)}
+          title={hi.milestones.title}
+          message={milestoneLabel(celebratingMilestone)}
+          ctaLabel={hi.common.next}
+          onCta={async () => {
+            setCelebratingMilestone(null);
+            await api("/pandit/milestones/seen", { method: "POST" });
+          }}
+        />
       )}
 
       {/* Toast Notification */}

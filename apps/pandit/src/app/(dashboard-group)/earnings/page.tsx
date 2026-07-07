@@ -11,6 +11,10 @@ import { Header } from "@/components/ui/Header";
 import { BottomNav } from "@/components/ui/BottomNav";
 import { SpeakOnMount } from "@/components/VoiceBar";
 import { DiyaLoader } from "@/components/moments/DiyaLoader";
+import { MoneyCount } from "@/components/moments/MoneyCount";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { useVoice } from "@/hooks/useVoice";
+import { playChime } from "@/lib/sounds";
 
 interface PayoutItem {
   id: string;
@@ -35,7 +39,11 @@ interface EarningsSummary {
 
 export default function EarningsPage() {
   const router = useRouter();
+  const { speak } = useVoice();
   const [loading, setLoading] = useState(true);
+
+  // THE PAYOUT MOMENT: a payout newly moved PENDING→PAID since last visit
+  const [freshlyPaidAmount, setFreshlyPaidAmount] = useState<number | null>(null);
 
   // Stats data
   const [summary, setSummary] = useState<EarningsSummary>({
@@ -67,6 +75,23 @@ export default function EarningsPage() {
       }
       if (paidRes.success && paidRes.data) {
         setPaidPayouts(paidRes.data);
+
+        // Detect payouts paid since the last visit (tracked locally)
+        const lastSeen = Number(localStorage.getItem("lastSeenPaidAt") || 0);
+        const fresh = (paidRes.data as PayoutItem[]).filter(
+          (p) => p.paidAt && new Date(p.paidAt).getTime() > lastSeen,
+        );
+        if (fresh.length > 0) {
+          const total = fresh.reduce((sum, p) => sum + p.amount, 0);
+          setFreshlyPaidAmount(total);
+          playChime();
+          speak(hi.earnings.paidVoice.replace("{amount}", total.toLocaleString("en-IN")));
+        }
+        const newestPaidAt = Math.max(
+          lastSeen,
+          ...(paidRes.data as PayoutItem[]).map((p) => (p.paidAt ? new Date(p.paidAt).getTime() : 0)),
+        );
+        if (newestPaidAt > 0) localStorage.setItem("lastSeenPaidAt", String(newestPaidAt));
       }
 
       setLoading(false);
@@ -97,7 +122,20 @@ export default function EarningsPage() {
       {/* INTRO VOICE NARRATOR ON MOUNT */}
       <SpeakOnMount text={hi.earnings.introVoice} />
 
-      <main className="max-w-[430px] mx-auto px-4 pt-4 flex flex-col gap-5">
+      <main className="max-w-[430px] mx-auto px-4 pt-4 flex flex-col gap-5 page-enter">
+        {/* THE PAYOUT MOMENT — one-time banner when money just arrived */}
+        {freshlyPaidAmount !== null && (
+          <Card accent="leaf" className="p-4 bg-leaf-100 flex items-center gap-3">
+            <span className="text-[32px] leading-none" role="img" aria-hidden="true">🙏</span>
+            <div className="flex items-baseline gap-1 flex-wrap">
+              <MoneyCount target={freshlyPaidAmount} className="text-[26px] font-bold text-leaf-800 font-mono" />
+              <span className="text-[18px] font-bold text-leaf-800 font-hindi">
+                {hi.earnings.paidBanner}
+              </span>
+            </div>
+          </Card>
+        )}
+
         {/* STATS CARDS GRID */}
         <div className="grid grid-cols-3 gap-2">
           {/* Today Card */}
@@ -126,7 +164,9 @@ export default function EarningsPage() {
             </span>
           </h3>
 
-          {pendingPayouts.length === 0 ? (
+          {pendingPayouts.length === 0 && paidPayouts.length === 0 ? (
+            <EmptyState emoji="🪙" title={hi.empty.noPayoutsTitle} hint={hi.empty.noPayoutsHint} />
+          ) : pendingPayouts.length === 0 ? (
             <p className="text-[16px] text-softgrey font-hindi text-center py-4">{hi.earnings.noPending}</p>
           ) : (
             <div className="flex flex-col gap-3">

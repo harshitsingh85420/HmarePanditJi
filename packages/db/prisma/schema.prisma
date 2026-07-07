@@ -587,6 +587,17 @@ model Ritual {
   updatedAt        DateTime @updatedAt
 }
 
+model PanditMilestone {
+  id         String    @id @default(cuid())
+  panditId   String    // PanditProfile.id
+  kind       String    // FIRST_BOOKING | BOOKINGS_5 | BOOKINGS_11 | BOOKINGS_21 | BOOKINGS_51 | EARNED_11K | EARNED_51K | EARNED_1L | PROFILE_COMPLETE
+  achievedAt DateTime  @default(now())
+  seenAt     DateTime? // null until the pandit app has shown the celebration
+
+  @@unique([panditId, kind])
+  @@index([panditId])
+}
+
 model Payout {
   id         String   @id @default(cuid())
   bookingId  String   @unique

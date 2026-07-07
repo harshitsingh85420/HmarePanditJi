@@ -44,6 +44,7 @@ import {
   postBookingJourney,
   completeBooking,
   getPanditPayouts,
+  markMilestonesSeen,
   getBlockedDates,
   createBlockedDate,
   deleteBlockedDate
@@ -182,6 +183,7 @@ app.post(`${API_PREFIX}/pandit/bookings/:id/journey`, { preHandler: [authenticat
 app.post(`${API_PREFIX}/pandit/bookings/:id/complete`, { preHandler: [authenticate, roleGuard("PANDIT")] }, completeBooking);
 app.get(`${API_PREFIX}/pandit/earnings/summary`, { preHandler: [authenticate, roleGuard("PANDIT")] }, getPanditEarningsSummary);
 app.get(`${API_PREFIX}/pandit/payouts`, { preHandler: [authenticate, roleGuard("PANDIT")] }, getPanditPayouts);
+app.post(`${API_PREFIX}/pandit/milestones/seen`, { preHandler: [authenticate, roleGuard("PANDIT")] }, markMilestonesSeen);
 app.get(`${API_PREFIX}/pandit/blocked-dates`, { preHandler: [authenticate, roleGuard("PANDIT")] }, getBlockedDates);
 app.post(`${API_PREFIX}/pandit/blocked-dates`, { preHandler: [authenticate, roleGuard("PANDIT")] }, createBlockedDate);
 app.delete(`${API_PREFIX}/pandit/blocked-dates/:date`, { preHandler: [authenticate, roleGuard("PANDIT")] }, deleteBlockedDate);

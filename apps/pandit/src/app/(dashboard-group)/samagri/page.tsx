@@ -185,7 +185,7 @@ export default function SamagriPage() {
         }}
       />
 
-      <main className="max-w-[430px] mx-auto px-4 pt-4 flex flex-col gap-5">
+      <main className="max-w-[430px] mx-auto px-4 pt-4 flex flex-col gap-5 page-enter">
         {selectedPuja === null ? (
           /* SCREEN 1: PICK PUJA TYPE */
           <div className="flex flex-col gap-4">

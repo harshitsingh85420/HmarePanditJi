@@ -13,6 +13,7 @@ import { BottomNav } from "@/components/ui/BottomNav";
 import { DiyaLoader } from "@/components/moments/DiyaLoader";
 import { SpeakOnMount } from "@/components/VoiceBar";
 import { VoiceActionListener } from "@/components/voice/VoiceActionListener";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 interface BookingItem {
   id: string;
@@ -143,8 +144,10 @@ export default function BookingsPage() {
       </div>
 
       {/* Bookings List */}
-      <main className="max-w-[430px] mx-auto px-4 pt-4 flex flex-col gap-4">
-        {filteredBookings.length === 0 ? (
+      <main className="max-w-[430px] mx-auto px-4 pt-4 flex flex-col gap-4 page-enter">
+        {bookings.length === 0 ? (
+          <EmptyState emoji="🙏" title={hi.empty.noBookingsYetTitle} hint={hi.empty.noBookingsYetHint} />
+        ) : filteredBookings.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center gap-2">
             <span className="text-[64px]">🌤️</span>
             <span className="text-[20px] font-bold text-softgrey font-hindi">

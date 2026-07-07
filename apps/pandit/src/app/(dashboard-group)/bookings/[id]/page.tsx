@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { hi } from "@/lib/strings";
 import { api } from "@/lib/api";
+import { playBell, vibrateConfirm } from "@/lib/sounds";
 import { motion, AnimatePresence } from "framer-motion";
 
 // UI Components
@@ -126,6 +127,8 @@ export default function BookingDetailPage() {
     } else if (nextStep === 2) {
       speak(hi.booking.acceptedVoice);
     } else if (nextStep === 3) {
+      playBell();
+      vibrateConfirm();
       speak(hi.booking.completeVoice);
     }
 
@@ -234,7 +237,7 @@ export default function BookingDetailPage() {
         promptText={screenVoiceText}
       />
 
-      <main className="max-w-[430px] mx-auto px-4 pt-4 flex flex-col gap-5">
+      <main className="max-w-[430px] mx-auto px-4 pt-4 flex flex-col gap-5 page-enter">
         {/* 1. STATUS HEADER */}
         <div className="flex justify-between items-center bg-white p-4 rounded-card border border-saffron-100 shadow-sm">
           <span className="text-[18px] font-bold text-softgrey font-hindi">{hi.booking.bookingStatus}</span>
