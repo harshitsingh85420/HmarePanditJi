@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useVoice } from "../../hooks/useVoice";
 import { useVoiceInput } from "../../hooks/useVoiceInput";
 import { parseHindiNumber, parsePhoneNumber, matchChoice } from "../../lib/voiceParse";
+import { extractOTP } from "../../lib/number-mapper";
 import { reduce, type VFState, type VFEvent } from "./voiceFieldMachine";
 import { Card } from "../ui/Card";
 import { Button } from "../ui/Button";
@@ -13,7 +14,7 @@ export interface VoiceFieldProps {
   promptText: string;
   value: string;
   onChange: (v: string) => void;
-  mode: "text" | "number" | "money" | "phone" | "choice";
+  mode: "text" | "number" | "money" | "phone" | "otp" | "choice";
   choices?: Array<{ label: string; value: string; keywords: string[] }>;
   required?: boolean;
   onComplete?: () => void;
@@ -33,7 +34,7 @@ export function VoiceField({
   placeholder,
   disabled,
 }: VoiceFieldProps) {
-  const { speak, stop: stopVoice } = useVoice();
+  const { enabled: voiceOutputEnabled, stop: stopVoice } = useVoice();
   const voiceInput = useVoiceInput();
 
   const [machineState, setMachineState] = useState<VFState>({ phase: "PROMPTING" });
@@ -45,13 +46,17 @@ export function VoiceField({
   const selectRef = useRef<HTMLSelectElement>(null);
   const isFirstMount = useRef(true);
 
-  // Load configuration from local storage
+  // Load configuration from local storage. The header mute toggle (voice_enabled,
+  // via useVoice) also disables voice interaction entirely — muting the app must
+  // not leave the pandit stuck on a silent listening screen.
   useEffect(() => {
     const stored = localStorage.getItem("voice_input_enabled");
     if (stored !== null) {
-      setVoiceInputEnabled(stored === "true");
+      setVoiceInputEnabled(stored === "true" && voiceOutputEnabled);
+    } else {
+      setVoiceInputEnabled(voiceOutputEnabled);
     }
-  }, []);
+  }, [voiceOutputEnabled]);
 
   const parseValue = useCallback((text: string): string | null => {
     if (mode === "text") {
@@ -61,6 +66,9 @@ export function VoiceField({
       return parsedNum !== null ? String(parsedNum) : null;
     } else if (mode === "phone") {
       return parsePhoneNumber(text);
+    } else if (mode === "otp") {
+      const digits = extractOTP(text);
+      return digits.length === 6 ? digits : null;
     } else if (mode === "choice") {
       const matched = matchChoice(text, choices || []);
       return matched ? matched.value : text.trim();
@@ -143,18 +151,20 @@ export function VoiceField({
     const utterance = new SpeechSynthesisUtterance(promptText);
     utterance.lang = "hi-IN";
     utterance.rate = 0.9;
-    utterance.onend = () => {
+    let advanced = false;
+    const advance = () => {
+      if (advanced) return;
+      advanced = true;
       const res = reduce(machineState, { type: "SPEECH_DONE" }, { attempts, mode, parse: parseValue });
       setMachineState(res.next);
       setAttempts(res.attempts);
       handleEffects(res.effects, res.next);
     };
-    utterance.onerror = () => {
-      const res = reduce(machineState, { type: "SPEECH_DONE" }, { attempts, mode, parse: parseValue });
-      setMachineState(res.next);
-      setAttempts(res.attempts);
-      handleEffects(res.effects, res.next);
-    };
+    utterance.onend = advance;
+    utterance.onerror = advance;
+    // Safety net: some browsers/WebViews never fire onend — don't leave the
+    // pandit stranded on a silent prompt screen.
+    setTimeout(advance, Math.max(6000, promptText.length * 180));
     window.speechSynthesis.speak(utterance);
   }, [promptText, voiceInputEnabled, isKeyboardFallback, machineState, attempts, mode, parseValue, handleEffects, stopVoice]);
 
@@ -382,7 +392,7 @@ export function VoiceField({
             </div>
           )}
 
-          {machineState.phase === "LISTENING" && (
+          {machineState.phase !== "ACCEPTED" && (
             <button
               type="button"
               onClick={handleBypassToKeyboard}
@@ -426,7 +436,7 @@ export function VoiceField({
             ) : (
               <input
                 ref={inputRef}
-                type={mode === "number" || mode === "money" ? "number" : mode === "phone" ? "tel" : "text"}
+                type={mode === "number" || mode === "money" ? "number" : mode === "phone" || mode === "otp" ? "tel" : "text"}
                 disabled={disabled}
                 placeholder={placeholder}
                 value={value}

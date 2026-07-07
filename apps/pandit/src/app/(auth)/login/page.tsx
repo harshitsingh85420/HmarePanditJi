@@ -6,7 +6,6 @@ import { hi } from "@/lib/strings";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/Button";
 import { Header } from "@/components/ui/Header";
-import { SpeakOnMount } from "@/components/VoiceBar";
 import { useVoice } from "@/hooks/useVoice";
 import { VoiceField } from "@/components/voice/VoiceField";
 
@@ -17,12 +16,15 @@ export default function LoginPage() {
   // Navigation states
   const [step, setStep] = useState(1); // 1 = Phone Input, 2 = OTP Input
   const [phone, setPhone] = useState("");
-  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const [otpValue, setOtpValue] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [countdown, setCountdown] = useState(30);
 
-  const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
+  const otpValueRef = useRef("");
+  useEffect(() => {
+    otpValueRef.current = otpValue;
+  }, [otpValue]);
 
   // Countdown timer for OTP resend
   useEffect(() => {
@@ -95,38 +97,17 @@ export default function LoginPage() {
     }
   };
 
-  const handleOtpChange = (value: string, index: number) => {
-    const numericValue = value.replace(/\D/g, "");
-    const newOtp = [...otp];
-    newOtp[index] = numericValue.slice(-1);
-    setOtp(newOtp);
-
-    // Auto-advance focus
-    if (numericValue && index < 5) {
-      inputRefs.current[index + 1]?.focus();
+  // Auto-verify once 6 digits are in (typed via keyboard fallback)
+  useEffect(() => {
+    if (step === 2 && otpValue.length === 6 && !loading) {
+      handleVerifyOtp(otpValue);
     }
-
-    // Auto-verify if all 6 boxes are filled
-    const completeOtp = newOtp.join("");
-    if (completeOtp.length === 6) {
-      handleVerifyOtp(completeOtp);
-    }
-  };
-
-  const handleOtpKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
-    if (e.key === "Backspace") {
-      if (!otp[index] && index > 0) {
-        const newOtp = [...otp];
-        newOtp[index - 1] = "";
-        setOtp(newOtp);
-        inputRefs.current[index - 1]?.focus();
-      }
-    }
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [otpValue, step]);
 
   const handleResendOtp = async () => {
     if (countdown > 0) return;
-    setOtp(["", "", "", "", "", ""]);
+    setOtpValue("");
     await handleSendOtp();
   };
 
@@ -137,7 +118,7 @@ export default function LoginPage() {
         showBack={step === 2}
         onBack={() => {
           setStep(1);
-          setOtp(["", "", "", "", "", ""]);
+          setOtpValue("");
           setErrorMsg("");
         }}
       />
@@ -169,39 +150,21 @@ export default function LoginPage() {
           </>
         ) : (
           <>
-            {/* Screen 2: OTP verification */}
-            <SpeakOnMount text={hi.auth.otpVoice} />
-
+            {/* Screen 2: OTP verification — voice-first, keyboard only on demand */}
             <div className="bg-white rounded-card shadow-card p-5 flex flex-col gap-4">
-              <h2 className="t-title font-bold text-temple-600">
-                {hi.auth.otpLabel}
-              </h2>
-
-              {/* 6 large OTP boxes */}
-              <div className="flex gap-2 justify-center my-4">
-                {otp.map((digit, idx) => (
-                  <input
-                    key={idx}
-                    ref={(el) => {
-                      inputRefs.current[idx] = el;
-                    }}
-                    type="tel"
-                    inputMode="numeric"
-                    pattern="[0-9]*"
-                    maxLength={1}
-                    value={digit}
-                    onChange={(e) => handleOtpChange(e.target.value, idx)}
-                    onKeyDown={(e) => handleOtpKeyDown(e, idx)}
-                    onFocus={() => {
-                      if (idx === 0) {
-                        speak("सुरक्षा के लिए ओ टी पी लिखकर भरें");
-                      }
-                    }}
-                    className="w-[48px] h-[56px] text-center border-2 border-saffron-300 rounded-btn text-[24px] font-bold text-ink bg-white focus:outline-none focus:border-saffron-500 focus:ring-4 focus:ring-saffron-200 transition-all"
-                    style={{ width: "48px", height: "56px" }}
-                  />
-                ))}
-              </div>
+              <VoiceField
+                label={hi.auth.otpLabel}
+                promptText={hi.auth.otpVoice}
+                value={otpValue}
+                onChange={(v) => setOtpValue(v.replace(/\D/g, "").slice(0, 6))}
+                mode="otp"
+                onComplete={() => {
+                  if (otpValueRef.current.length === 6) {
+                    handleVerifyOtp(otpValueRef.current);
+                  }
+                }}
+                placeholder="XXXXXX"
+              />
 
               {/* Resend Link countdown timer */}
               <div className="text-center mt-2">

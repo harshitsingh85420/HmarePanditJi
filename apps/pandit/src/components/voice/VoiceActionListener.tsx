@@ -37,12 +37,13 @@ export function VoiceActionListener({
 
   const isFirstMount = useRef(true);
 
+  // The header mute toggle (voice_enabled via useVoice) switches off the whole
+  // voice interaction, not just narration — a muted app must not keep listening.
   useEffect(() => {
     const stored = localStorage.getItem("voice_input_enabled");
-    if (stored !== null) {
-      setVoiceInputEnabled(stored === "true");
-    }
-  }, []);
+    const inputAllowed = stored === null || stored === "true";
+    setVoiceInputEnabled(inputAllowed && voiceOutputEnabled);
+  }, [voiceOutputEnabled]);
 
   // Narration and auto-start listen logic
   const triggerNarration = useCallback(() => {

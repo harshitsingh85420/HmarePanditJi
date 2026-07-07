@@ -45,17 +45,17 @@ const MUNDAN_MUHURATS = [
   ["2026-09-20T00:00:00Z", "10:00 AM - 11:00 AM", "Panchami"]
 ];
 
-const ADMIN = { phone: '9000000001', name: 'HPJ Admin' };
+const ADMIN = { phone: '+919000000001', name: 'HPJ Admin' };
 
 const CUSTOMERS = [
-  { phone: '9000000002', name: 'Rajesh Kumar', gotra: 'Bharadwaj' },
-  { phone: '9000000003', name: 'Priya Sharma', gotra: 'Kashyap' },
-  { phone: '9000000004', name: 'Vinod Gupta', gotra: 'Shandilya' }
+  { phone: '+919000000002', name: 'Rajesh Kumar', gotra: 'Bharadwaj' },
+  { phone: '+919000000003', name: 'Priya Sharma', gotra: 'Kashyap' },
+  { phone: '+919000000004', name: 'Vinod Gupta', gotra: 'Shandilya' }
 ];
 
 const PANDITS = [
   {
-    phone: '9876543210', name: 'Pt. Ramesh Sharma', verificationStatus: VerificationStatus.VERIFIED,
+    phone: '+919876543210', name: 'Pt. Ramesh Sharma', verificationStatus: VerificationStatus.VERIFIED,
     experienceYears: 15, rating: 4.8, totalReviews: 47, location: 'Delhi',
     travelPreferences: { maxDistanceKm: 500, preferredModes: ['TRAIN', 'CAB'] },
     services: [
@@ -70,7 +70,7 @@ const PANDITS = [
     ]
   },
   {
-    phone: '9876543211', name: 'Pt. Suresh Tiwari', verificationStatus: VerificationStatus.VERIFIED,
+    phone: '+919876543211', name: 'Pt. Suresh Tiwari', verificationStatus: VerificationStatus.VERIFIED,
     experienceYears: 25, rating: 4.6, totalReviews: 23, location: 'Noida',
     travelPreferences: { maxDistanceKm: 100, preferredModes: ['CAB'] },
     services: [
@@ -82,7 +82,7 @@ const PANDITS = [
     ]
   },
   {
-    phone: '9876543212', name: 'Pt. Vinod Kumar', verificationStatus: VerificationStatus.VERIFIED,
+    phone: '+919876543212', name: 'Pt. Vinod Kumar', verificationStatus: VerificationStatus.VERIFIED,
     experienceYears: 8, rating: 4.5, totalReviews: 12, location: 'Gurgaon',
     travelPreferences: { maxDistanceKm: 150, preferredModes: ['CAB'] },
     services: [
@@ -94,7 +94,7 @@ const PANDITS = [
     ]
   },
   {
-    phone: '9876543213', name: 'Pt. Mohan Lal', verificationStatus: VerificationStatus.VERIFIED,
+    phone: '+919876543213', name: 'Pt. Mohan Lal', verificationStatus: VerificationStatus.VERIFIED,
     experienceYears: 5, rating: 4.2, totalReviews: 8, location: 'Ghaziabad',
     travelPreferences: { maxDistanceKm: 100, preferredModes: ['CAB'] },
     services: [
@@ -106,7 +106,7 @@ const PANDITS = [
     ]
   },
   {
-    phone: '9876543214', name: 'Pt. Dinesh Shastri', verificationStatus: VerificationStatus.VERIFIED,
+    phone: '+919876543214', name: 'Pt. Dinesh Shastri', verificationStatus: VerificationStatus.VERIFIED,
     experienceYears: 12, rating: 4.7, totalReviews: 15, location: 'Greater Noida',
     travelPreferences: { maxDistanceKm: 120, preferredModes: ['CAB'] },
     services: [
