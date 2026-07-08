@@ -1,65 +1,28 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useVoice } from "../hooks/useVoice";
+import { useScreenVoice } from "../hooks/useScreenVoice";
 import { hi } from "../lib/strings";
 
-export function VoiceBar() {
-  const { enabled, toggle } = useVoice();
+interface SpeakOnMountProps {
+  text: string;
+}
+
+// Narrates the screen on mount via useScreenVoice (which also registers the
+// SpeakerFab replay target) and renders the inline replay button.
+export function SpeakOnMount({ text }: SpeakOnMountProps) {
+  const { replay } = useScreenVoice(text);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  if (!mounted) {
-    return null;
-  }
-
   return (
     <button
-      onClick={toggle}
-      className="fixed bottom-6 right-6 z-50 flex items-center justify-center w-16 h-16 bg-temple-600 text-white rounded-full shadow-lg ring-2 ring-gold hover:bg-temple-700 active:scale-95 transition-transform duration-200"
-      style={{ minHeight: "56px", fontSize: "24px" }}
-      aria-label={enabled ? "Mute Voice" : "Unmute Voice"}
-    >
-      {enabled ? "🔊" : "🔇"}
-    </button>
-  );
-}
-
-interface SpeakOnMountProps {
-  text: string;
-}
-
-export function SpeakOnMount({ text }: SpeakOnMountProps) {
-  const { speak } = useVoice();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-    const timer = setTimeout(() => {
-      speak(text);
-    }, 100);
-    return () => clearTimeout(timer);
-  }, [speak, text]);
-
-  if (!mounted) {
-    return (
-      <button
-        disabled
-        className="flex items-center justify-center px-6 rounded-lg bg-saffron-100 text-saffron-700 font-semibold"
-        style={{ minHeight: "56px", fontSize: "18px" }}
-      >
-        {hi.common.listen}
-      </button>
-    );
-  }
-
-  return (
-    <button
-      onClick={() => speak(text)}
-      className="flex items-center justify-center px-6 rounded-lg bg-saffron-100 text-saffron-700 font-semibold hover:bg-orange-200 active:scale-95 transition-all duration-200"
+      disabled={!mounted}
+      onClick={replay}
+      className="flex items-center justify-center px-6 rounded-lg bg-saffron-100 text-saffron-700 font-semibold hover:bg-saffron-200 active:scale-95 transition-all duration-200"
       style={{ minHeight: "56px", fontSize: "18px" }}
     >
       {hi.common.listen}

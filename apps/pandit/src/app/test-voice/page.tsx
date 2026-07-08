@@ -2,7 +2,7 @@
 
 import React from "react";
 import { hi } from "../../lib/strings";
-import { SpeakOnMount, VoiceBar } from "../../components/VoiceBar";
+import {SpeakOnMount} from "../../components/VoiceBar";
 
 export default function TestVoicePage() {
   return (
@@ -21,7 +21,6 @@ export default function TestVoicePage() {
       </div>
 
       {/* Voice mute/unmute floating button */}
-      <VoiceBar />
     </main>
   );
 }

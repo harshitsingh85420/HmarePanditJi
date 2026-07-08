@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
-import { useVoice } from "./useVoice";
+import { voiceController } from "@/lib/voiceController";
 
 export interface UseVoiceInputReturn {
   state: "idle" | "listening" | "processing" | "error";
@@ -20,8 +20,6 @@ export function useVoiceInput(): UseVoiceInputReturn {
   const [transcript, setTranscript] = useState<string | null>(null);
   const [confidence, setConfidence] = useState<number | null>(null);
   const [showExplainer, setShowExplainer] = useState(false);
-
-  const { stopAll } = useVoice();
 
   // Refs for tracking active resources
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -57,25 +55,20 @@ export function useVoiceInput(): UseVoiceInputReturn {
     }
     mediaRecorderRef.current = null;
 
-    // Reset recording flag when done
-    if (typeof window !== "undefined") {
-      (window as any).isVoiceInputRecording = false;
-      const queue = (window as any).voiceSpeechQueue;
-      if (queue && queue.length > 0) {
-        const nextText = queue.shift();
-        if (nextText) {
-          const utterance = new SpeechSynthesisUtterance(nextText);
-          utterance.lang = "hi-IN";
-          utterance.rate = 0.9;
-          window.speechSynthesis.speak(utterance);
-        }
-      }
-    }
+    // Tell the controller the mic is closed — it drains any queued speech
+    voiceController.endListen();
   }, []);
 
-  // Cleanup on unmount
+  // Cleanup on unmount + abort instantly when the pandit mutes the app
   useEffect(() => {
-    return () => cleanup();
+    const unregister = voiceController.registerListenAborter(() => {
+      cleanup();
+      setState("idle");
+    });
+    return () => {
+      unregister();
+      cleanup();
+    };
   }, [cleanup]);
 
   const reset = useCallback(() => {
@@ -94,12 +87,12 @@ export function useVoiceInput(): UseVoiceInputReturn {
   const startRecording = useCallback(async () => {
     cleanup();
 
-    // A5: Never-hear-itself rule - FIRST cancel/pause existing speech
-    stopAll();
-
-    // Set shared listening flag to prevent TTS overlap
-    if (typeof window !== "undefined") {
-      (window as any).isVoiceInputRecording = true;
+    // A5: Never-hear-itself rule — the controller refuses to open the mic
+    // while speaking or muted, and marks us as listening otherwise.
+    voiceController.stopSpeech();
+    if (!voiceController.guardListenStart()) {
+      setState("idle");
+      return;
     }
 
     setState("listening");
@@ -259,7 +252,7 @@ export function useVoiceInput(): UseVoiceInputReturn {
       setState("error");
       cleanup();
     }
-  }, [cleanup, stopAll]);
+  }, [cleanup]);
 
   const start = useCallback(async () => {
     const isGranted = localStorage.getItem("mic_permission_granted") === "true";

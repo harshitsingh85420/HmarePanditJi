@@ -1,4 +1,8 @@
 export const hi = {
+  voice: {
+    on: "आवाज़ चालू करें",
+    off: "आवाज़ बंद करें",
+  },
   nav: {
     home: "होम",
     bookings: "बुकिंग",

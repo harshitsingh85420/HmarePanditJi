@@ -1,94 +1,39 @@
-import { useCallback, useEffect, useState } from "react";
+"use client";
 
+import { useCallback, useSyncExternalStore } from "react";
+import { voiceController } from "@/lib/voiceController";
+
+// Thin React adapter over the VoiceController singleton.
+// Public API unchanged (speak/stop/stopAll/enabled/toggle) so existing
+// screens keep working; all state now lives in the controller.
 export function useVoice() {
-  const [enabled, setEnabled] = useState<boolean>(true);
-  const [mounted, setMounted] = useState<boolean>(false);
-
-  useEffect(() => {
-    setMounted(true);
-    try {
-      const stored = localStorage.getItem("voice_enabled");
-      if (stored !== null) {
-        setEnabled(stored === "true");
-      }
-    } catch (e) {
-      // Ignore security errors in some sandbox environments
-    }
-  }, []);
-
-  const toggle = useCallback(() => {
-    setEnabled((prev) => {
-      const newVal = !prev;
-      try {
-        localStorage.setItem("voice_enabled", String(newVal));
-      } catch (e) {
-        // Ignore
-      }
-      if (!newVal) {
-        if (typeof window !== "undefined" && window.speechSynthesis) {
-          window.speechSynthesis.cancel();
-        }
-      }
-      return newVal;
-    });
-  }, []);
-
-  const speak = useCallback(
-    (text: string) => {
-      if (typeof window === "undefined" || !window.speechSynthesis) {
-        return;
-      }
-      // Cancel ongoing speech
-      window.speechSynthesis.cancel();
-
-      if (!enabled) {
-        return;
-      }
-
-      // Check if a recording is active (shared ref isListening via window property)
-      if ((window as any).isVoiceInputRecording) {
-        if (!(window as any).voiceSpeechQueue) {
-          (window as any).voiceSpeechQueue = [];
-        }
-        (window as any).voiceSpeechQueue.push(text);
-        return;
-      }
-
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = "hi-IN";
-      utterance.rate = 0.9;
-      window.speechSynthesis.speak(utterance);
-    },
-    [enabled]
+  const muted = useSyncExternalStore(
+    voiceController.subscribe,
+    () => voiceController.muted,
+    () => false,
   );
 
+  const speak = useCallback((text: string) => {
+    voiceController.speak(text);
+  }, []);
+
   const stop = useCallback(() => {
-    if (typeof window !== "undefined") {
-      if (window.speechSynthesis) {
-        window.speechSynthesis.cancel();
-      }
-      (window as any).voiceSpeechQueue = [];
-    }
+    voiceController.stopSpeech();
   }, []);
 
   const stopAll = useCallback(() => {
-    if (typeof window !== "undefined") {
-      if (window.speechSynthesis) {
-        window.speechSynthesis.cancel();
-      }
-    }
-    try {
-      import("@/lib/sarvam-tts").then(({ stopActiveAudio }) => stopActiveAudio());
-    } catch (e) {
-      // ignore
-    }
+    voiceController.stopSpeech();
+  }, []);
+
+  const toggle = useCallback(() => {
+    voiceController.setMuted(!voiceController.muted);
   }, []);
 
   return {
     speak,
     stop,
     stopAll,
-    enabled: mounted ? enabled : true,
+    enabled: !muted,
     toggle,
   };
 }

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { Tiro_Devanagari_Hindi, Noto_Sans_Devanagari, Yatra_One } from 'next/font/google'
 import './globals.css'
 import NextDynamic from 'next/dynamic'
+import VoiceRoot from '@/components/VoiceRoot'
 
 // SSR FIX: Force dynamic rendering for all pages
 export const dynamic = 'force-dynamic'
@@ -68,6 +69,7 @@ export default function RootLayout({
       <body className="font-hindi text-ink bg-cream text-[18px] leading-[1.6] antialiased" suppressHydrationWarning>
         {/* SSR FIX: Hydrate Zustand persist stores after initial render - CLIENT SIDE ONLY */}
         <StoreHydrationClient />
+        <VoiceRoot />
         <div className="relative mx-auto w-full max-w-[430px] min-h-screen overflow-x-hidden">
           {children}
         </div>

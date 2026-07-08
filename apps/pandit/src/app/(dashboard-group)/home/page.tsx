@@ -242,27 +242,15 @@ export default function HomePage() {
     },
   ];
 
-  const HomeHeaderRightSlot = () => {
-    const { enabled, toggle } = useVoice();
-    return (
-      <div className="flex items-center gap-1.5">
-        <button
-          onClick={() => router.push("/settings")}
-          className="w-11 h-11 min-h-[44px] min-w-[44px] rounded-full bg-white shadow-card hover:bg-saffron-50 active:scale-90 flex items-center justify-center text-[18px] transition-all focus:outline-none focus:ring-2 focus:ring-saffron-200"
-          aria-label="Settings"
-        >
-          ⚙️
-        </button>
-        <button
-          onClick={toggle}
-          className="w-11 h-11 min-h-[44px] min-w-[44px] rounded-full bg-white shadow-card hover:bg-saffron-50 active:scale-90 flex items-center justify-center text-[18px] transition-all focus:outline-none focus:ring-2 focus:ring-saffron-200"
-          aria-label={enabled ? "Mute Voice" : "Unmute Voice"}
-        >
-          {enabled ? "🔊" : "🔇"}
-        </button>
-      </div>
-    );
-  };
+  const HomeHeaderRightSlot = () => (
+    <button
+      onClick={() => router.push("/settings")}
+      className="w-11 h-11 min-h-[44px] min-w-[44px] rounded-full bg-white shadow-card hover:bg-saffron-50 active:scale-90 flex items-center justify-center text-[18px] transition-all focus:outline-none focus:ring-2 focus:ring-saffron-200"
+      aria-label="Settings"
+    >
+      ⚙️
+    </button>
+  );
 
   return (
     <div className="min-h-screen bg-cream text-ink pb-44">

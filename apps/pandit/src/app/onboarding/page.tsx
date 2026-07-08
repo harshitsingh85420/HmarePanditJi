@@ -1,772 +1,360 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+// ─────────────────────────────────────────────────────────────
+// Voice-first entry ORCHESTRATOR.
+// Phase machine (persisted in the onboarding store):
+//   SPLASH → LANGUAGE_* → LOCATION (grant→coords / deny→city) →
+//   MIC (deny→spoken recovery) → TUTORIAL (12 slides, resumable) →
+//   AUTH (/login?next=/onboarding) → WIZARD (<ProfileWizard/>).
+// Screens are the existing onboarding/screens/* components, wired with
+// their exact prop signatures.
+// ─────────────────────────────────────────────────────────────
+
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { hi } from "@/lib/strings";
+import { useSafeOnboardingStore } from "@/lib/stores/ssr-safe-stores";
+import { useScreenVoice } from "@/hooks/useScreenVoice";
+import { voiceController } from "@/lib/voiceController";
 import { api } from "@/lib/api";
-import { Header } from "@/components/ui/Header";
-import { Card } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
-import { SpeakOnMount } from "@/components/VoiceBar";
-import { useVoice } from "@/hooks/useVoice";
-import { VoiceField } from "@/components/voice/VoiceField";
-import { usePresignedUrl } from "@/hooks/usePresignedUrl";
+import { hi } from "@/lib/strings";
+import {
+  TUTORIAL_PHASE_ORDER,
+  TUTORIAL_PHASE_TO_DOT,
+  detectLanguageFromCity,
+  type OnboardingPhase,
+} from "@/lib/onboarding-store";
 
-interface DraftState {
-  step: number;
-  name: string;
-  city: string;
-  specializations: string[];
-  experience: number;
-  teamSize: number;
-  dakshina: Record<string, string>;
-  aadhaarUrl: string;
-  paymentType: "BANK" | "UPI";
-  bank: {
-    accountName: string;
-    accountNumber: string;
-    accountNumberConfirm: string;
-    ifsc: string;
-  };
-  upi: {
-    id: string;
-  };
-}
+import LanguageConfirmScreen from "./screens/LanguageConfirmScreen";
+import LanguageListScreen from "./screens/LanguageListScreen";
+import LanguageChoiceConfirmScreen from "./screens/LanguageChoiceConfirmScreen";
+import LanguageSetScreen from "./screens/LanguageSetScreen";
+import LocationPermissionScreen from "./screens/LocationPermissionScreen";
+import ManualCityScreen from "./screens/ManualCityScreen";
+import MicPermissionScreen from "./screens/MicPermissionScreen";
+import MicDeniedRecoveryScreen from "./screens/MicDeniedRecoveryScreen";
+import TutorialSwagat from "./screens/tutorial/TutorialSwagat";
+import TutorialIncome from "./screens/tutorial/TutorialIncome";
+import TutorialDakshina from "./screens/tutorial/TutorialDakshina";
+import TutorialOnlineRevenue from "./screens/tutorial/TutorialOnlineRevenue";
+import TutorialBackup from "./screens/tutorial/TutorialBackup";
+import TutorialPayment from "./screens/tutorial/TutorialPayment";
+import TutorialVoiceNav from "./screens/tutorial/TutorialVoiceNav";
+import TutorialDualMode from "./screens/tutorial/TutorialDualMode";
+import TutorialTravel from "./screens/tutorial/TutorialTravel";
+import TutorialVideoVerify from "./screens/tutorial/TutorialVideoVerify";
+import TutorialGuarantees from "./screens/tutorial/TutorialGuarantees";
+import TutorialCTA from "./screens/tutorial/TutorialCTA";
+import ProfileWizard from "./ProfileWizard";
 
-const DEFAULT_DRAFT: DraftState = {
-  step: 1,
-  name: "",
-  city: "",
-  specializations: [],
-  experience: 0,
-  teamSize: 1,
-  dakshina: {},
-  aadhaarUrl: "",
-  paymentType: "BANK",
-  bank: {
-    accountName: "",
-    accountNumber: "",
-    accountNumberConfirm: "",
-    ifsc: "",
-  },
-  upi: {
-    id: "",
-  },
-};
-
-const SPEC_LIST = [
-  { id: "SATYANARAYAN", emoji: "📖" },
-  { id: "GRIHA_PRAVESH", emoji: "🏡" },
-  { id: "VIVAH", emoji: "💑" },
-  { id: "MUNDAN", emoji: "👶" },
-  { id: "NAAMKARAN", emoji: "🍼" },
-  { id: "HAVAN", emoji: "🔥" },
-  { id: "RUDRABHISHEK", emoji: "💦" },
-  { id: "SHRADH", emoji: "👵" },
+const TUTORIAL_COMPONENTS = [
+  TutorialSwagat,
+  TutorialIncome,
+  TutorialDakshina,
+  TutorialOnlineRevenue,
+  TutorialBackup,
+  TutorialPayment,
+  TutorialVoiceNav,
+  TutorialDualMode,
+  TutorialTravel,
+  TutorialVideoVerify,
+  TutorialGuarantees,
+  TutorialCTA,
 ] as const;
 
-export default function OnboardingPage() {
-  const router = useRouter();
-  const { speak } = useVoice();
-
-  const [draft, setDraft] = useState<DraftState>(DEFAULT_DRAFT);
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [errorMsg, setErrorMsg] = useState("");
-  const [uploading, setUploading] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const [showDoneScreen, setShowDoneScreen] = useState(false);
-
-  // Load draft from localStorage on mount
+// ── Splash (minimal inline, per spec) ────────────────────────
+function SplashScreen2({ onDone }: { onDone: () => void }) {
+  useScreenVoice(hi.welcomeFlow.welcome);
   useEffect(() => {
-    // The wizard's API calls all need a logged-in PANDIT — without a token
-    // every step would silently fail at submit time.
-    if (!localStorage.getItem("pandit_token")) {
-      router.replace("/login");
-      return;
-    }
-
-    const searchParams = new URLSearchParams(window.location.search);
-    const urlStep = searchParams.get("step");
-
-    const saved = localStorage.getItem("onboarding_draft");
-    let currentDraft = DEFAULT_DRAFT;
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        currentDraft = { ...DEFAULT_DRAFT, ...parsed };
-      } catch (e) {
-        console.warn("Failed to parse onboarding draft", e);
-      }
-    }
-
-    if (urlStep) {
-      const parsedStep = parseInt(urlStep, 10);
-      currentDraft.step = Number.isFinite(parsedStep)
-        ? Math.min(7, Math.max(1, parsedStep))
-        : currentDraft.step;
-    }
-
-    const hydrateAndStart = async (d: DraftState) => {
-      // Resubmission (e.g. rejected KYC → /onboarding?step=6) arrives after the
-      // local draft was cleared on first submit — refill from the server so the
-      // pandit doesn't unknowingly resubmit an empty profile.
-      if (saved === null) {
-        const meRes = await api("/auth/me");
-        const pp = meRes.success ? meRes.data.user?.panditProfile : null;
-        if (pp) {
-          d = {
-            ...d,
-            name: d.name || meRes.data.user?.name || pp.fullName || "",
-            city: d.city || pp.city || pp.location || "",
-            specializations: d.specializations?.length ? d.specializations : (pp.specializations || []),
-            experience: d.experience || pp.experienceYears || 0,
-            teamSize: d.teamSize || pp.teamSize || 1,
-            aadhaarUrl: d.aadhaarUrl || pp.aadhaarDocUrl || "",
-          };
-        }
-      }
-      setDraft(d);
-      localStorage.setItem("onboarding_draft", JSON.stringify(d));
-      setIsLoaded(true);
-    };
-    void hydrateAndStart(currentDraft);
-  }, [router]);
-
-  // Save draft to localStorage on change
-  const updateDraft = (updates: Partial<DraftState>) => {
-    setDraft((prev) => {
-      const next = { ...prev, ...updates };
-      localStorage.setItem("onboarding_draft", JSON.stringify(next));
-      return next;
-    });
-  };
-
-  const updateBank = (updates: Partial<DraftState["bank"]>) => {
-    setDraft((prev) => {
-      const nextBank = { ...prev.bank, ...updates };
-      const next = { ...prev, bank: nextBank };
-      localStorage.setItem("onboarding_draft", JSON.stringify(next));
-      return next;
-    });
-  };
-
-  const updateUpi = (updates: Partial<DraftState["upi"]>) => {
-    setDraft((prev) => {
-      const nextUpi = { ...prev.upi, ...updates };
-      const next = { ...prev, upi: nextUpi };
-      localStorage.setItem("onboarding_draft", JSON.stringify(next));
-      return next;
-    });
-  };
-
-  const validateStep = (stepNum: number): boolean => {
-    setErrorMsg("");
-
-    if (stepNum === 1) {
-      if (!draft.name || draft.name.trim().length < 3) {
-        setErrorMsg(hi.onboarding.nameError);
-        speak(hi.common.error);
-        return false;
-      }
-    }
-
-    if (stepNum === 2) {
-      if (!draft.city || draft.city.trim().length === 0) {
-        setErrorMsg(hi.onboarding.cityError);
-        speak(hi.common.error);
-        return false;
-      }
-    }
-
-    if (stepNum === 3) {
-      if (draft.specializations.length === 0) {
-        setErrorMsg(hi.onboarding.specError);
-        speak(hi.common.error);
-        return false;
-      }
-    }
-
-    if (stepNum === 4) {
-      if (draft.experience < 0 || draft.experience > 60) {
-        setErrorMsg("अनुभव 0 से 60 साल के बीच होना चाहिए");
-        speak("अनुभव 0 से 60 साल के बीच होना चाहिए");
-        return false;
-      }
-      if (draft.teamSize < 1 || draft.teamSize > 10) {
-        setErrorMsg("टीम 1 से 10 सदस्यों के बीच होनी चाहिए");
-        speak("टीम 1 से 10 सदस्यों के बीच होनी चाहिए");
-        return false;
-      }
-      return true;
-    }
-
-    if (stepNum === 5) {
-      for (const spec of draft.specializations) {
-        const amount = Number(draft.dakshina[spec] || "");
-        if (isNaN(amount) || amount < 501 || amount > 500000) {
-          setErrorMsg(hi.onboarding.dakshinaError);
-          speak(hi.common.error);
-          return false;
-        }
-      }
-    }
-
-    if (stepNum === 6) {
-      if (!draft.aadhaarUrl) {
-        setErrorMsg(hi.onboarding.aadhaarError);
-        speak(hi.common.error);
-        return false;
-      }
-    }
-
-    if (stepNum === 7) {
-      if (draft.paymentType === "BANK") {
-        if (!draft.bank.accountName.trim()) {
-          setErrorMsg(hi.onboarding.paymentError);
-          speak(hi.common.error);
-          return false;
-        }
-        if (!/^\d{9,18}$/.test(draft.bank.accountNumber)) {
-          setErrorMsg(hi.onboarding.paymentError);
-          speak(hi.common.error);
-          return false;
-        }
-        if (draft.bank.accountNumber !== draft.bank.accountNumberConfirm) {
-          setErrorMsg(hi.onboarding.accMismatch);
-          speak(hi.common.error);
-          return false;
-        }
-        if (!/^[A-Z]{4}0[A-Z0-9]{6}$/.test(draft.bank.ifsc)) {
-          setErrorMsg(hi.onboarding.paymentError);
-          speak(hi.common.error);
-          return false;
-        }
-      } else {
-        if (!/^[\w.-]{2,}@[a-zA-Z]{2,}$/.test(draft.upi.id)) {
-          setErrorMsg(hi.onboarding.paymentError);
-          speak(hi.common.error);
-          return false;
-        }
-      }
-    }
-
-    return true;
-  };
-
-  const handleNext = async () => {
-    if (!validateStep(draft.step)) return;
-
-    if (draft.step < 7) {
-      updateDraft({ step: draft.step + 1 });
-    } else {
-      // Step 7 next => Submit full onboarding
-      await handleSubmit();
-    }
-  };
-
-  const handleBack = () => {
-    setErrorMsg("");
-    if (draft.step > 1) {
-      updateDraft({ step: draft.step - 1 });
-    }
-  };
-
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setUploading(true);
-    setErrorMsg("");
-
-    const formData = new FormData();
-    formData.append("file", file);
-
-    try {
-      const token = localStorage.getItem("pandit_token");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1"}/upload`, {
-        method: "POST",
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-        body: formData,
-      });
-
-      const json = await res.json();
-      setUploading(false);
-
-      if (json.success && (json.data?.key || json.data?.url)) {
-        updateDraft({ aadhaarUrl: json.data.key || json.data.url });
-      } else {
-        setErrorMsg(json.error?.message || hi.common.error);
-        speak(hi.common.error);
-      }
-    } catch (err) {
-      setUploading(false);
-      setErrorMsg(hi.common.error);
-      speak(hi.common.error);
-    }
-  };
-
-  const handleSubmit = async () => {
-    setSubmitting(true);
-    setErrorMsg("");
-
-    const payload = {
-      name: draft.name,
-      city: draft.city,
-      specializations: draft.specializations,
-      experience: draft.experience,
-      teamSize: draft.teamSize,
-      dakshina: draft.dakshina,
-      aadhaarUrl: draft.aadhaarUrl,
-      payment: {
-        type: draft.paymentType,
-        bank: draft.paymentType === "BANK" ? {
-          accountName: draft.bank.accountName,
-          accountNumber: draft.bank.accountNumber,
-          ifsc: draft.bank.ifsc,
-        } : undefined,
-        upi: draft.paymentType === "UPI" ? {
-          id: draft.upi.id,
-        } : undefined,
-      },
-    };
-
-    const res = await api("/pandit/onboarding", {
-      method: "POST",
-      body: JSON.stringify(payload),
-    });
-
-    setSubmitting(false);
-
-    if (!res.success) {
-      setErrorMsg(res.error?.message || hi.common.error);
-      speak(hi.common.error);
-      return;
-    }
-
-    // Success: Clear localStorage draft and show Done Screen
-    localStorage.removeItem("onboarding_draft");
-    setShowDoneScreen(true);
-  };
-
-  if (!isLoaded) {
-    return (
-      <div className="min-h-screen bg-cream flex items-center justify-center">
-        <span className="text-[20px] font-hindi font-bold">{hi.common.loading}</span>
-      </div>
-    );
-  }
-
-  if (showDoneScreen) {
-    return (
-      <div className="fixed inset-0 bg-cream text-ink flex flex-col justify-between p-6 z-50">
-        <SpeakOnMount text={hi.onboarding.doneVoice} />
-        
-        <div className="flex-1 flex flex-col items-center justify-center text-center gap-6 max-w-[430px] mx-auto">
-          <span className="text-[100px] select-none leading-none">🎉</span>
-          <h1 className="text-[36px] font-bold text-temple-700 font-hindi">
-            {hi.onboarding.doneTitle}
-          </h1>
-          <p className="text-[20px] font-medium text-slate-700 font-hindi leading-relaxed">
-            {hi.onboarding.doneVoice}
-          </p>
-        </div>
-
-        <div className="max-w-[430px] mx-auto w-full pb-4">
-          <Button
-            variant="primary"
-            size="lg"
-            fullWidth
-            onClick={() => router.push("/home")}
-            style={{ minHeight: "64px", fontSize: "20px" }}
-          >
-            {hi.onboarding.homeBtn}
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
-  // Get vocal instruction text
-  const stepVoices = [
-    hi.onboarding.step1Voice,
-    hi.onboarding.step2Voice,
-    hi.onboarding.step3Voice,
-    hi.onboarding.step4Voice,
-    hi.onboarding.step5Voice,
-    hi.onboarding.step6Voice,
-    hi.onboarding.step7Voice,
-  ];
-  const stepTitles = [
-    hi.onboarding.step1Title,
-    hi.onboarding.step2Title,
-    hi.onboarding.step3Title,
-    hi.onboarding.step4Title,
-    hi.onboarding.step5Title,
-    hi.onboarding.step6Title,
-    hi.onboarding.step7Title,
-  ];
-
+    const t = setTimeout(onDone, 2500);
+    return () => clearTimeout(t);
+  }, [onDone]);
   return (
-    <div className="min-h-screen bg-cream text-ink pb-28">
-      {/* Dynamic Header */}
-      <Header title={stepTitles[draft.step - 1]} showBack={draft.step > 1} onBack={handleBack} />
-
-      {/* Voice Assistant component */}
-      <SpeakOnMount text={stepVoices[draft.step - 1]} key={draft.step} />
-
-      <main className="max-w-[430px] mx-auto px-4 pt-4 flex flex-col gap-5">
-        
-        {/* HUGE PROGRESS DOTS */}
-        <div className="flex flex-col items-center gap-2 my-2">
-          <div className="flex gap-2">
-            {[1, 2, 3, 4, 5, 6, 7].map((s) => (
-              <div
-                key={s}
-                className={`w-4 h-4 rounded-full transition-all duration-200 ${
-                  s === draft.step
-                    ? "bg-saffron w-8"
-                    : s < draft.step
-                    ? "bg-saffron-300"
-                    : "bg-slate-300"
-                }`}
-              />
-            ))}
-          </div>
-          <span className="text-[16px] font-bold text-softgrey font-mono mt-1">
-            Step {draft.step} of 7
-          </span>
-        </div>
-
-        {/* ERROR BOX */}
-        {errorMsg && (
-          <div className="px-4 py-3 bg-red-50 rounded-card border-2 border-danger/30">
-            <p className="text-danger text-[18px] font-bold text-center leading-snug font-hindi">
-              {errorMsg}
-            </p>
-          </div>
-        )}
-
-        {/* STEP-BY-STEP CONTENTS */}
-        <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-4">
-          
-          {/* STEP 1: Name */}
-          {draft.step === 1 && (
-            <VoiceField
-              label={hi.onboarding.step1Title}
-              promptText={hi.onboarding.step1Voice}
-              value={draft.name}
-              onChange={(val) => updateDraft({ name: val })}
-              mode="text"
-              required
-              onComplete={handleNext}
-              placeholder="पंडित जी का नाम लिखें"
-            />
-          )}
-
-          {/* STEP 2: City */}
-          {draft.step === 2 && (
-            <VoiceField
-              label={hi.onboarding.step2Title}
-              promptText={hi.onboarding.step2Voice}
-              value={draft.city}
-              onChange={(val) => updateDraft({ city: val })}
-              mode="choice"
-              choices={[
-                { label: "दिल्ली", value: "Delhi", keywords: ["दिल्ली", "delhi", "dilli", "देहली"] },
-                { label: "नोएडा", value: "Noida", keywords: ["नोएडा", "noida", "नोयडा"] },
-                { label: "गुरुग्राम", value: "Gurugram", keywords: ["गुरुग्राम", "gurugram", "gurgaon", "गुड़गांव", "गुड़गाँव"] },
-                { label: "गाज़ियाबाद", value: "Ghaziabad", keywords: ["गाज़ियाबाद", "ghaziabad", "गाजियाबाद"] },
-                { label: "फरीदाबाद", value: "Faridabad", keywords: ["फरीदाबाद", "faridabad"] }
-              ]}
-              required
-              onComplete={handleNext}
-              placeholder="शहर चुनें या लिखें"
-            />
-          )}
-
-          {/* STEP 3: Specializations */}
-          {draft.step === 3 && (
-            <div className="flex flex-col gap-3">
-              <label className="text-[18px] font-bold text-temple-700 font-hindi">
-                {hi.onboarding.step3Title}
-              </label>
-              
-              <div className="grid grid-cols-2 gap-3">
-                {SPEC_LIST.map((spec) => {
-                  const isSelected = draft.specializations.includes(spec.id);
-                  const labelText = (hi.onboarding.specializations as any)[spec.id] || spec.id;
-                  
-                  return (
-                    <div
-                      key={spec.id}
-                      onClick={() => {
-                        const nextSpecs = isSelected
-                          ? draft.specializations.filter((id) => id !== spec.id)
-                          : [...draft.specializations, spec.id];
-                        updateDraft({ specializations: nextSpecs });
-                      }}
-                      className={`h-[100px] rounded-card border-2 cursor-pointer flex flex-col items-center justify-center gap-1 select-none transition-all ${
-                        isSelected
-                          ? "bg-[#FF9933] border-[#FF9933] text-white shadow-md"
-                          : "bg-white border-saffron-200 text-ink"
-                      }`}
-                      style={{ height: "100px" }}
-                    >
-                      <span className="text-[28px]">{spec.emoji}</span>
-                      <span className="text-[16px] font-bold font-hindi text-center leading-tight">
-                        {isSelected && "✓ "}
-                        {labelText}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* STEP 4: Experience & Team */}
-          {draft.step === 4 && (
-            <div className="flex flex-col gap-6">
-              <VoiceField
-                label={hi.onboarding.experienceLabel}
-                promptText="आपकी पूजा-पाठ का अनुभव कितने साल का है?"
-                value={draft.experience ? String(draft.experience) : ""}
-                onChange={(val) => updateDraft({ experience: Number(val) || 0 })}
-                mode="number"
-                placeholder="अनुभव वर्ष लिखें"
-              />
-              <VoiceField
-                label={hi.onboarding.teamLabel}
-                promptText="आपके दल में कुल कितने पंडित हैं?"
-                value={draft.teamSize ? String(draft.teamSize) : ""}
-                onChange={(val) => updateDraft({ teamSize: Number(val) || 1 })}
-                mode="number"
-                placeholder="दल के सदस्यों की संख्या"
-              />
-            </div>
-          )}
-
-          {/* STEP 5: Dakshina */}
-          {draft.step === 5 && (
-            <div className="flex flex-col gap-4">
-              <label className="text-[18px] font-bold text-temple-700 font-hindi border-b border-saffron-100 pb-2">
-                {hi.onboarding.step5Title}
-              </label>
-
-              <div className="flex flex-col gap-4">
-                {draft.specializations.map((spec) => {
-                  const labelText = (hi.onboarding.specializations as any)[spec] || spec;
-                  const currentRate = draft.dakshina[spec] || "";
-
-                  return (
-                    <div key={spec} className="border-b border-slate-100 pb-3 last:border-0 last:pb-0">
-                      <VoiceField
-                        label={labelText}
-                        promptText={`${labelText} के लिए आपकी दक्षिणा राशि क्या है?`}
-                        value={currentRate}
-                        onChange={(val) => updateDraft({
-                          dakshina: { ...draft.dakshina, [spec]: val },
-                        })}
-                        mode="money"
-                        placeholder="501 - 500000"
-                      />
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* STEP 6: Aadhaar Upload */}
-          {draft.step === 6 && (
-            <div className="flex flex-col gap-3">
-              <label className="text-[18px] font-bold text-temple-700 font-hindi">
-                {hi.onboarding.step6Title}
-              </label>
-
-              <label className="w-full min-h-[140px] border-2 border-dashed border-saffron-300 rounded-card flex flex-col items-center justify-center p-4 bg-saffron-50/10 cursor-pointer active:bg-saffron-50/30 transition-all select-none">
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileUpload}
-                  className="hidden"
-                />
-                
-                {uploading ? (
-                  <span className="text-[18px] font-bold text-saffron-600 font-hindi animate-pulse">
-                    {hi.common.loading}
-                  </span>
-                ) : (
-                  <span className="text-[18px] font-bold text-saffron-600 font-hindi text-center">
-                    {hi.onboarding.aadhaarLabel}
-                  </span>
-                )}
-              </label>
-
-              {draft.aadhaarUrl && <AadhaarPreview keyOrUrl={draft.aadhaarUrl} />}
-            </div>
-          )}
-
-          {/* STEP 7: Bank/UPI */}
-          {draft.step === 7 && (
-            <div className="flex flex-col gap-4">
-              {/* TABS HEADER */}
-              <div className="flex bg-slate-100 rounded-btn p-1.5 border border-saffron-100">
-                <button
-                  type="button"
-                  onClick={() => updateDraft({ paymentType: "BANK" })}
-                  className={`flex-1 py-3 text-center rounded-btn font-bold text-[18px] font-hindi transition-all ${
-                    draft.paymentType === "BANK"
-                      ? "bg-white text-saffron-700 shadow-sm"
-                      : "text-softgrey"
-                  }`}
-                  style={{ minHeight: "56px" }}
-                >
-                  {hi.onboarding.bankTab}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => updateDraft({ paymentType: "UPI" })}
-                  className={`flex-1 py-3 text-center rounded-btn font-bold text-[18px] font-hindi transition-all ${
-                    draft.paymentType === "UPI"
-                      ? "bg-white text-saffron-700 shadow-sm"
-                      : "text-softgrey"
-                  }`}
-                  style={{ minHeight: "56px" }}
-                >
-                  {hi.onboarding.upiTab}
-                </button>
-              </div>
-
-              {/* BANK PAY DETAILS */}
-              {draft.paymentType === "BANK" ? (
-                <div className="flex flex-col gap-4">
-                  {/* Account Name */}
-                  <VoiceField
-                    label={hi.onboarding.accName}
-                    promptText="खाताधारक का नाम क्या है?"
-                    value={draft.bank.accountName}
-                    onChange={(val) => updateBank({ accountName: val })}
-                    mode="text"
-                    placeholder="नाम लिखें"
-                  />
-
-                  {/* Account Number */}
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-[18px] font-bold text-temple-700 font-hindi">
-                      {hi.onboarding.accNumber}
-                    </label>
-                    <input
-                      type="tel"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      value={draft.bank.accountNumber}
-                      onChange={(e) => updateBank({ accountNumber: e.target.value.replace(/\D/g, "") })}
-                      onFocus={() => speak("सुरक्षा के लिए खाता नंबर लिखकर भरें")}
-                      className="w-full h-[56px] px-3 border-2 border-saffron-300 rounded-btn text-[18px] text-ink bg-white focus:outline-none focus:border-saffron-500 font-mono"
-                      style={{ minHeight: "56px", fontSize: "18px" }}
-                      placeholder="1234567890"
-                    />
-                  </div>
-
-                  {/* Confirm Account Number */}
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-[18px] font-bold text-temple-700 font-hindi">
-                      {hi.onboarding.accNumberConfirm}
-                    </label>
-                    <input
-                      type="tel"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      value={draft.bank.accountNumberConfirm}
-                      onChange={(e) => updateBank({ accountNumberConfirm: e.target.value.replace(/\D/g, "") })}
-                      onFocus={() => speak("सुरक्षा के लिए खाता नंबर दोबारा लिखकर भरें")}
-                      className="w-full h-[56px] px-3 border-2 border-saffron-300 rounded-btn text-[18px] text-ink bg-white focus:outline-none focus:border-saffron-500 font-mono"
-                      style={{ minHeight: "56px", fontSize: "18px" }}
-                      placeholder="1234567890"
-                    />
-                  </div>
-
-                  {/* IFSC Code */}
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-[18px] font-bold text-temple-700 font-hindi">
-                      {hi.onboarding.ifscCode}
-                    </label>
-                    <input
-                      type="text"
-                      value={draft.bank.ifsc}
-                      onChange={(e) => updateBank({ ifsc: e.target.value.toUpperCase() })}
-                      onFocus={() => speak("सुरक्षा के लिए IFSC कोड लिखकर भरें। यह आपकी बैंक पासबुक या चेक पर मिलेगा।")}
-                      className="w-full h-[56px] px-3 border-2 border-saffron-300 rounded-btn text-[18px] text-ink bg-white focus:outline-none focus:border-saffron-500 font-mono uppercase"
-                      style={{ minHeight: "56px", fontSize: "18px" }}
-                      placeholder="SBIN0001234"
-                    />
-                  </div>
-                </div>
-              ) : (
-                /* UPI PAY DETAILS */
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[18px] font-bold text-temple-700 font-hindi">
-                    {hi.onboarding.upiIdLabel}
-                  </label>
-                  <input
-                    type="text"
-                    value={draft.upi.id}
-                    onChange={(e) => updateUpi({ id: e.target.value })}
-                    onFocus={() => speak("सुरक्षा के लिए यूपीआई आईडी लिखकर भरें")}
-                    className="w-full h-[56px] px-3 border-2 border-saffron-300 rounded-btn text-[18px] text-ink bg-white focus:outline-none focus:border-saffron-500 font-mono"
-                    style={{ minHeight: "56px", fontSize: "18px" }}
-                    placeholder="example@upi"
-                  />
-                </div>
-              )}
-            </div>
-          )}
-
-        </Card>
-      </main>
-
-      {/* FIXED FOOTER WITH SPLIT NAVIGATION BUTTONS */}
-      <footer className="fixed bottom-0 left-0 right-0 h-24 bg-white border-t border-saffron-100 flex p-3 gap-3 z-30">
-        <button
-          type="button"
-          onClick={handleBack}
-          disabled={draft.step === 1 || submitting}
-          className={`flex-1 h-16 rounded-btn flex items-center justify-center font-bold text-[20px] border-2 transition-all font-hindi active:scale-95 ${
-            draft.step === 1
-              ? "bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed"
-              : "bg-white border-saffron-300 text-saffron-700 hover:bg-saffron-50"
-          }`}
-          style={{ minHeight: "64px", fontSize: "20px" }}
-        >
-          {hi.common.back}
-        </button>
-        <button
-          type="button"
-          onClick={handleNext}
-          disabled={submitting}
-          className="flex-1 h-16 rounded-btn flex items-center justify-center font-bold text-[20px] bg-saffron hover:bg-saffron-600 text-white transition-all font-hindi active:scale-95 shadow-md"
-          style={{ minHeight: "64px", fontSize: "20px" }}
-        >
-          {submitting ? hi.common.loading : draft.step === 7 ? "जमा करें" : hi.common.next}
-        </button>
-      </footer>
-    </div>
+    <main
+      onClick={onDone}
+      className="min-h-dvh w-full max-w-[430px] mx-auto bg-cream flex flex-col items-center justify-center gap-4 cursor-pointer"
+    >
+      <span className="text-[96px] leading-none text-saffron-500 select-none" aria-hidden="true">🕉</span>
+      <h1 className="t-hero text-center">हमारे पंडित जी</h1>
+      <p className="t-body text-softgrey font-hindi text-center px-8">
+        ऐप पंडित के लिए है, पंडित ऐप के लिए नहीं
+      </p>
+    </main>
   );
 }
 
-function AadhaarPreview({ keyOrUrl }: { keyOrUrl: string }) {
-  const { url, refresh } = usePresignedUrl(keyOrUrl);
-  if (!url) return null;
+// ── Gentle stay-state after "बाद में" on the CTA ─────────────
+function LaterStayScreen({ onRegister }: { onRegister: () => void }) {
+  useScreenVoice("कोई बात नहीं पंडित जी। जब मन बने, नीचे बटन दबाकर पंजीकरण करें। हम यहीं हैं।");
   return (
-    <div className="mt-2 border-2 border-saffron-100 rounded-card overflow-hidden bg-white max-w-[200px] mx-auto shadow-sm">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={url}
-        alt="Aadhaar Thumbnail"
-        className="w-full h-[120px] object-cover"
-        onError={() => refresh()}
-      />
-    </div>
+    <main className="min-h-dvh w-full max-w-[430px] mx-auto bg-cream flex flex-col items-center justify-center gap-6 px-6 text-center">
+      <span className="text-[72px]" aria-hidden="true">🙏</span>
+      <h1 className="t-title font-bold">जब आप तैयार हों</h1>
+      <p className="t-body text-softgrey font-hindi">
+        आपकी जानकारी सुरक्षित है। पंजीकरण में सिर्फ़ दस मिनट लगते हैं — बिल्कुल मुफ़्त।
+      </p>
+      <button
+        onClick={onRegister}
+        className="w-full min-h-[64px] bg-saffron-500 text-[#FFF3EA] rounded-btn text-[20px] font-bold shadow-btn active:scale-[0.97] transition-transform"
+      >
+        पंजीकरण शुरू करें →
+      </button>
+    </main>
   );
+}
+
+// ── Orchestrator ─────────────────────────────────────────────
+export default function OnboardingOrchestratorPage() {
+  const router = useRouter();
+  const store = useSafeOnboardingStore();
+  const [resumeChecked, setResumeChecked] = useState(false);
+  const [showLaterState, setShowLaterState] = useState(false);
+
+  const { phase, selectedLanguage, scriptPreference, detectedCity } = store;
+
+  // ── Mount resume rules ─────────────────────────────────────
+  useEffect(() => {
+    const run = async () => {
+      const token = typeof window !== "undefined" ? localStorage.getItem("pandit_token") : null;
+      if (token) {
+        // token exists → profile decides: incomplete → WIZARD, complete → /home
+        const me = await api("/auth/me");
+        const status = me.success ? me.data?.user?.panditProfile?.verificationStatus : null;
+        const complete = me.success && status && status !== "PENDING";
+        if (complete) {
+          router.replace("/home");
+          return;
+        }
+        // fetch failure or incomplete profile → wizard
+        store.setPhase("WIZARD");
+      } else if (store.tutorialCompleted) {
+        // tutorial done but never logged in → straight to auth
+        store.setPhase("AUTH");
+      }
+      // else: stay wherever the persisted phase points (incl. mid-tutorial)
+      setResumeChecked(true);
+    };
+    void run();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ── AUTH phase: hand over to /login and come back ──────────
+  useEffect(() => {
+    if (resumeChecked && phase === "AUTH") {
+      router.push("/login?next=/onboarding");
+    }
+  }, [resumeChecked, phase, router]);
+
+  if (!resumeChecked) {
+    return (
+      <div className="min-h-dvh bg-cream flex items-center justify-center">
+        <span className="text-[48px] animate-pulse" aria-hidden="true">🪔</span>
+      </div>
+    );
+  }
+
+  const goto = (p: OnboardingPhase) => {
+    voiceController.stopSpeech();
+    store.setPhase(p);
+  };
+
+  // ── LANGUAGE cluster ───────────────────────────────────────
+  if (phase === "SPLASH") {
+    return <SplashScreen2 onDone={() => goto("LANGUAGE_CONFIRM")} />;
+  }
+
+  if (phase === "LANGUAGE_CONFIRM") {
+    return (
+      <LanguageConfirmScreen
+        language={selectedLanguage}
+        detectedCity={detectedCity}
+        onConfirm={() => {
+          store.setLanguageConfirmed(true);
+          goto("LOCATION_PERMISSION");
+        }}
+        onChange={() => goto("LANGUAGE_LIST")}
+        onBack={() => goto("SPLASH")}
+      />
+    );
+  }
+
+  if (phase === "LANGUAGE_LIST") {
+    return (
+      <LanguageListScreen
+        language={selectedLanguage}
+        scriptPreference={scriptPreference}
+        onSelect={(lang) => {
+          store.setPendingLanguage(lang);
+          goto("LANGUAGE_CHOICE_CONFIRM");
+        }}
+        onBack={() => goto("LANGUAGE_CONFIRM")}
+        onLanguageChange={() => goto("LANGUAGE_LIST")}
+      />
+    );
+  }
+
+  if (phase === "LANGUAGE_CHOICE_CONFIRM") {
+    return (
+      <LanguageChoiceConfirmScreen
+        language={selectedLanguage}
+        scriptPreference={scriptPreference}
+        pendingLanguage={store.pendingLanguage || selectedLanguage}
+        onConfirm={() => {
+          store.setLanguage(store.pendingLanguage || selectedLanguage);
+          goto("LANGUAGE_SET");
+        }}
+        onReject={() => goto("LANGUAGE_LIST")}
+        onBack={() => goto("LANGUAGE_LIST")}
+        onLanguageChange={() => goto("LANGUAGE_LIST")}
+      />
+    );
+  }
+
+  if (phase === "LANGUAGE_SET") {
+    return (
+      <LanguageSetScreen
+        language={selectedLanguage}
+        onComplete={() => goto("LOCATION_PERMISSION")}
+      />
+    );
+  }
+
+  // ── LOCATION ───────────────────────────────────────────────
+  if (phase === "LOCATION_PERMISSION") {
+    return (
+      <LocationPermissionScreen
+        language={selectedLanguage}
+        onLanguageChange={() => goto("LANGUAGE_LIST")}
+        onGranted={(city, state) => {
+          store.setDetectedCity(city, state);
+          if (!store.languageConfirmed) {
+            store.setSelectedLanguage(detectLanguageFromCity(city));
+          }
+          goto("MIC_PERMISSION");
+        }}
+        onDenied={() => goto("MANUAL_CITY")}
+        onBack={() => goto("LANGUAGE_CONFIRM")}
+        showBack
+      />
+    );
+  }
+
+  if (phase === "MANUAL_CITY") {
+    return (
+      <ManualCityScreen
+        onCitySelected={(city) => {
+          store.setDetectedCity(city, "");
+          goto("MIC_PERMISSION");
+        }}
+        onBack={() => goto("LOCATION_PERMISSION")}
+        onLanguageChange={() => goto("LANGUAGE_LIST")}
+      />
+    );
+  }
+
+  // ── MIC ────────────────────────────────────────────────────
+  if (phase === "MIC_PERMISSION") {
+    return (
+      <MicPermissionScreen
+        language={selectedLanguage}
+        scriptPreference={scriptPreference}
+        onGranted={() => {
+          localStorage.setItem("mic_permission_granted", "true");
+          store.setMicDenied(false);
+          goto("TUTORIAL_SWAGAT");
+        }}
+        onDenied={() => {
+          store.setMicDenied(true);
+          goto("MIC_DENIED");
+        }}
+        onBack={() => goto("LOCATION_PERMISSION")}
+      />
+    );
+  }
+
+  if (phase === "MIC_DENIED") {
+    return (
+      <MicDeniedRecoveryScreen
+        language={selectedLanguage}
+        onContinueWithKeyboard={() => goto("TUTORIAL_SWAGAT")}
+        onRetryPermission={() => goto("MIC_PERMISSION")}
+        onBack={() => goto("MIC_PERMISSION")}
+      />
+    );
+  }
+
+  // ── TUTORIAL (12 slides, resumable via persisted phase) ────
+  const tutorialIndex = TUTORIAL_PHASE_ORDER.indexOf(phase);
+  if (tutorialIndex >= 0) {
+    // TUTORIAL_CTA is handled explicitly below; the generic path only ever
+    // renders the non-CTA slides, whose props are exactly `common`.
+    const Slide = TUTORIAL_COMPONENTS[tutorialIndex] as React.ComponentType<typeof common>;
+    const goSlide = (i: number) => {
+      const clamped = Math.min(TUTORIAL_PHASE_ORDER.length - 1, Math.max(0, i));
+      store.setCurrentTutorialScreen(clamped + 1);
+      goto(TUTORIAL_PHASE_ORDER[clamped]);
+    };
+    const common = {
+      language: selectedLanguage,
+      scriptPreference,
+      onLanguageChange: () => goto("LANGUAGE_LIST"),
+      currentDot: TUTORIAL_PHASE_TO_DOT[phase] ?? tutorialIndex + 1,
+      onNext: () => goSlide(tutorialIndex + 1),
+      onBack: () => (tutorialIndex === 0 ? goto("MIC_PERMISSION") : goSlide(tutorialIndex - 1)),
+      onSkip: () => goSlide(TUTORIAL_PHASE_ORDER.length - 1), // स्किप → CTA slide
+    };
+
+    if (phase === "TUTORIAL_CTA") {
+      if (showLaterState) {
+        return (
+          <LaterStayScreen
+            onRegister={() => {
+              setShowLaterState(false);
+              store.setTutorialCompleted(true);
+              goto("AUTH");
+            }}
+          />
+        );
+      }
+      return (
+        <TutorialCTA
+          {...common}
+          onNext={() => {
+            store.setTutorialCompleted(true);
+            goto("AUTH");
+          }}
+          onRegisterNow={() => {
+            store.setTutorialCompleted(true);
+            goto("AUTH");
+          }}
+          onLater={() => {
+            store.setTutorialCompleted(true);
+            setShowLaterState(true);
+          }}
+        />
+      );
+    }
+
+    return <Slide {...common} />;
+  }
+
+  // ── AUTH / WIZARD ──────────────────────────────────────────
+  if (phase === "AUTH") {
+    return (
+      <div className="min-h-dvh bg-cream flex items-center justify-center">
+        <span className="text-[48px] animate-pulse" aria-hidden="true">🪔</span>
+      </div>
+    );
+  }
+
+  if (phase === "WIZARD" || phase === "REGISTRATION") {
+    const token = typeof window !== "undefined" ? localStorage.getItem("pandit_token") : null;
+    if (!token) {
+      store.setPhase("AUTH");
+      return null;
+    }
+    return <ProfileWizard onDone={() => router.push("/home")} />;
+  }
+
+  // Unknown/legacy phases (HELP, VOICE_TUTORIAL, SCRIPT_CHOICE) → restart cleanly
+  return <SplashScreen2 onDone={() => goto("LANGUAGE_CONFIRM")} />;
 }

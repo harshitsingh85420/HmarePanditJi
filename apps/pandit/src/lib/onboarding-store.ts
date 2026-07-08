@@ -37,6 +37,10 @@ export type OnboardingPhase =
   | 'TUTORIAL_GUARANTEES'
   | 'TUTORIAL_CTA'
   | 'REGISTRATION'
+  | 'MIC_PERMISSION'
+  | 'MIC_DENIED'
+  | 'AUTH'
+  | 'WIZARD'
 
 export interface OnboardingState {
   // Language selection state
@@ -57,6 +61,9 @@ export interface OnboardingState {
 
   // Voice tutorial
   voiceTutorialSeen: boolean
+
+  // Mic permission
+  micDenied: boolean
 
   // App meta
   firstEverOpen: boolean
@@ -81,6 +88,7 @@ export const DEFAULT_STATE: OnboardingState = {
   tutorialCompleted: false,
   currentTutorialScreen: 1,
   voiceTutorialSeen: false,
+  micDenied: false,
   firstEverOpen: true,
   helpRequested: false,
 }
@@ -170,7 +178,8 @@ const VALID_PHASES: OnboardingPhase[] = [
   'VOICE_TUTORIAL', 'TUTORIAL_SWAGAT', 'TUTORIAL_INCOME', 'TUTORIAL_DAKSHINA',
   'TUTORIAL_ONLINE_REVENUE', 'TUTORIAL_BACKUP', 'TUTORIAL_PAYMENT',
   'TUTORIAL_VOICE_NAV', 'TUTORIAL_DUAL_MODE', 'TUTORIAL_TRAVEL',
-  'TUTORIAL_VIDEO_VERIFY', 'TUTORIAL_GUARANTEES', 'TUTORIAL_CTA', 'REGISTRATION'
+  'TUTORIAL_VIDEO_VERIFY', 'TUTORIAL_GUARANTEES', 'TUTORIAL_CTA', 'REGISTRATION',
+  'MIC_PERMISSION', 'MIC_DENIED', 'AUTH', 'WIZARD'
 ]
 
 // STATE-001 FIX: Validate onboarding state to prevent crashes from corrupted data
@@ -198,6 +207,7 @@ function validateOnboardingState(parsed: Partial<OnboardingState>): Partial<Onbo
   validated.voiceTutorialSeen = typeof parsed.voiceTutorialSeen === 'boolean' ? parsed.voiceTutorialSeen : false
   validated.firstEverOpen = typeof parsed.firstEverOpen === 'boolean' ? parsed.firstEverOpen : true
   validated.helpRequested = typeof parsed.helpRequested === 'boolean' ? parsed.helpRequested : false
+  validated.micDenied = typeof parsed.micDenied === 'boolean' ? parsed.micDenied : false
 
   // Validate string fields
   validated.detectedCity = typeof parsed.detectedCity === 'string' ? parsed.detectedCity : ''

@@ -1,7 +1,10 @@
 "use client";
 
+// useSearchParams requires runtime rendering
+export const dynamic = "force-dynamic";
+
 import React, { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { hi } from "@/lib/strings";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/Button";
@@ -11,6 +14,8 @@ import { VoiceField } from "@/components/voice/VoiceField";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const nextParam = searchParams?.get("next") || "";
   const { speak } = useVoice();
 
   // Navigation states
@@ -89,9 +94,10 @@ export default function LoginPage() {
     const { token, isNewUser, verificationStatus } = res.data;
     localStorage.setItem("pandit_token", token);
 
-    // if isNewUser or profile incomplete (verificationStatus is PENDING) -> redirect /onboarding, else -> /home
+    // profile incomplete → continue where the caller wanted (?next=, default
+    // /onboarding); complete → straight to /home
     if (isNewUser || verificationStatus === "PENDING") {
-      router.push("/onboarding");
+      router.push(nextParam && nextParam.startsWith("/") ? nextParam : "/onboarding");
     } else {
       router.push("/home");
     }

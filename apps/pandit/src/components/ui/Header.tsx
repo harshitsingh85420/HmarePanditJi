@@ -3,7 +3,6 @@
 import React from "react";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { useVoice } from "../../hooks/useVoice";
 import { Toran } from "./Toran";
 
 function cn(...inputs: (string | undefined | false | null)[]) {
@@ -19,8 +18,6 @@ export interface HeaderProps {
 }
 
 export function Header({ title, showBack = false, onBack, rightSlot, className }: HeaderProps) {
-  const { enabled, toggle } = useVoice();
-
   return (
     <header className={cn("sticky top-0 z-30", className)}>
       <div className="bg-saffron-500 h-16 min-h-[56px] px-4 flex items-center justify-between gap-4">
@@ -46,17 +43,8 @@ export function Header({ title, showBack = false, onBack, rightSlot, className }
       {/* Right Voice Toggle Slot — min-width keeps the title centered for the
           default single button, but the slot may grow (e.g. home passes two) */}
       <div className="min-w-14 flex items-center justify-end flex-shrink-0">
-        {rightSlot !== undefined ? (
-          rightSlot
-        ) : (
-          <button
-            onClick={toggle}
-            className="w-14 h-14 min-h-[56px] min-w-[56px] rounded-full bg-white shadow-card hover:bg-saffron-50 active:scale-90 flex items-center justify-center text-[20px] transition-all focus:outline-none focus:ring-2 focus:ring-saffron-200"
-            aria-label={enabled ? "Mute Voice" : "Unmute Voice"}
-          >
-            {enabled ? "🔊" : "🔇"}
-          </button>
-        )}
+        {/* Global SpeakerFab owns the mute control; keep the slot for balance */}
+        {rightSlot !== undefined ? rightSlot : <span className="w-14" aria-hidden="true" />}
         </div>
       </div>
       <Toran tone="onSindoor" className="bg-saffron-500" />
