@@ -72,6 +72,31 @@ export default function BookingsPage() {
     return false;
   });
 
+  // Date-group headers: आज / कल / इस हफ़्ते / बाद में
+  const groupOf = (dateStr: string): string => {
+    const d = new Date(dateStr);
+    const now = new Date();
+    const day = (x: Date) => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime();
+    const diff = Math.round((day(d) - day(now)) / 86400000);
+    if (diff <= 0) return hi.bookingsSummary.today;
+    if (diff === 1) return hi.bookingsSummary.tomorrowHdr;
+    if (diff <= 7) return hi.bookingsSummary.thisWeek;
+    return hi.bookingsSummary.later;
+  };
+  const grouped: Array<{ header: string; items: BookingItem[] }> = [];
+  for (const b of filteredBookings) {
+    const header = groupOf(b.eventDate);
+    const last = grouped[grouped.length - 1];
+    if (last && last.header === header) last.items.push(b);
+    else grouped.push({ header, items: [b] });
+  }
+
+  const newCount = bookings.filter((b) => b.status === "REQUESTED").length;
+  const countsNarration =
+    newCount === 0
+      ? `${hi.bookingsList.intro} ${hi.bookingsSummary.none}`
+      : `${hi.bookingsList.intro} ${hi.bookingsSummary.counts.replace("{count}", String(newCount))}`;
+
   const handleCardClick = (b: BookingItem) => {
     if (b.status === "REQUESTED") {
       router.push(`/bookings/${b.id}/request`);
@@ -102,7 +127,7 @@ export default function BookingsPage() {
   return (
     <div className="min-h-screen bg-cream text-ink pb-28">
       <Header title={hi.bookingsList.title} showBack={false} />
-      <SpeakOnMount text={hi.bookingsList.intro} />
+      <SpeakOnMount text={countsNarration} />
       <VoiceActionListener
         commands={[
           { keywords: ["नई", "नयी", "new"], action: () => setActiveTab("NEW") },
@@ -155,7 +180,10 @@ export default function BookingsPage() {
             </span>
           </div>
         ) : (
-          filteredBookings.map((b) => (
+          grouped.map((g) => (
+            <React.Fragment key={g.header}>
+              <h4 className="t-hint font-bold text-temple-600 font-hindi mt-1">{g.header}</h4>
+              {g.items.map((b) => (
             <motion.div
               key={b.id}
               whileTap={{ scale: 0.98 }}
@@ -193,6 +221,8 @@ export default function BookingsPage() {
                 </div>
               </Card>
             </motion.div>
+              ))}
+            </React.Fragment>
           ))
         )}
       </main>

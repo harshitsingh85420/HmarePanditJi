@@ -4,12 +4,15 @@
 export const dynamic = 'force-dynamic'
 
 import { useRouter } from 'next/navigation'
+import { hi as strings } from '@/lib/strings'
+import { useSafeOnboardingStore } from '@/lib/stores/ssr-safe-stores'
 import { motion } from 'framer-motion'
 import { speakWithSarvam } from '@/lib/sarvam-tts'
 import { useEffect } from 'react'
 
 export default function HelpPage() {
   const router = useRouter()
+  const { setPhase, setCurrentTutorialScreen } = useSafeOnboardingStore()
 
   useEffect(() => {
     void speakWithSarvam({ text: 'कैसे मदद करें? हमारी Team तैयार है।', languageCode: 'hi-IN' })
@@ -48,6 +51,24 @@ export default function HelpPage() {
 
       {/* Content */}
       <section className="px-4 flex-grow mt-4 xs:mt-6">
+        <button
+          onClick={() => {
+            setPhase('TUTORIAL');
+            setCurrentTutorialScreen(1);
+            router.push('/onboarding');
+          }}
+          className="w-full flex items-center gap-3 xs:gap-4 bg-white border-2 border-saffron rounded-card px-4 xs:px-5 min-h-[64px] active:scale-[0.98] transition-transform mb-4 text-[18px] font-bold text-saffron font-hindi"
+        >
+          {strings.helpScreen.rewatchTutorial}
+        </button>
+
+        <button
+          onClick={() => router.push('/emergency-sos')}
+          className="w-full flex items-center gap-3 xs:gap-4 bg-white border-2 border-danger rounded-card px-4 xs:px-5 min-h-[64px] active:scale-[0.98] transition-transform mb-4 text-[18px] font-bold text-danger font-hindi"
+        >
+          {strings.helpScreen.emergency}
+        </button>
+
         <a href="tel:18004654357" className="flex items-center gap-3 xs:gap-4 bg-saffron rounded-card shadow-cta px-4 xs:px-5 py-0 min-h-[52px] xs:min-h-[56px] sm:min-h-[72px] active:scale-[0.98] transition-transform mb-4">
           <div className="w-12 h-12 xs:w-14 xs:h-14 sm:w-[56px] sm:h-[56px] flex items-center justify-center shrink-0"><span className="text-2xl xs:text-3xl sm:text-4xl">📞</span></div>
           <div><p className="text-base xs:text-lg sm:text-[20px] font-bold text-white">हमारी Team से बात करें</p><p className="text-sm xs:text-base sm:text-[16px] text-white/85 mt-0.5">1800-HMJ-HELP | बिल्कुल Free</p></div>

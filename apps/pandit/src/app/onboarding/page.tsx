@@ -1,13 +1,16 @@
 "use client";
 
 // ─────────────────────────────────────────────────────────────
-// Voice-first entry ORCHESTRATOR.
-// Phase machine (persisted in the onboarding store):
-//   SPLASH → LANGUAGE_* → LOCATION (grant→coords / deny→city) →
-//   MIC (deny→spoken recovery) → TUTORIAL (12 slides, resumable) →
-//   AUTH (/login?next=/onboarding) → WIZARD (<ProfileWizard/>).
-// Screens are the existing onboarding/screens/* components, wired with
-// their exact prop signatures.
+// Voice-first entry ORCHESTRATOR (Interaction Model v2).
+// SPLASH → LOCATION (grant→coords / deny→city) → LANGUAGE (detected,
+// confirmed in its own tongue) → TUTORIAL (14 slides; mic is asked on
+// slide 5 — there is no separate mic phase) → AUTH (/login round-trip)
+// → WIZARD (<ProfileWizard/>) → /home. Phase + slide persist in the
+// onboarding store; mount resume rules at the bottom of this header:
+//   token && profile.fullName → /home
+//   token && incomplete       → WIZARD (wizard resumes its saved step)
+//   !token && tutorialCompleted → AUTH
+//   else                       → saved phase/slide (default SPLASH)
 // ─────────────────────────────────────────────────────────────
 
 import React, { useEffect, useState } from "react";
@@ -17,51 +20,24 @@ import { useScreenVoice } from "@/hooks/useScreenVoice";
 import { voiceController } from "@/lib/voiceController";
 import { api } from "@/lib/api";
 import { hi } from "@/lib/strings";
-import {
-  TUTORIAL_PHASE_ORDER,
-  TUTORIAL_PHASE_TO_DOT,
-  detectLanguageFromCity,
-  type OnboardingPhase,
-} from "@/lib/onboarding-store";
+import { detectLanguage, LANG_TO_BCP47, LANG_NATIVE_NAME, type LangCode } from "@/lib/languageDetect";
+import { LANG_CONFIRM } from "@/lib/strings-langconfirm";
+import { type OnboardingPhase, type SupportedLanguage } from "@/lib/onboarding-store";
+import { speakWithSarvam } from "@/lib/sarvam-tts";
 
-import LanguageConfirmScreen from "./screens/LanguageConfirmScreen";
-import LanguageListScreen from "./screens/LanguageListScreen";
-import LanguageChoiceConfirmScreen from "./screens/LanguageChoiceConfirmScreen";
-import LanguageSetScreen from "./screens/LanguageSetScreen";
 import LocationPermissionScreen from "./screens/LocationPermissionScreen";
 import ManualCityScreen from "./screens/ManualCityScreen";
-import MicPermissionScreen from "./screens/MicPermissionScreen";
-import MicDeniedRecoveryScreen from "./screens/MicDeniedRecoveryScreen";
-import TutorialSwagat from "./screens/tutorial/TutorialSwagat";
-import TutorialIncome from "./screens/tutorial/TutorialIncome";
-import TutorialDakshina from "./screens/tutorial/TutorialDakshina";
-import TutorialOnlineRevenue from "./screens/tutorial/TutorialOnlineRevenue";
-import TutorialBackup from "./screens/tutorial/TutorialBackup";
-import TutorialPayment from "./screens/tutorial/TutorialPayment";
-import TutorialVoiceNav from "./screens/tutorial/TutorialVoiceNav";
-import TutorialDualMode from "./screens/tutorial/TutorialDualMode";
-import TutorialTravel from "./screens/tutorial/TutorialTravel";
-import TutorialVideoVerify from "./screens/tutorial/TutorialVideoVerify";
-import TutorialGuarantees from "./screens/tutorial/TutorialGuarantees";
-import TutorialCTA from "./screens/tutorial/TutorialCTA";
+import LanguageListScreen from "./screens/LanguageListScreen";
+import TutorialV2, { TUTORIAL_TOTAL } from "./TutorialV2";
 import ProfileWizard from "./ProfileWizard";
 
-const TUTORIAL_COMPONENTS = [
-  TutorialSwagat,
-  TutorialIncome,
-  TutorialDakshina,
-  TutorialOnlineRevenue,
-  TutorialBackup,
-  TutorialPayment,
-  TutorialVoiceNav,
-  TutorialDualMode,
-  TutorialTravel,
-  TutorialVideoVerify,
-  TutorialGuarantees,
-  TutorialCTA,
-] as const;
+const SUPPORTED_TO_CODE: Record<string, LangCode> = {
+  Hindi: "hi", Marathi: "mr", Bengali: "bn", Tamil: "ta", Telugu: "te",
+  Kannada: "kn", Gujarati: "gu", Punjabi: "pa", Malayalam: "ml",
+  Odia: "or", English: "en",
+};
 
-// ── Splash (minimal inline, per spec) ────────────────────────
+// ── Splash ───────────────────────────────────────────────────
 function SplashScreen2({ onDone }: { onDone: () => void }) {
   useScreenVoice(hi.welcomeFlow.welcome);
   useEffect(() => {
@@ -82,22 +58,48 @@ function SplashScreen2({ onDone }: { onDone: () => void }) {
   );
 }
 
-// ── Gentle stay-state after "बाद में" on the CTA ─────────────
-function LaterStayScreen({ onRegister }: { onRegister: () => void }) {
-  useScreenVoice("कोई बात नहीं पंडित जी। जब मन बने, नीचे बटन दबाकर पंजीकरण करें। हम यहीं हैं।");
+// ── Language confirm — speaks IN the detected language ──────
+function LangConfirmScreen2({
+  code,
+  onYes,
+  onOther,
+}: {
+  code: LangCode;
+  onYes: () => void;
+  onOther: () => void;
+}) {
+  const t = LANG_CONFIRM[code];
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      void speakWithSarvam({ text: t.confirmQuestion, languageCode: LANG_TO_BCP47[code] as never });
+    }, 300);
+    const unregister = voiceController.registerReplay(() => {
+      void speakWithSarvam({ text: t.confirmQuestion, languageCode: LANG_TO_BCP47[code] as never });
+    });
+    return () => {
+      clearTimeout(timer);
+      unregister();
+    };
+  }, [code, t.confirmQuestion]);
+
   return (
     <main className="min-h-dvh w-full max-w-[430px] mx-auto bg-cream flex flex-col items-center justify-center gap-6 px-6 text-center">
-      <span className="text-[72px]" aria-hidden="true">🙏</span>
-      <h1 className="t-title font-bold">जब आप तैयार हों</h1>
-      <p className="t-body text-softgrey font-hindi">
-        आपकी जानकारी सुरक्षित है। पंजीकरण में सिर्फ़ दस मिनट लगते हैं — बिल्कुल मुफ़्त।
-      </p>
-      <button
-        onClick={onRegister}
-        className="w-full min-h-[64px] bg-saffron-500 text-[#FFF3EA] rounded-btn text-[20px] font-bold shadow-btn active:scale-[0.97] transition-transform"
-      >
-        पंजीकरण शुरू करें →
-      </button>
+      <span className="text-[64px]" aria-hidden="true">🗣️</span>
+      <h1 className="text-[26px] font-bold text-temple-600 font-hindi leading-snug">{t.confirmQuestion}</h1>
+      <div className="w-full flex flex-col gap-3">
+        <button
+          onClick={onYes}
+          className="w-full min-h-[64px] bg-saffron-500 text-[#FFF3EA] rounded-btn text-[20px] font-bold shadow-btn active:scale-[0.97] transition-transform"
+        >
+          {t.yesLabel}
+        </button>
+        <button
+          onClick={onOther}
+          className="w-full min-h-[56px] border-2 border-saffron-500 text-saffron-600 bg-white rounded-btn text-[18px] font-bold active:scale-[0.97] transition-transform"
+        >
+          {t.otherLabel}
+        </button>
+      </div>
     </main>
   );
 }
@@ -107,30 +109,27 @@ export default function OnboardingOrchestratorPage() {
   const router = useRouter();
   const store = useSafeOnboardingStore();
   const [resumeChecked, setResumeChecked] = useState(false);
-  const [showLaterState, setShowLaterState] = useState(false);
 
-  const { phase, selectedLanguage, scriptPreference, detectedCity } = store;
+  const { phase, detectedCity, detectedState, currentTutorialScreen } = store;
 
   // ── Mount resume rules ─────────────────────────────────────
   useEffect(() => {
     const run = async () => {
       const token = typeof window !== "undefined" ? localStorage.getItem("pandit_token") : null;
       if (token) {
-        // token exists → profile decides: incomplete → WIZARD, complete → /home
         const me = await api("/auth/me");
-        const status = me.success ? me.data?.user?.panditProfile?.verificationStatus : null;
-        const complete = me.success && status && status !== "PENDING";
-        if (complete) {
+        const prof = me.success ? me.data?.user?.panditProfile : null;
+        const hasFullName = prof?.fullName && String(prof.fullName).trim().length > 0;
+        const isVerified = prof?.verificationStatus === "VERIFIED" || prof?.verificationStatus === "APPROVED";
+        if (me.success && (hasFullName || isVerified)) {
           router.replace("/home");
           return;
         }
-        // fetch failure or incomplete profile → wizard
+        // fetch failure or incomplete profile → wizard (it resumes its own step)
         store.setPhase("WIZARD");
       } else if (store.tutorialCompleted) {
-        // tutorial done but never logged in → straight to auth
         store.setPhase("AUTH");
       }
-      // else: stay wherever the persisted phase points (incl. mid-tutorial)
       setResumeChecked(true);
     };
     void run();
@@ -157,82 +156,25 @@ export default function OnboardingOrchestratorPage() {
     store.setPhase(p);
   };
 
-  // ── LANGUAGE cluster ───────────────────────────────────────
+  const detectedCode = detectLanguage(detectedCity, detectedState);
+
+  // ── SPLASH ─────────────────────────────────────────────────
   if (phase === "SPLASH") {
-    return <SplashScreen2 onDone={() => goto("LANGUAGE_CONFIRM")} />;
-  }
-
-  if (phase === "LANGUAGE_CONFIRM") {
-    return (
-      <LanguageConfirmScreen
-        language={selectedLanguage}
-        detectedCity={detectedCity}
-        onConfirm={() => {
-          store.setLanguageConfirmed(true);
-          goto("LOCATION_PERMISSION");
-        }}
-        onChange={() => goto("LANGUAGE_LIST")}
-        onBack={() => goto("SPLASH")}
-      />
-    );
-  }
-
-  if (phase === "LANGUAGE_LIST") {
-    return (
-      <LanguageListScreen
-        language={selectedLanguage}
-        scriptPreference={scriptPreference}
-        onSelect={(lang) => {
-          store.setPendingLanguage(lang);
-          goto("LANGUAGE_CHOICE_CONFIRM");
-        }}
-        onBack={() => goto("LANGUAGE_CONFIRM")}
-        onLanguageChange={() => goto("LANGUAGE_LIST")}
-      />
-    );
-  }
-
-  if (phase === "LANGUAGE_CHOICE_CONFIRM") {
-    return (
-      <LanguageChoiceConfirmScreen
-        language={selectedLanguage}
-        scriptPreference={scriptPreference}
-        pendingLanguage={store.pendingLanguage || selectedLanguage}
-        onConfirm={() => {
-          store.setLanguage(store.pendingLanguage || selectedLanguage);
-          goto("LANGUAGE_SET");
-        }}
-        onReject={() => goto("LANGUAGE_LIST")}
-        onBack={() => goto("LANGUAGE_LIST")}
-        onLanguageChange={() => goto("LANGUAGE_LIST")}
-      />
-    );
-  }
-
-  if (phase === "LANGUAGE_SET") {
-    return (
-      <LanguageSetScreen
-        language={selectedLanguage}
-        onComplete={() => goto("LOCATION_PERMISSION")}
-      />
-    );
+    return <SplashScreen2 onDone={() => goto("LOCATION_PERMISSION")} />;
   }
 
   // ── LOCATION ───────────────────────────────────────────────
   if (phase === "LOCATION_PERMISSION") {
     return (
       <LocationPermissionScreen
-        language={selectedLanguage}
+        language={store.selectedLanguage}
         onLanguageChange={() => goto("LANGUAGE_LIST")}
         onGranted={(city, state) => {
           store.setDetectedCity(city, state);
-          if (!store.languageConfirmed) {
-            store.setSelectedLanguage(detectLanguageFromCity(city));
-          }
-          goto("MIC_PERMISSION");
+          goto("LANGUAGE_CONFIRM");
         }}
         onDenied={() => goto("MANUAL_CITY")}
-        onBack={() => goto("LANGUAGE_CONFIRM")}
+        onBack={() => goto("SPLASH")}
         showBack
       />
     );
@@ -243,7 +185,7 @@ export default function OnboardingOrchestratorPage() {
       <ManualCityScreen
         onCitySelected={(city) => {
           store.setDetectedCity(city, "");
-          goto("MIC_PERMISSION");
+          goto("LANGUAGE_CONFIRM");
         }}
         onBack={() => goto("LOCATION_PERMISSION")}
         onLanguageChange={() => goto("LANGUAGE_LIST")}
@@ -251,90 +193,76 @@ export default function OnboardingOrchestratorPage() {
     );
   }
 
-  // ── MIC ────────────────────────────────────────────────────
-  if (phase === "MIC_PERMISSION") {
+  // ── LANGUAGE ───────────────────────────────────────────────
+  if (phase === "LANGUAGE_CONFIRM") {
     return (
-      <MicPermissionScreen
-        language={selectedLanguage}
-        scriptPreference={scriptPreference}
-        onGranted={() => {
-          localStorage.setItem("mic_permission_granted", "true");
-          store.setMicDenied(false);
-          goto("TUTORIAL_SWAGAT");
+      <LangConfirmScreen2
+        code={detectedCode}
+        onYes={() => {
+          store.setLanguageConfirmed(true);
+          if (detectedCode !== "hi") {
+            store.setPreferredLanguage(detectedCode);
+            void speakWithSarvam({
+              text: LANG_CONFIRM[detectedCode].comingSoonLine,
+              languageCode: LANG_TO_BCP47[detectedCode] as never,
+            });
+          }
+          goto("TUTORIAL");
         }}
-        onDenied={() => {
-          store.setMicDenied(true);
-          goto("MIC_DENIED");
-        }}
-        onBack={() => goto("LOCATION_PERMISSION")}
+        onOther={() => goto("LANGUAGE_LIST")}
       />
     );
   }
 
-  if (phase === "MIC_DENIED") {
+  if (phase === "LANGUAGE_LIST") {
     return (
-      <MicDeniedRecoveryScreen
-        language={selectedLanguage}
-        onContinueWithKeyboard={() => goto("TUTORIAL_SWAGAT")}
-        onRetryPermission={() => goto("MIC_PERMISSION")}
-        onBack={() => goto("MIC_PERMISSION")}
+      <LanguageListScreen
+        language={store.selectedLanguage}
+        scriptPreference={store.scriptPreference}
+        onSelect={(lang: SupportedLanguage) => {
+          const code = SUPPORTED_TO_CODE[lang] || "hi";
+          store.setLanguageConfirmed(true);
+          if (code === "hi") {
+            store.setLanguage("Hindi");
+            store.setPreferredLanguage(null);
+          } else {
+            // v1: preference stored, spoken coming-soon in ITS language,
+            // app continues in Hindi
+            store.setLanguage("Hindi");
+            store.setPreferredLanguage(code);
+            void speakWithSarvam({
+              text: LANG_CONFIRM[code].comingSoonLine,
+              languageCode: LANG_TO_BCP47[code] as never,
+            });
+          }
+          goto("TUTORIAL");
+        }}
+        onBack={() => goto("LANGUAGE_CONFIRM")}
+        onLanguageChange={() => goto("LANGUAGE_LIST")}
       />
     );
   }
 
-  // ── TUTORIAL (12 slides, resumable via persisted phase) ────
-  const tutorialIndex = TUTORIAL_PHASE_ORDER.indexOf(phase);
-  if (tutorialIndex >= 0) {
-    // TUTORIAL_CTA is handled explicitly below; the generic path only ever
-    // renders the non-CTA slides, whose props are exactly `common`.
-    const Slide = TUTORIAL_COMPONENTS[tutorialIndex] as React.ComponentType<typeof common>;
-    const goSlide = (i: number) => {
-      const clamped = Math.min(TUTORIAL_PHASE_ORDER.length - 1, Math.max(0, i));
-      store.setCurrentTutorialScreen(clamped + 1);
-      goto(TUTORIAL_PHASE_ORDER[clamped]);
-    };
-    const common = {
-      language: selectedLanguage,
-      scriptPreference,
-      onLanguageChange: () => goto("LANGUAGE_LIST"),
-      currentDot: TUTORIAL_PHASE_TO_DOT[phase] ?? tutorialIndex + 1,
-      onNext: () => goSlide(tutorialIndex + 1),
-      onBack: () => (tutorialIndex === 0 ? goto("MIC_PERMISSION") : goSlide(tutorialIndex - 1)),
-      onSkip: () => goSlide(TUTORIAL_PHASE_ORDER.length - 1), // स्किप → CTA slide
-    };
-
-    if (phase === "TUTORIAL_CTA") {
-      if (showLaterState) {
-        return (
-          <LaterStayScreen
-            onRegister={() => {
-              setShowLaterState(false);
-              store.setTutorialCompleted(true);
-              goto("AUTH");
-            }}
-          />
-        );
-      }
-      return (
-        <TutorialCTA
-          {...common}
-          onNext={() => {
-            store.setTutorialCompleted(true);
-            goto("AUTH");
-          }}
-          onRegisterNow={() => {
-            store.setTutorialCompleted(true);
-            goto("AUTH");
-          }}
-          onLater={() => {
-            store.setTutorialCompleted(true);
-            setShowLaterState(true);
-          }}
-        />
-      );
-    }
-
-    return <Slide {...common} />;
+  // ── TUTORIAL (14 slides; mic asked on slide 5) ─────────────
+  if (phase === "TUTORIAL") {
+    return (
+      <TutorialV2
+        slide={Math.min(TUTORIAL_TOTAL, Math.max(1, currentTutorialScreen))}
+        onSlideChange={(n) => {
+          voiceController.stopSpeech();
+          store.setCurrentTutorialScreen(n);
+        }}
+        onRegister={() => {
+          store.setTutorialCompleted(true);
+          goto("AUTH");
+        }}
+        onLater={() => {
+          store.setTutorialCompleted(true);
+        }}
+        onMicGranted={() => store.setMicDenied(false)}
+        onMicDenied={() => store.setMicDenied(true)}
+      />
+    );
   }
 
   // ── AUTH / WIZARD ──────────────────────────────────────────
@@ -355,6 +283,11 @@ export default function OnboardingOrchestratorPage() {
     return <ProfileWizard onDone={() => router.push("/home")} />;
   }
 
-  // Unknown/legacy phases (HELP, VOICE_TUTORIAL, SCRIPT_CHOICE) → restart cleanly
-  return <SplashScreen2 onDone={() => goto("LANGUAGE_CONFIRM")} />;
+  // Legacy/unknown persisted phases (incl. the old TUTORIAL_* names and
+  // MIC phases) → map into the new machine at the nearest sensible point.
+  if (String(phase).startsWith("TUTORIAL_") || phase === "MIC_PERMISSION" || phase === "MIC_DENIED") {
+    store.setPhase("TUTORIAL");
+    return null;
+  }
+  return <SplashScreen2 onDone={() => goto("LOCATION_PERMISSION")} />;
 }

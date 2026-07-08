@@ -10,6 +10,7 @@ import { api } from "@/lib/api";
 import { Button } from "@/components/ui/Button";
 import { Header } from "@/components/ui/Header";
 import { useVoice } from "@/hooks/useVoice";
+import { useScreenVoice } from "@/hooks/useScreenVoice";
 import { VoiceField } from "@/components/voice/VoiceField";
 
 export default function LoginPage() {
@@ -25,11 +26,6 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [countdown, setCountdown] = useState(30);
-
-  const otpValueRef = useRef("");
-  useEffect(() => {
-    otpValueRef.current = otpValue;
-  }, [otpValue]);
 
   // Countdown timer for OTP resend
   useEffect(() => {
@@ -156,21 +152,9 @@ export default function LoginPage() {
           </>
         ) : (
           <>
-            {/* Screen 2: OTP verification — voice-first, keyboard only on demand */}
+            {/* Screen 2: OTP — typed-only by law (A5); the app speaks why once */}
             <div className="bg-white rounded-card shadow-card p-5 flex flex-col gap-4">
-              <VoiceField
-                label={hi.auth.otpLabel}
-                promptText={hi.auth.otpVoice}
-                value={otpValue}
-                onChange={(v) => setOtpValue(v.replace(/\D/g, "").slice(0, 6))}
-                mode="otp"
-                onComplete={() => {
-                  if (otpValueRef.current.length === 6) {
-                    handleVerifyOtp(otpValueRef.current);
-                  }
-                }}
-                placeholder="XXXXXX"
-              />
+              <OtpBoxes value={otpValue} onChange={setOtpValue} />
 
               {/* Resend Link countdown timer */}
               <div className="text-center mt-2">
@@ -201,6 +185,53 @@ export default function LoginPage() {
           </div>
         )}
       </main>
+    </div>
+  );
+}
+
+// A5: OTP is typed-only — the mic never arms here. The app explains why
+// once (spoken on mount), then it behaves as six plain boxes.
+function OtpBoxes({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  useScreenVoice(hi.auth.otpVoice);
+  const refs = useRef<Array<HTMLInputElement | null>>([]);
+  const digits = Array.from({ length: 6 }, (_, i) => value[i] || "");
+
+  const setDigit = (d: string, idx: number) => {
+    const numeric = d.replace(/\D/g, "");
+    const chars = digits.slice();
+    chars[idx] = numeric.slice(-1);
+    onChange(chars.join(""));
+    if (numeric && idx < 5) refs.current[idx + 1]?.focus();
+  };
+
+  return (
+    <div className="flex flex-col gap-3">
+      <h2 className="t-title font-bold text-temple-600">{hi.auth.otpLabel}</h2>
+      <div className="flex gap-2 justify-center my-2">
+        {digits.map((digit, idx) => (
+          <input
+            key={idx}
+            ref={(el) => {
+              refs.current[idx] = el;
+            }}
+            type="tel"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            maxLength={1}
+            value={digit}
+            onChange={(e) => setDigit(e.target.value, idx)}
+            onKeyDown={(e) => {
+              if (e.key === "Backspace" && !digit && idx > 0) {
+                const chars = digits.slice();
+                chars[idx - 1] = "";
+                onChange(chars.join(""));
+                refs.current[idx - 1]?.focus();
+              }
+            }}
+            className="w-[48px] h-[56px] min-h-[56px] text-center border-2 border-saffron-300 rounded-btn text-[24px] font-bold text-ink bg-white focus:outline-none focus:border-saffron-500 focus:ring-4 focus:ring-saffron-200 transition-all"
+          />
+        ))}
+      </div>
     </div>
   );
 }

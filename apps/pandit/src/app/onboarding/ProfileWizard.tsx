@@ -11,6 +11,7 @@ import { SpeakOnMount } from "@/components/VoiceBar";
 import { useVoice } from "@/hooks/useVoice";
 import { VoiceField } from "@/components/voice/VoiceField";
 import { usePresignedUrl } from "@/hooks/usePresignedUrl";
+import { useSafeOnboardingStore } from "@/lib/stores/ssr-safe-stores";
 
 interface DraftState {
   step: number;
@@ -71,6 +72,15 @@ export default function ProfileWizard({ onDone }: { onDone?: () => void } = {}) 
 
   const [draft, setDraft] = useState<DraftState>(DEFAULT_DRAFT);
   const [isLoaded, setIsLoaded] = useState(false);
+  const { detectedCity } = useSafeOnboardingStore();
+
+  // Step-2 prefill: the LOCATION phase already learned the city
+  useEffect(() => {
+    if (isLoaded && !draft.city && detectedCity) {
+      setDraft((d) => ({ ...d, city: detectedCity }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoaded, detectedCity]);
   const [errorMsg, setErrorMsg] = useState("");
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);

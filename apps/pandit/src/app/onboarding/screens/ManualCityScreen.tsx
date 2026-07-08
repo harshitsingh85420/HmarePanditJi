@@ -11,8 +11,8 @@ interface ManualCityScreenProps {
   onLanguageChange?: () => void;
 }
 
-const POPULAR_CITIES_ROW1 = ['वाराणसी', 'दिल्ली', 'मुंबई', 'कोलकाता'];
-const POPULAR_CITIES_ROW2 = ['चेन्नई', 'बेंगलुरु', 'हैदराबाद', 'पटना'];
+const POPULAR_CITIES_ROW1 = ['दिल्ली', 'नोएडा', 'गुरुग्राम'];
+const POPULAR_CITIES_ROW2 = ['गाज़ियाबाद', 'फ़रीदाबाद'];
 
 export default function ManualCityScreen({ onCitySelected, onBack, onLanguageChange }: ManualCityScreenProps) {
   const [cityInput, setCityInput] = useState('');

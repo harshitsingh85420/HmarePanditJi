@@ -41,6 +41,7 @@ export type OnboardingPhase =
   | 'MIC_DENIED'
   | 'AUTH'
   | 'WIZARD'
+  | 'TUTORIAL'
 
 export interface OnboardingState {
   // Language selection state
@@ -64,6 +65,9 @@ export interface OnboardingState {
 
   // Mic permission
   micDenied: boolean
+
+  // v1: non-Hindi pick is stored as a preference (app continues in Hindi)
+  preferredLanguage: string | null
 
   // App meta
   firstEverOpen: boolean
@@ -89,6 +93,7 @@ export const DEFAULT_STATE: OnboardingState = {
   currentTutorialScreen: 1,
   voiceTutorialSeen: false,
   micDenied: false,
+  preferredLanguage: null,
   firstEverOpen: true,
   helpRequested: false,
 }
@@ -179,7 +184,7 @@ const VALID_PHASES: OnboardingPhase[] = [
   'TUTORIAL_ONLINE_REVENUE', 'TUTORIAL_BACKUP', 'TUTORIAL_PAYMENT',
   'TUTORIAL_VOICE_NAV', 'TUTORIAL_DUAL_MODE', 'TUTORIAL_TRAVEL',
   'TUTORIAL_VIDEO_VERIFY', 'TUTORIAL_GUARANTEES', 'TUTORIAL_CTA', 'REGISTRATION',
-  'MIC_PERMISSION', 'MIC_DENIED', 'AUTH', 'WIZARD'
+  'MIC_PERMISSION', 'MIC_DENIED', 'AUTH', 'WIZARD', 'TUTORIAL'
 ]
 
 // STATE-001 FIX: Validate onboarding state to prevent crashes from corrupted data
@@ -208,6 +213,7 @@ function validateOnboardingState(parsed: Partial<OnboardingState>): Partial<Onbo
   validated.firstEverOpen = typeof parsed.firstEverOpen === 'boolean' ? parsed.firstEverOpen : true
   validated.helpRequested = typeof parsed.helpRequested === 'boolean' ? parsed.helpRequested : false
   validated.micDenied = typeof parsed.micDenied === 'boolean' ? parsed.micDenied : false
+  validated.preferredLanguage = typeof parsed.preferredLanguage === 'string' ? parsed.preferredLanguage : null
 
   // Validate string fields
   validated.detectedCity = typeof parsed.detectedCity === 'string' ? parsed.detectedCity : ''

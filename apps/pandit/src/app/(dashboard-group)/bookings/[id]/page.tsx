@@ -264,6 +264,25 @@ export default function BookingDetailPage() {
           >
             {hi.booking.callCustomer}
           </a>
+
+          <button
+            onClick={() => {
+              const q = encodeURIComponent(booking.venueAddress || "");
+              // geo: opens the native maps app on Android; browsers that
+              // don't handle it fall through to Google Maps
+              const geoUrl = `geo:0,0?q=${q}`;
+              const webUrl = `https://maps.google.com/?q=${q}`;
+              const w = window.open(geoUrl, "_self");
+              setTimeout(() => {
+                if (!document.hidden) window.open(webUrl, "_blank");
+              }, 600);
+              void w;
+            }}
+            className="w-full h-16 bg-white border-2 border-saffron-500 hover:bg-saffron-50 text-saffron-700 font-bold text-[18px] rounded-btn shadow-sm flex items-center justify-center gap-2 active:scale-95 transition-all"
+            style={{ minHeight: "64px", fontSize: "18px" }}
+          >
+            {hi.bookingDetailExtra.showRoute}
+          </button>
         </Card>
 
         {/* 3. JOURNEY STEPS VERTICAL TIMELINE */}

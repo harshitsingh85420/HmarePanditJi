@@ -1,13 +1,24 @@
 "use client";
 
+// ─────────────────────────────────────────────────────────────
+// VoiceField v2 — DUAL INPUT, ZERO MODES (Interaction Model A2/A4/A5).
+// The input is ALWAYS visible and enabled. Voice arms alongside it:
+// prompt speaks → mic auto-opens → spoken value lands in the SAME field
+// with a "आपने कहा X — सही है?" loop. Typing at any moment aborts voice
+// and is accepted without confirmation. After 2 failed voice rounds the
+// field goes quiet ("कोई बात नहीं, नीचे लिख दीजिए") and a small 🎤 in the
+// field's right slot re-arms it. Bank/OTP modes never arm the mic (A5).
+// ─────────────────────────────────────────────────────────────
+
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useVoice } from "../../hooks/useVoice";
 import { useVoiceInput } from "../../hooks/useVoiceInput";
+import { voiceController } from "../../lib/voiceController";
 import { parseHindiNumber, parsePhoneNumber, matchChoice } from "../../lib/voiceParse";
 import { extractOTP } from "../../lib/number-mapper";
-import { reduce, type VFState, type VFEvent } from "./voiceFieldMachine";
-import { Card } from "../ui/Card";
+import { hi } from "../../lib/strings";
 import { Button } from "../ui/Button";
+import { Card } from "../ui/Card";
 
 export interface VoiceFieldProps {
   label: string;
@@ -20,6 +31,18 @@ export interface VoiceFieldProps {
   onComplete?: () => void;
   placeholder?: string;
   disabled?: boolean;
+  /** A5: never arm the mic (bank/IFSC/UPI). OTP mode implies this. */
+  noVoice?: boolean;
+}
+
+import { reduce, type VFState, type VFEvent } from "./voiceFieldMachine";
+
+function micGranted(): boolean {
+  try {
+    return localStorage.getItem("mic_permission_granted") === "true";
+  } catch {
+    return false;
+  }
 }
 
 export function VoiceField({
@@ -33,432 +56,288 @@ export function VoiceField({
   onComplete,
   placeholder,
   disabled,
+  noVoice,
 }: VoiceFieldProps) {
-  const { enabled: voiceOutputEnabled, stop: stopVoice } = useVoice();
+  const { enabled: voiceOn } = useVoice();
   const voiceInput = useVoiceInput();
 
-  const [machineState, setMachineState] = useState<VFState>({ phase: "PROMPTING" });
+  // A5: mic never arms for OTP (typed-only law) or explicitly silent fields
+  const voiceCapable = voiceOn && !noVoice && mode !== "otp";
+
+  const [state, setState] = useState<VFState>({ phase: "IDLE" });
   const [attempts, setAttempts] = useState(0);
-  const [isKeyboardFallback, setIsKeyboardFallback] = useState(false);
-  const [voiceInputEnabled, setVoiceInputEnabled] = useState(true);
-
   const inputRef = useRef<HTMLInputElement>(null);
-  const selectRef = useRef<HTMLSelectElement>(null);
-  const isFirstMount = useRef(true);
+  const startedRef = useRef(false);
+  const stateRef = useRef(state);
+  stateRef.current = state;
+  const attemptsRef = useRef(attempts);
+  attemptsRef.current = attempts;
 
-  // Load configuration from local storage. The header mute toggle (voice_enabled,
-  // via useVoice) also disables voice interaction entirely — muting the app must
-  // not leave the pandit stuck on a silent listening screen.
-  useEffect(() => {
-    const stored = localStorage.getItem("voice_input_enabled");
-    if (stored !== null) {
-      setVoiceInputEnabled(stored === "true" && voiceOutputEnabled);
-    } else {
-      setVoiceInputEnabled(voiceOutputEnabled);
-    }
-  }, [voiceOutputEnabled]);
-
-  const parseValue = useCallback((text: string): string | null => {
-    if (mode === "text") {
-      return text.trim() || null;
-    } else if (mode === "number" || mode === "money") {
-      const parsedNum = parseHindiNumber(text);
-      return parsedNum !== null ? String(parsedNum) : null;
-    } else if (mode === "phone") {
-      return parsePhoneNumber(text);
-    } else if (mode === "otp") {
-      const digits = extractOTP(text);
-      return digits.length === 6 ? digits : null;
-    } else if (mode === "choice") {
-      const matched = matchChoice(text, choices || []);
-      return matched ? matched.value : text.trim();
-    }
-    return null;
-  }, [mode, choices]);
-
-  const speakAndThen = useCallback((txt: string, callback: () => void) => {
-    stopVoice();
-    const utterance = new SpeechSynthesisUtterance(txt);
-    utterance.lang = "hi-IN";
-    utterance.rate = 0.9;
-    utterance.onend = () => callback();
-    utterance.onerror = () => callback();
-    window.speechSynthesis.speak(utterance);
-  }, [stopVoice]);
-
-  const handleEffects = useCallback((
-    effects: Array<'START_LISTEN'|'SPEAK_CONFIRM'|'SPEAK_FALLBACK'|'SPEAK_RETRY'|'FOCUS_KEYBOARD'|'EMIT_VALUE'>,
-    nextState: VFState
-  ) => {
-    effects.forEach(eff => {
-      switch (eff) {
-        case 'START_LISTEN':
-          if (!effects.includes('SPEAK_RETRY') && !effects.includes('SPEAK_CONFIRM') && !effects.includes('SPEAK_FALLBACK')) {
-            voiceInput.start();
-          }
-          break;
-        case 'SPEAK_RETRY':
-          speakAndThen("माफ़ कीजिए, समझ नहीं आया। दोबारा बोलें।", () => {
-            voiceInput.start();
-          });
-          break;
-        case 'SPEAK_CONFIRM':
-          if (nextState.phase === 'CONFIRMING') {
-            const displayVal = mode === "choice"
-              ? (choices?.find(c => c.value === nextState.parsed)?.label || nextState.parsed)
-              : nextState.parsed;
-            speakAndThen(`आपने कहा ${displayVal}. सही है? हाँ या नहीं बोलें.`, () => {
-              voiceInput.start();
-            });
-          }
-          break;
-        case 'SPEAK_FALLBACK':
-          speakAndThen("कोई बात नहीं, नीचे लिखकर बताएं।", () => {
-            // Let FOCUS_KEYBOARD handle input focus
-          });
-          break;
-        case 'FOCUS_KEYBOARD':
-          setIsKeyboardFallback(true);
-          setTimeout(() => {
-            if (mode === "choice") {
-              selectRef.current?.focus();
-            } else {
-              inputRef.current?.focus();
-            }
-          }, 150);
-          break;
-        case 'EMIT_VALUE':
-          if (nextState.phase === 'ACCEPTED') {
-            onChange(nextState.value);
-            setTimeout(() => {
-              onComplete?.();
-              setMachineState({ phase: "TYPE_FALLBACK" });
-            }, 600);
-          }
-          break;
+  const parseValue = useCallback(
+    (text: string): string | null => {
+      if (mode === "text") return text.trim() || null;
+      if (mode === "number" || mode === "money") {
+        const n = parseHindiNumber(text);
+        return n !== null ? String(n) : null;
       }
-    });
-  }, [mode, choices, voiceInput, speakAndThen, onChange, onComplete]);
+      if (mode === "phone") return parsePhoneNumber(text);
+      if (mode === "otp") {
+        const d = extractOTP(text);
+        return d.length === 6 ? d : null;
+      }
+      if (mode === "choice") {
+        const matched = matchChoice(text, choices || []);
+        return matched ? matched.value : text.trim() || null;
+      }
+      return null;
+    },
+    [mode, choices],
+  );
 
-  // Prompt vocalization on mounting/activation
-  const speakPrompt = useCallback(() => {
-    stopVoice();
-    if (!voiceInputEnabled || isKeyboardFallback) {
-      setMachineState({ phase: "TYPE_FALLBACK" });
-      setIsKeyboardFallback(true);
-      return;
-    }
-    const utterance = new SpeechSynthesisUtterance(promptText);
-    utterance.lang = "hi-IN";
-    utterance.rate = 0.9;
-    let advanced = false;
-    const advance = () => {
-      if (advanced) return;
-      advanced = true;
-      const res = reduce(machineState, { type: "SPEECH_DONE" }, { attempts, mode, parse: parseValue });
-      setMachineState(res.next);
-      setAttempts(res.attempts);
-      handleEffects(res.effects, res.next);
-    };
-    utterance.onend = advance;
-    utterance.onerror = advance;
-    // Safety net: some browsers/WebViews never fire onend — don't leave the
-    // pandit stranded on a silent prompt screen.
-    setTimeout(advance, Math.max(6000, promptText.length * 180));
-    window.speechSynthesis.speak(utterance);
-  }, [promptText, voiceInputEnabled, isKeyboardFallback, machineState, attempts, mode, parseValue, handleEffects, stopVoice]);
+  const dispatch = useCallback(
+    (e: VFEvent) => {
+      {
+        const result = reduce(stateRef.current, e, {
+          attempts: attemptsRef.current,
+          mode,
+          parse: parseValue,
+        });
+        const { next, effects, accepted } = result;
+        setAttempts(result.attempts);
+        setState(next);
 
-  useEffect(() => {
-    if (isFirstMount.current) {
-      isFirstMount.current = false;
-      const timer = setTimeout(() => {
-        if (voiceInputEnabled && !isKeyboardFallback) {
-          speakPrompt();
-        } else {
-          setMachineState({ phase: "TYPE_FALLBACK" });
-          setIsKeyboardFallback(true);
-        }
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-  }, [speakPrompt, voiceInputEnabled, isKeyboardFallback]);
-
-  // Listening state synchronization
-  useEffect(() => {
-    if (machineState.phase === "LISTENING" && voiceInput.state === "processing") {
-      setMachineState({ phase: "PROCESSING" });
-    }
-  }, [voiceInput.state, machineState.phase]);
-
-  // Transcripts & Error handlers matching State Machine Transitions
-  useEffect(() => {
-    if ((machineState.phase === "LISTENING" || machineState.phase === "PROCESSING") && voiceInput.state === "idle" && voiceInput.transcript) {
-      const res = reduce(
-        machineState,
-        { type: "TRANSCRIPT", text: voiceInput.transcript, confidence: voiceInput.confidence || 1.0 },
-        { attempts, mode, parse: parseValue }
-      );
-      setMachineState(res.next);
-      setAttempts(res.attempts);
-      handleEffects(res.effects, res.next);
-    }
-
-    if (machineState.phase === "CONFIRMING" && voiceInput.state === "idle" && voiceInput.transcript) {
-      const cleanText = voiceInput.transcript.toLowerCase().trim();
-      const isYes = ["हाँ", "हां", "haan", "han", "yes", "सही", "ठीक", "हा"].some(w => cleanText.includes(w));
-      const isNo = ["नहीं", "नही", "nahi", "no", "गलत"].some(w => cleanText.includes(w));
-
-      if (isYes) {
-        const res = reduce(machineState, { type: "CONFIRM_YES" }, { attempts, mode, parse: parseValue });
-        setMachineState(res.next);
-        setAttempts(res.attempts);
-        handleEffects(res.effects, res.next);
-      } else if (isNo) {
-        const res = reduce(machineState, { type: "CONFIRM_NO" }, { attempts, mode, parse: parseValue });
-        setMachineState(res.next);
-        setAttempts(res.attempts);
-        handleEffects(res.effects, res.next);
-      } else {
-        // Repeated confirmation
-        const displayVal = mode === "choice"
-          ? (choices?.find(c => c.value === machineState.parsed)?.label || machineState.parsed)
-          : machineState.parsed;
-        speakAndThen(`आपने कहा ${displayVal}. सही है? हाँ या नहीं बोलें.`, () => {
-          voiceInput.start();
+        effects.forEach((eff) => {
+          switch (eff) {
+            case "START_LISTEN":
+              void voiceInput.start();
+              break;
+            case "STOP_LISTEN":
+              voiceInput.reset();
+              break;
+            case "SPEAK_RETRY":
+              voiceController.speak("माफ़ कीजिए, समझ नहीं आया। दोबारा बोलें।", {
+                onEnd: (done) => {
+                  if (done) void voiceInput.start();
+                },
+              });
+              break;
+            case "SPEAK_CONFIRM":
+              if (next.phase === "CONFIRMING") {
+                const display =
+                  mode === "choice"
+                    ? choices?.find((c) => c.value === next.parsed)?.label || next.parsed
+                    : next.parsed;
+                onChange(next.parsed); // spoken value lands in the SAME field
+                voiceController.speak(`आपने कहा ${display}। सही है? हाँ या नहीं बोलें।`, {
+                  onEnd: (done) => {
+                    if (done) void voiceInput.start();
+                  },
+                });
+              }
+              break;
+            case "SPEAK_FALLBACK":
+              voiceController.speak("कोई बात नहीं, नीचे लिख दीजिए।");
+              setTimeout(() => inputRef.current?.focus(), 150);
+              break;
+            case "EMIT_VALUE":
+              if (accepted !== undefined) {
+                onChange(accepted);
+                setTimeout(() => onComplete?.(), 400);
+              }
+              break;
+          }
         });
       }
+    },
+    [mode, parseValue, choices, onChange, onComplete, voiceInput],
+  );
+
+  // ── Arm voice on mount: speak the prompt, then auto-listen ──
+  useEffect(() => {
+    if (startedRef.current) return;
+    startedRef.current = true;
+    if (!voiceCapable) return;
+    setState({ phase: "PROMPTING" });
+    const t = setTimeout(() => {
+      voiceController.speak(promptText, {
+        onEnd: (completed) => {
+          // Only auto-open the mic when permission already exists — the
+          // permission ask itself belongs to tutorial slide 5, never to a
+          // surprise popup mid-form.
+          if (completed && micGranted() && !voiceController.muted) {
+            dispatch({ type: "SPEECH_DONE" });
+          } else {
+            setState({ phase: "IDLE" });
+          }
+        },
+      });
+    }, 400);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Mute while active → everything stops, field stays as a plain input
+  useEffect(() => {
+    if (!voiceOn && state.phase !== "IDLE") {
+      voiceInput.reset();
+      setState({ phase: "IDLE" });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [voiceOn]);
 
-    if (
-      (machineState.phase === "LISTENING" || machineState.phase === "PROCESSING" || machineState.phase === "CONFIRMING") &&
-      voiceInput.state === "error"
-    ) {
-      const res = reduce(machineState, { type: "STT_FAILED" }, { attempts, mode, parse: parseValue });
-      setMachineState(res.next);
-      setAttempts(res.attempts);
-      handleEffects(res.effects, res.next);
+  // ── STT results → machine events ───────────────────────────
+  useEffect(() => {
+    if (voiceInput.state === "idle" && voiceInput.transcript) {
+      if (state.phase === "CONFIRMING") {
+        const t = voiceInput.transcript.toLowerCase().trim();
+        const isYes = ["हाँ", "हां", "haan", "han", "yes", "सही", "ठीक", "हा"].some((w) => t.includes(w));
+        const isNo = ["नहीं", "नही", "nahi", "no", "गलत"].some((w) => t.includes(w));
+        voiceInput.reset();
+        if (isYes) dispatch({ type: "CONFIRM_YES" });
+        else if (isNo) dispatch({ type: "CONFIRM_NO" });
+        else {
+          voiceController.speak(`सही है? हाँ या नहीं बोलें।`, {
+            onEnd: (done) => {
+              if (done) void voiceInput.start();
+            },
+          });
+        }
+      } else if (state.phase === "LISTENING" || state.phase === "PROCESSING") {
+        const text = voiceInput.transcript;
+        const conf = voiceInput.confidence ?? 1;
+        voiceInput.reset();
+        dispatch({ type: "TRANSCRIPT", text, confidence: conf });
+      }
     }
-  }, [
-    voiceInput.state,
-    voiceInput.transcript,
-    voiceInput.confidence,
-    machineState,
-    attempts,
-    mode,
-    parseValue,
-    handleEffects,
-    speakAndThen,
-    choices
-  ]);
+    if (voiceInput.state === "error" && state.phase !== "IDLE" && state.phase !== "PROMPTING") {
+      voiceInput.reset();
+      dispatch({ type: "STT_FAILED" });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [voiceInput.state, voiceInput.transcript]);
 
-  const handleBypassToKeyboard = () => {
-    const res = reduce(machineState, { type: "TAP_TYPE" }, { attempts, mode, parse: parseValue });
-    setMachineState(res.next);
-    setAttempts(res.attempts);
-    handleEffects(res.effects, res.next);
+  const listening = state.phase === "LISTENING" && voiceInput.state === "listening";
+  const busy = state.phase === "PROCESSING" || voiceInput.state === "processing";
+
+  const handleTyped = (v: string) => {
+    if (state.phase !== "IDLE") dispatch({ type: "TYPED_INPUT" });
+    onChange(v);
   };
 
-  const handleManualMicTrigger = () => {
-    setIsKeyboardFallback(false);
-    const res = reduce(machineState, { type: "TAP_MIC_RETRY" }, { attempts: 0, mode, parse: parseValue });
-    setMachineState(res.next);
-    setAttempts(0);
-    handleEffects(res.effects, res.next);
-  };
+  const inputType =
+    mode === "number" || mode === "money" ? "number" : mode === "phone" || mode === "otp" ? "tel" : "text";
 
-  // Direct Button Confirmations
-  const handleConfirmYes = () => {
-    const res = reduce(machineState, { type: "CONFIRM_YES" }, { attempts, mode, parse: parseValue });
-    setMachineState(res.next);
-    setAttempts(res.attempts);
-    handleEffects(res.effects, res.next);
-  };
-
-  const handleConfirmNo = () => {
-    const res = reduce(machineState, { type: "CONFIRM_NO" }, { attempts, mode, parse: parseValue });
-    setMachineState(res.next);
-    setAttempts(res.attempts);
-    handleEffects(res.effects, res.next);
-  };
-
-  // Permission Explainer
-  if (voiceInput.showExplainer) {
-    return (
-      <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-6">
-        <Card className="max-w-[340px] w-full flex flex-col items-center justify-center text-center p-6 gap-4">
-          <div className="text-[64px] leading-none animate-bounce" role="img" aria-label="Microphone">🎤</div>
-          <h3 className="t-title font-bold text-ink">माइक की अनुमति आवश्यक है</h3>
-          <p className="t-body text-softgrey">
-            कृपया माइक की अनुमति दें, ताकि आप बोलकर जवाब दे सकें।
-          </p>
-          <div className="w-full flex flex-col gap-2 mt-2">
-            <Button variant="primary" size="md" fullWidth onClick={voiceInput.proceedWithPermission}>
-              अनुमति दें / Allow
-            </Button>
-            <Button variant="ghost" size="md" fullWidth onClick={voiceInput.cancelExplainer}>
-              रद्द करें
-            </Button>
-          </div>
-        </Card>
-      </div>
-    );
-  }
-
-  // Render Machine States
   return (
-    <div className="w-full flex flex-col gap-3">
-      <style dangerouslySetInnerHTML={{ __html: `
-        @keyframes pulse-mic {
-          0% {
-            transform: scale(1);
-            box-shadow: 0 0 0 0 rgba(230, 81, 0, 0.4);
-          }
-          70% {
-            transform: scale(1.08);
-            box-shadow: 0 0 0 16px rgba(230, 81, 0, 0);
-          }
-          100% {
-            transform: scale(1);
-            box-shadow: 0 0 0 0 rgba(230, 81, 0, 0);
-          }
-        }
-        .animate-pulse-mic {
-          animation: pulse-mic 1.4s infinite ease-in-out;
-        }
-      `}} />
-
-      {/* Voice mode active */}
-      {voiceInputEnabled && !isKeyboardFallback && machineState.phase !== "TYPE_FALLBACK" && (
-        <Card className="flex flex-col items-center justify-center py-8 px-4 text-center gap-6 min-h-[300px]">
-          <span className="t-hint text-softgrey font-medium uppercase tracking-wider">{label}</span>
-
-          {machineState.phase === "PROMPTING" && (
-            <div className="flex flex-col items-center gap-3">
-              <div className="text-[28px] animate-pulse">🔊</div>
-              <span className="t-body font-semibold text-temple-600">{promptText}</span>
-            </div>
-          )}
-
-          {machineState.phase === "LISTENING" && (
-            <div className="flex flex-col items-center gap-6 w-full">
-              <button
-                type="button"
-                onClick={stopVoice}
-                className="w-[88px] h-[88px] min-h-[88px] min-w-[88px] rounded-full bg-saffron-500 text-white flex items-center justify-center text-[36px] shadow-lg animate-pulse-mic focus:outline-none"
-              >
-                🎤
-              </button>
-              <div className="flex flex-col gap-1">
-                <span className="t-title font-bold text-saffron-600">बोलिए... सुन रहा हूँ</span>
-                <span className="t-hint text-softgrey">बोलना बंद करें या माइक पर दोबारा दबाएं</span>
-              </div>
-            </div>
-          )}
-
-          {machineState.phase === "PROCESSING" && (
-            <div className="flex flex-col items-center gap-4">
-              <span className="animate-spin text-[36px] inline-block">🪔</span>
-              <span className="t-body font-semibold text-temple-600">समझ रहा हूँ...</span>
-            </div>
-          )}
-
-          {machineState.phase === "CONFIRMING" && (
-            <div className="flex flex-col items-center gap-6 w-full">
-              <div className="flex flex-col items-center gap-2 w-full">
-                <span className="t-hint text-softgrey font-semibold">आपने कहा:</span>
-                <div className="bg-saffron-50 border border-saffron-100 rounded-card p-4 text-[24px] font-bold text-saffron-700 w-full max-w-[280px] break-words">
-                  {mode === "choice"
-                    ? (choices?.find(c => c.value === machineState.parsed)?.label || machineState.parsed)
-                    : machineState.parsed}
-                </div>
-                <span className="t-hint text-softgrey font-semibold mt-2">क्या यह सही है?</span>
-              </div>
-
-              <div className="w-full flex gap-3 max-w-[280px]">
-                <Button variant="success" size="md" className="flex-1" onClick={handleConfirmYes}>
-                  हाँ ✓
-                </Button>
-                <Button variant="danger-outline" size="md" className="flex-1" onClick={handleConfirmNo}>
-                  नहीं ✗
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {machineState.phase === "ACCEPTED" && (
-            <div className="flex flex-col items-center gap-3">
-              <div className="w-16 h-16 rounded-full bg-leaf-100 text-leaf-700 flex items-center justify-center text-[36px] font-bold">✓</div>
-              <span className="t-title font-bold text-leaf-700">स्वीकार कर लिया</span>
-            </div>
-          )}
-
-          {machineState.phase !== "ACCEPTED" && (
-            <button
-              type="button"
-              onClick={handleBypassToKeyboard}
-              className="text-[18px] min-h-[56px] px-6 text-softgrey hover:text-ink font-semibold focus:outline-none"
-            >
-              ⌨️ लिखें (Keyboard)
-            </button>
-          )}
-        </Card>
+    <div className="w-full flex flex-col gap-2">
+      {label && (
+        <label className="t-title font-bold text-ink text-left">
+          {label}
+          {required && <span className="text-danger ml-1">*</span>}
+        </label>
       )}
 
-      {/* Keyboard/Fallback standard input mode */}
-      {(!voiceInputEnabled || isKeyboardFallback || machineState.phase === "TYPE_FALLBACK") && (
-        <div className="w-full flex flex-col gap-2">
-          {label && (
-            <label className="t-title font-bold text-ink text-left">
-              {label}
-              {required && <span className="text-red-500 ml-1">*</span>}
-            </label>
-          )}
+      {/* THE field — always visible, always enabled (A2) */}
+      <div className="relative w-full">
+        {mode === "choice" && choices ? (
+          <select
+            disabled={disabled}
+            value={value}
+            onFocus={() => state.phase !== "IDLE" && dispatch({ type: "TYPED_INPUT" })}
+            onChange={(e) => {
+              handleTyped(e.target.value);
+              if (e.target.value) onComplete?.();
+            }}
+            className={`w-full min-h-[56px] text-[18px] bg-white border rounded-btn px-4 pr-14 font-medium focus:outline-none focus:ring-4 focus:ring-saffron-200 ${
+              listening ? "border-gold ring-4 ring-gold/40 animate-pulse" : "border-saffron-200"
+            }`}
+          >
+            <option value="">{placeholder || "-- चुनें --"}</option>
+            {choices.map((c) => (
+              <option key={c.value} value={c.value}>
+                {c.label}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <input
+            ref={inputRef}
+            type={inputType}
+            disabled={disabled}
+            placeholder={placeholder}
+            value={value}
+            onFocus={() => state.phase !== "IDLE" && dispatch({ type: "TYPED_INPUT" })}
+            onChange={(e) => handleTyped(e.target.value)}
+            className={`w-full min-h-[56px] text-[18px] bg-white border rounded-btn px-4 pr-14 font-medium focus:outline-none focus:ring-4 focus:ring-saffron-200 ${
+              listening ? "border-gold ring-4 ring-gold/40 animate-pulse" : "border-saffron-200"
+            }`}
+          />
+        )}
 
-          <div className="flex items-center gap-3 w-full">
-            {mode === "choice" && choices ? (
-              <select
-                ref={selectRef}
-                disabled={disabled}
-                value={value}
-                onChange={(e) => {
-                  onChange(e.target.value);
-                  // Let the parent's setState flush before validation-on-complete
-                  // runs, otherwise it sees the previous (empty) value and shows
-                  // a false "समझ नहीं आया" error right after a successful choice.
-                  setTimeout(() => onComplete?.(), 0);
-                }}
-                className="flex-grow min-h-[56px] text-[18px] bg-white border border-saffron-200 rounded-btn px-4 focus:outline-none focus:ring-4 focus:ring-saffron-200 font-medium"
-              >
-                <option value="">{placeholder || "-- चुनें --"}</option>
-                {choices.map((c) => (
-                  <option key={c.value} value={c.value}>
-                    {c.label}
-                  </option>
-                ))}
-              </select>
+        {/* Right slot inside the field: live mic / re-arm 🎤 (A2/A4) */}
+        {voiceCapable && (
+          <span className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center">
+            {listening ? (
+              <span className="text-[22px] animate-pulse" role="img" aria-hidden="true">🎤</span>
+            ) : busy ? (
+              <span className="text-[20px] animate-spin inline-block" role="img" aria-hidden="true">🪔</span>
             ) : (
-              <input
-                ref={inputRef}
-                type={mode === "number" || mode === "money" ? "number" : mode === "phone" || mode === "otp" ? "tel" : "text"}
-                disabled={disabled}
-                placeholder={placeholder}
-                value={value}
-                onChange={(e) => onChange(e.target.value)}
-                className="flex-grow min-h-[56px] text-[18px] bg-white border border-saffron-200 rounded-btn px-4 focus:outline-none focus:ring-4 focus:ring-saffron-200 font-medium"
-              />
-            )}
-
-            {voiceInputEnabled && (
               <button
                 type="button"
-                onClick={handleManualMicTrigger}
-                className="w-14 h-14 min-h-[56px] min-w-[56px] rounded-full bg-saffron-50 hover:bg-saffron-100 active:scale-95 text-[22px] flex items-center justify-center shadow-sm border border-saffron-200 focus:outline-none"
-                aria-label="Use voice input"
+                onClick={() => dispatch({ type: "TAP_MIC_RETRY" })}
+                aria-label="बोलकर बताएं"
+                className="w-11 h-11 min-h-[44px] min-w-[44px] rounded-full bg-saffron-50 hover:bg-saffron-100 active:scale-95 text-[20px] flex items-center justify-center border border-saffron-200 focus:outline-none"
               >
                 🎤
               </button>
             )}
+          </span>
+        )}
+      </div>
+
+      {/* Listening pill (A4) — never a full-screen takeover */}
+      {listening && (
+        <span className="self-start bg-gold/15 border border-gold text-temple-600 text-[16px] font-semibold font-hindi rounded-full px-4 py-1.5">
+          सुन रहा हूँ…
+        </span>
+      )}
+
+      {/* Spoken-value confirmation loop */}
+      {state.phase === "CONFIRMING" && (
+        <div className="flex items-center justify-between gap-3 bg-saffron-50 border border-saffron-100 rounded-card px-4 py-3">
+          <span className="t-body font-semibold text-ink font-hindi">
+            आपने कहा <span className="font-bold text-saffron-700">{
+              mode === "choice"
+                ? choices?.find((c) => c.value === state.parsed)?.label || state.parsed
+                : state.parsed
+            }</span> — सही है?
+          </span>
+          <div className="flex gap-2 shrink-0">
+            <Button variant="success" size="md" onClick={() => dispatch({ type: "CONFIRM_YES" })}>
+              {hi.common.yes}
+            </Button>
+            <Button variant="danger-outline" size="md" onClick={() => dispatch({ type: "CONFIRM_NO" })}>
+              {hi.common.no}
+            </Button>
           </div>
+        </div>
+      )}
+
+      {/* Mic permission explainer (only reachable from the explicit 🎤 tap) */}
+      {voiceInput.showExplainer && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-6">
+          <Card className="max-w-[340px] w-full flex flex-col items-center justify-center text-center p-6 gap-4">
+            <div className="text-[64px] leading-none" role="img" aria-label="Microphone">🎤</div>
+            <h3 className="t-title font-bold text-ink">माइक की अनुमति आवश्यक है</h3>
+            <p className="t-body text-softgrey">कृपया माइक की अनुमति दें, ताकि आप बोलकर जवाब दे सकें।</p>
+            <div className="w-full flex flex-col gap-2 mt-2">
+              <Button variant="primary" size="md" fullWidth onClick={voiceInput.proceedWithPermission}>
+                अनुमति दें / Allow
+              </Button>
+              <Button variant="ghost" size="md" fullWidth onClick={voiceInput.cancelExplainer}>
+                रद्द करें
+              </Button>
+            </div>
+          </Card>
         </div>
       )}
     </div>

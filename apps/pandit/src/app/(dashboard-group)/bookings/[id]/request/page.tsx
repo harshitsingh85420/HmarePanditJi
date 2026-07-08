@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import { hi } from "@/lib/strings";
 import { api } from "@/lib/api";
 import { vibrateConfirm } from "@/lib/sounds";
+import { useOnline } from "@/components/ui/OfflineBanner";
 import { motion, AnimatePresence } from "framer-motion";
 
 // UI Components
@@ -106,7 +107,13 @@ export default function BookingRequestPage() {
     });
   };
 
+  const online = useOnline();
   const handleAccept = async () => {
+    if (!online) {
+      setErrorMsg(hi.offline.actionBlocked);
+      speak(hi.offline.actionBlocked);
+      return;
+    }
     setActionLoading(true);
     setErrorMsg("");
 

@@ -3,6 +3,7 @@ import { Tiro_Devanagari_Hindi, Noto_Sans_Devanagari, Yatra_One } from 'next/fon
 import './globals.css'
 import NextDynamic from 'next/dynamic'
 import VoiceRoot from '@/components/VoiceRoot'
+import OfflineBanner from '@/components/ui/OfflineBanner'
 
 // SSR FIX: Force dynamic rendering for all pages
 export const dynamic = 'force-dynamic'
@@ -70,6 +71,7 @@ export default function RootLayout({
         {/* SSR FIX: Hydrate Zustand persist stores after initial render - CLIENT SIDE ONLY */}
         <StoreHydrationClient />
         <VoiceRoot />
+        <OfflineBanner />
         <div className="relative mx-auto w-full max-w-[430px] min-h-screen overflow-x-hidden">
           {children}
         </div>

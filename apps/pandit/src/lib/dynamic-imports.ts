@@ -6,21 +6,6 @@
 import { lazy } from 'react'
 
 /**
- * Tutorial Components - Load tutorial screens lazily
- */
-export const TutorialSwagat = lazy(() => import('@/app/onboarding/screens/tutorial/TutorialSwagat'))
-export const TutorialVoiceNav = lazy(() => import('@/app/onboarding/screens/tutorial/TutorialVoiceNav'))
-export const TutorialDakshina = lazy(() => import('@/app/onboarding/screens/tutorial/TutorialDakshina'))
-export const TutorialPayment = lazy(() => import('@/app/onboarding/screens/tutorial/TutorialPayment'))
-export const TutorialTravel = lazy(() => import('@/app/onboarding/screens/tutorial/TutorialTravel'))
-export const TutorialDualMode = lazy(() => import('@/app/onboarding/screens/tutorial/TutorialDualMode'))
-export const TutorialBackup = lazy(() => import('@/app/onboarding/screens/tutorial/TutorialBackup'))
-export const TutorialGuarantees = lazy(() => import('@/app/onboarding/screens/tutorial/TutorialGuarantees'))
-export const TutorialVideoVerify = lazy(() => import('@/app/onboarding/screens/tutorial/TutorialVideoVerify'))
-export const TutorialOnlineRevenue = lazy(() => import('@/app/onboarding/screens/tutorial/TutorialOnlineRevenue'))
-export const TutorialIncome = lazy(() => import('@/app/onboarding/screens/tutorial/TutorialIncome'))
-
-/**
  * Emergency SOS - Load emergency features on demand
  */
 export const EmergencySOS = lazy(() => import('@/components/emergency/EmergencySOS'))

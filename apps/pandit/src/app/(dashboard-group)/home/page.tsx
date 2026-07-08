@@ -53,6 +53,7 @@ export default function HomePage() {
 
   // Widgets Data
   const [todayBookings, setTodayBookings] = useState<Booking[]>([]);
+  const [tomorrowBookings, setTomorrowBookings] = useState<Booking[]>([]);
   const [earnings, setEarnings] = useState<EarningsSummary>({
     today: 0,
     month: 0,
@@ -92,10 +93,25 @@ export default function HomePage() {
       playChime();
     }
 
-    // 2. Today's Bookings
+    // 2. Today's + tomorrow's bookings
     const bookingsRes = await api("/pandit/bookings?date=today");
     if (bookingsRes.success) {
       setTodayBookings(bookingsRes.data);
+    }
+    const allRes = await api("/pandit/bookings");
+    if (allRes.success && Array.isArray(allRes.data)) {
+      const tmr = new Date();
+      tmr.setDate(tmr.getDate() + 1);
+      setTomorrowBookings(
+        (allRes.data as Booking[]).filter((b) => {
+          const d = new Date(b.eventDate);
+          return (
+            d.getFullYear() === tmr.getFullYear() &&
+            d.getMonth() === tmr.getMonth() &&
+            d.getDate() === tmr.getDate()
+          );
+        }),
+      );
     }
 
     // 3. Earnings summary
@@ -219,9 +235,15 @@ export default function HomePage() {
   const festivalLine = activeFestival
     ? ` ${activeFestival.name} ${hi.festival.greeting}। ${hi.festival.hint}`
     : "";
+  const todaySummary =
+    todayBookings.length === 0
+      ? hi.homeSummary.none
+      : todayBookings.length === 1
+      ? hi.homeSummary.one.replace("{time}", formatTime(todayBookings[0].eventDate))
+      : hi.homeSummary.many.replace("{count}", String(todayBookings.length));
   const welcomeSpeakText = (isOnline
     ? "आप अभी ऑनलाइन हैं। नई बुकिंग के लिए तैयार रहें।"
-    : "आप अभी ऑफलाइन हैं। काम शुरू करने के लिए ऑनलाइन जाएं।") + festivalLine;
+    : "आप अभी ऑफलाइन हैं। काम शुरू करने के लिए ऑनलाइन जाएं।") + " " + todaySummary + festivalLine;
 
   const voiceCommands = [
     {
@@ -240,6 +262,9 @@ export default function HomePage() {
         }
       },
     },
+    { keywords: ["बुकिंग", "booking"], action: () => router.push("/bookings") },
+    { keywords: ["कमाई", "kamai", "earnings"], action: () => router.push("/earnings") },
+    { keywords: ["मदद", "help", "sahayata"], action: () => router.push("/help") },
   ];
 
   const HomeHeaderRightSlot = () => (
@@ -397,6 +422,37 @@ export default function HomePage() {
             </div>
           )}
         </Card>
+
+        {/* TOMORROW'S BOOKINGS */}
+        {tomorrowBookings.length > 0 && (
+          <Card className="p-4 bg-white border border-saffron-100 flex flex-col gap-3">
+            <h3 className="text-[18px] font-bold text-temple-600 font-hindi border-b border-saffron-100 pb-2">
+              {hi.homeSummary.tomorrow}
+            </h3>
+            <div className="flex flex-col gap-3">
+              {tomorrowBookings.map((b) => (
+                <div
+                  key={b.id}
+                  onClick={() => router.push(`/bookings/${b.id}`)}
+                  className="p-3 border-b border-slate-50 last:border-0 flex items-center justify-between cursor-pointer active:bg-slate-50 active:scale-[0.97] transition-transform rounded-btn border-l-4 border-l-sky-500"
+                >
+                  <div className="flex flex-col">
+                    <span className="text-[26px] font-bold text-ink leading-tight font-mono">
+                      {formatTime(b.eventDate)}
+                    </span>
+                    <span className="text-[18px] font-bold text-temple-700 font-hindi leading-snug mt-1">
+                      {b.pujaType || b.eventType}
+                    </span>
+                    <span className="text-[16px] text-softgrey font-hindi truncate max-w-[240px]">
+                      {b.venueAddress?.split(",")[0]}
+                    </span>
+                  </div>
+                  <StatusChip status={b.status} />
+                </div>
+              ))}
+            </div>
+          </Card>
+        )}
 
         {/* EARNINGS SUMMARY WIDGET */}
         <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-4">
