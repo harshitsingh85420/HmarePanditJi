@@ -20,33 +20,40 @@ const config: Config = {
     },
     extend: {
       colors: {
+        // AARTI IDENTITY — key names unchanged so no class renames are needed.
+        // saffron == SINDOOR (primary), cream == CHANDAN, gold == PITAL brass,
+        // leaf == TULSI money green, softgrey == DHOOP.
         saffron: {
-          50:'#FFF8EE', 100:'#FFEFD6', 200:'#FFDCA8', 300:'#FFC470',
-          400:'#FFA940', 500:'#FF8C1A',
-          600:'#E67300', 700:'#BF5E00', 800:'#994B00', 900:'#7A3C00',
+          50:'#FDEEE7', 100:'#FAD8C9', 200:'#F4B096', 300:'#EC8663',
+          400:'#D95F38', 500:'#B23A1A',
+          600:'#962F13', 700:'#7A250E', 800:'#5E1C0A', 900:'#471507',
         },
-        cream:  '#FFFBF4',
+        cream:  '#FAF3E6',
         temple: {
-          500:'#8B2E2E', 600:'#742525', 700:'#5C1D1D',
+          500:'#5A2E20', 600:'#47241A', 700:'#341A13',
         },
         leaf: {
-          100:'#E6F4EA', 500:'#1E8E3E', 700:'#137333',
+          100:'#E4F3E9', 500:'#1E7A46', 700:'#155C34',
         },
-        gold:   '#D4A017',
-        ink:    '#3D2B1F',
-        softgrey:'#8A7B6E',
-        danger: '#C62828',
+        gold:   '#E7B54A',
+        ink:    '#3A1F1B',
+        softgrey:'#8A6F5C',
+        danger: '#C2321E',
+        genda:  '#F2A02C',
+        brassdark: '#B8860B',
+        card:   '#FFFDF8',
       },
       fontFamily: {
         hindi: ['var(--font-tiro)', 'var(--font-noto)', 'sans-serif'],
+        display: ['var(--font-yatra)', 'var(--font-tiro)', 'sans-serif'],
       },
       borderRadius: {
         card: '20px',
         btn: '16px',
       },
       boxShadow: {
-        card: '0 2px 12px rgba(139,46,46,0.08)',
-        btn: '0 4px 14px rgba(255,140,26,0.35)',
+        card: '0 2px 10px rgba(90,46,32,0.10)',
+        btn: '0 4px 14px rgba(178,58,26,0.30)',
       },
       keyframes: {
         'voice-bar': {

@@ -380,8 +380,9 @@ body {
 
   /* ─────── Type Scale ─────── */
   .t-hero {
-    font-size: 32px;
-    font-weight: 700;
+    font-family: var(--font-yatra), var(--font-tiro), sans-serif;
+    font-size: 30px;
+    font-weight: 400;
     color: theme('colors.temple.600');
   }
 
@@ -404,14 +405,16 @@ body {
   }
 
   .t-money {
+    font-family: var(--font-yatra), var(--font-tiro), sans-serif;
     font-size: 30px;
-    font-weight: 700;
+    font-weight: 400;
     color: theme('colors.leaf.700');
   }
 
   .t-money-hero {
+    font-family: var(--font-yatra), var(--font-tiro), sans-serif;
     font-size: 40px;
-    font-weight: 700;
+    font-weight: 400;
     color: theme('colors.leaf.700');
   }
 }
@@ -426,8 +429,8 @@ body {
 
 /* Soft glowing pulse while the pandit is online — "open for business" */
 @keyframes online-glow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(46, 125, 50, 0.45); }
-  50%      { box-shadow: 0 0 18px 4px rgba(46, 125, 50, 0.35); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(30, 122, 70, 0.45); }
+  50%      { box-shadow: 0 0 18px 4px rgba(30, 122, 70, 0.35); }
 }
 .online-glow { animation: online-glow 2s ease-in-out infinite; }
 

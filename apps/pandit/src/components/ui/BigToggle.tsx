@@ -22,8 +22,8 @@ export function BigToggle({ value, onChange, className }: BigToggleProps) {
       className={cn(
         "w-full h-[88px] min-h-[88px] rounded-card flex flex-col items-center justify-center transition-all duration-300 active:scale-[0.98] focus-visible:ring-4 focus-visible:ring-saffron-200 focus:outline-none select-none",
         value
-          ? "bg-gradient-to-r from-leaf-500 to-leaf-700 text-white border-none shadow-lg"
-          : "bg-white border-2 border-softgrey text-softgrey shadow-sm",
+          ? "bg-leaf-500 text-white border border-[#9BE8B8] shadow-lg online-glow"
+          : "bg-card border-2 border-[#D8C7A8] text-softgrey shadow-sm",
         className
       )}
     >

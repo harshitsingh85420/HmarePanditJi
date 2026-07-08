@@ -44,7 +44,7 @@ export function EarningsRow({ label, amount, kind, className }: EarningsRowProps
       <span className="t-body font-medium text-ink">{label}</span>
       <span
         className={cn(
-          "t-title font-bold",
+          "t-title font-bold font-display",
           isPlus ? "text-leaf-700" : "text-danger"
         )}
       >

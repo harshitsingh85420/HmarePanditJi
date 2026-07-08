@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { notFound } from "next/navigation";
 import { hi } from "@/lib/strings";
 import { PanchangStrip } from "@/components/moments/PanchangStrip";
+import { Toran } from "@/components/ui/Toran";
 import { FestivalBanner } from "@/components/moments/FestivalBanner";
 import { PragatiCard } from "@/components/moments/PragatiCard";
 import { FESTIVALS_2026 } from "@/lib/festivals2026";
@@ -306,6 +307,25 @@ export default function DesignSystemPage() {
         />
       )}
 
+
+      {/* ── AARTI THEME ─────────────────────────────────────────────── */}
+      <section className="mt-12 rounded-card overflow-hidden border border-[#E8D9BC] bg-card">
+        <div className="bg-saffron-500 px-4 py-3">
+          <h2 className="t-title font-bold text-[#FFE8D2]">🪔 Aarti theme</h2>
+        </div>
+        <Toran tone="onSindoor" className="bg-saffron-500" />
+        <div className="p-4 flex flex-col gap-4">
+          <h3 className="t-hint font-bold uppercase">Toran on cream</h3>
+          <Toran tone="onCream" />
+          <h3 className="t-hint font-bold uppercase">Thali nav (active = home)</h3>
+          <div className="relative h-[76px] border border-[#E8D9BC] rounded-card overflow-hidden">
+            <BottomNav activeTab={0} onChange={() => {}} className="!absolute" />
+          </div>
+          <h3 className="t-hint font-bold uppercase">Display face (Yatra One)</h3>
+          <span className="t-hero">नमस्ते, रमेश जी</span>
+          <span className="t-money-hero">₹11,000</span>
+        </div>
+      </section>
 
       {/* ── WARMTH PASS SHOWCASE ─────────────────────────────────────── */}
       <section className="mt-12 p-4 bg-white rounded-card border border-saffron-100 flex flex-col gap-4">

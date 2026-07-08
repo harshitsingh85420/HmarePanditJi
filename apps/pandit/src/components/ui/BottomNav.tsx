@@ -26,7 +26,7 @@ export function BottomNav({ activeTab, onChange, className }: BottomNavProps) {
   return (
     <nav
       className={cn(
-        "fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-saffron-100 pb-safe h-[72px] min-h-[72px] flex items-center justify-around",
+        "fixed bottom-0 left-0 right-0 z-40 bg-[#FFF9EE] border-t-2 border-gold pb-safe h-[72px] min-h-[72px] flex items-center justify-around",
         className
       )}
     >
@@ -40,25 +40,22 @@ export function BottomNav({ activeTab, onChange, className }: BottomNavProps) {
             className="flex flex-col items-center justify-center flex-1 h-full relative focus:outline-none focus-visible:bg-saffron-50/50"
             style={{ minHeight: "56px" }}
           >
-            {/* Top active indicator bar */}
-            {isActive && (
-              <div className="absolute top-0 w-7 h-[3px] bg-saffron-500 rounded-full" />
+            {/* THALI: active tab sits in a sindoor circle with a brass ring */}
+            {isActive ? (
+              <span className="w-[46px] h-[46px] rounded-full bg-saffron-500 border-[3px] border-gold flex items-center justify-center text-[22px] leading-none text-[#FFE8D2] -mt-1" role="img" aria-label={tab.label}>
+                {tab.emoji}
+              </span>
+            ) : (
+              <span className="text-[24px] leading-none mb-1" role="img" aria-label={tab.label}>
+                {tab.emoji}
+              </span>
             )}
-
-            {/* Emoji icon */}
-            <span
-              className="text-[26px] leading-none mb-1"
-              role="img"
-              aria-label={tab.label}
-            >
-              {tab.emoji}
-            </span>
 
             {/* Label */}
             <span
               className={cn(
-                "text-[18px] font-medium leading-none",
-                isActive ? "text-saffron-500 font-bold" : "text-softgrey"
+                "leading-none mt-0.5",
+                isActive ? "text-[12px] text-saffron-500 font-bold" : "text-[16px] font-medium text-softgrey"
               )}
             >
               {tab.label}

@@ -268,7 +268,7 @@ export default function HomePage() {
     <div className="min-h-screen bg-cream text-ink pb-44">
       {/* HEADER */}
       <Header
-        title={<>{isFestivalDay() && <span className="animate-diya-sm mr-1" role="img" aria-hidden="true">🪔</span>}{`नमस्ते, ${firstName} जी`}</>}
+        title={<span className="font-display font-normal">{isFestivalDay() && <span className="animate-diya-sm mr-1" role="img" aria-hidden="true">🪔</span>}{`नमस्ते, ${firstName} जी`}</span>}
         showBack={false}
         rightSlot={<HomeHeaderRightSlot />}
       />
@@ -417,7 +417,7 @@ export default function HomePage() {
               {hi.home.monthEarnings}
             </span>
             {/* Monthly earnings big ₹ figure */}
-            <span className="text-[40px] font-bold text-leaf-700 leading-tight">
+            <span className="t-money-hero leading-tight">
               ₹{earnings.month ? earnings.month.toLocaleString("en-IN") : "0"}
             </span>
           </div>
@@ -426,7 +426,7 @@ export default function HomePage() {
             <span className="text-[18px] font-semibold text-softgrey font-hindi">
               {hi.earnings.pendingPayout}
             </span>
-            <span className="text-[20px] font-bold text-leaf-700 font-mono">
+            <span className="text-[20px] font-display text-leaf-700">
               ₹{earnings.pendingPayout ? earnings.pendingPayout.toLocaleString("en-IN") : "0"}
             </span>
           </div>

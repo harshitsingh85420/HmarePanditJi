@@ -19,7 +19,7 @@ export function VoiceBar() {
   return (
     <button
       onClick={toggle}
-      className="fixed bottom-6 right-6 z-50 flex items-center justify-center w-16 h-16 bg-orange-600 text-white rounded-full shadow-lg hover:bg-orange-700 active:scale-95 transition-transform duration-200"
+      className="fixed bottom-6 right-6 z-50 flex items-center justify-center w-16 h-16 bg-temple-600 text-white rounded-full shadow-lg ring-2 ring-gold hover:bg-temple-700 active:scale-95 transition-transform duration-200"
       style={{ minHeight: "56px", fontSize: "24px" }}
       aria-label={enabled ? "Mute Voice" : "Unmute Voice"}
     >
@@ -48,7 +48,7 @@ export function SpeakOnMount({ text }: SpeakOnMountProps) {
     return (
       <button
         disabled
-        className="flex items-center justify-center px-6 rounded-lg bg-orange-100 text-orange-800 font-semibold"
+        className="flex items-center justify-center px-6 rounded-lg bg-saffron-100 text-saffron-700 font-semibold"
         style={{ minHeight: "56px", fontSize: "18px" }}
       >
         {hi.common.listen}
@@ -59,7 +59,7 @@ export function SpeakOnMount({ text }: SpeakOnMountProps) {
   return (
     <button
       onClick={() => speak(text)}
-      className="flex items-center justify-center px-6 rounded-lg bg-orange-100 text-orange-800 font-semibold hover:bg-orange-200 active:scale-95 transition-all duration-200"
+      className="flex items-center justify-center px-6 rounded-lg bg-saffron-100 text-saffron-700 font-semibold hover:bg-orange-200 active:scale-95 transition-all duration-200"
       style={{ minHeight: "56px", fontSize: "18px" }}
     >
       {hi.common.listen}

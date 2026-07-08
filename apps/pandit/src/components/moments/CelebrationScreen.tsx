@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { Button } from "../ui/Button";
+import { Toran } from "../ui/Toran";
 import { MoneyCount } from "./MoneyCount";
 
 export interface CelebrationScreenProps {
@@ -35,7 +36,9 @@ export function CelebrationScreen({
   }, []);
 
   return (
-    <div className="fixed inset-0 z-50 bg-gradient-to-b from-cream to-saffron-50 overflow-hidden flex flex-col justify-between p-6">
+    <div className="fixed inset-0 z-50 bg-gradient-to-b from-cream to-saffron-50 overflow-hidden flex flex-col">
+      <Toran tone="onCream" />
+      <div className="flex-1 flex flex-col justify-between p-6">
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes marigold-fall {
           0% {
@@ -115,6 +118,7 @@ export function CelebrationScreen({
         <Button variant="primary" size="xl" fullWidth onClick={onCta}>
           {ctaLabel}
         </Button>
+      </div>
       </div>
     </div>
   );

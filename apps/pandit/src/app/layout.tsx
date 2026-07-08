@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Tiro_Devanagari_Hindi, Noto_Sans_Devanagari } from 'next/font/google'
+import { Tiro_Devanagari_Hindi, Noto_Sans_Devanagari, Yatra_One } from 'next/font/google'
 import './globals.css'
 import NextDynamic from 'next/dynamic'
 
@@ -17,6 +17,14 @@ const tiroDevanagari = Tiro_Devanagari_Hindi({
   subsets: ['devanagari', 'latin'],
   variable: '--font-tiro',
   display: 'swap',
+})
+
+// Display face — Yatra One is ONLY for the greeting name line, money values,
+// and celebration titles (readability law: never body text, labels, buttons).
+const yatraOne = Yatra_One({
+  subsets: ['devanagari', 'latin'],
+  weight: '400',
+  variable: '--font-yatra',
 })
 
 const notoDevanagari = Noto_Sans_Devanagari({
@@ -41,7 +49,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: '#FF8C1A',
+  themeColor: '#B23A1A',
 }
 
 export default function RootLayout({
@@ -50,7 +58,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="hi" className={`${tiroDevanagari.variable} ${notoDevanagari.variable}`} suppressHydrationWarning>
+    <html lang="hi" className={`${tiroDevanagari.variable} ${notoDevanagari.variable} ${yatraOne.variable}`} suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

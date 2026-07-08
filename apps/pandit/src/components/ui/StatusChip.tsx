@@ -24,22 +24,22 @@ export interface StatusChipProps {
 }
 
 export function StatusChip({ status, className }: StatusChipProps) {
-  let chipStyles = "bg-gray-100 text-softgrey";
+  let chipStyles = "bg-[#EFE8DC] text-softgrey";
   let label: string = hi.status.cancelled;
 
   switch (status) {
     case "REQUESTED":
-      chipStyles = "bg-saffron-100 text-saffron-700";
+      chipStyles = "bg-[#FDEBD2] text-[#8A5410]";
       label = hi.status.requested;
       break;
     case "ACCEPTED":
       // Literals exception allowed: #E8F0FE for bg, #1A56DB for text
-      chipStyles = "bg-[#E8F0FE] text-[#1A56DB]";
+      chipStyles = "bg-[#E7ECF7] text-[#2C4A8A]";
       label = hi.status.accepted;
       break;
     case "IN_PROGRESS":
       // Literals exception allowed: #FEF3C7 for bg, #92400E for text
-      chipStyles = "bg-[#FEF3C7] text-[#92400E]";
+      chipStyles = "bg-[#FBE9CF] text-[#9A5B12]";
       label = hi.status.inProgress;
       break;
     case "COMPLETED":
@@ -49,7 +49,7 @@ export function StatusChip({ status, className }: StatusChipProps) {
     case "REJECTED":
     case "CANCELLED":
     default:
-      chipStyles = "bg-gray-100 text-softgrey";
+      chipStyles = "bg-[#EFE8DC] text-softgrey";
       label = hi.status.cancelled;
       break;
   }

@@ -4,6 +4,7 @@ import React from "react";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { useVoice } from "../../hooks/useVoice";
+import { Toran } from "./Toran";
 
 function cn(...inputs: (string | undefined | false | null)[]) {
   return twMerge(clsx(inputs));
@@ -21,12 +22,8 @@ export function Header({ title, showBack = false, onBack, rightSlot, className }
   const { enabled, toggle } = useVoice();
 
   return (
-    <header
-      className={cn(
-        "sticky top-0 z-30 bg-cream/95 backdrop-blur border-b border-saffron-100/50 h-16 min-h-[56px] px-4 flex items-center justify-between gap-4",
-        className
-      )}
-    >
+    <header className={cn("sticky top-0 z-30", className)}>
+      <div className="bg-saffron-500 h-16 min-h-[56px] px-4 flex items-center justify-between gap-4">
       {/* Left Back Button Slot — collapses when there is no back button so the
           title gets the space instead of ellipsizing */}
       <div className={showBack ? "w-14 flex items-center justify-start flex-shrink-0" : "hidden"}>
@@ -42,7 +39,7 @@ export function Header({ title, showBack = false, onBack, rightSlot, className }
       </div>
 
       {/* Center Title */}
-      <h1 className="t-title font-bold text-center truncate flex-grow">
+      <h1 className="t-title font-bold text-center truncate flex-grow text-[#FFE8D2]">
         {title}
       </h1>
 
@@ -60,7 +57,9 @@ export function Header({ title, showBack = false, onBack, rightSlot, className }
             {enabled ? "🔊" : "🔇"}
           </button>
         )}
+        </div>
       </div>
+      <Toran tone="onSindoor" className="bg-saffron-500" />
     </header>
   );
 }
