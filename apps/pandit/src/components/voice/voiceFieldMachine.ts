@@ -1,20 +1,14 @@
-// VoiceField v2 machine — DUAL INPUT, ZERO MODES.
-// The <input> is ALWAYS visible and enabled; voice runs alongside it.
-//   PROMPTING  → speaking the question
-//   LISTENING  → mic open next to the live field
-//   PROCESSING → STT round-trip
-//   CONFIRMING → spoken value shown in the field + "सही है?" loop
-//   IDLE       → voice disarmed (after 2 fails / typed input / accept);
-//                the 🎤 re-arm icon in the field's right slot restarts it.
-// TYPED_INPUT aborts any voice activity instantly: typed values are
-// accepted with NO confirmation loop (normal validation only).
+// VoiceField v3 machine — ALWAYS-LISTENING LOOP semantics.
+// Failures NEVER stop the loop: at most ONE gentle apology per field,
+// then keep listening silently. Typing always wins (no confirm loop);
+// the outer loop re-arms after the field blurs/advances.
 
 export type VFState =
   | { phase: 'PROMPTING' }
   | { phase: 'LISTENING' }
   | { phase: 'PROCESSING' }
   | { phase: 'CONFIRMING', heard: string, parsed: string }
-  | { phase: 'IDLE' };
+  | { phase: 'IDLE' }; // typed-input takeover or voice paused
 
 export type VFEvent =
   | { type: 'SPEECH_DONE' }
@@ -22,15 +16,13 @@ export type VFEvent =
   | { type: 'STT_FAILED' }
   | { type: 'CONFIRM_YES' }
   | { type: 'CONFIRM_NO' }
-  | { type: 'TYPED_INPUT' }      // pandit typed/focused the field — voice yields
-  | { type: 'TAP_MIC_RETRY' };   // 🎤 icon in the field re-arms voice
+  | { type: 'TYPED_INPUT' };
 
 export type VFEffect =
   | 'START_LISTEN'
   | 'STOP_LISTEN'
   | 'SPEAK_CONFIRM'
-  | 'SPEAK_FALLBACK'   // "कोई बात नहीं, नीचे लिख दीजिए" + keep field focused
-  | 'SPEAK_RETRY'
+  | 'SPEAK_SORRY_ONCE' // "माफ़ कीजिए, समझ नहीं आया — फिर बोलें या नीचे लिख दें"
   | 'EMIT_VALUE';
 
 export function reduce(
@@ -46,10 +38,6 @@ export function reduce(
     return { next: { phase: 'IDLE' }, attempts: a, effects: ['STOP_LISTEN'] };
   }
 
-  if (e.type === 'TAP_MIC_RETRY') {
-    return { next: { phase: 'LISTENING' }, attempts: 0, effects: ['START_LISTEN'] };
-  }
-
   switch (s.phase) {
     case 'PROMPTING':
       if (e.type === 'SPEECH_DONE') {
@@ -62,16 +50,19 @@ export function reduce(
       if (e.type === 'TRANSCRIPT') {
         const parsed = ctx.parse(e.text);
         if (!parsed || e.confidence < 0.55) {
+          // Loop law: never stop listening on failure; apologize ONCE.
           const n = a + 1;
-          if (n >= 2) return { next: { phase: 'IDLE' }, attempts: n, effects: ['SPEAK_FALLBACK'] };
-          return { next: { phase: 'LISTENING' }, attempts: n, effects: ['SPEAK_RETRY'] };
+          return {
+            next: { phase: 'LISTENING' },
+            attempts: n,
+            effects: n === 1 ? ['SPEAK_SORRY_ONCE'] : ['START_LISTEN'],
+          };
         }
         return { next: { phase: 'CONFIRMING', heard: e.text, parsed }, attempts: a, effects: ['SPEAK_CONFIRM'] };
       }
       if (e.type === 'STT_FAILED') {
-        const n = a + 1;
-        if (n >= 2) return { next: { phase: 'IDLE' }, attempts: n, effects: ['SPEAK_FALLBACK'] };
-        return { next: { phase: 'LISTENING' }, attempts: n, effects: ['SPEAK_RETRY'] };
+        // Silence timeouts / STT hiccups: quietly re-arm, no nagging.
+        return { next: { phase: 'LISTENING' }, attempts: a, effects: ['START_LISTEN'] };
       }
       break;
 
@@ -80,9 +71,7 @@ export function reduce(
         return { next: { phase: 'IDLE' }, attempts: 0, effects: ['EMIT_VALUE'], accepted: s.parsed };
       }
       if (e.type === 'CONFIRM_NO') {
-        const n = a + 1;
-        if (n >= 2) return { next: { phase: 'IDLE' }, attempts: n, effects: ['SPEAK_FALLBACK'] };
-        return { next: { phase: 'LISTENING' }, attempts: n, effects: ['START_LISTEN'] };
+        return { next: { phase: 'LISTENING' }, attempts: a, effects: ['START_LISTEN'] };
       }
       break;
   }

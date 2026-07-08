@@ -87,7 +87,7 @@ export default function BookingRequestPage() {
 
   if (!booking) {
     return (
-      <div className="min-h-screen bg-cream text-ink flex flex-col">
+      <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
         <Header title={hi.booking.requestTitle} showBack onBack={() => router.push("/bookings")} />
         <div className="flex-grow flex items-center justify-center p-6 text-center">
           <p className="text-danger text-[20px] font-bold">{errorMsg || "Booking not found."}</p>
@@ -182,7 +182,7 @@ export default function BookingRequestPage() {
       {/* Voice actions listener */}
       <VoiceActionListener commands={commands} narratingText={voiceIntroText} promptText={voiceIntroText} />
 
-      <main className="max-w-[430px] mx-auto px-4 pt-4 flex flex-col gap-5 page-enter">
+      <main className="flex-1 overflow-y-auto px-4 pt-3 pb-6 flex flex-col gap-3 page-enter">
         {/* CUSTOMER CARD */}
         <Card className="p-5 border-l-4 border-l-saffron-500 bg-white flex flex-col gap-3">
           <div className="flex justify-between items-center">

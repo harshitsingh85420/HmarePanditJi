@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { hi } from "@/lib/strings";
+import { FirstUseTip } from "@/components/moments/FirstUseTip";
 import { api } from "@/lib/api";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -45,6 +46,7 @@ export default function SamagriPage() {
   });
 
   // Add Item form states
+  const addItemRef = React.useRef<HTMLDivElement | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [newItemName, setNewItemName] = useState("");
   const [newItemQty, setNewItemQty] = useState("");
@@ -175,7 +177,7 @@ export default function SamagriPage() {
   };
 
   return (
-    <div className="min-h-screen bg-cream text-ink pb-20">
+    <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
       <Header
         title={hi.samagri.title}
         showBack
@@ -189,7 +191,7 @@ export default function SamagriPage() {
         }}
       />
 
-      <main className="max-w-[430px] mx-auto px-4 pt-4 flex flex-col gap-5 page-enter">
+      <main className="flex-1 overflow-y-auto px-4 pt-3 pb-6 flex flex-col gap-3 page-enter">
         {selectedPuja === null ? (
           /* SCREEN 1: PICK PUJA TYPE */
           <div className="flex flex-col gap-4">
@@ -306,13 +308,16 @@ export default function SamagriPage() {
                       </div>
                     </div>
                   ) : (
-                    <Button
-                      variant="secondary"
-                      size="md"
-                      onClick={() => setShowAddForm(true)}
-                    >
-                      {hi.samagri.addItem}
-                    </Button>
+                    <div ref={addItemRef}>
+                      <FirstUseTip tipId="samagriAdd" targetRef={addItemRef} />
+                      <Button
+                        variant="secondary"
+                        size="md"
+                        onClick={() => setShowAddForm(true)}
+                      >
+                        {hi.samagri.addItem}
+                      </Button>
+                    </div>
                   )}
 
                   {/* TIER PRICING */}

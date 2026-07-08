@@ -31,19 +31,85 @@ function readInitialMuted(): boolean {
   }
 }
 
+export type LoopState = "NARRATING" | "LISTENING" | "CONFIRMING" | "PAUSED" | "IDLE";
+
 class VoiceController {
   private _muted = false;
   private _speaking = false;
   private _listening = false;
+  private _hidden = false;
+  private _confirming = false;
   private queued: { text: string; opts?: SpeakOpts } | null = null;
   private replayFn: (() => void) | null = null;
   private listeners = new Set<() => void>();
   private initialized = false;
 
+  // ── ALWAYS-LISTENING LOOP ──────────────────────────────────
+  // Screens register auto-listen targets: the active VoiceField (priority
+  // 1) or the screen's command registry (priority 0). After ANY speech
+  // ends and after ANY listen resolves, the loop quietly re-arms the top
+  // target — forever, until PAUSED (muted / tab hidden / micDenied).
+  private autoTargets: Array<{ priority: number; arm: () => void }> = [];
+  private rearmTimer: ReturnType<typeof setTimeout> | null = null;
+
   private init() {
     if (this.initialized || typeof window === "undefined") return;
     this.initialized = true;
     this._muted = readInitialMuted();
+    this._hidden = document.visibilityState === "hidden";
+    document.addEventListener("visibilitychange", () => {
+      this._hidden = document.visibilityState === "hidden";
+      if (this._hidden) {
+        this.stopSpeech();
+        this.abortListening();
+      }
+      this.emit();
+    });
+  }
+
+  private micGranted(): boolean {
+    try {
+      return localStorage.getItem("mic_permission_granted") === "true";
+    } catch {
+      return false;
+    }
+  }
+
+  get paused(): boolean {
+    this.init();
+    return this._muted || this._hidden || !this.micGranted();
+  }
+
+  get loopState(): LoopState {
+    if (this.paused) return "PAUSED";
+    if (this._speaking) return "NARRATING";
+    if (this._confirming) return "CONFIRMING";
+    if (this._listening) return "LISTENING";
+    return "IDLE";
+  }
+
+  setConfirming(v: boolean): void {
+    this._confirming = v;
+    this.emit();
+  }
+
+  /** Register an auto-listen target. Higher priority wins (field=1, commands=0). */
+  registerAutoListen(priority: number, arm: () => void): () => void {
+    const entry = { priority, arm };
+    this.autoTargets.push(entry);
+    return () => {
+      this.autoTargets = this.autoTargets.filter((t) => t !== entry);
+    };
+  }
+
+  /** Re-arm the loop shortly (after narration end / listen resolution). */
+  loopRearm(delayMs = 350): void {
+    if (this.rearmTimer) clearTimeout(this.rearmTimer);
+    this.rearmTimer = setTimeout(() => {
+      if (this.paused || this._speaking || this._listening) return;
+      const top = [...this.autoTargets].sort((a, b) => b.priority - a.priority)[0];
+      top?.arm();
+    }, delayMs);
   }
 
   // ── reactive plumbing ──────────────────────────────────────
@@ -76,11 +142,10 @@ class VoiceController {
       opts?.onEnd?.(false);
       return;
     }
-    // Never speak over an open mic — queue (depth 1, newest wins).
+    // Barge-out: speaking during a listen aborts the listen first, then
+    // speaks; the loop re-arms after the speech ends.
     if (this._listening) {
-      if (this.queued) this.queued.opts?.onEnd?.(false);
-      this.queued = { text, opts };
-      return;
+      this.abortListening();
     }
     const interrupt = opts?.interrupt !== false;
     if (interrupt) this.stopSpeech();
@@ -104,7 +169,12 @@ class VoiceController {
       // drain anything queued while we spoke
       const q = this.queued;
       this.queued = null;
-      if (q && !this._muted && !this._listening) this.speak(q.text, q.opts);
+      if (q && !this._muted && !this._listening) {
+        this.speak(q.text, q.opts);
+        return;
+      }
+      // ALWAYS-LISTENING LAW: after any speech ends, re-arm the loop
+      this.loopRearm();
     };
 
     import("@/lib/sarvam-tts")
@@ -172,7 +242,7 @@ class VoiceController {
   /** useVoiceInput must call this before opening the mic. */
   guardListenStart(): boolean {
     this.init();
-    if (this._muted || this._speaking) return false;
+    if (this.paused || this._speaking) return false;
     this._listening = true;
     this.emit();
     return true;
@@ -184,7 +254,12 @@ class VoiceController {
     this.emit();
     const q = this.queued;
     this.queued = null;
-    if (q && !this._muted) this.speak(q.text, q.opts);
+    if (q && !this._muted) {
+      this.speak(q.text, q.opts);
+      return;
+    }
+    // Loop law: a resolved/expired listen quietly re-arms (no nagging)
+    this.loopRearm();
   }
 
   private listenAborters = new Set<() => void>();

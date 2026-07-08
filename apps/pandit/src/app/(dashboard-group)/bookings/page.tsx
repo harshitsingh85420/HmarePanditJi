@@ -14,6 +14,7 @@ import { DiyaLoader } from "@/components/moments/DiyaLoader";
 import { SpeakOnMount } from "@/components/VoiceBar";
 import { VoiceActionListener } from "@/components/voice/VoiceActionListener";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { FirstUseTip } from "@/components/moments/FirstUseTip";
 
 interface BookingItem {
   id: string;
@@ -38,6 +39,7 @@ export default function BookingsPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [bookings, setBookings] = useState<BookingItem[]>([]);
+  const tabsRef = React.useRef<HTMLDivElement | null>(null);
   const [activeTab, setActiveTab] = useState<"NEW" | "UPCOMING" | "COMPLETED">("NEW");
 
   // Fetch all bookings for this pandit
@@ -125,7 +127,7 @@ export default function BookingsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-cream text-ink pb-28">
+    <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
       <Header title={hi.bookingsList.title} showBack={false} />
       <SpeakOnMount text={countsNarration} />
       <VoiceActionListener
@@ -138,7 +140,8 @@ export default function BookingsPage() {
       />
 
       {/* Tabs bar */}
-      <div className="flex bg-white border-b border-saffron-100 sticky top-[56px] z-20">
+      <FirstUseTip tipId="bookingsTabs" targetRef={tabsRef} />
+      <div ref={tabsRef} className="flex bg-white border-b border-saffron-100 sticky top-[56px] z-20">
         <button
           onClick={() => setActiveTab("NEW")}
           className={`flex-1 text-center py-4 font-bold text-[18px] transition-all border-b-4 ${
@@ -169,7 +172,7 @@ export default function BookingsPage() {
       </div>
 
       {/* Bookings List */}
-      <main className="max-w-[430px] mx-auto px-4 pt-4 flex flex-col gap-4 page-enter">
+      <main className="flex-1 overflow-y-auto px-4 pt-3 pb-6 flex flex-col gap-3 page-enter">
         {bookings.length === 0 ? (
           <EmptyState emoji="🙏" title={hi.empty.noBookingsYetTitle} hint={hi.empty.noBookingsYetHint} />
         ) : filteredBookings.length === 0 ? (

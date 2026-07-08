@@ -46,6 +46,9 @@ import {
   completeBooking,
   getPanditPayouts,
   markMilestonesSeen,
+  patchPanditProfile,
+  upsertDakshinaRate,
+  removeSpecialization,
   getBlockedDates,
   createBlockedDate,
   deleteBlockedDate
@@ -185,6 +188,9 @@ app.post(`${API_PREFIX}/pandit/bookings/:id/complete`, { preHandler: [authentica
 app.get(`${API_PREFIX}/pandit/earnings/summary`, { preHandler: [authenticate, roleGuard("PANDIT")] }, getPanditEarningsSummary);
 app.get(`${API_PREFIX}/pandit/payouts`, { preHandler: [authenticate, roleGuard("PANDIT")] }, getPanditPayouts);
 app.post(`${API_PREFIX}/pandit/milestones/seen`, { preHandler: [authenticate, roleGuard("PANDIT")] }, markMilestonesSeen);
+app.patch(`${API_PREFIX}/pandit/profile`, { preHandler: [authenticate, roleGuard("PANDIT")] }, patchPanditProfile);
+app.post(`${API_PREFIX}/pandit/dakshina-rates`, { preHandler: [authenticate, roleGuard("PANDIT")] }, upsertDakshinaRate);
+app.delete(`${API_PREFIX}/pandit/specializations/:poojaType`, { preHandler: [authenticate, roleGuard("PANDIT")] }, removeSpecialization);
 app.get(`${API_PREFIX}/pandit/blocked-dates`, { preHandler: [authenticate, roleGuard("PANDIT")] }, getBlockedDates);
 app.post(`${API_PREFIX}/pandit/blocked-dates`, { preHandler: [authenticate, roleGuard("PANDIT")] }, createBlockedDate);
 app.delete(`${API_PREFIX}/pandit/blocked-dates/:date`, { preHandler: [authenticate, roleGuard("PANDIT")] }, deleteBlockedDate);

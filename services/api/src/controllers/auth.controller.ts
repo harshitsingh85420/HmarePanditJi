@@ -10,6 +10,7 @@ import { storeOtpHash, getOtpHash, deleteOtpHash, checkRateLimit } from "../lib/
 import { DEFAULT_SAMAGRI } from "@hmarepanditji/db";
 import { computeEarnings } from "../lib/earnings";
 import { checkAndAwardMilestones } from "../lib/milestones";
+import { canRemovePooja, REMOVE_BLOCKING_STATUSES } from "../lib/poojaRules";
 
 // Cookie configuration for HttpOnly tokens
 const AUTH_COOKIE_OPTIONS = {
@@ -247,6 +248,8 @@ export const getMe = async (request: FastifyRequest, reply: FastifyReply) => {
       },
       pandit: {
         include: {
+          dakshinaRates: true,
+          pujaServices: { where: { isActive: true } },
           _count: {
             select: {
               pujaServices: true,
@@ -1176,6 +1179,90 @@ export const completeBooking = async (request: FastifyRequest, reply: FastifyRep
     success: true,
     data: updatedBooking
   });
+};
+
+// ── मेरी पूजाएँ (F29) ────────────────────────────────────────────────────────
+
+/** PATCH /pandit/profile — specializations (adds are marked pending-verify) */
+export const patchPanditProfile = async (request: FastifyRequest, reply: FastifyReply) => {
+  const userId = (request as any).user?.id || (request as any).user?.userId;
+  if (!userId) return reply.status(401).send({ success: false, error: "Unauthorized" });
+
+  const profile = await prisma.panditProfile.findUnique({ where: { userId } });
+  if (!profile) return reply.status(404).send({ success: false, error: "Pandit profile not found" });
+
+  const { specializations } = request.body as { specializations?: string[] };
+  if (!Array.isArray(specializations) || specializations.some((s) => typeof s !== "string" || !s.trim())) {
+    return reply.status(400).send({ success: false, error: "specializations must be a non-empty string array" });
+  }
+
+  // F29(c): anything not in the current list is a NEW pooja → pending verify
+  const current = new Set(profile.specializations);
+  const added = specializations.filter((sp) => !current.has(sp));
+  const pending = new Set(profile.pendingPoojaVerifications);
+  added.forEach((sp) => pending.add(sp));
+  // drop pending flags for poojas no longer listed
+  const nextPending = [...pending].filter((sp) => specializations.includes(sp));
+
+  const updated = await prisma.panditProfile.update({
+    where: { id: profile.id },
+    data: { specializations, pendingPoojaVerifications: nextPending },
+  });
+  return reply.send({ success: true, data: { specializations: updated.specializations, pendingPoojaVerifications: updated.pendingPoojaVerifications } });
+};
+
+/** POST /pandit/dakshina-rates — upsert {pujaType, amount} */
+export const upsertDakshinaRate = async (request: FastifyRequest, reply: FastifyReply) => {
+  const userId = (request as any).user?.id || (request as any).user?.userId;
+  if (!userId) return reply.status(401).send({ success: false, error: "Unauthorized" });
+
+  const profile = await prisma.panditProfile.findUnique({ where: { userId } });
+  if (!profile) return reply.status(404).send({ success: false, error: "Pandit profile not found" });
+
+  const { pujaType, amount } = request.body as { pujaType?: string; amount?: number };
+  if (!pujaType || typeof amount !== "number" || amount < 0 || !Number.isFinite(amount)) {
+    return reply.status(400).send({ success: false, error: "pujaType and a non-negative amount are required" });
+  }
+
+  // F29(a): existing bookings snapshot dakshinaAmount — this only affects NEW bookings.
+  const rate = await prisma.dakshinaRate.upsert({
+    where: { panditId_pujaType: { panditId: profile.id, pujaType } },
+    update: { amount: Math.round(amount) },
+    create: { panditId: profile.id, pujaType, amount: Math.round(amount) },
+  });
+  return reply.send({ success: true, data: rate });
+};
+
+/** DELETE /pandit/specializations/:poojaType — 409 while active bookings exist */
+export const removeSpecialization = async (request: FastifyRequest, reply: FastifyReply) => {
+  const userId = (request as any).user?.id || (request as any).user?.userId;
+  if (!userId) return reply.status(401).send({ success: false, error: "Unauthorized" });
+
+  const profile = await prisma.panditProfile.findUnique({ where: { userId } });
+  if (!profile) return reply.status(404).send({ success: false, error: "Pandit profile not found" });
+
+  const poojaType = decodeURIComponent((request.params as { poojaType: string }).poojaType || "");
+  if (!poojaType) return reply.status(400).send({ success: false, error: "poojaType required" });
+
+  const activeCount = await prisma.booking.count({
+    where: {
+      panditId: profile.id,
+      pujaType: poojaType,
+      status: { in: [...REMOVE_BLOCKING_STATUSES] as any },
+    },
+  });
+  if (!canRemovePooja(activeCount)) {
+    return reply.status(409).send({ success: false, error: "active_bookings" });
+  }
+
+  const updated = await prisma.panditProfile.update({
+    where: { id: profile.id },
+    data: {
+      specializations: profile.specializations.filter((sp: string) => sp !== poojaType),
+      pendingPoojaVerifications: profile.pendingPoojaVerifications.filter((sp: string) => sp !== poojaType),
+    },
+  });
+  return reply.send({ success: true, data: { specializations: updated.specializations } });
 };
 
 export const markMilestonesSeen = async (request: FastifyRequest, reply: FastifyReply) => {

@@ -1,13 +1,15 @@
 "use client";
 
 // ─────────────────────────────────────────────────────────────
-// VoiceField v2 — DUAL INPUT, ZERO MODES (Interaction Model A2/A4/A5).
-// The input is ALWAYS visible and enabled. Voice arms alongside it:
-// prompt speaks → mic auto-opens → spoken value lands in the SAME field
-// with a "आपने कहा X — सही है?" loop. Typing at any moment aborts voice
-// and is accepted without confirmation. After 2 failed voice rounds the
-// field goes quiet ("कोई बात नहीं, नीचे लिख दीजिए") and a small 🎤 in the
-// field's right slot re-arms it. Bank/OTP modes never arm the mic (A5).
+// VoiceField v3 — ALWAYS-LISTENING LOOP (Spec 1).
+// The input is ALWAYS visible and enabled; while voice_master is ON the
+// field is the loop's priority listen target: narrate → listen →
+// confirm/act → listen → … forever. Failures apologize at most ONCE and
+// keep listening. Typing aborts the listen and wins with no confirm
+// loop; when the field blurs/advances the loop re-arms. There is NO mic
+// icon or mic button — the only feedback is the gold ring + the
+// "सुन रहा हूँ…" pill. Bank/OTP fields never arm the mic (A5): the loop
+// skips them and the screen states why once.
 // ─────────────────────────────────────────────────────────────
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
@@ -18,7 +20,8 @@ import { parseHindiNumber, parsePhoneNumber, matchChoice } from "../../lib/voice
 import { extractOTP } from "../../lib/number-mapper";
 import { hi } from "../../lib/strings";
 import { Button } from "../ui/Button";
-import { Card } from "../ui/Card";
+
+import { reduce, type VFState, type VFEvent } from "./voiceFieldMachine";
 
 export interface VoiceFieldProps {
   label: string;
@@ -33,16 +36,6 @@ export interface VoiceFieldProps {
   disabled?: boolean;
   /** A5: never arm the mic (bank/IFSC/UPI). OTP mode implies this. */
   noVoice?: boolean;
-}
-
-import { reduce, type VFState, type VFEvent } from "./voiceFieldMachine";
-
-function micGranted(): boolean {
-  try {
-    return localStorage.getItem("mic_permission_granted") === "true";
-  } catch {
-    return false;
-  }
 }
 
 export function VoiceField({
@@ -96,63 +89,77 @@ export function VoiceField({
 
   const dispatch = useCallback(
     (e: VFEvent) => {
-      {
-        const result = reduce(stateRef.current, e, {
-          attempts: attemptsRef.current,
-          mode,
-          parse: parseValue,
-        });
-        const { next, effects, accepted } = result;
-        setAttempts(result.attempts);
-        setState(next);
+      const result = reduce(stateRef.current, e, {
+        attempts: attemptsRef.current,
+        mode,
+        parse: parseValue,
+      });
+      const { next, effects, accepted } = result;
+      setAttempts(result.attempts);
+      setState(next);
+      voiceController.setConfirming(next.phase === "CONFIRMING");
 
-        effects.forEach((eff) => {
-          switch (eff) {
-            case "START_LISTEN":
-              void voiceInput.start();
-              break;
-            case "STOP_LISTEN":
-              voiceInput.reset();
-              break;
-            case "SPEAK_RETRY":
-              voiceController.speak("माफ़ कीजिए, समझ नहीं आया। दोबारा बोलें।", {
-                onEnd: (done) => {
-                  if (done) void voiceInput.start();
-                },
-              });
-              break;
-            case "SPEAK_CONFIRM":
-              if (next.phase === "CONFIRMING") {
-                const display =
-                  mode === "choice"
-                    ? choices?.find((c) => c.value === next.parsed)?.label || next.parsed
-                    : next.parsed;
-                onChange(next.parsed); // spoken value lands in the SAME field
-                voiceController.speak(`आपने कहा ${display}। सही है? हाँ या नहीं बोलें।`, {
+      effects.forEach((eff) => {
+        switch (eff) {
+          case "START_LISTEN":
+            void voiceInput.start();
+            break;
+          case "STOP_LISTEN":
+            voiceInput.reset();
+            break;
+          case "SPEAK_SORRY_ONCE":
+            voiceController.speak(hi.voiceLoop.sorryOnce, {
+              onEnd: (done) => {
+                if (done) void voiceInput.start();
+              },
+            });
+            break;
+          case "SPEAK_CONFIRM":
+            if (next.phase === "CONFIRMING") {
+              const display =
+                mode === "choice"
+                  ? choices?.find((c) => c.value === next.parsed)?.label || next.parsed
+                  : next.parsed;
+              onChange(next.parsed); // spoken value lands in the SAME field
+              voiceController.speak(
+                hi.voiceLoop.confirmAsk.replace("{value}", String(display)),
+                {
                   onEnd: (done) => {
                     if (done) void voiceInput.start();
                   },
-                });
-              }
-              break;
-            case "SPEAK_FALLBACK":
-              voiceController.speak("कोई बात नहीं, नीचे लिख दीजिए।");
-              setTimeout(() => inputRef.current?.focus(), 150);
-              break;
-            case "EMIT_VALUE":
-              if (accepted !== undefined) {
-                onChange(accepted);
-                setTimeout(() => onComplete?.(), 400);
-              }
-              break;
-          }
-        });
-      }
+                },
+              );
+            }
+            break;
+          case "EMIT_VALUE":
+            if (accepted !== undefined) {
+              onChange(accepted);
+              setTimeout(() => onComplete?.(), 400);
+            }
+            break;
+        }
+      });
     },
     [mode, parseValue, choices, onChange, onComplete, voiceInput],
   );
+  const dispatchRef = useRef(dispatch);
+  dispatchRef.current = dispatch;
 
-  // ── Arm voice on mount: speak the prompt, then auto-listen ──
+  // ── Loop registration: this field is the screen's priority target ──
+  useEffect(() => {
+    if (!voiceCapable) return;
+    const unregister = voiceController.registerAutoListen(1, () => {
+      const ph = stateRef.current.phase;
+      if (ph === "IDLE" || ph === "LISTENING") {
+        setState({ phase: "LISTENING" });
+        void voiceInput.start();
+      }
+    });
+    return unregister;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [voiceCapable]);
+
+  // ── Arm on mount: speak the prompt, then the loop takes over ──
   useEffect(() => {
     if (startedRef.current) return;
     startedRef.current = true;
@@ -161,11 +168,8 @@ export function VoiceField({
     const t = setTimeout(() => {
       voiceController.speak(promptText, {
         onEnd: (completed) => {
-          // Only auto-open the mic when permission already exists — the
-          // permission ask itself belongs to tutorial slide 5, never to a
-          // surprise popup mid-form.
-          if (completed && micGranted() && !voiceController.muted) {
-            dispatch({ type: "SPEECH_DONE" });
+          if (completed && !voiceController.paused) {
+            dispatchRef.current({ type: "SPEECH_DONE" });
           } else {
             setState({ phase: "IDLE" });
           }
@@ -176,11 +180,12 @@ export function VoiceField({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Mute while active → everything stops, field stays as a plain input
+  // Pause (mute / hidden / micDenied) → plain typed field
   useEffect(() => {
     if (!voiceOn && state.phase !== "IDLE") {
       voiceInput.reset();
       setState({ phase: "IDLE" });
+      voiceController.setConfirming(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [voiceOn]);
@@ -196,7 +201,7 @@ export function VoiceField({
         if (isYes) dispatch({ type: "CONFIRM_YES" });
         else if (isNo) dispatch({ type: "CONFIRM_NO" });
         else {
-          voiceController.speak(`सही है? हाँ या नहीं बोलें।`, {
+          voiceController.speak(hi.voiceLoop.confirmRepeat, {
             onEnd: (done) => {
               if (done) void voiceInput.start();
             },
@@ -209,7 +214,7 @@ export function VoiceField({
         dispatch({ type: "TRANSCRIPT", text, confidence: conf });
       }
     }
-    if (voiceInput.state === "error" && state.phase !== "IDLE" && state.phase !== "PROMPTING") {
+    if (voiceInput.state === "error" && (state.phase === "LISTENING" || state.phase === "PROCESSING" || state.phase === "CONFIRMING")) {
       voiceInput.reset();
       dispatch({ type: "STT_FAILED" });
     }
@@ -224,6 +229,11 @@ export function VoiceField({
     onChange(v);
   };
 
+  // Typed value wins; when the field blurs, the loop quietly re-arms
+  const handleBlur = () => {
+    if (voiceCapable) voiceController.loopRearm(600);
+  };
+
   const inputType =
     mode === "number" || mode === "money" ? "number" : mode === "phone" || mode === "otp" ? "tel" : "text";
 
@@ -236,68 +246,53 @@ export function VoiceField({
         </label>
       )}
 
-      {/* THE field — always visible, always enabled (A2) */}
-      <div className="relative w-full">
-        {mode === "choice" && choices ? (
-          <select
-            disabled={disabled}
-            value={value}
-            onFocus={() => state.phase !== "IDLE" && dispatch({ type: "TYPED_INPUT" })}
-            onChange={(e) => {
-              handleTyped(e.target.value);
-              if (e.target.value) onComplete?.();
-            }}
-            className={`w-full min-h-[56px] text-[18px] bg-white border rounded-btn px-4 pr-14 font-medium focus:outline-none focus:ring-4 focus:ring-saffron-200 ${
-              listening ? "border-gold ring-4 ring-gold/40 animate-pulse" : "border-saffron-200"
-            }`}
-          >
-            <option value="">{placeholder || "-- चुनें --"}</option>
-            {choices.map((c) => (
-              <option key={c.value} value={c.value}>
-                {c.label}
-              </option>
-            ))}
-          </select>
-        ) : (
-          <input
-            ref={inputRef}
-            type={inputType}
-            disabled={disabled}
-            placeholder={placeholder}
-            value={value}
-            onFocus={() => state.phase !== "IDLE" && dispatch({ type: "TYPED_INPUT" })}
-            onChange={(e) => handleTyped(e.target.value)}
-            className={`w-full min-h-[56px] text-[18px] bg-white border rounded-btn px-4 pr-14 font-medium focus:outline-none focus:ring-4 focus:ring-saffron-200 ${
-              listening ? "border-gold ring-4 ring-gold/40 animate-pulse" : "border-saffron-200"
-            }`}
-          />
-        )}
+      {/* THE field — always visible, always enabled */}
+      {mode === "choice" && choices ? (
+        <select
+          disabled={disabled}
+          value={value}
+          onFocus={() => state.phase !== "IDLE" && dispatch({ type: "TYPED_INPUT" })}
+          onBlur={handleBlur}
+          onChange={(e) => {
+            handleTyped(e.target.value);
+            if (e.target.value) onComplete?.();
+          }}
+          className={`w-full min-h-[56px] text-[18px] bg-white border rounded-btn px-4 font-medium focus:outline-none focus:ring-4 focus:ring-saffron-200 ${
+            listening ? "border-gold ring-4 ring-gold/40 animate-pulse" : "border-saffron-200"
+          }`}
+        >
+          <option value="">{placeholder || "-- चुनें --"}</option>
+          {choices.map((c) => (
+            <option key={c.value} value={c.value}>
+              {c.label}
+            </option>
+          ))}
+        </select>
+      ) : (
+        <input
+          ref={inputRef}
+          type={inputType}
+          disabled={disabled}
+          placeholder={placeholder}
+          value={value}
+          onFocus={() => state.phase !== "IDLE" && dispatch({ type: "TYPED_INPUT" })}
+          onBlur={handleBlur}
+          onChange={(e) => handleTyped(e.target.value)}
+          className={`w-full min-h-[56px] text-[18px] bg-white border rounded-btn px-4 font-medium focus:outline-none focus:ring-4 focus:ring-saffron-200 ${
+            listening ? "border-gold ring-4 ring-gold/40 animate-pulse" : "border-saffron-200"
+          }`}
+        />
+      )}
 
-        {/* Right slot inside the field: live mic / re-arm 🎤 (A2/A4) */}
-        {voiceCapable && (
-          <span className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center">
-            {listening ? (
-              <span className="text-[22px] animate-pulse" role="img" aria-hidden="true">🎤</span>
-            ) : busy ? (
-              <span className="text-[20px] animate-spin inline-block" role="img" aria-hidden="true">🪔</span>
-            ) : (
-              <button
-                type="button"
-                onClick={() => dispatch({ type: "TAP_MIC_RETRY" })}
-                aria-label="बोलकर बताएं"
-                className="w-11 h-11 min-h-[44px] min-w-[44px] rounded-full bg-saffron-50 hover:bg-saffron-100 active:scale-95 text-[20px] flex items-center justify-center border border-saffron-200 focus:outline-none"
-              >
-                🎤
-              </button>
-            )}
-          </span>
-        )}
-      </div>
-
-      {/* Listening pill (A4) — never a full-screen takeover */}
+      {/* Listening pill — the ONLY listening feedback (A4) */}
       {listening && (
         <span className="self-start bg-gold/15 border border-gold text-temple-600 text-[16px] font-semibold font-hindi rounded-full px-4 py-1.5">
-          सुन रहा हूँ…
+          {hi.voiceLoop.listening}
+        </span>
+      )}
+      {busy && (
+        <span className="self-start text-softgrey text-[16px] font-hindi px-1" aria-hidden="true">
+          …
         </span>
       )}
 
@@ -305,11 +300,13 @@ export function VoiceField({
       {state.phase === "CONFIRMING" && (
         <div className="flex items-center justify-between gap-3 bg-saffron-50 border border-saffron-100 rounded-card px-4 py-3">
           <span className="t-body font-semibold text-ink font-hindi">
-            आपने कहा <span className="font-bold text-saffron-700">{
-              mode === "choice"
+            आपने कहा{" "}
+            <span className="font-bold text-saffron-700">
+              {mode === "choice"
                 ? choices?.find((c) => c.value === state.parsed)?.label || state.parsed
-                : state.parsed
-            }</span> — सही है?
+                : state.parsed}
+            </span>{" "}
+            — सही है?
           </span>
           <div className="flex gap-2 shrink-0">
             <Button variant="success" size="md" onClick={() => dispatch({ type: "CONFIRM_YES" })}>
@@ -319,25 +316,6 @@ export function VoiceField({
               {hi.common.no}
             </Button>
           </div>
-        </div>
-      )}
-
-      {/* Mic permission explainer (only reachable from the explicit 🎤 tap) */}
-      {voiceInput.showExplainer && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-6">
-          <Card className="max-w-[340px] w-full flex flex-col items-center justify-center text-center p-6 gap-4">
-            <div className="text-[64px] leading-none" role="img" aria-label="Microphone">🎤</div>
-            <h3 className="t-title font-bold text-ink">माइक की अनुमति आवश्यक है</h3>
-            <p className="t-body text-softgrey">कृपया माइक की अनुमति दें, ताकि आप बोलकर जवाब दे सकें।</p>
-            <div className="w-full flex flex-col gap-2 mt-2">
-              <Button variant="primary" size="md" fullWidth onClick={voiceInput.proceedWithPermission}>
-                अनुमति दें / Allow
-              </Button>
-              <Button variant="ghost" size="md" fullWidth onClick={voiceInput.cancelExplainer}>
-                रद्द करें
-              </Button>
-            </div>
-          </Card>
         </div>
       )}
     </div>

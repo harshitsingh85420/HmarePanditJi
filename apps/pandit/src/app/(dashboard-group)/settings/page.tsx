@@ -31,14 +31,14 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-cream text-ink pb-28">
+    <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
       <Header
         title={hi.settings.title}
         showBack
         onBack={() => router.push("/home")}
       />
 
-      <main className="max-w-[430px] mx-auto px-4 pt-6 flex flex-col gap-6 page-enter">
+      <main className="flex-1 overflow-y-auto px-4 pt-3 pb-6 flex flex-col gap-3 page-enter">
         <SpeakOnMount text={hi.settingsScreen.intro} />
 
         {/* Row: profile view */}
@@ -47,6 +47,15 @@ export default function SettingsPage() {
           onClick={() => router.push("/profile-view")}
         >
           <span className="text-[18px] font-bold text-ink font-hindi">👤 {hi.settingsRows.viewProfile}</span>
+          <span className="text-softgrey text-[20px]" aria-hidden="true">›</span>
+        </Card>
+
+        {/* Row: my poojas */}
+        <Card
+          className="px-5 bg-white border border-saffron-100 min-h-[64px] flex items-center justify-between cursor-pointer active:scale-[0.97] transition-transform"
+          onClick={() => router.push("/my-poojas")}
+        >
+          <span className="text-[18px] font-bold text-ink font-hindi">🛕 {hi.myPoojas.title}</span>
           <span className="text-softgrey text-[20px]" aria-hidden="true">›</span>
         </Card>
 

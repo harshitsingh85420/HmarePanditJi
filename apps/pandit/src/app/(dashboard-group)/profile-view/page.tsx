@@ -54,9 +54,9 @@ export default function ProfileViewPage() {
       : (profile?.pujaServices || []).map((s) => ({ puja: s.pujaType, amount: s.dakshinaAmount }));
 
   return (
-    <div className="min-h-screen bg-cream text-ink pb-28">
+    <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
       <Header title={hi.profileView.title} showBack onBack={() => router.push("/settings")} />
-      <main className="max-w-[430px] mx-auto px-4 pt-4 flex flex-col gap-4 page-enter">
+      <main className="flex-1 overflow-y-auto px-4 pt-3 pb-6 flex flex-col gap-3 page-enter">
         <SpeakOnMount text={hi.profileView.title} />
 
         {/* Photo + name + city */}
@@ -77,6 +77,15 @@ export default function ProfileViewPage() {
               📍 {profile?.city || profile?.location || "—"}
             </span>
           </div>
+        </Card>
+
+        {/* Row: manage poojas */}
+        <Card
+          className="px-5 bg-white border border-saffron-100 min-h-[64px] flex items-center justify-between cursor-pointer active:scale-[0.97] transition-transform"
+          onClick={() => router.push("/my-poojas")}
+        >
+          <span className="text-[18px] font-bold text-ink font-hindi">🛕 {hi.myPoojas.title}</span>
+          <span className="text-softgrey text-[20px]" aria-hidden="true">›</span>
         </Card>
 
         {/* पूजाएँ chips */}

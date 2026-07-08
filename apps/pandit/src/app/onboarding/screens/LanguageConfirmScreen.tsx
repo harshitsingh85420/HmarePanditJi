@@ -86,7 +86,7 @@ export default function LanguageConfirmScreen({
         <div className="mt-6 xs:mt-8 text-center px-4">
           <p className="text-lg xs:text-xl sm:text-2xl font-bold text-text-primary">क्या यह सही है?</p>
           <p className="text-base xs:text-lg sm:text-xl text-saffron mt-2">
-            {isListening ? '🎤 सुन रहा हूँ...' : "'हाँ' या 'बदलें' बोलें"}
+            {isListening ? 'सुन रहा हूँ…' : "'हाँ' या 'बदलें' बोलें"}
           </p>
         </div>
       </div>

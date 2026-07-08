@@ -5,6 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import { hi } from "@/lib/strings";
 import { api } from "@/lib/api";
 import { playBell, vibrateConfirm } from "@/lib/sounds";
+import { FirstUseTip } from "@/components/moments/FirstUseTip";
 import { motion, AnimatePresence } from "framer-motion";
 
 // UI Components
@@ -50,6 +51,7 @@ export default function BookingDetailPage() {
   const { speak } = useVoice();
 
   const [loading, setLoading] = useState(true);
+  const routeBtnRef = React.useRef<HTMLButtonElement | null>(null);
   const [booking, setBooking] = useState<BookingDetail | null>(null);
   const [errorMsg, setErrorMsg] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
@@ -83,7 +85,7 @@ export default function BookingDetailPage() {
 
   if (!booking) {
     return (
-      <div className="min-h-screen bg-cream text-ink flex flex-col">
+      <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
         <Header title={hi.booking.detailsTitle} showBack onBack={() => router.push("/bookings")} />
         <div className="flex-grow flex items-center justify-center p-6 text-center">
           <p className="text-danger text-[20px] font-bold">{errorMsg || "Booking not found."}</p>
@@ -241,7 +243,7 @@ export default function BookingDetailPage() {
         promptText={screenVoiceText}
       />
 
-      <main className="max-w-[430px] mx-auto px-4 pt-4 flex flex-col gap-5 page-enter">
+      <main className="flex-1 overflow-y-auto px-4 pt-3 pb-6 flex flex-col gap-3 page-enter">
         {/* 1. STATUS HEADER */}
         <div className="flex justify-between items-center bg-white p-4 rounded-card border border-saffron-100 shadow-sm">
           <span className="text-[18px] font-bold text-softgrey font-hindi">{hi.booking.bookingStatus}</span>
@@ -265,7 +267,9 @@ export default function BookingDetailPage() {
             {hi.booking.callCustomer}
           </a>
 
+          <FirstUseTip tipId="detailRoute" targetRef={routeBtnRef} />
           <button
+            ref={routeBtnRef}
             onClick={() => {
               const q = encodeURIComponent(booking.venueAddress || "");
               // geo: opens the native maps app on Android; browsers that

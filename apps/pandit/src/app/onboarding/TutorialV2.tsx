@@ -1,10 +1,15 @@
 "use client";
 
 // ─────────────────────────────────────────────────────────────
-// Tutorial v2 — the 14-slide script, rendered on the existing
-// TutorialShell. Narrations come VERBATIM from strings.tutorial.
-// Interactive slides: 3 (SpeakerFab mute→unmute gate), 5 (mic
-// permission + practice listen), 6 (temple bell once on mount).
+// Tutorial v3 — the 16-slide script on the existing TutorialShell.
+// Narrations VERBATIM from strings.tutorial. Interactive: slide 3
+// (CoachSpotlight on the REAL SpeakerFab, requires a mute→unmute
+// cycle), slide 5 (mic permission + practice; spotlight on the
+// listening pill), slide 6 (temple bell once), slide 9 (home-tour demo
+// frame with 3 spotlight steps), slide 14 (मेरी पूजाएँ demo frame).
+// Demo frames reuse REAL components in a scaled pointer-events-none
+// container — no screenshots. Layout grammar: visual zone flex-1
+// min-h-0, narration max-h-[30%] overflow-y-auto, controls in footer.
 // ─────────────────────────────────────────────────────────────
 
 import React, { useEffect, useRef, useState, useSyncExternalStore } from "react";
@@ -14,8 +19,11 @@ import { useScreenVoice } from "@/hooks/useScreenVoice";
 import { voiceController } from "@/lib/voiceController";
 import { playBell } from "@/lib/sounds";
 import { Button } from "@/components/ui/Button";
+import { CoachSpotlight } from "@/components/moments/CoachSpotlight";
+import { Card } from "@/components/ui/Card";
+import { BottomNav } from "@/components/ui/BottomNav";
 
-export const TUTORIAL_TOTAL = 14;
+export const TUTORIAL_TOTAL = 16;
 
 interface SlideDef {
   title: string;
@@ -154,13 +162,72 @@ function slideDefs(): SlideDef[] {
     { title: t.slide6Title, narration: t.slide6, visual: V.s6 },
     { title: t.slide7Title, narration: t.slide7, visual: V.s7 },
     { title: t.slide8Title, narration: t.slide8, visual: V.s8 },
+    { title: t.slideHomeTourTitle, narration: t.slideHomeTour, visual: null }, // 9: demo frame
     { title: t.slide9Title, narration: t.slide9, visual: V.s9 },
     { title: t.slide10Title, narration: t.slide10, visual: V.s10 },
     { title: t.slide11Title, narration: t.slide11, visual: V.s11 },
     { title: t.slide12Title, narration: t.slide12, visual: V.s12 },
+    { title: t.slidePoojasTitle, narration: t.slidePoojas, visual: null }, // 14: demo frame
     { title: t.slide13Title, narration: t.slide13, visual: V.s13 },
-    { title: t.slide14Title, narration: t.slide14, visual: V.s14 },
+    { title: t.slide14Title, narration: `${t.slide14} ${t.rewatchNote}`, visual: V.s14 },
   ];
+}
+
+
+// ── Demo frames: REAL components, scaled, pointer-events-none ─
+function MiniHomeDemo({
+  step,
+  refs,
+}: {
+  step: number;
+  refs: [React.MutableRefObject<HTMLDivElement | null>, React.MutableRefObject<HTMLDivElement | null>, React.MutableRefObject<HTMLDivElement | null>];
+}) {
+  void step;
+  return (
+    <div className="pointer-events-none select-none origin-top scale-[0.82] w-full max-w-[360px] mx-auto flex flex-col gap-3 bg-cream rounded-card border border-saffron-100 p-3">
+      <div ref={refs[0]}>
+        <div className="w-full h-16 rounded-btn bg-leaf-700 text-white flex items-center justify-center font-bold text-[20px] font-hindi online-glow">
+          {hi.home.goOffline}
+        </div>
+      </div>
+      <div ref={refs[1]}>
+        <Card className="p-4 bg-white border border-saffron-100 flex flex-col gap-1">
+          <span className="text-[16px] font-bold text-temple-600 font-hindi">{hi.home.todayBookings}</span>
+          <div className="flex items-center justify-between">
+            <div className="flex flex-col">
+              <span className="text-[22px] font-bold text-ink font-mono">03:00 PM</span>
+              <span className="text-[16px] font-bold text-temple-700 font-hindi">सत्यनारायण कथा</span>
+            </div>
+            <span className="text-[16px] font-bold text-leaf-700 font-hindi">मिलेगा ₹11,000</span>
+          </div>
+        </Card>
+      </div>
+      <div ref={refs[2]}>
+        <BottomNav activeTab={0} onChange={() => { }} />
+      </div>
+    </div>
+  );
+}
+
+function MiniPoojasDemo({ addRef }: { addRef: React.MutableRefObject<HTMLDivElement | null> }) {
+  return (
+    <div className="pointer-events-none select-none origin-top scale-[0.82] w-full max-w-[360px] mx-auto flex flex-col gap-3 bg-cream rounded-card border border-saffron-100 p-3">
+      {["सत्यनारायण कथा", "गृह प्रवेश"].map((pj) => (
+        <Card key={pj} className="p-4 bg-white border border-saffron-100 flex items-center justify-between">
+          <div className="flex flex-col">
+            <span className="text-[20px] font-bold text-ink font-hindi">{pj}</span>
+            <span className="t-money text-[18px]">₹11,000</span>
+          </div>
+          <span className="bg-leaf-100 text-leaf-700 rounded-full px-3 py-1 text-[14px] font-bold font-hindi">✓ प्रमाणित</span>
+        </Card>
+      ))}
+      <div ref={addRef}>
+        <div className="w-full min-h-[56px] bg-saffron-500 text-[#FFF3EA] rounded-btn text-[18px] font-bold flex items-center justify-center font-hindi">
+          + नई पूजा जोड़ें
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export interface TutorialV2Props {
@@ -183,6 +250,31 @@ export default function TutorialV2({
   const defs = slideDefs();
   const idx = Math.min(TUTORIAL_TOTAL, Math.max(1, slide)) - 1;
   const def = defs[idx];
+
+  // Slide 3: spotlight target = the REAL SpeakerFab in the layout
+  const fabRef = useRef<HTMLElement | null>(null);
+  useEffect(() => {
+    fabRef.current = document.querySelector('[aria-label*="आवाज़"]') as HTMLElement | null;
+  }, [idx]);
+
+  // Slide 9 home-tour stepping + demo refs
+  const [tourStep, setTourStep] = useState(0);
+  const tourRef1 = useRef<HTMLDivElement | null>(null);
+  const tourRef2 = useRef<HTMLDivElement | null>(null);
+  const tourRef3 = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (idx !== 8) setTourStep(0);
+  }, [idx]);
+
+  // Slide 14 poojas demo ref + one-shot spotlight
+  const poojasAddRef = useRef<HTMLDivElement | null>(null);
+  const [poojasSpotDone, setPoojasSpotDone] = useState(false);
+  useEffect(() => {
+    if (idx !== 13) setPoojasSpotDone(false);
+  }, [idx]);
+
+  // Slide 5: spotlight the listening pill when it appears
+  const pillRef = useRef<HTMLDivElement | null>(null);
 
   useScreenVoice(def.narration);
 
@@ -252,6 +344,12 @@ export default function TutorialV2({
     if (idx !== 5) rangRef.current = false;
   }, [idx]);
 
+  const tourStrings = [
+    { title: hi.tutorial.tourStep1Title, line: hi.tutorial.tourStep1, ref: tourRef1 },
+    { title: hi.tutorial.tourStep2Title, line: hi.tutorial.tourStep2, ref: tourRef2 },
+    { title: hi.tutorial.tourStep3Title, line: hi.tutorial.tourStep3, ref: tourRef3 },
+  ];
+
   // ── Slide 14 (CTA) ──────────────────────────────────────────
   const [stay, setStay] = useState(false);
 
@@ -296,23 +394,74 @@ export default function TutorialV2({
       onNext={nextDisabled ? () => { } : goNext}
       nextLabel={nextDisabled ? "⏳ आज़मा कर देखिए…" : hi.tutorial.next}
     >
-      <div className="flex flex-col items-center gap-4 px-4 text-center">
-        {def.visual}
+      <div className="flex flex-col items-center gap-3 px-4 text-center h-full min-h-0">
+        {/* Visual zone shrinks first (grammar 2g) */}
+        <div className="flex-1 min-h-0 w-full flex flex-col items-center justify-center overflow-hidden">
+          {idx === 8 ? (
+            <MiniHomeDemo step={tourStep} refs={[tourRef1, tourRef2, tourRef3]} />
+          ) : idx === 13 ? (
+            <MiniPoojasDemo addRef={poojasAddRef} />
+          ) : (
+            def.visual
+          )}
+        </div>
         <h2 className="t-title font-bold text-temple-600 font-hindi">{def.title}</h2>
-        <p className="t-body text-ink font-hindi leading-relaxed">{def.narration}</p>
+        <p className="t-body text-ink font-hindi leading-relaxed max-h-[30%] overflow-y-auto">{def.narration}</p>
+
+        {/* Slide 3: spotlight the REAL SpeakerFab; gate opens on the cycle */}
+        {idx === 2 && !gateOpen && fabRef.current && (
+          <CoachSpotlight
+            targetRef={fabRef}
+            title={hi.tutorial.slide3Title}
+            line={hi.tutorial.slide3}
+            requireInteraction
+            onDone={() => { /* gate opens via the mute→unmute subscription */ }}
+          />
+        )}
+
+        {/* Slide 9: home tour — spotlight steps INSIDE the demo frame */}
+        {idx === 8 && tourStep < 3 && (
+          <CoachSpotlight
+            targetRef={tourStrings[tourStep].ref}
+            title={tourStrings[tourStep].title}
+            line={tourStrings[tourStep].line}
+            onDone={() => setTourStep((t) => t + 1)}
+          />
+        )}
+
+        {/* Slide 14: spotlight the + नई पूजा जोड़ें demo button */}
+        {idx === 13 && !poojasSpotDone && (
+          <CoachSpotlight
+            targetRef={poojasAddRef}
+            title={hi.tutorial.slidePoojasTitle}
+            line={hi.tutorial.slidePoojas}
+            onDone={() => setPoojasSpotDone(true)}
+          />
+        )}
 
         {/* Slide 5 interactive card */}
         {idx === 4 && (
           <div className="w-full max-w-[300px] flex flex-col items-center gap-3 bg-white rounded-card border border-saffron-100 p-5">
-            <span className="text-[56px]" aria-hidden="true">🎤</span>
+            <span className="text-[56px]" aria-hidden="true">🗣️</span>
             {micState === "idle" || micState === "asking" ? (
               <Button variant="primary" size="md" fullWidth onClick={askMic} loading={micState === "asking"}>
                 {hi.tutorial.slide5Button}
               </Button>
             ) : micState === "listening" ? (
-              <span className="bg-gold/15 border border-gold text-temple-600 text-[18px] font-semibold font-hindi rounded-full px-4 py-2">
-                सुन रहा हूँ… बोलिए — नमस्ते
-              </span>
+              <>
+                <div ref={pillRef}>
+                  <span className="bg-gold/15 border border-gold text-temple-600 text-[18px] font-semibold font-hindi rounded-full px-4 py-2">
+                    सुन रहा हूँ… बोलिए — नमस्ते
+                  </span>
+                </div>
+                <CoachSpotlight
+                  targetRef={pillRef}
+                  title={hi.tutorial.slide5Title}
+                  line="बोलिए — नमस्ते"
+                  requireInteraction
+                  onDone={() => { /* resolves when the listen completes */ }}
+                />
+              </>
             ) : micState === "done" ? (
               <span className="text-[20px] font-bold text-leaf-700 font-hindi">✓ {hi.tutorial.slide5Practice}</span>
             ) : (

@@ -15,6 +15,7 @@ import { MoneyCount } from "@/components/moments/MoneyCount";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { useVoice } from "@/hooks/useVoice";
 import { playChime } from "@/lib/sounds";
+import { FirstUseTip } from "@/components/moments/FirstUseTip";
 
 interface PayoutItem {
   id: string;
@@ -41,6 +42,7 @@ export default function EarningsPage() {
   const router = useRouter();
   const { speak } = useVoice();
   const [loading, setLoading] = useState(true);
+  const pendingRef = React.useRef<HTMLDivElement | null>(null);
 
   // THE PAYOUT MOMENT: a payout newly moved PENDING→PAID since last visit
   const [freshlyPaidAmount, setFreshlyPaidAmount] = useState<number | null>(null);
@@ -115,14 +117,14 @@ export default function EarningsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-cream text-ink pb-28">
+    <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
       {/* HEADER */}
       <Header title={hi.earnings.title} showBack={false} />
 
       {/* INTRO VOICE NARRATOR ON MOUNT */}
       <SpeakOnMount text={hi.earnings.introVoice} />
 
-      <main className="max-w-[430px] mx-auto px-4 pt-4 flex flex-col gap-5 page-enter">
+      <main className="flex-1 overflow-y-auto px-4 pt-3 pb-6 flex flex-col gap-3 page-enter">
         {/* THE PAYOUT MOMENT — one-time banner when money just arrived */}
         {freshlyPaidAmount !== null && (
           <Card accent="leaf" className="p-4 bg-leaf-100 flex items-center gap-3">
@@ -156,7 +158,8 @@ export default function EarningsPage() {
         </div>
 
         {/* PENDING PAYOUTS SECTION */}
-        <div className="flex flex-col gap-3">
+        <FirstUseTip tipId="earningsPending" targetRef={pendingRef} />
+        <div ref={pendingRef} className="flex flex-col gap-3">
           <h3 className="text-[18px] font-bold text-temple-600 font-hindi border-b border-saffron-100 pb-1.5 flex justify-between items-center">
             <span>{hi.earnings.pendingPayout}</span>
             <span className="text-[18px] font-bold text-leaf-700 font-mono">

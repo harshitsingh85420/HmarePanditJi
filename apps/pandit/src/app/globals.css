@@ -452,9 +452,16 @@ body {
 }
 .speaker-fab-pulse { animation: speaker-fab-pulse 1.6s ease-in-out infinite; }
 
+/* CoachSpotlight gold pulse ring */
+@keyframes coach-ring-pulse {
+  0%, 100% { border-color: #E7B54A; }
+  50%      { border-color: rgba(231, 181, 74, 0.35); }
+}
+.coach-ring { animation: coach-ring-pulse 1.4s ease-in-out infinite; }
+
 /* Respect elders' settings: no motion means no motion */
 @media (prefers-reduced-motion: reduce) {
-  .page-enter, .online-glow, .animate-diya-sm, .animate-diya, .speaker-fab-pulse {
+  .page-enter, .online-glow, .animate-diya-sm, .animate-diya, .speaker-fab-pulse, .coach-ring {
     animation: none !important;
   }
 }

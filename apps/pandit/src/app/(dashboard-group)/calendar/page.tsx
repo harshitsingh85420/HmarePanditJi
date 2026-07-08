@@ -11,6 +11,7 @@ import { Header } from "@/components/ui/Header";
 import { BottomNav } from "@/components/ui/BottomNav";
 import { Toast } from "@/components/ui/Toast";
 import { SpeakOnMount } from "@/components/VoiceBar";
+import { FirstUseTip } from "@/components/moments/FirstUseTip";
 import { DiyaLoader } from "@/components/moments/DiyaLoader";
 import { useVoice } from "@/hooks/useVoice";
 
@@ -37,6 +38,7 @@ export default function CalendarPage() {
   const { speak } = useVoice();
 
   const [loading, setLoading] = useState(true);
+  const gridRef = React.useRef<HTMLDivElement | null>(null);
   const [currentDate, setCurrentDate] = useState(new Date());
 
   // Data states
@@ -195,13 +197,13 @@ export default function CalendarPage() {
   };
 
   return (
-    <div className="min-h-screen bg-cream text-ink pb-28">
+    <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
       <Header title={hi.calendar.title} showBack={false} />
 
       {/* BLOCK VOICE NARRATION ON MOUNT */}
       <SpeakOnMount text={hi.calendar.blockVoice} />
 
-      <main className="max-w-[430px] mx-auto px-4 pt-4 flex flex-col gap-4 page-enter">
+      <main className="flex-1 overflow-y-auto px-4 pt-3 pb-6 flex flex-col gap-3 page-enter">
         {/* MONTH SELECTOR BANNER */}
         <div className="flex items-center justify-between bg-white p-3 rounded-card border border-saffron-100 shadow-sm">
           <button
@@ -232,6 +234,8 @@ export default function CalendarPage() {
         )}
 
         {/* CUSTOM MONTH GRID CARD */}
+        <FirstUseTip tipId="calendarBlock" targetRef={gridRef} />
+        <div ref={gridRef}>
         <Card className="p-4 bg-white border border-saffron-100 shadow-sm flex flex-col gap-4">
           {/* Weekday headers */}
           <div className="grid grid-cols-7 text-center border-b border-saffron-100 pb-2">
@@ -288,6 +292,7 @@ export default function CalendarPage() {
             })}
           </div>
         </Card>
+        </div>
 
         {/* LEGEND SECTION */}
         <div className="flex justify-center items-center gap-4 text-[16px] text-softgrey font-hindi py-1 bg-white border border-saffron-100 rounded-btn">

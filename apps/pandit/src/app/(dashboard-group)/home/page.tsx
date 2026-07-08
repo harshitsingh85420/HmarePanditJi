@@ -24,6 +24,7 @@ import { milestoneLabel, milestoneEmoji } from "@/components/moments/PragatiCard
 import { EmptyState } from "@/components/ui/EmptyState";
 import { getActiveFestival, isFestivalDay } from "@/lib/festivals2026";
 import { playBell, playChime } from "@/lib/sounds";
+import { FirstUseTip } from "@/components/moments/FirstUseTip";
 
 interface Booking {
   id: string;
@@ -72,6 +73,7 @@ export default function HomePage() {
   const [errorMsg, setErrorMsg] = useState("");
 
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const toggleRef = useRef<HTMLButtonElement | null>(null);
   const knownRequestedIdsRef = useRef<Set<string>>(new Set());
 
   // Fetch initial profile, earnings, and bookings
@@ -278,7 +280,7 @@ export default function HomePage() {
   );
 
   return (
-    <div className="min-h-screen bg-cream text-ink pb-44">
+    <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
       {/* HEADER */}
       <Header
         title={<span className="font-display font-normal">{isFestivalDay() && <span className="animate-diya-sm mr-1" role="img" aria-hidden="true">🪔</span>}{`नमस्ते, ${firstName} जी`}</span>}
@@ -312,7 +314,7 @@ export default function HomePage() {
         )}
       </AnimatePresence>
 
-      <main className="max-w-[430px] mx-auto px-4 pt-4 flex flex-col gap-4 page-enter">
+      <main className="flex-1 overflow-y-auto px-4 pt-3 pb-6 flex flex-col gap-3 page-enter">
         {/* PANCHANG STRIP */}
         <PanchangStrip />
 
@@ -362,7 +364,9 @@ export default function HomePage() {
         )}
 
         {/* STATUS TOGGLE BUTTON */}
+        <FirstUseTip tipId="homeGoOnline" targetRef={toggleRef} />
         <button
+          ref={toggleRef}
           onClick={handleToggleStatus}
           disabled={!isApproved}
           className={`w-full h-20 rounded-btn flex items-center justify-center font-bold text-[22px] font-hindi shadow-md transition-all active:scale-[0.98] ${

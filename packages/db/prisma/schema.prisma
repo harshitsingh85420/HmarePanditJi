@@ -171,6 +171,9 @@ model PanditProfile {
   experienceYears      Int                @default(0)
   languages            String[]
   specializations      String[]           // ["Vivah", "Griha Pravesh", ...]
+  // F29: poojas added after signup await video verification (P12); the
+  // initial signup set is considered verified.
+  pendingPoojaVerifications String[]      @default([])
   verificationStatus   VerificationStatus @default(PENDING)
   aadhaarVerified      Boolean            @default(false)
   videoKycCompleted    Boolean            @default(false)
