@@ -479,10 +479,124 @@ body {
 }
 .coach-ring { animation: coach-ring-pulse 1.4s ease-in-out infinite; }
 
+/* ── प्रथम आरती (Pratham Aarti) entry system ─────────────────── */
+
+/* Sunrise gradient — the ONE hero-exception to the flat-fill rule.
+   ratriviolet → sindoor 45% → genda 75% → chandan. */
+.pa-sunrise {
+  background: linear-gradient(180deg, #2A1B3D 0%, #B23A1A 45%, #F2A02C 75%, #FAF3E6 100%);
+}
+
+/* Staged entrances — all use `backwards` fill so the pre-delay frame is
+   the hidden 0% state, and reduced-motion (animation:none) leaves each
+   element at its natural, fully-visible static position. */
+@keyframes pa-fade-in {
+  0%   { opacity: 0; }
+  100% { opacity: 1; }
+}
+@keyframes pa-rise {
+  0%   { opacity: 0; transform: translateY(12px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes pa-toran-drop {
+  0%   { transform: translateY(-100%); }
+  100% { transform: translateY(0); }
+}
+@keyframes pa-pop {
+  0%   { opacity: 0; transform: scale(0); }
+  70%  { opacity: 1; transform: scale(1.06); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes pa-petal-fall {
+  0%   { transform: translateY(-40px) rotate(0deg); opacity: 0; }
+  12%  { opacity: 1; }
+  88%  { opacity: 1; }
+  100% { transform: translateY(105vh) rotate(300deg); opacity: 0; }
+}
+.pa-splash-diya    { animation: pa-fade-in 0.5s ease 0s backwards; }
+.pa-splash-om      { animation: pa-rise 0.5s ease-out 0.5s backwards; }
+.pa-splash-word    { animation: pa-rise 0.6s ease-out 0.9s backwards; }
+.pa-splash-toran   { animation: pa-toran-drop 0.5s ease-out 1.2s backwards; }
+.pa-splash-orb     { animation: pa-pop 0.5s ease-out 1.6s backwards; }
+.pa-petal {
+  position: absolute;
+  top: -40px;
+  font-size: 22px;
+  animation: pa-petal-fall linear backwards;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Big diya flicker + warm halo (splash hero) */
+@keyframes pa-diya-flicker {
+  0%, 100% { transform: scale(1) rotate(-1deg); }
+  50%      { transform: scale(1.06) rotate(1deg); }
+}
+.pa-diya-flame { display: inline-block; animation: pa-diya-flicker 0.9s ease-in-out infinite; }
+@keyframes pa-glow {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50%      { opacity: 0.9;  transform: scale(1.15); }
+}
+.pa-diya-halo { animation: pa-glow 1.8s ease-in-out infinite; }
+
+/* Slide canvas entrance: fade + slide up 240ms, children stagger 80ms */
+@keyframes pa-canvas-enter {
+  0%   { opacity: 0; transform: translateY(16px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.pa-canvas-enter { animation: pa-canvas-enter 240ms ease-out backwards; }
+.pa-stagger > * { animation: pa-rise 240ms ease-out backwards; }
+.pa-stagger > *:nth-child(1) { animation-delay: 80ms; }
+.pa-stagger > *:nth-child(2) { animation-delay: 160ms; }
+.pa-stagger > *:nth-child(3) { animation-delay: 240ms; }
+.pa-stagger > *:nth-child(4) { animation-delay: 320ms; }
+.pa-stagger > *:nth-child(5) { animation-delay: 400ms; }
+
+/* Marigold micro-burst: petals fly outward along per-petal --px/--py */
+@keyframes pa-burst {
+  0%   { transform: translate(0, 0) scale(0.4) rotate(0deg); opacity: 1; }
+  100% { transform: translate(var(--px), var(--py)) scale(1) rotate(180deg); opacity: 0; }
+}
+.pa-burst-petal {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  font-size: 20px;
+  animation: pa-burst 0.8s ease-out forwards;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Temple bell swing (transform-origin at the loop) */
+@keyframes pa-bell-swing {
+  0%   { transform: rotate(0deg); }
+  20%  { transform: rotate(14deg); }
+  45%  { transform: rotate(-10deg); }
+  70%  { transform: rotate(6deg); }
+  100% { transform: rotate(0deg); }
+}
+.pa-bell-swing { display: inline-block; transform-origin: 50% 0%; animation: pa-bell-swing 1.1s ease-in-out; }
+
+/* One soft bounce for the 📍 pin (location illustration) */
+@keyframes pa-bounce-once {
+  0%   { transform: translateY(-14px); opacity: 0; }
+  55%  { transform: translateY(0); opacity: 1; }
+  75%  { transform: translateY(-6px); }
+  100% { transform: translateY(0); }
+}
+.pa-bounce-once { display: inline-block; animation: pa-bounce-once 0.7s ease-out backwards; }
+
 /* Respect elders' settings: no motion means no motion */
 @media (prefers-reduced-motion: reduce) {
   .page-enter, .online-glow, .animate-diya-sm, .animate-diya, .coach-ring,
-  .shishya-ripple, .shishya-ripple-2, .shishya-listen-ring {
+  .shishya-ripple, .shishya-ripple-2, .shishya-listen-ring,
+  .pa-splash-diya, .pa-splash-om, .pa-splash-word, .pa-splash-toran, .pa-splash-orb,
+  .pa-petal, .pa-diya-flame, .pa-diya-halo, .pa-canvas-enter, .pa-stagger > *,
+  .pa-burst-petal, .pa-bell-swing, .pa-bounce-once {
     animation: none !important;
+  }
+  /* Drifting/bursting petals have no sensible static state — hide them */
+  .pa-petal, .pa-burst-petal {
+    display: none !important;
   }
 }

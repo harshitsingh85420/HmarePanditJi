@@ -16,16 +16,15 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSafeOnboardingStore } from "@/lib/stores/ssr-safe-stores";
-import { useScreenVoice } from "@/hooks/useScreenVoice";
 import { voiceController } from "@/lib/voiceController";
 import { api } from "@/lib/api";
-import { hi } from "@/lib/strings";
 import { detectLanguage, LANG_TO_BCP47, LANG_NATIVE_NAME, type LangCode } from "@/lib/languageDetect";
 import { LANG_CONFIRM } from "@/lib/strings-langconfirm";
 import { type OnboardingPhase, type SupportedLanguage } from "@/lib/onboarding-store";
 import { speakWithSarvam } from "@/lib/sarvam-tts";
 
 import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
+import { SunriseSplash } from "@/components/moments/SunriseSplash";
 import LocationPermissionScreen from "./screens/LocationPermissionScreen";
 import ManualCityScreen from "./screens/ManualCityScreen";
 import LanguageListScreen from "./screens/LanguageListScreen";
@@ -50,27 +49,6 @@ const SUPPORTED_TO_CODE: Record<string, LangCode> = {
   Kannada: "kn", Gujarati: "gu", Punjabi: "pa", Malayalam: "ml",
   Odia: "or", English: "en",
 };
-
-// ── Splash ───────────────────────────────────────────────────
-function SplashScreen2({ onDone }: { onDone: () => void }) {
-  useScreenVoice(hi.welcomeFlow.welcome);
-  useEffect(() => {
-    const t = setTimeout(onDone, 2500);
-    return () => clearTimeout(t);
-  }, [onDone]);
-  return (
-    <main
-      onClick={onDone}
-      className="min-h-full w-full max-w-[430px] mx-auto bg-cream flex flex-col items-center justify-center gap-4 cursor-pointer"
-    >
-      <span className="text-[96px] leading-none text-saffron-500 select-none" aria-hidden="true">🕉</span>
-      <h1 className="t-hero text-center">हमारे पंडित जी</h1>
-      <p className="t-body text-softgrey font-hindi text-center px-8">
-        ऐप पंडित के लिए है, पंडित ऐप के लिए नहीं
-      </p>
-    </main>
-  );
-}
 
 // ── Language confirm — speaks IN the detected language ──────
 function LangConfirmScreen2({
@@ -98,18 +76,24 @@ function LangConfirmScreen2({
 
   return (
     <main className="min-h-full w-full max-w-[430px] mx-auto bg-cream flex flex-col items-center justify-center gap-6 px-6 text-center">
-      <span className="text-[64px]" aria-hidden="true">🗣️</span>
-      <h1 className="text-[26px] font-bold text-temple-600 font-hindi leading-snug">{t.confirmQuestion}</h1>
+      {/* D3: giant language tile — genda tint canvas, DETECTED language */}
+      <div className="w-full rounded-canvas bg-genda/10 border-2 border-genda/40 py-8 px-6 flex flex-col items-center gap-2">
+        <span className="text-[64px] leading-none font-bold font-hindi" style={{ color: "#8F5E08" }} aria-hidden="true">
+          {LANG_NATIVE_NAME[code].slice(0, 2)}
+        </span>
+        <span className="text-[28px] font-bold text-temple-600 font-hindi">{LANG_NATIVE_NAME[code]}</span>
+      </div>
+      <h1 className="text-[24px] font-bold text-temple-600 font-hindi leading-snug">{t.confirmQuestion}</h1>
       <div className="w-full flex flex-col gap-3">
         <button
           onClick={onYes}
-          className="w-full min-h-[64px] bg-saffron-500 text-[#FFF3EA] rounded-btn text-[20px] font-bold shadow-btn active:scale-[0.97] transition-transform"
+          className="w-full min-h-[64px] bg-saffron-500 text-[#FFF3EA] rounded-btn text-[20px] font-bold shadow-btn active:scale-[0.97] transition-transform font-hindi"
         >
           {t.yesLabel}
         </button>
         <button
           onClick={onOther}
-          className="w-full min-h-[56px] border-2 border-saffron-500 text-saffron-600 bg-white rounded-btn text-[18px] font-bold active:scale-[0.97] transition-transform"
+          className="w-full min-h-[56px] border-2 border-saffron-500 text-saffron-600 bg-white rounded-btn text-[18px] font-bold active:scale-[0.97] transition-transform font-hindi"
         >
           {t.otherLabel}
         </button>
@@ -174,17 +158,12 @@ export default function OnboardingOrchestratorPage() {
 
   // ── SPLASH ─────────────────────────────────────────────────
   if (phase === "SPLASH") {
-    return (
-      <OrbDock>
-        <SplashScreen2 onDone={() => goto("LOCATION_PERMISSION")} />
-      </OrbDock>
-    );
+    return <SunriseSplash onDone={() => goto("LOCATION_PERMISSION")} />;
   }
 
   // ── LOCATION ───────────────────────────────────────────────
   if (phase === "LOCATION_PERMISSION") {
     return (
-      <OrbDock>
       <LocationPermissionScreen
         language={store.selectedLanguage}
         onLanguageChange={() => goto("LANGUAGE_LIST")}
@@ -196,13 +175,11 @@ export default function OnboardingOrchestratorPage() {
         onBack={() => goto("SPLASH")}
         showBack
       />
-      </OrbDock>
     );
   }
 
   if (phase === "MANUAL_CITY") {
     return (
-      <OrbDock>
       <ManualCityScreen
         onCitySelected={(city) => {
           store.setDetectedCity(city, "");
@@ -211,7 +188,6 @@ export default function OnboardingOrchestratorPage() {
         onBack={() => goto("LOCATION_PERMISSION")}
         onLanguageChange={() => goto("LANGUAGE_LIST")}
       />
-      </OrbDock>
     );
   }
 
@@ -240,7 +216,6 @@ export default function OnboardingOrchestratorPage() {
 
   if (phase === "LANGUAGE_LIST") {
     return (
-      <OrbDock>
       <LanguageListScreen
         language={store.selectedLanguage}
         scriptPreference={store.scriptPreference}
@@ -265,7 +240,6 @@ export default function OnboardingOrchestratorPage() {
         onBack={() => goto("LANGUAGE_CONFIRM")}
         onLanguageChange={() => goto("LANGUAGE_LIST")}
       />
-      </OrbDock>
     );
   }
 
@@ -315,9 +289,5 @@ export default function OnboardingOrchestratorPage() {
     store.setPhase("TUTORIAL");
     return null;
   }
-  return (
-    <OrbDock>
-      <SplashScreen2 onDone={() => goto("LOCATION_PERMISSION")} />
-    </OrbDock>
-  );
+  return <SunriseSplash onDone={() => goto("LOCATION_PERMISSION")} />;
 }

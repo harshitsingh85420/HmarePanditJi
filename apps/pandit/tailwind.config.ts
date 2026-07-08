@@ -24,6 +24,7 @@ const config: Config = {
         // saffron == SINDOOR (primary), cream == CHANDAN, gold == PITAL brass,
         // leaf == TULSI money green, softgrey == DHOOP.
         saffron: {
+          DEFAULT:'#B23A1A',
           50:'#FDEEE7', 100:'#FAD8C9', 200:'#F4B096', 300:'#EC8663',
           400:'#D95F38', 500:'#B23A1A',
           600:'#962F13', 700:'#7A250E', 800:'#5E1C0A', 900:'#471507',
@@ -42,6 +43,13 @@ const config: Config = {
         genda:  '#F2A02C',
         brassdark: '#B8860B',
         card:   '#FFFDF8',
+        // FESTIVE ACCENTS (Pratham Aarti) — illustration canvases, chips,
+        // progress dots, celebration moments ONLY. Never body text or CTAs.
+        rani:   '#D81B60',
+        neel:   '#1B7F8E',
+        kesar:  '#FF9E2C',
+        gulal:  '#F06292',
+        ratriviolet: '#2A1B3D',
       },
       fontFamily: {
         hindi: ['var(--font-tiro)', 'var(--font-noto)', 'sans-serif'],
@@ -50,6 +58,7 @@ const config: Config = {
       borderRadius: {
         card: '20px',
         btn: '16px',
+        canvas: '28px',
       },
       boxShadow: {
         card: '0 2px 10px rgba(90,46,32,0.10)',

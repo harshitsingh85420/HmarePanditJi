@@ -38,10 +38,15 @@ export function useCountUp(target: number, durationMs = 800) {
 
     animationFrameId = window.requestAnimationFrame(step);
 
+    // rAF can be throttled/starved on low-end devices or hidden tabs —
+    // whatever happens, land on the final value shortly after duration.
+    const settleTimeout = window.setTimeout(() => setCount(target), durationMs + 400);
+
     return () => {
       if (animationFrameId) {
         window.cancelAnimationFrame(animationFrameId);
       }
+      window.clearTimeout(settleTimeout);
     };
   }, [target, durationMs]);
 

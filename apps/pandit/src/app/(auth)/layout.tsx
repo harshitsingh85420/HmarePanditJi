@@ -1,14 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { LanguageChangeWidget } from '@/components/widgets/LanguageChangeWidget'
-import { EmergencySOSFloating } from '@/components/widgets/EmergencySOSFloating'
-import { HelpButton } from '@/components/HelpButton'
 import { useSafeNavigationStore } from '@/lib/stores/ssr-safe-stores'
 import { stopSpeaking } from '@/lib/voice-engine'
 import { useHydration } from '@/hooks/useHydration'
-import type { SupportedLanguage } from '@/components/widgets/LanguageChangeWidget'
 
 // SSR FIX: Disable static generation for pages using Zustand stores
 export const dynamic = 'force-dynamic'
@@ -48,27 +43,16 @@ function AuthErrorBoundary({
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   const hydrated = useHydration()
-  const [currentLanguage, setCurrentLanguage] = useState<SupportedLanguage>('Hindi')
   const [hasError, setHasError] = useState(false)
   const [error, setError] = useState<Error | null>(null)
 
   // SSR FIX: Use safe store hook that doesn't throw during SSR
   const { goBack } = useSafeNavigationStore()
 
-  const handleLanguageChange = (language: SupportedLanguage) => {
-    setCurrentLanguage(language)
-    console.log('[AuthLayout] Language changed to:', language)
-  }
-
   const resetError = () => {
     setHasError(false)
     setError(null)
     window.location.reload()
-  }
-
-  const router = useRouter()
-  const handleHelpClick = () => {
-    router.push('/help')
   }
 
   // Browser back button handling for auth flow
@@ -111,18 +95,11 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
     return <AuthErrorBoundary error={error} reset={resetError} />
   }
 
+  // शिष्य (footer orb) + the help screen own assistance now — no
+  // floating widgets over the auth screens.
   return (
-    <div className="min-h-dvh flex flex-col bg-surface-base relative">
+    <div className="min-h-dvh flex flex-col bg-cream relative">
       {children}
-      {/* Global Language Change Widget - Floating button for easy language switching */}
-      <LanguageChangeWidget
-        currentLanguage={currentLanguage}
-        onLanguageChange={handleLanguageChange}
-      />
-      {/* Emergency SOS Floating Button - Always accessible for safety */}
-      <EmergencySOSFloating isVisible={true} />
-      {/* Help Button - Prominent floating help for elderly users */}
-      <HelpButton onClick={handleHelpClick} isVisible={true} />
     </div>
   )
 }

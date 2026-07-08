@@ -1,13 +1,16 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { motion } from 'framer-motion';
-import ScreenFooter from '@/components/ui/ScreenFooter';
-import { ShishyaOrb } from '@/components/ui/ShishyaOrb';
-import { TUTORIAL_TRANSLATIONS, type TutorialLanguage, getTutorialLang } from '@/lib/tutorial-translations';
-import type { SupportedLanguage } from '@/lib/onboarding-store';
+// ─────────────────────────────────────────────────────────────
+// TutorialShell — प्रथम आरती edition. Layout grammar: 100dvh column,
+// one scrollable content zone, ONE footer (sindoor primary + शिष्य
+// orb, optional back underneath). Progress dots take the current
+// slide's festive accent (accentHex). Every primary stays sindoor.
+// ─────────────────────────────────────────────────────────────
 
-const noop = () => { };
+import React from "react";
+import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
+import { TUTORIAL_TRANSLATIONS, type TutorialLanguage, getTutorialLang } from "@/lib/tutorial-translations";
+import type { SupportedLanguage } from "@/lib/onboarding-store";
 
 interface TutorialShellProps {
   currentDot: number;
@@ -16,12 +19,10 @@ interface TutorialShellProps {
   onBack?: () => void;
   onNext: () => void;
   nextLabel?: string;
+  nextDisabled?: boolean;
   children: React.ReactNode;
-  showVoiceBar?: boolean;
-  isListening?: boolean;
-  onKeyboardToggle?: () => void;
-  showKeyboardToggle?: boolean;
-  nextVariant?: 'primary' | 'primary-dk';
+  /** Festive accent for the progress dots (defaults to sindoor). */
+  accentHex?: string;
   language?: SupportedLanguage;
 }
 
@@ -32,99 +33,60 @@ export default function TutorialShell({
   onBack,
   onNext,
   nextLabel,
+  nextDisabled = false,
   children,
-  showVoiceBar = true,
-  isListening = false,
-  onKeyboardToggle,
-  showKeyboardToggle = false,
-  nextVariant = 'primary',
-  language = 'Hindi',
+  accentHex = "#B23A1A",
+  language = "Hindi",
 }: TutorialShellProps) {
-  const nextButtonClasses =
-    nextVariant === 'primary-dk'
-      ? 'bg-primary-dk shadow-cta-dk'
-      : 'bg-primary shadow-cta';
-
-  // Get translations
   const lang: TutorialLanguage = getTutorialLang(language);
   const translations = TUTORIAL_TRANSLATIONS[lang];
   const label = nextLabel || translations.next;
 
   return (
-    <main className="h-[100dvh] w-full max-w-[390px] xs:max-w-[430px] mx-auto bg-surface-base font-hind text-text-primary flex flex-col shadow-2xl relative overflow-hidden">
-      <header className="pt-8 xs:pt-10 px-4 xs:px-6 flex justify-between items-center shrink-0">
+    <main className="h-[100dvh] w-full max-w-[430px] mx-auto bg-cream font-hindi text-ink flex flex-col relative overflow-hidden">
+      <header className="pt-6 px-4 flex justify-between items-center shrink-0 gap-2">
         <div className="flex gap-1.5 flex-wrap max-w-[250px]">
           {Array.from({ length: totalDots }).map((_, index) => (
             <span
               key={index}
-              className={`w-2 h-2 rounded-full transition-colors ${index < currentDot ? 'bg-saffron' : 'bg-border-default'
-                }`}
+              className="w-2 h-2 rounded-full transition-colors"
+              style={{ backgroundColor: index < currentDot ? accentHex : "#FAD8C9" }}
             />
           ))}
         </div>
-        {/* UI-005 FIX: Skip button with proper touch target (52px minimum) */}
         <button
           onClick={onSkip}
-          className="min-w-[52px] xs:min-w-[56px] min-h-[52px] xs:min-h-[56px] px-4 xs:px-5 text-sm xs:text-base sm:text-[16px] font-semibold text-saffron rounded-full border-2 border-saffron/30 active:bg-saffron-light active:opacity-50 shrink-0"
+          className="min-h-[56px] px-4 text-[18px] font-semibold text-saffron-600 rounded-full border-2 border-saffron-300 active:bg-saffron-50 shrink-0"
         >
           {translations.skip}
         </button>
       </header>
 
-      <div className="flex-grow min-h-0 overflow-y-auto px-4 xs:px-6 py-4 xs:py-6">
+      <div className="flex-grow min-h-0 overflow-y-auto px-4 py-4">
         {children}
       </div>
 
-      {showVoiceBar ? (
-        <ScreenFooter
-          isListening={isListening}
-          onKeyboardToggle={showKeyboardToggle ? (onKeyboardToggle ?? noop) : undefined}
-        >
-          <div className="space-y-3">
-            <div className="flex items-end gap-3">
-              <motion.button
-                whileTap={{ scale: 0.97 }}
-                onClick={onNext}
-                className={`flex-1 min-h-[64px] ${nextButtonClasses} text-text-primary rounded-2xl flex items-center justify-center text-base xs:text-lg sm:text-[20px] font-bold active:scale-95 transition-transform gap-2`}
-              >
-                {label}
-              </motion.button>
-              <ShishyaOrb />
-            </div>
-            {/* UI-006 FIX: Back button with proper touch target (52px minimum) and larger text */}
-            {onBack && (
-              <button
-                onClick={onBack}
-                className="w-full text-center text-sm xs:text-base sm:text-[16px] font-medium text-saffron min-h-[52px] xs:min-h-[56px] py-3 rounded-full border-2 border-saffron/30 active:bg-saffron-light"
-              >
-                {translations.back}
-              </button>
-            )}
-          </div>
-        </ScreenFooter>
-      ) : (
-        <footer className="px-4 xs:px-6 pb-8 xs:pb-10 pt-2 xs:pt-3 space-y-3 shrink-0 bg-surface-base/90 backdrop-blur-sm border-t border-border-default">
-          <div className="flex items-end gap-3">
-            <motion.button
-              whileTap={{ scale: 0.97 }}
-              onClick={onNext}
-              className={`flex-1 min-h-[64px] ${nextButtonClasses} text-text-primary rounded-2xl flex items-center justify-center text-base xs:text-lg sm:text-[20px] font-bold active:scale-95 transition-transform gap-2`}
-            >
-              {label}
-            </motion.button>
-            <ShishyaOrb />
-          </div>
-          {/* UI-006 FIX: Back button with proper touch target (52px minimum) and larger text */}
-          {onBack && (
-            <button
-              onClick={onBack}
-              className="w-full text-center text-sm xs:text-base sm:text-[16px] font-medium text-saffron min-h-[52px] xs:min-h-[56px] py-3 rounded-full border-2 border-saffron/30 active:bg-saffron-light"
-            >
-              {translations.back}
-            </button>
-          )}
-        </footer>
-      )}
+      <footer className="px-4 pb-4 pt-3 space-y-2 shrink-0 bg-cream/95 backdrop-blur border-t border-saffron-100">
+        <div className="flex items-end gap-3">
+          <button
+            onClick={onNext}
+            disabled={nextDisabled}
+            aria-disabled={nextDisabled}
+            className="flex-1 min-h-[64px] bg-saffron-500 text-[#FFF3EA] shadow-btn rounded-btn flex items-center justify-center text-[20px] font-bold active:scale-95 transition-transform gap-2 font-hindi disabled:opacity-60 disabled:active:scale-100"
+          >
+            {label}
+          </button>
+          <ShishyaOrb />
+        </div>
+        {onBack && (
+          <button
+            onClick={onBack}
+            className="w-full text-center text-[18px] font-medium text-saffron-600 min-h-[56px] py-3 rounded-full border-2 border-saffron-300 active:bg-saffron-50"
+          >
+            {translations.back}
+          </button>
+        )}
+      </footer>
     </main>
   );
 }

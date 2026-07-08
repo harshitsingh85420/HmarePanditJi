@@ -36,8 +36,8 @@ export function CelebrationScreen({
   }, []);
 
   return (
-    <div className="fixed inset-0 z-50 bg-gradient-to-b from-cream to-saffron-50 overflow-hidden flex flex-col">
-      <Toran tone="onCream" />
+    <div className="pa-sunrise fixed inset-0 z-50 overflow-hidden flex flex-col">
+      <Toran tone="onSindoor" />
       <div className="flex-1 flex flex-col justify-between p-6">
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes marigold-fall {
@@ -98,17 +98,23 @@ export function CelebrationScreen({
           {emoji}
         </div>
         
-        <h2 className="t-hero font-bold leading-tight">
+        <h2
+          className="t-hero font-bold leading-tight text-white"
+          style={{ textShadow: "0 2px 12px rgba(42,27,61,0.5)" }}
+        >
           {title}
         </h2>
 
         {amount !== undefined && (
-          <div className="t-money-hero my-2">
+          <div className="t-money-hero my-2 bg-white/90 rounded-card px-6 py-2 shadow-card">
             <MoneyCount target={amount} className="t-money-hero" />
           </div>
         )}
 
-        <p className="t-body max-w-sm text-ink leading-relaxed">
+        <p
+          className="t-body max-w-sm text-white leading-relaxed"
+          style={{ textShadow: "0 1px 8px rgba(42,27,61,0.5)" }}
+        >
           {message}
         </p>
       </div>

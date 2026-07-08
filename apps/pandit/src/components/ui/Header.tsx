@@ -15,12 +15,17 @@ export interface HeaderProps {
   onBack?: () => void;
   rightSlot?: React.ReactNode;
   className?: string;
+  /** प्रथम आरती band: genda→sindoor gradient (entry/auth screens). */
+  festive?: boolean;
 }
 
-export function Header({ title, showBack = false, onBack, rightSlot, className }: HeaderProps) {
+export function Header({ title, showBack = false, onBack, rightSlot, className, festive = false }: HeaderProps) {
   return (
     <header className={cn("sticky top-0 z-30", className)}>
-      <div className="bg-saffron-500 h-16 min-h-[56px] px-4 flex items-center justify-between gap-4">
+      <div className={cn(
+        "h-16 min-h-[56px] px-4 flex items-center justify-between gap-4",
+        festive ? "bg-gradient-to-r from-genda to-saffron-500" : "bg-saffron-500",
+      )}>
       {/* Left Back Button Slot — collapses when there is no back button so the
           title gets the space instead of ellipsizing */}
       <div className={showBack ? "w-14 flex items-center justify-start flex-shrink-0" : "hidden"}>

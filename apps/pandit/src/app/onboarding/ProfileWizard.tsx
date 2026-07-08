@@ -7,6 +7,7 @@ import { api } from "@/lib/api";
 import { Header } from "@/components/ui/Header";
 import { Card } from "@/components/ui/Card";
 import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
+import { accentFor } from "@/components/moments/SlideCanvas";
 import { Button } from "@/components/ui/Button";
 import { SpeakOnMount } from "@/components/VoiceBar";
 import { useVoice } from "@/hooks/useVoice";
@@ -407,6 +408,8 @@ export default function ProfileWizard({ onDone }: { onDone?: () => void } = {}) 
     hi.onboarding.step6Voice,
     hi.onboarding.step7Voice,
   ];
+  const stepEmojis = ["👤", "📍", "🛕", "💰", "🪪", "🎥", "🏦"];
+
   const stepTitles = [
     hi.onboarding.step1Title,
     hi.onboarding.step2Title,
@@ -420,7 +423,7 @@ export default function ProfileWizard({ onDone }: { onDone?: () => void } = {}) 
   return (
     <div className="min-h-screen bg-cream text-ink pb-36">
       {/* Dynamic Header */}
-      <Header title={stepTitles[draft.step - 1]} showBack={draft.step > 1} onBack={handleBack} />
+      <Header title={stepTitles[draft.step - 1]} festive showBack={draft.step > 1} onBack={handleBack} />
 
       {/* Voice Assistant component */}
       <SpeakOnMount text={stepVoices[draft.step - 1]} key={draft.step} />
@@ -433,18 +436,20 @@ export default function ProfileWizard({ onDone }: { onDone?: () => void } = {}) 
             {[1, 2, 3, 4, 5, 6, 7].map((s) => (
               <div
                 key={s}
-                className={`w-4 h-4 rounded-full transition-all duration-200 ${
-                  s === draft.step
-                    ? "bg-saffron w-8"
-                    : s < draft.step
-                    ? "bg-saffron-300"
-                    : "bg-slate-300"
-                }`}
+                className={`h-4 rounded-full transition-all duration-200 ${s === draft.step ? "w-8" : "w-4"}`}
+                style={{
+                  backgroundColor:
+                    s === draft.step
+                      ? accentFor(s - 1).hex
+                      : s < draft.step
+                      ? `${accentFor(s - 1).hex}66`
+                      : "#FAD8C9",
+                }}
               />
             ))}
           </div>
-          <span className="text-[16px] font-bold text-softgrey font-mono mt-1">
-            Step {draft.step} of 7
+          <span className="text-[16px] font-bold text-softgrey font-hindi mt-1">
+            {hi.pratham.stepOf.replace("{n}", String(draft.step))}
           </span>
         </div>
 
@@ -459,6 +464,16 @@ export default function ProfileWizard({ onDone }: { onDone?: () => void } = {}) 
 
         {/* STEP-BY-STEP CONTENTS */}
         <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-4">
+
+          {/* Step illustration zone — festive accent canvas */}
+          <div
+            className="w-full rounded-canvas py-4 flex items-center justify-center"
+            style={{ backgroundColor: `${accentFor(draft.step - 1).hex}1F` }}
+          >
+            <span className="text-[56px] leading-none select-none" aria-hidden="true">
+              {stepEmojis[draft.step - 1]}
+            </span>
+          </div>
           
           {/* STEP 1: Name */}
           {draft.step === 1 && (
@@ -756,10 +771,10 @@ export default function ProfileWizard({ onDone }: { onDone?: () => void } = {}) 
           type="button"
           onClick={handleNext}
           disabled={submitting}
-          className="flex-1 h-16 rounded-btn flex items-center justify-center font-bold text-[20px] bg-saffron hover:bg-saffron-600 text-white transition-all font-hindi active:scale-95 shadow-md"
+          className="flex-1 h-16 rounded-btn flex items-center justify-center font-bold text-[20px] bg-saffron-500 hover:bg-saffron-600 text-white transition-all font-hindi active:scale-95 shadow-btn"
           style={{ minHeight: "64px", fontSize: "20px" }}
         >
-          {submitting ? hi.common.loading : draft.step === 7 ? "जमा करें" : hi.common.next}
+          {submitting ? hi.common.loading : draft.step === 7 ? hi.common.submit : hi.common.next}
         </button>
         <ShishyaOrb />
       </footer>

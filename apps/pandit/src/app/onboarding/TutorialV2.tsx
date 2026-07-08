@@ -17,111 +17,111 @@ import TutorialShell from "./screens/tutorial/TutorialShell";
 import { hi } from "@/lib/strings";
 import { useScreenVoice } from "@/hooks/useScreenVoice";
 import { voiceController } from "@/lib/voiceController";
-import { playBell } from "@/lib/sounds";
+import { playBell, playChime } from "@/lib/sounds";
+import { SlideCanvas, accentFor, PetalBurst } from "@/components/moments/SlideCanvas";
+import { MoneyCount } from "@/components/moments/MoneyCount";
 import { Button } from "@/components/ui/Button";
 import { CoachSpotlight } from "@/components/moments/CoachSpotlight";
 import { Card } from "@/components/ui/Card";
-import { BottomNav } from "@/components/ui/BottomNav";
 
 export const TUTORIAL_TOTAL = 16;
 
 interface SlideDef {
   title: string;
   narration: string;
-  visual: React.ReactNode;
+  visual: VisualFn | null;
 }
 
-// ── Visuals (pure presentation per the spec's one-liners) ────
-const V = {
-  s1: (
-    <div className="flex flex-col items-center gap-3 py-6">
-      {/* शिष्य rendered large, mid-ripple — the pandit meets his disciple */}
-      <div className="relative w-[120px] h-[120px] rounded-full bg-saffron-500 border-4 border-gold flex items-center justify-center">
-        <span className="shishya-ripple" aria-hidden="true" />
-        <span className="shishya-ripple shishya-ripple-2" aria-hidden="true" />
-        <span className="text-[54px] leading-none select-none" aria-hidden="true">🙏</span>
-      </div>
-      <span className="text-[16px] font-bold text-saffron-500 font-hindi">{hi.shishya.name}</span>
-      <div className="w-full h-[14px]" style={{
-        background: "radial-gradient(circle at 50% 0, #F2A02C 55%, transparent 56%)",
-        backgroundSize: "24px 14px",
-        backgroundRepeat: "repeat-x",
-      }} />
-    </div>
+// ── Visuals — BIG flat emoji compositions (≥64px) on the slide's
+// festive canvas; ONE key number/label per slide at full accent
+// strength (slide 2's money stays on tulsi per spec). ────────────
+type VisualFn = (accent: { hex: string; textHex: string }) => React.ReactNode;
+
+const V: Record<string, VisualFn> = {
+  s1: () => (
+    <>
+      <span className="text-[88px] leading-none select-none" aria-hidden="true">🙏</span>
+      <span className="text-[22px] font-bold text-temple-600 font-hindi">{hi.shishya.name}</span>
+    </>
   ),
-  s2: (
-    <div className="w-full bg-white rounded-card border border-saffron-100 p-5 flex items-center justify-center gap-4">
-      <div className="text-center">
-        <p className="t-hint text-softgrey font-hindi">पहले</p>
-        <p className="text-[26px] font-bold text-softgrey line-through">₹18,000</p>
+  s2: () => (
+    <>
+      <div className="flex flex-col items-center">
+        <span className="t-hint text-softgrey font-hindi">पहले</span>
+        <span className="text-[24px] font-bold text-softgrey line-through">₹18,000</span>
       </div>
-      <span className="text-[32px]" aria-hidden="true">→</span>
-      <div className="text-center">
-        <p className="t-hint text-leaf-700 font-hindi">अब</p>
-        <p className="text-[32px] font-bold text-leaf-700">₹63,000</p>
+      <span className="text-[36px] leading-none" aria-hidden="true">⬇️</span>
+      <div className="flex flex-col items-center">
+        <span className="t-hint text-leaf-700 font-hindi font-bold">अब</span>
+        {/* the money moment — animated count-up on tulsi */}
+        <MoneyCount target={63000} durationMs={1400} className="text-[44px] font-bold text-leaf-700" />
       </div>
-    </div>
+    </>
   ),
-  s3: (
-    <div className="flex flex-col items-center w-full pt-2">
-      <span className="text-[64px] leading-none animate-bounce" aria-hidden="true">⬇️</span>
-      <span className="t-hint text-softgrey font-hindi mt-4">नीचे — शिष्य</span>
-    </div>
+  s3: (a) => (
+    <>
+      <span className="text-[64px] leading-none animate-bounce select-none" aria-hidden="true">⬇️</span>
+      <span className="text-[20px] font-bold font-hindi" style={{ color: a.textHex }}>नीचे — शिष्य</span>
+    </>
   ),
-  s4: (
-    <div className="flex flex-col items-center gap-3 py-4">
+  s4: () => (
+    <>
       <div className="flex items-center gap-4">
-        <span className="text-[48px]" aria-hidden="true">🗣️</span>
+        <span className="text-[64px]" aria-hidden="true">🗣️</span>
         <span className="text-[28px] text-softgrey" aria-hidden="true">+</span>
-        <span className="text-[48px]" aria-hidden="true">⌨️</span>
+        <span className="text-[64px]" aria-hidden="true">⌨️</span>
       </div>
       <span className="text-[28px]" aria-hidden="true">↓</span>
       <div className="w-full max-w-[260px] min-h-[56px] border-2 border-saffron-200 rounded-btn bg-white flex items-center px-4 text-softgrey text-[18px]">
         एक ही खाना…
       </div>
-    </div>
+    </>
   ),
-  s6: (
-    <div className="w-full max-w-[280px] mx-auto bg-white rounded-card border border-saffron-100 p-4 flex flex-col gap-2">
-      <div className="flex items-center gap-2">
-        <span className="text-[28px] animate-bounce" aria-hidden="true">🔔</span>
+  s6: (a) => (
+    <>
+      <span className="pa-bell-swing text-[64px] leading-none select-none" aria-hidden="true">🔔</span>
+      <div className="w-full max-w-[280px] bg-white rounded-card border border-saffron-100 p-4 flex flex-col gap-2">
         <span className="t-body font-bold text-ink font-hindi">{hi.booking.newRequest}</span>
+        <span className="text-[20px] font-bold font-hindi" style={{ color: a.textHex }}>दक्षिणा ₹11,000</span>
+        <span className="t-hint text-softgrey font-hindi">यात्रा ₹800 · भोजन ₹500</span>
       </div>
-      <div className="bg-saffron-50 rounded-btn px-3 py-2 t-hint text-softgrey font-hindi">
-        दक्षिणा ₹11,000 · यात्रा ₹800 · भोजन ₹500
-      </div>
-    </div>
+    </>
   ),
-  s7: (
-    <div className="flex flex-col gap-2 w-full max-w-[280px] mx-auto">
+  s7: (a) => (
+    <div className="flex flex-col gap-2 w-full max-w-[280px]">
       {["स्वीकार करें", "घर से निकले", "पहुँच गया", "🙏 पूजा संपन्न"].map((step, i) => (
         <div key={step} className="flex items-center gap-3">
-          <span className="w-8 h-8 rounded-full bg-saffron-500 text-white text-[16px] font-bold flex items-center justify-center">{i + 1}</span>
+          <span
+            className="w-9 h-9 rounded-full text-white text-[17px] font-bold flex items-center justify-center"
+            style={{ backgroundColor: a.hex }}
+          >
+            {i + 1}
+          </span>
           <span className="t-body font-semibold text-ink font-hindi">{step}</span>
         </div>
       ))}
     </div>
   ),
-  s8: (
-    <div className="flex items-center justify-center gap-3 py-4">
-      <span className="text-[40px]" aria-hidden="true">🙏</span>
-      <span className="text-[24px]" aria-hidden="true">→</span>
-      <div className="text-center">
-        <span className="text-[28px]" aria-hidden="true">⏱️</span>
-        <p className="t-hint text-softgrey font-hindi">24 घंटे</p>
+  s8: (a) => (
+    <>
+      <div className="flex items-center gap-3">
+        <span className="text-[64px]" aria-hidden="true">🙏</span>
+        <span className="text-[24px]" aria-hidden="true">→</span>
+        <span className="text-[64px]" aria-hidden="true">⏱️</span>
+        <span className="text-[24px]" aria-hidden="true">→</span>
+        <span className="text-[64px]" aria-hidden="true">🏦</span>
       </div>
-      <span className="text-[24px]" aria-hidden="true">→</span>
-      <span className="text-[40px]" aria-hidden="true">🏦</span>
-    </div>
+      <span className="text-[26px] font-bold font-hindi" style={{ color: a.textHex }}>24 घंटे</span>
+    </>
   ),
-  s9: (
-    <div className="flex items-center justify-center gap-4 py-4">
-      <span className="text-[64px]" aria-hidden="true">🛍️</span>
-      <div className="bg-leaf-100 border border-gold rounded-card px-4 py-2 text-[22px] font-bold text-leaf-700">₹2,100</div>
-    </div>
+  s9: (a) => (
+    <>
+      <span className="text-[72px]" aria-hidden="true">🛍️</span>
+      <span className="text-[30px] font-bold" style={{ color: a.textHex }}>₹2,100</span>
+    </>
   ),
-  s10: (
-    <div className="grid grid-cols-7 gap-1 w-full max-w-[260px] mx-auto py-2">
+  s10: () => (
+    <div className="grid grid-cols-7 gap-1 w-full max-w-[260px] py-2">
       {Array.from({ length: 21 }, (_, i) => (
         <span key={i} className={`h-8 rounded flex items-center justify-center text-[14px] ${i === 9 ? "bg-red-100 text-danger font-bold" : "bg-white border border-saffron-100 text-softgrey"}`}>
           {i === 9 ? "✖" : i + 1}
@@ -129,8 +129,8 @@ const V = {
       ))}
     </div>
   ),
-  s11: (
-    <div className="grid grid-cols-2 gap-3 w-full max-w-[300px] mx-auto">
+  s11: () => (
+    <div className="grid grid-cols-2 gap-3 w-full max-w-[300px]">
       {["🪙 दक्षिणा आपकी", "⏱️ पैसा 24 घंटे", "🚆 यात्रा हमारी", "📞 मदद एक फ़ोन पर"].map((b) => (
         <div key={b} className="bg-white border border-gold rounded-card px-3 py-3 text-center t-hint font-bold text-temple-600 font-hindi">
           {b}
@@ -138,22 +138,25 @@ const V = {
       ))}
     </div>
   ),
-  s12: (
-    <div className="flex items-center justify-center gap-4 py-4">
-      <span className="text-[56px]" aria-hidden="true">🪪</span>
-      <div className="bg-leaf-100 border border-leaf-500 rounded-full px-4 py-2 text-[18px] font-bold text-leaf-700 font-hindi">✓ प्रमाणित</div>
-    </div>
+  s12: (a) => (
+    <>
+      <span className="text-[64px]" aria-hidden="true">🪪</span>
+      <span
+        className="rounded-full px-4 py-2 text-[18px] font-bold text-white font-hindi"
+        style={{ backgroundColor: a.hex }}
+      >
+        ✓ प्रमाणित
+      </span>
+    </>
   ),
-  s13: (
-    <div className="w-full max-w-[280px] mx-auto bg-white rounded-card border border-saffron-100 p-5 flex items-center gap-4">
-      <span className="text-[48px]" aria-hidden="true">📞</span>
-      <span className="t-body font-bold text-ink font-hindi">सीधे बात कीजिए — टीम आपके साथ है</span>
-    </div>
+  s13: () => (
+    <>
+      <span className="text-[64px]" aria-hidden="true">📞</span>
+      <span className="t-body font-bold text-ink font-hindi text-center">सीधे बात कीजिए — टीम आपके साथ है</span>
+    </>
   ),
-  s14: (
-    <div className="text-center py-4">
-      <span className="text-[88px] leading-none" aria-hidden="true">🎉</span>
-    </div>
+  s14: () => (
+    <span className="text-[88px] leading-none select-none" aria-hidden="true">🎉</span>
   ),
 };
 
@@ -190,7 +193,7 @@ function MiniHomeDemo({
 }) {
   void step;
   return (
-    <div className="pointer-events-none select-none origin-top scale-[0.82] w-full max-w-[360px] mx-auto flex flex-col gap-3 bg-cream rounded-card border border-saffron-100 p-3">
+    <div aria-hidden="true" className="pointer-events-none select-none origin-top scale-[0.82] w-full max-w-[360px] mx-auto flex flex-col gap-3 bg-cream rounded-card border border-saffron-100 p-3">
       <div ref={refs[0]}>
         <div className="w-full h-16 rounded-btn bg-leaf-700 text-white flex items-center justify-center font-bold text-[20px] font-hindi online-glow">
           {hi.home.goOffline}
@@ -209,7 +212,20 @@ function MiniHomeDemo({
         </Card>
       </div>
       <div ref={refs[2]}>
-        <BottomNav activeTab={0} onChange={() => { }} />
+        {/* static replica of the thali nav — no live buttons, no second orb */}
+        <div className="relative w-full bg-[#FFF9EE] border-t-2 border-gold h-[72px] flex items-center justify-between px-2">
+          {[hi.nav.home, hi.nav.bookings].map((t, i) => (
+            <span key={t} className={`flex-1 text-center text-[13px] font-bold font-hindi ${i === 0 ? "text-saffron-600" : "text-softgrey"}`}>
+              {i === 0 ? "🏠" : "📿"} {t}
+            </span>
+          ))}
+          <span className="w-[66px] h-[66px] -mt-8 rounded-full bg-saffron-500 border-4 border-gold flex items-center justify-center text-[28px] shrink-0">🙏</span>
+          {[hi.nav.earnings, hi.nav.calendar].map((t, i) => (
+            <span key={t} className="flex-1 text-center text-[13px] font-bold text-softgrey font-hindi">
+              {i === 0 ? "💰" : "📅"} {t}
+            </span>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -217,7 +233,7 @@ function MiniHomeDemo({
 
 function MiniPoojasDemo({ addRef }: { addRef: React.MutableRefObject<HTMLDivElement | null> }) {
   return (
-    <div className="pointer-events-none select-none origin-top scale-[0.82] w-full max-w-[360px] mx-auto flex flex-col gap-3 bg-cream rounded-card border border-saffron-100 p-3">
+    <div aria-hidden="true" className="pointer-events-none select-none origin-top scale-[0.82] w-full max-w-[360px] mx-auto flex flex-col gap-3 bg-cream rounded-card border border-saffron-100 p-3">
       {["सत्यनारायण कथा", "गृह प्रवेश"].map((pj) => (
         <Card key={pj} className="p-4 bg-white border border-saffron-100 flex items-center justify-between">
           <div className="flex flex-col">
@@ -276,12 +292,25 @@ export default function TutorialV2({
   useEffect(() => {
     if (idx !== 8) setTourStep(0);
   }, [idx]);
+  // Spotlight targets must be IN view before the cutout is meaningful
+  useEffect(() => {
+    if (idx !== 8) return;
+    const refs = [tourRef1, tourRef2, tourRef3];
+    const t = setTimeout(() => {
+      refs[Math.min(tourStep, 2)]?.current?.scrollIntoView({ block: "center" });
+    }, 350);
+    return () => clearTimeout(t);
+  }, [idx, tourStep]);
 
   // Slide 14 poojas demo ref + one-shot spotlight
   const poojasAddRef = useRef<HTMLDivElement | null>(null);
   const [poojasSpotDone, setPoojasSpotDone] = useState(false);
   useEffect(() => {
     if (idx !== 13) setPoojasSpotDone(false);
+    if (idx === 13) {
+      const t = setTimeout(() => poojasAddRef.current?.scrollIntoView({ block: "center" }), 350);
+      return () => clearTimeout(t);
+    }
   }, [idx]);
 
   // Slide 5: spotlight the listening pill when it appears
@@ -304,11 +333,17 @@ export default function TutorialV2({
     const t = setTimeout(() => setGateOpen(true), 10000);
     return () => clearTimeout(t);
   }, [idx]);
+  const [burst, setBurst] = useState(false);
   useEffect(() => {
     if (idx !== 2) return;
     if (muted) setSawMute(true);
-    else if (sawMute) setGateOpen(true); // completed mute → unmute cycle
-  }, [muted, sawMute, idx]);
+    else if (sawMute && !gateOpen) {
+      // completed mute → unmute cycle — celebrate!
+      setGateOpen(true);
+      setBurst(true);
+      playChime();
+    }
+  }, [muted, sawMute, gateOpen, idx]);
 
   // ── Slide 5: mic permission + practice ─────────────────────
   const [micState, setMicState] = useState<"idle" | "asking" | "listening" | "done" | "denied">("idle");
@@ -344,6 +379,23 @@ export default function TutorialV2({
     }
   };
   useEffect(() => () => recRef.current?.stop(), []);
+  // Leaving slide 5 mid-practice: stop the recognizer so its late
+  // onResult/onError can't speak or celebrate over a later slide.
+  useEffect(() => {
+    if (idx === 4) return;
+    recRef.current?.stop();
+    recRef.current = null;
+    setMicState((m) => (m === "listening" || m === "asking" ? "idle" : m));
+  }, [idx]);
+  useEffect(() => {
+    if (micState === "done" && idx === 4) {
+      setBurst(true);
+      playChime();
+    }
+  }, [micState, idx]);
+  useEffect(() => {
+    setBurst(false);
+  }, [idx]);
 
   // ── Slide 6: temple bell once on mount ─────────────────────
   const rangRef = useRef(false);
@@ -379,9 +431,10 @@ export default function TutorialV2({
         onBack={goBack}
         onNext={onRegister}
         nextLabel={hi.tutorial.registerNow}
+        accentHex={accentFor(idx).hex}
       >
-        <div className="flex flex-col items-center gap-4 px-4 text-center">
-          {def.visual}
+        <div className="flex flex-col items-center gap-4 px-2 text-center">
+          <SlideCanvas accentIndex={idx}>{def.visual?.(accentFor(idx))}</SlideCanvas>
           <h2 className="t-title font-bold text-temple-600 font-hindi">{def.title}</h2>
           <p className="t-body text-ink font-hindi leading-relaxed">{def.narration}</p>
           {stay ? (
@@ -403,21 +456,54 @@ export default function TutorialV2({
       onSkip={skipToCta}
       onBack={idx === 0 ? undefined : goBack}
       onNext={nextDisabled ? () => { } : goNext}
-      nextLabel={nextDisabled ? "⏳ आज़मा कर देखिए…" : hi.tutorial.next}
+      nextLabel={nextDisabled ? `⏳ ${hi.coach.tryIt}` : hi.tutorial.next}
+      nextDisabled={nextDisabled}
+      accentHex={accentFor(idx).hex}
     >
-      <div className="flex flex-col items-center gap-3 px-4 text-center h-full min-h-0">
-        {/* Visual zone shrinks first (grammar 2g) */}
-        <div className="flex-1 min-h-0 w-full flex flex-col items-center justify-center overflow-hidden">
-          {idx === 8 ? (
-            <MiniHomeDemo step={tourStep} refs={[tourRef1, tourRef2, tourRef3]} />
-          ) : idx === 13 ? (
-            <MiniPoojasDemo addRef={poojasAddRef} />
-          ) : (
-            def.visual
-          )}
+      <div className="flex flex-col items-center gap-3 px-2 text-center">
+        {/* Visual zone: the festive slide canvas (accent rotates idx % 5) */}
+        <div className="relative w-full shrink-0">
+          <SlideCanvas accentIndex={idx}>
+            {idx === 8 ? (
+              <MiniHomeDemo step={tourStep} refs={[tourRef1, tourRef2, tourRef3]} />
+            ) : idx === 13 ? (
+              <MiniPoojasDemo addRef={poojasAddRef} />
+            ) : idx === 4 ? (
+              <div className="w-full max-w-[300px] flex flex-col items-center gap-3 bg-white rounded-card border border-saffron-100 p-5">
+                <span className="text-[64px]" aria-hidden="true">🗣️</span>
+                {micState === "idle" || micState === "asking" ? (
+                  <Button variant="primary" size="md" fullWidth onClick={askMic} loading={micState === "asking"}>
+                    {hi.tutorial.slide5Button}
+                  </Button>
+                ) : micState === "listening" ? (
+                  <>
+                    <div ref={pillRef}>
+                      <span className="bg-gold/15 border border-gold text-temple-600 text-[18px] font-semibold font-hindi rounded-full px-4 py-2">
+                        {hi.pratham.practiceListening}
+                      </span>
+                    </div>
+                    <CoachSpotlight
+                      targetRef={pillRef}
+                      title={hi.tutorial.slide5Title}
+                      line={hi.pratham.practiceSay}
+                      requireInteraction
+                      onDone={() => { /* resolves when the listen completes */ }}
+                    />
+                  </>
+                ) : micState === "done" ? (
+                  <span className="text-[20px] font-bold text-leaf-700 font-hindi">✓ {hi.tutorial.slide5Practice}</span>
+                ) : (
+                  <span className="t-body text-softgrey font-hindi">{hi.tutorial.slide5Denied}</span>
+                )}
+              </div>
+            ) : (
+              def.visual?.(accentFor(idx))
+            )}
+          </SlideCanvas>
+          {burst && <PetalBurst onEnd={() => setBurst(false)} />}
         </div>
         <h2 className="t-title font-bold text-temple-600 font-hindi">{def.title}</h2>
-        <p className="t-body text-ink font-hindi leading-relaxed max-h-[30%] overflow-y-auto">{def.narration}</p>
+        <p className="t-body text-ink font-hindi leading-relaxed">{def.narration}</p>
 
         {/* Slide 3: spotlight the REAL शिष्य orb; gate opens on the cycle */}
         {idx === 2 && !gateOpen && fabEl && (
@@ -450,36 +536,6 @@ export default function TutorialV2({
           />
         )}
 
-        {/* Slide 5 interactive card */}
-        {idx === 4 && (
-          <div className="w-full max-w-[300px] flex flex-col items-center gap-3 bg-white rounded-card border border-saffron-100 p-5">
-            <span className="text-[56px]" aria-hidden="true">🗣️</span>
-            {micState === "idle" || micState === "asking" ? (
-              <Button variant="primary" size="md" fullWidth onClick={askMic} loading={micState === "asking"}>
-                {hi.tutorial.slide5Button}
-              </Button>
-            ) : micState === "listening" ? (
-              <>
-                <div ref={pillRef}>
-                  <span className="bg-gold/15 border border-gold text-temple-600 text-[18px] font-semibold font-hindi rounded-full px-4 py-2">
-                    सुन रहा हूँ… बोलिए — नमस्ते
-                  </span>
-                </div>
-                <CoachSpotlight
-                  targetRef={pillRef}
-                  title={hi.tutorial.slide5Title}
-                  line="बोलिए — नमस्ते"
-                  requireInteraction
-                  onDone={() => { /* resolves when the listen completes */ }}
-                />
-              </>
-            ) : micState === "done" ? (
-              <span className="text-[20px] font-bold text-leaf-700 font-hindi">✓ {hi.tutorial.slide5Practice}</span>
-            ) : (
-              <span className="t-body text-softgrey font-hindi">{hi.tutorial.slide5Denied}</span>
-            )}
-          </div>
-        )}
       </div>
     </TutorialShell>
   );

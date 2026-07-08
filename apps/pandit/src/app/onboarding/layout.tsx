@@ -1,8 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { HelpButton } from '@/components/HelpButton'
-import { useRouter } from 'next/navigation'
 import { useSafeNavigationStore } from '@/lib/stores/ssr-safe-stores'
 import { stopSpeaking } from '@/lib/voice-engine'
 import { useHydration } from '@/hooks/useHydration'
@@ -48,17 +46,12 @@ export default function OnboardingLayout({
 }: {
   children: React.ReactNode
 }) {
-  const router = useRouter()
   const hydrated = useHydration()
   const [hasError, setHasError] = useState(false)
   const [error, setError] = useState<Error | null>(null)
 
   // SSR FIX: Use safe store hook that doesn't throw during SSR
   const { goBack } = useSafeNavigationStore()
-
-  const handleHelpClick = () => {
-    router.push('/help')
-  }
 
   // Keep screen on during onboarding (Pandit Ji may be in temple with wet hands)
   useEffect(() => {
@@ -129,11 +122,10 @@ export default function OnboardingLayout({
     return <OnboardingErrorBoundary error={error} reset={resetError} />
   }
 
+  // शिष्य (footer orb) owns assistance — no floating help over onboarding.
   return (
-    <div className="screen-always-on min-h-screen bg-vedic-cream">
+    <div className="screen-always-on min-h-screen bg-cream">
       {children}
-      {/* Help Button - Prominent floating help for elderly users */}
-      <HelpButton onClick={handleHelpClick} isVisible={true} />
     </div>
   )
 }

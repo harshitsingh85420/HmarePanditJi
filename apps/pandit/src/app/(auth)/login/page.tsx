@@ -115,9 +115,10 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-cream text-ink flex flex-col justify-between">
+    <div className="h-[100dvh] bg-cream text-ink flex flex-col max-w-[430px] mx-auto w-full">
       <Header
-        title={hi.welcome.title}
+        title={hi.welcome.titleShort}
+        festive
         showBack={step === 2}
         onBack={() => {
           setStep(1);
@@ -127,7 +128,7 @@ export default function LoginPage() {
       />
 
       {/* Main card viewport container */}
-      <main className="flex-grow flex flex-col justify-start px-4 pt-8 max-w-[430px] mx-auto w-full gap-6">
+      <main className="flex-1 min-h-0 overflow-y-auto flex flex-col justify-start px-4 pt-8 w-full gap-6">
         {step === 1 ? (
           <>
             <div className="bg-white rounded-card shadow-card p-5 flex flex-col gap-4">
