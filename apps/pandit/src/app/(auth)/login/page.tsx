@@ -12,6 +12,7 @@ import { Header } from "@/components/ui/Header";
 import { useVoice } from "@/hooks/useVoice";
 import { useScreenVoice } from "@/hooks/useScreenVoice";
 import { VoiceField } from "@/components/voice/VoiceField";
+import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -185,6 +186,11 @@ export default function LoginPage() {
           </div>
         )}
       </main>
+
+      {/* शिष्य footer slot (login's CTA lives inline in the card) */}
+      <footer className="shrink-0 px-4 py-2 bg-cream/95 backdrop-blur border-t border-saffron-100 flex justify-center">
+        <ShishyaOrb />
+      </footer>
     </div>
   );
 }

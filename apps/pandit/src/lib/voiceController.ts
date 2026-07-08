@@ -10,6 +10,8 @@
 // useVoice / useVoiceInput delegate here; screens keep their APIs.
 // ─────────────────────────────────────────────────────────────
 
+import { hi } from "@/lib/strings";
+
 type SpeakOpts = { interrupt?: boolean; onEnd?: (completed: boolean) => void };
 
 const MASTER_KEY = "voice_master";
@@ -229,8 +231,8 @@ class VoiceController {
     }
     this.emit();
     if (!v) {
-      // brief confirmation, then re-narrate the current screen
-      this.speak("आवाज़ चालू", {
+      // शिष्य wakes: greeting, then re-narrate the current screen
+      this.speak(hi.shishya.wake, {
         onEnd: () => {
           this.replayFn?.();
         },

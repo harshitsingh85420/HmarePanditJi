@@ -43,7 +43,7 @@ export function Header({ title, showBack = false, onBack, rightSlot, className }
       {/* Right Voice Toggle Slot — min-width keeps the title centered for the
           default single button, but the slot may grow (e.g. home passes two) */}
       <div className="min-w-14 flex items-center justify-end flex-shrink-0">
-        {/* Global SpeakerFab owns the mute control; keep the slot for balance */}
+        {/* शिष्य (footer orb) owns the voice control; keep the slot for balance */}
         {rightSlot !== undefined ? rightSlot : <span className="w-14" aria-hidden="true" />}
         </div>
       </div>

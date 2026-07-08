@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect } from "react";
-import { SpeakerFab } from "@/components/ui/SpeakerFab";
 import { voiceController } from "@/lib/voiceController";
 
-// Mounted once in app/layout.tsx: the global speaker toggle + the
-// "any interactive tap silences narration" rule (capture phase, so it
-// fires before the button's own handler — speech never talks over action).
+// Mounted once in app/layout.tsx: the "any interactive tap silences
+// narration" rule (capture phase — speech never talks over action).
+// The voice control itself is the शिष्य orb, docked in each screen's
+// footer (BottomNav center-slot or the footer bar's orb slot).
 export function VoiceRoot() {
   useEffect(() => {
     const onPointerDown = (e: PointerEvent) => {
@@ -14,15 +14,16 @@ export function VoiceRoot() {
         'button, a, input, select, textarea, [role="button"]',
       );
       if (!el) return;
-      // The speaker fab manages speech itself
-      if (el.getAttribute("aria-label")?.includes("आवाज़")) return;
+      // शिष्य manages speech himself
+      const label = el.getAttribute("aria-label") || "";
+      if (label.includes("शिष्य")) return;
       voiceController.stopSpeech();
     };
     document.addEventListener("pointerdown", onPointerDown, true);
     return () => document.removeEventListener("pointerdown", onPointerDown, true);
   }, []);
 
-  return <SpeakerFab />;
+  return null;
 }
 
 export default VoiceRoot;

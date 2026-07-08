@@ -3,7 +3,7 @@
 // ─────────────────────────────────────────────────────────────
 // Tutorial v3 — the 16-slide script on the existing TutorialShell.
 // Narrations VERBATIM from strings.tutorial. Interactive: slide 3
-// (CoachSpotlight on the REAL SpeakerFab, requires a mute→unmute
+// (CoachSpotlight on the REAL शिष्य orb, requires a sleep→wake
 // cycle), slide 5 (mic permission + practice; spotlight on the
 // listening pill), slide 6 (temple bell once), slide 9 (home-tour demo
 // frame with 3 spotlight steps), slide 14 (मेरी पूजाएँ demo frame).
@@ -35,7 +35,13 @@ interface SlideDef {
 const V = {
   s1: (
     <div className="flex flex-col items-center gap-3 py-6">
-      <span className="text-[88px] leading-none" aria-hidden="true">🕉</span>
+      {/* शिष्य rendered large, mid-ripple — the pandit meets his disciple */}
+      <div className="relative w-[120px] h-[120px] rounded-full bg-saffron-500 border-4 border-gold flex items-center justify-center">
+        <span className="shishya-ripple" aria-hidden="true" />
+        <span className="shishya-ripple shishya-ripple-2" aria-hidden="true" />
+        <span className="text-[54px] leading-none select-none" aria-hidden="true">🙏</span>
+      </div>
+      <span className="text-[16px] font-bold text-saffron-500 font-hindi">{hi.shishya.name}</span>
       <div className="w-full h-[14px]" style={{
         background: "radial-gradient(circle at 50% 0, #F2A02C 55%, transparent 56%)",
         backgroundSize: "24px 14px",
@@ -57,9 +63,9 @@ const V = {
     </div>
   ),
   s3: (
-    <div className="flex flex-col items-end w-full pr-2 pt-2">
-      <span className="text-[64px] leading-none animate-bounce" aria-hidden="true">↗️</span>
-      <span className="t-hint text-softgrey font-hindi self-center mt-4">ऊपर दाईं ओर स्पीकर बटन</span>
+    <div className="flex flex-col items-center w-full pt-2">
+      <span className="text-[64px] leading-none animate-bounce" aria-hidden="true">⬇️</span>
+      <span className="t-hint text-softgrey font-hindi mt-4">नीचे — शिष्य</span>
     </div>
   ),
   s4: (
@@ -251,10 +257,15 @@ export default function TutorialV2({
   const idx = Math.min(TUTORIAL_TOTAL, Math.max(1, slide)) - 1;
   const def = defs[idx];
 
-  // Slide 3: spotlight target = the REAL SpeakerFab in the layout
+  // Slide 3: spotlight target = the REAL शिष्य orb in the footer.
+  // Held in state (not just a ref) so finding it triggers the render
+  // that actually mounts the spotlight.
   const fabRef = useRef<HTMLElement | null>(null);
+  const [fabEl, setFabEl] = useState<HTMLElement | null>(null);
   useEffect(() => {
-    fabRef.current = document.querySelector('[aria-label*="आवाज़"]') as HTMLElement | null;
+    const el = document.querySelector('[aria-label*="शिष्य"]') as HTMLElement | null;
+    fabRef.current = el;
+    setFabEl(el);
   }, [idx]);
 
   // Slide 9 home-tour stepping + demo refs
@@ -408,8 +419,8 @@ export default function TutorialV2({
         <h2 className="t-title font-bold text-temple-600 font-hindi">{def.title}</h2>
         <p className="t-body text-ink font-hindi leading-relaxed max-h-[30%] overflow-y-auto">{def.narration}</p>
 
-        {/* Slide 3: spotlight the REAL SpeakerFab; gate opens on the cycle */}
-        {idx === 2 && !gateOpen && fabRef.current && (
+        {/* Slide 3: spotlight the REAL शिष्य orb; gate opens on the cycle */}
+        {idx === 2 && !gateOpen && fabEl && (
           <CoachSpotlight
             targetRef={fabRef}
             title={hi.tutorial.slide3Title}

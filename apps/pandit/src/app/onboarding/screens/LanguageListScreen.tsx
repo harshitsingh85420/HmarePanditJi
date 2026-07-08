@@ -127,7 +127,7 @@ export default function LanguageListScreen({ language, scriptPreference = null, 
   });
 
   return (
-    <main className="w-full min-h-dvh max-w-[390px] xs:max-w-[430px] mx-auto bg-surface-base relative flex flex-col overflow-hidden shadow-2xl">
+    <main className="w-full min-h-full max-w-[390px] xs:max-w-[430px] mx-auto bg-surface-base relative flex flex-col overflow-hidden shadow-2xl">
       <TopBar
         showBack
         onBack={onBack}

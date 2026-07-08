@@ -6,6 +6,7 @@ import { hi } from "@/lib/strings";
 import { api } from "@/lib/api";
 import { Header } from "@/components/ui/Header";
 import { Card } from "@/components/ui/Card";
+import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
 import { Button } from "@/components/ui/Button";
 import { SpeakOnMount } from "@/components/VoiceBar";
 import { useVoice } from "@/hooks/useVoice";
@@ -417,7 +418,7 @@ export default function ProfileWizard({ onDone }: { onDone?: () => void } = {}) 
   ];
 
   return (
-    <div className="min-h-screen bg-cream text-ink pb-28">
+    <div className="min-h-screen bg-cream text-ink pb-36">
       {/* Dynamic Header */}
       <Header title={stepTitles[draft.step - 1]} showBack={draft.step > 1} onBack={handleBack} />
 
@@ -737,7 +738,7 @@ export default function ProfileWizard({ onDone }: { onDone?: () => void } = {}) 
       </main>
 
       {/* FIXED FOOTER WITH SPLIT NAVIGATION BUTTONS */}
-      <footer className="fixed bottom-0 left-0 right-0 h-24 bg-white border-t border-saffron-100 flex p-3 gap-3 z-30">
+      <footer className="fixed bottom-0 left-0 right-0 bg-white border-t border-saffron-100 flex items-end p-3 gap-3 z-30">
         <button
           type="button"
           onClick={handleBack}
@@ -760,6 +761,7 @@ export default function ProfileWizard({ onDone }: { onDone?: () => void } = {}) 
         >
           {submitting ? hi.common.loading : draft.step === 7 ? "जमा करें" : hi.common.next}
         </button>
+        <ShishyaOrb />
       </footer>
     </div>
   );

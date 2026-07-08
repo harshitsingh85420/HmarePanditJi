@@ -9,7 +9,7 @@ interface SpeakOnMountProps {
 }
 
 // Narrates the screen on mount via useScreenVoice (which also registers the
-// SpeakerFab replay target) and renders the inline replay button.
+// शिष्य replay target) and renders the inline replay button.
 export function SpeakOnMount({ text }: SpeakOnMountProps) {
   const { replay } = useScreenVoice(text);
   const [mounted, setMounted] = useState(false);

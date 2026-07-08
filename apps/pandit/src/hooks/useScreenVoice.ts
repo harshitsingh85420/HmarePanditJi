@@ -5,7 +5,7 @@ import { voiceController } from "@/lib/voiceController";
 
 /**
  * Screen-level narration: speaks on mount, registers itself as the current
- * replay target (SpeakerFab unmute → re-narrates this screen), and cuts
+ * replay target (शिष्य wakes → re-narrates this screen), and cuts
  * speech on unmount so navigation never carries stale narration along.
  */
 export function useScreenVoice(

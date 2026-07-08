@@ -25,11 +25,25 @@ import { LANG_CONFIRM } from "@/lib/strings-langconfirm";
 import { type OnboardingPhase, type SupportedLanguage } from "@/lib/onboarding-store";
 import { speakWithSarvam } from "@/lib/sarvam-tts";
 
+import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
 import LocationPermissionScreen from "./screens/LocationPermissionScreen";
 import ManualCityScreen from "./screens/ManualCityScreen";
 import LanguageListScreen from "./screens/LanguageListScreen";
 import TutorialV2, { TUTORIAL_TOTAL } from "./TutorialV2";
 import ProfileWizard from "./ProfileWizard";
+
+// Entry phases (splash → language) render inside this dock so शिष्य keeps
+// his footer seat before the tutorial/wizard footers take over.
+function OrbDock({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="h-[100dvh] max-w-[430px] mx-auto flex flex-col bg-cream">
+      <div className="flex-1 min-h-0 overflow-y-auto">{children}</div>
+      <footer className="shrink-0 px-4 py-2 bg-cream/95 backdrop-blur border-t border-saffron-100 flex justify-center">
+        <ShishyaOrb />
+      </footer>
+    </div>
+  );
+}
 
 const SUPPORTED_TO_CODE: Record<string, LangCode> = {
   Hindi: "hi", Marathi: "mr", Bengali: "bn", Tamil: "ta", Telugu: "te",
@@ -47,7 +61,7 @@ function SplashScreen2({ onDone }: { onDone: () => void }) {
   return (
     <main
       onClick={onDone}
-      className="min-h-dvh w-full max-w-[430px] mx-auto bg-cream flex flex-col items-center justify-center gap-4 cursor-pointer"
+      className="min-h-full w-full max-w-[430px] mx-auto bg-cream flex flex-col items-center justify-center gap-4 cursor-pointer"
     >
       <span className="text-[96px] leading-none text-saffron-500 select-none" aria-hidden="true">🕉</span>
       <h1 className="t-hero text-center">हमारे पंडित जी</h1>
@@ -83,7 +97,7 @@ function LangConfirmScreen2({
   }, [code, t.confirmQuestion]);
 
   return (
-    <main className="min-h-dvh w-full max-w-[430px] mx-auto bg-cream flex flex-col items-center justify-center gap-6 px-6 text-center">
+    <main className="min-h-full w-full max-w-[430px] mx-auto bg-cream flex flex-col items-center justify-center gap-6 px-6 text-center">
       <span className="text-[64px]" aria-hidden="true">🗣️</span>
       <h1 className="text-[26px] font-bold text-temple-600 font-hindi leading-snug">{t.confirmQuestion}</h1>
       <div className="w-full flex flex-col gap-3">
@@ -160,12 +174,17 @@ export default function OnboardingOrchestratorPage() {
 
   // ── SPLASH ─────────────────────────────────────────────────
   if (phase === "SPLASH") {
-    return <SplashScreen2 onDone={() => goto("LOCATION_PERMISSION")} />;
+    return (
+      <OrbDock>
+        <SplashScreen2 onDone={() => goto("LOCATION_PERMISSION")} />
+      </OrbDock>
+    );
   }
 
   // ── LOCATION ───────────────────────────────────────────────
   if (phase === "LOCATION_PERMISSION") {
     return (
+      <OrbDock>
       <LocationPermissionScreen
         language={store.selectedLanguage}
         onLanguageChange={() => goto("LANGUAGE_LIST")}
@@ -177,11 +196,13 @@ export default function OnboardingOrchestratorPage() {
         onBack={() => goto("SPLASH")}
         showBack
       />
+      </OrbDock>
     );
   }
 
   if (phase === "MANUAL_CITY") {
     return (
+      <OrbDock>
       <ManualCityScreen
         onCitySelected={(city) => {
           store.setDetectedCity(city, "");
@@ -190,12 +211,14 @@ export default function OnboardingOrchestratorPage() {
         onBack={() => goto("LOCATION_PERMISSION")}
         onLanguageChange={() => goto("LANGUAGE_LIST")}
       />
+      </OrbDock>
     );
   }
 
   // ── LANGUAGE ───────────────────────────────────────────────
   if (phase === "LANGUAGE_CONFIRM") {
     return (
+      <OrbDock>
       <LangConfirmScreen2
         code={detectedCode}
         onYes={() => {
@@ -211,11 +234,13 @@ export default function OnboardingOrchestratorPage() {
         }}
         onOther={() => goto("LANGUAGE_LIST")}
       />
+      </OrbDock>
     );
   }
 
   if (phase === "LANGUAGE_LIST") {
     return (
+      <OrbDock>
       <LanguageListScreen
         language={store.selectedLanguage}
         scriptPreference={store.scriptPreference}
@@ -240,6 +265,7 @@ export default function OnboardingOrchestratorPage() {
         onBack={() => goto("LANGUAGE_CONFIRM")}
         onLanguageChange={() => goto("LANGUAGE_LIST")}
       />
+      </OrbDock>
     );
   }
 
@@ -289,5 +315,9 @@ export default function OnboardingOrchestratorPage() {
     store.setPhase("TUTORIAL");
     return null;
   }
-  return <SplashScreen2 onDone={() => goto("LOCATION_PERMISSION")} />;
+  return (
+    <OrbDock>
+      <SplashScreen2 onDone={() => goto("LOCATION_PERMISSION")} />
+    </OrbDock>
+  );
 }

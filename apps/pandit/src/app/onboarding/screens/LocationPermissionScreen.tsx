@@ -85,7 +85,7 @@ export default function LocationPermissionScreen({
   };
 
   return (
-    <main className="font-body min-h-screen flex flex-col bg-[#fbf9f3]">
+    <main className="font-body min-h-full flex flex-col bg-[#fbf9f3]">
       {/* Header */}
       <motion.header
         className="flex justify-between items-center px-6 py-4 w-full sticky top-0 z-50 bg-[#fbf9f3]"

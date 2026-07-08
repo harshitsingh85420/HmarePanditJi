@@ -3,6 +3,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import ScreenFooter from '@/components/ui/ScreenFooter';
+import { ShishyaOrb } from '@/components/ui/ShishyaOrb';
 import { TUTORIAL_TRANSLATIONS, type TutorialLanguage, getTutorialLang } from '@/lib/tutorial-translations';
 import type { SupportedLanguage } from '@/lib/onboarding-store';
 
@@ -50,7 +51,7 @@ export default function TutorialShell({
   const label = nextLabel || translations.next;
 
   return (
-    <main className="min-h-dvh w-full max-w-[390px] xs:max-w-[430px] mx-auto bg-surface-base font-hind text-text-primary flex flex-col shadow-2xl relative overflow-hidden">
+    <main className="h-[100dvh] w-full max-w-[390px] xs:max-w-[430px] mx-auto bg-surface-base font-hind text-text-primary flex flex-col shadow-2xl relative overflow-hidden">
       <header className="pt-8 xs:pt-10 px-4 xs:px-6 flex justify-between items-center shrink-0">
         <div className="flex gap-1.5 flex-wrap max-w-[250px]">
           {Array.from({ length: totalDots }).map((_, index) => (
@@ -70,7 +71,7 @@ export default function TutorialShell({
         </button>
       </header>
 
-      <div className="flex-grow overflow-y-auto px-4 xs:px-6 py-4 xs:py-6">
+      <div className="flex-grow min-h-0 overflow-y-auto px-4 xs:px-6 py-4 xs:py-6">
         {children}
       </div>
 
@@ -80,13 +81,16 @@ export default function TutorialShell({
           onKeyboardToggle={showKeyboardToggle ? (onKeyboardToggle ?? noop) : undefined}
         >
           <div className="space-y-3">
-            <motion.button
-              whileTap={{ scale: 0.97 }}
-              onClick={onNext}
-              className={`w-full min-h-[52px] xs:min-h-[56px] sm:min-h-[64px] ${nextButtonClasses} text-text-primary rounded-2xl flex items-center justify-center text-base xs:text-lg sm:text-[20px] font-bold active:scale-95 transition-transform gap-2`}
-            >
-              {label}
-            </motion.button>
+            <div className="flex items-end gap-3">
+              <motion.button
+                whileTap={{ scale: 0.97 }}
+                onClick={onNext}
+                className={`flex-1 min-h-[64px] ${nextButtonClasses} text-text-primary rounded-2xl flex items-center justify-center text-base xs:text-lg sm:text-[20px] font-bold active:scale-95 transition-transform gap-2`}
+              >
+                {label}
+              </motion.button>
+              <ShishyaOrb />
+            </div>
             {/* UI-006 FIX: Back button with proper touch target (52px minimum) and larger text */}
             {onBack && (
               <button
@@ -100,13 +104,16 @@ export default function TutorialShell({
         </ScreenFooter>
       ) : (
         <footer className="px-4 xs:px-6 pb-8 xs:pb-10 pt-2 xs:pt-3 space-y-3 shrink-0 bg-surface-base/90 backdrop-blur-sm border-t border-border-default">
-          <motion.button
-            whileTap={{ scale: 0.97 }}
-            onClick={onNext}
-            className={`w-full min-h-[52px] xs:min-h-[56px] sm:min-h-[64px] ${nextButtonClasses} text-text-primary rounded-2xl flex items-center justify-center text-base xs:text-lg sm:text-[20px] font-bold active:scale-95 transition-transform gap-2`}
-          >
-            {label}
-          </motion.button>
+          <div className="flex items-end gap-3">
+            <motion.button
+              whileTap={{ scale: 0.97 }}
+              onClick={onNext}
+              className={`flex-1 min-h-[64px] ${nextButtonClasses} text-text-primary rounded-2xl flex items-center justify-center text-base xs:text-lg sm:text-[20px] font-bold active:scale-95 transition-transform gap-2`}
+            >
+              {label}
+            </motion.button>
+            <ShishyaOrb />
+          </div>
           {/* UI-006 FIX: Back button with proper touch target (52px minimum) and larger text */}
           {onBack && (
             <button

@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Header } from "@/components/ui/Header";
+import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
 import { Toast } from "@/components/ui/Toast";
 import { SpeakOnMount } from "@/components/VoiceBar";
 import { DiyaLoader } from "@/components/moments/DiyaLoader";
@@ -191,7 +192,7 @@ export default function SamagriPage() {
         }}
       />
 
-      <main className="flex-1 overflow-y-auto px-4 pt-3 pb-6 flex flex-col gap-3 page-enter">
+      <main className="flex-1 overflow-y-auto px-4 pt-3 pb-24 flex flex-col gap-3 page-enter">
         {selectedPuja === null ? (
           /* SCREEN 1: PICK PUJA TYPE */
           <div className="flex flex-col gap-4">
@@ -392,6 +393,11 @@ export default function SamagriPage() {
         {/* Toast Notification */}
         {toastMsg && <Toast message={toastMsg} show={!!toastMsg} onClose={() => setToastMsg("")} />}
       </main>
+
+      {/* शिष्य footer slot */}
+      <footer className="shrink-0 px-4 py-2 bg-cream/95 backdrop-blur border-t border-saffron-100 flex justify-center">
+        <ShishyaOrb />
+      </footer>
     </div>
   );
 }

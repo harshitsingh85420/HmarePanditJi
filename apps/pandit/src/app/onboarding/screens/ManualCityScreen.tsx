@@ -61,7 +61,7 @@ export default function ManualCityScreen({ onCitySelected, onBack, onLanguageCha
   }, []);
 
   return (
-    <main className="relative mx-auto min-h-dvh w-full max-w-[390px] xs:max-w-[430px] flex flex-col overflow-hidden bg-surface-base shadow-xl">
+    <main className="relative mx-auto min-h-full w-full max-w-[390px] xs:max-w-[430px] flex flex-col overflow-hidden bg-surface-base shadow-xl">
       {/* Top Bar with Prominent Om Symbol */}
       <header className="flex flex-col items-center pt-4 xs:pt-6 pb-2 px-4">
         {/* Large Om Symbol - Trust Signal for Vedic App */}

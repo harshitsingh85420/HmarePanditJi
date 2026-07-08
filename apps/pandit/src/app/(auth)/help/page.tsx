@@ -9,6 +9,7 @@ import { useSafeOnboardingStore } from '@/lib/stores/ssr-safe-stores'
 import { motion } from 'framer-motion'
 import { speakWithSarvam } from '@/lib/sarvam-tts'
 import { useEffect } from 'react'
+import { ShishyaOrb } from '@/components/ui/ShishyaOrb'
 
 export default function HelpPage() {
   const router = useRouter()
@@ -22,7 +23,7 @@ export default function HelpPage() {
 
 
   return (
-    <main className="w-full min-h-dvh max-w-[390px] xs:max-w-[430px] mx-auto bg-surface-base flex flex-col">
+    <main className="w-full h-[100dvh] max-w-[390px] xs:max-w-[430px] mx-auto bg-surface-base flex flex-col">
       {/* Top Bar */}
       <div className="min-h-[52px] xs:min-h-[56px] sm:min-h-[72px] px-4 xs:px-6 flex items-center justify-between border-b border-border-default">
         <div className="flex items-center gap-2">
@@ -50,7 +51,7 @@ export default function HelpPage() {
       </section>
 
       {/* Content */}
-      <section className="px-4 flex-grow mt-4 xs:mt-6">
+      <section className="px-4 flex-grow min-h-0 overflow-y-auto mt-4 xs:mt-6">
         <button
           onClick={() => {
             setPhase('TUTORIAL');
@@ -79,6 +80,11 @@ export default function HelpPage() {
         </a>
         <p className="text-sm xs:text-base sm:text-[16px] text-saffron mt-4 xs:mt-6">⏱️ जवाब का समय: सुबह 8 बजे – रात 10 बजे (सभी दिन)</p>
       </section>
+
+      {/* शिष्य footer slot */}
+      <footer className="shrink-0 px-4 py-2 bg-surface-base/95 backdrop-blur border-t border-border-default flex justify-center">
+        <ShishyaOrb />
+      </footer>
     </main>
   )
 }

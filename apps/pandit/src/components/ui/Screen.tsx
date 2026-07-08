@@ -16,6 +16,7 @@ import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { Header } from "./Header";
 import { BottomNav } from "./BottomNav";
+import { ShishyaOrb } from "./ShishyaOrb";
 
 function cn(...inputs: (string | undefined | false | null)[]) {
   return twMerge(clsx(inputs));
@@ -60,8 +61,14 @@ export function Screen({
         {children}
       </main>
       {footer && !bottomNav && (
-        <footer className="shrink-0 px-4 py-3 bg-cream/95 backdrop-blur border-t border-saffron-100">
-          {footer}
+        <footer className="shrink-0 px-4 py-3 bg-cream/95 backdrop-blur border-t border-saffron-100 flex items-end gap-3">
+          <div className="flex-1">{footer}</div>
+          <ShishyaOrb />
+        </footer>
+      )}
+      {!footer && !bottomNav && (
+        <footer className="shrink-0 px-4 py-3 bg-cream/95 backdrop-blur border-t border-saffron-100 flex justify-center">
+          <ShishyaOrb />
         </footer>
       )}
       {bottomNav && !footer && (

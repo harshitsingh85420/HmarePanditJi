@@ -56,7 +56,7 @@ export default function ProfileViewPage() {
   return (
     <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
       <Header title={hi.profileView.title} showBack onBack={() => router.push("/settings")} />
-      <main className="flex-1 overflow-y-auto px-4 pt-3 pb-6 flex flex-col gap-3 page-enter">
+      <main className="flex-1 overflow-y-auto px-4 pt-3 pb-24 flex flex-col gap-3 page-enter">
         <SpeakOnMount text={hi.profileView.title} />
 
         {/* Photo + name + city */}

@@ -16,6 +16,7 @@ import { SpeakOnMount } from "@/components/VoiceBar";
 import { DiyaLoader } from "@/components/moments/DiyaLoader";
 import { useVoice } from "@/hooks/useVoice";
 import { VoiceActionListener } from "@/components/voice/VoiceActionListener";
+import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
 
 interface BookingDetail {
   id: string;
@@ -176,7 +177,7 @@ export default function BookingRequestPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-cream text-ink pb-24">
+    <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
       <Header title={hi.booking.requestTitle} showBack onBack={() => router.push("/bookings")} />
 
       {/* Voice actions listener */}
@@ -295,8 +296,11 @@ export default function BookingRequestPage() {
           </div>
         )}
 
-        {/* ACCEPT / REJECT BUTTONS */}
-        <div className="flex gap-4 mt-2">
+      </main>
+
+      {/* ACCEPT / REJECT — the fixed CTA zone, with शिष्य in his seat */}
+      <footer className="shrink-0 px-4 py-3 bg-cream/95 backdrop-blur border-t border-saffron-100 flex items-end gap-3">
+        <div className="flex-1 flex gap-3">
           <button
             onClick={() => setShowRejectConfirm(true)}
             className="flex-1 h-[72px] bg-white border-2 border-danger text-danger font-bold text-[20px] rounded-btn shadow-sm active:scale-95 transition-transform"
@@ -314,7 +318,8 @@ export default function BookingRequestPage() {
             {hi.booking.accept}
           </button>
         </div>
-      </main>
+        <ShishyaOrb />
+      </footer>
 
       {/* REJECT CONFIRM DIALOG MODAL */}
       <AnimatePresence>

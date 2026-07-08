@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from "framer-motion";
 // UI Components
 import { Card } from "@/components/ui/Card";
 import { Header } from "@/components/ui/Header";
+import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
 import { SpeakOnMount } from "@/components/VoiceBar";
 import { DiyaLoader } from "@/components/moments/DiyaLoader";
 import { useVoice } from "@/hooks/useVoice";
@@ -243,7 +244,7 @@ export default function BookingDetailPage() {
         promptText={screenVoiceText}
       />
 
-      <main className="flex-1 overflow-y-auto px-4 pt-3 pb-6 flex flex-col gap-3 page-enter">
+      <main className="flex-1 overflow-y-auto px-4 pt-3 pb-24 flex flex-col gap-3 page-enter">
         {/* 1. STATUS HEADER */}
         <div className="flex justify-between items-center bg-white p-4 rounded-card border border-saffron-100 shadow-sm">
           <span className="text-[18px] font-bold text-softgrey font-hindi">{hi.booking.bookingStatus}</span>
@@ -365,6 +366,11 @@ export default function BookingDetailPage() {
           </div>
         )}
       </main>
+
+      {/* शिष्य footer slot */}
+      <footer className="shrink-0 px-4 py-2 bg-cream/95 backdrop-blur border-t border-saffron-100 flex justify-center">
+        <ShishyaOrb />
+      </footer>
 
       {/* CONFIRMATION COMPLETE MODAL DIALOG */}
       <AnimatePresence>
