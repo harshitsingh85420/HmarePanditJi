@@ -107,7 +107,7 @@ export default function SettingsPage() {
         </Card>
       </main>
 
-      <BottomNav activeTab={0} onChange={(idx) => {
+      <BottomNav activeTab={-1} onChange={(idx) => {
         if (idx === 0) router.push("/home");
         if (idx === 1) router.push("/bookings");
         if (idx === 2) router.push("/earnings");

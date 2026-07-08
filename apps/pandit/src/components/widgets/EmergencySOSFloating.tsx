@@ -49,8 +49,10 @@ export function EmergencySOSFloating({ isVisible = true }: EmergencySOSFloatingP
               exit={{ scale: 0, opacity: 0, y: 20 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => {
-                window.location.href = 'tel:+91'
-                speakWithSarvam({ text: 'परिवार को कॉल किया जा रहा है।', languageCode: 'hi-IN' })
+                // No family contact is collected yet — connect to the help team
+                // instead of opening a dialer with a half-typed "+91".
+                speakWithSarvam({ text: 'सहायता टीम को कॉल किया जा रहा है।', languageCode: 'hi-IN' })
+                window.location.href = 'tel:18004654357'
               }}
               className="min-h-[56px] px-4 bg-surface-card rounded-2xl shadow-card flex items-center gap-3 border-l-4 border-saffron"
             >

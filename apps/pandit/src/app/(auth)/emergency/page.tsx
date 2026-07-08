@@ -9,8 +9,6 @@ import { useEffect, useState } from 'react'
 import { useSafeNavigationStore } from '@/lib/stores/ssr-safe-stores'
 import { speakWithSarvam } from '@/lib/sarvam-tts'
 import TopBar from '@/components/ui/TopBar'
-import { LanguageChangeWidget } from '@/components/widgets/LanguageChangeWidget'
-import type { SupportedLanguage } from '@/components/widgets/LanguageChangeWidget'
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -33,7 +31,6 @@ export default function EmergencySOSPage() {
 
   const [sosSent, setSosSent] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [currentLanguage, setCurrentLanguage] = useState<SupportedLanguage>('Hindi')
 
   useEffect(() => {
     setSection('emergency-sos')
@@ -60,23 +57,18 @@ export default function EmergencySOSPage() {
         async (position) => {
           const { latitude, longitude } = position.coords
 
-          // Simulate sending SOS (in production, this would call your backend)
+          // No SOS backend exists yet — do something REAL instead of a fake
+          // "message sent": speak the truth and connect the call immediately.
           console.log('[SOS] Location:', latitude, longitude)
 
-          // Send voice confirmation
           await speakWithSarvam({
-            text: 'आपका SOS संदेश भेजा गया। टीम और परिवार को सूचित किया जा रहा है।',
+            text: 'आपकी जगह मिल गई। टीम को फ़ोन लगाया जा रहा है, लाइन पर बने रहें।',
             languageCode: 'hi-IN',
           })
 
           setSosSent(true)
           setIsLoading(false)
-
-          // In production: Call API to send SMS/calls to emergency contacts
-          // await fetch('/api/emergency/send-sos', {
-          //   method: 'POST',
-          //   body: JSON.stringify({ latitude, longitude })
-          // })
+          window.location.href = 'tel:18004654357' 
         },
         (error) => {
           console.error('[SOS] Location error:', error)
@@ -102,12 +94,9 @@ export default function EmergencySOSPage() {
       languageCode: 'hi-IN',
     })
     // In production: Open phone dialer or initiate VoIP call
-    window.location.href = 'tel:+911800PANDIT'
+    window.location.href = 'tel:18004654357'
   }
 
-  const handleLanguageChange = (language: SupportedLanguage) => {
-    setCurrentLanguage(language)
-  }
 
   return (
     <div className="min-h-dvh flex flex-col bg-surface-base relative overflow-hidden">
@@ -242,11 +231,6 @@ export default function EmergencySOSPage() {
         </motion.div>
       </main>
 
-      {/* Global Language Change Widget */}
-      <LanguageChangeWidget
-        currentLanguage={currentLanguage}
-        onLanguageChange={handleLanguageChange}
-      />
     </div>
   )
 }

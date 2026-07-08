@@ -63,7 +63,7 @@ export default function Homepage() {
             initial={{ y: 30, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className="relative overflow-hidden p-8 rounded-3xl bg-indigo-50/60 border border-indigo-100/50 shadow-sm flex flex-col items-center justify-center text-center active:scale-[0.98] transition-all"
+            className="relative overflow-hidden p-8 rounded-3xl bg-indigo-50/60 border border-indigo-100/50 shadow-sm flex flex-col items-center justify-center text-center"
           >
             <div className="mb-4 text-5xl">🙏</div>
             <h2 className="text-2xl font-bold text-indigo-900 font-devanagari mb-2">
@@ -112,7 +112,7 @@ export default function Homepage() {
         <footer className="mt-12 flex flex-col items-center gap-6">
           <div className="flex items-center gap-2">
             <span className="text-on-surface-variant font-devanagari">पहले से जुड़े हैं?</span>
-            <a className="text-primary font-bold decoration-primary/30 underline underline-offset-4" href="#">
+            <a className="text-primary font-bold decoration-primary/30 underline underline-offset-4" href="/login">
               Login
             </a>
           </div>
@@ -122,10 +122,10 @@ export default function Homepage() {
             <span className="text-xs text-on-surface-variant uppercase tracking-widest font-bold">
               Help & Support
             </span>
-            <div className="flex items-center gap-2 text-primary">
+            <a href="tel:18004654357" className="flex items-center gap-2 text-primary active:scale-[0.98] transition-transform">
               <span className="material-symbols-outlined text-lg">support_agent</span>
-              <span className="font-bold text-lg">+91 1800-PANDIT</span>
-            </div>
+              <span className="font-bold text-lg">1800-HMJ-HELP</span>
+            </a>
           </div>
         </footer>
       </div>

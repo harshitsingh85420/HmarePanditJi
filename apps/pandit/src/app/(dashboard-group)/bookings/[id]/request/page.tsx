@@ -64,6 +64,12 @@ export default function BookingRequestPage() {
       setLoading(false);
 
       if (res.success && res.data?.booking) {
+        // Already accepted/declined? The request screen is stale — go to the
+        // live booking view instead of re-offering Accept/Reject.
+        if (res.data.booking.status && res.data.booking.status !== "REQUESTED" && res.data.booking.status !== "PANDIT_REQUESTED") {
+          router.replace(`/bookings/${res.data.booking.id}`);
+          return;
+        }
         setBooking(res.data.booking);
       } else {
         setErrorMsg(hi.common.error);
@@ -81,7 +87,7 @@ export default function BookingRequestPage() {
   if (!booking) {
     return (
       <div className="min-h-screen bg-cream text-ink flex flex-col">
-        <Header title={hi.booking.requestTitle} showBack />
+        <Header title={hi.booking.requestTitle} showBack onBack={() => router.push("/bookings")} />
         <div className="flex-grow flex items-center justify-center p-6 text-center">
           <p className="text-danger text-[20px] font-bold">{errorMsg || "Booking not found."}</p>
         </div>
@@ -119,7 +125,7 @@ export default function BookingRequestPage() {
     // Success announcements
     vibrateConfirm();
     speak(hi.booking.acceptedVoice);
-    router.push(`/bookings/${booking.id}`);
+    router.replace(`/bookings/${booking.id}`);
   };
 
   const handleReject = async () => {

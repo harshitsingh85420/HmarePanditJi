@@ -84,7 +84,7 @@ export default function BookingDetailPage() {
   if (!booking) {
     return (
       <div className="min-h-screen bg-cream text-ink flex flex-col">
-        <Header title={hi.booking.detailsTitle} showBack />
+        <Header title={hi.booking.detailsTitle} showBack onBack={() => router.push("/bookings")} />
         <div className="flex-grow flex items-center justify-center p-6 text-center">
           <p className="text-danger text-[20px] font-bold">{errorMsg || "Booking not found."}</p>
         </div>
@@ -123,13 +123,12 @@ export default function BookingDetailPage() {
     // Voice feedback based on next step
     const nextStep = booking.journeyStep + 1;
     if (nextStep === 1) {
-      speak(hi.home.offlineVoice); // custom or status feedback
+      speak(hi.booking.journeyLeftVoice);
     } else if (nextStep === 2) {
-      speak(hi.booking.acceptedVoice);
+      speak(hi.booking.journeyArrivedVoice);
     } else if (nextStep === 3) {
-      playBell();
       vibrateConfirm();
-      speak(hi.booking.completeVoice);
+      speak(hi.booking.journeyStartedVoice);
     }
 
     await fetchBooking();
@@ -187,7 +186,12 @@ export default function BookingDetailPage() {
   const voiceCommands = [];
   if (booking.journeyStep < 3) {
     voiceCommands.push({
-      keywords: ["पहुँच गया", "pahunch", "पहुंच", "arrived", "im here", "started", "left", "शुरू"],
+      keywords:
+        booking.journeyStep === 0
+          ? ["निकल", "nikal", "left", "चल दिए", "रवाना"]
+          : booking.journeyStep === 1
+          ? ["पहुँच गया", "pahunch", "पहुंच", "arrived", "im here"]
+          : ["शुरू", "shuru", "started", "आरंभ"],
       action: handleJourneyNext,
     });
   } else if (booking.status !== "COMPLETED") {

@@ -78,6 +78,13 @@ export default function OnboardingPage() {
 
   // Load draft from localStorage on mount
   useEffect(() => {
+    // The wizard's API calls all need a logged-in PANDIT — without a token
+    // every step would silently fail at submit time.
+    if (!localStorage.getItem("pandit_token")) {
+      router.replace("/login");
+      return;
+    }
+
     const searchParams = new URLSearchParams(window.location.search);
     const urlStep = searchParams.get("step");
 
@@ -93,13 +100,37 @@ export default function OnboardingPage() {
     }
 
     if (urlStep) {
-      currentDraft.step = parseInt(urlStep, 10);
+      const parsedStep = parseInt(urlStep, 10);
+      currentDraft.step = Number.isFinite(parsedStep)
+        ? Math.min(7, Math.max(1, parsedStep))
+        : currentDraft.step;
     }
 
-    setDraft(currentDraft);
-    localStorage.setItem("onboarding_draft", JSON.stringify(currentDraft));
-    setIsLoaded(true);
-  }, []);
+    const hydrateAndStart = async (d: DraftState) => {
+      // Resubmission (e.g. rejected KYC → /onboarding?step=6) arrives after the
+      // local draft was cleared on first submit — refill from the server so the
+      // pandit doesn't unknowingly resubmit an empty profile.
+      if (saved === null) {
+        const meRes = await api("/auth/me");
+        const pp = meRes.success ? meRes.data.user?.panditProfile : null;
+        if (pp) {
+          d = {
+            ...d,
+            name: d.name || meRes.data.user?.name || pp.fullName || "",
+            city: d.city || pp.city || pp.location || "",
+            specializations: d.specializations?.length ? d.specializations : (pp.specializations || []),
+            experience: d.experience || pp.experienceYears || 0,
+            teamSize: d.teamSize || pp.teamSize || 1,
+            aadhaarUrl: d.aadhaarUrl || pp.aadhaarDocUrl || "",
+          };
+        }
+      }
+      setDraft(d);
+      localStorage.setItem("onboarding_draft", JSON.stringify(d));
+      setIsLoaded(true);
+    };
+    void hydrateAndStart(currentDraft);
+  }, [router]);
 
   // Save draft to localStorage on change
   const updateDraft = (updates: Partial<DraftState>) => {
@@ -156,7 +187,16 @@ export default function OnboardingPage() {
     }
 
     if (stepNum === 4) {
-      // Experience is default 0-60, team is 1-10 (bound validations are in UI steppers)
+      if (draft.experience < 0 || draft.experience > 60) {
+        setErrorMsg("अनुभव 0 से 60 साल के बीच होना चाहिए");
+        speak("अनुभव 0 से 60 साल के बीच होना चाहिए");
+        return false;
+      }
+      if (draft.teamSize < 1 || draft.teamSize > 10) {
+        setErrorMsg("टीम 1 से 10 सदस्यों के बीच होनी चाहिए");
+        speak("टीम 1 से 10 सदस्यों के बीच होनी चाहिए");
+        return false;
+      }
       return true;
     }
 
@@ -548,7 +588,6 @@ export default function OnboardingPage() {
                 <input
                   type="file"
                   accept="image/*"
-                  capture="environment"
                   onChange={handleFileUpload}
                   className="hidden"
                 />
@@ -641,7 +680,7 @@ export default function OnboardingPage() {
                       pattern="[0-9]*"
                       value={draft.bank.accountNumberConfirm}
                       onChange={(e) => updateBank({ accountNumberConfirm: e.target.value.replace(/\D/g, "") })}
-                      onFocus={() => speak("सुरक्षा के लिए खाता नंबर लिखकर भरें")}
+                      onFocus={() => speak("सुरक्षा के लिए खाता नंबर दोबारा लिखकर भरें")}
                       className="w-full h-[56px] px-3 border-2 border-saffron-300 rounded-btn text-[18px] text-ink bg-white focus:outline-none focus:border-saffron-500 font-mono"
                       style={{ minHeight: "56px", fontSize: "18px" }}
                       placeholder="1234567890"
@@ -657,7 +696,7 @@ export default function OnboardingPage() {
                       type="text"
                       value={draft.bank.ifsc}
                       onChange={(e) => updateBank({ ifsc: e.target.value.toUpperCase() })}
-                      onFocus={() => speak("सुरक्षा के लिए खाता नंबर लिखकर भरें")}
+                      onFocus={() => speak("सुरक्षा के लिए IFSC कोड लिखकर भरें। यह आपकी बैंक पासबुक या चेक पर मिलेगा।")}
                       className="w-full h-[56px] px-3 border-2 border-saffron-300 rounded-btn text-[18px] text-ink bg-white focus:outline-none focus:border-saffron-500 font-mono uppercase"
                       style={{ minHeight: "56px", fontSize: "18px" }}
                       placeholder="SBIN0001234"
@@ -709,7 +748,7 @@ export default function OnboardingPage() {
           className="flex-1 h-16 rounded-btn flex items-center justify-center font-bold text-[20px] bg-saffron hover:bg-saffron-600 text-white transition-all font-hindi active:scale-95 shadow-md"
           style={{ minHeight: "64px", fontSize: "20px" }}
         >
-          {submitting ? hi.common.loading : hi.common.next}
+          {submitting ? hi.common.loading : draft.step === 7 ? "जमा करें" : hi.common.next}
         </button>
       </footer>
     </div>

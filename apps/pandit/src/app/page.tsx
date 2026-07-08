@@ -38,7 +38,7 @@ export default function RootPage() {
       // If user has completed onboarding, go to dashboard
       if (state.tutorialCompleted) {
         console.log('[RootPage] Tutorial completed, redirecting to /dashboard')
-        router.push('/dashboard')
+        router.push(localStorage.getItem('pandit_token') ? '/home' : '/login')
         setIsRedirecting(false)
         return
       }

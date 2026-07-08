@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { HelpButton } from '@/components/HelpButton'
+import { useRouter } from 'next/navigation'
 import { useSafeNavigationStore } from '@/lib/stores/ssr-safe-stores'
 import { stopSpeaking } from '@/lib/voice-engine'
 import { useHydration } from '@/hooks/useHydration'
@@ -47,6 +48,7 @@ export default function OnboardingLayout({
 }: {
   children: React.ReactNode
 }) {
+  const router = useRouter()
   const hydrated = useHydration()
   const [hasError, setHasError] = useState(false)
   const [error, setError] = useState<Error | null>(null)
@@ -55,7 +57,7 @@ export default function OnboardingLayout({
   const { goBack } = useSafeNavigationStore()
 
   const handleHelpClick = () => {
-    console.log('[OnboardingLayout] Help button clicked')
+    router.push('/help')
   }
 
   // Keep screen on during onboarding (Pandit Ji may be in temple with wet hands)

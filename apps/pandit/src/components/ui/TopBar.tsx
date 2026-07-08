@@ -38,17 +38,21 @@ export default function TopBar({
           <span className="text-lg font-semibold text-vedic-brown">{brandName}</span>
         </div>
       </div>
-      <button
-        onClick={onLanguageChange}
-        className="w-14 h-14 flex items-center justify-center text-vedic-gold"
-        aria-label="Change language"
-      >
-        <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
-          <circle cx="12" cy="12" r="10" />
-          <path d="M12 2a14.5 14.5 0 000 20" />
-          <path d="M2 12h20" />
-        </svg>
-      </button>
+      {onLanguageChange ? (
+        <button
+          onClick={onLanguageChange}
+          className="w-14 h-14 flex items-center justify-center text-vedic-gold"
+          aria-label="Change language"
+        >
+          <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 2a14.5 14.5 0 000 20" />
+            <path d="M2 12h20" />
+          </svg>
+        </button>
+      ) : (
+        <span className="w-14 h-14" aria-hidden="true" />
+      )}
     </header>
   )
 }

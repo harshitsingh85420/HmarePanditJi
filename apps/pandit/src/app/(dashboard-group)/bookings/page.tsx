@@ -101,7 +101,7 @@ export default function BookingsPage() {
 
   return (
     <div className="min-h-screen bg-cream text-ink pb-28">
-      <Header title={hi.home.todayBookings} showBack={false} />
+      <Header title={hi.bookingsList.title} showBack={false} />
       <SpeakOnMount text={hi.bookingsList.intro} />
       <VoiceActionListener
         commands={[

@@ -77,7 +77,7 @@ export default function IdentityConfirmationPage() {
             languageCode: 'hi-IN',
           })
           setTimeout(() => {
-            router.push('/language')
+            router.push('/login')
           }, 1500)
         } else if (answer.includes('nahi') || answer.includes('no') || answer.includes('galat')) {
           void speakWithSarvam({
@@ -97,7 +97,7 @@ export default function IdentityConfirmationPage() {
 
         if (error === 'KEYBOARD_FALLBACK') {
           // Show keyboard options
-          router.push('/language')
+          router.push('/login')
         }
       },
     }
@@ -115,7 +115,7 @@ export default function IdentityConfirmationPage() {
       languageCode: 'hi-IN',
     })
     setTimeout(() => {
-      router.push('/language')
+      router.push('/login')
     }, 1000)
   }
 

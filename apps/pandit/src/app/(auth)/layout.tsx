@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { LanguageChangeWidget } from '@/components/widgets/LanguageChangeWidget'
 import { EmergencySOSFloating } from '@/components/widgets/EmergencySOSFloating'
 import { HelpButton } from '@/components/HelpButton'
@@ -65,22 +66,9 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
     window.location.reload()
   }
 
-  // Browser back button handling - only after hydration
-  useEffect(() => {
-    if (!hydrated) return
-
-    const handlePopState = () => {
-      console.log('[AuthLayout] Back button pressed')
-      stopSpeaking()
-      goBack()
-    }
-
-    window.addEventListener('popstate', handlePopState)
-    return () => window.removeEventListener('popstate', handlePopState)
-  }, [goBack, hydrated])
-
+  const router = useRouter()
   const handleHelpClick = () => {
-    console.log('[AuthLayout] Help button clicked')
+    router.push('/help')
   }
 
   // Browser back button handling for auth flow

@@ -422,7 +422,10 @@ export function VoiceField({
                 value={value}
                 onChange={(e) => {
                   onChange(e.target.value);
-                  onComplete?.();
+                  // Let the parent's setState flush before validation-on-complete
+                  // runs, otherwise it sees the previous (empty) value and shows
+                  // a false "समझ नहीं आया" error right after a successful choice.
+                  setTimeout(() => onComplete?.(), 0);
                 }}
                 className="flex-grow min-h-[56px] text-[18px] bg-white border border-saffron-200 rounded-btn px-4 focus:outline-none focus:ring-4 focus:ring-saffron-200 font-medium"
               >

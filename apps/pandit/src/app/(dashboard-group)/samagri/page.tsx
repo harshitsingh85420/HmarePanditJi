@@ -134,8 +134,8 @@ export default function SamagriPage() {
     const pPrice = prices.PREMIUM ? Number(prices.PREMIUM) : 0;
 
     if (!bPrice && !sPrice && !pPrice) {
-      setErrorMsg(hi.common.error);
-      speak(hi.common.error);
+      setErrorMsg(hi.samagri.priceError);
+      speak(hi.samagri.priceError);
       return;
     }
 
@@ -164,8 +164,8 @@ export default function SamagriPage() {
       return;
     }
 
-    setToastMsg(hi.common.save);
-    speak(hi.common.save);
+    setToastMsg(hi.samagri.saved);
+    speak(hi.samagri.saved);
 
     // Redirect to home menu after a short delay
     setTimeout(() => {
@@ -178,10 +178,14 @@ export default function SamagriPage() {
     <div className="min-h-screen bg-cream text-ink pb-20">
       <Header
         title={hi.samagri.title}
-        showBack={selectedPuja !== null}
+        showBack
         onBack={() => {
-          setSelectedPuja(null);
-          setErrorMsg("");
+          if (selectedPuja !== null) {
+            setSelectedPuja(null);
+            setErrorMsg("");
+          } else {
+            router.push("/home");
+          }
         }}
       />
 
@@ -190,7 +194,7 @@ export default function SamagriPage() {
           /* SCREEN 1: PICK PUJA TYPE */
           <div className="flex flex-col gap-4">
             <h2 className="text-[20px] font-bold text-temple-600 font-hindi mb-2 text-center">
-              {hi.auth.phoneLabel.replace(/.*मोबाइल.*/, "पूजा का चयन करें")}
+              {hi.samagri.pickPuja}
             </h2>
 
             <div className="grid grid-cols-1 gap-4">
@@ -222,7 +226,7 @@ export default function SamagriPage() {
                   {selectedPuja}
                 </h2>
                 <span className="t-hint text-saffron-600 font-bold px-3 py-1 bg-saffron-50 rounded-full">
-                  {items.length} Items
+                  {items.length} {hi.samagri.itemsCount}
                 </span>
               </div>
 
@@ -307,7 +311,7 @@ export default function SamagriPage() {
                       size="md"
                       onClick={() => setShowAddForm(true)}
                     >
-                      Add New Item
+                      {hi.samagri.addItem}
                     </Button>
                   )}
 

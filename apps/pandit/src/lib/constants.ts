@@ -3,7 +3,7 @@ export const ROUTES = {
   HOME: '/',
   IDENTITY: '/identity',
   REFERRAL: '/referral',
-  LANGUAGE: '/language',
+  LANGUAGE: '/onboarding', // old /language page retired — onboarding handles language
   WELCOME: '/onboarding', // /welcome page retired — canonical flow starts at onboarding
   MIC_PERMISSION: '/permissions/mic',
   MIC_DENIED: '/permissions/mic-denied',
