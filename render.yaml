@@ -4,7 +4,7 @@ services:
     runtime: node
     region: singapore
     plan: free
-    buildCommand: npm i -g pnpm@9 && pnpm install --frozen-lockfile && pnpm --filter db exec prisma generate && pnpm --filter api build
+    buildCommand: npm i -g pnpm@9 && pnpm install --frozen-lockfile && pnpm --filter db exec prisma generate && pnpm --filter db build && pnpm --filter api build
     startCommand: pnpm --filter api start
     healthCheckPath: /health
     envVars:

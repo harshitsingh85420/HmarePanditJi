@@ -96,7 +96,10 @@ export default async function adminRoutes(fastify: FastifyInstance, _opts: any) 
     const updated = await prisma.panditProfile.update({
       where: { id },
       data: {
-        verificationStatus: "APPROVED",
+        // Canonical approved value — the admin verify flow and all
+        // customer-facing readers gate on VERIFIED (APPROVED was a stray
+        // spelling no read path fully honored).
+        verificationStatus: "VERIFIED",
         verifiedAt: new Date(),
         verifiedById: request.user?.id || "admin",
         profileCompletionPercent: 100,
