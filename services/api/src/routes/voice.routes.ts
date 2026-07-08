@@ -76,7 +76,6 @@ const translateSchema = z.object({
 });
 
 const TRANSLATE_CACHE_TTL_SECONDS = 30 * 24 * 60 * 60; // 30 days
-const SARVAM_TRANSLATE_BATCH = 50;
 
 // ── Routes ────────────────────────────────────────────────────────────────────
 
@@ -191,44 +190,63 @@ export default async function voiceRoutes(fastify: FastifyInstance, _opts: any) 
                 .map((v, i) => (v === null ? i : -1))
                 .filter((i) => i >= 0);
 
+            // Sarvam's translate API takes ONE `input` per call (the
+            // `inputs` array shape is not accepted) — so a "batch" here is
+            // a bounded-concurrency window of single-text calls. Sarvam's
+            // own per-minute quota answers 429 — back off and retry; the
+            // write-through cache means any aborted run resumes from where
+            // it stopped on the next request.
+            const sleep = (ms: number) => new Promise<void>((res) => setTimeout(res, ms));
+            const translateOne = async (idx: number): Promise<void> => {
+                for (let attempt = 0; ; attempt++) {
+                    const upstream = await fetch("https://api.sarvam.ai/translate", {
+                        method: "POST",
+                        headers: {
+                            "api-subscription-key": env.SARVAM_API_KEY,
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            input: texts[idx],
+                            source_language_code: "hi-IN",
+                            target_language_code: LANG_TO_SARVAM[target],
+                            model: "mayura:v1",
+                        }),
+                    });
+                    if (upstream.status === 429 && attempt < 3) {
+                        // Sarvam's quota is minute-windowed — short backoffs
+                        // can't outlast it. 5s → 15s → 45s rides it out; the
+                        // write-through cache makes this a one-time seed per
+                        // language.
+                        await sleep([5000, 15000, 45000][attempt]);
+                        continue;
+                    }
+                    if (!upstream.ok) {
+                        const detail = await upstream.text().catch(() => "");
+                        throw new Error(`Sarvam upstream ${upstream.status}: ${detail.slice(0, 300)}`);
+                    }
+                    const data = (await upstream.json()) as { translated_text?: string; translated_texts?: string[] };
+                    const translated = data.translated_text ?? data.translated_texts?.[0];
+                    if (!translated) throw new Error("Sarvam upstream returned no text");
+                    translations[idx] = translated;
+                    await cacheSet(keys[idx], translated, TRANSLATE_CACHE_TTL_SECONDS);
+                    return;
+                }
+            };
+
             let sarvamCalls = 0;
-            for (let i = 0; i < missIndices.length; i += SARVAM_TRANSLATE_BATCH) {
-                const batch = missIndices.slice(i, i + SARVAM_TRANSLATE_BATCH);
-                sarvamCalls++;
-                const upstream = await fetch("https://api.sarvam.ai/translate", {
-                    method: "POST",
-                    headers: {
-                        "api-subscription-key": env.SARVAM_API_KEY,
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        inputs: batch.map((idx) => texts[idx]),
-                        source_language_code: "hi-IN",
-                        target_language_code: LANG_TO_SARVAM[target],
-                        model: "mayura:v1",
-                    }),
+            const CONCURRENCY = 3;
+            try {
+                for (let i = 0; i < missIndices.length; i += CONCURRENCY) {
+                    const window = missIndices.slice(i, i + CONCURRENCY);
+                    sarvamCalls += window.length;
+                    await Promise.all(window.map(translateOne));
+                }
+            } catch (err) {
+                logger.error(`[translate] ${(err as Error).message}`);
+                return reply.status(502).send({
+                    success: false,
+                    error: { code: "VOICE_SERVICE_ERROR", message: "Translation upstream failed." },
                 });
-                if (!upstream.ok) {
-                    const detail = await upstream.text().catch(() => "");
-                    logger.error(`[translate] Sarvam upstream ${upstream.status}: ${detail.slice(0, 300)}`);
-                    return reply.status(502).send({
-                        success: false,
-                        error: { code: "VOICE_SERVICE_ERROR", message: "Translation upstream failed." },
-                    });
-                }
-                const data = (await upstream.json()) as { translated_texts?: string[] };
-                if (!data.translated_texts || data.translated_texts.length !== batch.length) {
-                    return reply.status(502).send({
-                        success: false,
-                        error: { code: "VOICE_SERVICE_ERROR", message: "Translation upstream returned no texts." },
-                    });
-                }
-                await Promise.all(
-                    batch.map((idx, j) => {
-                        translations[idx] = data.translated_texts![j];
-                        return cacheSet(keys[idx], data.translated_texts![j], TRANSLATE_CACHE_TTL_SECONDS);
-                    }),
-                );
             }
 
             // Cache proof lives in the logs: a warm second run shows

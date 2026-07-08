@@ -11,13 +11,26 @@ import { voiceController } from "@/lib/voiceController";
 
 const FLAG_KEY = "hpj_voicedebug";
 
+// Captured at module-eval — BEFORE any router.replace / dev reload can
+// strip the query string (the mount effect can run after a redirect).
+const INITIAL_SEARCH = typeof window !== "undefined" ? window.location.search : "";
+
+function readFlag(search: string): void {
+  try {
+    const q = new URLSearchParams(search);
+    if (q.get("voicedebug") === "1") sessionStorage.setItem(FLAG_KEY, "1");
+    if (q.get("voicedebug") === "0") sessionStorage.removeItem(FLAG_KEY);
+  } catch {
+    /* noop */
+  }
+}
+
 export function useVoiceDebugFlag(): boolean {
   const [on, setOn] = useState(false);
   useEffect(() => {
     try {
-      const q = new URLSearchParams(window.location.search);
-      if (q.get("voicedebug") === "1") sessionStorage.setItem(FLAG_KEY, "1");
-      if (q.get("voicedebug") === "0") sessionStorage.removeItem(FLAG_KEY);
+      readFlag(INITIAL_SEARCH);
+      readFlag(window.location.search);
       setOn(sessionStorage.getItem(FLAG_KEY) === "1");
     } catch {
       setOn(false);

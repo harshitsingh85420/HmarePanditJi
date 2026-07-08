@@ -163,17 +163,20 @@ function fetchLazyGroupsInBackground(code: LangCode): void {
   if (lazyFetchRunning) return;
   lazyFetchRunning = true;
   void (async () => {
-    // group-by-group so partial progress lands early; failures are quiet —
+    // batches of groups (not one request per group — the endpoint is
+    // rate-limited) so partial progress lands early; failures are quiet —
     // t() keeps falling back to Hindi for the missing keys
-    for (const group of lazyGroups()) {
+    const groups = lazyGroups();
+    const GROUPS_PER_FETCH = 5;
+    for (let i = 0; i < groups.length; i += GROUPS_PER_FETCH) {
       if (activeLang !== code) break; // language changed mid-flight
       try {
-        const part = await fetchGroups(code, [group]);
+        const part = await fetchGroups(code, groups.slice(i, i + GROUPS_PER_FETCH));
         Object.assign(bundle, part);
         persistBundle(code);
         emit();
       } catch {
-        /* keep Hindi fallback for this group */
+        /* keep Hindi fallback for these groups */
       }
     }
     lazyFetchRunning = false;

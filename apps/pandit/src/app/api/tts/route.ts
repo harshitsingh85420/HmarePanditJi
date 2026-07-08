@@ -122,7 +122,9 @@ export async function POST(request: NextRequest) {
     // invalid-speaker 4xx logs Sarvam's error body (it enumerates the
     // valid options) and retries ONCE without the speaker field so
     // speech never breaks.
-    const speaker = body.speaker ?? process.env.SARVAM_TTS_SPEAKER ?? 'abhilash';
+    // 'aditya' = first male option in Sarvam's bulbul:v3 speaker list
+    // (verified live via scripts/check-sarvam-speaker.mjs)
+    const speaker = body.speaker ?? process.env.SARVAM_TTS_SPEAKER ?? 'aditya';
     const basePayload: Record<string, unknown> = {
       inputs: [body.text.trim()],
       target_language_code: body.languageCode ?? 'hi-IN',
