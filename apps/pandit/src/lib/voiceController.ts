@@ -23,6 +23,8 @@ type SpeakOpts = {
 const MASTER_KEY = "voice_master";
 // Once-per-session flag for the "voice unavailable" toast (X2b)
 const VOICE_UNAVAILABLE_SHOWN = "hpj_voice_unavailable_shown";
+// Once-per-session flag for the "tap to hear" toast (A3)
+const TAP_TO_HEAR_SHOWN = "hpj_tap_to_hear_shown";
 // 4 samples of silence — played MUTED on the first pointerdown to satisfy
 // the browser's autoplay gesture requirement (X2a audio unlock)
 const SILENT_WAV =
@@ -58,11 +60,44 @@ class VoiceController {
   private listeners = new Set<() => void>();
   private initialized = false;
 
-  // ── AUDIO UNLOCK (X2a) ─────────────────────────────────────
+  // ── AUDIO UNLOCK (X2a/A3) ──────────────────────────────────
   // No sound may play before the app's first pointerdown (autoplay policy).
   // Pre-gesture speak()s park here (newest wins) and flush on unlock.
   private _unlocked = false;
   private pendingUnlock: { text: string; languageCode?: string } | null = null;
+  // A3: ONE persistent element carries every Sarvam playback — the silent
+  // unlock play binds the autoplay permission to this exact element.
+  private audioEl: HTMLAudioElement | null = null;
+  private currentObjectUrl: string | null = null;
+
+  // ── ON-DEVICE DEBUG (A1, ?voicedebug=1) ────────────────────
+  // Immutable ring buffer so useSyncExternalStore sees fresh snapshots.
+  private debugBuf: readonly string[] = [];
+  private debugListeners = new Set<() => void>();
+
+  debug(msg: string): void {
+    if (typeof window === "undefined") return;
+    const ts = new Date().toISOString().slice(11, 23);
+    this.debugBuf = [...this.debugBuf.slice(-199), `${ts} ${msg}`];
+    this.debugListeners.forEach((cb) => cb());
+  }
+
+  subscribeDebug = (cb: () => void): (() => void) => {
+    this.debugListeners.add(cb);
+    return () => {
+      this.debugListeners.delete(cb);
+    };
+  };
+
+  getDebugLines = (): readonly string[] => this.debugBuf;
+
+  private getAudioEl(): HTMLAudioElement {
+    if (!this.audioEl) {
+      this.audioEl = new Audio();
+      this.audioEl.preload = "auto";
+    }
+    return this.audioEl;
+  }
 
   // ── TTS CHAIN (X2b) ────────────────────────────────────────
   // Primary: POST /api/tts (Sarvam) played through an <audio> element.
@@ -103,15 +138,29 @@ class VoiceController {
     if (this._unlocked) return;
     this._unlocked = true;
     try {
-      const a = new Audio(SILENT_WAV);
-      a.muted = true;
-      void a.play().catch(() => {
-        /* noop — the gesture itself is what matters */
-      });
+      // A3: prime THE persistent element inside the gesture — mobile
+      // autoplay permission sticks to the element that played, so all
+      // future TTS reuses it. (No app-owned AudioContext exists to
+      // resume; useVoiceInput creates per-listen contexts from live
+      // mic streams, which need no gesture.)
+      const el = this.getAudioEl();
+      el.muted = true;
+      el.src = SILENT_WAV;
+      void el
+        .play()
+        .then(() => {
+          el.muted = false;
+          this.debug("unlock: silent play OK — element gesture-bound");
+        })
+        .catch((err: unknown) => {
+          el.muted = false;
+          this.debug(`unlock: silent play rejected (${(err as Error)?.name || err})`);
+        });
       window.speechSynthesis?.resume();
     } catch {
       /* noop */
     }
+    this.debug("unlock: first pointerdown");
     const parked = this.pendingUnlock;
     this.pendingUnlock = null;
     if (parked && !this._muted) {
@@ -121,6 +170,37 @@ class VoiceController {
       setTimeout(() => {
         if (!this._muted) this.speak(parked.text, { languageCode: parked.languageCode });
       }, 0);
+    }
+  }
+
+  // A3: playback refused outside a gesture (NotAllowedError) — park the
+  // utterance, retry on the NEXT gesture, tell the pandit once to tap.
+  private parkForGesture(text: string, languageCode: string): void {
+    this.pendingUnlock = { text, languageCode };
+    this.debug("parked utterance — one-shot retry armed on next gesture");
+    try {
+      document.addEventListener(
+        "pointerdown",
+        () => {
+          const parked = this.pendingUnlock;
+          this.pendingUnlock = null;
+          if (parked && !this._muted) {
+            setTimeout(() => {
+              if (!this._muted) this.speak(parked.text, { languageCode: parked.languageCode });
+            }, 0);
+          }
+        },
+        { once: true, capture: true },
+      );
+    } catch {
+      /* noop */
+    }
+    try {
+      if (sessionStorage.getItem(TAP_TO_HEAR_SHOWN) === "1") return;
+      sessionStorage.setItem(TAP_TO_HEAR_SHOWN, "1");
+      window.dispatchEvent(new CustomEvent("hpj-voice-tap-to-hear"));
+    } catch {
+      /* noop */
     }
   }
 
@@ -199,11 +279,13 @@ class VoiceController {
       opts?.onEnd?.(false);
       return;
     }
+    this.debug(`speak "${text.slice(0, 40)}" lang=${opts?.languageCode ?? getActiveBcp47()}`);
     // X2a AUDIO-UNLOCK LAW: nothing may sound before the first gesture.
     // Park the line (newest wins), let the caller's flow continue, and
     // narrate on unlock.
     if (!this._unlocked) {
       this.pendingUnlock = { text, languageCode: opts?.languageCode };
+      this.debug("→ parked (pre-unlock)");
       opts?.onEnd?.(false);
       return;
     }
@@ -245,10 +327,12 @@ class VoiceController {
     void this.speakNow(text, opts?.languageCode ?? getActiveBcp47(), finish);
   }
 
-  // X2b + D3: primary = /api/tts (Sarvam, ACTIVE language) via <audio>;
-  // any non-200/throw falls back to speechSynthesis with the same BCP-47
-  // tag (voice-engine picks the closest voice, defaulting to Hindi when
-  // none matches). Both unavailable → one toast per session.
+  // X2b + D3: primary = same-origin /api/tts (Sarvam, ACTIVE language)
+  // via the persistent element; any non-200/throw falls back to
+  // speechSynthesis with the same BCP-47 tag. A4: the fallback first
+  // PROVES a matching voice exists (voices load async on Android) —
+  // otherwise it says so and stays text-visible. NotAllowedError parks
+  // the utterance for a next-gesture retry instead of falling back.
   private async speakNow(text: string, languageCode: string, finish: (completed: boolean) => void): Promise<void> {
     const seq = ++this.speechSeq;
     const remote = await this.tryRemoteTTS(text, languageCode, seq);
@@ -256,17 +340,39 @@ class VoiceController {
       finish(true);
       return;
     }
-    if (remote === "cancelled" || seq !== this.speechSeq) {
+    if (remote === "cancelled" || remote === "parked" || seq !== this.speechSeq) {
       finish(false);
       return;
     }
     if (!window.speechSynthesis) {
+      this.debug("fallback: speechSynthesis unavailable → text-only");
       this.announceVoiceUnavailable();
       finish(false);
       return;
     }
+    this.debug("fallback: sarvam→speechSynthesis");
     try {
-      const { speakWithSarvam } = await import("@/lib/sarvam-tts");
+      const { pickVoiceForLang, speakWithSarvam } = await import("@/lib/voice-engine").then(
+        async (engine) => ({
+          pickVoiceForLang: engine.pickVoiceForLang,
+          speakWithSarvam: (await import("@/lib/sarvam-tts")).speakWithSarvam,
+        }),
+      );
+      // A4 reality check: wait for the async voice list (≤1.5s), then
+      // decide honestly instead of speaking into the void.
+      await this.waitVoicesLoaded();
+      if (seq !== this.speechSeq) {
+        finish(false);
+        return;
+      }
+      const voice = pickVoiceForLang(languageCode);
+      if (!voice) {
+        this.debug(`NO MATCHING VOICE for ${languageCode} → text-only`);
+        this.announceVoiceUnavailable();
+        finish(false);
+        return;
+      }
+      this.debug(`speechSynthesis voice: ${voice.name} (${voice.lang})`);
       await speakWithSarvam({
         text,
         languageCode: languageCode as never,
@@ -279,14 +385,42 @@ class VoiceController {
     }
   }
 
+  // Android often reports an empty voice list until 'voiceschanged'.
+  private waitVoicesLoaded(): Promise<void> {
+    return new Promise((resolve) => {
+      try {
+        if (window.speechSynthesis.getVoices().length > 0) {
+          resolve();
+          return;
+        }
+        let settled = false;
+        const done = () => {
+          if (settled) return;
+          settled = true;
+          clearTimeout(timer);
+          window.speechSynthesis.removeEventListener("voiceschanged", done);
+          resolve();
+        };
+        const timer = setTimeout(done, 1500);
+        window.speechSynthesis.addEventListener("voiceschanged", done);
+      } catch {
+        resolve();
+      }
+    });
+  }
+
   private async tryRemoteTTS(
     text: string,
     languageCode: string,
     seq: number,
-  ): Promise<"played" | "failed" | "cancelled"> {
-    if (this.remoteTtsDown) return "failed";
+  ): Promise<"played" | "failed" | "cancelled" | "parked"> {
+    if (this.remoteTtsDown) {
+      this.debug("tts skipped (endpoint down this session)");
+      return "failed";
+    }
     let audioBase64: string | undefined;
     try {
+      this.debug("tts→ POST /api/tts (same-origin)");
       const res = await fetch("/api/tts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -295,6 +429,7 @@ class VoiceController {
         body: JSON.stringify({ text, languageCode, pace: 0.82 }),
       });
       if (seq !== this.speechSeq) return "cancelled";
+      this.debug(`tts status ${res.status}${res.ok ? "" : " → fallback"}`);
       if (!res.ok) {
         // 501 tts_unconfigured (dev without Sarvam key) / 503 — don't keep
         // hitting the endpoint this session
@@ -306,39 +441,76 @@ class VoiceController {
       audioBase64 = data?.audioBase64;
     } catch (err) {
       if (seq !== this.speechSeq) return "cancelled";
+      this.debug(`tts fetch threw: ${(err as Error)?.name || err}`);
       this.logFallbackOnce(err);
       return "failed";
     }
     if (!audioBase64) {
+      this.debug("tts empty audio → fallback");
       this.logFallbackOnce("empty audio");
       return "failed";
     }
     if (seq !== this.speechSeq) return "cancelled";
 
+    // A3: decode → Blob (audio/wav, matching Sarvam's output) → object URL
+    // on THE persistent, gesture-bound element.
     return new Promise((resolve) => {
       try {
-        const audio = new Audio(`data:audio/wav;base64,${audioBase64}`);
+        const bytes = Uint8Array.from(atob(audioBase64!), (c) => c.charCodeAt(0));
+        const blob = new Blob([bytes], { type: "audio/wav" });
+        const url = URL.createObjectURL(blob);
+        if (this.currentObjectUrl) URL.revokeObjectURL(this.currentObjectUrl);
+        this.currentObjectUrl = url;
+
+        const el = this.getAudioEl();
         let settled = false;
-        const done = (ok: boolean) => {
+        const done = (ok: boolean, verdict?: "parked") => {
           if (settled) return;
           settled = true;
           if (this.remoteCancel === cancel) this.remoteCancel = null;
-          if (!ok && seq !== this.speechSeq) resolve("cancelled");
+          el.onended = null;
+          el.onerror = null;
+          if (verdict) resolve(verdict);
+          else if (!ok && seq !== this.speechSeq) resolve("cancelled");
           else resolve(ok ? "played" : "failed");
         };
         const cancel = () => {
           try {
-            audio.pause();
+            el.pause();
           } catch {
             /* noop */
           }
           done(false);
         };
         this.remoteCancel = cancel;
-        audio.onended = () => done(true);
-        audio.onerror = () => done(false);
-        audio.play().catch(() => done(false));
-      } catch {
+        el.onended = () => {
+          this.debug("audio ended");
+          done(true);
+        };
+        el.onerror = () => {
+          this.debug("audio element error");
+          done(false);
+        };
+        el.muted = false;
+        el.src = url;
+        el
+          .play()
+          .then(() => this.debug("audio.play() resolved"))
+          .catch((err: unknown) => {
+            const name = (err as Error)?.name || String(err);
+            this.debug(`audio.play() rejected: ${name}`);
+            if (name === "NotAllowedError" && seq === this.speechSeq) {
+              // Autoplay refused this utterance — retry on the next
+              // gesture rather than falling back to a voice that the
+              // same policy would block too.
+              this.parkForGesture(text, languageCode);
+              done(false, "parked");
+              return;
+            }
+            done(false);
+          });
+      } catch (err) {
+        this.debug(`audio setup threw: ${(err as Error)?.name || err}`);
         resolve("failed");
       }
     });
@@ -363,6 +535,7 @@ class VoiceController {
   stopSpeech(): void {
     this.init();
     if (typeof window === "undefined") return;
+    if (this._speaking) this.debug("stopSpeech (was speaking)");
     this.queued = null;
     // Pre-unlock there is nothing audible to silence — the parked line
     // must survive incidental stops (tap-silence rule, phase teardown) or

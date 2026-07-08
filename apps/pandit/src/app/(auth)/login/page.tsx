@@ -14,7 +14,6 @@ import { useScreenVoice } from "@/hooks/useScreenVoice";
 import { VoiceField } from "@/components/voice/VoiceField";
 import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
 import { useSafeOnboardingStore } from "@/lib/stores/ssr-safe-stores";
-import { TUTORIAL_TOTAL } from "@/lib/onboarding-store";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -23,12 +22,13 @@ export default function LoginPage() {
   const { speak, stop } = useVoice();
   const store = useSafeOnboardingStore();
 
-  // D6: reached from the tutorial CTA (entry-flow context) — back must
-  // return to the orchestrator's TUTORIAL phase at the final CTA slide.
+  // B: reached from the tutorial CTA (entry-flow context) — the labeled
+  // "ट्यूटोरियल फिर देखें" button (and hardware back) returns to the
+  // TUTORIAL phase at slide 1: he wants to re-learn, not resume the CTA.
   const fromEntryFlow = nextParam.startsWith("/onboarding");
-  const backToTutorialCta = () => {
+  const backToTutorial = () => {
     stop();
-    store.setCurrentTutorialScreen(TUTORIAL_TOTAL);
+    store.setCurrentTutorialScreen(1);
     store.setPhase("TUTORIAL");
     router.push("/onboarding");
   };
@@ -49,27 +49,16 @@ export default function LoginPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // D6: hardware/gesture back mirrors the visible back button — OTP step
-  // returns to the phone step; the phone step (entry-flow context only)
-  // returns to the tutorial CTA. Outside the entry flow, untouched.
-  const stepRef = useRef(step);
-  stepRef.current = step;
+  // B: hardware/gesture back in entry-flow context goes to the tutorial
+  // (slide 1) — same destination as the labeled button. Outside the
+  // entry flow, untouched.
   useEffect(() => {
     if (!fromEntryFlow) return;
     try {
       window.history.pushState({ hpjLogin: true }, "", window.location.href);
     } catch { /* noop */ }
     const onPop = () => {
-      if (stepRef.current === 2) {
-        setStep(1);
-        setOtpValue("");
-        setErrorMsg("");
-        try {
-          window.history.pushState({ hpjLogin: true }, "", window.location.href);
-        } catch { /* noop */ }
-        return;
-      }
-      backToTutorialCta();
+      backToTutorial();
     };
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
@@ -182,19 +171,17 @@ export default function LoginPage() {
 
   return (
     <div className="h-[100dvh] bg-cream text-ink flex flex-col max-w-[430px] mx-auto w-full">
+      {/* B: entry-flow context gets NO top-left arrow — the labeled
+          tutorial button below is the way back. The OTP step keeps its
+          arrow (edit the number), as does re-auth outside the flow. */}
       <Header
         title={t("auth.unifiedTitle")}
         festive
-        showBack={step === 2 || fromEntryFlow}
+        showBack={step === 2}
         onBack={() => {
-          if (step === 2) {
-            setStep(1);
-            setOtpValue("");
-            setErrorMsg("");
-            return;
-          }
-          // D6: phone step in entry-flow context → tutorial CTA slide
-          backToTutorialCta();
+          setStep(1);
+          setOtpValue("");
+          setErrorMsg("");
         }}
       />
 
@@ -216,7 +203,11 @@ export default function LoginPage() {
             <div className="bg-white rounded-card shadow-card p-5 flex flex-col gap-4">
               <VoiceField
                 label={t("auth.phoneLabel")}
-                promptText={t("auth.unifiedSub")}
+                promptText={
+                  fromEntryFlow
+                    ? `${t("auth.unifiedSub")} ${t("auth.reviewTutorialVoice")}`
+                    : t("auth.unifiedSub")
+                }
                 value={phone}
                 onChange={setPhone}
                 mode="phone"
@@ -280,9 +271,24 @@ export default function LoginPage() {
         )}
       </main>
 
-      {/* शिष्य footer slot (login's CTA lives inline in the card) */}
-      <footer className="shrink-0 px-4 py-2 bg-cream/95 backdrop-blur border-t border-saffron-100 flex justify-center">
-        <ShishyaOrb />
+      {/* शिष्य footer slot (login's CTA lives inline in the card).
+          B: entry-flow context docks the labeled tutorial-return button
+          here — the arrow-less way back for a first-time pandit. */}
+      <footer className="shrink-0 px-4 py-2 bg-cream/95 backdrop-blur border-t border-saffron-100 flex items-end gap-3">
+        {fromEntryFlow && step === 1 ? (
+          <>
+            <div className="flex-1">
+              <Button variant="secondary" size="md" fullWidth onClick={backToTutorial}>
+                {t("auth.reviewTutorial")}
+              </Button>
+            </div>
+            <ShishyaOrb />
+          </>
+        ) : (
+          <div className="flex-1 flex justify-center">
+            <ShishyaOrb />
+          </div>
+        )}
       </footer>
     </div>
   );

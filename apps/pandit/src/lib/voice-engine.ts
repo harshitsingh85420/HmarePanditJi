@@ -695,6 +695,21 @@ let postTtsTimeout: ReturnType<typeof setTimeout> | null = null
  * CRITICAL: While speaking, microphone is turned OFF to prevent feedback loop.
  * After speech ends, microphone restarts ONLY if user hasn't manually turned it off.
  */
+// D4: शिष्य is a male disciple — prefer a male voice for the language;
+// browser voice sets vary wildly, so fall back to any language match
+// (local-service first). Returns undefined when the browser has NO voice
+// for the language — callers decide how to surface that (A4).
+export function pickVoiceForLang(languageBcp47: string): SpeechSynthesisVoice | undefined {
+  if (typeof window === 'undefined' || !window.speechSynthesis) return undefined
+  const voices = window.speechSynthesis.getVoices()
+  const langPrefix = languageBcp47.split('-')[0]
+  const candidates = voices.filter(v => v.lang.startsWith(langPrefix))
+  const maleVoice = candidates.find(
+    v => !/female/i.test(v.name) && /male|kumar|ravi|hemant/i.test(v.name)
+  )
+  return maleVoice ?? candidates.find(v => v.localService) ?? candidates[0]
+}
+
 export function speak(
   text: string,
   languageBcp47: string = 'hi-IN',
@@ -725,18 +740,7 @@ export function speak(
   ttsUtterance.pitch = 1.0
   ttsUtterance.volume = 1.0
 
-  const voices = window.speechSynthesis.getVoices()
-  const langPrefix = languageBcp47.split('-')[0]
-  const candidates = voices.filter(v => v.lang.startsWith(langPrefix))
-  // D4: शिष्य is a male disciple — prefer a male voice for the language;
-  // browser voice sets vary wildly, so fall back to any language match
-  // (local-service first) and never fail on absence.
-  const maleVoice = candidates.find(
-    v => !/female/i.test(v.name) && /male|kumar|ravi|hemant/i.test(v.name)
-  )
-  const matchedVoice = maleVoice
-    ?? candidates.find(v => v.localService)
-    ?? candidates[0]
+  const matchedVoice = pickVoiceForLang(languageBcp47)
   if (matchedVoice) {
     ttsUtterance.voice = matchedVoice
   }

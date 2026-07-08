@@ -44,7 +44,7 @@ export function detectLanguage(city?: string, state?: string): LangCode {
   return "hi";
 }
 
-/** BCP-47 code for /voice/tts + Web Speech. */
+/** BCP-47 code for the same-origin /api/tts route + Web Speech. */
 export const LANG_TO_BCP47: Record<LangCode, string> = {
   hi: "hi-IN", mr: "mr-IN", bn: "bn-IN", ta: "ta-IN", te: "te-IN",
   kn: "kn-IN", gu: "gu-IN", pa: "pa-IN", ml: "ml-IN", or: "or-IN", en: "en-IN",
