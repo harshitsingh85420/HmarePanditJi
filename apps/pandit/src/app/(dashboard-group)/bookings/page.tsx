@@ -1,5 +1,6 @@
 "use client";
 
+import { Narrate } from "@/hooks/useScreenVoice";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { hi } from "@/lib/strings";
@@ -11,7 +12,6 @@ import { Card } from "@/components/ui/Card";
 import { Header } from "@/components/ui/Header";
 import { BottomNav } from "@/components/ui/BottomNav";
 import { DiyaLoader } from "@/components/moments/DiyaLoader";
-import { SpeakOnMount } from "@/components/VoiceBar";
 import { VoiceActionListener } from "@/components/voice/VoiceActionListener";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { FirstUseTip } from "@/components/moments/FirstUseTip";
@@ -128,8 +128,8 @@ export default function BookingsPage() {
 
   return (
     <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
-      <Header title={hi.bookingsList.title} showBack={false} />
-      <SpeakOnMount text={countsNarration} />
+      <Header title={hi.bookingsList.title} showBack onBack={() => router.push("/home")} />
+      <Narrate text={countsNarration} />
       <VoiceActionListener
         commands={[
           { keywords: ["नई", "नयी", "new"], action: () => setActiveTab("NEW") },

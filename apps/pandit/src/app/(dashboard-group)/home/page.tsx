@@ -1,5 +1,6 @@
 "use client";
 
+import { Narrate } from "@/hooks/useScreenVoice";
 import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { hi } from "@/lib/strings";
@@ -12,7 +13,6 @@ import { Header } from "@/components/ui/Header";
 import { BottomNav } from "@/components/ui/BottomNav";
 import { StatusChip } from "@/components/ui/StatusChip";
 import { Toast } from "@/components/ui/Toast";
-import { SpeakOnMount } from "@/components/VoiceBar";
 import { useVoice } from "@/hooks/useVoice";
 import { DiyaLoader } from "@/components/moments/DiyaLoader";
 import { VoiceActionListener } from "@/components/voice/VoiceActionListener";
@@ -324,7 +324,7 @@ export default function HomePage() {
         {/* PENDING VERIFICATION BANNER */}
         {isPending && (
           <>
-            <SpeakOnMount text={hi.home.pendingVerification} />
+            <Narrate text={hi.home.pendingVerification} />
             <div className="bg-yellow-50 border-2 border-amber-300 rounded-card p-4 flex items-center gap-3">
               <span className="text-[24px]">⚠️</span>
               <p className="text-[18px] font-bold text-amber-800 font-hindi leading-snug">
@@ -337,7 +337,7 @@ export default function HomePage() {
         {/* REJECTED VERIFICATION BANNER */}
         {isRejected && (
           <>
-            <SpeakOnMount text={`${hi.home.rejectedTitle}。 ${profile?.panditProfile?.rejectionReason || ""}`} />
+            <Narrate text={`${hi.home.rejectedTitle}。 ${profile?.panditProfile?.rejectionReason || ""}`} />
             <div className="bg-red-50 border-2 border-red-300 rounded-card p-4 flex flex-col gap-3">
               <div className="flex items-center gap-3">
                 <span className="text-[24px]">❌</span>

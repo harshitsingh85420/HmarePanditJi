@@ -1,5 +1,6 @@
 "use client";
 
+import { Narrate } from "@/hooks/useScreenVoice";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { hi } from "@/lib/strings";
@@ -9,7 +10,6 @@ import { Card } from "@/components/ui/Card";
 import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
 import { accentFor } from "@/components/moments/SlideCanvas";
 import { Button } from "@/components/ui/Button";
-import { SpeakOnMount } from "@/components/VoiceBar";
 import { useVoice } from "@/hooks/useVoice";
 import { VoiceField } from "@/components/voice/VoiceField";
 import { usePresignedUrl } from "@/hooks/usePresignedUrl";
@@ -371,7 +371,7 @@ export default function ProfileWizard({ onDone }: { onDone?: () => void } = {}) 
   if (showDoneScreen) {
     return (
       <div className="fixed inset-0 bg-cream text-ink flex flex-col justify-between p-6 z-50">
-        <SpeakOnMount text={hi.onboarding.doneVoice} />
+        <Narrate text={hi.onboarding.doneVoice} />
         
         <div className="flex-1 flex flex-col items-center justify-center text-center gap-6 max-w-[430px] mx-auto">
           <span className="text-[100px] select-none leading-none">🎉</span>
@@ -408,7 +408,7 @@ export default function ProfileWizard({ onDone }: { onDone?: () => void } = {}) 
     hi.onboarding.step6Voice,
     hi.onboarding.step7Voice,
   ];
-  const stepEmojis = ["👤", "📍", "🛕", "💰", "🪪", "🎥", "🏦"];
+  const stepEmojis = ["👤", "📍", "🛕", "📿", "💰", "🪪", "🏦"];
 
   const stepTitles = [
     hi.onboarding.step1Title,
@@ -426,7 +426,7 @@ export default function ProfileWizard({ onDone }: { onDone?: () => void } = {}) 
       <Header title={stepTitles[draft.step - 1]} festive showBack={draft.step > 1} onBack={handleBack} />
 
       {/* Voice Assistant component */}
-      <SpeakOnMount text={stepVoices[draft.step - 1]} key={draft.step} />
+      <Narrate text={stepVoices[draft.step - 1]} key={draft.step} />
 
       <main className="max-w-[430px] mx-auto px-4 pt-4 flex flex-col gap-5">
         

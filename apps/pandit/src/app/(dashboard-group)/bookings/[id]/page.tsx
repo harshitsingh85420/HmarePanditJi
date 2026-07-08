@@ -1,5 +1,6 @@
 "use client";
 
+import { Narrate } from "@/hooks/useScreenVoice";
 import React, { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { hi } from "@/lib/strings";
@@ -12,7 +13,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "@/components/ui/Card";
 import { Header } from "@/components/ui/Header";
 import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
-import { SpeakOnMount } from "@/components/VoiceBar";
 import { DiyaLoader } from "@/components/moments/DiyaLoader";
 import { useVoice } from "@/hooks/useVoice";
 import { VoiceActionListener } from "@/components/voice/VoiceActionListener";
@@ -211,7 +211,7 @@ export default function BookingDetailPage() {
     const payoutAmount = booking.earnings?.totalToPandit || 0;
     return (
       <div className="fixed inset-0 bg-cream text-ink flex flex-col justify-between p-6 z-50">
-        <SpeakOnMount text={hi.booking.completeVoice} />
+        <Narrate text={hi.booking.completeVoice} />
         <div className="flex-1 flex flex-col items-center justify-center text-center gap-6">
           <span className="text-[120px] select-none leading-none">🙏</span>
           <h1 className="text-[36px] font-bold text-temple-700 font-hindi">

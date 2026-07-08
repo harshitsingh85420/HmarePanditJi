@@ -5,6 +5,7 @@
 // removal is blocked with a 409 while active bookings exist; newly added
 // poojas carry सत्यापन-बाकी until video-verify (P12) clears them.
 
+import { Narrate } from "@/hooks/useScreenVoice";
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { hi } from "@/lib/strings";
@@ -13,7 +14,6 @@ import { Screen } from "@/components/ui/Screen";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { DiyaLoader } from "@/components/moments/DiyaLoader";
-import { SpeakOnMount } from "@/components/VoiceBar";
 import { VoiceActionListener } from "@/components/voice/VoiceActionListener";
 import { VoiceField } from "@/components/voice/VoiceField";
 import { FirstUseTip } from "@/components/moments/FirstUseTip";
@@ -145,7 +145,7 @@ export default function MyPoojasPage() {
         ) : undefined
       }
     >
-      <SpeakOnMount text={hi.myPoojas.intro} />
+      <Narrate text={hi.myPoojas.intro} />
       <VoiceActionListener
         commands={[{ keywords: ["नई पूजा", "nayi pooja", "जोड़"], action: () => setShowAdd(true) }]}
       />

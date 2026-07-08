@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { prisma } from "../lib/prisma";
 import { env } from "../config/env";
+import { authLanding } from "../lib/authRouting";
 import { AppError } from "../middleware/errorHandler";
 import crypto from "crypto";
 import { storeOtpHash, getOtpHash, deleteOtpHash, checkRateLimit } from "../lib/redis";
@@ -432,10 +433,15 @@ export const sendOtpNew = async (request: FastifyRequest, reply: FastifyReply) =
   // Store OTP hash in Redis key otp:{phone} with 5-minute TTL (300 seconds)
   await storeOtpHash(phone, hash, 300);
 
+  // F1(a): tell the client whether this phone already has an account so
+  // the OTP screen can greet a returning pandit differently.
+  const existing = await prisma.user.findUnique({ where: { phone }, select: { id: true } });
+
   return reply.send({
     success: true,
     data: {
-      message: "OTP sent successfully."
+      message: "OTP sent successfully.",
+      accountExists: !!existing
     }
   });
 };
@@ -536,12 +542,20 @@ export const verifyOtpNew = async (request: FastifyRequest, reply: FastifyReply)
     { expiresIn: "30d" }
   );
 
+  // F1(c): routing hints — a finished pandit is NEVER re-onboarded.
+  const { profileComplete, landing } = authLanding({
+    fullName: panditProfile.fullName,
+    isNewUser,
+  });
+
   return reply.send({
     success: true,
     data: {
       token,
       isNewUser,
-      verificationStatus: panditProfile.verificationStatus
+      verificationStatus: panditProfile.verificationStatus,
+      profileComplete,
+      landing
     }
   });
 };

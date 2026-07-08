@@ -36,4 +36,15 @@ export function useScreenVoice(
   };
 }
 
+/**
+ * ONE-शिष्य LAW: screens have exactly one voice presence — the footer
+ * orb. Narrate replaces the old visible speaker chip: same narration +
+ * replay registration, zero UI.
+ * (Plain function component returning null — no JSX, so .ts is fine.)
+ */
+export function Narrate({ text }: { text: string }): null {
+  useScreenVoice(text);
+  return null;
+}
+
 export default useScreenVoice;

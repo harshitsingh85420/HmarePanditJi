@@ -45,7 +45,19 @@ export default function TutorialShell({
   return (
     <main className="h-[100dvh] w-full max-w-[430px] mx-auto bg-cream font-hindi text-ink flex flex-col relative overflow-hidden">
       <header className="pt-6 px-4 flex justify-between items-center shrink-0 gap-2">
-        <div className="flex gap-1.5 flex-wrap max-w-[250px]">
+        {onBack && (
+          <button
+            onClick={onBack}
+            className="w-14 h-14 min-h-[56px] min-w-[56px] flex items-center justify-center active:scale-90 transition-all shrink-0 rounded-full"
+            aria-label={translations.back}
+          >
+            {/* UNIVERSAL BACK LAW: 48px circle, card bg, sand border, ← ink */}
+            <span className="w-12 h-12 rounded-full bg-card border border-saffron-200 shadow-card flex items-center justify-center text-[24px] text-ink" aria-hidden="true">
+              ←
+            </span>
+          </button>
+        )}
+        <div className="flex gap-1.5 flex-wrap max-w-[200px]">
           {Array.from({ length: totalDots }).map((_, index) => (
             <span
               key={index}
@@ -78,14 +90,6 @@ export default function TutorialShell({
           </button>
           <ShishyaOrb />
         </div>
-        {onBack && (
-          <button
-            onClick={onBack}
-            className="w-full text-center text-[18px] font-medium text-saffron-600 min-h-[56px] py-3 rounded-full border-2 border-saffron-300 active:bg-saffron-50"
-          >
-            {translations.back}
-          </button>
-        )}
       </footer>
     </main>
   );

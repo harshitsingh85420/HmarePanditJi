@@ -22,6 +22,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { Toast } from "@/components/ui/Toast";
 import { BottomNav } from "@/components/ui/BottomNav";
 import { Header } from "@/components/ui/Header";
+import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
 
 // Moments Components
 import { DiyaLoader } from "@/components/moments/DiyaLoader";
@@ -92,6 +93,16 @@ export default function DesignSystemPage() {
         {/* Section 1: Greeting Header */}
         <section className="flex flex-col gap-2">
           <GreetingHeader firstName="हरिशंकर" />
+        </section>
+
+        {/* Section: शिष्य specimen — the ONE voice presence */}
+        <section className="flex flex-col gap-4">
+          <h2 className="t-title font-bold text-temple-600 border-b border-saffron-100 pb-2">
+            शिष्य
+          </h2>
+          <div className="flex items-center justify-center py-4 bg-white rounded-card border border-saffron-100">
+            <ShishyaOrb />
+          </div>
         </section>
 
         {/* Section 2: Buttons Grid */}
@@ -286,7 +297,7 @@ export default function DesignSystemPage() {
 
       </main>
 
-      {/* Floating Mute/Unmute toggle (VoiceBar) is mounted via Header */}
+      {/* The ONE voice presence — शिष्य orb, docked in the footer */}
       
       {/* Dynamic bottom nav bar */}
       <BottomNav activeTab={activeTab} onChange={setActiveTab} />
@@ -368,7 +379,7 @@ export default function DesignSystemPage() {
           <thead><tr><th className="pr-2">Route</th><th className="pr-2">Narration source</th><th>Voice input</th></tr></thead>
           <tbody>
             {[
-              ["/homepage", "hi.welcomeFlow.homepage (SpeakOnMount)", "—"],
+              ["/homepage", "hi.welcomeFlow.homepage (Narrate)", "—"],
               ["/identity", "speakWithSarvam (mount)", "Deepgram STT"],
               ["onboarding/screens/* (language, city, permissions)", "voice-scripts + own-name-in-own-language on tap", "real STT mic (migrated)"],
               ["/help", "speakWithSarvam (mount)", "—"],
@@ -377,12 +388,12 @@ export default function DesignSystemPage() {
               ["/login", "VoiceField prompts (phone, OTP)", "VoiceField phone + otp"],
               ["/onboarding", "per-step voices (hi.onboarding.*)", "VoiceField all steps"],
               ["/home", "VoiceActionListener narration", "online/offline commands"],
-              ["/bookings", "hi.bookingsList.intro (SpeakOnMount)", "VoiceActionListener (tabs + home)"],
-              ["/bookings/[id]", "SpeakOnMount (details)", "—"],
-              ["/bookings/[id]/request", "SpeakOnMount (earnings breakdown)", "accept/reject buttons"],
+              ["/bookings", "hi.bookingsList.intro (Narrate)", "VoiceActionListener (tabs + home)"],
+              ["/bookings/[id]", "Narrate (details)", "—"],
+              ["/bookings/[id]/request", "Narrate (earnings breakdown)", "accept/reject buttons"],
               ["/earnings", "hi.earnings.introVoice", "—"],
               ["/calendar", "hi.calendar.blockVoice", "tap"],
-              ["/samagri", "SpeakOnMount", "—"],
+              ["/samagri", "Narrate", "—"],
               ["/settings", "hi.settingsScreen.intro + voiceOn/voiceOff on toggle", "narration only (by design)"],
               ["/resume", "speakWithSarvam (mount)", "—"],
               ["/(registration)/*", "redirects to /login | /onboarding", "n/a"],

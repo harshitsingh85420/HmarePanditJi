@@ -1,9 +1,11 @@
 "use client";
 
 import React from "react";
+import { useRouter } from "next/navigation";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { Toran } from "./Toran";
+import { hi } from "@/lib/strings";
 
 function cn(...inputs: (string | undefined | false | null)[]) {
   return twMerge(clsx(inputs));
@@ -20,6 +22,8 @@ export interface HeaderProps {
 }
 
 export function Header({ title, showBack = false, onBack, rightSlot, className, festive = false }: HeaderProps) {
+  const router = useRouter();
+  const handleBack = onBack ?? (() => router.back());
   return (
     <header className={cn("sticky top-0 z-30", className)}>
       <div className={cn(
@@ -31,11 +35,14 @@ export function Header({ title, showBack = false, onBack, rightSlot, className, 
       <div className={showBack ? "w-14 flex items-center justify-start flex-shrink-0" : "hidden"}>
         {showBack && (
           <button
-            onClick={onBack}
-            className="w-14 h-14 min-h-[56px] min-w-[56px] rounded-full bg-white shadow-card hover:bg-saffron-50 active:scale-90 flex items-center justify-center text-[18px] transition-all focus:outline-none focus:ring-2 focus:ring-saffron-200"
-            aria-label="Go Back"
+            onClick={handleBack}
+            className="w-14 h-14 min-h-[56px] min-w-[56px] flex items-center justify-center active:scale-90 transition-all focus:outline-none focus:ring-2 focus:ring-saffron-200 rounded-full"
+            aria-label={hi.common.back}
           >
-            ←
+            {/* UNIVERSAL BACK LAW: 48px circle, card bg, 1px sand border, ← 24px ink */}
+            <span className="w-12 h-12 rounded-full bg-card border border-saffron-200 shadow-card flex items-center justify-center text-[24px] text-ink" aria-hidden="true">
+              ←
+            </span>
           </button>
         )}
       </div>

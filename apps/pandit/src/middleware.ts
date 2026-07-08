@@ -38,8 +38,25 @@ function rateLimit(ip: string): { allowed: boolean; resetTime?: number } {
   return { allowed: true }
 }
 
+// Cookie-gated routes (the login flow sets hpj_token on verify). The
+// redirect carries ?next= so the pandit lands EXACTLY where he tapped
+// after the gentle re-OTP — never a silent identity ambush.
+const PROTECTED_PREFIXES = ['/dashboard', '/bookings', '/calendar', '/earnings', '/profile']
+
 export function middleware(request: NextRequest) {
   const ip = getClientIP(request)
+
+  // F4 auth gate (merged from the old root middleware so the security
+  // headers below stay active — Next.js loads only ONE middleware file)
+  const path = request.nextUrl.pathname
+  if (PROTECTED_PREFIXES.some((p) => path === p || path.startsWith(p + '/'))) {
+    const token = request.cookies.get('hpj_token')?.value
+      || request.headers.get('authorization')?.replace('Bearer ', '')
+    if (!token) {
+      const loginUrl = new URL(`/login?next=${encodeURIComponent(path)}`, request.url)
+      return NextResponse.redirect(loginUrl)
+    }
+  }
 
   // Rate limiting for API routes
   if (request.nextUrl.pathname.startsWith('/api/')) {

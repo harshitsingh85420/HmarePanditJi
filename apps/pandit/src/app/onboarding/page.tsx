@@ -114,7 +114,10 @@ export default function OnboardingOrchestratorPage() {
   useEffect(() => {
     const run = async () => {
       const token = typeof window !== "undefined" ? localStorage.getItem("pandit_token") : null;
-      if (token) {
+      // Settings → भाषा visits carry a return flag: show the bare list,
+      // do NOT bounce a completed pandit to /home first.
+      const langVisit = typeof window !== "undefined" && sessionStorage.getItem("hpj_lang_return");
+      if (token && !langVisit) {
         const me = await api("/auth/me");
         const prof = me.success ? me.data?.user?.panditProfile : null;
         const hasFullName = prof?.fullName && String(prof.fullName).trim().length > 0;
@@ -133,6 +136,49 @@ export default function OnboardingOrchestratorPage() {
     void run();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // ── UNIVERSAL BACK LAW: Android hardware/gesture back moves through
+  // phases (and tutorial slides) instead of leaving the app. Each phase
+  // change pushes a history entry; popstate maps to the sensible previous
+  // step and re-pins the location.
+  useEffect(() => {
+    if (!resumeChecked) return;
+    try {
+      window.history.pushState({ hpj: phase }, "", window.location.href);
+    } catch { /* noop */ }
+  }, [phase, resumeChecked]);
+  useEffect(() => {
+    const onPop = () => {
+      const cur = store.phase;
+      const slide = store.currentTutorialScreen;
+      const repin = () => {
+        try { window.history.pushState({ hpj: cur }, "", window.location.href); } catch { /* noop */ }
+      };
+      if (cur === "TUTORIAL" && slide > 1) {
+        voiceController.stopSpeech();
+        store.setCurrentTutorialScreen(slide - 1);
+        repin();
+        return;
+      }
+      const prevMap: Record<string, OnboardingPhase | null> = {
+        MANUAL_CITY: "LOCATION_PERMISSION",
+        LANGUAGE_CONFIRM: "LOCATION_PERMISSION",
+        LANGUAGE_LIST: "LANGUAGE_CONFIRM",
+        TUTORIAL: "LANGUAGE_CONFIRM",
+      };
+      const prev = prevMap[String(cur)] ?? null;
+      if (prev) {
+        voiceController.stopSpeech();
+        store.setPhase(prev);
+        repin();
+      }
+      // SPLASH / LOCATION / AUTH / WIZARD: stay (do not exit mid-ceremony)
+      else repin();
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [store.phase, store.currentTutorialScreen, resumeChecked]);
 
   // ── AUTH phase: hand over to /login and come back ──────────
   useEffect(() => {
@@ -172,8 +218,7 @@ export default function OnboardingOrchestratorPage() {
           goto("LANGUAGE_CONFIRM");
         }}
         onDenied={() => goto("MANUAL_CITY")}
-        onBack={() => goto("SPLASH")}
-        showBack
+        showBack={false}
       />
     );
   }
@@ -191,7 +236,15 @@ export default function OnboardingOrchestratorPage() {
     );
   }
 
-  // ── LANGUAGE ───────────────────────────────────────────────
+  // ── LANGUAGE — asked EXACTLY ONCE per install ──────────────
+  const langReturn = typeof window !== "undefined" ? sessionStorage.getItem("hpj_lang_return") : null;
+
+  if (phase === "LANGUAGE_CONFIRM" && store.languageConfirmed) {
+    // already confirmed → never re-run the ceremony
+    store.setPhase("TUTORIAL");
+    return null;
+  }
+
   if (phase === "LANGUAGE_CONFIRM") {
     return (
       <OrbDock>
@@ -215,6 +268,11 @@ export default function OnboardingOrchestratorPage() {
   }
 
   if (phase === "LANGUAGE_LIST") {
+    // Confirmed + not a settings visit → nothing to ask; skip ahead.
+    if (store.languageConfirmed && !langReturn) {
+      store.setPhase("TUTORIAL");
+      return null;
+    }
     return (
       <LanguageListScreen
         language={store.selectedLanguage}
@@ -235,9 +293,23 @@ export default function OnboardingOrchestratorPage() {
               languageCode: LANG_TO_BCP47[code] as never,
             });
           }
+          if (langReturn) {
+            // Settings → भाषा: pick and go straight back — no ceremony,
+            // no tutorial. The flag stays until settings mounts (clearing
+            // it here re-triggers the skip rule mid-flight and the phase
+            // history push cancels the route transition).
+            router.push(langReturn);
+            return;
+          }
           goto("TUTORIAL");
         }}
-        onBack={() => goto("LANGUAGE_CONFIRM")}
+        onBack={() => {
+          if (langReturn) {
+            router.push(langReturn);
+            return;
+          }
+          goto("LANGUAGE_CONFIRM");
+        }}
         onLanguageChange={() => goto("LANGUAGE_LIST")}
       />
     );
@@ -287,6 +359,10 @@ export default function OnboardingOrchestratorPage() {
   // MIC phases) → map into the new machine at the nearest sensible point.
   if (String(phase).startsWith("TUTORIAL_") || phase === "MIC_PERMISSION" || phase === "MIC_DENIED") {
     store.setPhase("TUTORIAL");
+    return null;
+  }
+  if (["LANGUAGE_CHOICE_CONFIRM", "LANGUAGE_SET", "SCRIPT_CHOICE", "HELP"].includes(String(phase))) {
+    store.setPhase(store.languageConfirmed ? "TUTORIAL" : "LANGUAGE_CONFIRM");
     return null;
   }
   return <SunriseSplash onDone={() => goto("LOCATION_PERMISSION")} />;

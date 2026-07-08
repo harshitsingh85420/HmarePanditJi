@@ -1,8 +1,9 @@
 "use client";
 
+import { Narrate } from "@/hooks/useScreenVoice";
+import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
 import React from "react";
 import { hi } from "../../lib/strings";
-import {SpeakOnMount} from "../../components/VoiceBar";
 
 export default function TestVoicePage() {
   return (
@@ -16,11 +17,11 @@ export default function TestVoicePage() {
           {hi.welcome.voiceIntro}
         </p>
 
-        {/* Speak on mount / replay button */}
-        <SpeakOnMount text={hi.welcome.voiceIntro} />
-      </div>
+        <Narrate text={hi.welcome.voiceIntro} />
 
-      {/* Voice mute/unmute floating button */}
+        {/* शिष्य specimen — the ONE voice control */}
+        <ShishyaOrb />
+      </div>
     </main>
   );
 }

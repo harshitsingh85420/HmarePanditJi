@@ -1,5 +1,6 @@
 "use client";
 
+import { Narrate } from "@/hooks/useScreenVoice";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { hi } from "@/lib/strings";
@@ -9,7 +10,6 @@ import { api } from "@/lib/api";
 import { Card } from "@/components/ui/Card";
 import { Header } from "@/components/ui/Header";
 import { BottomNav } from "@/components/ui/BottomNav";
-import { SpeakOnMount } from "@/components/VoiceBar";
 import { DiyaLoader } from "@/components/moments/DiyaLoader";
 import { MoneyCount } from "@/components/moments/MoneyCount";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -119,10 +119,10 @@ export default function EarningsPage() {
   return (
     <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
       {/* HEADER */}
-      <Header title={hi.earnings.title} showBack={false} />
+      <Header title={hi.earnings.title} showBack onBack={() => router.push("/home")} />
 
       {/* INTRO VOICE NARRATOR ON MOUNT */}
-      <SpeakOnMount text={hi.earnings.introVoice} />
+      <Narrate text={hi.earnings.introVoice} />
 
       <main className="flex-1 overflow-y-auto px-4 pt-3 pb-24 flex flex-col gap-3 page-enter">
         {/* THE PAYOUT MOMENT — one-time banner when money just arrived */}

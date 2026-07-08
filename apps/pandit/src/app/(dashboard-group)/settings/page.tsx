@@ -1,12 +1,12 @@
 "use client";
 
+import { Narrate } from "@/hooks/useScreenVoice";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { hi } from "@/lib/strings";
 import { Header } from "@/components/ui/Header";
 import { Card } from "@/components/ui/Card";
 import { BottomNav } from "@/components/ui/BottomNav";
-import { SpeakOnMount } from "@/components/VoiceBar";
 import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
 import { useVoice } from "@/hooks/useVoice";
 import { playBell } from "@/lib/sounds";
@@ -22,6 +22,8 @@ export default function SettingsPage() {
 
   useEffect(() => {
     setSoundEnabled(localStorage.getItem("sound_enabled") !== "false");
+    // returning from (or abandoning) a भाषा visit — clear the flag
+    sessionStorage.removeItem("hpj_lang_return");
   }, []);
 
   const handleSoundToggle = () => {
@@ -41,7 +43,7 @@ export default function SettingsPage() {
       />
 
       <main className="flex-1 overflow-y-auto px-4 pt-3 pb-24 flex flex-col gap-3 page-enter">
-        <SpeakOnMount text={hi.settingsScreen.intro} />
+        <Narrate text={hi.settingsScreen.intro} />
 
         {/* Row: profile view */}
         <Card
@@ -65,6 +67,8 @@ export default function SettingsPage() {
         <Card
           className="px-5 bg-white border border-saffron-100 min-h-[64px] flex items-center justify-between cursor-pointer active:scale-[0.97] transition-transform"
           onClick={() => {
+            // bare list only — no confirm ceremony, and return here after
+            sessionStorage.setItem("hpj_lang_return", "/settings");
             setPhase("LANGUAGE_LIST");
             router.push("/onboarding");
           }}
@@ -139,6 +143,7 @@ export default function SettingsPage() {
               <button
                 onClick={() => {
                   localStorage.removeItem("pandit_token");
+                  document.cookie = "hpj_token=; Max-Age=0; path=/";
                   router.push("/login");
                 }}
                 className="flex-1 min-h-[56px] bg-danger text-white rounded-btn text-[18px] font-bold active:scale-[0.97] transition-transform"

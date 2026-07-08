@@ -27,6 +27,14 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [countdown, setCountdown] = useState(30);
+  const [accountExists, setAccountExists] = useState<boolean | null>(null);
+
+  // F4: a re-auth on the way to a booking gets a reassuring शिष्य line
+  const reauthForBooking = nextParam.startsWith("/bookings");
+  useEffect(() => {
+    if (reauthForBooking && step === 1) speak(hi.auth.reauthForBooking);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Countdown timer for OTP resend
   useEffect(() => {
@@ -57,11 +65,17 @@ export default function LoginPage() {
     setLoading(false);
 
     if (!res.success) {
-      setErrorMsg(hi.common.error);
-      speak(hi.common.error);
+      const rateLimited = res.error?.code === "rate_limit_exceeded";
+      const msg = rateLimited ? hi.auth.rateLimited : hi.common.error;
+      setErrorMsg(msg);
+      speak(msg);
       return;
     }
 
+    // F1(b): the OTP screen greets returning pandits differently
+    const exists = res.data?.accountExists === true;
+    setAccountExists(exists);
+    speak(exists ? hi.auth.returningShishya : hi.auth.newAccountShishya);
     setStep(2);
     setCountdown(30);
   };
@@ -88,15 +102,20 @@ export default function LoginPage() {
       return;
     }
 
-    const { token, isNewUser, verificationStatus } = res.data;
+    const { token, profileComplete } = res.data;
     localStorage.setItem("pandit_token", token);
+    // the route middleware gates on this cookie — set it at login,
+    // cleared on logout (settings)
+    document.cookie = `hpj_token=${token}; path=/; max-age=${60 * 60 * 24 * 30}; samesite=lax`;
 
-    // profile incomplete → continue where the caller wanted (?next=, default
-    // /onboarding); complete → straight to /home
-    if (isNewUser || verificationStatus === "PENDING") {
-      router.push(nextParam && nextParam.startsWith("/") ? nextParam : "/onboarding");
+    // F1(c) ROUTING LAW: a finished pandit is NEVER re-onboarded.
+    //   profile complete   → ?next= destination, else /home
+    //                        (PENDING shows the amber banner there)
+    //   profile incomplete → wizard at its saved step (new = step 1)
+    if (profileComplete) {
+      router.push(nextParam && nextParam.startsWith("/") ? nextParam : "/home");
     } else {
-      router.push("/home");
+      router.push("/onboarding");
     }
   };
 
@@ -131,6 +150,13 @@ export default function LoginPage() {
       <main className="flex-1 min-h-0 overflow-y-auto flex flex-col justify-start px-4 pt-8 w-full gap-6">
         {step === 1 ? (
           <>
+            {reauthForBooking && (
+              <div className="px-4 py-3 bg-gold/15 border border-gold rounded-card">
+                <p className="text-[18px] text-temple-600 font-hindi leading-snug">
+                  🙏 {hi.auth.reauthForBooking}
+                </p>
+              </div>
+            )}
             <div className="bg-white rounded-card shadow-card p-5 flex flex-col gap-4">
               <VoiceField
                 label={hi.auth.phoneLabel}
@@ -156,6 +182,16 @@ export default function LoginPage() {
           <>
             {/* Screen 2: OTP — typed-only by law (A5); the app speaks why once */}
             <div className="bg-white rounded-card shadow-card p-5 flex flex-col gap-4">
+              {accountExists !== null && (
+                <div className="flex flex-col gap-1">
+                  <h2 className="text-[22px] font-bold text-temple-600 font-hindi leading-snug">
+                    {accountExists ? hi.auth.returningTitle : hi.auth.newAccountTitle}
+                  </h2>
+                  <p className="t-hint text-softgrey font-hindi">
+                    {accountExists ? hi.auth.returningShishya : hi.auth.newAccountShishya}
+                  </p>
+                </div>
+              )}
               <OtpBoxes value={otpValue} onChange={setOtpValue} />
 
               {/* Resend Link countdown timer */}

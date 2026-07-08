@@ -1,5 +1,6 @@
 "use client";
 
+import { Narrate } from "@/hooks/useScreenVoice";
 import React, { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { hi } from "@/lib/strings";
@@ -12,7 +13,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Header } from "@/components/ui/Header";
-import { SpeakOnMount } from "@/components/VoiceBar";
 import { DiyaLoader } from "@/components/moments/DiyaLoader";
 import { useVoice } from "@/hooks/useVoice";
 import { VoiceActionListener } from "@/components/voice/VoiceActionListener";

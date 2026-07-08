@@ -3,22 +3,23 @@
 // SSR FIX: Disable static generation for pages using Zustand stores
 export const dynamic = 'force-dynamic'
 
+import { Narrate } from "@/hooks/useScreenVoice";
+import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { hi } from '@/lib/strings'
-import { SpeakOnMount } from '@/components/VoiceBar'
 
 export default function Homepage() {
   const router = useRouter()
 
   return (
-    <main className="relative min-h-screen bg-surface-base overflow-hidden">
+    <main className="relative min-h-screen bg-cream overflow-hidden">
       {/* Sacred Gradient Background */}
       <div className="fixed inset-0 sacred-gradient -z-10" />
 
       {/* Main Content */}
       <div className="min-h-screen flex flex-col px-6 pb-12 pt-4">
-        <SpeakOnMount text={hi.welcomeFlow.homepage} />
+        <Narrate text={hi.welcomeFlow.homepage} />
 
         {/* Top Bar */}
         <nav className="flex justify-between items-center w-full mb-10">
@@ -107,6 +108,11 @@ export default function Homepage() {
             </p>
           </motion.div>
         </main>
+
+        {/* शिष्य — the one voice presence */}
+        <footer className="shrink-0 pt-4 flex justify-center">
+          <ShishyaOrb />
+        </footer>
 
         {/* Footer */}
         <footer className="mt-12 flex flex-col items-center gap-6">

@@ -1,5 +1,6 @@
 "use client";
 
+import { Narrate } from "@/hooks/useScreenVoice";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { hi } from "@/lib/strings";
@@ -10,7 +11,6 @@ import { Card } from "@/components/ui/Card";
 import { Header } from "@/components/ui/Header";
 import { BottomNav } from "@/components/ui/BottomNav";
 import { Toast } from "@/components/ui/Toast";
-import { SpeakOnMount } from "@/components/VoiceBar";
 import { FirstUseTip } from "@/components/moments/FirstUseTip";
 import { DiyaLoader } from "@/components/moments/DiyaLoader";
 import { useVoice } from "@/hooks/useVoice";
@@ -198,10 +198,10 @@ export default function CalendarPage() {
 
   return (
     <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
-      <Header title={hi.calendar.title} showBack={false} />
+      <Header title={hi.calendar.title} showBack onBack={() => router.push("/home")} />
 
       {/* BLOCK VOICE NARRATION ON MOUNT */}
-      <SpeakOnMount text={hi.calendar.blockVoice} />
+      <Narrate text={hi.calendar.blockVoice} />
 
       <main className="flex-1 overflow-y-auto px-4 pt-3 pb-24 flex flex-col gap-3 page-enter">
         {/* MONTH SELECTOR BANNER */}

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter, usePathname } from 'next/navigation'
 import { useSession } from '@/hooks/useSession'
 import { useNetwork } from '@/hooks/useNetwork'
 import { SessionTimeoutSheet } from '@/components/overlays/SessionTimeout'
@@ -46,6 +47,17 @@ function DashboardErrorBoundary({
 export default function DashboardGroupLayout({ children }: { children: React.ReactNode }) {
   useSession()
   useNetwork()
+
+  // F4 AUTH-GUARD: one guard for every dashboard screen. Missing token →
+  // /login?next={here}; the login screen explains, verifies, and returns.
+  const router = useRouter()
+  const pathname = usePathname()
+  useEffect(() => {
+    const token = localStorage.getItem('pandit_token')
+    if (!token) {
+      router.replace(`/login?next=${encodeURIComponent(pathname || '/home')}`)
+    }
+  }, [router, pathname])
   const [hasError, setHasError] = useState(false)
   const [error, setError] = useState<Error | null>(null)
 

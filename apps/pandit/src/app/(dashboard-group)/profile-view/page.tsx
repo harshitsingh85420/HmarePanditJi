@@ -3,6 +3,7 @@
 // Read-only profile view — the pandit sees what customers see.
 // Edits go through support (spoken + written note at the bottom).
 
+import { Narrate } from "@/hooks/useScreenVoice";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { hi } from "@/lib/strings";
@@ -11,7 +12,6 @@ import { Header } from "@/components/ui/Header";
 import { Card } from "@/components/ui/Card";
 import { BottomNav } from "@/components/ui/BottomNav";
 import { DiyaLoader } from "@/components/moments/DiyaLoader";
-import { SpeakOnMount } from "@/components/VoiceBar";
 import { usePresignedUrl } from "@/hooks/usePresignedUrl";
 
 interface ProfileData {
@@ -57,7 +57,7 @@ export default function ProfileViewPage() {
     <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
       <Header title={hi.profileView.title} showBack onBack={() => router.push("/settings")} />
       <main className="flex-1 overflow-y-auto px-4 pt-3 pb-24 flex flex-col gap-3 page-enter">
-        <SpeakOnMount text={hi.profileView.title} />
+        <Narrate text={hi.profileView.title} />
 
         {/* Photo + name + city */}
         <Card className="p-5 bg-white border border-saffron-100 flex items-center gap-4">

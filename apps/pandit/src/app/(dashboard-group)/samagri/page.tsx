@@ -1,5 +1,6 @@
 "use client";
 
+import { Narrate } from "@/hooks/useScreenVoice";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { hi } from "@/lib/strings";
@@ -13,7 +14,6 @@ import { Card } from "@/components/ui/Card";
 import { Header } from "@/components/ui/Header";
 import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
 import { Toast } from "@/components/ui/Toast";
-import { SpeakOnMount } from "@/components/VoiceBar";
 import { DiyaLoader } from "@/components/moments/DiyaLoader";
 import { useVoice } from "@/hooks/useVoice";
 import { VoiceField } from "@/components/voice/VoiceField";
@@ -221,7 +221,7 @@ export default function SamagriPage() {
         ) : (
           /* SCREEN 2: EDIT SAMAGRI PACKAGES */
           <>
-            <SpeakOnMount text={hi.onboarding.step5Voice} />
+            <Narrate text={hi.onboarding.step5Voice} />
 
             <div className="bg-white rounded-card shadow-card p-5 border border-saffron-100 flex flex-col gap-4">
               <div className="flex justify-between items-center border-b border-saffron-100 pb-3">
