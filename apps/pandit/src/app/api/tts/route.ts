@@ -102,11 +102,15 @@ export async function POST(request: NextRequest) {
 
   const apiKey = process.env.SARVAM_API_KEY;
 
-  // If no API key configured, return 503 so client falls back to Web Speech
+  // No API key (dev without Sarvam): fail FAST with a typed code so the
+  // client falls back to speechSynthesis instead of waiting/hanging.
   if (!apiKey || apiKey.trim() === '') {
     return NextResponse.json(
-      { error: 'TTS not configured — add SARVAM_API_KEY to .env.local' },
-      { status: 503 }
+      {
+        success: false,
+        error: { code: 'tts_unconfigured', message: 'TTS not configured — add SARVAM_API_KEY to .env.local' },
+      },
+      { status: 501 }
     );
   }
 

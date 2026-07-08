@@ -39,6 +39,9 @@ export default function BookingsPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [bookings, setBookings] = useState<BookingItem[]>([]);
+  // FLOW D: the empty state carries the same तैयारी CTA as home
+  const [isBookingReady, setIsBookingReady] = useState(true);
+  const [readinessStep, setReadinessStep] = useState(0);
   const tabsRef = React.useRef<HTMLDivElement | null>(null);
   const [activeTab, setActiveTab] = useState<"NEW" | "UPCOMING" | "COMPLETED">("NEW");
 
@@ -46,11 +49,15 @@ export default function BookingsPage() {
   useEffect(() => {
     const fetchBookings = async () => {
       setLoading(true);
-      const res = await api("/pandit/bookings");
+      const [res, meRes] = await Promise.all([api("/pandit/bookings"), api("/auth/me")]);
       setLoading(false);
 
       if (res.success && res.data) {
         setBookings(res.data);
+      }
+      if (meRes.success) {
+        setIsBookingReady(meRes.data?.user?.panditProfile?.isBookingReady === true);
+        setReadinessStep(meRes.data?.user?.panditProfile?.readinessStep || 0);
       }
     };
     fetchBookings();
@@ -174,7 +181,28 @@ export default function BookingsPage() {
       {/* Bookings List */}
       <main className="flex-1 overflow-y-auto px-4 pt-3 pb-24 flex flex-col gap-3 page-enter">
         {bookings.length === 0 ? (
-          <EmptyState emoji="🙏" title={hi.empty.noBookingsYetTitle} hint={hi.empty.noBookingsYetHint} />
+          <>
+            <EmptyState emoji="🙏" title={hi.empty.noBookingsYetTitle} hint={hi.empty.noBookingsYetHint} />
+            {/* FLOW D: not booking-ready yet → same तैयारी hero CTA as home */}
+            {!isBookingReady && (
+              <Card
+                clickable
+                onClick={() => router.push("/readiness")}
+                accent="saffron"
+                className="p-5 flex flex-col gap-2 text-left"
+              >
+                <span className="text-[20px] font-bold text-temple-700 font-hindi leading-snug">
+                  {hi.home.readinessHero}
+                </span>
+                {readinessStep > 0 && (
+                  <span className="self-start text-[16px] font-bold text-saffron-600 font-hindi px-3 py-1 bg-saffron-50 rounded-full">
+                    {hi.home.readinessProgress.replace("{n}", String(Math.min(readinessStep, 5)))}
+                  </span>
+                )}
+                <span className="text-softgrey text-[18px] font-hindi">{hi.coach.tryIt}</span>
+              </Card>
+            )}
+          </>
         ) : filteredBookings.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center gap-2">
             <span className="text-[64px]">🌤️</span>

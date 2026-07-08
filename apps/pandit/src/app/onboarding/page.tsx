@@ -1,16 +1,19 @@
 "use client";
 
 // ─────────────────────────────────────────────────────────────
-// Voice-first entry ORCHESTRATOR (Interaction Model v2).
-// SPLASH → LOCATION (grant→coords / deny→city) → LANGUAGE (detected,
-// confirmed in its own tongue) → TUTORIAL (14 slides; mic is asked on
-// slide 5 — there is no separate mic phase) → AUTH (/login round-trip)
-// → WIZARD (<ProfileWizard/>) → /home. Phase + slide persist in the
-// onboarding store; mount resume rules at the bottom of this header:
+// Voice-first entry ORCHESTRATOR (Interaction Model v2 + progressive
+// onboarding). SPLASH → LOCATION (grant→coords / deny→city) → LANGUAGE
+// (detected, confirmed in its own tongue) → TUTORIAL (16 slides; mic is
+// asked on slide 5 — there is no separate mic phase) → AUTH (/login
+// round-trip) → REGISTRATION (FLOW C: name + detected city, ACCOUNT
+// only) → /home. Booking capabilities are earned later via /readiness.
+// Phase + slide persist in the onboarding store; mount resume rules:
 //   token && profile.fullName → /home
-//   token && incomplete       → WIZARD (wizard resumes its saved step)
+//   token && incomplete       → REGISTRATION (FLOW C)
 //   !token && tutorialCompleted → AUTH
 //   else                       → saved phase/slide (default SPLASH)
+// X1: the splash is painted from frame one — the resume rule resolves
+// BEHIND it, then a 200ms crossfade reveals the decided destination.
 // ─────────────────────────────────────────────────────────────
 
 import React, { useEffect, useState } from "react";
@@ -29,10 +32,10 @@ import LocationPermissionScreen from "./screens/LocationPermissionScreen";
 import ManualCityScreen from "./screens/ManualCityScreen";
 import LanguageListScreen from "./screens/LanguageListScreen";
 import TutorialV2, { TUTORIAL_TOTAL } from "./TutorialV2";
-import ProfileWizard from "./ProfileWizard";
+import RegistrationScreen from "./RegistrationScreen";
 
 // Entry phases (splash → language) render inside this dock so शिष्य keeps
-// his footer seat before the tutorial/wizard footers take over.
+// his footer seat before the tutorial/registration footers take over.
 function OrbDock({ children }: { children: React.ReactNode }) {
   return (
     <div className="h-[100dvh] max-w-[430px] mx-auto flex flex-col bg-cream">
@@ -107,6 +110,9 @@ export default function OnboardingOrchestratorPage() {
   const router = useRouter();
   const store = useSafeOnboardingStore();
   const [resumeChecked, setResumeChecked] = useState(false);
+  // X1: splash veil — painted on frame one, crossfaded out (200ms) once
+  // the resume rule has decided the destination.
+  const [veilGone, setVeilGone] = useState(false);
 
   const { phase, detectedCity, detectedState, currentTutorialScreen } = store;
 
@@ -126,8 +132,8 @@ export default function OnboardingOrchestratorPage() {
           router.replace("/home");
           return;
         }
-        // fetch failure or incomplete profile → wizard (it resumes its own step)
-        store.setPhase("WIZARD");
+        // fetch failure or incomplete profile → FLOW C minimal registration
+        store.setPhase("REGISTRATION");
       } else if (store.tutorialCompleted) {
         store.setPhase("AUTH");
       }
@@ -136,6 +142,12 @@ export default function OnboardingOrchestratorPage() {
     void run();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (!resumeChecked) return;
+    const t = setTimeout(() => setVeilGone(true), 200);
+    return () => clearTimeout(t);
+  }, [resumeChecked]);
 
   // ── UNIVERSAL BACK LAW: Android hardware/gesture back moves through
   // phases (and tutorial slides) instead of leaving the app. Each phase
@@ -160,6 +172,14 @@ export default function OnboardingOrchestratorPage() {
         repin();
         return;
       }
+      // FLOW C back law: registration returns to the Tutorial CTA slide
+      if (cur === "REGISTRATION" || cur === "WIZARD") {
+        voiceController.stopSpeech();
+        store.setCurrentTutorialScreen(TUTORIAL_TOTAL);
+        store.setPhase("TUTORIAL");
+        repin();
+        return;
+      }
       const prevMap: Record<string, OnboardingPhase | null> = {
         MANUAL_CITY: "LOCATION_PERMISSION",
         LANGUAGE_CONFIRM: "LOCATION_PERMISSION",
@@ -172,7 +192,7 @@ export default function OnboardingOrchestratorPage() {
         store.setPhase(prev);
         repin();
       }
-      // SPLASH / LOCATION / AUTH / WIZARD: stay (do not exit mid-ceremony)
+      // SPLASH / LOCATION / AUTH: stay (do not exit mid-ceremony)
       else repin();
     };
     window.addEventListener("popstate", onPop);
@@ -180,20 +200,18 @@ export default function OnboardingOrchestratorPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [store.phase, store.currentTutorialScreen, resumeChecked]);
 
-  // ── AUTH phase: hand over to /login and come back ──────────
+  // ── AUTH phase: hand over to /login and come back. A token-holder
+  // never re-OTPs — they go straight to FLOW C. ───────────────
   useEffect(() => {
-    if (resumeChecked && phase === "AUTH") {
-      router.push("/login?next=/onboarding");
+    if (!resumeChecked || phase !== "AUTH") return;
+    const token = localStorage.getItem("pandit_token");
+    if (token) {
+      store.setPhase("REGISTRATION");
+      return;
     }
+    router.push("/login?next=/onboarding");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resumeChecked, phase, router]);
-
-  if (!resumeChecked) {
-    return (
-      <div className="min-h-dvh bg-cream flex items-center justify-center">
-        <span className="text-[48px] animate-pulse" aria-hidden="true">🪔</span>
-      </div>
-    );
-  }
 
   const goto = (p: OnboardingPhase) => {
     voiceController.stopSpeech();
@@ -201,169 +219,196 @@ export default function OnboardingOrchestratorPage() {
   };
 
   const detectedCode = detectLanguage(detectedCity, detectedState);
-
-  // ── SPLASH ─────────────────────────────────────────────────
-  if (phase === "SPLASH") {
-    return <SunriseSplash onDone={() => goto("LOCATION_PERMISSION")} />;
-  }
-
-  // ── LOCATION ───────────────────────────────────────────────
-  if (phase === "LOCATION_PERMISSION") {
-    return (
-      <LocationPermissionScreen
-        language={store.selectedLanguage}
-        onLanguageChange={() => goto("LANGUAGE_LIST")}
-        onGranted={(city, state) => {
-          store.setDetectedCity(city, state);
-          goto("LANGUAGE_CONFIRM");
-        }}
-        onDenied={() => goto("MANUAL_CITY")}
-        showBack={false}
-      />
-    );
-  }
-
-  if (phase === "MANUAL_CITY") {
-    return (
-      <ManualCityScreen
-        onCitySelected={(city) => {
-          store.setDetectedCity(city, "");
-          goto("LANGUAGE_CONFIRM");
-        }}
-        onBack={() => goto("LOCATION_PERMISSION")}
-        onLanguageChange={() => goto("LANGUAGE_LIST")}
-      />
-    );
-  }
-
-  // ── LANGUAGE — asked EXACTLY ONCE per install ──────────────
   const langReturn = typeof window !== "undefined" ? sessionStorage.getItem("hpj_lang_return") : null;
 
-  if (phase === "LANGUAGE_CONFIRM" && store.languageConfirmed) {
-    // already confirmed → never re-run the ceremony
-    store.setPhase("TUTORIAL");
-    return null;
-  }
+  const renderPhase = (): React.ReactNode => {
+    // ── SPLASH ─────────────────────────────────────────────────
+    if (phase === "SPLASH") {
+      return <SunriseSplash onDone={() => goto("LOCATION_PERMISSION")} />;
+    }
 
-  if (phase === "LANGUAGE_CONFIRM") {
-    return (
-      <OrbDock>
-      <LangConfirmScreen2
-        code={detectedCode}
-        onYes={() => {
-          store.setLanguageConfirmed(true);
-          if (detectedCode !== "hi") {
-            store.setPreferredLanguage(detectedCode);
-            void speakWithSarvam({
-              text: LANG_CONFIRM[detectedCode].comingSoonLine,
-              languageCode: LANG_TO_BCP47[detectedCode] as never,
-            });
-          }
-          goto("TUTORIAL");
-        }}
-        onOther={() => goto("LANGUAGE_LIST")}
-      />
-      </OrbDock>
-    );
-  }
+    // ── LOCATION ───────────────────────────────────────────────
+    if (phase === "LOCATION_PERMISSION") {
+      return (
+        <LocationPermissionScreen
+          language={store.selectedLanguage}
+          onLanguageChange={() => goto("LANGUAGE_LIST")}
+          onGranted={(city, state) => {
+            store.setDetectedCity(city, state);
+            goto("LANGUAGE_CONFIRM");
+          }}
+          onDenied={() => goto("MANUAL_CITY")}
+          showBack={false}
+        />
+      );
+    }
 
-  if (phase === "LANGUAGE_LIST") {
-    // Confirmed + not a settings visit → nothing to ask; skip ahead.
-    if (store.languageConfirmed && !langReturn) {
+    if (phase === "MANUAL_CITY") {
+      return (
+        <ManualCityScreen
+          onCitySelected={(city) => {
+            store.setDetectedCity(city, "");
+            goto("LANGUAGE_CONFIRM");
+          }}
+          onBack={() => goto("LOCATION_PERMISSION")}
+          onLanguageChange={() => goto("LANGUAGE_LIST")}
+        />
+      );
+    }
+
+    // ── LANGUAGE — asked EXACTLY ONCE per install ──────────────
+    if (phase === "LANGUAGE_CONFIRM" && store.languageConfirmed) {
+      // already confirmed → never re-run the ceremony
       store.setPhase("TUTORIAL");
       return null;
     }
-    return (
-      <LanguageListScreen
-        language={store.selectedLanguage}
-        scriptPreference={store.scriptPreference}
-        onSelect={(lang: SupportedLanguage) => {
-          const code = SUPPORTED_TO_CODE[lang] || "hi";
-          store.setLanguageConfirmed(true);
-          if (code === "hi") {
-            store.setLanguage("Hindi");
-            store.setPreferredLanguage(null);
-          } else {
-            // v1: preference stored, spoken coming-soon in ITS language,
-            // app continues in Hindi
-            store.setLanguage("Hindi");
-            store.setPreferredLanguage(code);
-            void speakWithSarvam({
-              text: LANG_CONFIRM[code].comingSoonLine,
-              languageCode: LANG_TO_BCP47[code] as never,
-            });
-          }
-          if (langReturn) {
-            // Settings → भाषा: pick and go straight back — no ceremony,
-            // no tutorial. The flag stays until settings mounts (clearing
-            // it here re-triggers the skip rule mid-flight and the phase
-            // history push cancels the route transition).
-            router.push(langReturn);
-            return;
-          }
-          goto("TUTORIAL");
-        }}
-        onBack={() => {
-          if (langReturn) {
-            router.push(langReturn);
-            return;
-          }
-          goto("LANGUAGE_CONFIRM");
-        }}
-        onLanguageChange={() => goto("LANGUAGE_LIST")}
-      />
-    );
-  }
 
-  // ── TUTORIAL (14 slides; mic asked on slide 5) ─────────────
-  if (phase === "TUTORIAL") {
-    return (
-      <TutorialV2
-        slide={Math.min(TUTORIAL_TOTAL, Math.max(1, currentTutorialScreen))}
-        onSlideChange={(n) => {
-          voiceController.stopSpeech();
-          store.setCurrentTutorialScreen(n);
-        }}
-        onRegister={() => {
-          store.setTutorialCompleted(true);
-          goto("AUTH");
-        }}
-        onLater={() => {
-          store.setTutorialCompleted(true);
-        }}
-        onMicGranted={() => store.setMicDenied(false)}
-        onMicDenied={() => store.setMicDenied(true)}
-      />
-    );
-  }
+    if (phase === "LANGUAGE_CONFIRM") {
+      return (
+        <OrbDock>
+        <LangConfirmScreen2
+          code={detectedCode}
+          onYes={() => {
+            store.setLanguageConfirmed(true);
+            if (detectedCode !== "hi") {
+              store.setPreferredLanguage(detectedCode);
+              void speakWithSarvam({
+                text: LANG_CONFIRM[detectedCode].comingSoonLine,
+                languageCode: LANG_TO_BCP47[detectedCode] as never,
+              });
+            }
+            goto("TUTORIAL");
+          }}
+          onOther={() => goto("LANGUAGE_LIST")}
+        />
+        </OrbDock>
+      );
+    }
 
-  // ── AUTH / WIZARD ──────────────────────────────────────────
-  if (phase === "AUTH") {
-    return (
-      <div className="min-h-dvh bg-cream flex items-center justify-center">
-        <span className="text-[48px] animate-pulse" aria-hidden="true">🪔</span>
-      </div>
-    );
-  }
+    if (phase === "LANGUAGE_LIST") {
+      // Confirmed + not a settings visit → nothing to ask; skip ahead.
+      if (store.languageConfirmed && !langReturn) {
+        store.setPhase("TUTORIAL");
+        return null;
+      }
+      return (
+        <LanguageListScreen
+          language={store.selectedLanguage}
+          scriptPreference={store.scriptPreference}
+          onSelect={(lang: SupportedLanguage) => {
+            const code = SUPPORTED_TO_CODE[lang] || "hi";
+            store.setLanguageConfirmed(true);
+            if (code === "hi") {
+              store.setLanguage("Hindi");
+              store.setPreferredLanguage(null);
+            } else {
+              // v1: preference stored, spoken coming-soon in ITS language,
+              // app continues in Hindi
+              store.setLanguage("Hindi");
+              store.setPreferredLanguage(code);
+              void speakWithSarvam({
+                text: LANG_CONFIRM[code].comingSoonLine,
+                languageCode: LANG_TO_BCP47[code] as never,
+              });
+            }
+            if (langReturn) {
+              // Settings → भाषा: pick and go straight back — no ceremony,
+              // no tutorial. The flag stays until settings mounts (clearing
+              // it here re-triggers the skip rule mid-flight and the phase
+              // history push cancels the route transition).
+              router.push(langReturn);
+              return;
+            }
+            goto("TUTORIAL");
+          }}
+          onBack={() => {
+            if (langReturn) {
+              router.push(langReturn);
+              return;
+            }
+            goto("LANGUAGE_CONFIRM");
+          }}
+          onLanguageChange={() => goto("LANGUAGE_LIST")}
+        />
+      );
+    }
 
-  if (phase === "WIZARD" || phase === "REGISTRATION") {
-    const token = typeof window !== "undefined" ? localStorage.getItem("pandit_token") : null;
-    if (!token) {
-      store.setPhase("AUTH");
+    // ── TUTORIAL (16 slides; mic asked on slide 5) ─────────────
+    if (phase === "TUTORIAL") {
+      return (
+        <TutorialV2
+          slide={Math.min(TUTORIAL_TOTAL, Math.max(1, currentTutorialScreen))}
+          onSlideChange={(n) => {
+            voiceController.stopSpeech();
+            store.setCurrentTutorialScreen(n);
+          }}
+          onRegister={() => {
+            store.setTutorialCompleted(true);
+            goto("AUTH");
+          }}
+          onLater={() => {
+            store.setTutorialCompleted(true);
+          }}
+          onMicGranted={() => store.setMicDenied(false)}
+          onMicDenied={() => store.setMicDenied(true)}
+        />
+      );
+    }
+
+    // ── AUTH / REGISTRATION (FLOW C) ───────────────────────────
+    if (phase === "AUTH") {
+      return (
+        <div className="min-h-dvh bg-cream flex items-center justify-center">
+          <span className="text-[48px] animate-pulse" aria-hidden="true">🪔</span>
+        </div>
+      );
+    }
+
+    if (phase === "REGISTRATION" || phase === "WIZARD") {
+      const token = typeof window !== "undefined" ? localStorage.getItem("pandit_token") : null;
+      if (!token) {
+        store.setPhase("AUTH");
+        return null;
+      }
+      return (
+        <RegistrationScreen
+          onBack={() => {
+            // FLOW C back law: return to the Tutorial CTA slide
+            voiceController.stopSpeech();
+            store.setCurrentTutorialScreen(TUTORIAL_TOTAL);
+            store.setPhase("TUTORIAL");
+          }}
+        />
+      );
+    }
+
+    // Legacy/unknown persisted phases (incl. the old TUTORIAL_* names and
+    // MIC phases) → map into the new machine at the nearest sensible point.
+    if (String(phase).startsWith("TUTORIAL_") || phase === "MIC_PERMISSION" || phase === "MIC_DENIED") {
+      store.setPhase("TUTORIAL");
       return null;
     }
-    return <ProfileWizard onDone={() => router.push("/home")} />;
-  }
+    if (["LANGUAGE_CHOICE_CONFIRM", "LANGUAGE_SET", "SCRIPT_CHOICE", "HELP"].includes(String(phase))) {
+      store.setPhase(store.languageConfirmed ? "TUTORIAL" : "LANGUAGE_CONFIRM");
+      return null;
+    }
+    return <SunriseSplash onDone={() => goto("LOCATION_PERMISSION")} />;
+  };
 
-  // Legacy/unknown persisted phases (incl. the old TUTORIAL_* names and
-  // MIC phases) → map into the new machine at the nearest sensible point.
-  if (String(phase).startsWith("TUTORIAL_") || phase === "MIC_PERMISSION" || phase === "MIC_DENIED") {
-    store.setPhase("TUTORIAL");
-    return null;
-  }
-  if (["LANGUAGE_CHOICE_CONFIRM", "LANGUAGE_SET", "SCRIPT_CHOICE", "HELP"].includes(String(phase))) {
-    store.setPhase(store.languageConfirmed ? "TUTORIAL" : "LANGUAGE_CONFIRM");
-    return null;
-  }
-  return <SunriseSplash onDone={() => goto("LOCATION_PERMISSION")} />;
+  return (
+    <>
+      {resumeChecked ? renderPhase() : null}
+      {/* X1: frame-one splash veil; 200ms crossfade to the destination */}
+      {!veilGone && (
+        <div
+          aria-hidden={resumeChecked}
+          className={`fixed inset-0 z-[60] transition-opacity duration-200 ${
+            resumeChecked ? "opacity-0 pointer-events-none" : "opacity-100"
+          }`}
+        >
+          <SunriseSplash onDone={() => { /* the resume rule decides */ }} />
+        </div>
+      )}
+    </>
+  );
 }

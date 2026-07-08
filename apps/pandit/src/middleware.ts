@@ -97,7 +97,12 @@ export function middleware(request: NextRequest) {
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "img-src 'self' data: https: blob:",
       "font-src 'self' https://fonts.gstatic.com",
-      "connect-src 'self' https://*.sentry.io https://*.vercel.app https://*.google-analytics.com https://*.analytics.google.com https://api.hmarepanditji.com https://hmarepanditji.onrender.com https://api.deepgram.com wss://api.deepgram.com",
+      // nominatim: LocationPermissionScreen reverse-geocodes there; without it
+      // the CSP silently breaks the location grant path. localhost:3001 is the
+      // dev API (NEXT_PUBLIC_API_URL fallback) — dev builds only.
+      "connect-src 'self' https://nominatim.openstreetmap.org" +
+        (process.env.NODE_ENV !== 'production' ? " http://localhost:3001 http://127.0.0.1:3001" : "") +
+        " https://*.sentry.io https://*.vercel.app https://*.google-analytics.com https://*.analytics.google.com https://api.hmarepanditji.com https://hmarepanditji.onrender.com https://api.deepgram.com wss://api.deepgram.com",
       "media-src 'self' blob: data:",
       "frame-ancestors 'none'",
     ].join('; ')

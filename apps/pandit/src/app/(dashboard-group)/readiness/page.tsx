@@ -1,0 +1,1133 @@
+"use client";
+
+export const dynamic = "force-dynamic";
+
+// ─────────────────────────────────────────────────────────────
+// FLOW E — BOOKING-READINESS (resumable wizard, /readiness).
+// Registration made an ACCOUNT; these 5 steps earn booking
+// capabilities. readinessStep persists SERVER-side (resume from any
+// device). Every step: Screen grammar + शिष्य narration + always-
+// listening; back allowed; exit allowed anytime (बाद में पूरा करें).
+//   R1 पूजाएँ + दक्षिणा   → /pandit/profile + /pandit/dakshina-rates
+//   R2 सामग्री dual model → canBringSamagri + shared package builder
+//   R3 यात्रा             → travelPrefs Json (all default-off)
+//   R4 भोजन व ठहराव       → foodPrefs Json (allowance NOT prefilled)
+//   R5 भुगतान + सत्यापन   → bank/UPI (typed-only) + aadhaar, unchanged
+// Finish → isBookingReady=true (server), celebration, /home unlocked
+// (GO ONLINE still gated by admin approval as before).
+// ─────────────────────────────────────────────────────────────
+
+import React, { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { hi } from "@/lib/strings";
+import { api } from "@/lib/api";
+import { Narrate } from "@/hooks/useScreenVoice";
+import { Header } from "@/components/ui/Header";
+import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
+import { ProgressDots } from "@/components/ui/ProgressDots";
+import { DiyaLoader } from "@/components/moments/DiyaLoader";
+import { CelebrationScreen } from "@/components/moments/CelebrationScreen";
+import { VoiceField } from "@/components/voice/VoiceField";
+import { VoiceActionListener } from "@/components/voice/VoiceActionListener";
+import { SamagriPackageEditor } from "@/components/SamagriPackageEditor";
+import { usePresignedUrl } from "@/hooks/usePresignedUrl";
+import { useVoice } from "@/hooks/useVoice";
+import { voiceController } from "@/lib/voiceController";
+
+const SPEC_LIST = [
+  { id: "SATYANARAYAN", emoji: "📖" },
+  { id: "GRIHA_PRAVESH", emoji: "🏡" },
+  { id: "VIVAH", emoji: "💑" },
+  { id: "MUNDAN", emoji: "👶" },
+  { id: "NAAMKARAN", emoji: "🍼" },
+  { id: "HAVAN", emoji: "🔥" },
+  { id: "RUDRABHISHEK", emoji: "💦" },
+  { id: "SHRADH", emoji: "👵" },
+] as const;
+
+const KM_STEPS = [25, 50, 100, 200, 500] as const;
+
+interface TravelPrefs {
+  ownVehicle: { enabled: boolean; maxKm: number | null };
+  train: { enabled: boolean; classes: string[] };
+  bus: { enabled: boolean; ac: "AC" | "NON_AC" | null };
+  flight: { enabled: boolean };
+  exclusions: string[];
+  localCabOk: boolean | null;
+}
+
+const DEFAULT_TRAVEL: TravelPrefs = {
+  ownVehicle: { enabled: false, maxKm: null },
+  train: { enabled: false, classes: [] },
+  bus: { enabled: false, ac: null },
+  flight: { enabled: false },
+  exclusions: [],
+  localCabOk: null,
+};
+
+interface Snapshot {
+  readinessStep: number;
+  isBookingReady: boolean;
+  canBringSamagri: boolean | null;
+  travelPrefs: TravelPrefs | null;
+  foodPrefs: {
+    dietary: string | null;
+    hotelFoodOk: boolean | null;
+    allergies: string;
+    dailyAllowance: number | null;
+    stayAtCustomerHome: boolean | null;
+    hotelTier: string | null;
+  } | null;
+  specializations: string[];
+  dakshinaRates: Array<{ pujaType: string; amount: number }>;
+  aadhaarUrl: string;
+  hasAadhaar: boolean;
+  hasPayment: boolean;
+  samagriTiersByPuja: Record<string, number>;
+}
+
+const specLabel = (id: string): string =>
+  (hi.onboarding.specializations as Record<string, string>)[id] || id;
+
+export default function ReadinessPage() {
+  const router = useRouter();
+  const { speak } = useVoice();
+
+  const [loading, setLoading] = useState(true);
+  const [snapshot, setSnapshot] = useState<Snapshot | null>(null);
+  const [step, setStep] = useState(1);
+  const [errorMsg, setErrorMsg] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
+
+  // R1
+  const [specs, setSpecs] = useState<string[]>([]);
+  const [dakshina, setDakshina] = useState<Record<string, string>>({});
+  // R2
+  const [canBring, setCanBring] = useState<boolean | null>(null);
+  const [editorPuja, setEditorPuja] = useState<string | null>(null);
+  // R3
+  const [travel, setTravel] = useState<TravelPrefs>(DEFAULT_TRAVEL);
+  // R4
+  const [dietary, setDietary] = useState<string | null>(null);
+  const [hotelFoodOk, setHotelFoodOk] = useState<boolean | null>(null);
+  const [allergies, setAllergies] = useState(""); // optional, EMPTY
+  // Starts EMPTY (placeholder "जैसे ₹1,000" is never a value). The ONLY
+  // thing that may fill it is the pandit's own SAVED amount on resume
+  // (X3's saved-server-value exception) — never a suggested default.
+  const [allowance, setAllowance] = useState("");
+  const [stayHome, setStayHome] = useState<boolean | null>(null);
+  const [hotelTier, setHotelTier] = useState<string | null>(null);
+  // R5 — bank/UPI typed-only + aadhaar, moved here unchanged
+  const [aadhaarUrl, setAadhaarUrl] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const [paymentType, setPaymentType] = useState<"BANK" | "UPI">("BANK");
+  const [bank, setBank] = useState({ accountName: "", accountNumber: "", accountNumberConfirm: "", ifsc: "" });
+  const [upi, setUpi] = useState({ id: "" });
+
+  const stepRef = useRef(step);
+  stepRef.current = step;
+  const editorRef = useRef(editorPuja);
+  editorRef.current = editorPuja;
+
+  // ── load + resume (server-persisted readinessStep) ─────────
+  useEffect(() => {
+    const run = async () => {
+      const res = await api("/pandit/readiness");
+      if (!res.success || !res.data) {
+        router.replace("/home");
+        return;
+      }
+      const snap = res.data as Snapshot;
+      setSnapshot(snap);
+
+      // edit screens may load SAVED server values (X3)
+      const knownIds = new Set<string>(SPEC_LIST.map((s) => s.id));
+      setSpecs(snap.specializations.filter((s) => knownIds.has(s)));
+      const rates: Record<string, string> = {};
+      snap.dakshinaRates.forEach((r) => {
+        rates[r.pujaType] = String(r.amount);
+      });
+      setDakshina(rates);
+      setCanBring(snap.canBringSamagri);
+      if (snap.travelPrefs) setTravel({ ...DEFAULT_TRAVEL, ...snap.travelPrefs });
+      if (snap.foodPrefs) {
+        setDietary(snap.foodPrefs.dietary);
+        setHotelFoodOk(snap.foodPrefs.hotelFoodOk);
+        setAllergies(snap.foodPrefs.allergies || "");
+        setAllowance(snap.foodPrefs.dailyAllowance ? String(snap.foodPrefs.dailyAllowance) : "");
+        setStayHome(snap.foodPrefs.stayAtCustomerHome);
+        setHotelTier(snap.foodPrefs.hotelTier);
+      }
+      setAadhaarUrl(snap.aadhaarUrl || "");
+
+      // resume at the saved step (+ optional ?step= deep link, e.g. the
+      // rejected-KYC resubmit lands on R5) — never past the earned step+1
+      const params = new URLSearchParams(window.location.search);
+      const urlStep = parseInt(params.get("step") || "", 10);
+      const nextStep = Math.min(snap.readinessStep + 1, 5);
+      const wanted = Number.isFinite(urlStep) ? Math.min(5, Math.max(1, urlStep)) : nextStep;
+      setStep(Math.min(wanted, nextStep));
+      setLoading(false);
+    };
+    void run();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ── UNIVERSAL BACK LAW: hardware back = header back ────────
+  useEffect(() => {
+    if (loading) return;
+    try {
+      window.history.pushState({ hpjReadiness: step }, "", window.location.href);
+    } catch {
+      /* noop */
+    }
+  }, [step, loading]);
+  useEffect(() => {
+    const onPop = () => {
+      const repin = () => {
+        try {
+          window.history.pushState({ hpjReadiness: stepRef.current }, "", window.location.href);
+        } catch {
+          /* noop */
+        }
+      };
+      voiceController.stopSpeech();
+      if (editorRef.current) {
+        setEditorPuja(null);
+        repin();
+        return;
+      }
+      if (stepRef.current > 1) {
+        setErrorMsg("");
+        setStep(stepRef.current - 1);
+        repin();
+        return;
+      }
+      router.push("/home");
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  if (loading || !snapshot) return <DiyaLoader />;
+
+  // ── shared step helpers ────────────────────────────────────
+  const refreshSnapshot = async () => {
+    const res = await api("/pandit/readiness");
+    if (res.success && res.data) setSnapshot(res.data as Snapshot);
+  };
+
+  const patchStep = async (n: number, data: Record<string, unknown>): Promise<boolean> => {
+    setSaving(true);
+    setErrorMsg("");
+    const res = await api("/pandit/readiness", {
+      method: "PATCH",
+      body: JSON.stringify({ step: n, data }),
+    });
+    setSaving(false);
+    if (!res.success) {
+      setErrorMsg(res.error?.message || hi.readiness.saveError);
+      speak(hi.common.error);
+      return false;
+    }
+    setSnapshot(res.data as Snapshot);
+    return true;
+  };
+
+  const goBack = () => {
+    voiceController.stopSpeech();
+    setErrorMsg("");
+    if (editorPuja) {
+      setEditorPuja(null);
+      return;
+    }
+    if (step > 1) setStep(step - 1);
+    else router.push("/home");
+  };
+
+  const exitForLater = () => {
+    voiceController.stopSpeech();
+    router.push("/home");
+  };
+
+  // ── R1: pujas + dakshina ───────────────────────────────────
+  const saveR1 = async () => {
+    if (specs.length === 0) {
+      setErrorMsg(hi.onboarding.specError);
+      speak(hi.common.error);
+      return;
+    }
+    for (const spec of specs) {
+      const amount = Number(dakshina[spec] || "");
+      if (isNaN(amount) || amount < 501 || amount > 500000) {
+        setErrorMsg(hi.onboarding.dakshinaError);
+        speak(hi.common.error);
+        return;
+      }
+    }
+    setSaving(true);
+    setErrorMsg("");
+    // reuse the existing endpoints (F11): specializations + per-puja rates
+    const profRes = await api("/pandit/profile", {
+      method: "PATCH",
+      body: JSON.stringify({ specializations: specs }),
+    });
+    if (!profRes.success) {
+      setSaving(false);
+      setErrorMsg(profRes.error?.message || hi.readiness.saveError);
+      speak(hi.common.error);
+      return;
+    }
+    for (const spec of specs) {
+      const rateRes = await api("/pandit/dakshina-rates", {
+        method: "POST",
+        body: JSON.stringify({ pujaType: spec, amount: Number(dakshina[spec]) }),
+      });
+      if (!rateRes.success) {
+        setSaving(false);
+        setErrorMsg(rateRes.error?.message || hi.readiness.saveError);
+        speak(hi.common.error);
+        return;
+      }
+    }
+    setSaving(false);
+    if (await patchStep(1, {})) setStep(2);
+  };
+
+  // ── R2: samagri dual model ─────────────────────────────────
+  const saveR2 = async () => {
+    if (canBring === null) {
+      setErrorMsg(hi.readiness.r2Question);
+      speak(hi.readiness.r2Question);
+      return;
+    }
+    if (canBring) {
+      const missing = specs.filter((s) => !(snapshot.samagriTiersByPuja[s] > 0));
+      if (missing.length > 0) {
+        setErrorMsg(hi.readiness.r2Error);
+        speak(hi.readiness.r2Error);
+        return;
+      }
+    }
+    if (await patchStep(2, { canBringSamagri: canBring })) setStep(3);
+  };
+
+  // ── R3: travel ─────────────────────────────────────────────
+  const saveR3 = async () => {
+    if (travel.ownVehicle.enabled && !travel.ownVehicle.maxKm) {
+      setErrorMsg(hi.readiness.ownVehicleKm);
+      speak(hi.readiness.ownVehicleKm);
+      return;
+    }
+    if (travel.train.enabled && travel.train.classes.length === 0) {
+      setErrorMsg(hi.readiness.train);
+      speak(hi.common.error);
+      return;
+    }
+    if (travel.bus.enabled && !travel.bus.ac) {
+      setErrorMsg(hi.readiness.bus);
+      speak(hi.common.error);
+      return;
+    }
+    if (await patchStep(3, { travelPrefs: travel })) setStep(4);
+  };
+
+  // ── R4: food & stay ────────────────────────────────────────
+  const saveR4 = async () => {
+    let allowanceNum: number | null = null;
+    if (allowance.trim() !== "") {
+      allowanceNum = Number(allowance);
+      if (isNaN(allowanceNum) || allowanceNum < 1 || allowanceNum > 100000) {
+        setErrorMsg(hi.readiness.allowancePlaceholder);
+        speak(hi.common.error);
+        return;
+      }
+    }
+    const ok = await patchStep(4, {
+      foodPrefs: {
+        dietary,
+        hotelFoodOk,
+        allergies: allergies.trim(),
+        dailyAllowance: allowanceNum,
+        stayAtCustomerHome: stayHome,
+        hotelTier,
+      },
+    });
+    if (ok) setStep(5);
+  };
+
+  // ── R5: payment + verification (finish) ────────────────────
+  const saveR5 = async () => {
+    if (!aadhaarUrl) {
+      setErrorMsg(hi.onboarding.aadhaarError);
+      speak(hi.common.error);
+      return;
+    }
+    if (paymentType === "BANK") {
+      if (!bank.accountName.trim() || !/^\d{9,18}$/.test(bank.accountNumber) || !/^[A-Z]{4}0[A-Z0-9]{6}$/.test(bank.ifsc)) {
+        setErrorMsg(hi.onboarding.paymentError);
+        speak(hi.common.error);
+        return;
+      }
+      if (bank.accountNumber !== bank.accountNumberConfirm) {
+        setErrorMsg(hi.onboarding.accMismatch);
+        speak(hi.common.error);
+        return;
+      }
+    } else if (!/^[\w.-]{2,}@[a-zA-Z]{2,}$/.test(upi.id)) {
+      setErrorMsg(hi.onboarding.paymentError);
+      speak(hi.common.error);
+      return;
+    }
+    const ok = await patchStep(5, {
+      aadhaarUrl,
+      payment: {
+        type: paymentType,
+        bank:
+          paymentType === "BANK"
+            ? { accountName: bank.accountName, accountNumber: bank.accountNumber, ifsc: bank.ifsc }
+            : undefined,
+        upi: paymentType === "UPI" ? { id: upi.id } : undefined,
+      },
+    });
+    if (ok) setShowCelebration(true);
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    setErrorMsg("");
+    const formData = new FormData();
+    formData.append("file", file);
+    try {
+      const token = localStorage.getItem("pandit_token");
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1"}/upload`, {
+        method: "POST",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        body: formData,
+      });
+      const json = await res.json();
+      setUploading(false);
+      if (json.success && (json.data?.key || json.data?.url)) {
+        setAadhaarUrl(json.data.key || json.data.url);
+      } else {
+        setErrorMsg(json.error?.message || hi.common.error);
+        speak(hi.common.error);
+      }
+    } catch {
+      setUploading(false);
+      setErrorMsg(hi.common.error);
+      speak(hi.common.error);
+    }
+  };
+
+  // ── celebration: "अब आप बुकिंग के लिए तैयार हैं!" ─────────
+  if (showCelebration) {
+    return (
+      <>
+        <Narrate text={hi.readiness.readyCelebrationVoice} />
+        <CelebrationScreen
+          emoji="🚩"
+          title={hi.readiness.readyCelebrationTitle}
+          message={hi.home.pendingVerification}
+          ctaLabel={hi.onboarding.homeBtn}
+          onCta={() => router.push("/home")}
+        />
+      </>
+    );
+  }
+
+  const stepTitles = [
+    hi.readiness.r1Title,
+    hi.readiness.r2Title,
+    hi.readiness.r3Title,
+    hi.readiness.r4Title,
+    hi.readiness.r5Title,
+  ];
+  const stepVoices = [
+    hi.readiness.r1Voice,
+    hi.readiness.r2Question,
+    hi.readiness.r3Voice,
+    hi.readiness.r4Voice,
+    hi.readiness.r5Voice,
+  ];
+  const saveHandlers = [saveR1, saveR2, saveR3, saveR4, saveR5];
+
+  return (
+    <div className="h-[100dvh] bg-cream text-ink flex flex-col max-w-[430px] mx-auto w-full">
+      <Header title={stepTitles[step - 1]} festive showBack onBack={goBack} />
+      <Narrate text={stepVoices[step - 1]} key={`voice-${step}-${editorPuja || ""}`} />
+
+      <main className="flex-1 min-h-0 overflow-y-auto px-4 pt-3 pb-6 flex flex-col gap-4 page-enter">
+        {/* ProgressDots carries its own "चरण n / 5" caption */}
+        <ProgressDots total={5} current={step} />
+
+
+        {errorMsg && (
+          <div className="px-4 py-3 bg-red-50 rounded-card border-2 border-danger/30">
+            <p className="text-danger text-[18px] font-bold text-center leading-snug font-hindi">{errorMsg}</p>
+          </div>
+        )}
+
+        {step === 1 && (
+          <StepR1 specs={specs} setSpecs={setSpecs} dakshina={dakshina} setDakshina={setDakshina} />
+        )}
+        {step === 2 && (
+          <StepR2
+            specs={specs.length ? specs : snapshot.specializations}
+            canBring={canBring}
+            setCanBring={(v) => {
+              setErrorMsg("");
+              setCanBring(v);
+            }}
+            editorPuja={editorPuja}
+            setEditorPuja={setEditorPuja}
+            samagriTiersByPuja={snapshot.samagriTiersByPuja}
+            onEditorSaved={async () => {
+              setEditorPuja(null);
+              await refreshSnapshot();
+            }}
+          />
+        )}
+        {step === 3 && <StepR3 travel={travel} setTravel={setTravel} />}
+        {step === 4 && (
+          <StepR4
+            dietary={dietary}
+            setDietary={setDietary}
+            hotelFoodOk={hotelFoodOk}
+            setHotelFoodOk={setHotelFoodOk}
+            allergies={allergies}
+            setAllergies={setAllergies}
+            allowance={allowance}
+            setAllowance={setAllowance}
+            stayHome={stayHome}
+            setStayHome={setStayHome}
+            hotelTier={hotelTier}
+            setHotelTier={setHotelTier}
+          />
+        )}
+        {step === 5 && (
+          <StepR5
+            aadhaarUrl={aadhaarUrl}
+            uploading={uploading}
+            onFileUpload={handleFileUpload}
+            paymentType={paymentType}
+            setPaymentType={setPaymentType}
+            bank={bank}
+            setBank={setBank}
+            upi={upi}
+            setUpi={setUpi}
+            speak={speak}
+          />
+        )}
+      </main>
+
+      {/* Footer: primary CTA + exit-any-time, beside शिष्य */}
+      {!editorPuja && (
+        <footer className="shrink-0 bg-white border-t border-saffron-100 flex items-end p-3 gap-3">
+          <div className="flex-1 flex flex-col gap-2">
+            <Button variant="primary" size="lg" fullWidth onClick={saveHandlers[step - 1]} loading={saving}>
+              {step === 5 ? hi.readiness.finishBtn : hi.common.next}
+            </Button>
+            <Button variant="ghost" size="md" fullWidth onClick={exitForLater}>
+              {hi.readiness.exitBtn}
+            </Button>
+          </div>
+          <ShishyaOrb />
+        </footer>
+      )}
+    </div>
+  );
+}
+
+// ── shared chip ──────────────────────────────────────────────
+function Chip({
+  label,
+  selected,
+  onClick,
+}: {
+  label: string;
+  selected: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`min-h-[56px] px-4 rounded-btn border-2 text-[18px] font-bold font-hindi transition-all active:scale-[0.97] ${
+        selected ? "bg-saffron-500 border-saffron-500 text-white shadow-btn" : "bg-white border-saffron-200 text-ink"
+      }`}
+    >
+      {selected ? "✓ " : ""}
+      {label}
+    </button>
+  );
+}
+
+function YesNoRow({
+  value,
+  onChange,
+}: {
+  value: boolean | null;
+  onChange: (v: boolean) => void;
+}) {
+  return (
+    <div className="grid grid-cols-2 gap-3">
+      <Chip label={hi.common.yes} selected={value === true} onClick={() => onChange(true)} />
+      <Chip label={hi.common.no} selected={value === false} onClick={() => onChange(false)} />
+    </div>
+  );
+}
+
+function ToggleRow({
+  label,
+  enabled,
+  onToggle,
+}: {
+  label: string;
+  enabled: boolean;
+  onToggle: (v: boolean) => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => onToggle(!enabled)}
+      className="w-full min-h-[56px] flex items-center justify-between gap-3 text-left"
+    >
+      <span className="text-[20px] font-bold text-ink font-hindi">{label}</span>
+      <span
+        className={`relative inline-flex h-9 w-[72px] shrink-0 items-center rounded-full transition-all duration-300 ${
+          enabled ? "bg-saffron-500" : "bg-slate-300"
+        }`}
+        aria-hidden="true"
+      >
+        <span
+          className={`inline-block h-7 w-7 rounded-full bg-white shadow-md transform transition-transform duration-300 ${
+            enabled ? "translate-x-10" : "translate-x-1"
+          }`}
+        />
+      </span>
+    </button>
+  );
+}
+
+// ── R1: पूजाएँ + दक्षिणा ─────────────────────────────────────
+function StepR1({
+  specs,
+  setSpecs,
+  dakshina,
+  setDakshina,
+}: {
+  specs: string[];
+  setSpecs: (v: string[]) => void;
+  dakshina: Record<string, string>;
+  setDakshina: (v: Record<string, string>) => void;
+}) {
+  return (
+    <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-4">
+      <label className="text-[18px] font-bold text-temple-700 font-hindi">{hi.readiness.r1SpecLabel}</label>
+      <div className="grid grid-cols-2 gap-3">
+        {SPEC_LIST.map((spec) => {
+          const isSelected = specs.includes(spec.id);
+          return (
+            <div
+              key={spec.id}
+              onClick={() =>
+                setSpecs(isSelected ? specs.filter((id) => id !== spec.id) : [...specs, spec.id])
+              }
+              className={`h-[100px] rounded-card border-2 cursor-pointer flex flex-col items-center justify-center gap-1 select-none transition-all ${
+                isSelected ? "bg-[#FF9933] border-[#FF9933] text-white shadow-md" : "bg-white border-saffron-200 text-ink"
+              }`}
+              style={{ height: "100px" }}
+            >
+              <span className="text-[28px]">{spec.emoji}</span>
+              <span className="text-[16px] font-bold font-hindi text-center leading-tight">
+                {isSelected && "✓ "}
+                {specLabel(spec.id)}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+
+      {specs.length > 0 && (
+        <div className="flex flex-col gap-4 border-t border-saffron-100 pt-4">
+          <label className="text-[18px] font-bold text-temple-700 font-hindi">
+            {hi.readiness.r1DakshinaLabel}
+          </label>
+          {specs.map((spec) => (
+            <div key={spec} className="border-b border-slate-100 pb-3 last:border-0 last:pb-0">
+              <VoiceField
+                label={specLabel(spec)}
+                promptText={`${specLabel(spec)} के लिए आपकी दक्षिणा राशि क्या है?`}
+                value={dakshina[spec] || ""}
+                onChange={(val) => setDakshina({ ...dakshina, [spec]: val })}
+                mode="money"
+                placeholder="501 - 500000"
+              />
+            </div>
+          ))}
+        </div>
+      )}
+    </Card>
+  );
+}
+
+// ── R2: सामग्री (dual model) ─────────────────────────────────
+function StepR2({
+  specs,
+  canBring,
+  setCanBring,
+  editorPuja,
+  setEditorPuja,
+  samagriTiersByPuja,
+  onEditorSaved,
+}: {
+  specs: string[];
+  canBring: boolean | null;
+  setCanBring: (v: boolean) => void;
+  editorPuja: string | null;
+  setEditorPuja: (v: string | null) => void;
+  samagriTiersByPuja: Record<string, number>;
+  onEditorSaved: () => void | Promise<void>;
+}) {
+  if (editorPuja) {
+    return <SamagriPackageEditor pujaType={editorPuja} onSaved={() => void onEditorSaved()} />;
+  }
+
+  return (
+    <>
+      <VoiceActionListener
+        commands={[
+          { keywords: ["हाँ", "haan", "ha", "yes"], action: () => setCanBring(true) },
+          { keywords: ["नहीं", "nahi", "nahin", "no"], action: () => setCanBring(false) },
+        ]}
+      />
+      <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-4">
+        <h2 className="text-[20px] font-bold text-temple-700 font-hindi leading-snug">
+          {hi.readiness.r2Question}
+        </h2>
+        <YesNoRow value={canBring} onChange={setCanBring} />
+        {canBring === false && (
+          <div className="px-4 py-3 bg-leaf-100 rounded-card border border-leaf-500/30">
+            <p className="text-[18px] font-bold text-leaf-700 font-hindi leading-snug">
+              {hi.readiness.r2NoInfo}
+            </p>
+          </div>
+        )}
+      </Card>
+
+      {canBring === true && (
+        <div className="flex flex-col gap-3">
+          <p className="t-hint font-hindi">{hi.readiness.r2BuilderHint}</p>
+          {specs.map((spec) => {
+            const done = samagriTiersByPuja[spec] > 0;
+            return (
+              <Card
+                key={spec}
+                clickable
+                onClick={() => setEditorPuja(spec)}
+                className="p-5 border-l-4 border-l-saffron-500 flex justify-between items-center min-h-[80px]"
+              >
+                <span className="text-[20px] font-bold text-temple-700 font-hindi">{specLabel(spec)}</span>
+                <span
+                  className={`text-[16px] font-bold font-hindi px-3 py-1 rounded-full ${
+                    done ? "bg-leaf-100 text-leaf-700" : "bg-saffron-50 text-saffron-600"
+                  }`}
+                >
+                  {done ? hi.readiness.r2PujaDone : hi.readiness.r2PujaPending}
+                </span>
+              </Card>
+            );
+          })}
+        </div>
+      )}
+    </>
+  );
+}
+
+// ── R3: यात्रा (card-selects, all optional-with-default-off) ─
+function StepR3({ travel, setTravel }: { travel: TravelPrefs; setTravel: (v: TravelPrefs) => void }) {
+  const toggleExclusion = (key: string) => {
+    let next: string[];
+    if (key === "NONE") {
+      next = travel.exclusions.includes("NONE") ? [] : ["NONE"];
+    } else {
+      const without = travel.exclusions.filter((e) => e !== "NONE");
+      next = without.includes(key) ? without.filter((e) => e !== key) : [...without, key];
+    }
+    setTravel({ ...travel, exclusions: next });
+  };
+
+  return (
+    <>
+      <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-3">
+        <ToggleRow
+          label={hi.readiness.ownVehicle}
+          enabled={travel.ownVehicle.enabled}
+          onToggle={(v) => setTravel({ ...travel, ownVehicle: { enabled: v, maxKm: v ? travel.ownVehicle.maxKm : null } })}
+        />
+        {travel.ownVehicle.enabled && (
+          <div className="flex flex-col gap-2 border-t border-saffron-100 pt-3">
+            <span className="text-[18px] font-bold text-temple-700 font-hindi">{hi.readiness.ownVehicleKm}</span>
+            <div className="grid grid-cols-3 gap-2">
+              {KM_STEPS.map((km) => (
+                <Chip
+                  key={km}
+                  label={hi.readiness.kmUnit.replace("{km}", String(km))}
+                  selected={travel.ownVehicle.maxKm === km}
+                  onClick={() => setTravel({ ...travel, ownVehicle: { enabled: true, maxKm: km } })}
+                />
+              ))}
+            </div>
+            <p className="t-hint font-hindi">{hi.readiness.ownVehicleRate}</p>
+          </div>
+        )}
+      </Card>
+
+      <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-3">
+        <ToggleRow
+          label={hi.readiness.train}
+          enabled={travel.train.enabled}
+          onToggle={(v) => setTravel({ ...travel, train: { enabled: v, classes: v ? travel.train.classes : [] } })}
+        />
+        {travel.train.enabled && (
+          <div className="grid grid-cols-3 gap-2 border-t border-saffron-100 pt-3">
+            {[
+              { key: "SLEEPER", label: hi.readiness.trainSleeper },
+              { key: "3AC", label: hi.readiness.train3ac },
+              { key: "2AC", label: hi.readiness.train2ac },
+            ].map((c) => (
+              <Chip
+                key={c.key}
+                label={c.label}
+                selected={travel.train.classes.includes(c.key)}
+                onClick={() =>
+                  setTravel({
+                    ...travel,
+                    train: {
+                      enabled: true,
+                      classes: travel.train.classes.includes(c.key)
+                        ? travel.train.classes.filter((x) => x !== c.key)
+                        : [...travel.train.classes, c.key],
+                    },
+                  })
+                }
+              />
+            ))}
+          </div>
+        )}
+      </Card>
+
+      <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-3">
+        <ToggleRow
+          label={hi.readiness.bus}
+          enabled={travel.bus.enabled}
+          onToggle={(v) => setTravel({ ...travel, bus: { enabled: v, ac: v ? travel.bus.ac : null } })}
+        />
+        {travel.bus.enabled && (
+          <div className="grid grid-cols-2 gap-2 border-t border-saffron-100 pt-3">
+            <Chip
+              label={hi.readiness.busAc}
+              selected={travel.bus.ac === "AC"}
+              onClick={() => setTravel({ ...travel, bus: { enabled: true, ac: "AC" } })}
+            />
+            <Chip
+              label={hi.readiness.busNonAc}
+              selected={travel.bus.ac === "NON_AC"}
+              onClick={() => setTravel({ ...travel, bus: { enabled: true, ac: "NON_AC" } })}
+            />
+          </div>
+        )}
+      </Card>
+
+      <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-3">
+        <ToggleRow
+          label={`${hi.readiness.flight} (${hi.readiness.flightEconomy})`}
+          enabled={travel.flight.enabled}
+          onToggle={(v) => setTravel({ ...travel, flight: { enabled: v } })}
+        />
+        {/* doc edge-case 8: undisclosed flying fear — परहेज़ multi-chips */}
+        <div className="flex flex-col gap-2 border-t border-saffron-100 pt-3">
+          <span className="text-[18px] font-bold text-temple-700 font-hindi">
+            {hi.readiness.exclusionsLabel}
+          </span>
+          <div className="flex flex-col gap-2">
+            <Chip
+              label={hi.readiness.exclNoFlight}
+              selected={travel.exclusions.includes("NO_FLIGHT")}
+              onClick={() => toggleExclusion("NO_FLIGHT")}
+            />
+            <Chip
+              label={hi.readiness.exclNoNight}
+              selected={travel.exclusions.includes("NO_NIGHT")}
+              onClick={() => toggleExclusion("NO_NIGHT")}
+            />
+            <Chip
+              label={hi.readiness.exclNone}
+              selected={travel.exclusions.includes("NONE")}
+              onClick={() => toggleExclusion("NONE")}
+            />
+          </div>
+        </div>
+      </Card>
+
+      <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-3">
+        <span className="text-[20px] font-bold text-ink font-hindi">{hi.readiness.localCabQ}</span>
+        <YesNoRow
+          value={travel.localCabOk}
+          onChange={(v) => setTravel({ ...travel, localCabOk: v })}
+        />
+      </Card>
+    </>
+  );
+}
+
+// ── R4: भोजन व ठहराव ─────────────────────────────────────────
+function StepR4(props: {
+  dietary: string | null;
+  setDietary: (v: string | null) => void;
+  hotelFoodOk: boolean | null;
+  setHotelFoodOk: (v: boolean) => void;
+  allergies: string;
+  setAllergies: (v: string) => void;
+  allowance: string;
+  setAllowance: (v: string) => void;
+  stayHome: boolean | null;
+  setStayHome: (v: boolean) => void;
+  hotelTier: string | null;
+  setHotelTier: (v: string | null) => void;
+}) {
+  const diets = [
+    { key: "ANY", label: hi.readiness.dietAny },
+    { key: "PURE_VEG", label: hi.readiness.dietPureVeg },
+    { key: "JAIN", label: hi.readiness.dietJain },
+    { key: "VEGAN", label: hi.readiness.dietVegan },
+  ];
+  const tiers = [
+    { key: "BUDGET", label: hi.readiness.hotelBudget },
+    { key: "THREE_STAR", label: hi.readiness.hotel3Star },
+    { key: "FOUR_STAR_PLUS", label: hi.readiness.hotel4Star },
+  ];
+
+  return (
+    <>
+      <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-3">
+        <span className="text-[18px] font-bold text-temple-700 font-hindi">{hi.readiness.dietaryLabel}</span>
+        <div className="grid grid-cols-2 gap-2">
+          {diets.map((d) => (
+            <Chip
+              key={d.key}
+              label={d.label}
+              selected={props.dietary === d.key}
+              onClick={() => props.setDietary(d.key)}
+            />
+          ))}
+        </div>
+      </Card>
+
+      <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-3">
+        <span className="text-[20px] font-bold text-ink font-hindi">{hi.readiness.hotelFoodQ}</span>
+        <YesNoRow value={props.hotelFoodOk} onChange={props.setHotelFoodOk} />
+      </Card>
+
+      <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-4">
+        <VoiceField
+          label={hi.readiness.allergiesLabel}
+          promptText={hi.readiness.allergiesLabel}
+          value={props.allergies}
+          onChange={props.setAllergies}
+          mode="text"
+          placeholder={hi.readiness.allergiesPlaceholder}
+        />
+        <div className="flex flex-col gap-1">
+          <VoiceField
+            label={hi.readiness.allowanceLabel}
+            promptText={`${hi.readiness.allowanceLabel} — ${hi.readiness.allowanceNote}`}
+            value={props.allowance}
+            onChange={props.setAllowance}
+            mode="money"
+            placeholder={hi.readiness.allowancePlaceholder}
+          />
+          <p className="t-hint font-hindi">{hi.readiness.allowanceNote}</p>
+        </div>
+      </Card>
+
+      <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-3">
+        <span className="text-[20px] font-bold text-ink font-hindi">{hi.readiness.stayQ}</span>
+        <YesNoRow value={props.stayHome} onChange={props.setStayHome} />
+        <div className="flex flex-col gap-2 border-t border-saffron-100 pt-3">
+          <span className="text-[18px] font-bold text-temple-700 font-hindi">{hi.readiness.hotelTierLabel}</span>
+          <div className="flex flex-col gap-2">
+            {tiers.map((t) => (
+              <Chip
+                key={t.key}
+                label={t.label}
+                selected={props.hotelTier === t.key}
+                onClick={() => props.setHotelTier(t.key)}
+              />
+            ))}
+          </div>
+        </div>
+      </Card>
+    </>
+  );
+}
+
+// ── R5: भुगतान + सत्यापन (moved unchanged from the old wizard) ─
+function StepR5(props: {
+  aadhaarUrl: string;
+  uploading: boolean;
+  onFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  paymentType: "BANK" | "UPI";
+  setPaymentType: (v: "BANK" | "UPI") => void;
+  bank: { accountName: string; accountNumber: string; accountNumberConfirm: string; ifsc: string };
+  setBank: (v: { accountName: string; accountNumber: string; accountNumberConfirm: string; ifsc: string }) => void;
+  upi: { id: string };
+  setUpi: (v: { id: string }) => void;
+  speak: (text: string) => void;
+}) {
+  const { bank, setBank, upi, setUpi, speak } = props;
+  return (
+    <>
+      {/* Aadhaar */}
+      <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-3">
+        <label className="text-[18px] font-bold text-temple-700 font-hindi">
+          {hi.onboarding.step6Title}
+        </label>
+        <label className="w-full min-h-[140px] border-2 border-dashed border-saffron-300 rounded-card flex flex-col items-center justify-center p-4 bg-saffron-50/10 cursor-pointer active:bg-saffron-50/30 transition-all select-none">
+          <input type="file" accept="image/*" onChange={props.onFileUpload} className="hidden" />
+          {props.uploading ? (
+            <span className="text-[18px] font-bold text-saffron-600 font-hindi animate-pulse">
+              {hi.common.loading}
+            </span>
+          ) : (
+            <span className="text-[18px] font-bold text-saffron-600 font-hindi text-center">
+              {hi.onboarding.aadhaarLabel}
+            </span>
+          )}
+        </label>
+        {props.aadhaarUrl && <AadhaarPreview keyOrUrl={props.aadhaarUrl} />}
+      </Card>
+
+      {/* Bank / UPI — typed-only by law (A5) */}
+      <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-4">
+        <label className="text-[18px] font-bold text-temple-700 font-hindi">
+          {hi.onboarding.step7Title}
+        </label>
+        <div className="flex bg-slate-100 rounded-btn p-1.5 border border-saffron-100">
+          <button
+            type="button"
+            onClick={() => props.setPaymentType("BANK")}
+            className={`flex-1 py-3 text-center rounded-btn font-bold text-[18px] font-hindi transition-all ${
+              props.paymentType === "BANK" ? "bg-white text-saffron-700 shadow-sm" : "text-softgrey"
+            }`}
+            style={{ minHeight: "56px" }}
+          >
+            {hi.onboarding.bankTab}
+          </button>
+          <button
+            type="button"
+            onClick={() => props.setPaymentType("UPI")}
+            className={`flex-1 py-3 text-center rounded-btn font-bold text-[18px] font-hindi transition-all ${
+              props.paymentType === "UPI" ? "bg-white text-saffron-700 shadow-sm" : "text-softgrey"
+            }`}
+            style={{ minHeight: "56px" }}
+          >
+            {hi.onboarding.upiTab}
+          </button>
+        </div>
+
+        {props.paymentType === "BANK" ? (
+          <div className="flex flex-col gap-4">
+            <VoiceField
+              label={hi.onboarding.accName}
+              promptText="खाताधारक का नाम क्या है?"
+              value={bank.accountName}
+              onChange={(val) => setBank({ ...bank, accountName: val })}
+              mode="text"
+              placeholder="नाम लिखें"
+            />
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[18px] font-bold text-temple-700 font-hindi">
+                {hi.onboarding.accNumber}
+              </label>
+              <input
+                type="tel"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                value={bank.accountNumber}
+                onChange={(e) => setBank({ ...bank, accountNumber: e.target.value.replace(/\D/g, "") })}
+                onFocus={() => speak("सुरक्षा के लिए खाता नंबर लिखकर भरें")}
+                className="w-full h-[56px] px-3 border-2 border-saffron-300 rounded-btn text-[18px] text-ink bg-white focus:outline-none focus:border-saffron-500 font-mono"
+                style={{ minHeight: "56px", fontSize: "18px" }}
+                placeholder="1234567890"
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[18px] font-bold text-temple-700 font-hindi">
+                {hi.onboarding.accNumberConfirm}
+              </label>
+              <input
+                type="tel"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                value={bank.accountNumberConfirm}
+                onChange={(e) => setBank({ ...bank, accountNumberConfirm: e.target.value.replace(/\D/g, "") })}
+                onFocus={() => speak("सुरक्षा के लिए खाता नंबर दोबारा लिखकर भरें")}
+                className="w-full h-[56px] px-3 border-2 border-saffron-300 rounded-btn text-[18px] text-ink bg-white focus:outline-none focus:border-saffron-500 font-mono"
+                style={{ minHeight: "56px", fontSize: "18px" }}
+                placeholder="1234567890"
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[18px] font-bold text-temple-700 font-hindi">
+                {hi.onboarding.ifscCode}
+              </label>
+              <input
+                type="text"
+                value={bank.ifsc}
+                onChange={(e) => setBank({ ...bank, ifsc: e.target.value.toUpperCase() })}
+                onFocus={() => speak("सुरक्षा के लिए IFSC कोड लिखकर भरें। यह आपकी बैंक पासबुक या चेक पर मिलेगा।")}
+                className="w-full h-[56px] px-3 border-2 border-saffron-300 rounded-btn text-[18px] text-ink bg-white focus:outline-none focus:border-saffron-500 font-mono uppercase"
+                style={{ minHeight: "56px", fontSize: "18px" }}
+                placeholder="SBIN0001234"
+              />
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[18px] font-bold text-temple-700 font-hindi">
+              {hi.onboarding.upiIdLabel}
+            </label>
+            <input
+              type="text"
+              value={upi.id}
+              onChange={(e) => setUpi({ id: e.target.value })}
+              onFocus={() => speak("सुरक्षा के लिए यूपीआई आईडी लिखकर भरें")}
+              className="w-full h-[56px] px-3 border-2 border-saffron-300 rounded-btn text-[18px] text-ink bg-white focus:outline-none focus:border-saffron-500 font-mono"
+              style={{ minHeight: "56px", fontSize: "18px" }}
+              placeholder="example@upi"
+            />
+          </div>
+        )}
+      </Card>
+    </>
+  );
+}
+
+function AadhaarPreview({ keyOrUrl }: { keyOrUrl: string }) {
+  const { url, refresh } = usePresignedUrl(keyOrUrl);
+  if (!url) return null;
+  return (
+    <div className="mt-2 border-2 border-saffron-100 rounded-card overflow-hidden bg-white max-w-[200px] mx-auto shadow-sm">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={url} alt="Aadhaar Thumbnail" className="w-full h-[120px] object-cover" onError={() => refresh()} />
+    </div>
+  );
+}

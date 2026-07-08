@@ -30,6 +30,7 @@ import onboardingRoutes from "./routes/onboarding.routes";
 import uploadRoutes from "./routes/upload.routes";
 import aiRoutes from "./routes/ai.routes";
 import { submitOnboarding } from "./controllers/onboarding.controller";
+import { getReadiness, patchReadiness } from "./controllers/readiness.controller";
 import { presignFile } from "./controllers/upload.controller";
 import { authenticate } from "./middleware/auth";
 import { roleGuard } from "./middleware/roleGuard";
@@ -176,6 +177,10 @@ app.get(`${API_PREFIX}/pandit/samagri-packages`, { preHandler: [authenticate, ro
 app.post(`${API_PREFIX}/pandit/samagri-packages`, { preHandler: [authenticate, roleGuard("PANDIT")] }, saveSamagriPackages);
 app.get(`${API_PREFIX}/pandits/samagri-packages`, { preHandler: [authenticate, roleGuard("PANDIT")] }, getSamagriPackages);
 app.post(`${API_PREFIX}/pandits/samagri-packages`, { preHandler: [authenticate, roleGuard("PANDIT")] }, saveSamagriPackages);
+
+// Booking-readiness wizard (resumable; readinessStep persisted server-side)
+app.get(`${API_PREFIX}/pandit/readiness`, { preHandler: [authenticate, roleGuard("PANDIT")] }, getReadiness);
+app.patch(`${API_PREFIX}/pandit/readiness`, { preHandler: [authenticate, roleGuard("PANDIT")] }, patchReadiness);
 
 // Singular paths
 app.patch(`${API_PREFIX}/pandit/status`, { preHandler: [authenticate, roleGuard("PANDIT")] }, patchPanditStatus);

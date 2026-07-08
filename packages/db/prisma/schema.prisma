@@ -209,7 +209,8 @@ model PanditProfile {
   appVersion  String?
 
   isOnline Boolean @default(false) // Pandit's online/offline toggle
-  canBringSamagri Boolean @default(true) // Added for Samagri Toggle
+  // Booking-readiness R2: null = never asked; answered in the readiness flow
+  canBringSamagri Boolean?
 
   adminNotes           String?  @db.Text
   rejectionReason      String?  @db.Text
@@ -240,6 +241,19 @@ model PanditProfile {
   aadhaarDocUrl      String?
   teamSize           Int                 @default(1)
   bankIfsc           String?
+
+  // Booking-readiness (progressive onboarding): registration creates an
+  // ACCOUNT only; booking capabilities are earned via the resumable
+  // readiness flow (R1 pujas+dakshina, R2 samagri, R3 travel, R4 food/stay,
+  // R5 payment+verification).
+  // travelPrefs: { ownVehicle:{enabled,maxKm}, train:{enabled,classes[]},
+  //   bus:{enabled,ac}, flight:{enabled}, exclusions[], localCabOk }
+  // foodPrefs: { dietary, hotelFoodOk, allergies, dailyAllowance,
+  //   stayAtCustomerHome, hotelTier }
+  travelPrefs        Json?
+  foodPrefs          Json?
+  readinessStep      Int                 @default(0)
+  isBookingReady     Boolean             @default(false)
   dakshinaRates      DakshinaRate[]
   samagriPackages    SamagriPackage[]    @relation("PanditSamagriRelation")
   blockedDates       BlockedDate[]

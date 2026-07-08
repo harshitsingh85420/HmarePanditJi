@@ -102,7 +102,7 @@ export default function LoginPage() {
       return;
     }
 
-    const { token, profileComplete } = res.data;
+    const { token, profileComplete, isNewUser } = res.data;
     localStorage.setItem("pandit_token", token);
     // the route middleware gates on this cookie — set it at login,
     // cleared on logout (settings)
@@ -111,10 +111,17 @@ export default function LoginPage() {
     // F1(c) ROUTING LAW: a finished pandit is NEVER re-onboarded.
     //   profile complete   → ?next= destination, else /home
     //                        (PENDING shows the amber banner there)
-    //   profile incomplete → wizard at its saved step (new = step 1)
+    //   profile incomplete → FLOW C minimal registration (name + city)
     if (profileComplete) {
       router.push(nextParam && nextParam.startsWith("/") ? nextParam : "/home");
     } else {
+      // X5: an existing-but-incomplete account gets "प्रोफ़ाइल पूरी करें"
+      // on the next screen — no "account exists → registration" whiplash
+      try {
+        sessionStorage.setItem("hpj_returning_incomplete", isNewUser === false ? "1" : "0");
+      } catch {
+        /* noop */
+      }
       router.push("/onboarding");
     }
   };
@@ -136,7 +143,7 @@ export default function LoginPage() {
   return (
     <div className="h-[100dvh] bg-cream text-ink flex flex-col max-w-[430px] mx-auto w-full">
       <Header
-        title={hi.welcome.titleShort}
+        title={hi.auth.loginTitle}
         festive
         showBack={step === 2}
         onBack={() => {

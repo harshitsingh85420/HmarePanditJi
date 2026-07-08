@@ -25,6 +25,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { getActiveFestival, isFestivalDay } from "@/lib/festivals2026";
 import { playBell, playChime } from "@/lib/sounds";
 import { FirstUseTip } from "@/components/moments/FirstUseTip";
+import { purgeUserData } from "@/lib/purgeUserData";
 
 interface Booking {
   id: string;
@@ -81,7 +82,8 @@ export default function HomePage() {
     // 1. Profile
     const meRes = await api("/auth/me");
     if (!meRes.success) {
-      localStorage.removeItem("pandit_token");
+      // X3: forced logout must wipe user data too (incl. the hpj_token cookie)
+      purgeUserData();
       router.push("/login");
       return;
     }
@@ -223,6 +225,10 @@ export default function HomePage() {
     profile?.panditProfile?.verificationStatus === "APPROVED" ||
     profile?.panditProfile?.verificationStatus === "VERIFIED";
   const isRejected = profile?.panditProfile?.verificationStatus === "REJECTED";
+  // FLOW D: booking capabilities are EARNED via /readiness — until then the
+  // GO ONLINE surface is hidden behind the तैयारी hero card
+  const isBookingReady = profile?.panditProfile?.isBookingReady === true;
+  const readinessStep: number = profile?.panditProfile?.readinessStep || 0;
 
   const formatTime = (dateStr: string) => {
     const d = new Date(dateStr);
@@ -243,9 +249,11 @@ export default function HomePage() {
       : todayBookings.length === 1
       ? hi.homeSummary.one.replace("{time}", formatTime(todayBookings[0].eventDate))
       : hi.homeSummary.many.replace("{count}", String(todayBookings.length));
-  const welcomeSpeakText = (isOnline
-    ? "आप अभी ऑनलाइन हैं। नई बुकिंग के लिए तैयार रहें।"
-    : "आप अभी ऑफलाइन हैं। काम शुरू करने के लिए ऑनलाइन जाएं।") + " " + todaySummary + festivalLine;
+  const welcomeSpeakText = isBookingReady
+    ? (isOnline
+        ? "आप अभी ऑनलाइन हैं। नई बुकिंग के लिए तैयार रहें।"
+        : "आप अभी ऑफलाइन हैं। काम शुरू करने के लिए ऑनलाइन जाएं।") + " " + todaySummary + festivalLine
+    : hi.home.readinessHeroVoice;
 
   const voiceCommands = [
     {
@@ -352,7 +360,8 @@ export default function HomePage() {
               </div>
               <button
                 onClick={() => {
-                  router.push("/onboarding?step=6");
+                  // KYC fixes live in readiness R5 (the old 7-step wizard is gone)
+                  router.push("/readiness?step=5");
                 }}
                 className="w-full min-h-[56px] text-[18px] bg-red-600 hover:bg-red-700 text-white font-bold rounded-btn transition active:scale-[0.98] flex items-center justify-center"
                 style={{ minHeight: "56px" }}
@@ -363,23 +372,47 @@ export default function HomePage() {
           </>
         )}
 
-        {/* STATUS TOGGLE BUTTON */}
-        <FirstUseTip tipId="homeGoOnline" targetRef={toggleRef} />
-        <button
-          ref={toggleRef}
-          onClick={handleToggleStatus}
-          disabled={!isApproved}
-          className={`w-full h-20 rounded-btn flex items-center justify-center font-bold text-[22px] font-hindi shadow-md transition-all active:scale-[0.98] ${
-            !isApproved
-              ? "bg-slate-200 text-softgrey cursor-not-allowed"
-              : isOnline
-              ? "bg-leaf-700 hover:bg-leaf-800 text-white online-glow"
-              : "bg-softgrey text-white"
-          }`}
-          style={{ minHeight: "80px", fontSize: "22px" }}
-        >
-          {isOnline ? hi.home.goOffline : hi.home.goOnline}
-        </button>
+        {/* FLOW D: GO ONLINE only exists once booking-ready; until then a
+            warm तैयारी hero card sits in its place */}
+        {isBookingReady ? (
+          <>
+            <FirstUseTip tipId="homeGoOnline" targetRef={toggleRef} />
+            <button
+              ref={toggleRef}
+              onClick={handleToggleStatus}
+              disabled={!isApproved}
+              className={`w-full h-20 rounded-btn flex items-center justify-center font-bold text-[22px] font-hindi shadow-md transition-all active:scale-[0.98] ${
+                !isApproved
+                  ? "bg-slate-200 text-softgrey cursor-not-allowed"
+                  : isOnline
+                  ? "bg-leaf-700 hover:bg-leaf-800 text-white online-glow"
+                  : "bg-softgrey text-white"
+              }`}
+              style={{ minHeight: "80px", fontSize: "22px" }}
+            >
+              {isOnline ? hi.home.goOffline : hi.home.goOnline}
+            </button>
+          </>
+        ) : (
+          <Card
+            clickable
+            onClick={() => router.push("/readiness")}
+            accent="saffron"
+            className="p-5 flex flex-col gap-2 text-left"
+          >
+            <span className="text-[20px] font-bold text-temple-700 font-hindi leading-snug">
+              {hi.home.readinessHero}
+            </span>
+            {readinessStep > 0 && (
+              <span className="self-start text-[16px] font-bold text-saffron-600 font-hindi px-3 py-1 bg-saffron-50 rounded-full">
+                {hi.home.readinessProgress.replace("{n}", String(Math.min(readinessStep, 5)))}
+              </span>
+            )}
+            <span className="text-softgrey text-[18px] font-hindi">
+              {hi.coach.tryIt}
+            </span>
+          </Card>
+        )}
 
         {/* TODAY'S BOOKINGS SECTION */}
         <Card className="p-4 bg-white border border-saffron-100 flex flex-col gap-3">

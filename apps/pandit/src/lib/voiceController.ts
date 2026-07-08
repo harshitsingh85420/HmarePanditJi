@@ -15,6 +15,12 @@ import { hi } from "@/lib/strings";
 type SpeakOpts = { interrupt?: boolean; onEnd?: (completed: boolean) => void };
 
 const MASTER_KEY = "voice_master";
+// Once-per-session flag for the "voice unavailable" toast (X2b)
+const VOICE_UNAVAILABLE_SHOWN = "hpj_voice_unavailable_shown";
+// 4 samples of silence — played MUTED on the first pointerdown to satisfy
+// the browser's autoplay gesture requirement (X2a audio unlock)
+const SILENT_WAV =
+  "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAAAA";
 
 // Legacy flags migrated on first load: either being explicitly "false"
 // means the pandit had turned voice off.
@@ -46,6 +52,21 @@ class VoiceController {
   private listeners = new Set<() => void>();
   private initialized = false;
 
+  // ── AUDIO UNLOCK (X2a) ─────────────────────────────────────
+  // No sound may play before the app's first pointerdown (autoplay policy).
+  // Pre-gesture speak()s park here (newest wins) and flush on unlock.
+  private _unlocked = false;
+  private pendingUnlock: { text: string } | null = null;
+
+  // ── TTS CHAIN (X2b) ────────────────────────────────────────
+  // Primary: POST /api/tts (Sarvam) played through an <audio> element.
+  // Fallback: speechSynthesis hi-IN via voice-engine (logged once).
+  // 501 tts_unconfigured / 503 → stop asking the endpoint this session.
+  private remoteTtsDown = false;
+  private fallbackLogged = false;
+  private speechSeq = 0;
+  private remoteCancel: (() => void) | null = null;
+
   // ── ALWAYS-LISTENING LOOP ──────────────────────────────────
   // Screens register auto-listen targets: the active VoiceField (priority
   // 1) or the screen's command registry (priority 0). After ANY speech
@@ -67,6 +88,27 @@ class VoiceController {
       }
       this.emit();
     });
+    // X2a: the app's FIRST pointerdown anywhere (a splash tap counts)
+    // unlocks audio and flushes the queued narration.
+    document.addEventListener("pointerdown", () => this.unlock(), { once: true, capture: true });
+  }
+
+  private unlock() {
+    if (this._unlocked) return;
+    this._unlocked = true;
+    try {
+      const a = new Audio(SILENT_WAV);
+      a.muted = true;
+      void a.play().catch(() => {
+        /* noop — the gesture itself is what matters */
+      });
+      window.speechSynthesis?.resume();
+    } catch {
+      /* noop */
+    }
+    const parked = this.pendingUnlock;
+    this.pendingUnlock = null;
+    if (parked && !this._muted) this.speak(parked.text);
   }
 
   private micGranted(): boolean {
@@ -144,6 +186,14 @@ class VoiceController {
       opts?.onEnd?.(false);
       return;
     }
+    // X2a AUDIO-UNLOCK LAW: nothing may sound before the first gesture.
+    // Park the line (newest wins), let the caller's flow continue, and
+    // narrate on unlock.
+    if (!this._unlocked) {
+      this.pendingUnlock = { text };
+      opts?.onEnd?.(false);
+      return;
+    }
     // Barge-out: speaking during a listen aborts the listen first, then
     // speaks; the loop re-arms after the speech ends.
     if (this._listening) {
@@ -179,23 +229,124 @@ class VoiceController {
       this.loopRearm();
     };
 
-    import("@/lib/sarvam-tts")
-      .then(({ speakWithSarvam }) =>
-        speakWithSarvam({
-          text,
-          languageCode: "hi-IN",
-          onEnd: () => finish(true),
-          onError: () => finish(false),
-        }),
-      )
-      .then(() => finish(true))
-      .catch(() => finish(false));
+    void this.speakNow(text, finish);
+  }
+
+  // X2b: primary = /api/tts (Sarvam) via <audio>; any non-200/throw falls
+  // back to speechSynthesis hi-IN automatically (logged once, no user
+  // error). Both unavailable → one toast per session.
+  private async speakNow(text: string, finish: (completed: boolean) => void): Promise<void> {
+    const seq = ++this.speechSeq;
+    const remote = await this.tryRemoteTTS(text, seq);
+    if (remote === "played") {
+      finish(true);
+      return;
+    }
+    if (remote === "cancelled" || seq !== this.speechSeq) {
+      finish(false);
+      return;
+    }
+    if (!window.speechSynthesis) {
+      this.announceVoiceUnavailable();
+      finish(false);
+      return;
+    }
+    try {
+      const { speakWithSarvam } = await import("@/lib/sarvam-tts");
+      await speakWithSarvam({
+        text,
+        languageCode: "hi-IN",
+        onEnd: () => finish(true),
+        onError: () => finish(false),
+      });
+      finish(true);
+    } catch {
+      finish(false);
+    }
+  }
+
+  private async tryRemoteTTS(text: string, seq: number): Promise<"played" | "failed" | "cancelled"> {
+    if (this.remoteTtsDown) return "failed";
+    let audioBase64: string | undefined;
+    try {
+      const res = await fetch("/api/tts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text, languageCode: "hi-IN", speaker: "priya", pace: 0.82 }),
+      });
+      if (seq !== this.speechSeq) return "cancelled";
+      if (!res.ok) {
+        // 501 tts_unconfigured (dev without Sarvam key) / 503 — don't keep
+        // hitting the endpoint this session
+        if (res.status === 501 || res.status === 503) this.remoteTtsDown = true;
+        this.logFallbackOnce(`HTTP ${res.status}`);
+        return "failed";
+      }
+      const data = (await res.json()) as { audioBase64?: string };
+      audioBase64 = data?.audioBase64;
+    } catch (err) {
+      if (seq !== this.speechSeq) return "cancelled";
+      this.logFallbackOnce(err);
+      return "failed";
+    }
+    if (!audioBase64) {
+      this.logFallbackOnce("empty audio");
+      return "failed";
+    }
+    if (seq !== this.speechSeq) return "cancelled";
+
+    return new Promise((resolve) => {
+      try {
+        const audio = new Audio(`data:audio/wav;base64,${audioBase64}`);
+        let settled = false;
+        const done = (ok: boolean) => {
+          if (settled) return;
+          settled = true;
+          if (this.remoteCancel === cancel) this.remoteCancel = null;
+          if (!ok && seq !== this.speechSeq) resolve("cancelled");
+          else resolve(ok ? "played" : "failed");
+        };
+        const cancel = () => {
+          try {
+            audio.pause();
+          } catch {
+            /* noop */
+          }
+          done(false);
+        };
+        this.remoteCancel = cancel;
+        audio.onended = () => done(true);
+        audio.onerror = () => done(false);
+        audio.play().catch(() => done(false));
+      } catch {
+        resolve("failed");
+      }
+    });
+  }
+
+  private logFallbackOnce(detail: unknown): void {
+    if (this.fallbackLogged) return;
+    this.fallbackLogged = true;
+    console.warn("[voice] /api/tts unavailable — falling back to speechSynthesis (hi-IN):", detail);
+  }
+
+  private announceVoiceUnavailable(): void {
+    try {
+      if (sessionStorage.getItem(VOICE_UNAVAILABLE_SHOWN) === "1") return;
+      sessionStorage.setItem(VOICE_UNAVAILABLE_SHOWN, "1");
+      window.dispatchEvent(new CustomEvent("hpj-voice-unavailable"));
+    } catch {
+      /* noop */
+    }
   }
 
   stopSpeech(): void {
     this.init();
     if (typeof window === "undefined") return;
     this.queued = null;
+    this.pendingUnlock = null;
+    this.speechSeq++;
+    this.remoteCancel?.();
     try {
       window.speechSynthesis?.cancel();
     } catch {

@@ -11,6 +11,7 @@ import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
 import { useVoice } from "@/hooks/useVoice";
 import { playBell } from "@/lib/sounds";
 import { useSafeOnboardingStore } from "@/lib/stores/ssr-safe-stores";
+import { purgeUserData } from "@/lib/purgeUserData";
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -142,8 +143,11 @@ export default function SettingsPage() {
             <div className="flex gap-3">
               <button
                 onClick={() => {
-                  localStorage.removeItem("pandit_token");
-                  document.cookie = "hpj_token=; Max-Age=0; path=/";
+                  // X3: wipe EVERY trace of this account — drafts, stores,
+                  // watermarks, tips — so the next login starts clean.
+                  // Install-level entry flags (language/tutorial) survive.
+                  const cleared = purgeUserData();
+                  console.info("[logout] cleared keys:", cleared.join(", "));
                   router.push("/login");
                 }}
                 className="flex-1 min-h-[56px] bg-danger text-white rounded-btn text-[18px] font-bold active:scale-[0.97] transition-transform"

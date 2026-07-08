@@ -14,7 +14,7 @@ export interface LangConfirmStrings {
 
 export const LANG_CONFIRM: Record<LangCode, LangConfirmStrings> = {
   hi: {
-    confirmQuestion: "क्या आप हिन्दी में बात करना चाहेंगे?",
+    confirmQuestion: "हमने आपके क्षेत्र की भाषा हिन्दी पहचानी — इसी में चलें या बदलें?",
     yesLabel: "हाँ, हिन्दी ठीक है",
     otherLabel: "दूसरी भाषा चुनें",
     comingSoonLine: "हिन्दी तैयार है — चलिए शुरू करें।",

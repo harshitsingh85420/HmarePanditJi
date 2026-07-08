@@ -215,6 +215,24 @@ async function main() {
   }
 
   console.log('🌱 Seeding Pandits...');
+  // Demo pandits are fully booking-ready: readiness R1-R5 complete, with
+  // sensible travel/food prefs so the readiness-gated dashboard works.
+  const DEMO_TRAVEL_PREFS = {
+    ownVehicle: { enabled: true, maxKm: 100 },
+    train: { enabled: true, classes: ['SLEEPER', '3AC'] },
+    bus: { enabled: false, ac: null },
+    flight: { enabled: false },
+    exclusions: ['NO_NIGHT'],
+    localCabOk: true
+  };
+  const DEMO_FOOD_PREFS = {
+    dietary: 'PURE_VEG',
+    hotelFoodOk: false,
+    allergies: '',
+    dailyAllowance: 1000,
+    stayAtCustomerHome: true,
+    hotelTier: 'BUDGET'
+  };
   const panditMap: Record<string, any> = {};
   for (let i = 0; i < PANDITS.length; i++) {
     const p = PANDITS[i];
@@ -223,11 +241,18 @@ async function main() {
         phone: p.phone, name: p.name, role: Role.PANDIT, isVerified: p.verificationStatus === VerificationStatus.VERIFIED,
         pandit: {
           create: {
+            fullName: p.name, city: p.location,
             experienceYears: p.experienceYears || 0, languages: ['Hindi', 'Sanskrit'],
             verificationStatus: p.verificationStatus,
             location: p.location, fullAddress: p.location, rating: p.rating || 0,
             totalReviews: p.totalReviews || 0,
+            specializations: p.services?.map(s => s.pujaType) || [],
             travelPreferences: p.travelPreferences || {},
+            canBringSamagri: i !== 3, // Pt. Mohan Lal relies on customer/platform samagri
+            travelPrefs: DEMO_TRAVEL_PREFS,
+            foodPrefs: DEMO_FOOD_PREFS,
+            readinessStep: 5,
+            isBookingReady: true,
             pujaServices: { create: p.services || [] },
             dakshinaRates: {
               create: p.services?.map(s => ({

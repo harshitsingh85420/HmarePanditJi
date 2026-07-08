@@ -1210,9 +1210,13 @@ export const patchPanditProfile = async (request: FastifyRequest, reply: Fastify
     return reply.status(400).send({ success: false, error: "specializations must be a non-empty string array" });
   }
 
-  // F29(c): anything not in the current list is a NEW pooja → pending verify
+  // F29(c): anything not in the current list is a NEW pooja → pending verify.
+  // EXCEPT during booking-readiness (R1): that IS the initial signup set,
+  // which is considered verified — never flag it pending.
   const current = new Set(profile.specializations);
-  const added = specializations.filter((sp) => !current.has(sp));
+  const added = profile.isBookingReady
+    ? specializations.filter((sp) => !current.has(sp))
+    : [];
   const pending = new Set(profile.pendingPoojaVerifications);
   added.forEach((sp) => pending.add(sp));
   // drop pending flags for poojas no longer listed
