@@ -3,7 +3,7 @@
 import { Narrate } from "@/hooks/useScreenVoice";
 import React, { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { hi } from "@/lib/strings";
+import { t } from "@/lib/i18n";
 import { api } from "@/lib/api";
 import { vibrateConfirm } from "@/lib/sounds";
 import { useOnline } from "@/components/ui/OfflineBanner";
@@ -74,8 +74,8 @@ export default function BookingRequestPage() {
         }
         setBooking(res.data.booking);
       } else {
-        setErrorMsg(hi.common.error);
-        speak(hi.common.error);
+        setErrorMsg(t("common.error"));
+        speak(t("common.error"));
       }
     };
 
@@ -89,7 +89,7 @@ export default function BookingRequestPage() {
   if (!booking) {
     return (
       <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
-        <Header title={hi.booking.requestTitle} showBack onBack={() => router.push("/bookings")} />
+        <Header title={t("booking.requestTitle")} showBack onBack={() => router.push("/bookings")} />
         <div className="flex-grow flex items-center justify-center p-6 text-center">
           <p className="text-danger text-[20px] font-bold">{errorMsg || "Booking not found."}</p>
         </div>
@@ -111,8 +111,8 @@ export default function BookingRequestPage() {
   const online = useOnline();
   const handleAccept = async () => {
     if (!online) {
-      setErrorMsg(hi.offline.actionBlocked);
-      speak(hi.offline.actionBlocked);
+      setErrorMsg(t("offline.actionBlocked"));
+      speak(t("offline.actionBlocked"));
       return;
     }
     setActionLoading(true);
@@ -125,14 +125,14 @@ export default function BookingRequestPage() {
     setActionLoading(false);
 
     if (!res.success) {
-      setErrorMsg(hi.common.error);
-      speak(hi.common.error);
+      setErrorMsg(t("common.error"));
+      speak(t("common.error"));
       return;
     }
 
     // Success announcements
     vibrateConfirm();
-    speak(hi.booking.acceptedVoice);
+    speak(t("booking.acceptedVoice"));
     router.replace(`/bookings/${booking.id}`);
   };
 
@@ -148,8 +148,8 @@ export default function BookingRequestPage() {
     setActionLoading(false);
 
     if (!res.success) {
-      setErrorMsg(hi.common.error);
-      speak(hi.common.error);
+      setErrorMsg(t("common.error"));
+      speak(t("common.error"));
       return;
     }
 
@@ -178,7 +178,7 @@ export default function BookingRequestPage() {
 
   return (
     <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
-      <Header title={hi.booking.requestTitle} showBack onBack={() => router.push("/bookings")} />
+      <Header title={t("booking.requestTitle")} showBack onBack={() => router.push("/bookings")} />
 
       {/* Voice actions listener */}
       <VoiceActionListener commands={commands} narratingText={voiceIntroText} promptText={voiceIntroText} />
@@ -225,14 +225,14 @@ export default function BookingRequestPage() {
         {/* EARNINGS TABLE */}
         <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-3">
           <h4 className="text-[18px] font-bold text-softgrey font-hindi border-b border-saffron-100 pb-2">
-            {hi.booking.earningsTitle}
+            {t("booking.earningsTitle")}
           </h4>
 
           <div className="flex flex-col gap-2.5">
             {/* Dakshina row */}
             {booking.dakshinaAmount > 0 && (
               <div className="flex justify-between text-[20px] font-hindi">
-                <span className="text-softgrey">{hi.booking.dakshina}</span>
+                <span className="text-softgrey">{t("booking.dakshina")}</span>
                 <span className="font-bold text-ink">₹{booking.dakshinaAmount.toLocaleString("en-IN")}</span>
               </div>
             )}
@@ -240,7 +240,7 @@ export default function BookingRequestPage() {
             {/* Platform Fee deduction */}
             {booking.earnings?.platformFee > 0 && (
               <div className="flex justify-between text-[20px] font-hindi">
-                <span className="text-softgrey">{hi.booking.platformFee}</span>
+                <span className="text-softgrey">{t("booking.platformFee")}</span>
                 <span className="font-bold text-danger">−₹{booking.earnings.platformFee.toLocaleString("en-IN")}</span>
               </div>
             )}
@@ -248,7 +248,7 @@ export default function BookingRequestPage() {
             {/* Net Dakshina */}
             {booking.earnings?.dakshinaNet > 0 && (
               <div className="flex justify-between text-[20px] font-hindi border-t border-dashed border-saffron-200 pt-2">
-                <span className="text-softgrey">{hi.booking.youGet}</span>
+                <span className="text-softgrey">{t("booking.youGet")}</span>
                 <span className="font-bold text-ink">₹{booking.earnings.dakshinaNet.toLocaleString("en-IN")}</span>
               </div>
             )}
@@ -256,7 +256,7 @@ export default function BookingRequestPage() {
             {/* Travel Allowance */}
             {booking.travelAmount > 0 && (
               <div className="flex justify-between text-[20px] font-hindi">
-                <span className="text-softgrey">{hi.booking.travel}</span>
+                <span className="text-softgrey">{t("booking.travel")}</span>
                 <span className="font-bold text-leaf-700">+₹{booking.travelAmount.toLocaleString("en-IN")}</span>
               </div>
             )}
@@ -264,7 +264,7 @@ export default function BookingRequestPage() {
             {/* Food Allowance */}
             {booking.foodAllowance > 0 && (
               <div className="flex justify-between text-[20px] font-hindi">
-                <span className="text-softgrey">{hi.booking.food}</span>
+                <span className="text-softgrey">{t("booking.food")}</span>
                 <span className="font-bold text-leaf-700">+₹{booking.foodAllowance.toLocaleString("en-IN")}</span>
               </div>
             )}
@@ -272,14 +272,14 @@ export default function BookingRequestPage() {
             {/* Samagri earnings */}
             {booking.samagriAmount > 0 && (
               <div className="flex justify-between text-[20px] font-hindi">
-                <span className="text-softgrey">{hi.booking.samagri}</span>
+                <span className="text-softgrey">{t("booking.samagri")}</span>
                 <span className="font-bold text-leaf-700">+₹{booking.samagriAmount.toLocaleString("en-IN")}</span>
               </div>
             )}
 
             {/* Total Row */}
             <div className="flex justify-between items-center border-t-2 border-double border-saffron-300 pt-3 mt-1">
-              <span className="text-[22px] font-bold text-ink font-hindi">{hi.booking.total}</span>
+              <span className="text-[22px] font-bold text-ink font-hindi">{t("booking.total")}</span>
               <span className="text-[28px] font-bold text-leaf-700">
                 ₹{total.toLocaleString("en-IN")}
               </span>
@@ -307,7 +307,7 @@ export default function BookingRequestPage() {
             style={{ minHeight: "72px", fontSize: "20px" }}
             disabled={actionLoading}
           >
-            {hi.booking.reject}
+            {t("booking.reject")}
           </button>
           <button
             onClick={handleAccept}
@@ -315,7 +315,7 @@ export default function BookingRequestPage() {
             style={{ minHeight: "72px", fontSize: "20px" }}
             disabled={actionLoading}
           >
-            {hi.booking.accept}
+            {t("booking.accept")}
           </button>
         </div>
         <ShishyaOrb />
@@ -340,14 +340,14 @@ export default function BookingRequestPage() {
                   className="flex-grow h-[56px] bg-danger text-white font-bold text-[18px] rounded-btn shadow-md active:scale-95 transition-transform"
                   style={{ minHeight: "56px", fontSize: "18px" }}
                 >
-                  {hi.common.yes}
+                  {t("common.yes")}
                 </button>
                 <button
                   onClick={() => setShowRejectConfirm(false)}
                   className="flex-grow h-[56px] bg-white border-2 border-saffron-300 text-saffron-700 font-bold text-[18px] rounded-btn shadow-sm active:scale-95 transition-transform"
                   style={{ minHeight: "56px", fontSize: "18px" }}
                 >
-                  {hi.common.no}
+                  {t("common.no")}
                 </button>
               </div>
             </motion.div>

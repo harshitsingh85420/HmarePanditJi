@@ -5,7 +5,9 @@ import { voiceController } from "@/lib/voiceController";
 
 export interface UseVoiceInputReturn {
   state: "idle" | "listening" | "processing" | "error";
-  start: () => Promise<void>;
+  /** opts.stream: a pre-acquired MediaStream (from a user-gesture
+   *  getUserMedia) — consumed directly so the mic is never requested twice. */
+  start: (opts?: { stream?: MediaStream }) => Promise<void>;
   stop: () => void;
   transcript: string | null;
   confidence: number | null;
@@ -13,6 +15,17 @@ export interface UseVoiceInputReturn {
   showExplainer: boolean;
   proceedWithPermission: () => Promise<void>;
   cancelExplainer: () => void;
+}
+
+/** Best-effort browser mic-permission state ('unknown' where unsupported). */
+async function queryMicPermission(): Promise<"granted" | "denied" | "prompt" | "unknown"> {
+  try {
+    if (!navigator.permissions?.query) return "unknown";
+    const status = await navigator.permissions.query({ name: "microphone" as PermissionName });
+    return status.state;
+  } catch {
+    return "unknown";
+  }
 }
 
 export function useVoiceInput(): UseVoiceInputReturn {
@@ -84,13 +97,15 @@ export function useVoiceInput(): UseVoiceInputReturn {
     }
   }, []);
 
-  const startRecording = useCallback(async () => {
+  const startRecording = useCallback(async (preStream?: MediaStream) => {
     cleanup();
 
     // A5: Never-hear-itself rule — the controller refuses to open the mic
     // while speaking or muted, and marks us as listening otherwise.
     voiceController.stopSpeech();
     if (!voiceController.guardListenStart()) {
+      // release a gesture-acquired stream we will never consume
+      preStream?.getTracks().forEach((track) => track.stop());
       setState("idle");
       return;
     }
@@ -101,13 +116,18 @@ export function useVoiceInput(): UseVoiceInputReturn {
     skipUploadRef.current = false;
 
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true,
-        },
-      });
+      const stream =
+        preStream ??
+        (await navigator.mediaDevices.getUserMedia({
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true,
+          },
+        }));
+
+      // The flag records REALITY: set only after a stream is in hand.
+      localStorage.setItem("mic_permission_granted", "true");
 
       streamRef.current = stream;
 
@@ -249,15 +269,38 @@ export function useVoiceInput(): UseVoiceInputReturn {
 
     } catch (err) {
       console.error("[useVoiceInput] getUserMedia error:", err);
+      // A denied/failed request must not leave a stale 'granted' flag —
+      // it would make the auto-listen loop re-request without a gesture.
+      if (!preStream) localStorage.setItem("mic_permission_granted", "false");
       setState("error");
       cleanup();
     }
   }, [cleanup]);
 
-  const start = useCallback(async () => {
+  const start = useCallback(async (opts?: { stream?: MediaStream }) => {
+    // Gesture path: a pre-acquired stream is consumed directly.
+    if (opts?.stream) {
+      await startRecording(opts.stream);
+      return;
+    }
     const isGranted = localStorage.getItem("mic_permission_granted") === "true";
     if (!isGranted) {
       setShowExplainer(true);
+      return;
+    }
+    // Auto-listen path (no gesture): the FIRST-ever mic use in a session
+    // must be tap-tied, so only proceed when the browser itself says
+    // 'granted' — 'prompt' re-routes through the tap-gated explainer and
+    // 'denied' goes quietly idle (typing always works).
+    const browserState = await queryMicPermission();
+    if (browserState === "prompt") {
+      localStorage.setItem("mic_permission_granted", "false");
+      setShowExplainer(true);
+      return;
+    }
+    if (browserState === "denied") {
+      localStorage.setItem("mic_permission_granted", "false");
+      setState("error");
       return;
     }
     await startRecording();
@@ -265,7 +308,8 @@ export function useVoiceInput(): UseVoiceInputReturn {
 
   const proceedWithPermission = useCallback(async () => {
     setShowExplainer(false);
-    localStorage.setItem("mic_permission_granted", "true");
+    // The confirm tap IS the gesture — getUserMedia fires inside it, and
+    // the granted flag is written only after the stream is acquired.
     await startRecording();
   }, [startRecording]);
 

@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { notFound } from "next/navigation";
-import { hi } from "@/lib/strings";
+import { t } from "@/lib/i18n";
 import { PanchangStrip } from "@/components/moments/PanchangStrip";
 import { Toran } from "@/components/ui/Toran";
 import { FestivalBanner } from "@/components/moments/FestivalBanner";
@@ -117,13 +117,13 @@ export default function DesignSystemPage() {
                 <span className="t-hint capitalize font-semibold">{variant} Variant (md, lg, xl):</span>
                 <div className="flex flex-col gap-3">
                   <Button variant={variant} size="md" fullWidth>
-                    {hi.common.save} ({variant} md)
+                    {t("common.save")} ({variant} md)
                   </Button>
                   <Button variant={variant} size="lg" fullWidth>
-                    {hi.common.next} ({variant} lg)
+                    {t("common.next")} ({variant} lg)
                   </Button>
                   <Button variant={variant} size="xl" fullWidth>
-                    {hi.welcome.startBtn} ({variant} xl)
+                    {t("welcome.startBtn")} ({variant} xl)
                   </Button>
                 </div>
               </div>
@@ -133,13 +133,13 @@ export default function DesignSystemPage() {
             <div className="flex flex-col gap-3 mt-2">
               <span className="t-hint">Loading state (md, lg, xl):</span>
               <Button variant="primary" size="md" loading fullWidth>
-                {hi.common.next}
+                {t("common.next")}
               </Button>
               <Button variant="primary" size="lg" loading fullWidth>
-                {hi.common.next}
+                {t("common.next")}
               </Button>
               <Button variant="primary" size="xl" loading fullWidth>
-                {hi.common.next}
+                {t("common.next")}
               </Button>
             </div>
           </div>
@@ -182,7 +182,7 @@ export default function DesignSystemPage() {
           
           <div className="grid grid-cols-2 gap-4">
             <StatCard label={hiDesign.pujaCount} value={14} emoji="📿" />
-            <StatCard label={hi.earnings.paid} value={8400} emoji="💰" />
+            <StatCard label={t("earnings.paid")} value={8400} emoji="💰" />
           </div>
         </section>
 
@@ -193,10 +193,10 @@ export default function DesignSystemPage() {
           </h2>
 
           <Card>
-            <EarningsRow label={hi.booking.dakshina} amount={1500} kind="plus" />
-            <EarningsRow label={hi.booking.platformFee} amount={225} kind="minus" />
+            <EarningsRow label={t("booking.dakshina")} amount={1500} kind="plus" />
+            <EarningsRow label={t("booking.platformFee")} amount={225} kind="minus" />
             <div className="mt-4">
-              <EarningsRow label={hi.booking.youGet} amount={1275} kind="total" />
+              <EarningsRow label={t("booking.youGet")} amount={1275} kind="total" />
             </div>
           </Card>
           
@@ -310,10 +310,10 @@ export default function DesignSystemPage() {
       {showCelebration && (
         <CelebrationScreen
           emoji="🙏"
-          title={hi.onboarding.doneTitle}
+          title={t("onboarding.doneTitle")}
           amount={1275}
-          message={hi.booking.completeVoice}
-          ctaLabel={hi.common.next}
+          message={t("booking.completeVoice")}
+          ctaLabel={t("common.next")}
           onCta={() => setShowCelebration(false)}
         />
       )}

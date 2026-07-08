@@ -3,7 +3,7 @@
 import { Narrate } from "@/hooks/useScreenVoice";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { hi } from "@/lib/strings";
+import { t } from "@/lib/i18n";
 import { api } from "@/lib/api";
 
 // UI Components
@@ -191,17 +191,17 @@ export default function CalendarPage() {
     if (!success) {
       // Rollback
       setBlockedDates(blockedDates);
-      setToastMsg(hi.common.error);
-      speak(hi.common.error);
+      setToastMsg(t("common.error"));
+      speak(t("common.error"));
     }
   };
 
   return (
     <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
-      <Header title={hi.calendar.title} showBack onBack={() => router.push("/home")} />
+      <Header title={t("calendar.title")} showBack onBack={() => router.push("/home")} />
 
       {/* BLOCK VOICE NARRATION ON MOUNT */}
-      <Narrate text={hi.calendar.blockVoice} />
+      <Narrate text={t("calendar.blockVoice")} />
 
       <main className="flex-1 overflow-y-auto px-4 pt-3 pb-24 flex flex-col gap-3 page-enter">
         {/* MONTH SELECTOR BANNER */}
@@ -229,7 +229,7 @@ export default function CalendarPage() {
         {!monthHasBookings && (
           <div className="flex items-center justify-center gap-2 bg-white rounded-card border border-saffron-100 px-4 py-3">
             <span className="text-[24px]" role="img" aria-hidden="true">📅</span>
-            <span className="t-hint text-softgrey font-hindi">{hi.empty.calendarEmptyTitle}</span>
+            <span className="t-hint text-softgrey font-hindi">{t("empty.calendarEmptyTitle")}</span>
           </div>
         )}
 
@@ -298,17 +298,17 @@ export default function CalendarPage() {
         <div className="flex justify-center items-center gap-4 text-[16px] text-softgrey font-hindi py-1 bg-white border border-saffron-100 rounded-btn">
           <div className="flex items-center gap-1.5">
             <span className="text-[16px]">🟠</span>
-            <span>{hi.calendar.booking}</span>
+            <span>{t("calendar.booking")}</span>
           </div>
           <span>·</span>
           <div className="flex items-center gap-1.5">
             <span className="text-[16px]">✖</span>
-            <span>{hi.calendar.blocked}</span>
+            <span>{t("calendar.blocked")}</span>
           </div>
           <span>·</span>
           <div className="flex items-center gap-1.5">
             <span className="text-[16px] border border-saffron-100 w-4 h-4 bg-white rounded flex items-center justify-center" />
-            <span>{hi.calendar.available}</span>
+            <span>{t("calendar.available")}</span>
           </div>
         </div>
       </main>

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { voiceController } from "@/lib/voiceController";
 import { Toast } from "@/components/ui/Toast";
-import { hi } from "@/lib/strings";
+import { t, refreshBundleInBackground } from "@/lib/i18n";
 
 // Mounted once in app/layout.tsx: the "any interactive tap silences
 // narration" rule (capture phase — speech never talks over action).
@@ -14,6 +14,12 @@ import { hi } from "@/lib/strings";
 // endpoint and speechSynthesis are unusable.
 export function VoiceRoot() {
   const [voiceUnavailable, setVoiceUnavailable] = useState(false);
+
+  // D3: a persisted language bundle serves instantly on reload; refresh
+  // it quietly so copy edits and not-yet-fetched groups catch up.
+  useEffect(() => {
+    refreshBundleInBackground();
+  }, []);
 
   useEffect(() => {
     const onPointerDown = (e: PointerEvent) => {
@@ -38,7 +44,7 @@ export function VoiceRoot() {
   if (!voiceUnavailable) return null;
   return (
     <Toast
-      message={hi.voice.unavailable}
+      message={t("voice.unavailable")}
       show={voiceUnavailable}
       onClose={() => setVoiceUnavailable(false)}
     />

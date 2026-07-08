@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { hi } from "@/lib/strings";
+import { t } from "@/lib/i18n";
 import { api } from "@/lib/api";
 import { motion } from "framer-motion";
 
@@ -51,7 +51,7 @@ export default function SamagriPage() {
   return (
     <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
       <Header
-        title={hi.samagri.title}
+        title={t("samagri.title")}
         showBack
         onBack={() => {
           if (selectedPuja !== null) {
@@ -67,7 +67,7 @@ export default function SamagriPage() {
           /* SCREEN 1: PICK PUJA TYPE */
           <div className="flex flex-col gap-4">
             <h2 className="text-[20px] font-bold text-temple-600 font-hindi mb-2 text-center">
-              {hi.samagri.pickPuja}
+              {t("samagri.pickPuja")}
             </h2>
 
             <div className="grid grid-cols-1 gap-4">
@@ -80,7 +80,7 @@ export default function SamagriPage() {
                 >
                   <Card className="p-6 border-l-4 border-l-saffron-500 hover:shadow-md transition-all flex justify-between items-center bg-white min-h-[80px]">
                     <span className="text-[22px] font-bold text-temple-700 font-hindi">
-                      {(hi.onboarding.specializations as Record<string, string>)[spec] || spec}
+                      {t(`onboarding.specializations.${spec}`)}
                     </span>
                     <span className="text-[24px]">🪔</span>
                   </Card>
@@ -93,7 +93,7 @@ export default function SamagriPage() {
           <SamagriPackageEditor
             pujaType={selectedPuja}
             onSaved={() => {
-              setToastMsg(hi.samagri.saved);
+              setToastMsg(t("samagri.saved"));
               setTimeout(() => {
                 setSelectedPuja(null);
                 setToastMsg("");

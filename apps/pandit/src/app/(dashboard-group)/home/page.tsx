@@ -3,7 +3,7 @@
 import { Narrate } from "@/hooks/useScreenVoice";
 import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { hi } from "@/lib/strings";
+import { t } from "@/lib/i18n";
 import { api } from "@/lib/api";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -164,7 +164,7 @@ export default function HomePage() {
       // Alert if a new booking request is found
       if (newlyDiscovered) {
         playBell();
-        speak(hi.booking.newRequest);
+        speak(t("booking.newRequest"));
         setNewRequestBooking(newlyDiscovered);
       }
     };
@@ -201,15 +201,15 @@ export default function HomePage() {
     if (!res.success) {
       // Rollback
       setIsOnline(previousState);
-      setErrorMsg(hi.common.error);
-      speak(hi.common.error);
+      setErrorMsg(t("common.error"));
+      speak(t("common.error"));
       return;
     }
 
     // Success announcements
-    const announceMsg = targetState ? hi.home.onlineVoice : hi.home.offlineVoice;
+    const announceMsg = targetState ? t("home.onlineVoice") : t("home.offlineVoice");
     speak(announceMsg);
-    setToastMsg(targetState ? hi.home.onlineVoice : hi.home.offlineVoice);
+    setToastMsg(targetState ? t("home.onlineVoice") : t("home.offlineVoice"));
   };
 
   if (loading) {
@@ -241,19 +241,19 @@ export default function HomePage() {
 
   const activeFestival = getActiveFestival();
   const festivalLine = activeFestival
-    ? ` ${activeFestival.name} ${hi.festival.greeting}। ${hi.festival.hint}`
+    ? ` ${activeFestival.name} ${t("festival.greeting")}। ${t("festival.hint")}`
     : "";
   const todaySummary =
     todayBookings.length === 0
-      ? hi.homeSummary.none
+      ? t("homeSummary.none")
       : todayBookings.length === 1
-      ? hi.homeSummary.one.replace("{time}", formatTime(todayBookings[0].eventDate))
-      : hi.homeSummary.many.replace("{count}", String(todayBookings.length));
+      ? t("homeSummary.one").replace("{time}", formatTime(todayBookings[0].eventDate))
+      : t("homeSummary.many").replace("{count}", String(todayBookings.length));
   const welcomeSpeakText = isBookingReady
     ? (isOnline
         ? "आप अभी ऑनलाइन हैं। नई बुकिंग के लिए तैयार रहें।"
         : "आप अभी ऑफलाइन हैं। काम शुरू करने के लिए ऑनलाइन जाएं।") + " " + todaySummary + festivalLine
-    : hi.home.readinessHeroVoice;
+    : t("home.readinessHeroVoice");
 
   const voiceCommands = [
     {
@@ -316,7 +316,7 @@ export default function HomePage() {
               className="text-white text-[18px] font-bold font-hindi flex items-center justify-center gap-2 mx-auto"
               style={{ minHeight: "56px" }}
             >
-              {hi.booking.viewNewBooking}
+              {t("booking.viewNewBooking")}
             </button>
           </motion.div>
         )}
@@ -332,11 +332,11 @@ export default function HomePage() {
         {/* PENDING VERIFICATION BANNER */}
         {isPending && (
           <>
-            <Narrate text={hi.home.pendingVerification} />
+            <Narrate text={t("home.pendingVerification")} />
             <div className="bg-yellow-50 border-2 border-amber-300 rounded-card p-4 flex items-center gap-3">
               <span className="text-[24px]">⚠️</span>
               <p className="text-[18px] font-bold text-amber-800 font-hindi leading-snug">
-                {hi.home.pendingVerification}
+                {t("home.pendingVerification")}
               </p>
             </div>
           </>
@@ -345,13 +345,13 @@ export default function HomePage() {
         {/* REJECTED VERIFICATION BANNER */}
         {isRejected && (
           <>
-            <Narrate text={`${hi.home.rejectedTitle}。 ${profile?.panditProfile?.rejectionReason || ""}`} />
+            <Narrate text={`${t("home.rejectedTitle")}。 ${profile?.panditProfile?.rejectionReason || ""}`} />
             <div className="bg-red-50 border-2 border-red-300 rounded-card p-4 flex flex-col gap-3">
               <div className="flex items-center gap-3">
                 <span className="text-[24px]">❌</span>
                 <div className="flex flex-col">
                   <span className="text-[18px] font-bold text-red-800 font-hindi">
-                    {hi.home.rejectedTitle}
+                    {t("home.rejectedTitle")}
                   </span>
                   <span className="text-[16px] text-red-700 font-hindi mt-1 leading-snug">
                     {profile?.panditProfile?.rejectionReason || "जानकारी में कुछ त्रुटि है।"}
@@ -366,7 +366,7 @@ export default function HomePage() {
                 className="w-full min-h-[56px] text-[18px] bg-red-600 hover:bg-red-700 text-white font-bold rounded-btn transition active:scale-[0.98] flex items-center justify-center"
                 style={{ minHeight: "56px" }}
               >
-                {hi.home.resubmit}
+                {t("home.resubmit")}
               </button>
             </div>
           </>
@@ -390,7 +390,7 @@ export default function HomePage() {
               }`}
               style={{ minHeight: "80px", fontSize: "22px" }}
             >
-              {isOnline ? hi.home.goOffline : hi.home.goOnline}
+              {isOnline ? t("home.goOffline") : t("home.goOnline")}
             </button>
           </>
         ) : (
@@ -401,15 +401,15 @@ export default function HomePage() {
             className="p-5 flex flex-col gap-2 text-left"
           >
             <span className="text-[20px] font-bold text-temple-700 font-hindi leading-snug">
-              {hi.home.readinessHero}
+              {t("home.readinessHero")}
             </span>
             {readinessStep > 0 && (
               <span className="self-start text-[16px] font-bold text-saffron-600 font-hindi px-3 py-1 bg-saffron-50 rounded-full">
-                {hi.home.readinessProgress.replace("{n}", String(Math.min(readinessStep, 5)))}
+                {t("home.readinessProgress").replace("{n}", String(Math.min(readinessStep, 5)))}
               </span>
             )}
             <span className="text-softgrey text-[18px] font-hindi">
-              {hi.coach.tryIt}
+              {t("coach.tryIt")}
             </span>
           </Card>
         )}
@@ -417,14 +417,14 @@ export default function HomePage() {
         {/* TODAY'S BOOKINGS SECTION */}
         <Card className="p-4 bg-white border border-saffron-100 flex flex-col gap-3">
           <h3 className="text-[18px] font-bold text-temple-600 font-hindi border-b border-saffron-100 pb-2">
-            {hi.home.todayBookings}
+            {t("home.todayBookings")}
           </h3>
 
           {todayBookings.length === 0 ? (
             <EmptyState
               emoji="🌤️"
-              title={hi.empty.todayNoBookingsTitle}
-              hint={hi.empty.todayNoBookingsHint}
+              title={t("empty.todayNoBookingsTitle")}
+              hint={t("empty.todayNoBookingsHint")}
               className="shadow-none py-8"
             />
           ) : (
@@ -464,7 +464,7 @@ export default function HomePage() {
         {tomorrowBookings.length > 0 && (
           <Card className="p-4 bg-white border border-saffron-100 flex flex-col gap-3">
             <h3 className="text-[18px] font-bold text-temple-600 font-hindi border-b border-saffron-100 pb-2">
-              {hi.homeSummary.tomorrow}
+              {t("homeSummary.tomorrow")}
             </h3>
             <div className="flex flex-col gap-3">
               {tomorrowBookings.map((b) => (
@@ -495,7 +495,7 @@ export default function HomePage() {
         <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-4">
           <div className="flex flex-col gap-1 text-center">
             <span className="text-[18px] font-bold text-softgrey font-hindi">
-              {hi.home.monthEarnings}
+              {t("home.monthEarnings")}
             </span>
             {/* Monthly earnings big ₹ figure */}
             <span className="t-money-hero leading-tight">
@@ -505,7 +505,7 @@ export default function HomePage() {
 
           <div className="border-t border-saffron-100/50 pt-3 flex justify-between items-center px-2">
             <span className="text-[18px] font-semibold text-softgrey font-hindi">
-              {hi.earnings.pendingPayout}
+              {t("earnings.pendingPayout")}
             </span>
             <span className="text-[20px] font-display text-leaf-700">
               ₹{earnings.pendingPayout ? earnings.pendingPayout.toLocaleString("en-IN") : "0"}
@@ -522,7 +522,7 @@ export default function HomePage() {
           onClick={() => router.push("/samagri")}
         >
           <span className="text-[20px] font-bold text-ink font-hindi">
-            {hi.home.samagriLink}
+            {t("home.samagriLink")}
           </span>
         </Card>
       </main>
@@ -547,9 +547,9 @@ export default function HomePage() {
       {celebratingMilestone && (
         <CelebrationScreen
           emoji={milestoneEmoji(celebratingMilestone)}
-          title={hi.milestones.title}
+          title={t("milestones.title")}
           message={milestoneLabel(celebratingMilestone)}
-          ctaLabel={hi.common.next}
+          ctaLabel={t("common.next")}
           onCta={async () => {
             setCelebratingMilestone(null);
             await api("/pandit/milestones/seen", { method: "POST" });

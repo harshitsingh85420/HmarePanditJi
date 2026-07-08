@@ -1,6 +1,6 @@
 // Static city/state → UI-language detection for the entry flow.
-// v1 policy: everything defaults to Hindi; non-Hindi picks are stored as a
-// preference and greeted with that language's comingSoonLine.
+// A confirmed pick activates REAL translation (lib/i18n.ts + POST
+// /voice/translate); Hindi remains the source language and fallback.
 
 export type LangCode =
   | "hi" | "mr" | "bn" | "ta" | "te" | "kn" | "gu" | "pa" | "ml" | "or" | "en";

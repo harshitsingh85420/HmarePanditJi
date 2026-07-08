@@ -1,9 +1,9 @@
 "use client";
 
 import React from "react";
-import { hi } from "../../lib/strings";
+import { t } from "../../lib/i18n";
 
-export function DiyaLoader() {
+export function DiyaLoader({ message }: { message?: string } = {}) {
   return (
     <div className="fixed inset-0 z-50 bg-cream flex flex-col items-center justify-center gap-4">
       <style dangerouslySetInnerHTML={{ __html: `
@@ -25,7 +25,7 @@ export function DiyaLoader() {
         🪔
       </div>
       <p className="t-body font-semibold text-temple-600 animate-pulse">
-        {hi.common.loading}
+        {message ?? t("common.loading")}
       </p>
     </div>
   );

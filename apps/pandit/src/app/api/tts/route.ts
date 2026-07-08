@@ -117,22 +117,45 @@ export async function POST(request: NextRequest) {
   try {
     // BUG-049 FIX: Use retry logic for TTS fetch
     // NOTE: Bulbul V3 does NOT support pitch and loudness parameters
-    const sarvamResponse = await fetchWithRetry('https://api.sarvam.ai/text-to-speech', {
-      method: 'POST',
-      headers: {
-        'api-subscription-key': apiKey,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        inputs: [body.text.trim()],
-        target_language_code: body.languageCode ?? 'hi-IN',
-        speaker: body.speaker ?? 'ratan',
-        pace: body.pace ?? 0.9,
-        speech_sample_rate: 22050,
-        enable_preprocessing: true,   // handles numbers, abbreviations
-        model: 'bulbul:v3',
-      }),
-    });
+    // D4: शिष्य is male — speaker comes from SARVAM_TTS_SPEAKER (male
+    // default). Valid speaker names vary by model/language, so an
+    // invalid-speaker 4xx logs Sarvam's error body (it enumerates the
+    // valid options) and retries ONCE without the speaker field so
+    // speech never breaks.
+    const speaker = body.speaker ?? process.env.SARVAM_TTS_SPEAKER ?? 'abhilash';
+    const basePayload: Record<string, unknown> = {
+      inputs: [body.text.trim()],
+      target_language_code: body.languageCode ?? 'hi-IN',
+      pace: body.pace ?? 0.9,
+      speech_sample_rate: 22050,
+      enable_preprocessing: true,   // handles numbers, abbreviations
+      model: 'bulbul:v3',
+    };
+    const callSarvam = (payload: Record<string, unknown>) =>
+      fetchWithRetry('https://api.sarvam.ai/text-to-speech', {
+        method: 'POST',
+        headers: {
+          'api-subscription-key': apiKey,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+    let sarvamResponse = await callSarvam({ ...basePayload, speaker });
+
+    if (!sarvamResponse.ok && sarvamResponse.status >= 400 && sarvamResponse.status < 500) {
+      const errorText = await sarvamResponse.text();
+      if (/speaker/i.test(errorText)) {
+        console.warn(
+          `[TTS Route] Sarvam rejected speaker "${speaker}" — retrying with the API default. ` +
+          `Set SARVAM_TTS_SPEAKER to a valid MALE option from this API response: ${errorText}`
+        );
+        sarvamResponse = await callSarvam(basePayload);
+      } else {
+        console.error('[TTS Route] Sarvam error:', sarvamResponse.status, errorText);
+        return NextResponse.json({ error: 'TTS upstream failed' }, { status: 502 });
+      }
+    }
 
     if (!sarvamResponse.ok) {
       const errorText = await sarvamResponse.text();

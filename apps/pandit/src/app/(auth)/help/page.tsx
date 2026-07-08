@@ -4,7 +4,7 @@
 export const dynamic = 'force-dynamic'
 
 import { useRouter } from 'next/navigation'
-import { hi as strings } from '@/lib/strings'
+import { t } from '@/lib/i18n'
 import { useSafeOnboardingStore } from '@/lib/stores/ssr-safe-stores'
 import { motion } from 'framer-motion'
 import { speakWithSarvam } from '@/lib/sarvam-tts'
@@ -60,14 +60,14 @@ export default function HelpPage() {
           }}
           className="w-full flex items-center gap-3 xs:gap-4 bg-white border-2 border-saffron rounded-card px-4 xs:px-5 min-h-[64px] active:scale-[0.98] transition-transform mb-4 text-[18px] font-bold text-saffron font-hindi"
         >
-          {strings.helpScreen.rewatchTutorial}
+          {t("helpScreen.rewatchTutorial")}
         </button>
 
         <button
           onClick={() => router.push('/emergency-sos')}
           className="w-full flex items-center gap-3 xs:gap-4 bg-white border-2 border-danger rounded-card px-4 xs:px-5 min-h-[64px] active:scale-[0.98] transition-transform mb-4 text-[18px] font-bold text-danger font-hindi"
         >
-          {strings.helpScreen.emergency}
+          {t("helpScreen.emergency")}
         </button>
 
         <a href="tel:18004654357" className="flex items-center gap-3 xs:gap-4 bg-saffron rounded-card shadow-cta px-4 xs:px-5 py-0 min-h-[52px] xs:min-h-[56px] sm:min-h-[72px] active:scale-[0.98] transition-transform mb-4">

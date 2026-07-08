@@ -9,6 +9,7 @@ import { Narrate } from "@/hooks/useScreenVoice";
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { hi } from "@/lib/strings";
+import { t } from "@/lib/i18n";
 import { api } from "@/lib/api";
 import { Screen } from "@/components/ui/Screen";
 import { Card } from "@/components/ui/Card";
@@ -75,7 +76,7 @@ export default function MyPoojasPage() {
       setEditing(null);
       setEditValue("");
     } else {
-      setToastMsg(hi.common.error);
+      setToastMsg(t("common.error"));
     }
   };
 
@@ -86,15 +87,15 @@ export default function MyPoojasPage() {
     if (res.success) {
       setPoojas((p) => p.filter((x) => x !== pooja));
       setPending((p) => p.filter((x) => x !== pooja));
-      setToastMsg(hi.myPoojas.removed);
+      setToastMsg(t("myPoojas.removed"));
     } else if (
       (typeof res.error === "string" && res.error === "active_bookings") ||
       res.error?.code === "active_bookings" ||
       res.error?.message === "active_bookings"
     ) {
-      setToastMsg(hi.myPoojas.removeBlocked);
+      setToastMsg(t("myPoojas.removeBlocked"));
     } else {
-      setToastMsg(hi.common.error);
+      setToastMsg(t("common.error"));
     }
   };
 
@@ -107,7 +108,7 @@ export default function MyPoojasPage() {
       body: JSON.stringify({ specializations: next }),
     });
     if (!res.success) {
-      setToastMsg(hi.common.error);
+      setToastMsg(t("common.error"));
       return;
     }
     if (Number.isFinite(amount) && amount > 0) {
@@ -122,7 +123,7 @@ export default function MyPoojasPage() {
     setShowAdd(false);
     setAddPooja(null);
     setAddValue("");
-    setToastMsg(hi.myPoojas.added);
+    setToastMsg(t("myPoojas.added"));
   };
 
   if (loading) return <DiyaLoader />;
@@ -131,7 +132,7 @@ export default function MyPoojasPage() {
 
   return (
     <Screen
-      title={hi.myPoojas.title}
+      title={t("myPoojas.title")}
       showBack
       onBack={() => router.push("/settings")}
       footer={
@@ -139,20 +140,20 @@ export default function MyPoojasPage() {
           <div ref={addBtnRef}>
             <FirstUseTip tipId="myPoojasAdd" targetRef={addBtnRef} />
             <Button variant="primary" size="lg" fullWidth onClick={() => setShowAdd(true)}>
-              {hi.myPoojas.addBtn}
+              {t("myPoojas.addBtn")}
             </Button>
           </div>
         ) : undefined
       }
     >
-      <Narrate text={hi.myPoojas.intro} />
+      <Narrate text={t("myPoojas.intro")} />
       <VoiceActionListener
         commands={[{ keywords: ["नई पूजा", "nayi pooja", "जोड़"], action: () => setShowAdd(true) }]}
       />
 
       <div className="flex flex-col gap-3">
         {poojas.length === 0 && (
-          <EmptyState emoji="🙏" title={hi.myPoojas.title} hint={hi.myPoojas.intro} />
+          <EmptyState emoji="🙏" title={t("myPoojas.title")} hint={t("myPoojas.intro")} />
         )}
 
         {poojas.map((pooja) => (
@@ -173,7 +174,7 @@ export default function MyPoojasPage() {
                 <div className="flex-1">
                   <VoiceField
                     label=""
-                    promptText={hi.myPoojas.editPrompt}
+                    promptText={t("myPoojas.editPrompt")}
                     value={editValue}
                     onChange={setEditValue}
                     mode="money"
@@ -193,7 +194,7 @@ export default function MyPoojasPage() {
                       if (Number.isFinite(n) && n > 0) void saveRate(pooja, n);
                     }}
                   >
-                    {hi.myPoojas.saveBtn}
+                    {t("myPoojas.saveBtn")}
                   </Button>
                 </div>
               ) : (
@@ -215,7 +216,7 @@ export default function MyPoojasPage() {
                     : "bg-leaf-100 text-leaf-700"
                 }`}
               >
-                {pending.includes(pooja) ? hi.myPoojas.pendingVerify : hi.myPoojas.verified}
+                {pending.includes(pooja) ? t("myPoojas.pendingVerify") : t("myPoojas.verified")}
               </span>
             </div>
           </Card>
@@ -224,7 +225,7 @@ export default function MyPoojasPage() {
         {/* Add sheet (inline, grammar-compliant: one scroller) */}
         {showAdd && (
           <Card className="p-4 bg-white border-2 border-saffron-500 flex flex-col gap-3">
-            <span className="t-title font-bold text-temple-600 font-hindi">{hi.myPoojas.pickPooja}</span>
+            <span className="t-title font-bold text-temple-600 font-hindi">{t("myPoojas.pickPooja")}</span>
             <div className="flex flex-wrap gap-2">
               {remaining.map((p) => (
                 <button
@@ -246,8 +247,8 @@ export default function MyPoojasPage() {
 
             {addPooja && (
               <VoiceField
-                label={hi.myPoojas.dakshinaLabel}
-                promptText={hi.myPoojas.dakshinaPrompt}
+                label={t("myPoojas.dakshinaLabel")}
+                promptText={t("myPoojas.dakshinaPrompt")}
                 value={addValue}
                 onChange={setAddValue}
                 mode="money"
@@ -263,7 +264,7 @@ export default function MyPoojasPage() {
                 onClick={() => void confirmAdd()}
                 disabled={!addPooja}
               >
-                {hi.myPoojas.saveBtn}
+                {t("myPoojas.saveBtn")}
               </Button>
               <Button
                 variant="ghost"
@@ -275,7 +276,7 @@ export default function MyPoojasPage() {
                   setAddValue("");
                 }}
               >
-                {hi.common.no}
+                {t("common.no")}
               </Button>
             </div>
           </Card>

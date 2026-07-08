@@ -11,7 +11,7 @@
 // ─────────────────────────────────────────────────────────────
 
 import React, { useEffect, useState, useCallback } from "react";
-import { hi } from "@/lib/strings";
+import { t } from "@/lib/i18n";
 
 export interface CoachSpotlightProps {
   targetRef: React.RefObject<HTMLElement | null>;
@@ -112,14 +112,14 @@ export function CoachSpotlight({
         <span className="text-[16px] text-ink font-hindi leading-snug">{line}</span>
         {requireInteraction ? (
           <span className="text-[16px] font-bold text-saffron-600 font-hindi">
-            {actionHint || hi.coach.tryIt}
+            {actionHint || t("coach.tryIt")}
           </span>
         ) : (
           <button
             onClick={onDone}
             className="self-end min-h-[56px] px-6 bg-saffron-500 text-[#FFF3EA] rounded-btn text-[18px] font-bold active:scale-[0.97] transition-transform"
           >
-            {hi.coach.gotIt}
+            {t("coach.gotIt")}
           </button>
         )}
       </div>

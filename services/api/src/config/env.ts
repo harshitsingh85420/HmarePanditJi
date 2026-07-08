@@ -69,6 +69,10 @@ const envSchema = z.object({
   // AI & Voice Services (Server-side only - never expose to client)
   DEEPSEEK_API_KEY: z.string().default(""),
   SARVAM_API_KEY: z.string().default(""),
+  // Male speaker for the शिष्य persona; an invalid name falls back to
+  // the Sarvam API default at request time (see ai.routes sarvam/tts —
+  // its warning log prints the API's valid speaker list).
+  SARVAM_TTS_SPEAKER: z.string().default("abhilash"),
   DEEPGRAM_API_KEY: z.string().default(""),
 
   // Platform Business Config (paise)

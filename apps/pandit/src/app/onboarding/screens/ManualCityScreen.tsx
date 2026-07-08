@@ -9,7 +9,7 @@
 // ─────────────────────────────────────────────────────────────
 
 import React, { useState } from "react";
-import { hi } from "@/lib/strings";
+import { t } from "@/lib/i18n";
 import { Toran } from "@/components/ui/Toran";
 import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
 import { useScreenVoice } from "@/hooks/useScreenVoice";
@@ -26,7 +26,7 @@ const POPULAR_CITIES = ["दिल्ली", "नोएडा", "गुरु�
 export default function ManualCityScreen({ onCitySelected, onBack }: ManualCityScreenProps) {
   const [cityInput, setCityInput] = useState("");
 
-  useScreenVoice(hi.pratham.cityVoice);
+  useScreenVoice(t("pratham.cityVoice"));
 
   const submitTyped = () => {
     const v = cityInput.trim();
@@ -40,13 +40,13 @@ export default function ManualCityScreen({ onCitySelected, onBack }: ManualCityS
         <div className="h-[60px] bg-gradient-to-r from-genda to-saffron-500 px-4 flex items-center gap-3">
           <button
             onClick={onBack}
-            aria-label={hi.common.back}
+            aria-label={t("common.back")}
             className="w-14 h-14 min-w-[56px] min-h-[56px] rounded-full bg-white/90 shadow-card active:scale-90 flex items-center justify-center text-[18px] transition-all"
           >
             ←
           </button>
           <h1 className="font-display text-[22px] text-white flex-1 text-center pr-14">
-            {hi.pratham.cityTitle}
+            {t("pratham.cityTitle")}
           </h1>
         </div>
         <Toran tone="onSindoor" className="bg-saffron-500" />
@@ -62,7 +62,7 @@ export default function ManualCityScreen({ onCitySelected, onBack }: ManualCityS
             onKeyDown={(e) => {
               if (e.key === "Enter") submitTyped();
             }}
-            placeholder={hi.pratham.cityInputLabel}
+            placeholder={t("pratham.cityInputLabel")}
             className="flex-1 min-w-0 h-[56px] min-h-[56px] px-4 border-2 border-saffron-300 rounded-btn text-[18px] text-ink bg-white focus:outline-none focus:border-saffron-500 font-hindi"
           />
           {cityInput.trim() && (
@@ -70,7 +70,7 @@ export default function ManualCityScreen({ onCitySelected, onBack }: ManualCityS
               onClick={submitTyped}
               className="shrink-0 whitespace-nowrap min-h-[56px] px-4 bg-saffron-500 text-[#FFF3EA] rounded-btn text-[18px] font-bold font-hindi active:scale-[0.97] transition-transform"
             >
-              {hi.pratham.cityGo}
+              {t("pratham.cityGo")}
             </button>
           )}
         </div>

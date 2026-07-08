@@ -10,9 +10,15 @@
 // useVoice / useVoiceInput delegate here; screens keep their APIs.
 // ─────────────────────────────────────────────────────────────
 
-import { hi } from "@/lib/strings";
+import { t, getActiveBcp47 } from "@/lib/i18n";
 
-type SpeakOpts = { interrupt?: boolean; onEnd?: (completed: boolean) => void };
+type SpeakOpts = {
+  interrupt?: boolean;
+  onEnd?: (completed: boolean) => void;
+  /** BCP-47 override for lines that must sound in a specific language
+   *  (e.g. the language-confirm ceremony). Default: the ACTIVE app language. */
+  languageCode?: string;
+};
 
 const MASTER_KEY = "voice_master";
 // Once-per-session flag for the "voice unavailable" toast (X2b)
@@ -56,7 +62,7 @@ class VoiceController {
   // No sound may play before the app's first pointerdown (autoplay policy).
   // Pre-gesture speak()s park here (newest wins) and flush on unlock.
   private _unlocked = false;
-  private pendingUnlock: { text: string } | null = null;
+  private pendingUnlock: { text: string; languageCode?: string } | null = null;
 
   // ── TTS CHAIN (X2b) ────────────────────────────────────────
   // Primary: POST /api/tts (Sarvam) played through an <audio> element.
@@ -108,7 +114,14 @@ class VoiceController {
     }
     const parked = this.pendingUnlock;
     this.pendingUnlock = null;
-    if (parked && !this._muted) this.speak(parked.text);
+    if (parked && !this._muted) {
+      // Defer past this same tap's other capture handlers — the
+      // "interactive tap silences narration" rule (VoiceRoot) would
+      // otherwise kill the very line this gesture just released.
+      setTimeout(() => {
+        if (!this._muted) this.speak(parked.text, { languageCode: parked.languageCode });
+      }, 0);
+    }
   }
 
   private micGranted(): boolean {
@@ -190,7 +203,7 @@ class VoiceController {
     // Park the line (newest wins), let the caller's flow continue, and
     // narrate on unlock.
     if (!this._unlocked) {
-      this.pendingUnlock = { text };
+      this.pendingUnlock = { text, languageCode: opts?.languageCode };
       opts?.onEnd?.(false);
       return;
     }
@@ -229,15 +242,16 @@ class VoiceController {
       this.loopRearm();
     };
 
-    void this.speakNow(text, finish);
+    void this.speakNow(text, opts?.languageCode ?? getActiveBcp47(), finish);
   }
 
-  // X2b: primary = /api/tts (Sarvam) via <audio>; any non-200/throw falls
-  // back to speechSynthesis hi-IN automatically (logged once, no user
-  // error). Both unavailable → one toast per session.
-  private async speakNow(text: string, finish: (completed: boolean) => void): Promise<void> {
+  // X2b + D3: primary = /api/tts (Sarvam, ACTIVE language) via <audio>;
+  // any non-200/throw falls back to speechSynthesis with the same BCP-47
+  // tag (voice-engine picks the closest voice, defaulting to Hindi when
+  // none matches). Both unavailable → one toast per session.
+  private async speakNow(text: string, languageCode: string, finish: (completed: boolean) => void): Promise<void> {
     const seq = ++this.speechSeq;
-    const remote = await this.tryRemoteTTS(text, seq);
+    const remote = await this.tryRemoteTTS(text, languageCode, seq);
     if (remote === "played") {
       finish(true);
       return;
@@ -255,7 +269,7 @@ class VoiceController {
       const { speakWithSarvam } = await import("@/lib/sarvam-tts");
       await speakWithSarvam({
         text,
-        languageCode: "hi-IN",
+        languageCode: languageCode as never,
         onEnd: () => finish(true),
         onError: () => finish(false),
       });
@@ -265,14 +279,20 @@ class VoiceController {
     }
   }
 
-  private async tryRemoteTTS(text: string, seq: number): Promise<"played" | "failed" | "cancelled"> {
+  private async tryRemoteTTS(
+    text: string,
+    languageCode: string,
+    seq: number,
+  ): Promise<"played" | "failed" | "cancelled"> {
     if (this.remoteTtsDown) return "failed";
     let audioBase64: string | undefined;
     try {
       const res = await fetch("/api/tts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text, languageCode: "hi-IN", speaker: "priya", pace: 0.82 }),
+        // D4: no client-side speaker — the server owns the शिष्य voice
+        // (SARVAM_TTS_SPEAKER, male) and its invalid-speaker fallback.
+        body: JSON.stringify({ text, languageCode, pace: 0.82 }),
       });
       if (seq !== this.speechSeq) return "cancelled";
       if (!res.ok) {
@@ -327,7 +347,7 @@ class VoiceController {
   private logFallbackOnce(detail: unknown): void {
     if (this.fallbackLogged) return;
     this.fallbackLogged = true;
-    console.warn("[voice] /api/tts unavailable — falling back to speechSynthesis (hi-IN):", detail);
+    console.warn("[voice] /api/tts unavailable — falling back to speechSynthesis:", detail);
   }
 
   private announceVoiceUnavailable(): void {
@@ -344,7 +364,12 @@ class VoiceController {
     this.init();
     if (typeof window === "undefined") return;
     this.queued = null;
-    this.pendingUnlock = null;
+    // Pre-unlock there is nothing audible to silence — the parked line
+    // must survive incidental stops (tap-silence rule, phase teardown) or
+    // the app's very first narration dies before it can ever sound.
+    // Post-unlock, screens re-park their own narration on mount, so a
+    // stale line lives ≤150ms before the new screen interrupts it.
+    if (this._unlocked) this.pendingUnlock = null;
     this.speechSeq++;
     this.remoteCancel?.();
     try {
@@ -383,7 +408,7 @@ class VoiceController {
     this.emit();
     if (!v) {
       // शिष्य wakes: greeting, then re-narrate the current screen
-      this.speak(hi.shishya.wake, {
+      this.speak(t("shishya.wake"), {
         onEnd: () => {
           this.replayFn?.();
         },

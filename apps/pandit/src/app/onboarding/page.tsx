@@ -24,9 +24,10 @@ import { api } from "@/lib/api";
 import { detectLanguage, LANG_TO_BCP47, LANG_NATIVE_NAME, type LangCode } from "@/lib/languageDetect";
 import { LANG_CONFIRM } from "@/lib/strings-langconfirm";
 import { type OnboardingPhase, type SupportedLanguage } from "@/lib/onboarding-store";
-import { speakWithSarvam } from "@/lib/sarvam-tts";
+import { activateLanguage } from "@/lib/i18n";
 
 import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
+import { DiyaLoader } from "@/components/moments/DiyaLoader";
 import { SunriseSplash } from "@/components/moments/SunriseSplash";
 import LocationPermissionScreen from "./screens/LocationPermissionScreen";
 import ManualCityScreen from "./screens/ManualCityScreen";
@@ -52,6 +53,11 @@ const SUPPORTED_TO_CODE: Record<string, LangCode> = {
   Kannada: "kn", Gujarati: "gu", Punjabi: "pa", Malayalam: "ml",
   Odia: "or", English: "en",
 };
+const CODE_TO_SUPPORTED: Record<LangCode, SupportedLanguage> = {
+  hi: "Hindi", mr: "Marathi", bn: "Bengali", ta: "Tamil", te: "Telugu",
+  kn: "Kannada", gu: "Gujarati", pa: "Punjabi", ml: "Malayalam",
+  or: "Odia", en: "English",
+};
 
 // ── Language confirm — speaks IN the detected language ──────
 function LangConfirmScreen2({
@@ -65,11 +71,13 @@ function LangConfirmScreen2({
 }) {
   const t = LANG_CONFIRM[code];
   useEffect(() => {
+    // Speaks IN the detected language — through the controller so the
+    // Sarvam TTS chain + audio-unlock queueing apply here too.
     const timer = setTimeout(() => {
-      void speakWithSarvam({ text: t.confirmQuestion, languageCode: LANG_TO_BCP47[code] as never });
+      voiceController.speak(t.confirmQuestion, { languageCode: LANG_TO_BCP47[code] });
     }, 300);
     const unregister = voiceController.registerReplay(() => {
-      void speakWithSarvam({ text: t.confirmQuestion, languageCode: LANG_TO_BCP47[code] as never });
+      voiceController.speak(t.confirmQuestion, { languageCode: LANG_TO_BCP47[code] });
     });
     return () => {
       clearTimeout(timer);
@@ -113,6 +121,33 @@ export default function OnboardingOrchestratorPage() {
   // X1: splash veil — painted on frame one, crossfaded out (200ms) once
   // the resume rule has decided the destination.
   const [veilGone, setVeilGone] = useState(false);
+  // D3: language switch in flight — blocking DiyaLoader with the chosen
+  // language's own waitLine while its entry bundle downloads.
+  const [switching, setSwitching] = useState<LangCode | null>(null);
+
+  // REAL translation: blocking entry-bundle fetch, then switch; on failure
+  // the honesty notice is spoken IN the target language and the app
+  // continues in Hindi — never a half-translated screen without notice.
+  const runLanguageSwitch = async (code: LangCode): Promise<void> => {
+    if (code === "hi") {
+      await activateLanguage("hi");
+      store.setLanguage("Hindi");
+      store.setPreferredLanguage(null);
+      return;
+    }
+    setSwitching(code);
+    const ok = await activateLanguage(code);
+    setSwitching(null);
+    if (ok) {
+      store.setLanguage(CODE_TO_SUPPORTED[code]);
+      store.setPreferredLanguage(code);
+      voiceController.speak(LANG_CONFIRM[code].confirmedLine, { languageCode: LANG_TO_BCP47[code] });
+    } else {
+      store.setLanguage("Hindi");
+      store.setPreferredLanguage(code);
+      voiceController.speak(LANG_CONFIRM[code].fallbackNotice, { languageCode: LANG_TO_BCP47[code] });
+    }
+  };
 
   const { phase, detectedCity, detectedState, currentTutorialScreen } = store;
 
@@ -270,14 +305,7 @@ export default function OnboardingOrchestratorPage() {
           code={detectedCode}
           onYes={() => {
             store.setLanguageConfirmed(true);
-            if (detectedCode !== "hi") {
-              store.setPreferredLanguage(detectedCode);
-              void speakWithSarvam({
-                text: LANG_CONFIRM[detectedCode].comingSoonLine,
-                languageCode: LANG_TO_BCP47[detectedCode] as never,
-              });
-            }
-            goto("TUTORIAL");
+            void runLanguageSwitch(detectedCode).then(() => goto("TUTORIAL"));
           }}
           onOther={() => goto("LANGUAGE_LIST")}
         />
@@ -298,28 +326,17 @@ export default function OnboardingOrchestratorPage() {
           onSelect={(lang: SupportedLanguage) => {
             const code = SUPPORTED_TO_CODE[lang] || "hi";
             store.setLanguageConfirmed(true);
-            if (code === "hi") {
-              store.setLanguage("Hindi");
-              store.setPreferredLanguage(null);
-            } else {
-              // v1: preference stored, spoken coming-soon in ITS language,
-              // app continues in Hindi
-              store.setLanguage("Hindi");
-              store.setPreferredLanguage(code);
-              void speakWithSarvam({
-                text: LANG_CONFIRM[code].comingSoonLine,
-                languageCode: LANG_TO_BCP47[code] as never,
-              });
-            }
-            if (langReturn) {
-              // Settings → भाषा: pick and go straight back — no ceremony,
-              // no tutorial. The flag stays until settings mounts (clearing
-              // it here re-triggers the skip rule mid-flight and the phase
-              // history push cancels the route transition).
-              router.push(langReturn);
-              return;
-            }
-            goto("TUTORIAL");
+            void runLanguageSwitch(code).then(() => {
+              if (langReturn) {
+                // Settings → भाषा: pick and go straight back — no ceremony,
+                // no tutorial. The flag stays until settings mounts (clearing
+                // it here re-triggers the skip rule mid-flight and the phase
+                // history push cancels the route transition).
+                router.push(langReturn);
+                return;
+              }
+              goto("TUTORIAL");
+            });
           }}
           onBack={() => {
             if (langReturn) {
@@ -398,6 +415,8 @@ export default function OnboardingOrchestratorPage() {
   return (
     <>
       {resumeChecked ? renderPhase() : null}
+      {/* D3: blocking bundle download — the chosen language's own wait line */}
+      {switching && <DiyaLoader message={LANG_CONFIRM[switching].waitLine} />}
       {/* X1: frame-one splash veil; 200ms crossfade to the destination */}
       {!veilGone && (
         <div

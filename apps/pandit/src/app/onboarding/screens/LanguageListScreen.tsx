@@ -12,7 +12,7 @@
 
 import React, { useState } from "react";
 import { type SupportedLanguage, type ScriptPreference } from "@/lib/onboarding-store";
-import { hi } from "@/lib/strings";
+import { t } from "@/lib/i18n";
 import { Toran } from "@/components/ui/Toran";
 import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
 import { useScreenVoice } from "@/hooks/useScreenVoice";
@@ -48,7 +48,7 @@ export default function LanguageListScreen({ onSelect, onBack }: LanguageListScr
   const [pending, setPending] = useState<LangCode | null>(null);
   const [burstOn, setBurstOn] = useState<LangCode | null>(null);
 
-  useScreenVoice(hi.pratham.langListVoice);
+  useScreenVoice(t("pratham.langListVoice"));
 
   const tapTile = (tile: { lang: SupportedLanguage; code: LangCode }) => {
     if (pending === tile.code) {
@@ -70,13 +70,13 @@ export default function LanguageListScreen({ onSelect, onBack }: LanguageListScr
         <div className="h-[60px] bg-gradient-to-r from-genda to-saffron-500 px-4 flex items-center gap-3">
           <button
             onClick={onBack}
-            aria-label={hi.common.back}
+            aria-label={t("common.back")}
             className="w-14 h-14 min-w-[56px] min-h-[56px] rounded-full bg-white/90 shadow-card active:scale-90 flex items-center justify-center text-[18px] transition-all"
           >
             ←
           </button>
           <h1 className="font-display text-[22px] text-white flex-1 text-center pr-14">
-            {hi.pratham.langListTitle}
+            {t("pratham.langListTitle")}
           </h1>
         </div>
         <Toran tone="onSindoor" className="bg-saffron-500" />
@@ -96,7 +96,7 @@ export default function LanguageListScreen({ onSelect, onBack }: LanguageListScr
                   isPending ? "ring-4 ring-gold" : ""
                 }`}
                 style={{ backgroundColor: `${accent.hex}1F` }}
-                aria-label={isPending ? `${native} — ${hi.pratham.langTapAgain}` : native}
+                aria-label={isPending ? `${native} — ${t("pratham.langTapAgain")}` : native}
                 aria-pressed={isPending}
               >
                 <span
@@ -109,7 +109,7 @@ export default function LanguageListScreen({ onSelect, onBack }: LanguageListScr
                 <span className="text-[22px] font-bold text-ink font-hindi leading-tight">{native}</span>
                 {isPending && (
                   <span className="text-[13px] font-semibold text-temple-600 font-hindi">
-                    {hi.pratham.langTapAgain}
+                    {t("pratham.langTapAgain")}
                   </span>
                 )}
                 {burstOn === tile.code && (

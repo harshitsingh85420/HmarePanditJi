@@ -80,6 +80,11 @@ export interface OnboardingState {
 
 export const STORAGE_KEY = 'hpj_pandit_onboarding_v1'
 
+// TutorialV2 slide count (slide TUTORIAL_TOTAL = the register CTA).
+// Lives here so light pages (e.g. /login's back-to-tutorial law) can
+// target the CTA slide without importing the tutorial chunk.
+export const TUTORIAL_TOTAL = 16
+
 export const DEFAULT_STATE: OnboardingState = {
   phase: 'SPLASH',
   selectedLanguage: 'Hindi',

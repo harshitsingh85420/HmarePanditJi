@@ -3,7 +3,7 @@
 import React from "react";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { hi } from "../../lib/strings";
+import { t } from "../../lib/i18n";
 
 function cn(...inputs: (string | undefined | false | null)[]) {
   return twMerge(clsx(inputs));
@@ -65,10 +65,10 @@ export function NewBookingBanner({ onTap, className }: NewBookingBannerProps) {
       {/* Text Info */}
       <div className="flex flex-col flex-grow min-w-0">
         <span className="text-[18px] font-bold leading-normal truncate">
-          {hi.booking.newRequest}
+          {t("booking.newRequest")}
         </span>
         <span className="text-[14px] font-medium opacity-90 leading-tight">
-          {hi.booking.tapToView}
+          {t("booking.tapToView")}
         </span>
       </div>
     </button>

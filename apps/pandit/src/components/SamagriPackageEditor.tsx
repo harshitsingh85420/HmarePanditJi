@@ -9,7 +9,7 @@
 // ─────────────────────────────────────────────────────────────
 
 import React, { useEffect, useState } from "react";
-import { hi } from "@/lib/strings";
+import { t } from "@/lib/i18n";
 import { api } from "@/lib/api";
 import { Narrate } from "@/hooks/useScreenVoice";
 import { Button } from "@/components/ui/Button";
@@ -66,8 +66,8 @@ export function SamagriPackageEditor({
         });
         setPrices(priceMap);
       } else {
-        setErrorMsg(hi.common.error);
-        speak(hi.common.error);
+        setErrorMsg(t("common.error"));
+        speak(t("common.error"));
       }
     };
     void fetchPackage();
@@ -98,8 +98,8 @@ export function SamagriPackageEditor({
     const pPrice = prices.PREMIUM ? Number(prices.PREMIUM) : 0;
 
     if (!bPrice && !sPrice && !pPrice) {
-      setErrorMsg(hi.samagri.priceError);
-      speak(hi.samagri.priceError);
+      setErrorMsg(t("samagri.priceError"));
+      speak(t("samagri.priceError"));
       return;
     }
 
@@ -120,24 +120,24 @@ export function SamagriPackageEditor({
     setSaving(false);
 
     if (!res.success) {
-      setErrorMsg(hi.common.error);
-      speak(hi.common.error);
+      setErrorMsg(t("common.error"));
+      speak(t("common.error"));
       return;
     }
 
-    speak(hi.samagri.saved);
+    speak(t("samagri.saved"));
     onSaved?.();
   };
 
   return (
     <>
-      {narrate && <Narrate text={hi.onboarding.step5Voice} />}
+      {narrate && <Narrate text={t("onboarding.step5Voice")} />}
 
       <div className="bg-white rounded-card shadow-card p-5 border border-saffron-100 flex flex-col gap-4">
         <div className="flex justify-between items-center border-b border-saffron-100 pb-3">
           <h2 className="text-[22px] font-bold text-temple-700 font-hindi">{pujaType}</h2>
           <span className="t-hint text-saffron-600 font-bold px-3 py-1 bg-saffron-50 rounded-full">
-            {items.length} {hi.samagri.itemsCount}
+            {items.length} {t("samagri.itemsCount")}
           </span>
         </div>
 
@@ -161,7 +161,7 @@ export function SamagriPackageEditor({
                       value={item.qty}
                       onChange={(val) => handleQtyChange(idx, val)}
                       mode="number"
-                      placeholder={hi.samagri.qtyPlaceholder}
+                      placeholder={t("samagri.qtyPlaceholder")}
                     />
                   </div>
                   <button
@@ -179,40 +179,40 @@ export function SamagriPackageEditor({
             {showAddForm ? (
               <div className="flex flex-col gap-3 p-4 bg-saffron-50/50 rounded-card border border-saffron-100 mt-2">
                 <VoiceField
-                  label={hi.samagri.itemNamePlaceholder}
+                  label={t("samagri.itemNamePlaceholder")}
                   promptText="सामग्री का नाम बोलें"
                   value={newItemName}
                   onChange={setNewItemName}
                   mode="text"
-                  placeholder={hi.samagri.itemNamePlaceholder}
+                  placeholder={t("samagri.itemNamePlaceholder")}
                 />
                 <VoiceField
-                  label={hi.samagri.qtyPlaceholder}
+                  label={t("samagri.qtyPlaceholder")}
                   promptText="सामग्री की मात्रा बोलें"
                   value={newItemQty}
                   onChange={setNewItemQty}
                   mode="number"
-                  placeholder={hi.samagri.qtyPlaceholder}
+                  placeholder={t("samagri.qtyPlaceholder")}
                 />
                 <div className="flex gap-2">
                   <Button variant="primary" size="md" fullWidth onClick={handleAddItem}>
-                    {hi.common.save}
+                    {t("common.save")}
                   </Button>
                   <Button variant="secondary" size="md" fullWidth onClick={() => setShowAddForm(false)}>
-                    {hi.common.back}
+                    {t("common.back")}
                   </Button>
                 </div>
               </div>
             ) : (
               <Button variant="secondary" size="md" onClick={() => setShowAddForm(true)}>
-                {hi.samagri.addItem}
+                {t("samagri.addItem")}
               </Button>
             )}
 
             {/* TIER PRICING */}
             <div className="flex flex-col gap-4 mt-4">
               <h3 className="text-[18px] font-bold text-temple-600 font-hindi border-t border-saffron-100 pt-3">
-                {hi.booking.samagri}
+                {t("booking.samagri")}
               </h3>
 
               <div className="flex flex-col md:flex-row gap-3">
@@ -256,7 +256,7 @@ export function SamagriPackageEditor({
               loading={saving}
               style={{ minHeight: "56px", fontSize: "18px", marginTop: "1rem" }}
             >
-              {hi.common.save}
+              {t("common.save")}
             </Button>
           </>
         )}

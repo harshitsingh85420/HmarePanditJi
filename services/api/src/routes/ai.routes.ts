@@ -36,7 +36,9 @@ const deepseekChatSchema = z.object({
 const sarvamTTSSchema = z.object({
   text: z.string().min(1).max(5000),
   languageCode: z.string().optional().default("hi-IN"),
-  speaker: z.string().optional().default("meera"),
+  // No static default — the शिष्य voice comes from SARVAM_TTS_SPEAKER
+  // (male) unless the caller overrides explicitly.
+  speaker: z.string().optional(),
   pace: z.number().min(0.5).max(2).optional().default(0.82),
 });
 
@@ -116,25 +118,50 @@ export default async function aiServicesRoutes(fastify: FastifyInstance, _opts: 
       }
 
       const req = request as any;
-      const { text, languageCode, speaker, pace } = req.body;
+      const { text, languageCode, pace } = req.body;
+      // D4: शिष्य is male — env-driven speaker with a defensive retry:
+      // valid speaker names vary by model/language, so a 4xx naming the
+      // speaker logs Sarvam's error body (it enumerates valid options)
+      // and retries once with the API default so speech never breaks.
+      const speaker = req.body.speaker || env.SARVAM_TTS_SPEAKER;
 
-      try {
-        const response = await fetch("https://api.sarvam.ai/tts", {
+      const callSarvam = (payload: Record<string, unknown>) =>
+        fetch("https://api.sarvam.ai/tts", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             "API-Subscription-Key": SARVAM_API_KEY,
           },
-          body: JSON.stringify({
-            inputs: [text],
-            target_language_code: languageCode,
-            speaker: speaker,
-            pace: pace,
-          }),
+          body: JSON.stringify(payload),
         });
 
+      const basePayload = {
+        inputs: [text],
+        target_language_code: languageCode,
+        pace: pace,
+      };
+
+      try {
+        let response = await callSarvam({ ...basePayload, speaker });
+
+        if (!response.ok && response.status >= 400 && response.status < 500) {
+          const errorBody = await response.text();
+          if (/speaker/i.test(errorBody)) {
+            request.log.warn(
+              `[sarvam/tts] speaker "${speaker}" rejected — retrying with API default. ` +
+              `Set SARVAM_TTS_SPEAKER to a valid MALE option from: ${errorBody}`,
+            );
+            response = await callSarvam(basePayload);
+          } else {
+            throw new AppError(
+              `Sarvam TTS API error: ${response.status}`,
+              response.status,
+              "VOICE_SERVICE_ERROR"
+            );
+          }
+        }
+
         if (!response.ok) {
-          const error = await response.text();
           throw new AppError(
             `Sarvam TTS API error: ${response.status}`,
             response.status,

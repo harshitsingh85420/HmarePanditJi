@@ -14,7 +14,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { hi } from "@/lib/strings";
+import { t } from "@/lib/i18n";
 import { api } from "@/lib/api";
 import { Header } from "@/components/ui/Header";
 import { Card } from "@/components/ui/Card";
@@ -57,13 +57,13 @@ export default function RegistrationScreen({ onBack }: { onBack: () => void }) {
   const handleSubmit = async () => {
     setErrorMsg("");
     if (!name || name.trim().length < 3) {
-      setErrorMsg(hi.onboarding.nameError);
-      speak(hi.common.error);
+      setErrorMsg(t("onboarding.nameError"));
+      speak(t("common.error"));
       return;
     }
     if (!city || city.trim().length === 0) {
-      setErrorMsg(hi.onboarding.cityError);
-      speak(hi.common.error);
+      setErrorMsg(t("onboarding.cityError"));
+      speak(t("common.error"));
       return;
     }
     setSubmitting(true);
@@ -73,8 +73,8 @@ export default function RegistrationScreen({ onBack }: { onBack: () => void }) {
     });
     setSubmitting(false);
     if (!res.success) {
-      setErrorMsg(res.error?.message || hi.common.error);
-      speak(hi.common.error);
+      setErrorMsg(res.error?.message || t("common.error"));
+      speak(t("common.error"));
       return;
     }
     try {
@@ -90,9 +90,9 @@ export default function RegistrationScreen({ onBack }: { onBack: () => void }) {
     return <CelebrationLite onDone={() => router.push("/home")} />;
   }
 
-  const title = returning ? hi.registration.titleComplete : hi.registration.titleNew;
-  const cta = returning ? hi.registration.completeBtn : hi.registration.createBtn;
-  const narration = returning ? hi.registration.voiceComplete : hi.registration.voiceNew;
+  const title = returning ? t("registration.titleComplete") : t("registration.titleNew");
+  const cta = returning ? t("registration.completeBtn") : t("registration.createBtn");
+  const narration = returning ? t("registration.voiceComplete") : t("registration.voiceNew");
 
   return (
     <div className="h-[100dvh] bg-cream text-ink flex flex-col max-w-[430px] mx-auto w-full">
@@ -102,8 +102,8 @@ export default function RegistrationScreen({ onBack }: { onBack: () => void }) {
       <main className="flex-1 min-h-0 overflow-y-auto px-4 pt-6 flex flex-col gap-4">
         <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-5">
           <VoiceField
-            label={hi.onboarding.step1Title}
-            promptText={hi.onboarding.step1Voice}
+            label={t("onboarding.step1Title")}
+            promptText={t("onboarding.step1Voice")}
             value={name}
             onChange={setName}
             mode="text"
@@ -111,13 +111,13 @@ export default function RegistrationScreen({ onBack }: { onBack: () => void }) {
             placeholder="पंडित जी का नाम लिखें"
           />
           <VoiceField
-            label={hi.registration.cityLabel}
-            promptText={hi.onboarding.step2Voice}
+            label={t("registration.cityLabel")}
+            promptText={t("onboarding.step2Voice")}
             value={city}
             onChange={setCity}
             mode="text"
             required
-            placeholder={hi.registration.cityPlaceholder}
+            placeholder={t("registration.cityPlaceholder")}
           />
         </Card>
 
@@ -153,16 +153,16 @@ function CelebrationLite({ onDone }: { onDone: () => void }) {
 
   return (
     <div className="fixed inset-0 bg-cream text-ink flex flex-col justify-between p-6 z-50">
-      <Narrate text={hi.registration.celebrationVoice} />
+      <Narrate text={t("registration.celebrationVoice")} />
       <div className="flex-1 flex flex-col items-center justify-center text-center gap-6 max-w-[430px] mx-auto">
         <span className="text-[100px] select-none leading-none" aria-hidden="true">🎉</span>
         <h1 className="text-[36px] font-bold text-temple-700 font-hindi">
-          {hi.registration.celebrationTitle}
+          {t("registration.celebrationTitle")}
         </h1>
       </div>
       <div className="max-w-[430px] mx-auto w-full pb-4">
         <Button variant="primary" size="lg" fullWidth onClick={onDone}>
-          {hi.onboarding.homeBtn}
+          {t("onboarding.homeBtn")}
         </Button>
       </div>
     </div>

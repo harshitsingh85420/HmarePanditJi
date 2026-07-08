@@ -3,7 +3,7 @@
 import { Narrate } from "@/hooks/useScreenVoice";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { hi } from "@/lib/strings";
+import { t } from "@/lib/i18n";
 import { api } from "@/lib/api";
 
 // UI Components
@@ -87,7 +87,7 @@ export default function EarningsPage() {
           const total = fresh.reduce((sum, p) => sum + p.amount, 0);
           setFreshlyPaidAmount(total);
           playChime();
-          speak(hi.earnings.paidVoice.replace("{amount}", total.toLocaleString("en-IN")));
+          speak(t("earnings.paidVoice").replace("{amount}", total.toLocaleString("en-IN")));
         }
         const newestPaidAt = Math.max(
           lastSeen,
@@ -119,10 +119,10 @@ export default function EarningsPage() {
   return (
     <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
       {/* HEADER */}
-      <Header title={hi.earnings.title} showBack onBack={() => router.push("/home")} />
+      <Header title={t("earnings.title")} showBack onBack={() => router.push("/home")} />
 
       {/* INTRO VOICE NARRATOR ON MOUNT */}
-      <Narrate text={hi.earnings.introVoice} />
+      <Narrate text={t("earnings.introVoice")} />
 
       <main className="flex-1 overflow-y-auto px-4 pt-3 pb-24 flex flex-col gap-3 page-enter">
         {/* THE PAYOUT MOMENT — one-time banner when money just arrived */}
@@ -132,7 +132,7 @@ export default function EarningsPage() {
             <div className="flex items-baseline gap-1 flex-wrap">
               <MoneyCount target={freshlyPaidAmount} className="text-[26px] font-bold text-leaf-800 font-mono" />
               <span className="text-[18px] font-bold text-leaf-800 font-hindi">
-                {hi.earnings.paidBanner}
+                {t("earnings.paidBanner")}
               </span>
             </div>
           </Card>
@@ -142,17 +142,17 @@ export default function EarningsPage() {
         <div className="grid grid-cols-3 gap-2">
           {/* Today Card */}
           <Card className="p-3 bg-white border border-saffron-100 flex flex-col items-center justify-center text-center gap-1">
-            <span className="text-[14px] font-bold text-softgrey font-hindi">{hi.earnings.today}</span>
+            <span className="text-[14px] font-bold text-softgrey font-hindi">{t("earnings.today")}</span>
             <span className="text-[18px] font-bold text-leaf-700 font-mono">₹{summary.today.toLocaleString("en-IN")}</span>
           </Card>
           {/* Week Card */}
           <Card className="p-3 bg-white border border-saffron-100 flex flex-col items-center justify-center text-center gap-1">
-            <span className="text-[14px] font-bold text-softgrey font-hindi">{hi.earnings.thisWeek}</span>
+            <span className="text-[14px] font-bold text-softgrey font-hindi">{t("earnings.thisWeek")}</span>
             <span className="text-[18px] font-bold text-leaf-700 font-mono">₹{summary.week.toLocaleString("en-IN")}</span>
           </Card>
           {/* Month Card */}
           <Card className="p-3 bg-white border border-saffron-100 flex flex-col items-center justify-center text-center gap-1">
-            <span className="text-[14px] font-bold text-softgrey font-hindi">{hi.earnings.thisMonth}</span>
+            <span className="text-[14px] font-bold text-softgrey font-hindi">{t("earnings.thisMonth")}</span>
             <span className="text-[18px] font-bold text-leaf-700 font-mono">₹{summary.month.toLocaleString("en-IN")}</span>
           </Card>
         </div>
@@ -161,16 +161,16 @@ export default function EarningsPage() {
         <FirstUseTip tipId="earningsPending" targetRef={pendingRef} />
         <div ref={pendingRef} className="flex flex-col gap-3">
           <h3 className="text-[18px] font-bold text-temple-600 font-hindi border-b border-saffron-100 pb-1.5 flex justify-between items-center">
-            <span>{hi.earnings.pendingPayout}</span>
+            <span>{t("earnings.pendingPayout")}</span>
             <span className="text-[18px] font-bold text-leaf-700 font-mono">
               ₹{summary.pendingPayout.toLocaleString("en-IN")}
             </span>
           </h3>
 
           {pendingPayouts.length === 0 && paidPayouts.length === 0 ? (
-            <EmptyState emoji="🪙" title={hi.empty.noPayoutsTitle} hint={hi.empty.noPayoutsHint} />
+            <EmptyState emoji="🪙" title={t("empty.noPayoutsTitle")} hint={t("empty.noPayoutsHint")} />
           ) : pendingPayouts.length === 0 ? (
-            <p className="text-[16px] text-softgrey font-hindi text-center py-4">{hi.earnings.noPending}</p>
+            <p className="text-[16px] text-softgrey font-hindi text-center py-4">{t("earnings.noPending")}</p>
           ) : (
             <div className="flex flex-col gap-3">
               {pendingPayouts.map((p) => {
@@ -185,7 +185,7 @@ export default function EarningsPage() {
                     <div className="flex flex-col items-end gap-1.5">
                       <span className="text-[18px] font-bold text-leaf-700 font-mono">₹{p.amount.toLocaleString("en-IN")}</span>
                       <span className="bg-amber-100 text-amber-800 text-[12px] font-bold px-2 py-0.5 rounded-full font-hindi">
-                        {hi.earnings.processing}
+                        {t("earnings.processing")}
                       </span>
                     </div>
                   </Card>
@@ -198,11 +198,11 @@ export default function EarningsPage() {
         {/* PAID PAYOUTS SECTION */}
         <div className="flex flex-col gap-3">
           <h3 className="text-[18px] font-bold text-temple-600 font-hindi border-b border-saffron-100 pb-1.5">
-            {hi.earnings.paid}
+            {t("earnings.paid")}
           </h3>
 
           {paidPayouts.length === 0 ? (
-            <p className="text-[16px] text-softgrey font-hindi text-center py-4">{hi.earnings.noPaid}</p>
+            <p className="text-[16px] text-softgrey font-hindi text-center py-4">{t("earnings.noPaid")}</p>
           ) : (
             <div className="flex flex-col gap-3">
               {paidPayouts.map((p) => {
@@ -213,7 +213,7 @@ export default function EarningsPage() {
                       <span className="text-[18px] font-bold text-ink font-hindi">{title}</span>
                       {p.paidAt && (
                         <span className="text-[14px] text-softgrey font-hindi">
-                          {hi.earnings.paid}: {formatHindiDate(p.paidAt)}
+                          {t("earnings.paid")}: {formatHindiDate(p.paidAt)}
                         </span>
                       )}
                     </div>

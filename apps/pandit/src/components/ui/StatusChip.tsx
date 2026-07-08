@@ -4,7 +4,7 @@ import React from "react";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
-import { hi } from "../../lib/strings";
+import { t } from "../../lib/i18n";
 
 function cn(...inputs: (string | undefined | false | null)[]) {
   return twMerge(clsx(inputs));
@@ -25,32 +25,32 @@ export interface StatusChipProps {
 
 export function StatusChip({ status, className }: StatusChipProps) {
   let chipStyles = "bg-[#EFE8DC] text-softgrey";
-  let label: string = hi.status.cancelled;
+  let label: string = t("status.cancelled");
 
   switch (status) {
     case "REQUESTED":
       chipStyles = "bg-[#FDEBD2] text-[#8A5410]";
-      label = hi.status.requested;
+      label = t("status.requested");
       break;
     case "ACCEPTED":
       // Literals exception allowed: #E8F0FE for bg, #1A56DB for text
       chipStyles = "bg-[#E7ECF7] text-[#2C4A8A]";
-      label = hi.status.accepted;
+      label = t("status.accepted");
       break;
     case "IN_PROGRESS":
       // Literals exception allowed: #FEF3C7 for bg, #92400E for text
       chipStyles = "bg-[#FBE9CF] text-[#9A5B12]";
-      label = hi.status.inProgress;
+      label = t("status.inProgress");
       break;
     case "COMPLETED":
       chipStyles = "bg-leaf-100 text-leaf-700";
-      label = hi.status.completed;
+      label = t("status.completed");
       break;
     case "REJECTED":
     case "CANCELLED":
     default:
       chipStyles = "bg-[#EFE8DC] text-softgrey";
-      label = hi.status.cancelled;
+      label = t("status.cancelled");
       break;
   }
 

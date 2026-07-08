@@ -13,7 +13,7 @@ import { useRouter } from "next/navigation";
 import { useVoice } from "../../hooks/useVoice";
 import { useVoiceInput } from "../../hooks/useVoiceInput";
 import { voiceController } from "../../lib/voiceController";
-import { hi } from "../../lib/strings";
+import { t } from "../../lib/i18n";
 
 export interface Command {
   keywords: string[];
@@ -127,7 +127,7 @@ export function VoiceActionListener({
   return listening ? (
     <div className="sticky top-16 z-30 flex justify-center pointer-events-none">
       <span className="bg-gold/15 border border-gold text-temple-600 text-[16px] font-semibold font-hindi rounded-full px-4 py-1.5 backdrop-blur-sm">
-        {hi.voiceLoop.listening}
+        {t("voiceLoop.listening")}
       </span>
     </div>
   ) : null;

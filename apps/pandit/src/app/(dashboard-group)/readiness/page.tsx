@@ -19,7 +19,7 @@ export const dynamic = "force-dynamic";
 
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { hi } from "@/lib/strings";
+import { t } from "@/lib/i18n";
 import { api } from "@/lib/api";
 import { Narrate } from "@/hooks/useScreenVoice";
 import { Header } from "@/components/ui/Header";
@@ -89,7 +89,7 @@ interface Snapshot {
 }
 
 const specLabel = (id: string): string =>
-  (hi.onboarding.specializations as Record<string, string>)[id] || id;
+  t(`onboarding.specializations.${id}`);
 
 export default function ReadinessPage() {
   const router = useRouter();
@@ -230,8 +230,8 @@ export default function ReadinessPage() {
     });
     setSaving(false);
     if (!res.success) {
-      setErrorMsg(res.error?.message || hi.readiness.saveError);
-      speak(hi.common.error);
+      setErrorMsg(res.error?.message || t("readiness.saveError"));
+      speak(t("common.error"));
       return false;
     }
     setSnapshot(res.data as Snapshot);
@@ -257,15 +257,15 @@ export default function ReadinessPage() {
   // ── R1: pujas + dakshina ───────────────────────────────────
   const saveR1 = async () => {
     if (specs.length === 0) {
-      setErrorMsg(hi.onboarding.specError);
-      speak(hi.common.error);
+      setErrorMsg(t("onboarding.specError"));
+      speak(t("common.error"));
       return;
     }
     for (const spec of specs) {
       const amount = Number(dakshina[spec] || "");
       if (isNaN(amount) || amount < 501 || amount > 500000) {
-        setErrorMsg(hi.onboarding.dakshinaError);
-        speak(hi.common.error);
+        setErrorMsg(t("onboarding.dakshinaError"));
+        speak(t("common.error"));
         return;
       }
     }
@@ -278,8 +278,8 @@ export default function ReadinessPage() {
     });
     if (!profRes.success) {
       setSaving(false);
-      setErrorMsg(profRes.error?.message || hi.readiness.saveError);
-      speak(hi.common.error);
+      setErrorMsg(profRes.error?.message || t("readiness.saveError"));
+      speak(t("common.error"));
       return;
     }
     for (const spec of specs) {
@@ -289,8 +289,8 @@ export default function ReadinessPage() {
       });
       if (!rateRes.success) {
         setSaving(false);
-        setErrorMsg(rateRes.error?.message || hi.readiness.saveError);
-        speak(hi.common.error);
+        setErrorMsg(rateRes.error?.message || t("readiness.saveError"));
+        speak(t("common.error"));
         return;
       }
     }
@@ -301,15 +301,15 @@ export default function ReadinessPage() {
   // ── R2: samagri dual model ─────────────────────────────────
   const saveR2 = async () => {
     if (canBring === null) {
-      setErrorMsg(hi.readiness.r2Question);
-      speak(hi.readiness.r2Question);
+      setErrorMsg(t("readiness.r2Question"));
+      speak(t("readiness.r2Question"));
       return;
     }
     if (canBring) {
       const missing = specs.filter((s) => !(snapshot.samagriTiersByPuja[s] > 0));
       if (missing.length > 0) {
-        setErrorMsg(hi.readiness.r2Error);
-        speak(hi.readiness.r2Error);
+        setErrorMsg(t("readiness.r2Error"));
+        speak(t("readiness.r2Error"));
         return;
       }
     }
@@ -319,18 +319,18 @@ export default function ReadinessPage() {
   // ── R3: travel ─────────────────────────────────────────────
   const saveR3 = async () => {
     if (travel.ownVehicle.enabled && !travel.ownVehicle.maxKm) {
-      setErrorMsg(hi.readiness.ownVehicleKm);
-      speak(hi.readiness.ownVehicleKm);
+      setErrorMsg(t("readiness.ownVehicleKm"));
+      speak(t("readiness.ownVehicleKm"));
       return;
     }
     if (travel.train.enabled && travel.train.classes.length === 0) {
-      setErrorMsg(hi.readiness.train);
-      speak(hi.common.error);
+      setErrorMsg(t("readiness.train"));
+      speak(t("common.error"));
       return;
     }
     if (travel.bus.enabled && !travel.bus.ac) {
-      setErrorMsg(hi.readiness.bus);
-      speak(hi.common.error);
+      setErrorMsg(t("readiness.bus"));
+      speak(t("common.error"));
       return;
     }
     if (await patchStep(3, { travelPrefs: travel })) setStep(4);
@@ -342,8 +342,8 @@ export default function ReadinessPage() {
     if (allowance.trim() !== "") {
       allowanceNum = Number(allowance);
       if (isNaN(allowanceNum) || allowanceNum < 1 || allowanceNum > 100000) {
-        setErrorMsg(hi.readiness.allowancePlaceholder);
-        speak(hi.common.error);
+        setErrorMsg(t("readiness.allowancePlaceholder"));
+        speak(t("common.error"));
         return;
       }
     }
@@ -363,24 +363,24 @@ export default function ReadinessPage() {
   // ── R5: payment + verification (finish) ────────────────────
   const saveR5 = async () => {
     if (!aadhaarUrl) {
-      setErrorMsg(hi.onboarding.aadhaarError);
-      speak(hi.common.error);
+      setErrorMsg(t("onboarding.aadhaarError"));
+      speak(t("common.error"));
       return;
     }
     if (paymentType === "BANK") {
       if (!bank.accountName.trim() || !/^\d{9,18}$/.test(bank.accountNumber) || !/^[A-Z]{4}0[A-Z0-9]{6}$/.test(bank.ifsc)) {
-        setErrorMsg(hi.onboarding.paymentError);
-        speak(hi.common.error);
+        setErrorMsg(t("onboarding.paymentError"));
+        speak(t("common.error"));
         return;
       }
       if (bank.accountNumber !== bank.accountNumberConfirm) {
-        setErrorMsg(hi.onboarding.accMismatch);
-        speak(hi.common.error);
+        setErrorMsg(t("onboarding.accMismatch"));
+        speak(t("common.error"));
         return;
       }
     } else if (!/^[\w.-]{2,}@[a-zA-Z]{2,}$/.test(upi.id)) {
-      setErrorMsg(hi.onboarding.paymentError);
-      speak(hi.common.error);
+      setErrorMsg(t("onboarding.paymentError"));
+      speak(t("common.error"));
       return;
     }
     const ok = await patchStep(5, {
@@ -416,13 +416,13 @@ export default function ReadinessPage() {
       if (json.success && (json.data?.key || json.data?.url)) {
         setAadhaarUrl(json.data.key || json.data.url);
       } else {
-        setErrorMsg(json.error?.message || hi.common.error);
-        speak(hi.common.error);
+        setErrorMsg(json.error?.message || t("common.error"));
+        speak(t("common.error"));
       }
     } catch {
       setUploading(false);
-      setErrorMsg(hi.common.error);
-      speak(hi.common.error);
+      setErrorMsg(t("common.error"));
+      speak(t("common.error"));
     }
   };
 
@@ -430,12 +430,12 @@ export default function ReadinessPage() {
   if (showCelebration) {
     return (
       <>
-        <Narrate text={hi.readiness.readyCelebrationVoice} />
+        <Narrate text={t("readiness.readyCelebrationVoice")} />
         <CelebrationScreen
           emoji="🚩"
-          title={hi.readiness.readyCelebrationTitle}
-          message={hi.home.pendingVerification}
-          ctaLabel={hi.onboarding.homeBtn}
+          title={t("readiness.readyCelebrationTitle")}
+          message={t("home.pendingVerification")}
+          ctaLabel={t("onboarding.homeBtn")}
           onCta={() => router.push("/home")}
         />
       </>
@@ -443,18 +443,18 @@ export default function ReadinessPage() {
   }
 
   const stepTitles = [
-    hi.readiness.r1Title,
-    hi.readiness.r2Title,
-    hi.readiness.r3Title,
-    hi.readiness.r4Title,
-    hi.readiness.r5Title,
+    t("readiness.r1Title"),
+    t("readiness.r2Title"),
+    t("readiness.r3Title"),
+    t("readiness.r4Title"),
+    t("readiness.r5Title"),
   ];
   const stepVoices = [
-    hi.readiness.r1Voice,
-    hi.readiness.r2Question,
-    hi.readiness.r3Voice,
-    hi.readiness.r4Voice,
-    hi.readiness.r5Voice,
+    t("readiness.r1Voice"),
+    t("readiness.r2Question"),
+    t("readiness.r3Voice"),
+    t("readiness.r4Voice"),
+    t("readiness.r5Voice"),
   ];
   const saveHandlers = [saveR1, saveR2, saveR3, saveR4, saveR5];
 
@@ -532,10 +532,10 @@ export default function ReadinessPage() {
         <footer className="shrink-0 bg-white border-t border-saffron-100 flex items-end p-3 gap-3">
           <div className="flex-1 flex flex-col gap-2">
             <Button variant="primary" size="lg" fullWidth onClick={saveHandlers[step - 1]} loading={saving}>
-              {step === 5 ? hi.readiness.finishBtn : hi.common.next}
+              {step === 5 ? t("readiness.finishBtn") : t("common.next")}
             </Button>
             <Button variant="ghost" size="md" fullWidth onClick={exitForLater}>
-              {hi.readiness.exitBtn}
+              {t("readiness.exitBtn")}
             </Button>
           </div>
           <ShishyaOrb />
@@ -578,8 +578,8 @@ function YesNoRow({
 }) {
   return (
     <div className="grid grid-cols-2 gap-3">
-      <Chip label={hi.common.yes} selected={value === true} onClick={() => onChange(true)} />
-      <Chip label={hi.common.no} selected={value === false} onClick={() => onChange(false)} />
+      <Chip label={t("common.yes")} selected={value === true} onClick={() => onChange(true)} />
+      <Chip label={t("common.no")} selected={value === false} onClick={() => onChange(false)} />
     </div>
   );
 }
@@ -630,7 +630,7 @@ function StepR1({
 }) {
   return (
     <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-4">
-      <label className="text-[18px] font-bold text-temple-700 font-hindi">{hi.readiness.r1SpecLabel}</label>
+      <label className="text-[18px] font-bold text-temple-700 font-hindi">{t("readiness.r1SpecLabel")}</label>
       <div className="grid grid-cols-2 gap-3">
         {SPEC_LIST.map((spec) => {
           const isSelected = specs.includes(spec.id);
@@ -658,7 +658,7 @@ function StepR1({
       {specs.length > 0 && (
         <div className="flex flex-col gap-4 border-t border-saffron-100 pt-4">
           <label className="text-[18px] font-bold text-temple-700 font-hindi">
-            {hi.readiness.r1DakshinaLabel}
+            {t("readiness.r1DakshinaLabel")}
           </label>
           {specs.map((spec) => (
             <div key={spec} className="border-b border-slate-100 pb-3 last:border-0 last:pb-0">
@@ -710,13 +710,13 @@ function StepR2({
       />
       <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-4">
         <h2 className="text-[20px] font-bold text-temple-700 font-hindi leading-snug">
-          {hi.readiness.r2Question}
+          {t("readiness.r2Question")}
         </h2>
         <YesNoRow value={canBring} onChange={setCanBring} />
         {canBring === false && (
           <div className="px-4 py-3 bg-leaf-100 rounded-card border border-leaf-500/30">
             <p className="text-[18px] font-bold text-leaf-700 font-hindi leading-snug">
-              {hi.readiness.r2NoInfo}
+              {t("readiness.r2NoInfo")}
             </p>
           </div>
         )}
@@ -724,7 +724,7 @@ function StepR2({
 
       {canBring === true && (
         <div className="flex flex-col gap-3">
-          <p className="t-hint font-hindi">{hi.readiness.r2BuilderHint}</p>
+          <p className="t-hint font-hindi">{t("readiness.r2BuilderHint")}</p>
           {specs.map((spec) => {
             const done = samagriTiersByPuja[spec] > 0;
             return (
@@ -740,7 +740,7 @@ function StepR2({
                     done ? "bg-leaf-100 text-leaf-700" : "bg-saffron-50 text-saffron-600"
                   }`}
                 >
-                  {done ? hi.readiness.r2PujaDone : hi.readiness.r2PujaPending}
+                  {done ? t("readiness.r2PujaDone") : t("readiness.r2PujaPending")}
                 </span>
               </Card>
             );
@@ -768,40 +768,40 @@ function StepR3({ travel, setTravel }: { travel: TravelPrefs; setTravel: (v: Tra
     <>
       <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-3">
         <ToggleRow
-          label={hi.readiness.ownVehicle}
+          label={t("readiness.ownVehicle")}
           enabled={travel.ownVehicle.enabled}
           onToggle={(v) => setTravel({ ...travel, ownVehicle: { enabled: v, maxKm: v ? travel.ownVehicle.maxKm : null } })}
         />
         {travel.ownVehicle.enabled && (
           <div className="flex flex-col gap-2 border-t border-saffron-100 pt-3">
-            <span className="text-[18px] font-bold text-temple-700 font-hindi">{hi.readiness.ownVehicleKm}</span>
+            <span className="text-[18px] font-bold text-temple-700 font-hindi">{t("readiness.ownVehicleKm")}</span>
             <div className="grid grid-cols-3 gap-2">
               {KM_STEPS.map((km) => (
                 <Chip
                   key={km}
-                  label={hi.readiness.kmUnit.replace("{km}", String(km))}
+                  label={t("readiness.kmUnit").replace("{km}", String(km))}
                   selected={travel.ownVehicle.maxKm === km}
                   onClick={() => setTravel({ ...travel, ownVehicle: { enabled: true, maxKm: km } })}
                 />
               ))}
             </div>
-            <p className="t-hint font-hindi">{hi.readiness.ownVehicleRate}</p>
+            <p className="t-hint font-hindi">{t("readiness.ownVehicleRate")}</p>
           </div>
         )}
       </Card>
 
       <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-3">
         <ToggleRow
-          label={hi.readiness.train}
+          label={t("readiness.train")}
           enabled={travel.train.enabled}
           onToggle={(v) => setTravel({ ...travel, train: { enabled: v, classes: v ? travel.train.classes : [] } })}
         />
         {travel.train.enabled && (
           <div className="grid grid-cols-3 gap-2 border-t border-saffron-100 pt-3">
             {[
-              { key: "SLEEPER", label: hi.readiness.trainSleeper },
-              { key: "3AC", label: hi.readiness.train3ac },
-              { key: "2AC", label: hi.readiness.train2ac },
+              { key: "SLEEPER", label: t("readiness.trainSleeper") },
+              { key: "3AC", label: t("readiness.train3ac") },
+              { key: "2AC", label: t("readiness.train2ac") },
             ].map((c) => (
               <Chip
                 key={c.key}
@@ -826,19 +826,19 @@ function StepR3({ travel, setTravel }: { travel: TravelPrefs; setTravel: (v: Tra
 
       <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-3">
         <ToggleRow
-          label={hi.readiness.bus}
+          label={t("readiness.bus")}
           enabled={travel.bus.enabled}
           onToggle={(v) => setTravel({ ...travel, bus: { enabled: v, ac: v ? travel.bus.ac : null } })}
         />
         {travel.bus.enabled && (
           <div className="grid grid-cols-2 gap-2 border-t border-saffron-100 pt-3">
             <Chip
-              label={hi.readiness.busAc}
+              label={t("readiness.busAc")}
               selected={travel.bus.ac === "AC"}
               onClick={() => setTravel({ ...travel, bus: { enabled: true, ac: "AC" } })}
             />
             <Chip
-              label={hi.readiness.busNonAc}
+              label={t("readiness.busNonAc")}
               selected={travel.bus.ac === "NON_AC"}
               onClick={() => setTravel({ ...travel, bus: { enabled: true, ac: "NON_AC" } })}
             />
@@ -848,28 +848,28 @@ function StepR3({ travel, setTravel }: { travel: TravelPrefs; setTravel: (v: Tra
 
       <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-3">
         <ToggleRow
-          label={`${hi.readiness.flight} (${hi.readiness.flightEconomy})`}
+          label={`${t("readiness.flight")} (${t("readiness.flightEconomy")})`}
           enabled={travel.flight.enabled}
           onToggle={(v) => setTravel({ ...travel, flight: { enabled: v } })}
         />
         {/* doc edge-case 8: undisclosed flying fear — परहेज़ multi-chips */}
         <div className="flex flex-col gap-2 border-t border-saffron-100 pt-3">
           <span className="text-[18px] font-bold text-temple-700 font-hindi">
-            {hi.readiness.exclusionsLabel}
+            {t("readiness.exclusionsLabel")}
           </span>
           <div className="flex flex-col gap-2">
             <Chip
-              label={hi.readiness.exclNoFlight}
+              label={t("readiness.exclNoFlight")}
               selected={travel.exclusions.includes("NO_FLIGHT")}
               onClick={() => toggleExclusion("NO_FLIGHT")}
             />
             <Chip
-              label={hi.readiness.exclNoNight}
+              label={t("readiness.exclNoNight")}
               selected={travel.exclusions.includes("NO_NIGHT")}
               onClick={() => toggleExclusion("NO_NIGHT")}
             />
             <Chip
-              label={hi.readiness.exclNone}
+              label={t("readiness.exclNone")}
               selected={travel.exclusions.includes("NONE")}
               onClick={() => toggleExclusion("NONE")}
             />
@@ -878,7 +878,7 @@ function StepR3({ travel, setTravel }: { travel: TravelPrefs; setTravel: (v: Tra
       </Card>
 
       <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-3">
-        <span className="text-[20px] font-bold text-ink font-hindi">{hi.readiness.localCabQ}</span>
+        <span className="text-[20px] font-bold text-ink font-hindi">{t("readiness.localCabQ")}</span>
         <YesNoRow
           value={travel.localCabOk}
           onChange={(v) => setTravel({ ...travel, localCabOk: v })}
@@ -904,21 +904,21 @@ function StepR4(props: {
   setHotelTier: (v: string | null) => void;
 }) {
   const diets = [
-    { key: "ANY", label: hi.readiness.dietAny },
-    { key: "PURE_VEG", label: hi.readiness.dietPureVeg },
-    { key: "JAIN", label: hi.readiness.dietJain },
-    { key: "VEGAN", label: hi.readiness.dietVegan },
+    { key: "ANY", label: t("readiness.dietAny") },
+    { key: "PURE_VEG", label: t("readiness.dietPureVeg") },
+    { key: "JAIN", label: t("readiness.dietJain") },
+    { key: "VEGAN", label: t("readiness.dietVegan") },
   ];
   const tiers = [
-    { key: "BUDGET", label: hi.readiness.hotelBudget },
-    { key: "THREE_STAR", label: hi.readiness.hotel3Star },
-    { key: "FOUR_STAR_PLUS", label: hi.readiness.hotel4Star },
+    { key: "BUDGET", label: t("readiness.hotelBudget") },
+    { key: "THREE_STAR", label: t("readiness.hotel3Star") },
+    { key: "FOUR_STAR_PLUS", label: t("readiness.hotel4Star") },
   ];
 
   return (
     <>
       <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-3">
-        <span className="text-[18px] font-bold text-temple-700 font-hindi">{hi.readiness.dietaryLabel}</span>
+        <span className="text-[18px] font-bold text-temple-700 font-hindi">{t("readiness.dietaryLabel")}</span>
         <div className="grid grid-cols-2 gap-2">
           {diets.map((d) => (
             <Chip
@@ -932,37 +932,37 @@ function StepR4(props: {
       </Card>
 
       <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-3">
-        <span className="text-[20px] font-bold text-ink font-hindi">{hi.readiness.hotelFoodQ}</span>
+        <span className="text-[20px] font-bold text-ink font-hindi">{t("readiness.hotelFoodQ")}</span>
         <YesNoRow value={props.hotelFoodOk} onChange={props.setHotelFoodOk} />
       </Card>
 
       <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-4">
         <VoiceField
-          label={hi.readiness.allergiesLabel}
-          promptText={hi.readiness.allergiesLabel}
+          label={t("readiness.allergiesLabel")}
+          promptText={t("readiness.allergiesLabel")}
           value={props.allergies}
           onChange={props.setAllergies}
           mode="text"
-          placeholder={hi.readiness.allergiesPlaceholder}
+          placeholder={t("readiness.allergiesPlaceholder")}
         />
         <div className="flex flex-col gap-1">
           <VoiceField
-            label={hi.readiness.allowanceLabel}
-            promptText={`${hi.readiness.allowanceLabel} — ${hi.readiness.allowanceNote}`}
+            label={t("readiness.allowanceLabel")}
+            promptText={`${t("readiness.allowanceLabel")} — ${t("readiness.allowanceNote")}`}
             value={props.allowance}
             onChange={props.setAllowance}
             mode="money"
-            placeholder={hi.readiness.allowancePlaceholder}
+            placeholder={t("readiness.allowancePlaceholder")}
           />
-          <p className="t-hint font-hindi">{hi.readiness.allowanceNote}</p>
+          <p className="t-hint font-hindi">{t("readiness.allowanceNote")}</p>
         </div>
       </Card>
 
       <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-3">
-        <span className="text-[20px] font-bold text-ink font-hindi">{hi.readiness.stayQ}</span>
+        <span className="text-[20px] font-bold text-ink font-hindi">{t("readiness.stayQ")}</span>
         <YesNoRow value={props.stayHome} onChange={props.setStayHome} />
         <div className="flex flex-col gap-2 border-t border-saffron-100 pt-3">
-          <span className="text-[18px] font-bold text-temple-700 font-hindi">{hi.readiness.hotelTierLabel}</span>
+          <span className="text-[18px] font-bold text-temple-700 font-hindi">{t("readiness.hotelTierLabel")}</span>
           <div className="flex flex-col gap-2">
             {tiers.map((t) => (
               <Chip
@@ -998,17 +998,17 @@ function StepR5(props: {
       {/* Aadhaar */}
       <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-3">
         <label className="text-[18px] font-bold text-temple-700 font-hindi">
-          {hi.onboarding.step6Title}
+          {t("onboarding.step6Title")}
         </label>
         <label className="w-full min-h-[140px] border-2 border-dashed border-saffron-300 rounded-card flex flex-col items-center justify-center p-4 bg-saffron-50/10 cursor-pointer active:bg-saffron-50/30 transition-all select-none">
           <input type="file" accept="image/*" onChange={props.onFileUpload} className="hidden" />
           {props.uploading ? (
             <span className="text-[18px] font-bold text-saffron-600 font-hindi animate-pulse">
-              {hi.common.loading}
+              {t("common.loading")}
             </span>
           ) : (
             <span className="text-[18px] font-bold text-saffron-600 font-hindi text-center">
-              {hi.onboarding.aadhaarLabel}
+              {t("onboarding.aadhaarLabel")}
             </span>
           )}
         </label>
@@ -1018,7 +1018,7 @@ function StepR5(props: {
       {/* Bank / UPI — typed-only by law (A5) */}
       <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-4">
         <label className="text-[18px] font-bold text-temple-700 font-hindi">
-          {hi.onboarding.step7Title}
+          {t("onboarding.step7Title")}
         </label>
         <div className="flex bg-slate-100 rounded-btn p-1.5 border border-saffron-100">
           <button
@@ -1029,7 +1029,7 @@ function StepR5(props: {
             }`}
             style={{ minHeight: "56px" }}
           >
-            {hi.onboarding.bankTab}
+            {t("onboarding.bankTab")}
           </button>
           <button
             type="button"
@@ -1039,14 +1039,14 @@ function StepR5(props: {
             }`}
             style={{ minHeight: "56px" }}
           >
-            {hi.onboarding.upiTab}
+            {t("onboarding.upiTab")}
           </button>
         </div>
 
         {props.paymentType === "BANK" ? (
           <div className="flex flex-col gap-4">
             <VoiceField
-              label={hi.onboarding.accName}
+              label={t("onboarding.accName")}
               promptText="खाताधारक का नाम क्या है?"
               value={bank.accountName}
               onChange={(val) => setBank({ ...bank, accountName: val })}
@@ -1055,7 +1055,7 @@ function StepR5(props: {
             />
             <div className="flex flex-col gap-1.5">
               <label className="text-[18px] font-bold text-temple-700 font-hindi">
-                {hi.onboarding.accNumber}
+                {t("onboarding.accNumber")}
               </label>
               <input
                 type="tel"
@@ -1071,7 +1071,7 @@ function StepR5(props: {
             </div>
             <div className="flex flex-col gap-1.5">
               <label className="text-[18px] font-bold text-temple-700 font-hindi">
-                {hi.onboarding.accNumberConfirm}
+                {t("onboarding.accNumberConfirm")}
               </label>
               <input
                 type="tel"
@@ -1087,7 +1087,7 @@ function StepR5(props: {
             </div>
             <div className="flex flex-col gap-1.5">
               <label className="text-[18px] font-bold text-temple-700 font-hindi">
-                {hi.onboarding.ifscCode}
+                {t("onboarding.ifscCode")}
               </label>
               <input
                 type="text"
@@ -1103,7 +1103,7 @@ function StepR5(props: {
         ) : (
           <div className="flex flex-col gap-1.5">
             <label className="text-[18px] font-bold text-temple-700 font-hindi">
-              {hi.onboarding.upiIdLabel}
+              {t("onboarding.upiIdLabel")}
             </label>
             <input
               type="text"

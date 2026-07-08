@@ -14,8 +14,9 @@
 
 import React, { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import TutorialShell from "./screens/tutorial/TutorialShell";
-import { hi } from "@/lib/strings";
+import { t } from "@/lib/i18n";
 import { useScreenVoice } from "@/hooks/useScreenVoice";
+import { useVoiceInput } from "@/hooks/useVoiceInput";
 import { voiceController } from "@/lib/voiceController";
 import { playBell, playChime } from "@/lib/sounds";
 import { SlideCanvas, accentFor, PetalBurst } from "@/components/moments/SlideCanvas";
@@ -24,7 +25,10 @@ import { Button } from "@/components/ui/Button";
 import { CoachSpotlight } from "@/components/moments/CoachSpotlight";
 import { Card } from "@/components/ui/Card";
 
-export const TUTORIAL_TOTAL = 16;
+// Slide count lives in lib/onboarding-store so light pages (login back
+// law) can target the CTA slide without bundling the tutorial chunk.
+import { TUTORIAL_TOTAL } from "@/lib/onboarding-store";
+export { TUTORIAL_TOTAL };
 
 interface SlideDef {
   title: string;
@@ -41,7 +45,7 @@ const V: Record<string, VisualFn> = {
   s1: () => (
     <>
       <span className="text-[88px] leading-none select-none" aria-hidden="true">🙏</span>
-      <span className="text-[22px] font-bold text-temple-600 font-hindi">{hi.shishya.name}</span>
+      <span className="text-[22px] font-bold text-temple-600 font-hindi">{t("shishya.name")}</span>
     </>
   ),
   s2: () => (
@@ -81,7 +85,7 @@ const V: Record<string, VisualFn> = {
     <>
       <span className="pa-bell-swing text-[64px] leading-none select-none" aria-hidden="true">🔔</span>
       <div className="w-full max-w-[280px] bg-white rounded-card border border-saffron-100 p-4 flex flex-col gap-2">
-        <span className="t-body font-bold text-ink font-hindi">{hi.booking.newRequest}</span>
+        <span className="t-body font-bold text-ink font-hindi">{t("booking.newRequest")}</span>
         <span className="text-[20px] font-bold font-hindi" style={{ color: a.textHex }}>दक्षिणा ₹11,000</span>
         <span className="t-hint text-softgrey font-hindi">यात्रा ₹800 · भोजन ₹500</span>
       </div>
@@ -161,24 +165,23 @@ const V: Record<string, VisualFn> = {
 };
 
 function slideDefs(): SlideDef[] {
-  const t = hi.tutorial;
   return [
-    { title: t.slide1Title, narration: t.slide1, visual: V.s1 },
-    { title: t.slide2Title, narration: t.slide2, visual: V.s2 },
-    { title: t.slide3Title, narration: t.slide3, visual: V.s3 },
-    { title: t.slide4Title, narration: t.slide4, visual: V.s4 },
-    { title: t.slide5Title, narration: t.slide5, visual: null },
-    { title: t.slide6Title, narration: t.slide6, visual: V.s6 },
-    { title: t.slide7Title, narration: t.slide7, visual: V.s7 },
-    { title: t.slide8Title, narration: t.slide8, visual: V.s8 },
-    { title: t.slideHomeTourTitle, narration: t.slideHomeTour, visual: null }, // 9: demo frame
-    { title: t.slide9Title, narration: t.slide9, visual: V.s9 },
-    { title: t.slide10Title, narration: t.slide10, visual: V.s10 },
-    { title: t.slide11Title, narration: t.slide11, visual: V.s11 },
-    { title: t.slide12Title, narration: t.slide12, visual: V.s12 },
-    { title: t.slidePoojasTitle, narration: t.slidePoojas, visual: null }, // 14: demo frame
-    { title: t.slide13Title, narration: t.slide13, visual: V.s13 },
-    { title: t.slide14Title, narration: `${t.slide14} ${t.rewatchNote}`, visual: V.s14 },
+    { title: t("tutorial.slide1Title"), narration: t("tutorial.slide1"), visual: V.s1 },
+    { title: t("tutorial.slide2Title"), narration: t("tutorial.slide2"), visual: V.s2 },
+    { title: t("tutorial.slide3Title"), narration: t("tutorial.slide3"), visual: V.s3 },
+    { title: t("tutorial.slide4Title"), narration: t("tutorial.slide4"), visual: V.s4 },
+    { title: t("tutorial.slide5Title"), narration: t("tutorial.slide5"), visual: null },
+    { title: t("tutorial.slide6Title"), narration: t("tutorial.slide6"), visual: V.s6 },
+    { title: t("tutorial.slide7Title"), narration: t("tutorial.slide7"), visual: V.s7 },
+    { title: t("tutorial.slide8Title"), narration: t("tutorial.slide8"), visual: V.s8 },
+    { title: t("tutorial.slideHomeTourTitle"), narration: t("tutorial.slideHomeTour"), visual: null }, // 9: demo frame
+    { title: t("tutorial.slide9Title"), narration: t("tutorial.slide9"), visual: V.s9 },
+    { title: t("tutorial.slide10Title"), narration: t("tutorial.slide10"), visual: V.s10 },
+    { title: t("tutorial.slide11Title"), narration: t("tutorial.slide11"), visual: V.s11 },
+    { title: t("tutorial.slide12Title"), narration: t("tutorial.slide12"), visual: V.s12 },
+    { title: t("tutorial.slidePoojasTitle"), narration: t("tutorial.slidePoojas"), visual: null }, // 14: demo frame
+    { title: t("tutorial.slide13Title"), narration: t("tutorial.slide13"), visual: V.s13 },
+    { title: t("tutorial.slide14Title"), narration: `${t("tutorial.slide14")} ${t("tutorial.rewatchNote")}`, visual: V.s14 },
   ];
 }
 
@@ -196,12 +199,12 @@ function MiniHomeDemo({
     <div aria-hidden="true" className="pointer-events-none select-none origin-top scale-[0.82] w-full max-w-[360px] mx-auto flex flex-col gap-3 bg-cream rounded-card border border-saffron-100 p-3">
       <div ref={refs[0]}>
         <div className="w-full h-16 rounded-btn bg-leaf-700 text-white flex items-center justify-center font-bold text-[20px] font-hindi online-glow">
-          {hi.home.goOffline}
+          {t("home.goOffline")}
         </div>
       </div>
       <div ref={refs[1]}>
         <Card className="p-4 bg-white border border-saffron-100 flex flex-col gap-1">
-          <span className="text-[16px] font-bold text-temple-600 font-hindi">{hi.home.todayBookings}</span>
+          <span className="text-[16px] font-bold text-temple-600 font-hindi">{t("home.todayBookings")}</span>
           <div className="flex items-center justify-between">
             <div className="flex flex-col">
               <span className="text-[22px] font-bold text-ink font-mono">03:00 PM</span>
@@ -214,15 +217,15 @@ function MiniHomeDemo({
       <div ref={refs[2]}>
         {/* static replica of the thali nav — no live buttons, no second orb */}
         <div className="relative w-full bg-[#FFF9EE] border-t-2 border-gold h-[72px] flex items-center justify-between px-2">
-          {[hi.nav.home, hi.nav.bookings].map((t, i) => (
-            <span key={t} className={`flex-1 text-center text-[13px] font-bold font-hindi ${i === 0 ? "text-saffron-600" : "text-softgrey"}`}>
-              {i === 0 ? "🏠" : "📿"} {t}
+          {[t("nav.home"), t("nav.bookings")].map((label, i) => (
+            <span key={label} className={`flex-1 text-center text-[13px] font-bold font-hindi ${i === 0 ? "text-saffron-600" : "text-softgrey"}`}>
+              {i === 0 ? "🏠" : "📿"} {label}
             </span>
           ))}
           <span className="w-[66px] h-[66px] -mt-8 rounded-full bg-saffron-500 border-4 border-gold flex items-center justify-center text-[28px] shrink-0">🙏</span>
-          {[hi.nav.earnings, hi.nav.calendar].map((t, i) => (
-            <span key={t} className="flex-1 text-center text-[13px] font-bold text-softgrey font-hindi">
-              {i === 0 ? "💰" : "📅"} {t}
+          {[t("nav.earnings"), t("nav.calendar")].map((label, i) => (
+            <span key={label} className="flex-1 text-center text-[13px] font-bold text-softgrey font-hindi">
+              {i === 0 ? "💰" : "📅"} {label}
             </span>
           ))}
         </div>
@@ -347,45 +350,77 @@ export default function TutorialV2({
 
   // ── Slide 5: mic permission + practice ─────────────────────
   const [micState, setMicState] = useState<"idle" | "asking" | "listening" | "done" | "denied">("idle");
-  const recRef = useRef<{ stop: () => void } | null>(null);
-  const askMic = async () => {
+  // Browser-level permission state (permissions.query where available):
+  // 'granted' → no prompt will show, straight to practice; 'denied' →
+  // recovery copy + retry; 'prompt'/'unknown' → the tap fires the prompt.
+  const [micPerm, setMicPerm] = useState<"granted" | "denied" | "prompt" | "unknown">("unknown");
+  const voiceInput = useVoiceInput();
+  useEffect(() => {
+    if (idx !== 4 || !navigator.permissions?.query) return;
+    let status: PermissionStatus | null = null;
+    let disposed = false;
+    navigator.permissions
+      .query({ name: "microphone" as PermissionName })
+      .then((s) => {
+        if (disposed) return;
+        status = s;
+        setMicPerm(s.state);
+        s.onchange = () => setMicPerm(s.state);
+      })
+      .catch(() => setMicPerm("unknown"));
+    return () => {
+      disposed = true;
+      if (status) status.onchange = null;
+    };
+  }, [idx]);
+
+  const askMic = () => {
+    // DIRECT-GESTURE LAW: Chrome fires the native permission prompt only
+    // when getUserMedia starts synchronously inside the user-gesture call
+    // stack — create the promise FIRST; speech teardown happens while the
+    // prompt is already up.
+    const streamPromise = navigator.mediaDevices.getUserMedia({ audio: true });
     voiceController.stopSpeech();
     setMicState("asking");
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      stream.getTracks().forEach((t) => t.stop());
-      localStorage.setItem("mic_permission_granted", "true");
-      onMicGranted();
-      setMicState("listening");
-      // one practice listen window via the browser recognizer
-      const { startListening } = await import("@/lib/voice-engine");
-      const cleanup = startListening({
-        language: "hi-IN",
-        onResult: () => {
-          setMicState("done");
-          voiceController.speak(hi.tutorial.slide5Practice);
-        },
-        onError: () => {
-          setMicState("done");
-          voiceController.speak(hi.tutorial.slide5Practice);
-        },
+    void streamPromise
+      .then(async (stream) => {
+        localStorage.setItem("mic_permission_granted", "true");
+        setMicPerm("granted");
+        onMicGranted();
+        setMicState("listening");
+        // one practice listen on the SAME granted stream — never a second
+        // getUserMedia for this gesture
+        await voiceInput.start({ stream });
+      })
+      .catch(() => {
+        localStorage.setItem("mic_permission_granted", "false");
+        setMicPerm("denied");
+        setMicState("denied");
+        onMicDenied();
+        voiceController.speak(t("tutorial.slide5Denied"));
       });
-      recRef.current = { stop: cleanup };
-    } catch {
-      localStorage.setItem("mic_permission_granted", "false");
-      setMicState("denied");
-      onMicDenied();
-      voiceController.speak(hi.tutorial.slide5Denied);
-    }
   };
-  useEffect(() => () => recRef.current?.stop(), []);
-  // Leaving slide 5 mid-practice: stop the recognizer so its late
-  // onResult/onError can't speak or celebrate over a later slide.
+
+  // Practice resolution: the listen machinery finishing (with or without
+  // a transcript — the point is that the mic worked) completes the drill.
+  useEffect(() => {
+    if (idx !== 4 || micState !== "listening") return;
+    if (voiceInput.state === "idle" && voiceInput.transcript !== null) {
+      setMicState("done");
+      voiceController.speak(t("tutorial.slide5Practice"));
+    } else if (voiceInput.state === "error") {
+      setMicState("done");
+      voiceController.speak(t("tutorial.slide5Practice"));
+    }
+  }, [idx, micState, voiceInput.state, voiceInput.transcript]);
+
+  // Leaving slide 5 mid-practice: stop the recorder so a late result
+  // can't speak or celebrate over a later slide.
   useEffect(() => {
     if (idx === 4) return;
-    recRef.current?.stop();
-    recRef.current = null;
+    voiceInput.reset();
     setMicState((m) => (m === "listening" || m === "asking" ? "idle" : m));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [idx]);
   useEffect(() => {
     if (micState === "done" && idx === 4) {
@@ -408,9 +443,9 @@ export default function TutorialV2({
   }, [idx]);
 
   const tourStrings = [
-    { title: hi.tutorial.tourStep1Title, line: hi.tutorial.tourStep1, ref: tourRef1 },
-    { title: hi.tutorial.tourStep2Title, line: hi.tutorial.tourStep2, ref: tourRef2 },
-    { title: hi.tutorial.tourStep3Title, line: hi.tutorial.tourStep3, ref: tourRef3 },
+    { title: t("tutorial.tourStep1Title"), line: t("tutorial.tourStep1"), ref: tourRef1 },
+    { title: t("tutorial.tourStep2Title"), line: t("tutorial.tourStep2"), ref: tourRef2 },
+    { title: t("tutorial.tourStep3Title"), line: t("tutorial.tourStep3"), ref: tourRef3 },
   ];
 
   // ── Slide 14 (CTA) ──────────────────────────────────────────
@@ -430,7 +465,7 @@ export default function TutorialV2({
         onSkip={skipToCta}
         onBack={goBack}
         onNext={onRegister}
-        nextLabel={hi.tutorial.registerNow}
+        nextLabel={t("tutorial.registerNow")}
         accentHex={accentFor(idx).hex}
       >
         <div className="flex flex-col items-center gap-4 px-2 text-center">
@@ -438,10 +473,10 @@ export default function TutorialV2({
           <h2 className="t-title font-bold text-temple-600 font-hindi">{def.title}</h2>
           <p className="t-body text-ink font-hindi leading-relaxed">{def.narration}</p>
           {stay ? (
-            <p className="t-body text-softgrey font-hindi">{hi.tutorial.laterLine}</p>
+            <p className="t-body text-softgrey font-hindi">{t("tutorial.laterLine")}</p>
           ) : (
             <Button variant="ghost" size="md" onClick={() => { setStay(true); onLater(); }}>
-              {hi.tutorial.later}
+              {t("tutorial.later")}
             </Button>
           )}
         </div>
@@ -456,7 +491,7 @@ export default function TutorialV2({
       onSkip={skipToCta}
       onBack={idx === 0 ? undefined : goBack}
       onNext={nextDisabled ? () => { } : goNext}
-      nextLabel={nextDisabled ? `⏳ ${hi.coach.tryIt}` : hi.tutorial.next}
+      nextLabel={nextDisabled ? `⏳ ${t("coach.tryIt")}` : t("tutorial.next")}
       nextDisabled={nextDisabled}
       accentHex={accentFor(idx).hex}
     >
@@ -471,29 +506,38 @@ export default function TutorialV2({
             ) : idx === 4 ? (
               <div className="w-full max-w-[300px] flex flex-col items-center gap-3 bg-white rounded-card border border-saffron-100 p-5">
                 <span className="text-[64px]" aria-hidden="true">🗣️</span>
-                {micState === "idle" || micState === "asking" ? (
+                {micState === "denied" || (micState === "idle" && micPerm === "denied") ? (
+                  // Browser-level DENY: no prompt can appear — show the
+                  // site-settings recovery copy and a retry that goes
+                  // straight to getUserMedia inside the tap.
+                  <>
+                    <span className="t-body text-softgrey font-hindi text-center">{t("tutorial.slide5Denied")}</span>
+                    <span className="t-body font-bold text-temple-600 font-hindi text-center">{t("tutorial.slide5Blocked")}</span>
+                    <Button variant="secondary" size="md" fullWidth onClick={askMic}>
+                      {t("tutorial.slide5Retry")}
+                    </Button>
+                  </>
+                ) : micState === "idle" || micState === "asking" ? (
                   <Button variant="primary" size="md" fullWidth onClick={askMic} loading={micState === "asking"}>
-                    {hi.tutorial.slide5Button}
+                    {t("tutorial.slide5Button")}
                   </Button>
                 ) : micState === "listening" ? (
                   <>
                     <div ref={pillRef}>
                       <span className="bg-gold/15 border border-gold text-temple-600 text-[18px] font-semibold font-hindi rounded-full px-4 py-2">
-                        {hi.pratham.practiceListening}
+                        {t("pratham.practiceListening")}
                       </span>
                     </div>
                     <CoachSpotlight
                       targetRef={pillRef}
-                      title={hi.tutorial.slide5Title}
-                      line={hi.pratham.practiceSay}
+                      title={t("tutorial.slide5Title")}
+                      line={t("pratham.practiceSay")}
                       requireInteraction
                       onDone={() => { /* resolves when the listen completes */ }}
                     />
                   </>
-                ) : micState === "done" ? (
-                  <span className="text-[20px] font-bold text-leaf-700 font-hindi">✓ {hi.tutorial.slide5Practice}</span>
                 ) : (
-                  <span className="t-body text-softgrey font-hindi">{hi.tutorial.slide5Denied}</span>
+                  <span className="text-[20px] font-bold text-leaf-700 font-hindi">✓ {t("tutorial.slide5Practice")}</span>
                 )}
               </div>
             ) : (
@@ -509,8 +553,8 @@ export default function TutorialV2({
         {idx === 2 && !gateOpen && fabEl && (
           <CoachSpotlight
             targetRef={fabRef}
-            title={hi.tutorial.slide3Title}
-            line={hi.tutorial.slide3}
+            title={t("tutorial.slide3Title")}
+            line={t("tutorial.slide3")}
             requireInteraction
             onDone={() => { /* gate opens via the mute→unmute subscription */ }}
           />
@@ -530,8 +574,8 @@ export default function TutorialV2({
         {idx === 13 && !poojasSpotDone && (
           <CoachSpotlight
             targetRef={poojasAddRef}
-            title={hi.tutorial.slidePoojasTitle}
-            line={hi.tutorial.slidePoojas}
+            title={t("tutorial.slidePoojasTitle")}
+            line={t("tutorial.slidePoojas")}
             onDone={() => setPoojasSpotDone(true)}
           />
         )}

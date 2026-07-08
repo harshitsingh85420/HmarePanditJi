@@ -3,7 +3,7 @@
 import { Narrate } from "@/hooks/useScreenVoice";
 import React, { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { hi } from "@/lib/strings";
+import { t } from "@/lib/i18n";
 import { api } from "@/lib/api";
 import { playBell, vibrateConfirm } from "@/lib/sounds";
 import { FirstUseTip } from "@/components/moments/FirstUseTip";
@@ -67,7 +67,7 @@ export default function BookingDetailPage() {
     if (res.success && res.data?.booking) {
       setBooking(res.data.booking);
     } else {
-      setErrorMsg(hi.common.error);
+      setErrorMsg(t("common.error"));
     }
   };
 
@@ -87,7 +87,7 @@ export default function BookingDetailPage() {
   if (!booking) {
     return (
       <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
-        <Header title={hi.booking.detailsTitle} showBack onBack={() => router.push("/bookings")} />
+        <Header title={t("booking.detailsTitle")} showBack onBack={() => router.push("/bookings")} />
         <div className="flex-grow flex items-center justify-center p-6 text-center">
           <p className="text-danger text-[20px] font-bold">{errorMsg || "Booking not found."}</p>
         </div>
@@ -118,20 +118,20 @@ export default function BookingDetailPage() {
     setActionLoading(false);
 
     if (!res.success) {
-      setErrorMsg(hi.common.error);
-      speak(hi.common.error);
+      setErrorMsg(t("common.error"));
+      speak(t("common.error"));
       return;
     }
 
     // Voice feedback based on next step
     const nextStep = booking.journeyStep + 1;
     if (nextStep === 1) {
-      speak(hi.booking.journeyLeftVoice);
+      speak(t("booking.journeyLeftVoice"));
     } else if (nextStep === 2) {
-      speak(hi.booking.journeyArrivedVoice);
+      speak(t("booking.journeyArrivedVoice"));
     } else if (nextStep === 3) {
       vibrateConfirm();
-      speak(hi.booking.journeyStartedVoice);
+      speak(t("booking.journeyStartedVoice"));
     }
 
     await fetchBooking();
@@ -150,8 +150,8 @@ export default function BookingDetailPage() {
     setActionLoading(false);
 
     if (!res.success) {
-      setErrorMsg(hi.common.error);
-      speak(hi.common.error);
+      setErrorMsg(t("common.error"));
+      speak(t("common.error"));
       return;
     }
 
@@ -161,29 +161,29 @@ export default function BookingDetailPage() {
   // Status header config
   const getStatusConfig = (statusStr: string) => {
     if (statusStr === "ACCEPTED") {
-      return { label: hi.booking.statusAccepted, bg: "bg-[#E8F0FE] text-[#1A56DB]" };
+      return { label: t("booking.statusAccepted"), bg: "bg-[#E8F0FE] text-[#1A56DB]" };
     }
     if (statusStr === "COMPLETED") {
-      return { label: hi.booking.statusCompleted, bg: "bg-leaf-100 text-leaf-700" };
+      return { label: t("booking.statusCompleted"), bg: "bg-leaf-100 text-leaf-700" };
     }
     // Default / IN_PROGRESS / PUJA_IN_PROGRESS
-    return { label: hi.booking.statusEnRoute, bg: "bg-[#FEF3C7] text-[#92400E]" };
+    return { label: t("booking.statusEnRoute"), bg: "bg-[#FEF3C7] text-[#92400E]" };
   };
 
   const statusCfg = getStatusConfig(booking.status);
   const customerPhone = booking.customer?.phone || booking.customerPhone;
-  const customerName = booking.customer?.name || booking.customerName || hi.booking.yajman;
+  const customerName = booking.customer?.name || booking.customerName || t("booking.yajman");
   const pujaTitle = booking.pujaType || booking.eventType;
   const journeyLabels = {
-    left: hi.booking.left,
-    started: hi.booking.started,
+    left: t("booking.left"),
+    started: t("booking.started"),
   };
 
   // Timeline config
   const timelineSteps = [
-    { step: 1, title: hi.booking.left, label: journeyLabels.left },
-    { step: 2, title: hi.booking.arrived, label: hi.booking.imHere },
-    { step: 3, title: hi.booking.started, label: journeyLabels.started },
+    { step: 1, title: t("booking.left"), label: journeyLabels.left },
+    { step: 2, title: t("booking.arrived"), label: t("booking.imHere") },
+    { step: 3, title: t("booking.started"), label: journeyLabels.started },
   ];
 
   const voiceCommands = [];
@@ -201,7 +201,7 @@ export default function BookingDetailPage() {
     voiceCommands.push({
       keywords: ["पूजा संपन्न", "पूरी हो गई", "complete", "finished", "sampann"],
       action: handleComplete,
-      confirmText: hi.booking.confirmCompleteTitle,
+      confirmText: t("booking.confirmCompleteTitle"),
     });
   }
 
@@ -211,14 +211,14 @@ export default function BookingDetailPage() {
     const payoutAmount = booking.earnings?.totalToPandit || 0;
     return (
       <div className="fixed inset-0 bg-cream text-ink flex flex-col justify-between p-6 z-50">
-        <Narrate text={hi.booking.completeVoice} />
+        <Narrate text={t("booking.completeVoice")} />
         <div className="flex-1 flex flex-col items-center justify-center text-center gap-6">
           <span className="text-[120px] select-none leading-none">🙏</span>
           <h1 className="text-[36px] font-bold text-temple-700 font-hindi">
-            {hi.booking.pujaFinishedTitle}
+            {t("booking.pujaFinishedTitle")}
           </h1>
           <p className="text-[22px] font-bold text-leaf-700 font-hindi leading-snug">
-            ₹{payoutAmount.toLocaleString("en-IN")} {hi.booking.payoutSoon}
+            ₹{payoutAmount.toLocaleString("en-IN")} {t("booking.payoutSoon")}
           </p>
         </div>
 
@@ -227,7 +227,7 @@ export default function BookingDetailPage() {
           className="w-full h-20 bg-leaf-700 hover:bg-leaf-800 text-white font-bold text-[22px] rounded-btn shadow-lg active:scale-95 transition-transform"
           style={{ minHeight: "80px", fontSize: "22px" }}
         >
-          {hi.booking.goToHome}
+          {t("booking.goToHome")}
         </button>
       </div>
     );
@@ -247,7 +247,7 @@ export default function BookingDetailPage() {
       <main className="flex-1 overflow-y-auto px-4 pt-3 pb-24 flex flex-col gap-3 page-enter">
         {/* 1. STATUS HEADER */}
         <div className="flex justify-between items-center bg-white p-4 rounded-card border border-saffron-100 shadow-sm">
-          <span className="text-[18px] font-bold text-softgrey font-hindi">{hi.booking.bookingStatus}</span>
+          <span className="text-[18px] font-bold text-softgrey font-hindi">{t("booking.bookingStatus")}</span>
           <div className={`inline-flex items-center justify-center h-10 px-5 rounded-full text-[18px] font-bold font-hindi select-none ${statusCfg.bg}`}>
             {statusCfg.label}
           </div>
@@ -256,7 +256,7 @@ export default function BookingDetailPage() {
         {/* 2. CUSTOMER CONTACT */}
         <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-4">
           <div className="flex flex-col gap-0.5">
-            <span className="text-[16px] text-softgrey font-hindi">{hi.booking.customerNameLabel}</span>
+            <span className="text-[16px] text-softgrey font-hindi">{t("booking.customerNameLabel")}</span>
             <span className="text-[22px] font-bold text-ink font-hindi">{customerName}</span>
           </div>
 
@@ -265,7 +265,7 @@ export default function BookingDetailPage() {
             className="w-full h-16 bg-white border-2 border-saffron-500 hover:bg-saffron-50 text-saffron-700 font-bold text-[18px] rounded-btn shadow-sm flex items-center justify-center gap-2 active:scale-95 transition-all"
             style={{ minHeight: "64px", fontSize: "18px" }}
           >
-            {hi.booking.callCustomer}
+            {t("booking.callCustomer")}
           </a>
 
           <FirstUseTip tipId="detailRoute" targetRef={routeBtnRef} />
@@ -286,14 +286,14 @@ export default function BookingDetailPage() {
             className="w-full h-16 bg-white border-2 border-saffron-500 hover:bg-saffron-50 text-saffron-700 font-bold text-[18px] rounded-btn shadow-sm flex items-center justify-center gap-2 active:scale-95 transition-all"
             style={{ minHeight: "64px", fontSize: "18px" }}
           >
-            {hi.bookingDetailExtra.showRoute}
+            {t("bookingDetailExtra.showRoute")}
           </button>
         </Card>
 
         {/* 3. JOURNEY STEPS VERTICAL TIMELINE */}
         <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-6">
           <h4 className="text-[18px] font-bold text-softgrey font-hindi border-b border-saffron-100 pb-2">
-            {hi.booking.pujaJourney}
+            {t("booking.pujaJourney")}
           </h4>
 
           <div className="flex flex-col gap-6 relative pl-4 border-l-2 border-saffron-100">
@@ -323,7 +323,7 @@ export default function BookingDetailPage() {
                     {/* ✅ Completed step detail */}
                     {isCompleted && (
                       <span className="text-[16px] text-leaf-700 font-bold font-hindi flex items-center gap-1">
-                        ✅ {timestamp ? formatHindiTime(timestamp) : hi.booking.completed}
+                        ✅ {timestamp ? formatHindiTime(timestamp) : t("booking.completed")}
                       </span>
                     )}
                   </div>
@@ -353,7 +353,7 @@ export default function BookingDetailPage() {
             className="w-full h-20 bg-leaf-700 hover:bg-leaf-800 text-white font-bold text-[22px] rounded-btn shadow-lg active:scale-95 transition-all font-hindi"
             style={{ minHeight: "80px", fontSize: "22px" }}
           >
-            {hi.booking.pujaComplete}
+            {t("booking.pujaComplete")}
           </button>
         )}
 
@@ -383,7 +383,7 @@ export default function BookingDetailPage() {
               className="bg-white rounded-card shadow-lg max-w-[360px] w-full p-5 flex flex-col gap-6 text-center border-2 border-saffron-300"
             >
               <h3 className="text-[22px] font-bold text-temple-700 font-hindi leading-snug">
-                {hi.booking.confirmCompleteTitle}
+                {t("booking.confirmCompleteTitle")}
               </h3>
               <div className="flex gap-4">
                 <button
@@ -391,14 +391,14 @@ export default function BookingDetailPage() {
                   className="flex-grow h-[56px] bg-danger text-white font-bold text-[18px] rounded-btn shadow-md active:scale-95 transition-transform"
                   style={{ minHeight: "56px", fontSize: "18px" }}
                 >
-                  {hi.common.yes}
+                  {t("common.yes")}
                 </button>
                 <button
                   onClick={() => setShowCompleteConfirm(false)}
                   className="flex-grow h-[56px] bg-white border-2 border-saffron-300 text-saffron-700 font-bold text-[18px] rounded-btn shadow-sm active:scale-95 transition-transform"
                   style={{ minHeight: "56px", fontSize: "18px" }}
                 >
-                  {hi.common.no}
+                  {t("common.no")}
                 </button>
               </div>
             </motion.div>

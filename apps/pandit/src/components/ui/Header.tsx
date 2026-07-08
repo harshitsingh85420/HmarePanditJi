@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { Toran } from "./Toran";
-import { hi } from "@/lib/strings";
+import { t } from "@/lib/i18n";
 
 function cn(...inputs: (string | undefined | false | null)[]) {
   return twMerge(clsx(inputs));
@@ -37,7 +37,7 @@ export function Header({ title, showBack = false, onBack, rightSlot, className, 
           <button
             onClick={handleBack}
             className="w-14 h-14 min-h-[56px] min-w-[56px] flex items-center justify-center active:scale-90 transition-all focus:outline-none focus:ring-2 focus:ring-saffron-200 rounded-full"
-            aria-label={hi.common.back}
+            aria-label={t("common.back")}
           >
             {/* UNIVERSAL BACK LAW: 48px circle, card bg, 1px sand border, ← 24px ink */}
             <span className="w-12 h-12 rounded-full bg-card border border-saffron-200 shadow-card flex items-center justify-center text-[24px] text-ink" aria-hidden="true">

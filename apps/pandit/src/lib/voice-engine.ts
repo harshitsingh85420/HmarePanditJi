@@ -726,9 +726,17 @@ export function speak(
   ttsUtterance.volume = 1.0
 
   const voices = window.speechSynthesis.getVoices()
-  const matchedVoice = voices.find(v =>
-    v.lang.startsWith(languageBcp47.split('-')[0]) && v.localService
-  ) ?? voices.find(v => v.lang.startsWith(languageBcp47.split('-')[0]))
+  const langPrefix = languageBcp47.split('-')[0]
+  const candidates = voices.filter(v => v.lang.startsWith(langPrefix))
+  // D4: शिष्य is a male disciple — prefer a male voice for the language;
+  // browser voice sets vary wildly, so fall back to any language match
+  // (local-service first) and never fail on absence.
+  const maleVoice = candidates.find(
+    v => !/female/i.test(v.name) && /male|kumar|ravi|hemant/i.test(v.name)
+  )
+  const matchedVoice = maleVoice
+    ?? candidates.find(v => v.localService)
+    ?? candidates[0]
   if (matchedVoice) {
     ttsUtterance.voice = matchedVoice
   }

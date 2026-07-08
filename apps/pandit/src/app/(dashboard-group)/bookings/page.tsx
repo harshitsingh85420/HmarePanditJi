@@ -3,7 +3,7 @@
 import { Narrate } from "@/hooks/useScreenVoice";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { hi } from "@/lib/strings";
+import { t } from "@/lib/i18n";
 import { api } from "@/lib/api";
 import { motion } from "framer-motion";
 
@@ -87,10 +87,10 @@ export default function BookingsPage() {
     const now = new Date();
     const day = (x: Date) => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime();
     const diff = Math.round((day(d) - day(now)) / 86400000);
-    if (diff <= 0) return hi.bookingsSummary.today;
-    if (diff === 1) return hi.bookingsSummary.tomorrowHdr;
-    if (diff <= 7) return hi.bookingsSummary.thisWeek;
-    return hi.bookingsSummary.later;
+    if (diff <= 0) return t("bookingsSummary.today");
+    if (diff === 1) return t("bookingsSummary.tomorrowHdr");
+    if (diff <= 7) return t("bookingsSummary.thisWeek");
+    return t("bookingsSummary.later");
   };
   const grouped: Array<{ header: string; items: BookingItem[] }> = [];
   for (const b of filteredBookings) {
@@ -103,8 +103,8 @@ export default function BookingsPage() {
   const newCount = bookings.filter((b) => b.status === "REQUESTED").length;
   const countsNarration =
     newCount === 0
-      ? `${hi.bookingsList.intro} ${hi.bookingsSummary.none}`
-      : `${hi.bookingsList.intro} ${hi.bookingsSummary.counts.replace("{count}", String(newCount))}`;
+      ? `${t("bookingsList.intro")} ${t("bookingsSummary.none")}`
+      : `${t("bookingsList.intro")} ${t("bookingsSummary.counts").replace("{count}", String(newCount))}`;
 
   const handleCardClick = (b: BookingItem) => {
     if (b.status === "REQUESTED") {
@@ -135,7 +135,7 @@ export default function BookingsPage() {
 
   return (
     <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
-      <Header title={hi.bookingsList.title} showBack onBack={() => router.push("/home")} />
+      <Header title={t("bookingsList.title")} showBack onBack={() => router.push("/home")} />
       <Narrate text={countsNarration} />
       <VoiceActionListener
         commands={[
@@ -182,7 +182,7 @@ export default function BookingsPage() {
       <main className="flex-1 overflow-y-auto px-4 pt-3 pb-24 flex flex-col gap-3 page-enter">
         {bookings.length === 0 ? (
           <>
-            <EmptyState emoji="🙏" title={hi.empty.noBookingsYetTitle} hint={hi.empty.noBookingsYetHint} />
+            <EmptyState emoji="🙏" title={t("empty.noBookingsYetTitle")} hint={t("empty.noBookingsYetHint")} />
             {/* FLOW D: not booking-ready yet → same तैयारी hero CTA as home */}
             {!isBookingReady && (
               <Card
@@ -192,14 +192,14 @@ export default function BookingsPage() {
                 className="p-5 flex flex-col gap-2 text-left"
               >
                 <span className="text-[20px] font-bold text-temple-700 font-hindi leading-snug">
-                  {hi.home.readinessHero}
+                  {t("home.readinessHero")}
                 </span>
                 {readinessStep > 0 && (
                   <span className="self-start text-[16px] font-bold text-saffron-600 font-hindi px-3 py-1 bg-saffron-50 rounded-full">
-                    {hi.home.readinessProgress.replace("{n}", String(Math.min(readinessStep, 5)))}
+                    {t("home.readinessProgress").replace("{n}", String(Math.min(readinessStep, 5)))}
                   </span>
                 )}
-                <span className="text-softgrey text-[18px] font-hindi">{hi.coach.tryIt}</span>
+                <span className="text-softgrey text-[18px] font-hindi">{t("coach.tryIt")}</span>
               </Card>
             )}
           </>

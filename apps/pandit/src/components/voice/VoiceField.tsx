@@ -18,7 +18,7 @@ import { useVoiceInput } from "../../hooks/useVoiceInput";
 import { voiceController } from "../../lib/voiceController";
 import { parseHindiNumber, parsePhoneNumber, matchChoice } from "../../lib/voiceParse";
 import { extractOTP } from "../../lib/number-mapper";
-import { hi } from "../../lib/strings";
+import { t } from "../../lib/i18n";
 import { Button } from "../ui/Button";
 
 import { reduce, type VFState, type VFEvent } from "./voiceFieldMachine";
@@ -108,7 +108,7 @@ export function VoiceField({
             voiceInput.reset();
             break;
           case "SPEAK_SORRY_ONCE":
-            voiceController.speak(hi.voiceLoop.sorryOnce, {
+            voiceController.speak(t("voiceLoop.sorryOnce"), {
               onEnd: (done) => {
                 if (done) void voiceInput.start();
               },
@@ -122,7 +122,7 @@ export function VoiceField({
                   : next.parsed;
               onChange(next.parsed); // spoken value lands in the SAME field
               voiceController.speak(
-                hi.voiceLoop.confirmAsk.replace("{value}", String(display)),
+                t("voiceLoop.confirmAsk").replace("{value}", String(display)),
                 {
                   onEnd: (done) => {
                     if (done) void voiceInput.start();
@@ -165,7 +165,7 @@ export function VoiceField({
     startedRef.current = true;
     if (!voiceCapable) return;
     setState({ phase: "PROMPTING" });
-    const t = setTimeout(() => {
+    const timer = setTimeout(() => {
       voiceController.speak(promptText, {
         onEnd: (completed) => {
           if (completed && !voiceController.paused) {
@@ -176,7 +176,7 @@ export function VoiceField({
         },
       });
     }, 400);
-    return () => clearTimeout(t);
+    return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -194,14 +194,14 @@ export function VoiceField({
   useEffect(() => {
     if (voiceInput.state === "idle" && voiceInput.transcript) {
       if (state.phase === "CONFIRMING") {
-        const t = voiceInput.transcript.toLowerCase().trim();
-        const isYes = ["हाँ", "हां", "haan", "han", "yes", "सही", "ठीक", "हा"].some((w) => t.includes(w));
-        const isNo = ["नहीं", "नही", "nahi", "no", "गलत"].some((w) => t.includes(w));
+        const spoken = voiceInput.transcript.toLowerCase().trim();
+        const isYes = ["हाँ", "हां", "haan", "han", "yes", "सही", "ठीक", "हा"].some((w) => spoken.includes(w));
+        const isNo = ["नहीं", "नही", "nahi", "no", "गलत"].some((w) => spoken.includes(w));
         voiceInput.reset();
         if (isYes) dispatch({ type: "CONFIRM_YES" });
         else if (isNo) dispatch({ type: "CONFIRM_NO" });
         else {
-          voiceController.speak(hi.voiceLoop.confirmRepeat, {
+          voiceController.speak(t("voiceLoop.confirmRepeat"), {
             onEnd: (done) => {
               if (done) void voiceInput.start();
             },
@@ -287,7 +287,7 @@ export function VoiceField({
       {/* Listening pill — the ONLY listening feedback (A4) */}
       {listening && (
         <span className="self-start bg-gold/15 border border-gold text-temple-600 text-[16px] font-semibold font-hindi rounded-full px-4 py-1.5">
-          {hi.voiceLoop.listening}
+          {t("voiceLoop.listening")}
         </span>
       )}
       {busy && (
@@ -310,10 +310,10 @@ export function VoiceField({
           </span>
           <div className="flex gap-2 shrink-0">
             <Button variant="success" size="md" onClick={() => dispatch({ type: "CONFIRM_YES" })}>
-              {hi.common.yes}
+              {t("common.yes")}
             </Button>
             <Button variant="danger-outline" size="md" onClick={() => dispatch({ type: "CONFIRM_NO" })}>
-              {hi.common.no}
+              {t("common.no")}
             </Button>
           </div>
         </div>

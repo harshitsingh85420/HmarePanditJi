@@ -11,7 +11,7 @@
 
 import React, { useState } from "react";
 import type { SupportedLanguage } from "@/lib/onboarding-store";
-import { hi } from "@/lib/strings";
+import { t } from "@/lib/i18n";
 import { Toran } from "@/components/ui/Toran";
 import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
 import { useScreenVoice } from "@/hooks/useScreenVoice";
@@ -34,14 +34,16 @@ export default function LocationPermissionScreen({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useScreenVoice(hi.pratham.locationVoice);
+  // D2: the phase announces itself BEFORE any browser popup — the
+  // geolocation request fires ONLY from the अनुमति दें button below.
+  useScreenVoice(t("entry.locationVoice"));
 
   const handleAllowClick = () => {
     setLoading(true);
     setError(null);
 
     if (!navigator.geolocation) {
-      setError(hi.pratham.locationError);
+      setError(t("pratham.locationError"));
       setTimeout(() => onDenied(), 1500);
       return;
     }
@@ -59,7 +61,7 @@ export default function LocationPermissionScreen({
           const stateStr = data.address.state || "Unknown";
           onGranted(city, stateStr);
         } catch {
-          setError(hi.pratham.locationError);
+          setError(t("pratham.locationError"));
           setTimeout(() => onDenied(), 1500);
         } finally {
           setLoading(false);
@@ -67,7 +69,7 @@ export default function LocationPermissionScreen({
       },
       () => {
         setLoading(false);
-        setError(hi.pratham.locationError);
+        setError(t("pratham.locationError"));
         setTimeout(() => onDenied(), 1500);
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 },
@@ -82,14 +84,14 @@ export default function LocationPermissionScreen({
           {showBack && (
             <button
               onClick={onBack}
-              aria-label={hi.common.back}
+              aria-label={t("common.back")}
               className="w-14 h-14 min-w-[56px] min-h-[56px] rounded-full bg-white/90 shadow-card active:scale-90 flex items-center justify-center text-[18px] transition-all"
             >
               ←
             </button>
           )}
           <h1 className="font-display text-[22px] text-white flex-1 text-center pr-14">
-            {hi.welcome.titleShort}
+            {t("welcome.titleShort")}
           </h1>
         </div>
         <Toran tone="onSindoor" className="bg-saffron-500" />
@@ -103,9 +105,9 @@ export default function LocationPermissionScreen({
         </div>
 
         <h2 className="text-[24px] font-bold text-temple-600 font-hindi text-center leading-snug">
-          {hi.pratham.locationTitle}
+          {t("pratham.locationTitle")}
         </h2>
-        <p className="t-body text-softgrey font-hindi text-center">{hi.pratham.locationWhy}</p>
+        <p className="t-body text-softgrey font-hindi text-center">{t("pratham.locationWhy")}</p>
 
         {error && (
           <div className="w-full px-4 py-3 bg-red-50 rounded-card border border-danger/20">
@@ -118,7 +120,7 @@ export default function LocationPermissionScreen({
           disabled={loading}
           className="min-h-[56px] px-6 text-saffron-600 text-[18px] font-bold font-hindi underline underline-offset-4 active:scale-[0.97] transition-transform disabled:opacity-50"
         >
-          {hi.pratham.locationManual}
+          {t("pratham.locationManual")}
         </button>
       </main>
 
@@ -129,7 +131,7 @@ export default function LocationPermissionScreen({
           disabled={loading}
           className="flex-1 min-h-[64px] bg-saffron-500 text-[#FFF3EA] rounded-btn text-[20px] font-bold shadow-btn active:scale-[0.97] transition-transform font-hindi disabled:opacity-60"
         >
-          {loading ? hi.pratham.locationChecking : hi.pratham.locationAllow}
+          {loading ? t("pratham.locationChecking") : t("pratham.locationAllow")}
         </button>
         <ShishyaOrb />
       </footer>

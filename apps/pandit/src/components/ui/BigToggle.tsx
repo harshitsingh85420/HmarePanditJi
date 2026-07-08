@@ -3,7 +3,7 @@
 import React from "react";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { hi } from "../../lib/strings";
+import { t } from "../../lib/i18n";
 
 function cn(...inputs: (string | undefined | false | null)[]) {
   return twMerge(clsx(inputs));
@@ -28,10 +28,10 @@ export function BigToggle({ value, onChange, className }: BigToggleProps) {
       )}
     >
       <span className="text-[20px] font-bold">
-        {value ? hi.home.toggleOnline : hi.home.toggleOffline}
+        {value ? t("home.toggleOnline") : t("home.toggleOffline")}
       </span>
       <span className="text-[14px] font-medium opacity-90 mt-0.5">
-        {value ? hi.home.toggleOnlineSub : hi.home.toggleOfflineSub}
+        {value ? t("home.toggleOnlineSub") : t("home.toggleOfflineSub")}
       </span>
     </button>
   );

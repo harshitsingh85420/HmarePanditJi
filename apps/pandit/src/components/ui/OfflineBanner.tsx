@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { hi } from "@/lib/strings";
+import { t } from "@/lib/i18n";
 
 /** Live online/offline state for gating network actions. */
 export function useOnline(): boolean {
@@ -26,7 +26,7 @@ export function OfflineBanner() {
   if (online) return null;
   return (
     <div className="sticky top-0 z-40 w-full bg-temple-600 text-white text-center text-[16px] font-semibold font-hindi px-4 py-2">
-      {hi.offline.banner}
+      {t("offline.banner")}
     </div>
   );
 }

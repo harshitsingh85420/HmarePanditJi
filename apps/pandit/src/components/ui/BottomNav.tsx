@@ -3,7 +3,7 @@
 import React from "react";
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { hi } from "../../lib/strings";
+import { t } from "../../lib/i18n";
 import { ShishyaOrb } from "./ShishyaOrb";
 
 function cn(...inputs: (string | undefined | false | null)[]) {
@@ -20,10 +20,10 @@ export interface BottomNavProps {
 // [होम, बुकिंग] · (शिष्य) · [कमाई, कैलेंडर]
 export function BottomNav({ activeTab, onChange, className }: BottomNavProps) {
   const tabs = [
-    { label: hi.nav.home, emoji: "🏠" },
-    { label: hi.nav.bookings, emoji: "📿" },
-    { label: hi.nav.earnings, emoji: "💰" },
-    { label: hi.nav.calendar, emoji: "📅" },
+    { label: t("nav.home"), emoji: "🏠" },
+    { label: t("nav.bookings"), emoji: "📿" },
+    { label: t("nav.earnings"), emoji: "💰" },
+    { label: t("nav.calendar"), emoji: "📅" },
   ];
 
   const renderTab = (idx: number) => {

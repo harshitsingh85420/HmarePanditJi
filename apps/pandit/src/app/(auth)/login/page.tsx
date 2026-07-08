@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { hi } from "@/lib/strings";
+import { t } from "@/lib/i18n";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/Button";
 import { Header } from "@/components/ui/Header";
@@ -13,12 +13,25 @@ import { useVoice } from "@/hooks/useVoice";
 import { useScreenVoice } from "@/hooks/useScreenVoice";
 import { VoiceField } from "@/components/voice/VoiceField";
 import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
+import { useSafeOnboardingStore } from "@/lib/stores/ssr-safe-stores";
+import { TUTORIAL_TOTAL } from "@/lib/onboarding-store";
 
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const nextParam = searchParams?.get("next") || "";
-  const { speak } = useVoice();
+  const { speak, stop } = useVoice();
+  const store = useSafeOnboardingStore();
+
+  // D6: reached from the tutorial CTA (entry-flow context) — back must
+  // return to the orchestrator's TUTORIAL phase at the final CTA slide.
+  const fromEntryFlow = nextParam.startsWith("/onboarding");
+  const backToTutorialCta = () => {
+    stop();
+    store.setCurrentTutorialScreen(TUTORIAL_TOTAL);
+    store.setPhase("TUTORIAL");
+    router.push("/onboarding");
+  };
 
   // Navigation states
   const [step, setStep] = useState(1); // 1 = Phone Input, 2 = OTP Input
@@ -32,9 +45,36 @@ export default function LoginPage() {
   // F4: a re-auth on the way to a booking gets a reassuring शिष्य line
   const reauthForBooking = nextParam.startsWith("/bookings");
   useEffect(() => {
-    if (reauthForBooking && step === 1) speak(hi.auth.reauthForBooking);
+    if (reauthForBooking && step === 1) speak(t("auth.reauthForBooking"));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // D6: hardware/gesture back mirrors the visible back button — OTP step
+  // returns to the phone step; the phone step (entry-flow context only)
+  // returns to the tutorial CTA. Outside the entry flow, untouched.
+  const stepRef = useRef(step);
+  stepRef.current = step;
+  useEffect(() => {
+    if (!fromEntryFlow) return;
+    try {
+      window.history.pushState({ hpjLogin: true }, "", window.location.href);
+    } catch { /* noop */ }
+    const onPop = () => {
+      if (stepRef.current === 2) {
+        setStep(1);
+        setOtpValue("");
+        setErrorMsg("");
+        try {
+          window.history.pushState({ hpjLogin: true }, "", window.location.href);
+        } catch { /* noop */ }
+        return;
+      }
+      backToTutorialCta();
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fromEntryFlow]);
 
   // Countdown timer for OTP resend
   useEffect(() => {
@@ -48,8 +88,8 @@ export default function LoginPage() {
 
   const handleSendOtp = async () => {
     if (phone.length !== 10) {
-      setErrorMsg(hi.common.error);
-      speak(hi.common.error);
+      setErrorMsg(t("common.error"));
+      speak(t("common.error"));
       return;
     }
 
@@ -66,7 +106,7 @@ export default function LoginPage() {
 
     if (!res.success) {
       const rateLimited = res.error?.code === "rate_limit_exceeded";
-      const msg = rateLimited ? hi.auth.rateLimited : hi.common.error;
+      const msg = rateLimited ? t("auth.rateLimited") : t("common.error");
       setErrorMsg(msg);
       speak(msg);
       return;
@@ -75,7 +115,7 @@ export default function LoginPage() {
     // F1(b): the OTP screen greets returning pandits differently
     const exists = res.data?.accountExists === true;
     setAccountExists(exists);
-    speak(exists ? hi.auth.returningShishya : hi.auth.newAccountShishya);
+    speak(exists ? t("auth.returningShishya") : t("auth.newAccountShishya"));
     setStep(2);
     setCountdown(30);
   };
@@ -97,8 +137,8 @@ export default function LoginPage() {
     setLoading(false);
 
     if (!res.success) {
-      setErrorMsg(hi.common.error);
-      speak(hi.common.error);
+      setErrorMsg(t("common.error"));
+      speak(t("common.error"));
       return;
     }
 
@@ -143,13 +183,18 @@ export default function LoginPage() {
   return (
     <div className="h-[100dvh] bg-cream text-ink flex flex-col max-w-[430px] mx-auto w-full">
       <Header
-        title={hi.auth.loginTitle}
+        title={t("auth.unifiedTitle")}
         festive
-        showBack={step === 2}
+        showBack={step === 2 || fromEntryFlow}
         onBack={() => {
-          setStep(1);
-          setOtpValue("");
-          setErrorMsg("");
+          if (step === 2) {
+            setStep(1);
+            setOtpValue("");
+            setErrorMsg("");
+            return;
+          }
+          // D6: phone step in entry-flow context → tutorial CTA slide
+          backToTutorialCta();
         }}
       />
 
@@ -160,14 +205,18 @@ export default function LoginPage() {
             {reauthForBooking && (
               <div className="px-4 py-3 bg-gold/15 border border-gold rounded-card">
                 <p className="text-[18px] text-temple-600 font-hindi leading-snug">
-                  🙏 {hi.auth.reauthForBooking}
+                  🙏 {t("auth.reauthForBooking")}
                 </p>
               </div>
             )}
+            {/* D5: unified screen — one number field, the account decides */}
+            <p className="t-body text-temple-600 font-hindi text-center leading-snug">
+              {t("auth.unifiedSub")}
+            </p>
             <div className="bg-white rounded-card shadow-card p-5 flex flex-col gap-4">
               <VoiceField
-                label={hi.auth.phoneLabel}
-                promptText={hi.auth.phoneVoice}
+                label={t("auth.phoneLabel")}
+                promptText={t("auth.unifiedSub")}
                 value={phone}
                 onChange={setPhone}
                 mode="phone"
@@ -181,7 +230,7 @@ export default function LoginPage() {
                 onClick={handleSendOtp}
                 loading={loading}
               >
-                {hi.common.next}
+                {t("common.next")}
               </Button>
             </div>
           </>
@@ -192,10 +241,10 @@ export default function LoginPage() {
               {accountExists !== null && (
                 <div className="flex flex-col gap-1">
                   <h2 className="text-[22px] font-bold text-temple-600 font-hindi leading-snug">
-                    {accountExists ? hi.auth.returningTitle : hi.auth.newAccountTitle}
+                    {accountExists ? t("auth.returningTitle") : t("auth.newAccountTitle")}
                   </h2>
                   <p className="t-hint text-softgrey font-hindi">
-                    {accountExists ? hi.auth.returningShishya : hi.auth.newAccountShishya}
+                    {accountExists ? t("auth.returningShishya") : t("auth.newAccountShishya")}
                   </p>
                 </div>
               )}
@@ -205,7 +254,7 @@ export default function LoginPage() {
               <div className="text-center mt-2">
                 {countdown > 0 ? (
                   <span className="t-hint text-softgrey font-medium">
-                    {hi.auth.otpResend} ({countdown}s)
+                    {t("auth.otpResend")} ({countdown}s)
                   </span>
                 ) : (
                   <button
@@ -213,7 +262,7 @@ export default function LoginPage() {
                     className="text-saffron-600 hover:text-saffron-700 underline font-semibold text-[18px]"
                     style={{ minHeight: "56px", fontSize: "18px" }}
                   >
-                    {hi.auth.otpResend}
+                    {t("auth.otpResend")}
                   </button>
                 )}
               </div>
@@ -242,7 +291,7 @@ export default function LoginPage() {
 // A5: OTP is typed-only — the mic never arms here. The app explains why
 // once (spoken on mount), then it behaves as six plain boxes.
 function OtpBoxes({ value, onChange }: { value: string; onChange: (v: string) => void }) {
-  useScreenVoice(hi.auth.otpVoice);
+  useScreenVoice(t("auth.otpVoice"));
   const refs = useRef<Array<HTMLInputElement | null>>([]);
   const digits = Array.from({ length: 6 }, (_, i) => value[i] || "");
 
@@ -256,7 +305,7 @@ function OtpBoxes({ value, onChange }: { value: string; onChange: (v: string) =>
 
   return (
     <div className="flex flex-col gap-3">
-      <h2 className="t-title font-bold text-temple-600">{hi.auth.otpLabel}</h2>
+      <h2 className="t-title font-bold text-temple-600">{t("auth.otpLabel")}</h2>
       <div className="flex gap-2 justify-center my-2">
         {digits.map((digit, idx) => (
           <input

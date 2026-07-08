@@ -10,7 +10,7 @@
 
 import React, { useState, useSyncExternalStore } from "react";
 import { voiceController } from "@/lib/voiceController";
-import { hi } from "@/lib/strings";
+import { t } from "@/lib/i18n";
 import { Toast } from "./Toast";
 
 export function ShishyaOrb({ className = "" }: { className?: string }) {
@@ -48,13 +48,13 @@ export function ShishyaOrb({ className = "" }: { className?: string }) {
       {/* Listening pill floats above the orb */}
       {listening && !asleep && (
         <span className="absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap bg-temple-600 text-white text-[12px] font-semibold font-hindi rounded-full px-3 py-1 shadow-card">
-          {hi.voiceLoop.listening}
+          {t("voiceLoop.listening")}
         </span>
       )}
 
       <button
         onClick={toggle}
-        aria-label={asleep ? hi.shishya.a11ySleep : hi.shishya.a11yAwake}
+        aria-label={asleep ? t("shishya.a11ySleep") : t("shishya.a11yAwake")}
         className={`relative w-[66px] h-[66px] min-w-[66px] min-h-[66px] rounded-full flex items-center justify-center transition-all active:scale-95 ${
           asleep
             ? "shishya-asleep"
@@ -84,12 +84,12 @@ export function ShishyaOrb({ className = "" }: { className?: string }) {
       <span
         className={`mt-0.5 text-[11px] font-bold font-hindi ${asleep ? "text-softgrey" : "text-saffron-500"}`}
       >
-        {hi.shishya.name}
+        {t("shishya.name")}
       </span>
 
       {sleepToast && (
         <Toast
-          message={hi.shishya.sleepToast}
+          message={t("shishya.sleepToast")}
           show={sleepToast}
           onClose={() => setSleepToast(false)}
         />

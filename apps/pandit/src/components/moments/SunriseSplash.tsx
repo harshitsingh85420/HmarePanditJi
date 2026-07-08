@@ -11,7 +11,7 @@
 // ─────────────────────────────────────────────────────────────
 
 import React, { useEffect, useRef } from "react";
-import { hi } from "@/lib/strings";
+import { t } from "@/lib/i18n";
 import { Toran } from "@/components/ui/Toran";
 import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
 import { voiceController } from "@/lib/voiceController";
@@ -44,7 +44,7 @@ export function SunriseSplash({ onDone }: { onDone: () => void }) {
     };
     const speakT = setTimeout(
       () =>
-        voiceController.speak(hi.shishya.intro, {
+        voiceController.speak(t("shishya.intro"), {
           onEnd: () => {
             speechDone = true;
             tryFinish();
@@ -52,14 +52,14 @@ export function SunriseSplash({ onDone }: { onDone: () => void }) {
         }),
       1600,
     );
-    const t = setTimeout(() => {
+    const visualTimer = setTimeout(() => {
       visualDone = true;
       tryFinish();
     }, 2600);
     const failsafe = setTimeout(finish, 9000);
     return () => {
       clearTimeout(speakT);
-      clearTimeout(t);
+      clearTimeout(visualTimer);
       clearTimeout(failsafe);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -112,10 +112,10 @@ export function SunriseSplash({ onDone }: { onDone: () => void }) {
         className="pa-splash-word font-display text-[34px] text-white mt-5 text-center leading-tight"
         style={{ textShadow: "0 2px 12px rgba(231,181,74,0.6)" }}
       >
-        {hi.welcome.titleShort}
+        {t("welcome.titleShort")}
       </h1>
       <p className="pa-splash-word text-[16px] text-[#FFE8D2]/90 font-hindi mt-1 px-8 text-center">
-        {hi.pratham.splashTagline}
+        {t("pratham.splashTagline")}
       </p>
 
       {/* शिष्य pops center-bottom with one ripple */}

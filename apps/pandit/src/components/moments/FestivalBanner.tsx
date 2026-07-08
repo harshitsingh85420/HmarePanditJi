@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { hi } from "@/lib/strings";
+import { t } from "@/lib/i18n";
 import { getActiveFestival, type Festival } from "@/lib/festivals2026";
 
 export interface FestivalBannerProps {
@@ -19,9 +19,9 @@ export function FestivalBanner({ festival }: FestivalBannerProps) {
       </span>
       <div className="flex flex-col">
         <span className="text-[18px] font-bold text-temple-600 font-hindi leading-snug">
-          {f.name} {hi.festival.greeting}
+          {f.name} {t("festival.greeting")}
         </span>
-        <span className="t-hint text-softgrey font-hindi">{hi.festival.hint}</span>
+        <span className="t-hint text-softgrey font-hindi">{t("festival.hint")}</span>
       </div>
     </div>
   );

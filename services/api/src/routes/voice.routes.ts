@@ -7,10 +7,11 @@
 
 import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { z } from "zod";
-import { authenticate } from "../middleware/auth";
+import { authenticate, optionalAuth } from "../middleware/auth";
 import { roleGuard } from "../middleware/roleGuard";
 import { validate } from "../middleware/validator";
 import { sendSuccess } from "../utils/response";
+import { cacheGetMany, cacheSet, checkKeyedRateLimit } from "../lib/redis";
 import { getRegistrationVoicePrompt, textToSpeech, speechToText } from "../services/bhashini.service";
 import crypto from "crypto";
 import { env } from "../config/env";
@@ -61,6 +62,21 @@ const ttsSchema = z.object({
     text: z.string().min(1).max(5000),
     language: z.enum(["hi", "en", "bn", "ta", "te", "mr"]).optional().default("hi"),
 });
+
+// The pandit app's 11 UI language codes → Sarvam Translate (Mayura) codes.
+const APP_LANG_CODES = ["hi", "mr", "bn", "ta", "te", "kn", "gu", "pa", "ml", "or", "en"] as const;
+const LANG_TO_SARVAM: Record<(typeof APP_LANG_CODES)[number], string> = {
+    hi: "hi-IN", mr: "mr-IN", bn: "bn-IN", ta: "ta-IN", te: "te-IN",
+    kn: "kn-IN", gu: "gu-IN", pa: "pa-IN", ml: "ml-IN", or: "od-IN", en: "en-IN",
+};
+
+const translateSchema = z.object({
+    texts: z.array(z.string().min(1).max(2000)).min(1).max(200),
+    target: z.enum(APP_LANG_CODES),
+});
+
+const TRANSLATE_CACHE_TTL_SECONDS = 30 * 24 * 60 * 60; // 30 days
+const SARVAM_TRANSLATE_BATCH = 50;
 
 // ── Routes ────────────────────────────────────────────────────────────────────
 
@@ -127,6 +143,102 @@ export default async function voiceRoutes(fastify: FastifyInstance, _opts: any) 
             throw err;
         }
     });
+
+    /**
+     * POST /voice/translate
+     * Batch-translate Hindi source strings to one of the app's 11 UI
+     * languages via Sarvam Mayura. Auth optional (entry flow runs
+     * pre-login); rate-limited 20/min per IP+token. Per-text Redis cache
+     * trans:<target>:<sha1(text)> (TTL 30d) is consulted before Sarvam and
+     * written through after.
+     */
+    fastify.post(
+        "/translate",
+        { preHandler: [optionalAuth, validate(translateSchema)] },
+        async (request: FastifyRequest, reply: FastifyReply) => {
+            const { texts, target } = request.body as z.infer<typeof translateSchema>;
+
+            const forwarded = (request.headers["x-forwarded-for"] as string | undefined)?.split(",")[0]?.trim();
+            const ip = forwarded || request.ip || "unknown";
+            const userId = (request as any).user?.id || "anon";
+            const allowed = await checkKeyedRateLimit("translate", `${ip}:${userId}`, 20, 60);
+            if (!allowed) {
+                return reply.status(429).send({
+                    success: false,
+                    error: { code: "rate_limit_exceeded", message: "Too many translation requests — try again in a minute." },
+                });
+            }
+
+            // Hindi is the source language — echo without spending anything.
+            if (target === "hi") {
+                sendSuccess(reply, { translations: texts }, "Translations ready");
+                return;
+            }
+
+            if (!env.SARVAM_API_KEY || env.SARVAM_API_KEY.length < 10) {
+                return reply.status(501).send({
+                    success: false,
+                    error: { code: "translate_unconfigured", message: "Translation not configured — SARVAM_API_KEY missing." },
+                });
+            }
+
+            const keys = texts.map(
+                (text) => `trans:${target}:` + crypto.createHash("sha1").update(text).digest("hex"),
+            );
+            const cached = await cacheGetMany(keys);
+            const translations: Array<string | null> = [...cached];
+            const missIndices = translations
+                .map((v, i) => (v === null ? i : -1))
+                .filter((i) => i >= 0);
+
+            let sarvamCalls = 0;
+            for (let i = 0; i < missIndices.length; i += SARVAM_TRANSLATE_BATCH) {
+                const batch = missIndices.slice(i, i + SARVAM_TRANSLATE_BATCH);
+                sarvamCalls++;
+                const upstream = await fetch("https://api.sarvam.ai/translate", {
+                    method: "POST",
+                    headers: {
+                        "api-subscription-key": env.SARVAM_API_KEY,
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        inputs: batch.map((idx) => texts[idx]),
+                        source_language_code: "hi-IN",
+                        target_language_code: LANG_TO_SARVAM[target],
+                        model: "mayura:v1",
+                    }),
+                });
+                if (!upstream.ok) {
+                    const detail = await upstream.text().catch(() => "");
+                    logger.error(`[translate] Sarvam upstream ${upstream.status}: ${detail.slice(0, 300)}`);
+                    return reply.status(502).send({
+                        success: false,
+                        error: { code: "VOICE_SERVICE_ERROR", message: "Translation upstream failed." },
+                    });
+                }
+                const data = (await upstream.json()) as { translated_texts?: string[] };
+                if (!data.translated_texts || data.translated_texts.length !== batch.length) {
+                    return reply.status(502).send({
+                        success: false,
+                        error: { code: "VOICE_SERVICE_ERROR", message: "Translation upstream returned no texts." },
+                    });
+                }
+                await Promise.all(
+                    batch.map((idx, j) => {
+                        translations[idx] = data.translated_texts![j];
+                        return cacheSet(keys[idx], data.translated_texts![j], TRANSLATE_CACHE_TTL_SECONDS);
+                    }),
+                );
+            }
+
+            // Cache proof lives in the logs: a warm second run shows
+            // cacheHits=texts.length and sarvamCalls=0.
+            logger.info(
+                `[translate] target=${target} texts=${texts.length} cacheHits=${texts.length - missIndices.length} sarvamCalls=${sarvamCalls}`,
+            );
+            sendSuccess(reply, { translations }, "Translations ready");
+        },
+    );
 
     /**
      * POST /voice/stt
