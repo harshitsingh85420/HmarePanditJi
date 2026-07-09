@@ -121,12 +121,58 @@ export default function LoginPage() {
       return;
     }
 
-    // F1(b): the OTP screen greets returning pandits differently
+    // F1(b): the OTP screen greets returning pandits differently.
+    // G3b: no pre-navigation speak here — the OTP step's mount narration
+    // (branded greeting + OTP instruction) carries the voice; a line
+    // spoken now would be interrupted within ~1s by that mount narration
+    // (the live-QA 'speak-interrupt at auth send ok' cluster).
     const exists = res.data?.accountExists === true;
     setAccountExists(exists);
-    speak(exists ? t("auth.returningShishya") : t("auth.newAccountShishya"));
     setStep(2);
     setCountdown(30);
+  };
+
+  // G4b: WebOTP — the browser offers to read the OTP SMS and hand the
+  // code over. Feature-detected; silent no-op everywhere unsupported.
+  // Aborts on unmount, on manual entry, and after 60s.
+  const webotpAbortRef = useRef<AbortController | null>(null);
+  const webotpFilledRef = useRef(false);
+  const webotpSupported = typeof window !== "undefined" && "OTPCredential" in window;
+  useEffect(() => {
+    if (step !== 2) return;
+    if (!webotpSupported) {
+      voiceController.debug("webotp: unsupported");
+      return;
+    }
+    const ac = new AbortController();
+    webotpAbortRef.current = ac;
+    const timer = setTimeout(() => ac.abort(), 60000);
+    voiceController.debug("webotp: listening");
+    void (
+      navigator.credentials.get as (o?: unknown) => Promise<{ code?: string } | null>
+    )({ otp: { transport: ["sms"] }, signal: ac.signal })
+      .then((cred) => {
+        const code = String(cred?.code || "").replace(/\D/g, "").slice(0, 6);
+        if (code.length !== 6) return;
+        voiceController.debug("webotp: filled");
+        webotpFilledRef.current = true;
+        setOtpValue(code);
+      })
+      .catch(() => {
+        voiceController.debug("webotp: aborted");
+      });
+    return () => {
+      clearTimeout(timer);
+      ac.abort();
+      webotpAbortRef.current = null;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
+
+  // Manual typing takes over: stop listening for the SMS immediately.
+  const handleOtpChange = (v: string) => {
+    if (!webotpFilledRef.current && v !== otpValue) webotpAbortRef.current?.abort();
+    setOtpValue(v);
   };
 
   const handleVerifyOtp = async (otpCode: string) => {
@@ -183,11 +229,14 @@ export default function LoginPage() {
     }
   };
 
-  // Auto-verify once 6 digits are in (typed via keyboard fallback)
+  // Auto-verify once 6 digits are in. G4b: a WebOTP fill stays VISIBLE
+  // for 400ms before submitting (the pandit sees the boxes fill);
+  // manual entry submits immediately as before.
   useEffect(() => {
-    if (step === 2 && otpValue.length === 6 && !loading) {
-      handleVerifyOtp(otpValue);
-    }
+    if (!(step === 2 && otpValue.length === 6 && !loading)) return;
+    const delay = webotpFilledRef.current ? 400 : 0;
+    const timerId = setTimeout(() => handleVerifyOtp(otpValue), delay);
+    return () => clearTimeout(timerId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [otpValue, step]);
 
@@ -270,7 +319,23 @@ export default function LoginPage() {
                   </p>
                 </div>
               )}
-              <OtpBoxes value={otpValue} onChange={setOtpValue} />
+              <OtpBoxes
+                value={otpValue}
+                onChange={handleOtpChange}
+                // G3b: the destination carries the voice — branded greeting
+                // + instruction + (when the browser can auto-fill) the
+                // WebOTP guidance, all in ONE mount narration. The guidance
+                // line is skipped in OTP dev mode (no real SMS arrives).
+                narration={[
+                  accountExists ? t("auth.returningShishya") : t("auth.newAccountShishya"),
+                  t("auth.otpVoice"),
+                  webotpSupported && process.env.NEXT_PUBLIC_OTP_DEV_MODE !== "true"
+                    ? t("auth.webotpVoice")
+                    : "",
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
+              />
 
               {/* Resend Link countdown timer */}
               <div className="text-center mt-2">
@@ -327,13 +392,30 @@ export default function LoginPage() {
 
 // A5: OTP is typed-only — the mic never arms here. The app explains why
 // once (spoken on mount), then it behaves as six plain boxes.
-function OtpBoxes({ value, onChange }: { value: string; onChange: (v: string) => void }) {
-  useScreenVoice(t("auth.otpVoice"));
+function OtpBoxes({
+  value,
+  onChange,
+  narration,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  narration: string;
+}) {
+  useScreenVoice(narration);
   const refs = useRef<Array<HTMLInputElement | null>>([]);
   const digits = Array.from({ length: 6 }, (_, i) => value[i] || "");
 
   const setDigit = (d: string, idx: number) => {
     const numeric = d.replace(/\D/g, "");
+    // G4a: keychain/keyboard suggestions and paste deliver the WHOLE code
+    // into one box — distribute from that box onward.
+    if (numeric.length > 1) {
+      const chars = digits.slice();
+      for (let j = 0; j < numeric.length && idx + j < 6; j++) chars[idx + j] = numeric[j];
+      onChange(chars.join(""));
+      refs.current[Math.min(5, idx + numeric.length)]?.focus();
+      return;
+    }
     const chars = digits.slice();
     chars[idx] = numeric.slice(-1);
     onChange(chars.join(""));
@@ -353,7 +435,13 @@ function OtpBoxes({ value, onChange }: { value: string; onChange: (v: string) =>
             type="tel"
             inputMode="numeric"
             pattern="[0-9]*"
-            maxLength={1}
+            // G4a: the FOCUSED box carries one-time-code so Chrome's SMS
+            // suggestion and the iOS keychain offer the fill; maxLength
+            // stays off box 1 so a whole-code fill arrives intact for the
+            // distribution logic above.
+            autoComplete={idx === 0 ? "one-time-code" : "off"}
+            name={idx === 0 ? "otp" : undefined}
+            maxLength={idx === 0 ? 6 : 1}
             value={digit}
             onChange={(e) => setDigit(e.target.value, idx)}
             onKeyDown={(e) => {

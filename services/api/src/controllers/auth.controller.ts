@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { prisma } from "../lib/prisma";
 import { env } from "../config/env";
+import { buildOtpSms } from "../config/constants";
 import { authLanding } from "../lib/authRouting";
 import { AppError } from "../middleware/errorHandler";
 import crypto from "crypto";
@@ -422,7 +423,12 @@ export const sendOtpNew = async (request: FastifyRequest, reply: FastifyReply) =
   if (env.OTP_DEV_MODE !== "true") {
     // Generate secure random 6 digit code
     otp = Math.floor(100000 + Math.random() * 900000).toString();
-    console.log(`[PRODUCTION OTP] Phone: ${phone}, OTP: ${otp}`);
+    // G4d: the WebOTP-bound SMS body — MSG91 (or any provider) plugs in
+    // HERE and must send `smsBody` VERBATIM: the '@origin #code' last
+    // line is what lets the browser offer auto-fill on the login screen.
+    const smsBody = buildOtpSms(otp);
+    // TODO(MSG91): await msg91.send(phone, smsBody)
+    console.log(`[PRODUCTION OTP] Phone: ${phone}, OTP: ${otp}, SMS ready (${smsBody.length} chars)`);
   } else {
     console.log(`[DEV OTP] Phone: ${phone}, OTP: ${otp}`);
   }

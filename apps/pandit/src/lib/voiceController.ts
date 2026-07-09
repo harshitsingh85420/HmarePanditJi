@@ -39,7 +39,11 @@ const TAP_TO_HEAR_SHOWN = "hpj_tap_to_hear_shown";
 // in-page pointer event (so barge-in:tap can never pre-clear them):
 // *:grant-settle (the Meet-style cut when the user taps Allow on native
 // browser chrome) and hardware-back:* (Android back = popstate).
-const INTENTIONAL_STOPS = new Set(["tab-hidden", "barge-in:tap", "mute"]);
+// G3a: 'speak-interrupt' IS the newest-wins queue law working as
+// designed (a newer line replacing an older one) — intentional, not a
+// mid-utterance bug signature. ⚠ remains for phase-transition /
+// unmount:* / unknown.
+const INTENTIONAL_STOPS = new Set(["tab-hidden", "barge-in:tap", "mute", "speak-interrupt"]);
 function isIntentionalStop(reason: string): boolean {
   return (
     INTENTIONAL_STOPS.has(reason) ||

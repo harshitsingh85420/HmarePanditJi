@@ -52,6 +52,18 @@ export const ALLOWED_ORIGINS: string[] = process.env.ALLOWED_ORIGINS
     `http://localhost:${PORTS.ADMIN}`,
   ];
 
+// ── OTP SMS (WebOTP contract, G4d) ─────────────────────────────────────────────
+// The LAST line of the OTP SMS MUST be exactly '@<origin-host> #<OTP>'
+// or the browser will never offer WebOTP auto-fill on the login screen.
+// When the pandit app moves to a custom domain, ADD a second binding
+// line for it (e.g. '@pandit.hmarepanditji.com #<OTP>') — WebOTP matches
+// the line against the CALLING page's origin, so both can coexist during
+// a migration. Human-readable text goes ABOVE the binding line(s).
+export const WEBOTP_BOUND_ORIGIN = "hmarepanditji-pandit.vercel.app";
+export const buildOtpSms = (otp: string): string =>
+  `हमारे पंडित जी: आपका OTP ${otp} है। 5 मिनट तक मान्य। इसे किसी से साझा न करें।\n` +
+  `@${WEBOTP_BOUND_ORIGIN} #${otp}`;
+
 // ── Pricing constants ──────────────────────────────────────────────────────────
 export const PLATFORM_FEE_PERCENT = 15;
 export const TRAVEL_SERVICE_FEE_PERCENT = 5;
