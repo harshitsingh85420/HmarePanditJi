@@ -577,6 +577,13 @@ body {
 }
 .pa-bell-swing { display: inline-block; transform-origin: 50% 0%; animation: pa-bell-swing 1.1s ease-in-out; }
 
+/* Splash tap-hint chip: soft opacity pulse */
+@keyframes pa-hint-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.65; }
+}
+.pa-tap-hint { animation: pa-hint-pulse 1.6s ease-in-out infinite; }
+
 /* PopupPointer: gentle bounce pointing at the native permission popup */
 @keyframes pa-arrow-bounce {
   0%, 100% { transform: translateY(0); }
@@ -599,7 +606,7 @@ body {
   .shishya-ripple, .shishya-ripple-2, .shishya-listen-ring,
   .pa-splash-diya, .pa-splash-om, .pa-splash-word, .pa-splash-toran, .pa-splash-orb,
   .pa-petal, .pa-diya-flame, .pa-diya-halo, .pa-canvas-enter, .pa-stagger > *,
-  .pa-burst-petal, .pa-bell-swing, .pa-bounce-once, .pa-arrow-bounce {
+  .pa-burst-petal, .pa-bell-swing, .pa-bounce-once, .pa-arrow-bounce, .pa-tap-hint {
     animation: none !important;
   }
   /* Drifting/bursting petals have no sensible static state — hide them */

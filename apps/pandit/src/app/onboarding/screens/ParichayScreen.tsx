@@ -43,7 +43,7 @@ import { Button } from "@/components/ui/Button";
 import { Toran } from "@/components/ui/Toran";
 import { PopupPointer } from "@/components/moments/PopupPointer";
 
-type Stage = "auto" | "asking" | "granted" | "practice" | "dismissed" | "leaving";
+type Stage = "auto" | "needstart" | "asking" | "granted" | "practice" | "dismissed" | "leaving";
 
 export default function ParichayScreen({ onDone }: { onDone: () => void }) {
   const store = useSafeOnboardingStore();
@@ -86,11 +86,18 @@ export default function ParichayScreen({ onDone }: { onDone: () => void }) {
     setRecovery(false);
     setStage("granted");
     voiceController.speak(greeting, {
-      onEnd: (completed) => {
-        // completed=false means the line never played (muted / tab
-        // hidden / interrupted) — practicing into silence would strand
-        // the pandit on a UI-less stage. Mic is granted: just advance.
-        if (!completed) {
+      onOutcome: (status) => {
+        // parked = a human has NOT touched the app (deep-link/refresh
+        // straight into a pre-granted Parichay) — never advance on a
+        // timerless park either; offer the tappable start instead.
+        if (status === "parked") {
+          setStage("needstart");
+          return;
+        }
+        // muted/interrupted/failed: the line never played — practicing
+        // into silence would strand the pandit on a UI-less stage. Mic
+        // is granted: just advance.
+        if (status !== "ended") {
           advance();
           return;
         }
@@ -131,6 +138,7 @@ export default function ParichayScreen({ onDone }: { onDone: () => void }) {
         const name = (e as Error)?.name || "";
         if (name === "NotFoundError") {
           voiceController.debug("perm: settled(denied - no mic hardware) (parichay)");
+          voiceController.debug("parichay: no-mic → continue");
           finishDeny();
           return;
         }
@@ -182,6 +190,16 @@ export default function ParichayScreen({ onDone }: { onDone: () => void }) {
       }
 
       const fire = async () => {
+        // E2E traversal (?e2e=1): getUserMedia is NEVER invoked — let the
+        // intro settle (parked counts as settled), then bypass to LOCATION.
+        if (voiceController.e2e) {
+          await voiceController.speakAndWait(t("parichay.introOnly"));
+          if (doneRef.current) return;
+          voiceController.debug("e2e: parichay bypassed");
+          store.setMicDenied(true);
+          advance();
+          return;
+        }
         // Pre-check ONLY for the granted shortcut (no popup will appear).
         // 'denied'/'prompt' never pre-block — attempt-first ladder stays.
         let state: string = "unknown";
@@ -208,8 +226,15 @@ export default function ParichayScreen({ onDone }: { onDone: () => void }) {
         // D2: शिष्य introduces himself COMPLETELY before any popup —
         // the prompt + pointer + short ask fire only when the intro ends.
         voiceController.debug("parichay: intro → (onEnd) → prompt");
-        await voiceController.speakAndWait(t("parichay.introOnly"));
+        const { status } = await voiceController.speakAndWait(t("parichay.introOnly"));
         if (doneRef.current) return;
+        if (status === "parked") {
+          // deep-link/refresh straight into PARICHAY with no gesture yet:
+          // a timer must not fire the prompt — offer THE tappable start.
+          voiceController.debug("parichay: intro parked → start CTA");
+          setStage("needstart");
+          return;
+        }
         askMic(t("parichay.pressAllow"));
       };
       void fire();
@@ -293,6 +318,22 @@ export default function ParichayScreen({ onDone }: { onDone: () => void }) {
         ) : stage === "dismissed" ? (
           <Button variant="primary" size="xl" fullWidth onClick={() => askMic(t("parichay.pressAllow"))}>
             {t("parichay.askAgainBtn")}
+          </Button>
+        ) : stage === "needstart" ? (
+          <Button
+            variant="primary"
+            size="xl"
+            fullWidth
+            onClick={() => {
+              // this tap IS the unlock gesture; speak the intro, then the
+              // existing gUM ladder
+              void voiceController.speakAndWait(t("parichay.introOnly")).then(() => {
+                if (!doneRef.current) askMic(t("parichay.pressAllow"));
+              });
+              setStage("auto");
+            }}
+          >
+            {t("parichay.startBtn")}
           </Button>
         ) : null}
       </footer>

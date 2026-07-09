@@ -23,6 +23,7 @@ export const hi = {
   // प्रथम आरती — the festive entry flow (splash → tutorial)
   pratham: {
     splashTagline: "ऐप पंडित के लिए है, पंडित ऐप के लिए नहीं",
+    tapHint: "🙏 शुरू करने के लिए छुएँ",
     locationTitle: "आप कहाँ सेवा देते हैं?",
     locationWhy: "आपके शहर की पूजाएँ और आपकी भाषा — बस इसीलिए।",
     locationAllow: "अनुमति दें",
@@ -65,6 +66,7 @@ export const hi = {
     pressAllow: "ऊपर 'अनुमति दें' दबा दीजिए।",
     alreadyGranted: "नमस्ते पंडित जी! मैं आपका शिष्य हूँ — और मैं आपको सुन भी सकता हूँ!",
     askAgainBtn: "🎤 फिर से पूछें",
+    startBtn: "🙏 बात शुरू करें",
   },
   // Native-popup guidance — the arrow + chip + spoken line shown WHILE a
   // browser permission prompt (mic/location) is on screen

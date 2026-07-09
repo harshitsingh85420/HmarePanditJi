@@ -10,7 +10,7 @@
 // fill, so animation:none leaves everything visible in place).
 // ─────────────────────────────────────────────────────────────
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { t } from "@/lib/i18n";
 import { Toran } from "@/components/ui/Toran";
 import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
@@ -27,10 +27,42 @@ const PETALS = [
 
 export function SunriseSplash({ onDone }: { onDone: () => void }) {
   const doneRef = useRef(false);
+  // parked = welcome queued behind the first-gesture unlock: a human has
+  // not touched the app — NO timer may advance the splash.
+  const parkedRef = useRef(false);
+  const firstTapRef = useRef(false);
+  const [showHint, setShowHint] = useState(false);
   const finish = () => {
     if (doneRef.current) return;
     doneRef.current = true;
     onDone();
+  };
+
+  // First tap on a parked splash: the pointerdown unlocks (controller)
+  // and flushes the parked welcome — advance when IT ends. A second tap
+  // (or any tap when not parked) advances immediately (barge-in law).
+  const handleTap = () => {
+    if (parkedRef.current && !firstTapRef.current) {
+      firstTapRef.current = true;
+      setShowHint(false);
+      let sawSpeaking = false;
+      const unsub = voiceController.subscribe(() => {
+        if (voiceController.speaking) sawSpeaking = true;
+        else if (sawSpeaking) {
+          unsub();
+          finish();
+        }
+      });
+      // flush never started (TTS dead) → don't strand the pandit
+      setTimeout(() => {
+        if (!sawSpeaking) {
+          unsub();
+          finish();
+        }
+      }, 2500);
+      return;
+    }
+    finish();
   };
 
   useEffect(() => {
@@ -44,19 +76,31 @@ export function SunriseSplash({ onDone }: { onDone: () => void }) {
     // D3c: warm the NEXT phase's lines while the sun rises
     voiceController.prefetch([t("parichay.introOnly"), t("parichay.pressAllow"), t("parichay.granted")]);
     let disposed = false;
+    const mountedAt = performance.now();
     const minDisplay = new Promise<void>((res) => setTimeout(res, 2600));
-    const narration = new Promise<boolean>((res) => {
-      setTimeout(() => {
-        if (disposed) {
-          res(false);
-          return;
-        }
-        void voiceController.speakAndWait(t("shishya.intro")).then(res);
-      }, 1600);
-    });
-    void Promise.all([minDisplay, narration]).then(() => {
-      if (!disposed) finish();
-    });
+    void (async () => {
+      await new Promise((r) => setTimeout(r, 1600));
+      if (disposed) return;
+      const { status } = await voiceController.speakAndWait(t("shishya.intro"));
+      if (disposed) return;
+      if (status === "ended" || status === "muted") {
+        // SPLASH LAW: auto-advance ONLY on ended|muted AND ≥2.6s shown
+        await minDisplay;
+        if (!disposed) finish();
+      } else if (status === "parked") {
+        // no human gesture yet → stay indefinitely; gentle hint at 2.5s
+        parkedRef.current = true;
+        const hintIn = Math.max(0, 2500 - (performance.now() - mountedAt));
+        setTimeout(() => {
+          if (!disposed && !doneRef.current && !firstTapRef.current) setShowHint(true);
+        }, hintIn);
+      } else if (status === "failed") {
+        // speech impossible this session — visual timer may advance
+        await minDisplay;
+        if (!disposed) finish();
+      }
+      // 'interrupted' = a user tap already handled navigation (barge-in)
+    })();
     return () => {
       disposed = true;
     };
@@ -65,7 +109,7 @@ export function SunriseSplash({ onDone }: { onDone: () => void }) {
 
   return (
     <div
-      onClick={finish}
+      onClick={handleTap}
       className="pa-sunrise h-[100dvh] max-w-[430px] mx-auto relative overflow-hidden flex flex-col items-center justify-center cursor-pointer"
     >
       {/* Toran scallop drops in from the top edge */}
@@ -115,6 +159,13 @@ export function SunriseSplash({ onDone }: { onDone: () => void }) {
       <p className="pa-splash-word text-[16px] text-[#FFE8D2]/90 font-hindi mt-1 px-8 text-center">
         {t("pratham.splashTagline")}
       </p>
+
+      {/* Parked welcome: gentle first-tap hint (chandan chip, soft pulse) */}
+      {showHint && (
+        <span className="pa-tap-hint absolute bottom-28 left-1/2 -translate-x-1/2 bg-cream border border-saffron-200 shadow-card rounded-full px-5 py-2.5 text-[18px] font-bold text-temple-600 font-hindi whitespace-nowrap">
+          {t("pratham.tapHint")}
+        </span>
+      )}
 
       {/* शिष्य pops center-bottom with one ripple */}
       <div className="pa-splash-orb absolute bottom-8 left-1/2 -translate-x-1/2">

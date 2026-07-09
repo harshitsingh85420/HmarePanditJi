@@ -390,6 +390,12 @@ export default function TutorialV2({
 
   const [pointerUp, setPointerUp] = useState(false);
   const askMic = () => {
+    if (voiceController.e2e) {
+      // E2E traversal: no native prompts; practice resolves immediately
+      voiceController.debug("e2e: tutorial-s5 bypassed");
+      setMicState("done");
+      return;
+    }
     // LADDER LAW (same as परिचय): getUserMedia is ALWAYS attempted first,
     // created synchronously inside the user-gesture call stack — never
     // pre-blocked on permissions.query alone. Recovery copy appears only

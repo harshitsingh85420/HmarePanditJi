@@ -61,7 +61,7 @@ export function VoiceDebugPanel() {
       className="fixed inset-x-0 bottom-0 z-[90] max-h-[40%] overflow-y-auto bg-black/85 text-green-200 font-mono text-[11px] leading-[1.5] px-2 py-1"
       aria-hidden="true"
     >
-      <div className="text-green-400 font-bold sticky top-0 bg-black/85">🔊 voicedebug ({lines.length})</div>
+      <div className="text-green-400 font-bold sticky top-0 bg-black/85">🔊 voicedebug ({lines.length}){voiceController.e2e ? " · ⚙E2E" : ""}</div>
       {lines.map((line, i) => (
         <div key={i} className="whitespace-pre-wrap break-all">{line}</div>
       ))}

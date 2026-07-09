@@ -13,9 +13,16 @@
 import { t, getActiveBcp47 } from "@/lib/i18n";
 import { clientPace } from "@/lib/sarvam-tts";
 
+/** How an utterance actually concluded. 'parked' = queued awaiting the
+ *  first-gesture unlock — A HUMAN HAS NOT TOUCHED THE APP YET; callers
+ *  must not proceed on timers in that case. */
+export type SpeakOutcome = "ended" | "interrupted" | "parked" | "muted" | "failed";
+
 type SpeakOpts = {
   interrupt?: boolean;
   onEnd?: (completed: boolean) => void;
+  /** Fine-grained conclusion (in addition to the boolean onEnd). */
+  onOutcome?: (status: SpeakOutcome) => void;
   /** BCP-47 override for lines that must sound in a specific language
    *  (e.g. the language-confirm ceremony). Default: the ACTIVE app language. */
   languageCode?: string;
@@ -135,14 +142,24 @@ class VoiceController {
 
   /**
    * D3 NO-SELF-INTERRUPTION LAW: app-initiated transitions must wait for
-   * शिष्य. speakAndWait resolves when the line ends naturally (true) or
-   * is interrupted/parked/muted (false) — auto-advance sites await this
-   * instead of racing timers. User taps keep instant barge-in.
+   * शिष्य. Resolves with HOW the line concluded. DEFAULT RULE for
+   * callers: status 'parked' means a human has not touched the app yet —
+   * do NOT proceed on timers; wait for the first gesture instead.
    */
-  speakAndWait(text: string, opts?: Omit<SpeakOpts, "onEnd">): Promise<boolean> {
+  speakAndWait(
+    text: string,
+    opts?: Omit<SpeakOpts, "onEnd" | "onOutcome">,
+  ): Promise<{ status: SpeakOutcome }> {
     return new Promise((resolve) => {
-      this.speak(text, { ...opts, onEnd: (completed) => resolve(completed) });
+      this.speak(text, { ...opts, onOutcome: (status) => resolve({ status }) });
     });
+  }
+
+  private _e2e = false;
+  /** E2E traversal mode — native permission prompts are never invoked. */
+  get e2e(): boolean {
+    this.init();
+    return this._e2e;
   }
 
   /** Playback-unlock state + element snapshot (Parichay instrumentation). */
@@ -182,6 +199,15 @@ class VoiceController {
   private init() {
     if (this.initialized || typeof window === "undefined") return;
     this.initialized = true;
+    // E2E traversal mode (?e2e=1, session-sticky): automated QA can
+    // traverse permission-gated screens — native prompts never invoked.
+    try {
+      const q = new URLSearchParams(window.location.search);
+      if (q.get("e2e") === "1") sessionStorage.setItem("hpj_e2e", "1");
+      if (q.get("e2e") === "0") sessionStorage.removeItem("hpj_e2e");
+      this._e2e = sessionStorage.getItem("hpj_e2e") === "1";
+      if (this._e2e) this.debug("⚙ E2E MODE ACTIVE — permission prompts bypassed");
+    } catch { /* noop */ }
     this.installPermSim();
     this._muted = readInitialMuted();
     this._hidden = document.visibilityState === "hidden";
@@ -341,6 +367,7 @@ class VoiceController {
     if (typeof window === "undefined") return;
     if (this._muted) {
       opts?.onEnd?.(false);
+      opts?.onOutcome?.("muted");
       return;
     }
     this.debug(`speak "${text.slice(0, 40)}" lang=${opts?.languageCode ?? getActiveBcp47()}`);
@@ -351,6 +378,7 @@ class VoiceController {
       this.pendingUnlock = { text, languageCode: opts?.languageCode };
       this.debug("→ parked (pre-unlock)");
       opts?.onEnd?.(false);
+      opts?.onOutcome?.("parked");
       return;
     }
     // Barge-out: speaking during a listen aborts the listen first, then
@@ -362,7 +390,10 @@ class VoiceController {
     if (interrupt) this.stopSpeech("speak-interrupt");
     else if (this._speaking) {
       // non-interrupting speak while already speaking → newest-wins queue
-      if (this.queued) this.queued.opts?.onEnd?.(false);
+      if (this.queued) {
+        this.queued.opts?.onEnd?.(false);
+        this.queued.opts?.onOutcome?.("interrupted");
+      }
       this.queued = { text, opts };
       return;
     }
@@ -371,12 +402,13 @@ class VoiceController {
     this.emit();
 
     let settled = false;
-    const finish = (completed: boolean) => {
+    const finish = (completed: boolean, status?: SpeakOutcome) => {
       if (settled) return;
       settled = true;
       this._speaking = false;
       this.emit();
       opts?.onEnd?.(completed);
+      opts?.onOutcome?.(status ?? (completed ? "ended" : "interrupted"));
       // drain anything queued while we spoke
       const q = this.queued;
       this.queued = null;
@@ -397,21 +429,27 @@ class VoiceController {
   // PROVES a matching voice exists (voices load async on Android) —
   // otherwise it says so and stays text-visible. NotAllowedError parks
   // the utterance for a next-gesture retry instead of falling back.
-  private async speakNow(text: string, languageCode: string, finish: (completed: boolean) => void): Promise<void> {
+  private async speakNow(text: string, languageCode: string, finish: (completed: boolean, status?: SpeakOutcome) => void): Promise<void> {
     const seq = ++this.speechSeq;
     const remote = await this.tryRemoteTTS(text, languageCode, seq);
     if (remote === "played") {
       finish(true);
       return;
     }
-    if (remote === "cancelled" || remote === "parked" || seq !== this.speechSeq) {
-      finish(false);
+    if (remote === "parked") {
+      // playback refused mid-flight (NotAllowedError) — utterance parked
+      // for the next gesture; callers must not proceed on timers.
+      finish(false, "parked");
+      return;
+    }
+    if (remote === "cancelled" || seq !== this.speechSeq) {
+      finish(false, "interrupted");
       return;
     }
     if (!window.speechSynthesis) {
       this.debug("fallback: speechSynthesis unavailable → text-only");
       this.announceVoiceUnavailable();
-      finish(false);
+      finish(false, "failed");
       return;
     }
     this.debug("fallback: sarvam→speechSynthesis");
@@ -426,14 +464,14 @@ class VoiceController {
       // decide honestly instead of speaking into the void.
       await this.waitVoicesLoaded();
       if (seq !== this.speechSeq) {
-        finish(false);
+        finish(false, "interrupted");
         return;
       }
       const voice = pickVoiceForLang(languageCode);
       if (!voice) {
         this.debug(`NO MATCHING VOICE for ${languageCode} → text-only`);
         this.announceVoiceUnavailable();
-        finish(false);
+        finish(false, "failed");
         return;
       }
       this.debug(`speechSynthesis voice: ${voice.name} (${voice.lang})`);
@@ -441,11 +479,11 @@ class VoiceController {
         text,
         languageCode: languageCode as never,
         onEnd: () => finish(true),
-        onError: () => finish(false),
+        onError: () => finish(false, "failed"),
       });
       finish(true);
     } catch {
-      finish(false);
+      finish(false, "failed");
     }
   }
 

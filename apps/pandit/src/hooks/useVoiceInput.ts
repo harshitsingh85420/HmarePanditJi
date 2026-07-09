@@ -293,6 +293,14 @@ export function useVoiceInput(): UseVoiceInputReturn {
   }, [cleanup]);
 
   const start = useCallback(async (opts?: { stream?: MediaStream }) => {
+    // E2E traversal (?e2e=1): never open the mic — settle the listen
+    // immediately as a no-speech miss so listen-gated screens move on.
+    if (voiceController.e2e) {
+      voiceController.debug("e2e: listen bypassed");
+      opts?.stream?.getTracks().forEach((track) => track.stop());
+      setState("error");
+      return;
+    }
     // Gesture path: a pre-acquired stream is consumed directly.
     if (opts?.stream) {
       await startRecording(opts.stream);
