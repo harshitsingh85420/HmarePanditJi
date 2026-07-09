@@ -44,7 +44,10 @@ const nextConfig = {
           },
           {
             key: 'Permissions-Policy',
-            value: 'camera=(), microphone=(), geolocation=(self)',
+            // microphone=(self) is LOAD-BEARING: this is a voice-first app — an
+            // empty allowlist blocks getUserMedia at the policy level and the
+            // permission popup can never appear (no camera use via getUserMedia).
+            value: 'camera=(), microphone=(self), geolocation=(self)',
           },
           {
             key: 'Strict-Transport-Security',

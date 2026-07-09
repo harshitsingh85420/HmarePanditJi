@@ -61,6 +61,10 @@ export const hi = {
     denied:
       "कोई बात नहीं — आप छूकर और लिखकर भी सब कर सकते हैं। कभी भी सेटिंग से माइक चालू कर सकते हैं।",
     dismissed: "कोई बात नहीं — एक बार फिर बटन दबाइए और ऊपर 'अनुमति दें' दबाइए।",
+    voiceAuto:
+      "नमस्ते पंडित जी! मैं आपका शिष्य हूँ, और मैं आपसे बात करना चाहता हूँ। ऊपर एक सवाल आया है — 'अनुमति दें' दबा दीजिए।",
+    alreadyGranted: "नमस्ते पंडित जी! मैं आपका शिष्य हूँ — और मैं आपको सुन भी सकता हूँ!",
+    askAgainBtn: "🎤 फिर से पूछें",
   },
   // Native-popup guidance — the arrow + chip + spoken line shown WHILE a
   // browser permission prompt (mic/location) is on screen

@@ -91,6 +91,56 @@ class VoiceController {
 
   getDebugLines = (): readonly string[] => this.debugBuf;
 
+  // DEV-ONLY permission simulator (?voicedebug companion): lets a tester
+  // force the mic-permission outcome without touching browser settings.
+  // sessionStorage hpj_perm_sim = grant | dismiss | denied | nomic.
+  // Stripped from production builds by the NODE_ENV guard.
+  private installPermSim(): void {
+    if (process.env.NODE_ENV === "production") return;
+    let sim: string | null = null;
+    try {
+      sim = sessionStorage.getItem("hpj_perm_sim");
+    } catch { /* noop */ }
+    if (!sim) return;
+    this.debug(`⚠ PERM SIM ACTIVE: ${sim} (dev only)`);
+    const mkErr = (name: string) => Object.assign(new Error(`sim:${name}`), { name });
+    const delayReject = (name: string, ms: number) =>
+      new Promise<MediaStream>((_, rej) => setTimeout(() => rej(mkErr(name)), ms));
+    // stateful, like a real browser: flips to granted/denied when the
+    // simulated prompt settles
+    let queryState: PermissionState =
+      sim === "grant" ? "prompt" : sim === "denied" ? "denied" : sim === "pregranted" ? "granted" : "prompt";
+    try {
+      navigator.permissions.query = () =>
+        Promise.resolve({ state: queryState, onchange: null } as unknown as PermissionStatus);
+    } catch { /* noop */ }
+    try {
+      navigator.mediaDevices.getUserMedia = () => {
+        if (sim === "grant" || sim === "pregranted") {
+          return new Promise<MediaStream>((res) =>
+            setTimeout(() => {
+              queryState = "granted";
+              const ctx = new AudioContext();
+              res(ctx.createMediaStreamDestination().stream);
+            }, sim === "grant" ? 900 : 100),
+          );
+        }
+        if (sim === "nomic") return delayReject("NotFoundError", 300);
+        if (sim === "denied") return delayReject("NotAllowedError", 300);
+        return delayReject("NotAllowedError", 1200); // dismiss
+      };
+    } catch { /* noop */ }
+  }
+
+  /** Playback-unlock state + element snapshot (Parichay instrumentation). */
+  get unlocked(): boolean {
+    return this._unlocked;
+  }
+  audioElState(): string {
+    if (!this.audioEl) return "audioEl=none";
+    return `audioEl paused=${this.audioEl.paused} src=${this.audioEl.currentSrc ? "set" : "empty"}`;
+  }
+
   private getAudioEl(): HTMLAudioElement {
     if (!this.audioEl) {
       this.audioEl = new Audio();
@@ -119,6 +169,7 @@ class VoiceController {
   private init() {
     if (this.initialized || typeof window === "undefined") return;
     this.initialized = true;
+    this.installPermSim();
     this._muted = readInitialMuted();
     this._hidden = document.visibilityState === "hidden";
     document.addEventListener("visibilitychange", () => {
