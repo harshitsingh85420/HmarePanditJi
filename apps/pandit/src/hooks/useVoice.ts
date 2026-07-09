@@ -18,11 +18,11 @@ export function useVoice() {
   }, []);
 
   const stop = useCallback(() => {
-    voiceController.stopSpeech();
+    voiceController.stopSpeech("useVoice:stop");
   }, []);
 
   const stopAll = useCallback(() => {
-    voiceController.stopSpeech();
+    voiceController.stopSpeech("useVoice:stop");
   }, []);
 
   const toggle = useCallback(() => {

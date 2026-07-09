@@ -107,7 +107,7 @@ export function useVoiceInput(): UseVoiceInputReturn {
 
     // A5: Never-hear-itself rule — the controller refuses to open the mic
     // while speaking or muted, and marks us as listening otherwise.
-    voiceController.stopSpeech();
+    voiceController.stopSpeech("listen-start");
     if (!voiceController.guardListenStart()) {
       // release a gesture-acquired stream we will never consume
       preStream?.getTracks().forEach((track) => track.stop());

@@ -203,14 +203,14 @@ export default function OnboardingOrchestratorPage() {
         try { window.history.pushState({ hpj: cur }, "", window.location.href); } catch { /* noop */ }
       };
       if (cur === "TUTORIAL" && slide > 1) {
-        voiceController.stopSpeech();
+        voiceController.stopSpeech("hardware-back:slide");
         store.setCurrentTutorialScreen(slide - 1);
         repin();
         return;
       }
       // FLOW C back law: registration returns to the Tutorial CTA slide
       if (cur === "REGISTRATION" || cur === "WIZARD") {
-        voiceController.stopSpeech();
+        voiceController.stopSpeech("orchestrator:misc");
         store.setCurrentTutorialScreen(TUTORIAL_TOTAL);
         store.setPhase("TUTORIAL");
         repin();
@@ -224,7 +224,7 @@ export default function OnboardingOrchestratorPage() {
       };
       const prev = prevMap[String(cur)] ?? null;
       if (prev) {
-        voiceController.stopSpeech();
+        voiceController.stopSpeech("hardware-back:phase");
         store.setPhase(prev);
         repin();
       }
@@ -250,7 +250,7 @@ export default function OnboardingOrchestratorPage() {
   }, [resumeChecked, phase, router]);
 
   const goto = (p: OnboardingPhase) => {
-    voiceController.stopSpeech();
+    voiceController.stopSpeech("phase-transition");
     store.setPhase(p);
   };
 
@@ -366,7 +366,7 @@ export default function OnboardingOrchestratorPage() {
         <TutorialV2
           slide={Math.min(TUTORIAL_TOTAL, Math.max(1, currentTutorialScreen))}
           onSlideChange={(n) => {
-            voiceController.stopSpeech();
+            voiceController.stopSpeech("user-nav:slide");
             store.setCurrentTutorialScreen(n);
           }}
           onRegister={() => {
@@ -401,7 +401,7 @@ export default function OnboardingOrchestratorPage() {
         <RegistrationScreen
           onBack={() => {
             // FLOW C back law: return to the Tutorial CTA slide
-            voiceController.stopSpeech();
+            voiceController.stopSpeech("orchestrator:misc");
             store.setCurrentTutorialScreen(TUTORIAL_TOTAL);
             store.setPhase("TUTORIAL");
           }}

@@ -125,10 +125,17 @@ export async function POST(request: NextRequest) {
     // 'aditya' = first male option in Sarvam's bulbul:v3 speaker list
     // (verified live via scripts/check-sarvam-speaker.mjs)
     const speaker = body.speaker ?? process.env.SARVAM_TTS_SPEAKER ?? 'aditya';
+    // D4 PACE: default from SARVAM_TTS_PACE (1.15 = brisk but clear for
+    // elderly Hindi). Sarvam bulbul documents pace 0.5–2.0 — clamp to
+    // that; an out-of-range 4xx would name the exact limits in its body
+    // (logged below) if the range ever changes.
+    const envPace = Number.parseFloat(process.env.SARVAM_TTS_PACE ?? '1.15');
+    const requestedPace = typeof body.pace === 'number' && Number.isFinite(body.pace) ? body.pace : envPace;
+    const pace = Math.min(2.0, Math.max(0.5, Number.isFinite(requestedPace) ? requestedPace : 1.15));
     const basePayload: Record<string, unknown> = {
       inputs: [body.text.trim()],
       target_language_code: body.languageCode ?? 'hi-IN',
-      pace: body.pace ?? 0.9,
+      pace,
       speech_sample_rate: 22050,
       enable_preprocessing: true,   // handles numbers, abbreviations
       model: 'bulbul:v3',

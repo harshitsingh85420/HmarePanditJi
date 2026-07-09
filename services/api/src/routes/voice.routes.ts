@@ -61,6 +61,8 @@ const voiceInputSchema = z.object({
 const ttsSchema = z.object({
     text: z.string().min(1).max(5000),
     language: z.enum(["hi", "en", "bn", "ta", "te", "mr"]).optional().default("hi"),
+    // D4: speech pace (0.5–2.0, default env SARVAM_TTS_PACE → 1.15).
+    pace: z.number().min(0.5).max(2).optional(),
 });
 
 // The pandit app's 11 UI language codes → Sarvam Translate (Mayura) codes.
@@ -106,7 +108,9 @@ export default async function voiceRoutes(fastify: FastifyInstance, _opts: any) 
         try {
             const req = request as any;
             const res = reply;
-            const { text, language } = req.body as z.infer<typeof ttsSchema>;
+            const { text, language, pace: paceRaw } = req.body as z.infer<typeof ttsSchema>;
+            const envPace = Number.parseFloat(process.env.SARVAM_TTS_PACE ?? "1.15");
+            const pace = Math.min(2, Math.max(0.5, paceRaw ?? (Number.isFinite(envPace) ? envPace : 1.15)));
 
             // R2-backed audio cache. Hash EVERY parameter that affects the
             // audio: provider, serviceId (pipeline), fixed gender, language,
@@ -116,7 +120,7 @@ export default async function voiceRoutes(fastify: FastifyInstance, _opts: any) 
             const cacheable = isStorageConfigured() && normalizedText.length <= 500;
             const cacheKey = "tts/" + crypto
                 .createHash("sha256")
-                .update(`bhashini|${serviceId}|female|${language}|${normalizedText}`)
+                .update(`bhashini|${serviceId}|female|${language}|${pace}|${normalizedText}`)
                 .digest("hex") + ".mp3";
 
             if (cacheable && (await objectExists(cacheKey))) {
@@ -126,7 +130,7 @@ export default async function voiceRoutes(fastify: FastifyInstance, _opts: any) 
                 return;
             }
 
-            const audio = await textToSpeech(text, language);
+            const audio = await textToSpeech(text, language, pace);
 
             if (cacheable && audio) {
                 try {

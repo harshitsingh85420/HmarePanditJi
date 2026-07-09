@@ -194,7 +194,7 @@ export default function ReadinessPage() {
           /* noop */
         }
       };
-      voiceController.stopSpeech();
+      voiceController.stopSpeech("user-nav:readiness");
       if (editorRef.current) {
         setEditorPuja(null);
         repin();
@@ -239,7 +239,7 @@ export default function ReadinessPage() {
   };
 
   const goBack = () => {
-    voiceController.stopSpeech();
+    voiceController.stopSpeech("user-nav:readiness");
     setErrorMsg("");
     if (editorPuja) {
       setEditorPuja(null);
@@ -250,7 +250,7 @@ export default function ReadinessPage() {
   };
 
   const exitForLater = () => {
-    voiceController.stopSpeech();
+    voiceController.stopSpeech("user-nav:readiness");
     router.push("/home");
   };
 

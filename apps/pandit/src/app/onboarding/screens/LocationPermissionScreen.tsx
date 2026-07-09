@@ -61,7 +61,7 @@ export default function LocationPermissionScreen({
       async (position) => {
         setPointerUp(false);
         voiceController.debug("perm: settled(granted) (location)");
-        voiceController.stopSpeech();
+        voiceController.stopSpeech("location:grant-settle");
         try {
           const { latitude, longitude } = position.coords;
           const res = await fetch(

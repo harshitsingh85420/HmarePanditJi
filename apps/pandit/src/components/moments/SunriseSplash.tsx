@@ -34,33 +34,29 @@ export function SunriseSplash({ onDone }: { onDone: () => void }) {
   };
 
   useEffect(() => {
-    // शिष्य greets as he pops in (1.6s in). Auto-advance waits for BOTH
-    // the 2.6s visual sequence AND the greeting's end — a tap always
-    // skips instantly, and a hard 9s failsafe covers a stuck speech end.
-    let visualDone = false;
-    let speechDone = false;
-    const tryFinish = () => {
-      if (visualDone && speechDone) finish();
-    };
-    const speakT = setTimeout(
-      () =>
-        voiceController.speak(t("shishya.intro"), {
-          onEnd: () => {
-            speechDone = true;
-            tryFinish();
-          },
-        }),
-      1600,
-    );
-    const visualTimer = setTimeout(() => {
-      visualDone = true;
-      tryFinish();
-    }, 2600);
-    const failsafe = setTimeout(finish, 9000);
+    // D3a AUTO-ADVANCE = max(minimum display, narration end). शिष्य is
+    // NEVER cut mid-line by the app: speakAndWait resolves on the line's
+    // natural end (or instantly when muted/parked — a no-tap pre-unlock
+    // run advances on the visual timer alone). A user tap still skips
+    // immediately (barge-in allowed). No timer failsafe races a playing
+    // line — speakAndWait always settles, including every finish(false)
+    // path in the controller, so this cannot hang.
+    let disposed = false;
+    const minDisplay = new Promise<void>((res) => setTimeout(res, 2600));
+    const narration = new Promise<boolean>((res) => {
+      setTimeout(() => {
+        if (disposed) {
+          res(false);
+          return;
+        }
+        void voiceController.speakAndWait(t("shishya.intro")).then(res);
+      }, 1600);
+    });
+    void Promise.all([minDisplay, narration]).then(() => {
+      if (!disposed) finish();
+    });
     return () => {
-      clearTimeout(speakT);
-      clearTimeout(visualTimer);
-      clearTimeout(failsafe);
+      disposed = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

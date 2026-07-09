@@ -27,7 +27,7 @@ export function useScreenVoice(
     return () => {
       clearTimeout(timer);
       unregister();
-      voiceController.stopSpeech();
+      voiceController.stopSpeech("unmount:screen-voice");
     };
   }, [narration]);
 

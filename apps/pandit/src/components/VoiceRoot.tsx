@@ -32,7 +32,7 @@ export function VoiceRoot() {
       // शिष्य manages speech himself
       const label = el.getAttribute("aria-label") || "";
       if (label.includes("शिष्य")) return;
-      voiceController.stopSpeech();
+      voiceController.stopSpeech("barge-in:tap");
     };
     const onVoiceUnavailable = () => setToastMsg(t("voice.unavailable"));
     const onTapToHear = () => setToastMsg(t("voice.tapToHear"));

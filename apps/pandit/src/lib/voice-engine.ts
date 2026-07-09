@@ -1,5 +1,6 @@
 'use client'
 
+import { clientPace } from "./sarvam-tts";
 import { sttEngine, deepgramEngine, type STTOptions, type DeepgramSTTOptions } from './deepgramSTT'
 
 // ─────────────────────────────────────────────────────────────
@@ -736,7 +737,7 @@ export function speak(
 
   ttsUtterance = new SpeechSynthesisUtterance(text)
   ttsUtterance.lang = languageBcp47
-  ttsUtterance.rate = 0.88
+  ttsUtterance.rate = clientPace() // D4: match Sarvam pace (1.15 default)
   ttsUtterance.pitch = 1.0
   ttsUtterance.volume = 1.0
 

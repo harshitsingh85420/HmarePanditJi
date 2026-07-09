@@ -396,7 +396,7 @@ export default function TutorialV2({
       .then(async (stream) => {
         setPointerUp(false);
         voiceController.debug("perm: settled(granted) (tutorial s5)");
-        voiceController.stopSpeech();
+        voiceController.stopSpeech("tutorial-s5:grant-settle");
         localStorage.setItem("mic_permission_granted", "true");
         setMicPerm("granted");
         onMicGranted();

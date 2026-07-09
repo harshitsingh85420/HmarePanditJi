@@ -21,7 +21,11 @@ import { api } from "@/lib/api";
 import { LANG_TO_BCP47, type LangCode } from "@/lib/languageDetect";
 
 const LANG_KEY = "hpj_lang_code";
-const BUNDLE_PREFIX = "lang_bundle_";
+// Bump BUNDLE_VERSION whenever source Hindi copy changes in a way that
+// must invalidate persisted translations (server cache keys are sha1(text)
+// and refresh automatically; only these localStorage bundles linger).
+const BUNDLE_VERSION = 2;
+const BUNDLE_PREFIX = `lang_bundle_v${BUNDLE_VERSION}_`;
 const CHUNK_SIZE = 100;
 
 /** Sections needed before the app may switch language (blocking fetch). */

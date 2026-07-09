@@ -383,7 +383,7 @@ export const BRAND_NAME_TRANSLATION: Record<SupportedLanguage, {
     latin: 'AapdaPanditJi',
   },
   'Sanskrit': {
-    native: 'अस्माकपण्डितजी',
+    native: 'अस्माकपंडितजी',
     latin: 'AsmakaPanditJi',
   },
   'English': {

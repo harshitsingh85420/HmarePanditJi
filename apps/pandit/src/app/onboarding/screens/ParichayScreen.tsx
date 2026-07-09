@@ -12,11 +12,13 @@
 // auto-advanced with NO tap, speak() parks pre-unlock — the loud
 // 'UNLOCK MISSING AT PARICHAY' debug line below is the tell.)
 //
-// MOUNT (once — StrictMode ref guard):
+// MOUNT (once — StrictMode ref guard): INTRODUCE FIRST, THEN PROMPT.
 //   permissions.query says 'granted' → no popup will appear: shorter
 //     greeting (alreadyGranted) → silent getUserMedia → practice listen.
 //   otherwise (prompt/denied/unsupported — NEVER pre-block on these):
-//     SAME TICK: speak(voiceAuto) + getUserMedia + PopupPointer.
+//     speak introOnly TO COMPLETION (speakAndWait) → then SAME TICK:
+//     getUserMedia + PopupPointer + speak pressAllow (after invoking
+//     gUM — narration never delays the prompt).
 // SETTLE (ladder from b1c58ef unchanged):
 //   granted           → thanks → practice listen on the SAME stream.
 //   NotAllowedError   → permissions.query NOW:
@@ -121,7 +123,7 @@ export default function ParichayScreen({ onDone }: { onDone: () => void }) {
       .then((stream) => {
         setPointerUp(false);
         voiceController.debug("perm: settled(granted) (parichay)");
-        voiceController.stopSpeech();
+        voiceController.stopSpeech("parichay:grant-settle");
         runGrantedPath(stream, t("parichay.granted"));
       })
       .catch(async (e: unknown) => {
@@ -163,14 +165,15 @@ export default function ParichayScreen({ onDone }: { onDone: () => void }) {
       const st = stageRef.current;
       if (st === "dismissed") voiceController.speak(t("parichay.dismissed"));
       else if (st === "granted" || st === "practice") voiceController.speak(t("parichay.tryIt"));
-      else if (st !== "leaving") voiceController.speak(t("parichay.voiceAuto"));
+      else if (st === "asking") voiceController.speak(t("parichay.pressAllow"));
+      else if (st !== "leaving") voiceController.speak(t("parichay.introOnly"));
     });
 
     if (!firedRef.current) {
       firedRef.current = true;
 
       // Task-2 instrumentation: the tell for a silent phone.
-      voiceController.debug("parichay mount → speak(voiceAuto) queued");
+      voiceController.debug("parichay mount → speak(introOnly) queued");
       voiceController.debug(`parichay: unlocked=${voiceController.unlocked} ${voiceController.audioElState()}`);
       if (!voiceController.unlocked) {
         voiceController.debug("⚠ UNLOCK MISSING AT PARICHAY — splash advanced without a tap; speech will park");
@@ -200,14 +203,19 @@ export default function ParichayScreen({ onDone }: { onDone: () => void }) {
             });
           return;
         }
-        askMic(t("parichay.voiceAuto"));
+        // D2: शिष्य introduces himself COMPLETELY before any popup —
+        // the prompt + pointer + short ask fire only when the intro ends.
+        voiceController.debug("parichay: intro → (onEnd) → prompt");
+        await voiceController.speakAndWait(t("parichay.introOnly"));
+        if (doneRef.current) return;
+        askMic(t("parichay.pressAllow"));
       };
       void fire();
     }
 
     return () => {
       unregister();
-      voiceController.stopSpeech();
+      voiceController.stopSpeech("unmount:parichay");
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -273,7 +281,7 @@ export default function ParichayScreen({ onDone }: { onDone: () => void }) {
             <p className="t-body font-bold text-temple-600 font-hindi text-center">
               {t("tutorial.slide5Blocked")}
             </p>
-            <Button variant="secondary" size="md" fullWidth onClick={() => askMic(t("perm.pressAllowVoice"))}>
+            <Button variant="secondary" size="md" fullWidth onClick={() => askMic(t("parichay.pressAllow"))}>
               {t("tutorial.slide5Retry")}
             </Button>
             <Button variant="ghost" size="md" fullWidth onClick={finishDeny}>
@@ -281,7 +289,7 @@ export default function ParichayScreen({ onDone }: { onDone: () => void }) {
             </Button>
           </>
         ) : stage === "dismissed" ? (
-          <Button variant="primary" size="xl" fullWidth onClick={() => askMic(t("perm.pressAllowVoice"))}>
+          <Button variant="primary" size="xl" fullWidth onClick={() => askMic(t("parichay.pressAllow"))}>
             {t("parichay.askAgainBtn")}
           </Button>
         ) : null}

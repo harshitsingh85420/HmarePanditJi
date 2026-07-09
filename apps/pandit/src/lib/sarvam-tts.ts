@@ -4,6 +4,19 @@ import { speak, stopSpeaking } from './voice-engine';
 import type { VoiceScript } from './voice-scripts-part0';
 import { logger } from '@/utils/logger';
 
+/** D4: per-device pace override — localStorage 'voice_pace' (0.5–2.0),
+ *  else 1.15 (matches the server's SARVAM_TTS_PACE default). */
+export function clientPace(): number {
+  try {
+    const raw = localStorage.getItem("voice_pace");
+    if (raw) {
+      const v = Number.parseFloat(raw);
+      if (Number.isFinite(v)) return Math.min(2.0, Math.max(0.5, v));
+    }
+  } catch { /* SSR / storage blocked */ }
+  return 1.15;
+}
+
 export type SarvamLanguageCode =
   | 'hi-IN'
   | 'bn-IN'
@@ -27,7 +40,8 @@ export interface SarvamTTSOptions {
   languageCode?: SarvamLanguageCode;
   // CRITICAL: Default speaker is "meera" for elderly users (NOT "arjun" or "ratan")
   speaker?: SarvamSpeaker;
-  // CRITICAL: Default pace is 0.82 for elderly comprehension (NOT 0.90 or 1.0)
+  // D4: default pace 1.15 (mirrors server SARVAM_TTS_PACE default);
+  // localStorage 'voice_pace' overrides per device (future settings knob)
   pace?: number;
   pitch?: number;
   loudness?: number;
@@ -184,8 +198,7 @@ export async function speakWithSarvam({
   languageCode = 'hi-IN',
   // CRITICAL: Default speaker is "priya" (warm, mature voice for elderly)
   speaker = 'priya',
-  // CRITICAL: Default pace is 0.82 (slower for elderly comprehension)
-  pace = 0.82,
+  pace = clientPace(),
   pitch = 0,
   loudness = 1.0,
   onStart,
@@ -225,7 +238,7 @@ export async function preloadAudio(
   text: string,
   languageCode: SarvamLanguageCode = 'hi-IN',
   speaker: SarvamSpeaker = 'priya',
-  pace: number = 0.82
+  pace: number = clientPace()
 ): Promise<string | null> {
   const cacheKey = `${text}::${languageCode}::${speaker}::${pace}`;
 

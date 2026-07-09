@@ -132,6 +132,18 @@ class VoiceController {
     } catch { /* noop */ }
   }
 
+  /**
+   * D3 NO-SELF-INTERRUPTION LAW: app-initiated transitions must wait for
+   * शिष्य. speakAndWait resolves when the line ends naturally (true) or
+   * is interrupted/parked/muted (false) — auto-advance sites await this
+   * instead of racing timers. User taps keep instant barge-in.
+   */
+  speakAndWait(text: string, opts?: Omit<SpeakOpts, "onEnd">): Promise<boolean> {
+    return new Promise((resolve) => {
+      this.speak(text, { ...opts, onEnd: (completed) => resolve(completed) });
+    });
+  }
+
   /** Playback-unlock state + element snapshot (Parichay instrumentation). */
   get unlocked(): boolean {
     return this._unlocked;
@@ -175,7 +187,7 @@ class VoiceController {
     document.addEventListener("visibilitychange", () => {
       this._hidden = document.visibilityState === "hidden";
       if (this._hidden) {
-        this.stopSpeech();
+        this.stopSpeech("tab-hidden");
         this.abortListening();
       }
       this.emit();
@@ -346,7 +358,7 @@ class VoiceController {
       this.abortListening();
     }
     const interrupt = opts?.interrupt !== false;
-    if (interrupt) this.stopSpeech();
+    if (interrupt) this.stopSpeech("speak-interrupt");
     else if (this._speaking) {
       // non-interrupting speak while already speaking → newest-wins queue
       if (this.queued) this.queued.opts?.onEnd?.(false);
@@ -583,7 +595,11 @@ class VoiceController {
     }
   }
 
-  stopSpeech(): void {
+  stopSpeech(reason: string = "untagged"): void {
+    // D3 instrumentation: name every interrupter — a stop while a line is
+    // mid-air is exactly the "speech gets cut off" bug signature.
+    if (this._speaking) this.debug(`stopSpeech(${reason}) — MID-UTTERANCE`);
+    else if (reason !== "speak-interrupt") this.debug(`stopSpeech(${reason})`);
     this.init();
     if (typeof window === "undefined") return;
     if (this._speaking) this.debug("stopSpeech (was speaking)");
@@ -626,7 +642,7 @@ class VoiceController {
       /* noop */
     }
     if (v) {
-      this.stopSpeech();
+      this.stopSpeech("mute");
       this.abortListening();
     }
     this.emit();

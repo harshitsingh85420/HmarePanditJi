@@ -8,6 +8,10 @@ services:
     startCommand: pnpm --filter api start
     healthCheckPath: /health
     envVars:
+      # D4: TTS speaking pace (0.5–2.0; default 1.15). sync:false — set the
+      # value in the Render dashboard, and mirror it on Vercel for apps/pandit.
+      - key: SARVAM_TTS_PACE
+        sync: false
       - key: DATABASE_URL
         sync: false
       - key: REDIS_URL

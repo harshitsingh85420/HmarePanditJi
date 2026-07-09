@@ -53,7 +53,12 @@ interface BhashiniSTTRequest {
  * @param language - Language code ('hi', 'en', 'bn', 'ta', 'te', 'mr')
  * @returns Base64 audio content string
  */
-export async function textToSpeech(text: string, language: string = "hi"): Promise<string> {
+// `pace` is accepted for parity with the Sarvam route (apps/pandit
+// /api/tts, which fully honors it). The current Bhashini pipeline config
+// has no speaking-rate field — the value participates in the caller's
+// cache key and will be forwarded here the moment the provider supports it.
+export async function textToSpeech(text: string, language: string = "hi", pace?: number): Promise<string> {
+    void pace;
     if (!env.BHASHINI_API_KEY || !env.BHASHINI_USER_ID) {
         logger.warn("[Bhashini] API not configured — returning mock audio");
         return ""; // Return empty in dev mode
