@@ -25,6 +25,7 @@ import { useVoiceCommands } from "@/hooks/useVoiceScreen";
 import { YES, NEXT, BACK } from "@/lib/voiceGrammar";
 import { VoiceField } from "@/components/voice/VoiceField";
 import { useVoice } from "@/hooks/useVoice";
+import { voiceController } from "@/lib/voiceController";
 import { useSafeOnboardingStore } from "@/lib/stores/ssr-safe-stores";
 
 export default function RegistrationScreen({ onBack }: { onBack: () => void }) {
@@ -159,9 +160,37 @@ export default function RegistrationScreen({ onBack }: { onBack: () => void }) {
 // Lite celebration — a quiet 🎉 beat, narrated, then home. The FULL
 // CelebrationScreen (marigold rain) is reserved for readiness completion.
 function CelebrationLite({ onDone }: { onDone: () => void }) {
+  // K3-adjacent: a flat 2.6s auto-advance used to behead its own
+  // narration mid-air (a real MID-UTTERANCE cut, not a labeling bug).
+  // Keep the 2.6s minimum display, then leave when the line has ENDED —
+  // capped at 8s total so a stalled TTS can never trap the pandit here.
   useEffect(() => {
-    const t = setTimeout(onDone, 2600);
-    return () => clearTimeout(t);
+    let finished = false;
+    let poll: ReturnType<typeof setInterval> | null = null;
+    let cap: ReturnType<typeof setTimeout> | null = null;
+    const go = () => {
+      if (finished) return;
+      finished = true;
+      if (poll) clearInterval(poll);
+      if (cap) clearTimeout(cap);
+      onDone();
+    };
+    const min = setTimeout(() => {
+      if (!voiceController.speaking) {
+        go();
+        return;
+      }
+      poll = setInterval(() => {
+        if (!voiceController.speaking) go();
+      }, 250);
+      cap = setTimeout(go, 5400);
+    }, 2600);
+    return () => {
+      finished = true;
+      clearTimeout(min);
+      if (poll) clearInterval(poll);
+      if (cap) clearTimeout(cap);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

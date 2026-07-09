@@ -12,7 +12,7 @@
 
 import { t, getActiveBcp47 } from "@/lib/i18n";
 import { clientPace } from "@/lib/sarvam-tts";
-import { YES, NO, REPEAT, HELP, SLEEP, matchAny } from "@/lib/voiceGrammar";
+import { YES, NO, REPEAT, HELP, SLEEP, matchAny, matchWord } from "@/lib/voiceGrammar";
 
 // ── J1: SCREEN VOICE CONTEXT ─────────────────────────────────
 // Every screen registers its commands here (useVoiceScreen /
@@ -122,6 +122,16 @@ class VoiceController {
   // H1: every tap's timestamp — an unmount:* stop right after a tap is
   // user-caused navigation, not the mid-utterance bug signature.
   private lastPointerdownAt = 0;
+  // K3: voice commands ARE gestures — a nav-teardown stop right after a
+  // registry command executed (or a voice-accepted field value) is the
+  // pandit navigating by voice, same as a tap.
+  private lastVoiceCommandAt = 0;
+
+  /** Stamp the voice-gesture clock (registry command ran / field value
+   *  accepted by voice). Consulted by the stopSpeech classifier. */
+  noteVoiceGesture(): void {
+    this.lastVoiceCommandAt = performance.now();
+  }
   // H1: barge-in timestamp — listener order on document is not ours to
   // control (VoiceRoot's barge-in can run BEFORE the unlock listener in
   // the same pointerdown), so the flush consults this instead of relying
@@ -309,10 +319,22 @@ class VoiceController {
     const entry = this.activeVoiceScreen();
     if (entry) {
       for (const cmd of entry.commands) {
-        if (matchAny(clean, cmd.keywords)) {
-          this.debug(`voice cmd: "${clean.slice(0, 24)}" → matched [${cmd.keywords[0]}]`);
-          if (cmd.confirmSpeech) this.speak(cmd.confirmSpeech, { onEnd: () => cmd.action() });
-          else cmd.action();
+        // K3c: log the keyword that actually hit, not keywords[0]
+        const hit = matchWord(clean, cmd.keywords);
+        if (hit) {
+          this.debug(`voice cmd: "${clean.slice(0, 24)}" → matched [${hit}]`);
+          this.noteVoiceGesture();
+          if (cmd.confirmSpeech) {
+            this.speak(cmd.confirmSpeech, {
+              onEnd: () => {
+                // re-stamp at ACTION time — the ack may outlive the window
+                this.noteVoiceGesture();
+                cmd.action();
+              },
+            });
+          } else {
+            cmd.action();
+          }
           return true;
         }
       }
@@ -320,17 +342,20 @@ class VoiceController {
     // GLOBAL grammar — everywhere, always
     if (matchAny(clean, REPEAT)) {
       this.debug(`voice cmd: "${clean.slice(0, 24)}" → REPEAT`);
+      this.noteVoiceGesture();
       this.replayFn?.();
       return true;
     }
     if (matchAny(clean, HELP)) {
       this.debug(`voice cmd: "${clean.slice(0, 24)}" → HELP`);
+      this.noteVoiceGesture();
       if (entry?.helpText) this.speak(entry.helpText);
       else this.replayFn?.();
       return true;
     }
     if (matchAny(clean, SLEEP)) {
       this.debug(`voice cmd: "${clean.slice(0, 24)}" → SLEEP`);
+      this.noteVoiceGesture();
       this.setMuted(true);
       try {
         window.dispatchEvent(new CustomEvent("hpj-shishya-sleep"));
@@ -1029,16 +1054,25 @@ class VoiceController {
     // D3/F4 instrumentation: name every interrupter. Deliberate stops the
     // pandit caused or expects (tap barge-in, mute, backgrounding the
     // tab) are info lines; only an UNEXPECTED interrupter cutting a line
-    // mid-air (phase-transition, unmount:*, unknown) is the "speech gets
-    // cut off" bug signature. H1: an unmount:* within 600ms of a tap is
-    // user-caused navigation — intentional (nav), not the bug signature.
-    const navTap =
-      reason.startsWith("unmount:") &&
-      performance.now() - this.lastPointerdownAt < 600;
+    // mid-air is the "speech gets cut off" bug signature. H1: nav
+    // teardown (unmount:*, phase-transition) within 600ms of a tap is
+    // user-caused navigation. K3: a voice command is the SAME gesture —
+    // बोलना ही छूना है — so the window consults both clocks; and
+    // 'user-nav:*' reasons are user navigation by name, always.
+    const now = performance.now();
+    const gestureNav =
+      (reason.startsWith("unmount:") || reason === "phase-transition") &&
+      (now - this.lastPointerdownAt < 600 || now - this.lastVoiceCommandAt < 600);
     if (this._speaking) {
-      if (isIntentionalStop(reason)) this.debug(`stopSpeech(${reason}) — intentional`);
-      else if (navTap) this.debug(`stopSpeech(${reason}) — intentional (nav)`);
-      else this.debug(`stopSpeech(${reason}) — MID-UTTERANCE ⚠`);
+      if (reason.startsWith("user-nav:")) {
+        this.debug(`stopSpeech(${reason}) — intentional (nav/voice)`);
+      } else if (isIntentionalStop(reason)) {
+        this.debug(`stopSpeech(${reason}) — intentional`);
+      } else if (gestureNav) {
+        this.debug(`stopSpeech(${reason}) — intentional (nav/voice)`);
+      } else {
+        this.debug(`stopSpeech(${reason}) — MID-UTTERANCE ⚠`);
+      }
     } else if (reason !== "speak-interrupt") this.debug(`stopSpeech(${reason})`);
     this.init();
     if (typeof window === "undefined") return;

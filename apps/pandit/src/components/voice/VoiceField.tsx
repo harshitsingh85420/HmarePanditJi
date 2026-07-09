@@ -135,7 +135,13 @@ export function VoiceField({
           case "EMIT_VALUE":
             if (accepted !== undefined) {
               onChange(accepted);
-              setTimeout(() => onComplete?.(), 400);
+              // K3: a voice-accepted value is a GESTURE — stamp now and
+              // again as the completion action fires (it may navigate)
+              voiceController.noteVoiceGesture();
+              setTimeout(() => {
+                voiceController.noteVoiceGesture();
+                onComplete?.();
+              }, 400);
             }
             break;
         }

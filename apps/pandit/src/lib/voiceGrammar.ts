@@ -31,11 +31,20 @@ export const HELP = ["मदद", "help", "madad", "सहायता"] as cons
 
 export const SLEEP = ["सो जाओ", "चुप", "so jao", "chup"] as const;
 
+/** K3c: inclusion match that SURFACES the matched keyword — logs and
+ *  telemetry must name the word that actually hit, not keywords[0]. */
+export function matchWord(transcript: string, words: readonly string[]): string | null {
+  const clean = transcript.toLowerCase().trim();
+  if (!clean) return null;
+  for (const w of words) {
+    if (clean.includes(w.toLowerCase())) return w;
+  }
+  return null;
+}
+
 /** Case-insensitive inclusion match against a keyword list. */
 export function matchAny(transcript: string, words: readonly string[]): boolean {
-  const clean = transcript.toLowerCase().trim();
-  if (!clean) return false;
-  return words.some((w) => clean.includes(w.toLowerCase()));
+  return matchWord(transcript, words) !== null;
 }
 
 /** Convenience: yes/no/none verdict for confirm-style questions. */

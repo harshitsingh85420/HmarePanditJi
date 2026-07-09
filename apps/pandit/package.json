@@ -23,6 +23,7 @@
     "@hmarepanditji/ui": "workspace:*",
     "@hmarepanditji/utils": "workspace:*",
     "@hookform/resolvers": "^3.3.0",
+    "@sentry/core": "8.55.1",
     "@sentry/nextjs": "^8.0.0",
     "axios": "^1.7.0",
     "clsx": "^2.1.1",

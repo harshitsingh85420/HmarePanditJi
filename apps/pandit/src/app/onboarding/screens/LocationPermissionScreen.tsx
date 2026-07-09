@@ -18,7 +18,6 @@ import { useScreenVoice } from "@/hooks/useScreenVoice";
 import { useVoiceCommands } from "@/hooks/useVoiceScreen";
 import { YES, NO } from "@/lib/voiceGrammar";
 import { voiceController } from "@/lib/voiceController";
-import { useSafeOnboardingStore } from "@/lib/stores/ssr-safe-stores";
 import { PopupPointer } from "@/components/moments/PopupPointer";
 
 interface LocationPermissionScreenProps {
@@ -43,7 +42,6 @@ export default function LocationPermissionScreen({
   // a voice-YES only pulses the button and asks for one tap.
   const [pulse, setPulse] = useState(false);
   const [pointerUp, setPointerUp] = useState(false);
-  const { micDenied } = useSafeOnboardingStore();
 
   // D2: the phase announces itself BEFORE any browser popup — the
   // geolocation request fires ONLY from the अनुमति दें button below.
@@ -52,21 +50,19 @@ export default function LocationPermissionScreen({
 
   // J2: हाँ pulses the button and asks for the ONE constitutional tap
   // (the geolocation popup needs a real gesture); नहीं goes to the
-  // city picker. Registry-based — the screen's loop owns the mic.
-  useVoiceCommands(
-    [
-      {
-        keywords: [...YES, "अनुमति", "allow"],
-        action: () => {
-          setPulse(true);
-          voiceController.speak(t("entry.locationTapHint"));
-        },
+  // city picker. K1 LAW: the registry is ALWAYS populated — micDenied/
+  // mute gate only hardware arming, never the grammar. Injected
+  // transcripts (and any future input source) must always resolve.
+  useVoiceCommands([
+    {
+      keywords: [...YES, "अनुमति", "allow"],
+      action: () => {
+        setPulse(true);
+        voiceController.speak(t("entry.locationTapHint"));
       },
-      { keywords: NO, action: () => onDenied() },
-    ],
-    undefined,
-    !micDenied,
-  );
+    },
+    { keywords: NO, action: () => onDenied() },
+  ]);
 
   const handleAllowClick = () => {
     if (!navigator.geolocation) {

@@ -56,15 +56,72 @@ export function parseHindiNumber(raw: string): number | null {
   return result > 0 && Number.isInteger(result) ? result : (result > 0 ? Math.round(result) : null);
 }
 
+// K2: DIGIT words as Deepgram writes them when a pandit SPEAKS his
+// number — hi + transliteration + English word forms, 0-9 only (this is
+// a digit-SEQUENCE map, unlike UNITS above which sums amounts). English
+// "no" is deliberately absent: it is नहीं, never नौ.
+const DIGIT_WORDS: Record<string, string> = {
+  "शून्य": "0", "जीरो": "0", "सिफर": "0", "zero": "0", "shunya": "0", "shoonya": "0",
+  "एक": "1", "ek": "1", "one": "1",
+  "दो": "2", "do": "2", "two": "2",
+  "तीन": "3", "teen": "3", "three": "3",
+  "चार": "4", "char": "4", "chaar": "4", "four": "4",
+  "पांच": "5", "पाँच": "5", "panch": "5", "paanch": "5", "five": "5",
+  "छह": "6", "छः": "6", "chhe": "6", "che": "6", "six": "6",
+  "सात": "7", "saat": "7", "seven": "7",
+  "आठ": "8", "aath": "8", "eight": "8",
+  "नौ": "9", "nau": "9", "nine": "9",
+};
+const DOUBLE_WORDS = ["डबल", "double", "dabal"];
+
+/**
+ * K2: rebuild a spoken digit STRING from a transcript — digit words map
+ * to digits, "डबल X" doubles the next digit, numeral runs pass through,
+ * anything else ("मेरा नंबर…") drops as preamble. Exported for future
+ * digit-sequence consumers (OTP itself stays typed-only by A5).
+ */
+export function spokenDigits(text: string): string {
+  const tokens = text
+    .toLowerCase()
+    .replace(/[,.।()\-]/g, " ")
+    .split(/\s+/)
+    .filter(Boolean);
+  let out = "";
+  let pendingDouble = false;
+  for (const tok of tokens) {
+    if (DOUBLE_WORDS.includes(tok)) {
+      pendingDouble = true;
+      continue;
+    }
+    const mapped = DIGIT_WORDS[tok] ?? (/^\d+$/.test(tok) ? tok : null);
+    if (mapped === null) {
+      // filler between डबल and its digit cancels the double
+      pendingDouble = false;
+      continue;
+    }
+    out += pendingDouble && mapped.length === 1 ? mapped + mapped : mapped;
+    pendingDouble = false;
+  }
+  return out;
+}
+
 /**
  * Normalizes phone numbers: strip spaces/dashes; accept only if exactly 10 digits
- * after removing leading +91, 91, or 0.
+ * after removing leading +91, 91, or 0. K2: spoken digit-words ("नौ आठ
+ * सात…", "डबल नौ…", mixed words+numerals) rebuild through spokenDigits
+ * first — the pandit answers the phone question by VOICE.
  */
 export function parsePhoneNumber(text: string): string | null {
   if (!text) return null;
 
   // Strip spaces, dashes, and parenthetical elements
   let cleaned = text.replace(/[\s\-()]/g, "");
+
+  // K2: any non-digit content → word pre-pass (digit words, डबल X,
+  // preamble stripping), then the same 10-digit law below
+  if (!/^\+?\d+$/.test(cleaned)) {
+    cleaned = spokenDigits(text);
+  }
 
   // Remove leading +91 or 91
   if (cleaned.startsWith("+91")) {

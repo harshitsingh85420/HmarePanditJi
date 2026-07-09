@@ -213,6 +213,14 @@ export default function LoginPage() {
     // cleared on logout (settings)
     document.cookie = `hpj_token=${token}; path=/; max-age=${60 * 60 * 24 * 30}; samesite=lax`;
 
+    // K3: completing the OTP IS the pandit navigating — silence the OTP
+    // narration under a user-nav reason BEFORE the route change so the
+    // teardown never reads as a mid-utterance cut. Typed digits leave no
+    // pointerdown (virtual keyboards don't reach the page) and the
+    // verify round-trip can outlive any gesture window — the name-based
+    // whitelist is the latency-immune classification.
+    voiceController.stopSpeech("user-nav:otp-verified");
+
     // F1(c) ROUTING LAW: a finished pandit is NEVER re-onboarded.
     //   profile complete   → ?next= destination, else /home
     //                        (PENDING shows the amber banner there)
