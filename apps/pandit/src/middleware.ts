@@ -100,9 +100,12 @@ export function middleware(request: NextRequest) {
       // nominatim: LocationPermissionScreen reverse-geocodes there; without it
       // the CSP silently breaks the location grant path. localhost:3001 is the
       // dev API (NEXT_PUBLIC_API_URL fallback) — dev builds only.
+      // hmarepanditji-api.onrender.com is the LIVE API (render.yaml service
+      // name) — omitting it CSP-blocked every auth fetch in-browser: instant
+      // TypeError, zero entries in the network tool (the live-QA signature).
       "connect-src 'self' https://nominatim.openstreetmap.org" +
         (process.env.NODE_ENV !== 'production' ? " http://localhost:3001 http://127.0.0.1:3001" : "") +
-        " https://*.sentry.io https://*.vercel.app https://*.google-analytics.com https://*.analytics.google.com https://api.hmarepanditji.com https://hmarepanditji.onrender.com https://api.deepgram.com wss://api.deepgram.com",
+        " https://*.sentry.io https://*.vercel.app https://*.google-analytics.com https://*.analytics.google.com https://api.hmarepanditji.com https://hmarepanditji.onrender.com https://hmarepanditji-api.onrender.com https://api.deepgram.com wss://api.deepgram.com",
       "media-src 'self' blob: data:",
       "frame-ancestors 'none'",
     ].join('; ')

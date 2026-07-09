@@ -33,6 +33,21 @@ const MASTER_KEY = "voice_master";
 const VOICE_UNAVAILABLE_SHOWN = "hpj_voice_unavailable_shown";
 // Once-per-session flag for the "tap to hear" toast (A3)
 const TAP_TO_HEAR_SHOWN = "hpj_tap_to_hear_shown";
+// F4: user-caused/expected speech stops — logged as info, never flagged.
+// Everything else stopping a line mid-air stays a ⚠ tell. Beyond the
+// exact reasons, two designed families are user-caused without an
+// in-page pointer event (so barge-in:tap can never pre-clear them):
+// *:grant-settle (the Meet-style cut when the user taps Allow on native
+// browser chrome) and hardware-back:* (Android back = popstate).
+const INTENTIONAL_STOPS = new Set(["tab-hidden", "barge-in:tap", "mute"]);
+function isIntentionalStop(reason: string): boolean {
+  return (
+    INTENTIONAL_STOPS.has(reason) ||
+    reason.endsWith(":grant-settle") ||
+    reason.startsWith("hardware-back:")
+  );
+}
+
 // 4 samples of silence — played MUTED on the first pointerdown to satisfy
 // the browser's autoplay gesture requirement (X2a audio unlock)
 const SILENT_WAV =
@@ -222,35 +237,45 @@ class VoiceController {
     // X2a: the app's FIRST pointerdown anywhere (a splash tap counts)
     // unlocks audio and flushes the queued narration.
     document.addEventListener("pointerdown", () => this.unlock(), { once: true, capture: true });
+    // F2: a CSP-blocked fetch surfaces as a bare TypeError with zero
+    // network entries — indistinguishable from other blocks unless the
+    // violation event itself is logged. This line IS the verdict channel.
+    document.addEventListener("securitypolicyviolation", (e) => {
+      this.debug(`CSP BLOCK: ${e.blockedURI} (${e.violatedDirective})`);
+    });
   }
 
   private unlock() {
     if (this._unlocked) return;
+    // F1: THE GESTURE ITSELF IS THE UNLOCK TOKEN — set synchronously and
+    // never reverted. The silent play below is confirmation only: when it
+    // shared the persistent element, the flushed welcome's src swap
+    // aborted the still-pending probe play() (AbortError) and the first
+    // line stayed parked until a second tap (live-QA 80s stall). If the
+    // real playback later rejects NotAllowedError, parkForGesture's
+    // retry-on-next-gesture path is the truth — not the probe.
     this._unlocked = true;
+    this.debug("unlock: gesture-token set");
     try {
-      // A3: prime THE persistent element inside the gesture — mobile
-      // autoplay permission sticks to the element that played, so all
-      // future TTS reuses it. (No app-owned AudioContext exists to
-      // resume; useVoiceInput creates per-listen contexts from live
-      // mic streams, which need no gesture.)
-      const el = this.getAudioEl();
-      el.muted = true;
-      el.src = SILENT_WAV;
-      void el
+      // Probe on a THROWAWAY element so the persistent one stays free
+      // for the welcome that flushes right behind this gesture.
+      const probe = new Audio(SILENT_WAV);
+      probe.muted = true;
+      void probe
         .play()
-        .then(() => {
-          el.muted = false;
-          this.debug("unlock: silent play OK — element gesture-bound");
-        })
+        .then(() => this.debug("unlock: probe ok"))
         .catch((err: unknown) => {
-          el.muted = false;
-          this.debug(`unlock: silent play rejected (${(err as Error)?.name || err})`);
+          this.debug(`unlock: probe rejected(${(err as Error)?.name || err}) (non-fatal)`);
         });
+      // Create the persistent element inside the gesture (no play) and
+      // resume the synthesis engine in the same gesture. (No app-owned
+      // AudioContext exists to resume; useVoiceInput creates per-listen
+      // contexts from live mic streams, which need no gesture.)
+      this.getAudioEl();
       window.speechSynthesis?.resume();
     } catch {
       /* noop */
     }
-    this.debug("unlock: first pointerdown");
     const parked = this.pendingUnlock;
     this.pendingUnlock = null;
     if (parked && !this._muted) {
@@ -745,13 +770,17 @@ class VoiceController {
   }
 
   stopSpeech(reason: string = "untagged"): void {
-    // D3 instrumentation: name every interrupter — a stop while a line is
-    // mid-air is exactly the "speech gets cut off" bug signature.
-    if (this._speaking) this.debug(`stopSpeech(${reason}) — MID-UTTERANCE`);
-    else if (reason !== "speak-interrupt") this.debug(`stopSpeech(${reason})`);
+    // D3/F4 instrumentation: name every interrupter. Deliberate stops the
+    // pandit caused or expects (tap barge-in, mute, backgrounding the
+    // tab) are info lines; only an UNEXPECTED interrupter cutting a line
+    // mid-air (phase-transition, unmount:*, unknown) is the "speech gets
+    // cut off" bug signature.
+    if (this._speaking) {
+      if (isIntentionalStop(reason)) this.debug(`stopSpeech(${reason}) — intentional`);
+      else this.debug(`stopSpeech(${reason}) — MID-UTTERANCE ⚠`);
+    } else if (reason !== "speak-interrupt") this.debug(`stopSpeech(${reason})`);
     this.init();
     if (typeof window === "undefined") return;
-    if (this._speaking) this.debug("stopSpeech (was speaking)");
     this.queued = null;
     // Pre-unlock there is nothing audible to silence — the parked line
     // must survive incidental stops (tap-silence rule, phase teardown) or

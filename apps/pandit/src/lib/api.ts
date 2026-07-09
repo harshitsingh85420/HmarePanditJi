@@ -1,8 +1,22 @@
 "use client";
 
 import { hi } from "./strings";
+import { voiceController } from "./voiceController";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1";
+// F2: resolve and FREEZE the API base ONCE. The localhost fallback is
+// dev-only — in a deployed build a missing NEXT_PUBLIC_API_URL used to
+// silently fall back to http://localhost:3001, which an https page
+// blocks as mixed content BEFORE any request leaves the browser
+// (err:network in <100ms, zero entries in the network tool — the exact
+// live-QA signature). A connect-src CSP miss (middleware.ts) produces
+// the SAME signature with a correct base — the controller's
+// securitypolicyviolation listener logs 'CSP BLOCK: …' to tell the two
+// apart. Deployed-with-empty-base now surfaces loudly instead of
+// guessing.
+const RAW_BASE = (process.env.NEXT_PUBLIC_API_URL || "").trim();
+export const API_BASE: string =
+  RAW_BASE || (process.env.NODE_ENV === "development" ? "http://localhost:3001/api/v1" : "");
+export const API_BASE_MISSING = API_BASE === "";
 
 export interface ApiResponse<T = any> {
   success: boolean;
@@ -17,6 +31,13 @@ export async function api<T = any>(
   path: string,
   options: RequestInit & { timeoutMs?: number } = {}
 ): Promise<ApiResponse<T>> {
+  if (API_BASE_MISSING) {
+    voiceController.debug("API BASE MISSING");
+    return {
+      success: false,
+      error: { code: "config", message: hi.errors.apiBaseMissing },
+    };
+  }
   const { timeoutMs, ...fetchOptions } = options;
   const token = typeof window !== "undefined" ? localStorage.getItem("pandit_token") : null;
 
@@ -29,12 +50,19 @@ export async function api<T = any>(
     headers["Authorization"] = `Bearer ${token}`;
   }
 
+  const url = `${API_BASE}${path}`;
+  // F2: every auth request logs its FULL final url — the panel must show
+  // exactly what the browser was asked to fetch, not a relative path.
+  if (path.startsWith("/auth")) {
+    voiceController.debug(`api→ ${options.method || "GET"} ${url}`);
+  }
+
   // D1: Render cold starts exceed 60s — auth calls pass timeoutMs: 75000
   // so the request outlives the wake-up instead of dying silently.
   const ctrl = timeoutMs ? new AbortController() : null;
   const timer = ctrl ? setTimeout(() => ctrl.abort(), timeoutMs) : null;
   try {
-    const res = await fetch(`${BASE_URL}${path}`, {
+    const res = await fetch(url, {
       ...fetchOptions,
       headers,
       ...(ctrl ? { signal: ctrl.signal } : {}),
@@ -54,6 +82,9 @@ export async function api<T = any>(
     };
   } catch (err: any) {
     const aborted = err?.name === "AbortError";
+    // F2: err:network alone diagnoses nothing — record the real error
+    // name+message against the full url it happened on.
+    voiceController.debug(`api ✗ ${url} → ${err?.name || "?"}: ${err?.message || err}`);
     return {
       success: false,
       error: {
@@ -63,5 +94,34 @@ export async function api<T = any>(
     };
   } finally {
     if (timer) clearTimeout(timer);
+  }
+}
+
+// F2b: reachability verdict for the debug panel — one ping per page load
+// when ?voicedebug=1 is active. A status (even 404) proves the request
+// left the browser and came back; an error name means it never did.
+let pinged = false;
+export async function pingApiHealth(): Promise<void> {
+  if (pinged) return;
+  pinged = true;
+  voiceController.debug(`navigator.onLine=${typeof navigator !== "undefined" ? navigator.onLine : "?"}`);
+  if (API_BASE_MISSING) {
+    voiceController.debug("API BASE MISSING");
+    return;
+  }
+  const started = performance.now();
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 8000);
+  try {
+    const res = await fetch(`${API_BASE}/health`, { signal: ctrl.signal });
+    voiceController.debug(
+      `api ping: ${API_BASE} → ${res.status} in ${Math.round(performance.now() - started)}ms`,
+    );
+  } catch (err: any) {
+    voiceController.debug(
+      `api ping: ${API_BASE} → ${err?.name || "?"} in ${Math.round(performance.now() - started)}ms`,
+    );
+  } finally {
+    clearTimeout(timer);
   }
 }

@@ -5,6 +5,7 @@ import { voiceController } from "@/lib/voiceController";
 import { Toast } from "@/components/ui/Toast";
 import { t, refreshBundleInBackground } from "@/lib/i18n";
 import { VoiceDebugPanel, useVoiceDebugFlag } from "@/components/VoiceDebugPanel";
+import { API_BASE_MISSING } from "@/lib/api";
 
 // Mounted once in app/layout.tsx: the "any interactive tap silences
 // narration" rule (capture phase — speech never talks over action).
@@ -48,6 +49,16 @@ export function VoiceRoot() {
 
   return (
     <>
+      {/* F2: a deployed build without NEXT_PUBLIC_API_URL can never talk
+          to the API — say so on screen instead of failing silently.
+          pointer-events-none: it overlays the sticky Header, and eating
+          back-button taps app-wide would sabotage the very QA walk it
+          exists to inform. */}
+      {API_BASE_MISSING && (
+        <div className="fixed top-0 inset-x-0 z-[95] pointer-events-none bg-red-700 text-white text-[18px] font-bold font-hindi text-center px-4 py-2">
+          {t("errors.apiBaseMissing")}
+        </div>
+      )}
       {toastMsg && (
         <Toast message={toastMsg} show={!!toastMsg} onClose={() => setToastMsg(null)} />
       )}

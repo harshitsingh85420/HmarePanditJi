@@ -5,9 +5,15 @@
 // status → play/fallback/voice decision into a ring buffer this panel
 // renders. Flag-gated (zero UI without it) and session-sticky so SPA
 // navigation keeps the panel alive while walking the flow.
+//
+// F3: the panel must NEVER eat the app's clicks. The container is
+// pointer-events-none; only the chip / header controls re-enable them.
+// Default is a collapsed 56px chip bottom-right; the expanded sheet sits
+// ABOVE the footer-CTA zone and caps at 40vh.
 
 import React, { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { voiceController } from "@/lib/voiceController";
+import { API_BASE, API_BASE_MISSING, pingApiHealth } from "@/lib/api";
 
 const FLAG_KEY = "hpj_voicedebug";
 
@@ -50,21 +56,58 @@ export function VoiceDebugPanel() {
     voiceController.getDebugLines,
     voiceController.getDebugLines,
   );
+  const [open, setOpen] = useState(false);
   const boxRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
     boxRef.current?.scrollTo({ top: boxRef.current.scrollHeight });
-  }, [lines]);
+  }, [lines, open]);
+
+  // F2b: one reachability verdict per page load, straight into the log
+  useEffect(() => {
+    void pingApiHealth();
+  }, []);
 
   return (
-    <div
-      ref={boxRef}
-      className="fixed inset-x-0 bottom-0 z-[90] max-h-[40%] overflow-y-auto bg-black/85 text-green-200 font-mono text-[11px] leading-[1.5] px-2 py-1"
-      aria-hidden="true"
-    >
-      <div className="text-green-400 font-bold sticky top-0 bg-black/85">🔊 voicedebug ({lines.length}){voiceController.e2e ? " · ⚙E2E" : ""}</div>
-      {lines.map((line, i) => (
-        <div key={i} className="whitespace-pre-wrap break-all">{line}</div>
-      ))}
+    <div className="fixed inset-0 z-[90] pointer-events-none" aria-hidden="true">
+      {open ? (
+        // TOP-anchored: footer variants differ in height (Parichay's
+        // mic-deny recovery stack is ~180px tall), so no bottom anchor is
+        // safely "above the footer zone" — the top edge always is.
+        <div className="absolute inset-x-0 top-0 max-h-[40vh] flex flex-col bg-black/85 text-green-200 font-mono text-[11px] leading-[1.5] pointer-events-auto">
+          <div className="flex items-center gap-2 px-2 py-1 bg-black/85 text-green-400 font-bold shrink-0">
+            <span className="flex-1 truncate">
+              🔊 voicedebug ({lines.length})
+              {voiceController.e2e ? " · ⚙E2E" : ""}
+              {" · api: "}
+              {API_BASE_MISSING ? "MISSING" : API_BASE}
+            </span>
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              className="px-3 py-1 text-green-300 border border-green-700 rounded"
+            >
+              ✕
+            </button>
+          </div>
+          <div ref={boxRef} className="overflow-y-auto px-2 pb-1">
+            {lines.map((line, i) => (
+              <div key={i} className="whitespace-pre-wrap break-all">{line}</div>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          // bottom-40 (160px): clears the footer-CTA zone (0-96px), the
+          // Toast / home error-banner band (96-158px) and the orb's
+          // "सुन रहा हूँ…" listening pill (~106-136px).
+          className="absolute bottom-40 right-3 w-14 h-14 rounded-full bg-black/80 text-green-300 font-mono text-[12px] leading-tight pointer-events-auto shadow-card flex flex-col items-center justify-center"
+        >
+          <span>🐞</span>
+          <span>{lines.length}</span>
+        </button>
+      )}
     </div>
   );
 }

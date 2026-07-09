@@ -99,6 +99,9 @@ export const hi = {
     loading: "लोड हो रहा है...",
     error: "कुछ गड़बड़ हो गई। दोबारा कोशिश करें।",
   },
+  errors: {
+    apiBaseMissing: "ऐप कॉन्फ़िगरेशन अधूरी है (API URL)",
+  },
   welcome: {
     title: "हमारे पंडित जी में आपका स्वागत है",
     titleShort: "हमारे पंडित जी",
