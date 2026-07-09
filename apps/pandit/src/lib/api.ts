@@ -15,8 +15,9 @@ export interface ApiResponse<T = any> {
 
 export async function api<T = any>(
   path: string,
-  options: RequestInit = {}
+  options: RequestInit & { timeoutMs?: number } = {}
 ): Promise<ApiResponse<T>> {
+  const { timeoutMs, ...fetchOptions } = options;
   const token = typeof window !== "undefined" ? localStorage.getItem("pandit_token") : null;
 
   const headers: Record<string, string> = {
@@ -28,10 +29,15 @@ export async function api<T = any>(
     headers["Authorization"] = `Bearer ${token}`;
   }
 
+  // D1: Render cold starts exceed 60s — auth calls pass timeoutMs: 75000
+  // so the request outlives the wake-up instead of dying silently.
+  const ctrl = timeoutMs ? new AbortController() : null;
+  const timer = ctrl ? setTimeout(() => ctrl.abort(), timeoutMs) : null;
   try {
     const res = await fetch(`${BASE_URL}${path}`, {
-      ...options,
+      ...fetchOptions,
       headers,
+      ...(ctrl ? { signal: ctrl.signal } : {}),
     });
 
     const json = await res.json();
@@ -47,9 +53,15 @@ export async function api<T = any>(
       data: json.data,
     };
   } catch (err: any) {
+    const aborted = err?.name === "AbortError";
     return {
       success: false,
-      error: { message: err.message || hi.common.error },
+      error: {
+        code: aborted ? "timeout" : "network",
+        message: aborted ? hi.auth.slowServer : err.message || hi.common.error,
+      },
     };
+  } finally {
+    if (timer) clearTimeout(timer);
   }
 }

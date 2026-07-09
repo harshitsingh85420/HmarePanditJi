@@ -54,9 +54,13 @@ export default function HelpPage() {
       <section className="px-4 flex-grow min-h-0 overflow-y-auto mt-4 xs:mt-6">
         <button
           onClick={() => {
+            // D2 REVIEW INTENT — outranks resume rules; back returns here
+            try {
+              sessionStorage.setItem('hpj_review_return', '/help');
+            } catch { /* noop */ }
             setPhase('TUTORIAL');
             setCurrentTutorialScreen(1);
-            router.push('/onboarding');
+            router.push('/onboarding?review=tutorial');
           }}
           className="w-full flex items-center gap-3 xs:gap-4 bg-white border-2 border-saffron rounded-card px-4 xs:px-5 min-h-[64px] active:scale-[0.98] transition-transform mb-4 text-[18px] font-bold text-saffron font-hindi"
         >

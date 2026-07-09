@@ -11,6 +11,7 @@
 // ─────────────────────────────────────────────────────────────
 
 import { t, getActiveBcp47 } from "@/lib/i18n";
+import { clientPace } from "@/lib/sarvam-tts";
 
 type SpeakOpts = {
   interrupt?: boolean;
@@ -472,6 +473,97 @@ class VoiceController {
     });
   }
 
+  // ── D3b CLIENT AUDIO CACHE (CacheStorage 'shishya-tts-v1') ─────────
+  // Keyed sha1(voice|pace|lang|text). Cache-first playback makes every
+  // static entry-flow line instant from its 2nd hearing forever; misses
+  // fetch then cache.put. LRU-ish cap ~300 via x-cached-at timestamps.
+  private static TTS_CACHE = "shishya-tts-v1";
+  private static TTS_CACHE_MAX = 300;
+
+  private async ttsCacheKey(text: string, languageCode: string, pace: number): Promise<string | null> {
+    try {
+      const raw = `server|${pace}|${languageCode}|${text}`;
+      const buf = await crypto.subtle.digest("SHA-1", new TextEncoder().encode(raw));
+      const hex = Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+      return `https://tts.cache/${hex}`;
+    } catch {
+      return null; // insecure context / no subtle — cache disabled
+    }
+  }
+
+  private async ttsCacheGet(key: string | null): Promise<string | null> {
+    if (!key || typeof caches === "undefined") return null;
+    try {
+      const cache = await caches.open(VoiceController.TTS_CACHE);
+      const hit = await cache.match(key);
+      if (!hit) return null;
+      const data = (await hit.json()) as { audioBase64?: string };
+      return data?.audioBase64 ?? null;
+    } catch {
+      return null;
+    }
+  }
+
+  private async ttsCachePut(key: string | null, audioBase64: string): Promise<void> {
+    if (!key || typeof caches === "undefined") return;
+    try {
+      const cache = await caches.open(VoiceController.TTS_CACHE);
+      await cache.put(
+        key,
+        new Response(JSON.stringify({ audioBase64 }), {
+          headers: { "Content-Type": "application/json", "x-cached-at": String(Date.now()) },
+        }),
+      );
+      // LRU-ish cap: evict oldest by x-cached-at when over budget
+      const keys = await cache.keys();
+      if (keys.length > VoiceController.TTS_CACHE_MAX) {
+        const stamped = await Promise.all(
+          keys.map(async (req) => {
+            const r = await cache.match(req);
+            return { req, at: Number(r?.headers.get("x-cached-at") ?? 0) };
+          }),
+        );
+        stamped.sort((a, b) => a.at - b.at);
+        const evict = stamped.slice(0, keys.length - VoiceController.TTS_CACHE_MAX);
+        await Promise.all(evict.map((e) => cache.delete(e.req)));
+        this.debug(`tts-cache: evicted ${evict.length} oldest`);
+      }
+    } catch {
+      /* cache full/unavailable — playback already succeeded */
+    }
+  }
+
+  /** D3c PREFETCH PIPELINE: warm the cache for the NEXT phase's known
+   *  narration lines. Fire-and-forget; respects the cache (no re-fetch
+   *  on hits); never plays anything. */
+  prefetch(texts: string[]): void {
+    if (typeof window === "undefined") return;
+    void (async () => {
+      const pace = clientPace();
+      const languageCode = getActiveBcp47();
+      for (const text of texts) {
+        if (!text) continue;
+        const key = await this.ttsCacheKey(text, languageCode, pace);
+        if (await this.ttsCacheGet(key)) continue;
+        try {
+          const res = await fetch("/api/tts", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text, languageCode, pace }),
+          });
+          if (!res.ok) return; // endpoint unhappy — stop the pipeline quietly
+          const data = (await res.json()) as { audioBase64?: string };
+          if (data?.audioBase64) {
+            await this.ttsCachePut(key, data.audioBase64);
+            this.debug(`prefetch cached: "${text.slice(0, 24)}…"`);
+          }
+        } catch {
+          return; // offline — quietly stop
+        }
+      }
+    })();
+  }
+
   private async tryRemoteTTS(
     text: string,
     languageCode: string,
@@ -482,32 +574,51 @@ class VoiceController {
       return "failed";
     }
     let audioBase64: string | undefined;
-    try {
-      this.debug("tts→ POST /api/tts (same-origin)");
-      const res = await fetch("/api/tts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        // D4: no client-side speaker — the server owns the शिष्य voice
-        // (SARVAM_TTS_SPEAKER, male) and its invalid-speaker fallback.
-        body: JSON.stringify({ text, languageCode, pace: 0.82 }),
-      });
-      if (seq !== this.speechSeq) return "cancelled";
-      this.debug(`tts status ${res.status}${res.ok ? "" : " → fallback"}`);
-      if (!res.ok) {
-        // 501 tts_unconfigured (dev without Sarvam key) / 503 — don't keep
-        // hitting the endpoint this session
-        if (res.status === 501 || res.status === 503) this.remoteTtsDown = true;
-        this.logFallbackOnce(`HTTP ${res.status}`);
+    const tQueue = performance.now();
+    const pace = clientPace();
+    const cacheKey = await this.ttsCacheKey(text, languageCode, pace);
+    const cached = await this.ttsCacheGet(cacheKey);
+    let cacheVerdict = "MISS";
+    if (cached) {
+      // D3b cache-first: instant playback, no network
+      cacheVerdict = "HIT";
+      audioBase64 = cached;
+      this.debug(`tts timing: cache HIT in ${Math.round(performance.now() - tQueue)}ms`);
+    } else {
+      try {
+        this.debug("tts→ POST /api/tts (same-origin)");
+        const tFetch = performance.now();
+        const res = await fetch("/api/tts", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          // D4: no client-side speaker — the server owns the शिष्य voice
+          // (SARVAM_TTS_SPEAKER, male) and its invalid-speaker fallback.
+          body: JSON.stringify({ text, languageCode, pace }),
+        });
+        const tFirstByte = performance.now();
+        if (seq !== this.speechSeq) return "cancelled";
+        this.debug(`tts status ${res.status}${res.ok ? "" : " → fallback"}`);
+        if (!res.ok) {
+          // 501 tts_unconfigured (dev without Sarvam key) / 503 — don't keep
+          // hitting the endpoint this session
+          if (res.status === 501 || res.status === 503) this.remoteTtsDown = true;
+          this.logFallbackOnce(`HTTP ${res.status}`);
+          return "failed";
+        }
+        const data = (await res.json()) as { audioBase64?: string };
+        audioBase64 = data?.audioBase64;
+        this.debug(
+          `tts timing: queue→fetch ${Math.round(tFetch - tQueue)}ms, fetch→audio ${Math.round(tFirstByte - tFetch)}ms (MISS)`,
+        );
+        if (audioBase64) void this.ttsCachePut(cacheKey, audioBase64);
+      } catch (err) {
+        if (seq !== this.speechSeq) return "cancelled";
+        this.debug(`tts fetch threw: ${(err as Error)?.name || err}`);
+        this.logFallbackOnce(err);
         return "failed";
       }
-      const data = (await res.json()) as { audioBase64?: string };
-      audioBase64 = data?.audioBase64;
-    } catch (err) {
-      if (seq !== this.speechSeq) return "cancelled";
-      this.debug(`tts fetch threw: ${(err as Error)?.name || err}`);
-      this.logFallbackOnce(err);
-      return "failed";
     }
+    void cacheVerdict;
     if (!audioBase64) {
       this.debug("tts empty audio → fallback");
       this.logFallbackOnce("empty audio");

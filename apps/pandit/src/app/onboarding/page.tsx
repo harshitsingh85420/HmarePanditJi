@@ -155,6 +155,17 @@ export default function OnboardingOrchestratorPage() {
   // ── Mount resume rules ─────────────────────────────────────
   useEffect(() => {
     const run = async () => {
+      // D2 REVIEW INTENT: an explicit "फिर देखें" visit outranks every
+      // resume rule below — force TUTORIAL slide 1. The return address
+      // stays in sessionStorage so hardware back exits to the launcher.
+      const reviewReturn = typeof window !== "undefined" ? sessionStorage.getItem("hpj_review_return") : null;
+      if (reviewReturn) {
+        voiceController.debug(`resume: REVIEW intent (from ${reviewReturn}) → TUTORIAL slide 1 — outranks resume rules`);
+        store.setCurrentTutorialScreen(1);
+        store.setPhase("TUTORIAL");
+        setResumeChecked(true);
+        return;
+      }
       const token = typeof window !== "undefined" ? localStorage.getItem("pandit_token") : null;
       // Settings → भाषा visits carry a return flag: show the bare list,
       // do NOT bounce a completed pandit to /home first.
@@ -165,12 +176,14 @@ export default function OnboardingOrchestratorPage() {
         const hasFullName = prof?.fullName && String(prof.fullName).trim().length > 0;
         const isVerified = prof?.verificationStatus === "VERIFIED" || prof?.verificationStatus === "APPROVED";
         if (me.success && (hasFullName || isVerified)) {
+          voiceController.debug("resume: token + complete profile → /home");
           router.replace("/home");
           return;
         }
         // fetch failure or incomplete profile → FLOW C minimal registration
         store.setPhase("REGISTRATION");
       } else if (store.tutorialCompleted) {
+        voiceController.debug("resume: no token + tutorialCompleted → AUTH");
         store.setPhase("AUTH");
       }
       setResumeChecked(true);
@@ -202,10 +215,19 @@ export default function OnboardingOrchestratorPage() {
       const repin = () => {
         try { window.history.pushState({ hpj: cur }, "", window.location.href); } catch { /* noop */ }
       };
+      const reviewReturn = sessionStorage.getItem("hpj_review_return");
       if (cur === "TUTORIAL" && slide > 1) {
         voiceController.stopSpeech("hardware-back:slide");
         store.setCurrentTutorialScreen(slide - 1);
         repin();
+        return;
+      }
+      if (cur === "TUTORIAL" && reviewReturn) {
+        // review launched from login/help — back exits to the launcher
+        voiceController.debug(`back: review-tutorial → ${reviewReturn}`);
+        sessionStorage.removeItem("hpj_review_return");
+        voiceController.stopSpeech("hardware-back:review-exit");
+        router.push(reviewReturn);
         return;
       }
       // FLOW C back law: registration returns to the Tutorial CTA slide
@@ -250,6 +272,12 @@ export default function OnboardingOrchestratorPage() {
   }, [resumeChecked, phase, router]);
 
   const goto = (p: OnboardingPhase) => {
+    // leaving a review-tutorial by any in-app path consumes the intent
+    try {
+      if (sessionStorage.getItem("hpj_review_return") && p !== "TUTORIAL") {
+        sessionStorage.removeItem("hpj_review_return");
+      }
+    } catch { /* noop */ }
     voiceController.stopSpeech("phase-transition");
     store.setPhase(p);
   };
@@ -392,6 +420,17 @@ export default function OnboardingOrchestratorPage() {
     }
 
     if (phase === "REGISTRATION" || phase === "WIZARD") {
+      // D2 REVIEW INTENT: an explicit "फिर देखें" visit outranks every
+      // resume rule below — force TUTORIAL slide 1. The return address
+      // stays in sessionStorage so hardware back exits to the launcher.
+      const reviewReturn = typeof window !== "undefined" ? sessionStorage.getItem("hpj_review_return") : null;
+      if (reviewReturn) {
+        voiceController.debug(`resume: REVIEW intent (from ${reviewReturn}) → TUTORIAL slide 1 — outranks resume rules`);
+        store.setCurrentTutorialScreen(1);
+        store.setPhase("TUTORIAL");
+        setResumeChecked(true);
+        return;
+      }
       const token = typeof window !== "undefined" ? localStorage.getItem("pandit_token") : null;
       if (!token) {
         store.setPhase("AUTH");

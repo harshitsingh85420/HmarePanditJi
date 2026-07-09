@@ -19,6 +19,11 @@ function readFlag(search: string): void {
   try {
     const q = new URLSearchParams(search);
     if (q.get("voicedebug") === "1") sessionStorage.setItem(FLAG_KEY, "1");
+    // dev diagnostics: expose the controller for on-device probing
+    // (prefetch/cache tests from the console) while the panel is active
+    if (sessionStorage.getItem(FLAG_KEY) === "1") {
+      (window as unknown as { __hpjVoice?: unknown }).__hpjVoice = voiceController;
+    }
     if (q.get("voicedebug") === "0") sessionStorage.removeItem(FLAG_KEY);
   } catch {
     /* noop */

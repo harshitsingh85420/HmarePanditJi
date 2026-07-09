@@ -41,6 +41,8 @@ export function SunriseSplash({ onDone }: { onDone: () => void }) {
     // immediately (barge-in allowed). No timer failsafe races a playing
     // line — speakAndWait always settles, including every finish(false)
     // path in the controller, so this cannot hang.
+    // D3c: warm the NEXT phase's lines while the sun rises
+    voiceController.prefetch([t("parichay.introOnly"), t("parichay.pressAllow"), t("parichay.granted")]);
     let disposed = false;
     const minDisplay = new Promise<void>((res) => setTimeout(res, 2600));
     const narration = new Promise<boolean>((res) => {

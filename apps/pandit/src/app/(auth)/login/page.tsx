@@ -13,7 +13,9 @@ import { useVoice } from "@/hooks/useVoice";
 import { useScreenVoice } from "@/hooks/useScreenVoice";
 import { VoiceField } from "@/components/voice/VoiceField";
 import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
+import { DiyaLoader } from "@/components/moments/DiyaLoader";
 import { useSafeOnboardingStore } from "@/lib/stores/ssr-safe-stores";
+import { voiceController } from "@/lib/voiceController";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -28,9 +30,15 @@ export default function LoginPage() {
   const fromEntryFlow = nextParam.startsWith("/onboarding");
   const backToTutorial = () => {
     stop();
+    // D2 REVIEW INTENT: outranks the orchestrator's resume rules (which
+    // would otherwise see tutorialCompleted → AUTH and bounce right back
+    // here — a visible no-op). Back from the review returns HERE.
+    try {
+      sessionStorage.setItem("hpj_review_return", window.location.pathname + window.location.search);
+    } catch { /* noop */ }
     store.setCurrentTutorialScreen(1);
     store.setPhase("TUTORIAL");
-    router.push("/onboarding");
+    router.push("/onboarding?review=tutorial");
   };
 
   // Navigation states
@@ -41,6 +49,10 @@ export default function LoginPage() {
   const [errorMsg, setErrorMsg] = useState("");
   const [countdown, setCountdown] = useState(30);
   const [accountExists, setAccountExists] = useState<boolean | null>(null);
+  // D1: Render cold start can take ~65s — after 4s of pending, शिष्य says
+  // the server is waking and a diya burns inline so silence never reads
+  // as "broken".
+  const [waking, setWaking] = useState(false);
 
   // F4: a re-auth on the way to a booking gets a reassuring शिष्य line
   const reauthForBooking = nextParam.startsWith("/bookings");
@@ -86,10 +98,18 @@ export default function LoginPage() {
     setErrorMsg("");
 
     const fullPhone = `+91${phone}`;
+    const wakeTimer = setTimeout(() => {
+      setWaking(true);
+      voiceController.speak(t("auth.waking"));
+    }, 4000);
     const res = await api("/auth/otp/send", {
       method: "POST",
       body: JSON.stringify({ phone: fullPhone }),
+      timeoutMs: 75000,
     });
+    clearTimeout(wakeTimer);
+    setWaking(false);
+    voiceController.debug(`auth send → ${res.success ? "ok" : `err:${res.error?.code || res.error?.message}`}`);
 
     setLoading(false);
 
@@ -114,6 +134,10 @@ export default function LoginPage() {
     setErrorMsg("");
 
     const fullPhone = `+91${phone}`;
+    const wakeTimer = setTimeout(() => {
+      setWaking(true);
+      voiceController.speak(t("auth.waking"));
+    }, 4000);
     const res = await api("/auth/otp/verify", {
       method: "POST",
       body: JSON.stringify({
@@ -121,7 +145,11 @@ export default function LoginPage() {
         otp: otpCode,
         role: "PANDIT",
       }),
+      timeoutMs: 75000,
     });
+    clearTimeout(wakeTimer);
+    setWaking(false);
+    voiceController.debug(`auth verify → ${res.success ? "ok" : `err:${res.error?.code || res.error?.message}`}`);
 
     setLoading(false);
 
@@ -184,6 +212,9 @@ export default function LoginPage() {
           setErrorMsg("");
         }}
       />
+
+      {/* D1: server-waking indicator (Render cold start) */}
+      {waking && <DiyaLoader inline message={t("auth.waking")} />}
 
       {/* Main card viewport container */}
       <main className="flex-1 min-h-0 overflow-y-auto flex flex-col justify-start px-4 pt-8 w-full gap-6">

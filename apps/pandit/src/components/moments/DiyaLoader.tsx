@@ -3,7 +3,18 @@
 import React from "react";
 import { t } from "../../lib/i18n";
 
-export function DiyaLoader({ message }: { message?: string } = {}) {
+export function DiyaLoader({ message, inline = false }: { message?: string; inline?: boolean } = {}) {
+  if (inline) {
+    // D1: compact waiting row (server waking) — no overlay, sits in flow
+    return (
+      <div className="flex items-center justify-center gap-3 px-4 py-2" role="status">
+        <span className="text-[28px] animate-diya-sm select-none" aria-hidden="true">🪔</span>
+        <span className="t-body font-semibold text-temple-600 font-hindi animate-pulse">
+          {message ?? t("common.loading")}
+        </span>
+      </div>
+    );
+  }
   return (
     <div className="fixed inset-0 z-50 bg-cream flex flex-col items-center justify-center gap-4">
       <style dangerouslySetInnerHTML={{ __html: `

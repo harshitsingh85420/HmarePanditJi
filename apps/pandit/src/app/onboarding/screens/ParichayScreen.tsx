@@ -174,6 +174,8 @@ export default function ParichayScreen({ onDone }: { onDone: () => void }) {
 
       // Task-2 instrumentation: the tell for a silent phone.
       voiceController.debug("parichay mount → speak(introOnly) queued");
+      // D3c: warm the location phase's narration while शिष्य introduces
+      voiceController.prefetch([t("parichay.tryIt"), t("entry.locationVoice"), t("pratham.cityVoice")]);
       voiceController.debug(`parichay: unlocked=${voiceController.unlocked} ${voiceController.audioElState()}`);
       if (!voiceController.unlocked) {
         voiceController.debug("⚠ UNLOCK MISSING AT PARICHAY — splash advanced without a tap; speech will park");

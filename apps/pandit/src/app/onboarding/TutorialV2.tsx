@@ -322,6 +322,13 @@ export default function TutorialV2({
 
   useScreenVoice(def.narration);
 
+  // D3c: warm the NEXT slide's narration while this one plays
+  useEffect(() => {
+    const next = defs[idx + 1];
+    if (next) voiceController.prefetch([next.narration]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [idx]);
+
   // ── Slide 3 gate: one mute→unmute cycle OR 10s timeout ─────
   const muted = useSyncExternalStore(
     voiceController.subscribe,
