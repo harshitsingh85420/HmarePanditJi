@@ -13,7 +13,14 @@ import { voiceController } from "@/lib/voiceController";
 import { t } from "@/lib/i18n";
 import { Toast } from "./Toast";
 
-export function ShishyaOrb({ className = "" }: { className?: string }) {
+export function ShishyaOrb({
+  className = "",
+  size = "md",
+}: {
+  className?: string;
+  /** "lg" renders the 120px hero orb (परिचय screen); "md" is the footer dock. */
+  size?: "md" | "lg";
+}) {
   const muted = useSyncExternalStore(
     voiceController.subscribe,
     () => voiceController.muted,
@@ -43,8 +50,13 @@ export function ShishyaOrb({ className = "" }: { className?: string }) {
     }
   };
 
+  const large = size === "lg";
+
   return (
-    <div className={`relative flex flex-col items-center ${className}`} style={{ width: 78 }}>
+    <div
+      className={`relative flex flex-col items-center ${className}`}
+      style={{ width: large ? 132 : 78 }}
+    >
       {/* Listening pill floats above the orb */}
       {listening && !asleep && (
         <span className="absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap bg-temple-600 text-white text-[12px] font-semibold font-hindi rounded-full px-3 py-1 shadow-card">
@@ -55,7 +67,11 @@ export function ShishyaOrb({ className = "" }: { className?: string }) {
       <button
         onClick={toggle}
         aria-label={asleep ? t("shishya.a11ySleep") : t("shishya.a11yAwake")}
-        className={`relative w-[66px] h-[66px] min-w-[66px] min-h-[66px] rounded-full flex items-center justify-center transition-all active:scale-95 ${
+        className={`relative rounded-full flex items-center justify-center transition-all active:scale-95 ${
+          large
+            ? "w-[120px] h-[120px] min-w-[120px] min-h-[120px]"
+            : "w-[66px] h-[66px] min-w-[66px] min-h-[66px]"
+        } ${
           asleep
             ? "shishya-asleep"
             : listening
@@ -70,7 +86,7 @@ export function ShishyaOrb({ className = "" }: { className?: string }) {
             <span className="shishya-ripple shishya-ripple-2" aria-hidden="true" />
           </>
         )}
-        <span className="text-[30px] leading-none select-none" aria-hidden="true">🙏</span>
+        <span className={`${large ? "text-[56px]" : "text-[30px]"} leading-none select-none`} aria-hidden="true">🙏</span>
         {asleep && (
           <span
             className="absolute -top-1 -right-1 text-[16px] leading-none select-none"
@@ -82,7 +98,7 @@ export function ShishyaOrb({ className = "" }: { className?: string }) {
       </button>
 
       <span
-        className={`mt-0.5 text-[11px] font-bold font-hindi ${asleep ? "text-softgrey" : "text-saffron-500"}`}
+        className={`mt-0.5 font-bold font-hindi ${large ? "text-[18px]" : "text-[11px]"} ${asleep ? "text-softgrey" : "text-saffron-500"}`}
       >
         {t("shishya.name")}
       </span>

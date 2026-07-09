@@ -356,7 +356,13 @@ export default function TutorialV2({
   const [micPerm, setMicPerm] = useState<"granted" | "denied" | "prompt" | "unknown">("unknown");
   const voiceInput = useVoiceInput();
   useEffect(() => {
-    if (idx !== 4 || !navigator.permissions?.query) return;
+    if (idx !== 4) return;
+    // परिचय already earned the mic for most users — the stored flag is an
+    // instant hint (the query corrects it if the browser disagrees).
+    try {
+      if (localStorage.getItem("mic_permission_granted") === "true") setMicPerm("granted");
+    } catch { /* noop */ }
+    if (!navigator.permissions?.query) return;
     let status: PermissionStatus | null = null;
     let disposed = false;
     navigator.permissions
@@ -367,7 +373,7 @@ export default function TutorialV2({
         setMicPerm(s.state);
         s.onchange = () => setMicPerm(s.state);
       })
-      .catch(() => setMicPerm("unknown"));
+      .catch(() => { /* keep the flag hint */ });
     return () => {
       disposed = true;
       if (status) status.onchange = null;
@@ -518,9 +524,25 @@ export default function TutorialV2({
                     </Button>
                   </>
                 ) : micState === "idle" || micState === "asking" ? (
-                  <Button variant="primary" size="md" fullWidth onClick={askMic} loading={micState === "asking"}>
-                    {t("tutorial.slide5Button")}
-                  </Button>
+                  micPerm === "granted" ? (
+                    // Permission already earned at परिचय — pure practice,
+                    // no duplicate prompt anywhere.
+                    <Button
+                      variant="primary"
+                      size="md"
+                      fullWidth
+                      onClick={() => {
+                        setMicState("listening");
+                        void voiceInput.start();
+                      }}
+                    >
+                      {t("tutorial.slide5Again")}
+                    </Button>
+                  ) : (
+                    <Button variant="primary" size="md" fullWidth onClick={askMic} loading={micState === "asking"}>
+                      {t("tutorial.slide5Button")}
+                    </Button>
+                  )
                 ) : micState === "listening" ? (
                   <>
                     <div ref={pillRef}>

@@ -32,7 +32,7 @@ import aiRoutes from "./routes/ai.routes";
 import { submitOnboarding } from "./controllers/onboarding.controller";
 import { getReadiness, patchReadiness } from "./controllers/readiness.controller";
 import { presignFile } from "./controllers/upload.controller";
-import { authenticate } from "./middleware/auth";
+import { authenticate, optionalAuth } from "./middleware/auth";
 import { roleGuard } from "./middleware/roleGuard";
 import {
   getSamagriPackages,
@@ -261,6 +261,10 @@ const handleSTT = async (request: FastifyRequest, reply: FastifyReply) => {
   }
 };
 
+// PARICHAY: the entry flow converses BEFORE login (शिष्य earns the mic on
+// the परिचय screen, location answers हाँ/नहीं by voice) — so STT accepts
+// anonymous callers. Abuse stays bounded by the same 30/min limiter,
+// keyed per-user when authenticated and per-IP when anonymous.
 const sttRouteConfig = {
   config: {
     rateLimit: {
@@ -271,7 +275,7 @@ const sttRouteConfig = {
       },
     },
   },
-  preHandler: [authenticate],
+  preHandler: [optionalAuth],
 };
 
 app.post("/api/stt", sttRouteConfig, handleSTT);

@@ -29,6 +29,7 @@ import { activateLanguage } from "@/lib/i18n";
 import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
 import { DiyaLoader } from "@/components/moments/DiyaLoader";
 import { SunriseSplash } from "@/components/moments/SunriseSplash";
+import ParichayScreen from "./screens/ParichayScreen";
 import LocationPermissionScreen from "./screens/LocationPermissionScreen";
 import ManualCityScreen from "./screens/ManualCityScreen";
 import LanguageListScreen from "./screens/LanguageListScreen";
@@ -259,7 +260,16 @@ export default function OnboardingOrchestratorPage() {
   const renderPhase = (): React.ReactNode => {
     // ── SPLASH ─────────────────────────────────────────────────
     if (phase === "SPLASH") {
-      return <SunriseSplash onDone={() => goto("LOCATION_PERMISSION")} />;
+      return <SunriseSplash onDone={() => goto("PARICHAY")} />;
+    }
+
+    // ── PARICHAY — शिष्य introduces himself, asked ONCE per install ──
+    if (phase === "PARICHAY") {
+      if (store.parichayDone) {
+        store.setPhase("LOCATION_PERMISSION");
+        return null;
+      }
+      return <ParichayScreen onDone={() => goto("LOCATION_PERMISSION")} />;
     }
 
     // ── LOCATION ───────────────────────────────────────────────
@@ -409,7 +419,7 @@ export default function OnboardingOrchestratorPage() {
       store.setPhase(store.languageConfirmed ? "TUTORIAL" : "LANGUAGE_CONFIRM");
       return null;
     }
-    return <SunriseSplash onDone={() => goto("LOCATION_PERMISSION")} />;
+    return <SunriseSplash onDone={() => goto("PARICHAY")} />;
   };
 
   return (

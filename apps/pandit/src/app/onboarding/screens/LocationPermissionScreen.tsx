@@ -15,6 +15,9 @@ import { t } from "@/lib/i18n";
 import { Toran } from "@/components/ui/Toran";
 import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
 import { useScreenVoice } from "@/hooks/useScreenVoice";
+import { VoiceActionListener } from "@/components/voice/VoiceActionListener";
+import { voiceController } from "@/lib/voiceController";
+import { useSafeOnboardingStore } from "@/lib/stores/ssr-safe-stores";
 
 interface LocationPermissionScreenProps {
   language: SupportedLanguage;
@@ -33,6 +36,11 @@ export default function LocationPermissionScreen({
 }: LocationPermissionScreenProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Conversational YES: voice confirms intent, the TAP executes — the
+  // geolocation prompt needs its own user gesture on some browsers, so
+  // a voice-YES only pulses the button and asks for one tap.
+  const [pulse, setPulse] = useState(false);
+  const { micDenied } = useSafeOnboardingStore();
 
   // D2: the phase announces itself BEFORE any browser popup — the
   // geolocation request fires ONLY from the अनुमति दें button below.
@@ -97,6 +105,27 @@ export default function LocationPermissionScreen({
         <Toran tone="onSindoor" className="bg-saffron-500" />
       </header>
 
+      {/* Mic earned at परिचय → the location step is a real conversation:
+          हाँ pulses the button (tap executes), नहीं goes to the city picker. */}
+      {!micDenied && (
+        <VoiceActionListener
+          commands={[
+            {
+              keywords: ["हाँ", "हां", "अनुमति", "ठीक है", "allow", "haan", "theek"],
+              action: () => {
+                setPulse(true);
+                voiceController.speak(t("entry.locationTapHint"));
+              },
+            },
+            {
+              keywords: ["नहीं", "बाद में", "nahi", "baad"],
+              action: () => onDenied(),
+            },
+          ]}
+          promptText={t("entry.locationVoice")}
+        />
+      )}
+
       <main className="flex-1 overflow-y-auto px-4 pt-4 pb-6 flex flex-col items-center gap-5">
         {/* Illustration canvas — neel tint, radius 24 */}
         <div className="w-full rounded-3xl bg-neel/10 py-10 flex items-center justify-center gap-3">
@@ -129,7 +158,9 @@ export default function LocationPermissionScreen({
         <button
           onClick={handleAllowClick}
           disabled={loading}
-          className="flex-1 min-h-[64px] bg-saffron-500 text-[#FFF3EA] rounded-btn text-[20px] font-bold shadow-btn active:scale-[0.97] transition-transform font-hindi disabled:opacity-60"
+          className={`flex-1 min-h-[64px] bg-saffron-500 text-[#FFF3EA] rounded-btn text-[20px] font-bold shadow-btn active:scale-[0.97] transition-transform font-hindi disabled:opacity-60 ${
+            pulse ? "saffron-glow-active animate-pulse" : ""
+          }`}
         >
           {loading ? t("pratham.locationChecking") : t("pratham.locationAllow")}
         </button>

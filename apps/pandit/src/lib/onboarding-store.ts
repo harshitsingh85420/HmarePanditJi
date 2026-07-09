@@ -15,6 +15,7 @@ export type ScriptPreference = 'native' | 'latin'
 
 export type OnboardingPhase =
   | 'SPLASH'
+  | 'PARICHAY'
   | 'LOCATION_PERMISSION'
   | 'MANUAL_CITY'
   | 'LANGUAGE_CONFIRM'
@@ -66,6 +67,9 @@ export interface OnboardingState {
   // Mic permission
   micDenied: boolean
 
+  // शिष्य's परिचय (introduction + mic ask) — asked once per install
+  parichayDone: boolean
+
   // v1: non-Hindi pick is stored as a preference (app continues in Hindi)
   preferredLanguage: string | null
 
@@ -98,6 +102,7 @@ export const DEFAULT_STATE: OnboardingState = {
   currentTutorialScreen: 1,
   voiceTutorialSeen: false,
   micDenied: false,
+  parichayDone: false,
   preferredLanguage: null,
   firstEverOpen: true,
   helpRequested: false,

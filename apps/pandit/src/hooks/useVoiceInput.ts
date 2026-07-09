@@ -11,6 +11,9 @@ export interface UseVoiceInputReturn {
   stop: () => void;
   transcript: string | null;
   confidence: number | null;
+  /** True once the silence detector heard actual speech this listen —
+   *  practice drills count this as "heard" even if STT upload fails. */
+  heardSpeech: boolean;
   reset: () => void;
   showExplainer: boolean;
   proceedWithPermission: () => Promise<void>;
@@ -32,6 +35,7 @@ export function useVoiceInput(): UseVoiceInputReturn {
   const [state, setState] = useState<"idle" | "listening" | "processing" | "error">("idle");
   const [transcript, setTranscript] = useState<string | null>(null);
   const [confidence, setConfidence] = useState<number | null>(null);
+  const [heardSpeech, setHeardSpeech] = useState(false);
   const [showExplainer, setShowExplainer] = useState(false);
 
   // Refs for tracking active resources
@@ -89,6 +93,7 @@ export function useVoiceInput(): UseVoiceInputReturn {
     setState("idle");
     setTranscript(null);
     setConfidence(null);
+    setHeardSpeech(false);
   }, [cleanup]);
 
   const stop = useCallback(() => {
@@ -113,6 +118,7 @@ export function useVoiceInput(): UseVoiceInputReturn {
     setState("listening");
     setTranscript(null);
     setConfidence(null);
+    setHeardSpeech(false);
     skipUploadRef.current = false;
 
     try {
@@ -213,16 +219,21 @@ export function useVoiceInput(): UseVoiceInputReturn {
           clearTimeout(timeoutId);
 
           if (!response.ok) {
+            voiceController.debug(`stt upload HTTP ${response.status}`);
             setState("error");
             return;
           }
 
           const resJson = await response.json();
           if (resJson.success && resJson.data) {
+            voiceController.debug(
+              `stt transcript "${String(resJson.data.transcript || "").slice(0, 30)}" conf=${resJson.data.confidence ?? "?"}`,
+            );
             setTranscript(resJson.data.transcript);
             setConfidence(resJson.data.confidence);
             setState("idle");
           } else {
+            voiceController.debug("stt: upload ok but no transcript");
             setState("error");
           }
         } catch (err) {
@@ -244,11 +255,15 @@ export function useVoiceInput(): UseVoiceInputReturn {
         const rms = Math.sqrt(sum / buf.length);
         elapsed += TICK;
 
-        if (rms > SILENCE_RMS) { 
-          spokeOnce = true; 
-          silentMs = 0; 
-        } else { 
-          silentMs += TICK; 
+        if (rms > SILENCE_RMS) {
+          if (!spokeOnce) {
+            voiceController.debug("stt: speech detected (rms)");
+            setHeardSpeech(true);
+          }
+          spokeOnce = true;
+          silentMs = 0;
+        } else {
+          silentMs += TICK;
         }
 
         // If HARD_CAP reached with spokeOnce===false → dispatch STT_FAILED without calling the API
@@ -324,6 +339,7 @@ export function useVoiceInput(): UseVoiceInputReturn {
     stop,
     transcript,
     confidence,
+    heardSpeech,
     reset,
     showExplainer,
     proceedWithPermission,

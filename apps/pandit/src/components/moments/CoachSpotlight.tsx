@@ -20,6 +20,9 @@ export interface CoachSpotlightProps {
   actionHint?: string;
   onDone: () => void;
   requireInteraction?: boolean;
+  /** Ring + cutout only — for moments the voice has already explained
+   *  (परिचय CTA); implies requireInteraction-style dismissal. */
+  hideCard?: boolean;
 }
 
 interface Rect {
@@ -36,6 +39,7 @@ export function CoachSpotlight({
   actionHint,
   onDone,
   requireInteraction,
+  hideCard,
 }: CoachSpotlightProps) {
   const [rect, setRect] = useState<Rect | null>(null);
 
@@ -99,6 +103,7 @@ export function CoachSpotlight({
       )}
 
       {/* Tooltip card */}
+      {!hideCard && (
       <div
         className="absolute left-4 right-4 bg-cream rounded-card shadow-card border border-saffron-100 p-4 flex flex-col gap-2"
         style={{
@@ -123,6 +128,7 @@ export function CoachSpotlight({
           </button>
         )}
       </div>
+      )}
     </div>
   );
 }

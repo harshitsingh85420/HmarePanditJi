@@ -57,6 +57,7 @@ const DEFAULT_STATE: OnboardingState = {
   currentTutorialScreen: 1,
   voiceTutorialSeen: false,
   micDenied: false,
+  parichayDone: false,
   preferredLanguage: null,
   firstEverOpen: true,
   helpRequested: false,
@@ -73,6 +74,7 @@ interface OnboardingStore extends OnboardingState {
   setCurrentTutorialScreen: (screen: number) => void
   setVoiceTutorialSeen: (seen: boolean) => void
   setMicDenied: (denied: boolean) => void
+  setParichayDone: (done: boolean) => void
   setPreferredLanguage: (lang: string | null) => void
   setHelpRequested: (requested: boolean) => void
   setLanguage: (language: SupportedLanguage) => void
@@ -104,6 +106,8 @@ export const useOnboardingStore = create<OnboardingStore>()(
 
       setMicDenied: (denied) => set({ micDenied: denied }),
 
+      setParichayDone: (done) => set({ parichayDone: done }),
+
       setPreferredLanguage: (lang) => set({ preferredLanguage: lang }),
 
       setHelpRequested: (requested) => set({ helpRequested: requested }),
@@ -129,6 +133,7 @@ export const useOnboardingStore = create<OnboardingStore>()(
         currentTutorialScreen: state.currentTutorialScreen,
         voiceTutorialSeen: state.voiceTutorialSeen,
         micDenied: state.micDenied,
+        parichayDone: state.parichayDone,
         preferredLanguage: state.preferredLanguage,
         firstEverOpen: state.firstEverOpen,
         helpRequested: state.helpRequested,
