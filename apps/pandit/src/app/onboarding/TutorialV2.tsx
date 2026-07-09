@@ -20,6 +20,7 @@ import { useVoiceInput } from "@/hooks/useVoiceInput";
 import { voiceController } from "@/lib/voiceController";
 import { playBell, playChime } from "@/lib/sounds";
 import { SlideCanvas, accentFor, PetalBurst } from "@/components/moments/SlideCanvas";
+import { PopupPointer } from "@/components/moments/PopupPointer";
 import { MoneyCount } from "@/components/moments/MoneyCount";
 import { Button } from "@/components/ui/Button";
 import { CoachSpotlight } from "@/components/moments/CoachSpotlight";
@@ -380,16 +381,22 @@ export default function TutorialV2({
     };
   }, [idx]);
 
+  const [pointerUp, setPointerUp] = useState(false);
   const askMic = () => {
-    // DIRECT-GESTURE LAW: Chrome fires the native permission prompt only
-    // when getUserMedia starts synchronously inside the user-gesture call
-    // stack — create the promise FIRST; speech teardown happens while the
-    // prompt is already up.
+    // LADDER LAW (same as परिचय): getUserMedia is ALWAYS attempted first,
+    // created synchronously inside the user-gesture call stack — never
+    // pre-blocked on permissions.query alone. Recovery copy appears only
+    // after a rejection that the query CONFIRMS as browser-level denied.
     const streamPromise = navigator.mediaDevices.getUserMedia({ audio: true });
-    voiceController.stopSpeech();
+    voiceController.debug("perm: getUserMedia invoked (tutorial s5)");
+    setPointerUp(true);
     setMicState("asking");
+    voiceController.speak(t("perm.pressAllowVoice"));
     void streamPromise
       .then(async (stream) => {
+        setPointerUp(false);
+        voiceController.debug("perm: settled(granted) (tutorial s5)");
+        voiceController.stopSpeech();
         localStorage.setItem("mic_permission_granted", "true");
         setMicPerm("granted");
         onMicGranted();
@@ -398,12 +405,29 @@ export default function TutorialV2({
         // getUserMedia for this gesture
         await voiceInput.start({ stream });
       })
-      .catch(() => {
-        localStorage.setItem("mic_permission_granted", "false");
-        setMicPerm("denied");
-        setMicState("denied");
-        onMicDenied();
-        voiceController.speak(t("tutorial.slide5Denied"));
+      .catch(async (e: unknown) => {
+        setPointerUp(false);
+        const name = (e as Error)?.name || "";
+        let state: string = "unsupported";
+        if (name !== "NotFoundError") {
+          try {
+            const st = await navigator.permissions.query({ name: "microphone" as PermissionName });
+            state = st.state;
+          } catch { /* query unsupported -> treat as dismissed */ }
+        }
+        if (name === "NotFoundError" || state === "denied") {
+          voiceController.debug("perm: settled(denied) (tutorial s5)");
+          localStorage.setItem("mic_permission_granted", "false");
+          setMicPerm("denied");
+          setMicState("denied");
+          onMicDenied();
+          voiceController.speak(t("tutorial.slide5Denied"));
+        } else {
+          // popup dismissed — keep the button alive, no deny flags
+          voiceController.debug("perm: settled(dismissed) (tutorial s5)");
+          setMicState("idle");
+          voiceController.speak(t("parichay.dismissed"));
+        }
       });
   };
 
@@ -512,9 +536,9 @@ export default function TutorialV2({
             ) : idx === 4 ? (
               <div className="w-full max-w-[300px] flex flex-col items-center gap-3 bg-white rounded-card border border-saffron-100 p-5">
                 <span className="text-[64px]" aria-hidden="true">🗣️</span>
-                {micState === "denied" || (micState === "idle" && micPerm === "denied") ? (
-                  // Browser-level DENY: no prompt can appear — show the
-                  // site-settings recovery copy and a retry that goes
+                {micState === "denied" ? (
+                  // Browser-level DENY (confirmed AFTER an attempt): show
+                  // the site-settings recovery copy and a retry that goes
                   // straight to getUserMedia inside the tap.
                   <>
                     <span className="t-body text-softgrey font-hindi text-center">{t("tutorial.slide5Denied")}</span>
@@ -570,6 +594,9 @@ export default function TutorialV2({
         </div>
         <h2 className="t-title font-bold text-temple-600 font-hindi">{def.title}</h2>
         <p className="t-body text-ink font-hindi leading-relaxed">{def.narration}</p>
+
+        {/* Arrow + chip pointing at the NATIVE permission popup (slide 5) */}
+        {pointerUp && <PopupPointer />}
 
         {/* Slide 3: spotlight the REAL शिष्य orb; gate opens on the cycle */}
         {idx === 2 && !gateOpen && fabEl && (

@@ -2,15 +2,21 @@
 
 // ─────────────────────────────────────────────────────────────
 // PARICHAY — शिष्य introduces himself and earns the mic BEFORE
-// location (trust first, permission second). D1 LAW: getUserMedia is
-// the FIRST statement inside the tap handler — the native prompt only
-// fires from the user-gesture call stack.
-//   grant  → thank-you → one practice listen on the SAME stream →
-//            "मैंने सुन लिया" (transcript OR local speech detection) →
-//            advance. Silence → gentle line, advance anyway.
-//   deny   → warm reassurance, micDenied=true, touch-only continues.
-//   pre-denied (browser setting) → recovery copy + retry + ghost
-//            "आगे बढ़ें" — never a dead end.
+// location (trust first, permission second). PERMISSION LADDER LAW:
+// getUserMedia is ALWAYS attempted first, as the FIRST statement of
+// the tap stack — never pre-blocked on permissions.query alone
+// ('prompt' misreports on some Androids, and Chrome's "ask every
+// time" re-prompts even after past denials).
+//   resolves            → thank-you → practice listen on the SAME
+//                         stream → advance (silence advances gently).
+//   NotAllowedError     → permissions.query NOW:
+//     state 'denied'    → settings-recovery card (retry + ghost next);
+//                         ONLY this explicit state sets micDenied.
+//     'prompt'/unsupported → the popup was DISMISSED: speak the
+//                         dismissed line, CTA stays active, no flags.
+//   NotFoundError       → no mic hardware: micDenied, gentle line, on.
+// The settings-recovery copy is UNREACHABLE on a first-ever attempt.
+// While the native popup is up: PopupPointer arrow + spoken guidance.
 // The hero orb IS the screen's voice control (no footer orb — one-orb law).
 // ─────────────────────────────────────────────────────────────
 
@@ -24,6 +30,7 @@ import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
 import { Button } from "@/components/ui/Button";
 import { CoachSpotlight } from "@/components/moments/CoachSpotlight";
 import { Toran } from "@/components/ui/Toran";
+import { PopupPointer } from "@/components/moments/PopupPointer";
 
 type Stage = "intro" | "asking" | "granted" | "practice" | "leaving";
 
@@ -33,32 +40,12 @@ export default function ParichayScreen({ onDone }: { onDone: () => void }) {
   const [stage, setStage] = useState<Stage>("intro");
   const [narrationEnded, setNarrationEnded] = useState(false);
   const [spotDismissed, setSpotDismissed] = useState(false);
-  const [micPerm, setMicPerm] = useState<"granted" | "denied" | "prompt" | "unknown">("unknown");
+  const [recovery, setRecovery] = useState(false);
+  const [pointerUp, setPointerUp] = useState(false);
   const ctaRef = useRef<HTMLDivElement | null>(null);
   const doneRef = useRef(false);
 
   useScreenVoice(t("parichay.voice"), { onNarrationEnd: () => setNarrationEnded(true) });
-
-  // Browser-level pre-state: a sticky DENY means no prompt can appear —
-  // show the settings recovery instead of a button that silently fails.
-  useEffect(() => {
-    if (!navigator.permissions?.query) return;
-    let status: PermissionStatus | null = null;
-    let disposed = false;
-    navigator.permissions
-      .query({ name: "microphone" as PermissionName })
-      .then((s) => {
-        if (disposed) return;
-        status = s;
-        setMicPerm(s.state);
-        s.onchange = () => setMicPerm(s.state);
-      })
-      .catch(() => setMicPerm("unknown"));
-    return () => {
-      disposed = true;
-      if (status) status.onchange = null;
-    };
-  }, []);
 
   const advance = () => {
     if (doneRef.current) return;
@@ -81,18 +68,26 @@ export default function ParichayScreen({ onDone }: { onDone: () => void }) {
   };
 
   const askMic = () => {
-    // D1 LAW: the getUserMedia promise is created as the FIRST statement
-    // of the tap stack — everything else happens while the prompt is up.
+    // LADDER LAW: the getUserMedia promise is created as the FIRST
+    // statement of the tap stack — narration must never delay it.
     const streamPromise = navigator.mediaDevices.getUserMedia({ audio: true });
-    voiceController.stopSpeech();
+    voiceController.debug("perm: getUserMedia invoked (parichay)");
+    setPointerUp(true);
     setSpotDismissed(true);
     setStage("asking");
+    // spoken guidance WHILE the native popup is up (audio already
+    // unlocked by this same gesture)
+    voiceController.speak(t("perm.pressAllowVoice"));
     void streamPromise
       .then((stream) => {
+        setPointerUp(false);
+        voiceController.debug("perm: settled(granted) (parichay)");
+        voiceController.stopSpeech();
         try {
           localStorage.setItem("mic_permission_granted", "true");
         } catch { /* noop */ }
         store.setMicDenied(false);
+        setRecovery(false);
         setStage("granted");
         voiceController.speak(t("parichay.granted"), {
           onEnd: () => {
@@ -107,8 +102,32 @@ export default function ParichayScreen({ onDone }: { onDone: () => void }) {
           },
         });
       })
-      .catch(() => {
-        finishDeny();
+      .catch(async (e: unknown) => {
+        setPointerUp(false);
+        const name = (e as Error)?.name || "";
+        if (name === "NotFoundError") {
+          // no microphone hardware — nothing to recover
+          voiceController.debug("perm: settled(denied - no mic hardware) (parichay)");
+          finishDeny();
+          return;
+        }
+        // NotAllowedError (or unknown): only a CONFIRMED browser-level
+        // deny shows the settings recovery. 'prompt' or an unsupported
+        // query means the popup was dismissed - keep the CTA alive.
+        let state: string = "unsupported";
+        try {
+          const st = await navigator.permissions.query({ name: "microphone" as PermissionName });
+          state = st.state;
+        } catch { /* query unsupported -> treat as dismissed */ }
+        if (state === "denied") {
+          voiceController.debug("perm: settled(denied) (parichay)");
+          setRecovery(true);
+          setStage("intro");
+        } else {
+          voiceController.debug("perm: settled(dismissed) (parichay)");
+          setStage("intro");
+          voiceController.speak(t("parichay.dismissed"));
+        }
       });
   };
 
@@ -125,7 +144,6 @@ export default function ParichayScreen({ onDone }: { onDone: () => void }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stage, voiceInput.state, voiceInput.transcript, voiceInput.heardSpeech]);
 
-  const preDenied = micPerm === "denied" && (stage === "intro" || stage === "asking");
 
   return (
     <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
@@ -155,7 +173,7 @@ export default function ParichayScreen({ onDone }: { onDone: () => void }) {
 
       {/* Footer: THE one primary CTA (72px) — or the recovery set */}
       <footer className="shrink-0 px-4 py-3 bg-cream/95 backdrop-blur border-t border-saffron-100 flex flex-col gap-2">
-        {preDenied ? (
+        {recovery && (stage === "intro" || stage === "asking") ? (
           <>
             <p className="t-body font-bold text-temple-600 font-hindi text-center">
               {t("tutorial.slide5Blocked")}
@@ -182,8 +200,11 @@ export default function ParichayScreen({ onDone }: { onDone: () => void }) {
         ) : null}
       </footer>
 
+      {/* Arrow + chip pointing at the NATIVE permission popup */}
+      {pointerUp && <PopupPointer />}
+
       {/* Voice explained it — the spotlight only points (no tooltip card) */}
-      {narrationEnded && !spotDismissed && (stage === "intro") && !preDenied && (
+      {narrationEnded && !spotDismissed && (stage === "intro") && !recovery && (
         <CoachSpotlight
           targetRef={ctaRef}
           title=""

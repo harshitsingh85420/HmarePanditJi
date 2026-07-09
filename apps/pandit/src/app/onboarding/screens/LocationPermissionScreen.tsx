@@ -18,6 +18,7 @@ import { useScreenVoice } from "@/hooks/useScreenVoice";
 import { VoiceActionListener } from "@/components/voice/VoiceActionListener";
 import { voiceController } from "@/lib/voiceController";
 import { useSafeOnboardingStore } from "@/lib/stores/ssr-safe-stores";
+import { PopupPointer } from "@/components/moments/PopupPointer";
 
 interface LocationPermissionScreenProps {
   language: SupportedLanguage;
@@ -40,6 +41,7 @@ export default function LocationPermissionScreen({
   // geolocation prompt needs its own user gesture on some browsers, so
   // a voice-YES only pulses the button and asks for one tap.
   const [pulse, setPulse] = useState(false);
+  const [pointerUp, setPointerUp] = useState(false);
   const { micDenied } = useSafeOnboardingStore();
 
   // D2: the phase announces itself BEFORE any browser popup — the
@@ -47,17 +49,19 @@ export default function LocationPermissionScreen({
   useScreenVoice(t("entry.locationVoice"));
 
   const handleAllowClick = () => {
-    setLoading(true);
-    setError(null);
-
     if (!navigator.geolocation) {
       setError(t("pratham.locationError"));
       setTimeout(() => onDenied(), 1500);
       return;
     }
 
+    // LADDER LAW: the geolocation request fires FIRST in the tap stack —
+    // the pointer + spoken guidance follow, never delaying it.
     navigator.geolocation.getCurrentPosition(
       async (position) => {
+        setPointerUp(false);
+        voiceController.debug("perm: settled(granted) (location)");
+        voiceController.stopSpeech();
         try {
           const { latitude, longitude } = position.coords;
           const res = await fetch(
@@ -76,12 +80,22 @@ export default function LocationPermissionScreen({
         }
       },
       () => {
+        // deny/dismiss/timeout → the existing city-picker path (its
+        // narration unchanged); settings copy stays recovery-only
+        setPointerUp(false);
+        voiceController.debug("perm: settled(denied|dismissed) (location)");
         setLoading(false);
         setError(t("pratham.locationError"));
         setTimeout(() => onDenied(), 1500);
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 },
     );
+    voiceController.debug("perm: geolocation invoked (location)");
+    setPointerUp(true);
+    setLoading(true);
+    setError(null);
+    // spoken guidance WHILE the native popup is up
+    voiceController.speak(t("perm.pressAllowVoice"));
   };
 
   return (
@@ -152,6 +166,9 @@ export default function LocationPermissionScreen({
           {t("pratham.locationManual")}
         </button>
       </main>
+
+      {/* Arrow + chip pointing at the NATIVE permission popup */}
+      {pointerUp && <PopupPointer />}
 
       {/* Footer: ONE primary + orb slot */}
       <footer className="shrink-0 px-4 py-3 bg-cream/95 backdrop-blur border-t border-saffron-100 flex items-end gap-3">

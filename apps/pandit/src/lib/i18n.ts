@@ -26,7 +26,7 @@ const CHUNK_SIZE = 100;
 
 /** Sections needed before the app may switch language (blocking fetch). */
 export const ENTRY_GROUPS: readonly string[] = [
-  "voice", "shishya", "coach", "pratham", "entry", "parichay", "voiceLoop",
+  "voice", "shishya", "coach", "pratham", "entry", "parichay", "perm", "voiceLoop",
   "nav", "common", "welcome", "auth", "tutorial", "language", "permissions",
   "registration",
 ];
