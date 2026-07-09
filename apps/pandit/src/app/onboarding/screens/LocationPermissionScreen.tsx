@@ -15,7 +15,8 @@ import { t } from "@/lib/i18n";
 import { Toran } from "@/components/ui/Toran";
 import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
 import { useScreenVoice } from "@/hooks/useScreenVoice";
-import { VoiceActionListener } from "@/components/voice/VoiceActionListener";
+import { useVoiceCommands } from "@/hooks/useVoiceScreen";
+import { YES, NO } from "@/lib/voiceGrammar";
 import { voiceController } from "@/lib/voiceController";
 import { useSafeOnboardingStore } from "@/lib/stores/ssr-safe-stores";
 import { PopupPointer } from "@/components/moments/PopupPointer";
@@ -46,7 +47,26 @@ export default function LocationPermissionScreen({
 
   // D2: the phase announces itself BEFORE any browser popup — the
   // geolocation request fires ONLY from the अनुमति दें button below.
+  // (useScreenVoice = VoiceLoop v2: this also arms the perpetual listen.)
   useScreenVoice(t("entry.locationVoice"));
+
+  // J2: हाँ pulses the button and asks for the ONE constitutional tap
+  // (the geolocation popup needs a real gesture); नहीं goes to the
+  // city picker. Registry-based — the screen's loop owns the mic.
+  useVoiceCommands(
+    [
+      {
+        keywords: [...YES, "अनुमति", "allow"],
+        action: () => {
+          setPulse(true);
+          voiceController.speak(t("entry.locationTapHint"));
+        },
+      },
+      { keywords: NO, action: () => onDenied() },
+    ],
+    undefined,
+    !micDenied,
+  );
 
   const handleAllowClick = () => {
     if (!navigator.geolocation) {
@@ -118,27 +138,6 @@ export default function LocationPermissionScreen({
         </div>
         <Toran tone="onSindoor" className="bg-saffron-500" />
       </header>
-
-      {/* Mic earned at परिचय → the location step is a real conversation:
-          हाँ pulses the button (tap executes), नहीं goes to the city picker. */}
-      {!micDenied && (
-        <VoiceActionListener
-          commands={[
-            {
-              keywords: ["हाँ", "हां", "अनुमति", "ठीक है", "allow", "haan", "theek"],
-              action: () => {
-                setPulse(true);
-                voiceController.speak(t("entry.locationTapHint"));
-              },
-            },
-            {
-              keywords: ["नहीं", "बाद में", "nahi", "baad"],
-              action: () => onDenied(),
-            },
-          ]}
-          promptText={t("entry.locationVoice")}
-        />
-      )}
 
       <main className="flex-1 overflow-y-auto px-4 pt-4 pb-6 flex flex-col items-center gap-5">
         {/* Illustration canvas — neel tint, radius 24 */}

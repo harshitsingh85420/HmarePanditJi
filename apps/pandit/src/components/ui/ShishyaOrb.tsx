@@ -36,6 +36,12 @@ export function ShishyaOrb({
     () => voiceController.listening,
     () => false,
   );
+  // J3d: speech ended, STT in flight — 'समझ रहा हूँ' beats dead air
+  const processing = useSyncExternalStore(
+    voiceController.subscribe,
+    () => voiceController.processing,
+    () => false,
+  );
   const [sleepToast, setSleepToast] = useState(false);
 
   const asleep = muted;
@@ -57,10 +63,10 @@ export function ShishyaOrb({
       className={`relative flex flex-col items-center ${className}`}
       style={{ width: large ? 132 : 78 }}
     >
-      {/* Listening pill floats above the orb */}
-      {listening && !asleep && (
+      {/* Listening / understanding pill floats above the orb */}
+      {(listening || processing) && !asleep && (
         <span className="absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap bg-temple-600 text-white text-[12px] font-semibold font-hindi rounded-full px-3 py-1 shadow-card">
-          {t("voiceLoop.listening")}
+          {processing ? t("voiceLoop.understanding") : t("voiceLoop.listening")}
         </span>
       )}
 

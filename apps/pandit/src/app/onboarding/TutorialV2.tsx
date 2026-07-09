@@ -16,6 +16,8 @@ import React, { useEffect, useRef, useState, useSyncExternalStore } from "react"
 import TutorialShell from "./screens/tutorial/TutorialShell";
 import { t } from "@/lib/i18n";
 import { useScreenVoice } from "@/hooks/useScreenVoice";
+import { useVoiceCommands } from "@/hooks/useVoiceScreen";
+import { YES, NEXT, BACK, SKIP } from "@/lib/voiceGrammar";
 import { useVoiceInput } from "@/hooks/useVoiceInput";
 import { voiceController } from "@/lib/voiceController";
 import { playBell, playChime } from "@/lib/sounds";
@@ -320,12 +322,18 @@ export default function TutorialV2({
   // Slide 5: spotlight the listening pill when it appears
   const pillRef = useRef<HTMLDivElement | null>(null);
 
-  useScreenVoice(def.narration);
+  // J2: every slide ends by INVITING the voice answer. Slide 3 is the
+  // exception — asking "हाँ बोलिए" while Next is gate-locked would be a
+  // lie, so its ask is spoken the moment the gate opens instead.
+  const advanceAsk = t("tutorial.advanceAsk");
+  const narrationFor = (i: number) =>
+    i === 2 ? defs[i].narration : `${defs[i].narration} ${advanceAsk}`;
+
+  useScreenVoice(narrationFor(idx));
 
   // D3c: warm the NEXT slide's narration while this one plays
   useEffect(() => {
-    const next = defs[idx + 1];
-    if (next) voiceController.prefetch([next.narration]);
+    if (idx + 1 < defs.length) voiceController.prefetch([narrationFor(idx + 1)]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [idx]);
 
@@ -341,8 +349,13 @@ export default function TutorialV2({
     if (idx !== 2) return;
     setSawMute(false);
     setGateOpen(false);
-    const t = setTimeout(() => setGateOpen(true), 10000);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => {
+      setGateOpen(true);
+      // gate opened by timeout — NOW the voice invitation is honest
+      voiceController.speak(advanceAsk);
+    }, 10000);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [idx]);
   const [burst, setBurst] = useState(false);
   useEffect(() => {
@@ -353,7 +366,9 @@ export default function TutorialV2({
       setGateOpen(true);
       setBurst(true);
       playChime();
+      voiceController.speak(advanceAsk);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [muted, sawMute, gateOpen, idx]);
 
   // ── Slide 5: mic permission + practice ─────────────────────
@@ -499,6 +514,45 @@ export default function TutorialV2({
   const skipToCta = () => onSlideChange(TUTORIAL_TOTAL);
 
   const nextDisabled = idx === 2 && !gateOpen;
+  const isCta = idx === TUTORIAL_TOTAL - 1;
+
+  // J2: the whole tutorial answers by voice. हाँ/आगे advance (the slide-3
+  // gate refuses politely; the slide-5 popup/practice moment stays quiet —
+  // a spoken हाँ there is aimed at the mic, not the slide). छोड़ो jumps to
+  // the CTA, पीछे retreats. On the CTA slide हाँ/शुरू/रजिस्ट्रेशन register
+  // and बाद-में/छोड़ो defer. फिर-से/मदद/सो-जाओ come from the global grammar.
+  useVoiceCommands([
+    {
+      keywords: [...YES, ...NEXT, "रजिस्ट्रेशन", "रजिस्टर", "registration", "शुरू", "start"],
+      action: () => {
+        if (isCta) return onRegister();
+        if (idx === 4 && (micState === "asking" || micState === "listening")) return;
+        if (nextDisabled) {
+          voiceController.speak(t("coach.tryIt"));
+          return;
+        }
+        goNext();
+      },
+    },
+    {
+      keywords: [...SKIP, "बाद में", "baad mein", "later"],
+      action: () => {
+        if (isCta) {
+          setStay(true);
+          onLater();
+        } else {
+          skipToCta();
+        }
+      },
+    },
+    {
+      keywords: BACK,
+      action: () => {
+        if (slide <= 1) voiceController.speakUnmatchedGently();
+        else goBack();
+      },
+    },
+  ]);
 
   if (idx === TUTORIAL_TOTAL - 1) {
     return (

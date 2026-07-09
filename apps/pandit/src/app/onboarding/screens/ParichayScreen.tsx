@@ -196,7 +196,21 @@ export default function ParichayScreen({ onDone }: { onDone: () => void }) {
           await voiceController.speakAndWait(t("parichay.introOnly"));
           if (doneRef.current) return;
           voiceController.debug("e2e: parichay bypassed");
-          store.setMicDenied(true);
+          // J4: with the perm simulator granting, e2e keeps the VOICE
+          // LOOP alive (listens resolve instantly, transcripts come from
+          // the injector); without it, e2e stays a touch-only walk.
+          let sim: string | null = null;
+          try {
+            sim = sessionStorage.getItem("hpj_perm_sim");
+          } catch { /* noop */ }
+          if (sim === "grant" || sim === "pregranted") {
+            try {
+              localStorage.setItem("mic_permission_granted", "true");
+            } catch { /* noop */ }
+            store.setMicDenied(false);
+          } else {
+            store.setMicDenied(true);
+          }
           advance();
           return;
         }

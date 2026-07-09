@@ -17,6 +17,7 @@ import { useVoice } from "../../hooks/useVoice";
 import { useVoiceInput } from "../../hooks/useVoiceInput";
 import { voiceController } from "../../lib/voiceController";
 import { parseHindiNumber, parsePhoneNumber, matchChoice } from "../../lib/voiceParse";
+import { matchYesNo } from "../../lib/voiceGrammar";
 import { extractOTP } from "../../lib/number-mapper";
 import { t } from "../../lib/i18n";
 import { Button } from "../ui/Button";
@@ -145,19 +146,59 @@ export function VoiceField({
   const dispatchRef = useRef(dispatch);
   dispatchRef.current = dispatch;
 
-  // ── Loop registration: this field is the screen's priority target ──
+  const valueRef = useRef(value);
+  valueRef.current = value;
+
+  // ── Loop registration: this field is the screen's priority target.
+  // J2: a FILLED field declines its turn — the next empty field (or the
+  // screen's command listen) gets the mic instead, so multi-field
+  // screens traverse by voice alone. ──
   useEffect(() => {
     if (!voiceCapable) return;
     const unregister = voiceController.registerAutoListen(1, () => {
+      if ((valueRef.current ?? "").trim()) return false;
       const ph = stateRef.current.phase;
       if (ph === "IDLE" || ph === "LISTENING") {
         setState({ phase: "LISTENING" });
-        void voiceInput.start();
+        void voiceInput.start({ mode: "field" });
       }
     });
     return unregister;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [voiceCapable]);
+
+  // J1: first-claim hook for INJECTED transcripts (voicedebug driver) —
+  // an EMPTY field claims parseable text exactly like the live pipeline;
+  // a filled field defers to the command registry (injector's next stop).
+  useEffect(() => {
+    if (!voiceCapable) return;
+    return voiceController.registerFieldClaim((text) => {
+      // mirror the live confirm listen: a pending confirmation claims
+      // हाँ/नहीं before anything else does
+      if (stateRef.current.phase === "CONFIRMING") {
+        const yn = matchYesNo(text);
+        if (yn === "yes") {
+          dispatchRef.current({ type: "CONFIRM_YES" });
+          return true;
+        }
+        if (yn === "no") {
+          dispatchRef.current({ type: "CONFIRM_NO" });
+          return true;
+        }
+        return false;
+      }
+      if ((value ?? "").trim()) return false;
+      if (voiceController.isPureCommand(text)) return false;
+      if (parseValue(text) === null) return false;
+      // the injected transcript arrives OUTSIDE a live listen — enter
+      // LISTENING first so the machine's real TRANSCRIPT path runs
+      stateRef.current = { phase: "LISTENING" };
+      setState({ phase: "LISTENING" });
+      dispatchRef.current({ type: "TRANSCRIPT", text, confidence: 1 });
+      return true;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [voiceCapable, value, parseValue]);
 
   // ── Arm on mount: speak the prompt, then the loop takes over ──
   useEffect(() => {
@@ -211,6 +252,15 @@ export function VoiceField({
         const text = voiceInput.transcript;
         const conf = voiceInput.confidence ?? 1;
         voiceInput.reset();
+        // J1 FIELD-FIRST LAW with three fallthroughs to the screen/global
+        // command registry: (a) the WHOLE utterance is a pure grammar
+        // word — an empty text field must not swallow "आगे" as a value;
+        // (b) the field already HOLDS a value and the words match a
+        // command; (c) the parser REJECTS the transcript.
+        const parsed = parseValue(text);
+        if (voiceController.isPureCommand(text) && voiceController.handleTranscript(text)) return;
+        if (!!value?.trim() && voiceController.handleTranscript(text)) return;
+        if (parsed === null && voiceController.handleTranscript(text)) return;
         dispatch({ type: "TRANSCRIPT", text, confidence: conf });
       }
     }

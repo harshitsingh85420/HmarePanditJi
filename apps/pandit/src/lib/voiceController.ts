@@ -12,6 +12,28 @@
 
 import { t, getActiveBcp47 } from "@/lib/i18n";
 import { clientPace } from "@/lib/sarvam-tts";
+import { YES, NO, REPEAT, HELP, SLEEP, matchAny } from "@/lib/voiceGrammar";
+
+// ── J1: SCREEN VOICE CONTEXT ─────────────────────────────────
+// Every screen registers its commands here (useVoiceScreen /
+// useVoiceCommands). ANY armed listener (a VoiceField falling through,
+// or the screen's own command listen) resolves transcripts against the
+// ACTIVE (topmost) entry, then the global grammar (REPEAT / मदद /
+// सो जाओ). Unmatched speech re-arms silently — at most one gentle line
+// per 30s per screen.
+export interface VoiceCommand {
+  keywords: readonly string[];
+  action: () => void;
+  /** Optional spoken ack (static lines ride the TTS cache → ~10ms). */
+  confirmSpeech?: string;
+}
+
+interface VoiceScreenEntry {
+  id: number;
+  commands: readonly VoiceCommand[];
+  helpText?: string;
+  lastUnmatchedAt: number;
+}
 
 /** How an utterance actually concluded. 'parked' = queued awaiting the
  *  first-gesture unlock — A HUMAN HAS NOT TOUCHED THE APP YET; callers
@@ -249,8 +271,155 @@ class VoiceController {
   // 1) or the screen's command registry (priority 0). After ANY speech
   // ends and after ANY listen resolves, the loop quietly re-arms the top
   // target — forever, until PAUSED (muted / tab hidden / micDenied).
-  private autoTargets: Array<{ priority: number; arm: () => void }> = [];
+  private autoTargets: Array<{ priority: number; arm: () => void | boolean }> = [];
   private rearmTimer: ReturnType<typeof setTimeout> | null = null;
+
+  // ── J1: screen command registry (stack — last mounted = active) ──
+  private voiceScreens: VoiceScreenEntry[] = [];
+  private voiceScreenSeq = 0;
+  // J3d: 'समझ रहा हूँ' — speech ended, STT in flight
+  private _processing = false;
+
+  registerVoiceScreen(commands: readonly VoiceCommand[], helpText?: string): () => void {
+    const entry: VoiceScreenEntry = {
+      id: ++this.voiceScreenSeq,
+      commands,
+      helpText,
+      lastUnmatchedAt: 0,
+    };
+    this.voiceScreens.push(entry);
+    return () => {
+      this.voiceScreens = this.voiceScreens.filter((e) => e !== entry);
+    };
+  }
+
+  private activeVoiceScreen(): VoiceScreenEntry | null {
+    return this.voiceScreens[this.voiceScreens.length - 1] ?? null;
+  }
+
+  /**
+   * J1/J2 — resolve a transcript against the active screen's commands,
+   * then the GLOBAL grammar. Returns true when something acted. Callers
+   * (the screen command listen, a VoiceField whose parser rejected or
+   * whose value is already filled) re-arm the loop themselves on false.
+   */
+  handleTranscript(text: string): boolean {
+    const clean = text.trim();
+    if (!clean) return false;
+    const entry = this.activeVoiceScreen();
+    if (entry) {
+      for (const cmd of entry.commands) {
+        if (matchAny(clean, cmd.keywords)) {
+          this.debug(`voice cmd: "${clean.slice(0, 24)}" → matched [${cmd.keywords[0]}]`);
+          if (cmd.confirmSpeech) this.speak(cmd.confirmSpeech, { onEnd: () => cmd.action() });
+          else cmd.action();
+          return true;
+        }
+      }
+    }
+    // GLOBAL grammar — everywhere, always
+    if (matchAny(clean, REPEAT)) {
+      this.debug(`voice cmd: "${clean.slice(0, 24)}" → REPEAT`);
+      this.replayFn?.();
+      return true;
+    }
+    if (matchAny(clean, HELP)) {
+      this.debug(`voice cmd: "${clean.slice(0, 24)}" → HELP`);
+      if (entry?.helpText) this.speak(entry.helpText);
+      else this.replayFn?.();
+      return true;
+    }
+    if (matchAny(clean, SLEEP)) {
+      this.debug(`voice cmd: "${clean.slice(0, 24)}" → SLEEP`);
+      this.setMuted(true);
+      try {
+        window.dispatchEvent(new CustomEvent("hpj-shishya-sleep"));
+      } catch { /* noop */ }
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * J2: TRUE when the WHOLE utterance is a registered command word or
+   * global grammar word — lets an EMPTY text field yield "आगे"/"मदद" to
+   * the registry instead of swallowing them as its value. Exact match
+   * after normalization, not inclusion: "आगे नगर" stays a field value.
+   */
+  isPureCommand(text: string): boolean {
+    const clean = text.trim().toLowerCase().replace(/[।.,!?]/g, "").trim();
+    if (!clean) return false;
+    const entry = this.activeVoiceScreen();
+    // YES/NO are universal answers — a bare "हाँ" is never a name, a
+    // city, or an allergy, even when no screen command claims it.
+    const words: string[] = [
+      ...(entry?.commands.flatMap((c) => [...c.keywords]) ?? []),
+      ...YES,
+      ...NO,
+      ...REPEAT,
+      ...HELP,
+      ...SLEEP,
+    ];
+    return words.some((w) => w.toLowerCase() === clean);
+  }
+
+  /** Unmatched speech: ONE gentle line per 30s per screen, else silence. */
+  speakUnmatchedGently(): void {
+    const entry = this.activeVoiceScreen();
+    const now = performance.now();
+    const last = entry ? entry.lastUnmatchedAt : this.lastGlobalUnmatchedAt;
+    if (now - last < 30000) {
+      this.loopRearm();
+      return;
+    }
+    if (entry) entry.lastUnmatchedAt = now;
+    else this.lastGlobalUnmatchedAt = now;
+    this.speak(t("voiceLoop.unmatched"));
+  }
+  private lastGlobalUnmatchedAt = 0;
+
+  get processing(): boolean {
+    return this._processing;
+  }
+  setProcessing(v: boolean): void {
+    if (this._processing === v) return;
+    this._processing = v;
+    this.emit();
+  }
+
+  /** DEV/voicedebug transcript injector — drives the FULL grammar/loop
+   *  pipeline exactly as a Deepgram result would (audio hop excluded).
+   *  Production-inert without the voicedebug session flag. */
+  injectTranscript(text: string): string {
+    try {
+      if (
+        process.env.NODE_ENV === "production" &&
+        sessionStorage.getItem("hpj_voicedebug") !== "1"
+      ) {
+        return "disabled";
+      }
+    } catch {
+      return "disabled";
+    }
+    this.debug(`inject: "${text}"`);
+    for (const claim of [...this.fieldClaims]) {
+      if (claim(text)) return "field";
+    }
+    if (this.handleTranscript(text)) return "command";
+    this.speakUnmatchedGently();
+    return "unmatched";
+  }
+
+  // J1: VoiceField first-claim hooks (for injected transcripts; real STT
+  // flows through each field's own pipeline). A LIST because multi-field
+  // screens mount several fields — empty fields claim, filled ones pass.
+  private fieldClaims: Array<(text: string) => boolean> = [];
+  registerFieldClaim(fn: (text: string) => boolean): () => void {
+    this.fieldClaims.push(fn);
+    return () => {
+      this.fieldClaims = this.fieldClaims.filter((f) => f !== fn);
+    };
+  }
 
   private init() {
     if (this.initialized || typeof window === "undefined") return;
@@ -408,8 +577,13 @@ class VoiceController {
     this.emit();
   }
 
-  /** Register an auto-listen target. Higher priority wins (field=1, commands=0). */
-  registerAutoListen(priority: number, arm: () => void): () => void {
+  /**
+   * Register an auto-listen target. Higher priority wins (field=1,
+   * commands=0). J2: arm() may return false to DECLINE its turn (a
+   * filled VoiceField yields so the next field — or the screen's
+   * command listen — gets the mic); the loop then tries the next target.
+   */
+  registerAutoListen(priority: number, arm: () => void | boolean): () => void {
     const entry = { priority, arm };
     this.autoTargets.push(entry);
     return () => {
@@ -422,8 +596,10 @@ class VoiceController {
     if (this.rearmTimer) clearTimeout(this.rearmTimer);
     this.rearmTimer = setTimeout(() => {
       if (this.paused || this._speaking || this._listening) return;
-      const top = [...this.autoTargets].sort((a, b) => b.priority - a.priority)[0];
-      top?.arm();
+      const targets = [...this.autoTargets].sort((a, b) => b.priority - a.priority);
+      for (const target of targets) {
+        if (target.arm() !== false) return;
+      }
     }, delayMs);
   }
 

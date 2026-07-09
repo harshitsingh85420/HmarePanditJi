@@ -25,6 +25,8 @@ import { detectLanguage, LANG_TO_BCP47, LANG_NATIVE_NAME, type LangCode } from "
 import { LANG_CONFIRM } from "@/lib/strings-langconfirm";
 import { type OnboardingPhase, type SupportedLanguage } from "@/lib/onboarding-store";
 import { activateLanguage } from "@/lib/i18n";
+import { useVoiceScreen } from "@/hooks/useVoiceScreen";
+import { YES, NO } from "@/lib/voiceGrammar";
 
 import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
 import { DiyaLoader } from "@/components/moments/DiyaLoader";
@@ -70,21 +72,20 @@ function LangConfirmScreen2({
   onYes: () => void;
   onOther: () => void;
 }) {
-  const t = LANG_CONFIRM[code];
-  useEffect(() => {
-    // Speaks IN the detected language — through the controller so the
-    // Sarvam TTS chain + audio-unlock queueing apply here too.
-    const timer = setTimeout(() => {
-      voiceController.speak(t.confirmQuestion, { languageCode: LANG_TO_BCP47[code] });
-    }, 300);
-    const unregister = voiceController.registerReplay(() => {
-      voiceController.speak(t.confirmQuestion, { languageCode: LANG_TO_BCP47[code] });
-    });
-    return () => {
-      clearTimeout(timer);
-      unregister();
-    };
-  }, [code, t.confirmQuestion]);
+  const lc = LANG_CONFIRM[code];
+  // J2 — THE reported defect: the question is asked by voice, so the
+  // answer must work by voice. Narration speaks IN the detected language
+  // (Sarvam chain + unlock queueing apply); हाँ = the yes button,
+  // नहीं/दूसरी = the language list. The hook's perpetual listen also
+  // answers फिर से / मदद / सो जाओ globally.
+  useVoiceScreen({
+    narration: lc.confirmQuestion,
+    languageCode: LANG_TO_BCP47[code],
+    commands: [
+      { keywords: YES, action: onYes },
+      { keywords: [...NO, "दूसरी", "बदलो", "list", "doosri", "badlo"], action: onOther },
+    ],
+  });
 
   return (
     <main className="min-h-full w-full max-w-[430px] mx-auto bg-cream flex flex-col items-center justify-center gap-6 px-6 text-center">
@@ -95,19 +96,19 @@ function LangConfirmScreen2({
         </span>
         <span className="text-[28px] font-bold text-temple-600 font-hindi">{LANG_NATIVE_NAME[code]}</span>
       </div>
-      <h1 className="text-[24px] font-bold text-temple-600 font-hindi leading-snug">{t.confirmQuestion}</h1>
+      <h1 className="text-[24px] font-bold text-temple-600 font-hindi leading-snug">{lc.confirmQuestion}</h1>
       <div className="w-full flex flex-col gap-3">
         <button
           onClick={onYes}
           className="w-full min-h-[64px] bg-saffron-500 text-[#FFF3EA] rounded-btn text-[20px] font-bold shadow-btn active:scale-[0.97] transition-transform font-hindi"
         >
-          {t.yesLabel}
+          {lc.yesLabel}
         </button>
         <button
           onClick={onOther}
           className="w-full min-h-[56px] border-2 border-saffron-500 text-saffron-600 bg-white rounded-btn text-[18px] font-bold active:scale-[0.97] transition-transform font-hindi"
         >
-          {t.otherLabel}
+          {lc.otherLabel}
         </button>
       </div>
     </main>

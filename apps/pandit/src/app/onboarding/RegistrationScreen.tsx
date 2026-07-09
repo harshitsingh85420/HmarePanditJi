@@ -21,6 +21,8 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
 import { Narrate } from "@/hooks/useScreenVoice";
+import { useVoiceCommands } from "@/hooks/useVoiceScreen";
+import { YES, NEXT, BACK } from "@/lib/voiceGrammar";
 import { VoiceField } from "@/components/voice/VoiceField";
 import { useVoice } from "@/hooks/useVoice";
 import { useSafeOnboardingStore } from "@/lib/stores/ssr-safe-stores";
@@ -84,6 +86,18 @@ export default function RegistrationScreen({ onBack }: { onBack: () => void }) {
     }
     setShowDone(true);
   };
+
+  // J2: both fields fill by voice (each FILLED field yields the mic to
+  // the next); हाँ/आगे submits — validation speaks if something's
+  // missing — and पीछे returns to the tutorial CTA.
+  useVoiceCommands(
+    [
+      { keywords: [...YES, ...NEXT, "खाता", "बनाओ"], action: () => void handleSubmit() },
+      { keywords: BACK, action: onBack },
+    ],
+    undefined,
+    !showDone,
+  );
 
   // ── celebration-lite → /home ───────────────────────────────
   if (showDone) {

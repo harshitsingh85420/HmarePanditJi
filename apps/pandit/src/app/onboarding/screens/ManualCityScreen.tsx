@@ -13,6 +13,8 @@ import { t } from "@/lib/i18n";
 import { Toran } from "@/components/ui/Toran";
 import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
 import { useScreenVoice } from "@/hooks/useScreenVoice";
+import { useVoiceCommands } from "@/hooks/useVoiceScreen";
+import { BACK } from "@/lib/voiceGrammar";
 import { FESTIVE_ACCENTS } from "@/components/moments/SlideCanvas";
 
 interface ManualCityScreenProps {
@@ -21,12 +23,30 @@ interface ManualCityScreenProps {
   onLanguageChange?: () => void;
 }
 
+// card label + the transcript spellings Deepgram actually produces
 const POPULAR_CITIES = ["दिल्ली", "नोएडा", "गुरुग्राम", "गाज़ियाबाद", "फ़रीदाबाद"];
+const CITY_SPOKEN: Record<string, string[]> = {
+  "दिल्ली": ["दिल्ली", "delhi", "दिली"],
+  "नोएडा": ["नोएडा", "नोयडा", "noida"],
+  "गुरुग्राम": ["गुरुग्राम", "गुड़गांव", "गुड़गाँव", "गुरगांव", "gurgaon", "gurugram"],
+  "गाज़ियाबाद": ["गाज़ियाबाद", "गाजियाबाद", "ghaziabad"],
+  "फ़रीदाबाद": ["फ़रीदाबाद", "फरीदाबाद", "faridabad"],
+};
 
 export default function ManualCityScreen({ onCitySelected, onBack }: ManualCityScreenProps) {
   const [cityInput, setCityInput] = useState("");
 
   useScreenVoice(t("pratham.cityVoice"));
+
+  // J2: speaking a card's city selects it; पीछे returns to the
+  // location screen. Other cities stay type-to-enter for now.
+  useVoiceCommands([
+    ...POPULAR_CITIES.map((city) => ({
+      keywords: CITY_SPOKEN[city] ?? [city],
+      action: () => onCitySelected(city),
+    })),
+    { keywords: BACK, action: onBack },
+  ]);
 
   const submitTyped = () => {
     const v = cityInput.trim();

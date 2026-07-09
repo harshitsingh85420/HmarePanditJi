@@ -11,6 +11,8 @@ import { Button } from "@/components/ui/Button";
 import { Header } from "@/components/ui/Header";
 import { useVoice } from "@/hooks/useVoice";
 import { useScreenVoice } from "@/hooks/useScreenVoice";
+import { useVoiceCommands } from "@/hooks/useVoiceScreen";
+import { BACK } from "@/lib/voiceGrammar";
 import { VoiceField } from "@/components/voice/VoiceField";
 import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
 import { DiyaLoader } from "@/components/moments/DiyaLoader";
@@ -246,6 +248,35 @@ export default function LoginPage() {
     await handleSendOtp();
   };
 
+  // J2: step 1 — the phone VoiceField is the listen target (field-first);
+  // "ट्यूटोरियल" walks back to the tutorial in entry-flow context.
+  useVoiceCommands(
+    [{ keywords: ["ट्यूटोरियल", "tutorial", "ट्यूटोरिअल"], action: backToTutorial }],
+    undefined,
+    fromEntryFlow && step === 1,
+  );
+
+  // J2: step 2 — the OTP DIGITS stay typed-only (A5), but the screen
+  // still answers commands: भेजो resends, पीछे edits the number.
+  useVoiceCommands(
+    [
+      {
+        keywords: ["भेजो", "resend", "नहीं आया", "nahi aaya"],
+        action: () => void handleResendOtp(),
+      },
+      {
+        keywords: BACK,
+        action: () => {
+          setStep(1);
+          setOtpValue("");
+          setErrorMsg("");
+        },
+      },
+    ],
+    undefined,
+    step === 2,
+  );
+
   return (
     <div className="h-[100dvh] bg-cream text-ink flex flex-col max-w-[430px] mx-auto w-full">
       {/* B: entry-flow context gets NO top-left arrow — the labeled
@@ -394,8 +425,10 @@ export default function LoginPage() {
   );
 }
 
-// A5: OTP is typed-only — the mic never arms here. The app explains why
-// once (spoken on mount), then it behaves as six plain boxes.
+// A5/J2: the OTP DIGITS are typed-only — no VoiceField, no digit
+// dictation; the app explains why once (spoken on mount). The screen
+// LOOP still listens between narrations, but only for commands
+// (भेजो / पीछे / the global grammar) registered by the page above.
 function OtpBoxes({
   value,
   onChange,

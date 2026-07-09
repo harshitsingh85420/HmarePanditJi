@@ -1,18 +1,22 @@
 "use client";
 
 // ─────────────────────────────────────────────────────────────
-// VoiceActionListener v3 — the screen's COMMAND target in the
-// always-listening loop (priority 0; an active VoiceField outranks it).
-// No mic buttons, no overlays: the only feedback is a slim listening
-// pill under the header. Narration (if provided) plays through the
-// controller, whose loop then re-arms listening automatically.
+// VoiceActionListener v4 (J2) — a thin ADAPTER over VoiceLoop v2.
+// Commands now live in the controller's screen registry (screen
+// commands first, then the GLOBAL grammar), and the listen is the
+// standard priority-0 command listen with fast endpointing — so every
+// screen that mounts this component automatically answers फिर से /
+// मदद / सो जाओ and stays in the perpetual loop. confirmText commands
+// keep their spoken हाँ/नहीं confirmation via a temporary command
+// swap. UI unchanged: the slim listening pill under the header.
 // ─────────────────────────────────────────────────────────────
 
-import React, { useState, useEffect, useRef, useCallback, useSyncExternalStore } from "react";
+import React, { useRef, useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import { useVoice } from "../../hooks/useVoice";
-import { useVoiceInput } from "../../hooks/useVoiceInput";
-import { voiceController } from "../../lib/voiceController";
+import { useVoiceScreen } from "../../hooks/useVoiceScreen";
+import { voiceController, type VoiceCommand } from "../../lib/voiceController";
+import { YES, NO, BACK } from "../../lib/voiceGrammar";
 import { t } from "../../lib/i18n";
 
 export interface Command {
@@ -34,11 +38,7 @@ export function VoiceActionListener({
 }: VoiceActionListenerProps) {
   const router = useRouter();
   const { enabled: voiceOn } = useVoice();
-  const voiceInput = useVoiceInput();
-
-  const [pendingCommand, setPendingCommand] = useState<Command | null>(null);
-  const pendingRef = useRef(pendingCommand);
-  pendingRef.current = pendingCommand;
+  const [pending, setPending] = useState<Command | null>(null);
 
   const listening = useSyncExternalStore(
     voiceController.subscribe,
@@ -46,80 +46,44 @@ export function VoiceActionListener({
     () => false,
   );
 
-  // ── Command matching ───────────────────────────────────────
-  const matchTranscript = useCallback(
-    (text: string) => {
-      const cleanText = text.toLowerCase().trim();
-
-      if (pendingRef.current) {
-        const isYes = ["हाँ", "हां", "haan", "han", "yes", "सही", "ठीक"].some((w) => cleanText.includes(w));
-        const cmd = pendingRef.current;
-        setPendingCommand(null);
-        if (isYes) cmd.action();
-        return;
-      }
-
-      if (["मदद", "help", "madad"].some((k) => cleanText.includes(k))) {
-        if (promptText) voiceController.speak(promptText);
-        return;
-      }
-      if (["पीछे", "वापस", "piche", "wapas", "back"].some((k) => cleanText.includes(k))) {
-        router.back();
-        return;
-      }
-      for (const cmd of commands) {
-        if (cmd.keywords.some((k) => cleanText.includes(k.toLowerCase()))) {
-          if (cmd.confirmText) {
-            setPendingCommand(cmd);
-            voiceController.speak(`${cmd.confirmText}। क्या आप निश्चित हैं? हाँ या नहीं बोलें।`);
-          } else {
+  // While a destructive command awaits confirmation, the screen answers
+  // ONLY हाँ/नहीं; otherwise the caller's commands + a पीछे fallback.
+  const registryCommands: VoiceCommand[] = pending
+    ? [
+        {
+          keywords: YES,
+          action: () => {
+            const cmd = pending;
+            setPending(null);
             cmd.action();
-          }
-          return;
-        }
-      }
-      // No match: the loop quietly re-arms via endListen — no nagging.
-    },
-    [commands, promptText, router],
-  );
+          },
+        },
+        { keywords: NO, action: () => setPending(null) },
+      ]
+    : [
+        ...commands.map((cmd) => ({
+          keywords: cmd.keywords,
+          action: () => {
+            if (cmd.confirmText) {
+              setPending(cmd);
+              voiceController.speak(`${cmd.confirmText} ${t("voiceLoop.confirmSure")}`);
+            } else {
+              cmd.action();
+            }
+          },
+        })),
+        { keywords: BACK, action: () => router.back() },
+      ];
 
-  // ── Loop registration: fallback command target (priority 0) ─
-  useEffect(() => {
-    if (!voiceOn) return;
-    const unregister = voiceController.registerAutoListen(0, () => {
-      void voiceInput.start();
-    });
-    return unregister;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [voiceOn]);
-
-  // ── Screen narration on mount (loop re-arms after it ends) ──
-  const firstMount = useRef(true);
-  useEffect(() => {
-    if (!firstMount.current) return;
-    firstMount.current = false;
-    if (!narratingText) {
-      voiceController.loopRearm(600);
-      return;
-    }
-    const t = setTimeout(() => voiceController.speak(narratingText), 500);
-    return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // ── STT results → commands ─────────────────────────────────
-  useEffect(() => {
-    if (voiceInput.state === "idle" && voiceInput.transcript) {
-      const text = voiceInput.transcript;
-      voiceInput.reset();
-      matchTranscript(text);
-    }
-    if (voiceInput.state === "error") {
-      voiceInput.reset();
-      // silence timeout → the controller's endListen already re-armed
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [voiceInput.state, voiceInput.transcript]);
+  // Mount-time narration only (the old firstMount contract): a screen
+  // whose narrating text CHANGES (e.g. home's welcome after an
+  // online-toggle) must not re-announce itself mid-visit.
+  const mountNarration = useRef(narratingText);
+  useVoiceScreen({
+    narration: mountNarration.current,
+    commands: registryCommands,
+    helpText: promptText,
+  });
 
   if (!voiceOn) return null;
 

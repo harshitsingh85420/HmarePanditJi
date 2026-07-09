@@ -24,6 +24,18 @@ export function VoiceRoot() {
     refreshBundleInBackground();
   }, []);
 
+  // J3e: the loop's static lines (acks, advance-ask, gentle-unmatched,
+  // wake greeting) answer in ~10ms from the TTS cache — pre-warm once.
+  useEffect(() => {
+    voiceController.prefetch([
+      t("voiceLoop.ack"),
+      t("voiceLoop.unmatched"),
+      t("voiceLoop.confirmRepeat"),
+      t("tutorial.advanceAsk"),
+      t("shishya.wake"),
+    ]);
+  }, []);
+
   useEffect(() => {
     const onPointerDown = (e: PointerEvent) => {
       const el = (e.target as Element | null)?.closest?.(
@@ -37,13 +49,17 @@ export function VoiceRoot() {
     };
     const onVoiceUnavailable = () => setToastMsg(t("voice.unavailable"));
     const onTapToHear = () => setToastMsg(t("voice.tapToHear"));
+    // J2: "सो जाओ" by voice = the orb tap's sleep, same toast
+    const onVoiceSleep = () => setToastMsg(t("shishya.sleepToast"));
     document.addEventListener("pointerdown", onPointerDown, true);
     window.addEventListener("hpj-voice-unavailable", onVoiceUnavailable);
     window.addEventListener("hpj-voice-tap-to-hear", onTapToHear);
+    window.addEventListener("hpj-shishya-sleep", onVoiceSleep);
     return () => {
       document.removeEventListener("pointerdown", onPointerDown, true);
       window.removeEventListener("hpj-voice-unavailable", onVoiceUnavailable);
       window.removeEventListener("hpj-voice-tap-to-hear", onTapToHear);
+      window.removeEventListener("hpj-shishya-sleep", onVoiceSleep);
     };
   }, []);
 

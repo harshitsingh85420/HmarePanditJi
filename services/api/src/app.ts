@@ -230,9 +230,15 @@ const handleSTT = async (request: FastifyRequest, reply: FastifyReply) => {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 5000);
 
+    // J3c: command-mode transcriptions (1-3 word answers) skip
+    // smart_format — measurably faster, and formatting adds nothing to
+    // "हाँ"/"आगे". Field dictation keeps it.
+    const mode = (request.query as { mode?: string } | undefined)?.mode;
+    const smartFormat = mode === "command" ? "false" : "true";
+
     try {
       const response = await fetch(
-        "https://api.deepgram.com/v1/listen?model=nova-2&language=hi&smart_format=true&punctuate=false",
+        `https://api.deepgram.com/v1/listen?model=nova-2&language=hi&smart_format=${smartFormat}&punctuate=false`,
         {
           method: "POST",
           headers: {

@@ -7,8 +7,11 @@ import { API_BASE } from "@/lib/api";
 export interface UseVoiceInputReturn {
   state: "idle" | "listening" | "processing" | "error";
   /** opts.stream: a pre-acquired MediaStream (from a user-gesture
-   *  getUserMedia) — consumed directly so the mic is never requested twice. */
-  start: (opts?: { stream?: MediaStream }) => Promise<void>;
+   *  getUserMedia) — consumed directly so the mic is never requested twice.
+   *  opts.mode: 'command' = J3 adaptive endpointing for 1-3 word answers
+   *  (700ms silence stop, 8s cap, no smart_format) — 'field' (default)
+   *  keeps 1500ms/15s for dictation. */
+  start: (opts?: { stream?: MediaStream; mode?: "field" | "command" }) => Promise<void>;
   stop: () => void;
   transcript: string | null;
   confidence: number | null;
@@ -103,7 +106,7 @@ export function useVoiceInput(): UseVoiceInputReturn {
     }
   }, []);
 
-  const startRecording = useCallback(async (preStream?: MediaStream) => {
+  const startRecording = useCallback(async (preStream?: MediaStream, mode: "field" | "command" = "field") => {
     cleanup();
 
     // A5: Never-hear-itself rule — the controller refuses to open the mic
@@ -152,9 +155,13 @@ export function useVoiceInput(): UseVoiceInputReturn {
       let spokeOnce = false;
       const TICK = 100;
       const SILENCE_RMS = 0.015;
-      const SILENCE_LIMIT = 1500;
-      const HARD_CAP = 15000;
+      // J3b adaptive endpointing: 1-3 word command answers stop 800ms
+      // sooner than field dictation — the biggest single latency win.
+      const SILENCE_LIMIT = mode === "command" ? 700 : 1500;
+      const HARD_CAP = mode === "command" ? 8000 : 15000;
       let elapsed = 0;
+      // J3a: per-utterance timing — speech-end → upload → response
+      let tSpeechEnd = 0;
 
       // A4: MediaRecorder mime fallback - exact
       const mime = MediaRecorder.isTypeSupported("audio/webm;codecs=opus") ? "audio/webm;codecs=opus"
@@ -173,6 +180,10 @@ export function useVoiceInput(): UseVoiceInputReturn {
           clearInterval(intervalIdRef.current);
           intervalIdRef.current = null;
         }
+        // J3d INSTANT-FEEL: speech has ended — 'समझ रहा हूँ' within the
+        // same tick (≤100ms law), long before STT returns.
+        tSpeechEnd = performance.now();
+        voiceController.setProcessing(true);
         if (rec.state !== "inactive") {
           rec.stop();
         }
@@ -189,14 +200,16 @@ export function useVoiceInput(): UseVoiceInputReturn {
 
         // Exited via hard cap with no speech
         if (skipUploadRef.current) {
+          voiceController.setProcessing(false);
           setState("error");
           return;
         }
 
         const blob = new Blob(chunks, { type: mime || "audio/webm" });
-        if (blob.size < 1000) { 
-          setState("error"); 
-          return; 
+        if (blob.size < 1000) {
+          voiceController.setProcessing(false);
+          setState("error");
+          return;
         } // too short = nothing said
 
         const fd = new FormData(); 
@@ -210,8 +223,10 @@ export function useVoiceInput(): UseVoiceInputReturn {
           const token = localStorage.getItem("pandit_token");
 
           // G1: multipart can't use api() (it forces JSON) but the BASE
-          // must come from the single prefix-normalized source
-          const response = await fetch(`${API_BASE}/stt`, {
+          // must come from the single prefix-normalized source.
+          // J3c: command mode disables smart_format server-side.
+          const tUpload = performance.now();
+          const response = await fetch(`${API_BASE}/stt${mode === "command" ? "?mode=command" : ""}`, {
             method: "POST",
             headers: token ? { Authorization: `Bearer ${token}` } : {},
             body: fd,
@@ -222,25 +237,34 @@ export function useVoiceInput(): UseVoiceInputReturn {
 
           if (!response.ok) {
             voiceController.debug(`stt upload HTTP ${response.status}`);
+            voiceController.setProcessing(false);
             setState("error");
             return;
           }
 
           const resJson = await response.json();
+          const tDone = performance.now();
           if (resJson.success && resJson.data) {
+            // J3a: the number that matters — user stopped speaking → app
+            // has the words (action follows in the same tick)
             voiceController.debug(
-              `stt transcript "${String(resJson.data.transcript || "").slice(0, 30)}" conf=${resJson.data.confidence ?? "?"}`,
+              `stt e2e(${mode}): speechEnd→transcript ${Math.round(tDone - tSpeechEnd)}ms ` +
+              `(encode ${Math.round(tUpload - tSpeechEnd)}ms, server ${Math.round(tDone - tUpload)}ms) ` +
+              `"${String(resJson.data.transcript || "").slice(0, 30)}"`,
             );
+            voiceController.setProcessing(false);
             setTranscript(resJson.data.transcript);
             setConfidence(resJson.data.confidence);
             setState("idle");
           } else {
             voiceController.debug("stt: upload ok but no transcript");
+            voiceController.setProcessing(false);
             setState("error");
           }
         } catch (err) {
           clearTimeout(timeoutId);
           console.error("[useVoiceInput] STT upload error:", err);
+          voiceController.setProcessing(false);
           setState("error");
         }
       };
@@ -294,7 +318,7 @@ export function useVoiceInput(): UseVoiceInputReturn {
     }
   }, [cleanup]);
 
-  const start = useCallback(async (opts?: { stream?: MediaStream }) => {
+  const start = useCallback(async (opts?: { stream?: MediaStream; mode?: "field" | "command" }) => {
     // E2E traversal (?e2e=1): never open the mic — settle the listen
     // immediately as a no-speech miss so listen-gated screens move on.
     if (voiceController.e2e) {
@@ -305,7 +329,7 @@ export function useVoiceInput(): UseVoiceInputReturn {
     }
     // Gesture path: a pre-acquired stream is consumed directly.
     if (opts?.stream) {
-      await startRecording(opts.stream);
+      await startRecording(opts.stream, opts?.mode ?? "field");
       return;
     }
     const isGranted = localStorage.getItem("mic_permission_granted") === "true";
@@ -328,7 +352,7 @@ export function useVoiceInput(): UseVoiceInputReturn {
       setState("error");
       return;
     }
-    await startRecording();
+    await startRecording(undefined, opts?.mode ?? "field");
   }, [startRecording]);
 
   const proceedWithPermission = useCallback(async () => {

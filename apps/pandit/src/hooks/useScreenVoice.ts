@@ -1,39 +1,19 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { voiceController } from "@/lib/voiceController";
+import { useVoiceScreen } from "@/hooks/useVoiceScreen";
 
 /**
- * Screen-level narration: speaks on mount, registers itself as the current
- * replay target (शिष्य wakes → re-narrates this screen), and cuts
- * speech on unmount so navigation never carries stale narration along.
+ * Screen-level narration (legacy name — now a thin wrapper over
+ * VoiceLoop v2's useVoiceScreen): speaks on mount, registers the replay
+ * target, cuts speech on unmount, AND arms the perpetual command listen
+ * so every narrated screen answers the global grammar (फिर से / मदद /
+ * सो जाओ) even before it registers screen commands of its own.
  */
 export function useScreenVoice(
   narration: string,
   opts?: { onNarrationEnd?: () => void },
 ) {
-  const onEndRef = useRef(opts?.onNarrationEnd);
-  onEndRef.current = opts?.onNarrationEnd;
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      voiceController.speak(narration, {
-        onEnd: () => onEndRef.current?.(),
-      });
-    }, 150);
-    const unregister = voiceController.registerReplay(() => {
-      voiceController.speak(narration);
-    });
-    return () => {
-      clearTimeout(timer);
-      unregister();
-      voiceController.stopSpeech("unmount:screen-voice");
-    };
-  }, [narration]);
-
-  return {
-    replay: () => voiceController.speak(narration),
-  };
+  return useVoiceScreen({ narration, onNarrationEnd: opts?.onNarrationEnd });
 }
 
 /**

@@ -15,7 +15,8 @@ import { type SupportedLanguage, type ScriptPreference } from "@/lib/onboarding-
 import { t } from "@/lib/i18n";
 import { Toran } from "@/components/ui/Toran";
 import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
-import { useScreenVoice } from "@/hooks/useScreenVoice";
+import { useVoiceScreen } from "@/hooks/useVoiceScreen";
+import { BACK } from "@/lib/voiceGrammar";
 import { FESTIVE_ACCENTS, PetalBurst } from "@/components/moments/SlideCanvas";
 import { LANG_TO_BCP47, LANG_NATIVE_NAME, type LangCode } from "@/lib/languageDetect";
 import { speakWithSarvam } from "@/lib/sarvam-tts";
@@ -28,19 +29,22 @@ interface LanguageListScreenProps {
   onLanguageChange: () => void;
 }
 
-// The 11 selectable languages (matches the orchestrator's mapping)
-const TILES: Array<{ lang: SupportedLanguage; code: LangCode }> = [
-  { lang: "Hindi", code: "hi" },
-  { lang: "Marathi", code: "mr" },
-  { lang: "Bengali", code: "bn" },
-  { lang: "Tamil", code: "ta" },
-  { lang: "Telugu", code: "te" },
-  { lang: "Kannada", code: "kn" },
-  { lang: "Gujarati", code: "gu" },
-  { lang: "Punjabi", code: "pa" },
-  { lang: "Malayalam", code: "ml" },
-  { lang: "Odia", code: "or" },
-  { lang: "English", code: "en" },
+// The 11 selectable languages (matches the orchestrator's mapping).
+// spoken = how the name arrives in a HINDI Deepgram transcript (the
+// pandit says "मराठी", not "मराठी" in Marathi script — native-script
+// names never appear in a hi-language STT result).
+const TILES: Array<{ lang: SupportedLanguage; code: LangCode; spoken: string[] }> = [
+  { lang: "Hindi", code: "hi", spoken: ["हिंदी", "हिन्दी", "hindi"] },
+  { lang: "Marathi", code: "mr", spoken: ["मराठी", "marathi"] },
+  { lang: "Bengali", code: "bn", spoken: ["बंगाली", "बांग्ला", "bangla", "bengali"] },
+  { lang: "Tamil", code: "ta", spoken: ["तमिल", "तामिल", "tamil"] },
+  { lang: "Telugu", code: "te", spoken: ["तेलुगु", "telugu"] },
+  { lang: "Kannada", code: "kn", spoken: ["कन्नड़", "कन्नड", "kannada"] },
+  { lang: "Gujarati", code: "gu", spoken: ["गुजराती", "gujarati"] },
+  { lang: "Punjabi", code: "pa", spoken: ["पंजाबी", "punjabi"] },
+  { lang: "Malayalam", code: "ml", spoken: ["मलयालम", "malayalam"] },
+  { lang: "Odia", code: "or", spoken: ["उड़िया", "ओड़िया", "odia", "oriya"] },
+  { lang: "English", code: "en", spoken: ["अंग्रेजी", "अंग्रेज़ी", "इंग्लिश", "english"] },
 ];
 
 export default function LanguageListScreen({ onSelect, onBack }: LanguageListScreenProps) {
@@ -48,7 +52,19 @@ export default function LanguageListScreen({ onSelect, onBack }: LanguageListScr
   const [pending, setPending] = useState<LangCode | null>(null);
   const [burstOn, setBurstOn] = useState<LangCode | null>(null);
 
-  useScreenVoice(t("pratham.langListVoice"));
+  // J2: SPEAKING a language's name selects it directly (one utterance —
+  // the two-tap ceremony is a touch affordance, not a voice one); पीछे
+  // returns. The narration hook arms the perpetual listen.
+  useVoiceScreen({
+    narration: t("pratham.langListVoice"),
+    commands: [
+      ...TILES.map((tile) => ({
+        keywords: tile.spoken,
+        action: () => onSelect(tile.lang),
+      })),
+      { keywords: BACK, action: onBack },
+    ],
+  });
 
   const tapTile = (tile: { lang: SupportedLanguage; code: LangCode }) => {
     if (pending === tile.code) {

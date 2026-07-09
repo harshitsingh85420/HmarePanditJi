@@ -76,9 +76,13 @@ export const hi = {
   },
   voiceLoop: {
     listening: "सुन रहा हूँ…",
+    understanding: "समझ रहा हूँ…",
     sorryOnce: "माफ़ कीजिए, समझ नहीं आया — फिर बोलें या नीचे लिख दें",
+    unmatched: "समझ नहीं आया — फिर बोलें",
+    ack: "बहुत अच्छा।",
     confirmAsk: "आपने कहा {value}। सही है? हाँ या नहीं बोलें।",
     confirmRepeat: "सही है? हाँ या नहीं बोलें।",
+    confirmSure: "क्या आप निश्चित हैं? हाँ या नहीं बोलें।",
   },
   nav: {
     home: "होम",
@@ -423,6 +427,7 @@ export const hi = {
     registerNow: "रजिस्ट्रेशन शुरू करें",
     later: "बाद में",
     laterLine: "कोई बात नहीं पंडित जी। जब मन बने, नीचे बटन दबाकर पंजीकरण करें। हम यहीं हैं।",
+    advanceAsk: "आगे बढ़ें? 'हाँ' बोलिए।",
   },
   support: {
     phone: "+91XXXXXXXXXX",

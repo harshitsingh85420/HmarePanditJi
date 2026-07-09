@@ -275,6 +275,10 @@ export default function HomePage() {
     { keywords: ["बुकिंग", "booking"], action: () => router.push("/bookings") },
     { keywords: ["कमाई", "kamai", "earnings"], action: () => router.push("/earnings") },
     { keywords: ["मदद", "help", "sahayata"], action: () => router.push("/help") },
+    // J2: the तैयारी hero card + the remaining nav destinations
+    { keywords: ["तैयारी", "taiyari", "शुरू करो", "शुरू करें"], action: () => router.push("/readiness") },
+    { keywords: ["कैलेंडर", "calendar"], action: () => router.push("/calendar") },
+    { keywords: ["सेटिंग", "settings"], action: () => router.push("/settings") },
   ];
 
   const HomeHeaderRightSlot = () => (

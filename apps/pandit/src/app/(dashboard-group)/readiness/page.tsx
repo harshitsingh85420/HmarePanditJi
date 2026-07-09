@@ -30,7 +30,8 @@ import { ProgressDots } from "@/components/ui/ProgressDots";
 import { DiyaLoader } from "@/components/moments/DiyaLoader";
 import { CelebrationScreen } from "@/components/moments/CelebrationScreen";
 import { VoiceField } from "@/components/voice/VoiceField";
-import { VoiceActionListener } from "@/components/voice/VoiceActionListener";
+import { useVoiceCommands } from "@/hooks/useVoiceScreen";
+import { YES, NO, NEXT, BACK, SKIP } from "@/lib/voiceGrammar";
 import { SamagriPackageEditor } from "@/components/SamagriPackageEditor";
 import { usePresignedUrl } from "@/hooks/usePresignedUrl";
 import { useVoice } from "@/hooks/useVoice";
@@ -213,6 +214,82 @@ export default function ReadinessPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // ── shared nav helpers (above the loading return — the voice
+  // registrations below are HOOKS and must run on every render) ──
+  const goBack = () => {
+    voiceController.stopSpeech("user-nav:readiness");
+    setErrorMsg("");
+    if (editorPuja) {
+      setEditorPuja(null);
+      return;
+    }
+    if (step > 1) setStep(step - 1);
+    else router.push("/home");
+  };
+
+  const exitForLater = () => {
+    voiceController.stopSpeech("user-nav:readiness");
+    router.push("/home");
+  };
+
+  // J2: the whole wizard answers by voice. आगे/हाँ save the current step
+  // (validation speaks when something is missing), पीछे retreats,
+  // छोड़ो/बाद-में exit for later. R2 is the exception: there हाँ/नहीं
+  // answer the सामग्री question itself. Order matters — the exit command
+  // sits BEFORE नहीं so "बाद में" never reads as a सामग्री answer.
+  // saveR1-R5 are consts defined below; the actions only fire after a
+  // completed post-loading render, when they are all initialized.
+  const advanceStep = () => {
+    const handler = [saveR1, saveR2, saveR3, saveR4, saveR5][stepRef.current - 1];
+    if (handler) void handler();
+  };
+  useVoiceCommands(
+    [
+      { keywords: SKIP, action: exitForLater },
+      {
+        keywords: YES,
+        action: () => {
+          if (stepRef.current === 2) {
+            setErrorMsg("");
+            setCanBring(true);
+          } else {
+            advanceStep();
+          }
+        },
+      },
+      {
+        keywords: NO,
+        action: () => {
+          if (stepRef.current === 2) {
+            setErrorMsg("");
+            setCanBring(false);
+          } else {
+            voiceController.speakUnmatchedGently();
+          }
+        },
+      },
+      { keywords: NEXT, action: advanceStep },
+      { keywords: BACK, action: goBack },
+    ],
+    undefined,
+    !loading && !editorPuja && !showCelebration,
+  );
+
+  // Inside the सामग्री editor only पीछे works by voice (its fields and
+  // save button are the editor's own); the shell registry is disabled.
+  useVoiceCommands(
+    [{ keywords: BACK, action: goBack }],
+    undefined,
+    !!editorPuja && !showCelebration,
+  );
+
+  // Celebration: हाँ/होम go home (the single CTA).
+  useVoiceCommands(
+    [{ keywords: [...YES, "होम", "घर", "home"], action: () => router.push("/home") }],
+    undefined,
+    showCelebration,
+  );
+
   if (loading || !snapshot) return <DiyaLoader />;
 
   // ── shared step helpers ────────────────────────────────────
@@ -236,22 +313,6 @@ export default function ReadinessPage() {
     }
     setSnapshot(res.data as Snapshot);
     return true;
-  };
-
-  const goBack = () => {
-    voiceController.stopSpeech("user-nav:readiness");
-    setErrorMsg("");
-    if (editorPuja) {
-      setEditorPuja(null);
-      return;
-    }
-    if (step > 1) setStep(step - 1);
-    else router.push("/home");
-  };
-
-  const exitForLater = () => {
-    voiceController.stopSpeech("user-nav:readiness");
-    router.push("/home");
   };
 
   // ── R1: pujas + dakshina ───────────────────────────────────
@@ -451,12 +512,14 @@ export default function ReadinessPage() {
     t("readiness.r4Title"),
     t("readiness.r5Title"),
   ];
+  // J2: each step's narration ends by inviting the spoken answer; R2's
+  // narration IS a हाँ/नहीं question, so it carries no extra ask.
   const stepVoices = [
-    t("readiness.r1Voice"),
+    `${t("readiness.r1Voice")} ${t("tutorial.advanceAsk")}`,
     t("readiness.r2Question"),
-    t("readiness.r3Voice"),
-    t("readiness.r4Voice"),
-    t("readiness.r5Voice"),
+    `${t("readiness.r3Voice")} ${t("tutorial.advanceAsk")}`,
+    `${t("readiness.r4Voice")} ${t("tutorial.advanceAsk")}`,
+    `${t("readiness.r5Voice")} ${t("tutorial.advanceAsk")}`,
   ];
   const saveHandlers = [saveR1, saveR2, saveR3, saveR4, saveR5];
 
@@ -704,12 +767,8 @@ function StepR2({
 
   return (
     <>
-      <VoiceActionListener
-        commands={[
-          { keywords: ["हाँ", "haan", "ha", "yes"], action: () => setCanBring(true) },
-          { keywords: ["नहीं", "nahi", "nahin", "no"], action: () => setCanBring(false) },
-        ]}
-      />
+      {/* J2: हाँ/नहीं for the सामग्री question live in the wizard shell's
+          step-aware command registry — no separate listener here. */}
       <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-4">
         <h2 className="text-[20px] font-bold text-temple-700 font-hindi leading-snug">
           {t("readiness.r2Question")}
