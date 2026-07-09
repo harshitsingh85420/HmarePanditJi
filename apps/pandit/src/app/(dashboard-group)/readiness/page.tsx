@@ -20,7 +20,7 @@ export const dynamic = "force-dynamic";
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { t } from "@/lib/i18n";
-import { api } from "@/lib/api";
+import { api, API_BASE } from "@/lib/api";
 import { Narrate } from "@/hooks/useScreenVoice";
 import { Header } from "@/components/ui/Header";
 import { Card } from "@/components/ui/Card";
@@ -406,7 +406,9 @@ export default function ReadinessPage() {
     formData.append("file", file);
     try {
       const token = localStorage.getItem("pandit_token");
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1"}/upload`, {
+      // G1: multipart can't use api() (it forces JSON) but the BASE must
+      // come from the single prefix-normalized source
+      const res = await fetch(`${API_BASE}/upload`, {
         method: "POST",
         headers: token ? { Authorization: `Bearer ${token}` } : {},
         body: formData,

@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect } from "react";
 import { voiceController } from "@/lib/voiceController";
+import { API_BASE } from "@/lib/api";
 
 export interface UseVoiceInputReturn {
   state: "idle" | "listening" | "processing" | "error";
@@ -207,9 +208,10 @@ export function useVoiceInput(): UseVoiceInputReturn {
 
         try {
           const token = localStorage.getItem("pandit_token");
-          const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1";
 
-          const response = await fetch(`${baseUrl}/stt`, {
+          // G1: multipart can't use api() (it forces JSON) but the BASE
+          // must come from the single prefix-normalized source
+          const response = await fetch(`${API_BASE}/stt`, {
             method: "POST",
             headers: token ? { Authorization: `Bearer ${token}` } : {},
             body: fd,

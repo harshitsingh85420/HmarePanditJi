@@ -13,7 +13,7 @@
 
 import React, { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { voiceController } from "@/lib/voiceController";
-import { API_BASE, API_BASE_MISSING, pingApiHealth } from "@/lib/api";
+import { API_ORIGIN, API_PREFIX, API_BASE_MISSING, pingApiHealth } from "@/lib/api";
 
 const FLAG_KEY = "hpj_voicedebug";
 
@@ -79,7 +79,8 @@ export function VoiceDebugPanel() {
               🔊 voicedebug ({lines.length})
               {voiceController.e2e ? " · ⚙E2E" : ""}
               {" · api: "}
-              {API_BASE_MISSING ? "MISSING" : API_BASE}
+              {/* G1: both resolved values — origin AND the appended prefix */}
+              {API_BASE_MISSING ? "MISSING" : `${API_ORIGIN} (+${API_PREFIX})`}
             </span>
             <button
               type="button"

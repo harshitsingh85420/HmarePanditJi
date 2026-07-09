@@ -13,9 +13,23 @@ import { voiceController } from "./voiceController";
 // securitypolicyviolation listener logs 'CSP BLOCK: …' to tell the two
 // apart. Deployed-with-empty-base now surfaces loudly instead of
 // guessing.
+// G1: the server registers everything under /api/v1 (services/api
+// constants.ts) while /health lives at the ORIGIN root. The env var is
+// an ORIGIN forever — the client owns the prefix: trim trailing
+// slashes, append API_PREFIX unless it is already there. A bare
+// https://…onrender.com and a full …/api/v1 value now resolve
+// identically instead of 404ing every auth call.
+export const API_PREFIX = "/api/v1";
 const RAW_BASE = (process.env.NEXT_PUBLIC_API_URL || "").trim();
-export const API_BASE: string =
-  RAW_BASE || (process.env.NODE_ENV === "development" ? "http://localhost:3001/api/v1" : "");
+const TRIMMED_BASE = (
+  RAW_BASE || (process.env.NODE_ENV === "development" ? "http://localhost:3001" : "")
+).replace(/\/+$/, "");
+/** Origin (no prefix) — root /health lives here. */
+export const API_ORIGIN: string = TRIMMED_BASE.endsWith(API_PREFIX)
+  ? TRIMMED_BASE.slice(0, -API_PREFIX.length)
+  : TRIMMED_BASE;
+/** Prefixed base — every /api/v1 route call goes through this. */
+export const API_BASE: string = TRIMMED_BASE === "" ? "" : `${API_ORIGIN}${API_PREFIX}`;
 export const API_BASE_MISSING = API_BASE === "";
 
 export interface ApiResponse<T = any> {
@@ -112,14 +126,16 @@ export async function pingApiHealth(): Promise<void> {
   const started = performance.now();
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 8000);
+  // G1: /health lives at the ORIGIN root, not under /api/v1
+  const healthUrl = `${API_ORIGIN}/health`;
   try {
-    const res = await fetch(`${API_BASE}/health`, { signal: ctrl.signal });
+    const res = await fetch(healthUrl, { signal: ctrl.signal });
     voiceController.debug(
-      `api ping: ${API_BASE} → ${res.status} in ${Math.round(performance.now() - started)}ms`,
+      `api ping: ${healthUrl} → ${res.status} in ${Math.round(performance.now() - started)}ms`,
     );
   } catch (err: any) {
     voiceController.debug(
-      `api ping: ${API_BASE} → ${err?.name || "?"} in ${Math.round(performance.now() - started)}ms`,
+      `api ping: ${healthUrl} → ${err?.name || "?"} in ${Math.round(performance.now() - started)}ms`,
     );
   } finally {
     clearTimeout(timer);

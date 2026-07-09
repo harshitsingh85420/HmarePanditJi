@@ -130,6 +130,19 @@ app.get("/api/health", async () => ({
   timestamp: new Date().toISOString(),
 }));
 
+// ── G1: BARE-ORIGIN FORGIVENESS ──────────────────────────────────────────────
+// Every route lives under API_PREFIX, but a client configured with the
+// bare origin (the live-QA 404) used to dead-end. 308 preserves method
+// and body, so an unprefixed POST /auth/otp/send lands on its /api/v1
+// twin transparently. Wildcards only — no collision with real routes.
+const redirectToPrefixed = async (request: FastifyRequest, reply: FastifyReply) => {
+  return reply.redirect(308, `${API_PREFIX}${request.url}`);
+};
+app.all("/auth/*", redirectToPrefixed);
+app.all("/pandit/*", redirectToPrefixed);
+app.all("/pandits/*", redirectToPrefixed);
+app.all("/voice/*", redirectToPrefixed);
+
 // ── API Root ──────────────────────────────────────────────────────────────────
 app.get(API_PREFIX, async (_request: FastifyRequest, reply: FastifyReply) => {
   return reply.send({

@@ -41,24 +41,57 @@ export function SunriseSplash({ onDone }: { onDone: () => void }) {
   // First tap on a parked splash: the pointerdown unlocks (controller)
   // and flushes the parked welcome — advance when IT ends. A second tap
   // (or any tap when not parked) advances immediately (barge-in law).
+  //
+  // G2: the flush's 2.5s failsafe once BEHEADED a playing welcome — the
+  // flush's speaking→true emit can fire in the timer task BETWEEN
+  // pointerdown and click, before this subscription exists, so the
+  // failsafe judged "no playback" against a line that was mid-air.
+  // Now: (a) sawSpeaking is SEEDED from the live state (late-subscriber
+  // safe), (b) the controller's playback-start event cancels the
+  // failsafe the moment the flushed utterance actually sounds, and
+  // (c) a firing failsafe DEFERS while the flush is still in flight
+  // (slow TTS) — it advances only when nothing started and nothing is
+  // in progress.
   const handleTap = () => {
     if (parkedRef.current && !firstTapRef.current) {
       firstTapRef.current = true;
       setShowHint(false);
-      let sawSpeaking = false;
+      let failsafe: ReturnType<typeof setTimeout> | null = null;
+      let cleaned = false;
+      const cleanup = () => {
+        if (cleaned) return;
+        cleaned = true;
+        offStart();
+        unsub();
+        if (failsafe) clearTimeout(failsafe);
+        failsafe = null;
+      };
+      const offStart = voiceController.onPlaybackStart(() => {
+        voiceController.debug("splash: flush started — failsafe cancelled");
+        if (failsafe) clearTimeout(failsafe);
+        failsafe = null;
+      });
+      // natural-end watcher — seeded so a pre-subscription speaking=true
+      // transition (timer-vs-click task ordering) is never missed
+      let sawSpeaking = voiceController.speaking;
       const unsub = voiceController.subscribe(() => {
         if (voiceController.speaking) sawSpeaking = true;
         else if (sawSpeaking) {
-          unsub();
+          cleanup();
           finish();
         }
       });
       // flush never started (TTS dead) → don't strand the pandit
-      setTimeout(() => {
-        if (!sawSpeaking) {
-          unsub();
-          finish();
+      failsafe = setTimeout(() => {
+        if (voiceController.speaking || sawSpeaking) {
+          // slow TTS: the flush is in flight — playback start / natural
+          // end owns advancing; the timer must never behead the line
+          voiceController.debug("splash: failsafe deferred — flush in flight");
+          return;
         }
+        voiceController.debug("splash: flush failsafe fired (no playback)");
+        cleanup();
+        finish();
       }, 2500);
       return;
     }

@@ -114,6 +114,30 @@ class VoiceController {
 
   getDebugLines = (): readonly string[] => this.debugBuf;
 
+  // ── G2: PLAYBACK-START CHANNEL ─────────────────────────────
+  // Fires the moment an utterance ACTUALLY begins sounding (audio
+  // play() resolved, or the speechSynthesis fallback engaged). The
+  // splash's post-tap flush failsafe subscribes here: once playback has
+  // started, only the utterance's natural end may advance — no timer.
+  private playbackStartListeners = new Set<() => void>();
+
+  onPlaybackStart = (cb: () => void): (() => void) => {
+    this.playbackStartListeners.add(cb);
+    return () => {
+      this.playbackStartListeners.delete(cb);
+    };
+  };
+
+  private notifyPlaybackStart(): void {
+    this.playbackStartListeners.forEach((cb) => {
+      try {
+        cb();
+      } catch {
+        /* noop */
+      }
+    });
+  }
+
   // DEV-ONLY permission simulator (?voicedebug companion): lets a tester
   // force the mic-permission outcome without touching browser settings.
   // sessionStorage hpj_perm_sim = grant | dismiss | denied | nomic.
@@ -500,6 +524,8 @@ class VoiceController {
         return;
       }
       this.debug(`speechSynthesis voice: ${voice.name} (${voice.lang})`);
+      // G2: fallback playback engaging counts as started for failsafes
+      this.notifyPlaybackStart();
       await speakWithSarvam({
         text,
         languageCode: languageCode as never,
@@ -732,7 +758,11 @@ class VoiceController {
         el.src = url;
         el
           .play()
-          .then(() => this.debug("audio.play() resolved"))
+          .then(() => {
+            this.debug("audio.play() resolved");
+            // G2: real playback began — failsafe timers must stand down
+            this.notifyPlaybackStart();
+          })
           .catch((err: unknown) => {
             const name = (err as Error)?.name || String(err);
             this.debug(`audio.play() rejected: ${name}`);
