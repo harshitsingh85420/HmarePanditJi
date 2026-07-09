@@ -284,17 +284,21 @@ export function VoiceField({
         />
       )}
 
-      {/* Listening pill — the ONLY listening feedback (A4) */}
-      {listening && (
-        <span className="self-start bg-gold/15 border border-gold text-temple-600 text-[16px] font-semibold font-hindi rounded-full px-4 py-1.5">
-          {t("voiceLoop.listening")}
-        </span>
-      )}
-      {busy && (
-        <span className="self-start text-softgrey text-[16px] font-hindi px-1" aria-hidden="true">
-          …
-        </span>
-      )}
+      {/* Listening/busy feedback — RESERVED-height slot (H2): these used
+          to insert/collapse in flow, shifting the CTA below exactly as a
+          tap landed (the two-tap login bug). The slot exists from mount;
+          its content changes, its height never does. */}
+      <div className="min-h-[36px] flex items-center" aria-live="off">
+        {listening ? (
+          <span className="self-start bg-gold/15 border border-gold text-temple-600 text-[16px] font-semibold font-hindi rounded-full px-4 py-1.5">
+            {t("voiceLoop.listening")}
+          </span>
+        ) : busy ? (
+          <span className="self-start text-softgrey text-[16px] font-hindi px-1" aria-hidden="true">
+            …
+          </span>
+        ) : null}
+      </div>
 
       {/* Spoken-value confirmation loop */}
       {state.phase === "CONFIRMING" && (

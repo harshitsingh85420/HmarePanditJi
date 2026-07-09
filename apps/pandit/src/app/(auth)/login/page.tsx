@@ -262,8 +262,12 @@ export default function LoginPage() {
         }}
       />
 
-      {/* D1: server-waking indicator (Render cold start) */}
-      {waking && <DiyaLoader inline message={t("auth.waking")} />}
+      {/* D1: server-waking indicator (Render cold start). H2: the slot is
+          RESERVED from mount — its appearance never reflows the screen
+          (content inserted above the CTA used to shift it mid-tap). */}
+      <div className="min-h-[48px] shrink-0 flex items-center justify-center">
+        {waking && <DiyaLoader inline message={t("auth.waking")} />}
+      </div>
 
       {/* Main card viewport container */}
       <main className="flex-1 min-h-0 overflow-y-auto flex flex-col justify-start px-4 pt-8 w-full gap-6">

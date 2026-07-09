@@ -219,7 +219,17 @@ export default function BookingsPage() {
               key={b.id}
               whileTap={{ scale: 0.98 }}
               onClick={() => handleCardClick(b)}
-              className="cursor-pointer"
+              // H1: a tappable row IS a button for the barge-in listener
+              // and the keyboard (Enter/Space activate like a tap)
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  handleCardClick(b);
+                }
+              }}
+              className="cursor-pointer focus-visible:ring-4 focus-visible:ring-saffron-200 focus:outline-none rounded-card"
             >
               <Card className="p-5 flex flex-col gap-3 hover:shadow-md transition-all border-l-4 border-saffron-500">
                 <div className="flex justify-between items-start">

@@ -92,6 +92,19 @@ class VoiceController {
   // Pre-gesture speak()s park here (newest wins) and flush on unlock.
   private _unlocked = false;
   private pendingUnlock: { text: string; languageCode?: string } | null = null;
+  // H1: the deferred flush timer — a barge-in tap (interactive target)
+  // cancels it: the pandit is NAVIGATING, so re-speaking the screen he
+  // is leaving would only get beheaded by its unmount. A splash tap has
+  // no interactive target → no barge-in → the flush plays as designed.
+  private pendingFlushTimer: ReturnType<typeof setTimeout> | null = null;
+  // H1: every tap's timestamp — an unmount:* stop right after a tap is
+  // user-caused navigation, not the mid-utterance bug signature.
+  private lastPointerdownAt = 0;
+  // H1: barge-in timestamp — listener order on document is not ours to
+  // control (VoiceRoot's barge-in can run BEFORE the unlock listener in
+  // the same pointerdown), so the flush consults this instead of relying
+  // on the timer already existing when the barge-in lands.
+  private lastBargeInAt = 0;
   // A3: ONE persistent element carries every Sarvam playback — the silent
   // unlock play binds the autoplay permission to this exact element.
   private audioEl: HTMLAudioElement | null = null;
@@ -265,6 +278,14 @@ class VoiceController {
     // X2a: the app's FIRST pointerdown anywhere (a splash tap counts)
     // unlocks audio and flushes the queued narration.
     document.addEventListener("pointerdown", () => this.unlock(), { once: true, capture: true });
+    // H1: persistent tap clock for nav-stop classification
+    document.addEventListener(
+      "pointerdown",
+      () => {
+        this.lastPointerdownAt = performance.now();
+      },
+      { capture: true },
+    );
     // F2: a CSP-blocked fetch surfaces as a bare TypeError with zero
     // network entries — indistinguishable from other blocks unless the
     // violation event itself is logged. This line IS the verdict channel.
@@ -309,8 +330,17 @@ class VoiceController {
     if (parked && !this._muted) {
       // Defer past this same tap's other capture handlers — the
       // "interactive tap silences narration" rule (VoiceRoot) would
-      // otherwise kill the very line this gesture just released.
-      setTimeout(() => {
+      // otherwise kill the very line this gesture just released. H1: a
+      // barge-in (interactive-target tap) CANCELS this timer instead —
+      // the tap navigates, and the flushed line would only be beheaded
+      // by the departing screen's unmount.
+      this.pendingFlushTimer = setTimeout(() => {
+        this.pendingFlushTimer = null;
+        // barge-in landed during this same gesture (either listener order)
+        if (performance.now() - this.lastBargeInAt < 150) {
+          this.debug("flush cancelled (barge-in nav tap)");
+          return;
+        }
         if (!this._muted) this.speak(parked.text, { languageCode: parked.languageCode });
       }, 0);
     }
@@ -328,7 +358,12 @@ class VoiceController {
           const parked = this.pendingUnlock;
           this.pendingUnlock = null;
           if (parked && !this._muted) {
-            setTimeout(() => {
+            this.pendingFlushTimer = setTimeout(() => {
+              this.pendingFlushTimer = null;
+              if (performance.now() - this.lastBargeInAt < 150) {
+                this.debug("flush cancelled (barge-in nav tap)");
+                return;
+              }
               if (!this._muted) this.speak(parked.text, { languageCode: parked.languageCode });
             }, 0);
           }
@@ -804,13 +839,29 @@ class VoiceController {
   }
 
   stopSpeech(reason: string = "untagged"): void {
+    // H1: a barge-in tap on an interactive element is a NAVIGATION —
+    // cancel any deferred unlock/park flush; re-speaking the screen the
+    // pandit is leaving would only be beheaded by its unmount.
+    if (reason === "barge-in:tap") {
+      this.lastBargeInAt = performance.now();
+      if (this.pendingFlushTimer) {
+        clearTimeout(this.pendingFlushTimer);
+        this.pendingFlushTimer = null;
+        this.debug("flush cancelled (barge-in nav tap)");
+      }
+    }
     // D3/F4 instrumentation: name every interrupter. Deliberate stops the
     // pandit caused or expects (tap barge-in, mute, backgrounding the
     // tab) are info lines; only an UNEXPECTED interrupter cutting a line
     // mid-air (phase-transition, unmount:*, unknown) is the "speech gets
-    // cut off" bug signature.
+    // cut off" bug signature. H1: an unmount:* within 600ms of a tap is
+    // user-caused navigation — intentional (nav), not the bug signature.
+    const navTap =
+      reason.startsWith("unmount:") &&
+      performance.now() - this.lastPointerdownAt < 600;
     if (this._speaking) {
       if (isIntentionalStop(reason)) this.debug(`stopSpeech(${reason}) — intentional`);
+      else if (navTap) this.debug(`stopSpeech(${reason}) — intentional (nav)`);
       else this.debug(`stopSpeech(${reason}) — MID-UTTERANCE ⚠`);
     } else if (reason !== "speak-interrupt") this.debug(`stopSpeech(${reason})`);
     this.init();
