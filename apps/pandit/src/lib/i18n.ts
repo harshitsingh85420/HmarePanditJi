@@ -184,6 +184,11 @@ function fetchLazyGroupsInBackground(code: LangCode): void {
       }
     }
     lazyFetchRunning = false;
+    // a switch mid-flight broke the loop above — the NEW language's lazy
+    // groups still need fetching, and its own call bounced off the guard
+    if (activeLang !== code && activeLang !== "hi") {
+      fetchLazyGroupsInBackground(activeLang);
+    }
   })();
 }
 
@@ -206,7 +211,10 @@ export async function activateLanguage(code: LangCode): Promise<boolean> {
   }
   try {
     const entryPart = await fetchGroups(code, ENTRY_GROUPS);
-    bundle = { ...bundle, ...entryPart };
+    // FRESH bundle — merging over the previous language's dict leaked its
+    // lazy-group strings into the new language (en→mr showed English on
+    // every lazy screen) and persisted the mix under the new key.
+    bundle = { ...entryPart };
     activeLang = code;
     try {
       localStorage.setItem(LANG_KEY, code);

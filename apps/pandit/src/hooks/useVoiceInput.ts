@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { voiceController } from "@/lib/voiceController";
 import { API_BASE } from "@/lib/api";
+import { getActiveLang } from "@/lib/i18n";
 
 export interface UseVoiceInputReturn {
   state: "idle" | "listening" | "processing" | "error";
@@ -226,7 +227,13 @@ export function useVoiceInput(): UseVoiceInputReturn {
           // must come from the single prefix-normalized source.
           // J3c: command mode disables smart_format server-side.
           const tUpload = performance.now();
-          const response = await fetch(`${API_BASE}/stt${mode === "command" ? "?mode=command" : ""}`, {
+          // L4: English STT — Deepgram transcribes in the ACTIVE language.
+          // Only 'en' is sent explicitly; the hi default stays implicit.
+          const sttParams = new URLSearchParams();
+          if (mode === "command") sttParams.set("mode", "command");
+          if (getActiveLang() === "en") sttParams.set("language", "en");
+          const sttQs = sttParams.toString();
+          const response = await fetch(`${API_BASE}/stt${sttQs ? `?${sttQs}` : ""}`, {
             method: "POST",
             headers: token ? { Authorization: `Bearer ${token}` } : {},
             body: fd,

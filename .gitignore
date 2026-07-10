@@ -39,6 +39,9 @@ nul
 # Prisma
 packages/db/src/generated/
 
+# Runtime upload storage (user PII — dev fallback of services/api storage)
+services/api/uploads/
+
 # Testing
 coverage/
 

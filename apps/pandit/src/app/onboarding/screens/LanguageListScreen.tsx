@@ -33,7 +33,7 @@ interface LanguageListScreenProps {
 // spoken = how the name arrives in a HINDI Deepgram transcript (the
 // pandit says "मराठी", not "मराठी" in Marathi script — native-script
 // names never appear in a hi-language STT result).
-const TILES: Array<{ lang: SupportedLanguage; code: LangCode; spoken: string[] }> = [
+const TILES: Array<{ lang: SupportedLanguage; code: LangCode; spoken: string[]; subtitle?: string }> = [
   { lang: "Hindi", code: "hi", spoken: ["हिंदी", "हिन्दी", "hindi"] },
   { lang: "Marathi", code: "mr", spoken: ["मराठी", "marathi"] },
   { lang: "Bengali", code: "bn", spoken: ["बंगाली", "बांग्ला", "bangla", "bengali"] },
@@ -44,7 +44,10 @@ const TILES: Array<{ lang: SupportedLanguage; code: LangCode; spoken: string[] }
   { lang: "Punjabi", code: "pa", spoken: ["पंजाबी", "punjabi"] },
   { lang: "Malayalam", code: "ml", spoken: ["मलयालम", "malayalam"] },
   { lang: "Odia", code: "or", spoken: ["उड़िया", "ओड़िया", "odia", "oriya"] },
-  { lang: "English", code: "en", spoken: ["अंग्रेजी", "अंग्रेज़ी", "इंग्लिश", "english"] },
+  // L1: English is a full language option — Hindi-script subtitle so a
+  // Devanagari-only reader can still find it; "angrezi" covers the
+  // romanized Deepgram transcript of अंग्रेज़ी.
+  { lang: "English", code: "en", spoken: ["english", "अंग्रेजी", "अंग्रेज़ी", "इंग्लिश", "angrezi"], subtitle: "अंग्रेज़ी" },
 ];
 
 export default function LanguageListScreen({ onSelect, onBack }: LanguageListScreenProps) {
@@ -123,6 +126,9 @@ export default function LanguageListScreen({ onSelect, onBack }: LanguageListScr
                   {native.slice(0, 2)}
                 </span>
                 <span className="text-[22px] font-bold text-ink font-hindi leading-tight">{native}</span>
+                {tile.subtitle && (
+                  <span className="text-[15px] text-softgrey font-hindi leading-tight">{tile.subtitle}</span>
+                )}
                 {isPending && (
                   <span className="text-[13px] font-semibold text-temple-600 font-hindi">
                     {t("pratham.langTapAgain")}

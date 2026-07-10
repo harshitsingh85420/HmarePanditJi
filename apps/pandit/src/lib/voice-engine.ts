@@ -704,9 +704,16 @@ export function pickVoiceForLang(languageBcp47: string): SpeechSynthesisVoice | 
   if (typeof window === 'undefined' || !window.speechSynthesis) return undefined
   const voices = window.speechSynthesis.getVoices()
   const langPrefix = languageBcp47.split('-')[0]
-  const candidates = voices.filter(v => v.lang.startsWith(langPrefix))
+  // L4: exact regional tag first (en-IN "Ravi" over en-GB), then en-US
+  // (the most commonly installed English voice), then any same-prefix
+  // voice. Sort is stable, so install order breaks ties within a rank.
+  const rank = (v: SpeechSynthesisVoice): number =>
+    v.lang === languageBcp47 ? 0 : v.lang.startsWith(`${langPrefix}-US`) ? 1 : 2
+  const candidates = voices
+    .filter(v => v.lang.startsWith(langPrefix))
+    .sort((a, b) => rank(a) - rank(b))
   const maleVoice = candidates.find(
-    v => !/female/i.test(v.name) && /male|kumar|ravi|hemant/i.test(v.name)
+    v => !/female/i.test(v.name) && /male|kumar|ravi|hemant|david|mark/i.test(v.name)
   )
   return maleVoice ?? candidates.find(v => v.localService) ?? candidates[0]
 }

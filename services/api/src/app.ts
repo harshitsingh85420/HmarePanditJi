@@ -233,12 +233,16 @@ const handleSTT = async (request: FastifyRequest, reply: FastifyReply) => {
     // J3c: command-mode transcriptions (1-3 word answers) skip
     // smart_format — measurably faster, and formatting adds nothing to
     // "हाँ"/"आगे". Field dictation keeps it.
-    const mode = (request.query as { mode?: string } | undefined)?.mode;
+    const q = request.query as { mode?: string; language?: string } | undefined;
+    const mode = q?.mode;
     const smartFormat = mode === "command" ? "false" : "true";
+    // L4: English STT — the client sends language=en when the app runs in
+    // English; anything else stays the hi default (nova-2 supports both).
+    const sttLanguage = q?.language === "en" ? "en" : "hi";
 
     try {
       const response = await fetch(
-        `https://api.deepgram.com/v1/listen?model=nova-2&language=hi&smart_format=${smartFormat}&punctuate=false`,
+        `https://api.deepgram.com/v1/listen?model=nova-2&language=${sttLanguage}&smart_format=${smartFormat}&punctuate=false`,
         {
           method: "POST",
           headers: {

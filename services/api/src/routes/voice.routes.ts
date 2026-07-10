@@ -13,6 +13,7 @@ import { validate } from "../middleware/validator";
 import { sendSuccess } from "../utils/response";
 import { cacheGetMany, cacheSet, checkKeyedRateLimit } from "../lib/redis";
 import { getRegistrationVoicePrompt, textToSpeech, speechToText } from "../services/bhashini.service";
+import { maskBrandTokens, unmaskBrandTokens } from "../lib/brandTokens";
 import crypto from "crypto";
 import { env } from "../config/env";
 import { isStorageConfigured, objectExists, getObjectBuffer, putObject } from "../lib/storage";
@@ -154,6 +155,15 @@ export default async function voiceRoutes(fastify: FastifyInstance, _opts: any) 
      * pre-login); rate-limited 20/min per IP+token. Per-text Redis cache
      * trans:<target>:<sha1(text)> (TTL 30d) is consulted before Sarvam and
      * written through after.
+     * L3: for the EN target only, brand tokens (शिष्य, हमारे पंडित जी,
+     * HmarePanditJi) never reach Sarvam — maskBrandTokens swaps them to
+     * ⟦Sn⟧ placeholders and unmaskBrandTokens restores them after.
+     * LIVE-VERIFIED CONSTRAINT: Mayura preserves ⟦Sn⟧ only when the
+     * target is en — for mr/bn/te/ta it translates the placeholder
+     * content itself (⟦S3⟧ → "⟦तृतीय श्रेणी⟧"), which would corrupt those
+     * bundles. Regional targets therefore translate unmasked (their
+     * pre-existing behavior) and keep their warm trans: cache; en uses
+     * its own trans2: namespace (masking changed its results).
      */
     fastify.post(
         "/translate",
@@ -185,8 +195,9 @@ export default async function voiceRoutes(fastify: FastifyInstance, _opts: any) 
                 });
             }
 
+            const mask = target === "en";
             const keys = texts.map(
-                (text) => `trans:${target}:` + crypto.createHash("sha1").update(text).digest("hex"),
+                (text) => `${mask ? "trans2" : "trans"}:${target}:` + crypto.createHash("sha1").update(text).digest("hex"),
             );
             const cached = await cacheGetMany(keys);
             const translations: Array<string | null> = [...cached];
@@ -202,6 +213,14 @@ export default async function voiceRoutes(fastify: FastifyInstance, _opts: any) 
             // it stopped on the next request.
             const sleep = (ms: number) => new Promise<void>((res) => setTimeout(res, ms));
             const translateOne = async (idx: number): Promise<void> => {
+                // A text that is ENTIRELY brand tokens (e.g. shishya.name =
+                // "शिष्य") has nothing translatable left once masked — echo
+                // it verbatim instead of asking Sarvam to translate "⟦S3⟧".
+                if (mask && maskBrandTokens(texts[idx]).replace(/⟦S\d+⟧/g, "").trim() === "") {
+                    translations[idx] = texts[idx];
+                    await cacheSet(keys[idx], texts[idx], TRANSLATE_CACHE_TTL_SECONDS);
+                    return;
+                }
                 for (let attempt = 0; ; attempt++) {
                     const upstream = await fetch("https://api.sarvam.ai/translate", {
                         method: "POST",
@@ -210,7 +229,7 @@ export default async function voiceRoutes(fastify: FastifyInstance, _opts: any) 
                             "Content-Type": "application/json",
                         },
                         body: JSON.stringify({
-                            input: texts[idx],
+                            input: mask ? maskBrandTokens(texts[idx]) : texts[idx],
                             source_language_code: "hi-IN",
                             target_language_code: LANG_TO_SARVAM[target],
                             model: "mayura:v1",
@@ -229,8 +248,9 @@ export default async function voiceRoutes(fastify: FastifyInstance, _opts: any) 
                         throw new Error(`Sarvam upstream ${upstream.status}: ${detail.slice(0, 300)}`);
                     }
                     const data = (await upstream.json()) as { translated_text?: string; translated_texts?: string[] };
-                    const translated = data.translated_text ?? data.translated_texts?.[0];
-                    if (!translated) throw new Error("Sarvam upstream returned no text");
+                    const translatedRaw = data.translated_text ?? data.translated_texts?.[0];
+                    if (!translatedRaw) throw new Error("Sarvam upstream returned no text");
+                    const translated = mask ? unmaskBrandTokens(translatedRaw) : translatedRaw;
                     translations[idx] = translated;
                     await cacheSet(keys[idx], translated, TRANSLATE_CACHE_TTL_SECONDS);
                     return;

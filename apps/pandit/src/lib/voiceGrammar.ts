@@ -25,11 +25,11 @@ export const BACK = ["पीछे", "वापस", "back"] as const;
 
 export const SKIP = ["स्किप", "छोड़ो", "skip", "रहने दो"] as const;
 
-export const REPEAT = ["फिर से", "दोबारा", "सुनाओ", "repeat", "क्या कहा"] as const;
+export const REPEAT = ["फिर से", "दोबारा", "सुनाओ", "repeat", "again", "क्या कहा"] as const;
 
 export const HELP = ["मदद", "help", "madad", "सहायता"] as const;
 
-export const SLEEP = ["सो जाओ", "चुप", "so jao", "chup"] as const;
+export const SLEEP = ["सो जाओ", "चुप", "so jao", "chup", "sleep", "quiet"] as const;
 
 /** K3c: inclusion match that SURFACES the matched keyword — logs and
  *  telemetry must name the word that actually hit, not keywords[0]. */
