@@ -18,6 +18,7 @@ import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
 import { DiyaLoader } from "@/components/moments/DiyaLoader";
 import { useSafeOnboardingStore } from "@/lib/stores/ssr-safe-stores";
 import { voiceController } from "@/lib/voiceController";
+import { prefetchDashboardNarrations } from "@/lib/dashboardPrefetch";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -226,6 +227,8 @@ export default function LoginPage() {
     //                        (PENDING shows the amber banner there)
     //   profile incomplete → FLOW C minimal registration (name + city)
     if (profileComplete) {
+      voiceController.stopSpeech("user-flow:otp-verify");
+      prefetchDashboardNarrations(); // Q10: warm home/tabs/readiness lines
       router.push(nextParam && nextParam.startsWith("/") ? nextParam : "/home");
     } else {
       // X5: an existing-but-incomplete account gets "प्रोफ़ाइल पूरी करें"
@@ -235,6 +238,7 @@ export default function LoginPage() {
       } catch {
         /* noop */
       }
+      voiceController.stopSpeech("user-flow:otp-verify");
       router.push("/onboarding");
     }
   };

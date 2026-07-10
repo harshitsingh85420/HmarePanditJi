@@ -109,6 +109,14 @@ export function ShishyaOrb({
         {t("shishya.name")}
       </span>
 
+      {/* Q8: a sleeping शिष्य can't hear "उठो" (mic off BY DESIGN) — the
+          orb itself teaches the wake gesture, persistently. */}
+      {asleep && (
+        <span className="text-[11px] font-semibold font-hindi text-softgrey leading-none mt-0.5">
+          {t("shishya.wakeHint")}
+        </span>
+      )}
+
       {sleepToast && (
         <Toast
           message={t("shishya.sleepToast")}

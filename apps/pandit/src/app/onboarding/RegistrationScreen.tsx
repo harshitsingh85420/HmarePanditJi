@@ -57,16 +57,21 @@ export default function RegistrationScreen({ onBack }: { onBack: () => void }) {
     }
   }, [detectedCity]);
 
+  // Q6 SPOKEN-ERROR LAW: whatever renders as the error IS what शिष्य
+  // says — never a generic "कुछ गड़बड़" beside a specific on-screen line.
+  const sayError = (msg: string) => {
+    setErrorMsg(msg);
+    speak(msg);
+  };
+
   const handleSubmit = async () => {
     setErrorMsg("");
     if (!name || name.trim().length < 3) {
-      setErrorMsg(t("onboarding.nameError"));
-      speak(t("common.error"));
+      sayError(t("onboarding.nameError"));
       return;
     }
     if (!city || city.trim().length === 0) {
-      setErrorMsg(t("onboarding.cityError"));
-      speak(t("common.error"));
+      sayError(t("onboarding.cityError"));
       return;
     }
     setSubmitting(true);
@@ -76,8 +81,7 @@ export default function RegistrationScreen({ onBack }: { onBack: () => void }) {
     });
     setSubmitting(false);
     if (!res.success) {
-      setErrorMsg(res.error?.message || t("common.error"));
-      speak(t("common.error"));
+      sayError(res.error?.message || t("common.error"));
       return;
     }
     try {
@@ -85,6 +89,8 @@ export default function RegistrationScreen({ onBack }: { onBack: () => void }) {
     } catch {
       /* noop */
     }
+    // Q7: the submit's own navigation — कहानी carries the tap's intent
+    voiceController.stopSpeech("user-flow:register-submit");
     setShowDone(true);
   };
 

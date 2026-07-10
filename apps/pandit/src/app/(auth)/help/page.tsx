@@ -16,7 +16,7 @@ export default function HelpPage() {
   const { setPhase, setCurrentTutorialScreen } = useSafeOnboardingStore()
 
   useEffect(() => {
-    void speakWithSarvam({ text: 'कैसे मदद करें? हमारी Team तैयार है।', languageCode: 'hi-IN' })
+    void speakWithSarvam({ text: 'कैसे मदद करें? हमारी टीम तैयार है।', languageCode: 'hi-IN' })
   }, [])
 
   const handleGoBack = () => router.back()
@@ -47,7 +47,7 @@ export default function HelpPage() {
       {/* Title */}
       <section className="mt-2 xs:mt-4 px-4 text-center">
         <h2 className="text-xl xs:text-2xl sm:text-[28px] font-bold text-text-primary leading-tight font-devanagari">कैसे मदद करें?</h2>
-        <p className="text-sm xs:text-base sm:text-[20px] text-text-secondary mt-1 xs:mt-2 font-devanagari">हमारी Team तैयार है</p>
+        <p className="text-sm xs:text-base sm:text-[20px] text-text-secondary mt-1 xs:mt-2 font-devanagari">हमारी टीम तैयार है</p>
       </section>
 
       {/* Content */}
@@ -76,11 +76,11 @@ export default function HelpPage() {
 
         <a href="tel:18004654357" className="flex items-center gap-3 xs:gap-4 bg-saffron rounded-card shadow-cta px-4 xs:px-5 py-0 min-h-[52px] xs:min-h-[56px] sm:min-h-[72px] active:scale-[0.98] transition-transform mb-4">
           <div className="w-12 h-12 xs:w-14 xs:h-14 sm:w-[56px] sm:h-[56px] flex items-center justify-center shrink-0"><span className="text-2xl xs:text-3xl sm:text-4xl">📞</span></div>
-          <div><p className="text-base xs:text-lg sm:text-[20px] font-bold text-white">हमारी Team से बात करें</p><p className="text-sm xs:text-base sm:text-[16px] text-white/85 mt-0.5">1800-HMJ-HELP | बिल्कुल Free</p></div>
+          <div><p className="text-base xs:text-lg sm:text-[20px] font-bold text-white">हमारी टीम से बात करें</p><p className="text-sm xs:text-base sm:text-[16px] text-white/85 mt-0.5">1800-HMJ-HELP | बिल्कुल मुफ़्त</p></div>
         </a>
         <a href="https://wa.me/918004654357" className="flex items-center gap-3 xs:gap-4 rounded-card px-4 xs:px-5 py-0 min-h-[52px] xs:min-h-[56px] sm:min-h-[64px] active:scale-[0.98] transition-transform bg-[#25D366] mb-4">
           <div className="w-12 h-12 xs:w-14 xs:h-14 sm:w-[56px] sm:h-[56px] flex items-center justify-center shrink-0"><span className="text-2xl xs:text-3xl sm:text-4xl">💬</span></div>
-          <div><p className="text-base xs:text-lg sm:text-[18px] font-bold text-white">WhatsApp पर लिखें</p><p className="text-sm xs:text-base sm:text-[16px] text-white/90 mt-0.5">Message भेजें, जवाब आएगा</p></div>
+          <div><p className="text-base xs:text-lg sm:text-[18px] font-bold text-white">व्हाट्सऐप पर लिखें</p><p className="text-sm xs:text-base sm:text-[16px] text-white/90 mt-0.5">संदेश भेजें, जवाब आएगा</p></div>
         </a>
         <p className="text-sm xs:text-base sm:text-[16px] text-saffron mt-4 xs:mt-6">⏱️ जवाब का समय: सुबह 8 बजे – रात 10 बजे (सभी दिन)</p>
       </section>

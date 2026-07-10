@@ -195,6 +195,8 @@ export function VoiceField({
       }
       if ((value ?? "").trim()) return false;
       if (voiceController.isPureCommand(text)) return false;
+      // Q4: screen vocabulary (city names, card labels) outranks capture
+      if (voiceController.matchesScreenSpecificLoose(text)) return false;
       if (parseValue(text) === null) return false;
       // the injected transcript arrives OUTSIDE a live listen — enter
       // LISTENING first so the machine's real TRANSCRIPT path runs
@@ -262,13 +264,17 @@ export function VoiceField({
         const text = voiceInput.transcript;
         const conf = voiceInput.confidence ?? 1;
         voiceInput.reset();
-        // J1 FIELD-FIRST LAW with three fallthroughs to the screen/global
+        // J1 FIELD-FIRST LAW with four fallthroughs to the screen/global
         // command registry: (a) the WHOLE utterance is a pure grammar
         // word — an empty text field must not swallow "आगे" as a value;
-        // (b) the field already HOLDS a value and the words match a
-        // command; (c) the parser REJECTS the transcript.
+        // (b) Q4: the sentence loosely contains a SCREEN-SPECIFIC keyword
+        // (a city name, a card label) — "मैं गाज़ियाबाद से हूँ" selects
+        // the city instead of becoming the field's value; (c) the field
+        // already HOLDS a value and the words match a command; (d) the
+        // parser REJECTS the transcript.
         const parsed = parseValue(text);
         if (voiceController.isPureCommand(text) && voiceController.handleTranscript(text)) return;
+        if (voiceController.matchesScreenSpecificLoose(text) && voiceController.handleTranscript(text)) return;
         if (!!value?.trim() && voiceController.handleTranscript(text)) return;
         if (parsed === null && voiceController.handleTranscript(text)) return;
         dispatch({ type: "TRANSCRIPT", text, confidence: conf });

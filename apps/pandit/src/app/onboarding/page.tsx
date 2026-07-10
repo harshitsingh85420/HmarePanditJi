@@ -382,6 +382,8 @@ export default function OnboardingOrchestratorPage() {
             // leaves the flag unset, so the ask simply happens again.
             void runLanguageSwitch(detectedCode).then(() => {
               store.setLanguageConfirmed(true);
+              // Q7: the pick's own async completion navigates
+              voiceController.stopSpeech("user-flow:language-activated");
               goto(store.parichayDone ? "TUTORIAL" : "PARICHAY");
             });
           }}
@@ -407,6 +409,7 @@ export default function OnboardingOrchestratorPage() {
               // flag only after the switch settles (same race as onYes)
               store.setLanguageConfirmed(true);
               if (langReturn) {
+                voiceController.stopSpeech("user-flow:language-activated");
                 // Settings → भाषा: pick and go straight back — no ceremony,
                 // no tutorial. The flag stays until settings mounts (clearing
                 // it here re-triggers the skip rule mid-flight and the phase
@@ -414,6 +417,7 @@ export default function OnboardingOrchestratorPage() {
                 router.push(langReturn);
                 return;
               }
+              voiceController.stopSpeech("user-flow:language-activated");
               goto(store.parichayDone ? "TUTORIAL" : "PARICHAY");
             });
           }}

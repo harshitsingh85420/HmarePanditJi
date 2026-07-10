@@ -10,7 +10,7 @@
 // interaction (or tapping [समझा]) calls onDone.
 // ─────────────────────────────────────────────────────────────
 
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { t } from "@/lib/i18n";
 
 export interface CoachSpotlightProps {
@@ -75,6 +75,21 @@ export function CoachSpotlight({
     return () => el.removeEventListener("click", done);
   }, [requireInteraction, targetRef, onDone]);
 
+  // Q2 NON-BLOCKING LAW: a coach tip may never eat the app. Tapping
+  // anywhere outside the card dismisses the tip AND the underlying tap
+  // goes through (capture listener, NO preventDefault/stopPropagation —
+  // the nav button under the finger still fires).
+  const cardRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (requireInteraction) return; // target-gated tips dismiss on the target
+    const dismissOutside = (e: PointerEvent) => {
+      if (cardRef.current && cardRef.current.contains(e.target as Node)) return;
+      onDone();
+    };
+    document.addEventListener("pointerdown", dismissOutside, true);
+    return () => document.removeEventListener("pointerdown", dismissOutside, true);
+  }, [requireInteraction, onDone]);
+
   if (!rect) return null;
 
   const viewportH = typeof window !== "undefined" ? window.innerHeight : 640;
@@ -82,8 +97,11 @@ export function CoachSpotlight({
   const tooltipBelow = spaceBelow > 180;
 
   return (
-    <div className="fixed inset-0 z-[60]" style={{ pointerEvents: requireInteraction ? "none" : "auto" }}>
-      {/* Cutout: everything but the target is dimmed + inert */}
+    // Q2: container is ALWAYS pointer-events-none — only the card itself
+    // re-enables them. The old auto-container + full-screen blocker ate
+    // every tap (Ramesh: "nav taps silently no-op — thought it broke").
+    <div className="fixed inset-0 z-[60] pointer-events-none">
+      {/* Cutout: everything but the target is dimmed (visual only) */}
       <div
         className="absolute rounded-card coach-ring"
         style={{
@@ -97,14 +115,10 @@ export function CoachSpotlight({
         }}
       />
 
-      {/* Blocker layers around the target (interactive overlays only) */}
-      {!requireInteraction && (
-        <div className="absolute inset-0" onClick={(e) => e.stopPropagation()} />
-      )}
-
       {/* Tooltip card */}
       {!hideCard && (
       <div
+        ref={cardRef}
         className="absolute left-4 right-4 bg-cream rounded-card shadow-card border border-saffron-100 p-4 flex flex-col gap-2"
         style={{
           pointerEvents: "auto",

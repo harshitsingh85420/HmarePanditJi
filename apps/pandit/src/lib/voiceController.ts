@@ -12,7 +12,7 @@
 
 import { t, getActiveBcp47 } from "@/lib/i18n";
 import { clientPace } from "@/lib/sarvam-tts";
-import { YES, NO, REPEAT, HELP, SLEEP, matchAny, matchWord } from "@/lib/voiceGrammar";
+import { YES, NO, REPEAT, HELP, STOP, SLEEP, matchAny, matchWord, normalizeForMatch } from "@/lib/voiceGrammar";
 
 // ── J1: SCREEN VOICE CONTEXT ─────────────────────────────────
 // Every screen registers its commands here (useVoiceScreen /
@@ -33,6 +33,16 @@ interface VoiceScreenEntry {
   commands: readonly VoiceCommand[];
   helpText?: string;
   lastUnmatchedAt: number;
+}
+
+// Q3: EVERY VISIBLE CHOICE IS SPEAKABLE. Choice UIs (puja cards, samagri
+// tiers, city cards, celebration buttons) register their printed labels;
+// speaking a label (or a contained part of it — "सत्यनारायण" hits
+// "सत्यनारायण कथा") taps the card.
+export interface VoiceOption {
+  label: string;
+  keywords?: readonly string[];
+  onSelect: () => void;
 }
 
 /** How an utterance actually concluded. 'parked' = queued awaiting the
@@ -65,12 +75,16 @@ const TAP_TO_HEAR_SHOWN = "hpj_tap_to_hear_shown";
 // designed (a newer line replacing an older one) — intentional, not a
 // mid-utterance bug signature. ⚠ remains for phase-transition /
 // unmount:* / unknown.
-const INTENTIONAL_STOPS = new Set(["tab-hidden", "barge-in:tap", "mute", "speak-interrupt"]);
+// Q5 'voice-stop' (spoken रुको) and Q7 'user-flow:*' (a user-initiated
+// async flow — geolocation settle, OTP verify, form submit — carrying
+// its intent to the navigation it causes) are the pandit's own doing.
+const INTENTIONAL_STOPS = new Set(["tab-hidden", "barge-in:tap", "mute", "speak-interrupt", "voice-stop"]);
 function isIntentionalStop(reason: string): boolean {
   return (
     INTENTIONAL_STOPS.has(reason) ||
     reason.endsWith(":grant-settle") ||
-    reason.startsWith("hardware-back:")
+    reason.startsWith("hardware-back:") ||
+    reason.startsWith("user-flow:")
   );
 }
 
@@ -147,11 +161,31 @@ class VoiceController {
   private debugBuf: readonly string[] = [];
   private debugListeners = new Set<() => void>();
 
+  private debugPersistTimer: ReturnType<typeof setTimeout> | null = null;
+  private debugRestored = false;
+
   debug(msg: string): void {
     if (typeof window === "undefined") return;
+    // Q9c: reloads must not wipe evidence — restore once, then write
+    // through (throttled) to sessionStorage; cap unchanged (200).
+    if (!this.debugRestored) {
+      this.debugRestored = true;
+      try {
+        const saved = sessionStorage.getItem("hpj_voicedebug_buf");
+        if (saved) this.debugBuf = [...(JSON.parse(saved) as string[]), ...this.debugBuf].slice(-200);
+      } catch { /* noop */ }
+    }
     const ts = new Date().toISOString().slice(11, 23);
     this.debugBuf = [...this.debugBuf.slice(-199), `${ts} ${msg}`];
     this.debugListeners.forEach((cb) => cb());
+    if (!this.debugPersistTimer) {
+      this.debugPersistTimer = setTimeout(() => {
+        this.debugPersistTimer = null;
+        try {
+          sessionStorage.setItem("hpj_voicedebug_buf", JSON.stringify(this.debugBuf));
+        } catch { /* noop */ }
+      }, 400);
+    }
   }
 
   subscribeDebug = (cb: () => void): (() => void) => {
@@ -303,6 +337,56 @@ class VoiceController {
     };
   }
 
+  // ── Q3: on-screen option registry (stack — newest group first) ──
+  private voiceOptionGroups: Array<{ options: readonly VoiceOption[] }> = [];
+
+  registerOptions(options: readonly VoiceOption[]): () => void {
+    const group = { options };
+    this.voiceOptionGroups.push(group);
+    return () => {
+      this.voiceOptionGroups = this.voiceOptionGroups.filter((g) => g !== group);
+    };
+  }
+
+  private matchVisibleOption(raw: string): VoiceOption | null {
+    const clean = normalizeForMatch(raw);
+    if (!clean) return null;
+    for (let g = this.voiceOptionGroups.length - 1; g >= 0; g--) {
+      for (const opt of this.voiceOptionGroups[g].options) {
+        const label = normalizeForMatch(opt.label);
+        if (!label) continue;
+        // spoke the whole printed label (possibly inside a sentence)
+        if (clean.includes(label)) return opt;
+        // partial contains-match: "सत्यनारायण" alone hits "सत्यनारायण कथा"
+        // (≥3 chars so a stray syllable can't grab a card)
+        if (clean.length >= 3 && label.includes(clean)) return opt;
+        if (opt.keywords && matchWord(clean, opt.keywords)) return opt;
+      }
+    }
+    return null;
+  }
+
+  /** Q4: TRUE when the transcript loosely contains a SCREEN-SPECIFIC
+   *  keyword (a city name, a card label — length ≥4 and not a base
+   *  grammar word). An empty VoiceField consults this before swallowing
+   *  a sentence like "मैं गाज़ियाबाद से हूँ" as its value — the screen's
+   *  own vocabulary outranks a raw capture, while short grammar words
+   *  keep the strict isPureCommand rule ("आगे नगर" stays a value). */
+  matchesScreenSpecificLoose(text: string): boolean {
+    const grammar = new Set(
+      [...YES, ...NO, ...REPEAT, ...HELP, ...STOP, ...SLEEP].map((w) => w.toLowerCase()),
+    );
+    const specific = (kw: string) => kw.length >= 4 && !grammar.has(kw.toLowerCase());
+    const entry = this.activeVoiceScreen();
+    if (entry) {
+      for (const cmd of entry.commands) {
+        const kws = [...cmd.keywords].filter(specific);
+        if (kws.length && matchWord(text, kws)) return true;
+      }
+    }
+    return this.matchVisibleOption(text) !== null;
+  }
+
   private activeVoiceScreen(): VoiceScreenEntry | null {
     return this.voiceScreens[this.voiceScreens.length - 1] ?? null;
   }
@@ -338,6 +422,26 @@ class VoiceController {
           return true;
         }
       }
+    }
+    // Q3: visible on-screen options — after the screen's own commands,
+    // before the global grammar (a printed label is more specific than
+    // फिर-से, less authoritative than the screen's registered verbs)
+    const opt = this.matchVisibleOption(clean.toLowerCase().trim());
+    if (opt) {
+      this.debug(`voice option: "${clean.slice(0, 24)}" → [${opt.label}]`);
+      this.noteVoiceGesture();
+      opt.onSelect();
+      return true;
+    }
+    // Q5 STOP — "रुको" mid-narration: immediate silence IS the ack (no
+    // spoken reply), and the loop keeps listening. Checked before SLEEP
+    // and before REPEAT so "रुको रुको" can never fall to unmatched.
+    if (matchAny(clean, STOP)) {
+      this.debug(`voice cmd: "${clean.slice(0, 24)}" → STOP`);
+      this.noteVoiceGesture();
+      this.stopSpeech("voice-stop");
+      this.loopRearm();
+      return true;
     }
     // GLOBAL grammar — everywhere, always
     if (matchAny(clean, REPEAT)) {
@@ -466,6 +570,11 @@ class VoiceController {
       if (this._hidden) {
         this.stopSpeech("tab-hidden");
         this.abortListening();
+      } else {
+        // Q1: returning to the tab resumes THE LAW — awake + granted ⇒
+        // armed. Without this kick the loop stayed dead until the next
+        // narration happened to end.
+        this.loopRearm();
       }
       this.emit();
     });
@@ -668,6 +777,12 @@ class VoiceController {
       this.debug("→ parked (pre-unlock)");
       opts?.onEnd?.(false);
       opts?.onOutcome?.("parked");
+      // Q1 THE LAW: awake + mic-granted ⇒ loop armed on EVERY screen.
+      // Only PLAYBACK needs the unlock gesture — the mic does not. A
+      // fresh dashboard load (token restore, no tap yet) parks its
+      // narration here; without this rearm the narration-end→listen
+      // chain never starts and dashboard voice is dead until a tap.
+      this.loopRearm();
       return;
     }
     // Barge-out: speaking during a listen aborts the listen first, then

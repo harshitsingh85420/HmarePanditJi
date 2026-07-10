@@ -1,6 +1,7 @@
 "use client";
 
 import { Narrate } from "@/hooks/useScreenVoice";
+import { prefetchDashboardNarrations } from "@/lib/dashboardPrefetch";
 import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { t } from "@/lib/i18n";
@@ -134,6 +135,11 @@ export default function HomePage() {
 
     setLoading(false);
   };
+
+  // Q10: warm the dashboard's narration lines once per visit
+  useEffect(() => {
+    prefetchDashboardNarrations();
+  }, []);
 
   useEffect(() => {
     loadData();

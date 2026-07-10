@@ -32,7 +32,11 @@ const BASE = {
   SKIP: ["स्किप", "छोड़ो", "skip", "रहने दो"],
   REPEAT: ["फिर से", "दोबारा", "सुनाओ", "repeat", "again", "क्या कहा"],
   HELP: ["मदद", "help", "madad", "सहायता"],
-  SLEEP: ["सो जाओ", "चुप", "so jao", "chup", "sleep", "quiet"],
+  // Q5: STOP = "be quiet NOW" (mid-narration barge) — silence is the
+  // ack, the loop keeps listening. Distinct from SLEEP (mic off until
+  // touched). चुप moved here from SLEEP: it means hush, not goodnight.
+  STOP: ["रुको", "रुकिए", "बस", "चुप", "chup", "stop", "wait", "quiet"],
+  SLEEP: ["सो जाओ", "so jao", "sleep"],
 } as const;
 
 type GrammarSet = keyof typeof BASE;
@@ -56,6 +60,7 @@ const EXTENSIONS: Partial<Record<LangCode, Partial<Record<GrammarSet, readonly s
     BACK: ["मागे"],
     SKIP: ["सोडा"],
     REPEAT: ["पुन्हा"],
+    STOP: ["थांबा"],
     SLEEP: ["झोप जा"],
   },
   bn: {
@@ -134,9 +139,10 @@ export const BACK: string[] = [...BASE.BACK];
 export const SKIP: string[] = [...BASE.SKIP];
 export const REPEAT: string[] = [...BASE.REPEAT];
 export const HELP: string[] = [...BASE.HELP];
+export const STOP: string[] = [...BASE.STOP];
 export const SLEEP: string[] = [...BASE.SLEEP];
 
-const LIVE: Record<GrammarSet, string[]> = { YES, NO, NEXT, BACK, SKIP, REPEAT, HELP, SLEEP };
+const LIVE: Record<GrammarSet, string[]> = { YES, NO, NEXT, BACK, SKIP, REPEAT, HELP, STOP, SLEEP };
 
 /** Rebuild every set as base + the active language's extension. Called
  *  by lib/i18n on boot restore and on every language activation. */
@@ -148,13 +154,42 @@ export function setGrammarLanguage(code: LangCode): void {
   }
 }
 
-/** K3c: inclusion match that SURFACES the matched keyword — logs and
- *  telemetry must name the word that actually hit, not keywords[0]. */
+// Q4: politeness fillers stripped from the FRONT of a transcript before
+// match evaluation only — "जी हाँ बेटा" and "मैं गाज़ियाबाद से हूँ" must
+// match what they mean. Field VALUES always keep the raw transcript.
+const LEADING_FILLERS = new Set(["जी", "अरे", "भाई", "मैं", "हूँ", "से"]);
+
+/** Lowercase, de-punctuate, and strip LEADING politeness fillers.
+ *  For match evaluation ONLY — never for field values. */
+export function normalizeForMatch(transcript: string): string {
+  const compact = transcript
+    .toLowerCase()
+    .replace(/[।.,!?~"']/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  const words = compact.split(" ");
+  while (words.length > 1 && LEADING_FILLERS.has(words[0])) words.shift();
+  return words.join(" ");
+}
+
+const LATIN_RE = /^[a-z0-9 ]+$/;
+const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/** K3c: normalized-containment match that SURFACES the matched keyword.
+ *  Q4: longest keyword wins first (हो can never shadow होणार-class
+ *  words checked by a longer sibling); Latin keywords match on word
+ *  boundaries ("no" never hits "know"); Devanagari stays substring. */
 export function matchWord(transcript: string, words: readonly string[]): string | null {
-  const clean = transcript.toLowerCase().trim();
+  const clean = normalizeForMatch(transcript);
   if (!clean) return null;
-  for (const w of words) {
-    if (clean.includes(w.toLowerCase())) return w;
+  const byLength = [...words].sort((a, b) => b.length - a.length);
+  for (const w of byLength) {
+    const kw = w.toLowerCase();
+    if (LATIN_RE.test(kw)) {
+      if (new RegExp(`(^|[^a-z0-9])${escapeRe(kw)}([^a-z0-9]|$)`).test(clean)) return w;
+    } else if (clean.includes(kw)) {
+      return w;
+    }
   }
   return null;
 }

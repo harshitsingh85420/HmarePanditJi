@@ -22,7 +22,7 @@
 // ─────────────────────────────────────────────────────────────
 
 import { useEffect, useRef } from "react";
-import { voiceController, type VoiceCommand } from "@/lib/voiceController";
+import { voiceController, type VoiceCommand, type VoiceOption } from "@/lib/voiceController";
 import { useVoiceInput } from "@/hooks/useVoiceInput";
 import { useVoice } from "@/hooks/useVoice";
 
@@ -65,6 +65,33 @@ export function useVoiceCommands(
     return voiceController.registerVoiceScreen(proxied, helpText);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled, helpText, commands.length]);
+}
+
+/**
+ * Q3 — EVERY VISIBLE CHOICE IS SPEAKABLE. Any component rendering
+ * tappable choice cards/buttons registers each printed label (plus
+ * optional synonyms) so speaking it taps it. One line per choice UI:
+ *   useVoiceOptions(items.map(i => ({ label: i.title, onSelect: () => pick(i) })))
+ */
+export function useVoiceOptions(options: readonly VoiceOption[], enabled: boolean = true): void {
+  const optionsRef = useRef(options);
+  optionsRef.current = options;
+  useEffect(() => {
+    if (!enabled || !optionsRef.current.length) return;
+    // stable proxies (same shape as useVoiceCommands) — label edits and
+    // fresh onSelect closures flow through without re-registering
+    const proxied = optionsRef.current.map((_, i) => ({
+      get label() {
+        return optionsRef.current[i]?.label ?? "";
+      },
+      get keywords() {
+        return optionsRef.current[i]?.keywords;
+      },
+      onSelect: () => optionsRef.current[i]?.onSelect(),
+    }));
+    return voiceController.registerOptions(proxied);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [enabled, options.length]);
 }
 
 export function useVoiceScreen(opts: UseVoiceScreenOpts) {

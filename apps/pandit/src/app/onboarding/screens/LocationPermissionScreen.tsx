@@ -87,6 +87,9 @@ export default function LocationPermissionScreen({
           const data = await res.json();
           const city = data.address.city || data.address.town || data.address.village || "Unknown";
           const stateStr = data.address.state || "Unknown";
+          // Q7: the grant's async settle navigates seconds after the tap —
+          // carry the tap's intent so the phase change isn't a ⚠ tell
+          voiceController.stopSpeech("user-flow:location-grant");
           onGranted(city, stateStr);
         } catch {
           setError(t("pratham.locationError"));

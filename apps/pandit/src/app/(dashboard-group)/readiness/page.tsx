@@ -30,7 +30,7 @@ import { ProgressDots } from "@/components/ui/ProgressDots";
 import { DiyaLoader } from "@/components/moments/DiyaLoader";
 import { CelebrationScreen } from "@/components/moments/CelebrationScreen";
 import { VoiceField } from "@/components/voice/VoiceField";
-import { useVoiceCommands } from "@/hooks/useVoiceScreen";
+import { useVoiceCommands, useVoiceOptions } from "@/hooks/useVoiceScreen";
 import { YES, NO, NEXT, BACK, SKIP } from "@/lib/voiceGrammar";
 import { SamagriPackageEditor } from "@/components/SamagriPackageEditor";
 import { usePresignedUrl } from "@/hooks/usePresignedUrl";
@@ -293,6 +293,13 @@ export default function ReadinessPage() {
   if (loading || !snapshot) return <DiyaLoader />;
 
   // ── shared step helpers ────────────────────────────────────
+  // Q6 SPOKEN-ERROR LAW: whatever renders as the error IS what शिष्य
+  // says — never a generic "कुछ गड़बड़" beside a specific on-screen line.
+  const sayError = (msg: string) => {
+    setErrorMsg(msg);
+    speak(msg);
+  };
+
   const refreshSnapshot = async () => {
     const res = await api("/pandit/readiness");
     if (res.success && res.data) setSnapshot(res.data as Snapshot);
@@ -307,8 +314,7 @@ export default function ReadinessPage() {
     });
     setSaving(false);
     if (!res.success) {
-      setErrorMsg(res.error?.message || t("readiness.saveError"));
-      speak(t("common.error"));
+      sayError(res.error?.message || t("readiness.saveError"));
       return false;
     }
     setSnapshot(res.data as Snapshot);
@@ -318,15 +324,13 @@ export default function ReadinessPage() {
   // ── R1: pujas + dakshina ───────────────────────────────────
   const saveR1 = async () => {
     if (specs.length === 0) {
-      setErrorMsg(t("onboarding.specError"));
-      speak(t("common.error"));
+      sayError(t("onboarding.specError"));
       return;
     }
     for (const spec of specs) {
       const amount = Number(dakshina[spec] || "");
       if (isNaN(amount) || amount < 501 || amount > 500000) {
-        setErrorMsg(t("onboarding.dakshinaError"));
-        speak(t("common.error"));
+        sayError(t("onboarding.dakshinaError"));
         return;
       }
     }
@@ -339,8 +343,7 @@ export default function ReadinessPage() {
     });
     if (!profRes.success) {
       setSaving(false);
-      setErrorMsg(profRes.error?.message || t("readiness.saveError"));
-      speak(t("common.error"));
+      sayError(profRes.error?.message || t("readiness.saveError"));
       return;
     }
     for (const spec of specs) {
@@ -350,8 +353,7 @@ export default function ReadinessPage() {
       });
       if (!rateRes.success) {
         setSaving(false);
-        setErrorMsg(rateRes.error?.message || t("readiness.saveError"));
-        speak(t("common.error"));
+        sayError(rateRes.error?.message || t("readiness.saveError"));
         return;
       }
     }
@@ -385,13 +387,11 @@ export default function ReadinessPage() {
       return;
     }
     if (travel.train.enabled && travel.train.classes.length === 0) {
-      setErrorMsg(t("readiness.train"));
-      speak(t("common.error"));
+      sayError(t("readiness.train"));
       return;
     }
     if (travel.bus.enabled && !travel.bus.ac) {
-      setErrorMsg(t("readiness.bus"));
-      speak(t("common.error"));
+      sayError(t("readiness.bus"));
       return;
     }
     if (await patchStep(3, { travelPrefs: travel })) setStep(4);
@@ -403,8 +403,7 @@ export default function ReadinessPage() {
     if (allowance.trim() !== "") {
       allowanceNum = Number(allowance);
       if (isNaN(allowanceNum) || allowanceNum < 1 || allowanceNum > 100000) {
-        setErrorMsg(t("readiness.allowancePlaceholder"));
-        speak(t("common.error"));
+        sayError(t("readiness.allowancePlaceholder"));
         return;
       }
     }
@@ -424,24 +423,20 @@ export default function ReadinessPage() {
   // ── R5: payment + verification (finish) ────────────────────
   const saveR5 = async () => {
     if (!aadhaarUrl) {
-      setErrorMsg(t("onboarding.aadhaarError"));
-      speak(t("common.error"));
+      sayError(t("onboarding.aadhaarError"));
       return;
     }
     if (paymentType === "BANK") {
       if (!bank.accountName.trim() || !/^\d{9,18}$/.test(bank.accountNumber) || !/^[A-Z]{4}0[A-Z0-9]{6}$/.test(bank.ifsc)) {
-        setErrorMsg(t("onboarding.paymentError"));
-        speak(t("common.error"));
+        sayError(t("onboarding.paymentError"));
         return;
       }
       if (bank.accountNumber !== bank.accountNumberConfirm) {
-        setErrorMsg(t("onboarding.accMismatch"));
-        speak(t("common.error"));
+        sayError(t("onboarding.accMismatch"));
         return;
       }
     } else if (!/^[\w.-]{2,}@[a-zA-Z]{2,}$/.test(upi.id)) {
-      setErrorMsg(t("onboarding.paymentError"));
-      speak(t("common.error"));
+      sayError(t("onboarding.paymentError"));
       return;
     }
     const ok = await patchStep(5, {
@@ -479,13 +474,11 @@ export default function ReadinessPage() {
       if (json.success && (json.data?.key || json.data?.url)) {
         setAadhaarUrl(json.data.key || json.data.url);
       } else {
-        setErrorMsg(json.error?.message || t("common.error"));
-        speak(t("common.error"));
+        sayError(json.error?.message || t("common.error"));
       }
     } catch {
       setUploading(false);
-      setErrorMsg(t("common.error"));
-      speak(t("common.error"));
+      sayError(t("common.error"));
     }
   };
 
@@ -693,6 +686,17 @@ function StepR1({
   dakshina: Record<string, string>;
   setDakshina: (v: Record<string, string>) => void;
 }) {
+  // Q3: the printed card labels are speakable — "सत्यनारायण कथा" (or
+  // just "सत्यनारायण") toggles the card exactly like a tap.
+  useVoiceOptions(
+    SPEC_LIST.map((spec) => ({
+      label: specLabel(spec.id),
+      onSelect: () =>
+        setSpecs(
+          specs.includes(spec.id) ? specs.filter((id) => id !== spec.id) : [...specs, spec.id],
+        ),
+    })),
+  );
   return (
     <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-4">
       <label className="text-[18px] font-bold text-temple-700 font-hindi">{t("readiness.r1SpecLabel")}</label>

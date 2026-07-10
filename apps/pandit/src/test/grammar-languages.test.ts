@@ -5,8 +5,8 @@
 
 import { describe, it, expect, afterEach } from "vitest";
 import {
-  YES, NO, NEXT, BACK, SKIP, REPEAT,
-  setGrammarLanguage, matchYesNo, matchAny,
+  YES, NO, NEXT, BACK, SKIP, REPEAT, STOP, SLEEP,
+  setGrammarLanguage, matchYesNo, matchAny, matchWord, normalizeForMatch,
 } from "@/lib/voiceGrammar";
 import type { LangCode } from "@/lib/languageDetect";
 
@@ -64,5 +64,53 @@ describe("P2 — native grammar per active language", () => {
     setGrammarLanguage("mr");
     expect(matchYesNo("nako")).toBe("no");
     expect(matchAny("pudhe", NEXT)).toBe(true);
+  });
+});
+
+describe("Q4 — loose matching (the exact Ramesh phrases)", () => {
+  it("मैं गाज़ियाबाद से हूँ → गाज़ियाबाद (keyword found inside the sentence)", () => {
+    expect(matchWord("मैं गाज़ियाबाद से हूँ", ["गाज़ियाबाद"])).toBe("गाज़ियाबाद");
+    // leading fillers stripped only for evaluation
+    expect(normalizeForMatch("मैं गाज़ियाबाद से हूँ")).toBe("गाज़ियाबाद से हूँ");
+  });
+
+  it("हाँ जी बेटा → YES", () => {
+    expect(matchYesNo("हाँ जी बेटा")).toBe("yes");
+    expect(matchYesNo("जी हाँ")).toBe("yes");
+  });
+
+  it("असं होणार नाही still NO in Marathi (हो-class regression guard)", () => {
+    setGrammarLanguage("mr");
+    expect(matchYesNo("असं होणार नाही")).toBe("no");
+    expect(matchYesNo("हो")).toBe("yes");
+  });
+
+  it("बाद में करूंगा → बाद में (declines)", () => {
+    expect(matchYesNo("बाद में करूंगा")).toBe("no");
+    expect(matchWord("बाद में करूंगा", NO)).toBe("बाद में");
+  });
+
+  it("Latin keywords are word-boundary aware", () => {
+    expect(matchWord("i know this", ["no"])).toBe(null);
+    setGrammarLanguage("mr");
+    expect(matchWord("hollow sound", ["ho"])).toBe(null);
+    expect(matchWord("ho chalel", ["ho"])).toBe("ho");
+  });
+});
+
+describe("Q5 — STOP grammar, distinct from SLEEP", () => {
+  it("रुको रुको / बस / stop hit STOP", () => {
+    expect(matchAny("रुको रुको", STOP)).toBe(true);
+    expect(matchAny("बस बस", STOP)).toBe(true);
+    expect(matchAny("stop", STOP)).toBe(true);
+    expect(matchAny("चुप", STOP)).toBe(true);
+  });
+
+  it("mr थांबा joins STOP; सो जाओ stays SLEEP-only", () => {
+    setGrammarLanguage("mr");
+    expect(matchAny("थांबा", STOP)).toBe(true);
+    expect(matchAny("सो जाओ", SLEEP)).toBe(true);
+    expect(matchAny("सो जाओ", STOP)).toBe(false);
+    expect(matchAny("चुप", SLEEP)).toBe(false);
   });
 });
