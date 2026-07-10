@@ -106,8 +106,9 @@ export function SunriseSplash({ onDone }: { onDone: () => void }) {
     // immediately (barge-in allowed). No timer failsafe races a playing
     // line — speakAndWait always settles, including every finish(false)
     // path in the controller, so this cannot hang.
-    // D3c: warm the NEXT phase's lines while the sun rises
-    voiceController.prefetch([t("parichay.introOnly"), t("parichay.pressAllow"), t("parichay.granted")]);
+    // D3c: warm the NEXT phase's lines while the sun rises (N2 order:
+    // LOCATION follows the splash now, then the city picker)
+    voiceController.prefetch([t("entry.locationVoice"), t("pratham.cityVoice")]);
     let disposed = false;
     const mountedAt = performance.now();
     const minDisplay = new Promise<void>((res) => setTimeout(res, 2600));

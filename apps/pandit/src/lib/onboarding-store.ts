@@ -265,11 +265,11 @@ export function loadOnboardingState(): OnboardingState {
 
     const state = { ...DEFAULT_STATE, ...validated, firstEverOpen: false }
 
-    // BUG-002 FIX: Check for desktop language preference (overrides saved state)
-    const desktopLang = localStorage.getItem('hpj_preferred_language')
-    if (desktopLang && ALL_LANGUAGES.includes(desktopLang as SupportedLanguage)) {
-      state.selectedLanguage = desktopLang as SupportedLanguage
-    }
+    // N1 FOUNDER LAW: no silent overrides. The old BUG-002 'desktop
+    // preference' read (hpj_preferred_language, written by the legacy
+    // LanguageChangeWidget) flipped selectedLanguage at boot WITHOUT any
+    // in-app selection — the exact 'app starts in English' failure.
+    // Language changes flow only through the entry flow / settings list.
 
     return state
   } catch (error) {

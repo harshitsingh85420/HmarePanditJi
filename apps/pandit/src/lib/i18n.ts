@@ -18,7 +18,7 @@
 
 import { hi } from "@/lib/strings";
 import { api } from "@/lib/api";
-import { LANG_TO_BCP47, type LangCode } from "@/lib/languageDetect";
+import { DEFAULT_LANG, LANG_TO_BCP47, type LangCode } from "@/lib/languageDetect";
 
 const LANG_KEY = "hpj_lang_code";
 // Bump BUNDLE_VERSION whenever source Hindi copy changes in a way that
@@ -37,7 +37,9 @@ export const ENTRY_GROUPS: readonly string[] = [
 
 type Dict = Record<string, string>;
 
-let activeLang: LangCode = "hi";
+// N1 FOUNDER LAW: boots as DEFAULT_LANG (hi) — only an explicit stored
+// selection (written by activateLanguage on the user's pick) changes it.
+let activeLang: LangCode = DEFAULT_LANG;
 let bundle: Dict = {};
 let version = 0;
 let initialized = false;
@@ -61,7 +63,7 @@ function init(): void {
       }
     }
   } catch {
-    activeLang = "hi";
+    activeLang = DEFAULT_LANG;
     bundle = {};
   }
 }

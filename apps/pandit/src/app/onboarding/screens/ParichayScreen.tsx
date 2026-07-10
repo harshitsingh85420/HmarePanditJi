@@ -182,8 +182,14 @@ export default function ParichayScreen({ onDone }: { onDone: () => void }) {
 
       // Task-2 instrumentation: the tell for a silent phone.
       voiceController.debug("parichay mount → speak(introOnly) queued");
-      // D3c: warm the location phase's narration while शिष्य introduces
-      voiceController.prefetch([t("parichay.tryIt"), t("entry.locationVoice"), t("pratham.cityVoice")]);
+      // D3c: warm the tutorial's opening narration while शिष्य introduces
+      // (N2 order: TUTORIAL follows Parichay). The TTS cache is keyed on
+      // the EXACT spoken text — TutorialV2 narrates slide1+advanceAsk as
+      // one utterance, so warm precisely that string.
+      voiceController.prefetch([
+        t("parichay.tryIt"),
+        `${t("tutorial.slide1")} ${t("tutorial.advanceAsk")}`,
+      ]);
       voiceController.debug(`parichay: unlocked=${voiceController.unlocked} ${voiceController.audioElState()}`);
       if (!voiceController.unlocked) {
         voiceController.debug("⚠ UNLOCK MISSING AT PARICHAY — splash advanced without a tap; speech will park");

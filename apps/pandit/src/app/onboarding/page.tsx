@@ -24,7 +24,7 @@ import { api } from "@/lib/api";
 import { detectLanguage, LANG_TO_BCP47, LANG_NATIVE_NAME, type LangCode } from "@/lib/languageDetect";
 import { LANG_CONFIRM } from "@/lib/strings-langconfirm";
 import { type OnboardingPhase, type SupportedLanguage } from "@/lib/onboarding-store";
-import { activateLanguage } from "@/lib/i18n";
+import { activateLanguage, t } from "@/lib/i18n";
 import { useVoiceScreen } from "@/hooks/useVoiceScreen";
 import { YES, NO } from "@/lib/voiceGrammar";
 
@@ -135,6 +135,8 @@ export default function OnboardingOrchestratorPage() {
       await activateLanguage("hi");
       store.setLanguage("Hindi");
       store.setPreferredLanguage(null);
+      // N2: PARICHAY follows — warm शिष्य's first नमस्ते (Hindi source)
+      voiceController.prefetch([t("parichay.introOnly"), t("parichay.pressAllow"), t("parichay.granted")]);
       return;
     }
     setSwitching(code);
@@ -144,6 +146,9 @@ export default function OnboardingOrchestratorPage() {
       store.setLanguage(CODE_TO_SUPPORTED[code]);
       store.setPreferredLanguage(code);
       voiceController.speak(LANG_CONFIRM[code].confirmedLine, { languageCode: LANG_TO_BCP47[code] });
+      // N2: PARICHAY follows — warm शिष्य's first नमस्ते in the language
+      // just activated (t() now serves the fresh bundle)
+      voiceController.prefetch([t("parichay.introOnly"), t("parichay.pressAllow"), t("parichay.granted")]);
     } else {
       store.setLanguage("Hindi");
       store.setPreferredLanguage(code);
@@ -183,7 +188,9 @@ export default function OnboardingOrchestratorPage() {
         }
         // fetch failure or incomplete profile → FLOW C minimal registration
         store.setPhase("REGISTRATION");
-      } else if (store.tutorialCompleted) {
+      } else if (store.tutorialCompleted && !langVisit) {
+        // (!langVisit: a Settings → भाषा visit must render the list, not
+        // be clobbered to AUTH — review-confirmed dead-end)
         voiceController.debug("resume: no token + tutorialCompleted → AUTH");
         store.setPhase("AUTH");
       }
@@ -231,6 +238,17 @@ export default function OnboardingOrchestratorPage() {
         router.push(reviewReturn);
         return;
       }
+      // Settings → भाषा: hardware back honors the return address exactly
+      // like the screen's ← button — never a TUTORIAL dump for a
+      // registered pandit.
+      if (cur === "LANGUAGE_LIST") {
+        const backReturn = sessionStorage.getItem("hpj_lang_return");
+        if (backReturn) {
+          voiceController.stopSpeech("hardware-back:lang-return");
+          router.push(backReturn);
+          return;
+        }
+      }
       // FLOW C back law: registration returns to the Tutorial CTA slide
       if (cur === "REGISTRATION" || cur === "WIZARD") {
         voiceController.stopSpeech("orchestrator:misc");
@@ -243,7 +261,7 @@ export default function OnboardingOrchestratorPage() {
         MANUAL_CITY: "LOCATION_PERMISSION",
         LANGUAGE_CONFIRM: "LOCATION_PERMISSION",
         LANGUAGE_LIST: "LANGUAGE_CONFIRM",
-        TUTORIAL: "LANGUAGE_CONFIRM",
+        TUTORIAL: "PARICHAY",
       };
       const prev = prevMap[String(cur)] ?? null;
       if (prev) {
@@ -251,7 +269,8 @@ export default function OnboardingOrchestratorPage() {
         store.setPhase(prev);
         repin();
       }
-      // SPLASH / LOCATION / AUTH: stay (do not exit mid-ceremony)
+      // SPLASH / LOCATION / PARICHAY / AUTH: stay (never back out of a
+      // mid-air permission ceremony)
       else repin();
     };
     window.addEventListener("popstate", onPop);
@@ -288,17 +307,27 @@ export default function OnboardingOrchestratorPage() {
 
   const renderPhase = (): React.ReactNode => {
     // ── SPLASH ─────────────────────────────────────────────────
+    // N2 FOUNDER-FINAL ORDER: SPLASH → LOCATION → LANGUAGE → PARICHAY →
+    // TUTORIAL → AUTH. Location+language are tap-driven (mic not yet
+    // granted); by PARICHAY the selected language's entry bundle is in,
+    // so शिष्य's first नमस्ते sounds in the pandit's own tongue.
     if (phase === "SPLASH") {
-      return <SunriseSplash onDone={() => goto("PARICHAY")} />;
+      return <SunriseSplash onDone={() => goto("LOCATION_PERMISSION")} />;
     }
 
     // ── PARICHAY — शिष्य introduces himself, asked ONCE per install ──
     if (phase === "PARICHAY") {
-      if (store.parichayDone) {
+      // stale old-order resume (parichay used to precede location):
+      // language must still be asked — rejoin the new order at its start
+      if (!store.languageConfirmed) {
         store.setPhase("LOCATION_PERMISSION");
         return null;
       }
-      return <ParichayScreen onDone={() => goto("LOCATION_PERMISSION")} />;
+      if (store.parichayDone) {
+        store.setPhase("TUTORIAL");
+        return null;
+      }
+      return <ParichayScreen onDone={() => goto("TUTORIAL")} />;
     }
 
     // ── LOCATION ───────────────────────────────────────────────
@@ -331,9 +360,12 @@ export default function OnboardingOrchestratorPage() {
     }
 
     // ── LANGUAGE — asked EXACTLY ONCE per install ──────────────
-    if (phase === "LANGUAGE_CONFIRM" && store.languageConfirmed) {
+    // (!switching: never skip-forward while the blocking bundle download
+    // is in flight — the ceremony screen must stay mounted behind the
+    // DiyaLoader until the switch settles)
+    if (phase === "LANGUAGE_CONFIRM" && store.languageConfirmed && !switching) {
       // already confirmed → never re-run the ceremony
-      store.setPhase("TUTORIAL");
+      store.setPhase(store.parichayDone ? "TUTORIAL" : "PARICHAY");
       return null;
     }
 
@@ -343,8 +375,15 @@ export default function OnboardingOrchestratorPage() {
         <LangConfirmScreen2
           code={detectedCode}
           onYes={() => {
-            store.setLanguageConfirmed(true);
-            void runLanguageSwitch(detectedCode).then(() => goto("TUTORIAL"));
+            // confirmed flag lands ONLY after the blocking switch settles:
+            // committing it first re-rendered into the skip rule and
+            // mounted PARICHAY under the DiyaLoader speaking HINDI — the
+            // exact failure N2 exists to prevent. A kill mid-download now
+            // leaves the flag unset, so the ask simply happens again.
+            void runLanguageSwitch(detectedCode).then(() => {
+              store.setLanguageConfirmed(true);
+              goto(store.parichayDone ? "TUTORIAL" : "PARICHAY");
+            });
           }}
           onOther={() => goto("LANGUAGE_LIST")}
         />
@@ -354,8 +393,8 @@ export default function OnboardingOrchestratorPage() {
 
     if (phase === "LANGUAGE_LIST") {
       // Confirmed + not a settings visit → nothing to ask; skip ahead.
-      if (store.languageConfirmed && !langReturn) {
-        store.setPhase("TUTORIAL");
+      if (store.languageConfirmed && !langReturn && !switching) {
+        store.setPhase(store.parichayDone ? "TUTORIAL" : "PARICHAY");
         return null;
       }
       return (
@@ -364,8 +403,9 @@ export default function OnboardingOrchestratorPage() {
           scriptPreference={store.scriptPreference}
           onSelect={(lang: SupportedLanguage) => {
             const code = SUPPORTED_TO_CODE[lang] || "hi";
-            store.setLanguageConfirmed(true);
             void runLanguageSwitch(code).then(() => {
+              // flag only after the switch settles (same race as onYes)
+              store.setLanguageConfirmed(true);
               if (langReturn) {
                 // Settings → भाषा: pick and go straight back — no ceremony,
                 // no tutorial. The flag stays until settings mounts (clearing
@@ -374,7 +414,7 @@ export default function OnboardingOrchestratorPage() {
                 router.push(langReturn);
                 return;
               }
-              goto("TUTORIAL");
+              goto(store.parichayDone ? "TUTORIAL" : "PARICHAY");
             });
           }}
           onBack={() => {
@@ -456,10 +496,14 @@ export default function OnboardingOrchestratorPage() {
       return null;
     }
     if (["LANGUAGE_CHOICE_CONFIRM", "LANGUAGE_SET", "SCRIPT_CHOICE", "HELP"].includes(String(phase))) {
-      store.setPhase(store.languageConfirmed ? "TUTORIAL" : "LANGUAGE_CONFIRM");
+      store.setPhase(
+        store.languageConfirmed
+          ? store.parichayDone ? "TUTORIAL" : "PARICHAY"
+          : "LANGUAGE_CONFIRM",
+      );
       return null;
     }
-    return <SunriseSplash onDone={() => goto("PARICHAY")} />;
+    return <SunriseSplash onDone={() => goto("LOCATION_PERMISSION")} />;
   };
 
   return (

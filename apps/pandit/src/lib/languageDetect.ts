@@ -5,7 +5,15 @@
 export type LangCode =
   | "hi" | "mr" | "bn" | "ta" | "te" | "kn" | "gu" | "pa" | "ml" | "or" | "en";
 
-const STATE_TO_LANG: Record<string, LangCode> = {
+// FOUNDER LAW (N1): fresh install = हिंदी, ALWAYS. This is THE single
+// source for the default; every fallback below and in i18n refers here.
+// Detection may PROPOSE a regional language (LangConfirm asks), but a
+// switch happens only on the pandit's explicit हाँ or a list selection.
+// English is deliberately absent from both detect maps — list-only.
+export const DEFAULT_LANG: LangCode = "hi";
+
+// exported for the N1 founder-law unit test (asserts no 'en' entries)
+export const STATE_TO_LANG: Record<string, LangCode> = {
   // Hindi belt
   delhi: "hi", "uttar pradesh": "hi", bihar: "hi", "madhya pradesh": "hi",
   rajasthan: "hi", haryana: "hi", jharkhand: "hi", chhattisgarh: "hi",
@@ -21,7 +29,7 @@ const STATE_TO_LANG: Record<string, LangCode> = {
   odisha: "or", orissa: "or",
 };
 
-const CITY_TO_LANG: Record<string, LangCode> = {
+export const CITY_TO_LANG: Record<string, LangCode> = {
   delhi: "hi", "new delhi": "hi", noida: "hi", gurugram: "hi", gurgaon: "hi",
   ghaziabad: "hi", faridabad: "hi", lucknow: "hi", varanasi: "hi", patna: "hi",
   jaipur: "hi", bhopal: "hi", indore: "hi", kanpur: "hi", agra: "hi",
@@ -41,7 +49,7 @@ export function detectLanguage(city?: string, state?: string): LangCode {
   if (c && CITY_TO_LANG[c]) return CITY_TO_LANG[c];
   const s = (state || "").toLowerCase().trim();
   if (s && STATE_TO_LANG[s]) return STATE_TO_LANG[s];
-  return "hi";
+  return DEFAULT_LANG;
 }
 
 /** BCP-47 code for the same-origin /api/tts route + Web Speech. */
