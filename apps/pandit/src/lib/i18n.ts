@@ -19,6 +19,7 @@
 import { hi } from "@/lib/strings";
 import { api } from "@/lib/api";
 import { DEFAULT_LANG, LANG_TO_BCP47, type LangCode } from "@/lib/languageDetect";
+import { setGrammarLanguage } from "@/lib/voiceGrammar";
 
 const LANG_KEY = "hpj_lang_code";
 // Bump BUNDLE_VERSION whenever source Hindi copy changes in a way that
@@ -62,6 +63,8 @@ function init(): void {
         activeLang = stored;
       }
     }
+    // P2: the voice grammar carries the restored language's native words
+    setGrammarLanguage(activeLang);
   } catch {
     activeLang = DEFAULT_LANG;
     bundle = {};
@@ -149,9 +152,13 @@ async function fetchGroups(code: LangCode, groups: readonly string[]): Promise<D
   const merged: Dict = {};
   for (let i = 0; i < entries.length; i += CHUNK_SIZE) {
     const chunk = entries.slice(i, i + CHUNK_SIZE);
+    // 75s: outlive a Render cold start (same law as auth) — a hung
+    // translate must FAIL into the honesty fallback, not strand the
+    // blocking spinner forever.
     const res = await api<{ translations: string[] }>("/voice/translate", {
       method: "POST",
       body: JSON.stringify({ texts: chunk.map((e) => e.text), target: code }),
+      timeoutMs: 75000,
     });
     if (!res.success || !res.data || res.data.translations.length !== chunk.length) {
       throw new Error(res.error?.code || "translate_failed");
@@ -205,6 +212,7 @@ export async function activateLanguage(code: LangCode): Promise<boolean> {
   if (code === "hi") {
     activeLang = "hi";
     bundle = {};
+    setGrammarLanguage("hi");
     try {
       localStorage.setItem(LANG_KEY, "hi");
     } catch { /* noop */ }
@@ -218,6 +226,9 @@ export async function activateLanguage(code: LangCode): Promise<boolean> {
     // every lazy screen) and persisted the mix under the new key.
     bundle = { ...entryPart };
     activeLang = code;
+    // P2: merge the new language's native yes/no/next words into the
+    // grammar (base Hindi+English stays as the universal fallback)
+    setGrammarLanguage(code);
     try {
       localStorage.setItem(LANG_KEY, code);
     } catch { /* noop */ }

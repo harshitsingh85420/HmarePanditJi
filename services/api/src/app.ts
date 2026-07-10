@@ -236,9 +236,20 @@ const handleSTT = async (request: FastifyRequest, reply: FastifyReply) => {
     const q = request.query as { mode?: string; language?: string } | undefined;
     const mode = q?.mode;
     const smartFormat = mode === "command" ? "false" : "true";
-    // L4: English STT — the client sends language=en when the app runs in
-    // English; anything else stays the hi default (nova-2 supports both).
-    const sttLanguage = q?.language === "en" ? "en" : "hi";
+    // L4/P2: the client sends the active language code for every non-hi
+    // language; this set decides which get a NATIVE Deepgram model.
+    // - en: native (English keywords exist throughout the app).
+    // - ta is DELIBERATELY withheld even though nova-2 supports it: the
+    //   ta model emits Tamil script, but every screen-command keyword
+    //   (language tiles, tutorial commands) is Devanagari/Latin — routing
+    //   ta natively would kill those matches. ta stays on the hi model
+    //   (base Hindi grammar keeps working) until keyword surfaces are
+    //   localized per language.
+    // - mr/bn/te/kn/gu/pa/ml/or: no nova-2 model — hi fallback. mr's
+    //   grammar extensions are Devanagari, so they arrive intact through
+    //   the hi model; the other scripts wait on Deepgram support.
+    const NOVA2_NATIVE = new Set(["en", "hi"]);
+    const sttLanguage = q?.language && NOVA2_NATIVE.has(q.language) ? q.language : "hi";
 
     try {
       const response = await fetch(

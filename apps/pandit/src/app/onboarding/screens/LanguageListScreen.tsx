@@ -20,6 +20,7 @@ import { BACK } from "@/lib/voiceGrammar";
 import { FESTIVE_ACCENTS, PetalBurst } from "@/components/moments/SlideCanvas";
 import { LANG_TO_BCP47, LANG_NATIVE_NAME, type LangCode } from "@/lib/languageDetect";
 import { speakWithSarvam } from "@/lib/sarvam-tts";
+import { voiceController } from "@/lib/voiceController";
 
 interface LanguageListScreenProps {
   language: SupportedLanguage | null;
@@ -55,6 +56,14 @@ export default function LanguageListScreen({ onSelect, onBack }: LanguageListScr
   const [pending, setPending] = useState<LangCode | null>(null);
   const [burstOn, setBurstOn] = useState<LangCode | null>(null);
 
+  // P1: THE single activation path — the row's second tap and a voice
+  // match call this SAME function; it logs before invoking so the live
+  // panel shows exactly when activation started.
+  const selectTile = (tile: { lang: SupportedLanguage; code: LangCode }) => {
+    voiceController.debug(`lang-list: select ${tile.code} → activating`);
+    onSelect(tile.lang);
+  };
+
   // J2: SPEAKING a language's name selects it directly (one utterance —
   // the two-tap ceremony is a touch affordance, not a voice one); पीछे
   // returns. The narration hook arms the perpetual listen.
@@ -63,7 +72,7 @@ export default function LanguageListScreen({ onSelect, onBack }: LanguageListScr
     commands: [
       ...TILES.map((tile) => ({
         keywords: tile.spoken,
-        action: () => onSelect(tile.lang),
+        action: () => selectTile(tile),
       })),
       { keywords: BACK, action: onBack },
     ],
@@ -71,7 +80,7 @@ export default function LanguageListScreen({ onSelect, onBack }: LanguageListScr
 
   const tapTile = (tile: { lang: SupportedLanguage; code: LangCode }) => {
     if (pending === tile.code) {
-      onSelect(tile.lang);
+      selectTile(tile);
       return;
     }
     setPending(tile.code);

@@ -242,8 +242,12 @@ export function VoiceField({
     if (voiceInput.state === "idle" && voiceInput.transcript) {
       if (state.phase === "CONFIRMING") {
         const spoken = voiceInput.transcript.toLowerCase().trim();
-        const isYes = ["हाँ", "हां", "haan", "han", "yes", "सही", "ठीक", "हा"].some((w) => spoken.includes(w));
-        const isNo = ["नहीं", "नही", "nahi", "no", "गलत"].some((w) => spoken.includes(w));
+        // P2: the language-widened grammar (NO checked first) — a Marathi
+        // हो/नको must confirm/decline here exactly like the injected
+        // path; the two legacy extras (गलत/हा) stay as fallbacks.
+        const verdict = matchYesNo(spoken);
+        const isNo = verdict === "no" || spoken.includes("गलत");
+        const isYes = !isNo && (verdict === "yes" || spoken.includes("हा"));
         voiceInput.reset();
         if (isYes) dispatch({ type: "CONFIRM_YES" });
         else if (isNo) dispatch({ type: "CONFIRM_NO" });

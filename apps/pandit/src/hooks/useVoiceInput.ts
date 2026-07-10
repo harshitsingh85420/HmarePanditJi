@@ -227,11 +227,14 @@ export function useVoiceInput(): UseVoiceInputReturn {
           // must come from the single prefix-normalized source.
           // J3c: command mode disables smart_format server-side.
           const tUpload = performance.now();
-          // L4: English STT — Deepgram transcribes in the ACTIVE language.
-          // Only 'en' is sent explicitly; the hi default stays implicit.
+          // L4/P2: Deepgram transcribes in the ACTIVE language — every
+          // non-hi code is sent; the SERVER owns the nova-2 support map
+          // and falls back to the hi model where Deepgram lacks the
+          // language. The hi default stays implicit.
           const sttParams = new URLSearchParams();
           if (mode === "command") sttParams.set("mode", "command");
-          if (getActiveLang() === "en") sttParams.set("language", "en");
+          const activeLang = getActiveLang();
+          if (activeLang !== "hi") sttParams.set("language", activeLang);
           const sttQs = sttParams.toString();
           const response = await fetch(`${API_BASE}/stt${sttQs ? `?${sttQs}` : ""}`, {
             method: "POST",

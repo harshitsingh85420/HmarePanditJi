@@ -202,6 +202,9 @@ export default function ParichayScreen({ onDone }: { onDone: () => void }) {
           await voiceController.speakAndWait(t("parichay.introOnly"));
           if (doneRef.current) return;
           voiceController.debug("e2e: parichay bypassed");
+          // P3: countable stand-in for the real prompt — e2e assertions
+          // check "exactly one gUM, at Parichay" off this line.
+          voiceController.debug("gUM invoked (e2e-bypassed)");
           // K1: e2e defaults to SIMULATED-GRANTED — the whole point of
           // the e2e walk is exercising the real voice loop (listens
           // resolve instantly, transcripts come from the injector). Only

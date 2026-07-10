@@ -48,8 +48,13 @@ export function VoiceActionListener({
 
   // While a destructive command awaits confirmation, the screen answers
   // ONLY हाँ/नहीं; otherwise the caller's commands + a पीछे fallback.
+  // NO REGISTERS FIRST — the registry fires the first inclusion hit, and
+  // a decline sentence can embed YES substrings (mr: "असं होणार नाही"
+  // contains हो). matchYesNo's NO-first law applies here too: an
+  // explicit decline must never confirm a destructive action.
   const registryCommands: VoiceCommand[] = pending
     ? [
+        { keywords: NO, action: () => setPending(null) },
         {
           keywords: YES,
           action: () => {
@@ -58,7 +63,6 @@ export function VoiceActionListener({
             cmd.action();
           },
         },
-        { keywords: NO, action: () => setPending(null) },
       ]
     : [
         ...commands.map((cmd) => ({
