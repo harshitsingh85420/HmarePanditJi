@@ -195,8 +195,10 @@ export function VoiceField({
       }
       if ((value ?? "").trim()) return false;
       if (voiceController.isPureCommand(text)) return false;
-      // Q4: screen vocabulary (city names, card labels) outranks capture
-      if (voiceController.matchesScreenSpecificLoose(text)) return false;
+      // Q4: screen vocabulary (city names) outranks capture — but NOT
+      // visible option labels: dictating "हवन के लिए ग्यारह सौ" into
+      // हवन's own field must fill it, not re-toggle the card
+      if (voiceController.matchesScreenSpecificLoose(text, { includeOptions: false })) return false;
       if (parseValue(text) === null) return false;
       // the injected transcript arrives OUTSIDE a live listen — enter
       // LISTENING first so the machine's real TRANSCRIPT path runs
@@ -274,7 +276,7 @@ export function VoiceField({
         // parser REJECTS the transcript.
         const parsed = parseValue(text);
         if (voiceController.isPureCommand(text) && voiceController.handleTranscript(text)) return;
-        if (voiceController.matchesScreenSpecificLoose(text) && voiceController.handleTranscript(text)) return;
+        if (voiceController.matchesScreenSpecificLoose(text, { includeOptions: false }) && voiceController.handleTranscript(text)) return;
         if (!!value?.trim() && voiceController.handleTranscript(text)) return;
         if (parsed === null && voiceController.handleTranscript(text)) return;
         dispatch({ type: "TRANSCRIPT", text, confidence: conf });

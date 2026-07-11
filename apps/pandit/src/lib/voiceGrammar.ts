@@ -24,7 +24,7 @@ import type { LangCode } from "@/lib/languageDetect";
 const BASE = {
   YES: [
     "हाँ", "हां", "haan", "han", "जी", "जी हाँ", "ठीक है", "theek", "ok",
-    "yes", "सही", "चलो", "आगे बढ़ो", "बढ़ो",
+    "okay", "yes", "सही", "चलो", "आगे बढ़ो", "बढ़ो",
   ],
   NO: ["नहीं", "नही", "nahi", "no", "रहने दो", "मत", "बाद में"],
   NEXT: ["आगे", "आगे बढ़ें", "next", "चलिए"],
@@ -175,12 +175,25 @@ export function normalizeForMatch(transcript: string): string {
 const LATIN_RE = /^[a-z0-9 ]+$/;
 const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
+/** Lowercase + de-punctuate WITHOUT the filler strip — matchWord's form.
+ *  Containment means a longer transcript can only match MORE, so
+ *  stripping the front never enables a matchWord hit; it only loses
+ *  keywords that ARE fillers ("जी बेटा" must stay YES via जी). The strip
+ *  matters solely for the partial option match (label CONTAINS clean). */
+function compactForMatch(transcript: string): string {
+  return transcript
+    .toLowerCase()
+    .replace(/[।.,!?~"']/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 /** K3c: normalized-containment match that SURFACES the matched keyword.
  *  Q4: longest keyword wins first (हो can never shadow होणार-class
  *  words checked by a longer sibling); Latin keywords match on word
  *  boundaries ("no" never hits "know"); Devanagari stays substring. */
 export function matchWord(transcript: string, words: readonly string[]): string | null {
-  const clean = normalizeForMatch(transcript);
+  const clean = compactForMatch(transcript);
   if (!clean) return null;
   const byLength = [...words].sort((a, b) => b.length - a.length);
   for (const w of byLength) {

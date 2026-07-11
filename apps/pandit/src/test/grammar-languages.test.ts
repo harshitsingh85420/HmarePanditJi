@@ -96,6 +96,16 @@ describe("Q4 — loose matching (the exact Ramesh phrases)", () => {
     expect(matchWord("hollow sound", ["ho"])).toBe(null);
     expect(matchWord("ho chalel", ["ho"])).toBe("ho");
   });
+
+  it("review-caught regressions: जी बेटा stays YES, okay is YES", () => {
+    // जी is BOTH a filler and a YES word — matchWord evaluates the
+    // unstripped compact form, so a जी-only yes still lands
+    expect(matchYesNo("जी बेटा")).toBe("yes");
+    expect(matchYesNo("जी महाराज")).toBe("yes");
+    // word-boundary must not drop the natural English affirmative
+    expect(matchYesNo("okay")).toBe("yes");
+    expect(matchYesNo("okay done")).toBe("yes");
+  });
 });
 
 describe("Q5 — STOP grammar, distinct from SLEEP", () => {

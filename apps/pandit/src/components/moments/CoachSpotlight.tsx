@@ -82,12 +82,15 @@ export function CoachSpotlight({
   const cardRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
     if (requireInteraction) return; // target-gated tips dismiss on the target
-    const dismissOutside = (e: PointerEvent) => {
+    // 'click', not pointerdown: the first touch of a SCROLL gesture must
+    // not permanently dismiss an unread one-shot tip — only a real tap
+    // (which also proceeds to its target uninterrupted) does.
+    const dismissOutside = (e: MouseEvent) => {
       if (cardRef.current && cardRef.current.contains(e.target as Node)) return;
       onDone();
     };
-    document.addEventListener("pointerdown", dismissOutside, true);
-    return () => document.removeEventListener("pointerdown", dismissOutside, true);
+    document.addEventListener("click", dismissOutside, true);
+    return () => document.removeEventListener("click", dismissOutside, true);
   }, [requireInteraction, onDone]);
 
   if (!rect) return null;

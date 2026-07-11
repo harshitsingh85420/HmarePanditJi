@@ -12,7 +12,7 @@
 
 import { t, getActiveBcp47 } from "@/lib/i18n";
 import { clientPace } from "@/lib/sarvam-tts";
-import { YES, NO, REPEAT, HELP, STOP, SLEEP, matchAny, matchWord, normalizeForMatch } from "@/lib/voiceGrammar";
+import { YES, NO, NEXT, BACK, SKIP, REPEAT, HELP, STOP, SLEEP, matchAny, matchWord, normalizeForMatch } from "@/lib/voiceGrammar";
 
 // ── J1: SCREEN VOICE CONTEXT ─────────────────────────────────
 // Every screen registers its commands here (useVoiceScreen /
@@ -186,7 +186,20 @@ class VoiceController {
         } catch { /* noop */ }
       }, 400);
     }
+    // the lines logged right BEFORE a reload are the evidence this
+    // feature exists for — flush synchronously on pagehide
+    if (!this.debugFlushBound) {
+      this.debugFlushBound = true;
+      try {
+        window.addEventListener("pagehide", () => {
+          try {
+            sessionStorage.setItem("hpj_voicedebug_buf", JSON.stringify(this.debugBuf));
+          } catch { /* noop */ }
+        });
+      } catch { /* noop */ }
+    }
   }
+  private debugFlushBound = false;
 
   subscribeDebug = (cb: () => void): (() => void) => {
     this.debugListeners.add(cb);
@@ -367,14 +380,20 @@ class VoiceController {
   }
 
   /** Q4: TRUE when the transcript loosely contains a SCREEN-SPECIFIC
-   *  keyword (a city name, a card label — length ≥4 and not a base
+   *  keyword (a city name, a card label — length ≥4 and not ANY base
    *  grammar word). An empty VoiceField consults this before swallowing
    *  a sentence like "मैं गाज़ियाबाद से हूँ" as its value — the screen's
-   *  own vocabulary outranks a raw capture, while short grammar words
-   *  keep the strict isPureCommand rule ("आगे नगर" stays a value). */
-  matchesScreenSpecificLoose(text: string): boolean {
+   *  own vocabulary outranks a raw capture, while grammar words keep the
+   *  strict isPureCommand rule ("प्याज़ लहसुन छोड़ो" stays a value).
+   *  opts.includeOptions=false: an actively-dictating VoiceField must
+   *  not lose its value to a visible label ("हवन के लिए ग्यारह सौ" fills
+   *  the हवन field; labels still resolve via the parser-reject
+   *  fallthrough when the value isn't parseable). */
+  matchesScreenSpecificLoose(text: string, opts?: { includeOptions?: boolean }): boolean {
     const grammar = new Set(
-      [...YES, ...NO, ...REPEAT, ...HELP, ...STOP, ...SLEEP].map((w) => w.toLowerCase()),
+      [...YES, ...NO, ...NEXT, ...BACK, ...SKIP, ...REPEAT, ...HELP, ...STOP, ...SLEEP].map((w) =>
+        w.toLowerCase(),
+      ),
     );
     const specific = (kw: string) => kw.length >= 4 && !grammar.has(kw.toLowerCase());
     const entry = this.activeVoiceScreen();
@@ -384,6 +403,7 @@ class VoiceController {
         if (kws.length && matchWord(text, kws)) return true;
       }
     }
+    if (opts?.includeOptions === false) return false;
     return this.matchVisibleOption(text) !== null;
   }
 
@@ -433,17 +453,9 @@ class VoiceController {
       opt.onSelect();
       return true;
     }
-    // Q5 STOP — "रुको" mid-narration: immediate silence IS the ack (no
-    // spoken reply), and the loop keeps listening. Checked before SLEEP
-    // and before REPEAT so "रुको रुको" can never fall to unmatched.
-    if (matchAny(clean, STOP)) {
-      this.debug(`voice cmd: "${clean.slice(0, 24)}" → STOP`);
-      this.noteVoiceGesture();
-      this.stopSpeech("voice-stop");
-      this.loopRearm();
-      return true;
-    }
-    // GLOBAL grammar — everywhere, always
+    // GLOBAL grammar — everywhere, always. REPEAT/HELP resolve BEFORE
+    // STOP: a polite "बस एक बार फिर से सुनाओ" or "रुको, मदद करो" carries
+    // a real request — bare "रुको"/"बस" still lands on STOP below.
     if (matchAny(clean, REPEAT)) {
       this.debug(`voice cmd: "${clean.slice(0, 24)}" → REPEAT`);
       this.noteVoiceGesture();
@@ -455,6 +467,16 @@ class VoiceController {
       this.noteVoiceGesture();
       if (entry?.helpText) this.speak(entry.helpText);
       else this.replayFn?.();
+      return true;
+    }
+    // Q5 STOP — "रुको" mid-narration: immediate silence IS the ack (no
+    // spoken reply), and the loop keeps listening. After REPEAT/HELP
+    // (polite composites carry those intents), before SLEEP.
+    if (matchAny(clean, STOP)) {
+      this.debug(`voice cmd: "${clean.slice(0, 24)}" → STOP`);
+      this.noteVoiceGesture();
+      this.stopSpeech("voice-stop");
+      this.loopRearm();
       return true;
     }
     if (matchAny(clean, SLEEP)) {
@@ -487,6 +509,7 @@ class VoiceController {
       ...NO,
       ...REPEAT,
       ...HELP,
+      ...STOP,
       ...SLEEP,
     ];
     return words.some((w) => w.toLowerCase() === clean);
