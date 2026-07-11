@@ -6,6 +6,7 @@
 // poojas carry सत्यापन-बाकी until video-verify (P12) clears them.
 
 import { Narrate } from "@/hooks/useScreenVoice";
+import { DashboardVoiceNav } from "@/components/voice/DashboardVoiceNav";
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { hi } from "@/lib/strings";
@@ -147,6 +148,7 @@ export default function MyPoojasPage() {
       }
     >
       <Narrate text={t("myPoojas.intro")} />
+      <DashboardVoiceNav />
       <VoiceActionListener
         commands={[{ keywords: ["नई पूजा", "nayi pooja", "जोड़"], action: () => setShowAdd(true) }]}
       />

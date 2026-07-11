@@ -1,6 +1,7 @@
 "use client";
 
 import { Narrate } from "@/hooks/useScreenVoice";
+import { DashboardVoiceNav } from "@/components/voice/DashboardVoiceNav";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { t } from "@/lib/i18n";
@@ -137,6 +138,7 @@ export default function BookingsPage() {
     <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
       <Header title={t("bookingsList.title")} showBack onBack={() => router.push("/home")} />
       <Narrate text={countsNarration} />
+      <DashboardVoiceNav />
       <VoiceActionListener
         commands={[
           { keywords: ["नई", "नयी", "new"], action: () => setActiveTab("NEW") },
