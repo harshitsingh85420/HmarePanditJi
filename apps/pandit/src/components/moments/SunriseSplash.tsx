@@ -113,7 +113,23 @@ export function SunriseSplash({ onDone }: { onDone: () => void }) {
     const mountedAt = performance.now();
     const minDisplay = new Promise<void>((res) => setTimeout(res, 2600));
     void (async () => {
-      await new Promise((r) => setTimeout(r, 1600));
+      // ── T1 PLATFORM LAW (permanent) ─────────────────────────
+      // Browsers FORBID audio before the first user gesture of a page
+      // session (Chrome/Safari autoplay policy). A fresh splash
+      // CANNOT speak, no matter what we call — speech parks until the
+      // unlock tap. This attempt below is the MAXIMUM LEGAL version:
+      // it IS audible for returning-unlocked sessions and any load
+      // where a prior gesture already unlocked audio; on fresh loads
+      // it parks by platform law, the enlarged hint chip carries the
+      // message visually, and the flushed welcome opens with
+      // "नमस्ते पंडित जी!" the instant the pandit touches. Do NOT
+      // re-flag the silent fresh splash as a defect.
+      const hintAttempt = await voiceController.speakAndWait(t("splash.tapHintVoice"));
+      if (hintAttempt.status === "parked") {
+        voiceController.debug("splash: pre-tap hint parked (platform law)");
+      }
+      if (disposed) return;
+      await new Promise((r) => setTimeout(r, hintAttempt.status === "ended" ? 400 : 1600));
       if (disposed) return;
       const { status } = await voiceController.speakAndWait(t("shishya.intro"));
       if (disposed) return;
@@ -196,7 +212,11 @@ export function SunriseSplash({ onDone }: { onDone: () => void }) {
 
       {/* Parked welcome: gentle first-tap hint (chandan chip, soft pulse) */}
       {showHint && (
-        <span className="pa-tap-hint absolute bottom-28 left-1/2 -translate-x-1/2 bg-cream border border-saffron-200 shadow-card rounded-full px-5 py-2.5 text-[18px] font-bold text-temple-600 font-hindi whitespace-nowrap">
+        /* T1: the chip IS the greeting a fresh load cannot speak — 18px,
+           strong pulse, wraps inside 360px instead of clipping.
+           -translate-x-1/2 stays as the reduced-motion fallback; the
+           animation's own transform takes over while pulsing. */
+        <span className="pa-tap-hint absolute bottom-28 left-1/2 -translate-x-1/2 bg-cream border-2 border-saffron-300 shadow-card rounded-full px-5 py-2.5 text-[18px] font-bold text-temple-600 font-hindi text-center max-w-[92vw]">
           {t("pratham.tapHint")}
         </span>
       )}

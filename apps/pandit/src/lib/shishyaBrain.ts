@@ -16,9 +16,29 @@
 // doneVoice ~1 day verification) — never invented.
 // ─────────────────────────────────────────────────────────────
 
-import { t } from "@/lib/i18n";
+import { t, getActiveLang } from "@/lib/i18n";
 import { matchWord } from "@/lib/voiceGrammar";
 import { api } from "@/lib/api";
+
+// T4 SYNC CONTRACT: the ids/keywords below mirror the server table in
+// services/api/src/lib/shishyaFacts.ts (which also owns the LLM fact
+// sheet). Change an intent here → change it there.
+
+/** T4: the server brain — curated re-check + Sarvam LLM under the
+ *  fact-sheet prompt + 7d cache. Resolves {source:'miss'} on ANY
+ *  failure; never throws. */
+export async function askShishyaServer(
+  text: string,
+): Promise<{ answer?: string; source: string }> {
+  const route = typeof window !== "undefined" ? window.location.pathname : "";
+  const res = await api("/shishya/ask", {
+    method: "POST",
+    body: JSON.stringify({ text: text.slice(0, 300), route, lang: getActiveLang() }),
+    timeoutMs: 8000,
+  });
+  if (res.success && res.data) return res.data as { answer?: string; source: string };
+  return { source: "miss" };
+}
 
 export interface BrainIntent {
   id: string;
@@ -37,7 +57,7 @@ const intent = (id: string, keywords: readonly string[]): BrainIntent => ({
 export const BRAIN_INTENTS: readonly BrainIntent[] = [
   intent("paymentMissing", ["पैसा नहीं आया", "पैसा नहीं मिला", "पेमेंट नहीं आया", "paisa nahi aaya", "payment nahi"]),
   intent("paymentWhen", ["पैसा कब", "कब मिलेगा पैसा", "पैसे कब", "भुगतान कब", "पेमेंट कब", "paisa kab", "kab milega"]),
-  intent("paymentHow", ["पैसा कैसे मिलेगा", "पैसे कैसे", "भुगतान कैसे", "खाते में कैसे", "paisa kaise"]),
+  intent("paymentHow", ["पैसा कैसे मिलेगा", "पैसा कैसे आएगा", "पैसा कैसे", "पैसे कैसे", "भुगतान कैसे", "खाते में कैसे", "paisa kaise"]),
   intent("commission", ["कमीशन", "कटौती", "कितना काटते", "कितना काटोगे", "हिस्सा कितना", "commission", "katauti"]),
   intent("changePrice", ["दाम कैसे बदल", "दाम बदलना", "दक्षिणा बदल", "रेट बदल", "कीमत बदल", "daam badal", "rate badal"]),
   intent("dakshinaWho", ["दक्षिणा कौन", "दाम कौन तय", "कीमत कौन", "दक्षिणा कैसे तय", "मोलभाव", "dakshina kaun", "molbhav"]),

@@ -20,6 +20,8 @@ export const hi = {
     // brain cannot answer; never for ordinary unmatched noise.
     honestMiss:
       "क्षमा कीजिए पंडित जी, इसका उत्तर अभी मेरे पास नहीं है — मदद वाले हिस्से से हमारी टीम को फ़ोन कर सकते हैं।",
+    // T4: spoken once when the server brain takes >900ms
+    thinking: "एक क्षण, सोच रहा हूँ…",
     // S6a: शिष्य's curated answers — ≤2 sentences, warm, SPOKEN. Money
     // and Aadhaar lines are grounded in repo facts, never invented.
     faq: {
@@ -96,6 +98,12 @@ export const hi = {
   coach: {
     tryIt: "आज़माएँ →",
     gotIt: "समझा",
+  },
+  // T1: splash-only lines. The pre-tap hint ATTEMPT is audible only for
+  // sessions where audio is already unlocked (returning users) — fresh
+  // loads park it by browser autoplay law and show the chip instead.
+  splash: {
+    tapHintVoice: "नमस्ते पंडित जी! आगे बढ़ने के लिए स्क्रीन छू लीजिए।",
   },
   // प्रथम आरती — the festive entry flow (splash → tutorial)
   pratham: {

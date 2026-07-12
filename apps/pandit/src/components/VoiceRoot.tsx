@@ -107,6 +107,9 @@ export function VoiceRoot() {
       t("voiceLoop.confirmRepeat"),
       t("tutorial.advanceAsk"),
       t("shishya.wake"),
+      // T4: the brain's own static lines answer instantly
+      t("shishya.thinking"),
+      t("shishya.honestMiss"),
     ]);
   }, []);
 

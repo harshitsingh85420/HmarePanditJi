@@ -128,19 +128,22 @@ export function useVoiceInput(): UseVoiceInputReturn {
     skipUploadRef.current = false;
 
     try {
-      // S4b/S5: ONE persistent stream across listen cycles — reuse the
-      // controller-custody stream when live; getUserMedia only when
-      // there is none (first grant, or after a sleep/hidden release).
-      const stream =
-        preStream ??
-        voiceController.getMicStream() ??
-        (await navigator.mediaDevices.getUserMedia({
+      // S4b/T2: gesture stream > custody stream (pre-warmed at narration
+      // end under strategy 'stop') > fresh getUserMedia. Permission is
+      // already granted so a reacquire never re-prompts; its latency is
+      // measured — the <300ms budget is what the prewarm exists to beat.
+      let stream = preStream ?? voiceController.getMicStream();
+      if (!stream) {
+        const t0 = performance.now();
+        stream = await navigator.mediaDevices.getUserMedia({
           audio: {
             echoCancellation: true,
             noiseSuppression: true,
             autoGainControl: true,
           },
-        }));
+        });
+        voiceController.debug(`mic: reacquired in ${Math.round(performance.now() - t0)}ms`);
+      }
       voiceController.adoptMicStream(stream);
       voiceController.setMicTracksEnabled(true, "listen-start");
 
@@ -200,12 +203,9 @@ export function useVoiceInput(): UseVoiceInputReturn {
         } catch (e) {
           // ignore
         }
-        // S5: tracks stay ALIVE in controller custody for the next
-        // listen — no per-cycle stop/reacquire (unless the strategy
-        // constant is flipped to "stop-reacquire").
-        if (MIC_RELEASE_STRATEGY === "stop-reacquire") {
-          voiceController.releaseMicStream("listen-end (stop-reacquire)");
-        }
+        // T2: between listen cycles the stream persists in custody —
+        // the NARRATION is what releases it (strategy 'stop', in
+        // speak()); silent listen→listen loops keep the stream warm.
       };
 
       rec.onstop = async () => {
@@ -294,6 +294,9 @@ export function useVoiceInput(): UseVoiceInputReturn {
       rec.start();
 
       const timer = setInterval(() => {
+        // T3: recorder heartbeat — proves the capture pipeline is ALIVE;
+        // the zombie detector tears down a listen whose heart stops 12s.
+        voiceController.noteListenActivity();
         analyser.getByteTimeDomainData(buf);
         let sum = 0; 
         for (let i = 0; i < buf.length; i++) { 

@@ -18,6 +18,7 @@ import {
   isScreenContextAsk,
   isQuestionShaped,
   recordUnansweredQuestion,
+  askShishyaServer,
 } from "@/lib/shishyaBrain";
 
 // ── J1: SCREEN VOICE CONTEXT ─────────────────────────────────
@@ -150,6 +151,13 @@ class VoiceController {
   // registry command executed (or a voice-accepted field value) is the
   // pandit navigating by voice, same as a tap.
   private lastVoiceCommandAt = 0;
+
+  // T3: recorder heartbeat — useVoiceInput stamps this on every RMS
+  // tick and STT lifecycle step; the zombie detector reads it.
+  private lastListenActivityAt = 0;
+  noteListenActivity(): void {
+    this.lastListenActivityAt = performance.now();
+  }
 
   /** Stamp the voice-gesture clock (registry command ran / field value
    *  accepted by voice). Consulted by the stopSpeech classifier. */
@@ -623,9 +631,9 @@ class VoiceController {
   speakUnmatchedGently(text?: string): void {
     const entry = this.activeVoiceScreen();
     if (text && isQuestionShaped(text)) {
-      this.debug(`brain-miss: "${text.slice(0, 60)}"`);
-      recordUnansweredQuestion(text);
-      this.speak(t("shishya.honestMiss"));
+      // T4: a question the local brain missed goes to the SERVER brain
+      // (curated re-check → Sarvam LLM under the fact-sheet prompt).
+      void this.askServerBrain(text);
       return;
     }
     const now = performance.now();
@@ -640,12 +648,44 @@ class VoiceController {
   }
   private lastGlobalUnmatchedAt = 0;
 
+  /**
+   * T4: server-brain ask. >900ms in flight → ONE spoken filler
+   * ("एक क्षण, सोच रहा हूँ…", prefetched); the answer (or the honest
+   * miss on any failure) replaces it — newest-wins keeps this clean.
+   * Answers NEVER navigate; the loop re-arms when the line ends.
+   */
+  private askServerBrain(text: string): Promise<void> {
+    const t0 = performance.now();
+    const filler = setTimeout(() => {
+      this.speak(t("shishya.thinking"));
+    }, 900);
+    return askShishyaServer(text)
+      .then((res) => {
+        clearTimeout(filler);
+        const ms = Math.round(performance.now() - t0);
+        this.debug(`brain: q="${text.slice(0, 40)}" source=${res.source} ms=${ms}`);
+        if (res.answer) {
+          this.speak(res.answer);
+        } else {
+          recordUnansweredQuestion(text);
+          this.speak(t("shishya.honestMiss"));
+        }
+      })
+      .catch(() => {
+        clearTimeout(filler);
+        this.debug(`brain: q="${text.slice(0, 40)}" source=error`);
+        recordUnansweredQuestion(text);
+        this.speak(t("shishya.honestMiss"));
+      });
+  }
+
   get processing(): boolean {
     return this._processing;
   }
   setProcessing(v: boolean): void {
     if (this._processing === v) return;
     this._processing = v;
+    if (v) this.noteListenActivity(); // T3: STT-in-flight heartbeat
     this.emit();
   }
 
@@ -733,8 +773,24 @@ class VoiceController {
     // Skips: e2e (listens resolve instantly by design), pre-unlock (an
     // unprompted getUserMedia before the first gesture is a hostile
     // popup), pending re-arm timers (no double-arming, no log spam).
+    // T3 ZOMBIE DETECTOR: listening=true fooled the S4 watchdog into
+    // backing off even when the recorder underneath was DEAD (tab-hide
+    // killed onstop; a wedged teardown). The recorder heartbeats every
+    // RMS tick — listening or STT-processing with a silent heartbeat
+    // for 12s is a zombie: force teardown + re-arm.
     setInterval(() => {
       if (this._e2e || !this._unlocked) return;
+      const now = performance.now();
+      if (
+        (this._listening || this._processing) &&
+        now - this.lastListenActivityAt > 12000
+      ) {
+        this.debug("loop: zombie recovered");
+        this._processing = false;
+        this.abortListening();
+        this.loopRearm(0);
+        return;
+      }
       if (this.paused || this._speaking || this._listening) return;
       if (this._processing || this._confirming) return;
       if (this.rearmTimer) return;
@@ -961,9 +1017,11 @@ class VoiceController {
     this._speaking = true;
     // S3: this utterance's highlight (or none) replaces any prior one
     this.setHighlight(opts?.highlightRef);
-    // S5: capture goes quiet while शिष्य talks — undocks Android media
-    // ducking AND stops the mic hearing him
-    this.setMicTracksEnabled(false, "narrating");
+    // S5/T2: capture goes fully quiet while शिष्य talks. 'stop' KILLS
+    // the tracks (the only thing that exits Android's call-audio mode);
+    // 'mute' is the legacy enabled-toggle fallback.
+    if (MIC_RELEASE_STRATEGY === "stop") this.releaseMicStream("narrating");
+    else this.setMicTracksEnabled(false, "narrating");
     this.emit();
 
     let settled = false;
@@ -981,11 +1039,50 @@ class VoiceController {
         this.speak(q.text, q.opts);
         return;
       }
-      // ALWAYS-LISTENING LAW: after any speech ends, re-arm the loop
+      // ALWAYS-LISTENING LAW: after any speech ends, re-arm the loop.
+      // T2: pre-warm the mic NOW — the 350ms re-arm delay absorbs the
+      // getUserMedia latency so the listen finds a ready stream.
+      this.prewarmMic();
       this.loopRearm();
     };
 
     void this.speakNow(text, opts?.languageCode ?? getActiveBcp47(), finish);
+  }
+
+  // T2: re-acquiring at listen time costs 50-300ms — acquire at
+  // narration END instead. If permission was revoked mid-session the
+  // NotAllowedError flips micGranted false → paused → full touch app
+  // (the graceful micDenied fall).
+  private prewarming = false;
+  prewarmMic(): void {
+    if (MIC_RELEASE_STRATEGY !== "stop") return;
+    if (this.prewarming || this.paused || !this.micGranted() || this.getMicStream()) return;
+    if (typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) return;
+    this.prewarming = true;
+    const t0 = performance.now();
+    navigator.mediaDevices
+      .getUserMedia({
+        audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
+      })
+      .then((stream) => {
+        this.prewarming = false;
+        this.adoptMicStream(stream);
+        this.debug(`mic: prewarmed in ${Math.round(performance.now() - t0)}ms`);
+        // a new narration started while we acquired — release again
+        if (this._speaking) this.releaseMicStream("narrating (post-prewarm)");
+      })
+      .catch((err: unknown) => {
+        this.prewarming = false;
+        const name = (err as Error)?.name || String(err);
+        this.debug(`mic: prewarm failed (${name})`);
+        if (name === "NotAllowedError") {
+          // revoked mid-session → graceful micDenied UX
+          try {
+            localStorage.setItem("mic_permission_granted", "false");
+          } catch { /* noop */ }
+          this.emit();
+        }
+      });
   }
 
   // X2b + D3: primary = same-origin /api/tts (Sarvam, ACTIVE language)
@@ -1420,6 +1517,9 @@ class VoiceController {
     this.init();
     if (this.paused || this._speaking) return false;
     this._listening = true;
+    // T3: a fresh listen starts its heartbeat NOW (stale stamps must
+    // not zombie-flag a listen that just began)
+    this.noteListenActivity();
     // S5: the persistent stream wakes for the listen
     this.setMicTracksEnabled(true, "listen");
     this.emit();
@@ -1468,7 +1568,11 @@ class VoiceController {
 export const voiceController = new VoiceController();
 export type { SpeakOpts };
 
-// S5: if enabled=false fails to undock Android's media ducking on test
-// devices, flip to "stop-reacquire" — listens then re-getUserMedia
-// each cycle (the pre-S5 behavior, with the custody plumbing intact).
-export const MIC_RELEASE_STRATEGY: "enable-toggle" | "stop-reacquire" = "enable-toggle";
+// T2 (founder's phone verdict): enabled=false did NOT exit call-audio
+// mode — the "bad boy" tone stayed while any live mic track existed.
+// STRATEGY 'stop': during narration ALL mic tracks are stopped and the
+// stream closed; the listen re-acquires via getUserMedia (permission
+// already granted → no popup; latency measured + logged, pre-warmed at
+// narration end so the listen finds a ready stream). 'mute' keeps the
+// old S5 enabled-toggle as the fallback.
+export const MIC_RELEASE_STRATEGY: "stop" | "mute" = "stop";
