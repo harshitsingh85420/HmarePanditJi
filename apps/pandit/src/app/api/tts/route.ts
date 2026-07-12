@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { VOICE_PROFILE } from "@/lib/voiceProfile";
 
 // ─────────────────────────────────────────────────────────────
 // TTS API PROXY ROUTE
@@ -124,12 +125,12 @@ export async function POST(request: NextRequest) {
     // speech never breaks.
     // 'aditya' = first male option in Sarvam's bulbul:v3 speaker list
     // (verified live via scripts/check-sarvam-speaker.mjs)
-    const speaker = body.speaker ?? process.env.SARVAM_TTS_SPEAKER ?? 'aditya';
+    const speaker = body.speaker ?? process.env.SARVAM_TTS_SPEAKER ?? VOICE_PROFILE.speaker;
     // D4 PACE: default from SARVAM_TTS_PACE (1.15 = brisk but clear for
     // elderly Hindi). Sarvam bulbul documents pace 0.5–2.0 — clamp to
     // that; an out-of-range 4xx would name the exact limits in its body
     // (logged below) if the range ever changes.
-    const envPace = Number.parseFloat(process.env.SARVAM_TTS_PACE ?? '1.15');
+    const envPace = Number.parseFloat(process.env.SARVAM_TTS_PACE ?? String(VOICE_PROFILE.pace));
     const requestedPace = typeof body.pace === 'number' && Number.isFinite(body.pace) ? body.pace : envPace;
     const pace = Math.min(2.0, Math.max(0.5, Number.isFinite(requestedPace) ? requestedPace : 1.15));
     const basePayload: Record<string, unknown> = {
@@ -181,7 +182,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No audio in response' }, { status: 502 });
     }
 
-    return NextResponse.json({ audioBase64: data.audios[0] });
+    return NextResponse.json({ audioBase64: data.audios[0] }, { headers: { 'x-voice': `${speaker}@${pace}` } });
 
   } catch (error) {
     console.error('[TTS Route] Fetch error:', error);

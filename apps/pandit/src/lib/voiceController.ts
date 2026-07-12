@@ -12,6 +12,7 @@
 
 import { t, getActiveBcp47 } from "@/lib/i18n";
 import { clientPace } from "@/lib/sarvam-tts";
+import { VOICE_PROFILE } from "@/lib/voiceProfile";
 import { YES, NO, NEXT, BACK, SKIP, REPEAT, HELP, STOP, SLEEP, matchAny, matchWord, normalizeForMatch } from "@/lib/voiceGrammar";
 import {
   matchBrainIntent,
@@ -197,6 +198,7 @@ class VoiceController {
   private micStream: MediaStream | null = null;
 
   adoptMicStream(stream: MediaStream): void {
+    this.probeMicStrategyOnce(); // U4: pick the safe strategy for this device
     if (this.micStream === stream) return;
     this.releaseMicStream("replaced");
     this.micStream = stream;
@@ -224,6 +226,63 @@ class VoiceController {
     });
     if (changed) this.debug(`mic: tracks ${v ? "ENABLED" : "disabled"} (${why})`);
   }
+  // ── U4 PERMISSION LOGIC LAW ────────────────────────────────
+  // The mic prompt may appear at exactly ONE designed moment (Parichay,
+  // plus its explicit retry button) — NOWHERE else, EVER. T2's 'stop'
+  // strategy re-acquires between narrations; on Chromes where a fully
+  // closed stream re-prompts, that would violate the law. So the
+  // strategy SELF-SELECTS per device: 'mute' (keep stream, disable
+  // tracks — zero re-prompt risk) until permissions.query PROVES
+  // 'granted'; then 'stop' (full release, the T2 tone fix). Devices
+  // without the permissions API stay 'mute' forever. Persisted.
+  private micStrategy: "stop" | "mute" = "mute";
+  private micStrategyProbed = false;
+
+  effectiveMicStrategy(): "stop" | "mute" {
+    return this.micStrategy;
+  }
+
+  private probeMicStrategyOnce(): void {
+    if (this.micStrategyProbed) return;
+    this.micStrategyProbed = true;
+    try {
+      const stored = localStorage.getItem("hpj_mic_strategy");
+      if (stored === "stop" || stored === "mute") {
+        this.micStrategy = stored;
+        this.debug(`mic: strategy=${stored} (stored)`);
+        return;
+      }
+    } catch { /* noop */ }
+    if (MIC_RELEASE_STRATEGY !== "stop") return; // desired default is mute
+    try {
+      if (!navigator.permissions?.query) {
+        this.micStrategy = "mute";
+        try { localStorage.setItem("hpj_mic_strategy", "mute"); } catch { /* noop */ }
+        this.debug("mic: strategy=mute (no permissions API — re-prompt risk)");
+        return;
+      }
+      void navigator.permissions
+        .query({ name: "microphone" as PermissionName })
+        .then((st) => {
+          if (st.state === "granted") {
+            this.micStrategy = "stop";
+            try { localStorage.setItem("hpj_mic_strategy", "stop"); } catch { /* noop */ }
+            this.debug("mic: strategy=stop (permission granted — silent reacquire proven safe)");
+          } else {
+            this.micStrategy = "mute";
+            try { localStorage.setItem("hpj_mic_strategy", "mute"); } catch { /* noop */ }
+            this.debug(`mic: strategy=mute (re-prompt risk, state=${st.state})`);
+          }
+        })
+        .catch(() => {
+          this.micStrategy = "mute";
+          this.debug("mic: strategy=mute (permissions query failed)");
+        });
+    } catch {
+      this.micStrategy = "mute";
+    }
+  }
+
   releaseMicStream(why: string): void {
     if (!this.micStream) return;
     this.micStream.getTracks().forEach((tr) => tr.stop());
@@ -400,6 +459,13 @@ class VoiceController {
 
   // ── TTS CHAIN (X2b) ────────────────────────────────────────
   // Primary: POST /api/tts (Sarvam) played through an <audio> element.
+  // U1b FALLBACK POLICY: once Sarvam succeeds this session, its
+  // failures retry x2 then go SILENT (+toast) — the robot voice never
+  // intrudes mid-session; webspeech only in never-succeeded outages.
+  private sarvamEverSucceeded = false;
+  // U0d: ground truth from /api/tts's x-voice header (speaker@pace)
+  private lastVoiceGroundTruth: string | null = null;
+
   // Fallback: speechSynthesis hi-IN via voice-engine (logged once).
   // 501 tts_unconfigured / 503 → stop asking the endpoint this session.
   private remoteTtsDown = false;
@@ -1020,7 +1086,7 @@ class VoiceController {
     // S5/T2: capture goes fully quiet while शिष्य talks. 'stop' KILLS
     // the tracks (the only thing that exits Android's call-audio mode);
     // 'mute' is the legacy enabled-toggle fallback.
-    if (MIC_RELEASE_STRATEGY === "stop") this.releaseMicStream("narrating");
+    if (this.effectiveMicStrategy() === "stop") this.releaseMicStream("narrating");
     else this.setMicTracksEnabled(false, "narrating");
     this.emit();
 
@@ -1055,7 +1121,7 @@ class VoiceController {
   // (the graceful micDenied fall).
   private prewarming = false;
   prewarmMic(): void {
-    if (MIC_RELEASE_STRATEGY !== "stop") return;
+    if (this.effectiveMicStrategy() !== "stop") return;
     if (this.prewarming || this.paused || !this.micGranted() || this.getMicStream()) return;
     if (typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) return;
     this.prewarming = true;
@@ -1095,6 +1161,7 @@ class VoiceController {
     const seq = ++this.speechSeq;
     const remote = await this.tryRemoteTTS(text, languageCode, seq);
     if (remote === "played") {
+      this.sarvamEverSucceeded = true;
       finish(true);
       return;
     }
@@ -1108,13 +1175,42 @@ class VoiceController {
       finish(false, "interrupted");
       return;
     }
+    // U1b FALLBACK POLICY: Sarvam has worked this session → its failure
+    // is a HICCUP, not an outage. Retry x2 (500ms/1500ms); still failing
+    // → SILENT + one toast + panel line. The robot voice never intrudes.
+    if (this.sarvamEverSucceeded && remote === "failed") {
+      for (const delay of [500, 1500]) {
+        await new Promise((r) => setTimeout(r, delay));
+        if (seq !== this.speechSeq) {
+          finish(false, "interrupted");
+          return;
+        }
+        this.remoteTtsDown = false; // a retry gets a fresh chance
+        const again = await this.tryRemoteTTS(text, languageCode, seq);
+        if (again === "played") {
+          this.debug("voice: sarvam recovered on retry");
+          finish(true);
+          return;
+        }
+        if (again === "parked" || again === "cancelled") {
+          finish(false, again === "parked" ? "parked" : "interrupted");
+          return;
+        }
+      }
+      this.debug("voice: silent(sarvam-fail x3) — text carries the line");
+      try {
+        window.dispatchEvent(new CustomEvent("hpj-voice-hiccup"));
+      } catch { /* noop */ }
+      finish(false, "failed");
+      return;
+    }
     if (!window.speechSynthesis) {
-      this.debug("fallback: speechSynthesis unavailable → text-only");
+      this.debug("voice: silent(no-engine)");
       this.announceVoiceUnavailable();
       finish(false, "failed");
       return;
     }
-    this.debug("fallback: sarvam→speechSynthesis");
+    this.debug("fallback: sarvam→speechSynthesis (sarvam never up this session)");
     try {
       const { pickVoiceForLang, speakWithSarvam } = await import("@/lib/voice-engine").then(
         async (engine) => ({
@@ -1136,7 +1232,7 @@ class VoiceController {
         finish(false, "failed");
         return;
       }
-      this.debug(`speechSynthesis voice: ${voice.name} (${voice.lang})`);
+      this.debug(`voice: webspeech:${voice.name} (${voice.lang}) route=speechSynthesis`);
       // G2: fallback playback engaging counts as started for failsafes
       this.notifyPlaybackStart();
       await speakWithSarvam({
@@ -1314,6 +1410,7 @@ class VoiceController {
           this.logFallbackOnce(`HTTP ${res.status}`);
           return "failed";
         }
+        this.lastVoiceGroundTruth = res.headers.get("x-voice");
         const data = (await res.json()) as { audioBase64?: string };
         audioBase64 = data?.audioBase64;
         this.debug(
@@ -1334,6 +1431,12 @@ class VoiceController {
       return "failed";
     }
     if (seq !== this.speechSeq) return "cancelled";
+
+    // U0d THE TESTIMONY LINE: what voice is about to sound, exactly.
+    // On the founder's phone this single line ends the voice mystery.
+    this.debug(
+      `voice: sarvam:${(this.lastVoiceGroundTruth || `${VOICE_PROFILE.speaker}@${pace}`).replace("@", " pace=")} route=/api/tts cache=${cacheVerdict}`,
+    );
 
     // A3: decode → Blob (audio/wav, matching Sarvam's output) → object URL
     // on THE persistent, gesture-bound element.

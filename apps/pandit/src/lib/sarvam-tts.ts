@@ -1,20 +1,15 @@
 'use client';
+import { VOICE_PROFILE } from "@/lib/voiceProfile";
 
 import { speak, stopSpeaking } from './voice-engine';
 import type { VoiceScript } from './voice-scripts-part0';
 import { logger } from '@/utils/logger';
 
-/** D4: per-device pace override — localStorage 'voice_pace' (0.5–2.0),
- *  else 1.15 (matches the server's SARVAM_TTS_PACE default). */
+/** U1 ONE-VOICE LAW: pace comes from VOICE_PROFILE — same speed on
+ *  every device, always. (The old localStorage 'voice_pace' knob let
+ *  devices drift apart; it is retired.) */
 export function clientPace(): number {
-  try {
-    const raw = localStorage.getItem("voice_pace");
-    if (raw) {
-      const v = Number.parseFloat(raw);
-      if (Number.isFinite(v)) return Math.min(2.0, Math.max(0.5, v));
-    }
-  } catch { /* SSR / storage blocked */ }
-  return 1.15;
+  return VOICE_PROFILE.pace;
 }
 
 export type SarvamLanguageCode =

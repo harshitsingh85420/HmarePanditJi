@@ -16,7 +16,7 @@
 // BEHIND it, then a 200ms crossfade reveals the decided destination.
 // ─────────────────────────────────────────────────────────────
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSafeOnboardingStore } from "@/lib/stores/ssr-safe-stores";
 import { voiceController } from "@/lib/voiceController";
@@ -73,6 +73,8 @@ function LangConfirmScreen2({
   onOther: () => void;
 }) {
   const lc = LANG_CONFIRM[code];
+  // U3: "इसी भाषा में चलें?" names its YES — that button glows for the line
+  const yesBtnRef = useRef<HTMLDivElement | null>(null);
   // J2 — THE reported defect: the question is asked by voice, so the
   // answer must work by voice. Narration speaks IN the detected language
   // (Sarvam chain + unlock queueing apply); हाँ = the yes button,
@@ -82,6 +84,7 @@ function LangConfirmScreen2({
     narration: lc.confirmQuestion,
     languageCode: LANG_TO_BCP47[code],
     helpText: t("help.languageConfirm"),
+    highlightRef: yesBtnRef,
     commands: [
       { keywords: YES, action: onYes },
       { keywords: [...NO, "दूसरी", "बदलो", "list", "doosri", "badlo"], action: onOther },
@@ -99,12 +102,15 @@ function LangConfirmScreen2({
       </div>
       <h1 className="text-[24px] font-bold text-temple-600 font-hindi leading-snug">{lc.confirmQuestion}</h1>
       <div className="w-full flex flex-col gap-3">
-        <button
-          onClick={onYes}
-          className="w-full min-h-[64px] bg-saffron-500 text-[#FFF3EA] rounded-btn text-[20px] font-bold shadow-btn active:scale-[0.97] transition-transform font-hindi"
-        >
-          {lc.yesLabel}
-        </button>
+        {/* U3: wrapper ref = the confirm question's glow target */}
+        <div ref={yesBtnRef}>
+          <button
+            onClick={onYes}
+            className="w-full min-h-[64px] bg-saffron-500 text-[#FFF3EA] rounded-btn text-[20px] font-bold shadow-btn active:scale-[0.97] transition-transform font-hindi"
+          >
+            {lc.yesLabel}
+          </button>
+        </div>
         <button
           onClick={onOther}
           className="w-full min-h-[56px] border-2 border-saffron-500 text-saffron-600 bg-white rounded-btn text-[18px] font-bold active:scale-[0.97] transition-transform font-hindi"

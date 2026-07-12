@@ -4,6 +4,9 @@ export const hi = {
     off: "आवाज़ बंद करें",
     unavailable: "आवाज़ उपलब्ध नहीं — पाठ पढ़ें",
     tapToHear: "आवाज़ के लिए स्क्रीन को एक बार छुएँ",
+    // U1b: Sarvam hiccup after it worked — silence + this toast, never
+    // the robot voice mid-session
+    hiccup: "आवाज़ में रुकावट है",
   },
   shishya: {
     name: "शिष्य",

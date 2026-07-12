@@ -128,15 +128,19 @@ export function VoiceRoot() {
     const onTapToHear = () => setToastMsg(t("voice.tapToHear"));
     // J2: "सो जाओ" by voice = the orb tap's sleep, same toast
     const onVoiceSleep = () => setToastMsg(t("shishya.sleepToast"));
+    // U1b: Sarvam hiccup mid-session → silence + this one toast
+    const onVoiceHiccup = () => setToastMsg(t("voice.hiccup"));
     document.addEventListener("pointerdown", onPointerDown, true);
     window.addEventListener("hpj-voice-unavailable", onVoiceUnavailable);
     window.addEventListener("hpj-voice-tap-to-hear", onTapToHear);
     window.addEventListener("hpj-shishya-sleep", onVoiceSleep);
+    window.addEventListener("hpj-voice-hiccup", onVoiceHiccup);
     return () => {
       document.removeEventListener("pointerdown", onPointerDown, true);
       window.removeEventListener("hpj-voice-unavailable", onVoiceUnavailable);
       window.removeEventListener("hpj-voice-tap-to-hear", onTapToHear);
       window.removeEventListener("hpj-shishya-sleep", onVoiceSleep);
+      window.removeEventListener("hpj-voice-hiccup", onVoiceHiccup);
     };
   }, []);
 
