@@ -635,3 +635,20 @@ model FeedbackUnanswered {
 
   @@index([createdAt])
 }
+
+// W2: every agent exchange, verbatim — telemetry + the curation corpus
+// for prompt iteration. Supersedes FeedbackUnanswered for agent traffic
+// (that table keeps serving reflex-layer brain misses).
+model ShishyaExchange {
+  id        String   @id @default(cuid())
+  text      String   // the pandit's utterance
+  say       String   // what shishya answered
+  act       String?  // executed tool id, if any
+  route     String
+  lang      String   @default("hi")
+  ms        Int      @default(0)
+  model     String   @default("")
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
