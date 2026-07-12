@@ -57,6 +57,8 @@ export default function ParichayScreen({ onDone }: { onDone: () => void }) {
   const [pointerUp, setPointerUp] = useState(false);
   const doneRef = useRef(false);
   const firedRef = useRef(false);
+  // S3: highlight target for the dismissed-fallback "फिर से पूछें" CTA
+  const askAgainRef = useRef<HTMLDivElement | null>(null);
 
   const advance = () => {
     if (doneRef.current) return;
@@ -158,7 +160,8 @@ export default function ParichayScreen({ onDone }: { onDone: () => void }) {
           voiceController.debug("perm: settled(dismissed) (parichay)");
           setRecovery(false); // the latest attempt was a dismissal, not a deny
           setStage("dismissed");
-          voiceController.speak(t("parichay.dismissed"));
+          // S3: the line says "फिर बटन दबाइए" — glow the fallback CTA
+          voiceController.speak(t("parichay.dismissed"), { highlightRef: askAgainRef });
         }
       });
   };
@@ -341,9 +344,12 @@ export default function ParichayScreen({ onDone }: { onDone: () => void }) {
             </Button>
           </>
         ) : stage === "dismissed" ? (
-          <Button variant="primary" size="xl" fullWidth onClick={() => askMic(t("parichay.pressAllow"))}>
-            {t("parichay.askAgainBtn")}
-          </Button>
+          /* S3: wrapper ref — the dismissed narration highlights THIS */
+          <div ref={askAgainRef}>
+            <Button variant="primary" size="xl" fullWidth onClick={() => askMic(t("parichay.pressAllow"))}>
+              {t("parichay.askAgainBtn")}
+            </Button>
+          </div>
         ) : stage === "needstart" ? (
           <Button
             variant="primary"

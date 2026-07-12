@@ -69,6 +69,7 @@ export default function LanguageListScreen({ onSelect, onBack }: LanguageListScr
   // returns. The narration hook arms the perpetual listen.
   useVoiceScreen({
     narration: t("pratham.langListVoice"),
+    helpText: t("help.languageList"),
     commands: [
       ...TILES.map((tile) => ({
         keywords: tile.spoken,

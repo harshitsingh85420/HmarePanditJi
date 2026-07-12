@@ -9,7 +9,7 @@
 import { useRouter } from "next/navigation";
 import { VoiceActionListener } from "./VoiceActionListener";
 
-export function DashboardVoiceNav() {
+export function DashboardVoiceNav({ helpLine }: { helpLine?: string }) {
   const router = useRouter();
   return (
     <VoiceActionListener
@@ -23,6 +23,7 @@ export function DashboardVoiceNav() {
         { keywords: ["सेटिंग", "settings"], action: () => router.push("/settings") },
         { keywords: ["मदद", "madad"], action: () => router.push("/help") },
       ]}
+      promptText={helpLine}
     />
   );
 }

@@ -148,9 +148,10 @@ export default function MyPoojasPage() {
       }
     >
       <Narrate text={t("myPoojas.intro")} />
-      <DashboardVoiceNav />
+      <DashboardVoiceNav helpLine={t("help.myPoojas")} />
       <VoiceActionListener
         commands={[{ keywords: ["नई पूजा", "nayi pooja", "जोड़"], action: () => setShowAdd(true) }]}
+        promptText={t("help.myPoojas")}
       />
 
       <div className="flex flex-col gap-3">

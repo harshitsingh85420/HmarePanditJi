@@ -329,7 +329,12 @@ export default function TutorialV2({
   const narrationFor = (i: number) =>
     i === 2 ? defs[i].narration : `${defs[i].narration} ${advanceAsk}`;
 
-  useScreenVoice(narrationFor(idx));
+  // S3: on the CTA slide the narration asks "शुरू करें?" — the primary
+  // registration button glows for the line.
+  const ctaBtnRef = useRef<HTMLDivElement | null>(null);
+  useScreenVoice(narrationFor(idx), {
+    highlightRef: idx === TUTORIAL_TOTAL - 1 ? ctaBtnRef : undefined,
+  });
 
   // D3c: warm the NEXT slide's narration while this one plays
   useEffect(() => {
@@ -552,7 +557,7 @@ export default function TutorialV2({
         else goBack();
       },
     },
-  ]);
+  ], t("help.tutorial"));
 
   if (idx === TUTORIAL_TOTAL - 1) {
     return (
@@ -563,6 +568,7 @@ export default function TutorialV2({
         onBack={goBack}
         onNext={onRegister}
         nextLabel={t("tutorial.registerNow")}
+        nextBtnRef={ctaBtnRef}
         accentHex={accentFor(idx).hex}
       >
         <div className="flex flex-col items-center gap-4 px-2 text-center">

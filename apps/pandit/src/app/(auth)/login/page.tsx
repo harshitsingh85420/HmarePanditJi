@@ -264,7 +264,7 @@ export default function LoginPage() {
   // "ट्यूटोरियल" walks back to the tutorial in entry-flow context.
   useVoiceCommands(
     [{ keywords: ["ट्यूटोरियल", "tutorial", "ट्यूटोरिअल"], action: backToTutorial }],
-    undefined,
+    t("help.login"),
     fromEntryFlow && step === 1,
   );
 
@@ -285,7 +285,7 @@ export default function LoginPage() {
         },
       },
     ],
-    undefined,
+    t("help.otp"),
     step === 2,
   );
 

@@ -38,6 +38,9 @@ export interface UseVoiceScreenOpts {
   languageCode?: string;
   /** Set false to keep the hook mounted but inert (step-gated screens). */
   enabled?: boolean;
+  /** S3: the narration instructs pressing THIS control — it glows for
+   *  the line's duration (until any gesture or the 10s failsafe). */
+  highlightRef?: { current: HTMLElement | null };
 }
 
 /** Registry-only flavor — commands without narration/arming. */
@@ -98,6 +101,8 @@ export function useVoiceScreen(opts: UseVoiceScreenOpts) {
   const { narration, commands, helpText, languageCode, enabled = true } = opts;
   const onEndRef = useRef(opts.onNarrationEnd);
   onEndRef.current = opts.onNarrationEnd;
+  const highlightRefRef = useRef(opts.highlightRef);
+  highlightRefRef.current = opts.highlightRef;
   const { enabled: voiceOn } = useVoice();
   const voiceInput = useVoiceInput();
 
@@ -110,11 +115,15 @@ export function useVoiceScreen(opts: UseVoiceScreenOpts) {
     const timer = setTimeout(() => {
       voiceController.speak(narration, {
         languageCode,
+        highlightRef: highlightRefRef.current,
         onEnd: () => onEndRef.current?.(),
       });
     }, 150);
     const unregister = voiceController.registerReplay(() => {
-      voiceController.speak(narration, { languageCode });
+      voiceController.speak(narration, {
+        languageCode,
+        highlightRef: highlightRefRef.current,
+      });
     });
     return () => {
       clearTimeout(timer);
@@ -145,7 +154,9 @@ export function useVoiceScreen(opts: UseVoiceScreenOpts) {
       const text = voiceInput.transcript;
       voiceInput.reset();
       if (!voiceController.handleTranscript(text)) {
-        voiceController.speakUnmatchedGently();
+        // S6c: the transcript rides along — question-shaped misses get
+        // the honest line + telemetry instead of the terse nudge
+        voiceController.speakUnmatchedGently(text);
       }
     }
     if (voiceInput.state === "error") {

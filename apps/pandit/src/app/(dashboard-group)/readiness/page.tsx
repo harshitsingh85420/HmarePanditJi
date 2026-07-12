@@ -132,6 +132,8 @@ export default function ReadinessPage() {
   stepRef.current = step;
   const editorRef = useRef(editorPuja);
   editorRef.current = editorPuja;
+  // S3: the advance-ask narration highlights the footer आगे button
+  const nextBtnRef = useRef<HTMLDivElement | null>(null);
 
   // ── load + resume (server-persisted readinessStep) ─────────
   useEffect(() => {
@@ -271,7 +273,7 @@ export default function ReadinessPage() {
       { keywords: NEXT, action: advanceStep },
       { keywords: BACK, action: goBack },
     ],
-    undefined,
+    t("help.readiness"),
     !loading && !editorPuja && !showCelebration,
   );
 
@@ -279,14 +281,14 @@ export default function ReadinessPage() {
   // save button are the editor's own); the shell registry is disabled.
   useVoiceCommands(
     [{ keywords: BACK, action: goBack }],
-    undefined,
+    t("help.samagriEditor"),
     !!editorPuja && !showCelebration,
   );
 
   // Celebration: हाँ/होम go home (the single CTA).
   useVoiceCommands(
     [{ keywords: [...YES, "होम", "घर", "home"], action: () => router.push("/home") }],
-    undefined,
+    t("help.celebration"),
     showCelebration,
   );
 
@@ -519,7 +521,13 @@ export default function ReadinessPage() {
   return (
     <div className="h-[100dvh] bg-cream text-ink flex flex-col max-w-[430px] mx-auto w-full">
       <Header title={stepTitles[step - 1]} festive showBack onBack={goBack} />
-      <Narrate text={stepVoices[step - 1]} key={`voice-${step}-${editorPuja || ""}`} />
+      {/* S3: steps whose narration ends on the advance-ask glow the आगे
+          button; R2's yes/no question highlights nothing. */}
+      <Narrate
+        text={stepVoices[step - 1]}
+        key={`voice-${step}-${editorPuja || ""}`}
+        highlightRef={step !== 2 ? nextBtnRef : undefined}
+      />
 
       <main className="flex-1 min-h-0 overflow-y-auto px-4 pt-3 pb-6 flex flex-col gap-4 page-enter">
         {/* ProgressDots carries its own "चरण n / 5" caption */}
@@ -589,9 +597,11 @@ export default function ReadinessPage() {
       {!editorPuja && (
         <footer className="shrink-0 bg-white border-t border-saffron-100 flex items-end p-3 gap-3">
           <div className="flex-1 flex flex-col gap-2">
-            <Button variant="primary" size="lg" fullWidth onClick={saveHandlers[step - 1]} loading={saving}>
-              {step === 5 ? t("readiness.finishBtn") : t("common.next")}
-            </Button>
+            <div ref={nextBtnRef}>
+              <Button variant="primary" size="lg" fullWidth onClick={saveHandlers[step - 1]} loading={saving}>
+                {step === 5 ? t("readiness.finishBtn") : t("common.next")}
+              </Button>
+            </div>
             <Button variant="ghost" size="md" fullWidth onClick={exitForLater}>
               {t("readiness.exitBtn")}
             </Button>

@@ -13,6 +13,12 @@
 import { t, getActiveBcp47 } from "@/lib/i18n";
 import { clientPace } from "@/lib/sarvam-tts";
 import { YES, NO, NEXT, BACK, SKIP, REPEAT, HELP, STOP, SLEEP, matchAny, matchWord, normalizeForMatch } from "@/lib/voiceGrammar";
+import {
+  matchBrainIntent,
+  isScreenContextAsk,
+  isQuestionShaped,
+  recordUnansweredQuestion,
+} from "@/lib/shishyaBrain";
 
 // ── J1: SCREEN VOICE CONTEXT ─────────────────────────────────
 // Every screen registers its commands here (useVoiceScreen /
@@ -58,6 +64,10 @@ type SpeakOpts = {
   /** BCP-47 override for lines that must sound in a specific language
    *  (e.g. the language-confirm ceremony). Default: the ACTIVE app language. */
   languageCode?: string;
+  /** S3: the line instructs pressing THIS control — it glows (gold pulse
+   *  ring, no dim) from utterance start until any gesture or the 10s
+   *  failsafe. A new utterance replaces/clears the highlight. */
+  highlightRef?: { current: HTMLElement | null };
 };
 
 const MASTER_KEY = "voice_master";
@@ -145,6 +155,72 @@ class VoiceController {
    *  accepted by voice). Consulted by the stopSpeech classifier. */
   noteVoiceGesture(): void {
     this.lastVoiceCommandAt = performance.now();
+    // S3: a gesture (spoken or tapped) dismisses the narration highlight
+    this.clearHighlight();
+  }
+
+  // ── S3: narration-synced control highlight ─────────────────
+  private _highlight: { el: () => HTMLElement | null; seq: number } | null = null;
+  private highlightSeq = 0;
+  get highlight(): { el: () => HTMLElement | null; seq: number } | null {
+    return this._highlight;
+  }
+  private setHighlight(ref: { current: HTMLElement | null } | undefined): void {
+    if (!ref) {
+      this.clearHighlight();
+      return;
+    }
+    this._highlight = { el: () => ref.current, seq: ++this.highlightSeq };
+    this.debug("highlight: mounted (narration)");
+    this.emit();
+  }
+  clearHighlight(): void {
+    if (!this._highlight) return;
+    this._highlight = null;
+    this.emit();
+  }
+
+  // ── S5: mic custody — ONE persistent stream across listen cycles ──
+  // During NARRATION its audio tracks are DISABLED (Android ducks media
+  // volume while a capture session is live); LISTEN re-enables them.
+  // Sleep / tab-hidden hard-release the stream (privacy: सो जाओ means
+  // the mic is truly off). Strategy constant: MIC_RELEASE_STRATEGY
+  // (module export below the class).
+  private micStream: MediaStream | null = null;
+
+  adoptMicStream(stream: MediaStream): void {
+    if (this.micStream === stream) return;
+    this.releaseMicStream("replaced");
+    this.micStream = stream;
+    this.debug("mic: stream adopted (persists across listens)");
+  }
+  getMicStream(): MediaStream | null {
+    if (
+      this.micStream &&
+      this.micStream.getAudioTracks().some((tr) => tr.readyState === "live")
+    ) {
+      return this.micStream;
+    }
+    this.micStream = null;
+    return null;
+  }
+  setMicTracksEnabled(v: boolean, why: string): void {
+    const s = this.getMicStream();
+    if (!s) return;
+    let changed = false;
+    s.getAudioTracks().forEach((tr) => {
+      if (tr.enabled !== v) {
+        tr.enabled = v;
+        changed = true;
+      }
+    });
+    if (changed) this.debug(`mic: tracks ${v ? "ENABLED" : "disabled"} (${why})`);
+  }
+  releaseMicStream(why: string): void {
+    if (!this.micStream) return;
+    this.micStream.getTracks().forEach((tr) => tr.stop());
+    this.micStream = null;
+    this.debug(`mic: released (${why})`);
   }
   // H1: barge-in timestamp — listener order on document is not ours to
   // control (VoiceRoot's barge-in can run BEFORE the unlock listener in
@@ -488,6 +564,28 @@ class VoiceController {
       } catch { /* noop */ }
       return true;
     }
+    // S6: शिष्य THE AGENT — after every navigational/actionable reading
+    // failed, the transcript may be a QUESTION. Curated brain first,
+    // then the screen-context ask ("ये स्क्रीन क्या है"). Answering
+    // NEVER navigates or mutates state; the loop re-arms right here on
+    // the same screen when the answer ends.
+    const intent = matchBrainIntent(clean);
+    if (intent) {
+      this.debug(`brain: "${clean.slice(0, 30)}" → intent [${intent.id}]`);
+      this.noteVoiceGesture();
+      this.speak(intent.answer());
+      return true;
+    }
+    if (isScreenContextAsk(clean)) {
+      const line = entry?.helpText;
+      if (line) {
+        this.debug(`brain: "${clean.slice(0, 30)}" → screen-context`);
+        this.noteVoiceGesture();
+        this.speak(line);
+        return true;
+      }
+      // no helpLine on this screen — fall through to the honest miss
+    }
     return false;
   }
 
@@ -515,9 +613,21 @@ class VoiceController {
     return words.some((w) => w.toLowerCase() === clean);
   }
 
-  /** Unmatched speech: ONE gentle line per 30s per screen, else silence. */
-  speakUnmatchedGently(): void {
+  /**
+   * Unmatched speech. S6c: a QUESTION-shaped transcript earns the
+   * honest-miss line + telemetry (the brain-v2 curation queue) — every
+   * time, no throttle: two different questions deserve two honest
+   * answers. Non-question noise keeps the ONE gentle line per 30s per
+   * screen, else silence.
+   */
+  speakUnmatchedGently(text?: string): void {
     const entry = this.activeVoiceScreen();
+    if (text && isQuestionShaped(text)) {
+      this.debug(`brain-miss: "${text.slice(0, 60)}"`);
+      recordUnansweredQuestion(text);
+      this.speak(t("shishya.honestMiss"));
+      return;
+    }
     const now = performance.now();
     const last = entry ? entry.lastUnmatchedAt : this.lastGlobalUnmatchedAt;
     if (now - last < 30000) {
@@ -558,7 +668,7 @@ class VoiceController {
       if (claim(text)) return "field";
     }
     if (this.handleTranscript(text)) return "command";
-    this.speakUnmatchedGently();
+    this.speakUnmatchedGently(text);
     return "unmatched";
   }
 
@@ -593,6 +703,8 @@ class VoiceController {
       if (this._hidden) {
         this.stopSpeech("tab-hidden");
         this.abortListening();
+        // S5: backgrounded = capture session must not linger
+        this.releaseMicStream("hidden");
       } else {
         // Q1: returning to the tab resumes THE LAW — awake + granted ⇒
         // armed. Without this kick the loop stayed dead until the next
@@ -604,14 +716,32 @@ class VoiceController {
     // X2a: the app's FIRST pointerdown anywhere (a splash tap counts)
     // unlocks audio and flushes the queued narration.
     document.addEventListener("pointerdown", () => this.unlock(), { once: true, capture: true });
-    // H1: persistent tap clock for nav-stop classification
+    // H1: persistent tap clock for nav-stop classification.
+    // S3: any tap also dismisses the narration highlight (interaction).
     document.addEventListener(
       "pointerdown",
       () => {
         this.lastPointerdownAt = performance.now();
+        this.clearHighlight();
       },
       { capture: true },
     );
+    // S4: THE LISTENING WATCHDOG — the loop must never silently die.
+    // Awake + granted + visible + idle + a screen holds a registry, yet
+    // nobody is armed → re-arm. One net under every stall class (guard-
+    // refusal races, visibility flickers, wedged recorder teardown).
+    // Skips: e2e (listens resolve instantly by design), pre-unlock (an
+    // unprompted getUserMedia before the first gesture is a hostile
+    // popup), pending re-arm timers (no double-arming, no log spam).
+    setInterval(() => {
+      if (this._e2e || !this._unlocked) return;
+      if (this.paused || this._speaking || this._listening) return;
+      if (this._processing || this._confirming) return;
+      if (this.rearmTimer) return;
+      if (!this.voiceScreens.length || !this.autoTargets.length) return;
+      this.debug("loop: watchdog re-arm");
+      this.loopRearm(0);
+    }, 1500);
     // F2: a CSP-blocked fetch surfaces as a bare TypeError with zero
     // network entries — indistinguishable from other blocks unless the
     // violation event itself is logged. This line IS the verdict channel.
@@ -752,6 +882,9 @@ class VoiceController {
   loopRearm(delayMs = 350): void {
     if (this.rearmTimer) clearTimeout(this.rearmTimer);
     this.rearmTimer = setTimeout(() => {
+      // S4: null the handle FIRST — a stale handle after firing read as
+      // "re-arm pending" and gagged the watchdog permanently.
+      this.rearmTimer = null;
       if (this.paused || this._speaking || this._listening) return;
       const targets = [...this.autoTargets].sort((a, b) => b.priority - a.priority);
       for (const target of targets) {
@@ -826,6 +959,11 @@ class VoiceController {
     }
 
     this._speaking = true;
+    // S3: this utterance's highlight (or none) replaces any prior one
+    this.setHighlight(opts?.highlightRef);
+    // S5: capture goes quiet while शिष्य talks — undocks Android media
+    // ducking AND stops the mic hearing him
+    this.setMicTracksEnabled(false, "narrating");
     this.emit();
 
     let settled = false;
@@ -1054,6 +1192,13 @@ class VoiceController {
     } else {
       try {
         this.debug("tts→ POST /api/tts (same-origin)");
+        // S5a: FULL client-side params, one line — compare this exact
+        // line for the same text BEFORE vs AFTER mic grant. Identical
+        // params ⇒ any audible difference is device audio ducking/
+        // routing from the live capture session, not our synthesis.
+        this.debug(
+          `tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=${languageCode} pace=${pace} micLive=${!!this.getMicStream()} len=${text.length}`,
+        );
         const tFetch = performance.now();
         const res = await fetch("/api/tts", {
           method: "POST",
@@ -1255,6 +1400,8 @@ class VoiceController {
     if (v) {
       this.stopSpeech("mute");
       this.abortListening();
+      // S5 privacy law: सो जाओ = the mic is TRULY off, not just idle
+      this.releaseMicStream("sleep");
     }
     this.emit();
     if (!v) {
@@ -1273,6 +1420,8 @@ class VoiceController {
     this.init();
     if (this.paused || this._speaking) return false;
     this._listening = true;
+    // S5: the persistent stream wakes for the listen
+    this.setMicTracksEnabled(true, "listen");
     this.emit();
     return true;
   }
@@ -1318,3 +1467,8 @@ class VoiceController {
 
 export const voiceController = new VoiceController();
 export type { SpeakOpts };
+
+// S5: if enabled=false fails to undock Android's media ducking on test
+// devices, flip to "stop-reacquire" — listens then re-getUserMedia
+// each cycle (the pre-S5 behavior, with the custody plumbing intact).
+export const MIC_RELEASE_STRATEGY: "enable-toggle" | "stop-reacquire" = "enable-toggle";

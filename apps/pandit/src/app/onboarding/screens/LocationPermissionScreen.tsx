@@ -9,7 +9,7 @@
 // deny/error → onDenied() (manual city).
 // ─────────────────────────────────────────────────────────────
 
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import type { SupportedLanguage } from "@/lib/onboarding-store";
 import { t } from "@/lib/i18n";
 import { Toran } from "@/components/ui/Toran";
@@ -42,27 +42,32 @@ export default function LocationPermissionScreen({
   // a voice-YES only pulses the button and asks for one tap.
   const [pulse, setPulse] = useState(false);
   const [pointerUp, setPointerUp] = useState(false);
+  // S3: the narration says "नीचे 'अनुमति दें' दबाइए" — THAT button glows
+  const allowBtnRef = useRef<HTMLDivElement | null>(null);
 
   // D2: the phase announces itself BEFORE any browser popup — the
   // geolocation request fires ONLY from the अनुमति दें button below.
   // (useScreenVoice = VoiceLoop v2: this also arms the perpetual listen.)
-  useScreenVoice(t("entry.locationVoice"));
+  useScreenVoice(t("entry.locationVoice"), { highlightRef: allowBtnRef });
 
   // J2: हाँ pulses the button and asks for the ONE constitutional tap
   // (the geolocation popup needs a real gesture); नहीं goes to the
   // city picker. K1 LAW: the registry is ALWAYS populated — micDenied/
   // mute gate only hardware arming, never the grammar. Injected
   // transcripts (and any future input source) must always resolve.
-  useVoiceCommands([
-    {
-      keywords: [...YES, "अनुमति", "allow"],
-      action: () => {
-        setPulse(true);
-        voiceController.speak(t("entry.locationTapHint"));
+  useVoiceCommands(
+    [
+      {
+        keywords: [...YES, "अनुमति", "allow"],
+        action: () => {
+          setPulse(true);
+          voiceController.speak(t("entry.locationTapHint"), { highlightRef: allowBtnRef });
+        },
       },
-    },
-    { keywords: NO, action: () => onDenied() },
-  ]);
+      { keywords: NO, action: () => onDenied() },
+    ],
+    t("help.location"),
+  );
 
   const handleAllowClick = () => {
     if (!navigator.geolocation) {
@@ -170,15 +175,18 @@ export default function LocationPermissionScreen({
 
       {/* Footer: ONE primary + orb slot */}
       <footer className="shrink-0 px-4 py-3 bg-cream/95 backdrop-blur border-t border-saffron-100 flex items-end gap-3">
-        <button
-          onClick={handleAllowClick}
-          disabled={loading}
-          className={`flex-1 min-h-[64px] bg-saffron-500 text-[#FFF3EA] rounded-btn text-[20px] font-bold shadow-btn active:scale-[0.97] transition-transform font-hindi disabled:opacity-60 ${
-            pulse ? "saffron-glow-active animate-pulse" : ""
-          }`}
-        >
-          {loading ? t("pratham.locationChecking") : t("pratham.locationAllow")}
-        </button>
+        {/* S3: wrapper ref = the narration highlight target */}
+        <div ref={allowBtnRef} className="flex-1">
+          <button
+            onClick={handleAllowClick}
+            disabled={loading}
+            className={`w-full min-h-[64px] bg-saffron-500 text-[#FFF3EA] rounded-btn text-[20px] font-bold shadow-btn active:scale-[0.97] transition-transform font-hindi disabled:opacity-60 ${
+              pulse ? "saffron-glow-active animate-pulse" : ""
+            }`}
+          >
+            {loading ? t("pratham.locationChecking") : t("pratham.locationAllow")}
+          </button>
+        </div>
         <ShishyaOrb />
       </footer>
     </div>

@@ -40,13 +40,16 @@ export default function ManualCityScreen({ onCitySelected, onBack }: ManualCityS
 
   // J2: speaking a card's city selects it; पीछे returns to the
   // location screen. Other cities stay type-to-enter for now.
-  useVoiceCommands([
-    ...POPULAR_CITIES.map((city) => ({
-      keywords: CITY_SPOKEN[city] ?? [city],
-      action: () => onCitySelected(city),
-    })),
-    { keywords: BACK, action: onBack },
-  ]);
+  useVoiceCommands(
+    [
+      ...POPULAR_CITIES.map((city) => ({
+        keywords: CITY_SPOKEN[city] ?? [city],
+        action: () => onCitySelected(city),
+      })),
+      { keywords: BACK, action: onBack },
+    ],
+    t("help.manualCity"),
+  );
 
   const submitTyped = () => {
     const v = cityInput.trim();

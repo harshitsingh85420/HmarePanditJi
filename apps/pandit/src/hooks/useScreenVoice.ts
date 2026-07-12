@@ -11,9 +11,17 @@ import { useVoiceScreen } from "@/hooks/useVoiceScreen";
  */
 export function useScreenVoice(
   narration: string,
-  opts?: { onNarrationEnd?: () => void },
+  opts?: {
+    onNarrationEnd?: () => void;
+    /** S3: control this narration tells the pandit to press — it glows. */
+    highlightRef?: { current: HTMLElement | null };
+  },
 ) {
-  return useVoiceScreen({ narration, onNarrationEnd: opts?.onNarrationEnd });
+  return useVoiceScreen({
+    narration,
+    onNarrationEnd: opts?.onNarrationEnd,
+    highlightRef: opts?.highlightRef,
+  });
 }
 
 /**
@@ -22,8 +30,15 @@ export function useScreenVoice(
  * replay registration, zero UI.
  * (Plain function component returning null — no JSX, so .ts is fine.)
  */
-export function Narrate({ text }: { text: string }): null {
-  useScreenVoice(text);
+export function Narrate({
+  text,
+  highlightRef,
+}: {
+  text: string;
+  /** S3: the narration's "press THIS" target (wrapper-div ref). */
+  highlightRef?: { current: HTMLElement | null };
+}): null {
+  useScreenVoice(text, { highlightRef });
   return null;
 }
 

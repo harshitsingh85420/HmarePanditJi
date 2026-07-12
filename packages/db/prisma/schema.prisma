@@ -624,3 +624,14 @@ model Payout {
   createdAt  DateTime @default(now())
   paidAt     DateTime?
 }
+
+// S6d: शिष्य brain-miss telemetry — every question the brain could not
+// answer, verbatim. This table IS the curation queue for brain v2.
+model FeedbackUnanswered {
+  id        String   @id @default(cuid())
+  text      String   // the pandit's question, verbatim (≤300 chars client-side)
+  route     String   // app route where it was asked
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}

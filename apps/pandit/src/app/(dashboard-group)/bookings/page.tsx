@@ -138,7 +138,7 @@ export default function BookingsPage() {
     <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
       <Header title={t("bookingsList.title")} showBack onBack={() => router.push("/home")} />
       <Narrate text={countsNarration} />
-      <DashboardVoiceNav />
+      <DashboardVoiceNav helpLine={t("help.bookings")} />
       <VoiceActionListener
         commands={[
           { keywords: ["नई", "नयी", "new"], action: () => setActiveTab("NEW") },
@@ -146,6 +146,7 @@ export default function BookingsPage() {
           { keywords: ["पूरी", "पुरानी", "completed"], action: () => setActiveTab("COMPLETED") },
           { keywords: ["होम", "home"], action: () => router.push("/home") },
         ]}
+        promptText={t("help.bookings")}
       />
 
       {/* Tabs bar */}

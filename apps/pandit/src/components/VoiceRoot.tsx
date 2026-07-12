@@ -1,11 +1,28 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { voiceController } from "@/lib/voiceController";
 import { Toast } from "@/components/ui/Toast";
 import { t, refreshBundleInBackground } from "@/lib/i18n";
 import { VoiceDebugPanel, useVoiceDebugFlag } from "@/components/VoiceDebugPanel";
+import { NarrationHighlight } from "@/components/moments/NarrationHighlight";
 import { API_BASE_MISSING } from "@/lib/api";
+
+// S1: SPELLING CANARY (?voicedebug=1) — hunts wrong पंडित forms in the
+// LIVE DOM: rendered text plus the attribute channels innerText misses
+// (aria-label, placeholder, alt, title). Every hit prints one
+// 'SPELLING CANARY' panel line naming the element and route.
+const BAD_PANDIT = /पण्डित|पन्डित|पंड़ित|पण्डीत|पंडीत/;
+
+function describeEl(el: Element): string {
+  const id = el.id ? `#${el.id}` : "";
+  const cls =
+    typeof el.className === "string" && el.className
+      ? `.${el.className.split(/\s+/).slice(0, 2).join(".")}`
+      : "";
+  return `${el.tagName.toLowerCase()}${id}${cls}`;
+}
 
 // Mounted once in app/layout.tsx: the "any interactive tap silences
 // narration" rule (capture phase — speech never talks over action).
@@ -17,6 +34,63 @@ import { API_BASE_MISSING } from "@/lib/api";
 export function VoiceRoot() {
   const [toastMsg, setToastMsg] = useState<string | null>(null);
   const debugOn = useVoiceDebugFlag();
+  const pathname = usePathname();
+
+  // S1: canary scan — on route change and on DOM mutation (debounced).
+  // Dedupes per route+finding so the panel names each sighting once.
+  useEffect(() => {
+    if (!debugOn) return;
+    const seen = new Set<string>();
+    const scan = () => {
+      try {
+        // text nodes
+        const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+        let node: Node | null;
+        while ((node = walker.nextNode())) {
+          const text = node.textContent || "";
+          const m = text.match(BAD_PANDIT);
+          if (m) {
+            const el = node.parentElement;
+            const key = `${pathname}|text|${describeEl(el || document.body)}|${m[0]}`;
+            if (!seen.has(key)) {
+              seen.add(key);
+              voiceController.debug(
+                `SPELLING CANARY: "${m[0]}" in TEXT <${describeEl(el || document.body)}> at ${pathname} — "${text.trim().slice(0, 60)}"`,
+              );
+            }
+          }
+        }
+        // attribute channels innerText misses
+        for (const attr of ["aria-label", "placeholder", "alt", "title"]) {
+          document.querySelectorAll(`[${attr}]`).forEach((el) => {
+            const v = el.getAttribute(attr) || "";
+            const m = v.match(BAD_PANDIT);
+            if (m) {
+              const key = `${pathname}|${attr}|${describeEl(el)}|${m[0]}`;
+              if (!seen.has(key)) {
+                seen.add(key);
+                voiceController.debug(
+                  `SPELLING CANARY: "${m[0]}" in ${attr.toUpperCase()} <${describeEl(el)}> at ${pathname} — "${v.slice(0, 60)}"`,
+                );
+              }
+            }
+          });
+        }
+      } catch { /* scanning must never break the app */ }
+    };
+    const t1 = setTimeout(scan, 800);
+    let debounce: ReturnType<typeof setTimeout> | null = null;
+    const mo = new MutationObserver(() => {
+      if (debounce) clearTimeout(debounce);
+      debounce = setTimeout(scan, 1000);
+    });
+    mo.observe(document.body, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ["aria-label", "placeholder", "alt", "title"] });
+    return () => {
+      clearTimeout(t1);
+      if (debounce) clearTimeout(debounce);
+      mo.disconnect();
+    };
+  }, [debugOn, pathname]);
 
   // D3: a persisted language bundle serves instantly on reload; refresh
   // it quietly so copy edits and not-yet-fetched groups catch up.
@@ -78,6 +152,8 @@ export function VoiceRoot() {
       {toastMsg && (
         <Toast message={toastMsg} show={!!toastMsg} onClose={() => setToastMsg(null)} />
       )}
+      {/* S3: the "press THIS" gold ring — one overlay app-wide */}
+      <NarrationHighlight />
       {debugOn && <VoiceDebugPanel />}
     </>
   );

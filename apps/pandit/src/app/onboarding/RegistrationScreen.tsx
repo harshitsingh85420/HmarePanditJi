@@ -40,6 +40,8 @@ export default function RegistrationScreen({ onBack }: { onBack: () => void }) {
   const [submitting, setSubmitting] = useState(false);
   const [showDone, setShowDone] = useState(false);
   const cityPrefilled = useRef(false);
+  // S3: the narration's "खाता बनाएँ" target
+  const submitRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     try {
@@ -102,7 +104,7 @@ export default function RegistrationScreen({ onBack }: { onBack: () => void }) {
       { keywords: [...YES, ...NEXT, "खाता", "बनाओ"], action: () => void handleSubmit() },
       { keywords: BACK, action: onBack },
     ],
-    undefined,
+    t("help.registration"),
     !showDone,
   );
 
@@ -118,7 +120,8 @@ export default function RegistrationScreen({ onBack }: { onBack: () => void }) {
   return (
     <div className="h-[100dvh] bg-cream text-ink flex flex-col max-w-[430px] mx-auto w-full">
       <Header title={title} festive showBack onBack={onBack} />
-      <Narrate text={narration} />
+      {/* S3: the narration ends on the create-account instruction */}
+      <Narrate text={narration} highlightRef={submitRef} />
 
       <main className="flex-1 min-h-0 overflow-y-auto px-4 pt-6 flex flex-col gap-4">
         <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-5">
@@ -152,7 +155,7 @@ export default function RegistrationScreen({ onBack }: { onBack: () => void }) {
       </main>
 
       <footer className="shrink-0 bg-white border-t border-saffron-100 flex items-end p-3 gap-3">
-        <div className="flex-1">
+        <div className="flex-1" ref={submitRef}>
           <Button variant="primary" size="lg" fullWidth onClick={handleSubmit} loading={submitting}>
             {cta}
           </Button>

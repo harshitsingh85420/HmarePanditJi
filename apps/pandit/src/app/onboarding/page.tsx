@@ -81,6 +81,7 @@ function LangConfirmScreen2({
   useVoiceScreen({
     narration: lc.confirmQuestion,
     languageCode: LANG_TO_BCP47[code],
+    helpText: t("help.languageConfirm"),
     commands: [
       { keywords: YES, action: onYes },
       { keywords: [...NO, "दूसरी", "बदलो", "list", "doosri", "badlo"], action: onOther },

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
-import { voiceController } from "@/lib/voiceController";
+import { voiceController, MIC_RELEASE_STRATEGY } from "@/lib/voiceController";
 import { API_BASE } from "@/lib/api";
 import { getActiveLang } from "@/lib/i18n";
 
@@ -63,10 +63,10 @@ export function useVoiceInput(): UseVoiceInputReturn {
         // ignore
       }
     }
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach((track) => track.stop());
-      streamRef.current = null;
-    }
+    // S5: the mic stream is CONTROLLER CUSTODY now — it persists across
+    // listen cycles (tracks merely disable during narration) and is
+    // hard-released only on sleep/hidden. Never stop tracks here.
+    streamRef.current = null;
     if (audioContextRef.current) {
       try {
         audioContextRef.current.close();
@@ -114,8 +114,9 @@ export function useVoiceInput(): UseVoiceInputReturn {
     // while speaking or muted, and marks us as listening otherwise.
     voiceController.stopSpeech("listen-start");
     if (!voiceController.guardListenStart()) {
-      // release a gesture-acquired stream we will never consume
-      preStream?.getTracks().forEach((track) => track.stop());
+      // S5: a gesture-acquired stream we can't consume right now still
+      // joins controller custody — the next listen reuses it
+      if (preStream) voiceController.adoptMicStream(preStream);
       setState("idle");
       return;
     }
@@ -127,8 +128,12 @@ export function useVoiceInput(): UseVoiceInputReturn {
     skipUploadRef.current = false;
 
     try {
+      // S4b/S5: ONE persistent stream across listen cycles — reuse the
+      // controller-custody stream when live; getUserMedia only when
+      // there is none (first grant, or after a sleep/hidden release).
       const stream =
         preStream ??
+        voiceController.getMicStream() ??
         (await navigator.mediaDevices.getUserMedia({
           audio: {
             echoCancellation: true,
@@ -136,6 +141,8 @@ export function useVoiceInput(): UseVoiceInputReturn {
             autoGainControl: true,
           },
         }));
+      voiceController.adoptMicStream(stream);
+      voiceController.setMicTracksEnabled(true, "listen-start");
 
       // The flag records REALITY: set only after a stream is in hand.
       localStorage.setItem("mic_permission_granted", "true");
@@ -193,7 +200,12 @@ export function useVoiceInput(): UseVoiceInputReturn {
         } catch (e) {
           // ignore
         }
-        stream.getTracks().forEach(t => t.stop());
+        // S5: tracks stay ALIVE in controller custody for the next
+        // listen — no per-cycle stop/reacquire (unless the strategy
+        // constant is flipped to "stop-reacquire").
+        if (MIC_RELEASE_STRATEGY === "stop-reacquire") {
+          voiceController.releaseMicStream("listen-end (stop-reacquire)");
+        }
       };
 
       rec.onstop = async () => {
@@ -333,7 +345,8 @@ export function useVoiceInput(): UseVoiceInputReturn {
     // immediately as a no-speech miss so listen-gated screens move on.
     if (voiceController.e2e) {
       voiceController.debug("e2e: listen bypassed");
-      opts?.stream?.getTracks().forEach((track) => track.stop());
+      // S5: even the bypassed gesture stream joins controller custody
+      if (opts?.stream) voiceController.adoptMicStream(opts.stream);
       setState("error");
       return;
     }

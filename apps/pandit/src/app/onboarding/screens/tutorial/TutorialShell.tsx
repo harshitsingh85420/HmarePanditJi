@@ -20,6 +20,8 @@ interface TutorialShellProps {
   onNext: () => void;
   nextLabel?: string;
   nextDisabled?: boolean;
+  /** S3: narration-highlight target — a wrapper around the primary CTA. */
+  nextBtnRef?: { current: HTMLDivElement | null };
   children: React.ReactNode;
   /** Festive accent for the progress dots (defaults to sindoor). */
   accentHex?: string;
@@ -34,6 +36,7 @@ export default function TutorialShell({
   onNext,
   nextLabel,
   nextDisabled = false,
+  nextBtnRef,
   children,
   accentHex = "#B23A1A",
   language = "Hindi",
@@ -80,14 +83,16 @@ export default function TutorialShell({
 
       <footer className="px-4 pb-4 pt-3 space-y-2 shrink-0 bg-cream/95 backdrop-blur border-t border-saffron-100">
         <div className="flex items-end gap-3">
-          <button
-            onClick={onNext}
-            disabled={nextDisabled}
-            aria-disabled={nextDisabled}
-            className="flex-1 min-h-[64px] bg-saffron-500 text-[#FFF3EA] shadow-btn rounded-btn flex items-center justify-center text-[20px] font-bold active:scale-95 transition-transform gap-2 font-hindi disabled:opacity-60 disabled:active:scale-100"
-          >
-            {label}
-          </button>
+          <div className="flex-1" ref={nextBtnRef}>
+            <button
+              onClick={onNext}
+              disabled={nextDisabled}
+              aria-disabled={nextDisabled}
+              className="w-full min-h-[64px] bg-saffron-500 text-[#FFF3EA] shadow-btn rounded-btn flex items-center justify-center text-[20px] font-bold active:scale-95 transition-transform gap-2 font-hindi disabled:opacity-60 disabled:active:scale-100"
+            >
+              {label}
+            </button>
+          </div>
           <ShishyaOrb />
         </div>
       </footer>
