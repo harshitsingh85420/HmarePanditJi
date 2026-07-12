@@ -64,6 +64,13 @@ export function useVoiceCommands(
       get confirmSpeech() {
         return commandsRef.current[i]?.confirmSpeech;
       },
+      // W3: the agent's tool identity rides the same proxy
+      get id() {
+        return commandsRef.current[i]?.id;
+      },
+      get label() {
+        return commandsRef.current[i]?.label;
+      },
     }));
     return voiceController.registerVoiceScreen(proxied, helpText);
     // eslint-disable-next-line react-hooks/exhaustive-deps

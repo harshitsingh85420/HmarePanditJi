@@ -31,6 +31,7 @@ import { DiyaLoader } from "@/components/moments/DiyaLoader";
 import { CelebrationScreen } from "@/components/moments/CelebrationScreen";
 import { VoiceField } from "@/components/voice/VoiceField";
 import { useVoiceCommands, useVoiceOptions } from "@/hooks/useVoiceScreen";
+import { setAgentUserState } from "@/lib/shishyaAgent";
 import { YES, NO, NEXT, BACK, SKIP } from "@/lib/voiceGrammar";
 import { SamagriPackageEditor } from "@/components/SamagriPackageEditor";
 import { usePresignedUrl } from "@/hooks/usePresignedUrl";
@@ -247,8 +248,10 @@ export default function ReadinessPage() {
   };
   useVoiceCommands(
     [
-      { keywords: SKIP, action: exitForLater },
+      { id: "exit-for-later", label: "बाद में करो", keywords: SKIP, action: exitForLater },
       {
+        id: "confirm-yes",
+        label: "हाँ / आगे बढ़ो",
         keywords: YES,
         action: () => {
           if (stepRef.current === 2) {
@@ -260,6 +263,8 @@ export default function ReadinessPage() {
         },
       },
       {
+        id: "answer-no",
+        label: "नहीं",
         keywords: NO,
         action: () => {
           if (stepRef.current === 2) {
@@ -270,8 +275,8 @@ export default function ReadinessPage() {
           }
         },
       },
-      { keywords: NEXT, action: advanceStep },
-      { keywords: BACK, action: goBack },
+      { id: "next-step", label: "आगे बढ़ो", keywords: NEXT, action: advanceStep },
+      { id: "go-back", label: "पीछे जाओ", keywords: BACK, action: goBack },
     ],
     t("help.readiness"),
     !loading && !editorPuja && !showCelebration,
@@ -291,6 +296,14 @@ export default function ReadinessPage() {
     t("help.celebration"),
     showCelebration,
   );
+
+  // W3: the wizard tells शिष्य which step the pandit is standing on
+  useEffect(() => {
+    setAgentUserState({
+      readinessStep: step,
+      isBookingReady: snapshot?.isBookingReady === true,
+    });
+  }, [step, snapshot]);
 
   if (loading || !snapshot) return <DiyaLoader />;
 

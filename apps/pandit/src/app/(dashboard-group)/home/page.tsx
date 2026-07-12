@@ -6,6 +6,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { t } from "@/lib/i18n";
 import { api } from "@/lib/api";
+import { setAgentUserState } from "@/lib/shishyaAgent";
 import { motion, AnimatePresence } from "framer-motion";
 
 // UI Components
@@ -184,6 +185,21 @@ export default function HomePage() {
     };
   }, [speak]);
 
+  // W3: शिष्य sees what the pandit sees — push the home snapshot
+  useEffect(() => {
+    if (!profile) return;
+    const parts: string[] = (profile?.name || "")
+      .split(" ")
+      .filter((w: string) => !/^(pt\.?|पं\.?|pandit|पंडित)$/i.test(w));
+    setAgentUserState({
+      firstName: parts[0] || undefined,
+      isOnline,
+      isBookingReady: profile?.panditProfile?.isBookingReady === true,
+      readinessStep: profile?.panditProfile?.readinessStep || 0,
+      pendingBookingsCount: knownRequestedIdsRef.current.size,
+    });
+  }, [profile, isOnline]);
+
   // Status toggle handler (with optimistic updates and rollbacks)
   const handleToggleStatus = async () => {
     const isApproved =
@@ -261,8 +277,12 @@ export default function HomePage() {
         : "आप अभी ऑफलाइन हैं। काम शुरू करने के लिए ऑनलाइन जाएं।") + " " + todaySummary + festivalLine
     : t("home.readinessHeroVoice");
 
+  // W3: ids = the AGENT's tool vocabulary on this screen (labels are
+  // what it reads in its tool list; keywords stay the reflex path)
   const voiceCommands = [
     {
+      id: "go-online",
+      label: "ऑनलाइन जाओ",
       keywords: ["ऑनलाइन", "online", "चालू", "chalu"],
       action: async () => {
         if (!isOnline) {
@@ -271,6 +291,8 @@ export default function HomePage() {
       },
     },
     {
+      id: "toggle-offline",
+      label: "ऑफलाइन जाओ",
       keywords: ["ऑफलाइन", "offline", "बंद", "band"],
       action: async () => {
         if (isOnline) {
@@ -278,13 +300,13 @@ export default function HomePage() {
         }
       },
     },
-    { keywords: ["बुकिंग", "booking"], action: () => router.push("/bookings") },
-    { keywords: ["कमाई", "kamai", "earnings"], action: () => router.push("/earnings") },
-    { keywords: ["मदद", "help", "sahayata"], action: () => router.push("/help") },
+    { id: "open-bookings", label: "बुकिंग खोलो", keywords: ["बुकिंग", "booking"], action: () => router.push("/bookings") },
+    { id: "open-earnings", label: "कमाई देखो", keywords: ["कमाई", "kamai", "earnings"], action: () => router.push("/earnings") },
+    { id: "open-help", label: "मदद खोलो", keywords: ["मदद", "help", "sahayata"], action: () => router.push("/help") },
     // J2: the तैयारी hero card + the remaining nav destinations
-    { keywords: ["तैयारी", "taiyari", "शुरू करो", "शुरू करें"], action: () => router.push("/readiness") },
-    { keywords: ["कैलेंडर", "calendar"], action: () => router.push("/calendar") },
-    { keywords: ["सेटिंग", "settings"], action: () => router.push("/settings") },
+    { id: "start-readiness", label: "तैयारी शुरू करो", keywords: ["तैयारी", "taiyari", "शुरू करो", "शुरू करें"], action: () => router.push("/readiness") },
+    { id: "open-calendar", label: "कैलेंडर खोलो", keywords: ["कैलेंडर", "calendar"], action: () => router.push("/calendar") },
+    { id: "open-settings", label: "सेटिंग खोलो", keywords: ["सेटिंग", "settings"], action: () => router.push("/settings") },
   ];
 
   const HomeHeaderRightSlot = () => (

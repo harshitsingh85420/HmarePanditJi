@@ -44,7 +44,10 @@ const agentSchema = z.object({
     .default([]),
 });
 
+// Session-1 finding: history-bearing calls run longer on the reasoning
+// model — they get 10s; stateless stays 8s.
 const LLM_TIMEOUT_MS = 8000;
+const LLM_TIMEOUT_HISTORY_MS = 10000;
 const CACHE_TTL_S = 7 * 24 * 3600;
 const HONEST_MISS_HI =
   "क्षमा कीजिए पंडित जी, इसका उत्तर अभी मेरे पास नहीं है — मदद वाले हिस्से से हमारी टीम को फ़ोन कर सकते हैं।";
@@ -191,7 +194,7 @@ export default async function shishyaAgentRoutes(fastify: FastifyInstance, _opts
       const result = await Promise.race([
         work,
         new Promise<AgentReply & { source: string }>((res) =>
-          setTimeout(() => res({ say: HONEST_MISS_HI, act: null, source: "agent-timeout" }), LLM_TIMEOUT_MS),
+          setTimeout(() => res({ say: HONEST_MISS_HI, act: null, source: "agent-timeout" }), history.length > 0 ? LLM_TIMEOUT_HISTORY_MS : LLM_TIMEOUT_MS),
         ),
       ]).catch(() => ({ say: HONEST_MISS_HI, act: null as string | null, source: "agent-error" }));
 

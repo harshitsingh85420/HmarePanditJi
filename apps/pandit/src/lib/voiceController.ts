@@ -14,13 +14,14 @@ import { t, getActiveBcp47 } from "@/lib/i18n";
 import { clientPace } from "@/lib/sarvam-tts";
 import { VOICE_PROFILE } from "@/lib/voiceProfile";
 import { YES, NO, NEXT, BACK, SKIP, REPEAT, HELP, STOP, SLEEP, matchAny, matchWord, normalizeForMatch } from "@/lib/voiceGrammar";
+import { isQuestionShaped, recordUnansweredQuestion, askShishyaServer } from "@/lib/shishyaBrain";
 import {
-  matchBrainIntent,
-  isScreenContextAsk,
-  isQuestionShaped,
-  recordUnansweredQuestion,
-  askShishyaServer,
-} from "@/lib/shishyaBrain";
+  SHISHYA_MODE,
+  askShishyaAgent,
+  resetAgentHistory,
+  setAgentDebugSink,
+  type AgentAction,
+} from "@/lib/shishyaAgent";
 
 // ── J1: SCREEN VOICE CONTEXT ─────────────────────────────────
 // Every screen registers its commands here (useVoiceScreen /
@@ -34,6 +35,12 @@ export interface VoiceCommand {
   action: () => void;
   /** Optional spoken ack (static lines ride the TTS cache → ~10ms). */
   confirmSpeech?: string;
+  /** W3: stable tool id the AGENT may return as `act` (e.g.
+   *  "toggle-offline"). Omitted → a positional id is derived. */
+  id?: string;
+  /** W3: human label the agent reads in its tool list (defaults to
+   *  keywords[0]). */
+  label?: string;
 }
 
 interface VoiceScreenEntry {
@@ -678,18 +685,7 @@ class VoiceController {
         const hit = matchWord(clean, cmd.keywords);
         if (hit) {
           this.debug(`voice cmd: "${clean.slice(0, 24)}" → matched [${hit}]`);
-          this.noteVoiceGesture();
-          if (cmd.confirmSpeech) {
-            this.speak(cmd.confirmSpeech, {
-              onEnd: () => {
-                // re-stamp at ACTION time — the ack may outlive the window
-                this.noteVoiceGesture();
-                cmd.action();
-              },
-            });
-          } else {
-            cmd.action();
-          }
+          this.runCommand(cmd);
           return true;
         }
       }
@@ -734,34 +730,35 @@ class VoiceController {
       this.debug(`voice cmd: "${clean.slice(0, 24)}" → SLEEP`);
       this.noteVoiceGesture();
       this.setMuted(true);
+      resetAgentHistory("sleep"); // W3: sleep forgets the conversation
       try {
         window.dispatchEvent(new CustomEvent("hpj-shishya-sleep"));
       } catch { /* noop */ }
       return true;
     }
-    // S6: शिष्य THE AGENT — after every navigational/actionable reading
-    // failed, the transcript may be a QUESTION. Curated brain first,
-    // then the screen-context ask ("ये स्क्रीन क्या है"). Answering
-    // NEVER navigates or mutates state; the loop re-arms right here on
-    // the same screen when the answer ends.
-    const intent = matchBrainIntent(clean);
-    if (intent) {
-      this.debug(`brain: "${clean.slice(0, 30)}" → intent [${intent.id}]`);
-      this.noteVoiceGesture();
-      this.speak(intent.answer());
-      return true;
-    }
-    if (isScreenContextAsk(clean)) {
-      const line = entry?.helpText;
-      if (line) {
-        this.debug(`brain: "${clean.slice(0, 30)}" → screen-context`);
-        this.noteVoiceGesture();
-        this.speak(line);
-        return true;
-      }
-      // no helpLine on this screen — fall through to the honest miss
-    }
+    // W1 (शिष्य v3): NO local curated matcher, NO screen-context gate.
+    // The reflexes above stay the only <5ms paths; everything they
+    // didn't claim — questions, statements, complaints, half-commands —
+    // flows to the AGENT via speakUnmatchedGently(text).
     return false;
+  }
+
+  /** W3: THE single execution path for a registered command — a spoken
+   *  keyword match and an agent `act` both land here, so confirmSpeech
+   *  gates can never be bypassed. */
+  private runCommand(cmd: VoiceCommand): void {
+    this.noteVoiceGesture();
+    if (cmd.confirmSpeech) {
+      this.speak(cmd.confirmSpeech, {
+        onEnd: () => {
+          // re-stamp at ACTION time — the ack may outlive the window
+          this.noteVoiceGesture();
+          cmd.action();
+        },
+      });
+    } else {
+      cmd.action();
+    }
   }
 
   /**
@@ -789,17 +786,20 @@ class VoiceController {
   }
 
   /**
-   * Unmatched speech. S6c: a QUESTION-shaped transcript earns the
-   * honest-miss line + telemetry (the brain-v2 curation queue) — every
-   * time, no throttle: two different questions deserve two honest
-   * answers. Non-question noise keeps the ONE gentle line per 30s per
-   * screen, else silence.
+   * Unclaimed speech. W1 (शिष्य v3): in agent mode EVERY transcript that
+   * lands here — question, complaint, chatter, half-command — goes to
+   * the conversational agent. The reflex-only kill switch
+   * (NEXT_PUBLIC_SHISHYA_MODE) restores the T4 behavior: question-shaped
+   * → server /ask; noise → one gentle line per 30s per screen.
    */
   speakUnmatchedGently(text?: string): void {
     const entry = this.activeVoiceScreen();
+    if (text && SHISHYA_MODE === "agent") {
+      void this.askAgent(text);
+      return;
+    }
     if (text && isQuestionShaped(text)) {
-      // T4: a question the local brain missed goes to the SERVER brain
-      // (curated re-check → Sarvam LLM under the fact-sheet prompt).
+      // reflex-only fallback: the v2 server brain (curated + LLM /ask)
       void this.askServerBrain(text);
       return;
     }
@@ -844,6 +844,103 @@ class VoiceController {
         recordUnansweredQuestion(text);
         this.speak(t("shishya.honestMiss"));
       });
+  }
+
+  // ── W3: शिष्य v3 AGENT INTEGRATION ──────────────────────────
+  // seq guard: a newer utterance supersedes an in-flight ask — the
+  // stale reply is dropped silently (never spoken, never acted).
+  private agentSeq = 0;
+  private agentActRunners = new Map<string, () => void>();
+
+  /** Derive the agent's tool list from what THIS screen already
+   *  registered: the active entry's commands (id ?? positional), then
+   *  every visible option. Each id keeps the exact closure it was
+   *  minted for — execution goes through runCommand/onSelect, the SAME
+   *  paths a spoken match takes. */
+  private buildAgentActions(): AgentAction[] {
+    this.agentActRunners.clear();
+    const out: AgentAction[] = [];
+    const entry = this.activeVoiceScreen();
+    entry?.commands.forEach((cmd, i) => {
+      const id = cmd.id || `cmd${i}`;
+      if (this.agentActRunners.has(id)) return;
+      this.agentActRunners.set(id, () => this.runCommand(cmd));
+      out.push({
+        id,
+        label: cmd.label || String(cmd.keywords[0] ?? id),
+        hint: cmd.confirmSpeech ? cmd.confirmSpeech.slice(0, 100) : undefined,
+      });
+    });
+    this.voiceOptionGroups.forEach((g, gi) => {
+      g.options.forEach((opt, oi) => {
+        const id = `opt${gi}_${oi}`;
+        if (this.agentActRunners.has(id)) return;
+        this.agentActRunners.set(id, () => {
+          this.noteVoiceGesture();
+          opt.onSelect();
+        });
+        out.push({ id, label: opt.label });
+      });
+    });
+    return out.slice(0, 24);
+  }
+
+  /**
+   * W3: one agent exchange. >900ms in flight → the spoken thinking
+   * filler (prefetched). The reply speaks `say`; when `act` names a
+   * tool from the list WE sent, it executes AFTER the ack finishes —
+   * and only if the pandit let it finish (an interrupt drops the act,
+   * never fires it behind his back).
+   */
+  private async askAgent(text: string): Promise<void> {
+    const seq = ++this.agentSeq;
+    const entry = this.activeVoiceScreen();
+    const screenId = typeof window !== "undefined" ? window.location.pathname : "";
+    const actions = this.buildAgentActions();
+    this.debug(`agent: → "${text.slice(0, 40)}"`);
+    const t0 = performance.now();
+    const filler = setTimeout(() => {
+      if (seq === this.agentSeq) this.speak(t("shishya.thinking"));
+    }, 900);
+    try {
+      const res = await askShishyaAgent(text, {
+        screenId,
+        screenHelp: entry?.helpText,
+        availableActions: actions,
+      });
+      clearTimeout(filler);
+      if (seq !== this.agentSeq) {
+        this.debug("agent: ← stale (superseded), dropped");
+        return;
+      }
+      const ms = Math.round(performance.now() - t0);
+      if (!res.say) {
+        this.debug(`agent: ← miss source=${res.source} in ${ms}ms`);
+        recordUnansweredQuestion(text);
+        this.speak(t("shishya.honestMiss"));
+        return;
+      }
+      this.debug(`agent: ← "${res.say.slice(0, 40)}" act=${res.act ?? "null"} in ${ms}ms`);
+      const actId = res.act;
+      this.speak(res.say, {
+        onEnd: (completed) => {
+          if (!actId) return;
+          if (!completed) {
+            this.debug(`agent: act [${actId}] dropped (say interrupted)`);
+            return;
+          }
+          const run = this.agentActRunners.get(actId);
+          if (run) run();
+          else this.debug(`agent: act [${actId}] no longer on screen — skipped`);
+        },
+      });
+    } catch {
+      clearTimeout(filler);
+      if (seq !== this.agentSeq) return;
+      this.debug("agent: ← error");
+      recordUnansweredQuestion(text);
+      this.speak(t("shishya.honestMiss"));
+    }
   }
 
   get processing(): boolean {
@@ -892,6 +989,8 @@ class VoiceController {
 
   private init() {
     if (this.initialized || typeof window === "undefined") return;
+    // W3: agent-lib events (history resets) surface in the panel
+    setAgentDebugSink((line) => this.debug(line));
     this.initialized = true;
     // E2E traversal mode (?e2e=1, session-sticky): automated QA can
     // traverse permission-gated screens — native prompts never invoked.
