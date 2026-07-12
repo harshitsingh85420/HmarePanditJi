@@ -53,7 +53,8 @@ const config: Config = {
       },
       fontFamily: {
         hindi: ['var(--font-tiro)', 'var(--font-noto)', 'sans-serif'],
-        display: ['var(--font-yatra)', 'var(--font-tiro)', 'sans-serif'],
+        // V1: anusvara-correct display face (Yatra One retired — it drew ं onto the next cluster)
+        display: ['var(--font-noto)', 'var(--font-tiro)', 'sans-serif'],
       },
       borderRadius: {
         card: '20px',

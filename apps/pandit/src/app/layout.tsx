@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Tiro_Devanagari_Hindi, Noto_Sans_Devanagari, Yatra_One } from 'next/font/google'
+import { Tiro_Devanagari_Hindi, Noto_Sans_Devanagari } from 'next/font/google'
 import './globals.css'
 import NextDynamic from 'next/dynamic'
 import VoiceRoot from '@/components/VoiceRoot'
@@ -21,13 +21,9 @@ const tiroDevanagari = Tiro_Devanagari_Hindi({
   display: 'swap',
 })
 
-// Display face — Yatra One is ONLY for the greeting name line, money values,
-// and celebration titles (readability law: never body text, labels, buttons).
-const yatraOne = Yatra_One({
-  subsets: ['devanagari', 'latin'],
-  weight: '400',
-  variable: '--font-yatra',
-})
+// V1: Yatra One RETIRED — its anusvara landed on the following cluster
+// and the wordmark read as misspelled. Display face is Noto 700 now
+// (see globals.css .t-hero/display rules + tailwind fontFamily.display).
 
 const notoDevanagari = Noto_Sans_Devanagari({
   weight: ['400', '600', '700'],
@@ -60,7 +56,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="hi" className={`${tiroDevanagari.variable} ${notoDevanagari.variable} ${yatraOne.variable}`} suppressHydrationWarning>
+    <html lang="hi" className={`${tiroDevanagari.variable} ${notoDevanagari.variable}`} suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

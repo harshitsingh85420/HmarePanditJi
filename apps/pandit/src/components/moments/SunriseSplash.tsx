@@ -108,7 +108,14 @@ export function SunriseSplash({ onDone }: { onDone: () => void }) {
     // path in the controller, so this cannot hang.
     // D3c: warm the NEXT phase's lines while the sun rises (N2 order:
     // LOCATION follows the splash now, then the city picker)
-    voiceController.prefetch([t("entry.locationVoice"), t("pratham.cityVoice")]);
+    // V2d: the WELCOME synthesizes while the sun rises — the tap then
+    // hits the TTS cache and first audio lands <1s instead of ~4.4s.
+    voiceController.prefetch([
+      t("shishya.intro"),
+      t("splash.tapHintVoice"),
+      t("entry.locationVoice"),
+      t("pratham.cityVoice"),
+    ]);
     let disposed = false;
     const mountedAt = performance.now();
     const minDisplay = new Promise<void>((res) => setTimeout(res, 2600));

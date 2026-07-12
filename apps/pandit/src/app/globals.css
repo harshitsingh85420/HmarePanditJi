@@ -380,7 +380,10 @@ body {
 
   /* ─────── Type Scale ─────── */
   .t-hero {
-    font-family: var(--font-yatra), var(--font-tiro), sans-serif;
+    /* V1 ANUSVARA LAW: Yatra One drew the dot onto the following cluster
+       (heading read as if misspelled) — Devanagari display is Noto 700. */
+    font-family: var(--font-noto), var(--font-tiro), sans-serif;
+    font-weight: 700;
     font-size: 30px;
     font-weight: 400;
     color: theme('colors.temple.600');
@@ -405,14 +408,20 @@ body {
   }
 
   .t-money {
-    font-family: var(--font-yatra), var(--font-tiro), sans-serif;
+    /* V1 ANUSVARA LAW: Yatra One drew the dot onto the following cluster
+       (heading read as if misspelled) — Devanagari display is Noto 700. */
+    font-family: var(--font-noto), var(--font-tiro), sans-serif;
+    font-weight: 700;
     font-size: 30px;
     font-weight: 400;
     color: theme('colors.leaf.700');
   }
 
   .t-money-hero {
-    font-family: var(--font-yatra), var(--font-tiro), sans-serif;
+    /* V1 ANUSVARA LAW: Yatra One drew the dot onto the following cluster
+       (heading read as if misspelled) — Devanagari display is Noto 700. */
+    font-family: var(--font-noto), var(--font-tiro), sans-serif;
+    font-weight: 700;
     font-size: 40px;
     font-weight: 400;
     color: theme('colors.leaf.700');

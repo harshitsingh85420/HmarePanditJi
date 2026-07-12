@@ -130,17 +130,20 @@ export function VoiceRoot() {
     const onVoiceSleep = () => setToastMsg(t("shishya.sleepToast"));
     // U1b: Sarvam hiccup mid-session → silence + this one toast
     const onVoiceHiccup = () => setToastMsg(t("voice.hiccup"));
+    const onMicStuck = () => setToastMsg(t("voice.micStuck"));
     document.addEventListener("pointerdown", onPointerDown, true);
     window.addEventListener("hpj-voice-unavailable", onVoiceUnavailable);
     window.addEventListener("hpj-voice-tap-to-hear", onTapToHear);
     window.addEventListener("hpj-shishya-sleep", onVoiceSleep);
     window.addEventListener("hpj-voice-hiccup", onVoiceHiccup);
+    window.addEventListener("hpj-mic-stuck", onMicStuck);
     return () => {
       document.removeEventListener("pointerdown", onPointerDown, true);
       window.removeEventListener("hpj-voice-unavailable", onVoiceUnavailable);
       window.removeEventListener("hpj-voice-tap-to-hear", onTapToHear);
       window.removeEventListener("hpj-shishya-sleep", onVoiceSleep);
       window.removeEventListener("hpj-voice-hiccup", onVoiceHiccup);
+      window.removeEventListener("hpj-mic-stuck", onMicStuck);
     };
   }, []);
 

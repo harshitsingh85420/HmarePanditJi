@@ -7,6 +7,8 @@ export const hi = {
     // U1b: Sarvam hiccup after it worked — silence + this toast, never
     // the robot voice mid-session
     hiccup: "आवाज़ में रुकावट है",
+    // V2b: mic resurrection failed — one honest line, tap restarts
+    micStuck: "माइक रुक गया है — स्क्रीन छूकर फिर शुरू करें",
   },
   shishya: {
     name: "शिष्य",

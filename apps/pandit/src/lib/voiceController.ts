@@ -199,10 +199,24 @@ class VoiceController {
 
   adoptMicStream(stream: MediaStream): void {
     this.probeMicStrategyOnce(); // U4: pick the safe strategy for this device
+    // V2a: a live mic session is exactly when the screen must not dim
+    this.acquireWakeLock();
     if (this.micStream === stream) return;
     this.releaseMicStream("replaced");
     this.micStream = stream;
     this.debug("mic: stream adopted (persists across listens)");
+    // V2b: the track testifies its own health — log + clock every event
+    stream.getAudioTracks().forEach((tr) => {
+      tr.onmute = () => {
+        this.micTrackMutedSince = performance.now();
+        this.debug("mic-track: muted");
+      };
+      tr.onunmute = () => {
+        this.micTrackMutedSince = 0;
+        this.debug("mic-track: unmuted");
+      };
+      tr.onended = () => this.debug("mic-track: ended");
+    });
   }
   getMicStream(): MediaStream | null {
     if (
@@ -226,6 +240,93 @@ class VoiceController {
     });
     if (changed) this.debug(`mic: tracks ${v ? "ENABLED" : "disabled"} (${why})`);
   }
+  // ── V2a SCREEN WAKE LOCK ───────────────────────────────────
+  // Android dims → suspends capture → the founder's 2-minute deafness.
+  // While शिष्य is awake + mic granted + page visible, hold the screen
+  // awake; retake it whenever the OS lets go; release on sleep/hidden.
+  private wakeLock: { release?: () => Promise<void>; addEventListener?: (t: string, cb: () => void) => void } | null = null;
+  private wakeLockUnsupportedLogged = false;
+  private wakeLockRetaking = false;
+
+  acquireWakeLock(tag: "acquired" | "reacquired" = "acquired"): void {
+    if (this.wakeLock || this.paused || !this.micGranted()) return;
+    const nav = navigator as Navigator & { wakeLock?: { request: (t: string) => Promise<never> } };
+    if (!nav.wakeLock?.request) {
+      if (!this.wakeLockUnsupportedLogged) {
+        this.wakeLockUnsupportedLogged = true;
+        this.debug("wakelock: unsupported");
+      }
+      return;
+    }
+    void nav.wakeLock
+      .request("screen")
+      .then((lock: { release?: () => Promise<void>; addEventListener?: (t: string, cb: () => void) => void }) => {
+        this.wakeLock = lock;
+        this.debug(`wakelock: ${tag}`);
+        lock.addEventListener?.("release", () => {
+          const wasCurrent = this.wakeLock === lock;
+          if (wasCurrent) this.wakeLock = null;
+          this.debug("wakelock: released");
+          // the OS took it (dim attempt / tab switch) — take it back
+          // when still eligible, shortly after
+          if (wasCurrent && !this.wakeLockRetaking) {
+            this.wakeLockRetaking = true;
+            setTimeout(() => {
+              this.wakeLockRetaking = false;
+              this.acquireWakeLock("reacquired");
+            }, 400);
+          }
+        });
+      })
+      .catch((err: unknown) => {
+        this.debug(`wakelock: failed(${(err as Error)?.name || err})`);
+      });
+  }
+
+  releaseWakeLock(why: string): void {
+    const l = this.wakeLock;
+    this.wakeLock = null;
+    if (l) {
+      try { void l.release?.(); } catch { /* noop */ }
+      this.debug(`wakelock: released (${why})`);
+    }
+  }
+
+  // V2b: track-health clocks — set by the mic track's own mute/ended
+  // events; the watchdog resurrects on ended or muted>3s.
+  private micTrackMutedSince = 0;
+  private micResurrecting = false;
+
+  private resurrectMic(reason: string): void {
+    if (this.micResurrecting) return;
+    this.micResurrecting = true;
+    this.debug(`mic: resurrecting (${reason})…`);
+    this.releaseMicStream(`resurrect (${reason})`);
+    this.micTrackMutedSince = 0;
+    navigator.mediaDevices
+      .getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } })
+      .then((stream) => {
+        this.micResurrecting = false;
+        this.adoptMicStream(stream);
+        this.debug(`mic: resurrected (${reason})`);
+        this.abortListening();
+        this.loopRearm(0);
+      })
+      .catch((err: unknown) => {
+        this.micResurrecting = false;
+        this.debug(`mic: resurrection failed (${(err as Error)?.name || err})`);
+        try { window.dispatchEvent(new CustomEvent("hpj-mic-stuck")); } catch { /* noop */ }
+        // one sanctioned next-gesture retry: a real tap re-opens the mic
+        try {
+          document.addEventListener(
+            "pointerdown",
+            () => { if (!this.getMicStream() && this.micGranted()) this.resurrectMic("next-gesture"); },
+            { once: true, capture: true },
+          );
+        } catch { /* noop */ }
+      });
+  }
+
   // ── U4 PERMISSION LOGIC LAW ────────────────────────────────
   // The mic prompt may appear at exactly ONE designed moment (Parichay,
   // plus its explicit retry button) — NOWHERE else, EVER. T2's 'stop'
@@ -811,7 +912,10 @@ class VoiceController {
         this.abortListening();
         // S5: backgrounded = capture session must not linger
         this.releaseMicStream("hidden");
+        this.releaseWakeLock("hidden");
       } else {
+        // V2a: back in view — retake the screen lock with the loop
+        this.acquireWakeLock("reacquired");
         // Q1: returning to the tab resumes THE LAW — awake + granted ⇒
         // armed. Without this kick the loop stayed dead until the next
         // narration happened to end.
@@ -847,6 +951,19 @@ class VoiceController {
     setInterval(() => {
       if (this._e2e || !this._unlocked) return;
       const now = performance.now();
+      // V2b TRACK-HEALTH RESURRECTION: a dead or long-muted track under
+      // a supposedly-armed loop = the Android suspension signature.
+      // Silent reacquire (permission granted) — the ONE sanctioned
+      // reacquire even under strategy=mute.
+      if (!this.paused && this.micGranted() && !this.micResurrecting) {
+        const stream = this.micStream;
+        const trackDead = !!stream && stream.getAudioTracks().some((tr) => tr.readyState === "ended");
+        const mutedTooLong = this.micTrackMutedSince > 0 && now - this.micTrackMutedSince > 3000;
+        if ((trackDead || mutedTooLong) && (this._listening || this.autoTargets.length > 0)) {
+          this.resurrectMic(trackDead ? "track-ended" : "muted>3s");
+          return;
+        }
+      }
       if (
         (this._listening || this._processing) &&
         now - this.lastListenActivityAt > 12000
@@ -1602,6 +1719,7 @@ class VoiceController {
       this.abortListening();
       // S5 privacy law: सो जाओ = the mic is TRULY off, not just idle
       this.releaseMicStream("sleep");
+      this.releaseWakeLock("sleep");
     }
     this.emit();
     if (!v) {
