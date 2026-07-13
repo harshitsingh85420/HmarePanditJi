@@ -71,8 +71,9 @@ export function EmergencySOSFloating({ isVisible = true }: EmergencySOSFloatingP
               exit={{ scale: 0, opacity: 0, y: 20 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => {
-                window.location.href = 'tel:+911800PANDIT'
-                speakWithSarvam({ text: 'टीम से संपर्क किया जा रहा है।', languageCode: 'hi-IN' })
+                // L2: real, dialable help line (the old team number was non-dialable)
+                window.location.href = 'tel:18004654357'
+                speakWithSarvam({ text: 'सहायता टीम से संपर्क किया जा रहा है।', languageCode: 'hi-IN' })
               }}
               className="min-h-[56px] px-4 bg-surface-card rounded-2xl shadow-card flex items-center gap-3 border-l-4 border-trust-green"
             >

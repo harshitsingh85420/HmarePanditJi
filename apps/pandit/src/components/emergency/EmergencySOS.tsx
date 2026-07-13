@@ -38,58 +38,40 @@ export default function EmergencySOS() {
     return () => clearTimeout(timer)
   }, [])
 
+  // L2 TRUTHFUL-STATE (safety): there is NO emergency backend
+  // (/api/emergency/send-sos was never built), so this screen must NEVER
+  // claim an SOS was "sent" or that family/control-room were notified.
+  // The one real emergency action a phone can guarantee offline is placing
+  // a call — so SOS immediately connects the pandit to the 24/7 help line
+  // and says exactly that. HELP_LINE is the single real number.
+  const HELP_LINE = 'tel:18004654357'
+
   const handleSendSOS = async () => {
     setIsLoading(true)
-
-    // Get current location
+    // Best-effort location capture for the pandit's own reference on the
+    // call — logged only; we do not pretend it was transmitted anywhere.
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const { latitude, longitude } = position.coords
-
-          // Simulate sending SOS (in production, this would call your backend)
-          console.log('[SOS] Location:', latitude, longitude)
-
-          // Send voice confirmation
-          await speakWithSarvam({
-            text: 'आपका SOS संदेश भेजा गया। टीम और परिवार को सूचित किया जा रहा है।',
-            languageCode: 'hi-IN',
-          })
-
-          setSosSent(true)
-          setIsLoading(false)
-
-          // In production: Call API to send SMS/calls to emergency contacts
-          // await fetch('/api/emergency/send-sos', {
-          //   method: 'POST',
-          //   body: JSON.stringify({ latitude, longitude })
-          // })
-        },
-        (error) => {
-          console.error('[SOS] Location error:', error)
-          void speakWithSarvam({
-            text: 'स्थान प्राप्त नहीं हो सका। कृपया location permissions चेक करें।',
-            languageCode: 'hi-IN',
-          })
-          setIsLoading(false)
-        }
+        (position) => console.log('[SOS] Location (for the call):', position.coords.latitude, position.coords.longitude),
+        (error) => console.warn('[SOS] Location unavailable:', error?.message),
       )
-    } else {
-      void speakWithSarvam({
-        text: 'Location supported नहीं है।',
-        languageCode: 'hi-IN',
-      })
-      setIsLoading(false)
     }
+    // Speak the truth, then connect the real call.
+    await speakWithSarvam({
+      text: 'आपको अभी सहायता टीम से फ़ोन पर जोड़ा जा रहा है। कृपया लाइन पर बने रहें।',
+      languageCode: 'hi-IN',
+    })
+    setSosSent(true)
+    setIsLoading(false)
+    window.location.href = HELP_LINE
   }
 
   const handleCallTeam = () => {
     void speakWithSarvam({
-      text: 'टीम से संपर्क किया जा रहा है।',
+      text: 'सहायता टीम से संपर्क किया जा रहा है।',
       languageCode: 'hi-IN',
     })
-    // In production: Open phone dialer or initiate VoIP call
-    window.location.href = 'tel:+911800PANDIT'
+    window.location.href = HELP_LINE
   }
 
   return (
@@ -162,10 +144,10 @@ export default function EmergencySOS() {
               </div>
               <div>
                 <h3 className="font-serif text-lg font-bold text-text-primary mb-1 font-devanagari">
-                  Live GPS स्थान
+                  तुरंत कॉल
                 </h3>
                 <p className="text-text-secondary text-base leading-relaxed font-devanagari">
-                  सहायता बटन दबाते ही आपका सटीक स्थान हमारे कंट्रोल रूम और परिवार को भेज दिया जाएगा।
+                  बटन दबाते ही आप हमारी सहायता टीम से सीधे फ़ोन पर जुड़ जाते हैं — कॉल पर अपनी स्थिति और स्थान बता सकते हैं।
                 </p>
               </div>
             </div>
@@ -179,10 +161,10 @@ export default function EmergencySOS() {
               </div>
               <div>
                 <h3 className="font-serif text-lg font-bold text-text-primary mb-1 font-devanagari">
-                  परिवार को अलर्ट
+                  24/7 सहायता
                 </h3>
                 <p className="text-text-secondary text-base leading-relaxed font-devanagari">
-                  आपके इमरजेंसी कॉन्टैक्ट्स को तुरंत SMS और कॉल के माध्यम से सूचित किया जाएगा।
+                  हमारी सहायता टीम चौबीसों घंटे उपलब्ध है — किसी भी असुरक्षा या दुर्घटना की स्थिति में तुरंत जुड़ें।
                 </p>
               </div>
             </div>
@@ -200,7 +182,7 @@ export default function EmergencySOS() {
                 {sosSent ? 'check_circle' : 'emergency'}
               </span>
               <span className="font-serif text-2xl font-bold tracking-wide font-devanagari">
-                {sosSent ? 'SOS भेजा गया ✓' : 'SOS भेजें'}
+                {sosSent ? 'सहायता टीम से जुड़ रहे हैं…' : 'सहायता के लिए कॉल करें'}
               </span>
             </motion.button>
           </motion.div>
