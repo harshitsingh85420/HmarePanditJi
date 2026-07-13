@@ -63,4 +63,18 @@ for (const [q, id, truth] of truthChecks) {
   assert.ok(!buildSystemPrompt("hi").includes("'hi' भाषा में"), "no language rule for hi");
 }
 
+// AD2 — single-payee team law: the sheet states the pandit manages+pays
+// his own team; the platform never transacts with them.
+{
+  const prompt = buildSystemPrompt("hi");
+  assert.ok(
+    prompt.includes("सहायक पंडितों का प्रबंध और भुगतान मुख्य पंडित जी स्वयं"),
+    "single-payee team law present in the facts sheet",
+  );
+  const hit = matchCurated("बाकी पंडितों को कौन पैसा देगा");
+  assert.strictEqual(hit?.id, "teamPayout", "team-payout question is curated");
+  assert.ok(!/प्लेटफ़ॉर्म.*देता|platform pays/i.test(hit.answer), "platform never pays the team");
+  assert.ok(prompt.includes("पूरी दक्षिणा पर"), "commission is on the FULL dakshina (incl. team)");
+}
+
 console.log("shishyaFacts: ALL ASSERTIONS PASSED ✅");

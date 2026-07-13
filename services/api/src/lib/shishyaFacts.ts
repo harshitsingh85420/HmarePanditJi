@@ -24,7 +24,10 @@ export const APP_FACTS = {
 // model may quote. Keep each line self-contained and checkable.
 export const FACTS_SHEET_HI = [
   `दक्षिणा पंडित जी खुद तय करते हैं (₹${APP_FACTS.dakshinaMin} से ₹${APP_FACTS.dakshinaMax.toLocaleString("en-IN")}); ग्राहक से कोई मोलभाव नहीं होता।`,
-  `दक्षिणा का ${100 - APP_FACTS.commissionPercent}% पंडित जी का है; प्लेटफ़ॉर्म केवल ${APP_FACTS.commissionPercent}% सेवा-शुल्क लेता है।`,
+  `दक्षिणा का ${100 - APP_FACTS.commissionPercent}% पंडित जी का है; प्लेटफ़ॉर्म केवल ${APP_FACTS.commissionPercent}% सेवा-शुल्क पूरी दक्षिणा पर लेता है (इसमें बाकी पंडितों की दक्षिणा भी शामिल होती है)।`,
+  // AD2 SINGLE-PAYEE LAW: assistant pandits are the main pandit's own —
+  // the platform never registers, verifies, pays, or contacts them.
+  "सहायक पंडितों का प्रबंध और भुगतान मुख्य पंडित जी स्वयं करते हैं — प्लेटफ़ॉर्म सीधे उनसे लेन-देन नहीं करता। किसी पूजा की कुल दक्षिणा में बाकी पंडितों की दक्षिणा भी शामिल होती है, जो मुख्य पंडित जी उन्हें देते हैं।",
   `पूजा संपन्न होने के ${APP_FACTS.payoutHours} घंटे के अंदर पैसा सीधे पंडित जी के बैंक खाते या यूपीआई में आता है।`,
   `अपनी गाड़ी से जाने पर ₹${APP_FACTS.selfDriveRatePerKm} प्रति किलोमीटर (आना-जाना) यात्रा भत्ता मिलता है; ट्रेन/बस का इंतज़ाम बुकिंग के साथ तय होता है।`,
   "भोजन की दैनिक राशि पंडित जी तैयारी के चौथे चरण में खुद भरते हैं।",
@@ -79,6 +82,8 @@ export const CURATED_HI: readonly CuratedEntry[] = [
   { id: "appFree", keywords: ["ऐप मुफ़्त", "ऐप फ्री", "फीस कितनी", "app free"], answer: "ऐप बिल्कुल मुफ़्त है — न जुड़ने का कोई शुल्क, न चलाने का।" },
   { id: "verifyHowLong", keywords: ["सत्यापन कितना समय", "सत्यापन कब तक", "verification kab"], answer: `हमारी टीम आमतौर पर ${APP_FACTS.verificationDays} दिन में सत्यापन पूरा कर देती है — पूरा होते ही आपको सूचना मिलेगी।` },
   { id: "fraud", keywords: ["धोखा", "फ्रॉड", "भरोसा कैसे", "गारंटी", "dhokha"], answer: "ग्राहक का पैसा पहले प्लेटफ़ॉर्म के पास सुरक्षित रहता है और पूजा पूरी होने पर आपको मिलता है — इसीलिए दोनों तरफ़ भरोसा बना रहता है।" },
+  // AD2: the team question — single-payee, main pandit manages his own.
+  { id: "teamPayout", keywords: ["बाकी पंडित", "सहायक पंडित", "दूसरे पंडित", "टीम को कौन", "team payout", "assistant pandit"], answer: "सहायक पंडितों का प्रबंध और भुगतान आप स्वयं करते हैं, पंडित जी — प्लेटफ़ॉर्म सीधे उनसे लेन-देन नहीं करता। कुल दक्षिणा में उनकी दक्षिणा भी शामिल होती है, जो आप उन्हें देते हैं।" },
 ] as const;
 
 /** Loose containment match, longest keyword first (mirrors the client
