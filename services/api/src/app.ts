@@ -35,6 +35,7 @@ import aiRoutes from "./routes/ai.routes";
 import { submitOnboarding } from "./controllers/onboarding.controller";
 import { getReadiness, patchReadiness } from "./controllers/readiness.controller";
 import { presignFile } from "./controllers/upload.controller";
+import { isStorageConfigured } from "./lib/storage";
 import { authenticate, optionalAuth } from "./middleware/auth";
 import { roleGuard } from "./middleware/roleGuard";
 import {
@@ -347,11 +348,17 @@ app.register(uploadRoutes, { prefix: `${API_PREFIX}/upload` });
 app.get(`${API_PREFIX}/files/presign`, { preHandler: [authenticate] }, presignFile);
 app.register(aiRoutes, { prefix: `${API_PREFIX}/ai` });
 
-// Serve uploaded files statically (replaces express.static)
-app.register(fastifyStatic, {
-  root: join(process.cwd(), "public/uploads"),
-  prefix: "/uploads",
-});
+// Serve uploaded files off local disk ONLY in the dev fallback. In production
+// R2 is authoritative and files are served via short-lived presigned URLs — the
+// static route's root (public/uploads) does not exist there, and registering it
+// is what logged the "public/uploads directory not found" warning (the
+// disk-fallback tell). Skip it whenever object storage is configured. (BB2)
+if (!isStorageConfigured()) {
+  app.register(fastifyStatic, {
+    root: join(process.cwd(), "public/uploads"),
+    prefix: "/uploads",
+  });
+}
 
 // ── 404 Handler ───────────────────────────────────────────────────────────────
 app.setNotFoundHandler(notFoundHandler);

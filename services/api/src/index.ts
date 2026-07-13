@@ -1,11 +1,15 @@
 import "./config/env"; // validates env vars on startup
 import app from "./app";
 import { startReviewReminderJob } from "./jobs/review-reminder";
+import { assertStorageReady } from "./lib/storage";
 
 const port = process.env.PORT || process.env.API_PORT || 3001;
 
 const start = async () => {
   try {
+    // BB2: fail loud if production is missing R2 — never silently fall back to
+    // ephemeral disk (which loses uploaded documents on the next deploy).
+    assertStorageReady();
     await app.listen({ port: Number(port), host: "0.0.0.0" });
     console.log(`🚀 HmarePanditJi API running on port ${port}`);
 
