@@ -710,13 +710,20 @@ export default function BookingsClient() {
     if (!rateTarget || !accessToken) return;
     setRateLoading(true);
     try {
-      const res = await fetch(`${API}/bookings/${rateTarget.id}/review`, {
+      const res = await fetch(`${API}/reviews`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify(data),
+        // Server route is POST /reviews (reviewRoutes), body validated by
+        // createReviewSchema: { bookingId, ratings:{overall,…}, comment?, isAnonymous? }.
+        body: JSON.stringify({
+          bookingId: rateTarget.id,
+          ratings: data.ratings,
+          comment: data.comment,
+          isAnonymous: data.anonymous,
+        }),
       });
       if (!res.ok) throw new Error();
       setRateTarget(null);

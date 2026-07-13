@@ -44,7 +44,7 @@ export default function FavoritesPage() {
         if (!accessToken) return;
         setLoading(true);
         try {
-            const res = await fetch(`${API_BASE}/customers/favorites`, {
+            const res = await fetch(`${API_BASE}/customers/me/favorites`, {
                 headers: { Authorization: `Bearer ${accessToken}` },
                 signal: AbortSignal.timeout(5000),
             });
@@ -67,7 +67,7 @@ export default function FavoritesPage() {
     const removeFavorite = async (fav: FavoritePandit) => {
         setRemoving(fav.id);
         try {
-            await fetch(`${API_BASE}/customers/favorites/${fav.panditId}`, {
+            await fetch(`${API_BASE}/customers/me/favorites/${fav.panditId}`, {
                 method: "DELETE",
                 headers: { Authorization: `Bearer ${accessToken}` },
             });

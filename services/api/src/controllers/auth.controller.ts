@@ -13,6 +13,12 @@ import { DEFAULT_SAMAGRI } from "@hmarepanditji/db";
 import { computeEarnings } from "../lib/earnings";
 import { checkAndAwardMilestones } from "../lib/milestones";
 import { canRemovePooja, REMOVE_BLOCKING_STATUSES } from "../lib/poojaRules";
+import { panditView, withPanditView, dbStatusesForView } from "../lib/bookingStatus";
+import { NotificationService } from "../services/notification.service";
+import { getNotificationTemplate } from "../services/notification-templates";
+
+// Single notifier instance for the pandit booking-transition handlers below.
+const bookingNotifier = new NotificationService();
 
 // Cookie configuration for HttpOnly tokens
 const AUTH_COOKIE_OPTIONS = {
@@ -759,7 +765,10 @@ export const getPanditBookings = async (request: FastifyRequest, reply: FastifyR
   const where: any = { panditId: profile.id };
 
   if (status) {
-    where.status = status as any;
+    // The pandit client filters in UI vocabulary (e.g. ?status=REQUESTED). Real
+    // rows are stored in DB vocabulary (PANDIT_REQUESTED …) — translate so the
+    // New/Active polls actually match. (See lib/bookingStatus.)
+    where.status = { in: dbStatusesForView(status) };
   }
 
   if (date === "today") {
@@ -778,7 +787,7 @@ export const getPanditBookings = async (request: FastifyRequest, reply: FastifyR
 
   return reply.send({
     success: true,
-    data: bookings
+    data: bookings.map(withPanditView)
   });
 };
 
@@ -836,6 +845,7 @@ export const getPanditBookingById = async (request: FastifyRequest, reply: Fasti
     data: {
       booking: {
         ...booking,
+        status: panditView(booking.status), // DB → pandit-UI vocabulary
         earnings,
         journeyTimestamps
       }
@@ -967,26 +977,53 @@ export const acceptBooking = async (request: FastifyRequest, reply: FastifyReply
     });
   }
 
-  if (booking.status !== "REQUESTED") {
+  // BB1 — accept from the status the booking is ACTUALLY born with
+  // (PANDIT_REQUESTED; REQUESTED tolerated for legacy/seed rows) and transition
+  // to the canonical CONFIRMED the customer app understands. Atomic conditional
+  // update = L1 exactly-once ON THE PATH THE CLIENT REALLY CALLS: a double-tap,
+  // a voice "स्वीकार" racing a tap, or a retry-after-lost-response all resolve
+  // to ONE confirmation and ONE customer SMS.
+  const PENDING = ["PANDIT_REQUESTED", "REQUESTED"];
+  if (!PENDING.includes(booking.status)) {
+    if (booking.status === "CONFIRMED") {
+      return reply.send({ success: true, idempotent: true, data: { ...booking, status: panditView(booking.status) } });
+    }
     return reply.status(409).send({
       success: false,
-      error: { code: "invalid_state", message: "Only bookings in REQUESTED state can be accepted." }
+      error: { code: "invalid_state", message: "Only a pending booking can be accepted." }
     });
   }
 
-  // Update status to ACCEPTED and acceptedAt to now
-  const updated = await prisma.booking.update({
-    where: { id },
-    data: {
-      status: "ACCEPTED",
-      acceptedAt: new Date()
+  const flipped = await prisma.booking.updateMany({
+    where: { id, panditId: profile.id, status: { in: PENDING as any } },
+    data: { status: "CONFIRMED", acceptedAt: new Date() }
+  });
+  if (flipped.count === 0) {
+    const cur = await prisma.booking.findUnique({ where: { id } });
+    if (cur && cur.panditId === profile.id && cur.status === "CONFIRMED") {
+      return reply.send({ success: true, idempotent: true, data: { ...cur, status: panditView(cur.status) } });
     }
-  });
+    return reply.status(409).send({ success: false, error: { code: "invalid_state", message: "Only a pending booking can be accepted." } });
+  }
 
-  return reply.send({
-    success: true,
-    data: updated
-  });
+  const updated = await prisma.booking.findUnique({ where: { id } });
+
+  // Status trail + notifications (customer sees the confirmation; pandit an ack).
+  try {
+    const shortId = id.substring(0, 8).toUpperCase();
+    const dateStr = booking.eventDate ? new Date(booking.eventDate).toISOString().split("T")[0] : "";
+    await prisma.bookingStatusUpdate.create({
+      data: { bookingId: id, fromStatus: booking.status as any, toStatus: "CONFIRMED", updatedById: userId, note: "Accepted by Pandit" }
+    });
+    const tc = getNotificationTemplate("BOOKING_CONFIRMED", { id: shortId, panditName: "Aapke Pandit", pujaType: booking.eventType, date: dateStr });
+    await bookingNotifier.notify({ userId: booking.customerId, type: "BOOKING_CONFIRMED", title: tc.title, message: tc.message, smsMessage: tc.smsMessage });
+    const tp = getNotificationTemplate("BOOKING_CONFIRMED_ACK", { id: shortId, date: dateStr, city: booking.venueCity, pujaType: booking.eventType });
+    await bookingNotifier.notify({ userId, type: "BOOKING_CONFIRMED_ACK", title: tp.title, message: tp.message, smsMessage: tp.smsMessage });
+  } catch (e) {
+    (request as any).log?.error?.(`accept notify failed: ${(e as any)?.message || e}`);
+  }
+
+  return reply.send({ success: true, data: updated ? { ...updated, status: panditView(updated.status) } : null });
 };
 
 export const rejectBooking = async (request: FastifyRequest, reply: FastifyReply) => {
@@ -1024,25 +1061,55 @@ export const rejectBooking = async (request: FastifyRequest, reply: FastifyReply
     });
   }
 
-  if (booking.status !== "REQUESTED") {
+  // BB1 — reject from the real pending status (PANDIT_REQUESTED; REQUESTED
+  // tolerated) → terminal CANCELLED, atomically (exactly-once) and notify the
+  // customer so they SEE it and can rebook. This is the handler the client's
+  // /pandit/bookings/:id/reject (and the new /decline alias) actually hit.
+  const PENDING = ["PANDIT_REQUESTED", "REQUESTED"];
+  const DONE = ["CANCELLED", "REJECTED", "CANCELLATION_REQUESTED"];
+  if (!PENDING.includes(booking.status)) {
+    if (DONE.includes(booking.status)) {
+      return reply.send({ success: true, idempotent: true, data: { ...booking, status: panditView(booking.status) } });
+    }
     return reply.status(409).send({
       success: false,
-      error: { code: "invalid_state", message: "Only bookings in REQUESTED state can be rejected." }
+      error: { code: "invalid_state", message: "Only a pending booking can be rejected." }
     });
   }
 
-  // Update status to REJECTED
-  const updated = await prisma.booking.update({
-    where: { id },
-    data: {
-      status: "REJECTED"
+  const flipped = await prisma.booking.updateMany({
+    where: { id, panditId: profile.id, status: { in: PENDING as any } },
+    data: { status: "CANCELLED" }
+  });
+  if (flipped.count === 0) {
+    const cur = await prisma.booking.findUnique({ where: { id } });
+    if (cur && cur.panditId === profile.id && DONE.includes(cur.status)) {
+      return reply.send({ success: true, idempotent: true, data: { ...cur, status: panditView(cur.status) } });
     }
-  });
+    return reply.status(409).send({ success: false, error: { code: "invalid_state", message: "Only a pending booking can be rejected." } });
+  }
 
-  return reply.send({
-    success: true,
-    data: updated
-  });
+  const updated = await prisma.booking.findUnique({ where: { id } });
+
+  try {
+    const shortId = id.substring(0, 8).toUpperCase();
+    await prisma.bookingStatusUpdate.create({
+      data: { bookingId: id, fromStatus: booking.status as any, toStatus: "CANCELLED", updatedById: userId, note: "Rejected by Pandit" }
+    });
+    // Customer paid up-front; the pandit could not take it — tell them the
+    // booking is released so they can rebook (team follows up on the refund).
+    await bookingNotifier.notify({
+      userId: booking.customerId,
+      type: "BOOKING_CANCELLED",
+      title: "Booking Released",
+      message: `HPJ-${shortId}: Pandit ji is unavailable for this booking. Aap dobara book kar sakte hain — hamari team refund mein aapki madad karegi. -HmarePanditJi`,
+      smsMessage: `HPJ-${shortId}: Pandit ji is unavailable. Please rebook — our team will help with the refund. -HmarePanditJi`
+    });
+  } catch (e) {
+    (request as any).log?.error?.(`reject notify failed: ${(e as any)?.message || e}`);
+  }
+
+  return reply.send({ success: true, data: updated ? { ...updated, status: panditView(updated.status) } : null });
 };
 
 export const postBookingJourney = async (request: FastifyRequest, reply: FastifyReply) => {

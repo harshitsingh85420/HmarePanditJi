@@ -108,11 +108,14 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
             const token = localStorage.getItem("adminToken");
             const body: Record<string, string> = {};
             if (statusOverride) body.status = statusOverride;
-            if (adminNotes !== (booking.adminNotes ?? "")) body.adminNotes = adminNotes;
+            // Server field is `notes` (updateBookingStatusAdmin), not `adminNotes`.
+            if (adminNotes !== (booking.adminNotes ?? "")) body.notes = adminNotes;
 
             if (!Object.keys(body).length) return;
 
-            const res = await fetch(`${API}/admin/bookings/${params.id}`, {
+            // Real route is PATCH /admin/bookings/:id/status (there is no bare
+            // PATCH /admin/bookings/:id) — it accepts { status, notes }.
+            const res = await fetch(`${API}/admin/bookings/${params.id}/status`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
                 body: JSON.stringify(body),

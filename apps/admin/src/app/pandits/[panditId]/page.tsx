@@ -36,7 +36,7 @@ export default function PanditVerificationDetail() {
 
 
     useEffect(() => {
-        fetch(`http://localhost:3001/api/admin/pandits/${panditId}`, {
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/pandits/${panditId}`, {
             headers: { Authorization: `Bearer ${localStorage.getItem("adminToken") || ""}` }
         })
             .then(res => res.json())
@@ -56,7 +56,7 @@ export default function PanditVerificationDetail() {
             if (action === "REJECT") body.reason = `${rejectReason} - ${rejectDetail}`;
             if (action === "REQUEST_INFO") body.requestedDocuments = requestedDocs;
 
-            await fetch(`http://localhost:3001/api/admin/pandits/${panditId}/verify`, {
+            await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/pandits/${panditId}/verify`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",

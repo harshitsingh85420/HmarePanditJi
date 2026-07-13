@@ -204,6 +204,9 @@ app.get(`${API_PREFIX}/pandit/bookings`, { preHandler: [authenticate, roleGuard(
 app.get(`${API_PREFIX}/pandit/bookings/:id`, { preHandler: [authenticate, roleGuard("PANDIT")] }, getPanditBookingById);
 app.post(`${API_PREFIX}/pandit/bookings/:id/accept`, { preHandler: [authenticate, roleGuard("PANDIT")] }, acceptBooking);
 app.post(`${API_PREFIX}/pandit/bookings/:id/reject`, { preHandler: [authenticate, roleGuard("PANDIT")] }, rejectBooking);
+// Alias: "decline" is the plugin's name for the same action — register it here
+// so a client using either verb can never 404 on this money-path step.
+app.post(`${API_PREFIX}/pandit/bookings/:id/decline`, { preHandler: [authenticate, roleGuard("PANDIT")] }, rejectBooking);
 app.post(`${API_PREFIX}/pandit/bookings/:id/journey`, { preHandler: [authenticate, roleGuard("PANDIT")] }, postBookingJourney);
 app.post(`${API_PREFIX}/pandit/bookings/:id/complete`, { preHandler: [authenticate, roleGuard("PANDIT")] }, completeBooking);
 app.get(`${API_PREFIX}/pandit/earnings/summary`, { preHandler: [authenticate, roleGuard("PANDIT")] }, getPanditEarningsSummary);
