@@ -74,11 +74,10 @@ export default function ResumeRegistrationScreen() {
 
     const stepInfo = STEP_LABELS[nextStep] || { title: 'Registration', subtitle: 'पंजीकरण', icon: 'edit' }
     const timer = setTimeout(() => {
+      // Y2: no speaker/pace override — शिष्य has one voice (VOICE_PROFILE).
       void speakWithSarvam({
         text: `स्वागत है। आपका ${stepInfo.title} अधूरा है। क्या आप जारी रखना चाहेंगे?`,
         languageCode: 'hi-IN',
-        speaker: 'ratan',
-        pace: 0.82,
       })
     }, 500)
     return () => clearTimeout(timer)

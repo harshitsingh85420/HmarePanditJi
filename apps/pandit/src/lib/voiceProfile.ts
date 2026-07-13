@@ -21,4 +21,8 @@ export const VOICE_PROFILE = {
   pace: 1.15, // brisk but clear for elderly Hindi ears
 } as const;
 
+// Y4: bump when the voice or pace changes so the client audio cache key
+// changes with it — a legacy entry can never replay the old voice.
+export const VOICE_PROFILE_VERSION = 2 as const;
+
 export const FALLBACK_POLICY = "sarvam-retry2-then-silent; webspeech only if sarvam never succeeded this session" as const;

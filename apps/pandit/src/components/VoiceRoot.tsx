@@ -98,17 +98,24 @@ export function VoiceRoot() {
     refreshBundleInBackground();
   }, []);
 
-  // J3e: the loop's static lines (acks, advance-ask, gentle-unmatched,
-  // wake greeting) answer in ~10ms from the TTS cache — pre-warm once.
+  // J3e / X2: pre-warm the loop's static lines AND the splash welcome so
+  // they answer in ~10ms from the TTS cache. The welcome is prefetched
+  // FIRST — the very first thing the founder hears, made instant from its
+  // 2nd load onward (first-ever load still fetches once). shishya.intro
+  // is the exact splash utterance.
   useEffect(() => {
     voiceController.prefetch([
+      t("shishya.intro"),
+      t("splash.tapHintVoice"),
       t("voiceLoop.ack"),
       t("voiceLoop.unmatched"),
       t("voiceLoop.confirmRepeat"),
       t("tutorial.advanceAsk"),
       t("shishya.wake"),
-      // T4: the brain's own static lines answer instantly
+      // T4/X3: the brain's own static lines + all filler variants
       t("shishya.thinking"),
+      t("shishya.thinking2"),
+      t("shishya.thinking3"),
       t("shishya.honestMiss"),
     ]);
   }, []);

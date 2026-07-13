@@ -16,13 +16,16 @@ import { logger } from "../utils/logger";
 
 const BHASHINI_BASE_URL = "https://dhruva-api.bhashini.gov.in/services/inference";
 
+// Y3 ONE-VOICE LAW: no gender field. The founder ships exactly ONE voice
+// (Sarvam 'aditya', male) via apps/pandit /api/tts. This Bhashini path is
+// dead (no app caller — grep-verified) and is kept only so the legacy
+// /voice endpoints compile; a female voice can never be requested here.
 interface BhashiniTTSRequest {
     pipelineTasks: Array<{
         taskType: string;
         config: {
             language: { sourceLanguage: string };
             serviceId: string;
-            gender?: string;
         };
     }>;
     inputData: {
@@ -72,7 +75,6 @@ export async function textToSpeech(text: string, language: string = "hi", pace?:
                     config: {
                         language: { sourceLanguage: language },
                         serviceId: env.BHASHINI_PIPELINE_ID || "ai4bharat/indic-tts-coqui-hindi",
-                        gender: "female",
                     },
                 },
             ],

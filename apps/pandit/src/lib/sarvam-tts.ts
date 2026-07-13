@@ -25,18 +25,18 @@ export type SarvamLanguageCode =
   | 'or-IN'
   | 'en-IN';
 
-// CRITICAL: "priya" is warm, mature female voice for bulbul:v3 - tested best for elderly users
-// NEVER use youthful voices - they feel condescending to elderly Pandits
-// Available speakers for bulbul:v3: aditya, ritu, ashutosh, priya, neha, rahul, pooja, rohan, simran, kavya, amit, dev, ishita, shreya, ratan, varun, manan, sumit, roopa, kabir, aayan, shubh, advait, amelia, sophia, anand, tanya, tarun, sunny, mani, gokul, vijay, shruti, suhani, mohit, kavitha, rehan, soham, rupali, niharika
+// ONE-VOICE LAW: शिष्य speaks ONLY as VOICE_PROFILE.speaker ('aditya',
+// Sarvam bulbul:v3 male). The `speaker` option below is retained for
+// type-compat but is NEVER honored — the /api/tts route ignores any
+// caller-supplied speaker and the server profile is the single source.
 export type SarvamSpeaker = 'meera' | 'priya' | 'ritu' | 'neha' | 'pooja' | 'simran' | 'kavya' | 'ishita' | 'shreya' | 'roopa' | 'shruti' | 'suhani' | 'kavitha' | 'rupali' | 'niharika' | 'aditya' | 'ashutosh' | 'rahul' | 'rohan' | 'amit' | 'dev' | 'ratan' | 'varun' | 'manan' | 'sumit' | 'kabir' | 'aayan' | 'shubh' | 'advait' | 'amelia' | 'sophia' | 'anand' | 'tanya' | 'tarun' | 'sunny' | 'mani' | 'gokul' | 'vijay' | 'mohit' | 'rehan' | 'soham';
 
 export interface SarvamTTSOptions {
   text: string;
   languageCode?: SarvamLanguageCode;
-  // CRITICAL: Default speaker is "meera" for elderly users (NOT "arjun" or "ratan")
+  // IGNORED (one-voice law) — kept only for call-site compatibility.
   speaker?: SarvamSpeaker;
-  // D4: default pace 1.15 (mirrors server SARVAM_TTS_PACE default);
-  // localStorage 'voice_pace' overrides per device (future settings knob)
+  // IGNORED (one-voice law) — pace comes from VOICE_PROFILE server-side.
   pace?: number;
   pitch?: number;
   loudness?: number;
@@ -191,8 +191,8 @@ export function stopCurrentSpeech(): void {
 export async function speakWithSarvam({
   text,
   languageCode = 'hi-IN',
-  // CRITICAL: Default speaker is "priya" (warm, mature voice for elderly)
-  speaker = 'priya',
+  // one-voice law: destructured for compat only — never sent anywhere.
+  speaker = VOICE_PROFILE.speaker,
   pace = clientPace(),
   pitch = 0,
   loudness = 1.0,
@@ -200,6 +200,7 @@ export async function speakWithSarvam({
   onEnd,
   onError,
 }: SarvamTTSOptions): Promise<void> {
+  void speaker; void pace; void pitch; void loudness;
   const speechToken = activeSpeechToken + 1;
   activeSpeechToken = speechToken;
 
@@ -232,7 +233,7 @@ export async function speakWithSarvam({
 export async function preloadAudio(
   text: string,
   languageCode: SarvamLanguageCode = 'hi-IN',
-  speaker: SarvamSpeaker = 'priya',
+  speaker: SarvamSpeaker = VOICE_PROFILE.speaker,
   pace: number = clientPace()
 ): Promise<string | null> {
   const cacheKey = `${text}::${languageCode}::${speaker}::${pace}`;
@@ -252,14 +253,9 @@ export async function preloadAudio(
     const response = await fetch('/api/tts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        text,
-        languageCode,
-        speaker,
-        pace,
-        pitch: 0,
-        loudness: 1.0,
-      }),
+      // one-voice law: never send speaker/pace — the route ignores them
+      // and uses the server profile (aditya@1.15).
+      body: JSON.stringify({ text, languageCode }),
     });
 
     if (!response.ok) return null;
@@ -280,8 +276,8 @@ export async function preloadAudio(
 export function playFromCache(
   text: string,
   languageCode: SarvamLanguageCode = 'hi-IN',
-  speaker: SarvamSpeaker = 'priya',
-  pace: number = 0.82,
+  speaker: SarvamSpeaker = VOICE_PROFILE.speaker,
+  pace: number = clientPace(),
   onEnd?: () => void
 ): boolean {
   const cacheKey = `${text}::${languageCode}::${speaker}::${pace}`;
@@ -340,7 +336,7 @@ export async function preWarmCache(scripts?: VoiceScript[]): Promise<void> {
     const batch = scriptsToPreload.slice(i, i + CONCURRENCY_LIMIT);
     const batchResults = await Promise.allSettled(
       batch.map((script) =>
-        preloadAudio(script.text, script.language as SarvamLanguageCode, script.speaker as SarvamSpeaker, script.pace ?? 0.82)
+        preloadAudio(script.text, script.language as SarvamLanguageCode, VOICE_PROFILE.speaker, clientPace())
       )
     );
 

@@ -25,8 +25,12 @@ export const hi = {
     // brain cannot answer; never for ordinary unmatched noise.
     honestMiss:
       "क्षमा कीजिए पंडित जी, इसका उत्तर अभी मेरे पास नहीं है — मदद वाले हिस्से से हमारी टीम को फ़ोन कर सकते हैं।",
-    // T4: spoken once when the server brain takes >900ms
+    // T4/X3: a filler spoken once when the brain takes >600ms. Rotated
+    // through variants so back-to-back questions don't repeat the same
+    // line — the wait feels like a person thinking, not a loop.
     thinking: "एक क्षण, सोच रहा हूँ…",
+    thinking2: "जी, देखता हूँ…",
+    thinking3: "बस अभी बताता हूँ…",
     // S6a: शिष्य's curated answers — ≤2 sentences, warm, SPOKEN. Money
     // and Aadhaar lines are grounded in repo facts, never invented.
     faq: {

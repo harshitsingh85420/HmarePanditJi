@@ -36,10 +36,11 @@ const deepseekChatSchema = z.object({
 const sarvamTTSSchema = z.object({
   text: z.string().min(1).max(5000),
   languageCode: z.string().optional().default("hi-IN"),
-  // No static default — the शिष्य voice comes from SARVAM_TTS_SPEAKER
-  // (male) unless the caller overrides explicitly.
+  // Y1: speaker/pace accepted for back-compat but NEVER honored — the
+  // one-voice law makes SARVAM_TTS_SPEAKER + SARVAM_TTS_PACE the only
+  // source. A supplied value is logged as VOICE OVERRIDE REJECTED.
   speaker: z.string().optional(),
-  pace: z.number().min(0.5).max(2).optional().default(0.82),
+  pace: z.number().min(0.5).max(2).optional(),
 });
 
 const deepgramSTTSchema = z.object({
@@ -118,12 +119,17 @@ export default async function aiServicesRoutes(fastify: FastifyInstance, _opts: 
       }
 
       const req = request as any;
-      const { text, languageCode, pace } = req.body;
-      // D4: शिष्य is male — env-driven speaker with a defensive retry:
-      // valid speaker names vary by model/language, so a 4xx naming the
-      // speaker logs Sarvam's error body (it enumerates valid options)
-      // and retries once with the API default so speech never breaks.
-      const speaker = req.body.speaker || env.SARVAM_TTS_SPEAKER;
+      const { text, languageCode } = req.body;
+      // Y1 ONE-VOICE DOOR: ignore any caller-supplied speaker/pace.
+      if (req.body.speaker != null) {
+        request.log.warn(`[sarvam/tts] VOICE OVERRIDE REJECTED: speaker="${req.body.speaker}" — profile is the only source`);
+      }
+      if (req.body.pace != null) {
+        request.log.warn(`[sarvam/tts] VOICE OVERRIDE REJECTED: pace="${req.body.pace}" — profile is the only source`);
+      }
+      const speaker = env.SARVAM_TTS_SPEAKER;
+      const envPace = Number.parseFloat(process.env.SARVAM_TTS_PACE ?? "1.15");
+      const pace = Math.min(2, Math.max(0.5, Number.isFinite(envPace) ? envPace : 1.15));
 
       const callSarvam = (payload: Record<string, unknown>) =>
         fetch("https://api.sarvam.ai/tts", {

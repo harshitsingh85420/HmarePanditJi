@@ -1,6 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { VOICE_PROFILE } from "@/lib/voiceProfile";
 
+// Y1 ONE-VOICE DOOR: the profile is the ONLY source of speaker+pace.
+// Env vars may still override for ops emergencies, but a CALLER can
+// never pick a voice — any body.speaker/body.pace is rejected + logged.
+function resolveVoice(): { speaker: string; pace: number } {
+  const speaker = process.env.SARVAM_TTS_SPEAKER || VOICE_PROFILE.speaker;
+  const envPace = Number.parseFloat(process.env.SARVAM_TTS_PACE ?? String(VOICE_PROFILE.pace));
+  const pace = Math.min(2.0, Math.max(0.5, Number.isFinite(envPace) ? envPace : VOICE_PROFILE.pace));
+  return { speaker, pace };
+}
+
 // ─────────────────────────────────────────────────────────────
 // TTS API PROXY ROUTE
 // Proxies requests to Sarvam AI Bulbul v3 TTS
@@ -93,6 +103,14 @@ export async function POST(request: NextRequest) {
     loudness?: number;
   };
 
+  // Y1: reject (never honor) any caller attempt to pick the voice/speed.
+  if (body.speaker != null) {
+    console.warn(`[TTS Route] VOICE OVERRIDE REJECTED: speaker="${body.speaker}" — profile is the only source`);
+  }
+  if (body.pace != null) {
+    console.warn(`[TTS Route] VOICE OVERRIDE REJECTED: pace="${body.pace}" — profile is the only source`);
+  }
+
   if (!body.text || typeof body.text !== 'string' || body.text.trim().length === 0) {
     return NextResponse.json({ error: 'text is required' }, { status: 400 });
   }
@@ -124,15 +142,9 @@ export async function POST(request: NextRequest) {
     // valid options) and retries ONCE without the speaker field so
     // speech never breaks.
     // 'aditya' = first male option in Sarvam's bulbul:v3 speaker list
-    // (verified live via scripts/check-sarvam-speaker.mjs)
-    const speaker = body.speaker ?? process.env.SARVAM_TTS_SPEAKER ?? VOICE_PROFILE.speaker;
-    // D4 PACE: default from SARVAM_TTS_PACE (1.15 = brisk but clear for
-    // elderly Hindi). Sarvam bulbul documents pace 0.5–2.0 — clamp to
-    // that; an out-of-range 4xx would name the exact limits in its body
-    // (logged below) if the range ever changes.
-    const envPace = Number.parseFloat(process.env.SARVAM_TTS_PACE ?? String(VOICE_PROFILE.pace));
-    const requestedPace = typeof body.pace === 'number' && Number.isFinite(body.pace) ? body.pace : envPace;
-    const pace = Math.min(2.0, Math.max(0.5, Number.isFinite(requestedPace) ? requestedPace : 1.15));
+    // (verified live via scripts/check-sarvam-speaker.mjs). Y1: speaker
+    // and pace come ONLY from the profile/env — body values are ignored.
+    const { speaker, pace } = resolveVoice();
     const basePayload: Record<string, unknown> = {
       inputs: [body.text.trim()],
       target_language_code: body.languageCode ?? 'hi-IN',

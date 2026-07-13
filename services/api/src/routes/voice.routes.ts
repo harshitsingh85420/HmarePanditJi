@@ -114,14 +114,17 @@ export default async function voiceRoutes(fastify: FastifyInstance, _opts: any) 
             const pace = Math.min(2, Math.max(0.5, paceRaw ?? (Number.isFinite(envPace) ? envPace : 1.15)));
 
             // R2-backed audio cache. Hash EVERY parameter that affects the
-            // audio: provider, serviceId (pipeline), fixed gender, language,
-            // and the normalized text. Long dynamic texts are not cached.
+            // audio: provider, serviceId (pipeline), language, and the
+            // normalized text. Long dynamic texts are not cached.
+            // Y3: no gender token — the female voice is gone; the store
+            // name is bumped (bhashini2) so any legacy female-audio object
+            // can never be served.
             const normalizedText = text.trim();
             const serviceId = env.BHASHINI_PIPELINE_ID || "ai4bharat/indic-tts-coqui-hindi";
             const cacheable = isStorageConfigured() && normalizedText.length <= 500;
             const cacheKey = "tts/" + crypto
                 .createHash("sha256")
-                .update(`bhashini|${serviceId}|female|${language}|${pace}|${normalizedText}`)
+                .update(`bhashini2|${serviceId}|${language}|${pace}|${normalizedText}`)
                 .digest("hex") + ".mp3";
 
             if (cacheable && (await objectExists(cacheKey))) {

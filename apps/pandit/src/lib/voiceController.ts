@@ -12,7 +12,7 @@
 
 import { t, getActiveBcp47 } from "@/lib/i18n";
 import { clientPace } from "@/lib/sarvam-tts";
-import { VOICE_PROFILE } from "@/lib/voiceProfile";
+import { VOICE_PROFILE, VOICE_PROFILE_VERSION } from "@/lib/voiceProfile";
 import { YES, NO, NEXT, BACK, SKIP, REPEAT, HELP, STOP, SLEEP, matchAny, matchWord, normalizeForMatch } from "@/lib/voiceGrammar";
 import { isQuestionShaped, recordUnansweredQuestion, askShishyaServer } from "@/lib/shishyaBrain";
 import {
@@ -823,17 +823,27 @@ class VoiceController {
   }
   private lastGlobalUnmatchedAt = 0;
 
+  // X3: rotate the "thinking" filler so consecutive waits vary. All
+  // three variants are prefetched (VoiceRoot) so each answers instantly.
+  private fillerIdx = 0;
+  private nextFiller(): string {
+    const keys = ["shishya.thinking", "shishya.thinking2", "shishya.thinking3"];
+    const key = keys[this.fillerIdx % keys.length];
+    this.fillerIdx++;
+    return t(key);
+  }
+
   /**
-   * T4: server-brain ask. >900ms in flight → ONE spoken filler
-   * ("एक क्षण, सोच रहा हूँ…", prefetched); the answer (or the honest
-   * miss on any failure) replaces it — newest-wins keeps this clean.
-   * Answers NEVER navigate; the loop re-arms when the line ends.
+   * T4/X3: server-brain ask. >600ms in flight → ONE spoken filler
+   * (rotated variant, prefetched); the answer (or the honest miss on any
+   * failure) replaces it — newest-wins keeps this clean. Answers NEVER
+   * navigate; the loop re-arms when the line ends.
    */
   private askServerBrain(text: string): Promise<void> {
     const t0 = performance.now();
     const filler = setTimeout(() => {
-      this.speak(t("shishya.thinking"));
-    }, 900);
+      this.speak(this.nextFiller());
+    }, 600);
     return askShishyaServer(text)
       .then((res) => {
         clearTimeout(filler);
@@ -894,11 +904,11 @@ class VoiceController {
   }
 
   /**
-   * W3: one agent exchange. >900ms in flight → the spoken thinking
-   * filler (prefetched). The reply speaks `say`; when `act` names a
-   * tool from the list WE sent, it executes AFTER the ack finishes —
-   * and only if the pandit let it finish (an interrupt drops the act,
-   * never fires it behind his back).
+   * W3/X3: one agent exchange. >600ms in flight → a spoken thinking
+   * filler (rotated variant, prefetched). The reply speaks `say`; when
+   * `act` names a tool from the list WE sent, it executes AFTER the ack
+   * finishes — and only if the pandit let it finish (an interrupt drops
+   * the act, never fires it behind his back).
    */
   private async askAgent(text: string): Promise<void> {
     const seq = ++this.agentSeq;
@@ -908,8 +918,8 @@ class VoiceController {
     this.debug(`agent: → "${text.slice(0, 40)}"`);
     const t0 = performance.now();
     const filler = setTimeout(() => {
-      if (seq === this.agentSeq) this.speak(t("shishya.thinking"));
-    }, 900);
+      if (seq === this.agentSeq) this.speak(this.nextFiller());
+    }, 600);
     try {
       const res = await askShishyaAgent(text, {
         screenId,
@@ -1096,6 +1106,8 @@ class VoiceController {
     document.addEventListener("securitypolicyviolation", (e) => {
       this.debug(`CSP BLOCK: ${e.blockedURI} (${e.violatedDirective})`);
     });
+    // Y4: drop any pre-law audio (ratan/priya/meera) once per boot.
+    void this.purgeLegacyCache();
   }
 
   private unlock() {
@@ -1497,16 +1509,33 @@ class VoiceController {
     });
   }
 
-  // ── D3b CLIENT AUDIO CACHE (CacheStorage 'shishya-tts-v1') ─────────
-  // Keyed sha1(voice|pace|lang|text). Cache-first playback makes every
-  // static entry-flow line instant from its 2nd hearing forever; misses
-  // fetch then cache.put. LRU-ish cap ~300 via x-cached-at timestamps.
-  private static TTS_CACHE = "shishya-tts-v1";
+  // ── D3b CLIENT AUDIO CACHE (CacheStorage 'shishya-tts-v2') ─────────
+  // Keyed sha1(speaker|pace|profileVersion|lang|text). Cache-first
+  // playback makes every static entry-flow line instant from its 2nd
+  // hearing forever; misses fetch then cache.put. LRU-ish cap ~300 via
+  // x-cached-at timestamps.
+  // Y4: the store name is v2 and the key now includes the resolved
+  // speaker + VOICE_PROFILE_VERSION — a pre-law entry (ratan/priya/meera
+  // audio) can neither be found nor replayed, and the legacy v1 store is
+  // purged on boot (purgeLegacyCache).
+  private static TTS_CACHE = "shishya-tts-v2";
   private static TTS_CACHE_MAX = 300;
+  private legacyCachePurged = false;
+
+  private async purgeLegacyCache(): Promise<void> {
+    if (this.legacyCachePurged || typeof caches === "undefined") return;
+    this.legacyCachePurged = true;
+    try {
+      const deleted = await caches.delete("shishya-tts-v1");
+      if (deleted) this.debug("tts-cache: purged legacy store");
+    } catch {
+      /* no CacheStorage — nothing to purge */
+    }
+  }
 
   private async ttsCacheKey(text: string, languageCode: string, pace: number): Promise<string | null> {
     try {
-      const raw = `server|${pace}|${languageCode}|${text}`;
+      const raw = `${VOICE_PROFILE.speaker}|${pace}|v${VOICE_PROFILE_VERSION}|${languageCode}|${text}`;
       const buf = await crypto.subtle.digest("SHA-1", new TextEncoder().encode(raw));
       const hex = Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
       return `https://tts.cache/${hex}`;
@@ -1637,6 +1666,16 @@ class VoiceController {
           return "failed";
         }
         this.lastVoiceGroundTruth = res.headers.get("x-voice");
+        // Y5 TRIPWIRE: x-voice is the server's ground truth (speaker@pace).
+        // If the speaker is anything but the profile's, shout — a stray
+        // voice can never sound silently again.
+        if (this.lastVoiceGroundTruth) {
+          const resolvedSpeaker = this.lastVoiceGroundTruth.split("@")[0];
+          if (resolvedSpeaker && resolvedSpeaker !== VOICE_PROFILE.speaker) {
+            this.debug(`VOICE VIOLATION: ${this.lastVoiceGroundTruth} (expected ${VOICE_PROFILE.speaker})`);
+            console.error(`[voice] VOICE VIOLATION: ${this.lastVoiceGroundTruth} — expected speaker ${VOICE_PROFILE.speaker}`);
+          }
+        }
         const data = (await res.json()) as { audioBase64?: string };
         audioBase64 = data?.audioBase64;
         this.debug(
