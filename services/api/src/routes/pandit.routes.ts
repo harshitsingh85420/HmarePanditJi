@@ -864,26 +864,40 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
     try {
       const req = request;
       const res = reply;
+      const panditId = await getProfileId(req.user!.id);
       const booking = await prisma.booking.findUnique({ where: { id: req.params.bookingId } });
-      if (!booking || booking.panditId !== await getProfileId(req.user!.id) || booking.status !== "PANDIT_REQUESTED") {
+      if (!booking || booking.panditId !== panditId) {
         throw new AppError("Invalid booking request", 400);
       }
 
-      await prisma.$transaction([
-        prisma.booking.update({
-          where: { id: booking.id },
-          data: { status: "CONFIRMED" }
-        }),
-        prisma.bookingStatusUpdate.create({
-          data: {
-            bookingId: booking.id,
-            fromStatus: booking.status,
-            toStatus: "CONFIRMED",
-            updatedById: req.user!.id,
-            note: "Accepted by Pandit"
-          }
-        })
-      ]);
+      // L1 EXACTLY-ONCE: the status transition IS the lock. Only the FIRST
+      // request whose where-clause still matches PANDIT_REQUESTED flips the
+      // row; concurrent double-taps and retries-after-lost-response update
+      // 0 rows and take the idempotent path — so the customer is never
+      // notified twice and a retry of an already-accepted booking returns
+      // success (not a confusing 400 that makes the pandit think he lost it).
+      const flipped = await prisma.booking.updateMany({
+        where: { id: booking.id, panditId, status: "PANDIT_REQUESTED" },
+        data: { status: "CONFIRMED" },
+      });
+      if (flipped.count === 0) {
+        const cur = await prisma.booking.findUnique({ where: { id: booking.id } });
+        if (cur && cur.panditId === panditId && cur.status === "CONFIRMED") {
+          sendSuccess(res, { success: true, idempotent: true });
+          return;
+        }
+        throw new AppError("Invalid booking request", 400);
+      }
+
+      await prisma.bookingStatusUpdate.create({
+        data: {
+          bookingId: booking.id,
+          fromStatus: "PANDIT_REQUESTED",
+          toStatus: "CONFIRMED",
+          updatedById: req.user!.id,
+          note: "Accepted by Pandit"
+        }
+      });
 
       const t1 = getNotificationTemplate("BOOKING_CONFIRMED", { id: booking.id.substring(0, 8).toUpperCase(), panditName: "Aapke Pandit", pujaType: booking.eventType, date: booking.eventDate.toISOString().split('T')[0] });
       await notificationService.notify({ userId: booking.customerId, type: "BOOKING_CONFIRMED", title: t1.title, message: t1.message, smsMessage: t1.smsMessage });
@@ -906,26 +920,35 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
       const req = request;
       const res = reply;
       const { reason } = req.body;
+      const panditId = await getProfileId(req.user!.id);
       const booking = await prisma.booking.findUnique({ where: { id: req.params.bookingId } });
-      if (!booking || booking.panditId !== await getProfileId(req.user!.id) || booking.status !== "PANDIT_REQUESTED") {
+      if (!booking || booking.panditId !== panditId) {
         throw new AppError("Invalid booking request", 400);
       }
 
-      await prisma.$transaction([
-        prisma.booking.update({
-          where: { id: booking.id },
-          data: { status: "CANCELLATION_REQUESTED" }
-        }),
-        prisma.bookingStatusUpdate.create({
-          data: {
-            bookingId: booking.id,
-            fromStatus: booking.status,
-            toStatus: "CANCELLATION_REQUESTED",
-            updatedById: req.user!.id,
-            note: `Declined by Pandit. Reason: ${reason}`
-          }
-        })
-      ]);
+      // L1 EXACTLY-ONCE: atomic conditional transition (same lock as accept).
+      const flipped = await prisma.booking.updateMany({
+        where: { id: booking.id, panditId, status: "PANDIT_REQUESTED" },
+        data: { status: "CANCELLATION_REQUESTED" },
+      });
+      if (flipped.count === 0) {
+        const cur = await prisma.booking.findUnique({ where: { id: booking.id } });
+        if (cur && cur.panditId === panditId && cur.status === "CANCELLATION_REQUESTED") {
+          sendSuccess(res, { success: true, idempotent: true });
+          return;
+        }
+        throw new AppError("Invalid booking request", 400);
+      }
+
+      await prisma.bookingStatusUpdate.create({
+        data: {
+          bookingId: booking.id,
+          fromStatus: "PANDIT_REQUESTED",
+          toStatus: "CANCELLATION_REQUESTED",
+          updatedById: req.user!.id,
+          note: `Declined by Pandit. Reason: ${reason}`
+        }
+      });
 
       const t1 = getNotificationTemplate("CANCELLATION_REQUESTED", { id: booking.id.substring(0, 8).toUpperCase(), customerName: "Unknown", reason: reason });
       console.log(t1.message); // Admin log
@@ -945,29 +968,38 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
     try {
       const req = request;
       const res = reply;
+      const panditId = await getProfileId(req.user!.id);
       const booking = await prisma.booking.findUnique({ where: { id: req.params.bookingId } });
-      if (!booking || booking.panditId !== await getProfileId(req.user!.id)) {
+      if (!booking || booking.panditId !== panditId) {
         throw new AppError("Invalid booking", 400);
       }
-      if (!["PANDIT_ARRIVED", "PUJA_IN_PROGRESS", "CONFIRMED"].includes(booking.status)) {
-        throw new AppError(`Cannot complete booking from status ${booking.status}`, 400);
+
+      // L1 EXACTLY-ONCE: atomic conditional transition from any completable
+      // state. A double-tap / retry that arrives after the first commit
+      // updates 0 rows → idempotent success (no duplicate PUJA_COMPLETED
+      // notification, no double payout row).
+      const flipped = await prisma.booking.updateMany({
+        where: { id: booking.id, panditId, status: { in: ["PANDIT_ARRIVED", "PUJA_IN_PROGRESS", "CONFIRMED"] } },
+        data: { status: "COMPLETED", payoutStatus: "PENDING", completedAt: new Date() },
+      });
+      if (flipped.count === 0) {
+        const cur = await prisma.booking.findUnique({ where: { id: booking.id } });
+        if (cur && cur.panditId === panditId && cur.status === "COMPLETED") {
+          sendSuccess(res, { success: true, idempotent: true });
+          return;
+        }
+        throw new AppError(`Cannot complete booking from status ${cur?.status}`, 400);
       }
 
-      await prisma.$transaction([
-        prisma.booking.update({
-          where: { id: booking.id },
-          data: { status: "COMPLETED", payoutStatus: "PENDING", completedAt: new Date() }
-        }),
-        prisma.bookingStatusUpdate.create({
-          data: {
-            bookingId: booking.id,
-            fromStatus: booking.status,
-            toStatus: "COMPLETED",
-            updatedById: req.user!.id,
-            note: "Completed by Pandit"
-          }
-        })
-      ]);
+      await prisma.bookingStatusUpdate.create({
+        data: {
+          bookingId: booking.id,
+          fromStatus: booking.status,
+          toStatus: "COMPLETED",
+          updatedById: req.user!.id,
+          note: "Completed by Pandit"
+        }
+      });
 
       const t9 = getNotificationTemplate("PUJA_COMPLETED", { id: booking.id.substring(0, 8).toUpperCase() });
       await notificationService.notify({ userId: booking.customerId, type: "PUJA_COMPLETED", title: t9.title, message: t9.message, smsMessage: t9.smsMessage });

@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { t } from "@/lib/i18n";
 import { api } from "@/lib/api";
+import { mutateOnce } from "@/lib/mutate";
 import { playBell, vibrateConfirm } from "@/lib/sounds";
 import { FirstUseTip } from "@/components/moments/FirstUseTip";
 import { motion, AnimatePresence } from "framer-motion";
@@ -111,9 +112,13 @@ export default function BookingDetailPage() {
     setActionLoading(true);
     setErrorMsg("");
 
-    const res = await api(`/pandit/bookings/${booking.id}/journey`, {
-      method: "POST",
-    });
+    // L1: keyed on the CURRENT step so a double-tap can't double-advance
+    // the journey; a real next-step advance uses a fresh key.
+    const res = await mutateOnce(
+      `journey:${booking.id}:${booking.journeyStep}`,
+      `/pandit/bookings/${booking.id}/journey`,
+      { method: "POST" },
+    );
 
     setActionLoading(false);
 
@@ -143,7 +148,9 @@ export default function BookingDetailPage() {
     setActionLoading(true);
     setErrorMsg("");
 
-    const res = await api(`/pandit/bookings/${booking.id}/complete`, {
+    // L1: complete is once-per-booking — the atomic server transition
+    // makes a retry-after-lost-response return idempotent success.
+    const res = await mutateOnce(`complete:${booking.id}`, `/pandit/bookings/${booking.id}/complete`, {
       method: "POST",
     });
 

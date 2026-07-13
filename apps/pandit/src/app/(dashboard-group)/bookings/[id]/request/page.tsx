@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { t } from "@/lib/i18n";
 import { api } from "@/lib/api";
+import { mutateOnce } from "@/lib/mutate";
 import { vibrateConfirm } from "@/lib/sounds";
 import { useOnline } from "@/components/ui/OfflineBanner";
 import { motion, AnimatePresence } from "framer-motion";
@@ -118,7 +119,10 @@ export default function BookingRequestPage() {
     setActionLoading(true);
     setErrorMsg("");
 
-    const res = await api(`/pandit/bookings/${booking.id}/accept`, {
+    // L1: exactly-once — single in-flight + Idempotency-Key. A double-tap,
+    // a voice "स्वीकार" racing a tap, or a retry after a lost response all
+    // resolve to ONE accept (server transition is idempotent).
+    const res = await mutateOnce(`accept:${booking.id}`, `/pandit/bookings/${booking.id}/accept`, {
       method: "POST",
     });
 
@@ -141,7 +145,7 @@ export default function BookingRequestPage() {
     setActionLoading(true);
     setErrorMsg("");
 
-    const res = await api(`/pandit/bookings/${booking.id}/reject`, {
+    const res = await mutateOnce(`reject:${booking.id}`, `/pandit/bookings/${booking.id}/reject`, {
       method: "POST",
     });
 
