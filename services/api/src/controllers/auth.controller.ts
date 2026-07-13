@@ -212,12 +212,20 @@ export const verifyOtp = async (request: FastifyRequest, reply: FastifyReply) =>
     profileCompleted = user.customerProfile.addresses && user.customerProfile.addresses.length > 0;
   }
 
-  // MIGRATION 2: Set HttpOnly cookie instead of returning token in response
-  await reply.setCookie("hpj_token", token, AUTH_COOKIE_OPTIONS);
+  // CM-1 FIX (P0 login deadlock): setCookie must NOT be awaited.
+  // `reply.setCookie()` returns the reply object; `await reply` only
+  // settles once the response is SENT, but sending is blocked by that
+  // very await → self-deadlock, and customer/admin login hung forever
+  // (verified live on warm production). setCookie is synchronous.
+  reply.setCookie("hpj_token", token, AUTH_COOKIE_OPTIONS);
 
   return reply.send({
     success: true,
     data: {
+      // CM-1: the auth middleware reads only `Authorization: Bearer`,
+      // never this httpOnly cookie — so the client needs the token in
+      // the body to be able to authenticate (matches the pandit path).
+      token,
       user: {
         id: user.id,
         phone: user.phone,
@@ -344,8 +352,9 @@ export const updateMe = async (request: FastifyRequest, reply: FastifyReply) => 
 };
 
 export const logout = async (_request: FastifyRequest, reply: FastifyReply) => {
-  // Clear HttpOnly cookie
-  await reply.clearCookie("hpj_token", { path: "/" });
+  // Clear HttpOnly cookie (CM-1: never await — awaiting the reply deadlocks
+  // the response; logout hung forever the same way login did).
+  reply.clearCookie("hpj_token", { path: "/" });
   return reply.send({ success: true, data: { message: "Logged out successfully" }, message: "Success" });
 };
 
@@ -380,8 +389,8 @@ export const adminLogin = async (request: FastifyRequest, reply: FastifyReply) =
     { expiresIn: "12h" }
   );
 
-  // Set HttpOnly cookie
-  await reply.setCookie("hpj_token", token, AUTH_COOKIE_OPTIONS);
+  // Set HttpOnly cookie (CM-1: never await — see verifyOtp; deadlocks)
+  reply.setCookie("hpj_token", token, AUTH_COOKIE_OPTIONS);
 
   return reply.send({
     success: true,
