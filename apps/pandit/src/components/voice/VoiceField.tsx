@@ -275,10 +275,10 @@ export function VoiceField({
         // already HOLDS a value and the words match a command; (d) the
         // parser REJECTS the transcript.
         const parsed = parseValue(text);
-        if (voiceController.isPureCommand(text) && voiceController.handleTranscript(text)) return;
-        if (voiceController.matchesScreenSpecificLoose(text, { includeOptions: false }) && voiceController.handleTranscript(text)) return;
-        if (!!value?.trim() && voiceController.handleTranscript(text)) return;
-        if (parsed === null && voiceController.handleTranscript(text)) return;
+        if (voiceController.isPureCommand(text) && voiceController.handleTranscript(text, conf)) return;
+        if (voiceController.matchesScreenSpecificLoose(text, { includeOptions: false }) && voiceController.handleTranscript(text, conf)) return;
+        if (!!value?.trim() && voiceController.handleTranscript(text, conf)) return;
+        if (parsed === null && voiceController.handleTranscript(text, conf)) return;
         dispatch({ type: "TRANSCRIPT", text, confidence: conf });
       }
     }

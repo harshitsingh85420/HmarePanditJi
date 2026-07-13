@@ -163,7 +163,7 @@ export function useVoiceScreen(opts: UseVoiceScreenOpts) {
     if (voiceInput.state === "idle" && voiceInput.transcript) {
       const text = voiceInput.transcript;
       voiceInput.reset();
-      if (!voiceController.handleTranscript(text)) {
+      if (!voiceController.handleTranscript(text, voiceInput.confidence ?? 1)) {
         // S6c: the transcript rides along — question-shaped misses get
         // the honest line + telemetry instead of the terse nudge
         voiceController.speakUnmatchedGently(text);

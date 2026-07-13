@@ -140,6 +140,10 @@ class VoiceController {
   private _muted = false;
   private _speaking = false;
   private speakingSince = 0; // L-A: when the current utterance began (watchdog stuck-narration net)
+  // L-C: a command/nav/mute is an ACTION and must clear the SAME confidence
+  // floor the field-value path uses (voiceFieldMachine 0.55). Sub-floor noise
+  // that Deepgram renders as a grammar word must never silently execute.
+  private readonly COMMAND_CONFIDENCE_FLOOR = 0.55;
   private _listening = false;
   private _hidden = false;
   private _confirming = false;
@@ -681,9 +685,17 @@ class VoiceController {
    * (the screen command listen, a VoiceField whose parser rejected or
    * whose value is already filled) re-arm the loop themselves on false.
    */
-  handleTranscript(text: string): boolean {
+  handleTranscript(text: string, confidence = 1): boolean {
     const clean = text.trim();
     if (!clean) return false;
+    // L-C TRUST GATE: a low-confidence transcript may NOT drive a command,
+    // option-select, navigation, or SLEEP/mute. Below the floor it is treated
+    // as no-command (returns false) so the caller falls through to the gentle
+    // agent path instead of silently firing an action on misheard noise.
+    if (confidence < this.COMMAND_CONFIDENCE_FLOOR) {
+      this.debug(`voice cmd sub-floor (conf ${confidence.toFixed(2)}) ignored: "${clean.slice(0, 24)}"`);
+      return false;
+    }
     const entry = this.activeVoiceScreen();
     if (entry) {
       const exact = clean.toLowerCase().replace(/[।.,!?]/g, " ").replace(/\s+/g, " ").trim();
