@@ -68,6 +68,9 @@ export function useVoiceCommands(
       get id() {
         return commandsRef.current[i]?.id;
       },
+      get pure() {
+        return commandsRef.current[i]?.pure;
+      },
       get label() {
         return commandsRef.current[i]?.label;
       },

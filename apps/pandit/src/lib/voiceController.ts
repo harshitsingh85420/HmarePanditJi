@@ -38,6 +38,11 @@ export interface VoiceCommand {
   /** W3: stable tool id the AGENT may return as `act` (e.g.
    *  "toggle-offline"). Omitted → a positional id is derived. */
   id?: string;
+  /** W4b: match ONLY when the whole normalized utterance equals a
+   *  keyword. For one-word answers (हाँ/नहीं) whose words also appear
+   *  inside real sentences — "ये स्क्रीन समझ नहीं आई" must reach the
+   *  agent, not the NO command. */
+  pure?: boolean;
   /** W3: human label the agent reads in its tool list (defaults to
    *  keywords[0]). */
   label?: string;
@@ -680,9 +685,12 @@ class VoiceController {
     if (!clean) return false;
     const entry = this.activeVoiceScreen();
     if (entry) {
+      const exact = clean.toLowerCase().replace(/[।.,!?]/g, " ").replace(/\s+/g, " ").trim();
       for (const cmd of entry.commands) {
         // K3c: log the keyword that actually hit, not keywords[0]
-        const hit = matchWord(clean, cmd.keywords);
+        const hit = cmd.pure
+          ? (cmd.keywords.find((k) => k.toLowerCase() === exact) ?? null)
+          : matchWord(clean, cmd.keywords);
         if (hit) {
           this.debug(`voice cmd: "${clean.slice(0, 24)}" → matched [${hit}]`);
           this.runCommand(cmd);

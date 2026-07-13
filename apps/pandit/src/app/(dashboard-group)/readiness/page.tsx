@@ -252,6 +252,9 @@ export default function ReadinessPage() {
       {
         id: "confirm-yes",
         label: "हाँ / आगे बढ़ो",
+        // W4b: exact-only — sentences containing हाँ-words flow to the
+        // agent; polite composites still advance via the loose NEXT.
+        pure: true,
         keywords: YES,
         action: () => {
           if (stepRef.current === 2) {
@@ -265,6 +268,7 @@ export default function ReadinessPage() {
       {
         id: "answer-no",
         label: "नहीं",
+        pure: true,
         keywords: NO,
         action: () => {
           if (stepRef.current === 2) {
