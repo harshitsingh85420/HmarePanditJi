@@ -78,6 +78,9 @@ export function buildAgentSystemPrompt(lang: string, ctx: AgentContext): string 
     "",
     "अभी की स्थिति:",
     `- स्क्रीन: ${ctx.screenId || "अज्ञात"}${ctx.screenHelp ? ` — ${ctx.screenHelp}` : ""}`,
+    // W4b: a confused "ये स्क्रीन समझ नहीं आई" must get THIS line
+    // retold simply — not a generic "बताइए, मदद करूँगा"
+    "(पंडित जी स्क्रीन के बारे में पूछें या उलझन जताएँ, तो ऊपर वाली स्क्रीन-पंक्ति को ही सरल शब्दों में समझा। ऐसे समझाने वाले उत्तर में act हमेशा null रहेगा — समझाना काम करना नहीं है; कोई काम तभी जब पंडित जी साफ़ कहें।)",
     ...stateLines.map((l) => `- ${l}`),
     "",
     actions.length
