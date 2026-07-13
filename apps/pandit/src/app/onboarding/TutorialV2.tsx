@@ -381,7 +381,17 @@ export default function TutorialV2({
   // Browser-level permission state (permissions.query where available):
   // 'granted' → no prompt will show, straight to practice; 'denied' →
   // recovery copy + retry; 'prompt'/'unknown' → the tap fires the prompt.
-  const [micPerm, setMicPerm] = useState<"granted" | "denied" | "prompt" | "unknown">("unknown");
+  // Z2 U4 LAW: परिचय is the ONE mic-prompt moment. Seed micPerm
+  // SYNCHRONOUSLY from the stored grant so slide 5 never flashes the
+  // ask-button (and never re-prompts) for a pandit who already granted;
+  // the async permissions.query below only corrects a genuine mismatch.
+  const [micPerm, setMicPerm] = useState<"granted" | "denied" | "prompt" | "unknown">(() => {
+    try {
+      return localStorage.getItem("mic_permission_granted") === "true" ? "granted" : "unknown";
+    } catch {
+      return "unknown";
+    }
+  });
   const voiceInput = useVoiceInput();
   useEffect(() => {
     if (idx !== 4) return;
@@ -410,6 +420,15 @@ export default function TutorialV2({
 
   const [pointerUp, setPointerUp] = useState(false);
   const askMic = () => {
+    // Z2 U4 LAW: if permission is already granted (store flag OR live
+    // query state), NEVER invoke a prompt again — go straight to practice
+    // on the existing grant. This makes the tutorial physically incapable
+    // of re-asking, even if the button is somehow shown.
+    if (micPerm === "granted") {
+      setMicState("listening");
+      void voiceInput.start();
+      return;
+    }
     if (voiceController.e2e) {
       // E2E traversal: no native prompts; practice resolves immediately
       voiceController.debug("e2e: tutorial-s5 bypassed");
