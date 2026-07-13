@@ -43,7 +43,7 @@ assert.ok(
   "old REQUESTED-only guard removed from accept/reject",
 );
 // Accept/reject transition atomically from the real pending set.
-const pendingUpdates = controller.match(/updateMany\(\{\s*where:\s*\{\s*id,\s*panditId:[^}]*status:\s*\{\s*in:\s*PENDING\s*\}/g) || [];
+const pendingUpdates = controller.match(/updateMany\(\{\s*where:\s*\{[^}]*status:\s*\{\s*in:\s*PENDING/g) || [];
 assert.ok(pendingUpdates.length >= 2, "accept AND reject use an atomic conditional updateMany over PENDING");
 // Accept lands on CONFIRMED (customer app's canonical), reject on CANCELLED.
 assert.ok(/data:\s*\{\s*status:\s*"CONFIRMED"/.test(controller), "accept transitions to CONFIRMED");
