@@ -220,4 +220,23 @@ export default async function shishyaAgentRoutes(fastify: FastifyInstance, _opts
       return sendSuccess(reply, { ...result, ms, model });
     },
   );
+
+  /** W6: aggregate latency telemetry — numbers only, never text. */
+  fastify.get("/agent-stats", { preHandler: [optionalAuth] }, async (_req: FastifyRequest, reply: FastifyReply) => {
+    const rows = await prisma.shishyaExchange.findMany({
+      where: { createdAt: { gte: new Date(Date.now() - 24 * 3600 * 1000) } },
+      select: { ms: true, act: true },
+      orderBy: { createdAt: "desc" },
+      take: 500,
+    });
+    const ms = rows.map((r: { ms: number }) => r.ms).filter((m: number) => m > 0).sort((a: number, b: number) => a - b);
+    const pct = (p: number) => (ms.length ? ms[Math.min(ms.length - 1, Math.floor(p * ms.length))] : 0);
+    return sendSuccess(reply, {
+      count24h: rows.length,
+      msSamples: ms.length,
+      p50: pct(0.5),
+      p95: pct(0.95),
+      actCount: rows.filter((r: { act: string | null }) => r.act).length,
+    });
+  });
 }
