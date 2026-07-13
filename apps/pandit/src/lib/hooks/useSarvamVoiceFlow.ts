@@ -257,11 +257,10 @@ export function useSarvamVoiceFlow({
       if (!mountedRef.current) return;
 
       setVoiceFlowState('speaking');
+      // one-voice law: no speaker/pace override (both are ignored anyway).
       void speakWithSarvam({
         text: script,
         languageCode: sarvamLangCode,
-        speaker: 'ratan',
-        pace: 0.9,
         onEnd: () => {
           if (!mountedRef.current) return;
 

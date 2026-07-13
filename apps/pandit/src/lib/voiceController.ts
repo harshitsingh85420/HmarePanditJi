@@ -1602,7 +1602,9 @@ class VoiceController {
           const res = await fetch("/api/tts", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ text, languageCode, pace }),
+            // Y1: never send speaker/pace — the server owns the voice.
+            // (pace stays in the LOCAL cache key only, as the profile pace.)
+            body: JSON.stringify({ text, languageCode }),
           });
           if (!res.ok) return; // endpoint unhappy — stop the pipeline quietly
           const data = (await res.json()) as { audioBase64?: string };
@@ -1651,9 +1653,10 @@ class VoiceController {
         const res = await fetch("/api/tts", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          // D4: no client-side speaker — the server owns the शिष्य voice
-          // (SARVAM_TTS_SPEAKER, male) and its invalid-speaker fallback.
-          body: JSON.stringify({ text, languageCode, pace }),
+          // Y1: no client-side speaker OR pace — the server owns the
+          // शिष्य voice (SARVAM_TTS_SPEAKER/PACE) and its invalid-speaker
+          // fallback. Sending pace would trip the override-reject log.
+          body: JSON.stringify({ text, languageCode }),
         });
         const tFirstByte = performance.now();
         if (seq !== this.speechSeq) return "cancelled";
