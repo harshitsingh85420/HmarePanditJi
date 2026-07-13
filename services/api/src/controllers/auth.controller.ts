@@ -1151,15 +1151,29 @@ export const postBookingJourney = async (request: FastifyRequest, reply: Fastify
     });
   }
 
-  const nextStep = booking.journeyStep + 1;
-  if (nextStep > 3) {
+  // L-B EXACTLY-ONCE: the client sends the TARGET step it intends to reach
+  // (falls back to +1 for older clients). A retry-after-lost-response resends
+  // the SAME target; we advance only when journeyStep === target-1 and return
+  // idempotent success once journeyStep >= target, so the step (and its
+  // travelNotes timestamp) can never be double-advanced — the old blind step+1
+  // could silently mark a leg done, inflating journeyStep toward 3 and
+  // unlocking a payout for a journey the pandit never actually performed.
+  const body = (request.body ?? {}) as { step?: number };
+  const targetStep = typeof body.step === "number" ? body.step : booking.journeyStep + 1;
+
+  // Already at/past the target → idempotent success (no re-increment, no re-stamp).
+  if (booking.journeyStep >= targetStep) {
+    return reply.send({ success: true, idempotent: true, data: { ...booking, status: panditView(booking.status) } });
+  }
+  // Only ever advance exactly one ordered step at a time.
+  if (targetStep !== booking.journeyStep + 1 || targetStep > 3) {
     return reply.status(409).send({
       success: false,
-      error: { code: "invalid_state", message: "Journey is already completed." }
+      error: { code: "invalid_state", message: "Journey step out of order." }
     });
   }
 
-  // Parse and update timestamps JSON map inside travelNotes
+  // Parse + stamp the timestamps JSON map inside travelNotes.
   let timestamps: any = {};
   if (booking.travelNotes) {
     try {
@@ -1168,20 +1182,22 @@ export const postBookingJourney = async (request: FastifyRequest, reply: Fastify
       // ignore
     }
   }
-  timestamps[nextStep] = new Date().toISOString();
+  timestamps[targetStep] = new Date().toISOString();
 
-  const updated = await prisma.booking.update({
-    where: { id },
-    data: {
-      journeyStep: nextStep,
-      status: nextStep === 1 ? "IN_PROGRESS" : booking.status,
-      travelNotes: JSON.stringify(timestamps)
-    }
+  // Atomic conditional advance: only the request that still finds
+  // journeyStep === target-1 flips the row; a racing retry flips 0 rows.
+  const advanceData: any = { journeyStep: targetStep, travelNotes: JSON.stringify(timestamps) };
+  if (targetStep === 1) advanceData.status = "IN_PROGRESS";
+  const flipped = await prisma.booking.updateMany({
+    where: { id, panditId: profile.id, journeyStep: targetStep - 1 },
+    data: advanceData,
   });
 
+  const fresh = await prisma.booking.findUnique({ where: { id } });
   return reply.send({
     success: true,
-    data: updated
+    idempotent: flipped.count === 0,
+    data: fresh ? { ...fresh, status: panditView(fresh.status) } : null
   });
 };
 
@@ -1225,35 +1241,35 @@ export const completeBooking = async (request: FastifyRequest, reply: FastifyRep
     });
   }
 
-  // Double complete guard
-  if (booking.status === "COMPLETED") {
+  // L-B EXACTLY-ONCE: the status flip IS the lock. An atomic conditional
+  // transition (status != COMPLETED) means only the FIRST request creates the
+  // payout; a concurrent double-tap or a retry-after-lost-response flips 0 rows
+  // and takes the idempotent path — returning SUCCESS (never a 409 that tells
+  // the pandit his completed puja "failed" while he is already owed the money).
+  const earnings = computeEarnings(booking);
+  const outcome = await prisma.$transaction(async (tx: any) => {
+    const flip = await tx.booking.updateMany({
+      where: { id, panditId: profile.id, status: { not: "COMPLETED" }, journeyStep: 3 },
+      data: { status: "COMPLETED", completedAt: new Date() },
+    });
+    if (flip.count === 0) return { won: false };
+    // First and only winner — create the single payout inside the same tx.
+    await tx.payout.create({
+      data: { bookingId: id, panditId: profile.id, amount: earnings.totalToPandit, status: "PENDING" },
+    });
+    return { won: true };
+  });
+
+  if (!outcome.won) {
+    const cur = await prisma.booking.findUnique({ where: { id } });
+    if (cur && cur.panditId === profile.id && cur.status === "COMPLETED") {
+      return reply.send({ success: true, idempotent: true, data: { ...cur, status: panditView(cur.status) } });
+    }
     return reply.status(409).send({
       success: false,
-      error: { code: "invalid_state", message: "Booking is already completed." }
+      error: { code: "invalid_state", message: "This booking cannot be completed." }
     });
   }
-
-  // Compute earnings
-  const earnings = computeEarnings(booking);
-
-  // Perform updates inside a transaction
-  const [updatedBooking] = await prisma.$transaction([
-    prisma.booking.update({
-      where: { id },
-      data: {
-        status: "COMPLETED",
-        completedAt: new Date()
-      }
-    }),
-    prisma.payout.create({
-      data: {
-        bookingId: id,
-        panditId: profile.id,
-        amount: earnings.totalToPandit,
-        status: "PENDING"
-      }
-    })
-  ]);
 
   // Award any newly crossed milestones (idempotent) — never block completion
   try {
@@ -1262,9 +1278,10 @@ export const completeBooking = async (request: FastifyRequest, reply: FastifyRep
     console.error("[milestones] award failed:", err);
   }
 
+  const updatedBooking = await prisma.booking.findUnique({ where: { id } });
   return reply.send({
     success: true,
-    data: updatedBooking
+    data: updatedBooking ? { ...updatedBooking, status: panditView(updatedBooking.status) } : null
   });
 };
 

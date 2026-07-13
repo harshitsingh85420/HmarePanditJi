@@ -37,14 +37,23 @@ describe("L1 — exactly-once actions", () => {
     expect(src).not.toMatch(/api\(`\/pandit\/bookings\/\$\{[^}]+\}\/complete`/);
   });
 
-  it("server accept/complete/decline use atomic conditional transitions (idempotent)", () => {
-    const src = readApi("routes/pandit.routes.ts");
-    // updateMany with a status guard is the transition-lock; idempotent:true
-    // is the success shape returned to a race/retry.
-    const updateManyCount = (src.match(/prisma\.booking\.updateMany/g) || []).length;
-    expect(updateManyCount).toBeGreaterThanOrEqual(3); // accept, complete, decline
-    expect(src).toContain("idempotent: true");
-    // the accept handler must NOT unconditionally flip to CONFIRMED
-    expect(src).not.toMatch(/booking\.update\(\{\s*where:\s*\{\s*id:\s*booking\.id\s*\},\s*data:\s*\{\s*status:\s*"CONFIRMED"/);
+  // L-B — the guard must grep the handlers the client ACTUALLY calls
+  // (auth.controller.ts via the singular /pandit/* routes), NOT the uncalled
+  // /pandits plugin (pandit.routes.ts). The old version grepped the plugin and
+  // was a FALSE GREEN while the real completeBooking/postBookingJourney stayed
+  // non-idempotent (matrix C3 silent death). This is the corrected enforcement.
+  it("the CLIENT-CALLED server handlers (auth.controller) are atomic + idempotent", () => {
+    const src = readApi("controllers/auth.controller.ts");
+    // accept, reject, complete, journey each flip via a conditional updateMany.
+    const updateManyCount = (src.match(/(?:prisma|tx)\.booking\.updateMany/g) || []).length;
+    expect(updateManyCount).toBeGreaterThanOrEqual(4);
+    // a race / retry-after-lost-response gets idempotent success, never a bare
+    // 409 false-failure that tells the pandit his completed puja failed.
+    expect(src).toMatch(/idempotent:\s*true/);
+    // completeBooking must NOT reject an already-COMPLETED retry with 409.
+    expect(src).not.toContain("Booking is already completed.");
+    // journey must be idempotent on the TARGET step, never a blind step+1 update.
+    expect(src).toMatch(/booking\.journeyStep\s*>=\s*targetStep/);
+    expect(src).not.toMatch(/data:\s*\{\s*journeyStep:\s*nextStep/);
   });
 });

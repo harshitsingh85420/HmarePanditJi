@@ -112,12 +112,13 @@ export default function BookingDetailPage() {
     setActionLoading(true);
     setErrorMsg("");
 
-    // L1: keyed on the CURRENT step so a double-tap can't double-advance
-    // the journey; a real next-step advance uses a fresh key.
+    // L-B: send the TARGET step so a retry-after-lost-response resends the SAME
+    // target and the server advances idempotently (never a blind double +1).
+    // Keyed on the current step so a rapid double-tap also collapses to one.
     const res = await mutateOnce(
       `journey:${booking.id}:${booking.journeyStep}`,
       `/pandit/bookings/${booking.id}/journey`,
-      { method: "POST" },
+      { method: "POST", body: JSON.stringify({ step: booking.journeyStep + 1 }) },
     );
 
     setActionLoading(false);
