@@ -139,6 +139,7 @@ export type LoopState = "NARRATING" | "LISTENING" | "CONFIRMING" | "PAUSED" | "I
 class VoiceController {
   private _muted = false;
   private _speaking = false;
+  private speakingSince = 0; // L-A: when the current utterance began (watchdog stuck-narration net)
   private _listening = false;
   private _hidden = false;
   private _confirming = false;
@@ -1093,6 +1094,16 @@ class VoiceController {
         this.loopRearm(0);
         return;
       }
+      // L-A: a _speaking that outlives the longest possible utterance is a
+      // wedged narration the per-utterance failsafe somehow missed — force
+      // release + re-cue rather than sit deaf in NARRATING. 48s > the 45s
+      // playback hard cap, so this only fires as the last-resort net.
+      if (this._speaking && this.speakingSince > 0 && now - this.speakingSince > 48000) {
+        this.debug("loop: watchdog recovered stuck narration");
+        this.stopSpeech("watchdog:stuck-speaking");
+        this.loopRearm(0);
+        return;
+      }
       if (this.paused || this._speaking || this._listening) return;
       if (this._processing || this._confirming) return;
       if (this.rearmTimer) return;
@@ -1319,6 +1330,7 @@ class VoiceController {
     }
 
     this._speaking = true;
+    this.speakingSince = performance.now(); // L-A stuck-narration watchdog anchor
     // S3: this utterance's highlight (or none) replaces any prior one
     this.setHighlight(opts?.highlightRef);
     // S5/T2: capture goes fully quiet while शिष्य talks. 'stop' KILLS
@@ -1333,6 +1345,7 @@ class VoiceController {
       if (settled) return;
       settled = true;
       this._speaking = false;
+      this.speakingSince = 0;
       this.emit();
       opts?.onEnd?.(completed);
       opts?.onOutcome?.(status ?? (completed ? "ended" : "interrupted"));
@@ -1718,12 +1731,23 @@ class VoiceController {
 
         const el = this.getAudioEl();
         let settled = false;
+        let playing = false;
+        // L-A NARRATION FAILSAFE: the playback promise must ALWAYS settle,
+        // even when no media terminal event fires. A browser-initiated pause
+        // (OS audio-focus steal on an incoming call, BT/headphone disconnect)
+        // emits neither 'ended' nor 'error'; without a net the promise hangs,
+        // finish() never runs, _speaking sticks true forever, and the whole
+        // always-listening loop wedges deaf in NARRATING. onpause recovers it
+        // instantly; the hard-cap timeout is the ultimate backstop.
+        let failsafe: ReturnType<typeof setTimeout> | null = null;
         const done = (ok: boolean, verdict?: "parked") => {
           if (settled) return;
           settled = true;
+          if (failsafe) { clearTimeout(failsafe); failsafe = null; }
           if (this.remoteCancel === cancel) this.remoteCancel = null;
           el.onended = null;
           el.onerror = null;
+          el.onpause = null;
           if (verdict) resolve(verdict);
           else if (!ok && seq !== this.speechSeq) resolve("cancelled");
           else resolve(ok ? "played" : "failed");
@@ -1745,11 +1769,29 @@ class VoiceController {
           this.debug("audio element error");
           done(false);
         };
+        // L-A: a pause we did not initiate, once playback has begun, is a
+        // device/OS interruption (incoming call, unplugged earbud) — settle so
+        // the loop recovers instead of hanging silently in NARRATING.
+        el.onpause = () => {
+          if (settled || !playing || el.ended) return;
+          this.debug("audio paused mid-line (device/OS interrupt) — releasing narration");
+          done(false);
+        };
         el.muted = false;
         el.src = url;
+        // L-A: hard cap independent of media events. No legitimate two-sentence
+        // TTS line runs this long, so an unsettled utterance past the cap is a
+        // wedge — release it. onpause handles the common case far sooner.
+        const capMs = Math.min(45000, Math.max(8000, text.length * 150 + 5000));
+        failsafe = setTimeout(() => {
+          if (settled) return;
+          this.debug(`audio failsafe timeout after ${capMs}ms — releasing narration`);
+          done(false);
+        }, capMs);
         el
           .play()
           .then(() => {
+            playing = true;
             this.debug("audio.play() resolved");
             // G2: real playback began — failsafe timers must stand down
             this.notifyPlaybackStart();
