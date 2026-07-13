@@ -140,6 +140,7 @@ class VoiceController {
   private _muted = false;
   private _speaking = false;
   private speakingSince = 0; // L-A: when the current utterance began (watchdog stuck-narration net)
+  private hiddenSince = 0; // L-D: when the tab went hidden (audible resume-cue debounce)
   // L-C: a command/nav/mute is an ACTION and must clear the SAME confidence
   // floor the field-value path uses (voiceFieldMachine 0.55). Sub-floor noise
   // that Deepgram renders as a grammar word must never silently execute.
@@ -1040,6 +1041,7 @@ class VoiceController {
     document.addEventListener("visibilitychange", () => {
       this._hidden = document.visibilityState === "hidden";
       if (this._hidden) {
+        this.hiddenSince = performance.now();
         this.stopSpeech("tab-hidden");
         this.abortListening();
         // S5: backgrounded = capture session must not linger
@@ -1052,6 +1054,20 @@ class VoiceController {
         // armed. Without this kick the loop stayed dead until the next
         // narration happened to end.
         this.loopRearm();
+        // L-D: a resume that followed a real mic release must AUDIBLY signal
+        // the loop is alive again — an elderly voice-first user returning to a
+        // silent screen has no way to know शिष्य is listening. Mirror unmute's
+        // re-cue (replay the screen prompt), debounced so a quick tab flicker
+        // or a notification pull-down does not re-narrate.
+        if (
+          !this._muted &&
+          this.micGranted() &&
+          this.hiddenSince > 0 &&
+          performance.now() - this.hiddenSince > 2000
+        ) {
+          this.replayFn?.();
+        }
+        this.hiddenSince = 0;
       }
       this.emit();
     });

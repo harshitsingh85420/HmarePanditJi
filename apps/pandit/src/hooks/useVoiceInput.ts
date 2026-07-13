@@ -275,6 +275,17 @@ export function useVoiceInput(): UseVoiceInputReturn {
               `"${String(resJson.data.transcript || "").slice(0, 30)}"`,
             );
             voiceController.setProcessing(false);
+            // L-D: an EMPTY STT result (whisper / far speech / silence that
+            // still uploaded) must re-arm the loop in ONE tick, not sit at
+            // 'idle' with a falsy transcript that the consumers ignore —
+            // leaving _listening true so loopRearm early-returns until the 12s
+            // zombie net. Route it to the SAME silent-re-arm path as a too-
+            // small blob (setState 'error') so the always-listening law holds.
+            if (!String(resJson.data.transcript ?? "").trim()) {
+              voiceController.debug("stt: empty transcript — silent re-arm (one tick)");
+              setState("error");
+              return;
+            }
             setTranscript(resJson.data.transcript);
             setConfidence(resJson.data.confidence);
             setState("idle");
