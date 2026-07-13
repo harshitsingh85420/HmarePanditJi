@@ -5,7 +5,10 @@ services:
     region: singapore
     plan: free
     buildCommand: npm i -g pnpm@9 && pnpm install --frozen-lockfile && pnpm --filter db exec prisma generate && pnpm --filter db build && pnpm --filter api build
-    startCommand: pnpm --filter api start
+    # W6 finding: prod DB never received new tables (ShishyaExchange,
+    # FeedbackUnanswered) — telemetry silently dropped. db push is
+    # idempotent + refuses lossy changes; guarded so boot never blocks.
+    startCommand: (pnpm --filter db exec prisma db push --skip-generate || true) && pnpm --filter api start
     healthCheckPath: /health
     envVars:
       # D4: TTS speaking pace (0.5–2.0; default 1.15). sync:false — set the
