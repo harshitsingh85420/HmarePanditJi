@@ -40,7 +40,17 @@ const FEW_SHOT = [
   ["तुम असली हो क्या", "मैं इस ऐप का सहायक हूँ, पंडित जी — इंसान नहीं, पर आपकी सेवा में हमेशा हाज़िर।"],
 ] as const;
 
+// W4e: the parenthetical override lost to an all-Hindi prompt on prod —
+// lang≠hi now gets a FIRST-POSITION law + a reminder at the JSON shape.
+const LANG_NAMES: Record<string, string> = {
+  hi: "हिंदी", mr: "मराठी", bn: "बांग्ला", ta: "तमिल", te: "तेलुगु",
+  kn: "कन्नड़", gu: "गुजराती", pa: "पंजाबी", ml: "मलयालम", or: "ओड़िया",
+  as: "असमिया", en: "अंग्रेज़ी",
+};
+
 export function buildAgentSystemPrompt(lang: string, ctx: AgentContext): string {
+  const langName = LANG_NAMES[lang] || lang;
+  const nonHindi = !!lang && lang !== "hi";
   const st = ctx.userState || {};
   const stateLines: string[] = [];
   if (st.firstName) stateLines.push(`पंडित जी का नाम: ${st.firstName}`);
@@ -55,9 +65,13 @@ export function buildAgentSystemPrompt(lang: string, ctx: AgentContext): string 
     .map((a) => `- id: "${a.id}" — ${a.label}${a.hint ? ` (${a.hint})` : ""}`);
 
   return [
-    "तू 'शिष्य' है — विनम्र, गर्मजोश, अपने गुरु पंडित जी का समर्पित शिष्य। बोलचाल की सरल हिंदी में बात कर" +
-      (lang && lang !== "hi" ? ` (इस सत्र में '${lang}' भाषा में उत्तर दे)` : "") +
-      "। जवाब 1 से 3 छोटे वाक्य — ये बोले जाएँगे, पढ़े नहीं। जहाँ हिंदी शब्द है वहाँ अंग्रेज़ी तकनीकी शब्द कभी नहीं।",
+    ...(nonHindi
+      ? [
+          `सबसे पहला और अटूट नियम: पंडित जी ${langName} बोलते हैं — "say" का हर शब्द ${langName} में ही लिख। यह prompt और तथ्य-पत्र हिंदी में हैं, पर तेरा उत्तर हमेशा ${langName} में होगा।`,
+          "",
+        ]
+      : []),
+    `तू 'शिष्य' है — विनम्र, गर्मजोश, अपने गुरु पंडित जी का समर्पित शिष्य। बोलचाल की सरल ${nonHindi ? langName : "हिंदी"} में बात कर। जवाब 1 से 3 छोटे वाक्य — ये बोले जाएँगे, पढ़े नहीं। देसी शब्द के रहते अंग्रेज़ी तकनीकी शब्द कभी नहीं।`,
     "",
     "तथ्य-पत्र (पैसे, कमीशन, भुगतान, आधार, सत्यापन पर यही एकमात्र सत्य — इसमें न हो तो कह: 'इसके लिए सहायता को फ़ोन कर लीजिए'; कोई संख्या या वादा कभी न गढ़):",
     ...FACTS_SHEET_HI.map((f) => `- ${f}`),
@@ -73,6 +87,7 @@ export function buildAgentSystemPrompt(lang: string, ctx: AgentContext): string 
     "",
     "उत्तर का ढाँचा — केवल यह JSON, और कुछ नहीं:",
     '{"say": "बोलने का वाक्य", "act": "actionId या null"}',
+    ...(nonHindi ? [`याद रख: "say" ${langName} में ही।`] : []),
     "",
     "सीमाएँ (कभी न तोड़):",
     "1. चिकित्सा, क़ानूनी, राजनीतिक राय कभी नहीं — विनम्रता से टाल।",

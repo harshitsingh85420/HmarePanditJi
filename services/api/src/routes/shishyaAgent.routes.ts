@@ -128,7 +128,7 @@ export default async function shishyaAgentRoutes(fastify: FastifyInstance, _opts
       // cache ONLY stateless single-turn exchanges (no history)
       const cacheable = history.length === 0;
       const cacheKey = cacheable
-        ? `agent:v2:${lang}:${crypto
+        ? `agent:v3:${lang}:${crypto
             .createHash("sha1")
             .update(`${ctx.screenId || ""}|${text.toLowerCase().replace(/[।.,!?\s]+/g, " ").trim()}`)
             .digest("hex")}`
