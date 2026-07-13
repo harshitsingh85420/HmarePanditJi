@@ -48,6 +48,8 @@ const agentSchema = z.object({
 // model — they get 10s; stateless stays 8s.
 const LLM_TIMEOUT_MS = 8000;
 const LLM_TIMEOUT_HISTORY_MS = 10000;
+// cache key carries a PROMPT VERSION (agent:v2:) — bump it with any
+// system-prompt change so stale-prompt answers can never serve.
 const CACHE_TTL_S = 7 * 24 * 3600;
 const HONEST_MISS_HI =
   "क्षमा कीजिए पंडित जी, इसका उत्तर अभी मेरे पास नहीं है — मदद वाले हिस्से से हमारी टीम को फ़ोन कर सकते हैं।";
@@ -126,7 +128,7 @@ export default async function shishyaAgentRoutes(fastify: FastifyInstance, _opts
       // cache ONLY stateless single-turn exchanges (no history)
       const cacheable = history.length === 0;
       const cacheKey = cacheable
-        ? `agent:${lang}:${crypto
+        ? `agent:v2:${lang}:${crypto
             .createHash("sha1")
             .update(`${ctx.screenId || ""}|${text.toLowerCase().replace(/[।.,!?\s]+/g, " ").trim()}`)
             .digest("hex")}`

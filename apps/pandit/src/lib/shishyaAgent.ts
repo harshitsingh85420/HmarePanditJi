@@ -112,7 +112,11 @@ export async function askShishyaAgent(
   });
   if (res.success && res.data) {
     const d = res.data as AgentResult;
-    if (d.say) {
+    // Only REAL answers enter the ring — a timeout/miss honest-line is
+    // not a conversation turn, and storing it would poison every later
+    // exchange (the model reads itself "not knowing") while silently
+    // disabling the stateless cache.
+    if (d.say && (d.source === "agent" || d.source === "agent-cached")) {
       history.push(
         { role: "pandit", text: text.slice(0, 400) },
         { role: "shishya", text: d.say.slice(0, 400) },

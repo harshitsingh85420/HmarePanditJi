@@ -23,6 +23,9 @@ export interface Command {
   keywords: string[];
   action: () => void;
   confirmText?: string;
+  /** W3: stable tool id/label for the agent (see VoiceCommand). */
+  id?: string;
+  label?: string;
 }
 
 export interface VoiceActionListenerProps {
@@ -54,8 +57,10 @@ export function VoiceActionListener({
   // explicit decline must never confirm a destructive action.
   const registryCommands: VoiceCommand[] = pending
     ? [
-        { keywords: NO, action: () => setPending(null) },
+        { id: "confirm-no", label: "नहीं", keywords: NO, action: () => setPending(null) },
         {
+          id: "confirm-yes",
+          label: "हाँ",
           keywords: YES,
           action: () => {
             const cmd = pending;
@@ -66,6 +71,9 @@ export function VoiceActionListener({
       ]
     : [
         ...commands.map((cmd) => ({
+          // W3: the agent's tool identity rides through the wrapper
+          id: cmd.id,
+          label: cmd.label,
           keywords: cmd.keywords,
           action: () => {
             if (cmd.confirmText) {
@@ -76,7 +84,7 @@ export function VoiceActionListener({
             }
           },
         })),
-        { keywords: BACK, action: () => router.back() },
+        { id: "go-back", label: "पीछे जाओ", keywords: BACK, action: () => router.back() },
       ];
 
   // Mount-time narration only (the old firstMount contract): a screen
