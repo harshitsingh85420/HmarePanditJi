@@ -922,7 +922,9 @@ class VoiceController {
         return;
       }
       const ms = Math.round(performance.now() - t0);
-      if (!res.say) {
+      // timeout/miss/error say-lines from the server are Hindi-only —
+      // speak the LOCALIZED honest miss instead (mr session stays mr)
+      if (!res.say || (res.source !== "agent" && res.source !== "agent-cached")) {
         this.debug(`agent: ← miss source=${res.source} in ${ms}ms`);
         recordUnansweredQuestion(text);
         this.speak(t("shishya.honestMiss"));

@@ -154,6 +154,15 @@ export default async function shishyaAgentRoutes(fastify: FastifyInstance, _opts
         })),
         { role: "user", content: text },
       ];
+      // W4e: the model is Hindi-dominant — a buried instruction loses.
+      // For lang≠hi a TRAILING system order (recency) in English holds it
+      // to the session language.
+      if (lang && lang !== "hi") {
+        messages.push({
+          role: "system",
+          content: `CRITICAL: Write the "say" value STRICTLY in the ${lang} language (the pandit's chosen language). Do NOT write it in Hindi. Same warm tone, same facts, but every word of "say" in ${lang}.`,
+        });
+      }
 
       const callLlm = async (extraNudge?: string): Promise<string | null> => {
         const msgs = extraNudge
