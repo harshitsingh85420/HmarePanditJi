@@ -6,9 +6,12 @@ import { VOICE_PROFILE } from "@/lib/voiceProfile";
 // never pick a voice — any body.speaker/body.pace is rejected + logged.
 function resolveVoice(): { speaker: string; pace: number } {
   const speaker = process.env.SARVAM_TTS_SPEAKER || VOICE_PROFILE.speaker;
-  const envPace = Number.parseFloat(process.env.SARVAM_TTS_PACE ?? String(VOICE_PROFILE.pace));
-  const pace = Math.min(2.0, Math.max(0.5, Number.isFinite(envPace) ? envPace : VOICE_PROFILE.pace));
-  return { speaker, pace };
+  // Z1 PACE LAW: pace is VOICE_PROFILE.pace, PERIOD — no env override.
+  // The env vector let the server pace drift from the profile while the
+  // client cache key still hashed VOICE_PROFILE.pace, so a cached blob
+  // could replay at the wrong speed (the slide-1 bug). Now server pace is
+  // deterministically tied to VOICE_PROFILE_VERSION, which is in the key.
+  return { speaker, pace: VOICE_PROFILE.pace };
 }
 
 // ─────────────────────────────────────────────────────────────

@@ -398,7 +398,9 @@ export async function speakWithWebSpeech(
 
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = languageCode;
-  utterance.rate = 0.85; // Slower for elderly
+  // Z1 PACE LAW: even the robot-fallback rate is VOICE_PROFILE.pace — no
+  // per-line override (was a hardcoded 0.85, a second speed on the app).
+  utterance.rate = clientPace();
   utterance.pitch = 1.0;
   utterance.volume = 1.0;
 

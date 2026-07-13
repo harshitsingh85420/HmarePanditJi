@@ -40,6 +40,20 @@ describe("voiceProfile - one-voice law", () => {
     expect(src).toContain("voice: silent(");
   });
 
+  it("Z1: /api/tts pace is VOICE_PROFILE.pace with NO env override (kills cache-pace drift)", () => {
+    const src = read("app/api/tts/route.ts");
+    expect(src).toContain("VOICE_PROFILE.pace");
+    // the SARVAM_TTS_PACE env vector let server pace drift from the
+    // cache-key pace → a cached blob could replay at the wrong speed.
+    expect(src).not.toContain("SARVAM_TTS_PACE");
+  });
+
+  it("Z1: no speech path hardcodes a numeric rate (every utterance = VOICE_PROFILE.pace)", () => {
+    for (const f of ["lib/sarvam-tts.ts", "lib/voice-engine.ts"]) {
+      expect(read(f), `${f} must not hardcode a speechSynthesis rate`).not.toMatch(/\.rate\s*=\s*[0-9]/);
+    }
+  });
+
   it("services/api voice route pace default matches the profile (sync contract)", () => {
     const apiSrc = readFileSync(
       join(SRC, "..", "..", "..", "services", "api", "src", "routes", "voice.routes.ts"),
