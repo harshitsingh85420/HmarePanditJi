@@ -874,23 +874,24 @@ export default function BookClient() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${accessToken}`,
         },
+        // L9 CONTRACT: this body must match createBookingSchema
+        // (booking.routes.ts) EXACTLY — the old nested {ritualId,
+        // venueAddress:object, pricing} shape 400'd on Zod and no customer
+        // could ever book. Flat venueAddress string + venueCity + venuePincode
+        // + eventType + dakshinaAmount are the required keys.
         body: JSON.stringify({
           panditId: resolvedPandit.id,
-          ritualId: resolvedRitual.id,
           eventDate: new Date(`${date}T${time}:00`).toISOString(),
-          eventTime: time,
-          muhurat: muhuratEnabled && muhuratText ? muhuratText : undefined,
-          venueAddress: {
-            addressLine1: venue.addressLine1,
-            addressLine2: venue.addressLine2 || undefined,
-            landmark: venue.landmark || undefined,
-            city: venue.city,
-            state: venue.state,
-            postalCode: venue.postalCode,
-          },
-          specialRequirements: specialRequirements || undefined,
-          numberOfAttendees: numberOfAttendees ? parseInt(numberOfAttendees) : undefined,
-          pricing,
+          eventType: resolvedRitual.name,
+          muhuratTime: muhuratEnabled && muhuratText ? muhuratText : undefined,
+          venueAddress: [venue.addressLine1, venue.addressLine2, venue.landmark]
+            .filter(Boolean)
+            .join(", "),
+          venueCity: venue.city,
+          venuePincode: venue.postalCode,
+          specialInstructions: specialRequirements || undefined,
+          attendees: numberOfAttendees ? parseInt(numberOfAttendees) : undefined,
+          dakshinaAmount: pricing.dakshina,
         }),
         signal: AbortSignal.timeout(15000),
       });
