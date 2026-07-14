@@ -487,7 +487,7 @@ export default function ReadinessPage() {
       const token = getToken();
       // G1: multipart can't use api() (it forces JSON) but the BASE must
       // come from the single prefix-normalized source
-      const res = await once(`readiness-upload:${file.name}`, () => fetch(`${API_BASE}/upload`, {
+      const res = await once(`readiness-upload:${file.name}`, () => fetch(`${API_BASE}/upload?kind=aadhaar-front`, {
         method: "POST",
         headers: token ? { Authorization: `Bearer ${token}` } : {},
         body: formData,

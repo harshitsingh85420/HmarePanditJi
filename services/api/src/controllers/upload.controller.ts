@@ -1,13 +1,12 @@
 import { FastifyRequest, FastifyReply } from "fastify";
-import crypto from "crypto";
 import { AppError } from "../middleware/errorHandler";
 import { putObject, getPresignedGetUrl } from "../lib/storage";
 import {
   buildUploadKey,
   canPresign,
-  extForMime,
   isLegacyValue,
-  isUploadCategory,
+  resolveKind,
+  isVideoKind,
   IMAGE_MIMES,
   VIDEO_MIMES,
   MAX_IMAGE_BYTES,
@@ -26,30 +25,27 @@ export const handleUpload = async (request: FastifyRequest, reply: FastifyReply)
       throw new AppError("Unauthorized", 401);
     }
 
-    const rawType = ((request.params as any).type || "photo") as string;
-    // legacy route param values map onto the three storage categories
-    const category = isUploadCategory(rawType) ? rawType : rawType.includes("aadhaar") ? "aadhaar" : rawType.includes("video") ? "video" : "photo";
+    // kind may arrive as a route param (/upload/:type) or a query (?kind=…).
+    const rawType = ((request.params as any).type || (request.query as any)?.kind) as string | undefined;
+    const kind = resolveKind(rawType); // aadhaar-front | aadhaar-back | photo | …
+    const wantsVideo = isVideoKind(kind);
 
     const mime = file.mimetype;
-    const isImage = IMAGE_MIMES.includes(mime);
-    const isVideo = VIDEO_MIMES.includes(mime);
-    if (category === "video" ? !isVideo : !isImage) {
-      throw new AppError(`Unsupported file type: ${mime}`, 415);
-    }
-
-    const ext = extForMime(mime);
-    if (!ext) {
+    const mimeOk = wantsVideo ? VIDEO_MIMES.includes(mime) : IMAGE_MIMES.includes(mime);
+    if (!mimeOk) {
       throw new AppError(`Unsupported file type: ${mime}`, 415);
     }
 
     const fileBuffer = await file.toBuffer();
-    const maxBytes = isVideo ? MAX_VIDEO_BYTES : MAX_IMAGE_BYTES;
+    const maxBytes = wantsVideo ? MAX_VIDEO_BYTES : MAX_IMAGE_BYTES;
     if (fileBuffer.length > maxBytes) {
       throw new AppError(`File too large (max ${Math.round(maxBytes / 1024 / 1024)} MB)`, 413);
     }
 
-    // Original filename is NEVER part of the key
-    const key = buildUploadKey(userId, category, crypto.randomUUID().replace(/-/g, ""), ext);
+    // DEDUP LAW: ONE canonical key per (pandit, kind) — deterministic, no random
+    // id, no extension — so a re-upload OVERWRITES the same R2 object in place.
+    // No orphans. The Content-Type (mime) carries the format.
+    const key = buildUploadKey(userId, kind);
     await putObject(key, fileBuffer, mime);
 
     // The KEY is what gets stored in DB fields (aadhaarDocUrl etc.).

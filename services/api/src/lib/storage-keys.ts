@@ -25,9 +25,45 @@ export function extForMime(mime: string): string | null {
   return EXT_BY_MIME[mime] ?? null;
 }
 
-/** uploads/{userId}/{category}/{id}.{ext} — original filename NEVER used. */
-export function buildUploadKey(userId: string, category: UploadCategory, id: string, ext: string): string {
-  return `uploads/${userId}/${category}/${id}.${ext}`;
+// ── Canonical per-(pandit, kind) keys ─────────────────────────────────────────
+// A pandit has exactly ONE object per KIND (aadhaar-front, aadhaar-back, …).
+// The key is DETERMINISTIC — no random id, no extension — so a re-upload
+// OVERWRITES the same R2 object in place instead of minting a new key and
+// orphaning the old bytes. The stored Content-Type carries the format; presign
+// and <img> rendering never need a file extension.
+export const UPLOAD_KINDS = [
+  "aadhaar-front",
+  "aadhaar-back",
+  "profile-photo",
+  "kyc-video",
+  "photo",
+  "video",
+] as const;
+export type UploadKind = (typeof UPLOAD_KINDS)[number];
+
+export function isUploadKind(v: string): v is UploadKind {
+  return (UPLOAD_KINDS as readonly string[]).includes(v);
+}
+
+export function isVideoKind(kind: UploadKind): boolean {
+  return kind === "kyc-video" || kind === "video";
+}
+
+/** Map a legacy route param (`aadhaar`, `photo`, `video`, or a kind) to a KIND. */
+export function resolveKind(rawType: string | undefined): UploadKind {
+  const t = (rawType || "photo").toLowerCase();
+  if (isUploadKind(t)) return t;
+  if (t.includes("aadhaar")) return t.includes("back") ? "aadhaar-back" : "aadhaar-front";
+  if (t.includes("video")) return "kyc-video";
+  if (t.includes("profile")) return "profile-photo";
+  return "photo";
+}
+
+/** uploads/{userId}/{kind} — ONE canonical object per (pandit, kind).
+ *  Deterministic: re-upload replaces it, never orphans. Original filename and
+ *  extension are NEVER part of the key. */
+export function buildUploadKey(userId: string, kind: UploadKind): string {
+  return `uploads/${userId}/${kind}`;
 }
 
 /**
