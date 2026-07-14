@@ -276,9 +276,12 @@ export async function processPaymentSuccess(
     }
 
     if (booking.pandit) {
-      const panditUser = booking.pandit;
       const t2 = getNotificationTemplate("NEW_BOOKING_REQUEST", { pujaType: updated.eventType, date: updated.eventDate.toISOString().split('T')[0], city: updated.venueCity, amount: updated.panditPayout });
-      notificationService.notify({ userId: panditUser.id, type: "NEW_BOOKING_REQUEST", title: t2.title, message: t2.message, smsMessage: t2.smsMessage }).catch((err) => logger.error("notifyNewBookingToPandit failed:", err));
+      // FIX: booking.pandit is the PanditProfile — .id is the PROFILE id, not a
+      // User id. Notifying with it violated Notification.userId's FK, so the
+      // pandit NEVER learned a booking arrived (an empty platform). The User id
+      // is booking.pandit.userId.
+      notificationService.notify({ userId: booking.pandit.userId, type: "NEW_BOOKING_REQUEST", title: t2.title, message: t2.message, smsMessage: t2.smsMessage }).catch((err) => logger.error("notifyNewBookingToPandit failed:", err));
     }
   } catch (err) {
     logger.error("Payment notifications failed:", err);

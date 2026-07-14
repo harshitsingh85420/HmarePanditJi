@@ -362,7 +362,14 @@ export default async function adminRoutes(fastify: FastifyInstance, _opts: any) 
         });
 
         const t1 = getNotificationTemplate("PAYOUT_COMPLETED", { id: booking.id.substring(0, 8).toUpperCase(), amount: booking.panditPayout, transactionRef: req.body.transactionRef });
-        await notificationService.notify({ userId: booking.panditId!, type: "PAYOUT_COMPLETED", title: t1.title, message: t1.message, smsMessage: t1.smsMessage });
+        // Booking.panditId is the PanditProfile id — resolve the pandit's User
+        // id (the Notification.userId FK) or the notify silently fails.
+        const payoutPanditUserId = booking.panditId
+          ? (await prisma.panditProfile.findUnique({ where: { id: booking.panditId }, select: { userId: true } }))?.userId
+          : null;
+        if (payoutPanditUserId) {
+          await notificationService.notify({ userId: payoutPanditUserId, type: "PAYOUT_COMPLETED", title: t1.title, message: t1.message, smsMessage: t1.smsMessage });
+        }
         sendSuccess(res, updated, "Payout marked as completed");
       } catch (err) {
         throw err;
@@ -480,8 +487,13 @@ export default async function adminRoutes(fastify: FastifyInstance, _opts: any) 
         await notificationService.notify({ userId: booking.customerId, type: "CANCELLATION_APPROVED", title: t1.title, message: t1.message, smsMessage: t1.smsMessage });
 
         if (booking.panditId) {
-          const t2 = getNotificationTemplate("CANCELLATION_APPROVED_PANDIT", { id: booking.id.substring(0, 8).toUpperCase() });
-          await notificationService.notify({ userId: booking.panditId, type: "CANCELLATION_APPROVED", title: t2.title, message: t2.message, smsMessage: t2.smsMessage });
+          // Booking.panditId is the PanditProfile id — resolve the pandit's
+          // User id (the Notification.userId FK) before notifying.
+          const cancelPanditUserId = (await prisma.panditProfile.findUnique({ where: { id: booking.panditId }, select: { userId: true } }))?.userId;
+          if (cancelPanditUserId) {
+            const t2 = getNotificationTemplate("CANCELLATION_APPROVED_PANDIT", { id: booking.id.substring(0, 8).toUpperCase() });
+            await notificationService.notify({ userId: cancelPanditUserId, type: "CANCELLATION_APPROVED", title: t2.title, message: t2.message, smsMessage: t2.smsMessage });
+          }
         }
 
         sendSuccess(res, { success: true }, "Cancellation approved");
