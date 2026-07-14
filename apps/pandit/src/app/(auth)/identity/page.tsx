@@ -5,13 +5,11 @@ export const dynamic = 'force-dynamic'
 
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useSafeNavigationStore, useSafeVoiceStore } from '@/lib/stores/ssr-safe-stores'
 import TopBar from '@/components/ui/TopBar'
 import { speakWithSarvam } from '@/lib/sarvam-tts'
-import { startListeningWithSarvam, type VoiceEngineConfig } from '@/lib/voice-engine'
 import { DiyaIllustration } from '@/components/illustrations/PremiumIcons'
-import { logger } from '@/utils/logger'
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -31,8 +29,7 @@ export default function IdentityConfirmationPage() {
 
   // SSR FIX: Use safe store hooks that don't throw during SSR
   const { setSection } = useSafeNavigationStore()
-  const { transcribedText, resetErrors } = useSafeVoiceStore()
-  const [isListening, setIsListening] = useState(false)
+  const { transcribedText } = useSafeVoiceStore()
 
   useEffect(() => {
     setSection('identity-confirmation')
@@ -49,65 +46,20 @@ export default function IdentityConfirmationPage() {
     return () => clearTimeout(timer)
   }, [])
 
+  // L3 ONE-VOICE-OWNER: this screen no longer hand-rolls its own mic loop
+  // (the old off-controller listen cascade had NO mic custody, wake lock,
+  // track-health watchdog, or never-hear-itself lock — it went deaf on
+  // backgrounding and could speak + listen at once). Listening belongs to
+  // the controller alone.
+  // The mic button now simply re-reads the question; the big CTA below is the
+  // confirm, and a referral-only yes/no screen does not need a rogue loop.
   const handleVoiceInput = () => {
-    if (isListening) return
-
-    resetErrors()
-    setIsListening(true)
-
-    const config: VoiceEngineConfig = {
-      language: 'hi-IN',
-      inputType: 'yes_no',
-      isElderly: true,
-      useSarvam: true,
-      confidenceThreshold: 0.6,
-      onStateChange: (state: string) => {
-        logger.debug('[Identity] Voice state:', state)
-        if (state === 'IDLE' || state === 'SUCCESS' || state === 'FAILURE') {
-          setIsListening(false)
-        }
-      },
-      onResult: (result: { transcript: string }) => {
-        logger.debug('[Identity] Voice result:', result)
-        const answer = result.transcript.toLowerCase()
-
-        if (answer.includes('haan') || answer.includes('yes') || answer.includes('correct')) {
-          void speakWithSarvam({
-            text: 'धन्यवाद। आपकी पहचान की पुष्टि हो गई है। अब आगे बढ़ते हैं।',
-            languageCode: 'hi-IN',
-          })
-          setTimeout(() => {
-            router.push('/login')
-          }, 1500)
-        } else if (answer.includes('nahi') || answer.includes('no') || answer.includes('galat')) {
-          void speakWithSarvam({
-            text: 'कोई बात नहीं। कृपया सही जानकारी दें या सहायता के लिए संपर्क करें।',
-            languageCode: 'hi-IN',
-          })
-          setTimeout(() => {
-            router.push('/')
-          }, 2000)
-        }
-
-        setIsListening(false)
-      },
-      onError: (error: string) => {
-        logger.warn('[Identity] Voice error:', error)
-        setIsListening(false)
-
-        if (error === 'KEYBOARD_FALLBACK') {
-          // Show keyboard options
-          router.push('/login')
-        }
-      },
-    }
-
-    const cleanup = startListeningWithSarvam(config)
-
-    return () => {
-      cleanup()
-    }
+    void speakWithSarvam({
+      text: 'क्या आप एक पंडित हैं? यदि हाँ, तो नीचे दिया बटन दबाएँ — "हाँ, मैं पंडित हूँ"।',
+      languageCode: 'hi-IN',
+    })
   }
+  const isListening = false
 
   const handleManualConfirm = () => {
     void speakWithSarvam({
