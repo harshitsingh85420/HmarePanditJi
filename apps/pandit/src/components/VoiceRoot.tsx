@@ -138,12 +138,24 @@ export function VoiceRoot() {
     // U1b: Sarvam hiccup mid-session → silence + this one toast
     const onVoiceHiccup = () => setToastMsg(t("voice.hiccup"));
     const onMicStuck = () => setToastMsg(t("voice.micStuck"));
+    // L8: storage blocked (private mode / locked WebView) — state it once.
+    const onStorageBlocked = () => setToastMsg(t("voice.storageBlocked"));
+    // L10: a 401 fired the dead-session signal — route to re-auth ONCE,
+    // preserving where the pandit was so login can send him back.
+    const onSessionExpired = (e: Event) => {
+      const next = (e as CustomEvent<{ next?: string }>).detail?.next || "/home";
+      if (typeof window !== "undefined" && !window.location.pathname.startsWith("/login")) {
+        window.location.href = `/login?next=${encodeURIComponent(next)}`;
+      }
+    };
     document.addEventListener("pointerdown", onPointerDown, true);
     window.addEventListener("hpj-voice-unavailable", onVoiceUnavailable);
     window.addEventListener("hpj-voice-tap-to-hear", onTapToHear);
     window.addEventListener("hpj-shishya-sleep", onVoiceSleep);
     window.addEventListener("hpj-voice-hiccup", onVoiceHiccup);
     window.addEventListener("hpj-mic-stuck", onMicStuck);
+    window.addEventListener("hpj-storage-blocked", onStorageBlocked);
+    window.addEventListener("hpj-session-expired", onSessionExpired);
     return () => {
       document.removeEventListener("pointerdown", onPointerDown, true);
       window.removeEventListener("hpj-voice-unavailable", onVoiceUnavailable);
@@ -151,6 +163,8 @@ export function VoiceRoot() {
       window.removeEventListener("hpj-shishya-sleep", onVoiceSleep);
       window.removeEventListener("hpj-voice-hiccup", onVoiceHiccup);
       window.removeEventListener("hpj-mic-stuck", onMicStuck);
+      window.removeEventListener("hpj-storage-blocked", onStorageBlocked);
+      window.removeEventListener("hpj-session-expired", onSessionExpired);
     };
   }, []);
 

@@ -21,6 +21,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { t } from "@/lib/i18n";
 import { mutateOnce, once } from "@/lib/mutate";
+import { getToken } from "@/lib/safeStorage";
 import { api, API_BASE } from "@/lib/api";
 import { Narrate } from "@/hooks/useScreenVoice";
 import { Header } from "@/components/ui/Header";
@@ -481,7 +482,7 @@ export default function ReadinessPage() {
     const formData = new FormData();
     formData.append("file", file);
     try {
-      const token = localStorage.getItem("pandit_token");
+      const token = getToken();
       // G1: multipart can't use api() (it forces JSON) but the BASE must
       // come from the single prefix-normalized source
       const res = await once(`readiness-upload:${file.name}`, () => fetch(`${API_BASE}/upload`, {

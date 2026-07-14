@@ -17,6 +17,7 @@
 // ─────────────────────────────────────────────────────────────
 
 import React, { useEffect, useRef, useState } from "react";
+import { getToken } from "@/lib/safeStorage";
 import { useRouter } from "next/navigation";
 import { useSafeOnboardingStore } from "@/lib/stores/ssr-safe-stores";
 import { voiceController } from "@/lib/voiceController";
@@ -179,7 +180,7 @@ export default function OnboardingOrchestratorPage() {
         setResumeChecked(true);
         return;
       }
-      const token = typeof window !== "undefined" ? localStorage.getItem("pandit_token") : null;
+      const token = getToken();
       // Settings → भाषा visits carry a return flag: show the bare list,
       // do NOT bounce a completed pandit to /home first.
       const langVisit = typeof window !== "undefined" && sessionStorage.getItem("hpj_lang_return");
@@ -289,7 +290,7 @@ export default function OnboardingOrchestratorPage() {
   // never re-OTPs — they go straight to FLOW C. ───────────────
   useEffect(() => {
     if (!resumeChecked || phase !== "AUTH") return;
-    const token = localStorage.getItem("pandit_token");
+    const token = getToken();
     if (token) {
       store.setPhase("REGISTRATION");
       return;
@@ -483,7 +484,7 @@ export default function OnboardingOrchestratorPage() {
         setResumeChecked(true);
         return;
       }
-      const token = typeof window !== "undefined" ? localStorage.getItem("pandit_token") : null;
+      const token = getToken();
       if (!token) {
         store.setPhase("AUTH");
         return null;

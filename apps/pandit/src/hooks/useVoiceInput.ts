@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
+import { getToken } from "@/lib/safeStorage";
 import { voiceController, MIC_RELEASE_STRATEGY } from "@/lib/voiceController";
 import { API_BASE } from "@/lib/api";
 import { getActiveLang } from "@/lib/i18n";
@@ -233,7 +234,7 @@ export function useVoiceInput(): UseVoiceInputReturn {
         const timeoutId = setTimeout(() => controller.abort(), 8000);
 
         try {
-          const token = localStorage.getItem("pandit_token");
+          const token = getToken();
 
           // G1: multipart can't use api() (it forces JSON) but the BASE
           // must come from the single prefix-normalized source.

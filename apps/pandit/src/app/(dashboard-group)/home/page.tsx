@@ -85,9 +85,16 @@ export default function HomePage() {
     // 1. Profile
     const meRes = await api("/auth/me");
     if (!meRes.success) {
-      // X3: forced logout must wipe user data too (incl. the hpj_token cookie)
-      purgeUserData();
-      router.push("/login");
+      // L10: force-logout ONLY on a real auth failure (401). A 5xx / timeout
+      // / network error (e.g. a Render cold-start) must NOT eject a pandit
+      // holding a valid token — surface a retryable error instead of wiping.
+      if (meRes.status === 401) {
+        purgeUserData();
+        router.push("/login");
+        return;
+      }
+      setErrorMsg(t("common.error"));
+      setLoading(false);
       return;
     }
     const user = meRes.data.user;

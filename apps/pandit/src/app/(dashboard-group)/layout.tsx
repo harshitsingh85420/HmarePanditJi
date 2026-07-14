@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { getToken } from "@/lib/safeStorage";
 import { useRouter, usePathname } from 'next/navigation'
 import { useSession } from '@/hooks/useSession'
 import { useNetwork } from '@/hooks/useNetwork'
@@ -53,7 +54,7 @@ export default function DashboardGroupLayout({ children }: { children: React.Rea
   const router = useRouter()
   const pathname = usePathname()
   useEffect(() => {
-    const token = localStorage.getItem('pandit_token')
+    const token = getToken()
     if (!token) {
       router.replace(`/login?next=${encodeURIComponent(pathname || '/home')}`)
     }

@@ -4,6 +4,7 @@
 export const dynamic = "force-dynamic";
 
 import React, { useState, useEffect, useRef } from "react";
+import { setToken } from "@/lib/safeStorage";
 import { useRouter, useSearchParams } from "next/navigation";
 import { t } from "@/lib/i18n";
 import { api } from "@/lib/api";
@@ -209,7 +210,7 @@ export default function LoginPage() {
     }
 
     const { token, profileComplete, isNewUser } = res.data;
-    localStorage.setItem("pandit_token", token);
+    setToken(token);
     // the route middleware gates on this cookie — set it at login,
     // cleared on logout (settings)
     document.cookie = `hpj_token=${token}; path=/; max-age=${60 * 60 * 24 * 30}; samesite=lax`;

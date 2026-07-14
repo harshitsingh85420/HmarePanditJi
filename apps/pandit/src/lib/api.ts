@@ -1,7 +1,29 @@
 "use client";
 
 import { hi } from "./strings";
+import { getToken, clearToken } from "@/lib/safeStorage";
 import { voiceController } from "./voiceController";
+
+// L10 — SESSION INTEGRITY. A 401 means the token is dead (expired: the
+// 7d JWT outlived by the 30d cookie, or revoked). Route to re-auth
+// DETERMINISTICALLY and exactly once — clear the dead token and signal a
+// top-level listener to send the pandit to /login?next=<where he was>.
+// CRUCIALLY this fires ONLY on 401, never on a 5xx / timeout / network
+// error, so a Render cold-start 502 can never eject a pandit holding a
+// valid token (the old home screen did exactly that on any /auth/me
+// failure). Auth endpoints' own 401s (wrong OTP) are excluded.
+let sessionExpiredSignaled = false;
+function signalSessionExpired(): void {
+  if (sessionExpiredSignaled) return;
+  sessionExpiredSignaled = true;
+  clearToken();
+  try {
+    const next = typeof window !== "undefined" ? window.location.pathname + window.location.search : "/";
+    window.dispatchEvent(new CustomEvent("hpj-session-expired", { detail: { next } }));
+  } catch {
+    /* noop */
+  }
+}
 
 // F2: resolve and FREEZE the API base ONCE. The localhost fallback is
 // dev-only — in a deployed build a missing NEXT_PUBLIC_API_URL used to
@@ -39,6 +61,9 @@ export interface ApiResponse<T = any> {
     code?: string;
     message: string;
   };
+  /** HTTP status on failure — lets callers distinguish 401 (re-auth) from
+   *  5xx/timeout (retry), instead of force-logging-out on any failure. */
+  status?: number;
 }
 
 export async function api<T = any>(
@@ -53,7 +78,7 @@ export async function api<T = any>(
     };
   }
   const { timeoutMs, ...fetchOptions } = options;
-  const token = typeof window !== "undefined" ? localStorage.getItem("pandit_token") : null;
+  const token = getToken();
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
@@ -84,9 +109,14 @@ export async function api<T = any>(
 
     const json = await res.json();
     if (!res.ok) {
+      // L10: 401 → dead session → deterministic re-auth (once). NOT on 5xx.
+      if (res.status === 401 && !path.startsWith("/auth")) {
+        signalSessionExpired();
+      }
       return {
         success: false,
         error: json.error || { message: json.message || hi.common.error },
+        status: res.status,
       };
     }
 

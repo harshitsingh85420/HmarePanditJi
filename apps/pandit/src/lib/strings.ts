@@ -9,6 +9,8 @@ export const hi = {
     hiccup: "आवाज़ में रुकावट है",
     // V2b: mic resurrection failed — one honest line, tap restarts
     micStuck: "माइक रुक गया है — स्क्रीन छूकर फिर शुरू करें",
+    // L8: storage blocked (private mode / locked device) — one honest line
+    storageBlocked: "इस डिवाइस पर सेव नहीं हो पा रहा — बाकी सब वैसे ही चलेगा",
   },
   shishya: {
     name: "शिष्य",
