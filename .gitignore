@@ -23,6 +23,8 @@ build/
 .env.local
 .env.*.local
 .env.vercel
+.env.staging
+**/.env.staging
 .continue-config.json
 
 # IDE
