@@ -17,6 +17,7 @@
 
 import { api } from "@/lib/api";
 import { getActiveLang } from "@/lib/i18n";
+import type { ActionCategory } from "@/lib/shishyaPuppet";
 
 export type ShishyaMode = "agent" | "reflex-only";
 /** Build-time kill switch — default is the full agent. */
@@ -27,6 +28,11 @@ export interface AgentAction {
   id: string;
   label: string;
   hint?: string;
+  /** Guide Mode: the action's taxonomy. A money/identity action is a terminal
+   *  press the agent may LOCATE (A1) but never complete — buildAgentActions
+   *  already omits it from the actable tool list via the ONE shared forbidden
+   *  set (shishyaPuppet.isForbiddenCategory). */
+  category?: ActionCategory;
 }
 
 export interface AgentUserState {

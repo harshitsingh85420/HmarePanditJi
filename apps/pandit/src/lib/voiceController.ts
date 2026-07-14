@@ -22,6 +22,7 @@ import {
   setAgentDebugSink,
   type AgentAction,
 } from "@/lib/shishyaAgent";
+import { isForbiddenCategory, type ActionCategory } from "@/lib/shishyaPuppet";
 
 // ── J1: SCREEN VOICE CONTEXT ─────────────────────────────────
 // Every screen registers its commands here (useVoiceScreen /
@@ -46,6 +47,14 @@ export interface VoiceCommand {
   /** W3: human label the agent reads in its tool list (defaults to
    *  keywords[0]). */
   label?: string;
+  /** Guide Mode (A5): the action taxonomy. Drives the ONE money/identity
+   *  boundary — a `money`/`identity` command is a terminal press the puppet
+   *  and the agent may LOCATE but never COMPLETE (shishyaPuppet forbidden set).
+   *  `field` (fill an input with the pandit's OWN value) stays completable. */
+  category?: ActionCategory;
+  /** Guide Mode (A2 locate): getter for the on-screen element this action
+   *  drives, so Shishya can scroll it into view + ring it + point the cursor. */
+  ref?: () => HTMLElement | null;
 }
 
 interface VoiceScreenEntry {
@@ -937,6 +946,12 @@ class VoiceController {
     // list so it can never accept a booking, submit KYC, or navigate away.
     if (entry?.critical) return out;
     entry?.commands.forEach((cmd, i) => {
+      // L7 ∪ A3 — ONE money/identity boundary (shishyaPuppet.isForbiddenCategory,
+      // the SAME set the puppet denies): a money/identity command is a terminal
+      // press the agent may never COMPLETE, so it is omitted from the actable
+      // tool list entirely. It stays locatable via its ref (A1/A2), never
+      // actable. No second deny-list — the puppet and the agent share this one.
+      if (isForbiddenCategory(cmd.category)) return;
       const id = cmd.id || `cmd${i}`;
       if (this.agentActRunners.has(id)) return;
       this.agentActRunners.set(id, () => this.runCommand(cmd));
@@ -944,6 +959,7 @@ class VoiceController {
         id,
         label: cmd.label || String(cmd.keywords[0] ?? id),
         hint: cmd.confirmSpeech ? cmd.confirmSpeech.slice(0, 100) : undefined,
+        category: cmd.category,
       });
     });
     this.voiceOptionGroups.forEach((g, gi) => {

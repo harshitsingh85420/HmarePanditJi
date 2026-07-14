@@ -33,11 +33,24 @@ export type ActionCategory =
  *  only approach (locate + highlight + narrate) and then hand back. */
 export const PUPPET_FORBIDDEN_CATEGORIES: readonly ActionCategory[] = ["money", "identity"] as const;
 
+/** THE SINGLE SOURCE OF TRUTH for the money/identity boundary. Every
+ *  completion vector consults this one predicate — the puppet (runPuppet), the
+ *  agent's tool list (voiceController.buildAgentActions), and any future
+ *  actor — so the boundary can never be defined in two places and drift (the
+ *  BB1 schism class). An EXPLICITLY money/identity action is a terminal press
+ *  only the pandit may make. Unknown/absent is NOT "forbidden" here (a legacy
+ *  uncategorised nav/toggle must still be agent-actable) — the puppet's extra
+ *  fail-safe for the unknown case lives in canPuppetComplete. */
+export function isForbiddenCategory(category: ActionCategory | undefined | null): boolean {
+  return !!category && PUPPET_FORBIDDEN_CATEGORIES.includes(category);
+}
+
 /** True only when the puppet may fire this category's TERMINAL press itself.
- *  Fails safe: an unknown/absent category is never auto-completed. */
+ *  Stricter than !isForbiddenCategory: fails safe so an unknown/absent
+ *  category is never auto-completed by the puppet. */
 export function canPuppetComplete(category: ActionCategory | undefined | null): boolean {
   if (!category) return false;
-  return !PUPPET_FORBIDDEN_CATEGORIES.includes(category);
+  return !isForbiddenCategory(category);
 }
 
 export interface PuppetStep {

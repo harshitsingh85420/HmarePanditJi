@@ -1,10 +1,12 @@
 import { describe, it, expect } from "vitest";
 import {
   canPuppetComplete,
+  isForbiddenCategory,
   runPuppet,
   PUPPET_FORBIDDEN_CATEGORIES,
   type PuppetStep,
 } from "./shishyaPuppet";
+import { voiceController } from "./voiceController";
 
 // A3 LAW — THE PUPPET MAY NEVER COMPLETE A MONEY OR IDENTITY ACTION.
 // Guide Mode lets शिष्य visibly perform actions FOR the pandit; the one thing
@@ -97,5 +99,41 @@ describe("A3 shishyaPuppet — money/identity deny-list", () => {
     });
     // the pandit still SEES where the button is — locate happens, dispatch doesn't
     expect(highlighted).toEqual(["accept-booking"]);
+  });
+});
+
+// L7 ∪ A3 — ONE BOUNDARY, TWO VECTORS. The puppet (above) and the agent's tool
+// list must consult the SAME forbidden set, never two that can drift (the BB1
+// schism class). This asserts the agent side reads the identical predicate.
+describe("A3 ∪ L7 — the agent tool list honors the SAME money/identity deny-list", () => {
+  it("isForbiddenCategory is the single source both vectors use", () => {
+    expect(isForbiddenCategory("money")).toBe(true);
+    expect(isForbiddenCategory("identity")).toBe(true);
+    for (const c of ["nav", "open", "toggle", "field"] as const) {
+      expect(isForbiddenCategory(c)).toBe(false);
+    }
+    expect(isForbiddenCategory(undefined)).toBe(false); // legacy uncategorised stays agent-actable
+  });
+
+  it("buildAgentActions OMITS a money/identity command but keeps a nav command", () => {
+    const un = voiceController.registerVoiceScreen(
+      [
+        { keywords: ["go home"], action: () => {}, id: "nav-home", label: "Home", category: "nav" },
+        { keywords: ["accept"], action: () => {}, id: "accept-booking", label: "Accept", category: "money" },
+        { keywords: ["submit aadhaar"], action: () => {}, id: "aadhaar-submit", label: "Aadhaar", category: "identity" },
+      ],
+      "help",
+    );
+    try {
+      const ids = voiceController.agentActionsForActiveScreen().map((a) => a.id);
+      expect(ids).toContain("nav-home");
+      expect(ids).not.toContain("accept-booking"); // money → never an agent tool
+      expect(ids).not.toContain("aadhaar-submit"); // identity → never an agent tool
+      // and the surviving tool carries its category through to the agent
+      const home = voiceController.agentActionsForActiveScreen().find((a) => a.id === "nav-home");
+      expect(home?.category).toBe("nav");
+    } finally {
+      un();
+    }
   });
 });
