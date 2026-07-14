@@ -16,7 +16,9 @@ describe("L-C command trust gate — sub-floor transcripts never act", () => {
   const vc = read("lib/voiceController.ts");
 
   it("handleTranscript takes a confidence and defines the command floor", () => {
-    expect(vc).toMatch(/handleTranscript\(text:\s*string,\s*confidence\s*=\s*1\)/);
+    // confidence stays the 2nd param + still gated; L5 added an optional 3rd
+    // (spokenEpoch) so allow a comma or close-paren after it.
+    expect(vc).toMatch(/handleTranscript\(text:\s*string,\s*confidence\s*=\s*1[,)]/);
     expect(vc).toContain("COMMAND_CONFIDENCE_FLOOR = 0.55");
   });
 

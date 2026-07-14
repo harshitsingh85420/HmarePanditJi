@@ -607,6 +607,14 @@ class VoiceController {
   // ── J1: screen command registry (stack — last mounted = active) ──
   private voiceScreens: VoiceScreenEntry[] = [];
   private voiceScreenSeq = 0;
+  // L5 TRANSCRIPT PROVENANCE: bumps whenever the active screen set changes
+  // (a navigation mounts/unmounts a voice screen). A listen captures this
+  // at arm; a transcript that resolves after the epoch moved is DROPPED —
+  // so a "हाँ" spoken on screen A can never fire screen B's action.
+  private screenEpoch = 0;
+  currentScreenEpoch(): number {
+    return this.screenEpoch;
+  }
   // J3d: 'समझ रहा हूँ' — speech ended, STT in flight
   private _processing = false;
 
@@ -623,8 +631,10 @@ class VoiceController {
       critical: opts?.critical,
     };
     this.voiceScreens.push(entry);
+    this.screenEpoch++; // L5: the active screen changed (navigation/mount)
     return () => {
       this.voiceScreens = this.voiceScreens.filter((e) => e !== entry);
+      this.screenEpoch++; // L5: and again on unmount
     };
   }
 
@@ -707,9 +717,17 @@ class VoiceController {
    * (the screen command listen, a VoiceField whose parser rejected or
    * whose value is already filled) re-arm the loop themselves on false.
    */
-  handleTranscript(text: string, confidence = 1): boolean {
+  handleTranscript(text: string, confidence = 1, spokenEpoch?: number): boolean {
     const clean = text.trim();
     if (!clean) return false;
+    // L5 PROVENANCE: a transcript stamped with the screen it was spoken on
+    // must NOT act if the active screen has since changed (STT round-trip can
+    // be up to ~8s; a late "हाँ" from screen A must never fire screen B's
+    // YES/accept). Undefined stamp = legacy caller, no provenance check.
+    if (spokenEpoch !== undefined && spokenEpoch !== this.screenEpoch) {
+      this.debug(`transcript dropped: spoken on a previous screen (epoch ${spokenEpoch}≠${this.screenEpoch})`);
+      return false;
+    }
     // L-C TRUST GATE: a low-confidence transcript may NOT drive a command,
     // option-select, navigation, or SLEEP/mute. Below the floor it is treated
     // as no-command (returns false) so the caller falls through to the gentle

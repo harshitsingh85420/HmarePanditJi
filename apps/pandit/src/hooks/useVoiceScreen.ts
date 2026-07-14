@@ -120,6 +120,9 @@ export function useVoiceScreen(opts: UseVoiceScreenOpts) {
   highlightRefRef.current = opts.highlightRef;
   const { enabled: voiceOn } = useVoice();
   const voiceInput = useVoiceInput();
+  // L5: the screen epoch captured when THIS listen armed — compared at
+  // resolve so a transcript spoken before a navigation can't act after it.
+  const listenEpochRef = useRef(0);
 
   // command registry (optional)
   useVoiceCommands(commands ?? [], helpText, enabled && !!commands?.length, critical);
@@ -152,6 +155,8 @@ export function useVoiceScreen(opts: UseVoiceScreenOpts) {
   useEffect(() => {
     if (!enabled || !voiceOn) return;
     const unregister = voiceController.registerAutoListen(0, () => {
+      // L5: stamp the screen this listen is being spoken on
+      listenEpochRef.current = voiceController.currentScreenEpoch();
       // J3b: screen answers are 1-3 words — command endpointing (700ms)
       void voiceInput.start({ mode: "command" });
     });
@@ -168,7 +173,7 @@ export function useVoiceScreen(opts: UseVoiceScreenOpts) {
     if (voiceInput.state === "idle" && voiceInput.transcript) {
       const text = voiceInput.transcript;
       voiceInput.reset();
-      if (!voiceController.handleTranscript(text, voiceInput.confidence ?? 1)) {
+      if (!voiceController.handleTranscript(text, voiceInput.confidence ?? 1, listenEpochRef.current)) {
         // S6c: the transcript rides along — question-shaped misses get
         // the honest line + telemetry instead of the terse nudge
         voiceController.speakUnmatchedGently(text);
