@@ -53,6 +53,10 @@ interface VoiceScreenEntry {
   commands: readonly VoiceCommand[];
   helpText?: string;
   lastUnmatchedAt: number;
+  /** L7 FLOW SANCTITY: on a critical money/KYC flow (booking accept-confirm,
+   *  bank/UPI/Aadhaar) the agent may ANSWER but never ACT or navigate — it
+   *  contributes ZERO tools and any returned act is dropped. */
+  critical?: boolean;
 }
 
 // Q3: EVERY VISIBLE CHOICE IS SPEAKABLE. Choice UIs (puja cards, samagri
@@ -606,17 +610,34 @@ class VoiceController {
   // J3d: 'समझ रहा हूँ' — speech ended, STT in flight
   private _processing = false;
 
-  registerVoiceScreen(commands: readonly VoiceCommand[], helpText?: string): () => void {
+  registerVoiceScreen(
+    commands: readonly VoiceCommand[],
+    helpText?: string,
+    opts?: { critical?: boolean },
+  ): () => void {
     const entry: VoiceScreenEntry = {
       id: ++this.voiceScreenSeq,
       commands,
       helpText,
       lastUnmatchedAt: 0,
+      critical: opts?.critical,
     };
     this.voiceScreens.push(entry);
     return () => {
       this.voiceScreens = this.voiceScreens.filter((e) => e !== entry);
     };
+  }
+
+  /** L7: true when the topmost registered screen is a critical money/KYC
+   *  flow. Public so the guard test can assert agent suppression. */
+  isActiveScreenCritical(): boolean {
+    return !!this.activeVoiceScreen()?.critical;
+  }
+
+  /** L7: test seam — the exact tool list the agent would receive for the
+   *  active screen (empty on a critical flow). */
+  agentActionsForActiveScreen(): AgentAction[] {
+    return this.buildAgentActions();
   }
 
   // ── Q3: on-screen option registry (stack — newest group first) ──
@@ -893,6 +914,10 @@ class VoiceController {
     this.agentActRunners.clear();
     const out: AgentAction[] = [];
     const entry = this.activeVoiceScreen();
+    // L7 FLOW SANCTITY: a critical money/KYC screen contributes NO tools —
+    // the agent can still answer, but the LLM is handed an empty action
+    // list so it can never accept a booking, submit KYC, or navigate away.
+    if (entry?.critical) return out;
     entry?.commands.forEach((cmd, i) => {
       const id = cmd.id || `cmd${i}`;
       if (this.agentActRunners.has(id)) return;
@@ -955,7 +980,11 @@ class VoiceController {
         return;
       }
       this.debug(`agent: ← "${res.say.slice(0, 40)}" act=${res.act ?? "null"} in ${ms}ms`);
-      const actId = res.act;
+      // L7 belt-and-suspenders: even if the server echoed an act, NEVER
+      // execute it on a critical flow (the screen may have become critical,
+      // or a cached act slipped through).
+      const actId = entry?.critical ? null : res.act;
+      if (res.act && entry?.critical) this.debug(`agent: act [${res.act}] SUPPRESSED (critical flow)`);
       this.speak(res.say, {
         onEnd: (completed) => {
           if (!actId) return;

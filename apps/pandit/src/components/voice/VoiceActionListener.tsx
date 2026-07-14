@@ -32,12 +32,16 @@ export interface VoiceActionListenerProps {
   commands: Command[];
   narratingText?: string;
   promptText?: string; // spoken again on the "मदद" command
+  /** L7: money/KYC flow (e.g. booking accept-confirm) — the agent gets zero
+   *  tools and cannot act/navigate while this listener is mounted. */
+  critical?: boolean;
 }
 
 export function VoiceActionListener({
   commands,
   narratingText,
   promptText,
+  critical,
 }: VoiceActionListenerProps) {
   const router = useRouter();
   const { enabled: voiceOn } = useVoice();
@@ -95,6 +99,7 @@ export function VoiceActionListener({
     narration: mountNarration.current,
     commands: registryCommands,
     helpText: promptText,
+    critical,
   });
 
   if (!voiceOn) return null;

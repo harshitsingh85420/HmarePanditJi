@@ -184,8 +184,9 @@ export default function BookingRequestPage() {
     <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
       <Header title={t("booking.requestTitle")} showBack onBack={() => router.push("/bookings")} />
 
-      {/* Voice actions listener */}
-      <VoiceActionListener commands={commands} narratingText={voiceIntroText} promptText={voiceIntroText} />
+      {/* Voice actions listener — L7: accept/reject a paid booking is a
+          money flow, so the agent may answer but never act here. */}
+      <VoiceActionListener commands={commands} narratingText={voiceIntroText} promptText={voiceIntroText} critical />
 
       <main className="flex-1 overflow-y-auto px-4 pt-3 pb-6 flex flex-col gap-3 page-enter">
         {/* CUSTOMER CARD */}

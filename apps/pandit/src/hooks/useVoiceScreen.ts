@@ -41,13 +41,18 @@ export interface UseVoiceScreenOpts {
   /** S3: the narration instructs pressing THIS control — it glows for
    *  the line's duration (until any gesture or the 10s failsafe). */
   highlightRef?: { current: HTMLElement | null };
+  /** L7: mark a money/KYC flow — the agent gets zero tools here. */
+  critical?: boolean;
 }
 
-/** Registry-only flavor — commands without narration/arming. */
+/** Registry-only flavor — commands without narration/arming.
+ *  L7: pass `critical` for money/KYC flows — the agent then gets zero tools
+ *  and cannot act/navigate while this screen is active. */
 export function useVoiceCommands(
   commands: readonly VoiceCommand[],
   helpText?: string,
   enabled: boolean = true,
+  critical: boolean = false,
 ): void {
   const commandsRef = useRef(commands);
   commandsRef.current = commands;
@@ -75,9 +80,9 @@ export function useVoiceCommands(
         return commandsRef.current[i]?.label;
       },
     }));
-    return voiceController.registerVoiceScreen(proxied, helpText);
+    return voiceController.registerVoiceScreen(proxied, helpText, { critical });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [enabled, helpText, commands.length]);
+  }, [enabled, helpText, commands.length, critical]);
 }
 
 /**
@@ -108,7 +113,7 @@ export function useVoiceOptions(options: readonly VoiceOption[], enabled: boolea
 }
 
 export function useVoiceScreen(opts: UseVoiceScreenOpts) {
-  const { narration, commands, helpText, languageCode, enabled = true } = opts;
+  const { narration, commands, helpText, languageCode, enabled = true, critical = false } = opts;
   const onEndRef = useRef(opts.onNarrationEnd);
   onEndRef.current = opts.onNarrationEnd;
   const highlightRefRef = useRef(opts.highlightRef);
@@ -117,7 +122,7 @@ export function useVoiceScreen(opts: UseVoiceScreenOpts) {
   const voiceInput = useVoiceInput();
 
   // command registry (optional)
-  useVoiceCommands(commands ?? [], helpText, enabled && !!commands?.length);
+  useVoiceCommands(commands ?? [], helpText, enabled && !!commands?.length, critical);
 
   // narration + replay target (the legacy useScreenVoice contract)
   useEffect(() => {

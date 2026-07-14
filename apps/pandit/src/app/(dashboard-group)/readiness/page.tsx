@@ -286,6 +286,8 @@ export default function ReadinessPage() {
     ],
     t("help.readiness"),
     !loading && !editorPuja && !showCelebration,
+    true, // L7: the readiness wizard carries dakshina + Aadhaar/bank KYC —
+    // the agent may answer but must never advance/submit it. Critical.
   );
 
   // Inside the सामग्री editor only पीछे works by voice (its fields and
