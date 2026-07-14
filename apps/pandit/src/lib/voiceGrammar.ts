@@ -144,6 +144,14 @@ export const SLEEP: string[] = [...BASE.SLEEP];
 
 const LIVE: Record<GrammarSet, string[]> = { YES, NO, NEXT, BACK, SKIP, REPEAT, HELP, STOP, SLEEP };
 
+// H6 UNDO — full phrases only (never bare "वापस", which stays BACK/nav). These
+// revert the LAST committed toggle/value; matched BEFORE screen commands so
+// "वापस करो" outranks a screen's back button. (Hindi/English for the pilot;
+// regional variants can extend later — kept out of the LIVE swap machinery.)
+export const UNDO_PHRASES: string[] = [
+  "वापस करो", "वापस कर दो", "गलत हो गया", "गलती हो गई", "अरे नहीं", "रद्द करो", "undo", "cancel that",
+];
+
 /** Rebuild every set as base + the active language's extension. Called
  *  by lib/i18n on boot restore and on every language activation. */
 export function setGrammarLanguage(code: LangCode): void {

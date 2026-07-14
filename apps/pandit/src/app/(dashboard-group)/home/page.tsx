@@ -6,6 +6,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { t } from "@/lib/i18n";
 import { mutateOnce } from "@/lib/mutate";
+import { voiceController } from "@/lib/voiceController";
 import { api } from "@/lib/api";
 import { setAgentUserState } from "@/lib/shishyaAgent";
 import { motion, AnimatePresence } from "framer-motion";
@@ -240,6 +241,21 @@ export default function HomePage() {
     const announceMsg = targetState ? t("home.onlineVoice") : t("home.offlineVoice");
     speak(announceMsg);
     setToastMsg(targetState ? t("home.onlineVoice") : t("home.offlineVoice"));
+
+    // H6: the availability toggle is reversible by "वापस करो" within 60s —
+    // undo flips it back to the previous state (category "toggle", never money).
+    voiceController.registerUndo(
+      "toggle-status",
+      () => {
+        setIsOnline(previousState);
+        void mutateOnce(`toggle-status:undo:${previousState}`, "/pandit/status", {
+          method: "PATCH",
+          body: JSON.stringify({ isOnline: previousState }),
+        });
+      },
+      previousState ? "ऑनलाइन" : "ऑफलाइन",
+      "toggle",
+    );
   };
 
   if (loading) {

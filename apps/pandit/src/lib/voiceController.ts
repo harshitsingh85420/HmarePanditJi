@@ -13,7 +13,7 @@
 import { t, getActiveBcp47 } from "@/lib/i18n";
 import { clientPace } from "@/lib/sarvam-tts";
 import { VOICE_PROFILE, VOICE_PROFILE_VERSION } from "@/lib/voiceProfile";
-import { YES, NO, NEXT, BACK, SKIP, REPEAT, HELP, STOP, SLEEP, matchAny, matchWord, normalizeForMatch } from "@/lib/voiceGrammar";
+import { YES, NO, NEXT, BACK, SKIP, REPEAT, HELP, STOP, SLEEP, UNDO_PHRASES, matchAny, matchWord, normalizeForMatch } from "@/lib/voiceGrammar";
 import { isQuestionShaped, recordUnansweredQuestion, askShishyaServer } from "@/lib/shishyaBrain";
 import {
   SHISHYA_MODE,
@@ -158,6 +158,13 @@ class VoiceController {
   // floor the field-value path uses (voiceFieldMachine 0.55). Sub-floor noise
   // that Deepgram renders as a grammar word must never silently execute.
   private readonly COMMAND_CONFIDENCE_FLOOR = 0.55;
+  // H6 UNDO: the last REVERSIBLE (toggle/value) commit, revertable by voice
+  // within 60s. Money/identity actions NEVER register here (registerUndo
+  // refuses them via the puppet/agent deny-list). `consumed` makes a double
+  // "वापस करो" idempotent.
+  private lastUndoable: { actionId: string; revertFn: () => void; label: string; at: number; epoch: number; consumed: boolean } | null = null;
+  private lastForbiddenLabel = ""; // last money/identity action (for the "can't undo" explanation)
+  private lastForbiddenAt = 0;
   private _listening = false;
   private _hidden = false;
   private _confirming = false;
@@ -745,6 +752,30 @@ class VoiceController {
       this.debug(`voice cmd sub-floor (conf ${confidence.toFixed(2)}) ignored: "${clean.slice(0, 24)}"`);
       return false;
     }
+    // H6 UNDO — matched BEFORE the screen commands so "वापस करो / गलत हो गया /
+    // रद्द करो" reverts the LAST committed toggle/value instead of a screen's
+    // BACK nav. LAW (a): money/identity actions never registered an undo, so
+    // for those it explains + offers the real path. LAW (b): the `consumed`
+    // latch makes a double "वापस करो" idempotent (never a double-revert).
+    if (matchAny(clean, UNDO_PHRASES)) {
+      this.noteVoiceGesture();
+      const u = this.lastUndoable;
+      const now = performance.now();
+      if (u && !u.consumed && now - u.at < 60000) {
+        u.consumed = true;
+        this.lastUndoable = null;
+        try { u.revertFn(); } catch { /* revert is best-effort */ }
+        this.debug(`undo: reverted ${u.actionId} (${u.label})`);
+        this.speak(`ठीक है — ${u.label} वापस कर दिया।`);
+        return true;
+      }
+      if (this.lastForbiddenLabel && now - this.lastForbiddenAt < 60000) {
+        this.speak(`${this.lastForbiddenLabel} — इसे बदलने के लिए सहायता से बात कीजिए।`);
+        return true;
+      }
+      this.speak("अभी वापस करने को कुछ नहीं है, पंडित जी।");
+      return true;
+    }
     const entry = this.activeVoiceScreen();
     if (entry) {
       const exact = clean.toLowerCase().replace(/[।.,!?]/g, " ").replace(/\s+/g, " ").trim();
@@ -816,8 +847,28 @@ class VoiceController {
   /** W3: THE single execution path for a registered command — a spoken
    *  keyword match and an agent `act` both land here, so confirmSpeech
    *  gates can never be bypassed. */
+  /** H6 UNDO — arm a reversible (toggle/value) commit so "वापस करो" can revert
+   *  it within 60s. LAW: a MONEY/IDENTITY terminal action may NEVER register an
+   *  undo — enforced here by the SAME deny-list the puppet + agent use
+   *  (shishyaPuppet.isForbiddenCategory, one source, never two). A forbidden
+   *  category is refused; "वापस करो" then explains + offers the real path. */
+  registerUndo(actionId: string, revertFn: () => void, label: string, category?: ActionCategory): void {
+    if (isForbiddenCategory(category)) {
+      this.debug(`registerUndo REFUSED — '${category}' is a money/identity terminal action (${actionId})`);
+      return;
+    }
+    this.lastUndoable = { actionId, revertFn, label, at: performance.now(), epoch: this.currentScreenEpoch(), consumed: false };
+    this.debug(`undo armed: ${actionId} (${label})`);
+  }
+
   private runCommand(cmd: VoiceCommand): void {
     this.noteVoiceGesture();
+    // H6: a money/identity command the pandit just fired can't be undone —
+    // remember it so "वापस करो" explains + points at the real path.
+    if (isForbiddenCategory(cmd.category)) {
+      this.lastForbiddenLabel = cmd.label || String(cmd.keywords[0] ?? "यह काम");
+      this.lastForbiddenAt = performance.now();
+    }
     if (cmd.confirmSpeech) {
       this.speak(cmd.confirmSpeech, {
         onEnd: () => {

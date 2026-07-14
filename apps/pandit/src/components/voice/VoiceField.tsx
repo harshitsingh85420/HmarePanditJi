@@ -54,6 +54,10 @@ export function VoiceField({
 }: VoiceFieldProps) {
   const { enabled: voiceOn } = useVoice();
   const voiceInput = useVoiceInput();
+  // H6 UNDO: track the latest committed value so a voice-accepted change can be
+  // reverted by "वापस करो" (the commit callback's deps don't include `value`).
+  const latestValueRef = useRef(value);
+  latestValueRef.current = value;
 
   // A5: mic never arms for OTP (typed-only law) or explicitly silent fields
   const voiceCapable = voiceOn && !noVoice && mode !== "otp";
@@ -134,7 +138,12 @@ export function VoiceField({
             break;
           case "EMIT_VALUE":
             if (accepted !== undefined) {
+              const prev = latestValueRef.current; // value BEFORE this commit
               onChange(accepted);
+              // H6: a voice-accepted field value is reversible — "वापस करो"
+              // restores the prior value. Filling a field is `field` (allowed),
+              // distinct from the money/identity SAVE that follows (never undoable).
+              voiceController.registerUndo(`field:${label}`, () => onChange(prev), label, "field");
               // K3: a voice-accepted value is a GESTURE — stamp now and
               // again as the completion action fires (it may navigate)
               voiceController.noteVoiceGesture();
