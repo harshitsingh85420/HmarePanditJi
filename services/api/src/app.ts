@@ -116,6 +116,27 @@ app.register(fastifyMultipart, {
   },
 });
 
+// EMPTY-BODY FIX (Phase-4 finding): the client's api() sets
+// `Content-Type: application/json` on EVERY request, but action POSTs like
+// booking accept/reject/complete, logout, milestones/seen send NO body.
+// Fastify's default JSON parser then 400s with "Body cannot be empty" —
+// so a real pandit could never accept/reject/complete a booking (the same
+// invisible-to-code-reading class as BB1/CM-1). Parse an empty json body
+// as {} instead of throwing.
+app.addContentTypeParser("application/json", { parseAs: "string" }, (_req, body, done) => {
+  const s = (body as string) ?? "";
+  if (s.trim() === "") {
+    done(null, {});
+    return;
+  }
+  try {
+    done(null, JSON.parse(s));
+  } catch (err) {
+    (err as { statusCode?: number }).statusCode = 400;
+    done(err as Error, undefined);
+  }
+});
+
 // Cookie support (for HttpOnly session tokens)
 app.register(fastifyCookie, {
   secret: env.JWT_SECRET,
