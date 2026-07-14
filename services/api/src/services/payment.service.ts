@@ -186,7 +186,14 @@ export function verifyRazorpaySignature(
  */
 export function verifyWebhookSignature(rawBody: string, signature: string): boolean {
   if (!env.RAZORPAY_WEBHOOK_SECRET) {
-    logger.warn("Razorpay webhook secret not configured — skipping signature verification");
+    // L-J: a missing webhook secret must FAIL CLOSED in production — never
+    // accept an unsigned money-state mutation. (Mirrors the BB2 storage
+    // fail-closed posture: dev may accept-all for local testing, prod may not.)
+    if (env.NODE_ENV === "production") {
+      logger.error("Razorpay webhook secret NOT configured in production — rejecting webhook (fail closed)");
+      return false;
+    }
+    logger.warn("Razorpay webhook secret not configured — dev accept-all (non-production only)");
     return true;
   }
 

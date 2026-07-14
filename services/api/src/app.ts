@@ -123,8 +123,12 @@ app.register(fastifyMultipart, {
 // so a real pandit could never accept/reject/complete a booking (the same
 // invisible-to-code-reading class as BB1/CM-1). Parse an empty json body
 // as {} instead of throwing.
-app.addContentTypeParser("application/json", { parseAs: "string" }, (_req, body, done) => {
+app.addContentTypeParser("application/json", { parseAs: "string" }, (req, body, done) => {
   const s = (body as string) ?? "";
+  // L-J: preserve the raw JSON bytes so a signature-verified webhook
+  // (Razorpay) can validate against EXACTLY what was signed, not a
+  // re-serialized object whose key order/whitespace may differ.
+  (req as any).rawBody = s;
   if (s.trim() === "") {
     done(null, {});
     return;

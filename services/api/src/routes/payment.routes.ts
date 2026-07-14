@@ -92,10 +92,17 @@ export default async function paymentRoutes(fastify: FastifyInstance, _opts: any
     const res = reply;
     try {
       const signature = req.headers["x-razorpay-signature"] as string | undefined;
-      const rawBody = JSON.stringify(req.body); // express.json() already parsed it
+      // L-J: verify against the RAW bytes preserved by the content-type parser.
+      const rawBody = (req as any).rawBody ?? JSON.stringify(req.body);
 
-      if (signature && !verifyWebhookSignature(rawBody, signature)) {
-        logger.warn("Razorpay webhook: invalid signature");
+      // L-J MONEY-PATH AUTH: a webhook MUTATES payment state (marks a booking
+      // PAID → PANDIT_REQUESTED, or REFUNDED). It MUST carry a valid Razorpay
+      // signature — a MISSING signature or an unverifiable one is REJECTED.
+      // The old `if (signature && ...)` skipped verification entirely when the
+      // header was absent, so anyone could forge a payment.captured for any
+      // booking (or a refund.processed) and move real money-state. Fail closed.
+      if (!signature || !verifyWebhookSignature(rawBody, signature)) {
+        logger.warn("Razorpay webhook: missing or invalid signature — rejected");
         return res.status(400).send({ success: false, message: "Invalid webhook signature" });
       }
 
