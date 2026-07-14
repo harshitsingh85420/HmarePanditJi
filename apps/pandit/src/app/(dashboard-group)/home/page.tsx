@@ -5,6 +5,7 @@ import { prefetchDashboardNarrations } from "@/lib/dashboardPrefetch";
 import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { t } from "@/lib/i18n";
+import { mutateOnce } from "@/lib/mutate";
 import { api } from "@/lib/api";
 import { setAgentUserState } from "@/lib/shishyaAgent";
 import { motion, AnimatePresence } from "framer-motion";
@@ -215,7 +216,7 @@ export default function HomePage() {
     // Optimistic Update
     setIsOnline(targetState);
 
-    const res = await api("/pandit/status", {
+    const res = await mutateOnce(`toggle-status:${targetState}`, "/pandit/status", {
       method: "PATCH",
       body: JSON.stringify({ isOnline: targetState }),
     });
@@ -584,7 +585,7 @@ export default function HomePage() {
           ctaLabel={t("common.next")}
           onCta={async () => {
             setCelebratingMilestone(null);
-            await api("/pandit/milestones/seen", { method: "POST" });
+            await mutateOnce("milestones-seen", "/pandit/milestones/seen", { method: "POST" });
           }}
         />
       )}

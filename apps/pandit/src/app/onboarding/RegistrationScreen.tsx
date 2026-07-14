@@ -15,6 +15,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { t } from "@/lib/i18n";
+import { mutateOnce } from "@/lib/mutate";
 import { api } from "@/lib/api";
 import { Header } from "@/components/ui/Header";
 import { Card } from "@/components/ui/Card";
@@ -77,7 +78,7 @@ export default function RegistrationScreen({ onBack }: { onBack: () => void }) {
       return;
     }
     setSubmitting(true);
-    const res = await api("/pandit/onboarding", {
+    const res = await mutateOnce("pandit-onboarding", "/pandit/onboarding", {
       method: "POST",
       body: JSON.stringify({ name: name.trim(), city: city.trim() }),
     });

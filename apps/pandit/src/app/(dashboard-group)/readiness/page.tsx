@@ -20,6 +20,7 @@ export const dynamic = "force-dynamic";
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { t } from "@/lib/i18n";
+import { mutateOnce, once } from "@/lib/mutate";
 import { api, API_BASE } from "@/lib/api";
 import { Narrate } from "@/hooks/useScreenVoice";
 import { Header } from "@/components/ui/Header";
@@ -327,7 +328,7 @@ export default function ReadinessPage() {
   const patchStep = async (n: number, data: Record<string, unknown>): Promise<boolean> => {
     setSaving(true);
     setErrorMsg("");
-    const res = await api("/pandit/readiness", {
+    const res = await mutateOnce(`readiness-step:${n}`, "/pandit/readiness", {
       method: "PATCH",
       body: JSON.stringify({ step: n, data }),
     });
@@ -356,7 +357,7 @@ export default function ReadinessPage() {
     setSaving(true);
     setErrorMsg("");
     // reuse the existing endpoints (F11): specializations + per-puja rates
-    const profRes = await api("/pandit/profile", {
+    const profRes = await mutateOnce("readiness-r1-profile", "/pandit/profile", {
       method: "PATCH",
       body: JSON.stringify({ specializations: specs }),
     });
@@ -366,7 +367,7 @@ export default function ReadinessPage() {
       return;
     }
     for (const spec of specs) {
-      const rateRes = await api("/pandit/dakshina-rates", {
+      const rateRes = await mutateOnce(`readiness-dakshina:${spec}`, "/pandit/dakshina-rates", {
         method: "POST",
         body: JSON.stringify({ pujaType: spec, amount: Number(dakshina[spec]) }),
       });
@@ -483,11 +484,11 @@ export default function ReadinessPage() {
       const token = localStorage.getItem("pandit_token");
       // G1: multipart can't use api() (it forces JSON) but the BASE must
       // come from the single prefix-normalized source
-      const res = await fetch(`${API_BASE}/upload`, {
+      const res = await once(`readiness-upload:${file.name}`, () => fetch(`${API_BASE}/upload`, {
         method: "POST",
         headers: token ? { Authorization: `Bearer ${token}` } : {},
         body: formData,
-      });
+      }));
       const json = await res.json();
       setUploading(false);
       if (json.success && (json.data?.key || json.data?.url)) {

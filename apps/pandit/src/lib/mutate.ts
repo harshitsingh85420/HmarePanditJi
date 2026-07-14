@@ -21,10 +21,29 @@ import { api, type ApiResponse } from "@/lib/api";
 // money paths and FAILS the build if one bypasses this wrapper.
 // ─────────────────────────────────────────────────────────────
 
-const inFlight = new Map<string, Promise<ApiResponse<unknown>>>();
+const inFlight = new Map<string, Promise<unknown>>();
 
 export interface MutateOptions extends RequestInit {
   timeoutMs?: number;
+}
+
+/**
+ * Generic single-in-flight dedupe for ANY state-changing async action —
+ * including ones that cannot go through api() (e.g. a multipart FormData
+ * upload, which api() would break by forcing Content-Type: application/json).
+ * A second call with the same key while the first is pending returns the
+ * SAME promise, so a double-tap / voice+tap can never fire twice.
+ */
+export function once<T>(actionKey: string, fn: () => Promise<T>): Promise<T> {
+  const existing = inFlight.get(actionKey);
+  if (existing) return existing as Promise<T>;
+  const p = Promise.resolve()
+    .then(fn)
+    .finally(() => {
+      inFlight.delete(actionKey);
+    });
+  inFlight.set(actionKey, p);
+  return p;
 }
 
 /**
@@ -37,20 +56,11 @@ export function mutateOnce<T = unknown>(
   path: string,
   options: MutateOptions = {},
 ): Promise<ApiResponse<T>> {
-  const existing = inFlight.get(actionKey);
-  if (existing) return existing as Promise<ApiResponse<T>>;
-
   const headers: Record<string, string> = {
     ...(options.headers as Record<string, string>),
     "Idempotency-Key": actionKey,
   };
-
-  const p = api<T>(path, { ...options, headers }).finally(() => {
-    inFlight.delete(actionKey);
-  }) as Promise<ApiResponse<unknown>>;
-
-  inFlight.set(actionKey, p);
-  return p as Promise<ApiResponse<T>>;
+  return once(actionKey, () => api<T>(path, { ...options, headers }));
 }
 
 /** True while a mutation with this key is in flight (for UI disabling). */

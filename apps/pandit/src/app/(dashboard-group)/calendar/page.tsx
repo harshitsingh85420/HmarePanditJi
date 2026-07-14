@@ -5,6 +5,7 @@ import { DashboardVoiceNav } from "@/components/voice/DashboardVoiceNav";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { t } from "@/lib/i18n";
+import { mutateOnce } from "@/lib/mutate";
 import { api } from "@/lib/api";
 
 // UI Components
@@ -177,12 +178,12 @@ export default function CalendarPage() {
 
     let success = false;
     if (wasBlocked) {
-      const res = await api(`/pandit/blocked-dates/${dateKey}`, {
+      const res = await mutateOnce(`unblock-date:${dateKey}`, `/pandit/blocked-dates/${dateKey}`, {
         method: "DELETE",
       });
       success = res.success;
     } else {
-      const res = await api("/pandit/blocked-dates", {
+      const res = await mutateOnce(`block-date:${dateKey}`, "/pandit/blocked-dates", {
         method: "POST",
         body: JSON.stringify({ date: dateKey }),
       });

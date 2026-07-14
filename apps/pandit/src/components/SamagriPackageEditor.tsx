@@ -10,6 +10,7 @@
 
 import React, { useEffect, useState } from "react";
 import { t } from "@/lib/i18n";
+import { mutateOnce } from "@/lib/mutate";
 import { api } from "@/lib/api";
 import { Narrate } from "@/hooks/useScreenVoice";
 import { Button } from "@/components/ui/Button";
@@ -112,7 +113,7 @@ export function SamagriPackageEditor({
       { tier: "PREMIUM", price: pPrice || null, items },
     ];
 
-    const res = await api("/pandit/samagri-packages", {
+    const res = await mutateOnce(`samagri-save:${pujaType}`, "/pandit/samagri-packages", {
       method: "POST",
       body: JSON.stringify({ pujaType, tiers: payloadTiers }),
     });

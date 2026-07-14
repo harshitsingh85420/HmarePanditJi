@@ -11,6 +11,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { hi } from "@/lib/strings";
 import { t } from "@/lib/i18n";
+import { mutateOnce } from "@/lib/mutate";
 import { api } from "@/lib/api";
 import { Screen } from "@/components/ui/Screen";
 import { Card } from "@/components/ui/Card";
@@ -68,7 +69,7 @@ export default function MyPoojasPage() {
   }, []);
 
   const saveRate = async (pooja: string, amount: number) => {
-    const res = await api("/pandit/dakshina-rates", {
+    const res = await mutateOnce(`dakshina:${pooja}`, "/pandit/dakshina-rates", {
       method: "POST",
       body: JSON.stringify({ pujaType: pooja, amount }),
     });
@@ -82,7 +83,7 @@ export default function MyPoojasPage() {
   };
 
   const removePooja = async (pooja: string) => {
-    const res = await api(`/pandit/specializations/${encodeURIComponent(pooja)}`, {
+    const res = await mutateOnce(`remove-pooja:${pooja}`, `/pandit/specializations/${encodeURIComponent(pooja)}`, {
       method: "DELETE",
     });
     if (res.success) {
@@ -104,7 +105,7 @@ export default function MyPoojasPage() {
     if (!addPooja) return;
     const amount = parseInt(addValue, 10);
     const next = [...poojas, addPooja];
-    const res = await api("/pandit/profile", {
+    const res = await mutateOnce(`add-pooja:${addPooja}`, "/pandit/profile", {
       method: "PATCH",
       body: JSON.stringify({ specializations: next }),
     });
@@ -113,7 +114,7 @@ export default function MyPoojasPage() {
       return;
     }
     if (Number.isFinite(amount) && amount > 0) {
-      await api("/pandit/dakshina-rates", {
+      await mutateOnce(`dakshina:${addPooja}`, "/pandit/dakshina-rates", {
         method: "POST",
         body: JSON.stringify({ pujaType: addPooja, amount }),
       });
