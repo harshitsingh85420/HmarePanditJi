@@ -483,6 +483,29 @@ export default function HomePage() {
           </Card>
         )}
 
+        {/* अगली बुकिंग — the emotional centre: the very next upcoming booking,
+            shown as a warm hero above the lists. Display-only (existing data). */}
+        {(() => {
+          const todayNext = todayBookings.find((b) => b.status !== "COMPLETED" && b.status !== "CANCELLED");
+          const nb = todayNext || tomorrowBookings[0];
+          if (!nb) return null;
+          const when = todayNext ? "आज" : "कल";
+          return (
+            <button
+              onClick={() => router.push(nb.status === "REQUESTED" ? `/bookings/${nb.id}/request` : `/bookings/${nb.id}`)}
+              className="w-full text-left rounded-card border-2 border-saffron-200 bg-saffron-50 p-5 flex flex-col gap-2 active:scale-[0.99] transition-transform"
+            >
+              <span className="text-[15px] font-hindi font-bold text-saffron-700">🔔 अगली बुकिंग</span>
+              <span className="text-[25px] font-hindi font-extrabold text-temple-700 leading-snug">{nb.pujaType || nb.eventType}</span>
+              <div className="flex items-center gap-3 text-[16px] font-hindi text-softgrey">
+                <span className="font-bold text-leaf-700">{when}</span>
+                <span className="font-mono text-ink">{formatTime(nb.eventDate)}</span>
+              </div>
+              <span className="text-[15px] font-hindi text-softgrey truncate">📍 {nb.venueAddress?.split(",")[0]}</span>
+            </button>
+          );
+        })()}
+
         {/* TODAY'S BOOKINGS SECTION */}
         <Card className="p-4 bg-white border border-saffron-100 flex flex-col gap-3">
           <h3 className="text-[18px] font-bold text-temple-600 font-hindi border-b border-saffron-100 pb-2">
