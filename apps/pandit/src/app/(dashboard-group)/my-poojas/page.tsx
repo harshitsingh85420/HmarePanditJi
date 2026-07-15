@@ -180,13 +180,13 @@ export default function MyPoojasPage() {
               )}
 
               <span
-                className={`rounded-full px-3 py-1.5 text-[14px] font-bold font-hindi shrink-0 ${
+                className={`rounded-full px-3 py-1.5 text-[14px] font-bold font-hindi shrink-0 inline-flex items-center gap-1 ${
                   pending.includes(pooja)
-                    ? "bg-amber-100 text-amber-800"
+                    ? "bg-[#FFE9B8] text-brassdark"
                     : "bg-leaf-100 text-leaf-700"
                 }`}
               >
-                {pending.includes(pooja) ? t("myPoojas.pendingVerify") : t("myPoojas.verified")}
+                {pending.includes(pooja) ? `⏳ ${t("myPoojas.pendingVerify")}` : `✓ ${t("myPoojas.verified")}`}
               </span>
             </div>
           </Card>
