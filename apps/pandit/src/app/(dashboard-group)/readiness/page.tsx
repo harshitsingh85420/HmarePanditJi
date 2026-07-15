@@ -1103,11 +1103,13 @@ function StepR5(props: {
   const { bank, setBank, upi, setUpi, speak } = props;
   return (
     <>
-      {/* Aadhaar */}
+      {/* Aadhaar — why-first: the "परिवार आप पर भरोसा करेगा" reason is carried by
+          शिष्य's voice (R5 narration); the screen shows only a trust chip (anti-text). */}
       <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-3">
         <label className="text-[18px] font-bold text-temple-700 font-hindi">
           {t("onboarding.step6Title")}
         </label>
+        <span className="inline-flex items-center gap-2 self-start text-[13px] font-hindi font-extrabold text-leaf-700 bg-leaf-100 px-3 py-1.5 rounded-full">🔒 सुरक्षित · सिर्फ़ सत्यापन</span>
         <label className="w-full min-h-[140px] border-2 border-dashed border-saffron-300 rounded-card flex flex-col items-center justify-center p-4 bg-saffron-50/10 cursor-pointer active:bg-saffron-50/30 transition-all select-none">
           <input type="file" accept="image/*" onChange={props.onFileUpload} className="hidden" />
           {props.uploading ? (
