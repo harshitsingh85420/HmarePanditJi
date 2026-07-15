@@ -10,6 +10,15 @@ try {
   // env vars already set by hosting platform
 }
 
+// The repo-PUBLIC Aadhaar encryption placeholder. Safe ONLY for local dev.
+// Production MUST override ENCRYPTION_KEY with `openssl rand -hex 32`; booting
+// prod on this default would AES-"encrypt" real Aadhaar numbers under a key
+// anyone can read from git. A 500 is recoverable; a silent public-key leak of
+// citizens' Aadhaar is not — so production FATAL-crashes at boot instead of
+// falling back (same fail-fast spirit as the R2 storage prod guard / BB2).
+export const PLACEHOLDER_ENCRYPTION_KEY =
+  "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
+
 const envSchema = z.object({
   NODE_ENV: z
     .enum(["development", "test", "production"])
@@ -43,8 +52,10 @@ const envSchema = z.object({
 
   FIREBASE_ADMIN_SERVICE_ACCOUNT_KEY: z.string().default(""),
 
-  // Aadhaar AES-256 encryption key (64 hex chars = 32 bytes)
-  ENCRYPTION_KEY: z.string().default("0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"),
+  // Aadhaar AES-256 encryption key (64 hex chars = 32 bytes). The default is
+  // the PUBLIC placeholder — usable in dev only; production refuses to boot on
+  // it (see the fatal check below).
+  ENCRYPTION_KEY: z.string().default(PLACEHOLDER_ENCRYPTION_KEY),
 
   // Bhashini Voice AI
   BHASHINI_USER_ID: z.string().default(""),
@@ -101,3 +112,18 @@ if (!parsed.success) {
 
 export const env = parsed.data!;
 export type Env = typeof env;
+
+/** True when the Aadhaar key is missing, too short, or the public placeholder. */
+export function isInsecureEncryptionKey(key: string | undefined): boolean {
+  return !key || key.length < 64 || key === PLACEHOLDER_ENCRYPTION_KEY;
+}
+
+// SECURITY (Aadhaar) — production must NEVER run on the public placeholder key.
+// Fail fast at BOOT (not at the first Aadhaar submit) so a misconfigured
+// deploy can never persist a single real Aadhaar under a git-readable key.
+if (env.NODE_ENV === "production" && isInsecureEncryptionKey(env.ENCRYPTION_KEY)) {
+  console.error("❌  FATAL: ENCRYPTION_KEY is missing / too short / the PUBLIC repo placeholder in production.");
+  console.error("    Real Aadhaar must never be encrypted under a public key.");
+  console.error("    Set a real 32-byte key on the host and restart:  openssl rand -hex 32");
+  process.exit(1);
+}

@@ -7,7 +7,7 @@
  */
 
 import crypto from 'crypto';
-import { env } from '../config/env';
+import { env, isInsecureEncryptionKey, PLACEHOLDER_ENCRYPTION_KEY } from '../config/env';
 
 const ALGORITHM = 'aes-256-gcm';
 const IV_LENGTH = 16;
@@ -15,15 +15,18 @@ const TAG_LENGTH = 16;
 const ENCODING = 'hex' as const;
 
 function getEncryptionKey(): Buffer {
-    // Prefer the validated config (config/env carries a zod default) over raw
-    // process.env, so a missing OS env var never 500s the Aadhaar submit.
-    // ⚠ PROD MUST still set a real ENCRYPTION_KEY (≥32 bytes / 64 hex chars) on
-    // Render — the config default is a PUBLIC repo placeholder, insecure for
-    // real Aadhaar numbers.
     const key = process.env.ENCRYPTION_KEY || env.ENCRYPTION_KEY;
     if (!key || key.length < 64) {
         throw new Error(
             'ENCRYPTION_KEY must be set and be at least 32 bytes (64 hex characters)'
+        );
+    }
+    // Defense in depth: env.ts fatal-exits at boot on the public placeholder,
+    // but the encryption path itself must NEVER encrypt a real Aadhaar under a
+    // git-readable key in production. Dev may use the placeholder.
+    if (env.NODE_ENV === 'production' && (key === PLACEHOLDER_ENCRYPTION_KEY || isInsecureEncryptionKey(key))) {
+        throw new Error(
+            'Refusing to encrypt Aadhaar with the public placeholder ENCRYPTION_KEY in production — set a real key (openssl rand -hex 32)'
         );
     }
     return Buffer.from(key.slice(0, 64), 'hex');
