@@ -1,18 +1,24 @@
 "use client";
 
 // ─────────────────────────────────────────────────────────────
-// Tutorial v3 — the 16-slide script on the existing TutorialShell.
-// Narrations VERBATIM from strings.tutorial. Interactive: slide 3
-// (CoachSpotlight on the REAL शिष्य orb, requires a sleep→wake
-// cycle), slide 5 (mic permission + practice; spotlight on the
-// listening pill), slide 6 (temple bell once), slide 9 (home-tour demo
-// frame with 3 spotlight steps), slide 14 (मेरी पूजाएँ demo frame).
-// Demo frames reuse REAL components in a scaled pointer-events-none
-// container — no screenshots. Layout grammar: visual zone flex-1
-// min-h-0, narration max-h-[30%] overflow-y-auto, controls in footer.
+// Tutorial — the 6-scene "boring fix" deck on the existing
+// TutorialShell. Emotional-hook order (founder): कमाई → नई बुकिंग →
+// आवाज़ → सो जाओ/जागो → सत्यापन → स्वागत/शुरू करें. Each scene shows AT
+// MOST a short phrase (≤10 words); शिष्य's spoken narration carries the
+// explanation. Motion is transform/opacity only via lib/motion (A12 /
+// 6×-throttle safe, prefers-reduced-motion static fallbacks).
+//
+// IDENTITY LAW (Option A): the interactive behavior — आवाज़ mic practice,
+// सो जाओ/जागो mute gate, नई बुकिंग temple bell, स्वागत register CTA — is
+// keyed by an IDENTITY MARKER on the slide (SlideDef.interactive / .role),
+// NEVER by the slide's index. Position-keyed behavior silently breaks on
+// any reorder; identity markers let the deck be resequenced freely. Guard
+// tutorialIdentity.test.ts fails the build if an interactive check ever
+// regresses to a slide index.
 // ─────────────────────────────────────────────────────────────
 
 import React, { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { motion } from "framer-motion";
 import TutorialShell from "./screens/tutorial/TutorialShell";
 import { t } from "@/lib/i18n";
 import { useScreenVoice } from "@/hooks/useScreenVoice";
@@ -26,236 +32,195 @@ import { PopupPointer } from "@/components/moments/PopupPointer";
 import { MoneyCount } from "@/components/moments/MoneyCount";
 import { Button } from "@/components/ui/Button";
 import { CoachSpotlight } from "@/components/moments/CoachSpotlight";
-import { Card } from "@/components/ui/Card";
+import { useReduced, still, cardSlideIn, stampIn, breathe, DURATION, EASE } from "@/lib/motion";
 
 // Slide count lives in lib/onboarding-store so light pages (login back
 // law) can target the CTA slide without bundling the tutorial chunk.
 import { TUTORIAL_TOTAL } from "@/lib/onboarding-store";
 export { TUTORIAL_TOTAL };
 
+type Accent = { hex: string; textHex: string };
+type VisualFn = (accent: Accent) => React.ReactNode;
+
 interface SlideDef {
   title: string;
   narration: string;
   visual: VisualFn | null;
+  // IDENTITY markers — interactive behavior/one-shots follow the slide,
+  // never its position. See IDENTITY LAW above.
+  interactive?: "mic" | "mute";
+  role?: "bell" | "cta";
 }
 
-// ── Visuals — BIG flat emoji compositions (≥64px) on the slide's
-// festive canvas; ONE key number/label per slide at full accent
-// strength (slide 2's money stays on tulsi per spec). ────────────
-type VisualFn = (accent: { hex: string; textHex: string }) => React.ReactNode;
+// ── The 6 animated scenes ────────────────────────────────────
+// Each is a real component (so useReduced()/motion hooks work); the
+// VisualFn wrapper just instantiates it with the slide's accent.
 
-const V: Record<string, VisualFn> = {
-  s1: () => (
-    <>
-      <span className="text-[88px] leading-none select-none" aria-hidden="true">🙏</span>
-      <span className="text-[22px] font-bold text-temple-600 font-hindi">{t("shishya.name")}</span>
-    </>
-  ),
-  s2: () => (
-    <>
-      <div className="flex flex-col items-center">
+// कमाई — coins settle, then the earnings count up on tulsi.
+function SceneKamai() {
+  const reduced = useReduced();
+  return (
+    <div className="flex flex-col items-center gap-2">
+      <div className="flex items-center gap-3">
         <span className="t-hint text-softgrey font-hindi">पहले</span>
-        <span className="text-[24px] font-bold text-softgrey line-through">₹18,000</span>
+        <span className="text-[22px] font-bold text-softgrey line-through">₹18,000</span>
       </div>
-      <span className="text-[36px] leading-none" aria-hidden="true">⬇️</span>
+      <div className="flex items-end gap-1 h-8" aria-hidden="true">
+        {[0, 1, 2].map((i) => (
+          <motion.span
+            key={i}
+            className="text-[24px] leading-none"
+            initial={reduced ? false : { opacity: 0, y: -14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: DURATION.base, ease: EASE.out, delay: reduced ? 0 : 0.12 * i }}
+          >
+            🪙
+          </motion.span>
+        ))}
+      </div>
       <div className="flex flex-col items-center">
         <span className="t-hint text-leaf-700 font-hindi font-bold">अब</span>
-        {/* the money moment — animated count-up on tulsi */}
-        <MoneyCount target={63000} durationMs={1400} className="text-[44px] font-bold text-leaf-700" />
+        {/* the money moment — MoneyCount handles reduced-motion internally */}
+        <MoneyCount target={63000} durationMs={1400} className="text-[40px] font-bold text-leaf-700" />
       </div>
-    </>
-  ),
-  s3: (a) => (
-    <>
-      <span className="text-[64px] leading-none animate-bounce select-none" aria-hidden="true">⬇️</span>
-      <span className="text-[20px] font-bold font-hindi" style={{ color: a.textHex }}>नीचे — शिष्य</span>
-    </>
-  ),
-  s4: () => (
-    <>
-      <div className="flex items-center gap-4">
-        <span className="text-[64px]" aria-hidden="true">🗣️</span>
-        <span className="text-[28px] text-softgrey" aria-hidden="true">+</span>
-        <span className="text-[64px]" aria-hidden="true">⌨️</span>
-      </div>
-      <span className="text-[28px]" aria-hidden="true">↓</span>
-      <div className="w-full max-w-[260px] min-h-[56px] border-2 border-saffron-200 rounded-btn bg-white flex items-center px-4 text-softgrey text-[18px]">
-        एक ही खाना…
-      </div>
-    </>
-  ),
-  s6: (a) => (
-    <>
-      <span className="pa-bell-swing text-[64px] leading-none select-none" aria-hidden="true">🔔</span>
-      <div className="w-full max-w-[280px] bg-white rounded-card border border-saffron-100 p-4 flex flex-col gap-2">
+    </div>
+  );
+}
+
+// नई बुकिंग — the temple bell (rung once via role:"bell") + the request
+// card sliding in with the full, honest money breakdown.
+function SceneBooking({ accent }: { accent: Accent }) {
+  const reduced = useReduced();
+  return (
+    <div className="flex flex-col items-center gap-3">
+      <span className="pa-bell-swing text-[56px] leading-none select-none" aria-hidden="true">🔔</span>
+      <motion.div
+        className="w-full max-w-[280px] bg-white rounded-card border border-saffron-100 p-4 flex flex-col gap-1.5"
+        variants={reduced ? still(cardSlideIn) : cardSlideIn}
+        initial="hidden"
+        animate="show"
+      >
         <span className="t-body font-bold text-ink font-hindi">{t("booking.newRequest")}</span>
-        <span className="text-[20px] font-bold font-hindi" style={{ color: a.textHex }}>दक्षिणा ₹11,000</span>
+        <span className="text-[20px] font-bold font-hindi" style={{ color: accent.textHex }}>दक्षिणा ₹11,000</span>
         <span className="t-hint text-softgrey font-hindi">यात्रा ₹800 · भोजन ₹500</span>
-      </div>
-    </>
-  ),
-  s7: (a) => (
-    <div className="flex flex-col gap-2 w-full max-w-[280px]">
-      {["स्वीकार करें", "घर से निकले", "पहुँच गया", "🙏 पूजा संपन्न"].map((step, i) => (
-        <div key={step} className="flex items-center gap-3">
-          <span
-            className="w-9 h-9 rounded-full text-white text-[17px] font-bold flex items-center justify-center"
-            style={{ backgroundColor: a.hex }}
+      </motion.div>
+    </div>
+  );
+}
+
+// आवाज़ — the listening indicator: five bars breathing (scaleY only).
+// Interactive mic wiring lives in the render's `isMic` branch, not here.
+function SoundWaves() {
+  const reduced = useReduced();
+  if (reduced) {
+    return (
+      <span className="flex gap-1 h-6 items-center" aria-hidden="true">
+        {[0, 1, 2, 3, 4].map((i) => (
+          <span key={i} className="w-1.5 h-3 rounded-full bg-gold" />
+        ))}
+      </span>
+    );
+  }
+  const peaks = [0.4, 0.7, 1, 0.7, 0.4];
+  return (
+    <span className="flex gap-1 h-6 items-center" aria-hidden="true">
+      {peaks.map((p, i) => (
+        <motion.span
+          key={i}
+          className="w-1.5 rounded-full bg-gold origin-center"
+          style={{ height: 22 }}
+          animate={{ scaleY: [p, 1, p] }}
+          transition={{ duration: 0.9, repeat: Infinity, ease: "easeInOut", delay: i * 0.1 }}
+        />
+      ))}
+    </span>
+  );
+}
+
+// सो जाओ/जागो — शिष्य's orb dims to sleep (💤) and wakes, on a gentle
+// loop. The REAL interaction (tap the footer orb to mute/unmute) is the
+// CoachSpotlight gate in the render; this is the illustration of it.
+function SceneSleep({ accent }: { accent: Accent }) {
+  const reduced = useReduced();
+  return (
+    <div className="flex flex-col items-center gap-3">
+      <div className="relative w-[96px] h-[96px] flex items-center justify-center">
+        <motion.span
+          className="text-[72px] leading-none select-none"
+          aria-hidden="true"
+          animate={reduced ? undefined : { opacity: [1, 0.35, 1], scale: [1, 0.94, 1] }}
+          transition={reduced ? undefined : { duration: 3, repeat: Infinity, ease: "easeInOut" }}
+        >
+          🙏
+        </motion.span>
+        {!reduced && (
+          <motion.span
+            className="absolute -top-1 right-0 text-[26px]"
+            aria-hidden="true"
+            animate={{ opacity: [0, 1, 0] }}
+            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
           >
-            {i + 1}
-          </span>
-          <span className="t-body font-semibold text-ink font-hindi">{step}</span>
-        </div>
-      ))}
-    </div>
-  ),
-  s8: (a) => (
-    <>
-      <div className="flex items-center gap-3">
-        <span className="text-[64px]" aria-hidden="true">🙏</span>
-        <span className="text-[24px]" aria-hidden="true">→</span>
-        <span className="text-[64px]" aria-hidden="true">⏱️</span>
-        <span className="text-[24px]" aria-hidden="true">→</span>
-        <span className="text-[64px]" aria-hidden="true">🏦</span>
+            💤
+          </motion.span>
+        )}
       </div>
-      <span className="text-[26px] font-bold font-hindi" style={{ color: a.textHex }}>24 घंटे</span>
-    </>
-  ),
-  s9: (a) => (
-    <>
-      <span className="text-[72px]" aria-hidden="true">🛍️</span>
-      <span className="text-[30px] font-bold" style={{ color: a.textHex }}>₹2,100</span>
-    </>
-  ),
-  s10: () => (
-    <div className="grid grid-cols-7 gap-1 w-full max-w-[260px] py-2">
-      {Array.from({ length: 21 }, (_, i) => (
-        <span key={i} className={`h-8 rounded flex items-center justify-center text-[14px] ${i === 9 ? "bg-red-100 text-danger font-bold" : "bg-white border border-saffron-100 text-softgrey"}`}>
-          {i === 9 ? "✖" : i + 1}
-        </span>
-      ))}
+      <div className="flex items-center gap-2">
+        <span className="rounded-full px-3 py-1 text-[15px] font-bold font-hindi bg-white border border-saffron-100 text-softgrey">😴 सो जाओ</span>
+        <span className="rounded-full px-3 py-1 text-[15px] font-bold font-hindi text-white" style={{ backgroundColor: accent.hex }}>☀️ जागो</span>
+      </div>
     </div>
-  ),
-  s11: () => (
-    <div className="grid grid-cols-2 gap-3 w-full max-w-[300px]">
-      {["🪙 दक्षिणा आपकी", "⏱️ पैसा 24 घंटे", "🚆 यात्रा हमारी", "📞 मदद एक फ़ोन पर"].map((b) => (
-        <div key={b} className="bg-white border border-gold rounded-card px-3 py-3 text-center t-hint font-bold text-temple-600 font-hindi">
-          {b}
-        </div>
-      ))}
-    </div>
-  ),
-  s12: (a) => (
-    <>
-      <span className="text-[64px]" aria-hidden="true">🪪</span>
-      <span
-        className="rounded-full px-4 py-2 text-[18px] font-bold text-white font-hindi"
-        style={{ backgroundColor: a.hex }}
+  );
+}
+
+// सत्यापन — the ✓ badge lands like a stamp (scale overshoot + fade).
+function SceneVerify({ accent }: { accent: Accent }) {
+  const reduced = useReduced();
+  return (
+    <div className="flex flex-col items-center gap-3">
+      <span className="text-[56px] leading-none" aria-hidden="true">🪪</span>
+      <motion.span
+        className="rounded-full px-5 py-2 text-[18px] font-bold text-white font-hindi"
+        style={{ backgroundColor: accent.hex }}
+        variants={reduced ? still(stampIn) : stampIn}
+        initial="hidden"
+        animate="show"
       >
         ✓ प्रमाणित
-      </span>
-    </>
-  ),
-  s13: () => (
-    <>
-      <span className="text-[64px]" aria-hidden="true">📞</span>
-      <span className="t-body font-bold text-ink font-hindi text-center">सीधे बात कीजिए — टीम आपके साथ है</span>
-    </>
-  ),
-  s14: () => (
-    <span className="text-[88px] leading-none select-none" aria-hidden="true">🎉</span>
-  ),
-};
+      </motion.span>
+    </div>
+  );
+}
 
+// स्वागत — शिष्य's orb breathing, a warm close before the register CTA.
+function SceneWelcome() {
+  const reduced = useReduced();
+  return (
+    <div className="flex flex-col items-center gap-2">
+      <motion.span
+        className="text-[84px] leading-none select-none"
+        aria-hidden="true"
+        variants={reduced ? still(breathe) : breathe}
+        initial={false}
+        animate="show"
+      >
+        🙏
+      </motion.span>
+      <span className="text-[20px] font-bold text-temple-600 font-hindi">स्वागत है</span>
+    </div>
+  );
+}
+
+// ── The deck — कमाई-first emotional order. Narrations VERBATIM from
+// strings.tutorial (spoken explanation); on-screen text stays ≤10 words.
 function slideDefs(): SlideDef[] {
   return [
-    { title: t("tutorial.slide1Title"), narration: t("tutorial.slide1"), visual: V.s1 },
-    { title: t("tutorial.slide2Title"), narration: t("tutorial.slide2"), visual: V.s2 },
-    { title: t("tutorial.slide3Title"), narration: t("tutorial.slide3"), visual: V.s3 },
-    { title: t("tutorial.slide4Title"), narration: t("tutorial.slide4"), visual: V.s4 },
-    { title: t("tutorial.slide5Title"), narration: t("tutorial.slide5"), visual: null },
-    { title: t("tutorial.slide6Title"), narration: t("tutorial.slide6"), visual: V.s6 },
-    { title: t("tutorial.slide7Title"), narration: t("tutorial.slide7"), visual: V.s7 },
-    { title: t("tutorial.slide8Title"), narration: t("tutorial.slide8"), visual: V.s8 },
-    { title: t("tutorial.slideHomeTourTitle"), narration: t("tutorial.slideHomeTour"), visual: null }, // 9: demo frame
-    { title: t("tutorial.slide9Title"), narration: t("tutorial.slide9"), visual: V.s9 },
-    { title: t("tutorial.slide10Title"), narration: t("tutorial.slide10"), visual: V.s10 },
-    { title: t("tutorial.slide11Title"), narration: t("tutorial.slide11"), visual: V.s11 },
-    { title: t("tutorial.slide12Title"), narration: t("tutorial.slide12"), visual: V.s12 },
-    { title: t("tutorial.slidePoojasTitle"), narration: t("tutorial.slidePoojas"), visual: null }, // 14: demo frame
-    { title: t("tutorial.slide13Title"), narration: t("tutorial.slide13"), visual: V.s13 },
-    { title: t("tutorial.slide14Title"), narration: `${t("tutorial.slide14")} ${t("tutorial.rewatchNote")}`, visual: V.s14 },
+    { title: t("tutorial.slide2Title"), narration: t("tutorial.slide2"), visual: () => <SceneKamai /> },
+    { title: t("tutorial.slide6Title"), narration: t("tutorial.slide6"), visual: (a) => <SceneBooking accent={a} />, role: "bell" },
+    { title: t("tutorial.slide5Title"), narration: t("tutorial.slide5"), visual: null, interactive: "mic" },
+    { title: t("tutorial.slide3Title"), narration: t("tutorial.slide3"), visual: (a) => <SceneSleep accent={a} />, interactive: "mute" },
+    { title: t("tutorial.slide12Title"), narration: t("tutorial.slide12"), visual: (a) => <SceneVerify accent={a} /> },
+    { title: t("tutorial.slide14Title"), narration: `${t("tutorial.slide14")} ${t("tutorial.rewatchNote")}`, visual: () => <SceneWelcome />, role: "cta" },
   ];
-}
-
-
-// ── Demo frames: REAL components, scaled, pointer-events-none ─
-function MiniHomeDemo({
-  step,
-  refs,
-}: {
-  step: number;
-  refs: [React.MutableRefObject<HTMLDivElement | null>, React.MutableRefObject<HTMLDivElement | null>, React.MutableRefObject<HTMLDivElement | null>];
-}) {
-  void step;
-  return (
-    <div aria-hidden="true" className="pointer-events-none select-none origin-top scale-[0.82] w-full max-w-[360px] mx-auto flex flex-col gap-3 bg-cream rounded-card border border-saffron-100 p-3">
-      <div ref={refs[0]}>
-        <div className="w-full h-16 rounded-btn bg-leaf-700 text-white flex items-center justify-center font-bold text-[20px] font-hindi online-glow">
-          {t("home.goOffline")}
-        </div>
-      </div>
-      <div ref={refs[1]}>
-        <Card className="p-4 bg-white border border-saffron-100 flex flex-col gap-1">
-          <span className="text-[16px] font-bold text-temple-600 font-hindi">{t("home.todayBookings")}</span>
-          <div className="flex items-center justify-between">
-            <div className="flex flex-col">
-              <span className="text-[22px] font-bold text-ink font-mono">03:00 PM</span>
-              <span className="text-[16px] font-bold text-temple-700 font-hindi">सत्यनारायण कथा</span>
-            </div>
-            <span className="text-[16px] font-bold text-leaf-700 font-hindi">मिलेगा ₹11,000</span>
-          </div>
-        </Card>
-      </div>
-      <div ref={refs[2]}>
-        {/* static replica of the thali nav — no live buttons, no second orb */}
-        <div className="relative w-full bg-[#FFF9EE] border-t-2 border-gold h-[72px] flex items-center justify-between px-2">
-          {[t("nav.home"), t("nav.bookings")].map((label, i) => (
-            <span key={label} className={`flex-1 text-center text-[13px] font-bold font-hindi ${i === 0 ? "text-saffron-600" : "text-softgrey"}`}>
-              {i === 0 ? "🏠" : "📿"} {label}
-            </span>
-          ))}
-          <span className="w-[66px] h-[66px] -mt-8 rounded-full bg-saffron-500 border-4 border-gold flex items-center justify-center text-[28px] shrink-0">🙏</span>
-          {[t("nav.earnings"), t("nav.calendar")].map((label, i) => (
-            <span key={label} className="flex-1 text-center text-[13px] font-bold text-softgrey font-hindi">
-              {i === 0 ? "💰" : "📅"} {label}
-            </span>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function MiniPoojasDemo({ addRef }: { addRef: React.MutableRefObject<HTMLDivElement | null> }) {
-  return (
-    <div aria-hidden="true" className="pointer-events-none select-none origin-top scale-[0.82] w-full max-w-[360px] mx-auto flex flex-col gap-3 bg-cream rounded-card border border-saffron-100 p-3">
-      {["सत्यनारायण कथा", "गृह प्रवेश"].map((pj) => (
-        <Card key={pj} className="p-4 bg-white border border-saffron-100 flex items-center justify-between">
-          <div className="flex flex-col">
-            <span className="text-[20px] font-bold text-ink font-hindi">{pj}</span>
-            <span className="t-money text-[18px]">₹11,000</span>
-          </div>
-          <span className="bg-leaf-100 text-leaf-700 rounded-full px-3 py-1 text-[14px] font-bold font-hindi">✓ प्रमाणित</span>
-        </Card>
-      ))}
-      <div ref={addRef}>
-        <div className="w-full min-h-[56px] bg-saffron-500 text-[#FFF3EA] rounded-btn text-[18px] font-bold flex items-center justify-center font-hindi">
-          + नई पूजा जोड़ें
-        </div>
-      </div>
-    </div>
-  );
 }
 
 export interface TutorialV2Props {
@@ -279,61 +244,38 @@ export default function TutorialV2({
   const idx = Math.min(TUTORIAL_TOTAL, Math.max(1, slide)) - 1;
   const def = defs[idx];
 
-  // Slide 3: spotlight target = the REAL शिष्य orb in the footer.
-  // Held in state (not just a ref) so finding it triggers the render
-  // that actually mounts the spotlight.
+  // IDENTITY markers (never positions) — every interactive check keys off
+  // these, so the deck can be reordered without touching a line below.
+  const isMic = def.interactive === "mic";
+  const isMute = def.interactive === "mute";
+  const isBell = def.role === "bell";
+  const isCta = def.role === "cta";
+
+  // सो जाओ slide: spotlight target = the REAL शिष्य orb in the footer.
+  // Held in state (not just a ref) so finding it triggers the render that
+  // actually mounts the spotlight.
   const fabRef = useRef<HTMLElement | null>(null);
   const [fabEl, setFabEl] = useState<HTMLElement | null>(null);
+  // आवाज़ slide: spotlight the listening pill when it appears.
+  const pillRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
     const el = document.querySelector('[aria-label*="शिष्य"]') as HTMLElement | null;
     fabRef.current = el;
     setFabEl(el);
   }, [idx]);
 
-  // Slide 9 home-tour stepping + demo refs
-  const [tourStep, setTourStep] = useState(0);
-  const tourRef1 = useRef<HTMLDivElement | null>(null);
-  const tourRef2 = useRef<HTMLDivElement | null>(null);
-  const tourRef3 = useRef<HTMLDivElement | null>(null);
-  useEffect(() => {
-    if (idx !== 8) setTourStep(0);
-  }, [idx]);
-  // Spotlight targets must be IN view before the cutout is meaningful
-  useEffect(() => {
-    if (idx !== 8) return;
-    const refs = [tourRef1, tourRef2, tourRef3];
-    const t = setTimeout(() => {
-      refs[Math.min(tourStep, 2)]?.current?.scrollIntoView({ block: "center" });
-    }, 350);
-    return () => clearTimeout(t);
-  }, [idx, tourStep]);
-
-  // Slide 14 poojas demo ref + one-shot spotlight
-  const poojasAddRef = useRef<HTMLDivElement | null>(null);
-  const [poojasSpotDone, setPoojasSpotDone] = useState(false);
-  useEffect(() => {
-    if (idx !== 13) setPoojasSpotDone(false);
-    if (idx === 13) {
-      const t = setTimeout(() => poojasAddRef.current?.scrollIntoView({ block: "center" }), 350);
-      return () => clearTimeout(t);
-    }
-  }, [idx]);
-
-  // Slide 5: spotlight the listening pill when it appears
-  const pillRef = useRef<HTMLDivElement | null>(null);
-
-  // J2: every slide ends by INVITING the voice answer. Slide 3 is the
+  // J2: every slide ends by INVITING the voice answer. सो जाओ/जागो is the
   // exception — asking "हाँ बोलिए" while Next is gate-locked would be a
   // lie, so its ask is spoken the moment the gate opens instead.
   const advanceAsk = t("tutorial.advanceAsk");
   const narrationFor = (i: number) =>
-    i === 2 ? defs[i].narration : `${defs[i].narration} ${advanceAsk}`;
+    defs[i]?.interactive === "mute" ? defs[i].narration : `${defs[i].narration} ${advanceAsk}`;
 
   // S3: on the CTA slide the narration asks "शुरू करें?" — the primary
   // registration button glows for the line.
   const ctaBtnRef = useRef<HTMLDivElement | null>(null);
   useScreenVoice(narrationFor(idx), {
-    highlightRef: idx === TUTORIAL_TOTAL - 1 ? ctaBtnRef : undefined,
+    highlightRef: isCta ? ctaBtnRef : undefined,
   });
 
   // D3c: warm the NEXT slide's narration while this one plays
@@ -342,7 +284,7 @@ export default function TutorialV2({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [idx]);
 
-  // ── Slide 3 gate: one mute→unmute cycle OR 10s timeout ─────
+  // ── सो जाओ/जागो gate: one mute→unmute cycle OR 10s timeout ─────
   const muted = useSyncExternalStore(
     voiceController.subscribe,
     () => voiceController.muted,
@@ -351,7 +293,7 @@ export default function TutorialV2({
   const [sawMute, setSawMute] = useState(false);
   const [gateOpen, setGateOpen] = useState(false);
   useEffect(() => {
-    if (idx !== 2) return;
+    if (!isMute) return;
     setSawMute(false);
     setGateOpen(false);
     const timer = setTimeout(() => {
@@ -364,7 +306,7 @@ export default function TutorialV2({
   }, [idx]);
   const [burst, setBurst] = useState(false);
   useEffect(() => {
-    if (idx !== 2) return;
+    if (!isMute) return;
     if (muted) setSawMute(true);
     else if (sawMute && !gateOpen) {
       // completed mute → unmute cycle — celebrate!
@@ -376,15 +318,16 @@ export default function TutorialV2({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [muted, sawMute, gateOpen, idx]);
 
-  // ── Slide 5: mic permission + practice ─────────────────────
+  // ── आवाज़ slide: mic permission + practice ─────────────────
   const [micState, setMicState] = useState<"idle" | "asking" | "listening" | "done" | "denied">("idle");
   // Browser-level permission state (permissions.query where available):
   // 'granted' → no prompt will show, straight to practice; 'denied' →
   // recovery copy + retry; 'prompt'/'unknown' → the tap fires the prompt.
   // Z2 U4 LAW: परिचय is the ONE mic-prompt moment. Seed micPerm
-  // SYNCHRONOUSLY from the stored grant so slide 5 never flashes the
-  // ask-button (and never re-prompts) for a pandit who already granted;
-  // the async permissions.query below only corrects a genuine mismatch.
+  // SYNCHRONOUSLY from the stored grant so the आवाज़ slide never flashes
+  // the ask-button (and never re-prompts) for a pandit who already
+  // granted; the async permissions.query below only corrects a genuine
+  // mismatch.
   const [micPerm, setMicPerm] = useState<"granted" | "denied" | "prompt" | "unknown">(() => {
     try {
       return localStorage.getItem("mic_permission_granted") === "true" ? "granted" : "unknown";
@@ -394,7 +337,7 @@ export default function TutorialV2({
   });
   const voiceInput = useVoiceInput();
   useEffect(() => {
-    if (idx !== 4) return;
+    if (!isMic) return;
     // परिचय already earned the mic for most users — the stored flag is an
     // instant hint (the query corrects it if the browser disagrees).
     try {
@@ -416,6 +359,7 @@ export default function TutorialV2({
       disposed = true;
       if (status) status.onchange = null;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [idx]);
 
   const [pointerUp, setPointerUp] = useState(false);
@@ -431,7 +375,7 @@ export default function TutorialV2({
     }
     if (voiceController.e2e) {
       // E2E traversal: no native prompts; practice resolves immediately
-      voiceController.debug("e2e: tutorial-s5 bypassed");
+      voiceController.debug("e2e: tutorial-mic bypassed");
       setMicState("done");
       return;
     }
@@ -440,15 +384,15 @@ export default function TutorialV2({
     // pre-blocked on permissions.query alone. Recovery copy appears only
     // after a rejection that the query CONFIRMS as browser-level denied.
     const streamPromise = navigator.mediaDevices.getUserMedia({ audio: true });
-    voiceController.debug("perm: getUserMedia invoked (tutorial s5)");
+    voiceController.debug("perm: getUserMedia invoked (tutorial mic)");
     setPointerUp(true);
     setMicState("asking");
     voiceController.speak(t("perm.pressAllowVoice"));
     void streamPromise
       .then(async (stream) => {
         setPointerUp(false);
-        voiceController.debug("perm: settled(granted) (tutorial s5)");
-        voiceController.stopSpeech("tutorial-s5:grant-settle");
+        voiceController.debug("perm: settled(granted) (tutorial mic)");
+        voiceController.stopSpeech("tutorial-mic:grant-settle");
         localStorage.setItem("mic_permission_granted", "true");
         setMicPerm("granted");
         onMicGranted();
@@ -468,7 +412,7 @@ export default function TutorialV2({
           } catch { /* query unsupported -> treat as dismissed */ }
         }
         if (name === "NotFoundError" || state === "denied") {
-          voiceController.debug("perm: settled(denied) (tutorial s5)");
+          voiceController.debug("perm: settled(denied) (tutorial mic)");
           localStorage.setItem("mic_permission_granted", "false");
           setMicPerm("denied");
           setMicState("denied");
@@ -476,7 +420,7 @@ export default function TutorialV2({
           voiceController.speak(t("tutorial.slide5Denied"));
         } else {
           // popup dismissed — keep the button alive, no deny flags
-          voiceController.debug("perm: settled(dismissed) (tutorial s5)");
+          voiceController.debug("perm: settled(dismissed) (tutorial mic)");
           setMicState("idle");
           voiceController.speak(t("parichay.dismissed"));
         }
@@ -486,7 +430,7 @@ export default function TutorialV2({
   // Practice resolution: the listen machinery finishing (with or without
   // a transcript — the point is that the mic worked) completes the drill.
   useEffect(() => {
-    if (idx !== 4 || micState !== "listening") return;
+    if (!isMic || micState !== "listening") return;
     if (voiceInput.state === "idle" && voiceInput.transcript !== null) {
       setMicState("done");
       voiceController.speak(t("tutorial.slide5Practice"));
@@ -494,54 +438,50 @@ export default function TutorialV2({
       setMicState("done");
       voiceController.speak(t("tutorial.slide5Practice"));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [idx, micState, voiceInput.state, voiceInput.transcript]);
 
-  // Leaving slide 5 mid-practice: stop the recorder so a late result
-  // can't speak or celebrate over a later slide.
+  // Leaving the आवाज़ slide mid-practice: stop the recorder so a late
+  // result can't speak or celebrate over a later slide.
   useEffect(() => {
-    if (idx === 4) return;
+    if (isMic) return;
     voiceInput.reset();
     setMicState((m) => (m === "listening" || m === "asking" ? "idle" : m));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [idx]);
   useEffect(() => {
-    if (micState === "done" && idx === 4) {
+    if (micState === "done" && isMic) {
       setBurst(true);
       playChime();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [micState, idx]);
   useEffect(() => {
     setBurst(false);
   }, [idx]);
 
-  // ── Slide 6: temple bell once on mount ─────────────────────
+  // ── नई बुकिंग slide: temple bell once on mount ─────────────
   const rangRef = useRef(false);
   useEffect(() => {
-    if (idx === 5 && !rangRef.current) {
+    if (isBell && !rangRef.current) {
       rangRef.current = true;
       playBell();
     }
-    if (idx !== 5) rangRef.current = false;
+    if (!isBell) rangRef.current = false;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [idx]);
 
-  const tourStrings = [
-    { title: t("tutorial.tourStep1Title"), line: t("tutorial.tourStep1"), ref: tourRef1 },
-    { title: t("tutorial.tourStep2Title"), line: t("tutorial.tourStep2"), ref: tourRef2 },
-    { title: t("tutorial.tourStep3Title"), line: t("tutorial.tourStep3"), ref: tourRef3 },
-  ];
-
-  // ── Slide 14 (CTA) ──────────────────────────────────────────
+  // ── CTA slide ───────────────────────────────────────────────
   const [stay, setStay] = useState(false);
 
   const goNext = () => onSlideChange(Math.min(TUTORIAL_TOTAL, slide + 1));
   const goBack = () => onSlideChange(Math.max(1, slide - 1));
   const skipToCta = () => onSlideChange(TUTORIAL_TOTAL);
 
-  const nextDisabled = idx === 2 && !gateOpen;
-  const isCta = idx === TUTORIAL_TOTAL - 1;
+  const nextDisabled = isMute && !gateOpen;
 
-  // J2: the whole tutorial answers by voice. हाँ/आगे advance (the slide-3
-  // gate refuses politely; the slide-5 popup/practice moment stays quiet —
+  // J2: the whole tutorial answers by voice. हाँ/आगे advance (the सो जाओ
+  // gate refuses politely; the आवाज़ popup/practice moment stays quiet —
   // a spoken हाँ there is aimed at the mic, not the slide). छोड़ो jumps to
   // the CTA, पीछे retreats. On the CTA slide हाँ/शुरू/रजिस्ट्रेशन register
   // and बाद-में/छोड़ो defer. फिर-से/मदद/सो-जाओ come from the global grammar.
@@ -550,7 +490,7 @@ export default function TutorialV2({
       keywords: [...YES, ...NEXT, "रजिस्ट्रेशन", "रजिस्टर", "registration", "शुरू", "start"],
       action: () => {
         if (isCta) return onRegister();
-        if (idx === 4 && (micState === "asking" || micState === "listening")) return;
+        if (isMic && (micState === "asking" || micState === "listening")) return;
         if (nextDisabled) {
           voiceController.speak(t("coach.tryIt"));
           return;
@@ -578,7 +518,7 @@ export default function TutorialV2({
     },
   ], t("help.tutorial"));
 
-  if (idx === TUTORIAL_TOTAL - 1) {
+  if (isCta) {
     return (
       <TutorialShell
         currentDot={TUTORIAL_TOTAL}
@@ -621,11 +561,7 @@ export default function TutorialV2({
         {/* Visual zone: the festive slide canvas (accent rotates idx % 5) */}
         <div className="relative w-full shrink-0">
           <SlideCanvas accentIndex={idx}>
-            {idx === 8 ? (
-              <MiniHomeDemo step={tourStep} refs={[tourRef1, tourRef2, tourRef3]} />
-            ) : idx === 13 ? (
-              <MiniPoojasDemo addRef={poojasAddRef} />
-            ) : idx === 4 ? (
+            {isMic ? (
               <div className="w-full max-w-[300px] flex flex-col items-center gap-3 bg-white rounded-card border border-saffron-100 p-5">
                 <span className="text-[64px]" aria-hidden="true">🗣️</span>
                 {micState === "denied" ? (
@@ -661,6 +597,7 @@ export default function TutorialV2({
                   )
                 ) : micState === "listening" ? (
                   <>
+                    <SoundWaves />
                     <div ref={pillRef}>
                       <span className="bg-gold/15 border border-gold text-temple-600 text-[18px] font-semibold font-hindi rounded-full px-4 py-2">
                         {t("pratham.practiceListening")}
@@ -687,11 +624,11 @@ export default function TutorialV2({
         <h2 className="t-title font-bold text-temple-600 font-hindi">{def.title}</h2>
         <p className="t-body text-ink font-hindi leading-relaxed">{def.narration}</p>
 
-        {/* Arrow + chip pointing at the NATIVE permission popup (slide 5) */}
+        {/* Arrow + chip pointing at the NATIVE permission popup (आवाज़) */}
         {pointerUp && <PopupPointer />}
 
-        {/* Slide 3: spotlight the REAL शिष्य orb; gate opens on the cycle */}
-        {idx === 2 && !gateOpen && fabEl && (
+        {/* सो जाओ/जागो: spotlight the REAL शिष्य orb; gate opens on the cycle */}
+        {isMute && !gateOpen && fabEl && (
           <CoachSpotlight
             targetRef={fabRef}
             title={t("tutorial.slide3Title")}
@@ -700,27 +637,6 @@ export default function TutorialV2({
             onDone={() => { /* gate opens via the mute→unmute subscription */ }}
           />
         )}
-
-        {/* Slide 9: home tour — spotlight steps INSIDE the demo frame */}
-        {idx === 8 && tourStep < 3 && (
-          <CoachSpotlight
-            targetRef={tourStrings[tourStep].ref}
-            title={tourStrings[tourStep].title}
-            line={tourStrings[tourStep].line}
-            onDone={() => setTourStep((t) => t + 1)}
-          />
-        )}
-
-        {/* Slide 14: spotlight the + नई पूजा जोड़ें demo button */}
-        {idx === 13 && !poojasSpotDone && (
-          <CoachSpotlight
-            targetRef={poojasAddRef}
-            title={t("tutorial.slidePoojasTitle")}
-            line={t("tutorial.slidePoojas")}
-            onDone={() => setPoojasSpotDone(true)}
-          />
-        )}
-
       </div>
     </TutorialShell>
   );

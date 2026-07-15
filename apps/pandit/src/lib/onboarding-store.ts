@@ -59,7 +59,7 @@ export interface OnboardingState {
   // Tutorial state
   tutorialStarted: boolean
   tutorialCompleted: boolean
-  currentTutorialScreen: number // 1-12
+  currentTutorialScreen: number // 1-based, 1..TUTORIAL_TOTAL
 
   // Voice tutorial
   voiceTutorialSeen: boolean
@@ -86,8 +86,9 @@ export const STORAGE_KEY = 'hpj_pandit_onboarding_v1'
 
 // TutorialV2 slide count (slide TUTORIAL_TOTAL = the register CTA).
 // Lives here so light pages (e.g. /login's back-to-tutorial law) can
-// target the CTA slide without importing the tutorial chunk.
-export const TUTORIAL_TOTAL = 16
+// target the CTA slide without importing the tutorial chunk. The 6-scene
+// "boring fix" deck: कमाई → नई बुकिंग → आवाज़ → सो जाओ/जागो → सत्यापन → स्वागत.
+export const TUTORIAL_TOTAL = 6
 
 export const DEFAULT_STATE: OnboardingState = {
   phase: 'SPLASH',
@@ -229,8 +230,8 @@ function validateOnboardingState(parsed: Partial<OnboardingState>): Partial<Onbo
   validated.detectedCity = typeof parsed.detectedCity === 'string' ? parsed.detectedCity : ''
   validated.detectedState = typeof parsed.detectedState === 'string' ? parsed.detectedState : ''
 
-  // Validate number fields
-  if (typeof parsed.currentTutorialScreen === 'number' && parsed.currentTutorialScreen >= 1 && parsed.currentTutorialScreen <= 12) {
+  // Validate number fields (clamp a stale persisted screen to the deck size)
+  if (typeof parsed.currentTutorialScreen === 'number' && parsed.currentTutorialScreen >= 1 && parsed.currentTutorialScreen <= TUTORIAL_TOTAL) {
     validated.currentTutorialScreen = parsed.currentTutorialScreen
   } else {
     validated.currentTutorialScreen = 1
