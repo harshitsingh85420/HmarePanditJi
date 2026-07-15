@@ -36,6 +36,7 @@ import { useVoiceCommands, useVoiceOptions } from "@/hooks/useVoiceScreen";
 import { setAgentUserState } from "@/lib/shishyaAgent";
 import { YES, NO, NEXT, BACK, SKIP } from "@/lib/voiceGrammar";
 import { SamagriPackageEditor } from "@/components/SamagriPackageEditor";
+import { PriceHonestyMeter } from "@/components/PriceHonestyMeter";
 import { usePresignedUrl } from "@/hooks/usePresignedUrl";
 import { useVoice } from "@/hooks/useVoice";
 import { voiceController } from "@/lib/voiceController";
@@ -980,6 +981,19 @@ function StepR3({ travel, setTravel }: { travel: TravelPrefs; setTravel: (v: Tra
           onChange={(v) => setTravel({ ...travel, localCabOk: v })}
         />
       </Card>
+
+      {/* PRICE-HONESTY METER — computed live from the real costing rules; it
+          recomputes as the travel toggles change. */}
+      <PriceHonestyMeter
+        dakshina={2100}
+        prefs={{
+          selfDrive: travel.ownVehicle.enabled,
+          train: travel.train.enabled,
+          flight: travel.flight.enabled,
+          dailyFoodAllowance: null,
+          stayAtHome: null,
+        }}
+      />
     </>
   );
 }
