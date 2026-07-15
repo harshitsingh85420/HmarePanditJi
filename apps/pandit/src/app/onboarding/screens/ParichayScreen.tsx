@@ -40,7 +40,7 @@ import { useVoiceInput } from "@/hooks/useVoiceInput";
 import { useSafeOnboardingStore } from "@/lib/stores/ssr-safe-stores";
 import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
 import { Button } from "@/components/ui/Button";
-import { Toran } from "@/components/ui/Toran";
+import { Header } from "@/components/ui/Header";
 import { PopupPointer } from "@/components/moments/PopupPointer";
 
 type Stage = "auto" | "needstart" | "asking" | "granted" | "practice" | "dismissed" | "leaving";
@@ -303,15 +303,8 @@ export default function ParichayScreen({ onDone }: { onDone: () => void }) {
 
   return (
     <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
-      {/* Festive header band (entry grammar) */}
-      <header className="shrink-0">
-        <div className="h-[60px] bg-gradient-to-r from-genda to-saffron-500 px-4 flex items-center">
-          <h1 className="font-display text-[22px] text-white flex-1 text-center">
-            {t("welcome.titleShort")}
-          </h1>
-        </div>
-        <Toran tone="onSindoor" className="bg-saffron-500" />
-      </header>
+      {/* Festive header band — kit Header (genda→sindoor + Toran, #FFE8D2 title) */}
+      <Header festive title={<span className="font-display">{t("welcome.titleShort")}</span>} />
 
       <main className="flex-1 overflow-y-auto px-6 pt-8 pb-6 flex flex-col items-center gap-5 text-center">
         {/* शिष्य himself — LARGE, rippling while he speaks */}
