@@ -34,6 +34,7 @@ export default function MyPoojasPage() {
   const [loading, setLoading] = useState(true);
   const [poojas, setPoojas] = useState<string[]>([]);
   const [pending, setPending] = useState<string[]>([]);
+  const [verifications, setVerifications] = useState<Record<string, { status: string; rejectionReason: string | null }>>({});
   const [rates, setRates] = useState<RateMap>({});
   const [editing, setEditing] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
@@ -57,6 +58,18 @@ export default function MyPoojasPage() {
       if (map[svc.pujaType] === undefined) map[svc.pujaType] = svc.dakshinaAmount;
     });
     setRates(map);
+
+    // 3-state verification from the per-puja rows (replaces the legacy 2-state
+    // pendingPoojaVerifications array): APPROVED ✓ / REJECTED ✗ +reason / PENDING ⏳.
+    const vres = await api("/pandit/pooja-verifications");
+    if (vres.success && vres.data?.latest) {
+      const vmap: Record<string, { status: string; rejectionReason: string | null }> = {};
+      for (const r of vres.data.latest as Array<{ poojaType: string; status: string; rejectionReason: string | null }>) {
+        vmap[r.poojaType] = { status: r.status, rejectionReason: r.rejectionReason ?? null };
+      }
+      setVerifications(vmap);
+    }
+
     setLoading(false);
   };
 
@@ -179,16 +192,35 @@ export default function MyPoojasPage() {
                 </button>
               )}
 
-              <span
-                className={`rounded-full px-3 py-1.5 text-[14px] font-bold font-hindi shrink-0 inline-flex items-center gap-1 ${
-                  pending.includes(pooja)
-                    ? "bg-[#FFE9B8] text-brassdark"
-                    : "bg-leaf-100 text-leaf-700"
-                }`}
-              >
-                {pending.includes(pooja) ? `⏳ ${t("myPoojas.pendingVerify")}` : `✓ ${t("myPoojas.verified")}`}
-              </span>
+              {(() => {
+                const v = verifications[pooja];
+                // fall back to the legacy pending array until a verification row exists
+                const status = v?.status ?? (pending.includes(pooja) ? "PENDING" : "APPROVED");
+                const cls =
+                  status === "REJECTED" ? "bg-red-50 text-danger"
+                    : status === "PENDING" ? "bg-[#FFE9B8] text-brassdark"
+                      : "bg-leaf-100 text-leaf-700";
+                const label =
+                  status === "REJECTED" ? `✗ ${t("myPoojas.rejected")}`
+                    : status === "PENDING" ? `⏳ ${t("myPoojas.pendingVerify")}`
+                      : `✓ ${t("myPoojas.verified")}`;
+                return (
+                  <span className={`rounded-full px-3 py-1.5 text-[14px] font-bold font-hindi shrink-0 inline-flex items-center gap-1 ${cls}`}>
+                    {label}
+                  </span>
+                );
+              })()}
             </div>
+
+            {(() => {
+              const v = verifications[pooja];
+              if (v?.status !== "REJECTED" || !v?.rejectionReason) return null;
+              return (
+                <p className="text-[14px] text-danger font-hindi leading-snug">
+                  {t("myPoojas.rejectedReasonPrefix")} {v.rejectionReason}
+                </p>
+              );
+            })()}
           </Card>
         ))}
 

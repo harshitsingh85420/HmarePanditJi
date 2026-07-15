@@ -591,6 +591,8 @@ export const hi = {
     addBtn: "+ नई पूजा जोड़ें",
     verified: "✓ प्रमाणित",
     pendingVerify: "सत्यापन बाकी",
+    rejected: "अस्वीकृत",
+    rejectedReasonPrefix: "कारण:",
     removeBlocked: "इस पूजा की बुकिंग चल रही है — अभी हटा नहीं सकते",
     pickPooja: "कौन सी पूजा जोड़ें?",
     dakshinaLabel: "दक्षिणा तय करें",
