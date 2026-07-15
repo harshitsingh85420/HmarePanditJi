@@ -561,6 +561,7 @@ export const hi = {
     logoutConfirm: "क्या आप वाकई लॉगआउट करना चाहते हैं?",
   },
   helpScreen: {
+    title: "सहायता",
     call: "📞 फ़ोन करें",
     rewatchTutorial: "🔁 ट्यूटोरियल फिर देखें",
     emergency: "🆘 आपातकाल",

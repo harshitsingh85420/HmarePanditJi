@@ -9,11 +9,15 @@ import { useSafeOnboardingStore } from '@/lib/stores/ssr-safe-stores'
 import { motion } from 'framer-motion'
 import { speakWithSarvam } from '@/lib/sarvam-tts'
 import { useEffect } from 'react'
+import { Header } from '@/components/ui/Header'
+import { Button } from '@/components/ui/Button'
 import { ShishyaOrb } from '@/components/ui/ShishyaOrb'
+import { useReduced } from '@/lib/motion'
 
 export default function HelpPage() {
   const router = useRouter()
   const { setPhase, setCurrentTutorialScreen } = useSafeOnboardingStore()
+  const reduced = useReduced()
 
   useEffect(() => {
     void speakWithSarvam({ text: 'कैसे मदद करें? हमारी टीम तैयार है।', languageCode: 'hi-IN' })
@@ -21,74 +25,87 @@ export default function HelpPage() {
 
   const handleGoBack = () => router.back()
 
-
   return (
-    <main className="w-full h-[100dvh] max-w-[390px] xs:max-w-[430px] mx-auto bg-surface-base flex flex-col">
-      {/* Top Bar */}
-      <div className="min-h-[52px] xs:min-h-[56px] sm:min-h-[72px] px-4 xs:px-6 flex items-center justify-between border-b border-border-default">
-        <div className="flex items-center gap-2">
-          <button onClick={handleGoBack} className="w-12 h-12 xs:w-14 xs:h-14 sm:w-16 sm:h-16 flex items-center justify-center text-saffron rounded-full active:bg-black/5 focus:ring-2 focus:ring-primary focus:outline-none" aria-label="Go back">
-            <svg className="w-6 h-6 xs:w-7 xs:h-7 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+    <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
+      <Header festive title={t("helpScreen.title")} showBack onBack={handleGoBack} />
+
+      <main className="flex-1 overflow-y-auto px-4 pt-4 pb-6 flex flex-col page-enter">
+        {/* Illustration — the helping-hands hero */}
+        <section className="flex justify-center">
+          <div className="w-full max-w-[280px] h-[140px] flex items-center justify-center">
+            <motion.span
+              className="text-[80px] block leading-none select-none"
+              aria-hidden="true"
+              initial={reduced ? false : { scale: 0.85, opacity: 0 }}
+              animate={reduced ? undefined : { scale: 1, opacity: 1 }}
+              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            >
+              🤝
+            </motion.span>
+          </div>
+        </section>
+
+        {/* Title */}
+        <section className="text-center mt-2">
+          <h2 className="text-[28px] font-bold text-temple-600 leading-tight font-hindi">कैसे मदद करें?</h2>
+          <p className="text-[20px] text-softgrey mt-2 font-hindi">हमारी टीम तैयार है</p>
+        </section>
+
+        {/* Actions */}
+        <section className="flex flex-col gap-4 mt-6">
+          {/* Re-watch tutorial — kit outline button (D2 review intent) */}
+          <button
+            onClick={() => {
+              // D2 REVIEW INTENT — outranks resume rules; back returns here
+              try {
+                sessionStorage.setItem('hpj_review_return', '/help');
+              } catch { /* noop */ }
+              setPhase('TUTORIAL');
+              setCurrentTutorialScreen(1);
+              router.push('/onboarding?review=tutorial');
+            }}
+            className="w-full bg-white border-2 border-saffron-500 rounded-card px-5 min-h-[64px] flex items-center justify-center active:scale-[0.98] transition-transform focus-visible:ring-4 focus-visible:ring-saffron-200 focus:outline-none text-[18px] font-bold text-saffron-700 font-hindi"
+          >
+            {t("helpScreen.rewatchTutorial")}
           </button>
-          <span className="text-2xl xs:text-3xl sm:text-[32px] text-saffron">ॐ</span>
-          <h1 className="text-base xs:text-lg sm:text-[20px] font-bold text-text-primary">HmarePanditJi</h1>
-        </div>
-      </div>
 
-      {/* Illustration */}
-      <section className="mt-2 xs:mt-4 px-4 flex justify-center">
-        <div className="w-full max-w-[280px] h-32 xs:h-36 sm:h-[160px] relative flex items-center justify-center">
-          <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.5 }} className="text-center">
-            <motion.span animate={{ y: [0, -10, 0] }} transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }} className="text-6xl xs:text-7xl sm:text-[80px] block">🤝</motion.span>
-          </motion.div>
-        </div>
-      </section>
+          {/* Emergency — kit danger-outline Button (no haptic on this variant) */}
+          <Button variant="danger-outline" size="lg" fullWidth onClick={() => router.push('/emergency-sos')}>
+            {t("helpScreen.emergency")}
+          </Button>
 
-      {/* Title */}
-      <section className="mt-2 xs:mt-4 px-4 text-center">
-        <h2 className="text-xl xs:text-2xl sm:text-[28px] font-bold text-text-primary leading-tight font-devanagari">कैसे मदद करें?</h2>
-        <p className="text-sm xs:text-base sm:text-[20px] text-text-secondary mt-1 xs:mt-2 font-devanagari">हमारी टीम तैयार है</p>
-      </section>
+          {/* Call the team — sindoor CTA (real support number) */}
+          <a
+            href="tel:+918934095599"
+            className="flex items-center gap-4 bg-saffron-500 rounded-card shadow-btn px-5 min-h-[72px] active:scale-[0.98] transition-transform focus-visible:ring-4 focus-visible:ring-saffron-200 focus:outline-none"
+          >
+            <span className="text-[36px] shrink-0" aria-hidden="true">📞</span>
+            <div>
+              <p className="text-[20px] font-bold text-chandan font-hindi">हमारी टीम से बात करें</p>
+              <p className="text-[16px] text-chandan/85 mt-0.5 font-hindi">बिल्कुल मुफ़्त</p>
+            </div>
+          </a>
 
-      {/* Content */}
-      <section className="px-4 flex-grow min-h-0 overflow-y-auto mt-4 xs:mt-6">
-        <button
-          onClick={() => {
-            // D2 REVIEW INTENT — outranks resume rules; back returns here
-            try {
-              sessionStorage.setItem('hpj_review_return', '/help');
-            } catch { /* noop */ }
-            setPhase('TUTORIAL');
-            setCurrentTutorialScreen(1);
-            router.push('/onboarding?review=tutorial');
-          }}
-          className="w-full flex items-center gap-3 xs:gap-4 bg-white border-2 border-saffron rounded-card px-4 xs:px-5 min-h-[64px] active:scale-[0.98] transition-transform mb-4 text-[18px] font-bold text-saffron font-hindi"
-        >
-          {t("helpScreen.rewatchTutorial")}
-        </button>
+          {/* WhatsApp — brand green kept intentionally */}
+          <a
+            href={`https://wa.me/918934095599?text=${encodeURIComponent("नमस्ते, मुझे मदद चाहिए")}`}
+            className="flex items-center gap-4 rounded-card px-5 min-h-[64px] active:scale-[0.98] transition-transform bg-[#25D366] focus-visible:ring-4 focus-visible:ring-saffron-200 focus:outline-none"
+          >
+            <span className="text-[36px] shrink-0" aria-hidden="true">💬</span>
+            <div>
+              <p className="text-[18px] font-bold text-white font-hindi">व्हाट्सऐप पर लिखें</p>
+              <p className="text-[16px] text-white/90 mt-0.5 font-hindi">संदेश भेजें, जवाब आएगा</p>
+            </div>
+          </a>
 
-        <button
-          onClick={() => router.push('/emergency-sos')}
-          className="w-full flex items-center gap-3 xs:gap-4 bg-white border-2 border-danger rounded-card px-4 xs:px-5 min-h-[64px] active:scale-[0.98] transition-transform mb-4 text-[18px] font-bold text-danger font-hindi"
-        >
-          {t("helpScreen.emergency")}
-        </button>
-
-        <a href="tel:+918934095599" className="flex items-center gap-3 xs:gap-4 bg-saffron rounded-card shadow-cta px-4 xs:px-5 py-0 min-h-[52px] xs:min-h-[56px] sm:min-h-[72px] active:scale-[0.98] transition-transform mb-4">
-          <div className="w-12 h-12 xs:w-14 xs:h-14 sm:w-[56px] sm:h-[56px] flex items-center justify-center shrink-0"><span className="text-2xl xs:text-3xl sm:text-4xl">📞</span></div>
-          <div><p className="text-base xs:text-lg sm:text-[20px] font-bold text-white">हमारी टीम से बात करें</p><p className="text-sm xs:text-base sm:text-[16px] text-white/85 mt-0.5">1800-HMJ-HELP | बिल्कुल मुफ़्त</p></div>
-        </a>
-        <a href={`https://wa.me/918934095599?text=${encodeURIComponent("नमस्ते, मुझे मदद चाहिए")}`} className="flex items-center gap-3 xs:gap-4 rounded-card px-4 xs:px-5 py-0 min-h-[52px] xs:min-h-[56px] sm:min-h-[64px] active:scale-[0.98] transition-transform bg-[#25D366] mb-4">
-          <div className="w-12 h-12 xs:w-14 xs:h-14 sm:w-[56px] sm:h-[56px] flex items-center justify-center shrink-0"><span className="text-2xl xs:text-3xl sm:text-4xl">💬</span></div>
-          <div><p className="text-base xs:text-lg sm:text-[18px] font-bold text-white">व्हाट्सऐप पर लिखें</p><p className="text-sm xs:text-base sm:text-[16px] text-white/90 mt-0.5">संदेश भेजें, जवाब आएगा</p></div>
-        </a>
-        <p className="text-sm xs:text-base sm:text-[16px] text-saffron mt-4 xs:mt-6">⏱️ जवाब का समय: सुबह 8 बजे – रात 10 बजे (सभी दिन)</p>
-      </section>
+          <p className="text-[16px] text-saffron-700 mt-2 font-hindi">⏱️ जवाब का समय: सुबह 8 बजे – रात 10 बजे (सभी दिन)</p>
+        </section>
+      </main>
 
       {/* शिष्य footer slot */}
-      <footer className="shrink-0 px-4 py-2 bg-surface-base/95 backdrop-blur border-t border-border-default flex justify-center">
+      <footer className="shrink-0 px-4 py-3 bg-cream/95 backdrop-blur border-t border-saffron-100 flex justify-center">
         <ShishyaOrb />
       </footer>
-    </main>
+    </div>
   )
 }
