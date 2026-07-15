@@ -76,6 +76,32 @@ export const getMyPoojaVerifications = async (request: FastifyRequest, reply: Fa
   return reply.send({ success: true, data: { latest: [...byType.values()], history: rows } });
 };
 
+// ── PANDIT: per-puja config (team + dakshina + samagri supply mode) ────────────
+export const savePoojaConfig = async (request: FastifyRequest, reply: FastifyReply) => {
+  const userId = (request as any).user?.id;
+  const profile = await prisma.panditProfile.findUnique({ where: { userId } });
+  if (!profile) return reply.status(404).send({ success: false, error: "Pandit profile not found" });
+
+  const b = (request.body ?? {}) as { poojaType?: string; teamSize?: number; dakshinaAmount?: number; supplyMode?: string };
+  if (!b.poojaType) return reply.status(400).send({ success: false, error: "poojaType is required" });
+  const supplyMode = b.supplyMode === "PLATFORM_SELLS" || b.supplyMode === "LIST_ONLY" ? b.supplyMode : "PANDIT_BRINGS";
+
+  const row = await prisma.poojaConfig.upsert({
+    where: { panditProfileId_poojaType: { panditProfileId: profile.id, poojaType: b.poojaType } },
+    update: { teamSize: Math.max(1, b.teamSize ?? 1), dakshinaAmount: Math.max(0, b.dakshinaAmount ?? 0), supplyMode },
+    create: { panditProfileId: profile.id, poojaType: b.poojaType, teamSize: Math.max(1, b.teamSize ?? 1), dakshinaAmount: Math.max(0, b.dakshinaAmount ?? 0), supplyMode },
+  });
+  return reply.send({ success: true, data: { poojaType: row.poojaType, teamSize: row.teamSize, dakshinaAmount: row.dakshinaAmount, supplyMode: row.supplyMode } });
+};
+
+export const getPoojaConfigs = async (request: FastifyRequest, reply: FastifyReply) => {
+  const userId = (request as any).user?.id;
+  const profile = await prisma.panditProfile.findUnique({ where: { userId } });
+  if (!profile) return reply.status(404).send({ success: false, error: "Pandit profile not found" });
+  const rows = await prisma.poojaConfig.findMany({ where: { panditProfileId: profile.id }, orderBy: { poojaType: "asc" } });
+  return reply.send({ success: true, data: rows });
+};
+
 // ── ADMIN: review queue ───────────────────────────────────────────────────────
 export const listPoojaVerifications = async (request: FastifyRequest, reply: FastifyReply) => {
   const { status } = request.query as { status?: string };

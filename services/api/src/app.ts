@@ -35,7 +35,7 @@ import aiRoutes from "./routes/ai.routes";
 import { submitOnboarding } from "./controllers/onboarding.controller";
 import { getReadiness, patchReadiness } from "./controllers/readiness.controller";
 import { presignFile } from "./controllers/upload.controller";
-import { submitPoojaVerification, getMyPoojaVerifications } from "./controllers/poojaVerification.controller";
+import { submitPoojaVerification, getMyPoojaVerifications, savePoojaConfig, getPoojaConfigs } from "./controllers/poojaVerification.controller";
 import { isStorageConfigured } from "./lib/storage";
 import { authenticate, optionalAuth } from "./middleware/auth";
 import { roleGuard } from "./middleware/roleGuard";
@@ -248,6 +248,8 @@ app.delete(`${API_PREFIX}/pandit/blocked-dates/:date`, { preHandler: [authentica
 // सत्यापन: per-puja video verification (submit / re-submit + my badges)
 app.post(`${API_PREFIX}/pandit/pooja-verification`, { preHandler: [authenticate, roleGuard("PANDIT")] }, submitPoojaVerification);
 app.get(`${API_PREFIX}/pandit/pooja-verifications`, { preHandler: [authenticate, roleGuard("PANDIT")] }, getMyPoojaVerifications);
+app.post(`${API_PREFIX}/pandit/pooja-config`, { preHandler: [authenticate, roleGuard("PANDIT")] }, savePoojaConfig);
+app.get(`${API_PREFIX}/pandit/pooja-configs`, { preHandler: [authenticate, roleGuard("PANDIT")] }, getPoojaConfigs);
 
 const handleSTT = async (request: FastifyRequest, reply: FastifyReply) => {
   try {
