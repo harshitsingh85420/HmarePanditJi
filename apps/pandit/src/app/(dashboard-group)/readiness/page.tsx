@@ -982,18 +982,9 @@ function StepR3({ travel, setTravel }: { travel: TravelPrefs; setTravel: (v: Tra
         />
       </Card>
 
-      {/* PRICE-HONESTY METER — computed live from the real costing rules; it
-          recomputes as the travel toggles change. */}
-      <PriceHonestyMeter
-        dakshina={2100}
-        prefs={{
-          selfDrive: travel.ownVehicle.enabled,
-          train: travel.train.enabled,
-          flight: travel.flight.enabled,
-          dailyFoodAllowance: null,
-          stayAtHome: null,
-        }}
-      />
+      {/* PRICE-HONESTY METER — mockup chip-toggle look, numbers computed from the
+          real costing rules. Seeds its travel toggle from his current choice. */}
+      <PriceHonestyMeter dakshina={2100} initialPrefs={{ travel: travel.ownVehicle.enabled }} />
     </>
   );
 }

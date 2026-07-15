@@ -43,6 +43,9 @@ const config: Config = {
         genda:  '#F2A02C',
         brassdark: '#B8860B',
         card:   '#FFFDF8',
+        chandan:'#FFF6E9',   // on-sindoor text + warm screen tint (mockup)
+        // Sand tones — card borders, dividers, inactive tracks (mockup export).
+        sand:   { DEFAULT:'#F0DFC4', 200:'#E7DCC9', 300:'#E4D6C1', 400:'#C9BBA6' },
         // FESTIVE ACCENTS (Pratham Aarti) — illustration canvases, chips,
         // progress dots, celebration moments ONLY. Never body text or CTAs.
         rani:   '#D81B60',
