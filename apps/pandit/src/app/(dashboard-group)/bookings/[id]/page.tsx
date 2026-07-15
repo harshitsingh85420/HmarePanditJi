@@ -6,7 +6,8 @@ import { useRouter, useParams } from "next/navigation";
 import { t } from "@/lib/i18n";
 import { api } from "@/lib/api";
 import { mutateOnce } from "@/lib/mutate";
-import { playBell, vibrateConfirm } from "@/lib/sounds";
+import { vibrateConfirm } from "@/lib/sounds";
+import { celebrationLine, ringBellAfterSpeech } from "@/lib/celebration";
 import { FirstUseTip } from "@/components/moments/FirstUseTip";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -61,6 +62,13 @@ export default function BookingDetailPage() {
   // States for flows
   const [showCompleteConfirm, setShowCompleteConfirm] = useState(false);
   const [showSuccessScreen, setShowSuccessScreen] = useState(false);
+  const [completeLine, setCompleteLine] = useState("");
+
+  // Boring-pass E: when the पूजा-संपन्न screen appears, ring the temple bell
+  // as a blessing AFTER शिष्य's completion line (deferred while he speaks).
+  useEffect(() => {
+    if (showSuccessScreen) ringBellAfterSpeech();
+  }, [showSuccessScreen]);
 
   const fetchBooking = async () => {
     if (!id) return;
@@ -163,6 +171,7 @@ export default function BookingDetailPage() {
       return;
     }
 
+    setCompleteLine(celebrationLine());
     setShowSuccessScreen(true);
   };
 
@@ -219,7 +228,7 @@ export default function BookingDetailPage() {
     const payoutAmount = booking.earnings?.totalToPandit || 0;
     return (
       <div className="fixed inset-0 bg-cream text-ink flex flex-col justify-between p-6 z-50">
-        <Narrate text={t("booking.completeVoice")} />
+        <Narrate text={completeLine || t("booking.completeVoice")} />
         <div className="flex-1 flex flex-col items-center justify-center text-center gap-6">
           <span className="text-[120px] select-none leading-none">🙏</span>
           <h1 className="text-[36px] font-bold text-temple-700 font-hindi">

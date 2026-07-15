@@ -612,17 +612,41 @@ body {
 }
 .pa-bounce-once { display: inline-block; animation: pa-bounce-once 0.7s ease-out backwards; }
 
+/* ── Boring-pass E: ambient warmth (transform/opacity/paint only) ── */
+
+/* The toran garland gently sways (paint-only background drift, no layout) */
+@keyframes pa-toran-sway {
+  0%, 100% { background-position-x: 0; }
+  50%      { background-position-x: 8px; }
+}
+.pa-toran-sway { animation: pa-toran-sway 5s ease-in-out infinite; }
+
+/* शिष्य's idle breath — only while awake and NOT speaking/listening */
+@keyframes shishya-breathe {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.06); }
+}
+.shishya-breathe { display: inline-block; animation: shishya-breathe 3.2s ease-in-out infinite; }
+
+/* A ripple welcomes you to the active thali tab (one-shot on arrival) */
+@keyframes pa-thali-ripple {
+  0%   { transform: scale(0.5); opacity: 0.5; }
+  100% { transform: scale(2.1); opacity: 0; }
+}
+.pa-thali-ripple { animation: pa-thali-ripple 0.7s ease-out forwards; }
+
 /* Respect elders' settings: no motion means no motion */
 @media (prefers-reduced-motion: reduce) {
   .page-enter, .online-glow, .animate-diya-sm, .animate-diya, .coach-ring,
   .shishya-ripple, .shishya-ripple-2, .shishya-listen-ring,
   .pa-splash-diya, .pa-splash-om, .pa-splash-word, .pa-splash-toran, .pa-splash-orb,
   .pa-petal, .pa-diya-flame, .pa-diya-halo, .pa-canvas-enter, .pa-stagger > *,
-  .pa-burst-petal, .pa-bell-swing, .pa-bounce-once, .pa-arrow-bounce, .pa-tap-hint {
+  .pa-burst-petal, .pa-bell-swing, .pa-bounce-once, .pa-arrow-bounce, .pa-tap-hint,
+  .pa-toran-sway, .shishya-breathe, .pa-thali-ripple {
     animation: none !important;
   }
-  /* Drifting/bursting petals have no sensible static state — hide them */
-  .pa-petal, .pa-burst-petal {
+  /* Drifting/bursting petals + the ripple ring have no sensible static state */
+  .pa-petal, .pa-burst-petal, .pa-thali-ripple {
     display: none !important;
   }
 }

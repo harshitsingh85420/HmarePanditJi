@@ -23,7 +23,7 @@ export function EmptyState({ emoji, title, hint, className }: EmptyStateProps) {
         className
       )}
     >
-      <div className="text-[64px] leading-none mb-4 select-none" role="img" aria-hidden="true">
+      <div className="text-[64px] leading-none mb-4 select-none animate-gentle-float motion-reduce:animate-none" role="img" aria-hidden="true">
         {emoji}
       </div>
       <h3 className="t-title font-bold text-ink mb-2">

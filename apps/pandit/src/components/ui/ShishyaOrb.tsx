@@ -45,6 +45,9 @@ export function ShishyaOrb({
   const [sleepToast, setSleepToast] = useState(false);
 
   const asleep = muted;
+  // Boring-pass E: gently breathe only when awake and quiet — never over a
+  // speaking/listening/processing state (those own their own motion).
+  const idle = !asleep && !speaking && !listening && !processing;
 
   const toggle = () => {
     if (asleep) {
@@ -92,7 +95,7 @@ export function ShishyaOrb({
             <span className="shishya-ripple shishya-ripple-2" aria-hidden="true" />
           </>
         )}
-        <span className={`${large ? "text-[56px]" : "text-[30px]"} leading-none select-none`} aria-hidden="true">🙏</span>
+        <span className={`${large ? "text-[56px]" : "text-[30px]"} leading-none select-none ${idle ? "shishya-breathe" : ""}`} aria-hidden="true">🙏</span>
         {asleep && (
           <span
             className="absolute -top-1 -right-1 text-[16px] leading-none select-none"

@@ -37,8 +37,12 @@ export function BottomNav({ activeTab, onChange, className }: BottomNavProps) {
         style={{ minHeight: "56px" }}
       >
         {isActive ? (
-          <span className="w-[46px] h-[46px] rounded-full bg-saffron-500 border-[3px] border-gold flex items-center justify-center text-[22px] leading-none text-[#FFE8D2] -mt-1" role="img" aria-label={tab.label}>
-            {tab.emoji}
+          <span className="relative -mt-1 flex items-center justify-center">
+            {/* Boring-pass E: a gentle ripple welcomes you to this tab (one-shot) */}
+            <span className="absolute inset-0 rounded-full border-2 border-gold pa-thali-ripple pointer-events-none" aria-hidden="true" />
+            <span className="w-[46px] h-[46px] rounded-full bg-saffron-500 border-[3px] border-gold flex items-center justify-center text-[22px] leading-none text-[#FFE8D2]" role="img" aria-label={tab.label}>
+              {tab.emoji}
+            </span>
           </span>
         ) : (
           <span className="text-[24px] leading-none mb-1" role="img" aria-label={tab.label}>
