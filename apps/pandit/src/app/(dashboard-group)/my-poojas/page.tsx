@@ -37,9 +37,6 @@ export default function MyPoojasPage() {
   const [rates, setRates] = useState<RateMap>({});
   const [editing, setEditing] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
-  const [showAdd, setShowAdd] = useState(false);
-  const [addPooja, setAddPooja] = useState<string | null>(null);
-  const [addValue, setAddValue] = useState("");
   const [toastMsg, setToastMsg] = useState("");
   const addBtnRef = useRef<HTMLDivElement | null>(null);
 
@@ -101,36 +98,7 @@ export default function MyPoojasPage() {
     }
   };
 
-  const confirmAdd = async () => {
-    if (!addPooja) return;
-    const amount = parseInt(addValue, 10);
-    const next = [...poojas, addPooja];
-    const res = await mutateOnce(`add-pooja:${addPooja}`, "/pandit/profile", {
-      method: "PATCH",
-      body: JSON.stringify({ specializations: next }),
-    });
-    if (!res.success) {
-      setToastMsg(t("common.error"));
-      return;
-    }
-    if (Number.isFinite(amount) && amount > 0) {
-      await mutateOnce(`dakshina:${addPooja}`, "/pandit/dakshina-rates", {
-        method: "POST",
-        body: JSON.stringify({ pujaType: addPooja, amount }),
-      });
-      setRates((r) => ({ ...r, [addPooja]: amount }));
-    }
-    setPoojas(next);
-    setPending((p) => [...p, addPooja]);
-    setShowAdd(false);
-    setAddPooja(null);
-    setAddValue("");
-    setToastMsg(t("myPoojas.added"));
-  };
-
   if (loading) return <DiyaLoader />;
-
-  const remaining = ALL_POOJAS.filter((p) => !poojas.includes(p));
 
   return (
     <Screen
@@ -138,20 +106,18 @@ export default function MyPoojasPage() {
       showBack
       onBack={() => router.push("/settings")}
       footer={
-        !showAdd ? (
-          <div ref={addBtnRef}>
-            <FirstUseTip tipId="myPoojasAdd" targetRef={addBtnRef} />
-            <Button variant="primary" size="lg" fullWidth onClick={() => setShowAdd(true)}>
-              {t("myPoojas.addBtn")}
-            </Button>
-          </div>
-        ) : undefined
+        <div ref={addBtnRef}>
+          <FirstUseTip tipId="myPoojasAdd" targetRef={addBtnRef} />
+          <Button variant="primary" size="lg" fullWidth onClick={() => router.push("/my-poojas/add")}>
+            {t("myPoojas.addBtn")}
+          </Button>
+        </div>
       }
     >
       <Narrate text={t("myPoojas.intro")} />
       <DashboardVoiceNav helpLine={t("help.myPoojas")} />
       <VoiceActionListener
-        commands={[{ keywords: ["नई पूजा", "nayi pooja", "जोड़"], action: () => setShowAdd(true) }]}
+        commands={[{ keywords: ["नई पूजा", "nayi pooja", "जोड़"], action: () => router.push("/my-poojas/add") }]}
         promptText={t("help.myPoojas")}
       />
 
@@ -226,65 +192,6 @@ export default function MyPoojasPage() {
           </Card>
         ))}
 
-        {/* Add sheet (inline, grammar-compliant: one scroller) */}
-        {showAdd && (
-          <Card className="p-4 bg-white border-2 border-saffron-500 flex flex-col gap-3">
-            <span className="t-title font-bold text-temple-600 font-hindi">{t("myPoojas.pickPooja")}</span>
-            <div className="flex flex-wrap gap-2">
-              {remaining.map((p) => (
-                <button
-                  key={p}
-                  onClick={() => setAddPooja(p)}
-                  className={`px-4 py-3 min-h-[56px] rounded-btn text-[18px] font-semibold font-hindi border-2 active:scale-[0.97] transition-transform ${
-                    addPooja === p
-                      ? "bg-saffron-500 text-[#FFF3EA] border-saffron-500"
-                      : "bg-white text-ink border-saffron-200"
-                  }`}
-                >
-                  {p}
-                </button>
-              ))}
-              {remaining.length === 0 && (
-                <span className="t-hint text-softgrey font-hindi">—</span>
-              )}
-            </div>
-
-            {addPooja && (
-              <VoiceField
-                label={t("myPoojas.dakshinaLabel")}
-                promptText={t("myPoojas.dakshinaPrompt")}
-                value={addValue}
-                onChange={setAddValue}
-                mode="money"
-                placeholder="₹"
-              />
-            )}
-
-            <div className="flex gap-2">
-              <Button
-                variant="primary"
-                size="md"
-                className="flex-1"
-                onClick={() => void confirmAdd()}
-                disabled={!addPooja}
-              >
-                {t("myPoojas.saveBtn")}
-              </Button>
-              <Button
-                variant="ghost"
-                size="md"
-                className="flex-1"
-                onClick={() => {
-                  setShowAdd(false);
-                  setAddPooja(null);
-                  setAddValue("");
-                }}
-              >
-                {t("common.no")}
-              </Button>
-            </div>
-          </Card>
-        )}
       </div>
 
       {toastMsg && <Toast message={toastMsg} show={!!toastMsg} onClose={() => setToastMsg("")} />}
