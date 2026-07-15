@@ -1076,6 +1076,13 @@ function StepR4(props: {
           </div>
         </div>
       </Card>
+
+      {/* PRICE-HONESTY METER on the भोजन/ठहराव prefs screen too — seeded from
+          his food-allowance + stay choice; numbers stay computed. */}
+      <PriceHonestyMeter
+        dakshina={2100}
+        initialPrefs={{ food: (parseInt(props.allowance || "0", 10) || 0) > 1000, hotel: props.stayHome === false }}
+      />
     </>
   );
 }
