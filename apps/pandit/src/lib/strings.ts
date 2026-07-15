@@ -361,6 +361,8 @@ export const hi = {
     allowanceNote: "यह भत्ता तभी मिलता है जब ग्राहक भोजन नहीं देते।",
     stayQ: "ग्राहक के घर रुक सकते हैं?",
     hotelTierLabel: "होटल पसंद",
+    sharedRoomQ: "साझा कमरा चलेगा?",
+    advanceNoticeQ: "बाहर की पूजा — कितने दिन पहले बताना होगा?",
     hotelBudget: "बजट ₹1000-1500",
     hotel3Star: "3-स्टार ₹2000-3000",
     hotel4Star: "4-स्टार+",

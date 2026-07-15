@@ -52,6 +52,7 @@ async function readinessSnapshot(profileId: string) {
       canBringSamagri: true,
       travelPrefs: true,
       foodPrefs: true,
+      accommodationPrefs: true,
       specializations: true,
       aadhaarDocUrl: true,
       bankAccountName: true,
@@ -206,19 +207,44 @@ export const patchReadiness = async (request: FastifyRequest, reply: FastifyRepl
         return badRequest(reply, "dailyAllowance must be between 1 and 100,000, or null.");
       }
     }
-    if (fp.stayAtCustomerHome !== null && typeof fp.stayAtCustomerHome !== "boolean") {
-      return badRequest(reply, "stayAtCustomerHome must be boolean or null.");
+    // ठहराव (stay) has its OWN column — accommodationPrefs — and must NEVER be
+    // written into foodPrefs (BB1: the right column). Accept a dedicated
+    // accommodationPrefs object; fall back to the legacy foodPrefs.stay* fields
+    // so an older client still lands its stay data in the correct column.
+    const ap = (data.accommodationPrefs && typeof data.accommodationPrefs === "object") ? data.accommodationPrefs : {};
+    const customerHomeOk = ap.customerHomeOk ?? fp.stayAtCustomerHome ?? null;
+    const acHotelTier = ap.hotelTier ?? fp.hotelTier ?? null;
+    const sharedRoomOk = ap.sharedRoomOk ?? null;
+    const advanceNoticeRaw = ap.advanceNoticeDays ?? null;
+    if (customerHomeOk !== null && typeof customerHomeOk !== "boolean") {
+      return badRequest(reply, "accommodation customerHomeOk must be boolean or null.");
     }
-    if (fp.hotelTier !== null && !HOTEL_TIERS.includes(fp.hotelTier)) {
-      return badRequest(reply, `hotelTier must be one of ${HOTEL_TIERS.join(", ")} or null.`);
+    if (acHotelTier !== null && !HOTEL_TIERS.includes(acHotelTier)) {
+      return badRequest(reply, `accommodation hotelTier must be one of ${HOTEL_TIERS.join(", ")} or null.`);
     }
+    if (sharedRoomOk !== null && typeof sharedRoomOk !== "boolean") {
+      return badRequest(reply, "sharedRoomOk must be boolean or null.");
+    }
+    if (advanceNoticeRaw !== null) {
+      const d = Number(advanceNoticeRaw);
+      if (!Number.isInteger(d) || d < 0 || d > 30) {
+        return badRequest(reply, "advanceNoticeDays must be an integer 0–30, or null.");
+      }
+    }
+
+    // foodPrefs is FOOD-ONLY (no stay leakage).
     update.foodPrefs = {
       dietary: fp.dietary ?? null,
       hotelFoodOk: fp.hotelFoodOk ?? null,
       allergies: String(fp.allergies || "").slice(0, 500),
       dailyAllowance: fp.dailyAllowance === null ? null : Math.round(Number(fp.dailyAllowance)),
-      stayAtCustomerHome: fp.stayAtCustomerHome ?? null,
-      hotelTier: fp.hotelTier ?? null,
+    };
+    // stay → its own column, incl. the two newly-captured fields
+    update.accommodationPrefs = {
+      customerHomeOk,
+      hotelTier: acHotelTier,
+      sharedRoomOk,
+      advanceNoticeDays: advanceNoticeRaw === null ? null : Math.round(Number(advanceNoticeRaw)),
     };
   }
 

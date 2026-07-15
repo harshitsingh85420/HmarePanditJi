@@ -82,8 +82,14 @@ interface Snapshot {
     hotelFoodOk: boolean | null;
     allergies: string;
     dailyAllowance: number | null;
-    stayAtCustomerHome: boolean | null;
+    stayAtCustomerHome?: boolean | null; // legacy — kept only for fallback load
+    hotelTier?: string | null;           // legacy — kept only for fallback load
+  } | null;
+  accommodationPrefs: {
+    customerHomeOk: boolean | null;
     hotelTier: string | null;
+    sharedRoomOk: boolean | null;
+    advanceNoticeDays: number | null;
   } | null;
   specializations: string[];
   dakshinaRates: Array<{ pujaType: string; amount: number }>;
@@ -125,6 +131,8 @@ export default function ReadinessPage() {
   const [allowance, setAllowance] = useState("");
   const [stayHome, setStayHome] = useState<boolean | null>(null);
   const [hotelTier, setHotelTier] = useState<string | null>(null);
+  const [sharedRoomOk, setSharedRoomOk] = useState<boolean | null>(null);
+  const [advanceNoticeDays, setAdvanceNoticeDays] = useState<number | null>(null);
   // R5 — bank/UPI typed-only + aadhaar, moved here unchanged
   const [aadhaarUrl, setAadhaarUrl] = useState("");
   const [uploading, setUploading] = useState(false);
@@ -165,9 +173,14 @@ export default function ReadinessPage() {
         setHotelFoodOk(snap.foodPrefs.hotelFoodOk);
         setAllergies(snap.foodPrefs.allergies || "");
         setAllowance(snap.foodPrefs.dailyAllowance ? String(snap.foodPrefs.dailyAllowance) : "");
-        setStayHome(snap.foodPrefs.stayAtCustomerHome);
-        setHotelTier(snap.foodPrefs.hotelTier);
       }
+      // ठहराव (stay) now lives in accommodationPrefs — fall back to the legacy
+      // foodPrefs.stay* fields so an existing pandit's saved choice still loads.
+      const acc = snap.accommodationPrefs;
+      setStayHome(acc?.customerHomeOk ?? snap.foodPrefs?.stayAtCustomerHome ?? null);
+      setHotelTier(acc?.hotelTier ?? snap.foodPrefs?.hotelTier ?? null);
+      setSharedRoomOk(acc?.sharedRoomOk ?? null);
+      setAdvanceNoticeDays(acc?.advanceNoticeDays ?? null);
       setAadhaarUrl(snap.aadhaarUrl || "");
 
       // resume at the saved step (+ optional ?step= deep link, e.g. the
@@ -432,13 +445,18 @@ export default function ReadinessPage() {
       }
     }
     const ok = await patchStep(4, {
+      // foodPrefs is FOOD-ONLY — stay data has its own column now (BB1).
       foodPrefs: {
         dietary,
         hotelFoodOk,
         allergies: allergies.trim(),
         dailyAllowance: allowanceNum,
-        stayAtCustomerHome: stayHome,
+      },
+      accommodationPrefs: {
+        customerHomeOk: stayHome,
         hotelTier,
+        sharedRoomOk,
+        advanceNoticeDays,
       },
     });
     if (ok) setStep(5);
@@ -597,6 +615,10 @@ export default function ReadinessPage() {
             setStayHome={setStayHome}
             hotelTier={hotelTier}
             setHotelTier={setHotelTier}
+            sharedRoomOk={sharedRoomOk}
+            setSharedRoomOk={setSharedRoomOk}
+            advanceNoticeDays={advanceNoticeDays}
+            setAdvanceNoticeDays={setAdvanceNoticeDays}
           />
         )}
         {step === 5 && (
@@ -1003,6 +1025,10 @@ function StepR4(props: {
   setStayHome: (v: boolean) => void;
   hotelTier: string | null;
   setHotelTier: (v: string | null) => void;
+  sharedRoomOk: boolean | null;
+  setSharedRoomOk: (v: boolean) => void;
+  advanceNoticeDays: number | null;
+  setAdvanceNoticeDays: (v: number) => void;
 }) {
   const diets = [
     { key: "ANY", label: t("readiness.dietAny") },
@@ -1071,6 +1097,28 @@ function StepR4(props: {
                 label={t.label}
                 selected={props.hotelTier === t.key}
                 onClick={() => props.setHotelTier(t.key)}
+              />
+            ))}
+          </div>
+        </div>
+        <div className="flex flex-col gap-2 border-t border-saffron-100 pt-3">
+          <span className="text-[18px] font-bold text-temple-700 font-hindi">{t("readiness.sharedRoomQ")}</span>
+          <YesNoRow value={props.sharedRoomOk} onChange={props.setSharedRoomOk} />
+        </div>
+        <div className="flex flex-col gap-2 border-t border-saffron-100 pt-3">
+          <span className="text-[18px] font-bold text-temple-700 font-hindi">{t("readiness.advanceNoticeQ")}</span>
+          <div className="flex flex-col gap-2">
+            {[
+              { days: 0, label: "उसी दिन भी" },
+              { days: 1, label: "1 दिन पहले" },
+              { days: 2, label: "2 दिन पहले" },
+              { days: 3, label: "3+ दिन पहले" },
+            ].map((o) => (
+              <Chip
+                key={o.days}
+                label={o.label}
+                selected={props.advanceNoticeDays === o.days}
+                onClick={() => props.setAdvanceNoticeDays(o.days)}
               />
             ))}
           </div>
