@@ -145,17 +145,17 @@ export default function EarningsPage() {
           {/* Today Card */}
           <Card className="p-3 bg-white border border-saffron-100 flex flex-col items-center justify-center text-center gap-1">
             <span className="text-[14px] font-bold text-softgrey font-hindi">{t("earnings.today")}</span>
-            <span className="text-[18px] font-bold text-leaf-700 font-mono">₹{summary.today.toLocaleString("en-IN")}</span>
+            <MoneyCount target={summary.today} className="text-[18px] font-bold text-leaf-700 font-mono" />
           </Card>
           {/* Week Card */}
           <Card className="p-3 bg-white border border-saffron-100 flex flex-col items-center justify-center text-center gap-1">
             <span className="text-[14px] font-bold text-softgrey font-hindi">{t("earnings.thisWeek")}</span>
-            <span className="text-[18px] font-bold text-leaf-700 font-mono">₹{summary.week.toLocaleString("en-IN")}</span>
+            <MoneyCount target={summary.week} className="text-[18px] font-bold text-leaf-700 font-mono" />
           </Card>
           {/* Month Card */}
           <Card className="p-3 bg-white border border-saffron-100 flex flex-col items-center justify-center text-center gap-1">
             <span className="text-[14px] font-bold text-softgrey font-hindi">{t("earnings.thisMonth")}</span>
-            <span className="text-[18px] font-bold text-leaf-700 font-mono">₹{summary.month.toLocaleString("en-IN")}</span>
+            <MoneyCount target={summary.month} className="text-[18px] font-bold text-leaf-700 font-mono" />
           </Card>
         </div>
 
@@ -164,9 +164,7 @@ export default function EarningsPage() {
         <div ref={pendingRef} className="flex flex-col gap-3">
           <h3 className="text-[18px] font-bold text-temple-600 font-hindi border-b border-saffron-100 pb-1.5 flex justify-between items-center">
             <span>{t("earnings.pendingPayout")}</span>
-            <span className="text-[18px] font-bold text-leaf-700 font-mono">
-              ₹{summary.pendingPayout.toLocaleString("en-IN")}
-            </span>
+            <MoneyCount target={summary.pendingPayout} className="text-[18px] font-bold text-leaf-700 font-mono" />
           </h3>
 
           {pendingPayouts.length === 0 && paidPayouts.length === 0 ? (
