@@ -1,5 +1,6 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { prisma } from "@hmarepanditji/db";
+import { encryptAadhaar } from "../utils/aadhaar";
 
 // ─────────────────────────────────────────────────────────────
 // BOOKING-READINESS (progressive onboarding).
@@ -55,6 +56,8 @@ async function readinessSnapshot(profileId: string) {
       accommodationPrefs: true,
       specializations: true,
       aadhaarDocUrl: true,
+      aadhaarBackUrl: true,
+      aadhaarConsentAt: true,
       bankAccountName: true,
       bankIfscCode: true,
       upiId: true,
@@ -67,7 +70,7 @@ async function readinessSnapshot(profileId: string) {
     },
   });
   if (!profile) return null;
-  const { bankAccountName, bankIfscCode, upiId, aadhaarDocUrl, samagriPackages, ...rest } = profile;
+  const { bankAccountName, bankIfscCode, upiId, aadhaarDocUrl, aadhaarBackUrl, aadhaarConsentAt, samagriPackages, ...rest } = profile;
   const samagriTiersByPuja: Record<string, number> = {};
   for (const pkg of samagriPackages) {
     samagriTiersByPuja[pkg.pujaType] = (samagriTiersByPuja[pkg.pujaType] || 0) + (pkg.price > 0 ? 1 : 0);
@@ -77,7 +80,9 @@ async function readinessSnapshot(profileId: string) {
     // own-profile edit screens may prefill SAVED server values (X3);
     // bank/UPI numbers are deliberately NOT echoed back (typed-only law)
     aadhaarUrl: aadhaarDocUrl || "",
+    aadhaarBackUrl: aadhaarBackUrl || "",
     hasAadhaar: !!aadhaarDocUrl,
+    hasConsent: !!aadhaarConsentAt,
     hasPayment: !!(bankAccountName && bankIfscCode) || !!upiId,
     samagriTiersByPuja,
   };
@@ -249,11 +254,26 @@ export const patchReadiness = async (request: FastifyRequest, reply: FastifyRepl
   }
 
   if (step === 5) {
-    // Moved unchanged from the old 7-step wizard: aadhaar + bank/UPI
-    // (typed-only). verificationStatus stays PENDING for the admin.
-    const { aadhaarUrl, payment } = data as { aadhaarUrl?: string; payment?: any };
+    // aadhaar (front + back + number + CONSENT) + bank/UPI (typed-only).
+    // DPDP: consent is RECORDED (aadhaarConsentAt), not merely gated; submit
+    // moves verificationStatus to DOCUMENTS_SUBMITTED (सत्यापन जारी).
+    const { aadhaarUrl, aadhaarBackUrl, aadhaarNumber, aadhaarConsent, payment } =
+      data as { aadhaarUrl?: string; aadhaarBackUrl?: string; aadhaarNumber?: string; aadhaarConsent?: boolean; payment?: any };
     if (!aadhaarUrl || typeof aadhaarUrl !== "string" || aadhaarUrl.trim().length === 0) {
-      return badRequest(reply, "Aadhaar photo upload is required.");
+      return badRequest(reply, "Aadhaar front photo upload is required.");
+    }
+    if (!aadhaarBackUrl || typeof aadhaarBackUrl !== "string" || aadhaarBackUrl.trim().length === 0) {
+      return badRequest(reply, "Aadhaar back photo upload is required.");
+    }
+    const aadhaarDigits = String(aadhaarNumber || "").replace(/\s+/g, "");
+    if (!/^\d{12}$/.test(aadhaarDigits)) {
+      return badRequest(reply, "Aadhaar number must be 12 digits.");
+    }
+    // CONSENT-BEFORE-CAPTURE (DPDP): with no recorded consent we store NOTHING.
+    // The write block below is past this gate, so aadhaarConsentAt always
+    // accompanies the encrypted number (the guard enforces this structurally).
+    if (aadhaarConsent !== true) {
+      return badRequest(reply, "Aadhaar consent is required before we can store your Aadhaar.");
     }
     if (!payment || typeof payment !== "object") {
       return badRequest(reply, "Payment details are required.");
@@ -285,8 +305,16 @@ export const patchReadiness = async (request: FastifyRequest, reply: FastifyRepl
     } else {
       return badRequest(reply, "Select either bank account or UPI.");
     }
+    // Consent recorded FIRST (DPDP) — capture is past the consent gate above,
+    // so aadhaarConsentAt always accompanies the encrypted number.
+    update.aadhaarConsentAt = new Date();
     update.aadhaarDocUrl = aadhaarUrl;
     update.aadhaarFrontUrl = aadhaarUrl;
+    update.aadhaarBackUrl = aadhaarBackUrl;
+    update.aadhaarLastFour = aadhaarDigits.slice(-4);
+    update.aadhaarEncrypted = encryptAadhaar(aadhaarDigits);
+    // submit → सत्यापन in-progress for the admin queue (was PENDING).
+    update.verificationStatus = "DOCUMENTS_SUBMITTED";
     // R5 done → the pandit is booking-ready. GO ONLINE stays gated by
     // admin approval exactly as before.
     update.isBookingReady = true;

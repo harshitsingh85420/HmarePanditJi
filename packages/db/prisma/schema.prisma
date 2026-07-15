@@ -226,6 +226,7 @@ model PanditProfile {
   gotra                String?
   aadhaarEncrypted     String?
   aadhaarLastFour      String?
+  aadhaarConsentAt     DateTime? // DPDP: when the pandit consented to Aadhaar processing (recorded, not just gated)
   certificatesVerified Boolean @default(false)
   bankAccountAdded     Boolean @default(false)
   deviceInfo           Json?

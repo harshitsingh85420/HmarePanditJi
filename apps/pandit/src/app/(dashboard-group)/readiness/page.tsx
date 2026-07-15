@@ -94,7 +94,9 @@ interface Snapshot {
   specializations: string[];
   dakshinaRates: Array<{ pujaType: string; amount: number }>;
   aadhaarUrl: string;
+  aadhaarBackUrl: string;
   hasAadhaar: boolean;
+  hasConsent: boolean;
   hasPayment: boolean;
   samagriTiersByPuja: Record<string, number>;
 }
@@ -133,9 +135,13 @@ export default function ReadinessPage() {
   const [hotelTier, setHotelTier] = useState<string | null>(null);
   const [sharedRoomOk, setSharedRoomOk] = useState<boolean | null>(null);
   const [advanceNoticeDays, setAdvanceNoticeDays] = useState<number | null>(null);
-  // R5 — bank/UPI typed-only + aadhaar, moved here unchanged
+  // R5 — bank/UPI typed-only + aadhaar (front+back+number+consent)
   const [aadhaarUrl, setAadhaarUrl] = useState("");
+  const [aadhaarBackUrl, setAadhaarBackUrl] = useState("");
+  const [aadhaarNumber, setAadhaarNumber] = useState("");
+  const [aadhaarConsent, setAadhaarConsent] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [uploadingBack, setUploadingBack] = useState(false);
   const [paymentType, setPaymentType] = useState<"BANK" | "UPI">("BANK");
   const [bank, setBank] = useState({ accountName: "", accountNumber: "", accountNumberConfirm: "", ifsc: "" });
   const [upi, setUpi] = useState({ id: "" });
@@ -182,6 +188,9 @@ export default function ReadinessPage() {
       setSharedRoomOk(acc?.sharedRoomOk ?? null);
       setAdvanceNoticeDays(acc?.advanceNoticeDays ?? null);
       setAadhaarUrl(snap.aadhaarUrl || "");
+      setAadhaarBackUrl(snap.aadhaarBackUrl || "");
+      setAadhaarConsent(!!snap.hasConsent); // resume-safe: already consented → stays ticked
+      // aadhaarNumber is never echoed back (security) — re-entered on resume
 
       // resume at the saved step (+ optional ?step= deep link, e.g. the
       // rejected-KYC resubmit lands on R5) — never past the earned step+1
@@ -468,6 +477,18 @@ export default function ReadinessPage() {
       sayError(t("onboarding.aadhaarError"));
       return;
     }
+    if (!aadhaarBackUrl) {
+      sayError(t("readiness.aadhaarBackError"));
+      return;
+    }
+    if (!/^\d{12}$/.test(aadhaarNumber.replace(/\s+/g, ""))) {
+      sayError(t("readiness.aadhaarNumberError"));
+      return;
+    }
+    if (!aadhaarConsent) {
+      sayError(t("readiness.aadhaarConsentError"));
+      return;
+    }
     if (paymentType === "BANK") {
       if (!bank.accountName.trim() || !/^\d{9,18}$/.test(bank.accountNumber) || !/^[A-Z]{4}0[A-Z0-9]{6}$/.test(bank.ifsc)) {
         sayError(t("onboarding.paymentError"));
@@ -483,6 +504,9 @@ export default function ReadinessPage() {
     }
     const ok = await patchStep(5, {
       aadhaarUrl,
+      aadhaarBackUrl,
+      aadhaarNumber: aadhaarNumber.replace(/\s+/g, ""),
+      aadhaarConsent,
       payment: {
         type: paymentType,
         bank:
@@ -495,10 +519,16 @@ export default function ReadinessPage() {
     if (ok) setShowCelebration(true);
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    kind: "aadhaar-front" | "aadhaar-back" = "aadhaar-front",
+  ) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setUploading(true);
+    const back = kind === "aadhaar-back";
+    const setBusy = back ? setUploadingBack : setUploading;
+    const setUrl = back ? setAadhaarBackUrl : setAadhaarUrl;
+    setBusy(true);
     setErrorMsg("");
     const formData = new FormData();
     formData.append("file", file);
@@ -506,20 +536,20 @@ export default function ReadinessPage() {
       const token = getToken();
       // G1: multipart can't use api() (it forces JSON) but the BASE must
       // come from the single prefix-normalized source
-      const res = await once(`readiness-upload:${file.name}`, () => fetch(`${API_BASE}/upload?kind=aadhaar-front`, {
+      const res = await once(`readiness-upload:${kind}:${file.name}`, () => fetch(`${API_BASE}/upload?kind=${kind}`, {
         method: "POST",
         headers: token ? { Authorization: `Bearer ${token}` } : {},
         body: formData,
       }));
       const json = await res.json();
-      setUploading(false);
+      setBusy(false);
       if (json.success && (json.data?.key || json.data?.url)) {
-        setAadhaarUrl(json.data.key || json.data.url);
+        setUrl(json.data.key || json.data.url);
       } else {
         sayError(json.error?.message || t("common.error"));
       }
     } catch {
-      setUploading(false);
+      setBusy(false);
       sayError(t("common.error"));
     }
   };
@@ -624,8 +654,14 @@ export default function ReadinessPage() {
         {step === 5 && (
           <StepR5
             aadhaarUrl={aadhaarUrl}
+            aadhaarBackUrl={aadhaarBackUrl}
             uploading={uploading}
+            uploadingBack={uploadingBack}
             onFileUpload={handleFileUpload}
+            aadhaarNumber={aadhaarNumber}
+            setAadhaarNumber={setAadhaarNumber}
+            aadhaarConsent={aadhaarConsent}
+            setAadhaarConsent={setAadhaarConsent}
             paymentType={paymentType}
             setPaymentType={setPaymentType}
             bank={bank}
@@ -1138,8 +1174,14 @@ function StepR4(props: {
 // ── R5: भुगतान + सत्यापन (moved unchanged from the old wizard) ─
 function StepR5(props: {
   aadhaarUrl: string;
+  aadhaarBackUrl: string;
   uploading: boolean;
-  onFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  uploadingBack: boolean;
+  onFileUpload: (e: React.ChangeEvent<HTMLInputElement>, kind?: "aadhaar-front" | "aadhaar-back") => void;
+  aadhaarNumber: string;
+  setAadhaarNumber: (v: string) => void;
+  aadhaarConsent: boolean;
+  setAadhaarConsent: (v: boolean) => void;
   paymentType: "BANK" | "UPI";
   setPaymentType: (v: "BANK" | "UPI") => void;
   bank: { accountName: string; accountNumber: string; accountNumberConfirm: string; ifsc: string };
@@ -1158,8 +1200,9 @@ function StepR5(props: {
           {t("onboarding.step6Title")}
         </label>
         <span className="inline-flex items-center gap-2 self-start text-[13px] font-hindi font-extrabold text-leaf-700 bg-leaf-100 px-3 py-1.5 rounded-full">🔒 सुरक्षित · सिर्फ़ सत्यापन</span>
+        {/* FRONT */}
         <label className="w-full min-h-[140px] border-2 border-dashed border-saffron-300 rounded-card flex flex-col items-center justify-center p-4 bg-saffron-50/10 cursor-pointer active:bg-saffron-50/30 transition-all select-none">
-          <input type="file" accept="image/*" onChange={props.onFileUpload} className="hidden" />
+          <input type="file" accept="image/*" onChange={(e) => props.onFileUpload(e, "aadhaar-front")} className="hidden" />
           {props.uploading ? (
             <span className="text-[18px] font-bold text-saffron-600 font-hindi animate-pulse">
               {t("common.loading")}
@@ -1171,6 +1214,42 @@ function StepR5(props: {
           )}
         </label>
         {props.aadhaarUrl && <AadhaarPreview keyOrUrl={props.aadhaarUrl} />}
+
+        {/* BACK */}
+        <label className="w-full min-h-[140px] border-2 border-dashed border-saffron-300 rounded-card flex flex-col items-center justify-center p-4 bg-saffron-50/10 cursor-pointer active:bg-saffron-50/30 transition-all select-none">
+          <input type="file" accept="image/*" onChange={(e) => props.onFileUpload(e, "aadhaar-back")} className="hidden" />
+          {props.uploadingBack ? (
+            <span className="text-[18px] font-bold text-saffron-600 font-hindi animate-pulse">
+              {t("common.loading")}
+            </span>
+          ) : (
+            <span className="text-[18px] font-bold text-saffron-600 font-hindi text-center">
+              {t("readiness.aadhaarBackLabel")}
+            </span>
+          )}
+        </label>
+        {props.aadhaarBackUrl && <AadhaarPreview keyOrUrl={props.aadhaarBackUrl} />}
+
+        {/* NUMBER (encrypted server-side; only last-4 stored in clear) */}
+        <VoiceField
+          label={t("readiness.aadhaarNumberLabel")}
+          promptText={t("readiness.aadhaarNumberLabel")}
+          value={props.aadhaarNumber}
+          onChange={props.setAadhaarNumber}
+          mode="number"
+          placeholder="1234 5678 9012"
+        />
+
+        {/* CONSENT (DPDP — recorded, not just gated) */}
+        <label className="flex items-start gap-3 cursor-pointer select-none min-h-[44px]">
+          <input
+            type="checkbox"
+            checked={props.aadhaarConsent}
+            onChange={(e) => props.setAadhaarConsent(e.target.checked)}
+            className="mt-1 w-6 h-6 accent-saffron-500 shrink-0"
+          />
+          <span className="text-[15px] text-ink font-hindi leading-snug">{t("readiness.aadhaarConsentLabel")}</span>
+        </label>
       </Card>
 
       {/* Bank / UPI — typed-only by law (A5) */}
