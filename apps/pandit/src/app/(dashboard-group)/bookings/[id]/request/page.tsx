@@ -18,6 +18,7 @@ import { DiyaLoader } from "@/components/moments/DiyaLoader";
 import { useVoice } from "@/hooks/useVoice";
 import { VoiceActionListener } from "@/components/voice/VoiceActionListener";
 import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
+import { MoneyCount } from "@/components/moments/MoneyCount";
 
 interface BookingDetail {
   id: string;
@@ -285,9 +286,7 @@ export default function BookingRequestPage() {
             {/* Total Row */}
             <div className="flex justify-between items-center border-t-2 border-double border-saffron-300 pt-3 mt-1">
               <span className="text-[22px] font-bold text-ink font-hindi">{t("booking.total")}</span>
-              <span className="text-[28px] font-bold text-leaf-700">
-                ₹{total.toLocaleString("en-IN")}
-              </span>
+              <MoneyCount target={total} className="text-[28px] font-bold text-leaf-700" />
             </div>
           </div>
         </Card>
