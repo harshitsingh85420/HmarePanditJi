@@ -252,12 +252,16 @@ model PanditProfile {
   //   stayAtCustomerHome, hotelTier }
   travelPrefs        Json?
   foodPrefs          Json?
+  // accommodationPrefs: { customerHomeOk, hotelTier, sharedRoomOk, advanceNoticeDays }
+  accommodationPrefs Json?
   readinessStep      Int                 @default(0)
   isBookingReady     Boolean             @default(false)
   dakshinaRates      DakshinaRate[]
   samagriPackages    SamagriPackage[]    @relation("PanditSamagriRelation")
   blockedDates       BlockedDate[]
   bookings           Booking[]
+  poojaVerifications PoojaVerification[]
+  poojaConfigs       PoojaConfig[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -318,6 +322,71 @@ enum PackageTier {
   BASIC
   STANDARD
   PREMIUM
+}
+
+// ── सत्यापन (verification) spine ──────────────────────────────────────────────
+
+enum VideoProvider {
+  YOUTUBE
+  UPLOAD
+}
+
+enum PoojaVerificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum SamagriSupplyMode {
+  PANDIT_BRINGS   // pandit brings the samagri; per-tier prices apply
+  PLATFORM_SELLS  // platform sells + delivers
+  LIST_ONLY       // just a list; customer arranges
+}
+
+/// One row PER SUBMISSION — history is NEVER overwritten. A re-submit inserts a
+/// new row with version+1 and status PENDING; a rejection stays in history with
+/// its reason. The EFFECTIVE state for a (pandit, poojaType) is the highest
+/// version. The per-puja booking GATE requires that latest row to be APPROVED.
+model PoojaVerification {
+  id              String   @id @default(cuid())
+  panditProfileId String
+  pandit          PanditProfile @relation(fields: [panditProfileId], references: [id])
+  poojaType       String
+  // custom pujas: the pandit's own name + description (admin-approved too)
+  poojaName       String?
+  poojaDescription String? @db.Text
+  videoProvider   VideoProvider           @default(YOUTUBE)
+  videoUrl        String?  // raw link the pandit gave (YouTube unlisted)
+  videoId         String?  // parsed YouTube id
+  thumbnailUrl    String?  // kept for later customer playback (deferred, zero-migration)
+  publicUrl       String?  // kept for later customer playback (deferred, zero-migration)
+  status          PoojaVerificationStatus @default(PENDING)
+  rejectionReason String?  @db.Text
+  version         Int      @default(1)
+  consentAt       DateTime?
+  reviewedById    String?
+  reviewedAt      DateTime?
+  createdAt       DateTime @default(now())
+
+  @@index([panditProfileId, poojaType, version])
+  @@index([status])
+}
+
+/// Per-puja team + dakshina + samagri supply mode. The team's dakshina share is
+/// INCLUDED in dakshinaAmount (the single-payee law: the platform never pays the
+/// team — the main pandit does).
+model PoojaConfig {
+  id              String   @id @default(cuid())
+  panditProfileId String
+  pandit          PanditProfile @relation(fields: [panditProfileId], references: [id])
+  poojaType       String
+  teamSize        Int      @default(1)  // incl. the main pandit
+  dakshinaAmount  Int      @default(0)  // total dakshina, team share included
+  supplyMode      SamagriSupplyMode @default(PANDIT_BRINGS)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([panditProfileId, poojaType])
 }
 
 model BlockedDate {

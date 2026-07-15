@@ -28,6 +28,7 @@ import {
   createSupportTicket,
   updateSupportTicket
 } from "../controllers/admin.controller";
+import { listPoojaVerifications, approvePoojaVerification, rejectPoojaVerification } from "../controllers/poojaVerification.controller";
 
 export default async function adminRoutes(fastify: FastifyInstance, _opts: any) {
   // All admin routes require ADMIN role
@@ -43,6 +44,11 @@ export default async function adminRoutes(fastify: FastifyInstance, _opts: any) 
     adminNotes: z.string().max(500).optional(),
   });
 
+
+  // सत्यापन admin review queue — list PENDING, approve(=publish)/reject-with-reason
+  fastify.get("/pooja-verifications", listPoojaVerifications);
+  fastify.patch("/pooja-verifications/:id/approve", approvePoojaVerification);
+  fastify.patch("/pooja-verifications/:id/reject", rejectPoojaVerification);
 
   fastify.get("/dashboard-stats", getDashboardStats);
   fastify.get("/alerts", getAlerts);
