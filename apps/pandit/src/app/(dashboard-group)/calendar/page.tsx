@@ -268,14 +268,14 @@ export default function CalendarPage() {
                   key={cell.dateKey}
                   onClick={() => cell.dateKey && handleDayClick(cell.dateKey, cell.dayNum || 0)}
                   disabled={isPast}
-                  className={`w-12 h-12 rounded-btn flex flex-col items-center justify-center relative select-none font-bold text-[18px] transition-all active:scale-90 ${
+                  className={`w-12 h-12 rounded-btn flex flex-col items-center justify-center relative select-none font-bold text-[18px] transition-all active:scale-[0.92] ${
                     isPast
-                      ? "text-slate-300 bg-slate-50 cursor-not-allowed"
+                      ? "text-[#C9BBA6] bg-[#F4EFE6] cursor-not-allowed"
                       : hasBooking
-                      ? "bg-saffron-50 text-saffron-800 border-2 border-saffron-400"
+                      ? "bg-saffron-50 text-saffron-800 border-2 border-saffron-300"
                       : isBlocked
-                      ? "bg-slate-200 text-slate-500 border border-slate-300"
-                      : "bg-white text-ink border border-saffron-100 hover:bg-saffron-50/50"
+                      ? "bg-[#E9E2D6] text-softgrey border border-[#E9E2D6]"
+                      : "bg-white text-ink border border-[#EADFCE] hover:bg-saffron-50/50"
                   }`}
                   style={{ minHeight: "48px", minWidth: "48px" }}
                 >
@@ -288,7 +288,7 @@ export default function CalendarPage() {
 
                   {/* Block indicator */}
                   {isBlocked && !isPast && (
-                    <span className="absolute text-[14px] top-0 right-1 text-slate-500">✖</span>
+                    <span className="absolute text-[14px] top-0 right-1 text-softgrey">✖</span>
                   )}
                 </button>
               );
