@@ -257,7 +257,7 @@ function StepVideo({ d, set }: { d: Draft; set: (p: Partial<Draft>) => void }) {
       <Card className="p-4 bg-white flex flex-col gap-2">
         {CHECK.map((c) => (<span key={c} className="text-[15px] font-hindi text-temple-700">✅ {c}</span>))}
       </Card>
-      <a href="https://wa.me/919999999999?text=पूजा%20वीडियो" target="_blank" rel="noopener"
+      <a href={`https://wa.me/918934095599?text=${encodeURIComponent("नमस्ते, मुझे अपनी पूजा का वीडियो भेजना है")}`} target="_blank" rel="noopener"
         className="w-full min-h-[56px] rounded-btn bg-[#E4F3E9] border-2 border-[#BFE3CC] flex items-center justify-center gap-2 text-[16px] font-hindi font-bold text-leaf-700 active:scale-[0.98] transition-transform">
         💬 भेज दीजिए, हम लगा देंगे
       </a>

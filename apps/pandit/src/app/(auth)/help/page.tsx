@@ -74,11 +74,11 @@ export default function HelpPage() {
           {t("helpScreen.emergency")}
         </button>
 
-        <a href="tel:18004654357" className="flex items-center gap-3 xs:gap-4 bg-saffron rounded-card shadow-cta px-4 xs:px-5 py-0 min-h-[52px] xs:min-h-[56px] sm:min-h-[72px] active:scale-[0.98] transition-transform mb-4">
+        <a href="tel:+918934095599" className="flex items-center gap-3 xs:gap-4 bg-saffron rounded-card shadow-cta px-4 xs:px-5 py-0 min-h-[52px] xs:min-h-[56px] sm:min-h-[72px] active:scale-[0.98] transition-transform mb-4">
           <div className="w-12 h-12 xs:w-14 xs:h-14 sm:w-[56px] sm:h-[56px] flex items-center justify-center shrink-0"><span className="text-2xl xs:text-3xl sm:text-4xl">📞</span></div>
           <div><p className="text-base xs:text-lg sm:text-[20px] font-bold text-white">हमारी टीम से बात करें</p><p className="text-sm xs:text-base sm:text-[16px] text-white/85 mt-0.5">1800-HMJ-HELP | बिल्कुल मुफ़्त</p></div>
         </a>
-        <a href="https://wa.me/918004654357" className="flex items-center gap-3 xs:gap-4 rounded-card px-4 xs:px-5 py-0 min-h-[52px] xs:min-h-[56px] sm:min-h-[64px] active:scale-[0.98] transition-transform bg-[#25D366] mb-4">
+        <a href={`https://wa.me/918934095599?text=${encodeURIComponent("नमस्ते, मुझे मदद चाहिए")}`} className="flex items-center gap-3 xs:gap-4 rounded-card px-4 xs:px-5 py-0 min-h-[52px] xs:min-h-[56px] sm:min-h-[64px] active:scale-[0.98] transition-transform bg-[#25D366] mb-4">
           <div className="w-12 h-12 xs:w-14 xs:h-14 sm:w-[56px] sm:h-[56px] flex items-center justify-center shrink-0"><span className="text-2xl xs:text-3xl sm:text-4xl">💬</span></div>
           <div><p className="text-base xs:text-lg sm:text-[18px] font-bold text-white">व्हाट्सऐप पर लिखें</p><p className="text-sm xs:text-base sm:text-[16px] text-white/90 mt-0.5">संदेश भेजें, जवाब आएगा</p></div>
         </a>

@@ -546,7 +546,7 @@ export const hi = {
     advanceAsk: "आगे बढ़ें? 'हाँ' बोलिए।",
   },
   support: {
-    phone: "+91XXXXXXXXXX",
+    phone: "+918934095599",
     callLabel: "📞 सहायता को फ़ोन करें",
   },
   offline: {

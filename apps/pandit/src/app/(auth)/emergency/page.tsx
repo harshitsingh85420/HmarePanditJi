@@ -68,7 +68,7 @@ export default function EmergencySOSPage() {
 
           setSosSent(true)
           setIsLoading(false)
-          window.location.href = 'tel:18004654357' 
+          window.location.href = 'tel:+918934095599' 
         },
         (error) => {
           console.error('[SOS] Location error:', error)
@@ -94,7 +94,7 @@ export default function EmergencySOSPage() {
       languageCode: 'hi-IN',
     })
     // In production: Open phone dialer or initiate VoIP call
-    window.location.href = 'tel:18004654357'
+    window.location.href = 'tel:+918934095599'
   }
 
 

@@ -44,7 +44,7 @@ export default function EmergencySOS() {
   // The one real emergency action a phone can guarantee offline is placing
   // a call — so SOS immediately connects the pandit to the 24/7 help line
   // and says exactly that. HELP_LINE is the single real number.
-  const HELP_LINE = 'tel:18004654357'
+  const HELP_LINE = 'tel:+918934095599'
 
   const handleSendSOS = async () => {
     setIsLoading(true)

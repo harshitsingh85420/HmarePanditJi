@@ -128,7 +128,7 @@ export default function Homepage() {
             <span className="text-xs text-on-surface-variant uppercase tracking-widest font-bold">
               Help & Support
             </span>
-            <a href="tel:18004654357" className="flex items-center gap-2 text-primary active:scale-[0.98] transition-transform">
+            <a href="tel:+918934095599" className="flex items-center gap-2 text-primary active:scale-[0.98] transition-transform">
               <span className="material-symbols-outlined text-lg">support_agent</span>
               <span className="font-bold text-lg">1800-HMJ-HELP</span>
             </a>

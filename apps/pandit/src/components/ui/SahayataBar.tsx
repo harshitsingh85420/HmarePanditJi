@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useUIStore } from '@/stores/uiStore'
 import { speakWithSarvam } from '@/lib/sarvam-tts'
 
-const HELPLINE_NUMBER = '+91-1234567890'
+const HELPLINE_NUMBER = '+918934095599'
 
 /**
  * SahayataBar Component

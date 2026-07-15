@@ -52,7 +52,7 @@ export function EmergencySOSFloating({ isVisible = true }: EmergencySOSFloatingP
                 // No family contact is collected yet — connect to the help team
                 // instead of opening a dialer with a half-typed "+91".
                 speakWithSarvam({ text: 'सहायता टीम को कॉल किया जा रहा है।', languageCode: 'hi-IN' })
-                window.location.href = 'tel:18004654357'
+                window.location.href = 'tel:+918934095599'
               }}
               className="min-h-[56px] px-4 bg-surface-card rounded-2xl shadow-card flex items-center gap-3 border-l-4 border-saffron"
             >
@@ -72,7 +72,7 @@ export function EmergencySOSFloating({ isVisible = true }: EmergencySOSFloatingP
               whileTap={{ scale: 0.95 }}
               onClick={() => {
                 // L2: real, dialable help line (the old team number was non-dialable)
-                window.location.href = 'tel:18004654357'
+                window.location.href = 'tel:+918934095599'
                 speakWithSarvam({ text: 'सहायता टीम से संपर्क किया जा रहा है।', languageCode: 'hi-IN' })
               }}
               className="min-h-[56px] px-4 bg-surface-card rounded-2xl shadow-card flex items-center gap-3 border-l-4 border-trust-green"
