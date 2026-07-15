@@ -1202,6 +1202,20 @@ export const postBookingJourney = async (request: FastifyRequest, reply: Fastify
     data: advanceData,
   });
 
+  // BB1 LESSON — the pandit app calls THIS handler (/pandit/.../journey), not
+  // the plugin's /pandits/.../start-journey, so the "pandit has left" customer
+  // notification (PANDIT_EN_ROUTE) must fire HERE too, or the app's spoken
+  // "यजमान को सूचना भेज दी गई है" is a false claim. Only on a REAL advance
+  // (never an idempotent replay), only for the departure leg. booking.customerId
+  // is a User id (Booking.customerId → User FK) so the notify-user-id guard is
+  // satisfied. Fire-and-forget — a notify failure must not fail the advance.
+  if (targetStep === 1 && flipped.count > 0) {
+    const enRoute = getNotificationTemplate("PANDIT_EN_ROUTE", { id: booking.id.substring(0, 8).toUpperCase() });
+    bookingNotifier
+      .notify({ userId: booking.customerId, type: "PANDIT_EN_ROUTE", title: enRoute.title, message: enRoute.message, smsMessage: enRoute.smsMessage })
+      .catch((err) => request.log.error({ err }, "notify PANDIT_EN_ROUTE (journey) failed"));
+  }
+
   const fresh = await prisma.booking.findUnique({ where: { id } });
   return reply.send({
     success: true,
