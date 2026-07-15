@@ -92,7 +92,7 @@ export default function SettingsPage() {
             <button
               onClick={handleSoundToggle}
               className={`relative inline-flex h-9 w-[72px] min-h-[56px] min-w-[72px] items-center rounded-full transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-saffron-200 ${
-                soundEnabled ? "bg-saffron-500" : "bg-slate-300"
+                soundEnabled ? "bg-saffron-500" : "bg-sand-400"
               }`}
               style={{ minHeight: "56px" }}
               aria-label="Toggle bell sounds"
@@ -121,7 +121,7 @@ export default function SettingsPage() {
         {/* Row: call support */}
         <a
           href={`tel:${t("support.phone")}`}
-          className="bg-white border border-saffron-100 rounded-card px-5 min-h-[64px] flex items-center justify-between shadow-card active:scale-[0.97] transition-transform"
+          className="bg-white border border-saffron-100 rounded-card px-5 min-h-[64px] flex items-center justify-between shadow-card active:scale-[0.97] transition-transform focus-visible:ring-4 focus-visible:ring-saffron-200 focus:outline-none"
         >
           <span className="text-[18px] font-bold text-ink font-hindi">{t("support.callLabel")}</span>
           <span className="text-softgrey text-[20px]" aria-hidden="true">›</span>
@@ -180,7 +180,7 @@ export default function SettingsPage() {
             className="fixed inset-0 bg-black/40 z-50"
             onClick={() => setAboutShishya(false)}
           />
-          <div className="fixed bottom-0 left-0 right-0 max-w-[430px] mx-auto bg-white rounded-t-3xl p-6 z-50 flex flex-col items-center gap-4 shadow-card">
+          <div className="fixed bottom-0 left-0 right-0 max-w-[430px] mx-auto bg-white rounded-t-[28px] p-6 z-50 flex flex-col items-center gap-4 shadow-card">
             <ShishyaOrb />
             <h2 className="text-[22px] font-bold text-temple-600 font-hindi text-center">
               {t("shishya.aboutTitle")}
