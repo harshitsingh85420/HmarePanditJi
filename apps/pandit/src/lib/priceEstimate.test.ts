@@ -15,20 +15,23 @@ describe("price-honesty meter — computed from real rules", () => {
     const consts = read("config/constants.ts");
     expect(consts).toMatch(new RegExp(`SELF_DRIVE_RATE_PER_KM\\s*=\\s*${COSTING.selfDriveRatePerKm}\\b`));
     expect(consts).toMatch(new RegExp(`FOOD_ALLOWANCE_PER_DAY\\s*=\\s*${COSTING.foodAllowancePerDay}\\b`));
+    // platform fee is the single PLATFORM_FEE_PERCENT constant — the client rate must equal it/100
+    const m = consts.match(/PLATFORM_FEE_PERCENT\s*=\s*(\d+)/);
+    expect(m).toBeTruthy();
+    expect(COSTING.platformFeePct).toBe(Number(m![1]) / 100);
     const bookingSvc = read("services/booking.service.ts");
-    expect(bookingSvc).toMatch(/dakshina\s*\*\s*0\.15/); // platformFeePct
-    expect(COSTING.platformFeePct).toBe(0.15);
+    expect(bookingSvc).toMatch(/dakshina\s*\*\s*PLATFORM_FEE_PERCENT/); // reads the constant, no literal
     expect(bookingSvc).toMatch(/0\.18/); // GST
     expect(COSTING.gstPct).toBe(0.18);
   });
 
   it("computes the KNOWN total exactly from the rules", () => {
-    // dakshina 2100 + selfDrive(200km*12=2400) + food(1000) + fee(315)+gst(57)=372
+    // dakshina 2100 + selfDrive(200km*12=2400) + food(1000) + fee(315)+gst(57)=248
     const r = estimateSampleBooking(
       { selfDrive: true, train: false, flight: false, dailyFoodAllowance: null, stayAtHome: true },
       2100,
     );
-    expect(r.total).toBe(2100 + 2400 + 1000 + 372);
+    expect(r.total).toBe(2100 + 2400 + 1000 + 248);
     expect(r.demandLevel).toBe("कम");
   });
 
@@ -43,7 +46,7 @@ describe("price-honesty meter — computed from real rules", () => {
     expect(hotel?.amount).toBeNull();
     expect(flight?.note).toBeTruthy();
     // the uncomputable costs are NOT summed into the total
-    expect(r.total).toBe(2100 + 1000 + 372);
+    expect(r.total).toBe(2100 + 1000 + 248);
     expect(r.demandLevel).toBe("ज़्यादा");
   });
 
@@ -58,6 +61,6 @@ describe("price-honesty meter — computed from real rules", () => {
     expect(high.lines.some((l) => l.amount === null && l.note)).toBe(true);
     expect(high.demandLevel).toBe("ज़्यादा");
     // lower food allowance genuinely lowers the computed total
-    expect(low.total - 500).toBeLessThan(2100 + 2400 + 1000 + 372); // food 500 < default 1000
+    expect(low.total - 500).toBeLessThan(2100 + 2400 + 1000 + 248); // food 500 < default 1000
   });
 });

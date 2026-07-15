@@ -11,8 +11,9 @@ const res1 = computeEarnings({
   samagri: 2100,
 });
 
-assert.strictEqual(res1.platformFee, 5250);
-assert.strictEqual(res1.totalToPandit, 34850);
+// PLATFORM_FEE_PERCENT = 10 (single source): 10% of 35000 = 3500
+assert.strictEqual(res1.platformFee, 3500);
+assert.strictEqual(res1.totalToPandit, 36600);
 
 // Test case 2 with schema fields
 const res2 = computeEarnings({
@@ -22,7 +23,7 @@ const res2 = computeEarnings({
   samagriAmount: 0,
 });
 
-assert.strictEqual(res2.platformFee, 3000);
-assert.strictEqual(res2.totalToPandit, 19000);
+assert.strictEqual(res2.platformFee, 2000); // 10% of 20000
+assert.strictEqual(res2.totalToPandit, 20000);
 
 console.log("✅ computeEarnings tests passed!");

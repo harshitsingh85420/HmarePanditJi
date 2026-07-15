@@ -10,7 +10,7 @@
 export const COSTING = {
   selfDriveRatePerKm: 12, // SELF_DRIVE_RATE_PER_KM
   foodAllowancePerDay: 1000, // FOOD_ALLOWANCE_PER_DAY
-  platformFeePct: 0.15, // calculateBookingFinancials: round(dakshina * 0.15)
+  platformFeePct: 0.10, // = PLATFORM_FEE_PERCENT/100 (server single source); guard enforces match
   gstPct: 0.18, // 18% GST on the fee
 } as const;
 

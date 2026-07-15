@@ -11,10 +11,13 @@
 // the T4 report; the sync comment in both files is the contract.)
 // ─────────────────────────────────────────────────────────────
 
+import { PLATFORM_FEE_PERCENT, SELF_DRIVE_RATE_PER_KM } from "../config/constants";
+
 export const APP_FACTS = {
-  commissionPercent: 10, // founder's canonical: 10% platform, 90% pandit
+  // SINGLE SOURCE: the commission शिष्य quotes IS the fee the math charges.
+  commissionPercent: PLATFORM_FEE_PERCENT, // 10% platform, 90% pandit
   payoutHours: 24, // after पूजा संपन्न, direct to bank/UPI
-  selfDriveRatePerKm: 12, // ₹12/km round trip (config/constants.ts)
+  selfDriveRatePerKm: SELF_DRIVE_RATE_PER_KM, // ₹12/km round trip (config/constants.ts)
   dakshinaMin: 501,
   dakshinaMax: 500000,
   verificationDays: 1, // "टीम एक दिन में सत्यापन पूरा करेगी"

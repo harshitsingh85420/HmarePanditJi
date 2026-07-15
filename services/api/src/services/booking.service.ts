@@ -8,6 +8,7 @@ import {
   AccommodationArrangement,
 } from "@hmarepanditji/db";
 import { generateBookingNumber } from "../utils/helpers";
+import { PLATFORM_FEE_PERCENT } from "../config/constants";
 import { AppError } from "../middleware/errorHandler";
 import { NotificationService } from "./notification.service";
 import { getNotificationTemplate } from "./notification-templates";
@@ -17,7 +18,7 @@ import { getNotificationTemplate } from "./notification-templates";
 export interface BookingFinancials {
   dakshina: number;
   travelCost?: number;
-  platformFee: number;        // 15% of dakshina
+  platformFee: number;        // PLATFORM_FEE_PERCENT of dakshina (single source)
   travelServiceFee?: number;  // 5% of travelCost
   gstAmount: number;          // 18% GST on platformFee + travelServiceFee
   grandTotal: number;         // customer pays
@@ -29,7 +30,7 @@ export function calculateBookingFinancials(
   dakshina: number,
   travelCost = 0,
 ): BookingFinancials {
-  const platformFee = Math.round(dakshina * 0.15);
+  const platformFee = Math.round(dakshina * PLATFORM_FEE_PERCENT / 100);
   const travelServiceFee = travelCost > 0 ? Math.round(travelCost * 0.05) : undefined;
   const taxableAmount = platformFee + (travelServiceFee ?? 0);
   const gstAmount = Math.round(taxableAmount * 0.18);

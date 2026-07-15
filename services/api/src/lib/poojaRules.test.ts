@@ -1,6 +1,7 @@
 import assert from "node:assert";
 import { canRemovePooja, bookingPayoutBase, isPoojaVerified } from "./poojaRules";
 import { computeEarnings } from "./earnings";
+import { PLATFORM_FEE_PERCENT } from "../config/constants";
 
 console.log("Running poojaRules unit tests...");
 
@@ -20,7 +21,7 @@ console.log("Running poojaRules unit tests...");
   const before = computeEarnings({ dakshinaAmount: 11_000 });
   const afterRateChange = computeEarnings({ dakshinaAmount: 11_000 }); // rate change is irrelevant
   assert.deepStrictEqual(before, afterRateChange);
-  assert.strictEqual(before.platformFee, Math.round(11_000 * 0.15));
+  assert.strictEqual(before.platformFee, Math.round(11_000 * PLATFORM_FEE_PERCENT / 100));
 }
 
 // F29(c): newly added poojas are pending until verified

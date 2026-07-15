@@ -65,7 +65,11 @@ export const buildOtpSms = (otp: string): string =>
   `@${WEBOTP_BOUND_ORIGIN} #${otp}`;
 
 // ── Pricing constants ──────────────────────────────────────────────────────────
-export const PLATFORM_FEE_PERCENT = 15;
+// THE SINGLE SOURCE for the platform commission. calculateBookingFinancials
+// (the fee math) AND shishyaFacts.commissionPercent (what शिष्य tells the
+// pandit) both read THIS — never a second literal. A guard
+// (commission-consistency.test) fails the build if either hardcodes a number.
+export const PLATFORM_FEE_PERCENT = 10;
 export const TRAVEL_SERVICE_FEE_PERCENT = 5;
 export const GST_PERCENT = 18;
 export const FOOD_ALLOWANCE_PER_DAY = 1000; // ₹1,000 per day
