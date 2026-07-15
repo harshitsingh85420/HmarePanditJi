@@ -61,7 +61,7 @@ export default function ProfileViewPage() {
 
         {/* Photo + name + city */}
         <Card className="p-5 bg-white border border-saffron-100 flex items-center gap-4">
-          <div className="w-20 h-20 rounded-full bg-saffron-50 border border-saffron-100 overflow-hidden flex items-center justify-center shrink-0">
+          <div className="w-20 h-20 rounded-full bg-saffron-50 border-2 border-gold/50 overflow-hidden flex items-center justify-center shrink-0">
             {photo ? (
               /* eslint-disable-next-line @next/next/no-img-element */
               <img src={photo} alt="" className="w-full h-full object-cover" />
@@ -111,9 +111,9 @@ export default function ProfileViewPage() {
           ) : (
             <div className="flex flex-col">
               {dakshina.map((d) => (
-                <div key={d.puja} className="flex items-center justify-between min-h-[48px] border-b border-saffron-100/50 last:border-0">
+                <div key={d.puja} className="flex items-center justify-between min-h-[52px] border-b border-saffron-100 last:border-0">
                   <span className="t-body font-semibold text-ink font-hindi">{d.puja}</span>
-                  <span className="t-money">₹{d.amount.toLocaleString("en-IN")}</span>
+                  <span className="text-[18px] font-bold text-leaf-700 font-mono">₹{d.amount.toLocaleString("en-IN")}</span>
                 </div>
               ))}
             </div>
