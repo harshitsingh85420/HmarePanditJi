@@ -92,7 +92,7 @@ test.describe('Part 0 Onboarding Flow', () => {
     await expect(page.getByRole('heading', { name: /tutorial|स्वागत/i })).toBeVisible()
   })
 
-  test('should display all 12 tutorial screens', async ({ page }) => {
+  test('should display every tutorial screen (deck-driven, gate-aware)', async ({ page }) => {
     // Navigate through onboarding to tutorial
     await page.waitForTimeout(3500)
     await page.getByRole('button', { name: /manual|मैन्युअल/i }).click()
@@ -103,18 +103,28 @@ test.describe('Part 0 Onboarding Flow', () => {
     // Verify first tutorial screen using role
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
 
-    // Click through all tutorial screens
-    for (let i = 1; i <= 12; i++) {
-      // Verify current screen heading
+    // Deck size is DECK-DRIVEN, not hardcoded — the "boring fix" deck is the
+    // 6-scene set (कमाई → नई बुकिंग → आवाज़ → सो जाओ/जागो → सत्यापन → स्वागत),
+    // but this test asserts against however many progress dots the deck
+    // actually renders, so it never re-rots on a re-count.
+    const total = await page.getByRole('listitem').count()
+    expect(total).toBeGreaterThan(0)
+
+    // Click through every screen. GATE-AWARE: the सो जाओ/जागो (mute) slide
+    // disables Next until the mute→unmute cycle OR its 10s timeout opens the
+    // gate — so we wait for the Next control to become enabled instead of
+    // blind-clicking a locked button. (The आवाज़ mic slide never gates Next.)
+    for (let i = 1; i <= total; i++) {
       await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
 
-      // Verify progress dots update using role
       const activeDot = page.getByRole('listitem').nth(i - 1)
       await expect(activeDot).toHaveClass(/active|current/i)
 
-      // Click next (except last screen)
-      if (i < 12) {
-        await page.getByRole('button', { name: /next|आगे/i }).click()
+      if (i < total) {
+        // Next reads "⏳ …" while the gate is locked, then reverts to "आगे".
+        const next = page.getByRole('button', { name: /next|आगे|⏳/i })
+        await expect(next).toBeEnabled({ timeout: 12000 })
+        await next.click()
       }
     }
   })
