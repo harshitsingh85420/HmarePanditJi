@@ -23,6 +23,7 @@ import { VoiceActionListener } from "@/components/voice/VoiceActionListener";
 import { PanchangStrip } from "@/components/moments/PanchangStrip";
 import { FestivalBanner } from "@/components/moments/FestivalBanner";
 import { PragatiCard } from "@/components/moments/PragatiCard";
+import { MoneyCount } from "@/components/moments/MoneyCount";
 import { CelebrationScreen } from "@/components/moments/CelebrationScreen";
 import { milestoneLabel, milestoneEmoji } from "@/components/moments/PragatiCard";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -433,21 +434,33 @@ export default function HomePage() {
         {isBookingReady ? (
           <>
             <FirstUseTip tipId="homeGoOnline" targetRef={toggleRef} />
-            <button
-              ref={toggleRef}
-              onClick={handleToggleStatus}
-              disabled={!isApproved}
-              className={`w-full h-20 rounded-btn flex items-center justify-center font-bold text-[22px] font-hindi shadow-md transition-all active:scale-[0.98] ${
-                !isApproved
-                  ? "bg-slate-200 text-softgrey cursor-not-allowed"
-                  : isOnline
-                  ? "bg-leaf-700 hover:bg-leaf-800 text-white online-glow"
-                  : "bg-softgrey text-white"
-              }`}
-              style={{ minHeight: "80px", fontSize: "22px" }}
-            >
-              {isOnline ? t("home.goOffline") : t("home.goOnline")}
-            </button>
+            {/* GoOnline mockup: 84px pill, leaf-500 + glow + status dot when
+                online, softgrey when off, with a warm sub-line below. Behavior
+                frozen — same handler/disabled/ref. */}
+            <div className="flex flex-col items-center gap-2">
+              <button
+                ref={toggleRef}
+                onClick={handleToggleStatus}
+                disabled={!isApproved}
+                className={`w-full h-[84px] rounded-card flex items-center justify-center gap-3 font-extrabold text-[23px] text-white transition-all active:scale-[0.98] ${
+                  !isApproved ? "bg-slate-300 cursor-not-allowed" : isOnline ? "bg-leaf-500 online-glow" : "bg-softgrey"
+                }`}
+                style={{ minHeight: "84px" }}
+              >
+                {isApproved && (
+                  <span
+                    className="w-4 h-4 rounded-full"
+                    style={{ background: isOnline ? "#B6F0C8" : "#E4D6C7", boxShadow: isOnline ? "0 0 8px #B6F0C8" : "none" }}
+                  />
+                )}
+                {(isOnline ? t("home.goOffline") : t("home.goOnline")).replace(/^[🟢🔴]\s*/, "")}
+              </button>
+              {isApproved && (
+                <span className={`text-[15px] font-semibold font-hindi ${isOnline ? "text-leaf-700" : "text-softgrey"}`}>
+                  {isOnline ? "परिवार अब आपको बुला सकते हैं ✓" : "काम शुरू करने के लिए दबाएँ"}
+                </span>
+              )}
+            </div>
           </>
         ) : (
           <Card
@@ -553,19 +566,15 @@ export default function HomePage() {
             <span className="text-[18px] font-bold text-softgrey font-hindi">
               {t("home.monthEarnings")}
             </span>
-            {/* Monthly earnings big ₹ figure */}
-            <span className="t-money-hero leading-tight">
-              ₹{earnings.month ? earnings.month.toLocaleString("en-IN") : "0"}
-            </span>
+            {/* Monthly earnings — big ANIMATED count-up (MoneyCount, A12-safe) */}
+            <MoneyCount target={earnings.month || 0} durationMs={1500} className="t-money-hero leading-tight text-leaf-700" />
           </div>
 
           <div className="border-t border-saffron-100/50 pt-3 flex justify-between items-center px-2">
             <span className="text-[18px] font-semibold text-softgrey font-hindi">
               {t("earnings.pendingPayout")}
             </span>
-            <span className="text-[20px] font-display text-leaf-700">
-              ₹{earnings.pendingPayout ? earnings.pendingPayout.toLocaleString("en-IN") : "0"}
-            </span>
+            <MoneyCount target={earnings.pendingPayout || 0} durationMs={1200} className="text-[20px] font-display text-leaf-700" />
           </div>
         </Card>
 
