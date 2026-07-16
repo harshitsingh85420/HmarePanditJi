@@ -52,6 +52,7 @@ export default function HomeHarnessPage() {
       milestoneKinds={[]}
       newRequestBooking={null}
       celebratingMilestone={null}
+      shubhMuhurat={true}
       errorMsg=""
       toastMsg=""
       onToggleStatus={() => {}}

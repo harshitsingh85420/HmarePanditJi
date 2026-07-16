@@ -61,6 +61,8 @@ export interface HomeViewProps {
   milestoneKinds: string[];
   newRequestBooking: HomeBooking | null;
   celebratingMilestone: string | null;
+  /** TODAY has MuhuratDate rows (container-fed) — gates the शुभ-मुहूर्त chip. */
+  shubhMuhurat?: boolean;
   errorMsg: string;
   toastMsg: string;
   /** GoOnline pill ref (FirstUseTip target) — container-owned. */
@@ -91,6 +93,7 @@ export function HomeView({
   milestoneKinds,
   newRequestBooking,
   celebratingMilestone,
+  shubhMuhurat = false,
   errorMsg,
   toastMsg,
   toggleRef,
@@ -164,7 +167,7 @@ export function HomeView({
 
       <main className="flex-1 overflow-y-auto px-4 pt-3 pb-24 flex flex-col gap-3 page-enter">
         {/* PANCHANG STRIP */}
-        <PanchangStrip />
+        <PanchangStrip shubh={shubhMuhurat} />
 
         {/* FESTIVAL BANNER (auto-hidden when no festival near) */}
         <FestivalBanner />

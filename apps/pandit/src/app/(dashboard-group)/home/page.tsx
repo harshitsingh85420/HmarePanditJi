@@ -54,6 +54,9 @@ export default function HomePage() {
   const [milestones, setMilestones] = useState<Array<{ kind: string }>>([]);
   const [celebratingMilestone, setCelebratingMilestone] = useState<string | null>(null);
 
+  // Panchang: does TODAY have muhurat windows? (gates the शुभ-मुहूर्त chip)
+  const [shubhMuhurat, setShubhMuhurat] = useState(false);
+
   // Toast / Error Notifications
   const [toastMsg, setToastMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
@@ -122,6 +125,15 @@ export default function HomePage() {
       const currentIds = new Set<string>();
       (initialPollRes.data as Booking[]).forEach((b) => currentIds.add(b.id));
       knownRequestedIdsRef.current = currentIds;
+    }
+
+    // 5. Panchang chip: is TODAY a muhurat day? (existing public endpoint;
+    // truthful-by-construction — the chip shows only when rows exist)
+    const now = new Date();
+    const todayKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+    const muhuratRes = await api(`/muhurat/pujas-for-date?date=${todayKey}`);
+    if (muhuratRes.success && Array.isArray(muhuratRes.data?.muhurats)) {
+      setShubhMuhurat(muhuratRes.data.muhurats.length > 0);
     }
 
     setLoading(false);
@@ -332,6 +344,7 @@ export default function HomePage() {
       milestoneKinds={milestones.map((m) => m.kind)}
       newRequestBooking={newRequestBooking}
       celebratingMilestone={celebratingMilestone}
+      shubhMuhurat={shubhMuhurat}
       errorMsg={errorMsg}
       toastMsg={toastMsg}
       toggleRef={toggleRef}
