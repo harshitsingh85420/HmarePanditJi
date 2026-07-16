@@ -51,7 +51,14 @@ const SPEC_LIST = [
   { id: "SHRADH", emoji: "👵" },
 ] as const;
 
-const KM_STEPS = [25, 50, 100, 200, 500] as const;
+// Mockup frame 15 presets (founder-ratified): four big chips beat typing a
+// number for a 58-year-old. 999 is the "100+ कि.मी." sentinel (any distance).
+const KM_PRESETS: ReadonlyArray<{ km: number; label: string }> = [
+  { km: 10, label: "10 कि.मी." },
+  { km: 25, label: "25 कि.मी." },
+  { km: 50, label: "50 कि.मी." },
+  { km: 999, label: "100+ कि.मी." },
+];
 
 interface TravelPrefs {
   ownVehicle: { enabled: boolean; maxKm: number | null };
@@ -88,6 +95,7 @@ interface Snapshot {
     customerHomeOk: boolean | null;
     hotelTier: string | null;
     sharedRoomOk: boolean | null;
+    dharamshalaOk?: boolean | null;
     advanceNoticeDays: number | null;
   } | null;
   specializations: string[];
@@ -133,6 +141,7 @@ export default function ReadinessPage() {
   const [stayHome, setStayHome] = useState<boolean | null>(null);
   const [hotelTier, setHotelTier] = useState<string | null>(null);
   const [sharedRoomOk, setSharedRoomOk] = useState<boolean | null>(null);
+  const [dharamshalaOk, setDharamshalaOk] = useState<boolean | null>(null);
   const [advanceNoticeDays, setAdvanceNoticeDays] = useState<number | null>(null);
   // R5 — bank/UPI typed-only + aadhaar (front+back+number+consent)
   const [aadhaarUrl, setAadhaarUrl] = useState("");
@@ -185,6 +194,7 @@ export default function ReadinessPage() {
       setStayHome(acc?.customerHomeOk ?? snap.foodPrefs?.stayAtCustomerHome ?? null);
       setHotelTier(acc?.hotelTier ?? snap.foodPrefs?.hotelTier ?? null);
       setSharedRoomOk(acc?.sharedRoomOk ?? null);
+      setDharamshalaOk(acc?.dharamshalaOk ?? null);
       setAdvanceNoticeDays(acc?.advanceNoticeDays ?? null);
       setAadhaarUrl(snap.aadhaarUrl || "");
       setAadhaarBackUrl(snap.aadhaarBackUrl || "");
@@ -464,6 +474,7 @@ export default function ReadinessPage() {
         customerHomeOk: stayHome,
         hotelTier,
         sharedRoomOk,
+        dharamshalaOk,
         advanceNoticeDays,
       },
     });
@@ -665,6 +676,8 @@ export default function ReadinessPage() {
             setHotelTier={setHotelTier}
             sharedRoomOk={sharedRoomOk}
             setSharedRoomOk={setSharedRoomOk}
+            dharamshalaOk={dharamshalaOk}
+            setDharamshalaOk={setDharamshalaOk}
             advanceNoticeDays={advanceNoticeDays}
             setAdvanceNoticeDays={setAdvanceNoticeDays}
           />
@@ -960,15 +973,24 @@ function StepR3({ travel, setTravel }: { travel: TravelPrefs; setTravel: (v: Tra
         {travel.ownVehicle.enabled && (
           <div className="flex flex-col gap-2 border-t border-saffron-100 pt-3">
             <span className="text-[18px] font-bold text-temple-700 font-hindi">{t("readiness.ownVehicleKm")}</span>
-            <div className="grid grid-cols-3 gap-2">
-              {KM_STEPS.map((km) => (
+            <div className="grid grid-cols-2 gap-2">
+              {KM_PRESETS.map(({ km, label }) => (
                 <Chip
                   key={km}
-                  label={t("readiness.kmUnit").replace("{km}", String(km))}
+                  label={label}
                   selected={travel.ownVehicle.maxKm === km}
                   onClick={() => setTravel({ ...travel, ownVehicle: { enabled: true, maxKm: km } })}
                 />
               ))}
+              {/* legacy passthrough: a saved value from the old preset set
+                  (e.g. 200/500) stays visible + selected — never silently lost */}
+              {travel.ownVehicle.maxKm != null && !KM_PRESETS.some((p) => p.km === travel.ownVehicle.maxKm) && (
+                <Chip
+                  label={t("readiness.kmUnit").replace("{km}", String(travel.ownVehicle.maxKm))}
+                  selected
+                  onClick={() => { /* already the saved value */ }}
+                />
+              )}
             </div>
             <p className="t-hint font-hindi">{t("readiness.ownVehicleRate")}</p>
           </div>
@@ -1093,6 +1115,8 @@ function StepR4(props: {
   setHotelTier: (v: string | null) => void;
   sharedRoomOk: boolean | null;
   setSharedRoomOk: (v: boolean) => void;
+  dharamshalaOk: boolean | null;
+  setDharamshalaOk: (v: boolean) => void;
   advanceNoticeDays: number | null;
   setAdvanceNoticeDays: (v: number) => void;
 }) {
@@ -1154,6 +1178,10 @@ function StepR4(props: {
       <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-3">
         <span className="text-[20px] font-bold text-ink font-hindi">{t("readiness.stayQ")}</span>
         <YesNoRow value={props.stayHome} onChange={props.setStayHome} />
+        <div className="flex flex-col gap-2 border-t border-saffron-100 pt-3">
+          <span className="text-[18px] font-bold text-temple-700 font-hindi">{t("readiness.dharamshalaQ")}</span>
+          <YesNoRow value={props.dharamshalaOk} onChange={props.setDharamshalaOk} />
+        </div>
         <div className="flex flex-col gap-2 border-t border-saffron-100 pt-3">
           <span className="text-[18px] font-bold text-temple-700 font-hindi">{t("readiness.hotelTierLabel")}</span>
           <div className="flex flex-col gap-2">
