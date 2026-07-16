@@ -29,17 +29,19 @@ jobs:
       - name: Generate Prisma client
         run: pnpm db:generate
       
+      # `pnpm --filter X tsc` means "run the SCRIPT named tsc", and no app
+      # defines one — so this reported success while typechecking nothing.
+      # `exec` runs the tsc BINARY, which is what was always intended.
+      # (Verified locally: all three apps are at 0 errors, so making the gate
+      # real does not introduce a backlog — it just stops the gate lying.)
       - name: Run TypeScript check (Pandit App)
-        run: pnpm --filter @hmarepanditji/pandit tsc --noEmit
-        continue-on-error: false
-      
+        run: pnpm --filter @hmarepanditji/pandit exec tsc --noEmit
+
       - name: Run TypeScript check (Admin App)
-        run: pnpm --filter @hmarepanditji/admin tsc --noEmit
-        continue-on-error: false
-      
+        run: pnpm --filter @hmarepanditji/admin exec tsc --noEmit
+
       - name: Run TypeScript check (Web App)
-        run: pnpm --filter @hmarepanditji/web tsc --noEmit
-        continue-on-error: false
+        run: pnpm --filter @hmarepanditji/web exec tsc --noEmit
       
       - name: Upload TypeScript errors
         if: failure()

@@ -44,8 +44,17 @@ async function getCachedMuhurat(key) {
         const redis = await getRedis();
         if (!redis) return null;
 
-        const data = await redis.get(key);
-        return data ? JSON.parse(data) : null;
+        const raw = await redis.get(key);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        // cacheMuhurat stores an ENVELOPE { data, date, pujaType, cachedAt };
+        // return the payload, not the envelope. Returning the envelope made a
+        // cache HIT respond with a different shape than a cache MISS — both
+        // callers (muhurat.routes /monthly + /date) drop this straight into
+        // `data:`, so every cached response was double-wrapped and
+        // data.calendarData came back undefined. The "data" in-check keeps any
+        // non-enveloped legacy key readable rather than turning it undefined.
+        return parsed && typeof parsed === "object" && "data" in parsed ? parsed.data : parsed;
     } catch (error) {
         console.error("Redis GET failed:", error.message);
         return null;

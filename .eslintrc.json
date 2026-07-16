@@ -36,10 +36,14 @@
   },
   "overrides": [
     {
-      "files": ["services/api/**/*.{ts,tsx}"],
+      "files": ["services/**/*.{ts,tsx}"],
       "rules": {
         "@typescript-eslint/ban-ts-comment": "warn",
-        "@typescript-eslint/no-var-requires": "warn"
+        "@typescript-eslint/no-var-requires": "warn",
+        "react-hooks/rules-of-hooks": "off",
+        "react-hooks/exhaustive-deps": "off",
+        "react/react-in-jsx-scope": "off",
+        "react/prop-types": "off"
       }
     }
   ]

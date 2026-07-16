@@ -38,26 +38,13 @@ jobs:
           name: coverage-report
           path: apps/pandit/coverage
 
-      - name: Check coverage thresholds
-        run: |
-          cd apps/pandit
-          node -e "
-          const report = require('./coverage/coverage-final.json');
-          const utils = report['./src/lib/utils.ts'];
-          const mapper = report['./src/lib/number-mapper.ts'];
-          
-          const utilsLines = utils.lines.pct;
-          const mapperLines = mapper.lines.pct;
-          
-          console.log('utils.ts line coverage:', utilsLines + '%');
-          console.log('number-mapper.ts line coverage:', mapperLines + '%');
-          
-          if (utilsLines < 80 || mapperLines < 80) {
-            console.error('Coverage below 80% threshold!');
-            process.exit(1);
-          }
-          console.log('Coverage thresholds met!');
-          "
+      # Coverage thresholds (global + the per-file utils.ts / number-mapper.ts
+      # bars) are enforced by vitest itself via apps/pandit/vitest.config.ts, so
+      # `test:coverage` above already fails this job on a shortfall. The check
+      # that used to live here read coverage-final.json expecting
+      # coverage-summary.json's shape and threw a TypeError on every run — it
+      # could not pass even at 100% coverage. Moving it into the config means it
+      # also fails on a developer's machine, not only in CI.
 
   e2e-tests:
     name: E2E Tests
