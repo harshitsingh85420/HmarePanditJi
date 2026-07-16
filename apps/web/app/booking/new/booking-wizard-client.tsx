@@ -401,10 +401,17 @@ export default function BookingWizardClient() {
     (muhuratConsultation ? MUHURAT_CONSULTATION_FEE : 0) +
     (addons.visarjan ? 500 : 0);
 
-  const baseSubtotal = form.dakshina + effectiveTravelCost + foodAllowance + samagriCost + accommodationCost;
-  const subtotal = baseSubtotal + addonCost;
-  // single-sided fee: nothing added on top of the itemized lines
-  const grandTotal = subtotal;
+  // ── FOUNDER DECISION 2(b): display = charge ────────────────────────────
+  // PAY NOW is EXACTLY what the server charges (booking.grandTotal =
+  // dakshina + travel + food; single-sided fee, nothing on top). The
+  // payment-money guard greps this line — the pay-now total and the Razorpay
+  // charge can never diverge.
+  const payNow = form.dakshina + effectiveTravelCost + foodAllowance;
+  // SETTLED AT BOOKING: samagri, add-ons and platform-booked accommodation
+  // are paid directly to Pandit Ji / arranged at the puja — NOT charged
+  // online (matches how samagri works offline). Server-side charging of
+  // these is a post-pilot feature (option a).
+  const settledAtBooking = samagriCost + addonCost + accommodationCost;
   // ⚠ "50% advance" REMOVED: the server has no partial-payment support — the
   // Razorpay order always charges the FULL booking.grandTotal, so advertising
   // an advance was a display≠charge lie on the paying screen. Flagged as an
@@ -662,7 +669,7 @@ export default function BookingWizardClient() {
             </div>
             <div className="flex items-center gap-2 text-sm text-slate-600">
               <span className="material-symbols-outlined text-base text-[#f49d25]">payments</span>
-              <span className="font-semibold">{fmt(grandTotal)}</span>
+              <span className="font-semibold">{fmt(payNow)} paid</span>
             </div>
           </div>
           <div className="space-y-2 text-sm text-slate-500 mb-6">
@@ -1366,7 +1373,7 @@ export default function BookingWizardClient() {
                     <div className="flex justify-between items-start py-2">
                       <div>
                         <p className="text-[#181511] dark:text-white font-semibold flex items-center gap-1">Samagri Package <span className="text-[10px] px-1.5 py-0.5 rounded bg-green-100 text-green-700 font-bold uppercase tracking-wider ml-1">{samagriItem?.type === "package" ? "Standard" : "Custom"}</span></p>
-                        <p className="text-[#8a7960] text-xs">Including organic materials and essentials</p>
+                        <p className="text-[#8a7960] text-xs">Settled at booking — paid directly to Pandit Ji, not charged now</p>
                       </div>
                       <span className="font-semibold">{fmt(samagriCost)}</span>
                     </div>
@@ -1393,7 +1400,7 @@ export default function BookingWizardClient() {
                     )}
                     {accommodationCost > 0 && (
                       <div className="flex justify-between text-sm">
-                        <span className="text-[#8a7960]">Accommodation (Platform Booked)</span>
+                        <span className="text-[#8a7960]">Accommodation — settled at booking, not charged now</span>
                         <span className="font-medium text-[#181511] dark:text-white">{fmt(accommodationCost)}</span>
                       </div>
                     )}
@@ -1476,28 +1483,31 @@ export default function BookingWizardClient() {
               <section className="sticky top-24 bg-white dark:bg-[#2a2218] rounded-xl border-t-4 border-[#f49d25] shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] overflow-hidden">
                 <div className="p-6 space-y-4">
                   <div className="flex justify-between items-center text-[#8a7960] text-sm font-medium">
-                    <span>Subtotal</span>
-                    <span>{fmt(baseSubtotal)}</span>
+                    <span>Dakshina + travel + food</span>
+                    <span>{fmt(payNow)}</span>
                   </div>
-                  {addonCost > 0 && (
-                    <div className="flex justify-between items-center text-[#8a7960] text-sm font-medium">
-                      <span>Add-ons</span>
-                      <span>{fmt(addonCost)}</span>
-                    </div>
-                  )}
                   <div className="flex justify-between items-center text-[#8a7960] text-sm font-medium">
                     <span>Platform Fees & Taxes</span>
                     <span>₹0 — included in dakshina</span>
                   </div>
+                  {settledAtBooking > 0 && (
+                    <div className="flex justify-between items-start text-[#8a7960] text-sm font-medium">
+                      <div>
+                        <span>Settled at booking</span>
+                        <p className="text-[10px] text-[#8a7960]">Samagri / add-ons / stay — paid directly to Pandit Ji at the puja, not charged now</p>
+                      </div>
+                      <span>{fmt(settledAtBooking)}</span>
+                    </div>
+                  )}
 
                   <div className="h-px bg-[#e6e1db] dark:bg-[#3d3326] my-4"></div>
 
                   <div className="flex justify-between items-end">
-                    <span className="text-xl font-black text-[#181511] dark:text-white leading-none">Grand Total</span>
-                    <span className="text-3xl font-black text-[#f49d25] leading-none">{fmt(grandTotal)}</span>
+                    <span className="text-xl font-black text-[#181511] dark:text-white leading-none">Pay Now</span>
+                    <span className="text-3xl font-black text-[#f49d25] leading-none">{fmt(payNow)}</span>
                   </div>
                   <p className="text-[10px] text-center text-[#8a7960] bg-[#f8f7f5] dark:bg-[#3d3326] p-2 rounded-lg mt-2 font-medium">
-                    Inclusive of all taxes and automated travel credits
+                    This is exactly the amount charged at payment — nothing added on top
                   </p>
                 </div>
 

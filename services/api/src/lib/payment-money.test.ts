@@ -95,4 +95,31 @@ assert.ok(
   "createOrder must FAIL CLOSED in production when Razorpay keys are missing (no mock orders in prod)",
 );
 
-console.log("payment-money guard: conservation holds, one money source, server-derived charge, prod fail-closed ✅");
+// 5) DISPLAY = CHARGE (founder decision 2b): the wizard's PAY-NOW total is
+//    composed of EXACTLY the server-charged components (dakshina + travel +
+//    food) — samagri / add-ons / accommodation are "settled at booking" and
+//    excluded. The Razorpay modal amount comes from the SERVER order. If
+//    option (a) (server-side samagri/add-on charging) ships post-pilot, BOTH
+//    sides of this guard change together.
+const wizard = readFileSync(
+  join(SRC, "..", "..", "..", "apps", "web", "app", "booking", "new", "booking-wizard-client.tsx"),
+  "utf8",
+);
+assert.ok(
+  /const payNow = form\.dakshina \+ effectiveTravelCost \+ foodAllowance;/.test(wizard),
+  "wizard payNow must be composed of exactly the server-charged components (dakshina + travel + food)",
+);
+assert.ok(
+  !/const payNow =[^;]*(samagri|addon|accommodation)/i.test(wizard),
+  "settled-at-booking items (samagri/add-ons/accommodation) must NOT be in the pay-now total",
+);
+assert.ok(
+  /amount=\{form\.orderAmount\}/.test(wizard),
+  "the Razorpay modal amount must come from the SERVER order (form.orderAmount)",
+);
+assert.ok(
+  /razorpayKey=\{form\.orderKeyId\}/.test(wizard),
+  "the Razorpay key must come from the SERVER create-order response",
+);
+
+console.log("payment-money guard: conservation holds, one money source, server-derived charge, display=charge, prod fail-closed ✅");
