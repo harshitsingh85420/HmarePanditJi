@@ -21,16 +21,21 @@ assert.strictEqual(
   `shishyaFacts.commissionPercent (${APP_FACTS.commissionPercent}) must equal PLATFORM_FEE_PERCENT (${PLATFORM_FEE_PERCENT})`,
 );
 
-// 2. the fee math reads the constant — no raw commission literal
+// 2. the fee math lives in ONE place (utils/pricing, reading the constant);
+//    booking.service DELEGATES to it and computes no fee arithmetic of its own.
 const bookingSvc = read("services/booking.service.ts");
+const pricing = read("utils/pricing.ts");
 assert.ok(
-  /dakshina\s*\*\s*PLATFORM_FEE_PERCENT\s*\/\s*100/.test(bookingSvc),
-  "calculateBookingFinancials must compute the platform fee from PLATFORM_FEE_PERCENT/100",
+  /\*\s*\(PLATFORM_FEE_PERCENT\s*\/\s*100\)/.test(pricing),
+  "utils/pricing must compute the platform fee from PLATFORM_FEE_PERCENT/100",
 );
 assert.ok(
-  !/dakshina\s*\*\s*0\.\d+/.test(bookingSvc),
-  "no raw decimal commission literal (e.g. * 0.15) in the fee math — use the constant",
+  /calculateGrandTotal\(/.test(bookingSvc),
+  "calculateBookingFinancials must DELEGATE to pricing.calculateGrandTotal (one money source)",
 );
+for (const [rel, txt] of [["services/booking.service.ts", bookingSvc], ["utils/pricing.ts", pricing]] as const) {
+  assert.ok(!/dakshina\w*\s*\*\s*0\.\d+/.test(txt), `raw decimal commission literal in ${rel} — use the constant`);
+}
 
 // 3. the facts sheet reads the constant — no literal commissionPercent
 const facts = read("lib/shishyaFacts.ts");

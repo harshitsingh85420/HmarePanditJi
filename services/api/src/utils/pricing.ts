@@ -18,18 +18,18 @@ export interface PriceBreakdown {
   panditPayout: number;
 }
 
-/** 15% of dakshina — collected by platform */
+/** PLATFORM_FEE_PERCENT of dakshina — collected by platform */
 export function calculatePlatformFee(dakshinaAmount: number): number {
   return Math.round(dakshinaAmount * (PLATFORM_FEE_PERCENT / 100));
 }
 
-/** 5% of travel cost — collected by platform */
+/** TRAVEL_SERVICE_FEE_PERCENT of travel cost — collected by platform */
 export function calculateTravelServiceFee(travelCost: number): number {
   if (travelCost <= 0) return 0;
   return Math.round(travelCost * (TRAVEL_SERVICE_FEE_PERCENT / 100));
 }
 
-/** 18% GST on a given amount */
+/** GST_PERCENT on a given amount */
 export function calculateGst(amount: number): number {
   return Math.round(amount * (GST_PERCENT / 100));
 }

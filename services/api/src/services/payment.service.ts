@@ -38,8 +38,14 @@ export interface CreateOrderInput {
 export async function createOrder(input: CreateOrderInput) {
   const rzp = getRazorpay();
   if (!rzp) {
-    // Mock for development if keys missing
-    logger.info(`[MOCK] Creating Razorpay order for ₹${input.amount}`);
+    // FAIL-CLOSED (L-J posture): production must NEVER mint a mock order —
+    // a fake order id on a real booking simulates a payment path that does
+    // not exist. Dev keeps the mock for local flows without keys.
+    if (env.NODE_ENV === "production") {
+      logger.error("Razorpay keys NOT configured in production — refusing to create order (fail closed)");
+      throw new AppError("भुगतान सेवा अभी उपलब्ध नहीं है — कृपया थोड़ी देर में फिर कोशिश करें।", 503, "PAYMENTS_NOT_CONFIGURED");
+    }
+    logger.info(`[MOCK] Creating Razorpay order for ₹${input.amount} (non-production only)`);
     return {
       id: "order_mock_" + Date.now(),
       currency: input.currency || "INR",

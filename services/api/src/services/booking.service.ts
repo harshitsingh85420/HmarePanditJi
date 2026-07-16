@@ -8,7 +8,8 @@ import {
   AccommodationArrangement,
 } from "@hmarepanditji/db";
 import { generateBookingNumber } from "../utils/helpers";
-import { PLATFORM_FEE_PERCENT } from "../config/constants";
+import { FOOD_ALLOWANCE_PER_DAY } from "../config/constants";
+import { calculateGrandTotal } from "../utils/pricing";
 import { AppError } from "../middleware/errorHandler";
 import { NotificationService } from "./notification.service";
 import { getNotificationTemplate } from "./notification-templates";
@@ -18,25 +19,45 @@ import { getNotificationTemplate } from "./notification-templates";
 export interface BookingFinancials {
   dakshina: number;
   travelCost?: number;
-  platformFee: number;        // PLATFORM_FEE_PERCENT of dakshina (single source)
-  travelServiceFee?: number;  // 5% of travelCost
-  gstAmount: number;          // 18% GST on platformFee + travelServiceFee
-  grandTotal: number;         // customer pays
-  panditPayout: number;       // dakshina - platformFee (travel reimbursed separately)
+  foodAllowanceAmount: number;   // days × FOOD_ALLOWANCE_PER_DAY — charged AND paid out
+  accommodationCost: number;     // charged AND paid out (0 until platform-booked stays)
+  platformFee: number;           // PLATFORM_FEE_PERCENT of dakshina (single source: utils/pricing)
+  travelServiceFee?: number;     // TRAVEL_SERVICE_FEE_PERCENT of travelCost
+  platformFeeGst: number;        // GST_PERCENT on platformFee
+  travelServiceFeeGst: number;   // GST_PERCENT on travelServiceFee
+  gstAmount: number;             // total GST (both fees)
+  grandTotal: number;            // customer pays — includes food + accommodation
+  panditPayout: number;          // dakshina − platformFee + travel + food + accommodation
 }
 
-/** Calculate all derived fee columns from first principles. */
+/**
+ * Calculate all derived fee columns — a thin DELEGATE over the ONE money
+ * source, utils/pricing.calculateGrandTotal. MONEY-CONSERVATION LAW: the
+ * customer's grandTotal and the pandit's payout come from the SAME breakdown,
+ * so payout can never exceed what was collected (the old local math here
+ * excluded food/accommodation from the charge while processPaymentSuccess
+ * included them in the payout — the platform silently ate the difference).
+ */
 export function calculateBookingFinancials(
   dakshina: number,
   travelCost = 0,
+  foodAllowanceAmount = 0,
+  accommodationCost = 0,
 ): BookingFinancials {
-  const platformFee = Math.round(dakshina * PLATFORM_FEE_PERCENT / 100);
-  const travelServiceFee = travelCost > 0 ? Math.round(travelCost * 0.05) : undefined;
-  const taxableAmount = platformFee + (travelServiceFee ?? 0);
-  const gstAmount = Math.round(taxableAmount * 0.18);
-  const grandTotal = dakshina + travelCost + platformFee + (travelServiceFee ?? 0) + gstAmount;
-  const panditPayout = dakshina - platformFee;
-  return { dakshina, travelCost: travelCost || undefined, platformFee, travelServiceFee, gstAmount, grandTotal, panditPayout };
+  const b = calculateGrandTotal({ dakshinaAmount: dakshina, travelCost, foodAllowanceAmount, accommodationCost });
+  return {
+    dakshina: b.dakshinaAmount,
+    travelCost: b.travelCost || undefined,
+    foodAllowanceAmount: b.foodAllowanceAmount,
+    accommodationCost: b.accommodationCost,
+    platformFee: b.platformFee,
+    travelServiceFee: b.travelServiceFee || undefined,
+    platformFeeGst: b.platformFeeGst,
+    travelServiceFeeGst: b.travelServiceFeeGst,
+    gstAmount: b.platformFeeGst + b.travelServiceFeeGst,
+    grandTotal: b.grandTotal,
+    panditPayout: b.panditPayout,
+  };
 }
 
 export interface CreateBookingInput {
@@ -65,10 +86,11 @@ export interface CreateBookingInput {
   samagriNotes?: string;
   samagriAmount?: number;
   // Financials (auto-calculated if not provided)
-  platformFee?: number;
-  travelServiceFee?: number;
-  grandTotal?: number;
-  panditPayout?: number;
+  // MONEY LAW: no caller may supply financial columns — every fee, total and
+  // payout is derived server-side from the ONE money source (utils/pricing).
+  // The old optional platformFee/travelServiceFee/grandTotal/panditPayout
+  // overrides were an unloaded gun (no caller used them, zod stripped them
+  // from the API) — removed so they can never be loaded.
 }
 
 // ─── Service functions ────────────────────────────────────────────────────────
@@ -124,10 +146,11 @@ export async function createBooking(input: CreateBookingInput) {
     );
   }
 
-  // Auto-calculate financials
-  const fin = calculateBookingFinancials(input.dakshinaAmount, input.travelCost ?? 0);
+  // Auto-calculate financials — food allowance is part of the CHARGE (it is
+  // paid out to the pandit, so the customer must have paid it in: conservation).
   const foodAllowanceDays = input.foodAllowanceDays ?? 0;
-  const foodAllowanceAmount = foodAllowanceDays * 1000;
+  const foodAllowanceAmount = foodAllowanceDays * FOOD_ALLOWANCE_PER_DAY;
+  const fin = calculateBookingFinancials(input.dakshinaAmount, input.travelCost ?? 0, foodAllowanceAmount, 0);
 
   const booking = await prisma.booking.create({
     data: {
@@ -159,13 +182,13 @@ export async function createBooking(input: CreateBookingInput) {
       samagriPreference: (input.samagriPreference ?? "CUSTOMER_ARRANGES") as any,
       samagriAmount: input.samagriAmount ?? 0,
       samagriNotes: input.samagriNotes,
-      // Financials
-      platformFee: input.platformFee ?? fin.platformFee,
-      platformFeeGst: Math.round((input.platformFee ?? fin.platformFee) * 0.18),
-      travelServiceFee: input.travelServiceFee ?? fin.travelServiceFee ?? 0,
-      travelServiceFeeGst: Math.round((input.travelServiceFee ?? fin.travelServiceFee ?? 0) * 0.18),
-      grandTotal: input.grandTotal ?? fin.grandTotal,
-      panditPayout: input.panditPayout ?? fin.panditPayout,
+      // Financials — ONLY from the single money source (no caller overrides)
+      platformFee: fin.platformFee,
+      platformFeeGst: fin.platformFeeGst,
+      travelServiceFee: fin.travelServiceFee ?? 0,
+      travelServiceFeeGst: fin.travelServiceFeeGst,
+      grandTotal: fin.grandTotal,
+      panditPayout: fin.panditPayout,
       status: "CREATED",
       paymentStatus: "PENDING",
     },
