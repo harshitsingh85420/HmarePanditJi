@@ -835,11 +835,40 @@ export default function BookClient() {
   const resolvedRitual = ritual ?? { ...MOCK_RITUALS.default, id: ritualId || "mock" };
 
   // ── Pricing calculation ──────────────────────────────────────────────────────
+  // DISPLAY = CHARGE: the number the customer sees must be the number Razorpay
+  // charges (booking.grandTotal). The server is authoritative — we fetch
+  // /bookings/calculate-fees (the same money source createBooking uses); the
+  // local mirror below only bridges the fetch and includes GST so it never
+  // under-states the charge.
 
   const dakshina = resolvedPandit.basePricing?.dakshina ?? resolvedRitual.basePriceMin ?? 5100;
-  const platformFee = Math.round(dakshina * 0.1);
-  const total = dakshina + platformFee;
-  const pricing = { dakshina, platformFee, total };
+  const [serverFin, setServerFin] = useState<{ platformFee: number; gstAmount: number; grandTotal: number } | null>(null);
+  useEffect(() => {
+    if (!accessToken) return; // route requires auth; local mirror until login
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(`${API_BASE}/bookings/calculate-fees`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${accessToken}` },
+          body: JSON.stringify({ dakshina }),
+          signal: AbortSignal.timeout(10000),
+        });
+        if (!res.ok) return;
+        const j = await res.json() as { data?: { financials?: { platformFee: number; gstAmount: number; grandTotal: number } } };
+        if (!cancelled && j.data?.financials) setServerFin(j.data.financials);
+      } catch { /* keep the local mirror */ }
+    })();
+    return () => { cancelled = true; };
+  }, [dakshina, accessToken]);
+
+  // local mirror of the server constants (10% fee, 18% GST on the fee) —
+  // server numbers override the moment they arrive
+  const localFee = Math.round(dakshina * 0.1);
+  const localGst = Math.round(localFee * 0.18);
+  const pricing = serverFin
+    ? { dakshina, platformFee: serverFin.platformFee, total: serverFin.grandTotal }
+    : { dakshina, platformFee: localFee, total: dakshina + localFee + localGst };
 
   // ── Form field change handler ────────────────────────────────────────────────
 

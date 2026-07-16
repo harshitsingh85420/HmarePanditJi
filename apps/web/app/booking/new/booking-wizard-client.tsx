@@ -77,6 +77,10 @@ interface BookingFormData {
   specialInstructions: string;
   // Step 4 â€“ Payment
   orderId: string;
+  /** SERVER-issued charge in paise (the Razorpay order amount) — display=charge */
+  orderAmount: number;
+  /** SERVER-issued Razorpay key id (test/live decided by the API, never web env) */
+  orderKeyId: string;
   bookingId: string;
   bookingNumber: string;
 }
@@ -214,6 +218,8 @@ export default function BookingWizardClient() {
     samagri: "PANDIT_PACKAGE",
     specialInstructions: "",
     orderId: "",
+    orderAmount: 0,
+    orderKeyId: "",
     bookingId: "",
     bookingNumber: "",
   });
@@ -403,8 +409,10 @@ export default function BookingWizardClient() {
   const totalPlatformFees = platformFee + travelServiceFee + samagriServiceFee;
   const gst = Math.round(totalPlatformFees * GST_PCT);
   const grandTotal = subtotal + totalPlatformFees + gst;
-  const payableNow = grandTotal > 5000 ? Math.round(grandTotal * 0.5) : grandTotal;
-  const payableLater = grandTotal - payableNow;
+  // ⚠ "50% advance" REMOVED: the server has no partial-payment support — the
+  // Razorpay order always charges the FULL booking.grandTotal, so advertising
+  // an advance was a display≠charge lie on the paying screen. Flagged as an
+  // unbuilt product feature (needs server-side partial orders + balance flow).
 
   useEffect(() => {
     if (!selectedPandit || isOutstation) return;
@@ -554,18 +562,18 @@ export default function BookingWizardClient() {
         bookingId,
         bookingNumber,
         orderId: payData.orderId ?? payData.order_id ?? payData.id,
+        // display=charge: the modal and every ₹ shown from here on use the
+        // SERVER order's amount + key — never a client-computed figure.
+        orderAmount: Number(payData.amount) || 0,
+        orderKeyId: payData.keyId ?? "",
       });
       setPaymentReady(true);
     } catch (err) {
+      // TRUTHFUL FAILURE: a real API error must surface as an error — the old
+      // catch minted a FAKE bk_mock_ booking + order_mock_ order, cleared the
+      // error and marched the customer into a payment step for a booking that
+      // did not exist. No simulated success on the money path, ever.
       setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
-      // For demo/mock mode, simulate success
-      if (!form.bookingId) {
-        const mockId = `bk_mock_${Date.now()}`;
-        const mockNumber = `HPJ-${Date.now().toString(36).toUpperCase()}`;
-        set({ bookingId: mockId, bookingNumber: mockNumber, orderId: `order_mock_${Date.now()}` });
-        setPaymentReady(true);
-        setError("");
-      }
     } finally {
       setLoading(false);
     }
@@ -1508,7 +1516,7 @@ export default function BookingWizardClient() {
                   >
                     {loading ? "Processing..." : (
                       <>
-                        {grandTotal > 5000 ? `Pay Advance (${fmt(payableNow)})` : "Proceed to Payment"}
+                        Proceed to Payment
                         <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
                       </>
                     )}
@@ -1517,8 +1525,8 @@ export default function BookingWizardClient() {
                   <div className="p-4 bg-[#f8f7f5] dark:bg-[#181511]">
                     <RazorpayCheckout
                       orderId={form.orderId}
-                      amount={payableNow * 100}
-                      razorpayKey={process.env.NEXT_PUBLIC_RAZORPAY_KEY || (() => { throw new Error('NEXT_PUBLIC_RAZORPAY_KEY environment variable is required'); })()}
+                      amount={form.orderAmount}
+                      razorpayKey={form.orderKeyId}
                       bookingId={form.bookingId}
                       bookingNumber={form.bookingNumber}
                       customerName={user?.fullName ?? "Customer"}
