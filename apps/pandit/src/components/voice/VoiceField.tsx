@@ -317,7 +317,9 @@ export function VoiceField({
   return (
     <div className="w-full flex flex-col gap-2">
       {label && (
-        <label className="t-title font-bold text-ink text-left">
+        // Mockup-match: field labels are small + softgrey (15/800) everywhere
+        // on the artboard — the big bold VALUE carries the size, not the label.
+        <label className="text-[15px] font-extrabold text-softgrey font-hindi text-left">
           {label}
           {required && <span className="text-danger ml-1">*</span>}
         </label>
@@ -334,7 +336,7 @@ export function VoiceField({
             handleTyped(e.target.value);
             if (e.target.value) onComplete?.();
           }}
-          className={`w-full min-h-[56px] text-[18px] bg-white border rounded-btn px-4 font-medium focus:outline-none focus:ring-4 focus:ring-saffron-200 ${
+          className={`w-full min-h-[56px] text-[20px] bg-white border-2 rounded-[14px] px-4 font-bold text-ink focus:outline-none focus:ring-4 focus:ring-saffron-200 ${
             listening ? "border-gold ring-4 ring-gold/40 animate-pulse" : "border-saffron-200"
           }`}
         >
@@ -355,7 +357,7 @@ export function VoiceField({
           onFocus={() => state.phase !== "IDLE" && dispatch({ type: "TYPED_INPUT" })}
           onBlur={handleBlur}
           onChange={(e) => handleTyped(e.target.value)}
-          className={`w-full min-h-[56px] text-[18px] bg-white border rounded-btn px-4 font-medium focus:outline-none focus:ring-4 focus:ring-saffron-200 ${
+          className={`w-full min-h-[56px] text-[20px] bg-white border-2 rounded-[14px] px-4 font-bold text-ink focus:outline-none focus:ring-4 focus:ring-saffron-200 ${
             listening ? "border-gold ring-4 ring-gold/40 animate-pulse" : "border-saffron-200"
           }`}
         />

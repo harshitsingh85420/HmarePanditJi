@@ -15,7 +15,6 @@ import { useVoiceOptions } from "@/hooks/useVoiceScreen";
 import { api } from "@/lib/api";
 import { mutateOnce } from "@/lib/mutate";
 import { Screen } from "@/components/ui/Screen";
-import { Header } from "@/components/ui/Header";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { VoiceField } from "@/components/voice/VoiceField";
@@ -93,32 +92,37 @@ export default function AddPoojaPage() {
   };
 
   return (
-    <Screen>
-      <Header title="पूजा जोड़ें" showBack onBack={() => (d.step === 0 ? router.push("/my-poojas") : go(d.step - 1))} />
-      <div className="px-4 pt-2 pb-3"><ProgressDots total={STEPS.length} current={d.step} /></div>
-      <main className="flex-1 overflow-y-auto px-4 pb-28 flex flex-col gap-4 page-enter">
-        {d.step === 0 && <StepName d={d} set={set} />}
-        {d.step === 1 && <StepSamagri d={d} set={set} activeTier={activeTier} setActiveTier={setActiveTier} tiersData={tiersData} />}
-        {d.step === 2 && <StepSupply d={d} set={set} />}
-        {d.step === 3 && <StepTeam d={d} set={set} />}
-        {d.step === 4 && <StepDakshina d={d} set={set} />}
-        {d.step === 5 && <StepVideo d={d} set={set} />}
-        {d.step === 6 && <StepDone name={d.name} />}
-      </main>
-
-      {d.step < 6 && (
-        <footer className="shrink-0 px-4 py-3 bg-card/95 backdrop-blur border-t border-saffron-100">
-          {d.step === 5 ? (
+    <Screen
+      title="पूजा जोड़ें"
+      showBack
+      onBack={() => (d.step === 0 ? router.push("/my-poojas") : go(d.step - 1))}
+      /* was: a second <Header> INSIDE Screen (empty sindoor band above the real
+         one) + a footer nested in the scroller. Screen owns the one Header,
+         the dots ride the banner slot, and the CTA is the real fixed footer. */
+      banner={<div className="px-4 pt-2 pb-1 bg-cream"><ProgressDots total={STEPS.length} current={d.step + 1} /></div>}
+      mainClassName="flex flex-col gap-4 page-enter"
+      footer={
+        d.step < 6 ? (
+          d.step === 5 ? (
             <Button className="w-full h-[64px] text-[20px]" loading={submitting} disabled={!d.videoUrl || !d.consent} onClick={submit}>
               पूजा भेजें
             </Button>
           ) : (
             <Button className="w-full h-[64px] text-[20px]" disabled={d.step === 0 && !d.name.trim()} onClick={() => go(d.step + 1)}>
-              आगे बढ़ें
+              {/* mockup 18a: the CTA names the NEXT step — "आगे — सामग्री" */}
+              {`आगे — ${STEPS[d.step + 1]}`}
             </Button>
-          )}
-        </footer>
-      )}
+          )
+        ) : undefined
+      }
+    >
+      {d.step === 0 && <StepName d={d} set={set} />}
+      {d.step === 1 && <StepSamagri d={d} set={set} activeTier={activeTier} setActiveTier={setActiveTier} tiersData={tiersData} />}
+      {d.step === 2 && <StepSupply d={d} set={set} />}
+      {d.step === 3 && <StepTeam d={d} set={set} />}
+      {d.step === 4 && <StepDakshina d={d} set={set} />}
+      {d.step === 5 && <StepVideo d={d} set={set} />}
+      {d.step === 6 && <StepDone name={d.name} />}
     </Screen>
   );
 }
@@ -131,8 +135,10 @@ function StepName({ d, set }: { d: Draft; set: (p: Partial<Draft>) => void }) {
       <Card className="p-5 flex flex-col gap-2 bg-white">
         <VoiceField label="पूजा का नाम" promptText="पूजा का नाम बोलिए" mode="text" value={d.name} onChange={(v) => set({ name: v })} placeholder="जैसे सत्यनारायण कथा" />
       </Card>
-      <Card className="p-5 flex flex-col gap-2 bg-white">
-        <VoiceField label="यह पूजा क्या है?" promptText="यह पूजा क्या है, दो शब्दों में बताइए" mode="text" value={d.desc} onChange={(v) => set({ desc: v })} placeholder="संक्षेप में बोलिए" />
+      {/* Mockup 18a: the description is a warm NARRATION card (peach, 2px
+          saffron border, r18) — "बोलकर बताइए यह पूजा क्या है" */}
+      <Card className="p-4 flex flex-col gap-2 bg-saffron-50 border-2 border-saffron-200 rounded-[18px]">
+        <VoiceField label="बोलकर बताइए यह पूजा क्या है" promptText="यह पूजा क्या है, दो शब्दों में बताइए" mode="text" value={d.desc} onChange={(v) => set({ desc: v })} placeholder="संक्षेप में बोलिए" />
       </Card>
     </>
   );
@@ -255,6 +261,8 @@ function StepVideo({ d, set }: { d: Draft; set: (p: Partial<Draft>) => void }) {
         )}
       </Card>
       <Card className="p-4 bg-white flex flex-col gap-2">
+        {/* Mockup 18d: the checklist carries its own heading */}
+        <span className="text-[15px] font-extrabold text-softgrey font-hindi">अच्छे वीडियो के लिए</span>
         {CHECK.map((c) => (<span key={c} className="text-[15px] font-hindi text-temple-700">✅ {c}</span>))}
       </Card>
       <a href={`https://wa.me/918934095599?text=${encodeURIComponent("नमस्ते, मुझे अपनी पूजा का वीडियो भेजना है")}`} target="_blank" rel="noopener"
@@ -278,7 +286,8 @@ function StepDone({ name }: { name: string }) {
       <Narrate text="बहुत बढ़िया! आपकी पूजा जाँच के लिए भेज दी गई। स्वीकृत होते ही सूचना मिलेगी।" />
       <span className="text-[72px]">🙏</span>
       <span className="text-[24px] font-hindi font-bold text-temple-700">{name} भेज दी गई</span>
-      <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#FFE9B8] text-[15px] font-hindi font-bold text-brassdark">⏳ प्रतीक्षा में</span>
+      {/* Mockup 18e: प्रतीक्षा में badge — 19/900 brassdark */}
+      <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#FFE9B8] text-[19px] font-hindi font-black text-brassdark">⏳ प्रतीक्षा में</span>
       <Button className="mt-4 h-[56px] px-8" onClick={() => router.push("/my-poojas")}>मेरी पूजाएँ देखें</Button>
     </div>
   );

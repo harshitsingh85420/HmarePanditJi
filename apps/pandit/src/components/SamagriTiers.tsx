@@ -51,7 +51,7 @@ export function SamagriTiers({
             <button
               key={tier}
               onClick={() => onSelect(tier)}
-              className={`flex-1 py-2.5 px-1.5 rounded-btn border-2 flex flex-col items-center gap-0.5 active:scale-[0.97] transition-transform ${
+              className={`flex-1 py-2.5 px-1.5 rounded-[14px] border-2 flex flex-col items-center gap-0.5 active:scale-[0.97] transition-transform ${
                 isActive ? "bg-saffron-500 border-saffron-500 text-chandan" : "bg-card border-saffron-200 text-saffron-700"
               }`}
               aria-pressed={isActive}
