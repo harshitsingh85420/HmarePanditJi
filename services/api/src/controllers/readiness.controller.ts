@@ -220,6 +220,9 @@ export const patchReadiness = async (request: FastifyRequest, reply: FastifyRepl
     const customerHomeOk = ap.customerHomeOk ?? fp.stayAtCustomerHome ?? null;
     const acHotelTier = ap.hotelTier ?? fp.hotelTier ?? null;
     const sharedRoomOk = ap.sharedRoomOk ?? null;
+    // धर्मशाला (founder-ratified): a real, culturally-correct stay option for a
+    // priest — carried in the same Json column, no migration needed.
+    const dharamshalaOk = ap.dharamshalaOk ?? null;
     const advanceNoticeRaw = ap.advanceNoticeDays ?? null;
     if (customerHomeOk !== null && typeof customerHomeOk !== "boolean") {
       return badRequest(reply, "accommodation customerHomeOk must be boolean or null.");
@@ -229,6 +232,9 @@ export const patchReadiness = async (request: FastifyRequest, reply: FastifyRepl
     }
     if (sharedRoomOk !== null && typeof sharedRoomOk !== "boolean") {
       return badRequest(reply, "sharedRoomOk must be boolean or null.");
+    }
+    if (dharamshalaOk !== null && typeof dharamshalaOk !== "boolean") {
+      return badRequest(reply, "dharamshalaOk must be boolean or null.");
     }
     if (advanceNoticeRaw !== null) {
       const d = Number(advanceNoticeRaw);
@@ -249,6 +255,7 @@ export const patchReadiness = async (request: FastifyRequest, reply: FastifyRepl
       customerHomeOk,
       hotelTier: acHotelTier,
       sharedRoomOk,
+      dharamshalaOk,
       advanceNoticeDays: advanceNoticeRaw === null ? null : Math.round(Number(advanceNoticeRaw)),
     };
   }

@@ -362,6 +362,7 @@ export const hi = {
     stayQ: "ग्राहक के घर रुक सकते हैं?",
     hotelTierLabel: "होटल पसंद",
     sharedRoomQ: "साझा कमरा चलेगा?",
+    dharamshalaQ: "🛕 धर्मशाला में रुकना ठीक है?",
     advanceNoticeQ: "बाहर की पूजा — कितने दिन पहले बताना होगा?",
     aadhaarBackLabel: "आधार का पिछला हिस्सा भी डालिए",
     aadhaarBackError: "आधार का पिछला हिस्सा भी डालिए।",

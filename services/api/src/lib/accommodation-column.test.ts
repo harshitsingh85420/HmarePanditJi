@@ -21,7 +21,7 @@ console.log("Running accommodation-column guard (stay → accommodationPrefs, ne
 // 1) stay is written to its OWN column, with all four fields.
 const accBlock = src.match(/update\.accommodationPrefs\s*=\s*\{([\s\S]*?)\};/);
 assert.ok(accBlock, "readiness.controller must write update.accommodationPrefs = { … }");
-for (const field of ["customerHomeOk", "hotelTier", "sharedRoomOk", "advanceNoticeDays"]) {
+for (const field of ["customerHomeOk", "hotelTier", "sharedRoomOk", "dharamshalaOk", "advanceNoticeDays"]) {
   assert.ok(new RegExp(`\\b${field}\\b`).test(accBlock[1]), `accommodationPrefs must include ${field}`);
 }
 
