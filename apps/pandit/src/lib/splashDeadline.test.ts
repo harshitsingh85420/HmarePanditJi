@@ -32,6 +32,15 @@ const src = readFileSync(SPLASH, "utf8");
 // the effect body: everything from the mount effect to its cleanup
 const effect = src.slice(src.indexOf("useEffect(() => {"));
 
+// Comments are PROSE, not code. This file's comments discuss speakAndWait
+// at length, and an offset check against raw text matches the word in a
+// comment instead of the call — the same false-positive that has bitten
+// the dialableTel and oneVoiceOwner guards. Order assertions run against
+// code only.
+const stripComments = (s: string) =>
+  s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/[^\n]*/g, "$1");
+const effectCode = stripComments(effect);
+
 describe("D0-L splash deadline law", () => {
   it("declares both deadlines as finite module-level constants", () => {
     const noPlayback = /export const SPLASH_NO_PLAYBACK_MS = ([\d_]+)/.exec(src);
@@ -60,8 +69,8 @@ describe("D0-L splash deadline law", () => {
   });
 
   it("arms the deadlines BEFORE the first speak attempt — voice can never preempt them", () => {
-    const armedAt = effect.indexOf("SPLASH_NO_PLAYBACK_MS");
-    const firstSpeak = effect.indexOf("speakAndWait");
+    const armedAt = effectCode.indexOf("SPLASH_NO_PLAYBACK_MS");
+    const firstSpeak = effectCode.indexOf("speakAndWait");
     expect(armedAt).toBeGreaterThan(-1);
     expect(firstSpeak).toBeGreaterThan(-1);
     expect(
