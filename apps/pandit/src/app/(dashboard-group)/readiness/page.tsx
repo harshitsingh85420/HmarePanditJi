@@ -28,7 +28,6 @@ import { Header } from "@/components/ui/Header";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
-import { ProgressDots } from "@/components/ui/ProgressDots";
 import { DiyaLoader } from "@/components/moments/DiyaLoader";
 import { CelebrationScreen } from "@/components/moments/CelebrationScreen";
 import { VoiceField } from "@/components/voice/VoiceField";
@@ -600,8 +599,27 @@ export default function ReadinessPage() {
       />
 
       <main className="flex-1 min-h-0 overflow-y-auto px-4 pt-3 pb-6 flex flex-col gap-4 page-enter">
-        {/* ProgressDots carries its own "चरण n / 5" caption */}
-        <ProgressDots total={5} current={step} />
+        {/* Mockup frame 12 ("दीये जलें"): the wizard's progress IS five diyas —
+            lit for completed steps, dim for the rest. Same step source as the
+            old dots; static styling only (no new animation — A12). */}
+        <div className="flex flex-col items-center gap-1">
+          <div className="flex items-center gap-3" role="img" aria-label={`चरण ${step} / 5`}>
+            {[1, 2, 3, 4, 5].map((n) => (
+              <span
+                key={n}
+                className={`text-[26px] leading-none select-none transition-opacity ${
+                  n < step ? "opacity-100" : n === step ? "opacity-100 pa-diya-halo rounded-full" : "opacity-30 grayscale"
+                }`}
+                aria-hidden="true"
+              >
+                🪔
+              </span>
+            ))}
+          </div>
+          <span className="text-[13px] font-bold text-softgrey font-hindi">
+            {step > 1 ? `${step - 1}/5 दीये जल गए` : `चरण ${step} / 5`}
+          </span>
+        </div>
 
 
         {errorMsg && (
@@ -741,16 +759,28 @@ function ToggleRow({
   enabled: boolean;
   onToggle: (v: boolean) => void;
 }) {
+  // Mockup frame 15: each mode leads with a BIG emoji tile. Labels arrive as
+  // "🚗 अपनी गाड़ी" — split the leading emoji into a warm tile, keep the text.
+  const m = label.match(/^(\p{Extended_Pictographic}️?)\s+(.*)$/u);
+  const emoji = m ? m[1] : null;
+  const text = m ? m[2] : label;
   return (
     <button
       type="button"
       onClick={() => onToggle(!enabled)}
       className="w-full min-h-[56px] flex items-center justify-between gap-3 text-left"
     >
-      <span className="text-[20px] font-bold text-ink font-hindi">{label}</span>
+      <span className="flex items-center gap-3 min-w-0">
+        {emoji && (
+          <span className={`w-11 h-11 shrink-0 rounded-[12px] flex items-center justify-center text-[24px] ${enabled ? "bg-saffron-50" : "bg-[#F4EFE6]"}`} aria-hidden="true">
+            {emoji}
+          </span>
+        )}
+        <span className="text-[20px] font-bold text-ink font-hindi">{text}</span>
+      </span>
       <span
         className={`relative inline-flex h-9 w-[72px] shrink-0 items-center rounded-full transition-all duration-300 ${
-          enabled ? "bg-saffron-500" : "bg-slate-300"
+          enabled ? "bg-saffron-500" : "bg-sand-400"
         }`}
         aria-hidden="true"
       >
@@ -1200,32 +1230,42 @@ function StepR5(props: {
           {t("onboarding.step6Title")}
         </label>
         <span className="inline-flex items-center gap-2 self-start text-[13px] font-hindi font-extrabold text-leaf-700 bg-leaf-100 px-3 py-1.5 rounded-full">🔒 सुरक्षित · सिर्फ़ सत्यापन</span>
-        {/* FRONT */}
-        <label className="w-full min-h-[140px] border-2 border-dashed border-saffron-300 rounded-card flex flex-col items-center justify-center p-4 bg-saffron-50/10 cursor-pointer active:bg-saffron-50/30 transition-all select-none">
+        {/* FRONT — mockup frame 13: a ROW that flips done/pending
+            ("आधार — आगे ✓ हो गया" / "📷 फ़ोटो लें ›"). Same hidden-input
+            mechanics; only the look changed. */}
+        <label className={`w-full min-h-[64px] rounded-card border-2 flex items-center justify-between gap-3 px-4 py-3 cursor-pointer active:scale-[0.99] transition-transform select-none ${
+          props.aadhaarUrl ? "bg-leaf-100/60 border-[#BFE3CC]" : "bg-white border-saffron-200"
+        }`}>
           <input type="file" accept="image/*" onChange={(e) => props.onFileUpload(e, "aadhaar-front")} className="hidden" />
+          <span className="flex items-center gap-3 min-w-0">
+            <span className="w-11 h-11 shrink-0 rounded-[12px] bg-saffron-50 flex items-center justify-center text-[22px]" aria-hidden="true">🪪</span>
+            <span className="text-[17px] font-bold text-ink font-hindi">आधार — आगे</span>
+          </span>
           {props.uploading ? (
-            <span className="text-[18px] font-bold text-saffron-600 font-hindi animate-pulse">
-              {t("common.loading")}
-            </span>
+            <span className="text-[15px] font-bold text-saffron-600 font-hindi animate-pulse">{t("common.loading")}</span>
+          ) : props.aadhaarUrl ? (
+            <span className="text-[15px] font-black text-leaf-700 font-hindi">✓ हो गया</span>
           ) : (
-            <span className="text-[18px] font-bold text-saffron-600 font-hindi text-center">
-              {t("onboarding.aadhaarLabel")}
-            </span>
+            <span className="text-[15px] font-bold text-saffron-600 font-hindi">📷 फ़ोटो लें ›</span>
           )}
         </label>
         {props.aadhaarUrl && <AadhaarPreview keyOrUrl={props.aadhaarUrl} />}
 
-        {/* BACK */}
-        <label className="w-full min-h-[140px] border-2 border-dashed border-saffron-300 rounded-card flex flex-col items-center justify-center p-4 bg-saffron-50/10 cursor-pointer active:bg-saffron-50/30 transition-all select-none">
+        {/* BACK — same row pattern */}
+        <label className={`w-full min-h-[64px] rounded-card border-2 flex items-center justify-between gap-3 px-4 py-3 cursor-pointer active:scale-[0.99] transition-transform select-none ${
+          props.aadhaarBackUrl ? "bg-leaf-100/60 border-[#BFE3CC]" : "bg-white border-saffron-200"
+        }`}>
           <input type="file" accept="image/*" onChange={(e) => props.onFileUpload(e, "aadhaar-back")} className="hidden" />
+          <span className="flex items-center gap-3 min-w-0">
+            <span className="w-11 h-11 shrink-0 rounded-[12px] bg-saffron-50 flex items-center justify-center text-[22px]" aria-hidden="true">🪪</span>
+            <span className="text-[17px] font-bold text-ink font-hindi">आधार — पीछे</span>
+          </span>
           {props.uploadingBack ? (
-            <span className="text-[18px] font-bold text-saffron-600 font-hindi animate-pulse">
-              {t("common.loading")}
-            </span>
+            <span className="text-[15px] font-bold text-saffron-600 font-hindi animate-pulse">{t("common.loading")}</span>
+          ) : props.aadhaarBackUrl ? (
+            <span className="text-[15px] font-black text-leaf-700 font-hindi">✓ हो गया</span>
           ) : (
-            <span className="text-[18px] font-bold text-saffron-600 font-hindi text-center">
-              {t("readiness.aadhaarBackLabel")}
-            </span>
+            <span className="text-[15px] font-bold text-saffron-600 font-hindi">📷 फ़ोटो लें ›</span>
           )}
         </label>
         {props.aadhaarBackUrl && <AadhaarPreview keyOrUrl={props.aadhaarBackUrl} />}

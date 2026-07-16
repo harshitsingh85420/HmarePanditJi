@@ -10,11 +10,14 @@ import { estimateSampleBooking, type MeterPrefs, type DemandLevel } from "@/lib/
 // figure (hotel — no code rule) we show "बुकिंग पर तय", never an invented ₹.
 // Transform/opacity-only motion; reduced-motion → no animation.
 
-type LeverKey = "travel" | "food" | "hotel";
+type LeverKey = "travel" | "food" | "hotel" | "samagri";
 const LEVERS: { key: LeverKey; icon: string; label: string; known: boolean }[] = [
   { key: "travel", icon: "🚗", label: "आने-जाने का किराया", known: true }, // self-drive ₹12/km
   { key: "food", icon: "🍲", label: "ज़्यादा भोजन भत्ता", known: true }, // above ₹1000/day
   { key: "hotel", icon: "🏨", label: "होटल में ठहरना", known: false }, // no rule → बुकिंग पर तय
+  // mockup frame 17 has this lever with a faked ₹1,200 — the ANTI-FAKE law
+  // says: no cost rule in code → "बुकिंग पर तय", never an invented figure.
+  { key: "samagri", icon: "🛍️", label: "प्रीमियम सामग्री", known: false },
 ];
 const DEMAND_IDX: Record<DemandLevel, number> = { "कम": 0, "मध्यम": 1, "ज़्यादा": 2 };
 const BARS = [
@@ -45,16 +48,18 @@ export function PriceHonestyMeter({
     travel: initialPrefs?.travel ?? false,
     food: initialPrefs?.food ?? false,
     hotel: initialPrefs?.hotel ?? false,
+    samagri: initialPrefs?.samagri ?? false,
   });
 
-  const base = estimateSampleBooking(prefsFor({ travel: false, food: false, hotel: false }), dakshina).total;
+  const OFF: Record<LeverKey, boolean> = { travel: false, food: false, hotel: false, samagri: false };
+  const base = estimateSampleBooking(prefsFor(OFF), dakshina).total;
   const { total, demandLevel } = estimateSampleBooking(prefsFor(on), dakshina);
   const activeIdx = DEMAND_IDX[demandLevel];
 
   const leverTag = (key: LeverKey, known: boolean): string => {
     if (!on[key]) return "— माफ़";
     if (!known) return "बुकिंग पर तय"; // honest: no code rule → never a fake ₹
-    const withOnly = estimateSampleBooking(prefsFor({ travel: false, food: false, hotel: false, [key]: true } as Record<LeverKey, boolean>), dakshina).total;
+    const withOnly = estimateSampleBooking(prefsFor({ ...OFF, [key]: true }), dakshina).total;
     return "+₹" + (withOnly - base).toLocaleString("en-IN");
   };
 
