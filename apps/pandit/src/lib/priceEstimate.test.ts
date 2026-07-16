@@ -5,8 +5,10 @@ import { estimateSampleBooking, COSTING } from "./priceEstimate";
 
 // PRICE-HONESTY guard. The meter must compute from the ACTUAL server costing
 // rules — never a slogan, never an invented number. This FAILS THE BUILD if the
-// client rates drift from the server, or if a rule-less cost (hotel/flight)
-// starts showing a fake figure.
+// client rates drift from the server, if a rule-less cost (hotel/flight) starts
+// showing a fake figure, or if a customer-side fee line sneaks back in
+// (SINGLE-SIDED FEE is a founder decision: the family pays exactly dakshina +
+// pass-throughs; the one 10% commission comes out of the pandit's payout).
 const API = join(__dirname, "..", "..", "..", "..", "services", "api", "src");
 const read = (rel: string) => readFileSync(join(API, rel), "utf-8");
 
@@ -19,20 +21,23 @@ describe("price-honesty meter — computed from real rules", () => {
     const m = consts.match(/PLATFORM_FEE_PERCENT\s*=\s*(\d+)/);
     expect(m).toBeTruthy();
     expect(COSTING.platformFeePct).toBe(Number(m![1]) / 100);
-    const bookingSvc = read("services/booking.service.ts");
-    expect(bookingSvc).toMatch(/dakshina\s*\*\s*PLATFORM_FEE_PERCENT/); // reads the constant, no literal
-    expect(bookingSvc).toMatch(/0\.18/); // GST
-    expect(COSTING.gstPct).toBe(0.18);
+    // the ONE money source computes the fee from the constant
+    const pricing = read("utils/pricing.ts");
+    expect(pricing).toMatch(/\*\s*\(PLATFORM_FEE_PERCENT\s*\/\s*100\)/);
   });
 
-  it("computes the KNOWN total exactly from the rules", () => {
-    // dakshina 2100 + selfDrive(200km*12=2400) + food(1000) + fee(315)+gst(57)=248
+  it("SINGLE-SIDED: the customer estimate charges dakshina + pass-throughs, NO fee line", () => {
     const r = estimateSampleBooking(
       { selfDrive: true, train: false, flight: false, dailyFoodAllowance: null, stayAtHome: true },
       2100,
     );
-    expect(r.total).toBe(2100 + 2400 + 1000 + 248);
+    // dakshina 2100 + selfDrive(200km×12=2400) + food(1000) — nothing on top
+    expect(r.total).toBe(2100 + 2400 + 1000);
+    expect(r.lines.every((l) => !l.label.includes("शुल्क") && !l.label.includes("GST"))).toBe(true);
     expect(r.demandLevel).toBe("कम");
+    // the server charge matches: grandTotal = dakshina + pass-throughs exactly
+    const pricing = read("utils/pricing.ts");
+    expect(pricing).toMatch(/const grandTotal =\s*\n?\s*dakshinaAmount \+\s*\n?\s*travelCost \+\s*\n?\s*foodAllowanceAmount \+\s*\n?\s*accommodationCost;/);
   });
 
   it("NEVER invents a number for a rule-less cost (flight, hotel)", () => {
@@ -46,7 +51,7 @@ describe("price-honesty meter — computed from real rules", () => {
     expect(hotel?.amount).toBeNull();
     expect(flight?.note).toBeTruthy();
     // the uncomputable costs are NOT summed into the total
-    expect(r.total).toBe(2100 + 1000 + 248);
+    expect(r.total).toBe(2100 + 1000);
     expect(r.demandLevel).toBe("ज़्यादा");
   });
 
@@ -56,11 +61,10 @@ describe("price-honesty meter — computed from real rules", () => {
     // low demand: every line is a computed number — nothing hidden, position कम
     expect(low.lines.every((l) => l.amount !== null)).toBe(true);
     expect(low.demandLevel).toBe("कम");
+    expect(low.total).toBe(2100 + 2400 + 500); // lower allowance genuinely lowers the total
     // high demand: flight + hotel are real premiums shown as "बुकिंग पर तय" notes
     // (never invented), and the position is ज़्यादा — the honest nudge.
     expect(high.lines.some((l) => l.amount === null && l.note)).toBe(true);
     expect(high.demandLevel).toBe("ज़्यादा");
-    // lower food allowance genuinely lowers the computed total
-    expect(low.total - 500).toBeLessThan(2100 + 2400 + 1000 + 248); // food 500 < default 1000
   });
 });

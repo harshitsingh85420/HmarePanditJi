@@ -1,17 +1,20 @@
 // PRICE-HONESTY METER — the computed truth, never a slogan. Every number here
 // comes from the ACTUAL server costing rules (services/api/src/config/constants
-// SELF_DRIVE_RATE_PER_KM / FOOD_ALLOWANCE_PER_DAY, and booking.service
-// calculateBookingFinancials' 15% platform fee + 18% GST). priceEstimate.test
-// greps the server files and FAILS THE BUILD if any of these drift — so the
-// meter can never show a figure the server wouldn't charge. Rules that DON'T
-// exist in code (hotel / train / flight fares) are shown as "बुकिंग पर तय",
-// never invented.
+// SELF_DRIVE_RATE_PER_KM / FOOD_ALLOWANCE_PER_DAY; utils/pricing is the one
+// money source). priceEstimate.test greps the server files and FAILS THE BUILD
+// if any of these drift — so the meter can never show a figure the server
+// wouldn't charge. Rules that DON'T exist in code (hotel / train / flight
+// fares) are shown as "बुकिंग पर तय", never invented.
+//
+// SINGLE-SIDED FEE (founder decision): the family pays EXACTLY dakshina +
+// pass-throughs — no fee/GST line on the customer side. The platform's one
+// 10% commission comes out of the pandit's payout (GST-inclusive), exactly
+// as शिष्य promises ("दक्षिणा का 90% आपका").
 
 export const COSTING = {
   selfDriveRatePerKm: 12, // SELF_DRIVE_RATE_PER_KM
   foodAllowancePerDay: 1000, // FOOD_ALLOWANCE_PER_DAY
-  platformFeePct: 0.10, // = PLATFORM_FEE_PERCENT/100 (server single source); guard enforces match
-  gstPct: 0.18, // 18% GST on the fee
+  platformFeePct: 0.10, // = PLATFORM_FEE_PERCENT/100 — the PANDIT-side commission (guard enforces match)
 } as const;
 
 // A typical local booking, used only to make the honesty estimate concrete.
@@ -71,10 +74,8 @@ export function estimateSampleBooking(prefs: MeterPrefs, dakshina: number): Mete
     lines.push({ label: "ठहराव (होटल)", amount: null, note: "दाम बुकिंग पर तय" });
   }
 
-  const platformFee = Math.round(dakshina * COSTING.platformFeePct);
-  const gst = Math.round(platformFee * COSTING.gstPct);
-  lines.push({ label: "प्लेटफ़ॉर्म शुल्क + GST", amount: platformFee + gst });
-  total += platformFee + gst;
+  // No fee/GST line: single-sided fee — the family pays exactly the lines
+  // above; the platform's commission is deducted from the pandit's payout.
 
   // Demand level for the 3-bar position: more higher-cost prefs → ज़्यादा माँग.
   let score = 0;

@@ -130,10 +130,10 @@ const STEPS = [
   { label: "Confirmed", icon: "check_circle" },
 ];
 
-const PLATFORM_FEE_PCT = 0.15;
-const TRAVEL_SERVICE_FEE_PCT = 0.05;
-const SAMAGRI_SERVICE_FEE_PCT = 0.1;
-const GST_PCT = 0.18;
+// SINGLE-SIDED FEE (founder decision): the customer pays exactly dakshina +
+// pass-throughs — NO customer-side platform fee / service fee / GST lines.
+// (The old local constants here even said 15% while the server charged 10%.)
+// The platform's one 10% commission is deducted from the pandit's payout.
 const FOOD_PER_DAY = 1000;
 const MUHURAT_CONSULTATION_FEE = 499;
 
@@ -393,11 +393,8 @@ export default function BookingWizardClient() {
   const accommodationCost = isOutstation && form.accommodationArrangement === "PLATFORM_BOOKS" ? form.accommodationCost : 0;
   const effectiveTravelCost = form.travelCost + localTransportCost;
 
-  const platformFee = Math.round(form.dakshina * PLATFORM_FEE_PCT);
-  const travelServiceFee = effectiveTravelCost > 0 ? Math.round(effectiveTravelCost * TRAVEL_SERVICE_FEE_PCT) : 0;
   const foodAllowance = FOOD_PER_DAY * foodAllowanceDays;
   const samagriCost = samagriItem ? samagriItem.totalCost : 0;
-  const samagriServiceFee = samagriCost > 0 ? Math.round(samagriCost * SAMAGRI_SERVICE_FEE_PCT) : 0;
 
   const addonCost =
     (addons.backup ? 9999 : 0) +
@@ -406,9 +403,8 @@ export default function BookingWizardClient() {
 
   const baseSubtotal = form.dakshina + effectiveTravelCost + foodAllowance + samagriCost + accommodationCost;
   const subtotal = baseSubtotal + addonCost;
-  const totalPlatformFees = platformFee + travelServiceFee + samagriServiceFee;
-  const gst = Math.round(totalPlatformFees * GST_PCT);
-  const grandTotal = subtotal + totalPlatformFees + gst;
+  // single-sided fee: nothing added on top of the itemized lines
+  const grandTotal = subtotal;
   // ⚠ "50% advance" REMOVED: the server has no partial-payment support — the
   // Razorpay order always charges the FULL booking.grandTotal, so advertising
   // an advance was a display≠charge lie on the paying screen. Flagged as an
@@ -1403,13 +1399,10 @@ export default function BookingWizardClient() {
                     )}
                   </div>
 
-                  {/* Platform fees + GST */}
+                  {/* Single-sided fee: no customer-side fee/GST row — the
+                      price IS the itemized lines above. */}
                   <div className="flex justify-between items-start py-2 pt-4">
-                    <div>
-                      <p className="text-[#181511] dark:text-white font-semibold">Platform Convenience Fee</p>
-                      <p className="text-[#8a7960] text-xs">Service & automated logistics handling</p>
-                    </div>
-                    <span className="font-semibold">{fmt(platformFee + travelServiceFee + samagriServiceFee + gst)}</span>
+                    <p className="text-[#8a7960] text-xs">No platform fee added — you pay exactly the items above. Pandit Ji's dakshina includes the platform's service commission.</p>
                   </div>
                 </div>
               </section>
@@ -1494,7 +1487,7 @@ export default function BookingWizardClient() {
                   )}
                   <div className="flex justify-between items-center text-[#8a7960] text-sm font-medium">
                     <span>Platform Fees & Taxes</span>
-                    <span>{fmt(totalPlatformFees + gst)}</span>
+                    <span>₹0 — included in dakshina</span>
                   </div>
 
                   <div className="h-px bg-[#e6e1db] dark:bg-[#3d3326] my-4"></div>

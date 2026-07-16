@@ -862,13 +862,12 @@ export default function BookClient() {
     return () => { cancelled = true; };
   }, [dakshina, accessToken]);
 
-  // local mirror of the server constants (10% fee, 18% GST on the fee) —
-  // server numbers override the moment they arrive
-  const localFee = Math.round(dakshina * 0.1);
-  const localGst = Math.round(localFee * 0.18);
+  // SINGLE-SIDED FEE (founder decision): the customer pays exactly the
+  // dakshina — no fee/GST on top (the platform's 10% comes out of the
+  // pandit's payout). Server numbers override the moment they arrive.
   const pricing = serverFin
-    ? { dakshina, platformFee: serverFin.platformFee, total: serverFin.grandTotal }
-    : { dakshina, platformFee: localFee, total: dakshina + localFee + localGst };
+    ? { dakshina, platformFee: 0, total: serverFin.grandTotal }
+    : { dakshina, platformFee: 0, total: dakshina };
 
   // ── Form field change handler ────────────────────────────────────────────────
 

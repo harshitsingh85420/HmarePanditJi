@@ -30,19 +30,26 @@ const CASES = [
 ];
 for (const c of CASES) {
   const b = calculateGrandTotal(c);
-  // ⚠ DOUBLE-SIDED FEE MODEL (pinned deliberately, FLAGGED to founder):
-  // the platform fee is charged to the CUSTOMER on top of dakshina AND
-  // deducted from the PANDIT's payout — the platform's take per booking is
-  // 2×platformFee + travelServiceFee + GST. Each side's UI tells its own
-  // truthful half (pandit sees −10%, customer sees +10%). If the founder
-  // moves to a single-sided fee, change THIS line consciously — do not
-  // "fix" it in passing.
-  const platformTake = 2 * b.platformFee + b.travelServiceFee + b.platformFeeGst + b.travelServiceFeeGst;
+  // ── SINGLE-SIDED FEE (FOUNDER DECISION, final): the customer pays exactly
+  // dakshina + pass-throughs; the platform's ONE take is PLATFORM_FEE_PERCENT
+  // of dakshina, deducted from the pandit's payout, GST-inclusive. The old
+  // double-sided model (+10% on customer AND −10% from pandit) contradicted
+  // शिष्य's "दक्षिणा का 90% आपका" promise. Changing this line = changing the
+  // business model — founder sign-off required.
+  const platformTake = b.platformFee;
   assert.strictEqual(
     b.grandTotal - b.panditPayout,
     platformTake,
     `conservation broken for ${JSON.stringify(c)}: collected−payout=${b.grandTotal - b.panditPayout}, platform take=${platformTake}`,
   );
+  // the customer charge is EXACTLY dakshina + pass-throughs — nothing on top
+  assert.strictEqual(
+    b.grandTotal,
+    b.dakshinaAmount + b.travelCost + b.foodAllowanceAmount + b.accommodationCost,
+    `customer charge drifted for ${JSON.stringify(c)} — single-sided law violated`,
+  );
+  // no customer-side fee lines exist
+  assert.strictEqual(b.travelServiceFee + b.platformFeeGst + b.travelServiceFeeGst, 0, "no second charge / tax lines on the customer");
   // pass-throughs are conserved exactly: whatever travel/food/accommodation
   // is paid OUT must have been charged IN (the food-allowance bug class).
   assert.strictEqual(
