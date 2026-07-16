@@ -56,15 +56,11 @@ interface SlideDef {
 // Each is a real component (so useReduced()/motion hooks work); the
 // VisualFn wrapper just instantiates it with the slide's accent.
 
-// कमाई — coins settle, then the earnings count up on tulsi.
+// कमाई — mockup 5(1/6): coins settle into the thali, ONE count-up, ONE label.
 function SceneKamai() {
   const reduced = useReduced();
   return (
     <div className="flex flex-col items-center gap-2">
-      <div className="flex items-center gap-3">
-        <span className="t-hint text-softgrey font-hindi">पहले</span>
-        <span className="text-[22px] font-bold text-softgrey line-through">₹18,000</span>
-      </div>
       <div className="flex items-end gap-1 h-8" aria-hidden="true">
         {[0, 1, 2].map((i) => (
           <motion.span
@@ -78,11 +74,10 @@ function SceneKamai() {
           </motion.span>
         ))}
       </div>
-      <div className="flex flex-col items-center">
-        <span className="t-hint text-leaf-700 font-hindi font-bold">अब</span>
-        {/* the money moment — MoneyCount handles reduced-motion internally */}
-        <MoneyCount target={63000} durationMs={1400} className="text-[40px] font-bold text-leaf-700" />
-      </div>
+      <span className="text-[40px] leading-none select-none" aria-hidden="true">🪔</span>
+      {/* the money moment — MoneyCount handles reduced-motion internally */}
+      <MoneyCount target={63000} durationMs={1400} className="text-[44px] font-black text-leaf-700" />
+      <span className="text-[18px] font-extrabold text-temple-600 font-hindi">आपकी कमाई</span>
     </div>
   );
 }
@@ -100,9 +95,11 @@ function SceneBooking({ accent }: { accent: Accent }) {
         initial="hidden"
         animate="show"
       >
-        <span className="t-body font-bold text-ink font-hindi">{t("booking.newRequest")}</span>
-        <span className="text-[20px] font-bold font-hindi" style={{ color: accent.textHex }}>दक्षिणा ₹11,000</span>
-        <span className="t-hint text-softgrey font-hindi">यात्रा ₹800 · भोजन ₹500</span>
+        <div className="flex items-center justify-between gap-2">
+          <span className="t-body font-black text-ink font-hindi">गृह प्रवेश पूजा</span>
+          <span className="text-[12px] font-extrabold text-leaf-700 bg-[#D6EEDE] px-2.5 py-1 rounded-full font-hindi">नई</span>
+        </div>
+        <span className="text-[20px] font-bold font-hindi" style={{ color: accent.textHex }}>दक्षिणा ₹5,600</span>
       </motion.div>
     </div>
   );
@@ -205,7 +202,8 @@ function SceneWelcome() {
       >
         🙏
       </motion.span>
-      <span className="text-[20px] font-bold text-temple-600 font-hindi">स्वागत है</span>
+      {/* mockup 5(6/6): the closing phrase */}
+      <span className="text-[20px] font-black text-temple-600 font-hindi">अब आपकी बारी! 🎉</span>
     </div>
   );
 }
