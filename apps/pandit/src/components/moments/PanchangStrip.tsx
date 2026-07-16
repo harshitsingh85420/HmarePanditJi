@@ -10,11 +10,18 @@ export interface PanchangStripProps {
 export function PanchangStrip({ tithi = "" }: PanchangStripProps) {
   const p = getPanchang(new Date(), tithi);
   return (
-    <div className="flex items-center justify-between bg-card border border-[#E3C990] rounded-card px-4 py-2">
-      <span className="t-hint text-softgrey font-hindi">
-        🗓️ {p.hindiWeekday}, {p.hindiDate}
+    // Mockup screen 8: warm chandan strip (#FFF3E2), sand border, 🕉️ + weekday
+    // in saffron-700. Tithi replaces the date when a source provides it; the
+    // शुभ-मुहूर्त chip needs muhurat data (flagged, not built).
+    <div className="flex items-center justify-between bg-[#FFF3E2] border border-sand rounded-[14px] px-[13px] py-[9px]">
+      <span className="text-[13px] font-bold text-saffron-700 font-hindi">
+        🕉️ {p.hindiWeekday} · {p.tithi || p.hindiDate}
       </span>
-      {p.tithi && <span className="t-hint text-saffron-500 font-semibold font-hindi">{p.tithi}</span>}
+      {p.tithi && (
+        <span className="text-[13px] font-bold text-leaf-700 bg-leaf-100 rounded-full px-[10px] py-[3px] font-hindi">
+          शुभ मुहूर्त
+        </span>
+      )}
     </div>
   );
 }

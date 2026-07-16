@@ -1,14 +1,20 @@
 import type { Config } from 'tailwindcss'
 
 const config: Config = {
-  content: [
-    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
-    '../../packages/ui/src/**/*.{js,ts,jsx,tsx,mdx}',
-    '../../packages/ui/components/**/*.{js,ts,jsx,tsx,mdx}',
-    '../../packages/utils/src/**/*.{js,ts,jsx,tsx,mdx}',
-  ],
+  // `relative: true` resolves these globs against THIS config file, not the
+  // process CWD — so `next dev` started from the monorepo root (launch.json)
+  // still finds src/** and emits the full utility CSS, identical to prod.
+  content: {
+    relative: true,
+    files: [
+      './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
+      './src/components/**/*.{js,ts,jsx,tsx,mdx}',
+      './src/app/**/*.{js,ts,jsx,tsx,mdx}',
+      '../../packages/ui/src/**/*.{js,ts,jsx,tsx,mdx}',
+      '../../packages/ui/components/**/*.{js,ts,jsx,tsx,mdx}',
+      '../../packages/utils/src/**/*.{js,ts,jsx,tsx,mdx}',
+    ],
+  },
   theme: {
     screens: {
       'xs': '320px',    // Small phones (iPhone SE, Galaxy Y)

@@ -1,5 +1,12 @@
 "use client";
 
+// ─────────────────────────────────────────────────────────────
+// Home CONTAINER — data, voice, polling, handlers. The presentation lives
+// in HomeView.tsx (mockup-match harness refactor): this container renders
+// EXACTLY the tree it always did — HomeView is that tree, lifted out, with
+// the voice-mounting components passed down as slots. Behavior-frozen.
+// ─────────────────────────────────────────────────────────────
+
 import { Narrate } from "@/hooks/useScreenVoice";
 import { prefetchDashboardNarrations } from "@/lib/dashboardPrefetch";
 import React, { useEffect, useState, useRef } from "react";
@@ -9,45 +16,18 @@ import { mutateOnce } from "@/lib/mutate";
 import { voiceController } from "@/lib/voiceController";
 import { api } from "@/lib/api";
 import { setAgentUserState } from "@/lib/shishyaAgent";
-import { motion, AnimatePresence } from "framer-motion";
 
-// UI Components
-import { Card } from "@/components/ui/Card";
-import { Header } from "@/components/ui/Header";
-import { BottomNav } from "@/components/ui/BottomNav";
-import { StatusChip } from "@/components/ui/StatusChip";
-import { Toast } from "@/components/ui/Toast";
 import { useVoice } from "@/hooks/useVoice";
 import { DiyaLoader } from "@/components/moments/DiyaLoader";
 import { VoiceActionListener } from "@/components/voice/VoiceActionListener";
-import { PanchangStrip } from "@/components/moments/PanchangStrip";
-import { FestivalBanner } from "@/components/moments/FestivalBanner";
-import { PragatiCard } from "@/components/moments/PragatiCard";
-import { MoneyCount } from "@/components/moments/MoneyCount";
-import { CelebrationScreen } from "@/components/moments/CelebrationScreen";
-import { milestoneLabel, milestoneEmoji } from "@/components/moments/PragatiCard";
-import { EmptyState } from "@/components/ui/EmptyState";
 import { getActiveFestival, isFestivalDay } from "@/lib/festivals2026";
 import { playBell, playChime } from "@/lib/sounds";
 import { FirstUseTip } from "@/components/moments/FirstUseTip";
 import { purgeUserData } from "@/lib/purgeUserData";
+import { HomeView, HomeBooking, HomeEarnings } from "./HomeView";
 
-interface Booking {
-  id: string;
-  bookingNumber: string;
-  pujaType: string;
-  eventType: string;
-  eventDate: string;
-  venueAddress: string;
-  venueCity: string;
-  status: string;
-}
-
-interface EarningsSummary {
-  today: number;
-  month: number;
-  pendingPayout: number;
-}
+type Booking = HomeBooking;
+type EarningsSummary = HomeEarnings;
 
 export default function HomePage() {
   const router = useRouter();
@@ -277,6 +257,7 @@ export default function HomePage() {
   const isBookingReady = profile?.panditProfile?.isBookingReady === true;
   const readinessStep: number = profile?.panditProfile?.readinessStep || 0;
 
+  // Narration-only time format (the view has its own display formatter)
   const formatTime = (dateStr: string) => {
     const d = new Date(dateStr);
     return d.toLocaleTimeString("en-US", {
@@ -334,319 +315,42 @@ export default function HomePage() {
     { id: "open-settings", label: "सेटिंग खोलो", keywords: ["सेटिंग", "settings"], action: () => router.push("/settings") },
   ];
 
-  const HomeHeaderRightSlot = () => (
-    <button
-      onClick={() => router.push("/settings")}
-      className="w-11 h-11 min-h-[44px] min-w-[44px] rounded-full bg-white shadow-card hover:bg-saffron-50 active:scale-90 flex items-center justify-center text-[18px] transition-all focus:outline-none focus:ring-2 focus:ring-saffron-200"
-      aria-label="Settings"
-    >
-      ⚙️
-    </button>
-  );
-
   return (
-    <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
-      {/* HEADER */}
-      <Header
-        title={<span className="font-display font-normal">{isFestivalDay() && <span className="animate-diya-sm mr-1" role="img" aria-hidden="true">🪔</span>}{`नमस्ते, ${firstName} जी`}</span>}
-        showBack={false}
-        rightSlot={<HomeHeaderRightSlot />}
-      />
-
-      {/* Voice commands listener */}
-      <VoiceActionListener
-        commands={voiceCommands}
-        narratingText={welcomeSpeakText}
-        promptText={welcomeSpeakText}
-      />
-
-      <AnimatePresence>
-        {newRequestBooking && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            className="bg-saffron px-4 py-3 text-center sticky top-[56px] z-40 shadow-md"
-          >
-            <button
-              onClick={() => router.push(`/bookings/${newRequestBooking.id}/request`)}
-              className="text-white text-[18px] font-bold font-hindi flex items-center justify-center gap-2 mx-auto"
-              style={{ minHeight: "56px" }}
-            >
-              {t("booking.viewNewBooking")}
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <main className="flex-1 overflow-y-auto px-4 pt-3 pb-24 flex flex-col gap-3 page-enter">
-        {/* PANCHANG STRIP */}
-        <PanchangStrip />
-
-        {/* FESTIVAL BANNER (auto-hidden when no festival near) */}
-        <FestivalBanner />
-
-        {/* PENDING VERIFICATION BANNER */}
-        {isPending && (
-          <>
-            <Narrate text={t("home.pendingVerification")} />
-            <div className="bg-yellow-50 border-2 border-amber-300 rounded-card p-4 flex items-center gap-3">
-              <span className="text-[24px]">⚠️</span>
-              <p className="text-[18px] font-bold text-amber-800 font-hindi leading-snug">
-                {t("home.pendingVerification")}
-              </p>
-            </div>
-          </>
-        )}
-
-        {/* REJECTED VERIFICATION BANNER */}
-        {isRejected && (
-          <>
-            <Narrate text={`${t("home.rejectedTitle")}。 ${profile?.panditProfile?.rejectionReason || ""}`} />
-            <div className="bg-red-50 border-2 border-red-300 rounded-card p-4 flex flex-col gap-3">
-              <div className="flex items-center gap-3">
-                <span className="text-[24px]">❌</span>
-                <div className="flex flex-col">
-                  <span className="text-[18px] font-bold text-red-800 font-hindi">
-                    {t("home.rejectedTitle")}
-                  </span>
-                  <span className="text-[16px] text-red-700 font-hindi mt-1 leading-snug">
-                    {profile?.panditProfile?.rejectionReason || "जानकारी में कुछ त्रुटि है।"}
-                  </span>
-                </div>
-              </div>
-              <button
-                onClick={() => {
-                  // KYC fixes live in readiness R5 (the old 7-step wizard is gone)
-                  router.push("/readiness?step=5");
-                }}
-                className="w-full min-h-[56px] text-[18px] bg-red-600 hover:bg-red-700 text-white font-bold rounded-btn transition active:scale-[0.98] flex items-center justify-center"
-                style={{ minHeight: "56px" }}
-              >
-                {t("home.resubmit")}
-              </button>
-            </div>
-          </>
-        )}
-
-        {/* FLOW D: GO ONLINE only exists once booking-ready; until then a
-            warm तैयारी hero card sits in its place */}
-        {isBookingReady ? (
-          <>
-            <FirstUseTip tipId="homeGoOnline" targetRef={toggleRef} />
-            {/* GoOnline mockup: 84px pill, leaf-500 + glow + status dot when
-                online, softgrey when off, with a warm sub-line below. Behavior
-                frozen — same handler/disabled/ref. */}
-            <div className="flex flex-col items-center gap-2">
-              <button
-                ref={toggleRef}
-                onClick={handleToggleStatus}
-                disabled={!isApproved}
-                className={`w-full h-[84px] rounded-card flex items-center justify-center gap-3 font-extrabold text-[23px] text-white transition-all active:scale-[0.98] ${
-                  !isApproved ? "bg-slate-300 cursor-not-allowed" : isOnline ? "bg-leaf-500 online-glow" : "bg-softgrey"
-                }`}
-                style={{ minHeight: "84px" }}
-              >
-                {isApproved && (
-                  <span
-                    className="w-4 h-4 rounded-full"
-                    style={{ background: isOnline ? "#B6F0C8" : "#E4D6C7", boxShadow: isOnline ? "0 0 8px #B6F0C8" : "none" }}
-                  />
-                )}
-                {(isOnline ? t("home.goOffline") : t("home.goOnline")).replace(/^[🟢🔴]\s*/, "")}
-              </button>
-              {isApproved && (
-                <span className={`text-[15px] font-semibold font-hindi ${isOnline ? "text-leaf-700" : "text-softgrey"}`}>
-                  {isOnline ? "परिवार अब आपको बुला सकते हैं ✓" : "काम शुरू करने के लिए दबाएँ"}
-                </span>
-              )}
-            </div>
-          </>
-        ) : (
-          <Card
-            clickable
-            onClick={() => router.push("/readiness")}
-            accent="saffron"
-            className="p-5 flex flex-col gap-2 text-left"
-          >
-            <span className="text-[20px] font-bold text-temple-700 font-hindi leading-snug">
-              {t("home.readinessHero")}
-            </span>
-            {readinessStep > 0 && (
-              <span className="self-start text-[16px] font-bold text-saffron-600 font-hindi px-3 py-1 bg-saffron-50 rounded-full">
-                {t("home.readinessProgress").replace("{n}", String(Math.min(readinessStep, 5)))}
-              </span>
-            )}
-            <span className="text-softgrey text-[18px] font-hindi">
-              {t("coach.tryIt")}
-            </span>
-          </Card>
-        )}
-
-        {/* अगली बुकिंग — the emotional centre: the very next upcoming booking,
-            shown as a warm hero above the lists. Display-only (existing data). */}
-        {(() => {
-          const todayNext = todayBookings.find((b) => b.status !== "COMPLETED" && b.status !== "CANCELLED");
-          const nb = todayNext || tomorrowBookings[0];
-          if (!nb) return null;
-          const when = todayNext ? "आज" : "कल";
-          return (
-            <button
-              onClick={() => router.push(nb.status === "REQUESTED" ? `/bookings/${nb.id}/request` : `/bookings/${nb.id}`)}
-              className="w-full text-left rounded-card border-2 border-saffron-200 bg-saffron-50 p-5 flex flex-col gap-2 active:scale-[0.99] transition-transform"
-            >
-              <span className="text-[15px] font-hindi font-bold text-saffron-700">🔔 अगली बुकिंग</span>
-              <span className="text-[25px] font-hindi font-extrabold text-temple-700 leading-snug">{nb.pujaType || nb.eventType}</span>
-              <div className="flex items-center gap-3 text-[16px] font-hindi text-softgrey">
-                <span className="font-bold text-leaf-700">{when}</span>
-                <span className="font-mono text-ink">{formatTime(nb.eventDate)}</span>
-              </div>
-              <span className="text-[15px] font-hindi text-softgrey truncate">📍 {nb.venueAddress?.split(",")[0]}</span>
-            </button>
-          );
-        })()}
-
-        {/* TODAY'S BOOKINGS SECTION */}
-        <Card className="p-4 bg-white border border-saffron-100 flex flex-col gap-3">
-          <h3 className="text-[18px] font-bold text-temple-600 font-hindi border-b border-saffron-100 pb-2">
-            {t("home.todayBookings")}
-          </h3>
-
-          {todayBookings.length === 0 ? (
-            <EmptyState
-              emoji="🌤️"
-              title={t("empty.todayNoBookingsTitle")}
-              hint={t("empty.todayNoBookingsHint")}
-              className="shadow-none py-8"
-            />
-          ) : (
-            <div className="flex flex-col gap-3">
-              {todayBookings.map((b) => (
-                <div
-                  key={b.id}
-                  onClick={() =>
-                    router.push(b.status === "REQUESTED" ? `/bookings/${b.id}/request` : `/bookings/${b.id}`)
-                  }
-                  className={`p-3 border-b border-slate-50 last:border-0 flex items-center justify-between cursor-pointer active:bg-slate-50 active:scale-[0.97] transition-transform rounded-btn border-l-4 ${
-                    b.status === "COMPLETED" ? "border-l-leaf-700" :
-                    b.status === "REQUESTED" ? "border-l-saffron-500" :
-                    "border-l-sky-500"
-                  }`}
-                >
-                  <div className="flex flex-col">
-                    {/* Time (28px bold) */}
-                    <span className="text-[28px] font-bold text-ink leading-tight font-mono">
-                      {formatTime(b.eventDate)}
-                    </span>
-                    <span className="text-[18px] font-bold text-temple-700 font-hindi leading-snug mt-1">
-                      {b.pujaType || b.eventType}
-                    </span>
-                    <span className="text-[16px] text-softgrey font-hindi truncate max-w-[240px]">
-                      {b.venueAddress.split(",")[0]}
-                    </span>
-                  </div>
-                  <StatusChip status={b.status} />
-                </div>
-              ))}
-            </div>
-          )}
-        </Card>
-
-        {/* TOMORROW'S BOOKINGS */}
-        {tomorrowBookings.length > 0 && (
-          <Card className="p-4 bg-white border border-saffron-100 flex flex-col gap-3">
-            <h3 className="text-[18px] font-bold text-temple-600 font-hindi border-b border-saffron-100 pb-2">
-              {t("homeSummary.tomorrow")}
-            </h3>
-            <div className="flex flex-col gap-3">
-              {tomorrowBookings.map((b) => (
-                <div
-                  key={b.id}
-                  onClick={() => router.push(`/bookings/${b.id}`)}
-                  className="p-3 border-b border-slate-50 last:border-0 flex items-center justify-between cursor-pointer active:bg-slate-50 active:scale-[0.97] transition-transform rounded-btn border-l-4 border-l-sky-500"
-                >
-                  <div className="flex flex-col">
-                    <span className="text-[26px] font-bold text-ink leading-tight font-mono">
-                      {formatTime(b.eventDate)}
-                    </span>
-                    <span className="text-[18px] font-bold text-temple-700 font-hindi leading-snug mt-1">
-                      {b.pujaType || b.eventType}
-                    </span>
-                    <span className="text-[16px] text-softgrey font-hindi truncate max-w-[240px]">
-                      {b.venueAddress?.split(",")[0]}
-                    </span>
-                  </div>
-                  <StatusChip status={b.status} />
-                </div>
-              ))}
-            </div>
-          </Card>
-        )}
-
-        {/* EARNINGS SUMMARY WIDGET */}
-        <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-4">
-          <div className="flex flex-col gap-1 text-center">
-            <span className="text-[18px] font-bold text-softgrey font-hindi">
-              {t("home.monthEarnings")}
-            </span>
-            {/* Monthly earnings — big ANIMATED count-up (MoneyCount, A12-safe) */}
-            <MoneyCount target={earnings.month || 0} durationMs={1500} className="t-money-hero leading-tight text-leaf-700" />
-          </div>
-
-          <div className="border-t border-saffron-100/50 pt-3 flex justify-between items-center px-2">
-            <span className="text-[18px] font-semibold text-softgrey font-hindi">
-              {t("earnings.pendingPayout")}
-            </span>
-            <MoneyCount target={earnings.pendingPayout || 0} durationMs={1200} className="text-[20px] font-display text-leaf-700" />
-          </div>
-        </Card>
-
-        {/* PRAGATI (PROGRESS) CARD */}
-        <PragatiCard earnedKinds={milestones.map((m) => m.kind)} />
-
-        {/* SAMAGRI PACKAGES LINK */}
-        <Card
-          className="p-4 bg-white border border-saffron-100 cursor-pointer min-h-[56px] flex items-center justify-center text-center"
-          onClick={() => router.push("/samagri")}
-        >
-          <span className="text-[20px] font-bold text-ink font-hindi">
-            {t("home.samagriLink")}
-          </span>
-        </Card>
-      </main>
-
-      {/* BOTTOM NAV */}
-      <BottomNav activeTab={0} onChange={(idx) => {
-        if (idx === 1) router.push("/bookings");
-        else if (idx === 2) router.push("/earnings"); // redirect or fallback page
-        else if (idx === 3) router.push("/calendar"); // redirect or fallback page
-      }} />
-
-      {/* Global Error Display */}
-      {errorMsg && (
-        <div className="fixed bottom-28 left-4 right-4 z-40 px-4 py-2 bg-red-50 rounded-card border border-danger/20">
-          <p className="text-danger text-[20px] font-semibold text-center leading-normal">
-            {errorMsg}
-          </p>
-        </div>
-      )}
-
-      {/* MILESTONE CELEBRATION */}
-      {celebratingMilestone && (
-        <CelebrationScreen
-          emoji={milestoneEmoji(celebratingMilestone)}
-          title={t("milestones.title")}
-          message={milestoneLabel(celebratingMilestone)}
-          ctaLabel={t("common.next")}
-          onCta={async () => {
-            setCelebratingMilestone(null);
-            await mutateOnce("milestones-seen", "/pandit/milestones/seen", { method: "POST" });
-          }}
+    <HomeView
+      firstName={firstName}
+      festivalDay={isFestivalDay()}
+      isPending={isPending}
+      isRejected={isRejected}
+      rejectionReason={profile?.panditProfile?.rejectionReason || null}
+      isApproved={isApproved}
+      isBookingReady={isBookingReady}
+      readinessStep={readinessStep}
+      isOnline={isOnline}
+      todayBookings={todayBookings}
+      tomorrowBookings={tomorrowBookings}
+      earnings={earnings}
+      milestoneKinds={milestones.map((m) => m.kind)}
+      newRequestBooking={newRequestBooking}
+      celebratingMilestone={celebratingMilestone}
+      errorMsg={errorMsg}
+      toastMsg={toastMsg}
+      toggleRef={toggleRef}
+      onToggleStatus={handleToggleStatus}
+      onNavigate={(path) => router.push(path)}
+      onCloseToast={() => setToastMsg("")}
+      onMilestoneCta={async () => {
+        setCelebratingMilestone(null);
+        await mutateOnce("milestones-seen", "/pandit/milestones/seen", { method: "POST" });
+      }}
+      voiceSlot={
+        <VoiceActionListener
+          commands={voiceCommands}
+          narratingText={welcomeSpeakText}
+          promptText={welcomeSpeakText}
         />
-      )}
-
-      {/* Toast Notification */}
-      {toastMsg && <Toast message={toastMsg} show={!!toastMsg} onClose={() => setToastMsg("")} />}
-    </div>
+      }
+      tipSlot={<FirstUseTip tipId="homeGoOnline" targetRef={toggleRef} />}
+      renderNarrate={(text) => <Narrate text={text} />}
+    />
   );
 }
