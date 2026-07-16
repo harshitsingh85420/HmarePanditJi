@@ -1,4 +1,5 @@
 {
+  "ignoreCommand": "npx turbo-ignore @hmarepanditji/admin",
   "installCommand": "cd ../.. && npm i -g pnpm@9 && pnpm install --frozen-lockfile",
   "buildCommand": "cd ../.. && pnpm --filter db exec prisma generate && pnpm --filter @hmarepanditji/admin build",
   "outputDirectory": ".next",
