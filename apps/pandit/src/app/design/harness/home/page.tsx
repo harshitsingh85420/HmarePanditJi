@@ -53,6 +53,7 @@ export default function HomeHarnessPage() {
       newRequestBooking={null}
       celebratingMilestone={null}
       shubhMuhurat={true}
+      stats={{ rating: 4.9, reviewCount: 21, completedBookings: 47, completionPct: 98 }}
       errorMsg=""
       toastMsg=""
       onToggleStatus={() => {}}

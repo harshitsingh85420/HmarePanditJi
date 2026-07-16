@@ -24,7 +24,7 @@ import { getActiveFestival, isFestivalDay } from "@/lib/festivals2026";
 import { playBell, playChime } from "@/lib/sounds";
 import { FirstUseTip } from "@/components/moments/FirstUseTip";
 import { purgeUserData } from "@/lib/purgeUserData";
-import { HomeView, HomeBooking, HomeEarnings } from "./HomeView";
+import { HomeView, HomeBooking, HomeEarnings, HomeStats } from "./HomeView";
 
 type Booking = HomeBooking;
 type EarningsSummary = HomeEarnings;
@@ -56,6 +56,9 @@ export default function HomePage() {
 
   // Panchang: does TODAY have muhurat windows? (gates the शुभ-मुहूर्त chip)
   const [shubhMuhurat, setShubhMuhurat] = useState(false);
+
+  // 3-stat row (रेटिंग/पूर्णता/बुकिंग) — real aggregates, row hides without data
+  const [stats, setStats] = useState<HomeStats | null>(null);
 
   // Toast / Error Notifications
   const [toastMsg, setToastMsg] = useState("");
@@ -134,6 +137,12 @@ export default function HomePage() {
     const muhuratRes = await api(`/muhurat/pujas-for-date?date=${todayKey}`);
     if (muhuratRes.success && Array.isArray(muhuratRes.data?.muhurats)) {
       setShubhMuhurat(muhuratRes.data.muhurats.length > 0);
+    }
+
+    // 6. 3-stat row aggregates (rating / completion% / completed count)
+    const statsRes = await api("/pandit/stats");
+    if (statsRes.success && statsRes.data) {
+      setStats(statsRes.data as HomeStats);
     }
 
     setLoading(false);
@@ -345,6 +354,7 @@ export default function HomePage() {
       newRequestBooking={newRequestBooking}
       celebratingMilestone={celebratingMilestone}
       shubhMuhurat={shubhMuhurat}
+      stats={stats}
       errorMsg={errorMsg}
       toastMsg={toastMsg}
       toggleRef={toggleRef}

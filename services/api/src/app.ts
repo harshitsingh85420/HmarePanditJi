@@ -46,6 +46,7 @@ import {
   getPanditBookings,
   getPanditBookingById,
   getPanditEarningsSummary,
+  getPanditStats,
   acceptBooking,
   rejectBooking,
   postBookingJourney,
@@ -237,6 +238,7 @@ app.post(`${API_PREFIX}/pandit/bookings/:id/decline`, { preHandler: [authenticat
 app.post(`${API_PREFIX}/pandit/bookings/:id/journey`, { preHandler: [authenticate, roleGuard("PANDIT")] }, postBookingJourney);
 app.post(`${API_PREFIX}/pandit/bookings/:id/complete`, { preHandler: [authenticate, roleGuard("PANDIT")] }, completeBooking);
 app.get(`${API_PREFIX}/pandit/earnings/summary`, { preHandler: [authenticate, roleGuard("PANDIT")] }, getPanditEarningsSummary);
+app.get(`${API_PREFIX}/pandit/stats`, { preHandler: [authenticate, roleGuard("PANDIT")] }, getPanditStats);
 app.get(`${API_PREFIX}/pandit/payouts`, { preHandler: [authenticate, roleGuard("PANDIT")] }, getPanditPayouts);
 app.post(`${API_PREFIX}/pandit/milestones/seen`, { preHandler: [authenticate, roleGuard("PANDIT")] }, markMilestonesSeen);
 app.patch(`${API_PREFIX}/pandit/profile`, { preHandler: [authenticate, roleGuard("PANDIT")] }, patchPanditProfile);

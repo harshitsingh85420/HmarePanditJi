@@ -45,6 +45,13 @@ export interface HomeEarnings {
   pendingPayout: number;
 }
 
+export interface HomeStats {
+  rating: number | null;
+  reviewCount: number;
+  completedBookings: number;
+  completionPct: number | null;
+}
+
 export interface HomeViewProps {
   firstName: string;
   festivalDay: boolean;
@@ -63,6 +70,8 @@ export interface HomeViewProps {
   celebratingMilestone: string | null;
   /** TODAY has MuhuratDate rows (container-fed) — gates the शुभ-मुहूर्त chip. */
   shubhMuhurat?: boolean;
+  /** Real aggregates from GET /pandit/stats; the row hides without data. */
+  stats?: HomeStats | null;
   errorMsg: string;
   toastMsg: string;
   /** GoOnline pill ref (FirstUseTip target) — container-owned. */
@@ -94,6 +103,7 @@ export function HomeView({
   newRequestBooking,
   celebratingMilestone,
   shubhMuhurat = false,
+  stats = null,
   errorMsg,
   toastMsg,
   toggleRef,
@@ -309,6 +319,32 @@ export function HomeView({
             </button>
           );
         })()}
+
+        {/* 3-STAT ROW — mockup screen 8: रेटिंग / पूर्णता / बुकिंग. Fed by
+            GET /pandit/stats; renders ONLY the stats that truly exist (a new
+            pandit sees no row — never a fake 0★). */}
+        {stats && (stats.completedBookings > 0 || stats.rating !== null) && (
+          <div className="flex gap-2">
+            {stats.rating !== null && (
+              <div className="flex-1 bg-card border border-sand rounded-[16px] px-2 py-[13px] flex flex-col items-center gap-0.5">
+                <span className="text-[22px] font-black text-brassdark leading-tight">{stats.rating}★</span>
+                <span className="text-[13px] font-bold text-softgrey font-hindi">रेटिंग</span>
+              </div>
+            )}
+            {stats.completionPct !== null && (
+              <div className="flex-1 bg-card border border-sand rounded-[16px] px-2 py-[13px] flex flex-col items-center gap-0.5">
+                <span className="text-[22px] font-black text-leaf-700 leading-tight">{stats.completionPct}%</span>
+                <span className="text-[13px] font-bold text-softgrey font-hindi">पूर्णता</span>
+              </div>
+            )}
+            {stats.completedBookings > 0 && (
+              <div className="flex-1 bg-card border border-sand rounded-[16px] px-2 py-[13px] flex flex-col items-center gap-0.5">
+                <span className="text-[22px] font-black text-saffron-700 leading-tight">{stats.completedBookings}</span>
+                <span className="text-[13px] font-bold text-softgrey font-hindi">बुकिंग</span>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* TODAY'S BOOKINGS SECTION */}
         <Card className="p-4 bg-white border border-saffron-100 flex flex-col gap-3">

@@ -862,6 +862,46 @@ export const getPanditBookingById = async (request: FastifyRequest, reply: Fasti
   });
 };
 
+// GET /pandit/stats — the home 3-stat row (रेटिंग / पूर्णता / बुकिंग), all from
+// EXISTING data. TRUTHFUL-NULL LAW: with no reviews or no finished bookings the
+// fields are null (the client hides the row) — never a fake 0★/0%.
+export const getPanditStats = async (request: FastifyRequest, reply: FastifyReply) => {
+  const userId = (request as any).user?.id || (request as any).user?.userId;
+  if (!userId) {
+    return reply.status(411).send({ success: false, error: "Unauthorized" });
+  }
+
+  const profile = await prisma.panditProfile.findUnique({ where: { userId } });
+  if (!profile) {
+    return reply.status(404).send({ success: false, error: "Pandit profile not found" });
+  }
+
+  // Review.revieweeId is a USER id (Review.reviewee → User) — the same
+  // profile-id-vs-user-id trap the notify guard exists for. Never profile.id.
+  const [reviewAgg, completed, cancelled, refunded] = await Promise.all([
+    prisma.review.aggregate({
+      where: { revieweeId: userId },
+      _avg: { overallRating: true },
+      _count: { _all: true },
+    }),
+    prisma.booking.count({ where: { panditId: profile.id, status: "COMPLETED" } }),
+    prisma.booking.count({ where: { panditId: profile.id, status: "CANCELLED" } }),
+    prisma.booking.count({ where: { panditId: profile.id, status: "REFUNDED" } }),
+  ]);
+
+  const reviewCount = reviewAgg._count._all;
+  const finished = completed + cancelled + refunded;
+  return reply.send({
+    success: true,
+    data: {
+      rating: reviewCount > 0 ? Math.round((reviewAgg._avg.overallRating || 0) * 10) / 10 : null,
+      reviewCount,
+      completedBookings: completed,
+      completionPct: finished > 0 ? Math.round((completed / finished) * 100) : null,
+    },
+  });
+};
+
 export const getPanditEarningsSummary = async (request: FastifyRequest, reply: FastifyReply) => {
   const userId = (request as any).user?.id || (request as any).user?.userId;
   if (!userId) {
