@@ -5,7 +5,10 @@
 // (the ONE hero-exception to the flat-fill rule) with a staged
 // ~2.4s CSS sequence: diya → ॐ rises → wordmark → toran drops →
 // marigold petals drift → शिष्य pops in and speaks his intro.
-// Auto-advances after 2.6s; any tap skips. Reduced motion shows
+// Any tap skips. Auto-advance is bounded by the D0-L deadline law
+// below — a fresh load CANNOT speak (autoplay policy), so it parks and
+// the ≥2.6s narration-end path never runs; the deadlines, not the
+// narration, are what guarantee the pandit always gets in. Reduced motion shows
 // the fully-composed static scene (all animations use `backwards`
 // fill, so animation:none leaves everything visible in place).
 // ─────────────────────────────────────────────────────────────
@@ -15,6 +18,19 @@ import { t } from "@/lib/i18n";
 import { Toran } from "@/components/ui/Toran";
 import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
 import { voiceController } from "@/lib/voiceController";
+
+// ── D0-L SPLASH DEADLINE LAW ──────────────────────────────────
+// The front door may NEVER be a dead end. Voice may only bring the
+// advance FORWARD, never hold it back. Two bounds, both armed on mount
+// and living OUTSIDE every voice/park/tap branch:
+//   NO_PLAYBACK — nothing has ever sounded (a fresh load parks by
+//     platform law, and the pandit may never tap). Advance.
+//   ABSOLUTE — a backstop for a lost playback-end event: audio started,
+//     so no timer may behead शिष्य mid-line, but the advance can never
+//     depend forever on an event that may never arrive.
+// Exported so the guard test can assert both exist and are finite.
+export const SPLASH_NO_PLAYBACK_MS = 9_000;
+export const SPLASH_ABSOLUTE_MS = 30_000;
 
 const PETALS = [
   { left: "8%", delay: 1.2, duration: 3.4 },
@@ -119,6 +135,26 @@ export function SunriseSplash({ onDone }: { onDone: () => void }) {
     let disposed = false;
     const mountedAt = performance.now();
     const minDisplay = new Promise<void>((res) => setTimeout(res, 2600));
+
+    // ── D0-L SPLASH DEADLINE LAW — enforcement point ────────────
+    // Armed unconditionally, before any speak() is attempted, and
+    // cleared only on unmount. Nothing below this line — not the park
+    // branch, not the tap handler, not a subscriber — can disarm it.
+    let everPlayed = voiceController.speaking;
+    const offDeadlineWatch = voiceController.onPlaybackStart(() => {
+      everPlayed = true;
+    });
+    const noPlaybackDeadline = setTimeout(() => {
+      // audio is sounding → the natural end owns the advance (शिष्य is
+      // never cut mid-line); the absolute backstop below still stands
+      if (everPlayed || voiceController.speaking) return;
+      voiceController.debug("splash: no-playback deadline — advancing");
+      if (!disposed) finish();
+    }, SPLASH_NO_PLAYBACK_MS);
+    const absoluteDeadline = setTimeout(() => {
+      voiceController.debug("splash: absolute deadline — advancing");
+      if (!disposed) finish();
+    }, SPLASH_ABSOLUTE_MS);
     void (async () => {
       // ── T1 PLATFORM LAW (permanent) ─────────────────────────
       // Browsers FORBID audio before the first user gesture of a page
@@ -160,6 +196,9 @@ export function SunriseSplash({ onDone }: { onDone: () => void }) {
     })();
     return () => {
       disposed = true;
+      clearTimeout(noPlaybackDeadline);
+      clearTimeout(absoluteDeadline);
+      offDeadlineWatch();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
