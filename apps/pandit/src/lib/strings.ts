@@ -118,7 +118,8 @@ export const hi = {
   },
   // प्रथम आरती — the festive entry flow (splash → tutorial)
   pratham: {
-    splashTagline: "ऐप पंडित के लिए है, पंडित ऐप के लिए नहीं",
+    // Mockup frame 1 tagline (three-word blessing beats a sentence)
+    splashTagline: "सेवा · सम्मान · समृद्धि",
     tapHint: "नमस्ते पंडित जी 🙏 आगे बढ़ने के लिए स्पर्श करें",
     locationTitle: "आप कहाँ सेवा देते हैं?",
     locationWhy: "आपके शहर की पूजाएँ और आपकी भाषा — बस इसीलिए।",
@@ -148,6 +149,10 @@ export const hi = {
   parichay: {
     title: "मैं शिष्य हूँ 🙏",
     body: "आपका अपना सहायक — मैं बोलूँगा, और आपकी बात भी सुनूँगा।",
+    // Mockup frame 4: static mic-ask card + lock reassurance (UI text,
+    // never spoken — the voice ladder owns its own lines)
+    micCardLine: "मुझे सुनने के लिए माइक की अनुमति चाहिए",
+    safeLine: "आपकी आवाज़ सुरक्षित है",
     allowBtn: "🎤 बात करने की अनुमति दें",
     voice:
       "नमस्ते पंडित जी! मैं आपका शिष्य हूँ, और मैं आपसे बात करना चाहता हूँ। नीचे चमकता बटन दबाइए — फिर ऊपर 'अनुमति दें' दबा दीजिए।",

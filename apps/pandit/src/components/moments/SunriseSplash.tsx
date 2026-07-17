@@ -246,13 +246,14 @@ export function SunriseSplash({ onDone }: { onDone: () => void }) {
       </div>
 
       {/* Wordmark */}
+      {/* Mockup frame 1: wordmark 40/900, tagline 16/800 */}
       <h1
-        className="pa-splash-word font-display text-[34px] text-white mt-5 text-center leading-tight"
+        className="pa-splash-word font-display text-[40px] font-black text-white mt-5 text-center leading-tight"
         style={{ textShadow: "0 2px 12px rgba(231,181,74,0.6)" }}
       >
         {t("welcome.titleShort")}
       </h1>
-      <p className="pa-splash-word text-[16px] text-[#FFE8D2]/90 font-hindi mt-1 px-8 text-center">
+      <p className="pa-splash-word text-[16px] font-extrabold text-[#FFE8D2]/90 font-hindi mt-1 px-8 text-center">
         {t("pratham.splashTagline")}
       </p>
 
@@ -262,7 +263,7 @@ export function SunriseSplash({ onDone }: { onDone: () => void }) {
            strong pulse, wraps inside 360px instead of clipping.
            -translate-x-1/2 stays as the reduced-motion fallback; the
            animation's own transform takes over while pulsing. */
-        <span className="pa-tap-hint absolute bottom-28 left-1/2 -translate-x-1/2 bg-cream border-2 border-saffron-300 shadow-card rounded-full px-5 py-2.5 text-[18px] font-bold text-temple-600 font-hindi text-center max-w-[92vw]">
+        <span className="pa-tap-hint absolute bottom-28 left-1/2 -translate-x-1/2 bg-chandan shadow-card rounded-full px-5 py-2.5 text-[19px] font-extrabold text-saffron-500 font-hindi text-center max-w-[92vw]">
           {t("pratham.tapHint")}
         </span>
       )}

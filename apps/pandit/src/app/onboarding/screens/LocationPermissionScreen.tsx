@@ -150,7 +150,8 @@ export default function LocationPermissionScreen({
           <span className="pa-bounce-once text-[44px] leading-none select-none" style={{ animationDelay: "0.4s" }} aria-hidden="true">📍</span>
         </div>
 
-        <h2 className="text-[24px] font-bold text-temple-600 font-hindi text-center leading-snug">
+        {/* Mockup frame 2: heading 29/900 ink */}
+        <h2 className="text-[28px] font-black text-temple-700 font-hindi text-center leading-snug">
           {t("pratham.locationTitle")}
         </h2>
         <p className="t-body text-softgrey font-hindi text-center">{t("pratham.locationWhy")}</p>
@@ -164,7 +165,7 @@ export default function LocationPermissionScreen({
         <button
           onClick={onDenied}
           disabled={loading}
-          className="min-h-[56px] px-6 text-saffron-600 text-[18px] font-bold font-hindi underline underline-offset-4 active:scale-[0.97] transition-transform disabled:opacity-50"
+          className="min-h-[56px] px-6 text-softgrey text-[17px] font-bold font-hindi underline underline-offset-4 active:scale-[0.97] transition-transform disabled:opacity-50"
         >
           {t("pratham.locationManual")}
         </button>
@@ -180,7 +181,7 @@ export default function LocationPermissionScreen({
           <button
             onClick={handleAllowClick}
             disabled={loading}
-            className={`w-full min-h-[64px] bg-saffron-500 text-[#FFF3EA] rounded-btn text-[20px] font-bold shadow-btn active:scale-[0.97] transition-transform font-hindi disabled:opacity-60 ${
+            className={`w-full min-h-[64px] bg-saffron-500 text-[#FFF3EA] rounded-btn text-[21px] font-extrabold shadow-btn active:scale-[0.97] transition-transform font-hindi disabled:opacity-60 ${
               pulse ? "saffron-glow-active animate-pulse" : ""
             }`}
           >

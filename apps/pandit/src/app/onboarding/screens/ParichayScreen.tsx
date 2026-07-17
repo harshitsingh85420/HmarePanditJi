@@ -306,14 +306,31 @@ export default function ParichayScreen({ onDone }: { onDone: () => void }) {
       {/* Festive header band — kit Header (genda→sindoor + Toran, #FFE8D2 title) */}
       <Header festive title={<span className="font-display">{t("welcome.titleShort")}</span>} />
 
-      <main className="flex-1 overflow-y-auto px-6 pt-8 pb-6 flex flex-col items-center gap-5 text-center">
-        {/* शिष्य himself — LARGE, rippling while he speaks */}
+      <main className="flex-1 overflow-y-auto px-6 pt-8 pb-6 flex flex-col items-center gap-4 text-center">
+        {/* शिष्य himself — LARGE, rippling while he speaks; named below
+            (mockup frame 4: the orb carries his name) */}
         <ShishyaOrb size="lg" className="mt-4" />
+        <span className="text-[18px] font-extrabold text-saffron-500 font-hindi -mt-2">शिष्य</span>
 
-        <h2 className="text-[28px] font-bold text-temple-600 font-hindi leading-snug">
+        {/* Mockup frame 4: greeting 24/900 saffron-700 */}
+        <h2 className="text-[24px] font-black text-saffron-700 font-hindi leading-snug">
           {t("parichay.title")}
         </h2>
         <p className="t-body text-softgrey font-hindi leading-relaxed">{t("parichay.body")}</p>
+
+        {/* Mockup frame 4: static mic-ask card — the visual twin of the
+            auto-prompt (never interactive; the ladder owns behavior) */}
+        <div className="w-full bg-card border-2 border-sand rounded-[22px] p-5 flex flex-col items-center gap-3">
+          <span className="w-16 h-16 rounded-full bg-saffron-50 border-2 border-saffron-200 flex items-center justify-center text-[30px] select-none" aria-hidden="true">
+            🎤
+          </span>
+          <p className="text-[18px] font-bold text-temple-700 font-hindi leading-snug">
+            {t("parichay.micCardLine")}
+          </p>
+          <p className="text-[14px] font-semibold text-softgrey font-hindi flex items-center gap-1">
+            <span className="text-leaf-500" aria-hidden="true">🔒</span> {t("parichay.safeLine")}
+          </p>
+        </div>
 
         {stage === "practice" && (
           <p className="t-body font-bold text-temple-600 font-hindi">{t("parichay.tryIt")}</p>

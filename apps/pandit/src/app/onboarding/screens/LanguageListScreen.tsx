@@ -17,7 +17,7 @@ import { Toran } from "@/components/ui/Toran";
 import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
 import { useVoiceScreen } from "@/hooks/useVoiceScreen";
 import { BACK } from "@/lib/voiceGrammar";
-import { FESTIVE_ACCENTS, PetalBurst } from "@/components/moments/SlideCanvas";
+import { PetalBurst } from "@/components/moments/SlideCanvas";
 import { LANG_TO_BCP47, LANG_NATIVE_NAME, type LangCode } from "@/lib/languageDetect";
 import { speakWithSarvam } from "@/lib/sarvam-tts";
 import { voiceController } from "@/lib/voiceController";
@@ -112,33 +112,40 @@ export default function LanguageListScreen({ onSelect, onBack }: LanguageListScr
       </header>
 
       <main className="flex-1 overflow-y-auto px-4 pt-4 pb-6">
+        {/* Mockup frame 3 tile grammar: white #FFFDF8 cards, 2px sand
+            border, r18; native name 26/800 + latin subtitle; the armed
+            (pending) tile turns saffron-tinted with a sindoor border and
+            a ✓ badge — replaces the old festive-accent tiles/gold ring. */}
         <div className="grid grid-cols-2 gap-3">
-          {TILES.map((tile, i) => {
-            const accent = FESTIVE_ACCENTS[i % FESTIVE_ACCENTS.length];
+          {TILES.map((tile) => {
             const native = LANG_NATIVE_NAME[tile.code];
             const isPending = pending === tile.code;
             return (
               <button
                 key={tile.code}
                 onClick={() => tapTile(tile)}
-                className={`relative min-h-[104px] rounded-card p-3 flex flex-col items-center justify-center gap-1 active:scale-[0.97] transition-transform ${
-                  isPending ? "ring-4 ring-gold" : ""
+                className={`relative min-h-[104px] rounded-[18px] border-2 p-3 flex flex-col items-center justify-center gap-1 active:scale-[0.97] transition-transform ${
+                  isPending
+                    ? "bg-saffron-50 border-saffron-500"
+                    : "bg-card border-sand-200"
                 }`}
-                style={{ backgroundColor: `${accent.hex}1F` }}
                 aria-label={isPending ? `${native} — ${t("pratham.langTapAgain")}` : native}
                 aria-pressed={isPending}
               >
-                <span
-                  className="text-[34px] leading-none font-bold font-hindi"
-                  style={{ color: accent.textHex }}
-                  aria-hidden="true"
-                >
-                  {native.slice(0, 2)}
-                </span>
-                <span className="text-[22px] font-bold text-ink font-hindi leading-tight">{native}</span>
-                {tile.subtitle && (
-                  <span className="text-[15px] text-softgrey font-hindi leading-tight">{tile.subtitle}</span>
+                {isPending && (
+                  <span
+                    className="absolute top-2 right-2 w-6 h-6 rounded-full bg-saffron-500 text-white text-[14px] font-bold flex items-center justify-center"
+                    aria-hidden="true"
+                  >
+                    ✓
+                  </span>
                 )}
+                <span className={`text-[26px] font-extrabold font-hindi leading-tight ${isPending ? "text-saffron-700" : "text-ink"}`}>
+                  {native}
+                </span>
+                <span className="text-[14px] font-semibold text-softgrey leading-tight">
+                  {tile.subtitle ?? tile.lang}
+                </span>
                 {isPending && (
                   <span className="text-[13px] font-semibold text-temple-600 font-hindi">
                     {t("pratham.langTapAgain")}
