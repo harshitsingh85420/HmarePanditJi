@@ -43,8 +43,13 @@ interface AuthContextValue {
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
-export const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api/v1";
+// NEXT_PUBLIC_API_URL is deployed WITHOUT the /api/v1 path on Vercel, and
+// only /auth/* has a legacy 308 redirect into the prefix — every other bare
+// call 404s (live P-PAY E2E: POST /bookings hit onrender.com/bookings → 404
+// while login "worked" through the redirect). Normalize once here so every
+// API_BASE consumer gets the real mount point, whatever the env var says.
+const RAW_API_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api/v1").replace(/\/+$/, "");
+export const API_BASE = RAW_API_URL.endsWith("/api/v1") ? RAW_API_URL : `${RAW_API_URL}/api/v1`;
 
 // ── Context ───────────────────────────────────────────────────────────────────
 
