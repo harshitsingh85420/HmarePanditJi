@@ -51,9 +51,10 @@ export default function HelpPage() {
           <p className="text-[20px] text-softgrey mt-2 font-hindi">हमारी टीम तैयार है</p>
         </section>
 
-        {/* Actions */}
-        <section className="flex flex-col gap-4 mt-6">
-          {/* Re-watch tutorial — kit outline button (D2 review intent) */}
+        {/* Actions — mockup frame 23 row grammar: icon tile + 18/800 title
+            + 14 sub + chevron; the call row wears the leaf tint */}
+        <section className="flex flex-col gap-3 mt-6">
+          {/* Re-watch tutorial (D2 review intent) */}
           <button
             onClick={() => {
               // D2 REVIEW INTENT — outranks resume rules; back returns here
@@ -64,41 +65,46 @@ export default function HelpPage() {
               setCurrentTutorialScreen(1);
               router.push('/onboarding?review=tutorial');
             }}
-            className="w-full bg-white border-2 border-saffron-500 rounded-card px-5 min-h-[64px] flex items-center justify-center active:scale-[0.98] transition-transform focus-visible:ring-4 focus-visible:ring-saffron-200 focus:outline-none text-[18px] font-bold text-saffron-700 font-hindi"
+            className="w-full bg-card border border-sand rounded-[18px] px-4 min-h-[72px] flex items-center gap-3 shadow-card active:scale-[0.98] transition-transform focus-visible:ring-4 focus-visible:ring-saffron-200 focus:outline-none"
           >
-            {t("helpScreen.rewatchTutorial")}
+            <span className="w-12 h-12 rounded-[14px] bg-saffron-50 flex items-center justify-center text-[26px] shrink-0 select-none" aria-hidden="true">▶️</span>
+            <span className="flex-1 text-left">
+              <span className="block text-[18px] font-extrabold text-ink font-hindi">{t("helpScreen.rewatchTutorial")}</span>
+              <span className="block text-[14px] text-softgrey font-hindi">वही 6 आसान कदम</span>
+            </span>
+            <span className="text-[#C9BBA6] text-[22px]" aria-hidden="true">›</span>
           </button>
+
+          {/* Call the team — leaf-tinted row (real support number) */}
+          <a
+            href="tel:+918934095599"
+            className="flex items-center gap-3 bg-leaf-100 border border-[#BFE3CC] rounded-[18px] px-4 min-h-[72px] shadow-card active:scale-[0.98] transition-transform focus-visible:ring-4 focus-visible:ring-saffron-200 focus:outline-none"
+          >
+            <span className="w-12 h-12 rounded-[14px] bg-leaf-500 flex items-center justify-center text-[26px] shrink-0 select-none" aria-hidden="true">📞</span>
+            <span className="flex-1">
+              <span className="block text-[18px] font-extrabold text-leaf-700 font-hindi">सहायता को कॉल करें</span>
+              <span className="block text-[14px] text-softgrey font-hindi">सुबह 8 – रात 10 · मुफ़्त</span>
+            </span>
+            <span className="text-[#8FBFA1] text-[22px]" aria-hidden="true">›</span>
+          </a>
+
+          {/* WhatsApp — calm row (mockup), brand banner retired */}
+          <a
+            href={`https://wa.me/918934095599?text=${encodeURIComponent("नमस्ते, मुझे मदद चाहिए")}`}
+            className="flex items-center gap-3 bg-card border border-sand rounded-[18px] px-4 min-h-[72px] shadow-card active:scale-[0.98] transition-transform focus-visible:ring-4 focus-visible:ring-saffron-200 focus:outline-none"
+          >
+            <span className="w-12 h-12 rounded-[14px] bg-saffron-50 flex items-center justify-center text-[26px] shrink-0 select-none" aria-hidden="true">💬</span>
+            <span className="flex-1">
+              <span className="block text-[18px] font-extrabold text-ink font-hindi">WhatsApp पर पूछें</span>
+              <span className="block text-[14px] text-softgrey font-hindi">तुरंत जवाब</span>
+            </span>
+            <span className="text-[#C9BBA6] text-[22px]" aria-hidden="true">›</span>
+          </a>
 
           {/* Emergency — kit danger-outline Button (no haptic on this variant) */}
           <Button variant="danger-outline" size="lg" fullWidth onClick={() => router.push('/emergency-sos')}>
             {t("helpScreen.emergency")}
           </Button>
-
-          {/* Call the team — sindoor CTA (real support number) */}
-          <a
-            href="tel:+918934095599"
-            className="flex items-center gap-4 bg-saffron-500 rounded-card shadow-btn px-5 min-h-[72px] active:scale-[0.98] transition-transform focus-visible:ring-4 focus-visible:ring-saffron-200 focus:outline-none"
-          >
-            <span className="text-[36px] shrink-0" aria-hidden="true">📞</span>
-            <div>
-              <p className="text-[20px] font-bold text-chandan font-hindi">हमारी टीम से बात करें</p>
-              <p className="text-[16px] text-chandan/85 mt-0.5 font-hindi">बिल्कुल मुफ़्त</p>
-            </div>
-          </a>
-
-          {/* WhatsApp — brand green kept intentionally */}
-          <a
-            href={`https://wa.me/918934095599?text=${encodeURIComponent("नमस्ते, मुझे मदद चाहिए")}`}
-            className="flex items-center gap-4 rounded-card px-5 min-h-[64px] active:scale-[0.98] transition-transform bg-[#25D366] focus-visible:ring-4 focus-visible:ring-saffron-200 focus:outline-none"
-          >
-            <span className="text-[36px] shrink-0" aria-hidden="true">💬</span>
-            <div>
-              <p className="text-[18px] font-bold text-white font-hindi">व्हाट्सऐप पर लिखें</p>
-              <p className="text-[16px] text-white/90 mt-0.5 font-hindi">संदेश भेजें, जवाब आएगा</p>
-            </div>
-          </a>
-
-          <p className="text-[16px] text-saffron-700 mt-2 font-hindi">⏱️ जवाब का समय: सुबह 8 बजे – रात 10 बजे (सभी दिन)</p>
         </section>
       </main>
 

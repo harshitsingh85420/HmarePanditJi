@@ -13,6 +13,55 @@ import { playBell } from "@/lib/sounds";
 import { useSafeOnboardingStore } from "@/lib/stores/ssr-safe-stores";
 import { purgeUserData } from "@/lib/purgeUserData";
 
+// Mockup frame 22 row grammar: #FFFDF8 card, 1px sand border r16, emoji
+// in a saffron-50 r13 tile, 18/800 label, sand chevron; logout wears the
+// red tint. Pure presentation — each row keeps its own handler/href.
+function SettingsRow({
+  emoji,
+  label,
+  danger = false,
+  onClick,
+  href,
+}: {
+  emoji: string;
+  label: string;
+  danger?: boolean;
+  onClick?: () => void;
+  href?: string;
+}) {
+  const cls = `rounded-[16px] px-4 min-h-[64px] flex items-center gap-3 shadow-card active:scale-[0.97] transition-transform focus-visible:ring-4 focus-visible:ring-saffron-200 focus:outline-none ${
+    danger ? "bg-[#FBE7E3] border border-[#E7B8AF]" : "bg-card border border-sand"
+  }`;
+  const inner = (
+    <>
+      <span
+        className={`w-11 h-11 rounded-[13px] flex items-center justify-center text-[22px] shrink-0 select-none ${
+          danger ? "bg-white" : "bg-saffron-50"
+        }`}
+        aria-hidden="true"
+      >
+        {emoji}
+      </span>
+      <span className={`flex-1 text-left text-[18px] font-extrabold font-hindi ${danger ? "text-danger" : "text-ink"}`}>
+        {label}
+      </span>
+      <span className="text-[#C9BBA6] text-[22px]" aria-hidden="true">›</span>
+    </>
+  );
+  if (href) {
+    return (
+      <a href={href} className={cls}>
+        {inner}
+      </a>
+    );
+  }
+  return (
+    <button type="button" onClick={onClick} className={cls}>
+      {inner}
+    </button>
+  );
+}
+
 export default function SettingsPage() {
   const router = useRouter();
   const { setPhase } = useSafeOnboardingStore();
@@ -47,36 +96,22 @@ export default function SettingsPage() {
         <Narrate text={t("settingsScreen.intro")} />
 
         {/* Row: profile view */}
-        <Card
-          className="px-5 bg-white border border-saffron-100 min-h-[64px] flex items-center justify-between cursor-pointer active:scale-[0.97] transition-transform"
-          onClick={() => router.push("/profile-view")}
-        >
-          <span className="text-[18px] font-bold text-ink font-hindi">👤 {t("settingsRows.viewProfile")}</span>
-          <span className="text-softgrey text-[20px]" aria-hidden="true">›</span>
-        </Card>
+        <SettingsRow emoji="👤" label={t("settingsRows.viewProfile")} onClick={() => router.push("/profile-view")} />
 
         {/* Row: my poojas */}
-        <Card
-          className="px-5 bg-white border border-saffron-100 min-h-[64px] flex items-center justify-between cursor-pointer active:scale-[0.97] transition-transform"
-          onClick={() => router.push("/my-poojas")}
-        >
-          <span className="text-[18px] font-bold text-ink font-hindi">🛕 {t("myPoojas.title")}</span>
-          <span className="text-softgrey text-[20px]" aria-hidden="true">›</span>
-        </Card>
+        <SettingsRow emoji="🛕" label={t("myPoojas.title")} onClick={() => router.push("/my-poojas")} />
 
         {/* Row: language */}
-        <Card
-          className="px-5 bg-white border border-saffron-100 min-h-[64px] flex items-center justify-between cursor-pointer active:scale-[0.97] transition-transform"
+        <SettingsRow
+          emoji="🌐"
+          label={t("settingsRows.language")}
           onClick={() => {
             // bare list only — no confirm ceremony, and return here after
             sessionStorage.setItem("hpj_lang_return", "/settings");
             setPhase("LANGUAGE_LIST");
             router.push("/onboarding");
           }}
-        >
-          <span className="text-[18px] font-bold text-ink font-hindi">🌐 {t("settingsRows.language")}</span>
-          <span className="text-softgrey text-[20px]" aria-hidden="true">›</span>
-        </Card>
+        />
 
         <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-4">
           {/* घंटी की आवाज़ toggle */}
@@ -107,34 +142,20 @@ export default function SettingsPage() {
         </Card>
 
         {/* Row: about शिष्य */}
-        <Card
-          className="px-5 bg-white border border-saffron-100 min-h-[64px] flex items-center justify-between cursor-pointer active:scale-[0.97] transition-transform"
+        <SettingsRow
+          emoji="🙏"
+          label={t("shishya.aboutTitle")}
           onClick={() => {
             setAboutShishya(true);
             speak(`${t("shishya.aboutLine1")} ${t("shishya.aboutLine2")}`);
           }}
-        >
-          <span className="text-[18px] font-bold text-ink font-hindi">🙏 {t("shishya.aboutTitle")}</span>
-          <span className="text-softgrey text-[20px]" aria-hidden="true">›</span>
-        </Card>
+        />
 
         {/* Row: call support */}
-        <a
-          href={`tel:${t("support.phone")}`}
-          className="bg-white border border-saffron-100 rounded-card px-5 min-h-[64px] flex items-center justify-between shadow-card active:scale-[0.97] transition-transform focus-visible:ring-4 focus-visible:ring-saffron-200 focus:outline-none"
-        >
-          <span className="text-[18px] font-bold text-ink font-hindi">{t("support.callLabel")}</span>
-          <span className="text-softgrey text-[20px]" aria-hidden="true">›</span>
-        </a>
+        <SettingsRow emoji="📞" label={t("support.callLabel")} href={`tel:${t("support.phone")}`} />
 
         {/* Row: help */}
-        <Card
-          className="px-5 bg-white border border-saffron-100 min-h-[64px] flex items-center justify-between cursor-pointer active:scale-[0.97] transition-transform"
-          onClick={() => router.push("/help")}
-        >
-          <span className="text-[18px] font-bold text-ink font-hindi">❓ {t("settingsRows.helpRow")}</span>
-          <span className="text-softgrey text-[20px]" aria-hidden="true">›</span>
-        </Card>
+        <SettingsRow emoji="❓" label={t("settingsRows.helpRow")} onClick={() => router.push("/help")} />
 
         {/* Row: logout (confirm) */}
         {confirmLogout ? (
@@ -163,13 +184,7 @@ export default function SettingsPage() {
             </div>
           </Card>
         ) : (
-          <Card
-            className="px-5 bg-white border border-saffron-100 min-h-[64px] flex items-center justify-between cursor-pointer active:scale-[0.97] transition-transform"
-            onClick={() => setConfirmLogout(true)}
-          >
-            <span className="text-[18px] font-bold text-danger font-hindi">🚪 {t("settingsRows.logout")}</span>
-            <span className="text-softgrey text-[20px]" aria-hidden="true">›</span>
-          </Card>
+          <SettingsRow danger emoji="🚪" label={t("settingsRows.logout")} onClick={() => setConfirmLogout(true)} />
         )}
       </main>
 

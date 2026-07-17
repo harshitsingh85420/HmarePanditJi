@@ -79,33 +79,46 @@ export default function EmergencySOS() {
           animate="show"
           className="w-full max-w-md flex flex-col"
         >
-          {/* Reassurance Header */}
+          {/* Reassurance Header — mockup frame 25: घबराएँ नहीं 24/900 */}
           <motion.div variants={item} className="text-center mb-8">
-            <h2 className="text-[24px] font-bold text-ink mb-2 font-hindi">
-              आप सुरक्षित हैं, हम आपके साथ हैं
+            <h2 className="text-[24px] font-black text-ink mb-1 font-hindi">
+              घबराएँ नहीं
             </h2>
-            <div className="h-1 w-20 bg-saffron-500 mx-auto rounded-full opacity-50" />
+            <p className="text-[17px] font-semibold text-softgrey font-hindi">
+              हम हर पल आपके साथ हैं 🙏
+            </p>
           </motion.div>
 
-          {/* Hero SOS Illustration with Pulse Animation */}
+          {/* Mockup frame 25: the big circle IS the SOS button — same
+              handleSendSOS the old rectangle carried, one tap (hold-to-
+              press skipped: reliability for elderly hands) */}
           <motion.div variants={item} className="relative flex items-center justify-center mb-10">
             {/* Pulsing ring (transform-only, honors reduced-motion) */}
             <motion.div
-              className="absolute w-48 h-48 bg-saffron-500/20 rounded-full"
+              className="absolute w-52 h-52 bg-saffron-500/20 rounded-full"
               variants={reduced ? still(pulse) : pulse}
               animate="show"
               aria-hidden="true"
             />
-            {/* Main SOS icon */}
-            <div className="relative z-10 w-40 h-40 bg-card rounded-full flex items-center justify-center shadow-card">
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={handleSendSOS}
+              disabled={isLoading || sosSent}
+              className={`relative z-10 w-44 h-44 rounded-full flex flex-col items-center justify-center gap-1 shadow-btn transition-transform disabled:opacity-70 disabled:pointer-events-none ${
+                sosSent ? 'bg-leaf-500' : 'bg-saffron-500'
+              } text-chandan`}
+            >
               {sosSent ? (
                 <SuccessCheckmark size="lg" animated={true} />
               ) : isLoading ? (
                 <WaveformVisualizer barCount={5} height="lg" animated={true} />
               ) : (
-                <span className="text-[64px] leading-none select-none" aria-hidden="true">🆘</span>
+                <>
+                  <span className="text-[44px] leading-none select-none" aria-hidden="true">🆘</span>
+                  <span className="text-[22px] font-black font-hindi leading-tight">सहायता बुलाएँ</span>
+                </>
               )}
-            </div>
+            </motion.button>
           </motion.div>
 
           {/* Explainer Card (kit accent rail) */}
@@ -143,35 +156,20 @@ export default function EmergencySOS() {
             </Card>
           </motion.div>
 
-          {/* Primary Action — SOS/Call button (retokened in place: no kit
-              Button so the safety action gains no haptic/spinner surprise). */}
-          <motion.div variants={item} className="w-full mb-4">
-            <motion.button
-              whileTap={{ scale: 0.97 }}
-              onClick={handleSendSOS}
-              disabled={isLoading || sosSent}
-              className={`w-full min-h-[80px] rounded-btn flex items-center justify-center gap-4 shadow-btn active:scale-[0.97] transition-transform disabled:opacity-60 disabled:pointer-events-none ${sosSent ? 'bg-leaf-500' : 'bg-saffron-500'} text-chandan`}
-            >
-              <span className="text-[36px] leading-none" aria-hidden="true">
-                {sosSent ? '✅' : '🆘'}
-              </span>
-              <span className="text-[24px] font-bold font-hindi">
-                {sosSent ? 'सहायता टीम से जुड़ रहे हैं…' : 'सहायता के लिए कॉल करें'}
-              </span>
-            </motion.button>
-          </motion.div>
-
-          {/* Secondary Action — Call Team */}
+          {/* Secondary Action — mockup frame 25 row: हमारी सहायता टीम with
+              a leaf tile and a call glyph (same handleCallTeam) */}
           <motion.div variants={item}>
             <motion.button
               whileTap={{ scale: 0.97 }}
               onClick={handleCallTeam}
-              className="w-full min-h-[56px] bg-[#F8E3D2] text-saffron-700 rounded-btn flex items-center justify-center gap-3 active:scale-[0.97] transition-transform"
+              className="w-full bg-card border border-sand rounded-[16px] px-4 min-h-[72px] flex items-center gap-3 shadow-card active:scale-[0.97] transition-transform"
             >
-              <span className="text-[24px] leading-none" aria-hidden="true">📞</span>
-              <span className="text-[20px] font-semibold font-hindi">
-                टीम से बात करें
+              <span className="w-12 h-12 rounded-[12px] bg-leaf-100 flex items-center justify-center text-[24px] shrink-0 select-none" aria-hidden="true">🎧</span>
+              <span className="flex-1 text-left">
+                <span className="block text-[17px] font-extrabold text-ink font-hindi">हमारी सहायता टीम</span>
+                <span className="block text-[14px] text-softgrey font-hindi">तुरंत कॉल</span>
               </span>
+              <span className="text-leaf-500 text-[24px]" aria-hidden="true">📞</span>
             </motion.button>
           </motion.div>
 

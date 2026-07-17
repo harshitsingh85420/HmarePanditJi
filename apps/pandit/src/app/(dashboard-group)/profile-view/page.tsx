@@ -59,21 +59,24 @@ export default function ProfileViewPage() {
       <main className="flex-1 overflow-y-auto px-4 pt-3 pb-24 flex flex-col gap-3 page-enter">
         <Narrate text={t("profileView.title")} />
 
-        {/* Photo + name + city */}
-        <Card className="p-5 bg-white border border-saffron-100 flex items-center gap-4">
-          <div className="w-20 h-20 rounded-full bg-saffron-50 border-2 border-gold/50 overflow-hidden flex items-center justify-center shrink-0">
+        {/* Photo + name + city — mockup frame 24: initial-letter avatar in
+            a 4px gold ring, name 25/900 */}
+        <Card className="p-5 rounded-[18px] border-sand flex items-center gap-4">
+          <div className="w-20 h-20 rounded-full bg-temple-700 border-4 border-gold overflow-hidden flex items-center justify-center shrink-0">
             {photo ? (
               /* eslint-disable-next-line @next/next/no-img-element */
               <img src={photo} alt="" className="w-full h-full object-cover" />
             ) : (
-              <span className="text-[36px]" aria-hidden="true">🙏</span>
+              <span className="text-[34px] font-black text-chandan font-hindi select-none" aria-hidden="true">
+                {(profile?.fullName || profile?.displayName || name || "🙏").trim().charAt(0)}
+              </span>
             )}
           </div>
-          <div className="flex flex-col gap-1">
-            <span className="text-[22px] font-bold text-ink font-hindi">
+          <div className="flex flex-col gap-1 min-w-0">
+            <span className="text-[25px] font-black text-ink font-hindi leading-tight">
               {profile?.fullName || profile?.displayName || name || "—"}
             </span>
-            <span className="t-hint text-softgrey font-hindi">
+            <span className="text-[16px] font-semibold text-softgrey font-hindi">
               📍 {profile?.city || profile?.location || "—"}
             </span>
           </div>
@@ -81,16 +84,17 @@ export default function ProfileViewPage() {
 
         {/* Row: manage poojas */}
         <Card
-          className="px-5 bg-white border border-saffron-100 min-h-[64px] flex items-center justify-between cursor-pointer active:scale-[0.97] transition-transform"
+          className="px-4 rounded-[16px] border-sand min-h-[64px] flex items-center gap-3 cursor-pointer active:scale-[0.97] transition-transform"
           onClick={() => router.push("/my-poojas")}
         >
-          <span className="text-[18px] font-bold text-ink font-hindi">🛕 {t("myPoojas.title")}</span>
-          <span className="text-softgrey text-[20px]" aria-hidden="true">›</span>
+          <span className="w-11 h-11 rounded-[13px] bg-saffron-50 flex items-center justify-center text-[22px] shrink-0 select-none" aria-hidden="true">🛕</span>
+          <span className="flex-1 text-[18px] font-extrabold text-ink font-hindi">{t("myPoojas.title")}</span>
+          <span className="text-[#C9BBA6] text-[22px]" aria-hidden="true">›</span>
         </Card>
 
         {/* पूजाएँ chips */}
-        <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-3">
-          <h3 className="text-[18px] font-bold text-temple-600 font-hindi">{t("profileView.pujas")}</h3>
+        <Card className="p-5 rounded-[18px] border-sand flex flex-col gap-3">
+          <h3 className="text-[15px] font-extrabold text-softgrey font-hindi">{t("profileView.pujas")}</h3>
           <div className="flex flex-wrap gap-2">
             {(profile?.specializations || []).map((sp) => (
               <span key={sp} className="bg-saffron-50 border border-saffron-100 text-saffron-700 rounded-full px-4 py-2 text-[16px] font-semibold font-hindi">
@@ -104,8 +108,8 @@ export default function ProfileViewPage() {
         </Card>
 
         {/* दक्षिणा table */}
-        <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-3">
-          <h3 className="text-[18px] font-bold text-temple-600 font-hindi">{t("profileView.dakshina")}</h3>
+        <Card className="p-5 rounded-[18px] border-sand flex flex-col gap-3">
+          <h3 className="text-[15px] font-extrabold text-softgrey font-hindi">{t("profileView.dakshina")}</h3>
           {dakshina.length === 0 ? (
             <span className="t-hint text-softgrey font-hindi">—</span>
           ) : (
