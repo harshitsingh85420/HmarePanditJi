@@ -230,12 +230,16 @@ export default function BookingDetailPage() {
     return (
       <div className="fixed inset-0 bg-cream text-ink flex flex-col justify-between p-6 z-50">
         <Narrate text={completeLine || t("booking.completeVoice")} />
-        <div className="flex-1 flex flex-col items-center justify-center text-center gap-6">
+        {/* Mockup frame 26 (पूजा संपन्न): 30/900 saffron-700 title, सेवा
+            line, leaf ₹ — payout wording stays payoutSoon (truth: the
+            money has NOT landed yet; mockup's "आपके खाते में" would lie) */}
+        <div className="flex-1 flex flex-col items-center justify-center text-center gap-5">
           <span className="text-[120px] select-none leading-none">🙏</span>
-          <h1 className="text-[36px] font-bold text-temple-700 font-hindi">
+          <h1 className="text-[30px] font-black text-saffron-700 font-hindi">
             {t("booking.pujaFinishedTitle")}
           </h1>
-          <p className="text-[22px] font-bold text-leaf-700 font-hindi leading-snug">
+          <p className="text-[17px] font-semibold text-softgrey font-hindi">आपकी सेवा सफल रही</p>
+          <p className="text-[19px] font-black text-leaf-700 font-hindi leading-snug">
             ₹{payoutAmount.toLocaleString("en-IN")} {t("booking.payoutSoon")}
           </p>
         </div>

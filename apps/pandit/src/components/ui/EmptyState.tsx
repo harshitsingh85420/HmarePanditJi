@@ -16,20 +16,22 @@ export interface EmptyStateProps {
 }
 
 export function EmptyState({ emoji, title, hint, className }: EmptyStateProps) {
+  // Mockup frame 27: empty states sit straight on cream (no card box);
+  // title 22/900 saffron-700, hint = शिष्य's warm 17/600 line.
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center text-center py-16 px-4 bg-white rounded-card shadow-card w-full",
+        "flex flex-col items-center justify-center text-center py-16 px-4 w-full",
         className
       )}
     >
       <div className="text-[64px] leading-none mb-4 select-none animate-gentle-float motion-reduce:animate-none" role="img" aria-hidden="true">
         {emoji}
       </div>
-      <h3 className="t-title font-bold text-ink mb-2">
+      <h3 className="text-[22px] font-black text-saffron-700 font-hindi mb-2">
         {title}
       </h3>
-      <p className="t-hint max-w-sm">
+      <p className="text-[17px] font-semibold text-softgrey font-hindi max-w-sm leading-snug">
         {hint}
       </p>
     </div>

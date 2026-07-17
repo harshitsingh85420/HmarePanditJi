@@ -221,7 +221,8 @@ export const hi = {
     save: "सेव करें",
     listen: "🔊 सुनें",
     help: "मदद",
-    loading: "लोड हो रहा है...",
+    // Mockup frame 28 wording
+    loading: "एक क्षण…",
     error: "कुछ गड़बड़ हो गई। दोबारा कोशिश करें।",
   },
   errors: {
@@ -659,10 +660,13 @@ export const hi = {
   empty: {
     todayNoBookingsTitle: "आज कोई बुकिंग नहीं",
     todayNoBookingsHint: "ऑनलाइन रहें — नई बुकिंग की सूचना घंटी बजाकर मिलेगी",
-    noBookingsYetTitle: "आपकी पहली बुकिंग जल्द आएगी",
-    noBookingsYetHint: "प्रोफ़ाइल पूरी रखें और ऑनलाइन रहें",
-    noPayoutsTitle: "पहली कमाई का इंतज़ार",
-    noPayoutsHint: "पहली पूजा पूरी होते ही यहाँ राशि दिखेगी",
+    // Mockup frame 27: empty states speak in शिष्य's warm first person
+    noBookingsYetTitle: "अभी कोई बुकिंग नहीं",
+    noBookingsYetHint: "मैं नज़र रखे हूँ — आते ही आपको बता दूँगा 🙏",
+    noPayoutsTitle: "कमाई यहाँ दिखेगी",
+    noPayoutsHint: "पहली पूजा का इंतज़ार है — दीया जल रहा है 🪔",
+    noPoojasTitle: "अभी कोई पूजा नहीं जोड़ी",
+    noPoojasHint: "पहली पूजा जोड़िए — मैं हर कदम बताऊँगा 🙏",
     calendarEmptyTitle: "इस महीने अभी कोई बुकिंग नहीं",
   },
   calendar: {

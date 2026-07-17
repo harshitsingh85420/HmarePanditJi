@@ -159,7 +159,7 @@ export default function MyPoojasPage() {
 
       <div className="flex flex-col gap-3">
         {poojas.length === 0 && (
-          <EmptyState emoji="🙏" title={t("myPoojas.title")} hint={t("myPoojas.intro")} />
+          <EmptyState emoji="🛕" title={t("empty.noPoojasTitle")} hint={t("empty.noPoojasHint")} />
         )}
 
         {poojas.map((pooja) => {

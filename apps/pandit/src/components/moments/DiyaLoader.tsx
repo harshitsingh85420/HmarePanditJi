@@ -35,7 +35,8 @@ export function DiyaLoader({ message, inline = false }: { message?: string; inli
       <div className="text-[48px] animate-diya select-none" role="img" aria-label="loading">
         🪔
       </div>
-      <p className="t-body font-semibold text-temple-600 animate-pulse">
+      {/* Mockup frame 28: एक क्षण… 24/900 saffron-700 */}
+      <p className="text-[24px] font-black text-saffron-700 font-hindi animate-pulse motion-reduce:animate-none">
         {message ?? t("common.loading")}
       </p>
     </div>
