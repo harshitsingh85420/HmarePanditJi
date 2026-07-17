@@ -25,6 +25,20 @@ import { EmptyState } from "@/components/ui/EmptyState";
 
 const ALL_POOJAS = Object.values(hi.onboarding.specializations);
 
+// Mockup frame 21: every card opens with an emoji tile. Name-keyed DECORATION
+// only (custom pujas fall back to 🪔) — never data, never state.
+const POOJA_EMOJI: Array<[RegExp, string]> = [
+  [/सत्यनारायण|कथा/, "🕉️"],
+  [/गृह प्रवेश|वास्तु/, "🏠"],
+  [/विवाह/, "💍"],
+  [/मुंडन|नामकरण/, "👶"],
+  [/हवन|यज्ञ/, "🔥"],
+  [/रुद्राभिषेक|शिव/, "🔱"],
+  [/श्राद्ध|पिंडदान/, "🪷"],
+  [/नवग्रह|शांति/, "✨"],
+];
+const poojaEmoji = (name: string) => POOJA_EMOJI.find(([re]) => re.test(name))?.[1] ?? "🪔";
+
 interface RateMap {
   [pooja: string]: number;
 }
@@ -121,7 +135,16 @@ export default function MyPoojasPage() {
       footer={
         <div ref={addBtnRef}>
           <FirstUseTip tipId="myPoojasAdd" targetRef={addBtnRef} />
-          <Button variant="primary" size="lg" fullWidth onClick={() => router.push("/my-poojas/add")}>
+          {/* Mockup frame 21 CTA: saffron-TINTED (bg #FDEEE7, 2px #F4B096
+              border), not a solid primary — the add is a calm side door */}
+          <Button
+            variant="secondary"
+            size="lg"
+            fullWidth
+            className="bg-saffron-50 border-2 border-saffron-200 text-saffron-500 font-extrabold"
+            onClick={() => router.push("/my-poojas/add")}
+          >
+            <span className="text-[24px] leading-none" aria-hidden>＋</span>
             {t("myPoojas.addBtn")}
           </Button>
         </div>
@@ -139,10 +162,35 @@ export default function MyPoojasPage() {
           <EmptyState emoji="🙏" title={t("myPoojas.title")} hint={t("myPoojas.intro")} />
         )}
 
-        {poojas.map((pooja) => (
-          <Card key={pooja} className="p-4 bg-white border border-saffron-100 flex flex-col gap-2">
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-[22px] font-bold text-ink font-hindi line-clamp-2">{pooja}</span>
+        {poojas.map((pooja) => {
+          const v = verifications[pooja];
+          // fall back to the legacy pending array until a verification row exists
+          const status = v?.status ?? (pending.includes(pooja) ? "PENDING" : "APPROVED");
+          // Mockup frame 21: the card BORDER carries the state tint and the
+          // status is a plain colored text line under the name (no pill).
+          const borderCls =
+            status === "REJECTED" ? "border-[#E7B8AF]"
+              : status === "PENDING" ? "border-[#EBCF86]"
+                : "border-[#BFE3CC]";
+          const statusCls =
+            status === "REJECTED" ? "text-danger"
+              : status === "PENDING" ? "text-brassdark"
+                : "text-leaf-700";
+          const statusLabel =
+            status === "REJECTED" ? `✗ ${t("myPoojas.rejected")}`
+              : status === "PENDING" ? `⏳ ${t("myPoojas.pendingVerify")}`
+                : `✓ ${t("myPoojas.verified")}`;
+
+          return (
+          <Card key={pooja} className={`p-4 bg-card border ${borderCls} flex flex-col gap-2`}>
+            <div className="flex items-center gap-3">
+              <span className="w-12 h-12 rounded-[12px] bg-saffron-50 flex items-center justify-center text-[26px] shrink-0 select-none">
+                {poojaEmoji(pooja)}
+              </span>
+              <div className="flex-1 min-w-0 flex flex-col gap-0.5">
+                <span className="text-[18px] font-black text-ink font-hindi line-clamp-2 leading-snug">{pooja}</span>
+                <span className={`text-[13px] font-extrabold font-hindi ${statusCls}`}>{statusLabel}</span>
+              </div>
               <button
                 onClick={() => void removePooja(pooja)}
                 aria-label={`${pooja} हटाएं`}
@@ -152,68 +200,46 @@ export default function MyPoojasPage() {
               </button>
             </div>
 
-            <div className="flex items-center justify-between gap-2">
-              {editing === pooja ? (
-                <div className="flex-1">
-                  <VoiceField
-                    label=""
-                    promptText={t("myPoojas.editPrompt")}
-                    value={editValue}
-                    onChange={setEditValue}
-                    mode="money"
-                    onComplete={() => {
-                      const n = parseInt(editValue, 10);
-                      if (Number.isFinite(n) && n > 0) void saveRate(pooja, n);
-                    }}
-                    placeholder="₹"
-                  />
-                  <Button
-                    variant="success"
-                    size="md"
-                    fullWidth
-                    className="mt-2"
-                    onClick={() => {
-                      const n = parseInt(editValue, 10);
-                      if (Number.isFinite(n) && n > 0) void saveRate(pooja, n);
-                    }}
-                  >
-                    {t("myPoojas.saveBtn")}
-                  </Button>
-                </div>
-              ) : (
-                <button
-                  onClick={() => {
-                    setEditing(pooja);
-                    setEditValue(String(rates[pooja] ?? ""));
+            {editing === pooja ? (
+              <div>
+                <VoiceField
+                  label=""
+                  promptText={t("myPoojas.editPrompt")}
+                  value={editValue}
+                  onChange={setEditValue}
+                  mode="money"
+                  onComplete={() => {
+                    const n = parseInt(editValue, 10);
+                    if (Number.isFinite(n) && n > 0) void saveRate(pooja, n);
                   }}
-                  className="t-money text-[22px] min-h-[56px] px-2 flex items-center active:scale-[0.97] transition-transform"
+                  placeholder="₹"
+                />
+                <Button
+                  variant="success"
+                  size="md"
+                  fullWidth
+                  className="mt-2"
+                  onClick={() => {
+                    const n = parseInt(editValue, 10);
+                    if (Number.isFinite(n) && n > 0) void saveRate(pooja, n);
+                  }}
                 >
-                  ₹{(rates[pooja] ?? 0).toLocaleString("en-IN")}
-                </button>
-              )}
-
-              {(() => {
-                const v = verifications[pooja];
-                // fall back to the legacy pending array until a verification row exists
-                const status = v?.status ?? (pending.includes(pooja) ? "PENDING" : "APPROVED");
-                const cls =
-                  status === "REJECTED" ? "bg-red-50 text-danger"
-                    : status === "PENDING" ? "bg-[#FFE9B8] text-brassdark"
-                      : "bg-leaf-100 text-leaf-700";
-                const label =
-                  status === "REJECTED" ? `✗ ${t("myPoojas.rejected")}`
-                    : status === "PENDING" ? `⏳ ${t("myPoojas.pendingVerify")}`
-                      : `✓ ${t("myPoojas.verified")}`;
-                return (
-                  <span className={`rounded-full px-3 py-1.5 text-[14px] font-bold font-hindi shrink-0 inline-flex items-center gap-1 ${cls}`}>
-                    {label}
-                  </span>
-                );
-              })()}
-            </div>
+                  {t("myPoojas.saveBtn")}
+                </Button>
+              </div>
+            ) : (
+              <button
+                onClick={() => {
+                  setEditing(pooja);
+                  setEditValue(String(rates[pooja] ?? ""));
+                }}
+                className="self-end t-money text-[19px] font-black text-leaf-700 min-h-[48px] px-2 flex items-center active:scale-[0.97] transition-transform"
+              >
+                ₹{(rates[pooja] ?? 0).toLocaleString("en-IN")}
+              </button>
+            )}
 
             {(() => {
-              const v = verifications[pooja];
               if (v?.status !== "REJECTED" || !v?.rejectionReason) return null;
               return (
                 <p className="text-[14px] text-danger font-hindi leading-snug">
@@ -222,7 +248,8 @@ export default function MyPoojasPage() {
               );
             })()}
           </Card>
-        ))}
+          );
+        })}
 
       </div>
 
