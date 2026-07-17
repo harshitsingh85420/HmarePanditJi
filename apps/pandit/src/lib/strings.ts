@@ -658,8 +658,10 @@ export const hi = {
   calendar: {
     title: "मेरा कैलेंडर",
     blockVoice: "जिस दिन आप उपलब्ध नहीं हैं, उस तारीख़ पर टैप करके उसे बंद करें।",
-    blocked: "बंद",
-    available: "खुला",
+    // Mockup frame 20 vocabulary — छुट्टी/खाली (warmer than बंद/खुला)
+    hint: "तारीख दबाकर छुट्टी लगाएँ",
+    blocked: "छुट्टी",
+    available: "खाली",
     booking: "बुकिंग",
   },
   status: {

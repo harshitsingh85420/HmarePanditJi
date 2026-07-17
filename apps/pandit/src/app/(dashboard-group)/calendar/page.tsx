@@ -9,7 +9,6 @@ import { mutateOnce } from "@/lib/mutate";
 import { api } from "@/lib/api";
 
 // UI Components
-import { Card } from "@/components/ui/Card";
 import { Header } from "@/components/ui/Header";
 import { BottomNav } from "@/components/ui/BottomNav";
 import { Toast } from "@/components/ui/Toast";
@@ -33,7 +32,8 @@ const MONTHS_HINDI = [
   "जुलाई", "अगस्त", "सितंबर", "अक्टूबर", "नवंबर", "दिसंबर"
 ];
 
-const WEEKDAYS = ["सोम", "मंगल", "बुध", "गुरु", "शुक्र", "शनि", "रवि"];
+// Mockup frame 20: single-letter weekday heads, week starts रविवार
+const WEEKDAYS = ["र", "सो", "मं", "बु", "गु", "शु", "श"];
 
 export default function CalendarPage() {
   const router = useRouter();
@@ -110,7 +110,8 @@ export default function CalendarPage() {
 
   const firstDayOfMonth = new Date(year, month, 1);
   const startDayOfWeek = firstDayOfMonth.getDay(); // 0 is Sunday, 1 is Monday etc.
-  const paddingOffset = startDayOfWeek === 0 ? 6 : startDayOfWeek - 1;
+  // Sunday-start grid (mockup frame 20) — getDay() already is the offset
+  const paddingOffset = startDayOfWeek;
 
   const totalDays = new Date(year, month + 1, 0).getDate();
 
@@ -207,24 +208,29 @@ export default function CalendarPage() {
       <DashboardVoiceNav helpLine={t("help.calendar")} />
 
       <main className="flex-1 overflow-y-auto px-4 pt-3 pb-24 flex flex-col gap-3 page-enter">
-        {/* MONTH SELECTOR BANNER */}
-        <div className="flex items-center justify-between bg-white p-3 rounded-card border border-saffron-100 shadow-sm">
+        {/* Mockup frame 20: one-line instruction under the header */}
+        <p className="text-[14px] font-bold text-softgrey font-hindi text-center">
+          {t("calendar.hint")}
+        </p>
+
+        {/* MONTH SELECTOR — bare row on cream (mockup), targets stay 56px */}
+        <div className="flex items-center justify-between">
           <button
             onClick={handlePrevMonth}
-            className="w-14 h-14 bg-white border border-saffron-200 text-saffron-700 rounded-btn flex items-center justify-center font-bold text-[24px] active:scale-90 transition-transform"
-            style={{ minHeight: "56px" }}
+            aria-label="पिछला महीना"
+            className="w-14 h-14 min-h-[56px] flex items-center justify-center text-softgrey font-bold text-[18px] active:scale-90 transition-transform"
           >
-            ‹
+            ◀
           </button>
-          <h2 className="text-[22px] font-bold text-temple-700 font-hindi">
+          <h2 className="text-[20px] font-extrabold text-temple-700 font-hindi">
             {MONTHS_HINDI[month]} {year}
           </h2>
           <button
             onClick={handleNextMonth}
-            className="w-14 h-14 bg-white border border-saffron-200 text-saffron-700 rounded-btn flex items-center justify-center font-bold text-[24px] active:scale-90 transition-transform"
-            style={{ minHeight: "56px" }}
+            aria-label="अगला महीना"
+            className="w-14 h-14 min-h-[56px] flex items-center justify-center text-softgrey font-bold text-[18px] active:scale-90 transition-transform"
           >
-            ›
+            ▶
           </button>
         </div>
 
@@ -236,21 +242,20 @@ export default function CalendarPage() {
           </div>
         )}
 
-        {/* CUSTOM MONTH GRID CARD */}
+        {/* MONTH GRID — sits straight on cream (mockup frame 20, no card box) */}
         <FirstUseTip tipId="calendarBlock" targetRef={gridRef} />
-        <div ref={gridRef}>
-        <Card className="p-4 bg-white border border-saffron-100 shadow-sm flex flex-col gap-4">
+        <div ref={gridRef} className="flex flex-col gap-3">
           {/* Weekday headers */}
-          <div className="grid grid-cols-7 text-center border-b border-saffron-100 pb-2">
+          <div className="grid grid-cols-7 text-center">
             {WEEKDAYS.map((w) => (
-              <span key={w} className="text-[16px] font-bold text-softgrey font-hindi">
+              <span key={w} className="text-[12px] font-bold text-softgrey font-hindi">
                 {w}
               </span>
             ))}
           </div>
 
           {/* Days cells */}
-          <div className="grid grid-cols-7 gap-y-3 gap-x-1">
+          <div className="grid grid-cols-7 gap-y-2 gap-x-1">
             {gridCells.map((cell, idx) => {
               if (!cell.dayNum || !cell.dateKey) {
                 return <div key={`empty-${idx}`} className="w-12 h-12" style={{ minHeight: "48px" }} />;
@@ -268,50 +273,45 @@ export default function CalendarPage() {
                   key={cell.dateKey}
                   onClick={() => cell.dateKey && handleDayClick(cell.dateKey, cell.dayNum || 0)}
                   disabled={isPast}
-                  className={`w-12 h-12 rounded-btn flex flex-col items-center justify-center relative select-none font-bold text-[18px] transition-all active:scale-[0.92] ${
+                  className={`w-12 h-12 rounded-[12px] flex flex-col items-center justify-center select-none text-[16px] transition-all active:scale-[0.92] ${
                     isPast
-                      ? "text-[#C9BBA6] bg-[#F4EFE6] cursor-not-allowed"
+                      ? "font-bold text-[#C9BBA6] bg-[#F4EFE6] cursor-not-allowed"
                       : hasBooking
-                      ? "bg-saffron-50 text-saffron-800 border-2 border-saffron-300"
+                      ? "bg-saffron-50 text-saffron-500 border border-saffron-200 font-extrabold"
                       : isBlocked
-                      ? "bg-[#E9E2D6] text-softgrey border border-[#E9E2D6]"
-                      : "bg-white text-ink border border-[#EADFCE] hover:bg-saffron-50/50"
+                      ? "bg-[#E9E2D6] text-softgrey border border-[#E9E2D6] font-semibold"
+                      : "bg-card text-ink border border-[#EADFCE] font-bold hover:bg-saffron-50/50"
                   }`}
                   style={{ minHeight: "48px", minWidth: "48px" }}
                 >
-                  <span>{cell.dayNum}</span>
+                  <span className="leading-tight">{cell.dayNum}</span>
 
-                  {/* Booking dot */}
+                  {/* Mockup frame 20: tiny state marker stacked under the number */}
                   {hasBooking && !isPast && (
-                    <span className="absolute bottom-1 w-2.5 h-2.5 bg-saffron-500 rounded-full" />
+                    <span className="text-[9px] leading-none text-saffron-500" aria-hidden>●</span>
                   )}
-
-                  {/* Block indicator */}
-                  {isBlocked && !isPast && (
-                    <span className="absolute text-[14px] top-0 right-1 text-softgrey">✖</span>
+                  {isBlocked && !isPast && !hasBooking && (
+                    <span className="text-[9px] leading-none text-softgrey font-bold" aria-hidden>✕</span>
                   )}
                 </button>
               );
             })}
           </div>
-        </Card>
         </div>
 
-        {/* LEGEND SECTION */}
-        <div className="flex justify-center items-center gap-4 text-[16px] text-softgrey font-hindi py-1 bg-white border border-saffron-100 rounded-btn">
+        {/* LEGEND — plain centered row with state swatches (mockup order) */}
+        <div className="flex justify-center items-center gap-4 text-[13px] font-semibold text-softgrey font-hindi py-1">
           <div className="flex items-center gap-1.5">
-            <span className="text-[16px]">🟠</span>
-            <span>{t("calendar.booking")}</span>
+            <span className="w-4 h-4 rounded-[5px] bg-card border border-[#EADFCE]" aria-hidden />
+            <span>{t("calendar.available")}</span>
           </div>
-          <span>·</span>
           <div className="flex items-center gap-1.5">
-            <span className="text-[16px]">✖</span>
+            <span className="w-4 h-4 rounded-[5px] bg-[#E9E2D6] border border-[#E9E2D6]" aria-hidden />
             <span>{t("calendar.blocked")}</span>
           </div>
-          <span>·</span>
           <div className="flex items-center gap-1.5">
-            <span className="text-[16px] border border-saffron-100 w-4 h-4 bg-white rounded flex items-center justify-center" />
-            <span>{t("calendar.available")}</span>
+            <span className="w-4 h-4 rounded-[5px] bg-saffron-50 border border-saffron-200" aria-hidden />
+            <span>{t("calendar.booking")}</span>
           </div>
         </div>
       </main>
