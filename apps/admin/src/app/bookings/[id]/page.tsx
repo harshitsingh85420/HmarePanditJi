@@ -296,14 +296,19 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
                                     <span className="text-white">{"\u20B9"}{b.accommodationCost.toLocaleString("en-IN")}</span>
                                 </div>
                             )}
+                            {/* MONEY-TRUTH: single-sided model \u2014 the ONE fee is
+                                PLATFORM_FEE_PERCENT (10%), GST-inclusive. GST row
+                                only for legacy bookings that carry a value. */}
                             <div className="border-t border-slate-800 pt-2 flex justify-between">
-                                <span className="text-slate-400">Platform Fee (15%)</span>
+                                <span className="text-slate-400">Platform Fee (10%)</span>
                                 <span className="text-slate-300">{"\u20B9"}{b.platformFee.toLocaleString("en-IN")}</span>
                             </div>
-                            <div className="flex justify-between">
-                                <span className="text-slate-400">Platform GST (18%)</span>
-                                <span className="text-slate-300">{"\u20B9"}{b.platformFeeGst.toLocaleString("en-IN")}</span>
-                            </div>
+                            {b.platformFeeGst > 0 && (
+                                <div className="flex justify-between">
+                                    <span className="text-slate-400">Platform GST (legacy)</span>
+                                    <span className="text-slate-300">{"\u20B9"}{b.platformFeeGst.toLocaleString("en-IN")}</span>
+                                </div>
+                            )}
                             {b.travelServiceFee > 0 && (
                                 <>
                                     <div className="flex justify-between">

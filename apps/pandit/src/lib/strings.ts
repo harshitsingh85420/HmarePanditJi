@@ -447,7 +447,10 @@ export const hi = {
     reject: "❌ अस्वीकार करें",
     earningsTitle: "आपकी कमाई का हिसाब",
     dakshina: "दक्षिणा",
-    platformFee: "प्लेटफ़ॉर्म शुल्क (15%)",
+    // MONEY-TRUTH: label must state the REAL rate — PLATFORM_FEE_PERCENT
+    // is 10 (services/api/src/config/constants.ts); the old label
+    // overstated the rate next to a correct 10% deduction (feeLabel guard).
+    platformFee: "प्लेटफ़ॉर्म शुल्क (10%)",
     youGet: "आपको मिलेगा",
     travel: "यात्रा भत्ता",
     food: "भोजन भत्ता",
