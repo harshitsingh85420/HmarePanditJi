@@ -5,6 +5,11 @@ on:
   pull_request:
     branches: [main]
 
+# contents:write so the on-failure step can post the log as a commit comment
+# (the default token is read-only — the first failure comment silently 403'd).
+permissions:
+  contents: write
+
 # THE canonical test gate. Every step is a REAL, locally-reproducible check —
 # per-package steps so a red run names the culprit in the step name itself
 # (the old monolithic `pnpm test` failed without saying which package broke).

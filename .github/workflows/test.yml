@@ -56,6 +56,9 @@ jobs:
     name: E2E Tests (informational — needs live stack)
     runs-on: ubuntu-latest
     continue-on-error: true
+    # Without a stack every spec times out — cap the job so it can't burn 60+
+    # minutes of runner time per push.
+    timeout-minutes: 15
 
     steps:
       - name: Checkout code
