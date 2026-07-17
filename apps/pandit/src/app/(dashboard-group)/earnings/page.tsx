@@ -107,13 +107,12 @@ export default function EarningsPage() {
     return <DiyaLoader />;
   }
 
+  // Mockup frame 19 row line: short "12 जुलाई" (no weekday/year clutter)
   const formatHindiDate = (dateStr: string) => {
     const d = new Date(dateStr);
     return d.toLocaleDateString("hi-IN", {
-      weekday: "short",
-      year: "numeric",
-      month: "short",
       day: "numeric",
+      month: "long",
     });
   };
 
@@ -140,54 +139,49 @@ export default function EarningsPage() {
           </Card>
         )}
 
-        {/* STATS CARDS GRID */}
-        <div className="grid grid-cols-3 gap-2">
-          {/* Today Card */}
-          <Card className="p-3 bg-white border border-saffron-100 flex flex-col items-center justify-center text-center gap-1">
+        {/* Mockup frame 19 HERO: dark leaf card, big white month total, 🪙 accents */}
+        <Card className="relative overflow-hidden p-5 border-0 bg-gradient-to-br from-leaf-500 to-leaf-700 flex flex-col gap-1">
+          <span aria-hidden className="absolute top-3 right-4 text-[20px] select-none">🪙</span>
+          <span aria-hidden className="absolute bottom-4 right-12 text-[15px] select-none opacity-70">🪙</span>
+          <span className="text-[15px] font-extrabold text-[#BEEBCE] font-hindi">{t("home.monthEarnings")}</span>
+          <MoneyCount target={summary.month} className="text-[46px] leading-tight font-extrabold text-white font-mono" />
+        </Card>
+
+        {/* आज / इस हफ़्ते (month lives in the hero now) */}
+        <div className="grid grid-cols-2 gap-2">
+          <Card className="p-3 flex flex-col items-center justify-center text-center gap-1 rounded-[14px] border-sand">
             <span className="text-[14px] font-bold text-softgrey font-hindi">{t("earnings.today")}</span>
             <MoneyCount target={summary.today} className="text-[18px] font-bold text-leaf-700 font-mono" />
           </Card>
-          {/* Week Card */}
-          <Card className="p-3 bg-white border border-saffron-100 flex flex-col items-center justify-center text-center gap-1">
+          <Card className="p-3 flex flex-col items-center justify-center text-center gap-1 rounded-[14px] border-sand">
             <span className="text-[14px] font-bold text-softgrey font-hindi">{t("earnings.thisWeek")}</span>
             <MoneyCount target={summary.week} className="text-[18px] font-bold text-leaf-700 font-mono" />
           </Card>
-          {/* Month Card */}
-          <Card className="p-3 bg-white border border-saffron-100 flex flex-col items-center justify-center text-center gap-1">
-            <span className="text-[14px] font-bold text-softgrey font-hindi">{t("earnings.thisMonth")}</span>
-            <MoneyCount target={summary.month} className="text-[18px] font-bold text-leaf-700 font-mono" />
-          </Card>
         </div>
 
-        {/* PENDING PAYOUTS SECTION */}
-        <FirstUseTip tipId="earningsPending" targetRef={pendingRef} />
-        <div ref={pendingRef} className="flex flex-col gap-3">
-          <h3 className="text-[18px] font-bold text-temple-600 font-hindi border-b border-saffron-100 pb-1.5 flex justify-between items-center">
-            <span>{t("earnings.pendingPayout")}</span>
-            <MoneyCount target={summary.pendingPayout} className="text-[18px] font-bold text-leaf-700 font-mono" />
+        {/* मिल गया — received money first (mockup order) */}
+        <div className="flex flex-col gap-3">
+          <h3 className="text-[15px] font-extrabold text-leaf-700 font-hindi flex items-center gap-1.5">
+            💰 {t("earnings.paid")}
           </h3>
 
           {pendingPayouts.length === 0 && paidPayouts.length === 0 ? (
             <EmptyState emoji="🪙" title={t("empty.noPayoutsTitle")} hint={t("empty.noPayoutsHint")} />
-          ) : pendingPayouts.length === 0 ? (
-            <p className="text-[16px] text-softgrey font-hindi text-center py-4">{t("earnings.noPending")}</p>
+          ) : paidPayouts.length === 0 ? (
+            <p className="text-[16px] text-softgrey font-hindi text-center py-4">{t("earnings.noPaid")}</p>
           ) : (
-            <div className="flex flex-col gap-3">
-              {pendingPayouts.map((p) => {
+            <div className="flex flex-col gap-2.5">
+              {paidPayouts.map((p) => {
                 const title = p.booking?.pujaType || p.booking?.eventType || "पूजा";
-                const dateVal = p.booking?.eventDate || p.createdAt;
                 return (
-                  <Card key={p.id} className="p-4 bg-white border-l-4 border-l-amber-400 flex justify-between items-center">
-                    <div className="flex flex-col gap-1">
-                      <span className="text-[18px] font-bold text-ink font-hindi">{title}</span>
-                      <span className="text-[14px] text-softgrey font-hindi">{formatHindiDate(dateVal)}</span>
+                  <Card key={p.id} className="p-4 rounded-[14px] border-sand flex justify-between items-center gap-2">
+                    <div className="flex flex-col gap-0.5 min-w-0">
+                      <span className="text-[16px] font-extrabold text-ink font-hindi truncate">{title}</span>
+                      {p.paidAt && (
+                        <span className="text-[13px] text-softgrey font-hindi">{formatHindiDate(p.paidAt)}</span>
+                      )}
                     </div>
-                    <div className="flex flex-col items-end gap-1.5">
-                      <span className="text-[18px] font-bold text-leaf-700 font-mono">₹{p.amount.toLocaleString("en-IN")}</span>
-                      <span className="bg-amber-100 text-amber-800 text-[12px] font-bold px-2 py-0.5 rounded-full font-hindi">
-                        {t("earnings.processing")}
-                      </span>
-                    </div>
+                    <span className="text-[18px] font-black text-leaf-700 font-mono shrink-0">₹{p.amount.toLocaleString("en-IN")}</span>
                   </Card>
                 );
               })}
@@ -195,29 +189,30 @@ export default function EarningsPage() {
           )}
         </div>
 
-        {/* PAID PAYOUTS SECTION */}
-        <div className="flex flex-col gap-3">
-          <h3 className="text-[18px] font-bold text-temple-600 font-hindi border-b border-saffron-100 pb-1.5">
-            {t("earnings.paid")}
+        {/* आना बाकी — gold-tinted rows, brass amounts (money not yet received) */}
+        <FirstUseTip tipId="earningsPending" targetRef={pendingRef} />
+        <div ref={pendingRef} className="flex flex-col gap-3">
+          <h3 className="text-[15px] font-extrabold text-brassdark font-hindi flex items-center gap-1.5">
+            ⏳ {t("earnings.pendingPayout")} ·
+            <MoneyCount target={summary.pendingPayout} className="text-[15px] font-extrabold text-brassdark font-mono" />
           </h3>
 
-          {paidPayouts.length === 0 ? (
-            <p className="text-[16px] text-softgrey font-hindi text-center py-4">{t("earnings.noPaid")}</p>
+          {pendingPayouts.length === 0 ? (
+            paidPayouts.length > 0 ? (
+              <p className="text-[16px] text-softgrey font-hindi text-center py-4">{t("earnings.noPending")}</p>
+            ) : null
           ) : (
-            <div className="flex flex-col gap-3">
-              {paidPayouts.map((p) => {
+            <div className="flex flex-col gap-2.5">
+              {pendingPayouts.map((p) => {
                 const title = p.booking?.pujaType || p.booking?.eventType || "पूजा";
+                const dateVal = p.booking?.eventDate || p.createdAt;
                 return (
-                  <Card key={p.id} className="p-4 bg-white border-l-4 border-l-leaf-600 flex justify-between items-center">
-                    <div className="flex flex-col gap-1">
-                      <span className="text-[18px] font-bold text-ink font-hindi">{title}</span>
-                      {p.paidAt && (
-                        <span className="text-[14px] text-softgrey font-hindi">
-                          {t("earnings.paid")}: {formatHindiDate(p.paidAt)}
-                        </span>
-                      )}
+                  <Card key={p.id} className="p-4 rounded-[14px] bg-[#FBF7EF] border-[#EBCF86] flex justify-between items-center gap-2">
+                    <div className="flex flex-col gap-0.5 min-w-0">
+                      <span className="text-[16px] font-extrabold text-ink font-hindi truncate">{title}</span>
+                      <span className="text-[13px] text-softgrey font-hindi">{formatHindiDate(dateVal)}</span>
                     </div>
-                    <span className="text-[18px] font-bold text-leaf-700 font-mono">₹{p.amount.toLocaleString("en-IN")}</span>
+                    <span className="text-[18px] font-black text-brassdark font-mono shrink-0">₹{p.amount.toLocaleString("en-IN")}</span>
                   </Card>
                 );
               })}

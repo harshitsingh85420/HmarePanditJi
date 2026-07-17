@@ -455,8 +455,10 @@ export const hi = {
     today: "आज",
     thisWeek: "इस हफ़्ते",
     thisMonth: "इस महीने",
-    pendingPayout: "आने वाली राशि",
-    paid: "मिल चुकी राशि",
+    // Mockup frame 19 section labels — shorter, same meaning (आना बाकी
+    // also mirrors the home hero's pending row wording)
+    pendingPayout: "आना बाकी",
+    paid: "मिल गया",
     introVoice: "यहाँ आपकी सारी कमाई का हिसाब है। आने वाली राशि दो से तीन दिन में आपके खाते में पहुँचती है।",
     processing: "प्रोसेस में",
     noPending: "कोई आने वाली राशि नहीं",
