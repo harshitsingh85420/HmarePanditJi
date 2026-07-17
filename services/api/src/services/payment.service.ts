@@ -211,6 +211,82 @@ export function verifyWebhookSignature(rawBody: string, signature: string): bool
   return expected === signature;
 }
 
+// ── Q4 WEBHOOK SELF-REGISTRATION ─────────────────────────────
+// The Razorpay dashboard is KYC-gated (no onboarding → no webhook UI), but
+// the v1 webhooks API works on test keys. So the SERVER registers its own
+// webhook using the creds already in its env — secrets never leave this
+// process, never appear in a response, never transit chat/CI. Idempotent:
+// an existing registration for the same URL is returned, not duplicated.
+
+const WEBHOOK_EVENTS = ["payment.captured", "payment.failed", "refund.processed"] as const;
+
+/** Non-secret projection of a Razorpay webhook entity (NEVER the secret). */
+function sanitizeWebhook(w: Record<string, unknown>) {
+  return {
+    id: w.id,
+    url: w.url,
+    active: w.active,
+    events: w.events,
+    created_at: w.created_at,
+  };
+}
+
+export async function ensureRazorpayWebhook(webhookUrl: string) {
+  if (!env.RAZORPAY_KEY_ID || !env.RAZORPAY_KEY_SECRET) {
+    throw new AppError("Razorpay keys not configured", 503, "PAYMENTS_NOT_CONFIGURED");
+  }
+  if (!env.RAZORPAY_WEBHOOK_SECRET) {
+    // the webhook would be registered WITHOUT a verifiable secret — the L-J
+    // fail-closed route would then reject every delivery. Refuse instead.
+    throw new AppError("RAZORPAY_WEBHOOK_SECRET not configured", 503, "WEBHOOK_SECRET_MISSING");
+  }
+
+  const auth = Buffer.from(`${env.RAZORPAY_KEY_ID}:${env.RAZORPAY_KEY_SECRET}`).toString("base64");
+  const headers = { Authorization: `Basic ${auth}`, "Content-Type": "application/json" };
+
+  const listRes = await fetch("https://api.razorpay.com/v1/webhooks?count=20", { headers });
+  const listBody = (await listRes.json().catch(() => ({}))) as { items?: Array<Record<string, unknown>>; error?: unknown };
+  if (!listRes.ok) {
+    throw new AppError(
+      `Razorpay webhook LIST failed (${listRes.status}): ${JSON.stringify(listBody?.error ?? listBody)}`,
+      502,
+      "RZP_WEBHOOK_LIST_FAILED",
+    );
+  }
+  const existing = (listBody.items || []).find((w) => w.url === webhookUrl);
+  if (existing) {
+    return { action: "exists" as const, webhook: sanitizeWebhook(existing) };
+  }
+
+  // Razorpay has shipped both events shapes over time — object map first
+  // (documented v1 JSON), plain array as fallback.
+  const attempt = async (events: unknown) => {
+    const res = await fetch("https://api.razorpay.com/v1/webhooks", {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ url: webhookUrl, secret: env.RAZORPAY_WEBHOOK_SECRET, events }),
+    });
+    const body = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+    return { res, body };
+  };
+
+  let { res, body } = await attempt(Object.fromEntries(WEBHOOK_EVENTS.map((e) => [e, true])));
+  if (!res.ok) {
+    ({ res, body } = await attempt([...WEBHOOK_EVENTS]));
+  }
+  if (!res.ok) {
+    // surface Razorpay's EXACT (non-secret) error — the caller's report needs
+    // it verbatim if un-onboarded accounts are API-gated too
+    throw new AppError(
+      `Razorpay webhook CREATE failed (${res.status}): ${JSON.stringify((body as { error?: unknown })?.error ?? body)}`,
+      502,
+      "RZP_WEBHOOK_CREATE_FAILED",
+    );
+  }
+  logger.info(`Razorpay webhook registered: ${String(body.id)} → ${webhookUrl}`);
+  return { action: "created" as const, webhook: sanitizeWebhook(body) };
+}
+
 /**
  * Mark a booking as paid after a successful Razorpay charge.
  * - Updates paymentStatus to CAPTURED and status → PANDIT_REQUESTED.

@@ -9,6 +9,7 @@ import {
   processPaymentSuccess,
   verifyWebhookSignature,
   initiateRefund,
+  ensureRazorpayWebhook,
 } from "../services/payment.service";
 import { AppError } from "../middleware/errorHandler";
 import { prisma } from "@hmarepanditji/db";
@@ -187,6 +188,24 @@ export default async function paymentRoutes(fastify: FastifyInstance, _opts: any
       logger.error("Razorpay webhook error:", err);
       return res.status(200).send({ received: true }); // Always 200 to Razorpay
     }
+  });
+
+  /**
+   * POST /payments/admin/webhook — ADMIN only.
+   * Q4: one-time self-registration of the Razorpay webhook (the dashboard is
+   * KYC-gated; the v1 API is not). Idempotent — an existing registration for
+   * the URL is returned, never duplicated. The URL is PINNED to our API host
+   * so an admin token can never point payment webhooks at a foreign target.
+   * Response carries only non-secret webhook metadata.
+   */
+  fastify.post("/admin/webhook", { preHandler: [authenticate, roleGuard("ADMIN")] }, async (request: FastifyRequest, reply: FastifyReply) => {
+    const { url } = (request.body ?? {}) as { url?: string };
+    const webhookUrl = url || "https://hmarepanditji-api.onrender.com/api/v1/payments/webhook";
+    if (!/^https:\/\/hmarepanditji-api\.onrender\.com\//.test(webhookUrl)) {
+      throw new AppError("Webhook URL must be the HmarePanditJi API host", 400, "WEBHOOK_URL_INVALID");
+    }
+    const result = await ensureRazorpayWebhook(webhookUrl);
+    return sendSuccess(reply, result, `Webhook ${result.action}`);
   });
 
   /**
