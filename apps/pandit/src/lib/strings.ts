@@ -241,7 +241,9 @@ export const hi = {
     webotpVoice: "SMS आते ही OTP अपने आप भर जाएगा — नीचे 'Allow' आए तो उसे दबा दीजिए।",
     phoneLabel: "अपना मोबाइल नंबर डालें",
     phoneVoice: "पंडित जी, कृपया अपना दस अंकों का मोबाइल नंबर डालें और आगे बढ़ें बटन दबाएं।",
-    otpLabel: "ओटीपी डालें",
+    otpLabel: "OTP डालिए",
+    // Mockup frame 7: "+91 … पर भेजा गया" under the heading
+    otpSentTo: "+91 {phone} पर भेजा गया",
     otpVoice: "आपके मोबाइल पर छह अंकों का ओटीपी भेजा गया है। कृपया वह नंबर यहाँ डालें।",
     otpResend: "ओटीपी दोबारा भेजें",
     returningTitle: "वापसी पर स्वागत, पंडित जी",
@@ -305,6 +307,9 @@ export const hi = {
   registration: {
     titleNew: "रजिस्ट्रेशन",
     titleComplete: "प्रोफ़ाइल पूरी करें",
+    // Mockup frame 6 hero pair
+    heroTitle: "बस दो बातें बताइए",
+    heroSub: "बोलकर या टाइप करके — जैसे आसान लगे",
     voiceNew: "पंडित जी, बस अपना नाम बताइए — और आपका खाता बन जाएगा। शहर हमने पहचान लिया है, चाहें तो बदल लें।",
     voiceComplete: "पंडित जी, बस अपना नाम बताइए — आपकी प्रोफ़ाइल पूरी हो जाएगी।",
     cityLabel: "आपका शहर",

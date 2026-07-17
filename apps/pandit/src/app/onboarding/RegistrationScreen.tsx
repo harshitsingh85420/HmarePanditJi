@@ -124,26 +124,49 @@ export default function RegistrationScreen({ onBack }: { onBack: () => void }) {
       {/* S3: the narration ends on the create-account instruction */}
       <Narrate text={narration} highlightRef={submitRef} />
 
-      <main className="flex-1 min-h-0 overflow-y-auto px-4 pt-6 flex flex-col gap-4">
-        <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-5">
-          <VoiceField
-            label={t("onboarding.step1Title")}
-            promptText={t("onboarding.step1Voice")}
-            value={name}
-            onChange={setName}
-            mode="text"
-            required
-            placeholder="पंडित जी का नाम लिखें"
-          />
-          <VoiceField
-            label={t("registration.cityLabel")}
-            promptText={t("onboarding.step2Voice")}
-            value={city}
-            onChange={setCity}
-            mode="text"
-            required
-            placeholder={t("registration.cityPlaceholder")}
-          />
+      <main className="flex-1 min-h-0 overflow-y-auto px-4 pt-5 flex flex-col gap-4">
+        {/* Mockup frame 6 hero: 28/900 + soft how-line */}
+        <div className="flex flex-col gap-1 text-center">
+          <h2 className="text-[28px] font-black text-temple-700 font-hindi leading-snug">
+            {t("registration.heroTitle")}
+          </h2>
+          <p className="text-[16px] font-semibold text-softgrey font-hindi">
+            {t("registration.heroSub")}
+          </p>
+        </div>
+
+        {/* Mockup frame 6: each field is its OWN card with an emoji tile */}
+        <Card className="p-4 rounded-[20px] border-2 border-sand flex flex-row items-start gap-3">
+          <span className="w-12 h-12 rounded-[12px] bg-saffron-50 flex items-center justify-center text-[26px] shrink-0 select-none mt-1" aria-hidden="true">
+            🙏
+          </span>
+          <div className="flex-1 min-w-0">
+            <VoiceField
+              label={t("onboarding.step1Title")}
+              promptText={t("onboarding.step1Voice")}
+              value={name}
+              onChange={setName}
+              mode="text"
+              required
+              placeholder="पंडित जी का नाम लिखें"
+            />
+          </div>
+        </Card>
+        <Card className="p-4 rounded-[20px] border-2 border-sand flex flex-row items-start gap-3">
+          <span className="w-12 h-12 rounded-[12px] bg-saffron-50 flex items-center justify-center text-[26px] shrink-0 select-none mt-1" aria-hidden="true">
+            🏙️
+          </span>
+          <div className="flex-1 min-w-0">
+            <VoiceField
+              label={t("registration.cityLabel")}
+              promptText={t("onboarding.step2Voice")}
+              value={city}
+              onChange={setCity}
+              mode="text"
+              required
+              placeholder={t("registration.cityPlaceholder")}
+            />
+          </div>
         </Card>
 
         {errorMsg && (
@@ -157,7 +180,7 @@ export default function RegistrationScreen({ onBack }: { onBack: () => void }) {
 
       <footer className="shrink-0 bg-white border-t border-saffron-100 flex items-end p-3 gap-3">
         <div className="flex-1" ref={submitRef}>
-          <Button variant="primary" size="lg" fullWidth onClick={handleSubmit} loading={submitting}>
+          <Button variant="primary" size="lg" fullWidth className="text-[22px] font-extrabold" onClick={handleSubmit} loading={submitting}>
             {cta}
           </Button>
         </div>

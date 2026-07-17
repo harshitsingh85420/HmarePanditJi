@@ -370,6 +370,7 @@ export default function LoginPage() {
               <OtpBoxes
                 value={otpValue}
                 onChange={handleOtpChange}
+                sentTo={phone}
                 // G3b: the destination carries the voice — branded greeting
                 // + instruction + (when the browser can auto-fill) the
                 // WebOTP guidance, all in ONE mount narration. The guidance
@@ -385,11 +386,14 @@ export default function LoginPage() {
                   .join(" ")}
               />
 
-              {/* Resend Link countdown timer */}
+              {/* Resend link — mockup frame 7: softgrey label · saffron 00:SS */}
               <div className="text-center mt-2">
                 {countdown > 0 ? (
-                  <span className="t-hint text-softgrey font-medium">
-                    {t("auth.otpResend")} ({countdown}s)
+                  <span className="text-[15px] font-bold text-softgrey font-hindi">
+                    {t("auth.otpResend")}{" "}
+                    <span className="text-saffron-500 font-mono">
+                      00:{String(countdown).padStart(2, "0")}
+                    </span>
                   </span>
                 ) : (
                   <button
@@ -446,10 +450,12 @@ function OtpBoxes({
   value,
   onChange,
   narration,
+  sentTo,
 }: {
   value: string;
   onChange: (v: string) => void;
   narration: string;
+  sentTo: string;
 }) {
   useScreenVoice(narration);
   const refs = useRef<Array<HTMLInputElement | null>>([]);
@@ -474,7 +480,11 @@ function OtpBoxes({
 
   return (
     <div className="flex flex-col gap-3">
-      <h2 className="t-title font-bold text-temple-600">{t("auth.otpLabel")}</h2>
+      {/* Mockup frame 7: OTP डालिए 26/900 + the sent-to line */}
+      <h2 className="text-[26px] font-black text-temple-700 font-hindi">{t("auth.otpLabel")}</h2>
+      <p className="text-[16px] font-semibold text-softgrey font-hindi -mt-2">
+        {t("auth.otpSentTo").replace("{phone}", sentTo)}
+      </p>
       <div className="flex gap-2 justify-center my-2">
         {digits.map((digit, idx) => (
           <input
@@ -502,7 +512,13 @@ function OtpBoxes({
                 refs.current[idx - 1]?.focus();
               }
             }}
-            className="w-[48px] h-[56px] min-h-[56px] text-center border-2 border-saffron-300 rounded-btn text-[24px] font-bold text-ink bg-white focus:outline-none focus:border-saffron-500 focus:ring-4 focus:ring-saffron-200 transition-all"
+            // Mockup frame 7: a FILLED box turns saffron (tint + sindoor
+            // border + saffron-700 digit); empty boxes stay card/sand
+            className={`w-[48px] h-[56px] min-h-[56px] text-center border-2 rounded-[16px] text-[28px] font-black transition-all focus:outline-none focus:border-saffron-500 focus:ring-4 focus:ring-saffron-200 ${
+              digit
+                ? "bg-saffron-50 border-saffron-500 text-saffron-700"
+                : "bg-card border-[#EADFCE] text-ink"
+            }`}
           />
         ))}
       </div>
