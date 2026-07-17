@@ -64,10 +64,37 @@ jobs:
         run: pnpm --filter @hmarepanditji/pandit test:coverage
 
       - name: API guard suite (build-failing money/security guards)
-        run: pnpm --filter @hmarepanditji/api test
+        run: pnpm --filter @hmarepanditji/api test 2>&1 | tee /tmp/api-guards.log
+        shell: bash
 
       - name: Search-service tests (jest)
-        run: pnpm --filter @hmarepanditji/search-service test
+        run: pnpm --filter @hmarepanditji/search-service test 2>&1 | tee /tmp/search-tests.log
+        shell: bash
+
+      # Failure logs → a commit comment (readable via the PUBLIC API), so a
+      # token-less local agent can self-serve the failing guard's output
+      # instead of guessing from a red ✗.
+      - name: Surface failure log as commit comment
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            let body = '## CI test-job failure log (auto-posted)\n';
+            for (const f of ['/tmp/api-guards.log', '/tmp/search-tests.log']) {
+              try {
+                const t = fs.readFileSync(f, 'utf8');
+                const tail = t.split('\n').slice(-80).join('\n');
+                body += `\n<details><summary>${f}</summary>\n\n\`\`\`\n${tail}\n\`\`\`\n</details>\n`;
+              } catch {}
+            }
+            await github.rest.repos.createCommitComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: context.sha,
+              body,
+            });
 
   lint:
     runs-on: ubuntu-latest
