@@ -65,6 +65,13 @@ jobs:
       - name: Push Prisma schema to test Postgres
         run: pnpm --filter db exec prisma db push --skip-generate
 
+      # Guards import runtime modules (booking.service → @hmarepanditji/db),
+      # so the WORKSPACE deps must be BUILT — on a fresh runner there is no
+      # dist/ and resolution fails with MODULE_NOT_FOUND (the exact Linux-only
+      # failure: local machines had stale dist folders masking it).
+      - name: Build API workspace dependencies
+        run: pnpm --filter "@hmarepanditji/api^..." build
+
       - name: Pandit unit tests (vitest — coverage thresholds enforced by config)
         run: pnpm --filter @hmarepanditji/pandit test:coverage
 
