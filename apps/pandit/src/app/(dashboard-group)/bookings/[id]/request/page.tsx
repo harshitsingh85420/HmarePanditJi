@@ -192,6 +192,15 @@ export default function BookingRequestPage() {
       <VoiceActionListener commands={commands} narratingText={voiceIntroText} promptText={voiceIntroText} critical />
 
       <main className="flex-1 overflow-y-auto px-4 pt-3 pb-6 flex flex-col gap-3 page-enter">
+        {/* Mockup frame 9 hero: the bell moment — swing once, urgency chip.
+            pa-bell-swing is transform-only + covered by the reduced-motion
+            kill-switch in globals. */}
+        <div className="flex flex-col items-center gap-1.5 py-1 text-center">
+          <span className="pa-bell-swing text-[44px] leading-none select-none" aria-hidden="true">🔔</span>
+          <span className="text-[22px] font-black text-temple-700 font-hindi">नई बुकिंग विनती!</span>
+          <span className="text-[13px] font-bold text-saffron-700 bg-saffron-50 border border-saffron-200 rounded-full px-3 py-1 font-hindi">अभी जवाब दें</span>
+        </div>
+
         {/* CUSTOMER CARD */}
         <Card className="p-5 border-l-4 border-l-saffron-500 bg-white flex flex-col gap-3">
           <div className="flex justify-between items-center">
@@ -313,7 +322,9 @@ export default function BookingRequestPage() {
             style={{ minHeight: "72px", fontSize: "20px" }}
             disabled={actionLoading}
           >
-            {t("booking.reject")}
+            {/* mockup frame 9: the decline is soft — "अभी नहीं" (the confirm
+                dialog still asks the explicit अस्वीकार question) */}
+            अभी नहीं
           </button>
           <button
             onClick={handleAccept}

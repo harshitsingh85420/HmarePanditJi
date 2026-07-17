@@ -41,6 +41,7 @@ interface BookingDetail {
   status: string;
   journeyStep: number;
   journeyTimestamps?: Record<number, string>;
+  acceptedAt?: string | null;
   earnings: {
     platformFee: number;
     dakshinaNet: number;
@@ -277,34 +278,36 @@ export default function BookingDetailPage() {
             <span className="text-[22px] font-bold text-ink font-hindi">{customerName}</span>
           </div>
 
-          <a
-            href={`tel:${customerPhone}`}
-            className="w-full h-16 bg-white border-2 border-saffron-500 hover:bg-saffron-50 text-saffron-700 font-bold text-[18px] rounded-btn shadow-sm flex items-center justify-center gap-2 active:scale-95 transition-all"
-            style={{ minHeight: "64px", fontSize: "18px" }}
-          >
-            {t("booking.callCustomer")}
-          </a>
-
+          {/* Mockup frame 10: call + route as a compact side-by-side pair */}
           <FirstUseTip tipId="detailRoute" targetRef={routeBtnRef} />
-          <button
-            ref={routeBtnRef}
-            onClick={() => {
-              const q = encodeURIComponent(booking.venueAddress || "");
-              // geo: opens the native maps app on Android; browsers that
-              // don't handle it fall through to Google Maps
-              const geoUrl = `geo:0,0?q=${q}`;
-              const webUrl = `https://maps.google.com/?q=${q}`;
-              const w = window.open(geoUrl, "_self");
-              setTimeout(() => {
-                if (!document.hidden) window.open(webUrl, "_blank");
-              }, 600);
-              void w;
-            }}
-            className="w-full h-16 bg-white border-2 border-saffron-500 hover:bg-saffron-50 text-saffron-700 font-bold text-[18px] rounded-btn shadow-sm flex items-center justify-center gap-2 active:scale-95 transition-all"
-            style={{ minHeight: "64px", fontSize: "18px" }}
-          >
-            {t("bookingDetailExtra.showRoute")}
-          </button>
+          <div className="flex gap-3">
+            <a
+              href={`tel:${customerPhone}`}
+              className="flex-1 h-16 bg-white border-2 border-saffron-500 hover:bg-saffron-50 text-saffron-700 font-bold text-[17px] rounded-btn shadow-sm flex items-center justify-center gap-2 active:scale-95 transition-all font-hindi"
+              style={{ minHeight: "64px" }}
+            >
+              📞 {t("booking.callCustomer")}
+            </a>
+            <button
+              ref={routeBtnRef}
+              onClick={() => {
+                const q = encodeURIComponent(booking.venueAddress || "");
+                // geo: opens the native maps app on Android; browsers that
+                // don't handle it fall through to Google Maps
+                const geoUrl = `geo:0,0?q=${q}`;
+                const webUrl = `https://maps.google.com/?q=${q}`;
+                const w = window.open(geoUrl, "_self");
+                setTimeout(() => {
+                  if (!document.hidden) window.open(webUrl, "_blank");
+                }, 600);
+                void w;
+              }}
+              className="flex-1 h-16 bg-white border-2 border-saffron-500 hover:bg-saffron-50 text-saffron-700 font-bold text-[17px] rounded-btn shadow-sm flex items-center justify-center gap-2 active:scale-95 transition-all font-hindi"
+              style={{ minHeight: "64px" }}
+            >
+              🗺️ {t("bookingDetailExtra.showRoute")}
+            </button>
+          </div>
         </Card>
 
         {/* 3. JOURNEY STEPS VERTICAL TIMELINE */}
@@ -314,6 +317,18 @@ export default function BookingDetailPage() {
           </h4>
 
           <div className="flex flex-col gap-6 relative pl-4 border-l-2 border-saffron-100">
+            {/* Mockup frame 10: the journey opens with the already-done
+                स्वीकृत node — timestamp only when the server has one */}
+            <div className="relative flex flex-col gap-1">
+              <div className="absolute -left-[25px] top-1.5 w-4 h-4 rounded-full border-2 bg-leaf-700 border-leaf-700" />
+              <span className="text-[18px] font-bold font-hindi text-leaf-700">
+                {t("booking.statusAccepted")}
+              </span>
+              <span className="text-[16px] text-leaf-700 font-bold font-hindi flex items-center gap-1">
+                ✅ {booking.acceptedAt ? formatHindiTime(booking.acceptedAt) : t("booking.completed")}
+              </span>
+            </div>
+
             {timelineSteps.map((s) => {
               const isCompleted = booking.journeyStep >= s.step;
               const isCurrent = booking.journeyStep === s.step - 1;

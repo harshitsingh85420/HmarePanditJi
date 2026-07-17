@@ -11,6 +11,7 @@ import { motion } from "framer-motion";
 // UI Components
 import { Card } from "@/components/ui/Card";
 import { Header } from "@/components/ui/Header";
+import { StatusChip } from "@/components/ui/StatusChip";
 import { BottomNav } from "@/components/ui/BottomNav";
 import { DiyaLoader } from "@/components/moments/DiyaLoader";
 import { VoiceActionListener } from "@/components/voice/VoiceActionListener";
@@ -29,9 +30,10 @@ interface BookingItem {
   status: string;
 }
 
+// Mockup frame 11 wording: नई विनती / चालू / पूरी हुई (+ live counts on tabs)
 const bookingLabels = {
-  tabNew: "नई",
-  tabUpcoming: "आने वाली",
+  tabNew: "नई विनती",
+  tabUpcoming: "चालू",
   tabCompleted: "पूरी हुई",
   noBookings: "कोई बुकिंग नहीं है",
 };
@@ -102,6 +104,7 @@ export default function BookingsPage() {
   }
 
   const newCount = bookings.filter((b) => b.status === "REQUESTED").length;
+  const upcomingCount = bookings.filter((b) => b.status === "ACCEPTED" || b.status === "IN_PROGRESS" || b.status === "PUJA_IN_PROGRESS").length;
   const countsNarration =
     newCount === 0
       ? `${t("bookingsList.intro")} ${t("bookingsSummary.none")}`
@@ -115,13 +118,12 @@ export default function BookingsPage() {
     }
   };
 
+  // Mockup frame 11 row line: "18 जुलाई · <where>" — short Hindi date
   const formatDate = (dateStr: string) => {
     const d = new Date(dateStr);
-    return d.toLocaleDateString("en-IN", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
+    return d.toLocaleDateString("hi-IN", {
       day: "numeric",
+      month: "long",
     });
   };
 
@@ -159,7 +161,7 @@ export default function BookingsPage() {
           }`}
           style={{ minHeight: "56px" }}
         >
-          {bookingLabels.tabNew}
+          {bookingLabels.tabNew}{newCount > 0 ? ` · ${newCount}` : ""}
         </button>
         <button
           onClick={() => setActiveTab("UPCOMING")}
@@ -168,7 +170,7 @@ export default function BookingsPage() {
           }`}
           style={{ minHeight: "56px" }}
         >
-          {bookingLabels.tabUpcoming}
+          {bookingLabels.tabUpcoming}{upcomingCount > 0 ? ` · ${upcomingCount}` : ""}
         </button>
         <button
           onClick={() => setActiveTab("COMPLETED")}
@@ -234,34 +236,30 @@ export default function BookingsPage() {
               }}
               className="cursor-pointer focus-visible:ring-4 focus-visible:ring-saffron-200 focus:outline-none rounded-card"
             >
-              <Card className="p-5 flex flex-col gap-3 hover:shadow-md transition-all border-l-4 border-saffron-500">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className="text-[20px] font-bold text-temple-700 font-hindi">
-                      {b.pujaType || b.eventType}
-                    </h3>
-                    <span className="t-hint text-softgrey font-mono block mt-0.5">
-                      {b.bookingNumber}
-                    </span>
-                  </div>
-                  <span className="text-[18px] font-bold text-leaf-700">
+              {/* Mockup frame 11 row: puja bold + ₹ right; compact
+                  "18 जुलाई · time · place" line; NEW rows carry the
+                  "जवाब दें ›" affordance, others their status chip. */}
+              <Card className="p-4 flex flex-col gap-2.5 hover:shadow-md transition-all border-l-4 border-saffron-500">
+                <div className="flex justify-between items-start gap-2">
+                  <h3 className="text-[20px] font-bold text-temple-700 font-hindi leading-snug">
+                    {b.pujaType || b.eventType}
+                  </h3>
+                  <span className="text-[18px] font-bold text-leaf-700 shrink-0">
                     ₹{b.grandTotal ? b.grandTotal.toLocaleString("en-IN") : "0"}
                   </span>
                 </div>
 
-                <div className="flex flex-col gap-1 text-[16px] text-softgrey border-t border-saffron-100/50 pt-2">
-                  <div className="flex items-center gap-2">
-                    <span>📅</span>
-                    <span className="font-hindi">{formatDate(b.eventDate)}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span>⏰</span>
-                    <span className="font-bold text-[18px] text-ink">{formatTime(b.eventDate)}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span>📍</span>
-                    <span className="truncate font-hindi">{b.venueAddress}, {b.venueCity}</span>
-                  </div>
+                <span className="text-[16px] text-softgrey font-hindi truncate">
+                  {formatDate(b.eventDate)} · {formatTime(b.eventDate)} · {b.venueCity || b.venueAddress}
+                </span>
+
+                <div className="flex items-center justify-between border-t border-saffron-100/50 pt-2">
+                  <span className="t-hint text-softgrey font-mono">{b.bookingNumber}</span>
+                  {b.status === "REQUESTED" ? (
+                    <span className="text-[16px] font-bold text-saffron-700 font-hindi">जवाब दें ›</span>
+                  ) : (
+                    <StatusChip status={b.status} />
+                  )}
                 </div>
               </Card>
             </motion.div>
