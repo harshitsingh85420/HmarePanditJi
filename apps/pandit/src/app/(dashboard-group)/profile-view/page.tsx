@@ -22,22 +22,36 @@ interface ProfileData {
   profilePhotoUrl: string | null;
   photoUrl: string | null;
   specializations: string[];
+  verificationStatus?: string;
+  experienceYears?: number;
   dakshinaRates?: Array<{ pujaType: string; amount: number }>;
   pujaServices?: Array<{ pujaType: string; dakshinaAmount: number }>;
+}
+
+// TRUTHFUL-NULL: every mockup-24 stat renders only when its value exists —
+// no fake 0★, no 0-booking brag cards.
+interface ProfileStats {
+  rating: number | null;
+  completionPct: number | null;
+  completedBookings: number;
 }
 
 export default function ProfileViewPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<ProfileData | null>(null);
+  const [stats, setStats] = useState<ProfileStats | null>(null);
   const [name, setName] = useState("");
 
   useEffect(() => {
     const load = async () => {
-      const res = await api("/auth/me");
+      const [res, statsRes] = await Promise.all([api("/auth/me"), api("/pandit/stats")]);
       if (res.success) {
         setProfile(res.data.user?.panditProfile || null);
         setName(res.data.user?.name || "");
+      }
+      if (statsRes.success && statsRes.data) {
+        setStats(statsRes.data);
       }
       setLoading(false);
     };
@@ -79,8 +93,49 @@ export default function ProfileViewPage() {
             <span className="text-[16px] font-semibold text-softgrey font-hindi">
               📍 {profile?.city || profile?.location || "—"}
             </span>
+            {/* Mockup frame 24 pills — each a TRUTH claim, data-gated */}
+            {(profile?.verificationStatus === "VERIFIED" || (stats !== null && stats.rating !== null)) && (
+              <div className="flex flex-wrap gap-1.5 mt-0.5">
+                {profile?.verificationStatus === "VERIFIED" && (
+                  <span className="rounded-full bg-leaf-100 text-leaf-700 text-[13px] font-extrabold font-hindi px-3 py-1">
+                    ✓ प्रमाणित
+                  </span>
+                )}
+                {stats !== null && stats.rating !== null && (
+                  <span className="rounded-full bg-[#FBF0D8] text-brassdark text-[13px] font-extrabold font-hindi px-3 py-1">
+                    ⭐ {stats.rating} रेटिंग
+                  </span>
+                )}
+              </div>
+            )}
           </div>
         </Card>
+
+        {/* Mockup frame 24: 3-stat cards — each card only with real data */}
+        {((profile?.specializations?.length || 0) > 0 ||
+          (stats !== null && stats.completedBookings > 0) ||
+          (profile?.experienceYears || 0) > 0) && (
+          <div className="grid grid-cols-3 gap-2">
+            {(profile?.specializations?.length || 0) > 0 && (
+              <Card className="p-3 rounded-[16px] border-sand flex flex-col items-center text-center gap-0.5">
+                <span className="text-[24px] font-black text-saffron-700">{profile?.specializations.length}</span>
+                <span className="text-[13px] font-bold text-softgrey font-hindi">पूजाएँ</span>
+              </Card>
+            )}
+            {stats !== null && stats.completedBookings > 0 && (
+              <Card className="p-3 rounded-[16px] border-sand flex flex-col items-center text-center gap-0.5">
+                <span className="text-[24px] font-black text-saffron-700">{stats.completedBookings}</span>
+                <span className="text-[13px] font-bold text-softgrey font-hindi">बुकिंग</span>
+              </Card>
+            )}
+            {(profile?.experienceYears || 0) > 0 && (
+              <Card className="p-3 rounded-[16px] border-sand flex flex-col items-center text-center gap-0.5">
+                <span className="text-[24px] font-black text-saffron-700">{profile?.experienceYears}</span>
+                <span className="text-[13px] font-bold text-softgrey font-hindi">साल अनुभव</span>
+              </Card>
+            )}
+          </div>
+        )}
 
         {/* Row: manage poojas */}
         <Card
