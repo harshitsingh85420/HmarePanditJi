@@ -56,9 +56,11 @@ jobs:
     name: E2E Tests (informational — needs live stack)
     runs-on: ubuntu-latest
     continue-on-error: true
-    # Without a stack every spec times out — cap the job so it can't burn 60+
-    # minutes of runner time per push.
-    timeout-minutes: 15
+    # Backstop only. The real cap lives on the Playwright STEP below: a JOB
+    # timeout ends as "cancelled", which continue-on-error does NOT absorb
+    # (it only absorbs "failure") — so the whole Test run showed cancelled,
+    # never green. A STEP timeout is a plain failure and gets absorbed.
+    timeout-minutes: 30
 
     steps:
       - name: Checkout code
@@ -84,6 +86,10 @@ jobs:
       - name: Run E2E tests
         run: pnpm exec playwright test
         working-directory: ./apps/pandit
+        # Without a stack every spec times out — cap the step so it can't
+        # burn 60+ minutes of runner time per push (see job comment: this
+        # must be a STEP timeout, not a job timeout).
+        timeout-minutes: 15
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
