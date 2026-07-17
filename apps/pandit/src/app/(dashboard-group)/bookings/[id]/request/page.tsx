@@ -50,6 +50,9 @@ export default function BookingRequestPage() {
   const router = useRouter();
   const { id } = useParams() as { id: string };
   const { speak } = useVoice();
+  // rules-of-hooks: must run on EVERY render — it used to sit below the
+  // loading/error early-returns, so the hook order changed between renders.
+  const online = useOnline();
 
   const [loading, setLoading] = useState(true);
   const [booking, setBooking] = useState<BookingDetail | null>(null);
@@ -110,7 +113,6 @@ export default function BookingRequestPage() {
     });
   };
 
-  const online = useOnline();
   const handleAccept = async () => {
     if (!online) {
       setErrorMsg(t("offline.actionBlocked"));

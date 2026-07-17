@@ -5,6 +5,9 @@ on:
   pull_request:
     branches: [main]
 
+# THE canonical test gate. Every step is a REAL, locally-reproducible check —
+# per-package steps so a red run names the culprit in the step name itself
+# (the old monolithic `pnpm test` failed without saying which package broke).
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -32,6 +35,14 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
+    env:
+      DATABASE_URL: postgresql://hpj_user:hpj_test_password@localhost:5432/hmarepanditji_test
+      REDIS_URL: redis://localhost:6379
+      JWT_SECRET: test_jwt_secret_64_chars_minimum_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+      JWT_REFRESH_SECRET: test_jwt_refresh_secret_64_chars_minimum_xxxxxxxxxxxxxxxxxxxx
+      ENCRYPTION_KEY: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+      NODE_ENV: test
+
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v3
@@ -43,15 +54,20 @@ jobs:
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
       - run: pnpm db:generate
-      - run: pnpm build
-      - run: pnpm test
-        env:
-          DATABASE_URL: postgresql://hpj_user:hpj_test_password@localhost:5432/hmarepanditji_test
-          REDIS_URL: redis://localhost:6379
-          JWT_SECRET: test_jwt_secret_64_chars_minimum_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-          JWT_REFRESH_SECRET: test_jwt_refresh_secret_64_chars_minimum_xxxxxxxxxxxxxxxxxxxx
-          ENCRYPTION_KEY: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
-          NODE_ENV: test
+
+      # Schema into the service container so any test that ever queries has a
+      # real database (today's guards are grep/pure — this future-proofs).
+      - name: Push Prisma schema to test Postgres
+        run: pnpm --filter db exec prisma db push --skip-generate
+
+      - name: Pandit unit tests (vitest — coverage thresholds enforced by config)
+        run: pnpm --filter @hmarepanditji/pandit test:coverage
+
+      - name: API guard suite (build-failing money/security guards)
+        run: pnpm --filter @hmarepanditji/api test
+
+      - name: Search-service tests (jest)
+        run: pnpm --filter @hmarepanditji/search-service test
 
   lint:
     runs-on: ubuntu-latest
@@ -65,4 +81,9 @@ jobs:
           node-version: '20'
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
-      - run: pnpm lint
+      - name: Lint (Pandit)
+        run: pnpm --filter @hmarepanditji/pandit lint
+      - name: Lint (Admin)
+        run: pnpm --filter @hmarepanditji/admin lint
+      - name: Lint (Web)
+        run: pnpm --filter @hmarepanditji/web lint

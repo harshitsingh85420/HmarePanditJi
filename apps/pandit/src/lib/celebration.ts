@@ -48,8 +48,6 @@ export function ringBellAfterSpeech(): void {
   let sawSpeaking = voiceController.speaking;
   let done = false;
   let unsub: () => void = () => {};
-  let graceTimer: ReturnType<typeof setTimeout>;
-  let failsafe: ReturnType<typeof setTimeout>;
 
   const finish = () => {
     if (done) return;
@@ -64,6 +62,17 @@ export function ringBellAfterSpeech(): void {
     playBell();
   };
 
+  // Timers initialized BEFORE the subscription registers, so no finish() call
+  // site can run before they exist (finish only fires from the subscription
+  // or the timers themselves).
+  // No line started within the grace window → ring now (nothing to defer to).
+  const graceTimer = setTimeout(() => {
+    if (!done && !sawSpeaking && !voiceController.speaking) finish();
+  }, 600);
+
+  // Never hang on a stuck speaking flag.
+  const failsafe = setTimeout(finish, 12000);
+
   unsub = voiceController.subscribe(() => {
     if (done) return;
     if (voiceController.speaking) {
@@ -73,12 +82,4 @@ export function ringBellAfterSpeech(): void {
     // speaking just went false AND we saw a line play → blessing time
     if (sawSpeaking) finish();
   });
-
-  // No line started within the grace window → ring now (nothing to defer to).
-  graceTimer = setTimeout(() => {
-    if (!done && !sawSpeaking && !voiceController.speaking) finish();
-  }, 600);
-
-  // Never hang on a stuck speaking flag.
-  failsafe = setTimeout(finish, 12000);
 }

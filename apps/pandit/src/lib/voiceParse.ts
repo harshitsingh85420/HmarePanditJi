@@ -83,7 +83,7 @@ const DOUBLE_WORDS = ["डबल", "double", "dabal"];
 export function spokenDigits(text: string): string {
   const tokens = text
     .toLowerCase()
-    .replace(/[,.।()\-]/g, " ")
+    .replace(/[,.।()-]/g, " ")
     .split(/\s+/)
     .filter(Boolean);
   let out = "";
