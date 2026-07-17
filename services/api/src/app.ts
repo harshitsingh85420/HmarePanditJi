@@ -76,6 +76,12 @@ const app: FastifyInstance = Fastify({
         : undefined,
   },
   bodyLimit: 10 * 1024 * 1024, // 10mb
+  // Render terminates TLS at its proxy — without trustProxy request.ip is
+  // the PROXY's address for every client, so the per-IP rate limiter put
+  // the ENTIRE platform in ONE 100/min bucket (live P-PAY E2E: a single
+  // session's combined app traffic 429'd POST /bookings). X-Forwarded-For
+  // is proxy-controlled on Render, so trusting it is safe here.
+  trustProxy: true,
 });
 
 // ── Register Plugins ──────────────────────────────────────────────────────────
