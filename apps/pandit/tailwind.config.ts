@@ -77,9 +77,19 @@ const config: Config = {
         btn: '16px',
         canvas: '28px',
       },
+      // CANON SHADOW VOCABULARY (counted from design/canon/हमारे पंडित जी):
+      //   0 6px 16px rgba(178,58,26,.3)  ×16 — THE raised-sindoor lift
+      //   0 2px 8px  rgba(90,46,32,.12)  ×10 — the resting card
+      //   0 8px 20px rgba(30,122,70,.35) ×2  — money/success, lifted highest
+      // The app's btn sat at 4px/14px: 2px lower and 2px tighter than the
+      // signature lift, which is why CTAs read flatter than the artboard
+      // everywhere at once. Same colour, same opacity — only the geometry
+      // was short, so this is a pure depth correction, not a restyle.
       boxShadow: {
-        card: '0 2px 10px rgba(90,46,32,0.10)',
-        btn: '0 4px 14px rgba(178,58,26,0.30)',
+        card: '0 2px 8px rgba(90,46,32,0.12)',
+        btn: '0 6px 16px rgba(178,58,26,0.30)',
+        // success/money CTAs sit highest in canon — the leaf equivalent
+        'btn-leaf': '0 8px 20px rgba(30,122,70,0.35)',
       },
       keyframes: {
         'voice-bar': {

@@ -31,7 +31,10 @@ export function Button({
   // Styles based on variant
   const variantStyles = {
     primary: "bg-saffron-500 text-[#FFF3EA] shadow-btn hover:bg-saffron-600 active:scale-[0.97]",
-    success: "bg-leaf-500 text-white hover:bg-leaf-600 active:scale-[0.97]",
+    // CANON lifts money/success highest of all (0 8px 20px leaf). This
+    // variant carried NO shadow at all, so the one button that confirms
+    // money sat flatter than the ordinary primary beside it.
+    success: "bg-leaf-500 text-white shadow-btn-leaf hover:bg-leaf-600 active:scale-[0.97]",
     "danger-outline": "bg-white border-2 border-danger text-danger hover:bg-red-50 active:scale-[0.97]",
     secondary: "bg-[#F8E3D2] text-saffron-700 hover:bg-saffron-100 active:scale-[0.97]",
     ghost: "bg-transparent text-temple-500 underline hover:bg-saffron-50 active:scale-[0.97]",
