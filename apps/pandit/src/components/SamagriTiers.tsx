@@ -12,6 +12,21 @@ import { motion, useReducedMotion } from "framer-motion";
 // — the anti-fake rule; otherwise the tab shows no ₹.
 
 export type SamagriTier = "BASIC" | "STANDARD" | "PREMIUM";
+
+/**
+ * F12-02 — the answer a pandit gives when no company binds for an item (नारियल,
+ * फूल-माला). It is a REAL answer, not a blank: the API requires every item to
+ * carry a company/brand, and "कोई भी" is how "any company will do" is said out
+ * loud. Mirrors SAMAGRI_BRAND_ANY in services/api/src/lib/samagriItem.ts, which
+ * is the one place the item shape is defined.
+ */
+export const SAMAGRI_BRAND_ANY = "कोई भी";
+
+/**
+ * F12-02: brand stays OPTIONAL in this type on purpose — it is the shape of an
+ * item as READ, and packages saved before F12-02 have no brand. Every WRITE path
+ * must fill it (with SAMAGRI_BRAND_ANY when no company binds) or the API 400s.
+ */
 export interface SamagriItem { emoji?: string; name: string; qty: string; brand?: string }
 export interface TierData { tier: SamagriTier; label: string; price: number | null; items: SamagriItem[] }
 

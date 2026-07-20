@@ -1,5 +1,7 @@
 import { prisma } from "@hmarepanditji/db";
 import { AppError } from "../middleware/errorHandler";
+// F12-02: the item shape lives in ONE place. Do not re-declare the field list here.
+import { validateSamagriItems } from "../lib/samagriItem";
 
 // ── Get pandit's puja services (public) ──────────────────────────────────────
 // panditUserId: the User.id (from public route GET /pandits/:id/services)
@@ -48,6 +50,15 @@ export async function manageSamagriPackage(
   data: any,
   packageId?: string,
 ) {
+  // F12-02: every item must carry quantity AND a company/brand name. Enforced
+  // here rather than at the route so the rule holds for any caller of this
+  // service, not only the two routes that happen to run the zod preHandler.
+  if ((action === "create" || action === "update") && data?.items !== undefined) {
+    const itemsCheck = validateSamagriItems(data.items);
+    if (!itemsCheck.ok) throw new AppError(itemsCheck.message, 400);
+    data = { ...data, items: itemsCheck.items };
+  }
+
   if (action === "create") {
     const existing = await prisma.samagriPackage.findFirst({
       where: {

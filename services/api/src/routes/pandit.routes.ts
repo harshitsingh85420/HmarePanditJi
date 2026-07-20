@@ -17,6 +17,7 @@ import {
   getPanditAvailabilityHandler
 } from "../controllers/pandit.controller";
 import { AppError } from "../middleware/errorHandler";
+import { samagriItemSchema } from "../lib/samagriItem";
 import { NotificationService } from "../services/notification.service";
 import { getNotificationTemplate } from "../services/notification-templates";
 const notificationService = new NotificationService();
@@ -361,11 +362,10 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
     packageName: z.string().min(2),
     packageType: z.enum(["BASIC", "STANDARD", "PREMIUM"]),
     fixedPrice: z.number().min(0),
-    items: z.array(z.object({
-      itemName: z.string(),
-      quantity: z.string(),
-      qualityNotes: z.string().optional(),
-    })).min(1),
+    // F12-02: the item shape is defined ONCE in lib/samagriItem.ts (name +
+    // quantity + company/brand). Re-typing the field list here is exactly how
+    // brand went missing from three of the four write paths before.
+    items: z.array(samagriItemSchema).min(1),
     isActive: z.boolean().default(true),
   });
 

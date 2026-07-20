@@ -41,7 +41,7 @@ import { Screen } from "@/components/ui/Screen";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { VoiceField } from "@/components/voice/VoiceField";
-import { SamagriTiers, type SamagriTier, type SamagriItem, type TierData } from "@/components/SamagriTiers";
+import { SamagriTiers, SAMAGRI_BRAND_ANY, type SamagriTier, type SamagriItem, type TierData } from "@/components/SamagriTiers";
 import { STEPS_5, migrateStep, teamOptionLabel, teamOptionKeywords } from "./stepModel";
 
 // CANON TITLES — the artboards do NOT repeat "पूजा जोड़ें" on every step;
@@ -232,7 +232,10 @@ function StepSamagri({ d, set, activeTier, setActiveTier, tiersData }: {
   const [brand, setBrand] = useState("");
   const addItem = () => {
     if (!name.trim()) return;
-    set({ items: { ...d.items, [activeTier]: [...d.items[activeTier], { name: name.trim(), qty: qty.trim() || "1", brand: brand.trim() || undefined }] } });
+    // F12-02: a blank कंपनी box used to drop the field entirely (`|| undefined`),
+    // which the API now rejects. An unanswered company is "कोई भी" — say it, do
+    // not omit it, so F12-04 can tell the truth about which items actually bind.
+    set({ items: { ...d.items, [activeTier]: [...d.items[activeTier], { name: name.trim(), qty: qty.trim() || "1", brand: brand.trim() || SAMAGRI_BRAND_ANY }] } });
     setName(""); setQty(""); setBrand("");
   };
   return (
@@ -248,7 +251,7 @@ function StepSamagri({ d, set, activeTier, setActiveTier, tiersData }: {
         <VoiceField label={`${TIER_LABEL[activeTier]} में सामान`} promptText="सामान का नाम बोलिए" mode="text" value={name} onChange={setName} placeholder="सामान का नाम" />
         <div className="flex gap-2">
           <input value={qty} onChange={(e) => setQty(e.target.value)} placeholder="मात्रा" className="flex-1 h-[56px] px-3.5 rounded-field border-2 border-saffron-200 text-[18px] font-hindi bg-card" />
-          <input value={brand} onChange={(e) => setBrand(e.target.value)} placeholder="कंपनी" className="flex-1 h-[56px] px-3.5 rounded-field border-2 border-saffron-200 text-[18px] font-hindi bg-card" />
+          <input value={brand} onChange={(e) => setBrand(e.target.value)} placeholder={`कंपनी (${SAMAGRI_BRAND_ANY})`} className="flex-1 h-[56px] px-3.5 rounded-field border-2 border-saffron-200 text-[18px] font-hindi bg-card" />
         </div>
         <Button variant="secondary" className="h-[56px] min-h-[56px] text-[19px] rounded-[14px]" onClick={addItem} disabled={!name.trim()}>जोड़िए</Button>
       </Card>
