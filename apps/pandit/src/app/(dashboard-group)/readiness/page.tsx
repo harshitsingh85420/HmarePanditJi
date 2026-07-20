@@ -613,12 +613,15 @@ export default function ReadinessPage() {
         {/* Mockup frame 12 ("दीये जलें"): the wizard's progress IS five diyas —
             lit for completed steps, dim for the rest. Same step source as the
             old dots; static styling only (no new animation — A12). */}
-        <div className="flex flex-col items-center gap-1">
-          <div className="flex items-center gap-3" role="img" aria-label={`चरण ${step} / 5`}>
+        {/* CANON: the दीये never sit on the page field — they sit on the
+            night-warm two-stop surface (radius 22, 8px/20px violet lift), the
+            count printed under them in warm brass on the dark. */}
+        <div className="bg-night-warm rounded-surface px-3 py-[18px] flex flex-col items-center gap-2.5 shadow-[0_8px_20px_rgba(42,27,61,.28)]">
+          <div className="flex items-end justify-center gap-1" role="img" aria-label={`चरण ${step} / 5`}>
             {[1, 2, 3, 4, 5].map((n) => (
               <span
                 key={n}
-                className={`text-[26px] leading-none select-none transition-opacity ${
+                className={`text-[40px] leading-none select-none transition-opacity ${
                   n < step ? "opacity-100" : n === step ? "opacity-100 pa-diya-halo rounded-full" : "opacity-30 grayscale"
                 }`}
                 aria-hidden="true"
@@ -627,7 +630,7 @@ export default function ReadinessPage() {
               </span>
             ))}
           </div>
-          <span className="text-[13px] font-bold text-softgrey font-hindi">
+          <span className="text-[18px] font-extrabold text-[#FFE9C4] font-hindi">
             {step > 1 ? `${step - 1}/5 दीये जल गए` : `चरण ${step} / 5`}
           </span>
         </div>
@@ -725,25 +728,41 @@ export default function ReadinessPage() {
 }
 
 // ── shared chip ──────────────────────────────────────────────
+// CANON (frames 14/15/16): a chip is a PILL — min-height 56, padding 12/18,
+// radius 999. Selected = sindoor fill #B23A1A on #FFF6E9 with the 5px/12px
+// sindoor lift and a TRAILING check; unselected = #FFFDF8 on a 2px hairline.
+// The hairline is peach (#F4B096) on the भोजन board and sand (#E7DCC9) on the
+// यात्रा/ठहरना boards — hence `tone`. `shape="tile"` is the होटल-दर्जा row
+// (radius 14, equal thirds, centred).
 function Chip({
   label,
   selected,
   onClick,
+  tone = "sand",
+  shape = "pill",
 }: {
   label: string;
   selected: boolean;
   onClick: () => void;
+  tone?: "sand" | "warm";
+  shape?: "pill" | "tile";
 }) {
+  const idle =
+    tone === "warm"
+      ? "bg-card border-saffron-200 text-saffron-700"
+      : "bg-card border-sand-200 text-temple-700";
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`min-h-[56px] px-4 rounded-btn border-2 text-[18px] font-bold font-hindi transition-all active:scale-[0.97] ${
-        selected ? "bg-saffron-500 border-saffron-500 text-white shadow-btn" : "bg-white border-saffron-200 text-ink"
+      className={`min-h-[56px] border-2 text-[18px] font-extrabold font-hindi leading-snug transition-all active:scale-[0.97] flex items-center justify-center gap-[9px] ${
+        shape === "tile" ? "flex-1 rounded-[14px] px-3 py-2.5 text-center" : "rounded-chip px-[18px] py-3"
+      } ${
+        selected ? "bg-saffron-500 border-saffron-500 text-chandan shadow-chip" : idle
       }`}
     >
-      {selected ? "✓ " : ""}
-      {label}
+      <span>{label}</span>
+      {selected && <span aria-hidden="true">✓</span>}
     </button>
   );
 }
@@ -774,6 +793,9 @@ function ToggleRow({
 }) {
   // Mockup frame 15: each mode leads with a BIG emoji tile. Labels arrive as
   // "🚗 अपनी गाड़ी" — split the leading emoji into a warm tile, keep the text.
+  // CANON frame 15: the emoji sits in a tile with the mode-tile grammar —
+  // radius 18, sindoor-tinted with a 2px sindoor edge and the 5px/14px soft
+  // lift when chosen, #FFFDF8 on a sand hairline when not.
   const m = label.match(/^(\p{Extended_Pictographic}️?)\s+(.*)$/u);
   const emoji = m ? m[1] : null;
   const text = m ? m[2] : label;
@@ -781,15 +803,28 @@ function ToggleRow({
     <button
       type="button"
       onClick={() => onToggle(!enabled)}
-      className="w-full min-h-[56px] flex items-center justify-between gap-3 text-left"
+      className="w-full min-h-[60px] flex items-center justify-between gap-3 text-left"
     >
-      <span className="flex items-center gap-3 min-w-0">
+      <span className="flex items-center gap-[13px] min-w-0">
         {emoji && (
-          <span className={`w-11 h-11 shrink-0 rounded-[12px] flex items-center justify-center text-[24px] ${enabled ? "bg-saffron-50" : "bg-[#F4EFE6]"}`} aria-hidden="true">
+          <span
+            className={`w-[52px] h-[52px] shrink-0 rounded-tile border-2 flex items-center justify-center text-[28px] transition-all ${
+              enabled
+                ? "bg-saffron-50 border-saffron-500 shadow-sindoor-soft"
+                : "bg-card border-sand-200"
+            }`}
+            aria-hidden="true"
+          >
             {emoji}
           </span>
         )}
-        <span className="text-[20px] font-bold text-ink font-hindi">{text}</span>
+        <span
+          className={`text-[20px] font-extrabold font-hindi leading-snug ${
+            enabled ? "text-saffron-700" : "text-temple-700"
+          }`}
+        >
+          {text}
+        </span>
       </span>
       <span
         className={`relative inline-flex h-9 w-[72px] shrink-0 items-center rounded-full transition-all duration-300 ${
@@ -804,6 +839,46 @@ function ToggleRow({
         />
       </span>
     </button>
+  );
+}
+
+// ── canon type + strip vocabulary (frames 13-16) ─────────────
+// The board question is 22px/900 in sindoor-dark; the sub-label under it is
+// 17px/800 temple-dark (raised to the 18sp floor here — see lawConflicts).
+function SectionQ({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="text-[22px] font-black text-saffron-700 font-hindi leading-snug">{children}</span>
+  );
+}
+
+function SubLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="text-[18px] font-extrabold text-temple-700 font-hindi leading-snug">{children}</span>
+  );
+}
+
+// Canon's advisory strip: a flat tinted bar, radius 14, 12/14 padding, icon
+// then text — peach for a tip (frame 14), leaf for a reassurance (frame 13).
+function Strip({
+  icon,
+  tone = "peach",
+  children,
+}: {
+  icon: string;
+  tone?: "peach" | "leaf";
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      className={`flex items-center gap-[9px] rounded-[14px] px-[14px] py-3 text-[18px] font-bold font-hindi leading-snug ${
+        tone === "leaf" ? "bg-leaf-100 text-leaf-700" : "bg-peach text-saffron-700"
+      }`}
+    >
+      <span className="text-[20px] shrink-0" aria-hidden="true">
+        {icon}
+      </span>
+      <span>{children}</span>
+    </div>
   );
 }
 
@@ -832,7 +907,11 @@ function StepR1({
   );
   return (
     <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-4">
-      <label className="text-[18px] font-bold text-temple-700 font-hindi">{t("readiness.r1SpecLabel")}</label>
+      <SectionQ>{t("readiness.r1SpecLabel")}</SectionQ>
+      {/* CANON frame 15 mode-tile: radius 18, 18/12 padding, 34px glyph over a
+          17px/800 label, chosen tiles tinted #FDEEE7 behind a 2.5px sindoor
+          edge + the 5px/14px soft lift, with the check drawn as a 24px bubble
+          pinned top-right. The old #FF9933 fill is not a canon colour at all. */}
       <div className="grid grid-cols-2 gap-3">
         {SPEC_LIST.map((spec) => {
           const isSelected = specs.includes(spec.id);
@@ -842,14 +921,27 @@ function StepR1({
               onClick={() =>
                 setSpecs(isSelected ? specs.filter((id) => id !== spec.id) : [...specs, spec.id])
               }
-              className={`h-[100px] rounded-card border-2 cursor-pointer flex flex-col items-center justify-center gap-1 select-none transition-all ${
-                isSelected ? "bg-[#FF9933] border-[#FF9933] text-white shadow-md" : "bg-white border-saffron-200 text-ink"
+              className={`relative h-[100px] rounded-tile border-2 cursor-pointer flex flex-col items-center justify-center gap-1.5 select-none transition-all active:scale-[0.98] ${
+                isSelected
+                  ? "bg-saffron-50 border-[2.5px] border-saffron-500 shadow-sindoor-soft"
+                  : "bg-card border-sand-200"
               }`}
               style={{ height: "100px" }}
             >
-              <span className="text-[28px]">{spec.emoji}</span>
-              <span className="text-[16px] font-bold font-hindi text-center leading-tight">
-                {isSelected && "✓ "}
+              {isSelected && (
+                <span
+                  className="absolute top-2 right-2 w-6 h-6 rounded-full bg-saffron-500 text-white text-[15px] font-black flex items-center justify-center"
+                  aria-hidden="true"
+                >
+                  ✓
+                </span>
+              )}
+              <span className="text-[34px] leading-none">{spec.emoji}</span>
+              <span
+                className={`text-[18px] font-extrabold font-hindi text-center leading-tight px-1 ${
+                  isSelected ? "text-saffron-700" : "text-temple-700"
+                }`}
+              >
                 {specLabel(spec.id)}
               </span>
             </div>
@@ -859,9 +951,7 @@ function StepR1({
 
       {specs.length > 0 && (
         <div className="flex flex-col gap-4 border-t border-saffron-100 pt-4">
-          <label className="text-[18px] font-bold text-temple-700 font-hindi">
-            {t("readiness.r1DakshinaLabel")}
-          </label>
+          <SubLabel>{t("readiness.r1DakshinaLabel")}</SubLabel>
           {specs.map((spec) => (
             <div key={spec} className="border-b border-slate-100 pb-3 last:border-0 last:pb-0">
               <VoiceField
@@ -907,22 +997,16 @@ function StepR2({
       {/* J2: हाँ/नहीं for the सामग्री question live in the wizard shell's
           step-aware command registry — no separate listener here. */}
       <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-4">
-        <h2 className="text-[20px] font-bold text-temple-700 font-hindi leading-snug">
+        <h2 className="text-[22px] font-black text-saffron-700 font-hindi leading-snug">
           {t("readiness.r2Question")}
         </h2>
         <YesNoRow value={canBring} onChange={setCanBring} />
-        {canBring === false && (
-          <div className="px-4 py-3 bg-leaf-100 rounded-card border border-leaf-500/30">
-            <p className="text-[18px] font-bold text-leaf-700 font-hindi leading-snug">
-              {t("readiness.r2NoInfo")}
-            </p>
-          </div>
-        )}
+        {canBring === false && <Strip icon="🌿" tone="leaf">{t("readiness.r2NoInfo")}</Strip>}
       </Card>
 
       {canBring === true && (
         <div className="flex flex-col gap-3">
-          <p className="t-hint font-hindi">{t("readiness.r2BuilderHint")}</p>
+          <Strip icon="💡">{t("readiness.r2BuilderHint")}</Strip>
           {specs.map((spec) => {
             const done = samagriTiersByPuja[spec] > 0;
             return (
@@ -932,10 +1016,11 @@ function StepR2({
                 onClick={() => setEditorPuja(spec)}
                 className="p-5 border-l-4 border-l-saffron-500 flex justify-between items-center min-h-[80px]"
               >
-                <span className="text-[20px] font-bold text-temple-700 font-hindi">{specLabel(spec)}</span>
+                <span className="text-[20px] font-extrabold text-temple-700 font-hindi">{specLabel(spec)}</span>
+                {/* CANON status chip: pill, tinted field, 800 weight */}
                 <span
-                  className={`text-[16px] font-bold font-hindi px-3 py-1 rounded-full ${
-                    done ? "bg-leaf-100 text-leaf-700" : "bg-saffron-50 text-saffron-600"
+                  className={`text-[18px] font-extrabold font-hindi px-[11px] py-1 rounded-chip ${
+                    done ? "bg-leaf-100 text-leaf-700" : "bg-saffron-50 text-saffron-500"
                   }`}
                 >
                   {done ? t("readiness.r2PujaDone") : t("readiness.r2PujaPending")}
@@ -964,6 +1049,8 @@ function StepR3({ travel, setTravel }: { travel: TravelPrefs; setTravel: (v: Tra
 
   return (
     <>
+      {/* CANON frame 15 opens on the board question, not straight on controls. */}
+      <SectionQ>कैसे यात्रा करेंगे?</SectionQ>
       <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-3">
         <ToggleRow
           label={t("readiness.ownVehicle")}
@@ -972,8 +1059,9 @@ function StepR3({ travel, setTravel }: { travel: TravelPrefs; setTravel: (v: Tra
         />
         {travel.ownVehicle.enabled && (
           <div className="flex flex-col gap-2 border-t border-saffron-100 pt-3">
-            <span className="text-[18px] font-bold text-temple-700 font-hindi">{t("readiness.ownVehicleKm")}</span>
-            <div className="grid grid-cols-2 gap-2">
+            <SubLabel>{t("readiness.ownVehicleKm")}</SubLabel>
+            {/* CANON frame 15: the distance chips WRAP as pills, not a rigid grid */}
+            <div className="flex flex-wrap gap-2.5">
               {KM_PRESETS.map(({ km, label }) => (
                 <Chip
                   key={km}
@@ -992,7 +1080,7 @@ function StepR3({ travel, setTravel }: { travel: TravelPrefs; setTravel: (v: Tra
                 />
               )}
             </div>
-            <p className="t-hint font-hindi">{t("readiness.ownVehicleRate")}</p>
+            <Strip icon="💡">{t("readiness.ownVehicleRate")}</Strip>
           </div>
         )}
       </Card>
@@ -1004,7 +1092,7 @@ function StepR3({ travel, setTravel }: { travel: TravelPrefs; setTravel: (v: Tra
           onToggle={(v) => setTravel({ ...travel, train: { enabled: v, classes: v ? travel.train.classes : [] } })}
         />
         {travel.train.enabled && (
-          <div className="grid grid-cols-3 gap-2 border-t border-saffron-100 pt-3">
+          <div className="flex flex-wrap gap-2.5 border-t border-saffron-100 pt-3">
             {[
               { key: "SLEEPER", label: t("readiness.trainSleeper") },
               { key: "3AC", label: t("readiness.train3ac") },
@@ -1038,7 +1126,7 @@ function StepR3({ travel, setTravel }: { travel: TravelPrefs; setTravel: (v: Tra
           onToggle={(v) => setTravel({ ...travel, bus: { enabled: v, ac: v ? travel.bus.ac : null } })}
         />
         {travel.bus.enabled && (
-          <div className="grid grid-cols-2 gap-2 border-t border-saffron-100 pt-3">
+          <div className="flex flex-wrap gap-2.5 border-t border-saffron-100 pt-3">
             <Chip
               label={t("readiness.busAc")}
               selected={travel.bus.ac === "AC"}
@@ -1061,10 +1149,8 @@ function StepR3({ travel, setTravel }: { travel: TravelPrefs; setTravel: (v: Tra
         />
         {/* doc edge-case 8: undisclosed flying fear — परहेज़ multi-chips */}
         <div className="flex flex-col gap-2 border-t border-saffron-100 pt-3">
-          <span className="text-[18px] font-bold text-temple-700 font-hindi">
-            {t("readiness.exclusionsLabel")}
-          </span>
-          <div className="flex flex-col gap-2">
+          <SubLabel>{t("readiness.exclusionsLabel")}</SubLabel>
+          <div className="flex flex-wrap gap-2.5">
             <Chip
               label={t("readiness.exclNoFlight")}
               selected={travel.exclusions.includes("NO_FLIGHT")}
@@ -1085,7 +1171,7 @@ function StepR3({ travel, setTravel }: { travel: TravelPrefs; setTravel: (v: Tra
       </Card>
 
       <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-3">
-        <span className="text-[20px] font-bold text-ink font-hindi">{t("readiness.localCabQ")}</span>
+        <SectionQ>{t("readiness.localCabQ")}</SectionQ>
         <YesNoRow
           value={travel.localCabOk}
           onChange={(v) => setTravel({ ...travel, localCabOk: v })}
@@ -1134,22 +1220,26 @@ function StepR4(props: {
 
   return (
     <>
+      {/* CANON frame 14: भोजन chips wrap as peach-edged pills under the board
+          question, and the board closes on the यजमान-reassurance tip strip. */}
+      <SectionQ>{t("readiness.dietaryLabel")}</SectionQ>
       <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-3">
-        <span className="text-[18px] font-bold text-temple-700 font-hindi">{t("readiness.dietaryLabel")}</span>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="flex flex-wrap gap-2.5">
           {diets.map((d) => (
             <Chip
               key={d.key}
+              tone="warm"
               label={d.label}
               selected={props.dietary === d.key}
               onClick={() => props.setDietary(d.key)}
             />
           ))}
         </div>
+        <Strip icon="💡">यजमान को पहले से पता रहेगा — कोई असहजता नहीं</Strip>
       </Card>
 
       <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-3">
-        <span className="text-[20px] font-bold text-ink font-hindi">{t("readiness.hotelFoodQ")}</span>
+        <SectionQ>{t("readiness.hotelFoodQ")}</SectionQ>
         <YesNoRow value={props.hotelFoodOk} onChange={props.setHotelFoodOk} />
       </Card>
 
@@ -1171,23 +1261,25 @@ function StepR4(props: {
             mode="money"
             placeholder={t("readiness.allowancePlaceholder")}
           />
-          <p className="t-hint font-hindi">{t("readiness.allowanceNote")}</p>
+          <Strip icon="💡">{t("readiness.allowanceNote")}</Strip>
         </div>
       </Card>
 
       <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-3">
-        <span className="text-[20px] font-bold text-ink font-hindi">{t("readiness.stayQ")}</span>
+        <SectionQ>{t("readiness.stayQ")}</SectionQ>
         <YesNoRow value={props.stayHome} onChange={props.setStayHome} />
         <div className="flex flex-col gap-2 border-t border-saffron-100 pt-3">
-          <span className="text-[18px] font-bold text-temple-700 font-hindi">{t("readiness.dharamshalaQ")}</span>
+          <SubLabel>{t("readiness.dharamshalaQ")}</SubLabel>
           <YesNoRow value={props.dharamshalaOk} onChange={props.setDharamshalaOk} />
         </div>
         <div className="flex flex-col gap-2 border-t border-saffron-100 pt-3">
-          <span className="text-[18px] font-bold text-temple-700 font-hindi">{t("readiness.hotelTierLabel")}</span>
-          <div className="flex flex-col gap-2">
+          <SubLabel>{t("readiness.hotelTierLabel")}</SubLabel>
+          {/* CANON frame 16: होटल-दर्जा is ONE row of equal thirds, radius 14 */}
+          <div className="flex gap-2.5">
             {tiers.map((t) => (
               <Chip
                 key={t.key}
+                shape="tile"
                 label={t.label}
                 selected={props.hotelTier === t.key}
                 onClick={() => props.setHotelTier(t.key)}
@@ -1196,12 +1288,12 @@ function StepR4(props: {
           </div>
         </div>
         <div className="flex flex-col gap-2 border-t border-saffron-100 pt-3">
-          <span className="text-[18px] font-bold text-temple-700 font-hindi">{t("readiness.sharedRoomQ")}</span>
+          <SubLabel>{t("readiness.sharedRoomQ")}</SubLabel>
           <YesNoRow value={props.sharedRoomOk} onChange={props.setSharedRoomOk} />
         </div>
         <div className="flex flex-col gap-2 border-t border-saffron-100 pt-3">
-          <span className="text-[18px] font-bold text-temple-700 font-hindi">{t("readiness.advanceNoticeQ")}</span>
-          <div className="flex flex-col gap-2">
+          <SubLabel>{t("readiness.advanceNoticeQ")}</SubLabel>
+          <div className="flex flex-wrap gap-2.5">
             {[
               { days: 0, label: "उसी दिन भी" },
               { days: 1, label: "1 दिन पहले" },
@@ -1253,50 +1345,35 @@ function StepR5(props: {
     <>
       {/* Aadhaar — why-first: the "परिवार आप पर भरोसा करेगा" reason is carried by
           शिष्य's voice (R5 narration); the screen shows only a trust chip (anti-text). */}
-      <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-3">
-        <label className="text-[18px] font-bold text-temple-700 font-hindi">
-          {t("onboarding.step6Title")}
-        </label>
-        <span className="inline-flex items-center gap-2 self-start text-[13px] font-hindi font-extrabold text-leaf-700 bg-leaf-100 px-3 py-1.5 rounded-full">🔒 सुरक्षित · सिर्फ़ सत्यापन</span>
-        {/* FRONT — mockup frame 13: a ROW that flips done/pending
-            ("आधार — आगे ✓ हो गया" / "📷 फ़ोटो लें ›"). Same hidden-input
-            mechanics; only the look changed. */}
-        <label className={`w-full min-h-[64px] rounded-card border-2 flex items-center justify-between gap-3 px-4 py-3 cursor-pointer active:scale-[0.99] transition-transform select-none ${
-          props.aadhaarUrl ? "bg-leaf-100/60 border-[#BFE3CC]" : "bg-white border-saffron-200"
-        }`}>
-          <input type="file" accept="image/*" onChange={(e) => props.onFileUpload(e, "aadhaar-front")} className="hidden" />
-          <span className="flex items-center gap-3 min-w-0">
-            <span className="w-11 h-11 shrink-0 rounded-[12px] bg-saffron-50 flex items-center justify-center text-[22px]" aria-hidden="true">🪪</span>
-            <span className="text-[17px] font-bold text-ink font-hindi">आधार — आगे</span>
+      <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-[15px]">
+        <SubLabel>{t("onboarding.step6Title")}</SubLabel>
+        {/* CANON frame 13 opens with the WHY banner — a peach two-stop tile on a
+            sand hairline, radius 20, carrying the 40px verified glyph. */}
+        <div className="flex items-center gap-[14px] bg-tile-peach border-[1.5px] border-sand rounded-card p-4">
+          <span className="text-[40px] leading-none shrink-0" aria-hidden="true">🛡️</span>
+          <span className="text-[18px] font-extrabold text-temple-700 font-hindi leading-[1.35]">
+            आपकी पहचान =<br />यजमान का भरोसा
           </span>
-          {props.uploading ? (
-            <span className="text-[15px] font-bold text-saffron-600 font-hindi animate-pulse">{t("common.loading")}</span>
-          ) : props.aadhaarUrl ? (
-            <span className="text-[15px] font-black text-leaf-700 font-hindi">✓ हो गया</span>
-          ) : (
-            <span className="text-[15px] font-bold text-saffron-600 font-hindi">📷 फ़ोटो लें ›</span>
-          )}
-        </label>
+        </div>
+        <AadhaarRow title="आधार — आगे" url={props.aadhaarUrl} uploading={props.uploading}>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => props.onFileUpload(e, "aadhaar-front")}
+            className="hidden"
+          />
+        </AadhaarRow>
         {props.aadhaarUrl && <AadhaarPreview keyOrUrl={props.aadhaarUrl} />}
-
-        {/* BACK — same row pattern */}
-        <label className={`w-full min-h-[64px] rounded-card border-2 flex items-center justify-between gap-3 px-4 py-3 cursor-pointer active:scale-[0.99] transition-transform select-none ${
-          props.aadhaarBackUrl ? "bg-leaf-100/60 border-[#BFE3CC]" : "bg-white border-saffron-200"
-        }`}>
-          <input type="file" accept="image/*" onChange={(e) => props.onFileUpload(e, "aadhaar-back")} className="hidden" />
-          <span className="flex items-center gap-3 min-w-0">
-            <span className="w-11 h-11 shrink-0 rounded-[12px] bg-saffron-50 flex items-center justify-center text-[22px]" aria-hidden="true">🪪</span>
-            <span className="text-[17px] font-bold text-ink font-hindi">आधार — पीछे</span>
-          </span>
-          {props.uploadingBack ? (
-            <span className="text-[15px] font-bold text-saffron-600 font-hindi animate-pulse">{t("common.loading")}</span>
-          ) : props.aadhaarBackUrl ? (
-            <span className="text-[15px] font-black text-leaf-700 font-hindi">✓ हो गया</span>
-          ) : (
-            <span className="text-[15px] font-bold text-saffron-600 font-hindi">📷 फ़ोटो लें ›</span>
-          )}
-        </label>
+        <AadhaarRow title="आधार — पीछे" url={props.aadhaarBackUrl} uploading={props.uploadingBack}>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => props.onFileUpload(e, "aadhaar-back")}
+            className="hidden"
+          />
+        </AadhaarRow>
         {props.aadhaarBackUrl && <AadhaarPreview keyOrUrl={props.aadhaarBackUrl} />}
+        <Strip icon="🔒" tone="leaf">आपकी जानकारी सुरक्षित है · AES-256</Strip>
 
         {/* NUMBER (encrypted server-side; only last-4 stored in clear) */}
         <VoiceField
@@ -1316,13 +1393,13 @@ function StepR5(props: {
             onChange={(e) => props.setAadhaarConsent(e.target.checked)}
             className="mt-1 w-6 h-6 accent-saffron-500 shrink-0"
           />
-          <span className="text-[15px] text-ink font-hindi leading-snug">{t("readiness.aadhaarConsentLabel")}</span>
+          <span className="text-[18px] text-ink font-hindi leading-snug">{t("readiness.aadhaarConsentLabel")}</span>
         </label>
       </Card>
 
       {/* Bank / UPI — typed-only by law (A5) */}
       <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-4">
-        <label className="text-[18px] font-bold text-temple-700 font-hindi">
+        <label className="text-[18px] font-extrabold text-temple-700 font-hindi">
           {t("onboarding.step7Title")}
         </label>
         <div className="flex bg-slate-100 rounded-btn p-1.5 border border-saffron-100">
@@ -1359,7 +1436,7 @@ function StepR5(props: {
               placeholder="नाम लिखें"
             />
             <div className="flex flex-col gap-1.5">
-              <label className="text-[18px] font-bold text-temple-700 font-hindi">
+              <label className="text-[18px] font-extrabold text-temple-700 font-hindi">
                 {t("onboarding.accNumber")}
               </label>
               <input
@@ -1375,7 +1452,7 @@ function StepR5(props: {
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-[18px] font-bold text-temple-700 font-hindi">
+              <label className="text-[18px] font-extrabold text-temple-700 font-hindi">
                 {t("onboarding.accNumberConfirm")}
               </label>
               <input
@@ -1391,7 +1468,7 @@ function StepR5(props: {
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-[18px] font-bold text-temple-700 font-hindi">
+              <label className="text-[18px] font-extrabold text-temple-700 font-hindi">
                 {t("onboarding.ifscCode")}
               </label>
               <input
@@ -1407,7 +1484,7 @@ function StepR5(props: {
           </div>
         ) : (
           <div className="flex flex-col gap-1.5">
-            <label className="text-[18px] font-bold text-temple-700 font-hindi">
+            <label className="text-[18px] font-extrabold text-temple-700 font-hindi">
               {t("onboarding.upiIdLabel")}
             </label>
             <input
@@ -1423,6 +1500,61 @@ function StepR5(props: {
         )}
       </Card>
     </>
+  );
+}
+
+// CANON frame 13: the document row is an 88×60 thumb tile beside a two-line
+// title/status stack. Captured = solid #FFFDF8 behind a 2px leaf-pale edge,
+// the tile filled with the sage two-stop and stamped with a 22px leaf check
+// bubble. Awaiting = the SAME row with a 2px DASHED peach edge and a peach
+// tile holding the camera glyph. Radius 20 on the row, 12 on the tile.
+// Each face keeps its OWN <input> at the call site (children) — F05-02 pins
+// one image picker per face, and a single shared input would read as one.
+function AadhaarRow({
+  title,
+  url,
+  uploading,
+  children,
+}: {
+  title: string;
+  url: string;
+  uploading: boolean;
+  children: React.ReactNode;
+}) {
+  const done = !!url;
+  return (
+    <label
+      className={`w-full rounded-card border-2 flex items-center gap-[14px] p-[14px] cursor-pointer active:scale-[0.99] transition-transform select-none bg-card ${
+        done ? "border-leafpale" : "border-dashed border-saffron-200"
+      }`}
+    >
+      {children}
+      <span
+        className={`relative w-[88px] h-[60px] shrink-0 rounded-[12px] flex items-center justify-center text-[28px] overflow-hidden ${
+          done ? "bg-tile-leaf" : "bg-saffron-50"
+        }`}
+        aria-hidden="true"
+      >
+        {done ? "🪪" : "📷"}
+        {done && (
+          <span className="absolute bottom-1 right-1 w-[22px] h-[22px] rounded-full bg-leaf-500 text-white text-[14px] font-black flex items-center justify-center">
+            ✓
+          </span>
+        )}
+      </span>
+      <span className="flex-1 min-w-0 flex flex-col gap-0.5">
+        <span className="text-[20px] font-extrabold text-temple-700 font-hindi leading-snug">{title}</span>
+        {uploading ? (
+          <span className="text-[18px] font-bold text-saffron-600 font-hindi animate-pulse">
+            {t("common.loading")}
+          </span>
+        ) : done ? (
+          <span className="text-[18px] font-bold text-leaf-700 font-hindi">✓ हो गया</span>
+        ) : (
+          <span className="text-[18px] font-bold text-saffron-500 font-hindi">फ़ोटो लें ›</span>
+        )}
+      </span>
+    </label>
   );
 }
 
