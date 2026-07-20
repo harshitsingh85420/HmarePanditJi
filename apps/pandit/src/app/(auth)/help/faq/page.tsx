@@ -29,7 +29,8 @@ export default function FaqPage() {
       <Header festive title={hi.faq.title} showBack onBack={() => router.back()} />
 
       <main className="flex-1 overflow-y-auto px-4 pt-4 pb-6 flex flex-col gap-4 page-enter">
-        <p className="text-[15px] font-semibold text-softgrey font-hindi text-center">
+        {/* LAW > CANON: canon's caption row is 15px; the 18sp body floor wins. */}
+        <p className="text-[18px] font-semibold text-softgrey font-hindi text-center">
           {hi.faq.subtitle}
         </p>
 
@@ -38,7 +39,7 @@ export default function FaqPage() {
           if (items.length === 0) return null
           return (
             <section key={g.key} className="flex flex-col gap-2">
-              <h2 className="text-[15px] font-extrabold text-saffron-700 font-hindi flex items-center gap-1.5">
+              <h2 className="text-[18px] font-extrabold text-saffron-700 font-hindi flex items-center gap-1.5">
                 <span aria-hidden="true">{g.emoji}</span> {g.label}
               </h2>
 
@@ -48,26 +49,26 @@ export default function FaqPage() {
                 return (
                   <div
                     key={id}
-                    className="bg-card border border-sand rounded-[16px] shadow-card overflow-hidden"
+                    className="bg-card border-[1.5px] border-sand rounded-field overflow-hidden"
                   >
                     <button
                       onClick={() => setOpen(isOpen ? null : id)}
                       aria-expanded={isOpen}
-                      className="w-full px-4 min-h-[64px] py-3 flex items-center gap-3 text-left active:scale-[0.99] transition-transform focus-visible:ring-4 focus-visible:ring-saffron-200 focus:outline-none"
+                      className="w-full px-4 min-h-[64px] py-[15px] flex items-center gap-[14px] text-left active:scale-[0.99] transition-transform motion-reduce:transition-none focus-visible:ring-4 focus-visible:ring-saffron-200 focus:outline-none"
                     >
-                      <span className="flex-1 text-[17px] font-extrabold text-ink font-hindi leading-snug">
+                      <span className="flex-1 text-[18px] font-extrabold text-temple-700 font-hindi leading-snug">
                         {item.q}
                       </span>
                       <span
-                        className={`text-[#C9BBA6] text-[20px] shrink-0 transition-transform motion-reduce:transition-none ${isOpen ? 'rotate-180' : ''}`}
+                        className={`material-symbols-outlined text-sand-400 text-[24px] shrink-0 transition-transform motion-reduce:transition-none ${isOpen ? 'rotate-180' : ''}`}
                         aria-hidden="true"
                       >
-                        ⌄
+                        expand_more
                       </span>
                     </button>
 
                     {isOpen && (
-                      <p className="px-4 pb-4 -mt-1 text-[16px] text-softgrey font-hindi leading-relaxed">
+                      <p className="px-4 pb-4 -mt-1 text-[18px] text-softgrey font-hindi leading-relaxed">
                         {item.a}
                       </p>
                     )}
