@@ -1,16 +1,17 @@
 "use client";
 
 // ─────────────────────────────────────────────────────────────
-// WAVE 2 CANDIDATE — तैयारी HUB (canon frame 12).
+// तैयारी HUB (canon frame 12) — THE LIVE ENTRY.
 //
 // Canon draws readiness as a HUB: "आपकी तैयारी | N/5 दीये जल गए" over five
 // area rows, each with its own status, and one CTA pointing at the next
-// unfinished area. The shipped app draws it as a LINEAR wizard (R1→R5).
+// unfinished area. The shipped app drew it as a LINEAR wizard (R1→R5).
 //
-// THIS ROUTE DOES NOT REPLACE THE WIZARD. It is an alternative entry that
-// reads the SAME server snapshot and deep-links INTO the wizard at
-// ?step=N, so Isj can compare hub vs linear on a real device before any
-// flow is chosen. /readiness is untouched and remains the live path.
+// Isj's exact-UI ruling resolved the Wave 2 side-by-side in canon's
+// favour, so every entry point (home, bookings, both voice commands) now
+// lands HERE. The wizard is not gone and was not rewritten — it remains
+// the engine, reached only by deep link at ?step=N when a pandit taps an
+// area. Hub = navigation shape; wizard = the forms. Behaviour unchanged.
 //
 // Areas are the app's REAL five steps (not canon's literal five, which
 // split ठहरना out of भोजन and omit सामग्री) — the underlying flow stays

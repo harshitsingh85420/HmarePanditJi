@@ -192,7 +192,7 @@ export default function BookingsPage() {
             {!isBookingReady && (
               <Card
                 clickable
-                onClick={() => router.push("/readiness")}
+                onClick={() => router.push("/readiness/hub")}
                 accent="saffron"
                 className="p-5 flex flex-col gap-2 text-left"
               >

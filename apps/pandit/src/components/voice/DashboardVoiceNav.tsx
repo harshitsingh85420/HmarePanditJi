@@ -19,7 +19,7 @@ export function DashboardVoiceNav({ helpLine }: { helpLine?: string }) {
         { keywords: ["कमाई", "kamai", "earnings"], action: () => router.push("/earnings") },
         { keywords: ["कैलेंडर", "calendar"], action: () => router.push("/calendar") },
         { keywords: ["मेरी पूजाएँ", "पूजाएँ", "poojas"], action: () => router.push("/my-poojas") },
-        { keywords: ["तैयारी", "taiyari"], action: () => router.push("/readiness") },
+        { keywords: ["तैयारी", "taiyari"], action: () => router.push("/readiness/hub") },
         { keywords: ["सेटिंग", "settings"], action: () => router.push("/settings") },
         { keywords: ["मदद", "madad"], action: () => router.push("/help") },
       ]}

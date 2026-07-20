@@ -289,7 +289,7 @@ export function HomeView({
         ) : (
           <Card
             clickable
-            onClick={() => onNavigate("/readiness")}
+            onClick={() => onNavigate("/readiness/hub")}
             accent="saffron"
             className="p-5 flex flex-col gap-2 text-left"
           >

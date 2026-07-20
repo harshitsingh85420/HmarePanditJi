@@ -2,17 +2,39 @@
 
 export const dynamic = "force-dynamic";
 
-// पूजा जोड़ें — 7-step voice-first wizard. ANTI-TEXT: each step = one focus +
-// ≤10 words; शिष्य's voice (Narrate) carries every explanation; choices are
-// chips/cards, not forms. BEHAVIOR-FROZEN: consumes existing endpoints only
-// (samagri-packages, pooja-config, pooja-verification) — no handler/law touched.
-// Resumes from a local draft (server rows are written only on submit).
+// ─────────────────────────────────────────────────────────────
+// पूजा जोड़ें in 5 steps — THE LIVE PATH (canon 18a–18e: "5 चरण").
+//
+// Canon titles these frames 1/5…5/5, and Isj's exact-UI ruling resolved
+// the Wave 2 side-by-side in canon's favour. This shape replaced the old
+// 7-step wizard outright — keeping both live would have left two routes
+// to the same task, which is exactly the confusion the ruling ended.
+//
+// THE MERGE: आपूर्ति + टीम + दक्षिणा fold into one "और थोड़ी बातें".
+//
+// THE RISK, and what was done about it —
+// आपूर्ति and टीम each registered their OWN useVoiceOptions group. They
+// never co-existed before; merged, both mount at once beside the दक्षिणा
+// money field. Verified against the real voiceController (stepModel.test):
+//   · registerOptions APPENDS (voiceOptionGroups.push) and its disposer
+//     removes only its own group by identity — so groups coexist and
+//     unmount cleanly; no clobbering, no orphaned listeners.
+//   · matchVisibleOption does `clean.includes(label)`, so the old bare
+//     "1".."5" team labels matched ANY transcript containing that digit —
+//     including "5000". Since VoiceField hands the transcript to the
+//     command registry once the field HOLDS a value, a pandit CORRECTING
+//     his dakshina would have set teamSize instead. Labels are now
+//     "N पंडित", which cannot collide in either direction.
+// Both behaviours are pinned by tests; do not reintroduce digit labels.
+//
+// Draft shape and every endpoint are unchanged — this is navigation only.
+// A draft written by the 7-step wizard is migrated via migrateStep.
+// ─────────────────────────────────────────────────────────────
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Narrate } from "@/hooks/useScreenVoice";
 import { useVoiceOptions } from "@/hooks/useVoiceScreen";
-import { api } from "@/lib/api";
 import { mutateOnce } from "@/lib/mutate";
 import { Screen } from "@/components/ui/Screen";
 import { Card } from "@/components/ui/Card";
@@ -20,9 +42,11 @@ import { Button } from "@/components/ui/Button";
 import { VoiceField } from "@/components/voice/VoiceField";
 import { ProgressDots } from "@/components/ui/ProgressDots";
 import { SamagriTiers, type SamagriTier, type SamagriItem, type TierData } from "@/components/SamagriTiers";
+import { STEPS_5, migrateStep, teamOptionLabel, teamOptionKeywords } from "./stepModel";
 
+// SAME draft key as the 7-step wizard: a pandit who started there resumes
+// here (and vice-versa) instead of silently losing his work.
 const DRAFT_KEY = "add-pooja-draft";
-const STEPS = ["नाम", "सामग्री", "आपूर्ति", "टीम", "दक्षिणा", "वीडियो", "भेजें"] as const;
 
 type SupplyMode = "PANDIT_BRINGS" | "PLATFORM_SELLS" | "LIST_ONLY";
 const TIER_LABEL: Record<SamagriTier, string> = { BASIC: "बेसिक", STANDARD: "स्टैंडर्ड", PREMIUM: "प्रीमियम" };
@@ -52,65 +76,68 @@ function ytId(url: string): string | null {
   return m ? m[1] : null;
 }
 
-export default function AddPoojaPage() {
+export default function AddPooja5Page() {
   const router = useRouter();
   const [d, setD] = useState<Draft>(EMPTY);
   const [activeTier, setActiveTier] = useState<SamagriTier>("BASIC");
   const [submitting, setSubmitting] = useState(false);
   const set = (patch: Partial<Draft>) => setD((prev) => ({ ...prev, ...patch }));
 
-  // resume from a local draft
+  // resume — a 7-step draft's step index is remapped onto the 5-step model
   useEffect(() => {
     try {
       const raw = localStorage.getItem(DRAFT_KEY);
-      if (raw) setD({ ...EMPTY, ...JSON.parse(raw) });
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      setD({ ...EMPTY, ...parsed, step: migrateStep(parsed?.step) });
     } catch { /* ignore */ }
   }, []);
   useEffect(() => {
     try { localStorage.setItem(DRAFT_KEY, JSON.stringify(d)); } catch { /* ignore */ }
   }, [d]);
 
-  const go = (n: number) => set({ step: Math.max(0, Math.min(STEPS.length - 1, n)) });
+  const go = (n: number) => set({ step: Math.max(0, Math.min(STEPS_5.length - 1, n)) });
 
   const tiersData: TierData[] = (["BASIC", "STANDARD", "PREMIUM"] as SamagriTier[]).map((tier) => ({
     tier, label: TIER_LABEL[tier], price: d.supplyMode === "PANDIT_BRINGS" ? d.prices[tier] : null, items: d.items[tier],
   }));
 
+  // identical to the 7-step submit — same endpoints, same idempotency keys
   const submit = async () => {
     setSubmitting(true);
-    // 1) samagri tiers (only tiers with items)
     const tiers = (["BASIC", "STANDARD", "PREMIUM"] as SamagriTier[])
       .filter((t) => d.items[t].length > 0)
       .map((t) => ({ tier: t, price: d.supplyMode === "PANDIT_BRINGS" ? d.prices[t] : null, items: d.items[t] }));
     if (tiers.length) await mutateOnce(`samagri:${d.name}`, "/pandit/samagri-packages", { method: "POST", body: JSON.stringify({ pujaType: d.name, tiers }) });
-    // 2) team + dakshina + supply
     await mutateOnce(`config:${d.name}`, "/pandit/pooja-config", { method: "POST", body: JSON.stringify({ poojaType: d.name, teamSize: d.teamSize, dakshinaAmount: d.dakshina ?? 0, supplyMode: d.supplyMode ?? "PANDIT_BRINGS" }) });
-    // 3) video verification → PENDING
     const res = await mutateOnce(`verify:${d.name}`, "/pandit/pooja-verification", { method: "POST", body: JSON.stringify({ poojaType: d.name, poojaName: d.name, poojaDescription: d.desc, videoProvider: "YOUTUBE", videoUrl: d.videoUrl, consent: d.consent }) });
     setSubmitting(false);
-    if (res.success) { try { localStorage.removeItem(DRAFT_KEY); } catch {} ; go(6); }
+    if (res.success) { try { localStorage.removeItem(DRAFT_KEY); } catch {} ; go(4); }
   };
+
+  // the merged step needs all three answered before moving on
+  const step2Done = !!d.supplyMode && d.dakshina != null && d.dakshina > 0;
 
   return (
     <Screen
       title="पूजा जोड़ें"
       showBack
       onBack={() => (d.step === 0 ? router.push("/my-poojas") : go(d.step - 1))}
-      /* was: a second <Header> INSIDE Screen (empty sindoor band above the real
-         one) + a footer nested in the scroller. Screen owns the one Header,
-         the dots ride the banner slot, and the CTA is the real fixed footer. */
-      banner={<div className="px-4 pt-2 pb-1 bg-cream"><ProgressDots total={STEPS.length} current={d.step + 1} /></div>}
+      banner={<div className="px-4 pt-2 pb-1 bg-cream"><ProgressDots total={STEPS_5.length} current={d.step + 1} /></div>}
       mainClassName="flex flex-col gap-4 page-enter"
       footer={
-        d.step < 6 ? (
-          d.step === 5 ? (
+        d.step < 4 ? (
+          d.step === 3 ? (
             <Button className="w-full h-[64px] text-[20px]" loading={submitting} disabled={!d.videoUrl || !d.consent} onClick={submit}>
               पूजा भेजें
             </Button>
           ) : (
-            <Button className="w-full h-[64px] text-[20px]" disabled={d.step === 0 && !d.name.trim()} onClick={() => go(d.step + 1)}>
-              {/* mockup 18a: the CTA names the NEXT step — "आगे — सामग्री" */}
-              {`आगे — ${STEPS[d.step + 1]}`}
+            <Button
+              className="w-full h-[64px] text-[20px]"
+              disabled={(d.step === 0 && !d.name.trim()) || (d.step === 2 && !step2Done)}
+              onClick={() => go(d.step + 1)}
+            >
+              {`आगे — ${STEPS_5[d.step + 1]}`}
             </Button>
           )
         ) : undefined
@@ -118,16 +145,14 @@ export default function AddPoojaPage() {
     >
       {d.step === 0 && <StepName d={d} set={set} />}
       {d.step === 1 && <StepSamagri d={d} set={set} activeTier={activeTier} setActiveTier={setActiveTier} tiersData={tiersData} />}
-      {d.step === 2 && <StepSupply d={d} set={set} />}
-      {d.step === 3 && <StepTeam d={d} set={set} />}
-      {d.step === 4 && <StepDakshina d={d} set={set} />}
-      {d.step === 5 && <StepVideo d={d} set={set} />}
-      {d.step === 6 && <StepDone name={d.name} />}
+      {d.step === 2 && <StepDetails d={d} set={set} />}
+      {d.step === 3 && <StepVideo d={d} set={set} />}
+      {d.step === 4 && <StepDone name={d.name} />}
     </Screen>
   );
 }
 
-// ── Step 0: नाम + विवरण ───────────────────────────────────────────────────────
+// ── Step 0: नाम + विवरण (unchanged) ──────────────────────────────────────────
 function StepName({ d, set }: { d: Draft; set: (p: Partial<Draft>) => void }) {
   return (
     <>
@@ -135,8 +160,6 @@ function StepName({ d, set }: { d: Draft; set: (p: Partial<Draft>) => void }) {
       <Card className="p-5 flex flex-col gap-2 bg-white">
         <VoiceField label="पूजा का नाम" promptText="पूजा का नाम बोलिए" mode="text" value={d.name} onChange={(v) => set({ name: v })} placeholder="जैसे सत्यनारायण कथा" />
       </Card>
-      {/* Mockup 18a: the description is a warm NARRATION card (peach, 2px
-          saffron border, r18) — "बोलकर बताइए यह पूजा क्या है" */}
       <Card className="p-4 flex flex-col gap-2 bg-saffron-50 border-2 border-saffron-200 rounded-[18px]">
         <VoiceField label="बोलकर बताइए यह पूजा क्या है" promptText="यह पूजा क्या है, दो शब्दों में बताइए" mode="text" value={d.desc} onChange={(v) => set({ desc: v })} placeholder="संक्षेप में बोलिए" />
       </Card>
@@ -144,7 +167,7 @@ function StepName({ d, set }: { d: Draft; set: (p: Partial<Draft>) => void }) {
   );
 }
 
-// ── Step 1: सामग्री cumulative tiers ──────────────────────────────────────────
+// ── Step 1: सामग्री (unchanged) ───────────────────────────────────────────────
 function StepSamagri({ d, set, activeTier, setActiveTier, tiersData }: {
   d: Draft; set: (p: Partial<Draft>) => void; activeTier: SamagriTier; setActiveTier: (t: SamagriTier) => void; tiersData: TierData[];
 }) {
@@ -175,13 +198,30 @@ function StepSamagri({ d, set, activeTier, setActiveTier, tiersData }: {
   );
 }
 
-// ── Step 2: supply 3-outcome ──────────────────────────────────────────────────
-function StepSupply({ d, set }: { d: Draft; set: (p: Partial<Draft>) => void }) {
+// ── Step 2: और थोड़ी बातें = आपूर्ति + टीम + दक्षिणा ──────────────────────────
+// THE MERGED STEP. Both option groups mount here together; see the header
+// comment and stepModel.test.ts for why that is safe and what makes it so.
+function StepDetails({ d, set }: { d: Draft; set: (p: Partial<Draft>) => void }) {
+  const nums = [1, 2, 3, 4, 5];
+
+  // group A — supply (unchanged labels)
   useVoiceOptions([
     { label: "हाँ, मैं लाऊँगा", onSelect: () => set({ supplyMode: "PANDIT_BRINGS" }) },
     { label: "प्लेटफ़ॉर्म बेचे", onSelect: () => set({ supplyMode: "PLATFORM_SELLS" }) },
     { label: "सिर्फ़ सूची", onSelect: () => set({ supplyMode: "LIST_ONLY" }) },
   ]);
+
+  // group B — team. Labels are "N पंडित", NEVER bare digits: a bare "5"
+  // matches the "5" inside a spoken "5000" and would hijack the dakshina
+  // correction path. Pinned by stepModel.test.ts.
+  useVoiceOptions(
+    nums.map((n) => ({
+      label: teamOptionLabel(n),
+      keywords: teamOptionKeywords(n),
+      onSelect: () => set({ teamSize: n }),
+    })),
+  );
+
   const opt = (mode: SupplyMode, icon: string, label: string, sub: string) => (
     <button onClick={() => set({ supplyMode: mode })}
       className={`w-full min-h-[64px] px-4 py-3 rounded-btn border-2 flex items-center gap-3 text-left active:scale-[0.98] transition-transform ${
@@ -190,59 +230,57 @@ function StepSupply({ d, set }: { d: Draft; set: (p: Partial<Draft>) => void }) 
       <span className="flex flex-col"><span className="text-[17px] font-bold font-hindi">{label}</span><span className={`text-[13px] font-hindi ${d.supplyMode === mode ? "text-chandan/80" : "text-softgrey"}`}>{sub}</span></span>
     </button>
   );
-  return (
-    <>
-      <Narrate text="सामान आप ख़ुद ला सकते हैं? जो कंपनी बताएँगे, वही लानी होगी।" />
-      <div className="flex flex-col gap-3">
-        {opt("PANDIT_BRINGS", "🛍️", "हाँ, मैं लाऊँगा", "तीनों स्तर के दाम आप तय करें")}
-        {opt("PLATFORM_SELLS", "🚚", "प्लेटफ़ॉर्म बेचे और पहुँचाए", "हम सामान का इंतज़ाम करें")}
-        {opt("LIST_ONLY", "📝", "सिर्फ़ सूची दूँ", "यजमान ख़ुद ले आएँ")}
-      </div>
-      {d.supplyMode === "PANDIT_BRINGS" && (
-        <Card className="p-4 bg-saffron-50 border-2 border-saffron-200">
-          <span className="text-[14px] font-hindi text-saffron-700 font-semibold">⚠ जो कंपनी बताई, वही सामान लाना होगा — यजमान का भरोसा इसी पर है।</span>
-        </Card>
-      )}
-    </>
-  );
-}
 
-// ── Step 3: team ──────────────────────────────────────────────────────────────
-function StepTeam({ d, set }: { d: Draft; set: (p: Partial<Draft>) => void }) {
-  const nums = [1, 2, 3, 4, 5];
-  useVoiceOptions(nums.map((n) => ({ label: `${n}`, keywords: [`${n}`], onSelect: () => set({ teamSize: n }) })));
   return (
     <>
-      <Narrate text="इस पूजा में कितने पंडित चाहिए? आप मुख्य पंडित होंगे।" />
-      <Card className="p-5 bg-white flex flex-col gap-4 items-center">
-        <span className="text-[64px]">🧑‍🤝‍🧑</span>
-        <div className="flex gap-2 flex-wrap justify-center">
-          {nums.map((n) => (
-            <button key={n} onClick={() => set({ teamSize: n })}
-              className={`w-[56px] h-[56px] rounded-btn border-2 text-[22px] font-bold active:scale-95 transition-transform ${
-                d.teamSize === n ? "bg-saffron-500 border-saffron-500 text-chandan" : "bg-white border-saffron-200 text-temple-700"}`}>{n}</button>
-          ))}
+      {/* ONE narration for the merged step — three separate ones back to
+          back would talk over the pandit's first answer. */}
+      <Narrate text="अब तीन छोटी बातें — सामान कौन लाएगा, कितने पंडित चाहिए, और कुल दक्षिणा कितनी।" />
+
+      {/* आपूर्ति */}
+      <div className="flex flex-col gap-2">
+        <span className="text-[15px] font-extrabold text-softgrey font-hindi">सामान कौन लाएगा?</span>
+        <div className="flex flex-col gap-3">
+          {opt("PANDIT_BRINGS", "🛍️", "हाँ, मैं लाऊँगा", "तीनों स्तर के दाम आप तय करें")}
+          {opt("PLATFORM_SELLS", "🚚", "प्लेटफ़ॉर्म बेचे और पहुँचाए", "हम सामान का इंतज़ाम करें")}
+          {opt("LIST_ONLY", "📝", "सिर्फ़ सूची दूँ", "यजमान ख़ुद ले आएँ")}
         </div>
-        <span className="text-[15px] font-hindi text-softgrey">{d.teamSize} पंडित (आप सहित)</span>
-      </Card>
+        {d.supplyMode === "PANDIT_BRINGS" && (
+          <Card className="p-4 bg-saffron-50 border-2 border-saffron-200">
+            <span className="text-[14px] font-hindi text-saffron-700 font-semibold">⚠ जो कंपनी बताई, वही सामान लाना होगा — यजमान का भरोसा इसी पर है।</span>
+          </Card>
+        )}
+      </div>
+
+      {/* टीम */}
+      <div className="flex flex-col gap-2">
+        <span className="text-[15px] font-extrabold text-softgrey font-hindi">कितने पंडित चाहिए?</span>
+        <Card className="p-4 bg-white flex flex-col gap-3 items-center">
+          <div className="flex gap-2 flex-wrap justify-center">
+            {nums.map((n) => (
+              <button key={n} onClick={() => set({ teamSize: n })}
+                className={`w-[56px] h-[56px] rounded-btn border-2 text-[22px] font-bold active:scale-95 transition-transform ${
+                  d.teamSize === n ? "bg-saffron-500 border-saffron-500 text-chandan" : "bg-white border-saffron-200 text-temple-700"}`}>{n}</button>
+            ))}
+          </div>
+          <span className="text-[15px] font-hindi text-softgrey">{d.teamSize} पंडित (आप सहित)</span>
+        </Card>
+      </div>
+
+      {/* दक्षिणा */}
+      <div className="flex flex-col gap-2">
+        <span className="text-[15px] font-extrabold text-softgrey font-hindi">कुल दक्षिणा</span>
+        <Card className="p-5 bg-white flex flex-col gap-3">
+          <span className="text-[16px] font-hindi text-temple-700 font-bold">{d.name || "पूजा"} ({d.teamSize} पंडितों सहित)</span>
+          <VoiceField label="कुल दक्षिणा" promptText="इस पूजा की कुल दक्षिणा बोलिए" mode="money" value={d.dakshina != null ? String(d.dakshina) : ""} onChange={(v) => set({ dakshina: v ? parseInt(v.replace(/\D/g, "") || "0", 10) : null })} placeholder="₹ राशि" />
+          <span className="text-[13px] font-hindi text-softgrey">इसमें बाकी पंडितों की दक्षिणा भी शामिल है।</span>
+        </Card>
+      </div>
     </>
   );
 }
 
-// ── Step 4: dakshina (N पंडितों सहित) ─────────────────────────────────────────
-function StepDakshina({ d, set }: { d: Draft; set: (p: Partial<Draft>) => void }) {
-  return (
-    <>
-      <Narrate text="इस पूजा की कुल दक्षिणा कितनी? इसमें बाकी पंडितों की दक्षिणा भी शामिल है।" />
-      <Card className="p-5 bg-white flex flex-col gap-3">
-        <span className="text-[16px] font-hindi text-temple-700 font-bold">{d.name || "पूजा"} ({d.teamSize} पंडितों सहित) कुल दक्षिणा</span>
-        <VoiceField label="कुल दक्षिणा" promptText="इस पूजा की कुल दक्षिणा बोलिए" mode="money" value={d.dakshina != null ? String(d.dakshina) : ""} onChange={(v) => set({ dakshina: v ? parseInt(v.replace(/\D/g, "") || "0", 10) : null })} placeholder="₹ राशि" />
-      </Card>
-    </>
-  );
-}
-
-// ── Step 5: video (VOICE-DISABLED link) ───────────────────────────────────────
+// ── Step 3: video (unchanged) ─────────────────────────────────────────────────
 function StepVideo({ d, set }: { d: Draft; set: (p: Partial<Draft>) => void }) {
   const id = ytId(d.videoUrl);
   const CHECK = ["मंत्र साफ़ सुनाई दें", "अच्छी रोशनी हो", "आपका चेहरा दिखे", "पूजा का माहौल दिखे"];
@@ -251,7 +289,6 @@ function StepVideo({ d, set }: { d: Draft; set: (p: Partial<Draft>) => void }) {
       <Narrate text="दो मिनट का वीडियो चाहिए — परिवार यही देखकर आपको चुनेंगे। यूट्यूब लिंक यहाँ टाइप कीजिए।" />
       <Card className="p-5 bg-white flex flex-col gap-3">
         <span className="text-[15px] font-hindi text-softgrey">यूट्यूब लिंक (टाइप करें — यह बोलकर नहीं भरा जाता)</span>
-        {/* VOICE-DISABLED: a raw input, never a VoiceField */}
         <input value={d.videoUrl} onChange={(e) => set({ videoUrl: e.target.value })} inputMode="url" placeholder="https://youtu.be/…"
           className="h-[56px] px-4 rounded-btn border-2 border-saffron-200 text-[17px] font-hindi bg-cream" />
         {id && (
@@ -261,7 +298,6 @@ function StepVideo({ d, set }: { d: Draft; set: (p: Partial<Draft>) => void }) {
         )}
       </Card>
       <Card className="p-4 bg-white flex flex-col gap-2">
-        {/* Mockup 18d: the checklist carries its own heading */}
         <span className="text-[15px] font-extrabold text-softgrey font-hindi">अच्छे वीडियो के लिए</span>
         {CHECK.map((c) => (<span key={c} className="text-[15px] font-hindi text-temple-700">✅ {c}</span>))}
       </Card>
@@ -278,7 +314,7 @@ function StepVideo({ d, set }: { d: Draft; set: (p: Partial<Draft>) => void }) {
   );
 }
 
-// ── Step 6: प्रतीक्षा में ──────────────────────────────────────────────────────
+// ── Step 4: प्रतीक्षा में (unchanged) ─────────────────────────────────────────
 function StepDone({ name }: { name: string }) {
   const router = useRouter();
   return (
@@ -286,7 +322,6 @@ function StepDone({ name }: { name: string }) {
       <Narrate text="बहुत बढ़िया! आपकी पूजा जाँच के लिए भेज दी गई। स्वीकृत होते ही सूचना मिलेगी।" />
       <span className="text-[72px]">🙏</span>
       <span className="text-[24px] font-hindi font-bold text-temple-700">{name} भेज दी गई</span>
-      {/* Mockup 18e: प्रतीक्षा में badge — 19/900 brassdark */}
       <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#FFE9B8] text-[19px] font-hindi font-black text-brassdark">⏳ प्रतीक्षा में</span>
       <Button className="mt-4 h-[56px] px-8" onClick={() => router.push("/my-poojas")}>मेरी पूजाएँ देखें</Button>
     </div>
