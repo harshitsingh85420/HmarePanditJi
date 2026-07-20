@@ -1,20 +1,32 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { motion } from 'framer-motion'
+import { motion, type Variants } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
 import { speakWithSarvam } from '@/lib/sarvam-tts'
 import { Header } from '@/components/ui/Header'
-import { Card } from '@/components/ui/Card'
 import { WaveformVisualizer } from '@/components/voice/WaveformBar'
 import { SuccessCheckmark } from '@/components/ui/CompletionBadge'
-import { useReduced, still, fadeInUp, stagger, pulse } from '@/lib/motion'
+import { useReduced, still, fadeInUp, stagger } from '@/lib/motion'
 
-// Canon frame 25 labels the SOS button "दबाकर रखें" — a long-press, so a
+// Canon frame 33 labels the SOS button "दबाकर रखें" — a long-press, so a
 // pocket-brush or a stray tap can never dial the help line. HOLD_MS is the
 // press duration; the ring fills over exactly this long so the pandit can
 // SEE the hold working, not just be told about it.
 const HOLD_MS = 1200
+
+// Canon's SOS button carries `animation:g-sos 1.8s ease-out infinite`, which
+// animates BOX-SHADOW (0 0 0 0 → 0 0 0 30px). Standing law allows transform
+// and opacity only, so the identical outward pulse is drawn by a separate
+// halo element scaling 1 → 1.29 (210px → 270px = the 30px canon spread) and
+// fading out. Visually the same ring; cheap on an A12.
+const halo: Variants = {
+  show: {
+    scale: [1, 1.29],
+    opacity: [0.5, 0],
+    transition: { duration: 1.8, repeat: Infinity, ease: 'easeOut' },
+  },
+}
 
 export default function EmergencySOS() {
   const router = useRouter()
@@ -43,6 +55,10 @@ export default function EmergencySOS() {
   // The one real emergency action a phone can guarantee offline is placing
   // a call — so SOS immediately connects the pandit to the 24/7 help line
   // and says exactly that. HELP_LINE is the single real number.
+  //
+  // This is also why canon's SECOND bottom row ("परिवार को सूचना · जगह के
+  // साथ SMS") is not drawn: the app collects no family contact and has no
+  // SMS sender, so that row would be a false safety promise.
   const HELP_LINE = 'tel:+918934095599'
 
   const handleSendSOS = async () => {
@@ -100,143 +116,124 @@ export default function EmergencySOS() {
   const item = reduced ? still(fadeInUp) : fadeInUp
 
   return (
-    <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
+    <div
+      className="h-[100dvh] flex flex-col max-w-[430px] mx-auto text-ink"
+      // canon frame 33 screen bg
+      style={{ background: 'radial-gradient(120% 60% at 50% 30%,#FFF4EC,#FFF9EE 60%)' }}
+    >
       <Header festive title="आपातकालीन सहायता" showBack onBack={() => router.back()} />
 
-      {/* Main Content */}
-      <main className="flex-1 overflow-y-auto px-4 pt-4 pb-6 flex flex-col items-center justify-center">
+      {/* canon frame 33 body: padding 20px 24px 26px, hero centred with the
+          bottom action rows pinned under it */}
+      <main className="flex-1 overflow-y-auto flex flex-col items-center px-6 pt-5 pb-[26px]">
         <motion.div
           variants={container}
           initial="hidden"
           animate="show"
-          className="w-full max-w-md flex flex-col"
+          className="w-full flex-1 flex flex-col items-center"
         >
-          {/* Reassurance Header — mockup frame 25: घबराएँ नहीं 24/900 */}
-          <motion.div variants={item} className="text-center mb-8">
-            <style>{`@keyframes sos-hold-fill{from{transform:scaleY(0)}to{transform:scaleY(1)}}`}</style>
-            <h2 className="text-[24px] font-black text-ink mb-1 font-hindi">
-              घबराएँ नहीं
-            </h2>
-            <p className="text-[17px] font-semibold text-softgrey font-hindi">
-              हम हर पल आपके साथ हैं 🙏
-            </p>
-          </motion.div>
+          <style>{`@keyframes sos-hold-fill{from{transform:scaleY(0)}to{transform:scaleY(1)}}`}</style>
 
-          {/* Mockup frame 25: the big circle IS the SOS button — same
-              handleSendSOS the old rectangle carried, one tap (hold-to-
-              press skipped: reliability for elderly hands) */}
-          <motion.div variants={item} className="relative flex items-center justify-center mb-10">
-            {/* Pulsing ring (transform-only, honors reduced-motion) */}
-            <motion.div
-              className="absolute w-52 h-52 bg-saffron-500/20 rounded-full"
-              variants={reduced ? still(pulse) : pulse}
-              animate="show"
-              aria-hidden="true"
-            />
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              onPointerDown={startHold}
-              onPointerUp={clearHold}
-              onPointerLeave={clearHold}
-              onPointerCancel={clearHold}
-              // keyboard parity: Enter/Space fire directly (a key has no
-              // "hold" affordance to teach, and the accidental-press risk
-              // this guards against is a pocket touch, not a keypress)
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault()
-                  void handleSendSOS()
-                }
-              }}
-              disabled={isLoading || sosSent}
-              aria-label="सहायता बुलाएँ — दबाकर रखें"
-              className={`relative z-10 w-44 h-44 rounded-full flex flex-col items-center justify-center gap-1 shadow-btn transition-transform disabled:opacity-70 disabled:pointer-events-none overflow-hidden select-none ${
-                sosSent ? 'bg-leaf-500' : 'bg-saffron-500'
-              } text-chandan`}
-            >
-              {/* hold progress — a ring that fills over exactly HOLD_MS so the
-                  gesture is VISIBLE, not just described. Transform/opacity
-                  only, and reduced-motion keeps it static. */}
-              {holding && !reduced && (
-                <span
-                  aria-hidden="true"
-                  className="absolute inset-0 rounded-full bg-white/25 origin-bottom"
-                  style={{ animation: `sos-hold-fill ${HOLD_MS}ms linear forwards` }}
-                />
-              )}
-              {sosSent ? (
-                <SuccessCheckmark size="lg" animated={true} />
-              ) : isLoading ? (
-                <WaveformVisualizer barCount={5} height="lg" animated={true} />
-              ) : (
-                <>
-                  <span className="relative text-[44px] leading-none select-none" aria-hidden="true">🆘</span>
-                  <span className="relative text-[22px] font-black font-hindi leading-tight">सहायता बुलाएँ</span>
-                  {/* canon frame 25: the gesture, in writing, on the button */}
-                  <span className="relative text-[14px] font-semibold font-hindi opacity-90">दबाकर रखें</span>
-                </>
-              )}
-            </motion.button>
-          </motion.div>
-
-          {/* Explainer Card (kit accent rail) */}
-          <motion.div variants={item} className="mb-6">
-            <Card accent="saffron" className="p-6 flex flex-col gap-6">
-              {/* Immediate call */}
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-btn bg-saffron-100 flex items-center justify-center shrink-0">
-                  <span className="text-[28px] leading-none" aria-hidden="true">📞</span>
-                </div>
-                <div>
-                  <h3 className="text-[18px] font-bold text-ink mb-1 font-hindi">
-                    तुरंत कॉल
-                  </h3>
-                  <p className="text-softgrey text-[16px] leading-relaxed font-hindi">
-                    बटन दबाते ही आप हमारी सहायता टीम से सीधे फ़ोन पर जुड़ जाते हैं — कॉल पर अपनी स्थिति और स्थान बता सकते हैं।
-                  </p>
-                </div>
+          {/* hero — canon gap:26px between the reassurance block and the button */}
+          <div className="flex-1 w-full flex flex-col items-center justify-center gap-[26px]">
+            {/* Reassurance — canon 24/900 #341A13 over 17/600 #8A6F5C, mt 5px */}
+            <motion.div variants={item} className="text-center">
+              <div className="text-[24px] font-black text-ink font-hindi leading-tight">
+                घबराएँ नहीं
               </div>
-
-              {/* 24/7 support */}
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-btn bg-saffron-100 flex items-center justify-center shrink-0">
-                  <span className="text-[28px] leading-none" aria-hidden="true">🛟</span>
-                </div>
-                <div>
-                  <h3 className="text-[18px] font-bold text-ink mb-1 font-hindi">
-                    चौबीसों घंटे सहायता
-                  </h3>
-                  <p className="text-softgrey text-[16px] leading-relaxed font-hindi">
-                    हमारी सहायता टीम चौबीसों घंटे उपलब्ध है — किसी भी असुरक्षा या दुर्घटना की स्थिति में तुरंत जुड़ें।
-                  </p>
-                </div>
+              {/* canon 17px → 18px (18sp floor) */}
+              <div className="text-[18px] font-semibold text-softgrey font-hindi mt-[5px]">
+                हम हर पल आपके साथ हैं 🙏
               </div>
-            </Card>
-          </motion.div>
+            </motion.div>
 
-          {/* Secondary Action — mockup frame 25 row: हमारी सहायता टीम with
-              a leaf tile and a call glyph (same handleCallTeam) */}
-          <motion.div variants={item}>
-            <motion.button
-              whileTap={{ scale: 0.97 }}
+            {/* canon SOS button: 210px circle, radial sindoor gradient,
+                0 12px 30px rgba(178,58,26,.4) */}
+            <motion.div variants={item} className="relative flex items-center justify-center">
+              {/* the g-sos outward pulse, transform/opacity only */}
+              <motion.span
+                aria-hidden="true"
+                className="absolute w-[210px] h-[210px] rounded-full bg-[#C2321E]"
+                variants={reduced ? still(halo) : halo}
+                animate="show"
+              />
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                onPointerDown={startHold}
+                onPointerUp={clearHold}
+                onPointerLeave={clearHold}
+                onPointerCancel={clearHold}
+                // keyboard parity: Enter/Space fire directly (a key has no
+                // "hold" affordance to teach, and the accidental-press risk
+                // this guards against is a pocket touch, not a keypress)
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault()
+                    void handleSendSOS()
+                  }
+                }}
+                disabled={isLoading || sosSent}
+                aria-label="सहायता बुलाएँ — दबाकर रखें"
+                className="relative z-10 w-[210px] h-[210px] rounded-full flex flex-col items-center justify-center gap-2 transition-transform disabled:opacity-70 disabled:pointer-events-none overflow-hidden select-none"
+                style={{
+                  background: sosSent
+                    ? 'radial-gradient(circle at 50% 40%,#2A9159,#1E7A46 70%)'
+                    : 'radial-gradient(circle at 50% 40%,#D8402A,#B23A1A 70%)',
+                  boxShadow: sosSent
+                    ? '0 12px 30px rgba(30,122,70,.4)'
+                    : '0 12px 30px rgba(178,58,26,.4)',
+                  color: '#FFF6E9',
+                }}
+              >
+                {/* hold progress — a ring that fills over exactly HOLD_MS so the
+                    gesture is VISIBLE, not just described. Transform/opacity
+                    only, and reduced-motion keeps it static. */}
+                {holding && !reduced && (
+                  <span
+                    aria-hidden="true"
+                    className="absolute inset-0 rounded-full bg-white/25 origin-bottom"
+                    style={{ animation: `sos-hold-fill ${HOLD_MS}ms linear forwards` }}
+                  />
+                )}
+                {sosSent ? (
+                  <SuccessCheckmark size="lg" animated={true} />
+                ) : isLoading ? (
+                  <WaveformVisualizer barCount={5} height="lg" animated={true} />
+                ) : (
+                  <>
+                    {/* canon glyph 56px */}
+                    <span className="relative text-[56px] leading-none select-none" aria-hidden="true">🆘</span>
+                    {/* canon 24/900 */}
+                    <span className="relative text-[24px] font-black font-hindi leading-tight">सहायता बुलाएँ</span>
+                    {/* canon 14/600 opacity .9 → 18px (18sp floor) */}
+                    <span className="relative text-[18px] font-semibold font-hindi opacity-90">दबाकर रखें</span>
+                  </>
+                )}
+              </motion.button>
+            </motion.div>
+          </div>
+
+          {/* canon bottom rows — column, gap 11px. Only the one TRUE row. */}
+          <motion.div variants={item} className="w-full flex flex-col gap-[11px]">
+            <button
+              type="button"
               onClick={handleCallTeam}
-              className="w-full bg-card border border-sand rounded-[16px] px-4 min-h-[72px] flex items-center gap-3 shadow-card active:scale-[0.97] transition-transform"
+              className="w-full bg-card border-[1.5px] border-sand rounded-[16px] px-4 py-[14px] flex items-center gap-[13px] text-left active:scale-[0.97] transition-transform"
             >
-              <span className="w-12 h-12 rounded-[12px] bg-leaf-100 flex items-center justify-center text-[24px] shrink-0 select-none" aria-hidden="true">🎧</span>
-              <span className="flex-1 text-left">
-                <span className="block text-[17px] font-extrabold text-ink font-hindi">हमारी सहायता टीम</span>
-                <span className="block text-[14px] text-softgrey font-hindi">तुरंत कॉल</span>
+              <span
+                className="w-[46px] h-[46px] rounded-[12px] bg-[#E4F3E9] flex items-center justify-center text-[24px] shrink-0 select-none"
+                aria-hidden="true"
+              >
+                🎧
               </span>
-              <span className="text-leaf-500 text-[24px]" aria-hidden="true">📞</span>
-            </motion.button>
+              <span className="flex-1">
+                {/* canon 17/800 → 20px, and 14 → 18px (18sp floor) */}
+                <span className="block text-[20px] font-extrabold text-ink font-hindi leading-tight">हमारी सहायता टीम</span>
+                <span className="block text-[18px] text-softgrey font-hindi mt-[2px]">तुरंत कॉल</span>
+              </span>
+              <span className="text-[24px] text-[#1E7A46]" aria-hidden="true">📞</span>
+            </button>
           </motion.div>
-
-          {/* Information Note */}
-          <motion.footer variants={item} className="mt-8 text-center">
-            <p className="text-softgrey text-[16px] px-8 font-hindi">
-              यह सुविधा चौबीसों घंटे सक्रिय है। किसी भी दुर्घटना या असुरक्षा की स्थिति में इसका उपयोग करें।
-            </p>
-          </motion.footer>
         </motion.div>
       </main>
     </div>
