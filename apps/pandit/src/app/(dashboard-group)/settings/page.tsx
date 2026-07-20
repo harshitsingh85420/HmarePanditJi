@@ -23,15 +23,38 @@ import { purgeUserData } from "@/lib/purgeUserData";
 export const SETTINGS_ROW_BASE =
   "rounded-[16px] px-4 py-[15px] min-h-[76px] flex items-center gap-[14px] active:scale-[0.97] transition-transform focus-visible:ring-4 focus-visible:ring-saffron-200 focus:outline-none";
 
+/** Canon's 46px r13 tile: #FDEEE7 with a 26px sindoor glyph — #fff with a
+ *  #C2321E glyph on the terminal row. The Material Symbols face is already
+ *  loaded app-wide in app/layout.tsx, so these are the canon glyphs, not
+ *  emoji stand-ins. */
+function RowTile({ icon, danger = false }: { icon: string; danger?: boolean }) {
+  return (
+    <span
+      className={`w-[46px] h-[46px] rounded-[13px] flex items-center justify-center shrink-0 ${
+        danger ? "bg-white" : "bg-saffron-50"
+      }`}
+      aria-hidden="true"
+    >
+      <span
+        className={`material-symbols-outlined text-[26px] leading-none ${
+          danger ? "text-danger" : "text-saffron-500"
+        }`}
+      >
+        {icon}
+      </span>
+    </span>
+  );
+}
+
 function SettingsRow({
-  emoji,
+  icon,
   label,
   value,
   danger = false,
   onClick,
   href,
 }: {
-  emoji: string;
+  icon: string;
   label: string;
   /** Canon frame 30 shows the row's CURRENT setting beside the chevron
    *  (e.g. भाषा → हिन्दी). Only pass a value that is actually true. */
@@ -47,14 +70,7 @@ function SettingsRow({
   }`;
   const inner = (
     <>
-      <span
-        className={`w-[46px] h-[46px] rounded-[13px] flex items-center justify-center text-[26px] shrink-0 select-none ${
-          danger ? "bg-white" : "bg-saffron-50"
-        }`}
-        aria-hidden="true"
-      >
-        {emoji}
-      </span>
+      <RowTile icon={icon} danger={danger} />
       <span
         className={`flex-1 text-left text-[18px] font-extrabold font-hindi ${
           danger ? "text-danger" : "text-temple-700"
@@ -123,14 +139,14 @@ export default function SettingsPage() {
         <Narrate text={t("settingsScreen.intro")} />
 
         {/* Row: profile view */}
-        <SettingsRow emoji="👤" label={t("settingsRows.viewProfile")} onClick={() => router.push("/profile-view")} />
+        <SettingsRow icon="person" label={t("settingsRows.viewProfile")} onClick={() => router.push("/profile-view")} />
 
         {/* Row: my poojas */}
-        <SettingsRow emoji="🛕" label={t("myPoojas.title")} onClick={() => router.push("/my-poojas")} />
+        <SettingsRow icon="temple_hindu" label={t("myPoojas.title")} onClick={() => router.push("/my-poojas")} />
 
         {/* Row: language */}
         <SettingsRow
-          emoji="🌐"
+          icon="translate"
           label={t("settingsRows.language")}
           // Canon frame 22 shows the active language beside the chevron.
           // हिन्दी is the only shipped app language (the picker changes
@@ -149,12 +165,7 @@ export default function SettingsPage() {
             grammar (icon tile · label · 52×30 r999 track, #1E7A46 when on,
             24px white knob inset 3px). Same chrome as every other row. */}
         <div className={`${SETTINGS_ROW_BASE} bg-card border-[1.5px] border-sand`}>
-          <span
-            className="w-[46px] h-[46px] rounded-[13px] bg-saffron-50 flex items-center justify-center text-[26px] shrink-0 select-none"
-            aria-hidden="true"
-          >
-            🔔
-          </span>
+          <RowTile icon="notifications" />
           <span className="flex-1 flex flex-col gap-[2px] text-left">
             <span className="text-[18px] font-extrabold text-temple-700 leading-tight font-hindi">
               {t("settingsScreen.soundLabel")}
@@ -188,7 +199,7 @@ export default function SettingsPage() {
 
         {/* Row: about शिष्य */}
         <SettingsRow
-          emoji="🙏"
+          icon="self_improvement"
           label={t("shishya.aboutTitle")}
           onClick={() => {
             setAboutShishya(true);
@@ -197,10 +208,10 @@ export default function SettingsPage() {
         />
 
         {/* Row: call support */}
-        <SettingsRow emoji="📞" label={t("support.callLabel")} href={`tel:${t("support.phone")}`} />
+        <SettingsRow icon="call" label={t("support.callLabel")} href={`tel:${t("support.phone")}`} />
 
         {/* Row: help */}
-        <SettingsRow emoji="❓" label={t("settingsRows.helpRow")} onClick={() => router.push("/help")} />
+        <SettingsRow icon="help" label={t("settingsRows.helpRow")} onClick={() => router.push("/help")} />
 
         {/* Row: logout (confirm) */}
         {confirmLogout ? (
@@ -231,7 +242,7 @@ export default function SettingsPage() {
             </div>
           </div>
         ) : (
-          <SettingsRow danger emoji="🚪" label={t("settingsRows.logout")} onClick={() => setConfirmLogout(true)} />
+          <SettingsRow danger icon="logout" label={t("settingsRows.logout")} onClick={() => setConfirmLogout(true)} />
         )}
       </main>
 
