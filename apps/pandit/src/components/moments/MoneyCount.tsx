@@ -2,7 +2,15 @@
 
 import React, { useEffect, useState } from "react";
 
-export function useCountUp(target: number, durationMs = 800) {
+// CANON (design/canon/CountUp.dc.html): 1500ms with a 200ms delay, eased
+// with easeOutCubic. The app ran 800ms easeOutQuad with no delay, which
+// made money appear to snap rather than arrive — and with no delay the
+// climb often began mid-paint, so the pandit never saw it start from ०.
+// Money deserves the ceremony; this is the one number he is here for.
+const COUNT_MS = 1500;
+const COUNT_DELAY_MS = 200;
+
+export function useCountUp(target: number, durationMs = COUNT_MS, delayMs = COUNT_DELAY_MS) {
   const [count, setCount] = useState(0);
 
   useEffect(() => {
@@ -25,15 +33,21 @@ export function useCountUp(target: number, durationMs = 800) {
     // capture or a returning user could see a frozen PARTIAL rupee figure
     // (live QA caught कुल stuck at ₹269 of ₹1,350). With wall-clock start,
     // ANY frame ≥durationMs later renders the exact final value.
-    const start = performance.now();
+    // CANON's delay is folded into the SAME wall clock — never a second
+    // timer. A separate setTimeout would reintroduce exactly the throttled
+    // -clock bug this hardening exists to prevent.
+    const start = performance.now() + delayMs;
     let animationFrameId: number;
 
     const step = (timestamp: number) => {
       const elapsed = timestamp - start;
-      const progress = Math.min(elapsed / durationMs, 1);
+      // before the delay elapses `elapsed` is negative — clamp at 0 so the
+      // number rests visibly at ० instead of starting mid-climb
+      const progress = Math.min(Math.max(elapsed, 0) / durationMs, 1);
 
-      // easeOutQuad easing
-      const easedProgress = progress * (2 - progress);
+      // easeOutCubic (canon): a longer, softer landing than easeOutQuad —
+      // the figure decelerates into place rather than stopping dead.
+      const easedProgress = 1 - Math.pow(1 - progress, 3);
       setCount(Math.floor(easedProgress * target));
 
       if (progress < 1) {
@@ -45,7 +59,9 @@ export function useCountUp(target: number, durationMs = 800) {
 
     // rAF can be throttled/starved on low-end devices or hidden tabs —
     // whatever happens, land on the final value shortly after duration.
-    const settleTimeout = window.setTimeout(() => setCount(target), durationMs + 400);
+    // MUST include the delay: without it the settle fires while the count
+    // is still climbing and snaps the figure early.
+    const settleTimeout = window.setTimeout(() => setCount(target), delayMs + durationMs + 400);
 
     // A hiding tab gets the TRUE value immediately — background timers are
     // throttled, and a money number must never wait wrong.
@@ -61,7 +77,7 @@ export function useCountUp(target: number, durationMs = 800) {
       window.clearTimeout(settleTimeout);
       document.removeEventListener("visibilitychange", onVisibility);
     };
-  }, [target, durationMs]);
+  }, [target, durationMs, delayMs]);
 
   return count;
 }
@@ -69,13 +85,20 @@ export function useCountUp(target: number, durationMs = 800) {
 export interface MoneyCountProps {
   target: number;
   durationMs?: number;
+  delayMs?: number;
   className?: string;
 }
 
-export function MoneyCount({ target, durationMs = 800, className }: MoneyCountProps) {
-  const count = useCountUp(target, durationMs);
+export function MoneyCount({ target, durationMs = COUNT_MS, delayMs = COUNT_DELAY_MS, className }: MoneyCountProps) {
+  const count = useCountUp(target, durationMs, delayMs);
   return (
-    <span className={className}>
+    // CANON typography for a big numeral: tightened tracking (-.5px) and
+    // line-height 1 so the figure reads as one solid block, and nowrap so
+    // a lakh figure can never break across two lines mid-number.
+    <span
+      className={className}
+      style={{ letterSpacing: "-0.5px", lineHeight: 1, whiteSpace: "nowrap" }}
+    >
       ₹{count.toLocaleString("en-IN")}
     </span>
   );

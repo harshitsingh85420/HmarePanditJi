@@ -82,10 +82,16 @@ export function ShishyaOrb({
             : "w-[66px] h-[66px] min-w-[66px] min-h-[66px]"
         } ${
           asleep
-            ? "shishya-asleep"
+            ? // asleep keeps the grounding shadow but never glows
+              "shishya-asleep shishya-orb-ground"
             : listening
-            ? "bg-saffron-500 border-4 border-gold shishya-listen-ring"
-            : "bg-saffron-500 border-4 border-gold"
+            ? // the listen ring animation carries the grounding shadow itself
+              "bg-saffron-500 border-4 border-gold shishya-listen-ring"
+            : idle
+            ? // CANON: idle breathes a GOLD HALO on the orb (this animation
+              // includes the grounding shadow in both keyframes)
+              "bg-saffron-500 border-4 border-gold shishya-breathe-halo"
+            : "bg-saffron-500 border-4 border-gold shishya-orb-ground"
         }`}
       >
         {/* SPEAKING ripples */}
@@ -95,7 +101,16 @@ export function ShishyaOrb({
             <span className="shishya-ripple shishya-ripple-2" aria-hidden="true" />
           </>
         )}
-        <span className={`${large ? "text-[56px]" : "text-[30px]"} leading-none select-none ${idle ? "shishya-breathe" : ""}`} aria-hidden="true">🙏</span>
+        {/* CANON: the glyph carries its own drop-shadow so it reads as
+            resting IN the orb rather than printed on it. The old idle
+            scale-breath moved here → the orb's halo (see className above). */}
+        <span
+          className={`${large ? "text-[56px]" : "text-[30px]"} leading-none select-none`}
+          style={{ filter: "drop-shadow(0 1px 1px rgba(0,0,0,.15))" }}
+          aria-hidden="true"
+        >
+          🙏
+        </span>
         {asleep && (
           <span
             className="absolute -top-1 -right-1 text-[16px] leading-none select-none"
