@@ -248,10 +248,57 @@ export async function getPanditProfileById(request: FastifyRequest, reply: Fasti
     try {
         const params = request.params as Record<string, string>;
         const panditId = params.id;
+        // ─────────────────────────────────────────────────────────────
+        // CROSS-TENANT EXPOSURE — GET /pandits/:id is reachable by ANY
+        // authenticated pandit, for ANY other pandit's id. app.ts:215-221
+        // applies authenticate + roleGuard("PANDIT") to every /pandit* url,
+        // so this is NOT world-readable; it is readable by every peer on the
+        // platform, which for bank and identity data is still far too wide.
+        //
+        // This was `include:`, which returns EVERY scalar on PanditProfile,
+        // and the handler below spreads the row wholesale (`...pandit`).
+        // That published, unauthenticated: bankAccountNumber, bankIfscCode,
+        // bankAccountName, upiId, bankIfsc, aadhaarFrontUrl, aadhaarBackUrl,
+        // aadhaarDocUrl, aadhaarEncrypted, aadhaarLastFour, fullAddress,
+        // latitude and longitude — a pandit's bank account and Aadhaar
+        // photographs, for the cost of one GET.
+        //
+        // An explicit allow-list is used rather than an exclude-list on
+        // purpose: with `include`, every column added to the model in future
+        // is public by default and silently so. Here, a new column is
+        // private until someone deliberately adds it below.
+        //
+        // `phone` is also dropped: the customer app never rendered it, and a
+        // directory of every pandit's personal number is not something a
+        // detail page should hand out. Contact happens through a booking.
+        // ─────────────────────────────────────────────────────────────
         const pandit = await prisma.panditProfile.findUnique({
             where: { userId: panditId, verificationStatus: "VERIFIED" },
-            include: {
-                user: { select: { id: true, name: true, phone: true } },
+            select: {
+                id: true,
+                userId: true,
+                displayName: true,
+                fullName: true,
+                bio: true,
+                experienceYears: true,
+                yearsExperience: true,
+                languages: true,
+                specializations: true,
+                sect: true,
+                profilePhotoUrl: true,
+                photoUrl: true,
+                location: true,
+                city: true,
+                state: true,
+                rating: true,
+                totalReviews: true,
+                completedBookings: true,
+                isOnline: true,
+                verificationStatus: true,
+                canBringSamagri: true,
+                teamSize: true,
+                createdAt: true,
+                user: { select: { id: true, name: true } },
                 pujaServices: { where: { isActive: true } },
                 samagriPackages: { where: { isActive: true } },
             }
