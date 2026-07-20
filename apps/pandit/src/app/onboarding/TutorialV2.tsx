@@ -1,12 +1,23 @@
 "use client";
 
 // ─────────────────────────────────────────────────────────────
-// Tutorial — the 6-scene "boring fix" deck on the existing
-// TutorialShell. Emotional-hook order (founder): कमाई → नई बुकिंग →
-// आवाज़ → सो जाओ/जागो → सत्यापन → स्वागत/शुरू करें. Each scene shows AT
-// MOST a short phrase (≤10 words); शिष्य's spoken narration carries the
-// explanation. Motion is transform/opacity only via lib/motion (A12 /
-// 6×-throttle safe, prefers-reduced-motion static fallbacks).
+// Tutorial — the 6-scene deck, drawn to CANON artboards 4-9
+// (design/canon/हमारे पंडित जी.dc.html · "ट्यूटोरियल · …"):
+//   4 कमाई · 5 नई बुकिंग · 6 शिष्य जगाएँ · 7 आवाज़ · 8 सत्यापन · 9 स्वागत
+//
+// EXACT-UI NOTE. Canon never draws these scenes with emoji — it draws
+// real objects out of gradients and shadow layers: brass coins falling
+// into a thali (bg-orb-brass over bg-orb-bell + shadow-orb-brass), a
+// request card with an 8px sindoor spine, five sindoor→genda voice bars,
+// a night-gradient video frame with a leaf verification stamp, and the
+// real Diya. Every scene below is that composition, at canon's literal
+// sizes/colours; the shell (dots, CTA, page field) is TutorialShell.
+//
+// A12: all motion is transform/opacity only, via framer-motion so
+// prefers-reduced-motion collapses each scene to its composed still.
+// Canon's own g-wave (height) and g-glowring (box-shadow) animate
+// layout/paint properties — reproduced here as scaleY and a scaling
+// ring so the animation law holds. See lawConflicts in the batch report.
 //
 // IDENTITY LAW (Option A): the interactive behavior — आवाज़ mic practice,
 // सो जाओ/जागो mute gate, नई बुकिंग temple bell, स्वागत register CTA — is
@@ -27,20 +38,20 @@ import { YES, NEXT, BACK, SKIP } from "@/lib/voiceGrammar";
 import { useVoiceInput } from "@/hooks/useVoiceInput";
 import { voiceController } from "@/lib/voiceController";
 import { playBell, playChime } from "@/lib/sounds";
-import { SlideCanvas, accentFor, PetalBurst } from "@/components/moments/SlideCanvas";
+import { PetalBurst } from "@/components/moments/SlideCanvas";
 import { PopupPointer } from "@/components/moments/PopupPointer";
 import { MoneyCount } from "@/components/moments/MoneyCount";
+import { Diya } from "@/components/ui/Diya";
 import { Button } from "@/components/ui/Button";
 import { CoachSpotlight } from "@/components/moments/CoachSpotlight";
-import { useReduced, still, cardSlideIn, stampIn, breathe, DURATION, EASE } from "@/lib/motion";
+import { useReduced, still, cardSlideIn, stampIn, breathe } from "@/lib/motion";
 
 // Slide count lives in lib/onboarding-store so light pages (login back
 // law) can target the CTA slide without bundling the tutorial chunk.
 import { TUTORIAL_TOTAL } from "@/lib/onboarding-store";
 export { TUTORIAL_TOTAL };
 
-type Accent = { hex: string; textHex: string };
-type VisualFn = (accent: Accent) => React.ReactNode;
+type VisualFn = () => React.ReactNode;
 
 interface SlideDef {
   title: string;
@@ -52,171 +63,270 @@ interface SlideDef {
   role?: "bell" | "cta";
 }
 
-// ── The 6 animated scenes ────────────────────────────────────
-// Each is a real component (so useReduced()/motion hooks work); the
-// VisualFn wrapper just instantiates it with the slide's accent.
+// ── canon type ramp for the caption pair under every scene ───
+// canon: caption 23-24px/900 #7A250E (30px on स्वागत), sub 16-17px/600
+// #8A6F5C. The sub is raised to the 18sp body floor (lawConflicts).
+const CAPTION = "text-[24px] font-black text-saffron-700 font-hindi leading-tight";
+const CAPTION_HERO = "text-[30px] font-black text-saffron-700 font-hindi leading-tight";
+const SUBCAPTION = "text-[18px] font-semibold text-softgrey font-hindi leading-relaxed";
 
-// कमाई — mockup 5(1/6): coins settle into the thali, ONE count-up, ONE label.
-function SceneKamai() {
-  const reduced = useReduced();
+// The scene stage — canon composes the illustration straight onto the
+// page field (no tinted canvas box anywhere in frames 4-9).
+function Stage({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex flex-col items-center gap-2">
-      <div className="flex items-end gap-1 h-8" aria-hidden="true">
-        {[0, 1, 2].map((i) => (
-          <motion.span
-            key={i}
-            className="text-[24px] leading-none"
-            initial={reduced ? false : { opacity: 0, y: -14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: DURATION.base, ease: EASE.out, delay: reduced ? 0 : 0.12 * i }}
-          >
-            🪙
-          </motion.span>
-        ))}
-      </div>
-      <span className="text-[40px] leading-none select-none" aria-hidden="true">🪔</span>
-      {/* the money moment — MoneyCount handles reduced-motion internally */}
-      <MoneyCount target={63000} durationMs={1400} className="text-[44px] font-black text-leaf-700" />
-      <span className="text-[18px] font-extrabold text-temple-600 font-hindi">आपकी कमाई</span>
+    <div className="pa-canvas-enter w-full flex flex-col items-center justify-center">
+      {children}
     </div>
   );
 }
 
-// नई बुकिंग — the temple bell (rung once via role:"bell") + the request
-// card sliding in with the full, honest money breakdown.
-function SceneBooking({ accent }: { accent: Accent }) {
+// ── The 6 animated scenes ────────────────────────────────────
+
+// कमाई — canon 4. Brass ₹ coins fall past the rim into a lit thali.
+// Coin geometry is canon's literal set (left/size/glyph-size/duration).
+const CANON_COINS = [
+  { left: "20%", size: 32, glyph: 17, dur: 1.9, delay: 0.0 },
+  { left: "44%", size: 36, glyph: 19, dur: 1.7, delay: 0.45 },
+  { left: "66%", size: 30, glyph: 16, dur: 2.1, delay: 0.9 },
+  { left: "33%", size: 26, glyph: 14, dur: 1.6, delay: 1.35 },
+] as const;
+
+function SceneKamai() {
   const reduced = useReduced();
   return (
     <div className="flex flex-col items-center gap-3">
-      <span className="pa-bell-swing text-[56px] leading-none select-none" aria-hidden="true">🔔</span>
+      {/* canon: CountUp 48px #155C34, 1800ms */}
+      <MoneyCount target={52400} durationMs={1800} className="text-[48px] font-black text-leaf-700" />
+      {/* canon stage: 230×170, coins behind the thali rim */}
+      <div className="relative w-[230px] h-[170px] mt-1.5" aria-hidden="true">
+        {CANON_COINS.map((c, i) => (
+          <motion.span
+            key={i}
+            className="absolute top-0 rounded-full bg-orb-brass text-saffron-700 font-black flex items-center justify-center"
+            style={{
+              left: c.left,
+              width: c.size,
+              height: c.size,
+              fontSize: c.glyph,
+              boxShadow: "0 2px 4px rgba(0,0,0,.22)",
+            }}
+            initial={reduced ? { y: 30, opacity: 1 } : { y: -90, opacity: 0 }}
+            animate={
+              reduced
+                ? { y: 30, opacity: 1 }
+                : { y: [-90, 64], rotate: [0, 200], opacity: [0, 1, 1, 0] }
+            }
+            transition={
+              reduced
+                ? undefined
+                : {
+                    duration: c.dur,
+                    delay: c.delay,
+                    repeat: Infinity,
+                    ease: "easeIn",
+                    opacity: { duration: c.dur, delay: c.delay, repeat: Infinity, times: [0, 0.15, 0.7, 1] },
+                  }
+            }
+          >
+            ₹
+          </motion.span>
+        ))}
+        {/* thali: canon's brass ellipse — inset top-light + grounded drop */}
+        <div className="absolute bottom-[6px] left-1/2 -translate-x-1/2 w-[180px] h-[50px] rounded-full bg-orb-bell shadow-orb-brass" />
+        {/* the darker inner well, canon opacity .55 */}
+        <div
+          className="absolute bottom-[34px] left-1/2 -translate-x-1/2 w-[150px] h-[26px] rounded-full opacity-55"
+          style={{ background: "linear-gradient(#8a6a12,#c99a2a)" }}
+        />
+      </div>
+    </div>
+  );
+}
+
+// नई बुकिंग — canon 5. The temple bell (rung once via role:"bell") over
+// the request card: 2px peach border, 8px sindoor spine, shadow-lift.
+function SceneBooking() {
+  const reduced = useReduced();
+  return (
+    <div className="flex flex-col items-center gap-[18px] w-full">
+      <span className="pa-bell-swing text-[52px] leading-none select-none" aria-hidden="true">🔔</span>
       <motion.div
-        className="w-full max-w-[280px] bg-white rounded-card border border-saffron-100 p-4 flex flex-col gap-1.5"
+        className="w-full bg-card border-2 border-saffron-200 border-l-8 border-l-saffron-500 rounded-cta py-4 px-[18px] flex flex-col gap-1.5 shadow-lift"
         variants={reduced ? still(cardSlideIn) : cardSlideIn}
         initial="hidden"
         animate="show"
       >
         <div className="flex items-center justify-between gap-2">
-          <span className="t-body font-black text-ink font-hindi">गृह प्रवेश पूजा</span>
-          <span className="text-[12px] font-extrabold text-leaf-700 bg-[#D6EEDE] px-2.5 py-1 rounded-full font-hindi">नई</span>
+          <span className="text-[20px] font-black text-saffron-700 font-hindi">गृह प्रवेश पूजा</span>
+          {/* canon badge is 12px — raised to the label floor (lawConflicts) */}
+          <span className="text-[15px] font-extrabold text-saffron-500 bg-saffron-50 px-2.5 py-1 rounded-chip font-hindi shrink-0">नई</span>
         </div>
-        <span className="text-[20px] font-bold font-hindi" style={{ color: accent.textHex }}>दक्षिणा ₹5,600</span>
+        <div className="flex items-center gap-2 text-[18px] font-semibold text-temple-700 font-hindi">
+          <span className="text-[20px] leading-none" aria-hidden="true">📅</span>
+          कल · सुबह 9:00
+        </div>
+        <div className="flex items-center justify-between mt-1 gap-2">
+          <span className="text-[18px] font-semibold text-softgrey font-hindi">दक्षिणा</span>
+          <span className="text-[22px] font-black text-leaf-700 font-hindi">₹5,600</span>
+        </div>
       </motion.div>
     </div>
   );
 }
 
-// आवाज़ — the listening indicator: five bars breathing (scaleY only).
-// Interactive mic wiring lives in the render's `isMic` branch, not here.
+// आवाज़ — canon 7's five voice bars: sindoor → genda → sindoor, 7px wide,
+// 4px radius, 40px stage. Canon animates height; we animate scaleY from
+// the same 10px↔34px ratio so the animation law holds and nothing reflows.
+const BAR_COLORS = ["#B23A1A", "#D95F38", "#F2A02C", "#D95F38", "#B23A1A"] as const;
+const BAR_MIN = 10 / 34;
+
 function SoundWaves() {
   const reduced = useReduced();
-  if (reduced) {
-    return (
-      <span className="flex gap-1 h-6 items-center" aria-hidden="true">
-        {[0, 1, 2, 3, 4].map((i) => (
-          <span key={i} className="w-1.5 h-3 rounded-full bg-gold" />
-        ))}
-      </span>
-    );
-  }
-  const peaks = [0.4, 0.7, 1, 0.7, 0.4];
   return (
-    <span className="flex gap-1 h-6 items-center" aria-hidden="true">
-      {peaks.map((p, i) => (
+    <span className="flex items-end gap-1.5 h-10" aria-hidden="true">
+      {BAR_COLORS.map((hex, i) => (
         <motion.span
           key={i}
-          className="w-1.5 rounded-full bg-gold origin-center"
-          style={{ height: 22 }}
-          animate={{ scaleY: [p, 1, p] }}
-          transition={{ duration: 0.9, repeat: Infinity, ease: "easeInOut", delay: i * 0.1 }}
+          className="w-[7px] rounded-[4px] origin-bottom"
+          style={{ height: 34, backgroundColor: hex }}
+          initial={{ scaleY: reduced ? 0.7 : BAR_MIN }}
+          animate={reduced ? { scaleY: 0.7 } : { scaleY: [BAR_MIN, 1, BAR_MIN] }}
+          transition={reduced ? undefined : { duration: 1, repeat: Infinity, ease: "easeInOut", delay: i * 0.15 }}
         />
       ))}
     </span>
   );
 }
 
-// सो जाओ/जागो — शिष्य's orb dims to sleep (💤) and wakes, on a gentle
-// loop. The REAL interaction (tap the footer orb to mute/unmute) is the
-// CoachSpotlight gate in the render; this is the illustration of it.
-function SceneSleep({ accent }: { accent: Accent }) {
+// canon's Shishya illustration is a component the app does not have yet
+// (see sharedNeeded). Until it lands, the orb is drawn from the same
+// genda radial canon uses for every lit object, at canon's sizes.
+function ShishyaGlyph({ size, asleep = false }: { size: number; asleep?: boolean }) {
+  return (
+    <span
+      className={`relative rounded-full bg-orb-diya flex items-center justify-center shrink-0 ${asleep ? "grayscale opacity-60" : "shadow-glow-genda"}`}
+      style={{ width: size, height: size }}
+      aria-hidden="true"
+    >
+      <span className="leading-none select-none" style={{ fontSize: Math.round(size * 0.5) }}>🙏</span>
+      {asleep && (
+        <span className="absolute -top-1 -right-1 text-[22px] leading-none">💤</span>
+      )}
+    </span>
+  );
+}
+
+// शिष्य जगाएँ — canon 6: asleep orb → floating tap hint → awake orb.
+function SceneSleep() {
   const reduced = useReduced();
   return (
-    <div className="flex flex-col items-center gap-3">
-      <div className="relative w-[96px] h-[96px] flex items-center justify-center">
-        <motion.span
-          className="text-[72px] leading-none select-none"
-          aria-hidden="true"
-          animate={reduced ? undefined : { opacity: [1, 0.35, 1], scale: [1, 0.94, 1] }}
-          transition={reduced ? undefined : { duration: 3, repeat: Infinity, ease: "easeInOut" }}
-        >
-          🙏
-        </motion.span>
-        {!reduced && (
-          <motion.span
-            className="absolute -top-1 right-0 text-[26px]"
-            aria-hidden="true"
-            animate={{ opacity: [0, 1, 0] }}
-            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-          >
-            💤
-          </motion.span>
-        )}
-      </div>
-      <div className="flex items-center gap-2">
-        <span className="rounded-full px-3 py-1 text-[15px] font-bold font-hindi bg-white border border-saffron-100 text-softgrey">😴 सो जाओ</span>
-        <span className="rounded-full px-3 py-1 text-[15px] font-bold font-hindi text-white" style={{ backgroundColor: accent.hex }}>☀️ जागो</span>
-      </div>
+    <div className="flex items-center gap-3.5">
+      <ShishyaGlyph size={76} asleep />
+      <motion.div
+        className="flex flex-col items-center gap-1"
+        animate={reduced ? undefined : { y: [0, -9, 0] }}
+        transition={reduced ? undefined : { duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+        aria-hidden="true"
+      >
+        <span className="text-[30px] leading-none text-saffron-500">👆</span>
+        <span className="text-[26px] leading-none text-gold">→</span>
+      </motion.div>
+      <ShishyaGlyph size={76} />
     </div>
   );
 }
 
-// सत्यापन — the ✓ badge lands like a stamp (scale overshoot + fade).
-function SceneVerify({ accent }: { accent: Accent }) {
+// सत्यापन — canon 8: the night-gradient video frame, gold bezel, REC dot,
+// the silhouette, and the leaf ✓ stamp landing over it.
+function SceneVerify() {
   const reduced = useReduced();
   return (
-    <div className="flex flex-col items-center gap-3">
-      <span className="text-[56px] leading-none" aria-hidden="true">🪪</span>
+    <div
+      className="relative w-[220px] h-[164px] rounded-cta bg-night overflow-hidden border-3 border-gold flex items-end justify-center"
+      style={{ boxShadow: "0 10px 24px rgba(42,27,61,.35)" }}
+      aria-hidden="true"
+    >
+      {/* silhouette: head + shoulders, canon's translucent chandan */}
+      <div
+        className="absolute top-[26px] left-1/2 -translate-x-1/2 w-[52px] h-[52px] rounded-full"
+        style={{ background: "rgba(255,246,233,.28)" }}
+      />
+      <div
+        className="w-[118px] h-[66px]"
+        style={{ borderRadius: "60px 60px 0 0", background: "rgba(255,246,233,.28)" }}
+      />
+      {/* REC */}
+      <span className="absolute top-2.5 left-3 text-[15px] font-extrabold flex items-center gap-1" style={{ color: "#FF7B6B" }}>
+        <span className="w-2 h-2 rounded-full" style={{ backgroundColor: "#FF3B30" }} />
+        REC
+      </span>
+      {/* the stamp */}
       <motion.span
-        className="rounded-full px-5 py-2 text-[18px] font-bold text-white font-hindi"
-        style={{ backgroundColor: accent.hex }}
+        className="absolute top-1/2 left-1/2 w-[78px] h-[78px] rounded-full bg-leaf-500 border-4 border-chandan flex items-center justify-center"
+        style={{ x: "-50%", y: "-50%", boxShadow: "0 8px 20px rgba(0,0,0,.4)" }}
         variants={reduced ? still(stampIn) : stampIn}
         initial="hidden"
         animate="show"
       >
-        ✓ प्रमाणित
+        <svg width="46" height="46" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M4.5 12.5l5 5 10-11" stroke="#FFF6E9" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
       </motion.span>
     </div>
   );
 }
 
-// स्वागत — शिष्य's orb breathing, a warm close before the register CTA.
+// स्वागत — canon 9: the real Diya at 96, with the marigold burst behind.
+const CANON_BURST = [
+  { x: -90, y: -60, size: 20, dur: 1.8, delay: 0.0, glyph: "🌼" },
+  { x: 90, y: -55, size: 18, dur: 1.8, delay: 0.3, glyph: "🌸" },
+  { x: -110, y: 30, size: 16, dur: 2.0, delay: 0.6, glyph: "🌼" },
+  { x: 110, y: 40, size: 20, dur: 2.0, delay: 0.9, glyph: "🌸" },
+  { x: 0, y: -90, size: 18, dur: 1.9, delay: 1.2, glyph: "🌼" },
+  { x: -60, y: 70, size: 15, dur: 2.1, delay: 1.5, glyph: "🌸" },
+] as const;
+
 function SceneWelcome() {
   const reduced = useReduced();
   return (
-    <div className="flex flex-col items-center gap-2">
+    <div className="relative flex items-center justify-center" aria-hidden="true">
+      {!reduced && (
+        <span className="absolute left-1/2 top-1/2 w-0 h-0">
+          {CANON_BURST.map((p, i) => (
+            <motion.span
+              key={i}
+              className="absolute leading-none select-none"
+              style={{ fontSize: p.size }}
+              initial={{ x: 0, y: 0, scale: 0.4, rotate: 0, opacity: 1 }}
+              animate={{ x: p.x, y: p.y, scale: 1.1, rotate: 180, opacity: 0 }}
+              transition={{ duration: p.dur, delay: p.delay, repeat: Infinity, ease: "easeOut" }}
+            >
+              {p.glyph}
+            </motion.span>
+          ))}
+        </span>
+      )}
       <motion.span
-        className="text-[84px] leading-none select-none"
-        aria-hidden="true"
+        className="relative z-[2]"
         variants={reduced ? still(breathe) : breathe}
         initial={false}
         animate="show"
       >
-        🙏
+        <Diya size={96} lit />
       </motion.span>
-      {/* mockup 5(6/6): the closing phrase */}
-      <span className="text-[20px] font-black text-temple-600 font-hindi">अब आपकी बारी! 🎉</span>
     </div>
   );
 }
 
-// ── The deck — कमाई-first emotional order. Narrations VERBATIM from
+// ── The deck — canon 4→9 order. Narrations VERBATIM from
 // strings.tutorial (spoken explanation); on-screen text stays ≤10 words.
 function slideDefs(): SlideDef[] {
   return [
     { title: t("tutorial.slide2Title"), narration: t("tutorial.slide2"), visual: () => <SceneKamai /> },
-    { title: t("tutorial.slide6Title"), narration: t("tutorial.slide6"), visual: (a) => <SceneBooking accent={a} />, role: "bell" },
+    { title: t("tutorial.slide6Title"), narration: t("tutorial.slide6"), visual: () => <SceneBooking />, role: "bell" },
+    { title: t("tutorial.slide3Title"), narration: t("tutorial.slide3"), visual: () => <SceneSleep />, interactive: "mute" },
     { title: t("tutorial.slide5Title"), narration: t("tutorial.slide5"), visual: null, interactive: "mic" },
-    { title: t("tutorial.slide3Title"), narration: t("tutorial.slide3"), visual: (a) => <SceneSleep accent={a} />, interactive: "mute" },
-    { title: t("tutorial.slide12Title"), narration: t("tutorial.slide12"), visual: (a) => <SceneVerify accent={a} /> },
+    { title: t("tutorial.slide12Title"), narration: t("tutorial.slide12"), visual: () => <SceneVerify /> },
     { title: t("tutorial.slide14Title"), narration: `${t("tutorial.slide14")} ${t("tutorial.rewatchNote")}`, visual: () => <SceneWelcome />, role: "cta" },
   ];
 }
@@ -526,14 +636,14 @@ export default function TutorialV2({
         onNext={onRegister}
         nextLabel={t("tutorial.registerNow")}
         nextBtnRef={ctaBtnRef}
-        accentHex={accentFor(idx).hex}
+        hero
       >
-        <div className="flex flex-col items-center gap-4 px-2 text-center">
-          <SlideCanvas accentIndex={idx}>{def.visual?.(accentFor(idx))}</SlideCanvas>
-          <h2 className="t-title font-bold text-temple-600 font-hindi">{def.title}</h2>
-          <p className="t-body text-ink font-hindi leading-relaxed">{def.narration}</p>
+        <div className="flex flex-col items-center gap-4 text-center">
+          <Stage>{def.visual?.()}</Stage>
+          <h2 className={CAPTION_HERO}>{def.title}</h2>
+          <p className={SUBCAPTION}>{def.narration}</p>
           {stay ? (
-            <p className="t-body text-softgrey font-hindi">{t("tutorial.laterLine")}</p>
+            <p className={SUBCAPTION}>{t("tutorial.laterLine")}</p>
           ) : (
             <Button variant="ghost" size="md" onClick={() => { setStay(true); onLater(); }}>
               {t("tutorial.later")}
@@ -553,51 +663,30 @@ export default function TutorialV2({
       onNext={nextDisabled ? () => { } : goNext}
       nextLabel={nextDisabled ? `⏳ ${t("coach.tryIt")}` : t("tutorial.next")}
       nextDisabled={nextDisabled}
-      accentHex={accentFor(idx).hex}
     >
-      <div className="flex flex-col items-center gap-3 px-2 text-center">
-        {/* Visual zone: the festive slide canvas (accent rotates idx % 5) */}
-        <div className="relative w-full shrink-0">
-          <SlideCanvas accentIndex={idx}>
+      <div className="flex flex-col items-center gap-4 text-center">
+        {/* Visual zone: canon composes straight onto the page field */}
+        <div className="relative w-full shrink-0 flex justify-center">
+          <Stage>
             {isMic ? (
-              <div className="w-full max-w-[300px] flex flex-col items-center gap-3 bg-white rounded-card border border-saffron-100 p-5">
-                <span className="text-[64px]" aria-hidden="true">🗣️</span>
+              // आवाज़ — canon 7: शिष्य orb, the five voice bars, and the
+              // 78px sindoor mic disc. The disc IS the tap target for the
+              // permission ladder / practice (78px ≫ the 52px floor).
+              <div className="w-full flex flex-col items-center gap-4">
+                <ShishyaGlyph size={82} />
                 {micState === "denied" ? (
-                  // Browser-level DENY (confirmed AFTER an attempt): show
-                  // the site-settings recovery copy and a retry that goes
-                  // straight to getUserMedia inside the tap.
-                  <>
-                    <span className="t-body text-softgrey font-hindi text-center">{t("tutorial.slide5Denied")}</span>
-                    <span className="t-body font-bold text-temple-600 font-hindi text-center">{t("tutorial.slide5Blocked")}</span>
+                  <div className="w-full max-w-[300px] flex flex-col items-center gap-3">
+                    <span className={SUBCAPTION}>{t("tutorial.slide5Denied")}</span>
+                    <span className="text-[18px] font-bold text-saffron-700 font-hindi">{t("tutorial.slide5Blocked")}</span>
                     <Button variant="secondary" size="md" fullWidth onClick={askMic}>
                       {t("tutorial.slide5Retry")}
                     </Button>
-                  </>
-                ) : micState === "idle" || micState === "asking" ? (
-                  micPerm === "granted" ? (
-                    // Permission already earned at परिचय — pure practice,
-                    // no duplicate prompt anywhere.
-                    <Button
-                      variant="primary"
-                      size="md"
-                      fullWidth
-                      onClick={() => {
-                        setMicState("listening");
-                        void voiceInput.start();
-                      }}
-                    >
-                      {t("tutorial.slide5Again")}
-                    </Button>
-                  ) : (
-                    <Button variant="primary" size="md" fullWidth onClick={askMic} loading={micState === "asking"}>
-                      {t("tutorial.slide5Button")}
-                    </Button>
-                  )
+                  </div>
                 ) : micState === "listening" ? (
                   <>
                     <SoundWaves />
                     <div ref={pillRef}>
-                      <span className="bg-gold/15 border border-gold text-temple-600 text-[18px] font-semibold font-hindi rounded-full px-4 py-2">
+                      <span className="bg-gold/15 border border-gold text-saffron-700 text-[18px] font-semibold font-hindi rounded-chip px-4 py-2">
                         {t("pratham.practiceListening")}
                       </span>
                     </div>
@@ -609,18 +698,46 @@ export default function TutorialV2({
                       onDone={() => { /* resolves when the listen completes */ }}
                     />
                   </>
-                ) : (
+                ) : micState === "done" ? (
                   <span className="text-[20px] font-bold text-leaf-700 font-hindi">✓ {t("tutorial.slide5Practice")}</span>
+                ) : (
+                  <>
+                    <SoundWaves />
+                    <button
+                      onClick={askMic}
+                      disabled={micState === "asking"}
+                      aria-label={micPerm === "granted" ? t("tutorial.slide5Again") : t("tutorial.slide5Button")}
+                      className="relative w-[78px] h-[78px] rounded-full bg-saffron-500 flex items-center justify-center active:scale-95 transition-transform disabled:opacity-70"
+                      style={{ boxShadow: "0 8px 20px rgba(178,58,26,.35)" }}
+                    >
+                      {/* canon's g-glowring, as a transform/opacity ring */}
+                      <motion.span
+                        className="absolute inset-0 rounded-full pointer-events-none"
+                        style={{ border: "2px solid rgba(231,181,74,.55)" }}
+                        initial={{ scale: 1, opacity: 0 }}
+                        animate={{ scale: [1, 1.36], opacity: [0.55, 0] }}
+                        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                        aria-hidden="true"
+                      />
+                      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <rect x="9" y="2.5" width="6" height="11" rx="3" fill="#FFF6E9" />
+                        <path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7" stroke="#FFF6E9" strokeWidth="2" strokeLinecap="round" />
+                      </svg>
+                    </button>
+                    <span className="text-[18px] font-semibold text-softgrey font-hindi">
+                      {micPerm === "granted" ? t("tutorial.slide5Again") : t("tutorial.slide5Button")}
+                    </span>
+                  </>
                 )}
               </div>
             ) : (
-              def.visual?.(accentFor(idx))
+              def.visual?.()
             )}
-          </SlideCanvas>
+          </Stage>
           {burst && <PetalBurst onEnd={() => setBurst(false)} />}
         </div>
-        <h2 className="t-title font-bold text-temple-600 font-hindi">{def.title}</h2>
-        <p className="t-body text-ink font-hindi leading-relaxed">{def.narration}</p>
+        <h2 className={CAPTION}>{def.title}</h2>
+        <p className={SUBCAPTION}>{def.narration}</p>
 
         {/* Arrow + chip pointing at the NATIVE permission popup (आवाज़) */}
         {pointerUp && <PopupPointer />}

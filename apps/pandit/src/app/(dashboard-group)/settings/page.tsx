@@ -5,7 +5,6 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { t } from "@/lib/i18n";
 import { Header } from "@/components/ui/Header";
-import { Card } from "@/components/ui/Card";
 import { BottomNav } from "@/components/ui/BottomNav";
 import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
 import { useVoice } from "@/hooks/useVoice";
@@ -13,9 +12,17 @@ import { playBell } from "@/lib/sounds";
 import { useSafeOnboardingStore } from "@/lib/stores/ssr-safe-stores";
 import { purgeUserData } from "@/lib/purgeUserData";
 
-// Mockup frame 22 row grammar: #FFFDF8 card, 1px sand border r16, emoji
-// in a saffron-50 r13 tile, 18/800 label, sand chevron; logout wears the
-// red tint. Pure presentation — each row keeps its own handler/href.
+// CANON frame 30 (artboard 22 · सेटिंग) row grammar, read literal-for-literal
+// off design/canon: #FFFDF8 fill, 1.5px #F0DFC4 hairline, r16, padding
+// 15px/16px, gap 14px; a 46px r13 #FDEEE7 tile holding a 26px sindoor glyph;
+// an 18/800 #341A13 label; a 24px #C9BBA6 chevron. Canon draws NO shadow on
+// these rows — the hairline alone separates them from the cream page.
+// The logout row wears the red tint (#FBE7E3 / #E7B8AF / #fff tile) with a
+// 6px top gap, and canon gives it NO chevron — it is a terminal action, not
+// a drill-in. Pure presentation; each row keeps its own handler/href.
+export const SETTINGS_ROW_BASE =
+  "rounded-[16px] px-4 py-[15px] min-h-[76px] flex items-center gap-[14px] active:scale-[0.97] transition-transform focus-visible:ring-4 focus-visible:ring-saffron-200 focus:outline-none";
+
 function SettingsRow({
   emoji,
   label,
@@ -26,33 +33,45 @@ function SettingsRow({
 }: {
   emoji: string;
   label: string;
-  /** Canon frame 22 shows the row's CURRENT setting beside the chevron
+  /** Canon frame 30 shows the row's CURRENT setting beside the chevron
    *  (e.g. भाषा → हिन्दी). Only pass a value that is actually true. */
   value?: string;
   danger?: boolean;
   onClick?: () => void;
   href?: string;
 }) {
-  const cls = `rounded-[16px] px-4 min-h-[64px] flex items-center gap-3 shadow-card active:scale-[0.97] transition-transform focus-visible:ring-4 focus-visible:ring-saffron-200 focus:outline-none ${
-    danger ? "bg-[#FBE7E3] border border-[#E7B8AF]" : "bg-card border border-sand"
+  const cls = `${SETTINGS_ROW_BASE} ${
+    danger
+      ? "bg-[#FBE7E3] border-[1.5px] border-[#E7B8AF] mt-[6px]"
+      : "bg-card border-[1.5px] border-sand"
   }`;
   const inner = (
     <>
       <span
-        className={`w-11 h-11 rounded-[13px] flex items-center justify-center text-[22px] shrink-0 select-none ${
+        className={`w-[46px] h-[46px] rounded-[13px] flex items-center justify-center text-[26px] shrink-0 select-none ${
           danger ? "bg-white" : "bg-saffron-50"
         }`}
         aria-hidden="true"
       >
         {emoji}
       </span>
-      <span className={`flex-1 text-left text-[18px] font-extrabold font-hindi ${danger ? "text-danger" : "text-ink"}`}>
+      <span
+        className={`flex-1 text-left text-[18px] font-extrabold font-hindi ${
+          danger ? "text-danger" : "text-temple-700"
+        }`}
+      >
         {label}
       </span>
       {value && (
-        <span className="text-[15px] font-extrabold text-softgrey font-hindi shrink-0">{value}</span>
+        // CANON 15px — raised to the 18sp floor (standing law outranks canon).
+        <span className="text-[18px] font-extrabold text-softgrey font-hindi shrink-0">{value}</span>
       )}
-      <span className="text-[#C9BBA6] text-[22px]" aria-hidden="true">›</span>
+      {/* canon gives the terminal (danger) row no chevron */}
+      {!danger && (
+        <span className="text-sand-400 text-[24px] leading-none shrink-0" aria-hidden="true">
+          ›
+        </span>
+      )}
     </>
   );
   if (href) {
@@ -99,7 +118,8 @@ export default function SettingsPage() {
         onBack={() => router.push("/home")}
       />
 
-      <main className="flex-1 overflow-y-auto px-4 pt-3 pb-24 flex flex-col gap-3 page-enter">
+      {/* canon list well: padding 10px 16px 16px, gap 11px (pb keeps BottomNav clear) */}
+      <main className="flex-1 overflow-y-auto px-4 pt-[10px] pb-24 flex flex-col gap-[11px] page-enter">
         <Narrate text={t("settingsScreen.intro")} />
 
         {/* Row: profile view */}
@@ -125,33 +145,46 @@ export default function SettingsPage() {
           }}
         />
 
-        <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-4">
-          {/* घंटी की आवाज़ toggle */}
-          <div className="flex items-center justify-between min-h-[56px] py-2 gap-4">
-            <div className="flex flex-col gap-1 flex-grow">
-              <span className="text-[18px] font-bold text-ink leading-tight font-hindi">
-                {t("settingsScreen.soundLabel")}
-              </span>
-              <span className="text-[14px] text-softgrey font-hindi leading-snug">
-                {t("settingsScreen.soundDesc")}
-              </span>
-            </div>
-            <button
-              onClick={handleSoundToggle}
-              className={`relative inline-flex h-9 w-[72px] min-h-[56px] min-w-[72px] items-center rounded-full transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-saffron-200 ${
-                soundEnabled ? "bg-saffron-500" : "bg-sand-400"
+        {/* घंटी की आवाज़ — canon frame 30 carries its toggle INSIDE the row
+            grammar (icon tile · label · 52×30 r999 track, #1E7A46 when on,
+            24px white knob inset 3px). Same chrome as every other row. */}
+        <div className={`${SETTINGS_ROW_BASE} bg-card border-[1.5px] border-sand`}>
+          <span
+            className="w-[46px] h-[46px] rounded-[13px] bg-saffron-50 flex items-center justify-center text-[26px] shrink-0 select-none"
+            aria-hidden="true"
+          >
+            🔔
+          </span>
+          <span className="flex-1 flex flex-col gap-[2px] text-left">
+            <span className="text-[18px] font-extrabold text-temple-700 leading-tight font-hindi">
+              {t("settingsScreen.soundLabel")}
+            </span>
+            {/* canon sub-lines are 14px; held at the 18sp floor by standing law */}
+            <span className="text-[18px] text-softgrey font-hindi leading-snug">
+              {t("settingsScreen.soundDesc")}
+            </span>
+          </span>
+          <button
+            type="button"
+            onClick={handleSoundToggle}
+            role="switch"
+            aria-checked={soundEnabled}
+            className="shrink-0 min-h-[52px] min-w-[52px] flex items-center justify-center rounded-[13px] focus:outline-none focus-visible:ring-4 focus-visible:ring-saffron-200"
+            aria-label="Toggle bell sounds"
+          >
+            <span
+              className={`relative block h-[30px] w-[52px] rounded-[999px] transition-colors duration-300 ${
+                soundEnabled ? "bg-leaf-500" : "bg-sand-400"
               }`}
-              style={{ minHeight: "56px" }}
-              aria-label="Toggle bell sounds"
             >
               <span
-                className={`inline-block h-10 w-10 rounded-full bg-white shadow-md transform transition-transform duration-300 ${
-                  soundEnabled ? "translate-x-7" : "translate-x-1"
+                className={`absolute top-[3px] left-[3px] h-[24px] w-[24px] rounded-full bg-white transition-transform duration-300 motion-reduce:transition-none ${
+                  soundEnabled ? "translate-x-[22px]" : "translate-x-0"
                 }`}
               />
-            </button>
-          </div>
-        </Card>
+            </span>
+          </button>
+        </div>
 
         {/* Row: about शिष्य */}
         <SettingsRow
@@ -171,8 +204,10 @@ export default function SettingsPage() {
 
         {/* Row: logout (confirm) */}
         {confirmLogout ? (
-          <Card className="p-5 bg-white border border-danger/30 flex flex-col gap-3">
-            <span className="text-[18px] font-bold text-ink font-hindi">{t("settingsRows.logoutConfirm")}</span>
+          <div className="mt-[6px] rounded-[16px] p-4 bg-[#FBE7E3] border-[1.5px] border-[#E7B8AF] flex flex-col gap-3">
+            <span className="text-[18px] font-extrabold text-danger font-hindi">
+              {t("settingsRows.logoutConfirm")}
+            </span>
             <div className="flex gap-3">
               <button
                 onClick={() => {
@@ -183,18 +218,18 @@ export default function SettingsPage() {
                   console.info("[logout] cleared keys:", cleared.join(", "));
                   router.push("/login");
                 }}
-                className="flex-1 min-h-[56px] bg-danger text-white rounded-btn text-[18px] font-bold active:scale-[0.97] transition-transform"
+                className="flex-1 min-h-[56px] bg-danger text-white rounded-cta text-[18px] font-extrabold font-hindi active:scale-[0.97] transition-transform"
               >
                 {t("common.yes")}
               </button>
               <button
                 onClick={() => setConfirmLogout(false)}
-                className="flex-1 min-h-[56px] bg-white border border-saffron-200 text-ink rounded-btn text-[18px] font-bold active:scale-[0.97] transition-transform"
+                className="flex-1 min-h-[56px] bg-white border-[1.5px] border-[#E7B8AF] text-temple-700 rounded-cta text-[18px] font-extrabold font-hindi active:scale-[0.97] transition-transform"
               >
                 {t("common.no")}
               </button>
             </div>
-          </Card>
+          </div>
         ) : (
           <SettingsRow danger emoji="🚪" label={t("settingsRows.logout")} onClick={() => setConfirmLogout(true)} />
         )}
@@ -209,7 +244,7 @@ export default function SettingsPage() {
           />
           <div className="fixed bottom-0 left-0 right-0 max-w-[430px] mx-auto bg-white rounded-t-[28px] p-6 z-50 flex flex-col items-center gap-4 shadow-card">
             <ShishyaOrb />
-            <h2 className="text-[22px] font-bold text-temple-600 font-hindi text-center">
+            <h2 className="text-[24px] font-extrabold text-temple-700 font-hindi text-center">
               {t("shishya.aboutTitle")}
             </h2>
             <p className="text-[18px] text-ink font-hindi text-center leading-relaxed">
@@ -220,7 +255,7 @@ export default function SettingsPage() {
             </p>
             <button
               onClick={() => setAboutShishya(false)}
-              className="w-full min-h-[56px] bg-saffron-500 text-white rounded-btn text-[18px] font-bold font-hindi active:scale-[0.97] transition-transform"
+              className="w-full min-h-[56px] bg-sindoor text-white rounded-cta text-[18px] font-extrabold font-hindi shadow-btn active:scale-[0.97] transition-transform"
             >
               {t("coach.gotIt")}
             </button>
