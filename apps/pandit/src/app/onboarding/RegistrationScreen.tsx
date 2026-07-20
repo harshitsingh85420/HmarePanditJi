@@ -124,8 +124,9 @@ export default function RegistrationScreen({ onBack }: { onBack: () => void }) {
       {/* S3: the narration ends on the create-account instruction */}
       <Narrate text={narration} highlightRef={submitRef} />
 
-      <main className="flex-1 min-h-0 overflow-y-auto px-4 pt-5 flex flex-col gap-4">
-        {/* Mockup frame 6 hero: 28/900 + soft how-line */}
+      {/* CANON frame 6 column: padding 16px 22px 18px, gap 18px */}
+      <main className="flex-1 min-h-0 overflow-y-auto px-[22px] pt-4 pb-[18px] flex flex-col gap-[18px]">
+        {/* CANON hero: 28/900 #341A13 + 16/600 #8A6F5C, 4px apart */}
         <div className="flex flex-col gap-1 text-center">
           <h2 className="text-[28px] font-black text-temple-700 font-hindi leading-snug">
             {t("registration.heroTitle")}
@@ -135,39 +136,49 @@ export default function RegistrationScreen({ onBack }: { onBack: () => void }) {
           </p>
         </div>
 
-        {/* Mockup frame 6: each field is its OWN card with an emoji tile */}
-        <Card className="p-4 rounded-[20px] border-2 border-sand flex flex-row items-start gap-3">
-          <span className="w-12 h-12 rounded-[12px] bg-saffron-50 flex items-center justify-center text-[26px] shrink-0 select-none mt-1" aria-hidden="true">
-            🙏
-          </span>
-          <div className="flex-1 min-w-0">
-            <VoiceField
-              label={t("onboarding.step1Title")}
-              promptText={t("onboarding.step1Voice")}
-              value={name}
-              onChange={setName}
-              mode="text"
-              required
-              placeholder="पंडित जी का नाम लिखें"
-            />
-          </div>
-        </Card>
-        <Card className="p-4 rounded-[20px] border-2 border-sand flex flex-row items-start gap-3">
-          <span className="w-12 h-12 rounded-[12px] bg-saffron-50 flex items-center justify-center text-[26px] shrink-0 select-none mt-1" aria-hidden="true">
-            🏙️
-          </span>
-          <div className="flex-1 min-w-0">
-            <VoiceField
-              label={t("registration.cityLabel")}
-              promptText={t("onboarding.step2Voice")}
-              value={city}
-              onChange={setCity}
-              mode="text"
-              required
-              placeholder={t("registration.cityPlaceholder")}
-            />
-          </div>
-        </Card>
+        {/* CANON field stack: its own column, gap 14px.
+            Each field card in frame 6 is deliberately NOT the raised
+            surface Card default — canon draws it FLAT #FFFDF8, radius 20,
+            padding 15/16, and lays it with the SOFT shadow
+            (0 4px 12px rgba(90,46,32,.08)) rather than the 6px/16px lift.
+            The leading glyph is a bare 30px emoji: canon gives it no tile,
+            no fill, no radius — the tile the app had drawn was inventing
+            a chip that does not exist on the artboard, and it also pushed
+            the row off centre (canon centres the row, not its top edge). */}
+        <div className="flex flex-col gap-[14px] flex-1">
+          <Card className="bg-none bg-card shadow-soft py-[15px] px-4 rounded-[20px] border-2 border-sand flex flex-row items-center gap-[14px]">
+            <span className="text-[30px] leading-none shrink-0 select-none" aria-hidden="true">
+              🙏
+            </span>
+            <div className="flex-1 min-w-0">
+              <VoiceField
+                label={t("onboarding.step1Title")}
+                promptText={t("onboarding.step1Voice")}
+                value={name}
+                onChange={setName}
+                mode="text"
+                required
+                placeholder="पंडित जी का नाम लिखें"
+              />
+            </div>
+          </Card>
+          <Card className="bg-none bg-card shadow-soft py-[15px] px-4 rounded-[20px] border-2 border-sand flex flex-row items-center gap-[14px]">
+            <span className="text-[30px] leading-none shrink-0 select-none" aria-hidden="true">
+              🏙️
+            </span>
+            <div className="flex-1 min-w-0">
+              <VoiceField
+                label={t("registration.cityLabel")}
+                promptText={t("onboarding.step2Voice")}
+                value={city}
+                onChange={setCity}
+                mode="text"
+                required
+                placeholder={t("registration.cityPlaceholder")}
+              />
+            </div>
+          </Card>
+        </div>
 
         {errorMsg && (
           <div className="px-4 py-3 bg-red-50 rounded-card border-2 border-danger/30">
