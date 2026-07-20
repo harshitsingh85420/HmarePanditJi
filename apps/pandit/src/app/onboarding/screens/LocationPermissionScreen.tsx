@@ -42,6 +42,8 @@ export default function LocationPermissionScreen({
   // a voice-YES only pulses the button and asks for one tap.
   const [pulse, setPulse] = useState(false);
   const [pointerUp, setPointerUp] = useState(false);
+  // WAVE 2 CANDIDATE — canon frame 2 detected-city confirm
+  const [detected, setDetected] = useState<{ city: string; state: string } | null>(null);
   // S3: the narration says "नीचे 'अनुमति दें' दबाइए" — THAT button glows
   const allowBtnRef = useRef<HTMLDivElement | null>(null);
 
@@ -95,7 +97,11 @@ export default function LocationPermissionScreen({
           // Q7: the grant's async settle navigates seconds after the tap —
           // carry the tap's intent so the phase change isn't a ⚠ tell
           voiceController.stopSpeech("user-flow:location-grant");
-          onGranted(city, stateStr);
+          // WAVE 2 CANDIDATE (canon frame 2): don't silently accept a
+          // reverse-geocoded city — SHOW it and let the pandit confirm.
+          // A wrong city silently chosen is very hard to notice later.
+          setDetected({ city: city, state: stateStr });
+          voiceController.speak(`क्या आप ${city} में हैं?`);
         } catch {
           setError(t("pratham.locationError"));
           setTimeout(() => onDenied(), 1500);
@@ -121,6 +127,70 @@ export default function LocationPermissionScreen({
     // spoken guidance WHILE the native popup is up
     voiceController.speak(t("perm.pressAllowVoice"));
   };
+
+  // WAVE 2 CANDIDATE — canon frame 2: confirm the detected city before
+  // committing it. "यही सही है" proceeds exactly as the old auto-path did;
+  // "जगह बदलें" falls through to the manual picker (onDenied), which is
+  // the same escape the screen already offered.
+  if (detected) {
+    return (
+      <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
+        <header className="shrink-0">
+          <div className="h-[60px] bg-gradient-to-r from-genda to-saffron-500 px-4 flex items-center">
+            <h1 className="font-display text-[22px] text-white flex-1 text-center">
+              {t("welcome.titleShort")}
+            </h1>
+          </div>
+          <Toran tone="onSindoor" className="bg-saffron-500" />
+        </header>
+
+        <main className="flex-1 overflow-y-auto px-4 pt-6 pb-6 flex flex-col items-center gap-5">
+          <span className="text-[52px] leading-none select-none" aria-hidden="true">📍</span>
+          <h2 className="text-[28px] font-black text-temple-700 font-hindi text-center leading-snug">
+            {t("pratham.locationTitle")}
+          </h2>
+
+          {/* canon frame 2: the detected place, shown plainly */}
+          <div className="w-full bg-saffron-50 border-2 border-saffron-200 rounded-[18px] p-5 flex items-center gap-3">
+            <span className="text-[26px] leading-none select-none" aria-hidden="true">🏙️</span>
+            <span className="flex flex-col">
+              <span className="text-[22px] font-black text-saffron-700 font-hindi leading-tight">
+                {detected.city}
+              </span>
+              <span className="text-[15px] font-semibold text-softgrey font-hindi">
+                {detected.state}
+              </span>
+            </span>
+          </div>
+
+          <button
+            onClick={() => {
+              voiceController.stopSpeech("user-flow:city-change");
+              onDenied();
+            }}
+            className="min-h-[56px] px-6 text-softgrey text-[17px] font-bold font-hindi underline underline-offset-4 active:scale-[0.97] transition-transform"
+          >
+            जगह बदलें
+          </button>
+        </main>
+
+        <footer className="shrink-0 px-4 py-3 bg-cream/95 backdrop-blur border-t border-saffron-100 flex items-end gap-3">
+          <div className="flex-1">
+            <button
+              onClick={() => {
+                voiceController.stopSpeech("user-flow:city-confirm");
+                onGranted(detected.city, detected.state);
+              }}
+              className="w-full min-h-[64px] bg-saffron-500 text-[#FFF3EA] rounded-btn text-[21px] font-extrabold shadow-btn active:scale-[0.97] transition-transform font-hindi"
+            >
+              ✓ यही सही है
+            </button>
+          </div>
+          <ShishyaOrb />
+        </footer>
+      </div>
+    );
+  }
 
   return (
     <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
