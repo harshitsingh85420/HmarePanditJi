@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+@keyframes sh-breathe { 0%,100%{ box-shadow:0 0 0 0 rgba(231,181,74,0), 0 6px 16px rgba(178,58,26,.35);} 50%{ box-shadow:0 0 24px 7px rgba(231,181,74,.5), 0 6px 16px rgba(178,58,26,.35);} }
+@keyframes sh-listen { 0%,100%{ box-shadow:0 0 0 3px #FFF6E9, 0 0 0 7px #E7B54A, 0 6px 16px rgba(178,58,26,.35);} 50%{ box-shadow:0 0 0 3px #FFF6E9, 0 0 0 11px rgba(231,181,74,.35), 0 6px 16px rgba(178,58,26,.35);} }
+@keyframes sh-ripple { 0%{ transform:scale(1); opacity:.55;} 100%{ transform:scale(2); opacity:0;} }
+@keyframes sh-ribbon { 0%{ opacity:0; transform:translateY(6px);} 100%{ opacity:1; transform:translateY(0);} }
+@media (prefers-reduced-motion: reduce){ *{ animation:none !important; } }
+</style>
+</helmet>
+<div style="display:flex; flex-direction:column; align-items:center; font-family:'Noto Sans Devanagari',sans-serif;">
+  <sc-if value="{{ showRibbon }}" hint-placeholder-val="{{ false }}">
+    <div style="max-width:250px; margin-bottom:9px; position:relative; background:#B23A1A; color:#FFF6E9; font-weight:600; font-size:14px; line-height:1.35; padding:9px 15px; border-radius:16px; box-shadow:0 6px 16px rgba(178,58,26,.3); text-align:center; animation:sh-ribbon .4s ease-out;">
+      {{ ribbonText }}
+      <div style="position:absolute; bottom:-5px; left:50%; transform:translateX(-50%) rotate(45deg); width:12px; height:12px; background:#B23A1A; border-radius:2px;"></div>
+    </div>
+  </sc-if>
+  <button style="position:relative; width:{{dim}}; height:{{dim}}; border-radius:50%; border:4px solid {{bd}}; background:{{bg}}; filter:{{filt}}; display:flex; align-items:center; justify-content:center; cursor:pointer; animation:{{anim}}; -webkit-tap-highlight-color:transparent; padding:0;">
+    <sc-if value="{{ isSpeaking }}" hint-placeholder-val="{{ false }}">
+      <span style="position:absolute; inset:-4px; border-radius:50%; border:3px solid rgba(231,181,74,.55); animation:sh-ripple 1.7s ease-out infinite; pointer-events:none;"></span>
+      <span style="position:absolute; inset:-4px; border-radius:50%; border:3px solid rgba(231,181,74,.55); animation:sh-ripple 1.7s ease-out .85s infinite; pointer-events:none;"></span>
+    </sc-if>
+    <span style="font-size:{{glyph}}; line-height:1; filter:drop-shadow(0 1px 1px rgba(0,0,0,.15));">🙏</span>
+    <sc-if value="{{ isAsleep }}" hint-placeholder-val="{{ false }}">
+      <span style="position:absolute; top:-3px; right:-3px; font-size:17px;">💤</span>
+    </sc-if>
+  </button>
+  <sc-if value="{{ showName }}" hint-placeholder-val="{{ true }}">
+    <span style="margin-top:5px; font-weight:800; font-size:{{nameSize}}; color:{{nameColor}}; letter-spacing:.3px;">शिष्य</span>
+  </sc-if>
+  <sc-if value="{{ isAsleep }}" hint-placeholder-val="{{ false }}">
+    <span style="font-size:11px; font-weight:600; color:#8A6F5C; margin-top:1px;">छूकर जगाएँ</span>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:280,&quot;height&quot;:220},&quot;state&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;awake&quot;,&quot;speaking&quot;,&quot;listening&quot;,&quot;asleep&quot;],&quot;default&quot;:&quot;speaking&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;say&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;नमस्ते पंडित जी 🙏&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;size&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:66,&quot;tsType&quot;:&quot;number&quot;},&quot;name&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  renderVals(){
+    const size = this.props.size ?? 66;
+    const state = this.props.state ?? 'awake';
+    const isAsleep = state === 'asleep';
+    const isSpeaking = state === 'speaking';
+    const isListening = state === 'listening';
+    const say = this.props.say ?? '';
+    const ribbonText = say || (isListening ? 'सुन रहा हूँ…' : '');
+    return {
+      dim: size + 'px',
+      glyph: Math.round(size * 0.46) + 'px',
+      bg: isAsleep ? '#CFC6B8' : '#B23A1A',
+      bd: isAsleep ? '#B9AE9C' : '#E7B54A',
+      filt: isAsleep ? 'grayscale(1)' : 'none',
+      anim: isListening ? 'sh-listen 1.4s ease-in-out infinite' : (isAsleep ? 'none' : 'sh-breathe 2.6s ease-in-out infinite'),
+      isSpeaking, isAsleep,
+      ribbonText, showRibbon: !isAsleep && !!ribbonText,
+      showName: (this.props.name ?? true),
+      nameSize: (size >= 100 ? 18 : 12) + 'px',
+      nameColor: isAsleep ? '#8A6F5C' : '#B23A1A',
+    };
+  }
+}
+</script>
+</body>
+</html>

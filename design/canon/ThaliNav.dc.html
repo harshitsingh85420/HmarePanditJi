@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+</helmet>
+<nav style="position:relative; width:100%; height:74px; background:#FFF9EE; border-top:2px solid #E7B54A; display:flex; align-items:stretch; font-family:'Noto Sans Devanagari',sans-serif; box-shadow:0 -3px 12px rgba(90,46,32,.08);">
+  <sc-for list="{{ left }}" as="t" hint-placeholder-count="2">
+    <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; min-height:56px;">
+      <sc-if value="{{ t.on }}" hint-placeholder-val="{{ false }}">
+        <div style="width:44px; height:44px; border-radius:50%; background:#B23A1A; border:3px solid #E7B54A; display:flex; align-items:center; justify-content:center; font-size:21px; margin-top:-8px; box-shadow:0 4px 10px rgba(178,58,26,.35);">{{ t.e }}</div>
+        <span style="font-size:12px; font-weight:800; color:#B23A1A;">{{ t.l }}</span>
+      </sc-if>
+      <sc-if value="{{ t.off }}" hint-placeholder-val="{{ true }}">
+        <div style="font-size:24px; line-height:1;">{{ t.e }}</div>
+        <span style="font-size:13px; font-weight:500; color:#8A6F5C;">{{ t.l }}</span>
+      </sc-if>
+    </div>
+  </sc-for>
+  <div style="width:80px; min-width:80px; position:relative;">
+    <dc-import name="Shishya" state="{{ orbState }}" say="" size="58" name="{{ true }}" hint-size="80px,90px" style="position:absolute; left:50%; transform:translateX(-50%); top:-30px;"></dc-import>
+  </div>
+  <sc-for list="{{ right }}" as="t" hint-placeholder-count="2">
+    <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; min-height:56px;">
+      <sc-if value="{{ t.on }}" hint-placeholder-val="{{ false }}">
+        <div style="width:44px; height:44px; border-radius:50%; background:#B23A1A; border:3px solid #E7B54A; display:flex; align-items:center; justify-content:center; font-size:21px; margin-top:-8px; box-shadow:0 4px 10px rgba(178,58,26,.35);">{{ t.e }}</div>
+        <span style="font-size:12px; font-weight:800; color:#B23A1A;">{{ t.l }}</span>
+      </sc-if>
+      <sc-if value="{{ t.off }}" hint-placeholder-val="{{ true }}">
+        <div style="font-size:24px; line-height:1;">{{ t.e }}</div>
+        <span style="font-size:13px; font-weight:500; color:#8A6F5C;">{{ t.l }}</span>
+      </sc-if>
+    </div>
+  </sc-for>
+</nav>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:360,&quot;height&quot;:110},&quot;active&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:0,&quot;tsType&quot;:&quot;number&quot;},&quot;orbState&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;awake&quot;,&quot;speaking&quot;,&quot;listening&quot;,&quot;asleep&quot;],&quot;default&quot;:&quot;awake&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  renderVals(){
+    const active = this.props.active ?? 0;
+    const defs = [{ e: '🏠', l: 'होम' }, { e: '📿', l: 'बुकिंग' }, { e: '💰', l: 'कमाई' }, { e: '📅', l: 'कैलेंडर' }];
+    const mk = (d, i) => ({ ...d, on: i === active, off: i !== active });
+    return {
+      left: defs.slice(0, 2).map((d, i) => mk(d, i)),
+      right: defs.slice(2).map((d, i) => mk(d, i + 2)),
+      orbState: this.props.orbState ?? 'awake',
+    };
+  }
+}
+</script>
+</body>
+</html>
