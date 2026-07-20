@@ -15,6 +15,7 @@ import { type SupportedLanguage, type ScriptPreference } from "@/lib/onboarding-
 import { t } from "@/lib/i18n";
 import { Toran } from "@/components/ui/Toran";
 import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
+import { Button } from "@/components/ui/Button";
 import { useVoiceScreen } from "@/hooks/useVoiceScreen";
 import { BACK } from "@/lib/voiceGrammar";
 import { PetalBurst } from "@/components/moments/SlideCanvas";
@@ -160,8 +161,28 @@ export default function LanguageListScreen({ onSelect, onBack }: LanguageListScr
         </div>
       </main>
 
-      {/* Footer: orb slot */}
-      <footer className="shrink-0 px-4 py-2 bg-cream/95 backdrop-blur border-t border-saffron-100 flex justify-center">
+      {/* WAVE 2 CANDIDATE — canon frame 3 puts an explicit "आगे बढ़ें" CTA
+          under the tiles. The shipped flow selects on the SECOND tap (or by
+          voice) with no CTA, which is fewer taps but gives no visible
+          "commit" step. This adds the CTA WITHOUT removing either existing
+          path: arm a tile (first tap), then either tap it again / say the
+          name as before, or press आगे बढ़ें. Disabled until something is
+          armed, so it can never select nothing. */}
+      <footer className="shrink-0 px-4 py-2 bg-cream/95 backdrop-blur border-t border-saffron-100 flex items-end gap-3">
+        <div className="flex-1">
+          <Button
+            variant="primary"
+            size="lg"
+            fullWidth
+            disabled={!pending}
+            onClick={() => {
+              const tile = TILES.find((x) => x.code === pending);
+              if (tile) selectTile(tile);
+            }}
+          >
+            {t("common.next")}
+          </Button>
+        </div>
         <ShishyaOrb />
       </footer>
     </div>
