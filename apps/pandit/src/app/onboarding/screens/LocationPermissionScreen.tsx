@@ -20,6 +20,44 @@ import { YES, NO } from "@/lib/voiceGrammar";
 import { voiceController } from "@/lib/voiceController";
 import { PopupPointer } from "@/components/moments/PopupPointer";
 
+// ── CANON frame 1 map canvas ────────────────────────────────────────
+// Canon draws a real map, it does not tint a box: sage 135° gradient
+// field, two crossing street hatches, two clay-coloured roads (one
+// carrying a 1px lift), a sindoor halo, ONE pulsing ring and the pin
+// with its drop-shadow. Every literal below is read from
+// design/canon/हमारे पंडित जी.dc.html frame 1.
+function CanonMapCanvas({ className = "" }: { className?: string }) {
+  return (
+    <div
+      className={`relative w-full overflow-hidden rounded-surface border-2 border-sand-200 bg-tile-sage ${className}`}
+      aria-hidden="true"
+    >
+      {/* street hatching — two repeating gradients at 38° / -52° */}
+      <div
+        className="absolute inset-0"
+        style={{
+          backgroundImage:
+            "repeating-linear-gradient(38deg,transparent 0 34px,rgba(255,255,255,.5) 34px 37px),repeating-linear-gradient(-52deg,transparent 0 46px,rgba(160,130,90,.14) 46px 48px)",
+        }}
+      />
+      {/* two clay roads */}
+      <div className="absolute top-[44%] left-[22%] h-[7px] w-[56%] -rotate-[8deg] rounded-[4px] bg-[#F4E4C4] shadow-[0_1px_2px_rgba(0,0,0,.1)]" />
+      <div className="absolute top-[62%] left-[8%] h-[6px] w-[60%] rotate-[6deg] rounded-[4px] bg-[#F4E4C4]" />
+      {/* sindoor halo under the pin */}
+      <div className="absolute top-1/2 left-1/2 -ml-[60px] -mt-[60px] h-[120px] w-[120px] rounded-full bg-halo-sindoor" />
+      {/* one pulsing ring (transform is owned by the animation, so the
+          ring is centred with margins, not with a translate) */}
+      <div className="absolute top-1/2 left-1/2 -ml-[35px] -mt-[35px] h-[70px] w-[70px] animate-pulse-ring rounded-full border-[3px] border-[rgba(178,58,26,.4)] motion-reduce:animate-none" />
+      {/* the pin: wrapper holds the position, span holds the motion */}
+      <div className="absolute top-1/2 left-1/2 flex -translate-x-1/2 -translate-y-full flex-col items-center">
+        <span className="pa-bounce-once select-none text-[52px] leading-none drop-shadow-[0_4px_6px_rgba(0,0,0,.3)]">
+          📍
+        </span>
+      </div>
+    </div>
+  );
+}
+
 interface LocationPermissionScreenProps {
   language: SupportedLanguage;
   onLanguageChange: () => void;
@@ -144,20 +182,21 @@ export default function LocationPermissionScreen({
           <Toran tone="onSindoor" className="bg-saffron-500" />
         </header>
 
-        <main className="flex-1 overflow-y-auto px-4 pt-6 pb-6 flex flex-col items-center gap-5">
-          <span className="text-[52px] leading-none select-none" aria-hidden="true">📍</span>
-          <h2 className="text-[28px] font-black text-temple-700 font-hindi text-center leading-snug">
+        <main className="flex-1 overflow-y-auto px-[22px] pt-[14px] pb-[18px] flex flex-col items-center gap-4">
+          <h2 className="text-[29px] font-black text-temple-700 font-hindi text-center leading-[1.25]">
             {t("pratham.locationTitle")}
           </h2>
 
-          {/* canon frame 2: the detected place, shown plainly */}
-          <div className="w-full bg-saffron-50 border-2 border-saffron-200 rounded-[18px] p-5 flex items-center gap-3">
+          {/* canon frame 1: the drawn map, then the detected place */}
+          <CanonMapCanvas className="flex-1 min-h-[220px]" />
+
+          <div className="w-full bg-saffron-50 border-2 border-saffron-200 rounded-tile py-[15px] px-[18px] flex items-center gap-[13px]">
             <span className="text-[26px] leading-none select-none" aria-hidden="true">🏙️</span>
             <span className="flex flex-col">
               <span className="text-[22px] font-black text-saffron-700 font-hindi leading-tight">
                 {detected.city}
               </span>
-              <span className="text-[15px] font-semibold text-softgrey font-hindi">
+              <span className="text-[18px] font-semibold text-softgrey font-hindi">
                 {detected.state}
               </span>
             </span>
@@ -181,7 +220,7 @@ export default function LocationPermissionScreen({
                 voiceController.stopSpeech("user-flow:city-confirm");
                 onGranted(detected.city, detected.state);
               }}
-              className="w-full min-h-[64px] bg-saffron-500 text-[#FFF3EA] rounded-btn text-[21px] font-extrabold shadow-btn active:scale-[0.97] transition-transform font-hindi"
+              className="w-full min-h-[64px] bg-saffron-500 text-chandan rounded-cta text-[21px] font-extrabold shadow-btn active:scale-[0.97] transition-transform font-hindi flex items-center justify-center gap-[10px]"
             >
               ✓ यही सही है
             </button>
@@ -213,21 +252,19 @@ export default function LocationPermissionScreen({
         <Toran tone="onSindoor" className="bg-saffron-500" />
       </header>
 
-      <main className="flex-1 overflow-y-auto px-4 pt-4 pb-6 flex flex-col items-center gap-5">
-        {/* Illustration canvas — neel tint, radius 24 */}
-        <div className="w-full rounded-3xl bg-neel/10 py-10 flex items-center justify-center gap-3">
-          <span className="text-[64px] leading-none select-none" aria-hidden="true">🛕</span>
-          <span className="pa-bounce-once text-[44px] leading-none select-none" style={{ animationDelay: "0.4s" }} aria-hidden="true">📍</span>
-        </div>
-
-        {/* Mockup frame 2: heading 29/900 ink */}
-        <h2 className="text-[28px] font-black text-temple-700 font-hindi text-center leading-snug">
+      <main className="flex-1 overflow-y-auto px-[22px] pt-[14px] pb-[18px] flex flex-col items-center gap-4">
+        {/* Canon frame 1: heading 29/900 #341A13, line-height 1.25 */}
+        <h2 className="text-[29px] font-black text-temple-700 font-hindi text-center leading-[1.25]">
           {t("pratham.locationTitle")}
         </h2>
+
+        {/* Canon frame 1 illustration: the drawn map, not a tinted box */}
+        <CanonMapCanvas className="flex-1 min-h-[220px]" />
+
         <p className="t-body text-softgrey font-hindi text-center">{t("pratham.locationWhy")}</p>
 
         {error && (
-          <div className="w-full px-4 py-3 bg-red-50 rounded-card border border-danger/20">
+          <div className="w-full px-4 py-3 bg-saffron-50 rounded-tile border-2 border-danger/25">
             <p className="text-danger text-[18px] font-semibold text-center font-hindi">{error}</p>
           </div>
         )}
@@ -251,7 +288,7 @@ export default function LocationPermissionScreen({
           <button
             onClick={handleAllowClick}
             disabled={loading}
-            className={`w-full min-h-[64px] bg-saffron-500 text-[#FFF3EA] rounded-btn text-[21px] font-extrabold shadow-btn active:scale-[0.97] transition-transform font-hindi disabled:opacity-60 ${
+            className={`w-full min-h-[64px] bg-saffron-500 text-chandan rounded-cta text-[21px] font-extrabold shadow-btn active:scale-[0.97] transition-transform font-hindi disabled:opacity-60 ${
               pulse ? "saffron-glow-active animate-pulse" : ""
             }`}
           >

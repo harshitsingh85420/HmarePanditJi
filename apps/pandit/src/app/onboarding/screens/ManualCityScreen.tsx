@@ -75,9 +75,9 @@ export default function ManualCityScreen({ onCitySelected, onBack }: ManualCityS
         <Toran tone="onSindoor" className="bg-saffron-500" />
       </header>
 
-      <main className="flex-1 overflow-y-auto px-4 pt-4 pb-6 flex flex-col gap-3">
+      <main className="flex-1 overflow-y-auto px-[22px] pt-[14px] pb-[18px] flex flex-col gap-4">
         {/* Free-text field — always visible */}
-        <div className="flex gap-2">
+        <div className="flex gap-[10px]">
           <input
             type="text"
             value={cityInput}
@@ -86,12 +86,12 @@ export default function ManualCityScreen({ onCitySelected, onBack }: ManualCityS
               if (e.key === "Enter") submitTyped();
             }}
             placeholder={t("pratham.cityInputLabel")}
-            className="flex-1 min-w-0 h-[56px] min-h-[56px] px-4 border-2 border-saffron-300 rounded-btn text-[18px] text-ink bg-white focus:outline-none focus:border-saffron-500 font-hindi"
+            className="flex-1 min-w-0 h-[56px] min-h-[56px] px-[18px] border-[1.5px] border-sand-100 rounded-field text-[18px] font-semibold text-ink bg-card shadow-soft focus:outline-none focus:border-saffron-500 font-hindi"
           />
           {cityInput.trim() && (
             <button
               onClick={submitTyped}
-              className="shrink-0 whitespace-nowrap min-h-[56px] px-4 bg-saffron-500 text-[#FFF3EA] rounded-btn text-[18px] font-bold font-hindi active:scale-[0.97] transition-transform"
+              className="shrink-0 whitespace-nowrap min-h-[56px] px-5 bg-saffron-500 text-chandan rounded-cta text-[18px] font-extrabold font-hindi shadow-btn active:scale-[0.97] transition-transform"
             >
               {t("pratham.cityGo")}
             </button>
@@ -99,14 +99,14 @@ export default function ManualCityScreen({ onCitySelected, onBack }: ManualCityS
         </div>
 
         {/* 5 city cards — festive accent left borders, one per accent */}
-        <div className="flex flex-col gap-3 mt-1">
+        <div className="flex flex-col gap-[13px] mt-1">
           {POPULAR_CITIES.map((city, i) => {
             const accent = FESTIVE_ACCENTS[i % FESTIVE_ACCENTS.length];
             return (
               <button
                 key={city}
                 onClick={() => onCitySelected(city)}
-                className="w-full min-h-[64px] bg-white rounded-card shadow-card px-5 text-left text-[22px] font-bold text-ink font-hindi active:scale-[0.98] transition-transform"
+                className="w-full min-h-[64px] bg-cardsurface border-2 border-sand-200 rounded-tile shadow-surface px-[18px] text-left text-[22px] font-extrabold text-ink font-hindi active:scale-[0.98] transition-transform"
                 style={{ borderLeft: `6px solid ${accent.hex}` }}
               >
                 {city}
