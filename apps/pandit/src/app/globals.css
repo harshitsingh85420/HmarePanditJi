@@ -548,6 +548,29 @@ body {
 }
 .pa-diya-halo { animation: pa-glow 1.8s ease-in-out infinite; }
 
+/* ─── CANON DIYA (design/canon/Diya.dc.html) ───
+   Namespaced pa-cdiya-* so the older .pa-diya-flame (splash) is untouched.
+   Each keyframe CARRIES translateX(-50%): these parts are positioned at
+   left:50%, so the animation must re-apply the centering every frame or
+   the flame jumps right the moment it starts. Three different durations
+   (.95s flame/core, 1.9s glow) keep the flame from looking like it is
+   pulsing on one timer. */
+@keyframes pa-cdiya-flicker {
+  0%, 100% { transform: translateX(-50%) scale(1) rotate(-2deg); }
+  50%      { transform: translateX(-50%) scale(1.09, 1.14) rotate(2deg); }
+}
+@keyframes pa-cdiya-core {
+  0%, 100% { transform: translateX(-50%) scaleY(1);    opacity: .85; }
+  50%      { transform: translateX(-50%) scaleY(1.18); opacity: 1; }
+}
+@keyframes pa-cdiya-glow {
+  0%, 100% { opacity: .5;  transform: translateX(-50%) scale(1); }
+  50%      { opacity: .92; transform: translateX(-50%) scale(1.2); }
+}
+.pa-cdiya-flame { transform: translateX(-50%); animation: pa-cdiya-flicker .95s ease-in-out infinite; }
+.pa-cdiya-core  { transform: translateX(-50%); animation: pa-cdiya-core .95s ease-in-out infinite; }
+.pa-cdiya-glow  { transform: translateX(-50%); animation: pa-cdiya-glow 1.9s ease-in-out infinite; }
+
 /* Slide canvas entrance: fade + slide up 240ms, children stagger 80ms */
 @keyframes pa-canvas-enter {
   0%   { opacity: 0; transform: translateY(16px); }
@@ -641,6 +664,7 @@ body {
   .shishya-ripple, .shishya-ripple-2, .shishya-listen-ring,
   .pa-splash-diya, .pa-splash-om, .pa-splash-word, .pa-splash-toran, .pa-splash-orb,
   .pa-petal, .pa-diya-flame, .pa-diya-halo, .pa-canvas-enter, .pa-stagger > *,
+  .pa-cdiya-flame, .pa-cdiya-core, .pa-cdiya-glow,
   .pa-burst-petal, .pa-bell-swing, .pa-bounce-once, .pa-arrow-bounce, .pa-tap-hint,
   .pa-toran-sway, .shishya-breathe, .pa-thali-ripple {
     animation: none !important;
