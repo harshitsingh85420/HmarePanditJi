@@ -7,11 +7,12 @@ import { AvailabilityCalendar } from "./AvailabilityCalendar";
 import { ProfileTabs } from "./profile-tabs";
 import { ServicesTab } from "./ServicesTab";
 import { BookingCTA } from "./BookingCTA";
+import { API_BASE } from "@/lib/api-base";
 
 export const revalidate = 60; // Revalidate every 60 seconds
 
 async function getPanditById(id: string) {
-    const res = await fetch(`http://localhost:3001/api/v1/pandits/${id}`, { next: { tags: [`pandit-${id}`] } });
+    const res = await fetch(`${API_BASE}/pandits/${id}`, { next: { tags: [`pandit-${id}`] } });
     if (!res.ok) return null;
     const json = await res.json();
     return json.data;
@@ -326,7 +327,7 @@ function ReviewSummary({ reviewSummary, panditId }: { reviewSummary: any, pandit
 
 // Client component wrapper for reviews pagination (simulated here with server fetch for initial, but usually should be client component if interactive. Let's make it a simple list for now)
 async function ReviewList({ panditId }: { panditId: string }) {
-    const res = await fetch(`http://localhost:3001/api/v1/pandits/${panditId}/reviews?page=1&limit=5`, { cache: 'no-store' });
+    const res = await fetch(`${API_BASE}/pandits/${panditId}/reviews?page=1&limit=5`, { cache: 'no-store' });
     if (!res.ok) return null;
     const json = await res.json();
     const reviews = json.data;
