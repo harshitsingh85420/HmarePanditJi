@@ -1,26 +1,25 @@
 // ─────────────────────────────────────────────────────────────
-// PANDIT-PROJECTION GUARD  (register: F04-05, security-grade)
+// PUBLIC-PROJECTION GUARD  (register: F04-05, security-grade)
 //
-// GET /pandits/:id and GET /pandits/ are reachable by ANY authenticated
-// pandit, for ANY other pandit id. app.ts:215-221 applies authenticate +
-// roleGuard("PANDIT") to every /pandit* url, so these are NOT world-
-// readable — but every pandit on the platform is a peer, and bank and
-// identity data must not cross between peers.
+// GET /pandits/:id is served with NO authentication — the customer
+// pandit-detail page is a logged-out SSR render. Everything this handler
+// selects is world-readable, so the select IS a publication decision.
 //
-// The detail handler used `include:`, which returns every scalar on
-// PanditProfile, and then spread the row into the response. That
-// published bankAccountNumber, bankIfscCode, upiId, aadhaarFrontUrl,
-// aadhaarBackUrl, aadhaarDocUrl, aadhaarEncrypted, fullAddress,
-// latitude and longitude to anyone who knew a pandit's id.
+// THIS GUARD IS WHAT MAKES THE PUBLIC EXEMPTION SAFE. The route was
+// opened only because the projection is pinned here; if this file is
+// weakened, the exemption in app.ts must be reverted in the same commit.
 //
-// Two things are pinned here, and the second is the one that matters
-// long-term:
-//   1. no banned field is named in a public projection
-//   2. public queries use an ALLOW-list (`select`), never `include`
-// With `include`, every column added to the model in future is public
-// by default and silently so — the vulnerability regenerates itself on
-// the next schema change. `select` inverts that: new columns are
-// private until someone deliberately publishes them.
+// What is pinned:
+//   1. no banned field is named anywhere in the projection
+//   2. the projection is `select:` ONLY — never `include:`
+//   3. nested relations are allow-listed too, so the "new column is
+//      public by default" hazard cannot just move one level down
+//   4. the route still exists in the shape this reasoning assumes
+//
+// (2) and (3) matter more than (1) over time. A banned-name check only
+// catches today's sensitive columns; requiring an allow-list means a
+// column added to PanditProfile, PujaService or SamagriPackage tomorrow
+// is private until someone deliberately publishes it.
 // ─────────────────────────────────────────────────────────────
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -28,9 +27,23 @@ import assert from "node:assert";
 
 const CONTROLLER = join(__dirname, "..", "controllers", "pandit.controller.ts");
 const ROUTES = join(__dirname, "..", "routes", "pandit.routes.ts");
+const APP = join(__dirname, "..", "app.ts");
 
-const src = readFileSync(CONTROLLER, "utf-8");
+const rawSrc = readFileSync(CONTROLLER, "utf-8");
 const routes = readFileSync(ROUTES, "utf-8");
+const app = readFileSync(APP, "utf-8");
+
+/**
+ * Strip comments before analysing code.
+ * Without this the guard matches the word `include:` inside its own
+ * explanatory comment — and, worse, a real `include:` could be smuggled
+ * past a naive check by a reviewer assuming any hit is "just the comment".
+ */
+function stripComments(text: string): string {
+  return text.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^[ \t]*\/\/.*$/gm, "");
+}
+
+const src = stripComments(rawSrc);
 
 /** Fields that must never reach an unauthenticated caller. */
 const BANNED = [
@@ -39,6 +52,8 @@ const BANNED = [
   "bankIfscCode",
   "bankIfsc",
   "bankName",
+  "bankVerified",
+  "bankAccountAdded",
   "upiId",
   "aadhaarFrontUrl",
   "aadhaarBackUrl",
@@ -46,26 +61,33 @@ const BANNED = [
   "aadhaarEncrypted",
   "aadhaarLastFour",
   "aadhaarConsentAt",
+  "aadhaarVerified",
   "fullAddress",
   "latitude",
   "longitude",
   "deviceInfo",
+  "deviceOs",
+  "deviceModel",
   "adminNotes",
+  "rejectionReason",
+  "verifiedById",
+  "phone",
 ];
 
-/** Extract the balanced { … } body of a prisma call starting at `from`. */
-function blockAfter(text: string, from: number): string {
-  const open = text.indexOf("{", from);
-  if (open < 0) return "";
+/** Balanced-brace body of the named exported function. */
+function functionBody(text: string, name: string): string {
+  const start = text.indexOf(`export async function ${name}`);
+  assert.ok(start > 0, `${name} not found — did the handler get renamed?`);
+  const open = text.indexOf("{", start);
   let depth = 0;
   for (let i = open; i < text.length; i++) {
     if (text[i] === "{") depth++;
     else if (text[i] === "}") {
       depth--;
-      if (depth === 0) return text.slice(open, i + 1);
+      if (depth === 0) return text.slice(start, i + 1);
     }
   }
-  return "";
+  return text.slice(start);
 }
 
 let failures = 0;
@@ -74,53 +96,87 @@ const fail = (msg: string) => {
   failures++;
 };
 
-// ── 1. the pandit-readable detail query ───────────────────────────────
-// bound to `fastify.get("/:id", getPanditProfileById)` under the
-// /pandits prefix, behind the global authenticate + roleGuard("PANDIT")
-const detailIdx = src.indexOf("export async function getPanditProfileById");
-assert.ok(detailIdx > 0, "getPanditProfileById not found — did the handler get renamed?");
+// ── the public detail handler ────────────────────────────────
+const detail = functionBody(src, "getPanditProfileById");
 
-const findUniqueIdx = src.indexOf("panditProfile.findUnique", detailIdx);
-assert.ok(findUniqueIdx > 0, "pandit-readable detail query not found");
-const detailQuery = blockAfter(src, findUniqueIdx);
-assert.ok(detailQuery.length > 0, "could not parse the detail query block");
+// 1 — select-only, never include
+if (/\binclude\s*:/.test(detail)) {
+  fail(
+    "getPanditProfileById uses `include:` — that returns every model scalar, " +
+      "which on a PUBLIC route publishes bank and Aadhaar columns. Use `select:`."
+  );
+}
+if (!/\bselect\s*:/.test(detail)) {
+  fail("getPanditProfileById has no `select:` allow-list");
+}
 
-if (/^\s*include\s*:/m.test(detailQuery)) {
-  fail("pandit-readable detail query uses `include:` — every model scalar becomes public. Use `select:`.");
-}
-if (!/\bselect\s*:/.test(detailQuery)) {
-  fail("pandit-readable detail query has no `select:` allow-list");
-}
+// 2 — no banned field anywhere in the handler's projection
 for (const field of BANNED) {
-  if (new RegExp(`\\b${field}\\s*:\\s*true`).test(detailQuery)) {
-    fail(`pandit-readable detail query selects banned field \`${field}\``);
+  if (new RegExp(`\\b${field}\\s*:\\s*true`).test(detail)) {
+    fail(`public projection selects banned field \`${field}\``);
   }
 }
 
-// ── 2. the pandit-readable search query ───────────────────────────────
-const searchIdx = src.indexOf("panditProfile.findMany");
-if (searchIdx > 0) {
-  const searchQuery = blockAfter(src, searchIdx);
-  if (/^\s*include\s*:/m.test(searchQuery)) {
-    fail("pandit-readable search query uses `include:` — use `select:`");
+// 3 — every relation in the projection is itself allow-listed.
+// A relation given only a `where` returns all of ITS scalars.
+for (const rel of ["pujaServices", "samagriPackages", "user"]) {
+  const at = detail.indexOf(`${rel}:`);
+  if (at < 0) continue; // relation not projected at all — fine
+  const open = detail.indexOf("{", at);
+  let depth = 0;
+  let body = "";
+  for (let i = open; i < detail.length; i++) {
+    if (detail[i] === "{") depth++;
+    else if (detail[i] === "}") {
+      depth--;
+      if (depth === 0) {
+        body = detail.slice(open, i + 1);
+        break;
+      }
+    }
+  }
+  if (!/\bselect\s*:/.test(body)) {
+    fail(
+      `relation \`${rel}\` is projected without a \`select:\` — it returns every ` +
+        `scalar of its own model, so a sensitive column added there becomes public silently`
+    );
   }
   for (const field of BANNED) {
-    if (new RegExp(`\\b${field}\\s*:\\s*true`).test(searchQuery)) {
-      fail(`pandit-readable search query selects banned field \`${field}\``);
+    if (new RegExp(`\\b${field}\\s*:\\s*true`).test(body)) {
+      fail(`relation \`${rel}\` selects banned field \`${field}\``);
     }
   }
 }
 
-// ── 3. the route still exists in the shape this guard assumes ──
-// If the route is renamed or re-prefixed, the reasoning above stops
-// applying and this guard would pass while protecting nothing.
-const detailRoute = /get\(\s*"\/:id"/.test(routes);
-if (!detailRoute) {
-  fail('GET "/:id" route not found — route shape changed, re-check this guard');
+// ── the sibling search endpoint, same rules ──────────────────
+const search = functionBody(src, "getPandits");
+if (/\binclude\s*:/.test(search)) {
+  fail("getPandits uses `include:` — use `select:`");
+}
+for (const field of BANNED) {
+  if (new RegExp(`\\b${field}\\s*:\\s*true`).test(search)) {
+    fail(`public search projection selects banned field \`${field}\``);
+  }
+}
+
+// ── the premise: this route really is public ─────────────────
+// The guard's whole justification is that the route is unauthenticated.
+// If the public exemption is removed, this file's reasoning changes and
+// someone should revisit it deliberately rather than silently.
+if (!/get\(\s*"\/:id"/.test(routes)) {
+  fail('GET "/:id" not found in pandit.routes.ts — route shape changed, re-check this guard');
+}
+if (!/isPublicPanditRead/.test(app)) {
+  fail(
+    "the scoped public-read exemption is missing from app.ts — either it was reverted " +
+      "(then this guard's public-surface premise is stale) or it was renamed"
+  );
 }
 
 if (failures > 0) {
   console.error(`\n✗ public-pandit-projection: ${failures} violation(s)\n`);
   process.exit(1);
 }
-console.log("✓ pandit-projection: pandit-readable endpoints leak no bank/Aadhaar/geo fields");
+console.log(
+  "✓ public-pandit-projection: select-only, relations allow-listed, no bank/Aadhaar/geo/phone fields"
+);

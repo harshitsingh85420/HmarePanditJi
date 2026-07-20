@@ -148,7 +148,10 @@ export async function getPandits(request: FastifyRequest, reply: FastifyReply) {
             where,
             select: {
                 id: true,
-                user: { select: { id: true, name: true, phone: true } },
+                // phone deliberately NOT selected: this list is public, and a
+                // directory of every pandit's personal number is not something
+                // a search result should hand out. Contact goes through a booking.
+                user: { select: { id: true, name: true } },
                 location: true,
                 rating: true,
                 totalReviews: true,
@@ -249,11 +252,10 @@ export async function getPanditProfileById(request: FastifyRequest, reply: Fasti
         const params = request.params as Record<string, string>;
         const panditId = params.id;
         // ─────────────────────────────────────────────────────────────
-        // CROSS-TENANT EXPOSURE — GET /pandits/:id is reachable by ANY
-        // authenticated pandit, for ANY other pandit's id. app.ts:215-221
-        // applies authenticate + roleGuard("PANDIT") to every /pandit* url,
-        // so this is NOT world-readable; it is readable by every peer on the
-        // platform, which for bank and identity data is still far too wide.
+        // PUBLIC SURFACE — this route is served with NO auth (see the
+        // scoped exemption in app.ts). The customer pandit-detail page is a
+        // logged-out SSR render, so everything selected here is world-
+        // readable. Treat this select as a publication decision.
         //
         // This was `include:`, which returns EVERY scalar on PanditProfile,
         // and the handler below spreads the row wholesale (`...pandit`).
@@ -299,8 +301,34 @@ export async function getPanditProfileById(request: FastifyRequest, reply: Fasti
                 teamSize: true,
                 createdAt: true,
                 user: { select: { id: true, name: true } },
-                pujaServices: { where: { isActive: true } },
-                samagriPackages: { where: { isActive: true } },
+                // Relations are allow-listed too. Left unnarrowed they return
+                // every scalar of their own model, so the "new column is
+                // public by default" hazard just moves one level down —
+                // a bank or contact field added to PujaService or
+                // SamagriPackage later would publish itself silently.
+                pujaServices: {
+                    where: { isActive: true },
+                    select: {
+                        id: true,
+                        pujaType: true,
+                        dakshinaAmount: true,
+                        durationHours: true,
+                        description: true,
+                    },
+                },
+                samagriPackages: {
+                    where: { isActive: true },
+                    select: {
+                        id: true,
+                        packageName: true,
+                        packageType: true,
+                        pujaType: true,
+                        tier: true,
+                        price: true,
+                        fixedPrice: true,
+                        items: true,
+                    },
+                },
             }
         });
 
