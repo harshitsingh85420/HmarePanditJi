@@ -5,17 +5,23 @@ import { useUIStore } from '@/stores/uiStore'
 import { useEffect } from 'react'
 
 /**
- * CelebrationOverlay (T-02)
- * 
+ * CelebrationOverlay (T-02) — the small step-completion उत्सव.
+ *
+ * Canon-skinned to frame 34 (उत्सव · बुकिंग स्वीकार): the leaf badge
+ * #1E7A46 under 0 12px 30px rgba(30,122,70,.4), a #FFF6E9 glyph, and the
+ * step name at 20/900 #155C34. Confetti uses canon accents only — the old
+ * Tailwind default `orange-500` appears nowhere in the artboards.
+ *
  * Features:
- * - Saffron glow ring
- * - Checkmark draw animation
- * - Confetti (5-10 particles)
+ * - Leaf glow ring
+ * - Checkmark stamp
+ * - Confetti (8 particles, canon palette)
  * - 1.4s duration
- * 
+ *
  * Accessibility:
- * - Reduced motion support
+ * - Reduced motion support (framer-motion honours the OS setting)
  * - Screen reader announcement
+ * - Step name at the 18sp body floor
  */
 export function CelebrationOverlay() {
   const { showCelebration, celebrationStepName, dismissCelebration } = useUIStore()
@@ -30,8 +36,8 @@ export function CelebrationOverlay() {
     }
   }, [showCelebration, dismissCelebration])
 
-  // Confetti colors
-  const confettiColors = ['#F09942', '#DC6803', '#FEF3C7', '#1B6D24', '#BA1A1A']
+  // Confetti colors — canon accents only (gold, brass, genda, leaf, sindoor)
+  const confettiColors = ['#E7B54A', '#B8860B', '#F2A02C', '#1E7A46', '#B23A1A']
 
   return (
     <AnimatePresence>
@@ -56,30 +62,32 @@ export function CelebrationOverlay() {
             }}
             className="relative"
           >
-            {/* Saffron glow ring */}
+            {/* Leaf glow ring — canon rgba(30,122,70,.4) */}
             <motion.div
               initial={{ scale: 0.8, opacity: 0.6 }}
               animate={{ scale: 1.5, opacity: 0 }}
               transition={{ duration: 1.4, repeat: Infinity, repeatType: 'loop' as const }}
-              className="absolute inset-0 rounded-full glow-ring"
+              className="absolute inset-0 rounded-full"
+              style={{ boxShadow: '0 0 20px 4px rgba(30,122,70,0.35)' }}
               aria-hidden="true"
             />
 
-            {/* Center checkmark with saffron background */}
+            {/* Center checkmark — canon leaf badge, stamped at -8deg */}
             <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
+              initial={{ scale: 2.6, rotate: -24, opacity: 0 }}
+              animate={{ scale: 1, rotate: -8, opacity: 1 }}
               transition={{ type: 'spring', damping: 12, delay: 0.1 }}
-              className="w-20 h-20 bg-gradient-to-br from-saffron to-orange-500 rounded-full flex items-center justify-center shadow-card-saffron"
+              className="w-20 h-20 rounded-full flex items-center justify-center"
+              style={{ background: '#1E7A46', boxShadow: '0 12px 30px rgba(30,122,70,.4)' }}
             >
               <motion.span
-                initial={{ pathLength: 0, opacity: 0 }}
-                animate={{ pathLength: 1, opacity: 1 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
                 transition={{ duration: 0.4, delay: 0.3 }}
-                className="material-symbols-outlined text-5xl text-white filled"
+                className="material-symbols-outlined text-[48px] leading-none text-chandan filled"
                 aria-hidden="true"
               >
-                check_circle
+                check
               </motion.span>
             </motion.div>
 
@@ -90,7 +98,10 @@ export function CelebrationOverlay() {
               transition={{ delay: 0.4 }}
               className="absolute -bottom-12 left-1/2 -translate-x-1/2 whitespace-nowrap"
             >
-              <p className="text-lg font-bold text-text-primary" aria-live="polite">
+              <p
+                className="text-[20px] font-black font-hindi leading-snug text-leaf-700"
+                aria-live="polite"
+              >
                 {celebrationStepName || 'बहुत अच्छा!'}
               </p>
             </motion.div>
