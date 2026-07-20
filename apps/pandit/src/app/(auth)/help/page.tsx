@@ -88,6 +88,19 @@ export default function HelpPage() {
             <span className="text-[#8FBFA1] text-[22px]" aria-hidden="true">›</span>
           </a>
 
+          {/* Canon frame 23: सामान्य सवाल — static FAQ, same answers शिष्य gives */}
+          <button
+            onClick={() => router.push('/help/faq')}
+            className="w-full bg-card border border-sand rounded-[18px] px-4 min-h-[72px] flex items-center gap-3 shadow-card active:scale-[0.98] transition-transform focus-visible:ring-4 focus-visible:ring-saffron-200 focus:outline-none"
+          >
+            <span className="w-12 h-12 rounded-[14px] bg-saffron-50 flex items-center justify-center text-[26px] shrink-0 select-none" aria-hidden="true">❓</span>
+            <span className="flex-1 text-left">
+              <span className="block text-[18px] font-extrabold text-ink font-hindi">{t("faq.title")}</span>
+              <span className="block text-[14px] text-softgrey font-hindi">{t("faq.subtitle")}</span>
+            </span>
+            <span className="text-[#C9BBA6] text-[22px]" aria-hidden="true">›</span>
+          </button>
+
           {/* WhatsApp — calm row (mockup), brand banner retired */}
           <a
             href={`https://wa.me/918934095599?text=${encodeURIComponent("नमस्ते, मुझे मदद चाहिए")}`}
