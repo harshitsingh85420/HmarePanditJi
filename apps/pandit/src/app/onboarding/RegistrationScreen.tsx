@@ -27,20 +27,32 @@ import { YES, NEXT, BACK } from "@/lib/voiceGrammar";
 import { VoiceField } from "@/components/voice/VoiceField";
 import { useVoice } from "@/hooks/useVoice";
 import { voiceController } from "@/lib/voiceController";
-import { useSafeOnboardingStore } from "@/lib/stores/ssr-safe-stores";
+import { useSafeOnboardingStore, useSafeRegistrationStore } from "@/lib/stores/ssr-safe-stores";
 
 export default function RegistrationScreen({ onBack }: { onBack: () => void }) {
   const router = useRouter();
   const { speak } = useVoice();
   const { detectedCity } = useSafeOnboardingStore();
+  // F02-09 BACK-SAFETY: पीछे unmounts this screen (the orchestrator flips
+  // the phase to TUTORIAL), so anything held in plain useState is gone the
+  // moment the pandit steps back — on the app's FIRST data-entry screen.
+  // Every keystroke is mirrored into the registration store, which already
+  // owns name/city, already persists to localStorage, and — critically —
+  // is already on X3's purge list ('hpj-registration' in purgeUserData),
+  // so a draft can never survive a logout into the NEXT pandit's screen.
+  // The onboarding store would have been the wrong home: it is deliberately
+  // PRESERVED across accounts as install-scoped, so a name parked there
+  // would prefill for someone else and break X3.
+  const { data: regDraft, setName: persistName, setCity: persistCity } = useSafeRegistrationStore();
 
   const [returning, setReturning] = useState(false);
-  const [name, setName] = useState(""); // ALWAYS empty — never prefilled (X3)
-  const [city, setCity] = useState(""); // ONLY city-from-detection may prefill
+  const [name, setName] = useState(""); // never prefilled from ANOTHER account (X3)
+  const [city, setCity] = useState(""); // detection, or this session's own draft
   const [errorMsg, setErrorMsg] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [showDone, setShowDone] = useState(false);
   const cityPrefilled = useRef(false);
+  const restored = useRef(false);
   // S3: the narration's "खाता बनाएँ" target
   const submitRef = useRef<HTMLDivElement | null>(null);
 
@@ -51,6 +63,33 @@ export default function RegistrationScreen({ onBack }: { onBack: () => void }) {
       /* noop */
     }
   }, []);
+
+  // F02-09: restore this session's own draft on (re)mount. Runs once, in an
+  // effect rather than a useState initialiser, so SSR and the first client
+  // render still agree (the store hydrates from localStorage on the client).
+  useEffect(() => {
+    if (restored.current) return;
+    restored.current = true;
+    if (regDraft.name) setName(regDraft.name);
+    if (regDraft.city) {
+      setCity(regDraft.city);
+      // a restored city is the pandit's own typing — detection must not
+      // overwrite it on the way back in
+      cityPrefilled.current = true;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Write-through: state and store move together, so the value is already
+  // durable before onBack can unmount us.
+  const changeName = (v: string) => {
+    setName(v);
+    persistName(v);
+  };
+  const changeCity = (v: string) => {
+    setCity(v);
+    persistCity(v, regDraft.state || "");
+  };
 
   // City prefill happens exactly once, from the location phase's detection
   useEffect(() => {
@@ -166,7 +205,7 @@ export default function RegistrationScreen({ onBack }: { onBack: () => void }) {
                 label={t("onboarding.step1Title")}
                 promptText={t("onboarding.step1Voice")}
                 value={name}
-                onChange={setName}
+                onChange={changeName}
                 mode="text"
                 required
                 placeholder="पंडित जी का नाम लिखिए"
@@ -182,7 +221,7 @@ export default function RegistrationScreen({ onBack }: { onBack: () => void }) {
                 label={t("registration.cityLabel")}
                 promptText={t("onboarding.step2Voice")}
                 value={city}
-                onChange={setCity}
+                onChange={changeCity}
                 mode="text"
                 required
                 placeholder={t("registration.cityPlaceholder")}
