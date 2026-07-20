@@ -3,6 +3,13 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 // ─────────────────────────────────────────────────────────────
+// CONFORMANCE: this guard is the AUTO test for register items
+//   F09-02 — immediate re-upload path from the rejection ("दुबारा भेजें")
+//   F09-03 — re-upload creates version+1 PENDING; REJECTED-only transition
+//            (a PENDING or APPROVED latest must 409, never re-queue)
+// (docs/pandit-pov-conformance-register.md). Keep those two IDs in this file —
+// scripts/conformance-guard.mjs links requirement→test by literal ID match.
+//
 // RESUBMIT GATE GUARD (pilot-critical). A pandit whose verification video
 // is REJECTED must have a path back — and only that path. Laws pinned:
 //   AUTH       — the route is authenticate + roleGuard("PANDIT").
@@ -73,4 +80,7 @@ assert.ok(
   "a resubmitted verification must land PENDING (re-enters the admin queue)",
 );
 
-console.log("verification-resubmit guard: auth + ownership + REJECTED-only + history ✅");
+console.log(
+  "verification-resubmit guard: auth + ownership + REJECTED-only + history ✅ " +
+    "(pins F09-02 re-upload path, F09-03 version+1 PENDING / REJECTED-only transition)",
+);
