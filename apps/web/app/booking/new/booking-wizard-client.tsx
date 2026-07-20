@@ -526,7 +526,10 @@ export default function BookingWizardClient() {
           attendees: form.attendees,
           dakshinaAmount: form.dakshina,
 
-          travelMode: form.travelMode,
+          // "LOCAL" is wizard vocabulary, not a TravelMode enum value — a
+          // local booking means NO travel; omit the field (the API also
+          // normalizes, but never send a known-invalid enum).
+          travelMode: form.travelMode === "LOCAL" ? undefined : form.travelMode || undefined,
           travelCost: effectiveTravelCost,
           foodArrangement: form.foodArrangement,
           foodAllowanceDays,

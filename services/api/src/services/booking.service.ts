@@ -169,11 +169,19 @@ export async function createBooking(input: CreateBookingInput) {
       specialInstructions: input.specialInstructions,
       attendees: input.attendees,
       dakshinaAmount: input.dakshinaAmount,
-      // Travel & logistics
-      travelMode: input.travelMode as any,
+      // Travel & logistics. travelMode is normalized to the REAL enum —
+      // the web wizard historically sent "LOCAL" for no-travel bookings,
+      // which is not a TravelMode value and 500'd prisma.booking.create
+      // (every local booking failed). Anything outside the enum means
+      // "no travel": mode null, not required.
+      travelMode: (["SELF_DRIVE", "TRAIN", "FLIGHT", "CAB", "BUS"].includes(input.travelMode ?? "")
+        ? input.travelMode
+        : null) as any,
       travelCost: input.travelCost ?? 0,
-      travelRequired: !!input.travelMode,
-      travelStatus: input.travelMode ? "PENDING" : "NOT_REQUIRED",
+      travelRequired: ["SELF_DRIVE", "TRAIN", "FLIGHT", "CAB", "BUS"].includes(input.travelMode ?? ""),
+      travelStatus: ["SELF_DRIVE", "TRAIN", "FLIGHT", "CAB", "BUS"].includes(input.travelMode ?? "")
+        ? "PENDING"
+        : "NOT_REQUIRED",
       foodArrangement: (input.foodArrangement ?? "CUSTOMER_PROVIDES") as any,
       foodAllowanceDays,
       foodAllowanceAmount,
