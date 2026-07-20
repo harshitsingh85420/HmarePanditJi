@@ -125,7 +125,7 @@ describe("B. voice grammar co-mounting", () => {
     expect(hit).toEqual([]);
   });
 
-  it("REGRESSION: bare-digit labels steal a spoken money amount", () => {
+  it("F10-03 REGRESSION: bare-digit labels steal a spoken money amount", () => {
     // This is the hazard the merge would introduce if टीम kept "1".."5".
     // matchVisibleOption does `clean.includes(label)`, so "5000" contains
     // "5". Proven here so nobody reintroduces digit labels.
@@ -135,7 +135,7 @@ describe("B. voice grammar co-mounting", () => {
     expect(hit, "bare digit labels are unsafe beside a money field").toContain("team:5");
   });
 
-  it("FIX: 'N पंडित' labels do NOT match a spoken amount", () => {
+  it("F10-03 FIX: 'N पंडित' labels do NOT match a spoken amount", () => {
     const hit: string[] = [];
     mountOptions(SUPPLY(hit));
     mountOptions(TEAM_FIXED(hit));
@@ -145,7 +145,7 @@ describe("B. voice grammar co-mounting", () => {
     expect(hit, `an amount was captured by the team grammar: ${hit.join(",")}`).toEqual([]);
   });
 
-  it("team labels still resolve the way a pandit would say them", () => {
+  it("F10-03: team labels still resolve the way a pandit would say them", () => {
     const hit: string[] = [];
     mountOptions(TEAM_FIXED(hit));
     voiceController.handleTranscript("2 पंडित", 1);
