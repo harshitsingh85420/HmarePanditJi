@@ -22,6 +22,7 @@ import { VoiceField } from "@/components/voice/VoiceField";
 import { FirstUseTip } from "@/components/moments/FirstUseTip";
 import { Toast } from "@/components/ui/Toast";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { CelebrationOverlay } from "@/components/moments/CelebrationOverlay";
 
 const ALL_POOJAS = Object.values(hi.onboarding.specializations);
 
@@ -53,6 +54,8 @@ export default function MyPoojasPage() {
   const [editing, setEditing] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
   const [toastMsg, setToastMsg] = useState("");
+  // Canon frame 26 उत्सव — a newly APPROVED puja
+  const [celebrateVerified, setCelebrateVerified] = useState(false);
   const addBtnRef = useRef<HTMLDivElement | null>(null);
 
   const load = async () => {
@@ -82,6 +85,27 @@ export default function MyPoojasPage() {
         vmap[r.poojaType] = { status: r.status, rejectionReason: r.rejectionReason ?? null };
       }
       setVerifications(vmap);
+
+      // Canon frame 26 उत्सव "आप प्रमाणित हैं!". Approval happens on the
+      // ADMIN's clock, so there is no in-app action to hang it on — the
+      // trigger is the same freshly-seen pattern the payout moment uses:
+      // a puja APPROVED that this device has not celebrated yet.
+      const approved = Object.entries(vmap)
+        .filter(([, v]) => v.status === "APPROVED")
+        .map(([poojaType]) => poojaType);
+      if (approved.length > 0) {
+        let seen: string[] = [];
+        try {
+          seen = JSON.parse(localStorage.getItem("hpj_seen_approved_poojas") || "[]");
+        } catch { /* noop */ }
+        const fresh = approved.filter((p) => !seen.includes(p));
+        // Never celebrate on a device's FIRST run — existing approvals are
+        // history, not news. Only a NEW approval earns the moment.
+        if (fresh.length > 0 && seen.length > 0) setCelebrateVerified(true);
+        try {
+          localStorage.setItem("hpj_seen_approved_poojas", JSON.stringify(approved));
+        } catch { /* noop */ }
+      }
     }
 
     setLoading(false);
@@ -126,6 +150,19 @@ export default function MyPoojasPage() {
   };
 
   if (loading) return <DiyaLoader />;
+
+  // Canon frame 26 उत्सव — "आप प्रमाणित हैं!"
+  if (celebrateVerified) {
+    return (
+      <CelebrationOverlay
+        badge="✓"
+        title="आप प्रमाणित हैं!"
+        subtitle="अब यजमान आपको ढूँढ सकते हैं 🙏"
+        tone="saffron"
+        onDone={() => setCelebrateVerified(false)}
+      />
+    );
+  }
 
   return (
     <Screen
@@ -239,14 +276,24 @@ export default function MyPoojasPage() {
               </button>
             )}
 
-            {(() => {
-              if (v?.status !== "REJECTED" || !v?.rejectionReason) return null;
-              return (
-                <p className="text-[14px] text-danger font-hindi leading-snug">
-                  {t("myPoojas.rejectedReasonPrefix")} {v.rejectionReason}
-                </p>
-              );
-            })()}
+            {v?.status === "REJECTED" && v?.rejectionReason && (
+              <p className="text-[14px] text-danger font-hindi leading-snug">
+                {t("myPoojas.rejectedReasonPrefix")} {v.rejectionReason}
+              </p>
+            )}
+
+            {/* Canon frame 21: a REJECTED puja carries its way back. This is
+                pilot-critical — without it a rejected pandit is stuck. Routes
+                to the existing add flow, where a new video creates version+1
+                (the API allows a new version only after a rejection). */}
+            {status === "REJECTED" && (
+              <button
+                onClick={() => router.push("/my-poojas/add")}
+                className="self-start min-h-[56px] px-4 -ml-1 text-[16px] font-extrabold text-saffron-700 font-hindi active:scale-[0.97] transition-transform"
+              >
+                🔄 {t("myPoojas.resubmit")} ›
+              </button>
+            )}
           </Card>
           );
         })}
