@@ -1,8 +1,11 @@
 // ─────────────────────────────────────────────────────────────
-// PUBLIC-PROJECTION GUARD  (register: F04-05, security-grade)
+// PANDIT-PROJECTION GUARD  (register: F04-05, security-grade)
 //
-// GET /pandits/:id and GET /pandits/ are PUBLIC — no authenticate
-// preHandler. Whatever those queries return is world-readable.
+// GET /pandits/:id and GET /pandits/ are reachable by ANY authenticated
+// pandit, for ANY other pandit id. app.ts:215-221 applies authenticate +
+// roleGuard("PANDIT") to every /pandit* url, so these are NOT world-
+// readable — but every pandit on the platform is a peer, and bank and
+// identity data must not cross between peers.
 //
 // The detail handler used `include:`, which returns every scalar on
 // PanditProfile, and then spread the row into the response. That
@@ -71,45 +74,46 @@ const fail = (msg: string) => {
   failures++;
 };
 
-// ── 1. the public detail query ───────────────────────────────
-// bound to the PUBLIC route `fastify.get("/:id", getPanditProfileById)`
+// ── 1. the pandit-readable detail query ───────────────────────────────
+// bound to `fastify.get("/:id", getPanditProfileById)` under the
+// /pandits prefix, behind the global authenticate + roleGuard("PANDIT")
 const detailIdx = src.indexOf("export async function getPanditProfileById");
 assert.ok(detailIdx > 0, "getPanditProfileById not found — did the handler get renamed?");
 
 const findUniqueIdx = src.indexOf("panditProfile.findUnique", detailIdx);
-assert.ok(findUniqueIdx > 0, "public detail query not found");
+assert.ok(findUniqueIdx > 0, "pandit-readable detail query not found");
 const detailQuery = blockAfter(src, findUniqueIdx);
 assert.ok(detailQuery.length > 0, "could not parse the detail query block");
 
 if (/^\s*include\s*:/m.test(detailQuery)) {
-  fail("public detail query uses `include:` — every model scalar becomes public. Use `select:`.");
+  fail("pandit-readable detail query uses `include:` — every model scalar becomes public. Use `select:`.");
 }
 if (!/\bselect\s*:/.test(detailQuery)) {
-  fail("public detail query has no `select:` allow-list");
+  fail("pandit-readable detail query has no `select:` allow-list");
 }
 for (const field of BANNED) {
   if (new RegExp(`\\b${field}\\s*:\\s*true`).test(detailQuery)) {
-    fail(`public detail query selects banned field \`${field}\``);
+    fail(`pandit-readable detail query selects banned field \`${field}\``);
   }
 }
 
-// ── 2. the public search query ───────────────────────────────
+// ── 2. the pandit-readable search query ───────────────────────────────
 const searchIdx = src.indexOf("panditProfile.findMany");
 if (searchIdx > 0) {
   const searchQuery = blockAfter(src, searchIdx);
   if (/^\s*include\s*:/m.test(searchQuery)) {
-    fail("public search query uses `include:` — use `select:`");
+    fail("pandit-readable search query uses `include:` — use `select:`");
   }
   for (const field of BANNED) {
     if (new RegExp(`\\b${field}\\s*:\\s*true`).test(searchQuery)) {
-      fail(`public search query selects banned field \`${field}\``);
+      fail(`pandit-readable search query selects banned field \`${field}\``);
     }
   }
 }
 
-// ── 3. the routes really are public (so this guard stays relevant) ──
-// If someone later puts these behind auth, this guard's premise changes
-// and the comment above would start lying. Assert the premise explicitly.
+// ── 3. the route still exists in the shape this guard assumes ──
+// If the route is renamed or re-prefixed, the reasoning above stops
+// applying and this guard would pass while protecting nothing.
 const detailRoute = /get\(\s*"\/:id"/.test(routes);
 if (!detailRoute) {
   fail('GET "/:id" route not found — route shape changed, re-check this guard');
@@ -119,4 +123,4 @@ if (failures > 0) {
   console.error(`\n✗ public-pandit-projection: ${failures} violation(s)\n`);
   process.exit(1);
 }
-console.log("✓ public-pandit-projection: public pandit endpoints leak no bank/Aadhaar/geo fields");
+console.log("✓ pandit-projection: pandit-readable endpoints leak no bank/Aadhaar/geo fields");

@@ -249,8 +249,11 @@ export async function getPanditProfileById(request: FastifyRequest, reply: Fasti
         const params = request.params as Record<string, string>;
         const panditId = params.id;
         // ─────────────────────────────────────────────────────────────
-        // PUBLIC ENDPOINT — GET /pandits/:id has NO authenticate preHandler,
-        // so this response is readable by anyone who knows a pandit's id.
+        // CROSS-TENANT EXPOSURE — GET /pandits/:id is reachable by ANY
+        // authenticated pandit, for ANY other pandit's id. app.ts:215-221
+        // applies authenticate + roleGuard("PANDIT") to every /pandit* url,
+        // so this is NOT world-readable; it is readable by every peer on the
+        // platform, which for bank and identity data is still far too wide.
         //
         // This was `include:`, which returns EVERY scalar on PanditProfile,
         // and the handler below spreads the row wholesale (`...pandit`).
