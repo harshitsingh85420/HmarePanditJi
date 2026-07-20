@@ -3,24 +3,24 @@
 # Coverage mappings live in coverage.yaml so they survive regeneration.
 meta:
   source: "docs/pandit-pov-conformance-register.md"
-  sourceSha256: "9dfeed5904432b14"
+  sourceSha256: "1fa800a62df69d6c"
   totalRequirements: 78
   tally:
-    built: 7
-    partial: 7
-    missing: 39
-    verify: 25
+    built: 8
+    partial: 14
+    missing: 56
+    verify: 0
 blocks:
   - id: "F1"
     title: "Dual-Mode Entry Point"
     requirements:
       - id: "F01-01"
-        status: "verify"
+        status: "missing"
         testKind: ["auto"]
         typeRaw: "AUTO (route/e2e)"
         requirement: "Public homepage shows two large CTAs: \"मुझे पंडित चाहिए\" and \"मैं पंडित हूँ — जुड़ना चाहता हूँ\"; tapping the pandit CTA lands directly in the voice-first pandit flow with **no intermediate screen**"
       - id: "F01-02"
-        status: "verify"
+        status: "missing"
         testKind: ["manual"]
         typeRaw: "MANUAL (phone)"
         requirement: "The two CTAs are strongly visually differentiated at 360px width (edge #7)"
@@ -58,32 +58,35 @@ blocks:
     title: "Voice-First Navigation & Universal Error Handling"
     requirements:
       - id: "F02-01"
-        status: "verify"
+        status: "missing"
         testKind: ["auto"]
         typeRaw: "AUTO (component)"
         requirement: "First-ever open speaks the welcome script: \"नमस्ते पंडित जी… यह ऐप पूरी तरह आपकी आवाज़ से चलेगा…\" (once, not on every open)"
       - id: "F02-02"
-        status: "verify"
+        status: "partial"
+        statusNote: "partial"
         testKind: ["auto"]
         typeRaw: "AUTO"
         requirement: "**Failure 1** of any voice input → speaks \"माफ़ कीजिये, कृपया फिर से बोलिए।\""
       - id: "F02-03"
-        status: "verify"
+        status: "missing"
         testKind: ["auto"]
         typeRaw: "AUTO"
         requirement: "**Failure 2** → \"कृपया धीरे और साफ़ बोलिए।\""
       - id: "F02-04"
-        status: "verify"
+        status: "missing"
         testKind: ["auto"]
         typeRaw: "AUTO"
         requirement: "**Failure 3** → the fallback line **and** keyboard auto-opens **and** a \"सहायता चाहिए\" button appears wiring to the support path"
       - id: "F02-05"
-        status: "verify"
+        status: "partial"
+        statusNote: "partial"
         testKind: ["auto"]
         typeRaw: "AUTO"
         requirement: "Failure counter resets per field, not per session"
       - id: "F02-06"
-        status: "verify"
+        status: "partial"
+        statusNote: "partial"
         testKind: ["auto"]
         typeRaw: "AUTO"
         requirement: "**Confirmation loop after every voice input:** \"आपने कहा [X] — सही है?\"; \"नहीं\" → re-input; \"हाँ\" → advance (edge #4: no silent acceptance, ever)"
@@ -98,7 +101,7 @@ blocks:
         typeRaw: "MANUAL"
         requirement: "High ambient noise → proactively suggest keyboard (edge #2)"
       - id: "F02-09"
-        status: "verify"
+        status: "missing"
         testKind: ["auto"]
         typeRaw: "AUTO"
         requirement: "\"पीछे जाओ\" only navigates — **never deletes entered data**; deletion requires explicit \"हटा दो\" + double confirm (edge #8)"
@@ -108,7 +111,7 @@ blocks:
         typeRaw: "AUTO"
         requirement: "Internet drop mid-input: buffer locally, show \"सहेज रहे हैं…\", retry on reconnect — input never silently lost (edge #7)"
       - id: "F02-11"
-        status: "verify"
+        status: "missing"
         testKind: ["auto"]
         typeRaw: "AUTO (render)"
         requirement: "Support path off-hours: show expected callback time + async WhatsApp option (edge #9)"
@@ -127,7 +130,8 @@ blocks:
         typeRaw: "AUTO"
         requirement: "Location detected → default language set from city/state map (Varanasi→Hindi, Madurai→Tamil)"
       - id: "F03-02"
-        status: "verify"
+        status: "partial"
+        statusNote: "partial"
         testKind: ["auto"]
         typeRaw: "AUTO"
         requirement: "Detection is announced + confirmable: \"आपके शहर [X] के हिसाब से हम [भाषा] सेट कर रहे हैं…\" — GPS suggestion is a **prompt, never silent auto-set** (edge #1)"
@@ -148,7 +152,7 @@ blocks:
         typeRaw: "AUTO"
         requirement: "Mid-session hot-switch via voice, with confirmation"
       - id: "F03-06"
-        status: "verify"
+        status: "missing"
         testKind: ["auto"]
         typeRaw: "AUTO"
         requirement: "GPS beats IP when they disagree (edge #2)"
@@ -156,7 +160,7 @@ blocks:
     title: "Assisted Location Capture (Map + Manual Address)"
     requirements:
       - id: "F04-01"
-        status: "verify"
+        status: "missing"
         testKind: ["auto"]
         typeRaw: "AUTO"
         requirement: "Component-wise address interview: मकान नंबर → गली/मोहल्ला → शहर → ज़िला → राज्य → पिनकोड, each through the F2 error ladder"
@@ -177,8 +181,7 @@ blocks:
         typeRaw: "AUTO"
         requirement: "Pin-timeout ladder: 30s nudge → 60s \"शहर और इलाका बोलिए, हम डाल देंगे\" → 90s ops-team alert"
       - id: "F04-05"
-        status: "verify"
-        statusNote: "**security-grade**"
+        status: "missing"
         testKind: ["auto"]
         typeRaw: "AUTO (api contract)"
         requirement: "Privacy: full address + lat/long **never** in any customer-facing API response; only city/district/state public"
@@ -217,7 +220,7 @@ blocks:
         typeRaw: "MANUAL"
         requirement: "Damaged/unreadable card → re-upload path accepts UIDAI masked PDF / DigiLocker (edge #5)"
       - id: "F05-07"
-        status: "verify"
+        status: "missing"
         testKind: ["auto"]
         typeRaw: "AUTO (admin logic)"
         requirement: "Face-match vs Aadhaar photo is a **soft** check — mismatch flags for human review, never auto-rejects (edge #3)"
@@ -225,7 +228,7 @@ blocks:
     title: "Pooja-Specific Video Verification (core trust differentiator)"
     requirements:
       - id: "F08-01"
-        status: "verify"
+        status: "missing"
         testKind: ["auto"]
         typeRaw: "AUTO"
         requirement: "Voice pooja-selection loop: system names common poojas one-by-one, हाँ/नहीं each, ends with \"कोई और पूजा?\""
@@ -235,12 +238,13 @@ blocks:
         typeRaw: "AUTO (ui) + MANUAL (camera)"
         requirement: "Per selected pooja: 2-minute video required; both paths offered — \"नया रिकॉर्ड करें\" / \"गैलरी से\""
       - id: "F08-03"
-        status: "verify"
+        status: "partial"
+        statusNote: "partial"
         testKind: ["auto"]
         typeRaw: "AUTO (render)"
         requirement: "Recording instructions delivered (मंत्रोच्चार, आसन, चेहरा साफ़)"
       - id: "F08-04"
-        status: "verify"
+        status: "missing"
         testKind: ["auto"]
         typeRaw: "AUTO (admin)"
         requirement: "Admin review captures the 5 documented parameters (mantra, vidhi, face, माहौल, quality)"
@@ -275,7 +279,7 @@ blocks:
         typeRaw: "AUTO"
         requirement: "Re-upload creates version+1 PENDING; REJECTED-only transition (PENDING/APPROVED → 409)"
       - id: "F09-04"
-        status: "verify"
+        status: "missing"
         testKind: ["auto"]
         typeRaw: "AUTO (admin)"
         requirement: "Admin sees rejection history: count, reasons, accepted version"
@@ -302,7 +306,8 @@ blocks:
     title: "Dakshina Setup"
     requirements:
       - id: "F11-01"
-        status: "verify"
+        status: "partial"
+        statusNote: "partial"
         testKind: ["auto"]
         typeRaw: "AUTO"
         requirement: "Voice script states the total covers **all** pandits' dakshina"
@@ -338,7 +343,7 @@ blocks:
         typeRaw: "AUTO (schema)"
         requirement: "**Every item carries quantity + company/brand name**"
       - id: "F12-03"
-        status: "verify"
+        status: "built"
         testKind: ["auto"]
         typeRaw: "AUTO"
         requirement: "Supply-preference question: \"क्या आप ये सारी सामग्री खुद ला सकते हैं?\" हाँ/नहीं branches"
@@ -371,13 +376,12 @@ blocks:
         typeRaw: "AUTO"
         requirement: "On app open: \"क्या आप आज online होना चाहते हैं…?\" → 🟢/🔴"
       - id: "F32-05"
-        status: "verify"
-        statusNote: "(GoOnline exists — verify rule)"
+        status: "missing"
         testKind: ["auto"]
         typeRaw: "AUTO"
         requirement: "Auto-offline: connectivity loss → 🔴 immediately"
       - id: "F32-06"
-        status: "verify"
+        status: "missing"
         testKind: ["auto"]
         typeRaw: "AUTO"
         requirement: "Auto-offline: backgrounded > 10 min → 🔴; < 10 min → unchanged"
@@ -438,12 +442,13 @@ blocks:
     title: "Universal Multilingual Backend Mapping"
     requirements:
       - id: "F43-01"
-        status: "verify"
+        status: "missing"
         testKind: ["auto"]
         typeRaw: "AUTO (schema)"
         requirement: "Every pooja + samagri item has a universal ID with per-language display names"
       - id: "F43-02"
-        status: "verify"
+        status: "partial"
+        statusNote: "partial"
         testKind: ["auto"]
         typeRaw: "AUTO"
         requirement: "Voice input resolves to universal ID, not display string"
