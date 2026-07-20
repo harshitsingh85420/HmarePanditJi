@@ -13,7 +13,11 @@ export function FestivalBanner({ festival }: FestivalBannerProps) {
   const f = festival !== undefined ? festival : getActiveFestival();
   if (!f) return null;
   return (
-    <div className="w-full rounded-card bg-gradient-to-r from-saffron-100 to-gold/20 border border-saffron-100 px-4 py-3 flex items-center gap-4">
+    // CANON card vocabulary (frame 12's surfaces): the 22px raised radius on
+    // a 1.5px sand hairline over canon's warm peach tile gradient, lifted by
+    // the 6px/16px surface shadow rather than sitting flat on the cream.
+    // LAW > CANON: the hint line is 18px, not the 16px `t-hint`.
+    <div className="w-full rounded-surface bg-tile-peach border-[1.5px] border-sand shadow-surface px-4 py-3 flex items-center gap-4">
       <span className="text-[40px] leading-none select-none" role="img" aria-hidden="true">
         {f.emoji}
       </span>
@@ -21,7 +25,7 @@ export function FestivalBanner({ festival }: FestivalBannerProps) {
         <span className="text-[18px] font-bold text-temple-600 font-hindi leading-snug">
           {f.name} {t("festival.greeting")}
         </span>
-        <span className="t-hint text-softgrey font-hindi">{t("festival.hint")}</span>
+        <span className="text-[18px] text-softgrey font-hindi leading-snug">{t("festival.hint")}</span>
       </div>
     </div>
   );

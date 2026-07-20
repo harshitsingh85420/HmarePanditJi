@@ -72,7 +72,8 @@ export function PragatiCard({ earnedKinds }: PragatiCardProps) {
           ))}
         </div>
         {next && (
-          <span className="t-hint text-softgrey font-hindi">
+          /* LAW > CANON: the 18sp floor — `t-hint` is 16px. */
+          <span className="text-[18px] text-softgrey font-hindi leading-snug">
             {t("milestones.nextLabel")} {milestoneLabel(next as MilestoneKind)}
           </span>
         )}
