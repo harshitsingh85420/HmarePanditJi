@@ -356,13 +356,14 @@ export default function LoginPage() {
         ) : (
           <>
             {/* Screen 2: OTP — typed-only by law (A5); the app speaks why once */}
-            <div className="bg-white rounded-card shadow-card p-5 flex flex-col gap-4">
+            <div className="bg-white rounded-card shadow-card px-4 py-5 flex flex-col gap-4">
               {accountExists !== null && (
-                <div className="flex flex-col gap-1">
-                  <h2 className="text-[22px] font-bold text-temple-600 font-hindi leading-snug">
+                <div className="flex flex-col gap-1 text-center">
+                  {/* canon frame 11: heading vocabulary is 19px/800 #341A13 */}
+                  <h2 className="text-[22px] font-extrabold text-temple-700 font-hindi leading-snug">
                     {accountExists ? t("auth.returningTitle") : t("auth.newAccountTitle")}
                   </h2>
-                  <p className="t-hint text-softgrey font-hindi">
+                  <p className="text-[18px] font-semibold text-softgrey font-hindi leading-snug">
                     {accountExists ? t("auth.returningShishya") : t("auth.newAccountShishya")}
                   </p>
                 </div>
@@ -389,16 +390,16 @@ export default function LoginPage() {
               {/* Resend link — mockup frame 7: softgrey label · saffron 00:SS */}
               <div className="text-center mt-2">
                 {countdown > 0 ? (
-                  <span className="text-[15px] font-bold text-softgrey font-hindi">
+                  <span className="text-[18px] font-bold text-softgrey font-hindi">
                     {t("auth.otpResend")}{" "}
-                    <span className="text-saffron-500 font-mono">
+                    <span className="text-saffron-500 font-bold">
                       00:{String(countdown).padStart(2, "0")}
                     </span>
                   </span>
                 ) : (
                   <button
                     onClick={handleResendOtp}
-                    className="text-saffron-600 hover:text-saffron-700 underline font-semibold text-[18px]"
+                    className="text-saffron-500 hover:text-saffron-600 underline font-bold text-[18px]"
                     style={{ minHeight: "56px", fontSize: "18px" }}
                   >
                     {t("auth.otpResend")}
@@ -480,12 +481,18 @@ function OtpBoxes({
 
   return (
     <div className="flex flex-col gap-3">
-      {/* Mockup frame 7: OTP डालिए 26/900 + the sent-to line */}
-      <h2 className="text-[26px] font-black text-temple-700 font-hindi">{t("auth.otpLabel")}</h2>
-      <p className="text-[16px] font-semibold text-softgrey font-hindi -mt-2">
-        {t("auth.otpSentTo").replace("{phone}", sentTo)}
-      </p>
-      <div className="flex gap-2 justify-center my-2">
+      {/* CANON frame 11: centred block — "OTP डालिए" 26/900 #341A13,
+          sent-to line 600 #8A6F5C, 6px below. */}
+      <div className="text-center">
+        <h2 className="text-[26px] font-black text-temple-700 font-hindi leading-snug">
+          {t("auth.otpLabel")}
+        </h2>
+        {/* LAW: canon sets this line at 16px; the 18sp floor wins. */}
+        <div className="text-[18px] font-semibold text-softgrey font-hindi mt-[6px] leading-snug">
+          {t("auth.otpSentTo").replace("{phone}", sentTo)}
+        </div>
+      </div>
+      <div className="flex gap-2 justify-center my-[6px]">
         {digits.map((digit, idx) => (
           <input
             key={idx}
@@ -512,12 +519,17 @@ function OtpBoxes({
                 refs.current[idx - 1]?.focus();
               }
             }}
-            // Mockup frame 7: a FILLED box turns saffron (tint + sindoor
-            // border + saffron-700 digit); empty boxes stay card/sand
-            className={`w-[48px] h-[56px] min-h-[56px] text-center border-2 rounded-[16px] text-[28px] font-black transition-all focus:outline-none focus:border-saffron-500 focus:ring-4 focus:ring-saffron-200 ${
+            // CANON frame 11: box 62×72, radius 16, border 2.5px, digit
+            // 36px/900. A FILLED box is #FDEEE7 fill + #B23A1A border +
+            // #7A250E digit (saffron-50/500/700); an EMPTY box is #FFFDF8
+            // on the #E7DCC9 hairline (card / sand-200), and carries the
+            // sindoor caret canon draws inside the active box.
+            // Six boxes cannot each be 62px on a 360px screen, so they
+            // share the row (flex-1) and cap at canon's 62px on wider ones.
+            className={`flex-1 min-w-0 max-w-[62px] h-[72px] text-center rounded-[16px] border-[2.5px] text-[36px] font-black caret-saffron-500 transition-all focus:outline-none focus:border-saffron-500 focus:ring-4 focus:ring-saffron-200 ${
               digit
                 ? "bg-saffron-50 border-saffron-500 text-saffron-700"
-                : "bg-card border-[#EADFCE] text-ink"
+                : "bg-card border-sand-200 text-ink"
             }`}
           />
         ))}
