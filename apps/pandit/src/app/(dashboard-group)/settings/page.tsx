@@ -19,12 +19,16 @@ import { purgeUserData } from "@/lib/purgeUserData";
 function SettingsRow({
   emoji,
   label,
+  value,
   danger = false,
   onClick,
   href,
 }: {
   emoji: string;
   label: string;
+  /** Canon frame 22 shows the row's CURRENT setting beside the chevron
+   *  (e.g. भाषा → हिन्दी). Only pass a value that is actually true. */
+  value?: string;
   danger?: boolean;
   onClick?: () => void;
   href?: string;
@@ -45,6 +49,9 @@ function SettingsRow({
       <span className={`flex-1 text-left text-[18px] font-extrabold font-hindi ${danger ? "text-danger" : "text-ink"}`}>
         {label}
       </span>
+      {value && (
+        <span className="text-[15px] font-extrabold text-softgrey font-hindi shrink-0">{value}</span>
+      )}
       <span className="text-[#C9BBA6] text-[22px]" aria-hidden="true">›</span>
     </>
   );
@@ -105,6 +112,11 @@ export default function SettingsPage() {
         <SettingsRow
           emoji="🌐"
           label={t("settingsRows.language")}
+          // Canon frame 22 shows the active language beside the chevron.
+          // हिन्दी is the only shipped app language (the picker changes
+          // शिष्य's SPOKEN language, not this UI) — so this is true, not
+          // a placeholder. Wire it to the store when the UI is localised.
+          value="हिन्दी"
           onClick={() => {
             // bare list only — no confirm ceremony, and return here after
             sessionStorage.setItem("hpj_lang_return", "/settings");
