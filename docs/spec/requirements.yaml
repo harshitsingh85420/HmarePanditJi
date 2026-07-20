@@ -93,7 +93,8 @@ blocks:
         typeRaw: "AUTO"
         requirement: "**Confirmation loop after every voice input:** \"आपने कहा [X] — सही है?\"; \"नहीं\" → re-input; \"हाँ\" → advance (edge #4: no silent acceptance, ever)"
       - id: "F02-07"
-        status: "missing"
+        status: "partial"
+        statusNote: "partial — the ≥8s floor is a named law (apps/pandit/src/lib/listenTimeout.ts) enforced on the live listen path; the 12s elderly branch exists but is UNREACHABLE because no elderly flag exists in the product"
         testKind: ["auto"]
         typeRaw: "AUTO"
         requirement: "Voice listen timeout ≥ 8s; elderly-flagged profiles get 12s (edge #3)"

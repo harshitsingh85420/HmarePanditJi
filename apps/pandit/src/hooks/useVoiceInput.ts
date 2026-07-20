@@ -4,6 +4,7 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { getToken } from "@/lib/safeStorage";
 import { voiceController, MIC_RELEASE_STRATEGY } from "@/lib/voiceController";
 import { API_BASE } from "@/lib/api";
+import { listenTimeoutMs } from "@/lib/listenTimeout";
 import { getActiveLang } from "@/lib/i18n";
 
 export interface UseVoiceInputReturn {
@@ -170,7 +171,16 @@ export function useVoiceInput(): UseVoiceInputReturn {
       // J3b adaptive endpointing: 1-3 word command answers stop 800ms
       // sooner than field dictation — the biggest single latency win.
       const SILENCE_LIMIT = mode === "command" ? 700 : 1500;
-      const HARD_CAP = mode === "command" ? 8000 : 15000;
+      // F02-07: whatever the mode wants, a listen window may never be
+      // shorter than the listen-timeout floor (lib/listenTimeout.ts —
+      // 8s normally, 12s for an elderly profile). Math.max, not a
+      // replacement: field dictation's longer 15s window survives.
+      // Both deadlines below inherit this, so the no-speech abort and
+      // the utterance cap can never disagree about when time is up.
+      const HARD_CAP = Math.max(
+        listenTimeoutMs(),
+        mode === "command" ? 8000 : 15000,
+      );
       let elapsed = 0;
       // J3a: per-utterance timing — speech-end → upload → response
       let tSpeechEnd = 0;

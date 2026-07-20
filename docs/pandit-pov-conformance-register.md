@@ -35,7 +35,7 @@
 | F02-04 | **Failure 3** → the fallback line **and** keyboard auto-opens **and** a "सहायता चाहिए" button appears wiring to the support path | AUTO | ✅ built |
 | F02-05 | Failure counter resets per field, not per session | AUTO | ✅ built |
 | F02-06 | **Confirmation loop after every voice input:** "आपने कहा [X] — सही है?"; "नहीं" → re-input; "हाँ" → advance (edge #4: no silent acceptance, ever) | AUTO | ✅ built incl. menu choices |
-| F02-07 | Voice listen timeout ≥ 8s; elderly-flagged profiles get 12s (edge #3) | AUTO | ❌ |
+| F02-07 | Voice listen timeout ≥ 8s; elderly-flagged profiles get 12s (edge #3) | AUTO | 🟡 8s floor built + guarded (`listenTimeout.test.ts`, reconciled from hold/conformance-builds); elderly-12s awaits a profile elderly flag |
 | F02-08 | High ambient noise → proactively suggest keyboard (edge #2) | MANUAL | ❌ |
 | F02-09 | "पीछे जाओ" only navigates — **never deletes entered data**; deletion requires explicit "हटा दो" + double confirm (edge #8) | AUTO | 🟡 delete-grammar + double-confirm built; draft-persistence half on hold/conformance-builds |
 | F02-10 | Internet drop mid-input: buffer locally, show "सहेज रहे हैं…", retry on reconnect — input never silently lost (edge #7) | AUTO | ❌ |
