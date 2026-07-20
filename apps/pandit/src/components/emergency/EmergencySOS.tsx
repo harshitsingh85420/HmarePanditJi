@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { speakWithSarvam } from '@/lib/sarvam-tts'
 import { Header } from '@/components/ui/Header'
 import { Card } from '@/components/ui/Card'
@@ -10,17 +10,26 @@ import { WaveformVisualizer } from '@/components/voice/WaveformBar'
 import { SuccessCheckmark } from '@/components/ui/CompletionBadge'
 import { useReduced, still, fadeInUp, stagger, pulse } from '@/lib/motion'
 
+// Canon frame 25 labels the SOS button "दबाकर रखें" — a long-press, so a
+// pocket-brush or a stray tap can never dial the help line. HOLD_MS is the
+// press duration; the ring fills over exactly this long so the pandit can
+// SEE the hold working, not just be told about it.
+const HOLD_MS = 1200
+
 export default function EmergencySOS() {
   const router = useRouter()
   const [sosSent, setSosSent] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [holding, setHolding] = useState(false)
   const reduced = useReduced()
 
   useEffect(() => {
-    // Welcome voice for SOS feature
+    // Welcome voice. PERSONA: long-press is not discoverable for a
+    // 62-year-old, so the ONE spoken line must teach the gesture itself —
+    // the written "दबाकर रखें" under the button carries the same word.
     const timer = setTimeout(() => {
       void speakWithSarvam({
-        text: 'आप सुरक्षित हैं, हम आपके साथ हैं। आपातकालीन स्थिति में SOS बटन दबाएं।',
+        text: 'घबराएँ नहीं। मदद के लिए बीच का लाल बटन दबाकर रखें।',
         languageCode: 'hi-IN',
         pace: 0.85,
       })
@@ -56,6 +65,29 @@ export default function EmergencySOS() {
     window.location.href = HELP_LINE
   }
 
+  // Hold-to-fire. A press that is released early is simply cancelled — no
+  // call, no state change. Pointer events cover touch, pen and mouse, and
+  // pointercancel (scroll steals the gesture) counts as a release.
+  const holdTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const clearHold = () => {
+    if (holdTimer.current) {
+      clearTimeout(holdTimer.current)
+      holdTimer.current = null
+    }
+    setHolding(false)
+  }
+  const startHold = () => {
+    if (isLoading || sosSent) return
+    setHolding(true)
+    holdTimer.current = setTimeout(() => {
+      holdTimer.current = null
+      setHolding(false)
+      void handleSendSOS()
+    }, HOLD_MS)
+  }
+  // never leave a timer armed behind us
+  useEffect(() => () => { if (holdTimer.current) clearTimeout(holdTimer.current) }, [])
+
   const handleCallTeam = () => {
     void speakWithSarvam({
       text: 'सहायता टीम से संपर्क किया जा रहा है।',
@@ -81,6 +113,7 @@ export default function EmergencySOS() {
         >
           {/* Reassurance Header — mockup frame 25: घबराएँ नहीं 24/900 */}
           <motion.div variants={item} className="text-center mb-8">
+            <style>{`@keyframes sos-hold-fill{from{transform:scaleY(0)}to{transform:scaleY(1)}}`}</style>
             <h2 className="text-[24px] font-black text-ink mb-1 font-hindi">
               घबराएँ नहीं
             </h2>
@@ -102,20 +135,45 @@ export default function EmergencySOS() {
             />
             <motion.button
               whileTap={{ scale: 0.95 }}
-              onClick={handleSendSOS}
+              onPointerDown={startHold}
+              onPointerUp={clearHold}
+              onPointerLeave={clearHold}
+              onPointerCancel={clearHold}
+              // keyboard parity: Enter/Space fire directly (a key has no
+              // "hold" affordance to teach, and the accidental-press risk
+              // this guards against is a pocket touch, not a keypress)
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  void handleSendSOS()
+                }
+              }}
               disabled={isLoading || sosSent}
-              className={`relative z-10 w-44 h-44 rounded-full flex flex-col items-center justify-center gap-1 shadow-btn transition-transform disabled:opacity-70 disabled:pointer-events-none ${
+              aria-label="सहायता बुलाएँ — दबाकर रखें"
+              className={`relative z-10 w-44 h-44 rounded-full flex flex-col items-center justify-center gap-1 shadow-btn transition-transform disabled:opacity-70 disabled:pointer-events-none overflow-hidden select-none ${
                 sosSent ? 'bg-leaf-500' : 'bg-saffron-500'
               } text-chandan`}
             >
+              {/* hold progress — a ring that fills over exactly HOLD_MS so the
+                  gesture is VISIBLE, not just described. Transform/opacity
+                  only, and reduced-motion keeps it static. */}
+              {holding && !reduced && (
+                <span
+                  aria-hidden="true"
+                  className="absolute inset-0 rounded-full bg-white/25 origin-bottom"
+                  style={{ animation: `sos-hold-fill ${HOLD_MS}ms linear forwards` }}
+                />
+              )}
               {sosSent ? (
                 <SuccessCheckmark size="lg" animated={true} />
               ) : isLoading ? (
                 <WaveformVisualizer barCount={5} height="lg" animated={true} />
               ) : (
                 <>
-                  <span className="text-[44px] leading-none select-none" aria-hidden="true">🆘</span>
-                  <span className="text-[22px] font-black font-hindi leading-tight">सहायता बुलाएँ</span>
+                  <span className="relative text-[44px] leading-none select-none" aria-hidden="true">🆘</span>
+                  <span className="relative text-[22px] font-black font-hindi leading-tight">सहायता बुलाएँ</span>
+                  {/* canon frame 25: the gesture, in writing, on the button */}
+                  <span className="relative text-[14px] font-semibold font-hindi opacity-90">दबाकर रखें</span>
                 </>
               )}
             </motion.button>
