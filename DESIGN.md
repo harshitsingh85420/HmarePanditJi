@@ -88,3 +88,21 @@ not an app component).
 canon 2 and 4), and the duplicate-looking `/dashboard`, `/homepage`,
 `/profile`, `/emergency`. Internal-only, out of scope: `/design*`,
 `/dev/font-compare`, `/test-voice`.
+
+---
+
+## Deliberately not built (post-pilot, data-dependent)
+
+These canon elements are **not** fidelity gaps. Each needs a data source that
+does not exist, and a 5-pandit pilot will not generate one. Rendering a
+placeholder for any of them would break the truthful-state law, so the slot
+stays empty until the data is real:
+
+- customer ⭐ rating and the "नियमित यजमान" badge on the booking request
+- per-booking "⭐ X.X मिला" on completed rows
+- the "· N पंडित" verified-by count on my-poojas cards
+
+Also banned, for a different reason: the **family-SMS row on the SOS screen**
+(canon 25). There is no SMS capability at all yet (DLT-blocked), so a control
+that implies a message was sent would be a safety lie. It stays out until SMS
+exists.
