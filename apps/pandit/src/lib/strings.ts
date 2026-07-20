@@ -611,6 +611,8 @@ export const hi = {
     pendingVerify: "सत्यापन बाकी",
     rejected: "अस्वीकृत",
     rejectedReasonPrefix: "कारण:",
+    // Canon frame 21: the way back after a rejection (pilot-critical)
+    resubmit: "दुबारा भेजें",
     removeBlocked: "इस पूजा की बुकिंग चल रही है — अभी हटा नहीं सकते",
     pickPooja: "कौन सी पूजा जोड़ें?",
     dakshinaLabel: "दक्षिणा तय करें",

@@ -239,14 +239,24 @@ export default function MyPoojasPage() {
               </button>
             )}
 
-            {(() => {
-              if (v?.status !== "REJECTED" || !v?.rejectionReason) return null;
-              return (
-                <p className="text-[14px] text-danger font-hindi leading-snug">
-                  {t("myPoojas.rejectedReasonPrefix")} {v.rejectionReason}
-                </p>
-              );
-            })()}
+            {v?.status === "REJECTED" && v?.rejectionReason && (
+              <p className="text-[14px] text-danger font-hindi leading-snug">
+                {t("myPoojas.rejectedReasonPrefix")} {v.rejectionReason}
+              </p>
+            )}
+
+            {/* Canon frame 21: a REJECTED puja carries its way back. This is
+                pilot-critical — without it a rejected pandit is stuck. Routes
+                to the existing add flow, where a new video creates version+1
+                (the API allows a new version only after a rejection). */}
+            {status === "REJECTED" && (
+              <button
+                onClick={() => router.push("/my-poojas/add")}
+                className="self-start min-h-[56px] px-4 -ml-1 text-[16px] font-extrabold text-saffron-700 font-hindi active:scale-[0.97] transition-transform"
+              >
+                🔄 {t("myPoojas.resubmit")} ›
+              </button>
+            )}
           </Card>
           );
         })}

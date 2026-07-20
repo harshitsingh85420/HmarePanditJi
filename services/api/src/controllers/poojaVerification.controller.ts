@@ -40,8 +40,29 @@ export const submitPoojaVerification = async (request: FastifyRequest, reply: Fa
   const latest = await prisma.poojaVerification.findFirst({
     where: { panditProfileId: profile.id, poojaType: b.poojaType },
     orderBy: { version: "desc" },
-    select: { version: true },
+    select: { version: true, status: true },
   });
+
+  // RESUBMIT STATE GATE. Ownership is already established (the row is keyed
+  // on THIS pandit's profile.id, resolved from the auth token — a pandit can
+  // never touch another's verification). What this adds is the transition
+  // rule: a new version may only be created for a FIRST submission or after
+  // a REJECTION.
+  //   PENDING  — a duplicate row would put two versions in the admin queue
+  //              and the pandit could not tell which one was judged.
+  //   APPROVED — a new version is PENDING, and the booking gate requires the
+  //              LATEST to be APPROVED; so resubmitting would silently pull a
+  //              live, bookable puja off the market. Deliberately blocked for
+  //              the pilot. (To allow re-recording an approved puja later,
+  //              relax THIS check and the guard together.)
+  if (latest && latest.status !== "REJECTED") {
+    const msg =
+      latest.status === "PENDING"
+        ? "यह पूजा पहले से जाँच में है — कृपया नतीजे का इंतज़ार करें।"
+        : "यह पूजा पहले से प्रमाणित है — दोबारा भेजने की ज़रूरत नहीं।";
+    throw new AppError(msg, 409, "VERIFICATION_NOT_RESUBMITTABLE");
+  }
+
   const row = await prisma.poojaVerification.create({
     data: {
       panditProfileId: profile.id,
