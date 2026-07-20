@@ -22,6 +22,7 @@ import { VoiceField } from "@/components/voice/VoiceField";
 import { FirstUseTip } from "@/components/moments/FirstUseTip";
 import { Toast } from "@/components/ui/Toast";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { CelebrationOverlay } from "@/components/moments/CelebrationOverlay";
 
 const ALL_POOJAS = Object.values(hi.onboarding.specializations);
 
@@ -53,6 +54,8 @@ export default function MyPoojasPage() {
   const [editing, setEditing] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
   const [toastMsg, setToastMsg] = useState("");
+  // Canon frame 26 उत्सव — a newly APPROVED puja
+  const [celebrateVerified, setCelebrateVerified] = useState(false);
   const addBtnRef = useRef<HTMLDivElement | null>(null);
 
   const load = async () => {
@@ -82,6 +85,27 @@ export default function MyPoojasPage() {
         vmap[r.poojaType] = { status: r.status, rejectionReason: r.rejectionReason ?? null };
       }
       setVerifications(vmap);
+
+      // Canon frame 26 उत्सव "आप प्रमाणित हैं!". Approval happens on the
+      // ADMIN's clock, so there is no in-app action to hang it on — the
+      // trigger is the same freshly-seen pattern the payout moment uses:
+      // a puja APPROVED that this device has not celebrated yet.
+      const approved = Object.entries(vmap)
+        .filter(([, v]) => v.status === "APPROVED")
+        .map(([poojaType]) => poojaType);
+      if (approved.length > 0) {
+        let seen: string[] = [];
+        try {
+          seen = JSON.parse(localStorage.getItem("hpj_seen_approved_poojas") || "[]");
+        } catch { /* noop */ }
+        const fresh = approved.filter((p) => !seen.includes(p));
+        // Never celebrate on a device's FIRST run — existing approvals are
+        // history, not news. Only a NEW approval earns the moment.
+        if (fresh.length > 0 && seen.length > 0) setCelebrateVerified(true);
+        try {
+          localStorage.setItem("hpj_seen_approved_poojas", JSON.stringify(approved));
+        } catch { /* noop */ }
+      }
     }
 
     setLoading(false);
@@ -126,6 +150,19 @@ export default function MyPoojasPage() {
   };
 
   if (loading) return <DiyaLoader />;
+
+  // Canon frame 26 उत्सव — "आप प्रमाणित हैं!"
+  if (celebrateVerified) {
+    return (
+      <CelebrationOverlay
+        badge="✓"
+        title="आप प्रमाणित हैं!"
+        subtitle="अब यजमान आपको ढूँढ सकते हैं 🙏"
+        tone="saffron"
+        onDone={() => setCelebrateVerified(false)}
+      />
+    );
+  }
 
   return (
     <Screen

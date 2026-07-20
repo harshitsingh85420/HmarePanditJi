@@ -19,6 +19,7 @@ import { useVoice } from "@/hooks/useVoice";
 import { VoiceActionListener } from "@/components/voice/VoiceActionListener";
 import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
 import { MoneyCount } from "@/components/moments/MoneyCount";
+import { CelebrationOverlay } from "@/components/moments/CelebrationOverlay";
 
 interface BookingDetail {
   id: string;
@@ -61,6 +62,8 @@ export default function BookingRequestPage() {
 
   // Confirm dialog state for Reject action
   const [showRejectConfirm, setShowRejectConfirm] = useState(false);
+  // Canon frame 26 उत्सव — shown after a successful accept
+  const [showAccepted, setShowAccepted] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -140,7 +143,9 @@ export default function BookingRequestPage() {
     // Success announcements
     vibrateConfirm();
     speak(t("booking.acceptedVoice"));
-    router.replace(`/bookings/${booking.id}`);
+    // Canon frame 26 उत्सव: the accept gets its moment BEFORE the detail
+    // screen. The overlay owns the navigation when it finishes/is tapped.
+    setShowAccepted(true);
   };
 
   const handleReject = async () => {
@@ -182,6 +187,21 @@ export default function BookingRequestPage() {
       confirmText: "आप बुकिंग अस्वीकार कर रहे हैं. पक्का?",
     },
   ];
+
+  // Canon frame 26 उत्सव — the accept moment. Money named here is the
+  // pandit's REAL server-computed take, never a mockup figure.
+  if (showAccepted) {
+    return (
+      <CelebrationOverlay
+        badge="✓"
+        title="बुकिंग स्वीकार! 🎉"
+        subtitle={`${cName} की पूजा अब आपकी है`}
+        amount={booking.earnings?.totalToPandit || 0}
+        tone="leaf"
+        onDone={() => router.replace(`/bookings/${booking.id}`)}
+      />
+    );
+  }
 
   return (
     <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
