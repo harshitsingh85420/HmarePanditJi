@@ -254,14 +254,24 @@ export function HomeView({
                 ref={toggleRef}
                 onClick={onToggleStatus}
                 disabled={!isApproved}
+                /* CANON: online = leaf + breathing glow OVER a permanent
+                   grounding shadow; offline keeps the lift (online-rest) so
+                   the control does not flatten the instant it is switched
+                   off. Disabled stays flat — it is not a live control. */
                 className={`w-full h-[84px] rounded-card flex items-center justify-center gap-3 font-extrabold text-[23px] text-white transition-all active:scale-[0.98] ${
-                  !isApproved ? "bg-slate-300 cursor-not-allowed" : isOnline ? "bg-leaf-500 online-glow" : "bg-softgrey"
+                  !isApproved
+                    ? "bg-slate-300 cursor-not-allowed"
+                    : isOnline
+                      ? "bg-leaf-500 online-glow"
+                      : "bg-softgrey online-rest"
                 }`}
                 style={{ minHeight: "84px" }}
               >
                 {isApproved && (
+                  /* CANON: the dot breathes while online (go-dot) — a static
+                     dot read as a printed decal, not a live indicator. */
                   <span
-                    className="w-4 h-4 rounded-full"
+                    className={`w-4 h-4 rounded-full ${isOnline ? "online-dot" : ""}`}
                     style={{ background: isOnline ? "#B6F0C8" : "#E4D6C7", boxShadow: isOnline ? "0 0 8px #B6F0C8" : "none" }}
                   />
                 )}

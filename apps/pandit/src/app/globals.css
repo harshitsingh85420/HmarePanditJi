@@ -436,12 +436,28 @@ body {
 }
 .page-enter { animation: page-enter 200ms ease-out; }
 
-/* Soft glowing pulse while the pandit is online — "open for business" */
+/* Soft glowing pulse while the pandit is online — "open for business".
+   CANON (design/canon/GoOnline.dc.html) carries a PERMANENT grounding
+   shadow 0 6px 16px rgba(21,92,52,.3) in BOTH keyframes, on top of the
+   breathing glow — the same lift the शिष्य orb has. The app animated only
+   the glow, so the pill sat flat on the cream. Glow also brought to canon
+   strength (22px/6px @ .4, was 18px/4px @ .35) and 2.2s. */
 @keyframes online-glow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(30, 122, 70, 0.45); }
-  50%      { box-shadow: 0 0 18px 4px rgba(30, 122, 70, 0.35); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(30, 122, 70, 0.45), 0 6px 16px rgba(21, 92, 52, 0.3); }
+  50%      { box-shadow: 0 0 22px 6px rgba(30, 122, 70, 0.4),  0 6px 16px rgba(21, 92, 52, 0.3); }
 }
-.online-glow { animation: online-glow 2s ease-in-out infinite; }
+.online-glow { animation: online-glow 2.2s ease-in-out infinite; }
+/* the OFFLINE pill keeps the lift without the glow, so the control does
+   not visibly flatten the moment it is switched off */
+.online-rest { box-shadow: 0 6px 16px rgba(90, 46, 32, 0.22); }
+
+/* CANON: the status dot breathes with the pill (go-dot) — a static dot
+   read as a printed decal rather than a live indicator. */
+@keyframes online-dot {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.35; }
+}
+.online-dot { animation: online-dot 1.4s ease-in-out infinite; }
 
 /* Tiny header diya (reuses the DiyaLoader flicker feel at 20px) */
 @keyframes diya-flicker-sm {
@@ -683,7 +699,7 @@ body {
   .shishya-ripple, .shishya-ripple-2, .shishya-listen-ring,
   .pa-splash-diya, .pa-splash-om, .pa-splash-word, .pa-splash-toran, .pa-splash-orb,
   .pa-petal, .pa-diya-flame, .pa-diya-halo, .pa-canvas-enter, .pa-stagger > *,
-  .pa-cdiya-flame, .pa-cdiya-core, .pa-cdiya-glow, .shishya-breathe-halo,
+  .pa-cdiya-flame, .pa-cdiya-core, .pa-cdiya-glow, .shishya-breathe-halo, .online-dot,
   .pa-burst-petal, .pa-bell-swing, .pa-bounce-once, .pa-arrow-bounce, .pa-tap-hint,
   .pa-toran-sway, .shishya-breathe, .pa-thali-ripple {
     animation: none !important;
