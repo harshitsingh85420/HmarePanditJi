@@ -262,7 +262,23 @@ export default function BookingWizardClient() {
       .then((r) => r.ok ? r.json() : Promise.reject())
       .then((j: any) => {
         const data = j.data ?? j;
-        if (Array.isArray(data) && data.length) setRituals(data);
+        if (Array.isArray(data) && data.length) {
+          // The API's ritual rows carry basePriceMin/basePriceMax +
+          // durationHours — not the demo shape's baseDakshina/minutes.
+          // Without this mapping a REAL ritual quoted dakshina 0 and the
+          // server (rightly) 422'd the booking. The MIN base price is the
+          // honest default quote; the pandit still human-gates the amount
+          // at accept time.
+          setRituals(
+            data.map((r: Record<string, unknown>) => ({
+              id: String(r.id),
+              name: String(r.name ?? ""),
+              nameHindi: String(r.nameHindi ?? ""),
+              durationMinutes: Number(r.durationMinutes ?? Number(r.durationHours ?? 1) * 60),
+              baseDakshina: Number(r.baseDakshina ?? r.basePriceMin ?? 0),
+            }))
+          );
+        }
       })
       .catch((err) => {
         console.warn('Failed to fetch rituals:', err);
