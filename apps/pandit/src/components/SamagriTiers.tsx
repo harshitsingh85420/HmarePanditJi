@@ -32,12 +32,18 @@ export function SamagriTiers({
   const activeIdx = ORDER.indexOf(active);
   const byTier = (t: SamagriTier) => tiers.find((x) => x.tier === t);
 
-  // cumulative rows: every tier up to and including the active one
-  const rows: Array<{ item: SamagriItem; fromLabel: string; inherited: boolean }> = [];
+  // cumulative rows: every tier up to and including the active one.
+  // CANON (SamagriTiers.dc.html): `isNew = i === t && t > 0` — the "नया" pill
+  // and its leaf #BFE3CC rule mark what THIS tier ADDS on top of a lower one.
+  // At बेसिक there is nothing to add on top of, so canon draws those rows on
+  // the plain #EADFCE hairline with no pill. The app was flagging every
+  // non-inherited row as नया, which made बेसिक's own list read as an upgrade.
+  const rows: Array<{ item: SamagriItem; fromLabel: string; inherited: boolean; isNew: boolean }> = [];
   for (let i = 0; i <= activeIdx; i++) {
     const td = byTier(ORDER[i]);
     if (!td) continue;
-    for (const item of td.items) rows.push({ item, fromLabel: td.label, inherited: i < activeIdx });
+    const inherited = i < activeIdx;
+    for (const item of td.items) rows.push({ item, fromLabel: td.label, inherited, isNew: !inherited && activeIdx > 0 });
   }
 
   return (
@@ -56,19 +62,19 @@ export function SamagriTiers({
               }`}
               aria-pressed={isActive}
             >
-              <span className="font-extrabold text-[16px]">{td?.label ?? tier}</span>
-              {showPrices && td?.price != null && <span className="font-bold text-[13px] opacity-85">₹{td.price.toLocaleString("en-IN")}</span>}
+              <span className="font-extrabold text-[18px]">{td?.label ?? tier}</span>
+              {showPrices && td?.price != null && <span className="font-bold text-[16px] opacity-85">₹{td.price.toLocaleString("en-IN")}</span>}
             </button>
           );
         })}
       </div>
 
       {/* cumulative item cards */}
-      <div className="flex flex-col gap-2.5">
+      <div className="flex flex-col gap-[9px]">
         {rows.length === 0 && (
-          <div className="text-[14px] text-softgrey font-medium py-4 text-center">अभी कोई सामान नहीं जोड़ा</div>
+          <div className="text-[18px] text-softgrey font-medium py-4 text-center">अभी कोई सामान नहीं जोड़ा</div>
         )}
-        {rows.map(({ item, fromLabel, inherited }, i) => (
+        {rows.map(({ item, fromLabel, inherited, isNew }, i) => (
           <motion.div
             key={`${fromLabel}-${item.name}-${i}`}
             initial={reduce || inherited ? false : { opacity: 0, x: 22 }}
