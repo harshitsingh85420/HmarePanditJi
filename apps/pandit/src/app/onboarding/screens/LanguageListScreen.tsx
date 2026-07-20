@@ -95,94 +95,103 @@ export default function LanguageListScreen({ onSelect, onBack }: LanguageListScr
 
   return (
     <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
-      {/* Festive header band */}
+      {/* CANON frame 3: the garland hangs straight off the top of the frame —
+          there is NO sindoor header band and no white-on-gradient title. The
+          screen's title is a plain centred 29/900 line on the cream field. */}
       <header className="shrink-0">
-        <div className="h-[60px] bg-gradient-to-r from-genda to-saffron-500 px-4 flex items-center gap-3">
+        <Toran tone="onSindoor" />
+      </header>
+
+      {/* Canon column: padding 14px 22px 16px, gap 16px. */}
+      <div className="flex-1 min-h-0 flex flex-col px-[22px] pt-[14px] pb-4 gap-4">
+        <div className="relative shrink-0 min-h-[52px] flex items-center justify-center">
+          {/* Canon draws no back control on this frame; the screen really can
+              go back (voice "पीछे" does), so the affordance stays — rendered
+              in canon's own card idiom instead of the old white/90 disc. */}
           <button
             onClick={onBack}
             aria-label={t("common.back")}
-            className="w-14 h-14 min-w-[56px] min-h-[56px] rounded-full bg-white/90 shadow-card active:scale-90 flex items-center justify-center text-[18px] transition-all"
+            className="absolute left-0 top-1/2 -translate-y-1/2 w-[52px] h-[52px] rounded-full bg-card border-2 border-sand-200 text-temple-700 text-[22px] flex items-center justify-center active:scale-90 transition-transform"
           >
             ←
           </button>
-          <h1 className="font-display text-[22px] text-white flex-1 text-center pr-14">
+          <h1 className="font-display text-[29px] font-black text-temple-700 text-center leading-tight px-[58px]">
             {t("pratham.langListTitle")}
           </h1>
         </div>
-        <Toran tone="onSindoor" className="bg-saffron-500" />
-      </header>
 
-      <main className="flex-1 overflow-y-auto px-4 pt-4 pb-6">
-        {/* Mockup frame 3 tile grammar: white #FFFDF8 cards, 2px sand
-            border, r18; native name 26/800 + latin subtitle; the armed
-            (pending) tile turns saffron-tinted with a sindoor border and
-            a ✓ badge — replaces the old festive-accent tiles/gold ring. */}
-        <div className="grid grid-cols-2 gap-3">
-          {TILES.map((tile) => {
-            const native = LANG_NATIVE_NAME[tile.code];
-            const isPending = pending === tile.code;
-            return (
-              <button
-                key={tile.code}
-                onClick={() => tapTile(tile)}
-                className={`relative min-h-[104px] rounded-[18px] border-2 p-3 flex flex-col items-center justify-center gap-1 active:scale-[0.97] transition-transform ${
-                  isPending
-                    ? "bg-saffron-50 border-saffron-500"
-                    : "bg-card border-sand-200"
-                }`}
-                aria-label={isPending ? `${native} — ${t("pratham.langTapAgain")}` : native}
-                aria-pressed={isPending}
-              >
-                {isPending && (
+        {/* Canon tile grammar: flat #FFFDF8 fill, 2px #E7DCC9 hairline, r18,
+            padding 18/14, LEFT-aligned stack with a 3px gap — native name
+            26/800 #341A13 over the latin label. The armed tile swaps to the
+            peach fill, a 2.5px sindoor border, a 26px ✓ disc at 10/10, a 900
+            #7A250E name and canon's soft sindoor lift. */}
+        <main className="flex-1 min-h-0 overflow-y-auto -mx-1 px-1">
+          <div className="grid grid-cols-2 gap-[13px] content-start">
+            {TILES.map((tile) => {
+              const native = LANG_NATIVE_NAME[tile.code];
+              const isPending = pending === tile.code;
+              return (
+                <button
+                  key={tile.code}
+                  onClick={() => tapTile(tile)}
+                  className={`relative rounded-tile py-[18px] px-[14px] flex flex-col items-start text-left gap-[3px] active:scale-[0.97] transition-transform ${
+                    isPending
+                      ? "bg-saffron-50 border-[2.5px] border-saffron-500 shadow-sindoor-soft"
+                      : "bg-card border-2 border-sand-200"
+                  }`}
+                  aria-label={isPending ? `${native} — ${t("pratham.langTapAgain")}` : native}
+                  aria-pressed={isPending}
+                >
+                  {isPending && (
+                    <span
+                      className="absolute top-[10px] right-[10px] w-[26px] h-[26px] rounded-full bg-saffron-500 text-white text-[18px] font-bold flex items-center justify-center leading-none"
+                      aria-hidden="true"
+                    >
+                      ✓
+                    </span>
+                  )}
                   <span
-                    className="absolute top-2 right-2 w-6 h-6 rounded-full bg-saffron-500 text-white text-[14px] font-bold flex items-center justify-center"
-                    aria-hidden="true"
+                    className={`text-[26px] font-hindi leading-tight ${
+                      isPending ? "text-saffron-700 font-black" : "text-temple-700 font-extrabold"
+                    }`}
                   >
-                    ✓
+                    {native}
                   </span>
-                )}
-                <span className={`text-[26px] font-extrabold font-hindi leading-tight ${isPending ? "text-saffron-700" : "text-ink"}`}>
-                  {native}
-                </span>
-                <span className="text-[14px] font-semibold text-softgrey leading-tight">
-                  {tile.subtitle ?? tile.lang}
-                </span>
-                {isPending && (
-                  <span className="text-[13px] font-semibold text-temple-600 font-hindi">
-                    {t("pratham.langTapAgain")}
+                  {/* LAW > CANON: canon sets this latin label at 14px. The
+                      18sp body floor wins; 18/600 in the same #8A6F5C. */}
+                  <span className="text-[18px] font-semibold text-softgrey leading-tight">
+                    {tile.subtitle ?? tile.lang}
                   </span>
-                )}
-                {burstOn === tile.code && (
-                  <PetalBurst count={4} onEnd={() => setBurstOn(null)} />
-                )}
-              </button>
-            );
-          })}
-        </div>
-      </main>
+                  {burstOn === tile.code && (
+                    <PetalBurst count={4} onEnd={() => setBurstOn(null)} />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </main>
 
-      {/* WAVE 2 CANDIDATE — canon frame 3 puts an explicit "आगे बढ़ें" CTA
-          under the tiles. The shipped flow selects on the SECOND tap (or by
-          voice) with no CTA, which is fewer taps but gives no visible
-          "commit" step. This adds the CTA WITHOUT removing either existing
-          path: arm a tile (first tap), then either tap it again / say the
-          name as before, or press आगे बढ़ें. Disabled until something is
-          armed, so it can never select nothing. */}
-      <footer className="shrink-0 px-4 py-2 bg-cream/95 backdrop-blur border-t border-saffron-100 flex items-end gap-3">
-        <div className="flex-1">
-          <Button
-            variant="primary"
-            size="lg"
-            fullWidth
-            disabled={!pending}
-            onClick={() => {
-              const tile = TILES.find((x) => x.code === pending);
-              if (tile) selectTile(tile);
-            }}
-          >
-            {t("common.next")}
-          </Button>
-        </div>
+        {/* Canon's explicit commit step. It does not replace either existing
+            path: arm a tile (first tap), then tap it again / say the name /
+            press आगे बढ़ें. Disabled until something is armed, so it can never
+            select nothing. size="md" is canon's exact CTA (62px / 21px / 800). */}
+        <Button
+          variant="primary"
+          size="md"
+          fullWidth
+          disabled={!pending}
+          onClick={() => {
+            const tile = TILES.find((x) => x.code === pending);
+            if (tile) selectTile(tile);
+          }}
+        >
+          {t("common.next")}
+        </Button>
+      </div>
+
+      {/* Canon puts शिष्य centred under the CTA (padding 2px 0 16px), not
+          docked beside it. */}
+      <footer className="shrink-0 flex justify-center pt-[2px] pb-4">
         <ShishyaOrb />
       </footer>
     </div>
