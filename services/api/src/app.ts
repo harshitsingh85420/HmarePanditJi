@@ -211,10 +211,40 @@ app.get(API_PREFIX, async (_request: FastifyRequest, reply: FastifyReply) => {
   });
 });
 
+// ─────────────────────────────────────────────────────────────
+// SCOPED PUBLIC READ — exactly one unauthenticated route.
+//
+// The customer's pandit-detail page is a logged-out SSR render, so
+// GET /pandits/:id must be reachable with no token. Everything else
+// under /pandit* stays authenticated + PANDIT-role-gated.
+//
+// Matched on Fastify's OWN route template (request.routeOptions.url),
+// not on the raw URL. That distinction is the whole safety property
+// here: a path-prefix or single-segment regex would also match sibling
+// routes like /pandits/samagri-packages, /pandits/me, /pandits/bookings,
+// /pandits/calendar, /pandits/dashboard-summary and
+// /pandits/pending-requests — all of which are private pandit data and
+// all of which are one segment deep, exactly like an id. Keying off the
+// resolved template means those match their own patterns and can never
+// be mistaken for :id, no matter what a future id looks like.
+//
+// The response body for this route is pinned by
+// services/api/src/lib/public-pandit-projection.test.ts. That guard is
+// what makes this exemption safe: it fails the build if the projection
+// stops being an allow-list, or if any bank / Aadhaar / geo / phone
+// field re-enters it. Do not weaken one without reverting the other.
+// ─────────────────────────────────────────────────────────────
+const PUBLIC_PANDIT_READS = new Set<string>([`${API_PREFIX}/pandits/:id`]);
+
+export function isPublicPanditRead(method: string, routeTemplate: string | undefined): boolean {
+  return method === "GET" && !!routeTemplate && PUBLIC_PANDIT_READS.has(routeTemplate);
+}
+
 // Enforce role PANDIT on all /pandit/* or /pandits/* routes
 app.addHook("preHandler", async (request, reply) => {
   const url = request.url;
   if (url.startsWith(`${API_PREFIX}/pandits`) || url.startsWith(`${API_PREFIX}/pandit`)) {
+    if (isPublicPanditRead(request.method, request.routeOptions?.url)) return;
     await authenticate(request, reply);
     await roleGuard("PANDIT")(request, reply);
   }
