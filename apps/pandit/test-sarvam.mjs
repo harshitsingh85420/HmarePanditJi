@@ -3,7 +3,13 @@
 
 import { SarvamAIClient } from 'sarvamai'
 
-const SARVAM_API_KEY = 'sk_vqcaecbe_TnM2brJwLtV7ysUM2a9IQQ0K'
+// SECURITY: never hardcode the key. Supply it via the environment:
+//   SARVAM_API_KEY=sk_... node test-sarvam.mjs
+const SARVAM_API_KEY = process.env.SARVAM_API_KEY
+if (!SARVAM_API_KEY) {
+  console.error('Set SARVAM_API_KEY in the environment before running this script.')
+  process.exit(1)
+}
 
 const client = new SarvamAIClient({
   apiSubscriptionKey: SARVAM_API_KEY

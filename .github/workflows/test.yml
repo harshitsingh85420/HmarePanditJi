@@ -150,8 +150,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # `--filter X tsc` runs a SCRIPT named tsc, which no app defines — this
+      # job passed while checking nothing. `exec` runs the tsc BINARY.
       - name: Run TypeScript check
-        run: pnpm --filter @hmarepanditji/pandit tsc --noEmit
+        run: pnpm --filter @hmarepanditji/pandit exec tsc --noEmit
 
   build:
     name: Build
