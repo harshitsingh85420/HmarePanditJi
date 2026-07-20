@@ -27,8 +27,15 @@ const config: Config = {
     extend: {
       colors: {
         // AARTI IDENTITY — key names unchanged so no class renames are needed.
-        // saffron == SINDOOR (primary), cream == CHANDAN, gold == PITAL brass,
-        // leaf == TULSI money green, softgrey == DHOOP.
+        // NOTE the `saffron` key is a legacy NAME, not the hue: its value is
+        // SINDOOR #B23A1A, which is what the design canon actually uses
+        // (design/canon/हमारे पंडित जी.dc.html — #b23a1a is its most-used
+        // colour, 99 occurrences; the saffron #904d00 of the older /prompts
+        // Stitch set appears there ZERO times). Renaming the key would touch
+        // every class in the app for no visual gain, so the name stays and
+        // this comment carries the truth. See DESIGN.md / CONFLICT_RULINGS.md.
+        // cream == CHANDAN, gold == PITAL brass, leaf == TULSI money green,
+        // softgrey == DHOOP.
         saffron: {
           DEFAULT:'#B23A1A',
           50:'#FDEEE7', 100:'#FAD8C9', 200:'#F4B096', 300:'#EC8663',
