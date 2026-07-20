@@ -454,24 +454,43 @@ body {
   animation: diya-flicker-sm 0.9s ease-in-out infinite;
 }
 
-/* ── शिष्य orb states ─────────────────────────────────────── */
+/* ── शिष्य orb states (canon: design/canon/Shishya.dc.html) ──
+   THE GROUNDING SHADOW. Canon carries 0 6px 16px rgba(178,58,26,.35) on
+   the orb at ALL times — a sindoor-tinted shadow that sits it ON the
+   surface. Without it the orb reads as a flat sticker, which is what the
+   app looked like. It is repeated in every state below because a
+   box-shadow animation replaces the whole stack, not just one layer. */
+.shishya-orb-ground { box-shadow: 0 6px 16px rgba(178, 58, 26, 0.35); }
+
 @keyframes shishya-ripple {
-  0%   { transform: scale(1); opacity: 0.3; }
-  100% { transform: scale(1.9); opacity: 0; }
+  0%   { transform: scale(1);   opacity: 0.55; }
+  100% { transform: scale(2);   opacity: 0; }
 }
 .shishya-ripple {
   position: absolute;
   inset: -4px;
   border-radius: 9999px;
-  border: 3px solid rgba(231, 181, 74, 0.3);
-  animation: shishya-ripple 1.6s ease-out infinite;
+  border: 3px solid rgba(231, 181, 74, 0.55);
+  animation: shishya-ripple 1.7s ease-out infinite;
   pointer-events: none;
 }
-.shishya-ripple-2 { animation-delay: 0.8s; }
+.shishya-ripple-2 { animation-delay: 0.85s; }
 
+/* IDLE = a breathing GOLD HALO on the orb, not a scaling glyph. The app
+   used to scale the 🙏 itself, which made the emoji wobble instead of
+   the orb glowing — cheaper-looking and off-canon. */
+@keyframes shishya-breathe-halo {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(231, 181, 74, 0),   0 6px 16px rgba(178, 58, 26, 0.35); }
+  50%      { box-shadow: 0 0 24px 7px rgba(231, 181, 74, 0.5), 0 6px 16px rgba(178, 58, 26, 0.35); }
+}
+.shishya-breathe-halo { animation: shishya-breathe-halo 2.6s ease-in-out infinite; }
+
+/* LISTENING = a double ring that GROWS 7px -> 11px (canon), on chandan
+   #FFF6E9, keeping the grounding shadow. The old ring held a fixed 6px
+   and only faded, which read as a blink rather than attention. */
 @keyframes shishya-listen-pulse {
-  0%, 100% { box-shadow: 0 0 0 3px #FAF3E6, 0 0 0 6px #E7B54A; }
-  50%      { box-shadow: 0 0 0 3px #FAF3E6, 0 0 0 6px rgba(231, 181, 74, 0.45); }
+  0%, 100% { box-shadow: 0 0 0 3px #FFF6E9, 0 0 0 7px  #E7B54A,                 0 6px 16px rgba(178, 58, 26, 0.35); }
+  50%      { box-shadow: 0 0 0 3px #FFF6E9, 0 0 0 11px rgba(231, 181, 74, 0.35), 0 6px 16px rgba(178, 58, 26, 0.35); }
 }
 .shishya-listen-ring { animation: shishya-listen-pulse 1.4s ease-in-out infinite; }
 
@@ -664,7 +683,7 @@ body {
   .shishya-ripple, .shishya-ripple-2, .shishya-listen-ring,
   .pa-splash-diya, .pa-splash-om, .pa-splash-word, .pa-splash-toran, .pa-splash-orb,
   .pa-petal, .pa-diya-flame, .pa-diya-halo, .pa-canvas-enter, .pa-stagger > *,
-  .pa-cdiya-flame, .pa-cdiya-core, .pa-cdiya-glow,
+  .pa-cdiya-flame, .pa-cdiya-core, .pa-cdiya-glow, .shishya-breathe-halo,
   .pa-burst-petal, .pa-bell-swing, .pa-bounce-once, .pa-arrow-bounce, .pa-tap-hint,
   .pa-toran-sway, .shishya-breathe, .pa-thali-ripple {
     animation: none !important;
