@@ -60,13 +60,24 @@ export default function LocationPermissionScreen({
   useVoiceCommands(
     [
       {
-        keywords: [...YES, "अनुमति", "allow"],
+        // Walk पP0 #3: in the detected-city confirm sub-view, शिष्य asks
+        // "क्या आप वाराणसी में हैं?" — a voice yes/no — yet saying "हाँ" did
+        // NOTHING (this action only pulsed the allow button, which isn't even
+        // rendered in that view). Now "हाँ/यही/सही" confirms the detected city
+        // by voice. commandsRef is refreshed every render, so this closure
+        // always sees the current `detected`.
+        keywords: [...YES, "अनुमति", "allow", "यही", "सही", "ठीक"],
         action: () => {
+          if (detected) {
+            onGranted(detected.city, detected.state);
+            return;
+          }
           setPulse(true);
           voiceController.speak(t("entry.locationTapHint"), { highlightRef: allowBtnRef });
         },
       },
-      { keywords: NO, action: () => onDenied() },
+      // नहीं / "जगह बदलें" → manual picker, whether or not a city was detected
+      { keywords: [...NO, "बदलो", "जगह"], action: () => onDenied() },
     ],
     t("help.location"),
   );
