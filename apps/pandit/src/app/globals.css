@@ -672,13 +672,6 @@ body {
 
 /* ── Boring-pass E: ambient warmth (transform/opacity/paint only) ── */
 
-/* The toran garland gently sways (paint-only background drift, no layout) */
-@keyframes pa-toran-sway {
-  0%, 100% { background-position-x: 0; }
-  50%      { background-position-x: 8px; }
-}
-.pa-toran-sway { animation: pa-toran-sway 5s ease-in-out infinite; }
-
 /* Canon garland (Toran variant="garland"): each hanging strand sways from its
    own top, per-strand delay set inline (design/canon/Toran.dc.html tn-sway). */
 @keyframes pa-toran-strand-sway {
@@ -735,7 +728,7 @@ body {
   .pa-petal, .pa-diya-flame, .pa-diya-halo, .pa-canvas-enter, .pa-stagger > *,
   .pa-cdiya-flame, .pa-cdiya-core, .pa-cdiya-glow, .shishya-breathe-halo, .online-dot,
   .pa-burst-petal, .pa-bell-swing, .pa-bounce-once, .pa-arrow-bounce, .pa-tap-hint,
-  .pa-toran-sway, .pa-toran-strand, .shishya-breathe, .pa-thali-ripple,
+  .pa-toran-strand, .shishya-breathe, .pa-thali-ripple,
   .pa-sh-ribbon, .pa-map-ring, .pa-map-bounce {
     animation: none !important;
   }

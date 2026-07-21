@@ -1,23 +1,18 @@
 import React from "react";
 
-// TORAN — a marigold garland. Two variants:
+// TORAN — canon's full hanging marigold garland, ported verbatim from
+// design/canon/Toran.dc.html: a 58px-tall dark cord with `count` drawn
+// marigold blooms (top-lit radial shading), every 3rd strand longer with a
+// second bloom + a leaf, each strand swaying from its own top.
 //
-//  · "strip"   — the compact 14px header strand (paint-only CSS gradient).
-//    This is the DEFAULT so every existing Header keeps its height contract
-//    untouched; the strand reads as a subtle marigold border under the bar.
-//
-//  · "garland" — canon's full hanging garland, ported verbatim from
-//    design/canon/Toran.dc.html: a 58px-tall dark cord with `count` drawn
-//    marigold blooms (top-lit radial shading), every 3rd strand longer with a
-//    second bloom + a leaf, each strand swaying from its own top. Canon-frame
-//    ports (the splash now; the header batch later) opt into this.
-//
-// Both are a SINGLE component so the header-batch upgrade is one prop flip.
+// The old 14px bead-strip variant is DEAD (Isj's proof pair, 2026-07-21 —
+// it appeared in zero of the 41 canon artboards). The `variant` prop is
+// kept for call-site compatibility but every value renders the garland.
 export interface ToranProps {
   tone?: "onSindoor" | "onCream";
-  /** "garland" renders canon's full 58px hanging garland; default is the strip. */
+  /** compat only — the garland is the only Toran now. */
   variant?: "strip" | "garland";
-  /** garland only: number of marigold strands (canon default 11). */
+  /** number of marigold strands (canon default 11). */
   count?: number;
   className?: string;
 }
@@ -29,14 +24,8 @@ const BLOOM = {
   onCream: "#FFE9B8 0%, #E7B54A 50%, #B8860B 100%",
 } as const;
 
-// The cord the blooms hang from (canon: linear-gradient(#9a4a1e,#5e1c0a)).
-const CORD = {
-  onSindoor: "#7A250E",
-  onCream: "#B8860B",
-} as const;
-
-export function Toran({ tone = "onSindoor", variant = "strip", count = 11, className }: ToranProps) {
-  if (variant === "garland") {
+export function Toran({ tone = "onSindoor", count = 11, className }: ToranProps) {
+  {
     // Canon: strands.push({ delay: -(i*0.32)s, long: i % 3 === 1 }).
     const strands = Array.from({ length: count }, (_, i) => ({
       delay: `${(-(i * 0.32)).toFixed(2)}s`,
@@ -115,27 +104,6 @@ export function Toran({ tone = "onSindoor", variant = "strip", count = 11, class
       </div>
     );
   }
-
-  // ── compact header strip (default; unchanged 14px contract) ──
-  // A flat marigold border under the header bar at a fine 16px pitch.
-  return (
-    <div
-      aria-hidden="true"
-      className={`pa-toran-sway ${className ?? ""}`}
-      style={{
-        height: "14px",
-        backgroundImage: [
-          // blooms — finer 16px pitch, canon's top-lit shading
-          `radial-gradient(circle at 50% 30%, ${BLOOM[tone]} 62%, transparent 63%)`,
-          // the cord they hang from, 2px along the top edge
-          `linear-gradient(${CORD[tone]}, ${CORD[tone]})`,
-        ].join(","),
-        backgroundSize: "16px 14px, 100% 2px",
-        backgroundRepeat: "repeat-x, repeat-x",
-        backgroundPosition: "0 0, 0 0",
-      }}
-    />
-  );
 }
 
 export default Toran;

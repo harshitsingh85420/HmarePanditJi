@@ -324,10 +324,10 @@ export default function DesignSystemPage() {
         <div className="bg-saffron-500 px-4 py-3">
           <h2 className="t-title font-bold text-[#FFE8D2]">🪔 Aarti theme</h2>
         </div>
-        <Toran tone="onSindoor" className="bg-saffron-500" />
+        <Toran variant="garland" count={11} />
         <div className="p-4 flex flex-col gap-4">
-          <h3 className="t-hint font-bold uppercase">Toran on cream</h3>
-          <Toran tone="onCream" />
+          <h3 className="t-hint font-bold uppercase">Toran garland — onCream tone</h3>
+          <Toran variant="garland" count={11} tone="onCream" />
           <h3 className="t-hint font-bold uppercase">Thali nav (active = home)</h3>
           <div className="relative h-[76px] border border-[#E8D9BC] rounded-card overflow-hidden">
             <BottomNav activeTab={0} onChange={() => {}} className="!absolute" />
@@ -395,7 +395,6 @@ export default function DesignSystemPage() {
               ["/calendar", "hi.calendar.blockVoice", "tap"],
               ["/samagri", "Narrate", "—"],
               ["/settings", "hi.settingsScreen.intro + voiceOn/voiceOff on toggle", "narration only (by design)"],
-              ["/resume", "speakWithSarvam (mount)", "—"],
               ["/(registration)/*", "redirects to /login | /onboarding", "n/a"],
             ].map(([route, narration, input]) => (
               <tr key={route} className="border-t border-saffron-50">
