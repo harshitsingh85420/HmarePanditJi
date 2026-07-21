@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+@keyframes go-glow { 0%,100%{ box-shadow:0 0 0 0 rgba(30,122,70,.45), 0 6px 16px rgba(21,92,52,.3);} 50%{ box-shadow:0 0 22px 6px rgba(30,122,70,.4), 0 6px 16px rgba(21,92,52,.3);} }
+@keyframes go-dot { 0%,100%{ opacity:1;} 50%{ opacity:.35;} }
+@media (prefers-reduced-motion: reduce){ *{ animation:none !important; } }
+</style>
+</helmet>
+<div style="display:flex; flex-direction:column; align-items:center; gap:8px; font-family:'Noto Sans Devanagari',sans-serif;">
+  <button onClick="{{ toggle }}" style="width:100%; height:84px; border:none; border-radius:20px; cursor:pointer; font-family:'Noto Sans Devanagari',sans-serif; font-weight:800; font-size:23px; color:#fff; display:flex; align-items:center; justify-content:center; gap:13px; background:{{ bg }}; animation:{{ anim }}; transition:background .3s;" style-active="transform:scale(.98)">
+    <span style="width:16px; height:16px; border-radius:50%; background:{{ dot }}; box-shadow:0 0 8px {{ dot }}; animation:{{ dotAnim }};"></span>
+    {{ label }}
+  </button>
+  <span style="font-size:15px; font-weight:600; color:{{ subCol }};">{{ sub }}</span>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:340,&quot;height&quot;:140},&quot;online&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  state = { online: this.props.online ?? false };
+  renderVals(){
+    const on = this.state.online;
+    return {
+      toggle: () => this.setState(s => ({ online: !s.online })),
+      bg: on ? '#1E7A46' : '#8A6F5C',
+      anim: on ? 'go-glow 2.2s ease-in-out infinite' : 'none',
+      dot: on ? '#B6F0C8' : '#E4D6C7',
+      dotAnim: on ? 'go-dot 1.4s ease-in-out infinite' : 'none',
+      label: on ? 'आप ऑनलाइन हैं' : 'ऑनलाइन जाएं',
+      sub: on ? 'परिवार अब आपको बुला सकते हैं ✓' : 'काम शुरू करने के लिए दबाएँ',
+      subCol: on ? '#155C34' : '#8A6F5C',
+    };
+  }
+}
+</script>
+</body>
+</html>

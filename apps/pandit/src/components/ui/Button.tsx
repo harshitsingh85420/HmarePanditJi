@@ -28,22 +28,35 @@ export function Button({
   onClick,
   ...props
 }: ButtonProps) {
-  // Styles based on variant
+  // CANON CTA (the single most-repeated component in the artboards, 18 of
+  // them, all identical bar a few px):
+  //   border-radius:18px; background:#B23A1A; color:#FFF6E9;
+  //   font-size:20-22px; font-weight:800; min-height:60-64px;
+  //   box-shadow:0 6px 16px rgba(178,58,26,.3)
+  // Deltas that were live: 16px radius, #FFF3EA (a near-miss for chandan
+  // #FFF6E9), weight 600 not 800, and md at 56px/18px — so the app's primary
+  // button was rounder-cornered, thinner-lettered and shorter than canon's
+  // everywhere at once. Weight is the one that showed most: 600 on sindoor
+  // reads washed out, 800 reads pressed-in.
   const variantStyles = {
-    primary: "bg-saffron-500 text-[#FFF3EA] shadow-btn hover:bg-saffron-600 active:scale-[0.97]",
-    // CANON lifts money/success highest of all (0 8px 20px leaf). This
-    // variant carried NO shadow at all, so the one button that confirms
-    // money sat flatter than the ordinary primary beside it.
-    success: "bg-leaf-500 text-white shadow-btn-leaf hover:bg-leaf-600 active:scale-[0.97]",
-    "danger-outline": "bg-white border-2 border-danger text-danger hover:bg-red-50 active:scale-[0.97]",
-    secondary: "bg-[#F8E3D2] text-saffron-700 hover:bg-saffron-100 active:scale-[0.97]",
-    ghost: "bg-transparent text-temple-500 underline hover:bg-saffron-50 active:scale-[0.97]",
+    primary: "bg-saffron-500 text-chandan shadow-btn font-extrabold hover:bg-saffron-600 active:scale-[0.97]",
+    // CANON lifts money/success highest of all (0 8px 20px leaf) AND sets it
+    // a weight heavier than primary (900 vs 800) — the money button is meant
+    // to be the boldest thing on its screen.
+    success: "bg-leaf-500 text-white shadow-btn-leaf font-black hover:bg-leaf-600 active:scale-[0.97]",
+    "danger-outline": "bg-card border-2 border-danger text-danger font-extrabold hover:bg-red-50 active:scale-[0.97]",
+    // CANON secondary is an OUTLINED peach pill, not a solid tan slab:
+    //   background:#FDEEE7; border:2px solid #F4B096; color:#7A250E; 800
+    secondary: "bg-saffron-50 border-2 border-saffron-200 text-saffron-700 font-extrabold hover:bg-saffron-100 active:scale-[0.97]",
+    ghost: "bg-transparent text-temple-500 underline font-bold hover:bg-saffron-50 active:scale-[0.97]",
   };
 
-  // Sizes: height and text-size
+  // Sizes: height and text-size. Canon's own range is 60-66px / 20-23px;
+  // every step here is >= the old one, so nothing can fall under the 52px
+  // tap-target floor and no screen loses room.
   const sizeStyles = {
-    md: "h-[56px] min-h-[56px] text-[18px]",
-    lg: "h-[64px] min-h-[64px] text-[20px]",
+    md: "h-[62px] min-h-[62px] text-[21px]",
+    lg: "h-[64px] min-h-[64px] text-[22px]",
     xl: "h-[80px] min-h-[80px] text-[24px]",
   };
 
@@ -56,7 +69,10 @@ export function Button({
         onClick?.(e);
       }}
       className={cn(
-        "rounded-btn font-semibold flex items-center justify-center transition-all duration-200 select-none relative",
+        // rounded-cta == canon's 18px. Weight now comes from the variant
+        // (canon differentiates primary 800 from success 900), so the blanket
+        // font-semibold that used to sit here is gone.
+        "rounded-cta flex items-center justify-center transition-all duration-200 select-none relative",
         "focus-visible:ring-4 focus-visible:ring-saffron-200 focus:outline-none",
         fullWidth ? "w-full" : "px-6",
         variantStyles[variant],

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+</helmet>
+<div style="display:flex; flex-direction:column; gap:12px; font-family:'Noto Sans Devanagari',sans-serif;">
+  <div style="display:flex; align-items:center; justify-content:space-between;">
+    <span style="font-size:14px; color:#8A6F5C;">◀</span>
+    <span style="font-size:20px; font-weight:800; color:#341A13;">जुलाई 2026</span>
+    <span style="font-size:14px; color:#8A6F5C;">▶</span>
+  </div>
+  <div style="display:grid; grid-template-columns:repeat(7,1fr); gap:4px;">
+    <sc-for list="{{ weekdays }}" as="w" hint-placeholder-count="7">
+      <div style="text-align:center; font-size:12px; font-weight:700; color:#8A6F5C; padding-bottom:2px;">{{ w }}</div>
+    </sc-for>
+    <sc-for list="{{ cells }}" as="c" hint-placeholder-count="35">
+      <div onClick="{{ c.onTap }}" style="aspect-ratio:1; border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; background:{{ c.bg }}; border:1.5px solid {{ c.bd }}; color:{{ c.col }}; cursor:{{ c.cursor }}; font-weight:{{ c.fw }}; font-size:16px; transition:all .18s; position:relative;" style-active="transform:scale(.92)">
+        {{ c.day }}
+        <span style="font-size:9px; line-height:1; height:9px; font-weight:700;">{{ c.badge }}</span>
+      </div>
+    </sc-for>
+  </div>
+  <div style="display:flex; gap:14px; flex-wrap:wrap; padding-top:2px;">
+    <span style="display:flex; align-items:center; gap:6px; font-size:13px; color:#8A6F5C; font-weight:600;"><span style="width:14px; height:14px; border-radius:5px; background:#FFFDF8; border:1.5px solid #EADFCE;"></span>खाली</span>
+    <span style="display:flex; align-items:center; gap:6px; font-size:13px; color:#8A6F5C; font-weight:600;"><span style="width:14px; height:14px; border-radius:5px; background:#E9E2D6;"></span>छुट्टी</span>
+    <span style="display:flex; align-items:center; gap:6px; font-size:13px; color:#8A6F5C; font-weight:600;"><span style="width:14px; height:14px; border-radius:5px; background:#FDEEE7; border:1.5px solid #F4B096;"></span>बुकिंग</span>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:340,&quot;height&quot;:420}}">
+class Component extends DCLogic {
+  state = { blocked: new Set([21]) };
+  renderVals(){
+    const booked = new Set([5, 12, 18, 27]);
+    const blocked = this.state.blocked;
+    const offset = 3; // July 1 2026 = Wednesday
+    const days = 31;
+    const cells = [];
+    for (let i = 0; i < offset; i++) cells.push({ day: '', badge: '', bg: 'transparent', bd: 'transparent', col: 'transparent', cursor: 'default', fw: 400, onTap: () => {} });
+    for (let d = 1; d <= days; d++){
+      const isBooked = booked.has(d);
+      const isBlocked = blocked.has(d);
+      let bg, bd, col, badge, fw;
+      if (isBooked){ bg = '#FDEEE7'; bd = '#F4B096'; col = '#B23A1A'; badge = '●'; fw = 800; }
+      else if (isBlocked){ bg = '#E9E2D6'; bd = '#E9E2D6'; col = '#8A6F5C'; badge = '✕'; fw = 600; }
+      else { bg = '#FFFDF8'; bd = '#EADFCE'; col = '#341A13'; badge = ''; fw = 700; }
+      cells.push({
+        day: String(d), badge, bg, bd, col, fw,
+        cursor: isBooked ? 'default' : 'pointer',
+        onTap: isBooked ? (() => {}) : (() => this.setState(s => {
+          const nb = new Set(s.blocked);
+          if (nb.has(d)) nb.delete(d); else nb.add(d);
+          return { blocked: nb };
+        })),
+      });
+    }
+    return { weekdays: ['र', 'सो', 'मं', 'बु', 'गु', 'शु', 'श'], cells };
+  }
+}
+</script>
+</body>
+</html>

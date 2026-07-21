@@ -34,7 +34,7 @@ export function VoiceIndicator({
   const { barHeight, containerSize, labelSize } = sizeMap[size]
 
   const labels = {
-    idle: 'उत्तर देने के लिए माइक दबाएं',
+    idle: 'उत्तर देने के लिए माइक दबाइए',
     listening: 'सुन रहे हैं...',
     speaking: 'बोल रहे हैं...',
     processing: 'प्रोसेस कर रहे हैं...',

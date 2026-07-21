@@ -10,9 +10,11 @@ import { AppError } from "../middleware/errorHandler";
 import crypto from "crypto";
 import { storeOtpHash, getOtpHash, deleteOtpHash, checkRateLimit } from "../lib/redis";
 import { DEFAULT_SAMAGRI } from "@hmarepanditji/db";
+import { validateSamagriItems, readSamagriItems, toPanditAppItems, asJsonItems, SAMAGRI_BRAND_ANY, type SamagriItem } from "../lib/samagriItem";
 import { computeEarnings } from "../lib/earnings";
 import { checkAndAwardMilestones } from "../lib/milestones";
 import { canRemovePooja, REMOVE_BLOCKING_STATUSES } from "../lib/poojaRules";
+import { checkDakshinaFloor } from "../lib/dakshinaFloor";
 import { panditView, withPanditView, dbStatusesForView } from "../lib/bookingStatus";
 import { NotificationService } from "../services/notification.service";
 import { getNotificationTemplate } from "../services/notification-templates";
@@ -609,9 +611,16 @@ export const getSamagriPackages = async (request: FastifyRequest, reply: Fastify
     }
   });
 
+  // F12-02: the platform-authored master list names no company for any item —
+  // it cannot, it is generic. That is truthfully "कोई भी", not a missing field.
+  // Stamping it here means the list the editor loads can be saved straight back
+  // without the pandit having to answer "कंपनी?" fifteen times to get started.
+  const withDefaultBrand = (list: Array<{ name: string; qty: string }>) =>
+    list.map((it) => ({ ...it, brand: SAMAGRI_BRAND_ANY }));
+
   // If no packages are saved, return default samagri list
   if (packages.length === 0) {
-    const defaultItems = DEFAULT_SAMAGRI[pujaType] || DEFAULT_SAMAGRI["SATYANARAYAN"];
+    const defaultItems = withDefaultBrand(DEFAULT_SAMAGRI[pujaType] || DEFAULT_SAMAGRI["SATYANARAYAN"]);
     return reply.send({
       success: true,
       data: {
@@ -628,10 +637,15 @@ export const getSamagriPackages = async (request: FastifyRequest, reply: Fastify
   // Otherwise, map packages to the tier structure
   const tiers = ["BASIC", "STANDARD", "PREMIUM"].map((t) => {
     const pkg = packages.find((p) => p.tier === t);
+    // F12-02 legacy tolerance: rows written before brand existed have no brand
+    // key. readSamagriItems() reads them back with brand: null and never throws —
+    // a pre-F12-02 package must still LOAD, it just cannot be re-SAVED until the
+    // pandit names a company (or says "कोई भी") for each item.
+    const source = pkg ? pkg.items : (packages[0]?.items ?? null);
     return {
       tier: t,
       price: pkg ? pkg.price : null,
-      items: pkg ? (pkg.items as any) : (packages[0]?.items || DEFAULT_SAMAGRI[pujaType])
+      items: source !== null ? toPanditAppItems(readSamagriItems(source)) : withDefaultBrand(DEFAULT_SAMAGRI[pujaType])
     };
   });
 
@@ -667,12 +681,30 @@ export const saveSamagriPackages = async (request: FastifyRequest, reply: Fastif
     return reply.status(404).send({ success: false, error: "Pandit profile not found" });
   }
 
+  // F12-02: this is the LIVE pandit-app write path and it used to store `items`
+  // as raw `any` — an item with no quantity, or no company/brand name, went
+  // straight into the Json column. Validate BEFORE any tier is written, so a
+  // rejected payload cannot leave some tiers saved and others not.
+  const validatedByTier = new Map<string, SamagriItem[]>();
+  for (const tierData of tiers) {
+    const numericPrice = tierData.price ? Number(tierData.price) : 0;
+    if (numericPrice <= 0) continue; // this tier is being cleared; nothing to validate
+    const check = validateSamagriItems(tierData.items);
+    if (!check.ok) {
+      return reply.status(400).send({ success: false, error: check.message });
+    }
+    validatedByTier.set(tierData.tier, check.items);
+  }
+
   // Process each tier
   for (const tierData of tiers) {
-    const { tier, price, items } = tierData;
+    const { tier, price } = tierData;
     const numericPrice = price ? Number(price) : 0;
 
     if (numericPrice > 0) {
+      // F12-02: only the validated, canonical items are ever written. Set by the
+      // pre-pass above for exactly the tiers that reach this branch.
+      const validatedItems = validatedByTier.get(tier) ?? [];
       // Upsert
       await prisma.samagriPackage.upsert({
         where: {
@@ -684,7 +716,7 @@ export const saveSamagriPackages = async (request: FastifyRequest, reply: Fastif
         },
         update: {
           price: numericPrice,
-          items: items as any,
+          items: asJsonItems(validatedItems),
           isActive: true
         },
         create: {
@@ -692,7 +724,7 @@ export const saveSamagriPackages = async (request: FastifyRequest, reply: Fastif
           pujaType,
           tier: tier as any,
           price: numericPrice,
-          items: items as any,
+          items: asJsonItems(validatedItems),
           isActive: true
         }
       });
@@ -1393,6 +1425,17 @@ export const upsertDakshinaRate = async (request: FastifyRequest, reply: Fastify
   const { pujaType, amount } = request.body as { pujaType?: string; amount?: number };
   if (!pujaType || typeof amount !== "number" || amount < 0 || !Number.isFinite(amount)) {
     return reply.status(400).send({ success: false, error: "pujaType and a non-negative amount are required" });
+  }
+
+  // F11-04 floor (edge F11-2). This is the OTHER dakshina write path (readiness
+  // R1). A floor enforced on only one of the two is not enforced at all, so both
+  // resolve through the same table: lib/dakshinaFloor.ts.
+  const floorCheck = checkDakshinaFloor(pujaType, amount);
+  if (!floorCheck.ok) {
+    return reply.status(400).send({
+      success: false,
+      error: { code: "dakshina_below_floor", message: floorCheck.message, floor: floorCheck.floor },
+    });
   }
 
   // F29(a): existing bookings snapshot dakshinaAmount — this only affects NEW bookings.

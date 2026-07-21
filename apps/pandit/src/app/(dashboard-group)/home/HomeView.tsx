@@ -16,7 +16,6 @@ import { motion, AnimatePresence } from "framer-motion";
 
 // UI Components
 import { Card } from "@/components/ui/Card";
-import { Header } from "@/components/ui/Header";
 import { BottomNav } from "@/components/ui/BottomNav";
 import { StatusChip } from "@/components/ui/StatusChip";
 import { Toast } from "@/components/ui/Toast";
@@ -134,24 +133,30 @@ export function HomeView({
     return `${daypart} ${h12}:${mm}`;
   };
 
-  const HomeHeaderRightSlot = () => (
-    <button
-      onClick={() => onNavigate("/settings")}
-      className="w-11 h-11 min-h-[44px] min-w-[44px] rounded-full bg-white shadow-card hover:bg-saffron-50 active:scale-90 flex items-center justify-center text-[18px] transition-all focus:outline-none focus:ring-2 focus:ring-saffron-200"
-      aria-label="Settings"
-    >
-      ⚙️
-    </button>
-  );
-
   return (
     <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
-      {/* HEADER */}
-      <Header
-        title={<span className="font-display font-normal">{festivalDay ? <span className="animate-diya-sm mr-1" role="img" aria-hidden="true">🪔</span> : <span className="mr-1" role="img" aria-hidden="true">🌼</span>}{`नमस्ते, ${firstName} जी`}</span>}
-        showBack={false}
-        rightSlot={<HomeHeaderRightSlot />}
-      />
+      {/* CANON frame 8 header — a PLAIN greeting row on the cream field. Canon's
+          home does NOT carry the shared saffron banner or the toran strand
+          (those are the entry screens); it is just the floating 🪔 greeting in
+          22/900 temple-ink and a #FFFDF8 settings circle. padding 6px 18px. */}
+      <div className="shrink-0 flex items-center justify-between px-[18px] py-1.5">
+        <span className="flex items-center gap-[7px] text-[22px] font-black font-display text-temple-700 leading-none">
+          <span className="animate-diya-sm inline-block" role="img" aria-hidden="true">🪔</span>
+          {`नमस्ते, ${firstName} जी`}
+        </span>
+        <button
+          onClick={() => onNavigate("/settings")}
+          /* canon: 44px #FFFDF8 circle, 0 2px 8px rgba(90,46,32,.12) shadow, a
+             24px material `settings` glyph in #7A250E. LAW > CANON on the box:
+             canon draws 44px, the 52px tap-target floor wins. */
+          className="w-[52px] h-[52px] min-h-[52px] min-w-[52px] rounded-full bg-card shadow-card hover:bg-saffron-50 active:scale-90 flex items-center justify-center transition-all focus:outline-none focus:ring-2 focus:ring-saffron-200"
+          aria-label="Settings"
+        >
+          <span className="material-symbols-outlined text-[24px] leading-none text-saffron-700" aria-hidden="true">
+            settings
+          </span>
+        </button>
+      </div>
 
       {/* Voice commands listener (container slot) */}
       {voiceSlot}
@@ -162,7 +167,7 @@ export function HomeView({
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="bg-saffron px-4 py-3 text-center sticky top-[56px] z-40 shadow-md"
+            className="bg-saffron px-4 py-3 text-center sticky top-0 z-40 shadow-md"
           >
             <button
               onClick={() => onNavigate(`/bookings/${newRequestBooking.id}/request`)}
@@ -175,7 +180,8 @@ export function HomeView({
         )}
       </AnimatePresence>
 
-      <main className="flex-1 overflow-y-auto px-4 pt-3 pb-24 flex flex-col gap-3 page-enter">
+      {/* CANON frame 12 scroll body: padding 4px 16px 16px, 13px stack gap */}
+      <main className="flex-1 overflow-y-auto px-4 pt-1 pb-24 flex flex-col gap-[13px] page-enter">
         {/* PANCHANG STRIP */}
         <PanchangStrip shubh={shubhMuhurat} />
 
@@ -206,7 +212,7 @@ export function HomeView({
                   <span className="text-[18px] font-bold text-red-800 font-hindi">
                     {t("home.rejectedTitle")}
                   </span>
-                  <span className="text-[16px] text-red-700 font-hindi mt-1 leading-snug">
+                  <span className="text-[18px] text-red-700 font-hindi mt-1 leading-snug">
                     {rejectionReason || "जानकारी में कुछ त्रुटि है।"}
                   </span>
                 </div>
@@ -228,13 +234,27 @@ export function HomeView({
         {/* EARNINGS HERO — mockup screen 8: the month's कमाई leads the page.
             2px sand border on cream, 🪔 label, big leaf amount, dashed divider,
             आना-बाकी in pital brass. Same data as the old lower card (moved). */}
-        <div className="rounded-[22px] border-2 border-sand p-[18px] flex flex-col">
-          <span className="text-[16px] font-extrabold text-softgrey font-hindi">
-            🪔 {t("home.monthEarnings")}
-          </span>
-          <MoneyCount target={earnings.month || 0} durationMs={1500} className="text-[34px] font-black text-leaf-700 leading-tight" />
-          <div className="border-t border-dashed border-sand-200 mt-3 pt-3 flex justify-between items-center">
-            <span className="text-[15px] font-bold text-softgrey font-hindi">
+        {/* CANON frame 12: the hero is NOT a flat fill — it is the 140deg
+            card gradient (#FFFDF8 → #FFF0DC) on a 2px sand border, 22px
+            radius, lifted by the 6px/16px surface shadow. Label and amount
+            are centred; the आना-बाकी foot sits under a 1.5px dashed rule. */}
+        <div className="rounded-surface border-2 border-sand bg-cardsurface shadow-surface p-[18px] flex flex-col">
+          <div className="flex items-center justify-center gap-2">
+            <span className="text-[20px] leading-none" role="img" aria-hidden="true">🪔</span>
+            <span className="text-[18px] font-extrabold text-softgrey font-hindi">
+              {t("home.monthEarnings")}
+            </span>
+          </div>
+          {/* CANON frame 12 hero amount is 46px: the earnings figure is a
+              <dc-import name="CountUp" size="46" color="#155C34" hint-size="220px,64px">.
+              The 24px "largest type" the RUN-1 census reported is canon's next
+              largest INLINE font-size (the ₹5,600 pill); CountUp's size is an
+              attribute the font-size regex never saw, so 46px IS canon and
+              shrinking it would drift AWAY from the artboard. Colour #155C34 =
+              leaf-700. Kept at 46px (well above the 18px floor). */}
+          <MoneyCount target={earnings.month || 0} durationMs={1500} className="block text-center mt-2 text-[46px] font-black text-leaf-700 leading-tight" />
+          <div className="border-t-[1.5px] border-dashed border-sand-200 mt-[14px] pt-3 flex justify-between items-center">
+            <span className="text-[18px] font-bold text-softgrey font-hindi">
               {t("home.pendingLabel")}
             </span>
             <MoneyCount target={earnings.pendingPayout || 0} durationMs={1200} className="text-[20px] font-black text-brassdark" />
@@ -281,7 +301,7 @@ export function HomeView({
               </button>
               {isApproved && (
                 <span className={`text-[15px] font-semibold font-hindi ${isOnline ? "text-leaf-700" : "text-softgrey"}`}>
-                  {isOnline ? "परिवार अब आपको बुला सकते हैं ✓" : "काम शुरू करने के लिए दबाएँ"}
+                  {isOnline ? "परिवार अब आपको बुला सकते हैं ✓" : "काम शुरू करने के लिए दबाइए"}
                 </span>
               )}
             </div>
@@ -289,7 +309,7 @@ export function HomeView({
         ) : (
           <Card
             clickable
-            onClick={() => onNavigate("/readiness")}
+            onClick={() => onNavigate("/readiness/hub")}
             accent="saffron"
             className="p-5 flex flex-col gap-2 text-left"
           >
@@ -315,17 +335,34 @@ export function HomeView({
           if (!nb) return null;
           const when = todayNext ? "आज" : "कल";
           return (
+            /* CANON frame 12: a #FFFDF8 card on a 2px #F4B096 border, 22px
+               radius, clipped, carrying the 6px/16px surface shadow — with a
+               #FDEEE7 header BAR (9px/16px) holding the label, and a 15px/16px
+               body at a 9px gap. Not a flat saffron-50 block. */
             <button
               onClick={() => onNavigate(nb.status === "REQUESTED" ? `/bookings/${nb.id}/request` : `/bookings/${nb.id}`)}
-              className="w-full text-left rounded-card border-2 border-saffron-200 bg-saffron-50 p-5 flex flex-col gap-2 active:scale-[0.99] transition-transform"
+              className="w-full text-left rounded-surface border-2 border-saffron-200 bg-card shadow-surface overflow-hidden flex flex-col active:scale-[0.99] transition-transform"
             >
-              <span className="text-[15px] font-hindi font-extrabold text-saffron-700">🔔 अगली बुकिंग</span>
-              <span className="text-[22px] font-hindi font-black text-ink leading-snug">{nb.pujaType || nb.eventType}</span>
-              <div className="flex items-center gap-1.5 text-[16px] font-semibold font-hindi text-temple-600">
-                <span aria-hidden="true">📅</span>
-                <span>{when} · {formatTimeHindi(nb.eventDate)}</span>
+              <div className="bg-saffron-50 px-4 py-[9px] flex items-center gap-2">
+                <span className="text-[20px] leading-none" role="img" aria-hidden="true">🔔</span>
+                <span className="text-[18px] font-hindi font-extrabold text-saffron-700">अगली बुकिंग</span>
               </div>
-              <span className="text-[15px] font-hindi text-softgrey truncate">📍 {nb.venueAddress?.split(",")[0]}</span>
+              <div className="px-4 py-[15px] flex flex-col gap-[9px]">
+                <span className="text-[22px] font-hindi font-black text-ink leading-snug">{nb.pujaType || nb.eventType}</span>
+                <div className="flex items-center gap-2 text-[18px] font-semibold font-hindi text-temple-600">
+                  <span className="text-[20px] leading-none" aria-hidden="true">📅</span>
+                  <span>{when} · {formatTimeHindi(nb.eventDate)}</span>
+                </div>
+                <div className="flex items-center gap-2 text-[18px] font-semibold font-hindi text-temple-600">
+                  <span className="text-[20px] leading-none" aria-hidden="true">📍</span>
+                  <span className="truncate">{nb.venueAddress?.split(",")[0]}</span>
+                </div>
+                {/* CANON pairs the amount with this pill; the home booking row
+                    carries no amount, so only the truthful half is drawn. */}
+                <span className="self-end mt-1 text-[18px] font-hindi font-extrabold text-saffron-500 bg-saffron-50 border-[1.5px] border-saffron-200 rounded-chip px-[14px] py-[7px]">
+                  विवरण देखिए ›
+                </span>
+              </div>
             </button>
           );
         })()}
@@ -334,30 +371,33 @@ export function HomeView({
             GET /pandit/stats; renders ONLY the stats that truly exist (a new
             pandit sees no row — never a fake 0★). */}
         {stats && (stats.completedBookings > 0 || stats.rating !== null) && (
-          <div className="flex gap-2">
+          <div className="flex gap-[10px]">
             {stats.rating !== null && (
-              <div className="flex-1 bg-card border border-sand rounded-[16px] px-2 py-[13px] flex flex-col items-center gap-0.5">
+              <div className="flex-1 bg-card border-[1.5px] border-sand rounded-field px-2 py-[13px] flex flex-col items-center gap-0.5">
                 <span className="text-[22px] font-black text-brassdark leading-tight">{stats.rating}★</span>
-                <span className="text-[13px] font-bold text-softgrey font-hindi">रेटिंग</span>
+                <span className="text-[18px] font-bold text-softgrey font-hindi">रेटिंग</span>
               </div>
             )}
             {stats.completionPct !== null && (
-              <div className="flex-1 bg-card border border-sand rounded-[16px] px-2 py-[13px] flex flex-col items-center gap-0.5">
+              <div className="flex-1 bg-card border-[1.5px] border-sand rounded-field px-2 py-[13px] flex flex-col items-center gap-0.5">
                 <span className="text-[22px] font-black text-leaf-700 leading-tight">{stats.completionPct}%</span>
-                <span className="text-[13px] font-bold text-softgrey font-hindi">पूर्णता</span>
+                <span className="text-[18px] font-bold text-softgrey font-hindi">पूर्णता</span>
               </div>
             )}
             {stats.completedBookings > 0 && (
-              <div className="flex-1 bg-card border border-sand rounded-[16px] px-2 py-[13px] flex flex-col items-center gap-0.5">
+              <div className="flex-1 bg-card border-[1.5px] border-sand rounded-field px-2 py-[13px] flex flex-col items-center gap-0.5">
                 <span className="text-[22px] font-black text-saffron-700 leading-tight">{stats.completedBookings}</span>
-                <span className="text-[13px] font-bold text-softgrey font-hindi">बुकिंग</span>
+                <span className="text-[18px] font-bold text-softgrey font-hindi">बुकिंग</span>
               </div>
             )}
           </div>
         )}
 
         {/* TODAY'S BOOKINGS SECTION */}
-        <Card className="p-4 bg-white border border-saffron-100 flex flex-col gap-3">
+        {/* CANON frame 12 has NO pure white — #FFFDF8 is its dominant surface
+            (6×). bg-card (#FFFDF8) replaces bg-white so this app-extension
+            section reads as the same warm surface as the canon tiles. */}
+        <Card className="p-4 bg-card border border-saffron-100 flex flex-col gap-3">
           <h3 className="text-[18px] font-bold text-temple-600 font-hindi border-b border-saffron-100 pb-2">
             {t("home.todayBookings")}
           </h3>
@@ -391,7 +431,7 @@ export function HomeView({
                     <span className="text-[18px] font-bold text-temple-700 font-hindi leading-snug mt-1">
                       {b.pujaType || b.eventType}
                     </span>
-                    <span className="text-[16px] text-softgrey font-hindi truncate max-w-[240px]">
+                    <span className="text-[18px] text-softgrey font-hindi truncate max-w-[240px]">
                       {b.venueAddress.split(",")[0]}
                     </span>
                   </div>
@@ -404,7 +444,7 @@ export function HomeView({
 
         {/* TOMORROW'S BOOKINGS */}
         {tomorrowBookings.length > 0 && (
-          <Card className="p-4 bg-white border border-saffron-100 flex flex-col gap-3">
+          <Card className="p-4 bg-card border border-saffron-100 flex flex-col gap-3">
             <h3 className="text-[18px] font-bold text-temple-600 font-hindi border-b border-saffron-100 pb-2">
               {t("homeSummary.tomorrow")}
             </h3>
@@ -422,7 +462,7 @@ export function HomeView({
                     <span className="text-[18px] font-bold text-temple-700 font-hindi leading-snug mt-1">
                       {b.pujaType || b.eventType}
                     </span>
-                    <span className="text-[16px] text-softgrey font-hindi truncate max-w-[240px]">
+                    <span className="text-[18px] text-softgrey font-hindi truncate max-w-[240px]">
                       {b.venueAddress?.split(",")[0]}
                     </span>
                   </div>
@@ -438,7 +478,7 @@ export function HomeView({
 
         {/* SAMAGRI PACKAGES LINK */}
         <Card
-          className="p-4 bg-white border border-saffron-100 cursor-pointer min-h-[56px] flex items-center justify-center text-center"
+          className="p-4 bg-card border border-saffron-100 cursor-pointer min-h-[56px] flex items-center justify-center text-center"
           onClick={() => onNavigate("/samagri")}
         >
           <span className="text-[20px] font-bold text-ink font-hindi">

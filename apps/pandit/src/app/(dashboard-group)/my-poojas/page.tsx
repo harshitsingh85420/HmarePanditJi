@@ -40,6 +40,12 @@ const POOJA_EMOJI: Array<[RegExp, string]> = [
 ];
 const poojaEmoji = (name: string) => POOJA_EMOJI.find(([re]) => re.test(name))?.[1] ?? "🪔";
 
+// The shared string already opens with a literal "+ ", and canon draws the plus
+// as a 24px ⊕ glyph — rendering both gave "⊕ + नई पूजा जोड़ें". Strip the typed
+// plus here; the real fix belongs in lib/strings.ts, which this screen does not
+// own. Called at RENDER time, not module scope, so it follows the language store.
+const addLabel = () => t("myPoojas.addBtn").replace(/^\+\s*/, "");
+
 interface RateMap {
   [pooja: string]: number;
 }
@@ -166,23 +172,26 @@ export default function MyPoojasPage() {
 
   return (
     <Screen
-      title={t("myPoojas.title")}
+      title={`🛕 ${t("myPoojas.title")}`}
       showBack
       onBack={() => router.push("/settings")}
       footer={
         <div ref={addBtnRef}>
           <FirstUseTip tipId="myPoojasAdd" targetRef={addBtnRef} />
-          {/* Mockup frame 21 CTA: saffron-TINTED (bg #FDEEE7, 2px #F4B096
-              border), not a solid primary — the add is a calm side door */}
+          {/* Canon frame 29 CTA, verbatim: width:100%; min-height:60px;
+              border:2px DASHED #F4B096; border-radius:18px; background:#FDEEE7;
+              color:#B23A1A; font-size:19px; font-weight:800; gap:9px, opened by
+              a 24px add_circle. The dash is the whole point — it reads as an
+              empty slot waiting to be filled, not as a second primary CTA. */}
           <Button
             variant="secondary"
             size="lg"
             fullWidth
-            className="bg-saffron-50 border-2 border-saffron-200 text-saffron-500 font-extrabold"
+            className="h-[60px] min-h-[60px] text-[19px] border-dashed border-saffron-200 text-saffron-500 font-extrabold [&>span]:gap-[9px]"
             onClick={() => router.push("/my-poojas/add")}
           >
-            <span className="text-[24px] leading-none" aria-hidden>＋</span>
-            {t("myPoojas.addBtn")}
+            <span className="text-[24px] leading-none" aria-hidden>⊕</span>
+            {addLabel()}
           </Button>
         </div>
       }
@@ -196,48 +205,85 @@ export default function MyPoojasPage() {
 
       <div className="flex flex-col gap-3">
         {poojas.length === 0 && (
-          <EmptyState emoji="🛕" title={t("empty.noPoojasTitle")} hint={t("empty.noPoojasHint")} />
+          /* canon frame 27c: the empty state carries its own primary CTA */
+          <EmptyState
+            emoji="🛕"
+            title={t("empty.noPoojasTitle")}
+            hint={t("empty.noPoojasHint")}
+            action={{ label: t("empty.noPoojasCta"), onClick: () => router.push("/my-poojas/add") }}
+          />
         )}
 
         {poojas.map((pooja) => {
           const v = verifications[pooja];
           // fall back to the legacy pending array until a verification row exists
           const status = v?.status ?? (pending.includes(pooja) ? "PENDING" : "APPROVED");
-          // Mockup frame 21: the card BORDER carries the state tint and the
+          // Canon frame 29: the card BORDER carries the state tint and the
           // status is a plain colored text line under the name (no pill).
+          //   ✓ #BFE3CC border / #155C34 text · ⏳ #EBCF86 / #B8860B
+          //   ✗ #E7B8AF / #C2321E
           const borderCls =
             status === "REJECTED" ? "border-[#E7B8AF]"
               : status === "PENDING" ? "border-[#EBCF86]"
-                : "border-[#BFE3CC]";
+                : "border-leafpale";
           const statusCls =
             status === "REJECTED" ? "text-danger"
               : status === "PENDING" ? "text-brassdark"
                 : "text-leaf-700";
+          // Canon's three labels verbatim. `myPoojas.verified` ALREADY carries
+          // its ✓, so prefixing another one rendered "✓ ✓ प्रमाणित".
           const statusLabel =
-            status === "REJECTED" ? `✗ ${t("myPoojas.rejected")}`
+            status === "REJECTED" ? `✗ ${t("myPoojas.rejected")} · ${t("myPoojas.resubmit")}`
               : status === "PENDING" ? `⏳ ${t("myPoojas.pendingVerify")}`
-                : `✓ ${t("myPoojas.verified")}`;
+                : t("myPoojas.verified");
+          // Canon prices the verified row in money-green and greys an
+          // unverifiable one to #8A6F5C — the dakshina is real either way, but
+          // only a प्रमाणित puja can actually earn it.
+          const priceCls = status === "APPROVED" ? "text-leaf-700" : "text-softgrey";
 
           return (
-          <Card key={pooja} className={`p-4 bg-card border ${borderCls} flex flex-col gap-2`}>
-            <div className="flex items-center gap-3">
-              <span className="w-12 h-12 rounded-[12px] bg-saffron-50 flex items-center justify-center text-[26px] shrink-0 select-none">
+          // Canon card, verbatim: background:#FFFDF8 (FLAT — this row is the one
+          // surface canon does not gradient), border:1.5px solid <tint>,
+          // border-radius:18px, padding:15px, no shadow. bg-none kills the
+          // shared Card's 140deg gradient, which is a background-IMAGE and so
+          // would otherwise survive bg-card.
+          <Card key={pooja} className={`p-[15px] bg-card bg-none shadow-none rounded-tile border-[1.5px] ${borderCls} flex flex-col gap-2`}>
+            <div className="flex items-center gap-[13px]">
+              {/* canon draws the emoji bare at 30px — no tile, no fill behind it */}
+              <span className="text-[30px] leading-none shrink-0 select-none">
                 {poojaEmoji(pooja)}
               </span>
-              <div className="flex-1 min-w-0 flex flex-col gap-0.5">
-                <span className="text-[18px] font-black text-ink font-hindi line-clamp-2 leading-snug">{pooja}</span>
-                <span className={`text-[13px] font-extrabold font-hindi ${statusCls}`}>{statusLabel}</span>
+              <div className="flex-1 min-w-0 flex flex-col">
+                <span className="text-[18px] font-black text-temple-700 font-hindi line-clamp-2 leading-snug">{pooja}</span>
+                <span className={`text-[18px] font-extrabold font-hindi mt-[2px] leading-snug ${statusCls}`}>{statusLabel}</span>
               </div>
+
+              {editing !== pooja && (
+                <button
+                  onClick={() => {
+                    setEditing(pooja);
+                    setEditValue(String(rates[pooja] ?? ""));
+                  }}
+                  aria-label={`${pooja} की दक्षिणा बदलिए`}
+                  className={`t-money text-[19px] font-black shrink-0 min-h-[52px] px-1 flex items-center active:scale-[0.97] transition-transform ${priceCls}`}
+                >
+                  ₹{(rates[pooja] ?? 0).toLocaleString("en-IN")}
+                </button>
+              )}
+
+              {/* Canon has no remove control on this row, so it must not compete
+                  with the price for width: the glyph occupies 24px of layout
+                  while the ::after pad carries the full 52px tap target. */}
               <button
                 onClick={() => void removePooja(pooja)}
-                aria-label={`${pooja} हटाएं`}
-                className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-red-50 text-danger text-[18px] font-bold flex items-center justify-center active:scale-95 transition-transform shrink-0"
+                aria-label={`${pooja} हटाइए`}
+                className="relative w-6 h-6 shrink-0 rounded-full text-softgrey text-[18px] font-bold flex items-center justify-center active:scale-95 transition-transform after:absolute after:content-[''] after:-inset-[14px]"
               >
                 ✖
               </button>
             </div>
 
-            {editing === pooja ? (
+            {editing === pooja && (
               <div>
                 <VoiceField
                   label=""
@@ -264,32 +310,25 @@ export default function MyPoojasPage() {
                   {t("myPoojas.saveBtn")}
                 </Button>
               </div>
-            ) : (
-              <button
-                onClick={() => {
-                  setEditing(pooja);
-                  setEditValue(String(rates[pooja] ?? ""));
-                }}
-                className="self-end t-money text-[19px] font-black text-leaf-700 min-h-[48px] px-2 flex items-center active:scale-[0.97] transition-transform"
-              >
-                ₹{(rates[pooja] ?? 0).toLocaleString("en-IN")}
-              </button>
             )}
 
             {v?.status === "REJECTED" && v?.rejectionReason && (
-              <p className="text-[14px] text-danger font-hindi leading-snug">
+              <p className="text-[18px] text-danger font-hindi leading-snug">
                 {t("myPoojas.rejectedReasonPrefix")} {v.rejectionReason}
               </p>
             )}
 
-            {/* Canon frame 21: a REJECTED puja carries its way back. This is
+            {/* Canon frame 29: a REJECTED puja carries its way back. This is
                 pilot-critical — without it a rejected pandit is stuck. Routes
                 to the existing add flow, where a new video creates version+1
-                (the API allows a new version only after a rejection). */}
+                (the API allows a new version only after a rejection).
+                Canon draws this as a bare 22px refresh glyph in the price slot;
+                a 22px target is unhittable for the persona, so the affordance
+                stays a full 56px row and canon's colour (#C2321E) carries it. */}
             {status === "REJECTED" && (
               <button
                 onClick={() => router.push("/my-poojas/add")}
-                className="self-start min-h-[56px] px-4 -ml-1 text-[16px] font-extrabold text-saffron-700 font-hindi active:scale-[0.97] transition-transform"
+                className="self-start min-h-[56px] px-4 -ml-1 text-[18px] font-extrabold text-danger font-hindi active:scale-[0.97] transition-transform"
               >
                 🔄 {t("myPoojas.resubmit")} ›
               </button>

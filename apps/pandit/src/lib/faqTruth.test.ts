@@ -45,11 +45,11 @@ describe("FAQ content is truthful and consistent with शिष्य", () => {
     }
   });
 
-  it("the rejection answer points at the real दुबारा भेजें affordance", () => {
+  it("the rejection answer points at the real दुबारा भेजिए affordance", () => {
     const rejected = hi.faq.items.find((i) => /अस्वीकृत/.test(i.q));
     expect(rejected, "the rejection question must exist").toBeTruthy();
-    expect(rejected!.a).toMatch(/दुबारा भेजें/);
+    expect(rejected!.a).toMatch(/दुबारा भेजिए/);
     // and that string must actually exist as the button label
-    expect(src).toMatch(/resubmit: "दुबारा भेजें"/);
+    expect(src).toMatch(/resubmit: "दुबारा भेजिए"/);
   });
 });

@@ -1,0 +1,858 @@
+214 line(s) CHANGED
+
+• src/lib/strings.ts:3
+    − on: "आवाज़ चालू करें",
+    + on: "आवाज़ चालू कीजिए",
+
+• src/lib/strings.ts:4
+    − off: "आवाज़ बंद करें",
+    + off: "आवाज़ बंद कीजिए",
+
+• src/lib/strings.ts:5
+    − unavailable: "आवाज़ उपलब्ध नहीं — पाठ पढ़ें",
+    + unavailable: "आवाज़ उपलब्ध नहीं — पाठ पढ़िए",
+
+• src/lib/strings.ts:11
+    − micStuck: "माइक रुक गया है — स्क्रीन छूकर फिर शुरू करें",
+    + micStuck: "माइक रुक गया है — स्क्रीन छूकर फिर शुरू कीजिए",
+
+• src/lib/strings.ts:60
+    − "जब कोई परिवार आपको बुक करता है, तो घंटी बजती है और होम पर बुकिंग दिखती है — आप स्वीकार करें, बस।",
+    + "जब कोई परिवार आपको बुक करता है, तो घंटी बजती है और होम पर बुकिंग दिखती है — आप स्वीकार कीजिए, बस।",
+
+• src/lib/strings.ts:94
+    − "मेरी पूजाएँ वाले हिस्से में नई पूजा जोड़ें दबाइए — पूजा चुनिए और अपनी दक्षिणा भर दीजिए।",
+    + "मेरी पूजाएँ वाले हिस्से में नई पूजा जोड़िए दबाइए — पूजा चुनिए और अपनी दक्षिणा भर दीजिए।",
+
+• src/lib/strings.ts:104
+    − "ओटीपी आपके मोबाइल पर आया छह अंकों का कोड है — न आए तो 'दोबारा भेजें' दबा दीजिए।",
+    + "ओटीपी आपके मोबाइल पर आया छह अंकों का कोड है — न आए तो 'दोबारा भेजिए' दबा दीजिए।",
+
+• src/lib/strings.ts:110
+    − tryIt: "आज़माएँ →",
+    + tryIt: "आज़माइए →",
+
+• src/lib/strings.ts:134
+    − tapHint: "नमस्ते पंडित जी 🙏 आगे बढ़ने के लिए स्पर्श करें",
+    + tapHint: "नमस्ते पंडित जी 🙏 आगे बढ़ने के लिए स्पर्श कीजिए",
+
+• src/lib/strings.ts:138
+    − locationAllow: "अनुमति दें",
+    + locationAllow: "अनुमति दीजिए",
+
+• src/lib/strings.ts:139
+    − locationManual: "शहर खुद चुनें",
+    + locationManual: "शहर खुद चुनिए",
+
+• src/lib/strings.ts:144
+    − locationVoice: "आप कहाँ सेवा देते हैं? नीचे अनुमति दें दबाइए — या शहर खुद चुन लीजिए।",
+    + locationVoice: "आप कहाँ सेवा देते हैं? नीचे अनुमति दीजिए दबाइए — या शहर खुद चुन लीजिए।",
+
+• src/lib/strings.ts:146
+    − cityTitle: "अपना शहर चुनें",
+    + cityTitle: "अपना शहर चुनिए",
+
+• src/lib/strings.ts:147
+    − cityInputLabel: "अपना शहर लिखें…",
+    + cityInputLabel: "अपना शहर लिखिए…",
+
+• src/lib/strings.ts:148
+    − cityGo: "यही शहर चुनें",
+    + cityGo: "यही शहर चुनिए",
+
+• src/lib/strings.ts:150
+    − langListTitle: "अपनी भाषा चुनें",
+    + langListTitle: "अपनी भाषा चुनिए",
+
+• src/lib/strings.ts:171
+    − allowBtn: "🎤 बात करने की अनुमति दें",
+    + allowBtn: "🎤 बात करने की अनुमति दीजिए",
+
+• src/lib/strings.ts:184
+    − askAgainBtn: "🎤 फिर से पूछें",
+    + askAgainBtn: "🎤 फिर से पूछिए",
+
+• src/lib/strings.ts:185
+    − startBtn: "🙏 बात शुरू करें",
+    + startBtn: "🙏 बात शुरू कीजिए",
+
+• src/lib/strings.ts:198
+    − sorryOnce: "माफ़ कीजिए, समझ नहीं आया — फिर बोलें या नीचे लिख दें",
+    + sorryOnce: "माफ़ कीजिए, समझ नहीं आया — फिर बोलिए या नीचे लिख दीजिए",
+
+• src/lib/strings.ts:205
+    − unmatched: "समझ नहीं आया — फिर बोलें",
+    + unmatched: "समझ नहीं आया — फिर बोलिए",
+
+• src/lib/strings.ts:220
+    − location: "यह लोकेशन वाली स्क्रीन है — नीचे अनुमति दें दबाइए ताकि आस-पास की बुकिंग मिलें, या शहर खुद चुन लीजिए।",
+    + location: "यह लोकेशन वाली स्क्रीन है — नीचे अनुमति दीजिए दबाइए ताकि आस-पास की बुकिंग मिलें, या शहर खुद चुन लीजिए।",
+
+• src/lib/strings.ts:238
+    − next: "आगे बढ़ें",
+    + next: "आगे बढ़िए",
+
+• src/lib/strings.ts:239
+    − back: "पीछे जाएं",
+    + back: "पीछे जाइए",
+
+• src/lib/strings.ts:242
+    − skip: "स्किप करें",
+    + skip: "स्किप कीजिए",
+
+• src/lib/strings.ts:243
+    − submit: "जमा करें",
+    + submit: "जमा कीजिए",
+
+• src/lib/strings.ts:244
+    − save: "सेव करें",
+    + save: "सेव कीजिए",
+
+• src/lib/strings.ts:245
+    − listen: "🔊 सुनें",
+    + listen: "🔊 सुनिए",
+
+• src/lib/strings.ts:258
+    − startBtn: "शुरू करें",
+    + startBtn: "शुरू कीजिए",
+
+• src/lib/strings.ts:263
+    − reviewTutorial: "📖 ट्यूटोरियल फिर देखें",
+    + reviewTutorial: "📖 ट्यूटोरियल फिर देखिए",
+
+• src/lib/strings.ts:266
+    − phoneLabel: "अपना मोबाइल नंबर डालें",
+    + phoneLabel: "अपना मोबाइल नंबर डालिए",
+
+• src/lib/strings.ts:267
+    − phoneVoice: "पंडित जी, कृपया अपना दस अंकों का मोबाइल नंबर डालें और आगे बढ़ें बटन दबाएं।",
+    + phoneVoice: "पंडित जी, कृपया अपना दस अंकों का मोबाइल नंबर डालिए और आगे बढ़िए बटन दबाएं।",
+
+• src/lib/strings.ts:272
+    − otpResend: "ओटीपी दोबारा भेजें",
+    + otpResend: "ओटीपी दोबारा भेजिए",
+
+• src/lib/strings.ts:286
+    − step2Voice: "आप किस शहर में रहते हैं? नीचे लिखें या सूची से चुनें।",
+    + step2Voice: "आप किस शहर में रहते हैं? नीचे लिखिए या सूची से चुनें।",
+
+• src/lib/strings.ts:291
+    − step5Title: "दक्षिणा तय करें",
+    + step5Title: "दक्षिणा तय कीजिए",
+
+• src/lib/strings.ts:293
+    − step6Title: "आधार अपलोड करें",
+    + step6Title: "आधार अपलोड कीजिए",
+
+• src/lib/strings.ts:302
+    − aadhaarLabel: "📷 आधार की फोटो लें या चुनें",
+    + aadhaarLabel: "📷 आधार की फोटो लीजिए या चुनिए",
+
+• src/lib/strings.ts:307
+    − accNumberConfirm: "खाता संख्या दोबारा दर्ज करें",
+    + accNumberConfirm: "खाता संख्या दोबारा दर्ज कीजिए",
+
+• src/lib/strings.ts:310
+    − homeBtn: "होम पर जाएं",
+    + homeBtn: "होम पर जाइए",
+
+• src/lib/strings.ts:313
+    − specError: "कम से कम एक पूजा का चयन करें",
+    + specError: "कम से कम एक पूजा का चयन कीजिए",
+
+• src/lib/strings.ts:316
+    − paymentError: "बैंक खाता या UPI की सही जानकारी दर्ज करें",
+    + paymentError: "बैंक खाता या UPI की सही जानकारी दर्ज कीजिए",
+
+• src/lib/strings.ts:333
+    − titleComplete: "प्रोफ़ाइल पूरी करें",
+    + titleComplete: "प्रोफ़ाइल पूरी कीजिए",
+
+• src/lib/strings.ts:343
+    − createBtn: "खाता बनाएँ",
+    + createBtn: "खाता बनाइए",
+
+• src/lib/strings.ts:344
+    − completeBtn: "प्रोफ़ाइल पूरी करें",
+    + completeBtn: "प्रोफ़ाइल पूरी कीजिए",
+
+• src/lib/strings.ts:352
+    − exitBtn: "बाद में पूरा करें",
+    + exitBtn: "बाद में पूरा कीजिए",
+
+• src/lib/strings.ts:353
+    − finishBtn: "पूरा करें",
+    + finishBtn: "पूरा कीजिए",
+
+• src/lib/strings.ts:356
+    − r1SpecLabel: "अपनी पूजाएँ चुनें",
+    + r1SpecLabel: "अपनी पूजाएँ चुनिए",
+
+• src/lib/strings.ts:361
+    − r2BuilderHint: "हर पूजा के लिए सामग्री सूची और कम से कम एक पैकेज की कीमत भरें",
+    + r2BuilderHint: "हर पूजा के लिए सामग्री सूची और कम से कम एक पैकेज की कीमत भरिए",
+
+• src/lib/strings.ts:364
+    − r2Error: "हर पूजा के लिए कम से कम एक पैकेज की कीमत भरें",
+    + r2Error: "हर पूजा के लिए कम से कम एक पैकेज की कीमत भरिए",
+
+• src/lib/strings.ts:413
+    − r5Voice: "आख़िरी कदम, पंडित जी। आपकी कमाई सीधे आपके खाते में आएगी — बैंक खाता या यूपीआई भरें, और सत्यापन के लिए आधार की फोटो दें।",
+    + r5Voice: "आख़िरी कदम, पंडित जी। आपकी कमाई सीधे आपके खाते में आएगी — बैंक खाता या यूपीआई भरिए, और सत्यापन के लिए आधार की फोटो दें।",
+
+• src/lib/strings.ts:421
+    − goOnline: "🟢 ऑनलाइन जाएं",
+    + goOnline: "🟢 ऑनलाइन जाइए",
+
+• src/lib/strings.ts:422
+    − goOffline: "🔴 ऑफलाइन जाएं",
+    + goOffline: "🔴 ऑफलाइन जाइए",
+
+• src/lib/strings.ts:429
+    − resubmit: "दोबारा जमा करें",
+    + resubmit: "दोबारा जमा कीजिए",
+
+• src/lib/strings.ts:431
+    − readinessHero: "🚩 बुकिंग पाने की तैयारी करें — 5 छोटे कदम",
+    + readinessHero: "🚩 बुकिंग पाने की तैयारी कीजिए — 5 छोटे कदम",
+
+• src/lib/strings.ts:435
+    − toggleOnlineSub: "बंद करने के लिए दबाएं",
+    + toggleOnlineSub: "बंद करने के लिए दबाइए",
+
+• src/lib/strings.ts:437
+    − toggleOfflineSub: "चालू करने के लिए दबाएं",
+    + toggleOfflineSub: "चालू करने के लिए दबाइए",
+
+• src/lib/strings.ts:443
+    − pickPuja: "पूजा का चयन करें",
+    + pickPuja: "पूजा का चयन कीजिए",
+
+• src/lib/strings.ts:444
+    − addItem: "नई सामग्री जोड़ें",
+    + addItem: "नई सामग्री जोड़िए",
+
+• src/lib/strings.ts:447
+    − priceError: "कम से कम एक पैकेज की कीमत डालें",
+    + priceError: "कम से कम एक पैकेज की कीमत डालिए",
+
+• src/lib/strings.ts:452
+    − callCustomer: "📞 ग्राहक को फ़ोन करें",
+    + callCustomer: "📞 ग्राहक को फ़ोन कीजिए",
+
+• src/lib/strings.ts:456
+    − goToHome: "होम पर जाएं",
+    + goToHome: "होम पर जाइए",
+
+• src/lib/strings.ts:471
+    − viewNewBooking: "नई बुकिंग देखें →",
+    + viewNewBooking: "नई बुकिंग देखिए →",
+
+• src/lib/strings.ts:472
+    − tapToView: "देखने के लिए दबाएं",
+    + tapToView: "देखने के लिए दबाइए",
+
+• src/lib/strings.ts:473
+    − accept: "✅ स्वीकार करें",
+    + accept: "✅ स्वीकार कीजिए",
+
+• src/lib/strings.ts:474
+    − reject: "❌ अस्वीकार करें",
+    + reject: "❌ अस्वीकार कीजिए",
+
+• src/lib/strings.ts:515
+    − manualCity: "कोई बात नहीं पंडित जी। अपना शहर बोलकर बताएं, या सूची से चुनें।",
+    + manualCity: "कोई बात नहीं पंडित जी। अपना शहर बोलकर बताइए, या सूची से चुनें।",
+
+• src/lib/strings.ts:520
+    − resume: "स्वागत है पंडित जी! चलिए वहीं से शुरू करें जहाँ आपने छोड़ा था।",
+    + resume: "स्वागत है पंडित जी! चलिए वहीं से शुरू कीजिए जहाँ आपने छोड़ा था।",
+
+• src/lib/strings.ts:523
+    − choice: "पंडित जी, आप किस भाषा में बात करना चाहेंगे? भाषा का नाम बोलें या उस पर टैप करें।",
+    + choice: "पंडित जी, आप किस भाषा में बात करना चाहेंगे? भाषा का नाम बोलिए या उस पर टैप करें।",
+
+• src/lib/strings.ts:529
+    − mic: "पंडित जी, बोलकर जवाब देने के लिए माइक की अनुमति चाहिए। अनुमति दें बटन दबाएं।",
+    + mic: "पंडित जी, बोलकर जवाब देने के लिए माइक की अनुमति चाहिए। अनुमति दीजिए बटन दबाएं।",
+
+• src/lib/strings.ts:536
+    − intro: "यह आपकी बुकिंग की सूची है। नई, आने वाली या पूरी हुई बुकिंग — बोलकर बताएं कौन सी देखनी है।",
+    + intro: "यह आपकी बुकिंग की सूची है। नई, आने वाली या पूरी हुई बुकिंग — बोलकर बताइए कौन सी देखनी है।",
+
+• src/lib/strings.ts:548
+    − skip: "स्किप करें",
+    + skip: "स्किप कीजिए",
+
+• src/lib/strings.ts:549
+    − submit: "जमा करें",
+    + submit: "जमा कीजिए",
+
+• src/lib/strings.ts:557
+    − slide4Title: "बोलें या लिखें",
+    + slide4Title: "बोलिए या लिखिए",
+
+• src/lib/strings.ts:563
+    − slide5Button: "माइक की अनुमति दें",
+    + slide5Button: "माइक की अनुमति दीजिए",
+
+• src/lib/strings.ts:564
+    − slide5Blocked: "ब्राउज़र की सेटिंग में माइक चालू करें",
+    + slide5Blocked: "ब्राउज़र की सेटिंग में माइक चालू कीजिए",
+
+• src/lib/strings.ts:565
+    − slide5Retry: "फिर कोशिश करें",
+    + slide5Retry: "फिर कोशिश कीजिए",
+
+• src/lib/strings.ts:566
+    − slide5Again: "एक बार फिर बोलकर देखें…",
+    + slide5Again: "एक बार फिर बोलकर देखिए…",
+
+• src/lib/strings.ts:570
+    − slide7: "बुकिंग पसंद आए तो स्वीकार करें बटन दबाइए — या बस बोलिए, स्वीकार। पूजा के दिन हर पड़ाव पर एक बटन दबाते जाइए, और अंत में — पूजा संपन्न।",
+    + slide7: "बुकिंग पसंद आए तो स्वीकार कीजिए बटन दबाइए — या बस बोलिए, स्वीकार। पूजा के दिन हर पड़ाव पर एक बटन दबाते जाइए, और अंत में — पूजा संपन्न।",
+
+• src/lib/strings.ts:582
+    − slide13: "कभी भी अटक जाएँ — मदद वाले हिस्से में हमारा नंबर है। सीधे बात कीजिए, ऐप की टीम आपके साथ है।",
+    + slide13: "कभी भी अटक जाइए — मदद वाले हिस्से में हमारा नंबर है। सीधे बात कीजिए, ऐप की टीम आपके साथ है।",
+
+• src/lib/strings.ts:592
+    − slidePoojas: "आगे चलकर नई पूजा जोड़नी हो — प्रोफ़ाइल में जाइए, मेरी पूजाएँ, और नई पूजा जोड़ें दबाइए। दक्षिणा तय कीजिए, बस। सत्यापन के बाद वह पूजा भी बुक होने लगेगी।",
+    + slidePoojas: "आगे चलकर नई पूजा जोड़नी हो — प्रोफ़ाइल में जाइए, मेरी पूजाएँ, और नई पूजा जोड़िए दबाइए। दक्षिणा तय कीजिए, बस। सत्यापन के बाद वह पूजा भी बुक होने लगेगी।",
+
+• src/lib/strings.ts:594
+    − slide14Title: "शुरू करें?",
+    + slide14Title: "शुरू कीजिए?",
+
+• src/lib/strings.ts:595
+    − slide14: "सब समझ गए? बस दो मिनट का रजिस्ट्रेशन बाकी है — नाम, शहर, आपकी पूजाएँ और दक्षिणा। शुरू करें?",
+    + slide14: "सब समझ गए? बस दो मिनट का रजिस्ट्रेशन बाकी है — नाम, शहर, आपकी पूजाएँ और दक्षिणा। शुरू कीजिए?",
+
+• src/lib/strings.ts:596
+    − registerNow: "रजिस्ट्रेशन शुरू करें",
+    + registerNow: "रजिस्ट्रेशन शुरू कीजिए",
+
+• src/lib/strings.ts:599
+    − advanceAsk: "आगे बढ़ें? 'हाँ' बोलिए।",
+    + advanceAsk: "आगे बढ़िए? 'हाँ' बोलिए।",
+
+• src/lib/strings.ts:603
+    − callLabel: "📞 सहायता को फ़ोन करें",
+    + callLabel: "📞 सहायता को फ़ोन कीजिए",
+
+• src/lib/strings.ts:607
+    − actionBlocked: "इंटरनेट नहीं है — कृपया थोड़ी देर में कोशिश करें",
+    + actionBlocked: "इंटरनेट नहीं है — कृपया थोड़ी देर में कोशिश कीजिए",
+
+• src/lib/strings.ts:610
+    − viewProfile: "प्रोफ़ाइल देखें",
+    + viewProfile: "प्रोफ़ाइल देखिए",
+
+• src/lib/strings.ts:620
+    − call: "📞 फ़ोन करें",
+    + call: "📞 फ़ोन कीजिए",
+
+• src/lib/strings.ts:621
+    − rewatchTutorial: "🔁 ट्यूटोरियल फिर देखें",
+    + rewatchTutorial: "🔁 ट्यूटोरियल फिर देखिए",
+
+• src/lib/strings.ts:638
+    − addBtn: "+ नई पूजा जोड़ें",
+    + addBtn: "+ नई पूजा जोड़िए",
+
+• src/lib/strings.ts:644
+    − resubmit: "दुबारा भेजें",
+    + resubmit: "दुबारा भेजिए",
+
+• src/lib/strings.ts:646
+    − pickPooja: "कौन सी पूजा जोड़ें?",
+    + pickPooja: "कौन सी पूजा जोड़िए?",
+
+• src/lib/strings.ts:647
+    − dakshinaLabel: "दक्षिणा तय करें",
+    + dakshinaLabel: "दक्षिणा तय कीजिए",
+
+• src/lib/strings.ts:648
+    − dakshinaPrompt: "इस पूजा की दक्षिणा कितनी होगी? बोलें या लिखें।",
+    + dakshinaPrompt: "इस पूजा की दक्षिणा कितनी होगी? बोलिए या लिखें।",
+
+• src/lib/strings.ts:649
+    − saveBtn: "सेव करें",
+    + saveBtn: "सेव कीजिए",
+
+• src/lib/strings.ts:652
+    − editPrompt: "नई दक्षिणा बोलें या लिखें।",
+    + editPrompt: "नई दक्षिणा बोलिए या लिखें।",
+
+• src/lib/strings.ts:658
+    − editNote: "बदलाव के लिए सहायता को फ़ोन करें",
+    + editNote: "बदलाव के लिए सहायता को फ़ोन कीजिए",
+
+• src/lib/strings.ts:675
+    − showRoute: "🗺 रास्ता दिखाएं",
+    + showRoute: "🗺 रास्ता दिखाइए",
+
+• src/lib/strings.ts:725
+    − { g: "money", q: "पैसा न आए तो क्या करें?", a: "पूजा पूरी होने के 48 घंटे बाद भी पैसा न आए, तो मदद वाले हिस्से से हमारी टीम को फ़ोन कीजिए — तुरंत देखा जाएगा।" },
+    + { g: "money", q: "पैसा न आए तो क्या कीजिए?", a: "पूजा पूरी होने के 48 घंटे बाद भी पैसा न आए, तो मदद वाले हिस्से से हमारी टीम को फ़ोन कीजिए — तुरंत देखा जाएगा।" },
+
+• src/lib/strings.ts:729
+    − { g: "verify", q: "पूजा अस्वीकृत हो जाए तो?", a: "कोई बात नहीं। कारण वहीं लिखा मिलेगा — 'दुबारा भेजें' दबाकर नया वीडियो भेज दीजिए, जाँच फिर से होगी।" },
+    + { g: "verify", q: "पूजा अस्वीकृत हो जाए तो?", a: "कोई बात नहीं। कारण वहीं लिखा मिलेगा — 'दुबारा भेजिए' दबाकर नया वीडियो भेज दीजिए, जाँच फिर से होगी।" },
+
+• src/lib/strings.ts:737
+    − hint: "तारीख दबाकर छुट्टी लगाएँ",
+    + hint: "तारीख दबाकर छुट्टी लगाइए",
+
+• src/lib/voice-scripts.ts:57
+    − hindi: 'नमस्ते। मैं आपका शहर जानना चाहता हूँ — ताकि आपकी भाषा अपने आप सेट हो जाए, और आपके शहर की पूजाएं आपको मिलें। आपका पूरा पता किसी को नहीं दिखेगा। क्या आप अनुमति देंगे? हाँ बोलें या नीचे बटन दबाएं।',
+    + hindi: 'नमस्ते। मैं आपका शहर जानना चाहता हूँ — ताकि आपकी भाषा अपने आप सेट हो जाए, और आपके शहर की पूजाएं आपको मिलें। आपका पूरा पता किसी को नहीं दिखेगा। क्या आप अनुमति देंगे? हाँ बोलिए या नीचे बटन दबाएं।',
+
+• src/lib/voice-scripts.ts:73
+    − hindi: 'कृपया हाँ बोलें या नीचे बटन दबाएं।',
+    + hindi: 'कृपया हाँ बोलिए या नीचे बटन दबाएं।',
+
+• src/lib/voice-scripts.ts:94
+    − hindi: 'आवाज़ नहीं पहचान पाया। नीचे से अपना शहर चुनें या लिखें।',
+    + hindi: 'आवाज़ नहीं पहचान पाया। नीचे से अपना शहर चुनिए या लिखें।',
+
+• src/lib/voice-scripts.ts:105
+    − hindi: '{CITY} के हिसाब से हम {LANGUAGE} सेट कर रहे हैं। क्या यह ठीक है? हाँ बोलें या बदलें बोलें।',
+    + hindi: '{CITY} के हिसाब से हम {LANGUAGE} सेट कर रहे हैं। क्या यह ठीक है? हाँ बोलिए या बदलिए बोलें।',
+
+• src/lib/voice-scripts.ts:120
+    − hindi: 'कृपया हाँ या बदलें बोलें, या नीचे बटन दबाएं।',
+    + hindi: 'कृपया हाँ या बदलिए बोलिए, या नीचे बटन दबाएं।',
+
+• src/lib/voice-scripts.ts:163
+    − hindi: 'आपने {LANGUAGE} कही। सही है? हाँ बोलें या नहीं बोलें।',
+    + hindi: 'आपने {LANGUAGE} कही। सही है? हाँ बोलिए या नहीं बोलें।',
+
+• src/lib/voice-scripts.ts:281
+    − hindi: 'कोई बात नहीं। हम मदद के लिए यहाँ हैं। हमारी team से बात करें — बिल्कुल मुफ़्त। या नीचे वापस जाएं दबाएं अगर खुद करना हो।',
+    + hindi: 'कोई बात नहीं। हम मदद के लिए यहाँ हैं। हमारी team से बात कीजिए — बिल्कुल मुफ़्त। या नीचे वापस जाइए दबाइए अगर खुद करना हो।',
+
+• src/lib/voice-scripts.ts:372
+    − hindi: 'पूजा खत्म हुई। दो मिनट में पैसे बैंक में। कोई इंतज़ार नहीं। कोई कल देंगे नहीं। और देखो — platform का share भी screen पर दिखेगा। छुपा कुछ नहीं। Screen पर देखें — दक्षिणा, platform का हिस्सा, यात्रा भत्ता — सब साफ़। और नीचे लिखा है — आपको कितना मिला। आगे बोलें।',
+    + hindi: 'पूजा खत्म हुई। दो मिनट में पैसे बैंक में। कोई इंतज़ार नहीं। कोई कल देंगे नहीं। और देखो — platform का share भी screen पर दिखेगा। छुपा कुछ नहीं। Screen पर देखिए — दक्षिणा, platform का हिस्सा, यात्रा भत्ता — सब साफ़। और नीचे लिखा है — आपको कितना मिला। आगे बोलें।',
+
+• src/lib/voice-scripts.ts:398
+    − hindi: 'शोर ज़्यादा लग रहा है। शांत जगह पर जाकर try करें, या Keyboard use करें।',
+    + hindi: 'शोर ज़्यादा लग रहा है। शांत जगह पर जाकर try कीजिए, या Keyboard use करें।',
+
+• src/lib/voice-scripts.ts:453
+    − hindi: 'बस इतना था HmarePanditJi का परिचय। अब आप registration शुरू कर सकते हैं — बिल्कुल मुफ़्त, दस मिनट लगेंगे। क्या आप अभी शुरू करना चाहेंगे? हाँ बोलें या नीचे button दबाएं। अगर कोई सवाल हो — screen पर helpline number है — बिल्कुल free।',
+    + hindi: 'बस इतना था HmarePanditJi का परिचय। अब आप registration शुरू कर सकते हैं — बिल्कुल मुफ़्त, दस मिनट लगेंगे। क्या आप अभी शुरू करना चाहेंगे? हाँ बोलिए या नीचे button दबाएं। अगर कोई सवाल हो — screen पर helpline number है — बिल्कुल free।',
+
+• src/lib/voice-scripts.ts:463
+    − hindi: 'ठीक है। जब भी तैयार हों, app खोलें और Registration button दबाएं।',
+    + hindi: 'ठीक है। जब भी तैयार हों, app खोलिए और Registration button दबाएं।',
+
+• src/lib/voice-scripts.ts:496
+    − hindi: 'शोर बहुत ज़्यादा है। Keyboard try करें या शांत जगह जाएं।',
+    + hindi: 'शोर बहुत ज़्यादा है। Keyboard try कीजिए या शांत जगह जाएं।',
+
+• src/lib/voice-scripts-part0.ts:96
+    − text: 'आप मुझसे बात कर सकते हैं। माइक पर क्लिक करें और बोलें।',
+    + text: 'आप मुझसे बात कर सकते हैं। माइक पर क्लिक कीजिए और बोलें।',
+
+• src/lib/voice-scripts-part0.ts:123
+    − text: 'बस बोलें, मैं सब समझ जाऊंगा।',
+    + text: 'बस बोलिए, मैं सब समझ जाऊंगा।',
+
+• src/app/(auth)/help/page.tsx:77
+    − <span className={`${TITLE} text-temple-700`}>ट्यूटोरियल फिर देखें</span>
+    + <span className={`${TITLE} text-temple-700`}>ट्यूटोरियल फिर देखिए</span>
+
+• src/app/(auth)/help/page.tsx:92
+    − <span className={`${TITLE} text-leaf-700`}>सहायता को कॉल करें</span>
+    + <span className={`${TITLE} text-leaf-700`}>सहायता को कॉल कीजिए</span>
+
+• src/app/(auth)/help/page.tsx:117
+    − <span className={`${TITLE} text-temple-700`}>WhatsApp पर पूछें</span>
+    + <span className={`${TITLE} text-temple-700`}>WhatsApp पर पूछिए</span>
+
+• src/app/(auth)/identity/page.tsx:48
+    − text: 'क्या आप एक पंडित हैं? यदि हाँ, तो नीचे दिया बटन दबाएँ — "हाँ, मैं पंडित हूँ"।',
+    + text: 'क्या आप एक पंडित हैं? यदि हाँ, तो नीचे दिया बटन दबाइए — "हाँ, मैं पंडित हूँ"।',
+
+• src/app/(auth)/identity/page.tsx:69
+    − { icon: '🎙️', title: 'सरल आवाज़ नियंत्रण', desc: 'बोलकर काम करें, लिखने की ज़रूरत नहीं' },
+    + { icon: '🎙️', title: 'सरल आवाज़ नियंत्रण', desc: 'बोलकर काम कीजिए, लिखने की ज़रूरत नहीं' },
+
+• src/app/(auth)/identity/page.tsx:119
+    − उत्तर देने के लिए माइक दबाएँ
+    + उत्तर देने के लिए माइक दबाइए
+
+• src/app/(auth)/identity/page.tsx:166
+    − <span className="text-center block break-words line-clamp-2">हाँ, मैं पंडित हूँ — पंजीकरण शुरू करें</span>
+    + <span className="text-center block break-words line-clamp-2">हाँ, मैं पंडित हूँ — पंजीकरण शुरू कीजिए</span>
+
+• src/app/(auth)/layout.tsx:37
+    − पुनः प्रयास करें
+    + पुनः प्रयास कीजिए
+
+• src/app/(auth)/referral/[code]/page.tsx:275
+    − पंजीकरण शुरू करें →
+    + पंजीकरण शुरू कीजिए →
+
+• src/app/(auth)/referral/[code]/page.tsx:308
+    − कृपया अपने रेफरल कोड की जांच करें या अपने मित्र से सही कोड प्राप्त करें।
+    + कृपया अपने रेफरल कोड की जांच कीजिए या अपने मित्र से सही कोड प्राप्त करें।
+
+• src/app/(auth)/referral/[code]/page.tsx:320
+    − या मैन्युअल कोड दर्ज करें
+    + या मैन्युअल कोड दर्ज कीजिए
+
+• src/app/(auth)/referral/[code]/page.tsx:341
+    − {validatingManual ? 'जांच हो रही है...' : 'कोड लगाएं'}
+    + {validatingManual ? 'जांच हो रही है...' : 'कोड लगाइए'}
+
+• src/app/(auth)/referral/[code]/page.tsx:352
+    − बिना referral के जारी रखें
+    + बिना referral के जारी रखिए
+
+• src/app/(auth)/referral/[code]/page.tsx:358
+    − होमपेज पर जाएं
+    + होमपेज पर जाइए
+
+• src/app/(dashboard-group)/bookings/page.tsx:297
+    − जवाब दें ›
+    + जवाब दीजिए ›
+
+• src/app/(dashboard-group)/bookings/[id]/request/page.tsx:225
+    − <span className="text-[18px] font-semibold text-[#FFD9BE] font-hindi leading-tight">अभी जवाब दें</span>
+    + <span className="text-[18px] font-semibold text-[#FFD9BE] font-hindi leading-tight">अभी जवाब दीजिए</span>
+
+• src/app/(dashboard-group)/calendar/page.tsx:206
+    − <Header variant="title" title={`📅 ${t("calendar.title")}`} sub="तारीख दबाकर छुट्टी लगाएँ" />
+    + <Header variant="title" title={`📅 ${t("calendar.title")}`} sub="तारीख दबाकर छुट्टी लगाइए" />
+
+• src/app/(dashboard-group)/home/HomeView.tsx:304
+    − {isOnline ? "परिवार अब आपको बुला सकते हैं ✓" : "काम शुरू करने के लिए दबाएँ"}
+    + {isOnline ? "परिवार अब आपको बुला सकते हैं ✓" : "काम शुरू करने के लिए दबाइए"}
+
+• src/app/(dashboard-group)/home/HomeView.tsx:363
+    − विवरण देखें ›
+    + विवरण देखिए ›
+
+• src/app/(dashboard-group)/layout.tsx:41
+    − पुनः प्रयास करें
+    + पुनः प्रयास कीजिए
+
+• src/app/(dashboard-group)/my-poojas/add/page.tsx:49
+    − const STEP_TITLES = ["पूजा जोड़ें", "सामग्री के तीन स्तर", "और थोड़ी बातें", "सत्यापन वीडियो", "पूजा की स्थिति"] as const;
+    + const STEP_TITLES = ["पूजा जोड़िए", "सामग्री के तीन स्तर", "और थोड़ी बातें", "सत्यापन वीडियो", "पूजा की स्थिति"] as const;
+
+• src/app/(dashboard-group)/my-poojas/add/page.tsx:161
+    − title={STEP_TITLES[d.step] ?? "पूजा जोड़ें"}
+    + title={STEP_TITLES[d.step] ?? "पूजा जोड़िए"}
+
+• src/app/(dashboard-group)/my-poojas/add/page.tsx:174
+    − पूजा भेजें
+    + पूजा भेजिए
+
+• src/app/(dashboard-group)/my-poojas/add/page.tsx:215
+    − <Narrate text="कौन सी पूजा जोड़ें? नाम बोलिए, फिर दो शब्दों में बताइए यह पूजा क्या है।" />
+    + <Narrate text="कौन सी पूजा जोड़िए? नाम बोलिए, फिर दो शब्दों में बताइए यह पूजा क्या है।" />
+
+• src/app/(dashboard-group)/my-poojas/add/page.tsx:247
+    − <span className="text-[18px] font-hindi text-softgrey font-bold">{TIER_LABEL[activeTier]} में जोड़ें</span>
+    + <span className="text-[18px] font-hindi text-softgrey font-bold">{TIER_LABEL[activeTier]} में जोड़िए</span>
+
+• src/app/(dashboard-group)/my-poojas/add/page.tsx:253
+    − <Button variant="secondary" className="h-[56px] min-h-[56px] text-[19px] rounded-[14px]" onClick={addItem} disabled={!name.trim()}>जोड़ें</Button>
+    + <Button variant="secondary" className="h-[56px] min-h-[56px] text-[19px] rounded-[14px]" onClick={addItem} disabled={!name.trim()}>जोड़िए</Button>
+
+• src/app/(dashboard-group)/my-poojas/add/page.tsx:314
+    − {opt("PANDIT_BRINGS", "🛍️", "हाँ, मैं लाऊँगा", "तीनों स्तर के दाम आप तय करें")}
+    + {opt("PANDIT_BRINGS", "🛍️", "हाँ, मैं लाऊँगा", "तीनों स्तर के दाम आप तय कीजिए")}
+
+• src/app/(dashboard-group)/my-poojas/add/page.tsx:315
+    − {opt("PLATFORM_SELLS", "🚚", "प्लेटफ़ॉर्म बेचे और पहुँचाए", "हम सामान का इंतज़ाम करें")}
+    + {opt("PLATFORM_SELLS", "🚚", "प्लेटफ़ॉर्म बेचे और पहुँचाए", "हम सामान का इंतज़ाम कीजिए")}
+
+• src/app/(dashboard-group)/my-poojas/add/page.tsx:316
+    − {opt("LIST_ONLY", "📝", "सिर्फ़ सूची दूँ", "यजमान ख़ुद ले आएँ")}
+    + {opt("LIST_ONLY", "📝", "सिर्फ़ सूची दूँ", "यजमान ख़ुद ले आइए")}
+
+• src/app/(dashboard-group)/my-poojas/add/page.tsx:373
+    − const CHECK = ["मंत्र साफ़ सुनाई दें", "अच्छी रोशनी हो", "आपका चेहरा दिखे", "पूजा का माहौल दिखे"];
+    + const CHECK = ["मंत्र साफ़ सुनाई दीजिए", "अच्छी रोशनी हो", "आपका चेहरा दिखे", "पूजा का माहौल दिखे"];
+
+• src/app/(dashboard-group)/my-poojas/add/page.tsx:396
+    − <span className="text-[18px] font-hindi text-softgrey font-bold">यूट्यूब लिंक (टाइप करें — यह बोलकर नहीं भरा जाता)</span>
+    + <span className="text-[18px] font-hindi text-softgrey font-bold">यूट्यूब लिंक (टाइप कीजिए — यह बोलकर नहीं भरा जाता)</span>
+
+• src/app/(dashboard-group)/my-poojas/add/page.tsx:452
+    − <Button className="mt-2 w-full" onClick={() => router.push("/my-poojas")}>मेरी पूजाएँ देखें</Button>
+    + <Button className="mt-2 w-full" onClick={() => router.push("/my-poojas")}>मेरी पूजाएँ देखिए</Button>
+
+• src/app/(dashboard-group)/my-poojas/page.tsx:261
+    − aria-label={`${pooja} की दक्षिणा बदलें`}
+    + aria-label={`${pooja} की दक्षिणा बदलिए`}
+
+• src/app/(dashboard-group)/my-poojas/page.tsx:273
+    − aria-label={`${pooja} हटाएं`}
+    + aria-label={`${pooja} हटाइए`}
+
+• src/app/(dashboard-group)/readiness/hub/page.tsx:171
+    − अभी करें
+    + अभी कीजिए
+
+• src/app/(dashboard-group)/readiness/hub/page.tsx:202
+    − {AREAS[nextStep - 1].label} भरें
+    + {AREAS[nextStep - 1].label} भरिए
+
+• src/app/(dashboard-group)/readiness/page.tsx:1436
+    − placeholder="नाम लिखें"
+    + placeholder="नाम लिखिए"
+
+• src/app/(dashboard-group)/readiness/page.tsx:1448
+    − onFocus={() => speak("सुरक्षा के लिए खाता नंबर लिखकर भरें")}
+    + onFocus={() => speak("सुरक्षा के लिए खाता नंबर लिखकर भरिए")}
+
+• src/app/(dashboard-group)/readiness/page.tsx:1464
+    − onFocus={() => speak("सुरक्षा के लिए खाता नंबर दोबारा लिखकर भरें")}
+    + onFocus={() => speak("सुरक्षा के लिए खाता नंबर दोबारा लिखकर भरिए")}
+
+• src/app/(dashboard-group)/readiness/page.tsx:1494
+    − onFocus={() => speak("सुरक्षा के लिए यूपीआई आईडी लिखकर भरें")}
+    + onFocus={() => speak("सुरक्षा के लिए यूपीआई आईडी लिखकर भरिए")}
+
+• src/app/(dashboard-group)/readiness/page.tsx:1554
+    − <span className="text-[18px] font-bold text-saffron-500 font-hindi">फ़ोटो लें ›</span>
+    + <span className="text-[18px] font-bold text-saffron-500 font-hindi">फ़ोटो लीजिए ›</span>
+
+• src/app/(onboarding-group)/layout.tsx:32
+    − पुनः प्रयास करें
+    + पुनः प्रयास कीजिए
+
+• src/app/(public)/layout.tsx:34
+    − पुनः प्रयास करें
+    + पुनः प्रयास कीजिए
+
+• src/app/(registration)/layout.tsx:46
+    − पुनः प्रयास करें
+    + पुनः प्रयास कीजिए
+
+• src/app/error.tsx:33
+    − text: 'क्षमा करें, कुछ गलत हो गया। कृपया पुनः प्रयास करें या सहायता के लिए संपर्क करें।',
+    + text: 'क्षमा कीजिए, कुछ गलत हो गया। कृपया पुनः प्रयास कीजिए या सहायता के लिए संपर्क करें।',
+
+• src/app/error.tsx:54
+    − text: 'सहायता के लिए संपर्क करें: support@hmarepanditji.com',
+    + text: 'सहायता के लिए संपर्क कीजिए: support@hmarepanditji.com',
+
+• src/app/error.tsx:82
+    − क्षमा करें, तकनीकी दिक्कत आई।
+    + क्षमा कीजिए, तकनीकी दिक्कत आई।
+
+• src/app/error.tsx:104
+    − aria-label="पुनः प्रयास करें - Try again"
+    + aria-label="पुनः प्रयास कीजिए - Try again"
+
+• src/app/error.tsx:108
+    − पुनः प्रयास करें
+    + पुनः प्रयास कीजिए
+
+• src/app/error.tsx:116
+    − aria-label="सहायता से संपर्क करें - Contact help"
+    + aria-label="सहायता से संपर्क कीजिए - Contact help"
+
+• src/app/error.tsx:120
+    − सहायता से संपर्क करें
+    + सहायता से संपर्क कीजिए
+
+• src/app/error.tsx:127
+    − <p className="text-text-secondary text-lg mb-2">संपर्क करें:</p>
+    + <p className="text-text-secondary text-lg mb-2">संपर्क कीजिए:</p>
+
+• src/app/global-error.tsx:32
+    − text: 'क्षमा करें, एक गंभीर त्रुटि हुई है। कृपया पृष्ठ को रीफ्रेश करें या सहायता के लिए संपर्क करें।',
+    + text: 'क्षमा कीजिए, एक गंभीर त्रुटि हुई है। कृपया पृष्ठ को रीफ्रेश कीजिए या सहायता के लिए संपर्क करें।',
+
+• src/app/global-error.tsx:76
+    − क्षमा करें, एक गंभीर तकनीकी दिक्कत हुई है।
+    + क्षमा कीजिए, एक गंभीर तकनीकी दिक्कत हुई है।
+
+• src/app/global-error.tsx:103
+    − aria-label="पृष्ठ रीफ्रेश करें - Refresh page"
+    + aria-label="पृष्ठ रीफ्रेश कीजिए - Refresh page"
+
+• src/app/global-error.tsx:107
+    − पृष्ठ रीफ्रेश करें
+    + पृष्ठ रीफ्रेश कीजिए
+
+• src/app/global-error.tsx:115
+    − aria-label="पुनः प्रयास करें - Try again"
+    + aria-label="पुनः प्रयास कीजिए - Try again"
+
+• src/app/global-error.tsx:119
+    − पुनः प्रयास करें
+    + पुनः प्रयास कीजिए
+
+• src/app/global-error.tsx:126
+    − <p className="text-text-secondary text-lg mb-2">सहायता के लिए संपर्क करें:</p>
+    + <p className="text-text-secondary text-lg mb-2">सहायता के लिए संपर्क कीजिए:</p>
+
+• src/app/not-found.tsx:17
+    − text: 'क्षमा करें, यह पृष्ठ नहीं मिला। कृपया होम पेज पर वापस जाएं।',
+    + text: 'क्षमा कीजिए, यह पृष्ठ नहीं मिला। कृपया होम पेज पर वापस जाएं।',
+
+• src/app/not-found.tsx:65
+    − aria-label="होम पेज पर जाएं - Go to home page"
+    + aria-label="होम पेज पर जाइए - Go to home page"
+
+• src/app/not-found.tsx:69
+    − होम पेज पर जाएं
+    + होम पेज पर जाइए
+
+• src/app/not-found.tsx:75
+    − <p className="text-text-secondary text-lg mb-2">सहायता के लिए संपर्क करें:</p>
+    + <p className="text-text-secondary text-lg mb-2">सहायता के लिए संपर्क कीजिए:</p>
+
+• src/app/onboarding/layout.tsx:37
+    − पुनः प्रयास करें
+    + पुनः प्रयास कीजिए
+
+• src/app/onboarding/RegistrationScreen.tsx:172
+    − placeholder="पंडित जी का नाम लिखें"
+    + placeholder="पंडित जी का नाम लिखिए"
+
+• src/app/onboarding/screens/LanguageListScreen.tsx:177
+    − press आगे बढ़ें. Disabled until something is armed, so it can never
+    + press आगे बढ़िए. Disabled until something is armed, so it can never
+
+• src/app/onboarding/screens/LocationPermissionScreen.tsx:232
+    − जगह बदलें
+    + जगह बदलिए
+
+• src/app/onboarding/screens/ManualCityScreen.tsx:61
+    − {/* canon frame 2 chrome (this is स्थान's जगह-बदलें branch): the garland
+    + {/* canon frame 2 chrome (this is स्थान's जगह-बदलिए branch): the garland
+
+• src/app/onboarding/screens/ParichayScreen.tsx:374
+    − "फिर से पूछें" appears only after a dismissal; the recovery set
+    + "फिर से पूछिए" appears only after a dismissal; the recovery set
+
+• src/app/resume/page.tsx:125
+    − पंजीकरण जारी रखें
+    + पंजीकरण जारी रखिए
+
+• src/app/resume/page.tsx:216
+    − <span>जारी रखें</span>
+    + <span>जारी रखिए</span>
+
+• src/app/resume/page.tsx:223
+    − नए सिरे से शुरू करें
+    + नए सिरे से शुरू कीजिए
+
+• src/components/emergency/EmergencySOS.tsx:178
+    − aria-label="सहायता बुलाएँ — दबाकर रखें"
+    + aria-label="सहायता बुलाइए — दबाकर रखिए"
+
+• src/components/emergency/EmergencySOS.tsx:209
+    − <span className="relative text-[24px] font-black font-hindi leading-tight">सहायता बुलाएँ</span>
+    + <span className="relative text-[24px] font-black font-hindi leading-tight">सहायता बुलाइए</span>
+
+• src/components/emergency/EmergencySOS.tsx:211
+    − <span className="relative text-[18px] font-semibold font-hindi opacity-90">दबाकर रखें</span>
+    + <span className="relative text-[18px] font-semibold font-hindi opacity-90">दबाकर रखिए</span>
+
+• src/components/ErrorBoundary.tsx:63
+    − कृपया पृष्ठ को रीफ्रेश करें | कृपया पेज को रिफ्रेश करें
+    + कृपया पृष्ठ को रीफ्रेश कीजिए | कृपया पेज को रिफ्रेश कीजिए
+
+• src/components/ErrorBoundary.tsx:69
+    − रिफ्रेश करें | Refresh
+    + रिफ्रेश कीजिए | Refresh
+
+• src/components/LanguageChangeBottomSheet.tsx:54
+    − <h2 className="text-[24px] font-bold text-text-primary">भाषा बदलें</h2>
+    + <h2 className="text-[24px] font-bold text-text-primary">भाषा बदलिए</h2>
+
+• src/components/LanguageChangeBottomSheet.tsx:112
+    − बंद करें / Close
+    + बंद कीजिए / Close
+
+• src/components/overlays/NoiseWarningOverlay.tsx:46
+    − text: 'मंदिर में शोर है। कृपया शांत जगह जाएं या बटन दबाकर चुनें।',
+    + text: 'मंदिर में शोर है। कृपया शांत जगह जाइए या बटन दबाकर चुनें।',
+
+• src/components/overlays/NoiseWarningOverlay.tsx:58
+    − suggestion: 'कृपया शांत जगह जाएं',
+    + suggestion: 'कृपया शांत जगह जाइए',
+
+• src/components/overlays/NoiseWarningOverlay.tsx:64
+    − suggestion: 'थोड़ा शांत कोने में जाएं',
+    + suggestion: 'थोड़ा शांत कोने में जाइए',
+
+• src/components/overlays/NoiseWarningOverlay.tsx:201
+    − बटन दबाएं
+    + बटन दबाइए
+
+• src/components/overlays/VoiceTutorialOverlay.tsx:140
+    − बटन दबाकर बोलें
+    + बटन दबाकर बोलिए
+
+• src/components/overlays/VoiceTutorialOverlay.tsx:184
+    − टाइप करें
+    + टाइप कीजिए
+
+• src/components/SamagriPackageEditor.tsx:161
+    − promptText={`${item.name} की मात्रा बोलें`}
+    + promptText={`${item.name} की मात्रा बोलिए`}
+
+• src/components/SamagriPackageEditor.tsx:184
+    − promptText="सामग्री का नाम बोलें"
+    + promptText="सामग्री का नाम बोलिए"
+
+• src/components/SamagriPackageEditor.tsx:192
+    − promptText="सामग्री की मात्रा बोलें"
+    + promptText="सामग्री की मात्रा बोलिए"
+
+• src/components/ui/LanguageBottomSheet.tsx:40
+    − <h2 className="text-lg font-bold text-vedic-brown">भाषा बदलें</h2>
+    + <h2 className="text-lg font-bold text-vedic-brown">भाषा बदलिए</h2>
+
+• src/components/ui/LanguageBottomSheet.tsx:111
+    − बंद करें / Close
+    + बंद कीजिए / Close
+
+• src/components/ui/SkipButton.tsx:29
+    − label = 'Skip करें →',
+    + label = 'Skip कीजिए →',
+
+• src/components/voice/ConfirmationSheet.tsx:161
+    − पक्का करें — थोड़ा unsure हूँ
+    + पक्का कीजिए — थोड़ा unsure हूँ
+
+• src/components/voice/ConfirmationSheet.tsx:208
+    − <span>नहीं, बदलें</span>
+    + <span>नहीं, बदलिए</span>
+
+• src/components/voice/VoiceField.tsx:382
+    − <option value="">{placeholder || "-- चुनें --"}</option>
+    + <option value="">{placeholder || "-- चुनिए --"}</option>
+
+• src/components/voice/VoiceIndicator.tsx:37
+    − idle: 'उत्तर देने के लिए माइक दबाएं',
+    + idle: 'उत्तर देने के लिए माइक दबाइए',
+
+• src/components/widgets/EmergencySOSFloating.tsx:65
+    − <span className="text-[18px] font-extrabold text-ink font-hindi">सहायता टीम को कॉल करें</span>
+    + <span className="text-[18px] font-extrabold text-ink font-hindi">सहायता टीम को कॉल कीजिए</span>
+
+• src/components/widgets/LanguageChangeWidget.tsx:104
+    − aria-label="भाषा बदलें / Change Language"
+    + aria-label="भाषा बदलिए / Change Language"
+
+• src/components/widgets/LanguageChangeWidget.tsx:141
+    − भाषा बदलें <span className="text-text-placeholder font-normal">/ Change Language</span>
+    + भाषा बदलिए <span className="text-text-placeholder font-normal">/ Change Language</span>
+
+• src/components/widgets/LanguageChangeWidget.tsx:228
+    − बंद करें / Close
+    + बंद कीजिए / Close
+

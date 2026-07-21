@@ -296,8 +296,15 @@ export default function LoginPage() {
           tutorial button below is the way back. The OTP step keeps its
           arrow (edit the number), as does re-auth outside the flow. */}
       <Header
-        title={t("auth.unifiedTitle")}
-        festive
+        title={
+          step === 2 ? (
+            // canon frame 7: "OTP सत्यापन" 19/800 (canon-A rows are 900)
+            <span className="font-extrabold">{t("auth.otpTitle")}</span>
+          ) : (
+            t("auth.unifiedTitle")
+          )
+        }
+        backTone="peach"
         showBack={step === 2}
         onBack={() => {
           setStep(1);
@@ -328,7 +335,7 @@ export default function LoginPage() {
             <p className="t-body text-temple-600 font-hindi text-center leading-snug">
               {t("auth.unifiedSub")}
             </p>
-            <div className="bg-white rounded-card shadow-card p-5 flex flex-col gap-4">
+            <div className="bg-card rounded-[16px] shadow-card p-5 flex flex-col gap-4">
               <VoiceField
                 label={t("auth.phoneLabel")}
                 promptText={
@@ -340,7 +347,7 @@ export default function LoginPage() {
                 onChange={setPhone}
                 mode="phone"
                 onComplete={handleSendOtp}
-                placeholder="XXXXXXXXXX"
+                placeholder="98765 43210"
               />
               <Button
                 variant="primary"
@@ -355,14 +362,18 @@ export default function LoginPage() {
           </>
         ) : (
           <>
-            {/* Screen 2: OTP — typed-only by law (A5); the app speaks why once */}
-            <div className="bg-white rounded-card shadow-card p-5 flex flex-col gap-4">
+            {/* Screen 2: OTP — typed-only by law (A5); the app speaks why once.
+                canon frame 7: content sits DIRECTLY on the cream field. */}
+            <div className="flex flex-col gap-[14px] px-[6px]">
               {accountExists !== null && (
-                <div className="flex flex-col gap-1">
-                  <h2 className="text-[22px] font-bold text-temple-600 font-hindi leading-snug">
+                <div className="flex flex-col gap-1 text-center">
+                  {/* canon frame 7 heading is 19px/800 #341A13; Ruling #2's
+                      18px body floor applies to this vocabulary line, so it
+                      renders at 22px/800 — colour/weight stay canon-exact. */}
+                  <h2 className="text-[22px] font-extrabold text-temple-700 font-hindi leading-snug">
                     {accountExists ? t("auth.returningTitle") : t("auth.newAccountTitle")}
                   </h2>
-                  <p className="t-hint text-softgrey font-hindi">
+                  <p className="text-[18px] font-semibold text-softgrey font-hindi leading-snug">
                     {accountExists ? t("auth.returningShishya") : t("auth.newAccountShishya")}
                   </p>
                 </div>
@@ -389,21 +400,56 @@ export default function LoginPage() {
               {/* Resend link — mockup frame 7: softgrey label · saffron 00:SS */}
               <div className="text-center mt-2">
                 {countdown > 0 ? (
-                  <span className="text-[15px] font-bold text-softgrey font-hindi">
+                  <span className="text-[18px] font-bold text-softgrey font-hindi">
                     {t("auth.otpResend")}{" "}
-                    <span className="text-saffron-500 font-mono">
+                    <span className="text-saffron-500 font-bold">
                       00:{String(countdown).padStart(2, "0")}
                     </span>
                   </span>
                 ) : (
                   <button
                     onClick={handleResendOtp}
-                    className="text-saffron-600 hover:text-saffron-700 underline font-semibold text-[18px]"
+                    className="text-saffron-500 hover:text-saffron-600 underline font-bold text-[18px]"
                     style={{ minHeight: "56px", fontSize: "18px" }}
                   >
                     {t("auth.otpResend")}
                   </button>
                 )}
+              </div>
+
+              {/* canon frame 7: the on-screen keypad — 3×4 grid pinned to the
+                  bottom of the column (margin-top:auto). Digit keys 58px min
+                  (above the 52px floor), 1.5px sand-100 hairline, r16, card
+                  fill, 28/800 ink; backspace borderless #F0E6D3. The boxes
+                  keep inputMode=none so the system keyboard stays down —
+                  WebOTP auto-fill and paste distribution survive; the
+                  keyboard-accessory code suggestion (G4a) is traded for the
+                  canon keypad (flagged). */}
+              <div className="grid grid-cols-3 gap-[10px] mt-auto pt-2" aria-label="अंक">
+                {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((d) => (
+                  <button
+                    key={d}
+                    onClick={() => otpValue.length < 6 && handleOtpChange(otpValue + d)}
+                    className="min-h-[58px] border-[1.5px] border-sand-100 rounded-[16px] bg-card text-[28px] font-extrabold text-temple-700 active:scale-95 transition-transform"
+                  >
+                    {d}
+                  </button>
+                ))}
+                <div aria-hidden="true" />
+                <button
+                  onClick={() => otpValue.length < 6 && handleOtpChange(otpValue + "0")}
+                  className="min-h-[58px] border-[1.5px] border-sand-100 rounded-[16px] bg-card text-[28px] font-extrabold text-temple-700 active:scale-95 transition-transform"
+                >
+                  0
+                </button>
+                <button
+                  onClick={() => handleOtpChange(otpValue.slice(0, -1))}
+                  aria-label={t("common.back")}
+                  className="min-h-[58px] rounded-[16px] flex items-center justify-center active:scale-95 transition-transform"
+                  style={{ background: "#F0E6D3" }}
+                >
+                  <span className="material-symbols-outlined text-[26px] leading-none text-saffron-700" aria-hidden="true">backspace</span>
+                </button>
               </div>
             </div>
           </>
@@ -480,12 +526,18 @@ function OtpBoxes({
 
   return (
     <div className="flex flex-col gap-3">
-      {/* Mockup frame 7: OTP डालिए 26/900 + the sent-to line */}
-      <h2 className="text-[26px] font-black text-temple-700 font-hindi">{t("auth.otpLabel")}</h2>
-      <p className="text-[16px] font-semibold text-softgrey font-hindi -mt-2">
-        {t("auth.otpSentTo").replace("{phone}", sentTo)}
-      </p>
-      <div className="flex gap-2 justify-center my-2">
+      {/* CANON frame 11: centred block — "OTP डालिए" 26/900 #341A13,
+          sent-to line 600 #8A6F5C, 6px below. */}
+      <div className="text-center">
+        <h2 className="text-[26px] font-black text-temple-700 font-hindi leading-snug">
+          {t("auth.otpLabel")}
+        </h2>
+        {/* LAW: canon sets this line at 16px; the 18sp floor wins. */}
+        <div className="text-[18px] font-semibold text-softgrey font-hindi mt-[6px] leading-snug">
+          {t("auth.otpSentTo").replace("{phone}", sentTo.length === 10 ? sentTo.slice(0, 5) + " " + sentTo.slice(5) : sentTo)}
+        </div>
+      </div>
+      <div className="flex gap-2 justify-center my-[6px]">
         {digits.map((digit, idx) => (
           <input
             key={idx}
@@ -493,7 +545,7 @@ function OtpBoxes({
               refs.current[idx] = el;
             }}
             type="tel"
-            inputMode="numeric"
+            inputMode="none"
             pattern="[0-9]*"
             // G4a: the FOCUSED box carries one-time-code so Chrome's SMS
             // suggestion and the iOS keychain offer the fill; maxLength
@@ -512,12 +564,18 @@ function OtpBoxes({
                 refs.current[idx - 1]?.focus();
               }
             }}
-            // Mockup frame 7: a FILLED box turns saffron (tint + sindoor
-            // border + saffron-700 digit); empty boxes stay card/sand
-            className={`w-[48px] h-[56px] min-h-[56px] text-center border-2 rounded-[16px] text-[28px] font-black transition-all focus:outline-none focus:border-saffron-500 focus:ring-4 focus:ring-saffron-200 ${
+            // CANON frame 7: box 62×72, radius 16, border 2.5px, digit
+            // 36px/900 (frame 7's dominant type). A FILLED box is
+            // #FDEEE7 fill + #B23A1A border +
+            // #7A250E digit (saffron-50/500/700); an EMPTY box is #FFFDF8
+            // on the #E7DCC9 hairline (card / sand-200), and carries the
+            // sindoor caret canon draws inside the active box.
+            // Six boxes cannot each be 62px on a 360px screen, so they
+            // share the row (flex-1) and cap at canon's 62px on wider ones.
+            className={`flex-1 min-w-0 max-w-[62px] h-[72px] text-center rounded-[16px] border-[2.5px] text-[36px] font-black caret-saffron-500 transition-all focus:outline-none focus:border-saffron-500 focus:ring-4 focus:ring-saffron-200 ${
               digit
                 ? "bg-saffron-50 border-saffron-500 text-saffron-700"
-                : "bg-card border-[#EADFCE] text-ink"
+                : "bg-card border-sand-200 text-ink"
             }`}
           />
         ))}

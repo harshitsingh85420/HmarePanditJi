@@ -13,7 +13,7 @@
 import { t, getActiveBcp47 } from "@/lib/i18n";
 import { clientPace } from "@/lib/sarvam-tts";
 import { VOICE_PROFILE, VOICE_PROFILE_VERSION } from "@/lib/voiceProfile";
-import { YES, NO, NEXT, BACK, SKIP, REPEAT, HELP, STOP, SLEEP, UNDO_PHRASES, matchAny, matchWord, normalizeForMatch } from "@/lib/voiceGrammar";
+import { YES, NO, NEXT, BACK, SKIP, REPEAT, HELP, STOP, SLEEP, UNDO_PHRASES, matchAny, matchWord, matchYesNo, normalizeForMatch } from "@/lib/voiceGrammar";
 import { isQuestionShaped, recordUnansweredQuestion, askShishyaServer } from "@/lib/shishyaBrain";
 import {
   SHISHYA_MODE,
@@ -168,6 +168,17 @@ class VoiceController {
   private _listening = false;
   private _hidden = false;
   private _confirming = false;
+  // F02-06: a spoken menu choice is CONFIRMED before it commits, exactly like
+  // a spoken field value. While an option is pending, the next हाँ commits it,
+  // नहीं cancels it, and any other utterance re-matches (a correction). Cleared
+  // on any screen change so a stale choice can never fire on the next screen.
+  private _pendingOption: VoiceOption | null = null;
+  // F02-09: deletion is DOUBLE-confirmed. "हटा दो" targets the most recent
+  // registered deletable (a filled VoiceField); stage 1 asks, stage 2 asks
+  // "क्या आप निश्चित हैं?", only then does the clear run. पीछे NEVER deletes —
+  // navigation and deletion are different words by law.
+  private _pendingDelete: { label: string; run: () => void; stage: 1 | 2 } | null = null;
+  private deletables: Array<{ label: string; run: () => void }> = [];
   private queued: { text: string; opts?: SpeakOpts } | null = null;
   private replayFn: (() => void) | null = null;
   private listeners = new Set<() => void>();
@@ -648,9 +659,11 @@ class VoiceController {
     };
     this.voiceScreens.push(entry);
     this.screenEpoch++; // L5: the active screen changed (navigation/mount)
+    this._pendingOption = null; // F02-06: never carry a pending choice across screens
     return () => {
       this.voiceScreens = this.voiceScreens.filter((e) => e !== entry);
       this.screenEpoch++; // L5: and again on unmount
+      this._pendingOption = null;
     };
   }
 
@@ -674,7 +687,34 @@ class VoiceController {
     this.voiceOptionGroups.push(group);
     return () => {
       this.voiceOptionGroups = this.voiceOptionGroups.filter((g) => g !== group);
+      // if the pending choice belonged to this group, drop it
+      if (this._pendingOption && group.options.includes(this._pendingOption)) {
+        this._pendingOption = null;
+      }
     };
+  }
+
+  /** F02-06 test seam: the label of the choice currently awaiting हाँ/नहीं,
+   *  or null. Lets the confirmation flow be asserted without a live loop. */
+  pendingOptionLabel(): string | null {
+    return this._pendingOption?.label ?? null;
+  }
+
+  // ── F02-09: deletable registry (a filled VoiceField registers itself) ──
+  registerDeletable(label: string, run: () => void): () => void {
+    const entry = { label, run };
+    this.deletables.push(entry);
+    return () => {
+      this.deletables = this.deletables.filter((d) => d !== entry);
+      if (this._pendingDelete && this._pendingDelete.run === entry.run) {
+        this._pendingDelete = null;
+      }
+    };
+  }
+
+  /** F02-09 test seam: the delete confirmation stage (1, 2) or null. */
+  pendingDeleteStage(): 1 | 2 | null {
+    return this._pendingDelete?.stage ?? null;
   }
 
   private matchVisibleOption(raw: string): VoiceOption | null {
@@ -752,6 +792,60 @@ class VoiceController {
       this.debug(`voice cmd sub-floor (conf ${confidence.toFixed(2)}) ignored: "${clean.slice(0, 24)}"`);
       return false;
     }
+    // F02-09: a pending DELETE confirmation answers first — it is the most
+    // specific state. Stage 1 हाँ → ask "क्या आप निश्चित हैं?"; stage 2 हाँ →
+    // run the clear. नहीं (or anything else) at either stage cancels — an
+    // unclear answer must never destroy data.
+    if (this._pendingDelete) {
+      const yn = matchYesNo(clean);
+      if (yn === "yes" && this._pendingDelete.stage === 1) {
+        this._pendingDelete.stage = 2;
+        this.speak(t("voiceLoop.confirmSure"));
+        this.loopRearm();
+        return true;
+      }
+      if (yn === "yes" && this._pendingDelete.stage === 2) {
+        const d = this._pendingDelete;
+        this._pendingDelete = null;
+        this.noteVoiceGesture();
+        this.debug(`delete CONFIRMED (double) → ${d.label}`);
+        try { d.run(); } catch { /* best-effort */ }
+        this.speak(`ठीक है — ${d.label} हटा दिया।`);
+        return true;
+      }
+      // नहीं, or anything unclear → cancel. Deleting on ambiguity is the bug.
+      this._pendingDelete = null;
+      this.speak("ठीक है, कुछ नहीं हटाया।");
+      this.loopRearm();
+      return true;
+    }
+    // F02-06: a spoken menu choice awaits confirmation before it commits, the
+    // same law as a spoken field value. If one is pending, THIS transcript
+    // answers it: हाँ commits, नहीं cancels, anything else is a correction
+    // (drop the pending choice and let this utterance be matched fresh below).
+    if (this._pendingOption) {
+      const yn = matchYesNo(clean);
+      if (yn === "yes") {
+        const opt = this._pendingOption;
+        this._pendingOption = null;
+        this.setConfirming(false);
+        this.noteVoiceGesture();
+        this.debug(`voice option CONFIRMED → [${opt.label}]`);
+        try { opt.onSelect(); } catch { /* onSelect is best-effort */ }
+        return true;
+      }
+      if (yn === "no") {
+        this._pendingOption = null;
+        this.setConfirming(false);
+        this.speak(t("voiceLoop.confirmRepeat"));
+        this.loopRearm();
+        return true;
+      }
+      // neither हाँ nor नहीं → a correction: forget the pending choice and let
+      // this same transcript be matched fresh (a different option can win).
+      this._pendingOption = null;
+      this.setConfirming(false);
+    }
     // H6 UNDO — matched BEFORE the screen commands so "वापस करो / गलत हो गया /
     // रद्द करो" reverts the LAST committed toggle/value instead of a screen's
     // BACK nav. LAW (a): money/identity actions never registered an undo, so
@@ -776,6 +870,21 @@ class VoiceController {
       this.speak("अभी वापस करने को कुछ नहीं है, पंडित जी।");
       return true;
     }
+    // F02-09: EXPLICIT deletion — "हटा दो" and friends, never पीछे. Targets
+    // the most recent filled field; nothing registered → an honest no-op.
+    // The actual clear only happens after the DOUBLE confirm above.
+    if (matchAny(clean, ["हटा दो", "हटाओ", "हटा दीजिए", "मिटा दो", "मिटाओ", "डिलीट"])) {
+      this.noteVoiceGesture();
+      const target = this.deletables[this.deletables.length - 1];
+      if (!target) {
+        this.speak("अभी हटाने को कुछ नहीं है, पंडित जी।");
+        return true;
+      }
+      this._pendingDelete = { label: target.label, run: target.run, stage: 1 };
+      this.speak(`क्या आप ${target.label} हटाना चाहते हैं? हाँ या नहीं बोलें।`);
+      this.loopRearm();
+      return true;
+    }
     const entry = this.activeVoiceScreen();
     if (entry) {
       const exact = clean.toLowerCase().replace(/[।.,!?]/g, " ").replace(/\s+/g, " ").trim();
@@ -796,9 +905,16 @@ class VoiceController {
     // फिर-से, less authoritative than the screen's registered verbs)
     const opt = this.matchVisibleOption(clean.toLowerCase().trim());
     if (opt) {
-      this.debug(`voice option: "${clean.slice(0, 24)}" → [${opt.label}]`);
+      // F02-06: DON'T commit yet — a spoken menu choice is confirmed first,
+      // "आपने कहा [X] — सही है?", exactly like a spoken field value. The
+      // matching logic above is UNCHANGED, so the ₹5000→teamSize collision
+      // guard still holds; only the commit is now two-step.
+      this.debug(`voice option: "${clean.slice(0, 24)}" → [${opt.label}] (awaiting confirm)`);
       this.noteVoiceGesture();
-      opt.onSelect();
+      this._pendingOption = opt;
+      this.setConfirming(true);
+      this.speak(t("voiceLoop.confirmAsk").replace("{value}", opt.label));
+      this.loopRearm();
       return true;
     }
     // GLOBAL grammar — everywhere, always. REPEAT/HELP resolve BEFORE

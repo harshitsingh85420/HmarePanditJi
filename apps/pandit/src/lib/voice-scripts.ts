@@ -54,7 +54,7 @@ export const LOCATION_PERMISSION_SCREEN: ScreenVoiceScripts = {
   screenId: 'S-0.0.2',
   scripts: {
     main: {
-      hindi: 'नमस्ते। मैं आपका शहर जानना चाहता हूँ — ताकि आपकी भाषा अपने आप सेट हो जाए, और आपके शहर की पूजाएं आपको मिलें। आपका पूरा पता किसी को नहीं दिखेगा। क्या आप अनुमति देंगे? हाँ बोलें या नीचे बटन दबाएं।',
+      hindi: 'नमस्ते। मैं आपका शहर जानना चाहता हूँ — ताकि आपकी भाषा अपने आप सेट हो जाए, और आपके शहर की पूजाएं आपको मिलें। आपका पूरा पता किसी को नहीं दिखेगा। क्या आप अनुमति देंगे? हाँ बोलिए या नीचे बटन दबाइए।',
       roman: 'Namaste. Main aapka shehar jaanna chahta hoon — taaki aapki bhasha apne aap set ho jaye, aur aapke shehar ki poojayen aapko milin. Aapka poora pata kisi ko nahi dikhega. Kya aap anumati denge? Haan bolein ya neeche button dabayein.',
       english: 'Hello. I want to know your city — so your language sets automatically and you get poojas from your city. Your full address will not be shown to anyone. Will you allow it? Say "yes" or press the button below.',
       durationSec: 8,
@@ -70,7 +70,7 @@ export const LOCATION_PERMISSION_SCREEN: ScreenVoiceScripts = {
       durationSec: 2,
     },
     reprompt: {
-      hindi: 'कृपया हाँ बोलें या नीचे बटन दबाएं।',
+      hindi: 'कृपया हाँ बोलिए या नीचे बटन दबाइए।',
       roman: 'Kripya Haan bolein ya neeche button dabayein.',
       durationSec: 2,
     },
@@ -86,12 +86,12 @@ export const MANUAL_CITY_SCREEN: ScreenVoiceScripts = {
       durationSec: 5,
     },
     onCityDetected: {
-      hindi: '{CITY} — सही है? हाँ बोलें।',
+      hindi: '{CITY} — सही है? हाँ बोलिए।',
       roman: '{CITY} — sahi hai? Haan bolein.',
       durationSec: 2,
     },
     reprompt: {
-      hindi: 'आवाज़ नहीं पहचान पाया। नीचे से अपना शहर चुनें या लिखें।',
+      hindi: 'आवाज़ नहीं पहचान पाया। नीचे से अपना शहर चुनिए या लिखिए।',
       roman: 'Aawaz nahi pehchaan paya. Neeche se apna shehar chunein ya likhein.',
       durationSec: 3,
     },
@@ -102,7 +102,7 @@ export const LANGUAGE_CONFIRM_SCREEN: ScreenVoiceScripts = {
   screenId: 'S-0.0.3',
   scripts: {
     main: {
-      hindi: '{CITY} के हिसाब से हम {LANGUAGE} सेट कर रहे हैं। क्या यह ठीक है? हाँ बोलें या बदलें बोलें।',
+      hindi: '{CITY} के हिसाब से हम {LANGUAGE} सेट कर रहे हैं। क्या यह ठीक है? हाँ बोलिए या बदलिए बोलिए।',
       roman: '{CITY} ke hisaab se hum {LANGUAGE} set kar rahe hain. Kya yeh theek hai? Haan bolein ya Badlein bolein.',
       durationSec: 4,
     },
@@ -117,7 +117,7 @@ export const LANGUAGE_CONFIRM_SCREEN: ScreenVoiceScripts = {
       durationSec: 2,
     },
     reprompt: {
-      hindi: 'कृपया हाँ या बदलें बोलें, या नीचे बटन दबाएं।',
+      hindi: 'कृपया हाँ या बदलिए बोलिए, या नीचे बटन दबाइए।',
       roman: 'Kripya Haan ya Badlein bolein, ya neeche button dabayein.',
       durationSec: 3,
     },
@@ -128,7 +128,7 @@ export const LANGUAGE_LIST_SCREEN: ScreenVoiceScripts = {
   screenId: 'S-0.0.4',
   scripts: {
     main: {
-      hindi: 'कृपया अपनी भाषा का नाम बोलिए। जैसे — भोजपुरी, Tamil, Telugu, Bengali — या नीचे से चुनें।',
+      hindi: 'कृपया अपनी भाषा का नाम बोलिए। जैसे — भोजपुरी, Tamil, Telugu, Bengali — या नीचे से चुनिए।',
       roman: 'Kripya apni bhasha ka naam boliye. Jaise — Bhojpuri, Tamil, Telugu, Bengali — ya neeche se chunein.',
       english: 'Please say your language name. For example — Bhojpuri, Tamil, Telugu, Bengali — or select from below.',
       durationSec: 5,
@@ -142,8 +142,8 @@ export const LANGUAGE_LIST_SCREEN: ScreenVoiceScripts = {
       durationSec: 2,
     },
     reprompt: {
-      hindi: 'आवाज़ नहीं पहचान पाया। नीचे से भाषा छूकर चुनें।',
-      roman: 'Aawaz nahi pehchaan paya. Neeche se bhasha chhookar chunein.',
+      hindi: 'आवाज़ नहीं पहचान पाया। नीचे से भाषा स्पर्श कर चुनिए।',
+      roman: 'Aawaz nahi pehchaan paya. Neeche se bhasha sparsh kar chuniye.',
       english: 'Could not recognize voice. Please select language by touching below.',
       durationSec: 3,
     },
@@ -160,7 +160,7 @@ export const LANGUAGE_CHOICE_CONFIRM_SCREEN: ScreenVoiceScripts = {
   screenId: 'S-0.0.5',
   scripts: {
     main: {
-      hindi: 'आपने {LANGUAGE} कही। सही है? हाँ बोलें या नहीं बोलें।',
+      hindi: 'आपने {LANGUAGE} कही। सही है? हाँ बोलिए या नहीं बोलिए।',
       roman: 'Aapne {LANGUAGE} kahi. Sahi hai? Haan bolein ya Nahi bolein.',
       english: 'You said {LANGUAGE}. Is this correct? Say Yes or No.',
       durationSec: 3,
@@ -278,7 +278,7 @@ export const HELP_SCREEN: ScreenVoiceScripts = {
   screenId: 'S-0.0.7',
   scripts: {
     main: {
-      hindi: 'कोई बात नहीं। हम मदद के लिए यहाँ हैं। हमारी team से बात करें — बिल्कुल मुफ़्त। या नीचे वापस जाएं दबाएं अगर खुद करना हो।',
+      hindi: 'कोई बात नहीं। हम मदद के लिए यहाँ हैं। हमारी team से बात कीजिए — बिल्कुल मुफ़्त। या नीचे वापस जाइए दबाइए अगर खुद करना हो।',
       roman: 'Koi baat nahi. Hum madad ke liye yahan hain. Humari team se baat karein — bilkul muft. Ya neeche Wapas jaayein dabayein agar khud karna ho.',
       durationSec: 5,
     },
@@ -314,7 +314,7 @@ export const TUTORIAL_SWAGAT: ScreenVoiceScripts = {
   screenId: 'S-0.1',
   scripts: {
     main: {
-      hindi: 'नमस्ते पंडित जी। HmarePanditJi पर आपका बहुत-बहुत स्वागत है। यह platform आपके लिए ही बना है। अगले दो मिनट में हम देखेंगे कि यह app आपकी आमदनी में क्या बदलाव ला सकता है। हमारा Mool Mantra याद रखिए — App पंडित के लिए है, पंडित App के लिए नहीं। अगर सीधे Registration करना हो तो Skip बोलें। नहीं तो जानें बोलें।',
+      hindi: 'नमस्ते पंडित जी। HmarePanditJi पर आपका बहुत-बहुत स्वागत है। यह platform आपके लिए ही बना है। अगले दो मिनट में हम देखेंगे कि यह app आपकी आमदनी में क्या बदलाव ला सकता है। हमारा Mool Mantra याद रखिए — App पंडित के लिए है, पंडित App के लिए नहीं। अगर सीधे Registration करना हो तो Skip बोलिए। नहीं तो जानें बोलिए।',
       roman: 'Namaste Pandit Ji. HmarePanditJi par aapka bahut-bahut swagat hai. Yeh platform aapke liye hi bana hai. Agle do minute mein hum dekhenge ki yeh app aapki aamdani mein kya badlav la sakta hai. Humara Mool Mantra yaad rakhiye — App Pandit ke liye hai, Pandit App ke liye nahi. Agar seedhe Registration karna ho to Skip bolein. Nahi to Jaanen bolein.',
       durationSec: 18,
     },
@@ -336,7 +336,7 @@ export const TUTORIAL_DAKSHINA: ScreenVoiceScripts = {
   screenId: 'S-0.3',
   scripts: {
     main: {
-      hindi: 'कितनी बार ऐसा हुआ है कि आपने दो घंटे की पूजा की — और ग्राहक ने कह दिया, भैया, तीन हज़ार नहीं, दो हज़ार ले लो। आप कुछ नहीं बोल पाए। अब नहीं होगा यह। आप खुद दक्षिणा तय करेंगे — platform कभी नहीं बदलेगी। ग्राहक को booking से पहले ही पता होता है — कितना देना है। मोलभाव खत्म। आगे बोलें।',
+      hindi: 'कितनी बार ऐसा हुआ है कि आपने दो घंटे की पूजा की — और ग्राहक ने कह दिया, भैया, तीन हज़ार नहीं, दो हज़ार ले लो। आप कुछ नहीं बोल पाए। अब नहीं होगा यह। आप खुद दक्षिणा तय करेंगे — platform कभी नहीं बदलेगी। ग्राहक को booking से पहले ही पता होता है — कितना देना है। मोलभाव खत्म। आगे बोलिए।',
       roman: 'Kitni baar aisa hua hai ki aapne do ghante ki pooja ki — aur grahak ne keh diya, Bhaiya, teen hazaar nahi, do hazaar le lo. Aap kuch nahi bol paye. Ab nahi hoga yeh. Aap khud dakshina tay karenge — platform kabhi nahi badlegi. Grahak ko booking se pehle hi pata hota hai — kitna dena hai. Moalbhav khatam. Aage bolein.',
       durationSec: 18,
     },
@@ -347,7 +347,7 @@ export const TUTORIAL_ONLINE_REVENUE: ScreenVoiceScripts = {
   screenId: 'S-0.4',
   scripts: {
     main: {
-      hindi: 'दो बिल्कुल नए तरीके हैं — जो आप शायद अभी तक नहीं जानते। पहला — घर बैठे पूजा। Video call से पूजा कराइए। दुनिया भर के ग्राहक मिलेंगे — NRI भी। एक पूजा में दो हज़ार से पाँच हज़ार रुपये। दूसरा — पंडित से बात। Phone, video, या chat पर धार्मिक सलाह दीजिए। बीस रुपये से पचास रुपये प्रति मिनट। उदाहरण के तौर पर — बीस मिनट की एक call में आठ सौ रुपये सीधे आपको। दोनों मिलाकर — चालीस हज़ार रुपये अलग से हर महीने। आगे बोलें।',
+      hindi: 'दो बिल्कुल नए तरीके हैं — जो आप शायद अभी तक नहीं जानते। पहला — घर बैठे पूजा। Video call से पूजा कराइए। दुनिया भर के ग्राहक मिलेंगे — NRI भी। एक पूजा में दो हज़ार से पाँच हज़ार रुपये। दूसरा — पंडित से बात। Phone, video, या chat पर धार्मिक सलाह दीजिए। बीस रुपये से पचास रुपये प्रति मिनट। उदाहरण के तौर पर — बीस मिनट की एक call में आठ सौ रुपये सीधे आपको। दोनों मिलाकर — चालीस हज़ार रुपये अलग से हर महीने। आगे बोलिए।',
       roman: 'Do bilkul naye tarike hain — jo aap shayad abhi tak nahi jaante. Pehla — Ghar Baithe Pooja. Video call se pooja karaiye. Duniya bhar ke grahak milenge — NRI bhi. Ek pooja mein do hazaar se paanch hazaar rupaye. Doosra — Pandit Se Baat. Phone, video, ya chat par dharmik salah dijiye. Bees rupaye se pachaas rupaye prati minute. Udaaharan ke taur par — bees minute ki ek call mein aath sau rupaye seedhe aapko. Dono milakar — chaalees hazaar rupaye alag se har mahine. Aage bolein.',
       durationSec: 22,
     },
@@ -358,7 +358,7 @@ export const TUTORIAL_BACKUP: ScreenVoiceScripts = {
   screenId: 'S-0.5',
   scripts: {
     main: {
-      hindi: 'यह सुनकर लगेगा — यह कैसे हो सकता है? मैं समझाता हूँ। जब कोई booking होती है जिसमें ग्राहक ने backup protection लिया होता है — आपको offer आता है। क्या आप उस दिन backup पंडित बनेंगे? आप हाँ कहते हैं। उस दिन free रहते हैं। अगर मुख्य पंडित ने पूजा कर ली — भी आपको दो हज़ार रुपये मिलेंगे। अगर मुख्य पंडित cancel किए — तो पूरी booking आपकी और ऊपर से दो हज़ार bonus। यह पैसा ग्राहक ने booking के समय backup protection की extra payment की थी। वही आपको मिलता है। दोनों तरफ से फ़ायदा। आगे बोलें।',
+      hindi: 'यह सुनकर लगेगा — यह कैसे हो सकता है? मैं समझाता हूँ। जब कोई booking होती है जिसमें ग्राहक ने backup protection लिया होता है — आपको offer आता है। क्या आप उस दिन backup पंडित बनेंगे? आप हाँ कहते हैं। उस दिन free रहते हैं। अगर मुख्य पंडित ने पूजा कर ली — भी आपको दो हज़ार रुपये मिलेंगे। अगर मुख्य पंडित cancel किए — तो पूरी booking आपकी और ऊपर से दो हज़ार bonus। यह पैसा ग्राहक ने booking के समय backup protection की extra payment की थी। वही आपको मिलता है। दोनों तरफ से फ़ायदा। आगे बोलिए।',
       roman: 'Yeh sunkar lagega — Yeh kaise ho sakta hai? Main samjhata hoon. Jab koi booking hoti hai jisme grahak ne backup protection liya hota hai — aapko offer aata hai. Kya aap us din backup Pandit banenge? Aap haan kehte hain. Us din free rehte hain. Agar mukhya Pandit ne pooja kar li — bhi aapko do hazaar rupaye milenge. Agar mukhya Pandit cancel kiye — to poori booking aapki aur upar se do hazaar bonus. Yeh paisa grahak ne booking ke samay backup protection ki extra payment ki thi. Wohi aapko milta hai. Dono taraf se faayda. Aage bolein.',
       durationSec: 28,
     },
@@ -369,7 +369,7 @@ export const TUTORIAL_PAYMENT: ScreenVoiceScripts = {
   screenId: 'S-0.6',
   scripts: {
     main: {
-      hindi: 'पूजा खत्म हुई। दो मिनट में पैसे बैंक में। कोई इंतज़ार नहीं। कोई कल देंगे नहीं। और देखो — platform का share भी screen पर दिखेगा। छुपा कुछ नहीं। Screen पर देखें — दक्षिणा, platform का हिस्सा, यात्रा भत्ता — सब साफ़। और नीचे लिखा है — आपको कितना मिला। आगे बोलें।',
+      hindi: 'पूजा खत्म हुई। दो मिनट में पैसे बैंक में। कोई इंतज़ार नहीं। कोई कल देंगे नहीं। और देखो — platform का share भी screen पर दिखेगा। छुपा कुछ नहीं। Screen पर देखिए — दक्षिणा, platform का हिस्सा, यात्रा भत्ता — सब साफ़। और नीचे लिखा है — आपको कितना मिला। आगे बोलिए।',
       roman: 'Pooja khatam hui. Do minute mein paise bank mein. Koi intezaar nahi. Koi kal denge nahi. Aur dekho — platform ka share bhi screen par dikhega. Chhupa kuch nahi. Screen par dekhein — dakshina, platform ka hissa, yatra bhatta — sab saaf. Aur neeche likha hai — aapko kitna mila. Aage bolein.',
       durationSec: 16,
     },
@@ -395,7 +395,7 @@ export const TUTORIAL_VOICE_NAV: ScreenVoiceScripts = {
       durationSec: 4,
     },
     onHighNoise: {
-      hindi: 'शोर ज़्यादा लग रहा है। शांत जगह पर जाकर try करें, या Keyboard use करें।',
+      hindi: 'शोर ज़्यादा लग रहा है। शांत जगह पर जाकर try कीजिए, या Keyboard use कीजिए।',
       roman: 'Shor zyada lag raha hai. Shaant jagah par jakar try karein, ya Keyboard use karein.',
       durationSec: 4,
     },
@@ -406,7 +406,7 @@ export const TUTORIAL_DUAL_MODE: ScreenVoiceScripts = {
   screenId: 'S-0.8',
   scripts: {
     main: {
-      hindi: 'चाहे आपके पास smartphone हो या keypad phone — दोनों से काम चलेगा। Smartphone वाले को app में सब कुछ मिलेगा — video call, chat, alerts। Keypad phone वाले के पास नई booking आने पर call आएगी — number दबाओ, booking accept करो। और अगर registration में बेटा या परिवार मदद करे — कोई बात नहीं। पूजा आपको मिलेगी। पैसे आपके खाते में। आगे बोलें।',
+      hindi: 'चाहे आपके पास smartphone हो या keypad phone — दोनों से काम चलेगा। Smartphone वाले को app में सब कुछ मिलेगा — video call, chat, alerts। Keypad phone वाले के पास नई booking आने पर call आएगी — number दबाइए, booking accept कीजिए। और अगर registration में बेटा या परिवार मदद करे — कोई बात नहीं। पूजा आपको मिलेगी। पैसे आपके खाते में। आगे बोलिए।',
       roman: 'Chahe aapke paas smartphone ho ya keypad phone — dono se kaam chalega. Smartphone wale ko app mein sab kuch milega — video call, chat, alerts. Keypad phone wale ke paas nayi booking aane par call aayegi — number dabao, booking accept karo. Aur agar registration mein beta ya parivar madad kare — koi baat nahi. Pooja aapko milegi. Paise aapke khate mein. Aage bolein.',
       durationSec: 16,
     },
@@ -417,7 +417,7 @@ export const TUTORIAL_TRAVEL: ScreenVoiceScripts = {
   screenId: 'S-0.9',
   scripts: {
     main: {
-      hindi: 'Booking confirm होते ही — आपकी पसंद के हिसाब से — train हो, bus हो, या cab — पूरी यात्रा की planning platform कर देगा। Hotel से खाने तक। और calendar में जो दिन आप free नहीं हैं — एक बार set करो। Platform उन दिनों किसी को नहीं भेजेगा। Double booking हो ही नहीं सकती। आगे बोलें।',
+      hindi: 'Booking confirm होते ही — आपकी पसंद के हिसाब से — train हो, bus हो, या cab — पूरी यात्रा की planning platform कर देगा। Hotel से खाने तक। और calendar में जो दिन आप free नहीं हैं — एक बार set कीजिए। Platform उन दिनों किसी को नहीं भेजेगा। Double booking हो ही नहीं सकती। आगे बोलिए।',
       roman: 'Booking confirm hote hi — aapki pasand ke hisaab se — train ho, bus ho, ya cab — poori yatra ki planning platform kar dega. Hotel se khaane tak. Aur calendar mein jo din aap free nahi hain — ek baar set karo. Platform un dino kisi ko nahi bhejega. Double booking ho hi nahi sakti. Aage bolein.',
       durationSec: 14,
     },
@@ -428,7 +428,7 @@ export const TUTORIAL_VIDEO_VERIFY: ScreenVoiceScripts = {
   screenId: 'S-0.10',
   scripts: {
     main: {
-      hindi: 'Verified होने का मतलब है — ज़्यादा bookings। Data यह कहता है — Verified पंडितों को तीन गुना ज़्यादा bookings मिलती हैं। इसके लिए हर पूजा के लिए सिर्फ दो मिनट का video देना होगा — एक बार। यह video सिर्फ हमारी admin team देखेगी। Public नहीं होगी। आपकी privacy safe है। बस एक और screen बाकी है। आगे बोलें।',
+      hindi: 'Verified होने का मतलब है — ज़्यादा bookings। Data यह कहता है — Verified पंडितों को तीन गुना ज़्यादा bookings मिलती हैं। इसके लिए हर पूजा के लिए सिर्फ दो मिनट का video देना होगा — एक बार। यह video सिर्फ हमारी admin team देखेगी। Public नहीं होगी। आपकी privacy safe है। बस एक और screen बाकी है। आगे बोलिए।',
       roman: 'Verified hone ka matlab hai — zyaada bookings. Data yeh kahta hai — Verified panditon ko teen guna zyaada bookings milti hain. Iske liye har pooja ke liye sirf do minute ka video dena hoga — ek baar. Yeh video sirf humari admin team dekhegi. Public nahi hogi. Aapki privacy safe hai. Bas ek aur screen baaki hai. Aage bolein.',
       durationSec: 16,
     },
@@ -450,7 +450,7 @@ export const TUTORIAL_CTA: ScreenVoiceScripts = {
   screenId: 'S-0.12',
   scripts: {
     main: {
-      hindi: 'बस इतना था HmarePanditJi का परिचय। अब आप registration शुरू कर सकते हैं — बिल्कुल मुफ़्त, दस मिनट लगेंगे। क्या आप अभी शुरू करना चाहेंगे? हाँ बोलें या नीचे button दबाएं। अगर कोई सवाल हो — screen पर helpline number है — बिल्कुल free।',
+      hindi: 'बस इतना था HmarePanditJi का परिचय। अब आप registration शुरू कर सकते हैं — बिल्कुल मुफ़्त, दस मिनट लगेंगे। क्या आप अभी शुरू करना चाहेंगे? हाँ बोलिए या नीचे button दबाइए। अगर कोई सवाल हो — screen पर helpline number है — बिल्कुल free।',
       roman: 'Bas itna tha HmarePanditJi ka parichay. Ab aap registration shuru kar sakte hain — bilkul muft, das minute lagenge. Kya aap abhi shuru karna chahenge? Haan bolein ya neeche button dabayein. Agar koi sawaal ho — screen par helpline number hai — bilkul free.',
       durationSec: 14,
     },
@@ -460,7 +460,7 @@ export const TUTORIAL_CTA: ScreenVoiceScripts = {
       durationSec: 3,
     },
     onLater: {
-      hindi: 'ठीक है। जब भी तैयार हों, app खोलें और Registration button दबाएं।',
+      hindi: 'ठीक है। जब भी तैयार हों, app खोलिए और Registration button दबाइए।',
       roman: 'Theek hai. Jab bhi tayyar hon, app kholein aur Registration button dabayein.',
       durationSec: 4,
     },
@@ -493,7 +493,7 @@ export const ERROR_SCRIPTS = {
     durationSec: 3,
   } as VoiceScript,
   ambientNoiseHigh: {
-    hindi: 'शोर बहुत ज़्यादा है। Keyboard try करें या शांत जगह जाएं।',
+    hindi: 'शोर बहुत ज़्यादा है। Keyboard try कीजिए या शांत जगह जाइए।',
     roman: 'Shor bahut zyaada hai. Keyboard try karein ya shaant jagah jayein.',
     durationSec: 3,
   } as VoiceScript,

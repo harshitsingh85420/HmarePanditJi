@@ -58,7 +58,23 @@ const config: Config = {
         card:   '#FFFDF8',
         chandan:'#FFF6E9',   // on-sindoor text + warm screen tint (mockup)
         // Sand tones — card borders, dividers, inactive tracks (mockup export).
-        sand:   { DEFAULT:'#F0DFC4', 200:'#E7DCC9', 300:'#E4D6C1', 400:'#C9BBA6' },
+        // 100 = #EADFCE, canon's INPUT hairline (`1.5px solid #EADFCE`, ×10 —
+        // the most-repeated field border in the whole artboard set).
+        sand:   { DEFAULT:'#F0DFC4', 100:'#EADFCE', 200:'#E7DCC9', 300:'#E4D6C1', 400:'#C9BBA6' },
+        // CANON SURFACE TINTS — every one of these is a literal that recurs
+        // across artboards but had no token, so screens were hard-coding it
+        // (or, more often, silently flattening to a nearby colour).
+        //   cardtint  — the FAR stop of canon's card gradient. Canon's card is
+        //               never a flat fill: linear-gradient(140deg,#FFFDF8,#FFF0DC).
+        //   peach     — warm tile fill, pairs with saffron-50 (#FDEEE7)
+        //   goldpale  — the "pending / awaiting" chip field
+        //   leafpale  — leaf-card border (money + success surfaces)
+        //   parchment — the muted/disabled row fill (opacity .8-.9 rows)
+        cardtint:  '#FFF0DC',
+        peach:     '#FFF3E2',
+        goldpale:  '#FBF0D8',
+        leafpale:  '#BFE3CC',
+        parchment: '#FBF7EF',
         // FESTIVE ACCENTS (Pratham Aarti) — illustration canvases, chips,
         // progress dots, celebration moments ONLY. Never body text or CTAs.
         rani:   '#D81B60',
@@ -76,6 +92,53 @@ const config: Config = {
         card: '20px',
         btn: '16px',
         canvas: '28px',
+        // CANON RADIUS VOCABULARY (it is only five numbers):
+        //   18px ×57 — CTAs and stat tiles          -> cta / tile
+        //   16px ×46 — fields, list rows, chips-box -> field (== btn, kept
+        //              separate so a later canon correction to one does not
+        //              silently move the other)
+        //   22px ×7  — THE raised card surface       -> surface
+        //   14px     — inner/nested surfaces: selectable tier tiles, the
+        //              price-meter options, the panchang strip, the voice
+        //              field — the one step BELOW `field`. Recurs across
+        //              home(12), language(2), earnings(27) and ~10 more
+        //              frames, yet no token existed, so screens hard-coded
+        //              rounded-[14px] everywhere -> inset
+        //   999px    — pills                         -> chip
+        // The app only had 20/16/28, so nothing sat on canon's 18 or 22 and
+        // every CTA read 2px tighter than the artboard.
+        surface: '22px',
+        tile: '18px',
+        cta: '18px',
+        field: '16px',
+        inset: '14px',
+        chip: '999px',
+      },
+      // CANON GRADIENT VOCABULARY. Canon's depth comes from multi-stop
+      // gradients + layered shadows, never from structure — but NONE of these
+      // existed as tokens, so every surface in the app was a flat fill.
+      backgroundImage: {
+        // THE card surface. 140deg is canon's card angle and #FFF0DC its far
+        // stop; neither string appeared anywhere in apps/pandit before this.
+        cardsurface: 'linear-gradient(140deg,#FFFDF8,#FFF0DC)',
+        // CTA fills
+        sindoor:      'linear-gradient(180deg,#C44A22,#B23A1A)',
+        'sindoor-dg': 'linear-gradient(135deg,#B23A1A,#7A250E)',
+        // Orbs / lamps — the radial that draws a lit brass or clay object
+        'orb-diya':  'radial-gradient(circle at 50% 35%,#FFE9B8,#F2A02C 60%,#B23A1A)',
+        'orb-brass': 'radial-gradient(circle at 40% 35%,#FFEBA8,#E7B54A 55%,#B8860B)',
+        'orb-bell':  'radial-gradient(ellipse at 50% 26%,#F6D585,#B8860B 68%,#7d5c0f)',
+        // Tinted tiles
+        'tile-peach': 'linear-gradient(135deg,#FFF3E2,#FDEEE7)',
+        'tile-leaf':  'linear-gradient(135deg,#DDE9D2,#C9DAB9)',
+        'tile-sage':  'linear-gradient(135deg,#E7F0DD,#DCE8CF)',
+        // Ornament
+        'gold-shine': 'linear-gradient(90deg,#E7B54A 20%,#FFF6DE 50%,#E7B54A 80%)',
+        'night':      'linear-gradient(150deg,#2A1B3D,#4a2e2a)',
+        'night-warm': 'linear-gradient(150deg,#2A1B3D,#5E1C0A)',
+        // The page field itself — canon lays a huge soft radial behind content
+        'page-warm':  'radial-gradient(1400px 700px at 40% -100px,#F6EDD9,#E7D6B8 70%)',
+        'halo-sindoor': 'radial-gradient(circle,rgba(178,58,26,.18),transparent 70%)',
       },
       // CANON SHADOW VOCABULARY (counted from design/canon/हमारे पंडित जी):
       //   0 6px 16px rgba(178,58,26,.3)  ×16 — THE raised-sindoor lift
@@ -90,6 +153,29 @@ const config: Config = {
         btn: '0 6px 16px rgba(178,58,26,0.30)',
         // success/money CTAs sit highest in canon — the leaf equivalent
         'btn-leaf': '0 8px 20px rgba(30,122,70,0.35)',
+
+        // ── The rest of canon's shadow vocabulary, previously untokenised ──
+        // THE RAISED CARD. `card` above (2px/8px) is canon's small circular
+        // ICON-button shadow (all 10 of its uses are 42-44px circles); the
+        // actual card surface in frame 12 carries 6px/16px @ .10. The app had
+        // been using the icon shadow on full-width cards, which is why cards
+        // read as printed-on rather than laid-on.
+        surface:        '0 6px 16px rgba(90,46,32,0.10)',
+        soft:           '0 4px 12px rgba(90,46,32,0.08)',
+        lift:           '0 10px 24px rgba(90,46,32,0.16)',
+        deep:           '0 8px 22px rgba(0,0,0,0.28)',
+        // upward lift under the thali nav
+        nav:            '0 -3px 12px rgba(90,46,32,0.08)',
+        // sindoor family
+        chip:           '0 5px 12px rgba(178,58,26,0.22)',
+        'btn-hero':     '0 8px 22px rgba(178,58,26,0.40)',
+        'sindoor-soft': '0 5px 14px rgba(178,58,26,0.16)',
+        'sindoor-deep': '0 10px 24px rgba(122,37,14,0.35)',
+        // the ONE inset in canon: a lit brass object catching light on top
+        'orb-brass':    'inset 0 5px 8px rgba(255,255,255,0.45), 0 8px 14px rgba(90,46,32,0.32)',
+        // genda glow — canon's "this is alight" halo (7px and 8px both occur)
+        'glow-genda':   '0 0 8px rgba(242,160,44,0.7)',
+        'glow-genda-sm':'0 0 7px rgba(242,160,44,0.7)',
       },
       keyframes: {
         'voice-bar': {

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+@keyframes pm-popA { 0%{ transform:scale(1);} 45%{ transform:scale(1.18);} 100%{ transform:scale(1);} }
+@keyframes pm-popB { 0%{ transform:scale(1);} 45%{ transform:scale(1.18);} 100%{ transform:scale(1);} }
+@media (prefers-reduced-motion: reduce){ *{ animation:none !important; } }
+</style>
+</helmet>
+<div style="border-radius:20px; border:2px solid #F4B096; background:#FDEEE7; padding:16px; font-family:'Noto Sans Devanagari',sans-serif; display:flex; flex-direction:column; gap:14px;">
+  <div style="font-size:16px; font-weight:800; color:#341A13;">अपनी माँग चुनिए — घटाकर देखिए</div>
+  <div style="display:flex; flex-direction:column; gap:9px;">
+    <sc-for list="{{ chips }}" as="c" hint-placeholder-count="3">
+      <button onClick="{{ c.onToggle }}" style="display:flex; align-items:center; justify-content:space-between; gap:10px; width:100%; min-height:54px; padding:11px 14px; border-radius:14px; cursor:pointer; border:2px solid {{ c.bd }}; background:{{ c.bg }}; color:{{ c.fg }}; font-family:'Noto Sans Devanagari',sans-serif; font-weight:700; font-size:15px; transition:all .2s;" style-active="transform:scale(.98)">
+        <span style="display:flex; align-items:center; gap:10px; text-align:left;"><span style="font-size:21px;">{{ c.icon }}</span>{{ c.label }}</span>
+        <span style="font-size:14px; font-weight:800; white-space:nowrap;">{{ c.tag }}</span>
+      </button>
+    </sc-for>
+  </div>
+  <div style="display:flex; justify-content:space-between; align-items:center; border-top:2px dashed #F4B096; padding-top:13px;">
+    <span style="font-size:16px; font-weight:800; color:#341A13;">एक बुकिंग का अनुमान</span>
+    <span style="animation:{{ numAnim }}; font-size:31px; font-weight:800; color:#155C34; letter-spacing:-.5px;">₹{{ totalStr }}</span>
+  </div>
+  <div style="display:flex; gap:10px; align-items:flex-end;">
+    <sc-for list="{{ bars }}" as="b" hint-placeholder-count="3">
+      <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:6px;">
+        <div style="width:100%; border-radius:7px 7px 0 0; height:{{ b.h }}; background:{{ b.color }}; transition:background .25s, height .25s;"></div>
+        <span style="font-size:12px; font-weight:{{ b.fw }}; color:{{ b.tc }};">{{ b.label }}</span>
+      </div>
+    </sc-for>
+  </div>
+  <div style="display:flex; gap:9px; align-items:flex-start; background:#E4F3E9; border-radius:13px; padding:11px 13px;">
+    <span style="font-size:19px; line-height:1.2;">🙏</span>
+    <span style="font-size:13px; font-weight:600; color:#155C34; line-height:1.45;">कम माँग = ज़्यादा बुकिंग। इस दाम पर ज़्यादा परिवार आपको बुला सकते हैं।</span>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:330,&quot;height&quot;:460}}">
+class Component extends DCLogic {
+  state = { travel: true, hotel: true, premium: true, bump: false };
+  renderVals(){
+    const s = this.state;
+    const defs = [
+      { key: 'travel', icon: '🚗', label: 'आने-जाने का किराया', cost: 800 },
+      { key: 'hotel', icon: '🏨', label: 'होटल में ठहरना', cost: 1500 },
+      { key: 'premium', icon: '✨', label: 'प्रीमियम सामग्री', cost: 1200 },
+    ];
+    const base = 2100;
+    let total = base, count = 0;
+    const chips = defs.map(d => {
+      const on = s[d.key];
+      if (on) { total += d.cost; count++; }
+      return {
+        icon: d.icon, label: d.label,
+        bg: on ? '#B23A1A' : '#FFFFFF',
+        fg: on ? '#FFF6E9' : '#7A250E',
+        bd: on ? '#B23A1A' : '#F4B096',
+        tag: on ? ('+₹' + d.cost.toLocaleString('en-IN')) : '— माफ़',
+        onToggle: () => this.setState(st => ({ [d.key]: !st[d.key], bump: !st.bump })),
+      };
+    });
+    const levelIdx = count === 0 ? 0 : (count >= 3 ? 2 : 1);
+    const labels = ['कम माँग', 'मध्यम', 'ज़्यादा माँग'];
+    const heights = ['18px', '28px', '38px'];
+    const bars = labels.map((label, i) => ({
+      label, h: heights[i],
+      color: i === levelIdx ? '#1E7A46' : '#F4B096',
+      fw: i === levelIdx ? 800 : 500,
+      tc: i === levelIdx ? '#155C34' : '#8A6F5C',
+    }));
+    return {
+      chips, bars,
+      totalStr: total.toLocaleString('en-IN'),
+      numAnim: (s.bump ? 'pm-popA' : 'pm-popB') + ' .32s ease',
+    };
+  }
+}
+</script>
+</body>
+</html>

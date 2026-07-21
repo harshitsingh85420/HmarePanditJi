@@ -301,7 +301,7 @@ export default function HomePage() {
   const welcomeSpeakText = isBookingReady
     ? (isOnline
         ? "आप अभी ऑनलाइन हैं। नई बुकिंग के लिए तैयार रहें।"
-        : "आप अभी ऑफलाइन हैं। काम शुरू करने के लिए ऑनलाइन जाएं।") + " " + todaySummary + festivalLine
+        : "आप अभी ऑफलाइन हैं। काम शुरू करने के लिए ऑनलाइन जाइए।") + " " + todaySummary + festivalLine
     : t("home.readinessHeroVoice");
 
   // W3: ids = the AGENT's tool vocabulary on this screen (labels are
@@ -331,7 +331,7 @@ export default function HomePage() {
     { id: "open-earnings", label: "कमाई देखो", keywords: ["कमाई", "kamai", "earnings"], action: () => router.push("/earnings") },
     { id: "open-help", label: "मदद खोलो", keywords: ["मदद", "help", "sahayata"], action: () => router.push("/help") },
     // J2: the तैयारी hero card + the remaining nav destinations
-    { id: "start-readiness", label: "तैयारी शुरू करो", keywords: ["तैयारी", "taiyari", "शुरू करो", "शुरू करें"], action: () => router.push("/readiness") },
+    { id: "start-readiness", label: "तैयारी शुरू करो", keywords: ["तैयारी", "taiyari", "शुरू करो", "शुरू करें"], action: () => router.push("/readiness/hub") },
     { id: "open-calendar", label: "कैलेंडर खोलो", keywords: ["कैलेंडर", "calendar"], action: () => router.push("/calendar") },
     { id: "open-settings", label: "सेटिंग खोलो", keywords: ["सेटिंग", "settings"], action: () => router.push("/settings") },
   ];

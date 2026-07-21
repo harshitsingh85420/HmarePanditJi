@@ -303,8 +303,16 @@ model SamagriPackage {
   packageType     PackageType?
   pujaType        String        // Which puja this package is for
   fixedPrice      Int?           // FIXED, non-negotiable, set by pandit
-  // items: JSON array of { itemName: string, quantity: string, qualityNotes?: string }
-  // Example: [{"itemName":"Desi Ghee","quantity":"500g","qualityNotes":"Shuddh cow ghee"}]
+  // items: JSON array of { itemName: string, quantity: string, brand: string, qualityNotes?: string }
+  // Example: [{"itemName":"देसी घी","quantity":"500 ग्राम","brand":"अमूल","qualityNotes":"गाय का शुद्ध घी"}]
+  //
+  // F12-02 — brand/company is REQUIRED-ON-WRITE, OPTIONAL-ON-READ. Rows written
+  // before F12-02 have no brand key; because this is a Json column there was no
+  // migration to backfill them, and we will not invent a company name that a
+  // pandit never gave. Read them through readSamagriItems() (brand → null) and
+  // never assume the key is present. "कोई भी" is the real answer for an item
+  // where no company binds — it is a value, not an absence.
+  // THE SHAPE IS DEFINED ONCE: services/api/src/lib/samagriItem.ts.
   items    Json
   isActive Boolean  @default(true)
   createdAt DateTime @default(now())

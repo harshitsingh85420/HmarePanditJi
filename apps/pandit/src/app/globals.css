@@ -1,3 +1,10 @@
+/* Material Symbols — imported into a LAYER so Google's own
+   `.material-symbols-outlined{font-size:24px}` can never beat the app's
+   Tailwind text-[Npx] utilities (layered styles lose to unlayered author
+   styles regardless of load order). This fixes the app-wide glyph-size
+   clamp: before this, every canon glyph size silently rendered at 24px. */
+@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200") layer(vendor);
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -12,6 +19,12 @@
   letter-spacing: normal;
   word-wrap: normal;
   white-space: nowrap;
+}
+
+/* the 24px DEFAULT for unsized glyphs — :where() keeps specificity at zero
+   so any text-[Npx] utility (or inherited size) always wins */
+:where(.material-symbols-outlined) {
+  font-size: 24px;
 }
 
 .material-symbols-outlined.material-symbols-filled,
@@ -672,12 +685,47 @@ body {
 
 /* ── Boring-pass E: ambient warmth (transform/opacity/paint only) ── */
 
-/* The toran garland gently sways (paint-only background drift, no layout) */
-@keyframes pa-toran-sway {
-  0%, 100% { background-position-x: 0; }
-  50%      { background-position-x: 8px; }
+/* Canon garland (Toran variant="garland"): each hanging strand sways from its
+   own top, per-strand delay set inline (design/canon/Toran.dc.html tn-sway). */
+@keyframes pa-toran-strand-sway {
+  0%, 100% { transform: rotate(-3deg); }
+  50%      { transform: rotate(3deg); }
 }
-.pa-toran-sway { animation: pa-toran-sway 5s ease-in-out infinite; }
+.pa-toran-strand {
+  transform-origin: top center;
+  animation: pa-toran-strand-sway 3.4s ease-in-out infinite;
+}
+
+/* canon g-glowring — a gold ring swelling off a hero control (box-shadow in
+   canon; rebuilt as a transform/opacity ring for the animation law) */
+@keyframes pa-glowring {
+  0%   { box-shadow: 0 0 0 0 rgba(231, 181, 74, 0.55); }
+  100% { box-shadow: 0 0 0 14px rgba(231, 181, 74, 0); }
+}
+.pa-glowring { animation: pa-glowring 2.2s ease-in-out infinite; }
+
+/* शिष्य's speaking ribbon pops in (canon Shishya.dc.html sh-ribbon) */
+@keyframes pa-sh-ribbon {
+  0%   { opacity: 0; transform: translateY(6px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.pa-sh-ribbon { animation: pa-sh-ribbon 0.4s ease-out; }
+
+/* स्थान map (canon frame 2): the pulsing locate-ring + bouncing pin.
+   Canon's g-ring keyframe scales without the centering translate — kept
+   here WITH it so the ring pulses from dead centre. */
+@keyframes pa-map-ring {
+  0%   { transform: translate(-50%, -50%) scale(0.7); opacity: 0.55; }
+  100% { transform: translate(-50%, -50%) scale(1.9); opacity: 0; }
+}
+.pa-map-ring { animation: pa-map-ring 2.4s ease-out infinite; }
+@keyframes pa-map-bounce {
+  0%   { transform: translateY(-16px); opacity: 0; }
+  55%  { transform: translateY(0); opacity: 1; }
+  72%  { transform: translateY(-7px); }
+  100% { transform: translateY(0); }
+}
+.pa-map-bounce { animation: pa-map-bounce 2.6s ease-in-out infinite; }
 
 /* शिष्य's idle breath — only while awake and NOT speaking/listening */
 @keyframes shishya-breathe {
@@ -701,7 +749,8 @@ body {
   .pa-petal, .pa-diya-flame, .pa-diya-halo, .pa-canvas-enter, .pa-stagger > *,
   .pa-cdiya-flame, .pa-cdiya-core, .pa-cdiya-glow, .shishya-breathe-halo, .online-dot,
   .pa-burst-petal, .pa-bell-swing, .pa-bounce-once, .pa-arrow-bounce, .pa-tap-hint,
-  .pa-toran-sway, .shishya-breathe, .pa-thali-ripple {
+  .pa-toran-strand, .shishya-breathe, .pa-thali-ripple,
+  .pa-sh-ribbon, .pa-map-ring, .pa-map-bounce, .pa-glowring {
     animation: none !important;
   }
   /* Drifting/bursting petals + the ripple ring have no sensible static state */

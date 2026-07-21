@@ -158,7 +158,7 @@ export function ConfirmationSheet({
                 {showLowConfidence && (
                   <p className="text-warning-amber text-base mt-2 flex items-center gap-1" role="alert">
                     <span className="material-symbols-outlined text-base" aria-hidden="true">warning</span>
-                    पक्का करें — थोड़ा unsure हूँ
+                    पक्का कीजिए — थोड़ा unsure हूँ
                   </p>
                 )}
               </div>
@@ -205,7 +205,7 @@ export function ConfirmationSheet({
                   aria-label="Retry: No, change my answer"
                 >
                   <span className="material-symbols-outlined text-xl" aria-hidden="true">refresh</span>
-                  <span>नहीं, बदलें</span>
+                  <span>नहीं, बदलिए</span>
                 </motion.button>
               </div>
 

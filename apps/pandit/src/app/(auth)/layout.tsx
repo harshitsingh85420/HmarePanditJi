@@ -27,14 +27,14 @@ function AuthErrorBoundary({
           कुछ गलत हो गया
         </h1>
         <p className="text-text-secondary font-devanagari">
-          माफ़ कीजिए, लॉगिन प्रक्रिया में तकनीकी दिक्कत आई। कृपया पुनः प्रयास करें।
+          माफ़ कीजिए, लॉगिन प्रक्रिया में तकनीकी दिक्कत आई। कृपया पुनः प्रयास कीजिए।
         </p>
         <button
           onClick={reset}
           className="w-full min-h-[56px] bg-primary-container text-white font-bold rounded-btn flex items-center justify-center gap-2 shadow-btn-saffron"
         >
           <span className="material-symbols-outlined">refresh</span>
-          पुनः प्रयास करें
+          पुनः प्रयास कीजिए
         </button>
       </div>
     </div>

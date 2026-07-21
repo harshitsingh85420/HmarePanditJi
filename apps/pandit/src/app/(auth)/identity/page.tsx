@@ -45,7 +45,7 @@ export default function IdentityConfirmationPage() {
   // confirm, and a referral-only yes/no screen does not need a rogue loop.
   const handleVoiceInput = () => {
     void speakWithSarvam({
-      text: 'क्या आप एक पंडित हैं? यदि हाँ, तो नीचे दिया बटन दबाएँ — "हाँ, मैं पंडित हूँ"।',
+      text: 'क्या आप एक पंडित हैं? यदि हाँ, तो नीचे दिया बटन दबाइए — "हाँ, मैं पंडित हूँ"।',
       languageCode: 'hi-IN',
     })
   }
@@ -66,13 +66,13 @@ export default function IdentityConfirmationPage() {
 
   const features: Array<{ icon: string; title: string; desc: string }> = [
     { icon: '💰', title: 'तय दक्षिणा', desc: 'हर अनुष्ठान के लिए सही और स्पष्ट मूल्य' },
-    { icon: '🎙️', title: 'सरल आवाज़ नियंत्रण', desc: 'बोलकर काम करें, लिखने की ज़रूरत नहीं' },
+    { icon: '🎙️', title: 'सरल आवाज़ नियंत्रण', desc: 'बोलकर काम कीजिए, लिखने की ज़रूरत नहीं' },
     { icon: '⚡', title: 'त्वरित भुगतान', desc: 'सीधे आपके बैंक खाते में तुरंत जमा' },
   ]
 
   return (
     <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
-      <Header festive title="परिचय" showBack onBack={() => router.back()} />
+      <Header title="परिचय" showBack onBack={() => router.back()} />
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto px-4 pt-3 pb-6 flex flex-col">
@@ -116,7 +116,7 @@ export default function IdentityConfirmationPage() {
               </motion.button>
 
               <p className="text-softgrey text-center font-hindi">
-                उत्तर देने के लिए माइक दबाएँ
+                उत्तर देने के लिए माइक दबाइए
               </p>
 
               {/* Transcribed text (if any) */}
@@ -163,7 +163,7 @@ export default function IdentityConfirmationPage() {
           onClick={handleManualConfirm}
           className="w-full min-h-[72px] h-auto px-4 py-3 bg-saffron-500 text-[#FFF3EA] text-[20px] font-bold rounded-btn shadow-btn active:scale-[0.97] transition-transform flex items-center justify-center gap-3 font-hindi"
         >
-          <span className="text-center block break-words line-clamp-2">हाँ, मैं पंडित हूँ — पंजीकरण शुरू करें</span>
+          <span className="text-center block break-words line-clamp-2">हाँ, मैं पंडित हूँ — पंजीकरण शुरू कीजिए</span>
           <span className="text-[22px] shrink-0" aria-hidden="true">→</span>
         </motion.button>
       </footer>

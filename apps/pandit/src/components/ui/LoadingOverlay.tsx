@@ -1,8 +1,9 @@
 'use client'
 
-import { motion } from 'framer-motion'
+import { motion, useReducedMotion } from 'framer-motion'
 import { clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
+import { DiyaLoader } from '../moments/DiyaLoader'
 
 function cn(...inputs: (string | undefined | false | null)[]) {
   return twMerge(clsx(inputs))
@@ -10,6 +11,7 @@ function cn(...inputs: (string | undefined | false | null)[]) {
 
 export interface LoadingOverlayProps {
   isVisible?: boolean
+  /** optional English sub-line; omitted by default (Devanagari-first) */
   message?: string
   messageHi?: string
   variant?: 'spinner' | 'dots' | 'voice'
@@ -18,22 +20,23 @@ export interface LoadingOverlayProps {
 
 /**
  * LoadingOverlay Component
- * 
- * Full-screen loading overlay for elderly users.
- * Features large, clear loading indicators and bilingual messages.
- * 
- * Variants:
- * - spinner: Classic circular spinner
- * - dots: Bouncing dots (like voice recording)
- * - voice: Voice-specific loading animation
- * 
+ *
+ * Partial-blocking overlay used while a single action is in flight.
+ * The FULL-SCREEN loading state is canon artboard 28 and lives in
+ * DiyaLoader — PageLoading below simply renders it.
+ *
+ * Colours here were previously written against `surface-base` /
+ * `text-primary` / `font-devanagari`, none of which exist in
+ * tailwind.config.ts, so the overlay rendered with a transparent
+ * background and inherited body text. They now use real tokens.
+ *
  * @example
- * <LoadingOverlay isVisible={loading} message="Loading..." messageHi="लोड हो रहा है..." />
+ * <LoadingOverlay isVisible={loading} messageHi="एक क्षण…" />
  */
 export function LoadingOverlay({
   isVisible = true,
-  message = 'Loading...',
-  messageHi = 'लोड हो रहा है...',
+  message,
+  messageHi = 'एक क्षण…',
   variant = 'spinner',
   transparent = false,
 }: LoadingOverlayProps) {
@@ -46,7 +49,7 @@ export function LoadingOverlay({
       exit={{ opacity: 0 }}
       className={cn(
         'fixed inset-0 z-50 flex items-center justify-center',
-        transparent ? 'bg-black/50 backdrop-blur-sm' : 'bg-surface-base/90'
+        transparent ? 'bg-temple-700/50 backdrop-blur-sm' : 'bg-cream/95'
       )}
       role="alert"
       aria-live="polite"
@@ -60,12 +63,12 @@ export function LoadingOverlay({
 
         {/* Message */}
         <div className="text-center space-y-2">
-          <p className="text-[20px] font-bold text-text-primary font-devanagari">
+          <p className="text-[20px] font-black text-saffron-700 font-hindi">
             {messageHi}
           </p>
-          <p className="text-[18px] text-text-secondary">
-            {message}
-          </p>
+          {message && (
+            <p className="text-[18px] font-semibold text-softgrey">{message}</p>
+          )}
         </div>
       </div>
     </motion.div>
@@ -76,6 +79,7 @@ export function LoadingOverlay({
  * Spinner Icon Component
  */
 function SpinnerIcon() {
+  const still = useReducedMotion()
   return (
     <div className="relative w-20 h-20">
       {/* Outer ring */}
@@ -83,7 +87,7 @@ function SpinnerIcon() {
       {/* Spinning ring */}
       <motion.div
         className="absolute inset-0 rounded-full border-4 border-saffron border-t-transparent"
-        animate={{ rotate: 360 }}
+        animate={still ? undefined : { rotate: 360 }}
         transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
       />
       {/* Center dot */}
@@ -95,23 +99,26 @@ function SpinnerIcon() {
 }
 
 /**
- * Bouncing Dots Icon Component
+ * Twinkling Dots — canon artboard 28's dot row: three 11px circles,
+ * 7px apart, on the sindoor → genda ramp, breathing on scale/opacity
+ * with a .2s stagger. (This used to bounce grey-saffron dots on `y`.)
  */
+const CANON_DOTS = ['#B23A1A', '#D95F38', '#F2A02C']
+
 function DotsIcon() {
+  const still = useReducedMotion()
   return (
-    <div className="flex items-center gap-3">
-      {[0, 1, 2].map((i) => (
-        <motion.div
-          key={i}
-          className="w-4 h-4 bg-saffron rounded-full"
-          animate={{
-            y: [0, -16, 0],
-            scale: [1, 1.2, 1],
-          }}
+    <div className="flex items-center gap-[7px]">
+      {CANON_DOTS.map((color, i) => (
+        <motion.span
+          key={color}
+          className="rounded-full"
+          style={{ width: 11, height: 11, background: color }}
+          animate={still ? undefined : { scale: [0.7, 1.15, 0.7], opacity: [0.4, 1, 0.4] }}
           transition={{
-            duration: 0.6,
+            duration: 1.1,
             repeat: Infinity,
-            delay: i * 0.15,
+            delay: i * 0.2,
             ease: 'easeInOut',
           }}
         />
@@ -122,33 +129,29 @@ function DotsIcon() {
 
 /**
  * Voice Recording Icon Component
+ *
+ * The sound-wave bars animate scaleY on a fixed 24px box rather than
+ * animating `height` — transform/opacity only, and no layout shift.
  */
 function VoiceIcon() {
+  const still = useReducedMotion()
   return (
     <div className="flex items-center gap-2">
       {/* Microphone icon */}
       <motion.div
         className="w-16 h-16 bg-saffron rounded-full flex items-center justify-center"
-        animate={{
-          scale: [1, 1.1, 1],
-        }}
-        transition={{
-          duration: 1.5,
-          repeat: Infinity,
-          ease: 'easeInOut',
-        }}
+        animate={still ? undefined : { scale: [1, 1.1, 1] }}
+        transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
       >
-        <span className="material-symbols-outlined text-3xl text-white">mic</span>
+        <span className="material-symbols-outlined text-3xl text-chandan">mic</span>
       </motion.div>
       {/* Sound waves */}
-      <div className="flex items-end gap-1 ml-4">
-        {[1, 2, 3, 4, 5].map((i) => (
+      <div className="flex items-center gap-1 ml-4 h-6">
+        {[0, 1, 2, 3, 4].map((i) => (
           <motion.div
             key={i}
-            className="w-2 bg-saffron rounded-full"
-            animate={{
-              height: [8, 24, 8],
-            }}
+            className="w-2 h-6 bg-saffron rounded-full origin-center"
+            animate={still ? undefined : { scaleY: [0.33, 1, 0.33] }}
             transition={{
               duration: 0.6,
               repeat: Infinity,
@@ -164,22 +167,13 @@ function VoiceIcon() {
 
 /**
  * Page Loading Component
- * 
- * Full-page loading state for route transitions.
- * Used in app/loading.tsx
+ *
+ * Full-page loading state for route transitions (app/loading.tsx).
+ * This IS canon artboard 28, so it renders the canon composition
+ * instead of the old generic spinner + "लोड हो रहा है..." stack.
  */
 export function PageLoading() {
-  return (
-    <div className="min-h-dvh flex flex-col items-center justify-center bg-surface-base">
-      <SpinnerIcon />
-      <p className="mt-6 text-[20px] font-bold text-text-primary font-devanagari">
-        लोड हो रहा है...
-      </p>
-      <p className="mt-2 text-[18px] text-text-secondary">
-        Please wait...
-      </p>
-    </div>
-  )
+  return <DiyaLoader />
 }
 
 export default LoadingOverlay

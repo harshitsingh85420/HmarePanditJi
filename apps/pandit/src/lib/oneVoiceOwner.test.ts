@@ -45,8 +45,10 @@ describe("L3 one-voice-owner guard", () => {
     const violations: string[] = [];
     for (const file of walk(SRC)) {
       const n = norm(file);
-      // the listen loop may live ONLY in the engine lib + its (dead) lib wrapper
-      if (n.includes("/lib/voice-engine") || n.includes("/lib/hooks/useVoiceCascade")) continue;
+      // the listen loop may live ONLY in the engine lib. (useVoiceCascade, the
+      // dead wrapper once excluded here, was DELETED by the F02 build — its
+      // doc-shaped ladder strings now live for real in voiceFieldMachine.)
+      if (n.includes("/lib/voice-engine")) continue;
       // only police route screens + components (where the deaf-on-bg danger lives)
       const isScreenOrComponent = /\/app\//.test(n) || /\/components\//.test(n);
       if (!isScreenOrComponent) continue;

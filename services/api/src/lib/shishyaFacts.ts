@@ -26,7 +26,10 @@ export const APP_FACTS = {
 // The sheet injected into the system prompt — plain Hindi lines the
 // model may quote. Keep each line self-contained and checkable.
 export const FACTS_SHEET_HI = [
-  `दक्षिणा पंडित जी खुद तय करते हैं (₹${APP_FACTS.dakshinaMin} से ₹${APP_FACTS.dakshinaMax.toLocaleString("en-IN")}); ग्राहक से कोई मोलभाव नहीं होता।`,
+  // F11-04: every pooja now has its OWN minimum (lib/dakshinaFloor.ts), so the
+  // sheet must NOT promise a flat ₹501 the API would reject. It states the
+  // lowest possible floor and that the exact one is shown on the pooja screen.
+  `दक्षिणा पंडित जी खुद तय करते हैं (सबसे कम ₹${APP_FACTS.dakshinaMin}, ज़्यादा से ज़्यादा ₹${APP_FACTS.dakshinaMax.toLocaleString("en-IN")}); हर पूजा की अपनी कम-से-कम दक्षिणा होती है — रकम कम पड़ने पर सहेजते समय ऐप खुद बता देता है कि उस पूजा के लिए कम से कम कितनी रखनी है। ग्राहक से कोई मोलभाव नहीं होता।`,
   `दक्षिणा का ${100 - APP_FACTS.commissionPercent}% पंडित जी का है; प्लेटफ़ॉर्म केवल ${APP_FACTS.commissionPercent}% सेवा-शुल्क पूरी दक्षिणा पर लेता है (इसमें बाकी पंडितों की दक्षिणा भी शामिल होती है)।`,
   // AD2 SINGLE-PAYEE LAW: assistant pandits are the main pandit's own —
   // the platform never registers, verifies, pays, or contacts them.

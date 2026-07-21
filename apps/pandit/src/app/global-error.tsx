@@ -29,7 +29,7 @@ export default function GlobalError({
   // Announce error to user on mount
   useEffect(() => {
     void speakWithSarvam({
-      text: 'क्षमा करें, एक गंभीर त्रुटि हुई है। कृपया पृष्ठ को रीफ्रेश करें या सहायता के लिए संपर्क करें।',
+      text: 'क्षमा कीजिए, एक गंभीर त्रुटि हुई है। कृपया पृष्ठ को रीफ्रेश कीजिए या सहायता के लिए संपर्क कीजिए।',
       languageCode: 'hi-IN',
     })
   }, [])
@@ -73,7 +73,7 @@ export default function GlobalError({
             गंभीर त्रुटि
           </h1>
           <p className="text-text-secondary text-xl font-devanagari">
-            क्षमा करें, एक गंभीर तकनीकी दिक्कत हुई है।
+            क्षमा कीजिए, एक गंभीर तकनीकी दिक्कत हुई है।
           </p>
           <p className="text-text-secondary text-lg">
             A critical error has occurred. Please refresh the page.
@@ -100,11 +100,11 @@ export default function GlobalError({
             whileTap={{ scale: 0.98 }}
             onClick={handleReload}
             className="w-full min-h-[72px] h-auto px-4 py-3 bg-saffron text-white font-bold text-[20px] rounded-2xl shadow-btn-saffron flex items-center justify-center gap-3 focus:ring-4 focus:ring-saffron/50 focus:outline-none"
-            aria-label="पृष्ठ रीफ्रेश करें - Refresh page"
+            aria-label="पृष्ठ रीफ्रेश कीजिए - Refresh page"
           >
             <span className="material-symbols-outlined text-2xl">refresh</span>
             <span className="text-center block break-words line-clamp-2">
-              पृष्ठ रीफ्रेश करें
+              पृष्ठ रीफ्रेश कीजिए
             </span>
           </motion.button>
 
@@ -112,18 +112,18 @@ export default function GlobalError({
             whileTap={{ scale: 0.98 }}
             onClick={handleRetry}
             className="w-full min-h-[64px] h-auto px-4 py-3 bg-white border-2 border-saffron text-saffron font-bold text-xl rounded-2xl flex items-center justify-center gap-3 focus:ring-4 focus:ring-saffron/30 focus:outline-none"
-            aria-label="पुनः प्रयास करें - Try again"
+            aria-label="पुनः प्रयास कीजिए - Try again"
           >
             <span className="material-symbols-outlined text-2xl">replay</span>
             <span className="text-center block break-words line-clamp-2">
-              पुनः प्रयास करें
+              पुनः प्रयास कीजिए
             </span>
           </motion.button>
         </div>
 
         {/* Help Contact Info */}
         <div className="pt-6 border-t border-border-default">
-          <p className="text-text-secondary text-lg mb-2">सहायता के लिए संपर्क करें:</p>
+          <p className="text-text-secondary text-lg mb-2">सहायता के लिए संपर्क कीजिए:</p>
           <a
             href="mailto:support@hmarepanditji.com"
             className="text-saffron text-xl font-bold underline underline-offset-4 hover:text-saffron-dark block"

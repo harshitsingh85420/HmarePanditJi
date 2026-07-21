@@ -20,6 +20,44 @@ import { YES, NO } from "@/lib/voiceGrammar";
 import { voiceController } from "@/lib/voiceController";
 import { PopupPointer } from "@/components/moments/PopupPointer";
 
+// ── CANON frame 1 map canvas ────────────────────────────────────────
+// Canon draws a real map, it does not tint a box: sage 135° gradient
+// field, two crossing street hatches, two clay-coloured roads (one
+// carrying a 1px lift), a sindoor halo, ONE pulsing ring and the pin
+// with its drop-shadow. Every literal below is read from
+// design/canon/हमारे पंडित जी.dc.html frame 1.
+function CanonMapCanvas({ className = "" }: { className?: string }) {
+  return (
+    <div
+      className={`relative w-full overflow-hidden rounded-surface border-2 border-sand-200 bg-tile-sage ${className}`}
+      aria-hidden="true"
+    >
+      {/* street hatching — two repeating gradients at 38° / -52° */}
+      <div
+        className="absolute inset-0"
+        style={{
+          backgroundImage:
+            "repeating-linear-gradient(38deg,transparent 0 34px,rgba(255,255,255,.5) 34px 37px),repeating-linear-gradient(-52deg,transparent 0 46px,rgba(160,130,90,.14) 46px 48px)",
+        }}
+      />
+      {/* two clay roads */}
+      <div className="absolute top-[44%] left-[22%] h-[7px] w-[56%] -rotate-[8deg] rounded-[4px] bg-[#F4E4C4] shadow-[0_1px_2px_rgba(0,0,0,.1)]" />
+      <div className="absolute top-[62%] left-[8%] h-[6px] w-[60%] rotate-[6deg] rounded-[4px] bg-[#F4E4C4]" />
+      {/* sindoor halo under the pin */}
+      <div className="absolute top-1/2 left-1/2 -ml-[60px] -mt-[60px] h-[120px] w-[120px] rounded-full bg-halo-sindoor" />
+      {/* one pulsing ring (transform is owned by the animation, so the
+          ring is centred with margins, not with a translate) */}
+      <div className="absolute top-1/2 left-1/2 -ml-[35px] -mt-[35px] h-[70px] w-[70px] animate-pulse-ring rounded-full border-[3px] border-[rgba(178,58,26,.4)] motion-reduce:animate-none" />
+      {/* the pin: wrapper holds the position, span holds the motion */}
+      <div className="absolute top-1/2 left-1/2 flex -translate-x-1/2 -translate-y-full flex-col items-center">
+        <span className="pa-bounce-once select-none text-[52px] leading-none drop-shadow-[0_4px_6px_rgba(0,0,0,.3)]">
+          📍
+        </span>
+      </div>
+    </div>
+  );
+}
+
 interface LocationPermissionScreenProps {
   language: SupportedLanguage;
   onLanguageChange: () => void;
@@ -27,6 +65,9 @@ interface LocationPermissionScreenProps {
   onDenied: () => void;
   onBack?: () => void;
   showBack?: boolean;
+  /** Dev-harness only: seed the confirm state so /design/harness/location
+      can render it without a real geolocation grant. Never set in the app. */
+  initialDetected?: { city: string; state: string } | null;
 }
 
 export default function LocationPermissionScreen({
@@ -34,6 +75,7 @@ export default function LocationPermissionScreen({
   onDenied,
   onBack,
   showBack = true,
+  initialDetected = null,
 }: LocationPermissionScreenProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -43,7 +85,7 @@ export default function LocationPermissionScreen({
   const [pulse, setPulse] = useState(false);
   const [pointerUp, setPointerUp] = useState(false);
   // WAVE 2 CANDIDATE — canon frame 2 detected-city confirm
-  const [detected, setDetected] = useState<{ city: string; state: string } | null>(null);
+  const [detected, setDetected] = useState<{ city: string; state: string } | null>(initialDetected);
   // S3: the narration says "नीचे 'अनुमति दें' दबाइए" — THAT button glows
   const allowBtnRef = useRef<HTMLDivElement | null>(null);
 
@@ -157,107 +199,126 @@ export default function LocationPermissionScreen({
   if (detected) {
     return (
       <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
-        <header className="shrink-0">
-          <div className="h-[60px] bg-gradient-to-r from-genda to-saffron-500 px-4 flex items-center">
-            <h1 className="font-display text-[22px] text-white flex-1 text-center">
-              {t("welcome.titleShort")}
-            </h1>
-          </div>
-          <Toran tone="onSindoor" className="bg-saffron-500" />
-        </header>
+        {/* canon frame 2: the 58px garland is the ONLY top chrome */}
+        <div className="shrink-0">
+          <Toran variant="garland" count={11} />
+        </div>
 
-        <main className="flex-1 overflow-y-auto px-4 pt-6 pb-6 flex flex-col items-center gap-5">
-          <span className="text-[52px] leading-none select-none" aria-hidden="true">📍</span>
-          <h2 className="text-[28px] font-black text-temple-700 font-hindi text-center leading-snug">
+        {/* canon column: padding 14px 22px 18px, gap 16 */}
+        <main className="flex-1 min-h-0 overflow-y-auto px-[22px] pt-[14px] pb-[18px] flex flex-col gap-4">
+          {/* canon: 29/900 #341A13, lh 1.25, forced two-line break */}
+          <h2 className="text-[29px] font-black text-temple-700 font-hindi text-center leading-[1.25] whitespace-pre-line">
             {t("pratham.locationTitle")}
           </h2>
 
-          {/* canon frame 2: the detected place, shown plainly */}
-          <div className="w-full bg-saffron-50 border-2 border-saffron-200 rounded-[18px] p-5 flex items-center gap-3">
+          {/* canon frame 2: the drawn bounded map */}
+          <CanonMapCanvas className="flex-1 min-h-[180px]" />
+
+          {/* canon city card: #FDEEE7 / 2px #F4B096 / r18 / 15px 18px */}
+          <div className="w-full bg-saffron-50 border-2 border-saffron-200 rounded-tile py-[15px] px-[18px] flex items-center gap-[13px]">
             <span className="text-[26px] leading-none select-none" aria-hidden="true">🏙️</span>
             <span className="flex flex-col">
               <span className="text-[22px] font-black text-saffron-700 font-hindi leading-tight">
                 {detected.city}
               </span>
-              <span className="text-[15px] font-semibold text-softgrey font-hindi">
+              {/* canon 15/600 #8A6F5C — at the label floor already */}
+              <span className="text-[18px] font-semibold text-softgrey font-hindi">
                 {detected.state}
               </span>
             </span>
           </div>
 
+          {/* canon CTA: min-h 62 / r18 / #B23A1A / #FFF6E9 / 21/800 /
+              check_circle 24 / shadow 0 6px 16px rgba(178,58,26,.3) */}
+          <button
+            onClick={() => {
+              voiceController.stopSpeech("user-flow:city-confirm");
+              onGranted(detected.city, detected.state);
+            }}
+            className="w-full min-h-[62px] bg-saffron-500 text-chandan rounded-cta text-[21px] font-extrabold shadow-[0_6px_16px_rgba(178,58,26,0.3)] active:scale-[0.97] transition-transform font-hindi flex items-center justify-center gap-[10px]"
+          >
+            <span className="material-symbols-outlined text-[24px] leading-none" aria-hidden="true">
+              check_circle
+            </span>
+            यही सही है
+          </button>
+
+          {/* canon link: 17/700 #8A6F5C underline, centered */}
           <button
             onClick={() => {
               voiceController.stopSpeech("user-flow:city-change");
               onDenied();
             }}
-            className="min-h-[56px] px-6 text-softgrey text-[17px] font-bold font-hindi underline underline-offset-4 active:scale-[0.97] transition-transform"
+            className="self-center min-h-[52px] px-6 text-softgrey text-[17px] font-bold font-hindi underline underline-offset-4 active:scale-[0.97] transition-transform"
           >
-            जगह बदलें
+            जगह बदलिए
           </button>
         </main>
 
-        <footer className="shrink-0 px-4 py-3 bg-cream/95 backdrop-blur border-t border-saffron-100 flex items-end gap-3">
-          <div className="flex-1">
-            <button
-              onClick={() => {
-                voiceController.stopSpeech("user-flow:city-confirm");
-                onGranted(detected.city, detected.state);
-              }}
-              className="w-full min-h-[64px] bg-saffron-500 text-[#FFF3EA] rounded-btn text-[21px] font-extrabold shadow-btn active:scale-[0.97] transition-transform font-hindi"
-            >
-              ✓ यही सही है
-            </button>
-          </div>
-          <ShishyaOrb />
-        </footer>
+        {/* canon: शिष्य bottom-center, size 62, speaking ribbon (6px 0 16px) */}
+        <div className="shrink-0 flex justify-center pt-[6px] pb-4">
+          <ShishyaOrb size={62} say={t("pratham.locationSay")} />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
-      {/* Festive header band: genda → sindoor, toran under it */}
-      <header className="shrink-0">
-        <div className="h-[60px] bg-gradient-to-r from-genda to-saffron-500 px-4 flex items-center gap-3">
-          {showBack && (
-            <button
-              onClick={onBack}
-              aria-label={t("common.back")}
-              className="w-14 h-14 min-w-[56px] min-h-[56px] rounded-full bg-white/90 shadow-card active:scale-90 flex items-center justify-center text-[18px] transition-all"
-            >
-              ←
-            </button>
-          )}
-          <h1 className="font-display text-[22px] text-white flex-1 text-center pr-14">
-            {t("welcome.titleShort")}
-          </h1>
-        </div>
-        <Toran tone="onSindoor" className="bg-saffron-500" />
-      </header>
+    <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink relative">
+      {/* canon frame 2: the 58px garland is the ONLY top chrome. Canon draws
+          no back control; the floating circle keeps the escape when the
+          parent provides one (no-dead-ends law) — flagged deviation. */}
+      <div className="shrink-0">
+        <Toran variant="garland" count={11} />
+      </div>
+      {showBack && onBack && (
+        <button
+          onClick={onBack}
+          aria-label={t("common.back")}
+          className="absolute left-3 top-[64px] z-20 w-[52px] h-[52px] min-h-[52px] min-w-[52px] rounded-full bg-card shadow-card flex items-center justify-center active:scale-90 transition-all focus:outline-none focus:ring-2 focus:ring-saffron-200"
+        >
+          <span className="material-symbols-outlined text-[24px] leading-none text-saffron-700" aria-hidden="true">
+            arrow_back
+          </span>
+        </button>
+      )}
 
-      <main className="flex-1 overflow-y-auto px-4 pt-4 pb-6 flex flex-col items-center gap-5">
-        {/* Illustration canvas — neel tint, radius 24 */}
-        <div className="w-full rounded-3xl bg-neel/10 py-10 flex items-center justify-center gap-3">
-          <span className="text-[64px] leading-none select-none" aria-hidden="true">🛕</span>
-          <span className="pa-bounce-once text-[44px] leading-none select-none" style={{ animationDelay: "0.4s" }} aria-hidden="true">📍</span>
-        </div>
-
-        {/* Mockup frame 2: heading 29/900 ink */}
-        <h2 className="text-[28px] font-black text-temple-700 font-hindi text-center leading-snug">
+      {/* canon column: padding 14px 22px 18px, gap 16 */}
+      <main className="flex-1 min-h-0 overflow-y-auto px-[22px] pt-[14px] pb-[18px] flex flex-col gap-4">
+        {/* canon: 29/900 #341A13, lh 1.25, forced two-line break */}
+        <h2 className="text-[29px] font-black text-temple-700 font-hindi text-center leading-[1.25] whitespace-pre-line">
           {t("pratham.locationTitle")}
         </h2>
+
+        {/* canon frame 2 illustration: the drawn bounded map */}
+        <CanonMapCanvas className="flex-1 min-h-[180px]" />
+
         <p className="t-body text-softgrey font-hindi text-center">{t("pratham.locationWhy")}</p>
 
         {error && (
-          <div className="w-full px-4 py-3 bg-red-50 rounded-card border border-danger/20">
+          <div className="w-full px-4 py-3 bg-saffron-50 rounded-tile border-2 border-danger/25">
             <p className="text-danger text-[18px] font-semibold text-center font-hindi">{error}</p>
           </div>
         )}
 
+        {/* THE primary — canon CTA grammar (62px sindoor, r18, lifted) in the
+            column, not a footer bar. S3: wrapper ref = narration highlight. */}
+        <div ref={allowBtnRef} className="w-full">
+          <button
+            onClick={handleAllowClick}
+            disabled={loading}
+            className={`w-full min-h-[62px] bg-saffron-500 text-chandan rounded-cta text-[21px] font-extrabold shadow-[0_6px_16px_rgba(178,58,26,0.3)] active:scale-[0.97] transition-transform font-hindi disabled:opacity-60 ${
+              pulse ? "saffron-glow-active animate-pulse" : ""
+            }`}
+          >
+            {loading ? t("pratham.locationChecking") : t("pratham.locationAllow")}
+          </button>
+        </div>
+
         <button
           onClick={onDenied}
           disabled={loading}
-          className="min-h-[56px] px-6 text-softgrey text-[17px] font-bold font-hindi underline underline-offset-4 active:scale-[0.97] transition-transform disabled:opacity-50"
+          className="self-center min-h-[52px] px-6 text-softgrey text-[17px] font-bold font-hindi underline underline-offset-4 active:scale-[0.97] transition-transform disabled:opacity-50"
         >
           {t("pratham.locationManual")}
         </button>
@@ -266,22 +327,10 @@ export default function LocationPermissionScreen({
       {/* Arrow + chip pointing at the NATIVE permission popup */}
       {pointerUp && <PopupPointer />}
 
-      {/* Footer: ONE primary + orb slot */}
-      <footer className="shrink-0 px-4 py-3 bg-cream/95 backdrop-blur border-t border-saffron-100 flex items-end gap-3">
-        {/* S3: wrapper ref = the narration highlight target */}
-        <div ref={allowBtnRef} className="flex-1">
-          <button
-            onClick={handleAllowClick}
-            disabled={loading}
-            className={`w-full min-h-[64px] bg-saffron-500 text-[#FFF3EA] rounded-btn text-[21px] font-extrabold shadow-btn active:scale-[0.97] transition-transform font-hindi disabled:opacity-60 ${
-              pulse ? "saffron-glow-active animate-pulse" : ""
-            }`}
-          >
-            {loading ? t("pratham.locationChecking") : t("pratham.locationAllow")}
-          </button>
-        </div>
-        <ShishyaOrb />
-      </footer>
+      {/* canon: शिष्य bottom-center, size 62, speaking ribbon (6px 0 16px) */}
+      <div className="shrink-0 flex justify-center pt-[6px] pb-4">
+        <ShishyaOrb size={62} say={t("pratham.locationSay")} />
+      </div>
     </div>
   );
 }

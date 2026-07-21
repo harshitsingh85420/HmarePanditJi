@@ -8,7 +8,7 @@ import { useEffect } from 'react'
  * NetworkBanner (X-01)
  * 
  * Features:
- * - Online: "Reconnected ✓" (green, 2s)
+ * - Online: "जुड़ गया ✓" (green, 2s)
  * - Offline: "Network chala gaya" (amber, sticky)
  * 
  * Accessibility:
@@ -50,9 +50,9 @@ export function NetworkBanner() {
                 </span>
                 <div>
                   <p className="text-[18px] font-bold text-trust-green">
-                    Reconnected ✓
+                    जुड़ गया ✓
                   </p>
-                  <p className="text-[16px] text-text-secondary font-medium">
+                  <p className="text-[18px] text-text-secondary font-medium">
                     Network connected
                   </p>
                 </div>
@@ -66,7 +66,7 @@ export function NetworkBanner() {
                   <p className="text-[20px] font-bold text-warning-amber">
                     Network chala gaya
                   </p>
-                  <p className="text-[16px] text-text-secondary font-medium">
+                  <p className="text-[18px] text-text-secondary font-medium">
                     Kripya wait karein
                   </p>
                 </div>

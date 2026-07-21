@@ -21,7 +21,7 @@ export const ONBOARDING_TRANSLATIONS: Record<SupportedLanguage, LanguageTranslat
     native: {
       // Common
       welcome: 'नमस्ते',
-      continue: 'जारी रखें',
+      continue: 'जारी रखिए',
       back: 'वापस',
       skip: 'छोड़ें',
       next: 'आगे',
@@ -31,14 +31,14 @@ export const ONBOARDING_TRANSLATIONS: Record<SupportedLanguage, LanguageTranslat
       // Location Permission
       locationTitle: 'लोकेशन अनुमति',
       locationDesc: 'हमें आपकी लोकेशन की आवश्यकता है ताकि हम आपकी भाषा का पता लगा सकें',
-      allowLocation: 'लोकेशन की अनुमति दें',
+      allowLocation: 'लोकेशन की अनुमति दीजिए',
       chooseManually: 'मैं हाथ से चुनूँगा',
       
       // Language Confirm
       languageDetected: 'भाषा का पता चला',
       detectedCity: 'शहर',
       isThisCorrect: 'क्या यह सही है?',
-      changeLanguage: 'भाषा बदलें',
+      changeLanguage: 'भाषा बदलिए',
       
       // Script Choice
       scriptChoiceTitle: 'आप कैसे पढ़ना चाहेंगे?',
@@ -822,7 +822,7 @@ export const ONBOARDING_TRANSLATIONS: Record<SupportedLanguage, LanguageTranslat
       changeLanguage: 'भाषा बदली',
       
       // Script Choice
-      scriptChoiceTitle: 'तू कइसे पढ़ी चाहत बा?',
+      scriptChoiceTitle: 'रउआ कइसे पढ़ल चाहत बानी?',
       pureLanguage: 'भोजपुरी',
       pureLanguageDesc: 'भोजपुरी लिपि में सब',
       languagePlusEnglish: '+ English',

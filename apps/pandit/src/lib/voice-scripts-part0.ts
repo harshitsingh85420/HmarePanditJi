@@ -39,7 +39,7 @@ export const PART_0_SCRIPTS: VoiceScript[] = [
   // S-0.0.2B: Manual City Entry
   {
     screenId: 'S-0.0.2B',
-    text: 'कोई बात नहीं। कृपया अपना शहर बताएं।',
+    text: 'कोई बात नहीं। कृपया अपना शहर बताइए।',
     language: 'hi-IN',
     speaker: 'aditya',
     pace: 1.15,
@@ -57,7 +57,7 @@ export const PART_0_SCRIPTS: VoiceScript[] = [
   // S-0.0.4: Language Selection List
   {
     screenId: 'S-0.0.4',
-    text: 'कृपया अपनी भाषा चुनें।',
+    text: 'कृपया अपनी भाषा चुनिए।',
     language: 'hi-IN',
     speaker: 'aditya',
     pace: 1.15,
@@ -84,7 +84,7 @@ export const PART_0_SCRIPTS: VoiceScript[] = [
   // S-0.0.7: Help Screen
   {
     screenId: 'S-0.0.7',
-    text: 'आपको किसी भी समय मदद चाहिए, तो बस पूछें।',
+    text: 'आपको किसी भी समय मदद चाहिए, तो बस पूछिए।',
     language: 'hi-IN',
     speaker: 'aditya',
     pace: 1.15,
@@ -93,7 +93,7 @@ export const PART_0_SCRIPTS: VoiceScript[] = [
   // S-0.0.8: Voice Micro-Tutorial
   {
     screenId: 'S-0.0.8',
-    text: 'आप मुझसे बात कर सकते हैं। माइक पर क्लिक करें और बोलें।',
+    text: 'आप मुझसे बात कर सकते हैं। माइक पर क्लिक कीजिए और बोलिए।',
     language: 'hi-IN',
     speaker: 'aditya',
     pace: 1.15,
@@ -120,7 +120,7 @@ export const PART_0_SCRIPTS: VoiceScript[] = [
   // S-0.3: Tutorial - Voice Commands
   {
     screenId: 'S-0.3',
-    text: 'बस बोलें, मैं सब समझ जाऊंगा।',
+    text: 'बस बोलिए, मैं सब समझ जाऊंगा।',
     language: 'hi-IN',
     speaker: 'aditya',
     pace: 1.15,
@@ -174,7 +174,7 @@ export const PART_0_SCRIPTS: VoiceScript[] = [
   // S-0.9: Tutorial - Continue
   {
     screenId: 'S-0.9',
-    text: 'आगे बढ़ने के लिए नीचे क्लिक करें।',
+    text: 'आगे बढ़ने के लिए नीचे क्लिक कीजिए।',
     language: 'hi-IN',
     speaker: 'aditya',
     pace: 1.15,
@@ -183,7 +183,7 @@ export const PART_0_SCRIPTS: VoiceScript[] = [
   // S-0.10: Tutorial - Profile Setup
   {
     screenId: 'S-0.10',
-    text: 'अपनी प्रोफ़ाइल सेटअप करें।',
+    text: 'अपनी प्रोफ़ाइल सेटअप कीजिए।',
     language: 'hi-IN',
     speaker: 'aditya',
     pace: 1.15,
@@ -192,7 +192,7 @@ export const PART_0_SCRIPTS: VoiceScript[] = [
   // S-0.11: Tutorial - Preferences
   {
     screenId: 'S-0.11',
-    text: 'अपनी पसंद बताएं।',
+    text: 'अपनी पसंद बताइए।',
     language: 'hi-IN',
     speaker: 'aditya',
     pace: 1.15,
@@ -231,7 +231,7 @@ export const PART_0_SCRIPTS: VoiceScript[] = [
   },
   {
     screenId: 'common-continue',
-    text: 'आगे बोलें।',
+    text: 'आगे बोलिए।',
     language: 'hi-IN',
     speaker: 'aditya',
     pace: 1.15,
@@ -252,14 +252,14 @@ export const PART_0_SCRIPTS: VoiceScript[] = [
   },
   {
     screenId: 'common-error',
-    text: 'कुछ गड़बड़ हो गई। कृपया फिर से कोशिश करें।',
+    text: 'कुछ गड़बड़ हो गई। कृपया फिर से कोशिश कीजिए।',
     language: 'hi-IN',
     speaker: 'aditya',
     pace: 1.15,
   },
   {
     screenId: 'common-loading',
-    text: 'लोड हो रहा है, कृपया प्रतीक्षा करें।',
+    text: 'लोड हो रहा है, कृपया प्रतीक्षा कीजिए।',
     language: 'hi-IN',
     speaker: 'aditya',
     pace: 1.15,

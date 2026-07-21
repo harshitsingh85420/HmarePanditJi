@@ -65,7 +65,8 @@ export function LogoutButton({
   const variantClass: Record<string, string> = {
     primary: 'bg-primary text-white shadow-lg hover:shadow-xl focus:ring-primary/50',
     secondary: 'bg-white text-primary border-2 border-primary hover:bg-gray-50 focus:ring-primary/50',
-    danger: 'bg-red-600 text-white shadow-lg hover:bg-red-700 hover:shadow-xl focus:ring-red-500/50',
+    // canon danger surface (frame 30 logout row): #C2321E on #FBE7E3/#E7B8AF
+    danger: 'bg-danger text-white shadow-btn focus:ring-danger/50',
     ghost: 'bg-transparent text-gray-700 hover:bg-gray-100 focus:ring-gray-400/50',
   }
 

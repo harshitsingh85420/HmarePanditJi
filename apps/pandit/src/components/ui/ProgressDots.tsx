@@ -46,11 +46,11 @@ export function ProgressDots({ total = 7, current, onDotClick, className }: Prog
                 className="focus:outline-none focus-visible:ring-4 focus-visible:ring-saffron-200 rounded-full transition-all duration-200 flex-shrink-0"
               >
                 {isDone ? (
-                  <div className="w-7 h-7 rounded-full bg-saffron-500 text-white flex items-center justify-center text-[14px] font-bold select-none shadow-sm">
+                  <div className="w-7 h-7 rounded-full bg-saffron-500 text-chandan flex items-center justify-center text-[14px] font-extrabold select-none shadow-card">
                     ✓
                   </div>
                 ) : isCurrent ? (
-                  <div className="w-9 h-9 rounded-full border-2 border-saffron-500 bg-white text-saffron-700 flex items-center justify-center text-[16px] font-bold animate-pulse motion-reduce:animate-none shadow-sm">
+                  <div className="w-9 h-9 rounded-full border-2 border-saffron-500 bg-card text-saffron-700 flex items-center justify-center text-[16px] font-extrabold animate-pulse motion-reduce:animate-none shadow-card">
                     {stepNum}
                   </div>
                 ) : (

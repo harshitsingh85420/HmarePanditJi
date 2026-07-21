@@ -37,6 +37,9 @@ export interface VoiceFieldProps {
   disabled?: boolean;
   /** A5: never arm the mic (bank/IFSC/UPI). OTP mode implies this. */
   noVoice?: boolean;
+  /** Canon frame 6: the value is BARE text inside the field card — no inner
+      white box. Styling only; the whole voice machine is untouched. */
+  bare?: boolean;
 }
 
 export function VoiceField({
@@ -51,6 +54,7 @@ export function VoiceField({
   placeholder,
   disabled,
   noVoice,
+  bare,
 }: VoiceFieldProps) {
   const { enabled: voiceOn } = useVoice();
   const voiceInput = useVoiceInput();
@@ -64,6 +68,11 @@ export function VoiceField({
 
   const [state, setState] = useState<VFState>({ phase: "IDLE" });
   const [attempts, setAttempts] = useState(0);
+  // F02: the current rung line, shown as WRITTEN text (spoken AND written —
+  // the walk proved voice-only reassurance fails when the browser parks TTS),
+  // and the rung-3 "सहायता चाहिए" button.
+  const [rungLine, setRungLine] = useState("");
+  const [showHelp, setShowHelp] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const startedRef = useRef(false);
   const stateRef = useRef(state);
@@ -112,12 +121,29 @@ export function VoiceField({
           case "STOP_LISTEN":
             voiceInput.reset();
             break;
-          case "SPEAK_SORRY_ONCE":
-            voiceController.speak(t("voiceLoop.sorryOnce"), {
+          // F02-02/03/04 — the three rungs. Each speaks its line AND shows it
+          // written, then re-arms listening; failures never stop the loop.
+          case "SPEAK_RUNG_1":
+          case "SPEAK_RUNG_2":
+          case "SPEAK_RUNG_3": {
+            const key =
+              eff === "SPEAK_RUNG_1" ? "voiceLoop.rung1" :
+              eff === "SPEAK_RUNG_2" ? "voiceLoop.rung2" : "voiceLoop.rung3";
+            setRungLine(t(key));
+            voiceController.speak(t(key), {
               onEnd: (done) => {
                 if (done) void voiceInput.start();
               },
             });
+            break;
+          }
+          case "OPEN_KEYBOARD":
+            // rung 3: bring the keyboard up for a pandit who cannot get the
+            // voice through — a real escape, not a dead end.
+            setTimeout(() => inputRef.current?.focus(), 60);
+            break;
+          case "SHOW_HELP":
+            setShowHelp(true);
             break;
           case "SPEAK_CONFIRM":
             if (next.phase === "CONFIRMING") {
@@ -138,6 +164,10 @@ export function VoiceField({
             break;
           case "EMIT_VALUE":
             if (accepted !== undefined) {
+              // a confirmed value clears the ladder — the counter reset lives
+              // in the machine (attempts:0 on CONFIRM_YES); this clears its UI.
+              setRungLine("");
+              setShowHelp(false);
               const prev = latestValueRef.current; // value BEFORE this commit
               onChange(accepted);
               // H6: a voice-accepted field value is reversible — "वापस करो"
@@ -181,6 +211,19 @@ export function VoiceField({
     return unregister;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [voiceCapable]);
+
+  // F02-09: while this field HOLDS a value it is deletable — but only via the
+  // explicit "हटा दो" + double-confirm path in the controller. पीछे never
+  // touches it. The clear is undoable ("वापस करो" restores the old value).
+  useEffect(() => {
+    if (!(value ?? "").trim()) return;
+    return voiceController.registerDeletable(label, () => {
+      const prev = valueRef.current;
+      onChange("");
+      voiceController.registerUndo(`clear:${label}`, () => onChange(prev), label, "field");
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [!!(value ?? "").trim(), label]);
 
   // J1: first-claim hook for INJECTED transcripts (voicedebug driver) —
   // an EMPTY field claims parseable text exactly like the live pipeline;
@@ -340,7 +383,7 @@ export function VoiceField({
             listening ? "border-gold ring-4 ring-gold/40 animate-pulse" : "border-saffron-200"
           }`}
         >
-          <option value="">{placeholder || "-- चुनें --"}</option>
+          <option value="">{placeholder || "-- चुनिए --"}</option>
           {choices.map((c) => (
             <option key={c.value} value={c.value}>
               {c.label}
@@ -357,9 +400,17 @@ export function VoiceField({
           onFocus={() => state.phase !== "IDLE" && dispatch({ type: "TYPED_INPUT" })}
           onBlur={handleBlur}
           onChange={(e) => handleTyped(e.target.value)}
-          className={`w-full min-h-[56px] text-[20px] bg-white border-2 rounded-[14px] px-4 font-bold text-ink focus:outline-none focus:ring-4 focus:ring-saffron-200 ${
-            listening ? "border-gold ring-4 ring-gold/40 animate-pulse" : "border-saffron-200"
-          }`}
+          className={
+            bare
+              ? // canon frame 6: bare 23/800 ink value in the card — the gold
+                // listening ring stays so the live state never goes invisible
+                `w-full min-h-[52px] text-[23px] bg-transparent border-0 p-0 font-extrabold text-temple-700 font-hindi placeholder:text-sand-300 focus:outline-none rounded-[8px] ${
+                  listening ? "ring-4 ring-gold/40 animate-pulse" : ""
+                }`
+              : `w-full min-h-[56px] text-[20px] bg-white border-2 rounded-[14px] px-4 font-bold text-ink focus:outline-none focus:ring-4 focus:ring-saffron-200 ${
+                  listening ? "border-gold ring-4 ring-gold/40 animate-pulse" : "border-saffron-200"
+                }`
+          }
         />
       )}
 
@@ -378,6 +429,23 @@ export function VoiceField({
           </span>
         ) : null}
       </div>
+
+      {/* F02-02/03/04: the current rung line, shown WRITTEN as well as spoken
+          (voice-only fails when the browser parks TTS). */}
+      {rungLine && state.phase !== "CONFIRMING" && (
+        <p className="t-body font-semibold text-danger font-hindi px-1" aria-live="polite">
+          {rungLine}
+        </p>
+      )}
+      {/* F02-04 rung 3: a real human escape, wired to the support line. */}
+      {showHelp && (
+        <a
+          href="tel:+918934095599"
+          className="w-full min-h-[56px] rounded-btn bg-danger text-white flex items-center justify-center gap-2 text-[18px] font-bold font-hindi active:scale-[0.98] transition-transform"
+        >
+          📞 {t("voiceLoop.helpBtn")}
+        </a>
+      )}
 
       {/* Spoken-value confirmation loop */}
       {state.phase === "CONFIRMING" && (

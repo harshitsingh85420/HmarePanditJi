@@ -83,6 +83,18 @@ jobs:
         run: pnpm --filter @hmarepanditji/search-service test 2>&1 | tee /tmp/search-tests.log
         shell: bash
 
+      # CONFORMANCE — "the documentation is followed" as a build status.
+      # Runs AFTER the suites on purpose: the suites prove the behaviour,
+      # this proves every documented requirement is actually claimed by
+      # one of them (or by a manual script, or by a SIGNED deviation).
+      # A requirement nobody claims fails the build.
+      - name: Register projection is in sync with the register
+        run: node scripts/gen-requirements.mjs --check
+
+      - name: Conformance guard (every requirement discharged)
+        run: node scripts/conformance-guard.mjs 2>&1 | tee /tmp/conformance.log
+        shell: bash
+
       # Failure logs → a commit comment (readable via the PUBLIC API), so a
       # token-less local agent can self-serve the failing guard's output
       # instead of guessing from a red ✗.

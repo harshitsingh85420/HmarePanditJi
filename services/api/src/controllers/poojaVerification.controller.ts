@@ -2,6 +2,7 @@ import { FastifyRequest, FastifyReply } from "fastify";
 import { prisma } from "@hmarepanditji/db";
 import { AppError } from "../middleware/errorHandler";
 import { NotificationService } from "../services/notification.service";
+import { checkDakshinaFloor } from "../lib/dakshinaFloor";
 
 const notifier = new NotificationService();
 
@@ -107,10 +108,21 @@ export const savePoojaConfig = async (request: FastifyRequest, reply: FastifyRep
   if (!b.poojaType) return reply.status(400).send({ success: false, error: "poojaType is required" });
   const supplyMode = b.supplyMode === "PLATFORM_SELLS" || b.supplyMode === "LIST_ONLY" ? b.supplyMode : "PANDIT_BRINGS";
 
+  // F11-04 floor (edge F11-2). The old `Math.max(0, …)` silently CLAMPED a bad
+  // amount to a saved price — a mis-heard "ग्यारह सौ" became ₹11 and the pandit
+  // was never told. Reject instead, naming the minimum. Floors: lib/dakshinaFloor.ts.
+  const floorCheck = checkDakshinaFloor(b.poojaType, b.dakshinaAmount);
+  if (!floorCheck.ok) {
+    return reply.status(400).send({
+      success: false,
+      error: { code: "dakshina_below_floor", message: floorCheck.message, floor: floorCheck.floor },
+    });
+  }
+
   const row = await prisma.poojaConfig.upsert({
     where: { panditProfileId_poojaType: { panditProfileId: profile.id, poojaType: b.poojaType } },
-    update: { teamSize: Math.max(1, b.teamSize ?? 1), dakshinaAmount: Math.max(0, b.dakshinaAmount ?? 0), supplyMode },
-    create: { panditProfileId: profile.id, poojaType: b.poojaType, teamSize: Math.max(1, b.teamSize ?? 1), dakshinaAmount: Math.max(0, b.dakshinaAmount ?? 0), supplyMode },
+    update: { teamSize: Math.max(1, b.teamSize ?? 1), dakshinaAmount: Math.round(b.dakshinaAmount as number), supplyMode },
+    create: { panditProfileId: profile.id, poojaType: b.poojaType, teamSize: Math.max(1, b.teamSize ?? 1), dakshinaAmount: Math.round(b.dakshinaAmount as number), supplyMode },
   });
   return reply.send({ success: true, data: { poojaType: row.poojaType, teamSize: row.teamSize, dakshinaAmount: row.dakshinaAmount, supplyMode: row.supplyMode } });
 };

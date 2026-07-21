@@ -55,12 +55,14 @@ export function EmergencySOSFloating({ isVisible = true }: EmergencySOSFloatingP
               window.location.href = 'tel:+918934095599'
               speakWithSarvam({ text: 'सहायता टीम से संपर्क किया जा रहा है।', languageCode: 'hi-IN' })
             }}
-            className="min-h-[56px] px-4 bg-card rounded-btn shadow-card flex items-center gap-3 border-l-4 border-leaf-500"
+            // canon frame 33 row: #FFFDF8 on 1.5px #F0DFC4, r16, 14/16 pad, gap 13
+            className="min-h-[56px] bg-card border-[1.5px] border-sand rounded-[16px] px-4 py-[14px] flex items-center gap-[13px] shadow-card"
           >
-            <div className="w-10 h-10 rounded-btn bg-leaf-100 flex items-center justify-center shrink-0">
-              <span className="text-[22px] leading-none" aria-hidden="true">📞</span>
-            </div>
-            <span className="font-bold text-ink font-hindi">सहायता टीम को कॉल करें</span>
+            <span className="w-[46px] h-[46px] rounded-[12px] bg-[#E4F3E9] flex items-center justify-center shrink-0" aria-hidden="true">
+              <span className="text-[24px] leading-none">📞</span>
+            </span>
+            {/* canon labels this size 17; 18px is the 18sp floor */}
+            <span className="text-[18px] font-extrabold text-ink font-hindi">सहायता टीम को कॉल कीजिए</span>
           </motion.button>
         )}
       </AnimatePresence>
@@ -74,13 +76,18 @@ export function EmergencySOSFloating({ isVisible = true }: EmergencySOSFloatingP
         animate={{ scale: 1 }}
         whileTap={{ scale: 0.9 }}
         onClick={isExpanded ? handleSOSPress : handleExpand}
-        className="relative min-h-[56px] px-4 bg-danger rounded-full shadow-lg flex items-center gap-2 border-2 border-white"
+// canon frame 25 surface (sindoor radial + lift) on the P0 मदद pill
+        className="relative min-h-[56px] px-4 rounded-full flex items-center gap-2 border-2 border-white"
+        style={{
+          background: 'radial-gradient(circle at 50% 40%,#D8402A,#B23A1A 70%)',
+          boxShadow: '0 12px 30px rgba(178,58,26,.4)',
+        }}
         aria-label="आपातकालीन सहायता — मदद"
       >
         {!isExpanded && (
-          <div className="absolute inset-0 rounded-full bg-danger/20 animate-ping motion-reduce:animate-none" />
+          <div className="absolute inset-0 rounded-full bg-[#C2321E]/20 animate-ping motion-reduce:animate-none" />
         )}
-        <span className="text-white text-[24px] leading-none relative z-10" aria-hidden="true">🆘</span>
+<span className="text-white text-[24px] leading-none relative z-10" aria-hidden="true">🆘</span>
         <span className="text-white font-bold text-[16px] font-hindi relative z-10">मदद</span>
       </motion.button>
     </div>

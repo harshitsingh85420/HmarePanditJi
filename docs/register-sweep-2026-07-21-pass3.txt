@@ -1,0 +1,94 @@
+23 line(s) CHANGED
+
+• src/lib/tutorial-translations.ts:124
+    − skip: 'Skip करें →',
+    + skip: 'Skip कीजिए →',
+
+• src/lib/tutorial-translations.ts:125
+    − back: '← वापस जाएँ',
+    + back: '← वापस जाइए',
+
+• src/lib/tutorial-translations.ts:126
+    − next: 'आगे बढ़ें →',
+    + next: 'आगे बढ़िए →',
+
+• src/lib/tutorial-translations.ts:140
+    − cta: 'और देखें →',
+    + cta: 'और देखिए →',
+
+• src/lib/tutorial-translations.ts:146
+    − cta: 'अगला फ़ायदा देखें →',
+    + cta: 'अगला फ़ायदा देखिए →',
+
+• src/lib/tutorial-translations.ts:156
+    − cta: 'और देखें →',
+    + cta: 'और देखिए →',
+
+• src/lib/tutorial-translations.ts:166
+    − cta: 'अगला फ़ायदा देखें →',
+    + cta: 'अगला फ़ायदा देखिए →',
+
+• src/lib/tutorial-translations.ts:171
+    − cta: 'अगला फ़ायदा देखें →',
+    + cta: 'अगला फ़ायदा देखिए →',
+
+• src/lib/tutorial-translations.ts:177
+    − cta: 'अगला फ़ायदा देखें →',
+    + cta: 'अगला फ़ायदा देखिए →',
+
+• src/lib/tutorial-translations.ts:193
+    − cta: 'अगला फ़ायदा देखें →',
+    + cta: 'अगला फ़ायदा देखिए →',
+
+• src/lib/tutorial-translations.ts:198
+    − cta: 'आगे देखें → (लगभग हो गया!)',
+    + cta: 'आगे देखिए → (लगभग हो गया!)',
+
+• src/lib/tutorial-translations.ts:203
+    − cta: 'आगे देखें → (लगभग हो गया!)',
+    + cta: 'आगे देखिए → (लगभग हो गया!)',
+
+• src/lib/tutorial-translations.ts:213
+    − cta: 'Registration शुरू करें →',
+    + cta: 'Registration शुरू कीजिए →',
+
+• src/lib/tutorial-translations.ts:216
+    − title: 'Registration शुरू करें?',
+    + title: 'Registration शुरू कीजिए?',
+
+• src/lib/tutorial-translations.ts:218
+    − cta: '✅ हाँ, Registration शुरू करें →',
+    + cta: '✅ हाँ, Registration शुरू कीजिए →',
+
+• src/lib/tutorial-translations.ts:221
+    − voicePrompt: "'हाँ' बोलें या बटन दबाएं",
+    + voicePrompt: "'हाँ' बोलिए या बटन दबाइए",
+
+• src/lib/tutorial-translations.ts:524
+    − Marathi: { skip: 'Skip करें →', back: '← मागे', next: 'पुढे →', screens: { S01: { greeting: 'नमस्कार', welcome: 'पंडित जी.', subtitle: 'HmarePanditJi वर स्वागत आहे.', moolMantra1: 'अॅप पंडितांसाठी आहे,', moolMantra2: 'पंडित अॅपसाठी नाहीत.', cta: 'जाणून घ्या (फक्त 2 मिनिटे) →' }, S02: { title: 'तुमची कमाई कशी वाढेल?', testimonial: 'पंडित रमेश शर्मा - वाराणसी', subtitle: '3 नवीन मार्ग:', cta: 'आणखी पहा →' }, S03: { title: 'आता कोणताही मोलभाव नाही.', before: '❌ आधी:', after: '✅ आता:', cta: 'पुढील फायदा पहा →' }, S04: { title: 'घरबसल्या कमवा', subtitle: '(2 नवीन मार्ग)', card1Title: 'ऑफलाइन पूजा', card1Desc: '(आधीपासून आहेत)', card2Title: 'ऑनलाइन पूजा', card2Desc: '(नवीन संधी)', example: 'उदाहरण: 20 मिनिटे = ₹800', cta: 'आणखी पहा →' }, S05: { title: 'काहीही न करता', subtitle: '₹2,000?', step1: 'पूजा बुक झाली', step2: 'ऑफर आली', step3: 'तुम्ही हो म्हटले', outcome1: 'मुख्य पंडिताने पूजा केली', outcome2: 'मुख्य पंडिताने रद्द केले', cta: 'पुढील फायदा पहा →' }, S06: { title: 'पूजा संपली.', subtitle: '2 मिनिटांत पैसे.', cta: 'पुढील फायदा पहा →' }, S07: { title: 'टाइपिंगची गरज नाही.', subtitle: 'बोला → टाइप होईल', demoText: 'हो किंवा नाही म्हणून पहा', cta: 'पुढील फायदा पहा →' }, S08: { title: 'कोणताही फोन,', subtitle: 'काम करेल.', smartphone: 'स्मार्टफोन', keypad: 'कीपॅड फोन', family: 'मुलगा किंवा कुटुंब मदत करू शकते.', cta: 'पुढील फायदा पहा →' }, S09: { title: 'प्रवासाची चिंता नाही.', subtitle: 'डबल बुकिंग नाही.', cta: 'पुढे पहा → (जवळजवळ पूर्ण!)' }, S10: { title: '✅ व्हेरिफाइड म्हणजे', subtitle: 'जास्त बुकिंग', cta: 'पुढे पहा → (जवळजवळ पूर्ण!)' }, S11: { title: 'HmarePanditJi चे', guarantee1: 'सन्मान', guarantee2: 'सुविधा', guarantee3: 'सुरक्षा', guarantee4: 'समृद्धी', socialProof: '3,00,000+ पंडित आधीच जोडलेले आहेत', cta: 'नोंदणी सुरू करा →' }, S12: { title: 'नोंदणी सुरू करायची आहे?', subtitle: 'पूर्णपणे मोफत. 10 मिनिटे.', cta: '✅ हो, नोंदणी सुरू करा →', later: 'नंतर करेन', progressBadge: '2/2', voicePrompt: 'हो किंवा नाही म्हणा', helpQuestion: 'मदत हवी आहे?', helpHours: 'सोम-शनि, 10-7' } } },
+    + Marathi: { skip: 'Skip कीजिए →', back: '← मागे', next: 'पुढे →', screens: { S01: { greeting: 'नमस्कार', welcome: 'पंडित जी.', subtitle: 'HmarePanditJi वर स्वागत आहे.', moolMantra1: 'अॅप पंडितांसाठी आहे,', moolMantra2: 'पंडित अॅपसाठी नाहीत.', cta: 'जाणून घ्या (फक्त 2 मिनिटे) →' }, S02: { title: 'तुमची कमाई कशी वाढेल?', testimonial: 'पंडित रमेश शर्मा - वाराणसी', subtitle: '3 नवीन मार्ग:', cta: 'आणखी पहा →' }, S03: { title: 'आता कोणताही मोलभाव नाही.', before: '❌ आधी:', after: '✅ आता:', cta: 'पुढील फायदा पहा →' }, S04: { title: 'घरबसल्या कमवा', subtitle: '(2 नवीन मार्ग)', card1Title: 'ऑफलाइन पूजा', card1Desc: '(आधीपासून आहेत)', card2Title: 'ऑनलाइन पूजा', card2Desc: '(नवीन संधी)', example: 'उदाहरण: 20 मिनिटे = ₹800', cta: 'आणखी पहा →' }, S05: { title: 'काहीही न करता', subtitle: '₹2,000?', step1: 'पूजा बुक झाली', step2: 'ऑफर आली', step3: 'तुम्ही हो म्हटले', outcome1: 'मुख्य पंडिताने पूजा केली', outcome2: 'मुख्य पंडिताने रद्द केले', cta: 'पुढील फायदा पहा →' }, S06: { title: 'पूजा संपली.', subtitle: '2 मिनिटांत पैसे.', cta: 'पुढील फायदा पहा →' }, S07: { title: 'टाइपिंगची गरज नाही.', subtitle: 'बोला → टाइप होईल', demoText: 'हो किंवा नाही म्हणून पहा', cta: 'पुढील फायदा पहा →' }, S08: { title: 'कोणताही फोन,', subtitle: 'काम करेल.', smartphone: 'स्मार्टफोन', keypad: 'कीपॅड फोन', family: 'मुलगा किंवा कुटुंब मदत करू शकते.', cta: 'पुढील फायदा पहा →' }, S09: { title: 'प्रवासाची चिंता नाही.', subtitle: 'डबल बुकिंग नाही.', cta: 'पुढे पहा → (जवळजवळ पूर्ण!)' }, S10: { title: '✅ व्हेरिफाइड म्हणजे', subtitle: 'जास्त बुकिंग', cta: 'पुढे पहा → (जवळजवळ पूर्ण!)' }, S11: { title: 'HmarePanditJi चे', guarantee1: 'सन्मान', guarantee2: 'सुविधा', guarantee3: 'सुरक्षा', guarantee4: 'समृद्धी', socialProof: '3,00,000+ पंडित आधीच जोडलेले आहेत', cta: 'नोंदणी सुरू करा →' }, S12: { title: 'नोंदणी सुरू करायची आहे?', subtitle: 'पूर्णपणे मोफत. 10 मिनिटे.', cta: '✅ हो, नोंदणी सुरू करा →', later: 'नंतर करेन', progressBadge: '2/2', voicePrompt: 'हो किंवा नाही म्हणा', helpQuestion: 'मदत हवी आहे?', helpHours: 'सोम-शनि, 10-7' } } },
+
+• src/lib/onboarding-translations.ts:24
+    − continue: 'जारी रखें',
+    + continue: 'जारी रखिए',
+
+• src/lib/onboarding-translations.ts:34
+    − allowLocation: 'लोकेशन की अनुमति दें',
+    + allowLocation: 'लोकेशन की अनुमति दीजिए',
+
+• src/lib/onboarding-translations.ts:41
+    − changeLanguage: 'भाषा बदलें',
+    + changeLanguage: 'भाषा बदलिए',
+
+• src/lib/coachTips.ts:53
+    − title: "नई पूजा जोड़ें",
+    + title: "नई पूजा जोड़िए",
+
+• src/components/SamagriPackageEditor.tsx:197
+    − promptText={`${item.name} की मात्रा बोलें`}
+    + promptText={`${item.name} की मात्रा बोलिए`}
+
+• src/components/SamagriPackageEditor.tsx:208
+    − aria-label={`${item.name} हटाएँ`}
+    + aria-label={`${item.name} हटाइए`}
+

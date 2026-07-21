@@ -201,24 +201,25 @@ export default function CalendarPage() {
 
   return (
     <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
-      <Header title={t("calendar.title")} showBack onBack={() => router.push("/home")} />
+      {/* canon frame 20: plain title block "📅 कैलेंडर" + the tap hint (canon
+          14px → 15px label floor). No back — BottomNav is the escape. */}
+      <Header variant="title" title={`📅 ${t("calendar.title")}`} sub="तारीख दबाकर छुट्टी लगाइए" />
 
       {/* BLOCK VOICE NARRATION ON MOUNT */}
       <Narrate text={t("calendar.blockVoice")} />
       <DashboardVoiceNav helpLine={t("help.calendar")} />
 
-      <main className="flex-1 overflow-y-auto px-4 pt-3 pb-24 flex flex-col gap-3 page-enter">
-        {/* Mockup frame 20: one-line instruction under the header */}
-        <p className="text-[14px] font-bold text-softgrey font-hindi text-center">
-          {t("calendar.hint")}
-        </p>
-
-        {/* MONTH SELECTOR — bare row on cream (mockup), targets stay 56px */}
+      {/* CANON frame 20: the tap hint appears ONCE, as the Header sub-line —
+          the duplicate in-scroll paragraph is gone; scroll well tops at
+          canon's 12px. */}
+      <main className="flex-1 overflow-y-auto px-[18px] pt-3 pb-24 flex flex-col gap-3 page-enter">
+        {/* MONTH SELECTOR — canon: plain row, arrows #8A6F5C weight 400,
+            label 20px/800 #341A13. Targets stay 56px per the tap-target law. */}
         <div className="flex items-center justify-between">
           <button
             onClick={handlePrevMonth}
             aria-label="पिछला महीना"
-            className="w-14 h-14 min-h-[56px] flex items-center justify-center text-softgrey font-bold text-[18px] active:scale-90 transition-transform"
+            className="w-14 h-14 min-h-[56px] flex items-center justify-center text-softgrey font-normal text-[18px] active:scale-90 transition-transform motion-reduce:transition-none"
           >
             ◀
           </button>
@@ -228,37 +229,42 @@ export default function CalendarPage() {
           <button
             onClick={handleNextMonth}
             aria-label="अगला महीना"
-            className="w-14 h-14 min-h-[56px] flex items-center justify-center text-softgrey font-bold text-[18px] active:scale-90 transition-transform"
+            className="w-14 h-14 min-h-[56px] flex items-center justify-center text-softgrey font-normal text-[18px] active:scale-90 transition-transform motion-reduce:transition-none"
           >
             ▶
           </button>
         </div>
 
-        {/* EMPTY MONTH — gentle note above the grid */}
+        {/* EMPTY MONTH — truthful-state note (no canon equivalent); carries
+            canon's #EADFCE 1.5px hairline so it reads as part of the screen. */}
         {!monthHasBookings && (
-          <div className="flex items-center justify-center gap-2 bg-white rounded-card border border-saffron-100 px-4 py-3">
+          <div className="flex items-center justify-center gap-2 bg-card rounded-[12px] border-[1.5px] border-sand-100 px-4 py-3">
             <span className="text-[24px]" role="img" aria-hidden="true">📅</span>
-            <span className="t-hint text-softgrey font-hindi">{t("empty.calendarEmptyTitle")}</span>
+            {/* Canon empty-note is t-hint (16px/400/softgrey). t-hint lives in the
+                shared globals.css layer; the 18sp body floor (Ruling #2) is inlined
+                here instead of editing the shared class. Weight 400 + softgrey kept. */}
+            <span className="text-[18px] font-normal text-softgrey font-hindi">{t("empty.calendarEmptyTitle")}</span>
           </div>
         )}
 
         {/* MONTH GRID — sits straight on cream (mockup frame 20, no card box) */}
         <FirstUseTip tipId="calendarBlock" targetRef={gridRef} />
-        <div ref={gridRef} className="flex flex-col gap-3">
-          {/* Weekday headers */}
-          <div className="grid grid-cols-7 text-center">
+        <div ref={gridRef} className="flex flex-col gap-1">
+          {/* Weekday headers — canon 700/#8A6F5C, 4px grid gap, 2px bottom pad.
+              Canon sizes them 12px; the 18sp floor wins (lawConflicts). */}
+          <div className="grid grid-cols-7 gap-[4px] text-center pb-[2px]">
             {WEEKDAYS.map((w) => (
-              <span key={w} className="text-[12px] font-bold text-softgrey font-hindi">
+              <span key={w} className="text-[18px] font-bold text-softgrey font-hindi">
                 {w}
               </span>
             ))}
           </div>
 
-          {/* Days cells */}
-          <div className="grid grid-cols-7 gap-y-2 gap-x-1">
+          {/* Days cells — canon: uniform 4px gap, aspect-ratio 1 */}
+          <div className="grid grid-cols-7 gap-[4px]">
             {gridCells.map((cell, idx) => {
               if (!cell.dayNum || !cell.dateKey) {
-                return <div key={`empty-${idx}`} className="w-12 h-12" style={{ minHeight: "48px" }} />;
+                return <div key={`empty-${idx}`} className="aspect-square min-h-[52px]" />;
               }
 
               const cellDate = new Date(year, month, cell.dayNum);
@@ -273,46 +279,48 @@ export default function CalendarPage() {
                   key={cell.dateKey}
                   onClick={() => cell.dateKey && handleDayClick(cell.dateKey, cell.dayNum || 0)}
                   disabled={isPast}
-                  className={`w-12 h-12 rounded-[12px] flex flex-col items-center justify-center select-none text-[16px] transition-all active:scale-[0.92] ${
+                  className={`aspect-square min-h-[52px] rounded-[12px] border-[1.5px] flex flex-col items-center justify-center gap-[1px] select-none text-[18px] transition-transform duration-[180ms] motion-reduce:transition-none active:scale-[0.92] ${
                     isPast
-                      ? "font-bold text-[#C9BBA6] bg-[#F4EFE6] cursor-not-allowed"
+                      ? "font-bold text-sand-400 bg-[#F4EFE6] border-[#F4EFE6] cursor-not-allowed"
                       : hasBooking
-                      ? "bg-saffron-50 text-saffron-500 border border-saffron-200 font-extrabold"
+                      ? "bg-saffron-50 text-saffron-500 border-saffron-200 font-extrabold"
                       : isBlocked
-                      ? "bg-[#E9E2D6] text-softgrey border border-[#E9E2D6] font-semibold"
-                      : "bg-card text-ink border border-[#EADFCE] font-bold hover:bg-saffron-50/50"
+                      ? "bg-[#E9E2D6] text-softgrey border-[#E9E2D6] font-semibold"
+                      : "bg-card text-temple-700 border-sand-100 font-bold"
                   }`}
-                  style={{ minHeight: "48px", minWidth: "48px" }}
                 >
-                  <span className="leading-tight">{cell.dayNum}</span>
+                  <span className="leading-none">{cell.dayNum}</span>
 
-                  {/* Mockup frame 20: tiny state marker stacked under the number */}
-                  {hasBooking && !isPast && (
-                    <span className="text-[9px] leading-none text-saffron-500" aria-hidden>●</span>
-                  )}
-                  {isBlocked && !isPast && !hasBooking && (
-                    <span className="text-[9px] leading-none text-softgrey font-bold" aria-hidden>✕</span>
-                  )}
+                  {/* Canon: the badge slot is ALWAYS present at a fixed 9px
+                      height, so toggling छुट्टी never shifts the grid. */}
+                  <span
+                    className="text-[9px] leading-none h-[9px] font-bold"
+                    aria-hidden
+                  >
+                    {!isPast && hasBooking ? "●" : !isPast && isBlocked ? "✕" : ""}
+                  </span>
                 </button>
               );
             })}
           </div>
         </div>
 
-        {/* LEGEND — plain centered row with state swatches (mockup order) */}
-        <div className="flex justify-center items-center gap-4 text-[13px] font-semibold text-softgrey font-hindi py-1">
-          <div className="flex items-center gap-1.5">
-            <span className="w-4 h-4 rounded-[5px] bg-card border border-[#EADFCE]" aria-hidden />
-            <span>{t("calendar.available")}</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-4 h-4 rounded-[5px] bg-[#E9E2D6] border border-[#E9E2D6]" aria-hidden />
-            <span>{t("calendar.blocked")}</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="w-4 h-4 rounded-[5px] bg-saffron-50 border border-saffron-200" aria-hidden />
-            <span>{t("calendar.booking")}</span>
-          </div>
+        {/* LEGEND — canon: left-aligned wrapping row, 14px swatches @ radius 5,
+            1.5px hairlines, छुट्टी swatch is a flat fill with no border.
+            Canon labels are 13px; the 18sp floor wins (lawConflicts). */}
+        <div className="flex flex-wrap items-center gap-x-[14px] gap-y-2 pt-[2px] text-[18px] font-semibold text-softgrey font-hindi">
+          <span className="flex items-center gap-1.5">
+            <span className="w-[14px] h-[14px] shrink-0 rounded-[5px] bg-card border-[1.5px] border-sand-100" aria-hidden />
+            {t("calendar.available")}
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="w-[14px] h-[14px] shrink-0 rounded-[5px] bg-[#E9E2D6]" aria-hidden />
+            {t("calendar.blocked")}
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="w-[14px] h-[14px] shrink-0 rounded-[5px] bg-saffron-50 border-[1.5px] border-saffron-200" aria-hidden />
+            {t("calendar.booking")}
+          </span>
         </div>
       </main>
 

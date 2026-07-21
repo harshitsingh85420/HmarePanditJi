@@ -78,14 +78,12 @@ export function BottomNav({ activeTab, onChange, className }: BottomNavProps) {
   return (
     <nav
       className={cn(
-        "relative w-full z-40 bg-[#FFF9EE] border-t-2 border-gold pb-safe h-[72px] min-h-[72px] flex items-center",
+        // CANON: an UPWARD shadow lifts the whole bar off the content
+        // scrolling beneath it. Now `shadow-nav` rather than an inline style,
+        // so the value lives with the rest of canon's shadow vocabulary.
+        "relative w-full z-40 bg-[#FFF9EE] border-t-2 border-gold pb-safe h-[72px] min-h-[72px] flex items-center shadow-nav",
         className
       )}
-      /* CANON: an UPWARD shadow lifts the whole bar off the content
-         scrolling beneath it (0 -3px 12px rgba(90,46,32,.08)). The app had
-         only the gold hairline, so the bar sat flush and the page looked
-         like it ended at a line rather than passing under a raised thali. */
-      style={{ boxShadow: "0 -3px 12px rgba(90,46,32,.08)" }}
     >
       {renderTab(0)}
       {renderTab(1)}

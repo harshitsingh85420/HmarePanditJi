@@ -1,6 +1,5 @@
 "use client";
 
-import { Narrate } from "@/hooks/useScreenVoice";
 import React, { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { t } from "@/lib/i18n";
@@ -11,8 +10,6 @@ import { useOnline } from "@/components/ui/OfflineBanner";
 import { motion, AnimatePresence } from "framer-motion";
 
 // UI Components
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
 import { Header } from "@/components/ui/Header";
 import { DiyaLoader } from "@/components/moments/DiyaLoader";
 import { useVoice } from "@/hooks/useVoice";
@@ -179,23 +176,31 @@ export default function BookingRequestPage() {
     {
       keywords: ["स्वीकार", "sweekar", "accept", "हाँ करो", "haan karo"],
       action: handleAccept,
-      confirmText: "आप बुकिंग स्वीकार कर रहे हैं. पक्का?",
+      confirmText: "आप बुकिंग स्वीकार कर रहे हैं। पक्का?",
     },
     {
       keywords: ["अस्वीकार", "reject", "मना", "mana", "naa karo"],
       action: handleReject,
-      confirmText: "आप बुकिंग अस्वीकार कर रहे हैं. पक्का?",
+      confirmText: "आप बुकिंग अस्वीकार कर रहे हैं। पक्का?",
     },
   ];
 
   // Canon frame 26 उत्सव — the accept moment. Money named here is the
   // pandit's REAL server-computed take, never a mockup figure.
+  // Canon's subtitle carries the श्री honorific ("श्री अनिल गुप्ता की पूजा
+  // अब आपकी है") — added only around a REAL server name that doesn't
+  // already open with one; the generic यजमान fallback stays bare.
+  const hasRealName = Boolean(booking.customer?.name || booking.customerName);
+  const honouredName =
+    hasRealName && !/^(श्री|श्रीमती|पं\.|पंडित)/.test(cName.trim())
+      ? `श्री ${cName}`
+      : cName;
+
   if (showAccepted) {
     return (
       <CelebrationOverlay
-        badge="✓"
         title="बुकिंग स्वीकार! 🎉"
-        subtitle={`${cName} की पूजा अब आपकी है`}
+        subtitle={`${honouredName} की पूजा अब आपकी है`}
         amount={booking.earnings?.totalToPandit || 0}
         tone="leaf"
         onDone={() => router.replace(`/bookings/${booking.id}`)}
@@ -205,158 +210,211 @@ export default function BookingRequestPage() {
 
   return (
     <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
-      <Header title={t("booking.requestTitle")} showBack onBack={() => router.push("/bookings")} />
+      {/* CANON FRAME 9 BANNER — this screen's header IS the sindoor gradient
+          bar, not the neutral Header rail:
+            background: linear-gradient(135deg,#B23A1A,#7A250E)
+            padding: 16px 18px · gap 12px · 🔔 30px swinging
+            title  20px/900 #FFF6E9 · sub 14px/600 #FFD9BE
+          The back affordance canon omits is kept (real navigation) at the
+          52px tap-target floor. */}
+      <header className="shrink-0 bg-sindoor-dg px-[18px] py-4 flex items-center gap-3">
+        <button
+          onClick={() => router.push("/bookings")}
+          aria-label={t("common.back")}
+          className="w-[52px] h-[52px] -ml-3 shrink-0 rounded-full flex items-center justify-center text-chandan text-[28px] leading-none active:scale-95 transition-transform"
+        >
+          ←
+        </button>
+        {/* CANON g-bell, verbatim: 1.8s ease-in-out INFINITE, rotations
+            16/-12/7/-3, origin 50% 10% — the urgency never stops ringing
+            while the request waits. Scoped to this page so the tutorial's
+            one-shot pa-bell-swing stays a single ring; transform-only, with
+            its own reduced-motion kill-switch. */}
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `
+          @keyframes pa-bell-canon {
+            0%, 100% { transform: rotate(0deg); }
+            15% { transform: rotate(16deg); }
+            35% { transform: rotate(-12deg); }
+            55% { transform: rotate(7deg); }
+            75% { transform: rotate(-3deg); }
+          }
+          .pa-bell-canon { display: inline-block; transform-origin: 50% 10%;
+            animation: pa-bell-canon 1.8s ease-in-out infinite; }
+          @media (prefers-reduced-motion: reduce) {
+            .pa-bell-canon { animation: none !important; }
+          }
+        `,
+          }}
+        />
+        <span className="pa-bell-canon text-[30px] leading-none select-none" aria-hidden="true">🔔</span>
+        <div className="flex flex-col min-w-0">
+          <span className="text-[20px] font-black text-chandan font-hindi leading-tight">नई बुकिंग विनती!</span>
+          {/* canon 14/600 → LABEL floor 15; copy is the -इए register override
+              of canon's "अभी जवाब दें" (FOUNDER REGISTER LAW beats canon) */}
+          <span className="text-[15px] font-semibold text-[#FFD9BE] font-hindi leading-tight">अभी जवाब दीजिए</span>
+        </div>
+      </header>
 
       {/* Voice actions listener — L7: accept/reject a paid booking is a
           money flow, so the agent may answer but never act here. */}
       <VoiceActionListener commands={commands} narratingText={voiceIntroText} promptText={voiceIntroText} critical />
 
-      <main className="flex-1 overflow-y-auto px-4 pt-3 pb-6 flex flex-col gap-3 page-enter">
-        {/* Mockup frame 9 hero: the bell moment — swing once, urgency chip.
-            pa-bell-swing is transform-only + covered by the reduced-motion
-            kill-switch in globals. */}
-        <div className="flex flex-col items-center gap-1.5 py-1 text-center">
-          <span className="pa-bell-swing text-[44px] leading-none select-none" aria-hidden="true">🔔</span>
-          <span className="text-[22px] font-black text-temple-700 font-hindi">नई बुकिंग विनती!</span>
-          <span className="text-[13px] font-bold text-saffron-700 bg-saffron-50 border border-saffron-200 rounded-full px-3 py-1 font-hindi">अभी जवाब दें</span>
+      <main className="flex-1 overflow-y-auto px-[18px] pt-[14px] pb-4 flex flex-col gap-[13px] page-enter">
+        {/* YAJMAN CARD — canon: 1.5px #F0DFC4 hairline, 18px radius,
+            13px/15px padding, 52px #FDEEE7 initial disc. */}
+        <div className="flex items-center gap-[13px] bg-card border-[1.5px] border-sand rounded-tile px-[15px] py-[13px]">
+          <div className="w-[52px] h-[52px] shrink-0 rounded-full bg-saffron-50 flex items-center justify-center text-[24px] font-black text-saffron-500 font-hindi leading-none">
+            {cName.trim().charAt(0)}
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-[19px] font-black text-temple-700 font-hindi truncate">{cName}</div>
+            {/* canon's second line is a ⭐-rating we have no data for —
+                TRUTHFUL-STATE keeps the booking number instead. Canon sets
+                this line 14/600 → LABEL floor 15; canon has no monospace
+                anywhere in frame 9. */}
+            <div className="text-[15px] font-semibold text-softgrey font-hindi">{booking.bookingNumber}</div>
+          </div>
         </div>
 
-        {/* CUSTOMER CARD */}
-        <Card className="p-5 border-l-4 border-l-saffron-500 bg-white flex flex-col gap-3">
-          <div className="flex justify-between items-center">
-            <h3 className="text-[20px] font-bold text-temple-700 font-hindi">
-              {pujaTitle}
-            </h3>
-            <span className="t-hint text-softgrey font-mono text-[14px]">
-              {booking.bookingNumber}
-            </span>
+        {/* PUJA CARD — canon: title 23px/900 #7A250E, meta rows 16px/600
+            #47241A with #8A6F5C leading glyphs. */}
+        <div className="bg-card border-[1.5px] border-sand rounded-tile p-[15px] flex flex-col gap-[10px]">
+          <span className="text-[23px] font-black text-saffron-700 font-hindi leading-snug">{pujaTitle}</span>
+          {/* canon draws Material `event` / `location_on` at 20px #8A6F5C
+              here — never the 📅/📍 emoji (drawn-not-emoji law) */}
+          <div className="flex items-center gap-2 text-[18px] font-semibold text-temple-600 font-hindi">
+            <span className="material-symbols-outlined text-[20px] text-softgrey shrink-0" aria-hidden="true">event</span>
+            {formatHindiDate(booking.eventDate)}
           </div>
-
-          <div className="flex flex-col gap-2 text-[18px] border-t border-saffron-100/50 pt-3">
-            <div className="flex items-center gap-2">
-              <span className="text-[18px]">👤</span>
-              <span className="font-bold text-ink font-hindi">{cName}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-[18px]">📅</span>
-              <span className="font-hindi text-temple-600 font-medium">
-                {formatHindiDate(booking.eventDate)}
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-[18px]">📍</span>
-              <span className="font-hindi text-ink leading-normal">{booking.venueAddress}, {booking.venueCity}</span>
-            </div>
+          <div className="flex items-start gap-2 text-[18px] font-semibold text-temple-600 font-hindi">
+            <span className="material-symbols-outlined text-[20px] text-softgrey shrink-0" aria-hidden="true">location_on</span>
+            <span>{booking.venueAddress}, {booking.venueCity}</span>
           </div>
-        </Card>
+        </div>
 
         {/* SAMAGRI BADGE */}
         {booking.samagriPackageId && booking.samagriAmount > 0 && (
-          <div className="bg-saffron-50 border-2 border-saffron-300 rounded-card p-4 text-center">
-            <span className="text-[18px] font-bold text-saffron-700 font-hindi leading-snug">
+          <div className="bg-saffron-50 border-[1.5px] border-saffron-200 rounded-tile p-[15px] text-center">
+            <span className="text-[18px] font-semibold text-saffron-700 font-hindi leading-snug">
               यजमान ने आपका सामग्री पैकेज चुना है (फिक्स ₹{booking.samagriAmount.toLocaleString("en-IN")})
             </span>
           </div>
         )}
 
-        {/* EARNINGS TABLE */}
-        <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-3">
-          <h4 className="text-[18px] font-bold text-softgrey font-hindi border-b border-saffron-100 pb-2">
-            {t("booking.earningsTitle")}
-          </h4>
+        {/* EARNINGS — canon makes this a TULSI panel, not a white card:
+            #E4F3E9 fill, 2px #BFE3CC border, 18px radius, 15px padding,
+            every figure in #155C34, total split by a 2px dashed rule.
+            Row type is canon's 15/600 (legal at the LABEL floor); the
+            total label is canon 17/900 → BODY floor 18. The row SET is the
+            truthful conservation breakdown (−fee, +travel/food/samagri) —
+            canon shows two rows because its fixture booking has two. */}
+        <div className="bg-leaf-100 border-2 border-leafpale rounded-tile p-[15px]">
+          <h4 className="sr-only">{t("booking.earningsTitle")}</h4>
 
-          <div className="flex flex-col gap-2.5">
-            {/* Dakshina row */}
-            {booking.dakshinaAmount > 0 && (
-              <div className="flex justify-between text-[20px] font-hindi">
-                <span className="text-softgrey">{t("booking.dakshina")}</span>
-                <span className="font-bold text-ink">₹{booking.dakshinaAmount.toLocaleString("en-IN")}</span>
-              </div>
-            )}
-
-            {/* Platform Fee deduction */}
-            {booking.earnings?.platformFee > 0 && (
-              <div className="flex justify-between text-[20px] font-hindi">
-                <span className="text-softgrey">{t("booking.platformFee")}</span>
-                <span className="font-bold text-danger">−₹{booking.earnings.platformFee.toLocaleString("en-IN")}</span>
-              </div>
-            )}
-
-            {/* Net Dakshina */}
-            {booking.earnings?.dakshinaNet > 0 && (
-              <div className="flex justify-between text-[20px] font-hindi border-t border-dashed border-saffron-200 pt-2">
-                <span className="text-softgrey">{t("booking.youGet")}</span>
-                <span className="font-bold text-ink">₹{booking.earnings.dakshinaNet.toLocaleString("en-IN")}</span>
-              </div>
-            )}
-
-            {/* Travel Allowance */}
-            {booking.travelAmount > 0 && (
-              <div className="flex justify-between text-[20px] font-hindi">
-                <span className="text-softgrey">{t("booking.travel")}</span>
-                <span className="font-bold text-leaf-700">+₹{booking.travelAmount.toLocaleString("en-IN")}</span>
-              </div>
-            )}
-
-            {/* Food Allowance */}
-            {booking.foodAllowance > 0 && (
-              <div className="flex justify-between text-[20px] font-hindi">
-                <span className="text-softgrey">{t("booking.food")}</span>
-                <span className="font-bold text-leaf-700">+₹{booking.foodAllowance.toLocaleString("en-IN")}</span>
-              </div>
-            )}
-
-            {/* Samagri earnings */}
-            {booking.samagriAmount > 0 && (
-              <div className="flex justify-between text-[20px] font-hindi">
-                <span className="text-softgrey">{t("booking.samagri")}</span>
-                <span className="font-bold text-leaf-700">+₹{booking.samagriAmount.toLocaleString("en-IN")}</span>
-              </div>
-            )}
-
-            {/* Total Row */}
-            <div className="flex justify-between items-center border-t-2 border-double border-saffron-300 pt-3 mt-1">
-              <span className="text-[22px] font-bold text-ink font-hindi">{t("booking.total")}</span>
-              <MoneyCount target={total} className="text-[28px] font-bold text-leaf-700" />
+          {/* Dakshina row */}
+          {booking.dakshinaAmount > 0 && (
+            <div className="flex justify-between gap-3 text-[15px] font-semibold text-leaf-700 font-hindi mb-[6px]">
+              <span>{t("booking.dakshina")}</span>
+              <span>₹{booking.dakshinaAmount.toLocaleString("en-IN")}</span>
             </div>
+          )}
+
+          {/* Platform Fee deduction */}
+          {booking.earnings?.platformFee > 0 && (
+            <div className="flex justify-between gap-3 text-[15px] font-semibold text-danger font-hindi mb-[6px]">
+              <span>{t("booking.platformFee")}</span>
+              <span>−₹{booking.earnings.platformFee.toLocaleString("en-IN")}</span>
+            </div>
+          )}
+
+          {/* Net Dakshina */}
+          {booking.earnings?.dakshinaNet > 0 && (
+            <div className="flex justify-between gap-3 text-[15px] font-semibold text-leaf-700 font-hindi mb-[6px]">
+              <span>{t("booking.youGet")}</span>
+              <span>₹{booking.earnings.dakshinaNet.toLocaleString("en-IN")}</span>
+            </div>
+          )}
+
+          {/* Travel Allowance */}
+          {booking.travelAmount > 0 && (
+            <div className="flex justify-between gap-3 text-[15px] font-semibold text-leaf-700 font-hindi mb-[6px]">
+              <span>{t("booking.travel")}</span>
+              <span>+₹{booking.travelAmount.toLocaleString("en-IN")}</span>
+            </div>
+          )}
+
+          {/* Food Allowance */}
+          {booking.foodAllowance > 0 && (
+            <div className="flex justify-between gap-3 text-[15px] font-semibold text-leaf-700 font-hindi mb-[6px]">
+              <span>{t("booking.food")}</span>
+              <span>+₹{booking.foodAllowance.toLocaleString("en-IN")}</span>
+            </div>
+          )}
+
+          {/* Samagri earnings */}
+          {booking.samagriAmount > 0 && (
+            <div className="flex justify-between gap-3 text-[15px] font-semibold text-leaf-700 font-hindi mb-[6px]">
+              <span>{t("booking.samagri")}</span>
+              <span>+₹{booking.samagriAmount.toLocaleString("en-IN")}</span>
+            </div>
+          )}
+
+          {/* Total Row */}
+          <div className="flex justify-between items-center gap-3 border-t-2 border-dashed border-leafpale pt-[10px] mt-[2px]">
+            <span className="text-[18px] font-black text-leaf-700 font-hindi">{t("booking.total")}</span>
+            <MoneyCount target={total} className="text-[28px] font-black text-leaf-700" />
           </div>
-        </Card>
+        </div>
 
         {/* Global error screen */}
         {errorMsg && (
-          <div className="px-4 py-2 bg-red-50 rounded-card border border-danger/20">
+          <div className="px-4 py-3 bg-saffron-50 rounded-tile border-[1.5px] border-danger/30">
             <p className="text-danger text-[20px] font-semibold text-center leading-normal">
               {errorMsg}
             </p>
           </div>
         )}
 
-      </main>
-
-      {/* ACCEPT / REJECT — the fixed CTA zone, with शिष्य in his seat */}
-      <footer className="shrink-0 px-4 py-3 bg-cream/95 backdrop-blur border-t border-saffron-100 flex items-end gap-3">
-        <div className="flex-1 flex gap-3">
+        {/* ACCEPT / REJECT — CANON: the buttons are the LAST rows of the
+            scroll column (gap 10, margin-top 2) — no docked footer chrome.
+            स्वीकार on top carrying the money-green lift (0 8px 20px
+            rgba(30,122,70,.35)); the decline is a quiet #E7C9C2-outlined
+            ghost. */}
+        <div className="flex flex-col gap-[10px] mt-[2px]">
           <button
-            onClick={() => setShowRejectConfirm(true)}
-            className="flex-1 h-[72px] bg-white border-2 border-danger text-danger font-bold text-[20px] rounded-btn shadow-sm active:scale-95 transition-transform"
-            style={{ minHeight: "72px", fontSize: "20px" }}
+            onClick={handleAccept}
+            className="w-full min-h-[66px] rounded-cta bg-leaf-500 text-white font-black text-[23px] font-hindi shadow-btn-leaf flex items-center justify-center gap-[11px] active:scale-[0.98] transition-transform disabled:opacity-60"
             disabled={actionLoading}
           >
-            {/* mockup frame 9: the decline is soft — "अभी नहीं" (the confirm
+            {/* canon draws Material `check_circle` FILLED at 28px — never a
+                raw ✓ char (drawn-not-emoji law). The string still carries a
+                legacy "✅ " prefix (strings.ts is out of batch scope) — strip
+                it at the seam so the drawn icon isn't doubled by an emoji. */}
+            <span className="material-symbols-outlined material-symbols-filled text-[28px] leading-none" aria-hidden="true">
+              check_circle
+            </span>
+            {t("booking.accept").replace(/^✅\s*/, "")}
+          </button>
+          <button
+            onClick={() => setShowRejectConfirm(true)}
+            className="w-full min-h-[58px] rounded-cta bg-white border-2 border-[#E7C9C2] text-danger font-extrabold text-[19px] font-hindi active:scale-[0.98] transition-transform disabled:opacity-60"
+            disabled={actionLoading}
+          >
+            {/* canon frame 9: the decline is soft — "अभी नहीं" (the confirm
                 dialog still asks the explicit अस्वीकार question) */}
             अभी नहीं
           </button>
-          <button
-            onClick={handleAccept}
-            className="flex-1 h-[72px] bg-leaf-700 text-white font-bold text-[20px] rounded-btn shadow-md active:scale-95 transition-transform hover:bg-leaf-800"
-            style={{ minHeight: "72px", fontSize: "20px" }}
-            disabled={actionLoading}
-          >
-            {t("booking.accept")}
-          </button>
         </div>
-        <ShishyaOrb />
-      </footer>
+
+      </main>
+
+      {/* शिष्य in his canon seat: a centred #FFF9EE strip below the CTAs —
+          canon frame 9: size 56, ribbon "एक नई बुकिंग आई है! 🔔" */}
+      <div className="shrink-0 flex justify-center pt-1 pb-3 bg-[#FFF9EE]">
+        <ShishyaOrb size={56} say={t("booking.requestSay")} />
+      </div>
 
       {/* REJECT CONFIRM DIALOG MODAL */}
       <AnimatePresence>
@@ -366,23 +424,21 @@ export default function BookingRequestPage() {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-white rounded-card shadow-lg max-w-[360px] w-full p-5 flex flex-col gap-6 text-center border-2 border-saffron-300"
+              className="bg-cardsurface rounded-surface shadow-lift max-w-[360px] w-full p-5 flex flex-col gap-6 text-center border-2 border-sand"
             >
-              <h3 className="text-[22px] font-bold text-temple-700 font-hindi leading-snug">
+              <h3 className="text-[22px] font-black text-temple-700 font-hindi leading-snug">
                 क्या आप वाकई अस्वीकार करना चाहते हैं?
               </h3>
               <div className="flex gap-4">
                 <button
                   onClick={handleReject}
-                  className="flex-grow h-[56px] bg-danger text-white font-bold text-[18px] rounded-btn shadow-md active:scale-95 transition-transform"
-                  style={{ minHeight: "56px", fontSize: "18px" }}
+                  className="flex-grow min-h-[58px] bg-danger text-white font-extrabold text-[19px] font-hindi rounded-cta shadow-chip active:scale-[0.98] transition-transform"
                 >
                   {t("common.yes")}
                 </button>
                 <button
                   onClick={() => setShowRejectConfirm(false)}
-                  className="flex-grow h-[56px] bg-white border-2 border-saffron-300 text-saffron-700 font-bold text-[18px] rounded-btn shadow-sm active:scale-95 transition-transform"
-                  style={{ minHeight: "56px", fontSize: "18px" }}
+                  className="flex-grow min-h-[58px] bg-white border-2 border-[#E7C9C2] text-saffron-700 font-extrabold text-[19px] font-hindi rounded-cta active:scale-[0.98] transition-transform"
                 >
                   {t("common.no")}
                 </button>

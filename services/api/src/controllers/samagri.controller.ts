@@ -2,12 +2,14 @@ import { FastifyRequest, FastifyReply } from "fastify";
 import { prisma } from "@hmarepanditji/db";
 import fs from "fs";
 import path from "path";
+// F12-02: the item shape lives in ONE place. Do not re-declare the field list here.
+import { validateSamagriItems, asJsonItems, type SamagriItem } from "../lib/samagriItem";
 
 interface SamagriPackageBody {
     packageName: string;
     pujaType: string;
     fixedPrice: number;
-    items: Array<{ itemName: string; quantity: string | number }>;
+    items: SamagriItem[];
     isActive?: boolean;
 }
 
@@ -83,13 +85,11 @@ export async function createSamagriPackage(request: FastifyRequest, reply: Fasti
             return reply.code(400).send({ error: "fixedPrice must be a positive number" });
         }
 
-        // Validate items structure
-        for (const item of items) {
-            if (!item.itemName || !item.quantity) {
-                return reply.code(400).send({
-                    error: "Each item must have itemName and quantity",
-                });
-            }
+        // F12-02: validate items through the ONE shape — name + quantity + brand.
+        // The hand-rolled loop that used to live here checked two of the three.
+        const itemsCheck = validateSamagriItems(items);
+        if (!itemsCheck.ok) {
+            return reply.code(400).send({ error: itemsCheck.message });
         }
 
         const packageTypeMapping: Record<string, "BASIC" | "STANDARD" | "PREMIUM"> = {
@@ -104,7 +104,7 @@ export async function createSamagriPackage(request: FastifyRequest, reply: Fasti
                 packageName,
                 pujaType,
                 fixedPrice,
-                items,
+                items: asJsonItems(itemsCheck.items),
                 isActive: true,
                 packageType: packageTypeMapping[packageName] || "BASIC",
             },
@@ -166,11 +166,14 @@ export async function updateSamagriPackage(request: FastifyRequest, reply: Fasti
             }
             updateData.fixedPrice = fixedPrice;
         }
+        // F12-02: an UPDATE that replaces items must meet the same bar as a
+        // create — otherwise brand is trivially strippable by PUTting the list back.
         if (items !== undefined) {
-            if (!Array.isArray(items)) {
-                return reply.code(400).send({ error: "items must be an array" });
+            const itemsCheck = validateSamagriItems(items);
+            if (!itemsCheck.ok) {
+                return reply.code(400).send({ error: itemsCheck.message });
             }
-            updateData.items = items;
+            updateData.items = itemsCheck.items;
         }
         if (isActive !== undefined) updateData.isActive = isActive;
 

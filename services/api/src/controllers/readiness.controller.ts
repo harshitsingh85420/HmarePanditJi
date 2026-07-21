@@ -1,6 +1,7 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { prisma } from "@hmarepanditji/db";
 import { encryptAadhaar } from "../utils/aadhaar";
+import { checkDakshinaFloor } from "../lib/dakshinaFloor";
 
 // ─────────────────────────────────────────────────────────────
 // BOOKING-READINESS (progressive onboarding).
@@ -123,8 +124,12 @@ export const patchReadiness = async (request: FastifyRequest, reply: FastifyRepl
     const rateByPuja = new Map(fresh.dakshinaRates.map((r) => [r.pujaType, r.amount]));
     for (const spec of fresh.specializations) {
       const amount = rateByPuja.get(spec);
-      if (!amount || amount < 501 || amount > 500000) {
-        return badRequest(reply, `Dakshina rate for ${spec} must be between 501 and 500,000.`);
+      // F11-04: the floor comes from the ONE table (lib/dakshinaFloor.ts), not a
+      // second hardcoded 501 that could silently drift from the write path's rule.
+      const floorCheck = checkDakshinaFloor(spec, amount);
+      if (!floorCheck.ok) return badRequest(reply, floorCheck.message);
+      if ((amount as number) > 500000) {
+        return badRequest(reply, `Dakshina rate for ${spec} must not exceed 500,000.`);
       }
     }
   }

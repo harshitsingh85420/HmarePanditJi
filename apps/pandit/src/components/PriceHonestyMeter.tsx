@@ -39,9 +39,14 @@ function prefsFor(on: Record<LeverKey, boolean>): MeterPrefs {
 export function PriceHonestyMeter({
   dakshina,
   initialPrefs,
+  showHeading = true,
 }: {
   dakshina: number;
   initialPrefs?: Partial<Record<LeverKey, boolean>>;
+  /** Canon frame 17's screen heading ("आपका दाम · आपके हाथ" + hint) rides
+   *  with the meter — frame 17 is a component-demo frame with no dedicated
+   *  route, so the heading ships wherever the meter embeds. Default on. */
+  showHeading?: boolean;
 }) {
   const reduce = useReducedMotion();
   const [on, setOn] = useState<Record<LeverKey, boolean>>({
@@ -64,39 +69,55 @@ export function PriceHonestyMeter({
   };
 
   return (
-    <div className="rounded-card border-2 border-saffron-200 bg-saffron-50 p-4 flex flex-col gap-3.5 font-hindi">
-      <div className="text-[16px] font-extrabold text-temple-700">अपनी माँग चुनिए — घटाकर देखिए</div>
+    <div className="flex flex-col gap-2 font-hindi">
+      {showHeading && (
+        // CANON frame 17 title block: 23/900 #341A13 over the hint (canon
+        // 15/700 → 18px body floor). "माँग घटाएँ" register-converts to
+        // "माँग घटाइए" (-इए imperative, founder law over canon copy).
+        <div className="flex flex-col">
+          <span className="text-[23px] font-black text-temple-700 leading-tight">आपका दाम · आपके हाथ</span>
+          <span className="text-[18px] font-bold text-softgrey mt-0.5">माँग घटाइए — दाम अपने आप गिरता है 👇</span>
+        </div>
+      )}
+    <div className="rounded-card border-2 border-saffron-200 bg-saffron-50 p-4 flex flex-col gap-3.5">
+      <div className="text-[18px] font-extrabold text-temple-700">अपनी माँग चुनिए — घटाकर देखिए</div>
 
-      <div className="flex flex-col gap-2.5">
+      <div className="flex flex-col gap-[9px]">
         {LEVERS.map((l) => {
           const active = on[l.key];
           return (
             <button
               key={l.key}
               onClick={() => setOn((s) => ({ ...s, [l.key]: !s[l.key] }))}
-              className={`flex items-center justify-between gap-2.5 w-full min-h-[54px] px-3.5 py-2.5 rounded-btn border-2 font-bold text-[15px] active:scale-[0.98] transition-transform ${
+              className={`flex items-center justify-between gap-2.5 w-full min-h-[54px] px-[14px] py-[11px] rounded-[14px] border-2 font-bold text-[18px] active:scale-[0.98] transition-[transform,background-color,border-color,color] duration-200 motion-reduce:transition-none ${
                 active ? "bg-saffron-500 border-saffron-500 text-chandan" : "bg-white border-saffron-200 text-saffron-700"
               }`}
               aria-pressed={active}
             >
-              <span className="flex items-center gap-2.5 text-left">
-                <span className="text-[21px]">{l.icon}</span>
+              <span className="flex items-center gap-2.5 text-left min-w-0">
+                <span className="text-[21px] shrink-0">{l.icon}</span>
                 {l.label}
               </span>
-              <span className="text-[14px] font-extrabold whitespace-nowrap">{leverTag(l.key, l.known)}</span>
+              {/* fixed tag column: the tag string changes width on toggle
+                  ("— माफ़" vs "बुकिंग पर तय"), and at the 18sp floor a varying
+                  width would re-wrap the label and shift the row height. */}
+              <span className="text-[18px] font-extrabold whitespace-nowrap shrink-0 min-w-[104px] text-right">
+                {leverTag(l.key, l.known)}
+              </span>
             </button>
           );
         })}
       </div>
 
-      <div className="flex justify-between items-center border-t-2 border-dashed border-saffron-200 pt-3">
-        <span className="text-[16px] font-extrabold text-temple-700">एक बुकिंग का अनुमान</span>
+      <div className="flex justify-between items-center border-t-2 border-dashed border-saffron-200 pt-[13px]">
+        <span className="text-[18px] font-extrabold text-temple-700">एक बुकिंग का अनुमान</span>
         <motion.span
           key={total}
           initial={reduce ? false : { scale: 1 }}
-          animate={reduce ? {} : { scale: [1, 1.14, 1] }}
+          // canon pm-pop keyframe peaks at 1.18
+          animate={reduce ? {} : { scale: [1, 1.18, 1] }}
           transition={{ duration: 0.32, ease: "easeOut" }}
-          className="text-[31px] font-extrabold text-leaf-700 tracking-tight"
+          className="text-[31px] font-extrabold text-leaf-700 tracking-[-0.5px]"
         >
           ₹{total.toLocaleString("en-IN")}
         </motion.span>
@@ -106,21 +127,26 @@ export function PriceHonestyMeter({
       <div className="flex gap-2.5 items-end" aria-label={`माँग स्तर: ${demandLevel}`}>
         {BARS.map((b, i) => (
           <div key={b.label} className="flex-1 flex flex-col items-center gap-1.5">
-            <div
-              className={`w-full rounded-t-[7px] transition-colors ${i === activeIdx ? "bg-leaf-500" : "bg-saffron-200"}`}
-              style={{ height: `${b.h}px` }}
-            />
-            <span className={`text-[12px] ${i === activeIdx ? "text-leaf-700 font-extrabold" : "text-softgrey font-medium"}`}>{b.label}</span>
+            {/* the bar sits in a fixed 38px well (canon's tallest bar) so the
+                three bars stay baseline-aligned even when a label wraps */}
+            <div className="w-full h-[38px] flex items-end">
+              <div
+                className={`w-full rounded-t-[7px] transition-colors ${i === activeIdx ? "bg-leaf-500" : "bg-saffron-200"}`}
+                style={{ height: `${b.h}px` }}
+              />
+            </div>
+            <span className={`text-[18px] text-center leading-[1.2] ${i === activeIdx ? "text-leaf-700 font-extrabold" : "text-softgrey font-medium"}`}>{b.label}</span>
           </div>
         ))}
       </div>
 
-      <div className="flex gap-2.5 items-start bg-leaf-100 rounded-[13px] px-3.5 py-2.5">
-        <span className="text-[19px] leading-tight">🙏</span>
-        <span className="text-[13px] font-semibold text-leaf-700 leading-snug">
+      <div className="flex gap-[9px] items-start bg-leaf-100 rounded-[13px] px-[13px] py-[11px]">
+        <span className="text-[19px] leading-[1.2] shrink-0">🙏</span>
+        <span className="text-[18px] font-semibold text-leaf-700 leading-[1.45]">
           कम माँग = ज़्यादा बुकिंग। इस दाम पर ज़्यादा परिवार आपको बुला सकते हैं।
         </span>
       </div>
+    </div>
     </div>
   );
 }

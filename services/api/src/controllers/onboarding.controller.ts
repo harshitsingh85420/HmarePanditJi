@@ -2,6 +2,8 @@ import { FastifyRequest, FastifyReply } from "fastify";
 import { prisma } from "@hmarepanditji/db";
 import { AppError } from "../middleware/errorHandler";
 import { sendSuccess } from "../utils/response";
+// F12-02: the item shape lives in ONE place. Do not re-declare the field list here.
+import { validateSamagriItems, SAMAGRI_BRAND_ANY } from "../lib/samagriItem";
 
 interface AuthenticatedUser {
     id: string;
@@ -186,11 +188,24 @@ export const onboardingStep4 = async (request: FastifyRequest, reply: FastifyRep
                 packageName: pkg.name,
                 pujaType: "All",
                 fixedPrice: pkg.price,
-                items: pkg.items.map((it: string) => ({ itemName: it, quantity: '1' })),
+                // F12-02: this legacy step-4 body carries items as BARE STRINGS —
+                // it collects neither a quantity nor a company. The quantity '1'
+                // below is a pre-existing fabrication (flagged, not introduced
+                // here). The brand is NOT fabricated: SAMAGRI_BRAND_ANY truthfully
+                // records "no company was named", which is exactly the state of a
+                // list typed as plain names. Inventing a company here would make
+                // F12-04's binding promise a lie.
+                items: pkg.items.map((it: string) => ({
+                    itemName: it,
+                    quantity: '1',
+                    brand: SAMAGRI_BRAND_ANY,
+                })),
             }));
 
             for (const p of samagriData) {
-                await prisma.samagriPackage.create({ data: p as any });
+                const itemsCheck = validateSamagriItems(p.items);
+                if (!itemsCheck.ok) throw new AppError(itemsCheck.message, 400);
+                await prisma.samagriPackage.create({ data: { ...p, items: itemsCheck.items } as any });
             }
         }
 

@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+<style>
+  body{ margin:0; background:#E7D6B8; }
+  @keyframes g-shimmer { 0%{ background-position:-200% 0; } 100%{ background-position:200% 0; } }
+  @keyframes g-petal { 0%{ transform:translateY(-30px) rotate(0deg); opacity:0; } 12%{ opacity:1; } 88%{ opacity:1; } 100%{ transform:translateY(720px) rotate(320deg); opacity:0; } }
+  @keyframes g-float { 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-9px); } }
+  @keyframes g-bounce { 0%{ transform:translateY(-16px); opacity:0; } 55%{ transform:translateY(0); opacity:1; } 72%{ transform:translateY(-7px); } 100%{ transform:translateY(0); } }
+  @keyframes g-ring { 0%{ transform:scale(.7); opacity:.55; } 100%{ transform:scale(1.9); opacity:0; } }
+  @keyframes g-glowring { 0%,100%{ box-shadow:0 0 0 0 rgba(231,181,74,.55), 0 8px 20px rgba(178,58,26,.35); } 50%{ box-shadow:0 0 0 14px rgba(231,181,74,0), 0 8px 20px rgba(178,58,26,.35); } }
+  @keyframes g-rise { 0%{ opacity:0; transform:translateY(14px); } 100%{ opacity:1; transform:translateY(0); } }
+  @keyframes g-pop { 0%{ opacity:0; transform:scale(.4); } 70%{ opacity:1; transform:scale(1.08); } 100%{ transform:scale(1); } }
+  @keyframes g-coin { 0%{ transform:translateY(-90px) rotate(0deg); opacity:0; } 15%{ opacity:1; } 70%{ opacity:1; } 100%{ transform:translateY(64px) rotate(200deg); opacity:0; } }
+  @keyframes g-bell { 0%,100%{ transform:rotate(0deg); } 15%{ transform:rotate(16deg); } 35%{ transform:rotate(-12deg); } 55%{ transform:rotate(7deg); } 75%{ transform:rotate(-3deg); } }
+  @keyframes g-cardslide { 0%{ transform:translateX(115%); opacity:0; } 8%{ opacity:1; } 24%{ transform:translateX(0); opacity:1; } 100%{ transform:translateX(0); opacity:1; } }
+  @keyframes g-stamp { 0%{ transform:scale(2.6) rotate(-24deg); opacity:0; } 18%{ transform:scale(1) rotate(-8deg); opacity:1; } 82%{ transform:scale(1) rotate(-8deg); opacity:1; } 92%{ opacity:1; } 100%{ transform:scale(1) rotate(-8deg); opacity:0; } }
+  @keyframes g-wave { 0%,100%{ height:10px; } 50%{ height:34px; } }
+  @keyframes g-kindle { 0%,100%{ transform:scale(.7) translateY(4px); opacity:.55; } 50%{ transform:scale(1.12) translateY(-2px); opacity:1; } }
+  @keyframes g-burst { 0%{ transform:translate(0,0) scale(.4) rotate(0deg); opacity:1; } 100%{ transform:translate(var(--bx),var(--by)) scale(1.1) rotate(180deg); opacity:0; } }
+  @keyframes g-twinkle { 0%,100%{ transform:scale(.7); opacity:.4; } 50%{ transform:scale(1.15); opacity:1; } }
+  @keyframes g-sos { 0%{ transform:scale(1); box-shadow:0 0 0 0 rgba(194,50,30,.5); } 100%{ transform:scale(1); box-shadow:0 0 0 30px rgba(194,50,30,0); } }
+  @keyframes g-spin { 0%{ transform:rotate(0deg); } 100%{ transform:rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce){ *{ animation-duration:.001s !important; animation-iteration-count:1 !important; } }
+</style>
+</helmet>
+<div style="min-width:1720px; padding:52px 60px 90px; font-family:'Noto Sans Devanagari',sans-serif; background:radial-gradient(1400px 700px at 40% -100px,#F6EDD9,#E7D6B8 70%); color:#341A13;">
+
+  <header style="display:flex; align-items:flex-end; justify-content:space-between; flex-wrap:wrap; gap:24px; margin-bottom:52px; border-bottom:3px solid #C9A86A; padding-bottom:30px;">
+    <div style="display:flex; align-items:center; gap:22px;">
+      <div style="width:74px; height:74px; border-radius:22px; background:linear-gradient(150deg,#B23A1A,#7A250E); display:flex; align-items:center; justify-content:center; box-shadow:0 10px 24px rgba(122,37,14,.35); flex:0 0 auto;">
+        <span style="font-size:40px; filter:drop-shadow(0 2px 3px rgba(0,0,0,.25));">🪔</span>
+      </div>
+      <div>
+        <div style="font-size:44px; font-weight:900; color:#7A250E; line-height:1.05; letter-spacing:-.5px;">हमारे पंडित जी</div>
+        <div style="font-size:17px; font-weight:700; color:#8A6F5C; margin-top:5px; letter-spacing:.4px;">पंडित ऐप · सम्पूर्ण UI सिस्टम — 28 स्क्रीन · आरती थीम</div>
+      </div>
+    </div>
+    <div style="display:flex; align-items:center; gap:26px; flex-wrap:wrap;">
+      <div style="display:flex; gap:9px;">
+        <span style="width:34px; height:34px; border-radius:9px; background:#B23A1A; box-shadow:0 3px 8px rgba(0,0,0,.15);" title="सिंदूर"></span>
+        <span style="width:34px; height:34px; border-radius:9px; background:#F2A02C;" title="गेंदा"></span>
+        <span style="width:34px; height:34px; border-radius:9px; background:#E7B54A;" title="पीतल"></span>
+        <span style="width:34px; height:34px; border-radius:9px; background:#1E7A46;" title="तुलसी"></span>
+        <span style="width:34px; height:34px; border-radius:9px; background:#FAF3E6; border:1px solid #D8C7A6;" title="चंदन"></span>
+      </div>
+      <div style="display:flex; align-items:center; gap:10px; background:#FFFDF8; border:1.5px solid #D8C7A6; border-radius:999px; padding:9px 16px;">
+        <span style="font-family:'Material Symbols Outlined'; font-size:20px; color:#7A250E;">smartphone</span>
+        <span style="font-size:14px; font-weight:700; color:#7A250E;">Samsung Galaxy A12 · 360dp</span>
+      </div>
+    </div>
+  </header>
+
+  <section style="margin-bottom:64px;">
+    <div style="display:flex; align-items:center; gap:15px; margin-bottom:32px;">
+      <span style="width:52px; height:52px; border-radius:15px; background:#FFFDF8; border:2px solid #E7B54A; display:flex; align-items:center; justify-content:center; font-size:27px; flex:0 0 auto;">🌅</span>
+      <div>
+        <div style="font-size:27px; font-weight:900; color:#7A250E;">प्रवेश व परिचय</div>
+        <div style="font-size:14px; font-weight:700; color:#8A6F5C; letter-spacing:.6px;">ENTRY &amp; ONBOARDING · स्क्रीन 1–7</div>
+      </div>
+    </div>
+    <div style="display:flex; flex-wrap:wrap; gap:46px;">
+
+      <!-- 1 · SPLASH -->
+      <dc-import name="PhoneFrame" n="1" title="स्प्लैश · Splash" bg="linear-gradient(180deg,#2A1B3D 0%,#5E1C0A 38%,#B23A1A 68%,#F2A02C 100%)" statusColor="#FFEBD6" hint-size="378px,820px">
+        <div style="flex:1; display:flex; flex-direction:column; position:relative; overflow:hidden;">
+          <div style="position:absolute; top:0; left:0; right:0; z-index:4;"><dc-import name="Toran" count="11" hint-size="356px,58px"></dc-import></div>
+          <span style="position:absolute; left:12%; top:0; font-size:20px; animation:g-petal 7s linear infinite; animation-delay:-1s;">🌼</span>
+          <span style="position:absolute; left:34%; top:0; font-size:16px; animation:g-petal 8.5s linear infinite; animation-delay:-3s;">🌸</span>
+          <span style="position:absolute; left:58%; top:0; font-size:22px; animation:g-petal 6.5s linear infinite; animation-delay:-4.5s;">🌼</span>
+          <span style="position:absolute; left:80%; top:0; font-size:15px; animation:g-petal 9s linear infinite; animation-delay:-2s;">🌸</span>
+          <span style="position:absolute; left:70%; top:0; font-size:18px; animation:g-petal 7.8s linear infinite; animation-delay:-6s;">🌼</span>
+          <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px; padding:24px; z-index:3;">
+            <dc-import name="Diya" size="104" lit="{{ true }}" hint-size="150px,150px"></dc-import>
+            <div style="text-align:center; margin-top:4px;">
+              <div style="font-size:40px; font-weight:900; color:#FFF6E9; letter-spacing:-.5px; text-shadow:0 3px 14px rgba(0,0,0,.35); line-height:1.1;">हमारे<br>पंडित जी</div>
+              <div style="display:inline-block; margin-top:12px; font-size:16px; font-weight:800; letter-spacing:3px; background:linear-gradient(90deg,#E7B54A 20%,#FFF6DE 50%,#E7B54A 80%); background-size:200% auto; -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; color:transparent; animation:g-shimmer 3s linear infinite;">सेवा · सम्मान · समृद्धि</div>
+            </div>
+            <div style="margin-top:14px;"><dc-import name="Shishya" state="speaking" say="नमस्ते पंडित जी! 🙏" size="82" name="{{ false }}" hint-size="220px,150px"></dc-import></div>
+          </div>
+          <div style="padding:0 28px 30px; z-index:3; display:flex; justify-content:center;">
+            <div style="display:flex; align-items:center; gap:10px; background:#FFF6E9; color:#B23A1A; font-size:19px; font-weight:800; padding:15px 30px; border-radius:999px; box-shadow:0 8px 22px rgba(0,0,0,.28); animation:g-float 2s ease-in-out infinite;">
+              <span style="font-family:'Material Symbols Outlined'; font-size:24px;">touch_app</span>छूकर शुरू करें
+            </div>
+          </div>
+        </div>
+      </dc-import>
+
+      <!-- 2 · LOCATION -->
+      <dc-import name="PhoneFrame" n="2" title="स्थान · Location" hint-size="378px,820px">
+        <div style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
+          <div style="flex:0 0 auto;"><dc-import name="Toran" count="11" hint-size="356px,58px"></dc-import></div>
+          <div style="flex:1; display:flex; flex-direction:column; padding:14px 22px 18px; gap:16px; min-height:0;">
+            <div style="font-size:29px; font-weight:900; color:#341A13; line-height:1.25; text-align:center;">आप कहाँ सेवा<br>देते हैं?</div>
+            <div style="position:relative; flex:1; min-height:0; border-radius:22px; overflow:hidden; border:2px solid #E7DCC9; background:linear-gradient(135deg,#E7F0DD,#DCE8CF);">
+              <div style="position:absolute; inset:0; background-image:repeating-linear-gradient(38deg,transparent 0 34px,rgba(255,255,255,.5) 34px 37px),repeating-linear-gradient(-52deg,transparent 0 46px,rgba(160,130,90,.14) 46px 48px);"></div>
+              <div style="position:absolute; top:44%; left:22%; width:56%; height:7px; background:#F4E4C4; border-radius:4px; transform:rotate(-8deg); box-shadow:0 1px 2px rgba(0,0,0,.1);"></div>
+              <div style="position:absolute; top:62%; left:8%; width:60%; height:6px; background:#F4E4C4; border-radius:4px; transform:rotate(6deg);"></div>
+              <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:120px; height:120px; border-radius:50%; background:radial-gradient(circle,rgba(178,58,26,.18),transparent 70%);"></div>
+              <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:70px; height:70px; border-radius:50%; border:3px solid rgba(178,58,26,.4); animation:g-ring 2.4s ease-out infinite;"></div>
+              <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-100%); display:flex; flex-direction:column; align-items:center;">
+                <span style="font-size:52px; animation:g-bounce 2.6s ease-in-out infinite; filter:drop-shadow(0 4px 6px rgba(0,0,0,.3));">📍</span>
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:13px; background:#FDEEE7; border:2px solid #F4B096; border-radius:18px; padding:15px 18px;">
+              <span style="font-size:26px;">🏙️</span>
+              <div style="display:flex; flex-direction:column;">
+                <span style="font-size:22px; font-weight:900; color:#7A250E;">वाराणसी</span>
+                <span style="font-size:15px; font-weight:600; color:#8A6F5C;">उत्तर प्रदेश</span>
+              </div>
+            </div>
+            <button style="width:100%; min-height:62px; border:none; border-radius:18px; background:#B23A1A; color:#FFF6E9; font-size:21px; font-weight:800; font-family:inherit; display:flex; align-items:center; justify-content:center; gap:10px; box-shadow:0 6px 16px rgba(178,58,26,.3);"><span style="font-family:'Material Symbols Outlined'; font-size:24px;">check_circle</span>यही सही है</button>
+            <div style="text-align:center; font-size:17px; font-weight:700; color:#8A6F5C; text-decoration:underline;">जगह बदलें</div>
+          </div>
+          <div style="flex:0 0 auto; display:flex; justify-content:center; padding:6px 0 16px;"><dc-import name="Shishya" state="speaking" say="आप कहाँ पूजा कराते हैं?" size="62" name="{{ true }}" hint-size="230px,150px"></dc-import></div>
+        </div>
+      </dc-import>
+
+      <!-- 3 · LANGUAGE -->
+      <dc-import name="PhoneFrame" n="3" title="भाषा · Language" hint-size="378px,820px">
+        <div style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
+          <div style="flex:0 0 auto;"><dc-import name="Toran" count="11" hint-size="356px,58px"></dc-import></div>
+          <div style="flex:1; display:flex; flex-direction:column; padding:14px 22px 16px; gap:16px; min-height:0;">
+            <div style="font-size:29px; font-weight:900; color:#341A13; text-align:center;">अपनी भाषा चुनें</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:13px; flex:1; align-content:start;">
+              <div style="position:relative; border-radius:18px; padding:18px 14px; background:#FDEEE7; border:2.5px solid #B23A1A; display:flex; flex-direction:column; gap:3px; box-shadow:0 5px 14px rgba(178,58,26,.16);">
+                <span style="position:absolute; top:10px; right:10px; width:26px; height:26px; border-radius:50%; background:#B23A1A; color:#fff; display:flex; align-items:center; justify-content:center; font-family:'Material Symbols Outlined'; font-size:18px;">check</span>
+                <span style="font-size:26px; font-weight:900; color:#7A250E;">हिंदी</span>
+                <span style="font-size:14px; font-weight:600; color:#8A6F5C;">Hindi</span>
+              </div>
+              <div style="border-radius:18px; padding:18px 14px; background:#FFFDF8; border:2px solid #E7DCC9; display:flex; flex-direction:column; gap:3px;">
+                <span style="font-size:26px; font-weight:800; color:#341A13;">भोजपुरी</span>
+                <span style="font-size:14px; font-weight:600; color:#8A6F5C;">Bhojpuri</span>
+              </div>
+              <div style="border-radius:18px; padding:18px 14px; background:#FFFDF8; border:2px solid #E7DCC9; display:flex; flex-direction:column; gap:3px;">
+                <span style="font-size:26px; font-weight:800; color:#341A13;">मराठी</span>
+                <span style="font-size:14px; font-weight:600; color:#8A6F5C;">Marathi</span>
+              </div>
+              <div style="border-radius:18px; padding:18px 14px; background:#FFFDF8; border:2px solid #E7DCC9; display:flex; flex-direction:column; gap:3px;">
+                <span style="font-size:26px; font-weight:800; color:#341A13;">বাংলা</span>
+                <span style="font-size:14px; font-weight:600; color:#8A6F5C;">Bangla</span>
+              </div>
+              <div style="border-radius:18px; padding:18px 14px; background:#FFFDF8; border:2px solid #E7DCC9; display:flex; flex-direction:column; gap:3px;">
+                <span style="font-size:26px; font-weight:800; color:#341A13;">ગુજરાતી</span>
+                <span style="font-size:14px; font-weight:600; color:#8A6F5C;">Gujarati</span>
+              </div>
+              <div style="border-radius:18px; padding:18px 14px; background:#FFFDF8; border:2px solid #E7DCC9; display:flex; flex-direction:column; gap:3px;">
+                <span style="font-size:26px; font-weight:800; color:#341A13;">தமிழ்</span>
+                <span style="font-size:14px; font-weight:600; color:#8A6F5C;">Tamil</span>
+              </div>
+            </div>
+            <button style="width:100%; min-height:62px; border:none; border-radius:18px; background:#B23A1A; color:#FFF6E9; font-size:21px; font-weight:800; font-family:inherit; box-shadow:0 6px 16px rgba(178,58,26,.3);">आगे बढ़ें</button>
+          </div>
+          <div style="flex:0 0 auto; display:flex; justify-content:center; padding:2px 0 16px;"><dc-import name="Shishya" state="speaking" say="कौन सी भाषा पसंद है?" size="62" name="{{ true }}" hint-size="230px,150px"></dc-import></div>
+        </div>
+      </dc-import>
+
+      <!-- 4 · PARICHAY (mic permission) -->
+      <dc-import name="PhoneFrame" n="4" title="परिचय · Parichay + माइक अनुमति" bg="radial-gradient(120% 70% at 50% 22%,#FFF4E0,#FFF9EE 60%)" hint-size="378px,820px">
+        <div style="flex:1; display:flex; flex-direction:column; align-items:center; padding:20px 24px 22px; overflow:hidden;">
+          <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px;">
+            <dc-import name="Shishya" state="speaking" say="मैं शिष्य हूँ — आपका सहायक 🙏" size="118" name="{{ true }}" hint-size="260px,220px"></dc-import>
+            <div style="text-align:center; margin-top:6px;">
+              <div style="font-size:24px; font-weight:900; color:#7A250E;">आपसे मिलकर खुशी हुई</div>
+              <div style="font-size:16px; font-weight:600; color:#8A6F5C; margin-top:4px;">जब चाहें, बस मुझसे बात कीजिए</div>
+            </div>
+          </div>
+          <div style="width:100%; background:#FFFDF8; border:2px solid #F0DFC4; border-radius:22px; padding:20px; display:flex; flex-direction:column; align-items:center; gap:15px; box-shadow:0 8px 22px rgba(90,46,32,.1);">
+            <div style="width:66px; height:66px; border-radius:50%; background:#FDEEE7; display:flex; align-items:center; justify-content:center; border:2px solid #F4B096;">
+              <span style="font-family:'Material Symbols Outlined'; font-size:36px; color:#B23A1A;">mic</span>
+            </div>
+            <div style="text-align:center; font-size:18px; font-weight:700; color:#341A13; line-height:1.35;">मुझे सुनने के लिए<br>माइक की अनुमति चाहिए</div>
+            <button style="width:100%; min-height:64px; border:none; border-radius:18px; background:#B23A1A; color:#FFF6E9; font-size:21px; font-weight:800; font-family:inherit; display:flex; align-items:center; justify-content:center; gap:11px; animation:g-glowring 2s ease-in-out infinite;"><span style="font-family:'Material Symbols Outlined'; font-size:26px;">mic</span>अनुमति दें / Allow</button>
+            <div style="display:flex; align-items:center; gap:7px; font-size:14px; font-weight:600; color:#8A6F5C;"><span style="font-family:'Material Symbols Outlined'; font-size:18px; color:#1E7A46;">lock</span>आपकी आवाज़ सुरक्षित है</div>
+          </div>
+        </div>
+      </dc-import>
+
+      <!-- 5a · TUTORIAL: EARNINGS -->
+      <dc-import name="PhoneFrame" n="5" title="ट्यूटोरियल · कमाई (1/6)" bg="radial-gradient(120% 60% at 50% 20%,#FFF3DE,#FFF9EE 60%)" hint-size="378px,820px">
+        <div style="flex:1; display:flex; flex-direction:column; padding:16px 24px 22px;">
+          <div style="display:flex; justify-content:flex-end;"><span style="font-size:15px; font-weight:700; color:#8A6F5C;">छोड़ें ›</span></div>
+          <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px;">
+            <dc-import name="CountUp" to="52400" size="48" color="#155C34" dur="1800" hint-size="220px,64px"></dc-import>
+            <div style="font-size:22px; font-weight:800; color:#7A250E;">आपकी कमाई</div>
+            <div style="position:relative; width:230px; height:170px; margin-top:6px;">
+              <span style="position:absolute; top:0; left:20%; width:32px; height:32px; border-radius:50%; background:radial-gradient(circle at 40% 35%,#FFEBA8,#E7B54A 55%,#B8860B); color:#7A250E; font-size:17px; font-weight:900; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 4px rgba(0,0,0,.22); animation:g-coin 1.9s ease-in infinite; animation-delay:-.1s;">₹</span>
+              <span style="position:absolute; top:0; left:44%; width:36px; height:36px; border-radius:50%; background:radial-gradient(circle at 40% 35%,#FFEBA8,#E7B54A 55%,#B8860B); color:#7A250E; font-size:19px; font-weight:900; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 4px rgba(0,0,0,.22); animation:g-coin 1.7s ease-in infinite; animation-delay:-.7s;">₹</span>
+              <span style="position:absolute; top:0; left:66%; width:30px; height:30px; border-radius:50%; background:radial-gradient(circle at 40% 35%,#FFEBA8,#E7B54A 55%,#B8860B); color:#7A250E; font-size:16px; font-weight:900; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 4px rgba(0,0,0,.22); animation:g-coin 2.1s ease-in infinite; animation-delay:-1.3s;">₹</span>
+              <span style="position:absolute; top:0; left:33%; width:26px; height:26px; border-radius:50%; background:radial-gradient(circle at 40% 35%,#FFEBA8,#E7B54A 55%,#B8860B); color:#7A250E; font-size:14px; font-weight:900; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 4px rgba(0,0,0,.22); animation:g-coin 1.6s ease-in infinite; animation-delay:-2s;">₹</span>
+              <div style="position:absolute; bottom:6px; left:50%; transform:translateX(-50%); width:180px; height:50px; border-radius:50%; background:radial-gradient(ellipse at 50% 26%,#F6D585,#B8860B 68%,#7d5c0f); box-shadow:inset 0 5px 8px rgba(255,255,255,.45), 0 8px 14px rgba(90,46,32,.32);"></div>
+              <div style="position:absolute; bottom:34px; left:50%; transform:translateX(-50%); width:150px; height:26px; border-radius:50%; background:linear-gradient(#8a6a12,#c99a2a); opacity:.55;"></div>
+            </div>
+          </div>
+          <div style="display:flex; flex-direction:column; align-items:center; gap:16px;">
+            <div style="display:flex; gap:9px; align-items:center;"><span style="width:20px; height:20px; border-radius:50%; background:radial-gradient(circle at 50% 35%,#FFE9B8,#F2A02C 60%,#B23A1A); box-shadow:0 0 8px rgba(242,160,44,.7);"></span><span style="width:14px; height:14px; border-radius:50%; background:#E4D6C1;"></span><span style="width:14px; height:14px; border-radius:50%; background:#E4D6C1;"></span><span style="width:14px; height:14px; border-radius:50%; background:#E4D6C1;"></span><span style="width:14px; height:14px; border-radius:50%; background:#E4D6C1;"></span><span style="width:14px; height:14px; border-radius:50%; background:#E4D6C1;"></span></div>
+            <button style="width:100%; min-height:60px; border:none; border-radius:18px; background:#B23A1A; color:#FFF6E9; font-size:20px; font-weight:800; font-family:inherit; box-shadow:0 6px 16px rgba(178,58,26,.3);">आगे</button>
+          </div>
+        </div>
+      </dc-import>
+
+      <!-- 5b · TUTORIAL: NEW BOOKING -->
+      <dc-import name="PhoneFrame" n="5" title="ट्यूटोरियल · नई बुकिंग (2/6)" bg="radial-gradient(120% 60% at 50% 20%,#FFF3DE,#FFF9EE 60%)" hint-size="378px,820px">
+        <div style="flex:1; display:flex; flex-direction:column; padding:16px 24px 22px;">
+          <div style="display:flex; justify-content:flex-end;"><span style="font-size:15px; font-weight:700; color:#8A6F5C;">छोड़ें ›</span></div>
+          <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px;">
+            <div style="font-size:52px; animation:g-bell 1.6s ease-in-out infinite; transform-origin:50% 10%;">🔔</div>
+            <div style="width:100%; background:#FFFDF8; border:2px solid #F4B096; border-left:8px solid #B23A1A; border-radius:18px; padding:16px 18px; box-shadow:0 10px 24px rgba(90,46,32,.16); animation:g-cardslide 3s ease-out infinite; display:flex; flex-direction:column; gap:6px;">
+              <div style="display:flex; align-items:center; justify-content:space-between;">
+                <span style="font-size:20px; font-weight:900; color:#7A250E;">गृह प्रवेश पूजा</span>
+                <span style="font-size:12px; font-weight:800; color:#B23A1A; background:#FDEEE7; padding:4px 10px; border-radius:999px;">नई</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:8px; font-size:16px; font-weight:600; color:#341A13;"><span style="font-family:'Material Symbols Outlined'; font-size:20px; color:#8A6F5C;">event</span>कल · सुबह 9:00</div>
+              <div style="display:flex; align-items:center; justify-content:space-between; margin-top:4px;"><span style="font-size:15px; color:#8A6F5C; font-weight:600;">दक्षिणा</span><span style="font-size:22px; font-weight:900; color:#155C34;">₹5,600</span></div>
+            </div>
+            <div style="font-size:22px; font-weight:800; color:#7A250E;">नई बुकिंग आई! 🔔</div>
+          </div>
+          <div style="display:flex; flex-direction:column; align-items:center; gap:16px;">
+            <div style="display:flex; gap:9px; align-items:center;"><span style="width:14px; height:14px; border-radius:50%; background:#E4D6C1;"></span><span style="width:20px; height:20px; border-radius:50%; background:radial-gradient(circle at 50% 35%,#FFE9B8,#F2A02C 60%,#B23A1A); box-shadow:0 0 8px rgba(242,160,44,.7);"></span><span style="width:14px; height:14px; border-radius:50%; background:#E4D6C1;"></span><span style="width:14px; height:14px; border-radius:50%; background:#E4D6C1;"></span><span style="width:14px; height:14px; border-radius:50%; background:#E4D6C1;"></span><span style="width:14px; height:14px; border-radius:50%; background:#E4D6C1;"></span></div>
+            <button style="width:100%; min-height:60px; border:none; border-radius:18px; background:#B23A1A; color:#FFF6E9; font-size:20px; font-weight:800; font-family:inherit; box-shadow:0 6px 16px rgba(178,58,26,.3);">आगे</button>
+          </div>
+        </div>
+      </dc-import>
+
+      <!-- 5c · TUTORIAL: SLEEP / WAKE -->
+      <dc-import name="PhoneFrame" n="5" title="ट्यूटोरियल · शिष्य जगाएँ (3/6)" bg="radial-gradient(120% 60% at 50% 20%,#FFF3DE,#FFF9EE 60%)" hint-size="378px,820px">
+        <div style="flex:1; display:flex; flex-direction:column; padding:16px 24px 22px;">
+          <div style="display:flex; justify-content:flex-end;"><span style="font-size:15px; font-weight:700; color:#8A6F5C;">छोड़ें ›</span></div>
+          <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:22px;">
+            <div style="display:flex; align-items:center; gap:14px;">
+              <dc-import name="Shishya" state="asleep" size="76" name="{{ false }}" hint-size="120px,130px"></dc-import>
+              <div style="display:flex; flex-direction:column; align-items:center; gap:4px; animation:g-float 1.6s ease-in-out infinite;">
+                <span style="font-family:'Material Symbols Outlined'; font-size:30px; color:#B23A1A;">touch_app</span>
+                <span style="font-family:'Material Symbols Outlined'; font-size:26px; color:#E7B54A;">arrow_forward</span>
+              </div>
+              <dc-import name="Shishya" state="speaking" say="" size="76" name="{{ false }}" hint-size="120px,130px"></dc-import>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:23px; font-weight:900; color:#7A250E;">छूकर जगाएँ</div>
+              <div style="font-size:16px; font-weight:600; color:#8A6F5C; margin-top:4px;">आराम के समय वह सो जाता है</div>
+            </div>
+          </div>
+          <div style="display:flex; flex-direction:column; align-items:center; gap:16px;">
+            <div style="display:flex; gap:9px; align-items:center;"><span style="width:14px; height:14px; border-radius:50%; background:#E4D6C1;"></span><span style="width:14px; height:14px; border-radius:50%; background:#E4D6C1;"></span><span style="width:20px; height:20px; border-radius:50%; background:radial-gradient(circle at 50% 35%,#FFE9B8,#F2A02C 60%,#B23A1A); box-shadow:0 0 8px rgba(242,160,44,.7);"></span><span style="width:14px; height:14px; border-radius:50%; background:#E4D6C1;"></span><span style="width:14px; height:14px; border-radius:50%; background:#E4D6C1;"></span><span style="width:14px; height:14px; border-radius:50%; background:#E4D6C1;"></span></div>
+            <button style="width:100%; min-height:60px; border:none; border-radius:18px; background:#B23A1A; color:#FFF6E9; font-size:20px; font-weight:800; font-family:inherit; box-shadow:0 6px 16px rgba(178,58,26,.3);">आगे</button>
+          </div>
+        </div>
+      </dc-import>
+
+      <!-- 5d · TUTORIAL: VOICE -->
+      <dc-import name="PhoneFrame" n="5" title="ट्यूटोरियल · आवाज़ (4/6)" bg="radial-gradient(120% 60% at 50% 20%,#FFF3DE,#FFF9EE 60%)" hint-size="378px,820px">
+        <div style="flex:1; display:flex; flex-direction:column; padding:16px 24px 22px;">
+          <div style="display:flex; justify-content:flex-end;"><span style="font-size:15px; font-weight:700; color:#8A6F5C;">छोड़ें ›</span></div>
+          <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px;">
+            <dc-import name="Shishya" state="listening" say="" size="82" name="{{ false }}" hint-size="160px,150px"></dc-import>
+            <div style="display:flex; align-items:flex-end; gap:6px; height:40px;">
+              <span style="width:7px; background:#B23A1A; border-radius:4px; animation:g-wave 1s ease-in-out infinite;"></span>
+              <span style="width:7px; background:#D95F38; border-radius:4px; animation:g-wave 1s ease-in-out .15s infinite;"></span>
+              <span style="width:7px; background:#F2A02C; border-radius:4px; animation:g-wave 1s ease-in-out .3s infinite;"></span>
+              <span style="width:7px; background:#D95F38; border-radius:4px; animation:g-wave 1s ease-in-out .45s infinite;"></span>
+              <span style="width:7px; background:#B23A1A; border-radius:4px; animation:g-wave 1s ease-in-out .6s infinite;"></span>
+            </div>
+            <div style="width:78px; height:78px; border-radius:50%; background:#B23A1A; display:flex; align-items:center; justify-content:center; box-shadow:0 8px 20px rgba(178,58,26,.35); animation:g-glowring 2s ease-in-out infinite;">
+              <span style="font-family:'Material Symbols Outlined'; font-size:40px; color:#FFF6E9;">mic</span>
+            </div>
+            <div style="font-size:24px; font-weight:900; color:#7A250E; margin-top:4px;">बस बोलिए 🎤</div>
+          </div>
+          <div style="display:flex; flex-direction:column; align-items:center; gap:16px;">
+            <div style="display:flex; gap:9px; align-items:center;"><span style="width:14px; height:14px; border-radius:50%; background:#E4D6C1;"></span><span style="width:14px; height:14px; border-radius:50%; background:#E4D6C1;"></span><span style="width:14px; height:14px; border-radius:50%; background:#E4D6C1;"></span><span style="width:20px; height:20px; border-radius:50%; background:radial-gradient(circle at 50% 35%,#FFE9B8,#F2A02C 60%,#B23A1A); box-shadow:0 0 8px rgba(242,160,44,.7);"></span><span style="width:14px; height:14px; border-radius:50%; background:#E4D6C1;"></span><span style="width:14px; height:14px; border-radius:50%; background:#E4D6C1;"></span></div>
+            <button style="width:100%; min-height:60px; border:none; border-radius:18px; background:#B23A1A; color:#FFF6E9; font-size:20px; font-weight:800; font-family:inherit; box-shadow:0 6px 16px rgba(178,58,26,.3);">आगे</button>
+          </div>
+        </div>
+      </dc-import>
+
+      <!-- 5e · TUTORIAL: VERIFICATION -->
+      <dc-import name="PhoneFrame" n="5" title="ट्यूटोरियल · सत्यापन (5/6)" bg="radial-gradient(120% 60% at 50% 20%,#FFF3DE,#FFF9EE 60%)" hint-size="378px,820px">
+        <div style="flex:1; display:flex; flex-direction:column; padding:16px 24px 22px;">
+          <div style="display:flex; justify-content:flex-end;"><span style="font-size:15px; font-weight:700; color:#8A6F5C;">छोड़ें ›</span></div>
+          <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px;">
+            <div style="position:relative; width:220px; height:164px; border-radius:18px; background:linear-gradient(150deg,#2A1B3D,#4a2e2a); overflow:hidden; border:3px solid #E7B54A; display:flex; align-items:flex-end; justify-content:center; box-shadow:0 10px 24px rgba(42,27,61,.35);">
+              <div style="position:absolute; top:26px; left:50%; transform:translateX(-50%); width:52px; height:52px; border-radius:50%; background:rgba(255,246,233,.28);"></div>
+              <div style="width:118px; height:66px; border-radius:60px 60px 0 0; background:rgba(255,246,233,.28); margin-bottom:0;"></div>
+              <span style="position:absolute; top:10px; left:12px; font-size:11px; font-weight:800; color:#FF7B6B; display:flex; align-items:center; gap:4px;"><span style="width:8px; height:8px; border-radius:50%; background:#FF3B30;"></span>REC</span>
+              <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:78px; height:78px; border-radius:50%; background:#1E7A46; border:4px solid #FFF6E9; display:flex; align-items:center; justify-content:center; box-shadow:0 8px 20px rgba(0,0,0,.4); animation:g-stamp 3.2s ease-in-out infinite;">
+                <span style="font-family:'Material Symbols Outlined'; font-size:46px; color:#FFF6E9; font-variation-settings:'FILL' 1;">check</span>
+              </div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:24px; font-weight:900; color:#155C34;">✓ प्रमाणित</div>
+              <div style="font-size:16px; font-weight:600; color:#8A6F5C; margin-top:4px;">एक छोटा वीडियो, और भरोसा तैयार</div>
+            </div>
+          </div>
+          <div style="display:flex; flex-direction:column; align-items:center; gap:16px;">
+            <div style="display:flex; gap:9px; align-items:center;"><span style="width:14px; height:14px; border-radius:50%; background:#E4D6C1;"></span><span style="width:14px; height:14px; border-radius:50%; background:#E4D6C1;"></span><span style="width:14px; height:14px; border-radius:50%; background:#E4D6C1;"></span><span style="width:14px; height:14px; border-radius:50%; background:#E4D6C1;"></span><span style="width:20px; height:20px; border-radius:50%; background:radial-gradient(circle at 50% 35%,#FFE9B8,#F2A02C 60%,#B23A1A); box-shadow:0 0 8px rgba(242,160,44,.7);"></span><span style="width:14px; height:14px; border-radius:50%; background:#E4D6C1;"></span></div>
+            <button style="width:100%; min-height:60px; border:none; border-radius:18px; background:#B23A1A; color:#FFF6E9; font-size:20px; font-weight:800; font-family:inherit; box-shadow:0 6px 16px rgba(178,58,26,.3);">आगे</button>
+          </div>
+        </div>
+      </dc-import>
+
+      <!-- 5f · TUTORIAL: WELCOME / FINISH -->
+      <dc-import name="PhoneFrame" n="5" title="ट्यूटोरियल · स्वागत (6/6)" bg="linear-gradient(180deg,#FFE9C4 0%,#FFF9EE 55%)" hint-size="378px,820px">
+        <div style="flex:1; display:flex; flex-direction:column; padding:16px 24px 22px; position:relative; overflow:hidden;">
+          <div style="position:absolute; top:38%; left:50%; width:0; height:0;">
+            <span style="position:absolute; --bx:-90px; --by:-60px; font-size:20px; animation:g-burst 1.8s ease-out infinite; animation-delay:-.1s;">🌼</span>
+            <span style="position:absolute; --bx:90px; --by:-55px; font-size:18px; animation:g-burst 1.8s ease-out infinite; animation-delay:-.4s;">🌸</span>
+            <span style="position:absolute; --bx:-110px; --by:30px; font-size:16px; animation:g-burst 2s ease-out infinite; animation-delay:-.7s;">🌼</span>
+            <span style="position:absolute; --bx:110px; --by:40px; font-size:20px; animation:g-burst 2s ease-out infinite; animation-delay:-1s;">🌸</span>
+            <span style="position:absolute; --bx:0px; --by:-90px; font-size:18px; animation:g-burst 1.9s ease-out infinite; animation-delay:-1.3s;">🌼</span>
+            <span style="position:absolute; --bx:-60px; --by:70px; font-size:15px; animation:g-burst 2.1s ease-out infinite; animation-delay:-1.6s;">🌸</span>
+          </div>
+          <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; z-index:2;">
+            <dc-import name="Diya" size="96" lit="{{ true }}" hint-size="140px,150px"></dc-import>
+            <div style="text-align:center;">
+              <div style="font-size:30px; font-weight:900; color:#7A250E; line-height:1.2;">अब आपकी बारी! 🎉</div>
+              <div style="font-size:17px; font-weight:600; color:#8A6F5C; margin-top:6px;">शिष्य हर कदम आपके साथ है 🙏</div>
+            </div>
+          </div>
+          <div style="display:flex; flex-direction:column; align-items:center; gap:16px; z-index:2;">
+            <div style="display:flex; gap:9px; align-items:center;"><span style="width:18px; height:18px; border-radius:50%; background:radial-gradient(circle at 50% 35%,#FFE9B8,#F2A02C 60%,#B23A1A); box-shadow:0 0 7px rgba(242,160,44,.7);"></span><span style="width:18px; height:18px; border-radius:50%; background:radial-gradient(circle at 50% 35%,#FFE9B8,#F2A02C 60%,#B23A1A); box-shadow:0 0 7px rgba(242,160,44,.7);"></span><span style="width:18px; height:18px; border-radius:50%; background:radial-gradient(circle at 50% 35%,#FFE9B8,#F2A02C 60%,#B23A1A); box-shadow:0 0 7px rgba(242,160,44,.7);"></span><span style="width:18px; height:18px; border-radius:50%; background:radial-gradient(circle at 50% 35%,#FFE9B8,#F2A02C 60%,#B23A1A); box-shadow:0 0 7px rgba(242,160,44,.7);"></span><span style="width:18px; height:18px; border-radius:50%; background:radial-gradient(circle at 50% 35%,#FFE9B8,#F2A02C 60%,#B23A1A); box-shadow:0 0 7px rgba(242,160,44,.7);"></span><span style="width:18px; height:18px; border-radius:50%; background:radial-gradient(circle at 50% 35%,#FFE9B8,#F2A02C 60%,#B23A1A); box-shadow:0 0 7px rgba(242,160,44,.7);"></span></div>
+            <button style="width:100%; min-height:66px; border:none; border-radius:18px; background:linear-gradient(180deg,#C44A22,#B23A1A); color:#FFF6E9; font-size:23px; font-weight:900; font-family:inherit; display:flex; align-items:center; justify-content:center; gap:11px; box-shadow:0 8px 22px rgba(178,58,26,.4); animation:g-glowring 2.2s ease-in-out infinite;"><span style="font-family:'Material Symbols Outlined'; font-size:28px;">celebration</span>शुरू करें</button>
+          </div>
+        </div>
+      </dc-import>
+
+      <!-- 6 · REGISTRATION -->
+      <dc-import name="PhoneFrame" n="6" title="पंजीकरण · Registration" hint-size="378px,820px">
+        <div style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
+          <div style="flex:0 0 auto;"><dc-import name="Toran" count="11" hint-size="356px,58px"></dc-import></div>
+          <div style="flex:1; display:flex; flex-direction:column; padding:16px 22px 18px; gap:18px; min-height:0;">
+            <div style="text-align:center;">
+              <div style="font-size:28px; font-weight:900; color:#341A13;">बस दो बातें बताइए</div>
+              <div style="font-size:16px; font-weight:600; color:#8A6F5C; margin-top:4px;">बोलकर या टाइप करके — जैसे आसान लगे</div>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:14px; flex:1;">
+              <div style="background:#FFFDF8; border:2px solid #F0DFC4; border-radius:20px; padding:15px 16px; display:flex; align-items:center; gap:14px; box-shadow:0 4px 12px rgba(90,46,32,.08);">
+                <span style="font-size:30px;">🙏</span>
+                <div style="flex:1; display:flex; flex-direction:column; gap:2px; min-width:0;">
+                  <span style="font-size:14px; font-weight:700; color:#8A6F5C;">आपका नाम</span>
+                  <span style="font-size:23px; font-weight:800; color:#341A13;">पं. रमेश शर्मा</span>
+                </div>
+                <div style="width:54px; height:54px; border-radius:50%; background:#FDEEE7; border:2px solid #F4B096; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Outlined'; font-size:27px; color:#B23A1A;">mic</span></div>
+              </div>
+              <div style="background:#FFFDF8; border:2px solid #F0DFC4; border-radius:20px; padding:15px 16px; display:flex; align-items:center; gap:14px; box-shadow:0 4px 12px rgba(90,46,32,.08);">
+                <span style="font-size:30px;">🏙️</span>
+                <div style="flex:1; display:flex; flex-direction:column; gap:2px; min-width:0;">
+                  <span style="font-size:14px; font-weight:700; color:#8A6F5C;">आपका शहर</span>
+                  <span style="font-size:23px; font-weight:800; color:#341A13;">वाराणसी</span>
+                </div>
+                <div style="width:54px; height:54px; border-radius:50%; background:#FDEEE7; border:2px solid #F4B096; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Outlined'; font-size:27px; color:#B23A1A;">mic</span></div>
+              </div>
+            </div>
+            <button style="width:100%; min-height:64px; border:none; border-radius:18px; background:#B23A1A; color:#FFF6E9; font-size:22px; font-weight:800; font-family:inherit; display:flex; align-items:center; justify-content:center; gap:10px; box-shadow:0 6px 16px rgba(178,58,26,.3);">आगे बढ़ें<span style="font-family:'Material Symbols Outlined'; font-size:26px;">arrow_forward</span></button>
+          </div>
+          <div style="flex:0 0 auto; display:flex; justify-content:center; padding:0 0 14px;"><dc-import name="Shishya" state="speaking" say="बाकी सब मैं देख लूँगा 🙏" size="60" name="{{ true }}" hint-size="240px,150px"></dc-import></div>
+        </div>
+      </dc-import>
+
+      <!-- 7 · OTP -->
+      <dc-import name="PhoneFrame" n="7" title="OTP · लॉगिन" hint-size="378px,820px">
+        <div style="flex:1; display:flex; flex-direction:column; padding:14px 22px 20px; gap:14px;">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <span style="width:44px; height:44px; border-radius:50%; background:#FDEEE7; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Outlined'; font-size:24px; color:#7A250E;">arrow_back</span></span>
+            <span style="font-size:19px; font-weight:800; color:#341A13;">OTP सत्यापन</span>
+          </div>
+          <div style="text-align:center; margin-top:4px;">
+            <div style="font-size:26px; font-weight:900; color:#341A13;">OTP डालिए</div>
+            <div style="font-size:16px; font-weight:600; color:#8A6F5C; margin-top:6px;">+91 98765 43210 पर भेजा गया</div>
+          </div>
+          <div style="display:flex; justify-content:center; gap:12px; margin:6px 0;">
+            <div style="width:62px; height:72px; border-radius:16px; border:2.5px solid #B23A1A; background:#FDEEE7; display:flex; align-items:center; justify-content:center; font-size:36px; font-weight:900; color:#7A250E;">5</div>
+            <div style="width:62px; height:72px; border-radius:16px; border:2.5px solid #B23A1A; background:#FDEEE7; display:flex; align-items:center; justify-content:center; font-size:36px; font-weight:900; color:#7A250E;">2</div>
+            <div style="width:62px; height:72px; border-radius:16px; border:2.5px solid #B23A1A; background:#FDEEE7; display:flex; align-items:center; justify-content:center; font-size:36px; font-weight:900; color:#7A250E;">8</div>
+            <div style="width:62px; height:72px; border-radius:16px; border:2.5px solid #E7DCC9; background:#FFFDF8; display:flex; align-items:center; justify-content:center;"><span style="width:3px; height:34px; background:#B23A1A; animation:g-twinkle 1s ease-in-out infinite;"></span></div>
+          </div>
+          <div style="text-align:center; font-size:15px; font-weight:700; color:#8A6F5C;">दुबारा भेजें <span style="color:#B23A1A;">00:24</span></div>
+          <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:auto;">
+            <button style="min-height:58px; border:1.5px solid #EADFCE; border-radius:16px; background:#FFFDF8; font-size:28px; font-weight:800; color:#341A13; font-family:inherit;">1</button>
+            <button style="min-height:58px; border:1.5px solid #EADFCE; border-radius:16px; background:#FFFDF8; font-size:28px; font-weight:800; color:#341A13; font-family:inherit;">2</button>
+            <button style="min-height:58px; border:1.5px solid #EADFCE; border-radius:16px; background:#FFFDF8; font-size:28px; font-weight:800; color:#341A13; font-family:inherit;">3</button>
+            <button style="min-height:58px; border:1.5px solid #EADFCE; border-radius:16px; background:#FFFDF8; font-size:28px; font-weight:800; color:#341A13; font-family:inherit;">4</button>
+            <button style="min-height:58px; border:1.5px solid #EADFCE; border-radius:16px; background:#FFFDF8; font-size:28px; font-weight:800; color:#341A13; font-family:inherit;">5</button>
+            <button style="min-height:58px; border:1.5px solid #EADFCE; border-radius:16px; background:#FFFDF8; font-size:28px; font-weight:800; color:#341A13; font-family:inherit;">6</button>
+            <button style="min-height:58px; border:1.5px solid #EADFCE; border-radius:16px; background:#FFFDF8; font-size:28px; font-weight:800; color:#341A13; font-family:inherit;">7</button>
+            <button style="min-height:58px; border:1.5px solid #EADFCE; border-radius:16px; background:#FFFDF8; font-size:28px; font-weight:800; color:#341A13; font-family:inherit;">8</button>
+            <button style="min-height:58px; border:1.5px solid #EADFCE; border-radius:16px; background:#FFFDF8; font-size:28px; font-weight:800; color:#341A13; font-family:inherit;">9</button>
+            <div></div>
+            <button style="min-height:58px; border:1.5px solid #EADFCE; border-radius:16px; background:#FFFDF8; font-size:28px; font-weight:800; color:#341A13; font-family:inherit;">0</button>
+            <button style="min-height:58px; border:none; border-radius:16px; background:#F0E6D3; display:flex; align-items:center; justify-content:center; font-family:'Material Symbols Outlined'; font-size:26px; color:#7A250E;">backspace</button>
+          </div>
+        </div>
+      </dc-import>
+
+      <div data-end="1"></div>
+    </div>
+  </section>
+  <section style="margin-bottom:64px;">
+    <div style="display:flex; align-items:center; gap:15px; margin-bottom:32px;">
+      <span style="width:52px; height:52px; border-radius:15px; background:#FFFDF8; border:2px solid #E7B54A; display:flex; align-items:center; justify-content:center; font-size:27px; flex:0 0 auto;">🏠</span>
+      <div>
+        <div style="font-size:27px; font-weight:900; color:#7A250E;">मुख्य ऐप</div>
+        <div style="font-size:14px; font-weight:700; color:#8A6F5C; letter-spacing:.6px;">MAIN APP · स्क्रीन 8–11</div>
+      </div>
+    </div>
+    <div style="display:flex; flex-wrap:wrap; gap:46px;">
+
+      <!-- 8 · HOME / DASHBOARD -->
+      <dc-import name="PhoneFrame" n="8" title="होम · Dashboard" hint-size="378px,820px">
+        <div style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
+          <div style="display:flex; align-items:center; justify-content:space-between; padding:6px 18px 6px;">
+            <span style="font-size:22px; font-weight:900; color:#341A13; display:flex; align-items:center; gap:7px;"><span style="display:inline-block; animation:g-float 1.4s ease-in-out infinite;">🪔</span>नमस्ते, रमेश जी</span>
+            <span style="width:44px; height:44px; border-radius:50%; background:#FFFDF8; box-shadow:0 2px 8px rgba(90,46,32,.12); display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Outlined'; font-size:24px; color:#7A250E;">settings</span></span>
+          </div>
+          <div style="flex:1; overflow-y:auto; padding:4px 16px 16px; display:flex; flex-direction:column; gap:13px; min-height:0;">
+            <div style="display:flex; align-items:center; gap:9px; background:#FFF3E2; border:1.5px solid #F0DFC4; border-radius:14px; padding:9px 13px; font-size:13px; font-weight:700; color:#7A250E;"><span style="font-size:16px;">🕉️</span>शुक्रवार · तृतीया<span style="margin-left:auto; color:#155C34; background:#E4F3E9; padding:3px 10px; border-radius:999px;">शुभ मुहूर्त</span></div>
+            <div style="background:linear-gradient(140deg,#FFFDF8,#FFF0DC); border:2px solid #F0DFC4; border-radius:22px; padding:18px; box-shadow:0 6px 16px rgba(90,46,32,.1);">
+              <div style="display:flex; align-items:center; gap:8px; justify-content:center;"><span style="font-size:20px;">🪔</span><span style="font-size:16px; font-weight:800; color:#8A6F5C;">इस महीने की कमाई</span></div>
+              <div style="text-align:center; margin-top:8px;"><dc-import name="CountUp" to="52400" size="46" color="#155C34" hint-size="220px,64px"></dc-import></div>
+              <div style="border-top:1.5px dashed #E7DCC9; margin-top:14px; padding-top:12px; display:flex; justify-content:space-between; align-items:center;"><span style="font-size:15px; font-weight:700; color:#8A6F5C;">आना बाकी</span><span style="font-size:20px; font-weight:900; color:#B8860B;">₹8,200</span></div>
+            </div>
+            <dc-import name="GoOnline" online="{{ true }}" hint-size="340px,140px"></dc-import>
+            <div style="background:#FFFDF8; border:2px solid #F4B096; border-radius:22px; overflow:hidden; box-shadow:0 6px 16px rgba(90,46,32,.1);">
+              <div style="background:#FDEEE7; padding:9px 16px; display:flex; align-items:center; gap:8px;"><span style="font-family:'Material Symbols Outlined'; font-size:20px; color:#B23A1A;">event_upcoming</span><span style="font-size:15px; font-weight:800; color:#7A250E;">अगली बुकिंग</span></div>
+              <div style="padding:15px 16px; display:flex; flex-direction:column; gap:9px;">
+                <span style="font-size:22px; font-weight:900; color:#341A13;">सत्यनारायण कथा</span>
+                <div style="display:flex; align-items:center; gap:8px; font-size:16px; font-weight:600; color:#47241A;"><span style="font-family:'Material Symbols Outlined'; font-size:20px; color:#8A6F5C;">event</span>कल · सुबह 9:00</div>
+                <div style="display:flex; align-items:center; gap:8px; font-size:16px; font-weight:600; color:#47241A;"><span style="font-family:'Material Symbols Outlined'; font-size:20px; color:#8A6F5C;">location_on</span>गोमती नगर, लखनऊ</div>
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-top:4px;"><span style="font-size:24px; font-weight:900; color:#155C34;">₹5,600</span><span style="font-size:14px; font-weight:800; color:#B23A1A; background:#FDEEE7; border:1.5px solid #F4B096; padding:7px 14px; border-radius:999px;">विवरण देखें ›</span></div>
+              </div>
+            </div>
+            <div style="display:flex; gap:10px;">
+              <div style="flex:1; background:#FFFDF8; border:1.5px solid #F0DFC4; border-radius:16px; padding:13px 8px; display:flex; flex-direction:column; align-items:center; gap:2px;"><span style="font-size:22px; font-weight:900; color:#B8860B;">4.9★</span><span style="font-size:13px; font-weight:700; color:#8A6F5C;">रेटिंग</span></div>
+              <div style="flex:1; background:#FFFDF8; border:1.5px solid #F0DFC4; border-radius:16px; padding:13px 8px; display:flex; flex-direction:column; align-items:center; gap:2px;"><span style="font-size:22px; font-weight:900; color:#155C34;">98%</span><span style="font-size:13px; font-weight:700; color:#8A6F5C;">पूर्णता</span></div>
+              <div style="flex:1; background:#FFFDF8; border:1.5px solid #F0DFC4; border-radius:16px; padding:13px 8px; display:flex; flex-direction:column; align-items:center; gap:2px;"><span style="font-size:22px; font-weight:900; color:#7A250E;">47</span><span style="font-size:13px; font-weight:700; color:#8A6F5C;">बुकिंग</span></div>
+            </div>
+          </div>
+          <div style="flex:0 0 auto;"><dc-import name="ThaliNav" active="0" hint-size="360px,90px"></dc-import></div>
+        </div>
+      </dc-import>
+
+      <!-- 9 · NEW BOOKING REQUEST -->
+      <dc-import name="PhoneFrame" n="9" title="नई बुकिंग विनती · Request" hint-size="378px,820px">
+        <div style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
+          <div style="background:linear-gradient(135deg,#B23A1A,#7A250E); padding:16px 18px; display:flex; align-items:center; gap:12px;">
+            <span style="font-size:30px; animation:g-bell 1.8s ease-in-out infinite; transform-origin:50% 10%;">🔔</span>
+            <div style="display:flex; flex-direction:column;"><span style="font-size:20px; font-weight:900; color:#FFF6E9;">नई बुकिंग विनती!</span><span style="font-size:14px; font-weight:600; color:#FFD9BE;">अभी जवाब दें</span></div>
+          </div>
+          <div style="flex:1; overflow-y:auto; padding:14px 18px 16px; display:flex; flex-direction:column; gap:13px; min-height:0;">
+            <div style="display:flex; align-items:center; gap:13px; background:#FFFDF8; border:1.5px solid #F0DFC4; border-radius:18px; padding:13px 15px;">
+              <div style="width:52px; height:52px; border-radius:50%; background:#FDEEE7; display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:900; color:#B23A1A;">अ</div>
+              <div style="flex:1;"><div style="font-size:19px; font-weight:900; color:#341A13;">श्री अनिल गुप्ता</div><div style="font-size:14px; font-weight:600; color:#8A6F5C;">⭐ 4.8 · नियमित यजमान</div></div>
+            </div>
+            <div style="background:#FFFDF8; border:1.5px solid #F0DFC4; border-radius:18px; padding:15px; display:flex; flex-direction:column; gap:10px;">
+              <span style="font-size:23px; font-weight:900; color:#7A250E;">गृह प्रवेश पूजा</span>
+              <div style="display:flex; align-items:center; gap:8px; font-size:16px; font-weight:600; color:#47241A;"><span style="font-family:'Material Symbols Outlined'; font-size:20px; color:#8A6F5C;">event</span>18 जुलाई · सुबह 8:00</div>
+              <div style="display:flex; align-items:center; gap:8px; font-size:16px; font-weight:600; color:#47241A;"><span style="font-family:'Material Symbols Outlined'; font-size:20px; color:#8A6F5C;">location_on</span>राजाजीपुरम, लखनऊ · 6 कि.मी.</div>
+            </div>
+            <div style="background:#E4F3E9; border:2px solid #BFE3CC; border-radius:18px; padding:15px;">
+              <div style="display:flex; justify-content:space-between; font-size:15px; font-weight:600; color:#155C34; margin-bottom:6px;"><span>दक्षिणा</span><span>₹5,100</span></div>
+              <div style="display:flex; justify-content:space-between; font-size:15px; font-weight:600; color:#155C34; margin-bottom:8px;"><span>यात्रा</span><span>₹500</span></div>
+              <div style="display:flex; justify-content:space-between; align-items:center; border-top:2px dashed #BFE3CC; padding-top:10px;"><span style="font-size:17px; font-weight:900; color:#155C34;">कुल कमाई</span><span style="font-size:28px; font-weight:900; color:#155C34;">₹5,600</span></div>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:10px; margin-top:2px;">
+              <button style="width:100%; min-height:66px; border:none; border-radius:18px; background:#1E7A46; color:#fff; font-size:23px; font-weight:900; font-family:inherit; display:flex; align-items:center; justify-content:center; gap:11px; box-shadow:0 8px 20px rgba(30,122,70,.35);"><span style="font-family:'Material Symbols Outlined'; font-size:28px; font-variation-settings:'FILL' 1;">check_circle</span>स्वीकार करें</button>
+              <button style="width:100%; min-height:58px; border:2px solid #E7C9C2; border-radius:18px; background:#FFF; color:#C2321E; font-size:19px; font-weight:800; font-family:inherit;">अभी नहीं</button>
+            </div>
+          </div>
+          <div style="flex:0 0 auto; display:flex; justify-content:center; padding:4px 0 12px; background:#FFF9EE;"><dc-import name="Shishya" state="speaking" say="एक नई बुकिंग आई है! 🔔" size="56" name="{{ true }}" hint-size="240px,140px"></dc-import></div>
+        </div>
+      </dc-import>
+
+      <!-- 10 · BOOKING DETAIL -->
+      <dc-import name="PhoneFrame" n="10" title="बुकिंग विवरण · Detail" hint-size="378px,820px">
+        <div style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
+          <div style="display:flex; align-items:center; gap:12px; padding:8px 16px;">
+            <span style="width:42px; height:42px; border-radius:50%; background:#FFFDF8; box-shadow:0 2px 8px rgba(90,46,32,.12); display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Outlined'; font-size:22px; color:#7A250E;">arrow_back</span></span>
+            <span style="font-size:19px; font-weight:900; color:#341A13;">बुकिंग विवरण</span>
+            <span style="margin-left:auto; font-size:13px; font-weight:800; color:#155C34; background:#E4F3E9; padding:6px 13px; border-radius:999px;">✓ स्वीकृत</span>
+          </div>
+          <div style="flex:1; overflow-y:auto; padding:6px 16px 16px; display:flex; flex-direction:column; gap:13px; min-height:0;">
+            <div style="display:flex; align-items:center; gap:12px; background:#FFFDF8; border:1.5px solid #F0DFC4; border-radius:18px; padding:13px 15px;">
+              <div style="width:50px; height:50px; border-radius:50%; background:#FDEEE7; display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:900; color:#B23A1A;">अ</div>
+              <div style="flex:1;"><div style="font-size:18px; font-weight:900; color:#341A13;">श्री अनिल गुप्ता</div><div style="font-size:14px; font-weight:600; color:#8A6F5C;">गृह प्रवेश पूजा</div></div>
+              <div style="width:52px; height:52px; border-radius:50%; background:#1E7A46; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(30,122,70,.35);"><span style="font-family:'Material Symbols Outlined'; font-size:26px; color:#fff; font-variation-settings:'FILL' 1;">call</span></div>
+            </div>
+            <button style="width:100%; min-height:56px; border:2px solid #F4B096; border-radius:16px; background:#FDEEE7; color:#7A250E; font-size:18px; font-weight:800; font-family:inherit; display:flex; align-items:center; justify-content:center; gap:10px;"><span style="font-family:'Material Symbols Outlined'; font-size:24px; color:#B23A1A;">directions</span>रास्ता देखें · राजाजीपुरम</button>
+            <div style="background:#FFFDF8; border:1.5px solid #F0DFC4; border-radius:18px; padding:16px;">
+              <div style="font-size:15px; font-weight:800; color:#8A6F5C; margin-bottom:14px;">पूजा की यात्रा</div>
+              <div style="display:flex; gap:13px;"><div style="display:flex; flex-direction:column; align-items:center;"><div style="width:32px; height:32px; border-radius:50%; background:#1E7A46; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Outlined'; font-size:20px; color:#fff;">check</span></div><div style="width:3px; flex:1; background:#1E7A46; min-height:20px;"></div></div><div style="padding-bottom:16px;"><div style="font-size:17px; font-weight:800; color:#341A13;">स्वीकृत</div><div style="font-size:13px; color:#8A6F5C;">आज · 10:20</div></div></div>
+              <div style="display:flex; gap:13px;"><div style="display:flex; flex-direction:column; align-items:center;"><div style="width:32px; height:32px; border-radius:50%; background:#B23A1A; display:flex; align-items:center; justify-content:center; animation:g-glowring 2s ease-in-out infinite;"><span style="width:12px; height:12px; border-radius:50%; background:#fff;"></span></div><div style="width:3px; flex:1; background:#E7DCC9; min-height:20px;"></div></div><div style="padding-bottom:16px;"><div style="font-size:17px; font-weight:800; color:#B23A1A;">रवाना हों</div><div style="font-size:13px; color:#8A6F5C;">कल सुबह निकलें</div></div></div>
+              <div style="display:flex; gap:13px;"><div style="display:flex; flex-direction:column; align-items:center;"><div style="width:32px; height:32px; border-radius:50%; background:#F0E6D3; border:2px solid #E7DCC9;"></div><div style="width:3px; flex:1; background:#E7DCC9; min-height:20px;"></div></div><div style="padding-bottom:16px;"><div style="font-size:17px; font-weight:700; color:#8A6F5C;">पहुँच गए</div></div></div>
+              <div style="display:flex; gap:13px;"><div style="display:flex; flex-direction:column; align-items:center;"><div style="width:32px; height:32px; border-radius:50%; background:#F0E6D3; border:2px solid #E7DCC9;"></div></div><div><div style="font-size:17px; font-weight:700; color:#8A6F5C;">पूजा संपन्न</div></div></div>
+            </div>
+            <button style="width:100%; min-height:64px; border:none; border-radius:18px; background:#1E7A46; color:#fff; font-size:21px; font-weight:900; font-family:inherit; display:flex; align-items:center; justify-content:center; gap:10px; box-shadow:0 8px 20px rgba(30,122,70,.35);"><span style="font-family:'Material Symbols Outlined'; font-size:26px; font-variation-settings:'FILL' 1;">local_fire_department</span>पूजा संपन्न</button>
+          </div>
+        </div>
+      </dc-import>
+
+      <!-- 11 · BOOKINGS LIST -->
+      <dc-import name="PhoneFrame" n="11" title="बुकिंग सूची · List" hint-size="378px,820px">
+        <div style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
+          <div style="padding:8px 18px 6px;"><span style="font-size:24px; font-weight:900; color:#341A13;">📿 मेरी बुकिंग</span></div>
+          <div style="flex:1; overflow-y:auto; padding:6px 16px 16px; display:flex; flex-direction:column; gap:16px; min-height:0;">
+            <div>
+              <div style="display:flex; align-items:center; gap:8px; margin-bottom:9px;"><span style="width:10px; height:10px; border-radius:50%; background:#B23A1A;"></span><span style="font-size:15px; font-weight:800; color:#7A250E;">नई विनती · 1</span></div>
+              <div style="background:#FFFDF8; border:1.5px solid #F4B096; border-left:6px solid #B23A1A; border-radius:16px; padding:13px 15px; display:flex; align-items:center; gap:12px;"><div style="flex:1;"><div style="font-size:18px; font-weight:900; color:#341A13;">गृह प्रवेश</div><div style="font-size:14px; color:#8A6F5C;">18 जुलाई · श्री अनिल गुप्ता</div></div><div style="text-align:right;"><div style="font-size:18px; font-weight:900; color:#155C34;">₹5,600</div><div style="font-size:12px; font-weight:800; color:#B23A1A;">जवाब दें ›</div></div></div>
+            </div>
+            <div>
+              <div style="display:flex; align-items:center; gap:8px; margin-bottom:9px;"><span style="width:10px; height:10px; border-radius:50%; background:#1E7A46;"></span><span style="font-size:15px; font-weight:800; color:#155C34;">चालू · 2</span></div>
+              <div style="display:flex; flex-direction:column; gap:10px;">
+                <div style="background:#FFFDF8; border:1.5px solid #F0DFC4; border-left:6px solid #1E7A46; border-radius:16px; padding:13px 15px; display:flex; align-items:center;"><div style="flex:1;"><div style="font-size:18px; font-weight:800; color:#341A13;">सत्यनारायण कथा</div><div style="font-size:14px; color:#8A6F5C;">कल 9:00 · गोमती नगर</div></div><span style="font-size:12px; font-weight:800; color:#155C34; background:#E4F3E9; padding:5px 11px; border-radius:999px;">स्वीकृत</span></div>
+                <div style="background:#FFFDF8; border:1.5px solid #F0DFC4; border-left:6px solid #E7B54A; border-radius:16px; padding:13px 15px; display:flex; align-items:center;"><div style="flex:1;"><div style="font-size:18px; font-weight:800; color:#341A13;">रुद्राभिषेक</div><div style="font-size:14px; color:#8A6F5C;">20 जुलाई · अलीगंज</div></div><span style="font-size:12px; font-weight:800; color:#B8860B; background:#FBF0D8; padding:5px 11px; border-radius:999px;">रवाना</span></div>
+              </div>
+            </div>
+            <div>
+              <div style="display:flex; align-items:center; gap:8px; margin-bottom:9px;"><span style="width:10px; height:10px; border-radius:50%; background:#8A6F5C;"></span><span style="font-size:15px; font-weight:800; color:#8A6F5C;">पूरी हुई</span></div>
+              <div style="display:flex; flex-direction:column; gap:10px;">
+                <div style="background:#FBF7EF; border:1.5px solid #EADFCE; border-radius:16px; padding:13px 15px; display:flex; align-items:center; opacity:.9;"><div style="flex:1;"><div style="font-size:18px; font-weight:800; color:#47241A;">नवग्रह शांति</div><div style="font-size:14px; color:#8A6F5C;">12 जुलाई · ⭐ 5.0 मिला</div></div><span style="font-size:16px; font-weight:900; color:#155C34;">₹8,100</span></div>
+                <div style="background:#FBF7EF; border:1.5px solid #EADFCE; border-radius:16px; padding:13px 15px; display:flex; align-items:center; opacity:.9;"><div style="flex:1;"><div style="font-size:18px; font-weight:800; color:#47241A;">मुंडन संस्कार</div><div style="font-size:14px; color:#8A6F5C;">5 जुलाई · ⭐ 4.9 मिला</div></div><span style="font-size:16px; font-weight:900; color:#155C34;">₹3,500</span></div>
+              </div>
+            </div>
+          </div>
+          <div style="flex:0 0 auto;"><dc-import name="ThaliNav" active="1" hint-size="360px,90px"></dc-import></div>
+        </div>
+      </dc-import>
+
+      <div data-end="1"></div>
+    </div>
+  </section>
+  <section style="margin-bottom:64px;">
+    <div style="display:flex; align-items:center; gap:15px; margin-bottom:32px;">
+      <span style="width:52px; height:52px; border-radius:15px; background:#FFFDF8; border:2px solid #E7B54A; display:flex; align-items:center; justify-content:center; font-size:27px; flex:0 0 auto;">🪔</span>
+      <div>
+        <div style="font-size:27px; font-weight:900; color:#7A250E;">सत्यापन व पूजा जोड़ें</div>
+        <div style="font-size:14px; font-weight:700; color:#8A6F5C; letter-spacing:.6px;">VERIFICATION &amp; ADD PUJA · स्क्रीन 12–18</div>
+      </div>
+    </div>
+    <div style="display:flex; flex-wrap:wrap; gap:46px;">
+
+      <!-- 12 · VERIFICATION OVERVIEW (lit diyas) -->
+      <dc-import name="PhoneFrame" n="12" title="सत्यापन · तैयारी (दीये जलें)" hint-size="378px,820px">
+        <div style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
+          <div style="padding:8px 18px 4px;"><span style="font-size:24px; font-weight:900; color:#341A13;">आपकी तैयारी</span></div>
+          <div style="flex:1; overflow-y:auto; padding:8px 18px 16px; display:flex; flex-direction:column; gap:14px; min-height:0;">
+            <div style="background:linear-gradient(150deg,#2A1B3D,#5E1C0A); border-radius:22px; padding:18px 12px; display:flex; flex-direction:column; align-items:center; gap:10px; box-shadow:0 8px 20px rgba(42,27,61,.28);">
+              <div style="display:flex; align-items:flex-end; justify-content:center; gap:4px;">
+                <dc-import name="Diya" size="40" lit="{{ true }}" hint-size="56px,66px"></dc-import>
+                <dc-import name="Diya" size="40" lit="{{ true }}" hint-size="56px,66px"></dc-import>
+                <dc-import name="Diya" size="40" lit="{{ true }}" hint-size="56px,66px"></dc-import>
+                <dc-import name="Diya" size="40" lit="{{ false }}" hint-size="56px,66px"></dc-import>
+                <dc-import name="Diya" size="40" lit="{{ false }}" hint-size="56px,66px"></dc-import>
+              </div>
+              <span style="font-size:16px; font-weight:800; color:#FFE9C4;">3 / 5 दीये जल गए</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:13px; background:#E4F3E9; border:1.5px solid #BFE3CC; border-radius:16px; padding:13px 15px;"><span style="font-family:'Material Symbols Outlined'; font-size:26px; color:#1E7A46; font-variation-settings:'FILL' 1;">check_circle</span><span style="flex:1; font-size:18px; font-weight:800; color:#341A13;">पहचान</span><span style="font-size:13px; font-weight:800; color:#155C34;">हो गया</span></div>
+            <div style="display:flex; align-items:center; gap:13px; background:#E4F3E9; border:1.5px solid #BFE3CC; border-radius:16px; padding:13px 15px;"><span style="font-family:'Material Symbols Outlined'; font-size:26px; color:#1E7A46; font-variation-settings:'FILL' 1;">check_circle</span><span style="flex:1; font-size:18px; font-weight:800; color:#341A13;">भोजन पसंद</span><span style="font-size:13px; font-weight:800; color:#155C34;">हो गया</span></div>
+            <div style="display:flex; align-items:center; gap:13px; background:#FDEEE7; border:2px solid #B23A1A; border-radius:16px; padding:13px 15px; box-shadow:0 5px 14px rgba(178,58,26,.16);"><span style="font-family:'Material Symbols Outlined'; font-size:26px; color:#B23A1A;">directions_car</span><span style="flex:1; font-size:18px; font-weight:900; color:#7A250E;">यात्रा</span><span style="font-size:13px; font-weight:800; color:#B23A1A; background:#fff; padding:4px 11px; border-radius:999px;">अभी करें</span></div>
+            <div style="display:flex; align-items:center; gap:13px; background:#FBF7EF; border:1.5px solid #EADFCE; border-radius:16px; padding:13px 15px; opacity:.8;"><span style="font-family:'Material Symbols Outlined'; font-size:26px; color:#8A6F5C;">hotel</span><span style="flex:1; font-size:18px; font-weight:700; color:#8A6F5C;">ठहरना</span><span style="font-size:13px; font-weight:700; color:#8A6F5C;">बाकी</span></div>
+            <div style="display:flex; align-items:center; gap:13px; background:#FBF7EF; border:1.5px solid #EADFCE; border-radius:16px; padding:13px 15px; opacity:.8;"><span style="font-family:'Material Symbols Outlined'; font-size:26px; color:#8A6F5C;">temple_hindu</span><span style="flex:1; font-size:18px; font-weight:700; color:#8A6F5C;">पूजाएँ</span><span style="font-size:13px; font-weight:700; color:#8A6F5C;">बाकी</span></div>
+            <button style="width:100%; min-height:62px; border:none; border-radius:18px; background:#B23A1A; color:#FFF6E9; font-size:21px; font-weight:800; font-family:inherit; box-shadow:0 6px 16px rgba(178,58,26,.3); margin-top:2px;">यात्रा भरें</button>
+          </div>
+        </div>
+      </dc-import>
+
+      <!-- 13 · AADHAAR -->
+      <dc-import name="PhoneFrame" n="13" title="आधार · पहचान" hint-size="378px,820px">
+        <div style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
+          <div style="display:flex; align-items:center; gap:12px; padding:8px 16px;"><span style="width:42px; height:42px; border-radius:50%; background:#FFFDF8; box-shadow:0 2px 8px rgba(90,46,32,.12); display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Outlined'; font-size:22px; color:#7A250E;">arrow_back</span></span><span style="font-size:19px; font-weight:900; color:#341A13;">पहचान</span></div>
+          <div style="flex:1; overflow-y:auto; padding:8px 18px 16px; display:flex; flex-direction:column; gap:15px; min-height:0;">
+            <div style="display:flex; align-items:center; gap:14px; background:linear-gradient(135deg,#FFF3E2,#FDEEE7); border:1.5px solid #F0DFC4; border-radius:20px; padding:16px;">
+              <span style="font-family:'Material Symbols Outlined'; font-size:40px; color:#1E7A46; font-variation-settings:'FILL' 1;">verified_user</span>
+              <div style="font-size:18px; font-weight:800; color:#341A13; line-height:1.35;">आपकी पहचान =<br>यजमान का भरोसा</div>
+            </div>
+            <div style="background:#FFFDF8; border:2px solid #BFE3CC; border-radius:20px; padding:14px; display:flex; align-items:center; gap:14px;">
+              <div style="width:88px; height:60px; border-radius:12px; background:linear-gradient(135deg,#DDE9D2,#C9DAB9); position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Outlined'; font-size:28px; color:#8A9A7A;">badge</span><span style="position:absolute; bottom:4px; right:4px; width:22px; height:22px; border-radius:50%; background:#1E7A46; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Outlined'; font-size:15px; color:#fff;">check</span></span></div>
+              <div style="flex:1;"><div style="font-size:17px; font-weight:800; color:#341A13;">आधार — आगे</div><div style="font-size:14px; font-weight:700; color:#155C34;">✓ हो गया</div></div>
+            </div>
+            <div style="background:#FFFDF8; border:2px dashed #F4B096; border-radius:20px; padding:14px; display:flex; align-items:center; gap:14px;">
+              <div style="width:88px; height:60px; border-radius:12px; background:#FDEEE7; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Outlined'; font-size:30px; color:#B23A1A;">photo_camera</span></div>
+              <div style="flex:1;"><div style="font-size:17px; font-weight:800; color:#341A13;">आधार — पीछे</div><div style="font-size:14px; font-weight:700; color:#B23A1A;">फ़ोटो लें ›</div></div>
+            </div>
+            <div style="display:flex; align-items:center; gap:9px; background:#E4F3E9; border-radius:14px; padding:12px 14px; font-size:14px; font-weight:700; color:#155C34;"><span style="font-family:'Material Symbols Outlined'; font-size:20px;">lock</span>आपकी जानकारी सुरक्षित है · AES-256</div>
+            <button style="width:100%; min-height:62px; border:none; border-radius:18px; background:#8A6F5C; color:#fff; font-size:20px; font-weight:800; font-family:inherit; margin-top:auto;">पीछे की फ़ोटो लें</button>
+          </div>
+        </div>
+      </dc-import>
+
+      <!-- 14 · FOOD PREFERENCES -->
+      <dc-import name="PhoneFrame" n="14" title="भोजन · Food" hint-size="378px,820px">
+        <div style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
+          <div style="display:flex; align-items:center; gap:12px; padding:8px 16px;"><span style="width:42px; height:42px; border-radius:50%; background:#FFFDF8; box-shadow:0 2px 8px rgba(90,46,32,.12); display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Outlined'; font-size:22px; color:#7A250E;">arrow_back</span></span><span style="font-size:19px; font-weight:900; color:#341A13;">भोजन पसंद</span></div>
+          <div style="flex:1; overflow-y:auto; padding:8px 18px 16px; display:flex; flex-direction:column; gap:14px; min-height:0;">
+            <div style="font-size:22px; font-weight:900; color:#7A250E;">आप क्या भोजन लेते हैं?</div>
+            <div style="display:flex; flex-wrap:wrap; gap:11px;">
+              <div style="display:flex; align-items:center; gap:9px; min-height:56px; padding:12px 18px; border-radius:999px; background:#B23A1A; color:#FFF6E9; border:2px solid #B23A1A; font-size:17px; font-weight:800; box-shadow:0 5px 12px rgba(178,58,26,.22);"><span style="font-size:20px;">🥗</span>शुद्ध शाकाहारी<span style="font-family:'Material Symbols Outlined'; font-size:20px;">check</span></div>
+              <div style="display:flex; align-items:center; gap:9px; min-height:56px; padding:12px 18px; border-radius:999px; background:#FFFDF8; color:#7A250E; border:2px solid #F4B096; font-size:17px; font-weight:800;"><span style="font-size:20px;">🧅</span>प्याज़-लहसुन नहीं</div>
+              <div style="display:flex; align-items:center; gap:9px; min-height:56px; padding:12px 18px; border-radius:999px; background:#B23A1A; color:#FFF6E9; border:2px solid #B23A1A; font-size:17px; font-weight:800; box-shadow:0 5px 12px rgba(178,58,26,.22);"><span style="font-size:20px;">🙏</span>सात्विक<span style="font-family:'Material Symbols Outlined'; font-size:20px;">check</span></div>
+              <div style="display:flex; align-items:center; gap:9px; min-height:56px; padding:12px 18px; border-radius:999px; background:#FFFDF8; color:#7A250E; border:2px solid #F4B096; font-size:17px; font-weight:800;"><span style="font-size:20px;">🍽️</span>जैन भोजन</div>
+              <div style="display:flex; align-items:center; gap:9px; min-height:56px; padding:12px 18px; border-radius:999px; background:#FFFDF8; color:#7A250E; border:2px solid #F4B096; font-size:17px; font-weight:800;"><span style="font-size:20px;">☕</span>चाय ज़रूर</div>
+            </div>
+            <div style="display:flex; align-items:center; gap:9px; background:#FFF3E2; border-radius:14px; padding:12px 14px; font-size:14px; font-weight:700; color:#7A250E; margin-top:4px;"><span style="font-size:18px;">💡</span>यजमान को पहले से पता रहेगा — कोई असहजता नहीं</div>
+            <button style="width:100%; min-height:62px; border:none; border-radius:18px; background:#B23A1A; color:#FFF6E9; font-size:21px; font-weight:800; font-family:inherit; box-shadow:0 6px 16px rgba(178,58,26,.3); margin-top:auto;">सहेजें व आगे</button>
+          </div>
+        </div>
+      </dc-import>
+
+      <!-- 15 · TRAVEL PREFERENCES -->
+      <dc-import name="PhoneFrame" n="15" title="यात्रा · Travel" hint-size="378px,820px">
+        <div style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
+          <div style="display:flex; align-items:center; gap:12px; padding:8px 16px;"><span style="width:42px; height:42px; border-radius:50%; background:#FFFDF8; box-shadow:0 2px 8px rgba(90,46,32,.12); display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Outlined'; font-size:22px; color:#7A250E;">arrow_back</span></span><span style="font-size:19px; font-weight:900; color:#341A13;">यात्रा</span></div>
+          <div style="flex:1; overflow-y:auto; padding:8px 18px 16px; display:flex; flex-direction:column; gap:14px; min-height:0;">
+            <div style="font-size:22px; font-weight:900; color:#7A250E;">कैसे यात्रा करेंगे?</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+              <div style="border-radius:18px; padding:18px 12px; background:#FDEEE7; border:2.5px solid #B23A1A; display:flex; flex-direction:column; align-items:center; gap:6px; box-shadow:0 5px 14px rgba(178,58,26,.16); position:relative;"><span style="position:absolute; top:8px; right:8px; width:24px; height:24px; border-radius:50%; background:#B23A1A; color:#fff; display:flex; align-items:center; justify-content:center; font-family:'Material Symbols Outlined'; font-size:17px;">check</span><span style="font-size:34px;">🏍️</span><span style="font-size:17px; font-weight:800; color:#7A250E;">खुद जाऊँगा</span></div>
+              <div style="border-radius:18px; padding:18px 12px; background:#FFFDF8; border:2px solid #E7DCC9; display:flex; flex-direction:column; align-items:center; gap:6px;"><span style="font-size:34px;">🚂</span><span style="font-size:17px; font-weight:800; color:#341A13;">ट्रेन</span></div>
+              <div style="border-radius:18px; padding:18px 12px; background:#FFFDF8; border:2px solid #E7DCC9; display:flex; flex-direction:column; align-items:center; gap:6px;"><span style="font-size:34px;">🚌</span><span style="font-size:17px; font-weight:800; color:#341A13;">बस</span></div>
+              <div style="border-radius:18px; padding:18px 12px; background:#FFFDF8; border:2px solid #E7DCC9; display:flex; flex-direction:column; align-items:center; gap:6px;"><span style="font-size:34px;">✈️</span><span style="font-size:17px; font-weight:800; color:#341A13;">फ्लाइट</span></div>
+            </div>
+            <div style="font-size:17px; font-weight:800; color:#341A13; margin-top:4px;">कितनी दूर तक?</div>
+            <div style="display:flex; flex-wrap:wrap; gap:10px;">
+              <span style="min-height:48px; display:flex; align-items:center; padding:10px 18px; border-radius:999px; background:#FFFDF8; border:2px solid #E7DCC9; font-size:16px; font-weight:800; color:#341A13;">10 कि.मी.</span>
+              <span style="min-height:48px; display:flex; align-items:center; padding:10px 18px; border-radius:999px; background:#FFFDF8; border:2px solid #E7DCC9; font-size:16px; font-weight:800; color:#341A13;">25 कि.मी.</span>
+              <span style="min-height:48px; display:flex; align-items:center; padding:10px 18px; border-radius:999px; background:#B23A1A; border:2px solid #B23A1A; font-size:16px; font-weight:800; color:#FFF6E9;">50 कि.मी. ✓</span>
+              <span style="min-height:48px; display:flex; align-items:center; padding:10px 18px; border-radius:999px; background:#FFFDF8; border:2px solid #E7DCC9; font-size:16px; font-weight:800; color:#341A13;">100+ कि.मी.</span>
+            </div>
+            <button style="width:100%; min-height:62px; border:none; border-radius:18px; background:#B23A1A; color:#FFF6E9; font-size:21px; font-weight:800; font-family:inherit; box-shadow:0 6px 16px rgba(178,58,26,.3); margin-top:auto;">सहेजें व आगे</button>
+          </div>
+        </div>
+      </dc-import>
+
+      <!-- 16 · ACCOMMODATION -->
+      <dc-import name="PhoneFrame" n="16" title="ठहरना · Accommodation" hint-size="378px,820px">
+        <div style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
+          <div style="display:flex; align-items:center; gap:12px; padding:8px 16px;"><span style="width:42px; height:42px; border-radius:50%; background:#FFFDF8; box-shadow:0 2px 8px rgba(90,46,32,.12); display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Outlined'; font-size:22px; color:#7A250E;">arrow_back</span></span><span style="font-size:19px; font-weight:900; color:#341A13;">ठहरना</span></div>
+          <div style="flex:1; overflow-y:auto; padding:8px 18px 16px; display:flex; flex-direction:column; gap:14px; min-height:0;">
+            <div style="font-size:22px; font-weight:900; color:#7A250E;">दूर की पूजा में कहाँ रुकेंगे?</div>
+            <div style="display:flex; flex-direction:column; gap:11px;">
+              <div style="display:flex; align-items:center; gap:13px; min-height:60px; padding:14px 16px; border-radius:16px; background:#FDEEE7; border:2.5px solid #B23A1A; box-shadow:0 5px 14px rgba(178,58,26,.14);"><span style="font-size:28px;">🏠</span><span style="flex:1; font-size:18px; font-weight:900; color:#7A250E;">घर पर ठीक हूँ</span><span style="width:26px; height:26px; border-radius:50%; background:#B23A1A; color:#fff; display:flex; align-items:center; justify-content:center; font-family:'Material Symbols Outlined'; font-size:18px;">check</span></div>
+              <div style="display:flex; align-items:center; gap:13px; min-height:60px; padding:14px 16px; border-radius:16px; background:#FFFDF8; border:2px solid #E7DCC9;"><span style="font-size:28px;">🏨</span><span style="flex:1; font-size:18px; font-weight:800; color:#341A13;">होटल चाहिए</span></div>
+              <div style="display:flex; align-items:center; gap:13px; min-height:60px; padding:14px 16px; border-radius:16px; background:#FFFDF8; border:2px solid #E7DCC9;"><span style="font-size:28px;">🛕</span><span style="flex:1; font-size:18px; font-weight:800; color:#341A13;">धर्मशाला</span></div>
+            </div>
+            <div style="font-size:17px; font-weight:800; color:#341A13; margin-top:4px;">होटल का दर्जा</div>
+            <div style="display:flex; gap:10px;">
+              <span style="flex:1; text-align:center; min-height:48px; display:flex; align-items:center; justify-content:center; padding:10px; border-radius:14px; background:#FFFDF8; border:2px solid #E7DCC9; font-size:16px; font-weight:800; color:#341A13;">साधारण</span>
+              <span style="flex:1; text-align:center; min-height:48px; display:flex; align-items:center; justify-content:center; padding:10px; border-radius:14px; background:#B23A1A; border:2px solid #B23A1A; font-size:16px; font-weight:800; color:#FFF6E9;">अच्छा</span>
+              <span style="flex:1; text-align:center; min-height:48px; display:flex; align-items:center; justify-content:center; padding:10px; border-radius:14px; background:#FFFDF8; border:2px solid #E7DCC9; font-size:16px; font-weight:800; color:#341A13;">बढ़िया</span>
+            </div>
+            <button style="width:100%; min-height:62px; border:none; border-radius:18px; background:#B23A1A; color:#FFF6E9; font-size:21px; font-weight:800; font-family:inherit; box-shadow:0 6px 16px rgba(178,58,26,.3); margin-top:auto;">सहेजें व आगे</button>
+          </div>
+        </div>
+      </dc-import>
+
+      <!-- 17 · PRICE-HONESTY METER -->
+      <dc-import name="PhoneFrame" n="17" title="दाम मीटर · Price-Honesty (चालू)" hint-size="378px,820px">
+        <div style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
+          <div style="padding:8px 18px 4px;"><div style="font-size:23px; font-weight:900; color:#341A13;">आपका दाम · आपके हाथ</div><div style="font-size:15px; font-weight:700; color:#8A6F5C; margin-top:2px;">माँग घटाएँ — दाम अपने आप गिरता है 👇</div></div>
+          <div style="flex:1; overflow-y:auto; padding:12px 18px 18px; min-height:0;">
+            <dc-import name="PriceMeter" hint-size="340px,470px"></dc-import>
+          </div>
+        </div>
+      </dc-import>
+
+      <div data-end="1"></div>
+    </div>
+  </section>
+  <section style="margin-bottom:64px;">
+    <div style="display:flex; align-items:center; gap:15px; margin-bottom:32px;">
+      <span style="width:52px; height:52px; border-radius:15px; background:#FFFDF8; border:2px solid #E7B54A; display:flex; align-items:center; justify-content:center; font-size:27px; flex:0 0 auto;">➕</span>
+      <div>
+        <div style="font-size:27px; font-weight:900; color:#7A250E;">पूजा जोड़ें</div>
+        <div style="font-size:14px; font-weight:700; color:#8A6F5C; letter-spacing:.6px;">ADD A PUJA · स्क्रीन 18 · 5 चरण</div>
+      </div>
+    </div>
+    <div style="display:flex; flex-wrap:wrap; gap:46px;">
+
+      <!-- 18a · NAME + SPOKEN DESCRIPTION -->
+      <dc-import name="PhoneFrame" n="18a" title="पूजा जोड़ें · नाम (1/5)" hint-size="378px,820px">
+        <div style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
+          <div style="display:flex; align-items:center; gap:10px; padding:8px 16px;"><span style="width:42px; height:42px; border-radius:50%; background:#FFFDF8; box-shadow:0 2px 8px rgba(90,46,32,.12); display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Outlined'; font-size:22px; color:#7A250E;">arrow_back</span></span><span style="font-size:18px; font-weight:900; color:#341A13;">पूजा जोड़ें</span><span style="margin-left:auto; font-size:12px; font-weight:800; color:#B8860B; background:#FBF0D8; padding:5px 11px; border-radius:999px;">⏳ प्रतीक्षा में</span></div>
+          <div style="flex:1; overflow-y:auto; padding:8px 18px 16px; display:flex; flex-direction:column; gap:16px; min-height:0;">
+            <div style="display:flex; gap:7px;"><span style="width:22px; height:6px; border-radius:3px; background:#B23A1A;"></span><span style="width:22px; height:6px; border-radius:3px; background:#E7DCC9;"></span><span style="width:22px; height:6px; border-radius:3px; background:#E7DCC9;"></span><span style="width:22px; height:6px; border-radius:3px; background:#E7DCC9;"></span><span style="width:22px; height:6px; border-radius:3px; background:#E7DCC9;"></span></div>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <span style="font-size:15px; font-weight:800; color:#8A6F5C;">पूजा का नाम</span>
+              <div style="background:#FFFDF8; border:2px solid #B23A1A; border-radius:16px; padding:15px 16px; display:flex; align-items:center; gap:12px;"><span style="flex:1; font-size:22px; font-weight:900; color:#341A13;">सत्यनारायण कथा</span><span style="width:48px; height:48px; border-radius:50%; background:#FDEEE7; border:2px solid #F4B096; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Outlined'; font-size:24px; color:#B23A1A;">mic</span></span></div>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <span style="font-size:15px; font-weight:800; color:#8A6F5C;">बोलकर बताइए यह पूजा क्या है</span>
+              <div style="background:linear-gradient(135deg,#FDEEE7,#FFF3E2); border:2px solid #F4B096; border-radius:18px; padding:16px; display:flex; flex-direction:column; align-items:center; gap:12px;">
+                <div style="display:flex; align-items:flex-end; gap:5px; height:34px;"><span style="width:6px; background:#B23A1A; border-radius:3px; animation:g-wave 1s ease-in-out infinite;"></span><span style="width:6px; background:#D95F38; border-radius:3px; animation:g-wave 1s ease-in-out .15s infinite;"></span><span style="width:6px; background:#F2A02C; border-radius:3px; animation:g-wave 1s ease-in-out .3s infinite;"></span><span style="width:6px; background:#D95F38; border-radius:3px; animation:g-wave 1s ease-in-out .45s infinite;"></span><span style="width:6px; background:#B23A1A; border-radius:3px; animation:g-wave 1s ease-in-out .6s infinite;"></span></div>
+                <div style="font-size:15px; font-weight:600; color:#47241A; font-style:italic; text-align:center; line-height:1.45;">"भगवान विष्णु की कथा, प्रसाद और आरती — लगभग दो घंटे की पूजा…"</div>
+              </div>
+            </div>
+            <button style="width:100%; min-height:62px; border:none; border-radius:18px; background:#B23A1A; color:#FFF6E9; font-size:21px; font-weight:800; font-family:inherit; box-shadow:0 6px 16px rgba(178,58,26,.3); margin-top:auto;">आगे — सामग्री</button>
+          </div>
+        </div>
+      </dc-import>
+
+      <!-- 18b · SAMAGRI TIERS -->
+      <dc-import name="PhoneFrame" n="18b" title="पूजा जोड़ें · सामग्री तीन स्तर (2/5)" hint-size="378px,820px">
+        <div style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
+          <div style="display:flex; align-items:center; gap:10px; padding:8px 16px;"><span style="width:42px; height:42px; border-radius:50%; background:#FFFDF8; box-shadow:0 2px 8px rgba(90,46,32,.12); display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Outlined'; font-size:22px; color:#7A250E;">arrow_back</span></span><span style="font-size:18px; font-weight:900; color:#341A13;">सामग्री के तीन स्तर</span></div>
+          <div style="flex:1; overflow-y:auto; padding:8px 18px 16px; display:flex; flex-direction:column; gap:12px; min-height:0;">
+            <div style="font-size:14px; font-weight:700; color:#8A6F5C;">ऊपर का स्तर नीचे वाला सब अपने आप जोड़ लेता है 👇</div>
+            <dc-import name="SamagriTiers" hint-size="340px,520px"></dc-import>
+          </div>
+        </div>
+      </dc-import>
+
+      <!-- 18c · BRING MATERIALS + TEAM + DAKSHINA -->
+      <dc-import name="PhoneFrame" n="18c" title="पूजा जोड़ें · सामग्री, टीम, दक्षिणा (3/5)" hint-size="378px,820px">
+        <div style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
+          <div style="display:flex; align-items:center; gap:10px; padding:8px 16px;"><span style="width:42px; height:42px; border-radius:50%; background:#FFFDF8; box-shadow:0 2px 8px rgba(90,46,32,.12); display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Outlined'; font-size:22px; color:#7A250E;">arrow_back</span></span><span style="font-size:18px; font-weight:900; color:#341A13;">और थोड़ी बातें</span></div>
+          <div style="flex:1; overflow-y:auto; padding:8px 18px 16px; display:flex; flex-direction:column; gap:16px; min-height:0;">
+            <div style="display:flex; flex-direction:column; gap:10px;">
+              <span style="font-size:19px; font-weight:900; color:#7A250E;">क्या आप सामग्री ला सकते हैं?</span>
+              <div style="display:flex; gap:11px;">
+                <div style="flex:1; min-height:70px; border-radius:16px; background:#E4F3E9; border:2.5px solid #1E7A46; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;"><span style="font-size:26px;">✅</span><span style="font-size:18px; font-weight:900; color:#155C34;">हाँ</span></div>
+                <div style="flex:1; min-height:70px; border-radius:16px; background:#FFFDF8; border:2px solid #E7DCC9; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;"><span style="font-size:26px;">🙅</span><span style="font-size:18px; font-weight:800; color:#8A6F5C;">नहीं</span></div>
+              </div>
+              <div style="display:flex; gap:9px; flex-wrap:wrap;"><span style="padding:9px 15px; border-radius:999px; background:#B23A1A; color:#FFF6E9; font-size:14px; font-weight:800;">सारी सामग्री ✓</span><span style="padding:9px 15px; border-radius:999px; background:#FFFDF8; border:2px solid #F4B096; color:#7A250E; font-size:14px; font-weight:800;">कुछ सामान</span></div>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:10px;">
+              <span style="font-size:19px; font-weight:900; color:#7A250E;">कितने पंडित आएँगे?</span>
+              <div style="display:flex; align-items:center; justify-content:center; gap:22px; background:#FFFDF8; border:2px solid #F0DFC4; border-radius:18px; padding:12px;"><span style="width:52px; height:52px; border-radius:50%; background:#FDEEE7; border:2px solid #F4B096; display:flex; align-items:center; justify-content:center; font-size:30px; font-weight:900; color:#B23A1A;">−</span><span style="font-size:38px; font-weight:900; color:#341A13; min-width:40px; text-align:center;">2</span><span style="width:52px; height:52px; border-radius:50%; background:#B23A1A; color:#fff; display:flex; align-items:center; justify-content:center; font-size:30px; font-weight:900;">+</span></div>
+            </div>
+            <div style="background:linear-gradient(135deg,#E4F3E9,#F0F8F1); border:2px solid #BFE3CC; border-radius:18px; padding:16px; display:flex; align-items:center; justify-content:space-between;"><div style="display:flex; flex-direction:column;"><span style="font-size:16px; font-weight:800; color:#155C34;">दक्षिणा</span><span style="font-size:13px; font-weight:600; color:#8A6F5C;">(2 पंडितों सहित)</span></div><span style="font-size:30px; font-weight:900; color:#155C34;">₹5,100</span></div>
+            <button style="width:100%; min-height:62px; border:none; border-radius:18px; background:#B23A1A; color:#FFF6E9; font-size:21px; font-weight:800; font-family:inherit; box-shadow:0 6px 16px rgba(178,58,26,.3); margin-top:auto;">आगे — वीडियो</button>
+          </div>
+        </div>
+      </dc-import>
+
+      <!-- 18d · VERIFICATION VIDEO -->
+      <dc-import name="PhoneFrame" n="18d" title="पूजा जोड़ें · सत्यापन वीडियो (4/5)" hint-size="378px,820px">
+        <div style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
+          <div style="display:flex; align-items:center; gap:10px; padding:8px 16px;"><span style="width:42px; height:42px; border-radius:50%; background:#FFFDF8; box-shadow:0 2px 8px rgba(90,46,32,.12); display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Outlined'; font-size:22px; color:#7A250E;">arrow_back</span></span><span style="font-size:18px; font-weight:900; color:#341A13;">सत्यापन वीडियो</span></div>
+          <div style="flex:1; overflow-y:auto; padding:8px 18px 16px; display:flex; flex-direction:column; gap:14px; min-height:0;">
+            <div style="position:relative; width:100%; height:172px; border-radius:18px; background:linear-gradient(150deg,#2A1B3D,#4a2e2a); overflow:hidden; display:flex; align-items:flex-end; justify-content:center; border:2px solid #E7DCC9;">
+              <div style="position:absolute; top:28px; left:50%; transform:translateX(-50%); width:48px; height:48px; border-radius:50%; background:rgba(255,246,233,.25);"></div>
+              <div style="width:110px; height:60px; border-radius:56px 56px 0 0; background:rgba(255,246,233,.25);"></div>
+              <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:64px; height:64px; border-radius:50%; background:#B23A1A; border:4px solid #FFF6E9; display:flex; align-items:center; justify-content:center; box-shadow:0 6px 16px rgba(0,0,0,.4);"><span style="font-family:'Material Symbols Outlined'; font-size:34px; color:#fff; font-variation-settings:'FILL' 1;">videocam</span></div>
+            </div>
+            <div style="display:flex; gap:10px;"><button style="flex:1; min-height:52px; border:none; border-radius:14px; background:#B23A1A; color:#fff; font-size:16px; font-weight:800; font-family:inherit; display:flex; align-items:center; justify-content:center; gap:7px;"><span style="font-family:'Material Symbols Outlined'; font-size:20px;">fiber_manual_record</span>रिकॉर्ड</button><button style="flex:1; min-height:52px; border:2px solid #F4B096; border-radius:14px; background:#FFFDF8; color:#7A250E; font-size:16px; font-weight:800; font-family:inherit; display:flex; align-items:center; justify-content:center; gap:7px;"><span style="font-family:'Material Symbols Outlined'; font-size:20px;">photo_library</span>गैलरी</button></div>
+            <div style="background:#FFFDF8; border:1.5px solid #F0DFC4; border-radius:16px; padding:14px; display:flex; flex-direction:column; gap:10px;">
+              <span style="font-size:14px; font-weight:800; color:#8A6F5C;">अच्छे वीडियो के लिए</span>
+              <div style="display:flex; align-items:center; gap:10px; font-size:16px; font-weight:700; color:#341A13;"><span style="font-family:'Material Symbols Outlined'; font-size:22px; color:#1E7A46; font-variation-settings:'FILL' 1;">check_circle</span>साफ़ मंत्रोच्चार</div>
+              <div style="display:flex; align-items:center; gap:10px; font-size:16px; font-weight:700; color:#341A13;"><span style="font-family:'Material Symbols Outlined'; font-size:22px; color:#1E7A46; font-variation-settings:'FILL' 1;">check_circle</span>अच्छी रोशनी</div>
+              <div style="display:flex; align-items:center; gap:10px; font-size:16px; font-weight:700; color:#341A13;"><span style="font-family:'Material Symbols Outlined'; font-size:22px; color:#1E7A46; font-variation-settings:'FILL' 1;">check_circle</span>चेहरा साफ़ दिखे</div>
+              <div style="display:flex; align-items:center; gap:10px; font-size:16px; font-weight:700; color:#8A6F5C;"><span style="font-family:'Material Symbols Outlined'; font-size:22px; color:#C9BBA6;">radio_button_unchecked</span>पूजा का माहौल</div>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px; background:#E4F3E9; border-radius:14px; padding:12px 14px;"><span style="font-size:22px;">💬</span><span style="flex:1; font-size:15px; font-weight:700; color:#155C34;">मदद चाहिए? WhatsApp पर भेजें</span><span style="font-family:'Material Symbols Outlined'; font-size:20px; color:#1E7A46;">arrow_forward</span></div>
+            <button style="width:100%; min-height:62px; border:none; border-radius:18px; background:#B23A1A; color:#FFF6E9; font-size:21px; font-weight:800; font-family:inherit; box-shadow:0 6px 16px rgba(178,58,26,.3);">जमा करें</button>
+          </div>
+        </div>
+      </dc-import>
+
+      <!-- 18e · STATUS BADGES -->
+      <dc-import name="PhoneFrame" n="18e" title="पूजा जोड़ें · स्थिति बैज (5/5)" hint-size="378px,820px">
+        <div style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
+          <div style="padding:8px 18px 4px;"><span style="font-size:22px; font-weight:900; color:#341A13;">पूजा की स्थिति</span></div>
+          <div style="flex:1; overflow-y:auto; padding:10px 18px 16px; display:flex; flex-direction:column; gap:14px; min-height:0;">
+            <div style="background:#FBF0D8; border:2px solid #EBCF86; border-radius:18px; padding:16px; display:flex; align-items:center; gap:14px;"><span style="font-size:32px;">⏳</span><div style="flex:1;"><div style="font-size:19px; font-weight:900; color:#B8860B;">प्रतीक्षा में</div><div style="font-size:14px; font-weight:600; color:#8A6F5C;">रुद्राभिषेक · जाँच जारी है</div></div></div>
+            <div style="background:#E4F3E9; border:2px solid #BFE3CC; border-radius:18px; padding:16px; display:flex; align-items:center; gap:14px;"><span style="width:44px; height:44px; border-radius:50%; background:#1E7A46; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Outlined'; font-size:26px; color:#fff; font-variation-settings:'FILL' 1;">check</span></span><div style="flex:1;"><div style="font-size:19px; font-weight:900; color:#155C34;">✓ प्रमाणित</div><div style="font-size:14px; font-weight:600; color:#8A6F5C;">सत्यनारायण कथा · अब यजमानों को दिखेगी</div></div></div>
+            <div style="background:#FBE7E3; border:2px solid #E7B8AF; border-radius:18px; padding:16px; display:flex; flex-direction:column; gap:12px;">
+              <div style="display:flex; align-items:center; gap:14px;"><span style="width:44px; height:44px; border-radius:50%; background:#C2321E; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Outlined'; font-size:26px; color:#fff;">close</span></span><div style="flex:1;"><div style="font-size:19px; font-weight:900; color:#C2321E;">✗ अस्वीकृत</div><div style="font-size:14px; font-weight:600; color:#8A6F5C;">नवग्रह शांति</div></div></div>
+              <div style="background:#fff; border-radius:12px; padding:11px 13px; font-size:14px; font-weight:600; color:#7A250E; line-height:1.4;">कारण: वीडियो में आवाज़ साफ़ नहीं थी। कृपया शांत जगह पर दुबारा बनाएँ।</div>
+              <button style="width:100%; min-height:54px; border:none; border-radius:14px; background:#C2321E; color:#fff; font-size:17px; font-weight:800; font-family:inherit; display:flex; align-items:center; justify-content:center; gap:8px;"><span style="font-family:'Material Symbols Outlined'; font-size:22px;">refresh</span>दुबारा भेजें</button>
+            </div>
+          </div>
+        </div>
+      </dc-import>
+
+      <div data-end="1"></div>
+    </div>
+  </section>
+  <section style="margin-bottom:64px;">
+    <div style="display:flex; align-items:center; gap:15px; margin-bottom:32px;">
+      <span style="width:52px; height:52px; border-radius:15px; background:#FFFDF8; border:2px solid #E7B54A; display:flex; align-items:center; justify-content:center; font-size:27px; flex:0 0 auto;">💼</span>
+      <div>
+        <div style="font-size:27px; font-weight:900; color:#7A250E;">काम</div>
+        <div style="font-size:14px; font-weight:700; color:#8A6F5C; letter-spacing:.6px;">WORK · स्क्रीन 19–25</div>
+      </div>
+    </div>
+    <div style="display:flex; flex-wrap:wrap; gap:46px;">
+
+      <!-- 19 · EARNINGS -->
+      <dc-import name="PhoneFrame" n="19" title="कमाई · Earnings" hint-size="378px,820px">
+        <div style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
+          <div style="padding:8px 18px 4px;"><span style="font-size:24px; font-weight:900; color:#341A13;">💰 कमाई</span></div>
+          <div style="flex:1; overflow-y:auto; padding:8px 16px 16px; display:flex; flex-direction:column; gap:14px; min-height:0;">
+            <div style="background:linear-gradient(150deg,#1E7A46,#155C34); border-radius:22px; padding:20px; text-align:center; box-shadow:0 8px 20px rgba(21,92,52,.28); position:relative; overflow:hidden;">
+              <span style="position:absolute; top:12px; left:16px; font-size:20px; animation:g-coin 2s ease-in infinite; animation-delay:-.3s;">🪙</span>
+              <span style="position:absolute; top:12px; right:22px; font-size:16px; animation:g-coin 2.2s ease-in infinite; animation-delay:-1.1s;">🪙</span>
+              <div style="font-size:15px; font-weight:800; color:#BEEBCE;">इस महीने की कमाई</div>
+              <div style="margin-top:6px;"><dc-import name="CountUp" to="52400" size="46" color="#FFFFFF" hint-size="220px,64px"></dc-import></div>
+            </div>
+            <div>
+              <div style="display:flex; align-items:center; gap:8px; margin-bottom:9px;"><span style="font-family:'Material Symbols Outlined'; font-size:20px; color:#1E7A46; font-variation-settings:'FILL' 1;">account_balance_wallet</span><span style="font-size:15px; font-weight:800; color:#155C34;">मिल गया</span></div>
+              <div style="display:flex; flex-direction:column; gap:9px;">
+                <div style="background:#FFFDF8; border:1.5px solid #F0DFC4; border-radius:14px; padding:12px 14px; display:flex; align-items:center;"><div style="flex:1;"><div style="font-size:16px; font-weight:800; color:#341A13;">नवग्रह शांति</div><div style="font-size:13px; color:#8A6F5C;">12 जुलाई · अलीगंज</div></div><span style="font-size:18px; font-weight:900; color:#155C34;">₹8,100</span></div>
+                <div style="background:#FFFDF8; border:1.5px solid #F0DFC4; border-radius:14px; padding:12px 14px; display:flex; align-items:center;"><div style="flex:1;"><div style="font-size:16px; font-weight:800; color:#341A13;">मुंडन संस्कार</div><div style="font-size:13px; color:#8A6F5C;">5 जुलाई · हजरतगंज</div></div><span style="font-size:18px; font-weight:900; color:#155C34;">₹3,500</span></div>
+              </div>
+            </div>
+            <div>
+              <div style="display:flex; align-items:center; gap:8px; margin-bottom:9px;"><span style="font-family:'Material Symbols Outlined'; font-size:20px; color:#B8860B;">schedule</span><span style="font-size:15px; font-weight:800; color:#B8860B;">आना बाकी · ₹8,200</span></div>
+              <div style="display:flex; flex-direction:column; gap:9px;">
+                <div style="background:#FBF7EF; border:1.5px solid #EBCF86; border-radius:14px; padding:12px 14px; display:flex; align-items:center;"><div style="flex:1;"><div style="font-size:16px; font-weight:800; color:#341A13;">सत्यनारायण कथा</div><div style="font-size:13px; color:#8A6F5C;">कल · पूजा के बाद</div></div><span style="font-size:18px; font-weight:900; color:#B8860B;">₹5,600</span></div>
+                <div style="background:#FBF7EF; border:1.5px solid #EBCF86; border-radius:14px; padding:12px 14px; display:flex; align-items:center;"><div style="flex:1;"><div style="font-size:16px; font-weight:800; color:#341A13;">रुद्राभिषेक</div><div style="font-size:13px; color:#8A6F5C;">20 जुलाई</div></div><span style="font-size:18px; font-weight:900; color:#B8860B;">₹2,600</span></div>
+              </div>
+            </div>
+          </div>
+          <div style="flex:0 0 auto;"><dc-import name="ThaliNav" active="2" hint-size="360px,90px"></dc-import></div>
+        </div>
+      </dc-import>
+
+      <!-- 20 · CALENDAR -->
+      <dc-import name="PhoneFrame" n="20" title="कैलेंडर · Calendar (चालू)" hint-size="378px,820px">
+        <div style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
+          <div style="padding:8px 18px 2px;"><span style="font-size:24px; font-weight:900; color:#341A13;">📅 कैलेंडर</span><div style="font-size:14px; font-weight:700; color:#8A6F5C; margin-top:2px;">तारीख दबाकर छुट्टी लगाएँ</div></div>
+          <div style="flex:1; overflow-y:auto; padding:12px 18px 16px; min-height:0;">
+            <dc-import name="CalendarGrid" hint-size="340px,420px"></dc-import>
+          </div>
+          <div style="flex:0 0 auto;"><dc-import name="ThaliNav" active="3" hint-size="360px,90px"></dc-import></div>
+        </div>
+      </dc-import>
+
+      <!-- 21 · MY PUJAS -->
+      <dc-import name="PhoneFrame" n="21" title="मेरी पूजाएँ · My Pujas" hint-size="378px,820px">
+        <div style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
+          <div style="display:flex; align-items:center; justify-content:space-between; padding:8px 18px 4px;"><span style="font-size:24px; font-weight:900; color:#341A13;">🛕 मेरी पूजाएँ</span><span style="width:44px; height:44px; border-radius:50%; background:#B23A1A; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(178,58,26,.3);"><span style="font-family:'Material Symbols Outlined'; font-size:26px; color:#fff;">add</span></span></div>
+          <div style="flex:1; overflow-y:auto; padding:8px 16px 16px; display:flex; flex-direction:column; gap:12px; min-height:0;">
+            <div style="background:#FFFDF8; border:1.5px solid #BFE3CC; border-radius:18px; padding:15px; display:flex; align-items:center; gap:13px;"><span style="font-size:30px;">🕉️</span><div style="flex:1;"><div style="font-size:18px; font-weight:900; color:#341A13;">सत्यनारायण कथा</div><div style="font-size:13px; font-weight:800; color:#155C34; margin-top:2px;">✓ प्रमाणित · 2 पंडित</div></div><span style="font-size:19px; font-weight:900; color:#155C34;">₹5,100</span></div>
+            <div style="background:#FFFDF8; border:1.5px solid #BFE3CC; border-radius:18px; padding:15px; display:flex; align-items:center; gap:13px;"><span style="font-size:30px;">🏠</span><div style="flex:1;"><div style="font-size:18px; font-weight:900; color:#341A13;">गृह प्रवेश</div><div style="font-size:13px; font-weight:800; color:#155C34; margin-top:2px;">✓ प्रमाणित · 3 पंडित</div></div><span style="font-size:19px; font-weight:900; color:#155C34;">₹8,100</span></div>
+            <div style="background:#FFFDF8; border:1.5px solid #EBCF86; border-radius:18px; padding:15px; display:flex; align-items:center; gap:13px;"><span style="font-size:30px;">🔱</span><div style="flex:1;"><div style="font-size:18px; font-weight:900; color:#341A13;">रुद्राभिषेक</div><div style="font-size:13px; font-weight:800; color:#B8860B; margin-top:2px;">⏳ प्रतीक्षा में</div></div><span style="font-size:19px; font-weight:900; color:#8A6F5C;">₹11,000</span></div>
+            <div style="background:#FFFDF8; border:1.5px solid #E7B8AF; border-radius:18px; padding:15px; display:flex; align-items:center; gap:13px;"><span style="font-size:30px;">✨</span><div style="flex:1;"><div style="font-size:18px; font-weight:900; color:#341A13;">नवग्रह शांति</div><div style="font-size:13px; font-weight:800; color:#C2321E; margin-top:2px;">✗ अस्वीकृत · दुबारा भेजें</div></div><span style="font-family:'Material Symbols Outlined'; font-size:22px; color:#C2321E;">refresh</span></div>
+            <button style="width:100%; min-height:60px; border:2px dashed #F4B096; border-radius:18px; background:#FDEEE7; color:#B23A1A; font-size:19px; font-weight:800; font-family:inherit; display:flex; align-items:center; justify-content:center; gap:9px; margin-top:2px;"><span style="font-family:'Material Symbols Outlined'; font-size:24px;">add_circle</span>नई पूजा जोड़ें</button>
+          </div>
+        </div>
+      </dc-import>
+
+      <!-- 22 · SETTINGS -->
+      <dc-import name="PhoneFrame" n="22" title="सेटिंग · Settings" hint-size="378px,820px">
+        <div style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
+          <div style="padding:8px 18px 4px;"><span style="font-size:24px; font-weight:900; color:#341A13;">⚙️ सेटिंग</span></div>
+          <div style="flex:1; overflow-y:auto; padding:10px 16px 16px; display:flex; flex-direction:column; gap:11px; min-height:0;">
+            <div style="background:#FFFDF8; border:1.5px solid #F0DFC4; border-radius:16px; padding:15px 16px; display:flex; align-items:center; gap:14px;"><span style="width:46px; height:46px; border-radius:13px; background:#FDEEE7; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Outlined'; font-size:26px; color:#B23A1A;">person</span></span><span style="flex:1; font-size:18px; font-weight:800; color:#341A13;">प्रोफ़ाइल</span><span style="font-family:'Material Symbols Outlined'; font-size:24px; color:#C9BBA6;">chevron_right</span></div>
+            <div style="background:#FFFDF8; border:1.5px solid #F0DFC4; border-radius:16px; padding:15px 16px; display:flex; align-items:center; gap:14px;"><span style="width:46px; height:46px; border-radius:13px; background:#FDEEE7; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Outlined'; font-size:26px; color:#B23A1A;">translate</span></span><span style="flex:1; font-size:18px; font-weight:800; color:#341A13;">भाषा</span><span style="font-size:15px; font-weight:800; color:#8A6F5C;">हिंदी</span><span style="font-family:'Material Symbols Outlined'; font-size:24px; color:#C9BBA6;">chevron_right</span></div>
+            <div style="background:#FFFDF8; border:1.5px solid #F0DFC4; border-radius:16px; padding:15px 16px; display:flex; align-items:center; gap:14px;"><span style="width:46px; height:46px; border-radius:13px; background:#FDEEE7; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Outlined'; font-size:26px; color:#B23A1A;">notifications</span></span><span style="flex:1; font-size:18px; font-weight:800; color:#341A13;">सूचनाएँ</span><span style="width:52px; height:30px; border-radius:999px; background:#1E7A46; position:relative; display:flex; align-items:center;"><span style="position:absolute; right:3px; width:24px; height:24px; border-radius:50%; background:#fff;"></span></span></div>
+            <div style="background:#FFFDF8; border:1.5px solid #F0DFC4; border-radius:16px; padding:15px 16px; display:flex; align-items:center; gap:14px;"><span style="width:46px; height:46px; border-radius:13px; background:#FDEEE7; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Outlined'; font-size:26px; color:#B23A1A;">help</span></span><span style="flex:1; font-size:18px; font-weight:800; color:#341A13;">मदद व सहायता</span><span style="font-family:'Material Symbols Outlined'; font-size:24px; color:#C9BBA6;">chevron_right</span></div>
+            <div style="background:#FBE7E3; border:1.5px solid #E7B8AF; border-radius:16px; padding:15px 16px; display:flex; align-items:center; gap:14px; margin-top:6px;"><span style="width:46px; height:46px; border-radius:13px; background:#fff; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Outlined'; font-size:26px; color:#C2321E;">logout</span></span><span style="flex:1; font-size:18px; font-weight:800; color:#C2321E;">लॉगआउट</span></div>
+          </div>
+        </div>
+      </dc-import>
+
+      <!-- 23 · HELP -->
+      <dc-import name="PhoneFrame" n="23" title="मदद · Help" hint-size="378px,820px">
+        <div style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
+          <div style="padding:8px 18px 4px;"><span style="font-size:24px; font-weight:900; color:#341A13;">🤝 मदद व सहायता</span></div>
+          <div style="flex:1; overflow-y:auto; padding:10px 16px 16px; display:flex; flex-direction:column; gap:13px; min-height:0;">
+            <div style="display:flex; justify-content:center; padding:6px 0 4px;"><dc-import name="Shishya" state="speaking" say="मैं यहीं हूँ, बेझिझक बताइए 🙏" size="72" name="{{ true }}" hint-size="250px,180px"></dc-import></div>
+            <div style="background:#FFFDF8; border:1.5px solid #F0DFC4; border-radius:18px; padding:15px 16px; display:flex; align-items:center; gap:14px;"><span style="width:52px; height:52px; border-radius:14px; background:#FDEEE7; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Outlined'; font-size:28px; color:#B23A1A;">play_circle</span></span><div style="flex:1;"><div style="font-size:18px; font-weight:800; color:#341A13;">ट्यूटोरियल फिर देखें</div><div style="font-size:14px; color:#8A6F5C;">वही 6 आसान कदम</div></div><span style="font-family:'Material Symbols Outlined'; font-size:24px; color:#C9BBA6;">chevron_right</span></div>
+            <div style="background:#E4F3E9; border:1.5px solid #BFE3CC; border-radius:18px; padding:15px 16px; display:flex; align-items:center; gap:14px;"><span style="width:52px; height:52px; border-radius:14px; background:#1E7A46; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Outlined'; font-size:28px; color:#fff; font-variation-settings:'FILL' 1;">call</span></span><div style="flex:1;"><div style="font-size:18px; font-weight:800; color:#155C34;">सहायता को कॉल करें</div><div style="font-size:14px; color:#8A6F5C;">सुबह 8 – रात 10 · मुफ़्त</div></div><span style="font-family:'Material Symbols Outlined'; font-size:24px; color:#8FBFA1;">chevron_right</span></div>
+            <div style="background:#FFFDF8; border:1.5px solid #F0DFC4; border-radius:18px; padding:15px 16px; display:flex; align-items:center; gap:14px;"><span style="width:52px; height:52px; border-radius:14px; background:#FDEEE7; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Outlined'; font-size:28px; color:#B23A1A;">quiz</span></span><div style="flex:1;"><div style="font-size:18px; font-weight:800; color:#341A13;">सामान्य सवाल</div><div style="font-size:14px; color:#8A6F5C;">बुकिंग · पैसे · सत्यापन</div></div><span style="font-family:'Material Symbols Outlined'; font-size:24px; color:#C9BBA6;">chevron_right</span></div>
+            <div style="background:#FFFDF8; border:1.5px solid #F0DFC4; border-radius:18px; padding:15px 16px; display:flex; align-items:center; gap:14px;"><span style="width:52px; height:52px; border-radius:14px; background:#FDEEE7; display:flex; align-items:center; justify-content:center; font-size:26px;">💬</span><div style="flex:1;"><div style="font-size:18px; font-weight:800; color:#341A13;">WhatsApp पर पूछें</div><div style="font-size:14px; color:#8A6F5C;">तुरंत जवाब</div></div><span style="font-family:'Material Symbols Outlined'; font-size:24px; color:#C9BBA6;">chevron_right</span></div>
+          </div>
+        </div>
+      </dc-import>
+
+      <!-- 24 · PROFILE -->
+      <dc-import name="PhoneFrame" n="24" title="प्रोफ़ाइल · Profile" hint-size="378px,820px">
+        <div style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
+          <div style="flex:0 0 auto;"><dc-import name="Toran" count="11" hint-size="356px,58px"></dc-import></div>
+          <div style="flex:1; overflow-y:auto; padding:6px 16px 16px; display:flex; flex-direction:column; gap:15px; min-height:0;">
+            <div style="display:flex; flex-direction:column; align-items:center; gap:8px; margin-top:4px;">
+              <div style="position:relative;"><div style="width:92px; height:92px; border-radius:50%; background:linear-gradient(150deg,#D95F38,#B23A1A); border:4px solid #E7B54A; display:flex; align-items:center; justify-content:center; font-size:38px; font-weight:900; color:#FFF6E9; box-shadow:0 8px 20px rgba(178,58,26,.3);">रा</div><span style="position:absolute; bottom:0; right:0; width:32px; height:32px; border-radius:50%; background:#1E7A46; border:3px solid #FFF9EE; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Outlined'; font-size:19px; color:#fff;">verified</span></span></div>
+              <div style="text-align:center;"><div style="font-size:25px; font-weight:900; color:#341A13;">पं. रमेश शर्मा</div><div style="font-size:16px; font-weight:600; color:#8A6F5C; display:flex; align-items:center; justify-content:center; gap:5px;"><span style="font-family:'Material Symbols Outlined'; font-size:18px;">location_on</span>वाराणसी, उ.प्र.</div></div>
+              <div style="display:flex; gap:9px; margin-top:2px;"><span style="font-size:13px; font-weight:800; color:#155C34; background:#E4F3E9; padding:6px 13px; border-radius:999px;">✓ प्रमाणित</span><span style="font-size:13px; font-weight:800; color:#B8860B; background:#FBF0D8; padding:6px 13px; border-radius:999px;">⭐ 4.9 रेटिंग</span></div>
+            </div>
+            <div style="display:flex; gap:10px;">
+              <div style="flex:1; background:#FFFDF8; border:1.5px solid #F0DFC4; border-radius:16px; padding:14px 8px; display:flex; flex-direction:column; align-items:center; gap:2px;"><span style="font-size:24px; font-weight:900; color:#7A250E;">4</span><span style="font-size:13px; font-weight:700; color:#8A6F5C;">पूजाएँ</span></div>
+              <div style="flex:1; background:#FFFDF8; border:1.5px solid #F0DFC4; border-radius:16px; padding:14px 8px; display:flex; flex-direction:column; align-items:center; gap:2px;"><span style="font-size:24px; font-weight:900; color:#7A250E;">47</span><span style="font-size:13px; font-weight:700; color:#8A6F5C;">बुकिंग</span></div>
+              <div style="flex:1; background:#FFFDF8; border:1.5px solid #F0DFC4; border-radius:16px; padding:14px 8px; display:flex; flex-direction:column; align-items:center; gap:2px;"><span style="font-size:24px; font-weight:900; color:#7A250E;">25</span><span style="font-size:13px; font-weight:700; color:#8A6F5C;">साल अनुभव</span></div>
+            </div>
+            <div style="background:#FFFDF8; border:1.5px solid #F0DFC4; border-radius:18px; padding:16px; display:flex; flex-direction:column; gap:12px;">
+              <span style="font-size:15px; font-weight:800; color:#8A6F5C;">प्रमाणित पूजाएँ</span>
+              <div style="display:flex; align-items:center; gap:10px; font-size:17px; font-weight:700; color:#341A13;"><span style="font-family:'Material Symbols Outlined'; font-size:20px; color:#1E7A46; font-variation-settings:'FILL' 1;">check_circle</span>सत्यनारायण कथा</div>
+              <div style="display:flex; align-items:center; gap:10px; font-size:17px; font-weight:700; color:#341A13;"><span style="font-family:'Material Symbols Outlined'; font-size:20px; color:#1E7A46; font-variation-settings:'FILL' 1;">check_circle</span>गृह प्रवेश</div>
+              <div style="display:flex; align-items:center; gap:10px; font-size:17px; font-weight:700; color:#341A13;"><span style="font-family:'Material Symbols Outlined'; font-size:20px; color:#1E7A46; font-variation-settings:'FILL' 1;">check_circle</span>नवग्रह शांति</div>
+            </div>
+          </div>
+        </div>
+      </dc-import>
+
+      <!-- 25 · EMERGENCY / SOS -->
+      <dc-import name="PhoneFrame" n="25" title="आपातकाल · SOS" bg="radial-gradient(120% 60% at 50% 30%,#FFF4EC,#FFF9EE 60%)" hint-size="378px,820px">
+        <div style="flex:1; display:flex; flex-direction:column; align-items:center; padding:20px 24px 26px;">
+          <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:26px;">
+            <div style="text-align:center;"><div style="font-size:24px; font-weight:900; color:#341A13;">घबराएँ नहीं</div><div style="font-size:17px; font-weight:600; color:#8A6F5C; margin-top:5px;">हम हर पल आपके साथ हैं 🙏</div></div>
+            <button style="width:210px; height:210px; border-radius:50%; border:none; background:radial-gradient(circle at 50% 40%,#D8402A,#B23A1A 70%); color:#FFF6E9; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; box-shadow:0 12px 30px rgba(178,58,26,.4); animation:g-sos 1.8s ease-out infinite; font-family:inherit; cursor:pointer;">
+              <span style="font-family:'Material Symbols Outlined'; font-size:56px; font-variation-settings:'FILL' 1;">sos</span>
+              <span style="font-size:24px; font-weight:900;">सहायता बुलाएँ</span>
+              <span style="font-size:14px; font-weight:600; opacity:.9;">दबाकर रखें</span>
+            </button>
+          </div>
+          <div style="width:100%; display:flex; flex-direction:column; gap:11px;">
+            <div style="background:#FFFDF8; border:1.5px solid #F0DFC4; border-radius:16px; padding:14px 16px; display:flex; align-items:center; gap:13px;"><span style="width:46px; height:46px; border-radius:12px; background:#E4F3E9; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Outlined'; font-size:24px; color:#1E7A46; font-variation-settings:'FILL' 1;">support_agent</span></span><div style="flex:1;"><div style="font-size:17px; font-weight:800; color:#341A13;">हमारी सहायता टीम</div><div style="font-size:14px; color:#8A6F5C;">तुरंत कॉल</div></div><span style="font-family:'Material Symbols Outlined'; font-size:24px; color:#1E7A46;">call</span></div>
+            <div style="background:#FFFDF8; border:1.5px solid #F0DFC4; border-radius:16px; padding:14px 16px; display:flex; align-items:center; gap:13px;"><span style="width:46px; height:46px; border-radius:12px; background:#FDEEE7; display:flex; align-items:center; justify-content:center;"><span style="font-family:'Material Symbols Outlined'; font-size:24px; color:#B23A1A;">family_restroom</span></span><div style="flex:1;"><div style="font-size:17px; font-weight:800; color:#341A13;">परिवार को सूचना</div><div style="font-size:14px; color:#8A6F5C;">जगह के साथ SMS</div></div><span style="font-family:'Material Symbols Outlined'; font-size:24px; color:#C9BBA6;">chevron_right</span></div>
+          </div>
+        </div>
+      </dc-import>
+
+      <div data-end="1"></div>
+    </div>
+  </section>
+  <section style="margin-bottom:30px;">
+    <div style="display:flex; align-items:center; gap:15px; margin-bottom:32px;">
+      <span style="width:52px; height:52px; border-radius:15px; background:#FFFDF8; border:2px solid #E7B54A; display:flex; align-items:center; justify-content:center; font-size:27px; flex:0 0 auto;">✨</span>
+      <div>
+        <div style="font-size:27px; font-weight:900; color:#7A250E;">वैश्विक अवस्थाएँ</div>
+        <div style="font-size:14px; font-weight:700; color:#8A6F5C; letter-spacing:.6px;">GLOBAL STATES · स्क्रीन 26–28</div>
+      </div>
+    </div>
+    <div style="display:flex; flex-wrap:wrap; gap:46px;">
+
+      <!-- 26a · CELEBRATION: BOOKING ACCEPTED -->
+      <dc-import name="PhoneFrame" n="26" title="उत्सव · बुकिंग स्वीकार" bg="radial-gradient(120% 70% at 50% 34%,#FFF0D6,#FFF9EE 62%)" hint-size="378px,820px">
+        <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px; position:relative; overflow:hidden;">
+          <div style="position:absolute; top:40%; left:50%; width:0; height:0;">
+            <span style="position:absolute; --bx:-100px; --by:-70px; font-size:22px; animation:g-burst 1.9s ease-out infinite; animation-delay:-.1s;">🌼</span>
+            <span style="position:absolute; --bx:100px; --by:-60px; font-size:18px; animation:g-burst 1.9s ease-out infinite; animation-delay:-.4s;">🌸</span>
+            <span style="position:absolute; --bx:-120px; --by:40px; font-size:16px; animation:g-burst 2.1s ease-out infinite; animation-delay:-.7s;">🌼</span>
+            <span style="position:absolute; --bx:120px; --by:50px; font-size:20px; animation:g-burst 2.1s ease-out infinite; animation-delay:-1s;">🌸</span>
+            <span style="position:absolute; --bx:0px; --by:-100px; font-size:18px; animation:g-burst 2s ease-out infinite; animation-delay:-1.3s;">🌼</span>
+            <span style="position:absolute; --bx:-60px; --by:80px; font-size:15px; animation:g-burst 2.2s ease-out infinite; animation-delay:-1.6s;">🌸</span>
+          </div>
+          <div style="width:130px; height:130px; border-radius:50%; background:#1E7A46; display:flex; align-items:center; justify-content:center; box-shadow:0 12px 30px rgba(30,122,70,.4); animation:g-stamp 3s ease-in-out infinite; z-index:2;"><span style="font-family:'Material Symbols Outlined'; font-size:76px; color:#FFF6E9; font-variation-settings:'FILL' 1;">check</span></div>
+          <div style="text-align:center; margin-top:22px; z-index:2;"><div style="font-size:30px; font-weight:900; color:#155C34;">बुकिंग स्वीकार! 🎉</div><div style="font-size:17px; font-weight:600; color:#7A250E; margin-top:8px;">श्री अनिल गुप्ता की पूजा अब आपकी है</div><div style="font-size:24px; font-weight:900; color:#155C34; margin-top:12px;">₹5,600</div></div>
+        </div>
+      </dc-import>
+
+      <!-- 26b · CELEBRATION: PUJA COMPLETE -->
+      <dc-import name="PhoneFrame" n="26" title="उत्सव · पूजा संपन्न" bg="radial-gradient(120% 70% at 50% 34%,#FFE9C4,#FFF9EE 62%)" hint-size="378px,820px">
+        <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px; position:relative; overflow:hidden;">
+          <div style="position:absolute; top:38%; left:50%; width:0; height:0;">
+            <span style="position:absolute; --bx:-95px; --by:-65px; font-size:20px; animation:g-burst 2s ease-out infinite; animation-delay:-.2s;">🪙</span>
+            <span style="position:absolute; --bx:95px; --by:-55px; font-size:18px; animation:g-burst 2s ease-out infinite; animation-delay:-.6s;">🌸</span>
+            <span style="position:absolute; --bx:-115px; --by:45px; font-size:16px; animation:g-burst 2.2s ease-out infinite; animation-delay:-.9s;">🌼</span>
+            <span style="position:absolute; --bx:115px; --by:45px; font-size:20px; animation:g-burst 2.2s ease-out infinite; animation-delay:-1.2s;">🪙</span>
+            <span style="position:absolute; --bx:0px; --by:-95px; font-size:18px; animation:g-burst 2.1s ease-out infinite; animation-delay:-1.5s;">🌸</span>
+          </div>
+          <div style="z-index:2;"><dc-import name="Diya" size="110" lit="{{ true }}" hint-size="150px,160px"></dc-import></div>
+          <div style="text-align:center; margin-top:20px; z-index:2;"><div style="font-size:30px; font-weight:900; color:#7A250E;">पूजा संपन्न! 🙏</div><div style="font-size:17px; font-weight:600; color:#8A6F5C; margin-top:8px;">आपकी सेवा सफल रही</div><div style="display:inline-block; margin-top:14px; background:#E4F3E9; border:2px solid #BFE3CC; border-radius:999px; padding:9px 20px; font-size:19px; font-weight:900; color:#155C34;">₹5,600 आपके खाते में</div></div>
+        </div>
+      </dc-import>
+
+      <!-- 26c · CELEBRATION: VERIFIED -->
+      <dc-import name="PhoneFrame" n="26" title="उत्सव · प्रमाणित हुए" bg="radial-gradient(120% 70% at 50% 34%,#FFF0D6,#FFF9EE 62%)" hint-size="378px,820px">
+        <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px; position:relative; overflow:hidden;">
+          <div style="position:absolute; top:40%; left:50%; width:0; height:0;">
+            <span style="position:absolute; --bx:-100px; --by:-65px; font-size:20px; animation:g-burst 2s ease-out infinite; animation-delay:-.15s;">🌼</span>
+            <span style="position:absolute; --bx:100px; --by:-60px; font-size:18px; animation:g-burst 2s ease-out infinite; animation-delay:-.55s;">🌸</span>
+            <span style="position:absolute; --bx:-118px; --by:45px; font-size:16px; animation:g-burst 2.2s ease-out infinite; animation-delay:-.95s;">🌼</span>
+            <span style="position:absolute; --bx:118px; --by:48px; font-size:20px; animation:g-burst 2.2s ease-out infinite; animation-delay:-1.35s;">🌸</span>
+          </div>
+          <div style="width:130px; height:130px; border-radius:50%; background:linear-gradient(150deg,#E7B54A,#B8860B); display:flex; align-items:center; justify-content:center; box-shadow:0 12px 30px rgba(184,134,11,.4); animation:g-stamp 3s ease-in-out infinite; z-index:2;"><span style="font-family:'Material Symbols Outlined'; font-size:74px; color:#FFF6E9; font-variation-settings:'FILL' 1;">verified</span></div>
+          <div style="text-align:center; margin-top:22px; z-index:2;"><div style="font-size:30px; font-weight:900; color:#7A250E;">आप प्रमाणित हैं!</div><div style="font-size:17px; font-weight:600; color:#8A6F5C; margin-top:8px;">अब यजमान आपको ढूँढ सकते हैं 🙏</div></div>
+        </div>
+      </dc-import>
+
+      <!-- 27a · EMPTY: BOOKINGS -->
+      <dc-import name="PhoneFrame" n="27" title="खाली अवस्था · बुकिंग" hint-size="378px,820px">
+        <div style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
+          <div style="padding:8px 18px 4px;"><span style="font-size:24px; font-weight:900; color:#341A13;">📿 मेरी बुकिंग</span></div>
+          <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px; padding:24px; text-align:center;">
+            <dc-import name="Shishya" state="awake" say="" size="96" name="{{ false }}" hint-size="140px,150px"></dc-import>
+            <div><div style="font-size:22px; font-weight:900; color:#7A250E;">अभी कोई बुकिंग नहीं</div><div style="font-size:17px; font-weight:600; color:#8A6F5C; margin-top:10px; line-height:1.5; max-width:280px;">मैं नज़र रखे हूँ — आते ही आपको बता दूँगा 🙏</div></div>
+          </div>
+          <div style="flex:0 0 auto;"><dc-import name="ThaliNav" active="1" hint-size="360px,90px"></dc-import></div>
+        </div>
+      </dc-import>
+
+      <!-- 27b · EMPTY: EARNINGS -->
+      <dc-import name="PhoneFrame" n="27" title="खाली अवस्था · कमाई" hint-size="378px,820px">
+        <div style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
+          <div style="padding:8px 18px 4px;"><span style="font-size:24px; font-weight:900; color:#341A13;">💰 कमाई</span></div>
+          <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px; padding:24px; text-align:center;">
+            <dc-import name="Diya" size="86" lit="{{ true }}" hint-size="130px,140px"></dc-import>
+            <div><div style="font-size:22px; font-weight:900; color:#7A250E;">कमाई यहाँ दिखेगी</div><div style="font-size:17px; font-weight:600; color:#8A6F5C; margin-top:10px; line-height:1.5; max-width:270px;">पहली पूजा का इंतज़ार है — दीया जल रहा है 🪔</div></div>
+          </div>
+          <div style="flex:0 0 auto;"><dc-import name="ThaliNav" active="2" hint-size="360px,90px"></dc-import></div>
+        </div>
+      </dc-import>
+
+      <!-- 27c · EMPTY: PUJAS -->
+      <dc-import name="PhoneFrame" n="27" title="खाली अवस्था · पूजाएँ" hint-size="378px,820px">
+        <div style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
+          <div style="padding:8px 18px 4px;"><span style="font-size:24px; font-weight:900; color:#341A13;">🛕 मेरी पूजाएँ</span></div>
+          <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px; padding:24px; text-align:center;">
+            <div style="width:110px; height:110px; border-radius:50%; background:#FDEEE7; display:flex; align-items:center; justify-content:center; font-size:52px;">🛕</div>
+            <div><div style="font-size:22px; font-weight:900; color:#7A250E;">अभी कोई पूजा नहीं जोड़ी</div><div style="font-size:17px; font-weight:600; color:#8A6F5C; margin-top:10px; line-height:1.5; max-width:270px;">पहली पूजा जोड़िए — मैं हर कदम बताऊँगा 🙏</div></div>
+            <button style="width:100%; min-height:64px; border:none; border-radius:18px; background:#B23A1A; color:#FFF6E9; font-size:21px; font-weight:800; font-family:inherit; display:flex; align-items:center; justify-content:center; gap:9px; box-shadow:0 6px 16px rgba(178,58,26,.3);"><span style="font-family:'Material Symbols Outlined'; font-size:26px;">add_circle</span>पहली पूजा जोड़ें</button>
+          </div>
+        </div>
+      </dc-import>
+
+      <!-- 28 · LOADING -->
+      <dc-import name="PhoneFrame" n="28" title="प्रतीक्षा · Loading" bg="radial-gradient(120% 60% at 50% 42%,#FFF3DE,#FFF9EE 60%)" hint-size="378px,820px">
+        <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:24px; padding:24px;">
+          <div style="position:relative; display:flex; align-items:center; justify-content:center;">
+            <div style="position:absolute; width:150px; height:150px; border-radius:50%; background:radial-gradient(circle, rgba(242,160,44,.28), transparent 70%); animation:g-kindle 1.6s ease-in-out infinite;"></div>
+            <dc-import name="Diya" size="92" lit="{{ true }}" hint-size="140px,150px"></dc-import>
+          </div>
+          <div style="text-align:center;"><div style="font-size:24px; font-weight:900; color:#7A250E;">एक क्षण…</div><div style="display:flex; gap:7px; justify-content:center; margin-top:12px;"><span style="width:11px; height:11px; border-radius:50%; background:#B23A1A; animation:g-twinkle 1.1s ease-in-out infinite;"></span><span style="width:11px; height:11px; border-radius:50%; background:#D95F38; animation:g-twinkle 1.1s ease-in-out .2s infinite;"></span><span style="width:11px; height:11px; border-radius:50%; background:#F2A02C; animation:g-twinkle 1.1s ease-in-out .4s infinite;"></span></div></div>
+        </div>
+      </dc-import>
+
+      <div data-end="1"></div>
+    </div>
+  </section>
+  <div data-root="1"></div>
+</div>
+</x-dc>
+</body>
+</html>

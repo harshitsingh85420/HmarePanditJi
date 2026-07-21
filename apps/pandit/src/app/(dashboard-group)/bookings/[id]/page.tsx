@@ -12,7 +12,6 @@ import { FirstUseTip } from "@/components/moments/FirstUseTip";
 import { motion, AnimatePresence } from "framer-motion";
 
 // UI Components
-import { Card } from "@/components/ui/Card";
 import { Header } from "@/components/ui/Header";
 import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
 import { DiyaLoader } from "@/components/moments/DiyaLoader";
@@ -176,22 +175,29 @@ export default function BookingDetailPage() {
     setShowSuccessScreen(true);
   };
 
-  // Status header config
+  // Status header config — canon frame 14 draws this as a pill in the header
+  // bar: `#155C34 on #E4F3E9, radius 999px, padding 6px 13px`, prefixed with
+  // a ✓ tick. The app had #E8F0FE/#1A56DB and #FEF3C7/#92400E, neither of
+  // which occurs anywhere in the canon; en-route now uses canon's goldpale
+  // "awaiting" field with saffron-700 text.
   const getStatusConfig = (statusStr: string) => {
     if (statusStr === "ACCEPTED") {
-      return { label: t("booking.statusAccepted"), bg: "bg-[#E8F0FE] text-[#1A56DB]" };
+      return { label: `✓ ${t("booking.statusAccepted")}`, bg: "bg-leaf-100 text-leaf-700" };
     }
     if (statusStr === "COMPLETED") {
-      return { label: t("booking.statusCompleted"), bg: "bg-leaf-100 text-leaf-700" };
+      return { label: `✓ ${t("booking.statusCompleted")}`, bg: "bg-leaf-100 text-leaf-700" };
     }
     // Default / IN_PROGRESS / PUJA_IN_PROGRESS
-    return { label: t("booking.statusEnRoute"), bg: "bg-[#FEF3C7] text-[#92400E]" };
+    return { label: t("booking.statusEnRoute"), bg: "bg-goldpale text-saffron-700" };
   };
 
   const statusCfg = getStatusConfig(booking.status);
   const customerPhone = booking.customer?.phone || booking.customerPhone;
   const customerName = booking.customer?.name || booking.customerName || t("booking.yajman");
   const pujaTitle = booking.pujaType || booking.eventType;
+  // Canon frame 14 draws a 50px saffron-50 disc holding the yajman's initial
+  // (श्री अनिल गुप्ता -> "अ"): the honorific is skipped, not the given name.
+  const avatarLetter = customerName.replace(/^श्री\s+/, "").trim().charAt(0) || "य";
   const journeyLabels = {
     left: t("booking.left"),
     started: t("booking.started"),
@@ -238,7 +244,8 @@ export default function BookingDetailPage() {
           <h1 className="text-[30px] font-black text-saffron-700 font-hindi">
             {t("booking.pujaFinishedTitle")}
           </h1>
-          <p className="text-[17px] font-semibold text-softgrey font-hindi">आपकी सेवा सफल रही</p>
+          {/* canon 17/600 subtitle — raised to the 18sp body floor (lawConflicts) */}
+          <p className="text-[18px] font-semibold text-softgrey font-hindi">आपकी सेवा सफल रही</p>
           <p className="text-[19px] font-black text-leaf-700 font-hindi leading-snug">
             ₹{payoutAmount.toLocaleString("en-IN")} {t("booking.payoutSoon")}
           </p>
@@ -257,7 +264,31 @@ export default function BookingDetailPage() {
 
   return (
     <div className="min-h-screen bg-cream text-ink pb-24">
-      <Header title={pujaTitle} showBack onBack={() => router.push("/bookings")} />
+      {/* CANON frame 10 header — a PLAIN row on the cream field: a back circle,
+          the title in temple-ink, and the status pill on the right. Canon's
+          detail does NOT carry the shared saffron banner or the toran strand.
+          Sticky so it holds while the body scrolls, like the old header did. */}
+      <div className="sticky top-0 z-30 bg-cream shrink-0 flex items-center gap-3 px-4 py-2">
+        <button
+          onClick={() => router.push("/bookings")}
+          aria-label={t("common.back")}
+          /* canon: 42px #FFFDF8 circle, 0 2px 8px shadow, 22px arrow_back in
+             #7A250E — box floored to the 52px tap target. */
+          className="w-[52px] h-[52px] min-h-[52px] min-w-[52px] shrink-0 rounded-full bg-card shadow-card flex items-center justify-center active:scale-90 transition-all focus:outline-none focus:ring-2 focus:ring-saffron-200"
+        >
+          <span className="material-symbols-outlined text-[24px] leading-none text-saffron-700" aria-hidden="true">
+            arrow_back
+          </span>
+        </button>
+        <span className="text-[19px] font-black text-temple-700 font-hindi truncate">
+          {t("booking.detailsTitle")}
+        </span>
+        <span
+          className={`ml-auto shrink-0 inline-flex items-center whitespace-nowrap px-[13px] py-1.5 rounded-chip text-[18px] font-extrabold font-hindi select-none ${statusCfg.bg}`}
+        >
+          {statusCfg.label}
+        </span>
+      </div>
 
       {/* Voice commands listener */}
       <VoiceActionListener
@@ -266,128 +297,201 @@ export default function BookingDetailPage() {
         promptText={screenVoiceText}
       />
 
-      <main className="flex-1 overflow-y-auto px-4 pt-3 pb-24 flex flex-col gap-3 page-enter">
-        {/* 1. STATUS HEADER */}
-        <div className="flex justify-between items-center bg-white p-4 rounded-card border border-saffron-100 shadow-sm">
-          <span className="text-[18px] font-bold text-softgrey font-hindi">{t("booking.bookingStatus")}</span>
-          <div className={`inline-flex items-center justify-center h-10 px-5 rounded-full text-[18px] font-bold font-hindi select-none ${statusCfg.bg}`}>
-            {statusCfg.label}
+      {/* canon: padding 6px 16px 16px, gap 13px */}
+      <main className="flex-1 overflow-y-auto px-4 pt-1.5 pb-24 flex flex-col gap-[13px] page-enter">
+        {/* 1. YAJMAN ROW — canon frame 14: flat #FFFDF8 surface, 1.5px #F0DFC4
+            hairline, 18px radius, 13px/15px padding, a 50px saffron-50 initial
+            disc, and the call action as a 52px leaf disc carrying canon's
+            0 4px 12px rgba(30,122,70,.35) lift. This is the raised-Card
+            component's flatter sibling, so it is a plain surface div rather
+            than <Card> (which is fixed at 22px / 2px / gradient / 6px-16px). */}
+        <div className="flex items-center gap-3 bg-card border-[1.5px] border-sand rounded-tile px-[15px] py-[13px]">
+          <div
+            className="w-[50px] h-[50px] shrink-0 rounded-full bg-saffron-50 flex items-center justify-center text-[22px] font-black text-saffron-500 font-hindi select-none"
+            aria-hidden="true"
+          >
+            {avatarLetter}
           </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-[18px] font-black text-temple-700 font-hindi truncate">
+              {customerName}
+            </div>
+            {/* canon 14/600 — raised to the 18sp body floor (lawConflicts) */}
+            <div className="text-[18px] font-semibold text-softgrey font-hindi truncate">
+              {pujaTitle}
+            </div>
+          </div>
+          <a
+            href={`tel:${customerPhone}`}
+            aria-label={t("booking.callCustomer")}
+            className="w-[52px] h-[52px] shrink-0 rounded-full bg-leaf-500 shadow-[0_4px_12px_rgba(30,122,70,0.35)] flex items-center justify-center active:scale-95 transition-transform"
+          >
+            {/* drawn ornament — canon's filled `call` glyph, 26px, white */}
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="#fff" aria-hidden="true">
+              <path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.58 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.46.58 3.6a1 1 0 0 1-.25 1l-2.23 2.2Z" />
+            </svg>
+          </a>
         </div>
 
-        {/* 2. CUSTOMER CONTACT */}
-        <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-4">
-          <div className="flex flex-col gap-0.5">
-            <span className="text-[16px] text-softgrey font-hindi">{t("booking.customerNameLabel")}</span>
-            <span className="text-[22px] font-bold text-ink font-hindi">{customerName}</span>
-          </div>
+        {/* 2. ROUTE — canon frame 14: full-width saffron-50 fill with a 2px
+            #F4B096 (saffron-200) edge, 16px radius, 18/800 saffron-700 label
+            and a sindoor `directions` glyph. Was a white/saffron-500 outline
+            button squeezed into a half-width pair. */}
+        <FirstUseTip tipId="detailRoute" targetRef={routeBtnRef} />
+        <button
+          ref={routeBtnRef}
+          onClick={() => {
+            const q = encodeURIComponent(booking.venueAddress || "");
+            // geo: opens the native maps app on Android; browsers that
+            // don't handle it fall through to Google Maps
+            const geoUrl = `geo:0,0?q=${q}`;
+            const webUrl = `https://maps.google.com/?q=${q}`;
+            const w = window.open(geoUrl, "_self");
+            setTimeout(() => {
+              if (!document.hidden) window.open(webUrl, "_blank");
+            }, 600);
+            void w;
+          }}
+          className="w-full min-h-[56px] px-4 border-2 border-saffron-200 rounded-field bg-saffron-50 text-saffron-700 text-[18px] font-extrabold font-hindi flex items-center justify-center gap-2.5 active:scale-[0.98] transition-transform"
+        >
+          {t("bookingDetailExtra.showRoute")}
+          {/* TRUTHFUL-STATE: the area suffix appears only when we have one */}
+          {booking.venueCity ? ` · ${booking.venueCity}` : ""}
+        </button>
 
-          {/* Mockup frame 10: call + route as a compact side-by-side pair */}
-          <FirstUseTip tipId="detailRoute" targetRef={routeBtnRef} />
-          <div className="flex gap-3">
-            <a
-              href={`tel:${customerPhone}`}
-              className="flex-1 h-16 bg-white border-2 border-saffron-500 hover:bg-saffron-50 text-saffron-700 font-bold text-[17px] rounded-btn shadow-sm flex items-center justify-center gap-2 active:scale-95 transition-all font-hindi"
-              style={{ minHeight: "64px" }}
-            >
-              📞 {t("booking.callCustomer")}
-            </a>
-            <button
-              ref={routeBtnRef}
-              onClick={() => {
-                const q = encodeURIComponent(booking.venueAddress || "");
-                // geo: opens the native maps app on Android; browsers that
-                // don't handle it fall through to Google Maps
-                const geoUrl = `geo:0,0?q=${q}`;
-                const webUrl = `https://maps.google.com/?q=${q}`;
-                const w = window.open(geoUrl, "_self");
-                setTimeout(() => {
-                  if (!document.hidden) window.open(webUrl, "_blank");
-                }, 600);
-                void w;
-              }}
-              className="flex-1 h-16 bg-white border-2 border-saffron-500 hover:bg-saffron-50 text-saffron-700 font-bold text-[17px] rounded-btn shadow-sm flex items-center justify-center gap-2 active:scale-95 transition-all font-hindi"
-              style={{ minHeight: "64px" }}
-            >
-              🗺️ {t("bookingDetailExtra.showRoute")}
-            </button>
-          </div>
-        </Card>
-
-        {/* 3. JOURNEY STEPS VERTICAL TIMELINE */}
-        <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-6">
-          <h4 className="text-[18px] font-bold text-softgrey font-hindi border-b border-saffron-100 pb-2">
+        {/* 3. JOURNEY — canon frame 14 draws this as a LEFT RAIL, not as dots
+            hung off a border: a 32px node disc per step with a 3px connector
+            column running between them (leaf once passed, #E7DCC9 ahead), and
+            the labels in a second column. Node states, verbatim from canon:
+              done    #1E7A46 disc + white check
+              current #B23A1A disc + 12px white pip + glow ring
+              ahead   #F0E6D3 disc, 2px #E7DCC9 edge, empty
+            Surface is canon's flat 18px/1.5px sheet, padding 16. */}
+        <div className="bg-card border-[1.5px] border-sand rounded-tile p-4">
+          {/* canon 15/800 — raised to the 18sp floor (lawConflicts) */}
+          <div className="text-[18px] font-extrabold text-softgrey font-hindi mb-[14px]">
             {t("booking.pujaJourney")}
-          </h4>
+          </div>
 
-          <div className="flex flex-col gap-6 relative pl-4 border-l-2 border-saffron-100">
-            {/* Mockup frame 10: the journey opens with the already-done
-                स्वीकृत node — timestamp only when the server has one */}
-            <div className="relative flex flex-col gap-1">
-              <div className="absolute -left-[25px] top-1.5 w-4 h-4 rounded-full border-2 bg-leaf-700 border-leaf-700" />
-              <span className="text-[18px] font-bold font-hindi text-leaf-700">
-                {t("booking.statusAccepted")}
-              </span>
-              <span className="text-[16px] text-leaf-700 font-bold font-hindi flex items-center gap-1">
-                ✅ {booking.acceptedAt ? formatHindiTime(booking.acceptedAt) : t("booking.completed")}
-              </span>
-            </div>
+          {(() => {
+            // The स्वीकृत node is already done by definition — the journey
+            // opens on it. Timestamp only when the server actually has one.
+            const nodes = [
+              {
+                key: "accepted",
+                title: t("booking.statusAccepted"),
+                state: "done" as const,
+                sub: booking.acceptedAt ? formatHindiTime(booking.acceptedAt) : t("booking.completed"),
+                action: null as React.ReactNode,
+              },
+              ...timelineSteps.map((s) => {
+                const isCompleted = booking.journeyStep >= s.step;
+                const isCurrent = booking.journeyStep === s.step - 1;
+                const timestamp = booking.journeyTimestamps?.[s.step];
+                return {
+                  key: `step-${s.step}`,
+                  title: s.title,
+                  state: isCompleted ? ("done" as const) : isCurrent ? ("current" as const) : ("ahead" as const),
+                  sub: isCompleted ? (timestamp ? formatHindiTime(timestamp) : t("booking.completed")) : "",
+                  action:
+                    isCurrent && booking.status !== "COMPLETED" ? (
+                      <button
+                        onClick={handleJourneyNext}
+                        disabled={actionLoading}
+                        className="mt-3 w-full min-h-[56px] px-4 bg-sindoor text-chandan text-[19px] font-extrabold font-hindi rounded-cta shadow-btn active:scale-[0.98] transition-transform disabled:opacity-60"
+                      >
+                        {s.label}
+                      </button>
+                    ) : null,
+                };
+              }),
+            ];
 
-            {timelineSteps.map((s) => {
-              const isCompleted = booking.journeyStep >= s.step;
-              const isCurrent = booking.journeyStep === s.step - 1;
-              const timestamp = booking.journeyTimestamps?.[s.step];
-
+            return nodes.map((n, i) => {
+              const isLast = i === nodes.length - 1;
               return (
-                <div key={s.step} className="relative flex flex-col gap-3">
-                  {/* Timeline point indicator */}
-                  <div
-                    className={`absolute -left-[25px] top-1.5 w-4 h-4 rounded-full border-2 ${
-                      isCompleted ? "bg-leaf-700 border-leaf-700" : isCurrent ? "bg-saffron-500 border-saffron-500" : "bg-white border-saffron-200"
-                    }`}
-                  />
-
-                  <div className="flex flex-col gap-1">
-                    <span
-                      className={`text-[18px] font-bold font-hindi ${
-                        isCompleted ? "text-leaf-700" : isCurrent ? "text-saffron-700" : "text-softgrey"
-                      }`}
-                    >
-                      {s.title}
-                    </span>
-
-                    {/* ✅ Completed step detail */}
-                    {isCompleted && (
-                      <span className="text-[16px] text-leaf-700 font-bold font-hindi flex items-center gap-1">
-                        ✅ {timestamp ? formatHindiTime(timestamp) : t("booking.completed")}
-                      </span>
+                <div key={n.key} className="flex gap-[13px]">
+                  {/* rail column */}
+                  <div className="flex flex-col items-center shrink-0">
+                    <div className="relative w-8 h-8">
+                      {n.state === "current" && (
+                        // canon animates this with a box-shadow ring; drawn
+                        // here as a scaling/fading disc so the motion stays
+                        // transform+opacity only, and stops under
+                        // prefers-reduced-motion.
+                        <span
+                          aria-hidden="true"
+                          className="absolute inset-0 rounded-full bg-gold/50 animate-ping motion-reduce:hidden"
+                        />
+                      )}
+                      <div
+                        className={`relative w-8 h-8 rounded-full flex items-center justify-center ${
+                          n.state === "done"
+                            ? "bg-leaf-500"
+                            : n.state === "current"
+                            ? "bg-saffron-500"
+                            : "bg-[#F0E6D3] border-2 border-sand-200"
+                        }`}
+                      >
+                        {n.state === "done" && (
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path
+                              d="M5 12.5 10 17.5 19 7"
+                              stroke="#fff"
+                              strokeWidth="2.8"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        )}
+                        {n.state === "current" && (
+                          <span className="w-3 h-3 rounded-full bg-white" aria-hidden="true" />
+                        )}
+                      </div>
+                    </div>
+                    {!isLast && (
+                      <div
+                        className={`w-[3px] flex-1 min-h-[20px] ${
+                          n.state === "done" ? "bg-leaf-500" : "bg-sand-200"
+                        }`}
+                      />
                     )}
                   </div>
 
-                  {/* 🚀 Active step action trigger button */}
-                  {isCurrent && booking.status !== "COMPLETED" && (
-                    <button
-                      onClick={handleJourneyNext}
-                      disabled={actionLoading}
-                      className="w-full h-16 bg-saffron-500 hover:bg-saffron-600 text-white font-bold text-[18px] rounded-btn shadow-md active:scale-[0.98] transition-transform"
-                      style={{ minHeight: "64px", fontSize: "18px" }}
+                  {/* label column */}
+                  <div className={`flex-1 min-w-0 ${isLast ? "" : "pb-4"}`}>
+                    {/* canon 17/800 — raised to the 18sp floor (lawConflicts) */}
+                    <div
+                      className={`text-[18px] font-hindi ${
+                        n.state === "done"
+                          ? "font-extrabold text-temple-700"
+                          : n.state === "current"
+                          ? "font-extrabold text-saffron-500"
+                          : "font-bold text-softgrey"
+                      }`}
                     >
-                      {s.label}
-                    </button>
-                  )}
+                      {n.title}
+                    </div>
+                    {/* canon 13/400 softgrey — raised to the 18sp floor */}
+                    {n.sub && (
+                      <div className="text-[18px] text-softgrey font-hindi">{n.sub}</div>
+                    )}
+                    {n.action}
+                  </div>
                 </div>
               );
-            })}
-          </div>
-        </Card>
+            });
+          })()}
+        </div>
 
-        {/* 4. FINAL COMPLETION ACTION */}
+        {/* 4. FINAL COMPLETION ACTION — canon frame 14: min-height 64,
+            18px radius, FLAT #1E7A46 (leaf-500, not the darker leaf-700),
+            21/900, carrying canon's 0 8px 20px rgba(30,122,70,.35) lift. */}
         {booking.journeyStep === 3 && booking.status !== "COMPLETED" && (
           <button
             onClick={() => setShowCompleteConfirm(true)}
             disabled={actionLoading}
-            className="w-full h-20 bg-leaf-700 hover:bg-leaf-800 text-white font-bold text-[22px] rounded-btn shadow-lg active:scale-95 transition-all font-hindi"
-            style={{ minHeight: "80px", fontSize: "22px" }}
+            className="w-full min-h-[64px] px-4 bg-leaf-500 text-white font-black text-[21px] rounded-cta shadow-btn-leaf flex items-center justify-center gap-2.5 active:scale-[0.98] transition-transform font-hindi disabled:opacity-60"
           >
             {t("booking.pujaComplete")}
           </button>
@@ -395,8 +499,8 @@ export default function BookingDetailPage() {
 
         {/* Global error screen */}
         {errorMsg && (
-          <div className="px-4 py-2 bg-red-50 rounded-card border border-danger/20">
-            <p className="text-danger text-[20px] font-semibold text-center leading-normal">
+          <div className="px-4 py-3 bg-saffron-50 rounded-tile border-[1.5px] border-danger/30">
+            <p className="text-danger text-[20px] font-semibold text-center leading-normal font-hindi">
               {errorMsg}
             </p>
           </div>
@@ -416,23 +520,21 @@ export default function BookingDetailPage() {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-white rounded-card shadow-lg max-w-[360px] w-full p-5 flex flex-col gap-6 text-center border-2 border-saffron-300"
+              className="bg-cardsurface rounded-surface shadow-lift max-w-[360px] w-full p-5 flex flex-col gap-6 text-center border-2 border-sand"
             >
-              <h3 className="text-[22px] font-bold text-temple-700 font-hindi leading-snug">
+              <h3 className="text-[22px] font-black text-temple-700 font-hindi leading-snug">
                 {t("booking.confirmCompleteTitle")}
               </h3>
               <div className="flex gap-4">
                 <button
                   onClick={handleComplete}
-                  className="flex-grow h-[56px] bg-danger text-white font-bold text-[18px] rounded-btn shadow-md active:scale-95 transition-transform"
-                  style={{ minHeight: "56px", fontSize: "18px" }}
+                  className="flex-grow min-h-[56px] bg-leaf-500 text-white font-extrabold text-[19px] rounded-cta shadow-btn-leaf active:scale-[0.98] transition-transform font-hindi"
                 >
                   {t("common.yes")}
                 </button>
                 <button
                   onClick={() => setShowCompleteConfirm(false)}
-                  className="flex-grow h-[56px] bg-white border-2 border-saffron-300 text-saffron-700 font-bold text-[18px] rounded-btn shadow-sm active:scale-95 transition-transform"
-                  style={{ minHeight: "56px", fontSize: "18px" }}
+                  className="flex-grow min-h-[56px] bg-card border-2 border-saffron-200 text-saffron-700 font-extrabold text-[19px] rounded-cta active:scale-[0.98] transition-transform font-hindi"
                 >
                   {t("common.no")}
                 </button>

@@ -1,1 +1,4 @@
 .vercel
+
+# dev-only: canon artboard copy served for the exact-UI side-by-side harness
+public/canon/

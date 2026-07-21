@@ -65,26 +65,29 @@ export default function ManualCityScreen({ onCitySelected, onBack }: ManualCityS
 
   return (
     <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
-      {/* Festive header band */}
+      {/* canon frame 2 chrome (this is स्थान's जगह-बदलिए branch): the garland
+          + a plain dark centered title. Back stays as the canon circle. */}
       <header className="shrink-0">
-        <div className="h-[60px] bg-gradient-to-r from-genda to-saffron-500 px-4 flex items-center gap-3">
-          <button
-            onClick={onBack}
-            aria-label={t("common.back")}
-            className="w-14 h-14 min-w-[56px] min-h-[56px] rounded-full bg-white/90 shadow-card active:scale-90 flex items-center justify-center text-[18px] transition-all"
-          >
-            ←
-          </button>
-          <h1 className="font-display text-[22px] text-white flex-1 text-center pr-14">
-            {t("pratham.cityTitle")}
-          </h1>
-        </div>
-        <Toran tone="onSindoor" className="bg-saffron-500" />
+        <Toran variant="garland" count={11} />
       </header>
+      <div className="shrink-0 relative min-h-[52px] flex items-center justify-center px-[22px] mt-1">
+        <button
+          onClick={onBack}
+          aria-label={t("common.back")}
+          className="absolute left-3 w-[52px] h-[52px] min-h-[52px] min-w-[52px] rounded-full bg-card shadow-card flex items-center justify-center active:scale-90 transition-all focus:outline-none focus:ring-2 focus:ring-saffron-200"
+        >
+          <span className="material-symbols-outlined text-[24px] leading-none text-saffron-700" aria-hidden="true">
+            arrow_back
+          </span>
+        </button>
+        <h1 className="text-[29px] font-black text-temple-700 font-hindi text-center leading-[1.25] px-[58px]">
+          {t("pratham.cityTitle")}
+        </h1>
+      </div>
 
-      <main className="flex-1 overflow-y-auto px-4 pt-4 pb-6 flex flex-col gap-3">
+      <main className="flex-1 overflow-y-auto px-[22px] pt-[14px] pb-[18px] flex flex-col gap-4">
         {/* Free-text field — always visible */}
-        <div className="flex gap-2">
+        <div className="flex gap-[10px]">
           <input
             type="text"
             value={cityInput}
@@ -93,12 +96,12 @@ export default function ManualCityScreen({ onCitySelected, onBack }: ManualCityS
               if (e.key === "Enter") submitTyped();
             }}
             placeholder={t("pratham.cityInputLabel")}
-            className="flex-1 min-w-0 h-[56px] min-h-[56px] px-4 border-2 border-saffron-300 rounded-btn text-[18px] text-ink bg-white focus:outline-none focus:border-saffron-500 font-hindi"
+            className="flex-1 min-w-0 h-[56px] min-h-[56px] px-[18px] border-[1.5px] border-sand-100 rounded-field text-[18px] font-semibold text-ink bg-card shadow-soft focus:outline-none focus:border-saffron-500 font-hindi"
           />
           {cityInput.trim() && (
             <button
               onClick={submitTyped}
-              className="shrink-0 whitespace-nowrap min-h-[56px] px-4 bg-saffron-500 text-[#FFF3EA] rounded-btn text-[18px] font-bold font-hindi active:scale-[0.97] transition-transform"
+              className="shrink-0 whitespace-nowrap min-h-[56px] px-5 bg-saffron-500 text-chandan rounded-cta text-[18px] font-extrabold font-hindi shadow-btn active:scale-[0.97] transition-transform"
             >
               {t("pratham.cityGo")}
             </button>
@@ -106,14 +109,14 @@ export default function ManualCityScreen({ onCitySelected, onBack }: ManualCityS
         </div>
 
         {/* 5 city cards — festive accent left borders, one per accent */}
-        <div className="flex flex-col gap-3 mt-1">
+        <div className="flex flex-col gap-[13px] mt-1">
           {POPULAR_CITIES.map((city, i) => {
             const accent = FESTIVE_ACCENTS[i % FESTIVE_ACCENTS.length];
             return (
               <button
                 key={city}
                 onClick={() => onCitySelected(city)}
-                className="w-full min-h-[64px] bg-white rounded-card shadow-card px-5 text-left text-[22px] font-bold text-ink font-hindi active:scale-[0.98] transition-transform"
+                className="w-full min-h-[64px] bg-cardsurface border-2 border-sand-200 rounded-tile shadow-surface px-[18px] text-left text-[22px] font-extrabold text-ink font-hindi active:scale-[0.98] transition-transform"
                 style={{ borderLeft: `6px solid ${accent.hex}` }}
               >
                 {city}
