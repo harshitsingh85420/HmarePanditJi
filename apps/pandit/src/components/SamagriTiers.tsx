@@ -80,23 +80,26 @@ export function SamagriTiers({
             initial={reduce || inherited ? false : { opacity: 0, x: 22 }}
             animate={{ opacity: inherited ? 0.72 : 1, x: 0 }}
             transition={{ duration: 0.4, ease: "easeOut" }}
+            // canon's three row states: inherited (#F4EFE6 / #E7DCC9), an
+            // ADDITION over a lower tier (leaf #BFE3CC), and a tier's own
+            // baseline rows, which sit on the plain #EADFCE hairline.
             className={`flex items-center gap-3 px-3.5 py-3 rounded-[15px] border-[1.5px] ${
-              inherited ? "bg-[#F4EFE6] border-sand-200" : "bg-card border-[#BFE3CC]"
+              inherited ? "bg-[#F4EFE6] border-sand-200" : isNew ? "bg-card border-[#BFE3CC]" : "bg-card border-sand-100"
             }`}
           >
             <span className="text-[23px] leading-none">{item.emoji ?? "🔸"}</span>
             <div className="flex-1 flex flex-col gap-0.5 min-w-0">
-              <span className={`text-[16px] font-bold ${inherited ? "text-softgrey" : "text-temple-700"}`}>{item.name}</span>
-              <span className="text-[13px] text-softgrey truncate">
+              <span className={`text-[18px] font-bold ${inherited ? "text-softgrey" : "text-temple-700"}`}>{item.name}</span>
+              <span className="text-[16px] text-softgrey truncate">
                 {item.qty}
                 {item.brand ? ` · ${item.brand}` : ""}
               </span>
             </div>
             {inherited ? (
-              <span className="text-[11px] font-bold text-softgrey bg-[#EFE8DA] px-2.5 py-1 rounded-full whitespace-nowrap">{fromLabel} से</span>
-            ) : (
-              <span className="text-[11px] font-extrabold text-leaf-700 bg-[#D6EEDE] px-2.5 py-1 rounded-full whitespace-nowrap">नया</span>
-            )}
+              <span className="text-[14px] font-bold text-softgrey bg-[#EFE8DA] px-2.5 py-1 rounded-full whitespace-nowrap">{fromLabel} से</span>
+            ) : isNew ? (
+              <span className="text-[14px] font-extrabold text-leaf-700 bg-[#D6EEDE] px-2.5 py-1 rounded-full whitespace-nowrap">नया</span>
+            ) : null}
           </motion.div>
         ))}
       </div>
