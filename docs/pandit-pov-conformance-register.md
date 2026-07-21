@@ -41,6 +41,7 @@
 | F02-10 | Internet drop mid-input: buffer locally, show "सहेज रहे हैं…", retry on reconnect — input never silently lost (edge #7) | AUTO | ❌ |
 | F02-11 | Support path off-hours: show expected callback time + async WhatsApp option (edge #9) | AUTO (render) | ❌ |
 | F02-12 | Speech-impediment accessibility: keyboard offered prominently from 2nd failure; failures logged for audit (edge #1) | AUTO | 🟡 keyboard auto-opens at failure 3 (doc asks prominent-from-2nd); failures logged to debug only |
+| F02-13 | **Splash (founder-specified):** 8-second wait-then-advance — touch cancels the timer and advances now, no touch by 8s auto-advances; the two first-words (नमस्ते पंडित जी! / आगे बढ़ने के लिए स्पर्श कीजिए) are ATTEMPTED on mount (autoplay-safe); audio unlocks globally on first gesture | AUTO | ✅ built (feat splash port) |
 ---
 
 ## F3 — Automatic Language Selection
@@ -185,7 +186,7 @@
 ---
 
 ## Summary counts
-- **Total atomic requirements: 78** (F1: 8 · F2: 12 · F3: 6 · F4: 5 · F5: 7 · F8: 6 · F9: 4 · F10: 3 · F11: 4 · F12: 4 · F32–35: 13 · F36: 3 · F43: 3) — corrected from 62; the per-block composition always summed to 78
+- **Total atomic requirements: 79** (F1: 8 · F2: 13 · F3: 6 · F4: 5 · F5: 7 · F8: 6 · F9: 4 · F10: 3 · F11: 4 · F12: 4 · F32–35: 13 · F36: 3 · F43: 3) — corrected from 62; the per-block composition always summed to 78 (now 79 with the founder splash row)
 - Today: **✅ 8 · 🟡 14 · ❌ 56 · 🔍 0** — all VERIFY items resolved against code (see docs/spec/VERIFY-RESULTS.md)
 - **Deviation candidates needing founder signature: 5 blocks** — F1 referral (DLT-blocked), F5 UIDAI (provider cost), F8 YouTube-link flow (already shipped, unrecorded), F11-03 benchmarks (no data yet), F36 penny-drop (manual-payout pilot decision)
 - **One open product ruling: F32–35 consultancy** — build vs sign-defer.

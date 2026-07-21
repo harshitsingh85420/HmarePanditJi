@@ -115,6 +115,15 @@ export const hi = {
   // loads park it by browser autoplay law and show the chip instead.
   splash: {
     tapHintVoice: "नमस्ते पंडित जी! आगे बढ़ने के लिए स्क्रीन छू लीजिए।",
+    // Canon frame 1 — the app's FIRST WORDS. Shishya's speaking bubble carries
+    // "नमस्ते पंडित जी! 🙏"; spoken these two lines in order, on mount (autoplay
+    // -safe attempt), then again on the first unlock. Emoji stripped for TTS.
+    hello: "नमस्ते पंडित जी!",
+    sparshAsk: "आगे बढ़ने के लिए स्पर्श कीजिए।",
+    // the say-bubble text (canon keeps the 🙏)
+    helloBubble: "नमस्ते पंडित जी! 🙏",
+    // canon's own pill copy (short) — NOT the long tapHint
+    pill: "छूकर शुरू करें",
   },
   // प्रथम आरती — the festive entry flow (splash → tutorial)
   pratham: {

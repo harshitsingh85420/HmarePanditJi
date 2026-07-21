@@ -22,18 +22,15 @@ import { Diya } from "@/components/ui/Diya";
 import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
 import { voiceController } from "@/lib/voiceController";
 
-// ── D0-L SPLASH DEADLINE LAW ──────────────────────────────────
-// The front door may NEVER be a dead end. Voice may only bring the
-// advance FORWARD, never hold it back. Two bounds, both armed on mount
-// and living OUTSIDE every voice/park/tap branch:
-//   NO_PLAYBACK — nothing has ever sounded (a fresh load parks by
-//     platform law, and the pandit may never tap). Advance.
-//   ABSOLUTE — a backstop for a lost playback-end event: audio started,
-//     so no timer may behead शिष्य mid-line, but the advance can never
-//     depend forever on an event that may never arrive.
-// Exported so the guard test can assert both exist and are finite.
-export const SPLASH_NO_PLAYBACK_MS = 9_000;
-export const SPLASH_ABSOLUTE_MS = 30_000;
+// ── ISJ'S 8-SECOND RULE (founder-specified) ───────────────────
+// The splash is interactive, not a timer graphic, and never a dead end:
+//   · TOUCH within 8s → advance now (the next screen speaks — the first
+//     touch also unlocks audio via the controller's global pointerdown).
+//   · NO touch by 8s → auto-advance to the next onboarding screen.
+// The two spoken lines total ~5s, so 8s never beheads Shishya. The timer
+// is armed on mount and cleared on unmount (no double-fire; back-nav to
+// the splash remounts and restarts it). Exported for the AUTO test.
+export const SPLASH_ADVANCE_MS = 8_000;
 
 // Canon frame 0 petal fall: five blooms, mixed 🌼/🌸, mixed sizes, at the
 // canon's own left offsets and drift durations.
@@ -57,162 +54,73 @@ const CANON_TAGLINE_GOLD =
 
 export function SunriseSplash({ onDone }: { onDone: () => void }) {
   const doneRef = useRef(false);
-  // parked = welcome queued behind the first-gesture unlock: a human has
-  // not touched the app — NO timer may advance the splash.
-  const parkedRef = useRef(false);
-  const firstTapRef = useRef(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // showHint escalates the pill's pulse; the pill itself is ALWAYS visible.
   const [showHint, setShowHint] = useState(false);
   const finish = () => {
     if (doneRef.current) return;
     doneRef.current = true;
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
     onDone();
   };
 
-  // First tap on a parked splash: the pointerdown unlocks (controller)
-  // and flushes the parked welcome — advance when IT ends. A second tap
-  // (or any tap when not parked) advances immediately (barge-in law).
-  //
-  // G2: the flush's 2.5s failsafe once BEHEADED a playing welcome — the
-  // flush's speaking→true emit can fire in the timer task BETWEEN
-  // pointerdown and click, before this subscription exists, so the
-  // failsafe judged "no playback" against a line that was mid-air.
-  // Now: (a) sawSpeaking is SEEDED from the live state (late-subscriber
-  // safe), (b) the controller's playback-start event cancels the
-  // failsafe the moment the flushed utterance actually sounds, and
-  // (c) a firing failsafe DEFERS while the flush is still in flight
-  // (slow TTS) — it advances only when nothing started and nothing is
-  // in progress.
+  // TOUCH → advance now. The tap is also the audio-unlock gesture (the
+  // controller's global pointerdown primes audio), so the NEXT screen
+  // speaks on mount. Stop the splash's own line first so it can't bleed
+  // over the next screen.
   const handleTap = () => {
-    if (parkedRef.current && !firstTapRef.current) {
-      firstTapRef.current = true;
-      setShowHint(false);
-      let failsafe: ReturnType<typeof setTimeout> | null = null;
-      let cleaned = false;
-      const cleanup = () => {
-        if (cleaned) return;
-        cleaned = true;
-        offStart();
-        unsub();
-        if (failsafe) clearTimeout(failsafe);
-        failsafe = null;
-      };
-      const offStart = voiceController.onPlaybackStart(() => {
-        voiceController.debug("splash: flush started — failsafe cancelled");
-        if (failsafe) clearTimeout(failsafe);
-        failsafe = null;
-      });
-      // natural-end watcher — seeded so a pre-subscription speaking=true
-      // transition (timer-vs-click task ordering) is never missed
-      let sawSpeaking = voiceController.speaking;
-      const unsub = voiceController.subscribe(() => {
-        if (voiceController.speaking) sawSpeaking = true;
-        else if (sawSpeaking) {
-          cleanup();
-          finish();
-        }
-      });
-      // flush never started (TTS dead) → don't strand the pandit
-      failsafe = setTimeout(() => {
-        if (voiceController.speaking || sawSpeaking) {
-          // slow TTS: the flush is in flight — playback start / natural
-          // end owns advancing; the timer must never behead the line
-          voiceController.debug("splash: failsafe deferred — flush in flight");
-          return;
-        }
-        voiceController.debug("splash: flush failsafe fired (no playback)");
-        cleanup();
-        finish();
-      }, 2500);
-      return;
-    }
+    voiceController.stopSpeech("splash:tap-advance");
     finish();
   };
 
   useEffect(() => {
-    // D3a AUTO-ADVANCE = max(minimum display, narration end). शिष्य is
-    // NEVER cut mid-line by the app: speakAndWait resolves on the line's
-    // natural end (or instantly when muted/parked — a no-tap pre-unlock
-    // run advances on the visual timer alone). A user tap still skips
-    // immediately (barge-in allowed). No timer failsafe races a playing
-    // line — speakAndWait always settles, including every finish(false)
-    // path in the controller, so this cannot hang.
-    // D3c: warm the NEXT phase's lines while the sun rises (N2 order:
-    // LOCATION follows the splash now, then the city picker)
-    // V2d: the WELCOME synthesizes while the sun rises — the tap then
-    // hits the TTS cache and first audio lands <1s instead of ~4.4s.
+    // Warm the splash's own lines AND the next screen's, so the first audio
+    // after the unlock tap lands from cache (<1s), not a cold ~4s synth.
     voiceController.prefetch([
-      t("shishya.intro"),
-      t("splash.tapHintVoice"),
+      t("splash.hello"),
+      t("splash.sparshAsk"),
       t("entry.locationVoice"),
       t("pratham.cityVoice"),
     ]);
     let disposed = false;
-    const mountedAt = performance.now();
-    const minDisplay = new Promise<void>((res) => setTimeout(res, 2600));
 
-    // ── D0-L SPLASH DEADLINE LAW — enforcement point ────────────
-    // Armed unconditionally, before any speak() is attempted, and
-    // cleared only on unmount. Nothing below this line — not the park
-    // branch, not the tap handler, not a subscriber — can disarm it.
-    let everPlayed = voiceController.speaking;
-    const offDeadlineWatch = voiceController.onPlaybackStart(() => {
-      everPlayed = true;
-    });
-    const noPlaybackDeadline = setTimeout(() => {
-      // audio is sounding → the natural end owns the advance (शिष्य is
-      // never cut mid-line); the absolute backstop below still stands
-      if (everPlayed || voiceController.speaking) return;
-      voiceController.debug("splash: no-playback deadline — advancing");
+    // ── ISJ'S 8-SECOND RULE: single unconditional timer ─────────
+    // Armed on mount, outside every speech branch. No touch by 8s →
+    // auto-advance. Touch cancels it in finish(). Cleared on unmount.
+    timerRef.current = setTimeout(() => {
+      voiceController.debug("splash: 8s elapsed — auto-advancing");
       if (!disposed) finish();
-    }, SPLASH_NO_PLAYBACK_MS);
-    const absoluteDeadline = setTimeout(() => {
-      voiceController.debug("splash: absolute deadline — advancing");
-      if (!disposed) finish();
-    }, SPLASH_ABSOLUTE_MS);
+    }, SPLASH_ADVANCE_MS);
+
+    // ON MOUNT: attempt the app's first words, in order. Autoplay-safe —
+    // on a fresh first-ever load the browser blocks pre-gesture audio, so
+    // both lines PARK silently and the canon pill carries the ask
+    // visually. On any unlocked session they play, hello then sparsh-ask.
+    // The attempt never throws and never gates the 8s timer.
     void (async () => {
-      // ── T1 PLATFORM LAW (permanent) ─────────────────────────
-      // Browsers FORBID audio before the first user gesture of a page
-      // session (Chrome/Safari autoplay policy). A fresh splash
-      // CANNOT speak, no matter what we call — speech parks until the
-      // unlock tap. This attempt below is the MAXIMUM LEGAL version:
-      // it IS audible for returning-unlocked sessions and any load
-      // where a prior gesture already unlocked audio; on fresh loads
-      // it parks by platform law, the enlarged hint chip carries the
-      // message visually, and the flushed welcome opens with
-      // "नमस्ते पंडित जी!" the instant the pandit touches. Do NOT
-      // re-flag the silent fresh splash as a defect.
-      const hintAttempt = await voiceController.speakAndWait(t("splash.tapHintVoice"));
-      if (hintAttempt.status === "parked") {
-        voiceController.debug("splash: pre-tap hint parked (platform law)");
-      }
+      const hello = await voiceController.speakAndWait(t("splash.hello"));
       if (disposed) return;
-      await new Promise((r) => setTimeout(r, hintAttempt.status === "ended" ? 400 : 1600));
-      if (disposed) return;
-      const { status } = await voiceController.speakAndWait(t("shishya.intro"));
-      if (disposed) return;
-      if (status === "ended" || status === "muted") {
-        // SPLASH LAW: auto-advance ONLY on ended|muted AND ≥2.6s shown
-        await minDisplay;
-        if (!disposed) finish();
-      } else if (status === "parked") {
-        // no human gesture yet → stay indefinitely; gentle hint at 2.5s
-        parkedRef.current = true;
-        const hintIn = Math.max(0, 2500 - (performance.now() - mountedAt));
+      if (hello.status === "parked") {
+        voiceController.debug("splash: hello parked (autoplay law) — pill carries the ask");
+        // nudge the pill's pulse so the visual ask is unmistakable
         setTimeout(() => {
-          if (!disposed && !doneRef.current && !firstTapRef.current) setShowHint(true);
-        }, hintIn);
-      } else if (status === "failed") {
-        // speech impossible this session — visual timer may advance
-        await minDisplay;
-        if (!disposed) finish();
+          if (!disposed && !doneRef.current) setShowHint(true);
+        }, 1200);
+        return; // don't queue the second line behind a parked first line
       }
-      // 'interrupted' = a user tap already handled navigation (barge-in)
+      // audio is live → speak the sparsh ask right after the greeting
+      await voiceController.speakAndWait(t("splash.sparshAsk"));
     })();
+
     return () => {
       disposed = true;
-      clearTimeout(noPlaybackDeadline);
-      clearTimeout(absoluteDeadline);
-      offDeadlineWatch();
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -256,7 +164,7 @@ export function SunriseSplash({ onDone }: { onDone: () => void }) {
           {/* canon: 40/900 · #FFF6E9 · -.5px · lh 1.1 · shadow 0 3px 14px rgba(0,0,0,.35)
               max-w forces the canon's two-line break without hardcoding a <br> */}
           <h1
-            className="pa-splash-word font-display max-w-[220px] mx-auto"
+            className="pa-splash-word font-display mx-auto"
             style={{
               fontSize: "40px",
               fontWeight: 900,
@@ -266,7 +174,17 @@ export function SunriseSplash({ onDone }: { onDone: () => void }) {
               textShadow: "0 3px 14px rgba(0,0,0,.35)",
             }}
           >
-            {t("welcome.titleShort")}
+            {/* canon breaks after the first word: "हमारे" / "पंडित जी" */}
+            {(() => {
+              const [first, ...rest] = t("welcome.titleShort").split(" ");
+              return (
+                <>
+                  {first}
+                  <br />
+                  {rest.join(" ")}
+                </>
+              );
+            })()}
           </h1>
           {/* canon: gold gradient text, 800, letter-spacing 3px, mt 12
               (canon size 16px → held at 18px by the body-text floor) */}
@@ -288,8 +206,39 @@ export function SunriseSplash({ onDone }: { onDone: () => void }) {
           </p>
         </div>
 
-        {/* शिष्य sits in the column under the wordmark (canon mt 14) */}
-        <div className="pa-splash-orb mt-[14px]">
+        {/* शिष्य in his SPEAKING state (canon): a sindoor ribbon above the orb
+            carrying "नमस्ते पंडित जी! 🙏" with a little tail, then the orb.
+            Canon ribbon: #B23A1A / #FFF6E9 / 15px (14→15 label floor) / r16 /
+            0 6px 16px shadow. */}
+        <div className="pa-splash-orb mt-[14px] flex flex-col items-center">
+          <div
+            className="relative font-hindi font-semibold text-center"
+            style={{
+              maxWidth: 250,
+              marginBottom: 9,
+              background: "#B23A1A",
+              color: "#FFF6E9",
+              fontSize: "15px",
+              lineHeight: 1.35,
+              padding: "9px 15px",
+              borderRadius: 16,
+              boxShadow: "0 6px 16px rgba(178,58,26,.3)",
+            }}
+          >
+            {t("splash.helloBubble")}
+            <span
+              className="absolute left-1/2"
+              style={{
+                bottom: -5,
+                transform: "translateX(-50%) rotate(45deg)",
+                width: 12,
+                height: 12,
+                background: "#B23A1A",
+                borderRadius: 2,
+              }}
+              aria-hidden="true"
+            />
+          </div>
           <ShishyaOrb />
         </div>
       </div>
@@ -317,7 +266,7 @@ export function SunriseSplash({ onDone }: { onDone: () => void }) {
           >
             touch_app
           </span>
-          {t("pratham.tapHint")}
+          {t("splash.pill")}
         </span>
       </div>
     </div>

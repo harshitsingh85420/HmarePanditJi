@@ -3,10 +3,10 @@
 # Coverage mappings live in coverage.yaml so they survive regeneration.
 meta:
   source: "docs/pandit-pov-conformance-register.md"
-  sourceSha256: "12e2ebd209bafcb6"
-  totalRequirements: 78
+  sourceSha256: "dc015b72a8bf5eee"
+  totalRequirements: 79
   tally:
-    built: 13
+    built: 14
     partial: 13
     missing: 52
     verify: 0
@@ -124,6 +124,12 @@ blocks:
         testKind: ["auto"]
         typeRaw: "AUTO"
         requirement: "Speech-impediment accessibility: keyboard offered prominently from 2nd failure; failures logged for audit (edge #1)"
+      - id: "F02-13"
+        status: "built"
+        statusNote: "built (feat splash port)"
+        testKind: ["auto"]
+        typeRaw: "AUTO"
+        requirement: "**Splash (founder-specified):** 8-second wait-then-advance — touch cancels the timer and advances now, no touch by 8s auto-advances; the two first-words (नमस्ते पंडित जी! / आगे बढ़ने के लिए स्पर्श कीजिए) are ATTEMPTED on mount (autoplay-safe); audio unlocks globally on first gesture"
   - id: "F3"
     title: "Automatic Language Selection"
     requirements:

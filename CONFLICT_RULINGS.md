@@ -5,6 +5,41 @@ ruling that flips is not silently re-litigated. Newest first.
 
 ---
 
+## Ruling #3 — The splash IS canon frame 1, ported verbatim
+
+**Status: final** (Isj, 2026-07-21). Supersedes the earlier splash decision that
+was judged against the dead `/prompts` Stitch mockup.
+
+### The conflict
+
+An earlier ruling shaped the splash around the `/prompts` mockup (a plain sunrise
+with an ॐ hero mark and a timed auto-advance). Under the master PORT directive,
+`design/canon/` IS the UI — so the splash is canon frame 1, not a convergence
+target.
+
+### The ruling
+
+Canon frame 1 wins, ported verbatim: the 4-stop night→sindoor→genda sky
+`linear-gradient(180deg,#2A1B3D,#5E1C0A 38%,#B23A1A 68%,#F2A02C 100%)`, Toran
+count=11, five mixed 🌼/🌸 petals at canon offsets, the **drawn brass Diya** at
+size 104 (no ॐ, no 🪔 glyph), the wordmark 40/900 `#FFF6E9`, the gold-shimmer
+tagline, Shishya `state=speaking say="नमस्ते पंडित जी! 🙏"`, and the "छूकर शुरू
+करें" touch pill. The only overrides are the standing floors (the 16px tagline is
+held at the 18px body floor; the 42px pill meets the 52px tap floor).
+
+**Behaviour** is Isj's founder spec, layered onto the canon view: the app SPEAKS
+its first words on mount ("नमस्ते पंडित जी!" → "आगे बढ़ने के लिए स्पर्श कीजिए",
+autoplay-safe), the first gesture unlocks audio for the whole session, and the
+**8-second rule** governs advance (touch cancels + advances; 8s auto-advances).
+Recorded as register row F02-13, guarded by `splashBehavior.test.tsx`.
+
+### Reopening
+
+Only Isj. The `/prompts` splash is not evidence — it is the dead mockup this
+ruling exists to bury.
+
+---
+
 ## Ruling #2 — Readable-text floors outrank canon pixel values
 
 **Status: final** (Isj, 2026-07-21). Extends the precedent already set on ThaliNav.

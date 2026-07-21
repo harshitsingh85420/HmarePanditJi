@@ -28,6 +28,9 @@ coverage:
   - id: F02-09
     kind: auto
     ref: apps/pandit/src/lib/f02DeleteConfirm.test.ts
+  - id: F02-13
+    kind: auto
+    ref: apps/pandit/src/components/moments/splashBehavior.test.tsx
   - id: F03-01
     kind: auto
     ref: apps/pandit/src/lib/conformance-f03.test.ts
