@@ -64,6 +64,11 @@ export function VoiceField({
 
   const [state, setState] = useState<VFState>({ phase: "IDLE" });
   const [attempts, setAttempts] = useState(0);
+  // F02: the current rung line, shown as WRITTEN text (spoken AND written —
+  // the walk proved voice-only reassurance fails when the browser parks TTS),
+  // and the rung-3 "सहायता चाहिए" button.
+  const [rungLine, setRungLine] = useState("");
+  const [showHelp, setShowHelp] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const startedRef = useRef(false);
   const stateRef = useRef(state);
@@ -112,12 +117,29 @@ export function VoiceField({
           case "STOP_LISTEN":
             voiceInput.reset();
             break;
-          case "SPEAK_SORRY_ONCE":
-            voiceController.speak(t("voiceLoop.sorryOnce"), {
+          // F02-02/03/04 — the three rungs. Each speaks its line AND shows it
+          // written, then re-arms listening; failures never stop the loop.
+          case "SPEAK_RUNG_1":
+          case "SPEAK_RUNG_2":
+          case "SPEAK_RUNG_3": {
+            const key =
+              eff === "SPEAK_RUNG_1" ? "voiceLoop.rung1" :
+              eff === "SPEAK_RUNG_2" ? "voiceLoop.rung2" : "voiceLoop.rung3";
+            setRungLine(t(key));
+            voiceController.speak(t(key), {
               onEnd: (done) => {
                 if (done) void voiceInput.start();
               },
             });
+            break;
+          }
+          case "OPEN_KEYBOARD":
+            // rung 3: bring the keyboard up for a pandit who cannot get the
+            // voice through — a real escape, not a dead end.
+            setTimeout(() => inputRef.current?.focus(), 60);
+            break;
+          case "SHOW_HELP":
+            setShowHelp(true);
             break;
           case "SPEAK_CONFIRM":
             if (next.phase === "CONFIRMING") {
@@ -138,6 +160,10 @@ export function VoiceField({
             break;
           case "EMIT_VALUE":
             if (accepted !== undefined) {
+              // a confirmed value clears the ladder — the counter reset lives
+              // in the machine (attempts:0 on CONFIRM_YES); this clears its UI.
+              setRungLine("");
+              setShowHelp(false);
               const prev = latestValueRef.current; // value BEFORE this commit
               onChange(accepted);
               // H6: a voice-accepted field value is reversible — "वापस करो"
@@ -378,6 +404,23 @@ export function VoiceField({
           </span>
         ) : null}
       </div>
+
+      {/* F02-02/03/04: the current rung line, shown WRITTEN as well as spoken
+          (voice-only fails when the browser parks TTS). */}
+      {rungLine && state.phase !== "CONFIRMING" && (
+        <p className="t-body font-semibold text-danger font-hindi px-1" aria-live="polite">
+          {rungLine}
+        </p>
+      )}
+      {/* F02-04 rung 3: a real human escape, wired to the support line. */}
+      {showHelp && (
+        <a
+          href="tel:+918934095599"
+          className="w-full min-h-[56px] rounded-btn bg-danger text-white flex items-center justify-center gap-2 text-[18px] font-bold font-hindi active:scale-[0.98] transition-transform"
+        >
+          📞 {t("voiceLoop.helpBtn")}
+        </a>
+      )}
 
       {/* Spoken-value confirmation loop */}
       {state.phase === "CONFIRMING" && (

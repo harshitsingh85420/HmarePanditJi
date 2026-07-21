@@ -22,7 +22,15 @@ export type VFEffect =
   | 'START_LISTEN'
   | 'STOP_LISTEN'
   | 'SPEAK_CONFIRM'
-  | 'SPEAK_SORRY_ONCE' // "माफ़ कीजिए, समझ नहीं आया — फिर बोलें या नीचे लिख दें"
+  // F02-02/03/04: the universal three-rung error ladder (doc's core promise).
+  //   rung 1 → "माफ़ कीजिये, कृपया फिर से बोलिए।"
+  //   rung 2 → "कृपया धीरे और साफ़ बोलिए।"
+  //   rung 3 → the fallback line + keyboard auto-opens + a "सहायता चाहिए" button
+  | 'SPEAK_RUNG_1'
+  | 'SPEAK_RUNG_2'
+  | 'SPEAK_RUNG_3'
+  | 'OPEN_KEYBOARD'
+  | 'SHOW_HELP'
   | 'EMIT_VALUE';
 
 export function reduce(
@@ -50,12 +58,22 @@ export function reduce(
       if (e.type === 'TRANSCRIPT') {
         const parsed = ctx.parse(e.text);
         if (!parsed || e.confidence < 0.55) {
-          // Loop law: never stop listening on failure; apologize ONCE.
+          // F02-02/03/04 THREE-RUNG LADDER. Loop law: never stop listening on
+          // failure. The counter is per-field (attempts lives in the VoiceField
+          // instance and starts at 0 on mount), and resets to 0 on a confirmed
+          // value (see CONFIRM_YES). Rung 3 opens the keyboard and shows the
+          // "सहायता चाहिए" button once; further failures just keep listening so
+          // it does not re-nag.
           const n = a + 1;
+          const rung: VFEffect[] =
+            n === 1 ? ['SPEAK_RUNG_1'] :
+            n === 2 ? ['SPEAK_RUNG_2'] :
+            n === 3 ? ['SPEAK_RUNG_3', 'OPEN_KEYBOARD', 'SHOW_HELP'] :
+            ['START_LISTEN'];
           return {
             next: { phase: 'LISTENING' },
             attempts: n,
-            effects: n === 1 ? ['SPEAK_SORRY_ONCE'] : ['START_LISTEN'],
+            effects: rung,
           };
         }
         return { next: { phase: 'CONFIRMING', heard: e.text, parsed }, attempts: a, effects: ['SPEAK_CONFIRM'] };

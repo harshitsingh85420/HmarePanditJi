@@ -179,6 +179,12 @@ export const hi = {
     listening: "सुन रहा हूँ…",
     understanding: "समझ रहा हूँ…",
     sorryOnce: "माफ़ कीजिए, समझ नहीं आया — फिर बोलें या नीचे लिख दें",
+    // F02-02/03/04: the three rungs, doc wording exact. Each is spoken AND
+    // shown as written text (the walk proved voice-only fails when TTS parks).
+    rung1: "माफ़ कीजिये, कृपया फिर से बोलिए।",
+    rung2: "कृपया धीरे और साफ़ बोलिए।",
+    rung3: "कोई बात नहीं — नीचे लिख दीजिए, या ‘सहायता चाहिए’ दबाकर हमसे बात कीजिए।",
+    helpBtn: "सहायता चाहिए",
     unmatched: "समझ नहीं आया — फिर बोलें",
     ack: "बहुत अच्छा।",
     confirmAsk: "आपने कहा {value}। सही है? हाँ या नहीं बोलें।",
