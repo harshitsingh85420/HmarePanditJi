@@ -26,7 +26,7 @@ interface SkipButtonProps {
  * <SkipButton label="बाद में करें" onClick={handleSkipLater} />
  */
 export default function SkipButton({
-  label = 'Skip करें →',
+  label = 'Skip कीजिए →',
   onClick,
   className,
 }: SkipButtonProps) {

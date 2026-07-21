@@ -62,7 +62,7 @@ export function EmergencySOSFloating({ isVisible = true }: EmergencySOSFloatingP
               <span className="text-[24px] leading-none">📞</span>
             </span>
             {/* canon labels this size 17; 18px is the 18sp floor */}
-            <span className="text-[18px] font-extrabold text-ink font-hindi">सहायता टीम को कॉल करें</span>
+            <span className="text-[18px] font-extrabold text-ink font-hindi">सहायता टीम को कॉल कीजिए</span>
           </motion.button>
         )}
       </AnimatePresence>

@@ -301,7 +301,7 @@ export function HomeView({
               </button>
               {isApproved && (
                 <span className={`text-[15px] font-semibold font-hindi ${isOnline ? "text-leaf-700" : "text-softgrey"}`}>
-                  {isOnline ? "परिवार अब आपको बुला सकते हैं ✓" : "काम शुरू करने के लिए दबाएँ"}
+                  {isOnline ? "परिवार अब आपको बुला सकते हैं ✓" : "काम शुरू करने के लिए दबाइए"}
                 </span>
               )}
             </div>
@@ -360,7 +360,7 @@ export function HomeView({
                 {/* CANON pairs the amount with this pill; the home booking row
                     carries no amount, so only the truthful half is drawn. */}
                 <span className="self-end mt-1 text-[18px] font-hindi font-extrabold text-saffron-500 bg-saffron-50 border-[1.5px] border-saffron-200 rounded-chip px-[14px] py-[7px]">
-                  विवरण देखें ›
+                  विवरण देखिए ›
                 </span>
               </div>
             </button>

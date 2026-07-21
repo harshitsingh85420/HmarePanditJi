@@ -5,6 +5,34 @@ ruling that flips is not silently re-litigated. Newest first.
 
 ---
 
+## Ruling #5 — FOUNDER REGISTER LAW: शुद्ध, सम्मानजनक हिंदी everywhere
+
+**Status: final** (Isj, 2026-07-21). Supersedes canon copy.
+
+Language hierarchy: **Isj's language directives > canon copy > legacy strings**
+(truthful-state still trumps all). Everything the app writes or speaks: आप-forms
+only, imperatives in -इए (कीजिए/बोलिए/दबाइए/चुनिए/भेजिए), छूकर/छुओ/टच →
+स्पर्श कीजिए, तुम/तू nowhere, पंडित जी always with जी. Bar: how a devoted शिष्य
+addresses his guru — simple, warm, आदरपूर्ण; never over-Sanskritized into
+unfamiliarity. Exemptions (PW-08): quoted native-browser button names and taught
+user-command vocabulary. AUTO-guarded by `registerLaw.test.ts`; register rows
+PW-07/PW-08. Reopening: only Isj.
+
+---
+
+## Ruling #4 — Canon-omitted back buttons: no-dead-ends law outranks pixel purity
+
+**Status: final — ratified by Isj** (2026-07-21).
+
+Canon omits the back control on several frames. The ruling: **a screen with no
+other on-screen escape keeps the back, restyled as canon's own back-circle**
+(52px-floored #FFFDF8 shadowed circle, arrow_back #7A250E); a screen with
+another escape (BottomNav tab screens: settings, calendar, earnings) drops the
+back exactly as canon draws it. Applied uniformly in the Header rework
+(variant="row"/"title"/"garland"). Reopening: only Isj.
+
+---
+
 ## Ruling #3 — The splash IS canon frame 1, ported verbatim
 
 **Status: final** (Isj, 2026-07-21). Supersedes the earlier splash decision that

@@ -1433,7 +1433,7 @@ function StepR5(props: {
               value={bank.accountName}
               onChange={(val) => setBank({ ...bank, accountName: val })}
               mode="text"
-              placeholder="नाम लिखें"
+              placeholder="नाम लिखिए"
             />
             <div className="flex flex-col gap-1.5">
               <label className="text-[18px] font-extrabold text-temple-700 font-hindi">
@@ -1445,7 +1445,7 @@ function StepR5(props: {
                 pattern="[0-9]*"
                 value={bank.accountNumber}
                 onChange={(e) => setBank({ ...bank, accountNumber: e.target.value.replace(/\D/g, "") })}
-                onFocus={() => speak("सुरक्षा के लिए खाता नंबर लिखकर भरें")}
+                onFocus={() => speak("सुरक्षा के लिए खाता नंबर लिखकर भरिए")}
                 className="w-full h-[56px] px-3 border-2 border-saffron-300 rounded-inset text-[18px] text-ink bg-white focus:outline-none focus:border-saffron-500 font-mono"
                 style={{ minHeight: "56px", fontSize: "18px" }}
                 placeholder="1234567890"
@@ -1461,7 +1461,7 @@ function StepR5(props: {
                 pattern="[0-9]*"
                 value={bank.accountNumberConfirm}
                 onChange={(e) => setBank({ ...bank, accountNumberConfirm: e.target.value.replace(/\D/g, "") })}
-                onFocus={() => speak("सुरक्षा के लिए खाता नंबर दोबारा लिखकर भरें")}
+                onFocus={() => speak("सुरक्षा के लिए खाता नंबर दोबारा लिखकर भरिए")}
                 className="w-full h-[56px] px-3 border-2 border-saffron-300 rounded-inset text-[18px] text-ink bg-white focus:outline-none focus:border-saffron-500 font-mono"
                 style={{ minHeight: "56px", fontSize: "18px" }}
                 placeholder="1234567890"
@@ -1475,7 +1475,7 @@ function StepR5(props: {
                 type="text"
                 value={bank.ifsc}
                 onChange={(e) => setBank({ ...bank, ifsc: e.target.value.toUpperCase() })}
-                onFocus={() => speak("सुरक्षा के लिए IFSC कोड लिखकर भरें। यह आपकी बैंक पासबुक या चेक पर मिलेगा।")}
+                onFocus={() => speak("सुरक्षा के लिए IFSC कोड लिखकर भरिए। यह आपकी बैंक पासबुक या चेक पर मिलेगा।")}
                 className="w-full h-[56px] px-3 border-2 border-saffron-300 rounded-inset text-[18px] text-ink bg-white focus:outline-none focus:border-saffron-500 font-mono uppercase"
                 style={{ minHeight: "56px", fontSize: "18px" }}
                 placeholder="SBIN0001234"
@@ -1491,7 +1491,7 @@ function StepR5(props: {
               type="text"
               value={upi.id}
               onChange={(e) => setUpi({ id: e.target.value })}
-              onFocus={() => speak("सुरक्षा के लिए यूपीआई आईडी लिखकर भरें")}
+              onFocus={() => speak("सुरक्षा के लिए यूपीआई आईडी लिखकर भरिए")}
               className="w-full h-[56px] px-3 border-2 border-saffron-300 rounded-inset text-[18px] text-ink bg-white focus:outline-none focus:border-saffron-500 font-mono"
               style={{ minHeight: "56px", fontSize: "18px" }}
               placeholder="example@upi"
@@ -1551,7 +1551,7 @@ function AadhaarRow({
         ) : done ? (
           <span className="text-[18px] font-bold text-leaf-700 font-hindi">✓ हो गया</span>
         ) : (
-          <span className="text-[18px] font-bold text-saffron-500 font-hindi">फ़ोटो लें ›</span>
+          <span className="text-[18px] font-bold text-saffron-500 font-hindi">फ़ोटो लीजिए ›</span>
         )}
       </span>
     </label>

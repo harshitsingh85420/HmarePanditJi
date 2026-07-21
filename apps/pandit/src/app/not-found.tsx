@@ -14,7 +14,7 @@ export default function NotFound() {
   // Announce 404 to user on mount
   useEffect(() => {
     void speakWithSarvam({
-      text: 'क्षमा करें, यह पृष्ठ नहीं मिला। कृपया होम पेज पर वापस जाएं।',
+      text: 'क्षमा कीजिए, यह पृष्ठ नहीं मिला। कृपया होम पेज पर वापस जाइए।',
       languageCode: 'hi-IN',
     })
   }, [])
@@ -62,17 +62,17 @@ export default function NotFound() {
           whileTap={{ scale: 0.98 }}
           onClick={handleGoHome}
           className="w-full min-h-[72px] h-auto px-4 py-3 bg-primary-container text-white font-bold text-[20px] rounded-2xl shadow-btn-saffron flex items-center justify-center gap-3 focus:ring-4 focus:ring-primary/50 focus:outline-none"
-          aria-label="होम पेज पर जाएं - Go to home page"
+          aria-label="होम पेज पर जाइए - Go to home page"
         >
           <span className="material-symbols-outlined text-2xl">home</span>
           <span className="text-center block break-words line-clamp-2">
-            होम पेज पर जाएं
+            होम पेज पर जाइए
           </span>
         </motion.button>
 
         {/* Help Contact */}
         <div className="pt-6 border-t border-border-default">
-          <p className="text-text-secondary text-lg mb-2">सहायता के लिए संपर्क करें:</p>
+          <p className="text-text-secondary text-lg mb-2">सहायता के लिए संपर्क कीजिए:</p>
           <a
             href="mailto:support@hmarepanditji.com"
             className="text-saffron text-xl font-bold underline underline-offset-4 hover:text-saffron-dark block"

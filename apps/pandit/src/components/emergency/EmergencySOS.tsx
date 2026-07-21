@@ -41,7 +41,7 @@ export default function EmergencySOS() {
     // the written "दबाकर रखें" under the button carries the same word.
     const timer = setTimeout(() => {
       void speakWithSarvam({
-        text: 'घबराएँ नहीं। मदद के लिए बीच का लाल बटन दबाकर रखें।',
+        text: 'घबराएँ नहीं। मदद के लिए बीच का लाल बटन दबाकर रखिए।',
         languageCode: 'hi-IN',
         pace: 0.85,
       })
@@ -175,7 +175,7 @@ export default function EmergencySOS() {
                   }
                 }}
                 disabled={isLoading || sosSent}
-                aria-label="सहायता बुलाएँ — दबाकर रखें"
+                aria-label="सहायता बुलाइए — दबाकर रखिए"
                 className="relative z-10 w-[210px] h-[210px] rounded-full flex flex-col items-center justify-center gap-2 transition-transform disabled:opacity-70 disabled:pointer-events-none overflow-hidden select-none"
                 style={{
                   background: sosSent
@@ -206,9 +206,9 @@ export default function EmergencySOS() {
                     {/* canon glyph 56px */}
                     <span className="relative text-[56px] leading-none select-none" aria-hidden="true">🆘</span>
                     {/* canon 24/900 */}
-                    <span className="relative text-[24px] font-black font-hindi leading-tight">सहायता बुलाएँ</span>
+                    <span className="relative text-[24px] font-black font-hindi leading-tight">सहायता बुलाइए</span>
                     {/* canon 14/600 opacity .9 → 18px (18sp floor) */}
-                    <span className="relative text-[18px] font-semibold font-hindi opacity-90">दबाकर रखें</span>
+                    <span className="relative text-[18px] font-semibold font-hindi opacity-90">दबाकर रखिए</span>
                   </>
                 )}
               </motion.button>

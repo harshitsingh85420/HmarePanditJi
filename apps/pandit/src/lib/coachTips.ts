@@ -38,8 +38,8 @@ export const COACH_TIPS: Record<string, CoachTip> = {
   calendarBlock: {
     tipId: "calendarBlock",
     screen: "/calendar",
-    title: "तारीख़ बंद करें",
-    line: "जिस दिन उपलब्ध नहीं हैं, उस तारीख़ को छूकर बंद कर दीजिए — उस दिन बुकिंग नहीं आएगी।",
+    title: "तारीख़ बंद कीजिए",
+    line: "जिस दिन उपलब्ध नहीं हैं, उस तारीख़ को स्पर्श कर बंद कर दीजिए — उस दिन बुकिंग नहीं आएगी।",
   },
   samagriAdd: {
     tipId: "samagriAdd",

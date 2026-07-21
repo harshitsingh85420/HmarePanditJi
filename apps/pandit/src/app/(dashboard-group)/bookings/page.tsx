@@ -294,7 +294,7 @@ export default function BookingsPage() {
                             className="font-hindi"
                             style={{ fontSize: "16px", fontWeight: 800, color: "#B23A1A" }}
                           >
-                            जवाब दें ›
+                            जवाब दीजिए ›
                           </div>
                         </div>
                       }

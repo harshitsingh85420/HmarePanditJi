@@ -80,12 +80,12 @@ export default function ReferralLandingPage() {
       const timer = setTimeout(() => {
         if (isValid) {
           void speakWithSarvam({
-            text: `बहुत अच्छा! ${referrerName} ने आपको आमंत्रित किया है। अब पंजीकरण शुरू करें।`,
+            text: `बहुत अच्छा! ${referrerName} ने आपको आमंत्रित किया है। अब पंजीकरण शुरू कीजिए।`,
             languageCode: 'hi-IN',
           })
         } else {
           void speakWithSarvam({
-            text: 'यह रेफरल कोड मान्य नहीं है। कृपया जांचें और फिर से कोशिश करें।',
+            text: 'यह रेफरल कोड मान्य नहीं है। कृपया जांचें और फिर से कोशिश कीजिए।',
             languageCode: 'hi-IN',
           })
         }
@@ -140,7 +140,7 @@ export default function ReferralLandingPage() {
       } else {
         setManualError(data.error || 'Invalid code')
         void speakWithSarvam({
-          text: 'यह कोड मान्य नहीं है। कृपया जांचें और फिर से कोशिश करें।',
+          text: 'यह कोड मान्य नहीं है। कृपया जांचें और फिर से कोशिश कीजिए।',
           languageCode: 'hi-IN',
         })
       }
@@ -272,7 +272,7 @@ export default function ReferralLandingPage() {
                 onClick={handleContinue}
                 className="w-full min-h-[52px] xs:min-h-[56px] sm:min-h-[72px] bg-saffron text-white font-bold text-lg rounded-2xl shadow-btn-saffron active:scale-[0.97] focus:ring-2 focus:ring-primary focus:outline-none"
               >
-                पंजीकरण शुरू करें →
+                पंजीकरण शुरू कीजिए →
               </button>
             </div>
           </>
@@ -305,7 +305,7 @@ export default function ReferralLandingPage() {
               </div>
 
               <p className="text-text-secondary text-base mb-4">
-                कृपया अपने रेफरल कोड की जांच करें या अपने मित्र से सही कोड प्राप्त करें।
+                कृपया अपने रेफरल कोड की जांच कीजिए या अपने मित्र से सही कोड प्राप्त कीजिए।
               </p>
             </motion.div>
 
@@ -317,7 +317,7 @@ export default function ReferralLandingPage() {
               className="bg-surface-card rounded-card shadow-card p-6 mb-8"
             >
               <h2 className="text-lg font-bold text-text-primary mb-4">
-                या मैन्युअल कोड दर्ज करें
+                या मैन्युअल कोड दर्ज कीजिए
               </h2>
               <form onSubmit={handleManualValidate} className="space-y-4">
                 <div>
@@ -338,7 +338,7 @@ export default function ReferralLandingPage() {
                   disabled={validatingManual || manualCode.length < 6}
                   className="w-full min-h-[52px] xs:min-h-[56px] sm:min-h-[72px] bg-saffron text-white font-bold text-lg rounded-2xl shadow-btn-saffron active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {validatingManual ? 'जांच हो रही है...' : 'कोड लगाएं'}
+                  {validatingManual ? 'जांच हो रही है...' : 'कोड लगाइए'}
                 </button>
               </form>
             </motion.div>
@@ -349,13 +349,13 @@ export default function ReferralLandingPage() {
                 onClick={handleContinue}
                 className="w-full min-h-[52px] xs:min-h-[56px] sm:min-h-[72px] border-2 border-saffron text-saffron font-bold text-lg rounded-2xl active:scale-[0.97] focus:ring-2 focus:ring-primary focus:outline-none"
               >
-                बिना referral के जारी रखें
+                बिना referral के जारी रखिए
               </button>
               <button
                 onClick={handleGoHome}
                 className="w-full min-h-[52px] xs:min-h-[56px] text-text-secondary font-medium underline-offset-4 active:opacity-70 focus:ring-2 focus:ring-primary focus:outline-none"
               >
-                होमपेज पर जाएं
+                होमपेज पर जाइए
               </button>
             </div>
           </>

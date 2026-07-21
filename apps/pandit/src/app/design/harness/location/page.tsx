@@ -14,7 +14,7 @@ import LocationPermissionScreen from "../../../onboarding/screens/LocationPermis
 
 function Inner() {
   const params = useSearchParams();
-  const confirm = params.get("state") === "confirm";
+  const confirm = params?.get("state") === "confirm";
   return (
     <LocationPermissionScreen
       language={"hi" as never}

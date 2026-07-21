@@ -301,7 +301,7 @@ export default function HomePage() {
   const welcomeSpeakText = isBookingReady
     ? (isOnline
         ? "आप अभी ऑनलाइन हैं। नई बुकिंग के लिए तैयार रहें।"
-        : "आप अभी ऑफलाइन हैं। काम शुरू करने के लिए ऑनलाइन जाएं।") + " " + todaySummary + festivalLine
+        : "आप अभी ऑफलाइन हैं। काम शुरू करने के लिए ऑनलाइन जाइए।") + " " + todaySummary + festivalLine
     : t("home.readinessHeroVoice");
 
   // W3: ids = the AGENT's tool vocabulary on this screen (labels are

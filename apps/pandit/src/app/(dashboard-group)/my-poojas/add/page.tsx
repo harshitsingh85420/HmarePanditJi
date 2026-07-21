@@ -46,7 +46,7 @@ import { STEPS_5, migrateStep, teamOptionLabel, teamOptionKeywords } from "./ste
 
 // CANON TITLES — the artboards do NOT repeat "पूजा जोड़ें" on every step;
 // each of 18a–18e carries the name of the thing being asked for.
-const STEP_TITLES = ["पूजा जोड़ें", "सामग्री के तीन स्तर", "और थोड़ी बातें", "सत्यापन वीडियो", "पूजा की स्थिति"] as const;
+const STEP_TITLES = ["पूजा जोड़िए", "सामग्री के तीन स्तर", "और थोड़ी बातें", "सत्यापन वीडियो", "पूजा की स्थिति"] as const;
 
 // CANON PROGRESS (18a) — five 22×6 bars at radius 3, sindoor for the steps
 // reached and #E7DCC9 for the rest. Canon draws no numbered circles here.
@@ -158,7 +158,7 @@ export default function AddPooja5Page() {
 
   return (
     <Screen
-      title={STEP_TITLES[d.step] ?? "पूजा जोड़ें"}
+      title={STEP_TITLES[d.step] ?? "पूजा जोड़िए"}
       showBack
       onBack={() => (d.step === 0 ? router.push("/my-poojas") : go(d.step - 1))}
       banner={d.step < 4 ? <div className="px-[18px] pt-2 pb-1 bg-cream"><StepBars total={STEPS_5.length} current={d.step + 1} /></div> : undefined}
@@ -171,7 +171,7 @@ export default function AddPooja5Page() {
             // canon CTA is min-height 62 / 21px / 800 / radius 18 / sindoor
             // lift — which is Button's default `md`, so the override is gone.
             <Button className="w-full" loading={submitting} disabled={!d.videoUrl || !d.consent} onClick={submit}>
-              पूजा भेजें
+              पूजा भेजिए
             </Button>
           ) : (
             <Button
@@ -212,7 +212,7 @@ export default function AddPooja5Page() {
 function StepName({ d, set }: { d: Draft; set: (p: Partial<Draft>) => void }) {
   return (
     <>
-      <Narrate text="कौन सी पूजा जोड़ें? नाम बोलिए, फिर दो शब्दों में बताइए यह पूजा क्या है।" />
+      <Narrate text="कौन सी पूजा जोड़िए? नाम बोलिए, फिर दो शब्दों में बताइए यह पूजा क्या है।" />
       <div className="flex flex-col gap-2">
         <VoiceField label="पूजा का नाम" promptText="पूजा का नाम बोलिए" mode="text" value={d.name} onChange={(v) => set({ name: v })} placeholder="जैसे सत्यनारायण कथा" />
       </div>
@@ -244,13 +244,13 @@ function StepSamagri({ d, set, activeTier, setActiveTier, tiersData }: {
       <span className="text-[18px] font-bold font-hindi text-softgrey">ऊपर का स्तर नीचे वाला सब अपने आप जोड़ लेता है 👇</span>
       <SamagriTiers tiers={tiersData} active={activeTier} onSelect={setActiveTier} showPrices={false} />
       <Card className="flex flex-col gap-2 bg-card">
-        <span className="text-[18px] font-hindi text-softgrey font-bold">{TIER_LABEL[activeTier]} में जोड़ें</span>
+        <span className="text-[18px] font-hindi text-softgrey font-bold">{TIER_LABEL[activeTier]} में जोड़िए</span>
         <VoiceField label={`${TIER_LABEL[activeTier]} में सामान`} promptText="सामान का नाम बोलिए" mode="text" value={name} onChange={setName} placeholder="सामान का नाम" />
         <div className="flex gap-2">
           <input value={qty} onChange={(e) => setQty(e.target.value)} placeholder="मात्रा" className="flex-1 h-[56px] px-3.5 rounded-field border-2 border-saffron-200 text-[18px] font-hindi bg-card" />
           <input value={brand} onChange={(e) => setBrand(e.target.value)} placeholder="कंपनी" className="flex-1 h-[56px] px-3.5 rounded-field border-2 border-saffron-200 text-[18px] font-hindi bg-card" />
         </div>
-        <Button variant="secondary" className="h-[56px] min-h-[56px] text-[19px] rounded-[14px]" onClick={addItem} disabled={!name.trim()}>जोड़ें</Button>
+        <Button variant="secondary" className="h-[56px] min-h-[56px] text-[19px] rounded-[14px]" onClick={addItem} disabled={!name.trim()}>जोड़िए</Button>
       </Card>
     </>
   );
@@ -311,9 +311,9 @@ function StepDetails({ d, set }: { d: Draft; set: (p: Partial<Draft>) => void })
       <div className="flex flex-col gap-2.5">
         <span className="text-[19px] font-black text-saffron-700 font-hindi">सामान कौन लाएगा?</span>
         <div className="flex flex-col gap-2.5">
-          {opt("PANDIT_BRINGS", "🛍️", "हाँ, मैं लाऊँगा", "तीनों स्तर के दाम आप तय करें")}
-          {opt("PLATFORM_SELLS", "🚚", "प्लेटफ़ॉर्म बेचे और पहुँचाए", "हम सामान का इंतज़ाम करें")}
-          {opt("LIST_ONLY", "📝", "सिर्फ़ सूची दूँ", "यजमान ख़ुद ले आएँ")}
+          {opt("PANDIT_BRINGS", "🛍️", "हाँ, मैं लाऊँगा", "तीनों स्तर के दाम आप तय कीजिए")}
+          {opt("PLATFORM_SELLS", "🚚", "प्लेटफ़ॉर्म बेचे और पहुँचाए", "हम सामान का इंतज़ाम कीजिए")}
+          {opt("LIST_ONLY", "📝", "सिर्फ़ सूची दूँ", "यजमान ख़ुद ले आइए")}
         </div>
         {d.supplyMode === "PANDIT_BRINGS" && (
           <div className="p-4 rounded-tile border-2 border-saffron-200 bg-[linear-gradient(135deg,#FDEEE7,#FFF3E2)]">
@@ -370,7 +370,7 @@ function StepDetails({ d, set }: { d: Draft; set: (p: Partial<Draft>) => void })
 // ── Step 3: video (unchanged) ─────────────────────────────────────────────────
 function StepVideo({ d, set }: { d: Draft; set: (p: Partial<Draft>) => void }) {
   const id = ytId(d.videoUrl);
-  const CHECK = ["मंत्र साफ़ सुनाई दें", "अच्छी रोशनी हो", "आपका चेहरा दिखे", "पूजा का माहौल दिखे"];
+  const CHECK = ["मंत्र साफ़ सुनाई दीजिए", "अच्छी रोशनी हो", "आपका चेहरा दिखे", "पूजा का माहौल दिखे"];
   return (
     <>
       <Narrate text="दो मिनट का वीडियो चाहिए — परिवार यही देखकर आपको चुनेंगे। यूट्यूब लिंक यहाँ टाइप कीजिए।" />
@@ -393,7 +393,7 @@ function StepVideo({ d, set }: { d: Draft; set: (p: Partial<Draft>) => void }) {
       )}
 
       <Card className="bg-card flex flex-col gap-2.5">
-        <span className="text-[18px] font-hindi text-softgrey font-bold">यूट्यूब लिंक (टाइप करें — यह बोलकर नहीं भरा जाता)</span>
+        <span className="text-[18px] font-hindi text-softgrey font-bold">यूट्यूब लिंक (टाइप कीजिए — यह बोलकर नहीं भरा जाता)</span>
         <input value={d.videoUrl} onChange={(e) => set({ videoUrl: e.target.value })} inputMode="url" placeholder="https://youtu.be/…"
           className="h-[56px] px-4 rounded-field border-2 border-saffron-200 text-[18px] font-hindi bg-card" />
       </Card>
@@ -449,7 +449,7 @@ function StepDone({ name }: { name: string }) {
           <span className="text-[18px] font-hindi font-semibold text-softgrey">{name} · जाँच जारी है</span>
         </span>
       </div>
-      <Button className="mt-2 w-full" onClick={() => router.push("/my-poojas")}>मेरी पूजाएँ देखें</Button>
+      <Button className="mt-2 w-full" onClick={() => router.push("/my-poojas")}>मेरी पूजाएँ देखिए</Button>
     </div>
   );
 }

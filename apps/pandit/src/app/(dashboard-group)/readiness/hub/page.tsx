@@ -168,7 +168,7 @@ export default function ReadinessHubPage() {
                   white pill, the other two are plain right-aligned labels */}
               {st === "now" ? (
                 <span className="text-[18px] font-extrabold font-hindi text-saffron bg-white rounded-full px-[11px] py-1 shrink-0">
-                  अभी करें
+                  अभी कीजिए
                 </span>
               ) : (
                 <span
@@ -199,7 +199,7 @@ export default function ReadinessHubPage() {
               fullWidth
               onClick={() => router.push(`/readiness?step=${nextStep}`)}
             >
-              {AREAS[nextStep - 1].label} भरें
+              {AREAS[nextStep - 1].label} भरिए
             </Button>
           )}
         </div>

@@ -30,7 +30,7 @@ export default function ErrorBoundary({
   // Announce error to user on mount
   useEffect(() => {
     void speakWithSarvam({
-      text: 'क्षमा करें, कुछ गलत हो गया। कृपया पुनः प्रयास करें या सहायता के लिए संपर्क करें।',
+      text: 'क्षमा कीजिए, कुछ गलत हो गया। कृपया पुनः प्रयास कीजिए या सहायता के लिए संपर्क कीजिए।',
       languageCode: 'hi-IN',
     })
   }, [])
@@ -51,7 +51,7 @@ export default function ErrorBoundary({
 
     // Announce help contact
     void speakWithSarvam({
-      text: 'सहायता के लिए संपर्क करें: support@hmarepanditji.com',
+      text: 'सहायता के लिए संपर्क कीजिए: support@hmarepanditji.com',
       languageCode: 'hi-IN',
     })
   }
@@ -79,7 +79,7 @@ export default function ErrorBoundary({
             कुछ गलत हो गया
           </h1>
           <p className="text-text-secondary text-xl font-devanagari">
-            क्षमा करें, तकनीकी दिक्कत आई।
+            क्षमा कीजिए, तकनीकी दिक्कत आई।
           </p>
           <p className="text-text-secondary text-lg">
             Something went wrong. Please try again.
@@ -101,11 +101,11 @@ export default function ErrorBoundary({
             whileTap={{ scale: 0.98 }}
             onClick={handleRetry}
             className="w-full min-h-[72px] h-auto px-4 py-3 bg-saffron text-white font-bold text-[20px] rounded-2xl shadow-btn-saffron flex items-center justify-center gap-3 focus:ring-4 focus:ring-saffron/50 focus:outline-none"
-            aria-label="पुनः प्रयास करें - Try again"
+            aria-label="पुनः प्रयास कीजिए - Try again"
           >
             <span className="material-symbols-outlined text-2xl">refresh</span>
             <span className="text-center block break-words line-clamp-2">
-              पुनः प्रयास करें
+              पुनः प्रयास कीजिए
             </span>
           </motion.button>
 
@@ -113,18 +113,18 @@ export default function ErrorBoundary({
             whileTap={{ scale: 0.98 }}
             onClick={handleContactHelp}
             className="w-full min-h-[64px] h-auto px-4 py-3 bg-white border-2 border-saffron text-saffron font-bold text-xl rounded-2xl flex items-center justify-center gap-3 focus:ring-4 focus:ring-saffron/30 focus:outline-none"
-            aria-label="सहायता से संपर्क करें - Contact help"
+            aria-label="सहायता से संपर्क कीजिए - Contact help"
           >
             <span className="material-symbols-outlined text-2xl">support_agent</span>
             <span className="text-center block break-words line-clamp-2">
-              सहायता से संपर्क करें
+              सहायता से संपर्क कीजिए
             </span>
           </motion.button>
         </div>
 
         {/* Help Contact Info */}
         <div className="pt-6 border-t border-border-default">
-          <p className="text-text-secondary text-lg mb-2">संपर्क करें:</p>
+          <p className="text-text-secondary text-lg mb-2">संपर्क कीजिए:</p>
           <a
             href="mailto:support@hmarepanditji.com"
             className="text-saffron text-xl font-bold underline underline-offset-4 hover:text-saffron-dark"

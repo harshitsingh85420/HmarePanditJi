@@ -158,7 +158,7 @@ export function SamagriPackageEditor({
                   <div className="w-[130px] flex-shrink-0">
                     <VoiceField
                       label=""
-                      promptText={`${item.name} की मात्रा बोलें`}
+                      promptText={`${item.name} की मात्रा बोलिए`}
                       value={item.qty}
                       onChange={(val) => handleQtyChange(idx, val)}
                       mode="number"
@@ -181,7 +181,7 @@ export function SamagriPackageEditor({
               <div className="flex flex-col gap-3 p-4 bg-saffron-50/50 rounded-card border border-saffron-100 mt-2">
                 <VoiceField
                   label={t("samagri.itemNamePlaceholder")}
-                  promptText="सामग्री का नाम बोलें"
+                  promptText="सामग्री का नाम बोलिए"
                   value={newItemName}
                   onChange={setNewItemName}
                   mode="text"
@@ -189,7 +189,7 @@ export function SamagriPackageEditor({
                 />
                 <VoiceField
                   label={t("samagri.qtyPlaceholder")}
-                  promptText="सामग्री की मात्रा बोलें"
+                  promptText="सामग्री की मात्रा बोलिए"
                   value={newItemQty}
                   onChange={setNewItemQty}
                   mode="number"

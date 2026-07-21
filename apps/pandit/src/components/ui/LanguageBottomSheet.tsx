@@ -37,7 +37,7 @@ export default function LanguageBottomSheet({
         </div>
         <div className="flex items-center justify-between px-4 py-3">
           <div>
-            <h2 className="text-lg font-bold text-vedic-brown">भाषा बदलें</h2>
+            <h2 className="text-lg font-bold text-vedic-brown">भाषा बदलिए</h2>
             <p className="text-lg text-vedic-gold">Change Language</p>
           </div>
           <button onClick={onClose} className="w-14 h-14 flex items-center justify-center text-vedic-gold">
@@ -108,7 +108,7 @@ export default function LanguageBottomSheet({
             onClick={onClose}
             className="w-full h-14 border border-vedic-border rounded-btn text-vedic-brown-2 font-semibold text-lg"
           >
-            बंद करें / Close
+            बंद कीजिए / Close
           </button>
         </div>
       </div>

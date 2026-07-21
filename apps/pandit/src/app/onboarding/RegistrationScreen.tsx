@@ -169,7 +169,7 @@ export default function RegistrationScreen({ onBack }: { onBack: () => void }) {
                 onChange={setName}
                 mode="text"
                 required
-                placeholder="पंडित जी का नाम लिखें"
+                placeholder="पंडित जी का नाम लिखिए"
               />
             </div>
           </Card>

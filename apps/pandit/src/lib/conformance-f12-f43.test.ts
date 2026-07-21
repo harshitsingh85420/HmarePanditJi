@@ -265,7 +265,7 @@ describe("F12-01 — containment (Standard ⊇ Basic, Premium ⊇ Standard)", ()
     );
 
     await mount(React.createElement(AddPoojaPage));
-    const submitBtn = screen.getByRole("button", { name: /पूजा भेजें/ });
+    const submitBtn = screen.getByRole("button", { name: /पूजा भेजिए/ });
     await act(async () => {
       submitBtn.click();
     });
@@ -356,7 +356,7 @@ describe("F12-03 — supply question, scope A: readiness R2 (global हाँ/�
     });
 
     expect(
-      screen.getByText("हर पूजा के लिए सामग्री सूची और कम से कम एक पैकेज की कीमत भरें"),
+      screen.getByText("हर पूजा के लिए सामग्री सूची और कम से कम एक पैकेज की कीमत भरिए"),
     ).toBeInTheDocument();
     expect(bodyText()).not.toContain("सामान ग्राहक/प्लेटफ़ॉर्म का रहेगा");
   });
@@ -397,7 +397,7 @@ describe("F12-03 — supply question, scope A: readiness R2 (global हाँ/�
 
     mutateOnce.mockClear();
     await act(async () => {
-      screen.getByRole("button", { name: /आगे बढ़ें/ }).click();
+      screen.getByRole("button", { name: /आगे बढ़िए/ }).click();
     });
 
     // no step PATCH was attempted, and the question is echoed as the error
@@ -417,7 +417,7 @@ describe("F12-03 — supply question, scope A: readiness R2 (global हाँ/�
     });
     mutateOnce.mockClear();
     await act(async () => {
-      screen.getByRole("button", { name: /आगे बढ़ें/ }).click();
+      screen.getByRole("button", { name: /आगे बढ़िए/ }).click();
     });
 
     const patch = mutateOnce.mock.calls.find(
@@ -508,7 +508,7 @@ describe("F12-03 — supply question, scope B: my-poojas/add step 2 (per-pooja)"
     );
     await mount(React.createElement(AddPoojaPage));
     await act(async () => {
-      screen.getByRole("button", { name: /पूजा भेजें/ }).click();
+      screen.getByRole("button", { name: /पूजा भेजिए/ }).click();
     });
 
     const cfg = mutateOnce.mock.calls.find(

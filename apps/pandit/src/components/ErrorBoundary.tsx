@@ -60,13 +60,13 @@ export function ErrorBoundary({ children, fallback }: ErrorBoundaryProps) {
             कुछ गड़बड़ हो गई | कुछ गलत हो गया
           </h2>
           <p className="mb-4 text-sm text-gray-600">
-            कृपया पृष्ठ को रीफ्रेश करें | कृपया पेज को रिफ्रेश करें
+            कृपया पृष्ठ को रीफ्रेश कीजिए | कृपया पेज को रिफ्रेश कीजिए
           </p>
           <button
             onClick={() => window.location.reload()}
             className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
           >
-            रिफ्रेश करें | Refresh
+            रिफ्रेश कीजिए | Refresh
           </button>
           {process.env.NODE_ENV === 'development' && error && (
             <details className="mt-4 text-left">

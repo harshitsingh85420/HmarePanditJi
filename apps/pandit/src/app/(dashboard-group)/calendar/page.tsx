@@ -203,7 +203,7 @@ export default function CalendarPage() {
     <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
       {/* canon frame 20: plain title block "📅 कैलेंडर" + the tap hint (canon
           14px → 15px label floor). No back — BottomNav is the escape. */}
-      <Header variant="title" title={`📅 ${t("calendar.title")}`} sub="तारीख दबाकर छुट्टी लगाएँ" />
+      <Header variant="title" title={`📅 ${t("calendar.title")}`} sub="तारीख दबाकर छुट्टी लगाइए" />
 
       {/* BLOCK VOICE NARRATION ON MOUNT */}
       <Narrate text={t("calendar.blockVoice")} />

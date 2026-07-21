@@ -58,7 +58,7 @@ export default function ManualCityScreen({ onCitySelected, onBack }: ManualCityS
 
   return (
     <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
-      {/* canon frame 2 chrome (this is स्थान's जगह-बदलें branch): the garland
+      {/* canon frame 2 chrome (this is स्थान's जगह-बदलिए branch): the garland
           + a plain dark centered title. Back stays as the canon circle. */}
       <header className="shrink-0">
         <Toran variant="garland" count={11} />

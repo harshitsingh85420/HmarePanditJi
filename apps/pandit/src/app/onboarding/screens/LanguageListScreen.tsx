@@ -174,7 +174,7 @@ export default function LanguageListScreen({ onSelect, onBack }: LanguageListScr
 
         {/* Canon's explicit commit step. It does not replace either existing
             path: arm a tile (first tap), then tap it again / say the name /
-            press आगे बढ़ें. Disabled until something is armed, so it can never
+            press आगे बढ़िए. Disabled until something is armed, so it can never
             select nothing. size="md" is canon's exact CTA (62px / 21px / 800). */}
         <Button
           variant="primary"

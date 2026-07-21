@@ -101,7 +101,7 @@ export function LanguageChangeWidget({ currentLanguage, onLanguageChange }: Lang
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(!isOpen)}
         className="fixed top-20 right-4 z-20 min-h-[44px] bg-surface-card rounded-full shadow-card flex items-center gap-2 border border-saffron/30 px-4 py-2 focus:ring-2 focus:ring-saffron focus:outline-none"
-        aria-label="भाषा बदलें / Change Language"
+        aria-label="भाषा बदलिए / Change Language"
       >
         <span className="text-lg">{currentLang?.flag}</span>
         <span className="text-base font-bold text-text-primary">
@@ -138,7 +138,7 @@ export function LanguageChangeWidget({ currentLanguage, onLanguageChange }: Lang
                 <div className="w-16 h-2 bg-surface-dim rounded-full mb-4" data-purpose="drag-handle" />
                 <div className="w-full px-6 flex justify-between items-center">
                   <h1 className="text-[22px] font-bold text-text-primary font-devanagari">
-                    भाषा बदलें <span className="text-text-placeholder font-normal">/ Change Language</span>
+                    भाषा बदलिए <span className="text-text-placeholder font-normal">/ Change Language</span>
                   </h1>
                   <button
                     className="min-h-[56px] min-w-[56px] p-2 text-text-placeholder hover:text-text-secondary transition-colors rounded-full hover:bg-surface-muted"
@@ -225,7 +225,7 @@ export function LanguageChangeWidget({ currentLanguage, onLanguageChange }: Lang
                   onClick={() => setIsOpen(false)}
                   className="w-full py-4 bg-saffron hover:bg-saffron-dark text-white rounded-2xl font-bold text-lg shadow-lg shadow-saffron/20 transition-all active:scale-[0.98] font-devanagari"
                 >
-                  बंद करें / Close
+                  बंद कीजिए / Close
                 </button>
               </div>
             </motion.div>

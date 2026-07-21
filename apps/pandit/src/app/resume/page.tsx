@@ -122,7 +122,7 @@ export default function ResumeRegistrationScreen() {
 
         {/* Title */}
         <h1 className="text-2xl font-bold text-saffron text-center mb-2">
-          पंजीकरण जारी रखें
+          पंजीकरण जारी रखिए
         </h1>
         <p className="text-text-secondary text-center mb-8">
           आपने {completedCount} में से {totalSteps} चरण पूरे किए
@@ -213,14 +213,14 @@ export default function ResumeRegistrationScreen() {
             className="w-full h-16 bg-saffron text-white font-bold text-lg rounded-btn shadow-btn-saffron active:scale-[0.97] flex items-center justify-center gap-2"
           >
             <span className="material-symbols-outlined">play_arrow</span>
-            <span>जारी रखें</span>
+            <span>जारी रखिए</span>
           </button>
 
           <button
             onClick={handleStartOver}
             className="w-full h-14 text-text-secondary font-medium underline-offset-2 active:opacity-70"
           >
-            नए सिरे से शुरू करें
+            नए सिरे से शुरू कीजिए
           </button>
         </div>
       </div>

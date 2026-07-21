@@ -9,7 +9,7 @@ import { render, cleanup, screen, fireEvent, act } from "@testing-library/react"
 // docs/spec/DEVIATIONS.md lines 79-99).
 //
 // These three are 🟡 PARTIAL today. This file does NOT try to make them
-// conform — it FREEZES what is true right now on the live 5-step पूजा जोड़ें
+// conform — it FREEZES what is true right now on the live 5-step पूजा जोड़िए
 // flow, so that a change which silently drops the video requirement, the
 // recording checklist, or the YouTube-link submission shape fails the build.
 //
@@ -79,7 +79,7 @@ afterEach(cleanup);
 
 // ─── F08-02 ──────────────────────────────────────────────────────────────────
 // Register: "Per selected pooja: 2-minute video required; both paths offered —
-// 'नया रिकॉर्ड करें' / 'गैलरी से'". Status 🟡: the video IS required, but the
+// 'नया रिकॉर्ड कीजिए' / 'गैलरी से'". Status 🟡: the video IS required, but the
 // two documented paths are not what is offered.
 describe("F08-02 — per-pooja video is required, and which submission paths are actually offered", () => {
   it("F08-02: the 2-minute video requirement is stated in the step's narration", () => {
@@ -87,25 +87,25 @@ describe("F08-02 — per-pooja video is required, and which submission paths are
     expect(videoStepNarration()).toContain("दो मिनट");
   });
 
-  it("F08-02: पूजा भेजें stays disabled until BOTH a video link and consent exist", () => {
+  it("F08-02: पूजा भेजिए stays disabled until BOTH a video link and consent exist", () => {
     // no link, no consent
     const a = renderVideoStep();
-    expect(a.getByRole("button", { name: /पूजा भेजें/ })).toBeDisabled();
+    expect(a.getByRole("button", { name: /पूजा भेजिए/ })).toBeDisabled();
     cleanup();
 
     // link but no consent — still blocked
     const b = renderVideoStep({ videoUrl: "https://youtu.be/dQw4w9WgXcQ", consent: false });
-    expect(b.getByRole("button", { name: /पूजा भेजें/ })).toBeDisabled();
+    expect(b.getByRole("button", { name: /पूजा भेजिए/ })).toBeDisabled();
     cleanup();
 
     // consent but no link — still blocked
     const c = renderVideoStep({ videoUrl: "", consent: true });
-    expect(c.getByRole("button", { name: /पूजा भेजें/ })).toBeDisabled();
+    expect(c.getByRole("button", { name: /पूजा भेजिए/ })).toBeDisabled();
     cleanup();
 
     // both — the only unlocked combination
     const d = renderVideoStep({ videoUrl: "https://youtu.be/dQw4w9WgXcQ", consent: true });
-    expect(d.getByRole("button", { name: /पूजा भेजें/ })).toBeEnabled();
+    expect(d.getByRole("button", { name: /पूजा भेजिए/ })).toBeEnabled();
   });
 
   it("F08-02: exactly two paths are offered today — type a link, or hand it to WhatsApp", () => {
@@ -124,7 +124,7 @@ describe("F08-02 — per-pooja video is required, and which submission paths are
     expect(wa!.getAttribute("href")).toContain("wa.me/918934095599");
   });
 
-  it("F08-02: KNOWN GAP — neither documented path ('नया रिकॉर्ड करें' / 'गैलरी से') exists", () => {
+  it("F08-02: KNOWN GAP — neither documented path ('नया रिकॉर्ड कीजिए' / 'गैलरी से') exists", () => {
     // KNOWN GAP, not a desired property. The doc requires in-app capture AND a
     // gallery picker; we ship neither (deviation D-03). If someone builds either
     // one, this test fails — which is the point: come update F08-02/D-03.
@@ -147,7 +147,7 @@ describe("F08-02 — per-pooja video is required, and which submission paths are
 describe("F08-03 — the recording checklist that is actually rendered on the वीडियो step", () => {
   /** the exact list the component renders today (add/page.tsx CHECK) */
   const RENDERED = [
-    "मंत्र साफ़ सुनाई दें", // documented: मंत्रोच्चार
+    "मंत्र साफ़ सुनाई दीजिए", // documented: मंत्रोच्चार
     "अच्छी रोशनी हो", // undocumented extra
     "आपका चेहरा दिखे", // documented: चेहरा साफ़
     "पूजा का माहौल दिखे", // undocumented extra here (माहौल is an F08-04 admin parameter)
@@ -244,7 +244,7 @@ describe("F08-06 — submission is an (unlisted) YouTube link, per deviation D-0
     });
 
     await act(async () => {
-      fireEvent.click(getByRole("button", { name: /पूजा भेजें/ }));
+      fireEvent.click(getByRole("button", { name: /पूजा भेजिए/ }));
     });
 
     // the submit chain awaits pooja-config BEFORE pooja-verification, so waiting

@@ -258,7 +258,7 @@ export default function MyPoojasPage() {
                     setEditing(pooja);
                     setEditValue(String(rates[pooja] ?? ""));
                   }}
-                  aria-label={`${pooja} की दक्षिणा बदलें`}
+                  aria-label={`${pooja} की दक्षिणा बदलिए`}
                   className={`t-money text-[19px] font-black shrink-0 min-h-[52px] px-1 flex items-center active:scale-[0.97] transition-transform ${priceCls}`}
                 >
                   ₹{(rates[pooja] ?? 0).toLocaleString("en-IN")}
@@ -270,7 +270,7 @@ export default function MyPoojasPage() {
                   while the ::after pad carries the full 52px tap target. */}
               <button
                 onClick={() => void removePooja(pooja)}
-                aria-label={`${pooja} हटाएं`}
+                aria-label={`${pooja} हटाइए`}
                 className="relative w-6 h-6 shrink-0 rounded-full text-softgrey text-[18px] font-bold flex items-center justify-center active:scale-95 transition-transform after:absolute after:content-[''] after:-inset-[14px]"
               >
                 ✖

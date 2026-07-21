@@ -74,7 +74,7 @@ export default function HelpPage() {
           <span className="flex-1 text-left">
             {/* Canon's label is plain — the tile carries the glyph, so the
                 🔁-prefixed strings.ts value is not used here. */}
-            <span className={`${TITLE} text-temple-700`}>ट्यूटोरियल फिर देखें</span>
+            <span className={`${TITLE} text-temple-700`}>ट्यूटोरियल फिर देखिए</span>
             <span className={SUB}>वही 6 आसान कदम</span>
           </span>
           <span className={`${CHEV} text-sand-400`} aria-hidden="true">chevron_right</span>
@@ -89,7 +89,7 @@ export default function HelpPage() {
             <span className="material-symbols-outlined material-symbols-filled text-[28px]">call</span>
           </span>
           <span className="flex-1">
-            <span className={`${TITLE} text-leaf-700`}>सहायता को कॉल करें</span>
+            <span className={`${TITLE} text-leaf-700`}>सहायता को कॉल कीजिए</span>
             <span className={SUB}>सुबह 8 – रात 10 · मुफ़्त</span>
           </span>
           <span className={`${CHEV} text-[#8FBFA1]`} aria-hidden="true">chevron_right</span>
@@ -114,7 +114,7 @@ export default function HelpPage() {
         >
           <span className={`${TILE_PEACH} text-[26px]`} aria-hidden="true">💬</span>
           <span className="flex-1">
-            <span className={`${TITLE} text-temple-700`}>WhatsApp पर पूछें</span>
+            <span className={`${TITLE} text-temple-700`}>WhatsApp पर पूछिए</span>
             <span className={SUB}>तुरंत जवाब</span>
           </span>
           <span className={`${CHEV} text-sand-400`} aria-hidden="true">chevron_right</span>

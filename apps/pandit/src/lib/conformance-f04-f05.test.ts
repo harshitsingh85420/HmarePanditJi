@@ -99,7 +99,7 @@ describe("F04-03 — detected-city confirm before commit", () => {
       }),
     );
 
-    fireEvent.click(screen.getByText("अनुमति दें"));
+    fireEvent.click(screen.getByText("अनुमति दीजिए"));
 
     // the confirm card appears with the detected place spelled out
     await waitFor(() => expect(screen.getByText("Varanasi")).toBeTruthy());
@@ -123,7 +123,7 @@ describe("F04-03 — detected-city confirm before commit", () => {
         onDenied,
       }),
     );
-    fireEvent.click(screen.getByText("अनुमति दें"));
+    fireEvent.click(screen.getByText("अनुमति दीजिए"));
     await waitFor(() => expect(screen.getByText("Varanasi")).toBeTruthy());
 
     // canon frame 2 CTA carries a material check_circle glyph, not a "✓" char
@@ -134,7 +134,7 @@ describe("F04-03 — detected-city confirm before commit", () => {
     expect(onDenied).not.toHaveBeenCalled();
   });
 
-  it('F04-03 BUILT: "जगह बदलें" rejects the detection and commits nothing', async () => {
+  it('F04-03 BUILT: "जगह बदलिए" rejects the detection and commits nothing', async () => {
     grantGeolocationWith("Varanasi", "Uttar Pradesh");
     const onGranted = vi.fn();
     const onDenied = vi.fn();
@@ -147,10 +147,10 @@ describe("F04-03 — detected-city confirm before commit", () => {
         onDenied,
       }),
     );
-    fireEvent.click(screen.getByText("अनुमति दें"));
+    fireEvent.click(screen.getByText("अनुमति दीजिए"));
     await waitFor(() => expect(screen.getByText("Varanasi")).toBeTruthy());
 
-    fireEvent.click(screen.getByText("जगह बदलें"));
+    fireEvent.click(screen.getByText("जगह बदलिए"));
 
     expect(onDenied).toHaveBeenCalledTimes(1);
     expect(onGranted).not.toHaveBeenCalled();
@@ -179,7 +179,7 @@ describe("F04-03 — detected-city confirm before commit", () => {
         onDenied,
       }),
     );
-    fireEvent.click(screen.getByText("अनुमति दें"));
+    fireEvent.click(screen.getByText("अनुमति दीजिए"));
 
     // the fall-through is deliberately delayed (the error copy is read out
     // first), so allow the screen's own 1.5s recovery window

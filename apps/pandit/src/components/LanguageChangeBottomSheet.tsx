@@ -51,7 +51,7 @@ export default function LanguageChangeBottomSheet({
           <div className="flex items-center gap-3 mb-2">
             <span className="text-[40px]">🌐</span>
             <div>
-              <h2 className="text-[24px] font-bold text-text-primary">भाषा बदलें</h2>
+              <h2 className="text-[24px] font-bold text-text-primary">भाषा बदलिए</h2>
               <p className="text-[16px] text-text-secondary">Change Language</p>
             </div>
           </div>
@@ -109,7 +109,7 @@ export default function LanguageChangeBottomSheet({
             onClick={onClose}
             className="w-full h-[64px] bg-primary text-white rounded-xl font-bold text-[18px] shadow-btn-saffron active:scale-95"
           >
-            बंद करें / Close
+            बंद कीजिए / Close
           </motion.button>
         </div>
       </motion.div>

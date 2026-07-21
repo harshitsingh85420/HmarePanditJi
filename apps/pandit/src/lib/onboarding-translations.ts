@@ -822,7 +822,7 @@ export const ONBOARDING_TRANSLATIONS: Record<SupportedLanguage, LanguageTranslat
       changeLanguage: 'भाषा बदली',
       
       // Script Choice
-      scriptChoiceTitle: 'तू कइसे पढ़ी चाहत बा?',
+      scriptChoiceTitle: 'रउआ कइसे पढ़ल चाहत बानी?',
       pureLanguage: 'भोजपुरी',
       pureLanguageDesc: 'भोजपुरी लिपि में सब',
       languagePlusEnglish: '+ English',

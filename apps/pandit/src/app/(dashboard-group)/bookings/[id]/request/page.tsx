@@ -222,7 +222,7 @@ export default function BookingRequestPage() {
         <span className="pa-bell-swing text-[30px] leading-none select-none" aria-hidden="true">🔔</span>
         <div className="flex flex-col min-w-0">
           <span className="text-[20px] font-black text-chandan font-hindi leading-tight">नई बुकिंग विनती!</span>
-          <span className="text-[18px] font-semibold text-[#FFD9BE] font-hindi leading-tight">अभी जवाब दें</span>
+          <span className="text-[18px] font-semibold text-[#FFD9BE] font-hindi leading-tight">अभी जवाब दीजिए</span>
         </div>
       </header>
 

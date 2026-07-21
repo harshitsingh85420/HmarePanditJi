@@ -229,7 +229,7 @@ export default function LocationPermissionScreen({
             }}
             className="self-center min-h-[52px] px-6 text-softgrey text-[17px] font-bold font-hindi underline underline-offset-4 active:scale-[0.97] transition-transform"
           >
-            जगह बदलें
+            जगह बदलिए
           </button>
         </main>
 

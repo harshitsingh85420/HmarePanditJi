@@ -379,7 +379,7 @@ export function VoiceField({
             listening ? "border-gold ring-4 ring-gold/40 animate-pulse" : "border-saffron-200"
           }`}
         >
-          <option value="">{placeholder || "-- चुनें --"}</option>
+          <option value="">{placeholder || "-- चुनिए --"}</option>
           {choices.map((c) => (
             <option key={c.value} value={c.value}>
               {c.label}

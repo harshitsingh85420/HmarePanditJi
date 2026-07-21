@@ -371,7 +371,7 @@ export default function ParichayScreen({ onDone }: { onDone: () => void }) {
       {/* Footer: ABSENT on the happy path (the popup asks by itself) — canon
           frame 4 has no bottom band, so it must not draw a cream slab and a
           hairline over the radial field when it has nothing to say.
-          "फिर से पूछें" appears only after a dismissal; the recovery set
+          "फिर से पूछिए" appears only after a dismissal; the recovery set
           only after a CONFIRMED browser-level deny. */}
       {(stage === "dismissed" || stage === "needstart") && (
       <footer className="shrink-0 px-6 pb-[22px] pt-1 flex flex-col gap-2">

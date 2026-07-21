@@ -43,7 +43,7 @@ export function NoiseWarningOverlay({
     if (isVisible && ambientNoiseLevel > 85) {
       // Play warning voice
       void speakWithSarvam({
-        text: 'मंदिर में शोर है। कृपया शांत जगह जाएं या बटन दबाकर चुनें।',
+        text: 'मंदिर में शोर है। कृपया शांत जगह जाइए या बटन दबाकर चुनिए।',
         languageCode: 'hi-IN',
         pace: 0.85,
       })
@@ -55,13 +55,13 @@ export function NoiseWarningOverlay({
       return {
         title: 'बहुत ज्यादा शोर',
         subtitle: 'आवाज़ सुनाई नहीं दे रही',
-        suggestion: 'कृपया शांत जगह जाएं',
+        suggestion: 'कृपया शांत जगह जाइए',
       }
     } else if (level > 75) {
       return {
         title: 'काफी शोर है',
         subtitle: 'पृष्ठभूमि में घंटी या भीड़ की आवाज़',
-        suggestion: 'थोड़ा शांत कोने में जाएं',
+        suggestion: 'थोड़ा शांत कोने में जाइए',
       }
     } else {
       // BUG-MEDIUM-04 FIX: Don't show warning for normal noise levels (<75dB)
@@ -198,7 +198,7 @@ export function NoiseWarningOverlay({
                     keyboard
                   </span>
                   <span className="font-bold font-devanagari">
-                    बटन दबाएं
+                    बटन दबाइए
                   </span>
                 </motion.button>
               </div>
