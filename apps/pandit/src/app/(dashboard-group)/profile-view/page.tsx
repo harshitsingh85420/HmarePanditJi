@@ -22,6 +22,7 @@ import { Narrate } from "@/hooks/useScreenVoice";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { t } from "@/lib/i18n";
+import { hi } from "@/lib/strings";
 import { api } from "@/lib/api";
 import { Header } from "@/components/ui/Header";
 import { Card } from "@/components/ui/Card";
@@ -56,6 +57,16 @@ interface ProfileStats {
 // the un-lit variant, so the flat fill is re-declared here rather than in the
 // shared component. `!` keeps the override deterministic against twMerge.
 const FLAT_TILE = "bg-none bg-card border-[1.5px] border-sand !shadow-none";
+
+// NO-ROMAN/REGISTER: specializations and dakshina rows arrive as raw enum
+// ids (SATYANARAYAN…) — canon frame 24 prints Hindi puja names. Map known
+// ids through the readiness specLabel idiom; a custom puja is already stored
+// under its Hindi name, so anything unmapped passes through unchanged
+// (t() would echo the key path for a miss, hence the guard).
+const pujaLabel = (id: string): string =>
+  (hi.onboarding.specializations as Record<string, string>)[id]
+    ? t(`onboarding.specializations.${id}`)
+    : id;
 
 export default function ProfileViewPage() {
   const router = useRouter();
@@ -139,7 +150,8 @@ export default function ProfileViewPage() {
               {pandit || "—"}
             </span>
             <span className="text-[18px] font-semibold text-softgrey font-hindi flex items-center justify-center gap-[5px]">
-              <span className="material-symbols-outlined text-[20px]" aria-hidden="true">location_on</span>
+              {/* canon location_on 18px (glyph — floors do not apply) */}
+              <span className="material-symbols-outlined text-[18px]" aria-hidden="true">location_on</span>
               {profile?.city || profile?.location || "—"}
             </span>
           </div>
@@ -189,7 +201,11 @@ export default function ProfileViewPage() {
 
         {/* ── पूजाएँ: canon's filled check_circle rows (not chips) ── */}
         <Card className={`${FLAT_TILE} !rounded-[18px] p-4 flex flex-col gap-3`}>
-          <span className="text-[18px] font-extrabold text-softgrey font-hindi">{t("profileView.pujas")}</span>
+          {/* TRUTHFUL-STATE gates canon's heading: 'प्रमाणित पूजाएँ' is a
+              claim — it renders only on a VERIFIED profile. */}
+          <span className="text-[18px] font-extrabold text-softgrey font-hindi">
+            {profile?.verificationStatus === "VERIFIED" ? "प्रमाणित पूजाएँ" : t("profileView.pujas")}
+          </span>
           {specializations.length === 0 ? (
             <span className="text-[18px] text-softgrey font-hindi">—</span>
           ) : (
@@ -198,7 +214,7 @@ export default function ProfileViewPage() {
                 <span className="material-symbols-outlined material-symbols-filled text-[20px] text-leaf-500 shrink-0" aria-hidden="true">
                   check_circle
                 </span>
-                {sp}
+                {pujaLabel(sp)}
               </div>
             ))
           )}
@@ -213,7 +229,7 @@ export default function ProfileViewPage() {
             <div className="flex flex-col">
               {dakshina.map((d) => (
                 <div key={d.puja} className="flex items-center justify-between gap-3 min-h-[52px] border-b border-sand last:border-0">
-                  <span className="text-[18px] font-bold text-temple-700 font-hindi">{d.puja}</span>
+                  <span className="text-[18px] font-bold text-temple-700 font-hindi">{pujaLabel(d.puja)}</span>
                   <span className="text-[18px] font-extrabold text-leaf-500 shrink-0">₹{d.amount.toLocaleString("en-IN")}</span>
                 </div>
               ))}
