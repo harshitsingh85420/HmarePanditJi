@@ -193,3 +193,30 @@
 
 ## Enforcement rule (the point of this document)
 CI must fail if any ID above lacks exactly one of: a passing automated test, a manual-test script entry, or a signed deviation line. "The documentation is followed" becomes a build status.
+
+---
+
+## Proposed — Pandit Walk NEW-REQ candidates (awaiting Isj's ratification)
+
+These six emerged from the read-only Pandit Walk (docs/walk/WALKTHROUGH.md) —
+gaps the document itself missed, surfaced by walking every screen as a
+Devanagari-only, can't-type, distrustful 64-year-old. They are **PROPOSED**, not
+yet part of the enforced set (the `PW-` prefix keeps them out of the machine
+projection until Isj ratifies them into real `F..` requirements). The dominant
+theme: the app asks by voice but answers only by touch, and its "fallback" is
+typing — which this persona cannot do.
+
+| ID | Proposed requirement | Why the doc missed it |
+|---|---|---|
+| PW-01 | **Native OS permission popups need a "coaching" layer.** Location/mic/notification popups are the browser's own English "Allow/Block" — the app cannot translate them. A first-class pattern must identify the right button by POSITION and COLOUR (arrow + voice), never by the English word. | The doc assumed app-controlled dialogs; in reality the OS owns them. |
+| PW-02 | **Every voice-asked yes/no must accept a voice answer** — not just some sub-states. Audit every confirm/gate for voice-answerability. | F02-06 exists, but gates and confirm sub-states silently omit it (walk पP0 #3). |
+| PW-03 | **Typing is not a valid fallback for this persona.** Wherever the safety net is "use the keyboard", it fails him. The real fallback must be voice-to-field on every input PLUS a one-tap call-a-human. | The doc treats the keyboard as the universal fallback; for an English-illiterate pandit it is the trapdoor (walk पP0 #4, #8, #9). |
+| PW-04 | **No roman characters in any user-facing string.** "OTP", "SOS", "Mobile Number", "XXXXXXXXXX" placeholders and roman city names all appeared at title size. Lint-able — could be a build guard. | The doc addressed language selection, not a hard ban on roman text in the UI. |
+| PW-05 | **All proper nouns render Devanagari** — geocoded place-names come back Latin from the map provider and print as-is. | F43 covers pooja/samagri IDs but not geocoded place-names (walk पP0 #4). |
+| PW-06 | **No dead/stub routes reachable in prod** — `resume/page.tsx` is all-English and a dead registration-redirect stub still resolves; a confused user can land on them. | The doc never enumerated the route surface for cruft. |
+
+**Partial fixes already shipped on `fix/pandit-walk-p0s`** (the P0 code batch):
+PW-02 for the detected-city confirm (F03-02), PW-05 via `accept-language=hi` on
+the geocoder (F03-03/F43), PW-04 for the SOS button. The rows above capture the
+*general* requirement each fix only began to close — Isj ratifies whether they
+become enforced `F..` IDs.

@@ -3,7 +3,7 @@
 # Coverage mappings live in coverage.yaml so they survive regeneration.
 meta:
   source: "docs/pandit-pov-conformance-register.md"
-  sourceSha256: "1fa800a62df69d6c"
+  sourceSha256: "86dcd4c1c54033b6"
   totalRequirements: 78
   tally:
     built: 8
