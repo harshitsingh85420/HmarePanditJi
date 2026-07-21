@@ -39,9 +39,14 @@ function prefsFor(on: Record<LeverKey, boolean>): MeterPrefs {
 export function PriceHonestyMeter({
   dakshina,
   initialPrefs,
+  showHeading = true,
 }: {
   dakshina: number;
   initialPrefs?: Partial<Record<LeverKey, boolean>>;
+  /** Canon frame 17's screen heading ("आपका दाम · आपके हाथ" + hint) rides
+   *  with the meter — frame 17 is a component-demo frame with no dedicated
+   *  route, so the heading ships wherever the meter embeds. Default on. */
+  showHeading?: boolean;
 }) {
   const reduce = useReducedMotion();
   const [on, setOn] = useState<Record<LeverKey, boolean>>({
@@ -64,7 +69,17 @@ export function PriceHonestyMeter({
   };
 
   return (
-    <div className="rounded-card border-2 border-saffron-200 bg-saffron-50 p-4 flex flex-col gap-3.5 font-hindi">
+    <div className="flex flex-col gap-2 font-hindi">
+      {showHeading && (
+        // CANON frame 17 title block: 23/900 #341A13 over the hint (canon
+        // 15/700 → 18px body floor). "माँग घटाएँ" register-converts to
+        // "माँग घटाइए" (-इए imperative, founder law over canon copy).
+        <div className="flex flex-col">
+          <span className="text-[23px] font-black text-temple-700 leading-tight">आपका दाम · आपके हाथ</span>
+          <span className="text-[18px] font-bold text-softgrey mt-0.5">माँग घटाइए — दाम अपने आप गिरता है 👇</span>
+        </div>
+      )}
+    <div className="rounded-card border-2 border-saffron-200 bg-saffron-50 p-4 flex flex-col gap-3.5">
       <div className="text-[18px] font-extrabold text-temple-700">अपनी माँग चुनिए — घटाकर देखिए</div>
 
       <div className="flex flex-col gap-[9px]">
@@ -99,7 +114,8 @@ export function PriceHonestyMeter({
         <motion.span
           key={total}
           initial={reduce ? false : { scale: 1 }}
-          animate={reduce ? {} : { scale: [1, 1.14, 1] }}
+          // canon pm-pop keyframe peaks at 1.18
+          animate={reduce ? {} : { scale: [1, 1.18, 1] }}
           transition={{ duration: 0.32, ease: "easeOut" }}
           className="text-[31px] font-extrabold text-leaf-700 tracking-[-0.5px]"
         >
@@ -130,6 +146,7 @@ export function PriceHonestyMeter({
           कम माँग = ज़्यादा बुकिंग। इस दाम पर ज़्यादा परिवार आपको बुला सकते हैं।
         </span>
       </div>
+    </div>
     </div>
   );
 }
