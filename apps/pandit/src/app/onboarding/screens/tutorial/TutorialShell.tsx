@@ -119,7 +119,7 @@ export default function TutorialShell({
                 key={index}
                 className={`rounded-full shrink-0 ${
                   lit
-                    ? `bg-orb-diya ${hero ? "shadow-glow-genda-sm" : "shadow-glow-genda"}`
+                    ? `bg-orb-diya ${hero ? "shadow-glow-genda-sm" : "shadow-glow-genda-sm"}`
                     : "bg-sand-300"
                 }`}
                 style={{ width: size, height: size }}

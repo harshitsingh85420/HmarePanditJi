@@ -204,7 +204,7 @@ function SoundWaves() {
 function ShishyaGlyph({ size, asleep = false }: { size: number; asleep?: boolean }) {
   return (
     <span
-      className={`relative rounded-full bg-orb-diya flex items-center justify-center shrink-0 ${asleep ? "grayscale opacity-60" : "shadow-glow-genda"}`}
+      className={`relative rounded-full bg-orb-diya flex items-center justify-center shrink-0 ${asleep ? "grayscale opacity-60" : "shadow-glow-genda-sm"}`}
       style={{ width: size, height: size }}
       aria-hidden="true"
     >
@@ -707,8 +707,7 @@ export default function TutorialV2({
                       onClick={askMic}
                       disabled={micState === "asking"}
                       aria-label={micPerm === "granted" ? t("tutorial.slide5Again") : t("tutorial.slide5Button")}
-                      className="relative w-[78px] h-[78px] rounded-full bg-saffron-500 flex items-center justify-center active:scale-95 transition-transform disabled:opacity-70"
-                      style={{ boxShadow: "0 8px 20px rgba(178,58,26,.35)" }}
+                      className="relative w-[78px] h-[78px] rounded-full bg-saffron-500 shadow-btn-hero flex items-center justify-center active:scale-95 transition-transform disabled:opacity-70"
                     >
                       {/* canon's g-glowring, as a transform/opacity ring */}
                       <motion.span
