@@ -713,7 +713,10 @@ export default function ReadinessPage() {
           <div className="flex-1 flex flex-col gap-2">
             <div ref={nextBtnRef}>
               <Button variant="primary" size="lg" fullWidth onClick={saveHandlers[step - 1]} loading={saving}>
-                {step === 5 ? t("readiness.finishBtn") : t("common.next")}
+                {/* CANON frames 14-16 label their CTA "सहेजें व आगे" (an
+                    आप-subjunctive — register-safe); R5 keeps its finish
+                    label, R1/R2 the generic आगे. */}
+                {step === 5 ? t("readiness.finishBtn") : step >= 3 ? "सहेजें व आगे" : t("common.next")}
               </Button>
             </div>
             <Button variant="ghost" size="md" fullWidth onClick={exitForLater}>
@@ -740,12 +743,16 @@ function Chip({
   onClick,
   tone = "sand",
   shape = "pill",
+  textCheck = false,
 }: {
   label: string;
   selected: boolean;
   onClick: () => void;
   tone?: "sand" | "warm";
   shape?: "pill" | "tile";
+  /** Canon prints the KM chips' ✓ as literal label text (frame 15); every
+      other selected chip draws the Material check glyph (frame 14, 20px). */
+  textCheck?: boolean;
 }) {
   const idle =
     tone === "warm"
@@ -762,7 +769,12 @@ function Chip({
       }`}
     >
       <span>{label}</span>
-      {selected && <span aria-hidden="true">✓</span>}
+      {selected &&
+        (textCheck ? (
+          <span aria-hidden="true">✓</span>
+        ) : (
+          <span className="material-symbols-outlined text-[20px] leading-none" aria-hidden="true">check</span>
+        ))}
     </button>
   );
 }
@@ -782,7 +794,62 @@ function YesNoRow({
   );
 }
 
-function ToggleRow({
+// CANON frame 16 option row: min-height 60, padding 14px/16px, r16, a 28px
+// leading emoji and the label filling the row. Selected = #FDEEE7 behind a
+// 2.5px #B23A1A rule with the 5px/14px lift, label 18/900 #7A250E and a
+// trailing 26px sindoor check bubble (Material check 18px); resting =
+// #FFFDF8 on a 2px #E7DCC9 hairline, label 18/800 #341A13.
+function StayRow({
+  emoji,
+  label,
+  selected,
+  onClick,
+}: {
+  emoji: string;
+  label: string;
+  selected: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={selected}
+      className={`w-full min-h-[60px] rounded-[16px] px-4 py-[14px] flex items-center gap-3 text-left transition-all active:scale-[0.98] ${
+        selected
+          ? "bg-saffron-50 border-[2.5px] border-saffron-500 shadow-[0_5px_14px_rgba(178,58,26,0.14)]"
+          : "bg-card border-2 border-sand-200"
+      }`}
+    >
+      <span className="text-[28px] leading-none shrink-0" aria-hidden="true">{emoji}</span>
+      <span
+        className={`flex-1 text-[18px] font-hindi leading-snug ${
+          selected ? "font-black text-saffron-700" : "font-extrabold text-temple-700"
+        }`}
+      >
+        {label}
+      </span>
+      {selected && (
+        <span
+          className="w-[26px] h-[26px] rounded-full bg-saffron-500 text-white flex items-center justify-center shrink-0"
+          aria-hidden="true"
+        >
+          <span className="material-symbols-outlined text-[18px] leading-none">check</span>
+        </span>
+      )}
+    </button>
+  );
+}
+
+// CANON frame 15: the travel modes are a 2×2 tile GRID, not switch rows —
+// each tile r18, padding 18px/12px, column-centred, 34px emoji over the
+// 17/800 label (→ 18px floor). Chosen = #FDEEE7 behind a 2.5px #B23A1A rule
+// with the 5px/14px sindoor-soft lift and a 24px check bubble pinned
+// top-right (Material check 17px); resting = #FFFDF8 on a 2px #E7DCC9
+// hairline, label #341A13. Tap toggles the mode (the old 72×36 switch and
+// its ToggleRow retired with this redraw). Labels arrive as "🚗 अपनी गाड़ी" —
+// the leading emoji splits out of the string.
+function ModeTile({
   label,
   enabled,
   onToggle,
@@ -791,11 +858,6 @@ function ToggleRow({
   enabled: boolean;
   onToggle: (v: boolean) => void;
 }) {
-  // Mockup frame 15: each mode leads with a BIG emoji tile. Labels arrive as
-  // "🚗 अपनी गाड़ी" — split the leading emoji into a warm tile, keep the text.
-  // CANON frame 15: the emoji sits in a tile with the mode-tile grammar —
-  // radius 18, sindoor-tinted with a 2px sindoor edge and the 5px/14px soft
-  // lift when chosen, #FFFDF8 on a sand hairline when not.
   const m = label.match(/^(\p{Extended_Pictographic}️?)\s+(.*)$/u);
   const emoji = m ? m[1] : null;
   const text = m ? m[2] : label;
@@ -803,44 +865,40 @@ function ToggleRow({
     <button
       type="button"
       onClick={() => onToggle(!enabled)}
-      className="w-full min-h-[60px] flex items-center justify-between gap-3 text-left"
+      aria-pressed={enabled}
+      className={`relative min-h-[52px] rounded-tile px-3 py-[18px] flex flex-col items-center justify-center gap-1.5 text-center transition-all active:scale-[0.97] ${
+        enabled
+          ? "bg-saffron-50 border-[2.5px] border-saffron-500 shadow-sindoor-soft"
+          : "bg-card border-2 border-sand-200"
+      }`}
     >
-      <span className="flex items-center gap-[13px] min-w-0">
-        {emoji && (
-          <span
-            className={`w-[52px] h-[52px] shrink-0 rounded-tile border-2 flex items-center justify-center text-[28px] transition-all ${
-              enabled
-                ? "bg-saffron-50 border-saffron-500 shadow-sindoor-soft"
-                : "bg-card border-sand-200"
-            }`}
-            aria-hidden="true"
-          >
-            {emoji}
-          </span>
-        )}
+      {enabled && (
         <span
-          className={`text-[20px] font-extrabold font-hindi leading-snug ${
-            enabled ? "text-saffron-700" : "text-temple-700"
-          }`}
+          className="absolute top-2 right-2 w-6 h-6 rounded-full bg-saffron-500 text-white flex items-center justify-center"
+          aria-hidden="true"
         >
-          {text}
+          <span className="material-symbols-outlined text-[17px] leading-none">check</span>
         </span>
-      </span>
+      )}
+      {emoji && (
+        <span className="text-[34px] leading-none" aria-hidden="true">
+          {emoji}
+        </span>
+      )}
       <span
-        className={`relative inline-flex h-9 w-[72px] shrink-0 items-center rounded-full transition-all duration-300 ${
-          enabled ? "bg-saffron-500" : "bg-sand-400"
+        className={`text-[18px] font-extrabold font-hindi leading-snug ${
+          enabled ? "text-saffron-700" : "text-temple-700"
         }`}
-        aria-hidden="true"
       >
-        <span
-          className={`inline-block h-7 w-7 rounded-full bg-white shadow-card transform transition-transform duration-300 ${
-            enabled ? "translate-x-10" : "translate-x-1"
-          }`}
-        />
+        {text}
       </span>
     </button>
   );
 }
+
+/** the text half of a "🚗 अपनी गाड़ी"-shaped mode label (for sub-headings) */
+const modeText = (label: string): string =>
+  label.replace(/^(\p{Extended_Pictographic}️?)\s+/u, "");
 
 // ── canon type + strip vocabulary (frames 13-16) ─────────────
 // The board question is 22px/900 in sindoor-dark; the sub-label under it is
@@ -864,7 +922,9 @@ function Strip({
   tone = "peach",
   children,
 }: {
-  icon: string;
+  /** Emoji string where canon draws an emoji (💡), or a node for canon's
+      Material glyphs (the F13 lock strip). */
+  icon: React.ReactNode;
   tone?: "peach" | "leaf";
   children: React.ReactNode;
 }) {
@@ -1051,48 +1111,71 @@ function StepR3({ travel, setTravel }: { travel: TravelPrefs; setTravel: (v: Tra
     <>
       {/* CANON frame 15 opens on the board question, not straight on controls. */}
       <SectionQ>कैसे यात्रा करेंगे?</SectionQ>
-      <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-3">
-        <ToggleRow
+
+      {/* CANON frame 15 MODE GRID — 2×2 tiles, gap 12px; tap toggles the
+          mode, the top-right check bubble = enabled. The per-mode switch
+          rows (ToggleRow) retired with this redraw; the mode sub-options
+          follow below the grid. Canon's labels are 🏍️ खुद जाऊँगा · 🚂 ट्रेन ·
+          🚌 बस · ✈️ फ्लाइट — the current strings.ts labels render until that
+          copy change lands (strings.ts is out of this port's scope). */}
+      <div className="grid grid-cols-2 gap-3">
+        <ModeTile
           label={t("readiness.ownVehicle")}
           enabled={travel.ownVehicle.enabled}
           onToggle={(v) => setTravel({ ...travel, ownVehicle: { enabled: v, maxKm: v ? travel.ownVehicle.maxKm : null } })}
         />
-        {travel.ownVehicle.enabled && (
-          <div className="flex flex-col gap-2 border-t border-saffron-100 pt-3">
-            <SubLabel>{t("readiness.ownVehicleKm")}</SubLabel>
-            {/* CANON frame 15: the distance chips WRAP as pills, not a rigid grid */}
-            <div className="flex flex-wrap gap-2.5">
-              {KM_PRESETS.map(({ km, label }) => (
-                <Chip
-                  key={km}
-                  label={label}
-                  selected={travel.ownVehicle.maxKm === km}
-                  onClick={() => setTravel({ ...travel, ownVehicle: { enabled: true, maxKm: km } })}
-                />
-              ))}
-              {/* legacy passthrough: a saved value from the old preset set
-                  (e.g. 200/500) stays visible + selected — never silently lost */}
-              {travel.ownVehicle.maxKm != null && !KM_PRESETS.some((p) => p.km === travel.ownVehicle.maxKm) && (
-                <Chip
-                  label={t("readiness.kmUnit").replace("{km}", String(travel.ownVehicle.maxKm))}
-                  selected
-                  onClick={() => { /* already the saved value */ }}
-                />
-              )}
-            </div>
-            <Strip icon="💡">{t("readiness.ownVehicleRate")}</Strip>
-          </div>
-        )}
-      </Card>
-
-      <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-3">
-        <ToggleRow
+        <ModeTile
           label={t("readiness.train")}
           enabled={travel.train.enabled}
           onToggle={(v) => setTravel({ ...travel, train: { enabled: v, classes: v ? travel.train.classes : [] } })}
         />
-        {travel.train.enabled && (
-          <div className="flex flex-wrap gap-2.5 border-t border-saffron-100 pt-3">
+        <ModeTile
+          label={t("readiness.bus")}
+          enabled={travel.bus.enabled}
+          onToggle={(v) => setTravel({ ...travel, bus: { enabled: v, ac: v ? travel.bus.ac : null } })}
+        />
+        <ModeTile
+          label={t("readiness.flight")}
+          enabled={travel.flight.enabled}
+          onToggle={(v) => setTravel({ ...travel, flight: { enabled: v } })}
+        />
+      </div>
+
+      {travel.ownVehicle.enabled && (
+        <div className="flex flex-col gap-2">
+          {/* canon: "कितनी दूर तक?" 17/800 (→ 18px floor) directly on the page */}
+          <SubLabel>{t("readiness.ownVehicleKm")}</SubLabel>
+          {/* CANON frame 15: the distance chips WRAP as pills; their ✓ is
+              literal label text in canon, so textCheck keeps it that way */}
+          <div className="flex flex-wrap gap-2.5">
+            {KM_PRESETS.map(({ km, label }) => (
+              <Chip
+                key={km}
+                label={label}
+                textCheck
+                selected={travel.ownVehicle.maxKm === km}
+                onClick={() => setTravel({ ...travel, ownVehicle: { enabled: true, maxKm: km } })}
+              />
+            ))}
+            {/* legacy passthrough: a saved value from the old preset set
+                (e.g. 200/500) stays visible + selected — never silently lost */}
+            {travel.ownVehicle.maxKm != null && !KM_PRESETS.some((p) => p.km === travel.ownVehicle.maxKm) && (
+              <Chip
+                label={t("readiness.kmUnit").replace("{km}", String(travel.ownVehicle.maxKm))}
+                textCheck
+                selected
+                onClick={() => { /* already the saved value */ }}
+              />
+            )}
+          </div>
+          <Strip icon="💡">{t("readiness.ownVehicleRate")}</Strip>
+        </div>
+      )}
+
+      {travel.train.enabled && (
+        <div className="flex flex-col gap-2">
+          <SubLabel>{modeText(t("readiness.train"))}</SubLabel>
+          <div className="flex flex-wrap gap-2.5">
             {[
               { key: "SLEEPER", label: t("readiness.trainSleeper") },
               { key: "3AC", label: t("readiness.train3ac") },
@@ -1116,17 +1199,13 @@ function StepR3({ travel, setTravel }: { travel: TravelPrefs; setTravel: (v: Tra
               />
             ))}
           </div>
-        )}
-      </Card>
+        </div>
+      )}
 
-      <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-3">
-        <ToggleRow
-          label={t("readiness.bus")}
-          enabled={travel.bus.enabled}
-          onToggle={(v) => setTravel({ ...travel, bus: { enabled: v, ac: v ? travel.bus.ac : null } })}
-        />
-        {travel.bus.enabled && (
-          <div className="flex flex-wrap gap-2.5 border-t border-saffron-100 pt-3">
+      {travel.bus.enabled && (
+        <div className="flex flex-col gap-2">
+          <SubLabel>{modeText(t("readiness.bus"))}</SubLabel>
+          <div className="flex flex-wrap gap-2.5">
             <Chip
               label={t("readiness.busAc")}
               selected={travel.bus.ac === "AC"}
@@ -1138,37 +1217,35 @@ function StepR3({ travel, setTravel }: { travel: TravelPrefs; setTravel: (v: Tra
               onClick={() => setTravel({ ...travel, bus: { enabled: true, ac: "NON_AC" } })}
             />
           </div>
-        )}
-      </Card>
-
-      <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-3">
-        <ToggleRow
-          label={`${t("readiness.flight")} (${t("readiness.flightEconomy")})`}
-          enabled={travel.flight.enabled}
-          onToggle={(v) => setTravel({ ...travel, flight: { enabled: v } })}
-        />
-        {/* doc edge-case 8: undisclosed flying fear — परहेज़ multi-chips */}
-        <div className="flex flex-col gap-2 border-t border-saffron-100 pt-3">
-          <SubLabel>{t("readiness.exclusionsLabel")}</SubLabel>
-          <div className="flex flex-wrap gap-2.5">
-            <Chip
-              label={t("readiness.exclNoFlight")}
-              selected={travel.exclusions.includes("NO_FLIGHT")}
-              onClick={() => toggleExclusion("NO_FLIGHT")}
-            />
-            <Chip
-              label={t("readiness.exclNoNight")}
-              selected={travel.exclusions.includes("NO_NIGHT")}
-              onClick={() => toggleExclusion("NO_NIGHT")}
-            />
-            <Chip
-              label={t("readiness.exclNone")}
-              selected={travel.exclusions.includes("NONE")}
-              onClick={() => toggleExclusion("NONE")}
-            />
-          </div>
         </div>
-      </Card>
+      )}
+
+      {/* इकोनॉमी moved out of the tile label (canon keeps tile labels bare) */}
+      {travel.flight.enabled && (
+        <Strip icon="💡">{`${modeText(t("readiness.flight"))} — ${t("readiness.flightEconomy")}`}</Strip>
+      )}
+
+      {/* doc edge-case 8: undisclosed flying fear — परहेज़ multi-chips */}
+      <div className="flex flex-col gap-2">
+        <SubLabel>{t("readiness.exclusionsLabel")}</SubLabel>
+        <div className="flex flex-wrap gap-2.5">
+          <Chip
+            label={t("readiness.exclNoFlight")}
+            selected={travel.exclusions.includes("NO_FLIGHT")}
+            onClick={() => toggleExclusion("NO_FLIGHT")}
+          />
+          <Chip
+            label={t("readiness.exclNoNight")}
+            selected={travel.exclusions.includes("NO_NIGHT")}
+            onClick={() => toggleExclusion("NO_NIGHT")}
+          />
+          <Chip
+            label={t("readiness.exclNone")}
+            selected={travel.exclusions.includes("NONE")}
+            onClick={() => toggleExclusion("NONE")}
+          />
+        </div>
+      </div>
 
       <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-3">
         <SectionQ>{t("readiness.localCabQ")}</SectionQ>
@@ -1221,8 +1298,10 @@ function StepR4(props: {
   return (
     <>
       {/* CANON frame 14: भोजन chips wrap as peach-edged pills under the board
-          question, and the board closes on the यजमान-reassurance tip strip. */}
-      <SectionQ>{t("readiness.dietaryLabel")}</SectionQ>
+          question, and the board closes on the यजमान-reassurance tip strip.
+          Question is canon's sentence verbatim (the one-word strings.ts
+          dietaryLabel "भोजन" stays for the R4 title elsewhere). */}
+      <SectionQ>आप क्या भोजन लेते हैं?</SectionQ>
       <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-3">
         <div className="flex flex-wrap gap-2.5">
           {diets.map((d) => (
@@ -1266,11 +1345,32 @@ function StepR4(props: {
       </Card>
 
       <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-3">
-        <SectionQ>{t("readiness.stayQ")}</SectionQ>
-        <YesNoRow value={props.stayHome} onChange={props.setStayHome} />
-        <div className="flex flex-col gap-2 border-t border-saffron-100 pt-3">
-          <SubLabel>{t("readiness.dharamshalaQ")}</SubLabel>
-          <YesNoRow value={props.dharamshalaOk} onChange={props.setDharamshalaOk} />
+        {/* CANON frame 16: the stay board is ONE list of option rows under
+            canon's question. The rows map onto the SHIPPED columns — 🏠 =
+            stayHome true, 🏨 = stayHome false (the pair is exclusive, same
+            boolean), 🛕 = dharamshalaOk as an independent toggle. The old
+            stayQ/dharamshalaQ Yes-No pairs retired with this redraw; the
+            API payload is unchanged. */}
+        <SectionQ>दूर की पूजा में कहाँ रुकेंगे?</SectionQ>
+        <div className="flex flex-col gap-[11px]">
+          <StayRow
+            emoji="🏠"
+            label="घर पर ठीक हूँ"
+            selected={props.stayHome === true}
+            onClick={() => props.setStayHome(true)}
+          />
+          <StayRow
+            emoji="🏨"
+            label="होटल चाहिए"
+            selected={props.stayHome === false}
+            onClick={() => props.setStayHome(false)}
+          />
+          <StayRow
+            emoji="🛕"
+            label="धर्मशाला"
+            selected={props.dharamshalaOk === true}
+            onClick={() => props.setDharamshalaOk(props.dharamshalaOk !== true)}
+          />
         </div>
         <div className="flex flex-col gap-2 border-t border-saffron-100 pt-3">
           <SubLabel>{t("readiness.hotelTierLabel")}</SubLabel>
@@ -1350,7 +1450,8 @@ function StepR5(props: {
         {/* CANON frame 13 opens with the WHY banner — a peach two-stop tile on a
             sand hairline, radius 20, carrying the 40px verified glyph. */}
         <div className="flex items-center gap-[14px] bg-tile-peach border-[1.5px] border-sand rounded-card p-4">
-          <span className="text-[40px] leading-none shrink-0" aria-hidden="true">🛡️</span>
+          {/* drawn-not-emoji: canon draws Material verified_user 40px FILL1 leaf */}
+          <span className="material-symbols-outlined material-symbols-filled text-[40px] leading-none shrink-0 text-leaf-500" aria-hidden="true">verified_user</span>
           <span className="text-[18px] font-extrabold text-temple-700 font-hindi leading-[1.35]">
             आपकी पहचान =<br />यजमान का भरोसा
           </span>
@@ -1373,7 +1474,8 @@ function StepR5(props: {
           />
         </AadhaarRow>
         {props.aadhaarBackUrl && <AadhaarPreview keyOrUrl={props.aadhaarBackUrl} />}
-        <Strip icon="🔒" tone="leaf">आपकी जानकारी सुरक्षित है · AES-256</Strip>
+        {/* drawn-not-emoji: canon's lock strip carries the Material lock glyph */}
+        <Strip icon={<span className="material-symbols-outlined leading-none" aria-hidden="true">lock</span>} tone="leaf">आपकी जानकारी सुरक्षित है · AES-256</Strip>
 
         {/* NUMBER (encrypted server-side; only last-4 stored in clear) */}
         <VoiceField
@@ -1530,15 +1632,21 @@ function AadhaarRow({
     >
       {children}
       <span
-        className={`relative w-[88px] h-[60px] shrink-0 rounded-[12px] flex items-center justify-center text-[28px] overflow-hidden ${
+        className={`relative w-[88px] h-[60px] shrink-0 rounded-[12px] flex items-center justify-center overflow-hidden ${
           done ? "bg-tile-leaf" : "bg-saffron-50"
         }`}
         aria-hidden="true"
       >
-        {done ? "🪪" : "📷"}
+        {/* drawn-not-emoji: canon's thumb glyphs are Material badge (done,
+            28px sage) / photo_camera (awaiting, 30px sindoor) */}
+        {done ? (
+          <span className="material-symbols-outlined text-[28px] leading-none text-[#8A9A7A]">badge</span>
+        ) : (
+          <span className="material-symbols-outlined text-[30px] leading-none text-saffron-500">photo_camera</span>
+        )}
         {done && (
-          <span className="absolute bottom-1 right-1 w-[22px] h-[22px] rounded-full bg-leaf-500 text-white text-[14px] font-black flex items-center justify-center">
-            ✓
+          <span className="absolute bottom-1 right-1 w-[22px] h-[22px] rounded-full bg-leaf-500 text-white flex items-center justify-center">
+            <span className="material-symbols-outlined text-[15px] leading-none font-black">check</span>
           </span>
         )}
       </span>
