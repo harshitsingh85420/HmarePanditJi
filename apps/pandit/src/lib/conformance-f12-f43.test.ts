@@ -85,6 +85,18 @@ async function mount(node: React.ReactElement) {
 /** body text with whitespace collapsed — the pages render a lot of nested spans */
 const bodyText = () => (document.body.textContent || "").replace(/\s+/g, " ");
 
+/** F02-06: a spoken menu choice now CONFIRMS before it commits. speak the
+ *  choice, then हाँ. The label-based MATCH still happens on the first utterance
+ *  (that is F43-02's gap) — this only defers the onSelect behind a confirm. */
+async function speakAndConfirm(phrase: string) {
+  await act(async () => {
+    voiceController.handleTranscript(phrase, 1);
+  });
+  await act(async () => {
+    voiceController.handleTranscript("हाँ", 1);
+  });
+}
+
 // ═════════════════════════════════════════════════════════════════════════════
 // F12-01 — three tiers per pooja, with the containment rule
 //          Standard ⊇ Basic and Premium ⊇ Standard.
@@ -470,15 +482,11 @@ describe("F12-03 — supply question, scope B: my-poojas/add step 2 (per-pooja)"
 
   it("F12-03: the per-pooja question is speakable too", async () => {
     await mountAddAtSupplyStep();
-    await act(async () => {
-      voiceController.handleTranscript("सिर्फ़ सूची", 1);
-    });
+    await speakAndConfirm("सिर्फ़ सूची");
     // LIST_ONLY selected → step 2 is still incomplete (dakshina missing), and
     // the PANDIT_BRINGS warning is absent
     expect(bodyText()).not.toContain("जो कंपनी बताई, वही सामान लाना होगा");
-    await act(async () => {
-      voiceController.handleTranscript("हाँ, मैं लाऊँगा", 1);
-    });
+    await speakAndConfirm("हाँ, मैं लाऊँगा");
     expect(bodyText()).toContain("जो कंपनी बताई, वही सामान लाना होगा");
   });
 
@@ -569,9 +577,15 @@ describe("F43-02 — voice resolution is label-based (GAP PINS)", () => {
     };
     await mount(React.createElement(Screen));
 
-    // a fragment of the label resolves — proof the label is the match key
+    // a fragment of the label MATCHES → the choice becomes pending, keyed by
+    // the printed label (this IS the gap: label is the match key, no id).
     await act(async () => {
       voiceController.handleTranscript("सत्यनारायण", 1);
+    });
+    expect(voiceController.pendingOptionLabel()).toBe("सत्यनारायण कथा");
+    // …and confirming it commits (F02-06 gate does not change the match key)
+    await act(async () => {
+      voiceController.handleTranscript("हाँ", 1);
     });
     expect(hit).toEqual(["hit"]);
   });
@@ -609,9 +623,7 @@ describe("F43-02 — voice resolution is label-based (GAP PINS)", () => {
     };
     await mount(React.createElement(Screen));
 
-    await act(async () => {
-      voiceController.handleTranscript("गणेश पूजा", 1);
-    });
+    await speakAndConfirm("गणेश पूजा");
     expect(hit).toHaveLength(1);
     expect(hit[0]).toBe("GANESH_HOME"); // first registered wins; the other is dead
   });
@@ -631,9 +643,7 @@ describe("F43-02 — voice resolution is label-based (GAP PINS)", () => {
     };
     await mount(React.createElement(Screen));
 
-    await act(async () => {
-      voiceController.handleTranscript("सत्यनारायण", 1);
-    });
+    await speakAndConfirm("सत्यनारायण");
     expect(stored).toEqual(["SATYANARAYAN"]);
   });
 });

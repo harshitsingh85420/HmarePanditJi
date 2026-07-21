@@ -12,13 +12,22 @@
 coverage:
   - id: F02-02
     kind: auto
-    ref: apps/pandit/src/components/voice/conformance-f02.test.ts
+    ref: apps/pandit/src/components/voice/f02Ladder.test.ts
+  - id: F02-03
+    kind: auto
+    ref: apps/pandit/src/components/voice/f02Ladder.test.ts
+  - id: F02-04
+    kind: auto
+    ref: apps/pandit/src/components/voice/f02Ladder.test.ts
   - id: F02-05
     kind: auto
-    ref: apps/pandit/src/components/voice/conformance-f02.test.ts
+    ref: apps/pandit/src/components/voice/f02Ladder.test.ts
   - id: F02-06
     kind: auto
-    ref: apps/pandit/src/components/voice/conformance-f02.test.ts
+    ref: apps/pandit/src/lib/conformance-f12-f43.test.ts
+  - id: F02-09
+    kind: auto
+    ref: apps/pandit/src/lib/f02DeleteConfirm.test.ts
   - id: F03-01
     kind: auto
     ref: apps/pandit/src/lib/conformance-f03.test.ts
