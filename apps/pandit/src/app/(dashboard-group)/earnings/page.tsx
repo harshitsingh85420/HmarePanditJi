@@ -158,29 +158,49 @@ export default function EarningsPage() {
             .35)), and no 150deg gradient token exists. Card takes no style prop,
             so arbitrary values are the only way in without editing shared UI. */}
         <Card className="relative overflow-hidden p-5 border-0 rounded-surface text-center flex flex-col items-center bg-[linear-gradient(150deg,#1E7A46,#155C34)] shadow-[0_8px_20px_rgba(21,92,52,.28)]">
-          {/* Canon's two drifting coins: 20px at top-left 12/16, 16px at
-              top-right 12/22 — the app had put both on the RIGHT and given the
-              second an opacity fade canon never uses. motion-safe keeps the
-              drift transform-only and off under prefers-reduced-motion. */}
+          {/* CANON g-coin, verbatim: the coins FALL through the hero
+              (-90px → +64px with a 200deg roll and an opacity fade at both
+              ends), left 20px on 2s/-.3s, right 16px on 2.2s/-1.1s. The app
+              had them on a gentle ±8px bob canon never draws. Scoped here
+              (not globals.css) so no other screen inherits it; under
+              prefers-reduced-motion the coin rests at its natural spot,
+              fully visible — the artboard's still frame. */}
+          <style
+            dangerouslySetInnerHTML={{
+              __html: `
+            @keyframes pa-coin {
+              0%   { transform: translateY(-90px) rotate(0deg); opacity: 0; }
+              15%  { opacity: 1; }
+              70%  { opacity: 1; }
+              100% { transform: translateY(64px) rotate(200deg); opacity: 0; }
+            }
+            .pa-coin { animation-name: pa-coin; animation-timing-function: ease-in; animation-iteration-count: infinite; }
+            @media (prefers-reduced-motion: reduce) {
+              .pa-coin { animation: none !important; }
+            }
+          `,
+            }}
+          />
           <span
             aria-hidden
-            className="absolute top-3 left-4 text-[20px] select-none motion-safe:animate-gentle-float"
-            style={{ animationDelay: "-0.3s" }}
+            className="pa-coin absolute top-3 left-4 text-[20px] select-none"
+            style={{ animationDuration: "2s", animationDelay: "-0.3s" }}
           >
             🪙
           </span>
           <span
             aria-hidden
-            className="absolute top-3 right-[22px] text-[16px] select-none motion-safe:animate-gentle-float"
-            style={{ animationDelay: "-1.1s" }}
+            className="pa-coin absolute top-3 right-[22px] text-[16px] select-none"
+            style={{ animationDuration: "2.2s", animationDelay: "-1.1s" }}
           >
             🪙
           </span>
-          {/* LAW > CANON: canon sets this label 15px; the 18sp floor lifts it to
-              19px, and canon's #BEEBCE only reaches 4.05:1 on the gradient's
-              light end — leaf-100 (#E4F3E9) is the nearest lighter neighbour
-              that clears 4.6:1. Both recorded as lawConflicts. */}
-          <span className="text-[19px] font-extrabold text-leaf-100 font-hindi">{t("home.monthEarnings")}</span>
+          {/* Canon label is 15/800 — legal at the 15px LABEL floor, so it is
+              canon-exact (the earlier 19px lift was over-floored). COLOUR
+              stays the lawConflict override: canon's #BEEBCE only reaches
+              4.05:1 on the gradient's light end — leaf-100 (#E4F3E9) is the
+              nearest lighter neighbour that clears 4.6:1. */}
+          <span className="text-[15px] font-extrabold text-leaf-100 font-hindi">{t("home.monthEarnings")}</span>
           <MoneyCount target={summary.month} className="mt-1.5 text-[46px] font-extrabold text-white" />
         </Card>
 
@@ -204,13 +224,14 @@ export default function EarningsPage() {
         {/* मिल गया — received money first (mockup order) */}
         <div>
           {/* CANON heading: Material Symbol `account_balance_wallet` FILLED,
-              20px #1E7A46 + 8px gap + label #155C34, 9px below. The app used a
+              20px #1E7A46 + 8px gap + label 15/800 #155C34, 9px below (15px is
+              the LABEL floor, so canon's size stands exactly). The app used a
               💰 emoji, which canon never does in a section heading. */}
           <h3 className="flex items-center gap-2 mb-[9px]">
             <span className="material-symbols-outlined material-symbols-filled text-[20px] text-leaf-500" aria-hidden="true">
               account_balance_wallet
             </span>
-            <span className="text-[18px] font-extrabold text-leaf-700 font-hindi">{t("earnings.paid")}</span>
+            <span className="text-[15px] font-extrabold text-leaf-700 font-hindi">{t("earnings.paid")}</span>
           </h3>
 
           {pendingPayouts.length === 0 && paidPayouts.length === 0 ? (
@@ -228,13 +249,16 @@ export default function EarningsPage() {
                      canon's list rows are deliberately the un-lit surface, and
                      the app had been lifting them like standalone cards. */
                   <Card key={p.id} className="px-3.5 py-3 rounded-[14px] bg-card bg-none border-[1.5px] border-sand shadow-none flex items-center gap-2">
+                    {/* CANON row type: title 16/800 → BODY floor 18 · meta
+                        13px → LABEL floor 15 · amount 18/900 is at the floor
+                        already, so canon-exact. */}
                     <div className="flex-1 flex flex-col gap-0.5 min-w-0">
-                      <span className="text-[19px] font-extrabold text-temple-700 font-hindi truncate">{title}</span>
+                      <span className="text-[18px] font-extrabold text-temple-700 font-hindi truncate">{title}</span>
                       {p.paidAt && (
-                        <span className="text-[18px] text-softgrey font-hindi">{formatHindiDate(p.paidAt)}</span>
+                        <span className="text-[15px] text-softgrey font-hindi">{formatHindiDate(p.paidAt)}</span>
                       )}
                     </div>
-                    <span className="text-[20px] font-black text-leaf-700 shrink-0">₹{p.amount.toLocaleString("en-IN")}</span>
+                    <span className="text-[18px] font-black text-leaf-700 shrink-0">₹{p.amount.toLocaleString("en-IN")}</span>
                   </Card>
                 );
               })}
@@ -246,16 +270,23 @@ export default function EarningsPage() {
         <FirstUseTip tipId="earningsPending" targetRef={pendingRef} />
         <div ref={pendingRef}>
           {/* CANON heading: Material Symbol `schedule` (unfilled) 20px #B8860B,
-              8px gap, single "आना बाकी · ₹8,200" run in #B8860B, 9px below.
-              The app used an ⏳ emoji. */}
+              8px gap, single "आना बाकी · ₹8,200" run at 15/800 #B8860B (LABEL
+              floor = canon-exact), 9px below. CONSERVATION BY CONSTRUCTION:
+              canon's heading figure IS the sum of the pending rows under it
+              (₹8,200 = 5,600 + 2,600), so the heading derives from the SAME
+              rows the pandit sees — not from the parallel /earnings/summary
+              request, which could skew for a moment between the two fetches. */}
           <h3 className="flex items-center gap-2 mb-[9px]">
             <span className="material-symbols-outlined text-[20px] text-brassdark" aria-hidden="true">
               schedule
             </span>
-            <span className="text-[18px] font-extrabold text-brassdark font-hindi">
+            <span className="text-[15px] font-extrabold text-brassdark font-hindi">
               {t("earnings.pendingPayout")} ·
             </span>
-            <MoneyCount target={summary.pendingPayout} className="text-[18px] font-extrabold text-brassdark" />
+            <MoneyCount
+              target={pendingPayouts.reduce((sum, p) => sum + p.amount, 0)}
+              className="text-[15px] font-extrabold text-brassdark"
+            />
           </h3>
 
           {pendingPayouts.length === 0 ? (
@@ -272,11 +303,12 @@ export default function EarningsPage() {
                      r14 / 12px 14px / no shadow — the gold-tinted twin of the
                      paid row above. */
                   <Card key={p.id} className="px-3.5 py-3 rounded-[14px] bg-parchment bg-none border-[1.5px] border-[#EBCF86] shadow-none flex items-center gap-2">
+                    {/* same canon row type as मिल गया: 18 / 15 / 18 */}
                     <div className="flex-1 flex flex-col gap-0.5 min-w-0">
-                      <span className="text-[19px] font-extrabold text-temple-700 font-hindi truncate">{title}</span>
-                      <span className="text-[18px] text-softgrey font-hindi">{formatHindiDate(dateVal)}</span>
+                      <span className="text-[18px] font-extrabold text-temple-700 font-hindi truncate">{title}</span>
+                      <span className="text-[15px] text-softgrey font-hindi">{formatHindiDate(dateVal)}</span>
                     </div>
-                    <span className="text-[20px] font-black text-brassdark shrink-0">₹{p.amount.toLocaleString("en-IN")}</span>
+                    <span className="text-[18px] font-black text-brassdark shrink-0">₹{p.amount.toLocaleString("en-IN")}</span>
                   </Card>
                 );
               })}
