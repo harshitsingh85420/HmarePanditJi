@@ -134,7 +134,7 @@ export default function GlobalError({
             href="tel:+918934095599"
             className="text-saffron text-xl font-bold underline underline-offset-4 hover:text-saffron-dark block mt-2"
           >
-            +91 12345 67890
+            +91 89340 95599
           </a>
         </div>
       </motion.div>
