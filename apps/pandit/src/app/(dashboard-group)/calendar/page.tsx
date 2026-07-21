@@ -209,13 +209,10 @@ export default function CalendarPage() {
       <Narrate text={t("calendar.blockVoice")} />
       <DashboardVoiceNav helpLine={t("help.calendar")} />
 
-      <main className="flex-1 overflow-y-auto px-[18px] pt-2 pb-24 flex flex-col gap-3 page-enter">
-        {/* CANON frame 28 title block: 8px 18px 2px, hint 700/#8A6F5C, LEFT aligned.
-            Canon sizes it 14px; the 18sp body floor wins (lawConflicts). */}
-        <p className="text-[18px] font-bold text-softgrey font-hindi">
-          {t("calendar.hint")}
-        </p>
-
+      {/* CANON frame 20: the tap hint appears ONCE, as the Header sub-line —
+          the duplicate in-scroll paragraph is gone; scroll well tops at
+          canon's 12px. */}
+      <main className="flex-1 overflow-y-auto px-[18px] pt-3 pb-24 flex flex-col gap-3 page-enter">
         {/* MONTH SELECTOR — canon: plain row, arrows #8A6F5C weight 400,
             label 20px/800 #341A13. Targets stay 56px per the tap-target law. */}
         <div className="flex items-center justify-between">
