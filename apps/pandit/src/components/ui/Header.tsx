@@ -39,17 +39,21 @@ export interface HeaderProps {
   showBack?: boolean;
   onBack?: () => void;
   rightSlot?: React.ReactNode;
+  /** canon frame 7 (OTP) draws a peach unshadowed back circle; default card. */
+  backTone?: "card" | "peach";
   className?: string;
 }
 
-function BackCircle({ onBack }: { onBack: () => void }) {
+function BackCircle({ onBack, tone = "card" }: { onBack: () => void; tone?: "card" | "peach" }) {
   return (
     <button
       onClick={onBack}
       aria-label={t("common.back")}
-      /* canon: 42px #FFFDF8 circle, 0 2px 8px rgba(90,46,32,.12), 22px
-         arrow_back in #7A250E — box floored to the 52px tap target. */
-      className="w-[52px] h-[52px] min-h-[52px] min-w-[52px] shrink-0 rounded-full bg-card shadow-card flex items-center justify-center active:scale-90 transition-all focus:outline-none focus:ring-2 focus:ring-saffron-200"
+      /* canon: 42px #FFFDF8 circle + 0 2px 8px shadow (A-rows) or 44px
+         #FDEEE7 unshadowed (frame 7) — box floored to the 52px tap target. */
+      className={`w-[52px] h-[52px] min-h-[52px] min-w-[52px] shrink-0 rounded-full flex items-center justify-center active:scale-90 transition-all focus:outline-none focus:ring-2 focus:ring-saffron-200 ${
+        tone === "peach" ? "bg-saffron-50" : "bg-card shadow-card"
+      }`}
     >
       <span className="material-symbols-outlined text-[24px] leading-none text-saffron-700" aria-hidden="true">
         arrow_back
@@ -65,6 +69,7 @@ export function Header({
   showBack = false,
   onBack,
   rightSlot,
+  backTone,
   className,
 }: HeaderProps) {
   const router = useRouter();
@@ -82,7 +87,7 @@ export function Header({
     return (
       <header className={cn("sticky top-0 z-30 bg-cream shrink-0", className)}>
         <div className="flex items-center gap-3 px-[18px] pt-2 pb-1">
-          {showBack && <BackCircle onBack={handleBack} />}
+          {showBack && <BackCircle onBack={handleBack} tone={backTone} />}
           <div className="flex-1 min-w-0">
             <div className="text-[24px] font-black text-temple-700 font-hindi truncate">{title}</div>
             {sub != null && (
@@ -99,7 +104,7 @@ export function Header({
   return (
     <header className={cn("sticky top-0 z-30 bg-cream shrink-0", className)}>
       <div className="flex items-center gap-3 px-4 py-2">
-        {showBack && <BackCircle onBack={handleBack} />}
+        {showBack && <BackCircle onBack={handleBack} tone={backTone} />}
         <span className="text-[19px] font-black text-temple-700 font-hindi truncate">{title}</span>
         {rightSlot != null && <div className="ml-auto shrink-0">{rightSlot}</div>}
       </div>

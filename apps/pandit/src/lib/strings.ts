@@ -265,6 +265,8 @@ export const hi = {
     webotpVoice: "SMS आते ही OTP अपने आप भर जाएगा — नीचे 'Allow' आए तो उसे दबा दीजिए।",
     phoneLabel: "अपना मोबाइल नंबर डालिए",
     phoneVoice: "पंडित जी, कृपया अपना दस अंकों का मोबाइल नंबर डालिए और आगे बढ़िए बटन दबाइए।",
+    // canon frame 7 header title (OTP stays roman — canon writes it roman)
+    otpTitle: "OTP सत्यापन",
     otpLabel: "OTP डालिए",
     // Mockup frame 7: "+91 … पर भेजा गया" under the heading
     otpSentTo: "+91 {phone} पर भेजा गया",
@@ -342,7 +344,9 @@ export const hi = {
     voiceNew: "पंडित जी, बस अपना नाम बताइए — और आपका खाता बन जाएगा। शहर हमने पहचान लिया है, चाहें तो बदल लीजिए।",
     voiceComplete: "पंडित जी, बस अपना नाम बताइए — आपकी प्रोफ़ाइल पूरी हो जाएगी।",
     cityLabel: "आपका शहर",
-    cityPlaceholder: "शहर का नाम",
+    // canon frame 6 shows EXAMPLE values in the field cards
+    namePlaceholder: "पं. रमेश शर्मा",
+    cityPlaceholder: "वाराणसी",
     createBtn: "खाता बनाइए",
     completeBtn: "प्रोफ़ाइल पूरी कीजिए",
     celebrationTitle: "खाता बन गया!",

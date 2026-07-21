@@ -37,6 +37,9 @@ export interface VoiceFieldProps {
   disabled?: boolean;
   /** A5: never arm the mic (bank/IFSC/UPI). OTP mode implies this. */
   noVoice?: boolean;
+  /** Canon frame 6: the value is BARE text inside the field card — no inner
+      white box. Styling only; the whole voice machine is untouched. */
+  bare?: boolean;
 }
 
 export function VoiceField({
@@ -51,6 +54,7 @@ export function VoiceField({
   placeholder,
   disabled,
   noVoice,
+  bare,
 }: VoiceFieldProps) {
   const { enabled: voiceOn } = useVoice();
   const voiceInput = useVoiceInput();
@@ -396,9 +400,17 @@ export function VoiceField({
           onFocus={() => state.phase !== "IDLE" && dispatch({ type: "TYPED_INPUT" })}
           onBlur={handleBlur}
           onChange={(e) => handleTyped(e.target.value)}
-          className={`w-full min-h-[56px] text-[20px] bg-white border-2 rounded-[14px] px-4 font-bold text-ink focus:outline-none focus:ring-4 focus:ring-saffron-200 ${
-            listening ? "border-gold ring-4 ring-gold/40 animate-pulse" : "border-saffron-200"
-          }`}
+          className={
+            bare
+              ? // canon frame 6: bare 23/800 ink value in the card — the gold
+                // listening ring stays so the live state never goes invisible
+                `w-full min-h-[52px] text-[23px] bg-transparent border-0 p-0 font-extrabold text-temple-700 font-hindi placeholder:text-sand-300 focus:outline-none rounded-[8px] ${
+                  listening ? "ring-4 ring-gold/40 animate-pulse" : ""
+                }`
+              : `w-full min-h-[56px] text-[20px] bg-white border-2 rounded-[14px] px-4 font-bold text-ink focus:outline-none focus:ring-4 focus:ring-saffron-200 ${
+                  listening ? "border-gold ring-4 ring-gold/40 animate-pulse" : "border-saffron-200"
+                }`
+          }
         />
       )}
 

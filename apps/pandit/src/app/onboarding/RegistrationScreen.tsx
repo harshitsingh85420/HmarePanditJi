@@ -181,7 +181,8 @@ export default function RegistrationScreen({ onBack }: { onBack: () => void }) {
           <h2 className="text-[28px] font-black text-temple-700 font-hindi leading-snug">
             {t("registration.heroTitle")}
           </h2>
-          <p className="text-[16px] font-semibold text-softgrey font-hindi">
+          {/* canon 16/600 → 18px body floor */}
+          <p className="text-[18px] font-semibold text-softgrey font-hindi">
             {t("registration.heroSub")}
           </p>
         </div>
@@ -208,7 +209,8 @@ export default function RegistrationScreen({ onBack }: { onBack: () => void }) {
                 onChange={changeName}
                 mode="text"
                 required
-                placeholder="पंडित जी का नाम लिखिए"
+                bare
+                placeholder={t("registration.namePlaceholder")}
               />
             </div>
           </Card>
@@ -224,6 +226,7 @@ export default function RegistrationScreen({ onBack }: { onBack: () => void }) {
                 onChange={changeCity}
                 mode="text"
                 required
+                bare
                 placeholder={t("registration.cityPlaceholder")}
               />
             </div>
@@ -239,16 +242,19 @@ export default function RegistrationScreen({ onBack }: { onBack: () => void }) {
         )}
       </main>
 
-      <footer className="shrink-0 px-3 pt-3 pb-0">
+      {/* canon frame 6: the CTA sits inside the 22px column gutter, with the
+          Material arrow_forward trailing the label (gap 10) */}
+      <footer className="shrink-0 px-[22px] pt-0 pb-0">
         <div ref={submitRef}>
-          <Button variant="primary" size="lg" fullWidth className="text-[22px] font-extrabold" onClick={handleSubmit} loading={submitting}>
+          <Button variant="primary" size="lg" fullWidth className="text-[22px] font-extrabold gap-[10px]" onClick={handleSubmit} loading={submitting}>
             {cta}
+            <span className="material-symbols-outlined text-[26px] leading-none" aria-hidden="true">arrow_forward</span>
           </Button>
         </div>
       </footer>
       {/* canon frame 6: शिष्य in his own centered strip BELOW the CTA
           (padding 0 0 14px), size 60, ribbon "बाकी सब मैं देख लूँगा 🙏" */}
-      <div className="shrink-0 flex justify-center pb-[14px] pt-2">
+      <div className="shrink-0 flex justify-center pb-[14px]">
         <ShishyaOrb size={60} say={t("registration.say")} />
       </div>
     </div>
