@@ -205,7 +205,13 @@ export default function MyPoojasPage() {
 
       <div className="flex flex-col gap-3">
         {poojas.length === 0 && (
-          <EmptyState emoji="🛕" title={t("empty.noPoojasTitle")} hint={t("empty.noPoojasHint")} />
+          /* canon frame 27c: the empty state carries its own primary CTA */
+          <EmptyState
+            emoji="🛕"
+            title={t("empty.noPoojasTitle")}
+            hint={t("empty.noPoojasHint")}
+            action={{ label: t("empty.noPoojasCta"), onClick: () => router.push("/my-poojas/add") }}
+          />
         )}
 
         {poojas.map((pooja) => {

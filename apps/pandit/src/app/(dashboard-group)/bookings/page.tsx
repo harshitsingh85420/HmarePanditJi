@@ -15,6 +15,7 @@ import { BottomNav } from "@/components/ui/BottomNav";
 import { DiyaLoader } from "@/components/moments/DiyaLoader";
 import { VoiceActionListener } from "@/components/voice/VoiceActionListener";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
 import { FirstUseTip } from "@/components/moments/FirstUseTip";
 
 interface BookingItem {
@@ -241,7 +242,13 @@ export default function BookingsPage() {
       >
         {bookings.length === 0 ? (
           <>
-            <EmptyState emoji="🙏" title={t("empty.noBookingsYetTitle")} hint={t("empty.noBookingsYetHint")} />
+            {/* canon frame 27a: शिष्य himself (awake, size 96, no label) is
+                the empty-state ornament — not an emoji medallion */}
+            <EmptyState
+              ornament={<ShishyaOrb size={96} showLabel={false} demoState="awake" />}
+              title={t("empty.noBookingsYetTitle")}
+              hint={t("empty.noBookingsYetHint")}
+            />
             {/* FLOW D: not booking-ready yet → same तैयारी hero CTA as home */}
             {!isBookingReady && (
               <Card

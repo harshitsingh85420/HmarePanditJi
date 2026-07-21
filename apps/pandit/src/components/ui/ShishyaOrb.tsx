@@ -45,7 +45,7 @@ export function ShishyaOrb({
       forced states). When set: the live voiceController state is ignored,
       the tap-to-sleep control is disabled, and no fallback ribbon renders —
       it is an illustration, never the ONE voice control. */
-  demoState?: "asleep" | "speaking" | "listening";
+  demoState?: "awake" | "asleep" | "speaking" | "listening";
 }) {
   const muted = useSyncExternalStore(
     voiceController.subscribe,
