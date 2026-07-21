@@ -16,10 +16,14 @@ import { Toast } from "./Toast";
 export function ShishyaOrb({
   className = "",
   size = "md",
+  showLabel = true,
 }: {
   className?: string;
   /** "lg" renders the 120px hero orb (परिचय screen); "md" is the footer dock. */
   size?: "md" | "lg";
+  /** Canon frame 1 (splash) hides the name (`name="{{ false }}"`) — the ribbon
+      already says who's speaking, so the "शिष्य" caption is redundant there. */
+  showLabel?: boolean;
 }) {
   const muted = useSyncExternalStore(
     voiceController.subscribe,
@@ -121,11 +125,13 @@ export function ShishyaOrb({
         )}
       </button>
 
-      <span
-        className={`mt-0.5 font-bold font-hindi ${large ? "text-[18px]" : "text-[11px]"} ${asleep ? "text-softgrey" : "text-saffron-500"}`}
-      >
-        {t("shishya.name")}
-      </span>
+      {showLabel && (
+        <span
+          className={`mt-0.5 font-bold font-hindi ${large ? "text-[18px]" : "text-[11px]"} ${asleep ? "text-softgrey" : "text-saffron-500"}`}
+        >
+          {t("shishya.name")}
+        </span>
+      )}
 
       {/* Q8: a sleeping शिष्य can't hear "उठो" (mic off BY DESIGN) — the
           orb itself teaches the wake gesture, persistently. */}

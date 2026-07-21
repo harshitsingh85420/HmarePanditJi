@@ -131,9 +131,10 @@ export function SunriseSplash({ onDone }: { onDone: () => void }) {
       className="pa-sunrise h-[100dvh] max-w-[430px] mx-auto relative overflow-hidden flex flex-col cursor-pointer"
       style={{ background: CANON_SKY }}
     >
-      {/* Toran garland drops in from the top edge (canon z-4) */}
+      {/* Canon frame 1 hangs the FULL 58px marigold garland from the top edge
+          (canon z-4, count=11) — not the compact header strip. */}
       <div className="absolute top-0 left-0 right-0 z-[4] pa-splash-toran">
-        <Toran tone="onSindoor" />
+        <Toran tone="onSindoor" variant="garland" count={11} />
       </div>
 
       {/* Marigold petals drift down */}
@@ -239,7 +240,12 @@ export function SunriseSplash({ onDone }: { onDone: () => void }) {
               aria-hidden="true"
             />
           </div>
-          <ShishyaOrb />
+          {/* Canon Shishya is size 82; the shared orb's dock size is 66, so
+              scale it up to canon (66 × 1.24 ≈ 82) splash-locally rather than
+              threading a numeric size through the shared component. */}
+          <div style={{ transform: "scale(1.24)", transformOrigin: "top center" }}>
+            <ShishyaOrb showLabel={false} />
+          </div>
         </div>
       </div>
 
