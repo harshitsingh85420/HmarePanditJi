@@ -210,7 +210,7 @@ export function HomeView({
                   <span className="text-[18px] font-bold text-red-800 font-hindi">
                     {t("home.rejectedTitle")}
                   </span>
-                  <span className="text-[16px] text-red-700 font-hindi mt-1 leading-snug">
+                  <span className="text-[18px] text-red-700 font-hindi mt-1 leading-snug">
                     {rejectionReason || "जानकारी में कुछ त्रुटि है।"}
                   </span>
                 </div>
@@ -243,6 +243,13 @@ export function HomeView({
               {t("home.monthEarnings")}
             </span>
           </div>
+          {/* CANON frame 12 hero amount is 46px: the earnings figure is a
+              <dc-import name="CountUp" size="46" color="#155C34" hint-size="220px,64px">.
+              The 24px "largest type" the RUN-1 census reported is canon's next
+              largest INLINE font-size (the ₹5,600 pill); CountUp's size is an
+              attribute the font-size regex never saw, so 46px IS canon and
+              shrinking it would drift AWAY from the artboard. Colour #155C34 =
+              leaf-700. Kept at 46px (well above the 18px floor). */}
           <MoneyCount target={earnings.month || 0} durationMs={1500} className="block text-center mt-2 text-[46px] font-black text-leaf-700 leading-tight" />
           <div className="border-t-[1.5px] border-dashed border-sand-200 mt-[14px] pt-3 flex justify-between items-center">
             <span className="text-[18px] font-bold text-softgrey font-hindi">
@@ -385,7 +392,10 @@ export function HomeView({
         )}
 
         {/* TODAY'S BOOKINGS SECTION */}
-        <Card className="p-4 bg-white border border-saffron-100 flex flex-col gap-3">
+        {/* CANON frame 12 has NO pure white — #FFFDF8 is its dominant surface
+            (6×). bg-card (#FFFDF8) replaces bg-white so this app-extension
+            section reads as the same warm surface as the canon tiles. */}
+        <Card className="p-4 bg-card border border-saffron-100 flex flex-col gap-3">
           <h3 className="text-[18px] font-bold text-temple-600 font-hindi border-b border-saffron-100 pb-2">
             {t("home.todayBookings")}
           </h3>
@@ -419,7 +429,7 @@ export function HomeView({
                     <span className="text-[18px] font-bold text-temple-700 font-hindi leading-snug mt-1">
                       {b.pujaType || b.eventType}
                     </span>
-                    <span className="text-[16px] text-softgrey font-hindi truncate max-w-[240px]">
+                    <span className="text-[18px] text-softgrey font-hindi truncate max-w-[240px]">
                       {b.venueAddress.split(",")[0]}
                     </span>
                   </div>
@@ -432,7 +442,7 @@ export function HomeView({
 
         {/* TOMORROW'S BOOKINGS */}
         {tomorrowBookings.length > 0 && (
-          <Card className="p-4 bg-white border border-saffron-100 flex flex-col gap-3">
+          <Card className="p-4 bg-card border border-saffron-100 flex flex-col gap-3">
             <h3 className="text-[18px] font-bold text-temple-600 font-hindi border-b border-saffron-100 pb-2">
               {t("homeSummary.tomorrow")}
             </h3>
@@ -450,7 +460,7 @@ export function HomeView({
                     <span className="text-[18px] font-bold text-temple-700 font-hindi leading-snug mt-1">
                       {b.pujaType || b.eventType}
                     </span>
-                    <span className="text-[16px] text-softgrey font-hindi truncate max-w-[240px]">
+                    <span className="text-[18px] text-softgrey font-hindi truncate max-w-[240px]">
                       {b.venueAddress?.split(",")[0]}
                     </span>
                   </div>
@@ -466,7 +476,7 @@ export function HomeView({
 
         {/* SAMAGRI PACKAGES LINK */}
         <Card
-          className="p-4 bg-white border border-saffron-100 cursor-pointer min-h-[56px] flex items-center justify-center text-center"
+          className="p-4 bg-card border border-saffron-100 cursor-pointer min-h-[56px] flex items-center justify-center text-center"
           onClick={() => onNavigate("/samagri")}
         >
           <span className="text-[20px] font-bold text-ink font-hindi">
