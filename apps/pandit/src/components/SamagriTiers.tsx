@@ -111,9 +111,9 @@ export function SamagriTiers({
               </span>
             </div>
             {inherited ? (
-              <span className="text-[14px] font-bold text-softgrey bg-[#EFE8DA] px-2.5 py-1 rounded-full whitespace-nowrap">{fromLabel} से</span>
+              <span className="text-[15px] font-bold text-softgrey bg-[#EFE8DA] px-2.5 py-1 rounded-full whitespace-nowrap">{fromLabel} से</span>
             ) : isNew ? (
-              <span className="text-[14px] font-extrabold text-leaf-700 bg-[#D6EEDE] px-2.5 py-1 rounded-full whitespace-nowrap">नया</span>
+              <span className="text-[15px] font-extrabold text-leaf-700 bg-[#D6EEDE] px-2.5 py-1 rounded-full whitespace-nowrap">नया</span>
             ) : null}
           </motion.div>
         ))}

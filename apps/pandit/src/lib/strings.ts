@@ -375,7 +375,7 @@ export const hi = {
     ownVehicleKm: "कितनी दूर तक?",
     ownVehicleRate: "₹12/किमी (आना-जाना)",
     kmUnit: "{km} किमी",
-    train: "🚆 ट्रेन",
+    train: "🚂 ट्रेन",
     trainSleeper: "स्लीपर",
     train3ac: "3AC",
     train2ac: "2AC",
@@ -478,7 +478,7 @@ export const hi = {
     viewNewBooking: "नई बुकिंग देखिए →",
     tapToView: "देखने के लिए दबाइए",
     accept: "स्वीकार कीजिए",
-    reject: "❌ अस्वीकार कीजिए",
+    reject: "अस्वीकार कीजिए",
     earningsTitle: "आपकी कमाई का हिसाब",
     dakshina: "दक्षिणा",
     // MONEY-TRUTH: label must state the REAL rate — PLATFORM_FEE_PERCENT

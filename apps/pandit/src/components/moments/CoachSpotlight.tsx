@@ -131,9 +131,9 @@ export function CoachSpotlight({
         }}
       >
         <span className="text-[20px] font-bold text-temple-600 font-hindi">{title}</span>
-        <span className="text-[16px] text-ink font-hindi leading-snug">{line}</span>
+        <span className="text-[18px] text-ink font-hindi leading-snug">{line}</span>
         {requireInteraction ? (
-          <span className="text-[16px] font-bold text-saffron-600 font-hindi">
+          <span className="text-[18px] font-bold text-saffron-600 font-hindi">
             {actionHint || t("coach.tryIt")}
           </span>
         ) : (
