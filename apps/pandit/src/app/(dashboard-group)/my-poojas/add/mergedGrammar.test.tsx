@@ -20,6 +20,13 @@ import { teamOptionLabel, teamOptionKeywords } from "./stepModel";
 
 afterEach(cleanup);
 
+/** F02-06: a spoken menu choice now CONFIRMS before it commits — speak the
+ *  choice, then हाँ. */
+function select(phrase: string) {
+  voiceController.handleTranscript(phrase, 1);
+  voiceController.handleTranscript("हाँ", 1);
+}
+
 /** the merged step's two groups, exactly as the component registers them */
 function MergedStep({ hit }: { hit: string[] }) {
   useVoiceOptions([
@@ -42,19 +49,20 @@ describe("merged step — two useVoiceOptions in one component", () => {
     const hit: string[] = [];
     render(<MergedStep hit={hit} />);
 
-    voiceController.handleTranscript("सिर्फ़ सूची", 1);
-    voiceController.handleTranscript("3 पंडित", 1);
+    select("सिर्फ़ सूची");
+    select("3 पंडित");
 
     expect(hit).toContain("LIST_ONLY");
     expect(hit).toContain("team:3");
   });
 
-  it("a spoken amount is NOT captured by either grammar", () => {
+  it("a spoken amount is NOT captured by either grammar (not even pending)", () => {
     const hit: string[] = [];
     render(<MergedStep hit={hit} />);
 
     for (const amount of ["5000", "2100", "11000", "500"]) {
       voiceController.handleTranscript(amount, 1);
+      expect(voiceController.pendingOptionLabel(), `amount ${amount} matched a label`).toBeNull();
     }
     expect(hit, `an amount leaked into the grammar: ${hit.join(",")}`).toEqual([]);
   });
@@ -75,7 +83,7 @@ describe("merged step — two useVoiceOptions in one component", () => {
     rerender(<MergedStep hit={hit} />);
     rerender(<MergedStep hit={hit} />);
 
-    voiceController.handleTranscript("प्लेटफ़ॉर्म बेचे", 1);
+    select("प्लेटफ़ॉर्म बेचे");
     expect(hit).toEqual(["PLATFORM_SELLS"]);
   });
 
@@ -85,7 +93,7 @@ describe("merged step — two useVoiceOptions in one component", () => {
     first.unmount();
     render(<MergedStep hit={hit} />);
 
-    voiceController.handleTranscript("4 पंडित", 1);
+    select("4 पंडित");
     expect(hit).toEqual(["team:4"]);
   });
 });

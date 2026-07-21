@@ -53,6 +53,14 @@ const TEAM_DIGITS = (hit: string[]) =>
     onSelect: () => hit.push(`team:${n}`),
   }));
 
+/** F02-06: a spoken menu choice now CONFIRMS ("आपने कहा [X] — सही है?") before
+ *  it commits, exactly like a spoken field value. select() drives the two-step
+ *  flow — speak the choice, then हाँ — for the tests that assert a commit. */
+function select(phrase: string): boolean {
+  voiceController.handleTranscript(phrase, 1); // → sets the pending choice
+  return voiceController.handleTranscript("हाँ", 1); // → commits it
+}
+
 describe("A. draft.step remap (7 -> 5)", () => {
   it("maps every old step onto a real new step", () => {
     expect(STEP_7_TO_5).toHaveLength(STEPS_7.length);
@@ -92,11 +100,11 @@ describe("B. voice grammar co-mounting", () => {
     mountOptions(TEAM_FIXED(hit));
 
     // a supply phrase still resolves with the team group mounted on top
-    expect(voiceController.handleTranscript("हाँ, मैं लाऊँगा", 1)).toBe(true);
+    expect(select("हाँ, मैं लाऊँगा")).toBe(true);
     expect(hit).toContain("PANDIT_BRINGS");
 
     // and the team group resolves too
-    expect(voiceController.handleTranscript("3 पंडित", 1)).toBe(true);
+    expect(select("3 पंडित")).toBe(true);
     expect(hit).toContain("team:3");
   });
 
@@ -106,11 +114,12 @@ describe("B. voice grammar co-mounting", () => {
     const offTeam = mountOptions(TEAM_FIXED(hit));
     offTeam();
 
-    expect(voiceController.handleTranscript("सिर्फ़ सूची", 1)).toBe(true);
+    expect(select("सिर्फ़ सूची")).toBe(true);
     expect(hit).toContain("LIST_ONLY");
-    // the unmounted team grammar must be gone
+    // the unmounted team grammar must be gone — no match, so nothing to confirm
     hit.length = 0;
     voiceController.handleTranscript("4 पंडित", 1);
+    expect(voiceController.pendingOptionLabel()).toBeNull();
     expect(hit).not.toContain("team:4");
   });
 
@@ -125,30 +134,36 @@ describe("B. voice grammar co-mounting", () => {
     expect(hit).toEqual([]);
   });
 
-  it("F10-03 REGRESSION: bare-digit labels steal a spoken money amount", () => {
-    // This is the hazard the merge would introduce if टीम kept "1".."5".
-    // matchVisibleOption does `clean.includes(label)`, so "5000" contains
-    // "5". Proven here so nobody reintroduces digit labels.
+  it("REGRESSION: bare-digit labels still MATCH a spoken money amount", () => {
+    // The hazard digit labels introduce: matchVisibleOption does
+    // `clean.includes(label)`, so "5000" contains "5". That collision is
+    // unchanged by F02-06 — it happens at the MATCH layer. Proven here so
+    // nobody reintroduces digit labels thinking confirmation alone saves them.
     const hit: string[] = [];
     mountOptions(TEAM_DIGITS(hit));
     voiceController.handleTranscript("5000", 1);
-    expect(hit, "bare digit labels are unsafe beside a money field").toContain("team:5");
+    // "5000" matched "5" → the choice is PENDING (confirmation now gates the
+    // commit, so it did not fire silently — but the collision is real).
+    expect(voiceController.pendingOptionLabel(), "bare digit labels are unsafe beside a money field").toBe("5");
+    expect(hit, "confirmation stopped the silent commit — but do not rely on that").toEqual([]);
   });
 
-  it("F10-03 FIX: 'N पंडित' labels do NOT match a spoken amount", () => {
+  it("FIX: 'N पंडित' labels do NOT match a spoken amount (not even pending)", () => {
     const hit: string[] = [];
     mountOptions(SUPPLY(hit));
     mountOptions(TEAM_FIXED(hit));
     for (const amount of ["5000", "2100", "11000", "1500"]) {
       voiceController.handleTranscript(amount, 1);
+      // the real fix: an amount never even BECOMES a pending team choice
+      expect(voiceController.pendingOptionLabel(), `amount ${amount} matched a team label`).toBeNull();
     }
     expect(hit, `an amount was captured by the team grammar: ${hit.join(",")}`).toEqual([]);
   });
 
-  it("F10-03: team labels still resolve the way a pandit would say them", () => {
+  it("team labels still resolve the way a pandit would say them (via confirm)", () => {
     const hit: string[] = [];
     mountOptions(TEAM_FIXED(hit));
-    voiceController.handleTranscript("2 पंडित", 1);
+    expect(select("2 पंडित")).toBe(true);
     expect(hit).toContain("team:2");
   });
 
@@ -156,7 +171,7 @@ describe("B. voice grammar co-mounting", () => {
     const hit: string[] = [];
     mountOptions(SUPPLY(hit));
     mountOptions(TEAM_FIXED(hit));
-    voiceController.handleTranscript("प्लेटफ़ॉर्म बेचे", 1);
+    select("प्लेटफ़ॉर्म बेचे");
     expect(hit).toEqual(["PLATFORM_SELLS"]);
   });
 });
