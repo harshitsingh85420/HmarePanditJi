@@ -56,3 +56,22 @@ describe("कमाई — canon frame 19 money pins", () => {
     expect(Math.min(...sizes)).toBeGreaterThanOrEqual(15);
   });
 });
+
+describe("कमाई — canon frame 27b whole-screen empty", () => {
+  it("truly-empty earnings render the दीया screen, not a ₹0 dashboard", () => {
+    // the guard covers every figure AND both lists — a zero hero must never
+    // render as if it were data
+    for (const cond of [
+      /summary\.today === 0/,
+      /summary\.week === 0/,
+      /summary\.month === 0/,
+      /summary\.pendingPayout === 0/,
+      /pendingPayouts\.length === 0/,
+      /paidPayouts\.length === 0/,
+    ]) {
+      expect(src).toMatch(cond);
+    }
+    // canon ornament: drawn दीया at 86, lit
+    expect(src).toMatch(/ornament=\{<Diya size=\{86\} lit \/>\}/);
+  });
+});

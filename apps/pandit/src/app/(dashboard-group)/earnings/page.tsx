@@ -14,6 +14,7 @@ import { BottomNav } from "@/components/ui/BottomNav";
 import { DiyaLoader } from "@/components/moments/DiyaLoader";
 import { MoneyCount } from "@/components/moments/MoneyCount";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { Diya } from "@/components/ui/Diya";
 import { useVoice } from "@/hooks/useVoice";
 import { playChime } from "@/lib/sounds";
 import { FirstUseTip } from "@/components/moments/FirstUseTip";
@@ -115,6 +116,45 @@ export default function EarningsPage() {
       month: "long",
     });
   };
+
+  const goTab = (idx: number) => {
+    if (idx === 0) router.push("/home");
+    else if (idx === 1) router.push("/bookings");
+    else if (idx === 3) router.push("/calendar");
+  };
+
+  // CANON FRAME 27b — खाली अवस्था · कमाई is a WHOLE-SCREEN state: header +
+  // centred lit दीया + copy + nav, and NOTHING else. No ₹0 hero, no आज/हफ़्ते
+  // tiles, no section headings — canon never shows a zero pretending to be a
+  // figure (truthful-state). Only when every number AND both lists are truly
+  // empty; a non-zero summary with empty lists still gets the full screen.
+  const nothingEarnedYet =
+    summary.today === 0 &&
+    summary.week === 0 &&
+    summary.month === 0 &&
+    summary.pendingPayout === 0 &&
+    pendingPayouts.length === 0 &&
+    paidPayouts.length === 0;
+
+  if (nothingEarnedYet) {
+    return (
+      <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
+        <Header variant="title" title={`💰 ${t("earnings.title")}`} />
+        <Narrate text={t("earnings.introVoice")} />
+        <DashboardVoiceNav helpLine={t("help.earnings")} />
+        <main className="flex-1 flex flex-col page-enter">
+          {/* canon ornament: the drawn दीया, size 86, lit — "दीया जल रहा है" */}
+          <EmptyState
+            className="flex-1"
+            ornament={<Diya size={86} lit />}
+            title={t("empty.noPayoutsTitle")}
+            hint={t("empty.noPayoutsHint")}
+          />
+        </main>
+        <BottomNav activeTab={2} onChange={goTab} />
+      </div>
+    );
+  }
 
   return (
     <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
@@ -318,11 +358,7 @@ export default function EarningsPage() {
       </main>
 
       {/* BOTTOM NAV */}
-      <BottomNav activeTab={2} onChange={(idx) => {
-        if (idx === 0) router.push("/home");
-        else if (idx === 1) router.push("/bookings");
-        else if (idx === 3) router.push("/calendar");
-      }} />
+      <BottomNav activeTab={2} onChange={goTab} />
     </div>
   );
 }

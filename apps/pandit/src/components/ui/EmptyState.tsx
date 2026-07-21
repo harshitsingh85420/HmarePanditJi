@@ -9,7 +9,15 @@ function cn(...inputs: (string | undefined | false | null)[]) {
 }
 
 export interface EmptyStateProps {
-  emoji: string;
+  /** 52px glyph centred in the canon 110px #FDEEE7 medallion (frame 39) */
+  emoji?: string;
+  /**
+   * A DRAWN ornament (शिष्य orb, दीया…) rendered in place of the emoji
+   * medallion — canon frames 37/38 put the live components here, and the
+   * drawn-not-emoji law prefers them wherever one exists. When both are
+   * given, the ornament wins.
+   */
+  ornament?: React.ReactNode;
   title: string;
   hint: string;
   /**
@@ -49,6 +57,7 @@ export interface EmptyStateProps {
  */
 export function EmptyState({
   emoji,
+  ornament,
   title,
   hint,
   action,
@@ -61,14 +70,16 @@ export function EmptyState({
         className
       )}
     >
-      {/* canon: 110px disc, 50% radius, #FDEEE7 fill, 52px glyph */}
-      <div
-        className="flex h-[110px] w-[110px] shrink-0 select-none items-center justify-center rounded-full bg-saffron-50 text-[52px] leading-none"
-        role="img"
-        aria-hidden="true"
-      >
-        {emoji}
-      </div>
+      {ornament ?? (
+        /* canon: 110px disc, 50% radius, #FDEEE7 fill, 52px glyph */
+        <div
+          className="flex h-[110px] w-[110px] shrink-0 select-none items-center justify-center rounded-full bg-saffron-50 text-[52px] leading-none"
+          role="img"
+          aria-hidden="true"
+        >
+          {emoji}
+        </div>
+      )}
 
       <div>
         <div className="font-hindi text-[22px] font-black text-saffron-700">
@@ -85,8 +96,13 @@ export function EmptyState({
           onClick={action.onClick}
           className="flex w-full min-h-[64px] items-center justify-center gap-[9px] rounded-cta bg-saffron-500 font-hindi text-[21px] font-extrabold text-chandan shadow-btn transition-transform active:scale-[0.98] motion-reduce:transition-none motion-reduce:active:scale-100"
         >
-          <span aria-hidden="true" className="text-[26px] leading-none">
-            ➕
+          {/* canon draws Material `add_circle` at 26px here — never the ➕
+              emoji (drawn-not-emoji law) */}
+          <span
+            aria-hidden="true"
+            className="material-symbols-outlined text-[26px] leading-none"
+          >
+            add_circle
           </span>
           {action.label}
         </button>
