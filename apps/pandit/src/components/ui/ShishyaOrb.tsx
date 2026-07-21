@@ -127,7 +127,12 @@ export function ShishyaOrb({
 
       {showLabel && (
         <span
-          className={`mt-0.5 font-bold font-hindi ${large ? "text-[18px]" : "text-[11px]"} ${asleep ? "text-softgrey" : "text-saffron-500"}`}
+          className={`font-hindi ${
+            large
+              ? // canon Shishya.dc.html: 18px / 800 / #B23A1A / +.3px / mt 5px
+                "mt-[5px] text-[18px] font-extrabold tracking-[0.3px]"
+              : "mt-0.5 text-[11px] font-bold"
+          } ${asleep ? "text-softgrey" : "text-saffron-500"}`}
         >
           {t("shishya.name")}
         </span>
