@@ -249,7 +249,7 @@ export const hi = {
     error: "कुछ गड़बड़ हो गई। दोबारा कोशिश कीजिए।",
   },
   errors: {
-    apiBaseMissing: "ऐप कॉन्फ़िगरेशन अधूरी है (API URL)",
+    apiBaseMissing: "ऐप कॉन्फ़िगरेशन अधूरी है — टीम को बताइए",
   },
   welcome: {
     title: "हमारे पंडित जी में आपका स्वागत है",
@@ -262,7 +262,7 @@ export const hi = {
     unifiedSub: "नंबर डालिए — खाता होगा तो लॉगिन, नहीं तो नया बनेगा।",
     reviewTutorial: "📖 ट्यूटोरियल फिर देखिए",
     reviewTutorialVoice: "और ट्यूटोरियल दोबारा देखना हो तो नीचे का बटन दबाइए।",
-    webotpVoice: "SMS आते ही OTP अपने आप भर जाएगा — नीचे 'Allow' आए तो उसे दबा दीजिए।",
+    webotpVoice: "मैसेज आते ही OTP अपने आप भर जाएगा — नीचे 'Allow' आए तो उसे दबा दीजिए।",
     phoneLabel: "अपना मोबाइल नंबर डालिए",
     phoneVoice: "पंडित जी, कृपया अपना दस अंकों का मोबाइल नंबर डालिए और आगे बढ़िए बटन दबाइए।",
     // canon frame 7 header title (OTP stays roman — canon writes it roman)
