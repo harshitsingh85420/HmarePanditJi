@@ -87,25 +87,25 @@ describe("F08-02 — per-pooja video is required, and which submission paths are
     expect(videoStepNarration()).toContain("दो मिनट");
   });
 
-  it("F08-02: पूजा भेजिए stays disabled until BOTH a video link and consent exist", () => {
+  it("F08-02: जमा कीजिए stays disabled until BOTH a video link and consent exist", () => {
     // no link, no consent
     const a = renderVideoStep();
-    expect(a.getByRole("button", { name: /पूजा भेजिए/ })).toBeDisabled();
+    expect(a.getByRole("button", { name: /जमा कीजिए/ })).toBeDisabled();
     cleanup();
 
     // link but no consent — still blocked
     const b = renderVideoStep({ videoUrl: "https://youtu.be/dQw4w9WgXcQ", consent: false });
-    expect(b.getByRole("button", { name: /पूजा भेजिए/ })).toBeDisabled();
+    expect(b.getByRole("button", { name: /जमा कीजिए/ })).toBeDisabled();
     cleanup();
 
     // consent but no link — still blocked
     const c = renderVideoStep({ videoUrl: "", consent: true });
-    expect(c.getByRole("button", { name: /पूजा भेजिए/ })).toBeDisabled();
+    expect(c.getByRole("button", { name: /जमा कीजिए/ })).toBeDisabled();
     cleanup();
 
     // both — the only unlocked combination
     const d = renderVideoStep({ videoUrl: "https://youtu.be/dQw4w9WgXcQ", consent: true });
-    expect(d.getByRole("button", { name: /पूजा भेजिए/ })).toBeEnabled();
+    expect(d.getByRole("button", { name: /जमा कीजिए/ })).toBeEnabled();
   });
 
   it("F08-02: exactly two paths are offered today — type a link, or hand it to WhatsApp", () => {
@@ -145,12 +145,13 @@ describe("F08-02 — per-pooja video is required, and which submission paths are
 // Status 🟡, DOWNGRADED by the refute pass: 2 of the 3 documented items are
 // delivered, आसन is absent everywhere, and delivery is on-screen text only.
 describe("F08-03 — the recording checklist that is actually rendered on the वीडियो step", () => {
-  /** the exact list the component renders today (add/page.tsx CHECK) */
+  /** the exact list the component renders today (add/page.tsx CHECK) —
+   *  canon 18d's noun phrases, adopted by the exact-UI port */
   const RENDERED = [
-    "मंत्र साफ़ सुनाई दीजिए", // documented: मंत्रोच्चार
-    "अच्छी रोशनी हो", // undocumented extra
-    "आपका चेहरा दिखे", // documented: चेहरा साफ़
-    "पूजा का माहौल दिखे", // undocumented extra here (माहौल is an F08-04 admin parameter)
+    "साफ़ मंत्रोच्चार", // documented: मंत्रोच्चार
+    "अच्छी रोशनी", // undocumented extra
+    "चेहरा साफ़ दिखे", // documented: चेहरा साफ़
+    "पूजा का माहौल", // undocumented extra here (माहौल is an F08-04 admin parameter)
   ];
 
   it("F08-03: the checklist card renders, titled अच्छे वीडियो के लिए", () => {
@@ -244,7 +245,7 @@ describe("F08-06 — submission is an (unlisted) YouTube link, per deviation D-0
     });
 
     await act(async () => {
-      fireEvent.click(getByRole("button", { name: /पूजा भेजिए/ }));
+      fireEvent.click(getByRole("button", { name: /जमा कीजिए/ }));
     });
 
     // the submit chain awaits pooja-config BEFORE pooja-verification, so waiting

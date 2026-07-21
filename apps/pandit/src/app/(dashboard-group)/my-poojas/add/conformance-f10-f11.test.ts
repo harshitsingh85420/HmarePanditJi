@@ -190,7 +190,7 @@ describe("F10-02 — the per-pooja team size is stored against that pooja", () =
   async function submitDraft(over: Record<string, unknown> = {}) {
     renderDraft(fullDraft(over));
     await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: "पूजा भेजिए" }));
+      fireEvent.click(screen.getByRole("button", { name: "जमा कीजिए" }));
       await Promise.resolve();
     });
     return mocks.mutateOnce.mock.calls as unknown as Array<

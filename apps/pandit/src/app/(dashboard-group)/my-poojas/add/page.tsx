@@ -36,6 +36,7 @@ import { useRouter } from "next/navigation";
 import { Narrate } from "@/hooks/useScreenVoice";
 import { useVoiceOptions } from "@/hooks/useVoiceScreen";
 import { useVoice } from "@/hooks/useVoice";
+import { api } from "@/lib/api";
 import { mutateOnce } from "@/lib/mutate";
 import { Screen } from "@/components/ui/Screen";
 import { Card } from "@/components/ui/Card";
@@ -99,8 +100,30 @@ export default function AddPooja5Page() {
   const [activeTier, setActiveTier] = useState<SamagriTier>("BASIC");
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  // CANON 18a shows a "⏳ प्रतीक्षा में" pill on the header — but canon's 18a is
+  // an EDIT of an already-submitted puja (सत्यनारायण कथा). TRUTHFUL-STATE: a
+  // fresh draft is NOT प्रतीक्षा में, so the pill is gated on this poojaType
+  // already holding a PENDING verification row (the resubmit/edit path).
+  const [pendingTypes, setPendingTypes] = useState<string[]>([]);
   const { speak } = useVoice();
   const set = (patch: Partial<Draft>) => setD((prev) => ({ ...prev, ...patch }));
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        const res = await api("/pandit/pooja-verifications");
+        if (alive && res.success && res.data?.latest) {
+          setPendingTypes(
+            (res.data.latest as Array<{ poojaType: string; status: string }>)
+              .filter((r) => r.status === "PENDING")
+              .map((r) => r.poojaType),
+          );
+        }
+      } catch { /* display-only pill — a failed read just means no pill */ }
+    })();
+    return () => { alive = false; };
+  }, []);
 
   // resume — a 7-step draft's step index is remapped onto the 5-step model
   useEffect(() => {
@@ -156,11 +179,26 @@ export default function AddPooja5Page() {
   // the merged step needs all three answered before moving on
   const step2Done = !!d.supplyMode && d.dakshina != null && d.dakshina > 0;
 
+  const resubmitPending = !!d.name.trim() && pendingTypes.includes(d.name.trim());
+
   return (
     <Screen
       title={STEP_TITLES[d.step] ?? "पूजा जोड़िए"}
-      showBack
+      /* CANON 18e is a TITLE BLOCK ("पूजा की स्थिति") with NO back — a back
+         from the done screen would re-enter the already-submitted video step.
+         The "मेरी पूजाएँ देखिए" CTA is the escape (no-dead-ends satisfied). */
+      headerVariant={d.step === 4 ? "title" : "row"}
+      showBack={d.step !== 4}
       onBack={() => (d.step === 0 ? router.push("/my-poojas") : go(d.step - 1))}
+      headerRightSlot={
+        d.step === 0 && resubmitPending ? (
+          // canon 18a pill: 12/800 #B8860B on #FBF0D8, 5px/11px, r999 —
+          // type floored to the 15px label floor; ⏳ kept (canon draws it).
+          <span className="text-[15px] font-extrabold text-brassdark bg-goldpale px-[11px] py-[5px] rounded-full font-hindi whitespace-nowrap">
+            ⏳ प्रतीक्षा में
+          </span>
+        ) : undefined
+      }
       banner={d.step < 4 ? <div className="px-[18px] pt-2 pb-1 bg-cream"><StepBars total={STEPS_5.length} current={d.step + 1} /></div> : undefined}
       // CANON content box (18a–18e): padding 8px 18px 16px; column gap 16px on
       // the ask-steps, 12px on सामग्री, 14px on वीडियो/स्थिति.
@@ -170,8 +208,9 @@ export default function AddPooja5Page() {
           d.step === 3 ? (
             // canon CTA is min-height 62 / 21px / 800 / radius 18 / sindoor
             // lift — which is Button's default `md`, so the override is gone.
+            // Label = canon 18d's "जमा करें", -इए register-converted.
             <Button className="w-full" loading={submitting} disabled={!d.videoUrl || !d.consent} onClick={submit}>
-              पूजा भेजिए
+              जमा कीजिए
             </Button>
           ) : (
             <Button
@@ -218,6 +257,16 @@ function StepName({ d, set }: { d: Draft; set: (p: Partial<Draft>) => void }) {
       </div>
       <div className="flex flex-col gap-2 p-4 rounded-tile border-2 border-saffron-200 bg-[linear-gradient(135deg,#FDEEE7,#FFF3E2)]">
         <VoiceField label="बोलकर बताइए यह पूजा क्या है" promptText="यह पूजा क्या है, दो शब्दों में बताइए" mode="text" value={d.desc} onChange={(v) => set({ desc: v })} placeholder="संक्षेप में बोलिए" />
+        {/* CANON 18a: the panel echoes the captured description as a centred
+            italic quote (canon 15/600 #47241A → 18px body floor). Canon's
+            5-bar g-wave cluster is NOT drawn: VoiceField does not expose its
+            live listening state, and animated waves over a silent mic would
+            be untruthful — logged as a shared VoiceField todo. */}
+        {d.desc.trim() !== "" && (
+          <div className="text-[18px] font-semibold italic text-center leading-[1.45] font-hindi text-[#47241A]">
+            &ldquo;{d.desc}&rdquo;
+          </div>
+        )}
       </div>
     </>
   );
@@ -314,9 +363,12 @@ function StepDetails({ d, set }: { d: Draft; set: (p: Partial<Draft>) => void })
       <div className="flex flex-col gap-2.5">
         <span className="text-[19px] font-black text-saffron-700 font-hindi">सामान कौन लाएगा?</span>
         <div className="flex flex-col gap-2.5">
+          {/* REGISTER: the two sub-lines below are STATEMENTS about हम/यजमान,
+              not commands to the pandit — an over-applied -इए conversion had
+              turned them into imperatives aimed at the wrong subject. */}
           {opt("PANDIT_BRINGS", "🛍️", "हाँ, मैं लाऊँगा", "तीनों स्तर के दाम आप तय कीजिए")}
-          {opt("PLATFORM_SELLS", "🚚", "प्लेटफ़ॉर्म बेचे और पहुँचाए", "हम सामान का इंतज़ाम कीजिए")}
-          {opt("LIST_ONLY", "📝", "सिर्फ़ सूची दूँ", "यजमान ख़ुद ले आइए")}
+          {opt("PLATFORM_SELLS", "🚚", "प्लेटफ़ॉर्म बेचे और पहुँचाए", "हम सामान का इंतज़ाम करेंगे")}
+          {opt("LIST_ONLY", "📝", "सिर्फ़ सूची दूँ", "यजमान ख़ुद ले आएँगे")}
         </div>
         {d.supplyMode === "PANDIT_BRINGS" && (
           <div className="p-4 rounded-tile border-2 border-saffron-200 bg-[linear-gradient(135deg,#FDEEE7,#FFF3E2)]">
@@ -331,7 +383,8 @@ function StepDetails({ d, set }: { d: Draft; set: (p: Partial<Draft>) => void })
           (#FFFDF8 inside a 2px #F0DFC4 rule at radius 18, padding 12) and the
           circular 52px keys in canon's own peach/sindoor pair. */}
       <div className="flex flex-col gap-2.5">
-        <span className="text-[19px] font-black text-saffron-700 font-hindi">कितने पंडित चाहिए?</span>
+        {/* canon 18c heading verbatim (not part of any voice grammar) */}
+        <span className="text-[19px] font-black text-saffron-700 font-hindi">कितने पंडित आएँगे?</span>
         <div className="p-3 rounded-tile border-2 border-sand bg-card flex flex-col gap-3 items-center">
           <div className="flex gap-2.5 flex-wrap justify-center">
             {nums.map((n) => (
@@ -373,7 +426,11 @@ function StepDetails({ d, set }: { d: Draft; set: (p: Partial<Draft>) => void })
 // ── Step 3: video (unchanged) ─────────────────────────────────────────────────
 function StepVideo({ d, set }: { d: Draft; set: (p: Partial<Draft>) => void }) {
   const id = ytId(d.videoUrl);
-  const CHECK = ["मंत्र साफ़ सुनाई दीजिए", "अच्छी रोशनी हो", "आपका चेहरा दिखे", "पूजा का माहौल दिखे"];
+  // CANON 18d noun phrases, verbatim (pinned by conformance-f08 F08-03).
+  // Canon greys the 4th row (radio_button_unchecked); all four ship as
+  // "✅ <item>" spans here — the F08-03 pin freezes that delivery shape,
+  // and static all-checked tips are the accepted deviation.
+  const CHECK = ["साफ़ मंत्रोच्चार", "अच्छी रोशनी", "चेहरा साफ़ दिखे", "पूजा का माहौल"];
   return (
     <>
       <Narrate text="दो मिनट का वीडियो चाहिए — परिवार यही देखकर आपको चुनेंगे। यूट्यूब लिंक यहाँ टाइप कीजिए।" />
@@ -419,8 +476,9 @@ function StepVideo({ d, set }: { d: Draft; set: (p: Partial<Draft>) => void }) {
       <a href={`https://wa.me/918934095599?text=${encodeURIComponent("नमस्ते, मुझे अपनी पूजा का वीडियो भेजना है")}`} target="_blank" rel="noopener"
         className="w-full min-h-[56px] px-3.5 py-3 rounded-[14px] bg-leaf-100 flex items-center gap-2.5 text-[18px] font-hindi font-bold text-leaf-700 active:scale-[0.98] transition-transform">
         <span className="text-[22px] leading-none">💬</span>
-        <span className="flex-1 text-left">भेज दीजिए, हम लगा देंगे</span>
-        <span className="text-[20px] text-leaf-500 leading-none">→</span>
+        {/* canon copy ("…भेजें" → -इए register); arrow drawn, not a glyph char */}
+        <span className="flex-1 text-left">मदद चाहिए? WhatsApp पर भेजिए</span>
+        <span className="material-symbols-outlined text-[20px] text-leaf-500 leading-none" aria-hidden="true">arrow_forward</span>
       </a>
 
       <button onClick={() => set({ consent: !d.consent })} aria-pressed={d.consent}
@@ -443,7 +501,8 @@ function StepDone({ name }: { name: string }) {
     // pooja submitted one second ago, so only the pending card is drawn.
     <div className="flex flex-col gap-[14px] pt-4">
       <Narrate text="बहुत बढ़िया! आपकी पूजा जाँच के लिए भेज दी गई। स्वीकृत होते ही सूचना मिलेगी।" />
-      <span className="text-[72px] text-center">🙏</span>
+      {/* drawn-not-emoji: canon 18e draws NO 🙏 hero — only status cards
+          (the ⏳ inside the pending card is the one emoji canon draws here) */}
       <span className="text-[24px] font-hindi font-bold text-temple-700 text-center">{name} भेज दी गई</span>
       <div className="rounded-tile border-2 border-[#EBCF86] bg-goldpale p-4 flex items-center gap-3.5">
         <span className="text-[32px] leading-none">⏳</span>

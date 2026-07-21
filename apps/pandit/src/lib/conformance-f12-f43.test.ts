@@ -265,7 +265,7 @@ describe("F12-01 — containment (Standard ⊇ Basic, Premium ⊇ Standard)", ()
     );
 
     await mount(React.createElement(AddPoojaPage));
-    const submitBtn = screen.getByRole("button", { name: /पूजा भेजिए/ });
+    const submitBtn = screen.getByRole("button", { name: /जमा कीजिए/ });
     await act(async () => {
       submitBtn.click();
     });
@@ -508,7 +508,7 @@ describe("F12-03 — supply question, scope B: my-poojas/add step 2 (per-pooja)"
     );
     await mount(React.createElement(AddPoojaPage));
     await act(async () => {
-      screen.getByRole("button", { name: /पूजा भेजिए/ }).click();
+      screen.getByRole("button", { name: /जमा कीजिए/ }).click();
     });
 
     const cfg = mutateOnce.mock.calls.find(
