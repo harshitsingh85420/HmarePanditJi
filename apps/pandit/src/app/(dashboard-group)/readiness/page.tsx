@@ -833,7 +833,7 @@ function ToggleRow({
         aria-hidden="true"
       >
         <span
-          className={`inline-block h-7 w-7 rounded-full bg-white shadow-md transform transition-transform duration-300 ${
+          className={`inline-block h-7 w-7 rounded-full bg-white shadow-card transform transition-transform duration-300 ${
             enabled ? "translate-x-10" : "translate-x-1"
           }`}
         />
@@ -1386,7 +1386,7 @@ function StepR5(props: {
         />
 
         {/* CONSENT (DPDP — recorded, not just gated) */}
-        <label className="flex items-start gap-3 cursor-pointer select-none min-h-[44px]">
+        <label className="flex items-start gap-3 cursor-pointer select-none min-h-[52px]">
           <input
             type="checkbox"
             checked={props.aadhaarConsent}
@@ -1402,12 +1402,12 @@ function StepR5(props: {
         <label className="text-[18px] font-extrabold text-temple-700 font-hindi">
           {t("onboarding.step7Title")}
         </label>
-        <div className="flex bg-slate-100 rounded-btn p-1.5 border border-saffron-100">
+        <div className="flex bg-slate-100 rounded-tile p-1.5 border border-saffron-100">
           <button
             type="button"
             onClick={() => props.setPaymentType("BANK")}
-            className={`flex-1 py-3 text-center rounded-btn font-bold text-[18px] font-hindi transition-all ${
-              props.paymentType === "BANK" ? "bg-white text-saffron-700 shadow-sm" : "text-softgrey"
+            className={`flex-1 py-3 text-center rounded-[12px] font-bold text-[18px] font-hindi transition-all ${
+              props.paymentType === "BANK" ? "bg-white text-saffron-700 shadow-card" : "text-softgrey"
             }`}
             style={{ minHeight: "56px" }}
           >
@@ -1416,8 +1416,8 @@ function StepR5(props: {
           <button
             type="button"
             onClick={() => props.setPaymentType("UPI")}
-            className={`flex-1 py-3 text-center rounded-btn font-bold text-[18px] font-hindi transition-all ${
-              props.paymentType === "UPI" ? "bg-white text-saffron-700 shadow-sm" : "text-softgrey"
+            className={`flex-1 py-3 text-center rounded-[12px] font-bold text-[18px] font-hindi transition-all ${
+              props.paymentType === "UPI" ? "bg-white text-saffron-700 shadow-card" : "text-softgrey"
             }`}
             style={{ minHeight: "56px" }}
           >
@@ -1446,7 +1446,7 @@ function StepR5(props: {
                 value={bank.accountNumber}
                 onChange={(e) => setBank({ ...bank, accountNumber: e.target.value.replace(/\D/g, "") })}
                 onFocus={() => speak("सुरक्षा के लिए खाता नंबर लिखकर भरें")}
-                className="w-full h-[56px] px-3 border-2 border-saffron-300 rounded-btn text-[18px] text-ink bg-white focus:outline-none focus:border-saffron-500 font-mono"
+                className="w-full h-[56px] px-3 border-2 border-saffron-300 rounded-inset text-[18px] text-ink bg-white focus:outline-none focus:border-saffron-500 font-mono"
                 style={{ minHeight: "56px", fontSize: "18px" }}
                 placeholder="1234567890"
               />
@@ -1462,7 +1462,7 @@ function StepR5(props: {
                 value={bank.accountNumberConfirm}
                 onChange={(e) => setBank({ ...bank, accountNumberConfirm: e.target.value.replace(/\D/g, "") })}
                 onFocus={() => speak("सुरक्षा के लिए खाता नंबर दोबारा लिखकर भरें")}
-                className="w-full h-[56px] px-3 border-2 border-saffron-300 rounded-btn text-[18px] text-ink bg-white focus:outline-none focus:border-saffron-500 font-mono"
+                className="w-full h-[56px] px-3 border-2 border-saffron-300 rounded-inset text-[18px] text-ink bg-white focus:outline-none focus:border-saffron-500 font-mono"
                 style={{ minHeight: "56px", fontSize: "18px" }}
                 placeholder="1234567890"
               />
@@ -1476,7 +1476,7 @@ function StepR5(props: {
                 value={bank.ifsc}
                 onChange={(e) => setBank({ ...bank, ifsc: e.target.value.toUpperCase() })}
                 onFocus={() => speak("सुरक्षा के लिए IFSC कोड लिखकर भरें। यह आपकी बैंक पासबुक या चेक पर मिलेगा।")}
-                className="w-full h-[56px] px-3 border-2 border-saffron-300 rounded-btn text-[18px] text-ink bg-white focus:outline-none focus:border-saffron-500 font-mono uppercase"
+                className="w-full h-[56px] px-3 border-2 border-saffron-300 rounded-inset text-[18px] text-ink bg-white focus:outline-none focus:border-saffron-500 font-mono uppercase"
                 style={{ minHeight: "56px", fontSize: "18px" }}
                 placeholder="SBIN0001234"
               />
@@ -1492,7 +1492,7 @@ function StepR5(props: {
               value={upi.id}
               onChange={(e) => setUpi({ id: e.target.value })}
               onFocus={() => speak("सुरक्षा के लिए यूपीआई आईडी लिखकर भरें")}
-              className="w-full h-[56px] px-3 border-2 border-saffron-300 rounded-btn text-[18px] text-ink bg-white focus:outline-none focus:border-saffron-500 font-mono"
+              className="w-full h-[56px] px-3 border-2 border-saffron-300 rounded-inset text-[18px] text-ink bg-white focus:outline-none focus:border-saffron-500 font-mono"
               style={{ minHeight: "56px", fontSize: "18px" }}
               placeholder="example@upi"
             />
@@ -1562,7 +1562,7 @@ function AadhaarPreview({ keyOrUrl }: { keyOrUrl: string }) {
   const { url, refresh } = usePresignedUrl(keyOrUrl);
   if (!url) return null;
   return (
-    <div className="mt-2 border-2 border-saffron-100 rounded-card overflow-hidden bg-white max-w-[200px] mx-auto shadow-sm">
+    <div className="mt-2 border-2 border-saffron-100 rounded-card overflow-hidden bg-white max-w-[200px] mx-auto shadow-card">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={url} alt="Aadhaar Thumbnail" className="w-full h-[120px] object-cover" onError={() => refresh()} />
     </div>
