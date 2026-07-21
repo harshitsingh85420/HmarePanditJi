@@ -244,7 +244,8 @@ export default function BookingDetailPage() {
           <h1 className="text-[30px] font-black text-saffron-700 font-hindi">
             {t("booking.pujaFinishedTitle")}
           </h1>
-          <p className="text-[17px] font-semibold text-softgrey font-hindi">आपकी सेवा सफल रही</p>
+          {/* canon 17/600 subtitle — raised to the 18sp body floor (lawConflicts) */}
+          <p className="text-[18px] font-semibold text-softgrey font-hindi">आपकी सेवा सफल रही</p>
           <p className="text-[19px] font-black text-leaf-700 font-hindi leading-snug">
             ₹{payoutAmount.toLocaleString("en-IN")} {t("booking.payoutSoon")}
           </p>
