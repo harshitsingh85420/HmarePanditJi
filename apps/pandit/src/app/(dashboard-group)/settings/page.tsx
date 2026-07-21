@@ -82,10 +82,11 @@ function SettingsRow({
         // CANON 15px — raised to the 18sp floor (standing law outranks canon).
         <span className="text-[18px] font-extrabold text-softgrey font-hindi shrink-0">{value}</span>
       )}
-      {/* canon gives the terminal (danger) row no chevron */}
+      {/* canon gives the terminal (danger) row no chevron; the chevron is
+          canon's Material chevron_right 24px #C9BBA6, not a › text char */}
       {!danger && (
-        <span className="text-sand-400 text-[24px] leading-none shrink-0" aria-hidden="true">
-          ›
+        <span className="material-symbols-outlined text-sand-400 text-[24px] leading-none shrink-0" aria-hidden="true">
+          chevron_right
         </span>
       )}
     </>
@@ -147,10 +148,11 @@ export default function SettingsPage() {
           icon="translate"
           label={t("settingsRows.language")}
           // Canon frame 22 shows the active language beside the chevron.
-          // हिन्दी is the only shipped app language (the picker changes
+          // हिंदी is the only shipped app language (the picker changes
           // शिष्य's SPOKEN language, not this UI) — so this is true, not
-          // a placeholder. Wire it to the store when the UI is localised.
-          value="हिन्दी"
+          // a placeholder. Canon spelling हिंदी (anusvara). Wire it to the
+          // store when the UI is localised.
+          value="हिंदी"
           onClick={() => {
             // bare list only — no confirm ceremony, and return here after
             sessionStorage.setItem("hpj_lang_return", "/settings");
