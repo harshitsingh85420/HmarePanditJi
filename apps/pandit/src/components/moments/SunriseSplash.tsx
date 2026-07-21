@@ -3,8 +3,10 @@
 // ─────────────────────────────────────────────────────────────
 // प्रथम आरती — Sunrise splash (D0). Full-screen sunrise gradient
 // (the ONE hero-exception to the flat-fill rule) with a staged
-// ~2.4s CSS sequence: diya → ॐ rises → wordmark → toran drops →
-// marigold petals drift → शिष्य pops in and speaks his intro.
+// ~2.4s CSS sequence: diya → wordmark → toran drops → marigold
+// petals drift → शिष्य pops in and speaks his intro.
+// Canon frame 0 has NO ॐ glyph — the brass Diya is the hero mark — and
+// the tap pill is permanent, not a parked-only chip.
 // Any tap skips. Auto-advance is bounded by the D0-L deadline law
 // below — a fresh load CANNOT speak (autoplay policy), so it parks and
 // the ≥2.6s narration-end path never runs; the deadlines, not the
@@ -16,6 +18,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { t } from "@/lib/i18n";
 import { Toran } from "@/components/ui/Toran";
+import { Diya } from "@/components/ui/Diya";
 import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
 import { voiceController } from "@/lib/voiceController";
 
@@ -32,14 +35,25 @@ import { voiceController } from "@/lib/voiceController";
 export const SPLASH_NO_PLAYBACK_MS = 9_000;
 export const SPLASH_ABSOLUTE_MS = 30_000;
 
+// Canon frame 0 petal fall: five blooms, mixed 🌼/🌸, mixed sizes, at the
+// canon's own left offsets and drift durations.
 const PETALS = [
-  { left: "8%", delay: 1.2, duration: 3.4 },
-  { left: "24%", delay: 1.6, duration: 3.0 },
-  { left: "42%", delay: 1.35, duration: 3.6 },
-  { left: "58%", delay: 1.9, duration: 3.2 },
-  { left: "74%", delay: 1.5, duration: 3.5 },
-  { left: "90%", delay: 2.1, duration: 3.1 },
+  { left: "12%", glyph: "🌼", size: 20, delay: 1.2, duration: 3.5 },
+  { left: "34%", glyph: "🌸", size: 16, delay: 1.6, duration: 4.2 },
+  { left: "58%", glyph: "🌼", size: 22, delay: 1.35, duration: 3.2 },
+  { left: "70%", glyph: "🌼", size: 18, delay: 2.1, duration: 3.9 },
+  { left: "80%", glyph: "🌸", size: 15, delay: 1.5, duration: 4.5 },
 ];
+
+// Canon frame 0 sky: ratri-violet → deep sindoor → sindoor → genda.
+// (globals.css `.pa-sunrise` still carries the older 4-stop ramp that ends
+// in chandan — see sharedNeeded; this literal is the canon value.)
+const CANON_SKY =
+  "linear-gradient(180deg,#2A1B3D 0%,#5E1C0A 38%,#B23A1A 68%,#F2A02C 100%)";
+
+// Canon wordmark shimmer: the tagline is gold gradient text, clipped.
+const CANON_TAGLINE_GOLD =
+  "linear-gradient(90deg,#E7B54A 20%,#FFF6DE 50%,#E7B54A 80%)";
 
 export function SunriseSplash({ onDone }: { onDone: () => void }) {
   const doneRef = useRef(false);
@@ -206,10 +220,11 @@ export function SunriseSplash({ onDone }: { onDone: () => void }) {
   return (
     <div
       onClick={handleTap}
-      className="pa-sunrise h-[100dvh] max-w-[430px] mx-auto relative overflow-hidden flex flex-col items-center justify-center cursor-pointer"
+      className="pa-sunrise h-[100dvh] max-w-[430px] mx-auto relative overflow-hidden flex flex-col cursor-pointer"
+      style={{ background: CANON_SKY }}
     >
-      {/* Toran scallop drops in from the top edge */}
-      <div className="absolute top-0 left-0 right-0 pa-splash-toran">
+      {/* Toran garland drops in from the top edge (canon z-4) */}
+      <div className="absolute top-0 left-0 right-0 z-[4] pa-splash-toran">
         <Toran tone="onSindoor" />
       </div>
 
@@ -218,59 +233,92 @@ export function SunriseSplash({ onDone }: { onDone: () => void }) {
         <span
           key={i}
           className="pa-petal"
-          style={{ left: p.left, animationDelay: `${p.delay}s`, animationDuration: `${p.duration}s` }}
+          style={{
+            left: p.left,
+            fontSize: `${p.size}px`,
+            animationDelay: `${p.delay}s`,
+            animationDuration: `${p.duration}s`,
+          }}
           aria-hidden="true"
         >
-          🌼
+          {p.glyph}
         </span>
       ))}
 
-      {/* ॐ rises above the diya */}
-      <span
-        className="pa-splash-om text-[40px] leading-none text-[#FFE8D2] select-none"
-        aria-hidden="true"
-      >
-        ॐ
-      </span>
+      {/* Canon centre column: diya → wordmark+tagline → शिष्य, gap 20, pad 24 */}
+      <div className="relative z-[3] flex-1 flex flex-col items-center justify-center gap-5 p-6">
+        {/* The real brass lamp at canon's size 104 — not the flat 🪔 glyph */}
+        <div className="pa-splash-diya flex items-center justify-center">
+          <Diya size={104} lit />
+        </div>
 
-      {/* Diya with flicker + warm halo */}
-      <div className="pa-splash-diya relative mt-2 flex items-center justify-center">
-        <span
-          className="pa-diya-halo absolute w-[130px] h-[130px] rounded-full"
-          style={{ background: "radial-gradient(circle, rgba(231,181,74,0.55) 0%, transparent 70%)" }}
-          aria-hidden="true"
-        />
-        <span className="pa-diya-flame relative text-[72px] leading-none select-none" aria-hidden="true">
-          🪔
-        </span>
+        <div className="text-center mt-1">
+          {/* canon: 40/900 · #FFF6E9 · -.5px · lh 1.1 · shadow 0 3px 14px rgba(0,0,0,.35)
+              max-w forces the canon's two-line break without hardcoding a <br> */}
+          <h1
+            className="pa-splash-word font-display max-w-[220px] mx-auto"
+            style={{
+              fontSize: "40px",
+              fontWeight: 900,
+              color: "#FFF6E9",
+              letterSpacing: "-.5px",
+              lineHeight: 1.1,
+              textShadow: "0 3px 14px rgba(0,0,0,.35)",
+            }}
+          >
+            {t("welcome.titleShort")}
+          </h1>
+          {/* canon: gold gradient text, 800, letter-spacing 3px, mt 12
+              (canon size 16px → held at 18px by the body-text floor) */}
+          <p
+            className="pa-splash-word font-hindi inline-block"
+            style={{
+              marginTop: "12px",
+              fontSize: "18px",
+              fontWeight: 800,
+              letterSpacing: "3px",
+              backgroundImage: CANON_TAGLINE_GOLD,
+              WebkitBackgroundClip: "text",
+              backgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              color: "transparent",
+            }}
+          >
+            {t("pratham.splashTagline")}
+          </p>
+        </div>
+
+        {/* शिष्य sits in the column under the wordmark (canon mt 14) */}
+        <div className="pa-splash-orb mt-[14px]">
+          <ShishyaOrb />
+        </div>
       </div>
 
-      {/* Wordmark */}
-      {/* Mockup frame 1: wordmark 40/900, tagline 16/800 */}
-      <h1
-        className="pa-splash-word font-display text-[40px] font-black text-white mt-5 text-center leading-tight"
-        style={{ textShadow: "0 2px 12px rgba(231,181,74,0.6)" }}
-      >
-        {t("welcome.titleShort")}
-      </h1>
-      <p className="pa-splash-word text-[16px] font-extrabold text-[#FFE8D2]/90 font-hindi mt-1 px-8 text-center">
-        {t("pratham.splashTagline")}
-      </p>
-
-      {/* Parked welcome: gentle first-tap hint (chandan chip, soft pulse) */}
-      {showHint && (
-        /* T1: the chip IS the greeting a fresh load cannot speak — 18px,
-           strong pulse, wraps inside 360px instead of clipping.
-           -translate-x-1/2 stays as the reduced-motion fallback; the
-           animation's own transform takes over while pulsing. */
-        <span className="pa-tap-hint absolute bottom-28 left-1/2 -translate-x-1/2 bg-chandan shadow-card rounded-full px-5 py-2.5 text-[19px] font-extrabold text-saffron-500 font-hindi text-center max-w-[92vw]">
+      {/* Canon tap pill — ALWAYS on screen (a tap always advances, so this is
+          truthful): chandan chip, sindoor text, 999px, 0 8px 22px shadow.
+          `showHint` no longer gates VISIBILITY, only the stronger pulse the
+          parked-welcome path escalates to. */}
+      <div className="relative z-[3] flex justify-center px-7 pb-[30px]">
+        <span
+          className={`${showHint ? "pa-tap-hint " : ""}inline-flex items-center justify-center gap-2.5 rounded-full font-hindi text-center max-w-[92vw] min-h-[52px]`}
+          style={{
+            background: "#FFF6E9",
+            color: "#B23A1A",
+            fontSize: "19px",
+            fontWeight: 800,
+            padding: "15px 30px",
+            boxShadow: "0 8px 22px rgba(0,0,0,.28)",
+          }}
+        >
+          <span
+            className="material-symbols-outlined shrink-0"
+            style={{ fontSize: "24px" }}
+            aria-hidden="true"
+          >
+            touch_app
+          </span>
           {t("pratham.tapHint")}
         </span>
-      )}
-
-      {/* शिष्य pops center-bottom with one ripple */}
-      <div className="pa-splash-orb absolute bottom-8 left-1/2 -translate-x-1/2">
-        <ShishyaOrb />
       </div>
     </div>
   );
