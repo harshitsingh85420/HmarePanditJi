@@ -53,6 +53,13 @@ export default function HelpPage() {
       <Header variant="title" title="🤝 मदद व सहायता" showBack onBack={handleGoBack} />
 
       <main className="flex-1 overflow-y-auto px-4 pt-[10px] pb-4 flex flex-col gap-[13px] page-enter">
+        {/* canon frame 23: शिष्य sits TOP-CENTRE of the list (speaking,
+            size 72, ribbon "मैं यहीं हूँ, बेझिझक बताइए 🙏") — centre row,
+            padding 6px 0 4px. Moved up from the old footer slot. */}
+        <div className="flex justify-center pt-1.5 pb-1">
+          <ShishyaOrb size={72} say={t('helpScreen.say')} />
+        </div>
+
         {/* Actions — canon frame 31 row grammar: icon tile + 18/800 title
             + sub + chevron; the call row wears the leaf tint */}
         {/* Re-watch tutorial (D2 review intent) */}
@@ -126,12 +133,6 @@ export default function HelpPage() {
           {t("helpScreen.emergency")}
         </Button>
       </main>
-
-      {/* शिष्य footer slot — canon frame 23: size 72, ribbon
-          "मैं यहीं हूँ, बेझिझक बताइए 🙏" */}
-      <footer className="shrink-0 px-4 py-3 bg-cream/95 backdrop-blur border-t border-saffron-100 flex justify-center">
-        <ShishyaOrb size={72} say={t("helpScreen.say")} />
-      </footer>
     </div>
   )
 }
