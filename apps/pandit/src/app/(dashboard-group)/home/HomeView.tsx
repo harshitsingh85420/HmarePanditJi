@@ -16,7 +16,6 @@ import { motion, AnimatePresence } from "framer-motion";
 
 // UI Components
 import { Card } from "@/components/ui/Card";
-import { Header } from "@/components/ui/Header";
 import { BottomNav } from "@/components/ui/BottomNav";
 import { StatusChip } from "@/components/ui/StatusChip";
 import { Toast } from "@/components/ui/Toast";
@@ -134,27 +133,30 @@ export function HomeView({
     return `${daypart} ${h12}:${mm}`;
   };
 
-  const HomeHeaderRightSlot = () => (
-    <button
-      onClick={() => onNavigate("/settings")}
-      /* CANON frame 12: a #FFFDF8 circle carrying the 2px/8px resting-card
-         shadow with a 24px glyph. LAW > CANON on the box — canon draws 44px,
-         the 52px tap-target floor wins. */
-      className="w-[52px] h-[52px] min-h-[52px] min-w-[52px] rounded-full bg-card shadow-card hover:bg-saffron-50 active:scale-90 flex items-center justify-center text-[24px] leading-none transition-all focus:outline-none focus:ring-2 focus:ring-saffron-200"
-      aria-label="Settings"
-    >
-      ⚙️
-    </button>
-  );
-
   return (
     <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
-      {/* HEADER */}
-      <Header
-        title={<span className="font-display font-normal">{festivalDay ? <span className="animate-diya-sm mr-1" role="img" aria-hidden="true">🪔</span> : <span className="mr-1" role="img" aria-hidden="true">🌼</span>}{`नमस्ते, ${firstName} जी`}</span>}
-        showBack={false}
-        rightSlot={<HomeHeaderRightSlot />}
-      />
+      {/* CANON frame 8 header — a PLAIN greeting row on the cream field. Canon's
+          home does NOT carry the shared saffron banner or the toran strand
+          (those are the entry screens); it is just the floating 🪔 greeting in
+          22/900 temple-ink and a #FFFDF8 settings circle. padding 6px 18px. */}
+      <div className="shrink-0 flex items-center justify-between px-[18px] py-1.5">
+        <span className="flex items-center gap-[7px] text-[22px] font-black font-display text-temple-700 leading-none">
+          <span className="animate-diya-sm inline-block" role="img" aria-hidden="true">🪔</span>
+          {`नमस्ते, ${firstName} जी`}
+        </span>
+        <button
+          onClick={() => onNavigate("/settings")}
+          /* canon: 44px #FFFDF8 circle, 0 2px 8px rgba(90,46,32,.12) shadow, a
+             24px material `settings` glyph in #7A250E. LAW > CANON on the box:
+             canon draws 44px, the 52px tap-target floor wins. */
+          className="w-[52px] h-[52px] min-h-[52px] min-w-[52px] rounded-full bg-card shadow-card hover:bg-saffron-50 active:scale-90 flex items-center justify-center transition-all focus:outline-none focus:ring-2 focus:ring-saffron-200"
+          aria-label="Settings"
+        >
+          <span className="material-symbols-outlined text-[24px] leading-none text-saffron-700" aria-hidden="true">
+            settings
+          </span>
+        </button>
+      </div>
 
       {/* Voice commands listener (container slot) */}
       {voiceSlot}
@@ -165,7 +167,7 @@ export function HomeView({
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="bg-saffron px-4 py-3 text-center sticky top-[56px] z-40 shadow-md"
+            className="bg-saffron px-4 py-3 text-center sticky top-0 z-40 shadow-md"
           >
             <button
               onClick={() => onNavigate(`/bookings/${newRequestBooking.id}/request`)}
