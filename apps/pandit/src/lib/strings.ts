@@ -130,10 +130,14 @@ export const hi = {
     // Mockup frame 1 tagline (three-word blessing beats a sentence)
     splashTagline: "सेवा · सम्मान · समृद्धि",
     tapHint: "नमस्ते पंडित जी 🙏 आगे बढ़ने के लिए स्पर्श करें",
-    locationTitle: "आप कहाँ सेवा देते हैं?",
+    // canon frame 2 breaks the heading after सेवा — render whitespace-pre-line
+    locationTitle: "आप कहाँ सेवा\nदेते हैं?",
     locationWhy: "आपके शहर की पूजाएँ और आपकी भाषा — बस इसीलिए।",
     locationAllow: "अनुमति दें",
     locationManual: "शहर खुद चुनें",
+    // canon say-ribbons (frames 2/3): शिष्य's written+spoken line
+    locationSay: "आप कहाँ पूजा कराते हैं?",
+    languageSay: "कौन सी भाषा पसंद है?",
     locationChecking: "शहर पहचाना जा रहा है…",
     locationVoice: "आप कहाँ सेवा देते हैं? नीचे अनुमति दें दबाइए — या शहर खुद चुन लीजिए।",
     locationError: "शहर पहचानने में समस्या हुई। कृपया खुद चुनें।",
@@ -177,6 +181,8 @@ export const hi = {
     alreadyGranted: "नमस्ते पंडित जी! मैं आपका शिष्य हूँ — और मैं आपको सुन भी सकता हूँ!",
     askAgainBtn: "🎤 फिर से पूछें",
     startBtn: "🙏 बात शुरू करें",
+    // canon frame 4 say-ribbon (written + spoken travel together)
+    say: "मैं शिष्य हूँ — आपका सहायक 🙏",
   },
   // Native-popup guidance — the arrow + chip + spoken line shown WHILE a
   // browser permission prompt (mic/location) is on screen
@@ -325,6 +331,8 @@ export const hi = {
     titleComplete: "प्रोफ़ाइल पूरी करें",
     // Mockup frame 6 hero pair
     heroTitle: "बस दो बातें बताइए",
+    // canon frame 6 say-ribbon
+    say: "बाकी सब मैं देख लूँगा 🙏",
     heroSub: "बोलकर या टाइप करके — जैसे आसान लगे",
     voiceNew: "पंडित जी, बस अपना नाम बताइए — और आपका खाता बन जाएगा। शहर हमने पहचान लिया है, चाहें तो बदल लें।",
     voiceComplete: "पंडित जी, बस अपना नाम बताइए — आपकी प्रोफ़ाइल पूरी हो जाएगी।",
@@ -456,6 +464,8 @@ export const hi = {
     detailsTitle: "बुकिंग विवरण",
     requestTitle: "बुकिंग अनुरोध",
     newRequest: "नई बुकिंग आई है!",
+    // canon frame 9 say-ribbon
+    requestSay: "एक नई बुकिंग आई है! 🔔",
     viewNewBooking: "नई बुकिंग देखें →",
     tapToView: "देखने के लिए दबाएं",
     accept: "✅ स्वीकार करें",
@@ -603,6 +613,8 @@ export const hi = {
   },
   helpScreen: {
     title: "सहायता",
+    // canon frame 23 say-ribbon
+    say: "मैं यहीं हूँ, बेझिझक बताइए 🙏",
     call: "📞 फ़ोन करें",
     rewatchTutorial: "🔁 ट्यूटोरियल फिर देखें",
     emergency: "🆘 आपातकाल",

@@ -48,7 +48,9 @@ export default function HelpPage() {
 
   return (
     <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
-      <Header festive title="🤝 मदद व सहायता" showBack onBack={handleGoBack} />
+      {/* canon frame 23: plain title block. showBack kept (no other escape
+          from help when reached outside the tab flow) — flagged deviation. */}
+      <Header variant="title" title="🤝 मदद व सहायता" showBack onBack={handleGoBack} />
 
       <main className="flex-1 overflow-y-auto px-4 pt-[10px] pb-4 flex flex-col gap-[13px] page-enter">
         {/* Actions — canon frame 31 row grammar: icon tile + 18/800 title
@@ -125,9 +127,10 @@ export default function HelpPage() {
         </Button>
       </main>
 
-      {/* शिष्य footer slot */}
+      {/* शिष्य footer slot — canon frame 23: size 72, ribbon
+          "मैं यहीं हूँ, बेझिझक बताइए 🙏" */}
       <footer className="shrink-0 px-4 py-3 bg-cream/95 backdrop-blur border-t border-saffron-100 flex justify-center">
-        <ShishyaOrb />
+        <ShishyaOrb size={72} say={t("helpScreen.say")} />
       </footer>
     </div>
   )

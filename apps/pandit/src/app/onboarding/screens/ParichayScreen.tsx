@@ -317,11 +317,10 @@ export default function ParichayScreen({ onDone }: { onDone: () => void }) {
         {/* Canon centres शिष्य + his greeting in the free space above the
             card (flex:1, justify-center, gap:16). */}
         <div className="flex-1 min-h-0 flex flex-col items-center justify-center gap-4 text-center">
-          {/* शिष्य himself — LARGE (canon size 118), rippling while he
-              speaks. The orb carries its OWN "शिष्य" name label (canon Shishya
-              name={{ true }}) — do NOT add a second one here (that double-
-              printed the name). */}
-          <ShishyaOrb size="lg" />
+          {/* शिष्य himself — canon frame 4: size 118, speaking ribbon
+              "मैं शिष्य हूँ — आपका सहायक 🙏", name shown (the orb carries its
+              OWN label — never add a second one; that double-printed it). */}
+          <ShishyaOrb size={118} say={t("parichay.say")} />
 
           {/* Canon: greeting block sits 6px under the orb; 24/900 #7A250E
               with a 600-weight #8A6F5C sub-line 4px below it. */}

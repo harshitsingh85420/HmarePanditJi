@@ -207,45 +207,11 @@ export function SunriseSplash({ onDone }: { onDone: () => void }) {
           </p>
         </div>
 
-        {/* शिष्य in his SPEAKING state (canon): a sindoor ribbon above the orb
-            carrying "नमस्ते पंडित जी! 🙏" with a little tail, then the orb.
-            Canon ribbon: #B23A1A / #FFF6E9 / 15px (14→15 label floor) / r16 /
-            0 6px 16px shadow. */}
-        <div className="pa-splash-orb mt-[14px] flex flex-col items-center">
-          <div
-            className="relative font-hindi font-semibold text-center"
-            style={{
-              maxWidth: 250,
-              marginBottom: 9,
-              background: "#B23A1A",
-              color: "#FFF6E9",
-              fontSize: "15px",
-              lineHeight: 1.35,
-              padding: "9px 15px",
-              borderRadius: 16,
-              boxShadow: "0 6px 16px rgba(178,58,26,.3)",
-            }}
-          >
-            {t("splash.helloBubble")}
-            <span
-              className="absolute left-1/2"
-              style={{
-                bottom: -5,
-                transform: "translateX(-50%) rotate(45deg)",
-                width: 12,
-                height: 12,
-                background: "#B23A1A",
-                borderRadius: 2,
-              }}
-              aria-hidden="true"
-            />
-          </div>
-          {/* Canon Shishya is size 82; the shared orb's dock size is 66, so
-              scale it up to canon (66 × 1.24 ≈ 82) splash-locally rather than
-              threading a numeric size through the shared component. */}
-          <div style={{ transform: "scale(1.24)", transformOrigin: "top center" }}>
-            <ShishyaOrb showLabel={false} />
-          </div>
+        {/* शिष्य in his SPEAKING state — canon frame 1: size 82, no name,
+            say="नमस्ते पंडित जी! 🙏". The shared orb renders canon's sindoor
+            ribbon (written word + spoken word travel together). */}
+        <div className="pa-splash-orb mt-[14px]">
+          <ShishyaOrb size={82} showLabel={false} say={t("splash.helloBubble")} />
         </div>
       </div>
 

@@ -363,9 +363,10 @@ export default function BookingRequestPage() {
         </button>
       </footer>
 
-      {/* शिष्य in his canon seat: a centred #FFF9EE strip below the CTAs. */}
+      {/* शिष्य in his canon seat: a centred #FFF9EE strip below the CTAs —
+          canon frame 9: size 56, ribbon "एक नई बुकिंग आई है! 🔔" */}
       <div className="shrink-0 flex justify-center pt-1 pb-3 bg-[#FFF9EE]">
-        <ShishyaOrb />
+        <ShishyaOrb size={56} say={t("booking.requestSay")} />
       </div>
 
       {/* REJECT CONFIRM DIALOG MODAL */}

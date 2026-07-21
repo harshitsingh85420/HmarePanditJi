@@ -690,6 +690,29 @@ body {
   animation: pa-toran-strand-sway 3.4s ease-in-out infinite;
 }
 
+/* शिष्य's speaking ribbon pops in (canon Shishya.dc.html sh-ribbon) */
+@keyframes pa-sh-ribbon {
+  0%   { opacity: 0; transform: translateY(6px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.pa-sh-ribbon { animation: pa-sh-ribbon 0.4s ease-out; }
+
+/* स्थान map (canon frame 2): the pulsing locate-ring + bouncing pin.
+   Canon's g-ring keyframe scales without the centering translate — kept
+   here WITH it so the ring pulses from dead centre. */
+@keyframes pa-map-ring {
+  0%   { transform: translate(-50%, -50%) scale(0.7); opacity: 0.55; }
+  100% { transform: translate(-50%, -50%) scale(1.9); opacity: 0; }
+}
+.pa-map-ring { animation: pa-map-ring 2.4s ease-out infinite; }
+@keyframes pa-map-bounce {
+  0%   { transform: translateY(-16px); opacity: 0; }
+  55%  { transform: translateY(0); opacity: 1; }
+  72%  { transform: translateY(-7px); }
+  100% { transform: translateY(0); }
+}
+.pa-map-bounce { animation: pa-map-bounce 2.6s ease-in-out infinite; }
+
 /* शिष्य's idle breath — only while awake and NOT speaking/listening */
 @keyframes shishya-breathe {
   0%, 100% { transform: scale(1); }
@@ -712,7 +735,8 @@ body {
   .pa-petal, .pa-diya-flame, .pa-diya-halo, .pa-canvas-enter, .pa-stagger > *,
   .pa-cdiya-flame, .pa-cdiya-core, .pa-cdiya-glow, .shishya-breathe-halo, .online-dot,
   .pa-burst-petal, .pa-bell-swing, .pa-bounce-once, .pa-arrow-bounce, .pa-tap-hint,
-  .pa-toran-sway, .pa-toran-strand, .shishya-breathe, .pa-thali-ripple {
+  .pa-toran-sway, .pa-toran-strand, .shishya-breathe, .pa-thali-ripple,
+  .pa-sh-ribbon, .pa-map-ring, .pa-map-bounce {
     animation: none !important;
   }
   /* Drifting/bursting petals + the ripple ring have no sensible static state */

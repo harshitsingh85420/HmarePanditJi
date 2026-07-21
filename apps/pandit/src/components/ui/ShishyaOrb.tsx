@@ -2,10 +2,22 @@
 
 // ─────────────────────────────────────────────────────────────
 // शिष्य — Pandit ji's devoted disciple, the ONE voice control.
-// The ONE voice control; lives in the FOOTER (nav center-dock or the
-// footer bar's orb slot), never the header. All narration is his voice.
-// States (from voiceController): AWAKE · SPEAKING (gold ripples) ·
-// LISTENING (gold ring + "सुन रहा हूँ…" pill) · ASLEEP (grayscale + 💤).
+// Ported to canon (design/canon/Shishya.dc.html):
+//   · States: AWAKE (breathing gold halo) · SPEAKING (gold ripples) ·
+//     LISTENING (gold ring) · ASLEEP (grayscale + 💤). All driven by
+//     voiceController.
+//   · THE RIBBON: canon's say="…" is a VISIBLE sindoor speech bubble above
+//     the orb — written word and spoken word travel together. One ribbon,
+//     canon's own precedence: say wins; otherwise the listening/processing
+//     fallback ("सुन रहा हूँ…" / "समझ रहा हूँ…") uses the SAME bubble.
+//     Asleep suppresses the ribbon entirely (canon showRibbon logic).
+//     - say present  → bubble renders IN-FLOW (mb 9px) — canon's centered-
+//       strip frames budget this height.
+//     - say absent   → the ephemeral fallback FLOATS above the orb
+//       (absolute), so footer docks never reflow when a listen starts.
+//   · Sizes are canon-numeric (56/60/62/66/72/76/82/96/118); glyph is
+//     round(size × .46). Back-compat aliases: "md"→66, "lg"→118.
+// Floors (Ruling #2): name label & asleep hint ≥15px (canon 11-12px).
 // ─────────────────────────────────────────────────────────────
 
 import React, { useState, useSyncExternalStore } from "react";
@@ -17,13 +29,17 @@ export function ShishyaOrb({
   className = "",
   size = "md",
   showLabel = true,
+  say,
 }: {
   className?: string;
-  /** "lg" renders the 120px hero orb (परिचय screen); "md" is the footer dock. */
-  size?: "md" | "lg";
-  /** Canon frame 1 (splash) hides the name (`name="{{ false }}"`) — the ribbon
-      already says who's speaking, so the "शिष्य" caption is redundant there. */
+  /** Canon-numeric px (56…118). Aliases: "md"→66 (footer dock), "lg"→118 (hero). */
+  size?: number | "md" | "lg";
+  /** Canon `name` prop — frames with name="{{ false }}" (splash) hide it. */
   showLabel?: boolean;
+  /** Canon `say` — the visible speech ribbon above the orb. When set it
+      renders in-flow; when absent the ribbon appears only as the floated
+      listening/processing fallback. */
+  say?: string;
 }) {
   const muted = useSyncExternalStore(
     voiceController.subscribe,
@@ -63,28 +79,79 @@ export function ShishyaOrb({
     }
   };
 
-  const large = size === "lg";
+  const px = typeof size === "number" ? size : size === "lg" ? 118 : 66;
+  const large = px >= 100;
+  const glyphPx = Math.round(px * 0.46);
+
+  // Canon ribbon precedence (Shishya.dc.html renderVals):
+  //   ribbonText = say || (listening ? 'सुन रहा हूँ…' : '') — processing is
+  //   the app's J3d extension slotted into the same fallback chain.
+  const fallbackText =
+    !asleep && (processing || listening)
+      ? processing
+        ? t("voiceLoop.understanding")
+        : t("voiceLoop.listening")
+      : "";
+  const ribbonText = say || fallbackText;
+  const showRibbon = !asleep && !!ribbonText;
+  const ribbonFloats = !say; // ephemeral fallback must never reflow a dock
+
+  // Canon bubble, verbatim (14px→15px label floor): sindoor fill, cream ink,
+  // r16, lifted shadow, rotated-square tail. Keyed by text so a phrase
+  // change replays the .4s entrance.
+  const ribbon = showRibbon ? (
+    <div
+      key={ribbonText}
+      className="pa-sh-ribbon relative font-hindi font-semibold text-center"
+      style={{
+        width: "max-content",
+        maxWidth: 250,
+        background: "#B23A1A",
+        color: "#FFF6E9",
+        fontSize: "15px",
+        lineHeight: 1.35,
+        padding: "9px 15px",
+        borderRadius: 16,
+        boxShadow: "0 6px 16px rgba(178,58,26,.3)",
+        ...(ribbonFloats
+          ? {
+              position: "absolute" as const,
+              bottom: "calc(100% + 9px)",
+              left: "50%",
+              transform: "translateX(-50%)",
+              zIndex: 60,
+              whiteSpace: "nowrap" as const,
+            }
+          : { marginBottom: 9 }),
+      }}
+    >
+      {ribbonText}
+      <span
+        className="absolute left-1/2"
+        style={{
+          bottom: -5,
+          transform: "translateX(-50%) rotate(45deg)",
+          width: 12,
+          height: 12,
+          background: "#B23A1A",
+          borderRadius: 2,
+        }}
+        aria-hidden="true"
+      />
+    </div>
+  ) : null;
 
   return (
     <div
       className={`relative flex flex-col items-center ${className}`}
-      style={{ width: large ? 132 : 78 }}
+      style={{ width: px + 12, overflow: "visible" }}
     >
-      {/* Listening / understanding pill floats above the orb */}
-      {(listening || processing) && !asleep && (
-        <span className="absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap bg-temple-600 text-white text-[12px] font-semibold font-hindi rounded-full px-3 py-1 shadow-card">
-          {processing ? t("voiceLoop.understanding") : t("voiceLoop.listening")}
-        </span>
-      )}
+      {ribbon}
 
       <button
         onClick={toggle}
         aria-label={asleep ? t("shishya.a11ySleep") : t("shishya.a11yAwake")}
         className={`relative rounded-full flex items-center justify-center transition-all active:scale-95 ${
-          large
-            ? "w-[120px] h-[120px] min-w-[120px] min-h-[120px]"
-            : "w-[66px] h-[66px] min-w-[66px] min-h-[66px]"
-        } ${
           asleep
             ? // asleep keeps the grounding shadow but never glows
               "shishya-asleep shishya-orb-ground"
@@ -97,6 +164,7 @@ export function ShishyaOrb({
               "bg-saffron-500 border-4 border-gold shishya-breathe-halo"
             : "bg-saffron-500 border-4 border-gold shishya-orb-ground"
         }`}
+        style={{ width: px, height: px, minWidth: px, minHeight: px }}
       >
         {/* SPEAKING ripples */}
         {speaking && !asleep && (
@@ -106,18 +174,17 @@ export function ShishyaOrb({
           </>
         )}
         {/* CANON: the glyph carries its own drop-shadow so it reads as
-            resting IN the orb rather than printed on it. The old idle
-            scale-breath moved here → the orb's halo (see className above). */}
+            resting IN the orb rather than printed on it. Size = round(px·.46). */}
         <span
-          className={`${large ? "text-[56px]" : "text-[30px]"} leading-none select-none`}
-          style={{ filter: "drop-shadow(0 1px 1px rgba(0,0,0,.15))" }}
+          className="leading-none select-none"
+          style={{ fontSize: glyphPx, filter: "drop-shadow(0 1px 1px rgba(0,0,0,.15))" }}
           aria-hidden="true"
         >
           🙏
         </span>
         {asleep && (
           <span
-            className="absolute -top-1 -right-1 text-[16px] leading-none select-none"
+            className="absolute -top-1 -right-1 text-[17px] leading-none select-none"
             aria-hidden="true"
           >
             💤
@@ -129,9 +196,10 @@ export function ShishyaOrb({
         <span
           className={`font-hindi ${
             large
-              ? // canon Shishya.dc.html: 18px / 800 / #B23A1A / +.3px / mt 5px
+              ? // canon Shishya.dc.html: 18px / 800 / +.3px / mt 5px at size≥100
                 "mt-[5px] text-[18px] font-extrabold tracking-[0.3px]"
-              : "mt-0.5 text-[11px] font-bold"
+              : // canon 12px → held at the 15px label floor (Ruling #2)
+                "mt-[5px] text-[15px] font-extrabold tracking-[0.3px]"
           } ${asleep ? "text-softgrey" : "text-saffron-500"}`}
         >
           {t("shishya.name")}
@@ -139,9 +207,10 @@ export function ShishyaOrb({
       )}
 
       {/* Q8: a sleeping शिष्य can't hear "उठो" (mic off BY DESIGN) — the
-          orb itself teaches the wake gesture, persistently. */}
+          orb itself teaches the wake gesture, persistently.
+          canon 11px → 15px label floor. */}
       {asleep && (
-        <span className="text-[11px] font-semibold font-hindi text-softgrey leading-none mt-0.5">
+        <span className="text-[15px] font-semibold font-hindi text-softgrey leading-none mt-0.5">
           {t("shishya.wakeHint")}
         </span>
       )}
