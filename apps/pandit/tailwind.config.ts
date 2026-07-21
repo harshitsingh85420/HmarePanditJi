@@ -92,12 +92,18 @@ const config: Config = {
         card: '20px',
         btn: '16px',
         canvas: '28px',
-        // CANON RADIUS VOCABULARY (294 uses, and it is only four numbers):
+        // CANON RADIUS VOCABULARY (it is only five numbers):
         //   18px ×57 — CTAs and stat tiles          -> cta / tile
         //   16px ×46 — fields, list rows, chips-box -> field (== btn, kept
         //              separate so a later canon correction to one does not
         //              silently move the other)
         //   22px ×7  — THE raised card surface       -> surface
+        //   14px     — inner/nested surfaces: selectable tier tiles, the
+        //              price-meter options, the panchang strip, the voice
+        //              field — the one step BELOW `field`. Recurs across
+        //              home(12), language(2), earnings(27) and ~10 more
+        //              frames, yet no token existed, so screens hard-coded
+        //              rounded-[14px] everywhere -> inset
         //   999px    — pills                         -> chip
         // The app only had 20/16/28, so nothing sat on canon's 18 or 22 and
         // every CTA read 2px tighter than the artboard.
@@ -105,6 +111,7 @@ const config: Config = {
         tile: '18px',
         cta: '18px',
         field: '16px',
+        inset: '14px',
         chip: '999px',
       },
       // CANON GRADIENT VOCABULARY. Canon's depth comes from multi-stop
