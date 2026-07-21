@@ -3,12 +3,12 @@
 # Coverage mappings live in coverage.yaml so they survive regeneration.
 meta:
   source: "docs/pandit-pov-conformance-register.md"
-  sourceSha256: "86dcd4c1c54033b6"
+  sourceSha256: "421afcc5588dfb1f"
   totalRequirements: 78
   tally:
-    built: 8
-    partial: 14
-    missing: 56
+    built: 13
+    partial: 13
+    missing: 52
     verify: 0
 blocks:
   - id: "F1"
@@ -63,30 +63,32 @@ blocks:
         typeRaw: "AUTO (component)"
         requirement: "First-ever open speaks the welcome script: \"नमस्ते पंडित जी… यह ऐप पूरी तरह आपकी आवाज़ से चलेगा…\" (once, not on every open)"
       - id: "F02-02"
-        status: "partial"
-        statusNote: "partial"
+        status: "built"
+        statusNote: "built (feat/f02-ladder, pending merge review)"
         testKind: ["auto"]
         typeRaw: "AUTO"
         requirement: "**Failure 1** of any voice input → speaks \"माफ़ कीजिये, कृपया फिर से बोलिए।\""
       - id: "F02-03"
-        status: "missing"
+        status: "built"
+        statusNote: "built (feat/f02-ladder, pending merge review)"
         testKind: ["auto"]
         typeRaw: "AUTO"
         requirement: "**Failure 2** → \"कृपया धीरे और साफ़ बोलिए।\""
       - id: "F02-04"
-        status: "missing"
+        status: "built"
+        statusNote: "built (feat/f02-ladder, pending merge review)"
         testKind: ["auto"]
         typeRaw: "AUTO"
         requirement: "**Failure 3** → the fallback line **and** keyboard auto-opens **and** a \"सहायता चाहिए\" button appears wiring to the support path"
       - id: "F02-05"
-        status: "partial"
-        statusNote: "partial"
+        status: "built"
+        statusNote: "built (feat/f02-ladder, pending merge review)"
         testKind: ["auto"]
         typeRaw: "AUTO"
         requirement: "Failure counter resets per field, not per session"
       - id: "F02-06"
-        status: "partial"
-        statusNote: "partial"
+        status: "built"
+        statusNote: "built incl. menu choices (feat/f02-ladder, pending merge review)"
         testKind: ["auto"]
         typeRaw: "AUTO"
         requirement: "**Confirmation loop after every voice input:** \"आपने कहा [X] — सही है?\"; \"नहीं\" → re-input; \"हाँ\" → advance (edge #4: no silent acceptance, ever)"
@@ -101,7 +103,8 @@ blocks:
         typeRaw: "MANUAL"
         requirement: "High ambient noise → proactively suggest keyboard (edge #2)"
       - id: "F02-09"
-        status: "missing"
+        status: "partial"
+        statusNote: "delete-grammar + double-confirm on feat/f02-ladder; draft-persistence on hold/conformance-builds"
         testKind: ["auto"]
         typeRaw: "AUTO"
         requirement: "\"पीछे जाओ\" only navigates — **never deletes entered data**; deletion requires explicit \"हटा दो\" + double confirm (edge #8)"
@@ -116,7 +119,8 @@ blocks:
         typeRaw: "AUTO (render)"
         requirement: "Support path off-hours: show expected callback time + async WhatsApp option (edge #9)"
       - id: "F02-12"
-        status: "missing"
+        status: "partial"
+        statusNote: "keyboard auto-opens at failure 3 (doc asks prominent-from-2nd); failures logged to debug only (feat/f02-ladder)"
         testKind: ["auto"]
         typeRaw: "AUTO"
         requirement: "Speech-impediment accessibility: keyboard offered prominently from 2nd failure; failures logged for audit (edge #1)"

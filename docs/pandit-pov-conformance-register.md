@@ -30,18 +30,17 @@
 | ID | Requirement & test expectation | Type | Status |
 |---|---|---|---|
 | F02-01 | First-ever open speaks the welcome script: "नमस्ते पंडित जी… यह ऐप पूरी तरह आपकी आवाज़ से चलेगा…" (once, not on every open) | AUTO (component) | ❌ |
-| F02-02 | **Failure 1** of any voice input → speaks "माफ़ कीजिये, कृपया फिर से बोलिए।" | AUTO | 🟡 partial |
-| F02-03 | **Failure 2** → "कृपया धीरे और साफ़ बोलिए।" | AUTO | ❌ |
-| F02-04 | **Failure 3** → the fallback line **and** keyboard auto-opens **and** a "सहायता चाहिए" button appears wiring to the support path | AUTO | ❌ |
-| F02-05 | Failure counter resets per field, not per session | AUTO | 🟡 partial |
-| F02-06 | **Confirmation loop after every voice input:** "आपने कहा [X] — सही है?"; "नहीं" → re-input; "हाँ" → advance (edge #4: no silent acceptance, ever) | AUTO | 🟡 partial |
+| F02-02 | **Failure 1** of any voice input → speaks "माफ़ कीजिये, कृपया फिर से बोलिए।" | AUTO | ✅ built (feat/f02-ladder, pending merge review) |
+| F02-03 | **Failure 2** → "कृपया धीरे और साफ़ बोलिए।" | AUTO | ✅ built (feat/f02-ladder, pending merge review) |
+| F02-04 | **Failure 3** → the fallback line **and** keyboard auto-opens **and** a "सहायता चाहिए" button appears wiring to the support path | AUTO | ✅ built (feat/f02-ladder, pending merge review) |
+| F02-05 | Failure counter resets per field, not per session | AUTO | ✅ built (feat/f02-ladder, pending merge review) |
+| F02-06 | **Confirmation loop after every voice input:** "आपने कहा [X] — सही है?"; "नहीं" → re-input; "हाँ" → advance (edge #4: no silent acceptance, ever) | AUTO | ✅ built incl. menu choices (feat/f02-ladder, pending merge review) |
 | F02-07 | Voice listen timeout ≥ 8s; elderly-flagged profiles get 12s (edge #3) | AUTO | ❌ |
 | F02-08 | High ambient noise → proactively suggest keyboard (edge #2) | MANUAL | ❌ |
-| F02-09 | "पीछे जाओ" only navigates — **never deletes entered data**; deletion requires explicit "हटा दो" + double confirm (edge #8) | AUTO | ❌ |
+| F02-09 | "पीछे जाओ" only navigates — **never deletes entered data**; deletion requires explicit "हटा दो" + double confirm (edge #8) | AUTO | 🟡 delete-grammar + double-confirm on feat/f02-ladder; draft-persistence on hold/conformance-builds |
 | F02-10 | Internet drop mid-input: buffer locally, show "सहेज रहे हैं…", retry on reconnect — input never silently lost (edge #7) | AUTO | ❌ |
 | F02-11 | Support path off-hours: show expected callback time + async WhatsApp option (edge #9) | AUTO (render) | ❌ |
-| F02-12 | Speech-impediment accessibility: keyboard offered prominently from 2nd failure; failures logged for audit (edge #1) | AUTO | ❌ |
-
+| F02-12 | Speech-impediment accessibility: keyboard offered prominently from 2nd failure; failures logged for audit (edge #1) | AUTO | 🟡 keyboard auto-opens at failure 3 (doc asks prominent-from-2nd); failures logged to debug only (feat/f02-ladder) |
 ---
 
 ## F3 — Automatic Language Selection

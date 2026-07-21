@@ -1,0 +1,92 @@
+# ─────────────────────────────────────────────────────────────
+# CONFORMANCE COVERAGE MAP — requirement id → how it is proven.
+# scripts/conformance-guard.mjs reads this. Rules:
+#   auto      → a test file in THIS tree must literally name the id
+#   manual    → the id must appear in docs/spec/MANUAL_TESTS.md
+#   deviation → discharges ONLY when SIGNED in docs/spec/DEVIATIONS.md
+# Every entry below was generated from a VERIFIED grep of the tree —
+# no entry names a test that does not exist and name the id.
+# PROPOSED PW- rows are not in the enforced set and appear nowhere here.
+# ─────────────────────────────────────────────────────────────
+
+coverage:
+  - id: F02-02
+    kind: auto
+    ref: apps/pandit/src/components/voice/conformance-f02.test.ts
+  - id: F02-05
+    kind: auto
+    ref: apps/pandit/src/components/voice/conformance-f02.test.ts
+  - id: F02-06
+    kind: auto
+    ref: apps/pandit/src/components/voice/conformance-f02.test.ts
+  - id: F03-01
+    kind: auto
+    ref: apps/pandit/src/lib/conformance-f03.test.ts
+  - id: F03-02
+    kind: auto
+    ref: apps/pandit/src/lib/conformance-f03.test.ts
+  - id: F03-03
+    kind: auto
+    ref: apps/pandit/src/lib/conformance-f03.test.ts
+  - id: F04-03
+    kind: auto
+    ref: apps/pandit/src/lib/conformance-f04-f05.test.ts
+  - id: F04-05
+    kind: auto
+    ref: apps/pandit/src/lib/conformance-f04-f05.test.ts
+  - id: F05-02
+    kind: auto
+    ref: apps/pandit/src/lib/conformance-f04-f05.test.ts
+  - id: F08-02
+    kind: auto
+    ref: apps/pandit/src/app/(dashboard-group)/my-poojas/conformance-f08.test.ts
+  - id: F08-03
+    kind: auto
+    ref: apps/pandit/src/app/(dashboard-group)/my-poojas/conformance-f08.test.ts
+  - id: F08-04
+    kind: auto
+    ref: apps/pandit/src/app/(dashboard-group)/my-poojas/conformance-f08.test.ts
+  - id: F08-06
+    kind: auto
+    ref: apps/pandit/src/app/(dashboard-group)/my-poojas/conformance-f08.test.ts
+  - id: F09-01
+    kind: auto
+    ref: services/api/src/lib/conformance-f09.test.ts
+  - id: F09-02
+    kind: auto
+    ref: services/api/src/lib/verification-resubmit.test.ts
+  - id: F09-03
+    kind: auto
+    ref: services/api/src/lib/verification-resubmit.test.ts
+  - id: F10-01
+    kind: auto
+    ref: apps/pandit/src/app/(dashboard-group)/my-poojas/add/conformance-f10-f11.test.ts
+  - id: F10-02
+    kind: auto
+    ref: apps/pandit/src/app/(dashboard-group)/my-poojas/add/conformance-f10-f11.test.ts
+  - id: F10-03
+    kind: auto
+    ref: apps/pandit/src/app/(dashboard-group)/my-poojas/add/conformance-f10-f11.test.ts
+  - id: F11-01
+    kind: auto
+    ref: apps/pandit/src/app/(dashboard-group)/my-poojas/add/conformance-f10-f11.test.ts
+  - id: F11-02
+    kind: auto
+    ref: apps/pandit/src/app/(dashboard-group)/my-poojas/add/conformance-f10-f11.test.ts
+  - id: F12-01
+    kind: auto
+    ref: apps/pandit/src/lib/conformance-f12-f43.test.ts
+  - id: F12-03
+    kind: auto
+    ref: apps/pandit/src/lib/conformance-f12-f43.test.ts
+  - id: F43-02
+    kind: auto
+    ref: apps/pandit/src/lib/conformance-f12-f43.test.ts
+
+# ── PENDING-MERGE entries (content folded from hold/conformance-builds;
+# their ref files exist only on that branch, so activating them here
+# would claim tests this tree does not have — they activate when the
+# hold branch merges): ──
+#  - id: F02-09  (auto, apps/pandit/src/app/onboarding/backSafety.test.tsx — back-safety half; delete-grammar half on feat/f02-ladder)
+#  - id: F11-04  (auto, services/api/src/lib/dakshinaFloor.test.ts — mechanism claimed, VALUES need Isj sign-off)
+#  - id: F02-02/03/04/05/06  (auto, f02Ladder/f02MenuConfirm/f02DeleteConfirm tests — on feat/f02-ladder, pending merge review)
