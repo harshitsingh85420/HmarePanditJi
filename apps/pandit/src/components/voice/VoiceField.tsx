@@ -208,6 +208,19 @@ export function VoiceField({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [voiceCapable]);
 
+  // F02-09: while this field HOLDS a value it is deletable — but only via the
+  // explicit "हटा दो" + double-confirm path in the controller. पीछे never
+  // touches it. The clear is undoable ("वापस करो" restores the old value).
+  useEffect(() => {
+    if (!(value ?? "").trim()) return;
+    return voiceController.registerDeletable(label, () => {
+      const prev = valueRef.current;
+      onChange("");
+      voiceController.registerUndo(`clear:${label}`, () => onChange(prev), label, "field");
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [!!(value ?? "").trim(), label]);
+
   // J1: first-claim hook for INJECTED transcripts (voicedebug driver) —
   // an EMPTY field claims parseable text exactly like the live pipeline;
   // a filled field defers to the command registry (injector's next stop).

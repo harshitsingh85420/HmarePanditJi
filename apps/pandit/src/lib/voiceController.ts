@@ -173,6 +173,12 @@ class VoiceController {
   // नहीं cancels it, and any other utterance re-matches (a correction). Cleared
   // on any screen change so a stale choice can never fire on the next screen.
   private _pendingOption: VoiceOption | null = null;
+  // F02-09: deletion is DOUBLE-confirmed. "हटा दो" targets the most recent
+  // registered deletable (a filled VoiceField); stage 1 asks, stage 2 asks
+  // "क्या आप निश्चित हैं?", only then does the clear run. पीछे NEVER deletes —
+  // navigation and deletion are different words by law.
+  private _pendingDelete: { label: string; run: () => void; stage: 1 | 2 } | null = null;
+  private deletables: Array<{ label: string; run: () => void }> = [];
   private queued: { text: string; opts?: SpeakOpts } | null = null;
   private replayFn: (() => void) | null = null;
   private listeners = new Set<() => void>();
@@ -694,6 +700,23 @@ class VoiceController {
     return this._pendingOption?.label ?? null;
   }
 
+  // ── F02-09: deletable registry (a filled VoiceField registers itself) ──
+  registerDeletable(label: string, run: () => void): () => void {
+    const entry = { label, run };
+    this.deletables.push(entry);
+    return () => {
+      this.deletables = this.deletables.filter((d) => d !== entry);
+      if (this._pendingDelete && this._pendingDelete.run === entry.run) {
+        this._pendingDelete = null;
+      }
+    };
+  }
+
+  /** F02-09 test seam: the delete confirmation stage (1, 2) or null. */
+  pendingDeleteStage(): 1 | 2 | null {
+    return this._pendingDelete?.stage ?? null;
+  }
+
   private matchVisibleOption(raw: string): VoiceOption | null {
     const clean = normalizeForMatch(raw);
     if (!clean) return null;
@@ -769,6 +792,33 @@ class VoiceController {
       this.debug(`voice cmd sub-floor (conf ${confidence.toFixed(2)}) ignored: "${clean.slice(0, 24)}"`);
       return false;
     }
+    // F02-09: a pending DELETE confirmation answers first — it is the most
+    // specific state. Stage 1 हाँ → ask "क्या आप निश्चित हैं?"; stage 2 हाँ →
+    // run the clear. नहीं (or anything else) at either stage cancels — an
+    // unclear answer must never destroy data.
+    if (this._pendingDelete) {
+      const yn = matchYesNo(clean);
+      if (yn === "yes" && this._pendingDelete.stage === 1) {
+        this._pendingDelete.stage = 2;
+        this.speak(t("voiceLoop.confirmSure"));
+        this.loopRearm();
+        return true;
+      }
+      if (yn === "yes" && this._pendingDelete.stage === 2) {
+        const d = this._pendingDelete;
+        this._pendingDelete = null;
+        this.noteVoiceGesture();
+        this.debug(`delete CONFIRMED (double) → ${d.label}`);
+        try { d.run(); } catch { /* best-effort */ }
+        this.speak(`ठीक है — ${d.label} हटा दिया।`);
+        return true;
+      }
+      // नहीं, or anything unclear → cancel. Deleting on ambiguity is the bug.
+      this._pendingDelete = null;
+      this.speak("ठीक है, कुछ नहीं हटाया।");
+      this.loopRearm();
+      return true;
+    }
     // F02-06: a spoken menu choice awaits confirmation before it commits, the
     // same law as a spoken field value. If one is pending, THIS transcript
     // answers it: हाँ commits, नहीं cancels, anything else is a correction
@@ -818,6 +868,21 @@ class VoiceController {
         return true;
       }
       this.speak("अभी वापस करने को कुछ नहीं है, पंडित जी।");
+      return true;
+    }
+    // F02-09: EXPLICIT deletion — "हटा दो" and friends, never पीछे. Targets
+    // the most recent filled field; nothing registered → an honest no-op.
+    // The actual clear only happens after the DOUBLE confirm above.
+    if (matchAny(clean, ["हटा दो", "हटाओ", "हटा दीजिए", "मिटा दो", "मिटाओ", "डिलीट"])) {
+      this.noteVoiceGesture();
+      const target = this.deletables[this.deletables.length - 1];
+      if (!target) {
+        this.speak("अभी हटाने को कुछ नहीं है, पंडित जी।");
+        return true;
+      }
+      this._pendingDelete = { label: target.label, run: target.run, stage: 1 };
+      this.speak(`क्या आप ${target.label} हटाना चाहते हैं? हाँ या नहीं बोलें।`);
+      this.loopRearm();
       return true;
     }
     const entry = this.activeVoiceScreen();
