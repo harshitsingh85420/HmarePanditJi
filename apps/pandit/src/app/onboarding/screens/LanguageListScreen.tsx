@@ -99,7 +99,7 @@ export default function LanguageListScreen({ onSelect, onBack }: LanguageListScr
           there is NO sindoor header band and no white-on-gradient title. The
           screen's title is a plain centred 29/900 line on the cream field. */}
       <header className="shrink-0">
-        <Toran tone="onSindoor" />
+        <Toran variant="garland" count={11} />
       </header>
 
       {/* Canon column: padding 14px 22px 16px, gap 16px. */}
@@ -143,11 +143,12 @@ export default function LanguageListScreen({ onSelect, onBack }: LanguageListScr
                   aria-pressed={isPending}
                 >
                   {isPending && (
+                    /* canon badge: 26px #B23A1A disc, material `check` 18px */
                     <span
-                      className="absolute top-[10px] right-[10px] w-[26px] h-[26px] rounded-full bg-saffron-500 text-white text-[18px] font-bold flex items-center justify-center leading-none"
+                      className="absolute top-[10px] right-[10px] w-[26px] h-[26px] rounded-full bg-saffron-500 text-white flex items-center justify-center leading-none"
                       aria-hidden="true"
                     >
-                      ✓
+                      <span className="material-symbols-outlined text-[18px] leading-none">check</span>
                     </span>
                   )}
                   <span
@@ -192,7 +193,8 @@ export default function LanguageListScreen({ onSelect, onBack }: LanguageListScr
       {/* Canon puts शिष्य centred under the CTA (padding 2px 0 16px), not
           docked beside it. */}
       <footer className="shrink-0 flex justify-center pt-[2px] pb-4">
-        <ShishyaOrb />
+        {/* canon frame 3: size 62, speaking ribbon "कौन सी भाषा पसंद है?" */}
+        <ShishyaOrb size={62} say={t("pratham.languageSay")} />
       </footer>
     </div>
   );

@@ -126,7 +126,8 @@ describe("F04-03 — detected-city confirm before commit", () => {
     fireEvent.click(screen.getByText("अनुमति दें"));
     await waitFor(() => expect(screen.getByText("Varanasi")).toBeTruthy());
 
-    fireEvent.click(screen.getByText("✓ यही सही है"));
+    // canon frame 2 CTA carries a material check_circle glyph, not a "✓" char
+    fireEvent.click(screen.getByText("यही सही है"));
 
     expect(onGranted).toHaveBeenCalledTimes(1);
     expect(onGranted).toHaveBeenCalledWith("Varanasi", "Uttar Pradesh");
