@@ -187,12 +187,20 @@ export default function BookingRequestPage() {
 
   // Canon frame 26 उत्सव — the accept moment. Money named here is the
   // pandit's REAL server-computed take, never a mockup figure.
+  // Canon's subtitle carries the श्री honorific ("श्री अनिल गुप्ता की पूजा
+  // अब आपकी है") — added only around a REAL server name that doesn't
+  // already open with one; the generic यजमान fallback stays bare.
+  const hasRealName = Boolean(booking.customer?.name || booking.customerName);
+  const honouredName =
+    hasRealName && !/^(श्री|श्रीमती|पं\.|पंडित)/.test(cName.trim())
+      ? `श्री ${cName}`
+      : cName;
+
   if (showAccepted) {
     return (
       <CelebrationOverlay
-        badge="✓"
         title="बुकिंग स्वीकार! 🎉"
-        subtitle={`${cName} की पूजा अब आपकी है`}
+        subtitle={`${honouredName} की पूजा अब आपकी है`}
         amount={booking.earnings?.totalToPandit || 0}
         tone="leaf"
         onDone={() => router.replace(`/bookings/${booking.id}`)}

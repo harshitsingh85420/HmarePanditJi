@@ -68,8 +68,16 @@ const TONES = {
 } as const;
 
 export interface CelebrationOverlayProps {
-  /** big glyph in the badge (canon: ✓ for accept, ✓ for verified) */
-  badge: string;
+  /**
+   * @deprecated legacy raw-char badge — accepted so older call sites keep
+   * compiling, but IGNORED: the badge always draws a Material Symbol now
+   * (canon stamps `check`/`verified`, never a text ✓ — drawn-not-emoji law).
+   * Use `glyph` to override the tone's canon default.
+   */
+  badge?: string;
+  /** Material Symbol name stamped in the badge; defaults to the tone's
+      canon glyph — `check` (frame 34 accept) / `verified` (frame 36) */
+  glyph?: string;
   /** 30/900 headline */
   title: string;
   /** 17/600 canon → 18/600 by the body floor */
@@ -84,7 +92,7 @@ export interface CelebrationOverlayProps {
 }
 
 export function CelebrationOverlay({
-  badge,
+  glyph,
   title,
   subtitle,
   amount,
@@ -95,6 +103,8 @@ export function CelebrationOverlay({
   const reduced = useReduced();
   const doneRef = useRef(false);
   const t = TONES[tone];
+  // canon badge glyphs: leaf stamps `check` (frame 34), gold `verified` (36)
+  const glyphName = glyph ?? (tone === "leaf" ? "check" : "verified");
 
   const finish = () => {
     if (doneRef.current) return;
@@ -169,11 +179,17 @@ export function CelebrationOverlay({
         style={{
           background: t.badge,
           boxShadow: t.badgeShadow,
-          fontSize: `${t.glyph}px`,
         }}
         aria-hidden="true"
       >
-        {badge}
+        {/* canon draws the Material Symbol FILLED at 76px (leaf) / 74px
+            (gold), #FFF6E9 — never a raw text char */}
+        <span
+          className="material-symbols-outlined material-symbols-filled leading-none"
+          style={{ fontSize: `${t.glyph}px` }}
+        >
+          {glyphName}
+        </span>
       </span>
 
       <div className="relative z-[2] mt-[22px]">
