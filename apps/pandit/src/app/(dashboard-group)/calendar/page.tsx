@@ -241,7 +241,10 @@ export default function CalendarPage() {
         {!monthHasBookings && (
           <div className="flex items-center justify-center gap-2 bg-card rounded-[12px] border-[1.5px] border-sand-100 px-4 py-3">
             <span className="text-[24px]" role="img" aria-hidden="true">📅</span>
-            <span className="t-hint text-softgrey font-hindi">{t("empty.calendarEmptyTitle")}</span>
+            {/* Canon empty-note is t-hint (16px/400/softgrey). t-hint lives in the
+                shared globals.css layer; the 18sp body floor (Ruling #2) is inlined
+                here instead of editing the shared class. Weight 400 + softgrey kept. */}
+            <span className="text-[18px] font-normal text-softgrey font-hindi">{t("empty.calendarEmptyTitle")}</span>
           </div>
         )}
 
