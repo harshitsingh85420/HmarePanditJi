@@ -311,7 +311,10 @@ export const hi = {
     nameError: "नाम कम से कम 3 वर्णों का होना चाहिए",
     cityError: "शहर का नाम आवश्यक है",
     specError: "कम से कम एक पूजा का चयन कीजिए",
-    dakshinaError: "दक्षिणा ₹501 से ₹5,00,000 के बीच होनी चाहिए",
+    // F11-04: each pooja has its OWN floor (api lib/dakshinaFloor.ts), so this
+    // local pre-check must not promise that ₹501 is enough. It states the
+    // absolute lowest; the server replies with the exact figure for that pooja.
+    dakshinaError: "दक्षिणा कम से कम ₹501 होनी चाहिए (₹5,00,000 से ज़्यादा नहीं) — कुछ पूजाओं के लिए इससे ज़्यादा ज़रूरी है",
     aadhaarError: "आधार कार्ड की फोटो आवश्यक है",
     paymentError: "बैंक खाता या UPI की सही जानकारी दर्ज कीजिए",
     accMismatch: "दोनों खाता संख्या मेल खानी चाहिए",

@@ -13,6 +13,7 @@ import { DEFAULT_SAMAGRI } from "@hmarepanditji/db";
 import { computeEarnings } from "../lib/earnings";
 import { checkAndAwardMilestones } from "../lib/milestones";
 import { canRemovePooja, REMOVE_BLOCKING_STATUSES } from "../lib/poojaRules";
+import { checkDakshinaFloor } from "../lib/dakshinaFloor";
 import { panditView, withPanditView, dbStatusesForView } from "../lib/bookingStatus";
 import { NotificationService } from "../services/notification.service";
 import { getNotificationTemplate } from "../services/notification-templates";
@@ -1393,6 +1394,17 @@ export const upsertDakshinaRate = async (request: FastifyRequest, reply: Fastify
   const { pujaType, amount } = request.body as { pujaType?: string; amount?: number };
   if (!pujaType || typeof amount !== "number" || amount < 0 || !Number.isFinite(amount)) {
     return reply.status(400).send({ success: false, error: "pujaType and a non-negative amount are required" });
+  }
+
+  // F11-04 floor (edge F11-2). This is the OTHER dakshina write path (readiness
+  // R1). A floor enforced on only one of the two is not enforced at all, so both
+  // resolve through the same table: lib/dakshinaFloor.ts.
+  const floorCheck = checkDakshinaFloor(pujaType, amount);
+  if (!floorCheck.ok) {
+    return reply.status(400).send({
+      success: false,
+      error: { code: "dakshina_below_floor", message: floorCheck.message, floor: floorCheck.floor },
+    });
   }
 
   // F29(a): existing bookings snapshot dakshinaAmount — this only affects NEW bookings.

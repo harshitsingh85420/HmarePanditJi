@@ -126,7 +126,20 @@
 | F11-01 | Voice script states the total covers **all** pandits' dakshina | AUTO | 🟡 partial |
 | F11-02 | Amount confirm loop before save | AUTO | ✅ |
 | F11-03 | Market-rate benchmark shown during setup, per city tier (edge F11-1) | AUTO | ❌ → DEVIATION candidate (needs data; post-pilot) |
-| F11-04 | Minimum floor price per pooja type enforced (edge F11-2, anti race-to-bottom) | AUTO (api validation) | ❌ |
+| F11-04 | Minimum floor price per pooja type enforced (edge F11-2, anti race-to-bottom) | AUTO (api validation) | ✅ mechanism — **floor VALUES await Isj's sign-off** (see note below) |
+
+> **F11-04 — what shipped and what is still open.** The MECHANISM is complete and
+> guarded (`services/api/src/lib/dakshinaFloor.ts`, guard
+> `services/api/src/lib/dakshinaFloor.test.ts`): one exported table is the single
+> source of every minimum, all three server paths that touch dakshina
+> (`/pandit/pooja-config`, `/pandit/dakshina-rates`, readiness step-1 re-check)
+> resolve through it, rejection carries a Devanagari message that NAMES the
+> minimum, and the पूजा जोड़ें wizard now speaks and shows that message instead of
+> discarding the response. The floor NUMBERS are conservative placeholders, not
+> research — we have no market data (that is F11-03, still open). ₹501 is carried
+> over from the existing platform minimum; the two higher tiers are small
+> multiples of it. **Isj must replace the values before pilot pricing is real.**
+> Changing them means editing one file and no test.
 
 ---
 
