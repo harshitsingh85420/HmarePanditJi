@@ -99,12 +99,23 @@ export default function LocationPermissionScreen({
         try {
           const { latitude, longitude } = position.coords;
           const res = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`,
+            // Walk पP0 #4 / F43: accept-language=hi makes Nominatim return
+            // Devanagari place-names natively (वाराणसी / उत्तर प्रदेश) instead
+            // of Latin, which a Devanagari-only pandit cannot read.
+            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&accept-language=hi`,
           );
           if (!res.ok) throw new Error("Reverse geocode failed");
           const data = await res.json();
-          const city = data.address.city || data.address.town || data.address.village || "Unknown";
-          const stateStr = data.address.state || "Unknown";
+          const city = data.address.city || data.address.town || data.address.village;
+          const stateStr = data.address.state || "";
+          // Walk पP0 #4: never show/speak "Unknown" (English). If the geocode
+          // can't name the city, fall through to the manual picker instead.
+          if (!city) {
+            voiceController.stopSpeech("user-flow:location-grant");
+            setLoading(false);
+            onDenied();
+            return;
+          }
           // Q7: the grant's async settle navigates seconds after the tap —
           // carry the tap's intent so the phase change isn't a ⚠ tell
           voiceController.stopSpeech("user-flow:location-grant");
