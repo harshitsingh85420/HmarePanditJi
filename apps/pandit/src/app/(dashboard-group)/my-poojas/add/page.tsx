@@ -37,6 +37,7 @@ interface Draft {
   teamSize: number;
   dakshina: number | null;
   videoUrl: string;
+  sentViaWhatsapp: boolean;
   consent: boolean;
 }
 
@@ -44,8 +45,16 @@ const EMPTY: Draft = {
   step: 0, name: "", desc: "",
   items: { BASIC: [], STANDARD: [], PREMIUM: [] },
   prices: { BASIC: null, STANDARD: null, PREMIUM: null },
-  supplyMode: null, teamSize: 1, dakshina: null, videoUrl: "", consent: false,
+  supplyMode: null, teamSize: 1, dakshina: null, videoUrl: "", sentViaWhatsapp: false, consent: false,
 };
+
+// Walk पP0 #6: a pandit who sends his video over WhatsApp has no YouTube
+// link, so the submit could never activate and he was stranded. A WhatsApp
+// submission goes in as PENDING for manual review — the video arrives out of
+// band. Stored with the existing UPLOAD provider + a wa.me marker so no DB
+// migration is needed; a dedicated WHATSAPP VideoProvider is the clean
+// follow-up (needs a migration, flagged separately).
+const WHATSAPP_MARKER = "https://wa.me/918934095599";
 
 function ytId(url: string): string | null {
   const m = url.match(/[?&]v=([A-Za-z0-9_-]{11})/) || url.match(/youtu\.be\/([A-Za-z0-9_-]{11})/) || url.match(/\/(?:embed|shorts)\/([A-Za-z0-9_-]{11})/);
@@ -85,8 +94,18 @@ export default function AddPoojaPage() {
     if (tiers.length) await mutateOnce(`samagri:${d.name}`, "/pandit/samagri-packages", { method: "POST", body: JSON.stringify({ pujaType: d.name, tiers }) });
     // 2) team + dakshina + supply
     await mutateOnce(`config:${d.name}`, "/pandit/pooja-config", { method: "POST", body: JSON.stringify({ poojaType: d.name, teamSize: d.teamSize, dakshinaAmount: d.dakshina ?? 0, supplyMode: d.supplyMode ?? "PANDIT_BRINGS" }) });
-    // 3) video verification → PENDING
-    const res = await mutateOnce(`verify:${d.name}`, "/pandit/pooja-verification", { method: "POST", body: JSON.stringify({ poojaType: d.name, poojaName: d.name, poojaDescription: d.desc, videoProvider: "YOUTUBE", videoUrl: d.videoUrl, consent: d.consent }) });
+    // 3) video verification → PENDING. A YouTube link submits as YOUTUBE; a
+    // WhatsApp submission (no link) submits as UPLOAD with a wa.me marker and a
+    // description note, so admin knows the video is coming over WhatsApp.
+    const viaWhatsapp = !d.videoUrl && d.sentViaWhatsapp;
+    const res = await mutateOnce(`verify:${d.name}`, "/pandit/pooja-verification", { method: "POST", body: JSON.stringify({
+      poojaType: d.name,
+      poojaName: d.name,
+      poojaDescription: viaWhatsapp ? `${d.desc} [वीडियो व्हाट्सएप पर भेजा गया]`.trim() : d.desc,
+      videoProvider: viaWhatsapp ? "UPLOAD" : "YOUTUBE",
+      videoUrl: viaWhatsapp ? WHATSAPP_MARKER : d.videoUrl,
+      consent: d.consent,
+    }) });
     setSubmitting(false);
     if (res.success) { try { localStorage.removeItem(DRAFT_KEY); } catch {} ; go(6); }
   };
@@ -104,7 +123,7 @@ export default function AddPoojaPage() {
       footer={
         d.step < 6 ? (
           d.step === 5 ? (
-            <Button className="w-full h-[64px] text-[20px]" loading={submitting} disabled={!d.videoUrl || !d.consent} onClick={submit}>
+            <Button className="w-full h-[64px] text-[20px]" loading={submitting} disabled={(!d.videoUrl && !d.sentViaWhatsapp) || !d.consent} onClick={submit}>
               पूजा भेजें
             </Button>
           ) : (
@@ -265,10 +284,22 @@ function StepVideo({ d, set }: { d: Draft; set: (p: Partial<Draft>) => void }) {
         <span className="text-[15px] font-extrabold text-softgrey font-hindi">अच्छे वीडियो के लिए</span>
         {CHECK.map((c) => (<span key={c} className="text-[15px] font-hindi text-temple-700">✅ {c}</span>))}
       </Card>
+      {/* Walk पP0 #6: tapping this now ALSO marks the draft as sent-via-
+          WhatsApp, so "पूजा भेजें" activates and the pooja submits as PENDING.
+          Previously this was a bare link and the button stayed dead forever. */}
       <a href={`https://wa.me/918934095599?text=${encodeURIComponent("नमस्ते, मुझे अपनी पूजा का वीडियो भेजना है")}`} target="_blank" rel="noopener"
+        onClick={() => set({ sentViaWhatsapp: true })}
         className="w-full min-h-[56px] rounded-btn bg-[#E4F3E9] border-2 border-[#BFE3CC] flex items-center justify-center gap-2 text-[16px] font-hindi font-bold text-leaf-700 active:scale-[0.98] transition-transform">
         💬 भेज दीजिए, हम लगा देंगे
       </a>
+      {d.sentViaWhatsapp && !d.videoUrl && (
+        <>
+          <Narrate text="वीडियो व्हाट्सएप पर भेज दीजिए। फिर नीचे सहमति देकर 'पूजा भेजें' दबाइए — हम जाँच लेंगे।" />
+          <div className="w-full rounded-btn bg-leaf-50 border-2 border-leaf-200 px-4 py-3 text-[16px] font-hindi font-bold text-leaf-700 text-center">
+            ✓ व्हाट्सएप पर भेजिए — अब नीचे सहमति देकर “पूजा भेजें” दबाइए
+          </div>
+        </>
+      )}
       <button onClick={() => set({ consent: !d.consent })}
         className="w-full flex items-center gap-3 px-4 py-3 rounded-btn border-2 border-saffron-200 bg-white active:scale-[0.99] transition-transform">
         <span className={`w-7 h-7 rounded-md border-2 flex items-center justify-center text-[18px] ${d.consent ? "bg-leaf-500 border-leaf-500 text-white" : "border-saffron-200"}`}>{d.consent ? "✓" : ""}</span>

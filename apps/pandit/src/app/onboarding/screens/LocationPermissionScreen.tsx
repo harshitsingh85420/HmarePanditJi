@@ -60,13 +60,24 @@ export default function LocationPermissionScreen({
   useVoiceCommands(
     [
       {
-        keywords: [...YES, "अनुमति", "allow"],
+        // Walk पP0 #3: in the detected-city confirm sub-view, शिष्य asks
+        // "क्या आप वाराणसी में हैं?" — a voice yes/no — yet saying "हाँ" did
+        // NOTHING (this action only pulsed the allow button, which isn't even
+        // rendered in that view). Now "हाँ/यही/सही" confirms the detected city
+        // by voice. commandsRef is refreshed every render, so this closure
+        // always sees the current `detected`.
+        keywords: [...YES, "अनुमति", "allow", "यही", "सही", "ठीक"],
         action: () => {
+          if (detected) {
+            onGranted(detected.city, detected.state);
+            return;
+          }
           setPulse(true);
           voiceController.speak(t("entry.locationTapHint"), { highlightRef: allowBtnRef });
         },
       },
-      { keywords: NO, action: () => onDenied() },
+      // नहीं / "जगह बदलें" → manual picker, whether or not a city was detected
+      { keywords: [...NO, "बदलो", "जगह"], action: () => onDenied() },
     ],
     t("help.location"),
   );
@@ -88,12 +99,23 @@ export default function LocationPermissionScreen({
         try {
           const { latitude, longitude } = position.coords;
           const res = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`,
+            // Walk पP0 #4 / F43: accept-language=hi makes Nominatim return
+            // Devanagari place-names natively (वाराणसी / उत्तर प्रदेश) instead
+            // of Latin, which a Devanagari-only pandit cannot read.
+            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&accept-language=hi`,
           );
           if (!res.ok) throw new Error("Reverse geocode failed");
           const data = await res.json();
-          const city = data.address.city || data.address.town || data.address.village || "Unknown";
-          const stateStr = data.address.state || "Unknown";
+          const city = data.address.city || data.address.town || data.address.village;
+          const stateStr = data.address.state || "";
+          // Walk पP0 #4: never show/speak "Unknown" (English). If the geocode
+          // can't name the city, fall through to the manual picker instead.
+          if (!city) {
+            voiceController.stopSpeech("user-flow:location-grant");
+            setLoading(false);
+            onDenied();
+            return;
+          }
           // Q7: the grant's async settle navigates seconds after the tap —
           // carry the tap's intent so the phase change isn't a ⚠ tell
           voiceController.stopSpeech("user-flow:location-grant");

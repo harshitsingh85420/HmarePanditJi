@@ -18,7 +18,7 @@ export function EmergencySOSFloating({ isVisible = true }: EmergencySOSFloatingP
       navigator.vibrate([100, 50, 100])
     }
     await speakWithSarvam({
-      text: 'SOS बटन दबाया गया। क्या आप वास्तव में आपातकालीन स्थिति में हैं?',
+      text: 'मदद का बटन दबाया गया। क्या आप वाकई किसी मुसीबत में हैं?',
       languageCode: 'hi-IN',
       pace: 0.85,
     })
@@ -65,21 +65,23 @@ export function EmergencySOSFloating({ isVisible = true }: EmergencySOSFloatingP
         )}
       </AnimatePresence>
 
-      {/* Main SOS Button — tap to expand, tap again to open the emergency screen */}
+      {/* Main help button. Walk पP0 #11: at rest this showed "SOS" — three
+          roman letters a Devanagari-only pandit cannot read as "help". Now
+          it always shows 🆘 + "मदद" so it is recognisable at a glance, in
+          any state. */}
       <motion.button
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         whileTap={{ scale: 0.9 }}
         onClick={isExpanded ? handleSOSPress : handleExpand}
-        className="relative min-w-[56px] min-h-[56px] w-14 h-14 bg-danger rounded-full shadow-lg flex items-center justify-center border-2 border-white"
-        aria-label="Emergency SOS"
+        className="relative min-h-[56px] px-4 bg-danger rounded-full shadow-lg flex items-center gap-2 border-2 border-white"
+        aria-label="आपातकालीन सहायता — मदद"
       >
         {!isExpanded && (
           <div className="absolute inset-0 rounded-full bg-danger/20 animate-ping motion-reduce:animate-none" />
         )}
-        <span className="text-white font-bold text-base relative z-10">
-          {isExpanded ? '🆘' : 'SOS'}
-        </span>
+        <span className="text-white text-[24px] leading-none relative z-10" aria-hidden="true">🆘</span>
+        <span className="text-white font-bold text-[16px] font-hindi relative z-10">मदद</span>
       </motion.button>
     </div>
   )

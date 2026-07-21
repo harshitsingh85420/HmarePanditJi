@@ -23,14 +23,21 @@ interface ManualCityScreenProps {
   onLanguageChange?: () => void;
 }
 
+// Walk पP0 #4: the list was Delhi-NCR only — a काशी pandit's city was
+// absent, "वाराणसी" matched no keyword, and the fallback demanded typing.
+// Now the cards are the pandits' own pilgrimage centres (वाराणसी first),
+// each speakable by its common names (बनारस/काशी, इलाहाबाद, गुड़गांव …).
 // card label + the transcript spellings Deepgram actually produces
-const POPULAR_CITIES = ["दिल्ली", "नोएडा", "गुरुग्राम", "गाज़ियाबाद", "फ़रीदाबाद"];
+const POPULAR_CITIES = ["वाराणसी", "प्रयागराज", "अयोध्या", "मथुरा", "हरिद्वार", "उज्जैन", "दिल्ली", "गुरुग्राम"];
 const CITY_SPOKEN: Record<string, string[]> = {
+  "वाराणसी": ["वाराणसी", "बनारस", "काशी", "varanasi", "banaras", "kashi"],
+  "प्रयागराज": ["प्रयागराज", "इलाहाबाद", "prayagraj", "allahabad"],
+  "अयोध्या": ["अयोध्या", "ayodhya"],
+  "मथुरा": ["मथुरा", "वृंदावन", "mathura", "vrindavan"],
+  "हरिद्वार": ["हरिद्वार", "हरद्वार", "haridwar"],
+  "उज्जैन": ["उज्जैन", "ujjain"],
   "दिल्ली": ["दिल्ली", "delhi", "दिली"],
-  "नोएडा": ["नोएडा", "नोयडा", "noida"],
   "गुरुग्राम": ["गुरुग्राम", "गुड़गांव", "गुड़गाँव", "गुरगांव", "gurgaon", "gurugram"],
-  "गाज़ियाबाद": ["गाज़ियाबाद", "गाजियाबाद", "ghaziabad"],
-  "फ़रीदाबाद": ["फ़रीदाबाद", "फरीदाबाद", "faridabad"],
 };
 
 export default function ManualCityScreen({ onCitySelected, onBack }: ManualCityScreenProps) {

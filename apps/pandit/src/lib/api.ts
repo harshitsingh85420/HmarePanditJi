@@ -133,7 +133,10 @@ export async function api<T = any>(
       success: false,
       error: {
         code: aborted ? "timeout" : "network",
-        message: aborted ? hi.auth.slowServer : err.message || hi.common.error,
+        // Walk पP0 #5: NEVER surface err.message — it is English ("Failed to
+        // fetch") and lands on money/Aadhaar steps. The real error name+message
+        // is already recorded above via voiceController.debug for diagnostics.
+        message: aborted ? hi.auth.slowServer : hi.errors.network,
       },
     };
   } finally {

@@ -227,6 +227,9 @@ export const hi = {
   },
   errors: {
     apiBaseMissing: "ऐप कॉन्फ़िगरेशन अधूरी है (API URL)",
+    // Walk पP0 #5: a raw fetch error ("Failed to fetch") is English and
+    // frightening on a money/Aadhaar step. Never surface err.message.
+    network: "इंटरनेट टूट गया — आपकी बात सुरक्षित है, जुड़ते ही फिर भेजेंगे।",
   },
   welcome: {
     title: "हमारे पंडित जी में आपका स्वागत है",

@@ -7,6 +7,7 @@ import { useSession } from '@/hooks/useSession'
 import { useNetwork } from '@/hooks/useNetwork'
 import { SessionTimeoutSheet } from '@/components/overlays/SessionTimeout'
 import { NetworkBanner } from '@/components/overlays/NetworkBanner'
+import { EmergencySOSFloating } from '@/components/widgets/EmergencySOSFloating'
 import { useSafeUIStore } from '@/lib/stores/ssr-safe-stores'
 
 // SSR FIX: Disable static generation for pages using Zustand stores
@@ -103,6 +104,9 @@ export default function DashboardGroupLayout({ children }: { children: React.Rea
       <NetworkBanner />
       {children}
       {showSessionTimeout && <SessionTimeoutSheet />}
+      {/* Walk पP0 #10: home/bookings/earnings/calendar had NO one-tap help.
+          The floating मदद button now lives on every dashboard screen. */}
+      <EmergencySOSFloating isVisible={true} />
     </div>
   )
 }
