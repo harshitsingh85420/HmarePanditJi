@@ -264,22 +264,31 @@ export default function BookingDetailPage() {
 
   return (
     <div className="min-h-screen bg-cream text-ink pb-24">
-      {/* Canon frame 14 carries the status as a pill on the RIGHT of the header
-          bar (not as its own body row) and titles the bar बुकिंग विवरण, with the
-          puja name demoted to the yajman card's second line. Header exposes a
-          rightSlot, so this needs no shared change. */}
-      <Header
-        title={t("booking.detailsTitle")}
-        showBack
-        onBack={() => router.push("/bookings")}
-        rightSlot={
-          <span
-            className={`inline-flex items-center whitespace-nowrap px-[13px] py-1.5 rounded-chip text-[18px] font-extrabold font-hindi select-none ${statusCfg.bg}`}
-          >
-            {statusCfg.label}
+      {/* CANON frame 10 header — a PLAIN row on the cream field: a back circle,
+          the title in temple-ink, and the status pill on the right. Canon's
+          detail does NOT carry the shared saffron banner or the toran strand.
+          Sticky so it holds while the body scrolls, like the old header did. */}
+      <div className="sticky top-0 z-30 bg-cream shrink-0 flex items-center gap-3 px-4 py-2">
+        <button
+          onClick={() => router.push("/bookings")}
+          aria-label={t("common.back")}
+          /* canon: 42px #FFFDF8 circle, 0 2px 8px shadow, 22px arrow_back in
+             #7A250E — box floored to the 52px tap target. */
+          className="w-[52px] h-[52px] min-h-[52px] min-w-[52px] shrink-0 rounded-full bg-card shadow-card flex items-center justify-center active:scale-90 transition-all focus:outline-none focus:ring-2 focus:ring-saffron-200"
+        >
+          <span className="material-symbols-outlined text-[24px] leading-none text-saffron-700" aria-hidden="true">
+            arrow_back
           </span>
-        }
-      />
+        </button>
+        <span className="text-[19px] font-black text-temple-700 font-hindi truncate">
+          {t("booking.detailsTitle")}
+        </span>
+        <span
+          className={`ml-auto shrink-0 inline-flex items-center whitespace-nowrap px-[13px] py-1.5 rounded-chip text-[18px] font-extrabold font-hindi select-none ${statusCfg.bg}`}
+        >
+          {statusCfg.label}
+        </span>
+      </div>
 
       {/* Voice commands listener */}
       <VoiceActionListener
