@@ -203,8 +203,8 @@ export default function EmergencySOS() {
                   <WaveformVisualizer barCount={5} height="lg" animated={true} />
                 ) : (
                   <>
-                    {/* canon glyph 56px */}
-                    <span className="relative text-[56px] leading-none select-none" aria-hidden="true">🆘</span>
+                    {/* drawn-not-emoji: canon draws Material sos 56px FILL1 */}
+                    <span className="material-symbols-outlined material-symbols-filled relative text-[56px] leading-none select-none" aria-hidden="true">sos</span>
                     {/* canon 24/900 */}
                     <span className="relative text-[24px] font-black font-hindi leading-tight">सहायता बुलाइए</span>
                     {/* canon 14/600 opacity .9 → 18px (18sp floor) */}
@@ -223,17 +223,19 @@ export default function EmergencySOS() {
               className="w-full bg-card border-[1.5px] border-sand rounded-[16px] px-4 py-[14px] flex items-center gap-[13px] text-left active:scale-[0.97] transition-transform"
             >
               <span
-                className="w-[46px] h-[46px] rounded-[12px] bg-[#E4F3E9] flex items-center justify-center text-[24px] shrink-0 select-none"
+                className="w-[46px] h-[46px] rounded-[12px] bg-[#E4F3E9] flex items-center justify-center shrink-0 select-none"
                 aria-hidden="true"
               >
-                🎧
+                {/* drawn-not-emoji: canon's Material support_agent 24px FILL1 leaf */}
+                <span className="material-symbols-outlined material-symbols-filled text-[24px] leading-none text-[#1E7A46]">support_agent</span>
               </span>
               <span className="flex-1">
-                {/* canon 17/800 → 20px, and 14 → 18px (18sp floor) */}
-                <span className="block text-[20px] font-extrabold text-ink font-hindi leading-tight">हमारी सहायता टीम</span>
+                {/* canon 17/800 → 18px (floor), and 14 → 18px (18sp floor) */}
+                <span className="block text-[18px] font-extrabold text-ink font-hindi leading-tight">हमारी सहायता टीम</span>
                 <span className="block text-[18px] text-softgrey font-hindi mt-[2px]">तुरंत कॉल</span>
               </span>
-              <span className="text-[24px] text-[#1E7A46]" aria-hidden="true">📞</span>
+              {/* drawn-not-emoji: canon's trailing Material call 24px */}
+              <span className="material-symbols-outlined text-[24px] leading-none text-[#1E7A46]" aria-hidden="true">call</span>
             </button>
           </motion.div>
         </motion.div>
