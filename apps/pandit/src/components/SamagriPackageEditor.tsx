@@ -194,7 +194,7 @@ export function SamagriPackageEditor({
                     <div className="w-[130px] flex-shrink-0">
                       <VoiceField
                         label=""
-                        promptText={`${item.name} की मात्रा बोलें`}
+                        promptText={`${item.name} की मात्रा बोलिए`}
                         value={item.qty}
                         onChange={(val) => handleQtyChange(idx, val)}
                         mode="number"
@@ -205,7 +205,7 @@ export function SamagriPackageEditor({
                       onClick={() => handleRemoveItem(idx)}
                       className="border-2 border-danger rounded-btn flex items-center justify-center text-danger hover:bg-red-50"
                       style={{ width: "52px", height: "52px" }}
-                      aria-label={`${item.name} हटाएँ`}
+                      aria-label={`${item.name} हटाइए`}
                     >
                       ✖
                     </button>
