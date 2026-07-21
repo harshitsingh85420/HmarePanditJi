@@ -328,7 +328,7 @@ export default function LoginPage() {
             <p className="t-body text-temple-600 font-hindi text-center leading-snug">
               {t("auth.unifiedSub")}
             </p>
-            <div className="bg-white rounded-card shadow-card p-5 flex flex-col gap-4">
+            <div className="bg-card rounded-[16px] shadow-card p-5 flex flex-col gap-4">
               <VoiceField
                 label={t("auth.phoneLabel")}
                 promptText={
@@ -356,10 +356,12 @@ export default function LoginPage() {
         ) : (
           <>
             {/* Screen 2: OTP — typed-only by law (A5); the app speaks why once */}
-            <div className="bg-white rounded-card shadow-card px-4 py-5 flex flex-col gap-4">
+            <div className="bg-card rounded-[16px] shadow-card px-4 py-5 flex flex-col gap-4">
               {accountExists !== null && (
                 <div className="flex flex-col gap-1 text-center">
-                  {/* canon frame 11: heading vocabulary is 19px/800 #341A13 */}
+                  {/* canon frame 11 heading is 19px/800 #341A13; Ruling #2's
+                      18px body floor applies to this vocabulary line, so it
+                      renders at 22px/800 — colour/weight stay canon-exact. */}
                   <h2 className="text-[22px] font-extrabold text-temple-700 font-hindi leading-snug">
                     {accountExists ? t("auth.returningTitle") : t("auth.newAccountTitle")}
                   </h2>
@@ -520,13 +522,14 @@ function OtpBoxes({
               }
             }}
             // CANON frame 11: box 62×72, radius 16, border 2.5px, digit
-            // 36px/900. A FILLED box is #FDEEE7 fill + #B23A1A border +
+            // 28px/900 (frame 11's dominant type). A FILLED box is
+            // #FDEEE7 fill + #B23A1A border +
             // #7A250E digit (saffron-50/500/700); an EMPTY box is #FFFDF8
             // on the #E7DCC9 hairline (card / sand-200), and carries the
             // sindoor caret canon draws inside the active box.
             // Six boxes cannot each be 62px on a 360px screen, so they
             // share the row (flex-1) and cap at canon's 62px on wider ones.
-            className={`flex-1 min-w-0 max-w-[62px] h-[72px] text-center rounded-[16px] border-[2.5px] text-[36px] font-black caret-saffron-500 transition-all focus:outline-none focus:border-saffron-500 focus:ring-4 focus:ring-saffron-200 ${
+            className={`flex-1 min-w-0 max-w-[62px] h-[72px] text-center rounded-[16px] border-[2.5px] text-[28px] font-black caret-saffron-500 transition-all focus:outline-none focus:border-saffron-500 focus:ring-4 focus:ring-saffron-200 ${
               digit
                 ? "bg-saffron-50 border-saffron-500 text-saffron-700"
                 : "bg-card border-sand-200 text-ink"
