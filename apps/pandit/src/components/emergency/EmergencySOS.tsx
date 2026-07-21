@@ -121,7 +121,9 @@ export default function EmergencySOS() {
       // canon frame 33 screen bg
       style={{ background: 'radial-gradient(120% 60% at 50% 30%,#FFF4EC,#FFF9EE 60%)' }}
     >
-      <Header festive title="आपातकालीन सहायता" showBack onBack={() => router.back()} />
+      {/* canon frame 25 draws NO header at all; the plain row (bg-transparent
+          over the radial field) keeps the escape route — flagged deviation. */}
+      <Header title="आपातकालीन सहायता" showBack onBack={() => router.back()} className="bg-transparent" />
 
       {/* canon frame 33 body: padding 20px 24px 26px, hero centred with the
           bottom action rows pinned under it */}

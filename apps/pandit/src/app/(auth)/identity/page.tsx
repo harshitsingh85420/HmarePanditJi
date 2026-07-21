@@ -72,7 +72,7 @@ export default function IdentityConfirmationPage() {
 
   return (
     <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
-      <Header festive title="परिचय" showBack onBack={() => router.back()} />
+      <Header title="परिचय" showBack onBack={() => router.back()} />
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto px-4 pt-3 pb-6 flex flex-col">

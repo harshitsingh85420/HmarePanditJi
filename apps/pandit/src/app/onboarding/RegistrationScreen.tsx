@@ -114,13 +114,24 @@ export default function RegistrationScreen({ onBack }: { onBack: () => void }) {
     return <CelebrationLite onDone={() => router.push("/home")} />;
   }
 
-  const title = returning ? t("registration.titleComplete") : t("registration.titleNew");
   const cta = returning ? t("registration.completeBtn") : t("registration.createBtn");
   const narration = returning ? t("registration.voiceComplete") : t("registration.voiceNew");
 
   return (
-    <div className="h-[100dvh] bg-cream text-ink flex flex-col max-w-[430px] mx-auto w-full">
-      <Header title={title} festive showBack onBack={onBack} />
+    <div className="h-[100dvh] bg-cream text-ink flex flex-col max-w-[430px] mx-auto w-full relative">
+      {/* canon frame 6: the garland is the ONLY chrome — the 28/900 hero
+          heading below is the title. Canon omits the back control; kept as a
+          floating canon back-circle (no-dead-ends law) — flagged deviation. */}
+      <Header variant="garland" />
+      <button
+        onClick={onBack}
+        aria-label={t("common.back")}
+        className="absolute left-3 top-[64px] z-20 w-[52px] h-[52px] min-h-[52px] min-w-[52px] rounded-full bg-card shadow-card flex items-center justify-center active:scale-90 transition-all focus:outline-none focus:ring-2 focus:ring-saffron-200"
+      >
+        <span className="material-symbols-outlined text-[24px] leading-none text-saffron-700" aria-hidden="true">
+          arrow_back
+        </span>
+      </button>
       {/* S3: the narration ends on the create-account instruction */}
       <Narrate text={narration} highlightRef={submitRef} />
 
@@ -189,14 +200,18 @@ export default function RegistrationScreen({ onBack }: { onBack: () => void }) {
         )}
       </main>
 
-      <footer className="shrink-0 bg-white border-t border-saffron-100 flex items-end p-3 gap-3">
-        <div className="flex-1" ref={submitRef}>
+      <footer className="shrink-0 px-3 pt-3 pb-0">
+        <div ref={submitRef}>
           <Button variant="primary" size="lg" fullWidth className="text-[22px] font-extrabold" onClick={handleSubmit} loading={submitting}>
             {cta}
           </Button>
         </div>
-        <ShishyaOrb />
       </footer>
+      {/* canon frame 6: शिष्य in his own centered strip BELOW the CTA
+          (padding 0 0 14px), size 60, ribbon "बाकी सब मैं देख लूँगा 🙏" */}
+      <div className="shrink-0 flex justify-center pb-[14px] pt-2">
+        <ShishyaOrb size={60} say={t("registration.say")} />
+      </div>
     </div>
   );
 }

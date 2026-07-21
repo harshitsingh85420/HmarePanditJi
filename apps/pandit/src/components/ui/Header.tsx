@@ -11,55 +11,98 @@ function cn(...inputs: (string | undefined | false | null)[]) {
   return twMerge(clsx(inputs));
 }
 
+// ─────────────────────────────────────────────────────────────
+// HEADER — canon has exactly four top-of-screen treatments and the old
+// saffron banner + 14px bead-strip was NONE of them (it appears in zero of
+// the 41 artboards — Isj's proof pair, 2026-07-21). This component now
+// renders the three canon treatments; "nothing" is simply not mounting it.
+//
+//   variant="row"     (canon A) — plain back-row on the cream field: a
+//     #FFFDF8 shadowed back circle (canon 42px, floored to the 52px tap
+//     target) + the title 19/900 #341A13 + an optional right slot (status
+//     pill etc). Used by detail/wizard screens (frames 10, 13-16, 18a-d).
+//   variant="title"   (canon B) — plain title block: 24/900 #341A13 at
+//     padding 8px 18px 4px, optional 15px sub-line (canon 14 → label floor)
+//     and an optional right control (frames 11, 12, 19-23, 27).
+//     `showBack` here is a NAVIGATION-SAFETY deviation: canon omits the
+//     back on these frames, but a screen with no other escape keeps the
+//     canon back-circle rather than stranding the pandit (no-dead-ends law).
+//   variant="garland" (canon C) — the full 58px hanging marigold Toran,
+//     nothing else (frames 1-3, 6, 24).
+// ─────────────────────────────────────────────────────────────
+
 export interface HeaderProps {
-  title: React.ReactNode;
+  variant?: "row" | "title" | "garland";
+  title?: React.ReactNode;
+  /** variant="title" only: the 15px hint line under the title (canon 14/700 #8A6F5C). */
+  sub?: React.ReactNode;
   showBack?: boolean;
   onBack?: () => void;
   rightSlot?: React.ReactNode;
   className?: string;
-  /** प्रथम आरती band: genda→sindoor gradient (entry/auth screens). */
-  festive?: boolean;
 }
 
-export function Header({ title, showBack = false, onBack, rightSlot, className, festive = false }: HeaderProps) {
+function BackCircle({ onBack }: { onBack: () => void }) {
+  return (
+    <button
+      onClick={onBack}
+      aria-label={t("common.back")}
+      /* canon: 42px #FFFDF8 circle, 0 2px 8px rgba(90,46,32,.12), 22px
+         arrow_back in #7A250E — box floored to the 52px tap target. */
+      className="w-[52px] h-[52px] min-h-[52px] min-w-[52px] shrink-0 rounded-full bg-card shadow-card flex items-center justify-center active:scale-90 transition-all focus:outline-none focus:ring-2 focus:ring-saffron-200"
+    >
+      <span className="material-symbols-outlined text-[24px] leading-none text-saffron-700" aria-hidden="true">
+        arrow_back
+      </span>
+    </button>
+  );
+}
+
+export function Header({
+  variant = "row",
+  title,
+  sub,
+  showBack = false,
+  onBack,
+  rightSlot,
+  className,
+}: HeaderProps) {
   const router = useRouter();
   const handleBack = onBack ?? (() => router.back());
-  return (
-    <header className={cn("sticky top-0 z-30", className)}>
-      <div className={cn(
-        "h-16 min-h-[56px] px-4 flex items-center justify-between gap-4",
-        festive ? "bg-gradient-to-r from-genda to-saffron-500" : "bg-saffron-500",
-      )}>
-      {/* Left Back Button Slot — collapses when there is no back button so the
-          title gets the space instead of ellipsizing */}
-      <div className={showBack ? "w-14 flex items-center justify-start flex-shrink-0" : "hidden"}>
-        {showBack && (
-          <button
-            onClick={handleBack}
-            className="w-14 h-14 min-h-[56px] min-w-[56px] flex items-center justify-center active:scale-90 transition-all focus:outline-none focus:ring-2 focus:ring-saffron-200 rounded-full"
-            aria-label={t("common.back")}
-          >
-            {/* UNIVERSAL BACK LAW: 48px circle, card bg, 1px sand border, ← 24px ink */}
-            <span className="w-12 h-12 rounded-full bg-card border border-saffron-200 shadow-card flex items-center justify-center text-[24px] text-ink" aria-hidden="true">
-              ←
-            </span>
-          </button>
-        )}
-      </div>
 
-      {/* Center Title */}
-      <h1 className="t-title font-bold text-center truncate flex-grow text-[#FFE8D2]">
-        {title}
-      </h1>
+  if (variant === "garland") {
+    return (
+      <header className={cn("shrink-0", className)}>
+        <Toran variant="garland" count={11} />
+      </header>
+    );
+  }
 
-      {/* Right Voice Toggle Slot — min-width keeps the title centered for the
-          default single button, but the slot may grow (e.g. home passes two) */}
-      <div className="min-w-14 flex items-center justify-end flex-shrink-0">
-        {/* शिष्य (footer orb) owns the voice control; keep the slot for balance */}
-        {rightSlot !== undefined ? rightSlot : <span className="w-14" aria-hidden="true" />}
+  if (variant === "title") {
+    return (
+      <header className={cn("sticky top-0 z-30 bg-cream shrink-0", className)}>
+        <div className="flex items-center gap-3 px-[18px] pt-2 pb-1">
+          {showBack && <BackCircle onBack={handleBack} />}
+          <div className="flex-1 min-w-0">
+            <div className="text-[24px] font-black text-temple-700 font-hindi truncate">{title}</div>
+            {sub != null && (
+              <div className="text-[15px] font-bold text-softgrey font-hindi mt-0.5">{sub}</div>
+            )}
+          </div>
+          {rightSlot}
         </div>
+      </header>
+    );
+  }
+
+  // variant="row" (canon A)
+  return (
+    <header className={cn("sticky top-0 z-30 bg-cream shrink-0", className)}>
+      <div className="flex items-center gap-3 px-4 py-2">
+        {showBack && <BackCircle onBack={handleBack} />}
+        <span className="text-[19px] font-black text-temple-700 font-hindi truncate">{title}</span>
+        {rightSlot != null && <div className="ml-auto shrink-0">{rightSlot}</div>}
       </div>
-      <Toran tone="onSindoor" className="bg-saffron-500" />
     </header>
   );
 }

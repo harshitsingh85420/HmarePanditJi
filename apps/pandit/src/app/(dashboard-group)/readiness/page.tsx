@@ -600,7 +600,7 @@ export default function ReadinessPage() {
 
   return (
     <div className="h-[100dvh] bg-cream text-ink flex flex-col max-w-[430px] mx-auto w-full">
-      <Header title={stepTitles[step - 1]} festive showBack onBack={goBack} />
+      <Header title={stepTitles[step - 1]} showBack onBack={goBack} />
       {/* S3: steps whose narration ends on the advance-ask glow the आगे
           button; R2's yes/no question highlights nothing. */}
       <Narrate

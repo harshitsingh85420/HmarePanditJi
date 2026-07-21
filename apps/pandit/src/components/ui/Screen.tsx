@@ -27,6 +27,9 @@ export interface ScreenProps {
   showBack?: boolean;
   onBack?: () => void;
   headerRightSlot?: React.ReactNode;
+  /** Canon header treatment (see Header): "row" back-row (default), "title"
+      title block, "garland" the Toran strand. */
+  headerVariant?: "row" | "title" | "garland";
   /** Optional banner strip below the header (status/verification). */
   banner?: React.ReactNode;
   children: React.ReactNode;
@@ -44,6 +47,7 @@ export function Screen({
   showBack,
   onBack,
   headerRightSlot,
+  headerVariant = "row",
   banner,
   children,
   footer,
@@ -54,7 +58,7 @@ export function Screen({
   return (
     <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
       {withHeader && (
-        <Header title={title ?? ""} showBack={showBack} onBack={onBack} rightSlot={headerRightSlot} />
+        <Header variant={headerVariant} title={title ?? ""} showBack={showBack} onBack={onBack} rightSlot={headerRightSlot} />
       )}
       {banner}
       <main className={cn("flex-1 overflow-y-auto px-4 pt-3 pb-6", mainClassName)}>

@@ -93,7 +93,21 @@ export default function ProfileViewPage() {
 
   return (
     <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
-      <Header title={t("profileView.title")} showBack onBack={() => router.push("/settings")} />
+      {/* canon frame 24: the garland is the ONLY chrome (no title bar). Canon
+          omits the back; kept as a canon back-circle row under the garland
+          (no-dead-ends law) — flagged deviation. */}
+      <Header variant="garland" />
+      <div className="shrink-0 px-3 pt-1.5">
+        <button
+          onClick={() => router.push("/settings")}
+          aria-label={t("common.back")}
+          className="w-[52px] h-[52px] min-h-[52px] min-w-[52px] rounded-full bg-card shadow-card flex items-center justify-center active:scale-90 transition-all focus:outline-none focus:ring-2 focus:ring-saffron-200"
+        >
+          <span className="material-symbols-outlined text-[24px] leading-none text-saffron-700" aria-hidden="true">
+            arrow_back
+          </span>
+        </button>
+      </div>
       <main className="flex-1 overflow-y-auto px-4 pt-1.5 pb-24 flex flex-col gap-[15px] page-enter">
         <Narrate text={t("profileView.title")} />
 

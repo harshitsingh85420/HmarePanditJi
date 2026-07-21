@@ -297,7 +297,6 @@ export default function LoginPage() {
           arrow (edit the number), as does re-auth outside the flow. */}
       <Header
         title={t("auth.unifiedTitle")}
-        festive
         showBack={step === 2}
         onBack={() => {
           setStep(1);

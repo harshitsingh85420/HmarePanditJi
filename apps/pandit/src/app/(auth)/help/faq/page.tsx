@@ -26,7 +26,7 @@ export default function FaqPage() {
 
   return (
     <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
-      <Header festive title={hi.faq.title} showBack onBack={() => router.back()} />
+      <Header title={hi.faq.title} showBack onBack={() => router.back()} />
 
       <main className="flex-1 overflow-y-auto px-4 pt-4 pb-6 flex flex-col gap-4 page-enter">
         {/* LAW > CANON: canon's caption row is 15px; the 18sp body floor wins. */}

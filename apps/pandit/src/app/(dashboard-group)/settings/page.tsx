@@ -128,11 +128,9 @@ export default function SettingsPage() {
 
   return (
     <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
-      <Header
-        title={t("settings.title")}
-        showBack
-        onBack={() => router.push("/home")}
-      />
+      {/* canon frame 22: plain title block "⚙️ सेटिंग", no back (home's gear
+          leads here; BottomNav below is the escape). */}
+      <Header variant="title" title={`⚙️ ${t("settings.title")}`} />
 
       {/* canon list well: padding 10px 16px 16px, gap 11px (pb keeps BottomNav clear) */}
       <main className="flex-1 overflow-y-auto px-4 pt-[10px] pb-24 flex flex-col gap-[11px] page-enter">

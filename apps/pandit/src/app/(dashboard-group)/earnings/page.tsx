@@ -119,7 +119,9 @@ export default function EarningsPage() {
   return (
     <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
       {/* HEADER */}
-      <Header title={t("earnings.title")} showBack onBack={() => router.push("/home")} />
+      {/* canon frame 19: plain title block "💰 कमाई". No back — BottomNav is
+          the escape. */}
+      <Header variant="title" title={`💰 ${t("earnings.title")}`} />
 
       {/* INTRO VOICE NARRATOR ON MOUNT */}
       <Narrate text={t("earnings.introVoice")} />
