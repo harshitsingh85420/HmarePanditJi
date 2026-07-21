@@ -683,6 +683,14 @@ body {
   animation: pa-toran-strand-sway 3.4s ease-in-out infinite;
 }
 
+/* canon g-glowring — a gold ring swelling off a hero control (box-shadow in
+   canon; rebuilt as a transform/opacity ring for the animation law) */
+@keyframes pa-glowring {
+  0%   { box-shadow: 0 0 0 0 rgba(231, 181, 74, 0.55); }
+  100% { box-shadow: 0 0 0 14px rgba(231, 181, 74, 0); }
+}
+.pa-glowring { animation: pa-glowring 2.2s ease-in-out infinite; }
+
 /* शिष्य's speaking ribbon pops in (canon Shishya.dc.html sh-ribbon) */
 @keyframes pa-sh-ribbon {
   0%   { opacity: 0; transform: translateY(6px); }
@@ -729,7 +737,7 @@ body {
   .pa-cdiya-flame, .pa-cdiya-core, .pa-cdiya-glow, .shishya-breathe-halo, .online-dot,
   .pa-burst-petal, .pa-bell-swing, .pa-bounce-once, .pa-arrow-bounce, .pa-tap-hint,
   .pa-toran-strand, .shishya-breathe, .pa-thali-ripple,
-  .pa-sh-ribbon, .pa-map-ring, .pa-map-bounce {
+  .pa-sh-ribbon, .pa-map-ring, .pa-map-bounce, .pa-glowring {
     animation: none !important;
   }
   /* Drifting/bursting petals + the ripple ring have no sensible static state */

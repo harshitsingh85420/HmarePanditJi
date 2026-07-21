@@ -86,9 +86,10 @@ export default function TutorialShell({
             className="min-h-[52px] min-w-[52px] flex items-center justify-center active:scale-90 transition-transform shrink-0 rounded-full"
             aria-label={translations.back}
           >
-            {/* UNIVERSAL BACK LAW: 48px circle, card bg, sand border, ← ink */}
-            <span className="w-12 h-12 rounded-full bg-card border border-saffron-200 shadow-card flex items-center justify-center text-[24px] text-ink" aria-hidden="true">
-              ←
+            {/* UNIVERSAL BACK LAW: 48px circle, card bg, sand border —
+                canon's back glyph is always Material arrow_back, never ← */}
+            <span className="w-12 h-12 rounded-full bg-card border border-saffron-200 shadow-card flex items-center justify-center" aria-hidden="true">
+              <span className="material-symbols-outlined text-[24px] leading-none text-saffron-700">arrow_back</span>
             </span>
           </button>
         ) : (
@@ -119,7 +120,8 @@ export default function TutorialShell({
                 key={index}
                 className={`rounded-full shrink-0 ${
                   lit
-                    ? `bg-orb-diya ${hero ? "shadow-glow-genda-sm" : "shadow-glow-genda-sm"}`
+                    ? // canon: active dot glow 8px (frames 5a-5e); hero dots 7px
+                      `bg-orb-diya ${hero ? "shadow-glow-genda-sm" : "shadow-glow-genda"}`
                     : "bg-sand-300"
                 }`}
                 style={{ width: size, height: size }}
@@ -136,16 +138,25 @@ export default function TutorialShell({
               aria-disabled={nextDisabled}
               className={
                 hero
-                  ? // canon 9: min-height 66, bg-sindoor 180deg, 23px/900, gap 11, shadow-btn-hero
-                    "w-full min-h-[66px] bg-sindoor text-chandan shadow-btn-hero rounded-cta flex items-center justify-center text-[23px] font-black gap-[11px] font-hindi active:scale-95 transition-transform disabled:opacity-60 disabled:active:scale-100"
-                  : // canon 4-8: min-height 60, #B23A1A, 20px/800, radius 18, shadow-btn
+                  ? // canon 5f: min-height 66, bg-sindoor 180deg, 23px/900, gap 11,
+                    // shadow-btn-hero, g-glowring pulse
+                    "relative w-full min-h-[66px] bg-sindoor text-chandan shadow-btn-hero rounded-cta flex items-center justify-center text-[23px] font-black gap-[11px] font-hindi active:scale-95 transition-transform disabled:opacity-60 disabled:active:scale-100"
+                  : // canon 5a-5e: min-height 60, #B23A1A, 20px/800, radius 18, shadow-btn
                     "w-full min-h-[60px] bg-saffron-500 text-chandan shadow-btn rounded-cta flex items-center justify-center text-[20px] font-extrabold gap-2 font-hindi active:scale-95 transition-transform disabled:opacity-60 disabled:active:scale-100"
               }
             >
               {hero && (
-                <span className="text-[28px] leading-none" aria-hidden="true">
-                  🎉
-                </span>
+                <>
+                  {/* canon g-glowring as a transform/opacity ring (A12-safe) */}
+                  <span
+                    className="pa-glowring absolute inset-0 rounded-cta pointer-events-none motion-reduce:hidden"
+                    aria-hidden="true"
+                  />
+                  {/* canon draws Material 'celebration', not the 🎉 emoji */}
+                  <span className="material-symbols-outlined text-[28px] leading-none" aria-hidden="true">
+                    celebration
+                  </span>
+                </>
               )}
               {label}
             </button>

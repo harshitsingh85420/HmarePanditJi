@@ -42,9 +42,10 @@ import { PetalBurst } from "@/components/moments/SlideCanvas";
 import { PopupPointer } from "@/components/moments/PopupPointer";
 import { MoneyCount } from "@/components/moments/MoneyCount";
 import { Diya } from "@/components/ui/Diya";
+import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
 import { Button } from "@/components/ui/Button";
 import { CoachSpotlight } from "@/components/moments/CoachSpotlight";
-import { useReduced, still, cardSlideIn, stampIn, breathe } from "@/lib/motion";
+import { useReduced, still, breathe } from "@/lib/motion";
 
 // Slide count lives in lib/onboarding-store so light pages (login back
 // law) can target the CTA slide without bundling the tutorial chunk.
@@ -61,6 +62,12 @@ interface SlideDef {
   // never its position. See IDENTITY LAW above.
   interactive?: "mic" | "mute";
   role?: "bell" | "cta";
+  // canon on-screen text: a short CAPTION (+ optional sub) — canon frames
+  // never print the narration paragraph; explanation is voice-only.
+  // caption=null → the scene draws its own heading (5a कमाई).
+  caption?: string | null;
+  sub?: string | null;
+  captionClass?: string;
 }
 
 // ── canon type ramp for the caption pair under every scene ───
@@ -97,6 +104,8 @@ function SceneKamai() {
     <div className="flex flex-col items-center gap-3">
       {/* canon: CountUp 48px #155C34, 1800ms */}
       <MoneyCount target={52400} durationMs={1800} className="text-[48px] font-black text-leaf-700" />
+      {/* canon 5a: the heading sits BETWEEN the count and the coin stage */}
+      <div className="text-[22px] font-extrabold text-saffron-700 font-hindi">{t("tutorial.capKamai")}</div>
       {/* canon stage: 230×170, coins behind the thali rim */}
       <div className="relative w-[230px] h-[170px] mt-1.5" aria-hidden="true">
         {CANON_COINS.map((c, i) => (
@@ -152,9 +161,10 @@ function SceneBooking() {
       <span className="pa-bell-swing text-[52px] leading-none select-none" aria-hidden="true">🔔</span>
       <motion.div
         className="w-full bg-card border-2 border-saffron-200 border-l-8 border-l-saffron-500 rounded-cta py-4 px-[18px] flex flex-col gap-1.5 shadow-lift"
-        variants={reduced ? still(cardSlideIn) : cardSlideIn}
-        initial="hidden"
-        animate="show"
+        // canon g-cardslide LOOPS every 3s (slide in → hold → repeat)
+        initial={reduced ? { x: 0, opacity: 1 } : { x: "115%", opacity: 0 }}
+        animate={reduced ? { x: 0, opacity: 1 } : { x: ["115%", "0%", "0%"], opacity: [0, 1, 1] }}
+        transition={reduced ? undefined : { duration: 3, repeat: Infinity, ease: "easeOut", times: [0, 0.24, 1] }}
       >
         <div className="flex items-center justify-between gap-2">
           <span className="text-[20px] font-black text-saffron-700 font-hindi">गृह प्रवेश पूजा</span>
@@ -162,7 +172,8 @@ function SceneBooking() {
           <span className="text-[15px] font-extrabold text-saffron-500 bg-saffron-50 px-2.5 py-1 rounded-chip font-hindi shrink-0">नई</span>
         </div>
         <div className="flex items-center gap-2 text-[18px] font-semibold text-temple-700 font-hindi">
-          <span className="text-[20px] leading-none" aria-hidden="true">📅</span>
+          {/* canon draws Material 'event', not the 📅 emoji */}
+          <span className="material-symbols-outlined text-[20px] leading-none text-softgrey" aria-hidden="true">event</span>
           कल · सुबह 9:00
         </div>
         <div className="flex items-center justify-between mt-1 gap-2">
@@ -198,40 +209,24 @@ function SoundWaves() {
   );
 }
 
-// canon's Shishya illustration is a component the app does not have yet
-// (see sharedNeeded). Until it lands, the orb is drawn from the same
-// genda radial canon uses for every lit object, at canon's sizes.
-function ShishyaGlyph({ size, asleep = false }: { size: number; asleep?: boolean }) {
-  return (
-    <span
-      className={`relative rounded-full bg-orb-diya flex items-center justify-center shrink-0 ${asleep ? "grayscale opacity-60" : "shadow-glow-genda-sm"}`}
-      style={{ width: size, height: size }}
-      aria-hidden="true"
-    >
-      <span className="leading-none select-none" style={{ fontSize: Math.round(size * 0.5) }}>🙏</span>
-      {asleep && (
-        <span className="absolute -top-1 -right-1 text-[22px] leading-none">💤</span>
-      )}
-    </span>
-  );
-}
-
-// शिष्य जगाएँ — canon 6: asleep orb → floating tap hint → awake orb.
+// शिष्य जगाएँ — canon 5c: the REAL Shishya in his asleep and speaking
+// states (demoState — illustration, never the live voice control), with
+// canon's floating touch_app + arrow_forward column between them.
 function SceneSleep() {
   const reduced = useReduced();
   return (
     <div className="flex items-center gap-3.5">
-      <ShishyaGlyph size={76} asleep />
+      <ShishyaOrb size={76} showLabel={false} demoState="asleep" />
       <motion.div
         className="flex flex-col items-center gap-1"
         animate={reduced ? undefined : { y: [0, -9, 0] }}
         transition={reduced ? undefined : { duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
         aria-hidden="true"
       >
-        <span className="text-[30px] leading-none text-saffron-500">👆</span>
-        <span className="text-[26px] leading-none text-gold">→</span>
+        <span className="material-symbols-outlined text-[30px] leading-none text-saffron-500">touch_app</span>
+        <span className="material-symbols-outlined text-[26px] leading-none text-gold">arrow_forward</span>
       </motion.div>
-      <ShishyaGlyph size={76} />
+      <ShishyaOrb size={76} showLabel={false} demoState="speaking" />
     </div>
   );
 }
@@ -260,13 +255,17 @@ function SceneVerify() {
         <span className="w-2 h-2 rounded-full" style={{ backgroundColor: "#FF3B30" }} />
         REC
       </span>
-      {/* the stamp */}
+      {/* the stamp — canon g-stamp LOOPS at 3.2s (land → hold → fade → re-land) */}
       <motion.span
         className="absolute top-1/2 left-1/2 w-[78px] h-[78px] rounded-full bg-leaf-500 border-4 border-chandan flex items-center justify-center"
         style={{ x: "-50%", y: "-50%", boxShadow: "0 8px 20px rgba(0,0,0,.4)" }}
-        variants={reduced ? still(stampIn) : stampIn}
-        initial="hidden"
-        animate="show"
+        initial={reduced ? { scale: 1, rotate: -8, opacity: 1 } : { scale: 2.6, rotate: -24, opacity: 0 }}
+        animate={
+          reduced
+            ? { scale: 1, rotate: -8, opacity: 1 }
+            : { scale: [2.6, 1, 1, 1], rotate: [-24, -8, -8, -8], opacity: [0, 1, 1, 0] }
+        }
+        transition={reduced ? undefined : { duration: 3.2, repeat: Infinity, ease: "easeInOut", times: [0, 0.18, 0.82, 1] }}
       >
         <svg width="46" height="46" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path d="M4.5 12.5l5 5 10-11" stroke="#FFF6E9" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" />
@@ -322,12 +321,23 @@ function SceneWelcome() {
 // strings.tutorial (spoken explanation); on-screen text stays ≤10 words.
 function slideDefs(): SlideDef[] {
   return [
-    { title: t("tutorial.slide2Title"), narration: t("tutorial.slide2"), visual: () => <SceneKamai /> },
-    { title: t("tutorial.slide6Title"), narration: t("tutorial.slide6"), visual: () => <SceneBooking />, role: "bell" },
-    { title: t("tutorial.slide3Title"), narration: t("tutorial.slide3"), visual: () => <SceneSleep />, interactive: "mute" },
-    { title: t("tutorial.slide5Title"), narration: t("tutorial.slide5"), visual: null, interactive: "mic" },
-    { title: t("tutorial.slide12Title"), narration: t("tutorial.slide12"), visual: () => <SceneVerify /> },
-    { title: t("tutorial.slide14Title"), narration: `${t("tutorial.slide14")} ${t("tutorial.rewatchNote")}`, visual: () => <SceneWelcome />, role: "cta" },
+    // 5a कमाई — the heading lives INSIDE the scene (between count and stage)
+    { title: t("tutorial.slide2Title"), narration: t("tutorial.slide2"), visual: () => <SceneKamai />, caption: null },
+    // 5b नई बुकिंग — caption below the card; 🔔 is canon's own emoji
+    { title: t("tutorial.slide6Title"), narration: t("tutorial.slide6"), visual: () => <SceneBooking />, role: "bell",
+      caption: t("tutorial.capBooking"), captionClass: "text-[22px] font-extrabold text-saffron-700 font-hindi leading-tight" },
+    // 5c शिष्य जगाएँ
+    { title: t("tutorial.slide3Title"), narration: t("tutorial.slide3"), visual: () => <SceneSleep />, interactive: "mute",
+      caption: t("tutorial.capSleep"), sub: t("tutorial.subSleep"), captionClass: "text-[23px] font-black text-saffron-700 font-hindi leading-tight" },
+    // 5d आवाज़ (the mic frame)
+    { title: t("tutorial.slide5Title"), narration: t("tutorial.slide5"), visual: null, interactive: "mic",
+      caption: t("tutorial.capMic") },
+    // 5e सत्यापन — the ONE green caption
+    { title: t("tutorial.slide12Title"), narration: t("tutorial.slide12"), visual: () => <SceneVerify />,
+      caption: t("tutorial.capVerify"), sub: t("tutorial.subVerify"), captionClass: "text-[24px] font-black text-leaf-700 font-hindi leading-tight" },
+    // 5f स्वागत
+    { title: t("tutorial.slide14Title"), narration: `${t("tutorial.slide14")} ${t("tutorial.rewatchNote")}`, visual: () => <SceneWelcome />, role: "cta",
+      caption: t("tutorial.capWelcome"), sub: t("tutorial.subWelcome") },
   ];
 }
 
@@ -640,8 +650,9 @@ export default function TutorialV2({
       >
         <div className="flex flex-col items-center gap-4 text-center">
           <Stage>{def.visual?.()}</Stage>
-          <h2 className={CAPTION_HERO}>{def.title}</h2>
-          <p className={SUBCAPTION}>{def.narration}</p>
+          {/* canon 5f: caption + one-line sub — narration is voice-only */}
+          <h2 className={CAPTION_HERO}>{def.caption ?? def.title}</h2>
+          {def.sub && <p className={SUBCAPTION}>{def.sub}</p>}
           {stay ? (
             <p className={SUBCAPTION}>{t("tutorial.laterLine")}</p>
           ) : (
@@ -673,7 +684,8 @@ export default function TutorialV2({
               // 78px sindoor mic disc. The disc IS the tap target for the
               // permission ladder / practice (78px ≫ the 52px floor).
               <div className="w-full flex flex-col items-center gap-4">
-                <ShishyaGlyph size={82} />
+                {/* canon 5d: the REAL Shishya, listening, size 82 */}
+                <ShishyaOrb size={82} showLabel={false} demoState="listening" />
                 {micState === "denied" ? (
                   <div className="w-full max-w-[300px] flex flex-col items-center gap-3">
                     <span className={SUBCAPTION}>{t("tutorial.slide5Denied")}</span>
@@ -735,8 +747,13 @@ export default function TutorialV2({
           </Stage>
           {burst && <PetalBurst onEnd={() => setBurst(false)} />}
         </div>
-        <h2 className={CAPTION}>{def.title}</h2>
-        <p className={SUBCAPTION}>{def.narration}</p>
+        {/* canon 5a-5e: a short caption (+ optional sub) — never the
+            narration paragraph; the explanation is voice-only (TTS). A
+            null caption means the scene draws its own heading (5a). */}
+        {def.caption !== null && (
+          <h2 className={def.captionClass ?? CAPTION}>{def.caption ?? def.title}</h2>
+        )}
+        {def.sub && <p className={SUBCAPTION}>{def.sub}</p>}
 
         {/* Arrow + chip pointing at the NATIVE permission popup (आवाज़) */}
         {pointerUp && <PopupPointer />}

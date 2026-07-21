@@ -594,9 +594,22 @@ export const hi = {
     slidePoojasTitle: "अपनी पूजाएँ बढ़ाइए",
     slidePoojas: "आगे चलकर नई पूजा जोड़नी हो — प्रोफ़ाइल में जाइए, मेरी पूजाएँ, और नई पूजा जोड़िए दबाइए। दक्षिणा तय कीजिए, बस। सत्यापन के बाद वह पूजा भी बुक होने लगेगी।",
     rewatchNote: "यह पाठ आप कभी भी मदद वाले हिस्से से दोबारा देख सकते हैं।",
+    // ── canon on-screen captions (frames 5a-5f) — canon shows CAPTIONS,
+    // never the narration paragraph; explanation is voice-only. Register
+    // law applied where canon copy was casual (छूकर→स्पर्श, करें→कीजिए).
+    capKamai: "आपकी कमाई",
+    capBooking: "नई बुकिंग आई! 🔔",
+    capSleep: "स्पर्श कर जगाइए",
+    subSleep: "आराम के समय वह सो जाता है",
+    capMic: "बस बोलिए 🎤",
+    capVerify: "✓ प्रमाणित",
+    subVerify: "एक छोटा वीडियो, और भरोसा तैयार",
+    capWelcome: "अब आपकी बारी! 🎉",
+    subWelcome: "शिष्य हर कदम आपके साथ है 🙏",
     slide14Title: "शुरू कीजिए?",
     slide14: "सब समझ गए? बस दो मिनट का रजिस्ट्रेशन बाकी है — नाम, शहर, आपकी पूजाएँ और दक्षिणा। शुरू कीजिए?",
-    registerNow: "रजिस्ट्रेशन शुरू कीजिए",
+    // canon frame 5f CTA "शुरू करें" → register law "शुरू कीजिए"
+    registerNow: "शुरू कीजिए",
     later: "बाद में",
     laterLine: "कोई बात नहीं पंडित जी। जब मन बने, नीचे बटन दबाकर पंजीकरण कीजिए। हम यहीं हैं।",
     advanceAsk: "आगे बढ़िए? 'हाँ' बोलिए।",

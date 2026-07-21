@@ -30,6 +30,7 @@ export function ShishyaOrb({
   size = "md",
   showLabel = true,
   say,
+  demoState,
 }: {
   className?: string;
   /** Canon-numeric px (56…118). Aliases: "md"→66 (footer dock), "lg"→118 (hero). */
@@ -40,6 +41,11 @@ export function ShishyaOrb({
       renders in-flow; when absent the ribbon appears only as the floated
       listening/processing fallback. */
   say?: string;
+  /** PRESENTATIONAL demo orb (canon tutorial frames 5c/5d draw Shishya in
+      forced states). When set: the live voiceController state is ignored,
+      the tap-to-sleep control is disabled, and no fallback ribbon renders —
+      it is an illustration, never the ONE voice control. */
+  demoState?: "asleep" | "speaking" | "listening";
 }) {
   const muted = useSyncExternalStore(
     voiceController.subscribe,
@@ -64,12 +70,18 @@ export function ShishyaOrb({
   );
   const [sleepToast, setSleepToast] = useState(false);
 
-  const asleep = muted;
+  // demoState short-circuits the live wiring (illustration, not control)
+  const demo = demoState != null;
+  const asleep = demo ? demoState === "asleep" : muted;
+  const isSpeaking = demo ? demoState === "speaking" : speaking;
+  const isListening = demo ? demoState === "listening" : listening;
+  const isProcessing = demo ? false : processing;
   // Boring-pass E: gently breathe only when awake and quiet — never over a
   // speaking/listening/processing state (those own their own motion).
-  const idle = !asleep && !speaking && !listening && !processing;
+  const idle = !asleep && !isSpeaking && !isListening && !isProcessing;
 
   const toggle = () => {
+    if (demo) return; // a demo orb never mutes the real शिष्य
     if (asleep) {
       // wake: greeting, then the controller re-narrates + loop resumes
       voiceController.setMuted(false);
@@ -87,8 +99,8 @@ export function ShishyaOrb({
   //   ribbonText = say || (listening ? 'सुन रहा हूँ…' : '') — processing is
   //   the app's J3d extension slotted into the same fallback chain.
   const fallbackText =
-    !asleep && (processing || listening)
-      ? processing
+    !demo && !asleep && (isProcessing || isListening)
+      ? isProcessing
         ? t("voiceLoop.understanding")
         : t("voiceLoop.listening")
       : "";
@@ -150,12 +162,15 @@ export function ShishyaOrb({
 
       <button
         onClick={toggle}
-        aria-label={asleep ? t("shishya.a11ySleep") : t("shishya.a11yAwake")}
-        className={`relative rounded-full flex items-center justify-center transition-all active:scale-95 ${
+        disabled={demo}
+        tabIndex={demo ? -1 : undefined}
+        aria-hidden={demo || undefined}
+        aria-label={demo ? undefined : asleep ? t("shishya.a11ySleep") : t("shishya.a11yAwake")}
+        className={`relative rounded-full flex items-center justify-center transition-all ${demo ? "" : "active:scale-95"} ${
           asleep
             ? // asleep keeps the grounding shadow but never glows
               "shishya-asleep shishya-orb-ground"
-            : listening
+            : isListening
             ? // the listen ring animation carries the grounding shadow itself
               "bg-saffron-500 border-4 border-gold shishya-listen-ring"
             : idle
@@ -167,7 +182,7 @@ export function ShishyaOrb({
         style={{ width: px, height: px, minWidth: px, minHeight: px }}
       >
         {/* SPEAKING ripples */}
-        {speaking && !asleep && (
+        {isSpeaking && !asleep && (
           <>
             <span className="shishya-ripple" aria-hidden="true" />
             <span className="shishya-ripple shishya-ripple-2" aria-hidden="true" />
