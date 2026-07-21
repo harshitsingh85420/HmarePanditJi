@@ -1,3 +1,10 @@
+/* Material Symbols — imported into a LAYER so Google's own
+   `.material-symbols-outlined{font-size:24px}` can never beat the app's
+   Tailwind text-[Npx] utilities (layered styles lose to unlayered author
+   styles regardless of load order). This fixes the app-wide glyph-size
+   clamp: before this, every canon glyph size silently rendered at 24px. */
+@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200") layer(vendor);
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -12,6 +19,12 @@
   letter-spacing: normal;
   word-wrap: normal;
   white-space: nowrap;
+}
+
+/* the 24px DEFAULT for unsized glyphs — :where() keeps specificity at zero
+   so any text-[Npx] utility (or inherited size) always wins */
+:where(.material-symbols-outlined) {
+  font-size: 24px;
 }
 
 .material-symbols-outlined.material-symbols-filled,

@@ -204,7 +204,7 @@ export default function ProfileViewPage() {
           {/* TRUTHFUL-STATE gates canon's heading: 'प्रमाणित पूजाएँ' is a
               claim — it renders only on a VERIFIED profile. */}
           <span className="text-[18px] font-extrabold text-softgrey font-hindi">
-            {profile?.verificationStatus === "VERIFIED" ? "प्रमाणित पूजाएँ" : t("profileView.pujas")}
+            {profile?.verificationStatus === "VERIFIED" ? t("profileView.pujasVerified") : t("profileView.pujas")}
           </span>
           {specializations.length === 0 ? (
             <span className="text-[18px] text-softgrey font-hindi">—</span>
