@@ -20,7 +20,7 @@ import { purgeUserData } from "@/lib/purgeUserData";
 // The logout row wears the red tint (#FBE7E3 / #E7B8AF / #fff tile) with a
 // 6px top gap, and canon gives it NO chevron — it is a terminal action, not
 // a drill-in. Pure presentation; each row keeps its own handler/href.
-export const SETTINGS_ROW_BASE =
+const SETTINGS_ROW_BASE =
   "rounded-[16px] px-4 py-[15px] min-h-[76px] flex items-center gap-[14px] active:scale-[0.97] transition-transform focus-visible:ring-4 focus-visible:ring-saffron-200 focus:outline-none";
 
 /** Canon's 46px r13 tile: #FDEEE7 with a 26px sindoor glyph — #fff with a
