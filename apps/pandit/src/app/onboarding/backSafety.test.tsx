@@ -34,7 +34,8 @@ vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams(),
 }));
 
-const NAME_PLACEHOLDER = "पंडित जी का नाम लिखें";
+// FOUNDER REGISTER LAW: the live placeholder is the -इए form
+const NAME_PLACEHOLDER = "पंडित जी का नाम लिखिए";
 
 /** the two inputs, addressed the way the pandit meets them */
 function fields() {

@@ -37,7 +37,7 @@
 | F02-06 | **Confirmation loop after every voice input:** "आपने कहा [X] — सही है?"; "नहीं" → re-input; "हाँ" → advance (edge #4: no silent acceptance, ever) | AUTO | ✅ built incl. menu choices |
 | F02-07 | Voice listen timeout ≥ 8s; elderly-flagged profiles get 12s (edge #3) | AUTO | 🟡 8s floor built + guarded (`listenTimeout.test.ts`, reconciled from hold/conformance-builds); elderly-12s awaits a profile elderly flag |
 | F02-08 | High ambient noise → proactively suggest keyboard (edge #2) | MANUAL | ❌ |
-| F02-09 | "पीछे जाओ" only navigates — **never deletes entered data**; deletion requires explicit "हटा दो" + double confirm (edge #8) | AUTO | 🟡 delete-grammar + double-confirm built; draft-persistence half on hold/conformance-builds |
+| F02-09 | "पीछे जाओ" only navigates — **never deletes entered data**; deletion requires explicit "हटा दो" + double confirm (edge #8) | AUTO | ✅ built — delete-grammar + double-confirm (f02DeleteConfirm.test.ts) AND draft-persistence (backSafety.test.tsx, reconciled from hold/conformance-builds af59930) |
 | F02-10 | Internet drop mid-input: buffer locally, show "सहेज रहे हैं…", retry on reconnect — input never silently lost (edge #7) | AUTO | ❌ |
 | F02-11 | Support path off-hours: show expected callback time + async WhatsApp option (edge #9) | AUTO (render) | ❌ |
 | F02-12 | Speech-impediment accessibility: keyboard offered prominently from 2nd failure; failures logged for audit (edge #1) | AUTO | 🟡 keyboard auto-opens at failure 3 (doc asks prominent-from-2nd); failures logged to debug only |
@@ -148,7 +148,7 @@
 | ID | Requirement & test expectation | Type | Status |
 |---|---|---|---|
 | F12-01 | Three tiers per pooja: Basic / Standard / Premium; Standard ⊇ Basic, Premium ⊇ Standard | AUTO (schema) | ✅ tiers exist |
-| F12-02 | **Every item carries quantity + company/brand name** | AUTO (schema) | ❌ brand field missing |
+| F12-02 | **Every item carries quantity + company/brand name** | AUTO (schema) | ✅ built — brand/company required on every write path (samagriItem.test.ts, reconciled from hold/conformance-builds 43b3404); SAMAGRI_BRAND_ANY escape for no-preference |
 | F12-03 | Supply-preference question: "क्या आप ये सारी सामग्री खुद ला सकते हैं?" हाँ/नहीं branches | AUTO | ✅ |
 | F12-04 | On "हाँ": the binding instruction is spoken — "जिस कंपनी का नाम बताया है, वही कंपनी का सामान लाना होगा" | AUTO (render/voice) | ❌ |
 
