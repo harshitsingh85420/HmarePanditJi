@@ -209,10 +209,13 @@ export const hi = {
     // F02-02/03/04: the three rungs, doc wording exact. Each is spoken AND
     // shown as written text (the walk proved voice-only fails when TTS parks).
     rung1: "माफ़ कीजिये, कृपया फिर से बोलिए।",
-    rung2: "कृपया धीरे और साफ़ बोलिए।",
-    rung3: "कोई बात नहीं — नीचे लिख दीजिए, या ‘सहायता चाहिए’ दबाकर हमसे बात कीजिए।",
+    // Ruling #9 / A: the failed-voice-attempt hooks also TEACH tap-repeat —
+    // "या शिष्य को स्पर्श कर फिर सुनिए" fires exactly when he's stuck (he just
+    // tried and it didn't work). Guarded by tapRepeatTeaching.test.ts.
+    rung2: "कृपया धीरे और साफ़ बोलिए — या शिष्य को स्पर्श कर फिर सुनिए।",
+    rung3: "कोई बात नहीं — नीचे लिख दीजिए, या शिष्य को स्पर्श कर फिर सुनिए, या ‘सहायता चाहिए’ दबाकर हमसे बात कीजिए।",
     helpBtn: "सहायता चाहिए",
-    unmatched: "समझ नहीं आया — फिर बोलिए",
+    unmatched: "समझ नहीं आया — फिर बोलिए, या शिष्य को स्पर्श कर फिर सुनिए।",
     ack: "बहुत अच्छा।",
     confirmAsk: "आपने कहा {value}। सही है? हाँ या नहीं बोलिए।",
     confirmRepeat: "सही है? हाँ या नहीं बोलिए।",

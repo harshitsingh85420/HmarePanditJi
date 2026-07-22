@@ -43,11 +43,29 @@ retire. The mic-release property was previously **unpinned**; it is now pinned
 (`shishyaOrbGesture.test.ts`). Sequencing note: speak-then-mute is clean, not
 awkward — the ~2s farewell is the going-quiet cue, then silence.
 
-### Open (flagged, not ruled)
+### Flag resolutions (Isj, 2026-07-22)
 
-The **voice** command "सो जाओ" still mutes directly (with a toast via VoiceRoot,
-no spoken farewell) — intentional voice muting, out of this ruling's scope.
-Consistency (also speak-then-mute) is a founder call.
+1. **Voice "सो जाओ" also speaks-then-mutes** — both mute entry points (the सुला
+   दें control AND the voice command) now route through `muteWithFarewell`. A
+   spoken command answered by silence read as "it didn't hear me". Resolved.
+2. **The सुला दें control is relocatable** — `muteControl="below" | "relocated"`
+   + standalone `<ShishyaMuteControl/>`; a build-failing guard enforces
+   MOVE-never-REMOVE. In `TutorialShell` it sits in the dots row, never beside
+   the CTA (thick-finger mis-tap). Hero screens await Isj's device pass.
+3. **Tap-repeat discoverability = option A only** (the failed-voice-attempt
+   hooks: F02 rung 2 + rung 3 + `voiceLoop.unmatched` all teach "या शिष्य को
+   स्पर्श कर फिर सुनिए"). The gesture-idle option **B was DROPPED** — the
+   frequency check showed it would fire on nearly every reading/idle screen
+   (narrate → pause > 12s is the universal pattern), which is the clutter it was
+   meant to avoid.
+
+### ACCEPTED GAP (2026-07-22, Isj)
+
+Option A only reaches a pandit who **SPEAKS**. One who is stuck **silently** —
+no tap, no voice — gets no tap-repeat hint. This is a **deliberate trade**: B
+was the fix for that moment, but its cost (persistent clutter on most screens)
+was too high. **Revisit only if Isj's device pass shows that silent-stuck moment
+is real.** Pinned by `tapRepeatTeaching.test.ts`.
 
 ### Reopening
 
