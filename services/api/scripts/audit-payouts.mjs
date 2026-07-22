@@ -20,12 +20,10 @@
 // have ALREADY sent wrong — are listed LOUDLY in their own section.
 // ─────────────────────────────────────────────────────────────
 
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { prisma } from "@hmarepanditji/db";
 
 const INR = (n) => `₹${Number(n ?? 0).toLocaleString("en-IN")}`;
-const isPaid = (s) => s === "COMPLETED" || s === "PAID";
+const isPaid = (s) => s === "PAID" || s === "COMPLETED";
 
 async function main() {
   if (!process.env.DATABASE_URL) {
@@ -33,21 +31,24 @@ async function main() {
     process.exit(1);
   }
 
-  const payouts = await prisma.payout.findMany({
-    orderBy: { createdAt: "asc" },
-    include: {
-      booking: {
-        select: { bookingNumber: true, createdAt: true, panditPayout: true, dakshinaAmount: true },
-      },
-    },
-  });
+  // Payout has only a scalar bookingId (no relation) — fetch the bookings
+  // separately and join in code.
+  const payouts = await prisma.payout.findMany({ orderBy: { createdAt: "asc" } });
+  const bookingIds = [...new Set(payouts.map((p) => p.bookingId).filter(Boolean))];
+  const bookings = bookingIds.length
+    ? await prisma.booking.findMany({
+        where: { id: { in: bookingIds } },
+        select: { id: true, bookingNumber: true, createdAt: true, panditPayout: true, dakshinaAmount: true },
+      })
+    : [];
+  const byId = new Map(bookings.map((b) => [b.id, b]));
 
   console.log(`\nPAYOUT INTEGRITY AUDIT — ${payouts.length} payout row(s) examined.\n`);
 
   const mismatches = [];
   const orphans = []; // payout with no booking (should not happen)
   for (const p of payouts) {
-    const b = p.booking;
+    const b = byId.get(p.bookingId);
     if (!b) { orphans.push(p); continue; }
     const stored = b.panditPayout;
     // A null/≤0 stored payout is its own anomaly (surfaced separately).
@@ -115,5 +116,10 @@ async function main() {
 }
 
 main()
-  .catch((e) => { console.error("audit failed:", e); process.exit(1); })
+  .catch((e) => {
+    // NEVER leak the connection string, even on a Prisma init/connect error.
+    const msg = String((e && e.message) || e).replace(/postgres(?:ql)?:\/\/\S+/gi, "[REDACTED-CONNSTR]");
+    console.error("audit failed:", msg);
+    process.exit(1);
+  })
   .finally(() => prisma.$disconnect());
