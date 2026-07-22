@@ -21,6 +21,7 @@ interface PayoutBooking {
   panditPayout: number;
   payoutStatus: "PENDING" | "COMPLETED" | "PAID";
   payoutCompletedAt: string;
+  storedPayoutMissing?: boolean;
   pandit: Pandit;
 }
 
@@ -92,9 +93,12 @@ export default function PayoutsPage() {
   });
 
   const pendingCount = bookings.filter(b => b.payoutStatus !== "COMPLETED" && b.payoutStatus !== "PAID").length;
+  // Do NOT sum rows whose stored payout is missing — a confident total built on
+  // an unverified figure is exactly what we're avoiding (founder 2026-07-22).
   const pendingTotalAmount = bookings
-    .filter(b => b.payoutStatus !== "COMPLETED" && b.payoutStatus !== "PAID")
+    .filter(b => b.payoutStatus !== "COMPLETED" && b.payoutStatus !== "PAID" && !b.storedPayoutMissing)
     .reduce((sum, b) => sum + (b.panditPayout || 0), 0);
+  const checkingCount = bookings.filter(b => b.storedPayoutMissing).length;
 
   const getAgeInDays = (completedAtStr: string) => {
     if (!completedAtStr) return 0;
@@ -184,7 +188,15 @@ export default function PayoutsPage() {
                         <div className="font-semibold text-slate-800">{b.eventType}</div>
                         <div className="text-xs text-slate-500 mt-0.5">{new Date(b.eventDate).toLocaleDateString()}</div>
                       </td>
-                      <td className="px-6 py-4 font-bold text-slate-900">₹{b.panditPayout?.toLocaleString("en-IN")}</td>
+                      <td className="px-6 py-4 font-bold text-slate-900">
+                        {b.storedPayoutMissing ? (
+                          <span className="inline-flex items-center gap-1 text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1 text-xs font-semibold" title="Stored payout missing — figure is being verified, do not pay yet">
+                            हिसाब जाँचा जा रहा है
+                          </span>
+                        ) : (
+                          <>₹{b.panditPayout?.toLocaleString("en-IN")}</>
+                        )}
+                      </td>
                       <td className="px-6 py-4">
                         {b.pandit?.upiId ? (
                           <div className="flex flex-col gap-1">
@@ -232,12 +244,16 @@ export default function PayoutsPage() {
                       </td>
                       {activeTab === "PENDING" && (
                         <td className="px-6 py-4 text-right">
-                          <button
-                            onClick={() => handleMarkPaid(b.id)}
-                            className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-3 py-1.5 rounded transition"
-                          >
-                            MARK PAID
-                          </button>
+                          {b.storedPayoutMissing ? (
+                            <span className="text-amber-700 text-xs font-semibold" title="Amount is being verified — cannot pay until resolved">Verifying…</span>
+                          ) : (
+                            <button
+                              onClick={() => handleMarkPaid(b.id)}
+                              className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-3 py-1.5 rounded transition"
+                            >
+                              MARK PAID
+                            </button>
+                          )}
                         </td>
                       )}
                     </tr>

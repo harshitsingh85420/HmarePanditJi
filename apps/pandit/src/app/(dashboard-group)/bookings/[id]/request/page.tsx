@@ -41,6 +41,7 @@ interface BookingDetail {
     platformFee: number;
     dakshinaNet: number;
     totalToPandit: number;
+    storedPayoutMissing?: boolean;
   };
 }
 
@@ -313,6 +314,15 @@ export default function BookingRequestPage() {
         <div className="bg-leaf-100 border-2 border-leafpale rounded-tile p-[15px]">
           <h4 className="sr-only">{t("booking.earningsTitle")}</h4>
 
+          {/* Founder 2026-07-22: when the stored payout is missing, the figure is
+              a flagged fallback (may be wrong for a legacy row) — show a neutral
+              "being checked" state, never a confident possibly-wrong number. */}
+          {booking.earnings?.storedPayoutMissing ? (
+            <div className="text-[15px] font-semibold text-leaf-700 font-hindi">
+              हिसाब जाँचा जा रहा है — जल्द ही सही राशि दिखेगी।
+            </div>
+          ) : (
+          <>
           {/* Dakshina row */}
           {booking.dakshinaAmount > 0 && (
             <div className="flex justify-between gap-3 text-[15px] font-semibold text-leaf-700 font-hindi mb-[6px]">
@@ -363,6 +373,8 @@ export default function BookingRequestPage() {
             <span className="text-[18px] font-black text-leaf-700 font-hindi">{t("booking.total")}</span>
             <MoneyCount target={total} className="text-[28px] font-black text-leaf-700" />
           </div>
+          </>
+          )}
         </div>
 
         {/* Global error screen */}

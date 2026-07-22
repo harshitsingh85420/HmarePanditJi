@@ -10,8 +10,15 @@ import { PLATFORM_FEE_PERCENT } from "../config/constants";
  *
  * NULL/ZERO SAFETY: a booking written before the panditPayout column existed
  * (null/≤0) falls back to the current-model value (dakshina + pass-throughs)
- * AND sets `storedPayoutMissing` so callers/logs can SURFACE the anomaly —
- * never silently recompute.
+ * AND sets `storedPayoutMissing` so callers can SURFACE the anomaly — never
+ * silently recompute.
+ *
+ * LIMITATION (why the flag matters): this fallback assumes the CURRENT model
+ * (100% = dakshina + pass-throughs). For a genuine OLD-era row that lost its
+ * stored payout, that OVERSTATES what was actually owed (it would show ~90% as
+ * 100%) — the exact error this function exists to prevent. So the fallback is a
+ * FLAGGED placeholder, not a trusted number: callers must render a neutral
+ * "हिसाब जाँचा जा रहा है" state (not the figure) whenever storedPayoutMissing.
  */
 export function earningsFromStored(booking: {
   dakshinaAmount?: number | null;
