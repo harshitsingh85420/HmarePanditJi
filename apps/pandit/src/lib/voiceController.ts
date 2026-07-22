@@ -946,11 +946,15 @@ class VoiceController {
     if (matchAny(clean, SLEEP)) {
       this.debug(`voice cmd: "${clean.slice(0, 24)}" → SLEEP`);
       this.noteVoiceGesture();
-      this.setMuted(true);
-      resetAgentHistory("sleep"); // W3: sleep forgets the conversation
-      try {
-        window.dispatchEvent(new CustomEvent("hpj-shishya-sleep"));
-      } catch { /* noop */ }
+      // Ruling #9: he SPOKE a command — silence-back reads as "it didn't hear
+      // me". Speak the farewell, THEN mute (same path as the सुला दें control);
+      // the sleep side-effects fire once the mute has landed.
+      this.muteWithFarewell(() => {
+        resetAgentHistory("sleep"); // W3: sleep forgets the conversation
+        try {
+          window.dispatchEvent(new CustomEvent("hpj-shishya-sleep"));
+        } catch { /* noop */ }
+      });
       return true;
     }
     // W1 (शिष्य v3): NO local curated matcher, NO screen-context gate.
@@ -2194,15 +2198,23 @@ class VoiceController {
     this.replayFn?.();
   }
 
-  /** Ruling #9 — deliberate rest via the visible 'सुला दें' control. SPEAK the
-   *  farewell TO COMPLETION, THEN mute: setMuted(true) does the full release
-   *  (stopSpeech + abortListening + releaseMicStream — S5 privacy) and runs
-   *  only in onEnd, so the farewell is never cut. An interrupted/parked line
-   *  (autoplay lock) still mutes in onEnd — the pandit asked for quiet. */
-  muteWithFarewell(): void {
+  /** Ruling #9 — THE one deliberate-mute entry point (the visible 'सुला दें'
+   *  control AND the voice "सो जाओ" command both route here). SPEAK the farewell
+   *  TO COMPLETION, THEN mute: setMuted(true) does the full release (stopSpeech +
+   *  abortListening + releaseMicStream — S5 privacy) and runs only in onEnd, so
+   *  the farewell is never cut. An interrupted/parked line (autoplay lock) still
+   *  mutes in onEnd — the pandit asked for quiet. `afterMuted` runs once the mute
+   *  has landed (used by the voice path for history-reset + the sleep event, so
+   *  they don't fire while the farewell is still speaking). */
+  muteWithFarewell(afterMuted?: () => void): void {
     this.init();
-    if (this._muted) return;
-    this.speak(t("shishya.muteFarewell"), { onEnd: () => this.setMuted(true) });
+    if (this._muted) { afterMuted?.(); return; }
+    this.speak(t("shishya.muteFarewell"), {
+      onEnd: () => {
+        this.setMuted(true);
+        afterMuted?.();
+      },
+    });
   }
 
   // ── listening coordination ─────────────────────────────────

@@ -27,12 +27,22 @@ describe("ShishyaOrb — Ruling #9 gesture split", () => {
 
   it("muteWithFarewell SPEAKS the farewell, THEN mutes (speak-then-mute)", () => {
     expect(vc).toMatch(
-      /muteWithFarewell\(\)[\s\S]*?speak\(\s*t\("shishya\.muteFarewell"\),\s*\{\s*onEnd:\s*\(\)\s*=>\s*this\.setMuted\(true\)/,
+      /muteWithFarewell\([^)]*\)[\s\S]*?speak\(\s*t\("shishya\.muteFarewell"\),\s*\{[\s\S]*?onEnd:[\s\S]*?this\.setMuted\(true\)/,
     );
   });
 
   it("PRIVACY (S5): the mute path releases the mic — setMuted(true) calls releaseMicStream", () => {
     expect(vc).toMatch(/if \(v\) \{[\s\S]*?releaseMicStream/);
+  });
+
+  it("the VOICE 'सो जाओ' path ALSO speaks-then-mutes (routes through muteWithFarewell)", () => {
+    // he spoke a command — silence-back = "it didn't hear me". Both entry points
+    // (control + voice) go through muteWithFarewell, never a bare setMuted(true).
+    const idx = vc.indexOf("matchAny(clean, SLEEP)");
+    expect(idx).toBeGreaterThan(0);
+    const body = vc.slice(idx, idx + 500);
+    expect(body).toMatch(/muteWithFarewell\(/);
+    expect(body, "voice sleep must not bare-mute").not.toMatch(/setMuted\(true\)/);
   });
 
   it("repeatCurrent re-narrates via replayFn and never mutes", () => {
