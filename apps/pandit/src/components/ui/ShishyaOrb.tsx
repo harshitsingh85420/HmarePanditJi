@@ -30,12 +30,18 @@ export function ShishyaOrb({
   showLabel = true,
   say,
   demoState,
+  muteControl = "below",
 }: {
   className?: string;
   /** Canon-numeric px (56…118). Aliases: "md"→66 (footer dock), "lg"→118 (hero). */
   size?: number | "md" | "lg";
   /** Canon `name` prop — frames with name="{{ false }}" (splash) hide it. */
   showLabel?: boolean;
+  /** Ruling #9 — where the 'सुला दें' mute control renders. "below" (default):
+   *  the orb draws it beneath the label. "relocated": the orb draws NOTHING and
+   *  the LAYOUT must render <ShishyaMuteControl/> itself somewhere away from the
+   *  primary CTA (MOVE-never-REMOVE, enforced by shishyaMuteRelocated.test.ts). */
+  muteControl?: "below" | "relocated";
   /** Canon `say` — the visible speech ribbon above the orb. When set it
       renders in-flow; when absent the ribbon appears only as the floated
       listening/processing fallback. */
@@ -94,11 +100,6 @@ export function ShishyaOrb({
     if (now - lastTapRef.current < 600) return;
     lastTapRef.current = now;
     voiceController.repeatCurrent();
-  };
-
-  const rest = () => {
-    if (demo) return;
-    voiceController.muteWithFarewell(); // speaks the farewell, THEN mutes + releases mic
   };
 
   const px = typeof size === "number" ? size : size === "lg" ? 118 : 66;
@@ -240,26 +241,44 @@ export function ShishyaOrb({
         </span>
       )}
 
-      {/* Ruling #9: the deliberate mute is a VISIBLE, LABELLED control (never a
-          hidden gesture — long-press failed the SOS persona test, and mute is
-          often needed urgently). ≥52px, Devanagari label at rest. It speaks the
-          farewell to completion, THEN goes silent + releases the mic. Shown on
-          the live labelled orb while awake; the asleep orb shows the wake hint. */}
-      {!demo && !asleep && showLabel && (
-        <button
-          onClick={rest}
-          aria-label={t("shishya.a11yMute")}
-          className="mt-1.5 min-h-[52px] px-3.5 flex items-center justify-center gap-1.5 rounded-full bg-card border border-saffron-200 shadow-card active:scale-95 transition-transform"
-        >
-          <span className="material-symbols-outlined text-[19px] leading-none text-softgrey" aria-hidden="true">
-            bedtime
-          </span>
-          <span className="text-[15px] font-bold font-hindi text-softgrey leading-none">
-            {t("shishya.muteControl")}
-          </span>
-        </button>
-      )}
+      {/* Ruling #9: the deliberate mute is a VISIBLE, LABELLED control. Default
+          "below" draws it here; layouts that would sit it beside a primary CTA
+          pass muteControl="relocated" and render <ShishyaMuteControl/> elsewhere
+          (MOVE-never-REMOVE). ShishyaMuteControl self-hides while asleep (the
+          orb then shows the wake hint). */}
+      {muteControl === "below" && !demo && showLabel && <ShishyaMuteControl className="mt-1.5" />}
     </div>
+  );
+}
+
+/**
+ * Ruling #9 — the deliberate mute control ('सुला दें'). A VISIBLE, ≥52px,
+ * Devanagari-labelled button (never a hidden gesture — long-press failed the
+ * SOS persona test, and mute is often urgent). It routes through
+ * voiceController.muteWithFarewell (speak the farewell, THEN silence + release
+ * mic). Self-hides while asleep. Standalone so a layout can place it clear of
+ * its primary CTA. LAW: never adjacent to a primary action.
+ */
+export function ShishyaMuteControl({ className = "" }: { className?: string }) {
+  const muted = useSyncExternalStore(
+    voiceController.subscribe,
+    () => voiceController.muted,
+    () => false,
+  );
+  if (muted) return null; // asleep — no mute control (orb shows the wake hint)
+  return (
+    <button
+      onClick={() => voiceController.muteWithFarewell()}
+      aria-label={t("shishya.a11yMute")}
+      className={`min-h-[52px] px-3.5 flex items-center justify-center gap-1.5 rounded-full bg-card border border-saffron-200 shadow-card active:scale-95 transition-transform ${className}`}
+    >
+      <span className="material-symbols-outlined text-[19px] leading-none text-softgrey" aria-hidden="true">
+        bedtime
+      </span>
+      <span className="text-[15px] font-bold font-hindi text-softgrey leading-none">
+        {t("shishya.muteControl")}
+      </span>
+    </button>
   );
 }
 

@@ -28,7 +28,7 @@
 // ─────────────────────────────────────────────────────────────
 
 import React from "react";
-import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
+import { ShishyaOrb, ShishyaMuteControl } from "@/components/ui/ShishyaOrb";
 import { TUTORIAL_TRANSLATIONS, type TutorialLanguage, getTutorialLang } from "@/lib/tutorial-translations";
 import type { SupportedLanguage } from "@/lib/onboarding-store";
 
@@ -111,7 +111,12 @@ export default function TutorialShell({
 
       {/* canon bottom stack: dots, then the CTA, gap 16 */}
       <footer className="px-6 pb-[22px] pt-2 shrink-0 flex flex-col items-center gap-4">
-        <div className="flex gap-[9px] items-center justify-center" aria-hidden="true">
+        {/* Ruling #9: the 'सुला दें' control lives in the progress-dots row —
+            a SEPARATE row, away from the आगे CTA below (adjacent buttons =
+            mis-tap risk for thick fingers). Dots stay centred; the pill floats
+            at the right so it never shifts them. */}
+        <div className="w-full flex items-center justify-center relative min-h-[52px]">
+          <div className="flex gap-[9px] items-center justify-center" aria-hidden="true">
           {Array.from({ length: totalDots }).map((_, index) => {
             const lit = hero || index === currentDot - 1;
             const size = hero ? 18 : lit ? 20 : 14;
@@ -128,6 +133,8 @@ export default function TutorialShell({
               />
             );
           })}
+          </div>
+          <ShishyaMuteControl className="absolute right-0" />
         </div>
 
         <div className="w-full flex items-end gap-3">
@@ -161,8 +168,9 @@ export default function TutorialShell({
               {label}
             </button>
           </div>
-          {/* ONE voice control keeps its footer seat (see header note) */}
-          <ShishyaOrb />
+          {/* ONE voice control keeps its footer seat (see header note). Its
+              'सुला दें' is RELOCATED to the dots row above — never beside the CTA. */}
+          <ShishyaOrb muteControl="relocated" />
         </div>
       </footer>
     </main>
