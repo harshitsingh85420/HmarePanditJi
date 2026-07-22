@@ -17,6 +17,11 @@ import { getArtboard, PlaceholderArtboard } from "@/components/tutorial/tutorial
 // so an always-off flag is never an unexercised code path.)
 // ─────────────────────────────────────────────────────────────
 
+// The decision the port-complete moment must surface (Isj's call), as a pure
+// testable predicate so it can be PROVEN to fire without populating ARTBOARDS.
+export const needsFlagFlip = (allArtboardsReal: boolean, flagOn: boolean): boolean =>
+  allArtboardsReal && !flagOn;
+
 describe("tutorial merge-gate — flag ON ⇒ no placeholder artboards", () => {
   it("if TUTORIAL_DECKS_ENABLED, every deck slide has a real (non-placeholder) artboard", () => {
     if (!TUTORIAL_DECKS_ENABLED) return; // vacuously satisfied while the deck is OFF
@@ -27,5 +32,26 @@ describe("tutorial merge-gate — flag ON ⇒ no placeholder artboards", () => {
       stillPlaceholder,
       "these deck slides still render PlaceholderArtboard — the deck must not ship ON",
     ).toEqual([]);
+  });
+
+  // MIRROR RISK (Isj 2026-07-22): a default-OFF flag can SILENTLY NEVER SHIP —
+  // once every artboard is real, the guard above stays vacuously green and the
+  // app keeps serving the old 6-slide TutorialV2 with nothing turning red. So
+  // the port-complete moment must turn the build RED to force the flip DECISION
+  // to the surface (see docs/review/tutorial-merge-gate.md — flip is Isj's call).
+  it("port-complete decision point: all artboards real ⇒ the flag MUST be flipped ON", () => {
+    const allReal = [...DECK_A, ...DECK_B].every((s) => getArtboard(s.id) !== PlaceholderArtboard);
+    if (needsFlagFlip(allReal, TUTORIAL_DECKS_ENABLED)) {
+      throw new Error(
+        "ALL deck artboards are real but TUTORIAL_DECKS_ENABLED is still OFF — the new tutorial is silently not shipping. DECISION (Isj): flip TUTORIAL_DECKS_ENABLED ON, or this build stays red.",
+      );
+    }
+  });
+
+  it("the flip-decision predicate can fire (proof-of-teeth)", () => {
+    expect(needsFlagFlip(true, false)).toBe(true); // port done, flag off → RED (surface the decision)
+    expect(needsFlagFlip(true, true)).toBe(false); // shipped
+    expect(needsFlagFlip(false, false)).toBe(false); // mid-port, correctly quiet
+    expect(needsFlagFlip(false, true)).toBe(false); // (flag-on+placeholder caught by the first test)
   });
 });
