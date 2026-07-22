@@ -5,6 +5,96 @@ ruling that flips is not silently re-litigated. Newest first.
 
 ---
 
+## Ruling #9 — ORB GESTURE SPLIT: tap = फिर से सुनिए (repeat); mute = an explicit visible control
+
+**Status: final** (Isj, 2026-07-22). Fixes the walk's #1 failure shape surfaced
+while settling Ruling #8.
+
+### The conflict
+
+The शिष्य orb is framed as the disciple you touch. But its tap was a
+state-dependent **mute toggle** (`setMuted`), so a natural tap on the (awake)
+orb **silenced it + released the mic** — and muting was **silent** (only a
+toast; waking spoke, muting didn't). To a 64-year-old that reads as "app broke",
+not "I muted it". Gate evidence confirmed the capabilities live outside the
+tutorial (ShishyaOrb tap / home `playBell`), so the fix is a gesture redesign.
+
+### The ruling
+
+- **TAP (awake) = REPEAT** — `voiceController.repeatCurrent()`: barge-in the
+  current line, re-narrate the screen, listen ring returns. The single most
+  useful action for a confused elder ("मैं भूल गया" → touch → he tells you
+  again). **A tap NEVER silences.** Rapid taps debounced (~600ms).
+- **TAP (asleep) = WAKE** — unchanged (already speaks a greeting).
+- **MUTE = an explicit VISIBLE, labelled control** ("सुला दें", ≥52px, Devanagari
+  at rest) adjacent to the orb — **not** a long-press (long-press already failed
+  the SOS persona test) and **not** icon-only. It **speaks the farewell to
+  completion, THEN** mutes: `muteWithFarewell()` → `speak("अब मैं चुप रहूँगा — दोबारा
+  सुनने के लिए मुझे जगाइए।")` → `onEnd` → `setMuted(true)`.
+- **PRIVACY (S5) survives:** every mute still routes through `setMuted(true)`,
+  which does the full mic release (`releaseMicStream`) — pinned by test.
+- **समझा tooltip** teaches: tap = "फिर से सुनिए", the सुला दें control =
+  deliberate rest. Never "tap to control".
+
+### Retirement discipline (per #8)
+
+Inventory found **no test ever pinned "tap mutes"** — nothing obsolete to
+retire. The mic-release property was previously **unpinned**; it is now pinned
+(`shishyaOrbGesture.test.ts`). Sequencing note: speak-then-mute is clean, not
+awkward — the ~2s farewell is the going-quiet cue, then silence.
+
+### Open (flagged, not ruled)
+
+The **voice** command "सो जाओ" still mutes directly (with a toast via VoiceRoot,
+no spoken farewell) — intentional voice muting, out of this ruling's scope.
+Consistency (also speak-then-mute) is a founder call.
+
+### Reopening
+
+Only Isj.
+
+---
+
+## Ruling #8 — TUTORIAL RETIREMENT: सो जाओ mute-gate + नई बुकिंग bell slides retired from the tutorial
+
+**Status: final** (Isj, 2026-07-22). The 13/14-artboard "ट्यूटोरियल · Animated"
+design deliberately drops two interactive slides the old 6-slide tutorial had.
+
+### The conflict
+
+The new Deck A (A0–A8) has only ONE interactive slide — A4 आवाज़ (mic) — plus
+the A8 cta. It has **no सो जाओ mute-gate slide and no नई बुकिंग temple-bell
+slide**. But `tutorialIdentity.test.ts` asserted both as law (`interactive ===
+"mute"` + `nextDisabled = isMute && !gateOpen`; `role === "bell"`). Faithfully
+building the design retires those interactions, so those assertions no longer fit
+— in the unified-player path (C) OR the extend-in-place path (B).
+
+### The ruling
+
+The mute-gate and bell **slides** are retired from the tutorial because the design
+dropped them — the assertions are **obsolete, not inconvenient**, so they are
+retired for that reason. Retirement discipline (all verified before removal):
+
+- **RETIRE ≠ DELETE — the capabilities survive outside the tutorial** (verified
+  with evidence 2026-07-22): (a) sleep/mute the shishya = tapping the app-wide
+  `ShishyaOrb` (`voiceController.setMuted`, ShishyaOrb.tsx:85–89), present on every
+  screen; (b) the new-booking bell = `home/page.tsx:183–186` `playBell()` on a
+  `newlyDiscovered` request. Neither was reachable only through the retired slide.
+- **The teaching moves, it isn't lost:** the mute lesson ("how do I make it stop
+  talking") relocates to the **समझा** contextual first-use tooltip on the orb
+  (coachTips). The bell needs no teaching — it teaches itself when it rings.
+- **Guard migration:** every mic assertion + `role === "cta"` + the no-index-keying
+  law move **unchanged** to the new mic component (MicPracticeArtboard) / DeckPlayer;
+  the mute + bell assertions are the only ones deleted, and only because their
+  slides are gone.
+
+### Reopening
+
+Only Isj. This exists so no future session reads the mute/bell absence as
+accidental loss — it was a signed design decision.
+
+---
+
 ## Ruling #7 — MONEY MODEL: पंडित जी को दक्षिणा का 100%, प्लेटफ़ॉर्म शुल्क अलग से यजमान देता है
 
 **Status: final** (Isj, 2026-07-21). **Supersedes the 90/10 model entirely** —

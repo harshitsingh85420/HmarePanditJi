@@ -2183,6 +2183,28 @@ class VoiceController {
     }
   }
 
+  /** Ruling #9 — an orb TAP repeats: re-narrate the current screen (the listen
+   *  loop re-arms after). NEVER silences. Mirrors the REPEAT ("फिर से") grammar;
+   *  replayFn's speak barges in the current line (newest-wins), so rapid taps
+   *  restart rather than overlap. No-op while asleep (nothing to repeat). */
+  repeatCurrent(): void {
+    this.init();
+    if (this._muted) return;
+    this.noteVoiceGesture();
+    this.replayFn?.();
+  }
+
+  /** Ruling #9 — deliberate rest via the visible 'सुला दें' control. SPEAK the
+   *  farewell TO COMPLETION, THEN mute: setMuted(true) does the full release
+   *  (stopSpeech + abortListening + releaseMicStream — S5 privacy) and runs
+   *  only in onEnd, so the farewell is never cut. An interrupted/parked line
+   *  (autoplay lock) still mutes in onEnd — the pandit asked for quiet. */
+  muteWithFarewell(): void {
+    this.init();
+    if (this._muted) return;
+    this.speak(t("shishya.muteFarewell"), { onEnd: () => this.setMuted(true) });
+  }
+
   // ── listening coordination ─────────────────────────────────
   /** useVoiceInput must call this before opening the mic. */
   guardListenStart(): boolean {

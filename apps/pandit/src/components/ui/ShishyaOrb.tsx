@@ -20,10 +20,9 @@
 // Floors (Ruling #2): name label & asleep hint ≥15px (canon 11-12px).
 // ─────────────────────────────────────────────────────────────
 
-import React, { useState, useSyncExternalStore } from "react";
+import React, { useRef, useSyncExternalStore } from "react";
 import { voiceController } from "@/lib/voiceController";
 import { t } from "@/lib/i18n";
-import { Toast } from "./Toast";
 
 export function ShishyaOrb({
   className = "",
@@ -68,7 +67,7 @@ export function ShishyaOrb({
     () => voiceController.processing,
     () => false,
   );
-  const [sleepToast, setSleepToast] = useState(false);
+  const lastTapRef = useRef(0);
 
   // demoState short-circuits the live wiring (illustration, not control)
   const demo = demoState != null;
@@ -80,15 +79,26 @@ export function ShishyaOrb({
   // speaking/listening/processing state (those own their own motion).
   const idle = !asleep && !isSpeaking && !isListening && !isProcessing;
 
-  const toggle = () => {
-    if (demo) return; // a demo orb never mutes the real शिष्य
+  // Ruling #9: a TAP never silences. Asleep → wake (speaks greeting). Awake →
+  // REPEAT (re-narrate the current screen), the single most useful action for a
+  // confused elder — matching "the orb IS the shishya". Silencing is a separate
+  // explicit 'सुला दें' control below. Rapid taps are debounced so REPEAT
+  // restarts at most ~once/600ms rather than spam-restarting.
+  const handleTap = () => {
+    if (demo) return; // a demo orb is an illustration, not the control
     if (asleep) {
-      // wake: greeting, then the controller re-narrates + loop resumes
       voiceController.setMuted(false);
-    } else {
-      voiceController.setMuted(true);
-      setSleepToast(true);
+      return;
     }
+    const now = Date.now();
+    if (now - lastTapRef.current < 600) return;
+    lastTapRef.current = now;
+    voiceController.repeatCurrent();
+  };
+
+  const rest = () => {
+    if (demo) return;
+    voiceController.muteWithFarewell(); // speaks the farewell, THEN mutes + releases mic
   };
 
   const px = typeof size === "number" ? size : size === "lg" ? 118 : 66;
@@ -161,7 +171,7 @@ export function ShishyaOrb({
       {ribbon}
 
       <button
-        onClick={toggle}
+        onClick={handleTap}
         disabled={demo}
         tabIndex={demo ? -1 : undefined}
         aria-hidden={demo || undefined}
@@ -230,12 +240,24 @@ export function ShishyaOrb({
         </span>
       )}
 
-      {sleepToast && (
-        <Toast
-          message={t("shishya.sleepToast")}
-          show={sleepToast}
-          onClose={() => setSleepToast(false)}
-        />
+      {/* Ruling #9: the deliberate mute is a VISIBLE, LABELLED control (never a
+          hidden gesture — long-press failed the SOS persona test, and mute is
+          often needed urgently). ≥52px, Devanagari label at rest. It speaks the
+          farewell to completion, THEN goes silent + releases the mic. Shown on
+          the live labelled orb while awake; the asleep orb shows the wake hint. */}
+      {!demo && !asleep && showLabel && (
+        <button
+          onClick={rest}
+          aria-label={t("shishya.a11yMute")}
+          className="mt-1.5 min-h-[52px] px-3.5 flex items-center justify-center gap-1.5 rounded-full bg-card border border-saffron-200 shadow-card active:scale-95 transition-transform"
+        >
+          <span className="material-symbols-outlined text-[19px] leading-none text-softgrey" aria-hidden="true">
+            bedtime
+          </span>
+          <span className="text-[15px] font-bold font-hindi text-softgrey leading-none">
+            {t("shishya.muteControl")}
+          </span>
+        </button>
       )}
     </div>
   );
