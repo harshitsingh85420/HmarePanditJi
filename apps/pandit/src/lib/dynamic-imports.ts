@@ -12,9 +12,10 @@ export const EmergencySOS = lazy(() => import('@/components/emergency/EmergencyS
 export const EmergencySOSFloating = lazy(() => import('@/components/widgets/EmergencySOSFloating'))
 
 /**
- * Language Widgets - Load language features lazily
+ * Language Widgets - Load language features lazily.
+ * NOTE: the floating LanguageChangeWidget was removed (founder no-floating-
+ * language law); language changes from Settings → भाषा only.
  */
-export const LanguageChangeWidget = lazy(() => import('@/components/widgets/LanguageChangeWidget'))
 export const LanguageBottomSheet = lazy(() => import('@/components/ui/LanguageBottomSheet'))
 
 /**

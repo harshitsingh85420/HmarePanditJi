@@ -1,9 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { LanguageChangeWidget } from '@/components/widgets/LanguageChangeWidget'
 import { EmergencySOSFloating } from '@/components/widgets/EmergencySOSFloating'
-import type { SupportedLanguage } from '@/components/widgets/LanguageChangeWidget'
 
 /**
  * Error Boundary for Public Layout
@@ -39,14 +37,8 @@ function PublicErrorBoundary({
 }
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
-  const [currentLanguage, setCurrentLanguage] = useState<SupportedLanguage>('Hindi')
   const [hasError, setHasError] = useState(false)
   const [error, setError] = useState<Error | null>(null)
-
-  const handleLanguageChange = (language: SupportedLanguage) => {
-    setCurrentLanguage(language)
-    console.log('[PublicLayout] Language changed to:', language)
-  }
 
   const resetError = () => {
     setHasError(false)
@@ -83,10 +75,8 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
   return (
     <div className="min-h-dvh flex flex-col bg-surface-base relative">
       {children}
-      <LanguageChangeWidget
-        currentLanguage={currentLanguage}
-        onLanguageChange={handleLanguageChange}
-      />
+      {/* No floating language switcher (founder law): language changes from
+          Settings → भाषा only. Guarded by noFloatingLanguage.test.ts. */}
       <EmergencySOSFloating isVisible={true} />
     </div>
   )
