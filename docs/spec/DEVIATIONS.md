@@ -166,6 +166,39 @@ first payout the founder does not personally execute, not after.
 
 ---
 
+## D-06 — F13 travel/stay/food is RECORDED, not auto-arranged (F13 पसंद)
+
+**The doc's aspiration:** the platform arranges the pandit's journey and stay
+end-to-end — "train हो, bus हो, या cab — पूरी यात्रा की planning platform कर
+देगा, hotel से खाने तक" (the tutorial's own words, `voice-scripts.ts:420`).
+
+**What we ship instead:** the post-registration **पसंद** flow *records* the
+pandit's travel / stay / food preferences (own-car + self-drive km limit,
+train class, bus, flight, local-cab; customer-home vs hotel tier; diet, hotel-
+food-ok, allergies, per-day food allowance). Those preferences are **shown to
+the यजमान and the ops admin** at booking time. Nothing is booked automatically.
+
+**Why:** an automated multi-modal travel/hotel booking engine (fare search,
+PNR, hotel inventory, per-km reconciliation) is a large integration the pilot
+does not have. Recording the preference is honest and immediately useful;
+promising automation is not.
+
+**What this costs us in the pilot:** the pandit still coordinates the actual
+booking with the यजमान/ops over the phone. The `₹12/किमी` own-car allowance and
+the per-day food allowance are **displayed as recorded figures, never as an
+auto-paid amount** — the food allowance carries its honest condition in the UI
+and in speech ("यह भत्ता तभी मिलेगा जब यजमान भोजन उपलब्ध न कराएँ।").
+
+**Reverses when:** a travel/stay booking integration + a per-km/allowance
+reconciliation path lands. Until then, the तुतोरियल's auto-arrange promise
+(`voice-scripts.ts:420`) is untrue and must be softened to "आपकी पसंद यजमान को
+दिखेगी" on its own merits — same class of fix as the D-05 note on S-0.4.
+
+- **Signed:** ______________________
+- **Date:** ______________________
+
+---
+
 ## Not a deviation — awaiting a product ruling
 
 **F32–35, consultancy "पंडित से बात" (13 requirements).** The doc ranks this

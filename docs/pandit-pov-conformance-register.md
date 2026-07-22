@@ -198,8 +198,31 @@
 
 ---
 
+## F13 — पसंद · Post-registration preferences (यात्रा · ठहरना · भोजन)
+*Founder-mandated into pilot scope (Isj, 2026-07-21). The post-registration flow
+is EXACTLY two sections in order: प्रोफ़ाइल-सत्यापन (Aadhaar) → पसंद. Data model
+uses the existing PanditProfile Json columns (travelPrefs / accommodationPrefs /
+foodPrefs) — no migration. Automated arrangement is deferred (D-06).*
+
+| ID | Requirement & test expectation | Type | Status |
+|---|---|---|---|
+| F13-01 | **Flow shape:** registration completes → Section 1 (Aadhaar) → Section 2 (यात्रा→ठहरना→भोजन) → completion → होम; both sections re-enterable later from प्रोफ़ाइल/सेटिंग | AUTO (flow) | ❌ post-reg orchestration pending (screens+API exist in readiness) |
+| F13-02 | **travel model** `travelPrefs`: ownCar{enabled, selfDriveKmLimit}, train{class SL/3AC/2AC}, bus{ac}, flight{class}, localCab{ok} — recorded, never auto-booked (D-06) | AUTO (schema/contract) | 🟡 Json column + readiness R3 collect ownVehicle+train+bus+flight+localCab; SL/3AC/2AC class enum pending |
+| F13-03 | **stay model** `accommodationPrefs`: customerHomeOk (asked FIRST, minimum-comfort), hotelTier budget/3star/4star (asked only if hotel) | AUTO | 🟡 Json column + readiness R4 collect customerHomeOk+hotelTier+dharamshala |
+| F13-04 | **food model** `foodPrefs`: diet {kuchBhi/shuddhShakahari/jain/vegan}, hotelFoodOk, allergies[], perDayAllowance | AUTO | 🟡 Json column + readiness R4 collect dietary+hotelFoodOk+allergies+dailyAllowance |
+| F13-05 | **Voice-first minimum-comfort ask:** every category asks हाँ/नहीं + options by voice, with a confirm loop; यजमान-घर asked before hotel tier | AUTO (voice) | 🟡 readiness wizard is voice-answerable (हाँ/नहीं/आगे/पीछे); per-category confirm-loop + minimum-comfort ordering for the two-section flow pending |
+| F13-06 | **Money — perDayAllowance:** confirm loop, and the honest condition spoken+written "यह भत्ता तभी मिलेगा जब यजमान भोजन उपलब्ध न कराएँ।"; ₹12/किमी own-car allowance DISPLAYED as recorded info, never promised-automated (D-06) | AUTO + MANUAL | ❌ pending (allowance field collected; honest-condition copy + confirm-loop pending) |
+| F13-07 | **Truthful-state:** nothing claims "हम अपने-आप intezam कर देंगे" — preferences are recorded and shown to यजमान/admin; automated engine deferred (D-06 signature) | AUTO (string scan) | ❌ pending; tutorial `voice-scripts.ts:420` auto-arrange promise must soften (noted in D-06) |
+| F13-08 | **Draft persistence:** each section's answers survive interruption (phone-call/network laws); verification-pending never dead-ends (F8 waiting-state port) | AUTO | 🟡 readiness persists `readinessStep` server-side + resumes; per-section post-reg draft pending |
+
+*Note: F05-02 (Aadhaar photo upload) is ✅ built — the pilot photo path is live in
+readiness R5; F05-01/03/04 are covered by D-02 (UIDAI deferral). Section 1 of the
+post-reg flow reuses that same photo flow.*
+
+---
+
 ## Summary counts
-- **Total atomic requirements: 79** (F1: 8 · F2: 13 · F3: 6 · F4: 5 · F5: 7 · F8: 6 · F9: 4 · F10: 3 · F11: 4 · F12: 4 · F32–35: 13 · F36: 3 · F43: 3) — corrected from 62; the per-block composition always summed to 78 (now 79 with the founder splash row)
+- **Total atomic requirements: 87** (F1: 8 · F2: 13 · F3: 6 · F4: 5 · F5: 7 · F8: 6 · F9: 4 · F10: 3 · F11: 4 · F12: 4 · F13: 8 · F32–35: 13 · F36: 3 · F43: 3) — 79 + the 8 founder-mandated F13 पसंद rows (2026-07-21)
 - Today: **✅ 8 · 🟡 14 · ❌ 56 · 🔍 0** — all VERIFY items resolved against code (see docs/spec/VERIFY-RESULTS.md)
 - **Deviation candidates needing founder signature: 5 blocks** — F1 referral (DLT-blocked), F5 UIDAI (provider cost), F8 YouTube-link flow (already shipped, unrecorded), F11-03 benchmarks (no data yet), F36 penny-drop (manual-payout pilot decision)
 - **One open product ruling: F32–35 consultancy** — build vs sign-defer.
