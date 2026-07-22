@@ -291,6 +291,10 @@ export default async function adminRoutes(fastify: FastifyInstance, _opts: any) 
         const { pandit, ...rest } = b as any;
         return {
           ...rest,
+          // Surface the missing-stored-payout anomaly so the admin UI can show a
+          // neutral "being checked" state instead of a confident wrong figure
+          // (founder 2026-07-22). panditPayout is the STORED authoritative column.
+          storedPayoutMissing: rest.panditPayout == null || rest.panditPayout <= 0,
           pandit: pandit ? {
             id: pandit.user?.id,
             name: pandit.user?.name,

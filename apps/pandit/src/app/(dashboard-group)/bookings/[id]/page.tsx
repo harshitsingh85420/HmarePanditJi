@@ -45,6 +45,7 @@ interface BookingDetail {
     platformFee: number;
     dakshinaNet: number;
     totalToPandit: number;
+    storedPayoutMissing?: boolean;
   };
 }
 
