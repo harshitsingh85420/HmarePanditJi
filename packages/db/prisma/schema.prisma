@@ -257,6 +257,12 @@ model PanditProfile {
   accommodationPrefs Json?
   readinessStep      Int                 @default(0)
   isBookingReady     Boolean             @default(false)
+  // Per-pandit tutorial deck progress (resume + first-home trigger). Json so
+  // the deck/slide shape can evolve with zero migration (same pattern as
+  // travelPrefs/foodPrefs). Shape:
+  //   { deckA: { slide, completed, skipped }, deckB: { slide, completed, skipped } }
+  // Deck B auto-starts on first होम arrival ⇔ deckB is neither completed nor skipped.
+  tutorialProgress   Json?
   dakshinaRates      DakshinaRate[]
   samagriPackages    SamagriPackage[]    @relation("PanditSamagriRelation")
   blockedDates       BlockedDate[]

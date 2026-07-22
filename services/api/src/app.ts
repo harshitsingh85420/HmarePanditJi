@@ -35,6 +35,7 @@ import uploadRoutes from "./routes/upload.routes";
 import aiRoutes from "./routes/ai.routes";
 import { submitOnboarding } from "./controllers/onboarding.controller";
 import { getReadiness, patchReadiness } from "./controllers/readiness.controller";
+import { getTutorialProgress, patchTutorialProgress } from "./controllers/tutorial.controller";
 import { presignFile } from "./controllers/upload.controller";
 import { submitPoojaVerification, getMyPoojaVerifications, savePoojaConfig, getPoojaConfigs } from "./controllers/poojaVerification.controller";
 import { isStorageConfigured } from "./lib/storage";
@@ -269,6 +270,9 @@ app.post(`${API_PREFIX}/pandits/samagri-packages`, { preHandler: [authenticate, 
 // Booking-readiness wizard (resumable; readinessStep persisted server-side)
 app.get(`${API_PREFIX}/pandit/readiness`, { preHandler: [authenticate, roleGuard("PANDIT")] }, getReadiness);
 app.patch(`${API_PREFIX}/pandit/readiness`, { preHandler: [authenticate, roleGuard("PANDIT")] }, patchReadiness);
+// Tutorial deck progress (resume + Deck-B first-home trigger; persisted server-side)
+app.get(`${API_PREFIX}/pandit/tutorial`, { preHandler: [authenticate, roleGuard("PANDIT")] }, getTutorialProgress);
+app.patch(`${API_PREFIX}/pandit/tutorial`, { preHandler: [authenticate, roleGuard("PANDIT")] }, patchTutorialProgress);
 
 // Singular paths
 app.patch(`${API_PREFIX}/pandit/status`, { preHandler: [authenticate, roleGuard("PANDIT")] }, patchPanditStatus);
