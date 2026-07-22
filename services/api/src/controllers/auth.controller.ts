@@ -11,7 +11,7 @@ import crypto from "crypto";
 import { storeOtpHash, getOtpHash, deleteOtpHash, checkRateLimit } from "../lib/redis";
 import { DEFAULT_SAMAGRI } from "@hmarepanditji/db";
 import { validateSamagriItems, readSamagriItems, toPanditAppItems, asJsonItems, SAMAGRI_BRAND_ANY, type SamagriItem } from "../lib/samagriItem";
-import { computeEarnings } from "../lib/earnings";
+import { earningsFromStored } from "../lib/earnings";
 import { checkAndAwardMilestones } from "../lib/milestones";
 import { canRemovePooja, REMOVE_BLOCKING_STATUSES } from "../lib/poojaRules";
 import { checkDakshinaFloor } from "../lib/dakshinaFloor";
@@ -869,8 +869,13 @@ export const getPanditBookingById = async (request: FastifyRequest, reply: Fasti
     return reply.status(403).send({ success: false, error: "Unauthorized access to this booking" });
   }
 
-  // Compute earnings
-  const earnings = computeEarnings(booking);
+  // Earnings read from the booking's STORED columns — NEVER recomputed at read
+  // time. An old 90/10 booking must keep its historical payout (showing 100% on
+  // money already in the pandit's hand would be a lie). Founder 2026-07-22.
+  const earnings = earningsFromStored(booking);
+  if (earnings.storedPayoutMissing) {
+    console.warn(`[earnings] booking ${booking.id} has no stored panditPayout — fell back to computed ₹${earnings.totalToPandit}`);
+  }
 
   let journeyTimestamps = {};
   if (booking.travelNotes) {
@@ -1341,7 +1346,13 @@ export const completeBooking = async (request: FastifyRequest, reply: FastifyRep
   // payout; a concurrent double-tap or a retry-after-lost-response flips 0 rows
   // and takes the idempotent path — returning SUCCESS (never a 409 that tells
   // the pandit his completed puja "failed" while he is already owed the money).
-  const earnings = computeEarnings(booking);
+  // The payout amount is the booking's STORED panditPayout (frozen at creation),
+  // never a recompute — completing an old 90/10 booking must create a payout for
+  // what was actually owed, not the new 100%. Founder 2026-07-22 (money-loss case).
+  const earnings = earningsFromStored(booking);
+  if (earnings.storedPayoutMissing) {
+    console.warn(`[payout] booking ${booking.id} completing with no stored panditPayout — using fallback ₹${earnings.totalToPandit}`);
+  }
   const outcome = await prisma.$transaction(async (tx: any) => {
     const flip = await tx.booking.updateMany({
       where: { id, panditId: profile.id, status: { not: "COMPLETED" }, journeyStep: 3 },
