@@ -180,7 +180,7 @@ describe("F03-02 — detection is a PROMPT, never a silent auto-set", () => {
       // it must READ as a question, not as a statement of a done deed
       expect(s.confirmQuestion, `${code}'s prompt is not a question`).toMatch(/[?？]$/);
     }
-    expect(LANG_CONFIRM.hi.otherLabel).toBe("दूसरी भाषा चुनें");
+    expect(LANG_CONFIRM.hi.otherLabel).toBe("दूसरी भाषा चुनिए");
   });
 
   it("F03-02: KNOWN GAP — the detected CITY is never named in the prompt", () => {

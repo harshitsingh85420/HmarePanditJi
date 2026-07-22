@@ -24,7 +24,8 @@ export const LANG_CONFIRM: Record<LangCode, LangConfirmStrings> = {
   hi: {
     confirmQuestion: "हमने आपके क्षेत्र की भाषा हिन्दी पहचानी — इसी में चलें या बदलें?",
     yesLabel: "हाँ, हिन्दी ठीक है",
-    otherLabel: "दूसरी भाषा चुनें",
+    // FOUNDER REGISTER LAW: a user-facing button command → -इए form
+    otherLabel: "दूसरी भाषा चुनिए",
     waitLine: "एक क्षण…",
     confirmedLine: "हिन्दी तैयार है — चलिए शुरू करें।",
     fallbackNotice: "अनुवाद अभी उपलब्ध नहीं — हिंदी में चलते हैं।",

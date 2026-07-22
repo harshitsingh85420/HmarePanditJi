@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { hi } from "./strings";
 import * as voiceScripts from "./voice-scripts";
 import * as voiceScriptsPart0 from "./voice-scripts-part0";
+import { LANG_CONFIRM } from "./strings-langconfirm";
 
 // ─────────────────────────────────────────────────────────────
 // FOUNDER REGISTER LAW guard (Isj, 2026-07-21) — PROPOSED register rows
@@ -84,6 +85,17 @@ describe("FOUNDER REGISTER LAW — शुद्ध, सम्मानजनक 
     expect(scan("स्पर्श कीजिए")).toEqual([]);
     expect(scan("तूफ़ान आया")).toEqual([]); // तूफ़ान ≠ तू
     expect(scan('"वापस करो" बोलिए')).toEqual([]); // taught command vocabulary
+  });
+
+  it("the hi language-confirm block carries no banned register", () => {
+    // strings-langconfirm.ts escaped both the codemod and this guard until
+    // 2026-07-21 (a live 'दूसरी भाषा चुनें' shipped to prod). Only the `hi`
+    // block is app-Hindi; every other block is that language speaking for
+    // itself and is out of scope for the Hindi register law.
+    const rows: Array<{ path: string; value: string }> = [];
+    flattenStrings(LANG_CONFIRM.hi, "LANG_CONFIRM.hi", rows);
+    const hits = rows.map((r) => ({ ...r, bad: scan(r.value) })).filter((r) => r.bad.length > 0);
+    expect(hits.map((h) => `${h.path}: "${h.value}" → ${h.bad.join(", ")}`)).toEqual([]);
   });
 
   it("strings.ts (everything शिष्य writes or says) carries no banned register", () => {
