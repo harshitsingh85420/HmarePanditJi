@@ -18,6 +18,21 @@ first-impression failure.
 - The branch merges to `main` **only after** the real artboards are ported into
   `ARTBOARDS` (placeholder no longer reachable for the live decks).
 
+## ⚠️ A4 (आवाज़) is SPECIAL — merge the design INTO it, never OVER it
+
+`ARTBOARDS['A4']` is `MicPracticeArtboard` — a **functional** component (the real
+mic-permission + practice machinery, shared with the live `TutorialV2`), not a
+static illustration. The incoming Design bundle also contains an A4 artboard
+(आवाज़ visuals). **Do NOT overwrite `ARTBOARDS['A4']` with the static design
+artboard** — that silently drops the mic machinery from the deck (and breaks the
+live tutorial, since `TutorialV2` consumes the same component).
+
+**Resolution:** the A4 design artboard is merged **INTO** `MicPracticeArtboard`
+as its **visual shell** (the आवाज़ frame around the mic disc / waves / field),
+never as a replacement. `ARTBOARDS['A4']` stays `MicPracticeArtboard`.
+`micSharedConsumers.test.ts` turns the build red if this is violated — but the
+intended answer is written here so the porter doesn't have to guess.
+
 ## Fallback (only if the branch must merge earlier — flag it to Isj first)
 
 Keep the **live** tutorial at the current **6-slide `TutorialV2`** and gate the
