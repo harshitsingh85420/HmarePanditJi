@@ -67,7 +67,23 @@ So the flip is an explicit, named step — **STEP: FLIP THE FLAG**:
 2. **Flip `TUTORIAL_DECKS_ENABLED` → `true`** in `apps/pandit/src/lib/tutorial-decks.ts`.
    The flag-property guard then becomes the LIVE protection (flag ON ⇒ any
    placeholder fails the build).
-3. Merge.
+3. **Retire the mute/bell assertions — DO IT HERE, not before** (Ruling #8, AMENDED
+   by Isj 2026-07-22: conditional retirement *at* the flip). The instant the flag is
+   ON, `TutorialV2` stops being the live tutorial, so its सो जाओ/जागो + नई बुकिंग
+   bell assertions finally describe dead code. Delete them now:
+   - `tutorialIdentity.test.ts` → the `"the mute slide still wires its proven gate
+     behavior"` test (`nextDisabled = isMute && !gateOpen`) and the `role === "bell"`
+     branch of `"keys mic / mute / bell / cta behavior off those markers"`.
+   - Verify (per Ruling #8) the CAPABILITIES still survive outside the tutorial —
+     mute = app-wide `ShishyaOrb` tap; bell = `home/page.tsx` `playBell()` — before
+     deleting, or STOP.
+
+   **Why not earlier:** while the flag is OFF, `TutorialV2` is production and STILL
+   has those slides, so the assertions protect live code. Deleting them at extraction
+   time (which we did NOT do) would have removed live protection. This step makes the
+   retirement happen exactly when `TutorialV2` stops being live — not earlier, not
+   forgotten.
+4. Merge.
 
 This is **Isj's decision, surfaced — not an internal detail.** `tutorial-artboards-ready.test.ts`
 enforces BOTH directions mechanically:
@@ -78,3 +94,23 @@ enforces BOTH directions mechanically:
 
 So when the port completes, the build turns red at exactly the flip moment and
 puts the decision in front of a human — it can't be a line nobody reads.
+
+## Before ANY merge — real-device आवाज़ check (Isj, 2026-07-22)
+
+The mic extraction (Ruling #8 / C) **rewired the LIVE tutorial component**:
+production's आवाज़ slide becomes `MicPracticeArtboard` the moment this branch merges
+to `main` — **even with the flag OFF**, because `TutorialV2` now consumes the
+extracted component instead of its own inline machinery.
+
+`tsc` and the guard suite prove **structure**, not a real `getUserMedia` flow (jsdom
+has no microphone; the guards mock it). So a real-device pass is a **merge
+prerequisite, before merge, not after**:
+
+**Isj runs the branch locally and confirms the आवाज़ slide works end-to-end:**
+- the permission **prompt** appears on the mic tap;
+- the **granted** path → practice listens → the ✓/celebration lands;
+- the **denied** path → recovery copy + retry button;
+- **practice completes** (the drill resolves and Next advances).
+
+This applies to ANY merge of `feat/tutorial-system` — including the fallback path
+(merge with the flag OFF), since the flag does not gate the extraction.

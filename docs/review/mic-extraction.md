@@ -110,16 +110,17 @@ which is correct — a user only ever sees one tutorial):**
 
 **Not touched (Ruling #8 mute/bell assertion retirement — deferred, see below).**
 
-## 5. One judgement call flagged to Isj
+## 5. Judgement call → ruled (Ruling #8 AMENDED)
 
 Ruling #8 said to retire the **mute-gate + bell** assertions. I did NOT delete them
 in this unit: those assertions still *fit* `TutorialV2`, which is still the live
 tutorial and still has सो जाओ/जागो + the नई बुकिंग bell. Deleting an assertion that
 still describes live code would remove protection for something that still exists.
-The mute/bell teachings are dropped from **Deck A** (DECK_A has no mute/bell slide),
-so the retirement lands correctly when `TutorialV2` itself is retired at the flag
-flip. Per the guard rule ("if an assertion no longer fits, stop and tell me") — they
-still fit, so they stay, and I'm surfacing the deferral rather than silently acting.
+
+**Isj ruled the call correct and made it doctrine (2026-07-22):** the retirement is
+**CONDITIONAL — it happens at the flag flip, not now**, as a named step in the flip
+checklist (`STEP: FLIP THE FLAG` step 3, tutorial-merge-gate.md), so it fires exactly
+when `TutorialV2` stops being live. See CONFLICT_RULINGS #8 (Shipped / amended).
 
 ## 6. Verification
 

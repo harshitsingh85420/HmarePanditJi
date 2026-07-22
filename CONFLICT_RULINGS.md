@@ -117,14 +117,17 @@ granted-short-circuit); the byte-for-byte proof + semantic-diff ledger is in
 `micIsBusy.test.tsx` (onBusy can't get stuck), `deckA9.test.tsx` (A4 is not a dead
 end — a granted mic advances the deck).
 
-**Mute/bell-assertion retirement — DEFERRED, not skipped.** This ruling deletes
-them "because their slides are gone" — true for **Deck A** (no mute/bell slide),
-but `TutorialV2` is still the live 6-slide tutorial and STILL has सो जाओ/जागो + the
-नई बुकिंग bell. The `tutorialIdentity` mute/bell assertions therefore still *fit*
-the file they read (`TutorialV2`). Per the guard rule ("if an assertion no longer
-fits, stop and tell me") they still fit, so deleting them now would remove live
-protection. They retire when `TutorialV2` itself is retired at the flag flip. This
-is the one judgement call flagged to Isj (mic-extraction.md §5).
+**Mute/bell-assertion retirement — AMENDED to CONDITIONAL (Isj, 2026-07-22).** The
+original ruling deleted them "because their slides are gone" — true for **Deck A**
+(no mute/bell slide), but `TutorialV2` is still the live 6-slide tutorial and STILL
+has सो जाओ/जागो + the नई बुकिंग bell, so those assertions still *protect live code*
+while the flag is OFF. **Isj's amendment:** the assertions retire **CONDITIONALLY,
+at the flag flip — not at extraction time.** They protect the live `TutorialV2`
+until the flip makes it non-live; deleting earlier would remove live protection;
+deleting is now a **named step in the flip checklist** (`STEP: FLIP THE FLAG` step 3,
+docs/review/tutorial-merge-gate.md) so retirement happens exactly when `TutorialV2`
+stops being live — not earlier, not forgotten. (This was the judgement call flagged
+to Isj in mic-extraction.md §5; Isj ruled the call correct and made it doctrine.)
 
 ### Reopening
 
