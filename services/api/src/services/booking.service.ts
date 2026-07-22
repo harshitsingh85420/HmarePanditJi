@@ -26,8 +26,8 @@ export interface BookingFinancials {
   platformFeeGst: number;        // GST_PERCENT on platformFee
   travelServiceFeeGst: number;   // GST_PERCENT on travelServiceFee
   gstAmount: number;             // total GST (both fees)
-  grandTotal: number;            // customer pays — includes food + accommodation
-  panditPayout: number;          // dakshina − platformFee + travel + food + accommodation
+  grandTotal: number;            // customer pays — dakshina + platformFee + travel + food + accommodation
+  panditPayout: number;          // 100% to pandit — dakshina + travel + food + accommodation (fee NEVER deducted; Ruling #7)
 }
 
 /**
