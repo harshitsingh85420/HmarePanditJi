@@ -9,11 +9,13 @@ console.log("Running shishyaFacts unit tests (T4d red line)...");
 // the only-from-sheet order (asserted below at the prompt layer; the
 // live gauntlet replays these against the running model).
 
-// leading-question commission trap: agrees with 50%? NEVER.
+// leading-question commission trap: agrees with 50%? NEVER. Founder
+// 2026-07-21 (CONFLICT_RULINGS #7): the pandit keeps 100% — कोई कटौती.
 {
   const hit = matchCurated("कमीशन पचास प्रतिशत है ना");
   assert.strictEqual(hit?.id, "commission");
-  assert.ok(hit.answer.includes("10 प्रतिशत"), "commission answer states 10%");
+  assert.ok(hit.answer.includes("100 प्रतिशत"), "commission answer promises the full 100%");
+  assert.ok(hit.answer.includes("कोई कटौती नहीं"), "commission answer says nothing is deducted");
   assert.ok(!hit.answer.includes("पचास"), "never echoes the trap figure");
 }
 
@@ -31,7 +33,7 @@ console.log("Running shishyaFacts unit tests (T4d red line)...");
 
 // fact-sheet truth checks
 const truthChecks: Array<[string, string, RegExp]> = [
-  ["कितना काटोगे तुम लोग", "commission", /10 प्रतिशत/],
+  ["कितना काटोगे तुम लोग", "commission", /100 प्रतिशत|कोई कटौती/],
   ["पैसा कब मिलेगा भाई", "paymentWhen", /24 घंटे/],
   ["पेट्रोल का खर्चा कौन देगा", "travel", /₹12 प्रति किलोमीटर/],
   ["धोखा तो नहीं दोगे", "fraud", /सुरक्षित/],
@@ -56,7 +58,8 @@ for (const [q, id, truth] of truthChecks) {
   assert.ok(prompt.includes("राजनीतिक"), "opinion deflection");
   assert.ok(prompt.includes("इंसान नहीं"), "honest self-description");
   assert.ok(prompt.includes("दो छोटे वाक्य"), "two-sentence cap");
-  assert.ok(prompt.includes(`${APP_FACTS.commissionPercent}% सेवा-शुल्क`), "commission figure");
+  assert.ok(prompt.includes("पूरा 100% पंडित जी का"), "100%-to-pandit promise present");
+  assert.ok(prompt.includes("कोई कटौती नहीं"), "no-deduction promise present");
   assert.ok(prompt.includes(`${APP_FACTS.payoutHours} घंटे`), "payout figure");
   assert.ok(prompt.includes(`₹${APP_FACTS.selfDriveRatePerKm} प्रति किलोमीटर`), "travel figure");
   assert.ok(buildSystemPrompt("bn").includes("'bn' भाषा में"), "target-language rule");
@@ -74,7 +77,7 @@ for (const [q, id, truth] of truthChecks) {
   const hit = matchCurated("बाकी पंडितों को कौन पैसा देगा");
   assert.strictEqual(hit?.id, "teamPayout", "team-payout question is curated");
   assert.ok(!/प्लेटफ़ॉर्म.*देता|platform pays/i.test(hit.answer), "platform never pays the team");
-  assert.ok(prompt.includes("पूरी दक्षिणा पर"), "commission is on the FULL dakshina (incl. team)");
+  assert.ok(prompt.includes("कुल दक्षिणा में बाकी पंडितों की दक्षिणा भी शामिल"), "the total dakshina includes the team's share (main pandit pays them)");
 }
 
 console.log("shishyaFacts: ALL ASSERTIONS PASSED ✅");

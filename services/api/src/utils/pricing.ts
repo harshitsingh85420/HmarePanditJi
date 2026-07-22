@@ -18,7 +18,8 @@ export interface PriceBreakdown {
   panditPayout: number;
 }
 
-/** PLATFORM_FEE_PERCENT of dakshina — collected by platform */
+/** PLATFORM_FEE_PERCENT of dakshina — charged to the CUSTOMER on top of the
+    dakshina; never deducted from the pandit's payout (founder 2026-07-21). */
 export function calculatePlatformFee(dakshinaAmount: number): number {
   return Math.round(dakshinaAmount * (PLATFORM_FEE_PERCENT / 100));
 }
@@ -66,27 +67,32 @@ export function calculateGrandTotal(params: {
   const accommodationCost = params.accommodationCost ?? 0;
 
   const platformFee = calculatePlatformFee(dakshinaAmount);
-  // ── FOUNDER DECISION: SINGLE-SIDED FEE ─────────────────────────────────
-  // The dakshina IS the price. The customer pays exactly the dakshina plus
-  // pass-throughs they opted into (travel / food / accommodation) — nothing
-  // added on top. The platform's ONE commission (PLATFORM_FEE_PERCENT of
-  // dakshina) is deducted from the pandit's payout; it is GST-inclusive
-  // (the platform remits tax out of its own fee — the customer sees no tax
-  // line). The old model double-charged: +10% on the customer AND −10% from
-  // the pandit. शिष्य's promise — "दक्षिणा का 90% आपका, प्लेटफ़ॉर्म 10%" —
-  // is now exactly the whole story.
-  const travelServiceFee = 0; // ONE commission — no second customer-side charge
-  const platformFeeGst = 0; // commission is GST-inclusive; no customer tax line
+  // ── FOUNDER DECISION (2026-07-21): 100% TO PANDIT, SEPARATE CUSTOMER FEE ──
+  // The पंडित जी receives the WHOLE dakshina — कोई कटौती नहीं. Platform
+  // revenue is a SEPARATE platform fee (PLATFORM_FEE_PERCENT of dakshina)
+  // charged to the CUSTOMER, added ON TOP of the dakshina — it NEVER reduces
+  // the pandit's payout. This supersedes both the doc's 15% and the shipped
+  // 90/10 model (see CONFLICT_RULINGS #7). Conservation:
+  //     grandTotal (customer pays) = dakshina + platformFee + pass-throughs
+  //     panditPayout (pandit gets) = dakshina + pass-throughs
+  //     platformFee = grandTotal − panditPayout   (never touches payout)
+  // GST on the fee is a platform-side concern (remitted out of the fee); the
+  // customer sees दक्षिणा + प्लेटफ़ॉर्म शुल्क, no separate tax line.
+  const travelServiceFee = 0; // ONE customer fee — no second travel charge
+  const platformFeeGst = 0; // fee is GST-inclusive; no separate customer tax line
   const travelServiceFeeGst = 0;
 
+  // Customer pays: dakshina + the platform fee (ON TOP) + all pass-throughs
   const grandTotal =
     dakshinaAmount +
+    platformFee +
     travelCost +
     foodAllowanceAmount +
     accommodationCost;
 
-  // Pandit receives: dakshina minus the ONE fee, plus all pass-throughs
-  const panditPayout = dakshinaAmount - platformFee + travelCost + foodAllowanceAmount + accommodationCost;
+  // Pandit receives: the FULL dakshina (100%) + all pass-throughs. The
+  // platform fee is customer-paid and is NEVER subtracted here.
+  const panditPayout = dakshinaAmount + travelCost + foodAllowanceAmount + accommodationCost;
 
   return {
     dakshinaAmount,
@@ -120,7 +126,10 @@ export function calculateRefundAmount(
 }
 
 /**
- * Net amount pandit receives after platform deductions.
+ * Amount the pandit receives: the FULL dakshina (100%) + all pass-throughs.
+ * The platform fee is customer-paid and is NEVER subtracted (founder decision
+ * 2026-07-21, CONFLICT_RULINGS #7). `platformFee` is accepted for signature
+ * compatibility but intentionally ignored — the payout must never depend on it.
  */
 export function calculatePanditPayout(booking: {
   dakshinaAmount: number;
@@ -130,8 +139,7 @@ export function calculatePanditPayout(booking: {
   accommodationCost: number;
 }): number {
   return (
-    booking.dakshinaAmount -
-    booking.platformFee +
+    booking.dakshinaAmount +
     booking.travelCost +
     booking.foodAllowanceAmount +
     booking.accommodationCost

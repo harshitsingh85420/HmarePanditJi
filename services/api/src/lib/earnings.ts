@@ -15,12 +15,15 @@ export function computeEarnings(booking: {
   const foodVal = booking.food ?? booking.foodAllowance ?? 0;
   const samagriVal = booking.samagri ?? booking.samagriAmount ?? 0;
 
+  // Founder decision 2026-07-21 (CONFLICT_RULINGS #7): the pandit keeps the
+  // FULL dakshina — कोई कटौती नहीं. `platformFee` is the SEPARATE customer-paid
+  // fee (informational here); it NEVER reduces what the pandit receives.
   const platformFee = Math.round(dakshinaVal * PLATFORM_FEE_PERCENT / 100);
-  const dakshinaNet = dakshinaVal - platformFee;
+  const dakshinaNet = dakshinaVal; // 100% to the pandit — no deduction
   const totalToPandit = dakshinaNet + travelVal + foodVal + samagriVal;
 
   return {
-    platformFee,
+    platformFee, // customer-side fee, for reference — not subtracted above
     dakshinaNet,
     totalToPandit,
   };

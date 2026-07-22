@@ -14,8 +14,11 @@
 import { PLATFORM_FEE_PERCENT, SELF_DRIVE_RATE_PER_KM } from "../config/constants";
 
 export const APP_FACTS = {
-  // SINGLE SOURCE: the commission शिष्य quotes IS the fee the math charges.
-  commissionPercent: PLATFORM_FEE_PERCENT, // 10% platform, 90% pandit
+  // Founder decision 2026-07-21 (CONFLICT_RULINGS #7): the pandit keeps 100%
+  // of the dakshina. `platformFeePercent` is the SEPARATE fee the CUSTOMER
+  // pays on top — SINGLE SOURCE, the same rate the math charges. It is NOT a
+  // deduction from the pandit; the facts line below says exactly that.
+  platformFeePercent: PLATFORM_FEE_PERCENT, // customer-paid, on top; pandit keeps 100%
   payoutHours: 24, // after पूजा संपन्न, direct to bank/UPI
   selfDriveRatePerKm: SELF_DRIVE_RATE_PER_KM, // ₹12/km round trip (config/constants.ts)
   dakshinaMin: 501,
@@ -30,7 +33,7 @@ export const FACTS_SHEET_HI = [
   // sheet must NOT promise a flat ₹501 the API would reject. It states the
   // lowest possible floor and that the exact one is shown on the pooja screen.
   `दक्षिणा पंडित जी खुद तय करते हैं (सबसे कम ₹${APP_FACTS.dakshinaMin}, ज़्यादा से ज़्यादा ₹${APP_FACTS.dakshinaMax.toLocaleString("en-IN")}); हर पूजा की अपनी कम-से-कम दक्षिणा होती है — रकम कम पड़ने पर सहेजते समय ऐप खुद बता देता है कि उस पूजा के लिए कम से कम कितनी रखनी है। ग्राहक से कोई मोलभाव नहीं होता।`,
-  `दक्षिणा का ${100 - APP_FACTS.commissionPercent}% पंडित जी का है; प्लेटफ़ॉर्म केवल ${APP_FACTS.commissionPercent}% सेवा-शुल्क पूरी दक्षिणा पर लेता है (इसमें बाकी पंडितों की दक्षिणा भी शामिल होती है)।`,
+  `दक्षिणा का पूरा 100% पंडित जी का है — कोई कटौती नहीं। प्लेटफ़ॉर्म का शुल्क अलग से यजमान देता है, आपकी दक्षिणा में से कुछ नहीं कटता।`,
   // AD2 SINGLE-PAYEE LAW: assistant pandits are the main pandit's own —
   // the platform never registers, verifies, pays, or contacts them.
   "सहायक पंडितों का प्रबंध और भुगतान मुख्य पंडित जी स्वयं करते हैं — प्लेटफ़ॉर्म सीधे उनसे लेन-देन नहीं करता। किसी पूजा की कुल दक्षिणा में बाकी पंडितों की दक्षिणा भी शामिल होती है, जो मुख्य पंडित जी उन्हें देते हैं।",
@@ -81,7 +84,7 @@ export const CURATED_HI: readonly CuratedEntry[] = [
   { id: "paymentMissing", keywords: ["पैसा नहीं आया", "पैसा नहीं मिला", "पेमेंट नहीं आया", "paisa nahi aaya"], answer: `पूजा पूरी होने के ${APP_FACTS.payoutHours} घंटे बाद भी पैसा न आए, तो मदद वाले हिस्से से हमारी टीम को फ़ोन कीजिए — तुरंत देखा जाएगा।` },
   { id: "paymentHow", keywords: ["पैसा कैसे मिलेगा", "पैसा कैसे आएगा", "पैसा कैसे", "भुगतान कैसे", "paisa kaise"], answer: `आपकी कमाई पूजा संपन्न होने के ${APP_FACTS.payoutHours} घंटे के अंदर सीधे आपके बैंक खाते या यूपीआई में आती है।` },
   { id: "paymentWhen", keywords: ["पैसा कब", "कब मिलेगा पैसा", "भुगतान कब", "पेमेंट कब", "paisa kab"], answer: `पूजा संपन्न होने के ${APP_FACTS.payoutHours} घंटे के अंदर पैसा सीधे आपके बैंक खाते में आ जाता है।` },
-  { id: "commission", keywords: ["कमीशन", "कटौती", "कितना काटते", "कितना काटोगे", "commission"], answer: `दक्षिणा का ${100 - APP_FACTS.commissionPercent} प्रतिशत आपका है — प्लेटफ़ॉर्म केवल ${APP_FACTS.commissionPercent} प्रतिशत सेवा-शुल्क लेता है।` },
+  { id: "commission", keywords: ["कमीशन", "कटौती", "कितना काटते", "कितना काटोगे", "commission"], answer: `दक्षिणा का पूरा 100 प्रतिशत आपका है — कोई कटौती नहीं। प्लेटफ़ॉर्म का शुल्क अलग से यजमान देता है, आपकी दक्षिणा में से कुछ नहीं कटता।` },
   { id: "dakshinaWho", keywords: ["दक्षिणा कौन", "दाम कौन तय", "मोलभाव", "dakshina kaun"], answer: "दक्षिणा आप खुद तय करते हैं, पंडित जी — ग्राहक को वही राशि दिखती है और कोई मोलभाव नहीं होता।" },
   { id: "travel", keywords: ["यात्रा भत्ता", "पेट्रोल", "किराया कौन", "किलोमीटर", "yatra bhatta"], answer: `अपनी गाड़ी से जाने पर ₹${APP_FACTS.selfDriveRatePerKm} प्रति किलोमीटर आना-जाना मिलता है; ट्रेन-बस का इंतज़ाम बुकिंग के साथ तय होता है।` },
   { id: "aadhaarSafe", keywords: ["आधार सुरक्षित", "आधार क्यों", "आधार माँग", "aadhaar kyu"], answer: "जी हाँ, आधार पूरी तरह सुरक्षित है — सिर्फ़ सत्यापन के लिए इस्तेमाल होता है और किसी ग्राहक को कभी नहीं दिखता।" },

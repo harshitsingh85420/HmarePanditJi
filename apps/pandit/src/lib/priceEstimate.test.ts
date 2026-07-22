@@ -6,9 +6,11 @@ import { estimateSampleBooking, COSTING } from "./priceEstimate";
 // PRICE-HONESTY guard. The meter must compute from the ACTUAL server costing
 // rules — never a slogan, never an invented number. This FAILS THE BUILD if the
 // client rates drift from the server, if a rule-less cost (hotel/flight) starts
-// showing a fake figure, or if a customer-side fee line sneaks back in
-// (SINGLE-SIDED FEE is a founder decision: the family pays exactly dakshina +
-// pass-throughs; the one 10% commission comes out of the pandit's payout).
+// showing a fake figure, or if a fee line sneaks onto this pandit-facing meter.
+// Founder decision 2026-07-21 (CONFLICT_RULINGS #7): the pandit keeps 100% of
+// the dakshina; the platform fee is a SEPARATE charge the CUSTOMER pays on top
+// and NEVER reduces the payout. So the meter mirrors the pandit's PAYOUT —
+// dakshina + pass-throughs — with no fee line.
 const API = join(__dirname, "..", "..", "..", "..", "services", "api", "src");
 const read = (rel: string) => readFileSync(join(API, rel), "utf-8");
 
@@ -26,18 +28,21 @@ describe("price-honesty meter — computed from real rules", () => {
     expect(pricing).toMatch(/\*\s*\(PLATFORM_FEE_PERCENT\s*\/\s*100\)/);
   });
 
-  it("SINGLE-SIDED: the customer estimate charges dakshina + pass-throughs, NO fee line", () => {
+  it("100% PAYOUT: the pandit meter shows dakshina + pass-throughs, NO fee deduction", () => {
     const r = estimateSampleBooking(
       { selfDrive: true, train: false, flight: false, dailyFoodAllowance: null, stayAtHome: true },
       2100,
     );
-    // dakshina 2100 + selfDrive(200km×12=2400) + food(1000) — nothing on top
+    // dakshina 2100 + selfDrive(200km×12=2400) + food(1000) — nothing taken out
     expect(r.total).toBe(2100 + 2400 + 1000);
     expect(r.lines.every((l) => !l.label.includes("शुल्क") && !l.label.includes("GST"))).toBe(true);
     expect(r.demandLevel).toBe("कम");
-    // the server charge matches: grandTotal = dakshina + pass-throughs exactly
+    // the server payout matches: panditPayout = dakshina + pass-throughs, with
+    // the platform fee NEVER subtracted (the fee is customer-paid, on top).
     const pricing = read("utils/pricing.ts");
-    expect(pricing).toMatch(/const grandTotal =\s*\n?\s*dakshinaAmount \+\s*\n?\s*travelCost \+\s*\n?\s*foodAllowanceAmount \+\s*\n?\s*accommodationCost;/);
+    expect(pricing).toMatch(/const panditPayout = dakshinaAmount \+ travelCost \+ foodAllowanceAmount \+ accommodationCost;/);
+    // and the customer grandTotal DOES add the fee on top (separate charge)
+    expect(pricing).toMatch(/const grandTotal =\s*\n?\s*dakshinaAmount \+\s*\n?\s*platformFee \+/);
   });
 
   it("NEVER invents a number for a rule-less cost (flight, hotel)", () => {

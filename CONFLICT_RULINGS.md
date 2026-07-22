@@ -5,6 +5,57 @@ ruling that flips is not silently re-litigated. Newest first.
 
 ---
 
+## Ruling #7 — MONEY MODEL: पंडित जी को दक्षिणा का 100%, प्लेटफ़ॉर्म शुल्क अलग से यजमान देता है
+
+**Status: final** (Isj, 2026-07-21). **Supersedes the 90/10 model entirely** —
+and the pandit-doc's earlier 15% figure. Both are dead.
+
+### The conflict
+
+Every prior money surface deducted the platform's cut FROM the pandit: the
+shipped model paid the pandit 90% and kept 10% ("दक्षिणा का 90% आपका"), the doc
+once said 15%. Isj's ruling reverses the direction of the fee: the पंडित जी
+keeps the **whole dakshina — कोई कटौती नहीं**. Platform revenue is a **separate
+fee charged to the CUSTOMER, added ON TOP** of the dakshina; it never touches
+the payout.
+
+### The ruling — the money laws
+
+- **Payout = 100% of dakshina + pass-throughs.** The platform fee is NEVER
+  subtracted from what the pandit receives. This is the property that matters;
+  it is guard-pinned structurally (the payout expression may not subtract the
+  fee) AND at runtime.
+- **Platform fee = a SEPARATE, customer-paid charge, on top.** Rate stays the
+  single-source `PLATFORM_FEE_PERCENT` (currently 10) in
+  `services/api/src/config/constants.ts` — never a second literal.
+- **Conservation (new meaning):** `grandTotal (customer pays) = dakshina +
+  platformFee + pass-throughs`; `panditPayout = dakshina + pass-throughs`;
+  `platformFee = grandTotal − panditPayout`. The fee is the platform's whole
+  take and it moves from the customer, not out of the pandit.
+- **Customer-side display:** because the customer now pays MORE than the bare
+  dakshina, the fee is shown as its **own line** at checkout (web booking
+  wizard) — display = charge, mirroring `calculateGrandTotal`. Prior surfaces
+  that said "no platform fee added — you pay exactly the items above" were
+  corrected.
+- **Spoken + written copy:** शिष्य, FAQ, earnings, tutorial and the LLM
+  fact-sheet all say **पूरा 100% आपका — कोई कटौती नहीं; प्लेटफ़ॉर्म का शुल्क अलग
+  से यजमान देता है**. No surface may quote a pandit-side deduction (90/85/80%).
+
+### Guards (build-failing, proven to fail)
+
+`commission-consistency.test.ts` (single source + payout-never-reduced +
+runtime conservation), `payment-money.test.ts` (fee-on-top grandTotal + 100%
+payout + wizard display=charge), `earnings.test.ts`, `shishyaFacts.test.ts`,
+and pandit `faqTruth`/`priceEstimate`/`feeLabel`. Reintroducing `− platformFee`
+into the payout fails commission-consistency (REGRESSION pin) and payment-money
+(conservation break) — verified 2026-07-21.
+
+### Reopening
+
+Only Isj. Changing the fee direction or rate = changing the business model.
+
+---
+
 ## Ruling #6 — TUTORIAL ANIMATION LAW: the tutorial demonstrates, it doesn't describe
 
 **Status: final** (Isj, 2026-07-21). Supersedes the static-caption reading of

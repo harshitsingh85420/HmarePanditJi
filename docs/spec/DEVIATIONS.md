@@ -19,6 +19,39 @@ Rules, so this file cannot become a laundry chute for gaps:
 
 ---
 
+## Spec supersessions (founder rulings — not deferrals)
+
+These are **decisions to ship something DIFFERENT from the doc that is fully
+built**, not gaps left open. They need no signature block: the founder ruling
+itself is the signature (dated, in CONFLICT_RULINGS.md). Listed here so the
+doc's superseded figure is never mistaken for the live behaviour.
+
+### S-01 — Money model: 100% of dakshina to the pandit; platform fee is separate & customer-paid
+
+**Signed by ruling:** Isj, 2026-07-21 (CONFLICT_RULINGS **#7**).
+
+**The doc says:** the platform takes a commission out of the pandit's earnings
+(the pandit-doc's figure was **15%**; the shipped pilot ran a **90/10** split —
+pandit 90%, platform 10% deducted from the payout).
+
+**What we ship instead — and it is built:** the पंडित जी keeps **100% of the
+dakshina — कोई कटौती नहीं**. Platform revenue is a **separate fee charged to the
+customer, added on top** of the dakshina; it never reduces the payout. Both the
+doc's 15% and the shipped 90/10 are **dead**.
+
+**Why:** founder decision — the pandit's earning must be whole and legible ("जो
+दक्षिणा तय की, वही पूरी मिलेगी"), and platform revenue must not read to the
+pandit as money taken from him.
+
+**What changed in the build:** one fee constant (`PLATFORM_FEE_PERCENT`, still
+10) now flows to the *customer* total, not the payout; `panditPayout = dakshina
++ pass-throughs`; conservation `platformFee = grandTotal − panditPayout`; the
+web checkout shows the fee as its own line (display = charge); all शिष्य / FAQ /
+earnings / tutorial / LLM copy says 100% / कोई कटौती. Guard-pinned and proven to
+fail on regression (see Ruling #7).
+
+---
+
 ## D-01 — F1 referral invites (F01-04, F01-05, F01-06, F01-07)
 
 **The doc requires:** a customer can invite a pandit by link; invites are
