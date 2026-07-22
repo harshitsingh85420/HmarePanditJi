@@ -16,11 +16,24 @@
 
 import React from "react";
 import type { DeckSlide } from "@/lib/tutorial-decks";
+import { MicPracticeArtboard } from "./MicPracticeArtboard";
 
 export interface DeckArtboardProps {
   slide: DeckSlide;
   /** prefers-reduced-motion — a real artboard renders its static end-state when true */
   reduced: boolean;
+  // ── interactive-artboard signals (static artboards ignore them) ──
+  // The DeckPlayer passes these through to every artboard; only interactive
+  // ones (currently just the आवाज़ mic, A4) act on them. Defined here — not
+  // discovered at flag-flip — so the Design bundle port never has to add them.
+  /** permission granted (mic) — the player may record progress */
+  onGranted?: () => void;
+  /** permission denied at the browser level (mic) */
+  onDenied?: () => void;
+  /** true while the artboard is mid-interaction — the player gates its Next */
+  onBusy?: (busy: boolean) => void;
+  /** the interaction completed — the player ADVANCES (so A4 is never a dead end) */
+  onDone?: () => void;
 }
 
 /** Neutral placeholder — shows the slide's in-mock labels so the deck is fully
@@ -51,6 +64,12 @@ export function PlaceholderArtboard({ slide }: DeckArtboardProps) {
  * placeholder to the real art with zero changes to the DeckPlayer.
  */
 export const ARTBOARDS: Partial<Record<string, React.FC<DeckArtboardProps>>> = {
+  // A4 आवाज़ is NOT a static illustration — it is the FUNCTIONAL mic-practice
+  // component, shared byte-for-byte with the live TutorialV2 (Ruling #8 / C).
+  // The Design bundle's A4 art is merged INTO it as a visual shell, never over
+  // it (docs/review/tutorial-merge-gate.md). micSharedConsumers.test.ts pins
+  // that this entry stays MicPracticeArtboard.
+  A4: MicPracticeArtboard,
   // A0: SwagatArtboard, A1: KamaiArtboard, … (populated when the bundle lands)
 };
 

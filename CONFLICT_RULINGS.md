@@ -106,6 +106,26 @@ retired for that reason. Retirement discipline (all verified before removal):
   the mute + bell assertions are the only ones deleted, and only because their
   slides are gone.
 
+### Shipped (2026-07-22) — mic extraction, approach C
+
+`MicPracticeArtboard` is the ONE shared mic component; `TutorialV2` consumes it in
+its `isMic` slot and `ARTBOARDS['A4']` resolves to it (two consumers, one copy —
+`micSharedConsumers.test.ts`, proven-to-fail). The mic assertions moved to read
+that file **unchanged** (`tutorialIdentity` mic-wiring, `micPrompt` sync-seed +
+granted-short-circuit); the byte-for-byte proof + semantic-diff ledger is in
+[docs/review/mic-extraction.md](docs/review/mic-extraction.md). New guards:
+`micIsBusy.test.tsx` (onBusy can't get stuck), `deckA9.test.tsx` (A4 is not a dead
+end — a granted mic advances the deck).
+
+**Mute/bell-assertion retirement — DEFERRED, not skipped.** This ruling deletes
+them "because their slides are gone" — true for **Deck A** (no mute/bell slide),
+but `TutorialV2` is still the live 6-slide tutorial and STILL has सो जाओ/जागो + the
+नई बुकिंग bell. The `tutorialIdentity` mute/bell assertions therefore still *fit*
+the file they read (`TutorialV2`). Per the guard rule ("if an assertion no longer
+fits, stop and tell me") they still fit, so deleting them now would remove live
+protection. They retire when `TutorialV2` itself is retired at the flag flip. This
+is the one judgement call flagged to Isj (mic-extraction.md §5).
+
 ### Reopening
 
 Only Isj. This exists so no future session reads the mute/bell absence as

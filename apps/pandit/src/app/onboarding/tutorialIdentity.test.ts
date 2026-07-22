@@ -14,6 +14,15 @@ const src = readFileSync(
   join(__dirname, "TutorialV2.tsx"),
   "utf-8",
 );
+// Ruling #8 / approach C: the आवाज़ mic machinery was extracted into the ONE
+// shared MicPracticeArtboard (consumed by TutorialV2 AND ARTBOARDS['A4']). The
+// mic-wiring assertions below MOVE to read that file — their text is UNCHANGED,
+// only the source they read. The mute-gate assertion stays on TutorialV2, which
+// is still the live 6-slide tutorial and keeps the सो जाओ/जागो slide.
+const micSrc = readFileSync(
+  join(__dirname, "..", "..", "components", "tutorial", "MicPracticeArtboard.tsx"),
+  "utf-8",
+);
 
 describe("Tutorial — interactivity keyed by identity, not position", () => {
   it("SlideDef declares the identity markers", () => {
@@ -38,12 +47,17 @@ describe("Tutorial — interactivity keyed by identity, not position", () => {
     expect(src).not.toMatch(/idx\s*===\s*TUTORIAL_TOTAL\s*-\s*1/);
   });
 
-  it("the interactive slides still wire their proven voice behavior", () => {
+  it("the आवाज़ mic wiring lives in the shared MicPracticeArtboard", () => {
     // mic slide: askMic → getUserMedia + practice-resolution + e2e bypass
-    expect(src).toContain("const askMic");
-    expect(src).toContain("getUserMedia({ audio: true })");
-    expect(src).toMatch(/voiceController\.e2e/);
-    // mute slide: the mute→unmute gate that unlocks Next
+    // (assertions UNCHANGED from the pre-extraction guard — only the source
+    //  file moved, from TutorialV2 to the shared component).
+    expect(micSrc).toContain("const askMic");
+    expect(micSrc).toContain("getUserMedia({ audio: true })");
+    expect(micSrc).toMatch(/voiceController\.e2e/);
+  });
+
+  it("the mute slide still wires its proven gate behavior", () => {
+    // mute slide: the mute→unmute gate that unlocks Next (stays in TutorialV2)
     expect(src).toMatch(/nextDisabled = isMute && !gateOpen/);
   });
 });

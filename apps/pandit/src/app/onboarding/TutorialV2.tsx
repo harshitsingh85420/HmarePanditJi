@@ -35,14 +35,12 @@ import { t } from "@/lib/i18n";
 import { useScreenVoice } from "@/hooks/useScreenVoice";
 import { useVoiceCommands } from "@/hooks/useVoiceScreen";
 import { YES, NEXT, BACK, SKIP } from "@/lib/voiceGrammar";
-import { useVoiceInput } from "@/hooks/useVoiceInput";
 import { voiceController } from "@/lib/voiceController";
 import { playBell, playChime } from "@/lib/sounds";
 import { PetalBurst } from "@/components/moments/SlideCanvas";
-import { PopupPointer } from "@/components/moments/PopupPointer";
 import { MoneyCount } from "@/components/moments/MoneyCount";
 import { Diya } from "@/components/ui/Diya";
-import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
+import { MicPracticeArtboard } from "@/components/tutorial/MicPracticeArtboard";
 import { Toran } from "@/components/ui/Toran";
 import { Button } from "@/components/ui/Button";
 import { CoachSpotlight } from "@/components/moments/CoachSpotlight";
@@ -216,29 +214,9 @@ function SceneBooking() {
   );
 }
 
-// आवाज़ — canon 7's five voice bars: sindoor → genda → sindoor, 7px wide,
-// 4px radius, 40px stage. Canon animates height; we animate scaleY from
-// the same 10px↔34px ratio so the animation law holds and nothing reflows.
-const BAR_COLORS = ["#B23A1A", "#D95F38", "#F2A02C", "#D95F38", "#B23A1A"] as const;
-const BAR_MIN = 10 / 34;
-
-function SoundWaves() {
-  const reduced = useReduced();
-  return (
-    <span className="flex items-end gap-1.5 h-10" aria-hidden="true">
-      {BAR_COLORS.map((hex, i) => (
-        <motion.span
-          key={i}
-          className="w-[7px] rounded-[4px] origin-bottom"
-          style={{ height: 34, backgroundColor: hex }}
-          initial={{ scaleY: reduced ? 0.7 : BAR_MIN }}
-          animate={reduced ? { scaleY: 0.7 } : { scaleY: [BAR_MIN, 1, BAR_MIN] }}
-          transition={reduced ? undefined : { duration: 1, repeat: Infinity, ease: "easeInOut", delay: i * 0.15 }}
-        />
-      ))}
-    </span>
-  );
-}
+// (आवाज़'s five voice bars / SoundWaves moved into MicPracticeArtboard with the
+//  rest of the mic machinery — Ruling #8 / approach C. This file consumes that
+//  one shared component in the isMic slot below.)
 
 // शिष्य जगाएँ — Ruling #6 DEMONSTRATION. One orb (canon's orb look) sleeps
 // dim → wakes (halo blooms) → the ribbon "जी, पंडित जी 🙏" pops → a small
@@ -431,8 +409,6 @@ export default function TutorialV2({
   const defs = slideDefs();
   const idx = Math.min(TUTORIAL_TOTAL, Math.max(1, slide)) - 1;
   const def = defs[idx];
-  // Ruling #6: the आवाज़ demo respects reduced-motion like the scenes do.
-  const reduced = useReduced();
 
   // IDENTITY markers (never positions) — every interactive check keys off
   // these, so the deck can be reordered without touching a line below.
@@ -446,8 +422,6 @@ export default function TutorialV2({
   // actually mounts the spotlight.
   const fabRef = useRef<HTMLElement | null>(null);
   const [fabEl, setFabEl] = useState<HTMLElement | null>(null);
-  // आवाज़ slide: spotlight the listening pill when it appears.
-  const pillRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
     const el = document.querySelector('[aria-label*="शिष्य"]') as HTMLElement | null;
     fabRef.current = el;
@@ -508,144 +482,16 @@ export default function TutorialV2({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [muted, sawMute, gateOpen, idx]);
 
-  // ── आवाज़ slide: mic permission + practice ─────────────────
-  const [micState, setMicState] = useState<"idle" | "asking" | "listening" | "done" | "denied">("idle");
-  // Browser-level permission state (permissions.query where available):
-  // 'granted' → no prompt will show, straight to practice; 'denied' →
-  // recovery copy + retry; 'prompt'/'unknown' → the tap fires the prompt.
-  // Z2 U4 LAW: परिचय is the ONE mic-prompt moment. Seed micPerm
-  // SYNCHRONOUSLY from the stored grant so the आवाज़ slide never flashes
-  // the ask-button (and never re-prompts) for a pandit who already
-  // granted; the async permissions.query below only corrects a genuine
-  // mismatch.
-  const [micPerm, setMicPerm] = useState<"granted" | "denied" | "prompt" | "unknown">(() => {
-    try {
-      return localStorage.getItem("mic_permission_granted") === "true" ? "granted" : "unknown";
-    } catch {
-      return "unknown";
-    }
-  });
-  const voiceInput = useVoiceInput();
-  useEffect(() => {
-    if (!isMic) return;
-    // परिचय already earned the mic for most users — the stored flag is an
-    // instant hint (the query corrects it if the browser disagrees).
-    try {
-      if (localStorage.getItem("mic_permission_granted") === "true") setMicPerm("granted");
-    } catch { /* noop */ }
-    if (!navigator.permissions?.query) return;
-    let status: PermissionStatus | null = null;
-    let disposed = false;
-    navigator.permissions
-      .query({ name: "microphone" as PermissionName })
-      .then((s) => {
-        if (disposed) return;
-        status = s;
-        setMicPerm(s.state);
-        s.onchange = () => setMicPerm(s.state);
-      })
-      .catch(() => { /* keep the flag hint */ });
-    return () => {
-      disposed = true;
-      if (status) status.onchange = null;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [idx]);
-
-  const [pointerUp, setPointerUp] = useState(false);
-  const askMic = () => {
-    // Z2 U4 LAW: if permission is already granted (store flag OR live
-    // query state), NEVER invoke a prompt again — go straight to practice
-    // on the existing grant. This makes the tutorial physically incapable
-    // of re-asking, even if the button is somehow shown.
-    if (micPerm === "granted") {
-      setMicState("listening");
-      void voiceInput.start();
-      return;
-    }
-    if (voiceController.e2e) {
-      // E2E traversal: no native prompts; practice resolves immediately
-      voiceController.debug("e2e: tutorial-mic bypassed");
-      setMicState("done");
-      return;
-    }
-    // LADDER LAW (same as परिचय): getUserMedia is ALWAYS attempted first,
-    // created synchronously inside the user-gesture call stack — never
-    // pre-blocked on permissions.query alone. Recovery copy appears only
-    // after a rejection that the query CONFIRMS as browser-level denied.
-    const streamPromise = navigator.mediaDevices.getUserMedia({ audio: true });
-    voiceController.debug("perm: getUserMedia invoked (tutorial mic)");
-    setPointerUp(true);
-    setMicState("asking");
-    voiceController.speak(t("perm.pressAllowVoice"));
-    void streamPromise
-      .then(async (stream) => {
-        setPointerUp(false);
-        voiceController.debug("perm: settled(granted) (tutorial mic)");
-        voiceController.stopSpeech("tutorial-mic:grant-settle");
-        localStorage.setItem("mic_permission_granted", "true");
-        setMicPerm("granted");
-        onMicGranted();
-        setMicState("listening");
-        // one practice listen on the SAME granted stream — never a second
-        // getUserMedia for this gesture
-        await voiceInput.start({ stream });
-      })
-      .catch(async (e: unknown) => {
-        setPointerUp(false);
-        const name = (e as Error)?.name || "";
-        let state: string = "unsupported";
-        if (name !== "NotFoundError") {
-          try {
-            const st = await navigator.permissions.query({ name: "microphone" as PermissionName });
-            state = st.state;
-          } catch { /* query unsupported -> treat as dismissed */ }
-        }
-        if (name === "NotFoundError" || state === "denied") {
-          voiceController.debug("perm: settled(denied) (tutorial mic)");
-          localStorage.setItem("mic_permission_granted", "false");
-          setMicPerm("denied");
-          setMicState("denied");
-          onMicDenied();
-          voiceController.speak(t("tutorial.slide5Denied"));
-        } else {
-          // popup dismissed — keep the button alive, no deny flags
-          voiceController.debug("perm: settled(dismissed) (tutorial mic)");
-          setMicState("idle");
-          voiceController.speak(t("parichay.dismissed"));
-        }
-      });
-  };
-
-  // Practice resolution: the listen machinery finishing (with or without
-  // a transcript — the point is that the mic worked) completes the drill.
-  useEffect(() => {
-    if (!isMic || micState !== "listening") return;
-    if (voiceInput.state === "idle" && voiceInput.transcript !== null) {
-      setMicState("done");
-      voiceController.speak(t("tutorial.slide5Practice"));
-    } else if (voiceInput.state === "error") {
-      setMicState("done");
-      voiceController.speak(t("tutorial.slide5Practice"));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [idx, micState, voiceInput.state, voiceInput.transcript]);
-
-  // Leaving the आवाज़ slide mid-practice: stop the recorder so a late
-  // result can't speak or celebrate over a later slide.
-  useEffect(() => {
-    if (isMic) return;
-    voiceInput.reset();
-    setMicState((m) => (m === "listening" || m === "asking" ? "idle" : m));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [idx]);
-  useEffect(() => {
-    if (micState === "done" && isMic) {
-      setBurst(true);
-      playChime();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [micState, idx]);
+  // ── आवाज़ slide: mic practice ─────────────────────────────
+  // The mic-permission + practice + celebration machinery now lives in ONE
+  // shared component — MicPracticeArtboard — consumed here (isMic slot below)
+  // AND by ARTBOARDS['A4'] (the DeckPlayer). Ruling #8 / approach C. TutorialV2
+  // keeps only `micBusy` (fed by the artboard's onBusy) to gate the voice-Next
+  // while the mic is asking|listening, exactly as the old inline
+  // `micState === "asking" | "listening"` check did. The mic's own celebration
+  // (burst/chime) moved into the component; the `burst` state that remains here
+  // belongs to the सो जाओ/जागो gate above.
+  const [micBusy, setMicBusy] = useState(false);
   useEffect(() => {
     setBurst(false);
   }, [idx]);
@@ -680,7 +526,7 @@ export default function TutorialV2({
       keywords: [...YES, ...NEXT, "रजिस्ट्रेशन", "रजिस्टर", "registration", "शुरू", "start"],
       action: () => {
         if (isCta) return onRegister();
-        if (isMic && (micState === "asking" || micState === "listening")) return;
+        if (isMic && micBusy) return;
         if (nextDisabled) {
           voiceController.speak(t("coach.tryIt"));
           return;
@@ -752,92 +598,17 @@ export default function TutorialV2({
         <div className="relative w-full shrink-0 flex justify-center">
           <Stage>
             {isMic ? (
-              // आवाज़ — canon 7: शिष्य orb, the five voice bars, and the
-              // 78px sindoor mic disc. The disc IS the tap target for the
-              // permission ladder / practice (78px ≫ the 52px floor).
-              <div className="w-full flex flex-col items-center gap-4">
-                {/* canon 5d: the REAL Shishya, listening, size 82 */}
-                <ShishyaOrb size={82} showLabel={false} demoState="listening" />
-                {micState === "denied" ? (
-                  <div className="w-full max-w-[300px] flex flex-col items-center gap-3">
-                    <span className={SUBCAPTION}>{t("tutorial.slide5Denied")}</span>
-                    <span className="text-[18px] font-bold text-saffron-700 font-hindi">{t("tutorial.slide5Blocked")}</span>
-                    <Button variant="secondary" size="md" fullWidth onClick={askMic}>
-                      {t("tutorial.slide5Retry")}
-                    </Button>
-                  </div>
-                ) : micState === "listening" ? (
-                  <>
-                    <SoundWaves />
-                    <div ref={pillRef}>
-                      <span className="bg-gold/15 border border-gold text-saffron-700 text-[18px] font-semibold font-hindi rounded-chip px-4 py-2">
-                        {t("pratham.practiceListening")}
-                      </span>
-                    </div>
-                    <CoachSpotlight
-                      targetRef={pillRef}
-                      title={t("tutorial.slide5Title")}
-                      line={t("pratham.practiceSay")}
-                      requireInteraction
-                      onDone={() => { /* resolves when the listen completes */ }}
-                    />
-                  </>
-                ) : micState === "done" ? (
-                  <span className="text-[20px] font-bold text-leaf-700 font-hindi">✓ {t("tutorial.slide5Practice")}</span>
-                ) : (
-                  // Ruling #6 DEMONSTRATION over the REAL mic button: sound
-                  // arcs rise from the mic → the spoken word "नमस्ते" lands in
-                  // the field → a tick confirms it was understood. Teaches
-                  // "बोलिए, app सुनता है" with zero written explanation. The
-                  // button still fires the real getUserMedia ladder on tap.
-                  <>
-                    <div className="relative flex flex-col items-center">
-                      {/* sound arcs travelling up from the mic toward शिष्य */}
-                      {!reduced && (
-                        <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-[30px] h-[46px] pointer-events-none" aria-hidden="true">
-                          {[0, 1, 2].map((i) => (
-                            <span
-                              key={i}
-                              className="pa-a-wave absolute left-1/2 bottom-0 -ml-[4px] w-[8px] h-[8px] rounded-full bg-saffron-400"
-                              style={{ animationDelay: `${i * 0.5}s` }}
-                            />
-                          ))}
-                        </div>
-                      )}
-                      <button
-                        onClick={askMic}
-                        disabled={micState === "asking"}
-                        aria-label={micPerm === "granted" ? t("tutorial.slide5Again") : t("tutorial.slide5Button")}
-                        className="relative w-[78px] h-[78px] rounded-full bg-saffron-500 shadow-btn-hero flex items-center justify-center active:scale-95 transition-transform disabled:opacity-70"
-                      >
-                        {/* canon's g-glowring, as a transform/opacity ring */}
-                        <motion.span
-                          className="absolute inset-0 rounded-full pointer-events-none"
-                          style={{ border: "2px solid rgba(231,181,74,.55)" }}
-                          initial={{ scale: 1, opacity: 0 }}
-                          animate={{ scale: [1, 1.36], opacity: [0.55, 0] }}
-                          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                          aria-hidden="true"
-                        />
-                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                          <rect x="9" y="2.5" width="6" height="11" rx="3" fill="#FFF6E9" />
-                          <path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7" stroke="#FFF6E9" strokeWidth="2" strokeLinecap="round" />
-                        </svg>
-                      </button>
-                    </div>
-                    <span className="text-[18px] font-semibold text-softgrey font-hindi">
-                      {micPerm === "granted" ? t("tutorial.slide5Again") : t("tutorial.slide5Button")}
-                    </span>
-                    {/* the spoken word lands in the field → tick (the teaching) */}
-                    <div className="relative w-[190px] h-[46px] rounded-field border-2 border-saffron-200 bg-card flex items-center justify-center" aria-hidden="true">
-                      <span className="pa-a-chip text-[19px] font-bold text-temple-700 font-hindi">नमस्ते</span>
-                      <span className="pa-a-tick absolute right-2.5 material-symbols-outlined material-symbols-filled text-[22px] text-leaf-500 leading-none">
-                        check_circle
-                      </span>
-                    </div>
-                  </>
-                )}
-              </div>
+              // आवाज़ — the ONE shared mic-practice component (Ruling #8 / C):
+              // TutorialV2 and ARTBOARDS['A4'] both consume it. onBusy feeds the
+              // voice-Next gate above; the component owns permission, practice
+              // and its celebration. TutorialV2 does NOT pass onDone — its Next
+              // is already enabled on the mic slide, so practice completion just
+              // shows the ✓/burst and the pandit taps Next, exactly as before.
+              <MicPracticeArtboard
+                onGranted={onMicGranted}
+                onDenied={onMicDenied}
+                onBusy={setMicBusy}
+              />
             ) : (
               def.visual?.()
             )}
@@ -851,9 +622,6 @@ export default function TutorialV2({
           <h2 className={def.captionClass ?? CAPTION}>{def.caption ?? def.title}</h2>
         )}
         {def.sub && <p className={SUBCAPTION}>{def.sub}</p>}
-
-        {/* Arrow + chip pointing at the NATIVE permission popup (आवाज़) */}
-        {pointerUp && <PopupPointer />}
 
         {/* सो जाओ/जागो: spotlight the REAL शिष्य orb; gate opens on the cycle */}
         {isMute && !gateOpen && fabEl && (

@@ -33,6 +33,19 @@ never as a replacement. `ARTBOARDS['A4']` stays `MicPracticeArtboard`.
 `micSharedConsumers.test.ts` turns the build red if this is violated — but the
 intended answer is written here so the porter doesn't have to guess.
 
+### A4 must ADVANCE the deck — it is not a dead end (Isj, 2026-07-22)
+
+A4 is interactive: without wiring, a pandit could grant the mic and then sit on
+the आवाज़ screen with nothing advancing. **Decision: the `DeckPlayer` passes its
+own callbacks THROUGH the artboard registry** (`DeckArtboardProps` carries the
+optional `onGranted`/`onDenied`/`onBusy`/`onDone` — defined NOW so the design port
+never rediscovers them). For the mic slide the player wires **`onDone → goNext`
+(auto-advance)** and `onBusy → gate the voice-Next while asking|listening`. The
+component itself is identical for both consumers — it just fires `onDone`; only
+the wiring differs (`TutorialV2` opens its already-enabled Next; the deck
+advances). `deckA9.test.tsx` mounts A4 in the deck and asserts a granted mic moves
+the cursor forward — so "A4 is not a dead end" is a build-red property, not a hope.
+
 ## Fallback (only if the branch must merge earlier — flag it to Isj first)
 
 Keep the **live** tutorial at the current **6-slide `TutorialV2`** and gate the

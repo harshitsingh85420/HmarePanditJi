@@ -20,7 +20,7 @@
 // parent's job (onSlideChange).
 // ─────────────────────────────────────────────────────────────
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import TutorialShell from "@/app/onboarding/screens/tutorial/TutorialShell";
 import type { DeckSlide } from "@/lib/tutorial-decks";
 import { getArtboard } from "@/components/tutorial/tutorial-artboards";
@@ -67,6 +67,20 @@ export default function DeckPlayer({
 
   const ctaRef = useRef<HTMLDivElement | null>(null);
 
+  // ── interactive-artboard busy gate (आवाज़ mic, A4) ─────────
+  // While an interactive artboard is mid-interaction (mic asking|listening) a
+  // spoken "आगे"/"हाँ" is aimed at the mic, not the slide — so the voice-Next is
+  // ignored, exactly as TutorialV2's isMic gate does. Held in a ref (read live
+  // by the memoised commands, no re-register). The manual आगे button stays
+  // enabled (also matching TutorialV2 — practice is optional; the slide
+  // auto-advances via onDone the instant practice completes, so A4 is never a
+  // dead end). onArtboardBusy is stable so the artboard's unmount-release
+  // (onBusy(false)) fires exactly once, on leave.
+  const artboardBusyRef = useRef(false);
+  const onArtboardBusy = useCallback((busy: boolean) => {
+    artboardBusyRef.current = busy;
+  }, []);
+
   // ── navigation (all in 1-based cursor terms) ──────────────
   const goNext = () => (isLast ? onComplete() : onSlideChange(idx + 2));
   const goBack = () => (idx > 0 ? onSlideChange(idx) : onExit("back"));
@@ -101,7 +115,9 @@ export default function DeckPlayer({
       ];
     }
     return [
-      { keywords: [...NEXT], action: goNext },
+      // gated: while an interactive artboard is busy (mic asking|listening) a
+      // spoken "आगे" is aimed at the mic, not the slide — ignore it.
+      { keywords: [...NEXT], action: () => { if (artboardBusyRef.current) return; goNext(); } },
       { keywords: [...SKIP], action: () => onExit("skip") },
       { keywords: [...BACK], action: goBack },
     ];
@@ -124,7 +140,15 @@ export default function DeckPlayer({
       hero={isCta}
       language={language}
     >
-      <Artboard slide={s} reduced={reduced} />
+      <Artboard
+        slide={s}
+        reduced={reduced}
+        onBusy={onArtboardBusy}
+        // interactive artboards (A4 mic) advance the deck on completion — so a
+        // granted mic never leaves the pandit stranded. Static artboards never
+        // call onDone, so passing it universally is inert for them.
+        onDone={goNext}
+      />
     </TutorialShell>
   );
 }
