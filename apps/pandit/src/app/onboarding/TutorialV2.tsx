@@ -43,9 +43,10 @@ import { PopupPointer } from "@/components/moments/PopupPointer";
 import { MoneyCount } from "@/components/moments/MoneyCount";
 import { Diya } from "@/components/ui/Diya";
 import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
+import { Toran } from "@/components/ui/Toran";
 import { Button } from "@/components/ui/Button";
 import { CoachSpotlight } from "@/components/moments/CoachSpotlight";
-import { useReduced, still, breathe } from "@/lib/motion";
+import { useReduced } from "@/lib/motion";
 
 // Slide count lives in lib/onboarding-store so light pages (login back
 // law) can target the CTA slide without bundling the tutorial chunk.
@@ -89,98 +90,128 @@ function Stage({ children }: { children: React.ReactNode }) {
 
 // ── The 6 animated scenes ────────────────────────────────────
 
-// कमाई — canon 4. Brass ₹ coins fall past the rim into a lit thali.
-// Coin geometry is canon's literal set (left/size/glyph-size/duration).
-const CANON_COINS = [
-  { left: "20%", size: 32, glyph: 17, dur: 1.9, delay: 0.0 },
-  { left: "44%", size: 36, glyph: 19, dur: 1.7, delay: 0.45 },
-  { left: "66%", size: 30, glyph: 16, dur: 2.1, delay: 0.9 },
-  { left: "33%", size: 26, glyph: 14, dur: 1.6, delay: 1.35 },
+// कमाई — Ruling #6 DEMONSTRATION (canon 5a world). A booking card slides
+// in → a thumb presses स्वीकार (ripple) → a green tick resolves it → three
+// brass coins arc down into the purse → the earnings total (canon's 52,400)
+// glows as it lands. 7s loop, CSS keyframes; reduced-motion rests on the
+// RESULT (tick + purse + total). Written words: "आपकी कमाई" + the in-mock
+// card labels only.
+const KAMAI_COINS = [
+  { x: -42, delay: "0s" },
+  { x: 0, delay: ".18s" },
+  { x: 42, delay: ".36s" },
 ] as const;
 
 function SceneKamai() {
   const reduced = useReduced();
   return (
-    <div className="flex flex-col items-center gap-3">
-      {/* canon: CountUp 48px #155C34, 1800ms */}
-      <MoneyCount target={52400} durationMs={1800} className="text-[48px] font-black text-leaf-700" />
-      {/* canon 5a: the heading sits BETWEEN the count and the coin stage */}
+    <div className="flex flex-col items-center gap-2" aria-hidden="true">
+      {/* the earnings total — rolls up once on view (canon 48px leaf), then
+          brightens each time coins land (pa-k-amount) */}
+      <MoneyCount
+        target={52400}
+        durationMs={1500}
+        className={`text-[44px] font-black text-leaf-700 leading-none ${reduced ? "" : "pa-k-amount"}`}
+      />
       <div className="text-[22px] font-extrabold text-saffron-700 font-hindi">{t("tutorial.capKamai")}</div>
-      {/* canon stage: 230×170, coins behind the thali rim */}
-      <div className="relative w-[230px] h-[170px] mt-1.5" aria-hidden="true">
-        {CANON_COINS.map((c, i) => (
-          <motion.span
-            key={i}
-            className="absolute top-0 rounded-full bg-orb-brass text-saffron-700 font-black flex items-center justify-center"
-            style={{
-              left: c.left,
-              width: c.size,
-              height: c.size,
-              fontSize: c.glyph,
-              boxShadow: "0 2px 4px rgba(0,0,0,.22)",
-            }}
-            initial={reduced ? { y: 30, opacity: 1 } : { y: -90, opacity: 0 }}
-            animate={
-              reduced
-                ? { y: 30, opacity: 1 }
-                : { y: [-90, 64], rotate: [0, 200], opacity: [0, 1, 1, 0] }
-            }
-            transition={
-              reduced
-                ? undefined
-                : {
-                    duration: c.dur,
-                    delay: c.delay,
-                    repeat: Infinity,
-                    ease: "easeIn",
-                    opacity: { duration: c.dur, delay: c.delay, repeat: Infinity, times: [0, 0.15, 0.7, 1] },
-                  }
-            }
-          >
-            ₹
-          </motion.span>
-        ))}
-        {/* thali: canon's brass ellipse — inset top-light + grounded drop */}
-        <div className="absolute bottom-[6px] left-1/2 -translate-x-1/2 w-[180px] h-[50px] rounded-full bg-orb-bell shadow-orb-brass" />
-        {/* the darker inner well, canon opacity .55 */}
+
+      <div className="relative w-[250px] h-[200px] mt-1">
+        {/* the booking request card drops in from the top */}
         <div
-          className="absolute bottom-[34px] left-1/2 -translate-x-1/2 w-[150px] h-[26px] rounded-full opacity-55"
-          style={{ background: "linear-gradient(#8a6a12,#c99a2a)" }}
-        />
+          className={`absolute top-0 left-1/2 -translate-x-1/2 w-[210px] bg-card border-2 border-saffron-200 border-l-[6px] border-l-saffron-500 rounded-cta px-3.5 py-2.5 flex flex-col gap-1 shadow-lift ${
+            reduced ? "hidden" : "pa-k-card"
+          }`}
+        >
+          <span className="text-[17px] font-black text-saffron-700 font-hindi leading-tight">गृह प्रवेश पूजा</span>
+          <span className="text-[13px] font-semibold text-softgrey font-hindi">कल · सुबह 9:00 · ₹5,600</span>
+          <div className="relative self-stretch mt-1">
+            <span className="block text-center text-[14px] font-extrabold text-chandan bg-leaf-500 rounded-chip py-1 font-hindi">
+              स्वीकार
+            </span>
+            <span className="pa-k-ripple absolute left-1/2 top-1/2 -ml-5 -mt-5 w-10 h-10 rounded-full bg-white" />
+          </div>
+        </div>
+
+        {/* the pressing thumb (canon touch_app glyph) */}
+        <span
+          className="pa-k-thumb absolute left-[118px] top-[92px] material-symbols-outlined text-[30px] text-saffron-700"
+          style={{ filter: "drop-shadow(0 2px 3px rgba(0,0,0,.28))" }}
+        >
+          touch_app
+        </span>
+
+        {/* the green accept-tick that resolves the card */}
+        <span
+          className={`absolute left-1/2 top-[42px] -translate-x-1/2 w-[64px] h-[64px] rounded-full bg-leaf-500 border-4 border-chandan flex items-center justify-center shadow-[0_6px_16px_rgba(30,122,70,.4)] ${
+            reduced ? "" : "pa-k-tick"
+          }`}
+        >
+          <span className="material-symbols-outlined material-symbols-filled text-[36px] text-white leading-none">check</span>
+        </span>
+
+        {/* three brass coins arc from the card into the purse */}
+        {!reduced &&
+          KAMAI_COINS.map((c, i) => (
+            <span
+              key={i}
+              className="pa-k-coin absolute left-1/2 top-[92px] w-[26px] h-[26px] -ml-[13px] rounded-full bg-orb-brass text-saffron-700 text-[15px] font-black flex items-center justify-center"
+              style={{ ["--kx" as string]: `${c.x}px`, animationDelay: c.delay, boxShadow: "0 2px 4px rgba(0,0,0,.22)" }}
+            >
+              ₹
+            </span>
+          ))}
+
+        {/* the purse at the foot — catches a little bounce as coins land */}
+        <div
+          className={`absolute bottom-0 left-1/2 -translate-x-1/2 ${reduced ? "" : "pa-k-purse"}`}
+          style={{ transformOrigin: "50% 100%" }}
+        >
+          <div className="w-[92px] h-[56px] rounded-b-[46px] rounded-t-[14px] border-2 border-[#7d4a12] shadow-[0_6px_14px_rgba(90,46,32,.3)] bg-[linear-gradient(150deg,#C77E2A,#9A5A16)]" />
+          <div className="absolute -top-[6px] left-1/2 -translate-x-1/2 w-[52px] h-[13px] rounded-full bg-[#7d4a12]" />
+        </div>
       </div>
     </div>
   );
 }
 
-// नई बुकिंग — canon 5. The temple bell (rung once via role:"bell") over
-// the request card: 2px peach border, 8px sindoor spine, shadow-lift.
+// नई बुकिंग — Ruling #6 DEMONSTRATION (canon 5b world). The temple bell
+// rings (swing + a sound ring radiates) → the request card rises in → the
+// नई badge welcomes with a pulse. 6s loop, CSS keyframes; reduced-motion
+// rests on the card fully in. 🔔 is canon's own emoji here.
 function SceneBooking() {
   const reduced = useReduced();
   return (
-    <div className="flex flex-col items-center gap-[18px] w-full">
-      <span className="pa-bell-swing text-[52px] leading-none select-none" aria-hidden="true">🔔</span>
-      <motion.div
-        className="w-full bg-card border-2 border-saffron-200 border-l-8 border-l-saffron-500 rounded-cta py-4 px-[18px] flex flex-col gap-1.5 shadow-lift"
-        // canon g-cardslide LOOPS every 3s (slide in → hold → repeat)
-        initial={reduced ? { x: 0, opacity: 1 } : { x: "115%", opacity: 0 }}
-        animate={reduced ? { x: 0, opacity: 1 } : { x: ["115%", "0%", "0%"], opacity: [0, 1, 1] }}
-        transition={reduced ? undefined : { duration: 3, repeat: Infinity, ease: "easeOut", times: [0, 0.24, 1] }}
+    <div className="flex flex-col items-center gap-[18px] w-full" aria-hidden="true">
+      {/* the temple bell rings; a sound ring radiates from it */}
+      <div className="relative flex items-center justify-center w-[56px] h-[56px]">
+        {!reduced && (
+          <span className="pa-b-ring absolute left-1/2 top-1/2 -ml-[28px] -mt-[28px] w-[56px] h-[56px] rounded-full border-2 border-saffron-300" />
+        )}
+        <span className={`${reduced ? "" : "pa-b-bell"} text-[52px] leading-none select-none`}>🔔</span>
+      </div>
+      {/* the request card rises in and holds */}
+      <div
+        className={`w-full bg-card border-2 border-saffron-200 border-l-8 border-l-saffron-500 rounded-cta py-4 px-[18px] flex flex-col gap-1.5 shadow-lift ${
+          reduced ? "" : "pa-b-card"
+        }`}
       >
         <div className="flex items-center justify-between gap-2">
           <span className="text-[20px] font-black text-saffron-700 font-hindi">गृह प्रवेश पूजा</span>
           {/* canon badge is 12px — raised to the label floor (lawConflicts) */}
-          <span className="text-[15px] font-extrabold text-saffron-500 bg-saffron-50 px-2.5 py-1 rounded-chip font-hindi shrink-0">नई</span>
+          <span className={`text-[15px] font-extrabold text-saffron-500 bg-saffron-50 px-2.5 py-1 rounded-chip font-hindi shrink-0 ${reduced ? "" : "pa-b-badge"}`}>
+            नई
+          </span>
         </div>
         <div className="flex items-center gap-2 text-[18px] font-semibold text-temple-700 font-hindi">
           {/* canon draws Material 'event', not the 📅 emoji */}
-          <span className="material-symbols-outlined text-[20px] leading-none text-softgrey" aria-hidden="true">event</span>
+          <span className="material-symbols-outlined text-[20px] leading-none text-softgrey">event</span>
           कल · सुबह 9:00
         </div>
         <div className="flex items-center justify-between mt-1 gap-2">
           <span className="text-[18px] font-semibold text-softgrey font-hindi">दक्षिणा</span>
           <span className="text-[22px] font-black text-leaf-700 font-hindi">₹5,600</span>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 }
@@ -209,110 +240,149 @@ function SoundWaves() {
   );
 }
 
-// शिष्य जगाएँ — canon 5c: the REAL Shishya in his asleep and speaking
-// states (demoState — illustration, never the live voice control), with
-// canon's floating touch_app + arrow_forward column between them.
+// शिष्य जगाएँ — Ruling #6 DEMONSTRATION. One orb (canon's orb look) sleeps
+// dim → wakes (halo blooms) → the ribbon "जी, पंडित जी 🙏" pops → a small
+// bow → back to sleep. 6.5s loop; reduced-motion rests awake + greeting.
+// (The mute-GATE — tap the REAL footer orb to advance — is untouched; this
+//  is the teaching illustration beside it.)
 function SceneSleep() {
   const reduced = useReduced();
+  const size = 96;
   return (
-    <div className="flex items-center gap-3.5">
-      <ShishyaOrb size={76} showLabel={false} demoState="asleep" />
-      <motion.div
-        className="flex flex-col items-center gap-1"
-        animate={reduced ? undefined : { y: [0, -9, 0] }}
-        transition={reduced ? undefined : { duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
-        aria-hidden="true"
-      >
-        <span className="material-symbols-outlined text-[30px] leading-none text-saffron-500">touch_app</span>
-        <span className="material-symbols-outlined text-[26px] leading-none text-gold">arrow_forward</span>
-      </motion.div>
-      <ShishyaOrb size={76} showLabel={false} demoState="speaking" />
+    <div className="relative flex flex-col items-center justify-center w-[180px] h-[190px]" aria-hidden="true">
+      {/* the greeting ribbon pops after the orb wakes */}
+      <div className={`absolute left-1/2 -translate-x-1/2 top-0 ${reduced ? "" : "pa-w-ribbon"}`}>
+        <span className="inline-block bg-saffron-500 text-chandan text-[15px] font-semibold font-hindi rounded-2xl px-[15px] py-[9px] shadow-[0_6px_16px_rgba(178,58,26,.3)] whitespace-nowrap">
+          जी, पंडित जी 🙏
+        </span>
+      </div>
+      {/* gold halo blooms only while awake */}
+      {!reduced && (
+        <span
+          className="pa-w-halo absolute left-1/2 top-[112px] -mt-[60px] w-[120px] h-[120px] rounded-full"
+          style={{ background: "radial-gradient(circle, rgba(242,160,44,.5), transparent 70%)" }}
+        />
+      )}
+      {/* the orb: dim-asleep → lit-awake → bow → asleep (wrapper keeps it
+          centred while the animation owns translateY/scale/filter) */}
+      <div className="absolute left-1/2 -translate-x-1/2 top-[62px]">
+        <div className={reduced ? "" : "pa-w-orb"}>
+          <span
+            className={`relative flex items-center justify-center rounded-full bg-saffron-500 border-4 border-gold shadow-orb-brass ${
+              reduced ? "" : ""
+            }`}
+            style={{ width: size, height: size }}
+          >
+            <span className="text-[44px] leading-none select-none">🙏</span>
+            <span className={`absolute -top-1 -right-1 text-[22px] leading-none ${reduced ? "hidden" : "pa-w-zzz"}`}>💤</span>
+          </span>
+        </div>
+      </div>
     </div>
   );
 }
 
-// सत्यापन — canon 8: the night-gradient video frame, gold bezel, REC dot,
-// the silhouette, and the leaf ✓ stamp landing over it.
+// सत्यापन — Ruling #6 DEMONSTRATION (canon 8 world). The video records (REC
+// pulse + a 2-min bar fills) → an upload arrow floats up → the admin tick
+// stamps → a trust shield grows with a golden shimmer. 7s loop; reduced-
+// motion rests on the shield (verified).
 function SceneVerify() {
   const reduced = useReduced();
   return (
-    <div
-      className="relative w-[220px] h-[164px] rounded-cta bg-night overflow-hidden border-3 border-gold flex items-end justify-center"
-      style={{ boxShadow: "0 10px 24px rgba(42,27,61,.35)" }}
-      aria-hidden="true"
-    >
-      {/* silhouette: head + shoulders, canon's translucent chandan */}
+    <div className="relative flex flex-col items-center" aria-hidden="true">
       <div
-        className="absolute top-[26px] left-1/2 -translate-x-1/2 w-[52px] h-[52px] rounded-full"
-        style={{ background: "rgba(255,246,233,.28)" }}
-      />
-      <div
-        className="w-[118px] h-[66px]"
-        style={{ borderRadius: "60px 60px 0 0", background: "rgba(255,246,233,.28)" }}
-      />
-      {/* REC */}
-      <span className="absolute top-2.5 left-3 text-[15px] font-extrabold flex items-center gap-1" style={{ color: "#FF7B6B" }}>
-        <span className="w-2 h-2 rounded-full" style={{ backgroundColor: "#FF3B30" }} />
-        REC
-      </span>
-      {/* the stamp — canon g-stamp LOOPS at 3.2s (land → hold → fade → re-land) */}
-      <motion.span
-        className="absolute top-1/2 left-1/2 w-[78px] h-[78px] rounded-full bg-leaf-500 border-4 border-chandan flex items-center justify-center"
-        style={{ x: "-50%", y: "-50%", boxShadow: "0 8px 20px rgba(0,0,0,.4)" }}
-        initial={reduced ? { scale: 1, rotate: -8, opacity: 1 } : { scale: 2.6, rotate: -24, opacity: 0 }}
-        animate={
-          reduced
-            ? { scale: 1, rotate: -8, opacity: 1 }
-            : { scale: [2.6, 1, 1, 1], rotate: [-24, -8, -8, -8], opacity: [0, 1, 1, 0] }
-        }
-        transition={reduced ? undefined : { duration: 3.2, repeat: Infinity, ease: "easeInOut", times: [0, 0.18, 0.82, 1] }}
+        className="relative w-[220px] h-[164px] rounded-cta bg-night overflow-hidden border-3 border-gold flex items-end justify-center"
+        style={{ boxShadow: "0 10px 24px rgba(42,27,61,.35)" }}
       >
-        <svg width="46" height="46" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M4.5 12.5l5 5 10-11" stroke="#FFF6E9" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      </motion.span>
+        {/* silhouette: head + shoulders, canon's translucent chandan */}
+        <div className="absolute top-[26px] left-1/2 -translate-x-1/2 w-[52px] h-[52px] rounded-full" style={{ background: "rgba(255,246,233,.28)" }} />
+        <div className="w-[118px] h-[66px]" style={{ borderRadius: "60px 60px 0 0", background: "rgba(255,246,233,.28)" }} />
+
+        {/* REC — the dot pulses while recording */}
+        <span className="absolute top-2.5 left-3 text-[15px] font-extrabold flex items-center gap-1" style={{ color: "#FF7B6B" }}>
+          <span className={`w-2 h-2 rounded-full ${reduced ? "" : "pa-v-rec"}`} style={{ backgroundColor: "#FF3B30" }} />
+          REC
+        </span>
+
+        {/* the 2-minute recording bar fills along the foot of the frame */}
+        {!reduced && (
+          <span className="absolute bottom-0 left-0 h-[4px] w-full bg-leaf-500 pa-v-fill" />
+        )}
+
+        {/* an upload arrow floats up out of the frame once recorded */}
+        {!reduced && (
+          <span className="pa-v-upload absolute left-1/2 -ml-3 top-[54px] material-symbols-outlined text-[26px] text-chandan">
+            upload
+          </span>
+        )}
+
+        {/* the admin verification tick stamps down over the frame */}
+        <span className="absolute top-1/2 left-1/2 -translate-y-1/2">
+          <span
+            className={`block w-[78px] h-[78px] rounded-full bg-leaf-500 border-4 border-chandan flex items-center justify-center ${
+              reduced ? "-translate-x-1/2" : "pa-v-stamp"
+            }`}
+            style={{ boxShadow: "0 8px 20px rgba(0,0,0,.4)" }}
+          >
+            <span className="material-symbols-outlined material-symbols-filled text-[42px] text-white leading-none">check</span>
+          </span>
+        </span>
+      </div>
+
+      {/* the trust shield grows over the profile with a golden shimmer */}
+      <span
+        className={`material-symbols-outlined material-symbols-filled text-[46px] text-leaf-500 -mt-6 relative z-[2] ${
+          reduced ? "" : "pa-v-shield"
+        }`}
+      >
+        verified
+      </span>
     </div>
   );
 }
 
-// स्वागत — canon 9: the real Diya at 96, with the marigold burst behind.
-const CANON_BURST = [
-  { x: -90, y: -60, size: 20, dur: 1.8, delay: 0.0, glyph: "🌼" },
-  { x: 90, y: -55, size: 18, dur: 1.8, delay: 0.3, glyph: "🌸" },
-  { x: -110, y: 30, size: 16, dur: 2.0, delay: 0.6, glyph: "🌼" },
-  { x: 110, y: 40, size: 20, dur: 2.0, delay: 0.9, glyph: "🌸" },
-  { x: 0, y: -90, size: 18, dur: 1.9, delay: 1.2, glyph: "🌼" },
-  { x: -60, y: 70, size: 15, dur: 2.1, delay: 1.5, glyph: "🌸" },
+// स्वागत — Ruling #6 DEMONSTRATION (canon 9 celebration grammar): a canon
+// Toran sways above, marigold petals drift down, and the real Diya glows
+// over a breathing halo. The big CTA glows via the shell (pa-glowring), the
+// footer orb speaks the welcome. reduced-motion rests on the lit still.
+const WELCOME_PETALS = [
+  { left: "12%", g: "🌼", size: 18, delay: "-0.4s", dur: "3.6s" },
+  { left: "32%", g: "🌸", size: 15, delay: "-1.6s", dur: "4.2s" },
+  { left: "58%", g: "🌼", size: 20, delay: "-0.9s", dur: "3.2s" },
+  { left: "74%", g: "🌸", size: 16, delay: "-2.2s", dur: "4.5s" },
+  { left: "88%", g: "🌼", size: 14, delay: "-1.2s", dur: "3.9s" },
 ] as const;
 
 function SceneWelcome() {
   const reduced = useReduced();
   return (
-    <div className="relative flex items-center justify-center" aria-hidden="true">
-      {!reduced && (
-        <span className="absolute left-1/2 top-1/2 w-0 h-0">
-          {CANON_BURST.map((p, i) => (
-            <motion.span
+    <div className="relative flex flex-col items-center" aria-hidden="true">
+      {/* canon Toran sways above the welcome */}
+      <div className="w-[220px]">
+        <Toran variant="garland" count={9} />
+      </div>
+      {/* petals drift down while the Diya glows over a breathing halo */}
+      <div className="relative flex items-center justify-center w-[220px] h-[150px] overflow-hidden">
+        {!reduced &&
+          WELCOME_PETALS.map((p, i) => (
+            <span
               key={i}
-              className="absolute leading-none select-none"
-              style={{ fontSize: p.size }}
-              initial={{ x: 0, y: 0, scale: 0.4, rotate: 0, opacity: 1 }}
-              animate={{ x: p.x, y: p.y, scale: 1.1, rotate: 180, opacity: 0 }}
-              transition={{ duration: p.dur, delay: p.delay, repeat: Infinity, ease: "easeOut" }}
+              className="pa-petal absolute top-0 leading-none select-none"
+              style={{ left: p.left, fontSize: p.size, animationDelay: p.delay, animationDuration: p.dur }}
             >
-              {p.glyph}
-            </motion.span>
+              {p.g}
+            </span>
           ))}
+        {!reduced && (
+          <span
+            className="pa-s-glow absolute left-1/2 top-1/2 w-[150px] h-[150px] rounded-full"
+            style={{ background: "radial-gradient(circle, rgba(242,160,44,.45), transparent 70%)" }}
+          />
+        )}
+        <span className="relative z-[2]">
+          <Diya size={96} lit />
         </span>
-      )}
-      <motion.span
-        className="relative z-[2]"
-        variants={reduced ? still(breathe) : breathe}
-        initial={false}
-        animate="show"
-      >
-        <Diya size={96} lit />
-      </motion.span>
+      </div>
     </div>
   );
 }
@@ -361,6 +431,8 @@ export default function TutorialV2({
   const defs = slideDefs();
   const idx = Math.min(TUTORIAL_TOTAL, Math.max(1, slide)) - 1;
   const def = defs[idx];
+  // Ruling #6: the आवाज़ demo respects reduced-motion like the scenes do.
+  const reduced = useReduced();
 
   // IDENTITY markers (never positions) — every interactive check keys off
   // these, so the deck can be reordered without touching a line below.
@@ -713,31 +785,56 @@ export default function TutorialV2({
                 ) : micState === "done" ? (
                   <span className="text-[20px] font-bold text-leaf-700 font-hindi">✓ {t("tutorial.slide5Practice")}</span>
                 ) : (
+                  // Ruling #6 DEMONSTRATION over the REAL mic button: sound
+                  // arcs rise from the mic → the spoken word "नमस्ते" lands in
+                  // the field → a tick confirms it was understood. Teaches
+                  // "बोलिए, app सुनता है" with zero written explanation. The
+                  // button still fires the real getUserMedia ladder on tap.
                   <>
-                    <SoundWaves />
-                    <button
-                      onClick={askMic}
-                      disabled={micState === "asking"}
-                      aria-label={micPerm === "granted" ? t("tutorial.slide5Again") : t("tutorial.slide5Button")}
-                      className="relative w-[78px] h-[78px] rounded-full bg-saffron-500 shadow-btn-hero flex items-center justify-center active:scale-95 transition-transform disabled:opacity-70"
-                    >
-                      {/* canon's g-glowring, as a transform/opacity ring */}
-                      <motion.span
-                        className="absolute inset-0 rounded-full pointer-events-none"
-                        style={{ border: "2px solid rgba(231,181,74,.55)" }}
-                        initial={{ scale: 1, opacity: 0 }}
-                        animate={{ scale: [1, 1.36], opacity: [0.55, 0] }}
-                        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                        aria-hidden="true"
-                      />
-                      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                        <rect x="9" y="2.5" width="6" height="11" rx="3" fill="#FFF6E9" />
-                        <path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7" stroke="#FFF6E9" strokeWidth="2" strokeLinecap="round" />
-                      </svg>
-                    </button>
+                    <div className="relative flex flex-col items-center">
+                      {/* sound arcs travelling up from the mic toward शिष्य */}
+                      {!reduced && (
+                        <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-[30px] h-[46px] pointer-events-none" aria-hidden="true">
+                          {[0, 1, 2].map((i) => (
+                            <span
+                              key={i}
+                              className="pa-a-wave absolute left-1/2 bottom-0 -ml-[4px] w-[8px] h-[8px] rounded-full bg-saffron-400"
+                              style={{ animationDelay: `${i * 0.5}s` }}
+                            />
+                          ))}
+                        </div>
+                      )}
+                      <button
+                        onClick={askMic}
+                        disabled={micState === "asking"}
+                        aria-label={micPerm === "granted" ? t("tutorial.slide5Again") : t("tutorial.slide5Button")}
+                        className="relative w-[78px] h-[78px] rounded-full bg-saffron-500 shadow-btn-hero flex items-center justify-center active:scale-95 transition-transform disabled:opacity-70"
+                      >
+                        {/* canon's g-glowring, as a transform/opacity ring */}
+                        <motion.span
+                          className="absolute inset-0 rounded-full pointer-events-none"
+                          style={{ border: "2px solid rgba(231,181,74,.55)" }}
+                          initial={{ scale: 1, opacity: 0 }}
+                          animate={{ scale: [1, 1.36], opacity: [0.55, 0] }}
+                          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                          aria-hidden="true"
+                        />
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                          <rect x="9" y="2.5" width="6" height="11" rx="3" fill="#FFF6E9" />
+                          <path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7" stroke="#FFF6E9" strokeWidth="2" strokeLinecap="round" />
+                        </svg>
+                      </button>
+                    </div>
                     <span className="text-[18px] font-semibold text-softgrey font-hindi">
                       {micPerm === "granted" ? t("tutorial.slide5Again") : t("tutorial.slide5Button")}
                     </span>
+                    {/* the spoken word lands in the field → tick (the teaching) */}
+                    <div className="relative w-[190px] h-[46px] rounded-field border-2 border-saffron-200 bg-card flex items-center justify-center" aria-hidden="true">
+                      <span className="pa-a-chip text-[19px] font-bold text-temple-700 font-hindi">नमस्ते</span>
+                      <span className="pa-a-tick absolute right-2.5 material-symbols-outlined material-symbols-filled text-[22px] text-leaf-500 leading-none">
+                        check_circle
+                      </span>
+                    </div>
                   </>
                 )}
               </div>

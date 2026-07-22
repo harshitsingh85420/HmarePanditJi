@@ -5,6 +5,44 @@ ruling that flips is not silently re-litigated. Newest first.
 
 ---
 
+## Ruling #6 — TUTORIAL ANIMATION LAW: the tutorial demonstrates, it doesn't describe
+
+**Status: final** (Isj, 2026-07-21). Supersedes the static-caption reading of
+Ruling #2's tutorial amendment (the caption stays; the TEACHING moves to
+animation + speech).
+
+### The conflict
+
+Canon's tutorial artboards (frames 5a–5f) are STATIC mocks. The register/floor
+work rendered them as a still + a caption + a spoken line. Isj's ruling: a
+62-year-old must learn each concept WITHOUT READING — so each slide must be a
+looping DEMONSTRATION, with शिष्य narrating over it.
+
+### The ruling
+
+The tutorial **intentionally goes beyond canon** (canon is static; this
+animates). Canon's *visual world* still governs: every animation is built from
+canon's own components and motion vocabulary (Diya, CountUp, ShishyaOrb, Toran,
+brass coins, g-float / g-glowring / g-shimmer / g-bounce / celebration petals)
+so nothing looks foreign. Per-slide choreography grammar: **object enters →
+action demonstrates → happy result → loop** (~6–8s).
+
+Bindings: transform/opacity-only CSS keyframes (A12), NO JS animation loops;
+every loop pauses under `prefers-reduced-motion` at a static end-state that
+still conveys the concept; speech and animation are **loosely coupled** (the
+loop runs autonomously, शिष्य's line plays over it — no TTS-duration sync); text
+law unchanged (headline + controls + in-mock labels only). Acceptance (Isj's
+phone): sound-off, the animation alone conveys the concept; reading required =
+reject. The interactive gates (slide 3 mute, slide 4 mic-permission) survive —
+the demonstration is layered on the real interaction, never replaces it.
+
+### Reopening
+
+Only Isj. Canon's static tutorial mock is not counter-evidence — this ruling
+exists precisely to animate past it.
+
+---
+
 ## Ruling #5 — FOUNDER REGISTER LAW: शुद्ध, सम्मानजनक हिंदी everywhere
 
 **Status: final** (Isj, 2026-07-21). Supersedes canon copy.

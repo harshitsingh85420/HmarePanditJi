@@ -669,6 +669,199 @@ body {
 }
 .pa-tap-hint { animation: pa-hint-pulse 1.3s ease-in-out infinite; }
 
+/* ═══════════════════════════════════════════════════════════════
+   TUTORIAL DEMONSTRATION LOOPS — Ruling #6 (Isj). Each tutorial slide
+   TEACHES by animation, not words. Built from canon's motion vocabulary,
+   transform/opacity-only, CSS keyframes (no JS loops). Every loop pauses
+   at a static end-state under prefers-reduced-motion (see the block far
+   below). Speech plays over these autonomously — no duration sync.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Slide 1/6 कमाई: card slides in → thumb taps स्वीकार → flips to a
+   green tick → coins arc into the purse → amount glows. One 7s loop; each
+   child rides it with its own delay window. ── */
+/* NOTE: card/tick/purse are centred with left:50% + translateX(-50%); every
+   keyframe below KEEPS that translateX(-50%) so the animation transform does
+   not clobber the centring (the Tailwind -translate-x-1/2 still covers the
+   reduced-motion / animation-off state). */
+@keyframes pa-k-card {           /* the request card drops in, holds, then fades as the tick takes over */
+  0%        { opacity: 0; transform: translateX(-50%) translateY(-70px) scale(.96); }
+  10%, 46%  { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+  56%, 100% { opacity: 0; transform: translateX(-50%) translateY(0) scale(.98); }
+}
+@keyframes pa-k-thumb {          /* a press lands on स्वीकार, then lifts */
+  0%, 20%   { opacity: 0; transform: translate(6px, 10px) scale(1); }
+  26%       { opacity: 1; transform: translate(6px, 10px) scale(1); }
+  34%       { opacity: 1; transform: translate(6px, 6px) scale(.9); }
+  44%, 100% { opacity: 0; transform: translate(6px, 6px) scale(.9); }
+}
+@keyframes pa-k-ripple {         /* the tap ripple on the accept button */
+  0%, 30%   { opacity: 0; transform: scale(.2); }
+  36%       { opacity: .55; transform: scale(.4); }
+  50%       { opacity: 0; transform: scale(1.5); }
+  100%      { opacity: 0; transform: scale(1.5); }
+}
+@keyframes pa-k-tick {           /* the green accept-tick pops in as the card resolves */
+  0%, 46%   { opacity: 0; transform: translateX(-50%) scale(.2); }
+  54%       { opacity: 1; transform: translateX(-50%) scale(1.15); }
+  60%, 86%  { opacity: 1; transform: translateX(-50%) scale(1); }
+  96%, 100% { opacity: 0; transform: translateX(-50%) scale(1); }
+}
+@keyframes pa-k-coin {           /* a brass coin arcs from the card down into the purse */
+  0%, 52%   { opacity: 0; transform: translate(0,0) scale(.6); }
+  58%       { opacity: 1; transform: translate(var(--kx,0), -8px) scale(1); }
+  74%       { opacity: 1; transform: translate(calc(var(--kx,0) * .4), 78px) scale(.8); }
+  80%, 100% { opacity: 0; transform: translate(0, 92px) scale(.5); }
+}
+@keyframes pa-k-purse {          /* the purse gives a little catch-bounce as coins land */
+  0%, 66%   { transform: translateX(-50%) scaleY(1) scaleX(1); }
+  74%       { transform: translateX(-50%) scaleY(.86) scaleX(1.08); }
+  82%, 100% { transform: translateX(-50%) scaleY(1) scaleX(1); }
+}
+@keyframes pa-k-amount {         /* the total brightens/pops when the money lands */
+  0%, 70%   { opacity: .55; transform: scale(.96); text-shadow: none; }
+  80%       { opacity: 1; transform: scale(1.12); text-shadow: 0 0 18px rgba(242,160,44,.8); }
+  92%, 100% { opacity: 1; transform: scale(1); text-shadow: 0 0 8px rgba(242,160,44,.35); }
+}
+.pa-k-card   { animation: pa-k-card 7s ease-in-out infinite; }
+.pa-k-thumb  { animation: pa-k-thumb 7s ease-in-out infinite; }
+.pa-k-ripple { animation: pa-k-ripple 7s ease-in-out infinite; }
+.pa-k-tick   { animation: pa-k-tick 7s ease-in-out infinite; }
+.pa-k-coin   { animation: pa-k-coin 7s ease-in-out infinite; }
+.pa-k-purse  { animation: pa-k-purse 7s ease-in-out infinite; }
+.pa-k-amount { animation: pa-k-amount 7s ease-in-out infinite; }
+
+/* ── Slide 2/6 नई बुकिंग: the temple bell rings (swing + sound rings
+   radiate) → the request card rises in → the नई badge pulses → soft glow.
+   6s loop. ── */
+@keyframes pa-b-bell {           /* bell swings hardest at the start of each loop, then rests */
+  0%   { transform: rotate(0deg); }
+  4%   { transform: rotate(15deg); }
+  9%   { transform: rotate(-12deg); }
+  14%  { transform: rotate(7deg); }
+  19%  { transform: rotate(-3deg); }
+  24%, 100% { transform: rotate(0deg); }
+}
+@keyframes pa-b-ring {           /* a sound ring radiates from the bell as it rings (margin-centred → scale only) */
+  0%   { opacity: .5; transform: scale(.3); }
+  18%  { opacity: 0; transform: scale(1.6); }
+  100% { opacity: 0; transform: scale(1.6); }
+}
+@keyframes pa-b-card {           /* the request card rises in and holds */
+  0%, 8%    { opacity: 0; transform: translateY(40px); }
+  22%, 100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes pa-b-badge {          /* the नई badge gives a welcoming pulse once the card is in */
+  0%, 30%   { transform: scale(1); }
+  38%       { transform: scale(1.22); }
+  46%, 100% { transform: scale(1); }
+}
+
+.pa-b-bell  { display: inline-block; transform-origin: 50% 8%; animation: pa-b-bell 6s ease-in-out infinite; }
+.pa-b-ring  { animation: pa-b-ring 6s ease-out infinite; }
+.pa-b-card  { animation: pa-b-card 6s ease-out infinite; }
+.pa-b-badge { display: inline-block; animation: pa-b-badge 6s ease-in-out infinite; }
+
+/* ── Slide 3/6 शिष्य जगाएँ: the orb sleeps (dim, slow breath) → wakes (glow
+   blooms, halo breathes) → the ribbon "जी, पंडित जी 🙏" pops → a small bow.
+   6.5s loop, one bespoke orb built from canon's orb look. ── */
+@keyframes pa-w-orb {            /* asleep (dim, grey) → awake (lit) → bow (dip) → back to sleep */
+  0%, 22%   { filter: grayscale(.85) brightness(.8); transform: translateY(0) scale(1); }
+  30%       { filter: grayscale(0) brightness(1); transform: translateY(0) scale(1.05); }
+  48%       { transform: translateY(0) scale(1); filter: grayscale(0) brightness(1); }
+  62%       { transform: translateY(6px) scale(.97); filter: grayscale(0) brightness(1); }  /* the bow */
+  74%       { transform: translateY(0) scale(1); filter: grayscale(0) brightness(1); }
+  88%, 100% { filter: grayscale(.85) brightness(.8); transform: translateY(0) scale(1); }
+}
+@keyframes pa-w-halo {           /* the gold halo blooms only while awake */
+  0%, 26%   { opacity: 0; transform: translateX(-50%) scale(.7); }
+  34%       { opacity: .8; transform: translateX(-50%) scale(1.15); }
+  50%       { opacity: .5; transform: translateX(-50%) scale(1.05); }
+  84%, 100% { opacity: 0; transform: translateX(-50%) scale(.7); }
+}
+@keyframes pa-w-zzz {            /* the 💤 shows only while asleep */
+  0%, 20%   { opacity: 1; transform: translateY(0); }
+  26%, 84%  { opacity: 0; transform: translateY(-6px); }
+  90%, 100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes pa-w-ribbon {         /* the greeting bubble pops after the orb wakes, holds, fades before sleep */
+  0%, 34%   { opacity: 0; transform: translateX(-50%) translateY(6px) scale(.7); }
+  42%       { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+  80%       { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+  88%, 100% { opacity: 0; transform: translateX(-50%) translateY(6px) scale(.7); }
+}
+.pa-w-orb    { animation: pa-w-orb 6.5s ease-in-out infinite; }
+.pa-w-halo   { animation: pa-w-halo 6.5s ease-in-out infinite; }
+.pa-w-zzz    { animation: pa-w-zzz 6.5s ease-in-out infinite; }
+.pa-w-ribbon { animation: pa-w-ribbon 6.5s ease-in-out infinite; }
+
+/* ── Slide 5/6 सत्यापन: video records (REC pulse + a 2-min ring fills) →
+   uploads (arrow floats up) → the admin tick stamps → a trust shield grows
+   over the profile → golden shimmer. 7s loop. ── */
+@keyframes pa-v-rec {            /* the REC dot pulses while recording */
+  0%, 40%   { opacity: 1; }
+  20%       { opacity: .25; }
+  50%, 100% { opacity: .25; }
+}
+@keyframes pa-v-fill {           /* the 2-minute recording bar fills left→right, then clears */
+  0%        { transform: scaleX(0); }
+  42%       { transform: scaleX(1); }
+  50%, 100% { transform: scaleX(0); }
+}
+@keyframes pa-v-upload {         /* an upload arrow floats up out of the frame once recorded */
+  0%, 44%   { opacity: 0; transform: translateY(10px); }
+  52%       { opacity: 1; transform: translateY(0); }
+  64%       { opacity: 0; transform: translateY(-26px); }
+  100%      { opacity: 0; transform: translateY(-26px); }
+}
+@keyframes pa-v-stamp {          /* the admin verification tick stamps down */
+  0%, 60%   { opacity: 0; transform: translateX(-50%) scale(2.4) rotate(-20deg); }
+  70%       { opacity: 1; transform: translateX(-50%) scale(1) rotate(-6deg); }
+  84%, 100% { opacity: 1; transform: translateX(-50%) scale(1) rotate(-6deg); }
+}
+@keyframes pa-v-shield {         /* a trust shield grows + golden shimmer at the end */
+  0%, 72%   { opacity: 0; transform: scale(.4); filter: drop-shadow(0 0 0 rgba(242,160,44,0)); }
+  82%       { opacity: 1; transform: scale(1.12); filter: drop-shadow(0 0 14px rgba(242,160,44,.8)); }
+  92%, 100% { opacity: 1; transform: scale(1); filter: drop-shadow(0 0 6px rgba(242,160,44,.4)); }
+}
+.pa-v-rec    { animation: pa-v-rec 7s ease-in-out infinite; }
+.pa-v-fill   { transform-origin: left center; animation: pa-v-fill 7s ease-in-out infinite; }
+.pa-v-upload { animation: pa-v-upload 7s ease-in-out infinite; }
+.pa-v-stamp  { animation: pa-v-stamp 7s ease-in-out infinite; }
+.pa-v-shield { animation: pa-v-shield 7s ease-in-out infinite; }
+
+/* ── Slide 6/6 स्वागत: celebration grammar — the Diya flame brightens, a
+   soft glow breathes, petals fall (existing pa-petal), CTA glows (existing
+   pa-glowring on the shell). ── */
+@keyframes pa-s-glow {           /* a warm halo breathes behind the Diya */
+  0%, 100% { opacity: .35; transform: translate(-50%,-50%) scale(1); }
+  50%      { opacity: .7; transform: translate(-50%,-50%) scale(1.12); }
+}
+.pa-s-glow { animation: pa-s-glow 2.4s ease-in-out infinite; }
+
+/* ── Slide 4/6 आवाज़: a spoken word travels up from the mic to शिष्य and
+   lands in the field as a chip → tick. Plays over the REAL mic button +
+   permission ladder (never replaces it). 4.5s loop. ── */
+@keyframes pa-a-wave {           /* a sound arc rises from the mic toward the orb */
+  0%   { opacity: 0; transform: translateY(0) scale(.5); }
+  20%  { opacity: .9; transform: translateY(-14px) scale(1); }
+  60%  { opacity: 0; transform: translateY(-46px) scale(.6); }
+  100% { opacity: 0; transform: translateY(-46px) scale(.6); }
+}
+@keyframes pa-a-chip {           /* the spoken word drops in and slots into the field */
+  0%, 40%   { opacity: 0; transform: translateY(-14px) scale(.85); }
+  52%       { opacity: 1; transform: translateY(0) scale(1); }
+  84%, 100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes pa-a-tick {           /* the understood-tick appears after the word lands */
+  0%, 60%   { opacity: 0; transform: scale(.3); }
+  70%       { opacity: 1; transform: scale(1.15); }
+  84%, 100% { opacity: 1; transform: scale(1); }
+}
+.pa-a-wave { animation: pa-a-wave 4.5s ease-in-out infinite; }
+.pa-a-chip { animation: pa-a-chip 4.5s ease-in-out infinite; }
+.pa-a-tick { animation: pa-a-tick 4.5s ease-in-out infinite; }
+
 /* PopupPointer: gentle bounce pointing at the native permission popup */
 @keyframes pa-arrow-bounce {
   0%, 100% { transform: translateY(0); }
@@ -752,7 +945,13 @@ body {
   .pa-cdiya-flame, .pa-cdiya-core, .pa-cdiya-glow, .shishya-breathe-halo, .online-dot,
   .pa-burst-petal, .pa-bell-swing, .pa-bounce-once, .pa-arrow-bounce, .pa-tap-hint,
   .pa-toran-strand, .shishya-breathe, .pa-thali-ripple,
-  .pa-sh-ribbon, .pa-map-ring, .pa-map-bounce, .pa-glowring {
+  .pa-sh-ribbon, .pa-map-ring, .pa-map-bounce, .pa-glowring,
+  /* tutorial demonstration loops (Ruling #6) rest on their end-state */
+  .pa-k-card, .pa-k-thumb, .pa-k-ripple, .pa-k-tick, .pa-k-coin, .pa-k-purse, .pa-k-amount,
+  .pa-b-bell, .pa-b-ring, .pa-b-card, .pa-b-badge,
+  .pa-w-orb, .pa-w-halo, .pa-w-zzz, .pa-w-ribbon,
+  .pa-v-rec, .pa-v-fill, .pa-v-upload, .pa-v-stamp, .pa-v-shield, .pa-s-glow,
+  .pa-a-wave, .pa-a-chip, .pa-a-tick {
     animation: none !important;
   }
   /* Drifting/bursting petals + the ripple ring have no sensible static state */
