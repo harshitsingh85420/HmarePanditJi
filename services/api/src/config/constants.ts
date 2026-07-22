@@ -65,10 +65,13 @@ export const buildOtpSms = (otp: string): string =>
   `@${WEBOTP_BOUND_ORIGIN} #${otp}`;
 
 // ── Pricing constants ──────────────────────────────────────────────────────────
-// THE SINGLE SOURCE for the platform commission. calculateBookingFinancials
-// (the fee math) AND shishyaFacts.commissionPercent (what शिष्य tells the
-// pandit) both read THIS — never a second literal. A guard
-// (commission-consistency.test) fails the build if either hardcodes a number.
+// THE SINGLE SOURCE for the platform fee rate. Founder decision 2026-07-21
+// (CONFLICT_RULINGS #7): this fee is charged to the CUSTOMER on top of the
+// dakshina; the pandit keeps 100% of the dakshina. calculateGrandTotal (the
+// fee math) AND shishyaFacts.platformFeePercent (what शिष्य tells the pandit)
+// both read THIS — never a second literal. The guard
+// (commission-consistency.test) fails the build if either hardcodes a number,
+// OR if the pandit payout is ever reduced by this fee.
 export const PLATFORM_FEE_PERCENT = 10;
 export const TRAVEL_SERVICE_FEE_PERCENT = 5;
 export const GST_PERCENT = 18;

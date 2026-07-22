@@ -43,7 +43,7 @@ export const hi = {
       paymentHow:
         "आपकी कमाई सीधे आपके बैंक खाते या यूपीआई में आती है — वही जो आपने तैयारी में भरा है।",
       commission:
-        "दक्षिणा का 90 प्रतिशत आपका है — प्लेटफ़ॉर्म केवल 10 प्रतिशत सेवा-शुल्क लेता है।",
+        "दक्षिणा का पूरा 100 प्रतिशत आपका है — कोई कटौती नहीं। प्लेटफ़ॉर्म का शुल्क अलग से यजमान देता है, आपकी दक्षिणा में से कुछ नहीं कटता।",
       changePrice:
         "मेरी पूजाएँ वाले हिस्से में जाकर किसी भी पूजा की दक्षिणा कभी भी बदल सकते हैं।",
       dakshinaWho:
@@ -484,10 +484,12 @@ export const hi = {
     reject: "अस्वीकार कीजिए",
     earningsTitle: "आपकी कमाई का हिसाब",
     dakshina: "दक्षिणा",
-    // MONEY-TRUTH: label must state the REAL rate — PLATFORM_FEE_PERCENT
-    // is 10 (services/api/src/config/constants.ts); the old label
-    // overstated the rate next to a correct 10% deduction (feeLabel guard).
-    platformFee: "प्लेटफ़ॉर्म शुल्क (10%)",
+    // MONEY-TRUTH (founder 2026-07-21): the platform fee is customer-paid, on
+    // TOP of the dakshina — it is NEVER a deduction from the pandit. On a
+    // pandit-facing breakdown the fee is not the pandit's concern, so this
+    // label reads as an informational note, not a "you lose" line. Rate is
+    // PLATFORM_FEE_PERCENT (feeLabel guard keeps the number in sync).
+    platformFee: "प्लेटफ़ॉर्म शुल्क — यजमान देता है (10%)",
     youGet: "आपको मिलेगा",
     travel: "यात्रा भत्ता",
     food: "भोजन भत्ता",
@@ -731,9 +733,9 @@ export const hi = {
   // Canon frame 23 "सामान्य सवाल · बुकिंग · पैसे · सत्यापन". Static content,
   // no CMS. ONE TRUTH: every answer mirrors services/api shishyaFacts
   // CURATED_HI — the FAQ must never tell the pandit something different
-  // from what शिष्य says out loud. The 10% line is guard-pinned to
-  // PLATFORM_FEE_PERCENT (see feeLabel/faq guards); if the rate ever
-  // changes, both move together.
+  // from what शिष्य says out loud. Founder 2026-07-21: the pandit keeps 100%
+  // of the dakshina; the platform fee is customer-paid and separate (faq
+  // guard pins the 100%/कोई-कटौती truth).
   faq: {
     title: "सामान्य सवाल",
     subtitle: "बुकिंग · पैसे · सत्यापन",
@@ -745,7 +747,7 @@ export const hi = {
       { g: "booking", q: "नई बुकिंग कैसे पता चलेगी?", a: "नई बुकिंग आते ही घंटी बजेगी और बुकिंग वाले हिस्से में दिखेगी। आप हाँ या ना, दोनों कह सकते हैं।" },
       { g: "booking", q: "सहायक पंडितों का भुगतान कौन करता है?", a: "सहायक पंडितों का प्रबंध और भुगतान आप स्वयं करते हैं, पंडित जी। कुल दक्षिणा में उनकी दक्षिणा भी शामिल होती है, जो आप उन्हें देते हैं।" },
       { g: "money", q: "पैसा कब और कैसे मिलेगा?", a: "पूजा संपन्न होने के 48 घंटे के अंदर पैसा सीधे आपके बैंक खाते या यूपीआई में आ जाता है।" },
-      { g: "money", q: "प्लेटफ़ॉर्म कितना काटता है?", a: "दक्षिणा का 90 प्रतिशत आपका है — प्लेटफ़ॉर्म केवल 10 प्रतिशत सेवा-शुल्क लेता है।" },
+      { g: "money", q: "प्लेटफ़ॉर्म कितना काटता है?", a: "दक्षिणा में से कुछ नहीं काटता — पूरा 100 प्रतिशत आपका है। प्लेटफ़ॉर्म का शुल्क अलग से यजमान देता है, आपकी दक्षिणा घटती नहीं।" },
       { g: "money", q: "यात्रा का ख़र्च कौन देता है?", a: "अपनी गाड़ी से जाने पर ₹12 प्रति किलोमीटर आना-जाना मिलता है; ट्रेन-बस का इंतज़ाम बुकिंग के साथ तय होता है।" },
       { g: "money", q: "पैसा न आए तो क्या कीजिए?", a: "पूजा पूरी होने के 48 घंटे बाद भी पैसा न आए, तो मदद वाले हिस्से से हमारी टीम को फ़ोन कीजिए — तुरंत देखा जाएगा।" },
       { g: "money", q: "क्या ऐप का कोई शुल्क है?", a: "ऐप बिल्कुल मुफ़्त है — न जुड़ने का कोई शुल्क, न चलाने का।" },

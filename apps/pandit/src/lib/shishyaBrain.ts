@@ -12,7 +12,8 @@
 // v1 KNOWN LIMIT: keyword sets match Hindi + Latin transliteration
 // only; per-language keyword extensions ride the same table later.
 // Money/Aadhaar answers are grounded in repo facts (constants.ts
-// ₹12/km; founder scripts 10%/90%; tutorial 24h; onboarding
+// ₹12/km; founder 2026-07-21: pandit keeps 100%, platform fee is a
+// separate customer-paid charge; tutorial 24h; onboarding
 // doneVoice ~1 day verification) — never invented.
 // ─────────────────────────────────────────────────────────────
 

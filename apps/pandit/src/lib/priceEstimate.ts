@@ -6,15 +6,15 @@
 // wouldn't charge. Rules that DON'T exist in code (hotel / train / flight
 // fares) are shown as "बुकिंग पर तय", never invented.
 //
-// SINGLE-SIDED FEE (founder decision): the family pays EXACTLY dakshina +
-// pass-throughs — no fee/GST line on the customer side. The platform's one
-// 10% commission comes out of the pandit's payout (GST-inclusive), exactly
-// as शिष्य promises ("दक्षिणा का 90% आपका").
+// 100% TO PANDIT (founder decision 2026-07-21, CONFLICT_RULINGS #7): the
+// pandit keeps the WHOLE dakshina — कोई कटौती नहीं. The platform fee is a
+// SEPARATE charge the CUSTOMER pays on top; it never reduces this payout.
+// So the meter's "आपको मिलेगा" is dakshina + pass-throughs, at 100%.
 
 export const COSTING = {
   selfDriveRatePerKm: 12, // SELF_DRIVE_RATE_PER_KM
   foodAllowancePerDay: 1000, // FOOD_ALLOWANCE_PER_DAY
-  platformFeePct: 0.10, // = PLATFORM_FEE_PERCENT/100 — the PANDIT-side commission (guard enforces match)
+  platformFeePct: 0.10, // = PLATFORM_FEE_PERCENT/100 — the CUSTOMER-side fee, on top (guard enforces match); NOT deducted from the pandit
 } as const;
 
 // A typical local booking, used only to make the honesty estimate concrete.
@@ -74,8 +74,9 @@ export function estimateSampleBooking(prefs: MeterPrefs, dakshina: number): Mete
     lines.push({ label: "ठहराव (होटल)", amount: null, note: "दाम बुकिंग पर तय" });
   }
 
-  // No fee/GST line: single-sided fee — the family pays exactly the lines
-  // above; the platform's commission is deducted from the pandit's payout.
+  // No fee line on this pandit-facing meter: the platform fee is customer-
+  // paid, added on top at checkout, and never reduces the pandit's payout —
+  // so the meter shows the pandit's full dakshina + pass-throughs.
 
   // Demand level for the 3-bar position: more higher-cost prefs → ज़्यादा माँग.
   let score = 0;

@@ -130,12 +130,17 @@ const STEPS = [
   { label: "Confirmed", icon: "check_circle" },
 ];
 
-// SINGLE-SIDED FEE (founder decision): the customer pays exactly dakshina +
-// pass-throughs — NO customer-side platform fee / service fee / GST lines.
-// (The old local constants here even said 15% while the server charged 10%.)
-// The platform's one 10% commission is deducted from the pandit's payout.
+// 100% TO PANDIT, SEPARATE CUSTOMER FEE (founder decision 2026-07-21,
+// CONFLICT_RULINGS #7): the Pandit keeps the WHOLE dakshina — no deduction.
+// Platform revenue is a SEPARATE fee charged to the CUSTOMER, added ON TOP of
+// the dakshina. So the customer now pays dakshina + platform fee + pass-throughs;
+// this mirrors the server's calculateGrandTotal exactly (display = charge).
+// PLATFORM_FEE_PERCENT here MUST equal the server single source
+// (services/api/src/config/constants.ts); the payment-money guard greps the
+// pay-now composition so the two can never diverge.
 const FOOD_PER_DAY = 1000;
 const MUHURAT_CONSULTATION_FEE = 499;
+const PLATFORM_FEE_PERCENT = 10; // = server PLATFORM_FEE_PERCENT — customer-paid, on top
 
 // â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
@@ -418,11 +423,13 @@ export default function BookingWizardClient() {
     (addons.visarjan ? 500 : 0);
 
   // ── FOUNDER DECISION 2(b): display = charge ────────────────────────────
-  // PAY NOW is EXACTLY what the server charges (booking.grandTotal =
-  // dakshina + travel + food; single-sided fee, nothing on top). The
-  // payment-money guard greps this line — the pay-now total and the Razorpay
-  // charge can never diverge.
-  const payNow = form.dakshina + effectiveTravelCost + foodAllowance;
+  // PAY NOW is EXACTLY what the server charges (booking.grandTotal = dakshina +
+  // platform fee + travel + food). Founder 2026-07-21 (CONFLICT_RULINGS #7):
+  // the platform fee is charged to the CUSTOMER on top of the dakshina — the
+  // Pandit still receives 100% of the dakshina. The payment-money guard greps
+  // this composition — the pay-now total and the Razorpay charge can never diverge.
+  const platformFee = Math.round((form.dakshina * PLATFORM_FEE_PERCENT) / 100);
+  const payNow = form.dakshina + platformFee + effectiveTravelCost + foodAllowance;
   // SETTLED AT BOOKING: samagri, add-ons and platform-booked accommodation
   // are paid directly to Pandit Ji / arranged at the puja — NOT charged
   // online (matches how samagri works offline). Server-side charging of
@@ -1425,10 +1432,16 @@ export default function BookingWizardClient() {
                     )}
                   </div>
 
-                  {/* Single-sided fee: no customer-side fee/GST row — the
-                      price IS the itemized lines above. */}
-                  <div className="flex justify-between items-start py-2 pt-4">
-                    <p className="text-[#8a7960] text-xs">No platform fee added — you pay exactly the items above. Pandit Ji's dakshina includes the platform's service commission.</p>
+                  {/* Platform fee (founder 2026-07-21, CONFLICT_RULINGS #7):
+                      a SEPARATE charge to the customer, ON TOP of the dakshina.
+                      Pandit Ji receives 100% of the dakshina — this fee never
+                      reduces it. Shown as its own line so the total is honest. */}
+                  <div className="flex justify-between items-start py-2">
+                    <div>
+                      <p className="text-[#181511] dark:text-white font-semibold">Platform Fee</p>
+                      <p className="text-[#8a7960] text-xs">Keeps the app free for Pandit Ji — added on top, so he receives 100% of the dakshina</p>
+                    </div>
+                    <span className="font-semibold">{fmt(platformFee)}</span>
                   </div>
                 </div>
               </section>

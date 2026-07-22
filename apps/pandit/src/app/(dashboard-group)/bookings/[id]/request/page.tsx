@@ -321,16 +321,13 @@ export default function BookingRequestPage() {
             </div>
           )}
 
-          {/* Platform Fee deduction */}
-          {booking.earnings?.platformFee > 0 && (
-            <div className="flex justify-between gap-3 text-[15px] font-semibold text-danger font-hindi mb-[6px]">
-              <span>{t("booking.platformFee")}</span>
-              <span>−₹{booking.earnings.platformFee.toLocaleString("en-IN")}</span>
-            </div>
-          )}
-
-          {/* Net Dakshina */}
-          {booking.earnings?.dakshinaNet > 0 && (
+          {/* No platform-fee deduction row: founder 2026-07-21
+              (CONFLICT_RULINGS #7) — the pandit keeps 100% of the dakshina;
+              the platform fee is customer-paid and never appears here. The
+              "net" row shows ONLY if it ever differs from the gross (it never
+              does under the 100% model, so it stays hidden). */}
+          {booking.earnings?.dakshinaNet > 0 &&
+            booking.earnings.dakshinaNet !== booking.dakshinaAmount && (
             <div className="flex justify-between gap-3 text-[15px] font-semibold text-leaf-700 font-hindi mb-[6px]">
               <span>{t("booking.youGet")}</span>
               <span>₹{booking.earnings.dakshinaNet.toLocaleString("en-IN")}</span>

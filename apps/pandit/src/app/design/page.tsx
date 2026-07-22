@@ -192,11 +192,12 @@ export default function DesignSystemPage() {
             {hiDesign.earnings}
           </h2>
 
+          {/* Founder 2026-07-21 (CONFLICT_RULINGS #7): pandit keeps 100% —
+              no deduction row; you-get equals the full dakshina. */}
           <Card>
             <EarningsRow label={t("booking.dakshina")} amount={1500} kind="plus" />
-            <EarningsRow label={t("booking.platformFee")} amount={225} kind="minus" />
             <div className="mt-4">
-              <EarningsRow label={t("booking.youGet")} amount={1275} kind="total" />
+              <EarningsRow label={t("booking.youGet")} amount={1500} kind="total" />
             </div>
           </Card>
           
