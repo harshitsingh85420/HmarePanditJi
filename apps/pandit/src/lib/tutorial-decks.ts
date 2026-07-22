@@ -30,6 +30,18 @@
  * approved wording drops in with a one-line edit each.
  */
 
+/**
+ * MERGE-GATE FLAG (Isj 2026-07-22, docs/review/tutorial-merge-gate.md). The
+ * new deck-based tutorial (Deck A 9 slides + Deck B 5 slides) is DEFAULT-OFF:
+ * production keeps the live 6-slide TutorialV2 until the Claude-Design artboards
+ * are ported. Flip to `true` ONLY when every deck slide has a REAL artboard —
+ * enforced as a FLAG PROPERTY by tutorial-artboards-ready.test.ts (flag ON ⇒ no
+ * slide may resolve to PlaceholderArtboard), so the guard and the flag can never
+ * cancel each other. The 9-slide path is still exercised in tests with the flag
+ * FORCED on (so an always-off flag is never an unexercised code path).
+ */
+export const TUTORIAL_DECKS_ENABLED = false;
+
 export type DeckId = "A" | "B";
 
 export interface DeckSlideChoice {
