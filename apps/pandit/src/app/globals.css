@@ -660,10 +660,12 @@ body {
 /* Splash tap-hint chip. T1: the STRONGER pulse — the chip carries the
    greeting a fresh load cannot speak (browser autoplay law), so it must
    read as an invitation, not decoration: scale + saffron glow, not just
-   opacity. transform includes the centering translateX. */
+   opacity. The pill is centred by its flex parent (justify-center) — do NOT
+   add translateX here (a stray translateX(-50%) dragged it half its width
+   off-centre once the pulse escalated). Scale/glow only. */
 @keyframes pa-hint-pulse {
-  0%, 100% { opacity: 1; transform: translateX(-50%) scale(1); box-shadow: 0 2px 10px rgba(178, 58, 26, 0.18); }
-  50%      { opacity: 0.9; transform: translateX(-50%) scale(1.06); box-shadow: 0 4px 22px rgba(231, 181, 74, 0.65); }
+  0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 2px 10px rgba(178, 58, 26, 0.18); }
+  50%      { opacity: 0.9; transform: scale(1.06); box-shadow: 0 4px 22px rgba(231, 181, 74, 0.65); }
 }
 .pa-tap-hint { animation: pa-hint-pulse 1.3s ease-in-out infinite; }
 
