@@ -41,6 +41,8 @@ interface TutorialShellProps {
   currentDot: number;
   totalDots?: number;
   onSkip: () => void;
+  /** override the "छोड़ें" skip-button label (e.g. a confirm slide's 'बाद में') */
+  skipLabel?: string;
   onBack?: () => void;
   onNext: () => void;
   nextLabel?: string;
@@ -60,6 +62,7 @@ export default function TutorialShell({
   currentDot,
   totalDots = 6,
   onSkip,
+  skipLabel,
   onBack,
   onNext,
   nextLabel,
@@ -100,7 +103,7 @@ export default function TutorialShell({
           // canon: 15px/700 #8A6F5C plain text. 18sp floor + 52px hit box.
           className="min-h-[52px] px-2 -mr-2 flex items-center text-[18px] font-bold text-softgrey active:opacity-70 shrink-0"
         >
-          {translations.skip}
+          {skipLabel || translations.skip}
         </button>
       </header>
 

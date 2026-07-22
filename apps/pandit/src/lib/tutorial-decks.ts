@@ -53,6 +53,8 @@ export interface DeckSlide {
   interactive?: "mic";
   /** identity-keyed role: 'intro' opens a deck, 'cta' closes Deck A into registration */
   role?: "intro" | "cta";
+  /** primary-button label (design text). Defaults to "आगे" when omitted. */
+  nextLabel?: string;
   /** the two voice choices on a confirm slide (routed through the F02 confirm ladder) */
   confirm?: [DeckSlideChoice, DeckSlideChoice];
   /**
@@ -74,6 +76,7 @@ export const DECK_A: readonly DeckSlide[] = [
     say: "नमस्ते पंडित जी। हमारे पंडित जी पर आपका बहुत-बहुत स्वागत है। यह प्लेटफ़ॉर्म आपके लिए ही बना है। हमारा मूल मंत्र याद रखिए — ऐप पंडित जी के लिए है, पंडित जी ऐप के लिए नहीं। आगे जानने के लिए 'जानें' बोलिए, सीधे पंजीकरण के लिए 'स्किप'।",
     inMock: ["हमारे पंडित जी", "🌼 🌸 🌼"],
     role: "intro",
+    nextLabel: "जानें",
     confirm: [
       { label: "जानें", hint: "proceed" },
       { label: "स्किप करें", hint: "skip" },
@@ -144,6 +147,7 @@ export const DECK_A: readonly DeckSlide[] = [
     say: "यह था हमारे पंडित जी का परिचय। क्या आप पंजीकरण शुरू करना चाहेंगे? 'हाँ' बोलिए या 'बाद में'।",
     inMock: ["अब आपकी बारी", "शुरू कीजिए", "बाद में", "🌼 🌸 🌼"],
     role: "cta",
+    nextLabel: "शुरू कीजिए",
     confirm: [
       { label: "हाँ", hint: "proceed" },
       { label: "बाद में", hint: "skip" },
@@ -196,6 +200,7 @@ export const DECK_B: readonly DeckSlide[] = [
     say: "अब आप बुकिंग लेना शुरू कर सकते हैं। किसी भी समय 'सहायता' से यह ट्यूटोरियल दोबारा देख सकते हैं।",
     inMock: ["समापन", "सहायता", "हो गया! 🙏", "ठीक है"],
     role: "cta",
+    nextLabel: "ठीक है",
     endState: "Petals + folded hands; a pointer to 'सहायता' where the tutorial can be replayed.",
   },
 ] as const;

@@ -16,7 +16,13 @@ import { SKIP, matchAny } from "./voiceGrammar";
 // ─────────────────────────────────────────────────────────────
 
 const ALL = [...DECK_A, ...DECK_B];
-const shown = (s: DeckSlide) => [s.headline, s.say, ...s.inMock, ...(s.confirm?.map((c) => c.label) ?? [])];
+const shown = (s: DeckSlide) => [
+  s.headline,
+  s.say,
+  ...s.inMock,
+  ...(s.nextLabel ? [s.nextLabel] : []),
+  ...(s.confirm?.map((c) => c.label) ?? []),
+];
 const everyString = ALL.flatMap(shown);
 
 describe("tutorial decks — structure", () => {
