@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { hi } from "./strings";
 import * as voiceScripts from "./voice-scripts";
 import * as voiceScriptsPart0 from "./voice-scripts-part0";
+import * as tutorialDecks from "./tutorial-decks";
 import { LANG_CONFIRM } from "./strings-langconfirm";
 
 // ─────────────────────────────────────────────────────────────
@@ -110,7 +111,7 @@ describe("FOUNDER REGISTER LAW — शुद्ध, सम्मानजनक 
   });
 
   it("voice-scripts narrations carry no banned register", () => {
-    for (const mod of [voiceScripts, voiceScriptsPart0]) {
+    for (const mod of [voiceScripts, voiceScriptsPart0, tutorialDecks]) {
       const rows: Array<{ path: string; value: string }> = [];
       flattenStrings(mod, "voiceScripts", rows);
       const hits = rows
