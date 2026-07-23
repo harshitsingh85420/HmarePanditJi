@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import type { OnboardingState, OnboardingPhase, SupportedLanguage } from '@/lib/onboarding-store'
+import { ACTIVE_TUTORIAL_DECK } from '@/lib/onboarding-store'
 
 // SSR FIX: Check if we're on client side before accessing localStorage
 const isClient = typeof window !== 'undefined'
@@ -55,6 +56,7 @@ const DEFAULT_STATE: OnboardingState = {
   tutorialStarted: false,
   tutorialCompleted: false,
   currentTutorialScreen: 1,
+  tutorialDeck: null,
   voiceTutorialSeen: false,
   micDenied: false,
   parichayDone: false,
@@ -100,7 +102,9 @@ export const useOnboardingStore = create<OnboardingStore>()(
 
       setTutorialCompleted: (completed) => set({ tutorialCompleted: completed }),
 
-      setCurrentTutorialScreen: (screen) => set({ currentTutorialScreen: screen }),
+      // stamp the ACTIVE deck's identity with the index, so a stale index from a
+      // different tutorial (post flag-flip / rollback) is later read as fresh.
+      setCurrentTutorialScreen: (screen) => set({ currentTutorialScreen: screen, tutorialDeck: ACTIVE_TUTORIAL_DECK }),
 
       setVoiceTutorialSeen: (seen) => set({ voiceTutorialSeen: seen }),
 
@@ -131,6 +135,7 @@ export const useOnboardingStore = create<OnboardingStore>()(
         tutorialStarted: state.tutorialStarted,
         tutorialCompleted: state.tutorialCompleted,
         currentTutorialScreen: state.currentTutorialScreen,
+        tutorialDeck: state.tutorialDeck,
         voiceTutorialSeen: state.voiceTutorialSeen,
         micDenied: state.micDenied,
         parichayDone: state.parichayDone,

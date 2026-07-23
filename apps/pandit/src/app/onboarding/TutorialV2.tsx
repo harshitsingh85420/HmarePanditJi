@@ -48,8 +48,10 @@ import { useReduced } from "@/lib/motion";
 
 // Slide count lives in lib/onboarding-store so light pages (login back
 // law) can target the CTA slide without bundling the tutorial chunk.
-import { TUTORIAL_TOTAL } from "@/lib/onboarding-store";
-export { TUTORIAL_TOTAL };
+// TutorialV2 owns its slide count internally (TV2_TOTAL = defs.length = 6),
+// DECOUPLED from the now-flag-derived TUTORIAL_TOTAL — so a flag-ON value (9,
+// Deck A) can never make this 6-slide component index out of range. The page
+// reads TUTORIAL_TOTAL from onboarding-store directly.
 
 type VisualFn = () => React.ReactNode;
 
@@ -407,7 +409,8 @@ export default function TutorialV2({
   onMicGranted,
 }: TutorialV2Props) {
   const defs = slideDefs();
-  const idx = Math.min(TUTORIAL_TOTAL, Math.max(1, slide)) - 1;
+  const TV2_TOTAL = defs.length; // this component's own count (6), not the flag-derived total
+  const idx = Math.min(TV2_TOTAL, Math.max(1, slide)) - 1;
   const def = defs[idx];
 
   // IDENTITY markers (never positions) — every interactive check keys off
@@ -510,9 +513,9 @@ export default function TutorialV2({
   // ── CTA slide ───────────────────────────────────────────────
   const [stay, setStay] = useState(false);
 
-  const goNext = () => onSlideChange(Math.min(TUTORIAL_TOTAL, slide + 1));
+  const goNext = () => onSlideChange(Math.min(TV2_TOTAL, slide + 1));
   const goBack = () => onSlideChange(Math.max(1, slide - 1));
-  const skipToCta = () => onSlideChange(TUTORIAL_TOTAL);
+  const skipToCta = () => onSlideChange(TV2_TOTAL);
 
   const nextDisabled = isMute && !gateOpen;
 
@@ -557,8 +560,8 @@ export default function TutorialV2({
   if (isCta) {
     return (
       <TutorialShell
-        currentDot={TUTORIAL_TOTAL}
-        totalDots={TUTORIAL_TOTAL}
+        currentDot={TV2_TOTAL}
+        totalDots={TV2_TOTAL}
         onSkip={skipToCta}
         onBack={goBack}
         onNext={onRegister}
@@ -586,7 +589,7 @@ export default function TutorialV2({
   return (
     <TutorialShell
       currentDot={slide}
-      totalDots={TUTORIAL_TOTAL}
+      totalDots={TV2_TOTAL}
       onSkip={skipToCta}
       onBack={idx === 0 ? undefined : goBack}
       onNext={nextDisabled ? () => { } : goNext}

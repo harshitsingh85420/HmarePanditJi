@@ -20,11 +20,12 @@ import React, { useEffect, useRef, useState } from "react";
 import { getToken } from "@/lib/safeStorage";
 import { useRouter } from "next/navigation";
 import { useSafeOnboardingStore } from "@/lib/stores/ssr-safe-stores";
+import { useOnboardingStore } from "@/stores/onboardingStore";
 import { voiceController } from "@/lib/voiceController";
 import { api } from "@/lib/api";
 import { detectLanguage, LANG_TO_BCP47, LANG_NATIVE_NAME, type LangCode } from "@/lib/languageDetect";
 import { LANG_CONFIRM } from "@/lib/strings-langconfirm";
-import { type OnboardingPhase, type SupportedLanguage } from "@/lib/onboarding-store";
+import { type OnboardingPhase, type SupportedLanguage, TUTORIAL_TOTAL, ACTIVE_TUTORIAL_DECK, resolveTutorialResume } from "@/lib/onboarding-store";
 import { activateLanguage, t } from "@/lib/i18n";
 import { useVoiceScreen } from "@/hooks/useVoiceScreen";
 import { YES, NO } from "@/lib/voiceGrammar";
@@ -36,7 +37,9 @@ import ParichayScreen from "./screens/ParichayScreen";
 import LocationPermissionScreen from "./screens/LocationPermissionScreen";
 import ManualCityScreen from "./screens/ManualCityScreen";
 import LanguageListScreen from "./screens/LanguageListScreen";
-import TutorialV2, { TUTORIAL_TOTAL } from "./TutorialV2";
+import TutorialV2 from "./TutorialV2";
+import DeckPlayer from "@/components/tutorial/DeckPlayer";
+import { DECK_A, TUTORIAL_DECKS_ENABLED } from "@/lib/tutorial-decks";
 import RegistrationScreen from "./RegistrationScreen";
 
 // Entry phases (splash → language) render inside this dock so शिष्य keeps
@@ -206,6 +209,28 @@ export default function OnboardingOrchestratorPage() {
     };
     void run();
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ── Cross-deck resume normalization (Isj, 2026-07-22) ──────
+  // The persisted store rehydrates currentTutorialScreen + tutorialDeck raw (no
+  // validation on rehydrate). Once hydration finishes, resolve a stale CROSS-DECK
+  // index to fresh: a v2-era index is NOT a valid Deck-A slide (nor vice-versa on
+  // rollback), so it must RESTART — never clamp into a mismapped slide. Also
+  // upgrades a legacy null marker to the active deck without disturbing a valid
+  // same-deck index. Normalising the STORE (not just the display) keeps the
+  // back-law — which reads store.currentTutorialScreen — from a mid-tutorial jump.
+  useEffect(() => {
+    const normalize = () => {
+      const s = useOnboardingStore.getState();
+      const resolved = resolveTutorialResume(
+        s.currentTutorialScreen, s.tutorialDeck, ACTIVE_TUTORIAL_DECK, TUTORIAL_TOTAL,
+      );
+      if (resolved !== s.currentTutorialScreen || s.tutorialDeck !== ACTIVE_TUTORIAL_DECK) {
+        s.setCurrentTutorialScreen(resolved); // also stamps tutorialDeck = ACTIVE
+      }
+    };
+    if (useOnboardingStore.persist.hasHydrated()) normalize();
+    return useOnboardingStore.persist.onFinishHydration(normalize);
   }, []);
 
   useEffect(() => {
@@ -441,19 +466,49 @@ export default function OnboardingOrchestratorPage() {
       );
     }
 
-    // ── TUTORIAL (16 slides; mic asked on slide 5) ─────────────
+    // ── TUTORIAL — flag-conditional mount (review finding, 2026-07-23):
+    // TUTORIAL_DECKS_ENABLED OFF → the live 6-slide TutorialV2 (unchanged);
+    // ON → the 9-slide Deck A on the shared DeckPlayer. The flip alone swaps
+    // the mount — no second wiring step to forget (deckMount.test.ts pins
+    // this, so the flag and the mount can never disagree).
     if (phase === "TUTORIAL") {
+      // cross-deck-safe for display too (belt-and-suspenders with the
+      // normalization effect above): resolve before the store settles.
+      const tutorialSlide = resolveTutorialResume(currentTutorialScreen, store.tutorialDeck, ACTIVE_TUTORIAL_DECK, TUTORIAL_TOTAL);
+      const onTutorialSlideChange = (n: number) => {
+        voiceController.stopSpeech("user-nav:slide");
+        store.setCurrentTutorialScreen(n);
+      };
+      const completeToAuth = () => {
+        store.setTutorialCompleted(true);
+        goto("AUTH");
+      };
+      if (TUTORIAL_DECKS_ENABLED) {
+        return (
+          <DeckPlayer
+            deck={DECK_A}
+            slide={tutorialSlide}
+            onSlideChange={onTutorialSlideChange}
+            // A8 हाँ / end of deck → registration (same as TutorialV2 onRegister)
+            onComplete={completeToAuth}
+            onExit={(reason) => {
+              // A0 स्किप / छोड़ें = "सीधे पंजीकरण" → registration, exactly like
+              // completing. बाद-में (defer) = TutorialV2's onLater — mark seen,
+              // stay. Back off slide 1 → the universal back law (PARICHAY).
+              if (reason === "skip") completeToAuth();
+              else if (reason === "defer") store.setTutorialCompleted(true);
+              else store.setPhase("PARICHAY");
+            }}
+            onMicGranted={() => store.setMicDenied(false)}
+            onMicDenied={() => store.setMicDenied(true)}
+          />
+        );
+      }
       return (
         <TutorialV2
-          slide={Math.min(TUTORIAL_TOTAL, Math.max(1, currentTutorialScreen))}
-          onSlideChange={(n) => {
-            voiceController.stopSpeech("user-nav:slide");
-            store.setCurrentTutorialScreen(n);
-          }}
-          onRegister={() => {
-            store.setTutorialCompleted(true);
-            goto("AUTH");
-          }}
+          slide={tutorialSlide}
+          onSlideChange={onTutorialSlideChange}
+          onRegister={completeToAuth}
           onLater={() => {
             store.setTutorialCompleted(true);
           }}

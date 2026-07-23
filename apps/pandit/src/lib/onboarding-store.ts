@@ -5,6 +5,12 @@
 // ─────────────────────────────────────────────────────────────
 
 import { logger } from '@/utils/logger'
+import { ACTIVE_TUTORIAL_DECK, TUTORIAL_TOTAL, resolveTutorialResume, type TutorialDeckId } from './tutorial-flag'
+// TUTORIAL_TOTAL is now FLAG-DERIVED (6 for TutorialV2, 9 for Deck A) in the tiny
+// data-free tutorial-flag.ts; re-exported here so light pages (login/registration
+// back-law) still import it from onboarding-store without bundling the deck data.
+export { TUTORIAL_TOTAL, ACTIVE_TUTORIAL_DECK, resolveTutorialResume } from './tutorial-flag'
+export type { TutorialDeckId } from './tutorial-flag'
 
 export type SupportedLanguage =
   | 'Hindi' | 'Bhojpuri' | 'Maithili' | 'Bengali' | 'Tamil'
@@ -60,6 +66,10 @@ export interface OnboardingState {
   tutorialStarted: boolean
   tutorialCompleted: boolean
   currentTutorialScreen: number // 1-based, 1..TUTORIAL_TOTAL
+  // WHICH tutorial currentTutorialScreen belongs to — so a stale index from a
+  // different deck (v2 6 vs Deck A 9) is treated as fresh, not mismapped. null =
+  // legacy/pre-marker install (read as 'v2', the only tutorial before decks).
+  tutorialDeck: TutorialDeckId | null
 
   // Voice tutorial
   voiceTutorialSeen: boolean
@@ -84,11 +94,8 @@ export interface OnboardingState {
 
 export const STORAGE_KEY = 'hpj_pandit_onboarding_v1'
 
-// TutorialV2 slide count (slide TUTORIAL_TOTAL = the register CTA).
-// Lives here so light pages (e.g. /login's back-to-tutorial law) can
-// target the CTA slide without importing the tutorial chunk. The 6-scene
-// "boring fix" deck: कमाई → नई बुकिंग → आवाज़ → सो जाओ/जागो → सत्यापन → स्वागत.
-export const TUTORIAL_TOTAL = 6
+// TUTORIAL_TOTAL is re-exported from tutorial-flag above (flag-derived: 6 for the
+// live TutorialV2, 9 for Deck A). Light pages import it from here as before.
 
 export const DEFAULT_STATE: OnboardingState = {
   phase: 'SPLASH',
@@ -101,6 +108,7 @@ export const DEFAULT_STATE: OnboardingState = {
   tutorialStarted: false,
   tutorialCompleted: false,
   currentTutorialScreen: 1,
+  tutorialDeck: null,
   voiceTutorialSeen: false,
   micDenied: false,
   parichayDone: false,
@@ -230,12 +238,19 @@ function validateOnboardingState(parsed: Partial<OnboardingState>): Partial<Onbo
   validated.detectedCity = typeof parsed.detectedCity === 'string' ? parsed.detectedCity : ''
   validated.detectedState = typeof parsed.detectedState === 'string' ? parsed.detectedState : ''
 
-  // Validate number fields (clamp a stale persisted screen to the deck size)
-  if (typeof parsed.currentTutorialScreen === 'number' && parsed.currentTutorialScreen >= 1 && parsed.currentTutorialScreen <= TUTORIAL_TOTAL) {
-    validated.currentTutorialScreen = parsed.currentTutorialScreen
-  } else {
-    validated.currentTutorialScreen = 1
-  }
+  // Resume screen: CROSS-DECK-SAFE. A stale index from a different tutorial than
+  // the one now live (v2 6 vs Deck A 9) is treated as FRESH, not clamped into
+  // range — clamping would land mid-tutorial at a mismapped slide. See
+  // resolveTutorialResume; the clamp survives only for same-deck out-of-range.
+  validated.currentTutorialScreen = resolveTutorialResume(
+    parsed.currentTutorialScreen,
+    parsed.tutorialDeck,
+    ACTIVE_TUTORIAL_DECK,
+    TUTORIAL_TOTAL,
+  )
+  // Stamp the ACTIVE deck: after this load the marker matches live (a later
+  // same-build reload resumes normally; a cross-build marker was just resolved).
+  validated.tutorialDeck = ACTIVE_TUTORIAL_DECK
 
   // Validate pendingLanguage
   if (parsed.pendingLanguage && ALL_LANGUAGES.includes(parsed.pendingLanguage)) {

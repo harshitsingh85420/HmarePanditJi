@@ -64,9 +64,15 @@ So the flip is an explicit, named step — **STEP: FLIP THE FLAG**:
 1. Ingest the Design bundle → populate every `ARTBOARDS` entry
    (`apps/pandit/src/components/tutorial/tutorial-artboards.tsx`) so no deck slide
    resolves to `PlaceholderArtboard`.
-2. **Flip `TUTORIAL_DECKS_ENABLED` → `true`** in `apps/pandit/src/lib/tutorial-decks.ts`.
-   The flag-property guard then becomes the LIVE protection (flag ON ⇒ any
-   placeholder fails the build).
+2. **Flip `TUTORIAL_DECKS_ENABLED` → `true`** in `apps/pandit/src/lib/tutorial-flag.ts`
+   (re-exported by `tutorial-decks.ts`). The flag-property guard then becomes the
+   LIVE protection (flag ON ⇒ any placeholder fails the build). **The flip alone
+   swaps the tutorial**: the TUTORIAL mount in `onboarding/page.tsx` is
+   flag-conditional (OFF → 6-slide `TutorialV2`, ON → 9-slide Deck A on
+   `DeckPlayer`) — there is NO separate "wire the DeckPlayer" step to forget, and
+   `deckMount.test.ts` turns the build red if that conditional is ever removed
+   (adversarial-review finding, 2026-07-23: a flip without the mount swap would
+   have served the 6-slide tutorial driven by TUTORIAL_TOTAL=9).
 3. **Retire the mute/bell assertions — DO IT HERE, not before** (Ruling #8, AMENDED
    by Isj 2026-07-22: conditional retirement *at* the flip). The instant the flag is
    ON, `TutorialV2` stops being the live tutorial, so its सो जाओ/जागो + नई बुकिंग

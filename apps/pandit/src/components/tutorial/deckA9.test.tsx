@@ -69,3 +69,63 @@ describe("Deck A (flag-forced-on) — A4 आवाज़ is not a dead end", () 
     await waitFor(() => expect(onSlideChange).toHaveBeenCalledWith(A4_SLIDE + 1));
   });
 });
+
+// TutorialShell's default skip label (Hindi) — confirm slides override it with
+// their own choice label (A0 'स्किप करें', A8 'बाद में').
+const DEFAULT_SKIP = "छोड़िए ›";
+
+describe("Deck A (flag-forced-on) — no slide strands the pandit", () => {
+  it("sanity: the deck ends on the CTA (A8, शुरू कीजिए)", () => {
+    const last = DECK_A[DECK_A.length - 1];
+    expect(last.id).toBe("A8");
+    expect(last.role).toBe("cta");
+    expect(last.nextLabel).toBe("शुरू कीजिए");
+  });
+
+  it("SKIP leaves the deck from EVERY slide (defer on the CTA)", () => {
+    for (let slide = 1; slide <= DECK_A.length; slide++) {
+      const s = DECK_A[slide - 1];
+      const onExit = vi.fn();
+      render(
+        <DeckPlayer deck={DECK_A} slide={slide} onSlideChange={vi.fn()} onExit={onExit} onComplete={vi.fn()} />,
+      );
+      const label = s.confirm ? s.confirm[1].label : DEFAULT_SKIP;
+      fireEvent.click(screen.getByRole("button", { name: label }));
+      // A8 (cta) exits as 'defer' (बाद में); every other slide as 'skip'
+      expect(onExit, `slide ${slide} (${s.id})`).toHaveBeenCalledWith(s.role === "cta" ? "defer" : "skip");
+      cleanup();
+    }
+  });
+
+  it("the CTA slide completes the deck (शुरू कीजिए → onComplete)", () => {
+    const onComplete = vi.fn();
+    render(
+      <DeckPlayer deck={DECK_A} slide={DECK_A.length} onSlideChange={vi.fn()} onExit={vi.fn()} onComplete={onComplete} />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "शुरू कीजिए" }));
+    expect(onComplete).toHaveBeenCalledTimes(1);
+  });
+
+  it("hardware/UI back off slide 1 exits as 'back' (universal back law hands over)", () => {
+    const onExit = vi.fn();
+    render(
+      <DeckPlayer deck={DECK_A} slide={1} onSlideChange={vi.fn()} onExit={onExit} onComplete={vi.fn()} />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "वापस जाइए" }));
+    expect(onExit).toHaveBeenCalledWith("back");
+  });
+
+  it("out-of-range cursors clamp inside the deck (resume safety at 9)", () => {
+    // DeckPlayer's own clamp: a cursor beyond the deck renders the last slide,
+    // below 1 renders the first — never a crash, never a blank frame.
+    const { container } = render(
+      <DeckPlayer deck={DECK_A} slide={99} onSlideChange={vi.fn()} onExit={vi.fn()} onComplete={vi.fn()} />,
+    );
+    expect(container.textContent).toContain(DECK_A[DECK_A.length - 1].headline);
+    cleanup();
+    const { container: c2 } = render(
+      <DeckPlayer deck={DECK_A} slide={-5} onSlideChange={vi.fn()} onExit={vi.fn()} onComplete={vi.fn()} />,
+    );
+    expect(c2.textContent).toContain(DECK_A[0].headline);
+  });
+});

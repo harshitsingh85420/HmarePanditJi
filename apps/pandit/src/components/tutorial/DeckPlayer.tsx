@@ -43,6 +43,10 @@ export interface DeckPlayerProps {
   onExit: (reason: DeckExitReason) => void;
   /** finished — reached the end, or said हाँ on the CTA */
   onComplete: () => void;
+  /** mic-permission outcome from an interactive artboard (A4) — parity with
+   *  TutorialV2's onMicGranted/onMicDenied (the parent records micDenied). */
+  onMicGranted?: () => void;
+  onMicDenied?: () => void;
   language?: SupportedLanguage;
 }
 
@@ -56,6 +60,8 @@ export default function DeckPlayer({
   onSlideChange,
   onExit,
   onComplete,
+  onMicGranted,
+  onMicDenied,
   language = "Hindi",
 }: DeckPlayerProps) {
   const reduced = useReduced();
@@ -144,6 +150,8 @@ export default function DeckPlayer({
         slide={s}
         reduced={reduced}
         onBusy={onArtboardBusy}
+        onGranted={onMicGranted}
+        onDenied={onMicDenied}
         // interactive artboards (A4 mic) advance the deck on completion — so a
         // granted mic never leaves the pandit stranded. Static artboards never
         // call onDone, so passing it universally is inert for them.
