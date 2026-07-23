@@ -8,6 +8,29 @@ reflog/fsck/stash trace). Static `123456` login into prod is DEAD in this branch
 
 ---
 
+## ⛔ MERGE GATE — DO NOT MERGE BEFORE MSG91 WORKS (Isj, 2026-07-23)
+
+**This branch merges ONLY AFTER all three exist on Render: (1) DLT template
+approval, (2) MSG91 credentials, (3) BOTH template IDs. Never before.**
+
+**Why (the lockout):** killing `123456` with no real SMS path locks EVERYONE out
+of the pandit AND web apps — Isj included — because both apps authenticate
+through the same OTP endpoints. That halts all QA, the preview reviews, and the
+still-pending phone acceptance. Meanwhile the live `123456` bypass endangers
+**zero real users**: no real pandit has ever onboarded, and the standing rule
+(nobody real touches the platform pre-launch) holds. So the bypass is safe to
+leave until the moment SMS actually works — and the merge is that moment, not
+before.
+
+**Testing until merge is UNCHANGED:** `123456` on current `main`, nobody real
+on the platform. After merge: seed a real number + real MSG91 delivery (§6).
+
+**Branch hygiene:** `hold/otp-hardening-v2` is rebased onto `main` WEEKLY and the
+full gate wall re-run, so the eventual merge is not a conflict mountain. (As of
+2026-07-23 the branch base IS `main`'s head — zero drift, no conflicts.)
+
+---
+
 ## 1. DLT TEMPLATES — paste these BYTE-EXACT into the MSG91 portal (item K)
 
 Two templates, one per app (the WebOTP binding line differs). `{#var#}` marks
@@ -73,17 +96,31 @@ any MSG91 key/template is missing, if a WebOTP origin is unset/malformed, or if
 the sender ID isn't 6 chars — so a misconfigured cutover never silently ships a
 half-hardened auth. A crashed boot is loud and recoverable; a broken auth is not.
 
+**⚠ ADMIN LOGIN — set a REAL hash BEFORE the cutover.** Admin login is
+email+password, entirely independent of OTP (Isj keeps admin access through the
+whole cutover regardless). BUT this hardening makes prod **refuse** the
+repo-public default `ADMIN_PASSWORD_HASH` (a committed bcrypt hash is offline-
+attackable). So confirm `ADMIN_PASSWORD_HASH` on Render is a REAL hash (not the
+repo default) — otherwise admin login returns 503 after this merges. Generate:
+`node -e "console.log(require('bcryptjs').hashSync(process.argv[1],10))" 'yourpassword'`.
+
 ---
 
 ## 3. FIRE SEQUENCE (the cutover)
 
+**Both apps go dark at once.** The pandit AND web/customer apps authenticate
+through the same OTP endpoints, so the instant this merges, `123456` stops
+working on BOTH. Plan the cutover for when SMS is proven, not before (the GATE).
+
 1. Submit both DLT templates (§1); wait for approval + template IDs.
-2. Set the Render env (§2). Do NOT deploy yet.
-3. Deploy the API from `hold/otp-hardening-v2` (after Isj merges it). Watch the
-   boot logs — a green boot means every env guard passed.
+2. Set the Render env (§2) — MSG91 keys, both template IDs, both WebOTP origins,
+   AND confirm a REAL `ADMIN_PASSWORD_HASH`. Do NOT deploy yet.
+3. Merge `hold/otp-hardening-v2` (the GATE is now satisfied). Deploy the API.
+   Watch the boot logs — a green boot means every env guard passed.
 4. **Same cutover, Vercel** (see §5): set `NEXT_PUBLIC_OTP_DEV_MODE=false` on
    apps/pandit AND redeploy apps/pandit.
-5. Run the LIVE PROOF (§4) on a real handset before telling any pandit.
+5. Run the LIVE PROOF (§4) on a real handset — for BOTH a pandit login and a
+   web/customer login — before telling any pandit.
 
 ---
 
@@ -123,3 +160,24 @@ production — on a Redis error it BLOCKS sends rather than draining the SMS
 balance. This makes an Upstash Redis outage a **login outage by design**. If
 logins are failing platform-wide with `otp_rate_limited`/`backend_unavailable`,
 check Redis first (Upstash dashboard) — it is load-bearing for OTP.
+
+---
+
+## 6. TESTING AFTER THE MERGE (the honest path)
+
+Merging kills the `123456` login used for all QA. The path afterward:
+
+**RECOMMENDED — a real seeded number + real MSG91 delivery.** Seed the pilot
+pandit (and one test customer) with a REAL phone Isj holds, and log in with the
+actual OTP that arrives on that handset. This is the honest path AND it keeps
+exercising the real DLT flow the platform now depends on. Cost: a handful of
+₹-per-SMS.
+
+**NOT AVAILABLE — a staging deploy.** The env guard blocks `OTP_DEV_MODE=true` in
+production, so a "staging with dev-mode on" would be the natural dev path — but
+**Render currently has exactly ONE service (verified — no staging deploy
+exists)**, so there is nowhere for it to live. Using it would require **standing
+up a second Render service first** (its own DATABASE_URL/REDIS_URL, NODE_ENV≠
+production or the guard fatal-boots). Until that exists, this option is not real
+— use the seeded-real-number path above. **Never** reintroduce a prod static
+bypass.
