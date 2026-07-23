@@ -3,8 +3,9 @@ import { z } from "zod";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { prisma } from "../lib/prisma";
-import { env } from "../config/env";
-import { buildOtpSms, OTP_TTL_SECONDS } from "../config/constants";
+import { env, isDefaultAdminHash } from "../config/env";
+import { OTP_TTL_SECONDS } from "../config/constants";
+import { generateOtp, hashOtp, sendOtpSms, isStaticOtpAllowed } from "../lib/otp";
 import { authLanding } from "../lib/authRouting";
 import { AppError } from "../middleware/errorHandler";
 import crypto from "crypto";
@@ -31,14 +32,11 @@ const AUTH_COOKIE_OPTIONS = {
   path: "/",
 };
 
-// Phase 1 simplification: In-memory OTP store
-type OTPRecord = {
-  phone: string;
-  role: "CUSTOMER" | "PANDIT";
-  otp: string;
-  expiresAt: number;
-};
-const OTPStore = new Map<string, OTPRecord>();
+// (hardening v2, item B: the in-memory OTP Map is GONE. A Render free-tier
+//  cold-start between "request OTP" and "verify OTP" dropped the code from the
+//  Map and the pandit could never log in. Both paths now store the OTP hash in
+//  Redis as "<sha256>.<role>" — the role rides in the value, no schema change.
+//  otp-static-kill.test.ts fails the build if a Map ever returns here.)
 
 const phoneRegex = /^\+91[6-9]\d{9}$/;
 
@@ -53,20 +51,25 @@ export const sendOtp = async (request: FastifyRequest, reply: FastifyReply) => {
     throw new AppError("Role must be CUSTOMER or PANDIT", 400);
   }
 
-  const otp = "123456"; // Default for phase 1 or mock
-
-  if (env.MOCK_OTP === "true") {
-    console.log(`[MOCK OTP] Phone: ${phone}, OTP: ${otp}`);
-  } else {
-    console.log(`[MOCK OTP] Phone: ${phone}, OTP: ${otp} (Fallback since mock is off)`);
+  // hardening v2 (item A): a REAL random OTP for everyone — the static value
+  // exists only behind isStaticOtpAllowed(), which is hard-false in prod.
+  const otp = generateOtp();
+  if (isStaticOtpAllowed()) {
+    console.log(`[DEV OTP] Phone: ${phone}, OTP: ${otp}`);
   }
 
-  OTPStore.set(phone, {
-    phone,
-    role,
-    otp,
-    expiresAt: Date.now() + OTP_TTL_SECONDS * 1000,
-  });
+  // item B: Redis, hash+role in the value — survives cold-starts, no schema change.
+  await storeOtpHash(phone, `${hashOtp(otp)}.${role}`, OTP_TTL_SECONDS);
+
+  // item A: deliver via the app's DLT template (CUSTOMER → web origin/template).
+  const delivery = await sendOtpSms(phone, otp, role === "PANDIT" ? "PANDIT" : "WEB");
+  if (!delivery.sent && !isStaticOtpAllowed()) {
+    // no static fallback and nothing delivered — honesty beats a dead screen
+    return reply.status(502).send({
+      success: false,
+      error: { code: "otp_delivery_failed", message: "OTP भेजा नहीं जा सका। कृपया थोड़ी देर बाद फिर कोशिश कीजिए।" },
+    });
+  }
 
   return reply.send({ success: true, data: { message: "OTP sent", expiresIn: OTP_TTL_SECONDS }, message: "Success" });
 };
@@ -79,24 +82,23 @@ export const verifyOtp = async (request: FastifyRequest, reply: FastifyReply) =>
     throw new AppError("Phone and OTP are required", 400);
   }
 
-  const record = OTPStore.get(phone);
-  if (!record) {
+  // hardening v2 (items A+B): Redis-backed, hash-compared, NO static bypass —
+  // the value is "<sha256>.<role>"; TTL expiry is Redis's own.
+  const stored = await getOtpHash(phone);
+  if (!stored) {
     throw new AppError("OTP_NOT_FOUND", 400);
   }
+  const sep = stored.lastIndexOf(".");
+  const storedHash = sep === -1 ? stored : stored.slice(0, sep);
+  const storedRole = sep === -1 ? undefined : stored.slice(sep + 1);
 
-  if (Date.now() > record.expiresAt) {
-    OTPStore.delete(phone);
-    throw new AppError("OTP_EXPIRED", 400);
-  }
-
-  // In mock mode: otp === '123456' always passes
-  if (otp !== "123456" && otp !== record.otp) {
+  if (hashOtp(otp) !== storedHash) {
     throw new AppError("INVALID_OTP", 400);
   }
 
-  OTPStore.delete(phone);
+  await deleteOtpHash(phone);
 
-  const requestRole = role || record.role;
+  const requestRole = role || storedRole || "CUSTOMER";
 
   // Find user by phone
   let user = await prisma.user.findUnique({
@@ -373,6 +375,13 @@ export const adminLogin = async (request: FastifyRequest, reply: FastifyReply) =
     throw new AppError("Invalid admin credentials", 401);
   }
 
+  // hardening v2 (item A): the repo carries a PUBLIC default bcrypt hash —
+  // anyone can attack it offline. Production REFUSES admin login until a real
+  // ADMIN_PASSWORD_HASH is set on the host (a locked door beats a known key).
+  if (env.NODE_ENV === "production" && isDefaultAdminHash(env.ADMIN_PASSWORD_HASH)) {
+    throw new AppError("Admin login is disabled: ADMIN_PASSWORD_HASH is unset or the repo default. Set a real hash on the host.", 503);
+  }
+
   const isMatch = bcrypt.compareSync(password, env.ADMIN_PASSWORD_HASH);
   if (!isMatch) {
     throw new AppError("Invalid admin credentials", 401);
@@ -435,28 +444,26 @@ export const sendOtpNew = async (request: FastifyRequest, reply: FastifyReply) =
     });
   }
 
-  // Generate OTP
-  let otp = "123456";
-  if (env.OTP_DEV_MODE !== "true") {
-    // Generate secure random 6 digit code
-    otp = Math.floor(100000 + Math.random() * 900000).toString();
-    // G4d: the WebOTP-bound SMS body — MSG91 (or any provider) plugs in
-    // HERE and must send `smsBody` VERBATIM: the '@origin #code' last
-    // line is what lets the browser offer auto-fill on the login screen.
-    // Pandit app path → the PANDIT origin (prod-validated at boot).
-    const smsBody = buildOtpSms(otp, env.WEBOTP_ORIGIN_PANDIT);
-    // TODO(MSG91): await msg91.send(phone, smsBody)
-    console.log(`[PRODUCTION OTP] Phone: ${phone}, SMS ready (${smsBody.length} chars)`);
-  } else {
+  // hardening v2 (item A): a REAL random OTP; the static value only behind
+  // isStaticOtpAllowed() (hard-false in prod). The old code here generated a
+  // random OTP and NEVER SENT it (a TODO where the send belonged) — a pandit
+  // on prod with the flag off could never log in.
+  const otp = generateOtp();
+  if (isStaticOtpAllowed()) {
     console.log(`[DEV OTP] Phone: ${phone}, OTP: ${otp}`);
   }
 
-  // Hash OTP using SHA-256
-  const hash = crypto.createHash("sha256").update(otp).digest("hex");
+  // item B: hash+role in the value — ONE storage convention across both paths.
+  await storeOtpHash(phone, `${hashOtp(otp)}.PANDIT`, OTP_TTL_SECONDS);
 
-  // Store OTP hash in Redis — TTL from THE single source (OTP_TTL_SECONDS),
-  // so the SMS promise and the expiry can never diverge.
-  await storeOtpHash(phone, hash, OTP_TTL_SECONDS);
+  // item A: real delivery via the pandit app's DLT template (WebOTP-bound).
+  const delivery = await sendOtpSms(phone, otp, "PANDIT");
+  if (!delivery.sent && !isStaticOtpAllowed()) {
+    return reply.status(502).send({
+      success: false,
+      error: { code: "otp_delivery_failed", message: "OTP भेजा नहीं जा सका। कृपया थोड़ी देर बाद फिर कोशिश कीजिए।" },
+    });
+  }
 
   // F1(a): tell the client whether this phone already has an account so
   // the OTP screen can greet a returning pandit differently.
@@ -494,9 +501,11 @@ export const verifyOtpNew = async (request: FastifyRequest, reply: FastifyReply)
     });
   }
 
-  // Retrieve hash from Redis key otp:{phone}
-  const storedHash = await getOtpHash(phone);
-  if (!storedHash) {
+  // Retrieve hash from Redis key otp:{phone} — value is "<sha256>.<role>"
+  // (the shared storage convention; the suffix is ignored here since this
+  // endpoint is PANDIT-only).
+  const storedValue = await getOtpHash(phone);
+  if (!storedValue) {
     return reply.status(400).send({
       success: false,
       error: {
@@ -505,9 +514,10 @@ export const verifyOtpNew = async (request: FastifyRequest, reply: FastifyReply)
       }
     });
   }
+  const sepNew = storedValue.lastIndexOf(".");
+  const storedHash = sepNew === -1 ? storedValue : storedValue.slice(0, sepNew);
 
-  // Compute incoming OTP hash
-  const incomingHash = crypto.createHash("sha256").update(otp).digest("hex");
+  const incomingHash = hashOtp(otp);
 
   if (incomingHash !== storedHash) {
     return reply.status(400).send({
