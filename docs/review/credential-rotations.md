@@ -35,3 +35,26 @@ loaded only at boot.
   must be referenced, print its LENGTH or a fixed label, never the value.
 - After any exposure: rotate at the source dashboard, update the host env, and
   add a row here.
+
+## DEPLOY VERIFICATION RULE (2026-07-23)
+
+Same failure class as leaking a secret: **claiming an outcome instead of
+confirming it.** A push proves nothing — Vercel silently keeps serving the last
+good build, so a failed deploy leaves stale code live (this bit us twice:
+payout-phone, and the money-model that needed a live check).
+
+**Rule for every push described as "deployed":** poll the deployed **commit SHA**
+until it matches the pushed SHA, then report the actual state + SHA.
+- **Never say "deployed" on the strength of a push.** If it can't be confirmed,
+  say **"pushed, deploy unverified"** — never "deployed".
+
+**How to poll (the markers added 2026-07-23 make this mechanical):**
+- **API (Render):** `GET https://hmarepanditji-api.onrender.com/health` →
+  `commit` (from `RENDER_GIT_COMMIT`). Match against the pushed SHA.
+- **Apps (Vercel):** `GET https://<app>.vercel.app/version` → `{commit, ref}`
+  (from `VERCEL_GIT_COMMIT_SHA`). `hmarepanditji-{pandit,admin,web}`.
+- Ready = the served `commit` equals the pushed SHA. Error/stale = it stays the
+  OLD SHA past a reasonable window (~3-5 min) → the deploy failed and the old
+  build is still live → report "deploy did NOT update, still serving <oldSHA>".
+- These env vars are set by the host at build/run — locally they read `unknown`,
+  which is expected (there is no deploy to verify locally).

@@ -154,9 +154,14 @@ app.register(fastifyCookie, {
   secret: env.JWT_SECRET,
 });
 
-// ── Health Check (no versioning, no auth) ────────────────────────────────────
+// ── Health Check (no auth) ───────────────────────────────────────────────────
+// `commit` = the deployed git SHA (Render auto-sets RENDER_GIT_COMMIT). It makes
+// a deploy VERIFIABLE: poll /health after a push and confirm the SHA matches,
+// instead of assuming "deployed" (docs/review/credential-rotations.md — the
+// deploy-verification rule).
 app.get("/health", async () => ({
   ok: true,
+  commit: process.env.RENDER_GIT_COMMIT || "unknown",
   uptime: process.uptime(),
   timestamp: new Date().toISOString(),
 }));

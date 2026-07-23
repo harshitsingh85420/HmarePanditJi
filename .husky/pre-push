@@ -1,0 +1,46 @@
+# PRE-PUSH GATE — mechanical, not remembered (2026-07-23).
+# The repeated failure mode here is discipline-over-structure: "I'll run the gate
+# before pushing" and then not. So the gate runs itself.
+#   · tsc across ALL workspaces, ALWAYS (measured ~15s).
+#   · `next build` ONLY for apps whose files changed in this push (~22s each).
+# Typical single-app push ~37s; worst case (all 3 apps) ~82s — under the 90s bar,
+# so this BLOCKS. Escape hatch: `git push --no-verify` (the standard git bypass).
+#
+# Context: a broken admin build (a customer field used but not typed) passed the
+# old gate (api+pandit only) and its Vercel deploy failed silently — admin kept
+# serving a stale build for days. This hook makes that impossible to miss locally.
+
+# stdin: "<local_ref> <local_sha> <remote_ref> <remote_sha>" (first line is enough)
+read _lref _lsha _rref rsha || true
+
+# commit range → changed files. A brand-new branch (remote all-zeros) diffs vs main.
+if [ -z "$rsha" ] || [ "$(echo "$rsha" | tr -d 0)" = "" ]; then
+  base=$(git merge-base HEAD origin/main 2>/dev/null || echo "")
+else
+  base="$rsha"
+fi
+[ -z "$base" ] && base=$(git rev-parse HEAD~1 2>/dev/null || echo HEAD)
+changed=$(git diff --name-only "$base" HEAD 2>/dev/null || echo "")
+
+echo "▶ pre-push gate (range ${base}..HEAD) — tsc, all workspaces…"
+pnpm ts:check:all || { echo "✗ tsc failed — push blocked. Fix, or 'git push --no-verify' to override."; exit 1; }
+
+build_app() {
+  echo "▶ next build: $1 (its files changed)…"
+  NEXT_PUBLIC_API_URL="http://localhost:3001/api/v1" NODE_ENV=production \
+    pnpm --filter "@hmarepanditji/$1" build \
+    || { echo "✗ $1 build FAILED — this is the class of error that fails a Vercel deploy. Push blocked ('git push --no-verify' to override)."; exit 1; }
+}
+
+# A shared packages/ change can break any app's build → build all three.
+if echo "$changed" | grep -q '^packages/'; then
+  echo "  shared packages/ changed → building all apps"
+  build_app pandit; build_app admin; build_app web
+else
+  echo "$changed" | grep -q '^apps/pandit/' && build_app pandit
+  echo "$changed" | grep -q '^apps/admin/'  && build_app admin
+  echo "$changed" | grep -q '^apps/web/'    && build_app web
+fi
+
+echo "✓ pre-push gate passed"
+exit 0
