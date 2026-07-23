@@ -161,10 +161,19 @@ const cancelPage = readFileSync(join(WEB, "app", "dashboard", "bookings", "[book
 const policyPage = readFileSync(join(WEB, "app", "(legal)", "cancellation-policy", "page.tsx"), "utf8");
 const landing = readFileSync(join(WEB, "app", "page.tsx"), "utf8");
 
-// the canonical tiers live in ONE module, with the exact ruling numbers
-assert.ok(/daysUntilEvent > 7\) return 100;/.test(refundPolicy), "refund tier >7 days must be 100%");
+// the canonical tiers live in ONE module, with the exact ruling numbers.
+// BOUNDARY (founder ruling 2026-07-23): CUSTOMER-FAVOURABLE — exactly 7 days
+// out is 100% ("7 दिन या उससे पहले"); ambiguity resolves against the platform.
+assert.ok(/daysUntilEvent >= 7\) return 100;/.test(refundPolicy), "refund tier ≥7 days must be 100% (customer-favourable boundary — never >7)");
 assert.ok(/daysUntilEvent >= 3\) return 50;/.test(refundPolicy), "refund tier ≥3 days must be 50%");
 assert.ok(/return 0;/.test(refundPolicy), "refund tier <3 days must be 0%");
+assert.ok(refundPolicy.includes("7 दिन या उससे पहले"), "the DISCLOSED wording must state the ≥7 boundary exactly as computed");
+
+// WHO INITIATED (founder ruling 2026-07-23): both refund cases NAMED —
+// customer cancellation keeps the fee; a pandit NO-SHOW refunds 100% of the
+// WHOLE charge INCLUDING the fee (keeping it would be charging for a failure).
+assert.ok(/CUSTOMER_CANCELLATION:\s*\{\s*feeRefunded:\s*false/.test(refundPolicy), "customer cancellation: fee non-refundable, named explicitly");
+assert.ok(/PANDIT_NO_SHOW:\s*\{\s*feeRefunded:\s*true[^}]*percentOfWholeCharge:\s*100/.test(refundPolicy), "pandit no-show: 100% of the WHOLE charge incl. fee, named explicitly");
 // both pages consume the module — they can never disagree again
 assert.ok(/from ["'][./]*src\/lib\/refund-policy["']/.test(cancelPage) && /refundPercent\(/.test(cancelPage), "the cancel screen must compute from refund-policy.ts");
 assert.ok(/from ["'][./]*src\/lib\/refund-policy["']/.test(policyPage) && /REFUND_TIERS\.map/.test(policyPage), "the legal policy page must RENDER from refund-policy.ts");
