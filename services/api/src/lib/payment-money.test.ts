@@ -192,4 +192,47 @@ for (const [file, banned] of [
   assert.ok(!file.includes(banned), `landing-page falsehood "${banned}" must not return (unbuilt feature)`);
 }
 
-console.log("payment-money guard: conservation holds, one money source, server-derived charge, display=charge, fee DISCLOSED on every total, refund policy ONE source, promises truthful, prod fail-closed ✅");
+// 8) THE NUMBER ISJ REFUNDS = THE NUMBER THE CUSTOMER SAW (founder ruling,
+//    2026-07-23). Closed chain: cancel-request COMPUTES via the API's
+//    refund-policy module (exact mirror of the web module — pinned here) and
+//    PERSISTS booking.refundAmount; cancel-approve pays the persisted/policy
+//    number and accepts a client amount ONLY with an explicit overrideReason;
+//    the admin page prefers the persisted number and its fallback math runs the
+//    RULED tiers with the REAL fee (it previously ran a retired 90/50/20/0
+//    policy with a 15% "approx" fee — three divergent computations total).
+const apiRefundPolicy = readFileSync(join(SRC, "lib", "refund-policy.ts"), "utf8");
+const bookingRoutes = readFileSync(join(SRC, "routes", "booking.routes.ts"), "utf8");
+const adminRoutes = readFileSync(join(SRC, "routes", "admin.routes.ts"), "utf8");
+const adminCancelPage = readFileSync(join(SRC, "..", "..", "..", "apps", "admin", "src", "app", "cancellations", "page.tsx"), "utf8");
+
+// API module mirrors the web module (tiers + ceil + fee-excluded + named cases)
+assert.ok(/daysUntilEvent >= 7\) return 100;/.test(apiRefundPolicy), "API refund tier ≥7 must be 100% (mirror of web)");
+assert.ok(/daysUntilEvent >= 3\) return 50;/.test(apiRefundPolicy), "API refund tier ≥3 must be 50% (mirror of web)");
+assert.ok(/Math\.ceil\(/.test(apiRefundPolicy), "API day-count must ceil (customer-favourable, mirror of web)");
+assert.ok(/grandTotal - booking\.platformFee/.test(apiRefundPolicy), "API refundable base must exclude the fee");
+assert.ok(/PANDIT_NO_SHOW:\s*\{\s*feeRefunded:\s*true/.test(apiRefundPolicy), "API module must name the no-show case (fee refunded)");
+
+// cancel-request computes via the module and PERSISTS what the customer saw
+assert.ok(/computeCustomerCancellationRefund\(/.test(bookingRoutes), "cancel-request must compute via refund-policy, not inline math");
+assert.ok(/refundAmount:\s*refundEstimate,\s*\n\s*refundStatus:\s*"PENDING"/.test(bookingRoutes), "cancel-request must PERSIST the estimate (refundAmount + PENDING)");
+assert.ok(!/Simple placeholder logic/.test(bookingRoutes), "the placeholder refund math must not return");
+
+// ownership: customers cancel only their own bookings
+assert.ok(/req\.user!\.role !== "ADMIN" && existing\.customerId !== req\.user!\.id/.test(bookingRoutes), "/:id/cancel must check ownership (was: any customer could cancel any booking)");
+
+// cancel-approve: policy/persisted number unless an explicit reasoned override
+assert.ok(/const isOverride = typeof req\.body\.overrideReason === "string"/.test(adminRoutes), "cancel-approve must gate client amounts behind an explicit overrideReason");
+// anchored to the DB WRITE (first proof-of-teeth attempt was toothless: the
+// notification line also mentions finalRefundAmount, so a loose regex matched
+// it and missed a reverted DB write). The write block must use the resolved
+// amount, and the raw client value must never reach a DB write directly.
+assert.ok(/status:\s*"CANCELLED",\s*\n\s*refundAmount:\s*finalRefundAmount/.test(adminRoutes), "cancel-approve's DB WRITE must use the policy/override-resolved amount");
+assert.ok(!/refundAmount:\s*req\.body\.refundAmount/.test(adminRoutes), "the raw client refundAmount must never be written directly (only via the override-gated finalRefundAmount)");
+
+// admin page: persisted-first, ruled tiers, real fee — retired literals banned
+assert.ok(/refundAmount > 0 \? [a-zA-Z.]*refundAmount/.test(adminCancelPage), "admin page must PREFER the persisted refundAmount");
+for (const stale of ["0.15", "percent = 0.9", "percent = 0.2", "90%", "20%"]) {
+  assert.ok(!adminCancelPage.includes(stale), `admin page stale policy literal "${stale}" must not return`);
+}
+
+console.log("payment-money guard: conservation holds, one money source, server-derived charge, display=charge, fee DISCLOSED on every total, refund policy ONE source + PERSISTED + operator-safe, promises truthful, prod fail-closed ✅");

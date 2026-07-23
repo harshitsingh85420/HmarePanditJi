@@ -7,6 +7,7 @@ import { validate } from "../middleware/validator";
 import { sendSuccess, sendPaginated } from "../utils/response";
 import { AppError } from "../middleware/errorHandler";
 import { initiateRefund } from "../services/payment.service";
+import { computeCustomerCancellationRefund } from "../lib/refund-policy";
 import { NotificationService } from "../services/notification.service";
 import { getNotificationTemplate } from "../services/notification-templates";
 const notificationService = new NotificationService();
@@ -426,6 +427,7 @@ export default async function adminRoutes(fastify: FastifyInstance, _opts: any) 
             cancellationRequestedAt: true,
             cancelledAt: true,
             grandTotal: true,
+            platformFee: true,
             refundAmount: true,
             refundStatus: true,
             refundReference: true,
@@ -475,6 +477,23 @@ export default async function adminRoutes(fastify: FastifyInstance, _opts: any) 
         });
         if (!booking) throw new AppError("Booking not found", 404, "NOT_FOUND");
 
+        // REFUND AUTHORITY (founder ruling 2026-07-23): the paid number comes
+        // from refund-policy.ts, never from client arithmetic. Precedence:
+        //   1. explicit admin OVERRIDE — accepted ONLY with an overrideReason
+        //      (a deliberate, recorded decision);
+        //   2. the amount PERSISTED at cancel-request (what the customer saw);
+        //   3. server recompute via the policy module (legacy rows persisted 0).
+        // Before this fix the endpoint wrote whatever the admin client sent —
+        // and that client ran a retired 90/50/20/0 policy with a 15% fee.
+        const isOverride = typeof req.body.overrideReason === "string" && req.body.overrideReason.trim().length > 0;
+        const policyAmount = booking.refundAmount > 0
+          ? booking.refundAmount
+          : computeCustomerCancellationRefund(
+              { eventDate: booking.eventDate, grandTotal: booking.grandTotal, platformFee: booking.platformFee },
+              booking.cancellationRequestedAt ?? new Date(),
+            ).estimate;
+        const finalRefundAmount = isOverride ? req.body.refundAmount : policyAmount;
+
         let result;
         if (booking.paymentStatus === "CAPTURED") {
           result = await initiateRefund(req.params.id, req.body.overrideReason);
@@ -484,16 +503,19 @@ export default async function adminRoutes(fastify: FastifyInstance, _opts: any) 
           where: { id: req.params.id },
           data: {
             status: "CANCELLED",
-            refundAmount: req.body.refundAmount,
+            refundAmount: finalRefundAmount,
             refundStatus: "PROCESSING",
             refundReference: result?.refundId,
             cancelledAt: new Date(),
-            adminNotes: (booking.adminNotes ? booking.adminNotes + "\n" : "") + (req.body.overrideReason || "")
+            adminNotes: (booking.adminNotes ? booking.adminNotes + "\n" : "")
+              + (isOverride
+                ? `REFUND OVERRIDE ₹${req.body.refundAmount} (policy said ₹${policyAmount}): ${req.body.overrideReason}`
+                : `refund per policy ₹${finalRefundAmount}`),
           },
         });
 
 
-        const t1 = getNotificationTemplate("CANCELLATION_APPROVED", { id: booking.id.substring(0, 8).toUpperCase(), refundAmount: req.body.refundAmount || 0 });
+        const t1 = getNotificationTemplate("CANCELLATION_APPROVED", { id: booking.id.substring(0, 8).toUpperCase(), refundAmount: finalRefundAmount || 0 });
         await notificationService.notify({ userId: booking.customerId, type: "CANCELLATION_APPROVED", title: t1.title, message: t1.message, smsMessage: t1.smsMessage });
 
         if (booking.panditId) {

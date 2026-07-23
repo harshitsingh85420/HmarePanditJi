@@ -15,6 +15,7 @@ import {
 import { NotificationService } from "../services/notification.service";
 import { getNotificationTemplate } from "../services/notification-templates";
 import { logger } from "../utils/logger";
+import { computeCustomerCancellationRefund } from "../lib/refund-policy";
 
 // ── Validation ────────────────────────────────────────────────────────────────
 
@@ -430,6 +431,15 @@ export default async function bookingRoutes(fastify: FastifyInstance, _opts: any
         include: { pandit: { include: { user: true } } },
       });
 
+      // OWNERSHIP (found during the refund-closure audit, 2026-07-23): this
+      // endpoint had ONLY a role guard — any authenticated customer could
+      // cancel ANY booking by id. Customers may cancel only their own; ADMIN
+      // is exempt.
+      if (!existing) return res.status(404).send({ success: false, message: "Booking not found" });
+      if (req.user!.role !== "ADMIN" && existing.customerId !== req.user!.id) {
+        return res.status(403).send({ success: false, message: "Not your booking" });
+      }
+
       const booking = await prisma.booking.update({
         where: { id: req.params.id },
         data: {
@@ -502,15 +512,19 @@ export default async function bookingRoutes(fastify: FastifyInstance, _opts: any
         return res.status(400).send({ success: false, message: "Cannot cancel this booking" });
       }
 
-      // Logic: Calculate refund estimate
-      // Simple placeholder logic for cancellation policy:
-      // More than 7 days left = 100%, 3-7 days = 50%, <3 days = 0%
-      let refundPercent = 0;
-      const daysUntilEvent = (existing.eventDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24);
-      if (daysUntilEvent > 7) refundPercent = 100;
-      else if (daysUntilEvent >= 3) refundPercent = 50;
-
-      const refundEstimate = Math.round(existing.grandTotal * (refundPercent / 100));
+      // REFUND = ONE SOURCE, PERSISTED (founder ruling 2026-07-23). The old
+      // placeholder here diverged from the disclosed policy THREE ways (>7 not
+      // ≥7, no ceil, fee included) and never persisted — refundAmount stayed 0
+      // so the operator had nothing to read. Now: lib/refund-policy.ts computes
+      // (mirrors the web module, guard-pinned) and the estimate is WRITTEN to
+      // the booking — the number Isj refunds is the number the customer saw.
+      const refund = computeCustomerCancellationRefund({
+        eventDate: existing.eventDate,
+        grandTotal: existing.grandTotal,
+        platformFee: existing.platformFee,
+      });
+      const refundEstimate = refund.estimate;
+      const refundPercent = refund.percent;
 
       const booking = await prisma.booking.update({
         where: { id: req.params.id },
@@ -518,6 +532,8 @@ export default async function bookingRoutes(fastify: FastifyInstance, _opts: any
           status: "CANCELLATION_REQUESTED",
           cancellationReason: reason,
           cancellationRequestedAt: new Date(),
+          refundAmount: refundEstimate,
+          refundStatus: "PENDING",
         },
       });
 

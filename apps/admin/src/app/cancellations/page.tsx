@@ -65,22 +65,28 @@ export default function CancellationsPage() {
         return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     };
 
-    const calculateRefundPolicy = (days: number, total: number) => {
-        const platformFee = Math.round(total * 0.15); // Rough approx for display
-        const refundable = total - platformFee;
+    // REFUND POLICY (founder ruling 2026-07-23) — the RULED tiers, replacing a
+    // third divergent copy that ran the retired 90/50/20/0 policy with a 15%
+    // "approx" fee. This local math is a FALLBACK for legacy rows only: the
+    // authoritative number is booking.refundAmount, PERSISTED at cancel-request
+    // by the server's refund-policy module — and the server enforces the same
+    // precedence on approve (client amounts are ignored unless an explicit
+    // override reason is given). Uses the row's REAL platformFee (10% fallback).
+    const calculateRefundPolicy = (days: number, total: number, actualFee?: number) => {
+        const platformFee = actualFee ?? Math.round(total * 0.10);
+        const refundable = Math.max(0, total - platformFee);
 
         let percent = 0;
         let pText = "";
 
-        if (days > 7) { percent = 0.9; pText = "> 7 days (90%)"; }
-        else if (days >= 3) { percent = 0.5; pText = "3-7 days (50%)"; }
-        else if (days >= 1) { percent = 0.2; pText = "1-3 days (20%)"; }
-        else { percent = 0; pText = "Same day (0%)"; }
+        if (days >= 7) { percent = 1.0; pText = "≥ 7 days — 7 दिन या उससे पहले (100%)"; }
+        else if (days >= 3) { percent = 0.5; pText = "3-6 days (50%)"; }
+        else { percent = 0; pText = "< 3 days (0%)"; }
 
         return {
             percent,
             text: pText,
-            amount: Math.round(refundable * percent),
+            amount: Math.floor(refundable * percent),
             platformFee,
             refundable
         };
@@ -89,9 +95,11 @@ export default function CancellationsPage() {
     const handleReviewClick = (c: any) => {
         setSelectedCancel(c);
         setOverrideChecked(false);
+        // PREFER THE PERSISTED NUMBER (what the customer was shown at request
+        // time) — local math only for legacy rows where nothing was persisted.
         const days = calculateDaysUntil(c.eventDate);
-        const policy = calculateRefundPolicy(days, c.grandTotal);
-        setCustomRefundAmount(policy.amount);
+        const policy = calculateRefundPolicy(days, c.grandTotal, c.platformFee);
+        setCustomRefundAmount(c.refundAmount > 0 ? c.refundAmount : policy.amount);
         setOverrideReason("");
         setRejectionReason("");
         setModalOpen(true);
@@ -103,8 +111,12 @@ export default function CancellationsPage() {
         try {
             const token = localStorage.getItem("adminToken");
             const days = calculateDaysUntil(selectedCancel.eventDate);
-            const policy = calculateRefundPolicy(days, selectedCancel.grandTotal);
-            const amt = overrideChecked ? Number(customRefundAmount) : policy.amount;
+            const policy = calculateRefundPolicy(days, selectedCancel.grandTotal, selectedCancel.platformFee);
+            // no override → the PERSISTED policy number (the server enforces
+            // this precedence too; the sent amount only matters with a reason)
+            const amt = overrideChecked
+                ? Number(customRefundAmount)
+                : (selectedCancel.refundAmount > 0 ? selectedCancel.refundAmount : policy.amount);
 
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/bookings/${selectedCancel.id}/cancel-approve`, {
                 method: "POST",
@@ -137,7 +149,9 @@ export default function CancellationsPage() {
         if (!rejectionReason) return alert('Provide a rejection reason.');
         setProcessing(true);
         try {
-            const token = localStorage.getItem('token');
+            // was localStorage.getItem('token') — the admin app stores 'adminToken'
+            // (approve uses it); the reject flow 401'd. Found in the refund-closure audit.
+            const token = localStorage.getItem('adminToken');
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/bookings/${selectedCancel.id}/cancel-reject`, {
                 method: 'POST',
                 headers: {
@@ -173,7 +187,7 @@ export default function CancellationsPage() {
                 <CardContent className="py-4 text-sm text-muted-foreground flex items-center justify-between">
                     <div>
                         <span className="font-semibold text-foreground">Refund Policy: </span>
-                        {"> 7 days: 90% | 3-7 days: 50% | 1-3 days: 20% | Same day: 0% | Platform Fee: Non-refundable"}
+                        {"≥ 7 days (7 दिन या उससे पहले): 100% | 3-6 days: 50% | < 3 days: 0% | Platform Fee (10%): Non-refundable — pay the PERSISTED amount on the request; override only with a reason"}
                     </div>
                 </CardContent>
             </Card>
@@ -200,7 +214,7 @@ export default function CancellationsPage() {
                         ) : (
                             cancellations.map((c) => {
                                 const days = calculateDaysUntil(c.eventDate);
-                                const policy = calculateRefundPolicy(days, c.grandTotal);
+                                const policy = calculateRefundPolicy(days, c.grandTotal, c.platformFee);
                                 return (
                                     <TableRow key={c.id}>
                                         <TableCell>
@@ -247,7 +261,7 @@ export default function CancellationsPage() {
 
                     {selectedCancel && (() => {
                         const days = calculateDaysUntil(selectedCancel.eventDate);
-                        const policy = calculateRefundPolicy(days, selectedCancel.grandTotal);
+                        const policy = calculateRefundPolicy(days, selectedCancel.grandTotal, selectedCancel.platformFee);
 
                         return (
                             <div className="space-y-4 py-4">

@@ -9,6 +9,15 @@ import Link from "next/link";
 // legal /cancellation-policy page both render from refund-policy.ts — the two
 // can never disagree again. Guard-pinned in payment-money.test.ts §7.
 import { refundPercent, REFUND_TIERS, REFUND_PROCESSING_DAYS } from "../../../../../src/lib/refund-policy";
+import { useAuth } from "../../../../../src/context/auth-context";
+
+// FOUND BROKEN (refund-closure audit, 2026-07-23): both fetches here used
+// `${NEXT_PUBLIC_API_URL}/api/bookings/…` — the deployed env already ends in
+// /api/v1, so the URL doubled to /api/v1/api/… (404), and auth read a
+// localStorage "token" key the web app doesn't use. The customer cancel flow
+// never reached the server in prod. Fixed to the app-wide convention
+// (API_URL + useAuth accessToken — same as the dashboard list page).
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1";
 
 interface BookingInfo {
     id: string;
@@ -25,6 +34,7 @@ export default function CancellationRequestPage() {
     const params = useParams();
     const bookingId = params?.bookingId as string | undefined;
 
+    const { accessToken } = useAuth();
     const [booking, setBooking] = useState<BookingInfo | null>(null);
     const [reason, setReason] = useState("");
     const [otherReason, setOtherReason] = useState("");
@@ -34,10 +44,10 @@ export default function CancellationRequestPage() {
 
     useEffect(() => {
         const fetchBooking = async () => {
+            if (!accessToken || !bookingId) return;
             try {
-                const token = localStorage.getItem("token");
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/bookings/${bookingId}`, {
-                    headers: { Authorization: `Bearer ${token}` }
+                const res = await fetch(`${API_URL}/bookings/${bookingId}`, {
+                    headers: { Authorization: `Bearer ${accessToken}` }
                 });
                 if (!res.ok) throw new Error("Failed to load booking");
                 const data = await res.json();
@@ -59,7 +69,7 @@ export default function CancellationRequestPage() {
             }
         };
         fetchBooking();
-    }, [bookingId]);
+    }, [bookingId, accessToken]);
 
     const calculateRefund = () => {
         if (!booking) return { days: 0, percent: 0, refundableAmount: 0, estimate: 0 };
@@ -97,12 +107,11 @@ export default function CancellationRequestPage() {
         setError("");
 
         try {
-            const token = localStorage.getItem("token");
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/bookings/${bookingId}/cancel-request`, {
+            const res = await fetch(`${API_URL}/bookings/${bookingId}/cancel-request`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`
+                    Authorization: `Bearer ${accessToken}`
                 },
                 body: JSON.stringify({ reason: finalReason }),
             });

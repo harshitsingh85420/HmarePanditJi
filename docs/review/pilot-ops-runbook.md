@@ -77,3 +77,50 @@ that: **"हम आपको फ़ोन करेंगे"** — never "the a
 
 *The best-effort SMS may arrive before your call — that is a bonus, never the
 plan. Do not skip the call because an SMS was sent.*
+
+## PROCEDURE 3 — CUSTOMER-CANCELLATION REFUND (which number to pay)
+
+**RULE (founder ruling 2026-07-23): the amount you refund is the PERSISTED
+number on the request — never arithmetic you do yourself.** When the customer
+submits a cancellation, the server computes the refund from `refund-policy.ts`
+(≥7 days → 100%, 3-6 days → 50%, <3 days → 0%, of the total minus the
+platform fee) and WRITES it to the booking. That same number is what the
+customer was shown.
+
+1. **Admin → Cancellations** → the request row. The prefilled **refund amount
+   IS the persisted policy number** — read it there, nowhere else.
+2. Approve → the server pays that number (it ignores anything else unless you
+   explicitly override).
+3. **Override only deliberately**: tick override, enter the amount AND a
+   reason. The server records "REFUND OVERRIDE ₹X (policy said ₹Y): reason" in
+   the admin notes — every deviation from policy is on the record.
+4. Legacy rows (requested before 2026-07-23) may show ₹0 persisted — the
+   screen then shows the policy fallback, computed with the ruled tiers and
+   the booking's real fee. Same numbers, just not pre-written.
+5. Then execute the actual money movement per PROCEDURE 1 steps 2-4 (Razorpay
+   dashboard) if the automatic refund didn't fire, and confirm `refundStatus`
+   progresses.
+
+## PROCEDURE 4 — PAYOUT TIMING (protects Isj's own money)
+
+**What the payout queue actually keys off (verified 2026-07-23):** a booking
+appears payable when the PANDIT's journey marks it `COMPLETED` + payout
+PENDING + **48 hours have passed** since the last update
+(admin.controller.ts: `status: "COMPLETED", payoutStatus: "PENDING",
+updatedAt < now−48h`). **Customer confirmation does NOT exist anywhere in the
+chain** — the 48-hour silence is the only buffer between a pandit-side claim
+and the money leaving.
+
+**THE RULE (founder ruling 2026-07-23): NEVER mark a payout PAID until the
+puja is confirmed complete by the CUSTOMER, or the waiting period has passed
+with no complaint.** Concretely, before EVERY mark-paid:
+
+1. **Call the customer** — "क्या पूजा ठीक से संपन्न हुई?" A yes = pay now.
+2. Unreachable? The queue's 48-hour delay is the floor, not the check: wait
+   the full 48h from completion AND confirm no complaint/cancellation exists
+   on the booking, then pay.
+3. A complaint exists → STOP. Resolve it first (a no-show complaint after
+   payout means refunding the customer 100% including the fee OUT OF POCKET
+   with the dakshina already gone — this procedure exists to prevent exactly
+   that).
+4. Log the confirmation (who said what, when) in admin notes with the payout.
