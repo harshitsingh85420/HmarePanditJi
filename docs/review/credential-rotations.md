@@ -35,6 +35,13 @@ loaded only at boot.
   must be referenced, print its LENGTH or a fixed label, never the value.
 - After any exposure: rotate at the source dashboard, update the host env, and
   add a row here.
+- **Pre-push gate applies to EVERY pusher, agent included** (`.husky/pre-push`).
+  The agent's shell has no pnpm and no node on PATH, so the hook resolves the
+  toolchain (pnpm on PATH → corepack → local `.bin` → **direct-node fallback**
+  via an absolute node path) and runs tsc-all + changed-app builds without a
+  package manager. Verified: the hook runs and blocks in the agent's environment
+  (not an exemption — it actually works there). `git push --no-verify` is a
+  deliberate, rare override, never routine.
 
 ## DEPLOY VERIFICATION RULE (2026-07-23)
 

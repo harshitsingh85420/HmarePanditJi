@@ -1,19 +1,68 @@
-# PRE-PUSH GATE — mechanical, not remembered (2026-07-23).
-# The repeated failure mode here is discipline-over-structure: "I'll run the gate
-# before pushing" and then not. So the gate runs itself.
-#   · tsc across ALL workspaces, ALWAYS (measured ~15s).
-#   · `next build` ONLY for apps whose files changed in this push (~22s each).
-# Typical single-app push ~37s; worst case (all 3 apps) ~82s — under the 90s bar,
-# so this BLOCKS. Escape hatch: `git push --no-verify` (the standard git bypass).
+# PRE-PUSH GATE — mechanical, and it gates EVERY pusher including the agent
+# (2026-07-23). First version used `pnpm` directly; the agent's shell has no
+# pnpm (and no node on PATH), so it fell back to `git push --no-verify` — i.e.
+# the gate protected the human who rarely pushes and exempted the agent who
+# pushes constantly. This version RESOLVES the toolchain robustly (pnpm on PATH
+# → corepack → local .bin → and a direct-node fallback that needs no package
+# manager at all), so it runs in a normal shell AND the agent's environment.
 #
-# Context: a broken admin build (a customer field used but not typed) passed the
-# old gate (api+pandit only) and its Vercel deploy failed silently — admin kept
-# serving a stale build for days. This hook makes that impossible to miss locally.
+# What it does: tsc across ALL workspaces always; `next build` only for apps
+# whose files changed (a shared packages/ change → all three). Measured ~37s
+# typical, ~82s worst — under the 90s bar, so it BLOCKS. Real escape hatch:
+# `git push --no-verify` (should be rare and deliberate, never routine).
 
-# stdin: "<local_ref> <local_sha> <remote_ref> <remote_sha>" (first line is enough)
+# ── resolve a node binary: PATH, then known absolute installs ────────────────
+resolve_node() {
+  if command -v node >/dev/null 2>&1; then command -v node; return 0; fi
+  for c in \
+    "/c/Program Files/AutoClaw/resources/node/node.exe" \
+    "/c/Program Files/nodejs/node.exe" \
+    "/usr/bin/node" "/usr/local/bin/node"; do
+    [ -x "$c" ] && { printf '%s\n' "$c"; return 0; }
+  done
+  return 1
+}
+
+# ── resolve a pnpm runner (prints the command prefix), else empty ────────────
+resolve_pnpm() {
+  if command -v pnpm >/dev/null 2>&1; then echo "pnpm"; return 0; fi
+  if command -v corepack >/dev/null 2>&1; then echo "corepack pnpm"; return 0; fi
+  [ -x "node_modules/.bin/pnpm" ] && { echo "node_modules/.bin/pnpm"; return 0; }
+  echo ""
+}
+
+NODE="$(resolve_node || true)"
+PNPM="$(resolve_pnpm)"
+
+if [ -z "$PNPM" ] && [ -z "$NODE" ]; then
+  echo "✗ pre-push gate: neither pnpm nor node found in this environment."
+  echo "  Refusing to pass silently. Install node/pnpm, or 'git push --no-verify' to override deliberately."
+  exit 1
+fi
+echo "▶ pre-push gate: toolchain = ${PNPM:-direct-node ($NODE)}"
+
+# ── run helpers (pnpm when present, else direct per-workspace node) ───────────
+BUILD_ENV_URL="http://localhost:3001/api/v1"
+
+run_tsc_all() {
+  if [ -n "$PNPM" ]; then $PNPM ts:check:all; return $?; fi
+  for w in apps/pandit apps/admin apps/web services/api; do
+    echo "  tsc: $w"
+    ( cd "$w" && "$NODE" ./node_modules/typescript/bin/tsc --noEmit ) || return 1
+  done
+}
+
+run_build() { # $1 = pandit|admin|web
+  echo "▶ next build: $1 (its files changed)…"
+  if [ -n "$PNPM" ]; then
+    NEXT_PUBLIC_API_URL="$BUILD_ENV_URL" NODE_ENV=production $PNPM --filter "@hmarepanditji/$1" build
+    return $?
+  fi
+  ( cd "apps/$1" && NEXT_PUBLIC_API_URL="$BUILD_ENV_URL" NODE_ENV=production "$NODE" ./node_modules/next/dist/bin/next build )
+}
+
+# ── which commits are being pushed → changed files ───────────────────────────
 read _lref _lsha _rref rsha || true
-
-# commit range → changed files. A brand-new branch (remote all-zeros) diffs vs main.
 if [ -z "$rsha" ] || [ "$(echo "$rsha" | tr -d 0)" = "" ]; then
   base=$(git merge-base HEAD origin/main 2>/dev/null || echo "")
 else
@@ -22,24 +71,18 @@ fi
 [ -z "$base" ] && base=$(git rev-parse HEAD~1 2>/dev/null || echo HEAD)
 changed=$(git diff --name-only "$base" HEAD 2>/dev/null || echo "")
 
-echo "▶ pre-push gate (range ${base}..HEAD) — tsc, all workspaces…"
-pnpm ts:check:all || { echo "✗ tsc failed — push blocked. Fix, or 'git push --no-verify' to override."; exit 1; }
+echo "▶ tsc, all workspaces (range ${base}..HEAD)…"
+run_tsc_all || { echo "✗ tsc failed — push blocked. Fix, or 'git push --no-verify' to override."; exit 1; }
 
-build_app() {
-  echo "▶ next build: $1 (its files changed)…"
-  NEXT_PUBLIC_API_URL="http://localhost:3001/api/v1" NODE_ENV=production \
-    pnpm --filter "@hmarepanditji/$1" build \
-    || { echo "✗ $1 build FAILED — this is the class of error that fails a Vercel deploy. Push blocked ('git push --no-verify' to override)."; exit 1; }
-}
-
-# A shared packages/ change can break any app's build → build all three.
 if echo "$changed" | grep -q '^packages/'; then
   echo "  shared packages/ changed → building all apps"
-  build_app pandit; build_app admin; build_app web
+  run_build pandit || exit 1
+  run_build admin  || exit 1
+  run_build web    || exit 1
 else
-  echo "$changed" | grep -q '^apps/pandit/' && build_app pandit
-  echo "$changed" | grep -q '^apps/admin/'  && build_app admin
-  echo "$changed" | grep -q '^apps/web/'    && build_app web
+  if echo "$changed" | grep -q '^apps/pandit/'; then run_build pandit || exit 1; fi
+  if echo "$changed" | grep -q '^apps/admin/';  then run_build admin  || exit 1; fi
+  if echo "$changed" | grep -q '^apps/web/';    then run_build web    || exit 1; fi
 fi
 
 echo "✓ pre-push gate passed"
