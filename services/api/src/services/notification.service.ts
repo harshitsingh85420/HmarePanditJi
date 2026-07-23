@@ -156,8 +156,12 @@ export async function notifyNewBookingToPandit(
   booking: { panditUserId: string, panditName: string, bookingNumber: string, eventType: string, eventDate: Date, venueCity: string, dakshina: number, travelMode: string | null, panditPayout: number, panditPhone: string }
 ): Promise<void> {
   const dateStr = dateFormatter.format(booking.eventDate);
-  const travelMode = booking.travelMode ?? "Local";
-  const message = `🔔 ${booking.panditName} Ji, nayi booking! #${booking.bookingNumber} – ${booking.eventType}, ${dateStr}, ${booking.venueCity}. Dakshina: ₹${booking.dakshina}. Travel: ${travelMode}. Aapki net earning: ₹${booking.panditPayout}. App mein jaake Accept/Reject karein. – HmarePanditJi`;
+  // REGISTER LAW + TRUTHFUL-STATE (founder F19 ruling, 2026-07-23): Devanagari,
+  // आप-forms (the old roman-Hindi draft broke the register); and the pandit is
+  // promised the CALL — the operator-call procedure (pilot-ops-runbook.md §2)
+  // is the guaranteed path; this SMS is best-effort on top. Money framing per
+  // Ruling #7: the full dakshina is his.
+  const message = `🔔 ${booking.panditName} जी, नई बुकिंग! ${booking.bookingNumber} — ${booking.eventType}, ${dateStr}, ${booking.venueCity}। दक्षिणा ₹${booking.dakshina} — पूरी आपकी। कुल राशि ₹${booking.panditPayout}। कृपया ऐप खोलकर स्वीकार कीजिए। हम आपको फ़ोन भी करेंगे। — हमारे पंडित जी`;
 
   await sendNotification({
     userId: booking.panditUserId,

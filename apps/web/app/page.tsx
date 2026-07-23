@@ -568,11 +568,15 @@ export default function HomePage() {
               <span className="inline-flex w-fit items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary">
                 <span className="material-symbols-outlined text-base">verified</span> Authentic & Trusted
               </span>
+              {/* TRUTHFUL-STATE (founder ruling 2026-07-23): the old hero promised
+                  F25 backup pandits (not built) and an automated travel engine
+                  (deferred, D-06) — those exact phrases are now build-banned in
+                  payment-money.test.ts. The hero claims only what ships. */}
               <h1 className="text-4xl font-black leading-tight tracking-[-0.03em] md:text-6xl text-[#181511]">
-                Book Verified Pandits with <span className="text-primary">Guaranteed Travel</span> & Backup
+                Book Verified Pandits with <span className="text-primary">Fixed Dakshina</span> & Transparent Pricing
               </h1>
               <p className="text-lg leading-relaxed text-[#5e5241] max-w-[540px]">
-                Experience seamless spiritual ceremonies with Aadhaar-verified experts and automated door-to-door logistics. We ensure your Mahurat is never missed.
+                Experience seamless spiritual ceremonies with Aadhaar-verified experts. Every cost — dakshina, travel, platform fee — is itemised before you pay.
               </p>
             </div>
 
@@ -602,7 +606,7 @@ export default function HomePage() {
                 </div>
                 <div>
                   <p className="text-sm font-bold text-[#181511]">Aadhaar Verified</p>
-                  <p className="text-xs text-[#8a7960]">100% Background Check</p>
+                  <p className="text-xs text-[#8a7960]">Aadhaar + Video Verified</p>
                 </div>
               </div>
             </div>
@@ -653,21 +657,27 @@ export default function HomePage() {
                 <span className="material-symbols-outlined text-3xl">verified_user</span>
               </div>
               <h3 className="text-xl font-bold text-[#181511]">Aadhaar Verified Trust</h3>
-              <p className="text-[#8a7960] leading-relaxed">Every Pandit undergoes rigorous Aadhaar verification and professional background checks for your absolute safety.</p>
+              <p className="text-[#8a7960] leading-relaxed">Every Pandit undergoes rigorous Aadhaar verification and video KYC before appearing on the platform.</p>
             </div>
             <div className="flex flex-col gap-4 rounded-2xl bg-white p-8 shadow-sm border border-[#e6e1db] hover:shadow-md transition-shadow">
               <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
                 <span className="material-symbols-outlined text-3xl">commute</span>
               </div>
-              <h3 className="text-xl font-bold text-[#181511]">Door-to-Door Logistics</h3>
-              <p className="text-[#8a7960] leading-relaxed">We handle all travel arrangements through our automated logistics platform, ensuring punctuality and stress-free arrival.</p>
+              {/* TRUTHFUL-STATE (2026-07-23): no travel engine exists (D-06);
+                  travel is an itemised allowance — the card says exactly that. */}
+              <h3 className="text-xl font-bold text-[#181511]">Travel Costs Upfront</h3>
+              <p className="text-[#8a7960] leading-relaxed">The Pandit&apos;s travel allowance is itemised in your booking total before you pay — no hidden logistics charges, no surprises on the day.</p>
             </div>
             <div className="flex flex-col gap-4 rounded-2xl bg-white p-8 shadow-sm border border-[#e6e1db] hover:shadow-md transition-shadow">
               <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-                <span className="material-symbols-outlined text-3xl">sync_saved_locally</span>
+                <span className="material-symbols-outlined text-3xl">currency_rupee</span>
               </div>
-              <h3 className="text-xl font-bold text-[#181511]">100% Uptime Backup</h3>
-              <p className="text-[#8a7960] leading-relaxed">Never miss a mahurat. We maintain a standby Pandit network ready to fill in for every booking in case of emergencies.</p>
+              {/* Replaced the F25 standby-pandit claim (NOT BUILT — a straight
+                  falsehood; founder ruling 2026-07-23: remove; the exact phrase
+                  is build-banned in payment-money.test.ts). This replacement
+                  claim is true and build-guarded (CONFLICT_RULINGS #7). */}
+              <h3 className="text-xl font-bold text-[#181511]">Fee Shown Before You Pay</h3>
+              <p className="text-[#8a7960] leading-relaxed">The platform fee appears as its own line before payment — and your Pandit receives 100% of the dakshina, always.</p>
             </div>
           </div>
         </div>

@@ -577,7 +577,11 @@ export const hi = {
     slide5Retry: "फिर कोशिश कीजिए",
     slide5Again: "एक बार फिर बोलकर देखिए…",
     slide6Title: "बुकिंग कैसे आएगी",
-    slide6: "जब कोई परिवार आपको बुक करेगा, ऐसी घंटी बजेगी और मैं बोलकर बताऊँगा — नई बुकिंग आई है। साथ में पूरा हिसाब दिखेगा: दक्षिणा, यात्रा भत्ता, भोजन भत्ता।",
+    // TRUTHFUL-STATE (founder F19 ruling, 2026-07-23): the CALL is the promise —
+    // the bell rings only while the app is open, so the narration never implies
+    // an automatic alert. "हम आपको फ़ोन करेंगे" is what actually happens
+    // (pilot-ops-runbook.md §2, operator-call procedure).
+    slide6: "जब कोई परिवार आपको बुक करेगा, हम आपको फ़ोन करेंगे। और जब ऐप खुला होगा, ऐसी घंटी बजेगी और मैं बोलकर बताऊँगा — नई बुकिंग आई है। साथ में पूरा हिसाब दिखेगा: दक्षिणा, यात्रा भत्ता, भोजन भत्ता।",
     slide7Title: "स्वीकार से संपन्न तक",
     slide7: "बुकिंग पसंद आए तो स्वीकार कीजिए बटन दबाइए — या बस बोलिए, स्वीकार। पूजा के दिन हर पड़ाव पर एक बटन दबाते जाइए, और अंत में — पूजा संपन्न।",
     slide8Title: "पैसा कब और कैसे",

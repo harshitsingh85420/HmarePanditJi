@@ -150,4 +150,37 @@ assert.ok(/const paySubtotal = payNow - platformFee;/.test(wizard), "paySubtotal
 assert.ok(/प्लेटफ़ॉर्म शुल्क शामिल है/.test(bookingConfirmed), "booking-confirmed must name the fee beside the Amount Paid total");
 assert.ok(/प्लेटफ़ॉर्म शुल्क शामिल है/.test(bookingCard), "the dashboard BookingCard must name the fee beside its total");
 
-console.log("payment-money guard: conservation holds, one money source, server-derived charge, display=charge, fee DISCLOSED on every total, prod fail-closed ✅");
+// 7) REFUND POLICY = ONE SOURCE + PROMISE TRUTH (founder rulings, 2026-07-23).
+//    Live incident: the legal /cancellation-policy page said 90/50/20/0 while
+//    the dashboard cancel screen computed 100/50/0 — two live documents
+//    disagreeing about refunds. RULE: the CODE is the source of truth; both
+//    pages must render from src/lib/refund-policy.ts, and the canonical numbers
+//    are pinned HERE (changing them = business decision, founder sign-off).
+const refundPolicy = readFileSync(join(WEB, "src", "lib", "refund-policy.ts"), "utf8");
+const cancelPage = readFileSync(join(WEB, "app", "dashboard", "bookings", "[bookingId]", "cancel", "page.tsx"), "utf8");
+const policyPage = readFileSync(join(WEB, "app", "(legal)", "cancellation-policy", "page.tsx"), "utf8");
+const landing = readFileSync(join(WEB, "app", "page.tsx"), "utf8");
+
+// the canonical tiers live in ONE module, with the exact ruling numbers
+assert.ok(/daysUntilEvent > 7\) return 100;/.test(refundPolicy), "refund tier >7 days must be 100%");
+assert.ok(/daysUntilEvent >= 3\) return 50;/.test(refundPolicy), "refund tier ≥3 days must be 50%");
+assert.ok(/return 0;/.test(refundPolicy), "refund tier <3 days must be 0%");
+// both pages consume the module — they can never disagree again
+assert.ok(/from ["'][./]*src\/lib\/refund-policy["']/.test(cancelPage) && /refundPercent\(/.test(cancelPage), "the cancel screen must compute from refund-policy.ts");
+assert.ok(/from ["'][./]*src\/lib\/refund-policy["']/.test(policyPage) && /REFUND_TIERS\.map/.test(policyPage), "the legal policy page must RENDER from refund-policy.ts");
+// the stale legal-page literals must never return
+assert.ok(!/90% of total/.test(policyPage) && !/20%/.test(policyPage), "the old 90/20 refund tiers must not reappear on the legal page");
+
+// PROMISE TRUTH: removed falsehoods stay removed (F25 backup not built; no
+// automated travel engine, D-06; no third-party background checks).
+for (const [file, banned] of [
+  [landing, "Uptime Backup"],
+  [landing, "standby Pandit network"],
+  [landing, "automated logistics platform"],
+  [landing, "Guaranteed Travel"],
+  [landing, "Background Check"],
+] as const) {
+  assert.ok(!file.includes(banned), `landing-page falsehood "${banned}" must not return (unbuilt feature)`);
+}
+
+console.log("payment-money guard: conservation holds, one money source, server-derived charge, display=charge, fee DISCLOSED on every total, refund policy ONE source, promises truthful, prod fail-closed ✅");

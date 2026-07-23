@@ -369,7 +369,11 @@ export function PanditProfileClient({ panditId }: PanditProfileClientProps) {
                                 HmarePanditJi Guarantee
                             </span>
                             <span className="text-base text-[#8a7960]">
-                                100% Refund if Pandit doesn't arrive on time.
+                                {/* Founder ruling 2026-07-23: the promise stays, the MECHANISM is
+                                    stated honestly — a manual refund by our team via Razorpay
+                                    (standard refund window), named as a procedure in the ops
+                                    runbook. A promise with a human behind it is honest. */}
+                                100% Refund if Pandit doesn&apos;t arrive on time — processed by our team, credited within 5-7 working days.
                             </span>
                         </div>
                     </div>

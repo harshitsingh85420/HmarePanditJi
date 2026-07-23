@@ -25,7 +25,7 @@ export default function AboutPage() {
                 <div className="bg-orange-50 p-6 rounded-xl border border-orange-100 text-center">
                     <div className="text-3xl mb-3">✅</div>
                     <h3 className="font-bold text-gray-900 text-lg mb-2">Verified Pandits</h3>
-                    <p className="text-gray-600 text-sm">Every Pandit undergoes a STRICT 5-step verification process, including video KYC and background checks.</p>
+                    <p className="text-gray-600 text-sm">Every Pandit undergoes a strict verification process, including Aadhaar verification and video KYC.</p>
                 </div>
                 <div className="bg-orange-50 p-6 rounded-xl border border-orange-100 text-center">
                     <div className="text-3xl mb-3">💸</div>

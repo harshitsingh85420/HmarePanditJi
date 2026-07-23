@@ -1,4 +1,10 @@
 import type { Metadata } from 'next';
+// ONE refund-policy source (founder ruling 2026-07-23): this legal page renders
+// its table FROM the same module the dashboard cancel screen computes with —
+// the CODE is the source of truth; this page conforms to it, never the reverse.
+// (Live incident: this page said 90/50/20/0 while the cancel screen computed
+// 100/50/0.) Guard-pinned in payment-money.test.ts §7.
+import { REFUND_TIERS, REFUND_PROCESSING_DAYS } from '../../../src/lib/refund-policy';
 
 export const metadata: Metadata = {
     title: 'Cancellation & Refund Policy',
@@ -24,22 +30,12 @@ export default function CancellationPolicyPage() {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 text-gray-700">
-                        <tr>
-                            <td className="px-6 py-4">&gt; 7 days before event</td>
-                            <td className="px-6 py-4">90% of total (excluding platform fee)</td>
-                        </tr>
-                        <tr>
-                            <td className="px-6 py-4">3 - 7 days</td>
-                            <td className="px-6 py-4">50%</td>
-                        </tr>
-                        <tr>
-                            <td className="px-6 py-4">1 - 3 days</td>
-                            <td className="px-6 py-4">20%</td>
-                        </tr>
-                        <tr>
-                            <td className="px-6 py-4">Same day (within 24 hrs)</td>
-                            <td className="px-6 py-4">0% (No refund)</td>
-                        </tr>
+                        {REFUND_TIERS.map((tier) => (
+                            <tr key={tier.when}>
+                                <td className="px-6 py-4">{tier.when}</td>
+                                <td className="px-6 py-4">{tier.note}</td>
+                            </tr>
+                        ))}
                     </tbody>
                 </table>
             </div>
@@ -48,7 +44,7 @@ export default function CancellationPolicyPage() {
                 <h3 className="font-semibold text-gray-900 mt-0">Important Notes:</h3>
                 <ul className="list-disc pl-5 mt-2 space-y-2 text-gray-700">
                     <li><strong>Platform fees are entirely non-refundable</strong> regardless of when the cancellation occurs.</li>
-                    <li>Refunds are processed within <strong>5-7 business days</strong> to the original payment method.</li>
+                    <li>Refunds are processed within <strong>{REFUND_PROCESSING_DAYS}</strong> to the original payment method.</li>
                     <li>How to cancel: You can cancel directly from your User Dashboard under "My Bookings" or by contacting our support team at support@hmarepanditji.com.</li>
                 </ul>
             </div>

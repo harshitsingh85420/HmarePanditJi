@@ -5,7 +5,7 @@ import { env } from "../config/env";
 import { logger } from "../utils/logger";
 import { AppError } from "../middleware/errorHandler";
 import { calculatePanditPayout } from "../utils/pricing";
-import { NotificationService } from "./notification.service";
+import { NotificationService, notifyNewBookingToPandit } from "./notification.service";
 import { getNotificationTemplate } from "./notification-templates";
 
 let razorpayInstance: Razorpay | null = null;
@@ -301,7 +301,9 @@ export async function processPaymentSuccess(
 ) {
   const booking = await prisma.booking.findUnique({
     where: { id: bookingId },
-    include: { customer: true, pandit: true },
+    // pandit.user carried along for the F19 booking-alert SMS (the phone lives
+    // on the User row, not the PanditProfile).
+    include: { customer: true, pandit: { include: { user: true } } },
   });
 
   if (!booking) {
@@ -358,12 +360,28 @@ export async function processPaymentSuccess(
     }
 
     if (booking.pandit) {
-      const t2 = getNotificationTemplate("NEW_BOOKING_REQUEST", { pujaType: updated.eventType, date: updated.eventDate.toISOString().split('T')[0], city: updated.venueCity, amount: updated.panditPayout });
-      // FIX: booking.pandit is the PanditProfile — .id is the PROFILE id, not a
-      // User id. Notifying with it violated Notification.userId's FK, so the
-      // pandit NEVER learned a booking arrived (an empty platform). The User id
-      // is booking.pandit.userId.
-      notificationService.notify({ userId: booking.pandit.userId, type: "NEW_BOOKING_REQUEST", title: t2.title, message: t2.message, smsMessage: t2.smsMessage }).catch((err) => logger.error("notifyNewBookingToPandit failed:", err));
+      // F19 (founder GO, 2026-07-23): the REAL booking-alert SMS. The previous
+      // NotificationService.notify path was a code-level stub — it wrote the DB
+      // row and never sent anything (the Twilio call was commented out), so a
+      // pandit with the app closed NEVER learned a booking arrived. This helper
+      // writes the SAME DB row AND sends the SMS via the proven Twilio path
+      // (the one OTP uses; stub-logs gracefully when keys are absent).
+      // BEST-EFFORT by design: the guaranteed alert is the operator call
+      // (docs/review/pilot-ops-runbook.md §2) — the pandit is told "हम आपको
+      // फ़ोन करेंगे", never "the app will alert you". Real bookingNumber used
+      // (the old template built HPJ-<uuid-fragment>).
+      notifyNewBookingToPandit({
+        panditUserId: booking.pandit.userId,
+        panditName: booking.pandit.fullName || "पंडित",
+        bookingNumber: updated.bookingNumber,
+        eventType: updated.eventType,
+        eventDate: updated.eventDate,
+        venueCity: updated.venueCity,
+        dakshina: updated.dakshinaAmount,
+        travelMode: updated.travelMode ? String(updated.travelMode) : null,
+        panditPayout: updated.panditPayout ?? 0,
+        panditPhone: booking.pandit.user?.phone ?? "",
+      }).catch((err) => logger.error("notifyNewBookingToPandit failed:", err));
     }
   } catch (err) {
     logger.error("Payment notifications failed:", err);

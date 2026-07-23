@@ -5,6 +5,10 @@ import { useRouter, useParams } from "next/navigation";
 import { Button, Card } from "@hmarepanditji/ui";
 import { AlertTriangle, ArrowLeft, XCircle } from "lucide-react";
 import Link from "next/link";
+// ONE refund-policy source (founder ruling 2026-07-23): this screen and the
+// legal /cancellation-policy page both render from refund-policy.ts — the two
+// can never disagree again. Guard-pinned in payment-money.test.ts §7.
+import { refundPercent, REFUND_TIERS, REFUND_PROCESSING_DAYS } from "../../../../../src/lib/refund-policy";
 
 interface BookingInfo {
     id: string;
@@ -67,10 +71,7 @@ export default function CancellationRequestPage() {
         const now = Date.now();
         const daysUntilEvent = Math.max(0, Math.ceil((eventTime - now) / (1000 * 60 * 60 * 24)));
 
-        let percent = 0;
-        if (daysUntilEvent > 7) percent = 100;
-        else if (daysUntilEvent >= 3) percent = 50;
-        else percent = 0;
+        const percent = refundPercent(daysUntilEvent);
 
         const estimate = Math.floor(refundableAmount * (percent / 100));
 
@@ -183,7 +184,7 @@ export default function CancellationRequestPage() {
                     <p className="text-sm text-gray-600 mb-4 border-b pb-4">
                         Days until event: <strong className="text-black">{refundData.days}</strong>
                         <br />
-                        Policy: {refundData.days > 7 ? "> 7 days → 100% refund" : refundData.days >= 3 ? "3-7 days → 50% refund" : "< 3 days → No refund"}
+                        Policy: {REFUND_TIERS.map((t) => `${t.when} → ${t.percent}%`).join(" · ")}
                     </p>
 
                     <div className="space-y-2 text-sm">
@@ -209,7 +210,7 @@ export default function CancellationRequestPage() {
                         </div>
                     </div>
                     <div className="mt-4 p-3 bg-blue-50 text-blue-800 text-xs rounded-lg">
-                        Note: Refund will be credited within 5-7 business days after approval.
+                        Note: Refund will be credited within {REFUND_PROCESSING_DAYS} after approval.
                     </div>
                 </Card>
             )}
