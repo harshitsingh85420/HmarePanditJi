@@ -187,6 +187,16 @@ export default function PayoutsPage() {
                       <td className="px-6 py-4">
                         <div className="font-semibold text-slate-800">{b.eventType}</div>
                         <div className="text-xs text-slate-500 mt-0.5">{new Date(b.eventDate).toLocaleDateString()}</div>
+                        {/* runbook PROCEDURE 4: call the CUSTOMER before every
+                            mark-paid — the number lives ON this row, not a
+                            screen away (founder, 2026-07-23). */}
+                        {b.customer?.phone && (
+                          <div className="text-xs mt-1.5 bg-emerald-50 border border-emerald-200 rounded px-2 py-1 inline-block">
+                            <span className="font-bold text-emerald-800">Confirm with customer:</span>{" "}
+                            <span className="text-emerald-900">{b.customer.name || ""}</span>{" "}
+                            <span className="font-mono font-semibold text-emerald-900">{b.customer.phone}</span>
+                          </div>
+                        )}
                       </td>
                       <td className="px-6 py-4 font-bold text-slate-900">
                         {b.storedPayoutMissing ? (
@@ -249,6 +259,7 @@ export default function PayoutsPage() {
                           ) : (
                             <button
                               onClick={() => handleMarkPaid(b.id)}
+                              title="Runbook §4: call the customer FIRST — क्या पूजा ठीक से संपन्न हुई? Number is on this row."
                               className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-3 py-1.5 rounded transition"
                             >
                               MARK PAID

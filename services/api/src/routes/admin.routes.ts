@@ -283,6 +283,10 @@ export default async function adminRoutes(fastify: FastifyInstance, _opts: any) 
                 user: { select: { id: true, name: true, phone: true } },
               },
             },
+            // runbook PROCEDURE 4 (founder, 2026-07-23): the operator calls the
+            // CUSTOMER to confirm the puja happened before EVERY mark-paid —
+            // the number must be ON the payout row, not a screen away.
+            customer: { select: { name: true, phone: true } },
           },
         }),
         prisma.booking.count({ where }),
