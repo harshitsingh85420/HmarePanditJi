@@ -39,7 +39,13 @@ export default function TermsPage() {
 
             <h2>5. Payment Terms</h2>
             <p>
-                To confirm a booking, an advance payment is required. The Platform securely holds these funds and releases them to the Pandit after the successful completion of the Puja, deducting a platform commission.
+                {/* MONEY MODEL (CONFLICT_RULINGS #7, founder 2026-07-21): the Pandit
+                    receives 100% of the dakshina — nothing is deducted. The platform
+                    fee is a SEPARATE charge paid by the Customer, itemised before
+                    payment. The previous sentence ("deducting a platform commission")
+                    described the retired included-fee model and was a false statement
+                    of the money flow. */}
+                To confirm a booking, an advance payment is required. The Platform securely holds these funds and releases them to the Pandit in full after the successful completion of the Puja. The platform fee is a separate charge paid by the Customer at the time of booking, shown as its own line before payment; it is never deducted from the Pandit&apos;s dakshina.
             </p>
 
             <h2>6. Cancellation and Refund Policy</h2>

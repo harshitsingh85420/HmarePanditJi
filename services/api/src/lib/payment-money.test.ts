@@ -129,4 +129,25 @@ assert.ok(
   "the Razorpay key must come from the SERVER create-order response",
 );
 
-console.log("payment-money guard: conservation holds, one money source, server-derived charge, display=charge, prod fail-closed ✅");
+// 6) FEE DISCLOSURE (founder P0, 2026-07-23): the customer must SEE the fee.
+//    Live incident: the sticky Pay-Now box said "Platform Fees & Taxes: ₹0 —
+//    included in dakshina" while payNow CHARGED the fee — a false statement on
+//    a payment screen, left over from the pre-Ruling-#7 included-fee model.
+//    These assertions pin: (a) the lie can never return; (b) no invented tax
+//    line; (c) the fee is NAMED with its real amount wherever a customer-facing
+//    total is rendered (wizard, confirmation, dashboard card — the cancel page
+//    already itemises it); (d) non-refundability is disclosed BEFORE payment.
+const WEB = join(SRC, "..", "..", "..", "apps", "web");
+const bookingConfirmed = readFileSync(join(WEB, "app", "booking-confirmed", "[bookingId]", "page.tsx"), "utf8");
+const bookingCard = readFileSync(join(WEB, "app", "dashboard", "components", "BookingCard.tsx"), "utf8");
+
+assert.ok(!wizard.includes("included in dakshina"), "the '₹0 — included in dakshina' false fee line must never return");
+assert.ok(!wizard.includes("Platform Fees & Taxes"), "no 'Taxes' line — no GST is computed/remitted (legal question, never an invented line)");
+assert.ok(/प्लेटफ़ॉर्म शुल्क/.test(wizard), "the sticky Pay-Now box must NAME the platform fee");
+assert.ok(/प्लेटफ़ॉर्म शुल्क[^<]*\(वापस नहीं होगा\)[\s\S]{0,200}\{fmt\(platformFee\)\}/.test(wizard), "the named fee must carry its REAL amount and its non-refundability BEFORE payment");
+assert.ok(/\{fmt\(paySubtotal\)\}/.test(wizard), "row 1 must show the fee-EXCLUDED subtotal (label = dakshina + travel + food)");
+assert.ok(/const paySubtotal = payNow - platformFee;/.test(wizard), "paySubtotal must be derived from payNow so display rows always sum to the charge");
+assert.ok(/प्लेटफ़ॉर्म शुल्क शामिल है/.test(bookingConfirmed), "booking-confirmed must name the fee beside the Amount Paid total");
+assert.ok(/प्लेटफ़ॉर्म शुल्क शामिल है/.test(bookingCard), "the dashboard BookingCard must name the fee beside its total");
+
+console.log("payment-money guard: conservation holds, one money source, server-derived charge, display=charge, fee DISCLOSED on every total, prod fail-closed ✅");

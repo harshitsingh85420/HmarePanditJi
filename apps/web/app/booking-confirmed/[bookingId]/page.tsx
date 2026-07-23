@@ -93,6 +93,11 @@ export default function BookingConfirmedPage() {
                                 <div className="text-right">
                                     <p className="text-xs uppercase tracking-widest font-bold text-gray-500 mb-1">Amount Paid</p>
                                     <p className="text-2xl font-black text-gray-900">₹{booking.grandTotal?.toLocaleString("en-IN")}</p>
+                                    {/* FEE DISCLOSURE (founder P0, 2026-07-23): the fee is named
+                                        beside every customer-facing total, post-payment included. */}
+                                    {booking.platformFee > 0 && (
+                                        <p className="text-xs text-gray-500 mt-1">इसमें ₹{booking.platformFee.toLocaleString("en-IN")} प्लेटफ़ॉर्म शुल्क शामिल है</p>
+                                    )}
                                 </div>
                             </div>
 

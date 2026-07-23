@@ -55,8 +55,12 @@ export function BookingCard({ booking }: { booking: any }) {
                 </div>
                 <div className="flex flex-col items-end shrink-0 gap-2">
                     <Badge variant={badge.variant}>{badge.label}</Badge>
-                    <div className="font-bold text-gray-900 mt-auto">
+                    <div className="font-bold text-gray-900 mt-auto text-right">
                         ₹{booking.grandTotal.toLocaleString("en-IN")}
+                        {/* FEE DISCLOSURE (founder P0, 2026-07-23): fee named beside the total */}
+                        {booking.platformFee > 0 && (
+                            <p className="text-[11px] font-medium text-gray-500">इसमें ₹{booking.platformFee.toLocaleString("en-IN")} प्लेटफ़ॉर्म शुल्क शामिल है</p>
+                        )}
                     </div>
                 </div>
             </div>

@@ -430,6 +430,9 @@ export default function BookingWizardClient() {
   // this composition — the pay-now total and the Razorpay charge can never diverge.
   const platformFee = Math.round((form.dakshina * PLATFORM_FEE_PERCENT) / 100);
   const payNow = form.dakshina + platformFee + effectiveTravelCost + foodAllowance;
+  // FEE DISCLOSURE (founder P0, 2026-07-23): the sticky box shows the fee as its
+  // own honest line — subtotal (what goes to Pandit Ji) + the platform fee.
+  const paySubtotal = payNow - platformFee;
   // SETTLED AT BOOKING: samagri, add-ons and platform-booked accommodation
   // are paid directly to Pandit Ji / arranged at the puja — NOT charged
   // online (matches how samagri works offline). Server-side charging of
@@ -1439,7 +1442,7 @@ export default function BookingWizardClient() {
                   <div className="flex justify-between items-start py-2">
                     <div>
                       <p className="text-[#181511] dark:text-white font-semibold">Platform Fee</p>
-                      <p className="text-[#8a7960] text-xs">Keeps the app free for Pandit Ji — added on top, so he receives 100% of the dakshina</p>
+                      <p className="text-[#8a7960] text-xs">Keeps the app free for Pandit Ji — added on top, so he receives 100% of the dakshina. Non-refundable (वापस नहीं होगा).</p>
                     </div>
                     <span className="font-semibold">{fmt(platformFee)}</span>
                   </div>
@@ -1514,13 +1517,22 @@ export default function BookingWizardClient() {
               {/* Grand Total Sticky Box */}
               <section className="sticky top-24 bg-white dark:bg-[#2a2218] rounded-xl border-t-4 border-[#f49d25] shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] overflow-hidden">
                 <div className="p-6 space-y-4">
+                  {/* FEE DISCLOSURE (founder P0, 2026-07-23): row 1 = the subtotal
+                      that goes to Pandit Ji (fee EXCLUDED, labelled for what it
+                      is); row 2 = the platform fee, named, with its real amount
+                      and its non-refundability BEFORE payment. The old "₹0 …"
+                      fee row was a leftover of the pre-Ruling-#7 included-fee
+                      model — a false statement on a payment screen;
+                      payment-money.test.ts bans that string outright (even in
+                      comments) so it can never return. No tax line: no GST is
+                      computed or remitted (a legal question, never invented). */}
                   <div className="flex justify-between items-center text-[#8a7960] text-sm font-medium">
                     <span>Dakshina + travel + food</span>
-                    <span>{fmt(payNow)}</span>
+                    <span>{fmt(paySubtotal)}</span>
                   </div>
                   <div className="flex justify-between items-center text-[#8a7960] text-sm font-medium">
-                    <span>Platform Fees & Taxes</span>
-                    <span>₹0 — included in dakshina</span>
+                    <span>प्लेटफ़ॉर्म शुल्क (वापस नहीं होगा)</span>
+                    <span>{fmt(platformFee)}</span>
                   </div>
                   {settledAtBooking > 0 && (
                     <div className="flex justify-between items-start text-[#8a7960] text-sm font-medium">
