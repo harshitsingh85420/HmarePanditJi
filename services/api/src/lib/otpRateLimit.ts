@@ -68,7 +68,7 @@ export function otpLimitMessage(reason: OtpLimitReason | undefined, retryAfterSe
       return `कृपया ${retryAfterSec} सेकंड बाद दोबारा भेजिए।`;
     case "per_phone_15min":
     case "per_phone_24h":
-      return "बहुत बार OTP भेजा जा चुका है। कृपया थोड़ी देर बाद फिर कोशिश कीजिए।";
+      return "बहुत बार ओटीपी भेजा जा चुका है। कृपया थोड़ी देर बाद फिर कोशिश कीजिए।";
     case "per_ip_hour":
       return "इस डिवाइस से बहुत बार कोशिश हुई है। कृपया कुछ समय बाद फिर कोशिश कीजिए।";
     case "backend_unavailable":

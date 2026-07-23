@@ -64,6 +64,9 @@ export interface ApiResponse<T = any> {
   /** HTTP status on failure — lets callers distinguish 401 (re-auth) from
    *  5xx/timeout (retry), instead of force-logging-out on any failure. */
   status?: number;
+  /** seconds to wait before retrying — surfaced from a 429 body so the login
+   *  cooldown can reflect the real remaining window (OTP rate limit). */
+  retryAfterSec?: number;
 }
 
 export async function api<T = any>(
@@ -117,6 +120,7 @@ export async function api<T = any>(
         success: false,
         error: json.error || { message: json.message || hi.common.error },
         status: res.status,
+        retryAfterSec: typeof json.retryAfterSec === "number" ? json.retryAfterSec : undefined,
       };
     }
 

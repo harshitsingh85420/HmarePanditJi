@@ -51,7 +51,13 @@ export default function LoginPage() {
   const [otpValue, setOtpValue] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
-  const [countdown, setCountdown] = useState(30);
+  // OTP resend cooldown (hardening v2, item H). MUST initialise at 0 — the old
+  // bug started it at 30 and the very FIRST send was blocked. A successful send
+  // sets it to 60 (preemptive, so the server 429 is unreachable in normal use);
+  // a hard-cap 429 sets it from the server's Retry-After. `hardCap` drives the
+  // ONLY error styling — a plain wait is normal, not an error.
+  const [countdown, setCountdown] = useState(0);
+  const [hardCap, setHardCap] = useState(false);
   const [accountExists, setAccountExists] = useState<boolean | null>(null);
   // D1: Render cold start can take ~65s — after 4s of pending, शिष्य says
   // the server is waking and a diya burns inline so silence never reads
@@ -118,10 +124,21 @@ export default function LoginPage() {
     setLoading(false);
 
     if (!res.success) {
-      const rateLimited = res.error?.code === "rate_limit_exceeded";
-      const msg = rateLimited ? t("auth.rateLimited") : t("common.error");
-      setErrorMsg(msg);
-      speak(msg);
+      // hardening v2 (item H): a hard-cap 429 (per-phone/per-IP limit) — show
+      // the server's Devanagari message WITH error styling, and disable resend
+      // for the real window (Retry-After; 60s fallback when absent).
+      const rateLimited = res.status === 429 || res.error?.code === "otp_rate_limited" || res.error?.code === "rate_limit_exceeded";
+      if (rateLimited) {
+        const msg = res.error?.message || t("auth.rateLimited");
+        setHardCap(true);
+        setErrorMsg(msg);
+        speak(msg);
+        setCountdown(res.retryAfterSec && res.retryAfterSec > 0 ? res.retryAfterSec : 60);
+        if (step === 1) { setAccountExists(res.data?.accountExists ?? null); setStep(2); }
+        return;
+      }
+      setErrorMsg(t("common.error"));
+      speak(t("common.error"));
       return;
     }
 
@@ -133,7 +150,10 @@ export default function LoginPage() {
     const exists = res.data?.accountExists === true;
     setAccountExists(exists);
     setStep(2);
-    setCountdown(30);
+    // item H: preemptive 60s cooldown on EVERY successful send → the resend
+    // button is hidden while the timer runs, so the 429 is unreachable normally.
+    setHardCap(false);
+    setCountdown(60);
   };
 
   // G4b: WebOTP — the browser offers to read the OTP SMS and hand the
@@ -397,15 +417,19 @@ export default function LoginPage() {
                   .join(" ")}
               />
 
-              {/* Resend link — mockup frame 7: softgrey label · saffron 00:SS */}
+              {/* Resend — hardening v2 item H. During the preemptive 60s
+                  cooldown: a large, high-contrast "N सेकंड बाद…" line in NORMAL
+                  (non-error) styling — this is expected waiting, not a fault.
+                  A hard-cap 429 shows the red errorMsg line above instead; the
+                  button just stays hidden until the window passes. */}
               <div className="text-center mt-2">
                 {countdown > 0 ? (
-                  <span className="text-[18px] font-bold text-softgrey font-hindi">
-                    {t("auth.otpResend")}{" "}
-                    <span className="text-saffron-500 font-bold">
-                      00:{String(countdown).padStart(2, "0")}
+                  hardCap ? null : (
+                    <span className="text-[19px] font-bold text-softgrey font-hindi">
+                      <span className="text-saffron-500 font-black text-[22px]">{countdown}</span>{" "}
+                      सेकंड बाद दोबारा भेज सकते हैं
                     </span>
-                  </span>
+                  )
                 ) : (
                   <button
                     onClick={handleResendOtp}

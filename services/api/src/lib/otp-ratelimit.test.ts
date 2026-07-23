@@ -43,7 +43,7 @@ assert.strictEqual(OTP_LIMITS.PER_IP_HOUR, 20);
 for (const reason of ["cooldown", "per_phone_15min", "per_ip_hour", "backend_unavailable"] as const) {
   const m = otpLimitMessage(reason, 42);
   assert.ok(/[ऀ-ॿ]/.test(m), `message for ${reason} must be Devanagari`);
-  assert.ok(!/[a-z]{4,}/.test(m.replace("OTP", "")), `message for ${reason} must not carry an English error phrase`);
+  assert.ok(!/[a-zA-Z]/.test(m), `message for ${reason} must be roman-free (UI string, register law)`);
 }
 
 // FAIL-CLOSED in prod — pinned in the wrapper source (the exits can't run here)
