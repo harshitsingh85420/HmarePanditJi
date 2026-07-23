@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { prisma } from "../lib/prisma";
 import { env } from "../config/env";
-import { buildOtpSms } from "../config/constants";
+import { buildOtpSms, OTP_TTL_SECONDS } from "../config/constants";
 import { authLanding } from "../lib/authRouting";
 import { AppError } from "../middleware/errorHandler";
 import crypto from "crypto";
@@ -65,10 +65,10 @@ export const sendOtp = async (request: FastifyRequest, reply: FastifyReply) => {
     phone,
     role,
     otp,
-    expiresAt: Date.now() + 10 * 60 * 1000,
+    expiresAt: Date.now() + OTP_TTL_SECONDS * 1000,
   });
 
-  return reply.send({ success: true, data: { message: "OTP sent", expiresIn: 600 }, message: "Success" });
+  return reply.send({ success: true, data: { message: "OTP sent", expiresIn: OTP_TTL_SECONDS }, message: "Success" });
 };
 
 export const verifyOtp = async (request: FastifyRequest, reply: FastifyReply) => {
@@ -443,9 +443,10 @@ export const sendOtpNew = async (request: FastifyRequest, reply: FastifyReply) =
     // G4d: the WebOTP-bound SMS body — MSG91 (or any provider) plugs in
     // HERE and must send `smsBody` VERBATIM: the '@origin #code' last
     // line is what lets the browser offer auto-fill on the login screen.
-    const smsBody = buildOtpSms(otp);
+    // Pandit app path → the PANDIT origin (prod-validated at boot).
+    const smsBody = buildOtpSms(otp, env.WEBOTP_ORIGIN_PANDIT);
     // TODO(MSG91): await msg91.send(phone, smsBody)
-    console.log(`[PRODUCTION OTP] Phone: ${phone}, OTP: ${otp}, SMS ready (${smsBody.length} chars)`);
+    console.log(`[PRODUCTION OTP] Phone: ${phone}, SMS ready (${smsBody.length} chars)`);
   } else {
     console.log(`[DEV OTP] Phone: ${phone}, OTP: ${otp}`);
   }
@@ -453,8 +454,9 @@ export const sendOtpNew = async (request: FastifyRequest, reply: FastifyReply) =
   // Hash OTP using SHA-256
   const hash = crypto.createHash("sha256").update(otp).digest("hex");
 
-  // Store OTP hash in Redis key otp:{phone} with 5-minute TTL (300 seconds)
-  await storeOtpHash(phone, hash, 300);
+  // Store OTP hash in Redis — TTL from THE single source (OTP_TTL_SECONDS),
+  // so the SMS promise and the expiry can never diverge.
+  await storeOtpHash(phone, hash, OTP_TTL_SECONDS);
 
   // F1(a): tell the client whether this phone already has an account so
   // the OTP screen can greet a returning pandit differently.

@@ -3,9 +3,7 @@ import jwt from "jsonwebtoken";
 import { env } from "../config/env";
 import { OTP as OTP_CONFIG, JWT } from "../config/constants";
 import { AppError } from "../middleware/errorHandler";
-import { logger } from "../utils/logger";
-import { formatPhoneE164, maskPhone } from "../utils/helpers";
-import { notifyOtp } from "./notification.service";
+import { formatPhoneE164 } from "../utils/helpers";
 
 // ─── Token helpers ────────────────────────────────────────────────────────────
 
@@ -36,46 +34,10 @@ function signRefreshToken(userId: string): string {
 
 // ─── Public API ───────────────────────────────────────────────────────────────
 
-/**
- * Generate a 6-digit OTP, save to DB, and send via Twilio (dev: log only).
- * Returns the OTP code in development mode for easy testing.
- */
-export async function requestOtp(
-  phone: string,
-): Promise<{ devOtp?: string }> {
-  const e164Phone = formatPhoneE164(phone);
-  const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
-  const expiresAt = new Date(Date.now() + OTP_CONFIG.EXPIRY_MINUTES * 60 * 1000);
-
-  // Invalidate previous unused OTPs for this phone
-  await prisma.oTP.updateMany({
-    where: { phone: e164Phone, isUsed: false },
-    data: { isUsed: true },
-  });
-
-  const otpRecord = await prisma.oTP.create({
-    data: { phone: e164Phone, otp: otpCode, expiresAt },
-  });
-
-  // Find or create a placeholder user for notification (phone may not have an account yet)
-  const user = await prisma.user.findUnique({ where: { phone: e164Phone } });
-
-  if (user && env.TWILIO_ACCOUNT_SID && env.TWILIO_AUTH_TOKEN) {
-    // Send via Twilio SMS (non-blocking — don't fail OTP request if SMS fails)
-    notifyOtp(e164Phone, user.id, otpCode).catch((err) =>
-      logger.error(`[OTP] SMS delivery failed for ${maskPhone(e164Phone)}: ${err.message}`),
-    );
-  } else {
-    // Dev fallback: log to console
-    logger.info(`[DEV] OTP for ${maskPhone(e164Phone)}: ${otpCode} (id: ${otpRecord.id})`);
-  }
-
-  // In development, return the OTP so the UI can display it without checking logs
-  if (env.NODE_ENV === "development") {
-    return { devOtp: otpCode };
-  }
-  return {};
-}
+// (OTP hardening v2, 2026-07-23: the dead DB+Twilio requestOtp was DELETED —
+//  it was unrouted, and its Twilio SMS promised DOUBLE the real TTL. The
+//  anywhere-scan in otp-ttl.test.ts exists so a divergent OTP-minutes value
+//  like that can never return, comments included.)
 
 /**
  * Verify OTP, upsert User record, return access + refresh tokens.

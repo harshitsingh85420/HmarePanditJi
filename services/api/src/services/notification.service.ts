@@ -130,11 +130,10 @@ const dateFormatter = new Intl.DateTimeFormat("en-IN", { dateStyle: "long" });
 
 
 
-/** Send OTP via SMS */
-export async function notifyOtp(phone: string, userId: string, otp: string): Promise<void> {
-  const message = `[HmarePanditJi] आपका OTP: ${otp}. 10 min में expire होगा। Share न करें। 🙏`;
-  await sendNotification({ userId, type: "OTP", title: "Your OTP", message, channel: "SMS", phone });
-}
+// (OTP hardening v2, 2026-07-23: the dead notifyOtp was DELETED — its SMS
+//  promised DOUBLE the real TTL, and its only caller was the unrouted
+//  auth.service.requestOtp. OTP SMS goes ONLY through buildOtpSms + MSG91
+//  with the DLT-approved template.)
 
 export async function notifyBookingCreatedToCustomer(
   booking: { customerUserId: string, customerName: string, bookingNumber: string, eventType: string, eventDate: Date, customerPhone: string }

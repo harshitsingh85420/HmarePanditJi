@@ -62,10 +62,18 @@ const envSchema = z.object({
   BHASHINI_API_KEY: z.string().default(""),
   BHASHINI_PIPELINE_ID: z.string().default(""),
 
-  // MSG91 OTP + SMS
+  // MSG91 OTP + SMS (OTP hardening v2, 2026-07-23)
   MSG91_AUTH_KEY: z.string().default(""),
-  MSG91_SENDER_ID: z.string().default("HMPANDIT"),
-  MSG91_OTP_TEMPLATE_ID: z.string().default(""),
+  // DLT sender IDs are EXACTLY 6 alphanumerics — the old 8-char default was
+  // DLT-invalid and every send would fail. Approved header: HMPNDT.
+  MSG91_SENDER_ID: z.string().default("HMPNDT"),
+  // one DLT-approved template per app (the WebOTP binding line differs)
+  MSG91_OTP_TEMPLATE_ID_PANDIT: z.string().default(""),
+  MSG91_OTP_TEMPLATE_ID_WEB: z.string().default(""),
+  // WebOTP binding origins — BARE HOST ONLY (no scheme/path/slash/port).
+  // Chrome parses only the LAST @origin line of the SMS; one line per app.
+  WEBOTP_ORIGIN_PANDIT: z.string().default(""),
+  WEBOTP_ORIGIN_WEB: z.string().default(""),
 
   // AWS S3
   AWS_REGION: z.string().default("ap-south-1"),
@@ -126,4 +134,55 @@ if (env.NODE_ENV === "production" && isInsecureEncryptionKey(env.ENCRYPTION_KEY)
   console.error("    Real Aadhaar must never be encrypted under a public key.");
   console.error("    Set a real 32-byte key on the host and restart:  openssl rand -hex 32");
   process.exit(1);
+}
+
+// ─── OTP HARDENING v2 (2026-07-23) — same fail-fast discipline ───────────────
+
+/** BARE-HOST validator for WebOTP binding origins. Chrome's SMS parser wants
+ *  `@host` with nothing else — a scheme, path, slash, port, whitespace or a
+ *  single-label host silently breaks autofill (and a malformed line in an
+ *  approved DLT template is unfixable without a fresh approval cycle). */
+export function isValidWebOtpOrigin(host: string | undefined): boolean {
+  if (!host) return false;
+  if (/[\s/:@#?]/.test(host)) return false; // no whitespace/scheme/path/port
+  // multi-label hostname: labels of [a-z0-9-], no leading/trailing hyphen,
+  // at least one dot (single-label hosts are not valid WebOTP origins)
+  return /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/i.test(host);
+}
+
+/** The repo-PUBLIC default admin hash — login must refuse it in production
+ *  (a bcrypt hash committed to git is a credential anyone can attack offline). */
+export const DEFAULT_ADMIN_PASSWORD_HASH = "$2a$10$X56H2b.C/xRtfVbV07XUduP.p2.mpe6jKxG18M5rM/XzXy/vDpeM6";
+export function isDefaultAdminHash(hash: string | undefined): boolean {
+  return !hash || hash === DEFAULT_ADMIN_PASSWORD_HASH;
+}
+
+if (env.NODE_ENV === "production") {
+  // 1. Static-OTP escape hatches can NEVER ride into prod: flags-off and real
+  //    delivery ship together, or the deploy does not boot.
+  if (env.OTP_DEV_MODE === "true" || env.MOCK_OTP === "true") {
+    console.error("❌  FATAL: OTP_DEV_MODE / MOCK_OTP is 'true' in production — the static-OTP bypass must never ship.");
+    process.exit(1);
+  }
+  // 2. Real delivery must be configured (random OTPs that go nowhere = no logins).
+  if (!env.MSG91_AUTH_KEY || !env.MSG91_OTP_TEMPLATE_ID_PANDIT || !env.MSG91_OTP_TEMPLATE_ID_WEB) {
+    console.error("❌  FATAL: MSG91_AUTH_KEY / MSG91_OTP_TEMPLATE_ID_PANDIT / MSG91_OTP_TEMPLATE_ID_WEB missing in production.");
+    console.error("    With the static bypass dead, undelivered OTPs mean nobody can log in. Configure MSG91 and redeploy.");
+    process.exit(1);
+  }
+  // 3. WebOTP origins: unset OR malformed → refuse to boot (a bad origin line
+  //    would be baked into every SMS).
+  for (const [name, val] of [["WEBOTP_ORIGIN_PANDIT", env.WEBOTP_ORIGIN_PANDIT], ["WEBOTP_ORIGIN_WEB", env.WEBOTP_ORIGIN_WEB]] as const) {
+    if (!isValidWebOtpOrigin(val)) {
+      console.error(`❌  FATAL: ${name} is unset or malformed ("${val ?? ""}").`);
+      console.error("    Required: BARE host, multi-label — e.g. hmarepanditji-pandit.vercel.app");
+      console.error("    Wrong: https://…, trailing slash, :port, path, whitespace, single label.");
+      process.exit(1);
+    }
+  }
+  // 4. DLT sender ID: exactly 6 alphanumerics or every send fails at the carrier.
+  if (!/^[A-Za-z0-9]{6}$/.test(env.MSG91_SENDER_ID)) {
+    console.error(`❌  FATAL: MSG91_SENDER_ID "${env.MSG91_SENDER_ID}" is not a 6-char DLT sender ID (e.g. HMPNDT).`);
+    process.exit(1);
+  }
 }
