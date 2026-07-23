@@ -21,8 +21,29 @@ services:
         sync: false
       - key: JWT_SECRET
         sync: false
+      # OTP HARDENING v2 (2026-07-23): the static bypass is DEAD. These MUST be
+      # "false" for the cutover — with real delivery below, they ship together
+      # or the API fatal-boots (env.ts prod guard). This is the exact value that
+      # kept 9876500050/123456 logging into prod; flipping it is the cutover.
       - key: OTP_DEV_MODE
-        value: "true"
+        value: "false"
+      - key: MOCK_OTP
+        value: "false"
+      # Real OTP delivery — set the real secrets in the Render dashboard.
+      # env.ts fatal-boots prod if AUTH_KEY or either TEMPLATE_ID is missing.
+      - key: MSG91_AUTH_KEY
+        sync: false
+      - key: MSG91_SENDER_ID
+        sync: false
+      - key: MSG91_OTP_TEMPLATE_ID_PANDIT
+        sync: false
+      - key: MSG91_OTP_TEMPLATE_ID_WEB
+        sync: false
+      # WebOTP binding origins — BARE HOST (env.ts fatal-boots on unset/malformed).
+      - key: WEBOTP_ORIGIN_PANDIT
+        sync: false
+      - key: WEBOTP_ORIGIN_WEB
+        sync: false
       - key: DEEPGRAM_API_KEY
         sync: false
       - key: SARVAM_API_KEY

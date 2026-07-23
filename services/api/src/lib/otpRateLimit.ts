@@ -73,7 +73,7 @@ export function otpLimitMessage(reason: OtpLimitReason | undefined, retryAfterSe
       return "इस डिवाइस से बहुत बार कोशिश हुई है। कृपया कुछ समय बाद फिर कोशिश कीजिए।";
     case "backend_unavailable":
     default:
-      return "अभी OTP सेवा उपलब्ध नहीं है। कृपया थोड़ी देर बाद फिर कोशिश कीजिए।";
+      return "अभी ओटीपी सेवा उपलब्ध नहीं है। कृपया थोड़ी देर बाद फिर कोशिश कीजिए।";
   }
 }
 
