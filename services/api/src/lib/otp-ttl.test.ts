@@ -46,10 +46,13 @@ for (const f of files) {
   const src = readFileSync(f, "utf8");
   src.split("\n").forEach((line, i) => {
     if (!/otp/i.test(line)) return;
-    const m = [...line.matchAll(/(\d+)\s*(?:min\b|मिनट|minutes?\b)/gi)];
+    // Require WHITESPACE before the unit: a real TTL promise is spaced
+    // ("5 मिनट", "10 min"); rate-limit window identifiers ("15min", "15MIN",
+    // "c15") are not TTL and must not be flagged.
+    const m = [...line.matchAll(/(\d+)\s+(?:min\b|मिनट|minutes?\b)/gi)];
     for (const hit of m) {
       if (Number(hit[1]) !== OTP_TTL_MIN) {
-        offenders.push(`${f}:${i + 1} says "${hit[0]}" (OTP context, != ${OTP_TTL_MIN})`);
+        offenders.push(`${f}:${i + 1} says "${hit[0]}" (OTP-TTL context, != ${OTP_TTL_MIN})`);
       }
     }
   });

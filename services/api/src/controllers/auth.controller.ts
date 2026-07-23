@@ -9,7 +9,8 @@ import { generateOtp, hashOtp, sendOtpSms, isStaticOtpAllowed } from "../lib/otp
 import { authLanding } from "../lib/authRouting";
 import { AppError } from "../middleware/errorHandler";
 import crypto from "crypto";
-import { storeOtpHash, getOtpHash, deleteOtpHash, checkRateLimit } from "../lib/redis";
+import { storeOtpHash, getOtpHash, deleteOtpHash } from "../lib/redis";
+import { checkOtpSendRateLimit, otpLimitMessage } from "../lib/otpRateLimit";
 import { DEFAULT_SAMAGRI } from "@hmarepanditji/db";
 import { validateSamagriItems, readSamagriItems, toPanditAppItems, asJsonItems, SAMAGRI_BRAND_ANY, type SamagriItem } from "../lib/samagriItem";
 import { earningsFromStored } from "../lib/earnings";
@@ -49,6 +50,17 @@ export const sendOtp = async (request: FastifyRequest, reply: FastifyReply) => {
   }
   if (role !== "CUSTOMER" && role !== "PANDIT") {
     throw new AppError("Role must be CUSTOMER or PANDIT", 400);
+  }
+
+  // hardening v2 (item E): fail-closed OTP send rate limit (both paths).
+  const rl = await checkOtpSendRateLimit(phone, req.ip || "unknown");
+  if (!rl.allowed) {
+    reply.header("Retry-After", String(rl.retryAfterSec));
+    return reply.status(429).send({
+      success: false,
+      error: { code: "otp_rate_limited", message: otpLimitMessage(rl.reason, rl.retryAfterSec) },
+      retryAfterSec: rl.retryAfterSec,
+    });
   }
 
   // hardening v2 (item A): a REAL random OTP for everyone — the static value
@@ -432,15 +444,15 @@ export const sendOtpNew = async (request: FastifyRequest, reply: FastifyReply) =
     });
   }
 
-  // Rate Limit check: Max 3 sends per phone per 10 minutes (600 seconds)
-  const allowed = await checkRateLimit(phone, 3, 600);
-  if (!allowed) {
+  // hardening v2 (item E): fail-closed OTP send rate limit (replaces the old
+  // fail-OPEN checkRateLimit — a Redis hiccup used to drain to memory).
+  const rlNew = await checkOtpSendRateLimit(phone, (request as any).ip || "unknown");
+  if (!rlNew.allowed) {
+    reply.header("Retry-After", String(rlNew.retryAfterSec));
     return reply.status(429).send({
       success: false,
-      error: {
-        code: "rate_limit_exceeded",
-        message: "Max 3 sends per 10 minutes exceeded."
-      }
+      error: { code: "otp_rate_limited", message: otpLimitMessage(rlNew.reason, rlNew.retryAfterSec) },
+      retryAfterSec: rlNew.retryAfterSec,
     });
   }
 
