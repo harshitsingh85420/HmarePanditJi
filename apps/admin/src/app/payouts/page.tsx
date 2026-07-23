@@ -23,6 +23,11 @@ interface PayoutBooking {
   payoutCompletedAt: string;
   storedPayoutMissing?: boolean;
   pandit: Pandit;
+  // runbook §4: the customer is called to confirm the puja before mark-paid.
+  // The API (admin.routes GET /payouts) now returns this; the local type must
+  // carry it or `next build` fails the type check (this omission is exactly
+  // what broke the 57693a0 admin deploy).
+  customer?: { name?: string; phone?: string };
 }
 
 export default function PayoutsPage() {

@@ -114,7 +114,24 @@ jobs:
         env:
           NEXT_PUBLIC_API_URL: http://localhost:3001/api/v1
           NODE_ENV: production
-      
+
+      # ADMIN + WEB builds added 2026-07-23. `next build` type-checks the whole
+      # app the way Vercel does — tsc alone let a broken admin/payouts type ship
+      # (a customer field used but not typed), so the Vercel deploy FAILED and
+      # admin silently kept serving an old build. Admin is the tool Isj uses to
+      # move money and approve identity — it must build in CI, not just tsc.
+      - name: Build Admin App
+        run: pnpm --filter @hmarepanditji/admin build
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:3001/api/v1
+          NODE_ENV: production
+
+      - name: Build Web App
+        run: pnpm --filter @hmarepanditji/web build
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:3001/api/v1
+          NODE_ENV: production
+
       - name: Analyze bundle size
         run: |
           cd apps/pandit
