@@ -25,6 +25,20 @@ describe("ShishyaOrb — Ruling #9 gesture split", () => {
     expect(orb).toMatch(/min-h-\[52px\]/); // ≥52px tap target
   });
 
+  // Ruling #9 AMENDED (Isj 2026-07-24): the pill is a TOGGLE — one element
+  // owns the one concept. Asleep it reads जगाइए and WAKES (mirrors the orb's
+  // tap-asleep path); awake it reads सुला दें and speak-then-mutes. Both
+  // states pinned so neither direction can silently vanish again.
+  it("AMENDED: the pill toggles — asleep state reads जगाइए and wakes via setMuted(false)", () => {
+    expect(orb).toMatch(/t\("shishya\.wakeControl"\)/); // the जगाइए label exists
+    // ONE onClick owns both directions: muted → wake, else → speak-then-mute
+    expect(orb).toMatch(/muted \? voiceController\.setMuted\(false\) : voiceController\.muteWithFarewell\(\)/);
+    // and the control no longer self-hides while muted (the old asymmetry)
+    expect(orb).not.toMatch(/if \(muted\) return null/);
+    // a11y names the current action in each state
+    expect(orb).toMatch(/muted \? t\("shishya\.a11yWakeControl"\) : t\("shishya\.a11yMute"\)/);
+  });
+
   it("muteWithFarewell SPEAKS the farewell, THEN mutes (speak-then-mute)", () => {
     expect(vc).toMatch(
       /muteWithFarewell\([^)]*\)[\s\S]*?speak\(\s*t\("shishya\.muteFarewell"\),\s*\{[\s\S]*?onEnd:[\s\S]*?this\.setMuted\(true\)/,

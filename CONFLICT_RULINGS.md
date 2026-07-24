@@ -10,6 +10,17 @@ ruling that flips is not silently re-litigated. Newest first.
 **Status: final** (Isj, 2026-07-22). Fixes the walk's #1 failure shape surfaced
 while settling Ruling #8.
 
+**AMENDED (Isj, 2026-07-24 — live-UI review): the control is a TOGGLE.** The
+one-directional pill ("सुला दें" that vanished while asleep) was asymmetric —
+the orb toggles but the pill covered only one direction. Now ONE element owns
+the ONE concept: awake → "सुला दें" (speak-then-mute, unchanged); asleep → the
+SAME pill reads **"जगाइए"** and wakes him (mirrors the orb's tap-asleep path —
+the orb tap keeps both its meanings as a harmless second path, taught by the
+wake-hint). Everything else stands: speak-then-mute ordering, ≥52px, Devanagari
+at rest, S5 mic release on mute, never adjacent to a primary CTA, column escape
+classes. Both states pinned in `shishyaOrbGesture.test.ts` (AMENDED block) +
+registered in `orbColumnContract.test.ts`.
+
 ### The conflict
 
 The शिष्य orb is framed as the disciple you touch. But its tap was a

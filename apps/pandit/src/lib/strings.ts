@@ -19,6 +19,10 @@ export const hi = {
     // 'सुला दें' control is the deliberate mute — it SPEAKS this farewell to
     // completion, THEN goes silent + releases the mic.
     muteControl: "सुला दें",
+    // Ruling #9 AMENDED (Isj 2026-07-24): the pill TOGGLES — asleep it reads
+    // जगाइए and wakes, so one control owns the one concept (no asymmetry).
+    wakeControl: "जगाइए",
+    a11yWakeControl: "शिष्य को जगाइए",
     muteFarewell: "अब मैं चुप रहूँगा — दोबारा सुनने के लिए मुझे जगाइए।",
     a11yMute: "शिष्य को सुला दें",
     tapRepeatHint: "फिर से सुनिए",

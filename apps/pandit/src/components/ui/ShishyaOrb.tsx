@@ -165,6 +165,15 @@ export function ShishyaOrb({
   ) : null;
 
   return (
+    // ── ORB COLUMN CONTRACT (2026-07-24, QA harsh-pass finding) ─────────────
+    // This column is a FIXED (px+12) ANCHOR footprint — deliberately narrow so
+    // footers and docks centre the orb consistently — with overflow:visible.
+    // THEREFORE: any child WIDER than ~84px must SELF-ESCAPE with
+    // `w-max` + `whitespace-nowrap` (or style width:max-content, as the say-
+    // ribbon does), or it will be squeezed and wrap — two children (the सुला-दें
+    // pill and the asleep wake-hint) already broke this before it was written
+    // down. orbColumnContract.test.ts enforces it: every text-bearing child
+    // must carry the escape or be registered there as provably narrow.
     <div
       className={`relative flex flex-col items-center ${className}`}
       style={{ width: px + 12, overflow: "visible" }}
@@ -268,18 +277,24 @@ export function ShishyaMuteControl({ className = "" }: { className?: string }) {
     () => voiceController.muted,
     () => false,
   );
-  if (muted) return null; // asleep — no mute control (orb shows the wake hint)
+  // Ruling #9 AMENDED (Isj, 2026-07-24): ONE control owns the ONE concept — it
+  // TOGGLES. Awake → "सुला दें" (speak-then-mute, unchanged). Asleep → the SAME
+  // pill reads "जगाइए" and wakes him (mirrors the orb's tap-asleep path). The
+  // orb tap keeps its meanings (awake=repeat, asleep=wake — a harmless second
+  // wake path the wake-hint already teaches). Everything else stands:
+  // speak-then-mute ordering, ≥52px, Devanagari at rest, mic release on mute,
+  // never beside a primary CTA, and the column escape classes.
   return (
     <button
-      onClick={() => voiceController.muteWithFarewell()}
-      aria-label={t("shishya.a11yMute")}
+      onClick={() => (muted ? voiceController.setMuted(false) : voiceController.muteWithFarewell())}
+      aria-label={muted ? t("shishya.a11yWakeControl") : t("shishya.a11yMute")}
       className={`min-h-[52px] px-3.5 flex items-center justify-center gap-1.5 whitespace-nowrap w-max mx-auto rounded-full bg-card border border-saffron-200 shadow-card active:scale-95 transition-transform ${className}`}
     >
       <span className="material-symbols-outlined text-[19px] leading-none text-softgrey" aria-hidden="true">
-        bedtime
+        {muted ? "light_mode" : "bedtime"}
       </span>
       <span className="text-[15px] font-bold font-hindi text-softgrey leading-none">
-        {t("shishya.muteControl")}
+        {muted ? t("shishya.wakeControl") : t("shishya.muteControl")}
       </span>
     </button>
   );
