@@ -128,6 +128,24 @@ export default function OnboardingOrchestratorPage() {
   const router = useRouter();
   const store = useSafeOnboardingStore();
   const [resumeChecked, setResumeChecked] = useState(false);
+  // RENDER-PHASE REDIRECTS (QA harsh-pass §11 fix, 2026-07-24): mutating the
+  // zustand store DURING render notifies other subscribers mid-render —
+  // React's "cannot update a component while rendering a different component"
+  // error, caught live on this page. A redirect now renders null and COMMITS
+  // the store change in the post-render effect below (ref cleared before the
+  // run, so no loops).
+  const redirectRef = useRef<(() => void) | null>(null);
+  useEffect(() => {
+    if (redirectRef.current) {
+      const run = redirectRef.current;
+      redirectRef.current = null;
+      run();
+    }
+  });
+  const redirect = (run: () => void): null => {
+    redirectRef.current = run;
+    return null;
+  };
   // X1: splash veil — painted on frame one, crossfaded out (200ms) once
   // the resume rule has decided the destination.
   const [veilGone, setVeilGone] = useState(false);
@@ -328,12 +346,10 @@ export default function OnboardingOrchestratorPage() {
       // stale old-order resume (parichay used to precede location):
       // language must still be asked — rejoin the new order at its start
       if (!store.languageConfirmed) {
-        store.setPhase("LOCATION_PERMISSION");
-        return null;
+        return redirect(() => store.setPhase("LOCATION_PERMISSION"));
       }
       if (store.parichayDone) {
-        store.setPhase("TUTORIAL");
-        return null;
+        return redirect(() => store.setPhase("TUTORIAL"));
       }
       return <ParichayScreen onDone={() => goto("TUTORIAL")} />;
     }
@@ -478,16 +494,16 @@ export default function OnboardingOrchestratorPage() {
       // stays in sessionStorage so hardware back exits to the launcher.
       const reviewReturn = typeof window !== "undefined" ? sessionStorage.getItem("hpj_review_return") : null;
       if (reviewReturn) {
-        voiceController.debug(`resume: REVIEW intent (from ${reviewReturn}) → TUTORIAL slide 1 — outranks resume rules`);
-        store.setCurrentTutorialScreen(1);
-        store.setPhase("TUTORIAL");
-        setResumeChecked(true);
-        return;
+        return redirect(() => {
+          voiceController.debug(`resume: REVIEW intent (from ${reviewReturn}) → TUTORIAL slide 1 — outranks resume rules`);
+          store.setCurrentTutorialScreen(1);
+          store.setPhase("TUTORIAL");
+          setResumeChecked(true);
+        });
       }
       const token = getToken();
       if (!token) {
-        store.setPhase("AUTH");
-        return null;
+        return redirect(() => store.setPhase("AUTH"));
       }
       return (
         <RegistrationScreen
@@ -504,16 +520,14 @@ export default function OnboardingOrchestratorPage() {
     // Legacy/unknown persisted phases (incl. the old TUTORIAL_* names and
     // MIC phases) → map into the new machine at the nearest sensible point.
     if (String(phase).startsWith("TUTORIAL_") || phase === "MIC_PERMISSION" || phase === "MIC_DENIED") {
-      store.setPhase("TUTORIAL");
-      return null;
+      return redirect(() => store.setPhase("TUTORIAL"));
     }
     if (["LANGUAGE_CHOICE_CONFIRM", "LANGUAGE_SET", "SCRIPT_CHOICE", "HELP"].includes(String(phase))) {
-      store.setPhase(
+      return redirect(() => store.setPhase(
         store.languageConfirmed
           ? store.parichayDone ? "TUTORIAL" : "PARICHAY"
           : "LANGUAGE_CONFIRM",
-      );
-      return null;
+      ));
     }
     return <SunriseSplash onDone={() => goto("LOCATION_PERMISSION")} />;
   };

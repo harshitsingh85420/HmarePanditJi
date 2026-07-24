@@ -241,17 +241,10 @@ export function ShishyaOrb({
         </span>
       )}
 
-      {/* Q8: a sleeping शिष्य can't hear "उठो" (mic off BY DESIGN) — the
-          orb itself teaches the wake gesture, persistently.
-          canon 11px → 15px label floor. */}
-      {asleep && (
-        // same escape contract as the ribbon/mute-pill: the column is a fixed
-        // (px+12) anchor, so any wider child must self-escape (w-max) or it
-        // wraps — and leading-none on wrapped Devanagari clips matras.
-        <span className="text-[15px] font-semibold font-hindi text-softgrey leading-tight mt-0.5 whitespace-nowrap w-max">
-          {t("shishya.wakeHint")}
-        </span>
-      )}
+      {/* Wake-hint REMOVED (Isj ruling, 2026-07-24): redundant — the toggle
+          pill ("जगाइए") is the SINGLE wake affordance, same one-gesture pattern
+          as the splash. The orb tap still wakes as a harmless second path
+          (Ruling #9 amendment). */}
 
       {/* Ruling #9: the deliberate mute is a VISIBLE, LABELLED control. Default
           "below" draws it here; layouts that would sit it beside a primary CTA

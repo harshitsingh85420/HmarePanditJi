@@ -3,7 +3,11 @@
    Tailwind text-[Npx] utilities (layered styles lose to unlayered author
    styles regardless of load order). This fixes the app-wide glyph-size
    clamp: before this, every canon glyph size silently rendered at 24px. */
-@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200") layer(vendor);
+/* FOUC fix (QA harsh-pass, 2026-07-24): display=block — for a LIGATURE icon
+   font, fallback rendering leaks the raw English ligature names ("touch_app",
+   "bedtime") into the UI, a register violation; block keeps the glyph area
+   blank until the font is ready. iconFontDisplay.test.ts pins the param. */
+@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block") layer(vendor);
 
 @tailwind base;
 @tailwind components;

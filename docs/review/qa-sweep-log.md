@@ -24,7 +24,7 @@ that would weaken a guard). Flag with screen + problem + proposed fix, keep walk
 ---
 
 ## RESUME POINTER
-> **Next page (protocol): भाषा** — but NOTE the journey inserts स्थान before it in this build (LOCATION_PERMISSION follows splash; भाषा follows स्थान). Walk स्थान next, then भाषा. Previous loose-walk pointer superseded by the per-page protocol. OLD pointer: CONTINUE the स्थान walk (voice-fired check via the voicedebug badge
+> **Next page (protocol): भाषा (LANGUAGE_CONFIRM)** — the app is ALREADY STAGED there (detectedCity वाराणसी, हिन्दी detected). Then परिचय (4 mic outcomes; pane blocks device capture → granted leg is test-level). OLD pointer: CONTINUE the स्थान walk (voice-fired check via the voicedebug badge
 > [dark circle, count visible bottom-right]; अनुमति दीजिए → geolocation grant AND
 > deny paths; शहर खुद चुनिए → manual-city screen) → भाषा → परिचय[4 mic outcomes,
 > re-verify the persistent skip] → पंजीकरण → OTP → tutorial. Then authenticated B2.
@@ -75,6 +75,30 @@ that would weaken a guard). Flag with screen + problem + proposed fix, keep walk
 - **STATE A (tap-exit):** mechanism-verified — the identical speak path demonstrated live post-unlock (cache-hit → play resolves); on a tap-exit the same call simply never parks. (Tool latency cannot beat the 8s window for a separate end-to-end tap run; splashBehavior 6/6 pins the tap leg.)
 - **Bonus finding:** `api ping → AbortError in 8003ms` — the Render health ping timed out (cold start); diagnostic only, harmless.
 - **ENV UPGRADE:** the walk now runs on a PRODUCTION build (`pandit-prod` in launch.json) — the recurring dev CSS-404 is eliminated; fix-as-you-go costs one rebuild per fix.
+
+---
+
+### PAGE 2 · स्थान (LOCATION_PERMISSION + MANUAL_CITY fallback) — **PASS after 2 fixes + 1 ruling executed** · 2026-07-24
+
+**§1 ENTRY** fresh via splash timeout ✓ and via tap (mechanism) ✓; direct /onboarding with persisted LOCATION phase → stays ✓; back-INTO from MANUAL_CITY (पीछे जाइए) → returns to स्थान ✓; hard refresh → phase persists, स्थान re-renders ✓; logged-in entry → resume bypass (by design, verified earlier).
+**§2 ELEMENTS (all 5 tapped)** अनुमति दीजिए → geolocation attempt; with device capture BLOCKED (pane) the DENY path fires → falls through to MANUAL_CITY — **no dead end, the fallback IS the recovery** ✓. शहर खुद चुनिए → MANUAL_CITY ✓. Orb (awake)=repeat a11y "फिर से सुनिए — शिष्य दोबारा बताएँगे" ✓. Toggle pill: सुला दें → speak-then-mute → asleep; जगाइए → wakes; full round-trip on prod build ✓. MANUAL_CITY adds: back-arrow ✓, city input ✓, 8 preset city rows ✓ (वाराणसी tapped → exits to भाषा, detectedCity persisted ✓), "यही शहर चुनिए" custom-confirm (appears only with text) ✓. GRANT leg not runnable in the pane (device capture blocked) — deny leg proven; grant is the location-screen tests' domain.
+**§3 MEASUREMENTS** H2 29px · body 18px ✓ · अनुमति 21px/346×62 ✓ · शहर-खुद 17px/149×52 ✓ · orb 62×62 ✓ · pill 96×52, label 15px ✓ · शिष्य 15px ✓. Only sub-floor item = the dev-only 🐞 voicedebug badge (12px, query-param-gated — exempt).
+**§4 INPUT ABUSE (city input)** empty → confirm hidden, cannot submit ✓ · valid Devanagari → confirm ✓ · roman "Mumbai" → ACCEPTED as custom city (tolerant input; lowercase map still resolves language) ✓ · whitespace-wrapped → trimmed on submit (source line 62) ✓ · **too long: 200 chars ACCEPTED → FIXED: maxLength=40** (verified live on rebuild) · paste = same path ✓ · double-tap city row: exit is store-transition idempotent (second tap lands on unmounted list) ✓. Observation (not a defect): typing does NOT filter the preset list — it is suggestions + custom entry.
+**§5 STATES** loading = SSR paint (prod, instant); parked-audio state (splash-timeout entry) → **silence + complete visual ask** (ribbon "आप कहाँ पूजा कराते हैं?" + headline + CTA) ✓; offline: page fully client-side post-load, actions are local (nothing to fetch) — offline-first-load = browser page; error state = the deny→manual-city fallback itself ✓.
+**§6 NAV/PERSISTENCE** refresh persists phase ✓ · back-arrow returns without state loss ✓ · double-tap अनुमति: second fires another gUM (denied again — idempotent) ✓ · exit transition वाराणसी→LANGUAGE_CONFIRM ✓.
+**§7 VOICE (both splash-exit states — addendum)** mount line `entry.locationVoice` "पंडित जी, अब हम आपकी लोकेशन लेंगे — ताकि…". TIMEOUT entry: parks (pre-unlock), first neutral tap → unlock → SAME line replays ONCE from prefetch cache (3ms) → played 8.5s → ended — **no stale splash audio, no double** (verbatim voicedebug). TAP entry: identical call path, never parks (mechanism-proven + splashBehavior 6/6). Interactive tap during speech = barge-in stop, by design.
+**§8 CANON** (frame 2, via live render + harness/location): structure ✓ (garland header → headline → map card → body → sindoor CTA → text-link secondary → orb footer); map = drawn placeholder art w/ pin ✓; palette cream/sindoor ✓. Deviations: none found beyond recorded floor-raises.
+**§9 LANGUAGE/TRUTH + EMOJI ROW** Register clean (-इए everywhere: दीजिए/चुनिए/लिखिए/जाइए); truthful copy ("आपके शहर की पूजाएँ और आपकी भाषा — बस इसीलिए" — exactly why location is asked). EMOJI on page: 📍 (in map placeholder — canon draws a REAL pin; emoji acceptable as placeholder art, → running table) · 🙏 (orb glyph — canon's own) · 🐞 (dev badge only).
+**§10 ILLOGICAL** Primary/secondary hierarchy clear (big अनुमति vs text-link शहर खुद); the pill toggle = one element/one concept (amended #9); **wake-hint REMOVED this turn per Isj ruling — verified at 390px: asleep orb shows only शिष्य + जगाइए pill** (screenshot banked). Nothing left to teach.
+**§11 CONSOLE/NETWORK** Network all 200s. **DEFECT FOUND & FIXED: React "cannot update a component while rendering a different component" — SIX render-phase store.setPhase redirect sites in the onboarding orchestrator** (PARICHAY stale-order ×2, REGISTRATION review-intent + no-token, legacy-phase mappers ×2) → all converted to a deferred-redirect helper (render null now, commit the store change in a post-render effect; ref-cleared, loop-proof). tsc clean, onboarding suite 16/16.
+
+**RIDE-ALONGS SHIPPED THIS TURN:** ① Isj ruling: wake-hint removed (ShishyaOrb + strings + orbColumnContract registry per stale-entry rule) — जगाइए pill is the single wake affordance; ② FOUC: Material Symbols now loads `display=block` (ligature fallback leaked raw English icon names) + iconFontDisplay guard; ③ §4 maxLength=40; ④ §11 render-phase redirect refactor.
+
+### RUNNING EMOJI TABLE (append per page — icon-system ruling when the walk completes)
+| Page | Emoji | Canon shows | Note |
+|---|---|---|---|
+| splash | 🌼🌸 (petals), 🙏 (orb) | canon uses these glyphs | per canon offsets — OK |
+| स्थान | 📍 (map placeholder), 🙏 (orb), 🐞 (dev badge) | canon draws a real pin on map art | 📍 = placeholder-art candidate |
 
 ---
 

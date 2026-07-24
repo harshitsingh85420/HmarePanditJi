@@ -92,6 +92,10 @@ export default function ManualCityScreen({ onCitySelected, onBack }: ManualCityS
             type="text"
             value={cityInput}
             onChange={(e) => setCityInput(e.target.value)}
+            // QA §4 (2026-07-24): no city name needs more — an uncapped field
+            // let a 200-char string flow into detectedCity and every screen
+            // that renders it (registration greeting, profile).
+            maxLength={40}
             onKeyDown={(e) => {
               if (e.key === "Enter") submitTyped();
             }}

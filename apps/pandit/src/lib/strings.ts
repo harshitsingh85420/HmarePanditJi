@@ -27,7 +27,8 @@ export const hi = {
     a11yMute: "शिष्य को सुला दें",
     tapRepeatHint: "फिर से सुनिए",
     sleepToast: "शिष्य विश्राम कर रहा हूँ। जगाने के लिए मुझे स्पर्श कर लीजिएगा।",
-    wakeHint: "स्पर्श कर जगाइए",
+    // wakeHint removed (Isj ruling 2026-07-24): the जगाइए toggle pill is the
+    // single wake affordance — no separate hint under the asleep orb.
     a11yAwake: "फिर से सुनिए — शिष्य दोबारा बताएँगे",
     a11ySleep: "शिष्य को जगाइए",
     intro: "नमस्ते पंडित जी! मैं शिष्य हूँ — आपका सहायक।",
