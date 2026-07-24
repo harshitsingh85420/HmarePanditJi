@@ -58,6 +58,26 @@ that would weaken a guard). Flag with screen + problem + proposed fix, keep walk
 
 ---
 
+### PAGE 2 (pre-filled) · स्थान — ADDENDUM ANSWERED: both splash-exit states · 2026-07-24
+
+**FOUNDER'S QUESTION (§5/§7 addendum): what happens on the TIMEOUT path, and does parked audio replay stale splash lines on unlock?**
+**ANSWER — verbatim voicedebug evidence (prod build, live API):**
+```
+13:08:27.750  splash: 8s elapsed — auto-advancing
+13:08:27.905  speak "पंडित जी, अब हम आपकी लोकेशन लेंगे — ताकि…"  → parked (pre-unlock)
+13:09:54.374  unlock: gesture-token set        ← the FIRST tap on स्थान (neutral area)
+13:09:54.377  speak (SAME स्थान line) → tts cache HIT 3ms (splash prefetch!) → play resolved
+13:10:02.912  audio ended                      ← played ONCE, ~8.5s
+13:12:00.469  stopSpeech(barge-in:tap)         ← a later tap on an interactive target barged in, per design
+```
+- **STATE B (8s timeout, audio never unlocked):** the pandit SEES a complete visual ask — orb ribbon "आप कहाँ पूजा कराते हैं?" + headline "आप कहाँ सेवा देते हैं?" + अनुमति CTA — and HEARS silence (correct: parked). 
+- **First tap on स्थान:** unlock → the parked line replays — **exactly ONE line, the CURRENT screen's ask, from prefetch cache (3ms), no stale splash audio, no double.** The single-slot newest-wins park contract works live.
+- **STATE A (tap-exit):** mechanism-verified — the identical speak path demonstrated live post-unlock (cache-hit → play resolves); on a tap-exit the same call simply never parks. (Tool latency cannot beat the 8s window for a separate end-to-end tap run; splashBehavior 6/6 pins the tap leg.)
+- **Bonus finding:** `api ping → AbortError in 8003ms` — the Render health ping timed out (cold start); diagnostic only, harmless.
+- **ENV UPGRADE:** the walk now runs on a PRODUCTION build (`pandit-prod` in launch.json) — the recurring dev CSS-404 is eliminated; fix-as-you-go costs one rebuild per fix.
+
+---
+
 ## B1 — PANDIT ONBOARDING (splash · प्रतीक्षा · भाषा · स्थान[both] · परिचय · पंजीकरण · OTP · tutorial)
 > परिचय: test all FOUR mic outcomes explicitly (granted/denied/dismissed/unavailable).
 > Note: परिचय dead-end for dismissed already FIXED on main (a88b34d, persistent
