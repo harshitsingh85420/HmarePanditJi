@@ -24,8 +24,11 @@ that would weaken a guard). Flag with screen + problem + proposed fix, keep walk
 ---
 
 ## RESUME POINTER
-> **Next:** clear localStorage → fresh-install B1 walk (splash → भाषा → स्थान →
-> परिचय[4 mic outcomes] → पंजीकरण → OTP). Then login-authenticated B2.
+> **Next:** CONTINUE the स्थान walk (voice-fired check via the voicedebug badge
+> [dark circle, count visible bottom-right]; अनुमति दीजिए → geolocation grant AND
+> deny paths; शहर खुद चुनिए → manual-city screen) → भाषा → परिचय[4 mic outcomes,
+> re-verify the persistent skip] → पंजीकरण → OTP → tutorial. Then authenticated B2.
+> Fresh-install state reached by localStorage.clear() + reload.
 > Env: qa/harsh-pass · dev server :3002 against LIVE API · 390×844 · seed tab.
 > Voice checks: शिष्य must be AWAKE (orb 💤 = muted persisted → silence is by
 > design, wake first); speechSynthesis fallback makes NO network request, so
@@ -41,6 +44,7 @@ that would weaken a guard). Flag with screen + problem + proposed fix, keep walk
 
 | Screen | State | Result | What | SHA |
 |---|---|---|---|---|
+| स्थान (location perm) | fresh-install | **FIXED(1) — walk in progress** | सुला दें pill wrapped mid-phrase ("सुला/दें" stacked under the icon, squeezed to 84px by the orb column) → whitespace-nowrap + w-max on ShishyaMuteControl; verified on-screen 96×52 one-line. Ruling-#9 orb VERIFIED LIVE in dev (awake orb + सुला दें present). CTAs measured: अनुमति दीजिए 21px/62h ✓, शहर-खुद 17px/52h ✓. Voice/canon/function checks continue next session. | (qa branch) |
 | /login (phone entry) | logged-out, resumed-state | **PASS (floors/function/register)** + 1 FLAG | Floors measured & PASS: labels 15px (orb-label, field-label), body/cta 20-21px, taps 56-66px (input 56, CTAs 62, orb 66). Register clean ("ट्यूटोरियल फिर देखिए" — the suspected typo was a screenshot font artifact; DOM verified). Truthful copy ("खाता होगा तो लॉगिन, नहीं तो नया बनेगा"). Console: dev-only webpack asset-size warnings (not app defects; bundle sizes ARE a perf flag — main-app 10.7MiB dev). Orb wake-tap works (💤 → awake). | — |
 
 ### Console errors (B1)

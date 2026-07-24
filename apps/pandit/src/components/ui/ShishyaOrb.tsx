@@ -270,7 +270,7 @@ export function ShishyaMuteControl({ className = "" }: { className?: string }) {
     <button
       onClick={() => voiceController.muteWithFarewell()}
       aria-label={t("shishya.a11yMute")}
-      className={`min-h-[52px] px-3.5 flex items-center justify-center gap-1.5 rounded-full bg-card border border-saffron-200 shadow-card active:scale-95 transition-transform ${className}`}
+      className={`min-h-[52px] px-3.5 flex items-center justify-center gap-1.5 whitespace-nowrap w-max mx-auto rounded-full bg-card border border-saffron-200 shadow-card active:scale-95 transition-transform ${className}`}
     >
       <span className="material-symbols-outlined text-[19px] leading-none text-softgrey" aria-hidden="true">
         bedtime
