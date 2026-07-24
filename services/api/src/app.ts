@@ -9,6 +9,7 @@ import { join } from "path";
 
 import { env } from "./config/env";
 import { API_PREFIX, ALLOWED_ORIGINS } from "./config/constants";
+import { isAllowedOrigin } from "./lib/cors-origin";
 import { generalLimiterConfig } from "./middleware/rateLimiter";
 import { errorHandler, notFoundHandler } from "./middleware/errorHandler";
 
@@ -91,11 +92,13 @@ app.register(fastifyHelmet, {
   contentSecurityPolicy: env.NODE_ENV === "development" ? false : undefined,
 });
 
-// CORS
+// CORS — explicit origins PLUS dynamic Vercel previews of our own projects.
+// (Preview-503 fix: preview hostnames carry a hash and cannot be enumerated in
+// ALLOWED_ORIGINS; see lib/cors-origin.ts.)
 const allowedOrigins = (process.env.ALLOWED_ORIGINS || "").split(",").map(s => s.trim()).filter(Boolean);
 app.register(fastifyCors, {
   origin: (origin, cb) => {
-    if (!origin || allowedOrigins.includes(origin)) cb(null, true);
+    if (isAllowedOrigin(origin, allowedOrigins)) cb(null, true);
     else cb(new Error("Not allowed by CORS"), false);
   },
   credentials: true,
