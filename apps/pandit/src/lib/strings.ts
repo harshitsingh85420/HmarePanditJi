@@ -183,6 +183,9 @@ export const hi = {
     alreadyGranted: "नमस्ते पंडित जी! मैं आपका शिष्य हूँ — और मैं आपको सुन भी सकता हूँ!",
     askAgainBtn: "🎤 फिर से पूछिए",
     startBtn: "🙏 बात शुरू कीजिए",
+    // F2 dead-end fix (founder P0, 2026-07-23): a PERSISTENT forward path for the
+    // pandit who won't touch the mic popup — voice is optional, never a gate.
+    skipVoice: "बिना आवाज़ के आगे बढ़िए",
     // canon frame 4 say-ribbon (written + spoken travel together)
     say: "मैं शिष्य हूँ — आपका सहायक 🙏",
   },

@@ -415,6 +415,24 @@ export default function ParichayScreen({ onDone }: { onDone: () => void }) {
       </footer>
       )}
 
+      {/* F2 DEAD-END FIX (founder P0, 2026-07-23): a PERSISTENT forward path,
+          rendered on EVERY stage — voice is optional and must never gate
+          onboarding. The पP0 walk found परिचय (onboarding screen 5) strandable
+          for the popup-refusing persona: a dismissed mic popup left only
+          "फिर से पूछिए", no way forward. This skip is unconditional (never
+          disappears) and calls advance() (marks parichayDone, proceeds voice-
+          less; mic stays re-offerable downstream — a skip is not a deny).
+          parichayForwardPath.test.ts fails the build if this becomes
+          stage-conditional or is removed. */}
+      <div className="shrink-0 px-6 pb-[22px] pt-1 flex justify-center">
+        <button
+          onClick={advance}
+          className="min-h-[52px] px-4 text-[16px] font-semibold text-softgrey font-hindi underline underline-offset-4 active:opacity-70"
+        >
+          {t("parichay.skipVoice")}
+        </button>
+      </div>
+
       {/* Arrow + chip pointing at the NATIVE permission popup */}
       {pointerUp && <PopupPointer />}
     </div>
