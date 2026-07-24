@@ -96,10 +96,16 @@ export function ShishyaOrb({
       voiceController.setMuted(false);
       return;
     }
+    // Ruling #9 SECOND AMENDMENT (Isj, 2026-07-24): ONE control — the orb.
+    // Awake tap = PERSISTENT sleep (parks audio across screens — the full
+    // muted state, not an interrupt-current-line), ANNOUNCED first
+    // (speak-then-mute survives via muteWithFarewell). Tap-repeat is retired;
+    // "फिर से" by VOICE remains the hear-again path. Debounce guards a
+    // double-tap from re-triggering the farewell.
     const now = Date.now();
     if (now - lastTapRef.current < 600) return;
     lastTapRef.current = now;
-    voiceController.repeatCurrent();
+    voiceController.muteWithFarewell();
   };
 
   const px = typeof size === "number" ? size : size === "lg" ? 118 : 66;
@@ -185,7 +191,7 @@ export function ShishyaOrb({
         disabled={demo}
         tabIndex={demo ? -1 : undefined}
         aria-hidden={demo || undefined}
-        aria-label={demo ? undefined : asleep ? t("shishya.a11ySleep") : t("shishya.a11yAwake")}
+        aria-label={demo ? undefined : asleep ? t("shishya.a11ySleep") : t("shishya.a11yMute")}
         className={`relative rounded-full flex items-center justify-center transition-all ${demo ? "" : "active:scale-95"} ${
           asleep
             ? // asleep keeps the grounding shadow but never glows
@@ -270,24 +276,22 @@ export function ShishyaMuteControl({ className = "" }: { className?: string }) {
     () => voiceController.muted,
     () => false,
   );
-  // Ruling #9 AMENDED (Isj, 2026-07-24): ONE control owns the ONE concept — it
-  // TOGGLES. Awake → "सुला दें" (speak-then-mute, unchanged). Asleep → the SAME
-  // pill reads "जगाइए" and wakes him (mirrors the orb's tap-asleep path). The
-  // orb tap keeps its meanings (awake=repeat, asleep=wake — a harmless second
-  // wake path the wake-hint already teaches). Everything else stands:
-  // speak-then-mute ordering, ≥52px, Devanagari at rest, mic release on mute,
-  // never beside a primary CTA, and the column escape classes.
+  // Ruling #9 SECOND AMENDMENT (Isj, 2026-07-24): ONE control — the orb.
+  // AWAKE: no pill at all (the orb tap IS the persistent sleep, announced
+  // first). ASLEEP: this जगाइए pill + the dimmed orb both wake. ≥52px,
+  // Devanagari at rest, column escape classes — all stand.
+  if (!muted) return null;
   return (
     <button
-      onClick={() => (muted ? voiceController.setMuted(false) : voiceController.muteWithFarewell())}
-      aria-label={muted ? t("shishya.a11yWakeControl") : t("shishya.a11yMute")}
+      onClick={() => voiceController.setMuted(false)}
+      aria-label={t("shishya.a11yWakeControl")}
       className={`min-h-[52px] px-3.5 flex items-center justify-center gap-1.5 whitespace-nowrap w-max mx-auto rounded-full bg-card border border-saffron-200 shadow-card active:scale-95 transition-transform ${className}`}
     >
       <span className="material-symbols-outlined text-[19px] leading-none text-softgrey" aria-hidden="true">
-        {muted ? "light_mode" : "bedtime"}
+        light_mode
       </span>
       <span className="text-[15px] font-bold font-hindi text-softgrey leading-none">
-        {muted ? t("shishya.wakeControl") : t("shishya.muteControl")}
+        {t("shishya.wakeControl")}
       </span>
     </button>
   );

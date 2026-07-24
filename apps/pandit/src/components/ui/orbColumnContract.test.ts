@@ -27,9 +27,10 @@ const src = readFileSync(join(__dirname, "ShishyaOrb.tsx"), "utf-8");
 // Children REGISTERED as satisfying the contract. Adding a new text child to
 // the column? Add its key here ONLY after giving it the escape pattern (or
 // verifying it is provably narrower than the column, like the one-word name).
-// (wakeHint was removed by Isj ruling 2026-07-24 — the जगाइए pill is the single
-// wake affordance; its registry entry left with it, per the stale-entry rule.)
-const ESCAPED = ["muteControl", "wakeControl"]; // carry w-max + whitespace-nowrap (both labels of the toggle pill — Ruling #9 amendment)
+// (wakeHint removed 2026-07-24; सुला-दें pill removed by the SECOND amendment
+// the same day — the orb is the one awake control; registry entries left with
+// them per the stale-entry rule.)
+const ESCAPED = ["wakeControl"]; // the asleep जगाइए pill — carries w-max + whitespace-nowrap
 const NARROW = ["name"]; // "शिष्य" — one short word, provably < 84px at 15-18px
 
 describe("orb column contract — fixed anchor, children must escape", () => {

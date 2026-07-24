@@ -24,7 +24,7 @@ that would weaken a guard). Flag with screen + problem + proposed fix, keep walk
 ---
 
 ## RESUME POINTER
-> **Next page (protocol): भाषा (LANGUAGE_CONFIRM)** — the app is ALREADY STAGED there (detectedCity वाराणसी, हिन्दी detected). Then परिचय (4 mic outcomes; pane blocks device capture → granted leg is test-level). OLD pointer: CONTINUE the स्थान walk (voice-fired check via the voicedebug badge
+> **Next page (protocol): परिचय — STAGED NOW (phase PARICHAY on screen: "मैं शिष्य हूँ 🙏" + mic-ask card). All four mic outcomes; pane blocks device capture → granted leg test-level, denied/dismissed/no-hardware live; re-verify the F2 persistent skip. OLD pointer: भाषा (voice-fired check via the voicedebug badge
 > [dark circle, count visible bottom-right]; अनुमति दीजिए → geolocation grant AND
 > deny paths; शहर खुद चुनिए → manual-city screen) → भाषा → परिचय[4 mic outcomes,
 > re-verify the persistent skip] → पंजीकरण → OTP → tutorial. Then authenticated B2.
@@ -99,6 +99,31 @@ that would weaken a guard). Flag with screen + problem + proposed fix, keep walk
 |---|---|---|---|
 | splash | 🌼🌸 (petals), 🙏 (orb) | canon uses these glyphs | per canon offsets — OK |
 | स्थान | 📍 (map placeholder), 🙏 (orb), 🐞 (dev badge) | canon draws a real pin on map art | 📍 = placeholder-art candidate |
+
+---
+
+### PAGE 3 · भाषा (LANGUAGE_CONFIRM + LANGUAGE_LIST) — **PASS** · 2026-07-24 · + Ruling #9 SECOND AMENDMENT executed
+
+**CARRY-ITEMS CLOSED THIS TURN:**
+- **सुला-दें RULING (second amendment) EXECUTED APP-WIDE:** orb tap (awake) = PERSISTENT sleep announced first (muteWithFarewell); सुला-दें pill deleted (one component); asleep = dimmed orb + जगाइए (either wakes); tap-repeat RETIRED — hear-again lives in the voice grammar ("फिर से"); rung-2/3/unmatched tap-teach clauses removed; tapRepeatTeaching.test.ts retired (property ruled false); shishyaOrbGesture.test.ts REWRITTEN to pin the final model; orbColumnContract registry updated. CONFLICT_RULINGS #9 records both amendments. **PROOF (390px, prod build): भाषा awake = orb only, pillPresent:false ✓; orb tap → farewell → asleep + जगाइए pill + aria flips "शिष्य को जगाइए" ✓; navigated to LANGUAGE_LIST while asleep → `STILL_ASLEEP_ON_NEW_SCREEN: true` ✓ (the persistent-park property, live); जगाइए wakes ✓.** 25/25 guards, tsc clean.
+- **"200" BADGE GATE (evidence):** `src/components/VoiceDebugPanel.tsx:27` — renders ONLY when `?voicedebug=1` was visited (latches sessionStorage `hpj_voicedebug`; `?voicedebug=0` clears). There is NO NODE_ENV gate — it CAN render in a prod build, but only via the explicit URL flag, never organically. DELIBERATE: real-device diagnostics (the audio-check phone pass itself uses it). If Isj wants NODE_ENV-never, say so — one line to add; recommendation: keep the flag.
+- **स्थान §5 offline/slow-3G:** **N/A-by-construction — zero app network calls on the screen** (deny path + manual-city are pure client state; the only request in the walk's network log was the diagnostic /health ping). Written, not implied.
+- **DEVICE-PASS CHECKLIST:** geolocation GRANT-leg added next to the mic-permission walk (audio-check bundle) — pane cannot grant device capture.
+
+**§1 ENTRY** staged via स्थान exit (only path in — LANGUAGE_CONFIRM requires onCitySelected/onGranted, both taps → **entry audio is ALWAYS unlocked here: verified, the claim holds**); refresh mid-भाषा → phase persists ✓; back-INTO from LANGUAGE_LIST (पीछे जाइए) ✓.
+**§2 ELEMENTS (all tapped)** हाँ-हिन्दी CTA (exit — fires at walk end), दूसरी भाषा चुनिए → full LANGUAGE_LIST (11 languages, native+english labels, select→tick→आगे बढ़िए commit) ✓, back arrow ✓, orb (both states — above) ✓. **Changed-choice behavior: selecting मराठी + आगे बढ़िए COMMITS AND ADVANCES** (preferredLanguage:"mr" stored; app continues in Hindi per the v1 honesty model with the Marathi notice spoken) — the flow does NOT return to the हि tile; the tile screen is the initial detect-confirm only. Verified by design, stored-state cited.
+**§3 MEASUREMENTS** tile 64px glyph/28px name; H1 24px; CTAs 20px/336×64 + 18px/336×56 ✓; orb 66² ✓; list rows ≥56h ✓. All floors pass.
+**§4 INPUT ABUSE** No text inputs on either screen — N/A by construction (choice UI only).
+**§5 STATES** detection-failure: **N/A-by-construction** — `detectLanguageFromCity` = `CITY_LANGUAGE_MAP[normalized] ?? 'Hindi'` (onboarding-store.ts:183): the mapping can never resolve nothing; unmapped city → Hindi tile. Loading: the D3 language-switch runs a blocking DiyaLoader with the target language's own wait line (source-verified). Offline: language switch fetch fails → honesty notice + continue in Hindi (runLanguageSwitch fail path, source-verified).
+**§7 VOICE** Confirm line (spoken IN the detected language, hi-IN): `LANG_CONFIRM.hi.confirmQuestion` — **"हमने आपके क्षेत्र की भाषा हिन्दी पहचानी — इसी में चलें या बदलें?"** — written+spoken travel together (the H1 IS the line; on-screen text matched verbatim). U3: the हाँ button glows for its line. List screen ask: orb ribbon "कौन सी भाषा पसंद है?" ✓ observed.
+**§8 CANON** (frame 3): giant genda-tinted language tile + question + primary/secondary CTA stack + orb footer — structure/palette match the live render; no new deviations.
+**§9 LANGUAGE/TRUTH + EMOJI** Register clean (चुनिए/बढ़िए/जाइए); truthful (detect claim is real — वाराणसी→हिन्दी via the city map). EMOJI: 🙏 (orb, canon's own) + 🐞 (dev badge) — appended to the running table.
+**§10 ILLOGICAL** Two clear choices, one primary; the list's select-then-confirm beats instant-commit for thick fingers; the collapsed orb = one gesture, one meaning everywhere. PASS.
+**§11 CONSOLE/NETWORK** Fresh prod build through the FULL भाषा walk (post-redirect-refactor orchestrator): **zero new console errors/warnings** (the buffered setState-in-render error predates and was FIXED in PAGE 2's refactor). Network: page transitions all client-side; the Marathi bundle attempt + TTS to the live API are the only fetches — all 2xx.
+
+| Page | Emoji | Canon shows | Note |
+|---|---|---|---|
+| भाषा | 🙏 (orb), 🐞 (dev badge) | canon's own / dev-only | no new emoji |
 
 ---
 

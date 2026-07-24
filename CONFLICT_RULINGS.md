@@ -10,7 +10,17 @@ ruling that flips is not silently re-litigated. Newest first.
 **Status: final** (Isj, 2026-07-22). Fixes the walk's #1 failure shape surfaced
 while settling Ruling #8.
 
-**AMENDED (Isj, 2026-07-24 — live-UI review): the control is a TOGGLE.** The
+**SECOND AMENDMENT (Isj, 2026-07-24 — later the same day): ONE control — the
+orb.** The toggle pill was still redundant with the orb. Final model: AWAKE =
+orb only, and a tap is the **PERSISTENT sleep** (full muted/park state across
+screens), announced first (speak-then-mute survives via `muteWithFarewell`).
+ASLEEP = dimmed orb + the **जगाइए** pill — either wakes. The सुला-दें pill is
+deleted app-wide; **tap-repeat is retired** — hear-again lives in the VOICE
+grammar ("फिर से"); the rung-2/3/unmatched tap-teach clauses were removed with
+it and `tapRepeatTeaching.test.ts` retired (property ruled false).
+`shishyaOrbGesture.test.ts` rewritten to pin the final model.
+
+**FIRST AMENDMENT (superseded above) (Isj, 2026-07-24 — live-UI review): the control is a TOGGLE.** The
 one-directional pill ("सुला दें" that vanished while asleep) was asymmetric —
 the orb toggles but the pill covered only one direction. Now ONE element owns
 the ONE concept: awake → "सुला दें" (speak-then-mute, unchanged); asleep → the

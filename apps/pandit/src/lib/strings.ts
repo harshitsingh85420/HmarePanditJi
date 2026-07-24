@@ -15,21 +15,16 @@ export const hi = {
   shishya: {
     name: "शिष्य",
     wake: "जी पंडित जी, मैं फिर हाज़िर हूँ।",
-    // Ruling #9: an orb TAP repeats (never silences); a separate visible
-    // 'सुला दें' control is the deliberate mute — it SPEAKS this farewell to
-    // completion, THEN goes silent + releases the mic.
-    muteControl: "सुला दें",
-    // Ruling #9 AMENDED (Isj 2026-07-24): the pill TOGGLES — asleep it reads
-    // जगाइए and wakes, so one control owns the one concept (no asymmetry).
+    // Ruling #9 SECOND AMENDMENT (Isj 2026-07-24): ONE control — the orb.
+    // Awake tap = PERSISTENT sleep, announced first (muteFarewell speaks to
+    // completion, THEN silence + mic release). Asleep: dimmed orb + the जगाइए
+    // pill — either wakes. Tap-repeat retired; "फिर से" by voice remains the
+    // hear-again path. (सुला-दें pill + wakeHint + tap-repeat strings removed.)
     wakeControl: "जगाइए",
     a11yWakeControl: "शिष्य को जगाइए",
     muteFarewell: "अब मैं चुप रहूँगा — दोबारा सुनने के लिए मुझे जगाइए।",
     a11yMute: "शिष्य को सुला दें",
-    tapRepeatHint: "फिर से सुनिए",
     sleepToast: "शिष्य विश्राम कर रहा हूँ। जगाने के लिए मुझे स्पर्श कर लीजिएगा।",
-    // wakeHint removed (Isj ruling 2026-07-24): the जगाइए toggle pill is the
-    // single wake affordance — no separate hint under the asleep orb.
-    a11yAwake: "फिर से सुनिए — शिष्य दोबारा बताएँगे",
     a11ySleep: "शिष्य को जगाइए",
     intro: "नमस्ते पंडित जी! मैं शिष्य हूँ — आपका सहायक।",
     aboutTitle: "शिष्य के बारे में",
@@ -214,13 +209,14 @@ export const hi = {
     // F02-02/03/04: the three rungs, doc wording exact. Each is spoken AND
     // shown as written text (the walk proved voice-only fails when TTS parks).
     rung1: "माफ़ कीजिये, कृपया फिर से बोलिए।",
-    // Ruling #9 / A: the failed-voice-attempt hooks also TEACH tap-repeat —
-    // "या शिष्य को स्पर्श कर फिर सुनिए" fires exactly when he's stuck (he just
-    // tried and it didn't work). Guarded by tapRepeatTeaching.test.ts.
-    rung2: "कृपया धीरे और साफ़ बोलिए — या शिष्य को स्पर्श कर फिर सुनिए।",
-    rung3: "कोई बात नहीं — नीचे लिख दीजिए, या शिष्य को स्पर्श कर फिर सुनिए, या ‘सहायता चाहिए’ दबाकर हमसे बात कीजिए।",
+    // Ruling #9 SECOND AMENDMENT (2026-07-24): tap-repeat is retired (an orb
+    // tap now sleeps him) — the tap-teach clauses were removed from these
+    // rungs and tapRepeatTeaching.test.ts retired with them. Hear-again lives
+    // in the voice grammar ("फिर से").
+    rung2: "कृपया धीरे और साफ़ बोलिए।",
+    rung3: "कोई बात नहीं — नीचे लिख दीजिए, या ‘सहायता चाहिए’ दबाकर हमसे बात कीजिए।",
     helpBtn: "सहायता चाहिए",
-    unmatched: "समझ नहीं आया — फिर बोलिए, या शिष्य को स्पर्श कर फिर सुनिए।",
+    unmatched: "समझ नहीं आया — कृपया फिर बोलिए।",
     ack: "बहुत अच्छा।",
     confirmAsk: "आपने कहा {value}। सही है? हाँ या नहीं बोलिए।",
     confirmRepeat: "सही है? हाँ या नहीं बोलिए।",
