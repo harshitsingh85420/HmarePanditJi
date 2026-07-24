@@ -236,7 +236,10 @@ export function ShishyaOrb({
           orb itself teaches the wake gesture, persistently.
           canon 11px → 15px label floor. */}
       {asleep && (
-        <span className="text-[15px] font-semibold font-hindi text-softgrey leading-none mt-0.5">
+        // same escape contract as the ribbon/mute-pill: the column is a fixed
+        // (px+12) anchor, so any wider child must self-escape (w-max) or it
+        // wraps — and leading-none on wrapped Devanagari clips matras.
+        <span className="text-[15px] font-semibold font-hindi text-softgrey leading-tight mt-0.5 whitespace-nowrap w-max">
           {t("shishya.wakeHint")}
         </span>
       )}
