@@ -6,6 +6,13 @@ truthful-state both point at a human procedure). The full runbook — onboarding
 script, verification steps, payout walk, support-call script, gap playbook —
 lands with the docs wave, derived from the audit-fleet evidence.
 
+**STANDING OPERATOR RULE — voice diagnostics (ruled 2026-07-24):** the
+`?voicedebug=1` flag deliberately works in production (it is how the
+real-device audio pass reads the voice log on a phone). **No support script
+and no URL shared with a pandit or customer ever carries `?voicedebug=1`.**
+It is for Isj's own devices only; `?voicedebug=0` turns it back off. The
+gate is guarded by `apps/pandit/src/components/voiceDebugGate.test.tsx`.
+
 ---
 
 ## PROCEDURE 1 — MANUAL REFUND (the "100% refund if Pandit doesn't arrive" promise)

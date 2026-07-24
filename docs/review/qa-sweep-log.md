@@ -24,7 +24,7 @@ that would weaken a guard). Flag with screen + problem + proposed fix, keep walk
 ---
 
 ## RESUME POINTER
-> **Next page (protocol): परिचय — STAGED NOW (phase PARICHAY on screen: "मैं शिष्य हूँ 🙏" + mic-ask card). All four mic outcomes; pane blocks device capture → granted leg test-level, denied/dismissed/no-hardware live; re-verify the F2 persistent skip. OLD pointer: भाषा (voice-fired check via the voicedebug badge
+> **Next page (protocol): PAGE 5 · TUTORIAL DECK** — STAGED (phase TUTORIAL via the skip exit: micLS unset, micDenied=false — the richest state for the slide-5 mic re-offer). Owed: the asleep-state 390px screenshot (pane compositing) + §10 hear-again ruling + interjection-class ruling.
 > [dark circle, count visible bottom-right]; अनुमति दीजिए → geolocation grant AND
 > deny paths; शहर खुद चुनिए → manual-city screen) → भाषा → परिचय[4 mic outcomes,
 > re-verify the persistent skip] → पंजीकरण → OTP → tutorial. Then authenticated B2.
@@ -124,6 +124,57 @@ that would weaken a guard). Flag with screen + problem + proposed fix, keep walk
 | Page | Emoji | Canon shows | Note |
 |---|---|---|---|
 | भाषा | 🙏 (orb), 🐞 (dev badge) | canon's own / dev-only | no new emoji |
+
+---
+
+### PAGE 4 · परिचय (PARICHAY — mic ceremony, 7 sub-states) — **PASS with 1 ruling-needed defect (§10)** · 2026-07-24
+
+**CARRY-ITEMS:** (1) voicedebug RULING EXECUTED — flag stays; NEW guard `voiceDebugGate.test.tsx` (behavioral: latch absent → hook false, panel unmountable; latch present → on; + pins the gate is the latch NOT NODE_ENV); operator rule written into pilot-ops-runbook ("no support script or shared URL ever carries ?voicedebug=1"). (2) OWED SHOT: still owed — the pane composited briefly (banked the परिचय needstart frame), then stopped again; stays on the books. NEW ENV FACT while chasing it: **the pane's physical click injection lands at HALF the requested coordinates** (asked (195,713), page received (98,357) — dpr=2 division bug). Every "dead tap" of the walk was this; the app was exonerated by instrumentation (document-level listener). Physical-tap legs use doubled coords when in-bounds; JS dispatch otherwise, with unlock taken from a real (mis-aimed but genuine) pointerdown.
+
+**§1 ENTRY** Only via भाषा exit ✓. Refresh at PARICHAY → phase persists; fresh document = audio locked → intro parks under the autoplay law → `⚠ UNLOCK MISSING AT PARICHAY` + **stage needstart with "🙏 बात शुरू कीजिए"** (the parked-entry design, seen live). Never-re-asks gate LIVE-PROVEN: forced phase back to PARICHAY with parichayDone=true → orchestrator redirected to TUTORIAL ✓. Hardware back: stays put (never back out of a mid-air permission ceremony, page.tsx:298).
+
+**§2 ELEMENTS (all)** orb 118² (awake tap → farewell → persistent sleep ✓ live; asleep = dimmed 🙏💤 + जगाइए pill min-h-52 ✓ live; wake re-narrates current line ✓ live — amendment holds on this page); start CTA 336×62; फिर कोशिश कीजिए 336×62; आगे बढ़िए (ghost) 336×62; 🎤 फिर से पूछिए (glow-highlighted via askAgainRef); persistent skip 192×52; 🐞 badge 63² (flag-gated). Note: asleep orb and जगाइए pill share the identical aria "शिष्य को जगाइए" — same action, harmless duplication, noted not defected.
+
+**§3 MEASUREMENTS** Title 24px/900; body + mic-card line + safety line 18px; skip 16px on a ≥52px tap; all CTAs 62px ≥52 ✓ (canon asks 64 — known 62-vs-64 flag stands). All floors pass.
+
+**§4 INPUT ABUSE** N/A by construction — zero inputs on any sub-state (DOM count: 0).
+
+**§5 STATE MATRIX — all four outcomes walked LIVE** (+2 more from source):
+- **denied**: start CTA → intro spoke to completion (cache HIT) → `getUserMedia invoked` + "ऊपर 'अनुमति दें' दबा दीजिए।" SAME TICK (D2 ceremony law, timestamps .886/.886) → `settled(denied)` → recovery card ("ब्राउज़र की सेटिंग में माइक चालू कीजिए" + retry + ghost-next + skip) ✓
+- **dismissed** (forced: gUM→NotAllowedError + query→'prompt'): `settled(dismissed)` → dismissed line spoken (len-62 live Sarvam MISS, played 4.9s) → "🎤 फिर से पूछिए" ✓
+- **granted** (forced: synthetic AudioContext stream): `settled(granted)` → "धन्यवाद पंडित जी! अब मैं आपकी हर बात सुन सकता हूँ।" → tryIt → practice (`mic: stream adopted`) → silence → **watchdog at exactly +15s** → advance → TUTORIAL; exit micLS='true', micDenied=false ✓. **GAP CLOSED: the granted leg had NO behavioral test anywhere** (every prior guard is a source-grep) — NEW `parichayGrantedPath.test.tsx` pins gUM-resolves→granted-state→same-stream practice→watchdog advance + the pre-granted silent shortcut (2 tests).
+- **no-hardware** (forced: NotFoundError): `settled(denied - no mic hardware)` → `no-mic → continue` → denied reassurance line → auto-advance; micDenied=true + micLS='false' ✓
+- **skip**: instant advance; **micDenied untouched, micLS untouched — SKIP ≠ DENY law holds live** ✓.
+- **§5 finding (REPORT, minor):** the confirmed-DENIED classification writes NO state (micDenied set only by finishDeny) — confirm-deny + skip exits with micDenied=false and micLS unset; the header comment at ParichayScreen.tsx:25 claims otherwise. No dead-end (paused() covers it); semantics gap only.
+
+**§6 NAV/PERSISTENCE** Refresh mid-sub-state re-derives from permissions.query (transient Stage deliberately unpersisted) ✓; parichayDone gate ✓ (above); orb sleep persists across screens (proven PAGE 3, re-proven here on entry).
+
+**§7 VOICE (quoted from source, heard live)** intro `parichay.introOnly` "नमस्ते पंडित जी! मैं आपका शिष्य हूँ, और मैं आपसे बात करना चाहता हूँ।"; ask `parichay.pressAllow` "ऊपर 'अनुमति दें' दबा दीजिए।" (+ PopupPointer chip "यहाँ ऊपर 'अनुमति दें' / 'Allow' दबाइए — 'अनुमति दें'/'Allow' are register-law-protected quoted popup vocabulary); granted "धन्यवाद पंडित जी!…"; tryIt "कुछ भी बोलकर देखिए — जैसे, नमस्ते।"; dismissed "कोई बात नहीं — एक बार फिर बटन दबाइए और ऊपर 'अनुमति दें' दबाइए।"; denied/no-mic "कोई बात नहीं — आप स्पर्श से और लिखकर भी सब कर सकते हैं। कभी भी सेटिंग से माइक चालू कर सकते हैं।"; heard/moveOn per source. Env note: on the JS-driven no-gesture legs the exit line parks and the phase transition supersedes it (newest-wins) — on-device the tap that triggered the leg has already unlocked audio, so the line plays; device pass confirms by ear.
+
+**§8 CANON (frame 4)** Live matches: radial field, orb 118 + ribbon verbatim, mic-ask card (66² Material mic disc, two-line ask, lock trust line), no toran/header ✓. Standing flagged residuals (await ruling): greeting copy ("मैं शिष्य हूँ" vs canon "आपसे मिलकर खुशी हुई"); canon's drawn "अनुमति दें / Allow" CTA vs the app's auto-prompt; 62 vs 64px. NEW: canon Shishya.dc.html:42 still shows "छूकर जगाएँ" — predates BOTH the register law (छूकर) and Ruling #9 — canon itself needs the amendment.
+
+**§9 LANGUAGE/TRUTH + EMOJI** Register clean everywhere (कीजिए/बढ़िए/दबाइए); the two Hindi string defects found were FIXED: `sleepToast` grammar "शिष्य…कर रहा हूँ"→"मैं विश्राम कर रहा हूँ…", and `aboutLine2` still TAUGHT the retired tap-repeat + deleted सुला-दें pill — rewritten to the second-amendment model. Truthful: "आपकी आवाज़ सुरक्षित है" backed by S5 mic-release; skip promise real. EMOJI: 🙏 (ribbon/title/CTA, canon's own) · 🎤 (dismissed-CTA prefix — app-only, canon uses the Material glyph; added to the emoji queue) · 💤 (asleep orb glyph) · 🐞 (dev badge).
+
+**§10 ILLOGICAL — the tap-repeat hole: CONFIRMED DEFECT for the no-voice persona (REPORT-ONLY, Isj rules).** On mic-denied/skip, "फिर से" is unreachable twice over: REPEAT acts only in handleTranscript (voiceController.ts:923-927) fed solely by STT (getUserMedia→MediaRecorder→/stt), AND the listen loop never arms (`paused` includes !micGranted, :1482-1485). repeatCurrent() has ZERO call sites (kept alive only by the guard). The only workaround is accidental: sleep-then-wake replays via the wake path (:2180-2187) — two taps, a farewell, a greeting, two persisted-state flips; undiscoverable and semantically wrong. TTS still works no-voice, so the loss is real: a line once missed cannot be re-heard. **MINIMAL FIX (proposal only): a "फिर से सुनिए" pill in the EXISTING pill slot, rendered ONLY when `!muted && !micInputAvailable`** — the column shows at most one pill ever (asleep→जगाइए unchanged; awake+voice→nothing, today's shape); onClick = the already-existing repeatCurrent(); one public getter + two strings + registry entry; new guard pins it NEVER renders while voice input works (the ruling's "फिर से by voice" channel stays the only path where it exists — a carve-out for where that channel is physically impossible, not a reversal). Alternatives: (a) teach the sleep-wake round-trip (zero chrome, but 2 taps + ceremony as the replay); (b) ephemeral tappable ribbon-chip for ~10s post-line (appears exactly on miss, but overloads the canon display-only ribbon). Awaiting ruling.
+
+**§11 CONSOLE/NETWORK** Zero errors across the full walk (all seven sub-states + 5 forced legs + ~6 reloads). Warnings: Sentry debug-config (queued) + webpack size lines retained in the tab buffer from the earlier DEV session (prod serves hashed chunks; bundle-size perf flag already queued). Network all 2xx; note: the app's boot diagnostic ping to the live API /health TypeErrors from localhost (CORS covers *.vercel.app previews, not localhost — diagnostic-only; TTS rides same-origin /api/tts).
+
+| Page | Emoji | Canon shows | Note |
+|---|---|---|---|
+| परिचय | 🙏 · 🎤 · 💤 · 🐞 | 🙏 yes / 🎤 NO (Material glyph) / — / dev | 🎤 in dismissed-CTA → emoji queue |
+
+#### RIDE-ALONG — MULTI-LANGUAGE REGISTER AUDIT (11 languages, founder directive 2026-07-24)
+
+**INVENTORY.** The LIVE per-language surface is exactly `strings-langconfirm.ts` (6 strings × 11 languages: confirm question, yes/other buttons, wait line, switch confirmation, honesty notice) + the native names (languageDetect.ts:63). Everything else non-Hindi is **LATENT/DEAD**: `tutorial-translations.ts` (15-language deck — TutorialShell's language prop is never passed, always Hindi) and `onboarding-translations.ts` (imported by NOTHING). One voice speaks all of it: **`aditya` (bulbul:v3) for all 11 languages** — only `target_language_code` varies (route.ts:150-169; client speaker rejected). All 11 codes are inside Sarvam bulbul's documented set → **TTS leg: 11/11 SUPPORTED**, no wrong-language voice. Fallback for voiceless languages (Bhojpuri/Maithili/Sanskrit/Assamese) → hi-IN silently (sarvam-tts.ts:48-64).
+
+**AUDIT (shishya bar): 14 LIVE strings FIXED in place** (per the specialist audits): mr → आपण-register (आपल्याला / निवडावी / थांबावे); pa → the ਜੀ particle on all five; ml → താങ്കൾ + കൊള്ളാം→വളരെ സന്തോഷം; gu → આપ; en → Please choose / One moment, please / Certainly. bn·kn·te·or·hi: clean as shipped (আপনি/ನೀವು/మీరు/ଆପଣ throughout). Honesty notices: **11/11 promise exactly the v1 behavior** — no overpromise in any translation (one noted omission: none states "your choice is saved", which the store does do — optional add).
+
+**GUARD:** `registerLawMultilang.test.ts` — per-language deny-lists (the तुम/करो equivalents: तुम्ही/तू, তুমি/তুই, நீ/உன், నువ్వు, ನೀನು-family, તમે/તું, ਤੂੰ + bare-ਚੁਣੋ-without-ਜੀ, നിങ്ങൾ/എടാ, ତୁମ/ତୁ, hey/gonna/thou/Great!) run against the RUNTIME LANG_CONFIRM values. JS `\b` is ASCII-only — Indic boundaries are explicit, so the patterns actually bite. Proven-to-fail (निवडा restored → red). Coverage tripwire: a new language in LANG_CONFIRM without a deny-list fails the build.
+
+**FOR ISJ (3 flags):**
+1. **Interjection class needs ONE ruling:** every confirmedLine opens with an appraising interjection (छान!/চমৎকার!/அருமை!/చాలా బాగుంది!/ಚೆನ್ನಾಗಿದೆ!/સરસ!/ବହୁତ ଭଲ!) — the en/pa/ml audits called it casual-peer and fixed theirs (Certainly! / ਵਧੀਆ ਜੀ! / വളരെ സന്തോഷം!); the other seven passed it. One ruling ("is the appraising exclamation acceptable at the shishya bar?") settles all 11 consistently.
+2. **The latent corpora are machine-translation grade** — Tamil tutorial strings contain the TURKISH word "için" twice and one non-word ("கட்டாயக்கம்"); Marathi carries 15 more तुम्ही-register rows. Unreachable today. Recommend: delete or quarantine until a real translation pass; do NOT wire the language prop without one.
+3. **The honesty notice is never actually heard (live-proven):** on मराठी switch the notice spoke at t+0ms and परिचय's intro interrupted it at t+25ms — killed before one word landed, and it exists nowhere on screen. Evidence for the queued pilot-ruling on the language-list honesty model: whatever model is ruled, the notice must either speakAndWait-before-advance or persist visibly.
 
 ---
 

@@ -24,12 +24,16 @@ export const hi = {
     a11yWakeControl: "शिष्य को जगाइए",
     muteFarewell: "अब मैं चुप रहूँगा — दोबारा सुनने के लिए मुझे जगाइए।",
     a11yMute: "शिष्य को सुला दें",
-    sleepToast: "शिष्य विश्राम कर रहा हूँ। जगाने के लिए मुझे स्पर्श कर लीजिएगा।",
+    sleepToast: "मैं विश्राम कर रहा हूँ। जगाने के लिए मुझे स्पर्श कर लीजिएगा।",
     a11ySleep: "शिष्य को जगाइए",
     intro: "नमस्ते पंडित जी! मैं शिष्य हूँ — आपका सहायक।",
     aboutTitle: "शिष्य के बारे में",
     aboutLine1: "शिष्य आपका सहायक है — हर स्क्रीन पर बोलकर समझाता है और आपकी बात सुनता है।",
-    aboutLine2: "छूट गया हो तो शिष्य को स्पर्श कीजिए — वो फिर से बताएँगे। शांति चाहिए तो 'सुला दें' दबाइए, ऐप फिर भी सामान्य रूप से चलेगा।",
+    // Ruling #9 second amendment: touch = विश्राम (not repeat), 'जगाइए' or
+    // touch wakes — and waking says the current line again. Voice "फिर से"
+    // is the hands-free repeat. The old line taught the retired tap-repeat
+    // and the deleted सुला-दें pill.
+    aboutLine2: "शांति चाहिए तो शिष्य को स्पर्श कीजिए — वे विश्राम में चले जाएँगे, ऐप सामान्य रूप से चलता रहेगा। 'जगाइए' दबाते ही वे लौटकर वही बात दोबारा कहेंगे; बोलकर 'फिर से' कहने पर भी दोहराएँगे।",
     // S6c: the honest miss — spoken ONLY for question-shaped asks the
     // brain cannot answer; never for ordinary unmatched noise.
     honestMiss:
