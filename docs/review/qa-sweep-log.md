@@ -47,7 +47,15 @@ that would weaken a guard). Flag with screen + problem + proposed fix, keep walk
 - None (app-level). Dev-only: webpack asset-size warnings (main-app 10.7 MiB dev bundle — perf note, not a defect gate for dev mode).
 
 ### Flagged for Isj (B1)
-1. **RULING #9 IS STRANDED ON THE UNMERGED TUTORIAL BRANCH.** Main's
+0. ~~RESOLVED (founder GO)~~ — Ruling #9 cherry-picked to main (9db3326) +
+   68b5fcb/404005a picked (35a393a), all deploy-VERIFIED via /version; tutorial
+   branch rebased onto main (drift closed, 11 tutorial-only commits remain,
+   gate wall green: tsc×4, 38 api guards, 772/772 pandit). **audio-check.md
+   BUNDLING (founder):** when delivered, it must include a named
+   "mic-permission walk" section (granted/denied/dismissed/no-hardware) so Isj
+   clears the MicPracticeArtboard real-device gate AND the audio pass in one
+   sitting.
+1. **~~RULING #9 IS STRANDED ON THE UNMERGED TUTORIAL BRANCH~~** (resolved above). Main's
    `ShishyaOrb.tsx` has NO `muteControl` / `ShishyaMuteControl` — the awake orb
    on /login shows no "सुला दें", and a second tap will SILENT-MUTE (the exact
    elder-hostile behavior Ruling #9 killed). The approved implementation +
