@@ -127,6 +127,35 @@ that would weaken a guard). Flag with screen + problem + proposed fix, keep walk
 
 ---
 
+### HALT — SCREENSHOT DISCIPLINE (Isj, 2026-07-24→ resolved 2026-07-25)
+
+**Isj reported the UI visibly ruined while reports said PASS.** Walk stopped; vision restored; every screen since the last banked shot re-evidenced IN PIXELS.
+
+**ROOT CAUSE — the pane, not the app.** The Browser pane had entered a broken 2×-DPR state: its display/capture delivered a 390×844 **crop of the 780×1688 physical buffer** — half the UI missing, content clipped at the right edge ("visibly ruined" is exactly what that looks like), and click injection landed at HALF coordinates (the PAGE 4 dead-tap mystery — same root). The page's own layout was healthy throughout (innerWidth 390, scale 1, geometry correct). **Cure: a resize_window round-trip (400×850 → 390×844) restores both capture and input**; re-verified twice this halt (it recurred once mid-re-shoot and was cured again). Recorded in memory + here.
+
+**OWNED: the evidence was in hand and misread.** Two of my own screenshots during PAGE 3/4 showed the ruin (blank cream + clipped red shape) and I dismissed them as "stale compositor artifacts" because DOM geometry said the layout was centered. DOM said healthy, pixels said ruined — I believed the DOM. That is the exact hole the new rule closes.
+
+**RE-EVIDENCE PASS — 8 fresh screenshots, all HEALTHY (banked this session, prod build :3002 + production):**
+1. स्थान — toran, heading, map+pin, explainer, अनुमति दीजिए, शहर खुद चुनिए, awake orb + ribbon ✓
+2. भाषा confirm AWAKE — tile/question/CTAs, **orb only, NO pill** (second amendment, now photographed) ✓
+3. भाषा ASLEEP — **the owed shot, banked**: dimmed orb + z + जगाइए pill (drawn light_mode glyph), via a REAL tap ✓ (nit logged: pill sits ~10px right of orb center — the w-max escape anchor; cosmetic)
+4. भाषा list — toran, back, 8+ native tiles, truthfully-disabled आगे बढ़िए, ribbon ✓ (nit: dev-only 🐞 badge overlaps the CTA's right end — flag-gated, not prod)
+5. परिचय needstart — orb 118, greeting, mic card, "🙏 बात शुरू कीजिए", skip ✓
+6. परिचय denied recovery — settings hint + फिर कोशिश कीजिए + आगे बढ़िए + skip, via REAL taps ✓
+7. Tutorial slide 1, awake orb — CountUp, booking-card choreography, dots 1/7, आगे ✓ (no layout hole where the सुला-दें pill sat)
+8. **PRODUCTION** (hmarepanditji-pandit.vercel.app @ 28a936f) — भाषा confirm pixel-clean ✓
+
+**SUSPECTS CLEARED WITH PIXELS:**
+- (a) FOUC display=block: **mic + lock render as DRAWN Material glyphs** (shots 5/6) and `document.fonts` reports "Material Symbols Outlined loaded" on the prod build. No blank icons, no raw ligature text.
+- (b) सुला-दें pill deletion: no layout holes on any of the 8 screens; awake column is orb-only, asleep column shows the जगाइए pill.
+- (c) redirect refactor: no render-null flashes across ~10 reloads during the pass; zero console errors.
+
+**STANDING RULE (recorded, permanent):** No visual claim without a same-turn screenshot (target ≤5s from interaction), banked in the ledger. DOM/computed values are supplements, never substitutes — a section whose only evidence is DOM text is INCOMPLETE. If compositing dies mid-walk: HALT the page, cure vision (resize round-trip), re-shoot everything since the last good shot. The "shot stays owed while the walk continues" practice is REVOKED. PAGE 1-4 sections whose sole visual evidence was DOM-based are hereby marked supplemented-by-this-pass (the 8 shots above cover every such screen); PAGE 5 onward runs under the rule natively.
+
+**Note for Isj:** all eight screens above are pixel-healthy on both the local prod build and production. If the ruin you saw was on a specific screen/device beyond these (e.g. deeper pages, a real phone), name it and it becomes the first re-shoot target — with the pane cure in hand the walk now has reliable eyes.
+
+---
+
 ### PAGE 4 · परिचय (PARICHAY — mic ceremony, 7 sub-states) — **PASS with 1 ruling-needed defect (§10)** · 2026-07-24
 
 **CARRY-ITEMS:** (1) voicedebug RULING EXECUTED — flag stays; NEW guard `voiceDebugGate.test.tsx` (behavioral: latch absent → hook false, panel unmountable; latch present → on; + pins the gate is the latch NOT NODE_ENV); operator rule written into pilot-ops-runbook ("no support script or shared URL ever carries ?voicedebug=1"). (2) OWED SHOT: still owed — the pane composited briefly (banked the परिचय needstart frame), then stopped again; stays on the books. NEW ENV FACT while chasing it: **the pane's physical click injection lands at HALF the requested coordinates** (asked (195,713), page received (98,357) — dpr=2 division bug). Every "dead tap" of the walk was this; the app was exonerated by instrumentation (document-level listener). Physical-tap legs use doubled coords when in-bounds; JS dispatch otherwise, with unlock taken from a real (mis-aimed but genuine) pointerdown.
