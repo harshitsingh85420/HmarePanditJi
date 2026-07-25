@@ -536,6 +536,9 @@ export const hi = {
     pendingPayout: "आना बाकी",
     paid: "मिल गया",
     introVoice: "यहाँ आपकी सारी कमाई का हिसाब है। आने वाली राशि दो से तीन दिन में आपके खाते में पहुँचती है।",
+    // PAGE 11 fix (Isj 2026-07-25): the day-one screen must promise nothing
+    // that doesn't exist — no incoming राशि line until money is real.
+    introEmptyVoice: "यह कमाई की स्क्रीन है। पहली पूजा के बाद यहाँ आपका पूरा हिसाब दिखेगा।",
     processing: "प्रोसेस में",
     noPending: "कोई आने वाली राशि नहीं",
     noPaid: "अभी तक कोई राशि नहीं मिली",

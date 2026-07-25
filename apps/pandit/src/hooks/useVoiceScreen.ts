@@ -131,9 +131,13 @@ export function useVoiceScreen(opts: UseVoiceScreenOpts) {
   useEffect(() => {
     if (!enabled || !narration) return;
     const timer = setTimeout(() => {
+      // NARRATION-QUEUE CLASS LAW: mount narration QUEUES behind an
+      // in-flight line (newest-wins) instead of assassinating it — an
+      // imperative moment line (paidVoice class) must be heard in full.
       voiceController.speak(narration, {
         languageCode,
         highlightRef: highlightRefRef.current,
+        interrupt: false,
         onEnd: () => onEndRef.current?.(),
       });
     }, 150);

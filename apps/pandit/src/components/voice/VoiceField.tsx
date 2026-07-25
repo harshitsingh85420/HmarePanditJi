@@ -269,7 +269,12 @@ export function VoiceField({
     if (!voiceCapable) return;
     setState({ phase: "PROMPTING" });
     const timer = setTimeout(() => {
+      // NARRATION-QUEUE CLASS LAW: the field prompt queues behind a
+      // same-mount Narrate line (newest-wins) — it must not cut the
+      // screen narration 400ms in, and on 2+ fields the last-armed
+      // field's prompt wins the queue slot instead of a mid-air kill.
       voiceController.speak(promptText, {
+        interrupt: false,
         onEnd: (completed) => {
           if (completed && !voiceController.paused) {
             dispatchRef.current({ type: "SPEECH_DONE" });

@@ -341,7 +341,11 @@ export function HomeView({
                body at a 9px gap. Not a flat saffron-50 block. */
             <button
               onClick={() => onNavigate(nb.status === "REQUESTED" ? `/bookings/${nb.id}/request` : `/bookings/${nb.id}`)}
-              className="w-full text-left rounded-surface border-2 border-saffron-200 bg-card shadow-surface overflow-hidden flex flex-col active:scale-[0.99] transition-transform"
+              /* shrink-0 is LOAD-BEARING: a <button> flex item lacks the
+                 min-height:auto floor divs get — inside this flex-col
+                 scroller it collapsed to 354×4px (overflow-hidden ate the
+                 card entirely; §3-V retro-sweep find). */
+              className="w-full shrink-0 text-left rounded-surface border-2 border-saffron-200 bg-card shadow-surface overflow-hidden flex flex-col active:scale-[0.99] transition-transform"
             >
               <div className="bg-saffron-50 px-4 py-[9px] flex items-center gap-2">
                 <span className="text-[20px] leading-none" role="img" aria-hidden="true">🔔</span>

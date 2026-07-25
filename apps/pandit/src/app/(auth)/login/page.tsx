@@ -59,12 +59,10 @@ export default function LoginPage() {
   // as "broken".
   const [waking, setWaking] = useState(false);
 
-  // F4: a re-auth on the way to a booking gets a reassuring शिष्य line
+  // F4: a re-auth on the way to a booking gets a reassuring शिष्य line —
+  // FOLDED into the VoiceField promptText (one utterance): a bare speak
+  // here died to the field's own mount prompt (narration-queue class).
   const reauthForBooking = nextParam.startsWith("/bookings");
-  useEffect(() => {
-    if (reauthForBooking && step === 1) speak(t("auth.reauthForBooking"));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   // B: hardware/gesture back in entry-flow context goes to the tutorial
   // (slide 1) — same destination as the labeled button. Outside the
@@ -350,9 +348,10 @@ export default function LoginPage() {
               <VoiceField
                 label={t("auth.phoneLabel")}
                 promptText={
-                  fromEntryFlow
+                  (reauthForBooking ? `${t("auth.reauthForBooking")} ` : "") +
+                  (fromEntryFlow
                     ? `${t("auth.unifiedSub")} ${t("auth.reviewTutorialVoice")}`
-                    : t("auth.unifiedSub")
+                    : t("auth.unifiedSub"))
                 }
                 value={phone}
                 onChange={(v) => setPhone(normalizePhoneInput(v))}

@@ -1,6 +1,7 @@
 "use client";
 
 import { Narrate } from "@/hooks/useScreenVoice";
+import { computeFreshPaid } from "@/lib/payoutMoment";
 import { DashboardVoiceNav } from "@/components/voice/DashboardVoiceNav";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -80,22 +81,20 @@ export default function EarningsPage() {
       if (paidRes.success && paidRes.data) {
         setPaidPayouts(paidRes.data);
 
-        // Detect payouts paid since the last visit (tracked locally)
-        const lastSeen = Number(localStorage.getItem("lastSeenPaidAt") || 0);
-        const fresh = (paidRes.data as PayoutItem[]).filter(
-          (p) => p.paidAt && new Date(p.paidAt).getTime() > lastSeen,
+        // Payout-moment freshness — single source (payoutMoment.ts):
+        // first-ever visit seeds silently (history never replays as "just
+        // paid"); the spoken line is FOLDED into the mount narration below
+        // (narration-queue law — a separate speak() here died to the
+        // Narrate intro ~160ms later, the class's third sighting).
+        const { fresh, nextSeen } = computeFreshPaid(
+          paidRes.data as PayoutItem[],
+          localStorage.getItem("lastSeenPaidAt"),
         );
-        if (fresh.length > 0) {
-          const total = fresh.reduce((sum, p) => sum + p.amount, 0);
-          setFreshlyPaidAmount(total);
+        if (fresh !== null) {
+          setFreshlyPaidAmount(fresh);
           playChime();
-          speak(t("earnings.paidVoice").replace("{amount}", total.toLocaleString("en-IN")));
         }
-        const newestPaidAt = Math.max(
-          lastSeen,
-          ...(paidRes.data as PayoutItem[]).map((p) => (p.paidAt ? new Date(p.paidAt).getTime() : 0)),
-        );
-        if (newestPaidAt > 0) localStorage.setItem("lastSeenPaidAt", String(newestPaidAt));
+        if (nextSeen > 0) localStorage.setItem("lastSeenPaidAt", String(nextSeen));
       }
 
       setLoading(false);
@@ -140,7 +139,8 @@ export default function EarningsPage() {
     return (
       <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
         <Header variant="title" title={`💰 ${t("earnings.title")}`} />
-        <Narrate text={t("earnings.introVoice")} />
+        {/* day-one truth: no incoming-राशि promise (PAGE 11 fix) */}
+        <Narrate text={t("earnings.introEmptyVoice")} />
         <DashboardVoiceNav helpLine={t("help.earnings")} />
         <main className="flex-1 flex flex-col page-enter">
           {/* canon ornament: the drawn दीया, size 86, lit — "दीया जल रहा है" */}
@@ -163,8 +163,16 @@ export default function EarningsPage() {
           the escape. */}
       <Header variant="title" title={`💰 ${t("earnings.title")}`} />
 
-      {/* INTRO VOICE NARRATOR ON MOUNT */}
-      <Narrate text={t("earnings.introVoice")} />
+      {/* INTRO VOICE NARRATOR ON MOUNT — the payout-moment line is FOLDED
+          in front so it is ONE utterance (narration-queue law): nothing can
+          kill the money sentence, and the intro follows it naturally. */}
+      <Narrate
+        text={
+          freshlyPaidAmount !== null
+            ? `${t("earnings.paidVoice").replace("{amount}", freshlyPaidAmount.toLocaleString("en-IN"))} ${t("earnings.introVoice")}`
+            : t("earnings.introVoice")
+        }
+      />
       <DashboardVoiceNav helpLine={t("help.earnings")} />
 
       {/* CANON frame 19 scroll field: padding 8px 16px 16px, column gap 14px.

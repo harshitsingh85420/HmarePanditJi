@@ -1,0 +1,44 @@
+{
+ "momentFold": {
+  "stamp": "2026-07-25T14:20:19.544Z",
+  "errs": [],
+  "lastSeenPaidAtAfter": "1784887200000",
+  "banner": true,
+  "speaks": [
+   "14:20:09.839 speak \"नमस्ते पंडित जी!\" lang=hi-IN",
+   "14:20:09.845 speak \"नमस्ते पंडित जी!\" lang=hi-IN",
+   "14:20:11.693 speak \"पंडित जी, 5,100 रुपये आपके खाते में भेज \" lang=hi-IN"
+  ],
+  "paidSpeakCount": 1,
+  "foldedInOne": true,
+  "emptyLineSpoken": false
+ },
+ "firstVisit": {
+  "stamp": "2026-07-25T14:20:31.384Z",
+  "errs": [],
+  "lastSeenPaidAtAfter": "1784887200000",
+  "banner": false,
+  "speaks": [
+   "14:20:20.007 speak \"नमस्ते पंडित जी!\" lang=hi-IN",
+   "14:20:20.011 speak \"नमस्ते पंडित जी!\" lang=hi-IN",
+   "14:20:23.509 speak \"यहाँ आपकी सारी कमाई का हिसाब है। आने वाल\" lang=hi-IN"
+  ],
+  "paidSpeakCount": 0,
+  "foldedInOne": false,
+  "emptyLineSpoken": false
+ },
+ "emptyDay1": {
+  "stamp": "2026-07-25T14:20:41.878Z",
+  "errs": [],
+  "lastSeenPaidAtAfter": null,
+  "banner": false,
+  "speaks": [
+   "14:20:31.789 speak \"नमस्ते पंडित जी!\" lang=hi-IN",
+   "14:20:31.794 speak \"नमस्ते पंडित जी!\" lang=hi-IN",
+   "14:20:33.977 speak \"यह कमाई की स्क्रीन है। पहली पूजा के बाद \" lang=hi-IN"
+  ],
+  "paidSpeakCount": 0,
+  "foldedInOne": false,
+  "emptyLineSpoken": true
+ }
+}

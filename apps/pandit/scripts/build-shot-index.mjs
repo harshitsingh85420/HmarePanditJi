@@ -25,6 +25,8 @@ const GROUPS = {
   "page9-populated": { order: 9.3, title: "PAGE 9 · होम — populated leg (fixtures; venueAddress fix proof)" },
   page10: { order: 10, title: "PAGE 10 · बुकिंग arc (list + detail + request; money surfaces seen-never-fired)" },
   page11: { order: 11, title: "PAGE 11 · कमाई (read-only money; conservation proven in pixels + voice)" },
+  "retro-sweep": { order: 11.5, title: "§3-V RETRO-SWEEP (17 states, pages 1-11) — 2 real bugs found+fixed; final table = one contrast-token family" },
+  page12: { order: 12, title: "PAGE 12 · कैलेंडर (Sunday-start ruled canon; छुट्टी toggle fixture-only; §3-V native)" },
 };
 const CAPTIONS = {
   "page3a/ta-confirm.png": "Tamil detect-confirm — calibration shot: headless eye matches the pane's banked frame; fixed strings render",
@@ -71,6 +73,20 @@ const CAPTIONS = {
   "page11/fixtures-populated-tip.png": "FirstUseTip आने वाली राशि over the pending block",
   "page11/fixtures-populated.png": "Populated: hero ₹12,500, tiles, मिल गया rows, आना बाकी heading = Σ rows",
   "page11/fixtures-skew-empty-lists.png": "Skew leg: summary≠0 with empty lists — the 3-way मिल गया branch",
+  "page11/d-moment-folded.png": "CLASS-FIX PROOF: payout moment on the fixed bundle — ONE folded utterance (paidVoice+intro), banner ✓, no kill (timestamps in moment-proof.json)",
+  "page11/e-first-visit-calm.png": "First-ever visit: history NEVER replays as freshly-paid — calm screen, key seeded silently",
+  "page11/f-empty-truthful.png": "Day-one empty + the NEW truthful intro heard live (no promised राशि)",
+  "retro-sweep/p9-home-populated.png": "THE INVISIBLE HERO: अगली-बुकिंग card was 354×4px (button flex-shrink) — this frame is pre-fix evidence",
+  "retro-sweep/p10-list-populated.png": "समझा at y=-43: the coach card anchored past the top edge (pre-fix evidence, sliver at top)",
+  "retro-sweep/p11-earnings-populated.png": "Earnings populated under the sweep — the आना बाकी 2.95:1 brass label (product-call row)",
+  "page12/g1-populated-july-tip.png": "कैलेंडर first visit: tip UP in the new in-viewport placement (clear of SOS), grid behind",
+  "page12/g2-populated-july.png": "July populated: र-first heads, 3 pads, 5 disabled-no-dot, 25 plain today, 27● 28✕ 30●",
+  "page12/g4-august-dot12.png": "▶▶ August: dot on 12 renders WITHOUT refetch; empty-note correctly absent",
+  "page12/g5-september-empty-note.png": "▶ September: इस महीने अभी कोई बुकिंग नहीं — per-month re-evaluation",
+  "page12/g6-booked-tap-toast.png": "Booked-day tap: toast+voice इस दिन बुकिंग है, ZERO writes",
+  "page12/g7-day29-blocked.png": "छुट्टी toggle (fixture-only): 29✕ optimistic + POST; grid geometry unmoved (badge-slot law)",
+  "page12/g8-requested-seam.png": "§10 SEAM: REQUESTED-only month — note hidden yet zero dots; the विनती is invisible here",
+  "page12/g9-empty-world.png": "Empty world: truthful note + all-available grid",
 };
 
 const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");

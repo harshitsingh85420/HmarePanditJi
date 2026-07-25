@@ -27,6 +27,7 @@
 
 import React, { useEffect, useRef } from "react";
 import { useReduced } from "@/lib/motion";
+import { voiceController } from "@/lib/voiceController";
 
 type Petal = { bx: string; by: string; size: number; dur: number; delay: number; glyph: string };
 
@@ -88,6 +89,13 @@ export interface CelebrationOverlayProps {
   tone?: "leaf" | "saffron";
   /** ms before auto-dismiss (tap also dismisses) */
   autoMs?: number;
+  /** NARRATION-QUEUE CLASS LAW: the moment OWNS its spoken line — it is
+      spoken from here (after the replaced screen's unmount stopSpeech has
+      landed) and auto-dismiss waits for BOTH the timer and the line to
+      finish, so navigation can never cut it mid-air. A tap still
+      dismisses immediately (a celebration never holds the pandit
+      hostage), and a 12s failsafe covers a hung synth. */
+  voiceLine?: string;
   onDone: () => void;
 }
 
@@ -98,6 +106,7 @@ export function CelebrationOverlay({
   amount,
   tone = "leaf",
   autoMs = 3200,
+  voiceLine,
   onDone,
 }: CelebrationOverlayProps) {
   const reduced = useReduced();
@@ -113,10 +122,37 @@ export function CelebrationOverlay({
   };
 
   useEffect(() => {
-    const timer = setTimeout(finish, autoMs);
-    return () => clearTimeout(timer);
+    let live = true;
+    let voiceDone = !voiceLine;
+    let timerDone = false;
+    const tryFinish = () => {
+      if (voiceDone && timerDone) finish();
+    };
+    const timer = setTimeout(() => {
+      timerDone = true;
+      tryFinish();
+    }, autoMs);
+    // failsafe: a synth that never resolves must not hold the moment
+    const failsafe = setTimeout(finish, Math.max(autoMs, 12000));
+    let voiceTimer: ReturnType<typeof setTimeout> | undefined;
+    if (voiceLine) {
+      // 250ms lets the replaced screen's unmount stopSpeech land first
+      voiceTimer = setTimeout(() => {
+        void voiceController.speakAndWait(voiceLine).then(() => {
+          if (!live) return;
+          voiceDone = true;
+          tryFinish();
+        });
+      }, 250);
+    }
+    return () => {
+      live = false;
+      clearTimeout(timer);
+      clearTimeout(failsafe);
+      if (voiceTimer) clearTimeout(voiceTimer);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [autoMs]);
+  }, [autoMs, voiceLine]);
 
   return (
     <div

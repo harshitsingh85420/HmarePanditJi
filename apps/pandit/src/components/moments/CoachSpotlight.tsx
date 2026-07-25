@@ -98,12 +98,19 @@ export function CoachSpotlight({
   const viewportH = typeof window !== "undefined" ? window.innerHeight : 640;
   const spaceBelow = viewportH - (rect.top + rect.height);
   const tooltipBelow = spaceBelow > 180;
+  // A tall target near the top has room on NEITHER side — the old
+  // above-flip anchored the card past the top edge (समझा rendered at
+  // y=-43 on the bookings list; §3-V retro-sweep find). Third placement:
+  // pin the card inside the viewport — 180 clears BOTH the bottom nav
+  // AND the SOS pill at bottom-[104px] (bottom:104 put समझा square over
+  // the emergency control; §3-V caught it same-day).
+  const tooltipAbove = !tooltipBelow && rect.top > 220;
 
   return (
     // Q2: container is ALWAYS pointer-events-none — only the card itself
     // re-enables them. The old auto-container + full-screen blocker ate
     // every tap (Ramesh: "nav taps silently no-op — thought it broke").
-    <div className="fixed inset-0 z-[60] pointer-events-none">
+    <div className="fixed inset-0 z-[60] pointer-events-none" data-coach-tip="true">
       {/* Cutout: everything but the target is dimmed (visual only) */}
       <div
         className="absolute rounded-card coach-ring"
@@ -127,7 +134,9 @@ export function CoachSpotlight({
           pointerEvents: "auto",
           ...(tooltipBelow
             ? { top: rect.top + rect.height + 14 }
-            : { bottom: viewportH - rect.top + 14 }),
+            : tooltipAbove
+              ? { bottom: viewportH - rect.top + 14 }
+              : { bottom: 180 }),
         }}
       >
         <span className="text-[20px] font-bold text-temple-600 font-hindi">{title}</span>

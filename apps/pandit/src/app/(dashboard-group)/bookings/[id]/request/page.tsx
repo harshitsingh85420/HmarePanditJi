@@ -138,9 +138,10 @@ export default function BookingRequestPage() {
       return;
     }
 
-    // Success announcements
+    // Success announcements — the spoken line rides the overlay
+    // (voiceLine): a bare speak here died to the overlay swap's unmount
+    // stopSpeech ~1 frame in (narration-queue class).
     vibrateConfirm();
-    speak(t("booking.acceptedVoice"));
     // Canon frame 26 उत्सव: the accept gets its moment BEFORE the detail
     // screen. The overlay owns the navigation when it finishes/is tapped.
     setShowAccepted(true);
@@ -204,6 +205,7 @@ export default function BookingRequestPage() {
         subtitle={`${honouredName} की पूजा अब आपकी है`}
         amount={booking.earnings?.totalToPandit || 0}
         tone="leaf"
+        voiceLine={t("booking.acceptedVoice")}
         onDone={() => router.replace(`/bookings/${booking.id}`)}
       />
     );

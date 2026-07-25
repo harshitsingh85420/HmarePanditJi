@@ -500,11 +500,13 @@ export default function TutorialV2({
     if (!isMute) return;
     if (muted) setSawMute(true);
     else if (sawMute && !gateOpen) {
-      // completed mute → unmute cycle — celebrate!
+      // completed mute → unmute cycle — celebrate! interrupt:false —
+      // the unmute itself speaks shishya.wake; this queues behind it
+      // (newest-wins) instead of racing it to a mid-air kill.
       setGateOpen(true);
       setBurst(true);
       playChime();
-      voiceController.speak(advanceAsk);
+      voiceController.speak(advanceAsk, { interrupt: false });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [muted, sawMute, gateOpen, idx]);

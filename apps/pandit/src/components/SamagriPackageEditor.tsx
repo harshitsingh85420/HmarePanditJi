@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/Button";
 import { VoiceField } from "@/components/voice/VoiceField";
 import { useVoice } from "@/hooks/useVoice";
 import { SAMAGRI_BRAND_ANY } from "@/components/SamagriTiers";
+import { voiceController } from "@/lib/voiceController";
 
 // F12-02: an item carries a company/brand as well as a quantity. The API
 // requires it on every write; SAMAGRI_BRAND_ANY ("कोई भी") is the real answer
@@ -161,7 +162,10 @@ export function SamagriPackageEditor({
       return;
     }
 
-    speak(t("samagri.saved"));
+    // NARRATION-QUEUE CLASS: onSaved() unmounts this editor (readiness
+    // host does it synchronously) — a bare speak died at once. The ack
+    // is heard IN FULL before the host swaps the tree.
+    await voiceController.speakAndWait(t("samagri.saved"));
     onSaved?.();
   };
 

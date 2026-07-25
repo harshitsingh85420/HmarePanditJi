@@ -44,6 +44,7 @@ import { Button } from "@/components/ui/Button";
 import { VoiceField } from "@/components/voice/VoiceField";
 import { SamagriTiers, SAMAGRI_BRAND_ANY, type SamagriTier, type SamagriItem, type TierData } from "@/components/SamagriTiers";
 import { STEPS_5, migrateStep, teamOptionLabel, teamOptionKeywords } from "./stepModel";
+import { voiceController } from "@/lib/voiceController";
 
 // CANON TITLES — the artboards do NOT repeat "पूजा जोड़ें" on every step;
 // each of 18a–18e carries the name of the thing being asked for.
@@ -172,7 +173,12 @@ export default function AddPooja5Page() {
     const cfg = await mutateOnce(`config:${d.name}`, "/pandit/pooja-config", { method: "POST", body: JSON.stringify({ poojaType: d.name, teamSize: d.teamSize, dakshinaAmount: d.dakshina ?? 0, supplyMode: d.supplyMode ?? "PANDIT_BRINGS" }) });
     if (!cfg.success) {
       setSubmitting(false);
-      sayError(cfg.error?.message || "दक्षिणा सहेजी नहीं जा सकी — कृपया दोबारा कोशिश कीजिए।");
+      // NARRATION-QUEUE CLASS: go(2) unmounts this step's Narrate, whose
+      // cleanup stopSpeech killed the floor-error line instantly — the
+      // F11-04 truth was never HEARD. Await the full line, then swap.
+      const floorMsg = cfg.error?.message || "दक्षिणा सहेजी नहीं जा सकी — कृपया दोबारा कोशिश कीजिए।";
+      setErrorMsg(floorMsg);
+      await voiceController.speakAndWait(floorMsg);
       go(2); // back to the दक्षिणा step so the number is editable
       return;
     }
