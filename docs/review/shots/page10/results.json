@@ -1,0 +1,50 @@
+{
+ "empty": {
+  "title": true,
+  "emptyTitle": true,
+  "hint": true,
+  "taiyariCta": true
+ },
+ "list": {
+  "newSec": true,
+  "upcoming": true,
+  "done": true,
+  "jawab": true,
+  "total": true
+ },
+ "cancelledFallback": true,
+ "request": {
+  "bellHeader": true,
+  "sub": true,
+  "yajman": true,
+  "tulsi": false,
+  "acceptVisible": true,
+  "declineVisible": true,
+  "NEVER_CLICKED": true
+ },
+ "detailAccepted": {
+  "pill": "✓ स्वीकृत",
+  "journey": true,
+  "advanceVisible": false,
+  "callDisc": true,
+  "route": true,
+  "NEVER_CLICKED": true
+ },
+ "wrongPill": "यात्रा में",
+ "detailCompleted": {
+  "pill": "✓ संपन्न",
+  "advanceGone": true,
+  "completeGone": true
+ },
+ "narration": [
+  "11:44:38.802 speak \"यह आपकी बुकिंग की सूची है। नई, आने वाली \" lang=hi-IN",
+  "11:44:46.368 speak \"यह आपकी बुकिंग की सूची है। नई, आने वाली \" lang=hi-IN",
+  "11:44:49.683 speak \"यह आपकी बुकिंग की सूची है। नई, आने वाली \" lang=hi-IN",
+  "11:44:57.732 speak \"यह आपकी बुकिंग की सूची है। नई, आने वाली \" lang=hi-IN",
+  "11:45:04.637 speak \"नई बुकिंग। सत्यनारायण कथा की बुकिंग। कुल\" lang=hi-IN",
+  "11:45:12.599 speak \"बुकिंग विवरण। गृह प्रवेश पूजा।\" lang=hi-IN",
+  "11:45:20.547 speak \"बुकिंग विवरण। सत्यनारायण कथा।\" lang=hi-IN",
+  "11:45:27.540 speak \"बुकिंग विवरण। रुद्राभिषेक।\" lang=hi-IN"
+ ],
+ "errs": []
+}

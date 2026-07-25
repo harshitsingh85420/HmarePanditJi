@@ -23,6 +23,7 @@ const GROUPS = {
   page9: { order: 9.1, title: "PAGE 9 · होम — empty leg + SOS 104px rects" },
   "page9-final": { order: 9.2, title: "PAGE 9 · होम — SOS AFTER (116px), tap-proofs" },
   "page9-populated": { order: 9.3, title: "PAGE 9 · होम — populated leg (fixtures; venueAddress fix proof)" },
+  page10: { order: 10, title: "PAGE 10 · बुकिंग arc (list + detail + request; money surfaces seen-never-fired)" },
 };
 const CAPTIONS = {
   "page3a/ta-confirm.png": "Tamil detect-confirm — calibration shot: headless eye matches the pane's banked frame; fixed strings render",
@@ -57,6 +58,13 @@ const CAPTIONS = {
   "page9-final/sos-expanded.png": "SOS tap-proof: quick-action expands (dial action never fired)",
   "page9-populated/home-populated.png": "Populated leg: hero, ₹12,500, GO-ONLINE pill + first-time coach overlay; the row renders through the venueAddress fix",
   "page9-populated/home-online.png": "Optimistic online after intercepted toggle — 'परिवार अब आपको बुला सकते हैं ✓'",
+  "page10/list-empty.png": "Empty list (probe truth): orb medallion + मैं नज़र रखे हूँ 🙏 + तैयारी CTA",
+  "page10/list-populated.png": "3 sections, 4 states: rails, ₹totals, जवाब दीजिए ›",
+  "page10/list-cancelled-fallback.png": "FINDING: cancelled-only list = sectionless 🌤️ fallback (booking vanishes)",
+  "page10/request-view.png": "Request view: bell header, accept/decline SEEN-NEVER-FIRED; FINDING: कुल ₹0 under आपको मिलेगा ₹5,100",
+  "page10/detail-accepted.png": "Detail ✓स्वीकृत + NEW route coach overlay discovered; call disc never dialed",
+  "page10/detail-requested-wrongpill.png": "FINDING: REQUESTED deep-link shows the यात्रा में pill (truth violation)",
+  "page10/detail-completed.png": "COMPLETED: ✓संपन्न, advance+complete correctly gone",
 };
 
 const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
