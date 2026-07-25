@@ -29,18 +29,30 @@ export const STATE_TO_LANG: Record<string, LangCode> = {
   odisha: "or", orissa: "or",
 };
 
+// SINGLE-SOURCE LAW (Isj ruling, 2026-07-25): THE one city→language detect
+// map. onboarding-store's CITY_LANGUAGE_MAP is DERIVED from this — two
+// hand-maintained maps had already diverged (the store's carried
+// guwahati→Assamese, a language the app cannot speak; this one didn't).
+// Every value here is one of the 11 speakable LangCodes BY TYPE — a map
+// entry can never point at a voiceless language (Bhojpuri/Maithili/
+// Sanskrit/Assamese have no LangCode). detectMapSingleSource.test.ts
+// enforces derivation + the speakable-values law.
 export const CITY_TO_LANG: Record<string, LangCode> = {
-  delhi: "hi", "new delhi": "hi", noida: "hi", gurugram: "hi", gurgaon: "hi",
-  ghaziabad: "hi", faridabad: "hi", lucknow: "hi", varanasi: "hi", patna: "hi",
-  jaipur: "hi", bhopal: "hi", indore: "hi", kanpur: "hi", agra: "hi",
-  mumbai: "mr", pune: "mr", nagpur: "mr", nashik: "mr",
-  kolkata: "bn", howrah: "bn",
-  chennai: "ta", madurai: "ta", coimbatore: "ta",
-  hyderabad: "te", vijayawada: "te", visakhapatnam: "te",
-  bengaluru: "kn", bangalore: "kn", mysuru: "kn",
+  delhi: "hi", "new delhi": "hi", noida: "hi", "greater noida": "hi",
+  gurugram: "hi", gurgaon: "hi", ghaziabad: "hi", faridabad: "hi",
+  lucknow: "hi", varanasi: "hi", patna: "hi", kanpur: "hi", agra: "hi",
+  prayagraj: "hi", allahabad: "hi", mathura: "hi", haridwar: "hi",
+  rishikesh: "hi", dehradun: "hi", gorakhpur: "hi",
+  jaipur: "hi", udaipur: "hi", jodhpur: "hi", ajmer: "hi",
+  bhopal: "hi", indore: "hi", ujjain: "hi", gwalior: "hi",
+  mumbai: "mr", pune: "mr", nagpur: "mr", nashik: "mr", aurangabad: "mr",
+  kolkata: "bn", howrah: "bn", siliguri: "bn", durgapur: "bn",
+  chennai: "ta", madurai: "ta", coimbatore: "ta", trichy: "ta",
+  hyderabad: "te", vijayawada: "te", visakhapatnam: "te", warangal: "te",
+  bengaluru: "kn", bangalore: "kn", mysuru: "kn", mysore: "kn", hubli: "kn",
   ahmedabad: "gu", surat: "gu", vadodara: "gu", rajkot: "gu",
   amritsar: "pa", ludhiana: "pa", chandigarh: "pa",
-  kochi: "ml", thiruvananthapuram: "ml", kozhikode: "ml",
+  kochi: "ml", thiruvananthapuram: "ml", kozhikode: "ml", thrissur: "ml",
   bhubaneswar: "or", cuttack: "or",
 };
 

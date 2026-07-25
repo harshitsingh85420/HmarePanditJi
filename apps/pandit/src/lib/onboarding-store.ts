@@ -5,6 +5,7 @@
 // ─────────────────────────────────────────────────────────────
 
 import { logger } from '@/utils/logger'
+import { CITY_TO_LANG, type LangCode } from './languageDetect'
 
 export type SupportedLanguage =
   | 'Hindi' | 'Bhojpuri' | 'Maithili' | 'Bengali' | 'Tamil'
@@ -141,42 +142,20 @@ export const TUTORIAL_PHASE_ORDER: OnboardingPhase[] = [
 ]
 
 // City → Language mapping
-export const CITY_LANGUAGE_MAP: Record<string, SupportedLanguage> = {
-  // UP/Bihar/Jharkhand → Hindi
-  varanasi: 'Hindi', lucknow: 'Hindi', patna: 'Hindi', allahabad: 'Hindi',
-  prayagraj: 'Hindi', agra: 'Hindi', mathura: 'Hindi', haridwar: 'Hindi',
-  rishikesh: 'Hindi', dehradun: 'Hindi', kanpur: 'Hindi', gorakhpur: 'Hindi',
-  // Delhi NCR → Hindi
-  delhi: 'Hindi', 'new delhi': 'Hindi', noida: 'Hindi', gurgaon: 'Hindi',
-  faridabad: 'Hindi', ghaziabad: 'Hindi', 'greater noida': 'Hindi',
-  // Rajasthan → Hindi
-  jaipur: 'Hindi', udaipur: 'Hindi', jodhpur: 'Hindi', ajmer: 'Hindi',
-  // MP → Hindi
-  bhopal: 'Hindi', indore: 'Hindi', ujjain: 'Hindi', gwalior: 'Hindi',
-  // Bengal → Bengali
-  kolkata: 'Bengali', siliguri: 'Bengali', durgapur: 'Bengali', howrah: 'Bengali',
-  // Tamil Nadu → Tamil
-  chennai: 'Tamil', madurai: 'Tamil', coimbatore: 'Tamil', trichy: 'Tamil',
-  // Andhra/Telangana → Telugu
-  hyderabad: 'Telugu', vijayawada: 'Telugu', visakhapatnam: 'Telugu', warangal: 'Telugu',
-  // Maharashtra → Marathi
-  mumbai: 'Marathi', pune: 'Marathi', nashik: 'Marathi', nagpur: 'Marathi',
-  aurangabad: 'Marathi',
-  // Gujarat → Gujarati
-  ahmedabad: 'Gujarati', surat: 'Gujarati', vadodara: 'Gujarati', rajkot: 'Gujarati',
-  // Karnataka → Kannada
-  bengaluru: 'Kannada', bangalore: 'Kannada', mysuru: 'Kannada', mysore: 'Kannada',
-  hubli: 'Kannada',
-  // Kerala → Malayalam
-  kochi: 'Malayalam', thiruvananthapuram: 'Malayalam', kozhikode: 'Malayalam',
-  thrissur: 'Malayalam',
-  // Odisha → Odia
-  bhubaneswar: 'Odia', cuttack: 'Odia',
-  // Punjab → Punjabi
-  chandigarh: 'Punjabi', amritsar: 'Punjabi', ludhiana: 'Punjabi',
-  // Assam → Assamese
-  guwahati: 'Assamese',
+// SINGLE-SOURCE LAW (Isj ruling, 2026-07-25): DERIVED from languageDetect's
+// CITY_TO_LANG — never a second hand-maintained table. The old literal map
+// here had diverged from the one the confirm screen actually uses, and
+// carried guwahati→Assamese: a detect result the app can neither confirm
+// (no LANG_CONFIRM entry) nor speak (no bulbul voice). Derivation from the
+// LangCode-typed source makes every value speakable BY CONSTRUCTION.
+const CODE_TO_SUPPORTED_NAME: Record<LangCode, SupportedLanguage> = {
+  hi: 'Hindi', mr: 'Marathi', bn: 'Bengali', ta: 'Tamil', te: 'Telugu',
+  kn: 'Kannada', gu: 'Gujarati', pa: 'Punjabi', ml: 'Malayalam',
+  or: 'Odia', en: 'English',
 }
+export const CITY_LANGUAGE_MAP: Record<string, SupportedLanguage> = Object.fromEntries(
+  Object.entries(CITY_TO_LANG).map(([city, code]) => [city, CODE_TO_SUPPORTED_NAME[code]]),
+)
 
 export function detectLanguageFromCity(city: string): SupportedLanguage {
   const normalized = city.toLowerCase().trim()
