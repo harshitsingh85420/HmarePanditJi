@@ -1,0 +1,78 @@
+{
+ "abuse": [
+  {
+   "name": "placeholder-as-typed",
+   "value": "98765 43210",
+   "echoed": "9876543210",
+   "advanced": false,
+   "error": "कुछ गड़बड़ हो गई। दोबारा कोशिश कीजिए।"
+  },
+  {
+   "name": "plus91-prefixed",
+   "value": "+919876500050",
+   "echoed": "9876500050",
+   "advanced": false,
+   "error": "कुछ गड़बड़ हो गई। दोबारा कोशिश कीजिए।"
+  },
+  {
+   "name": "devanagari-digits",
+   "value": "१२३४५६७८९०",
+   "echoed": "1234567890",
+   "advanced": false,
+   "error": "कृपया 10 अंकों का मोबाइल नंबर डालिए।"
+  },
+  {
+   "name": "letters-x10",
+   "value": "abcdefghij",
+   "echoed": "",
+   "advanced": false,
+   "error": "कृपया 10 अंकों का मोबाइल नंबर डालिए।"
+  },
+  {
+   "name": "short-5",
+   "value": "12345",
+   "echoed": "12345",
+   "advanced": false,
+   "error": "कृपया 10 अंकों का मोबाइल नंबर डालिए।"
+  },
+  {
+   "name": "leading-zero-10",
+   "value": "0555555555",
+   "echoed": "0555555555",
+   "advanced": false,
+   "error": "कृपया 10 अंकों का मोबाइल नंबर डालिए।"
+  },
+  {
+   "name": "paste-formatted",
+   "value": "+91 98765-43210",
+   "echoed": "9876543210",
+   "advanced": false,
+   "error": "कुछ गड़बड़ हो गई। दोबारा कोशिश कीजिए।"
+  }
+ ],
+ "otp": {
+  "entered": false
+ },
+ "voicedebug": [
+  "09:33:23.300 speak \"कुछ गड़बड़ हो गई। दोबारा कोशिश कीजिए।\" lang=hi-IN",
+  "09:33:27.561 speak \"कुछ गड़बड़ हो गई। दोबारा कोशिश कीजिए।\" lang=hi-IN",
+  "09:33:31.668 speak \"कृपया 10 अंकों का मोबाइल नंबर डालिए।\" lang=hi-IN",
+  "09:33:35.938 speak \"कृपया 10 अंकों का मोबाइल नंबर डालिए।\" lang=hi-IN",
+  "09:33:40.186 speak \"कृपया 10 अंकों का मोबाइल नंबर डालिए।\" lang=hi-IN",
+  "09:33:44.434 speak \"कृपया 10 अंकों का मोबाइल नंबर डालिए।\" lang=hi-IN",
+  "09:33:48.926 speak \"कुछ गड़बड़ हो गई। दोबारा कोशिश कीजिए।\" lang=hi-IN",
+  "09:33:53.084 speak \"कुछ गड़बड़ हो गई। दोबारा कोशिश कीजिए।\" lang=hi-IN"
+ ],
+ "errs": [
+  "Access to fetch at 'https://hmarepanditji-api.onrender.com/health' from origin 'http://loc",
+  "Failed to load resource: net::ERR_FAILED",
+  "Access to fetch at 'https://hmarepanditji-api.onrender.com/api/v1/auth/otp/send' from orig",
+  "Failed to load resource: net::ERR_FAILED",
+  "Access to fetch at 'https://hmarepanditji-api.onrender.com/api/v1/auth/otp/send' from orig",
+  "Failed to load resource: net::ERR_FAILED",
+  "Access to fetch at 'https://hmarepanditji-api.onrender.com/api/v1/auth/otp/send' from orig",
+  "Failed to load resource: net::ERR_FAILED",
+  "Access to fetch at 'https://hmarepanditji-api.onrender.com/api/v1/auth/otp/send' from orig",
+  "Failed to load resource: net::ERR_FAILED"
+ ]
+}

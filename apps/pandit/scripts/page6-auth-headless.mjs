@@ -33,7 +33,7 @@ await page.screenshot({ path: join(OUT, "step1-phone.png") });
 const phoneInput = page.locator('input[type="tel"]').first();
 const readState = () => page.evaluate(() => {
   const body = document.body.innerText;
-  const m = body.match(/कुछ गड़बड़.*|बहुत बार.*/); // '.' stops at line end
+  const m = body.match(/कुछ गड़बड़.*|बहुत बार.*|कृपया 10.*|OTP सही नहीं.*/); // '.' stops at line end
   return { error: m ? m[0].slice(0, 90) : "", step2: body.includes("OTP डालिए"), text: body.slice(0, 60) };
 });
 

@@ -1,0 +1,51 @@
+{
+ "fresh": {
+  "text": "🐞\n36\narrow_back\nबस दो बातें बताइए\n\nबोलकर या टाइप करके — जैसे आसान लगे\n\n🙏\nआपका नाम*\n🏙️\nआपका शहर*\nखाता बनाइए\narrow_forward\nबाकी सब मैं देख लूँगा 🙏\n🙏\nशिष्य",
+  "ctaKhata": true
+ },
+ "cityPrefill": "वाराणसी",
+ "abuse_emptyName": "नाम कम से कम 3 वर्णों का होना चाहिए",
+ "abuse_shortName": "नाम कम से कम 3 वर्णों का होना चाहिए",
+ "longNameEchoLen": 246,
+ "abuse_emptyCity": "शहर का नाम आवश्यक है",
+ "afterF5": {
+  "name": "पंडित परीक्षण शर्मा",
+  "city": "काशी"
+ },
+ "submitFailCopy": "(no visible error)",
+ "flowC": {
+  "ctaComplete": true
+ },
+ "backLands": {
+  "phase": "TUTORIAL",
+  "slide": 6
+ },
+ "narration": [
+  "09:34:23.863 speak \"आप किस शहर में रहते हैं? नीचे लिखिए या स\" lang=hi-IN",
+  "09:34:29.379 speak \"आप किस शहर में रहते हैं? नीचे लिखिए या स\" lang=hi-IN",
+  "09:34:30.357 speak \"इंटरनेट टूट गया — आपकी बात सुरक्षित है, \" lang=hi-IN",
+  "09:34:36.329 speak \"नमस्ते पंडित जी!\" lang=hi-IN",
+  "09:34:36.630 speak \"पंडित जी, बस अपना नाम बताइए — आपकी प्रोफ\" lang=hi-IN",
+  "09:34:36.879 speak \"पंडित जी, कृपया अपना पूरा नाम लिखिए।\" lang=hi-IN",
+  "09:34:36.880 speak \"आप किस शहर में रहते हैं? नीचे लिखिए या स\" lang=hi-IN",
+  "09:34:42.574 speak \"सब समझ गए? बस दो मिनट का रजिस्ट्रेशन बाक\" lang=hi-IN"
+ ],
+ "errs": [
+  "Access to fetch at 'https://hmarepanditji-api.onrender.com/health' from origin 'http://loc",
+  "Failed to load resource: net::ERR_FAILED",
+  "Access to fetch at 'https://hmarepanditji-api.onrender.com/health' from origin 'http://loc",
+  "Failed to load resource: net::ERR_FAILED",
+  "Access to fetch at 'https://hmarepanditji-api.onrender.com/api/v1/auth/me' from origin 'ht",
+  "Failed to load resource: net::ERR_FAILED",
+  "Access to fetch at 'https://hmarepanditji-api.onrender.com/health' from origin 'http://loc",
+  "Failed to load resource: net::ERR_FAILED",
+  "Access to fetch at 'https://hmarepanditji-api.onrender.com/api/v1/auth/me' from origin 'ht",
+  "Failed to load resource: net::ERR_FAILED",
+  "Access to fetch at 'https://hmarepanditji-api.onrender.com/api/v1/pandit/onboarding' from ",
+  "Failed to load resource: net::ERR_FAILED",
+  "Access to fetch at 'https://hmarepanditji-api.onrender.com/health' from origin 'http://loc",
+  "Failed to load resource: net::ERR_FAILED",
+  "Access to fetch at 'https://hmarepanditji-api.onrender.com/api/v1/auth/me' from origin 'ht",
+  "Failed to load resource: net::ERR_FAILED"
+ ]
+}

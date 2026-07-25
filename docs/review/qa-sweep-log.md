@@ -156,6 +156,26 @@ that would weaken a guard). Flag with screen + problem + proposed fix, keep walk
 
 ---
 
+### PAGE 6 ADDENDUM — AUTH COPY + NORMALIZATION FIXES (Isj order, 2026-07-25) — SHIPPED & RE-VERIFIED
+
+Three-way error split (strings single-sourced in the auth block): bad phone → "कृपया 10 अंकों का मोबाइल नंबर डालिए।" (client gate now mirrors the server's [6-9]\d{9} law; invalid_phone_number from the API maps here too); wrong OTP → "OTP सही नहीं है। कृपया फिर से देखकर डालिए।" **+ boxes clear + focus box 1** (auto-verify re-fires without six backspaces); network/API failure keeps the honest generic. Typed path now normalizes through voiceParse (SINGLE-SOURCE with the voice path — same module): Devanagari→ASCII (the voice path gained this too), separators/+91/91/0 stripped, capped 10; placeholder is now an input the validator accepts ("9876543210"); inputMode numeric + maxLength 18 (14 first — it truncated 15-char formatted pastes BEFORE normalization, caught by the re-verify, widened). Guard authErrorCopy.test.ts (10 tests, PROVEN-TO-FAIL 10-red first). HEADLESS RE-VERIFY on the final bundle (shots page6-fixed/): placeholder-as-typed echoes 9876543210 → real send → network-generic ✓; Devanagari echoes 1234567890 → phoneInvalid ✓; letters echo "" → phoneInvalid ✓; paste-formatted echoes the full 10 ✓. MERGE-DAY LIST +3: the hold branch adopts these exact strings, the normalizer, and the boxes-clear behavior; attempt caps remain hold-branch semantics.
+
+### PAGE 7 · पंजीकरण (RegistrationScreen — FLOW C single-screen form) — **PASS with 2 observations** · 2026-07-25 · headless eye
+
+**STRUCTURAL HEADLINE:** पंजीकरण is NOT a wizard — one screen, two fields (name + city), voice-first; the entire (registration) route group is dead redirect stubs (each page redirects to /onboarding|/login). The "wizard" of the journey map is this form.
+
+**§1 THREE ENTRIES WALKED:** fresh (token, no flag) → "बस दो बातें बताइए" + CTA "खाता बनाइए" ✓ shot; **FLOW C** (hpj_returning_incomplete="1") → CTA flips "प्रोफ़ाइल पूरी कीजिए" ✓ shot; token-less → phase AUTH → /login (source-pinned). Resume rule: /auth/me success+complete → /home; ANY failure (incl. the local CORS block) → FLOW C by design.
+**§2** Two VoiceFields (mode=text, required, bare) + CTA + back circle + orb; voice commands: हाँ/आगे/खाता-बनाओ = submit, पीछे = back; J2 mic-yield between fields.
+**§3** Field floors per VoiceField (56px min, 20-23px text) ✓ shots.
+**§4 ABUSE:** empty name → "नाम कम से कम 3 वर्णों का होना चाहिए" (shown+spoken ✓ this screen already has actionable copy); 2-char name → same ✓; empty city → "शहर का नाम आवश्यक है" ✓; **OBSERVATION 1: roman name "Pt. Ramesh Sharma" accepted silently** (no script rule — user data, not UI copy; flag for Isj's call, likely fine); **OBSERVATION 2: no client length cap — a 246-char name echoes fully** (server truth unknown from local; queue a prod-side check). City prefills from detection (वाराणसी) and a restored draft blocks re-prefill.
+**§5 THE PROTOCOL'S QUESTION — mid-form F5: DATA SURVIVES.** Both fields write-through persist PER KEYSTROKE (zustand hpj-registration); typed "पंडित परीक्षण शर्मा"/"काशी" → F5 → both restored, IN PIXELS (after-f5.png). Known edges (source): detection-prefilled city is local-only until edited (F5 re-prefills — harmless); the returning flag is sessionStorage (new tab downgrades the CTA silently — minor); QuotaExceeded swallows writes silently (BUG-024 stands).
+**§6** Back (screen + hardware) → TUTORIAL slide 6 ✓ walked (state proof). Submit success → celebration → /home (API-dependent; celebration unreachable locally — env note).
+**§7** Field narration heard: name prompt + "आप किस शहर में रहते हैं? नीचे लिखिए या सूची से चुनिए।" — **nit: the city prompt promises a सूची that does not exist on this screen** (free text only; copy inherited from the old city-list screen — queue a one-word copy fix with Isj). Failed submit SPEAKS "इंटरनेट टूट गया — आपकी बात सुरक्षित है…" — the data-safe promise, TRUE (per §5). 
+**§8** Canon पंजीकरण port (BATCH 2A hero heading/field cards) stands in the fresh shots.
+**§9** Register clean; EMOJI: 🎉 (celebration, source) — nothing new. **§10** none — two fields, one CTA, always-enabled with validation-on-tap (right for this persona). **§11** Zero app errors (health-ping CORS noise only).
+
+---
+
 ### PAGE 6 · AUTH (लॉगिन/रजिस्ट्रेशन + OTP — /login) — **PASS with 4 findings (main's pre-hardening shape, as ordered)** · 2026-07-25 · headless eye
 
 **P0 PRELUDE (same turn): the mic-grant record fix SHIPPED + deploy-verified 7e8bdf8** — single-source writers (micPermission.ts), TutorialV2 settleMicPerm choke, VoiceRoot mount reconciler, micGrantRecord.test.tsx (proven-to-fail 3-red first), 9 direct writers rewired, headless pregranted re-prove: deck exit micLS='true' + listen loop ARMED (paused=false). Wall 66/769 green.
