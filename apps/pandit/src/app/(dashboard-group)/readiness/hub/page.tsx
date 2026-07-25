@@ -44,7 +44,7 @@ import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
 import { Narrate } from "@/hooks/useScreenVoice";
 
 const AREAS = [
-  { step: 1, icon: "temple_hindu", label: "पूजाएँ व दक्षिणा" },
+  { step: 1, icon: "temple_hindu", label: "पूजाएँ और दक्षिणा" },
   { step: 2, icon: "inventory_2", label: "सामग्री" },
   { step: 3, icon: "directions_car", label: "यात्रा" },
   { step: 4, icon: "restaurant", label: "भोजन व ठहराव" },

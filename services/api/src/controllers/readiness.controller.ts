@@ -22,7 +22,11 @@ const BUS_TYPES = ["AC", "NON_AC"];
 const EXCLUSIONS = ["NO_FLIGHT", "NO_NIGHT", "NONE"];
 const DIETARY = ["ANY", "PURE_VEG", "JAIN", "VEGAN"];
 const HOTEL_TIERS = ["BUDGET", "THREE_STAR", "FOUR_STAR_PLUS"];
-const KM_STEPS = [25, 50, 100, 200, 500];
+// PAGE 8 P1 (Isj option (a), 2026-07-25): the client's designed pills
+// include 10 (nearby-only pandits) and 999 (the "100+ km" encoding) -
+// the old list 400-failed both. kmPresetsWhitelist.test.ts (pandit app)
+// pins client presets as a subset of this list.
+const KM_STEPS = [10, 25, 50, 100, 200, 500, 999];
 
 function badRequest(reply: FastifyReply, message: string) {
   return reply.status(400).send({

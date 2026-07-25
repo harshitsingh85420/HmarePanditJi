@@ -37,8 +37,12 @@ export function EmergencySOSFloating({ isVisible = true }: EmergencySOSFloatingP
 
   if (!isVisible) return null
 
+  // PAGE 8 finding (2026-07-25): bottom-6 sat the FAB directly on the
+  // footer orb dock (the one-orb law's single voice control) at 390px.
+  // bottom-[104px] clears the ~96px footer band on every dashboard
+  // screen — SOS and the orb both whole, both tappable.
   return (
-    <div className="fixed bottom-6 right-4 z-50 flex flex-col items-end gap-3">
+    <div className="fixed bottom-[104px] right-4 z-50 flex flex-col items-end gap-3">
       {/* Expanded quick-action: call the support team. There is NO "call
           family" affordance — the app collects no family contact, so a
           button labelled "call family" would be a false safety promise
