@@ -285,7 +285,12 @@ export function ShishyaMuteControl({ className = "" }: { className?: string }) {
     <button
       onClick={() => voiceController.setMuted(false)}
       aria-label={t("shishya.a11yWakeControl")}
-      className={`min-h-[52px] px-3.5 flex items-center justify-center gap-1.5 whitespace-nowrap w-max mx-auto rounded-full bg-card border border-saffron-200 shadow-card active:scale-95 transition-transform ${className}`}
+      // self-center (NOT mx-auto): in the orb column's flex context, cross-axis
+      // auto margins beat items-center and zero out when the w-max pill
+      // overflows the 84px column — leaving it flush-left (~10px off the orb
+      // axis, caught by the PAGE 4 screenshot pass). align-self centers an
+      // overflowing flex item symmetrically on the axis.
+      className={`min-h-[52px] px-3.5 flex items-center justify-center gap-1.5 whitespace-nowrap w-max self-center rounded-full bg-card border border-saffron-200 shadow-card active:scale-95 transition-transform ${className}`}
     >
       <span className="material-symbols-outlined text-[19px] leading-none text-softgrey" aria-hidden="true">
         light_mode
