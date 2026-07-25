@@ -1,6 +1,17 @@
 /**
  * Tutorial Translations for Part 0 (S-0.1 to S-0.12)
  * Supports: Hindi, Tamil, Telugu, Bengali, Marathi, Gujarati, Kannada, Malayalam
+ *
+ * ── QUARANTINE (Isj ruling, 2026-07-25) ──────────────────────────────
+ * The non-Hindi rows here are MACHINE-GENERATED and FAILED the 11-language
+ * register audit at the shishya bar: Marathi runs तुम्ही-register
+ * throughout (18 defect rows), Tamil contains the Turkish word "için"
+ * twice and at least one non-word. They are LATENT today — every
+ * TutorialShell caller leaves `language` unset, so the deck renders the
+ * reviewed Hindi only. DO NOT wire the language prop until this corpus
+ * has passed a real register review (tutorialCorpusQuarantine.test.ts
+ * fails the build if a caller flips it). The audit's per-row fixes are
+ * recorded in docs/review/qa-sweep-log.md (PAGE 4 ride-along).
  */
 
 import type { SupportedLanguage } from './onboarding-store';
