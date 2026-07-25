@@ -1,0 +1,57 @@
+[
+ {
+  "code": "bn",
+  "errsBefore": 0,
+  "measure": {
+   "truth": {
+    "q": true,
+    "yes": true,
+    "other": true
+   },
+   "H1": {
+    "w": 336,
+    "h": 66,
+    "font": "24px",
+    "clip": false
+   },
+   "yes": {
+    "w": 336,
+    "h": 64,
+    "font": "20px",
+    "clip": false
+   },
+   "other": {
+    "w": 336,
+    "h": 56,
+    "font": "18px",
+    "clip": false
+   }
+  },
+  "loaderText": true,
+  "after": {
+   "phase": "PARICHAY",
+   "selected": "Bengali",
+   "preferred": "bn",
+   "chain": [
+    "07:39:07.142 prefetch cached: \"क्षमा कीजिए पंडित जी, इस…\"",
+    "07:39:32.780 speak \"চমৎকার! এখন আমরা বাংলায় কথা বলব।\" lang=bn-IN",
+    "07:39:32.833 speak \"নমস্কার পণ্ডিত! আমি আপনার শিষ্য, এবং আমি\" lang=bn-IN",
+    "07:39:32.839 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=bn-IN pace=1.15 micLive=false len=33",
+    "07:39:32.840 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=bn-IN pace=1.15 micLive=false len=66",
+    "07:39:36.646 prefetch cached: \"কিছু বলুন - উদাহরণস্বরূপ…\"",
+    "07:39:38.204 speak \"উপরের \"পারমিশন\" বোতামে ট্যাপ করুন।\" lang=bn-IN",
+    "07:39:38.214 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=bn-IN pace=1.15 micLive=false len=34",
+    "07:39:38.220 speak \"কোন অসুবিধা নেই - কেবল বোতামটি পুনরায় চ\" lang=bn-IN",
+    "07:39:38.234 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=bn-IN pace=1.15 micLive=false len=88",
+    "07:39:41.269 prefetch cached: \"নমস্কার পণ্ডিত! আমি আপনা…\"",
+    "07:39:43.512 tts status 200",
+    "07:39:44.380 prefetch cached: \"উপরের \"পারমিশন\" বোতামে ট…\"",
+    "07:39:48.561 prefetch cached: \"পন্ডিত, ধন্যবাদ! আমি এখন…\"",
+    "07:39:49.985 prefetch cached: \"নমস্কার পণ্ডিত! আমি একজন…\"",
+    "07:39:50.641 audio ended"
+   ]
+  },
+  "errs": [],
+  "ok": true
+ }
+]

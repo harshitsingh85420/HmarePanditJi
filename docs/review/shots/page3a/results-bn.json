@@ -1,0 +1,60 @@
+[
+ {
+  "code": "bn",
+  "errsBefore": 1,
+  "measure": {
+   "truth": {
+    "q": true,
+    "yes": true,
+    "other": true
+   },
+   "H1": {
+    "w": 336,
+    "h": 66,
+    "font": "24px",
+    "clip": false
+   },
+   "yes": {
+    "w": 336,
+    "h": 64,
+    "font": "20px",
+    "clip": false
+   },
+   "other": {
+    "w": 336,
+    "h": 56,
+    "font": "18px",
+    "clip": false
+   }
+  },
+  "loaderText": true,
+  "after": {
+   "phase": "PARICHAY",
+   "selected": "Hindi",
+   "preferred": "bn",
+   "chain": [
+    "07:19:57.408 prefetch cached: \"सही है? हाँ या नहीं बोलि…\"",
+    "07:19:58.566 prefetch cached: \"आगे बढ़िए? 'हाँ' बोलिए।…\"",
+    "07:19:59.011 prefetch cached: \"अपना शहर चुनिए — नीचे बड…\"",
+    "07:20:00.222 prefetch cached: \"जी पंडित जी, मैं फिर हाज…\"",
+    "07:20:01.754 prefetch cached: \"एक क्षण, सोच रहा हूँ……\"",
+    "07:20:02.865 prefetch cached: \"जी, देखता हूँ……\"",
+    "07:20:04.167 prefetch cached: \"बस अभी बताता हूँ……\"",
+    "07:20:04.998 speak \"অনুবাদ এখন উপলব্ধ নেই — আমরা হিন্দিতে চা\" lang=bn-IN",
+    "07:20:05.016 speak \"नमस्ते पंडित जी! मैं आपका शिष्य हूँ, और \" lang=hi-IN",
+    "07:20:05.018 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=bn-IN pace=1.15 micLive=false len=50",
+    "07:20:05.021 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=hi-IN pace=1.15 micLive=false len=68",
+    "07:20:07.291 prefetch cached: \"कुछ भी बोलकर देखिए — जैस…\"",
+    "07:20:08.605 speak \"ऊपर 'अनुमति दें' दबा दीजिए।\" lang=hi-IN",
+    "07:20:08.606 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=hi-IN pace=1.15 micLive=false len=27",
+    "07:20:08.626 speak \"कोई बात नहीं — एक बार फिर बटन दबाइए और ऊ\" lang=hi-IN",
+    "07:20:08.639 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=hi-IN pace=1.15 micLive=false len=62"
+   ]
+  },
+  "errs": [
+   "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+   "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+  ],
+  "ok": true
+ }
+]

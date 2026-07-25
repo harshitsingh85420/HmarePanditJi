@@ -1,0 +1,62 @@
+[
+ {
+  "code": "or",
+  "errsBefore": 1,
+  "measure": {
+   "truth": {
+    "q": true,
+    "yes": true,
+    "other": true
+   },
+   "H1": {
+    "w": 336,
+    "h": 66,
+    "font": "24px",
+    "clip": false
+   },
+   "yes": {
+    "w": 336,
+    "h": 64,
+    "font": "20px",
+    "clip": false
+   },
+   "other": {
+    "w": 336,
+    "h": 56,
+    "font": "18px",
+    "clip": false
+   }
+  },
+  "loaderText": true,
+  "after": {
+   "phase": "PARICHAY",
+   "selected": "Hindi",
+   "preferred": "or",
+   "chain": [
+    "07:25:24.823 prefetch cached: \"अपना शहर चुनिए — नीचे बड…\"",
+    "07:25:25.862 prefetch cached: \"आगे बढ़िए? 'हाँ' बोलिए।…\"",
+    "07:25:27.306 prefetch cached: \"जी पंडित जी, मैं फिर हाज…\"",
+    "07:25:28.856 prefetch cached: \"एक क्षण, सोच रहा हूँ……\"",
+    "07:25:30.115 prefetch cached: \"जी, देखता हूँ……\"",
+    "07:25:31.177 prefetch cached: \"बस अभी बताता हूँ……\"",
+    "07:25:31.950 speak \"ଅନୁବାଦ ବର୍ତ୍ତମାନ ଉପଲବ୍ଧ ନାହିଁ — ଆମେ ହିନ୍\" lang=or-IN",
+    "07:25:31.965 speak \"नमस्ते पंडित जी! मैं आपका शिष्य हूँ, और \" lang=hi-IN",
+    "07:25:31.967 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=or-IN pace=1.15 micLive=false len=57",
+    "07:25:31.968 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=hi-IN pace=1.15 micLive=false len=68",
+    "07:25:34.564 prefetch cached: \"कुछ भी बोलकर देखिए — जैस…\"",
+    "07:25:35.885 speak \"ऊपर 'अनुमति दें' दबा दीजिए।\" lang=hi-IN",
+    "07:25:35.886 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=hi-IN pace=1.15 micLive=false len=27",
+    "07:25:35.900 speak \"कोई बात नहीं — एक बार फिर बटन दबाइए और ऊ\" lang=hi-IN",
+    "07:25:35.910 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=hi-IN pace=1.15 micLive=false len=62",
+    "07:25:35.966 prefetch cached: \"क्षमा कीजिए पंडित जी, इस…\""
+   ]
+  },
+  "errs": [
+   "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+   "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+   "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+   "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+  ],
+  "ok": true
+ }
+]

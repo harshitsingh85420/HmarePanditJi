@@ -156,6 +156,34 @@ that would weaken a guard). Flag with screen + problem + proposed fix, keep walk
 
 ---
 
+### PAGE 3-A · भाषा LANGUAGE MATRIX — **CLOSED (2026-07-25)** · 11/11 rows · headless eye (VISION UPGRADE)
+
+**HARNESS:** `apps/pandit/scripts/page3a-headless.mjs` — Playwright chromium, headless, 390×844 @ dpr 1, autoplay allowed; per-row: seed → confirm shot → floors/byte-truth evaluate → trusted unlock click → live TTS → fetch-delay → yes → LOADER SHOT (the step that killed the pane 4×: trivial headless) → notice → buffer/state/console. CALIBRATED: the headless ta-confirm matches the pane's banked shot exactly. Shots committed under `docs/review/shots/page3a/`. SCOPE: headless certifies layout/floors/truth; its fallback fonts ≠ an A12's — the device-pass render list (all nine non-Devanagari scripts, since ONLY Devanagari webfonts ship) stands regardless.
+
+**THE MATRIX (evidence: shots + results-*.json + voicedebug):**
+
+| # | lang | detect | render + font | floors (H1/yes/other) | truth | TTS (live bulbul) | notice→Hindi-continues | console |
+|---|---|---|---|---|---|---|---|---|
+| 1 | hi (control) | varanasi ✓shot | ✓ Tiro Devanagari webfont | 24px/66 · 20/64 · 18/56, no clip | 3/3 | hi-IN len88 spoken | N/A — direct advance, pref reset to null ✓ | 0 |
+| 2 | mr | mumbai ✓shot | ✓ Devanagari webfont | same, no clip | 3/3 FIXED strings render | mr-IN len33 200/MISS played | ✓ len48 आपण register + LOADER SHOT (थांबावे…) | 0 |
+| 3 | bn | kolkata ✓shot | ✓ clean; system fallback → device-pass | same | 3/3 | bn-IN len29 played | ✓ len50 PLAYED TO END (queue-law proof) + LOADER SHOT | 0 |
+| 4 | ta | chennai ✓shot | ✓ clean; system fallback → device-pass | same | 3/3 | ta-IN len38 played to end | ✓ len58 played to end (law ×2) + LOADER SHOT (ஒரு கணம்…) | 0 |
+| 5 | te | hyderabad ✓shot | ✓ clean; system fallback → device-pass | same | 3/3 | te-IN len55 played | ✓ loaderText + PARICHAY/Hindi/pref=te | 0 |
+| 6 | kn | bengaluru ✓shot | ✓ clean; system fallback → device-pass | same | 3/3 | kn-IN len47 played | ✓ loaderText + PARICHAY/Hindi/pref=kn | 0 |
+| 7 | gu | ahmedabad ✓shot — FIXED આપ renders | ✓ clean; system fallback → device-pass | same | 3/3 | gu-IN played | ✓ loaderText + pref=gu | 0 |
+| 8 | pa | amritsar ✓shot — BOTH fixed ਜੀ strings render | ✓ clean Gurmukhi; system fallback → device-pass | same | 3/3 | pa-IN played | ✓ loaderText (ਇੱਕ ਪਲ ਜੀ…) + pref=pa | 0 |
+| 9 | ml | kochi ✓shot — FIXED താങ്കൾ renders | ✓ clean stacks; system fallback → device-pass | 24px/99 (3-line q) · 20/64 · 18/62 (2-line), NO clip | 3/3 | ml-IN played | ✓ loaderText + pref=ml | 0 |
+| 10 | or | bhubaneswar ✓shot (ଡ଼ correct) | ✓ clean; system fallback → device-pass | same as core | 3/3 | **🔴 502 ×2 RUNS — or-IN synthesis FAILING at Sarvam while all others pass** → REPORT | ✓ notice ATTEMPTED or-IN len57 (params sent; unspoken due to 502) + loaderText | 502 pair only |
+| 11 | en | **LIST-ONLY** (no city/state detects en — canonical finding) ✓ list shot | ✓ | list tiles ✓ | tile ✓; NOTE: en confirm-strings are unreachable UI (list commits directly) | en-IN notice path | ✓ LOADER SHOT "One moment, please…" (FIXED) + pref=en | 0 |
+
+**PROD SUCCESS-LEG (bn, production URL, headless): THE SUCCESS PATH IS REAL.** With the 75s cold-start law honored: /voice/translate SUCCEEDED → confirmedLine "চমৎকার! এখন আমরা বাংলায় কথা বলব।" spoken bn-IN → **store switched: selectedLanguage=Bengali, preferred=bn → परिचय ran ENTIRELY IN BENGALI** (shot banked: bn-post.png — ribbon/heading/mic-card/CTAs all Bengali). So v1 truly is: success = full app switch to the Mayura-translated bundle; the honesty notice is the FAIL path only (every localhost walk hit it via CORS). **NEW FLAG from the prod shot: the runtime-translated bundle is UNAUDITED MACHINE OUTPUT live on prod** — visible quality issues in one glance ("অশব্দ চলন" for the skip is not natural Bengali; "পারমিশন" transliteration) — same class as the quarantined corpus but user-reachable; the register deny-list guard covers only the static LANG_CONFIRM strings.
+
+**FOR ISJ — the honesty-model ruling now has its complete evidence:** (a) success = real full-app switch into machine-Bengali of visible quality (prod-proven); (b) failure = honesty notice, now guaranteed audible to its end (queue law, proven ×2); (c) or-IN TTS currently 502s (a "speakable" language that cannot speak today); (d) en is list-only with unreachable confirm strings; (e) Assamese detection is dead by construction. Options on the table remain keep / mark-unavailable / detect-confirm-only — now with the true v1 behavior documented on both paths.
+
+**DEVICE-PASS ADDS:** one spoken line per language (11 ears, next to the audio checklist); the nine non-Devanagari confirm screens (render on real A12 fonts); or-IN re-probe once Sarvam recovers.
+
+---
+
 ### PAGE 3-A · भाषा LANGUAGE MATRIX — **IN PROGRESS, HALTED ON VISION (2026-07-25)** · 1/11 rows complete
 
 **SETUP FINDINGS (source-verified before the walk):** (1) **English is LIST-ONLY** — no city and no state maps to `en` in CITY_TO_LANG/STATE_TO_LANG: it can never be detected, only chosen. (2) guwahati maps to 'Assamese' in the STORE's CITY_LANGUAGE_MAP but is absent from the CONFIRM screen's own CITY_TO_LANG → falls to the Hindi default — no crash, but TWO detect maps exist (onboarding-store.ts:144 vs languageDetect.ts:32) = single-source smell, queued. (3) The switch's bundle fetch is POST /voice/translate on the live API — cross-origin from localhost it fails (CORS), so the local walk exercises the FAIL/honesty path for every language; the SUCCESS path (real translation) is prod-only behavior. (4) **Font stack ships ONLY Devanagari webfonts** (Tiro Devanagari Hindi + Noto Sans Devanagari) + Material Symbols — every non-Devanagari script renders on SYSTEM fallback (pane = Windows Nirmala UI; an A12 differs) → ALL nine non-Devanagari languages go on the device-pass render list regardless of pane results.

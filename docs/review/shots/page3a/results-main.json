@@ -1,0 +1,507 @@
+[
+ {
+  "code": "te",
+  "errsBefore": 1,
+  "measure": {
+   "truth": {
+    "q": true,
+    "yes": true,
+    "other": true
+   },
+   "H1": {
+    "w": 336,
+    "h": 66,
+    "font": "24px",
+    "clip": false
+   },
+   "yes": {
+    "w": 336,
+    "h": 64,
+    "font": "20px",
+    "clip": false
+   },
+   "other": {
+    "w": 336,
+    "h": 56,
+    "font": "18px",
+    "clip": false
+   }
+  },
+  "loaderText": true,
+  "after": {
+   "phase": "PARICHAY",
+   "selected": "Hindi",
+   "preferred": "te",
+   "chain": [
+    "07:20:53.512 audio ended",
+    "07:20:54.285 prefetch cached: \"अपना शहर चुनिए — नीचे बड…\"",
+    "07:20:54.556 prefetch cached: \"आगे बढ़िए? 'हाँ' बोलिए।…\"",
+    "07:20:56.856 prefetch cached: \"जी पंडित जी, मैं फिर हाज…\"",
+    "07:20:58.286 prefetch cached: \"एक क्षण, सोच रहा हूँ……\"",
+    "07:20:59.354 prefetch cached: \"जी, देखता हूँ……\"",
+    "07:21:00.607 prefetch cached: \"बस अभी बताता हूँ……\"",
+    "07:21:01.152 speak \"అనువాదం ప్రస్తుతం అందుబాటులో లేదు — హింద\" lang=te-IN",
+    "07:21:01.168 speak \"नमस्ते पंडित जी! मैं आपका शिष्य हूँ, और \" lang=hi-IN",
+    "07:21:01.170 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=te-IN pace=1.15 micLive=false len=55",
+    "07:21:01.170 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=hi-IN pace=1.15 micLive=false len=68",
+    "07:21:03.626 prefetch cached: \"कुछ भी बोलकर देखिए — जैस…\"",
+    "07:21:05.026 speak \"ऊपर 'अनुमति दें' दबा दीजिए।\" lang=hi-IN",
+    "07:21:05.027 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=hi-IN pace=1.15 micLive=false len=27",
+    "07:21:05.042 speak \"कोई बात नहीं — एक बार फिर बटन दबाइए और ऊ\" lang=hi-IN",
+    "07:21:05.053 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=hi-IN pace=1.15 micLive=false len=62"
+   ]
+  },
+  "errs": [
+   "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+   "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+  ],
+  "ok": true
+ },
+ {
+  "code": "kn",
+  "errsBefore": 3,
+  "measure": {
+   "truth": {
+    "q": true,
+    "yes": true,
+    "other": true
+   },
+   "H1": {
+    "w": 336,
+    "h": 66,
+    "font": "24px",
+    "clip": false
+   },
+   "yes": {
+    "w": 336,
+    "h": 64,
+    "font": "20px",
+    "clip": false
+   },
+   "other": {
+    "w": 336,
+    "h": 56,
+    "font": "18px",
+    "clip": false
+   }
+  },
+  "loaderText": true,
+  "after": {
+   "phase": "PARICHAY",
+   "selected": "Hindi",
+   "preferred": "kn",
+   "chain": [
+    "07:21:01.170 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=hi-IN pace=1.15 micLive=false len=68",
+    "07:21:03.626 prefetch cached: \"कुछ भी बोलकर देखिए — जैस…\"",
+    "07:21:05.026 speak \"ऊपर 'अनुमति दें' दबा दीजिए।\" lang=hi-IN",
+    "07:21:05.027 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=hi-IN pace=1.15 micLive=false len=27",
+    "07:21:05.042 speak \"कोई बात नहीं — एक बार फिर बटन दबाइए और ऊ\" lang=hi-IN",
+    "07:21:05.053 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=hi-IN pace=1.15 micLive=false len=62",
+    "07:21:06.205 speak \"नमस्ते पंडित जी!\" lang=hi-IN",
+    "07:21:06.365 speak \"ನೀವು ಕನ್ನಡದಲ್ಲಿ ಮಾತನಾಡಲು ಬಯಸುವಿರಾ?\" lang=kn-IN",
+    "07:21:08.732 speak \"ನೀವು ಕನ್ನಡದಲ್ಲಿ ಮಾತನಾಡಲು ಬಯಸುವಿರಾ?\" lang=kn-IN",
+    "07:21:08.734 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=kn-IN pace=1.15 micLive=false len=34",
+    "07:21:10.613 tts status 200",
+    "07:21:13.562 audio ended",
+    "07:21:20.647 speak \"ಅನುವಾದ ಸದ್ಯ ಲಭ್ಯವಿಲ್ಲ — ಹಿಂದಿಯಲ್ಲಿ ಮುಂದು\" lang=kn-IN",
+    "07:21:20.657 speak \"नमस्ते पंडित जी! मैं आपका शिष्य हूँ, और \" lang=hi-IN",
+    "07:21:20.657 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=kn-IN pace=1.15 micLive=false len=47",
+    "07:21:20.658 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=hi-IN pace=1.15 micLive=false len=68"
+   ]
+  },
+  "errs": [
+   "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+   "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+  ],
+  "ok": true
+ },
+ {
+  "code": "gu",
+  "errsBefore": 5,
+  "measure": {
+   "truth": {
+    "q": true,
+    "yes": true,
+    "other": true
+   },
+   "H1": {
+    "w": 336,
+    "h": 66,
+    "font": "24px",
+    "clip": false
+   },
+   "yes": {
+    "w": 336,
+    "h": 64,
+    "font": "20px",
+    "clip": false
+   },
+   "other": {
+    "w": 336,
+    "h": 56,
+    "font": "18px",
+    "clip": false
+   }
+  },
+  "loaderText": true,
+  "after": {
+   "phase": "PARICHAY",
+   "selected": "Hindi",
+   "preferred": "gu",
+   "chain": [
+    "07:21:13.562 audio ended",
+    "07:21:20.647 speak \"ಅನುವಾದ ಸದ್ಯ ಲಭ್ಯವಿಲ್ಲ — ಹಿಂದಿಯಲ್ಲಿ ಮುಂದು\" lang=kn-IN",
+    "07:21:20.657 speak \"नमस्ते पंडित जी! मैं आपका शिष्य हूँ, और \" lang=hi-IN",
+    "07:21:20.657 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=kn-IN pace=1.15 micLive=false len=47",
+    "07:21:20.658 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=hi-IN pace=1.15 micLive=false len=68",
+    "07:21:25.661 speak \"नमस्ते पंडित जी!\" lang=hi-IN",
+    "07:21:25.816 speak \"શું આપ ગુજરાતીમાં વાત કરવા માંગો છો?\" lang=gu-IN",
+    "07:21:28.215 speak \"શું આપ ગુજરાતીમાં વાત કરવા માંગો છો?\" lang=gu-IN",
+    "07:21:28.217 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=gu-IN pace=1.15 micLive=false len=36",
+    "07:21:30.407 tts status 200",
+    "07:21:33.373 audio ended",
+    "07:21:40.146 speak \"અનુવાદ હમણાં ઉપલબ્ધ નથી — આપણે હિન્દીમાં\" lang=gu-IN",
+    "07:21:40.151 speak \"नमस्ते पंडित जी! मैं आपका शिष्य हूँ, और \" lang=hi-IN",
+    "07:21:40.152 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=gu-IN pace=1.15 micLive=false len=52",
+    "07:21:40.153 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=hi-IN pace=1.15 micLive=false len=68",
+    "07:21:44.189 tts status 200"
+   ]
+  },
+  "errs": [
+   "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+   "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+  ],
+  "ok": true
+ },
+ {
+  "code": "pa",
+  "errsBefore": 7,
+  "measure": {
+   "truth": {
+    "q": true,
+    "yes": true,
+    "other": true
+   },
+   "H1": {
+    "w": 336,
+    "h": 66,
+    "font": "24px",
+    "clip": false
+   },
+   "yes": {
+    "w": 336,
+    "h": 64,
+    "font": "20px",
+    "clip": false
+   },
+   "other": {
+    "w": 336,
+    "h": 56,
+    "font": "18px",
+    "clip": false
+   }
+  },
+  "loaderText": true,
+  "after": {
+   "phase": "PARICHAY",
+   "selected": "Hindi",
+   "preferred": "pa",
+   "chain": [
+    "07:21:45.036 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=hi-IN pace=1.15 micLive=false len=27",
+    "07:21:45.047 speak \"कोई बात नहीं — एक बार फिर बटन दबाइए और ऊ\" lang=hi-IN",
+    "07:21:45.058 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=hi-IN pace=1.15 micLive=false len=62",
+    "07:21:45.278 speak \"नमस्ते पंडित जी!\" lang=hi-IN",
+    "07:21:45.431 speak \"ਕੀ ਤੁਸੀਂ ਪੰਜਾਬੀ ਵਿੱਚ ਗੱਲ ਕਰਨਾ ਚਾਹੋਗੇ ਜੀ?\" lang=pa-IN",
+    "07:21:47.798 speak \"ਕੀ ਤੁਸੀਂ ਪੰਜਾਬੀ ਵਿੱਚ ਗੱਲ ਕਰਨਾ ਚਾਹੋਗੇ ਜੀ?\" lang=pa-IN",
+    "07:21:47.800 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=pa-IN pace=1.15 micLive=false len=40",
+    "07:21:49.915 tts status 200",
+    "07:21:53.373 audio ended",
+    "07:21:59.710 speak \"ਅਨੁਵਾਦ ਹੁਣੇ ਉਪਲਬਧ ਨਹੀਂ ਜੀ — ਅਸੀਂ ਹਿੰਦੀ ਵ\" lang=pa-IN",
+    "07:21:59.724 speak \"नमस्ते पंडित जी! मैं आपका शिष्य हूँ, और \" lang=hi-IN",
+    "07:21:59.726 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=pa-IN pace=1.15 micLive=false len=57",
+    "07:22:02.939 speak \"ऊपर 'अनुमति दें' दबा दीजिए।\" lang=hi-IN",
+    "07:22:02.940 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=hi-IN pace=1.15 micLive=false len=27",
+    "07:22:02.945 speak \"कोई बात नहीं — एक बार फिर बटन दबाइए और ऊ\" lang=hi-IN",
+    "07:22:02.955 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=hi-IN pace=1.15 micLive=false len=62"
+   ]
+  },
+  "errs": [
+   "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+   "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+  ],
+  "ok": true
+ },
+ {
+  "code": "ml",
+  "errsBefore": 9,
+  "measure": {
+   "truth": {
+    "q": true,
+    "yes": true,
+    "other": true
+   },
+   "H1": {
+    "w": 336,
+    "h": 99,
+    "font": "24px",
+    "clip": false
+   },
+   "yes": {
+    "w": 336,
+    "h": 64,
+    "font": "20px",
+    "clip": false
+   },
+   "other": {
+    "w": 336,
+    "h": 62,
+    "font": "18px",
+    "clip": false
+   }
+  },
+  "loaderText": true,
+  "after": {
+   "phase": "PARICHAY",
+   "selected": "Hindi",
+   "preferred": "ml",
+   "chain": [
+    "07:22:02.940 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=hi-IN pace=1.15 micLive=false len=27",
+    "07:22:02.945 speak \"कोई बात नहीं — एक बार फिर बटन दबाइए और ऊ\" lang=hi-IN",
+    "07:22:02.955 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=hi-IN pace=1.15 micLive=false len=62",
+    "07:22:04.741 speak \"नमस्ते पंडित जी!\" lang=hi-IN",
+    "07:22:04.899 speak \"താങ്കൾ മലയാളത്തിൽ സംസാരിക്കാൻ ആഗ്രഹിക്കു\" lang=ml-IN",
+    "07:22:07.279 speak \"താങ്കൾ മലയാളത്തിൽ സംസാരിക്കാൻ ആഗ്രഹിക്കു\" lang=ml-IN",
+    "07:22:07.281 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=ml-IN pace=1.15 micLive=false len=47",
+    "07:22:09.624 tts status 200",
+    "07:22:12.632 audio ended",
+    "07:22:19.218 speak \"വിവർത്തനം ഇപ്പോൾ ലഭ്യമല്ല — നമുക്ക് ഹിന്\" lang=ml-IN",
+    "07:22:19.221 speak \"नमस्ते पंडित जी! मैं आपका शिष्य हूँ, और \" lang=hi-IN",
+    "07:22:19.221 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=ml-IN pace=1.15 micLive=false len=53",
+    "07:22:21.754 speak \"ऊपर 'अनुमति दें' दबा दीजिए।\" lang=hi-IN",
+    "07:22:21.756 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=hi-IN pace=1.15 micLive=false len=27",
+    "07:22:21.774 speak \"कोई बात नहीं — एक बार फिर बटन दबाइए और ऊ\" lang=hi-IN",
+    "07:22:21.784 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=hi-IN pace=1.15 micLive=false len=62"
+   ]
+  },
+  "errs": [
+   "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+   "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+  ],
+  "ok": true
+ },
+ {
+  "code": "or",
+  "errsBefore": 11,
+  "measure": {
+   "truth": {
+    "q": true,
+    "yes": true,
+    "other": true
+   },
+   "H1": {
+    "w": 336,
+    "h": 66,
+    "font": "24px",
+    "clip": false
+   },
+   "yes": {
+    "w": 336,
+    "h": 64,
+    "font": "20px",
+    "clip": false
+   },
+   "other": {
+    "w": 336,
+    "h": 56,
+    "font": "18px",
+    "clip": false
+   }
+  },
+  "loaderText": true,
+  "after": {
+   "phase": "PARICHAY",
+   "selected": "Hindi",
+   "preferred": "or",
+   "chain": [
+    "07:22:21.756 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=hi-IN pace=1.15 micLive=false len=27",
+    "07:22:21.774 speak \"कोई बात नहीं — एक बार फिर बटन दबाइए और ऊ\" lang=hi-IN",
+    "07:22:21.784 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=hi-IN pace=1.15 micLive=false len=62",
+    "07:22:24.278 speak \"नमस्ते पंडित जी!\" lang=hi-IN",
+    "07:22:24.440 speak \"ଆପଣ ଓଡ଼ିଆରେ କଥା ହେବାକୁ ଚାହାଁନ୍ତି କି?\" lang=or-IN",
+    "07:22:26.846 speak \"ଆପଣ ଓଡ଼ିଆରେ କଥା ହେବାକୁ ଚାହାଁନ୍ତି କି?\" lang=or-IN",
+    "07:22:26.846 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=or-IN pace=1.15 micLive=false len=36",
+    "07:22:26.947 tts status 502 → fallback",
+    "07:22:38.745 speak \"ଅନୁବାଦ ବର୍ତ୍ତମାନ ଉପଲବ୍ଧ ନାହିଁ — ଆମେ ହିନ୍\" lang=or-IN",
+    "07:22:38.758 speak \"नमस्ते पंडित जी! मैं आपका शिष्य हूँ, और \" lang=hi-IN",
+    "07:22:38.761 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=or-IN pace=1.15 micLive=false len=57",
+    "07:22:39.152 speak \"ऊपर 'अनुमति दें' दबा दीजिए।\" lang=hi-IN",
+    "07:22:39.153 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=hi-IN pace=1.15 micLive=false len=27",
+    "07:22:39.157 speak \"कोई बात नहीं — एक बार फिर बटन दबाइए और ऊ\" lang=hi-IN",
+    "07:22:39.168 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=hi-IN pace=1.15 micLive=false len=62",
+    "07:22:42.588 tts status 200"
+   ]
+  },
+  "errs": [
+   "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+   "Failed to load resource: the server responded with a status of 502 (Bad Gateway)",
+   "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+   "Failed to load resource: the server responded with a status of 502 (Bad Gateway)"
+  ],
+  "ok": true
+ },
+ {
+  "code": "en",
+  "errsBefore": 15,
+  "measure": {
+   "truth": {
+    "tile": true
+   },
+   "H1": null,
+   "yes": null,
+   "other": null
+  },
+  "loaderText": true,
+  "after": {
+   "phase": "PARICHAY",
+   "selected": "Hindi",
+   "preferred": "en",
+   "chain": [
+    "07:22:38.761 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=or-IN pace=1.15 micLive=false len=57",
+    "07:22:39.152 speak \"ऊपर 'अनुमति दें' दबा दीजिए।\" lang=hi-IN",
+    "07:22:39.153 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=hi-IN pace=1.15 micLive=false len=27",
+    "07:22:39.157 speak \"कोई बात नहीं — एक बार फिर बटन दबाइए और ऊ\" lang=hi-IN",
+    "07:22:39.168 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=hi-IN pace=1.15 micLive=false len=62",
+    "07:22:42.588 tts status 200",
+    "07:22:43.824 speak \"नमस्ते पंडित जी!\" lang=hi-IN",
+    "07:22:43.989 speak \"अपनी भाषा चुनिए। एक बार छूने पर मैं नाम \" lang=hi-IN",
+    "07:22:46.395 speak \"अपनी भाषा चुनिए। एक बार छूने पर मैं नाम \" lang=hi-IN",
+    "07:22:46.396 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=hi-IN pace=1.15 micLive=false len=88",
+    "07:22:53.675 speak \"Translation is not available right now —\" lang=en-IN",
+    "07:22:53.681 speak \"नमस्ते पंडित जी! मैं आपका शिष्य हूँ, और \" lang=hi-IN",
+    "07:22:53.681 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=en-IN pace=1.15 micLive=false len=67",
+    "07:22:56.762 speak \"ऊपर 'अनुमति दें' दबा दीजिए।\" lang=hi-IN",
+    "07:22:56.763 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=hi-IN pace=1.15 micLive=false len=27",
+    "07:22:56.768 speak \"कोई बात नहीं — एक बार फिर बटन दबाइए और ऊ\" lang=hi-IN"
+   ]
+  },
+  "errs": [
+   "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+   "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+  ],
+  "ok": true
+ },
+ {
+  "code": "hi",
+  "errsBefore": 17,
+  "measure": {
+   "truth": {
+    "q": true,
+    "yes": true,
+    "other": true
+   },
+   "H1": {
+    "w": 336,
+    "h": 66,
+    "font": "24px",
+    "clip": false
+   },
+   "yes": {
+    "w": 336,
+    "h": 64,
+    "font": "20px",
+    "clip": false
+   },
+   "other": {
+    "w": 336,
+    "h": 56,
+    "font": "18px",
+    "clip": false
+   }
+  },
+  "after": {
+   "phase": "PARICHAY",
+   "selected": "Hindi",
+   "preferred": null,
+   "chain": [
+    "07:22:43.989 speak \"अपनी भाषा चुनिए। एक बार छूने पर मैं नाम \" lang=hi-IN",
+    "07:22:46.395 speak \"अपनी भाषा चुनिए। एक बार छूने पर मैं नाम \" lang=hi-IN",
+    "07:22:46.396 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=hi-IN pace=1.15 micLive=false len=88",
+    "07:22:53.675 speak \"Translation is not available right now —\" lang=en-IN",
+    "07:22:53.681 speak \"नमस्ते पंडित जी! मैं आपका शिष्य हूँ, और \" lang=hi-IN",
+    "07:22:53.681 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=en-IN pace=1.15 micLive=false len=67",
+    "07:22:56.762 speak \"ऊपर 'अनुमति दें' दबा दीजिए।\" lang=hi-IN",
+    "07:22:56.763 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=hi-IN pace=1.15 micLive=false len=27",
+    "07:22:56.768 speak \"कोई बात नहीं — एक बार फिर बटन दबाइए और ऊ\" lang=hi-IN",
+    "07:22:58.731 speak \"नमस्ते पंडित जी!\" lang=hi-IN",
+    "07:22:58.895 speak \"हमने आपके क्षेत्र की भाषा हिन्दी पहचानी \" lang=hi-IN",
+    "07:23:01.296 speak \"हमने आपके क्षेत्र की भाषा हिन्दी पहचानी \" lang=hi-IN",
+    "07:23:01.297 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=hi-IN pace=1.15 micLive=false len=64",
+    "07:23:04.623 tts status 200",
+    "07:23:08.344 speak \"नमस्ते पंडित जी! मैं आपका शिष्य हूँ, और \" lang=hi-IN",
+    "07:23:10.157 prefetch cached: \"ऊपर 'अनुमति दें' दबा दीज…\""
+   ]
+  },
+  "errs": [
+   "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+  ],
+  "ok": true
+ },
+ {
+  "code": "mr",
+  "errsBefore": 18,
+  "measure": {
+   "truth": {
+    "q": true,
+    "yes": true,
+    "other": true
+   },
+   "H1": {
+    "w": 336,
+    "h": 66,
+    "font": "24px",
+    "clip": false
+   },
+   "yes": {
+    "w": 336,
+    "h": 64,
+    "font": "20px",
+    "clip": false
+   },
+   "other": {
+    "w": 336,
+    "h": 56,
+    "font": "18px",
+    "clip": false
+   }
+  },
+  "loaderText": true,
+  "after": {
+   "phase": "PARICHAY",
+   "selected": "Hindi",
+   "preferred": "mr",
+   "chain": [
+    "07:23:01.296 speak \"हमने आपके क्षेत्र की भाषा हिन्दी पहचानी \" lang=hi-IN",
+    "07:23:01.297 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=hi-IN pace=1.15 micLive=false len=64",
+    "07:23:04.623 tts status 200",
+    "07:23:08.344 speak \"नमस्ते पंडित जी! मैं आपका शिष्य हूँ, और \" lang=hi-IN",
+    "07:23:10.157 prefetch cached: \"ऊपर 'अनुमति दें' दबा दीज…\"",
+    "07:23:11.500 speak \"नमस्ते पंडित जी!\" lang=hi-IN",
+    "07:23:11.654 speak \"आपल्याला मराठीत बोलायला आवडेल का?\" lang=mr-IN",
+    "07:23:14.043 speak \"आपल्याला मराठीत बोलायला आवडेल का?\" lang=mr-IN",
+    "07:23:14.044 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=mr-IN pace=1.15 micLive=false len=33",
+    "07:23:15.762 tts status 200",
+    "07:23:18.165 audio ended",
+    "07:23:25.937 speak \"भाषांतर सध्या उपलब्ध नाही — आपण हिंदीत प\" lang=mr-IN",
+    "07:23:25.948 speak \"नमस्ते पंडित जी! मैं आपका शिष्य हूँ, और \" lang=hi-IN",
+    "07:23:25.952 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=mr-IN pace=1.15 micLive=false len=48",
+    "07:23:28.590 speak \"ऊपर 'अनुमति दें' दबा दीजिए।\" lang=hi-IN",
+    "07:23:28.606 speak \"कोई बात नहीं — एक बार फिर बटन दबाइए और ऊ\" lang=hi-IN"
+   ]
+  },
+  "errs": [
+   "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+   "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+  ],
+  "ok": true
+ }
+]
