@@ -4,6 +4,7 @@
 export const dynamic = "force-dynamic";
 
 import React, { useState, useEffect, useRef } from "react";
+import { normalizePhoneInput } from "@/lib/voiceParse";
 import { setToken } from "@/lib/safeStorage";
 import { useRouter, useSearchParams } from "next/navigation";
 import { t } from "@/lib/i18n";
@@ -92,9 +93,10 @@ export default function LoginPage() {
   }, [step, countdown]);
 
   const handleSendOtp = async () => {
-    if (phone.length !== 10) {
-      setErrorMsg(t("common.error"));
-      speak(t("common.error"));
+    // mirrors the server's ^\+91[6-9]\d{9}$ law — copy-level gate only
+    if (!/^[6-9]\d{9}$/.test(phone)) {
+      setErrorMsg(t("auth.phoneInvalid"));
+      speak(t("auth.phoneInvalid"));
       return;
     }
 
@@ -118,8 +120,11 @@ export default function LoginPage() {
     setLoading(false);
 
     if (!res.success) {
-      const rateLimited = res.error?.code === "rate_limit_exceeded";
-      const msg = rateLimited ? t("auth.rateLimited") : t("common.error");
+      const code = res.error?.code;
+      const msg =
+        code === "rate_limit_exceeded" ? t("auth.rateLimited")
+        : code === "invalid_phone_number" ? t("auth.phoneInvalid")
+        : t("common.error"); // network/API failure — the honest generic
       setErrorMsg(msg);
       speak(msg);
       return;
@@ -204,8 +209,14 @@ export default function LoginPage() {
     setLoading(false);
 
     if (!res.success) {
-      setErrorMsg(t("common.error"));
-      speak(t("common.error"));
+      const code = res.error?.code;
+      const wrongOtp = code === "invalid_otp" || code === "otp_not_found";
+      const msg = wrongOtp ? t("auth.otpWrong") : t("common.error");
+      setErrorMsg(msg);
+      speak(msg);
+      // wrong code: clear all six so auto-verify can re-fire on the next
+      // full entry (PAGE 6: six manual backspaces stranded the retry)
+      if (wrongOtp) setOtpValue("");
       return;
     }
 
@@ -344,10 +355,10 @@ export default function LoginPage() {
                     : t("auth.unifiedSub")
                 }
                 value={phone}
-                onChange={setPhone}
+                onChange={(v) => setPhone(normalizePhoneInput(v))}
                 mode="phone"
                 onComplete={handleSendOtp}
-                placeholder="98765 43210"
+                placeholder="9876543210"
               />
               <Button
                 variant="primary"
@@ -506,6 +517,12 @@ function OtpBoxes({
   useScreenVoice(narration);
   const refs = useRef<Array<HTMLInputElement | null>>([]);
   const digits = Array.from({ length: 6 }, (_, i) => value[i] || "");
+
+  // wrong-code clear (and first mount): put the caret back on box 1 so the
+  // pandit re-enters without hunting focus
+  useEffect(() => {
+    if (value === "") refs.current[0]?.focus();
+  }, [value]);
 
   const setDigit = (d: string, idx: number) => {
     const numeric = d.replace(/\D/g, "");

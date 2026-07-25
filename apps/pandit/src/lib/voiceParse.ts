@@ -111,11 +111,32 @@ export function spokenDigits(text: string): string {
  * सात…", "डबल नौ…", mixed words+numerals) rebuild through spokenDigits
  * first — the pandit answers the phone question by VOICE.
  */
+const DEVANAGARI_DIGITS = "०१२३४५६७८९";
+/** Devanagari numerals → ASCII, shared by the voice AND typed phone paths. */
+function toAsciiDigits(text: string): string {
+  return text.replace(/[०-९]/g, (d) => String(DEVANAGARI_DIGITS.indexOf(d)));
+}
+
+/**
+ * As-you-type normalizer for the TYPED phone path (Isj order 2026-07-25,
+ * single-sourced here beside the voice path's parsePhoneNumber): Devanagari
+ * digits → ASCII, separators stripped, +91/91/0 prefixes stripped, digits
+ * only, capped at 10. COPY-LEVEL: the same 10 digits reach the API.
+ */
+export function normalizePhoneInput(raw: string): string {
+  let cleaned = toAsciiDigits(raw).replace(/[^\d+]/g, "");
+  if (cleaned.startsWith("+91")) cleaned = cleaned.slice(3);
+  else if (cleaned.startsWith("91") && cleaned.length > 10) cleaned = cleaned.slice(2);
+  else if (cleaned.startsWith("0") && cleaned.length > 10) cleaned = cleaned.slice(1);
+  return cleaned.replace(/\D/g, "").slice(0, 10);
+}
+
 export function parsePhoneNumber(text: string): string | null {
   if (!text) return null;
 
-  // Strip spaces, dashes, and parenthetical elements
-  let cleaned = text.replace(/[\s\-()]/g, "");
+  // Strip spaces, dashes, and parenthetical elements (Devanagari digits
+  // convert first — the same law as the typed path above)
+  let cleaned = toAsciiDigits(text).replace(/[\s\-()]/g, "");
 
   // K2: any non-digit content → word pre-pass (digit words, डबल X,
   // preamble stripping), then the same 10-digit law below

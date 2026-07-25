@@ -299,6 +299,11 @@ export const hi = {
     newAccountShishya: "ओटीपी डालिए, फिर दो मिनट का रजिस्ट्रेशन।",
     reauthForBooking: "पंडित जी, सुरक्षा के लिए दोबारा ओटीपी लगेगा — फिर सीधे आपकी बुकिंग खुलेगी।",
     rateLimited: "बहुत बार कोशिश हुई — 10 मिनट बाद फिर से कोशिश कीजिए।",
+    // PAGE 6 finding: one generic line answered every failure. Three paths,
+    // three strings (Isj order 2026-07-25); network failure keeps
+    // common.error — the one case where "कुछ गड़बड़" is true.
+    phoneInvalid: "कृपया 10 अंकों का मोबाइल नंबर डालिए।",
+    otpWrong: "OTP सही नहीं है। कृपया फिर से देखकर डालिए।",
     waking: "सर्वर जग रहा है, बस कुछ पल…",
     slowServer: "सर्वर बहुत धीमा है — थोड़ी देर बाद फिर कोशिश कीजिए।",
   },

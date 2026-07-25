@@ -394,6 +394,8 @@ export function VoiceField({
         <input
           ref={inputRef}
           type={inputType}
+          inputMode={mode === "phone" ? "numeric" : undefined}
+          maxLength={mode === "phone" ? 18 : undefined}
           disabled={disabled}
           placeholder={placeholder}
           value={value}
