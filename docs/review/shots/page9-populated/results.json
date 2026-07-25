@@ -1,0 +1,22 @@
+{
+ "populated": {
+  "nextBookingHero": true,
+  "statRow": true,
+  "goOnlinePill": true,
+  "month": true,
+  "todayRow": true,
+  "taiyariHeroGone": true,
+  "toggled": true,
+  "onlineAfter": true
+ },
+ "narration": [
+  "11:16:47.683 speak \"आप अभी ऑफलाइन हैं। काम शुरू करने के लिए \" lang=hi-IN",
+  "11:16:56.248 speak \"आप अब ऑनलाइन हैं। नई बुकिंग मिल सकती हैं\" lang=hi-IN"
+ ],
+ "errs": [
+  "Access to fetch at 'https://hmarepanditji-api.onrender.com/health' from origin 'http://loc",
+  "Failed to load resource: net::ERR_FAILED",
+  "Access to fetch at 'https://hmarepanditji-api.onrender.com/api/v1/muhurat/pujas-for-date?d",
+  "Failed to load resource: net::ERR_FAILED"
+ ]
+}

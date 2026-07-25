@@ -156,6 +156,20 @@ that would weaken a guard). Flag with screen + problem + proposed fix, keep walk
 
 ---
 
+### PAGE 9 · होम (the dashboard) — **PASS; 1 crash bug found & fixed; SOS P1 closed with rects** · 2026-07-25 · headless eye
+
+**TURN ITEMS CLOSED FIRST:** (1) **SOS P1 CLOSED** — bottom-6 → 104px (4px sliver remained on the hub, rect-measured: sos b740 vs orb t736) → **116px: overlap FALSE, 8px gap** (sos {263,672,h56} vs orb {278,736,66²}); BOTH independently tappable, tapped: SOS expands its quick-action ✓ (sos-expanded.png; the inner dial-support action never fired), orb tap lands ✓ (farewell path engages; the asleep-at-2.5s read is mid-farewell timing — mechanism multi-page-proven). Before/after pair: page8-hub/hub.png ↔ page9-final/hub-after-sos-fix.png. (2) **व→और renders** — the hub card AND footer CTA read "पूजाएँ और दक्षिणा(भरिए)" in pixels (my innerText checker was the bug, not the copy). (3) **KM guard green** — kmPresetsWhitelist.test.ts 1/1 after the {km,label} extraction repair; client pills ⊆ server [10,25,50,100,200,500,999]. Deploys verified 9b57663 (both surfaces) then 3c4a372 (pandit).
+
+**§1** Entry = post-auth landing (/home), guarded by layout F4 + /auth/me (401→login; 5xx→retryable error, never ejects). **§2 EMPTY LEG (the probe IS day-one, all in pixels):** 🪔 नमस्ते, टेस्ट जी + settings gear → /settings ✓; 🕉️ शनिवार · 25 जुलाई strip (muhurat chip truthfully absent); ⚠️ pending banner; ₹0/₹0 hero; तैयारी hero (no progress pill at step 0) → /readiness/hub ✓; आज empty-state; stat row + next-booking hero truthfully ABSENT; bottom nav होम/बुकिंग/[orb]/कमाई/कैलेंडर all tapped → /bookings /earnings /calendar ✓ (run-1 कैलेंडर miss was a harness artifact — retracted).
+**§5 POPULATED LEG (route-interception fixtures on the real bundle — zero prod writes) — ALL EIGHT BRANCHES RENDERED:** अगली-बुकिंग hero ✓, आज row (02:30 PM गृह प्रवेश पूजा अस्सी घाट — timezone-correct) ✓, 3-stat row ✓, ₹12,500 + आना बाकी ₹3,000 ✓, तैयारी hero replaced by the GO-ONLINE pill ✓ **+ its first-time coach overlay ("बुकिंग चालू-बंद … समझा") — a state beyond the recon map, photographed**; toggle → intercepted PATCH → optimistic online + "परिवार अब आपको बुला सकते हैं ✓" ✓ (home-online.png).
+**🔴 CRASH BUG FOUND BY THE POPULATED LEG, FIXED + GUARDED:** HomeView.tsx:435 called `b.venueAddress.split(",")` UNGUARDED (siblings :358/:466 use ?.) — **one today-booking with a missing venueAddress white-screened the entire dashboard.** Fixed to ?. ; homeNullSafety.test.ts pins every occurrence optional-chained. This is the §5 leg earning its keep.
+**§7** Live greeting is FIXED-form "नमस्ते, {firstName} जी" (honorific-stripping proven: fixture "पं. परीक्षण शर्मा" → "परीक्षण जी"). **The सुप्रभात/शुभ-संध्या time-of-day variants EXIST in source (GreetingHeader.tsx:14-38 + day-rotating shloka) but are wired ONLY to the dev /design gallery — not the live dashboard.** Flag for Isj: adopt or delete. Mount narration heard: readinessHeroVoice verbatim; pending-banner narrate ✓.
+**§8** Canon frame 8 header ruling (plain cream greeting row) ✓ in pixels; stale "frame 12" comment labels noted by recon (cosmetic). LAW>CANON overrides stand (52px settings tap, 18px strip).
+**§9** Register clean; EMOJI: 🪔 ⚠️(banner glyph) 🚩 🌤️ 🆘 — all prior-inventoried. **Observation queued: the आज row time renders latin "02:30 PM" (formatTime) while the hero uses formatTimeHindi — one formatter should win.**
+**§10** none new (SOS fixed; 🐞 overlap dev-only). **§11** Zero app errors on the final runs (health/muhurat CORS noise only; muhurat chip stays truthfully off when its fetch fails — degrade-to-hidden verified by construction and observed).
+
+---
+
 ### PAGE 8 · तैयारी (readiness hub + wizard engine) — **PASS with 1 P1 + 2 findings** · 2026-07-25 · headless eye, PROD probe session
 
 **§1 ENTRIES:** home तैयारी hero (when !isBookingReady) → /readiness/hub; bookings empty-state CTA; voice "तैयारी" dashboard-wide; rejected-KYC home banner → /readiness?step=5 direct; bare /readiness = the wizard ENGINE (canonShapesLive pins nav targets to /hub). Auth: client F4 guard + data-gate (GET /pandit/readiness fail → /home). Header back → /home ✓ walked.

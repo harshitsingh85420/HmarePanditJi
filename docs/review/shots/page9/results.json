@@ -1,0 +1,102 @@
+{
+ "landed": "/home",
+ "home": {
+  "greeting": "नमस्ते, टेस्ट जी",
+  "dateLine": "शनिवार · 25 जुलाई",
+  "muhuratChip": false,
+  "pendingBanner": true,
+  "earningsZero": true,
+  "taiyariHero": true,
+  "taiyariPill": false,
+  "emptyToday": true,
+  "statRow": false,
+  "nextBookingHero": false,
+  "goOnline": false
+ },
+ "sosHome": {
+  "sos": {
+   "x": 263,
+   "y": 684,
+   "w": 109,
+   "h": 56
+  },
+  "orb": {
+   "x": 162,
+   "y": 748,
+   "w": 66,
+   "h": 66
+  },
+  "overlap": false
+ },
+ "taps": [
+  {
+   "label": "settings-gear",
+   "ok": true,
+   "dest": "/settings"
+  },
+  {
+   "label": "taiyari-hero",
+   "ok": true,
+   "dest": "/readiness/hub"
+  },
+  {
+   "label": "nav-बुकिंग",
+   "ok": true,
+   "dest": "/bookings"
+  },
+  {
+   "label": "nav-कमाई",
+   "ok": true,
+   "dest": "/earnings"
+  },
+  {
+   "label": "nav-कैलेंडर",
+   "ok": false,
+   "dest": "/home"
+  }
+ ],
+ "populated": {
+  "nextBookingHero": false,
+  "statRow": false,
+  "goOnlinePill": false,
+  "month": false,
+  "todayRow": false,
+  "taiyariHeroGone": true,
+  "toggled": false,
+  "onlineAfter": false
+ },
+ "sosHub": {
+  "sos": {
+   "x": 263,
+   "y": 684,
+   "h": 56
+  },
+  "orb": {
+   "x": 278,
+   "y": 736,
+   "w": 66,
+   "h": 66
+  },
+  "overlap": true
+ },
+ "sosTap": {
+  "tapped": true,
+  "expanded": true
+ },
+ "orbTap": true,
+ "orbAsleep": false,
+ "vAurRendered": false,
+ "narration": [
+  "11:00:29.172 speak \"यह आपकी बुकिंग की सूची है। नई, आने वाली \" lang=hi-IN",
+  "11:00:35.123 speak \"पंडित जी, बुकिंग पाने के लिए बस पाँच छोट\" lang=hi-IN",
+  "11:00:35.123 speak \"आपकी प्रोफ़ाइल सत्यापन में है। जल्द पूरा\" lang=hi-IN",
+  "11:00:40.389 speak \"यहाँ आपकी सारी कमाई का हिसाब है। आने वाल\" lang=hi-IN",
+  "11:00:50.705 speak \"पंडित जी, बुकिंग पाने के लिए बस पाँच छोट\" lang=hi-IN",
+  "11:00:50.706 speak \"आपकी प्रोफ़ाइल सत्यापन में है। जल्द पूरा\" lang=hi-IN",
+  "11:01:12.120 speak \"आपकी तैयारी 0 बटा 5 पूरी है। अगला कदम — \" lang=hi-IN",
+  "11:01:21.103 speak \"अब मैं चुप रहूँगा — दोबारा सुनने के लिए \" lang=hi-IN"
+ ],
+ "errs": [
+  "pageerror:TypeError: c.data.forEach is not a function"
+ ]
+}

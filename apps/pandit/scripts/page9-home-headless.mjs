@@ -20,7 +20,15 @@ page.on("console", (m) => { if (m.type() === "error") errs.push(m.text().slice(0
 page.on("pageerror", (e) => errs.push("pageerror:" + String(e).slice(0, 90)));
 
 const out = {};
+const POPONLY = process.argv.includes("--populated-only");
+if (POPONLY) {
+  // local: interception fulfills every API call before it leaves — no CORS,
+  // no login; a dummy token satisfies the layout guard
+  await page.goto(`${BASE}/home?voicedebug=1`, { waitUntil: "load", timeout: 60000 }).catch(() => {});
+  await page.evaluate(() => localStorage.setItem("pandit_token", "dummy-qa-token"));
+}
 // ── probe login ──
+if (!POPONLY) {
 await page.goto(`${BASE}/login?voicedebug=1`, { waitUntil: "load", timeout: 60000 });
 await page.waitForTimeout(2500);
 await page.mouse.click(30, 250);
@@ -32,7 +40,9 @@ if (await page.evaluate(() => document.body.innerText.includes("OTP डालि
   await page.waitForTimeout(15000);
 }
 out.landed = await page.evaluate(() => location.pathname);
+}
 
+if (!POPONLY) {
 // ── होम full-page state ──
 await page.goto(`${BASE}/home`, { waitUntil: "load", timeout: 60000 });
 await page.waitForTimeout(9000);
@@ -90,6 +100,7 @@ const tap = async (kind, needle, label) => {
 await tap("glyph", "settings", "settings-gear");
 await tap("text", "बुकिंग पाने की तैयारी", "taiyari-hero");
 for (const nav of ["बुकिंग", "कमाई", "कैलेंडर"]) await tap("text", nav, `nav-${nav}`);
+}
 
 // ── POPULATED LEG: route-interception fixtures on the LIVE bundle —
 // real components, controlled data, ZERO prod writes ──
@@ -99,7 +110,7 @@ await page.route("**/api/v1/auth/me", (r) => r.fulfill(fx({ user: { id: "fx", na
 await page.route("**/api/v1/pandit/bookings**", (r) => {
   const u = r.request().url();
   // REAL shape: res.data is a BARE ARRAY; fields pujaType/eventDate/status
-  const b1 = { id: "fx1", pujaType: "गृह प्रवेश पूजा", eventDate: `${today}T09:00:00.000Z`, status: "CONFIRMED", dakshina: 5600, customerName: "शर्मा परिवार" };
+  const b1 = { id: "fx1", pujaType: "गृह प्रवेश पूजा", eventDate: `${today}T09:00:00.000Z`, status: "CONFIRMED", dakshina: 5600, customerName: "शर्मा परिवार", venueAddress: "अस्सी घाट, वाराणसी" };
   if (u.includes("status=REQUESTED")) return r.fulfill(fx([]));
   return r.fulfill(fx([b1]));
 });
@@ -132,6 +143,7 @@ out.populated.onlineAfter = await page.evaluate(() => /ऑफलाइन जा
 await page.screenshot({ path: join(OUT, "home-online.png") });
 await page.unrouteAll({ behavior: "ignoreErrors" });
 
+if (!POPONLY) {
 // ── SOS after-proof on the hub (same session, fixed bundle) ──
 await page.goto(`${BASE}/readiness/hub`, { waitUntil: "load", timeout: 60000 });
 await page.waitForTimeout(7000);
@@ -164,6 +176,7 @@ await page.evaluate(() => { const w = [...document.querySelectorAll("button")].f
 await page.waitForTimeout(1500);
 // व→और render confirmation on the same hub visit
 out.vAurRendered = await page.evaluate(() => document.body.innerText.includes("पूजाएँ और दक्षिणा") && !document.body.innerText.includes("पूजाएँ व दक्षिणा"));
+}
 
 out.narration = await page.evaluate(() => (JSON.parse(sessionStorage.getItem("hpj_voicedebug_buf") || "[]")).filter((l) => l.includes("speak ")).slice(-8));
 out.errs = errs.slice(0, 8);

@@ -432,7 +432,7 @@ export function HomeView({
                       {b.pujaType || b.eventType}
                     </span>
                     <span className="text-[18px] text-softgrey font-hindi truncate max-w-[240px]">
-                      {b.venueAddress.split(",")[0]}
+                      {b.venueAddress?.split(",")[0]}
                     </span>
                   </div>
                   <StatusChip status={b.status} />
