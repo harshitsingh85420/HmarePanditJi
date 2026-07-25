@@ -24,6 +24,8 @@ that would weaken a guard). Flag with screen + problem + proposed fix, keep walk
 ---
 
 ## RESUME POINTER
+> **PAGE-CLOSURE CHECKLIST (standing, updated 2026-07-25):** every page closes with — 11 sections in the ledger · decisive shots banked under docs/review/shots/<page>/ · **contact sheet regenerated (`node apps/pandit/scripts/build-shot-index.mjs` + captions added for the new shots)** · 3-5 decisive shots EMBEDDED inline in the chat report · commit + merge + deploy-verify when prod-visible.
+
 > **Next page (protocol): PAGE 5 · TUTORIAL DECK** — STAGED (phase TUTORIAL via the skip exit: micLS unset, micDenied=false — the richest state for the slide-5 mic re-offer). Owed: the asleep-state 390px screenshot (pane compositing) + §10 hear-again ruling + interjection-class ruling.
 > [dark circle, count visible bottom-right]; अनुमति दीजिए → geolocation grant AND
 > deny paths; शहर खुद चुनिए → manual-city screen) → भाषा → परिचय[4 mic outcomes,
