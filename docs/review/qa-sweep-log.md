@@ -156,6 +156,16 @@ that would weaken a guard). Flag with screen + problem + proposed fix, keep walk
 
 ---
 
+### PAGE 7 §8 CLOSURE + RIDERS (2026-07-25)
+
+**§8 CANON — DELIVERED, CLOSED CLEAN:** canon frame 6 ("पंजीकरण · Registration", canon .dc.html:337-368) **IS the single-screen form** — "बस दो बातें बताइए" + "बोलकर या टाइप करके — जैसे आसान लगे", TWO field cards (आपका नाम 🙏 "पं. रमेश शर्मा" / आपका शहर 🏙️ "वाराणसी", each with a 54px mic disc), one full-width CTA, orb say "बाकी सब मैं देख लूँगा 🙏", toran. **No wizard exists in canon — no drift; the shipped form matches the artboard's structure.** Residuals noted (flags, not fixes): canon CTA reads "आगे बढ़ें" vs live "खाता बनाइए"/"प्रोफ़ाइल पूरी कीजिए" (live is MORE truthful — existing BATCH 2A-era divergence, stands for Isj's canon refresh); canon draws per-field emoji (🙏/🏙️) the live cards don't.
+
+**DEAD ROUTE-GROUP — FENCED, not deleted (one line why):** canon confirms no wizard revival looms, but the 8 stubs are live redirect safety for legacy links/resume states — deleting them 404s old URLs. Guard `registrationStubsFence.test.ts` (9 tests): every page in the group must stay a redirect-only stub (router.replace + return null, no input/form/VoiceField/Button/useState) — UI cannot regrow behind dead routes without consciously deleting the fence.
+
+**PROD-SIDE LENGTH CAP — CLOSED from source (no prod mutation needed):** `submitOnboarding` (services/api/src/app.ts:262 → onboarding.controller.ts:275) validates ONLY min-length (name ≥3, city non-empty) — no zod schema, no max — then writes straight to Prisma `user.name` + `panditProfile.fullName/location/city` (String = unbounded TEXT). **The API stores the 246-char name unbounded. MERGE-DAY LIST +1 (server): Fastify/zod schema with max caps (name ≤80, city ≤60 suggested) on /pandit/onboarding.** Report-only, as ordered.
+
+---
+
 ### PAGE 6 ADDENDUM — AUTH COPY + NORMALIZATION FIXES (Isj order, 2026-07-25) — SHIPPED & RE-VERIFIED
 
 Three-way error split (strings single-sourced in the auth block): bad phone → "कृपया 10 अंकों का मोबाइल नंबर डालिए।" (client gate now mirrors the server's [6-9]\d{9} law; invalid_phone_number from the API maps here too); wrong OTP → "OTP सही नहीं है। कृपया फिर से देखकर डालिए।" **+ boxes clear + focus box 1** (auto-verify re-fires without six backspaces); network/API failure keeps the honest generic. Typed path now normalizes through voiceParse (SINGLE-SOURCE with the voice path — same module): Devanagari→ASCII (the voice path gained this too), separators/+91/91/0 stripped, capped 10; placeholder is now an input the validator accepts ("9876543210"); inputMode numeric + maxLength 18 (14 first — it truncated 15-char formatted pastes BEFORE normalization, caught by the re-verify, widened). Guard authErrorCopy.test.ts (10 tests, PROVEN-TO-FAIL 10-red first). HEADLESS RE-VERIFY on the final bundle (shots page6-fixed/): placeholder-as-typed echoes 9876543210 → real send → network-generic ✓; Devanagari echoes 1234567890 → phoneInvalid ✓; letters echo "" → phoneInvalid ✓; paste-formatted echoes the full 10 ✓. MERGE-DAY LIST +3: the hold branch adopts these exact strings, the normalizer, and the boxes-clear behavior; attempt caps remain hold-branch semantics.
