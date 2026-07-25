@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { reconcileMicGrant } from "@/lib/micPermission";
 import { usePathname } from "next/navigation";
 import { voiceController } from "@/lib/voiceController";
 import { Toast } from "@/components/ui/Toast";
@@ -34,6 +35,12 @@ function describeEl(el: Element): string {
 export function VoiceRoot() {
   const [toastMsg, setToastMsg] = useState<string | null>(null);
   const debugOn = useVoiceDebugFlag();
+  // P0 (Isj 2026-07-25): repair the short-circuit era — browser says the
+  // mic is granted but the record is absent → write it so the listen
+  // loop can arm (a recorded "false" is deliberate and stays).
+  useEffect(() => {
+    void reconcileMicGrant();
+  }, []);
   const pathname = usePathname();
 
   // S1: canary scan — on route change and on DOM mutation (debounced).

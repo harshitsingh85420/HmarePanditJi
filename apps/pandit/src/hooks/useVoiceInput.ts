@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
+import { recordMicGranted, recordMicDenied } from "@/lib/micPermission";
 import { getToken } from "@/lib/safeStorage";
 import { voiceController, MIC_RELEASE_STRATEGY } from "@/lib/voiceController";
 import { API_BASE } from "@/lib/api";
@@ -150,7 +151,7 @@ export function useVoiceInput(): UseVoiceInputReturn {
       voiceController.setMicTracksEnabled(true, "listen-start");
 
       // The flag records REALITY: set only after a stream is in hand.
-      localStorage.setItem("mic_permission_granted", "true");
+      recordMicGranted();
 
       streamRef.current = stream;
 
@@ -359,7 +360,7 @@ export function useVoiceInput(): UseVoiceInputReturn {
       console.error("[useVoiceInput] getUserMedia error:", err);
       // A denied/failed request must not leave a stale 'granted' flag —
       // it would make the auto-listen loop re-request without a gesture.
-      if (!preStream) localStorage.setItem("mic_permission_granted", "false");
+      if (!preStream) recordMicDenied();
       setState("error");
       cleanup();
     }
@@ -391,12 +392,12 @@ export function useVoiceInput(): UseVoiceInputReturn {
     // 'denied' goes quietly idle (typing always works).
     const browserState = await queryMicPermission();
     if (browserState === "prompt") {
-      localStorage.setItem("mic_permission_granted", "false");
+      recordMicDenied();
       setShowExplainer(true);
       return;
     }
     if (browserState === "denied") {
-      localStorage.setItem("mic_permission_granted", "false");
+      recordMicDenied();
       setState("error");
       return;
     }

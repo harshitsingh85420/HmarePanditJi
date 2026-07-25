@@ -24,10 +24,10 @@ const NARRATION_SAMPLE = Number(arg("sample", "1")); // slide whose narration we
 
 mkdirSync(OUT, { recursive: true });
 const launchArgs = ["--autoplay-policy=no-user-gesture-required"];
-if (MODE === "granted") launchArgs.push("--use-fake-device-for-media-stream", "--use-fake-ui-for-media-stream");
+if (MODE === "granted" || MODE === "pregranted") launchArgs.push("--use-fake-device-for-media-stream", "--use-fake-ui-for-media-stream");
 const browser = await chromium.launch({ headless: true, args: launchArgs });
 const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 });
-if (MODE === "granted") await ctx.grantPermissions(["microphone"], { origin: BASE });
+if (MODE === "granted" || MODE === "pregranted") await ctx.grantPermissions(["microphone"], { origin: BASE });
 const page = await ctx.newPage();
 const errs = [];
 page.on("console", (m) => { if (m.type() === "error") errs.push(m.text().slice(0, 100)); });
@@ -76,7 +76,7 @@ for (let i = 1; i <= SLIDES + 2; i++) {
 
   // SLIDE 3 (स्पर्श कर जगाइए): the mute GATE wants one sleep→wake cycle —
   // do it for real (this is also the page's asleep-orb variant + PetalBurst)
-  if (MODE !== "declined" && s.heading.includes("स्पर्श कर जगाइए")) {
+  if ((MODE === "granted" || MODE === "declinedtap") && s.heading.includes("स्पर्श कर जगाइए")) {
     await page.evaluate(() => document.querySelector('button[aria-label="शिष्य को सुला दें"]')?.click());
     await page.waitForTimeout(2500);
     await snapshot(`slide3-asleep`);
@@ -95,7 +95,7 @@ for (let i = 1; i <= SLIDES + 2; i++) {
   // SLIDE 4 (बस बोलिए 🎤): the mic RE-OFFER — tap the 78px disc
   // ("माइक की अनुमति दीजिए"); granted mode has a fake device + permission,
   // declinedtap mode gets the browser's denial. Collect the outcome.
-  if (MODE !== "declined" && s.heading.includes("बस बोलिए")) {
+  if ((MODE === "granted" || MODE === "declinedtap") && s.heading.includes("बस बोलिए")) {
     const tapped = await page.evaluate(() => {
       // the 78px disc holds only an SVG — its label renders OUTSIDE the button
       const b = [...document.querySelectorAll("button")].find((x) => x.textContent.includes("माइक की अनुमति दीजिए"))
@@ -125,6 +125,10 @@ for (let i = 1; i <= SLIDES + 2; i++) {
 }
 
 out.final = await state();
+out.final.listenLoopPaused = await page.evaluate(() => {
+  const vc = window.__hpjVoice; // exposed by the voicedebug latch
+  return vc ? vc.paused : "no-controller";
+});
 await snapshot("final");
 out.errs = errs;
 writeFileSync(join(OUT, `results-${MODE}.json`), JSON.stringify(out, null, 1));

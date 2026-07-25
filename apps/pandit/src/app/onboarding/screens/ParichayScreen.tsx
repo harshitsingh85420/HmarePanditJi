@@ -37,6 +37,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { t } from "@/lib/i18n";
 import { voiceController } from "@/lib/voiceController";
 import { useVoiceInput } from "@/hooks/useVoiceInput";
+import { recordMicGranted, recordMicDenied } from "@/lib/micPermission";
 import { useSafeOnboardingStore } from "@/lib/stores/ssr-safe-stores";
 import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
 import { Button } from "@/components/ui/Button";
@@ -80,7 +81,7 @@ export default function ParichayScreen({ onDone }: { onDone: () => void }) {
 
   const finishDeny = () => {
     try {
-      localStorage.setItem("mic_permission_granted", "false");
+      recordMicDenied();
     } catch { /* noop */ }
     store.setMicDenied(true);
     speakThenAdvance(t("parichay.denied"));
@@ -88,7 +89,7 @@ export default function ParichayScreen({ onDone }: { onDone: () => void }) {
 
   const runGrantedPath = (stream: MediaStream, greeting: string) => {
     try {
-      localStorage.setItem("mic_permission_granted", "true");
+      recordMicGranted();
     } catch { /* noop */ }
     store.setMicDenied(false);
     setRecovery(false);
@@ -227,7 +228,7 @@ export default function ParichayScreen({ onDone }: { onDone: () => void }) {
             store.setMicDenied(true);
           } else {
             try {
-              localStorage.setItem("mic_permission_granted", "true");
+              recordMicGranted();
             } catch { /* noop */ }
             store.setMicDenied(false);
           }

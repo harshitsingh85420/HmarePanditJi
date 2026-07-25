@@ -36,6 +36,7 @@ import { useScreenVoice } from "@/hooks/useScreenVoice";
 import { useVoiceCommands } from "@/hooks/useVoiceScreen";
 import { YES, NEXT, BACK, SKIP } from "@/lib/voiceGrammar";
 import { useVoiceInput } from "@/hooks/useVoiceInput";
+import { recordMicGranted, recordMicDenied } from "@/lib/micPermission";
 import { voiceController } from "@/lib/voiceController";
 import { playBell, playChime } from "@/lib/sounds";
 import { PetalBurst } from "@/components/moments/SlideCanvas";
@@ -525,13 +526,24 @@ export default function TutorialV2({
       return "unknown";
     }
   });
+
+  // P0 (Isj 2026-07-25): THE granted choke — every classification that
+  // lands on "granted" records it via the single-source writer. The
+  // pre-granted short-circuit never wrote the key, and the listen loop
+  // (voiceController.micGranted) gates on exactly that key — a
+  // pre-granted pandit exited onboarding voice-dead. micGrantRecord
+  // .test.tsx pins this choke and bans direct key writes.
+  const settleMicPerm = (state: "granted" | "denied" | "prompt" | "unknown") => {
+    if (state === "granted") recordMicGranted();
+    setMicPerm(state);
+  };
   const voiceInput = useVoiceInput();
   useEffect(() => {
     if (!isMic) return;
     // परिचय already earned the mic for most users — the stored flag is an
     // instant hint (the query corrects it if the browser disagrees).
     try {
-      if (localStorage.getItem("mic_permission_granted") === "true") setMicPerm("granted");
+      if (localStorage.getItem("mic_permission_granted") === "true") settleMicPerm("granted");
     } catch { /* noop */ }
     if (!navigator.permissions?.query) return;
     let status: PermissionStatus | null = null;
@@ -541,8 +553,8 @@ export default function TutorialV2({
       .then((s) => {
         if (disposed) return;
         status = s;
-        setMicPerm(s.state);
-        s.onchange = () => setMicPerm(s.state);
+        settleMicPerm(s.state);
+        s.onchange = () => settleMicPerm(s.state);
       })
       .catch(() => { /* keep the flag hint */ });
     return () => {
@@ -583,8 +595,7 @@ export default function TutorialV2({
         setPointerUp(false);
         voiceController.debug("perm: settled(granted) (tutorial mic)");
         voiceController.stopSpeech("tutorial-mic:grant-settle");
-        localStorage.setItem("mic_permission_granted", "true");
-        setMicPerm("granted");
+        settleMicPerm("granted");
         onMicGranted();
         setMicState("listening");
         // one practice listen on the SAME granted stream — never a second
@@ -603,7 +614,7 @@ export default function TutorialV2({
         }
         if (name === "NotFoundError" || state === "denied") {
           voiceController.debug("perm: settled(denied) (tutorial mic)");
-          localStorage.setItem("mic_permission_granted", "false");
+          recordMicDenied();
           setMicPerm("denied");
           setMicState("denied");
           onMicDenied();

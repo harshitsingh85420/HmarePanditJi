@@ -1,0 +1,207 @@
+{
+ "mode": "pregranted",
+ "slides": [
+  {
+   "phase": "TUTORIAL",
+   "slide": 1,
+   "micDenied": false,
+   "micLS": "true",
+   "heading": "",
+   "text": "🐞\n38\nछोड़िए ›\n₹52,400\nआपकी कमाई\nगृह प्रवेश पूजा\nकल · सुबह 9:00 · ₹5,600\nस्वीकार\ntouch_app\ncheck\n₹\n₹\n₹\nआगे\n🙏\nशिष्य",
+   "chain": [
+    "08:37:09.690 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=hi-IN pace=1.15 micLive=false len=220",
+    "08:37:09.694 unlock: probe ok",
+    "08:37:10.209 prefetch cached: \"नमस्ते पंडित जी! आगे बढ़…\"",
+    "08:37:11.139 prefetch cached: \"बहुत अच्छा।…\"",
+    "08:37:12.777 prefetch cached: \"समझ नहीं आया — कृपया फिर…\"",
+    "08:37:14.126 prefetch cached: \"पंडित जी, अब हम आपकी लोक…\"",
+    "08:37:14.426 prefetch cached: \"सही है? हाँ या नहीं बोलि…\"",
+    "08:37:14.682 api ping: https://hmarepanditji-api.onrender.com/health → AbortError in 8010ms",
+    "08:37:23.184 prefetch cached: \"आगे बढ़िए? 'हाँ' बोलिए।…\"",
+    "08:37:25.582 prefetch cached: \"अपना शहर चुनिए — नीचे बड…\""
+   ],
+   "errsSoFar": 1,
+   "advancedVia": "आगे"
+  },
+  {
+   "phase": "TUTORIAL",
+   "slide": 2,
+   "micDenied": false,
+   "micLS": "true",
+   "heading": "नई बुकिंग आई! 🔔",
+   "text": "🐞\n52\narrow_back\nछोड़िए ›\n🔔\nगृह प्रवेश पूजा\nनई\nevent\nकल · सुबह 9:00\nदक्षिणा\n₹5,600\nनई बुकिंग आई! 🔔\nआगे\n🙏\nशिष्य",
+   "chain": [
+    "08:37:27.015 mic: prewarmed in 12ms",
+    "08:37:27.016 wakelock: failed(NotAllowedError)",
+    "08:37:27.128 speak \"जब कोई परिवार आपको बुक करेगा, हम आपको फ़\" lang=hi-IN",
+    "08:37:27.129 mic: released (narrating)",
+    "08:37:27.131 tts→ POST /api/tts (same-origin)",
+    "08:37:27.131 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=hi-IN pace=1.15 micLive=false len=211",
+    "08:37:28.714 prefetch cached: \"एक क्षण, सोच रहा हूँ……\"",
+    "08:37:29.192 prefetch cached: \"जब कोई परिवार आपको बुक क…\"",
+    "08:37:30.070 prefetch cached: \"जी, देखता हूँ……\"",
+    "08:37:31.187 prefetch cached: \"बस अभी बताता हूँ……\""
+   ],
+   "errsSoFar": 1,
+   "advancedVia": "आगे"
+  },
+  {
+   "phase": "TUTORIAL",
+   "slide": 3,
+   "micDenied": false,
+   "micLS": "true",
+   "heading": "स्पर्श कर जगाइए",
+   "text": "🐞\n66\narrow_back\nछोड़िए ›\nजी, पंडित जी 🙏\n🙏\n💤\nस्पर्श कर जगाइए\n\nआराम के समय वह सो जाता है\n\nशिष्य को सुलाना-जगाना\nनीचे यह मैं हूँ — शिष्य। मुझे दबाइए, मैं सो जाऊँगा और ऐप सामान्य हो जाएगा। दोबारा दबाइए — मैं जाग जाऊँगा। आज़माइए!\nआज़माइए →\n⏳ आज़माइए →\nसुन रहा हूँ…\n🙏\nशिष्य",
+   "chain": [
+    "08:37:34.221 voice: sarvam:aditya pace=1.15 route=/api/tts cache=HIT",
+    "08:37:34.255 audio.play() resolved",
+    "08:37:37.479 prefetch cached: \"क्षमा कीजिए पंडित जी, इस…\"",
+    "08:37:38.216 mic: stream adopted (persists across listens)",
+    "08:37:38.216 mic: prewarmed in 4ms",
+    "08:37:38.216 wakelock: failed(NotAllowedError)",
+    "08:37:38.565 stopSpeech(listen-start)",
+    "08:37:38.573 wakelock: failed(NotAllowedError)",
+    "08:37:38.781 stt: speech detected (rms)",
+    "08:37:39.446 prefetch cached: \"बोलकर जवाब देने के लिए म…\""
+   ],
+   "errsSoFar": 1,
+   "advancedVia": null
+  },
+  {
+   "phase": "TUTORIAL",
+   "slide": 3,
+   "micDenied": false,
+   "micLS": "true",
+   "heading": "स्पर्श कर जगाइए",
+   "text": "🐞\n78\narrow_back\nछोड़िए ›\nजी, पंडित जी 🙏\n🙏\n💤\nस्पर्श कर जगाइए\n\nआराम के समय वह सो जाता है\n\nआगे\nसुन रहा हूँ…\n🙏\nशिष्य",
+   "chain": [
+    "08:37:44.069 tts timing: cache HIT in 3ms",
+    "08:37:44.069 voice: sarvam:aditya pace=1.15 route=/api/tts cache=HIT",
+    "08:37:44.086 audio.play() resolved",
+    "08:37:46.468 audio ended",
+    "08:37:46.476 mic: stream adopted (persists across listens)",
+    "08:37:46.476 mic: prewarmed in 8ms",
+    "08:37:46.476 wakelock: failed(NotAllowedError)",
+    "08:37:46.832 stopSpeech(listen-start)",
+    "08:37:46.838 wakelock: failed(NotAllowedError)",
+    "08:37:47.048 stt: speech detected (rms)"
+   ],
+   "errsSoFar": 1,
+   "advancedVia": "आगे"
+  },
+  {
+   "phase": "TUTORIAL",
+   "slide": 4,
+   "micDenied": false,
+   "micLS": "true",
+   "heading": "बस बोलिए 🎤",
+   "text": "🐞\n85\narrow_back\nछोड़िए ›\n🙏\nएक बार फिर बोलकर देखिए…\nनमस्ते\ncheck_circle\nबस बोलिए 🎤\nआगे\n🙏\nशिष्य",
+   "chain": [
+    "08:37:46.832 stopSpeech(listen-start)",
+    "08:37:46.838 wakelock: failed(NotAllowedError)",
+    "08:37:47.048 stt: speech detected (rms)",
+    "08:37:48.184 stopSpeech(user-nav:slide)",
+    "08:37:48.187 stopSpeech(unmount:screen-voice)",
+    "08:37:48.343 speak \"बोलकर जवाब देने के लिए माइक की अनुमति चा\" lang=hi-IN",
+    "08:37:48.345 mic: released (narrating)",
+    "08:37:48.353 tts timing: cache HIT in 8ms",
+    "08:37:48.353 voice: sarvam:aditya pace=1.15 route=/api/tts cache=HIT",
+    "08:37:48.380 audio.play() resolved"
+   ],
+   "errsSoFar": 5,
+   "advancedVia": "आगे"
+  },
+  {
+   "phase": "TUTORIAL",
+   "slide": 5,
+   "micDenied": false,
+   "micLS": "true",
+   "heading": "✓ प्रमाणित",
+   "text": "🐞\n95\narrow_back\nछोड़िए ›\nREC\nupload\ncheck\nverified\n✓ प्रमाणित\n\nएक छोटा वीडियो, और भरोसा तैयार\n\nआगे\n🙏\nशिष्य",
+   "chain": [
+    "08:37:55.263 stopSpeech(user-nav:slide) — intentional (nav/voice)",
+    "08:37:55.264 stopSpeech(unmount:screen-voice)",
+    "08:37:55.275 mic: stream adopted (persists across listens)",
+    "08:37:55.275 mic: prewarmed in 11ms",
+    "08:37:55.275 wakelock: failed(NotAllowedError)",
+    "08:37:55.415 speak \"भरोसे के लिए हम आधार और एक छोटा वीडियो स\" lang=hi-IN",
+    "08:37:55.416 mic: released (narrating)",
+    "08:37:55.418 tts→ POST /api/tts (same-origin)",
+    "08:37:55.418 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=hi-IN pace=1.15 micLive=false len=155",
+    "08:37:57.174 prefetch cached: \"भरोसे के लिए हम आधार और …\""
+   ],
+   "errsSoFar": 5,
+   "advancedVia": "आगे"
+  },
+  {
+   "phase": "TUTORIAL",
+   "slide": 6,
+   "micDenied": false,
+   "micLS": "true",
+   "heading": "अब आपकी बारी! 🎉",
+   "text": "🐞\n101\narrow_back\nछोड़िए ›\n🌼\n🌸\n🌼\n🌸\n🌼\nअब आपकी बारी! 🎉\n\nशिष्य हर कदम आपके साथ है 🙏\n\nबाद में\ncelebration\nशुरू कीजिए\n🙏\nशिष्य",
+   "chain": [
+    "08:37:55.416 mic: released (narrating)",
+    "08:37:55.418 tts→ POST /api/tts (same-origin)",
+    "08:37:55.418 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=hi-IN pace=1.15 micLive=false len=155",
+    "08:37:57.174 prefetch cached: \"भरोसे के लिए हम आधार और …\"",
+    "08:38:02.332 stopSpeech(user-nav:slide) — intentional (nav/voice)",
+    "08:38:02.336 stopSpeech(unmount:screen-voice)",
+    "08:38:02.489 speak \"सब समझ गए? बस दो मिनट का रजिस्ट्रेशन बाक\" lang=hi-IN",
+    "08:38:02.489 highlight: mounted (narration)",
+    "08:38:02.491 tts→ POST /api/tts (same-origin)",
+    "08:38:02.492 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=hi-IN pace=1.15 micLive=false len=173"
+   ],
+   "errsSoFar": 5,
+   "advancedVia": "celebrationशुरू कीजिए"
+  }
+ ],
+ "exit": {
+  "phase": "AUTH",
+  "slide": 6,
+  "micDenied": false,
+  "micLS": "true",
+  "heading": "",
+  "text": "🐞\n107\nलॉगिन / रजिस्ट्रेशन\n\nनंबर डालिए — खाता होगा तो लॉगिन, नहीं तो नया बनेगा।\n\nअपना मोबाइल नंबर डालिए\nआगे बढ़िए\n📖 ट्यूटोरियल फिर देखिए\n🙏\nशिष्य",
+  "chain": [
+   "08:38:02.489 speak \"सब समझ गए? बस दो मिनट का रजिस्ट्रेशन बाक\" lang=hi-IN",
+   "08:38:02.489 highlight: mounted (narration)",
+   "08:38:02.491 tts→ POST /api/tts (same-origin)",
+   "08:38:02.492 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=hi-IN pace=1.15 micLive=false len=173",
+   "08:38:09.405 stopSpeech(phase-transition) — MID-UTTERANCE ⚠",
+   "08:38:09.406 stopSpeech(unmount:screen-voice)",
+   "08:38:09.680 loop: watchdog re-arm",
+   "08:38:09.865 speak \"नंबर डालिए — खाता होगा तो लॉगिन, नहीं तो\" lang=hi-IN",
+   "08:38:09.867 tts→ POST /api/tts (same-origin)",
+   "08:38:09.867 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=hi-IN pace=1.15 micLive=false len=103"
+  ]
+ },
+ "final": {
+  "phase": "AUTH",
+  "slide": 6,
+  "micDenied": false,
+  "micLS": "true",
+  "heading": "",
+  "text": "🐞\n107\nलॉगिन / रजिस्ट्रेशन\n\nनंबर डालिए — खाता होगा तो लॉगिन, नहीं तो नया बनेगा।\n\nअपना मोबाइल नंबर डालिए\nआगे बढ़िए\n📖 ट्यूटोरियल फिर देखिए\n🙏\nशिष्य",
+  "chain": [
+   "08:38:02.489 speak \"सब समझ गए? बस दो मिनट का रजिस्ट्रेशन बाक\" lang=hi-IN",
+   "08:38:02.489 highlight: mounted (narration)",
+   "08:38:02.491 tts→ POST /api/tts (same-origin)",
+   "08:38:02.492 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=hi-IN pace=1.15 micLive=false len=173",
+   "08:38:09.405 stopSpeech(phase-transition) — MID-UTTERANCE ⚠",
+   "08:38:09.406 stopSpeech(unmount:screen-voice)",
+   "08:38:09.680 loop: watchdog re-arm",
+   "08:38:09.865 speak \"नंबर डालिए — खाता होगा तो लॉगिन, नहीं तो\" lang=hi-IN",
+   "08:38:09.867 tts→ POST /api/tts (same-origin)",
+   "08:38:09.867 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=hi-IN pace=1.15 micLive=false len=103"
+  ],
+  "listenLoopPaused": false
+ },
+ "errs": [
+  "[useVoiceInput] STT upload error: AbortError: signal is aborted without reason\n    at http://localho",
+  "[useVoiceInput] STT upload error: AbortError: signal is aborted without reason\n    at http://localho",
+  "Access to fetch at 'https://hmarepanditji-api.onrender.com/api/v1/stt?mode=command' from origin 'htt",
+  "Failed to load resource: net::ERR_FAILED",
+  "[useVoiceInput] STT upload error: TypeError: Failed to fetch\n    at D.onstop (http://localhost:3002/"
+ ]
+}
