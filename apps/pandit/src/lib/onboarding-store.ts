@@ -88,7 +88,7 @@ export const STORAGE_KEY = 'hpj_pandit_onboarding_v1'
 // TutorialV2 slide count (slide TUTORIAL_TOTAL = the register CTA).
 // Lives here so light pages (e.g. /login's back-to-tutorial law) can
 // target the CTA slide without importing the tutorial chunk. The 6-scene
-// "boring fix" deck: कमाई → नई बुकिंग → आवाज़ → सो जाओ/जागो → सत्यापन → स्वागत.
+// "boring fix" deck: कमाई → नई बुकिंग → सो जाओ/जागो → आवाज़ → सत्यापन → स्वागत.
 export const TUTORIAL_TOTAL = 6
 
 export const DEFAULT_STATE: OnboardingState = {

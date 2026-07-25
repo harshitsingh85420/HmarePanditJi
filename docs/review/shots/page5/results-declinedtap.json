@@ -1,0 +1,223 @@
+{
+ "mode": "declinedtap",
+ "slides": [
+  {
+   "phase": "TUTORIAL",
+   "slide": 1,
+   "micDenied": false,
+   "micLS": null,
+   "heading": "",
+   "text": "🐞\n41\nछोड़िए ›\n₹52,400\nआपकी कमाई\nगृह प्रवेश पूजा\nकल · सुबह 9:00 · ₹5,600\nस्वीकार\ntouch_app\ncheck\n₹\n₹\n₹\nआगे\n🙏\nशिष्य",
+   "chain": [
+    "08:07:47.396 prefetch cached: \"आगे बढ़िए? 'हाँ' बोलिए।…\"",
+    "08:07:47.472 prefetch cached: \"जब कोई परिवार आपको बुक क…\"",
+    "08:07:49.624 tts status 200",
+    "08:07:49.628 tts timing: queue→fetch 1ms, fetch→audio 8433ms (MISS)",
+    "08:07:49.628 voice: sarvam:aditya pace=1.15 route=/api/tts cache=MISS",
+    "08:07:49.676 audio.play() resolved",
+    "08:07:49.704 prefetch cached: \"जी पंडित जी, मैं फिर हाज…\"",
+    "08:07:51.424 prefetch cached: \"एक क्षण, सोच रहा हूँ……\"",
+    "08:07:52.444 prefetch cached: \"जी, देखता हूँ……\"",
+    "08:07:53.677 prefetch cached: \"बस अभी बताता हूँ……\""
+   ],
+   "errsSoFar": 2,
+   "advancedVia": "आगे"
+  },
+  {
+   "phase": "TUTORIAL",
+   "slide": 2,
+   "micDenied": false,
+   "micLS": null,
+   "heading": "नई बुकिंग आई! 🔔",
+   "text": "🐞\n49\narrow_back\nछोड़िए ›\n🔔\nगृह प्रवेश पूजा\nनई\nevent\nकल · सुबह 9:00\nदक्षिणा\n₹5,600\nनई बुकिंग आई! 🔔\nआगे\n🙏\nशिष्य",
+   "chain": [
+    "08:07:51.424 prefetch cached: \"एक क्षण, सोच रहा हूँ……\"",
+    "08:07:52.444 prefetch cached: \"जी, देखता हूँ……\"",
+    "08:07:53.677 prefetch cached: \"बस अभी बताता हूँ……\"",
+    "08:07:58.443 stopSpeech(user-nav:slide) — intentional (nav/voice)",
+    "08:07:58.444 stopSpeech(unmount:screen-voice)",
+    "08:07:58.604 speak \"जब कोई परिवार आपको बुक करेगा, हम आपको फ़\" lang=hi-IN",
+    "08:07:58.612 tts timing: cache HIT in 8ms",
+    "08:07:58.612 voice: sarvam:aditya pace=1.15 route=/api/tts cache=HIT",
+    "08:07:58.654 audio.play() resolved",
+    "08:07:58.896 prefetch cached: \"क्षमा कीजिए पंडित जी, इस…\""
+   ],
+   "errsSoFar": 2,
+   "advancedVia": "आगे"
+  },
+  {
+   "phase": "TUTORIAL",
+   "slide": 3,
+   "micDenied": false,
+   "micLS": null,
+   "heading": "स्पर्श कर जगाइए",
+   "text": "🐞\n67\narrow_back\nछोड़िए ›\nजी, पंडित जी 🙏\n🙏\n💤\nस्पर्श कर जगाइए\n\nआराम के समय वह सो जाता है\n\nlight_mode\nजगाइए\nआगे\n🙏\n💤\nशिष्य",
+   "chain": [
+    "08:08:12.563 stopSpeech(speak-interrupt) — intentional",
+    "08:08:12.564 tts→ POST /api/tts (same-origin)",
+    "08:08:12.564 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=hi-IN pace=1.15 micLive=false len=51",
+    "08:08:15.292 tts status 200",
+    "08:08:15.293 tts timing: queue→fetch 1ms, fetch→audio 2728ms (MISS)",
+    "08:08:15.293 voice: sarvam:aditya pace=1.15 route=/api/tts cache=MISS",
+    "08:08:15.317 audio.play() resolved",
+    "08:08:15.545 speak \"आगे बढ़िए? 'हाँ' बोलिए।\" lang=hi-IN",
+    "08:08:15.547 stopSpeech(mute)",
+    "08:08:15.561 tts timing: cache HIT in 16ms"
+   ],
+   "errsSoFar": 2,
+   "advancedVia": "आगे"
+  },
+  {
+   "phase": "TUTORIAL",
+   "slide": 4,
+   "micDenied": false,
+   "micLS": null,
+   "heading": "बस बोलिए 🎤",
+   "text": "🐞\n72\narrow_back\nछोड़िए ›\n🙏\nमाइक की अनुमति दीजिए\nनमस्ते\ncheck_circle\nबस बोलिए 🎤\nlight_mode\nजगाइए\nआगे\n🙏\n💤\nशिष्य",
+   "chain": [
+    "08:08:15.293 voice: sarvam:aditya pace=1.15 route=/api/tts cache=MISS",
+    "08:08:15.317 audio.play() resolved",
+    "08:08:15.545 speak \"आगे बढ़िए? 'हाँ' बोलिए।\" lang=hi-IN",
+    "08:08:15.547 stopSpeech(mute)",
+    "08:08:15.561 tts timing: cache HIT in 16ms",
+    "08:08:17.736 stopSpeech(user-nav:slide)",
+    "08:08:17.740 stopSpeech(unmount:screen-voice)",
+    "08:08:24.767 perm: getUserMedia invoked (tutorial mic)",
+    "08:08:24.782 perm: settled(dismissed) (tutorial mic)",
+    "08:08:25.195 prefetch cached: \"भरोसे के लिए हम आधार और …\""
+   ],
+   "errsSoFar": 2,
+   "advancedVia": "आगे"
+  },
+  {
+   "phase": "TUTORIAL",
+   "slide": 5,
+   "micDenied": false,
+   "micLS": null,
+   "heading": "✓ प्रमाणित",
+   "text": "🐞\n74\narrow_back\nछोड़िए ›\nREC\nupload\ncheck\nverified\n✓ प्रमाणित\n\nएक छोटा वीडियो, और भरोसा तैयार\n\nlight_mode\nजगाइए\nआगे\n🙏\n💤\nशिष्य",
+   "chain": [
+    "08:08:15.545 speak \"आगे बढ़िए? 'हाँ' बोलिए।\" lang=hi-IN",
+    "08:08:15.547 stopSpeech(mute)",
+    "08:08:15.561 tts timing: cache HIT in 16ms",
+    "08:08:17.736 stopSpeech(user-nav:slide)",
+    "08:08:17.740 stopSpeech(unmount:screen-voice)",
+    "08:08:24.767 perm: getUserMedia invoked (tutorial mic)",
+    "08:08:24.782 perm: settled(dismissed) (tutorial mic)",
+    "08:08:25.195 prefetch cached: \"भरोसे के लिए हम आधार और …\"",
+    "08:08:31.900 stopSpeech(user-nav:slide)",
+    "08:08:31.901 stopSpeech(unmount:screen-voice)"
+   ],
+   "errsSoFar": 2,
+   "advancedVia": "आगे"
+  },
+  {
+   "phase": "TUTORIAL",
+   "slide": 6,
+   "micDenied": false,
+   "micLS": null,
+   "heading": "अब आपकी बारी! 🎉",
+   "text": "🐞\n77\narrow_back\nछोड़िए ›\n🌼\n🌸\n🌼\n🌸\n🌼\nअब आपकी बारी! 🎉\n\nशिष्य हर कदम आपके साथ है 🙏\n\nबाद में\nlight_mode\nजगाइए\ncelebration\nशुरू कीजिए\n🙏\n💤\nशिष्य",
+   "chain": [
+    "08:08:17.736 stopSpeech(user-nav:slide)",
+    "08:08:17.740 stopSpeech(unmount:screen-voice)",
+    "08:08:24.767 perm: getUserMedia invoked (tutorial mic)",
+    "08:08:24.782 perm: settled(dismissed) (tutorial mic)",
+    "08:08:25.195 prefetch cached: \"भरोसे के लिए हम आधार और …\"",
+    "08:08:31.900 stopSpeech(user-nav:slide)",
+    "08:08:31.901 stopSpeech(unmount:screen-voice)",
+    "08:08:38.971 stopSpeech(user-nav:slide)",
+    "08:08:38.976 stopSpeech(unmount:screen-voice)",
+    "08:08:41.291 prefetch cached: \"सब समझ गए? बस दो मिनट का…\""
+   ],
+   "errsSoFar": 2,
+   "advancedVia": "celebrationशुरू कीजिए"
+  }
+ ],
+ "asleep": {
+  "phase": "TUTORIAL",
+  "slide": 3,
+  "micDenied": false,
+  "micLS": null,
+  "heading": "स्पर्श कर जगाइए",
+  "text": "🐞\n60\narrow_back\nछोड़िए ›\nजी, पंडित जी 🙏\n🙏\n💤\nस्पर्श कर जगाइए\n\nआराम के समय वह सो जाता है\n\nशिष्य को सुलाना-जगाना\nनीचे यह मैं हूँ — शिष्य। मुझे दबाइए, मैं सो जाऊँगा और ऐप सामान्य हो जाएगा। दोबारा दबाइए — मैं जाग जाऊँगा। आज़माइए!\nआज़माइए →\n⏳ आज़माइए →\n🙏\nशिष्य",
+  "chain": [
+   "08:08:05.522 stopSpeech(unmount:screen-voice)",
+   "08:08:05.702 speak \"नीचे यह मैं हूँ — शिष्य। मुझे दबाइए, मैं\" lang=hi-IN",
+   "08:08:05.708 tts timing: cache HIT in 6ms",
+   "08:08:05.708 voice: sarvam:aditya pace=1.15 route=/api/tts cache=HIT",
+   "08:08:05.740 audio.play() resolved",
+   "08:08:09.810 prefetch cached: \"बोलकर जवाब देने के लिए म…\"",
+   "08:08:12.563 speak \"अब मैं चुप रहूँगा — दोबारा सुनने के लिए \" lang=hi-IN",
+   "08:08:12.563 stopSpeech(speak-interrupt) — intentional",
+   "08:08:12.564 tts→ POST /api/tts (same-origin)",
+   "08:08:12.564 tts params: route=/api/tts speaker=server(SARVAM_TTS_SPEAKER) lang=hi-IN pace=1.15 micLive=false len=51"
+  ]
+ },
+ "wokeViaPill": false,
+ "micTapped": true,
+ "micOutcome": {
+  "phase": "TUTORIAL",
+  "slide": 4,
+  "micDenied": false,
+  "micLS": null,
+  "heading": "बस बोलिए 🎤",
+  "text": "🐞\n72\narrow_back\nछोड़िए ›\n🙏\nमाइक की अनुमति दीजिए\nनमस्ते\ncheck_circle\nबस बोलिए 🎤\nlight_mode\nजगाइए\nआगे\n🙏\n💤\nशिष्य",
+  "chain": [
+   "08:08:15.293 voice: sarvam:aditya pace=1.15 route=/api/tts cache=MISS",
+   "08:08:15.317 audio.play() resolved",
+   "08:08:15.545 speak \"आगे बढ़िए? 'हाँ' बोलिए।\" lang=hi-IN",
+   "08:08:15.547 stopSpeech(mute)",
+   "08:08:15.561 tts timing: cache HIT in 16ms",
+   "08:08:17.736 stopSpeech(user-nav:slide)",
+   "08:08:17.740 stopSpeech(unmount:screen-voice)",
+   "08:08:24.767 perm: getUserMedia invoked (tutorial mic)",
+   "08:08:24.782 perm: settled(dismissed) (tutorial mic)",
+   "08:08:25.195 prefetch cached: \"भरोसे के लिए हम आधार और …\""
+  ]
+ },
+ "exit": {
+  "phase": "AUTH",
+  "slide": 6,
+  "micDenied": false,
+  "micLS": null,
+  "heading": "",
+  "text": "🐞\n79\nलॉगिन / रजिस्ट्रेशन\n\nनंबर डालिए — खाता होगा तो लॉगिन, नहीं तो नया बनेगा।\n\nअपना मोबाइल नंबर डालिए\nआगे बढ़िए\n📖 ट्यूटोरियल फिर देखिए\n🙏\n💤\nशिष्य\nlight_mode\nजगाइए",
+  "chain": [
+   "08:08:24.767 perm: getUserMedia invoked (tutorial mic)",
+   "08:08:24.782 perm: settled(dismissed) (tutorial mic)",
+   "08:08:25.195 prefetch cached: \"भरोसे के लिए हम आधार और …\"",
+   "08:08:31.900 stopSpeech(user-nav:slide)",
+   "08:08:31.901 stopSpeech(unmount:screen-voice)",
+   "08:08:38.971 stopSpeech(user-nav:slide)",
+   "08:08:38.976 stopSpeech(unmount:screen-voice)",
+   "08:08:41.291 prefetch cached: \"सब समझ गए? बस दो मिनट का…\"",
+   "08:08:46.053 stopSpeech(phase-transition)",
+   "08:08:46.054 stopSpeech(unmount:screen-voice)"
+  ]
+ },
+ "final": {
+  "phase": "AUTH",
+  "slide": 6,
+  "micDenied": false,
+  "micLS": null,
+  "heading": "",
+  "text": "🐞\n79\nलॉगिन / रजिस्ट्रेशन\n\nनंबर डालिए — खाता होगा तो लॉगिन, नहीं तो नया बनेगा।\n\nअपना मोबाइल नंबर डालिए\nआगे बढ़िए\n📖 ट्यूटोरियल फिर देखिए\n🙏\n💤\nशिष्य\nlight_mode\nजगाइए",
+  "chain": [
+   "08:08:24.767 perm: getUserMedia invoked (tutorial mic)",
+   "08:08:24.782 perm: settled(dismissed) (tutorial mic)",
+   "08:08:25.195 prefetch cached: \"भरोसे के लिए हम आधार और …\"",
+   "08:08:31.900 stopSpeech(user-nav:slide)",
+   "08:08:31.901 stopSpeech(unmount:screen-voice)",
+   "08:08:38.971 stopSpeech(user-nav:slide)",
+   "08:08:38.976 stopSpeech(unmount:screen-voice)",
+   "08:08:41.291 prefetch cached: \"सब समझ गए? बस दो मिनट का…\"",
+   "08:08:46.053 stopSpeech(phase-transition)",
+   "08:08:46.054 stopSpeech(unmount:screen-voice)"
+  ]
+ },
+ "errs": [
+  "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+  "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+ ]
+}
