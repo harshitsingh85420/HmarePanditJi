@@ -6,6 +6,7 @@ import fastifyRateLimit from "@fastify/rate-limit";
 import fastifyStatic from "@fastify/static";
 import fastifyCookie from "@fastify/cookie";
 import { join } from "path";
+import { existsSync } from "fs";
 
 import { env } from "./config/env";
 import { API_PREFIX, ALLOWED_ORIGINS } from "./config/constants";
@@ -435,6 +436,30 @@ if (!isStorageConfigured()) {
     root: join(process.cwd(), "public/uploads"),
     prefix: "/uploads",
   });
+}
+
+// ── QA SHOT GALLERY (Isj evidence-delivery order, 2026-07-25) ────────────────
+// The harsh-pass contact sheet at an UNGUESSABLE path with a noindex header —
+// never on the pandit bundle, never for crawlers. Root resolves for both the
+// Render repo-root cwd and a local services/api cwd; silently absent when the
+// docs tree isn't on disk. Swap to a dedicated Vercel project when Isj runs
+// `vercel login` (his account action).
+{
+  const qaGalleryCandidates = [
+    join(process.cwd(), "docs/review/shots"),
+    join(process.cwd(), "../../docs/review/shots"),
+  ];
+  const qaGalleryRoot = qaGalleryCandidates.find((p) => existsSync(p));
+  if (qaGalleryRoot) {
+    app.register(fastifyStatic, {
+      root: qaGalleryRoot,
+      prefix: "/qa-g-x7k2m9fp4w",
+      decorateReply: false,
+      setHeaders: (res) => {
+        res.setHeader("X-Robots-Tag", "noindex, nofollow, noarchive");
+      },
+    });
+  }
 }
 
 // ── 404 Handler ───────────────────────────────────────────────────────────────

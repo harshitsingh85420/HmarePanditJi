@@ -69,6 +69,7 @@ const CAPTIONS = {
 
 const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
 let html = `<!doctype html><meta charset="utf-8"><title>HmarePanditJi — QA shot index</title>
+<meta name="robots" content="noindex, nofollow">
 <style>body{font-family:system-ui;background:#FFF9EE;color:#341A13;margin:24px}h1{font-size:22px}
 h2{font-size:17px;border-bottom:2px solid #F0DFC4;padding-bottom:4px;margin-top:34px}
 .grid{display:flex;flex-wrap:wrap;gap:14px}figure{margin:0;width:210px}

@@ -24,7 +24,7 @@ that would weaken a guard). Flag with screen + problem + proposed fix, keep walk
 ---
 
 ## RESUME POINTER
-> **PAGE-CLOSURE CHECKLIST (standing, updated 2026-07-25):** every page closes with — 11 sections in the ledger · decisive shots banked under docs/review/shots/<page>/ · **contact sheet regenerated (`node apps/pandit/scripts/build-shot-index.mjs` + captions added for the new shots)** · 3-5 decisive shots EMBEDDED inline in the chat report · commit + merge + deploy-verify when prod-visible.
+> **PAGE-CLOSURE CHECKLIST (standing, v2 2026-07-25):** every page closes with — 11 sections in the ledger · decisive shots banked under docs/review/shots/<page>/ · contact sheet regenerated (`node apps/pandit/scripts/build-shot-index.mjs` + captions) · **gallery redeployed (rides the API deploy on main) and the report's evidence section = the GALLERY URL + "new this page: [n] shots — look at [the 3 decisive filenames]"** · commit + merge + deploy-verify when prod-visible. The inline-image rule is DEAD (chat renders no pictures). GALLERY URL: https://hmarepanditji-api.onrender.com/qa-g-x7k2m9fp4w/index.html (unguessable path, X-Robots-Tag + meta noindex; move to a dedicated Vercel project when Isj runs `vercel login`).
 
 > **Next page (protocol): PAGE 5 · TUTORIAL DECK** — STAGED (phase TUTORIAL via the skip exit: micLS unset, micDenied=false — the richest state for the slide-5 mic re-offer). Owed: the asleep-state 390px screenshot (pane compositing) + §10 hear-again ruling + interjection-class ruling.
 > [dark circle, count visible bottom-right]; अनुमति दीजिए → geolocation grant AND
