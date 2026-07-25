@@ -24,6 +24,7 @@ const GROUPS = {
   "page9-final": { order: 9.2, title: "PAGE 9 · होम — SOS AFTER (116px), tap-proofs" },
   "page9-populated": { order: 9.3, title: "PAGE 9 · होम — populated leg (fixtures; venueAddress fix proof)" },
   page10: { order: 10, title: "PAGE 10 · बुकिंग arc (list + detail + request; money surfaces seen-never-fired)" },
+  page11: { order: 11, title: "PAGE 11 · कमाई (read-only money; conservation proven in pixels + voice)" },
 };
 const CAPTIONS = {
   "page3a/ta-confirm.png": "Tamil detect-confirm — calibration shot: headless eye matches the pane's banked frame; fixed strings render",
@@ -65,6 +66,11 @@ const CAPTIONS = {
   "page10/detail-accepted.png": "Detail ✓स्वीकृत + NEW route coach overlay discovered; call disc never dialed",
   "page10/detail-requested-wrongpill.png": "FINDING: REQUESTED deep-link shows the यात्रा में pill (truth violation)",
   "page10/detail-completed.png": "COMPLETED: ✓संपन्न, advance+complete correctly gone",
+  "page11/empty-canon27b.png": "PROD day-one: canon-27b empty — no ₹0 pretending; 7 tappables exactly",
+  "page11/fixtures-payout-moment.png": "Payout moment: banner + spoken ₹6,900 = Σ fresh PAID (voice conservation)",
+  "page11/fixtures-populated-tip.png": "FirstUseTip आने वाली राशि over the pending block",
+  "page11/fixtures-populated.png": "Populated: hero ₹12,500, tiles, मिल गया rows, आना बाकी heading = Σ rows",
+  "page11/fixtures-skew-empty-lists.png": "Skew leg: summary≠0 with empty lists — the 3-way मिल गया branch",
 };
 
 const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");

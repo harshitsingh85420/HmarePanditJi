@@ -1,0 +1,31 @@
+{
+ "mode": "fixtures",
+ "payoutMoment": {
+  "banner": true,
+  "paidVoice": [
+   "12:41:03.244 speak \"पंडित जी, 6,900 रुपये आपके खाते में भेज \" lang=hi-IN",
+   "12:41:03.403 speak \"यहाँ आपकी सारी कमाई का हिसाब है। आने वाल\" lang=hi-IN"
+  ]
+ },
+ "tipVisible": true,
+ "populated": {
+  "hero": true,
+  "tiles": true,
+  "milGaya": true,
+  "aanaBaki": true,
+  "conservation": "5,600",
+  "noPayoutControls": true
+ },
+ "skew": {
+  "heroStill": true,
+  "noPendingHead": false
+ },
+ "errs": [
+  "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+  "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+  "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+  "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+  "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+  "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+ ]
+}

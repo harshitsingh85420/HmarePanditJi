@@ -1,0 +1,19 @@
+{
+ "mode": "empty",
+ "empty": {
+  "title": true,
+  "emptyTitle": true,
+  "diyaHint": true,
+  "noZeroHero": true,
+  "noPayoutControls": true,
+  "tappables": 7
+ },
+ "narration": [
+  "12:35:04.213 speak \"नंबर डालिए — खाता होगा तो लॉगिन, नहीं तो\" lang=hi-IN",
+  "12:35:04.945 speak \"ओटीपी डालिए, आपका खाता तैयार है। आपके मो\" lang=hi-IN",
+  "12:36:38.636 speak \"सर्वर जग रहा है, बस कुछ पल…\" lang=hi-IN",
+  "12:36:50.974 speak \"यहाँ आपकी सारी कमाई का हिसाब है। आने वाल\" lang=hi-IN",
+  "12:36:58.158 speak \"यहाँ आपकी सारी कमाई का हिसाब है। आने वाल\" lang=hi-IN"
+ ],
+ "errs": []
+}
