@@ -1,0 +1,64 @@
+{
+ "login": {
+  "step2": true,
+  "landed": "/home"
+ },
+ "hub": {
+  "heading": "",
+  "text": "🐞\n64\narrow_back\nआपकी तैयारी\n0 / 5 दीये जल गए\ntemple_hindu\nपूजाएँ व दक्षिणा\nअभी कीजिए\ninventory_2\nसामग्री\nबाकी\ndirections_car\nयात्रा\nबाकी\nrestaurant\nभोजन व ठहराव\nबाकी\nverified_user\nभुगतान व सत्यापन\nबाकी\nपूजाएँ व दक्षिणा भरिए\n🙏\nशिष्य\n🆘\nमदद"
+ },
+ "cards": [
+  "arrow_back",
+  "temple_hinduपूजाएँ व दक्षिणाअभी कीजिए",
+  "inventory_2सामग्रीबाकी",
+  "directions_carयात्राबाकी",
+  "restaurantभोजन व ठहरावबाकी",
+  "verified_userभुगतान व सत्यापनबाकी",
+  "पूजाएँ व दक्षिणा भरिए"
+ ],
+ "taps": [
+  {
+   "i": 0,
+   "tapped": "arrow_back",
+   "dest": "/home"
+  },
+  {
+   "i": 1,
+   "tapped": "temple_hinduपूजाएँ व दक्षिणाअभी कीजिए",
+   "dest": "/readiness"
+  },
+  {
+   "i": 2,
+   "tapped": "inventory_2सामग्रीबाकी",
+   "dest": "/readiness/hub"
+  },
+  {
+   "i": 3,
+   "tapped": "directions_carयात्राबाकी",
+   "dest": "/readiness/hub"
+  },
+  {
+   "i": 4,
+   "tapped": "restaurantभोजन व ठहरावबाकी",
+   "dest": "/readiness/hub"
+  },
+  {
+   "i": 5,
+   "tapped": "verified_userभुगतान व सत्यापनबाकी",
+   "dest": "/readiness/hub"
+  }
+ ],
+ "narration": [
+  "09:56:42.892 speak \"आपकी तैयारी 0 बटा 5 पूरी है। अगला कदम — \" lang=hi-IN",
+  "09:56:45.292 speak \"आपकी तैयारी 0 बटा 5 पूरी है। अगला कदम — \" lang=hi-IN",
+  "09:56:52.158 speak \"पंडित जी, बुकिंग पाने के लिए बस पाँच छोट\" lang=hi-IN",
+  "09:56:52.158 speak \"आपकी प्रोफ़ाइल सत्यापन में है। जल्द पूरा\" lang=hi-IN",
+  "09:56:55.224 speak \"आपकी तैयारी 0 बटा 5 पूरी है। अगला कदम — \" lang=hi-IN",
+  "09:57:00.741 speak \"पंडित जी, आप कौन-कौन सी पूजा करवाते हैं?\" lang=hi-IN",
+  "09:57:04.972 speak \"आपकी तैयारी 0 बटा 5 पूरी है। अगला कदम — \" lang=hi-IN",
+  "09:57:14.992 speak \"आपकी तैयारी 0 बटा 5 पूरी है। अगला कदम — \" lang=hi-IN",
+  "09:57:24.890 speak \"आपकी तैयारी 0 बटा 5 पूरी है। अगला कदम — \" lang=hi-IN",
+  "09:57:35.383 speak \"आपकी तैयारी 0 बटा 5 पूरी है। अगला कदम — \" lang=hi-IN"
+ ],
+ "errs": []
+}

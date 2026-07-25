@@ -156,6 +156,24 @@ that would weaken a guard). Flag with screen + problem + proposed fix, keep walk
 
 ---
 
+### PAGE 8 · तैयारी (readiness hub + wizard engine) — **PASS with 1 P1 + 2 findings** · 2026-07-25 · headless eye, PROD probe session
+
+**§1 ENTRIES:** home तैयारी hero (when !isBookingReady) → /readiness/hub; bookings empty-state CTA; voice "तैयारी" dashboard-wide; rejected-KYC home banner → /readiness?step=5 direct; bare /readiness = the wizard ENGINE (canonShapesLive pins nav targets to /hub). Auth: client F4 guard + data-gate (GET /pandit/readiness fail → /home). Header back → /home ✓ walked.
+**§2 HUB (all in pixels, prod):** maroon diya banner "0 / 5 दीये जल गए" (5 unlit diyas); 5 cards on the 3-state machine — पूजाएँ व दक्षिणा [अभी कीजिए, saffron pill], सामग्री/यात्रा/भोजन व ठहराव/भुगतान व सत्यापन [बाकी, parchment]; footer CTA "पूजाएँ व दक्षिणा भरिए"; orb + SOS मदद. WIZARD R1 also walked (first run): 9-puja emoji tile grid (📖🏡💑👶🍼🔥💦👵…), आगे बढ़िए, "बाद में पूरा कीजिए" escape → /home ✓ (F2 alive), empty-आगे stays put ✓.
+**§3 floors** per canon hub port (exact-UI ruled) ✓ shots. **FINDING (P2, prod-visible): the SOS मदद pill OVERLAPS the orb** in the hub footer at 390×844 — the one-orb law's single voice control is half-covered (hub.png). Queue: dock spacing fix.
+**§4** No text inputs on the hub (N/A); wizard R1's empty-submit holds the line (stays, no advance). Full wizard-form abuse = the per-step walks (R1-R5 are their own journey pages downstream).
+**§5 PARTIAL-COMPLETION MATRIX — the ladder is PURE SEQUENTIAL, no combinations:** server readinessStep (0-5) is the only driver; statusOf: ≤done→हो गया (still tappable for re-edit), ===done+1→अभी कीजिए (exactly one), else बाकी (hard-disabled). LIVE PROOF at the 0/5 point: card 1 → wizard ✓; **cards 2-5 tapped ×4 → no navigation (disabled holds)** ✓; deep-link clamp proven live (?step=5 @ readinessStep=0 → "चरण 1 / 5"). Monotonic server advance (never regresses on re-edit). HONEST LIMIT: the done-tint/re-edit and allDone (5/5 celebration + "तैयारी पूरी — होम चलें") states are source-pinned (hub:121-131,192-194; controller:329-332 sets isBookingReady + DOCUMENTS_SUBMITTED atomically at step 5), NOT walked — advancing the probe's readinessStep mutates the shared prod account; a dedicated fresh test number could walk the full ladder if Isj wants it (one junk prod user — his call). **CAVEAT (REPORT): server does NOT enforce ordering** — PATCH {step:3} at readinessStep=0 succeeds and jumps the pointer (client-law only; merge-day/hardening list).
+**§6** Hub↔wizard↔home routing walked ✓; resume = server truth (no local draft dependence at hub level).
+**§7 NARRATION (heard on prod, matches source verbatim):** hub — "आपकी तैयारी 0 बटा 5 पूरी है। अगला कदम — पूजाएँ व दक्षिणा।" (template hub:86-92); wizard R1 — "पंडित जी, आप कौन-कौन सी पूजा करवाते हैं?"; the hero intro "पंडित जी, बुकिंग पाने के लिए बस पाँच छोटे कदम…" ✓.
+**§8 CANON:** the hub SHAPE is itself the exact-UI ruling's winner (hub header comment); diya banner/cards/footer per the readiness canon port ✓ in the shot.
+**§9 REGISTER + EMOJI:** clean (कीजिए/भरिए); **copy nit: hub "पूजाएँ व दक्षिणा" vs wizard r1Title "पूजाएँ और दक्षिणा"** (व/और drift — one-word fix queued). EMOJI: 🪔 diyas (canon's own) · R1 puja tile emojis (canon set) · 🆘 SOS — nothing new.
+**§10** Exactly one actionable card at a time + a disabled-but-visible future = right for this persona; the SOS-over-orb overlap is the one wart (P2 above).
+**§11** Zero app console errors across login + hub + 6 taps + R1 (prod).
+**KYC BOUNDARY (honored):** R5's Aadhaar upload tiles/12-digit field/DPDP consent/bank-UPI tabs were mapped (recon) and NOT fired — no upload, no submission, per standing law. R5's own §-walk = its journey page, UI-look only.
+**P1 (REPORT, needs Isj's pick):** client R3 KM presets [10/25/50/999] vs server whitelist KM_STEPS [25/50/100/200/500] — **choosing 10 कि.मी. or 100+ makes R3's save 400-fail.** Options: (a) widen the server whitelist to the client's set (one-line, keeps the designed pills), or (b) client adopts the server steps (changes the offered distances). Product pick → Isj.
+
+---
+
 ### PAGE 7 §8 CLOSURE + RIDERS (2026-07-25)
 
 **§8 CANON — DELIVERED, CLOSED CLEAN:** canon frame 6 ("पंजीकरण · Registration", canon .dc.html:337-368) **IS the single-screen form** — "बस दो बातें बताइए" + "बोलकर या टाइप करके — जैसे आसान लगे", TWO field cards (आपका नाम 🙏 "पं. रमेश शर्मा" / आपका शहर 🏙️ "वाराणसी", each with a 54px mic disc), one full-width CTA, orb say "बाकी सब मैं देख लूँगा 🙏", toran. **No wizard exists in canon — no drift; the shipped form matches the artboard's structure.** Residuals noted (flags, not fixes): canon CTA reads "आगे बढ़ें" vs live "खाता बनाइए"/"प्रोफ़ाइल पूरी कीजिए" (live is MORE truthful — existing BATCH 2A-era divergence, stands for Isj's canon refresh); canon draws per-field emoji (🙏/🏙️) the live cards don't.
