@@ -168,17 +168,24 @@ export default function OnboardingOrchestratorPage() {
     setSwitching(code);
     const ok = await activateLanguage(code);
     setSwitching(null);
+    // NARRATION-QUEUE LAW (Isj, 2026-07-25): the switch's own line — the
+    // confirmedLine on success, the HONESTY NOTICE on failure — must reach
+    // its END before the flow advances and the next screen's intro may
+    // speak. The bare speak() here let PARICHAY's mount kill the notice
+    // 25ms/9ms in (twice live-proven) — the pandit never heard why the app
+    // stayed in Hindi. speakAndWait's outcome semantics make the await
+    // safe: ended/interrupted/parked/muted all resolve — never a hang.
     if (ok) {
       store.setLanguage(CODE_TO_SUPPORTED[code]);
       store.setPreferredLanguage(code);
-      voiceController.speak(LANG_CONFIRM[code].confirmedLine, { languageCode: LANG_TO_BCP47[code] });
+      await voiceController.speakAndWait(LANG_CONFIRM[code].confirmedLine, { languageCode: LANG_TO_BCP47[code] });
       // N2: PARICHAY follows — warm शिष्य's first नमस्ते in the language
       // just activated (t() now serves the fresh bundle)
       voiceController.prefetch([t("parichay.introOnly"), t("parichay.pressAllow"), t("parichay.granted")]);
     } else {
       store.setLanguage("Hindi");
       store.setPreferredLanguage(code);
-      voiceController.speak(LANG_CONFIRM[code].fallbackNotice, { languageCode: LANG_TO_BCP47[code] });
+      await voiceController.speakAndWait(LANG_CONFIRM[code].fallbackNotice, { languageCode: LANG_TO_BCP47[code] });
     }
   };
 
