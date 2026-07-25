@@ -1,0 +1,39 @@
+{
+ "abuse": [],
+ "otp": {
+  "entered": true,
+  "wrong_111111": {
+   "error": "कुछ गड़बड़ हो गई। दोबारा कोशिश कीजिए।",
+   "boxesCleared": false
+  },
+  "wrong_222222": {
+   "error": "कुछ गड़बड़ हो गई। दोबारा कोशिश कीजिए।",
+   "boxesCleared": false
+  },
+  "wrong_000000": {
+   "error": "कुछ गड़बड़ हो गई। दोबारा कोशिश कीजिए।",
+   "boxesCleared": false
+  },
+  "countdownLabel": "ओटीपी दोबारा भेजिए",
+  "resendClickable": true,
+  "after": {
+   "url": "/home",
+   "text": "🐞\n93\n🪔\nनमस्ते, टेस्ट जी\nsettings\n🕉️\nशनिवार · 25 जुलाई\n⚠️\n\nआपकी प्रोफ़ाइल सत्यापन में है। जल्द पूरा होगा।\n\n🪔\nइस महीने की कमाई\n₹0\nआना बाकी\n₹0\n🚩 बुकिंग पाने की तैयारी कीजिए — 5 छोटे कदम\nआज़माइए →\nआज"
+  }
+ },
+ "voicedebug": [
+  "08:55:00.841 speak \"नंबर डालिए — खाता होगा तो लॉगिन, नहीं तो\" lang=hi-IN",
+  "08:55:03.641 speak \"ओटीपी डालिए, आपका खाता तैयार है। आपके मो\" lang=hi-IN",
+  "08:56:08.232 speak \"कुछ गड़बड़ हो गई। दोबारा कोशिश कीजिए।\" lang=hi-IN",
+  "08:56:12.215 speak \"कुछ गड़बड़ हो गई। दोबारा कोशिश कीजिए।\" lang=hi-IN",
+  "08:56:16.297 speak \"कुछ गड़बड़ हो गई। दोबारा कोशिश कीजिए।\" lang=hi-IN",
+  "08:56:56.327 speak \"नमस्ते पंडित जी!\" lang=hi-IN",
+  "08:57:02.219 speak \"पंडित जी, बुकिंग पाने के लिए बस पाँच छोट\" lang=hi-IN",
+  "08:57:02.220 speak \"आपकी प्रोफ़ाइल सत्यापन में है। जल्द पूरा\" lang=hi-IN"
+ ],
+ "errs": [
+  "Failed to load resource: the server responded with a status of 400 ()",
+  "Failed to load resource: the server responded with a status of 400 ()",
+  "Failed to load resource: the server responded with a status of 400 ()"
+ ]
+}

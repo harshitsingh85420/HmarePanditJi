@@ -1,0 +1,73 @@
+{
+ "abuse": [
+  {
+   "name": "placeholder-as-typed",
+   "value": "98765 43210",
+   "echoed": "98765 43210",
+   "advanced": false,
+   "error": "कुछ गड़बड़ हो गई। दोबारा कोशिश कीजिए।"
+  },
+  {
+   "name": "plus91-prefixed",
+   "value": "+919876500050",
+   "echoed": "+919876500050",
+   "advanced": false,
+   "error": "कुछ गड़बड़ हो गई। दोबारा कोशिश कीजिए।"
+  },
+  {
+   "name": "devanagari-digits",
+   "value": "१२३४५६७८९०",
+   "echoed": "१२३४५६७८९०",
+   "advanced": false,
+   "error": "कुछ गड़बड़ हो गई। दोबारा कोशिश कीजिए।"
+  },
+  {
+   "name": "letters-x10",
+   "value": "abcdefghij",
+   "echoed": "abcdefghij",
+   "advanced": false,
+   "error": "कुछ गड़बड़ हो गई। दोबारा कोशिश कीजिए।"
+  },
+  {
+   "name": "short-5",
+   "value": "12345",
+   "echoed": "12345",
+   "advanced": false,
+   "error": "कुछ गड़बड़ हो गई। दोबारा कोशिश कीजिए।"
+  },
+  {
+   "name": "leading-zero-10",
+   "value": "0555555555",
+   "echoed": "0555555555",
+   "advanced": false,
+   "error": "कुछ गड़बड़ हो गई। दोबारा कोशिश कीजिए।"
+  },
+  {
+   "name": "paste-formatted",
+   "value": "+91 98765-43210",
+   "echoed": "+91 98765-43210",
+   "advanced": false,
+   "error": "कुछ गड़बड़ हो गई। दोबारा कोशिश कीजिए।"
+  }
+ ],
+ "otp": {
+  "entered": false
+ },
+ "voicedebug": [
+  "08:53:18.300 speak \"कुछ गड़बड़ हो गई। दोबारा कोशिश कीजिए।\" lang=hi-IN",
+  "08:53:22.615 speak \"कुछ गड़बड़ हो गई। दोबारा कोशिश कीजिए।\" lang=hi-IN",
+  "08:53:29.221 speak \"कुछ गड़बड़ हो गई। दोबारा कोशिश कीजिए।\" lang=hi-IN",
+  "08:53:33.468 speak \"कुछ गड़बड़ हो गई। दोबारा कोशिश कीजिए।\" lang=hi-IN",
+  "08:53:35.364 speak \"कुछ गड़बड़ हो गई। दोबारा कोशिश कीजिए।\" lang=hi-IN",
+  "08:53:41.982 speak \"कुछ गड़बड़ हो गई। दोबारा कोशिश कीजिए।\" lang=hi-IN",
+  "08:53:43.897 speak \"कुछ गड़बड़ हो गई। दोबारा कोशिश कीजिए।\" lang=hi-IN",
+  "08:53:50.502 speak \"कुछ गड़बड़ हो गई। दोबारा कोशिश कीजिए।\" lang=hi-IN"
+ ],
+ "errs": [
+  "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+  "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+  "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+  "Failed to load resource: net::ERR_CONNECTION_REFUSED",
+  "Failed to load resource: net::ERR_CONNECTION_REFUSED"
+ ]
+}

@@ -156,6 +156,36 @@ that would weaken a guard). Flag with screen + problem + proposed fix, keep walk
 
 ---
 
+### PAGE 6 · AUTH (लॉगिन/रजिस्ट्रेशन + OTP — /login) — **PASS with 4 findings (main's pre-hardening shape, as ordered)** · 2026-07-25 · headless eye
+
+**P0 PRELUDE (same turn): the mic-grant record fix SHIPPED + deploy-verified 7e8bdf8** — single-source writers (micPermission.ts), TutorialV2 settleMicPerm choke, VoiceRoot mount reconciler, micGrantRecord.test.tsx (proven-to-fail 3-red first), 9 direct writers rewired, headless pregranted re-prove: deck exit micLS='true' + listen loop ARMED (paused=false). Wall 66/769 green.
+
+**HARNESS:** scripts/page6-auth-headless.mjs. Boundary honored: WHAT MAIN SHIPS TODAY; hold-branch code untouched. SMS-safety established first: main sends NO OTP SMS (no provider on the OTP path; prod issues "123456" for every number via OTP_DEV_MODE — render.yaml:24-25); probe number +919999999999 per the check-auth-live convention; ≤2 sends used of the 3/10min budget. ENV NOTE: step-2 legs ran on the PRODUCTION origin — localhost:3002 is CORS-blocked at the live API (same class as the language-switch fail path); also a stale-server/build-graph mismatch (refused 912-chunk) invalidated two earlier runs — server restart cured; results before the cure were discarded.
+
+**§1** AUTH phase = pulsing 🪔 → token? REGISTRATION : /login?next=/onboarding. Entry-flow footer docks 📖 ट्यूटोरियल फिर देखिए + orb; hardware back = review-tutorial intent. Step-1 shot banked (local), step-2 shot banked (prod).
+**§2** Step 1: header (no back), 48px waking slot (4s → DiyaLoader + "सर्वर जग रहा है…"), sub copy, VoiceField phone, आगे बढ़िए, error box, tutorial dock + orb. Step 2: back arrow (→ step 1, clears boxes), returning-greeting "वापसी पर स्वागत, पंडित जी", "+91 99999 99999 पर भेजा गया" (5-5 spacing ✓), 6 boxes (box-0 one-time-code, WebOTP 60s listener, paste distributes, backspace walks), resend row, 3×4 keypad, orb footer. All in pixels.
+**§3** Boxes ≤62×72, keys ≥58px, digits 36/900 — floors ✓. **Minor flag: the keypad 0/backspace row sits partially under the footer fold at 390×844** (functional via paste/WebOTP; 0-key tap reachability → device-pass check).
+**§4 INPUT ABUSE — the richest page, 7 phone variants + 3 wrong codes, all live:**
+| variant | result |
+|---|---|
+| "98765 43210" (typed EXACTLY as the placeholder shows) | 🔴 REJECTED with the generic line — **the placeholder teaches an input the validator refuses** |
+| +919876500050 | rejected (typed path never strips +91 — the VOICE path does; inconsistent normalization) |
+| १२३४५६७८९० (Devanagari ×10) | passes the client length gate → API 400 → same generic line |
+| abcdefghij (letters ×10) | passes the client gate (!) → API 400 → same generic line |
+| 12345 · 0555555555 · "+91 98765-43210" | rejected → same generic line |
+All 7: echoed RAW (no maxLength/inputmode/normalization on the typed path), none advanced, and **one identical error for everything — "कुछ गड़बड़ हो गई। दोबारा कोशिश कीजिए।" — shown AND spoken 7×** (voicedebug). FINDING #1: the error never says WHAT to fix ("10 अंक डालिए" class copy absent); FINDING #2: the placeholder-vs-validator trap; FINDING #3 (OTP): wrong code ×3 → same generic line each time and **the boxes are never cleared** — auto-verify won't refire until the pandit manually backspaces 6 digits; no expiry-specific copy exists (post-TTL otp_not_found → same line, no "नया OTP मंगाइए" hint). FINDING #4 (server, REPORT-not-fix per the auth boundary): verify has NO attempt cap on main — a 6-digit hash survives wrong guesses until TTL, bounded only by the global 100/min/IP.
+**§5** Wrong ×3 / resend countdown (30s tick → underlined link, clickable, re-send works) / success: 123456 → token + 30d cookie → **landed /home as टेस्ट जी** (shot banked). Note: next=/onboarding was overridden to /home for the profile-complete account — one line of drift vs the recon's reading of the redirect rule, logged for the next look.
+**§6** Back from step 2 → step 1 with boxes cleared ✓ (source + walked); session persists via hpj_token.
+**§7** Step-2 narration quoted + heard: greeting + "आपके मोबाइल पर छह अंकों का ओटीपी भेजा गया है…" (+ WebOTP Allow-line only when supported and not dev-mode); voice grammar: भेजो/resend/नहीं-आया = resend, BACK = edit number; OTP digits typed-only by law A5 ✓.
+**§8** Canon: पंजीकरण/OTP ports from BATCH 1/2A stand (hero heading, field cards, OTP boxes) — no new deviations in the fresh shots.
+**§9** Register clean (डालिए/भेजिए/कीजिए); truthful-state pass EXCEPT the generic-error class above (an error that explains nothing fails the spirit); EMOJI: 🪔 (AUTH veil) · 📖 (tutorial dock) · 🙏 (reauth banner, orb) · 🐞 — nothing new.
+**§10** Auto-verify at digit 6 with no verify button = correct for this persona; the un-cleared wrong-code boxes are the one flow-logic wart (FINDING #3).
+**§11** Zero app console errors across both origins (the three 400s are the wrong-code verifies, by design; refused-chunk was the env issue, cured).
+
+**MERGE-DAY DIFF LIST (hold/otp-hardening-v2 vs today, for the credentials day):** (1) 123456 dies EVERYWHERE (isStaticOtpAllowed hard-false in prod; legacy bypass branch deleted) — every QA probe flow that verifies with 123456 breaks, including check-auth-live and this page's harness success leg; (2) every send becomes a REAL MSG91 DLT SMS — the zero-SMS QA convention above DIES with it (walks must switch to designated test numbers with real phones); (3) OTP storage in-memory→Redis (cold-start survival), TTL semantics change; (4) fail-closed rate limiting + client cooldown UX beyond today's 30s timer; (5) env fatal-boots (missing MSG91 creds kill the boot rather than silently no-op'ing); (6) verify attempt caps close FINDING #4. The generic-error copy (FINDINGS #1-3) is NOT in the hold branch's scope — it survives the merge unless separately fixed; queued as this page's fix-candidate list awaiting the walk-vs-fix call (error copy touches auth flow = REPORT first per the standing boundary).
+
+---
+
 ### PAGE 5 · TUTORIAL DECK (TUTORIAL — 6 slides, TutorialV2) — **PASS with 1 candidate defect (§5) + 1 comment fix** · 2026-07-25 · headless eye
 
 **PRE-PAGE ITEMS:** (1) क/ख/ग/घ machine-translation ruling — UNTOUCHED as ordered (product decision; the ख gate design is on file, not implemented). (2) **or-IN re-probe: STILL 502** (one live /api/tts call) — **Odia joins the ruling's scope note**: a "speakable" language that cannot speak today.
