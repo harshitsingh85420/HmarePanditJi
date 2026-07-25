@@ -156,6 +156,96 @@ that would weaken a guard). Flag with screen + problem + proposed fix, keep walk
 
 ---
 
+### PAGE 4 CLOSURE — re-delivered under the screenshot rule (2026-07-25)
+
+**Every walkable state re-shot fresh this turn with REAL taps (pane vision + input verified working):** needstart ✓ · asleep-on-परिचय ✓ · dismissed ("🎤 फिर से पूछिए") ✓ · denied recovery ✓ (banked prior turn, same rule) · granted exit→TUTORIAL ✓ · no-hardware exit→TUTORIAL ✓ (no distinct sub-UI by design — stated, with `settled(denied - no mic hardware)` chain + micDenied=true/micLS='false') · skip exit→TUTORIAL ✓ with SKIP ≠ DENY state proof (micDenied=false, micLS untouched). HONEST LIMITS, named: (1) the ASKING sub-state (PopupPointer) is a <50ms transient here — the pane settles gUM instantly; on-device it persists while the popup is open → device-pass glance. (2) The PRACTICE-HINT frame is a ≤3s transient here (pane STT settles immediately); evidence stands on parichayGrantedPath.test.tsx (behavioral), the 15s-watchdog voicedebug chain, and two live exit runs — granted = test-level per the ruling → device-pass glance.
+
+**NIT FIXED — जगाइए pill centered on the orb axis.** Root cause: `mx-auto` on the w-max pill inside the column's flex context — cross-axis auto margins beat items-center and zero out on overflow → flush-left (~10px right of axis). Fix: `self-center` (align-self centers an overflowing flex item symmetrically). Pixel proof: before = the भाषा asleep shot (offset), after = the परिचय asleep shot on the rebuilt bundle (pill dead-center). Guards 12/12, tsc clean.
+
+**§5 addendum (forced-env finding, REPORT):** with a granted stream in hand but the browser permission state reading 'denied'/'prompt', the practice listen's defensive re-check writes mic_permission_granted='false' post-grant (useVoiceInput prompt/denied guard). In the pane that is the environment; on standard Chrome/Android post-grant the query reads 'granted' — no downgrade. The exposed edge (WebViews with grant-once semantics reporting 'prompt' after a grant) goes to the DEVICE MATRIX list.
+
+**RIDERS — all three delivered:**
+- **(a) §10 tap-repeat hole** — CONFIRMED DEFECT for the no-voice persona, report-only, ruling awaited: "फिर से" needs STT→mic twice over; repeatCurrent() has zero call sites; sleep-wake replay is an accidental 2-tap ceremony. Minimal fix proposed (voice-input-off-only "फिर से सुनिए" pill in the existing slot, `!muted && !micInputAvailable`, onClick=repeatCurrent, guard pins it never renders while voice works) + 2 alternatives. NOT shipped.
+- **(b) Multi-language register audit — FULL LIVE TABLE (68 rows, 14 were defects → fixed in place):**
+
+| Lang | String | Loc | Gloss | Register found | Verdict |
+|---|---|---|---|---|---|
+| Bengali | আপনি কি বাংলায় কথা বলতে চান? | strings-langconfirm.ts:42 | Do you wish to speak in Bengali? | আপনি (honorific pronoun) + চান (honorific -en present of চাওয়া; tumi would be চাও) | ✅ PASS |
+| Bengali | হ্যাঁ, বাংলা ঠিক আছে | strings-langconfirm.ts:43 | Yes, Bengali is fine | User-voice button; no 2nd-person address forms — register-neutral | ✅ PASS |
+| Bengali | অন্য ভাষা বেছে নিন | strings-langconfirm.ts:44 | Pick another language | বেছে নিন — নিন is the honorific -un imperative of নেওয়া (tumi: নাও, tui: নে) | ✅ PASS |
+| Bengali | এক মুহূর্ত… | strings-langconfirm.ts:45 | One moment… | No pronoun or verb toward the user — register-neutral | ✅ PASS |
+| Bengali | চমৎকার! এখন আমরা বাংলায় কথা বলব। | strings-langconfirm.ts:46 | Wonderful! Now we will speak in Bengali. | 1st-plural inclusive আমরা + বলব; no 2nd-person forms | ✅ PASS |
+| Bengali | অনুবাদ এখন উপলব্ধ নেই — আমরা হিন্দিতে চালিয়ে যাব। | strings-langconfirm.ts:47 | Translation is not available now — we will continue in Hindi. | 1st-plural আমরা + চালিয়ে যাব; no 2nd-person forms | ✅ PASS |
+| Bengali | বাংলা | languageDetect.ts:63 | Bengali | Bare language name — no address forms | ✅ PASS |
+| English | Would you like to continue in English? | strings-langconfirm.ts:106 | identical — source is English: an offer-question whether to proceed in English | Modal-interrogative offer "Would you like…" — English's highest natural deference frame fo | ✅ PASS |
+| English | Yes, English is fine | strings-langconfirm.ts:107 | identical — affirmative reply: yes, English suffices | User-voice button (the guru speaking, not the app addressing the guru): plain declarative  | ✅ PASS |
+| English | Choose another language | strings-langconfirm.ts:108 | identical — directive to select a different language | Bare unmarked imperative "Choose" in app voice directed at the user — English's करो-equiva | 🔴 FIXED → Please choose another language |
+| English | One moment… | strings-langconfirm.ts:109 | identical — a request for brief patience while loading | Verbless nominal fragment, no pronoun, no deference marker — mere neutral politeness. Engl | 🔴 FIXED → One moment, please… |
+| English | Great! We will continue in English. | strings-langconfirm.ts:110 | identical — enthusiastic acknowledgment; announcement that the app proceeds in E | Casual peer interjection "Great!" (equivalent of बढ़िया! between equals) + plain declarati | 🔴 FIXED → Certainly! We will continue in English. |
+| English | Translation is not available right now — we will continue in | strings-langconfirm.ts:111 | identical — statement that translation is currently unavailable and the app proc | Plain declarative, first-person plural "we", no 2nd-person address, no imperative — regist | ✅ PASS |
+| Gujarati | શું તમે ગુજરાતીમાં વાત કરવા માંગો છો? | strings-langconfirm.ts:74 | Do you want to talk in Gujarati? | તમે (neutral-polite V pronoun, the तुम-tier when addressing a guru) + માંગો છો (2pl presen | 🔴 FIXED → શું આપ ગુજરાતીમાં વાત કરવા માંગો છો? |
+| Gujarati | હા, ગુજરાતી બરાબર છે | strings-langconfirm.ts:75 | Yes, Gujarati is fine | Pronoun-free declarative spoken in the pandit's own voice; no address forms present. | ✅ PASS |
+| Gujarati | બીજી ભાષા પસંદ કરો | strings-langconfirm.ts:76 | Choose another language | પસંદ કરો — the -ઓ plural imperative, which is the imperative Gujarati uses WITH આપ (the ca | ✅ PASS |
+| Gujarati | એક ક્ષણ… | strings-langconfirm.ts:77 | One moment… | No pronoun, no verb directed at the user. | ✅ PASS |
+| Gujarati | સરસ! હવે આપણે ગુજરાતીમાં વાત કરીશું. | strings-langconfirm.ts:78 | Great! Now we will talk in Gujarati. | આપણે (inclusive 'we', not the honorific આપ despite the shared substring) + કરીશું (1pl fut | ✅ PASS |
+| Gujarati | અનુવાદ હમણાં ઉપલબ્ધ નથી — આપણે હિન્દીમાં આગળ વધીશું. | strings-langconfirm.ts:79 | Translation is not available right now — we will proceed in Hindi. | આપણે (inclusive we) + વધીશું (1pl future). No second-person forms; nothing casual. | ✅ PASS |
+| Gujarati | ગુજરાતી | languageDetect.ts:64 | Gujarati (language name) | Proper noun; register-neutral by nature. | ✅ PASS |
+| Kannada | ಹೌದು, ಕನ್ನಡ ಸರಿ | strings-langconfirm.ts:67 | Yes, Kannada is fine | User's own voice (button = disciple's answer); no 2nd-person address forms at all | ✅ PASS |
+| Kannada | ಬೇರೆ ಭಾಷೆ ಆರಿಸಿ | strings-langconfirm.ts:68 | Choose another language | ಆರಿಸಿ — honorific/plural imperative in -ಇ (casual singular would be ಆರಿಸು) | ✅ PASS |
+| Kannada | ಒಂದು ಕ್ಷಣ… | strings-langconfirm.ts:69 | One moment… | No pronoun or verb; register-neutral noun phrase | ✅ PASS |
+| Kannada | ಚೆನ್ನಾಗಿದೆ! ಇನ್ನು ನಾವು ಕನ್ನಡದಲ್ಲಿ ಮಾತನಾಡೋಣ. | strings-langconfirm.ts:70 | Wonderful! From now on let us speak in Kannada. | ನಾವು (inclusive we) + ಮಾತನಾಡೋಣ (hortative -ೋಣ, 'let us') — the warm inclusive form, no 2nd | ✅ PASS |
+| Kannada | ಅನುವಾದ ಸದ್ಯ ಲಭ್ಯವಿಲ್ಲ — ಹಿಂದಿಯಲ್ಲಿ ಮುಂದುವರಿಯೋಣ. | strings-langconfirm.ts:71 | Translation is not available at present — let us continue in Hindi. | Impersonal declarative + ಮುಂದುವರಿಯೋಣ (inclusive hortative -ೋಣ); no casual 2nd-person forms | ✅ PASS |
+| Kannada | ಕನ್ನಡ | languageDetect.ts:64 | Kannada (native language name) | Proper noun; no address forms | ✅ PASS |
+| Malayalam | നിങ്ങൾ മലയാളത്തിൽ സംസാരിക്കാൻ ആഗ്രഹിക്കുന്നുവോ? | strings-langconfirm.ts:90 | Do you wish to speak in Malayalam? | നിങ്ങൾ — neutral-polite 2nd-person plural pronoun; verb ആഗ്രഹിക്കുന്നുവോ carries no person | 🔴 FIXED → താങ്കൾ മലയാളത്തിൽ സംസാരിക്കാൻ ആഗ്രഹിക്കുന്നുവോ? |
+| Malayalam | അതെ, മലയാളം മതി | strings-langconfirm.ts:91 | Yes, Malayalam will do | User-voiced button (the guru's own words) — no 2nd-person form; declarative മതി (suffices) | ✅ PASS |
+| Malayalam | മറ്റൊരു ഭാഷ തിരഞ്ഞെടുക്കുക | strings-langconfirm.ts:92 | Select another language | -ുക impersonal-formal imperative (തിരഞ്ഞെടുക്കുക) — the standard respectful written-UI imp | ✅ PASS |
+| Malayalam | ഒരു നിമിഷം… | strings-langconfirm.ts:93 | One moment… | Verbless noun phrase — no register exposure | ✅ PASS |
+| Malayalam | കൊള്ളാം! ഇനി നമുക്ക് മലയാളത്തിൽ സംസാരിക്കാം. | strings-langconfirm.ts:94 | Nice! / Not bad! From now on let us speak in Malayalam. | കൊള്ളാം — colloquial approving interjection (lit. 'it will do'), the app appraising the gu | 🔴 FIXED → വളരെ സന്തോഷം! ഇനി നമുക്ക് മലയാളത്തിൽ സംസാരിക്കാം. |
+| Malayalam | വിവർത്തനം ഇപ്പോൾ ലഭ്യമല്ല — നമുക്ക് ഹിന്ദിയിൽ തുടരാം. | strings-langconfirm.ts:95 | Translation is not available right now — let us continue in Hindi. | Impersonal declarative ലഭ്യമല്ല + inclusive hortative നമുക്ക് തുടരാം; no 2nd-person form e | ✅ PASS |
+| Malayalam | മലയാളം | languageDetect.ts:64 | Malayalam (language name) | Bare noun — no register exposure | ✅ PASS |
+| Marathi | तुम्हाला मराठीत बोलायला आवडेल का? | strings-langconfirm.ts:34 | Would you like to speak in Marathi? | तुम्हाला — dative of neutral-polite तुम्ही; not the reverential आपण/आपल्याला | 🔴 FIXED → आपल्याला मराठीत बोलायला आवडेल का? |
+| Marathi | हो, मराठी चालेल | strings-langconfirm.ts:35 | Yes, Marathi will do | User-voice assent; चालेल is 3sg future about the language — no second-person form present | ✅ PASS |
+| Marathi | दुसरी भाषा निवडा | strings-langconfirm.ts:36 | Choose another language | निवडा — bare तुम्ही-imperative (neutral politeness), not the reverential -आवी optative | 🔴 FIXED → दुसरी भाषा निवडावी |
+| Marathi | एक क्षण थांबा… | strings-langconfirm.ts:37 | Wait a moment… | थांबा — तुम्ही-imperative (neutral politeness) | 🔴 FIXED → एक क्षण थांबावे… |
+| Marathi | छान! आता आपण मराठीत बोलू. | strings-langconfirm.ts:38 | Great! Now we will speak in Marathi. | आपण here is INCLUSIVE-WE (आपण…बोलू, 1pl future) — no second-person address; register clean | ✅ PASS |
+| Marathi | भाषांतर सध्या उपलब्ध नाही — आपण हिंदीत पुढे जाऊ. | strings-langconfirm.ts:39 | Translation is not available right now — we will proceed in Hindi. | आपण inclusive-we + जाऊ 1pl future; no second-person form; deferential-neutral, acceptable | ✅ PASS |
+| Marathi | मराठी | languageDetect.ts:63 | Marathi (language name) | Bare noun; no register | ✅ PASS |
+| Odia | ଆପଣ ଓଡ଼ିଆରେ କଥା ହେବାକୁ ଚାହାଁନ୍ତି କି? | strings-langconfirm.ts:98 | Do you (revered) wish to speak in Odia? | ଆପଣ (āpaṇa, honorific 'you') + ଚାହାଁନ୍ତି (cāhā̃nti, honorific -ନ୍ତି verb agreement that ଆପ | ✅ PASS |
+| Odia | ହଁ, ଓଡ଼ିଆ ଠିକ୍ ଅଛି | strings-langconfirm.ts:99 | Yes, Odia is fine. | No second-person forms — this is the user's own utterance (yes-button voiced as the pandit | ✅ PASS |
+| Odia | ଅନ୍ୟ ଭାଷା ବାଛନ୍ତୁ | strings-langconfirm.ts:100 | Please choose another language. | ବାଛନ୍ତୁ (bāchantu) — the -ନ୍ତୁ honorific imperative, the imperative form that agrees with  | ✅ PASS |
+| Odia | ଗୋଟିଏ ମୁହୂର୍ତ୍ତ… | strings-langconfirm.ts:101 | One moment… | Bare noun phrase; no pronoun or verb, so no address register. ମୁହୂର୍ତ୍ତ (muhūrtta) is the  | ✅ PASS |
+| Odia | ବହୁତ ଭଲ! ଏବେ ଆମେ ଓଡ଼ିଆରେ କଥା ହେବା। | strings-langconfirm.ts:102 | Very good! Now we will speak in Odia. | No second-person forms. ଆମେ ... କଥା ହେବା is inclusive first-person-plural future ('we will | ✅ PASS |
+| Odia | ଅନୁବାଦ ବର୍ତ୍ତମାନ ଉପଲବ୍ଧ ନାହିଁ — ଆମେ ହିନ୍ଦୀରେ ଆଗକୁ ବଢ଼ିବା। | strings-langconfirm.ts:103 | Translation is not available at present — we will proceed in Hindi. | No second-person forms; ଆମେ ... ବଢ଼ିବା is inclusive first-plural future. Vocabulary (ଅନୁବା | ✅ PASS |
+| Odia | ଓଡ଼ିଆ | languageDetect.ts:64 | Odia (native language name). | Proper noun only; no address register applies. Spelling with ଡ଼ (ṛa) is the correct native | ✅ PASS |
+| Punjabi | ਕੀ ਤੁਸੀਂ ਪੰਜਾਬੀ ਵਿੱਚ ਗੱਲ ਕਰਨਾ ਚਾਹੋਗੇ? | strings-langconfirm.ts:82 | Would you like to talk in Punjabi? | ਤੁਸੀਂ (respectful 2pl pronoun) + ਚਾਹੋਗੇ (2pl future in -ੋਗੇ). Correct pronoun tier, but NO | 🔴 FIXED → ਕੀ ਤੁਸੀਂ ਪੰਜਾਬੀ ਵਿੱਚ ਗੱਲ ਕਰਨਾ ਚਾਹੋਗੇ ਜੀ? |
+| Punjabi | ਹਾਂ, ਪੰਜਾਬੀ ਠੀਕ ਹੈ | strings-langconfirm.ts:83 | Yes, Punjabi is fine. | The pandit's OWN utterance (yes-button = user voice, not app voice). No second-person addr | ✅ PASS |
+| Punjabi | ਹੋਰ ਭਾਸ਼ਾ ਚੁਣੋ | strings-langconfirm.ts:84 | Choose another language. | Bare 2pl imperative ਚੁਣੋ (the -ੋ ਤੁਸੀਂ-imperative) — the direct Punjabi parallel of Hindi  | 🔴 FIXED → ਹੋਰ ਭਾਸ਼ਾ ਚੁਣੋ ਜੀ |
+| Punjabi | ਇੱਕ ਪਲ… | strings-langconfirm.ts:85 | One moment… | No pronoun or verb — unmarked neutral filler, honorific ਜੀ absent. App-voice line spoken/s | 🔴 FIXED → ਇੱਕ ਪਲ ਜੀ… |
+| Punjabi | ਵਧੀਆ! ਹੁਣ ਅਸੀਂ ਪੰਜਾਬੀ ਵਿੱਚ ਗੱਲ ਕਰਾਂਗੇ। | strings-langconfirm.ts:86 | Great! Now we will talk in Punjabi. | Bare exclamation ਵਧੀਆ! (peer-toned approval) + 1pl ਅਸੀਂ ਕਰਾਂਗੇ (plain 'we will'). No secon | 🔴 FIXED → ਵਧੀਆ ਜੀ! ਹੁਣ ਅਸੀਂ ਪੰਜਾਬੀ ਵਿੱਚ ਗੱਲ ਕਰਾਂਗੇ। |
+| Punjabi | ਅਨੁਵਾਦ ਹੁਣੇ ਉਪਲਬਧ ਨਹੀਂ — ਅਸੀਂ ਹਿੰਦੀ ਵਿੱਚ ਜਾਰੀ ਰੱਖਾਂਗੇ। | strings-langconfirm.ts:87 | Translation is not available right now — we will continue in Hindi. | 1pl ਅਸੀਂ + ਰੱਖਾਂਗੇ; no second-person forms, no ਜੀ. An apology-adjacent notice spoken to th | 🔴 FIXED → ਅਨੁਵਾਦ ਹੁਣੇ ਉਪਲਬਧ ਨਹੀਂ ਜੀ — ਅਸੀਂ ਹਿੰਦੀ ਵਿੱਚ ਜਾਰੀ ਰੱਖਾਂਗੇ। |
+| Punjabi | ਪੰਜਾਬੀ | languageDetect.ts:64 | Punjabi (native language name). | Proper noun only — no pronoun, no verb, no register to carry. Tile label / spoken name. | ✅ PASS |
+| Tamil | நீங்கள் தமிழில் பேச விரும்புகிறீர்களா? | strings-langconfirm.ts:50 | Do you wish to speak in Tamil? | Honorific: pronoun நீங்கள் + honorific 2pl verb விரும்புகிறீர்களா (-கிறீர்கள் + interrogat | ✅ PASS |
+| Tamil | ஆம், தமிழ் சரி | strings-langconfirm.ts:51 | Yes, Tamil is fine | Addressee-neutral: no pronoun, no verb inflected for the listener. Nothing casual present. | ✅ PASS |
+| Tamil | வேறு மொழி தேர்வு | strings-langconfirm.ts:52 | Different language selection | Impersonal noun phrase (தேர்வு = 'selection'); no addressee marking, so no register violat | ✅ PASS |
+| Tamil | ஒரு கணம்… | strings-langconfirm.ts:53 | One moment… | Impersonal; no pronoun or verb. Register-neutral wait line. | ✅ PASS |
+| Tamil | அருமை! இனி நாம் தமிழில் பேசுவோம். | strings-langconfirm.ts:54 | Wonderful! From now on we shall speak in Tamil. | Inclusive 1pl: நாம் + -வோம் (பேசுவோம்) — warm, respectful 'we'; no 2nd-person casual forms | ✅ PASS |
+| Tamil | மொழிபெயர்ப்பு இப்போது கிடைக்கவில்லை — இந்தியில் தொடர்வோம். | strings-langconfirm.ts:55 | Translation is not available right now — we will continue in Hindi. | Inclusive 1pl future தொடர்வோம் ('we will continue'); impersonal negative கிடைக்கவில்லை. No | ✅ PASS |
+| Tamil | தமிழ் | languageDetect.ts:63 | Tamil (language name) | Bare noun; no register. | ✅ PASS |
+| Telugu | మీరు తెలుగులో మాట్లాడాలనుకుంటున్నారా? | strings-langconfirm.ts:58 | Would you like to speak in Telugu? | Honorific మీరు + 2nd-person honorific question ending -న్నారా (మాట్లాడాలనుకుంటున్నారా) — t | ✅ PASS |
+| Telugu | అవును, తెలుగు సరే | strings-langconfirm.ts:59 | Yes, Telugu is fine | User-voiced button (the pandit speaking); no 2nd-person forms at all — register-neutral af | ✅ PASS |
+| Telugu | వేరే భాష ఎంచుకోండి | strings-langconfirm.ts:60 | Choose another language | Honorific imperative -ండి (ఎంచుకోండి); casual would be bare ఎంచుకో | ✅ PASS |
+| Telugu | ఒక్క క్షణం… | strings-langconfirm.ts:61 | Just one moment… | No pronoun or verb — register-neutral courteous fragment | ✅ PASS |
+| Telugu | చాలా బాగుంది! ఇప్పుడు మనం తెలుగులో మాట్లాడుకుందాం. | strings-langconfirm.ts:62 | Very good! Now let us speak in Telugu together. | Inclusive మనం + hortative -ుదాం (మాట్లాడుకుందాం); no 2nd-person casual forms — warm and re | ✅ PASS |
+| Telugu | అనువాదం ప్రస్తుతం అందుబాటులో లేదు — హిందీలో కొనసాగుదాం. | strings-langconfirm.ts:63 | Translation is not available at present — let us continue in Hindi. | Impersonal statement + inclusive hortative కొనసాగుదాం (matches Hindi source 'चलते हैं'); n | ✅ PASS |
+| Telugu | తెలుగు | languageDetect.ts:63 | Telugu (native language name) | Proper noun; no register | ✅ PASS |
+
+Guard: registerLawMultilang.test.ts (runtime deny-lists, JS-safe Indic boundaries, proven-to-fail, new-language tripwire). TTS: one voice `aditya` bulbul:v3 × 11 languages, all in the documented set — 11/11 SUPPORTED, per-language line in the ride-along entry above. Honesty notices 11/11 exact-v1, no overpromise (see per-language honesty verdicts in the audit; the Marathi notice INTERRUPTION defect + interjection-class inconsistency + latent-corpus quality remain the three Isj flags).
+- **(c) Voicedebug** — voiceDebugGate.test.tsx (renders-null-without-latch, behavioral + not-NODE_ENV pin) + the pilot-ops-runbook operator rule ("no support script or shared URL ever carries ?voicedebug=1"). Both shipped 28a936f/5bafdbf.
+
+**PAGE 4 · परिचय: CLOSED.** End state staged: TUTORIAL via skip-exit (canonical for PAGE 5). Queued: 🐞-badge overlap (flag-gated), device-matrix edge above, asking/practice device-pass glances.
+
+---
+
 ### PAGE 4 · परिचय (PARICHAY — mic ceremony, 7 sub-states) — **PASS with 1 ruling-needed defect (§10)** · 2026-07-24
 
 **CARRY-ITEMS:** (1) voicedebug RULING EXECUTED — flag stays; NEW guard `voiceDebugGate.test.tsx` (behavioral: latch absent → hook false, panel unmountable; latch present → on; + pins the gate is the latch NOT NODE_ENV); operator rule written into pilot-ops-runbook ("no support script or shared URL ever carries ?voicedebug=1"). (2) OWED SHOT: still owed — the pane composited briefly (banked the परिचय needstart frame), then stopped again; stays on the books. NEW ENV FACT while chasing it: **the pane's physical click injection lands at HALF the requested coordinates** (asked (195,713), page received (98,357) — dpr=2 division bug). Every "dead tap" of the walk was this; the app was exonerated by instrumentation (document-level listener). Physical-tap legs use doubled coords when in-bounds; JS dispatch otherwise, with unlock taken from a real (mis-aimed but genuine) pointerdown.
