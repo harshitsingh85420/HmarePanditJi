@@ -1,0 +1,241 @@
+{
+ "A": {
+  "section": "A-anatomy",
+  "title": "⚙️ सेटिंग्स",
+  "noBack": true,
+  "rows": [
+   {
+    "text": "🐞12",
+    "tag": "BUTTON",
+    "href": null,
+    "role": null,
+    "aria": null,
+    "h": 63
+   },
+   {
+    "text": "personप्रोफ़ाइलchevron_right",
+    "tag": "BUTTON",
+    "href": null,
+    "role": null,
+    "aria": null,
+    "h": 76
+   },
+   {
+    "text": "temple_hinduमेरी पूजाएँchevron_right",
+    "tag": "BUTTON",
+    "href": null,
+    "role": null,
+    "aria": null,
+    "h": 76
+   },
+   {
+    "text": "translateभाषाहिंदीchevron_right",
+    "tag": "BUTTON",
+    "href": null,
+    "role": null,
+    "aria": null,
+    "h": 76
+   },
+   {
+    "text": "",
+    "tag": "BUTTON",
+    "href": null,
+    "role": "switch",
+    "aria": "घंटी की आवाज़ बंद कीजिए",
+    "h": 52
+   },
+   {
+    "text": "self_improvementशिष्य के बारे मेंchevron",
+    "tag": "BUTTON",
+    "href": null,
+    "role": null,
+    "aria": null,
+    "h": 76
+   },
+   {
+    "text": "call📞 सहायता को फ़ोन कीजिएchevron_right",
+    "tag": "A",
+    "href": "tel:+918934095599",
+    "role": null,
+    "aria": null,
+    "h": 76
+   },
+   {
+    "text": "helpमदद व सहायताchevron_right",
+    "tag": "BUTTON",
+    "href": null,
+    "role": null,
+    "aria": null,
+    "h": 76
+   },
+   {
+    "text": "logoutलॉगआउट",
+    "tag": "BUTTON",
+    "href": null,
+    "role": null,
+    "aria": null,
+    "h": 76
+   },
+   {
+    "text": "🏠होम",
+    "tag": "BUTTON",
+    "href": null,
+    "role": null,
+    "aria": null,
+    "h": 70
+   },
+   {
+    "text": "📿बुकिंग",
+    "tag": "BUTTON",
+    "href": null,
+    "role": null,
+    "aria": null,
+    "h": 70
+   },
+   {
+    "text": "🙏",
+    "tag": "BUTTON",
+    "href": null,
+    "role": null,
+    "aria": "शिष्य को सुला दें",
+    "h": 66
+   },
+   {
+    "text": "💰कमाई",
+    "tag": "BUTTON",
+    "href": null,
+    "role": null,
+    "aria": null,
+    "h": 70
+   },
+   {
+    "text": "📅कैलेंडर",
+    "tag": "BUTTON",
+    "href": null,
+    "role": null,
+    "aria": null,
+    "h": 70
+   },
+   {
+    "text": "🆘मदद",
+    "tag": "BUTTON",
+    "href": null,
+    "role": null,
+    "aria": "आपातकालीन सहायता — मदद",
+    "h": 56
+   }
+  ],
+  "telRow": {
+   "text": "call📞 सहायता को फ़ोन कीजिएchevron_right",
+   "tag": "A",
+   "href": "tel:+918934095599",
+   "role": null,
+   "aria": null,
+   "h": 76
+  },
+  "narration": [
+   "10:06:32.340 speak \"नमस्ते पंडित जी!\" lang=hi-IN",
+   "10:06:32.348 speak \"नमस्ते पंडित जी!\" lang=hi-IN",
+   "10:06:34.165 speak \"यह सेटिंग की स्क्रीन है। यहाँ से आप आवाज\" lang=hi-IN"
+  ],
+  "introPromisesVoiceToggle": false,
+  "voiceToggleExists": false,
+  "switchCount": 1,
+  "switchAria": [
+   "घंटी की आवाज़ बंद कीजिए"
+  ],
+  "languageValue": "translateभाषाहिंदीchevron_right",
+  "visibility": [],
+  "writes": [],
+  "errs": [
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "Access to fetch at 'https://hmarepanditji-api.onrender.com/health' from origin 'http://localhost:3002' has bee",
+   "Failed to load resource: net::ERR_FAILED"
+  ]
+ },
+ "B": {
+  "section": "B-toggle",
+  "defaultAbsentKey": "true",
+  "storedBefore": null,
+  "afterToggle": "false",
+  "storedAfter": "false",
+  "serverWrites": [],
+  "spokeOnToggle": [
+   "10:06:44.713 speak \"यह सेटिंग की स्क्रीन है। यहाँ से आप आवाज\" lang=hi-IN",
+   "10:06:52.695 speak \"ठीक है, अब घंटी नहीं बजेगी।\" lang=hi-IN"
+  ],
+  "afterRefresh": "false",
+  "storedAfterRefresh": "false",
+  "firstPaintWhileOff": "false",
+  "settledWhileOff": "false",
+  "errs": [
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "Access to fetch at 'https://hmarepanditji-api.onrender.com/health' from origin 'http://localhost:3002' has bee",
+   "Failed to load resource: net::ERR_FAILED"
+  ]
+ },
+ "C": {
+  "section": "C-nav",
+  "hops": [
+   {
+    "label": "profile",
+    "where": "/profile-view"
+   },
+   {
+    "label": "mypoojas",
+    "where": "/my-poojas"
+   },
+   {
+    "label": "help",
+    "where": "/help"
+   }
+  ],
+  "writesAcrossHops": [],
+  "errs": [
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "Access to fetch at 'https://hmarepanditji-api.onrender.com/health' from origin 'http://localhost:3002' has bee",
+   "Failed to load resource: net::ERR_FAILED"
+  ]
+ },
+ "D": {
+  "section": "D-sheets",
+  "aboutOpen": true,
+  "visibilityAbout": [],
+  "confirmShown": true,
+  "tokenAfterCancel": "dummy-qa",
+  "stillOnSettings": "/settings",
+  "errs": [
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "Access to fetch at 'https://hmarepanditji-api.onrender.com/health' from origin 'http://localhost:3002' has bee",
+   "Failed to load resource: net::ERR_FAILED"
+  ]
+ },
+ "E": {
+  "section": "E-language",
+  "where": "/onboarding",
+  "listShown": true,
+  "translateCalls": [],
+  "landedBack": "/settings",
+  "stillHindi": null,
+  "noticeSpoken": [
+   "10:08:20.504 speak \"अपनी भाषा चुनिए। एक बार छूने पर मैं नाम \" lang=hi-IN",
+   "10:08:26.575 speak \"অনুবাদ এখন উপলব্ধ নেই — আমরা হিন্দিতে চা\" lang=bn-IN",
+   "10:08:26.751 speak \"यह सेटिंग की स्क्रीन है। यहाँ से आप आवाज\" lang=hi-IN"
+  ],
+  "errs": [
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "Access to fetch at 'https://hmarepanditji-api.onrender.com/health' from origin 'http://localhost:3002' has bee",
+   "Failed to load resource: net::ERR_FAILED"
+  ]
+ }
+}

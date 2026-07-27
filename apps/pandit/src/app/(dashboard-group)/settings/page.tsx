@@ -181,7 +181,10 @@ export default function SettingsPage() {
             role="switch"
             aria-checked={soundEnabled}
             className="shrink-0 min-h-[52px] min-w-[52px] flex items-center justify-center rounded-[13px] focus:outline-none focus-visible:ring-4 focus-visible:ring-saffron-200"
-            aria-label="Toggle bell sounds"
+            /* NO-ROMAN LAW (PAGE 15 walk): this was the app's last roman
+               user-facing string — a screen reader read it out in English
+               to a Hindi-only pandit. */
+            aria-label={soundEnabled ? "घंटी की आवाज़ बंद कीजिए" : "घंटी की आवाज़ चालू कीजिए"}
           >
             <span
               className={`relative block h-[30px] w-[52px] rounded-[999px] transition-colors duration-300 ${
@@ -251,9 +254,10 @@ export default function SettingsPage() {
         <>
           <div
             className="fixed inset-0 bg-black/40 z-50"
+            data-modal-backdrop="true"
             onClick={() => setAboutShishya(false)}
           />
-          <div className="fixed bottom-0 left-0 right-0 max-w-[430px] mx-auto bg-white rounded-t-[28px] p-6 z-50 flex flex-col items-center gap-4 shadow-card">
+          <div data-modal-backdrop="true" className="fixed bottom-0 left-0 right-0 max-w-[430px] mx-auto bg-white rounded-t-[28px] p-6 z-50 flex flex-col items-center gap-4 shadow-card">
             <ShishyaOrb />
             <h2 className="text-[24px] font-extrabold text-temple-700 font-hindi text-center">
               {t("shishya.aboutTitle")}

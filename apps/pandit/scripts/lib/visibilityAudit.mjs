@@ -132,7 +132,11 @@ export async function visibilityAudit(page, stateName) {
               // gated, never shipped to a pandit) — it may cover product
               // controls in a harness run without that being a defect.
               const devChrome = !!hit.closest("[data-dev-chrome]");
-              if ((!hit.closest("[data-coach-tip]") && !devChrome) || isEmergency) {
+              // a MODAL backdrop covering the screen behind it is the whole
+              // point of a modal — not an occlusion defect (the sheet's own
+              // controls are audited normally).
+              const modal = !!hit.closest("[data-modal-backdrop]") || hit.hasAttribute?.("data-modal-backdrop");
+              if ((!hit.closest("[data-coach-tip]") && !devChrome && !modal) || isEmergency) {
                 add("occluded", `by <${hit.tagName.toLowerCase()} '${label(hit).slice(0, 25)}'>`);
               }
             }

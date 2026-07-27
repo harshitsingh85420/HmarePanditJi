@@ -29,6 +29,7 @@ const GROUPS = {
   page12: { order: 12, title: "PAGE 12 · कैलेंडर (Sunday-start ruled canon; छुट्टी toggle fixture-only; §3-V native)" },
   page13: { order: 13, title: "PAGE 13 · मेरी पूजाएँ (3-state badges; Ruling #7 money census clean; the Hindi Idempotency-Key P0 found+fixed here)" },
   page14: { order: 14, title: "PAGE 14 · पूजा जोड़ें (5-step wizard, first walk with a LIVE submit chain; the 430-in-390 device clip found+fixed here)" },
+  page15: { order: 15, title: "PAGE 15 · सेटिंग्स (one real toggle, device-local only; a spoken promise for a control that doesn't exist; Ruling ख proven live on its own path)" },
 };
 const CAPTIONS = {
   "page3a/ta-confirm.png": "Tamil detect-confirm — calibration shot: headless eye matches the pane's banked frame; fixed strings render",
@@ -111,6 +112,11 @@ const CAPTIONS = {
   "page14/i10-live-prefill.png": "LIVE prod: the wizard filled with a pure-Devanagari pooja name, ready to submit",
   "page14/i11-live-done.png": "🏆 THE P0 PROOF: 200 + 200 on the live API and the done card — this exact path threw pre-network before the fix",
   "page14/i12-live-pending-pill.png": "LIVE re-entry: ⏳ प्रतीक्षा में returns for the submitted name; the PENDING v1 row survives refresh",
+  "page15/j1-settings-full.png": "सेटिंग्स in full: 15 controls, no back (tab screen), ONE toggle — and a mount line promising a voice switch that isn't here",
+  "page15/j2-toggle-off.png": "The bell toggle OFF + spoken ack — persisted to localStorage only; ZERO server round-trip (new phone = silently back ON)",
+  "page15/j5-about-sheet.png": "शिष्य के बारे में sheet — now marked as a modal so §3-V stops counting the list behind it as occlusion",
+  "page15/j6-logout-confirm.png": "Logout confirm; नहीं leaves the token intact and stays on settings",
+  "page15/j8-after-language-pick.png": "Ruling ख live on the settings path: बাংলা picked → ZERO translate requests, Bengali honesty notice, back to settings in Hindi",
 };
 
 const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
