@@ -180,13 +180,13 @@
     {
      "tag": "BUTTON",
      "text": "25",
-     "disabled": false,
+     "disabled": true,
      "cls": "aspect-square min-h-[52px] rounded-[12px] border-[1.5px] flex flex-col items-center justif"
     },
     {
      "tag": "BUTTON",
      "text": "26",
-     "disabled": false,
+     "disabled": true,
      "cls": "aspect-square min-h-[52px] rounded-[12px] border-[1.5px] flex flex-col items-center justif"
     },
     {
@@ -241,7 +241,7 @@
   },
   "day25_today": {
    "text": "25",
-   "disabled": false,
+   "disabled": true,
    "cls": "aspect-square min-h-[52px] rounded-[12px] border-[1.5px] flex flex-col items-center justif"
   },
   "day27_accepted": {
@@ -265,12 +265,10 @@
    "DIV"
   ],
   "censusTappable": [
-   "🐞12",
+   "🐞16",
    "पिछला महीना",
    "अगला महीना",
    "समझा",
-   "25",
-   "26",
    "27●",
    "28✕",
    "29",
@@ -283,189 +281,19 @@
    "📅कैलेंडर",
    "आपातकालीन सहायता — मदद"
   ],
-  "visibility": [
-   {
-    "state": "p12-populated-tip-up",
-    "el": "आपातकालीन सहायता — मदद",
-    "tag": "BUTTON",
-    "check": "occluded",
-    "numbers": "by <div 'तारीख़ बंद कीजिएजिस दिन उ'>",
-    "actionable": true
-   },
-   {
-    "state": "p12-populated-tip-up",
-    "el": "तारीख दबाकर छुट्टी लगाइए",
-    "tag": "DIV",
-    "check": "contrast",
-    "numbers": "4.22 < 4.5 @15px/700",
-    "actionable": false
-   },
-   {
-    "state": "p12-populated-tip-up",
-    "el": "सो",
-    "tag": "SPAN",
-    "check": "contrast",
-    "numbers": "4.22 < 4.5 @18px/700",
-    "actionable": false
-   },
-   {
-    "state": "p12-populated-tip-up",
-    "el": "मं",
-    "tag": "SPAN",
-    "check": "contrast",
-    "numbers": "4.22 < 4.5 @18px/700",
-    "actionable": false
-   },
-   {
-    "state": "p12-populated-tip-up",
-    "el": "बु",
-    "tag": "SPAN",
-    "check": "contrast",
-    "numbers": "4.22 < 4.5 @18px/700",
-    "actionable": false
-   },
-   {
-    "state": "p12-populated-tip-up",
-    "el": "गु",
-    "tag": "SPAN",
-    "check": "contrast",
-    "numbers": "4.22 < 4.5 @18px/700",
-    "actionable": false
-   },
-   {
-    "state": "p12-populated-tip-up",
-    "el": "शु",
-    "tag": "SPAN",
-    "check": "contrast",
-    "numbers": "4.22 < 4.5 @18px/700",
-    "actionable": false
-   },
-   {
-    "state": "p12-populated-tip-up",
-    "el": "28",
-    "tag": "SPAN",
-    "check": "contrast",
-    "numbers": "3.62 < 4.5 @18px/600",
-    "actionable": false
-   }
-  ],
-  "visibilityAfterTip": [
-   {
-    "state": "p12-populated",
-    "el": "तारीख दबाकर छुट्टी लगाइए",
-    "tag": "DIV",
-    "check": "contrast",
-    "numbers": "4.22 < 4.5 @15px/700",
-    "actionable": false
-   },
-   {
-    "state": "p12-populated",
-    "el": "सो",
-    "tag": "SPAN",
-    "check": "contrast",
-    "numbers": "4.22 < 4.5 @18px/700",
-    "actionable": false
-   },
-   {
-    "state": "p12-populated",
-    "el": "मं",
-    "tag": "SPAN",
-    "check": "contrast",
-    "numbers": "4.22 < 4.5 @18px/700",
-    "actionable": false
-   },
-   {
-    "state": "p12-populated",
-    "el": "बु",
-    "tag": "SPAN",
-    "check": "contrast",
-    "numbers": "4.22 < 4.5 @18px/700",
-    "actionable": false
-   },
-   {
-    "state": "p12-populated",
-    "el": "गु",
-    "tag": "SPAN",
-    "check": "contrast",
-    "numbers": "4.22 < 4.5 @18px/700",
-    "actionable": false
-   },
-   {
-    "state": "p12-populated",
-    "el": "शु",
-    "tag": "SPAN",
-    "check": "contrast",
-    "numbers": "4.22 < 4.5 @18px/700",
-    "actionable": false
-   },
-   {
-    "state": "p12-populated",
-    "el": "28",
-    "tag": "SPAN",
-    "check": "contrast",
-    "numbers": "3.62 < 4.5 @18px/600",
-    "actionable": false
-   }
-  ],
+  "visibility": [],
+  "visibilityAfterTip": [],
   "narration": [
-   "14:26:00.844 speak \"नमस्ते पंडित जी!\" lang=hi-IN",
-   "14:26:00.856 speak \"नमस्ते पंडित जी!\" lang=hi-IN",
-   "14:26:03.195 speak \"जिस दिन खाली नहीं हैं, वह तारीख़ दबाकर छ\" lang=hi-IN"
+   "06:14:23.865 speak \"नमस्ते पंडित जी!\" lang=hi-IN",
+   "06:14:23.878 speak \"नमस्ते पंडित जी!\" lang=hi-IN",
+   "06:14:32.039 speak \"पंडित जी, अब हम आपकी लोकेशन लेंगे — ताकि\" lang=hi-IN",
+   "06:14:45.578 speak \"जिस दिन खाली नहीं हैं, वह तारीख़ दबाकर छ\" lang=hi-IN"
   ],
   "juneH2": "जून 2026",
   "augustH2": "अगस्त 2026",
   "august12dot": true,
   "augustNote": false,
-  "visibilityAugust": [
-   {
-    "state": "p12-august",
-    "el": "तारीख दबाकर छुट्टी लगाइए",
-    "tag": "DIV",
-    "check": "contrast",
-    "numbers": "4.22 < 4.5 @15px/700",
-    "actionable": false
-   },
-   {
-    "state": "p12-august",
-    "el": "सो",
-    "tag": "SPAN",
-    "check": "contrast",
-    "numbers": "4.22 < 4.5 @18px/700",
-    "actionable": false
-   },
-   {
-    "state": "p12-august",
-    "el": "मं",
-    "tag": "SPAN",
-    "check": "contrast",
-    "numbers": "4.22 < 4.5 @18px/700",
-    "actionable": false
-   },
-   {
-    "state": "p12-august",
-    "el": "बु",
-    "tag": "SPAN",
-    "check": "contrast",
-    "numbers": "4.22 < 4.5 @18px/700",
-    "actionable": false
-   },
-   {
-    "state": "p12-august",
-    "el": "गु",
-    "tag": "SPAN",
-    "check": "contrast",
-    "numbers": "4.22 < 4.5 @18px/700",
-    "actionable": false
-   },
-   {
-    "state": "p12-august",
-    "el": "शु",
-    "tag": "SPAN",
-    "check": "contrast",
-    "numbers": "4.22 < 4.5 @18px/700",
-    "actionable": false
-   }
-  ],
+  "visibilityAugust": [],
   "septemberNote": true,
   "spamH2": "जुलाई 2027",
   "errsA": [
@@ -494,10 +322,12 @@
    "POST /pandit/blocked-dates"
   ],
   "speaks": [
-   "14:26:15.190 speak \"नमस्ते पंडित जी!\" lang=hi-IN",
-   "14:26:15.193 speak \"नमस्ते पंडित जी!\" lang=hi-IN",
-   "14:26:16.460 speak \"जिस दिन खाली नहीं हैं, वह तारीख़ दबाकर छ\" lang=hi-IN",
-   "14:26:24.291 speak \"इस दिन बुकिंग है\" lang=hi-IN"
+   "06:15:15.285 speak \"जिस दिन खाली नहीं हैं, वह तारीख़ दबाकर छ\" lang=hi-IN",
+   "06:15:23.160 speak \"इस दिन बुकिंग है\" lang=hi-IN",
+   "06:15:24.121 speak \"29 जुलाई की छुट्टी लग गई।\" lang=hi-IN",
+   "06:15:25.085 speak \"छुट्टी हट गई।\" lang=hi-IN",
+   "06:15:25.997 speak \"31 जुलाई की छुट्टी लग गई।\" lang=hi-IN",
+   "06:15:25.997 speak \"31 जुलाई की छुट्टी लग गई।\" lang=hi-IN"
   ],
   "errs": [
    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
@@ -523,64 +353,7 @@
   "section": "D-empty",
   "note": true,
   "anyDots": false,
-  "visibility": [
-   {
-    "state": "p12-empty",
-    "el": "आपातकालीन सहायता — मदद",
-    "tag": "BUTTON",
-    "check": "occluded",
-    "numbers": "by <span 'जिस दिन उपलब्ध नहीं हैं, '>",
-    "actionable": true
-   },
-   {
-    "state": "p12-empty",
-    "el": "तारीख दबाकर छुट्टी लगाइए",
-    "tag": "DIV",
-    "check": "contrast",
-    "numbers": "4.22 < 4.5 @15px/700",
-    "actionable": false
-   },
-   {
-    "state": "p12-empty",
-    "el": "सो",
-    "tag": "SPAN",
-    "check": "contrast",
-    "numbers": "4.22 < 4.5 @18px/700",
-    "actionable": false
-   },
-   {
-    "state": "p12-empty",
-    "el": "मं",
-    "tag": "SPAN",
-    "check": "contrast",
-    "numbers": "4.22 < 4.5 @18px/700",
-    "actionable": false
-   },
-   {
-    "state": "p12-empty",
-    "el": "बु",
-    "tag": "SPAN",
-    "check": "contrast",
-    "numbers": "4.22 < 4.5 @18px/700",
-    "actionable": false
-   },
-   {
-    "state": "p12-empty",
-    "el": "गु",
-    "tag": "SPAN",
-    "check": "contrast",
-    "numbers": "4.22 < 4.5 @18px/700",
-    "actionable": false
-   },
-   {
-    "state": "p12-empty",
-    "el": "शु",
-    "tag": "SPAN",
-    "check": "contrast",
-    "numbers": "4.22 < 4.5 @18px/700",
-    "actionable": false
-   }
-  ],
+  "visibility": [],
   "errs": [
    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",

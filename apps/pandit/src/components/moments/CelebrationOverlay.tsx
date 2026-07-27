@@ -63,7 +63,7 @@ const TONES = {
     badgeShadow: "0 12px 30px rgba(184,134,11,.4)",
     glyph: 74,
     title: "#7A250E",
-    subtitle: "#8A6F5C",
+    subtitle: "#7E6553", // Ruling #11 DHOOP shade (was canon #8A6F5C)
     burst: BURST_GOLD,
   },
 } as const;

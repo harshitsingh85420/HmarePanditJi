@@ -93,6 +93,19 @@ export function CoachSpotlight({
     return () => document.removeEventListener("click", dismissOutside, true);
   }, [requireInteraction, onDone]);
 
+  // EMERGENCY-CLEAR LAW (§3-V, second catch): the BELOW placement can
+  // also land the card on the SOS pill (a target ending mid-screen —
+  // the calendar grid). The card's pointer-events:auto face makes SOS
+  // unreachable while covered, so the below-top is CLAMPED above the
+  // pill band (bottom 176px = 104 + 56 pill + 16 margin). cardH is the
+  // layout height (offsetHeight — untransformed, so no feedback loop);
+  // the same-value setState bails out, no render churn. Hooks live
+  // ABOVE the null-rect early return (hooks order law).
+  const [cardH, setCardH] = useState(0);
+  useEffect(() => {
+    if (cardRef.current) setCardH(cardRef.current.offsetHeight);
+  });
+
   if (!rect) return null;
 
   const viewportH = typeof window !== "undefined" ? window.innerHeight : 640;
@@ -105,6 +118,13 @@ export function CoachSpotlight({
   // AND the SOS pill at bottom-[104px] (bottom:104 put समझा square over
   // the emergency control; §3-V caught it same-day).
   const tooltipAbove = !tooltipBelow && rect.top > 220;
+  const sosBandTop = viewportH - 176;
+  const belowTopRaw = rect.top + rect.height + 14;
+  const belowTop = cardH ? Math.max(8, Math.min(belowTopRaw, sosBandTop - cardH)) : belowTopRaw;
+  // ...and the ABOVE placement's bottom edge (rect.top - 14) dips into
+  // the band when the target is the FOOTER CTA (my-poojas समझा found
+  // under 🆘) — raise its bottom anchor clear of the band too.
+  const aboveBottom = Math.max(viewportH - rect.top + 14, viewportH - sosBandTop);
 
   return (
     // Q2: container is ALWAYS pointer-events-none — only the card itself
@@ -133,9 +153,9 @@ export function CoachSpotlight({
         style={{
           pointerEvents: "auto",
           ...(tooltipBelow
-            ? { top: rect.top + rect.height + 14 }
+            ? { top: belowTop }
             : tooltipAbove
-              ? { bottom: viewportH - rect.top + 14 }
+              ? { bottom: aboveBottom }
               : { bottom: 180 }),
         }}
       >

@@ -31,5 +31,38 @@ describe("§3-V visibility law — layout pins", () => {
     // bottom-[104px] — an emergency control may never sit under a tip
     expect(src).toMatch(/\{ bottom: 180 \}/);
     expect(src).toMatch(/data-coach-tip/);
+    // second catch: the BELOW placement clamps above the SOS band too
+    expect(src).toMatch(/sosBandTop = viewportH - 176/);
+    expect(src).toMatch(/Math\.min\(belowTopRaw, sosBandTop - cardH\)/);
+    expect(src).toMatch(/\{ top: belowTop \}/);
+    // third catch: the ABOVE placement's bottom edge clears the band
+    // (my-poojas footer-CTA tip put समझा under 🆘)
+    expect(src).toMatch(/aboveBottom = Math\.max\(viewportH - rect\.top \+ 14, viewportH - sosBandTop\)/);
+    expect(src).toMatch(/\{ bottom: aboveBottom \}/);
+  });
+  it("my-poojas floor error: server message surfaced AND spoken (F11-04 class)", () => {
+    const src = SRC("app/(dashboard-group)/my-poojas/page.tsx");
+    expect(src).toMatch(/res\.error\?\.code === "dakshina_below_floor" && res\.error\?\.message/);
+    expect(src).toMatch(/voiceController\.speakAndWait\(msg, \{ interrupt: false \}\)/);
+  });
+});
+
+describe("Ruling #11 — contrast tokens (veto reverts the two config lines)", () => {
+  it("the tokens ship the darkened shades", () => {
+    const cfg = readFileSync(join(__dirname, "..", "..", "tailwind.config.ts"), "utf8");
+    expect(cfg).toMatch(/softgrey:'#7E6553'/);
+    expect(cfg).toMatch(/brassdark: '#8A6508'/);
+  });
+  it("no TEXT color literal reintroduces the old hexes (objects/gradients exempt)", async () => {
+    const { readdirSync, statSync } = await import("node:fs");
+    const walk = (dir: string): string[] =>
+      readdirSync(dir).flatMap((f) => {
+        const p = join(dir, f);
+        return statSync(p).isDirectory() ? walk(p) : /\.tsx?$/.test(f) ? [p] : [];
+      });
+    for (const f of walk(join(__dirname, ".."))) {
+      const src = readFileSync(f, "utf8");
+      expect(src, f).not.toMatch(/color:\s*["']#(8A6F5C|B8860B)/i);
+    }
   });
 });

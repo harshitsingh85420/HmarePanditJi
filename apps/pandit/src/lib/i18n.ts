@@ -20,6 +20,7 @@ import { hi } from "@/lib/strings";
 import { api } from "@/lib/api";
 import { DEFAULT_LANG, LANG_TO_BCP47, type LangCode } from "@/lib/languageDetect";
 import { setGrammarLanguage } from "@/lib/voiceGrammar";
+import { LANG_SWITCH_V1_ENABLED } from "@/lib/featureFlags";
 
 const LANG_KEY = "hpj_lang_code";
 // Bump BUNDLE_VERSION whenever source Hindi copy changes in a way that
@@ -57,7 +58,10 @@ function init(): void {
   initialized = true;
   try {
     const stored = localStorage.getItem(LANG_KEY) as LangCode | null;
-    if (stored && stored !== "hi" && LANG_TO_BCP47[stored]) {
+    // RULING ख: with the switch disabled, a persisted non-Hindi bundle
+    // (a pre-ruling device) is ignored — boots Hindi, never cached
+    // machine output.
+    if (LANG_SWITCH_V1_ENABLED && stored && stored !== "hi" && LANG_TO_BCP47[stored]) {
       const raw = localStorage.getItem(BUNDLE_PREFIX + stored);
       if (raw) {
         bundle = JSON.parse(raw) as Dict;
@@ -149,6 +153,11 @@ function persistBundle(code: LangCode): void {
 }
 
 async function fetchGroups(code: LangCode, groups: readonly string[]): Promise<Dict> {
+  // RULING ख CHOKEPOINT: every /voice/translate request in the app goes
+  // through here — with the v1 switch disabled, the Mayura call never
+  // fires. activateLanguage's catch turns this into `false` → the caller
+  // speaks the honesty notice; the lazy/refresh paths swallow it quietly.
+  if (!LANG_SWITCH_V1_ENABLED) throw new Error("lang_switch_v1_disabled");
   const entries = groups.flatMap(flattenGroup);
   const merged: Dict = {};
   for (let i = 0; i < entries.length; i += CHUNK_SIZE) {

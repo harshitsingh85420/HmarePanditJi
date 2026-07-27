@@ -5,6 +5,71 @@ ruling that flips is not silently re-litigated. Newest first.
 
 ---
 
+## Ruling #11 — CONTRAST FLOOR OVER CANON COLOR LITERALS (batch-approved, veto open)
+
+**Status: active** (Isj, 2026-07-25 — "batch, veto open"; a veto reverts the two
+token lines). The §3-V retro-sweep (17 states, pages 1-11) machine-measured the
+WCAG floor (≥4.5:1 body, ≥3.0:1 at ≥19px-bold) and the ONLY surviving family
+was two canon color literals:
+
+- **DHOOP `softgrey` `#8A6F5C` → `#7E6553`** — read 4.22:1 on cream / 4.36 on
+  card at body sizes (11 sightings: शहर chip, hub card sublabels, home hint,
+  "पूरी हुई", earnings empty line, dates, calendar weekday heads + hint).
+- **brass `brassdark` `#B8860B` → `#8A6508`** — read 2.95:1 as the canon 15/800
+  "आना बाकी ·" label.
+
+The change lands at the TOKEN DEFINITION (`apps/pandit/tailwind.config.ts`),
+one line each — same shape as Ruling #2 (floors outrank canon pixel values).
+The drawn orb/bell gradients keep the canon `#B8860B` stops (objects, not
+text). Inline hex literals may not bypass the token (found and converted:
+bookings meta line + पूरी-हुई section head + the उत्सव subtitle; guarded — no
+`color:"#8A6F5C|#B8860B"` may reappear). Proof: the sweep's contrast leg
+re-run reads **zero across 17 states**.
+
+**Addendum (same ruling, same veto):** the calendar's blocked-✕ cell is a
+TAPPABLE control on canon `#E9E2D6` — even darkened DHOOP reads 4.21 there;
+that one usage darkens further to `#6E5847` (5.1:1).
+
+---
+
+## Ruling #10 — LANGUAGE SWITCH v1: OPTION ख — Hindi-only, honesty-notice for every switch
+
+**Status: active by declared default** (Isj, 2026-07-25); **reversal is one
+line** (`LANG_SWITCH_V1_ENABLED` in `apps/pandit/src/lib/featureFlags.ts`).
+
+### The conflict
+
+The runtime language switch translates the app via Sarvam Mayura at switch
+time — machine output no human has audited goes live as the product's own
+voice (the PAGE 3-A prod leg proved a full Bengali switch succeeds). The
+register law and the truthful-state law cannot be verified for text nobody
+has read. The decision menu was क (ship as-is) / ख (disable switch success,
+keep the honesty notice) / ग / घ.
+
+### The ruling — ख
+
+- `LANG_SWITCH_V1_ENABLED = false`, single-source. The gate sits at the
+  `fetchGroups` chokepoint in `i18n.ts` — **POST /voice/translate can never
+  fire** (switch, lazy, and refresh paths all pass through it).
+- Every non-Hindi pick lands in `runLanguageSwitch`'s honesty-notice path —
+  spoken IN the target language, **awaited** (the narration-queue law; its
+  audibility was live-proven when the awaits shipped).
+- A previously persisted non-Hindi bundle is **ignored at boot** — a
+  pre-ruling pilot device returns to Hindi rather than serving cached
+  unaudited output.
+- Flag true → the old behavior is intact, guarded both directions by
+  `langSwitchV1Gate.test.ts` (flag false: zero translate requests, boot
+  ignores the persisted bundle; flag true: translate fires, switch succeeds).
+
+### Odia note
+
+With ख active the standing **or-IN TTS 502** is moot for v1: no switch
+succeeds in ANY language, so or-IN never becomes the active app language.
+The honesty notice itself still speaks via the TTS fallback chain. The 502
+investigation stays queued for the day ख is reversed.
+
+---
+
 ## Ruling #9 — ORB GESTURE SPLIT: tap = फिर से सुनिए (repeat); mute = an explicit visible control
 
 **Status: final** (Isj, 2026-07-22). Fixes the walk's #1 failure shape surfaced

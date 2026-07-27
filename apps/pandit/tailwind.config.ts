@@ -51,10 +51,16 @@ const config: Config = {
         },
         gold:   '#E7B54A',
         ink:    '#3A1F1B',
-        softgrey:'#8A6F5C',
+        // CONTRAST RULING (Isj batch-approved 2026-07-25, §3-V retro-sweep):
+        // canon DHOOP #8A6F5C read 4.22:1 on cream / 4.36 on card — below
+        // the 4.5 floor at body sizes. Darkened ONE token repo-wide.
+        softgrey:'#7E6553',
         danger: '#C2321E',
         genda:  '#F2A02C',
-        brassdark: '#B8860B',
+        // Same ruling: canon brass #B8860B read 2.95:1 as the 15/800
+        // आना-बाकी label. Text token darkened; the drawn orb/bell gradient
+        // stops keep the canon #B8860B literal (objects, not text).
+        brassdark: '#8A6508',
         card:   '#FFFDF8',
         chandan:'#FFF6E9',   // on-sindoor text + warm screen tint (mockup)
         // Sand tones — card borders, dividers, inactive tracks (mockup export).

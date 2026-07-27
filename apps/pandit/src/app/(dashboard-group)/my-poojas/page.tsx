@@ -23,6 +23,7 @@ import { FirstUseTip } from "@/components/moments/FirstUseTip";
 import { Toast } from "@/components/ui/Toast";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { CelebrationOverlay } from "@/components/moments/CelebrationOverlay";
+import { voiceController } from "@/lib/voiceController";
 
 const ALL_POOJAS = Object.values(hi.onboarding.specializations);
 
@@ -132,7 +133,16 @@ export default function MyPoojasPage() {
       setEditing(null);
       setEditValue("");
     } else {
-      setToastMsg(t("common.error"));
+      // F11-04 CLASS (PAGE 13 walk): the server's dakshina-floor message
+      // names the exact minimum — swallowing it into the generic line
+      // left the pandit guessing. TRUTHFUL-STATE: surface it, and per
+      // Q6 the shown error IS the spoken error (queued, never kills).
+      const msg =
+        res.error?.code === "dakshina_below_floor" && res.error?.message
+          ? res.error.message
+          : t("common.error");
+      setToastMsg(msg);
+      void voiceController.speakAndWait(msg, { interrupt: false });
     }
   };
 

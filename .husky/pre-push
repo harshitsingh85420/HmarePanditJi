@@ -16,6 +16,7 @@ resolve_node() {
   if command -v node >/dev/null 2>&1; then command -v node; return 0; fi
   for c in \
     "/c/Program Files/AutoClaw/resources/node/node.exe" \
+    "/c/Users/Lenovo/AppData/Local/ms-playwright-go/1.57.0/node.exe" \
     "/c/Program Files/nodejs/node.exe" \
     "/usr/bin/node" "/usr/local/bin/node"; do
     [ -x "$c" ] && { printf '%s\n' "$c"; return 0; }

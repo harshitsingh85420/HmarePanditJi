@@ -184,8 +184,10 @@ export default function BookingsPage() {
           >
             {b.pujaType || b.eventType}
           </div>
-          {/* LAW: canon sets this meta line at 14px; held at the 18sp floor. */}
-          <div className="font-hindi truncate" style={{ fontSize: "18px", color: "#8A6F5C" }}>
+          {/* LAW: canon sets this meta line at 14px; held at the 18sp floor.
+              text-softgrey (not an inline hex): the DHOOP contrast ruling
+              lands at the token — literals must not bypass it. */}
+          <div className="font-hindi truncate text-[18px] text-softgrey">
             {metaLine(b)}
           </div>
         </div>
@@ -328,7 +330,10 @@ export default function BookingsPage() {
 
             {completedItems.length > 0 && (
               <div ref={completedRef}>
-                <SectionHead dot="#8A6F5C" ink="#8A6F5C" text={sectionLabels.completed} />
+                {/* Ruling #11: DHOOP darkened at the token — the ink must not
+                    carry the old literal (the dot is a drawn 10px object,
+                    but same ruling shade keeps the pair coherent). */}
+                <SectionHead dot="#7E6553" ink="#7E6553" text={sectionLabels.completed} />
                 <div className="flex flex-col" style={{ gap: "10px" }}>
                   {completedItems.map((b) => (
                     <Row

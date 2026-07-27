@@ -795,6 +795,10 @@ export const hi = {
     blocked: "छुट्टी",
     available: "खाली",
     booking: "बुकिंग",
+    // कैलेंडर triage (Isj 2026-07-25): a successful toggle was completely
+    // silent — the spoken ack, both ways. {date} = "28 जुलाई".
+    blockedVoice: "{date} की छुट्टी लग गई।",
+    unblockedVoice: "छुट्टी हट गई।",
   },
   status: {
     requested: "🔔 नई",

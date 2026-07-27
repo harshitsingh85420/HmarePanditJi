@@ -27,6 +27,7 @@ const GROUPS = {
   page11: { order: 11, title: "PAGE 11 · कमाई (read-only money; conservation proven in pixels + voice)" },
   "retro-sweep": { order: 11.5, title: "§3-V RETRO-SWEEP (17 states, pages 1-11) — 2 real bugs found+fixed; final table = one contrast-token family" },
   page12: { order: 12, title: "PAGE 12 · कैलेंडर (Sunday-start ruled canon; छुट्टी toggle fixture-only; §3-V native)" },
+  page13: { order: 13, title: "PAGE 13 · मेरी पूजाएँ (3-state badges; Ruling #7 money census clean; the Hindi Idempotency-Key P0 found+fixed here)" },
 };
 const CAPTIONS = {
   "page3a/ta-confirm.png": "Tamil detect-confirm — calibration shot: headless eye matches the pane's banked frame; fixed strings render",
@@ -87,6 +88,13 @@ const CAPTIONS = {
   "page12/g7-day29-blocked.png": "छुट्टी toggle (fixture-only): 29✕ optimistic + POST; grid geometry unmoved (badge-slot law)",
   "page12/g8-requested-seam.png": "§10 SEAM: REQUESTED-only month — note hidden yet zero dots; the विनती is invisible here",
   "page12/g9-empty-world.png": "Empty world: truthful note + all-available grid",
+  "page13/h1-empty-27c.png": "Canon-27c empty: 🛕 + truthful hint; FINDING: two add-CTAs (canon draws one)",
+  "page13/h3-populated-3state.png": "The 3-state census: ✓प्रमाणित ×2 · ⏳बाकी (grey price) · ✗अस्वीकृत + कारण + 🔄 resubmit; 4 prices en-IN, zero % claims",
+  "page13/h5-price-saved.png": "P0 EVIDENCE frame: the save that THREW pre-network (Hindi Idempotency-Key) — post-fix it lands 1 POST + ₹6,100",
+  "page13/h7-floor-reject.png": "Floor leg: the server's exact ₹501 minimum now SHOWN and SPOKEN (was swallowed into कुछ गड़बड़)",
+  "page13/h9-keytrap-zero.png": "FINDING: canonical-vs-Hindi rate key mismatch renders ₹0 for a priced pooja (two-vocabulary seam)",
+  "page13/h10-celebration.png": "Fresh APPROVED → आप प्रमाणित हैं! (first-ever run stays silent + seeds — history never celebrates)",
+  "page13/h12-add-step0.png": "Add-wizard entry (step 0) — zero writes until जमा; the wizard is PAGE 14",
 };
 
 const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");

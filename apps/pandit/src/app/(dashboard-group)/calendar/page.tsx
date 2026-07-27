@@ -7,6 +7,8 @@ import { useRouter } from "next/navigation";
 import { t } from "@/lib/i18n";
 import { mutateOnce } from "@/lib/mutate";
 import { api } from "@/lib/api";
+import { bookingDateKey, blockedDateKey } from "@/lib/dateKey";
+import { voiceController } from "@/lib/voiceController";
 
 // UI Components
 import { Header } from "@/components/ui/Header";
@@ -61,15 +63,9 @@ export default function CalendarPage() {
     }
 
     if (blockedRes.success && blockedRes.data) {
-      // Map UTC strings back to date keys in local/standard format "YYYY-MM-DD"
-      const dateKeys = (blockedRes.data as BlockedDateItem[]).map((item) => {
-        const d = new Date(item.date);
-        const y = d.getUTCFullYear();
-        const m = (d.getUTCMonth() + 1).toString().padStart(2, "0");
-        const day = d.getUTCDate().toString().padStart(2, "0");
-        return `${y}-${m}-${day}`;
-      });
-      setBlockedDates(dateKeys);
+      // ONE DATE-KEY LAW (dateKey.ts): the server stores a DATE literal
+      // (UTC-midnight ISO) — the key is its date part, timezone-proof.
+      setBlockedDates((blockedRes.data as BlockedDateItem[]).map((item) => blockedDateKey(item.date)));
     }
   };
 
@@ -90,11 +86,9 @@ export default function CalendarPage() {
   const activeBookingsSet = new Set<string>();
   bookings.forEach((b) => {
     if (b.status === "ACCEPTED" || b.status === "IN_PROGRESS" || b.status === "PUJA_IN_PROGRESS") {
-      const d = new Date(b.eventDate);
-      const y = d.getFullYear();
-      const m = (d.getMonth() + 1).toString().padStart(2, "0");
-      const day = d.getDate().toString().padStart(2, "0");
-      activeBookingsSet.add(`${y}-${m}-${day}`);
+      // ONE DATE-KEY LAW (dateKey.ts): an event timestamp keys to the
+      // pandit's LOCAL calendar day — the day he actually serves.
+      activeBookingsSet.add(bookingDateKey(b.eventDate));
     }
   });
 
@@ -196,6 +190,16 @@ export default function CalendarPage() {
       setBlockedDates(blockedDates);
       setToastMsg(t("common.error"));
       speak(t("common.error"));
+    } else {
+      // कैलेंडर triage (Isj 2026-07-25): a successful toggle was
+      // completely SILENT — for a voice-first elder the cell restyle
+      // alone is not confirmation. Spoken ack both ways, queued
+      // (interrupt:false — never kills an in-flight line) and awaited
+      // so the handler resolves with the ack heard in full.
+      const ackLine = wasBlocked
+        ? t("calendar.unblockedVoice")
+        : t("calendar.blockedVoice").replace("{date}", `${dayVal} ${MONTHS_HINDI[month]}`);
+      await voiceController.speakAndWait(ackLine, { interrupt: false });
     }
   };
 
@@ -285,7 +289,11 @@ export default function CalendarPage() {
                       : hasBooking
                       ? "bg-saffron-50 text-saffron-500 border-saffron-200 font-extrabold"
                       : isBlocked
-                      ? "bg-[#E9E2D6] text-softgrey border-[#E9E2D6] font-semibold"
+                      ? /* Ruling #11 addendum: a blocked cell is TAPPABLE
+                           (unblock) — active control, 4.5:1 floor. Even the
+                           darkened DHOOP reads 4.21 on canon #E9E2D6; this
+                           one usage darkens further (5.1:1). */
+                        "bg-[#E9E2D6] text-[#6E5847] border-[#E9E2D6] font-semibold"
                       : "bg-card text-temple-700 border-sand-100 font-bold"
                   }`}
                 >

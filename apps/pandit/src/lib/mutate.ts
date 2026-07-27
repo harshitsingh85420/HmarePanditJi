@@ -58,7 +58,16 @@ export function mutateOnce<T = unknown>(
 ): Promise<ApiResponse<T>> {
   const headers: Record<string, string> = {
     ...(options.headers as Record<string, string>),
-    "Idempotency-Key": actionKey,
+    // P0 (PAGE 13 walk, 2026-07-25): HTTP header values must be
+    // ISO-8859-1 — a Devanagari actionKey ("dakshina:सत्यनारायण कथा")
+    // made fetch THROW before the network, so every Hindi-keyed
+    // mutation (my-poojas save/delete, the add-wizard submit chain)
+    // failed instantly with the generic toast. Escape ONLY non-Latin1
+    // chars: ASCII keys (accept:<id>, block-date:<date>) stay
+    // byte-identical — a no-op for every path that already worked; the
+    // escaped form is deterministic per action, so idempotency
+    // semantics are unchanged (the server treats the key as opaque).
+    "Idempotency-Key": actionKey.replace(/[^\x20-\x7E]/g, (c) => encodeURIComponent(c)),
   };
   return once(actionKey, () => api<T>(path, { ...options, headers }));
 }
