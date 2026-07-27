@@ -515,8 +515,19 @@ export default function OnboardingOrchestratorPage() {
       return (
         <RegistrationScreen
           onBack={() => {
-            // FLOW C back law: return to the Tutorial CTA slide
             voiceController.stopSpeech("orchestrator:misc");
+            // RESUME-RULE TREATMENT (traversal defect, Isj order 2026-07-27):
+            // by the time this screen renders the pandit is OTP-verified and
+            // holds a token. Sending him "back" into the tutorial deck is a
+            // wrong destination — it is onboarding content for someone who is
+            // past onboarding. Same law as होम: once identity is established,
+            // backward re-entry to onboarding is refused, out loud.
+            if (getToken()) {
+              voiceController.speak(t("onboarding.regBackBlocked"));
+              return;
+            }
+            // no token (a pandit who never finished OTP): the old FLOW C back
+            // law still applies — return to the Tutorial CTA slide.
             store.setCurrentTutorialScreen(TUTORIAL_TOTAL);
             store.setPhase("TUTORIAL");
           }}

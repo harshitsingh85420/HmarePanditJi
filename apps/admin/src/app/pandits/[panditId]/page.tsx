@@ -21,10 +21,25 @@ export default function PanditVerificationDetail() {
     });
     const allVideoChecked = Object.values(videoChecks).every(Boolean);
 
+    // The identity documents the pandit app ACTUALLY uploads, by their real
+    // schema column names. This console previously read `documentUrls[i]`,
+    // `kycVideoUrl` and `aadhaarNumber` — three names that exist nowhere in the
+    // schema — so an uploaded Aadhaar rendered as "Not Uploaded".
+    const IDENTITY_DOCS = [
+        { name: 'Aadhaar Front', field: 'aadhaarFrontUrl', fallback: 'aadhaarDocUrl' },
+        { name: 'Aadhaar Back', field: 'aadhaarBackUrl', fallback: null },
+    ] as const;
+    const docUrlOf = (d: { field: string; fallback: string | null }): string | null =>
+        (pandit?.[d.field] || (d.fallback ? pandit?.[d.fallback] : null) || null);
+
     const [docVerdicts, setDocVerdicts] = useState<{ [key: string]: 'PASS' | 'FAIL' | 'RE_UPLOAD' | null }>({
-        'Aadhaar Front': null, 'Aadhaar Back': null, 'Selfie with Aadhaar': null
+        'Aadhaar Front': null, 'Aadhaar Back': null
     });
-    const allDocsChecked = Object.values(docVerdicts).every(v => v === 'PASS');
+    // Gate on the documents that can actually arrive. "Selfie with Aadhaar" is
+    // NOT captured anywhere in the pandit app (see the slot below) — gating
+    // approval on it made the checklist a formality an admin ticks about a file
+    // that never exists.
+    const allDocsChecked = IDENTITY_DOCS.every(d => docVerdicts[d.name] === 'PASS');
 
     const canApprove = allVideoChecked && allDocsChecked;
 
@@ -87,7 +102,8 @@ export default function PanditVerificationDetail() {
                     <div className="flex-1 min-w-0">
                         <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
                             <div>
-                                <h1 className="text-3xl font-black text-slate-900 tracking-tight">{pandit.title || "Pt."} {pandit.user?.name}</h1>
+                                {/* there is no `title` column — the name registration writes is fullName */}
+                                <h1 className="text-3xl font-black text-slate-900 tracking-tight">Pt. {pandit.fullName || pandit.displayName || pandit.user?.name}</h1>
                                 <p className="text-lg text-slate-500 font-medium mt-1">{pandit.location}</p>
                             </div>
                             <div className="flex flex-wrap gap-2 text-xs font-bold uppercase tracking-wider">
@@ -137,8 +153,9 @@ export default function PanditVerificationDetail() {
                     </h2>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        {["Aadhaar Front", "Aadhaar Back", "Selfie with Aadhaar"].map((docName, i) => {
-                            const url = pandit.documentUrls ? pandit.documentUrls[i] : null;
+                        {IDENTITY_DOCS.map((doc, i) => {
+                            const docName = doc.name;
+                            const url = docUrlOf(doc);
                             return (
                                 <div key={i} className="border border-slate-200 rounded-xl overflow-hidden flex flex-col">
                                     <div
@@ -178,6 +195,27 @@ export default function PanditVerificationDetail() {
                                 </div>
                             );
                         })}
+
+                        {/* NOT-CAPTURED SLOT — the pandit app has no selfie-with-Aadhaar
+                            capture anywhere (registration, readiness R5, or profile). The
+                            slot stays visible so the gap is legible instead of silently
+                            absent, and is excluded from the approve gate. Drop-or-build is
+                            a founder ruling, not a wiring fix. */}
+                        <div className="border border-dashed border-slate-300 rounded-xl overflow-hidden flex flex-col bg-slate-50/50">
+                            <div className="h-48 bg-slate-100 relative flex items-center justify-center text-center px-4">
+                                <span className="text-slate-400 text-sm font-medium">
+                                    Not captured by the pandit app
+                                </span>
+                            </div>
+                            <div className="p-4 bg-slate-50 flex-1 border-t border-slate-200">
+                                <p className="font-bold text-slate-500 text-sm mb-2">Selfie with Aadhaar</p>
+                                <p className="text-[11px] font-medium text-slate-500 leading-snug">
+                                    No upload path exists for this document. The video checklist
+                                    item &ldquo;Aadhaar card visible and held by person&rdquo; covers
+                                    the same proof. Awaiting a ruling — not required to approve.
+                                </p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -188,8 +226,9 @@ export default function PanditVerificationDetail() {
                             <span className="material-symbols-outlined text-blue-500">videocam</span>
                             Video KYC Review
                         </h2>
-                        {pandit.kycVideoUrl ? (
-                            <video src={pandit.kycVideoUrl} controls className="w-full rounded-xl bg-black aspect-video object-contain outline-none border border-slate-200" />
+                        {/* real column is videoKycUrl — `kycVideoUrl` never existed */}
+                        {pandit.videoKycUrl ? (
+                            <PresignedVideo keyOrUrl={pandit.videoKycUrl} />
                         ) : (
                             <div className="w-full aspect-video bg-slate-100 border-2 border-dashed border-slate-300 rounded-xl flex items-center justify-center text-slate-400 font-medium text-lg">
                                 No KYC Video Uploaded
@@ -235,8 +274,13 @@ export default function PanditVerificationDetail() {
                             <span className="material-symbols-outlined text-slate-400">person</span> Personal
                         </h2>
                         <div className="space-y-4">
-                            <div><p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Aadhaar & PAN</p>
-                                <p className="font-bold text-slate-800 font-mono tracking-wider">{pandit.aadhaarNumber?.replace(/(\d{4})$/, 'XXXX') || '---'}</p></div>
+                            {/* the full number is never sent to the admin app — the schema
+                                keeps it encrypted and exposes aadhaarLastFour only */}
+                            <div><p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Aadhaar</p>
+                                <p className="font-bold text-slate-800 font-mono tracking-wider">{pandit.aadhaarLastFour ? `XXXX XXXX ${pandit.aadhaarLastFour}` : '---'}</p>
+                                <p className={`text-[11px] font-bold mt-1 ${pandit.aadhaarConsentAt ? 'text-green-600' : 'text-red-500'}`}>
+                                    {pandit.aadhaarConsentAt ? `consent recorded ${format(new Date(pandit.aadhaarConsentAt), "dd MMM yyyy")}` : 'NO CONSENT RECORDED'}
+                                </p></div>
                             <div><p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Bio</p>
                                 <p className="text-sm font-medium text-slate-600 leading-relaxed bg-slate-50 p-3 rounded-lg border border-slate-100">{pandit.bio || 'No bio provided'}</p></div>
                             <div><p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Languages</p>
@@ -256,13 +300,22 @@ export default function PanditVerificationDetail() {
                             </p>
                         </div>
 
-                        {pandit.bankDetails ? (
+                        {/* There is no `bankDetails` object on the record. The real columns are
+                            bankAccountName / bankIfscCode / upiId (and bankAccountNumber, which
+                            is stored encoded and is deliberately NOT rendered here — whether an
+                            admin should ever see a payout account number is a founder call). */}
+                        {(pandit.bankAccountName || pandit.bankIfscCode || pandit.bankIfsc || pandit.upiId) ? (
                             <div className="space-y-4">
-                                <div><p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Account Holder</p><p className="font-bold text-slate-800">{pandit.bankDetails.holderName}</p></div>
+                                {pandit.bankAccountName && (
+                                    <div><p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Account Holder</p><p className="font-bold text-slate-800">{pandit.bankAccountName}</p></div>
+                                )}
                                 <div className="grid grid-cols-2 gap-4">
-                                    <div><p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Account Number</p><p className="font-bold text-slate-800 font-mono tracking-wider">{pandit.bankDetails.accountNumber}</p></div>
-                                    <div><p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">IFSC</p><p className="font-bold text-slate-800 font-mono tracking-wider">{pandit.bankDetails.ifsc}</p></div>
+                                    <div><p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Account</p><p className="font-bold text-slate-800">{pandit.bankAccountNumber ? "on file" : "—"}</p></div>
+                                    <div><p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">IFSC</p><p className="font-bold text-slate-800 font-mono tracking-wider">{pandit.bankIfscCode || pandit.bankIfsc || "—"}</p></div>
                                 </div>
+                                {pandit.upiId && (
+                                    <div><p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">UPI</p><p className="font-bold text-slate-800 font-mono">{pandit.upiId}</p></div>
+                                )}
                             </div>
                         ) : <p className="text-slate-500 font-medium">No bank details appended.</p>}
                     </div>
@@ -323,8 +376,11 @@ export default function PanditVerificationDetail() {
                             <button onClick={() => handleRotate(-90)} className="text-white hover:bg-white/20 p-3 rounded-xl transition-colors flex items-center gap-2"><span className="material-symbols-outlined">rotate_left</span> Rotate CCW</button>
                             <button onClick={() => handleRotate(90)} className="text-white hover:bg-white/20 p-3 rounded-xl transition-colors flex items-center gap-2"><span className="material-symbols-outlined">rotate_right</span> Rotate CW</button>
                             <div className="w-px bg-white/20 mx-1 my-2"></div>
-                            {pandit.documentUrls && pandit.documentUrls.length >= 3 && !documentScale.compareUrl && (
-                                <button onClick={() => setDocumentScale(s => ({ ...s, compareUrl: pandit.documentUrls[2] }))} className="text-amber-400 hover:bg-amber-400/20 p-3 rounded-xl transition-colors flex items-center gap-2 font-bold"><span className="material-symbols-outlined">compare</span> Compare w/ Selfie</button>
+                            {/* side-by-side compares the two Aadhaar faces; the old
+                                "Compare w/ Selfie" pointed at documentUrls[2], a slot that
+                                never existed */}
+                            {pandit.aadhaarBackUrl && !documentScale.compareUrl && documentScale.url !== pandit.aadhaarBackUrl && (
+                                <button onClick={() => setDocumentScale(s => ({ ...s, compareUrl: pandit.aadhaarBackUrl }))} className="text-amber-400 hover:bg-amber-400/20 p-3 rounded-xl transition-colors flex items-center gap-2 font-bold"><span className="material-symbols-outlined">compare</span> Compare w/ Back</button>
                             )}
                             <a href={documentScale.url} download target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:bg-blue-400/20 p-3 rounded-xl transition-colors flex items-center gap-2 font-bold"><span className="material-symbols-outlined">download</span> Download</a>
                         </div>
@@ -337,12 +393,8 @@ export default function PanditVerificationDetail() {
                         </div>
                         {documentScale.compareUrl && (
                             <div className="flex-1 h-full flex items-center justify-center bg-black/40 rounded-3xl border border-white/10 overflow-hidden relative">
-                                <div className="absolute top-4 left-4 bg-amber-500 text-black text-xs font-black uppercase px-3 py-1 rounded-full z-10">Verification Selfie</div>
-                                <img
-                                    src={documentScale.compareUrl}
-                                    style={{ transform: `scale(${imgState.scale}) rotate(${imgState.rotation}deg)` }}
-                                    className="max-w-full max-h-full object-contain transition-transform duration-200"
-                                />
+                                <div className="absolute top-4 left-4 bg-amber-500 text-black text-xs font-black uppercase px-3 py-1 rounded-full z-10">Aadhaar Back</div>
+                                <PresignedZoomImg keyOrUrl={documentScale.compareUrl} scale={imgState.scale} rotation={imgState.rotation} />
                             </div>
                         )}
                     </div>
@@ -413,7 +465,7 @@ export default function PanditVerificationDetail() {
                                 </h2>
                                 <p className="text-sm text-slate-600 font-medium mb-4">Select the documents the pandit needs to re-upload:</p>
                                 <div className="grid grid-cols-2 gap-3 mb-6">
-                                    {["Aadhaar Front", "Aadhaar Back", "Selfie", "Video KYC"].map(doc => (
+                                    {["Aadhaar Front", "Aadhaar Back", "Video KYC"].map(doc => (
                                         <label key={doc} className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-colors ${requestedDocs.includes(doc) ? "border-amber-500 bg-amber-50 text-amber-900" : "border-slate-200 hover:bg-slate-50 text-slate-700"}`}>
                                             <input type="checkbox" checked={requestedDocs.includes(doc)} onChange={(e) => {
                                                 if (e.target.checked) setRequestedDocs([...requestedDocs, doc]);
@@ -436,6 +488,12 @@ export default function PanditVerificationDetail() {
 
         </div>
     );
+}
+
+function PresignedVideo({ keyOrUrl }: { keyOrUrl: string }) {
+    const { url } = usePresignedUrl(keyOrUrl);
+    if (!url) return <div className="w-full aspect-video bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 text-sm">Loading…</div>;
+    return <video src={url} controls className="w-full rounded-xl bg-black aspect-video object-contain outline-none border border-slate-200" />;
 }
 
 function PresignedDocImg({ keyOrUrl, alt }: { keyOrUrl: string; alt: string }) {

@@ -679,7 +679,12 @@ export default function TutorialV2({
 
   const goNext = () => onSlideChange(Math.min(TUTORIAL_TOTAL, slide + 1));
   const goBack = () => onSlideChange(Math.max(1, slide - 1));
-  const skipToCta = () => onSlideChange(TUTORIAL_TOTAL);
+  // THE LABEL IS THE PROMISE (traversal defect, Isj order 2026-07-27):
+  // "छोड़िए ›" used to call onSlideChange(TUTORIAL_TOTAL) — it jumped to the
+  // deck's LAST SLIDE, which is not leaving the deck, it is one more slide.
+  // Exit now means the same destination as finishing: tutorial marked done,
+  // on to the auth screen.
+  const exitTutorial = () => onRegister();
 
   const nextDisabled = isMute && !gateOpen;
 
@@ -708,7 +713,7 @@ export default function TutorialV2({
           setStay(true);
           onLater();
         } else {
-          skipToCta();
+          exitTutorial();
         }
       },
     },
@@ -726,7 +731,7 @@ export default function TutorialV2({
       <TutorialShell
         currentDot={TUTORIAL_TOTAL}
         totalDots={TUTORIAL_TOTAL}
-        onSkip={skipToCta}
+        onSkip={exitTutorial}
         onBack={goBack}
         onNext={onRegister}
         nextLabel={t("tutorial.registerNow")}
@@ -754,7 +759,7 @@ export default function TutorialV2({
     <TutorialShell
       currentDot={slide}
       totalDots={TUTORIAL_TOTAL}
-      onSkip={skipToCta}
+      onSkip={exitTutorial}
       onBack={idx === 0 ? undefined : goBack}
       onNext={nextDisabled ? () => { } : goNext}
       nextLabel={nextDisabled ? `⏳ ${t("coach.tryIt")}` : t("tutorial.next")}

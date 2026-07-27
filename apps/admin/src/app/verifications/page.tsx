@@ -4,23 +4,35 @@ import React, { useEffect, useState } from "react";
 import { ADMIN_TOKEN_KEY } from "@hmarepanditji/utils";
 import { usePresignedUrl } from "@/hooks/usePresignedUrl";
 
-interface User {
-  name: string;
-  phone: string;
-}
+// ─────────────────────────────────────────────────────────────
+// IDENTITY REVIEW QUEUE
+//
+// This screen used to call GET /admin/pandits?status=PENDING. PENDING is the
+// schema DEFAULT — nothing uploaded — while a real Aadhaar submission writes
+// DOCUMENTS_SUBMITTED. So submitting REMOVED the pandit from this queue and
+// the only people listed were those with nothing to review.
+//
+// It now calls GET /admin/kyc/queue, whose membership is the single-source
+// KYC_REVIEW_QUEUE_STATUSES set in @hmarepanditji/types.
+// ─────────────────────────────────────────────────────────────
 
-interface PanditProfile {
-  id: string;
-  fullName: string;
+interface QueueRow {
+  panditId: string;
+  userId: string;
+  displayName: string;
+  phone: string;
   city: string;
-  location: string;
   specializations: string[];
-  createdAt: string;
-  aadhaarDocUrl: string;
-  aadhaarFrontUrl: string;
-  bankAccountNumber: string;
-  upiId: string;
-  user: User;
+  verificationStatus: string;
+  aadhaarFrontUrl: string | null;
+  aadhaarBackUrl: string | null;
+  videoKycUrl: string | null;
+  aadhaarLastFour: string | null;
+  aadhaarConsentAt: string | null;
+  videoKycCompleted: boolean;
+  hasBankAccount: boolean;
+  hasUpi: boolean;
+  submittedAt: string;
 }
 
 const REJECTION_REASONS = [
@@ -30,29 +42,29 @@ const REJECTION_REASONS = [
 ];
 
 export default function VerificationsPage() {
-  const [pandits, setPandits] = useState<PanditProfile[]>([]);
+  const [pandits, setPandits] = useState<QueueRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [selectedAadhaar, setSelectedAadhaar] = useState<string | null>(null);
-  
+  const [selectedDoc, setSelectedDoc] = useState<string | null>(null);
+
   // Rejection modal state
   const [rejectingPanditId, setRejectingPanditId] = useState<string | null>(null);
   const [selectedReason, setSelectedReason] = useState(REJECTION_REASONS[0]);
   const [customReason, setCustomReason] = useState("");
   const [submittingReject, setSubmittingReject] = useState(false);
 
-  const fetchPendingQueue = async () => {
+  const fetchQueue = async () => {
     setLoading(true);
     setError("");
     try {
       const token = localStorage.getItem(ADMIN_TOKEN_KEY) || "";
       const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1";
-      const res = await fetch(`${baseUrl}/admin/pandits?status=PENDING`, {
+      const res = await fetch(`${baseUrl}/admin/kyc/queue`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
       if (data.success) {
-        setPandits(data.data || []);
+        setPandits(data.data?.queue || []);
       } else {
         setError(data.error?.message || "Failed to load verifications queue");
       }
@@ -65,7 +77,7 @@ export default function VerificationsPage() {
   };
 
   useEffect(() => {
-    fetchPendingQueue();
+    fetchQueue();
   }, []);
 
   const handleApprove = async (id: string) => {
@@ -80,7 +92,7 @@ export default function VerificationsPage() {
       const data = await res.json();
       if (data.success) {
         alert("Approved successfully");
-        fetchPendingQueue();
+        fetchQueue();
       } else {
         alert(data.error?.message || "Approve failed");
       }
@@ -94,15 +106,15 @@ export default function VerificationsPage() {
     if (!rejectingPanditId) return;
     setSubmittingReject(true);
     const finalReason = customReason.trim() ? `${selectedReason} - ${customReason.trim()}` : selectedReason;
-    
+
     try {
       const token = localStorage.getItem(ADMIN_TOKEN_KEY) || "";
       const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1";
       const res = await fetch(`${baseUrl}/admin/pandits/${rejectingPanditId}/reject`, {
         method: "POST",
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}` 
+          Authorization: `Bearer ${token}`
         },
         body: JSON.stringify({ reason: finalReason })
       });
@@ -111,7 +123,7 @@ export default function VerificationsPage() {
         alert("Rejected successfully");
         setRejectingPanditId(null);
         setCustomReason("");
-        fetchPendingQueue();
+        fetchQueue();
       } else {
         alert(data.error?.message || "Reject failed");
       }
@@ -127,8 +139,8 @@ export default function VerificationsPage() {
     <div className="p-6 max-w-7xl mx-auto space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-bold text-slate-800">Verification Requests ({pandits.length})</h2>
-        <button 
-          onClick={fetchPendingQueue} 
+        <button
+          onClick={fetchQueue}
           className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold rounded-lg transition"
         >
           Refresh Queue
@@ -145,7 +157,7 @@ export default function VerificationsPage() {
         <div className="py-20 text-center font-medium text-slate-500">Loading queue...</div>
       ) : pandits.length === 0 ? (
         <div className="bg-white border rounded-xl p-12 text-center text-slate-500 font-medium">
-          No pending verifications in queue.
+          No submitted documents awaiting review.
         </div>
       ) : (
         <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
@@ -158,87 +170,101 @@ export default function VerificationsPage() {
                   <th className="px-6 py-4">City</th>
                   <th className="px-6 py-4">Specializations</th>
                   <th className="px-6 py-4">Aadhaar</th>
+                  <th className="px-6 py-4">Video KYC</th>
                   <th className="px-6 py-4">Payment Methods</th>
                   <th className="px-6 py-4">Submitted At</th>
                   <th className="px-6 py-4 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {pandits.map((p) => {
-                  const hasBank = !!p.bankAccountNumber;
-                  const hasUpi = !!p.upiId;
-                  const aadhaarUrl = p.aadhaarDocUrl || p.aadhaarFrontUrl;
-                  
-                  return (
-                    <tr key={p.id} className="hover:bg-slate-50/80 text-sm text-slate-700">
-                      <td className="px-6 py-4 font-bold text-slate-900">{p.fullName || p.user?.name || "N/A"}</td>
-                      <td className="px-6 py-4 font-mono">{p.user?.phone || "N/A"}</td>
-                      <td className="px-6 py-4">{p.city || p.location || "N/A"}</td>
-                      <td className="px-6 py-4">
-                        <div className="flex flex-wrap gap-1 max-w-xs">
-                          {p.specializations?.map((s) => (
-                            <span key={s} className="bg-slate-100 text-slate-700 text-[11px] font-medium px-2 py-0.5 rounded">
-                              {s}
-                            </span>
-                          ))}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        {aadhaarUrl ? (
-                          <AadhaarThumb keyOrUrl={aadhaarUrl} onOpen={() => setSelectedAadhaar(aadhaarUrl)} />
-                        ) : (
-                          <span className="text-red-500 font-medium">Missing</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex gap-2">
-                          <span className={`px-2 py-0.5 rounded text-[11px] font-bold ${hasBank ? "bg-green-100 text-green-700" : "bg-slate-100 text-slate-400"}`}>
-                            Bank {hasBank ? "✓" : "✗"}
+                {pandits.map((p) => (
+                  <tr key={p.panditId} className="hover:bg-slate-50/80 text-sm text-slate-700">
+                    <td className="px-6 py-4 font-bold text-slate-900">
+                      {p.displayName || "N/A"}
+                      <div className="text-[11px] font-medium text-amber-600 mt-0.5">{p.verificationStatus}</div>
+                    </td>
+                    <td className="px-6 py-4 font-mono">{p.phone || "N/A"}</td>
+                    <td className="px-6 py-4">{p.city || "N/A"}</td>
+                    <td className="px-6 py-4">
+                      <div className="flex flex-wrap gap-1 max-w-xs">
+                        {p.specializations?.map((s) => (
+                          <span key={s} className="bg-slate-100 text-slate-700 text-[11px] font-medium px-2 py-0.5 rounded">
+                            {s}
                           </span>
-                          <span className={`px-2 py-0.5 rounded text-[11px] font-bold ${hasUpi ? "bg-green-100 text-green-700" : "bg-slate-100 text-slate-400"}`}>
-                            UPI {hasUpi ? "✓" : "✗"}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-slate-500">{new Date(p.createdAt).toLocaleDateString()}</td>
-                      <td className="px-6 py-4 text-right">
-                        <div className="flex gap-2 justify-end">
-                          <button 
-                            onClick={() => handleApprove(p.id)}
-                            className="bg-green-600 hover:bg-green-700 text-white font-bold text-xs px-3 py-1.5 rounded transition"
-                          >
-                            APPROVE
-                          </button>
-                          <button 
-                            onClick={() => setRejectingPanditId(p.id)}
-                            className="bg-red-500 hover:bg-red-600 text-white font-bold text-xs px-3 py-1.5 rounded transition"
-                          >
-                            REJECT
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
+                        ))}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-2">
+                        <DocThumb label="Front" keyOrUrl={p.aadhaarFrontUrl} onOpen={setSelectedDoc} />
+                        <DocThumb label="Back" keyOrUrl={p.aadhaarBackUrl} onOpen={setSelectedDoc} />
+                      </div>
+                      <div className="text-[11px] text-slate-500 mt-1 font-mono">
+                        {p.aadhaarLastFour ? `XXXX XXXX ${p.aadhaarLastFour}` : "no number"}
+                      </div>
+                      <div className={`text-[11px] font-semibold ${p.aadhaarConsentAt ? "text-green-600" : "text-red-500"}`}>
+                        {p.aadhaarConsentAt ? "consent recorded" : "NO CONSENT"}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      {p.videoKycUrl ? (
+                        <button
+                          onClick={() => setSelectedDoc(p.videoKycUrl)}
+                          className="px-2 py-1 bg-slate-800 text-white text-[11px] font-bold rounded"
+                        >
+                          Play
+                        </button>
+                      ) : (
+                        <span className="text-slate-400 text-xs font-medium">none</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex gap-2">
+                        <span className={`px-2 py-0.5 rounded text-[11px] font-bold ${p.hasBankAccount ? "bg-green-100 text-green-700" : "bg-slate-100 text-slate-400"}`}>
+                          Bank {p.hasBankAccount ? "✓" : "✗"}
+                        </span>
+                        <span className={`px-2 py-0.5 rounded text-[11px] font-bold ${p.hasUpi ? "bg-green-100 text-green-700" : "bg-slate-100 text-slate-400"}`}>
+                          UPI {p.hasUpi ? "✓" : "✗"}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-slate-500">{p.submittedAt ? new Date(p.submittedAt).toLocaleString() : "—"}</td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex gap-2 justify-end">
+                        <button
+                          onClick={() => handleApprove(p.panditId)}
+                          className="bg-green-600 hover:bg-green-700 text-white font-bold text-xs px-3 py-1.5 rounded transition"
+                        >
+                          APPROVE
+                        </button>
+                        <button
+                          onClick={() => setRejectingPanditId(p.panditId)}
+                          className="bg-red-500 hover:bg-red-600 text-white font-bold text-xs px-3 py-1.5 rounded transition"
+                        >
+                          REJECT
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
         </div>
       )}
 
-      {/* Aadhaar Full Image Modal */}
-      {selectedAadhaar && (
+      {/* Document Full View Modal */}
+      {selectedDoc && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-6">
           <div className="bg-white rounded-xl overflow-hidden max-w-3xl w-full flex flex-col shadow-2xl relative">
-            <button 
-              onClick={() => setSelectedAadhaar(null)}
+            <button
+              onClick={() => setSelectedDoc(null)}
               className="absolute top-4 right-4 bg-slate-900/60 hover:bg-slate-900/80 text-white w-10 h-10 rounded-full flex items-center justify-center text-xl font-bold transition"
             >
               ✕
             </button>
             <div className="p-2 flex items-center justify-center max-h-[80vh] overflow-auto bg-slate-100">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <PresignedFullImage keyOrUrl={selectedAadhaar} />
+              <PresignedFullImage keyOrUrl={selectedDoc} />
             </div>
           </div>
         </div>
@@ -249,18 +275,18 @@ export default function VerificationsPage() {
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-6">
           <div className="bg-white rounded-xl p-6 max-w-md w-full flex flex-col shadow-2xl gap-4">
             <h3 className="text-lg font-bold text-slate-800">Select Rejection Reason</h3>
-            
+
             <div className="flex flex-col gap-2">
               {REJECTION_REASONS.map((reason) => (
-                <label 
-                  key={reason} 
+                <label
+                  key={reason}
                   className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition ${selectedReason === reason ? "border-red-500 bg-red-50/50" : "border-slate-200 hover:bg-slate-50"}`}
                 >
-                  <input 
-                    type="radio" 
-                    name="rejection_reason" 
-                    value={reason} 
-                    checked={selectedReason === reason} 
+                  <input
+                    type="radio"
+                    name="rejection_reason"
+                    value={reason}
+                    checked={selectedReason === reason}
                     onChange={() => setSelectedReason(reason)}
                     className="accent-red-500"
                   />
@@ -271,7 +297,7 @@ export default function VerificationsPage() {
 
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-bold text-slate-500 uppercase">Additional / Custom Reason</label>
-              <textarea 
+              <textarea
                 value={customReason}
                 onChange={(e) => setCustomReason(e.target.value)}
                 placeholder="Optional extra comments..."
@@ -281,13 +307,13 @@ export default function VerificationsPage() {
             </div>
 
             <div className="flex gap-3 justify-end mt-2">
-              <button 
+              <button
                 onClick={() => setRejectingPanditId(null)}
                 className="px-4 py-2 hover:bg-slate-100 font-bold text-sm rounded-lg text-slate-600 transition"
               >
                 Cancel
               </button>
-              <button 
+              <button
                 onClick={handleRejectSubmit}
                 disabled={submittingReject}
                 className="px-6 py-2 bg-red-500 hover:bg-red-600 text-white font-bold text-sm rounded-lg shadow-lg shadow-red-500/20 transition disabled:opacity-50"
@@ -302,13 +328,28 @@ export default function VerificationsPage() {
   );
 }
 
-function AadhaarThumb({ keyOrUrl, onOpen }: { keyOrUrl: string; onOpen: () => void }) {
+function DocThumb({ label, keyOrUrl, onOpen }: { label: string; keyOrUrl: string | null; onOpen: (u: string) => void }) {
+  if (!keyOrUrl) {
+    return (
+      <span className="text-red-500 font-medium text-[11px] w-12 h-12 border border-dashed border-red-200 rounded flex items-center justify-center text-center leading-tight">
+        {label}<br />missing
+      </span>
+    );
+  }
+  return <LoadedThumb label={label} keyOrUrl={keyOrUrl} onOpen={onOpen} />;
+}
+
+function LoadedThumb({ label, keyOrUrl, onOpen }: { label: string; keyOrUrl: string; onOpen: (u: string) => void }) {
   const { url, refresh } = usePresignedUrl(keyOrUrl);
-  if (!url) return <span className="text-slate-400 text-xs">…</span>;
+  if (!url) return <span className="text-slate-400 text-xs w-12 h-12 flex items-center justify-center">…</span>;
   return (
-    <button onClick={onOpen} className="w-12 h-12 border rounded hover:scale-105 transition-transform overflow-hidden relative">
+    <button
+      onClick={() => onOpen(keyOrUrl)}
+      title={label}
+      className="w-12 h-12 border rounded hover:scale-105 transition-transform overflow-hidden relative"
+    >
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={url} alt="Aadhaar doc" className="w-full h-full object-cover" onError={() => refresh()} />
+      <img src={url} alt={`Aadhaar ${label}`} className="w-full h-full object-cover" onError={() => refresh()} />
     </button>
   );
 }
@@ -316,8 +357,11 @@ function AadhaarThumb({ keyOrUrl, onOpen }: { keyOrUrl: string; onOpen: () => vo
 function PresignedFullImage({ keyOrUrl }: { keyOrUrl: string }) {
   const { url, refresh } = usePresignedUrl(keyOrUrl);
   if (!url) return <span className="text-slate-400">Loading…</span>;
+  if (/\.(mp4|webm|mov)(\?|$)/i.test(url)) {
+    return <video src={url} controls className="max-w-full max-h-[75vh] rounded bg-black" />;
+  }
   return (
     /* eslint-disable-next-line @next/next/no-img-element */
-    <img src={url} alt="Full Aadhaar" className="max-w-full max-h-[75vh] object-contain rounded" onError={() => refresh()} />
+    <img src={url} alt="Identity document" className="max-w-full max-h-[75vh] object-contain rounded" onError={() => refresh()} />
   );
 }

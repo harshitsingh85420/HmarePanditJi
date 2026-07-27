@@ -39,6 +39,10 @@ interface ProfileData {
   photoUrl: string | null;
   specializations: string[];
   verificationStatus?: string;
+  // F29: poojas added after signup await their own video verification. Until
+  // this turn the per-pooja ✓ ignored it entirely and simply re-drew the
+  // identity verdict, so a pooja still awaiting review wore a green tick.
+  pendingPoojaVerifications?: string[];
   experienceYears?: number;
   dakshinaRates?: Array<{ pujaType: string; amount: number }>;
   pujaServices?: Array<{ pujaType: string; dakshinaAmount: number }>;
@@ -215,7 +219,8 @@ export default function ProfileViewPage() {
                     VERIFICATION claim, so it rides the SAME gate as the
                     heading above it — an unverified pandit used to see a
                     ✓ beside every pooja with nothing behind it. */}
-                {profile?.verificationStatus === "VERIFIED" && (
+                {profile?.verificationStatus === "VERIFIED" &&
+                  !(profile?.pendingPoojaVerifications || []).includes(sp) && (
                   <span className="material-symbols-outlined material-symbols-filled text-[20px] text-leaf-500 shrink-0" aria-hidden="true">
                     check_circle
                   </span>

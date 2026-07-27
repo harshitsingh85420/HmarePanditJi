@@ -40,6 +40,7 @@ export default function HomeHarnessPage() {
       firstName="रमेश"
       festivalDay={false}
       isPending={false}
+      isSubmitted={false}
       isRejected={false}
       rejectionReason={null}
       isApproved={true}

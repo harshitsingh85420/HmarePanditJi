@@ -308,6 +308,10 @@ export const hi = {
     slowServer: "सर्वर बहुत धीमा है — थोड़ी देर बाद फिर कोशिश कीजिए।",
   },
   onboarding: {
+    // Spoken when a token-holding, OTP-verified pandit presses पीछे on the
+    // registration screen. He is past onboarding; the deck behind him is not
+    // a place to return to. Same refusal shape as होम's resume rule.
+    regBackBlocked: "आपका नंबर जुड़ चुका है, पंडित जी। बस नाम भरिए और आगे बढ़िए।",
     step1Title: "आपका नाम",
     step1Voice: "पंडित जी, कृपया अपना पूरा नाम लिखिए।",
     step2Title: "आपका शहर",
@@ -464,6 +468,11 @@ export const hi = {
     // Now: active, reason first, with a CTA to the real upload path.
     pendingVerification: "आधार अपलोड कीजिए — इससे यजमान आप पर भरोसा कर सकेंगे।",
     pendingVerificationCta: "आधार अपलोड कीजिए",
+    // SUBMITTED state — legal only since the admin review queue was repaired
+    // (2026-07-27). Before that a submitted pandit vanished from the queue,
+    // so "जाँच चल रही है" would have been the same passive lie one state over.
+    // NO TIME PROMISE (Isj): nobody may state a review duration.
+    submittedVerification: "आपका आधार मिल गया — जाँच चल रही है।",
     rejectedTitle: "प्रोफ़ाइल में सुधार चाहिए",
     resubmit: "दोबारा जमा कीजिए",
     samagriLink: "🛍️ सामग्री पैकेज",
@@ -792,7 +801,10 @@ export const hi = {
       { g: "money", q: "यात्रा का ख़र्च कौन देता है?", a: "अपनी गाड़ी से जाने पर ₹12 प्रति किलोमीटर आना-जाना मिलता है; ट्रेन-बस का इंतज़ाम बुकिंग के साथ तय होता है।" },
       { g: "money", q: "पैसा न आए तो क्या कीजिए?", a: "पूजा पूरी होने के 48 घंटे बाद भी पैसा न आए, तो मदद वाले हिस्से से हमारी टीम को फ़ोन कीजिए — तुरंत देखा जाएगा।" },
       { g: "money", q: "क्या ऐप का कोई शुल्क है?", a: "ऐप बिल्कुल मुफ़्त है — न जुड़ने का कोई शुल्क, न चलाने का।" },
-      { g: "verify", q: "सत्यापन में कितना समय लगता है?", a: "हमारी टीम आमतौर पर 2 दिन में सत्यापन पूरा कर देती है — पूरा होते ही आपको सूचना मिलेगी।" },
+      // NO TIME PROMISE (Isj, 2026-07-27): this used to say "आमतौर पर 2 दिन".
+      // Nobody may state a review duration — least of all while the review
+      // queue is worked by hand.
+      { g: "verify", q: "सत्यापन में कितना समय लगता है?", a: "आपके दस्तावेज़ मिलते ही हमारी टीम जाँच शुरू करती है — पूरा होते ही आपको सूचना मिलेगी।" },
       { g: "verify", q: "आधार क्यों माँगते हैं? सुरक्षित है?", a: "जी हाँ, आधार पूरी तरह सुरक्षित है — सिर्फ़ सत्यापन के लिए इस्तेमाल होता है और किसी ग्राहक को कभी नहीं दिखता।" },
       { g: "verify", q: "पूजा अस्वीकृत हो जाए तो?", a: "कोई बात नहीं। कारण वहीं लिखा मिलेगा — 'दुबारा भेजिए' दबाकर नया वीडियो भेज दीजिए, जाँच फिर से होगी।" },
       { g: "verify", q: "भरोसा कैसे रहेगा?", a: "ग्राहक का पैसा पहले प्लेटफ़ॉर्म के पास सुरक्षित रहता है और पूजा पूरी होने पर आपको मिलता है — इसीलिए दोनों तरफ़ भरोसा बना रहता है।" },

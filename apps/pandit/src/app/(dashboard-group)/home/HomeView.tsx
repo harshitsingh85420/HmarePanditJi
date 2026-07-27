@@ -55,6 +55,7 @@ export interface HomeViewProps {
   firstName: string;
   festivalDay: boolean;
   isPending: boolean;
+  isSubmitted: boolean;
   isRejected: boolean;
   rejectionReason: string | null;
   isApproved: boolean;
@@ -89,6 +90,7 @@ export function HomeView({
   firstName,
   festivalDay,
   isPending,
+  isSubmitted,
   isRejected,
   rejectionReason,
   isApproved,
@@ -212,6 +214,21 @@ export function HomeView({
               >
                 {t("home.pendingVerificationCta")}
               </button>
+            </div>
+          </>
+        )}
+
+        {/* SUBMITTED VERIFICATION BANNER — documents are in and the pandit is
+            in the admin review queue. No CTA: there is nothing for him to do,
+            and no time promise, because nobody may state a review duration. */}
+        {isSubmitted && (
+          <>
+            {renderNarrate(t("home.submittedVerification"))}
+            <div className="bg-blue-50 border-2 border-blue-300 rounded-card p-4 flex items-center gap-3">
+              <span className="text-[24px]">📋</span>
+              <p className="text-[18px] font-bold text-blue-900 font-hindi leading-snug">
+                {t("home.submittedVerification")}
+              </p>
             </div>
           </>
         )}

@@ -9,6 +9,13 @@
  */
 
 import { prisma } from "@hmarepanditji/db";
+import {
+    KYC_REVIEW_QUEUE_STATUSES,
+    KYC_NOT_SUBMITTED_STATUSES,
+    KYC_APPROVE_WRITE_STATUS,
+    KYC_REJECT_WRITE_STATUS,
+    KYC_SUBMITTED_WRITE_STATUS,
+} from "@hmarepanditji/types";
 import { encryptAadhaar, getAadhaarLastFour } from "../utils/aadhaar";
 import { AppError } from "../middleware/errorHandler";
 import { logger } from "../utils/logger";
@@ -70,7 +77,8 @@ export async function submitVideoKYC(panditUserId: string, videoUrl: string) {
         where: { userId: panditUserId },
         data: {
             videoKycCompleted: true,
-            verificationStatus: "DOCUMENTS_SUBMITTED",
+            videoKycUrl: videoUrl,
+            verificationStatus: KYC_SUBMITTED_WRITE_STATUS as any,
         },
     });
 
@@ -87,12 +95,18 @@ export async function submitVideoKYC(panditUserId: string, videoUrl: string) {
 export async function getKYCQueue(page: number = 1, limit: number = 20) {
     const skip = (page - 1) * limit;
 
+    // THE QUEUE IS THE SUBMITTED SET (KYC_REVIEW_QUEUE_STATUSES), not PENDING.
+    // PENDING is the schema default — nothing uploaded, nothing to review —
+    // and listing it here is what let an admin "approve" an identity with no
+    // documents at all. Their count is reported separately by getKYCStats().
+    const queueWhere = {
+        verificationStatus: { in: [...KYC_REVIEW_QUEUE_STATUSES] as any },
+        user: { is: { isActive: true } },
+    };
+
     const [pandits, total] = await Promise.all([
         prisma.panditProfile.findMany({
-            where: {
-                verificationStatus: { in: ["PENDING", "DOCUMENTS_SUBMITTED", "VIDEO_KYC_DONE"] },
-                user: { is: { isActive: true } },
-            },
+            where: queueWhere,
             include: {
                 user: {
                     select: {
@@ -103,27 +117,35 @@ export async function getKYCQueue(page: number = 1, limit: number = 20) {
                     },
                 },
             },
-            orderBy: { createdAt: "asc" },
+            // oldest submission first — the man who has waited longest is reviewed first
+            orderBy: { updatedAt: "asc" },
             skip,
             take: limit,
         }),
-        prisma.panditProfile.count({
-            where: {
-                verificationStatus: { in: ["PENDING", "DOCUMENTS_SUBMITTED", "VIDEO_KYC_DONE"] },
-                user: { is: { isActive: true } },
-            },
-        }),
+        prisma.panditProfile.count({ where: queueWhere }),
     ]);
 
     return {
         queue: pandits.map((p: any) => ({
             panditId: p.id,
             userId: p.userId,
-            displayName: p.displayName,
+            // displayName is optional; fullName/user.name are what registration writes
+            displayName: p.displayName || p.fullName || p.user?.name || "",
             phone: p.user?.phone,
             verificationStatus: p.verificationStatus,
+            // ── the identity documents, by their REAL column names ──
+            aadhaarFrontUrl: p.aadhaarFrontUrl || p.aadhaarDocUrl || null,
+            aadhaarBackUrl: p.aadhaarBackUrl || null,
+            videoKycUrl: p.videoKycUrl || null,
+            aadhaarLastFour: p.aadhaarLastFour || null,
+            aadhaarConsentAt: p.aadhaarConsentAt?.toISOString() || null,
             aadhaarVerified: p.aadhaarVerified || false,
-            videoKycCompleted: p.videoKycVerified || false,
+            // real column is videoKycCompleted — `videoKycVerified` never existed,
+            // so this row always reported false however much video was uploaded
+            videoKycCompleted: p.videoKycCompleted || false,
+            // payout presence only — never the numbers themselves
+            hasBankAccount: !!p.bankAccountNumber,
+            hasUpi: !!p.upiId,
             certificateUrls: p.certificateUrls || [],
             certificatesVerified: p.certificatesVerified || false,
             specializations: p.specializations || [],
@@ -131,7 +153,10 @@ export async function getKYCQueue(page: number = 1, limit: number = 20) {
             experienceYears: p.experienceYears || 0,
             city: p.city || p.location || "",
             state: p.state || "",
-            submittedAt: p.createdAt?.toISOString(),
+            registeredAt: p.createdAt?.toISOString(),
+            // best available submission stamp: the R5 submit is the write that
+            // moved this row into the queue
+            submittedAt: p.updatedAt?.toISOString(),
         })),
         total,
         page,
@@ -163,9 +188,11 @@ export async function reviewKYC(
         await prisma.panditProfile.update({
             where: { id: panditId },
             data: {
-                verificationStatus: "VERIFIED",
+                verificationStatus: KYC_APPROVE_WRITE_STATUS as any,
                 aadhaarVerified: true,
                 certificatesVerified: true,
+                verifiedAt: new Date(),
+                verifiedById: adminUserId,
             },
         });
 
@@ -190,7 +217,8 @@ export async function reviewKYC(
         await prisma.panditProfile.update({
             where: { id: panditId },
             data: {
-                verificationStatus: "REJECTED",
+                verificationStatus: KYC_REJECT_WRITE_STATUS as any,
+                rejectionReason: notes || null,
             },
         });
 
@@ -220,14 +248,22 @@ export async function reviewKYC(
 // ─── Admin: Get KYC Stats ────────────────────────────────────────────────────
 
 export async function getKYCStats() {
-    const [pending, verified, rejected, total] = await Promise.all([
+    // awaitingReview and notSubmitted are DIFFERENT facts and were being added
+    // together: one is a queue an admin must work through, the other is pandits
+    // who have not uploaded anything and are waiting on themselves.
+    const [awaitingReview, notSubmitted, verified, rejected, total] = await Promise.all([
         prisma.panditProfile.count({
-            where: { verificationStatus: { in: ["PENDING", "DOCUMENTS_SUBMITTED", "VIDEO_KYC_DONE"] } },
+            where: { verificationStatus: { in: [...KYC_REVIEW_QUEUE_STATUSES] as any } },
         }),
-        prisma.panditProfile.count({ where: { verificationStatus: "VERIFIED" } }),
-        prisma.panditProfile.count({ where: { verificationStatus: "REJECTED" } }),
+        prisma.panditProfile.count({
+            where: { verificationStatus: { in: [...KYC_NOT_SUBMITTED_STATUSES] as any } },
+        }),
+        prisma.panditProfile.count({ where: { verificationStatus: KYC_APPROVE_WRITE_STATUS as any } }),
+        prisma.panditProfile.count({ where: { verificationStatus: KYC_REJECT_WRITE_STATUS as any } }),
         prisma.panditProfile.count(),
     ]);
 
-    return { pending, verified, rejected, total };
+    // `pending` kept as an alias for awaitingReview so existing readers do not
+    // break, but it now means "reviewable", not "reviewable + never uploaded".
+    return { awaitingReview, notSubmitted, pending: awaitingReview, verified, rejected, total };
 }

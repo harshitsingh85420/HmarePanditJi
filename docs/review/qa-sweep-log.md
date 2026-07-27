@@ -218,6 +218,41 @@ Every page's §3 now measures the app column against the viewport and reports th
 
 ---
 
+### 🔴 KYC WIRING P0 — **IDENTITY REVIEW PATH CLOSED** · 2026-07-27 · pane: driven (admin queue composited styled, 940-rule proof) · round trip 16/16 legs
+
+**THE BREAK (4th sighting of the writer/reader contract class).** The pandit app R5 submit wrote `verificationStatus = DOCUMENTS_SUBMITTED`. The admin review queue asked for `status=PENDING` — the schema DEFAULT, i.e. nothing uploaded. **Submitting an Aadhaar REMOVED the pandit from the only screen that could review him.** The admin detail console read `documentUrls` / `kycVideoUrl` / `aadhaarNumber` — three names that exist nowhere in schema.prisma — so an uploaded Aadhaar rendered "Not Uploaded". Two apps, two vocabularies, no build complained.
+
+**(c) THE ONE SOURCE — `packages/types/src/verification.ts`.** Storage truth is the Prisma enum; this file names it once for every app and service. `VERIFICATION_STATUSES` (6 values — the TS enum was missing `APPROVED`), `KYC_REVIEW_QUEUE_STATUSES` (= submitted set, PENDING deliberately excluded), `KYC_NOT_SUBMITTED_STATUSES`, `KYC_APPROVED_STATUSES` (VERIFIED + legacy APPROVED, read-only), and the three WRITE constants. Verified importable across the tsc boundary into services/api (114 files compiled, no rootDir violation).
+
+**(a) THE QUEUE.** `apps/admin/verifications` now calls **GET /admin/kyc/queue** — the correct endpoint that already existed and was never called. `getKYCQueue` builds its where-clause from the shared set; `p.videoKycVerified` (a column that never existed) corrected to `videoKycCompleted`; queue rows now carry aadhaarFrontUrl/aadhaarBackUrl/videoKycUrl/aadhaarLastFour/consent/bank+UPI presence; ordered oldest-submission-first. `getKYCStats` no longer adds "never uploaded" to "awaiting review" — they are different facts.
+
+**(b) THE DOCUMENTS.** The detail console reads the real columns. The "Selfie with Aadhaar" slot renders as *not captured by the pandit app* and is excluded from the approve gate (was: an admin ticking a checkbox about a file that cannot exist).
+
+**THE STANDING SHAPE (Isj item 5, partial).** `services/api/src/lib/kycContract.test.ts` section D scans every `pandit.<field>` the admin console reads and fails the build if it is not a PanditProfile column. **On its first run it found two more phantoms nobody had walked into: `pandit.title` and `pandit.bankDetails`** — the entire Bank Details panel was dead, saying "No bank details appended" for every pandit who had saved them. Both fixed (account NUMBER deliberately not rendered — founder call).
+
+**PROOF — `apps/pandit/scripts/kyc-roundtrip.mjs`, 16/16 legs, both apps, one record, no real submission fired.** PENDING → home asks for the upload · R5 submit flips the record (last four + consent recorded) · SUBMITTED → "आपका आधार मिल गया — जाँच चल रही है।" with no time promise · **he APPEARS in the queue** · endpoint asserted `/admin/kyc/queue`,  asserted absent · **both Aadhaar faces RENDER** · approve → VERIFIED → he leaves the queue · pandit banners retire. Shots: docs/review/shots/kyc/01-07.
+
+**🔴 FOUND WHILE PROVING — THE ADMIN PANEL SHIPPED UNSTYLED.** `apps/admin/postcss.config.js` did not pin its tailwind config path; built from the repo root Tailwind finds NO config and emits zero utilities. **47 CSS rules → 940 once pinned.** No borders, no badges, no spacing — and nothing fails, because a missing stylesheet is not a build error. apps/pandit already carried the cure *with a comment explaining it*; admin never got it. New guard `tailwindConfigPinned.test.ts` then found **apps/web had it too** — fixed. Three apps, one class.
+
+**COPY SHIPPED (legal only now (a) works):** `home.submittedVerification` = "आपका आधार मिल गया — जाँच चल रही है।" No duration. The FAQ's "आमतौर पर 2 दिन" time promise removed. Home now reads identity state through the one source (4 states: not-submitted / under-review / approved / rejected).
+
+**IDENTITY ✓ vs पूजा ✓ — the read.** On प्रोफ़ाइल the avatar seal, the ✓ प्रमाणित pill, the प्रमाणित पूजाएँ heading AND the per-pooja check_circle all rendered off ONE condition: `verificationStatus === "VERIFIED"`. There was no per-pooja verification state on screen at all — the tick re-drew the identity verdict, so a pooja sitting in `pendingPoojaVerifications` (F29: poojas added after signup await their own video verification) wore a green tick with nothing behind it. **Fixed** — the tick now also requires the pooja not be pending. Proven by round-trip LEG 8.
+
+**TRAVERSAL FIXES (both defects from the last walk):**
+- 🔴 back from रजिस्ट्रेशन landed in the TUTORIAL deck → now given होम's resume-rule treatment: a token-holding, OTP-verified pandit is refused out loud ("आपका नंबर जुड़ चुका है, पंडित जी…"); the no-token fallback survives.
+- ⚠️ "छोड़िए ›" landed on the deck's LAST SLIDE → now EXITS (same destination as finishing). The label is the promise. Guard: `tutorialExit.test.ts`.
+
+**REPORT-ONLY (Isj's):**
+1. **Approve-with-no-documents.** Removing PENDING from the queue closes the common path, but nothing structurally refuses an approval on a record with no aadhaarFrontUrl. Add a hard refusal, or keep it a human judgment?
+2. **"Selfie with Aadhaar":** DROP or BUILD. Drop = one line; the video checklist already carries "Aadhaar card visible and held by person", which proves the same thing, and no pandit is asked for a file that does not exist. Build = a new capture screen in R5, another upload for a low-literacy pandit to complete, and a second review artefact — for proof the video already gives.
+3. **🔴 ADMIN TOKEN KEY SPLIT (bigger than KYC).** Login writes `hpj_admin_token` (ADMIN_TOKEN_KEY). Five screens read a hard-coded `"adminToken"` instead — pandit detail, bookings detail, cancellations ×3, support. They send `Bearer ` empty and get 401. Same contract class, auth territory, untouched per the standing boundary.
+4. `POST /admin/kyc/:panditId/review` is a SECOND approval writer that nothing calls; the app uses `/admin/pandits/:id/approve` (which also sends the pandit notification). Left alone — it touches who gets alerted.
+5. `getPanditAdminDetail` returns the raw Prisma record, including `aadhaarEncrypted` and the encoded `bankAccountNumber`.
+
+**NOT DONE THIS TURN (leads next):** BATCH FOUR (rewatch pill / interjection ruling / roman names + server cap / phantom सूची) and the full cross-boundary contract ENUMERATION (item 5) — the standing guard shape exists and has already caught three breaks, but the exhaustive table does not.
+
+---
+
 ### 🚦 TRAVERSAL PASS 1 + 3 — **ROUND-TRIPPED, unseeded, fresh number 9999999998** · 2026-07-27 · **pane: driven to every hop; composited for hops 1-3, 11-12 and pass 3 (it darkened at hop 4 and recovered later — both stated in the turn's first line)**
 
 **LAW AMENDED MID-RUN (Isj):** backward is no longer a separate pass — every hop is a round trip, because a pass scheduled last is structurally destined to be dropped when context runs out. This run adopted it immediately.

@@ -5,7 +5,9 @@
 
 // ─── TYPED ENUMS (spec-required) ─────────────────────
 export enum Role { CUSTOMER = 'CUSTOMER', PANDIT = 'PANDIT', ADMIN = 'ADMIN' }
-export enum VerificationStatus { PENDING = 'PENDING', DOCUMENTS_SUBMITTED = 'DOCUMENTS_SUBMITTED', VIDEO_KYC_DONE = 'VIDEO_KYC_DONE', VERIFIED = 'VERIFIED', REJECTED = 'REJECTED' }
+// APPROVED is a legacy spelling that exists in the Prisma enum. It is READ
+// (old rows) but never written — see ./verification for the write constants.
+export enum VerificationStatus { PENDING = 'PENDING', DOCUMENTS_SUBMITTED = 'DOCUMENTS_SUBMITTED', VIDEO_KYC_DONE = 'VIDEO_KYC_DONE', VERIFIED = 'VERIFIED', REJECTED = 'REJECTED', APPROVED = 'APPROVED' }
 export enum BookingStatus { CREATED = 'CREATED', PANDIT_REQUESTED = 'PANDIT_REQUESTED', CONFIRMED = 'CONFIRMED', TRAVEL_BOOKED = 'TRAVEL_BOOKED', PANDIT_EN_ROUTE = 'PANDIT_EN_ROUTE', PANDIT_ARRIVED = 'PANDIT_ARRIVED', PUJA_IN_PROGRESS = 'PUJA_IN_PROGRESS', COMPLETED = 'COMPLETED', CANCELLATION_REQUESTED = 'CANCELLATION_REQUESTED', CANCELLED = 'CANCELLED', REFUNDED = 'REFUNDED' }
 export enum TravelMode { SELF_DRIVE = 'SELF_DRIVE', TRAIN = 'TRAIN', FLIGHT = 'FLIGHT', CAB = 'CAB', BUS = 'BUS' }
 export enum TravelStatus { NOT_REQUIRED = 'NOT_REQUIRED', PENDING = 'PENDING', BOOKED = 'BOOKED', IN_TRANSIT = 'IN_TRANSIT', ARRIVED = 'ARRIVED' }
@@ -421,3 +423,6 @@ export interface KYCDocument {
 
 // ─── Razorpay Payment Types ──────────────────────────
 export * from './razorpay';
+
+// ─── Identity (KYC) status vocabulary — THE ONE SOURCE ─
+export * from './verification';

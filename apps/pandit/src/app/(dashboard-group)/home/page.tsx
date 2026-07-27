@@ -16,6 +16,12 @@ import { mutateOnce } from "@/lib/mutate";
 import { voiceController } from "@/lib/voiceController";
 import { api } from "@/lib/api";
 import { setAgentUserState } from "@/lib/shishyaAgent";
+import {
+  isKycNotSubmitted,
+  isKycUnderReview,
+  isKycApproved,
+  isKycRejected,
+} from "@hmarepanditji/types";
 
 import { useVoice } from "@/hooks/useVoice";
 import { DiyaLoader } from "@/components/moments/DiyaLoader";
@@ -268,11 +274,14 @@ export default function HomePage() {
   // reads "नमस्ते, Ramesh जी" rather than "नमस्ते, Pt. जी"
   const nameParts: string[] = (profile?.name || "").split(" ").filter((w: string) => !/^(pt\.?|पं\.?|pandit|पंडित)$/i.test(w));
   const firstName = nameParts[0] || "पंडित";
-  const isPending = profile?.panditProfile?.verificationStatus === "PENDING";
-  const isApproved =
-    profile?.panditProfile?.verificationStatus === "APPROVED" ||
-    profile?.panditProfile?.verificationStatus === "VERIFIED";
-  const isRejected = profile?.panditProfile?.verificationStatus === "REJECTED";
+  // Identity state, read through the ONE source (@hmarepanditji/types) so the
+  // pandit app and the admin queue can never mean different things by the
+  // same column again.
+  const vStatus = profile?.panditProfile?.verificationStatus;
+  const isPending = isKycNotSubmitted(vStatus);
+  const isSubmitted = isKycUnderReview(vStatus);
+  const isApproved = isKycApproved(vStatus);
+  const isRejected = isKycRejected(vStatus);
   // FLOW D: booking capabilities are EARNED via /readiness — until then the
   // GO ONLINE surface is hidden behind the तैयारी hero card
   const isBookingReady = profile?.panditProfile?.isBookingReady === true;
@@ -341,6 +350,7 @@ export default function HomePage() {
       firstName={firstName}
       festivalDay={isFestivalDay()}
       isPending={isPending}
+      isSubmitted={isSubmitted}
       isRejected={isRejected}
       rejectionReason={profile?.panditProfile?.rejectionReason || null}
       isApproved={isApproved}

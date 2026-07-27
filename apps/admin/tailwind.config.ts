@@ -2,10 +2,19 @@ import type { Config } from "tailwindcss";
 
 const config: Config = {
   darkMode: "class",
-  content: [
-    "./src/**/*.{js,ts,jsx,tsx,mdx}",
-    "../../packages/ui/src/**/*.{js,ts,jsx,tsx}",
-  ],
+  // `relative: true` pins these globs to THIS file's directory instead of the
+  // build's working directory. Without it, any build whose cwd is the repo
+  // root (e.g. `next dev apps/admin`) resolves "./src/**" to a path that does
+  // not exist, matches no files, and ships the admin panel with almost no
+  // utility CSS — 47 rules, no table borders, no badges, no spacing. The
+  // pandit app already pins its globs this way; this brings admin in line.
+  content: {
+    relative: true,
+    files: [
+      "./src/**/*.{js,ts,jsx,tsx,mdx}",
+      "../../packages/ui/src/**/*.{js,ts,jsx,tsx}",
+    ],
+  },
   theme: {
     extend: {
       colors: {

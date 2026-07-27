@@ -2,6 +2,16 @@
 
 import React, { useEffect, useState } from "react";
 import { ADMIN_TOKEN_KEY } from "@hmarepanditji/utils";
+import { VERIFICATION_STATUSES, isKycApproved, isKycRejected } from "@hmarepanditji/types";
+
+const STATUS_LABEL: Record<string, string> = {
+  PENDING: "Nothing uploaded",
+  DOCUMENTS_SUBMITTED: "Documents submitted",
+  VIDEO_KYC_DONE: "Video KYC done",
+  VERIFIED: "Verified",
+  REJECTED: "Rejected",
+  APPROVED: "Approved (legacy)",
+};
 
 interface User {
   name: string;
@@ -123,11 +133,13 @@ export default function PanditsDirectoryPage() {
             onChange={(e) => setStatusFilter(e.target.value)}
             className="bg-slate-50 border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
           >
+            {/* every value the column can hold — the old list omitted
+                DOCUMENTS_SUBMITTED and VIDEO_KYC_DONE, so a pandit who had
+                uploaded his Aadhaar could not be filtered for at all */}
             <option value="ALL">All Statuses</option>
-            <option value="PENDING">Pending</option>
-            <option value="APPROVED">Approved</option>
-            <option value="REJECTED">Rejected</option>
-            <option value="VERIFIED">Verified</option>
+            {VERIFICATION_STATUSES.map((s) => (
+              <option key={s} value={s}>{STATUS_LABEL[s]}</option>
+            ))}
           </select>
         </div>
       </div>
@@ -177,11 +189,11 @@ export default function PanditsDirectoryPage() {
                     </td>
                     <td className="px-6 py-4">
                       <span className={`px-2 py-0.5 rounded text-xs font-bold ${
-                        p.verificationStatus === "APPROVED" || p.verificationStatus === "VERIFIED" ? "bg-green-100 text-green-700" :
-                        p.verificationStatus === "REJECTED" ? "bg-red-100 text-red-700" :
+                        isKycApproved(p.verificationStatus) ? "bg-green-100 text-green-700" :
+                        isKycRejected(p.verificationStatus) ? "bg-red-100 text-red-700" :
                         "bg-yellow-100 text-yellow-700"
                       }`}>
-                        {p.verificationStatus}
+                        {STATUS_LABEL[p.verificationStatus] || p.verificationStatus}
                       </span>
                     </td>
                     <td className="px-6 py-4">

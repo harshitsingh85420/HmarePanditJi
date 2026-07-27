@@ -1,0 +1,99 @@
+{
+  "results": [
+    {
+      "name": "LEG 1 · PENDING → home asks for the upload",
+      "ok": true,
+      "detail": "banner + CTA present"
+    },
+    {
+      "name": "LEG 1b · PENDING → no review is claimed",
+      "ok": true,
+      "detail": "no passive review copy at PENDING"
+    },
+    {
+      "name": "LEG 2 · R5 submit flips the record",
+      "ok": true,
+      "detail": "PENDING → DOCUMENTS_SUBMITTED, aadhaar last four 1234, consent recorded"
+    },
+    {
+      "name": "LEG 3 · SUBMITTED → home says the documents arrived",
+      "ok": true,
+      "detail": "जाँच चल रही है shown"
+    },
+    {
+      "name": "LEG 3b · no time promise anywhere on the screen",
+      "ok": true,
+      "detail": "no duration claimed"
+    },
+    {
+      "name": "LEG 3c · the upload ask is gone",
+      "ok": true,
+      "detail": "PENDING banner retired"
+    },
+    {
+      "name": "LEG 4 · the submitted pandit APPEARS in the queue",
+      "ok": true,
+      "detail": "row for पं. क्यूए जाँच"
+    },
+    {
+      "name": "LEG 4b · the queue endpoint called is /admin/kyc/queue",
+      "ok": true,
+      "detail": "GET /api/v1/admin/dashboard-stats | GET /api/v1/admin/kyc/queue | GET /api/v1/admin/dashboard-stats | GET /api/v1/admin/kyc/queue"
+    },
+    {
+      "name": "LEG 4c · NOT the old PENDING filter",
+      "ok": true,
+      "detail": "no status=PENDING request issued"
+    },
+    {
+      "name": "LEG 4d · both Aadhaar faces RENDER (not 'Not Uploaded')",
+      "ok": true,
+      "detail": "2 document thumbnails in the row"
+    },
+    {
+      "name": "LEG 4e · last four + consent shown",
+      "ok": true,
+      "detail": "reviewer can see what he consented to"
+    },
+    {
+      "name": "LEG 5 · approve writes VERIFIED",
+      "ok": true,
+      "detail": "record is now VERIFIED"
+    },
+    {
+      "name": "LEG 5b · he leaves the queue once decided",
+      "ok": true,
+      "detail": "queue empties after the decision"
+    },
+    {
+      "name": "LEG 6 · VERIFIED → no verification banner at all",
+      "ok": true,
+      "detail": "both banners retired"
+    },
+    {
+      "name": "LEG 7 · profile shows the identity seal once verified",
+      "ok": true,
+      "detail": "✓ प्रमाणित pill present"
+    },
+    {
+      "name": "LEG 8 · a pending pooja loses its green tick",
+      "ok": true,
+      "detail": "0 per-pooja ticks while the pooja awaits its own verification"
+    }
+  ],
+  "calls": [
+    "GET /api/v1/auth/me",
+    "GET /api/v1/pandit/bookings?date=today",
+    "GET /api/v1/pandit/bookings",
+    "GET /api/v1/pandit/earnings/summary",
+    "GET /api/v1/pandit/bookings?status=REQUESTED",
+    "GET /api/v1/muhurat/pujas-for-date?date=2026-07-27",
+    "GET /api/v1/pandit/stats",
+    "PATCH /api/v1/pandit/readiness/step/5",
+    "GET /api/v1/admin/dashboard-stats",
+    "GET /api/v1/admin/kyc/queue",
+    "GET /api/v1/files/presign?key=uploads%2Fqa%2Ffront.jpg",
+    "GET /api/v1/files/presign?key=uploads%2Fqa%2Fback.jpg",
+    "POST /api/v1/admin/pandits/pp-qa-1/approve"
+  ]
+}
