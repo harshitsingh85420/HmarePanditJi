@@ -1,0 +1,195 @@
+{
+ "A": {
+  "section": "A-verified",
+  "state": {
+   "seal": true,
+   "pillVerified": true,
+   "pillRating": true,
+   "headingVerifiedPoojas": true,
+   "headingPlainPoojas": false,
+   "greenTicks": 8,
+   "tiles": [
+    true,
+    true,
+    true
+   ],
+   "rupees": [
+    "₹5,100",
+    "₹8,100",
+    "₹11,000"
+   ],
+   "dashes": 0,
+   "name": "🐞 13 arrow_back प verified पं. परीक्षण शर्मा location_on वा",
+   "zeroClaims": false
+  },
+  "controls": [
+   {
+    "text": "🐞13",
+    "tag": "BUTTON",
+    "href": null,
+    "aria": null
+   },
+   {
+    "text": "arrow_back",
+    "tag": "BUTTON",
+    "href": null,
+    "aria": "पीछे जाइए"
+   },
+   {
+    "text": "temple_hinduमेरी पूजाएँchevron_rig",
+    "tag": "BUTTON",
+    "href": null,
+    "aria": null
+   },
+   {
+    "text": "बदलाव के लिए सहायता को फ़ोन कीजिए",
+    "tag": "A",
+    "href": "tel:+918934095599",
+    "aria": null
+   },
+   {
+    "text": "🏠होम",
+    "tag": "BUTTON",
+    "href": null,
+    "aria": null
+   },
+   {
+    "text": "📿बुकिंग",
+    "tag": "BUTTON",
+    "href": null,
+    "aria": null
+   },
+   {
+    "text": "🙏",
+    "tag": "BUTTON",
+    "href": null,
+    "aria": "शिष्य को सुला दें"
+   },
+   {
+    "text": "💰कमाई",
+    "tag": "BUTTON",
+    "href": null,
+    "aria": null
+   },
+   {
+    "text": "📅कैलेंडर",
+    "tag": "BUTTON",
+    "href": null,
+    "aria": null
+   },
+   {
+    "text": "🆘मदद",
+    "tag": "BUTTON",
+    "href": null,
+    "aria": "आपातकालीन सहायता — मदद"
+   }
+  ],
+  "telRow": {
+   "text": "बदलाव के लिए सहायता को फ़ोन कीजिए",
+   "tag": "A",
+   "href": "tel:+918934095599",
+   "aria": null
+  },
+  "editableFields": 0,
+  "narration": [
+   "11:07:21.639 speak \"नमस्ते पंडित जी!\" lang=hi-IN",
+   "11:07:21.644 speak \"नमस्ते पंडित जी!\" lang=hi-IN",
+   "11:07:26.774 speak \"मेरी प्रोफ़ाइल\" lang=hi-IN"
+  ],
+  "visibility": [],
+  "writes": [],
+  "errs": [
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "Access to fetch at 'https://hmarepanditji-api.onrender.com/health' from origin 'http://localhost:3002' has bee",
+   "Failed to load resource: net::ERR_FAILED"
+  ]
+ },
+ "B": {
+  "section": "B-brandnew",
+  "state": {
+   "seal": false,
+   "pillVerified": false,
+   "pillRating": false,
+   "headingVerifiedPoojas": false,
+   "headingPlainPoojas": true,
+   "greenTicks": 4,
+   "tiles": [
+    true,
+    true,
+    false
+   ],
+   "rupees": [],
+   "dashes": 3,
+   "name": "🐞 13 arrow_back प पं. परीक्षण शर्मा location_on — आपकी पूजा",
+   "zeroClaims": false
+  },
+  "visibility": [],
+  "errs": [
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "Access to fetch at 'https://hmarepanditji-api.onrender.com/health' from origin 'http://localhost:3002' has bee",
+   "Failed to load resource: net::ERR_FAILED"
+  ]
+ },
+ "C": {
+  "section": "C-unverified-claims",
+  "state": {
+   "seal": false,
+   "pillVerified": false,
+   "pillRating": false,
+   "headingVerifiedPoojas": false,
+   "headingPlainPoojas": true,
+   "greenTicks": 4,
+   "tiles": [
+    true,
+    true,
+    true
+   ],
+   "rupees": [
+    "₹5,100",
+    "₹8,100",
+    "₹11,000"
+   ],
+   "dashes": 0,
+   "name": "🐞 13 arrow_back प पं. परीक्षण शर्मा location_on वाराणसी 3 प",
+   "zeroClaims": false
+  },
+  "headingHonest": true,
+  "ticksStillDrawn": 0,
+  "visibility": [],
+  "errs": [
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "Access to fetch at 'https://hmarepanditji-api.onrender.com/health' from origin 'http://localhost:3002' has bee",
+   "Failed to load resource: net::ERR_FAILED"
+  ]
+ },
+ "D": {
+  "section": "D-rating",
+  "pillWithRating": true,
+  "pillWithoutRating": false,
+  "errs": [
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "Access to fetch at 'https://hmarepanditji-api.onrender.com/health' from origin 'http://localhost:3002' has bee"
+  ]
+ },
+ "E": {
+  "section": "E-nav",
+  "backTo": "/settings",
+  "poojasHop": "/my-poojas",
+  "writes": [],
+  "errs": [
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "Access to fetch at 'https://hmarepanditji-api.onrender.com/health' from origin 'http://localhost:3002' has bee",
+   "Failed to load resource: net::ERR_FAILED"
+  ]
+ }
+}

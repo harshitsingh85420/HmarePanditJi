@@ -114,4 +114,10 @@ describe("claims that were FALSE stay dead", () => {
   it("videoVerify no longer invents a verification CALL", () => {
     expect(hi.shishya.faq.videoVerify).not.toMatch(/कॉल पर आपसे मिलती है/);
   });
+  it("profile's per-pooja green tick rides the SAME gate as its heading", () => {
+    const src = SRC("app/(dashboard-group)/profile-view/page.tsx");
+    // the tick is a verification claim: it may not render unconditionally
+    const list = src.slice(src.indexOf("specializations.map((sp)"), src.indexOf("pujaLabel(sp)"));
+    expect(list).toMatch(/profile\?\.verificationStatus === "VERIFIED" &&/);
+  });
 });

@@ -211,9 +211,15 @@ export default function ProfileViewPage() {
           ) : (
             specializations.map((sp) => (
               <div key={sp} className="flex items-center gap-[10px] text-[18px] font-bold text-temple-700 font-hindi">
-                <span className="material-symbols-outlined material-symbols-filled text-[20px] text-leaf-500 shrink-0" aria-hidden="true">
-                  check_circle
-                </span>
+                {/* TRUTHFUL-STATE (PAGE 16 walk): the green tick is a
+                    VERIFICATION claim, so it rides the SAME gate as the
+                    heading above it — an unverified pandit used to see a
+                    ✓ beside every pooja with nothing behind it. */}
+                {profile?.verificationStatus === "VERIFIED" && (
+                  <span className="material-symbols-outlined material-symbols-filled text-[20px] text-leaf-500 shrink-0" aria-hidden="true">
+                    check_circle
+                  </span>
+                )}
                 {pujaLabel(sp)}
               </div>
             ))
