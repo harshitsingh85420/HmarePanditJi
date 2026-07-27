@@ -1,0 +1,163 @@
+{
+ "A": {
+  "section": "A-rest",
+  "title": "🐞 | 2 | arrow_back | आपातकालीन सहायता | घबराएँ नहीं | हम हर पल आपके साथ हैं 🙏",
+  "controls": [
+   {
+    "text": "🐞2",
+    "tag": "BUTTON",
+    "href": null,
+    "aria": null,
+    "w": 63,
+    "h": 63
+   },
+   {
+    "text": "arrow_back",
+    "tag": "BUTTON",
+    "href": null,
+    "aria": "पीछे जाइए",
+    "w": 52,
+    "h": 52
+   },
+   {
+    "text": "sosसहायता बुलाइएदबाकर रखिए",
+    "tag": "BUTTON",
+    "href": null,
+    "aria": "सहायता बुलाइए — दबाकर रखिए",
+    "w": 210,
+    "h": 210
+   },
+   {
+    "text": "support_agentहमारी सहायता टीमतुरंत कॉलcall",
+    "tag": "BUTTON",
+    "href": null,
+    "aria": null,
+    "w": 258,
+    "h": 83
+   }
+  ],
+  "holdButton": {
+   "text": "sosसहायता बुलाइएदबाकर रखिए",
+   "tag": "BUTTON",
+   "href": null,
+   "aria": "सहायता बुलाइए — दबाकर रखिए",
+   "w": 210,
+   "h": 210
+  },
+  "teamRow": {
+   "text": "support_agentहमारी सहायता टीमतुरंत कॉलcall",
+   "tag": "BUTTON",
+   "href": null,
+   "aria": null,
+   "w": 258,
+   "h": 83
+  },
+  "narration": [
+   "13:46:10.245 navigator.onLine=true",
+   "13:46:10.700 api ping: https://hmarepanditji-api.onrender.com/health → TypeError in 455ms"
+  ],
+  "visibility": [],
+  "dialsAtRest": [],
+  "writes": [],
+  "errs": [
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "Access to fetch at 'https://hmarepanditji-api.onrender.com/health' from origin 'http://localhost:3002' has bee",
+   "Failed to load resource: net::ERR_FAILED"
+  ]
+ },
+ "B": {
+  "section": "B-hold",
+  "afterShortPress": {
+   "dials": [],
+   "sentState": false
+  },
+  "afterPointerCancel": {
+   "dials": []
+  },
+  "afterFullHold": {
+   "dials": []
+  },
+  "sentUiText": "🐞 7 arrow_back आपातकालीन सहायता घबराएँ नहीं हम हर पल आपके साथ हैं 🙏 support_agent हमारी सहायता टीम तुरंत कॉल call",
+  "buttonDisabledAfter": true,
+  "spoken": [
+   "13:46:23.959 stopSpeech(barge-in:tap)",
+   "13:46:24.002 unlock: probe ok",
+   "13:46:25.643 stopSpeech(barge-in:tap)",
+   "13:46:27.278 stopSpeech(barge-in:tap)"
+  ],
+  "visibilitySent": [
+   {
+    "state": "p18-sos-sent",
+    "el": "सहायता बुलाइए — दबाकर रखिए",
+    "tag": "BUTTON",
+    "check": "occluded",
+    "numbers": "by <span 'SPAN'>",
+    "actionable": true
+   }
+  ],
+  "writes": [],
+  "errs": [
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "Access to fetch at 'https://hmarepanditji-api.onrender.com/health' from origin 'http://localhost:3002' has bee",
+   "Failed to load resource: net::ERR_FAILED"
+  ]
+ },
+ "C": {
+  "section": "C-offline",
+  "rendered": true,
+  "banner": true,
+  "dialsOffline": [],
+  "uiTextOffline": "🐞 5 इंटरनेट नहीं है — जुड़ते ही सब ठीक arrow_back आपातकालीन सहायता घबराएँ नहीं हम हर पल आपके साथ हैं 🙏 support_agent हमारी सहायता टीम तुरंत कॉल call",
+  "claimsSentOffline": false,
+  "visibility": [
+   {
+    "state": "p18-sos-offline",
+    "el": "सहायता बुलाइए — दबाकर रखिए",
+    "tag": "BUTTON",
+    "check": "occluded",
+    "numbers": "by <span 'SPAN'>",
+    "actionable": true
+   }
+  ],
+  "writes": [],
+  "errs": [
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "Access to fetch at 'https://hmarepanditji-api.onrender.com/health' from origin 'http://localhost:3002' has bee",
+   "Failed to load resource: net::ERR_FAILED"
+  ]
+ },
+ "D": {
+  "section": "D-pill",
+  "screens": [
+   {
+    "path": "/home",
+    "pill": false
+   },
+   {
+    "path": "/bookings",
+    "pill": false
+   },
+   {
+    "path": "/earnings",
+    "pill": false
+   },
+   {
+    "path": "/calendar",
+    "pill": false
+   },
+   {
+    "path": "/settings",
+    "pill": false
+   },
+   {
+    "path": "/my-poojas",
+    "pill": false
+   }
+  ],
+  "expandedRow": true,
+  "visibilityExpanded": [],
+  "landedOn": "/emergency",
+  "dials": [],
+  "errs": []
+ }
+}
