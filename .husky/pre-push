@@ -75,6 +75,19 @@ changed=$(git diff --name-only "$base" HEAD 2>/dev/null || echo "")
 echo "▶ tsc, all workspaces (range ${base}..HEAD)…"
 run_tsc_all || { echo "✗ tsc failed — push blocked. Fix, or 'git push --no-verify' to override."; exit 1; }
 
+# ── API GUARD SUITE (added 2026-07-27 by founder order) ──────────────────────
+# These 38 guards protect money math, webhook auth, route shape and the
+# truthful-state laws — and they were NOT in this gate, so
+# dakshinaFloor.test.ts sat RED on main for several turns while every
+# report said "gates green". A guard suite that never runs looks done
+# while protecting nothing. It runs on EVERY push now (~10s).
+run_api_guards() {
+  if [ -n "$PNPM" ]; then $PNPM --filter api test; return $?; fi
+  ( cd services/api && "$NODE" scripts/run-guard-tests.mjs )
+}
+echo "▶ api guard suite…"
+run_api_guards || { echo "✗ api guards failed — push blocked. Fix, or 'git push --no-verify' to override."; exit 1; }
+
 if echo "$changed" | grep -q '^packages/'; then
   echo "  shared packages/ changed → building all apps"
   run_build pandit || exit 1

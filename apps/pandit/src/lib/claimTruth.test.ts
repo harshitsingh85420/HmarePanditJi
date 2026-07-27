@@ -114,6 +114,41 @@ describe("claims that were FALSE stay dead", () => {
   it("videoVerify no longer invents a verification CALL", () => {
     expect(hi.shishya.faq.videoVerify).not.toMatch(/कॉल पर आपसे मिलती है/);
   });
+  it("no string promises a CLOSED-APP alert while push is a stub", () => {
+    // firebase.ts's getFCMToken returns null and onMessage only logs — there
+    // is no push, so the bell can only ring with the app OPEN. Every string
+    // that mentions the bell must either say so or lead with the phone call
+    // (the tutorial's already-correct form).
+    const fb = SRC("lib/firebase.ts");
+    const pushIsStub = /return null/.test(fb) || /stub/i.test(fb);
+    if (!pushIsStub) return; // push shipped — this guard retires with it
+    const bellStrings: Array<[string, string]> = [
+      ["shishya.faq.bookingHow", hi.shishya.faq.bookingHow],
+      ["shishya.faq.customerCancel", hi.shishya.faq.customerCancel],
+      ["settingsScreen.soundDesc", hi.settingsScreen.soundDesc],
+      ["empty.todayNoBookingsHint", hi.empty.todayNoBookingsHint],
+      ["tutorial.slide6", hi.tutorial.slide6],
+    ];
+    for (const [key, s] of bellStrings) {
+      if (!/घंटी/.test(s)) {
+        // no bell claim at all → it must promise the phone instead
+        expect(s, `${key} must promise the phone call`).toMatch(/फ़ोन/);
+        continue;
+      }
+      const qualified = /ऐप खुला|ऐप खुले|खुला हो/.test(s);
+      const phoneFirst = /फ़ोन/.test(s);
+      expect(
+        qualified || phoneFirst,
+        `${key} claims a bell without saying the app must be open, and without the phone-first promise`,
+      ).toBe(true);
+    }
+  });
+  it("the FAQ's booking-alert answer leads with the phone call", () => {
+    const item = hi.faq.items.find((i) => i.q.includes("नई बुकिंग कैसे पता"));
+    expect(item, "the booking-alert FAQ must exist").toBeTruthy();
+    expect(item!.a).toMatch(/फ़ोन/);
+    expect(item!.a).toMatch(/ऐप खुला/);
+  });
   it("profile's per-pooja green tick rides the SAME gate as its heading", () => {
     const src = SRC("app/(dashboard-group)/profile-view/page.tsx");
     // the tick is a verification claim: it may not render unconditionally

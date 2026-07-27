@@ -18,7 +18,7 @@ import { fileURLToPath } from "node:url";
 
 const API_ROOT = join(fileURLToPath(import.meta.url), "..", "..");
 const SRC = join(API_ROOT, "src");
-const MIN_EXPECTED = 38; // floor — bump when guards are added; never let it silently hit 0
+const MIN_EXPECTED = 39; // floor — bump when guards are added; never let it silently hit 0
 
 function findTests(dir, out = []) {
   for (const entry of readdirSync(dir)) {

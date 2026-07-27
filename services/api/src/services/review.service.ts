@@ -3,6 +3,7 @@ import { AppError } from "../middleware/errorHandler";
 import { parsePagination } from "../utils/helpers";
 import { NotificationService } from "./notification.service";
 import { getNotificationTemplate } from "./notification-templates";
+import { revieweeUserIdFromProfileId } from "../lib/reviewIdentity";
 
 export interface CreateReviewInput {
   bookingId: string;
@@ -43,7 +44,14 @@ export async function createReview(input: CreateReviewInput) {
   });
   if (existing) throw new AppError("Review already submitted", 409, "REVIEW_EXISTS");
 
-  const revieweeId = booking.panditId;
+  // ONE ID LAW (reviewIdentity.ts): Review.revieweeId is a USER id (real
+  // FK to User). Booking.panditId is a PanditProfile id — writing it here
+  // was rejected by the FK, so NO review could ever be created. Resolve
+  // through the single source instead.
+  if (!booking.panditId) {
+    throw new AppError("No pandit assigned to this booking", 400, "NO_PANDIT");
+  }
+  const revieweeId = await revieweeUserIdFromProfileId(prisma, booking.panditId);
   if (!revieweeId) {
     throw new AppError("No pandit assigned to this booking", 400, "NO_PANDIT");
   }

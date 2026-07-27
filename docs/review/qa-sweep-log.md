@@ -24,9 +24,9 @@ that would weaken a guard). Flag with screen + problem + proposed fix, keep walk
 ---
 
 ## RESUME POINTER
-> **PAGE-CLOSURE CHECKLIST (standing, v2 2026-07-25):** every page closes with — 11 sections in the ledger · decisive shots banked under docs/review/shots/<page>/ · contact sheet regenerated (`node apps/pandit/scripts/build-shot-index.mjs` + captions) · **gallery redeployed (rides the API deploy on main) and the report's evidence section = the GALLERY URL + "new this page: [n] shots — look at [the 3 decisive filenames]"** · commit + merge + deploy-verify when prod-visible. The inline-image rule is DEAD (chat renders no pictures). GALLERY URL: https://hmarepanditji-api.onrender.com/qa-g-x7k2m9fp4w/index.html (unguessable path, X-Robots-Tag + meta noindex; move to a dedicated Vercel project when Isj runs `vercel login`).
+> **PAGE-CLOSURE CHECKLIST (standing, v3 2026-07-27):** every page closes with — **the WATCH-WINDOW status line (HEARTBEAT RULE)** · 11 sections in the ledger · decisive shots banked under docs/review/shots/<page>/ · contact sheet regenerated (`node apps/pandit/scripts/build-shot-index.mjs` + captions) · **gallery redeployed (rides the API deploy on main) and the report's evidence section = the GALLERY URL + "new this page: [n] shots — look at [the 3 decisive filenames]"** · commit + merge + deploy-verify when prod-visible. The inline-image rule is DEAD (chat renders no pictures). GALLERY URL: https://hmarepanditji-api.onrender.com/qa-g-x7k2m9fp4w/index.html (unguessable path, X-Robots-Tag + meta noindex; move to a dedicated Vercel project when Isj runs `vercel login`).
 
-> **Next page (protocol): PAGE 17 · मदद + FAQ**, then आपातकालीन SOS, /samagri; readiness wizard R2-R5 still queued after those. §3-V visibilityAudit is PART OF EVERY PAGE's §3 (scripts/lib/visibilityAudit.mjs). ENV NOTE (2026-07-25): the AutoClaw embedded node VANISHED mid-session (app self-update); toolchain now resolves to the Playwright driver node `/c/Users/Lenovo/AppData/Local/ms-playwright-go/1.57.0/node.exe` (launch.json + pre-push hook updated — the hook's resolve list carries it).
+> **Next page (protocol): PAGE 18 · आपातकालीन SOS**, then /samagri; readiness wizard R2-R5 still queued after those. §3-V visibilityAudit is PART OF EVERY PAGE's §3 (scripts/lib/visibilityAudit.mjs). ENV NOTE (2026-07-25): the AutoClaw embedded node VANISHED mid-session (app self-update); toolchain now resolves to the Playwright driver node `/c/Users/Lenovo/AppData/Local/ms-playwright-go/1.57.0/node.exe` (launch.json + pre-push hook updated — the hook's resolve list carries it).
 > [dark circle, count visible bottom-right]; अनुमति दीजिए → geolocation grant AND
 > deny paths; शहर खुद चुनिए → manual-city screen) → भाषा → परिचय[4 mic outcomes,
 > re-verify the persistent skip] → पंजीकरण → OTP → tutorial. Then authenticated B2.
@@ -38,6 +38,16 @@ that would weaken a guard). Flag with screen + problem + proposed fix, keep walk
 > (?voicedebug=1), never network-absence alone.
 
 ---
+
+## HEARTBEAT RULE (standing, ruled 2026-07-27) — a rule that goes unreported is a broken rule
+
+**Every page report from now states the display status in one line: `watch window: OPENED (…)` or `NOT OPENED — <why>`.** The dual-eye rule lapsed silently between PAGE 12 and PAGE 16 — the pane was never fronted and no report said so, which is exactly how a standing order dies quietly. The status line is now part of the **page-closure checklist**, beside the contact-sheet regen and the gallery URL.
+
+**WATCH MODE (scripts/lib/eye.mjs), default ON from PAGE 17:** a real 390×844 window opens on the founder's screen, slowed to 250ms/step, and **that window banks every shot** — no mirror, nothing to drift. `announce(page, state)` prints a line per state so the motion is readable. **Environment note discovered on the first run:** this sandbox refuses to spawn the *bundled* Chromium headed (`spawn UNKNOWN`) while the **system Chrome channel opens fine** — so the eye tries system Chrome first, bundled second, and falls back to headless only after both fail, always naming the reason.
+
+## GATE FIX (2026-07-27) — the api guard suite now runs on every push
+
+`pnpm --filter api test` (with a direct-node fallback for the agent's shell) is now part of `.husky/pre-push`, after tsc and before the builds. **The window it was red:** `dakshinaFloor.test.ts` went red at the narration-queue turn (`b16b571`, 2026-07-25) when the wizard's floor path moved from `sayError(...)` to `setErrorMsg` + an awaited `speakAndWait`, and stayed red through **PAGES 12–16 and five merges to main** while every report said "gates green" — because the suite simply never ran. It was found and repaired at `a74db98`. 39 guards run now.
 
 ## SETTINGS PERSISTENCE LAW (standing, ruled 2026-07-25)
 
@@ -180,7 +190,18 @@ Every page's §3 now measures the app column against the viewport and reports th
 
 ---
 
-### PAGE 16 · प्रोफ़ाइल — **PASS; 1 truth fix; 2 P1 REPORTs; §3-V ZERO all states** · 2026-07-25 · headless eye
+### PAGE 17 · मदद + FAQ — **PASS; 2 offline findings; §9 was the main event; §3-V ZERO** · 2026-07-27 · **watch window: OPENED (system Chrome, headed, slowMo 250ms) — the window Isj watched banked every shot**
+
+**HARNESS:** scripts/page17-help-headless.mjs — 4 legs in WATCH mode, each state announced as it was walked. **NEVER-FIRED:** the `tel:+918934095599` call row, the `wa.me` row, and the 🆘 आपातकाल button — all asserted present, none activated. Recon: wf_c0c0f4ef-a75.
+**§2/§3 (pixels):** "🤝 मदद व सहायता" title header **with** a back circle (a declared canon deviation — canon 23 draws none), 8 controls: ट्यूटोरियल फिर देखिए · सहायता को कॉल कीजिए (leaf) · सामान्य सवाल · WhatsApp पर पूछिए · 🆘 आपातकाल · orb · back. Row boxes ~90px (≥52 floor ✓). **§3-V ZERO** on /help, /help/faq and the offline state.
+**§9 THE CLAIM CENSUS — the main event, and the fixes from this turn are proven in pixels:** the FAQ's booking-alert answer now reads **phone-first AND app-open-qualified** ("हम आपको फ़ोन करते हैं; ऐप खुला हो तो घंटी बजती है…") — harness-asserted on the rendered page, not just in source. 12 questions render across booking/money/verify. **REMAINING CENSUS ROWS, resolved per row:** the bell cluster (5 strings) — **FIXED this turn**, guarded so no string can promise a closed-app alert while push is a stub; the settings/language/videoVerify claims — fixed last turn; **the payout-timing contradiction (2–3 days vs 24 hours, 6 strings) — UNTOUCHED, money copy, Isj's ruling** (it is visible on this very screen: "पैसा कब और कैसे मिलेगा?" is one of the 12).
+**§5 OFFLINE — two truths, both walked (this is the screen he reaches when things are broken):** **WARM (the network dies while he is on it):** the screen stays **fully usable** — the "इंटरनेट नहीं है — जुड़ते ही सब ठीक" banner appears, all 8 rows survive, the `tel:` row is still there and still dialable (handset-level, needs no data), **zero API calls are made by this screen at all** (harness-counted: 0), §3-V ZERO. **🔴 FINDING 1: the सामान्य सवाल row does NOT reach the FAQ offline — it lands on `/`.** The one screen full of written answers is unreachable exactly when the pandit needs it most, and he is dumped somewhere he did not ask for. **🔴 FINDING 2 (COLD — app opened with no network at all): the browser's own error page.** There is no service worker, so nothing of the app renders; "help works offline" is true only if the app was already loaded. Both → product call (a precached help/FAQ shell would fix both; it is a PWA decision, not a copy fix).
+**§7 VOICE — FINDING 3:** the help screen's mount line is spoken through `speakWithSarvam` **directly, bypassing voiceController** — so it is outside the narration-queue law, cannot be replayed by "फिर से", and leaves no trace in the voicedebug buffer (harness: the buffer is empty on this screen while every other walked page fills it). The orb's ribbon is a **frozen banner** here ("मैं यहीं हूँ, बेझिझक बताइए 🙏") because a `say` prop overrides the listening/understanding ribbons — so on the help screen शिष्य can never *look* like he is listening. Recorded, not fixed (voice-architecture, touches the controller contract).
+**§10 + §11:** the WhatsApp row carries **no `target="_blank"` / `rel="noopener"`** (same-tab navigation out of the app; the add-wizard's equivalent link has both) — a one-line inconsistency worth closing. The `tel:` number is **hardcoded** here while settings and profile read `t("support.phone")` — same number today, drift risk tomorrow. The URL carries **no PII** (a fixed greeting only) ✓. Zero app errors (tts-stub 500s only).
+
+---
+
+### PAGE 16 · प्रोफ़ाइल — **PASS; 1 truth fix; 2 P1 REPORTs; §3-V ZERO all states** · 2026-07-25 · headless eye (**watch window: NOT OPENED — the dual-eye lapse the HEARTBEAT RULE now prevents**)
 
 **HARNESS:** scripts/page16-profile-headless.mjs — 5 legs (verified · brand-new · unverified · rating · nav), full interception. **The screen is READ-ONLY by design** — harness-confirmed **zero input/textarea/select elements and zero writes on every leg**; its only "edit affordance" is a `tel:` row ("बदलाव के लिए सहायता को फ़ोन कीजिए"), asserted visible and **never dialed**. Recon: wf_6975ace6-05c.
 **§2/§3:** garland header (no title bar), 52px back circle → **`/settings` by push** (a `router.back()` would be cheaper on history — noted), 92px avatar with the gold ring and the name's first character when there is no photo, verified seal, pills, 3 stat tiles, प्रमाणित-पूजाएँ card, दक्षिणा card, BottomNav. **§3-V: ZERO** on all three data states.

@@ -1,0 +1,170 @@
+{
+ "watch": "watch window: OPENED (system Chrome, headed, slowMo 250ms) — the window you saw banked every shot",
+ "A": {
+  "section": "A-help",
+  "title": "arrow_back🤝 मदद व सहायता",
+  "rows": [
+   {
+    "text": "🐞2",
+    "tag": "BUTTON",
+    "href": null,
+    "aria": null,
+    "h": 63,
+    "target": null,
+    "rel": null
+   },
+   {
+    "text": "arrow_back",
+    "tag": "BUTTON",
+    "href": null,
+    "aria": "पीछे जाइए",
+    "h": 52,
+    "target": null,
+    "rel": null
+   },
+   {
+    "text": "🙏",
+    "tag": "BUTTON",
+    "href": null,
+    "aria": "शिष्य को सुला दें",
+    "h": 72,
+    "target": null,
+    "rel": null
+   },
+   {
+    "text": "play_circleट्यूटोरियल फिर देखिएवही 6 आसा",
+    "tag": "BUTTON",
+    "href": null,
+    "aria": null,
+    "h": 90,
+    "target": null,
+    "rel": null
+   },
+   {
+    "text": "callसहायता को कॉल कीजिएसुबह 8 – रात 10 ·",
+    "tag": "A",
+    "href": "tel:+918934095599",
+    "aria": null,
+    "h": 90,
+    "target": null,
+    "rel": null
+   },
+   {
+    "text": "quizसामान्य सवालबुकिंग · पैसे · सत्यापनc",
+    "tag": "BUTTON",
+    "href": null,
+    "aria": null,
+    "h": 90,
+    "target": null,
+    "rel": null
+   },
+   {
+    "text": "💬WhatsApp पर पूछिएतुरंत जवाबchevron_rig",
+    "tag": "A",
+    "href": "https://wa.me/918934095599?text=%E0%A4%A8%E0%A4%AE%E0%A4%B8%E0%A5%8D%E0%A4%A4%E0%A5%87%2C%20%E0%A4%AE%E0%A5%81%E0%A4%9D%E0%A5%87%20%E0%A4%AE%E0%A4%A6%E0%A4%A6%20%E0%A4%9A%E0%A4%BE%E0%A4%B9%E0%A4%BF%E0%A4%8F",
+    "aria": null,
+    "h": 90,
+    "target": null,
+    "rel": null
+   },
+   {
+    "text": "🆘 आपातकाल",
+    "tag": "BUTTON",
+    "href": null,
+    "aria": null,
+    "h": 64,
+    "target": null,
+    "rel": null
+   }
+  ],
+  "outbound": [
+   {
+    "text": "callसहायता को कॉल कीजिएसुबह 8 – रात 10 ·",
+    "tag": "A",
+    "href": "tel:+918934095599",
+    "aria": null,
+    "h": 90,
+    "target": null,
+    "rel": null
+   },
+   {
+    "text": "💬WhatsApp पर पूछिएतुरंत जवाबchevron_rig",
+    "tag": "A",
+    "href": "https://wa.me/918934095599?text=%E0%A4%A8%E0%A4%AE%E0%A4%B8%E0%A5%8D%E0%A4%A4%E0%A5%87%2C%20%E0%A4%AE%E0%A5%81%E0%A4%9D%E0%A5%87%20%E0%A4%AE%E0%A4%A6%E0%A4%A6%20%E0%A4%9A%E0%A4%BE%E0%A4%B9%E0%A4%BF%E0%A4%8F",
+    "aria": null,
+    "h": 90,
+    "target": null,
+    "rel": null
+   }
+  ],
+  "noApiCalls": 0,
+  "narration": [],
+  "visibility": [],
+  "errs": [
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "Access to fetch at 'https://hmarepanditji-api.onrender.com/health' from origin 'http://localhost:3002' has bee",
+   "Failed to load resource: net::ERR_FAILED"
+  ]
+ },
+ "B": {
+  "section": "B-faq",
+  "title": "arrow_backसामान्य सवाल",
+  "questions": [
+   "दक्षिणा कौन तय करता है?expand_more",
+   "नई बुकिंग कैसे पता चलेगी?expand_more",
+   "सहायक पंडितों का भुगतान कौन करता है?expand_mor",
+   "पैसा कब और कैसे मिलेगा?expand_more",
+   "प्लेटफ़ॉर्म कितना काटता है?expand_more",
+   "यात्रा का ख़र्च कौन देता है?expand_more",
+   "पैसा न आए तो क्या कीजिए?expand_more",
+   "क्या ऐप का कोई शुल्क है?expand_more",
+   "सत्यापन में कितना समय लगता है?expand_more",
+   "आधार क्यों माँगते हैं? सुरक्षित है?expand_more",
+   "पूजा अस्वीकृत हो जाए तो?expand_more",
+   "भरोसा कैसे रहेगा?expand_more"
+  ],
+  "firstOpenText": "🐞 2 arrow_back सामान्य सवाल बुकिंग · पैसे · सत्यापन 📿 बुकिंग दक्षिणा कौन तय करता है? expand_more नई बुकिंग कैसे पता चलेगी? expand_more नई बुकिंग आते ही हम आपको फ़ोन करते हैं; ऐप खुला हो तो घंटी बजती है और बुकिंग वाले हिस्से में दिखती है। आप हाँ या ना, दोनों कह सकते हैं। सहायक पंडितों का भुगतान कौन करता है? expand_more 💰 पैसे पैसा कब और कैसे मिलेगा? expand_more प्लेटफ़ॉर्म कितना काटता है? expand_more यात्रा का ख़र्च कौन देता है? expand_more पैसा न आए तो क्या कीजिए? expand_more क्या ऐप का कोई शुल्क है? expand_more ✅ सत्यापन सत्यापन में कितना समय लगता है? expand_more आधार क्यों माँगते हैं? सुरक्षित है? expand_more पूजा अस्वीकृत हो जाए तो? expand_more भरोसा कैसे रहेगा? expand_more 🙏 शिष्य",
+  "bellAnswerPhoneFirst": true,
+  "bellAnswerAppOpen": true,
+  "secondOpen": "🐞 2 arrow_back सामान्य सवाल बुकिंग · पैसे · सत्यापन 📿 बुकिंग दक्षिणा कौन तय करता है? expand_more नई बुकिंग कैसे पता चलेगी? expand_more सहायक पंडितों का भुगतान कौन करता है? expand_more 💰 पैसे पैसा कब और कैसे मिलेगा? expand_more पूजा संपन्न होने के 48 घंटे के अंदर पैसा सीधे आपके बैंक खाते या यूपीआई में आ जाता है। प्लेटफ़ॉर्म कितना काटता है? expand_more यात्रा का ख़र्च कौन देता है? expand_more पैसा न आए तो क्या कीजिए? expand_more क्या ऐप का कोई शुल्क है? expand_more ✅ सत्यापन सत्यापन में कितना स",
+  "onlyOneOpen": true,
+  "visibility": [],
+  "errs": [
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "Access to fetch at 'https://hmarepanditji-api.onrender.com/health' from origin 'http://localhost:3002' has bee",
+   "Failed to load resource: net::ERR_FAILED"
+  ]
+ },
+ "C": {
+  "section": "C-offline",
+  "rendered": true,
+  "banner": true,
+  "rowsStillThere": 8,
+  "outboundStillThere": 1,
+  "failedRequests": 1,
+  "visibility": [],
+  "faqOffline": false,
+  "faqPath": "/",
+  "faqQuestionsOffline": 0,
+  "errs": [
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "Access to fetch at 'https://hmarepanditji-api.onrender.com/health' from origin 'http://localhost:3002' has bee",
+   "Failed to load resource: net::ERR_FAILED",
+   "Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+   "Failed to fetch RSC payload for http://localhost:3002/help/faq. Falling back to browser navigation. TypeError:"
+  ],
+  "coldRendered": false,
+  "coldBody": "Tap the dino to play Try: Checking the network cables, modem and router Reconnecting to Wi-Fi Running Windows Network Di"
+ },
+ "D": {
+  "section": "D-voice",
+  "helpSay": true,
+  "spoken": [],
+  "orbPresent": true,
+  "errs": [
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "Access to fetch at 'https://hmarepanditji-api.onrender.com/health' from origin 'http://localhost:3002' has bee",
+   "Failed to load resource: net::ERR_FAILED"
+  ]
+ }
+}
