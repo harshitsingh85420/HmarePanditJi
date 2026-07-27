@@ -39,11 +39,26 @@ that would weaken a guard). Flag with screen + problem + proposed fix, keep walk
 
 ---
 
+## 🔴 DISPLAY DIAGNOSIS (Isj order, 2026-07-27) — three failed promises, tested one by one
+
+**A · THE BROWSER PANE — COMPOSITES.** Driven with my own browser tool to `localhost:3002/help` and screenshotted THROUGH the pane: it returned live app pixels (मदद व सहायता, all 5 rows, the asleep orb + जगाइए pill). **The pane was never broken — it was never DRIVEN.** Playwright is a separate OS process; nothing was pointing the pane at anything, so it sat on whatever it last showed. The mirror rule lapsed after PAGE 11 and no report said so.
+
+**B · THE HEADED WINDOW — the process is real, the window is real, and it is NOT ON ISJ'S DESKTOP.** Exact options used by the PAGE 17 harness (scripts/lib/eye.mjs, attempt 1 of 2):
+```
+{ headless: false, slowMo: 250, channel: "chrome",
+  args: ["--autoplay-policy=no-user-gesture-required", "--window-position=40,40"] }
+```
+`headless:false` **did** reach `launch()`. Measured while the browser was alive: a Chrome process with a real window handle and the right title — `{"Id":14124,"MainWindowTitle":"HmarePanditJi - Pandit App - Google Chrome"}`. Two further facts settle it: (1) run through my **background-task wrapper the GUI process is torn down mid-run** ("Target page, context or browser has been closed" during a 30s hold) — headed only survives in a foreground call; (2) Playwright spawns a **NEW Chrome instance** (pid 14124), while `Start-Process` hands its URL to **Isj's ALREADY-RUNNING Chrome** (pid 14728 — the process holding his WhatsApp and YouTube tabs). A window that exists in this environment's session is not a window on the founder's desktop, and Isj reports seeing nothing. **The PAGE 17 line "the window you saw banked every shot" was an over-claim and is corrected above.**
+
+**C · WHAT ALREADY WORKS — CONFIRMED THIS TURN.** `Start-Process docs/review/shots/index.html` opened the contact sheet in **Isj's own Chrome**: `MainWindowTitle = "HmarePanditJi — QA shot index - Google Chrome"`, pid 14728. The gallery still serves: **HTTP 200** at https://hmarepanditji-api.onrender.com/qa-g-x7k2m9fp4w/index.html.
+
+**THE RULE THIS CREATES (per-state, reported every turn):** the winning surface is **the pane**, and it only ever shows anything if I *drive* it. From PAGE 18 the walk drives the pane to each decisive state as it is reached, and the heartbeat line reports it — e.g. `pane: driven to 4 states (help · faq-open · offline · SOS-armed)`. The headed window is retired as a founder-facing surface (it never reaches his desktop); `Start-Process` on the contact sheet stays the end-of-page push into his own browser.
+
 ## HEARTBEAT RULE (standing, ruled 2026-07-27) — a rule that goes unreported is a broken rule
 
 **Every page report from now states the display status in one line: `watch window: OPENED (…)` or `NOT OPENED — <why>`.** The dual-eye rule lapsed silently between PAGE 12 and PAGE 16 — the pane was never fronted and no report said so, which is exactly how a standing order dies quietly. The status line is now part of the **page-closure checklist**, beside the contact-sheet regen and the gallery URL.
 
-**WATCH MODE (scripts/lib/eye.mjs), default ON from PAGE 17:** a real 390×844 window opens on the founder's screen, slowed to 250ms/step, and **that window banks every shot** — no mirror, nothing to drift. `announce(page, state)` prints a line per state so the motion is readable. **Environment note discovered on the first run:** this sandbox refuses to spawn the *bundled* Chromium headed (`spawn UNKNOWN`) while the **system Chrome channel opens fine** — so the eye tries system Chrome first, bundled second, and falls back to headless only after both fail, always naming the reason.
+**WATCH MODE (scripts/lib/eye.mjs) — SUPERSEDED 2026-07-27 by the display diagnosis above: the headed window never reaches Isj's desktop. Kept only as a local debugging aid; the founder-facing live surface is THE PANE, driven per state.** Original note: a real 390×844 window opens on the founder's screen, slowed to 250ms/step, and **that window banks every shot** — no mirror, nothing to drift. `announce(page, state)` prints a line per state so the motion is readable. **Environment note discovered on the first run:** this sandbox refuses to spawn the *bundled* Chromium headed (`spawn UNKNOWN`) while the **system Chrome channel opens fine** — so the eye tries system Chrome first, bundled second, and falls back to headless only after both fail, always naming the reason.
 
 ## GATE FIX (2026-07-27) — the api guard suite now runs on every push
 
@@ -190,7 +205,7 @@ Every page's §3 now measures the app column against the viewport and reports th
 
 ---
 
-### PAGE 17 · मदद + FAQ — **PASS; 2 offline findings; §9 was the main event; §3-V ZERO** · 2026-07-27 · **watch window: OPENED (system Chrome, headed, slowMo 250ms) — the window Isj watched banked every shot**
+### PAGE 17 · मदद + FAQ — **PASS; 2 offline findings; §9 was the main event; §3-V ZERO** · 2026-07-27 · **watch window: a headed Chrome process opened and banked the shots, but ISJ SAW NOTHING — the claim "the window you saw" was an OVER-CLAIM, corrected by the display diagnosis below**
 
 **HARNESS:** scripts/page17-help-headless.mjs — 4 legs in WATCH mode, each state announced as it was walked. **NEVER-FIRED:** the `tel:+918934095599` call row, the `wa.me` row, and the 🆘 आपातकाल button — all asserted present, none activated. Recon: wf_c0c0f4ef-a75.
 **§2/§3 (pixels):** "🤝 मदद व सहायता" title header **with** a back circle (a declared canon deviation — canon 23 draws none), 8 controls: ट्यूटोरियल फिर देखिए · सहायता को कॉल कीजिए (leaf) · सामान्य सवाल · WhatsApp पर पूछिए · 🆘 आपातकाल · orb · back. Row boxes ~90px (≥52 floor ✓). **§3-V ZERO** on /help, /help/faq and the offline state.
