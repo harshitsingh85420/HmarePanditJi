@@ -13,7 +13,7 @@ import { DEFAULT_SAMAGRI } from "@hmarepanditji/db";
 import { validateSamagriItems, readSamagriItems, toPanditAppItems, asJsonItems, SAMAGRI_BRAND_ANY, type SamagriItem } from "../lib/samagriItem";
 import { earningsFromStored } from "../lib/earnings";
 import { checkAndAwardMilestones } from "../lib/milestones";
-import { canRemovePooja, REMOVE_BLOCKING_STATUSES } from "../lib/poojaRules";
+import { canRemovePooja, poojaBookingWhere } from "../lib/poojaRules";
 import { checkDakshinaFloor } from "../lib/dakshinaFloor";
 import { panditView, withPanditView, dbStatusesForView } from "../lib/bookingStatus";
 import { NotificationService } from "../services/notification.service";
@@ -696,12 +696,21 @@ export const saveSamagriPackages = async (request: FastifyRequest, reply: Fastif
     validatedByTier.set(tierData.tier, check.items);
   }
 
+  // TRUTHFUL-RESPONSE LAW (harsh-QA 2026-07-25): this handler answered
+  // "saved successfully" even when every tier took the DELETE branch —
+  // which is what the add-wizard sends today (it never collects prices),
+  // so a whole step's input was discarded under a success message. The
+  // reply now reports what actually happened, per tier.
+  let savedCount = 0;
+  let clearedCount = 0;
+
   // Process each tier
   for (const tierData of tiers) {
     const { tier, price } = tierData;
     const numericPrice = price ? Number(price) : 0;
 
     if (numericPrice > 0) {
+      savedCount++;
       // F12-02: only the validated, canonical items are ever written. Set by the
       // pre-pass above for exactly the tiers that reach this branch.
       const validatedItems = validatedByTier.get(tier) ?? [];
@@ -730,6 +739,7 @@ export const saveSamagriPackages = async (request: FastifyRequest, reply: Fastif
       });
     } else {
       // If price is cleared/empty/0, delete that tier package
+      clearedCount++;
       await prisma.samagriPackage.deleteMany({
         where: {
           panditId: profile.id,
@@ -740,11 +750,19 @@ export const saveSamagriPackages = async (request: FastifyRequest, reply: Fastif
     }
   }
 
+  // A handler that deleted must not say "saved". `saved` is the field
+  // callers should branch on — the wizard uses it to refuse a success
+  // card for a submission that stored nothing.
   return reply.send({
     success: true,
     data: {
-      message: "Samagri packages saved successfully."
-    }
+      saved: savedCount,
+      cleared: clearedCount,
+      message:
+        savedCount > 0
+          ? `Samagri packages saved: ${savedCount} tier(s)${clearedCount ? `, cleared ${clearedCount}` : ""}.`
+          : `No samagri package saved — ${clearedCount} tier(s) had no price and were cleared.`,
+    },
   });
 };
 
@@ -1470,11 +1488,7 @@ export const removeSpecialization = async (request: FastifyRequest, reply: Fasti
   if (!poojaType) return reply.status(400).send({ success: false, error: "poojaType required" });
 
   const activeCount = await prisma.booking.count({
-    where: {
-      panditId: profile.id,
-      pujaType: poojaType,
-      status: { in: [...REMOVE_BLOCKING_STATUSES] as any },
-    },
+    where: poojaBookingWhere(profile.id, poojaType) as any,
   });
   if (!canRemovePooja(activeCount)) {
     return reply.status(409).send({ success: false, error: "active_bookings" });

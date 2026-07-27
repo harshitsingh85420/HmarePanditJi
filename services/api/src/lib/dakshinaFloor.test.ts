@@ -174,9 +174,22 @@ const CANONICAL = [
     /if \(!cfg\.success\)/.test(wizard),
     "F11-04: the wizard must stop on a rejected dakshina instead of showing the ✓ screen",
   );
+  // The PROPERTY: the server's own message is what renders AND what is
+  // spoken. (It used to be `sayError(cfg.error?.message …)`; the
+  // narration-queue class fix replaced that with setErrorMsg + an
+  // AWAITED speakAndWait so the line finishes before go(2) unmounts its
+  // Narrate. Assert the property, not the call shape.)
   assert.ok(
-    /sayError\(cfg\.error\?\.message/.test(wizard),
-    "F11-04: the server's floor message must be the one the pandit SEES and HEARS",
+    /const floorMsg = cfg\.error\?\.message/.test(wizard),
+    "F11-04: the wizard must take the server's floor message verbatim",
+  );
+  assert.ok(
+    /setErrorMsg\(floorMsg\)/.test(wizard),
+    "F11-04: the server's floor message must be the one the pandit SEES",
+  );
+  assert.ok(
+    /speakAndWait\(floorMsg\)/.test(wizard),
+    "F11-04: …and HEARS, to completion, before the step swaps away",
   );
 }
 

@@ -39,6 +39,14 @@ that would weaken a guard). Flag with screen + problem + proposed fix, keep walk
 
 ---
 
+## SETTINGS PERSISTENCE LAW (standing, ruled 2026-07-25)
+
+**A device-local setting is acceptable ONLY when its default is the SAFE direction.** The bell toggle qualifies: absent key ⇒ ON, so a new phone or cleared storage returns the pandit to *hearing* his app — the failure mode is noise, not silence. **Any future toggle whose default is the unsafe direction (a privacy/quiet/do-not-disturb switch, anything that suppresses alerts, anything the pandit sets to protect himself) needs a server round-trip**, because "lost on reinstall" would silently re-expose him. No code change today; this is the test any new toggle must pass before it ships device-local.
+
+## THE GUARD WALL IS NOT IN THE PRE-PUSH GATE (finding, 2026-07-25)
+
+Repairing the ✖ guard surfaced that **`services/api`'s 38 guard tests never run in the pre-push gate** (which is tsc ×4 + `next build`). `dakshinaFloor.test.ts` had been **RED on main since the narration-queue turn** — the property it protects still held (the server's floor message is shown and spoken), but the fix changed the call shape from `sayError(...)` to `setErrorMsg` + an awaited `speakAndWait`, and nothing caught the stale assertion. Fixed the assertion to pin the PROPERTY rather than the shape, and raised the runner's discovery floor from 11 to **38** so a glob regression can't silently run a subset. **Standing recommendation for Isj: add `pnpm --filter api test` to the pre-push gate** — a guard that doesn't run is worse than no guard, because it looks done.
+
 ## PROBE HYGIENE (standing, from 2026-07-25)
 
 Every LIVE add on the probe account is **permanent**: the wizard writes a `poojaVerification` (PENDING) + a `poojaConfig` row, and **no pandit-side control can delete either** (POST/GET routes only; admin approve/reject is the only mutation). A repeated name 409s on re-submission. **CONVENTION: one unique name per live add, always prefixed `क्यूए` (QA) so the admin queue is auditable** — pattern `क्यूए <word> जाँच <date>`. Names used so far (admin queue, probe +919999999999):

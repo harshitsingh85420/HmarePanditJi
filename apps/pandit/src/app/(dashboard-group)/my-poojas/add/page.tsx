@@ -58,6 +58,15 @@ const STEP_TITLES = ["पूजा जोड़िए", "सामग्री �
 // DIGIT LAW: a minus is refused, never silently turned into a positive.
 const MINUS_LINE = "दक्षिणा ऋण में नहीं हो सकती — कृपया सीधी राशि भरिए।";
 
+// TRUTHFUL-STATE: the सामग्री list is not stored today (the wizard
+// collects no tier prices, so the server keeps nothing). The pooja still
+// goes for verification — but the ✓ card must not imply the सामग्री
+// landed. Held honest here until the wiring lands with the ruling.
+const SAMAGRI_NOT_STORED_LINE =
+  "पूजा जाँच के लिए भेज दी गई। सामग्री की सूची अभी सहेजी नहीं गई — वह बाद में जोड़नी होगी।";
+const SAMAGRI_FAILED_LINE =
+  "पूजा जाँच के लिए भेज दी गई। सामग्री की सूची सहेजी नहीं जा सकी — वह बाद में जोड़नी होगी।";
+
 // CANON PROGRESS (18a) — five 22×6 bars at radius 3, sindoor for the steps
 // reached and #E7DCC9 for the rest. Canon draws no numbered circles here.
 function StepBars({ total, current }: { total: number; current: number }) {
@@ -116,6 +125,9 @@ export default function AddPooja5Page() {
   // fresh draft is NOT प्रतीक्षा में, so the pill is gated on this poojaType
   // already holding a PENDING verification row (the resubmit/edit path).
   const [pendingTypes, setPendingTypes] = useState<string[]>([]);
+  // TRUTHFUL-STATE: carried to the done card when the सामग्री list did
+  // not actually store (see SAMAGRI_NOT_STORED_LINE).
+  const [samagriWarning, setSamagriWarning] = useState("");
   const { speak } = useVoice();
   const set = (patch: Partial<Draft>) => setD((prev) => ({ ...prev, ...patch }));
 
@@ -184,7 +196,18 @@ export default function AddPooja5Page() {
     const tiers = (["BASIC", "STANDARD", "PREMIUM"] as SamagriTier[])
       .filter((t) => d.items[t].length > 0)
       .map((t) => ({ tier: t, price: d.supplyMode === "PANDIT_BRINGS" ? d.prices[t] : null, items: d.items[t] }));
-    if (tiers.length) await mutateOnce(`samagri:${d.name}`, "/pandit/samagri-packages", { method: "POST", body: JSON.stringify({ pujaType: d.name, tiers }) });
+    // TRUTHFUL-STATE (harsh-QA 2026-07-25): this response used to be
+    // DISCARDED — the same mistake F11-04 fixed for pooja-config below.
+    // The wizard collects no prices today, so the server stores nothing
+    // and answers saved:0. A pandit who typed a सामग्री list must not be
+    // shown a success card for input that was thrown away.
+    let samagriNote = "";
+    if (tiers.length) {
+      const sam = await mutateOnce(`samagri:${d.name}`, "/pandit/samagri-packages", { method: "POST", body: JSON.stringify({ pujaType: d.name, tiers }) });
+      const saved = (sam.data as { saved?: number } | undefined)?.saved;
+      if (!sam.success) samagriNote = SAMAGRI_FAILED_LINE;
+      else if (saved === 0) samagriNote = SAMAGRI_NOT_STORED_LINE;
+    }
     // F11-04: the pooja-config response used to be DISCARDED. When the server
     // rejects the dakshina for being below this pooja's floor, the wizard would
     // still march on to the ✓ screen — telling a 62-year-old his puja was sent
@@ -210,6 +233,11 @@ export default function AddPooja5Page() {
     if (res.success) {
       submittedRef.current = true; // stop the persist effect FIRST
       try { localStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ }
+      // the pooja DID go for verification — but if the सामग्री list did
+      // not store, say so out loud rather than letting the ✓ card imply
+      // everything landed.
+      setSamagriWarning(samagriNote);
+      if (samagriNote) await voiceController.speakAndWait(samagriNote, { interrupt: false });
       go(4);
     } else sayError(res.error?.message || "पूजा भेजी नहीं जा सकी — कृपया दोबारा कोशिश कीजिए।");
   };
@@ -275,7 +303,7 @@ export default function AddPooja5Page() {
       {d.step === 1 && <StepSamagri d={d} set={set} activeTier={activeTier} setActiveTier={setActiveTier} tiersData={tiersData} />}
       {d.step === 2 && <StepDetails d={d} set={set} />}
       {d.step === 3 && <StepVideo d={d} set={set} />}
-      {d.step === 4 && <StepDone name={d.name} />}
+      {d.step === 4 && <StepDone name={d.name} warning={samagriWarning} />}
     </Screen>
   );
 }
@@ -570,7 +598,7 @@ function StepVideo({ d, set }: { d: Draft; set: (p: Partial<Draft>) => void }) {
 }
 
 // ── Step 4: प्रतीक्षा में (unchanged) ─────────────────────────────────────────
-function StepDone({ name }: { name: string }) {
+function StepDone({ name, warning }: { name: string; warning?: string }) {
   const router = useRouter();
   return (
     // CANON 18e renders the outcome as a STATUS CARD, not a pill: the pending
@@ -590,6 +618,14 @@ function StepDone({ name }: { name: string }) {
           <span className="text-[18px] font-hindi font-semibold text-softgrey">{name} · जाँच जारी है</span>
         </span>
       </div>
+      {/* TRUTHFUL-STATE: the pooja went for verification, but if the
+          सामग्री list did not store, the card says so — the ✓ must never
+          imply more than actually landed. */}
+      {warning && (
+        <div role="alert" className="rounded-tile border-2 border-[#E7B8AF] bg-[#FBE7E3] p-4">
+          <p className="text-[18px] font-hindi font-bold text-danger leading-[1.4]">{warning}</p>
+        </div>
+      )}
       <Button className="mt-2 w-full" onClick={() => router.push("/my-poojas")}>मेरी पूजाएँ देखिए</Button>
     </div>
   );
