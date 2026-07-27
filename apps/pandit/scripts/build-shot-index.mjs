@@ -107,6 +107,10 @@ const CAPTIONS = {
   "page14/i7-second-add-clean.png": "DRAFT FIX: the next add opens CLEAN — the persist effect no longer resurrects the submitted draft",
   "page14/i8-floor-loop.png": "Floor loop inside the wizard: the exact ₹501 line shown AND spoken, then back to step 2",
   "page14/i9-f5-video-stays.png": "F5 on the वीडियो step STAYS on वीडियो (v5 marker; it used to regress two steps)",
+  "page14/i9a-live-after-otp.png": "LIVE prod, post-OTP: the empty मेरी पूजाएँ with exactly ONE add CTA — fix 2 in production pixels",
+  "page14/i10-live-prefill.png": "LIVE prod: the wizard filled with a pure-Devanagari pooja name, ready to submit",
+  "page14/i11-live-done.png": "🏆 THE P0 PROOF: 200 + 200 on the live API and the done card — this exact path threw pre-network before the fix",
+  "page14/i12-live-pending-pill.png": "LIVE re-entry: ⏳ प्रतीक्षा में returns for the submitted name; the PENDING v1 row survives refresh",
 };
 
 const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");

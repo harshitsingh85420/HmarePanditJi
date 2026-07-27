@@ -57,11 +57,29 @@ const newLeg = async (opts = {}) => {
 };
 
 const bodyHas = (page, s) => page.evaluate((x) => document.body.innerText.includes(x), s);
-const fillPh = async (page, ph, v) => { const l = page.getByPlaceholder(ph); await l.fill(v); };
+// fill by placeholder, with a JS-set fallback: on the live prod bundle the
+// locator fill timed out on actionability (continuous ambient animation
+// keeps the element from settling "stable") though the field is visible and
+// editable — the React-compatible value set drives the same onChange.
+const fillPh = async (page, ph, v) => {
+  try {
+    await page.getByPlaceholder(ph).fill(v, { timeout: 8000 });
+  } catch {
+    await page.evaluate(([sel, val]) => {
+      const fields = [...document.querySelectorAll("input, textarea")];
+      const el = fields.find((i) => (i.placeholder || "").includes(sel)) || fields.find((i) => sel.includes((i.placeholder || "@none@")));
+      if (!el) throw new Error("no field ~ " + sel + " | present: " + fields.map((i) => JSON.stringify(i.placeholder)).join(" ~ "));
+      const proto = el.tagName === "TEXTAREA" ? window.HTMLTextAreaElement.prototype : window.HTMLInputElement.prototype;
+      Object.getOwnPropertyDescriptor(proto, "value").set.call(el, val);
+      el.dispatchEvent(new Event("input", { bubbles: true }));
+      el.dispatchEvent(new Event("change", { bubbles: true }));
+    }, [ph, v]);
+  }
+};
 const clickText = (page, txt) => page.evaluate((x) => { const b = [...document.querySelectorAll("button")].find((el) => (el.textContent || "").includes(x)); b?.click(); }, txt);
 
 // ── LEG A · step 0 (canon 18a): anatomy + name abuse + pill ──
-{
+if (!LIVE) {
   const { ctx, page, errs, writes } = await newLeg();
   const res = { section: "A-step0" };
   res.title = await bodyHas(page, "पूजा जोड़िए");
@@ -102,7 +120,7 @@ const clickText = (page, txt) => page.evaluate((x) => { const b = [...document.q
 }
 
 // ── LEG B · step 1 samagri (18b) ─────────────────────────────
-{
+if (!LIVE) {
   const { ctx, page, errs } = await newLeg({ draft: JSON.stringify({ v: 5, step: 1, name: "क्यूए जाँच पूजा", desc: "", items: { BASIC: [], STANDARD: [], PREMIUM: [] }, prices: { BASIC: null, STANDARD: null, PREMIUM: null }, supplyMode: null, teamSize: 1, dakshina: null, videoUrl: "", sentViaWhatsapp: false, consent: false }) });
   const res = { section: "B-step1" };
   res.title = await bodyHas(page, "सामग्री के तीन स्तर");
@@ -122,7 +140,7 @@ const clickText = (page, txt) => page.evaluate((x) => { const b = [...document.q
 }
 
 // ── LEG C · step 2 (18c): the money step boundary walk ───────
-{
+if (!LIVE) {
   const { ctx, page, errs } = await newLeg({ draft: JSON.stringify({ v: 5, step: 2, name: "क्यूए जाँच पूजा", desc: "", items: { BASIC: [], STANDARD: [], PREMIUM: [] }, prices: { BASIC: null, STANDARD: null, PREMIUM: null }, supplyMode: null, teamSize: 1, dakshina: null, videoUrl: "", sentViaWhatsapp: false, consent: false }) });
   const res = { section: "C-step2" };
   res.title = await bodyHas(page, "और थोड़ी बातें");
@@ -172,7 +190,7 @@ const clickText = (page, txt) => page.evaluate((x) => { const b = [...document.q
 }
 
 // ── LEG D · step 3 (18d) + submit + double-submit + floor loop ─
-{
+if (!LIVE) {
   const draft3 = (dak) => JSON.stringify({ v: 5, step: 3, name: "क्यूए जाँच पूजा", desc: "घर की शांति", items: { BASIC: [], STANDARD: [], PREMIUM: [] }, prices: { BASIC: null, STANDARD: null, PREMIUM: null }, supplyMode: "LIST_ONLY", teamSize: 2, dakshina: dak, videoUrl: "", sentViaWhatsapp: false, consent: false });
   const { ctx, page, errs, writes } = await newLeg({ draft: draft3(5100) });
   const res = { section: "D-step3-submit" };
@@ -223,7 +241,7 @@ const clickText = (page, txt) => page.evaluate((x) => { const b = [...document.q
 }
 
 // ── LEG E · draft/F5 matrix (the two fixes + clamps) ─────────
-{
+if (!LIVE) {
   const mk = (extra) => JSON.stringify({ v: 5, step: 0, name: "ड्राफ़्ट पूजा", desc: "x", items: { BASIC: [], STANDARD: [], PREMIUM: [] }, prices: { BASIC: null, STANDARD: null, PREMIUM: null }, supplyMode: null, teamSize: 1, dakshina: null, videoUrl: "", sentViaWhatsapp: false, consent: false, ...extra });
   const res = { section: "E-draft" };
   const stepShown = async (page) => {
@@ -281,8 +299,12 @@ if (LIVE) {
       }
     }
   });
-  page.on("response", (r) => {
-    if (r.request().method() !== "GET" && r.url().includes("/api/v1/")) chain.push(`  → ${r.status()} ${r.url().split("/api/v1")[1]}`);
+  page.on("response", async (r) => {
+    if (r.request().method() !== "GET" && r.url().includes("/api/v1/")) {
+      let detail = "";
+      if (r.status() >= 400) { try { detail = " " + (await r.text()).slice(0, 160); } catch { /* body consumed */ } }
+      chain.push(`  → ${r.status()} ${r.url().split("/api/v1")[1]}${detail}`);
+    }
   });
   await page.goto(`${PROD}/login?next=/my-poojas&voicedebug=1`, { waitUntil: "load", timeout: 60000 });
   await page.waitForTimeout(2500);
@@ -296,23 +318,45 @@ if (LIVE) {
   await otp.type("123456", { delay: 40 });
   await page.waitForTimeout(15000);
   res.loggedIn = await page.evaluate(() => location.pathname);
+  res.afterOtpText = await page.evaluate(() => document.body.innerText.slice(0, 160).replace(/\s+/g, " "));
+  await page.screenshot({ path: join(OUT, "i9a-live-after-otp.png") });
+  if (res.loggedIn.includes("/login")) {
+    res.abort = "LOGIN DID NOT COMPLETE — no wizard leg run (OTP send budget preserved)";
+    out.F = res;
+    await ctx.close();
+    writeFileSync(join(OUT, "page14-results.json"), JSON.stringify(out, null, 1));
+    console.log(JSON.stringify({ F: res }, null, 1));
+    await browser.close();
+    process.exit(0);
+  }
   await page.goto(`${PROD}/my-poojas/add?voicedebug=1`, { waitUntil: "load", timeout: 60000 });
-  await page.evaluate(() => localStorage.removeItem("add-pooja-draft"));
+  // DETERMINISTIC ENTRY: seed a clean v5 draft at step 0 (a bare remove let
+  // the live page resume mid-wizard — the draft is re-persisted per
+  // keystroke, so "absent" is a race; "explicitly step 0" is not).
+  await page.evaluate(() => localStorage.setItem("add-pooja-draft", JSON.stringify({ v: 5, step: 0, name: "", desc: "", items: { BASIC: [], STANDARD: [], PREMIUM: [] }, prices: { BASIC: null, STANDARD: null, PREMIUM: null }, supplyMode: null, teamSize: 1, dakshina: null, videoUrl: "", sentViaWhatsapp: false, consent: false })));
   await page.reload({ waitUntil: "load" });
-  await page.waitForTimeout(5000);
-  await fillPh(page, "जैसे सत्यनारायण कथा", NAME);
-  await fillPh(page, "संक्षेप में बोलिए", "क्यूए जाँच — कृपया अनदेखा कीजिए");
+  await page.waitForTimeout(6000);
+  res.wizardPath = await page.evaluate(() => location.pathname);
+  res.wizardText = await page.evaluate(() => document.body.innerText.slice(0, 140).replace(/\s+/g, " "));
+  await page.screenshot({ path: join(OUT, "i9b-live-wizard-entry.png") });
+  res.progress = [];
+  const step = async (label, fn) => {
+    try { await fn(); res.progress.push(label + ":ok"); }
+    catch (e) { res.progress.push(label + ":FAIL " + String(e).slice(0, 80)); }
+  };
+  await step("name", () => fillPh(page, "जैसे सत्यनारायण कथा", NAME));
+  await step("desc", () => fillPh(page, "संक्षेप में बोलिए", "क्यूए जाँच — कृपया अनदेखा कीजिए"));
   await clickText(page, "आगे —");
   await page.waitForTimeout(1500);
   await clickText(page, "आगे —"); // skip samagri (empty tiers → no samagri POST)
   await page.waitForTimeout(1500);
   await clickText(page, "सिर्फ़ सूची");
   await page.waitForTimeout(500);
-  await fillPh(page, "₹ राशि", "501");
+  await step("dakshina", () => fillPh(page, "₹ राशि", "2101"));
   await page.waitForTimeout(500);
   await clickText(page, "आगे —");
   await page.waitForTimeout(1500);
-  await fillPh(page, "https://youtu.be/…", "https://youtu.be/dQw4w9WgXcQ");
+  await step("videoUrl", () => fillPh(page, "https://youtu.be/…", "https://youtu.be/dQw4w9WgXcQ"));
   await page.evaluate(() => { const b = [...document.querySelectorAll("button,[role=switch],input[type=checkbox],label")].find((el) => (el.textContent || "").includes("यह वीडियो मेरा है") || (el.getAttribute("aria-label") || "").includes("वीडियो मेरा")); b?.click(); });
   await page.waitForTimeout(600);
   await page.screenshot({ path: join(OUT, "i10-live-prefill.png") });
@@ -332,7 +376,7 @@ if (LIVE) {
   }, NAME);
   await page.goto(`${PROD}/my-poojas/add?voicedebug=1`, { waitUntil: "load", timeout: 60000 });
   await page.waitForTimeout(4000);
-  await fillPh(page, "जैसे सत्यनारायण कथा", NAME);
+  await step("reentry-name", () => fillPh(page, "जैसे सत्यनारायण कथा", NAME));
   await page.waitForTimeout(800);
   res.pendingPillOnReentry = await bodyHas(page, "प्रतीक्षा में");
   await page.screenshot({ path: join(OUT, "i12-live-pending-pill.png") });
@@ -352,13 +396,11 @@ if (LIVE) {
 }
 
 writeFileSync(join(OUT, "page14-results.json"), JSON.stringify(out, null, 1));
-console.log(JSON.stringify({
+console.log(JSON.stringify(LIVE ? { F: out.F } : {
   A: { title: out.A.title, bar: out.A.stepBar, freeTextNoGrid: out.A.noTileGrid, aageGate: out.A.aageDisabledEmpty, abuse: out.A.abuse, echo: out.A.echoQuote, pill: out.A.pendingPill, vis: out.A.visibility.length, writes: out.A.writes },
   B: { title: out.B.title, addGate: out.B.addDisabledEmpty, item: out.B.itemAdded, koiBhi: out.B.blankBrandBecomesKoiBhi, vis: out.B.visibility.length },
-  C: { tiles: out.C.threeTiles, warn: out.C.brandWarning, noZero: out.C.teamNoZero, caption: out.C.teamCaption, dakshina: out.C.dakshina, leaf5100: out.C.leafBarAt5100, census: out.C.moneyCensus, vis: out.C.visibility.length },
+  C: { tiles: out.C.threeTiles, warn: out.C.brandWarning, noZero: out.C.teamNoZero, dakshina: out.C.dakshina, leaf5100: out.C.leafBarAt5100, census: out.C.moneyCensus, vis: out.C.visibility.length },
   D: { jamaGate: [out.D.jamaDisabled, out.D.jamaStillDisabledNoConsent, out.D.consentOn], embed: out.D.embedPreview, done: out.D.doneCard, writes: out.D.writes, secondAddClean: out.D.secondAddClean, floor: out.D.floor, vis: out.D.visibilityDone.length },
   E: out.E,
-  F: out.F ?? "SKIPPED (--live not set)",
-  errors: { A: out.A.errs, B: out.B.errs, C: out.C.errs, D: out.D.errs },
 }, null, 1));
 await browser.close();
