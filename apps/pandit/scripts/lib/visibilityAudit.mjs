@@ -10,6 +10,17 @@
 // Usage: const v = await visibilityAudit(page, "state-name");
 
 export async function visibilityAudit(page, stateName) {
+  // CANONICAL MEASURE STATE: every audit reads at scrollTop 0 — of the
+  // window AND of every inner scroller (these screens scroll inside a
+  // <main overflow-y-auto>, so window.scrollTo alone left content
+  // measuring above the fold and reported bogus top-clips).
+  await page.evaluate(() => {
+    window.scrollTo(0, 0);
+    for (const el of document.querySelectorAll("*")) {
+      if (el.scrollTop) el.scrollTop = 0;
+    }
+  });
+  await page.waitForTimeout(250);
   const violations = await page.evaluate(() => {
     const VW = 390, VH = 844;
     const out = [];
@@ -98,7 +109,11 @@ export async function visibilityAudit(page, stateName) {
               // a tip card over it (the bottom:104 collision) must always
               // fire, so the exemption does not apply to it.
               const isEmergency = /आपातकालीन|SOS/i.test(name);
-              if (!hit.closest("[data-coach-tip]") || isEmergency) {
+              // the ?voicedebug=1 panel/badge is DEV CHROME (query-param
+              // gated, never shipped to a pandit) — it may cover product
+              // controls in a harness run without that being a defect.
+              const devChrome = !!hit.closest("[data-dev-chrome]");
+              if ((!hit.closest("[data-coach-tip]") && !devChrome) || isEmergency) {
                 add("occluded", `by <${hit.tagName.toLowerCase()} '${label(hit).slice(0, 25)}'>`);
               }
             }

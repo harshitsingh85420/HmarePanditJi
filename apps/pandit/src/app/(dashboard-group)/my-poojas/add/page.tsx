@@ -31,7 +31,7 @@ export const dynamic = "force-dynamic";
 // A draft written by the 7-step wizard is migrated via migrateStep.
 // ─────────────────────────────────────────────────────────────
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Narrate } from "@/hooks/useScreenVoice";
 import { useVoiceOptions } from "@/hooks/useVoiceScreen";
@@ -132,17 +132,33 @@ export default function AddPooja5Page() {
     return () => { alive = false; };
   }, []);
 
-  // resume — a 7-step draft's step index is remapped onto the 5-step model
+  // resume — PAGE 14 walk fixes (2026-07-25): the draft now carries a
+  // v:5 FORMAT MARKER. migrateStep exists for OLD 7-step drafts only;
+  // applying it to this wizard's own drafts regressed an F5 on the
+  // वीडियो step (3 → STEP_7_TO_5[3] = 2) back to और-थोड़ी-बातें. A v5
+  // draft's step is clamped, never remapped.
   useEffect(() => {
     try {
       const raw = localStorage.getItem(DRAFT_KEY);
       if (!raw) return;
       const parsed = JSON.parse(raw);
-      setD({ ...EMPTY, ...parsed, step: migrateStep(parsed?.step) });
+      // resume clamps to step 3 MAX: step 4 is the post-submit card, and
+      // a submitted wizard CLEARS its draft — a draft claiming step 4+ is
+      // corrupt and must never render "भेज दी गई" for an unsent pooja.
+      const step = parsed?.v === 5
+        ? Math.max(0, Math.min(3, Number(parsed?.step) || 0))
+        : migrateStep(parsed?.step);
+      setD({ ...EMPTY, ...parsed, step });
     } catch { /* ignore */ }
   }, []);
+  // SUBMIT-CLEAR LAW: removeItem alone was DEFEATED — go(4) re-fired
+  // this persist effect and re-wrote the full draft, so the next add
+  // opened mid-wizard pre-filled with the previous pooja. Once
+  // submitted, the persist stops for good.
+  const submittedRef = useRef(false);
   useEffect(() => {
-    try { localStorage.setItem(DRAFT_KEY, JSON.stringify(d)); } catch { /* ignore */ }
+    if (submittedRef.current) return;
+    try { localStorage.setItem(DRAFT_KEY, JSON.stringify({ ...d, v: 5 })); } catch { /* ignore */ }
   }, [d]);
 
   const go = (n: number) => set({ step: Math.max(0, Math.min(STEPS_5.length - 1, n)) });
@@ -187,8 +203,11 @@ export default function AddPooja5Page() {
     const viaWhatsapp = !d.videoUrl && d.sentViaWhatsapp;
     const res = await mutateOnce(`verify:${d.name}`, "/pandit/pooja-verification", { method: "POST", body: JSON.stringify({ poojaType: d.name, poojaName: d.name, poojaDescription: viaWhatsapp ? `${d.desc} [वीडियो व्हाट्सएप पर भेजा गया]`.trim() : d.desc, videoProvider: viaWhatsapp ? "UPLOAD" : "YOUTUBE", videoUrl: viaWhatsapp ? WHATSAPP_MARKER : d.videoUrl, consent: d.consent }) });
     setSubmitting(false);
-    if (res.success) { try { localStorage.removeItem(DRAFT_KEY); } catch {} ; go(4); }
-    else sayError(res.error?.message || "पूजा भेजी नहीं जा सकी — कृपया दोबारा कोशिश कीजिए।");
+    if (res.success) {
+      submittedRef.current = true; // stop the persist effect FIRST
+      try { localStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ }
+      go(4);
+    } else sayError(res.error?.message || "पूजा भेजी नहीं जा सकी — कृपया दोबारा कोशिश कीजिए।");
   };
 
   // the merged step needs all three answered before moving on
@@ -313,9 +332,14 @@ function StepSamagri({ d, set, activeTier, setActiveTier, tiersData }: {
       <Card className="flex flex-col gap-2 bg-card">
         <span className="text-[18px] font-hindi text-softgrey font-bold">{TIER_LABEL[activeTier]} में जोड़िए</span>
         <VoiceField label={`${TIER_LABEL[activeTier]} में सामान`} promptText="सामान का नाम बोलिए" mode="text" value={name} onChange={setName} placeholder="सामान का नाम" />
+        {/* min-w-0 is LOAD-BEARING on BOTH inputs: an <input> carries an
+            intrinsic min-content width (~20ch), which flex-1 cannot shrink
+            past — the pair forced this screen's whole column to 430px inside
+            a 390px viewport, and the ancestor's overflow:hidden then CLIPPED
+            40px of every wizard step off the right edge (§3-V PAGE 14). */}
         <div className="flex gap-2">
-          <input value={qty} onChange={(e) => setQty(e.target.value)} placeholder="मात्रा" className="flex-1 h-[56px] px-3.5 rounded-field border-2 border-saffron-200 text-[18px] font-hindi bg-card" />
-          <input value={brand} onChange={(e) => setBrand(e.target.value)} placeholder={`कंपनी (${SAMAGRI_BRAND_ANY})`} className="flex-1 h-[56px] px-3.5 rounded-field border-2 border-saffron-200 text-[18px] font-hindi bg-card" />
+          <input value={qty} onChange={(e) => setQty(e.target.value)} placeholder="मात्रा" className="flex-1 min-w-0 h-[56px] px-3.5 rounded-field border-2 border-saffron-200 text-[18px] font-hindi bg-card" />
+          <input value={brand} onChange={(e) => setBrand(e.target.value)} placeholder={`कंपनी (${SAMAGRI_BRAND_ANY})`} className="flex-1 min-w-0 h-[56px] px-3.5 rounded-field border-2 border-saffron-200 text-[18px] font-hindi bg-card" />
         </div>
         <Button variant="secondary" className="h-[56px] min-h-[56px] text-[19px] rounded-[14px]" onClick={addItem} disabled={!name.trim()}>जोड़िए</Button>
       </Card>

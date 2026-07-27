@@ -28,6 +28,7 @@ const GROUPS = {
   "retro-sweep": { order: 11.5, title: "§3-V RETRO-SWEEP (17 states, pages 1-11) — 2 real bugs found+fixed; final table = one contrast-token family" },
   page12: { order: 12, title: "PAGE 12 · कैलेंडर (Sunday-start ruled canon; छुट्टी toggle fixture-only; §3-V native)" },
   page13: { order: 13, title: "PAGE 13 · मेरी पूजाएँ (3-state badges; Ruling #7 money census clean; the Hindi Idempotency-Key P0 found+fixed here)" },
+  page14: { order: 14, title: "PAGE 14 · पूजा जोड़ें (5-step wizard, first walk with a LIVE submit chain; the 430-in-390 device clip found+fixed here)" },
 };
 const CAPTIONS = {
   "page3a/ta-confirm.png": "Tamil detect-confirm — calibration shot: headless eye matches the pane's banked frame; fixed strings render",
@@ -95,6 +96,17 @@ const CAPTIONS = {
   "page13/h9-keytrap-zero.png": "FINDING: canonical-vs-Hindi rate key mismatch renders ₹0 for a priced pooja (two-vocabulary seam)",
   "page13/h10-celebration.png": "Fresh APPROVED → आप प्रमाणित हैं! (first-ever run stays silent + seeds — history never celebrates)",
   "page13/h12-add-step0.png": "Add-wizard entry (step 0) — zero writes until जमा; the wizard is PAGE 14",
+  "page13/h6a-delete-ask.png": "FIX 1: the ✖ now ASKS — shown+spoken; arming and cancel both write NOTHING",
+  "page13/h1-empty-27c.png": "FIX 2 (after): the empty screen carries ONE add control (canon 27c)",
+  "page14/i1-step0-18a.png": "Step 0 / canon 18a: free-text name (no tile grid exists) + spoken-description panel with the echo quote",
+  "page14/i2-step0-pending-pill.png": "⏳ प्रतीक्षा में — gated on the typed name already holding a PENDING row (truthful-state)",
+  "page14/i3-step1-18b.png": "Step 1 / 18b AFTER the 430-in-390 fix: tabs, item row and both inputs fit the device",
+  "page14/i4-step2-18c-money.png": "Step 2 / 18c the money step: 3 supply tiles, team 1-5 (no zero), dakshina + leaf bar — zero % claims",
+  "page14/i5-step3-18d.png": "Step 3 / 18d: night panel → YouTube embed; जमा stays disabled until link AND consent",
+  "page14/i6-step4-18e-done.png": "Step 4 / 18e: the pending card ONLY (प्रमाणित/अस्वीकृत would be untrue one second after submit)",
+  "page14/i7-second-add-clean.png": "DRAFT FIX: the next add opens CLEAN — the persist effect no longer resurrects the submitted draft",
+  "page14/i8-floor-loop.png": "Floor loop inside the wizard: the exact ₹501 line shown AND spoken, then back to step 2",
+  "page14/i9-f5-video-stays.png": "F5 on the वीडियो step STAYS on वीडियो (v5 marker; it used to regress two steps)",
 };
 
 const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");

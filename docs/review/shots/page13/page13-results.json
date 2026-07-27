@@ -5,7 +5,7 @@
    "title": true,
    "emptyTitle": true,
    "emptyHint": true,
-   "addCtaCount": 2
+   "addCtaCount": 1
   },
   "money": {
    "rupeeStrings": [],
@@ -14,9 +14,9 @@
   },
   "visibility": [],
   "narration": [
-   "06:43:04.363 speak \"नमस्ते पंडित जी!\" lang=hi-IN",
-   "06:43:04.370 speak \"नमस्ते पंडित जी!\" lang=hi-IN",
-   "06:43:05.942 speak \"यहाँ आपकी पूजाएँ हैं। दाम बदलने के लिए द\" lang=hi-IN"
+   "08:01:42.286 speak \"नमस्ते पंडित जी!\" lang=hi-IN",
+   "08:01:42.288 speak \"नमस्ते पंडित जी!\" lang=hi-IN",
+   "08:01:44.056 speak \"यहाँ आपकी पूजाएँ हैं। दाम बदलने के लिए द\" lang=hi-IN"
   ],
   "errs": [
    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
@@ -56,9 +56,9 @@
   "visibilityTip": [],
   "visibility": [],
   "narration": [
-   "06:43:12.839 speak \"नमस्ते पंडित जी!\" lang=hi-IN",
-   "06:43:12.843 speak \"नमस्ते पंडित जी!\" lang=hi-IN",
-   "06:43:15.236 speak \"यहाँ आपकी पूजाएँ हैं। दाम बदलने के लिए द\" lang=hi-IN"
+   "08:01:51.256 speak \"नमस्ते पंडित जी!\" lang=hi-IN",
+   "08:01:51.272 speak \"नमस्ते पंडित जी!\" lang=hi-IN",
+   "08:01:53.786 speak \"यहाँ आपकी पूजाएँ हैं। दाम बदलने के लिए द\" lang=hi-IN"
   ],
   "errs": [
    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
@@ -76,15 +76,20 @@
    "POST /pandit/dakshina-rates"
   ],
   "priceAfterSave": true,
-  "deleteFiredWithoutConfirm": true,
+  "askShown": true,
+  "writesAfterArm": 0,
+  "cancelKeptCard": true,
+  "writesAfterCancel": 0,
+  "deleteAfterConfirm": true,
   "deleteWrites": [
    "DELETE /pandit/specializations/%E0%A4%A8%E0%A4%B5%E0%A4%97%E0%A5%8D%E0%A4%B0%E0%A4%B9%20%E0%A4%B6%E0%A4%BE%E0%A4%82%E0%A4%A4%E0%A4%BF"
   ],
   "speaks": [
-   "06:43:23.213 speak \"नमस्ते पंडित जी!\" lang=hi-IN",
-   "06:43:23.227 speak \"नमस्ते पंडित जी!\" lang=hi-IN",
-   "06:43:25.561 speak \"यहाँ आपकी पूजाएँ हैं। दाम बदलने के लिए द\" lang=hi-IN",
-   "06:43:33.074 speak \"नई दक्षिणा बोलिए या लिखिए।\" lang=hi-IN"
+   "08:02:02.223 speak \"नमस्ते पंडित जी!\" lang=hi-IN",
+   "08:02:03.821 speak \"यहाँ आपकी पूजाएँ हैं। दाम बदलने के लिए द\" lang=hi-IN",
+   "08:02:11.355 speak \"नई दक्षिणा बोलिए या लिखिए।\" lang=hi-IN",
+   "08:02:13.793 speak \"क्या आप नवग्रह शांति हटाना चाहते हैं?\" lang=hi-IN",
+   "08:02:15.475 speak \"क्या आप नवग्रह शांति हटाना चाहते हैं?\" lang=hi-IN"
   ],
   "errs": [
    "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",

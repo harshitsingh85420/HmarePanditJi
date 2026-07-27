@@ -40,6 +40,15 @@ describe("§3-V visibility law — layout pins", () => {
     expect(src).toMatch(/aboveBottom = Math\.max\(viewportH - rect\.top \+ 14, viewportH - sosBandTop\)/);
     expect(src).toMatch(/\{ bottom: aboveBottom \}/);
   });
+  it("Screen's column is w-full + max-w (never shrink-to-fit past the device)", () => {
+    const src = SRC("components/ui/Screen.tsx");
+    expect(src).toMatch(/className="w-full h-\[100dvh\] flex flex-col max-w-\[430px\]/);
+  });
+  it("add-wizard samagri inputs keep min-w-0 (the 430-in-390 column clip)", () => {
+    const src = SRC("app/(dashboard-group)/my-poojas/add/page.tsx");
+    const pair = src.slice(src.indexOf('placeholder="मात्रा"') - 200, src.indexOf("कंपनी (${SAMAGRI_BRAND_ANY})") + 200);
+    expect(pair.match(/flex-1 min-w-0 h-\[56px\]/g)?.length).toBe(2);
+  });
   it("my-poojas floor error: server message surfaced AND spoken (F11-04 class)", () => {
     const src = SRC("app/(dashboard-group)/my-poojas/page.tsx");
     expect(src).toMatch(/res\.error\?\.code === "dakshina_below_floor" && res\.error\?\.message/);

@@ -705,6 +705,11 @@ export const hi = {
     removed: "पूजा हटा दी गई",
     added: "पूजा जुड़ गई — सत्यापन के बाद बुक होने लगेगी",
     editPrompt: "नई दक्षिणा बोलिए या लिखिए।",
+    // FAT-FINGER LAW (PAGE 13 पP1, fixed 2026-07-25): the ✖ delete asks
+    // first — shown AND spoken. {name} = the pooja.
+    removeAsk: "क्या आप {name} हटाना चाहते हैं?",
+    removeYes: "हाँ, हटाइए",
+    removeNo: "नहीं, रहने दीजिए",
   },
   profileView: {
     pujasVerified: "प्रमाणित पूजाएँ",

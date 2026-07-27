@@ -68,7 +68,7 @@ export function VoiceDebugPanel() {
   }, []);
 
   return (
-    <div className="fixed inset-0 z-[90] pointer-events-none" aria-hidden="true">
+    <div className="fixed inset-0 z-[90] pointer-events-none" aria-hidden="true" data-dev-chrome="true">
       {open ? (
         // TOP-anchored: footer variants differ in height (Parichay's
         // mic-deny recovery stack is ~180px tall), so no bottom anchor is

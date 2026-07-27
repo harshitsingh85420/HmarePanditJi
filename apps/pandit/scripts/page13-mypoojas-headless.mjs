@@ -174,11 +174,25 @@ const moneyCensus = (page) => page.evaluate(() => {
   res.saveWrites = [...writes];
   res.priceAfterSave = await page.evaluate(() => document.body.innerText.includes("₹6,100"));
   await page.screenshot({ path: join(OUT, "h5-price-saved.png") });
-  // ✖ delete — पP1: NO confirmation before the DELETE fires
+  // ✖ delete — FAT-FINGER LAW (fixed): ✖ arms the ask; CANCEL = zero
+  // mutation; the DELETE fires only from हाँ, हटाइए.
   const before = writes.length;
   await page.evaluate(() => { const b = [...document.querySelectorAll("button")].find((x) => (x.getAttribute("aria-label") || "").includes("नवग्रह शांति हटाइए")); b?.click(); });
+  await page.waitForTimeout(900);
+  res.askShown = await page.evaluate(() => document.body.innerText.includes("क्या आप नवग्रह शांति हटाना चाहते हैं?"));
+  res.writesAfterArm = writes.length - before; // must be 0
+  await page.screenshot({ path: join(OUT, "h6a-delete-ask.png") });
+  // CANCEL leg
+  await page.evaluate(() => { const b = [...document.querySelectorAll("button")].find((x) => (x.textContent || "").includes("नहीं, रहने दीजिए")); b?.click(); });
+  await page.waitForTimeout(700);
+  res.cancelKeptCard = await page.evaluate(() => document.body.innerText.includes("नवग्रह शांति"));
+  res.writesAfterCancel = writes.length - before; // must be 0
+  // CONFIRM leg
+  await page.evaluate(() => { const b = [...document.querySelectorAll("button")].find((x) => (x.getAttribute("aria-label") || "").includes("नवग्रह शांति हटाइए")); b?.click(); });
+  await page.waitForTimeout(700);
+  await page.evaluate(() => { const b = [...document.querySelectorAll("button")].find((x) => (x.textContent || "").includes("हाँ, हटाइए")); b?.click(); });
   await page.waitForTimeout(1200);
-  res.deleteFiredWithoutConfirm = writes.length > before && writes[writes.length - 1].startsWith("DELETE");
+  res.deleteAfterConfirm = writes.length > before && writes[writes.length - 1].startsWith("DELETE");
   res.deleteWrites = writes.slice(before);
   await page.screenshot({ path: join(OUT, "h6-after-delete.png") });
   res.speaks = await page.evaluate(() => JSON.parse(sessionStorage.getItem("hpj_voicedebug_buf") || "[]").filter((l) => l.includes("speak")).slice(-5));
@@ -217,6 +231,8 @@ const moneyCensus = (page) => page.evaluate(() => {
   await page.evaluate(() => { const b = [...document.querySelectorAll("button")].find((x) => x.textContent.trim() === "समझा"); b?.click(); });
   await page.waitForTimeout(600);
   await page.evaluate(() => { const b = [...document.querySelectorAll("button")].find((x) => (x.getAttribute("aria-label") || "").includes("गृह प्रवेश हटाइए")); b?.click(); });
+  await page.waitForTimeout(700);
+  await page.evaluate(() => { const b = [...document.querySelectorAll("button")].find((x) => (x.textContent || "").includes("हाँ, हटाइए")); b?.click(); });
   await page.waitForTimeout(1500);
   res.blockedToast = await page.evaluate(() => /बुकिंग|हटा नहीं/.test(document.body.innerText));
   res.cardStillThere = await page.evaluate(() => document.body.innerText.includes("गृह प्रवेश"));
@@ -307,7 +323,8 @@ console.log(JSON.stringify({
   populated: out.B.cards,
   popMoney: out.B.money,
   vis: { empty: out.A.visibility.length, popTip: out.B.visibilityTip.length, pop: out.B.visibility.length, addStep0: out.G.visibility.length },
-  editor: { open: out.C.editorOpen, saveWrites: out.C.saveWrites, priceAfter: out.C.priceAfterSave, deleteNoConfirm: out.C.deleteFiredWithoutConfirm, deleteWrites: out.C.deleteWrites },
+  editor: { open: out.C.editorOpen, saveWrites: out.C.saveWrites, priceAfter: out.C.priceAfterSave },
+  deleteConfirm: { askShown: out.C.askShown, armWrites: out.C.writesAfterArm, cancelWrites: out.C.writesAfterCancel, cancelKeptCard: out.C.cancelKeptCard, deleteAfterConfirm: out.C.deleteAfterConfirm, deleteWrites: out.C.deleteWrites },
   floor: { shown: out.C2.errorShown, spoken: out.C2.errorSpoken, writes: out.C2.writes },
   deleteBlocked: out.C3,
   keytrap: out.D.zeroRendered,

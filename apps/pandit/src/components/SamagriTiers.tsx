@@ -63,8 +63,12 @@ export function SamagriTiers({
 
   return (
     <div className="flex flex-col gap-3.5 font-hindi">
-      {/* tier tabs */}
-      <div className="flex gap-2">
+      {/* tier tabs — min-w-0 is LOAD-BEARING: without it flex-1 cannot
+          shrink below the label's intrinsic width and the three tabs
+          overflowed 390px by 22px (whole-page side-scroll; §3-V PAGE 14
+          catch). Label at 17px sits on the 15px LABEL floor (these are
+          control labels, not body text). */}
+      <div className="flex gap-1.5">
         {ORDER.map((tier) => {
           const td = byTier(tier);
           const isActive = tier === active;
@@ -72,12 +76,12 @@ export function SamagriTiers({
             <button
               key={tier}
               onClick={() => onSelect(tier)}
-              className={`flex-1 py-2.5 px-1.5 rounded-[14px] border-2 flex flex-col items-center gap-0.5 active:scale-[0.97] transition-transform ${
+              className={`flex-1 min-w-0 py-2.5 px-1 rounded-[14px] border-2 flex flex-col items-center gap-0.5 active:scale-[0.97] transition-transform ${
                 isActive ? "bg-saffron-500 border-saffron-500 text-chandan" : "bg-card border-saffron-200 text-saffron-700"
               }`}
               aria-pressed={isActive}
             >
-              <span className="font-extrabold text-[18px]">{td?.label ?? tier}</span>
+              <span className="font-extrabold text-[17px] whitespace-nowrap">{td?.label ?? tier}</span>
               {showPrices && td?.price != null && <span className="font-bold text-[16px] opacity-85">₹{td.price.toLocaleString("en-IN")}</span>}
             </button>
           );

@@ -60,6 +60,8 @@ export default function MyPoojasPage() {
   const [rates, setRates] = useState<RateMap>({});
   const [editing, setEditing] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
+  // FAT-FINGER LAW (पP1): the ✖ arms THIS, never the delete directly
+  const [confirmRemove, setConfirmRemove] = useState<string | null>(null);
   const [toastMsg, setToastMsg] = useState("");
   // Canon frame 26 उत्सव — a newly APPROVED puja
   const [celebrateVerified, setCelebrateVerified] = useState(false);
@@ -186,24 +188,31 @@ export default function MyPoojasPage() {
       showBack
       onBack={() => router.push("/settings")}
       footer={
-        <div ref={addBtnRef}>
-          <FirstUseTip tipId="myPoojasAdd" targetRef={addBtnRef} />
-          {/* Canon frame 29 CTA, verbatim: width:100%; min-height:60px;
-              border:2px DASHED #F4B096; border-radius:18px; background:#FDEEE7;
-              color:#B23A1A; font-size:19px; font-weight:800; gap:9px, opened by
-              a 24px add_circle. The dash is the whole point — it reads as an
-              empty slot waiting to be filled, not as a second primary CTA. */}
-          <Button
-            variant="secondary"
-            size="lg"
-            fullWidth
-            className="h-[60px] min-h-[60px] text-[19px] border-dashed border-saffron-200 text-saffron-500 font-extrabold [&>span]:gap-[9px]"
-            onClick={() => router.push("/my-poojas/add")}
-          >
-            <span className="text-[24px] leading-none" aria-hidden>⊕</span>
-            {addLabel()}
-          </Button>
-        </div>
+        /* ONE-CONTROL LAW (PAGE 13 finding, fixed 2026-07-25): on the EMPTY
+           screen the EmptyState carries the ONE primary add CTA (canon frame
+           27c draws exactly one) — the footer's dashed slot renders only for
+           a populated list (canon frame 29). Two adds = two meanings for the
+           same act, the सुला-दें class. */
+        poojas.length > 0 ? (
+          <div ref={addBtnRef}>
+            <FirstUseTip tipId="myPoojasAdd" targetRef={addBtnRef} />
+            {/* Canon frame 29 CTA, verbatim: width:100%; min-height:60px;
+                border:2px DASHED #F4B096; border-radius:18px; background:#FDEEE7;
+                color:#B23A1A; font-size:19px; font-weight:800; gap:9px, opened by
+                a 24px add_circle. The dash is the whole point — it reads as an
+                empty slot waiting to be filled, not as a second primary CTA. */}
+            <Button
+              variant="secondary"
+              size="lg"
+              fullWidth
+              className="h-[60px] min-h-[60px] text-[19px] border-dashed border-saffron-200 text-saffron-500 font-extrabold [&>span]:gap-[9px]"
+              onClick={() => router.push("/my-poojas/add")}
+            >
+              <span className="text-[24px] leading-none" aria-hidden>⊕</span>
+              {addLabel()}
+            </Button>
+          </div>
+        ) : undefined
       }
     >
       <Narrate text={t("myPoojas.intro")} />
@@ -285,13 +294,51 @@ export default function MyPoojasPage() {
                   with the price for width: the glyph occupies 24px of layout
                   while the ::after pad carries the full 52px tap target. */}
               <button
-                onClick={() => void removePooja(pooja)}
+                onClick={() => {
+                  // FAT-FINGER LAW (पP1): arm the ask — the delete fires
+                  // ONLY from the confirm button below. The ask is shown
+                  // AND spoken (queued, awaited — narration law).
+                  setConfirmRemove(pooja);
+                  void voiceController.speakAndWait(
+                    t("myPoojas.removeAsk").replace("{name}", pooja),
+                    { interrupt: false },
+                  );
+                }}
                 aria-label={`${pooja} हटाइए`}
                 className="relative w-6 h-6 shrink-0 rounded-full text-softgrey text-[18px] font-bold flex items-center justify-center active:scale-95 transition-transform after:absolute after:content-[''] after:-inset-[14px]"
               >
                 ✖
               </button>
             </div>
+
+            {confirmRemove === pooja && (
+              <div className="flex flex-col gap-2">
+                <p className="text-[18px] font-bold text-temple-700 font-hindi leading-snug">
+                  {t("myPoojas.removeAsk").replace("{name}", pooja)}
+                </p>
+                <div className="flex gap-2">
+                  <Button
+                    variant="secondary"
+                    size="md"
+                    className="flex-1 min-h-[52px] text-danger border-[#E7B8AF]"
+                    onClick={() => {
+                      setConfirmRemove(null);
+                      void removePooja(pooja);
+                    }}
+                  >
+                    {t("myPoojas.removeYes")}
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="md"
+                    className="flex-1 min-h-[52px]"
+                    onClick={() => setConfirmRemove(null)}
+                  >
+                    {t("myPoojas.removeNo")}
+                  </Button>
+                </div>
+              </div>
+            )}
 
             {editing === pooja && (
               <div>

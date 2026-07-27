@@ -55,8 +55,15 @@ export function Screen({
   mainClassName,
   withHeader = true,
 }: ScreenProps) {
+  // w-full is LOAD-BEARING with max-w: without it this column is a
+  // shrink-to-fit flex item, so any child whose MIN-CONTENT exceeds the
+  // device (a bare <input>'s ~20ch intrinsic width) silently widened the
+  // whole screen to 430px on a 390px phone — and the app shell's
+  // overflow:hidden then CLIPPED 40px off the right edge of every row.
+  // Found on the add-wizard by §3-V (PAGE 14); the pair w-full+max-w is
+  // exactly what the app shell one level up already does.
   return (
-    <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
+    <div className="w-full h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
       {withHeader && (
         <Header variant={headerVariant} title={title ?? ""} showBack={showBack} onBack={onBack} rightSlot={headerRightSlot} />
       )}
