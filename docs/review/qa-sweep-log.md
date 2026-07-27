@@ -218,6 +218,49 @@ Every page's §3 now measures the app column against the viewport and reports th
 
 ---
 
+### 🚦 TRAVERSAL PASS 1 + 3 — **ROUND-TRIPPED, unseeded, fresh number 9999999998** · 2026-07-27 · **pane: driven to every hop; composited for hops 1-3, 11-12 and pass 3 (it darkened at hop 4 and recovered later — both stated in the turn's first line)**
+
+**LAW AMENDED MID-RUN (Isj):** backward is no longer a separate pass — every hop is a round trip, because a pass scheduled last is structurally destined to be dropped when context runs out. This run adopted it immediately.
+
+| # | From → To | Control | Landed | Back control | Back landed | Verdict |
+|---|---|---|---|---|---|---|
+| 1 | — → स्थान | opened `/` cold | ✅ | — | — | splash had auto-advanced |
+| 2 | स्थान → शहर चुनिए | "शहर खुद चुनिए" | ✅ | — | — | correct |
+| 3 | शहर → भाषा | tapped वाराणसी | ✅ | — | — | correct |
+| 4 | भाषा → परिचय | "हाँ, हिन्दी ठीक है" | ✅ | — | — | correct |
+| 5 | परिचय → tutorial | "बिना आवाज़ के आगे बढ़िए" (mic denied by the pane) | ✅ | — | — | **F2 persistent skip works** |
+| 6-7 | tutorial s1 → s3 | "आगे" ×2 | ✅ | — | — | correct |
+| 8 | s3 → final slide | "छोड़िए ›" | ⚠️ | — | — | **skip lands on the LAST SLIDE, not out of the deck** |
+| 9 | final → /login | "शुरू कीजिए" | ✅ | — | — | city+lang+tutorialCompleted carried |
+| 10 | /login → OTP | typed 9999999998 | ✅ | — | — | **fresh-number branch: "नया खाता बन रहा है"** (distinct from the returning-user line) |
+| 11 | OTP → रजिस्ट्रेशन | typed 123456 | ✅ | in-app पीछे | **TUTORIAL final slide** | 🔴 **WRONG DESTINATION** — a token-holding, OTP-verified pandit is thrown back into onboarding content |
+| 11b | tutorial → रजिस्ट्रेशन | "शुरू कीजिए" | ✅ | — | — | **no data lost** — वाराणसी still pre-filled |
+| 12 | रजिस्ट्रेशन → होम | "खाता बनाइए" (name typed) | ✅ | browser back | **/home (bounced)** | **blocked BY DESIGN** — the resume rule refuses re-entry to onboarding once a profile exists. Design, not defect. |
+| 13 | होम → तैयारी hub | "बुकिंग पाने की तैयारी कीजिए" | ✅ 0/5 दीये | in-app पीछे | /home | correct |
+| 14 | होम → बुकिंग | bottom-nav tab | ✅ | browser back | /home | correct (tab screens drop in-app back, Ruling #4) |
+| 15 | होम → कमाई | bottom-nav tab | ✅ | browser back | /home | correct |
+| 16 | होम → कैलेंडर | bottom-nav tab | ✅ | browser back | /home | correct |
+| 17 | होम → सेटिंग | gear | ✅ | — | — | no in-app back, by design |
+| 18 | सेटिंग → प्रोफ़ाइल | row | ✅ | in-app पीछे | /settings | correct |
+| 19 | सेटिंग → मदद → FAQ | rows | ✅ | in-app पीछे ×2 | /help → /settings | **correct two-level back chain** |
+| 20 | सेटिंग → मेरी पूजाएँ | row | ✅ (ONE add CTA) | in-app पीछे | /settings | correct — the one-control fix holds on prod |
+| 21 | मेरी पूजाएँ → पूजा जोड़ें | "पहली पूजा जोड़िए" | ✅ | in-app पीछे | /my-poojas | correct |
+| 22 | SOS | pill on every dashboard screen | ✅ surfaced | — | — | **never fired** |
+
+**PASS 3 · COLD REOPEN — PASSES.** Reopened the app at the root on the same account: **landed on होम as "क्यूए जी" with his state** (not dumped into onboarding), token survived, city वाराणसी and language Hindi both intact. Short forward hop after the cold open: होम → बुकिंग → back → होम ✅. The dashboard arc survives a cold start.
+
+**CARRY-STATE (all passes):** language + city survived every hop from selection through registration into होम, and the registration form arrived with **वाराणसी pre-filled**; one token key only (`pandit_token`) plus the `hpj_token` cookie — reader and writer agree; no page rendered a previous screen's data; token survived refresh and cold open. Orb sleep was never entered on this route, so it is untested here (not a defect — an untested property, stated).
+
+**DEFECTS FOUND (2, both navigation/copy class):**
+1. 🔴 **Back from रजिस्ट्रेशन lands in the TUTORIAL deck** — the pandit is already OTP-verified and holds a token; sending him back into onboarding content is a wrong destination. He can return forward without losing data, so it is confusing rather than destructive.
+2. ⚠️ **"छोड़िए ›" lands on the deck's final slide** rather than exiting the deck — the control's name promises an exit it does not give.
+
+**NOT WALKED:** booking detail — a fresh pandit has no booking to open, so the screen is unreachable by walking on a new account. **That unreachability is itself the finding**, per Rule Zero.
+
+**PROD RESIDUE:** +91 9999999998 is now a full pandit record — OTP-verified, named "पं. क्यूए जाँच", city वाराणसी, no poojas, verification PENDING. Third QA artifact after the probe and `क्यूए हवन जाँच 27 जुलाई`.
+
+---
+
 ### PAGE 18 · आपातकालीन SOS — **PASS on honesty, 2 findings; §3-V ZERO** · 2026-07-27 · **pane: driven to 2 states (help, faq); the SOS legs ran headless — pane NOT driven to them (heartbeat: partial, stated)**
 
 > **CROWN QUESTION — SOS today actually DIALS A PHONE NUMBER FROM THE PANDIT'S OWN HANDSET, AND DOES NOTHING ELSE.** No request is sent, no record is written, no human is notified; nobody but his own dialer learns anything happened.

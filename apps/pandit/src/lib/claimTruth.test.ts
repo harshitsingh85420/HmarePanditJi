@@ -149,6 +149,17 @@ describe("claims that were FALSE stay dead", () => {
     expect(item!.a).toMatch(/फ़ोन/);
     expect(item!.a).toMatch(/ऐप खुला/);
   });
+  it("the PENDING verification banner never claims a review is happening", () => {
+    // isPending === verificationStatus "PENDING" === the schema DEFAULT:
+    // nothing uploaded, nobody reviewing. Passive "being verified" copy
+    // here tells the pandit to wait for something that never happens.
+    expect(hi.home.pendingVerification).not.toMatch(/सत्यापन में है|जाँच चल रही/);
+    expect(hi.home.pendingVerification).toMatch(/अपलोड कीजिए/);
+    // …and it must ship the control that performs the action it asks for
+    const home = SRC("app/(dashboard-group)/home/HomeView.tsx");
+    expect(home).toMatch(/t\("home\.pendingVerificationCta"\)/);
+    expect(home).toMatch(/onNavigate\("\/readiness\/hub"\)/);
+  });
   it("profile's per-pooja green tick rides the SAME gate as its heading", () => {
     const src = SRC("app/(dashboard-group)/profile-view/page.tsx");
     // the tick is a verification claim: it may not render unconditionally

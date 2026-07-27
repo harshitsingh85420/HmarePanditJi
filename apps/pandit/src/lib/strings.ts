@@ -457,7 +457,13 @@ export const hi = {
     offlineVoice: "आप अब ऑफलाइन हैं। कोई नई बुकिंग नहीं आएगी।",
     monthEarnings: "इस महीने की कमाई",
     pendingLabel: "आना बाकी",
-    pendingVerification: "आपकी प्रोफ़ाइल सत्यापन में है। जल्द पूरा होगा।",
+    // TRUTH FIX (Isj order 2026-07-27): this rendered when
+    // verificationStatus === "PENDING" — the schema DEFAULT, i.e. the
+    // pandit has uploaded NOTHING and no reviewer is looking. Passive
+    // voice told him to wait for something that would never happen.
+    // Now: active, reason first, with a CTA to the real upload path.
+    pendingVerification: "आधार अपलोड कीजिए — इससे यजमान आप पर भरोसा कर सकेंगे।",
+    pendingVerificationCta: "आधार अपलोड कीजिए",
     rejectedTitle: "प्रोफ़ाइल में सुधार चाहिए",
     resubmit: "दोबारा जमा कीजिए",
     samagriLink: "🛍️ सामग्री पैकेज",

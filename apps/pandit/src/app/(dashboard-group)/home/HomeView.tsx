@@ -192,11 +192,26 @@ export function HomeView({
         {isPending && (
           <>
             {renderNarrate(t("home.pendingVerification"))}
-            <div className="bg-yellow-50 border-2 border-amber-300 rounded-card p-4 flex items-center gap-3">
-              <span className="text-[24px]">⚠️</span>
-              <p className="text-[18px] font-bold text-amber-800 font-hindi leading-snug">
-                {t("home.pendingVerification")}
-              </p>
+            {/* TRUTH FIX (2026-07-27): isPending === verificationStatus
+                "PENDING" === the schema default === nothing uploaded and
+                nobody reviewing. The banner now ASKS for the upload and
+                carries the control that performs it. Target is
+                /readiness/hub, not ?step=5: the wizard clamps a deep link
+                to readinessStep+1, so a pandit below step 4 tapping
+                step=5 is silently dropped on an earlier step. */}
+            <div className="bg-yellow-50 border-2 border-amber-300 rounded-card p-4 flex flex-col gap-3">
+              <div className="flex items-center gap-3">
+                <span className="text-[24px]">⚠️</span>
+                <p className="text-[18px] font-bold text-amber-800 font-hindi leading-snug">
+                  {t("home.pendingVerification")}
+                </p>
+              </div>
+              <button
+                onClick={() => onNavigate("/readiness/hub")}
+                className="w-full min-h-[56px] text-[18px] bg-amber-700 text-white font-bold rounded-btn active:scale-[0.98] transition flex items-center justify-center font-hindi"
+              >
+                {t("home.pendingVerificationCta")}
+              </button>
             </div>
           </>
         )}
