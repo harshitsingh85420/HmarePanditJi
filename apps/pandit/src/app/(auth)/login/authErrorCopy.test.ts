@@ -68,7 +68,10 @@ describe("auth error copy — three paths, three strings", () => {
     expect(login).toMatch(/placeholder="9876543210"/);
     expect(login, "the space-formatted placeholder trap must not return").not.toMatch(/placeholder="98765 43210"/);
     const vf = readFileSync(join(__dirname, "..", "..", "..", "components", "voice", "VoiceField.tsx"), "utf8");
-    expect(vf).toMatch(/inputMode=\{mode === "phone" \? "numeric" : undefined\}/);
+    // widened by the DIGIT LAW (PAGE 14): money/number joined phone/otp on
+    // numeric inputMode when they left type=number behind. The property this
+    // guard protects — the PHONE field is numeric-mode — is unchanged.
+    expect(vf).toMatch(/inputMode=\{[^}]*mode === "phone"[^}]*"numeric"/);
     expect(vf).toMatch(/maxLength=\{mode === "phone" \? 18 : undefined\}/);
   });
   it("typed input routes through the normalizer (single-source law)", () => {

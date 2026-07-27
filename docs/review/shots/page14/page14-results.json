@@ -1,35 +1,164 @@
 {
- "F": {
-  "section": "F-live",
-  "name": "क्यूए हवन जाँच 27 जुलाई",
-  "loggedIn": "/my-poojas",
-  "afterOtpText": "🐞 49 arrow_back 🛕 मेरी पूजाएँ 🛕 अभी कोई पूजा नहीं जोड़ी पहली पूजा जोड़िए — मैं हर कदम बताऊँगा 🙏 add_circle पहली पूजा जोड़िए 🙏 शिष्य 🆘 मदद",
-  "wizardPath": "/my-poojas/add",
-  "wizardText": "🐞 61 arrow_back पूजा जोड़िए पूजा का नाम बोलकर बताइए यह पूजा क्या है आगे — सामग्री 🙏 शिष्य 🆘 मदद",
-  "progress": [
-   "name:ok",
-   "desc:ok",
-   "dakshina:ok",
-   "videoUrl:ok",
-   "reentry-name:ok"
-  ],
-  "doneCard": true,
-  "chain": [
-   "POST /auth/otp/send",
-   "  → 200 /auth/otp/send",
-   "POST /auth/otp/verify",
-   "  → 200 /auth/otp/verify",
-   "POST /pandit/pooja-config",
-   "  → 200 /pandit/pooja-config",
-   "POST /pandit/pooja-verification",
-   "  → 200 /pandit/pooja-verification"
-  ],
-  "badHeaders": [],
-  "pendingRow": {
-   "status": "PENDING",
-   "version": 1
+ "A": {
+  "section": "A-step0",
+  "title": true,
+  "stepBar": "चरण 1 / 5",
+  "noTileGrid": true,
+  "aageDisabledEmpty": true,
+  "abuse": {
+   "roman": {
+    "accepted": 18,
+    "aageEnabled": true
+   },
+   "mixed": {
+    "accepted": 13,
+    "aageEnabled": true
+   },
+   "emoji": {
+    "accepted": 8,
+    "aageEnabled": true
+   },
+   "long246": {
+    "accepted": 246,
+    "aageEnabled": true
+   },
+   "whitespace": {
+    "accepted": 3,
+    "aageEnabled": false
+   }
   },
-  "pendingPillOnReentry": true,
-  "rowSurvivesRefresh": true
+  "echoQuote": true,
+  "visibility": [],
+  "writes": [],
+  "errs": [
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  ],
+  "pendingPill": true
+ },
+ "B": {
+  "section": "B-step1",
+  "title": true,
+  "hint": true,
+  "addDisabledEmpty": true,
+  "itemAdded": true,
+  "blankBrandBecomesKoiBhi": true,
+  "visibility": [],
+  "errs": [
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  ]
+ },
+ "C": {
+  "section": "C-step2",
+  "title": true,
+  "threeTiles": [
+   true,
+   true,
+   true
+  ],
+  "brandWarning": true,
+  "teamNoZero": true,
+  "teamCaption": true,
+  "dakshina": {
+   "zero": {
+    "typeable": true,
+    "fieldValue": "0",
+    "aage": false,
+    "minusLine": false
+   },
+   "negative": {
+    "typeable": true,
+    "fieldValue": "500",
+    "aage": true,
+    "minusLine": true
+   },
+   "one": {
+    "typeable": true,
+    "fieldValue": "1",
+    "aage": true,
+    "minusLine": false
+   },
+   "b500": {
+    "typeable": true,
+    "fieldValue": "500",
+    "aage": true,
+    "minusLine": false
+   },
+   "b501": {
+    "typeable": true,
+    "fieldValue": "501",
+    "aage": true,
+    "minusLine": false
+   },
+   "huge": {
+    "typeable": true,
+    "fieldValue": "9999999",
+    "aage": true,
+    "minusLine": false
+   },
+   "devanagariDigits": {
+    "typeable": true,
+    "fieldValue": "5100",
+    "aage": true,
+    "minusLine": false
+   },
+   "pasteFormatted": {
+    "typeable": true,
+    "fieldValue": "5100",
+    "aage": true,
+    "minusLine": false
+   }
+  },
+  "leafBarAt5100": true,
+  "moneyCensus": {
+   "percent": [],
+   "commission": []
+  },
+  "visibility": [],
+  "errs": [
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  ]
+ },
+ "D": {
+  "section": "D-step3-submit",
+  "title": true,
+  "jamaDisabled": true,
+  "embedPreview": true,
+  "jamaStillDisabledNoConsent": true,
+  "consentOn": true,
+  "doneCard": true,
+  "writes": [
+   "POST /pandit/pooja-config",
+   "POST /pandit/pooja-verification"
+  ],
+  "visibilityDone": [],
+  "secondAddClean": true,
+  "errs": [
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+   "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+  ],
+  "floor": {
+   "shown": true,
+   "spoken": true,
+   "landedStep2": true
+  }
+ },
+ "E": {
+  "section": "E-draft",
+  "v5step3Stays": 3,
+  "old7step5Migrates": 3,
+  "v5step99Clamps": 3,
+  "junkJsonStep0": 0,
+  "f5FieldRestored": "एफ़-पाँच पूजा"
  }
 }

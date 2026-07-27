@@ -359,8 +359,14 @@ export function VoiceField({
     if (voiceCapable) voiceController.loopRearm(600);
   };
 
+  // DIGIT LAW (PAGE 14 walk, Isj order 2026-07-25): money/number fields are
+  // type=TEXT + inputMode=numeric, never type=number. A native number input
+  // makes the BROWSER the gatekeeper — it silently refused Devanagari digits
+  // (a pandit typing ५१०० got an empty box) and silently swallowed a typed
+  // minus. Text + the shared normalizer keeps the app the gatekeeper, with
+  // the same numeric keypad on the device.
   const inputType =
-    mode === "number" || mode === "money" ? "number" : mode === "phone" || mode === "otp" ? "tel" : "text";
+    mode === "phone" || mode === "otp" || mode === "number" || mode === "money" ? "tel" : "text";
 
   return (
     <div className="w-full flex flex-col gap-2">
@@ -399,7 +405,11 @@ export function VoiceField({
         <input
           ref={inputRef}
           type={inputType}
-          inputMode={mode === "phone" ? "numeric" : undefined}
+          inputMode={
+            mode === "phone" || mode === "otp" || mode === "number" || mode === "money"
+              ? "numeric"
+              : undefined
+          }
           maxLength={mode === "phone" ? 18 : undefined}
           disabled={disabled}
           placeholder={placeholder}

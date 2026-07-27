@@ -131,6 +131,27 @@ export function normalizePhoneInput(raw: string): string {
   return cleaned.replace(/\D/g, "").slice(0, 10);
 }
 
+/**
+ * As-you-type normalizer for TYPED MONEY (PAGE 14 walk, Isj order
+ * 2026-07-25) — the same digit law as the phone path, single-sourced here
+ * beside it. The dakshina field used to be `input[type=number]`, so the
+ * BROWSER silently refused Devanagari digits (a pandit typing ५१०० got an
+ * empty box) and silently swallowed a typed minus. Now: Devanagari → ASCII,
+ * everything non-digit dropped, leading zeros trimmed. A minus is NOT
+ * silently eaten — `moneyHadMinus` reports it so the caller can answer with
+ * the floor line instead of pretending the number was positive.
+ */
+export function normalizeMoneyInput(raw: string): string {
+  const digits = toAsciiDigits(raw).replace(/\D/g, "");
+  const trimmed = digits.replace(/^0+(?=\d)/, "");
+  return trimmed;
+}
+
+/** True when the raw text carried a minus sign (typed or pasted). */
+export function moneyHadMinus(raw: string): boolean {
+  return /[-−–—]/.test(raw);
+}
+
 export function parsePhoneNumber(text: string): string | null {
   if (!text) return null;
 

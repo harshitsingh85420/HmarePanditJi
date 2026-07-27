@@ -45,6 +45,7 @@ import { VoiceField } from "@/components/voice/VoiceField";
 import { SamagriTiers, SAMAGRI_BRAND_ANY, type SamagriTier, type SamagriItem, type TierData } from "@/components/SamagriTiers";
 import { STEPS_5, migrateStep, teamOptionLabel, teamOptionKeywords } from "./stepModel";
 import { voiceController } from "@/lib/voiceController";
+import { normalizeMoneyInput, moneyHadMinus } from "@/lib/voiceParse";
 
 // CANON TITLES — the artboards do NOT repeat "पूजा जोड़ें" on every step;
 // each of 18a–18e carries the name of the thing being asked for.
@@ -53,6 +54,9 @@ import { voiceController } from "@/lib/voiceController";
 const WHATSAPP_MARKER = "https://wa.me/918934095599";
 
 const STEP_TITLES = ["पूजा जोड़िए", "सामग्री के तीन स्तर", "और थोड़ी बातें", "सत्यापन वीडियो", "पूजा की स्थिति"] as const;
+
+// DIGIT LAW: a minus is refused, never silently turned into a positive.
+const MINUS_LINE = "दक्षिणा ऋण में नहीं हो सकती — कृपया सीधी राशि भरिए।";
 
 // CANON PROGRESS (18a) — five 22×6 bars at radius 3, sindoor for the steps
 // reached and #E7DCC9 for the rest. Canon draws no numbered circles here.
@@ -352,6 +356,14 @@ function StepSamagri({ d, set, activeTier, setActiveTier, tiersData }: {
 // comment and stepModel.test.ts for why that is safe and what makes it so.
 function StepDetails({ d, set }: { d: Draft; set: (p: Partial<Draft>) => void }) {
   const nums = [1, 2, 3, 4, 5];
+  // a typed/pasted minus is refused OUT LOUD (Q6: shown IS spoken)
+  const [minusNote, setMinusNoteRaw] = useState(false);
+  const setMinusNote = (on: boolean) => {
+    setMinusNoteRaw((was) => {
+      if (on && !was) void voiceController.speakAndWait(MINUS_LINE, { interrupt: false });
+      return on;
+    });
+  };
 
   // group A — supply (unchanged labels)
   useVoiceOptions([
@@ -441,7 +453,27 @@ function StepDetails({ d, set }: { d: Draft; set: (p: Partial<Draft>) => void })
         <span className="text-[19px] font-black text-saffron-700 font-hindi">कुल दक्षिणा</span>
         <Card className="bg-card flex flex-col gap-3">
           <span className="text-[18px] font-hindi text-temple-700 font-bold">{d.name || "पूजा"} ({d.teamSize} पंडितों सहित)</span>
-          <VoiceField label="कुल दक्षिणा" promptText="इस पूजा की कुल दक्षिणा बोलिए" mode="money" value={d.dakshina != null ? String(d.dakshina) : ""} onChange={(v) => set({ dakshina: v ? parseInt(v.replace(/\D/g, "") || "0", 10) : null })} placeholder="₹ राशि" />
+          {/* DIGIT LAW: the shared money normalizer (same source as the phone
+              field) — Devanagari digits convert instead of being refused by
+              the browser. A typed minus is ANSWERED with the floor line, not
+              silently swallowed into a positive number. */}
+          <VoiceField
+            label="कुल दक्षिणा"
+            promptText="इस पूजा की कुल दक्षिणा बोलिए"
+            mode="money"
+            value={d.dakshina != null ? String(d.dakshina) : ""}
+            onChange={(v) => {
+              const digits = normalizeMoneyInput(v);
+              set({ dakshina: digits ? parseInt(digits, 10) : null });
+              setMinusNote(moneyHadMinus(v));
+            }}
+            placeholder="₹ राशि"
+          />
+          {minusNote && (
+            <p role="alert" className="text-[18px] font-bold text-danger font-hindi leading-snug">
+              {MINUS_LINE}
+            </p>
+          )}
           <span className="text-[18px] font-hindi font-semibold text-softgrey leading-[1.4]">इसमें बाकी पंडितों की दक्षिणा भी शामिल है।</span>
         </Card>
         {/* CANON 18c closes the step on a leaf summary bar — the two-stop

@@ -155,9 +155,10 @@ if (!LIVE) {
   // dakshina boundary walk
   const dk = {};
   const aageOn = () => page.evaluate(() => ![...document.querySelectorAll("button")].find((b) => (b.textContent || "").includes("आगे —"))?.disabled);
-  // NOTE: the field is a native input[type=number] — the BROWSER drops
-  // non-numeric keystrokes (Devanagari digits, ₹-formatted paste) before
-  // the app sees them. The harness records that truth per variant.
+  // DIGIT LAW (fixed): the field is now type=text + inputMode=numeric routed
+  // through the shared normalizer, so Devanagari digits CONVERT instead of
+  // being refused by the browser, and a minus is answered with a spoken +
+  // shown line instead of being swallowed. The matrix records both.
   for (const [k, v] of [["zero", "0"], ["negative", "-500"], ["one", "1"], ["b500", "500"], ["b501", "501"], ["huge", "9999999"], ["devanagariDigits", "५१००"], ["pasteFormatted", "₹5,100"]]) {
     const inp = page.getByPlaceholder("₹ राशि");
     await inp.fill("").catch(() => {});
@@ -172,8 +173,12 @@ if (!LIVE) {
     await page.waitForTimeout(400);
     dk[k] = {
       typeable,
-      fieldValue: await page.evaluate(() => [...document.querySelectorAll('input[type="number"]')].map((i) => i.value).find((x) => x !== "") ?? ""),
+      fieldValue: await page.evaluate(() => {
+        const el = [...document.querySelectorAll("input")].find((i) => i.placeholder && i.placeholder.includes("राशि"));
+        return el ? el.value : "";
+      }),
       aage: await aageOn(),
+      minusLine: await bodyHas(page, "दक्षिणा ऋण में नहीं हो सकती"),
     };
   }
   res.dakshina = dk;

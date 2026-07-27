@@ -24,6 +24,25 @@ export async function visibilityAudit(page, stateName) {
   const violations = await page.evaluate(() => {
     const VW = 390, VH = 844;
     const out = [];
+
+    // ── ROOT-WIDTH CHECK (permanent, every page; added after the P1) ──
+    // The app column must never be WIDER than the device. Screen's column
+    // was `max-w-[430px]` without `w-full`, so as a shrink-to-fit flex item
+    // it grew to its max-width whenever a child's MIN-CONTENT exceeded the
+    // viewport — and the shell's overflow:hidden then cut the excess off
+    // the right of EVERY row, invisibly. Reported with numbers either way.
+    for (const root of document.querySelectorAll("main, [class*='100dvh']")) {
+      const rw = Math.round(root.getBoundingClientRect().width);
+      if (rw > VW + 1) {
+        out.push({
+          el: `<${root.tagName.toLowerCase()} ${String(root.className).slice(0, 40)}>`,
+          tag: root.tagName,
+          check: "root-width",
+          numbers: `column ${rw}px > viewport ${VW}px (right ${rw - VW}px is clipped)`,
+          actionable: false,
+        });
+      }
+    }
     const lum = (c) => {
       const m = c.match(/rgba?\(([\d.]+),\s*([\d.]+),\s*([\d.]+)(?:,\s*([\d.]+))?\)/);
       if (!m) return null;
