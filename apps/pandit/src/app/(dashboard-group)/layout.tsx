@@ -95,8 +95,18 @@ export default function DashboardGroupLayout({ children }: { children: React.Rea
     window.location.reload()
   }
 
+  // PAGE 18 FINDING 2 (fixed 2026-07-27): the error boundary used to
+  // REPLACE the whole tree — taking the SOS pill with it, so the
+  // emergency control vanished exactly when the app was broken. The
+  // boundary now renders WITH the pill: a crashed screen is precisely
+  // when a pandit may need to call for help.
   if (hasError && error) {
-    return <DashboardErrorBoundary error={error} reset={resetError} />
+    return (
+      <>
+        <DashboardErrorBoundary error={error} reset={resetError} />
+        <EmergencySOSFloating isVisible={true} />
+      </>
+    )
   }
 
   return (

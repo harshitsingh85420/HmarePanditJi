@@ -87,3 +87,21 @@ canon-extract per-frame numeric diff rerun post-ports (CountUp-attribute blind
 spot noted; the per-screen skipped-delta lists above are the current honest 残).
 
 **NO MERGE has happened. The command at the top runs on your word.**
+
+## CANON-TO-UPDATE · SOS frame 33 (recorded 2026-07-27, Isj's veto open)
+
+**The app is more honest than the canon here, so the app wins and canon follows.**
+Canon frame 33 draws a second bottom row — **"परिवार को सूचना · जगह के साथ SMS"**.
+The app deliberately does not draw it, and PAGE 18's trace proved why:
+
+- there is **no emergency backend at all** (`grep -i emergency services/` → zero);
+- there is **no family/next-of-kin contact anywhere in the schema** — the only
+  `FamilyMember` model belongs to the customer, holds astrology data, and has no
+  phone column;
+- SMS is dormant (Twilio gated to a log, MSG91/DLT declared but read by no code).
+
+Drawing that row would be a **false safety promise** to a man in danger.
+**ACTION: update `design/dashboard-mockups` frame 33 to drop the family/SMS row**,
+leaving the hold-to-call button and the support-team row — which is what actually
+happens. Re-instate it only if/when an emergency backend and a stored family
+contact both exist.

@@ -6,7 +6,8 @@ import { useEffect, useRef, useState } from 'react'
 import { speakWithSarvam } from '@/lib/sarvam-tts'
 import { Header } from '@/components/ui/Header'
 import { WaveformVisualizer } from '@/components/voice/WaveformBar'
-import { SuccessCheckmark } from '@/components/ui/CompletionBadge'
+// SuccessCheckmark retired here by PAGE 18 FIX (a): a success tick may
+// never appear for a call that was only handed to the dialer.
 import { useReduced, still, fadeInUp, stagger } from '@/lib/motion'
 
 // Canon frame 33 labels the SOS button "दबाकर रखें" — a long-press, so a
@@ -63,19 +64,18 @@ export default function EmergencySOS() {
 
   const handleSendSOS = async () => {
     setIsLoading(true)
-    // Best-effort location capture for the pandit's own reference on the
-    // call — logged only; we do not pretend it was transmitted anywhere.
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => console.log('[SOS] Location (for the call):', position.coords.latitude, position.coords.longitude),
-        (error) => console.warn('[SOS] Location unavailable:', error?.message),
-      )
-    }
+    // PAGE 18 FIX (c): the pre-dial geolocation call is GONE. It could
+    // raise a permission prompt between the pandit and the dialer, and
+    // its only consumer was console.log — nothing transmitted it
+    // anywhere. Nothing may stand between a frightened man and the call.
     // Speak the truth, then connect the real call.
     await speakWithSarvam({
       text: 'आपको अभी सहायता टीम से फ़ोन पर जोड़ा जा रहा है। कृपया लाइन पर बने रहें।',
       languageCode: 'hi-IN',
     })
+    // PAGE 18 FIX (a): this is a DIALING state, never a success state.
+    // The handoff can silently fail (no SIM, desktop, blocked protocol),
+    // so the screen keeps the number visible and tappable underneath.
     setSosSent(true)
     setIsLoading(false)
     window.location.href = HELP_LINE
@@ -198,7 +198,16 @@ export default function EmergencySOS() {
                   />
                 )}
                 {sosSent ? (
-                  <SuccessCheckmark size="lg" animated={true} />
+                  /* PAGE 18 FIX (a): NEVER a success tick. Nothing was
+                     "sent" — the handoff to the dialer may not even have
+                     opened. This is a DIALING state, and it keeps the
+                     number on screen so a failed handoff stays
+                     recoverable by hand. */
+                  <>
+                    <span className="relative text-[22px] font-black font-hindi leading-tight">फ़ोन लग रहा है…</span>
+                    <span className="relative text-[18px] font-extrabold font-hindi mt-1">+91 89340 95599</span>
+                    <span className="relative text-[15px] font-semibold font-hindi opacity-90 mt-1">न लगे तो यह नंबर ख़ुद मिलाइए</span>
+                  </>
                 ) : isLoading ? (
                   <WaveformVisualizer barCount={5} height="lg" animated={true} />
                 ) : (
