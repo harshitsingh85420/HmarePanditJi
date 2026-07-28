@@ -397,7 +397,7 @@ Wizard driver improved twice this turn (step 0 by field → 2 steps; button-card
 - `currentFeePercent()` — only for a booking being created now, or a quote.
 - `bookingFeePercent(row)` — for anything about an existing booking.
 
-**Guard proven-to-fail FIRST.** Breaking `feeSnapshot` so it ignores the stored rate produced exactly: *"PROVEN-TO-FAIL POINT: the existing booking picked up the NEW rate. Its fee, payout and total just moved retroactively."* Restored, then green. The guard moves the live default 10 → 25 and asserts a past booking's fee (₹510), customer total (₹5,610) and payout (₹5,100) are all unchanged — while asserting a NEW booking DOES pick up 25, so ops is not handed a dead dial. Bookings are zero today, which is exactly why this landed now: after the pilot starts it is unfixable without a migration over live money.
+**Guard proven-to-fail FIRST.** Breaking `feeSnapshot` so it ignores the stored rate produced exactly: *"PROVEN-TO-FAIL POINT: the existing booking picked up the NEW rate. Its fee, payout and total just moved retroactively."* Restored, then green. The guard moves the live default 10 → 25 and asserts a past booking's fee (₹510), customer total (₹5,610) and payout (₹5,100) are all unchanged — while asserting a NEW booking DOES pick up 25, so ops is not handed a dead dial. ~~Bookings are zero today, which is exactly why this landed now~~ — **STRUCK 2026-07-28: FALSE, never verified. Production holds NINE rows, eight of them priced at 15%.** The substantive point survives: after the pilot starts this is unfixable without a migration over live money.
 
 **GST TODAY, one line:** `platformFeeGst = 0`, with the source comment *"fee is GST-inclusive; no separate customer tax line"* — so GST is treated as already inside the fee, and is **never applied to the dakshina**, which is the pandit's own income and his own tax matter. Correct under B. Flagged only because "GST-inclusive" is an accounting decision, not an engineering one.
 
@@ -1405,3 +1405,47 @@ and the 20 July E2E). **Zero real customers.** So the fabricated ₹4,300 travel
 quote and the invented travel money never reached a real payout. Downgraded
 from a realised loss to a loaded gun — unchanged in urgency for the pilot,
 changed in what it has already cost: nothing.
+
+---
+
+## STANDING LAW — A CORRECTION MUST PROPAGATE TO EVERY ARTIFACT BUILT ON IT
+*Isj order, 2026-07-28. The sharpest lesson of the campaign.*
+
+**Correcting the ledger is not correcting the code.**
+
+I wrote "bookings are zero in production" as a justification for the fee
+snapshot. I later found it was never verified and **corrected it in the
+ledger** — and stopped there. The same false claim was still sitting in:
+
+1. `packages/db/prisma/migrations/…_booking_fee_snapshot/migration.sql` — the
+   artifact that would have **acted** on it, backfilling `DEFAULT 10` over
+   eight rows priced at 15%;
+2. `services/api/src/lib/feeSnapshot.test.ts` — a **guard**, teaching the wrong
+   fact to everyone who reads it;
+3. `docs/review/qa-sweep-log.md:400` — a second ledger entry, unstruck.
+
+A retraction that reaches only the place the claim was *recorded* leaves the
+places it was *used* fully armed. The migration was the dangerous one: prose is
+inert, SQL is not.
+
+**THE REQUIREMENT.** When a claim is withdrawn, **grep for it in the same turn**
+— comments, migrations, guards, docs, prompts, commit messages — and correct
+every instance before the turn ends. A withdrawn claim with surviving copies has
+not been withdrawn; it has been forked.
+
+### Corollary — CAPABILITY ≠ PATH APPLIES TO TIME
+
+Before calling a stored row a divergence, ask **which version of the code
+produced it.** HPJ-2026-19502 was escalated as "production runs Model A" when it
+is a row created on 20 July by the code of 20 July — two days before Ruling B
+existed (`3548679`, 22 July). The row and the ruling never coexisted.
+
+The check is one command: `git log --since=<row date> -- <the computing file>`.
+A stored value is evidence about the code **at its creation instant**, never
+about the code today.
+
+**This binds both directions.** The orchestration escalated it to P0 without
+checking dates, exactly as the reporting side has shipped findings without
+checking call paths. Same error, different axis: *verification against a
+convenient stand-in rather than the thing itself* — here the stand-in was
+today's code standing in for July's.

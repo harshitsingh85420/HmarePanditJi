@@ -20,9 +20,17 @@ import { codeOnly } from "@hmarepanditji/utils/code-only";
 //   Default rate 10%. Operations sets the rate.
 //
 // WHY THIS EXISTS: ops raising 10% → 12% must not retroactively change what a
-// completed booking says the customer paid or the pandit is owed. Today
-// bookings are zero, so freezing the rate costs nothing; after the pilot
-// starts it is unfixable without a migration over live money.
+// completed booking says the customer paid or the pandit is owed.
+//
+// CORRECTED 2026-07-28. This comment previously read "Today bookings are zero,
+// so freezing the rate costs nothing." That was NEVER VERIFIED and is FALSE:
+// production holds nine rows, EIGHT of them priced at 15% (the rate before
+// commit 0be83f5 on 15 July). The snapshot therefore does NOT cost nothing —
+// it has real history to represent, and the backfill in
+// packages/db/prisma/migrations/20260728120000_booking_fee_snapshot must derive
+// each row's rate rather than defaulting them all to 10.
+// The substantive point survives: after the pilot starts this is unfixable
+// without a migration over live money.
 // ─────────────────────────────────────────────────────────────
 
 console.log("Running fee-snapshot invariant guard...");
