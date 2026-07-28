@@ -11,43 +11,25 @@ type NavLink = {
   external?: boolean;
 };
 
-function GuestBanner({ onSignIn }: { onSignIn: () => void }) {
-  const [dismissed, setDismissed] = useState(false);
-
-  useEffect(() => {
-    const stored = sessionStorage.getItem("guestBannerDismissed");
-    if (stored === "1") setDismissed(true);
-  }, []);
-
-  if (dismissed) return null;
-
-  return (
-    <div className="bg-amber-50 border-b border-amber-200 px-4 py-2 flex items-center justify-between text-sm z-50">
-      <span className="text-amber-800 font-medium">
-        👋 Exploring as Guest - Login to book pandits and save favorites
-      </span>
-      <div className="flex items-center gap-3">
-        <button
-          type="button"
-          onClick={onSignIn}
-          className="bg-primary text-white px-3 py-1 rounded-btn text-xs font-bold hover:bg-primary/90 transition-colors"
-        >
-          Login / Register
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            sessionStorage.setItem("guestBannerDismissed", "1");
-            setDismissed(true);
-          }}
-          className="text-amber-600 hover:text-amber-900 font-bold text-base leading-none"
-          aria-label="Dismiss"
-        >
-          x
-        </button>
-      </div>
-    </div>
-  );
+// ─────────────────────────────────────────────────────────────
+// अतिथि · GUEST MODE — the banner is RETIRED (design doc turn 2).
+//
+// It read "👋 Exploring as Guest - Login to book pandits and save favorites":
+// a dismissible-and-nagging banner, in the old orange, stating what a guest
+// CANNOT do. Turn 2's law is the opposite on every count —
+//   "The paywall is at commitment, not at the door. So guest mode must never
+//    read as a restriction — it reads as an invitation with nothing withheld.
+//    Persistent, quiet, saffron-tinted — never a banner, never
+//    dismissible-and-nagging. Says what he CAN do, not what he can't."
+//
+// Its replacement is <GuestStrip> in components/design/GuestMode.tsx, which
+// sits with the search context and says "पूरा मंच देखिए · खाता बाद में".
+// Leaving both shipped a screen that contradicted itself top to bottom.
+//
+// The `onSignIn` route is untouched — the ONE gate still lives at बुक करें.
+// ─────────────────────────────────────────────────────────────
+function GuestBanner({ onSignIn: _onSignIn }: { onSignIn: () => void }) {
+  return null;
 }
 
 export default function Header() {

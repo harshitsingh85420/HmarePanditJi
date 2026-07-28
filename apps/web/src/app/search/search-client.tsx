@@ -6,7 +6,8 @@ import Image from "next/image";
 import { useAuth } from "../../context/auth-context";
 import { LoginModal } from "../../components/LoginModal";
 import { PanditRecordCard } from "../../../components/design/PanditRecordCard";
-import { MoneyNote } from "../../../components/design/Verification";
+import { MoneyNote, NoReviewsNotice } from "../../../components/design/Verification";
+import { GuestStrip, RealPricesNote } from "../../../components/design/GuestMode";
 import type { PoojaVideoState } from "../../../components/design/Verification";
 
 // ── Types ────────────────────────────────────────────────────────────────────
@@ -759,7 +760,15 @@ export default function SearchClient({
               // 1c · अभिलेख — the record. 12px between cards (the doc's rhythm),
               // not the old 24px grid gap.
               <div className="flex flex-col gap-3">
-                <div className="micro-label">{pandits.length} पंडित जी उपलब्ध</div>
+                {/* अतिथि · guest mode, 2a — a mode you are in, sitting with the
+                    search context. Says what he CAN do; the paywall is at
+                    commitment, not at the door. Shown only to a guest: telling
+                    a signed-in customer he may browse freely is noise. */}
+                {!isAuthenticated && !authLoading && <GuestStrip placement="header" />}
+                <div className="flex items-center justify-between gap-3">
+                  <div className="micro-label">{pandits.length} पंडित जी उपलब्ध</div>
+                  <RealPricesNote />
+                </div>
                 {pandits.map((pandit) => (
                   <PanditRecordCard
                     key={pandit.id}
@@ -779,6 +788,10 @@ export default function SearchClient({
                     onWatchVideo={() => router.push(`/pandit/${pandit.id}#video`)}
                   />
                 ))}
+                {/* Trust with zero reviews, substitute 4: admitting what is
+                    missing. The honest absence proves the ticks above are not
+                    decorative. */}
+                <NoReviewsNotice />
                 <MoneyNote />
               </div>
             )}

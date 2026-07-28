@@ -208,7 +208,11 @@ export default function BookingDetailPage() {
                             <div className="bg-white border text-left border-gray-200 rounded-xl p-6 shadow-sm flex flex-col items-center justify-center py-10">
                                 <div className="text-4xl mb-3">🕒</div>
                                 <h3 className="font-bold text-gray-900 mb-1">Pandit Assignment Pending</h3>
-                                <p className="text-gray-500 text-center text-sm">We are matching you with the best pandit for your puja.</p>
+                                {/* "the best pandit" is a superlative and therefore
+                                    uncheckable — the design's trust rule is that
+                                    specificity beats superlatives. Say what is
+                                    actually happening instead. */}
+                                <p className="text-gray-500 text-center text-sm">आपकी पूजा के लिए पंडित जी खोजे जा रहे हैं।</p>
                             </div>
                         )}
                     </div>

@@ -142,7 +142,23 @@ export function PanditRecordCard({
         </div>
       </div>
 
-      {/* the record */}
+      {/* ── THE RECORD · संरचनात्मक जगह (structural room, turn 2) ──
+          Five numbered slots in a fixed order. The card must be able to grow a
+          travel/logistics line later WITHOUT being rebuilt — and must not hint
+          at it now. So slot 5 is a SPEC, not a ghost element: at pilot it
+          renders nothing at all, no placeholder, no dimmed row, no "coming
+          soon". A reserved slot that draws something is just a promise.
+
+            slot 1  person    पहचान
+            slot 2  offering  इस पूजा का वीडियो
+            slot 3  record    अनुभव · यह पूजा
+            slot 4  place     क्षेत्र · दूरी      (in scope: ONE city)
+            slot 5  reserved  renders nothing
+
+          SCOPE LAW: distance within one city is in scope. Travel BETWEEN
+          cities is not, and nothing here may imply it — hence the plain
+          "आपसे N कि.मी." and no mode-of-travel, fare, or route language
+          anywhere on this card. */}
       <div className="mt-3.5 flex flex-col">
         {/* THE PERSON — green only when a human actually checked his Aadhaar */}
         {identityVerified ? (
@@ -218,6 +234,8 @@ export function PanditRecordCard({
             }
           />
         )}
+        {/* slot 5 — RESERVED. Renders nothing at pilot, by design. When the
+            logistics line arrives it is inserted HERE and no other row moves. */}
       </div>
 
       <button
