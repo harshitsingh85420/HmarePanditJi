@@ -1449,3 +1449,24 @@ checking dates, exactly as the reporting side has shipped findings without
 checking call paths. Same error, different axis: *verification against a
 convenient stand-in rather than the thing itself* — here the stand-in was
 today's code standing in for July's.
+
+---
+
+## STANDING LAW — "SHIPPED" NAMES A BRANCH, AND IS CHECKED AGAINST /version
+
+This campaign said **"shipped"**, **"landed"** and **"deploy-verified"**
+throughout while **30 commits sat unmerged on `qa/harsh-pass`** — essentially
+the entire campaign, including Ruling B's configurable rate and snapshot,
+DRIFT-A, the admin cancel fix, every guard, and `codeOnly()`. Nobody asked
+*which branch*. Our language outran the artifact, exactly as the withdrawn
+"bookings are zero" claim outran its correction.
+
+**THE REQUIREMENT.** A claim of shipping must (1) **name the branch** and
+(2) be **checked against what the deployed commit serves**. The `/version`
+and `/health` endpoints already return the deployed SHA — that check is the
+standard, and it should have been run at each claim rather than once, at the
+end, by the founder's prompting.
+
+Corollary, recorded because it happened in the same breath: I reported the gap
+as **"20 commits"** because I had run `head -20` on the list. **It is 30.** A
+truncated command produced a truncated fact that was then stated as the fact.
