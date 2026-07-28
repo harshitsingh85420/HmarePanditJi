@@ -1,0 +1,11 @@
+-- THE SNAPSHOT INVARIANT (Ruling B, ops-configurable rate — Isj 2026-07-28)
+--
+-- Every booking freezes the platform-fee RATE in force at its creation, next
+-- to the fee AMOUNT it already stored. Ops changing the default from 10% to
+-- 12% must never retroactively alter a completed booking's arithmetic.
+--
+-- Backfill note: existing rows take 10, which is the rate that was hardcoded
+-- for the whole period those rows could have been created in. At the time of
+-- this migration the bookings table is empty in production, so the backfill is
+-- a formality — which is exactly why this lands now rather than after a pilot.
+ALTER TABLE "Booking" ADD COLUMN "platformFeePercent" INTEGER NOT NULL DEFAULT 10;

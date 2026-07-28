@@ -218,6 +218,41 @@ Every page's §3 now measures the app column against the viewport and reports th
 
 ---
 
+### 💰 RULING B — COMMISSION MODEL, OPS-CONFIGURABLE · 2026-07-28 · **SUPERSEDES every earlier record of a deducted/single-sided model**
+
+**THE MODEL, in the founder's words:**
+> The pandit receives 100% of his dakshina. No deduction, ever.
+> The platform fee is charged to the CUSTOMER, on top of the dakshina.
+> Default rate 10%. Operations sets the rate.
+
+**VERIFIED FIRST, CHANGED SECOND.** All three money guards already pinned exactly this model and were left alone:
+- `commission-consistency` — fails the build if the payout is ever reduced by the fee, or if either consumer hardcodes a rate.
+- `payment-money` — pins conservation (customer − pandit = fee), one money source, display=charge, fee disclosed on every total, prod fail-closed.
+- `dakshinaFloor` — pins per-pooja minimum prices on every write path.
+
+`calculateGrandTotal` computes `panditPayout = dakshina + pass-throughs`, with no subtraction anywhere: model B in code, already. The pandit app's zero-commission-words census stays correct and stays guarded — under B there is nothing to disclose to him.
+
+**CONTRADICTORY RECORDS CORRECTED (the ruling says correct, not accumulate):**
+- `schema.prisma` carried `platformFee // 15% of dakshina` and `panditPayout // dakshina - platformFee + …` — the DEDUCTED model written into the storage layer, at a rate nothing used. Both corrected, plus `grandTotal` and `platformFeeGst` notes.
+- 🔴 **`packages/utils` carried a SECOND, DIFFERENT RATE: 15.** Four sites — `constants.ts:9`, `index.ts:59`, `index.ts:86`, `pricing.ts:42` — plus a `panditPayout = dakshinaAmount - platformFee` line, i.e. model A arithmetic. **Zero callers today, but a loaded gun on the money path:** the next person reaching for a fee helper in the shared package would have silently billed 15%, and nothing would have failed. REMOVED rather than synced — two numbers that must agree are one number too many. The existing build-failing guard never caught this because it only ever watched the API side.
+
+**RATE IS NOW CONFIGURABLE.** `PLATFORM_FEE_PERCENT` environment variable, default 10, validated: a non-numeric, negative or >100 value is refused with a logged error and the default is kept, so a fat-fingered setting can never silently bill 0% or 900%.
+
+**WHERE OPS SETS IT — env var, justified.** A settings row needs a migration, an admin surface, a cache-invalidation story and a write-audit trail before it can be trusted with money: four things to build and get right for a pilot with one operator. An env var changes on the host and takes effect on restart with NO code deploy, which was the stated requirement. If per-pandit rates are ever needed this becomes a table, and the snapshot below makes that change purely additive.
+
+**🔴 THE SNAPSHOT INVARIANT — shipped WITH the rate change, not after.**
+`Booking.platformFeePercent` (migration `20260728120000_booking_fee_snapshot`) freezes the rate in force at creation, beside the fee amount the row already stored. `services/api/src/lib/feeSnapshot.ts` is the single reader:
+- `currentFeePercent()` — only for a booking being created now, or a quote.
+- `bookingFeePercent(row)` — for anything about an existing booking.
+
+**Guard proven-to-fail FIRST.** Breaking `feeSnapshot` so it ignores the stored rate produced exactly: *"PROVEN-TO-FAIL POINT: the existing booking picked up the NEW rate. Its fee, payout and total just moved retroactively."* Restored, then green. The guard moves the live default 10 → 25 and asserts a past booking's fee (₹510), customer total (₹5,610) and payout (₹5,100) are all unchanged — while asserting a NEW booking DOES pick up 25, so ops is not handed a dead dial. Bookings are zero today, which is exactly why this landed now: after the pilot starts it is unfixable without a migration over live money.
+
+**GST TODAY, one line:** `platformFeeGst = 0`, with the source comment *"fee is GST-inclusive; no separate customer tax line"* — so GST is treated as already inside the fee, and is **never applied to the dakshina**, which is the pandit's own income and his own tax matter. Correct under B. Flagged only because "GST-inclusive" is an accounting decision, not an engineering one.
+
+**OPEN QUESTION TO ISJ:** is the rate GLOBAL (one number, all bookings) or set PER BOOKING / PER PANDIT? Implemented global-with-default now; the snapshot design supports both, so a per-booking override is a one-field addition later.
+
+---
+
 ### 🔴 BOOKING PATH UNBLOCKED + THREE STANDING RULES · 2026-07-28
 
 **THE FIX (response-shape, ruled by Isj as wiring not money semantics).** `POST /bookings` replies `sendSuccess(res,{booking,order})`, so the id lives at `data.booking.id`. `apps/web/app/booking/new/booking-wizard-client.tsx` read `data.id` — one level too high, therefore `undefined`; `JSON.stringify` dropped the key; `create-order` 400'd on "bookingId is required"; the wizard threw and RazorpayCheckout never mounted — **while the booking row and the Razorpay order had already been created.** Field names only: no amount, no fee, no Razorpay call touched.

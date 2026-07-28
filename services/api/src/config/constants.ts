@@ -72,7 +72,38 @@ export const buildOtpSms = (otp: string): string =>
 // both read THIS — never a second literal. The guard
 // (commission-consistency.test) fails the build if either hardcodes a number,
 // OR if the pandit payout is ever reduced by this fee.
-export const PLATFORM_FEE_PERCENT = 10;
+//
+// RULING B, OPS-CONFIGURABLE (Isj, 2026-07-28):
+//   The pandit receives 100% of his dakshina. No deduction, ever.
+//   The platform fee is charged to the CUSTOMER, on top of the dakshina.
+//   Default rate 10%. Operations sets the rate.
+//
+// WHERE OPS SETS IT: the PLATFORM_FEE_PERCENT environment variable. Chosen
+// over a settings table because a table needs a migration, an admin surface,
+// a cache-invalidation story and a write-audit trail to be trustworthy with
+// money — four things to build and get right for a pilot with one operator.
+// An env var changes on the host and takes effect on restart, with NO code
+// deploy, which is the requirement. If ops ever needs per-pandit rates this
+// becomes a table; the snapshot below means that change is additive.
+const DEFAULT_PLATFORM_FEE_PERCENT = 10;
+
+function resolvePlatformFeePercent(): number {
+  const raw = (process.env.PLATFORM_FEE_PERCENT ?? "").trim();
+  if (raw === "") return DEFAULT_PLATFORM_FEE_PERCENT;
+  const n = Number(raw);
+  // A malformed rate must never silently become 0% (platform earns nothing) or
+  // an absurd number (customer overcharged). Refuse it and keep the default.
+  if (!Number.isFinite(n) || n < 0 || n > 100) {
+    // eslint-disable-next-line no-console
+    console.error(
+      `[config] PLATFORM_FEE_PERCENT="${raw}" is not a percentage between 0 and 100 — using the ${DEFAULT_PLATFORM_FEE_PERCENT}% default.`,
+    );
+    return DEFAULT_PLATFORM_FEE_PERCENT;
+  }
+  return n;
+}
+
+export const PLATFORM_FEE_PERCENT = resolvePlatformFeePercent();
 export const TRAVEL_SERVICE_FEE_PERCENT = 5;
 export const GST_PERCENT = 18;
 export const FOOD_ALLOWANCE_PER_DAY = 1000; // ₹1,000 per day

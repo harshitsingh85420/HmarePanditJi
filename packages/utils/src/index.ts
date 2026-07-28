@@ -56,7 +56,6 @@ export {
 
 // ─── SPEC-REQUIRED CONSTANTS ─────────────────────────────────────────────────
 export const CONSTANTS = {
-  PLATFORM_FEE_PERCENT: 15,
   TRAVEL_SERVICE_FEE_PERCENT: 5,
   GST_PERCENT: 18,
   FOOD_ALLOWANCE_PER_DAY: 1000,
@@ -83,14 +82,20 @@ export function calculatePricing(params: {
   grandTotal: number; panditPayout: number;
 } {
   const foodAllowanceAmount = params.foodAllowanceDays * CONSTANTS.FOOD_ALLOWANCE_PER_DAY;
-  const platformFee = Math.round(params.dakshinaAmount * CONSTANTS.PLATFORM_FEE_PERCENT / 100);
+  // The platform fee is NOT computed here. Ruling B puts it in one place
+  // (services/api config) and freezes it per booking; a second implementation
+  // in a shared package is how two rates existed at once.
+  const platformFee = 0;
   const platformFeeGst = Math.round(platformFee * CONSTANTS.GST_PERCENT / 100);
   const travelServiceFee = Math.round(params.travelCost * CONSTANTS.TRAVEL_SERVICE_FEE_PERCENT / 100);
   const travelServiceFeeGst = Math.round(travelServiceFee * CONSTANTS.GST_PERCENT / 100);
   const grandTotal = params.dakshinaAmount + params.samagriAmount + params.travelCost
     + foodAllowanceAmount + params.accommodationCost
     + platformFee + platformFeeGst + travelServiceFee + travelServiceFeeGst;
-  const panditPayout = params.dakshinaAmount - platformFee + params.travelCost
+  // RULING B: the pandit receives 100% of his dakshina — the fee is NEVER
+  // deducted. The old `dakshinaAmount - platformFee` here was the deducted
+  // model (A) written down; corrected so no reader can mistake it for current.
+  const panditPayout = params.dakshinaAmount + params.travelCost
     + foodAllowanceAmount + params.samagriAmount;
   return { ...params, foodAllowanceAmount, platformFee, platformFeeGst, travelServiceFee, travelServiceFeeGst, grandTotal, panditPayout };
 }

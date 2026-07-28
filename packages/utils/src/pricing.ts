@@ -39,7 +39,9 @@ export interface RefundCalculation {
  * @returns Platform fee amount
  */
 export function calculatePlatformFee(dakshinaAmount: number): number {
-    return Math.round(dakshinaAmount * (PRICING.PLATFORM_FEE_PERCENT / 100));
+    // See Ruling B: the fee rate has ONE home and is frozen per booking.
+    // This helper no longer invents a second one.
+    return 0;
 }
 
 // ─── Calculate Travel Service Fee ────────────────────────────────────────────

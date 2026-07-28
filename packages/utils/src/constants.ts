@@ -6,7 +6,13 @@
 // ─── Pricing Constants ───────────────────────────────────────────────────────
 
 export const PRICING = {
-    PLATFORM_FEE_PERCENT: 15, // 15% of dakshina
+    // RULING B (Isj, 2026-07-28): the platform-fee rate lives in ONE place —
+    // services/api/src/config/constants.ts, driven by the PLATFORM_FEE_PERCENT
+    // env var with a 10 default, and FROZEN onto each booking at creation.
+    // This package carried a SECOND, DIFFERENT rate (15) with no caller — a
+    // loaded gun on the money path: the next person to reach for a fee helper
+    // here would have silently billed 15%. Removed rather than synced, because
+    // two numbers that must agree are one number too many.
     TRAVEL_SERVICE_FEE_PERCENT: 5, // 5% of travel cost
     GST_PERCENT: 18, // 18% GST on all service fees
     FOOD_ALLOWANCE_PER_DAY: 1000, // ₹1000 per day

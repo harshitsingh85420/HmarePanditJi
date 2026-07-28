@@ -10,6 +10,7 @@ import {
 import { generateBookingNumber } from "../utils/helpers";
 import { FOOD_ALLOWANCE_PER_DAY } from "../config/constants";
 import { calculateGrandTotal } from "../utils/pricing";
+import { currentFeePercent } from "../lib/feeSnapshot";
 import { AppError } from "../middleware/errorHandler";
 import { NotificationService } from "./notification.service";
 import { getNotificationTemplate } from "./notification-templates";
@@ -192,6 +193,10 @@ export async function createBooking(input: CreateBookingInput) {
       samagriNotes: input.samagriNotes,
       // Financials — ONLY from the single money source (no caller overrides)
       platformFee: fin.platformFee,
+      // THE SNAPSHOT INVARIANT (Ruling B): freeze the rate this booking was
+      // created under, beside the amount. Ops changing the default later must
+      // never move this booking's arithmetic. See lib/feeSnapshot.ts.
+      platformFeePercent: currentFeePercent(),
       platformFeeGst: fin.platformFeeGst,
       travelServiceFee: fin.travelServiceFee ?? 0,
       travelServiceFeeGst: fin.travelServiceFeeGst,

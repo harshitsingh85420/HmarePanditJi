@@ -463,14 +463,24 @@ model Booking {
   // Pricing — ALL amounts stored in rupees (integers, no decimals)
   dakshinaAmount      Int @default(0)
   travelCost          Int @default(0)
-  platformFee         Int @default(0)  // 15% of dakshina
-  platformFeeGst      Int @default(0)  // 18% of platformFee
+  // RULING B (Isj, 2026-07-28): the fee is charged to the CUSTOMER on top of
+  // the dakshina and NEVER reduces the payout. The old "15% of dakshina" and
+  // "dakshina - platformFee" notes below described a deducted model that no
+  // longer exists in the code or in the ruling; corrected rather than left to
+  // contradict.
+  platformFee         Int @default(0)  // PLATFORM_FEE_PERCENT of dakshina, customer-paid, ON TOP
+  // THE SNAPSHOT INVARIANT: the rate in force WHEN THIS BOOKING WAS CREATED.
+  // Ops may change the default at any time; a booking's arithmetic must never
+  // move underneath it. Every downstream figure — payout, receipt, admin
+  // total, earnings, conservation check — reads THIS, never the live default.
+  platformFeePercent  Int @default(10) // frozen at creation; see feeSnapshot.ts
+  platformFeeGst      Int @default(0)  // GST on the FEE only — never on the dakshina
   travelServiceFee    Int @default(0)  // 5% of travelCost
   travelServiceFeeGst Int @default(0)  // 18% of travelServiceFee
-  grandTotal          Int @default(0)
+  grandTotal          Int @default(0)  // dakshina + platformFee + pass-throughs
 
   // Pandit payout
-  panditPayout      Int          @default(0) // dakshina - platformFee + travel + food + samagri
+  panditPayout      Int          @default(0) // dakshina + travel + food + samagri — the fee is NOT deducted
   payoutStatus      PayoutStatus @default(PENDING)
   payoutReference   String?
   payoutCompletedAt DateTime?
