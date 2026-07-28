@@ -1470,3 +1470,66 @@ end, by the founder's prompting.
 Corollary, recorded because it happened in the same breath: I reported the gap
 as **"20 commits"** because I had run `head -20` on the list. **It is 30.** A
 truncated command produced a truncated fact that was then stated as the fact.
+
+---
+
+## 2026-07-28 — NEW FINDING: the schema permits an ORPHANED PAYOUT
+
+`Payout.bookingId` and `Payout.panditId` are **required `String` columns with no
+Prisma relation** — no foreign key, no referential integrity. The same shape
+appears on `CustomerRating` (all three ids) and on ten other columns.
+
+**This is not only a delete-ordering hazard.** A `Payout` is a MONEY RECORD.
+The schema permanently permits one that points at a booking that does not
+exist, and the database will never object. Two writers create payouts —
+`auth.controller.ts:1391` and, more sharply, `admin.routes.ts:222`, which
+creates a `Payout` **on demand inside mark-paid** if none is found. A wrong or
+stale `bookingId` there mints a money record attached to nothing, silently.
+
+**Deliberate or omission?** The evidence says **omission**. `Booking` itself
+declares a proper relation to `PanditProfile`, and `Review` and
+`BookingStatusUpdate` both declare real FKs to `Booking` — so the pattern was
+known and applied elsewhere in the same file. `PanditMilestone.panditId` even
+carries a comment naming the target model, which is a relation written in prose
+instead of in schema. Nothing in the code requires the looseness.
+
+**Does any code depend on it?** No. Every read queries by bare id
+(`where: { panditId: profile.id }`), which continues to work unchanged with an
+FK in place. Adding the constraint would break nothing at the query layer.
+
+**What adding it would take:** a schema change plus a migration that first
+proves no orphans exist (`SELECT` for ids with no parent), then adds the
+constraints. On an EMPTY Booking table — the state Isj is about to create — the
+orphan check is trivially satisfied, which makes this the cheapest moment this
+will ever be.
+
+**NOT CHANGED.** It is DDL and it belongs to Isj's merge decision.
+
+### The full sweep — 12 dangling references
+
+| model | column | required? | should reference |
+|---|---|---|---|
+| **Payout** | **bookingId** | REQUIRED | Booking |
+| **Payout** | **panditId** | REQUIRED | PanditProfile |
+| **CustomerRating** | **bookingId** | REQUIRED | Booking |
+| **CustomerRating** | **panditId** | REQUIRED | PanditProfile |
+| **CustomerRating** | **customerId** | REQUIRED | User |
+| Booking | samagriPackageId | nullable | SamagriPackage |
+| PanditMilestone | panditId | REQUIRED | PanditProfile |
+| AdminLog | adminUserId | REQUIRED | User |
+| PanditProfile | verifiedById | nullable | User |
+| PoojaVerification | reviewedById | nullable | User |
+| SupportTicket | relatedBookingId | nullable | Booking |
+| SupportTicket | relatedUserId | nullable | User |
+
+The five bold rows are money- or payout-bearing. `razorpayOrderId`,
+`razorpayPaymentId`, `upiId` and `videoId` are external identifiers and are
+correctly relation-free.
+
+**Method note:** the first two passes of this sweep were WRONG and were thrown
+away — one matched `//` comments as schema, the other used
+`@relation\(fields:` and so missed every NAMED relation
+(`@relation("CustomerBookings", fields: [...])`), which would have reported
+`Booking.customerId` and both `Review` ids as dangling. Nine of the twenty-three
+"findings" in that draft were artifacts of my own matcher. **Law G2 applies to
+analysis scripts, not only to guards.**

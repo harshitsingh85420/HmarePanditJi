@@ -1,0 +1,41 @@
+{
+  "_preservation": {
+    "captured": "2026-07-28",
+    "why": "These nine rows are QA junk as data and irreplaceable as evidence. They are the only surviving record of how this product actually priced money before the pilot, and deleting them to clear the way for the fee-snapshot migration destroys that record permanently. Three distinct pricing eras are visible in them, and each one is a decision we could otherwise only reconstruct from commit messages: the 15% ERA (rows 1-8, created 8 and 14 July, when the platform commission was 15% and was DEDUCTED from the pandit's payout, with 18% GST computed on the fee and shown to the customer as a separate tax line); the RATE CUT (commit 0be83f5, 15 July, 'commission is ONE number (10%)', which is why row 9 alone carries 10%); and the MODEL-A ERA closing with row 9 (HPJ-2026-19502, 20 July, Razorpay order_TFefNl2TrhDM3E), the single booking made through the live wizard under the single-sided fee — dakshina 2100, fee 210, grandTotal 2100, payout 1890 — i.e. the customer was NOT charged the fee on top and the pandit DID absorb it. Ruling B (commit 3548679, 22 July) reversed that two days later, so row 9 is the last and only production artefact of the deducted model. Rows 1-6 are seed (created within two seconds of each other on 8 July); rows 7-8 are the manual pilot proofs of 14 July (order_pilot_manual, order_notifyproof). travelCost is 0 on all nine, which is what downgrades the fabricated-travel finding from a realised loss to a loaded gun: no real customer money ever moved through it.",
+    "status": "AWAITING PASTE — run the SELECT below and replace the empty rows array with its JSON output BEFORE running the DELETE transaction.",
+    "delete_blocked_until": "this file contains all nine rows"
+  },
+
+  "_select_to_run": [
+    "-- Paste the JSON output of this into \"rows\" below, then commit, THEN delete.",
+    "SELECT json_agg(row_to_json(b) ORDER BY b.\"createdAt\")",
+    "FROM (",
+    "  SELECT \"bookingNumber\", \"createdAt\", \"status\", \"paymentStatus\", \"payoutStatus\",",
+    "         \"dakshinaAmount\", \"platformFee\", \"platformFeeGst\",",
+    "         \"travelCost\", \"travelServiceFee\", \"travelServiceFeeGst\",",
+    "         \"foodAllowanceAmount\", \"accommodationCost\", \"samagriAmount\",",
+    "         \"grandTotal\", \"panditPayout\",",
+    "         \"refundStatus\", \"refundAmount\",",
+    "         \"razorpayOrderId\", \"razorpayPaymentId\",",
+    "         ROUND(\"platformFee\" * 100.0 / NULLIF(\"dakshinaAmount\",0)) AS derived_fee_pct,",
+    "         ROUND(\"platformFeeGst\" * 100.0 / NULLIF(\"platformFee\",0))  AS derived_gst_pct",
+    "  FROM \"Booking\"",
+    ") b;"
+  ],
+
+  "_what_each_derived_column_proves": {
+    "derived_fee_pct": "15 on rows 1-8, 10 on row 9 — the rate cut of 15 July, visible in the data rather than only in git.",
+    "derived_gst_pct": "18 on rows 1-8, 0 on row 9 — the moment the fee became GST-INCLUSIVE (commit f803f10, 16 July). This is the evidence behind the GST ruling in CONFLICT_RULINGS.md.",
+    "grandTotal_vs_dakshina": "equal on row 9 — proof the fee was NOT charged on top under Model A.",
+    "panditPayout_vs_dakshina": "payout < dakshina on row 9 (1890 < 2100) — proof the fee WAS deducted from the pandit."
+  },
+
+  "_also_capture_before_delete": [
+    "SELECT * FROM \"Payout\";",
+    "SELECT * FROM \"CustomerRating\";",
+    "SELECT * FROM \"Review\";",
+    "SELECT * FROM \"BookingStatusUpdate\";"
+  ],
+
+  "rows": []
+}
