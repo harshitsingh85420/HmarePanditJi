@@ -218,6 +218,32 @@ Every page's §3 now measures the app column against the viewport and reports th
 
 ---
 
+### 🕳️ NEW CLASS — "FEATURES THAT APPEAR IMPLEMENTED AND HAVE RUN ZERO TIMES" · 2026-07-28
+
+**THE CLASS, named:** a phantom field does not only render a wrong value — **it creates PERMANENTLY FALSE BRANCHES.** `null > n` is valid TypeScript, evaluates to `false` forever, and nothing in the source reveals it: the feature reads as implemented, reviews as implemented, and has never executed once. This is the **logic-side twin of the dead-control census** — a dead control renders and does nothing; a dead branch never renders at all.
+
+**THE SWEEP — every condition in the purge diff that referenced a purged field:**
+
+| condition | file | verdict |
+|---|---|---|
+| `packages[last].fixedPrice > customTotal` | SamagriModal:361 | 🕳️ **DEAD** — `null > n` is always false. The **"— You save ₹…" line has never rendered.** |
+| `packages.find(p => p.packageName === "Standard")` | SamagriModal:296 | 🕳️ **DEAD** — nothing writes `packageName`, so the find never matches and the **"✨ In Pandit's Standard package" badge has never appeared** on a custom samagri item. |
+| `b.ritual?.nameHindi && …` | admin bookings/[id]:210 | 🕳️ **DEAD** — Booking has no `ritual` relation. The **Hindi ceremony subtitle has never rendered.** |
+| `if (data.data && data.data.pandit)` | review/page:57 | 🕳️ **DEAD** — the only key is `booking`. The **review page's pandit card has never rendered.** |
+| `json.data.data \|\| []` | admin support:61 | 🕳️ **DEAD** — always `[]`, so every downstream `tickets.length` branch is permanently in the empty state. **The support console has never displayed a ticket.** |
+| `user?.fullName ?? "Customer"` | booking-wizard:1593 | 🕳️ **DEAD left branch** — **every Razorpay payer name has been the literal "Customer".** |
+| `error: json.error \|\| { message: … }` | pandit api.ts | 🕳️ **DEAD right branch** on the AppError path — the server's Hindi was never read. |
+| `user?.fullName \|\| user?.name \|\| "U"` | Header:41 | ✅ **not dead** — the fallback covered it. Masked, not broken. |
+| `user.name ?? user.fullName ?? "User"` | src Avatar | ✅ **not dead** — correct operand came first. |
+
+**SEVEN features have executed zero times in production. Two conditions were masked by fallbacks and were never broken.** The distinction matters: a fallback that silently covers a phantom is why these survive review — the screen looks fine.
+
+**THE ADMIN BREAKDOWN — shipped.** Nine amount components added to the booking-list projection (pure select, no computation, no commission). The drawer now renders a breakdown that **reconciles**, plus an on-screen mismatch banner if it ever stops reconciling. Guard `adminBreakdownSums.test.ts` proves 4 real compositions sum exactly to `calculateGrandTotal`'s total, and — proven-to-fail — that dropping any non-zero component breaks the sum, so the completeness claim is not decorative.
+
+**FOUND WHILE VERIFYING THE SUM:** `calculateGrandTotal` neither returns nor includes **`samagriAmount`** — samagri is a separate customer transaction (the samagri cart), and `panditPayout` excludes it too. Listing it as a component would have reported a **false mismatch on every samagri booking**. It is now shown outside the total, labelled *"billed separately"*. Worth a founder look: a booking row carries a `samagriAmount` that no charged total includes.
+
+---
+
 ### 🔎 THE UNREACHABILITY PATTERN AS A SEARCH · 2026-07-28
 
 **LAW, strong form:** *the unreachability pattern is not just how we fix a wrong read — it is how we FIND wrong reads.* Removing a phantom field converts every silent `undefined` into a compile error. **Guards catch what we already suspect; the type catches what we don't.** Apply it by default to any contract fix: delete the phantom first, let tsc enumerate the damage, then fix each surfaced read against the handler's actual projection — and where the handler sends nothing equivalent, OMIT rather than substitute.

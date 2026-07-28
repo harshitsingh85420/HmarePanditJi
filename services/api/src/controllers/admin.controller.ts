@@ -555,8 +555,22 @@ export const getAllBookingsAdmin = async (request: FastifyRequest, reply: Fastif
                 take: limit,
                 orderBy: { createdAt: "desc" },
                 select: {
-                    id: true, bookingNumber: true, eventType: true, eventDate: true, status: true,
-                    grandTotal: true, paymentStatus: true, travelStatus: true, payoutStatus: true,
+                    id: true, bookingNumber: true, eventType: true, pujaType: true,
+                    eventDate: true, status: true,
+                    // The AMOUNT COMPONENTS, so the admin drawer can show a
+                    // breakdown that actually reconciles instead of four
+                    // fabricated zeros under a real total. Pure projection —
+                    // no computation here, and no commission logic: these are
+                    // the columns the booking already carries.
+                    // The fee lines are included deliberately: without them a
+                    // breakdown CANNOT sum to grandTotal, and a breakdown that
+                    // does not reconcile is worse than none.
+                    dakshinaAmount: true, travelCost: true, foodAllowanceAmount: true,
+                    accommodationCost: true, samagriAmount: true,
+                    platformFee: true, platformFeeGst: true,
+                    travelServiceFee: true, travelServiceFeeGst: true,
+                    grandTotal: true, panditPayout: true,
+                    paymentStatus: true, travelStatus: true, payoutStatus: true,
                     customer: { select: { id: true, name: true, phone: true } },
                     pandit: { select: { id: true, user: { select: { id: true, name: true, phone: true } } } },
                     createdAt: true

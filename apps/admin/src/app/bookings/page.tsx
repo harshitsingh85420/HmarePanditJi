@@ -28,6 +28,19 @@ interface Pandit {
 interface Booking {
   id: string;
   bookingNumber: string;
+  pujaType: string;
+  // Amount components — now genuinely on the response (admin.controller.ts
+  // select). Declared only because the handler sends them.
+  dakshinaAmount: number;
+  travelCost: number;
+  foodAllowanceAmount: number;
+  accommodationCost: number;
+  samagriAmount: number;
+  platformFee: number;
+  platformFeeGst: number;
+  travelServiceFee: number;
+  travelServiceFeeGst: number;
+  panditPayout: number;
   eventType: string;
   eventDate: string;
   status: string;
@@ -228,7 +241,7 @@ export default function BookingsMonitorPage() {
                       <div className="font-semibold text-slate-800">{b.pandit?.name || "Unassigned"}</div>
                       <div className="text-xs text-slate-500 font-mono mt-0.5">{b.pandit?.phone || ""}</div>
                     </td>
-                    <td className="px-6 py-4 font-semibold text-slate-800">{b.eventType || "N/A"}</td>
+                    <td className="px-6 py-4 font-semibold text-slate-800">{b.pujaType || b.eventType || "N/A"}</td>
                     <td className="px-6 py-4">{new Date(b.eventDate).toLocaleDateString()}</td>
                     <td className="px-6 py-4">
                       <span className={`px-2 py-0.5 rounded text-xs font-bold ${
@@ -315,7 +328,7 @@ export default function BookingsMonitorPage() {
                 <div className="border rounded-lg p-3 space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-slate-500">Puja Type</span>
-                    <span className="font-semibold text-slate-800">{selectedBooking.eventType}</span>
+                    <span className="font-semibold text-slate-800">{selectedBooking.pujaType || selectedBooking.eventType}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-slate-500">Event Date</span>
@@ -334,17 +347,70 @@ export default function BookingsMonitorPage() {
 
               {/* Amount breakdown */}
               <div className="space-y-2">
-                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Amount</h4>
+                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Amount Breakdown</h4>
                 <div className="border rounded-lg p-3 space-y-2 bg-slate-50/50">
-                  {/* The per-component breakdown is NOT on this response — the
-                      controller's select carries grandTotal only. It used to
-                      render ₹0 / ₹0 / ₹0 / ₹0 beneath a correct total, which
-                      reads to an operator as "this booking had no dakshina".
-                      Omitted rather than faked; open the booking's own detail
-                      page for the components. */}
-                  <div className="text-xs text-slate-500">
-                    Per-component breakdown is not included in this list response — open the booking to see it.
+                  <div className="flex justify-between text-sm">
+                    <span className="text-slate-500">Dakshina</span>
+                    <span className="font-semibold text-slate-800">₹{(selectedBooking.dakshinaAmount ?? 0).toLocaleString("en-IN")}</span>
                   </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-slate-500">Travel</span>
+                    <span className="font-semibold text-slate-800">₹{(selectedBooking.travelCost ?? 0).toLocaleString("en-IN")}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-slate-500">Food allowance</span>
+                    <span className="font-semibold text-slate-800">₹{(selectedBooking.foodAllowanceAmount ?? 0).toLocaleString("en-IN")}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-slate-500">Accommodation</span>
+                    <span className="font-semibold text-slate-800">₹{(selectedBooking.accommodationCost ?? 0).toLocaleString("en-IN")}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-slate-500">Platform fee</span>
+                    <span className="font-semibold text-slate-800">₹{(selectedBooking.platformFee ?? 0).toLocaleString("en-IN")}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-slate-500">Platform fee GST</span>
+                    <span className="font-semibold text-slate-800">₹{(selectedBooking.platformFeeGst ?? 0).toLocaleString("en-IN")}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-slate-500">Travel service fee</span>
+                    <span className="font-semibold text-slate-800">₹{(selectedBooking.travelServiceFee ?? 0).toLocaleString("en-IN")}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-slate-500">Travel service GST</span>
+                    <span className="font-semibold text-slate-800">₹{(selectedBooking.travelServiceFeeGst ?? 0).toLocaleString("en-IN")}</span>
+                  </div>
+                  {/* Samagri sits OUTSIDE the charged total: calculateGrandTotal
+                      neither includes nor returns it (it is a separate customer
+                      transaction via the samagri cart), and the payout excludes
+                      it too. Listing it as a component would report a false
+                      mismatch on every samagri booking. */}
+                  {(selectedBooking.samagriAmount ?? 0) > 0 && (
+                    <div className="flex justify-between text-sm border-t pt-2 mt-1">
+                      <span className="text-slate-500">Samagri <span className="text-[10px] uppercase tracking-wide">(billed separately)</span></span>
+                      <span className="font-semibold text-slate-800">₹{(selectedBooking.samagriAmount ?? 0).toLocaleString("en-IN")}</span>
+                    </div>
+                  )}
+                  {/* RECONCILIATION. A breakdown that does not add up to the
+                      charged total is worse than none — it invites an operator
+                      to trust components that do not describe the money. If
+                      these ever disagree, say so on the screen rather than
+                      letting the mismatch pass silently. */}
+                  {(() => {
+                    const sum =
+                      (selectedBooking.dakshinaAmount ?? 0) + (selectedBooking.travelCost ?? 0) +
+                      (selectedBooking.foodAllowanceAmount ?? 0) + (selectedBooking.accommodationCost ?? 0) +
+                      (selectedBooking.platformFee ?? 0) +
+                      (selectedBooking.platformFeeGst ?? 0) + (selectedBooking.travelServiceFee ?? 0) +
+                      (selectedBooking.travelServiceFeeGst ?? 0);
+                    const diff = sum - (selectedBooking.grandTotal ?? 0);
+                    return diff === 0 ? null : (
+                      <div className="rounded bg-red-50 border border-red-200 px-2 py-1 text-xs font-bold text-red-700">
+                        Components sum to ₹{sum.toLocaleString("en-IN")} but the charged total is ₹{(selectedBooking.grandTotal ?? 0).toLocaleString("en-IN")} — off by ₹{Math.abs(diff).toLocaleString("en-IN")}. Do not reconcile against this row.
+                      </div>
+                    );
+                  })()}
                   <div className="flex justify-between text-sm border-t pt-2 mt-2 font-bold text-slate-900">
                     <span>Total Amount</span>
                     <span>₹{selectedBooking.grandTotal || 0}</span>
