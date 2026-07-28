@@ -218,6 +218,23 @@ Every page's §3 now measures the app column against the viewport and reports th
 
 ---
 
+### 🛍️ SAMAGRI TRUTH TRACE · 2026-07-28 — money the platform RECORDS but does not COLLECT
+
+**RULING (Isj):** samagri and accommodation are settled DIRECTLY with the pandit; they are not charged online. `samagriAmount` sitting outside `grandTotal` is therefore CORRECT — nothing changes there. But if the platform records money it does not collect, **all three parties must be told in their own words.**
+
+| party | what it said | verdict |
+|---|---|---|
+| **(a) CUSTOMER** | `payNow = dakshina + platformFee + travel + food` — `samagriCost` is computed but **deliberately excluded**. No total-looking figure includes it. The samagri step shows its own "Total: ₹X" inside the samagri card only. | ✅ **correct, no hidden cost at the door** — the pay-now figure is exactly the Razorpay charge (display=charge holds). |
+| **(b) PANDIT** | 🔴 the block was commented *"Samagri earnings"* and rendered **`+₹X` in the leaf-green earnings colour**, directly above a **Total** — and `earnings.totalToPandit = dakshinaNet + travel + food + samagri` genuinely **includes** it, while the stored `panditPayout` **excludes** it. He was being shown a total the platform will never pay him. | ✅ **FIXED (copy)** — label is now "सामग्री — यजमान से सीधे", with a line under the total: *"सामग्री का पैसा यजमान आपको सीधे देंगे — वह प्लेटफ़ॉर्म के भुगतान में नहीं आएगा।"* The figure stays (he does receive it); only the source is now honest. |
+| **(c) OPS** | showed samagri with no provenance | ✅ **FIXED (copy)** — "not collected by platform", plus *"Settled directly between customer and pandit. Never reconcile this against Razorpay or the payout."* |
+| **(d) online charge path?** | The samagri cart (`SamagriCartContext`, `CartSidebar`, `SamagriModal`) composes a total and renders "Add to Cart — ₹X" | ✅ **no contradiction** — grep for checkout/razorpay/create-order/payment across the cart surfaces returns **nothing**. The cart never charges; it only composes a selection that becomes `samagriAmount` on the booking. **REPORTED, not fixed:** the cart's language ("Add to Cart", a running total) reads like an online purchase for something paid in cash at the door. That is Isj's call, not a wiring fix. |
+
+**STRUCTURAL, reported not fixed:** `totalToPandit` and `panditPayout` are two different numbers for "what the pandit gets", differing by exactly `samagriAmount`. Both are legitimate — one is everything he receives, the other is what the platform transfers — but they share no naming that says so, and the earnings screen reads one while the payout pays the other.
+
+**LEDGER — the seven zero-execution features are effectively UNTESTED NEW CODE, however old the files are.** Five are now fixed and will run for the FIRST TIME on the walk. Watch all seven specifically: first execution is where they break.
+
+---
+
 ### 🕳️ NEW CLASS — "FEATURES THAT APPEAR IMPLEMENTED AND HAVE RUN ZERO TIMES" · 2026-07-28
 
 **THE CLASS, named:** a phantom field does not only render a wrong value — **it creates PERMANENTLY FALSE BRANCHES.** `null > n` is valid TypeScript, evaluates to `false` forever, and nothing in the source reveals it: the feature reads as implemented, reviews as implemented, and has never executed once. This is the **logic-side twin of the dead-control census** — a dead control renders and does nothing; a dead branch never renders at all.

@@ -531,7 +531,11 @@ export const hi = {
     youGet: "आपको मिलेगा",
     travel: "यात्रा भत्ता",
     food: "भोजन भत्ता",
-    samagri: "सामग्री कमाई",
+    // RULING (Isj, 2026-07-28): samagri is settled DIRECTLY with the pandit —
+    // the platform neither collects it nor pays it out. "सामग्री कमाई" beside a
+    // green + in his earnings block read as money the platform would send him.
+    samagri: "सामग्री — यजमान से सीधे",
+    samagriDirectNote: "सामग्री का पैसा यजमान आपको सीधे देंगे — वह प्लेटफ़ॉर्म के भुगतान में नहीं आएगा।",
     total: "कुल",
     acceptedVoice: "बधाई हो! बुकिंग स्वीकार हो गई। पूरी जानकारी बुकिंग सेक्शन में देखिए।",
     imHere: "मैं पहुँच गया",

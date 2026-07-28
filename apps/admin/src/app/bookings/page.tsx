@@ -388,9 +388,14 @@ export default function BookingsMonitorPage() {
                       mismatch on every samagri booking. */}
                   {(selectedBooking.samagriAmount ?? 0) > 0 && (
                     <div className="flex justify-between text-sm border-t pt-2 mt-1">
-                      <span className="text-slate-500">Samagri <span className="text-[10px] uppercase tracking-wide">(billed separately)</span></span>
+                      <span className="text-slate-500">Samagri <span className="text-[10px] uppercase tracking-wide text-amber-700">not collected by platform</span></span>
                       <span className="font-semibold text-slate-800">₹{(selectedBooking.samagriAmount ?? 0).toLocaleString("en-IN")}</span>
                     </div>
+                  )}
+                  {(selectedBooking.samagriAmount ?? 0) > 0 && (
+                    <p className="text-[11px] text-amber-700">
+                      Settled directly between customer and pandit. Never reconcile this against Razorpay or the payout.
+                    </p>
                   )}
                   {/* RECONCILIATION. A breakdown that does not add up to the
                       charged total is worse than none — it invites an operator
