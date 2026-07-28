@@ -1,6 +1,12 @@
 import assert from "node:assert";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+// Comments are stripped by the ONE shared implementation. See
+// packages/utils/src/code-only.ts for why this is a scanner and not a
+// regex, and for the single documented raw-source exception.
+// (deep path, not the barrel: @hmarepanditji/utils re-exports auth-context.tsx,
+//  which requires React — unresolvable in these bare node+tsx guard runs.)
+import { codeOnly } from "../../../../packages/utils/src/code-only";
 import {
   VERIFICATION_STATUSES,
   KYC_REVIEW_QUEUE_STATUSES,
@@ -36,14 +42,8 @@ const REPO = join(__dirname, "..", "..", "..", "..");
 
 // A guard that scans source must look at CODE, not at prose. Without this the
 // comment explaining a dead pattern trips the assertion forbidding it.
-const stripComments = (s: string) =>
-  s
-    .replace(/\/\*[\s\S]*?\*\//g, "") // block comments, incl. {/* JSX */}
-    .split("\n")
-    .filter((l) => !/^\s*(\/\/|\*)/.test(l)) // whole-line // comments
-    .join("\n");
 
-const read = (p: string) => stripComments(readFileSync(join(REPO, p), "utf8"));
+const read = (p: string) => codeOnly(readFileSync(join(REPO, p), "utf8"));
 
 const SCHEMA = read("packages/db/prisma/schema.prisma");
 const READINESS = read("services/api/src/controllers/readiness.controller.ts");

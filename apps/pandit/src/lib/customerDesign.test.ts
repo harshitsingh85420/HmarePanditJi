@@ -1,6 +1,12 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+// Comments are stripped by the ONE shared implementation. See
+// packages/utils/src/code-only.ts for why this is a scanner and not a
+// regex, and for the single documented raw-source exception.
+import { codeOnly } from "../../../../packages/utils/src/code-only";
+// (deep path, not the barrel: @hmarepanditji/utils re-exports auth-context.tsx,
+//  which requires React — unresolvable in these bare node+tsx guard runs.)
 
 // ─────────────────────────────────────────────────────────────
 // ग्राहक ऐप — the rules from turn 2 that are about what must NOT exist.
@@ -16,15 +22,16 @@ const WEB = join(__dirname, "..", "..", "..", "..", "apps", "web");
 // comment explaining a forbidden pattern trips the assertion forbidding it —
 // which is exactly how this file first failed. (Same cure as
 // services/api/src/lib/kycContract.test.ts.)
-const stripComments = (s: string) =>
-  s
-    .replace(/\/\*[\s\S]*?\*\//g, "")
-    .split("\n")
-    .filter((l) => !/^\s*(\/\/|\*)/.test(l))
-    .join("\n");
 
-const read = (p: string) => stripComments(readFileSync(join(WEB, p), "utf8"));
-/** Raw source, comments intact — for the one rule whose subject IS a comment. */
+const read = (p: string) => codeOnly(readFileSync(join(WEB, p), "utf8"));
+/**
+ * RAW_SOURCE_REQUIRED — the ONE documented exception to codeOnly().
+ * See packages/utils/src/code-only.ts, where the rule and this exception are
+ * written down together. Slot 5 is RESERVED and renders nothing; the only
+ * artifact pinning that intent IS a comment, so stripping comments here would
+ * delete the subject under test and pass vacuously forever.
+ * Every other read in this file goes through `read` (= codeOnly).
+ */
 const readRaw = (p: string) => readFileSync(join(WEB, p), "utf8");
 
 const SEARCH = read("src/app/search/search-client.tsx");

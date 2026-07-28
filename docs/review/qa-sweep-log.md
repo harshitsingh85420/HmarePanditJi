@@ -1131,3 +1131,42 @@ So the rule cuts both ways:
 
 A finding that cannot show its path is a hypothesis. Hypotheses do not become
 rulings.
+
+---
+
+## 2026-07-28 — codeOnly(): the sixth cure became a tool
+
+A guard that greps RAW source cannot tell CODE from PROSE, so the guard's own
+explanatory comment — the paragraph naming the forbidden pattern — contains the
+forbidden pattern, and the guard convicts itself. Six sightings:
+
+1. kycContract asserted a forbidden status literal its own comment spelled out.
+2. a superlative deny-list containing `#1` matched the hex colour `#1a140d`.
+3. panditIdentityReads condemned the CORRECT nested `user.name`.
+4. paymentSourceLabels — the label prose contained the token under test.
+5. displayChargeBoundary read the comment above the expression it was parsing.
+6. a SCOUT GREP reported "DRIFT-B: 5 sites still hand-concatenating
+   /api/customers" when all five hits were the comments recording the fix.
+
+**Cured six times, per case, by hand.** Ten near-copies of a hand-rolled
+`stripComments` had accumulated in THREE divergent variants; none handled
+trailing comments, and any of them would have truncated a URL — in the repo
+whose api-base guards assert on URLs.
+
+**DISCIPLINE THAT MUST BE REMEMBERED IS A TOOL THAT WASN'T BUILT.**
+
+`packages/utils/src/code-only.ts` is now the one implementation. It is a
+scanner, not a regex, because `"http://localhost:3001"` contains `//` — it
+tracks strings, templates (incl. nested `${}`) and regex literals, and it
+replaces stripped spans with spaces so **line numbers stay exact** (all ten
+copies deleted lines and silently shifted every number after the first
+comment). `strings: "blank"` is opt-in for identifier searches; `hash: true`
+handles `.env`/`.yml`.
+
+Ten guards retrofitted; zero hand-rolled strippers remain. The tool carries its
+own 10-case guard, including the URL trap and a verbatim sighting-#6 regression.
+
+**The exception stays and is documented AT the helper**, so the next reader sees
+both rules together: a guard may read raw source only when the artifact it
+asserts on IS a comment. The live instance is slot 5 of the अभिलेख card, now
+marked `RAW_SOURCE_REQUIRED` at its read site.

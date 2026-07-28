@@ -1,6 +1,12 @@
 import assert from "node:assert";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+// Comments are stripped by the ONE shared implementation. See
+// packages/utils/src/code-only.ts for why this is a scanner and not a
+// regex, and for the single documented raw-source exception.
+import { codeOnly } from "../../../../packages/utils/src/code-only";
+// (deep path, not the barrel: @hmarepanditji/utils re-exports auth-context.tsx,
+//  which requires React — unresolvable in these bare node+tsx guard runs.)
 
 // ─────────────────────────────────────────────────────────────
 // RESPONSE-SHAPE CONTRACT GUARD  (contract class, 9th sighting)
@@ -26,13 +32,7 @@ import { join } from "node:path";
 console.log("Running response-shape contract guard...");
 
 const REPO = join(__dirname, "..", "..", "..", "..");
-const stripComments = (s: string) =>
-  s
-    .replace(/\/\*[\s\S]*?\*\//g, "")
-    .split("\n")
-    .filter((l) => !/^\s*(\/\/|\*)/.test(l))
-    .join("\n");
-const read = (p: string) => stripComments(readFileSync(join(REPO, p), "utf8"));
+const read = (p: string) => codeOnly(readFileSync(join(REPO, p), "utf8"));
 
 /**
  * Pull the top-level keys out of the object literal a handler hands to

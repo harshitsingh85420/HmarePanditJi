@@ -1,6 +1,12 @@
 import assert from "node:assert";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
+// Comments are stripped by the ONE shared implementation. See
+// packages/utils/src/code-only.ts for why this is a scanner and not a
+// regex, and for the single documented raw-source exception.
+import { codeOnly } from "../../../../packages/utils/src/code-only";
+// (deep path, not the barrel: @hmarepanditji/utils re-exports auth-context.tsx,
+//  which requires React — unresolvable in these bare node+tsx guard runs.)
 
 // ─────────────────────────────────────────────────────────────
 // STORAGE-KEY CONTRACT GUARD — writer == reader
@@ -23,12 +29,6 @@ import { join } from "node:path";
 console.log("Running storage-key (writer==reader) contract guard...");
 
 const REPO = join(__dirname, "..", "..", "..", "..");
-const stripComments = (s: string) =>
-  s
-    .replace(/\/\*[\s\S]*?\*\//g, "")
-    .split("\n")
-    .filter((l) => !/^\s*(\/\/|\*)/.test(l))
-    .join("\n");
 
 function walk(dir: string, out: string[] = []): string[] {
   for (const e of readdirSync(dir)) {
@@ -48,12 +48,12 @@ assert.ok(adminKey, "ADMIN_TOKEN_KEY must be defined in packages/utils");
 assert.ok(custKey, "CUSTOMER_TOKEN_KEY must be defined in packages/utils");
 
 // ── the WRITERS use the same value the constants declare ──────
-const ADMIN_LOGIN = stripComments(readFileSync(join(REPO, "apps/admin/src/app/login/page.tsx"), "utf8"));
+const ADMIN_LOGIN = codeOnly(readFileSync(join(REPO, "apps/admin/src/app/login/page.tsx"), "utf8"));
 assert.ok(
   /ADMIN_TOKEN_KEY/.test(ADMIN_LOGIN),
   "the admin login must WRITE through ADMIN_TOKEN_KEY, not a literal",
 );
-const WEB_LOGIN = stripComments(readFileSync(join(REPO, "apps/web/app/login/page.tsx"), "utf8"));
+const WEB_LOGIN = codeOnly(readFileSync(join(REPO, "apps/web/app/login/page.tsx"), "utf8"));
 assert.ok(
   new RegExp(custKey![1]).test(WEB_LOGIN) || /CUSTOMER_TOKEN_KEY/.test(WEB_LOGIN),
   `the customer login must write ${custKey![1]}`,
@@ -74,7 +74,7 @@ const APPS = ["apps/admin/src", "apps/web/app", "apps/web/components", "apps/web
 const offenders: string[] = [];
 for (const app of APPS) {
   for (const file of walk(join(REPO, app))) {
-    const src = stripComments(readFileSync(file, "utf8"));
+    const src = codeOnly(readFileSync(file, "utf8"));
     for (const f of FORBIDDEN) {
       // only inside a storage call — "token" is a legitimate word elsewhere
       const re = new RegExp(`(getItem|setItem|removeItem)\\(\\s*${f.lit.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`, "g");

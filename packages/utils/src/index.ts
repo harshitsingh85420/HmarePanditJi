@@ -175,6 +175,10 @@ export * from './auth-context';
 
 // Token constants
 export * from './token-constants';
+// codeOnly() — the ONE comment-stripper. Every guard and every scripted search
+// routes through it; see the file header for the six sightings that produced it
+// and the single documented raw-source exception.
+export * from './code-only';
 // NEXT_PUBLIC_API_URL — one contract for all three apps (the env var is an
 // ORIGIN; the client owns the /api/v1 prefix).
 export * from './api-base';

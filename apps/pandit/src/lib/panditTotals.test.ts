@@ -1,6 +1,12 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
+// Comments are stripped by the ONE shared implementation. See
+// packages/utils/src/code-only.ts for why this is a scanner and not a
+// regex, and for the single documented raw-source exception.
+import { codeOnly } from "../../../../packages/utils/src/code-only";
+// (deep path, not the barrel: @hmarepanditji/utils re-exports auth-context.tsx,
+//  which requires React — unresolvable in these bare node+tsx guard runs.)
 
 // ─────────────────────────────────────────────────────────────
 // RULING B — THE PANDIT NEVER SEES THE CUSTOMER'S TOTAL.
@@ -25,12 +31,6 @@ const SRC = join(__dirname, "..");
 
 // A guard that greps source must read CODE, not prose: the comment explaining
 // a forbidden field would otherwise trip the assertion forbidding it.
-const stripComments = (s: string) =>
-  s
-    .replace(/\/\*[\s\S]*?\*\//g, "")
-    .split("\n")
-    .filter((l) => !/^\s*(\/\/|\*)/.test(l))
-    .join("\n");
 
 function walk(dir: string, out: string[] = []): string[] {
   for (const e of readdirSync(dir)) {
@@ -60,7 +60,7 @@ describe("Ruling B · the pandit is never shown the customer's total", () => {
     it(`no pandit-facing file READS \`${field}\` off a booking`, () => {
       const offenders: string[] = [];
       for (const f of files) {
-        const src = stripComments(readFileSync(f, "utf8"));
+        const src = codeOnly(readFileSync(f, "utf8"));
         // a property READ (b.grandTotal / booking.grandTotal), not a type-only
         // declaration and not a string
         if (new RegExp(`\\.\\s*${field}\\b`).test(src)) {
@@ -77,7 +77,7 @@ describe("Ruling B · the pandit is never shown the customer's total", () => {
 
   it("the booking list shows his own figure", () => {
     const list = readFileSync(join(SRC, "app/(dashboard-group)/bookings/page.tsx"), "utf8");
-    const code = stripComments(list);
+    const code = codeOnly(list);
     expect(code).toMatch(/function panditEarns/);
     expect(code).toMatch(/panditEarns\(b\)\.toLocaleString/);
     // and the interface must not even declare the customer total, so it

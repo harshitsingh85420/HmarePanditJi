@@ -1,6 +1,12 @@
 import assert from "node:assert";
 import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
+// Comments are stripped by the ONE shared implementation. See
+// packages/utils/src/code-only.ts for why this is a scanner and not a
+// regex, and for the single documented raw-source exception.
+import { codeOnly } from "../../../../packages/utils/src/code-only";
+// (deep path, not the barrel: @hmarepanditji/utils re-exports auth-context.tsx,
+//  which requires React — unresolvable in these bare node+tsx guard runs.)
 
 // ─────────────────────────────────────────────────────────────
 // NEXT_PUBLIC_API_URL — ONE CONTRACT GUARD
@@ -21,12 +27,6 @@ import { join } from "node:path";
 console.log("Running API-base one-contract guard...");
 
 const REPO = join(__dirname, "..", "..", "..", "..");
-const stripComments = (s: string) =>
-  s
-    .replace(/\/\*[\s\S]*?\*\//g, "")
-    .split("\n")
-    .filter((l) => !/^\s*(\/\/|\*|#)/.test(l))
-    .join("\n");
 
 // ── the single source exists and states the contract ──────────
 const SRC = readFileSync(join(REPO, "packages/utils/src/api-base.ts"), "utf8");
@@ -51,7 +51,7 @@ function walk(dir: string, out: string[] = []): string[] {
 const badPrefix: string[] = [];
 for (const app of ["apps/web/app", "apps/web/components", "apps/admin/src"]) {
   for (const f of walk(join(REPO, app))) {
-    const src = stripComments(readFileSync(f, "utf8"));
+    const src = codeOnly(readFileSync(f, "utf8"));
     // an API_URL interpolation immediately followed by /api/<not v1>
     const re = /NEXT_PUBLIC_API_URL[^`'"]*\}?\/api\/(?!v1)[a-z-]+/g;
     if (re.test(src)) badPrefix.push(f.replace(REPO, "").replace(/\\/g, "/"));

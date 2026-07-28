@@ -1,6 +1,12 @@
 import assert from "node:assert";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
+// Comments are stripped by the ONE shared implementation. See
+// packages/utils/src/code-only.ts for why this is a scanner and not a
+// regex, and for the single documented raw-source exception.
+import { codeOnly } from "../../../../packages/utils/src/code-only";
+// (deep path, not the barrel: @hmarepanditji/utils re-exports auth-context.tsx,
+//  which requires React — unresolvable in these bare node+tsx guard runs.)
 
 // ─────────────────────────────────────────────────────────────
 // THE EVENT-DAY PAIR — the customer must be able to see and call his pandit.
@@ -24,12 +30,6 @@ import { join } from "node:path";
 console.log("Running pandit-identity read guard (the event-day pair)...");
 
 const REPO = join(__dirname, "..", "..", "..", "..");
-const stripComments = (s: string) =>
-  s
-    .replace(/\/\*[\s\S]*?\*\//g, "")
-    .split("\n")
-    .filter((l) => !/^\s*(\/\/|\*)/.test(l))
-    .join("\n");
 
 function walk(dir: string, out: string[] = []): string[] {
   for (const e of readdirSync(dir)) {
@@ -42,7 +42,7 @@ function walk(dir: string, out: string[] = []): string[] {
 }
 
 // ── 1. the resolver exists and refuses to invent a number ─────
-const LIB = stripComments(readFileSync(join(REPO, "apps/web/lib/panditIdentity.ts"), "utf8"));
+const LIB = codeOnly(readFileSync(join(REPO, "apps/web/lib/panditIdentity.ts"), "utf8"));
 for (const fn of ["panditName", "panditTitleName", "panditPhone", "canCall", "telHref", "whatsappHref"]) {
   assert.ok(new RegExp(`export function ${fn}\\b`).test(LIB), `panditIdentity must export ${fn}`);
 }
@@ -64,7 +64,7 @@ assert.ok(!/^\s{2}phone\??\s*:/m.test(topLevel), "BookingPandit must NOT declare
 const offenders: string[] = [];
 for (const app of ["apps/web/app", "apps/web/components"]) {
   for (const f of walk(join(REPO, app))) {
-    const src = stripComments(readFileSync(f, "utf8"));
+    const src = codeOnly(readFileSync(f, "utf8"));
     // booking.pandit.name / booking.pandit?.phone / b.pandit.name …
     if (/\bpandit\s*\??\s*\.\s*(name|phone)\b/.test(src)) {
       // a LOCAL object the file built itself (e.g. `const pandit = { name }`)
@@ -86,7 +86,7 @@ assert.deepStrictEqual(
 const deadLinks: string[] = [];
 for (const app of ["apps/web/app", "apps/web/components"]) {
   for (const f of walk(join(REPO, app))) {
-    const src = stripComments(readFileSync(f, "utf8"));
+    const src = codeOnly(readFileSync(f, "utf8"));
     // a tel: built by interpolation must come from telHref(), which returns
     // null rather than the string "tel:undefined"
     if (/href=\{`tel:\$\{/.test(src) || /href=\{`https:\/\/wa\.me\/\$\{/.test(src)) {
