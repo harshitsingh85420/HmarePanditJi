@@ -218,6 +218,24 @@ Every page's §3 now measures the app column against the viewport and reports th
 
 ---
 
+### 🔴 BOOKING PATH UNBLOCKED + THREE STANDING RULES · 2026-07-28
+
+**THE FIX (response-shape, ruled by Isj as wiring not money semantics).** `POST /bookings` replies `sendSuccess(res,{booking,order})`, so the id lives at `data.booking.id`. `apps/web/app/booking/new/booking-wizard-client.tsx` read `data.id` — one level too high, therefore `undefined`; `JSON.stringify` dropped the key; `create-order` 400'd on "bookingId is required"; the wizard threw and RazorpayCheckout never mounted — **while the booking row and the Razorpay order had already been created.** Field names only: no amount, no fee, no Razorpay call touched.
+
+**ONE LINE:** before this fix a customer could create a booking but could NOT reach payment — every attempt orphaned an unpaid booking; now the id reaches create-order and the handoff is requested in test mode.
+
+**GUARD — `services/api/src/lib/responseShape.test.ts` (contract-class shape).** Reads the handler's ACTUAL `sendSuccess` object literal, extracts its top-level keys, and asserts the client reads *through* them. Pins both shapes so they cannot be "fixed" into each other: `/bookings` WRAPS (`{booking,order}`), `/payments/create-order` is FLAT. Its own first bug: the extractor searched *forward* from the message marker, which sits at the END of the call, so it audited the next unrelated `sendSuccess` — now walks backward.
+
+**LIVE PROOF — NOT OBTAINED. Stated plainly.** The J1 customer walk did not reach submit: the wizard's step-0 gate needs six valid fields (ritual select, date, address, city, attendees, 6-digit pincode) and the generic driver could not satisfy them in two bounded attempts. The wizard itself renders correctly (11 inputs, 2 selects, live Continue — verified through the pane). **This is a harness limitation, not a product finding, and is not counted as a dead hop.** The fix is proven at the contract level by the guard; end-to-end proof is owed.
+
+**LAW — GUARD SCANNING (3rd sighting of the trap, recorded so the 4th is not cured the wrong way).** A guard that greps source must assert against **COMMENT-STRIPPED** source, because the comment explaining a forbidden pattern otherwise trips the assertion forbidding it (kycContract, customerDesign). **EXCEPTION:** where the artifact under assertion *is itself a comment* — the reserved slot 5 in PanditRecordCard renders nothing, so the spec comment is its only trace — assert against RAW source, deliberately and with the reason written at the assertion.
+
+**RULING RECORDED — 2a confirmed.** Guest promise sits in the HEADER (reads as a mode you are in). Isj-reversible via `<GuestStrip placement="thumb" />`; nothing else changes.
+
+**DESIGN-DOC DRIFT — flagged so the next import does not compound it.** Turn 2 of `ग्राहक ऐप · Customer.dc.html` was authored against direction **1b**, while **1c** is the chosen direction. Turn 2's guest-mode and structural-room parts are direction-independent and were adopted as-is; anything future turns say about the CARD must be re-anchored to 1c before implementation.
+
+---
+
 ### 🔴 KYC WIRING P0 — **IDENTITY REVIEW PATH CLOSED** · 2026-07-27 · pane: driven (admin queue composited styled, 940-rule proof) · round trip 16/16 legs
 
 **THE BREAK (4th sighting of the writer/reader contract class).** The pandit app R5 submit wrote `verificationStatus = DOCUMENTS_SUBMITTED`. The admin review queue asked for `status=PENDING` — the schema DEFAULT, i.e. nothing uploaded. **Submitting an Aadhaar REMOVED the pandit from the only screen that could review him.** The admin detail console read `documentUrls` / `kycVideoUrl` / `aadhaarNumber` — three names that exist nowhere in schema.prisma — so an uploaded Aadhaar rendered "Not Uploaded". Two apps, two vocabularies, no build complained.
