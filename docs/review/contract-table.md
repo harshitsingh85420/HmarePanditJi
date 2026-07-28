@@ -1,3 +1,57 @@
+# ⚠ RE-VERIFIED 2026-07-28 — READ THIS BEFORE CITING ANY ROW BELOW
+
+This table was produced from **declarations and handlers**, without tracing
+whether the reading code path ever executes with the triggering inputs. After
+five phantom findings shared that exact shape, every reported-but-unfixed row
+was re-verified against its **actual call path** (18 agents: one tracer plus one
+adversarial refuter per batch, refuters instructed to default to PHANTOM), and
+11 rows were additionally hand-traced by the main agent.
+
+**34 rows re-verified. 15 of them — 44% — were not live breaks.**
+
+| disposition | n | meaning |
+|---|---|---|
+| **CONFIRMED** | 19 | wrong read, on a path that executes, with the triggering shape |
+| **ALREADY_FIXED** | 8 | closed during the campaign; the row is stale, not wrong |
+| **DEAD_CODE** | 5 | genuinely wrong code that **nothing calls** — zero-execution class, not a live break |
+| **PHANTOM** | 2 | **WITHDRAWN.** The reported break is not real |
+
+Rates, stated separately because they mean different things:
+**false 6%** (2/34 phantom) · **stale 24%** (8/34 already fixed) ·
+**misclassified 15%** (5/34 live-vs-dead) · **not-a-live-break 44%** overall.
+
+**WITHDRAWN — do not cite, do not re-amplify:**
+- `travelPreferences` omitted from the public detail allow-list — the prop is
+  destructured and typed in `TravelOptionsTab.tsx` and **never referenced in the
+  component body**; every rendered value comes from the fetch. Inert, not latent.
+- `c.updatedAt` "Invalid Date" on the admin cancellations row — the `||` arm
+  **never fires**: both `CANCELLATION_REQUESTED` writers set
+  `cancellationRequestedAt` alongside the status, so the first operand is always
+  present.
+
+**RECLASSIFIED to the zero-execution class (wrong, but nothing calls it):**
+`certificateUrls` (no producer anywhere) · `reviewerAvatar` (no writer) ·
+`SamagriPackage` mirror-image writer in `pandit.service.ts` · `request.user.panditId`
+in `samagri.controller.ts` (no shipped client calls the route) · customer
+saved-address CRUD (`prisma.address.create` has no caller).
+
+**FIXED SINCE THIS TABLE WAS WRITTEN** (do not re-report): the booking response
+envelope · both token keys · DRIFT-B's 11 dashboard sites · the admin booking
+list's `pandit` shape and four money fields · the admin booking-detail envelope ·
+the support-tickets unwrap · `DRIFT-A` (homepage + sitemap double prefix) · the
+admin cancel-endpoint vocabulary · the Override Status `PENDING` option · the
+KYC dashboard counter.
+
+**METHOD CAVEAT, stated because it matters.** The adversarial refuters
+overturned **0 of 34** tracer verdicts. That is either strong tracing or weak
+refutation, and this exercise cannot distinguish the two from the inside. The
+corroboration available is that the main agent independently hand-traced 11 rows
+and reached the same verdict on all 11 — including both phantoms. Treat single-
+source CONFIRMED rows as *ruling-ready only after* the call path in the row is
+re-read.
+
+---
+
 # CROSS-BOUNDARY CONTRACT TABLE — the 8th sighting sweep
 Produced 2026-07-28 by a 68-agent sweep (6 lenses; every claimed disagreement
 was handed to an adversarial verifier told to REFUTE it by default, and only
