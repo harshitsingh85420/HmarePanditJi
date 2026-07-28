@@ -1582,3 +1582,54 @@ was consulted) and the six 15%-era bookings. The Reviews block moved inside the
 booking fence — it references `b1.id` and would now violate the new FK. The
 notification fixtures still seed but are annotated: they quote HPJ-00x numbers
 and the ₹2,635 payout, so they name bookings that will not exist.
+
+---
+
+## 2026-07-28 — 🔴 THE DOUBLE-CHARGE WAS REAL, AND IT RAN IN PRODUCTION
+
+The nine rows are preserved complete in
+`docs/review/prod-bookings-2026-07-28.json`. Two-source check **PASSES on all
+nine** — rows 1–8 derive 15%, row 9 derives 10%, agreeing with the 15-July rate
+cut everywhere.
+
+**Rows 7 and 8 were NOT hand-written.** `services/api/scripts/stage-pilot-fixtures.mjs`
+(commit `805d78e`, 14 July) imports `bookingService.createBooking` and
+`paymentService.processPaymentSuccess` — its own comments call them *"the exact
+function POST /bookings calls"* and *"the exact function the Razorpay
+verify/webhook"* calls — and every stored figure reproduces exactly under the
+14-July constants (15% fee, 18% GST) and the pre-`f803f10` expressions:
+
+    row 7:  2100 + 315 + 57 = 2472 charged   ·   2100 − 315 = 1785 paid
+    row 8:  1500 + 225 + 41 = 1766 charged   ·   1500 − 225 = 1275 paid
+
+**Fee charged ON TOP and ALSO deducted, by the shipped code.** The double-charge
+is confirmed as *production behaviour that executed*, not a model that merely
+existed in a file. `f803f10` killed it two days later and named it exactly.
+No real customer was involved — both are pilot-rehearsal fixtures — but the
+pricing was the live pricing.
+
+**THE ROUNDING TELL, and how nearly it misled me twice.**
+`Math.round(fee × 0.18)` reproduces the stored GST on rows 2,3,4,6,7,8 but
+**not** on rows 1 and 5, where 465×0.18 = 83.7 → 84, and **83** is stored. Those
+two are the only seed rows with a fractional GST, and a human truncated. One
+rupee separates a hand-written fixture from computed output.
+
+*First near-miss:* I ran the arithmetic on row 1, saw it match the pre-16-July
+model, and was one step from naming that code as the producer. `seed.ts`
+reversed it.
+*Second near-miss:* my check script was **Python**, whose `round(40.5)` is 40
+(banker's rounding) while JavaScript's `Math.round(40.5)` is 41. That reported a
+FALSE mismatch on row 8 and would have broken the very trace that confirms the
+finding. **The runtime that produced the data is the runtime that must check
+it** — a stand-in language is a stand-in, and CAPABILITY ≠ PATH applies to the
+tooling too.
+
+**ROW 7's `acceptedAt` — 2026-07-14T07:32:31, eight minutes after creation.**
+The pandit accept loop **genuinely executed once in production**. This is the
+only production evidence the accept path has ever run end to end, and it belongs
+to the open trace of the singular `/pandit/bookings/:id/accept` versus the
+plural registration at `app.ts:409`.
+
+**Rows 7–8 were never lost** — only unrelayed. An earlier draft of the
+preservation file recorded them as lost; corrected. Refusing to fabricate them
+was right, and so was saying which fragments existed.
