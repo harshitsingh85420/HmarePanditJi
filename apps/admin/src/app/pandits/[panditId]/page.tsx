@@ -3,6 +3,7 @@ import { usePresignedUrl } from "@/hooks/usePresignedUrl";
 import React, { useEffect, useState } from "react";
 import { format } from "date-fns";
 import { useParams, useRouter } from "next/navigation";
+import { ADMIN_TOKEN_KEY } from "@hmarepanditji/utils";
 
 export default function PanditVerificationDetail() {
     const params = useParams();
@@ -52,7 +53,7 @@ export default function PanditVerificationDetail() {
 
     useEffect(() => {
         fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/pandits/${panditId}`, {
-            headers: { Authorization: `Bearer ${localStorage.getItem("adminToken") || ""}` }
+            headers: { Authorization: `Bearer ${localStorage.getItem(ADMIN_TOKEN_KEY) || ""}` }
         })
             .then(res => res.json())
             .then(data => {
@@ -75,7 +76,7 @@ export default function PanditVerificationDetail() {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${localStorage.getItem("adminToken") || ""}`
+                    Authorization: `Bearer ${localStorage.getItem(ADMIN_TOKEN_KEY) || ""}`
                 },
                 body: JSON.stringify(body)
             });

@@ -1,0 +1,40 @@
+{
+  "results": [
+    {
+      "n": "ADMIN · booking detail renders without crashing",
+      "ok": true,
+      "d": "no page errors"
+    },
+    {
+      "n": "ADMIN · the REAL booking is shown",
+      "ok": true,
+      "d": "looked for HPJ-QA-TE-1"
+    },
+    {
+      "n": "ADMIN · the fabricated MOCK is gone",
+      "ok": true,
+      "d": "no invented booking under a real URL"
+    },
+    {
+      "n": "ADMIN · no request sent an empty bearer",
+      "ok": true,
+      "d": "all authorized"
+    },
+    {
+      "n": "CUSTOMER · authenticated page renders",
+      "ok": true,
+      "d": "no page errors"
+    },
+    {
+      "n": "CUSTOMER · no request sent an empty bearer",
+      "ok": true,
+      "d": "all authorized"
+    },
+    {
+      "n": "CUSTOMER · his own data reached the screen",
+      "ok": true,
+      "d": "profile populated"
+    }
+  ],
+  "unauthorized": []
+}

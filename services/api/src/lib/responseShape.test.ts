@@ -102,6 +102,29 @@ assert.ok(
   "the wizard must read the order id flat off data for create-order",
 );
 
+// ── CONTRACT 3: GET /bookings/:id → the admin booking console ──
+// Same wrapper trap, second surface. This one was masked: the admin token key
+// was wrong, so the fetch 401'd, `if (res.ok)` swallowed it, and the operator
+// saw a hard-coded MOCK booking under a real booking's URL. Fixing the token
+// alone would have converted the fake page into a TypeError white screen —
+// which is why the token and this envelope shipped in one commit.
+const ADMIN_BOOKING = read("apps/admin/src/app/bookings/[id]/page.tsx");
+const detailKeys = sendSuccessKeys(BOOKING_ROUTES, "Booking detail");
+assert.deepStrictEqual(
+  [...(detailKeys || [])].sort(),
+  ["booking"],
+  `GET /bookings/:id now replies with keys ${JSON.stringify(detailKeys)}; its readers unwrap data.booking`,
+);
+assert.ok(
+  /json\.data\?\.booking/.test(ADMIN_BOOKING),
+  "the admin booking console must unwrap data.booking — reading data directly makes every field undefined and throws on first render",
+);
+// and it must never seed operator state with an invented booking
+assert.ok(
+  !/useState<Booking>\(MOCK\)/.test(ADMIN_BOOKING),
+  "the admin booking console is seeding state with MOCK again — a failed fetch would show a fabricated booking under a real booking's URL",
+);
+
 // ── THE STANDING RULE ─────────────────────────────────────────
 // Any handler that wraps its payload in a NAMED object is a trap for a
 // client that assumes the envelope IS the entity. Enumerate them so the

@@ -4,6 +4,17 @@ import { useState, FormEvent, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Button, Input, Card, Badge, Toast } from "@hmarepanditji/ui";
 import { Star } from "lucide-react";
+import { CUSTOMER_TOKEN_KEY } from "@hmarepanditji/utils";
+import { resolveApiBase } from "@hmarepanditji/utils";
+
+// NEXT_PUBLIC_API_URL is an ORIGIN; the client owns the /api/v1 prefix.
+// These calls used to hardcode `/api/customers/...`, which is wrong under
+// EVERY value committed in the repo — the routes live at /api/v1/customers.
+const API_BASE = resolveApiBase(
+  process.env.NEXT_PUBLIC_API_URL,
+  process.env.NODE_ENV === "development",
+).base;
+
 
 interface PanditSummary {
     id: string;
@@ -33,8 +44,8 @@ export default function ReviewSubmissionPage() {
     useEffect(() => {
         const fetchBookingDetails = async () => {
             try {
-                const token = localStorage.getItem("token");
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/bookings/${bookingId}`, {
+                const token = localStorage.getItem(CUSTOMER_TOKEN_KEY);
+                const res = await fetch(`${API_BASE}/bookings/${bookingId}`, {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }
@@ -85,8 +96,8 @@ export default function ReviewSubmissionPage() {
                 isAnonymous,
             };
 
-            const token = localStorage.getItem("token");
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/reviews`, {
+            const token = localStorage.getItem(CUSTOMER_TOKEN_KEY);
+            const res = await fetch(`${API_BASE}/reviews`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

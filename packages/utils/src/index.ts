@@ -170,3 +170,6 @@ export * from './auth-context';
 
 // Token constants
 export * from './token-constants';
+// NEXT_PUBLIC_API_URL — one contract for all three apps (the env var is an
+// ORIGIN; the client owns the /api/v1 prefix).
+export * from './api-base';

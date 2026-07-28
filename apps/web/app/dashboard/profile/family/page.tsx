@@ -5,6 +5,17 @@ import { Button, Card, Input, Badge } from "@hmarepanditji/ui";
 import { Users, Info, Plus, Trash2, Edit2, ArrowLeft, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { CUSTOMER_TOKEN_KEY } from "@hmarepanditji/utils";
+import { resolveApiBase } from "@hmarepanditji/utils";
+
+// NEXT_PUBLIC_API_URL is an ORIGIN; the client owns the /api/v1 prefix.
+// These calls used to hardcode `/api/customers/...`, which is wrong under
+// EVERY value committed in the repo — the routes live at /api/v1/customers.
+const API_BASE = resolveApiBase(
+  process.env.NEXT_PUBLIC_API_URL,
+  process.env.NODE_ENV === "development",
+).base;
+
 
 interface FamilyMember {
     id?: string;
@@ -49,8 +60,8 @@ export default function FamilySetupPage() {
 
     const fetchFamilyInfo = async () => {
         try {
-            const token = localStorage.getItem("token");
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/customers/me/family`, {
+            const token = localStorage.getItem(CUSTOMER_TOKEN_KEY);
+            const res = await fetch(`${API_BASE}/customers/me/family`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (res.ok) {
@@ -92,8 +103,8 @@ export default function FamilySetupPage() {
         try {
             const finalGotra = gotraType === "Other" ? customGotra : gotraType;
 
-            const token = localStorage.getItem("token");
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/customers/me/family`, {
+            const token = localStorage.getItem(CUSTOMER_TOKEN_KEY);
+            const res = await fetch(`${API_BASE}/customers/me/family`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",

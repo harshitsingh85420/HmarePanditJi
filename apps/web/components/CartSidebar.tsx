@@ -6,11 +6,12 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@hmarepanditji/ui";
 import { LoginModal } from "@/components/LoginModal";
+import { CUSTOMER_TOKEN_KEY } from "@hmarepanditji/utils";
 
 export function CartSidebar() {
     const { selection, isCartOpen, setIsCartOpen, clearCart } = useSamagriCart();
     const router = useRouter();
-    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    const token = typeof window !== "undefined" ? localStorage.getItem(CUSTOMER_TOKEN_KEY) : null;
     const [loginModalOpen, setLoginModalOpen] = useState(false);
     const [redirectUrl, setRedirectUrl] = useState("");
     const [mounted, setMounted] = useState(false);

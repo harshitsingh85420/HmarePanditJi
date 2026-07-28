@@ -16,6 +16,7 @@ import {
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@hmarepanditji/ui/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@hmarepanditji/ui/components/ui/select";
 import { Label } from "@hmarepanditji/ui/components/ui/label";
+import { ADMIN_TOKEN_KEY } from "@hmarepanditji/utils";
 
 export default function SupportLogPage() {
     const [tickets, setTickets] = useState<any[]>([]);
@@ -47,7 +48,7 @@ export default function SupportLogPage() {
     const fetchTickets = async () => {
         setLoading(true);
         try {
-            const token = localStorage.getItem("adminToken");
+            const token = localStorage.getItem(ADMIN_TOKEN_KEY);
             const qs = new URLSearchParams();
             if (statusFilter !== "ALL") qs.append("status", statusFilter);
             if (priorityFilter !== "ALL") qs.append("priority", priorityFilter);
@@ -85,7 +86,7 @@ export default function SupportLogPage() {
     const submitTicket = async () => {
         if (!subject || !description) return alert("Subject and Description are required");
         try {
-            const token = localStorage.getItem("adminToken");
+            const token = localStorage.getItem(ADMIN_TOKEN_KEY);
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/support-tickets`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
@@ -116,7 +117,7 @@ export default function SupportLogPage() {
 
     const saveTicketUpdate = async () => {
         try {
-            const token = localStorage.getItem("adminToken");
+            const token = localStorage.getItem(ADMIN_TOKEN_KEY);
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/support-tickets/${selectedTicket.id}`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },

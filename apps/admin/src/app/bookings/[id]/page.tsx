@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { ADMIN_TOKEN_KEY } from "@hmarepanditji/utils";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1";
 
@@ -47,7 +48,11 @@ interface Booking {
     adminNotes: string | null;
     createdAt: string;
     pandit: { id: string; displayName: string; city: string; profilePhotoUrl: string | null } | null;
-    customer: { user: { fullName: string; phone: string; email: string | null } } | null;
+    // booking.service.ts includes `customer: true` — the customer IS the User
+    // row. There is no `.user` nesting here, and `fullName` is a PanditProfile
+    // column, not a User one. This hand-written interface DECLARED the wrong
+    // shape, which is precisely why tsc never caught the wrong read.
+    customer: { id: string; name: string | null; phone: string; email: string | null } | null;
     ritual: { name: string; nameHindi: string | null } | null;
 }
 
@@ -57,25 +62,15 @@ const STATUS_COLORS: Record<string, string> = {
     PUJA_IN_PROGRESS: "bg-orange-500", COMPLETED: "bg-green-500", CANCELLED: "bg-red-500", REFUNDED: "bg-pink-500",
 };
 
-const MOCK: Booking = {
-    id: "bk-mock-1", bookingNumber: "BK-240201-001", eventType: "Griha Pravesh", eventDate: "2025-03-15T10:00:00Z",
-    eventEndDate: null, muhuratTime: "10:30 AM - 12:00 PM", status: "CONFIRMED",
-    venueAddress: "A-123, Sector 45, Gurgaon, Haryana", venueCity: "Gurgaon", venuePincode: "122003",
-    venueLatitude: 28.4595, venueLongitude: 77.0266, attendees: 50, specialInstructions: "Need extra chairs. Gate code is #4567.",
-    travelRequired: true, travelMode: "car", travelDistanceKm: 85, travelStatus: "PENDING",
-    travelBookingRef: null, travelNotes: null, foodArrangement: "CUSTOMER_PROVIDES", samagriPreference: "PANDIT_PROVIDES",
-    dakshinaAmount: 11000, travelCost: 2500, foodAllowanceAmount: 500, accommodationCost: 0,
-    platformFee: 1650, platformFeeGst: 297, travelServiceFee: 125, travelServiceFeeGst: 23,
-    grandTotal: 16095, panditPayout: 14000, payoutStatus: "PENDING", paymentStatus: "PAID",
-    cancelledBy: null, cancellationReason: null, refundAmount: 0, refundStatus: "NONE",
-    adminNotes: null, createdAt: "2025-02-01T12:00:00Z",
-    pandit: { id: "p1", displayName: "Pandit Ramesh Sharma", city: "Old Delhi", profilePhotoUrl: null },
-    customer: { user: { fullName: "Vikram Malhotra", phone: "+919876543210", email: "vikram@email.com" } },
-    ritual: { name: "Griha Pravesh", nameHindi: "गृह प्रवेश" },
-};
+// MOCK deleted: an operator must never be shown a fabricated booking.
 
 export default function AdminBookingDetailPage({ params }: { params: { id: string } }) {
-    const [booking, setBooking] = useState<Booking>(MOCK);
+    // NEVER seed operator state with a fabricated booking. This was
+    // useState<Booking>(MOCK), so any failed fetch left an admin reading
+    // BK-240201-001 / "Vikram Malhotra" / ₹16,095 under a REAL booking's URL,
+    // with nothing on screen to say it was invented.
+    const [booking, setBooking] = useState<Booking | null>(null);
+    const [loadError, setLoadError] = useState("");
     const [adminNotes, setAdminNotes] = useState("");
     const [statusOverride, setStatusOverride] = useState("");
     const [toast, setToast] = useState("");
@@ -86,30 +81,45 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
 
     async function fetchBooking() {
         try {
-            const token = localStorage.getItem("adminToken");
+            const token = localStorage.getItem(ADMIN_TOKEN_KEY);
             const res = await fetch(`${API}/bookings/${params.id}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
+            // GET /bookings/:id replies sendSuccess(res, { booking }) — the
+            // entity is at data.booking, NOT data. Reading data directly gave
+            // { booking: {...} }, so every field access was undefined and the
+            // first render threw on b.status.replace(). That crash was hidden
+            // only because the token key was wrong: the fetch 401'd, `if
+            // (res.ok)` swallowed it, and the operator was left looking at the
+            // hard-coded MOCK that used to seed state — a fabricated booking under a real
+            // booking's URL. Fixing the token WITHOUT this would have turned a
+            // silently-fake page into a white screen, so the two ship together.
             if (res.ok) {
                 const json = await res.json();
-                if (json.data) {
-                    setBooking(json.data);
-                    setAdminNotes(json.data.adminNotes ?? "");
+                const payload = json.data?.booking ?? json.data;
+                if (payload && payload.id) {
+                    setBooking(payload);
+                    setAdminNotes(payload.adminNotes ?? "");
+                    setLoadError("");
+                } else {
+                    setLoadError("Booking response did not contain a booking.");
                 }
+            } else {
+                setLoadError(`Could not load booking (HTTP ${res.status}).`);
             }
         } catch (error) {
             console.error("[AdminBooking] Failed to fetch booking:", error);
-            /* use mock */
+            setLoadError("Could not reach the API.");
         }
     }
 
     async function updateBooking() {
         try {
-            const token = localStorage.getItem("adminToken");
+            const token = localStorage.getItem(ADMIN_TOKEN_KEY);
             const body: Record<string, string> = {};
             if (statusOverride) body.status = statusOverride;
             // Server field is `notes` (updateBookingStatusAdmin), not `adminNotes`.
-            if (adminNotes !== (booking.adminNotes ?? "")) body.notes = adminNotes;
+            if (adminNotes !== (booking?.adminNotes ?? "")) body.notes = adminNotes;
 
             if (!Object.keys(body).length) return;
 
@@ -135,6 +145,28 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
         setTimeout(() => setToast(""), 3000);
     }
 
+    // Truthful empty state: say the booking could not be loaded rather than
+    // showing one that does not exist.
+    if (!booking) {
+        return (
+            <main className="min-h-screen bg-slate-950 p-6">
+                <div className="mx-auto max-w-md rounded-xl border border-slate-700 bg-slate-900 p-8 text-center">
+                    <p className="font-semibold text-slate-200">
+                        {loadError || "Loading booking…"}
+                    </p>
+                    {loadError && (
+                        <button
+                            onClick={() => fetchBooking()}
+                            className="mt-4 rounded-lg bg-slate-700 px-4 py-2 text-sm font-bold text-white hover:bg-slate-600"
+                        >
+                            Retry
+                        </button>
+                    )}
+                </div>
+            </main>
+        );
+    }
+
     const b = booking;
 
     return (
@@ -154,7 +186,7 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
                 <div className="mt-2 flex items-center gap-4">
                     <h1 className="text-2xl font-bold text-white">{b.bookingNumber}</h1>
                     <span className={`rounded-full px-3 py-1 text-xs font-semibold text-white ${STATUS_COLORS[b.status] ?? "bg-slate-600"}`}>
-                        {b.status.replace(/_/g, " ")}
+                        {(b.status ?? "").replace(/_/g, " ")}
                     </span>
                     <span className={`rounded-full px-3 py-1 text-xs font-semibold ${b.paymentStatus === "PAID" ? "bg-green-500/10 text-green-400 border border-green-500/20" : "bg-yellow-500/10 text-yellow-400 border border-yellow-500/20"}`}>
                         {b.paymentStatus}
@@ -191,11 +223,11 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
                             </div>
                             <div>
                                 <p className="text-xs text-slate-400">Food Arrangement</p>
-                                <p className="font-medium text-white capitalize">{b.foodArrangement.replace(/_/g, " ").toLowerCase()}</p>
+                                <p className="font-medium text-white capitalize">{(b.foodArrangement ?? "—").replace(/_/g, " ").toLowerCase()}</p>
                             </div>
                             <div>
                                 <p className="text-xs text-slate-400">Samagri</p>
-                                <p className="font-medium text-white capitalize">{b.samagriPreference.replace(/_/g, " ").toLowerCase()}</p>
+                                <p className="font-medium text-white capitalize">{(b.samagriPreference ?? "—").replace(/_/g, " ").toLowerCase()}</p>
                             </div>
                         </div>
                         {b.specialInstructions && (
@@ -246,7 +278,7 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
                                 <div>
                                     <p className="text-xs text-slate-400">Travel Status</p>
                                     <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium text-white ${STATUS_COLORS[b.travelStatus] ?? "bg-slate-600"}`}>
-                                        {b.travelStatus.replace(/_/g, " ")}
+                                        {(b.travelStatus ?? "—").replace(/_/g, " ")}
                                     </span>
                                 </div>
                                 {b.travelBookingRef && (
@@ -342,14 +374,14 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
                     {/* Customer */}
                     <section className="rounded-xl border border-slate-800 bg-slate-900 p-5">
                         <h2 className="mb-3 text-sm font-semibold text-white">Customer</h2>
-                        <p className="text-sm font-medium text-white">{b.customer?.user?.fullName ?? "—"}</p>
-                        <p className="text-xs text-slate-400 mt-0.5">{b.customer?.user?.phone}</p>
-                        {b.customer?.user?.email && <p className="text-xs text-slate-400">{b.customer.user.email}</p>}
+                        <p className="text-sm font-medium text-white">{b.customer?.name ?? "—"}</p>
+                        <p className="text-xs text-slate-400 mt-0.5">{b.customer?.phone}</p>
+                        {b.customer?.email && <p className="text-xs text-slate-400">{b.customer.email}</p>}
                         <div className="mt-3 flex gap-2">
-                            <a href={`tel:${b.customer?.user?.phone}`} className="flex-1 rounded-lg bg-slate-800 py-2 text-center text-xs text-white hover:bg-slate-700">
+                            <a href={`tel:${b.customer?.phone}`} className="flex-1 rounded-lg bg-slate-800 py-2 text-center text-xs text-white hover:bg-slate-700">
                                 <span className="material-symbols-outlined text-sm align-middle mr-1">call</span>Call
                             </a>
-                            <a href={`https://wa.me/${b.customer?.user?.phone?.replace("+", "")}`} target="_blank" rel="noopener noreferrer" className="flex-1 rounded-lg bg-green-600/20 py-2 text-center text-xs text-green-400 hover:bg-green-600/30">
+                            <a href={`https://wa.me/${b.customer?.phone?.replace("+", "")}`} target="_blank" rel="noopener noreferrer" className="flex-1 rounded-lg bg-green-600/20 py-2 text-center text-xs text-green-400 hover:bg-green-600/30">
                                 WhatsApp
                             </a>
                         </div>

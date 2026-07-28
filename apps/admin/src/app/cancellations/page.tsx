@@ -19,6 +19,7 @@ import {
 } from "@hmarepanditji/ui/components/ui/dialog";
 import { Label } from "@hmarepanditji/ui/components/ui/label";
 import { Textarea } from "@hmarepanditji/ui/components/ui/textarea";
+import { ADMIN_TOKEN_KEY } from "@hmarepanditji/utils";
 
 export default function CancellationsPage() {
     const [cancellations, setCancellations] = useState<any[]>([]);
@@ -36,7 +37,7 @@ export default function CancellationsPage() {
     const fetchCancellations = async () => {
         setLoading(true);
         try {
-            const token = localStorage.getItem("adminToken");
+            const token = localStorage.getItem(ADMIN_TOKEN_KEY);
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/cancellations`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -109,7 +110,7 @@ export default function CancellationsPage() {
         if (overrideChecked && !overrideReason) return alert("Provider override reason if changing default amount.");
         setProcessing(true);
         try {
-            const token = localStorage.getItem("adminToken");
+            const token = localStorage.getItem(ADMIN_TOKEN_KEY);
             const days = calculateDaysUntil(selectedCancel.eventDate);
             const policy = calculateRefundPolicy(days, selectedCancel.grandTotal, selectedCancel.platformFee);
             // no override → the PERSISTED policy number (the server enforces
@@ -151,7 +152,7 @@ export default function CancellationsPage() {
         try {
             // was localStorage.getItem('token') — the admin app stores 'adminToken'
             // (approve uses it); the reject flow 401'd. Found in the refund-closure audit.
-            const token = localStorage.getItem('adminToken');
+            const token = localStorage.getItem(ADMIN_TOKEN_KEY);
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'}/admin/bookings/${selectedCancel.id}/cancel-reject`, {
                 method: 'POST',
                 headers: {
