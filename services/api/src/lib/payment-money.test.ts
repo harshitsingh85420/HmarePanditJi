@@ -61,6 +61,82 @@ for (const c of CASES) {
   );
 }
 
+// ═════════════════════════════════════════════════════════════
+// 1a) MODEL-A REJECTION — the guard must be able to TELL THE MODELS APART.
+//
+// CONSERVATION IS NOT A MODEL CHECK. It is satisfied by ANY split of the
+// money, so it cannot distinguish the deducted model from the fee-on-top one:
+//     MODEL A (deducted, pre-22-July):  2100 = 1890 + 210   ✅ conserves
+//     MODEL B (Ruling #7, current):     2310 = 2100 + 210   ✅ conserves
+// A guard built only on conservation would pass both and report "money
+// verified" while the business model silently inverted.
+//
+// The two identities above DO distinguish them, but they had never been proven
+// able to REJECT anything. This section is that proof, and it uses the real
+// figures of the newest production booking rather than a convenient synthetic
+// case (standing law G2: prove the matcher against the REAL shape).
+//
+// HPJ-2026-19502 · 20 July 2026 · Razorpay order_TFefNl2TrhDM3E
+//   dakshina 2100 · platformFee 210 (10%) · grandTotal 2100 · payout 1890
+// That row is MODEL A. It is not a bug in today's code — it predates Ruling #7
+// (commit 3548679, 22 July) by two days, and the code of its own date produced
+// it correctly. It is preserved here as the canonical counter-example.
+// ═════════════════════════════════════════════════════════════
+const HPJ_19502_MODEL_A = {
+  dakshinaAmount: 2100,
+  platformFee: 210,
+  grandTotal: 2100, // fee NOT on top
+  platformTransfersToPandit: 1890, // dakshina MINUS fee
+  travelCost: 0,
+  foodAllowanceAmount: 0,
+  accommodationCost: 0,
+};
+
+/** Ruling-B identity 1: the customer is charged the fee ON TOP of dakshina. */
+const satisfiesFeeOnTop = (b: typeof HPJ_19502_MODEL_A) =>
+  b.grandTotal === b.dakshinaAmount + b.platformFee + b.travelCost + b.foodAllowanceAmount + b.accommodationCost;
+
+/** Ruling-B identity 2: the pandit receives 100% of dakshina, never minus the fee. */
+const satisfiesFullPayout = (b: typeof HPJ_19502_MODEL_A) =>
+  b.platformTransfersToPandit === b.dakshinaAmount + b.travelCost + b.foodAllowanceAmount + b.accommodationCost;
+
+/** Conservation — deliberately shown to be USELESS as a model check. */
+const conserves = (b: typeof HPJ_19502_MODEL_A) => b.grandTotal - b.platformTransfersToPandit === b.platformFee;
+
+assert.ok(
+  conserves(HPJ_19502_MODEL_A),
+  "precondition: the Model-A row DOES conserve — that is the whole point of this section",
+);
+assert.ok(
+  !satisfiesFeeOnTop(HPJ_19502_MODEL_A),
+  "the fee-on-top identity ACCEPTED a Model-A composition (grandTotal 2100 for a 2100 dakshina " +
+    "with a 210 fee). The guard cannot tell the two business models apart.",
+);
+assert.ok(
+  !satisfiesFullPayout(HPJ_19502_MODEL_A),
+  "the 100%-payout identity ACCEPTED a payout of 1890 on a 2100 dakshina — i.e. it accepted the " +
+    "fee being deducted from the pandit. The guard cannot tell the two business models apart.",
+);
+
+// …and the SAME inputs through the real call site must produce Ruling B.
+// This is the capability≠path check: the arguments are exactly those
+// booking.service.ts passes — (dakshina, travelCost ?? 0, foodAllowanceAmount, 0).
+{
+  const live = calculateBookingFinancials(2100, 0, 0, 0);
+  assert.strictEqual(
+    live.grandTotal,
+    2310,
+    `the live booking path charges ${live.grandTotal} for a ₹2100 dakshina; Ruling #7 requires ` +
+      `2310 (dakshina + 210 fee ON TOP). ${live.grandTotal === 2100 ? "This is MODEL A — the deducted model has returned." : ""}`,
+  );
+  assert.strictEqual(
+    live.platformTransfersToPandit,
+    2100,
+    `the live booking path pays the pandit ${live.platformTransfersToPandit} on a ₹2100 dakshina; ` +
+      `Ruling #7 requires the FULL 2100. ${live.platformTransfersToPandit === 1890 ? "This is MODEL A — the fee is being deducted again." : ""}`,
+  );
+}
+
 // 1b) the delegate returns the SAME numbers as the source (no drift)
 const viaDelegate = calculateBookingFinancials(5000, 800, 2000, 0);
 const viaSource = calculateGrandTotal({ dakshinaAmount: 5000, travelCost: 800, foodAllowanceAmount: 2000 });

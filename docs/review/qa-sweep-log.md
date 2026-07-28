@@ -1329,3 +1329,33 @@ rows — and the mismatch went live. *Closing a break can open one.*
 `vocabularyBoundaries.test.ts` guards all five code rows **on the boundary**, and
 every negative case reverts the **real line** per law G2 — not a reconstruction.
 Six breaks proven. 49/49 api guards · 576/576 pandit · three typechecks clean.
+
+---
+
+## 2026-07-28 — CONSERVATION IS NOT A MODEL CHECK
+
+`grandTotal − payout == platformFee` is satisfied by **any** split of the money.
+It cannot distinguish the two business models this product has had:
+
+| | customer pays | pandit receives | conserves? |
+|---|---|---|---|
+| **MODEL A** (single-sided, 16–22 July) | 2100 | 1890 | ✅ 2100 = 1890 + 210 |
+| **MODEL B** (Ruling #7, 22 July →) | 2310 | 2100 | ✅ 2310 = 2100 + 210 |
+
+A money guard built on conservation alone passes both and reports "money
+verified" while the business model silently inverts. **Conservation is an
+arithmetic check, not a model check.** The identities that actually distinguish
+the models are:
+
+    grandTotal                == dakshina + fee (+ pass-throughs)
+    platformTransfersToPandit == dakshina (+ pass-throughs)   — never dakshina − fee
+
+Both were already asserted (added 2026-07-28 with Ruling B) — but they had
+**never been proven able to reject anything.** `payment-money.test.ts` now
+carries an explicit MODEL-A REJECTION section built from the real figures of
+HPJ-2026-19502, and two assertions that run the prod inputs through the **actual
+`createBooking` argument mapping** rather than `calculateGrandTotal` in
+isolation. Proven-to-fail by reverting `pricing.ts` to the 20 July expressions
+verbatim (law G2 — the real shape, not a reconstruction): the guard goes red,
+and the live-path assertion reports *"the live booking path pays the pandit 1890
+on a ₹2100 dakshina … This is MODEL A — the fee is being deducted again."*
