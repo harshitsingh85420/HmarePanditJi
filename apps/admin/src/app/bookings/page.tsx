@@ -18,19 +18,21 @@ interface Pandit {
   phone?: string | null;
 }
 
+// PHANTOM PURGE (census 2026-07-28): pujaType, dakshinaAmount, travelCost,
+// foodAllowanceAmount and samagriAmount were declared here but are NOT in the
+// controller's select (admin.controller.ts:557-563). The drawer rendered a
+// money breakdown of four fabricated zeros beneath a correct grand total.
+// Removed so the wrong read is a compile error. Restoring the breakdown needs
+// those columns added to the server select — a one-line change, reported not
+// taken, because a breakdown is money ops reconciles against.
 interface Booking {
   id: string;
   bookingNumber: string;
-  pujaType: string;
   eventType: string;
   eventDate: string;
   status: string;
   travelStatus: string;
   paymentStatus: string;
-  dakshinaAmount: number;
-  travelCost: number;
-  foodAllowanceAmount: number;
-  samagriAmount: number;
   grandTotal: number;
   customer?: {
     name: string;
@@ -226,7 +228,7 @@ export default function BookingsMonitorPage() {
                       <div className="font-semibold text-slate-800">{b.pandit?.name || "Unassigned"}</div>
                       <div className="text-xs text-slate-500 font-mono mt-0.5">{b.pandit?.phone || ""}</div>
                     </td>
-                    <td className="px-6 py-4 font-semibold text-slate-800">{b.pujaType || b.eventType || "N/A"}</td>
+                    <td className="px-6 py-4 font-semibold text-slate-800">{b.eventType || "N/A"}</td>
                     <td className="px-6 py-4">{new Date(b.eventDate).toLocaleDateString()}</td>
                     <td className="px-6 py-4">
                       <span className={`px-2 py-0.5 rounded text-xs font-bold ${
@@ -313,7 +315,7 @@ export default function BookingsMonitorPage() {
                 <div className="border rounded-lg p-3 space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-slate-500">Puja Type</span>
-                    <span className="font-semibold text-slate-800">{selectedBooking.pujaType || selectedBooking.eventType}</span>
+                    <span className="font-semibold text-slate-800">{selectedBooking.eventType}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-slate-500">Event Date</span>
@@ -332,23 +334,16 @@ export default function BookingsMonitorPage() {
 
               {/* Amount breakdown */}
               <div className="space-y-2">
-                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Amount Breakdown</h4>
+                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Amount</h4>
                 <div className="border rounded-lg p-3 space-y-2 bg-slate-50/50">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-slate-500">Dakshina</span>
-                    <span className="font-semibold text-slate-800">₹{selectedBooking.dakshinaAmount || 0}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-slate-500">Travel Cost</span>
-                    <span className="font-semibold text-slate-800">₹{selectedBooking.travelCost || 0}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-slate-500">Food Allowance</span>
-                    <span className="font-semibold text-slate-800">₹{selectedBooking.foodAllowanceAmount || 0}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-slate-500">Samagri Amount</span>
-                    <span className="font-semibold text-slate-800">₹{selectedBooking.samagriAmount || 0}</span>
+                  {/* The per-component breakdown is NOT on this response — the
+                      controller's select carries grandTotal only. It used to
+                      render ₹0 / ₹0 / ₹0 / ₹0 beneath a correct total, which
+                      reads to an operator as "this booking had no dakshina".
+                      Omitted rather than faked; open the booking's own detail
+                      page for the components. */}
+                  <div className="text-xs text-slate-500">
+                    Per-component breakdown is not included in this list response — open the booking to see it.
                   </div>
                   <div className="flex justify-between text-sm border-t pt-2 mt-2 font-bold text-slate-900">
                     <span>Total Amount</span>

@@ -4,12 +4,30 @@ import React, { useState, useEffect } from "react";
 import { Modal, Button } from "@hmarepanditji/ui";
 import { useSamagriCart, SamagriSelection } from "../context/SamagriCartContext";
 
+// PHANTOM PURGE (census 2026-07-28). The schema carries TWO generations of
+// price columns: legacy `packageName`/`fixedPrice` (both nullable) and the
+// live `tier`/`price`. The only writer — auth.controller.ts:731-738 — fills
+// `tier` and `price` and has NEVER filled the legacy pair. Declaring the
+// legacy pair as non-null here made tsc validate a lie, and the modal shipped
+// "₹" with nothing after it, "Selected:  Package", and `totalPrice: null`
+// written into the cart.
+// The phantoms are removed so the wrong read is a compile error.
+export type PackageTier = "BASIC" | "STANDARD" | "PREMIUM";
+
 export interface SamagriPackage {
     id: string;
-    packageName: string;
     pujaType: string;
-    fixedPrice: number;
+    tier: PackageTier;
+    price: number;
     items: Array<{ itemName: string; quantity: string }>;
+}
+
+/** Display label for a tier — the UI used to read a `packageName` nothing wrote. */
+export function tierLabel(tier: PackageTier | undefined): string {
+    if (tier === "STANDARD") return "Standard";
+    if (tier === "PREMIUM") return "Premium";
+    if (tier === "BASIC") return "Basic";
+    return "";
 }
 
 export interface CatalogCategory {
@@ -96,8 +114,8 @@ export function SamagriModal({
                 panditId,
                 pujaType,
                 packageId: pkg.id,
-                packageName: pkg.packageName,
-                totalPrice: pkg.fixedPrice,
+                packageName: tierLabel(pkg.tier),
+                totalPrice: pkg.price,
                 lockedAt: new Date().toISOString(),
             };
         } else {
@@ -228,9 +246,9 @@ export function SamagriModal({
                                                 }`}>
                                                 {selectedPackageId === pkg.id && <div className="w-2.5 h-2.5 bg-orange-500 rounded-full" />}
                                             </div>
-                                            {pkg.packageName}
+                                            {tierLabel(pkg.tier)}
                                         </div>
-                                        <span className="font-bold text-gray-900">₹{pkg.fixedPrice}</span>
+                                        <span className="font-bold text-gray-900">₹{pkg.price.toLocaleString("en-IN")}</span>
                                     </div>
                                     <p className="text-sm text-gray-500 mb-3">{pkg.items?.length || 0} items included</p>
 
@@ -258,15 +276,15 @@ export function SamagriModal({
                         {selectedPkg && (
                             <div className="mt-6">
                                 <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 mb-4">
-                                    <div className="font-medium">Selected: {selectedPkg.packageName} Package</div>
-                                    <div className="text-gray-600">Fixed price: ₹{selectedPkg.fixedPrice}</div>
+                                    <div className="font-medium">Selected: {tierLabel(selectedPkg.tier)} Package</div>
+                                    <div className="text-gray-600">Fixed price: ₹{selectedPkg.price.toLocaleString("en-IN")}</div>
                                     <div className="text-xs text-gray-500 mt-1">Non-negotiable, includes all items</div>
                                 </div>
                                 <Button
                                     className="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 rounded-xl shadow cursor-pointer"
                                     onClick={handleAddToCart}
                                 >
-                                    Add to Cart — ₹{selectedPkg.fixedPrice}
+                                    Add to Cart — ₹{selectedPkg.price.toLocaleString("en-IN")}
                                 </Button>
                             </div>
                         )}
@@ -293,7 +311,7 @@ export function SamagriModal({
                                             {cat.items.map((item: any) => {
                                                 const isSelected = !!customItems[item.id];
                                                 // Check if it's in standard package
-                                                const standardPkg = packages.find(p => p.packageName === "Standard");
+                                                const standardPkg = packages.find(p => p.tier === "STANDARD");
                                                 const isInStandard = standardPkg?.items?.some(i => i.itemName.toLowerCase().includes(item.name.toLowerCase()));
 
                                                 return (
@@ -308,7 +326,7 @@ export function SamagriModal({
                                                             <div>
                                                                 <div className="font-medium text-gray-900">{item.name} <span className="text-xs text-gray-500">({item.unit})</span></div>
                                                                 {isInStandard && (
-                                                                    <div className="text-[10px] text-amber-600 font-medium">✨ In Pandit's {standardPkg?.packageName}</div>
+                                                                    <div className="text-[10px] text-amber-600 font-medium">✨ In Pandit's {tierLabel(standardPkg?.tier)}</div>
                                                                 )}
                                                             </div>
                                                         </div>
@@ -339,9 +357,9 @@ export function SamagriModal({
                                 <div className="text-gray-900 font-bold text-lg">Your Custom List: ₹{customTotal}</div>
                                 {packages.length > 0 && (
                                     <div className="text-sm text-gray-500 font-medium mt-1">
-                                        vs. Pandit's {packages[packages.length - 1].packageName} Package: ₹{packages[packages.length - 1].fixedPrice}
-                                        {packages[packages.length - 1].fixedPrice > customTotal && (
-                                            <span className="text-green-600 ml-1">— You save ₹{packages[packages.length - 1].fixedPrice - customTotal}</span>
+                                        vs. Pandit's {tierLabel(packages[packages.length - 1].tier)} Package: ₹{packages[packages.length - 1].price.toLocaleString("en-IN")}
+                                        {packages[packages.length - 1].price > customTotal && (
+                                            <span className="text-green-600 ml-1">— You save ₹{(packages[packages.length - 1].price - customTotal).toLocaleString("en-IN")}</span>
                                         )}
                                     </div>
                                 )}

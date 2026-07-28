@@ -218,6 +218,30 @@ Every page's §3 now measures the app column against the viewport and reports th
 
 ---
 
+### 🔎 THE UNREACHABILITY PATTERN AS A SEARCH · 2026-07-28
+
+**LAW, strong form:** *the unreachability pattern is not just how we fix a wrong read — it is how we FIND wrong reads.* Removing a phantom field converts every silent `undefined` into a compile error. **Guards catch what we already suspect; the type catches what we don't.** Apply it by default to any contract fix: delete the phantom first, let tsc enumerate the damage, then fix each surfaced read against the handler's actual projection — and where the handler sends nothing equivalent, OMIT rather than substitute.
+
+**THE PURGE — "new reads surfaced" is the measure of what tsc was validating as a lie:**
+
+| interface | phantoms removed | NEW wrong reads surfaced by tsc | fixed |
+|---|---|---|---|
+| `AuthUser` (web) | `fullName` | **5** — book-client, profile ×3, src/Header, landing-header ×4 | ✅ all → `name` |
+| `SamagriPackage` (web) | `packageName`, `fixedPrice` | **2** — the savings line at `:361-362`, which compared `null > n` and therefore never fired | ✅ → `tier`/`price` + `tierLabel()` |
+| `Booking` admin list | `pujaType`, `dakshinaAmount`, `travelCost`, `foodAllowanceAmount`, `samagriAmount` | **6** | ✅ ceremony → `eventType`; the four-zero "Amount Breakdown" REPLACED with an honest line (the components are not on that response) |
+| `Pandit` admin list | the `{ user: User }` nesting | 4 | ✅ flat `{id,name,phone}` |
+| `Booking` admin detail | `ritual` (no such relation on Booking) | 1 | ✅ subtitle removed; `displayName` made nullable with real fallbacks |
+
+**Fourteen wrong reads were surfaced by deleting eight fields.** Only three of them were known from the census; **eleven were invisible until the type stopped lying.**
+
+**NOT PURGED, and why:** `TravelOption` and `TravelOptionsTab` — travel is PARKED pending Isj's removal ruling, and nothing may change there. `maxTravelDistance` on the public profile — report-only, it is a coverage claim and Isj's to rule.
+
+**CORRECTION TO MY OWN EARLIER CLAIM:** I wrote that "bookings are zero today, which is why this lands now" when shipping the fee snapshot. **That was never verified against production** — the prod credential is rotated and I could not query it. I amplified an unverified assumption into a justification. Travel's risk classification is therefore **UNKNOWN, not zero**: if any real booking exists, it carries fabricated travel money in its payout. Isj has been told so plainly.
+
+Wall 889/889 · api guards 45/45 · re-skin proof 13/13 · tsc clean across pandit, web, admin.
+
+---
+
 ### 🔧 THE CENSUS FIXES + TWO STRUCTURAL LINES · 2026-07-28
 
 **LEDGER — WHY THE MONEY GUARDS STAYED GREEN THROUGH FABRICATED TRAVEL (the census's sharpest lesson):** the money guards verify **CONSERVATION, not TRUTH** — ₹800 of invented travel cost conserves perfectly, because customer = payout + fee holds whatever the components are. A guard must also pin that **every money component has a real source**, not merely that the arithmetic balances.

@@ -47,13 +47,16 @@ interface Booking {
     refundStatus: string;
     adminNotes: string | null;
     createdAt: string;
-    pandit: { id: string; displayName: string; city: string; profilePhotoUrl: string | null } | null;
+    pandit: { id: string; displayName: string | null; fullName?: string | null; city: string; profilePhotoUrl: string | null; user?: { name?: string | null } | null } | null;
     // booking.service.ts includes `customer: true` — the customer IS the User
     // row. There is no `.user` nesting here, and `fullName` is a PanditProfile
     // column, not a User one. This hand-written interface DECLARED the wrong
     // shape, which is precisely why tsc never caught the wrong read.
     customer: { id: string; name: string | null; phone: string; email: string | null } | null;
-    ritual: { name: string; nameHindi: string | null } | null;
+    // PHANTOM REMOVED (census 2026-07-28): Booking has no `ritualId` and no
+    // `ritual` relation — `model Ritual` is standalone with no back-relation,
+    // so this could never be populated. The Hindi subtitle it fed has never
+    // rendered. The ceremony name is `eventType`, which IS on the row.
 }
 
 const STATUS_COLORS: Record<string, string> = {
@@ -207,7 +210,7 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
                             <div>
                                 <p className="text-xs text-slate-400">Ceremony</p>
                                 <p className="font-medium text-white">{b.eventType}</p>
-                                {b.ritual?.nameHindi && <p className="text-xs text-slate-500">{b.ritual.nameHindi}</p>}
+                                
                             </div>
                             <div>
                                 <p className="text-xs text-slate-400">Date</p>
@@ -392,7 +395,7 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
                         <h2 className="mb-3 text-sm font-semibold text-white">Pandit</h2>
                         {b.pandit ? (
                             <>
-                                <p className="text-sm font-medium text-white">{b.pandit.displayName}</p>
+                                <p className="text-sm font-medium text-white">{b.pandit.user?.name || b.pandit.fullName || b.pandit.displayName || "—"}</p>
                                 <p className="text-xs text-slate-400 mt-0.5">{b.pandit.city}</p>
                                 <Link href={`/pandits/${b.pandit.id}`} className="mt-2 inline-flex items-center gap-1 text-xs text-primary hover:underline">
                                     View Profile <span className="material-symbols-outlined text-sm">arrow_forward</span>
