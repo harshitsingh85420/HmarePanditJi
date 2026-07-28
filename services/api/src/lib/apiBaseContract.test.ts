@@ -91,6 +91,85 @@ for (const [file, val] of Object.entries(declared)) {
   );
 }
 
+// ═════════════════════════════════════════════════════════════
+// THE BOUNDARY — added after DRIFT-A survived this very guard.
+//
+// The check above forbids inventing a WRONG prefix (`/api/customers`). It
+// could never catch DRIFT-A, because its regex is `\/api\/(?!v1)` — the
+// negative lookahead makes hand-appending the CORRECT prefix invisible by
+// construction. apps/web/app/page.tsx:43 did exactly that for months.
+//
+// A guard on the client alone cannot see this break. Whether appending
+// `/api/v1` is right or wrong depends on THE COMMITTED ENV VALUE — so this
+// section sits on the boundary between the two and compares them.
+// ═════════════════════════════════════════════════════════════
+
+import { resolveApiBase, API_PREFIX } from "../../../../packages/utils/src/api-base";
+
+// ── (a) NO file may hand-append a version prefix ───────────────
+// Correct or not, the client must not decide this itself: resolveApiBase owns
+// it, and only it can accept both env shapes and resolve them identically.
+const handAppended: string[] = [];
+for (const app of ["apps/web/app", "apps/web/components", "apps/admin/src", "apps/pandit/src"]) {
+  for (const f of walk(join(REPO, app))) {
+    const src = codeOnly(readFileSync(f, "utf8"));
+    // NEXT_PUBLIC_API_URL … } /api/v1  — the DRIFT-A shape, in a template
+    // literal or a string concatenation.
+    // The char class must NOT exclude quotes: the real line reads
+    //   `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/api/v1`
+    // so the span between the variable and the prefix contains a quoted
+    // fallback. An earlier version of this pattern used [^`'"\n]* and could
+    // not match it — the guard passed on the very line it was written for.
+    if (/NEXT_PUBLIC_API_URL[^\n]*?(\}\s*\/api\/v1|\+\s*["'`]\/api\/v1)/.test(src)) {
+      handAppended.push(f.replace(REPO, "").replace(/\\/g, "/"));
+    }
+  }
+}
+assert.deepStrictEqual(
+  handAppended,
+  [],
+  `these files hand-append "${API_PREFIX}" to NEXT_PUBLIC_API_URL. Six of the seven committed\n` +
+    `values ALREADY end in it, so this doubles the prefix and every request 404s — silently,\n` +
+    `because the call sites are all \`res.ok ? … : null\`. Use resolveApiBase() instead:\n  ` +
+    handAppended.join("\n  "),
+);
+
+// ── (b) every COMMITTED env value reconciles with the resolver ──
+// Round-trip each real committed value through resolveApiBase and assert the
+// result carries EXACTLY ONE /api/v1. This is what makes the two shapes
+// genuinely interchangeable rather than merely tolerated in prose.
+const committed: Array<[string, string]> = [];
+for (const rel of [
+  ".env",
+  ".env.example",
+  ".env.vercel",
+  "apps/web/.env.local",
+  "apps/web/.env.local.example",
+  "apps/admin/.env.local.example",
+  "apps/pandit/.env.local",
+]) {
+  const p = join(REPO, rel);
+  if (!existsSync(p)) continue;
+  const m = /^NEXT_PUBLIC_API_URL\s*=\s*"?([^"\n\r#]*)"?/m.exec(readFileSync(p, "utf8"));
+  if (m && m[1].trim()) committed.push([rel, m[1].trim()]);
+}
+assert.ok(committed.length >= 4, `only ${committed.length} committed values found — the reader has rotted`);
+
+for (const [file, raw] of committed) {
+  const { base, origin } = resolveApiBase(raw, false);
+  const occurrences = base.split(API_PREFIX).length - 1;
+  assert.strictEqual(
+    occurrences,
+    1,
+    `${file}: "${raw}" resolves to "${base}", which carries ${occurrences} copies of ` +
+      `${API_PREFIX}. The resolver must normalise every committed shape to exactly one.`,
+  );
+  assert.ok(!origin.includes(API_PREFIX), `${file}: origin "${origin}" still carries the prefix`);
+  // idempotence: feeding the resolved base back in must not grow it
+  assert.strictEqual(resolveApiBase(base, false).base, base, `${file}: resolveApiBase is not idempotent for "${raw}"`);
+}
+
 console.log(
-  `✓ API-base one-contract guard passed (${Object.keys(declared).length} env declarations checked)`,
+  `✓ API-base one-contract guard passed (${Object.keys(declared).length} env declarations checked; ` +
+    `${committed.length} committed values round-tripped; no file hand-appends ${API_PREFIX})`,
 );

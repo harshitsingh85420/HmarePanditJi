@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { resolveApiBase } from "@hmarepanditji/utils";
 
 // ---------------------------------------------------------------------------
 // CONSTANTS
@@ -40,7 +41,19 @@ const TUTORIAL_SLIDES = [
   "Manage travel, food, samagri — all in one place.",
   "Guest Mode — no need to register until you book.",
 ];
-const API_BASE = `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/api/v1`;
+// NEXT_PUBLIC_API_URL is an ORIGIN; the client owns the /api/v1 prefix.
+// This line used to APPEND /api/v1 unconditionally. Six of the seven values
+// committed for that variable already end in /api/v1 (apps/web/.env.local:9,
+// .env.local.example:8, three CI lines, .husky/pre-push, .env.vercel), so the
+// customer front door requested /api/v1/api/v1/... and 404'd — silently, because
+// all three fetches below are `r.ok ? … : null`. The visible symptom was an
+// empty featured-pandits grid and an empty muhurat strip under the message
+// "Run database seed to populate pandit data", against a seeded database.
+// resolveApiBase accepts BOTH env shapes and resolves them identically.
+const API_BASE = resolveApiBase(
+  process.env.NEXT_PUBLIC_API_URL,
+  process.env.NODE_ENV === "development",
+).base;
 
 // ---------------------------------------------------------------------------
 // QUICK SEARCH BAR
