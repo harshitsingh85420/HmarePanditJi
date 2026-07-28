@@ -1,41 +1,44 @@
 {
   "_preservation": {
     "captured": "2026-07-28",
-    "why": "These nine rows are QA junk as data and irreplaceable as evidence. They are the only surviving record of how this product actually priced money before the pilot, and deleting them to clear the way for the fee-snapshot migration destroys that record permanently. Three distinct pricing eras are visible in them, and each one is a decision we could otherwise only reconstruct from commit messages: the 15% ERA (rows 1-8, created 8 and 14 July, when the platform commission was 15% and was DEDUCTED from the pandit's payout, with 18% GST computed on the fee and shown to the customer as a separate tax line); the RATE CUT (commit 0be83f5, 15 July, 'commission is ONE number (10%)', which is why row 9 alone carries 10%); and the MODEL-A ERA closing with row 9 (HPJ-2026-19502, 20 July, Razorpay order_TFefNl2TrhDM3E), the single booking made through the live wizard under the single-sided fee — dakshina 2100, fee 210, grandTotal 2100, payout 1890 — i.e. the customer was NOT charged the fee on top and the pandit DID absorb it. Ruling B (commit 3548679, 22 July) reversed that two days later, so row 9 is the last and only production artefact of the deducted model. Rows 1-6 are seed (created within two seconds of each other on 8 July); rows 7-8 are the manual pilot proofs of 14 July (order_pilot_manual, order_notifyproof). travelCost is 0 on all nine, which is what downgrades the fabricated-travel finding from a realised loss to a loaded gun: no real customer money ever moved through it.",
-    "status": "AWAITING PASTE — run the SELECT below and replace the empty rows array with its JSON output BEFORE running the DELETE transaction.",
-    "delete_blocked_until": "this file contains all nine rows"
+    "status": "PARTIAL — SEE _gap. This file does NOT contain the nine rows.",
+    "_gap": "The order for this file said 'from the nine rows Isj pasted in conversation'. THE NINE ROWS WERE NEVER PASTED. What this thread contains is a set of FRAGMENTS quoted across several messages: the full figures for HPJ-2026-19502; four platformFee->platformFeeGst pairs (465->83, 1050->189, 315->57, 225->41); the HPJ-001 triple (3100/3648/2635); the note that HPJ-005 carries refundStatus COMPLETED with refundAmount 0; that every row has empty-string customerName/customerPhone/eventAddress/pujaType; that six rows were created within two seconds on 8 July and two are the 14 July manual proofs (order_pilot_manual, order_notifyproof); and that travelCost is 0 on all nine. The production table has since been emptied, so the live SELECT can no longer be run. Rows 1-6 are RECOVERED BELOW from packages/db/prisma/seed.ts, which hand-writes them verbatim. Rows 7 and 8 (the 14 July manual pilot proofs) and the non-financial columns of row 9 are NOT recoverable from this repo or this thread and should be treated as LOST unless a console scrollback or a database backup survives.",
+    "two_source_check": "NOT PERFORMED as specified. It was to compare derived_fee_pct against the 15-July boundary on all nine rows; only five rows have a fee/dakshina pair available. On those five the check PASSES: HPJ-001 465/3100, HPJ-002 3750/25000, HPJ-003 1050/7000, HPJ-004 750/5000, HPJ-005 465/3100, HPJ-006 600/4000 all derive 15%, and HPJ-2026-19502 derives 210/2100 = 10%, consistent with the rate cut in commit 0be83f5 on 15 July. GST derives 18% on the seed rows and 0 on row 9, consistent with commit f803f10 on 16 July.",
+    "why_this_matters": "Three pricing eras are visible in these rows and each is a decision otherwise reconstructable only from commit messages. THE 15% ERA (rows 1-8, 8 and 14 July): commission 15%, DEDUCTED from the pandit, with 18% GST computed on the fee and shown to the customer as a separate line. THE RATE CUT (commit 0be83f5, 15 July, 'commission is ONE number (10%)') is why row 9 alone carries 10%. THE MODEL-A ERA closes with row 9 (HPJ-2026-19502, 20 July, Razorpay order_TFefNl2TrhDM3E): dakshina 2100, fee 210, grandTotal 2100, payout 1890 — the customer was NOT charged the fee on top and the pandit DID absorb it. Ruling B (commit 3548679, 22 July) reversed that two days later, so row 9 is the last and only production artefact of the deducted model. travelCost is 0 on all nine, which is what downgrades the fabricated-travel finding from a realised loss to a loaded gun."
   },
 
-  "_select_to_run": [
-    "-- Paste the JSON output of this into \"rows\" below, then commit, THEN delete.",
-    "SELECT json_agg(row_to_json(b) ORDER BY b.\"createdAt\")",
-    "FROM (",
-    "  SELECT \"bookingNumber\", \"createdAt\", \"status\", \"paymentStatus\", \"payoutStatus\",",
-    "         \"dakshinaAmount\", \"platformFee\", \"platformFeeGst\",",
-    "         \"travelCost\", \"travelServiceFee\", \"travelServiceFeeGst\",",
-    "         \"foodAllowanceAmount\", \"accommodationCost\", \"samagriAmount\",",
-    "         \"grandTotal\", \"panditPayout\",",
-    "         \"refundStatus\", \"refundAmount\",",
-    "         \"razorpayOrderId\", \"razorpayPaymentId\",",
-    "         ROUND(\"platformFee\" * 100.0 / NULLIF(\"dakshinaAmount\",0)) AS derived_fee_pct,",
-    "         ROUND(\"platformFeeGst\" * 100.0 / NULLIF(\"platformFee\",0))  AS derived_gst_pct",
-    "  FROM \"Booking\"",
-    ") b;"
-  ],
-
-  "_what_each_derived_column_proves": {
-    "derived_fee_pct": "15 on rows 1-8, 10 on row 9 — the rate cut of 15 July, visible in the data rather than only in git.",
-    "derived_gst_pct": "18 on rows 1-8, 0 on row 9 — the moment the fee became GST-INCLUSIVE (commit f803f10, 16 July). This is the evidence behind the GST ruling in CONFLICT_RULINGS.md.",
-    "grandTotal_vs_dakshina": "equal on row 9 — proof the fee was NOT charged on top under Model A.",
-    "panditPayout_vs_dakshina": "payout < dakshina on row 9 (1890 < 2100) — proof the fee WAS deducted from the pandit."
+  "_double_fee_trace_ANSWERED": {
+    "question": "Could any code version produce rows 1-8's composition — fee charged ON TOP and ALSO deducted?",
+    "answer": "The composition is real and a code version DID implement it, but these particular rows are HAND-WRITTEN SEED LITERALS, not that code's output.",
+    "the_code": "Before commit f803f10 (16 July) services/api/src/utils/pricing.ts computed grandTotal = dakshina + travel + food + accommodation + platformFee + travelServiceFee + platformFeeGst + travelServiceFeeGst, AND panditPayout = dakshina - platformFee + pass-throughs. Fee on top AND deducted. f803f10's own message names it: 'The old model double-charged: +10% on the customer AND -10% from the pandit.'",
+    "why_the_rows_are_literals_not_output": "packages/db/prisma/seed.ts:284 writes `dakshinaAmount: 3100, platformFee: 465, platformFeeGst: 83, grandTotal: 3648` as literals. The 1-rupee rounding proves authorship: the real calculateGst used Math.round(465 * 0.18) = Math.round(83.7) = 84, which would give grandTotal 3649. The stored value is 83/3648. A human truncated; the function would have rounded up.",
+    "correction_recorded": "An earlier inference in this campaign ran the arithmetic, saw it agree with the pre-16-July model, and was about to name that code as the producer. Checking seed.ts reversed it. CAPABILITY != PATH: arithmetic agreement is not a producing path.",
+    "scope": "This answers rows 1-6 (seed). Rows 7-8, the 14 July manual pilot proofs, have no figures in this thread and are NOT traced."
   },
 
-  "_also_capture_before_delete": [
-    "SELECT * FROM \"Payout\";",
-    "SELECT * FROM \"CustomerRating\";",
-    "SELECT * FROM \"Review\";",
-    "SELECT * FROM \"BookingStatusUpdate\";"
+  "rows_1_to_6_RECOVERED_FROM_SEED": [
+    { "bookingNumber": "HPJ-001", "source": "seed.ts", "status": "COMPLETED", "eventType": "Satyanarayan Puja", "dakshinaAmount": 3100, "platformFee": 465, "platformFeeGst": 83, "grandTotal": 3648, "platformTransfersToPandit": 2635, "paymentStatus": "CAPTURED", "payoutStatus": "COMPLETED", "payoutReference": "UTR123456", "derived_fee_pct": 15, "derived_gst_pct": 18 },
+    { "bookingNumber": "HPJ-002", "source": "seed.ts", "status": "CONFIRMED", "eventType": "Vivah", "dakshinaAmount": 25000, "platformFee": 3750, "platformFeeGst": 675, "grandTotal": 29425, "platformTransfersToPandit": null, "paymentStatus": "CAPTURED", "travelRequired": true, "derived_fee_pct": 15, "derived_gst_pct": 18 },
+    { "bookingNumber": "HPJ-003", "source": "seed.ts", "status": "TRAVEL_BOOKED", "eventType": "Griha Pravesh", "dakshinaAmount": 7000, "platformFee": 1050, "platformFeeGst": 189, "grandTotal": 8239, "platformTransfersToPandit": 5950, "paymentStatus": "CAPTURED", "payoutStatus": "PENDING", "derived_fee_pct": 15, "derived_gst_pct": 18 },
+    { "bookingNumber": "HPJ-004", "source": "seed.ts", "status": "PANDIT_REQUESTED", "eventType": "Mundan", "dakshinaAmount": 5000, "platformFee": 750, "platformFeeGst": 135, "grandTotal": 5885, "derived_fee_pct": 15, "derived_gst_pct": 18 },
+    { "bookingNumber": "HPJ-005", "source": "seed.ts", "status": "CANCELLED", "eventType": "Satyanarayan Puja", "dakshinaAmount": 3100, "platformFee": 465, "platformFeeGst": 83, "grandTotal": 3648, "refundStatus": "COMPLETED", "refundAmount": 0, "_note": "a COMPLETED refund of nothing — a seed artefact, not a real refund path", "derived_fee_pct": 15, "derived_gst_pct": 18 },
+    { "bookingNumber": "HPJ-006", "source": "seed.ts", "status": "CREATED", "eventType": "Annaprashan", "dakshinaAmount": 4000, "platformFee": 600, "platformFeeGst": 108, "grandTotal": 4708, "derived_fee_pct": 15, "derived_gst_pct": 18 }
   ],
 
-  "rows": []
+  "row_9_PARTIAL_FROM_THREAD": {
+    "bookingNumber": "HPJ-2026-19502",
+    "source": "quoted by Isj in conversation, 2026-07-28 — NOT a live SELECT",
+    "createdAt": "2026-07-20",
+    "razorpayOrderId": "order_TFefNl2TrhDM3E",
+    "dakshinaAmount": 2100, "platformFee": 210, "platformFeeGst": 0,
+    "grandTotal": 2100, "platformTransfersToPandit": 1890, "travelCost": 0,
+    "derived_fee_pct": 10, "derived_gst_pct": 0,
+    "_significance": "the only production booking made through the live wizard under Model A; the last artefact of the deducted model"
+  },
+
+  "rows_7_and_8_LOST": {
+    "identified_as": "the 14 July manual pilot proofs — razorpay order ids order_pilot_manual and order_notifyproof",
+    "figures": "NOT AVAILABLE. Never quoted in this thread; not in seed.ts; the table is now empty.",
+    "recoverable_from": "a database backup or a console scrollback, if either exists"
+  }
 }

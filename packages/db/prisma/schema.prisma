@@ -133,6 +133,7 @@ model User {
   statusUpdates      BookingStatusUpdate[]
   notifications      Notification[]
   familyMembers      FamilyMember[]
+  customerRatings    CustomerRating[]      @relation("CustomerRatingsReceived")
 
   @@index([role])
   @@index([isActive])
@@ -261,6 +262,8 @@ model PanditProfile {
   samagriPackages    SamagriPackage[]    @relation("PanditSamagriRelation")
   blockedDates       BlockedDate[]
   bookings           Booking[]
+  payouts            Payout[]
+  customerRatings    CustomerRating[]
   poojaVerifications PoojaVerification[]
   poojaConfigs       PoojaConfig[]
 
@@ -524,6 +527,8 @@ model Booking {
 
   statusUpdates BookingStatusUpdate[]
   review        Review?
+  payout        Payout?
+  customerRating CustomerRating?
 
   @@index([customerId])
   @@index([panditId])
@@ -653,6 +658,12 @@ model CustomerRating {
   bookingId       String   @unique
   panditId        String
   customerId      String
+  // Same shape as Payout above: three bare ids with no integrity. Riding along
+  // because the cost is identical on an empty table and a rating attached to a
+  // deleted booking is the same class of silent orphan.
+  booking         Booking       @relation(fields: [bookingId], references: [id])
+  pandit          PanditProfile @relation(fields: [panditId], references: [id])
+  customer        User          @relation("CustomerRatingsReceived", fields: [customerId], references: [id])
   punctuality     Int      // 1-5
   hospitality     Int      // 1-5
   foodArrangement Int      // 1-5
@@ -714,7 +725,19 @@ model Payout {
   id         String   @id @default(cuid())
   bookingId  String   @unique
   panditId   String
-  amount     Int                  // dakshina - platformFee + travel + food + samagri
+  // FOREIGN KEYS ADDED 2026-07-28 (Isj ruling). These were bare String columns
+  // with no referential integrity, so the schema permanently permitted an
+  // ORPHANED PAYOUT — a money record pointing at a booking that does not
+  // exist. admin.routes.ts:222 creates a Payout ON DEMAND inside mark-paid if
+  // none is found, so a stale bookingId minted money attached to nothing and
+  // the database never objected. Added on an empty table, where the orphan
+  // check is free.
+  booking    Booking       @relation(fields: [bookingId], references: [id])
+  pandit     PanditProfile @relation(fields: [panditId], references: [id])
+  // RULING B: 100% of dakshina + pass-throughs. The fee is NEVER deducted.
+  // (The previous note here read "dakshina - platformFee + …" — Model A prose
+  // surviving in the storage layer, which is a contract surface.)
+  amount     Int
   status     PayoutStatus @default(PENDING)   // enum: PENDING | PAID
   createdAt  DateTime @default(now())
   paidAt     DateTime?

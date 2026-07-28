@@ -1533,3 +1533,52 @@ away — one matched `//` comments as schema, the other used
 `Booking.customerId` and both `Review` ids as dangling. Nine of the twenty-three
 "findings" in that draft were artifacts of my own matcher. **Law G2 applies to
 analysis scripts, not only to guards.**
+
+---
+
+## 2026-07-28 — the table IS empty, and this time it is VERIFIED
+
+**Method matters more than the answer.** Isj queried the Neon console and
+reported **bookings 0 · muhurat 0 · payouts 0 · reviews 0**, after the nine rows
+were preserved. That is a human reading a live database — the standard the
+earlier claim failed to meet when I asserted the same thing from inference and
+wrote it into a migration.
+
+Both the migration comment and the earlier ledger line now say *empty AND
+verified*, and name the method. The two-source backfill **stays anyway**: a
+backfill correct on an empty table and also correct on a populated one costs
+nothing extra and survives a restore, a replay, or a second environment.
+**A migration should not depend on a fact about one database at one instant.**
+
+### 🔴 THE DOUBLE-FEE TRACE — ANSWERED, and my first inference was wrong
+
+Rows 1–8 charge the fee **on top AND deduct it** (HPJ-001: dakshina 3100,
+charged 3648, paid 2635).
+
+**A code version did implement exactly that.** Before `f803f10` (16 July),
+`pricing.ts` computed `grandTotal = dakshina + … + platformFee + platformFeeGst`
+**and** `panditPayout = dakshina − platformFee + …`. That commit's own message
+names it: *"The old model double-charged: +10% on the customer AND −10% from
+the pandit."*
+
+**But these rows are not that code's output — they are HAND-WRITTEN LITERALS.**
+`seed.ts:284` writes `dakshinaAmount: 3100, platformFee: 465, platformFeeGst:
+83, grandTotal: 3648`. The **1-rupee rounding proves authorship**: the real
+`calculateGst` was `Math.round(465 × 0.18)` = `Math.round(83.7)` = **84**, which
+would give grandTotal **3649**. The stored value is **83 / 3648**. A human
+truncated; the function would have rounded up.
+
+**I nearly filed the wrong producer.** The arithmetic agreed with the
+pre-16-July model and I was one step from naming that code as the source.
+Checking `seed.ts` reversed it. **CAPABILITY ≠ PATH: arithmetic agreement is not
+a producing path.** Scope: this answers rows 1–6 (seed). Rows 7–8, the 14 July
+manual proofs, have no figures anywhere and are **not traced**.
+
+### THE SEED IS FENCED
+
+`SEED_MUHURAT` and `SEED_BOOKINGS`, both **default OFF**. They gated the 20
+fabricated MuhuratDate rows (sold as *"Hindu Panchang 2026"* though no panchang
+was consulted) and the six 15%-era bookings. The Reviews block moved inside the
+booking fence — it references `b1.id` and would now violate the new FK. The
+notification fixtures still seed but are annotated: they quote HPJ-00x numbers
+and the ₹2,635 payout, so they name bookings that will not exist.

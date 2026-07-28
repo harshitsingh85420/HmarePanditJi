@@ -146,6 +146,23 @@ async function main() {
   await prisma.muhuratDate.deleteMany();
   console.log('✅ Cleanup complete.');
 
+// ─────────────────────────────────────────────────────────────────────────
+// FENCED 2026-07-28 (Isj). Two blocks in this file re-insert exactly what was
+// just cleared from production:
+//   · SEED_MUHURAT   — 20 fabricated MuhuratDate rows, presented to customers
+//                      as "Hindu Panchang 2026" though no panchang was consulted
+//   · SEED_BOOKINGS  — 6 bookings whose money is HAND-WRITTEN 15%-era literals
+//                      (fee charged ON TOP *and* deducted — a model no current
+//                      code implements; see docs/review/prod-bookings-2026-07-28.json)
+// Running this file unguarded against the now-clean database would re-poison it
+// with fabricated dates and pre-Ruling-B money. Both are OFF unless explicitly
+// asked for. Everything else — rituals, users, pandits, distances — still seeds.
+// The code-side muhurat question is a separate open ruling; this only stops the
+// seed from restoring what was deliberately deleted.
+// ─────────────────────────────────────────────────────────────────────────
+const SEED_MUHURAT = process.env.SEED_MUHURAT === "true";
+const SEED_BOOKINGS = process.env.SEED_BOOKINGS === "true";
+
   console.log('🌱 Seeding Rituals (Puja Types)...');
   const rituals = [
     { name: "Vivah", nameHindi: "विवाह", durationHours: 6.0, basePriceMin: 15000, basePriceMax: 35000 },
@@ -173,6 +190,7 @@ async function main() {
     await prisma.cityDistance.create({ data: { fromCity: toCity, toCity: fromCity, distanceKm, estimatedDriveHours } });
   }
 
+  if (SEED_MUHURAT) {
   console.log('🌱 Seeding Muhurats...');
   const upsertMuhurat = async (date: string, pujaType: string, timeWindow: string, significance: string) => {
     await prisma.muhuratDate.create({ data: { date: new Date(date), pujaType, timeWindow, significance, source: "Hindu Panchang 2026" } });
@@ -181,6 +199,9 @@ async function main() {
   for (const m of GRIHA_PRAVESH_MUHURATS) await upsertMuhurat(m[0], "Griha Pravesh", m[1], m[2]);
   for (const m of SATYANARAYAN_MUHURATS) await upsertMuhurat(m[0], "Satyanarayan Puja", m[1], m[2]);
   for (const m of MUNDAN_MUHURATS) await upsertMuhurat(m[0], "Mundan", m[1], m[2]);
+  } else {
+    console.log('⏭️  Muhurats SKIPPED (fabricated dates — set SEED_MUHURAT=true to override).');
+  }
 
   console.log('🌱 Seeding Admin & Customers...');
   await prisma.user.create({ data: { phone: ADMIN.phone, name: ADMIN.name, role: Role.ADMIN, isVerified: true } });
@@ -274,6 +295,7 @@ async function main() {
   await prisma.favoritePandit.create({ data: { customerId: customerMap.customer1.id, panditId: panditMap.pandit2.id } });
   await prisma.favoritePandit.create({ data: { customerId: customerMap.customer2.id, panditId: panditMap.pandit1.id } });
 
+  if (SEED_BOOKINGS) {
   console.log('🌱 Seeding Bookings...');
   // HPJ-001: Customer 1 → Pandit 1, COMPLETED, Satyanarayan, Delhi
   const b1 = await prisma.booking.create({
@@ -353,18 +375,24 @@ async function main() {
       paymentStatus: PaymentStatus.PENDING
     }
   });
+    console.log('🌱 Seeding Reviews...');
+    // Review for completed booking HPJ-001
+    await prisma.review.create({
+      data: {
+        bookingId: b1.id,
+        reviewerId: customerMap.customer1.id, revieweeId: panditMap.pandit1.id,
+        overallRating: 5.0, knowledgeRating: 5.0, punctualityRating: 5.0, communicationRating: 5.0,
+        comment: 'Bahut acchi puja hui. Pandit ji ne sab vidhi-vidhaan se karwayi.'
+      }
+    });
+  } else {
+    console.log('⏭️  Bookings SKIPPED (hand-written 15%-era money — set SEED_BOOKINGS=true to override).');
+  }
 
-  console.log('🌱 Seeding Reviews...');
-  // Review for completed booking HPJ-001
-  await prisma.review.create({
-    data: {
-      bookingId: b1.id,
-      reviewerId: customerMap.customer1.id, revieweeId: panditMap.pandit1.id,
-      overallRating: 5.0, knowledgeRating: 5.0, punctualityRating: 5.0, communicationRating: 5.0,
-      comment: 'Bahut acchi puja hui. Pandit ji ne sab vidhi-vidhaan se karwayi.'
-    }
-  });
-
+  // NOTE: these notification bodies quote HPJ-00x booking numbers and the
+  // 15%-era ₹2,635 payout. They are display fixtures with no FK, so they are
+  // left seeding — but they will name bookings that do not exist unless
+  // SEED_BOOKINGS=true. Harmless for UI work, misleading for money work.
   console.log('🌱 Seeding Notifications...');
   await prisma.notification.create({ data: { userId: customerMap.customer1.id, title: 'Booking Confirmed', message: 'Your booking HPJ-002 is confirmed.', type: 'BOOKING_UPDATE' } });
   await prisma.notification.create({ data: { userId: customerMap.customer1.id, title: 'Pandit Assigned', message: 'Pandit has been assigned to HPJ-002.', type: 'BOOKING_UPDATE' } });
