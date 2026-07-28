@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { CUSTOMER_TOKEN_KEY } from "@hmarepanditji/utils";
 import { resolveApiBase } from "@hmarepanditji/utils";
+import { notificationCategory } from "@hmarepanditji/types";
 
 // NEXT_PUBLIC_API_URL is an ORIGIN; the client owns the /api/v1 prefix.
 // These calls used to hardcode `/api/customers/...`, which is wrong under
@@ -95,8 +96,11 @@ export default function NotificationPage() {
         }
     };
 
+    // R6 — the written vocabulary and this screen's vocabulary never
+    // overlapped, so every row fell to `default`: a grey Info icon and a
+    // null link. Translate through the ONE mapper.
     const getIcon = (type: string) => {
-        switch (type) {
+        switch (notificationCategory(type)) {
             case "BOOKING": return <Calendar className="w-5 h-5 text-blue-500" />;
             case "TRAVEL": return <Plane className="w-5 h-5 text-indigo-500" />;
             case "STATUS": return <MapPin className="w-5 h-5 text-orange-500" />;
@@ -108,7 +112,7 @@ export default function NotificationPage() {
 
     const getNotificationLink = (n: NotificationData) => {
         const d = n.data || {};
-        switch (n.type) {
+        switch (notificationCategory(n.type)) {
             case "BOOKING":
             case "STATUS":
             case "PAYMENT":

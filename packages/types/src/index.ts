@@ -426,3 +426,6 @@ export * from './razorpay';
 
 // ─── Identity (KYC) status vocabulary — THE ONE SOURCE ─
 export * from './verification';
+
+// THE ONE notification vocabulary translator (written type -> render category).
+export * from "./notificationCategory";

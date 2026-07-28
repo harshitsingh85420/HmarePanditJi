@@ -6,6 +6,8 @@ import { logger } from "../utils/logger";
 // THE ONE KYC vocabulary. Any status set in this file must come from here —
 // per-site literals have now failed five times.
 import { KYC_REVIEW_QUEUE_STATUSES } from "@hmarepanditji/types";
+// THE ONE booking-status translator — admin filters arrive in UI vocabulary.
+import { dbStatusesForView } from "../lib/bookingStatus";
 
 // Helper to build success response
 function successBody<T>(data: T, message = "Success"): { success: boolean; data: T; message: string } {
@@ -534,10 +536,31 @@ export const getAllBookingsAdmin = async (request: FastifyRequest, reply: Fastif
         const limit = Math.min(50, Math.max(1, Number(query.limit) || 20));
         const skip = (page - 1) * limit;
 
-        const { status, dateFrom, dateTo, city, pandit, customer, paymentStatus, travelStatus } = query;
+        const { status, dateFrom, dateTo, city, pandit, customer, paymentStatus, travelStatus, search } = query;
 
         const where: Record<string, unknown> = {};
-        if (status) where.status = { in: status.split(",") };
+        // R1 — the filter value arrives in the ADMIN's vocabulary and was pushed
+        // raw into Prisma. "REQUESTED"/"ACCEPTED" are legal enum members that
+        // NOTHING writes, so those options queried successfully and returned zero
+        // rows ("No bookings found"), while PANDIT_REQUESTED — every booking that
+        // just captured payment — was unfilterable by any option.
+        // Translate through the one mapper instead, exactly as the pandit path does.
+        if (status) where.status = { in: status.split(",").flatMap((v: string) => dbStatusesForView(v.trim())) };
+        // R3 — the client has always sent `search`; the server never destructured
+        // it, so the term was dropped silently. Worse than "unfiltered": the
+        // controller pages at 20 and the UI renders no pagination, so an operator
+        // read the recent-20 window as the match set.
+        if (search && String(search).trim()) {
+            const q = String(search).trim();
+            where.OR = [
+                { bookingNumber: { contains: q, mode: "insensitive" } },
+                { eventType: { contains: q, mode: "insensitive" } },
+                { venueCity: { contains: q, mode: "insensitive" } },
+                { customer: { is: { name: { contains: q, mode: "insensitive" } } } },
+                { customer: { is: { phone: { contains: q } } } },
+                { pandit: { is: { user: { is: { name: { contains: q, mode: "insensitive" } } } } } },
+            ];
+        }
         if (dateFrom && dateTo) {
             where.eventDate = {
                 gte: new Date(dateFrom),

@@ -1270,3 +1270,62 @@ against a convenient stand-in rather than the thing itself. A guard's matcher
 tested on a synthetic string, a function's behaviour tested with inputs no
 caller supplies, and a response shape hand-authored rather than traced are the
 same error at three altitudes.
+
+---
+
+## 2026-07-28 — THE REFUTER IS REAL (8/8), and ten cheap rows cleared
+
+**PROVEN-TO-FAIL THE REFUTER.** 0/34 overturns was a finding, not a result — a
+refuter that never overturns is indistinguishable from one that isn't running.
+Eight findings **known to be non-breaks** were fed through the *identical*
+refuter prompt, each asserted CONFIRMED by a fabricated tracer. The answer key
+was verified by hand against the repo first.
+
+**CAUGHT 8 / 8. Missed 0.** The layer is real; the 19 CONFIRMED rows stand as
+double-verified.
+
+The refutations were not shallow — they out-traced the seeds:
+- the raw-status seed was killed by naming the *mounted* handler
+  (`auth.controller.ts:803`, mapper applied on **both** sides — `:830` expands the
+  filter, `:849` projects the rows) and identifying the unmapped
+  `pandit.routes.ts:746` as a **plural-path sibling no client calls**;
+- the accept-control seed was killed by following the card's `router.push` to
+  the request screen and finding `स्वीकार कीजिए` **one route away**, plus a
+  second voice-keyword accept path;
+- the dead-tree seed was killed from Next's own resolver source
+  (`find-pages-dir.js` prioritises `./app` over `./src/app`) **and** from the
+  built artifact's webpack module id;
+- the accommodation seed was killed at the POST body, the zod schema, the
+  Prisma create and the call site — four independent proofs of the literal 0.
+
+**NEW LEAD, not a finding** (recorded so it is not lost): a refuter noticed
+`handleAccept` posts to the **singular** `/pandit/bookings/:id/accept` while
+`app.ts:409` registers `panditRoutes` at the **plural** prefix, and the comment
+at `app.ts:404-406` contradicts the registration two lines below it. Needs its
+own trace before anyone calls it a break.
+
+**TEN CHEAP ROWS CLEARED** — all ten traced first, **all ten confirmed, none
+phantom** (they were the already-double-checked set, which is why the 44% rate
+did not repeat):
+
+| row | what it was |
+|---|---|
+| R1 booking filter | UI words pushed raw into Prisma; `REQUESTED`/`ACCEPTED` returned zero rows and `PANDIT_REQUESTED` was unfilterable. Now mapped through `dbStatusesForView` |
+| R2 `paymentStatus` | compared to `"PAID"`, a **PayoutStatus** value → `CAPTURED` |
+| R3 admin search | client sent `search` for months; controller never destructured it |
+| R4 travel-calculator origin | read `pandit.city`; the projection builds `pandit.panditProfile.location` |
+| R5 `baseDakshina` | **phantom field DELETED** (unreachability); the endpoint ships no rate data, so the cell is truthful-null, not a confident `₹0` |
+| R6 notification type | 21 written types vs 5 read categories, **zero overlap** — every row grey and **unclickable**. New single source `notificationCategory()` |
+| R7 samagri price | writer filled `price`, readers read `fixedPrice`; hidden because the seed writes both. Writer now fills both; readers coalesce |
+| R8 cross-app links | `NEXT_PUBLIC_*_APP_URL` declared in no env file → `localhost` links in prod on every page |
+| R9 web `darkMode` | absent → defaulted to `media` → half-dark page and a sub-AA payment-trust line |
+| R10 admin headers | the KYC/payout panel was **framable**; six headers added |
+
+**R6 is worth its own line: fixing an upstream break PROMOTED a latent one.** The
+notification vocabulary was latent only because the token key and the URL prefix
+failed first. Both were fixed this campaign, so the screen started rendering real
+rows — and the mismatch went live. *Closing a break can open one.*
+
+`vocabularyBoundaries.test.ts` guards all five code rows **on the boundary**, and
+every negative case reverts the **real line** per law G2 — not a reconstruction.
+Six breaks proven. 49/49 api guards · 576/576 pandit · three typechecks clean.

@@ -724,7 +724,16 @@ export const saveSamagriPackages = async (request: FastifyRequest, reply: Fastif
           }
         },
         update: {
+          // R7 — SamagriPackage carries TWO price columns (schema.prisma:310
+          // fixedPrice, :324 price). This live write path filled only `price`,
+          // while every customer-side reader reads `fixedPrice`, so the card
+          // printed "Samagri: Platform / Pandit" instead of a real price and the
+          // modal rendered a bare ₹. Invisible on any seeded DB because
+          // packages/db/prisma/seed.ts writes BOTH — the defect appeared only
+          // for packages a real pandit created. Write both here so new rows are
+          // correct at the source; readers coalesce for legacy rows.
           price: numericPrice,
+          fixedPrice: numericPrice,
           items: asJsonItems(validatedItems),
           isActive: true
         },
@@ -733,6 +742,7 @@ export const saveSamagriPackages = async (request: FastifyRequest, reply: Fastif
           pujaType,
           tier: tier as any,
           price: numericPrice,
+          fixedPrice: numericPrice,
           items: asJsonItems(validatedItems),
           isActive: true
         }

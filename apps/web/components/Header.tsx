@@ -39,7 +39,7 @@ export default function Header() {
 
   const isGuest = !loading && !user;
   const userInitial = (user?.name || "U").charAt(0).toUpperCase();
-  const panditAppUrl = process.env.NEXT_PUBLIC_PANDIT_APP_URL || "http://localhost:3002";
+  const panditAppUrl = process.env.NEXT_PUBLIC_PANDIT_URL || "http://localhost:3002";
 
   const navLinks: NavLink[] = [
     { href: "/", label: "Home" },

@@ -39,7 +39,7 @@ export function ServicesTab({
                             (pkg) => pkg.pujaType === service.pujaType
                         ) || [];
                         const samagriStartPrice = relevantSamagri.length > 0
-                            ? Math.min(...relevantSamagri.map(p => p.fixedPrice))
+                            ? Math.min(...relevantSamagri.map(p => (p.fixedPrice ?? p.price)))
                             : 0;
 
                         return (

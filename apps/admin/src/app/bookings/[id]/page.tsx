@@ -191,7 +191,7 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
                     <span className={`rounded-full px-3 py-1 text-xs font-semibold text-white ${STATUS_COLORS[b.status] ?? "bg-slate-600"}`}>
                         {(b.status ?? "").replace(/_/g, " ")}
                     </span>
-                    <span className={`rounded-full px-3 py-1 text-xs font-semibold ${b.paymentStatus === "PAID" ? "bg-green-500/10 text-green-400 border border-green-500/20" : "bg-yellow-500/10 text-yellow-400 border border-yellow-500/20"}`}>
+                    <span className={`rounded-full px-3 py-1 text-xs font-semibold ${b.paymentStatus === "CAPTURED" ? "bg-green-500/10 text-green-400 border border-green-500/20" : "bg-yellow-500/10 text-yellow-400 border border-yellow-500/20"}`}>
                         {b.paymentStatus}
                     </span>
                 </div>

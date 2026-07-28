@@ -26,8 +26,13 @@ interface PanditProfile {
   specializations: string[];
   verificationStatus: string;
   isOnline: boolean;
-  baseDakshina: number;
-  hasSamagriConfig: boolean;
+  // DELETED — phantom fields. `baseDakshina` is not a column anywhere (dakshina
+  // lives on DakshinaRate.amount / PujaService.dakshinaAmount / PoojaConfig),
+  // and getPanditsAdmin includes ONLY `user`, so neither ever arrived. Declaring
+  // them made `p.baseDakshina || 0` typecheck and print a confident "Base: ₹0"
+  // for every pandit — indistinguishable from a pandit who really charges
+  // nothing. `hasSamagriConfig` had zero runtime effect at all.
+  // They are removed rather than fixed so no future read of them can compile.
   createdAt: string;
   user: User;
 }
@@ -204,9 +209,13 @@ export default function PanditsDirectoryPage() {
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="text-xs font-medium text-slate-600">
-                        Base: ₹{p.baseDakshina || 0}
-                      </div>
+                      {/*
+                        * TRUTHFUL-NULL: this endpoint ships no rate data at all
+                        * (getPanditsAdmin includes only `user`), so there is no
+                        * honest number to print. A blank cell says "not loaded
+                        * here"; "₹0" said "this pandit charges nothing".
+                        */}
+                      <div className="text-xs font-medium text-slate-400">—</div>
                     </td>
                     <td className="px-6 py-4 text-right">
                       {p.isOnline ? (
