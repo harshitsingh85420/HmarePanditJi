@@ -386,7 +386,7 @@ Wizard driver improved twice this turn (step 0 by field → 2 steps; button-card
 
 **CONTRADICTORY RECORDS CORRECTED (the ruling says correct, not accumulate):**
 - `schema.prisma` carried `platformFee // 15% of dakshina` and `panditPayout // dakshina - platformFee + …` — the DEDUCTED model written into the storage layer, at a rate nothing used. Both corrected, plus `grandTotal` and `platformFeeGst` notes.
-- 🔴 **`packages/utils` carried a SECOND, DIFFERENT RATE: 15.** Four sites — `constants.ts:9`, `index.ts:59`, `index.ts:86`, `pricing.ts:42` — plus a `panditPayout = dakshinaAmount - platformFee` line, i.e. model A arithmetic. **Zero callers today, but a loaded gun on the money path:** the next person reaching for a fee helper in the shared package would have silently billed 15%, and nothing would have failed. REMOVED rather than synced — two numbers that must agree are one number too many. The existing build-failing guard never caught this because it only ever watched the API side.
+- 🔴 **`packages/utils` carried a SECOND, DIFFERENT RATE: 15.** Four sites — `constants.ts:9`, `index.ts:59`, `index.ts:86`, `pricing.ts:42` — plus a `panditPayout = dakshinaAmount - platformFee` line, i.e. model A arithmetic. **Zero callers TODAY — but NOT dead in the data (corrected 2026-07-28, see below): a loaded gun on the money path:** the next person reaching for a fee helper in the shared package would have silently billed 15%, and nothing would have failed. REMOVED rather than synced — two numbers that must agree are one number too many. The existing build-failing guard never caught this because it only ever watched the API side.
 
 **RATE IS NOW CONFIGURABLE.** `PLATFORM_FEE_PERCENT` environment variable, default 10, validated: a non-numeric, negative or >100 value is refused with a logged error and the default is kept, so a fat-fingered setting can never silently bill 0% or 900%.
 
@@ -1359,3 +1359,49 @@ isolation. Proven-to-fail by reverting `pricing.ts` to the 20 July expressions
 verbatim (law G2 — the real shape, not a reconstruction): the guard goes red,
 and the live-path assertion reports *"the live booking path pays the pandit 1890
 on a ₹2100 dakshina … This is MODEL A — the fee is being deducted again."*
+
+---
+
+## 2026-07-28 — CORRECTIONS FORCED BY THE PRODUCTION DATA
+
+Isj pulled the 9 real `Booking` rows. Three of my ledger entries were wrong,
+and one false claim is baked into a migration file.
+
+### C1 — "15% had zero callers" was true of the CODE, false of the DATA
+
+I recorded the `packages/utils` 15% constant as having **zero callers** and
+called it a loaded gun. Zero callers was true of *today's* code. It was **not**
+true historically: **8 of the 9 production rows carry a 15% fee, deducted from
+the pandit** — including the two manual pilot proofs of 14 July. The rate
+became 10% only on **15 July** (`0be83f5`, "commission is ONE number (10%) —
+kill the 10-vs-15 trust bug"), which is exactly why row 9 (20 July) carries 10%
+and rows 1–8 carry 15%.
+
+**The correct statement: dead in today's code, live in the data.** A constant
+with no current callers can still be the rate that every existing row was
+priced at. *"No callers" describes reachability, never history.* This is the
+CAPABILITY ≠ PATH law pointed backwards in time.
+
+### C2 — a FALSE CLAIM is committed inside the snapshot migration
+
+`packages/db/prisma/migrations/20260728120000_booking_fee_snapshot/migration.sql`
+states, in my words:
+
+> *"At the time of this migration the bookings table is empty in production, so
+> the backfill is a formality."*
+
+**It is not empty — there are 9 rows.** I had already corrected this same
+unverified claim once in this ledger and then left it standing in the artifact
+that would act on it. A blanket `DEFAULT 10` backfill would stamp **8 rows that
+were priced at 15%** with a frozen rate of 10%, i.e. the snapshot invariant
+would record a rate those bookings never used. The migration must not be
+applied as written.
+
+### C3 — the travel finding is a LOADED GUN, not a live loss
+
+`travelCost` is **0 on all 9 rows**, and all 9 are seed or QA artifacts (6
+created within 2 seconds on 8 July; `order_pilot_manual`, `order_notifyproof`,
+and the 20 July E2E). **Zero real customers.** So the fabricated ₹4,300 travel
+quote and the invented travel money never reached a real payout. Downgraded
+from a realised loss to a loaded gun — unchanged in urgency for the pilot,
+changed in what it has already cost: nothing.
