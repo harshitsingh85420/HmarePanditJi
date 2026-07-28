@@ -10,6 +10,24 @@ import { initiateRefund } from "../services/payment.service";
 import { computeCustomerCancellationRefund } from "../lib/refund-policy";
 import { NotificationService } from "../services/notification.service";
 import { getNotificationTemplate } from "../services/notification-templates";
+import { dbStatusesForView } from "../lib/bookingStatus";
+// THE ONE KYC vocabulary — approve/reject write through the shared constants
+// so a fifth spelling cannot appear.
+import { KYC_APPROVE_WRITE_STATUS, KYC_REJECT_WRITE_STATUS } from "@hmarepanditji/types";
+
+/**
+ * Which DB statuses an ops operator may cancel from.
+ *
+ * DERIVED, never hand-listed: the intent recorded in this file was "REQUESTED
+ * or ACCEPTED", which are pandit-UI (Machine-A) words. bookingStatus.ts is the
+ * one place that knows what those mean in the DB's own vocabulary, so ask it.
+ * Hand-listing the DB values here would recreate the exact break this fixes —
+ * a second copy of the state machine that drifts from the first.
+ */
+const CANCELLABLE_DB_STATUSES = new Set<string>([
+  ...dbStatusesForView("REQUESTED"),
+  ...dbStatusesForView("ACCEPTED"),
+]);
 const notificationService = new NotificationService();
 import {
   getDashboardStats,
@@ -67,10 +85,17 @@ export default async function adminRoutes(fastify: FastifyInstance, _opts: any) 
       return reply.status(404).send({ success: false, error: { message: "Booking not found" } });
     }
 
-    if (booking.status !== "REQUESTED" && booking.status !== "ACCEPTED") {
+    // THE VOCABULARY, from the ONE source. This guard used to compare against
+    // the literals "REQUESTED"/"ACCEPTED" — which NOTHING writes. Every writer
+    // stores Machine-B values (CREATED / PANDIT_REQUESTED / CONFIRMED …), so
+    // the condition was false for every booking the product can create and
+    // `POST /admin/bookings/:id/cancel` 400'd every time: ops could not cancel
+    // a booking at all. bookingStatus.ts is the single translator and already
+    // knew this; it was simply never imported here.
+    if (!CANCELLABLE_DB_STATUSES.has(booking.status)) {
       return reply.status(400).send({
         success: false,
-        error: { message: `Booking can only be cancelled in REQUESTED or ACCEPTED status. Current status is ${booking.status}.` }
+        error: { message: `Booking can only be cancelled before the puja begins. Current status is ${booking.status}.` }
       });
     }
 
@@ -106,7 +131,7 @@ export default async function adminRoutes(fastify: FastifyInstance, _opts: any) 
         // Canonical approved value — the admin verify flow and all
         // customer-facing readers gate on VERIFIED (APPROVED was a stray
         // spelling no read path fully honored).
-        verificationStatus: "VERIFIED",
+        verificationStatus: KYC_APPROVE_WRITE_STATUS,
         verifiedAt: new Date(),
         verifiedById: request.user?.id || "admin",
         profileCompletionPercent: 100,
@@ -141,7 +166,7 @@ export default async function adminRoutes(fastify: FastifyInstance, _opts: any) 
     const updated = await prisma.panditProfile.update({
       where: { id },
       data: {
-        verificationStatus: "REJECTED",
+        verificationStatus: KYC_REJECT_WRITE_STATUS,
         rejectionReason: reason,
       }
     });

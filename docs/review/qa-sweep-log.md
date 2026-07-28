@@ -1170,3 +1170,51 @@ own 10-case guard, including the URL trap and a verbatim sighting-#6 regression.
 both rules together: a guard may read raw source only when the artifact it
 asserts on IS a comment. The live instance is slot 5 of the अभिलेख card, now
 marked `RAW_SOURCE_REQUIRED` at its read site.
+
+---
+
+## 2026-07-28 — ops can cancel a booking again; the KYC counter joins its queue
+
+**THE ADMIN CANCEL GUARD (confirmed, call path traced).**
+`admin.routes.ts` required `REQUESTED`/`ACCEPTED`. **Nothing writes either** —
+grep for a writer of both = zero hits. Every writer stores Machine-B values
+(`CREATED` / `PANDIT_REQUESTED` / `CONFIRMED`). `bookingStatus.ts`, the single
+translator, was **never imported here**. Caller: `apps/admin/src/app/bookings/page.tsx:110`.
+So `POST /admin/bookings/:id/cancel` 400'd for **every booking the product can
+create** — ops could not cancel a booking at all.
+
+This is Act 3's unanswered question answered in code: *"what can I NOT do if the
+customer says the pandit hasn't arrived."* The answer was: cancel.
+
+Fixed from the vocabulary source — `dbStatusesForView("REQUESTED"|"ACCEPTED")`,
+never a hand-list, because a second copy of the state machine is the break
+itself. **The handler sets `status: CANCELLED` and nothing else** — no refund
+call, no notification. Unblocking it moves no money.
+
+**KYC COUNTER — the FIFTH survival of one break.** `admin.controller.ts` counted
+`PENDING`, the schema *default* (a pandit who uploaded nothing), which is
+**disjoint** from the review-queue set — so the dashboard card and the red
+sidebar badge showed a number that could never equal the length of the list they
+open, never cleared, and never moved when a real submission arrived. Now counted
+from `KYC_REVIEW_QUEUE_STATUSES`. Three further per-site literals converted in
+the same pass (stale-submission alert, approve write, reject write).
+
+**THE GUARD PINS EVERY ADMIN STATUS SET** — `adminStatusSets.test.ts`. It caught
+a sixth site on its very first run: `admin.controller.ts:398` hand-listed
+`["DOCUMENTS_SUBMITTED", "VIDEO_KYC_DONE"]`. Correct today; a hand-listed copy
+is precisely how this vocabulary drifted five times.
+
+It also sits on a **boundary**: the admin Override Status dropdown vs the
+server's `updateBookingSchema`. That caught `"PENDING"` in the dropdown — not a
+`BookingStatus` member at all, so selecting it could only reach Prisma, throw,
+and return a 500 the UI never shows (`if (res.ok)` with no else).
+
+Proven in four directions: PENDING back in the dropdown · PENDING counted again
+· the queue set hand-listed again · the cancellable set reverted to Machine-A
+literals. 48/48 api guards green, 576/576 pandit tests green, api + admin + web
+typechecks clean.
+
+**A guard that pinned a literal punished the correct fix.** `kycContract`
+asserted `verificationStatus: "VERIFIED"` and went RED the moment the site
+started importing the shared constant. It now pins the **constant reference**;
+the value is pinned once, at its declaration.

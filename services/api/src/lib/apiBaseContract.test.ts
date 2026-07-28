@@ -4,9 +4,9 @@ import { join } from "node:path";
 // Comments are stripped by the ONE shared implementation. See
 // packages/utils/src/code-only.ts for why this is a scanner and not a
 // regex, and for the single documented raw-source exception.
-import { codeOnly } from "../../../../packages/utils/src/code-only";
-// (deep path, not the barrel: @hmarepanditji/utils re-exports auth-context.tsx,
-//  which requires React — unresolvable in these bare node+tsx guard runs.)
+import { codeOnly } from "@hmarepanditji/utils/code-only";
+// (the /code-only SUBPATH, not the barrel: the barrel re-exports
+//  auth-context.tsx, which requires React — unresolvable in bare node+tsx.)
 
 // ─────────────────────────────────────────────────────────────
 // NEXT_PUBLIC_API_URL — ONE CONTRACT GUARD
@@ -104,7 +104,7 @@ for (const [file, val] of Object.entries(declared)) {
 // section sits on the boundary between the two and compares them.
 // ═════════════════════════════════════════════════════════════
 
-import { resolveApiBase, API_PREFIX } from "../../../../packages/utils/src/api-base";
+import { resolveApiBase, API_PREFIX } from "@hmarepanditji/utils/api-base";
 
 // ── (a) NO file may hand-append a version prefix ───────────────
 // Correct or not, the client must not decide this itself: resolveApiBase owns

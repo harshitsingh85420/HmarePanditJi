@@ -4,9 +4,9 @@ import { join } from "node:path";
 // Comments are stripped by the ONE shared implementation. See
 // packages/utils/src/code-only.ts for why this is a scanner and not a
 // regex, and for the single documented raw-source exception.
-import { codeOnly } from "../../../../packages/utils/src/code-only";
-// (deep path, not the barrel: @hmarepanditji/utils re-exports auth-context.tsx,
-//  which requires React — unresolvable in these bare node+tsx guard runs.)
+import { codeOnly } from "@hmarepanditji/utils/code-only";
+// (the /code-only SUBPATH, not the barrel: the barrel re-exports
+//  auth-context.tsx, which requires React — unresolvable in bare node+tsx.)
 
 // ─────────────────────────────────────────────────────────────
 // STORAGE-KEY CONTRACT GUARD — writer == reader

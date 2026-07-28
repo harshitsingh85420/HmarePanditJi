@@ -466,7 +466,15 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
                                 className="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white focus:border-primary focus:outline-none"
                             >
                                 <option value="">No change</option>
-                                {["PENDING", "CONFIRMED", "COMPLETED", "CANCELLED", "REFUNDED"].map((s) => (
+                                {/*
+                                  * Every option must be a real BookingStatus. "PENDING" was not —
+                                  * it belongs to VerificationStatus/PaymentStatus/PayoutStatus — so
+                                  * that option could only ever reach Prisma, throw, and return a 500
+                                  * with no feedback (the caller is `if (res.ok)` with no else).
+                                  * This list is pinned against updateBookingSchema in
+                                  * services/api/src/routes/admin.routes.ts by adminStatusSets.test.ts.
+                                  */}
+                                {["PANDIT_REQUESTED", "CONFIRMED", "COMPLETED", "CANCELLED", "REFUNDED"].map((s) => (
                                     <option key={s} value={s}>{s}</option>
                                 ))}
                             </select>
