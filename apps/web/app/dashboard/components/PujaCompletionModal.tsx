@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { X, Star, Share2, FileText } from "lucide-react";
+import { panditTitleName, panditInitial } from "../../../lib/panditIdentity";
 
 export function PujaCompletionModal({ booking, onClose }: { booking: any, onClose: () => void }) {
     const [show, setShow] = useState(false);
@@ -50,11 +51,11 @@ export function PujaCompletionModal({ booking, onClose }: { booking: any, onClos
                 {booking.pandit && (
                     <div className="flex items-center justify-center gap-4 mb-8 relative z-10 bg-gray-50/80 backdrop-blur-sm p-3 rounded-2xl border border-gray-100 border-b-2">
                         <div className="w-12 h-12 bg-gradient-to-br from-gray-200 to-gray-300 rounded-full overflow-hidden border-[3px] border-white shadow-sm flex items-center justify-center text-lg font-bold text-gray-500">
-                            {booking.pandit.name?.charAt(0) || "P"}
+                            {panditInitial(booking.pandit) || "P"}
                         </div>
                         <div className="text-left">
                             <div className="font-bold text-[11px] text-gray-400 uppercase tracking-widest leading-tight">Conducted by</div>
-                            <div className="font-bold text-gray-900">Pt. {booking.pandit.name || "Unknown"}</div>
+                            <div className="font-bold text-gray-900">{panditTitleName(booking.pandit) ?? "Unknown"}</div>
                         </div>
                     </div>
                 )}

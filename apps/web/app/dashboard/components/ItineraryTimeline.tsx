@@ -1,3 +1,4 @@
+import { panditTitleName } from "../../../lib/panditIdentity";
 export function ItineraryTimeline({ booking }: { booking: any }) {
     if (!booking.travelRequired) {
         return (
@@ -16,7 +17,7 @@ export function ItineraryTimeline({ booking }: { booking: any }) {
                             <span>{booking.venueAddress}, {booking.venueCity}</span>
                         </p>
                     </div>
-                    <p className="text-sm font-medium text-gray-500">Pt. {booking.pandit?.name || "Pandit"} will arrive 30 minutes prior.</p>
+                    <p className="text-sm font-medium text-gray-500">{panditTitleName(booking.pandit) ?? "Your pandit"} will arrive 30 minutes prior.</p>
                 </div>
             </div>
         );

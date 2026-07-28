@@ -6,6 +6,7 @@ import { Button, Input, Card, Badge, Toast } from "@hmarepanditji/ui";
 import { Star } from "lucide-react";
 import { CUSTOMER_TOKEN_KEY } from "@hmarepanditji/utils";
 import { resolveApiBase } from "@hmarepanditji/utils";
+import { panditName } from "../../../../../lib/panditIdentity";
 
 // NEXT_PUBLIC_API_URL is an ORIGIN; the client owns the /api/v1 prefix.
 // These calls used to hardcode `/api/customers/...`, which is wrong under
@@ -56,7 +57,7 @@ export default function ReviewSubmissionPage() {
                 if (data.data && data.data.pandit) {
                     setPandit({
                         id: data.data.pandit.id,
-                        name: data.data.pandit.name || "Pandit Ji",
+                        name: panditName(data.data.pandit) || "Pandit Ji",
                         photoUrl: data.data.pandit.panditProfile?.profilePhotoUrl
                     });
                 }
