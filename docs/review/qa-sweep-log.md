@@ -218,6 +218,17 @@ Every page's §3 now measures the app column against the viewport and reports th
 
 ---
 
+### 📋 TWO LAWS + THE FOURTH DEFERRAL · 2026-07-28
+
+- **GUARD-COVERAGE LAW:** the money guards watched only `services/api`, which is why a live 15% rate sat undisturbed in `packages/utils`. **A guard must cover every package, not just the site of the last burn** — scope it to the contract, not to where it was previously violated.
+- **SCHEMA PROSE IS A CONTRACT SURFACE:** `schema.prisma` documented model A (`platformFee // 15% of dakshina`, `panditPayout // dakshina - platformFee`) long after the code implemented B. The storage layer is where a newcomer reads the truth first, so **schema comments count as a contract surface and must be corrected like code**.
+
+**THREE-ACT WALK — ATTEMPTED, PARTIAL, NOT DEFERRED.** Prod muhurat count NOT obtained: the only committed production credential (`PROD_DATABASE_URL` in `services/api/.env.staging`, Neon host `ep-proud-lake-…`) fails with `PrismaClientInitializationError` — the DB credentials were rotated, so the repo cannot reach prod. **Whether fabricated muhurats are live in production is UNKNOWN and still owed.**
+Wizard driver improved twice this turn (step 0 by field → 2 steps; button-card chooser → 3 steps) but still did not reach `POST /bookings`; the 6-step wizard gates on choices the driver has not satisfied. **Harness limitation, stated as such for the third time — not a product defect.** Acts 2 and 3 therefore ran against an empty booking set.
+**FALSE GREEN CAUGHT IN MY OWN HARNESS:** the check "नई विनती is visible" passed by matching the word *विनती* in the EMPTY-STATE copy, not a booking row. Corrected; recorded because a check that passes on empty state is worse than no check.
+
+---
+
 ### 💰 RULING B — COMMISSION MODEL, OPS-CONFIGURABLE · 2026-07-28 · **SUPERSEDES every earlier record of a deducted/single-sided model**
 
 **THE MODEL, in the founder's words:**
