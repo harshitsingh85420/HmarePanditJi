@@ -1037,3 +1037,35 @@ Guard: registerLawMultilang.test.ts (runtime deny-lists, JS-safe Indic boundarie
 
 ## B2–B7
 _(not started — see the campaign brief for the batch list)_
+
+## 2026-07-28 — THE BOUNDARY-GUARD LAW, and the accommodation parity gap
+
+**LAW (third instance of one class).** A guard placed on ONE SIDE of a contract
+cannot see the contract. `display=charge` pinned the server's internal
+consistency and therefore could not answer a display≠charge question at all.
+Same shape as the 15% rate that survived in `packages/utils` because the money
+guards watched only `services/api`, and as the money guards that verify
+CONSERVATION rather than TRUTH (₹800 of invented travel conserves perfectly).
+**New guards go on BOUNDARIES by default** — assert that two sides AGREE, not
+that one side is self-consistent. Landed as
+`services/api/src/lib/displayChargeBoundary.test.ts`, proven in both directions
+(green on correct code; red on a server-only component, on the accommodation
+call site un-pinning from 0, and on `settledAtBooking` computed-but-unrendered).
+
+**MY OWN ERROR, corrected.** The display≠charge divergence I reported last turn
+was not real. I computed it by calling `calculateGrandTotal` with a non-zero
+accommodation input **that no caller ever supplies** — `createBooking` passes a
+literal `0`. Fifth phantom finding of one shape: *testing a function's
+CAPABILITY with inputs no caller supplies, instead of tracing the actual path.*
+The interim fix was NOT made, because making it would have introduced the very
+divergence it was meant to remove. The guard above now encodes the distinction
+between "different" and "provably zero at the call site".
+
+**ACCOMMODATION PARITY GAP (report-only).** Samagri has the full treatment;
+accommodation does not. The customer can choose "Book via platform", is
+auto-assigned ₹3,000, and is shown it under *Settled at booking*. That amount
+is then **never sent** (the POST body carries `accommodationArrangement` but not
+`accommodationCost`), never stored (`Booking.accommodationCost` stays 0), never
+shown to the pandit (his app has no accommodation line in any language), and
+never shown to ops (not in the admin booking select). The pandit arrives at an
+outstation puja owed a stay whose price only the customer ever saw.
