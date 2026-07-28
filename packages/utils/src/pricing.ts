@@ -19,7 +19,7 @@ export interface PriceBreakdown {
     travelServiceFeeGst: number;
     subtotal: number;
     grandTotal: number;
-    panditPayout: number;
+    platformTransfersToPandit: number;
 }
 
 export interface RefundCalculation {
@@ -198,7 +198,7 @@ export function calculatePriceBreakdown(params: {
     const grandTotal = subtotal + platformFee + platformFeeGst + travelServiceFee + travelServiceFeeGst;
 
     // Calculate pandit payout (dakshina + travel reimbursements, minus platform fee)
-    const panditPayout = dakshinaAmount + travelCost + foodAllowanceAmount + accommodationCost;
+    const platformTransfersToPandit = dakshinaAmount + travelCost + foodAllowanceAmount + accommodationCost;
 
     return {
         dakshinaAmount,
@@ -212,7 +212,7 @@ export function calculatePriceBreakdown(params: {
         travelServiceFeeGst,
         subtotal,
         grandTotal,
-        panditPayout,
+        platformTransfersToPandit,
     };
 }
 
@@ -349,7 +349,7 @@ export function validatePricing(breakdown: PriceBreakdown): void {
         'travelServiceFee',
         'travelServiceFeeGst',
         'grandTotal',
-        'panditPayout',
+        'platformTransfersToPandit',
     ];
 
     for (const field of fields) {

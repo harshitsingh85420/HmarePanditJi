@@ -79,7 +79,7 @@ export function calculatePricing(params: {
   foodAllowanceDays: number; accommodationCost: number;
   foodAllowanceAmount: number; platformFee: number; platformFeeGst: number;
   travelServiceFee: number; travelServiceFeeGst: number;
-  grandTotal: number; panditPayout: number;
+  grandTotal: number; platformTransfersToPandit: number;
 } {
   const foodAllowanceAmount = params.foodAllowanceDays * CONSTANTS.FOOD_ALLOWANCE_PER_DAY;
   // The platform fee is NOT computed here. Ruling B puts it in one place
@@ -95,9 +95,9 @@ export function calculatePricing(params: {
   // RULING B: the pandit receives 100% of his dakshina — the fee is NEVER
   // deducted. The old `dakshinaAmount - platformFee` here was the deducted
   // model (A) written down; corrected so no reader can mistake it for current.
-  const panditPayout = params.dakshinaAmount + params.travelCost
+  const platformTransfersToPandit = params.dakshinaAmount + params.travelCost
     + foodAllowanceAmount + params.samagriAmount;
-  return { ...params, foodAllowanceAmount, platformFee, platformFeeGst, travelServiceFee, travelServiceFeeGst, grandTotal, panditPayout };
+  return { ...params, foodAllowanceAmount, platformFee, platformFeeGst, travelServiceFee, travelServiceFeeGst, grandTotal, platformTransfersToPandit };
 }
 
 export function calculateRefundAmount(grandTotal: number, daysBeforeEvent: number): number {

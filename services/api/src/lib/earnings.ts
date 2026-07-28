@@ -3,12 +3,12 @@ import { PLATFORM_FEE_PERCENT } from "../config/constants";
 /**
  * Read the pandit's earnings from a booking's STORED financial columns — the
  * authoritative record of what the pandit is owed. Founder decision 2026-07-22:
- * display and payout paths NEVER recompute. `panditPayout`/`platformFee`/
+ * display and payout paths NEVER recompute. `platformTransfersToPandit`/`platformFee`/
  * `grandTotal` were frozen at booking-CREATION time, so an old 90/10 booking
  * keeps its historical numbers (showing/paying 100% on it would be a lie about
  * money already in the pandit's hand — truthful-state applies to history too).
  *
- * NULL/ZERO SAFETY: a booking written before the panditPayout column existed
+ * NULL/ZERO SAFETY: a booking written before the platformTransfersToPandit column existed
  * (null/≤0) falls back to the current-model value (dakshina + pass-throughs)
  * AND sets `storedPayoutMissing` so callers can SURFACE the anomaly — never
  * silently recompute.
@@ -25,18 +25,18 @@ export function earningsFromStored(booking: {
   travelCost?: number | null;
   foodAllowanceAmount?: number | null;
   accommodationCost?: number | null;
-  panditPayout?: number | null;
+  platformTransfersToPandit?: number | null;
   platformFee?: number | null;
-}): { platformFee: number; dakshinaNet: number; totalToPandit: number; storedPayoutMissing: boolean } {
+}): { platformFee: number; dakshinaNet: number; panditReceivesTotal: number; storedPayoutMissing: boolean } {
   const dakshina = booking.dakshinaAmount ?? 0;
   const passThroughs =
     (booking.travelCost ?? 0) + (booking.foodAllowanceAmount ?? 0) + (booking.accommodationCost ?? 0);
-  const stored = booking.panditPayout;
+  const stored = booking.platformTransfersToPandit;
   const storedPayoutMissing = stored == null || stored <= 0;
-  const totalToPandit = storedPayoutMissing ? dakshina + passThroughs : stored;
+  const panditReceivesTotal = storedPayoutMissing ? dakshina + passThroughs : stored;
   const platformFee = booking.platformFee ?? 0;
-  const dakshinaNet = Math.max(0, totalToPandit - passThroughs);
-  return { platformFee, dakshinaNet, totalToPandit, storedPayoutMissing };
+  const dakshinaNet = Math.max(0, panditReceivesTotal - passThroughs);
+  return { platformFee, dakshinaNet, panditReceivesTotal, storedPayoutMissing };
 }
 
 /**
@@ -64,11 +64,11 @@ export function computeEarnings(booking: {
   // fee (informational here); it NEVER reduces what the pandit receives.
   const platformFee = Math.round(dakshinaVal * PLATFORM_FEE_PERCENT / 100);
   const dakshinaNet = dakshinaVal; // 100% to the pandit — no deduction
-  const totalToPandit = dakshinaNet + travelVal + foodVal + samagriVal;
+  const panditReceivesTotal = dakshinaNet + travelVal + foodVal + samagriVal;
 
   return {
     platformFee, // customer-side fee, for reference — not subtracted above
     dakshinaNet,
-    totalToPandit,
+    panditReceivesTotal,
   };
 }

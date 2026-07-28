@@ -40,9 +40,9 @@ for (const c of CASES) {
   // CONSERVATION (unchanged in FORM): what the customer pays minus what the
   // pandit receives IS the platform's take.
   assert.strictEqual(
-    b.grandTotal - b.panditPayout,
+    b.grandTotal - b.platformTransfersToPandit,
     platformTake,
-    `conservation broken for ${JSON.stringify(c)}: collected−payout=${b.grandTotal - b.panditPayout}, platform take=${platformTake}`,
+    `conservation broken for ${JSON.stringify(c)}: collected−payout=${b.grandTotal - b.platformTransfersToPandit}, platform take=${platformTake}`,
   );
   // the customer charge is dakshina + the platform fee (ON TOP) + pass-throughs
   assert.strictEqual(
@@ -55,7 +55,7 @@ for (const c of CASES) {
   // the pandit receives the FULL dakshina (100%) + pass-throughs — fee NEVER
   // subtracted (the property that matters; also pinned in commission-consistency).
   assert.strictEqual(
-    b.panditPayout,
+    b.platformTransfersToPandit,
     b.dakshinaAmount + b.travelCost + b.foodAllowanceAmount + b.accommodationCost,
     `payout composition drifted for ${JSON.stringify(c)} — pandit must keep 100%`,
   );
@@ -65,7 +65,7 @@ for (const c of CASES) {
 const viaDelegate = calculateBookingFinancials(5000, 800, 2000, 0);
 const viaSource = calculateGrandTotal({ dakshinaAmount: 5000, travelCost: 800, foodAllowanceAmount: 2000 });
 assert.strictEqual(viaDelegate.grandTotal, viaSource.grandTotal, "delegate grandTotal must equal pricing source");
-assert.strictEqual(viaDelegate.panditPayout, viaSource.panditPayout, "delegate panditPayout must equal pricing source");
+assert.strictEqual(viaDelegate.platformTransfersToPandit, viaSource.platformTransfersToPandit, "delegate platformTransfersToPandit must equal pricing source");
 
 const SRC = join(__dirname, "..");
 const read = (rel: string) => readFileSync(join(SRC, rel), "utf8");
@@ -74,11 +74,11 @@ const paymentSvc = read("services/payment.service.ts");
 const paymentRoutes = read("routes/payment.routes.ts");
 
 // 2) no caller-supplied financial overrides in createBooking
-for (const bad of ["input.grandTotal", "input.platformFee", "input.panditPayout", "input.travelServiceFee"]) {
+for (const bad of ["input.grandTotal", "input.platformFee", "input.platformTransfersToPandit", "input.travelServiceFee"]) {
   assert.ok(!bookingSvc.includes(bad), `${bad} must not exist — financials come only from the money source`);
 }
 assert.ok(/grandTotal:\s*fin\.grandTotal/.test(bookingSvc), "grandTotal column must be written from fin.grandTotal");
-assert.ok(/panditPayout:\s*fin\.panditPayout/.test(bookingSvc), "panditPayout column must be written from fin.panditPayout");
+assert.ok(/platformTransfersToPandit:\s*fin\.platformTransfersToPandit/.test(bookingSvc), "platformTransfersToPandit column must be written from fin.platformTransfersToPandit");
 
 // 3) the Razorpay charge comes from booking.grandTotal; the route takes only bookingId
 assert.ok(/booking\.grandTotal/.test(paymentSvc), "createRazorpayOrder must charge booking.grandTotal");

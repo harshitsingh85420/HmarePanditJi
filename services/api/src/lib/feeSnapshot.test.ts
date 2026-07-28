@@ -90,7 +90,7 @@ assert.strictEqual(reloaded.currentFeePercent(), 25, "a new booking must use the
 // ── 3. the 100% law is untouched by any of this ───────────────
 const PRICING = read("services/api/src/utils/pricing.ts");
 assert.ok(
-  !/panditPayout\s*=\s*[^;]*-\s*platformFee/.test(PRICING),
+  !/platformTransfersToPandit\s*=\s*[^;]*-\s*platformFee/.test(PRICING),
   "the platform fee is being DEDUCTED from the payout — that is model A, and the ruling is B",
 );
 

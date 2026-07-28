@@ -198,7 +198,7 @@ export default async function adminRoutes(fastify: FastifyInstance, _opts: any) 
           data: {
             bookingId: booking.id,
             panditId: booking.panditId!,
-            amount: booking.panditPayout || 0,
+            amount: booking.platformTransfersToPandit || 0,
             status: "PENDING"
           }
         });
@@ -267,7 +267,7 @@ export default async function adminRoutes(fastify: FastifyInstance, _opts: any) 
             dakshinaAmount: true,
             travelCost: true,
             foodAllowanceAmount: true,
-            panditPayout: true,
+            platformTransfersToPandit: true,
             payoutStatus: true,
             payoutReference: true,
             payoutCompletedAt: true,
@@ -298,8 +298,8 @@ export default async function adminRoutes(fastify: FastifyInstance, _opts: any) 
           ...rest,
           // Surface the missing-stored-payout anomaly so the admin UI can show a
           // neutral "being checked" state instead of a confident wrong figure
-          // (founder 2026-07-22). panditPayout is the STORED authoritative column.
-          storedPayoutMissing: rest.panditPayout == null || rest.panditPayout <= 0,
+          // (founder 2026-07-22). platformTransfersToPandit is the STORED authoritative column.
+          storedPayoutMissing: rest.platformTransfersToPandit == null || rest.platformTransfersToPandit <= 0,
           pandit: pandit ? {
             id: pandit.user?.id,
             name: pandit.user?.name,
@@ -316,7 +316,7 @@ export default async function adminRoutes(fastify: FastifyInstance, _opts: any) 
       // Aggregate payout stats
       const stats = await prisma.booking.aggregate({
         where: { paymentStatus: "CAPTURED", status: "COMPLETED" },
-        _sum: { panditPayout: true, grandTotal: true },
+        _sum: { platformTransfersToPandit: true, grandTotal: true },
         _count: true,
       });
 
@@ -327,7 +327,7 @@ export default async function adminRoutes(fastify: FastifyInstance, _opts: any) 
       sendSuccess(res, {
         bookings: mappedBookings,
         stats: {
-          totalPayouts: stats._sum.panditPayout ?? 0,
+          totalPayouts: stats._sum.platformTransfersToPandit ?? 0,
           totalRevenue: stats._sum.grandTotal ?? 0,
           completedBookings: stats._count,
           pendingPayouts: pendingPayoutCount,
@@ -376,7 +376,7 @@ export default async function adminRoutes(fastify: FastifyInstance, _opts: any) 
           },
         });
 
-        const t1 = getNotificationTemplate("PAYOUT_COMPLETED", { id: booking.id.substring(0, 8).toUpperCase(), amount: booking.panditPayout, transactionRef: req.body.transactionRef });
+        const t1 = getNotificationTemplate("PAYOUT_COMPLETED", { id: booking.id.substring(0, 8).toUpperCase(), amount: booking.platformTransfersToPandit, transactionRef: req.body.transactionRef });
         // Booking.panditId is the PanditProfile id — resolve the pandit's User
         // id (the Notification.userId FK) or the notify silently fails.
         const payoutPanditUserId = booking.panditId

@@ -109,6 +109,19 @@ export function CartSidebar() {
                             )}
 
                             <div className="mt-auto border-t border-gray-100 pt-4 pb-4">
+                                {/* TRUTH LINE (Isj, 2026-07-28). Samagri is NEVER charged
+                                    online — the customer hands this amount to the pandit
+                                    on the day. It is recorded on the booking but sits
+                                    outside grandTotal and outside the payout, so it must
+                                    be stated BEFORE the total, not after it. */}
+                                <div className="mb-3 rounded-lg bg-amber-50 border border-amber-200 px-3 py-2">
+                                    <p className="text-xs font-semibold text-amber-900">
+                                        यह राशि आप पंडित जी को पूजा के दिन सीधे देंगे।
+                                    </p>
+                                    <p className="text-[11px] text-amber-800 mt-0.5">
+                                        This amount is handed to Pandit ji directly on the day — it is not paid online and is not part of your online payment.
+                                    </p>
+                                </div>
                                 <div className="flex justify-between items-end mb-1">
                                     <p className="text-gray-600 font-medium">Total Price:</p>
                                     <p className="text-2xl font-bold text-gray-900">

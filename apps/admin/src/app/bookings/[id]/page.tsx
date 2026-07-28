@@ -38,7 +38,7 @@ interface Booking {
     travelServiceFee: number;
     travelServiceFeeGst: number;
     grandTotal: number;
-    panditPayout: number;
+    platformTransfersToPandit: number;
     payoutStatus: string;
     paymentStatus: string;
     cancelledBy: string | null;
@@ -362,11 +362,11 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
                             </div>
                             <div className="border-t border-slate-800 pt-2 flex justify-between">
                                 <span className="text-slate-400">Pandit Payout</span>
-                                <span className="text-primary font-semibold">{"\u20B9"}{b.panditPayout.toLocaleString("en-IN")}</span>
+                                <span className="text-primary font-semibold">{"\u20B9"}{b.platformTransfersToPandit.toLocaleString("en-IN")}</span>
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-slate-400">Platform Revenue</span>
-                                <span className="text-blue-400 font-semibold">{"\u20B9"}{(b.grandTotal - b.panditPayout).toLocaleString("en-IN")}</span>
+                                <span className="text-blue-400 font-semibold">{"\u20B9"}{(b.grandTotal - b.platformTransfersToPandit).toLocaleString("en-IN")}</span>
                             </div>
                         </div>
                     </section>
@@ -418,7 +418,7 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-slate-400">Amount</span>
-                                <span className="text-white font-semibold">{"\u20B9"}{b.panditPayout.toLocaleString("en-IN")}</span>
+                                <span className="text-white font-semibold">{"\u20B9"}{b.platformTransfersToPandit.toLocaleString("en-IN")}</span>
                             </div>
                         </div>
                     </section>

@@ -40,7 +40,7 @@ interface BookingDetail {
   earnings: {
     platformFee: number;
     dakshinaNet: number;
-    totalToPandit: number;
+    panditReceivesTotal: number;
     storedPayoutMissing?: boolean;
   };
 }
@@ -169,7 +169,7 @@ export default function BookingRequestPage() {
 
   const cName = booking.customer?.name || booking.customerName || "यजमान";
   const pujaTitle = booking.pujaType || booking.eventType;
-  const total = booking.earnings?.totalToPandit || 0;
+  const total = booking.earnings?.panditReceivesTotal || 0;
 
   // Speak mount voice composed sentence
   const voiceIntroText = `नई बुकिंग। ${pujaTitle} की बुकिंग। कुल कमाई ${total} रुपये।`;
@@ -203,7 +203,7 @@ export default function BookingRequestPage() {
       <CelebrationOverlay
         title="बुकिंग स्वीकार! 🎉"
         subtitle={`${honouredName} की पूजा अब आपकी है`}
-        amount={booking.earnings?.totalToPandit || 0}
+        amount={booking.earnings?.panditReceivesTotal || 0}
         tone="leaf"
         voiceLine={t("booking.acceptedVoice")}
         onDone={() => router.replace(`/bookings/${booking.id}`)}
@@ -378,7 +378,7 @@ export default function BookingRequestPage() {
             <MoneyCount target={total} className="text-[28px] font-black text-leaf-700" />
           </div>
           {booking.samagriAmount > 0 && (
-            <p className="mt-[6px] text-[14px] font-semibold text-softgrey font-hindi leading-snug">
+            <p className="mt-[6px] text-[15px] font-semibold text-softgrey font-hindi leading-snug">
               {t("booking.samagriDirectNote")}
             </p>
           )}

@@ -40,7 +40,7 @@ interface Booking {
   platformFeeGst: number;
   travelServiceFee: number;
   travelServiceFeeGst: number;
-  panditPayout: number;
+  platformTransfersToPandit: number;
   eventType: string;
   eventDate: string;
   status: string;

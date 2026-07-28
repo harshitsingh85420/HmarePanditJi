@@ -15,7 +15,7 @@ export interface PriceBreakdown {
   platformFeeGst: number;
   travelServiceFeeGst: number;
   grandTotal: number;
-  panditPayout: number;
+  platformTransfersToPandit: number;
 }
 
 /** PLATFORM_FEE_PERCENT of dakshina — charged to the CUSTOMER on top of the
@@ -74,8 +74,8 @@ export function calculateGrandTotal(params: {
   // the pandit's payout. This supersedes both the doc's 15% and the shipped
   // 90/10 model (see CONFLICT_RULINGS #7). Conservation:
   //     grandTotal (customer pays) = dakshina + platformFee + pass-throughs
-  //     panditPayout (pandit gets) = dakshina + pass-throughs
-  //     platformFee = grandTotal − panditPayout   (never touches payout)
+  //     platformTransfersToPandit (pandit gets) = dakshina + pass-throughs
+  //     platformFee = grandTotal − platformTransfersToPandit   (never touches payout)
   // GST on the fee is a platform-side concern (remitted out of the fee); the
   // customer sees दक्षिणा + प्लेटफ़ॉर्म शुल्क, no separate tax line.
   const travelServiceFee = 0; // ONE customer fee — no second travel charge
@@ -92,7 +92,7 @@ export function calculateGrandTotal(params: {
 
   // Pandit receives: the FULL dakshina (100%) + all pass-throughs. The
   // platform fee is customer-paid and is NEVER subtracted here.
-  const panditPayout = dakshinaAmount + travelCost + foodAllowanceAmount + accommodationCost;
+  const platformTransfersToPandit = dakshinaAmount + travelCost + foodAllowanceAmount + accommodationCost;
 
   return {
     dakshinaAmount,
@@ -104,7 +104,7 @@ export function calculateGrandTotal(params: {
     platformFeeGst,
     travelServiceFeeGst,
     grandTotal,
-    panditPayout,
+    platformTransfersToPandit,
   };
 }
 

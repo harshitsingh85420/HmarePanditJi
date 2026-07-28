@@ -29,7 +29,7 @@ console.log("Running admin-breakdown reconciliation guard...");
  * The fields that COMPOSE grandTotal, in render order.
  *
  * `samagriAmount` is deliberately NOT here: calculateGrandTotal neither
- * returns it nor includes it in grandTotal, and panditPayout excludes it too.
+ * returns it nor includes it in grandTotal, and platformTransfersToPandit excludes it too.
  * Samagri is a separate customer transaction (the samagri cart), so listing it
  * as a component of the charged total would make every samagri booking report
  * a false mismatch. It is shown in the drawer OUTSIDE the total, labelled.
@@ -71,8 +71,8 @@ for (const c of CASES) {
 
   // RULING B stays visible here too: the pandit keeps 100% of dakshina.
   assert.ok(
-    fin.panditPayout >= c.dakshinaAmount,
-    `${c.label}: payout ₹${fin.panditPayout} is below the dakshina ₹${c.dakshinaAmount} — the fee was deducted`,
+    fin.platformTransfersToPandit >= c.dakshinaAmount,
+    `${c.label}: payout ₹${fin.platformTransfersToPandit} is below the dakshina ₹${c.dakshinaAmount} — the fee was deducted`,
   );
 }
 

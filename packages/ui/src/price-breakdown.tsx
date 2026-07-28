@@ -11,7 +11,7 @@ export interface PriceBreakdownData {
   platformFeeGst: number;
   travelServiceFeeGst?: number;
   grandTotal: number;
-  panditPayout?: number;
+  platformTransfersToPandit?: number;
 }
 
 export interface PriceBreakdownProps {
@@ -137,13 +137,13 @@ export function PriceBreakdown({
       </div>
 
       {/* Pandit payout (admin / pandit view) */}
-      {showPanditPayout && breakdown.panditPayout != null && (
+      {showPanditPayout && breakdown.platformTransfersToPandit != null && (
         <div className="flex items-center justify-between border-t border-green-200 bg-green-50 px-4 py-2 dark:border-green-800 dark:bg-green-900/20">
           <span className="text-xs font-medium text-green-700 dark:text-green-400">
             Pandit Payout
           </span>
           <span className="text-sm font-semibold text-green-700 dark:text-green-400">
-            {fmt(breakdown.panditPayout)}
+            {fmt(breakdown.platformTransfersToPandit)}
           </span>
         </div>
       )}

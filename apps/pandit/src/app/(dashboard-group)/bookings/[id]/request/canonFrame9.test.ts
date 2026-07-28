@@ -47,9 +47,9 @@ describe("नई बुकिंग विनती — canon frame 9 pins", () 
     expect(src).toMatch(/prefers-reduced-motion: reduce/);
   });
 
-  it("money is real: total binds earnings.totalToPandit, no hardcoded ₹", () => {
+  it("money is real: total binds earnings.panditReceivesTotal, no hardcoded ₹", () => {
     expect(src).toMatch(/MoneyCount target=\{total\} className="text-\[28px\]/);
-    expect(src).toMatch(/booking\.earnings\?\.totalToPandit/);
+    expect(src).toMatch(/booking\.earnings\?\.panditReceivesTotal/);
     expect(code).not.toMatch(/₹\s*[0-9०-९]/);
   });
 

@@ -486,16 +486,16 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
         select: { bankName: true, bankAccountNumber: true }
       });
 
-      const totalEarned = completedBookings.reduce((sum: number, b: { panditPayout: number | null }) => sum + (b.panditPayout || 0), 0);
-      const totalPaid = completedBookings.filter((b: { payoutStatus: string }) => b.payoutStatus === "COMPLETED").reduce((sum: number, b: { panditPayout: number | null }) => sum + (b.panditPayout || 0), 0);
-      const totalPending = completedBookings.filter((b: { payoutStatus: string }) => b.payoutStatus !== "COMPLETED").reduce((sum: number, b: { panditPayout: number | null }) => sum + (b.panditPayout || 0), 0);
+      const totalEarned = completedBookings.reduce((sum: number, b: { platformTransfersToPandit: number | null }) => sum + (b.platformTransfersToPandit || 0), 0);
+      const totalPaid = completedBookings.filter((b: { payoutStatus: string }) => b.payoutStatus === "COMPLETED").reduce((sum: number, b: { platformTransfersToPandit: number | null }) => sum + (b.platformTransfersToPandit || 0), 0);
+      const totalPending = completedBookings.filter((b: { payoutStatus: string }) => b.payoutStatus !== "COMPLETED").reduce((sum: number, b: { platformTransfersToPandit: number | null }) => sum + (b.platformTransfersToPandit || 0), 0);
 
-      const pendingPayouts = completedBookings.filter((b: { payoutStatus: string }) => b.payoutStatus !== "COMPLETED").map((b: { id: string; eventType: string; eventDate: Date; panditPayout: number | null; payoutStatus: string | null }) => ({
+      const pendingPayouts = completedBookings.filter((b: { payoutStatus: string }) => b.payoutStatus !== "COMPLETED").map((b: { id: string; eventType: string; eventDate: Date; platformTransfersToPandit: number | null; payoutStatus: string | null }) => ({
         bookingId: b.id,
         bookingNumber: `HPJ-${b.id.substring(0, 8).toUpperCase()}`,
         eventType: b.eventType,
         eventDate: b.eventDate.toISOString(),
-        amount: b.panditPayout || 0,
+        amount: b.platformTransfersToPandit || 0,
         expectedDate: new Date(b.eventDate.getTime() + 24 * 60 * 60 * 1000).toISOString(),
         status: b.payoutStatus || "PENDING"
       }));
@@ -508,14 +508,14 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
 
         const sum = await prisma.booking.aggregate({
           where: { panditId, status: "COMPLETED", eventDate: { gte: d, lte: e } },
-          _sum: { panditPayout: true }
+          _sum: { platformTransfersToPandit: true }
         });
         // short month names in hindi or english based. fallback to en-US since Node ICU may not have full hindi
         // Let's explicitly hardcode short months in hindi for charting precision if requested.
         const hiMonths = ["जन", "फर", "मार", "अप्र", "मई", "जून", "जुल", "अग", "सित", "अक्टू", "नवं", "दिसं"];
         monthlyTotals.push({
           month: hiMonths[d.getMonth()],
-          total: sum._sum.panditPayout || 0
+          total: sum._sum.platformTransfersToPandit || 0
         });
       }
 
@@ -534,14 +534,14 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
         },
         monthlyTotals,
         pendingPayouts,
-        bookingEarnings: completedBookings.map((b: { id: string; eventType: string; eventDate: Date; venueCity: string | null; panditPayout: number | null; payoutStatus: string | null; grandTotal: number | null; payoutCompletedAt: Date | null }) => ({
+        bookingEarnings: completedBookings.map((b: { id: string; eventType: string; eventDate: Date; venueCity: string | null; platformTransfersToPandit: number | null; payoutStatus: string | null; grandTotal: number | null; payoutCompletedAt: Date | null }) => ({
           bookingId: b.id,
           bookingNumber: `HPJ-${b.id.substring(0, 8).toUpperCase()}`,
           eventType: b.eventType,
           eventDate: b.eventDate.toISOString(),
           customerCity: b.venueCity || "N/A",
           grossAmount: b.grandTotal || 0,
-          panditPayout: b.panditPayout || 0,
+          platformTransfersToPandit: b.platformTransfersToPandit || 0,
           payoutStatus: b.payoutStatus || "PENDING",
           payoutDate: b.payoutCompletedAt ? b.payoutCompletedAt.toISOString() : null
         }))
@@ -585,7 +585,7 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
       const travelCostOutbound = Math.ceil((booking.travelCost || 0) / 2);
       const travelCostReturn = Math.floor((booking.travelCost || 0) / 2);
       const foodAllowanceAmount = booking.foodAllowanceAmount || 0;
-      const totalPayout = booking.panditPayout || 0;
+      const totalPayout = booking.platformTransfersToPandit || 0;
 
       const payout = {
         status: booking.payoutStatus,
@@ -675,12 +675,12 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
       const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
       const thisMonthEarningsAgg = await prisma.booking.aggregate({
         where: { panditId, payoutCompletedAt: { gte: startOfMonth }, payoutStatus: "COMPLETED" },
-        _sum: { panditPayout: true }
+        _sum: { platformTransfersToPandit: true }
       });
 
       const pendingPayoutAgg = await prisma.booking.aggregate({
         where: { panditId, payoutStatus: "PENDING", status: "COMPLETED" },
-        _sum: { panditPayout: true }
+        _sum: { platformTransfersToPandit: true }
       });
 
       const completedBookingsThisMonth = await prisma.booking.findMany({
@@ -698,8 +698,8 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
         upcomingBookings,
         pendingRequests,
         earningsSummary: {
-          thisMonthTotal: thisMonthEarningsAgg._sum.panditPayout || completedBookingsThisMonth.reduce((acc: number, b: { panditPayout: number | null }) => acc + (b.panditPayout || 0), 0) || 32500,
-          pendingPayout: pendingPayoutAgg._sum.panditPayout || 8200,
+          thisMonthTotal: thisMonthEarningsAgg._sum.platformTransfersToPandit || completedBookingsThisMonth.reduce((acc: number, b: { platformTransfersToPandit: number | null }) => acc + (b.platformTransfersToPandit || 0), 0) || 32500,
+          pendingPayout: pendingPayoutAgg._sum.platformTransfersToPandit || 8200,
           thisMonthBookingsCount: completedBookingsThisMonth.length || 5,
           pendingBookingsCount: 2,
           lastPayoutDate: new Date().toISOString(),
@@ -1004,7 +1004,7 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
       const t9 = getNotificationTemplate("PUJA_COMPLETED", { id: booking.id.substring(0, 8).toUpperCase() });
       await notificationService.notify({ userId: booking.customerId, type: "PUJA_COMPLETED", title: t9.title, message: t9.message, smsMessage: t9.smsMessage });
 
-      const t10 = getNotificationTemplate("PUJA_COMPLETED_PANDIT", { id: booking.id.substring(0, 8).toUpperCase(), amount: booking.panditPayout });
+      const t10 = getNotificationTemplate("PUJA_COMPLETED_PANDIT", { id: booking.id.substring(0, 8).toUpperCase(), amount: booking.platformTransfersToPandit });
       await notificationService.notify({ userId: req.user!.id, type: "PUJA_COMPLETED_PANDIT", title: t10.title, message: t10.message, smsMessage: t10.smsMessage });
 
       sendSuccess(res, { success: true });

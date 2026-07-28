@@ -12,7 +12,7 @@ import { join } from "node:path";
 // to accept. He would accept expecting one number and be paid another.
 //
 // THE LAW: no pandit-facing file may read a customer-inclusive total. He is
-// owed `panditPayout` (100% of dakshina + pass-throughs, fee never deducted),
+// owed `platformTransfersToPandit` (100% of dakshina + pass-throughs, fee never deducted),
 // or `dakshinaAmount` where that is the whole of it.
 //
 // SCOPE: the WHOLE app. The earlier census of this class was scoped to one
@@ -70,7 +70,7 @@ describe("Ruling B · the pandit is never shown the customer's total", () => {
       expect(
         offenders,
         `these pandit-app files read \`${field}\`, which includes money the pandit does not receive. ` +
-          `Show him panditPayout (or dakshinaAmount) instead:\n  ${offenders.join("\n  ")}`,
+          `Show him platformTransfersToPandit (or dakshinaAmount) instead:\n  ${offenders.join("\n  ")}`,
       ).toEqual([]);
     });
   }

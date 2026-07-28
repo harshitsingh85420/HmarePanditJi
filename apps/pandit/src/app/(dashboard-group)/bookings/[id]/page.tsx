@@ -44,7 +44,7 @@ interface BookingDetail {
   earnings: {
     platformFee: number;
     dakshinaNet: number;
-    totalToPandit: number;
+    panditReceivesTotal: number;
     storedPayoutMissing?: boolean;
   };
 }
@@ -233,7 +233,7 @@ export default function BookingDetailPage() {
   const screenVoiceText = `बुकिंग विवरण। ${pujaTitle}।`;
 
   if (showSuccessScreen) {
-    const payoutAmount = booking.earnings?.totalToPandit || 0;
+    const payoutAmount = booking.earnings?.panditReceivesTotal || 0;
     return (
       <div className="fixed inset-0 bg-cream text-ink flex flex-col justify-between p-6 z-50">
         <Narrate text={completeLine || t("booking.completeVoice")} />

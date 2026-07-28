@@ -283,7 +283,7 @@ async function main() {
       venueCity: 'Delhi', venueAddress: 'A-42, Sector 62, Noida, UP, 201301', venuePincode: '110001',
       travelRequired: false, dakshinaAmount: 3100, platformFee: 465, platformFeeGst: 83, grandTotal: 3648,
       paymentStatus: PaymentStatus.CAPTURED, payoutStatus: PayoutStatus.COMPLETED,
-      panditPayout: 2635, payoutReference: 'UTR123456',
+      platformTransfersToPandit: 2635, payoutReference: 'UTR123456',
       statusUpdates: {
         create: [
           { fromStatus: BookingStatus.CREATED, toStatus: BookingStatus.PANDIT_REQUESTED, updatedById: customerMap.customer1.id },
@@ -316,7 +316,7 @@ async function main() {
       status: BookingStatus.TRAVEL_BOOKED, eventType: 'Griha Pravesh', eventDate: new Date(new Date().getTime() + 2 * 24 * 60 * 60 * 1000),
       venueCity: 'Noida', venueAddress: 'C-15, Sector 4, Indirapuram, UP, 201014', venuePincode: '201301',
       travelRequired: true, travelStatus: TravelStatus.BOOKED, dakshinaAmount: 7000, platformFee: 1050, platformFeeGst: 189, grandTotal: 8239,
-      paymentStatus: PaymentStatus.CAPTURED, payoutStatus: PayoutStatus.PENDING, panditPayout: 5950
+      paymentStatus: PaymentStatus.CAPTURED, payoutStatus: PayoutStatus.PENDING, platformTransfersToPandit: 5950
     }
   });
 

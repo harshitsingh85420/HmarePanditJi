@@ -218,6 +218,36 @@ Every page's §3 now measures the app column against the viewport and reports th
 
 ---
 
+### 💸 PAYMENT-SOURCE LABELLING LAW + THE RENAME · 2026-07-28
+
+**THE LAW (Isj):** *every rupee figure shown to the pandit must declare WHO PAYS IT* — platform transfer, or straight from the customer's hand. **A true number with an unstated source is a false promise about his bank balance.** It generalises two sightings: ₹5,610 (the customer's total) on his booking card, and samagri sitting inside his earnings block.
+
+**WHO PAYS WHAT — traced, not assumed:**
+
+| component | in customer's grandTotal? | in platformTransfersToPandit? | who actually pays the pandit | label now |
+|---|---|---|---|---|
+| दक्षिणा | ✅ | ✅ | **platform transfer** | "दक्षिणा — प्लेटफ़ॉर्म से" |
+| यात्रा भत्ता | ✅ | ✅ | **platform transfer** | "यात्रा भत्ता — प्लेटफ़ॉर्म से" |
+| भोजन भत्ता | ✅ | ✅ | **platform transfer** | "भोजन भत्ता — प्लेटफ़ॉर्म से" |
+| सामग्री | ❌ | ❌ | **customer, directly** | "सामग्री — यजमान से सीधे" + note |
+| प्लेटफ़ॉर्म शुल्क | ✅ (customer cost) | n/a | not his money at all | already "यजमान देता है" |
+
+The mixed total now carries `totalNote`: *"इसमें प्लेटफ़ॉर्म से आने वाला पैसा और यजमान से सीधे मिलने वाला पैसा — दोनों शामिल हैं।"*
+
+**GUARD `paymentSourceLabels.test.ts` — a CHECKLIST that grows with the app.** Every pandit-facing money label is enumerated with its source; a new label added without a source marker fails the build. Proven in both directions: 9 positive assertions, plus a negative case asserting that the bare strings ("दक्षिणा", "सामग्री कमाई", "कुल") are REJECTED — so the checker cannot be asleep.
+
+**THE RENAME — the unreachability pattern applied to NAMING.** `totalToPandit` → **`panditReceivesTotal`** (everything that reaches him, from any hand) and `panditPayout` → **`platformTransfersToPandit`** (what we actually send). Reading either name alone now tells you which money it is. 26 files, 130 sites, `@map("panditPayout")` keeps the physical column so **no data migration**. Ledger this as the pattern's extension: *make the wrong read hard to WRITE — first by deleting the phantom field, now by naming so the two cannot be confused.*
+
+**SHIPPED — the samagri cart truth line**, stated BEFORE the total, not after: *"यह राशि आप पंडित जी को पूजा के दिन सीधे देंगे।"* / "…handed to Pandit ji directly on the day — not paid online."
+**PARKED with a recommendation (the metaphor is Isj's):** retire the commerce framing — "Add to Cart", a running total, a checkout-shaped sidebar — in favour of a LIST that goes TO the pandit. Nothing is being purchased, and the shape says otherwise.
+
+**🔴 REPORTED — COMPOSITION LOOKS WRONG (found while tracing):** the wizard's pay-now preview is
+`dakshina + platformFee + travel + food` — it **omits `accommodationCost`**, which the server's `grandTotal` DOES include. For a PLATFORM_BOOKS stay the customer reviews a figure **lower than he is charged** (₹27,400 previewed vs ₹29,900 charged on a worked example). The Razorpay modal uses the server amount, so he pays the correct figure — but the number he agrees to is not it. Display=charge is broken for platform-booked accommodation. Not fixed: it is money composition.
+
+**CORRECTION TO MY OWN TRACE:** I first computed a food-allowance divergence too. That was my error — `calculateGrandTotal` takes `foodAllowanceAmount`, not `foodAllowanceDays`, and I passed the wrong param. Food is correct. Only accommodation diverges. I checked before reporting because the same mistake shape has produced four phantom findings.
+
+---
+
 ### 🛍️ SAMAGRI TRUTH TRACE · 2026-07-28 — money the platform RECORDS but does not COLLECT
 
 **RULING (Isj):** samagri and accommodation are settled DIRECTLY with the pandit; they are not charged online. `samagriAmount` sitting outside `grandTotal` is therefore CORRECT — nothing changes there. But if the platform records money it does not collect, **all three parties must be told in their own words.**

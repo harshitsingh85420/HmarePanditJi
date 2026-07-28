@@ -93,7 +93,7 @@ export const getAlerts = async (request: FastifyRequest, reply: FastifyReply) =>
             }),
             prisma.booking.findMany({
                 where: { status: "COMPLETED", payoutStatus: "PENDING", updatedAt: { lt: ago48hrs } },
-                select: { id: true, bookingNumber: true, panditPayout: true, pandit: { select: { user: { select: { name: true } } } } },
+                select: { id: true, bookingNumber: true, platformTransfersToPandit: true, pandit: { select: { user: { select: { name: true } } } } },
                 take: 10
             }),
             prisma.booking.findMany({
@@ -121,7 +121,7 @@ export const getAlerts = async (request: FastifyRequest, reply: FastifyReply) =>
         for (const p of pendingPayouts) {
             alerts.push({
                 type: "PAYOUT", severity: "MEDIUM",
-                message: `₹${p.panditPayout} payout pending for ${p.pandit?.user?.name ?? 'Pandit'} — Booking ${p.bookingNumber}.`,
+                message: `₹${p.platformTransfersToPandit} payout pending for ${p.pandit?.user?.name ?? 'Pandit'} — Booking ${p.bookingNumber}.`,
                 actionUrl: "/payouts", bookingId: p.id
             });
         }
@@ -569,7 +569,7 @@ export const getAllBookingsAdmin = async (request: FastifyRequest, reply: Fastif
                     accommodationCost: true, samagriAmount: true,
                     platformFee: true, platformFeeGst: true,
                     travelServiceFee: true, travelServiceFeeGst: true,
-                    grandTotal: true, panditPayout: true,
+                    grandTotal: true, platformTransfersToPandit: true,
                     paymentStatus: true, travelStatus: true, payoutStatus: true,
                     customer: { select: { id: true, name: true, phone: true } },
                     pandit: { select: { id: true, user: { select: { id: true, name: true, phone: true } } } },

@@ -480,7 +480,14 @@ model Booking {
   grandTotal          Int @default(0)  // dakshina + platformFee + pass-throughs
 
   // Pandit payout
-  panditPayout      Int          @default(0) // dakshina + travel + food + samagri — the fee is NOT deducted
+  // RENAMED (Isj ruling 2026-07-28) so the name says WHICH money it is.
+  // `platformTransfersToPandit` = what WE send him. Its sibling,
+  // `panditReceivesTotal` (lib/earnings.ts), = everything that reaches him
+  // from any hand, including the samagri he collects himself. The two differ
+  // by exactly samagriAmount, and sharing an indistinct name is precisely how
+  // the samagri bug happened.
+  // @map keeps the physical column "panditPayout" — no data migration.
+  platformTransfersToPandit Int      @default(0) @map("panditPayout") // dakshina + travel + food + accommodation — the fee is NOT deducted
   payoutStatus      PayoutStatus @default(PENDING)
   payoutReference   String?
   payoutCompletedAt DateTime?
