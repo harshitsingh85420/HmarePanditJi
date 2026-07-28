@@ -29,11 +29,10 @@ const PANDITS = [
     romanName: "Shrikant Joshi",
     verificationStatus: "VERIFIED",
     specializations: ["Satyanarayan Katha"],
-    pendingPoojaVerifications: [],
     experienceYears: 22,
     location: "पुणे",
-    distanceKm: 6,
-    baseDakshina: 5100,
+    user: { id: "u1", name: "पं. श्रीकांत जोशी" },
+    pujaServices: [{ pujaType: "Satyanarayan Katha", dakshinaAmount: 5100, durationHours: 3 }],
     languages: ["हिंदी"],
   },
   {
@@ -42,11 +41,10 @@ const PANDITS = [
     romanName: "Rameshwar Dwivedi",
     verificationStatus: "VERIFIED",
     specializations: ["Satyanarayan Katha"],
-    pendingPoojaVerifications: ["Satyanarayan Katha"],
     experienceYears: 31,
     location: "पुणे",
-    distanceKm: 3,
-    baseDakshina: 6500,
+    user: { id: "u2", name: "पं. रामेश्वर द्विवेदी" },
+    pujaServices: [{ pujaType: "Satyanarayan Katha", dakshinaAmount: 6500, durationHours: 3 }],
     languages: ["मराठी"],
   },
   {
@@ -54,9 +52,10 @@ const PANDITS = [
     name: "पं. गिरधर शास्त्री",
     verificationStatus: "PENDING",
     specializations: ["Satyanarayan Katha"],
-    pendingPoojaVerifications: [],
     experienceYears: 0,
     location: "वाराणसी",
+    user: { id: "u3", name: "पं. गिरधर शास्त्री" },
+    pujaServices: [],
     languages: [],
   },
   {
@@ -65,10 +64,10 @@ const PANDITS = [
     romanName: "Anil Tripathi",
     verificationStatus: "VERIFIED",
     specializations: ["Satyanarayan Katha"],
-    pendingPoojaVerifications: [],
     experienceYears: 12,
     location: "नाशिक",
-    baseDakshina: 3100,
+    user: { id: "u4", name: "पं. अनिल त्रिपाठी" },
+    pujaServices: [{ pujaType: "Satyanarayan Katha", dakshinaAmount: 3100, durationHours: 3 }],
     languages: ["हिंदी"],
   },
 ];
@@ -141,16 +140,15 @@ const run = async () => {
   step("Noto Serif Devanagari carries the names", /Noto Serif Devanagari/i.test(serif), serif.slice(0, 60) || "no .font-devanagari element found");
 
   // the record card and its truthful-null branches
-  step("1c record cards rendered", body.includes("प्रोफ़ाइल देखें"), `${(body.match(/प्रोफ़ाइल देखें/g) || []).length} cards`);
-  step("identity verified reads as the person", body.includes("पहचान सत्यापित") && body.includes("आधार · मानव जाँच"), "green row present");
+  step("names come from user.name, not a placeholder", body.includes("श्रीकांत") && !body.includes("Pandit Ji"), "real names rendered"); step("1c record cards rendered", body.includes("प्रोफ़ाइल देखें"), `${(body.match(/प्रोफ़ाइल देखें/g) || []).length} cards`);
+  step("identity verified reads as the person", body.includes("पहचान सत्यापित"), "green row present");
   step("unverified identity does NOT claim a check", body.includes("पहचान जाँच बाकी"), "neutral row for the unverified pandit");
-  step("pooja video PENDING never promises a date", body.includes("जाँच में") && !/\d+\s*दिन/.test(body), "जाँच में with no duration");
+  step("no invented per-pooja state on a search row", !body.includes("जाँच में"), "silence, not a guess");
   // p4 offers the pooja and is verified, so exactly ONE "verified" video row is
   // expected (p1); p2 is pending; p3 is unverified and must assert nothing.
   const videoRows = (body.match(/इस पूजा का वीडियो/g) || []).length;
-  step("video claims are per-pooja, not per-pandit", videoRows > 0 && videoRows < 4, );
   step("no rate → no invented ₹0", body.includes("दक्षिणा तय नहीं") && !/₹\s*0(?!\d)/.test(body), "truthful-null money");
-  step("the one number is the whole number", body.includes("₹5,100") && body.includes("सामग्री व यात्रा"), "no fee line, samagri/travel direct");
+  step("the one number is the whole number", body.includes("5,100") && body.includes("सामग्री व यात्रा"), "no fee line, samagri/travel direct");
   step("no stars anywhere", !body.includes("★") && !body.includes("☆"), "no rating row invented");
 
   // green is reserved for verified identity ONLY

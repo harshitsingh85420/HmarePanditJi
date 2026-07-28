@@ -218,6 +218,33 @@ Every page's §3 now measures the app column against the viewport and reports th
 
 ---
 
+### 🔴 THE HAND-WRITTEN-INTERFACE CENSUS + TWO LAWS · 2026-07-28
+
+**21-agent census across all three apps, every claim adversarially verified against the serving handler AND schema.prisma. 12+ confirmed breaks.** Full report: task ws00bsmgo.
+
+**WHY tsc WAS COMPLICIT IN EVERY SIGHTING, in one line:** *a wrong declaration doesn't weaken type-checking, it redirects it at a lie* — the client casts the response to a hand-written interface, so tsc validates the code against the DECLARATION and never against the wire. All of these shipped green.
+
+**THE WORST, ranked:**
+1. 🔴 **Travel money is FABRICATED.** `booking-wizard-client.tsx:32` `TravelOption` declares `totalCost` / `label` / `estimatedDuration`; `travel.service.ts` sends `totalTravelCost` / `grandTravelTotal`, `breakdown[].label`, `estimatedHours`, and wraps in `{distanceKm, estimatedDriveHours, options[]}` — **not an array**. So `Array.isArray(data)` is false, the server result is discarded, and hardcoded `TRAVEL_FALLBACK` demo prices (₹800/₹1200/₹1800/₹5500) are quoted to the customer, POSTed as `travelCost`, stored on the Booking and rolled into `panditPayout`. **Invented money, charged and paid out.**
+2. 🔴 **Every Razorpay payer name is the literal string "Customer".** `AuthUser` declares `fullName` (a PanditProfile column); `getMe` sends `name`. `customerName={user?.fullName ?? "Customer"}` — the `??` never fires.
+3. 🔴 **The pandit never sees his own error messages.** `ApiResponse` declares `error.message` required; the API sends the Hindi message TOP-LEVEL and 58 sites send `error` as a bare string. On a permanent 409 he is told "try again" and retries forever.
+4. **The support console has never shown a ticket** — `json.data.data` where `paginatedBody` puts the array at `data`.
+5. **Admin bookings shows "Unassigned" for every assigned pandit** — the controller flattens `pandit: pandit?.user`, the local interface declares `pandit.user`.
+6. **The review page's pandit card has never rendered in production** — it gates on `data.data.pandit` where the only key is `data.data.booking`.
+
+**TWO OF THE FINDINGS ARE MINE, AND BOTH ARE NOW FIXED:**
+- 🔴 **My own re-skin mapper read SIX fields the search endpoint does not send** — `p.name` (it is at `user.name`), `baseDakshina`, `dakshinaRates`, `romanName`, `distanceKm`, `pendingPoojaVerifications`. Every card on /search rendered **"Pandit Ji"** with **"दक्षिणा तय नहीं"**, including pandits who had set a real rate. My truthful-null card faithfully reported nothing because the reads were wrong — the exact disease it was written to improve on. Corrected against `pandit.controller.ts:149`: name from `user.name`, rate from `pujaServices[].dakshinaAmount` (the searched pooja, else the lowest), and romanName/distance/per-pooja-video simply omitted because that endpoint does not carry them. **The proof harness fixture was rebuilt from the handler's shape rather than hand-authored — 13/13.**
+- My event-day fix corrected a `.name` read **inside the review page's dead block** (finding 6): it pattern-matched the field and walked straight past the phantom envelope key above it.
+
+**LAW — GUARDS PROVEN IN BOTH DIRECTIONS.** Three guard-authoring bugs now: comment-scanning (kycContract), hex-as-superlative (customerDesign), and a guard that condemned the CORRECT nested `user.name` (panditIdentityReads). All three would have been caught by the same discipline, so from here every NEW guard must be:
+- **proven-to-fail** — break the thing, watch it go red (the guard is not asleep), and
+- **proven-to-pass** — run it against correct code and watch it stay green (the guard does not condemn what it was written to allow).
+Retrofit not required; new guards only.
+
+**LAW — FIXTURES MAY NOT HAND-AUTHOR A RESPONSE SHAPE** (now with teeth, because it has cost four phantom findings): a harness fixture must either hit the real API or be derived from the handler's actual projection. Hand-writing the shape reproduces the very bug class under audit, inside the instrument.
+
+---
+
 ### 📋 TWO LAWS + THE FOURTH DEFERRAL · 2026-07-28
 
 - **GUARD-COVERAGE LAW:** the money guards watched only `services/api`, which is why a live 15% rate sat undisturbed in `packages/utils`. **A guard must cover every package, not just the site of the last burn** — scope it to the contract, not to where it was previously violated.

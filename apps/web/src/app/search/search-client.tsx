@@ -120,32 +120,52 @@ function mapPanditToResult(p: Record<string, unknown>, searchedPooja = ""): Pand
   // their own video review. A pooja in that list is PENDING. Otherwise we only
   // claim "verified" when the pandit himself is verified AND the pooja is one
   // he actually offers; anything else asserts nothing at all.
-  const pending = (p.pendingPoojaVerifications as string[]) ?? [];
-  const offered = (p.specializations as string[]) ?? [];
-  let poojaVideo: PoojaVideoState = "none";
-  if (searchedPooja) {
-    if (pending.includes(searchedPooja)) poojaVideo = "pending";
-    else if (identityVerified && offered.includes(searchedPooja)) poojaVideo = "verified";
-  }
+  // CORRECTED against the handler's actual allow-list (pandit.controller.ts:149).
+  // This mapper previously read `pendingPoojaVerifications`, `baseDakshina`,
+  // `dakshinaRates`, `romanName`, `distanceKm` and a top-level `name` — SIX
+  // fields the search endpoint does not send. Every card therefore rendered
+  // "Pandit Ji" with "दक्षिणा तय नहीं", for pandits who had set a real rate.
+  // My own truthful-null card faithfully reported nothing, because the reads
+  // were wrong. Same disease as the interfaces it was meant to improve on.
+  //
+  // What GET /pandits actually sends per row:
+  //   user: { id, name }                     ← the name lives here
+  //   pujaServices: [{ pujaType, dakshinaAmount, durationHours }]  ← the rate
+  //   location, rating, totalReviews, experienceYears, specializations,
+  //   languages, profilePhotoUrl, isOnline, verificationStatus,
+  //   travelPreferences, completedBookings
+  // It does NOT send per-pooja verification state or a distance.
+  const services = (p.pujaServices as { pujaType?: string; dakshinaAmount?: number }[]) ?? [];
 
-  // His rate. The API exposes it under more than one shape depending on the
-  // endpoint; take the first REAL number and never substitute a zero.
-  const rawDakshina =
-    (p.baseDakshina as number | undefined) ??
-    (p.dakshinaAmount as number | undefined) ??
-    (Array.isArray(p.dakshinaRates) && (p.dakshinaRates as { amount?: number }[])[0]?.amount);
+  // Per-pooja video state is NOT on this response, so the card asserts nothing
+  // about it here. (It is available on the pandit's own profile endpoint; the
+  // honest thing on a search row is silence, not a guess.)
+  const poojaVideo: PoojaVideoState = "none";
+
+  // His rate for the searched pooja, else his lowest listed rate. Never a zero.
+  const forThisPooja = searchedPooja
+    ? services.find((s) => s.pujaType === searchedPooja)?.dakshinaAmount
+    : undefined;
+  const anyRate = services
+    .map((s) => s.dakshinaAmount)
+    .filter((n): n is number => typeof n === "number" && Number.isFinite(n) && n > 0);
+  const rawDakshina = forThisPooja ?? (anyRate.length ? Math.min(...anyRate) : undefined);
   const dakshina =
     typeof rawDakshina === "number" && Number.isFinite(rawDakshina) && rawDakshina > 0
       ? rawDakshina
       : null;
 
+  const apiUser = (p.user as { name?: string } | undefined) ?? undefined;
+
   return {
     id: String(p.id),
-    name: String(p.name ?? "Pandit Ji"),
-    romanName: (p.romanName as string | undefined) || undefined,
+    name: String(apiUser?.name ?? p.displayName ?? p.fullName ?? "Pandit Ji"),
+    // the search response carries no transliteration and no distance; the card
+    // omits both rows rather than inventing them
+    romanName: undefined,
     poojaVideo,
     dakshina,
-    distanceKm: typeof p.distanceKm === "number" ? p.distanceKm : undefined,
+    distanceKm: undefined,
     avatarUrl: p.profilePhotoUrl as string | undefined,
     isVerified: identityVerified,
     badges: p.verificationStatus === "VERIFIED" ? ["Verified Vedic"] : [],
