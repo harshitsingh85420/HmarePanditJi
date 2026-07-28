@@ -1218,3 +1218,55 @@ typechecks clean.
 asserted `verificationStatus: "VERIFIED"` and went RED the moment the site
 started importing the shared constant. It now pins the **constant reference**;
 the value is pinned once, at its declaration.
+
+---
+
+## STANDING LAWS — GUARD AUTHORING
+*Isj order, 2026-07-28. Both were paid for in red builds this week.*
+
+### LAW G1 — a guard pins REFERENCES, not VALUES
+
+`kycContract` asserted the literal `verificationStatus: "VERIFIED"`. The moment
+`admin.routes.ts` adopted the shared constant `KYC_APPROVE_WRITE_STATUS`, the
+guard went **RED on the correct fix**. A guard whose job is to enforce
+single-sourcing was punishing single-sourcing.
+
+**THE RULE.** A guard asserting that a site uses the right vocabulary must pin
+the **constant reference** (`/verificationStatus:\s*KYC_APPROVE_WRITE_STATUS/`),
+never the literal. The VALUE is pinned exactly once, at its declaration in the
+shared module. Pinning it twice is the duplication the guard exists to prevent —
+and the second copy is the one that fights the fix.
+
+Corollary: when a guard goes red on a change that is obviously an improvement,
+suspect the guard first.
+
+### LAW G2 — a matcher must be proven able to match the shape it hunts
+
+Twice this week a guard's matcher was **blind by construction** — not wrong
+about the rule, unable to see the rule's own subject:
+
+1. `apiBaseContract`'s regex was `/NEXT_PUBLIC_API_URL…\/api\/(?!v1)/`. The
+   negative lookahead made hand-appending the CORRECT prefix invisible, so
+   DRIFT-A — a doubled `/api/v1` on the customer front page — could never trip
+   the guard named for it.
+2. Its replacement used the char class `[^\`'"
+]*` between the variable and the
+   prefix. The real line is
+   `` `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/api/v1` `` —
+   the span contains a **quoted** fallback, so the class could not cross it. The
+   new guard **passed on the exact line it was written for.**
+
+**THE RULE.** Proof-to-fail only proves anything if the negative case uses the
+**REAL shape** — the literal line from the repo, pasted back in — not a
+convenient minimal reconstruction. A synthetic negative case tests the matcher
+against itself.
+
+Practically: to prove a guard, revert the actual fix (or `git show` the old
+line) and watch it go red. If the negative case had to be simplified to
+reproduce, that simplification is the hole.
+
+**Both laws share one shape with CAPABILITY ≠ PATH**: something was verified
+against a convenient stand-in rather than the thing itself. A guard's matcher
+tested on a synthetic string, a function's behaviour tested with inputs no
+caller supplies, and a response shape hand-authored rather than traced are the
+same error at three altitudes.
