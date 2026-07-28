@@ -38,7 +38,7 @@ export default function Header() {
   const { user, loading, openLoginModal } = useAuth();
 
   const isGuest = !loading && !user;
-  const userInitial = (user?.fullName || user?.name || "U").charAt(0).toUpperCase();
+  const userInitial = (user?.name || "U").charAt(0).toUpperCase();
   const panditAppUrl = process.env.NEXT_PUBLIC_PANDIT_APP_URL || "http://localhost:3002";
 
   const navLinks: NavLink[] = [

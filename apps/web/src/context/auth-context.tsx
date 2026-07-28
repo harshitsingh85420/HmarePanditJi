@@ -14,7 +14,10 @@ import { logger } from "@/utils/logger";
 export interface AuthUser {
   id: string;
   phone: string;
-  fullName?: string | null;
+  // `fullName` REMOVED (census 2026-07-28): it is a PanditProfile column,
+  // never sent by getMe, which spreads a User row carrying `name`. While it
+  // was declared here, user?.fullName ?? "Customer" never fired its ?? and
+  // every Razorpay payer name was the literal string "Customer".
   name?: string | null;
   email?: string | null;
   role: string;

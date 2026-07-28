@@ -25,7 +25,7 @@ export default function ProfilePage() {
   // Pre-fill form from current user
   useEffect(() => {
     if (user) {
-      setFullName(user.fullName ?? "");
+      setFullName(user.name ?? "");
       setEmail(user.email ?? "");
     }
   }, [user]);
@@ -69,8 +69,8 @@ export default function ProfilePage() {
     );
   }
 
-  const initials = user.fullName
-    ? user.fullName.split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase()
+  const initials = user.name
+    ? user.name.split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase()
     : user.phone.slice(-2);
 
   return (

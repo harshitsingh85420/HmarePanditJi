@@ -218,6 +218,23 @@ Every page's §3 now measures the app column against the viewport and reports th
 
 ---
 
+### 🔧 THE CENSUS FIXES + TWO STRUCTURAL LINES · 2026-07-28
+
+**LEDGER — WHY THE MONEY GUARDS STAYED GREEN THROUGH FABRICATED TRAVEL (the census's sharpest lesson):** the money guards verify **CONSERVATION, not TRUTH** — ₹800 of invented travel cost conserves perfectly, because customer = payout + fee holds whatever the components are. A guard must also pin that **every money component has a real source**, not merely that the arithmetic balances.
+
+**LEDGER — FIVE OF THE SIX WERE BORN BROKEN, NOT REGRESSED:** the review page's pandit card, the support console, the admin pandit column, the Razorpay payer name and the travel quote have **never** worked in production. They survived because the eighteen-page §2 walk discipline was applied to **apps/pandit alone** — apps/web and apps/admin have never been walked. That is the campaign's largest remaining gap, and the DB is what unblocks it.
+
+**FIXED THIS TURN (pure wiring, fix the read then make the wrong read unwritable):**
+- 🔴 **The pandit hears the server again.** `api.ts` read `json.error || {message: json.message || fallback}`; the AppError path sends the Hindi TOP-LEVEL with `error:{code}`, so the truthy object won the `||` and the message was discarded. New `normalizeApiError()` understands all three dialects the API speaks (top-level message + code object · bare string `error` at 89 controller sites · message only). **Guarded in BOTH directions** — 7 behavioural cases green on correct code; restoring the short-circuit turns it red.
+- 🔴 **Razorpay payer names are real.** `AuthUser.fullName` (a PanditProfile column) was declared where getMe sends `name`, so `user?.fullName ?? "Customer"` never fired its `??` and every payment record read the literal "Customer". `fullName` is now **REMOVED from the type** — and removing it immediately surfaced five more wrong reads that tsc had been validating (book-client, profile, two headers, landing-header). That is the unreachability pattern paying for itself in one step.
+- **The support console can show a ticket.** `json.data.data` → the array is at `data`; `Array.prototype.data` is undefined, so it always set `[]`.
+- **Admin shows the assigned pandit.** `admin.controller.ts:569` FLATTENS `pandit: pandit?.user`; the local interface declared the nesting, so every pandit read "Unassigned" on the screen ops uses to see who is going to a ceremony. Interface corrected to the flat shape.
+- **The review page's pandit card can render.** It gated on `data.data.pandit`; the only key is `booking`. The comment above it said *"Assume data.data.pandit is available"* — and the assumption was wrong. Also corrected the photo read (`profilePhotoUrl` is a direct column, not nested under `.panditProfile`). NOTE: my earlier event-day fix had corrected a `.name` read **inside this dead block** — it is only now reachable.
+
+Wall 889/889 · api guards 45/45 · tsc clean across pandit, web, admin.
+
+---
+
 ### 🔴 THE HAND-WRITTEN-INTERFACE CENSUS + TWO LAWS · 2026-07-28
 
 **21-agent census across all three apps, every claim adversarially verified against the serving handler AND schema.prisma. 12+ confirmed breaks.** Full report: task ws00bsmgo.

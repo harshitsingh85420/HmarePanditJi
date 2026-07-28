@@ -58,7 +58,10 @@ export default function SupportLogPage() {
             });
             const json = await res.json();
             if (json.success) {
-                setTickets(json.data.data || []);
+                // paginatedBody(tickets, …) puts the ARRAY at data — one level, not two.
+                // `json.data.data` is Array.prototype.data, i.e. undefined, so this
+                // console has never displayed a ticket.
+                setTickets(Array.isArray(json.data) ? json.data : (json.data?.data ?? []));
             }
         } catch (e) {
             console.error(e);

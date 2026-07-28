@@ -8,8 +8,14 @@ interface User {
   phone: string;
 }
 
+// admin.controller.ts:569-575 FLATTENS this: `pandit: pandit?.user ?? null`,
+// so a row carries the USER fields directly. The old `{ user: User }` nesting
+// meant every read missed and every assigned pandit displayed "Unassigned"
+// on the screen ops uses to see who is going to a ceremony.
 interface Pandit {
-  user: User;
+  id?: string;
+  name?: string | null;
+  phone?: string | null;
 }
 
 interface Booking {
@@ -217,8 +223,8 @@ export default function BookingsMonitorPage() {
                       <div className="text-xs text-slate-500 font-mono mt-0.5">{b.customer?.phone || "N/A"}</div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="font-semibold text-slate-800">{b.pandit?.user?.name || "Unassigned"}</div>
-                      <div className="text-xs text-slate-500 font-mono mt-0.5">{b.pandit?.user?.phone || ""}</div>
+                      <div className="font-semibold text-slate-800">{b.pandit?.name || "Unassigned"}</div>
+                      <div className="text-xs text-slate-500 font-mono mt-0.5">{b.pandit?.phone || ""}</div>
                     </td>
                     <td className="px-6 py-4 font-semibold text-slate-800">{b.pujaType || b.eventType || "N/A"}</td>
                     <td className="px-6 py-4">{new Date(b.eventDate).toLocaleDateString()}</td>
@@ -295,8 +301,8 @@ export default function BookingsMonitorPage() {
                   </div>
                   <div className="border-t pt-2 mt-2">
                     <span className="text-[11px] font-bold text-slate-400 block">Pandit</span>
-                    <span className="text-sm font-bold text-slate-700">{selectedBooking.pandit?.user?.name || "Unassigned"}</span>
-                    <span className="text-xs text-slate-500 font-mono ml-2">({selectedBooking.pandit?.user?.phone || ""})</span>
+                    <span className="text-sm font-bold text-slate-700">{selectedBooking.pandit?.name || "Unassigned"}</span>
+                    <span className="text-xs text-slate-500 font-mono ml-2">({selectedBooking.pandit?.phone || ""})</span>
                   </div>
                 </div>
               </div>

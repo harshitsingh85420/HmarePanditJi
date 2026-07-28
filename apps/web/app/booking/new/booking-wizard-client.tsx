@@ -1590,7 +1590,7 @@ export default function BookingWizardClient() {
                       razorpayKey={form.orderKeyId}
                       bookingId={form.bookingId}
                       bookingNumber={form.bookingNumber}
-                      customerName={user?.fullName ?? "Customer"}
+                      customerName={user?.name ?? "Customer"}
                       customerPhone={user?.phone}
                       accessToken={accessToken ?? ""}
                       onSuccess={handlePaymentSuccess}

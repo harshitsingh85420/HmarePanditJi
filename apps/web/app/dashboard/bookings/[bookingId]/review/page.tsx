@@ -53,12 +53,21 @@ export default function ReviewSubmissionPage() {
                 });
                 if (!res.ok) throw new Error("Could not load booking");
                 const data = await res.json();
-                // Assume data.data.pandit is available
-                if (data.data && data.data.pandit) {
+                // GET /bookings/:id replies sendSuccess(res, { booking }) — the
+                // ONLY key under data is `booking`. This gated on
+                // `data.data.pandit`, which never exists, so setPandit was never
+                // called and the pandit card below (photo, name, "how was
+                // Pt. X") HAS NEVER RENDERED in production. The comment above
+                // said "Assume" and the assumption was wrong.
+                //
+                // The photo is a direct PanditProfile column — there is no
+                // nested `.panditProfile` under it either.
+                const booking = data.data?.booking ?? data.data;
+                if (booking?.pandit) {
                     setPandit({
-                        id: data.data.pandit.id,
-                        name: panditName(data.data.pandit) || "Pandit Ji",
-                        photoUrl: data.data.pandit.panditProfile?.profilePhotoUrl
+                        id: booking.pandit.id,
+                        name: panditName(booking.pandit) || "Pandit Ji",
+                        photoUrl: booking.pandit.profilePhotoUrl ?? null,
                     });
                 }
             } catch (err) {
