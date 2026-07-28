@@ -1069,3 +1069,65 @@ is then **never sent** (the POST body carries `accommodationArrangement` but not
 shown to the pandit (his app has no accommodation line in any language), and
 never shown to ops (not in the admin booking select). The pandit arrives at an
 outstation puja owed a stay whose price only the customer ever saw.
+
+---
+
+## STANDING LAW — CAPABILITY ≠ PATH
+*Isj order, 2026-07-28. Binds every finding from here on, in both directions.*
+
+**Five phantom findings in this campaign shared one shape.** Not five mistakes —
+one mistake made five times:
+
+| # | the phantom | the shape |
+|---|---|---|
+| 1 | "नई विनती is visible" | matched the word inside EMPTY-STATE copy |
+| 2 | "the accept control is missing" | wrong locator — the control reads जवाब दीजिए › |
+| 3 | "Act 2 is dead — the pandit can never see a booking" (**false P0**) | hand-authored fixture returned raw `PANDIT_REQUESTED`; the real handler runs it through `withPanditView`, which maps it to `REQUESTED` |
+| 4 | the re-skin search mapper | read six fields the endpoint never sends |
+| 5 | "display ≠ charge on accommodation" | called `calculateGrandTotal` with an accommodation input **no caller ever supplies** — `createBooking` passes literal `0` |
+
+Two sub-shapes, one root:
+- **CAPABILITY tested instead of PATH** (#3, #5) — a function accepts a
+  parameter, so the parameter was supplied. No caller supplies it.
+- **SHAPE hand-authored instead of traced** (#1, #2, #4) — a locator, a
+  fixture, or an interface was written from what the code *looked like it
+  should* return, not from what it returns.
+
+### THE REQUIREMENT
+
+**No contract finding is reported until the actual call path is traced, and the
+trace is stated inside the finding itself.** Three parts, all three required:
+
+1. **WHO calls the reader** — a `file:line`, or the explicit statement *"no
+   caller exists"* (which makes it the zero-execution class, not a live break).
+2. **WHAT they pass** — the real argument at the real call site, not the
+   parameter list.
+3. **WHAT the handler projects** — the `select:`/`include:`/mapper output, not
+   the DB column.
+
+And the finding must name the **neutralisers** it checked for, because each one
+has already produced a phantom here:
+- a **mapper** between writer and reader (`lib/bookingStatus.ts` — phantom #3);
+- a **fallback** (`??` / `||`) that makes a wrong read indistinguishable from a
+  legitimate empty state (two conditions already found masked this way);
+- a **sibling** correct implementation that is the one actually mounted;
+- a **dead tree** (`apps/web/src/**` is shelved; `apps/web/app/**` is live).
+
+When the caller cannot be established, the verdict is **not** "confirmed by
+default" — it is *unproven*, and it is withdrawn.
+
+### THE REQUIREMENT BINDS BOTH DIRECTIONS
+
+This is not only a coding-side discipline. **Three of the five unverified
+findings were amplified by the orchestration into rulings** before the path was
+traced — an unverified claim was accepted as fact and turned into a standing
+decision, which is how a false P0 ("no customer can pay", "the pandit can never
+see a booking") propagated further than a bug report ever should.
+
+So the rule cuts both ways:
+- **Reporting side:** state the trace, or do not file.
+- **Ruling side:** a finding without a stated call path is not ruling-ready.
+  Ask for the trace before converting a report into a decision.
+
+A finding that cannot show its path is a hypothesis. Hypotheses do not become
+rulings.
