@@ -1,13 +1,21 @@
 import { MetadataRoute } from "next";
+import { resolveApiBase } from "@hmarepanditji/utils";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const baseUrl = process.env.NEXT_PUBLIC_WEB_URL || "https://hmarepanditji.com";
-    const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+    // NEXT_PUBLIC_API_URL is an ORIGIN; the client owns the /api/v1 prefix.
+    // The literal used to carry `/api/v1` while the env value already ended in
+    // it — the same doubling as the homepage, silently swallowed by the
+    // `catch {}` below, so every dynamic pandit URL was absent from the sitemap.
+    const apiBase = resolveApiBase(
+        process.env.NEXT_PUBLIC_API_URL,
+        process.env.NODE_ENV === "development",
+    ).base;
 
     let panditRoutes: MetadataRoute.Sitemap = [];
 
     try {
-        const res = await fetch(`${apiBase}/api/v1/pandits?verificationStatus=VERIFIED&limit=500`, {
+        const res = await fetch(`${apiBase}/pandits?verificationStatus=VERIFIED&limit=500`, {
             next: { revalidate: 3600 },
         });
 

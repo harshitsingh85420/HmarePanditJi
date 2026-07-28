@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { LoginModal } from "../../../src/components/LoginModal";
+import { CUSTOMER_TOKEN_KEY } from "@hmarepanditji/utils";
 
 interface BookingCTAProps {
     panditId: string;
@@ -12,7 +13,7 @@ interface BookingCTAProps {
 
 export function BookingCTA({ panditId, lowestPrice, isMobile }: BookingCTAProps) {
     const router = useRouter();
-    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    const token = typeof window !== "undefined" ? localStorage.getItem(CUSTOMER_TOKEN_KEY) : null;
     const [loginModalOpen, setLoginModalOpen] = useState(false);
     const redirectUrl = `/booking/new?panditId=${panditId}`;
 

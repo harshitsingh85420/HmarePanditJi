@@ -3,6 +3,11 @@ import { z } from "zod";
 import { prisma } from "@hmarepanditji/db";
 import { AppError } from "../middleware/errorHandler";
 import { logger } from "../utils/logger";
+// THE ONE KYC vocabulary. Any status set in this file must come from here —
+// per-site literals have now failed five times.
+import { KYC_REVIEW_QUEUE_STATUSES } from "@hmarepanditji/types";
+// THE ONE booking-status translator — admin filters arrive in UI vocabulary.
+import { dbStatusesForView } from "../lib/bookingStatus";
 
 // Helper to build success response
 function successBody<T>(data: T, message = "Success"): { success: boolean; data: T; message: string } {
@@ -35,8 +40,18 @@ export const getDashboardStats = async (request: FastifyRequest, reply: FastifyR
             prisma.booking.count({
                 where: { eventDate: { gte: todayStart, lt: todayEnd } }
             }),
+            // FIFTH sighting of one break surviving per-site fixes. The
+            // verifications SCREEN was pointed at /admin/kyc/queue, but this
+            // counter kept counting "PENDING" — the schema DEFAULT, i.e.
+            // pandits who uploaded nothing. PENDING and the real queue set are
+            // DISJOINT, so the dashboard card and the red sidebar badge showed
+            // a number that could never equal the length of the list they open,
+            // never cleared, and never moved when a real submission arrived —
+            // which trains ops to ignore the badge.
+            // Counted from the SHARED source now, so the count and the queue
+            // cannot drift again.
             prisma.panditProfile.count({
-                where: { verificationStatus: "PENDING" }
+                where: { verificationStatus: { in: [...KYC_REVIEW_QUEUE_STATUSES] } }
             }),
             prisma.payout.aggregate({
                 where: { status: "PENDING" },
@@ -87,13 +102,13 @@ export const getAlerts = async (request: FastifyRequest, reply: FastifyReply) =>
                 take: 10
             }),
             prisma.panditProfile.findMany({
-                where: { verificationStatus: "DOCUMENTS_SUBMITTED", updatedAt: { lt: ago24hrs } },
+                where: { verificationStatus: { in: [...KYC_REVIEW_QUEUE_STATUSES] }, updatedAt: { lt: ago24hrs } },
                 select: { id: true, user: { select: { name: true } } },
                 take: 10
             }),
             prisma.booking.findMany({
                 where: { status: "COMPLETED", payoutStatus: "PENDING", updatedAt: { lt: ago48hrs } },
-                select: { id: true, bookingNumber: true, panditPayout: true, pandit: { select: { user: { select: { name: true } } } } },
+                select: { id: true, bookingNumber: true, platformTransfersToPandit: true, pandit: { select: { user: { select: { name: true } } } } },
                 take: 10
             }),
             prisma.booking.findMany({
@@ -121,7 +136,7 @@ export const getAlerts = async (request: FastifyRequest, reply: FastifyReply) =>
         for (const p of pendingPayouts) {
             alerts.push({
                 type: "PAYOUT", severity: "MEDIUM",
-                message: `₹${p.panditPayout} payout pending for ${p.pandit?.user?.name ?? 'Pandit'} — Booking ${p.bookingNumber}.`,
+                message: `₹${p.platformTransfersToPandit} payout pending for ${p.pandit?.user?.name ?? 'Pandit'} — Booking ${p.bookingNumber}.`,
                 actionUrl: "/payouts", bookingId: p.id
             });
         }
@@ -382,7 +397,11 @@ export const getPanditsAdmin = async (request: FastifyRequest, reply: FastifyRep
         ]);
 
         const pendingProfiles = await prisma.panditProfile.findMany({
-            where: { verificationStatus: { in: ["DOCUMENTS_SUBMITTED", "VIDEO_KYC_DONE"] } },
+            // Was the same two values hand-listed. Correct today, but a
+            // hand-listed copy is how this vocabulary drifted five times: add a
+            // sixth review status and this count silently stops matching the
+            // queue it summarises.
+            where: { verificationStatus: { in: [...KYC_REVIEW_QUEUE_STATUSES] } },
             select: { updatedAt: true }
         });
 
@@ -517,10 +536,31 @@ export const getAllBookingsAdmin = async (request: FastifyRequest, reply: Fastif
         const limit = Math.min(50, Math.max(1, Number(query.limit) || 20));
         const skip = (page - 1) * limit;
 
-        const { status, dateFrom, dateTo, city, pandit, customer, paymentStatus, travelStatus } = query;
+        const { status, dateFrom, dateTo, city, pandit, customer, paymentStatus, travelStatus, search } = query;
 
         const where: Record<string, unknown> = {};
-        if (status) where.status = { in: status.split(",") };
+        // R1 — the filter value arrives in the ADMIN's vocabulary and was pushed
+        // raw into Prisma. "REQUESTED"/"ACCEPTED" are legal enum members that
+        // NOTHING writes, so those options queried successfully and returned zero
+        // rows ("No bookings found"), while PANDIT_REQUESTED — every booking that
+        // just captured payment — was unfilterable by any option.
+        // Translate through the one mapper instead, exactly as the pandit path does.
+        if (status) where.status = { in: status.split(",").flatMap((v: string) => dbStatusesForView(v.trim())) };
+        // R3 — the client has always sent `search`; the server never destructured
+        // it, so the term was dropped silently. Worse than "unfiltered": the
+        // controller pages at 20 and the UI renders no pagination, so an operator
+        // read the recent-20 window as the match set.
+        if (search && String(search).trim()) {
+            const q = String(search).trim();
+            where.OR = [
+                { bookingNumber: { contains: q, mode: "insensitive" } },
+                { eventType: { contains: q, mode: "insensitive" } },
+                { venueCity: { contains: q, mode: "insensitive" } },
+                { customer: { is: { name: { contains: q, mode: "insensitive" } } } },
+                { customer: { is: { phone: { contains: q } } } },
+                { pandit: { is: { user: { is: { name: { contains: q, mode: "insensitive" } } } } } },
+            ];
+        }
         if (dateFrom && dateTo) {
             where.eventDate = {
                 gte: new Date(dateFrom),
@@ -555,8 +595,22 @@ export const getAllBookingsAdmin = async (request: FastifyRequest, reply: Fastif
                 take: limit,
                 orderBy: { createdAt: "desc" },
                 select: {
-                    id: true, bookingNumber: true, eventType: true, eventDate: true, status: true,
-                    grandTotal: true, paymentStatus: true, travelStatus: true, payoutStatus: true,
+                    id: true, bookingNumber: true, eventType: true, pujaType: true,
+                    eventDate: true, status: true,
+                    // The AMOUNT COMPONENTS, so the admin drawer can show a
+                    // breakdown that actually reconciles instead of four
+                    // fabricated zeros under a real total. Pure projection —
+                    // no computation here, and no commission logic: these are
+                    // the columns the booking already carries.
+                    // The fee lines are included deliberately: without them a
+                    // breakdown CANNOT sum to grandTotal, and a breakdown that
+                    // does not reconcile is worse than none.
+                    dakshinaAmount: true, travelCost: true, foodAllowanceAmount: true,
+                    accommodationCost: true, samagriAmount: true,
+                    platformFee: true, platformFeeGst: true,
+                    travelServiceFee: true, travelServiceFeeGst: true,
+                    grandTotal: true, platformTransfersToPandit: true,
+                    paymentStatus: true, travelStatus: true, payoutStatus: true,
                     customer: { select: { id: true, name: true, phone: true } },
                     pandit: { select: { id: true, user: { select: { id: true, name: true, phone: true } } } },
                     createdAt: true

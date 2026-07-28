@@ -10,6 +10,24 @@ import { initiateRefund } from "../services/payment.service";
 import { computeCustomerCancellationRefund } from "../lib/refund-policy";
 import { NotificationService } from "../services/notification.service";
 import { getNotificationTemplate } from "../services/notification-templates";
+import { dbStatusesForView } from "../lib/bookingStatus";
+// THE ONE KYC vocabulary — approve/reject write through the shared constants
+// so a fifth spelling cannot appear.
+import { KYC_APPROVE_WRITE_STATUS, KYC_REJECT_WRITE_STATUS } from "@hmarepanditji/types";
+
+/**
+ * Which DB statuses an ops operator may cancel from.
+ *
+ * DERIVED, never hand-listed: the intent recorded in this file was "REQUESTED
+ * or ACCEPTED", which are pandit-UI (Machine-A) words. bookingStatus.ts is the
+ * one place that knows what those mean in the DB's own vocabulary, so ask it.
+ * Hand-listing the DB values here would recreate the exact break this fixes —
+ * a second copy of the state machine that drifts from the first.
+ */
+const CANCELLABLE_DB_STATUSES = new Set<string>([
+  ...dbStatusesForView("REQUESTED"),
+  ...dbStatusesForView("ACCEPTED"),
+]);
 const notificationService = new NotificationService();
 import {
   getDashboardStats,
@@ -67,10 +85,17 @@ export default async function adminRoutes(fastify: FastifyInstance, _opts: any) 
       return reply.status(404).send({ success: false, error: { message: "Booking not found" } });
     }
 
-    if (booking.status !== "REQUESTED" && booking.status !== "ACCEPTED") {
+    // THE VOCABULARY, from the ONE source. This guard used to compare against
+    // the literals "REQUESTED"/"ACCEPTED" — which NOTHING writes. Every writer
+    // stores Machine-B values (CREATED / PANDIT_REQUESTED / CONFIRMED …), so
+    // the condition was false for every booking the product can create and
+    // `POST /admin/bookings/:id/cancel` 400'd every time: ops could not cancel
+    // a booking at all. bookingStatus.ts is the single translator and already
+    // knew this; it was simply never imported here.
+    if (!CANCELLABLE_DB_STATUSES.has(booking.status)) {
       return reply.status(400).send({
         success: false,
-        error: { message: `Booking can only be cancelled in REQUESTED or ACCEPTED status. Current status is ${booking.status}.` }
+        error: { message: `Booking can only be cancelled before the puja begins. Current status is ${booking.status}.` }
       });
     }
 
@@ -106,7 +131,7 @@ export default async function adminRoutes(fastify: FastifyInstance, _opts: any) 
         // Canonical approved value — the admin verify flow and all
         // customer-facing readers gate on VERIFIED (APPROVED was a stray
         // spelling no read path fully honored).
-        verificationStatus: "VERIFIED",
+        verificationStatus: KYC_APPROVE_WRITE_STATUS,
         verifiedAt: new Date(),
         verifiedById: request.user?.id || "admin",
         profileCompletionPercent: 100,
@@ -141,7 +166,7 @@ export default async function adminRoutes(fastify: FastifyInstance, _opts: any) 
     const updated = await prisma.panditProfile.update({
       where: { id },
       data: {
-        verificationStatus: "REJECTED",
+        verificationStatus: KYC_REJECT_WRITE_STATUS,
         rejectionReason: reason,
       }
     });
@@ -198,7 +223,7 @@ export default async function adminRoutes(fastify: FastifyInstance, _opts: any) 
           data: {
             bookingId: booking.id,
             panditId: booking.panditId!,
-            amount: booking.panditPayout || 0,
+            amount: booking.platformTransfersToPandit || 0,
             status: "PENDING"
           }
         });
@@ -267,7 +292,7 @@ export default async function adminRoutes(fastify: FastifyInstance, _opts: any) 
             dakshinaAmount: true,
             travelCost: true,
             foodAllowanceAmount: true,
-            panditPayout: true,
+            platformTransfersToPandit: true,
             payoutStatus: true,
             payoutReference: true,
             payoutCompletedAt: true,
@@ -298,8 +323,8 @@ export default async function adminRoutes(fastify: FastifyInstance, _opts: any) 
           ...rest,
           // Surface the missing-stored-payout anomaly so the admin UI can show a
           // neutral "being checked" state instead of a confident wrong figure
-          // (founder 2026-07-22). panditPayout is the STORED authoritative column.
-          storedPayoutMissing: rest.panditPayout == null || rest.panditPayout <= 0,
+          // (founder 2026-07-22). platformTransfersToPandit is the STORED authoritative column.
+          storedPayoutMissing: rest.platformTransfersToPandit == null || rest.platformTransfersToPandit <= 0,
           pandit: pandit ? {
             id: pandit.user?.id,
             name: pandit.user?.name,
@@ -316,7 +341,7 @@ export default async function adminRoutes(fastify: FastifyInstance, _opts: any) 
       // Aggregate payout stats
       const stats = await prisma.booking.aggregate({
         where: { paymentStatus: "CAPTURED", status: "COMPLETED" },
-        _sum: { panditPayout: true, grandTotal: true },
+        _sum: { platformTransfersToPandit: true, grandTotal: true },
         _count: true,
       });
 
@@ -327,7 +352,7 @@ export default async function adminRoutes(fastify: FastifyInstance, _opts: any) 
       sendSuccess(res, {
         bookings: mappedBookings,
         stats: {
-          totalPayouts: stats._sum.panditPayout ?? 0,
+          totalPayouts: stats._sum.platformTransfersToPandit ?? 0,
           totalRevenue: stats._sum.grandTotal ?? 0,
           completedBookings: stats._count,
           pendingPayouts: pendingPayoutCount,
@@ -376,7 +401,7 @@ export default async function adminRoutes(fastify: FastifyInstance, _opts: any) 
           },
         });
 
-        const t1 = getNotificationTemplate("PAYOUT_COMPLETED", { id: booking.id.substring(0, 8).toUpperCase(), amount: booking.panditPayout, transactionRef: req.body.transactionRef });
+        const t1 = getNotificationTemplate("PAYOUT_COMPLETED", { id: booking.id.substring(0, 8).toUpperCase(), amount: booking.platformTransfersToPandit, transactionRef: req.body.transactionRef });
         // Booking.panditId is the PanditProfile id — resolve the pandit's User
         // id (the Notification.userId FK) or the notify silently fails.
         const payoutPanditUserId = booking.panditId

@@ -18,7 +18,7 @@ interface PayoutBooking {
   eventType: string;
   eventDate: string;
   completedAt: string;
-  panditPayout: number;
+  platformTransfersToPandit: number;
   payoutStatus: "PENDING" | "COMPLETED" | "PAID";
   payoutCompletedAt: string;
   storedPayoutMissing?: boolean;
@@ -102,7 +102,7 @@ export default function PayoutsPage() {
   // an unverified figure is exactly what we're avoiding (founder 2026-07-22).
   const pendingTotalAmount = bookings
     .filter(b => b.payoutStatus !== "COMPLETED" && b.payoutStatus !== "PAID" && !b.storedPayoutMissing)
-    .reduce((sum, b) => sum + (b.panditPayout || 0), 0);
+    .reduce((sum, b) => sum + (b.platformTransfersToPandit || 0), 0);
   const checkingCount = bookings.filter(b => b.storedPayoutMissing).length;
 
   const getAgeInDays = (completedAtStr: string) => {
@@ -209,7 +209,7 @@ export default function PayoutsPage() {
                             हिसाब जाँचा जा रहा है
                           </span>
                         ) : (
-                          <>₹{b.panditPayout?.toLocaleString("en-IN")}</>
+                          <>₹{b.platformTransfersToPandit?.toLocaleString("en-IN")}</>
                         )}
                       </td>
                       <td className="px-6 py-4">

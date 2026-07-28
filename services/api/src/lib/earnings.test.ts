@@ -18,8 +18,8 @@ const res1 = computeEarnings({
 // platformFee reference value unchanged (10% of 35000 = 3500) but NOT deducted
 assert.strictEqual(res1.platformFee, 3500);
 assert.strictEqual(res1.dakshinaNet, 35000); // FULL dakshina — 100% to pandit
-// totalToPandit = 35000 (full dakshina) + 2000 + 1000 + 2100 = 40100
-assert.strictEqual(res1.totalToPandit, 40100);
+// panditReceivesTotal = 35000 (full dakshina) + 2000 + 1000 + 2100 = 40100
+assert.strictEqual(res1.panditReceivesTotal, 40100);
 
 // Test case 2 with schema fields
 const res2 = computeEarnings({
@@ -31,7 +31,7 @@ const res2 = computeEarnings({
 
 assert.strictEqual(res2.platformFee, 2000); // 10% of 20000 (reference only)
 assert.strictEqual(res2.dakshinaNet, 20000); // FULL dakshina — no deduction
-// totalToPandit = 20000 (full) + 1500 + 500 = 22000
-assert.strictEqual(res2.totalToPandit, 22000);
+// panditReceivesTotal = 20000 (full) + 1500 + 500 = 22000
+assert.strictEqual(res2.panditReceivesTotal, 22000);
 
 console.log("✅ computeEarnings tests passed!");

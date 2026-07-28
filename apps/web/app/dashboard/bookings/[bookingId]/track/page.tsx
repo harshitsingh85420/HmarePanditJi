@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "../../../../../src/context/auth-context";
 import Link from "next/link";
 import { ChevronLeft, Phone, MessageCircle } from "lucide-react";
+import { panditTitleName, panditName, panditInitial, telHref, whatsappHref } from "../../../../../lib/panditIdentity";
 
 export default function LiveTrackingPage() {
   const params = useParams();
@@ -79,7 +80,7 @@ export default function LiveTrackingPage() {
                   <span className="material-symbols-outlined">directions_car</span>
                 </div>
                 <div className="mt-2 bg-white dark:bg-slate-900 px-3 py-1 rounded-full shadow-lg text-xs font-bold border border-[#137fec] text-slate-900 dark:text-white">
-                  Pt. {booking.pandit?.name || "Pandit"}
+                  {panditTitleName(booking.pandit) ?? "Your pandit"}
                 </div>
               </div>
             </div>
@@ -92,7 +93,7 @@ export default function LiveTrackingPage() {
             <div className="p-6">
               <div className="flex items-start justify-between mb-4">
                 <div>
-                  <h3 className="text-xl font-bold dark:text-white">Pt. {booking.pandit?.name || "Pandit"} is approaching venue</h3>
+                  <h3 className="text-xl font-bold dark:text-white">{panditTitleName(booking.pandit) ?? "Your pandit"} is approaching venue</h3>
                   <div className="flex items-center gap-2 mt-1">
                     <span className="flex h-2 w-2 rounded-full bg-emerald-500"></span>
                     <p className="text-emerald-600 dark:text-emerald-400 text-sm font-semibold">Current Status: {booking.status === "PANDIT_EN_ROUTE" ? "On Time" : "Scheduled"}</p>
@@ -110,10 +111,10 @@ export default function LiveTrackingPage() {
 
               <div className="flex flex-col gap-3">
                 <div className="grid grid-cols-2 gap-3">
-                  <a href={`tel:${booking.pandit?.phone}`} className="flex items-center justify-center gap-2 bg-[#137fec] text-white font-bold py-3 rounded-xl hover:bg-[#137fec]/90 transition-all shadow-lg shadow-[#137fec]/25">
+                  <a href={telHref(booking.pandit) ?? undefined} className="flex items-center justify-center gap-2 bg-[#137fec] text-white font-bold py-3 rounded-xl hover:bg-[#137fec]/90 transition-all shadow-lg shadow-[#137fec]/25">
                     <Phone size={16} /> Call Pandit
                   </a>
-                  <a href={`https://wa.me/${booking.pandit?.phone?.replace('+', '')}`} className="flex items-center justify-center gap-2 bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-white font-bold py-3 rounded-xl hover:bg-slate-300 dark:hover:bg-slate-700 transition-all">
+                  <a href={whatsappHref(booking.pandit) ?? undefined} className="flex items-center justify-center gap-2 bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-white font-bold py-3 rounded-xl hover:bg-slate-300 dark:hover:bg-slate-700 transition-all">
                     <MessageCircle size={16} /> Message
                   </a>
                 </div>
@@ -204,13 +205,13 @@ export default function LiveTrackingPage() {
             <div className="flex items-center gap-4">
               <div className="h-14 w-14 rounded-full bg-cover bg-center border-2 border-[#137fec] bg-slate-200 shadow-sm overflow-hidden text-slate-500 flex items-center justify-center">
                 {booking.pandit?.profilePhotoUrl ? (
-                  <img src={booking.pandit.profilePhotoUrl} className="w-full h-full object-cover" alt={booking.pandit.name} />
+                  <img src={booking.pandit.profilePhotoUrl} className="w-full h-full object-cover" alt={panditName(booking.pandit) ?? "Pandit"} />
                 ) : (
-                  <span className="font-bold">{booking.pandit?.name?.charAt(0)}</span>
+                  <span className="font-bold">{panditInitial(booking.pandit) ?? "P"}</span>
                 )}
               </div>
               <div>
-                <p className="font-bold dark:text-white text-lg">Pt. {booking.pandit?.name}</p>
+                <p className="font-bold dark:text-white text-lg">{panditTitleName(booking.pandit) ?? "Your pandit"}</p>
                 <div className="flex items-center text-amber-500 text-xs">
                   <span className="material-symbols-outlined text-sm font-bold">star</span>
                   <span className="ml-1 font-semibold text-slate-700 dark:text-slate-300">4.8 (120 reviews)</span>

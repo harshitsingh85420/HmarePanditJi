@@ -568,8 +568,22 @@ export default function BookingWizardClient() {
         throw new Error((j as { message?: string }).message ?? "Could not create booking");
       }
 
+      // RESPONSE-SHAPE FIX (Isj ruling 2026-07-28; contract-sweep P0).
+      //
+      // POST /bookings replies sendSuccess(res, { booking, order }) — so the
+      // envelope is { success, data: { booking, order }, message } and the id
+      // lives at data.booking.id. This read was `bookingJson.data.id`, one
+      // level too high: undefined. JSON.stringify then DROPPED the key, so
+      // create-order received {} and 400'd on "bookingId is required", the
+      // wizard threw, and RazorpayCheckout never mounted — while the booking
+      // row and the Razorpay order had ALREADY been created. Every attempt
+      // orphaned an unpaid booking and no customer could ever pay.
+      //
+      // Field names only. No amount, no fee, no Razorpay call is changed here.
       const bookingJson: any = await bookingRes.json();
-      const booking = bookingJson.data ?? bookingJson;
+      const payload = bookingJson.data ?? bookingJson;
+      // tolerate both the wrapped and the flat shape, but read the REAL one first
+      const booking = payload.booking ?? payload;
       const bookingId = booking.id ?? booking.bookingId;
       const bookingNumber = booking.bookingNumber ?? `HPJ-${Date.now().toString(36).toUpperCase()}`;
 
@@ -1576,7 +1590,7 @@ export default function BookingWizardClient() {
                       razorpayKey={form.orderKeyId}
                       bookingId={form.bookingId}
                       bookingNumber={form.bookingNumber}
-                      customerName={user?.fullName ?? "Customer"}
+                      customerName={user?.name ?? "Customer"}
                       customerPhone={user?.phone}
                       accessToken={accessToken ?? ""}
                       onSuccess={handlePaymentSuccess}

@@ -340,7 +340,7 @@ export default async function bookingRoutes(fastify: FastifyInstance, _opts: any
           const t9 = getNotificationTemplate("PUJA_COMPLETED", { id: booking.id.substring(0, 8).toUpperCase() });
           await notificationService.notify({ userId: existing.customerId, type: "PUJA_COMPLETED", ...t9 });
 
-          const t10 = getNotificationTemplate("PUJA_COMPLETED_PANDIT", { id: booking.id.substring(0, 8).toUpperCase(), amount: booking.panditPayout });
+          const t10 = getNotificationTemplate("PUJA_COMPLETED_PANDIT", { id: booking.id.substring(0, 8).toUpperCase(), amount: booking.platformTransfersToPandit });
           await notificationService.notify({ userId: existing.panditId!, type: "PUJA_COMPLETED_PANDIT", ...t10 });
         }
       } catch (e) {

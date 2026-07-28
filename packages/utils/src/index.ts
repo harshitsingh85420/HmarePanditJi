@@ -56,7 +56,6 @@ export {
 
 // ─── SPEC-REQUIRED CONSTANTS ─────────────────────────────────────────────────
 export const CONSTANTS = {
-  PLATFORM_FEE_PERCENT: 15,
   TRAVEL_SERVICE_FEE_PERCENT: 5,
   GST_PERCENT: 18,
   FOOD_ALLOWANCE_PER_DAY: 1000,
@@ -80,19 +79,25 @@ export function calculatePricing(params: {
   foodAllowanceDays: number; accommodationCost: number;
   foodAllowanceAmount: number; platformFee: number; platformFeeGst: number;
   travelServiceFee: number; travelServiceFeeGst: number;
-  grandTotal: number; panditPayout: number;
+  grandTotal: number; platformTransfersToPandit: number;
 } {
   const foodAllowanceAmount = params.foodAllowanceDays * CONSTANTS.FOOD_ALLOWANCE_PER_DAY;
-  const platformFee = Math.round(params.dakshinaAmount * CONSTANTS.PLATFORM_FEE_PERCENT / 100);
+  // The platform fee is NOT computed here. Ruling B puts it in one place
+  // (services/api config) and freezes it per booking; a second implementation
+  // in a shared package is how two rates existed at once.
+  const platformFee = 0;
   const platformFeeGst = Math.round(platformFee * CONSTANTS.GST_PERCENT / 100);
   const travelServiceFee = Math.round(params.travelCost * CONSTANTS.TRAVEL_SERVICE_FEE_PERCENT / 100);
   const travelServiceFeeGst = Math.round(travelServiceFee * CONSTANTS.GST_PERCENT / 100);
   const grandTotal = params.dakshinaAmount + params.samagriAmount + params.travelCost
     + foodAllowanceAmount + params.accommodationCost
     + platformFee + platformFeeGst + travelServiceFee + travelServiceFeeGst;
-  const panditPayout = params.dakshinaAmount - platformFee + params.travelCost
+  // RULING B: the pandit receives 100% of his dakshina — the fee is NEVER
+  // deducted. The old `dakshinaAmount - platformFee` here was the deducted
+  // model (A) written down; corrected so no reader can mistake it for current.
+  const platformTransfersToPandit = params.dakshinaAmount + params.travelCost
     + foodAllowanceAmount + params.samagriAmount;
-  return { ...params, foodAllowanceAmount, platformFee, platformFeeGst, travelServiceFee, travelServiceFeeGst, grandTotal, panditPayout };
+  return { ...params, foodAllowanceAmount, platformFee, platformFeeGst, travelServiceFee, travelServiceFeeGst, grandTotal, platformTransfersToPandit };
 }
 
 export function calculateRefundAmount(grandTotal: number, daysBeforeEvent: number): number {
@@ -170,3 +175,10 @@ export * from './auth-context';
 
 // Token constants
 export * from './token-constants';
+// codeOnly() — the ONE comment-stripper. Every guard and every scripted search
+// routes through it; see the file header for the six sightings that produced it
+// and the single documented raw-source exception.
+export * from './code-only';
+// NEXT_PUBLIC_API_URL — one contract for all three apps (the env var is an
+// ORIGIN; the client owns the /api/v1 prefix).
+export * from './api-base';

@@ -1,3 +1,4 @@
+import { panditTitleName } from "../../../lib/panditIdentity";
 export function MuhuratPatrika({ booking }: { booking: any }) {
     return (
         <div className="bg-gradient-to-br from-[#FFF5E6] to-[#FFE4E1] border-8 border-double border-orange-300 rounded-2xl p-6 md:p-8 max-w-lg mx-auto text-center shadow-2xl relative overflow-hidden">
@@ -34,7 +35,7 @@ export function MuhuratPatrika({ booking }: { booking: any }) {
                     </div>
                     <div className="flex justify-between pt-1">
                         <span className="font-bold text-gray-500 w-24">पुरोहित:</span>
-                        <span className="font-bold text-gray-900 text-right">Pt. {booking.pandit?.name || "___"}</span>
+                        <span className="font-bold text-gray-900 text-right">{panditTitleName(booking.pandit) ?? "___"}</span>
                     </div>
                 </div>
 

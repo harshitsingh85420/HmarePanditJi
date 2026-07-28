@@ -521,7 +521,15 @@ export const hi = {
     accept: "स्वीकार कीजिए",
     reject: "अस्वीकार कीजिए",
     earningsTitle: "आपकी कमाई का हिसाब",
-    dakshina: "दक्षिणा",
+    // PAYMENT-SOURCE LABELLING LAW (Isj, 2026-07-28): every rupee figure shown
+    // to the pandit must declare WHO PAYS IT. A true number with an unstated
+    // source is a false promise about his bank balance. Two sources exist:
+    //   · प्लेटफ़ॉर्म से — we collect it from the customer and transfer it to him
+    //     (dakshina, travel, food, accommodation — all inside grandTotal AND
+    //      inside platformTransfersToPandit)
+    //   · यजमान से सीधे — he collects it himself, we never touch it
+    //     (samagri; accommodation when the customer arranges it directly)
+    dakshina: "दक्षिणा — प्लेटफ़ॉर्म से",
     // MONEY-TRUTH (founder 2026-07-21): the platform fee is customer-paid, on
     // TOP of the dakshina — it is NEVER a deduction from the pandit. On a
     // pandit-facing breakdown the fee is not the pandit's concern, so this
@@ -529,9 +537,15 @@ export const hi = {
     // PLATFORM_FEE_PERCENT (feeLabel guard keeps the number in sync).
     platformFee: "प्लेटफ़ॉर्म शुल्क — यजमान देता है (10%)",
     youGet: "आपको मिलेगा",
-    travel: "यात्रा भत्ता",
-    food: "भोजन भत्ता",
-    samagri: "सामग्री कमाई",
+    // The total mixes both sources, so it says so rather than implying one bank credit.
+    totalNote: "इसमें प्लेटफ़ॉर्म से आने वाला पैसा और यजमान से सीधे मिलने वाला पैसा — दोनों शामिल हैं।",
+    travel: "यात्रा भत्ता — प्लेटफ़ॉर्म से",
+    food: "भोजन भत्ता — प्लेटफ़ॉर्म से",
+    // RULING (Isj, 2026-07-28): samagri is settled DIRECTLY with the pandit —
+    // the platform neither collects it nor pays it out. "सामग्री कमाई" beside a
+    // green + in his earnings block read as money the platform would send him.
+    samagri: "सामग्री — यजमान से सीधे",
+    samagriDirectNote: "सामग्री का पैसा यजमान आपको सीधे देंगे — वह प्लेटफ़ॉर्म के भुगतान में नहीं आएगा।",
     total: "कुल",
     acceptedVoice: "बधाई हो! बुकिंग स्वीकार हो गई। पूरी जानकारी बुकिंग सेक्शन में देखिए।",
     imHere: "मैं पहुँच गया",

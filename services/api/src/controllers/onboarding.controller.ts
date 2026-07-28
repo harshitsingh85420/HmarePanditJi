@@ -1,4 +1,5 @@
 import { FastifyRequest, FastifyReply } from "fastify";
+import { z } from "zod";
 import { prisma } from "@hmarepanditji/db";
 import { AppError } from "../middleware/errorHandler";
 import { sendSuccess } from "../utils/response";
@@ -17,6 +18,25 @@ interface AuthenticatedRequest {
 function encrypt(text: string) {
     return Buffer.from(text).toString('base64');
 }
+
+// BATCH FOUR (Isj, 2026-07-28) — the registration name/city contract.
+// Deliberately NO script restriction: the pandit's own name in roman letters
+// is accepted. Only length is bounded, and it is bounded HERE (server-side),
+// because the client cap alone is not a cap.
+const NAME_MAX = 100;
+const CITY_MAX = 60;
+export const onboardingSchema = z.object({
+    name: z
+        .string({ required_error: "Name must be at least 3 characters." })
+        .trim()
+        .min(3, "Name must be at least 3 characters.")
+        .max(NAME_MAX, `Name must be at most ${NAME_MAX} characters.`),
+    city: z
+        .string({ required_error: "City is required." })
+        .trim()
+        .min(1, "City is required.")
+        .max(CITY_MAX, `City must be at most ${CITY_MAX} characters.`),
+});
 
 interface Step1Body {
     fullName: string;
@@ -276,25 +296,29 @@ export const submitOnboarding = async (request: FastifyRequest, reply: FastifyRe
     const req = request as AuthenticatedRequest;
     const userId = req.user.id;
 
+    // NAME/CITY CONTRACT (Isj ruling, 2026-07-28 — BATCH FOUR).
+    //
+    // SCRIPT: roman names are ACCEPTED. A pandit's name is HIS data, not our UI
+    // copy — the no-roman law governs strings we write, never what he types.
+    // "Pt. Ramesh Sharma" is a real way a real pandit writes his own name, and
+    // rejecting it would be the app correcting the guru. No script rule here,
+    // deliberately.
+    //
+    // LENGTH: capped server-side. The client had no cap and the server had no
+    // cap either, so a 246-character name reached the database and echoed back
+    // in full across every screen that renders it.
     const body = request.body as any;
-    const { name, city } = body;
-
-    if (!name || String(name).trim().length < 3) {
+    const parsed = onboardingSchema.safeParse({ name: body?.name, city: body?.city });
+    if (!parsed.success) {
+        const first = parsed.error.issues[0];
         return reply.status(400).send({
             success: false,
-            error: { code: "validation_error", message: "Name must be at least 3 characters." }
+            error: { code: "validation_error", message: first?.message || "Invalid name or city." }
         });
     }
 
-    if (!city || String(city).trim().length === 0) {
-        return reply.status(400).send({
-            success: false,
-            error: { code: "validation_error", message: "City is required." }
-        });
-    }
-
-    const cleanName = String(name).trim();
-    const cleanCity = String(city).trim();
+    const cleanName = parsed.data.name.trim();
+    const cleanCity = parsed.data.city.trim();
 
     try {
         await prisma.$transaction(async (tx) => {

@@ -10,6 +10,7 @@ import {
 import { generateBookingNumber } from "../utils/helpers";
 import { FOOD_ALLOWANCE_PER_DAY } from "../config/constants";
 import { calculateGrandTotal } from "../utils/pricing";
+import { currentFeePercent } from "../lib/feeSnapshot";
 import { AppError } from "../middleware/errorHandler";
 import { NotificationService } from "./notification.service";
 import { getNotificationTemplate } from "./notification-templates";
@@ -27,7 +28,7 @@ export interface BookingFinancials {
   travelServiceFeeGst: number;   // GST_PERCENT on travelServiceFee
   gstAmount: number;             // total GST (both fees)
   grandTotal: number;            // customer pays — dakshina + platformFee + travel + food + accommodation
-  panditPayout: number;          // 100% to pandit — dakshina + travel + food + accommodation (fee NEVER deducted; Ruling #7)
+  platformTransfersToPandit: number;          // 100% to pandit — dakshina + travel + food + accommodation (fee NEVER deducted; Ruling #7)
 }
 
 /**
@@ -56,7 +57,7 @@ export function calculateBookingFinancials(
     travelServiceFeeGst: b.travelServiceFeeGst,
     gstAmount: b.platformFeeGst + b.travelServiceFeeGst,
     grandTotal: b.grandTotal,
-    panditPayout: b.panditPayout,
+    platformTransfersToPandit: b.platformTransfersToPandit,
   };
 }
 
@@ -88,7 +89,7 @@ export interface CreateBookingInput {
   // Financials (auto-calculated if not provided)
   // MONEY LAW: no caller may supply financial columns — every fee, total and
   // payout is derived server-side from the ONE money source (utils/pricing).
-  // The old optional platformFee/travelServiceFee/grandTotal/panditPayout
+  // The old optional platformFee/travelServiceFee/grandTotal/platformTransfersToPandit
   // overrides were an unloaded gun (no caller used them, zod stripped them
   // from the API) — removed so they can never be loaded.
 }
@@ -192,11 +193,15 @@ export async function createBooking(input: CreateBookingInput) {
       samagriNotes: input.samagriNotes,
       // Financials — ONLY from the single money source (no caller overrides)
       platformFee: fin.platformFee,
+      // THE SNAPSHOT INVARIANT (Ruling B): freeze the rate this booking was
+      // created under, beside the amount. Ops changing the default later must
+      // never move this booking's arithmetic. See lib/feeSnapshot.ts.
+      platformFeePercent: currentFeePercent(),
       platformFeeGst: fin.platformFeeGst,
       travelServiceFee: fin.travelServiceFee ?? 0,
       travelServiceFeeGst: fin.travelServiceFeeGst,
       grandTotal: fin.grandTotal,
-      panditPayout: fin.panditPayout,
+      platformTransfersToPandit: fin.platformTransfersToPandit,
       status: "CREATED",
       paymentStatus: "PENDING",
     },
@@ -220,7 +225,7 @@ export async function createBooking(input: CreateBookingInput) {
 
   // Template 2 -> Pandit
   if (input.panditId) {
-    const p1 = getNotificationTemplate("NEW_BOOKING_REQUEST", { pujaType: input.eventType, date: input.eventDate.toISOString().split('T')[0], city: input.venueCity, amount: booking.panditPayout || input.dakshinaAmount });
+    const p1 = getNotificationTemplate("NEW_BOOKING_REQUEST", { pujaType: input.eventType, date: input.eventDate.toISOString().split('T')[0], city: input.venueCity, amount: booking.platformTransfersToPandit || input.dakshinaAmount });
     await notificationService.notify({
       userId: input.panditId,
       type: "NEW_BOOKING_REQUEST",

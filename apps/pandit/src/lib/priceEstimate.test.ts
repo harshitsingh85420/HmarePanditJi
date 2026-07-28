@@ -37,10 +37,10 @@ describe("price-honesty meter — computed from real rules", () => {
     expect(r.total).toBe(2100 + 2400 + 1000);
     expect(r.lines.every((l) => !l.label.includes("शुल्क") && !l.label.includes("GST"))).toBe(true);
     expect(r.demandLevel).toBe("कम");
-    // the server payout matches: panditPayout = dakshina + pass-throughs, with
+    // the server payout matches: platformTransfersToPandit = dakshina + pass-throughs, with
     // the platform fee NEVER subtracted (the fee is customer-paid, on top).
     const pricing = read("utils/pricing.ts");
-    expect(pricing).toMatch(/const panditPayout = dakshinaAmount \+ travelCost \+ foodAllowanceAmount \+ accommodationCost;/);
+    expect(pricing).toMatch(/const platformTransfersToPandit = dakshinaAmount \+ travelCost \+ foodAllowanceAmount \+ accommodationCost;/);
     // and the customer grandTotal DOES add the fee on top (separate charge)
     expect(pricing).toMatch(/const grandTotal =\s*\n?\s*dakshinaAmount \+\s*\n?\s*platformFee \+/);
   });

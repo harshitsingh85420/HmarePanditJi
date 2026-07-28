@@ -452,3 +452,58 @@ app's sindoor was read as drift when it was fidelity.
 
 Only new evidence from `design/canon/` reopens this. A document under
 `prompts/` is not evidence.
+
+
+---
+
+# RULING — GST TREATMENT OF THE PLATFORM FEE
+**Isj, 2026-07-28. PROVISIONAL, pending a chartered accountant's confirmation.**
+
+## The ruling
+
+**The platform fee is GST-INCLUSIVE.** The customer sees **one number** — the
+fee — and no separate tax line anywhere in the product.
+
+On a **₹10 fee** at 18% GST, the platform's net is **₹8.47** and **₹1.53** is
+remitted as tax. The platform absorbs the tax out of its own commission; it is
+never added to what the customer pays.
+
+## Why this is being written down now
+
+**This file had no GST entry at all.** That absence is how a margin decision
+came to live in a code comment.
+
+The treatment changed on **2026-07-16** in commit `f803f10`
+("SINGLE-SIDED FEE — founder decision, enforced everywhere"), which set
+`platformFeeGst = 0` with the inline justification
+*"commission is GST-inclusive; no customer tax line."* The change was bundled
+into a pricing commit and never surfaced as a decision of its own.
+
+The data records the switch: production rows 1–8 (8 and 14 July) carry 18% GST
+computed on the fee — 465→83, 1050→189, 315→57, 225→41 — and row 9
+(HPJ-2026-19502, 20 July) carries **0**.
+
+## What this ruling does and does not settle
+
+- **Settles:** the product shows one fee figure and no tax line, for the pilot.
+- **Does NOT settle:** whether the platform is *legally* entitled to treat the
+  fee as inclusive at its registration status and turnover, what a compliant
+  invoice must state, and how GST is apportioned on a refund.
+
+## The margin consequence, stated plainly
+
+| treatment | customer pays on a ₹10 fee | platform keeps | remitted |
+|---|---|---|---|
+| **INCLUSIVE** (this ruling) | ₹10.00 | **₹8.47** | ₹1.53 |
+| EXCLUSIVE (pre-16-July) | ₹11.80 | ₹10.00 | ₹1.80 |
+
+The difference is **~15% of real platform margin**. That is the number the
+accountant is being asked to confirm.
+
+## Reopening
+
+A chartered accountant's written position reopens this immediately, and the
+pilot's pricing must be re-checked against it before any non-pilot launch.
+Nothing in code changes on this ruling — `platformFeeGst = 0` already
+implements it. What changes is that the decision now lives here rather than in
+a comment.

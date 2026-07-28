@@ -58,8 +58,8 @@ function UserMenu() {
   }
 
   /* ── Authenticated state ── */
-  const initials = user.fullName
-    ? user.fullName
+  const initials = user.name
+    ? user.name
       .split(" ")
       .slice(0, 2)
       .map((w) => w[0])
@@ -78,7 +78,7 @@ function UserMenu() {
         {user.avatarUrl ? (
           <img
             src={user.avatarUrl}
-            alt={user.fullName ?? "User"}
+            alt={user.name ?? "User"}
             className="w-12 h-12 rounded-full object-cover"
           />
         ) : (
@@ -87,7 +87,7 @@ function UserMenu() {
           </span>
         )}
         <span className="text-lg font-medium text-slate-700 dark:text-slate-200 hidden sm:block max-w-[120px] truncate">
-          {user.fullName ?? user.phone}
+          {user.name ?? user.phone}
         </span>
         <span className="material-symbols-outlined text-lg text-slate-400">
           expand_more
@@ -98,7 +98,7 @@ function UserMenu() {
         <div className="absolute right-0 top-full mt-2 w-52 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-100 dark:border-slate-800 py-2 z-50">
           <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800">
             <p className="text-lg font-semibold text-slate-900 dark:text-slate-100 truncate">
-              {user.fullName ?? "User"}
+              {user.name ?? "User"}
             </p>
             <p className="text-base text-slate-400 mt-0.5">{user.phone}</p>
           </div>

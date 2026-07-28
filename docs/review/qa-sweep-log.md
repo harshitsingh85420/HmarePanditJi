@@ -218,6 +218,211 @@ Every page's §3 now measures the app column against the viewport and reports th
 
 ---
 
+### 💸 PAYMENT-SOURCE LABELLING LAW + THE RENAME · 2026-07-28
+
+**THE LAW (Isj):** *every rupee figure shown to the pandit must declare WHO PAYS IT* — platform transfer, or straight from the customer's hand. **A true number with an unstated source is a false promise about his bank balance.** It generalises two sightings: ₹5,610 (the customer's total) on his booking card, and samagri sitting inside his earnings block.
+
+**WHO PAYS WHAT — traced, not assumed:**
+
+| component | in customer's grandTotal? | in platformTransfersToPandit? | who actually pays the pandit | label now |
+|---|---|---|---|---|
+| दक्षिणा | ✅ | ✅ | **platform transfer** | "दक्षिणा — प्लेटफ़ॉर्म से" |
+| यात्रा भत्ता | ✅ | ✅ | **platform transfer** | "यात्रा भत्ता — प्लेटफ़ॉर्म से" |
+| भोजन भत्ता | ✅ | ✅ | **platform transfer** | "भोजन भत्ता — प्लेटफ़ॉर्म से" |
+| सामग्री | ❌ | ❌ | **customer, directly** | "सामग्री — यजमान से सीधे" + note |
+| प्लेटफ़ॉर्म शुल्क | ✅ (customer cost) | n/a | not his money at all | already "यजमान देता है" |
+
+The mixed total now carries `totalNote`: *"इसमें प्लेटफ़ॉर्म से आने वाला पैसा और यजमान से सीधे मिलने वाला पैसा — दोनों शामिल हैं।"*
+
+**GUARD `paymentSourceLabels.test.ts` — a CHECKLIST that grows with the app.** Every pandit-facing money label is enumerated with its source; a new label added without a source marker fails the build. Proven in both directions: 9 positive assertions, plus a negative case asserting that the bare strings ("दक्षिणा", "सामग्री कमाई", "कुल") are REJECTED — so the checker cannot be asleep.
+
+**THE RENAME — the unreachability pattern applied to NAMING.** `totalToPandit` → **`panditReceivesTotal`** (everything that reaches him, from any hand) and `panditPayout` → **`platformTransfersToPandit`** (what we actually send). Reading either name alone now tells you which money it is. 26 files, 130 sites, `@map("panditPayout")` keeps the physical column so **no data migration**. Ledger this as the pattern's extension: *make the wrong read hard to WRITE — first by deleting the phantom field, now by naming so the two cannot be confused.*
+
+**SHIPPED — the samagri cart truth line**, stated BEFORE the total, not after: *"यह राशि आप पंडित जी को पूजा के दिन सीधे देंगे।"* / "…handed to Pandit ji directly on the day — not paid online."
+**PARKED with a recommendation (the metaphor is Isj's):** retire the commerce framing — "Add to Cart", a running total, a checkout-shaped sidebar — in favour of a LIST that goes TO the pandit. Nothing is being purchased, and the shape says otherwise.
+
+**🔴 REPORTED — COMPOSITION LOOKS WRONG (found while tracing):** the wizard's pay-now preview is
+`dakshina + platformFee + travel + food` — it **omits `accommodationCost`**, which the server's `grandTotal` DOES include. For a PLATFORM_BOOKS stay the customer reviews a figure **lower than he is charged** (₹27,400 previewed vs ₹29,900 charged on a worked example). The Razorpay modal uses the server amount, so he pays the correct figure — but the number he agrees to is not it. Display=charge is broken for platform-booked accommodation. Not fixed: it is money composition.
+
+**CORRECTION TO MY OWN TRACE:** I first computed a food-allowance divergence too. That was my error — `calculateGrandTotal` takes `foodAllowanceAmount`, not `foodAllowanceDays`, and I passed the wrong param. Food is correct. Only accommodation diverges. I checked before reporting because the same mistake shape has produced four phantom findings.
+
+---
+
+### 🛍️ SAMAGRI TRUTH TRACE · 2026-07-28 — money the platform RECORDS but does not COLLECT
+
+**RULING (Isj):** samagri and accommodation are settled DIRECTLY with the pandit; they are not charged online. `samagriAmount` sitting outside `grandTotal` is therefore CORRECT — nothing changes there. But if the platform records money it does not collect, **all three parties must be told in their own words.**
+
+| party | what it said | verdict |
+|---|---|---|
+| **(a) CUSTOMER** | `payNow = dakshina + platformFee + travel + food` — `samagriCost` is computed but **deliberately excluded**. No total-looking figure includes it. The samagri step shows its own "Total: ₹X" inside the samagri card only. | ✅ **correct, no hidden cost at the door** — the pay-now figure is exactly the Razorpay charge (display=charge holds). |
+| **(b) PANDIT** | 🔴 the block was commented *"Samagri earnings"* and rendered **`+₹X` in the leaf-green earnings colour**, directly above a **Total** — and `earnings.totalToPandit = dakshinaNet + travel + food + samagri` genuinely **includes** it, while the stored `panditPayout` **excludes** it. He was being shown a total the platform will never pay him. | ✅ **FIXED (copy)** — label is now "सामग्री — यजमान से सीधे", with a line under the total: *"सामग्री का पैसा यजमान आपको सीधे देंगे — वह प्लेटफ़ॉर्म के भुगतान में नहीं आएगा।"* The figure stays (he does receive it); only the source is now honest. |
+| **(c) OPS** | showed samagri with no provenance | ✅ **FIXED (copy)** — "not collected by platform", plus *"Settled directly between customer and pandit. Never reconcile this against Razorpay or the payout."* |
+| **(d) online charge path?** | The samagri cart (`SamagriCartContext`, `CartSidebar`, `SamagriModal`) composes a total and renders "Add to Cart — ₹X" | ✅ **no contradiction** — grep for checkout/razorpay/create-order/payment across the cart surfaces returns **nothing**. The cart never charges; it only composes a selection that becomes `samagriAmount` on the booking. **REPORTED, not fixed:** the cart's language ("Add to Cart", a running total) reads like an online purchase for something paid in cash at the door. That is Isj's call, not a wiring fix. |
+
+**STRUCTURAL, reported not fixed:** `totalToPandit` and `panditPayout` are two different numbers for "what the pandit gets", differing by exactly `samagriAmount`. Both are legitimate — one is everything he receives, the other is what the platform transfers — but they share no naming that says so, and the earnings screen reads one while the payout pays the other.
+
+**LEDGER — the seven zero-execution features are effectively UNTESTED NEW CODE, however old the files are.** Five are now fixed and will run for the FIRST TIME on the walk. Watch all seven specifically: first execution is where they break.
+
+---
+
+### 🕳️ NEW CLASS — "FEATURES THAT APPEAR IMPLEMENTED AND HAVE RUN ZERO TIMES" · 2026-07-28
+
+**THE CLASS, named:** a phantom field does not only render a wrong value — **it creates PERMANENTLY FALSE BRANCHES.** `null > n` is valid TypeScript, evaluates to `false` forever, and nothing in the source reveals it: the feature reads as implemented, reviews as implemented, and has never executed once. This is the **logic-side twin of the dead-control census** — a dead control renders and does nothing; a dead branch never renders at all.
+
+**THE SWEEP — every condition in the purge diff that referenced a purged field:**
+
+| condition | file | verdict |
+|---|---|---|
+| `packages[last].fixedPrice > customTotal` | SamagriModal:361 | 🕳️ **DEAD** — `null > n` is always false. The **"— You save ₹…" line has never rendered.** |
+| `packages.find(p => p.packageName === "Standard")` | SamagriModal:296 | 🕳️ **DEAD** — nothing writes `packageName`, so the find never matches and the **"✨ In Pandit's Standard package" badge has never appeared** on a custom samagri item. |
+| `b.ritual?.nameHindi && …` | admin bookings/[id]:210 | 🕳️ **DEAD** — Booking has no `ritual` relation. The **Hindi ceremony subtitle has never rendered.** |
+| `if (data.data && data.data.pandit)` | review/page:57 | 🕳️ **DEAD** — the only key is `booking`. The **review page's pandit card has never rendered.** |
+| `json.data.data \|\| []` | admin support:61 | 🕳️ **DEAD** — always `[]`, so every downstream `tickets.length` branch is permanently in the empty state. **The support console has never displayed a ticket.** |
+| `user?.fullName ?? "Customer"` | booking-wizard:1593 | 🕳️ **DEAD left branch** — **every Razorpay payer name has been the literal "Customer".** |
+| `error: json.error \|\| { message: … }` | pandit api.ts | 🕳️ **DEAD right branch** on the AppError path — the server's Hindi was never read. |
+| `user?.fullName \|\| user?.name \|\| "U"` | Header:41 | ✅ **not dead** — the fallback covered it. Masked, not broken. |
+| `user.name ?? user.fullName ?? "User"` | src Avatar | ✅ **not dead** — correct operand came first. |
+
+**SEVEN features have executed zero times in production. Two conditions were masked by fallbacks and were never broken.** The distinction matters: a fallback that silently covers a phantom is why these survive review — the screen looks fine.
+
+**THE ADMIN BREAKDOWN — shipped.** Nine amount components added to the booking-list projection (pure select, no computation, no commission). The drawer now renders a breakdown that **reconciles**, plus an on-screen mismatch banner if it ever stops reconciling. Guard `adminBreakdownSums.test.ts` proves 4 real compositions sum exactly to `calculateGrandTotal`'s total, and — proven-to-fail — that dropping any non-zero component breaks the sum, so the completeness claim is not decorative.
+
+**FOUND WHILE VERIFYING THE SUM:** `calculateGrandTotal` neither returns nor includes **`samagriAmount`** — samagri is a separate customer transaction (the samagri cart), and `panditPayout` excludes it too. Listing it as a component would have reported a **false mismatch on every samagri booking**. It is now shown outside the total, labelled *"billed separately"*. Worth a founder look: a booking row carries a `samagriAmount` that no charged total includes.
+
+---
+
+### 🔎 THE UNREACHABILITY PATTERN AS A SEARCH · 2026-07-28
+
+**LAW, strong form:** *the unreachability pattern is not just how we fix a wrong read — it is how we FIND wrong reads.* Removing a phantom field converts every silent `undefined` into a compile error. **Guards catch what we already suspect; the type catches what we don't.** Apply it by default to any contract fix: delete the phantom first, let tsc enumerate the damage, then fix each surfaced read against the handler's actual projection — and where the handler sends nothing equivalent, OMIT rather than substitute.
+
+**THE PURGE — "new reads surfaced" is the measure of what tsc was validating as a lie:**
+
+| interface | phantoms removed | NEW wrong reads surfaced by tsc | fixed |
+|---|---|---|---|
+| `AuthUser` (web) | `fullName` | **5** — book-client, profile ×3, src/Header, landing-header ×4 | ✅ all → `name` |
+| `SamagriPackage` (web) | `packageName`, `fixedPrice` | **2** — the savings line at `:361-362`, which compared `null > n` and therefore never fired | ✅ → `tier`/`price` + `tierLabel()` |
+| `Booking` admin list | `pujaType`, `dakshinaAmount`, `travelCost`, `foodAllowanceAmount`, `samagriAmount` | **6** | ✅ ceremony → `eventType`; the four-zero "Amount Breakdown" REPLACED with an honest line (the components are not on that response) |
+| `Pandit` admin list | the `{ user: User }` nesting | 4 | ✅ flat `{id,name,phone}` |
+| `Booking` admin detail | `ritual` (no such relation on Booking) | 1 | ✅ subtitle removed; `displayName` made nullable with real fallbacks |
+
+**Fourteen wrong reads were surfaced by deleting eight fields.** Only three of them were known from the census; **eleven were invisible until the type stopped lying.**
+
+**NOT PURGED, and why:** `TravelOption` and `TravelOptionsTab` — travel is PARKED pending Isj's removal ruling, and nothing may change there. `maxTravelDistance` on the public profile — report-only, it is a coverage claim and Isj's to rule.
+
+**CORRECTION TO MY OWN EARLIER CLAIM:** I wrote that "bookings are zero today, which is why this lands now" when shipping the fee snapshot. **That was never verified against production** — the prod credential is rotated and I could not query it. I amplified an unverified assumption into a justification. Travel's risk classification is therefore **UNKNOWN, not zero**: if any real booking exists, it carries fabricated travel money in its payout. Isj has been told so plainly.
+
+Wall 889/889 · api guards 45/45 · re-skin proof 13/13 · tsc clean across pandit, web, admin.
+
+---
+
+### 🔧 THE CENSUS FIXES + TWO STRUCTURAL LINES · 2026-07-28
+
+**LEDGER — WHY THE MONEY GUARDS STAYED GREEN THROUGH FABRICATED TRAVEL (the census's sharpest lesson):** the money guards verify **CONSERVATION, not TRUTH** — ₹800 of invented travel cost conserves perfectly, because customer = payout + fee holds whatever the components are. A guard must also pin that **every money component has a real source**, not merely that the arithmetic balances.
+
+**LEDGER — FIVE OF THE SIX WERE BORN BROKEN, NOT REGRESSED:** the review page's pandit card, the support console, the admin pandit column, the Razorpay payer name and the travel quote have **never** worked in production. They survived because the eighteen-page §2 walk discipline was applied to **apps/pandit alone** — apps/web and apps/admin have never been walked. That is the campaign's largest remaining gap, and the DB is what unblocks it.
+
+**FIXED THIS TURN (pure wiring, fix the read then make the wrong read unwritable):**
+- 🔴 **The pandit hears the server again.** `api.ts` read `json.error || {message: json.message || fallback}`; the AppError path sends the Hindi TOP-LEVEL with `error:{code}`, so the truthy object won the `||` and the message was discarded. New `normalizeApiError()` understands all three dialects the API speaks (top-level message + code object · bare string `error` at 89 controller sites · message only). **Guarded in BOTH directions** — 7 behavioural cases green on correct code; restoring the short-circuit turns it red.
+- 🔴 **Razorpay payer names are real.** `AuthUser.fullName` (a PanditProfile column) was declared where getMe sends `name`, so `user?.fullName ?? "Customer"` never fired its `??` and every payment record read the literal "Customer". `fullName` is now **REMOVED from the type** — and removing it immediately surfaced five more wrong reads that tsc had been validating (book-client, profile, two headers, landing-header). That is the unreachability pattern paying for itself in one step.
+- **The support console can show a ticket.** `json.data.data` → the array is at `data`; `Array.prototype.data` is undefined, so it always set `[]`.
+- **Admin shows the assigned pandit.** `admin.controller.ts:569` FLATTENS `pandit: pandit?.user`; the local interface declared the nesting, so every pandit read "Unassigned" on the screen ops uses to see who is going to a ceremony. Interface corrected to the flat shape.
+- **The review page's pandit card can render.** It gated on `data.data.pandit`; the only key is `booking`. The comment above it said *"Assume data.data.pandit is available"* — and the assumption was wrong. Also corrected the photo read (`profilePhotoUrl` is a direct column, not nested under `.panditProfile`). NOTE: my earlier event-day fix had corrected a `.name` read **inside this dead block** — it is only now reachable.
+
+Wall 889/889 · api guards 45/45 · tsc clean across pandit, web, admin.
+
+---
+
+### 🔴 THE HAND-WRITTEN-INTERFACE CENSUS + TWO LAWS · 2026-07-28
+
+**21-agent census across all three apps, every claim adversarially verified against the serving handler AND schema.prisma. 12+ confirmed breaks.** Full report: task ws00bsmgo.
+
+**WHY tsc WAS COMPLICIT IN EVERY SIGHTING, in one line:** *a wrong declaration doesn't weaken type-checking, it redirects it at a lie* — the client casts the response to a hand-written interface, so tsc validates the code against the DECLARATION and never against the wire. All of these shipped green.
+
+**THE WORST, ranked:**
+1. 🔴 **Travel money is FABRICATED.** `booking-wizard-client.tsx:32` `TravelOption` declares `totalCost` / `label` / `estimatedDuration`; `travel.service.ts` sends `totalTravelCost` / `grandTravelTotal`, `breakdown[].label`, `estimatedHours`, and wraps in `{distanceKm, estimatedDriveHours, options[]}` — **not an array**. So `Array.isArray(data)` is false, the server result is discarded, and hardcoded `TRAVEL_FALLBACK` demo prices (₹800/₹1200/₹1800/₹5500) are quoted to the customer, POSTed as `travelCost`, stored on the Booking and rolled into `panditPayout`. **Invented money, charged and paid out.**
+2. 🔴 **Every Razorpay payer name is the literal string "Customer".** `AuthUser` declares `fullName` (a PanditProfile column); `getMe` sends `name`. `customerName={user?.fullName ?? "Customer"}` — the `??` never fires.
+3. 🔴 **The pandit never sees his own error messages.** `ApiResponse` declares `error.message` required; the API sends the Hindi message TOP-LEVEL and 58 sites send `error` as a bare string. On a permanent 409 he is told "try again" and retries forever.
+4. **The support console has never shown a ticket** — `json.data.data` where `paginatedBody` puts the array at `data`.
+5. **Admin bookings shows "Unassigned" for every assigned pandit** — the controller flattens `pandit: pandit?.user`, the local interface declares `pandit.user`.
+6. **The review page's pandit card has never rendered in production** — it gates on `data.data.pandit` where the only key is `data.data.booking`.
+
+**TWO OF THE FINDINGS ARE MINE, AND BOTH ARE NOW FIXED:**
+- 🔴 **My own re-skin mapper read SIX fields the search endpoint does not send** — `p.name` (it is at `user.name`), `baseDakshina`, `dakshinaRates`, `romanName`, `distanceKm`, `pendingPoojaVerifications`. Every card on /search rendered **"Pandit Ji"** with **"दक्षिणा तय नहीं"**, including pandits who had set a real rate. My truthful-null card faithfully reported nothing because the reads were wrong — the exact disease it was written to improve on. Corrected against `pandit.controller.ts:149`: name from `user.name`, rate from `pujaServices[].dakshinaAmount` (the searched pooja, else the lowest), and romanName/distance/per-pooja-video simply omitted because that endpoint does not carry them. **The proof harness fixture was rebuilt from the handler's shape rather than hand-authored — 13/13.**
+- My event-day fix corrected a `.name` read **inside the review page's dead block** (finding 6): it pattern-matched the field and walked straight past the phantom envelope key above it.
+
+**LAW — GUARDS PROVEN IN BOTH DIRECTIONS.** Three guard-authoring bugs now: comment-scanning (kycContract), hex-as-superlative (customerDesign), and a guard that condemned the CORRECT nested `user.name` (panditIdentityReads). All three would have been caught by the same discipline, so from here every NEW guard must be:
+- **proven-to-fail** — break the thing, watch it go red (the guard is not asleep), and
+- **proven-to-pass** — run it against correct code and watch it stay green (the guard does not condemn what it was written to allow).
+Retrofit not required; new guards only.
+
+**LAW — FIXTURES MAY NOT HAND-AUTHOR A RESPONSE SHAPE** (now with teeth, because it has cost four phantom findings): a harness fixture must either hit the real API or be derived from the handler's actual projection. Hand-writing the shape reproduces the very bug class under audit, inside the instrument.
+
+---
+
+### 📋 TWO LAWS + THE FOURTH DEFERRAL · 2026-07-28
+
+- **GUARD-COVERAGE LAW:** the money guards watched only `services/api`, which is why a live 15% rate sat undisturbed in `packages/utils`. **A guard must cover every package, not just the site of the last burn** — scope it to the contract, not to where it was previously violated.
+- **SCHEMA PROSE IS A CONTRACT SURFACE:** `schema.prisma` documented model A (`platformFee // 15% of dakshina`, `panditPayout // dakshina - platformFee`) long after the code implemented B. The storage layer is where a newcomer reads the truth first, so **schema comments count as a contract surface and must be corrected like code**.
+
+**THREE-ACT WALK — ATTEMPTED, PARTIAL, NOT DEFERRED.** Prod muhurat count NOT obtained: the only committed production credential (`PROD_DATABASE_URL` in `services/api/.env.staging`, Neon host `ep-proud-lake-…`) fails with `PrismaClientInitializationError` — the DB credentials were rotated, so the repo cannot reach prod. **Whether fabricated muhurats are live in production is UNKNOWN and still owed.**
+Wizard driver improved twice this turn (step 0 by field → 2 steps; button-card chooser → 3 steps) but still did not reach `POST /bookings`; the 6-step wizard gates on choices the driver has not satisfied. **Harness limitation, stated as such for the third time — not a product defect.** Acts 2 and 3 therefore ran against an empty booking set.
+**FALSE GREEN CAUGHT IN MY OWN HARNESS:** the check "नई विनती is visible" passed by matching the word *विनती* in the EMPTY-STATE copy, not a booking row. Corrected; recorded because a check that passes on empty state is worse than no check.
+
+---
+
+### 💰 RULING B — COMMISSION MODEL, OPS-CONFIGURABLE · 2026-07-28 · **SUPERSEDES every earlier record of a deducted/single-sided model**
+
+**THE MODEL, in the founder's words:**
+> The pandit receives 100% of his dakshina. No deduction, ever.
+> The platform fee is charged to the CUSTOMER, on top of the dakshina.
+> Default rate 10%. Operations sets the rate.
+
+**VERIFIED FIRST, CHANGED SECOND.** All three money guards already pinned exactly this model and were left alone:
+- `commission-consistency` — fails the build if the payout is ever reduced by the fee, or if either consumer hardcodes a rate.
+- `payment-money` — pins conservation (customer − pandit = fee), one money source, display=charge, fee disclosed on every total, prod fail-closed.
+- `dakshinaFloor` — pins per-pooja minimum prices on every write path.
+
+`calculateGrandTotal` computes `panditPayout = dakshina + pass-throughs`, with no subtraction anywhere: model B in code, already. The pandit app's zero-commission-words census stays correct and stays guarded — under B there is nothing to disclose to him.
+
+**CONTRADICTORY RECORDS CORRECTED (the ruling says correct, not accumulate):**
+- `schema.prisma` carried `platformFee // 15% of dakshina` and `panditPayout // dakshina - platformFee + …` — the DEDUCTED model written into the storage layer, at a rate nothing used. Both corrected, plus `grandTotal` and `platformFeeGst` notes.
+- 🔴 **`packages/utils` carried a SECOND, DIFFERENT RATE: 15.** Four sites — `constants.ts:9`, `index.ts:59`, `index.ts:86`, `pricing.ts:42` — plus a `panditPayout = dakshinaAmount - platformFee` line, i.e. model A arithmetic. **Zero callers TODAY — but NOT dead in the data (corrected 2026-07-28, see below): a loaded gun on the money path:** the next person reaching for a fee helper in the shared package would have silently billed 15%, and nothing would have failed. REMOVED rather than synced — two numbers that must agree are one number too many. The existing build-failing guard never caught this because it only ever watched the API side.
+
+**RATE IS NOW CONFIGURABLE.** `PLATFORM_FEE_PERCENT` environment variable, default 10, validated: a non-numeric, negative or >100 value is refused with a logged error and the default is kept, so a fat-fingered setting can never silently bill 0% or 900%.
+
+**WHERE OPS SETS IT — env var, justified.** A settings row needs a migration, an admin surface, a cache-invalidation story and a write-audit trail before it can be trusted with money: four things to build and get right for a pilot with one operator. An env var changes on the host and takes effect on restart with NO code deploy, which was the stated requirement. If per-pandit rates are ever needed this becomes a table, and the snapshot below makes that change purely additive.
+
+**🔴 THE SNAPSHOT INVARIANT — shipped WITH the rate change, not after.**
+`Booking.platformFeePercent` (migration `20260728120000_booking_fee_snapshot`) freezes the rate in force at creation, beside the fee amount the row already stored. `services/api/src/lib/feeSnapshot.ts` is the single reader:
+- `currentFeePercent()` — only for a booking being created now, or a quote.
+- `bookingFeePercent(row)` — for anything about an existing booking.
+
+**Guard proven-to-fail FIRST.** Breaking `feeSnapshot` so it ignores the stored rate produced exactly: *"PROVEN-TO-FAIL POINT: the existing booking picked up the NEW rate. Its fee, payout and total just moved retroactively."* Restored, then green. The guard moves the live default 10 → 25 and asserts a past booking's fee (₹510), customer total (₹5,610) and payout (₹5,100) are all unchanged — while asserting a NEW booking DOES pick up 25, so ops is not handed a dead dial. ~~Bookings are zero today, which is exactly why this landed now~~ — **STRUCK 2026-07-28: FALSE, never verified. Production holds NINE rows, eight of them priced at 15%.** The substantive point survives: after the pilot starts this is unfixable without a migration over live money.
+
+**GST TODAY, one line:** `platformFeeGst = 0`, with the source comment *"fee is GST-inclusive; no separate customer tax line"* — so GST is treated as already inside the fee, and is **never applied to the dakshina**, which is the pandit's own income and his own tax matter. Correct under B. Flagged only because "GST-inclusive" is an accounting decision, not an engineering one.
+
+**OPEN QUESTION TO ISJ:** is the rate GLOBAL (one number, all bookings) or set PER BOOKING / PER PANDIT? Implemented global-with-default now; the snapshot design supports both, so a per-booking override is a one-field addition later.
+
+---
+
+### 🔴 BOOKING PATH UNBLOCKED + THREE STANDING RULES · 2026-07-28
+
+**THE FIX (response-shape, ruled by Isj as wiring not money semantics).** `POST /bookings` replies `sendSuccess(res,{booking,order})`, so the id lives at `data.booking.id`. `apps/web/app/booking/new/booking-wizard-client.tsx` read `data.id` — one level too high, therefore `undefined`; `JSON.stringify` dropped the key; `create-order` 400'd on "bookingId is required"; the wizard threw and RazorpayCheckout never mounted — **while the booking row and the Razorpay order had already been created.** Field names only: no amount, no fee, no Razorpay call touched.
+
+**ONE LINE:** before this fix a customer could create a booking but could NOT reach payment — every attempt orphaned an unpaid booking; now the id reaches create-order and the handoff is requested in test mode.
+
+**GUARD — `services/api/src/lib/responseShape.test.ts` (contract-class shape).** Reads the handler's ACTUAL `sendSuccess` object literal, extracts its top-level keys, and asserts the client reads *through* them. Pins both shapes so they cannot be "fixed" into each other: `/bookings` WRAPS (`{booking,order}`), `/payments/create-order` is FLAT. Its own first bug: the extractor searched *forward* from the message marker, which sits at the END of the call, so it audited the next unrelated `sendSuccess` — now walks backward.
+
+**LIVE PROOF — NOT OBTAINED. Stated plainly.** The J1 customer walk did not reach submit: the wizard's step-0 gate needs six valid fields (ritual select, date, address, city, attendees, 6-digit pincode) and the generic driver could not satisfy them in two bounded attempts. The wizard itself renders correctly (11 inputs, 2 selects, live Continue — verified through the pane). **This is a harness limitation, not a product finding, and is not counted as a dead hop.** The fix is proven at the contract level by the guard; end-to-end proof is owed.
+
+**LAW — GUARD SCANNING (3rd sighting of the trap, recorded so the 4th is not cured the wrong way).** A guard that greps source must assert against **COMMENT-STRIPPED** source, because the comment explaining a forbidden pattern otherwise trips the assertion forbidding it (kycContract, customerDesign). **EXCEPTION:** where the artifact under assertion *is itself a comment* — the reserved slot 5 in PanditRecordCard renders nothing, so the spec comment is its only trace — assert against RAW source, deliberately and with the reason written at the assertion.
+
+**RULING RECORDED — 2a confirmed.** Guest promise sits in the HEADER (reads as a mode you are in). Isj-reversible via `<GuestStrip placement="thumb" />`; nothing else changes.
+
+**DESIGN-DOC DRIFT — flagged so the next import does not compound it.** Turn 2 of `ग्राहक ऐप · Customer.dc.html` was authored against direction **1b**, while **1c** is the chosen direction. Turn 2's guest-mode and structural-room parts are direction-independent and were adopted as-is; anything future turns say about the CARD must be re-anchored to 1c before implementation.
+
+---
+
 ### 🔴 KYC WIRING P0 — **IDENTITY REVIEW PATH CLOSED** · 2026-07-27 · pane: driven (admin queue composited styled, 940-rule proof) · round trip 16/16 legs
 
 **THE BREAK (4th sighting of the writer/reader contract class).** The pandit app R5 submit wrote `verificationStatus = DOCUMENTS_SUBMITTED`. The admin review queue asked for `status=PENDING` — the schema DEFAULT, i.e. nothing uploaded. **Submitting an Aadhaar REMOVED the pandit from the only screen that could review him.** The admin detail console read `documentUrls` / `kycVideoUrl` / `aadhaarNumber` — three names that exist nowhere in schema.prisma — so an uploaded Aadhaar rendered "Not Uploaded". Two apps, two vocabularies, no build complained.
@@ -832,3 +1037,599 @@ Guard: registerLawMultilang.test.ts (runtime deny-lists, JS-safe Indic boundarie
 
 ## B2–B7
 _(not started — see the campaign brief for the batch list)_
+
+## 2026-07-28 — THE BOUNDARY-GUARD LAW, and the accommodation parity gap
+
+**LAW (third instance of one class).** A guard placed on ONE SIDE of a contract
+cannot see the contract. `display=charge` pinned the server's internal
+consistency and therefore could not answer a display≠charge question at all.
+Same shape as the 15% rate that survived in `packages/utils` because the money
+guards watched only `services/api`, and as the money guards that verify
+CONSERVATION rather than TRUTH (₹800 of invented travel conserves perfectly).
+**New guards go on BOUNDARIES by default** — assert that two sides AGREE, not
+that one side is self-consistent. Landed as
+`services/api/src/lib/displayChargeBoundary.test.ts`, proven in both directions
+(green on correct code; red on a server-only component, on the accommodation
+call site un-pinning from 0, and on `settledAtBooking` computed-but-unrendered).
+
+**MY OWN ERROR, corrected.** The display≠charge divergence I reported last turn
+was not real. I computed it by calling `calculateGrandTotal` with a non-zero
+accommodation input **that no caller ever supplies** — `createBooking` passes a
+literal `0`. Fifth phantom finding of one shape: *testing a function's
+CAPABILITY with inputs no caller supplies, instead of tracing the actual path.*
+The interim fix was NOT made, because making it would have introduced the very
+divergence it was meant to remove. The guard above now encodes the distinction
+between "different" and "provably zero at the call site".
+
+**ACCOMMODATION PARITY GAP (report-only).** Samagri has the full treatment;
+accommodation does not. The customer can choose "Book via platform", is
+auto-assigned ₹3,000, and is shown it under *Settled at booking*. That amount
+is then **never sent** (the POST body carries `accommodationArrangement` but not
+`accommodationCost`), never stored (`Booking.accommodationCost` stays 0), never
+shown to the pandit (his app has no accommodation line in any language), and
+never shown to ops (not in the admin booking select). The pandit arrives at an
+outstation puja owed a stay whose price only the customer ever saw.
+
+---
+
+## STANDING LAW — CAPABILITY ≠ PATH
+*Isj order, 2026-07-28. Binds every finding from here on, in both directions.*
+
+**Five phantom findings in this campaign shared one shape.** Not five mistakes —
+one mistake made five times:
+
+| # | the phantom | the shape |
+|---|---|---|
+| 1 | "नई विनती is visible" | matched the word inside EMPTY-STATE copy |
+| 2 | "the accept control is missing" | wrong locator — the control reads जवाब दीजिए › |
+| 3 | "Act 2 is dead — the pandit can never see a booking" (**false P0**) | hand-authored fixture returned raw `PANDIT_REQUESTED`; the real handler runs it through `withPanditView`, which maps it to `REQUESTED` |
+| 4 | the re-skin search mapper | read six fields the endpoint never sends |
+| 5 | "display ≠ charge on accommodation" | called `calculateGrandTotal` with an accommodation input **no caller ever supplies** — `createBooking` passes literal `0` |
+
+Two sub-shapes, one root:
+- **CAPABILITY tested instead of PATH** (#3, #5) — a function accepts a
+  parameter, so the parameter was supplied. No caller supplies it.
+- **SHAPE hand-authored instead of traced** (#1, #2, #4) — a locator, a
+  fixture, or an interface was written from what the code *looked like it
+  should* return, not from what it returns.
+
+### THE REQUIREMENT
+
+**No contract finding is reported until the actual call path is traced, and the
+trace is stated inside the finding itself.** Three parts, all three required:
+
+1. **WHO calls the reader** — a `file:line`, or the explicit statement *"no
+   caller exists"* (which makes it the zero-execution class, not a live break).
+2. **WHAT they pass** — the real argument at the real call site, not the
+   parameter list.
+3. **WHAT the handler projects** — the `select:`/`include:`/mapper output, not
+   the DB column.
+
+And the finding must name the **neutralisers** it checked for, because each one
+has already produced a phantom here:
+- a **mapper** between writer and reader (`lib/bookingStatus.ts` — phantom #3);
+- a **fallback** (`??` / `||`) that makes a wrong read indistinguishable from a
+  legitimate empty state (two conditions already found masked this way);
+- a **sibling** correct implementation that is the one actually mounted;
+- a **dead tree** (`apps/web/src/**` is shelved; `apps/web/app/**` is live).
+
+When the caller cannot be established, the verdict is **not** "confirmed by
+default" — it is *unproven*, and it is withdrawn.
+
+### THE REQUIREMENT BINDS BOTH DIRECTIONS
+
+This is not only a coding-side discipline. **Three of the five unverified
+findings were amplified by the orchestration into rulings** before the path was
+traced — an unverified claim was accepted as fact and turned into a standing
+decision, which is how a false P0 ("no customer can pay", "the pandit can never
+see a booking") propagated further than a bug report ever should.
+
+So the rule cuts both ways:
+- **Reporting side:** state the trace, or do not file.
+- **Ruling side:** a finding without a stated call path is not ruling-ready.
+  Ask for the trace before converting a report into a decision.
+
+A finding that cannot show its path is a hypothesis. Hypotheses do not become
+rulings.
+
+---
+
+## 2026-07-28 — codeOnly(): the sixth cure became a tool
+
+A guard that greps RAW source cannot tell CODE from PROSE, so the guard's own
+explanatory comment — the paragraph naming the forbidden pattern — contains the
+forbidden pattern, and the guard convicts itself. Six sightings:
+
+1. kycContract asserted a forbidden status literal its own comment spelled out.
+2. a superlative deny-list containing `#1` matched the hex colour `#1a140d`.
+3. panditIdentityReads condemned the CORRECT nested `user.name`.
+4. paymentSourceLabels — the label prose contained the token under test.
+5. displayChargeBoundary read the comment above the expression it was parsing.
+6. a SCOUT GREP reported "DRIFT-B: 5 sites still hand-concatenating
+   /api/customers" when all five hits were the comments recording the fix.
+
+**Cured six times, per case, by hand.** Ten near-copies of a hand-rolled
+`stripComments` had accumulated in THREE divergent variants; none handled
+trailing comments, and any of them would have truncated a URL — in the repo
+whose api-base guards assert on URLs.
+
+**DISCIPLINE THAT MUST BE REMEMBERED IS A TOOL THAT WASN'T BUILT.**
+
+`packages/utils/src/code-only.ts` is now the one implementation. It is a
+scanner, not a regex, because `"http://localhost:3001"` contains `//` — it
+tracks strings, templates (incl. nested `${}`) and regex literals, and it
+replaces stripped spans with spaces so **line numbers stay exact** (all ten
+copies deleted lines and silently shifted every number after the first
+comment). `strings: "blank"` is opt-in for identifier searches; `hash: true`
+handles `.env`/`.yml`.
+
+Ten guards retrofitted; zero hand-rolled strippers remain. The tool carries its
+own 10-case guard, including the URL trap and a verbatim sighting-#6 regression.
+
+**The exception stays and is documented AT the helper**, so the next reader sees
+both rules together: a guard may read raw source only when the artifact it
+asserts on IS a comment. The live instance is slot 5 of the अभिलेख card, now
+marked `RAW_SOURCE_REQUIRED` at its read site.
+
+---
+
+## 2026-07-28 — ops can cancel a booking again; the KYC counter joins its queue
+
+**THE ADMIN CANCEL GUARD (confirmed, call path traced).**
+`admin.routes.ts` required `REQUESTED`/`ACCEPTED`. **Nothing writes either** —
+grep for a writer of both = zero hits. Every writer stores Machine-B values
+(`CREATED` / `PANDIT_REQUESTED` / `CONFIRMED`). `bookingStatus.ts`, the single
+translator, was **never imported here**. Caller: `apps/admin/src/app/bookings/page.tsx:110`.
+So `POST /admin/bookings/:id/cancel` 400'd for **every booking the product can
+create** — ops could not cancel a booking at all.
+
+This is Act 3's unanswered question answered in code: *"what can I NOT do if the
+customer says the pandit hasn't arrived."* The answer was: cancel.
+
+Fixed from the vocabulary source — `dbStatusesForView("REQUESTED"|"ACCEPTED")`,
+never a hand-list, because a second copy of the state machine is the break
+itself. **The handler sets `status: CANCELLED` and nothing else** — no refund
+call, no notification. Unblocking it moves no money.
+
+**KYC COUNTER — the FIFTH survival of one break.** `admin.controller.ts` counted
+`PENDING`, the schema *default* (a pandit who uploaded nothing), which is
+**disjoint** from the review-queue set — so the dashboard card and the red
+sidebar badge showed a number that could never equal the length of the list they
+open, never cleared, and never moved when a real submission arrived. Now counted
+from `KYC_REVIEW_QUEUE_STATUSES`. Three further per-site literals converted in
+the same pass (stale-submission alert, approve write, reject write).
+
+**THE GUARD PINS EVERY ADMIN STATUS SET** — `adminStatusSets.test.ts`. It caught
+a sixth site on its very first run: `admin.controller.ts:398` hand-listed
+`["DOCUMENTS_SUBMITTED", "VIDEO_KYC_DONE"]`. Correct today; a hand-listed copy
+is precisely how this vocabulary drifted five times.
+
+It also sits on a **boundary**: the admin Override Status dropdown vs the
+server's `updateBookingSchema`. That caught `"PENDING"` in the dropdown — not a
+`BookingStatus` member at all, so selecting it could only reach Prisma, throw,
+and return a 500 the UI never shows (`if (res.ok)` with no else).
+
+Proven in four directions: PENDING back in the dropdown · PENDING counted again
+· the queue set hand-listed again · the cancellable set reverted to Machine-A
+literals. 48/48 api guards green, 576/576 pandit tests green, api + admin + web
+typechecks clean.
+
+**A guard that pinned a literal punished the correct fix.** `kycContract`
+asserted `verificationStatus: "VERIFIED"` and went RED the moment the site
+started importing the shared constant. It now pins the **constant reference**;
+the value is pinned once, at its declaration.
+
+---
+
+## STANDING LAWS — GUARD AUTHORING
+*Isj order, 2026-07-28. Both were paid for in red builds this week.*
+
+### LAW G1 — a guard pins REFERENCES, not VALUES
+
+`kycContract` asserted the literal `verificationStatus: "VERIFIED"`. The moment
+`admin.routes.ts` adopted the shared constant `KYC_APPROVE_WRITE_STATUS`, the
+guard went **RED on the correct fix**. A guard whose job is to enforce
+single-sourcing was punishing single-sourcing.
+
+**THE RULE.** A guard asserting that a site uses the right vocabulary must pin
+the **constant reference** (`/verificationStatus:\s*KYC_APPROVE_WRITE_STATUS/`),
+never the literal. The VALUE is pinned exactly once, at its declaration in the
+shared module. Pinning it twice is the duplication the guard exists to prevent —
+and the second copy is the one that fights the fix.
+
+Corollary: when a guard goes red on a change that is obviously an improvement,
+suspect the guard first.
+
+### LAW G2 — a matcher must be proven able to match the shape it hunts
+
+Twice this week a guard's matcher was **blind by construction** — not wrong
+about the rule, unable to see the rule's own subject:
+
+1. `apiBaseContract`'s regex was `/NEXT_PUBLIC_API_URL…\/api\/(?!v1)/`. The
+   negative lookahead made hand-appending the CORRECT prefix invisible, so
+   DRIFT-A — a doubled `/api/v1` on the customer front page — could never trip
+   the guard named for it.
+2. Its replacement used the char class `[^\`'"
+]*` between the variable and the
+   prefix. The real line is
+   `` `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/api/v1` `` —
+   the span contains a **quoted** fallback, so the class could not cross it. The
+   new guard **passed on the exact line it was written for.**
+
+**THE RULE.** Proof-to-fail only proves anything if the negative case uses the
+**REAL shape** — the literal line from the repo, pasted back in — not a
+convenient minimal reconstruction. A synthetic negative case tests the matcher
+against itself.
+
+Practically: to prove a guard, revert the actual fix (or `git show` the old
+line) and watch it go red. If the negative case had to be simplified to
+reproduce, that simplification is the hole.
+
+**Both laws share one shape with CAPABILITY ≠ PATH**: something was verified
+against a convenient stand-in rather than the thing itself. A guard's matcher
+tested on a synthetic string, a function's behaviour tested with inputs no
+caller supplies, and a response shape hand-authored rather than traced are the
+same error at three altitudes.
+
+---
+
+## 2026-07-28 — THE REFUTER IS REAL (8/8), and ten cheap rows cleared
+
+**PROVEN-TO-FAIL THE REFUTER.** 0/34 overturns was a finding, not a result — a
+refuter that never overturns is indistinguishable from one that isn't running.
+Eight findings **known to be non-breaks** were fed through the *identical*
+refuter prompt, each asserted CONFIRMED by a fabricated tracer. The answer key
+was verified by hand against the repo first.
+
+**CAUGHT 8 / 8. Missed 0.** The layer is real; the 19 CONFIRMED rows stand as
+double-verified.
+
+The refutations were not shallow — they out-traced the seeds:
+- the raw-status seed was killed by naming the *mounted* handler
+  (`auth.controller.ts:803`, mapper applied on **both** sides — `:830` expands the
+  filter, `:849` projects the rows) and identifying the unmapped
+  `pandit.routes.ts:746` as a **plural-path sibling no client calls**;
+- the accept-control seed was killed by following the card's `router.push` to
+  the request screen and finding `स्वीकार कीजिए` **one route away**, plus a
+  second voice-keyword accept path;
+- the dead-tree seed was killed from Next's own resolver source
+  (`find-pages-dir.js` prioritises `./app` over `./src/app`) **and** from the
+  built artifact's webpack module id;
+- the accommodation seed was killed at the POST body, the zod schema, the
+  Prisma create and the call site — four independent proofs of the literal 0.
+
+**NEW LEAD, not a finding** (recorded so it is not lost): a refuter noticed
+`handleAccept` posts to the **singular** `/pandit/bookings/:id/accept` while
+`app.ts:409` registers `panditRoutes` at the **plural** prefix, and the comment
+at `app.ts:404-406` contradicts the registration two lines below it. Needs its
+own trace before anyone calls it a break.
+
+**TEN CHEAP ROWS CLEARED** — all ten traced first, **all ten confirmed, none
+phantom** (they were the already-double-checked set, which is why the 44% rate
+did not repeat):
+
+| row | what it was |
+|---|---|
+| R1 booking filter | UI words pushed raw into Prisma; `REQUESTED`/`ACCEPTED` returned zero rows and `PANDIT_REQUESTED` was unfilterable. Now mapped through `dbStatusesForView` |
+| R2 `paymentStatus` | compared to `"PAID"`, a **PayoutStatus** value → `CAPTURED` |
+| R3 admin search | client sent `search` for months; controller never destructured it |
+| R4 travel-calculator origin | read `pandit.city`; the projection builds `pandit.panditProfile.location` |
+| R5 `baseDakshina` | **phantom field DELETED** (unreachability); the endpoint ships no rate data, so the cell is truthful-null, not a confident `₹0` |
+| R6 notification type | 21 written types vs 5 read categories, **zero overlap** — every row grey and **unclickable**. New single source `notificationCategory()` |
+| R7 samagri price | writer filled `price`, readers read `fixedPrice`; hidden because the seed writes both. Writer now fills both; readers coalesce |
+| R8 cross-app links | `NEXT_PUBLIC_*_APP_URL` declared in no env file → `localhost` links in prod on every page |
+| R9 web `darkMode` | absent → defaulted to `media` → half-dark page and a sub-AA payment-trust line |
+| R10 admin headers | the KYC/payout panel was **framable**; six headers added |
+
+**R6 is worth its own line: fixing an upstream break PROMOTED a latent one.** The
+notification vocabulary was latent only because the token key and the URL prefix
+failed first. Both were fixed this campaign, so the screen started rendering real
+rows — and the mismatch went live. *Closing a break can open one.*
+
+`vocabularyBoundaries.test.ts` guards all five code rows **on the boundary**, and
+every negative case reverts the **real line** per law G2 — not a reconstruction.
+Six breaks proven. 49/49 api guards · 576/576 pandit · three typechecks clean.
+
+---
+
+## 2026-07-28 — CONSERVATION IS NOT A MODEL CHECK
+
+`grandTotal − payout == platformFee` is satisfied by **any** split of the money.
+It cannot distinguish the two business models this product has had:
+
+| | customer pays | pandit receives | conserves? |
+|---|---|---|---|
+| **MODEL A** (single-sided, 16–22 July) | 2100 | 1890 | ✅ 2100 = 1890 + 210 |
+| **MODEL B** (Ruling #7, 22 July →) | 2310 | 2100 | ✅ 2310 = 2100 + 210 |
+
+A money guard built on conservation alone passes both and reports "money
+verified" while the business model silently inverts. **Conservation is an
+arithmetic check, not a model check.** The identities that actually distinguish
+the models are:
+
+    grandTotal                == dakshina + fee (+ pass-throughs)
+    platformTransfersToPandit == dakshina (+ pass-throughs)   — never dakshina − fee
+
+Both were already asserted (added 2026-07-28 with Ruling B) — but they had
+**never been proven able to reject anything.** `payment-money.test.ts` now
+carries an explicit MODEL-A REJECTION section built from the real figures of
+HPJ-2026-19502, and two assertions that run the prod inputs through the **actual
+`createBooking` argument mapping** rather than `calculateGrandTotal` in
+isolation. Proven-to-fail by reverting `pricing.ts` to the 20 July expressions
+verbatim (law G2 — the real shape, not a reconstruction): the guard goes red,
+and the live-path assertion reports *"the live booking path pays the pandit 1890
+on a ₹2100 dakshina … This is MODEL A — the fee is being deducted again."*
+
+---
+
+## 2026-07-28 — CORRECTIONS FORCED BY THE PRODUCTION DATA
+
+Isj pulled the 9 real `Booking` rows. Three of my ledger entries were wrong,
+and one false claim is baked into a migration file.
+
+### C1 — "15% had zero callers" was true of the CODE, false of the DATA
+
+I recorded the `packages/utils` 15% constant as having **zero callers** and
+called it a loaded gun. Zero callers was true of *today's* code. It was **not**
+true historically: **8 of the 9 production rows carry a 15% fee, deducted from
+the pandit** — including the two manual pilot proofs of 14 July. The rate
+became 10% only on **15 July** (`0be83f5`, "commission is ONE number (10%) —
+kill the 10-vs-15 trust bug"), which is exactly why row 9 (20 July) carries 10%
+and rows 1–8 carry 15%.
+
+**The correct statement: dead in today's code, live in the data.** A constant
+with no current callers can still be the rate that every existing row was
+priced at. *"No callers" describes reachability, never history.* This is the
+CAPABILITY ≠ PATH law pointed backwards in time.
+
+### C2 — a FALSE CLAIM is committed inside the snapshot migration
+
+`packages/db/prisma/migrations/20260728120000_booking_fee_snapshot/migration.sql`
+states, in my words:
+
+> *"At the time of this migration the bookings table is empty in production, so
+> the backfill is a formality."*
+
+**It is not empty — there are 9 rows.** I had already corrected this same
+unverified claim once in this ledger and then left it standing in the artifact
+that would act on it. A blanket `DEFAULT 10` backfill would stamp **8 rows that
+were priced at 15%** with a frozen rate of 10%, i.e. the snapshot invariant
+would record a rate those bookings never used. The migration must not be
+applied as written.
+
+### C3 — the travel finding is a LOADED GUN, not a live loss
+
+`travelCost` is **0 on all 9 rows**, and all 9 are seed or QA artifacts (6
+created within 2 seconds on 8 July; `order_pilot_manual`, `order_notifyproof`,
+and the 20 July E2E). **Zero real customers.** So the fabricated ₹4,300 travel
+quote and the invented travel money never reached a real payout. Downgraded
+from a realised loss to a loaded gun — unchanged in urgency for the pilot,
+changed in what it has already cost: nothing.
+
+---
+
+## STANDING LAW — A CORRECTION MUST PROPAGATE TO EVERY ARTIFACT BUILT ON IT
+*Isj order, 2026-07-28. The sharpest lesson of the campaign.*
+
+**Correcting the ledger is not correcting the code.**
+
+I wrote "bookings are zero in production" as a justification for the fee
+snapshot. I later found it was never verified and **corrected it in the
+ledger** — and stopped there. The same false claim was still sitting in:
+
+1. `packages/db/prisma/migrations/…_booking_fee_snapshot/migration.sql` — the
+   artifact that would have **acted** on it, backfilling `DEFAULT 10` over
+   eight rows priced at 15%;
+2. `services/api/src/lib/feeSnapshot.test.ts` — a **guard**, teaching the wrong
+   fact to everyone who reads it;
+3. `docs/review/qa-sweep-log.md:400` — a second ledger entry, unstruck.
+
+A retraction that reaches only the place the claim was *recorded* leaves the
+places it was *used* fully armed. The migration was the dangerous one: prose is
+inert, SQL is not.
+
+**THE REQUIREMENT.** When a claim is withdrawn, **grep for it in the same turn**
+— comments, migrations, guards, docs, prompts, commit messages — and correct
+every instance before the turn ends. A withdrawn claim with surviving copies has
+not been withdrawn; it has been forked.
+
+### Corollary — CAPABILITY ≠ PATH APPLIES TO TIME
+
+Before calling a stored row a divergence, ask **which version of the code
+produced it.** HPJ-2026-19502 was escalated as "production runs Model A" when it
+is a row created on 20 July by the code of 20 July — two days before Ruling B
+existed (`3548679`, 22 July). The row and the ruling never coexisted.
+
+The check is one command: `git log --since=<row date> -- <the computing file>`.
+A stored value is evidence about the code **at its creation instant**, never
+about the code today.
+
+**This binds both directions.** The orchestration escalated it to P0 without
+checking dates, exactly as the reporting side has shipped findings without
+checking call paths. Same error, different axis: *verification against a
+convenient stand-in rather than the thing itself* — here the stand-in was
+today's code standing in for July's.
+
+---
+
+## STANDING LAW — "SHIPPED" NAMES A BRANCH, AND IS CHECKED AGAINST /version
+
+This campaign said **"shipped"**, **"landed"** and **"deploy-verified"**
+throughout while **30 commits sat unmerged on `qa/harsh-pass`** — essentially
+the entire campaign, including Ruling B's configurable rate and snapshot,
+DRIFT-A, the admin cancel fix, every guard, and `codeOnly()`. Nobody asked
+*which branch*. Our language outran the artifact, exactly as the withdrawn
+"bookings are zero" claim outran its correction.
+
+**THE REQUIREMENT.** A claim of shipping must (1) **name the branch** and
+(2) be **checked against what the deployed commit serves**. The `/version`
+and `/health` endpoints already return the deployed SHA — that check is the
+standard, and it should have been run at each claim rather than once, at the
+end, by the founder's prompting.
+
+Corollary, recorded because it happened in the same breath: I reported the gap
+as **"20 commits"** because I had run `head -20` on the list. **It is 30.** A
+truncated command produced a truncated fact that was then stated as the fact.
+
+---
+
+## 2026-07-28 — NEW FINDING: the schema permits an ORPHANED PAYOUT
+
+`Payout.bookingId` and `Payout.panditId` are **required `String` columns with no
+Prisma relation** — no foreign key, no referential integrity. The same shape
+appears on `CustomerRating` (all three ids) and on ten other columns.
+
+**This is not only a delete-ordering hazard.** A `Payout` is a MONEY RECORD.
+The schema permanently permits one that points at a booking that does not
+exist, and the database will never object. Two writers create payouts —
+`auth.controller.ts:1391` and, more sharply, `admin.routes.ts:222`, which
+creates a `Payout` **on demand inside mark-paid** if none is found. A wrong or
+stale `bookingId` there mints a money record attached to nothing, silently.
+
+**Deliberate or omission?** The evidence says **omission**. `Booking` itself
+declares a proper relation to `PanditProfile`, and `Review` and
+`BookingStatusUpdate` both declare real FKs to `Booking` — so the pattern was
+known and applied elsewhere in the same file. `PanditMilestone.panditId` even
+carries a comment naming the target model, which is a relation written in prose
+instead of in schema. Nothing in the code requires the looseness.
+
+**Does any code depend on it?** No. Every read queries by bare id
+(`where: { panditId: profile.id }`), which continues to work unchanged with an
+FK in place. Adding the constraint would break nothing at the query layer.
+
+**What adding it would take:** a schema change plus a migration that first
+proves no orphans exist (`SELECT` for ids with no parent), then adds the
+constraints. On an EMPTY Booking table — the state Isj is about to create — the
+orphan check is trivially satisfied, which makes this the cheapest moment this
+will ever be.
+
+**NOT CHANGED.** It is DDL and it belongs to Isj's merge decision.
+
+### The full sweep — 12 dangling references
+
+| model | column | required? | should reference |
+|---|---|---|---|
+| **Payout** | **bookingId** | REQUIRED | Booking |
+| **Payout** | **panditId** | REQUIRED | PanditProfile |
+| **CustomerRating** | **bookingId** | REQUIRED | Booking |
+| **CustomerRating** | **panditId** | REQUIRED | PanditProfile |
+| **CustomerRating** | **customerId** | REQUIRED | User |
+| Booking | samagriPackageId | nullable | SamagriPackage |
+| PanditMilestone | panditId | REQUIRED | PanditProfile |
+| AdminLog | adminUserId | REQUIRED | User |
+| PanditProfile | verifiedById | nullable | User |
+| PoojaVerification | reviewedById | nullable | User |
+| SupportTicket | relatedBookingId | nullable | Booking |
+| SupportTicket | relatedUserId | nullable | User |
+
+The five bold rows are money- or payout-bearing. `razorpayOrderId`,
+`razorpayPaymentId`, `upiId` and `videoId` are external identifiers and are
+correctly relation-free.
+
+**Method note:** the first two passes of this sweep were WRONG and were thrown
+away — one matched `//` comments as schema, the other used
+`@relation\(fields:` and so missed every NAMED relation
+(`@relation("CustomerBookings", fields: [...])`), which would have reported
+`Booking.customerId` and both `Review` ids as dangling. Nine of the twenty-three
+"findings" in that draft were artifacts of my own matcher. **Law G2 applies to
+analysis scripts, not only to guards.**
+
+---
+
+## 2026-07-28 — the table IS empty, and this time it is VERIFIED
+
+**Method matters more than the answer.** Isj queried the Neon console and
+reported **bookings 0 · muhurat 0 · payouts 0 · reviews 0**, after the nine rows
+were preserved. That is a human reading a live database — the standard the
+earlier claim failed to meet when I asserted the same thing from inference and
+wrote it into a migration.
+
+Both the migration comment and the earlier ledger line now say *empty AND
+verified*, and name the method. The two-source backfill **stays anyway**: a
+backfill correct on an empty table and also correct on a populated one costs
+nothing extra and survives a restore, a replay, or a second environment.
+**A migration should not depend on a fact about one database at one instant.**
+
+### 🔴 THE DOUBLE-FEE TRACE — ANSWERED, and my first inference was wrong
+
+Rows 1–8 charge the fee **on top AND deduct it** (HPJ-001: dakshina 3100,
+charged 3648, paid 2635).
+
+**A code version did implement exactly that.** Before `f803f10` (16 July),
+`pricing.ts` computed `grandTotal = dakshina + … + platformFee + platformFeeGst`
+**and** `panditPayout = dakshina − platformFee + …`. That commit's own message
+names it: *"The old model double-charged: +10% on the customer AND −10% from
+the pandit."*
+
+**But these rows are not that code's output — they are HAND-WRITTEN LITERALS.**
+`seed.ts:284` writes `dakshinaAmount: 3100, platformFee: 465, platformFeeGst:
+83, grandTotal: 3648`. The **1-rupee rounding proves authorship**: the real
+`calculateGst` was `Math.round(465 × 0.18)` = `Math.round(83.7)` = **84**, which
+would give grandTotal **3649**. The stored value is **83 / 3648**. A human
+truncated; the function would have rounded up.
+
+**I nearly filed the wrong producer.** The arithmetic agreed with the
+pre-16-July model and I was one step from naming that code as the source.
+Checking `seed.ts` reversed it. **CAPABILITY ≠ PATH: arithmetic agreement is not
+a producing path.** Scope: this answers rows 1–6 (seed). Rows 7–8, the 14 July
+manual proofs, have no figures anywhere and are **not traced**.
+
+### THE SEED IS FENCED
+
+`SEED_MUHURAT` and `SEED_BOOKINGS`, both **default OFF**. They gated the 20
+fabricated MuhuratDate rows (sold as *"Hindu Panchang 2026"* though no panchang
+was consulted) and the six 15%-era bookings. The Reviews block moved inside the
+booking fence — it references `b1.id` and would now violate the new FK. The
+notification fixtures still seed but are annotated: they quote HPJ-00x numbers
+and the ₹2,635 payout, so they name bookings that will not exist.
+
+---
+
+## 2026-07-28 — 🔴 THE DOUBLE-CHARGE WAS REAL, AND IT RAN IN PRODUCTION
+
+The nine rows are preserved complete in
+`docs/review/prod-bookings-2026-07-28.json`. Two-source check **PASSES on all
+nine** — rows 1–8 derive 15%, row 9 derives 10%, agreeing with the 15-July rate
+cut everywhere.
+
+**Rows 7 and 8 were NOT hand-written.** `services/api/scripts/stage-pilot-fixtures.mjs`
+(commit `805d78e`, 14 July) imports `bookingService.createBooking` and
+`paymentService.processPaymentSuccess` — its own comments call them *"the exact
+function POST /bookings calls"* and *"the exact function the Razorpay
+verify/webhook"* calls — and every stored figure reproduces exactly under the
+14-July constants (15% fee, 18% GST) and the pre-`f803f10` expressions:
+
+    row 7:  2100 + 315 + 57 = 2472 charged   ·   2100 − 315 = 1785 paid
+    row 8:  1500 + 225 + 41 = 1766 charged   ·   1500 − 225 = 1275 paid
+
+**Fee charged ON TOP and ALSO deducted, by the shipped code.** The double-charge
+is confirmed as *production behaviour that executed*, not a model that merely
+existed in a file. `f803f10` killed it two days later and named it exactly.
+No real customer was involved — both are pilot-rehearsal fixtures — but the
+pricing was the live pricing.
+
+**THE ROUNDING TELL, and how nearly it misled me twice.**
+`Math.round(fee × 0.18)` reproduces the stored GST on rows 2,3,4,6,7,8 but
+**not** on rows 1 and 5, where 465×0.18 = 83.7 → 84, and **83** is stored. Those
+two are the only seed rows with a fractional GST, and a human truncated. One
+rupee separates a hand-written fixture from computed output.
+
+*First near-miss:* I ran the arithmetic on row 1, saw it match the pre-16-July
+model, and was one step from naming that code as the producer. `seed.ts`
+reversed it.
+*Second near-miss:* my check script was **Python**, whose `round(40.5)` is 40
+(banker's rounding) while JavaScript's `Math.round(40.5)` is 41. That reported a
+FALSE mismatch on row 8 and would have broken the very trace that confirms the
+finding. **The runtime that produced the data is the runtime that must check
+it** — a stand-in language is a stand-in, and CAPABILITY ≠ PATH applies to the
+tooling too.
+
+**ROW 7's `acceptedAt` — 2026-07-14T07:32:31, eight minutes after creation.**
+The pandit accept loop **genuinely executed once in production**. This is the
+only production evidence the accept path has ever run end to end, and it belongs
+to the open trace of the singular `/pandit/bookings/:id/accept` versus the
+plural registration at `app.ts:409`.
+
+**Rows 7–8 were never lost** — only unrelayed. An earlier draft of the
+preservation file recorded them as lost; corrected. Refusing to fabricate them
+was right, and so was saying which fragments existed.

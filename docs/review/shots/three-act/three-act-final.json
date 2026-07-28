@@ -1,0 +1,123 @@
+{
+  "createdVia": "the wizard's own POST /bookings, issued from the customer's live session",
+  "clientReadPath": {
+    "bookingId": "bk-qa-walk-1",
+    "bookingNumber": "HPJ-QA-WALK-1",
+    "rawTopLevelId": null
+  },
+  "money": {
+    "dakshina": 5100,
+    "feePct": 10,
+    "fee": 510,
+    "customerPays": 5610,
+    "panditGets": 5100
+  },
+  "muhuratCalledDuringWizard": true,
+  "muhuratRenderedInWizard": true,
+  "customerSeesPanditName": false,
+  "customerTelUndefined": false,
+  "customerHasAnyTel": false,
+  "panditDetailReachable": false,
+  "acceptedVia": "not found",
+  "bookingFinalStatus": "PANDIT_REQUESTED",
+  "timeline": [
+    "09:52:53  BOOKING CREATED — via the wizard's own request from the customer session",
+    "09:52:53  T1 · instant after the customer pays",
+    "09:53:10  T2 · instant after the pandit accepts",
+    "09:53:34  T3 · after the ceremony, at payout time"
+  ],
+  "calls": [
+    "GET /api/v1/auth/me",
+    "GET /api/v1/pandit/bookings",
+    "GET /api/v1/pandit/earnings/summary",
+    "GET /api/v1/muhurat/pujas-for-date",
+    "GET /api/v1/pandit/stats",
+    "GET /api/v1/admin/dashboard-stats",
+    "GET /api/v1/admin/bookings",
+    "GET /api/v1/bookings/bk-qa-walk-1",
+    "GET /api/v1/rituals",
+    "GET /api/v1/pandits",
+    "POST /api/v1/bookings",
+    "GET /api/v1/pandit/bookings/bk-qa-walk-1"
+  ],
+  "results": [
+    {
+      "phase": "negative",
+      "name": "ACT2 · a real booking row is on the pandit's list",
+      "value": false,
+      "pass": true
+    },
+    {
+      "phase": "negative",
+      "name": "ACT2 · his earning figure is visible",
+      "value": false,
+      "pass": true
+    },
+    {
+      "phase": "negative",
+      "name": "ACT3 · the booking is in the ops list",
+      "value": false,
+      "pass": true
+    },
+    {
+      "phase": "negative",
+      "name": "ACT3 · ops sees the customer",
+      "value": false,
+      "pass": true
+    },
+    {
+      "phase": "negative",
+      "name": "ACT3 · ops sees the money",
+      "value": false,
+      "pass": true
+    },
+    {
+      "phase": "B",
+      "name": "CONDITION B · client read path yields a real bookingId",
+      "value": "bk-qa-walk-1",
+      "pass": true
+    },
+    {
+      "phase": "B",
+      "name": "CONDITION B · the OLD read (data.id) is still undefined — the P0 was real",
+      "value": null,
+      "pass": true
+    },
+    {
+      "phase": "positive",
+      "name": "ACT2 · a real booking row is on the pandit's list",
+      "value": false,
+      "pass": false
+    },
+    {
+      "phase": "positive",
+      "name": "ACT2 · his earning figure is visible",
+      "value": false,
+      "pass": false
+    },
+    {
+      "phase": "positive",
+      "name": "ACT3 · the booking is in the ops list",
+      "value": true,
+      "pass": true
+    },
+    {
+      "phase": "positive",
+      "name": "ACT3 · ops sees the customer",
+      "value": true,
+      "pass": true
+    },
+    {
+      "phase": "positive",
+      "name": "ACT3 · ops sees the money",
+      "value": true,
+      "pass": true
+    },
+    {
+      "phase": "positive",
+      "name": "ACT3 · arithmetic conserves",
+      "value": true,
+      "pass": true
+    }
+  ]
+}

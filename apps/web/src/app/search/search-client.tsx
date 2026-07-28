@@ -5,6 +5,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { useAuth } from "../../context/auth-context";
 import { LoginModal } from "../../components/LoginModal";
+import { PanditRecordCard } from "../../../components/design/PanditRecordCard";
+import { MoneyNote, NoReviewsNotice } from "../../../components/design/Verification";
+import { GuestStrip, RealPricesNote } from "../../../components/design/GuestMode";
+import type { PoojaVideoState } from "../../../components/design/Verification";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -32,6 +36,14 @@ interface PanditResult {
   nextSlot?: string;
   willingToTravel?: boolean;
   description?: string;
+
+  // ── 1c · अभिलेख (the record card) ──
+  /** Roman transliteration as stored — never machine-generated here. */
+  romanName?: string;
+  /** THIS ONE POOJA's verification video, for the pooja being searched. */
+  poojaVideo: PoojaVideoState;
+  /** His rate. null → "दक्षिणा तय नहीं"; we never print a fabricated ₹0. */
+  dakshina: number | null;
 }
 
 interface SearchFilters {
@@ -82,7 +94,12 @@ function mapSortToApi(sort: string): string {
   return map[sort] ?? "rating";
 }
 
-function mapPanditToResult(p: Record<string, unknown>): PanditResult {
+/**
+ * @param searchedPooja the ritual the customer is searching for. The per-pooja
+ *   video claim is a property of ONE pooja, so it can only be resolved with
+ *   the pooja in hand — it is threaded in, never read off the pandit record.
+ */
+function mapPanditToResult(p: Record<string, unknown>, searchedPooja = ""): PanditResult {
   const prefs = (p.travelPreferences ?? {}) as Record<string, unknown>;
   const modes = (prefs.preferredModes ?? []) as string[];
   const travelModes = modes.map((mode) => ({
@@ -92,11 +109,65 @@ function mapPanditToResult(p: Record<string, unknown>): PanditResult {
     duration: "",
   }));
 
+  // ── दो सत्यापन, mapped from what the API actually knows ──
+  // THE PERSON: identity is verified only at VERIFIED. (APPROVED is a legacy
+  // spelling that still exists in the Prisma enum and is read, never written.)
+  const identityVerified =
+    p.verificationStatus === "VERIFIED" || p.verificationStatus === "APPROVED";
+
+  // THIS ONE POOJA: a separate fact with a separate source. The profile carries
+  // `pendingPoojaVerifications` — poojas added after signup that are awaiting
+  // their own video review. A pooja in that list is PENDING. Otherwise we only
+  // claim "verified" when the pandit himself is verified AND the pooja is one
+  // he actually offers; anything else asserts nothing at all.
+  // CORRECTED against the handler's actual allow-list (pandit.controller.ts:149).
+  // This mapper previously read `pendingPoojaVerifications`, `baseDakshina`,
+  // `dakshinaRates`, `romanName`, `distanceKm` and a top-level `name` — SIX
+  // fields the search endpoint does not send. Every card therefore rendered
+  // "Pandit Ji" with "दक्षिणा तय नहीं", for pandits who had set a real rate.
+  // My own truthful-null card faithfully reported nothing, because the reads
+  // were wrong. Same disease as the interfaces it was meant to improve on.
+  //
+  // What GET /pandits actually sends per row:
+  //   user: { id, name }                     ← the name lives here
+  //   pujaServices: [{ pujaType, dakshinaAmount, durationHours }]  ← the rate
+  //   location, rating, totalReviews, experienceYears, specializations,
+  //   languages, profilePhotoUrl, isOnline, verificationStatus,
+  //   travelPreferences, completedBookings
+  // It does NOT send per-pooja verification state or a distance.
+  const services = (p.pujaServices as { pujaType?: string; dakshinaAmount?: number }[]) ?? [];
+
+  // Per-pooja video state is NOT on this response, so the card asserts nothing
+  // about it here. (It is available on the pandit's own profile endpoint; the
+  // honest thing on a search row is silence, not a guess.)
+  const poojaVideo: PoojaVideoState = "none";
+
+  // His rate for the searched pooja, else his lowest listed rate. Never a zero.
+  const forThisPooja = searchedPooja
+    ? services.find((s) => s.pujaType === searchedPooja)?.dakshinaAmount
+    : undefined;
+  const anyRate = services
+    .map((s) => s.dakshinaAmount)
+    .filter((n): n is number => typeof n === "number" && Number.isFinite(n) && n > 0);
+  const rawDakshina = forThisPooja ?? (anyRate.length ? Math.min(...anyRate) : undefined);
+  const dakshina =
+    typeof rawDakshina === "number" && Number.isFinite(rawDakshina) && rawDakshina > 0
+      ? rawDakshina
+      : null;
+
+  const apiUser = (p.user as { name?: string } | undefined) ?? undefined;
+
   return {
     id: String(p.id),
-    name: String(p.name ?? "Pandit Ji"),
+    name: String(apiUser?.name ?? p.displayName ?? p.fullName ?? "Pandit Ji"),
+    // the search response carries no transliteration and no distance; the card
+    // omits both rows rather than inventing them
+    romanName: undefined,
+    poojaVideo,
+    dakshina,
+    distanceKm: undefined,
     avatarUrl: p.profilePhotoUrl as string | undefined,
-    isVerified: p.verificationStatus === "VERIFIED",
+    isVerified: identityVerified,
     badges: p.verificationStatus === "VERIFIED" ? ["Verified Vedic"] : [],
     overallRating: Number(p.rating) || 0,
     totalReviews: Number(p.totalReviews) || 0,
@@ -149,7 +220,7 @@ async function fetchPandits(
   const body = await res.json();
   const rawPandits: Record<string, unknown>[] = body.data?.pandits ?? [];
   return {
-    pandits: rawPandits.map(mapPanditToResult),
+    pandits: rawPandits.map((p) => mapPanditToResult(p, filters.ritual)),
     pagination: body.data?.pagination ?? {
       total: 0,
       page: 1,
@@ -600,28 +671,27 @@ export default function SearchClient({
         <section className="flex-1">
           <div className="flex flex-col gap-6">
             <div className="flex items-center justify-between">
+              {/* Screen header, per the design: the pooja in the serif, the
+                  occasion beneath it as a micro label. */}
               <div>
-                <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
-                  {filters.ritual
-                    ? `${filters.ritual} Pandits`
-                    : "Top-tier Pandits"}
+                <h1 className="font-devanagari text-[18px] font-semibold leading-[1.2] text-ink">
+                  {filters.ritual || "पंडित जी"}
                   {loading && (
-                    <span className="ml-3 text-base font-normal text-slate-400">
+                    <span className="ml-3 text-[13px] font-normal text-muted">
                       Loading…
                     </span>
                   )}
                 </h1>
-                <p className="mt-1 text-lg text-slate-500">
-                  {!loading && `${pagination.total} verified pandits`}
-                  {filters.city && (
-                    <>
-                      {" "}
-                      in{" "}
-                      <span className="font-bold text-[#f2a20d]">
-                        {location}
-                      </span>
-                    </>
-                  )}
+                {/* TRUTH FIX: this used to read "{total} verified pandits" —
+                    it called EVERY result verified regardless of its
+                    verificationStatus, so an unverified pandit in the list was
+                    counted as vetted in the headline above his own "पहचान जाँच
+                    बाकी" row. The count of results is not a count of
+                    verifications; only the per-card identity row may make that
+                    claim. */}
+                <p className="micro-label mt-1">
+                  {!loading && `${pagination.total} पंडित जी`}
+                  {filters.city && <> · {location}</>}
                 </p>
               </div>
               <div className="flex items-center gap-2">
@@ -707,14 +777,42 @@ export default function SearchClient({
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 gap-6">
+              // 1c · अभिलेख — the record. 12px between cards (the doc's rhythm),
+              // not the old 24px grid gap.
+              <div className="flex flex-col gap-3">
+                {/* अतिथि · guest mode, 2a — a mode you are in, sitting with the
+                    search context. Says what he CAN do; the paywall is at
+                    commitment, not at the door. Shown only to a guest: telling
+                    a signed-in customer he may browse freely is noise. */}
+                {!isAuthenticated && !authLoading && <GuestStrip placement="header" />}
+                <div className="flex items-center justify-between gap-3">
+                  <div className="micro-label">{pandits.length} पंडित जी उपलब्ध</div>
+                  <RealPricesNote />
+                </div>
                 {pandits.map((pandit) => (
-                  <EnhancedPanditCard
+                  <PanditRecordCard
                     key={pandit.id}
-                    pandit={pandit}
-                    onBook={handleBook}
+                    pandit={{
+                      id: pandit.id,
+                      name: pandit.name,
+                      romanName: pandit.romanName,
+                      photoUrl: pandit.avatarUrl,
+                      identityVerified: pandit.isVerified,
+                      poojaVideo: pandit.poojaVideo,
+                      experienceYears: pandit.experienceYears,
+                      city: pandit.city,
+                      distanceKm: pandit.distanceKm,
+                      dakshina: pandit.dakshina,
+                    }}
+                    onOpenProfile={() => router.push(`/pandit/${pandit.id}`)}
+                    onWatchVideo={() => router.push(`/pandit/${pandit.id}#video`)}
                   />
                 ))}
+                {/* Trust with zero reviews, substitute 4: admitting what is
+                    missing. The honest absence proves the ticks above are not
+                    decorative. */}
+                <NoReviewsNotice />
+                <MoneyNote />
               </div>
             )}
 

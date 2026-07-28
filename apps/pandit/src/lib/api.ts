@@ -54,9 +54,49 @@ export const API_ORIGIN: string = TRIMMED_BASE.endsWith(API_PREFIX)
 export const API_BASE: string = TRIMMED_BASE === "" ? "" : `${API_ORIGIN}${API_PREFIX}`;
 export const API_BASE_MISSING = API_BASE === "";
 
+/**
+ * THE ERROR ENVELOPE — one normaliser, because the API speaks three dialects.
+ *
+ * THE BREAK (census, 2026-07-28): this file read
+ *     error: json.error || { message: json.message || hi.common.error }
+ * The server's AppError path sends `{ success:false, message:<Hindi>, error:{code} }`
+ * — the human-readable message is TOP-LEVEL. Because `json.error` is a truthy
+ * object, `||` short-circuited and THREW THE HINDI AWAY, leaving
+ * `error.message` undefined and the generic fallback in its place.
+ *
+ * A pandit hitting the permanent 409 "यह पूजा पहले से जाँच में है" was told
+ * "पूजा भेजी नहीं जा सकी — कृपया दोबारा कोशिश कीजिए" and retried forever. That is a
+ * direct hit on the persona law: he is told to try again at a wall.
+ *
+ * The three shapes the API actually sends:
+ *   1. { message: "<Hindi>", error: { code } }   AppError / validation
+ *   2. { error: "<bare string>" }                89 controller sites
+ *   3. { message: "<text>" }                     unexpected-error path
+ * normalizeApiError() understands all three. Nothing else may build an
+ * ApiResponse error — apiErrorEnvelope.test.ts fails the build if the raw
+ * `json.error ||` pattern comes back.
+ */
+export function normalizeApiError(
+  json: { message?: unknown; error?: unknown },
+  fallback: string,
+): { code?: string; message: string } {
+  const err = json?.error;
+  // shape 2 — the controllers that send a bare string
+  if (typeof err === "string" && err.trim()) return { message: err };
+  const obj = (err && typeof err === "object" ? err : {}) as { code?: string; message?: unknown };
+  // the human message may live on error.message OR top-level message; prefer
+  // whichever is actually present rather than short-circuiting on the object
+  const message =
+    (typeof obj.message === "string" && obj.message.trim() && obj.message) ||
+    (typeof json?.message === "string" && json.message.trim() && json.message) ||
+    fallback;
+  return obj.code ? { code: obj.code, message: String(message) } : { message: String(message) };
+}
+
 export interface ApiResponse<T = any> {
   success: boolean;
   data?: T;
+  /** Always built by normalizeApiError — never hand-assembled. */
   error?: {
     code?: string;
     message: string;
@@ -115,7 +155,10 @@ export async function api<T = any>(
       }
       return {
         success: false,
-        error: json.error || { message: json.message || hi.common.error },
+        // was: json.error || { message: json.message || … } — the `||`
+        // short-circuited on the truthy {code} object and discarded the
+        // server's Hindi. See normalizeApiError above.
+        error: normalizeApiError(json, hi.common.error),
         status: res.status,
       };
     }

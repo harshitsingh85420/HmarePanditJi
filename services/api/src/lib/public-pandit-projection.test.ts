@@ -24,6 +24,12 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import assert from "node:assert";
+// Comments are stripped by the ONE shared implementation. See
+// packages/utils/src/code-only.ts for why this is a scanner and not a
+// regex, and for the single documented raw-source exception.
+import { codeOnly } from "@hmarepanditji/utils/code-only";
+// (the /code-only SUBPATH, not the barrel: the barrel re-exports
+//  auth-context.tsx, which requires React — unresolvable in bare node+tsx.)
 
 const CONTROLLER = join(__dirname, "..", "controllers", "pandit.controller.ts");
 const ROUTES = join(__dirname, "..", "routes", "pandit.routes.ts");
@@ -39,11 +45,8 @@ const app = readFileSync(APP, "utf-8");
  * explanatory comment — and, worse, a real `include:` could be smuggled
  * past a naive check by a reviewer assuming any hit is "just the comment".
  */
-function stripComments(text: string): string {
-  return text.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^[ \t]*\/\/.*$/gm, "");
-}
 
-const src = stripComments(rawSrc);
+const src = codeOnly(rawSrc);
 
 /** Fields that must never reach an unauthenticated caller. */
 const BANNED = [

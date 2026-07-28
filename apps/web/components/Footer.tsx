@@ -1,8 +1,8 @@
 import React from "react";
 import Link from "next/link";
 
-const panditAppUrl = process.env.NEXT_PUBLIC_PANDIT_APP_URL || "http://localhost:3002";
-const adminAppUrl = process.env.NEXT_PUBLIC_ADMIN_APP_URL || "http://localhost:3003";
+const panditAppUrl = process.env.NEXT_PUBLIC_PANDIT_URL || "http://localhost:3002";
+const adminAppUrl = process.env.NEXT_PUBLIC_ADMIN_URL || "http://localhost:3003";
 
 export default function Footer() {
     return (

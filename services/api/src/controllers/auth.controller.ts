@@ -724,7 +724,16 @@ export const saveSamagriPackages = async (request: FastifyRequest, reply: Fastif
           }
         },
         update: {
+          // R7 — SamagriPackage carries TWO price columns (schema.prisma:310
+          // fixedPrice, :324 price). This live write path filled only `price`,
+          // while every customer-side reader reads `fixedPrice`, so the card
+          // printed "Samagri: Platform / Pandit" instead of a real price and the
+          // modal rendered a bare ₹. Invisible on any seeded DB because
+          // packages/db/prisma/seed.ts writes BOTH — the defect appeared only
+          // for packages a real pandit created. Write both here so new rows are
+          // correct at the source; readers coalesce for legacy rows.
           price: numericPrice,
+          fixedPrice: numericPrice,
           items: asJsonItems(validatedItems),
           isActive: true
         },
@@ -733,6 +742,7 @@ export const saveSamagriPackages = async (request: FastifyRequest, reply: Fastif
           pujaType,
           tier: tier as any,
           price: numericPrice,
+          fixedPrice: numericPrice,
           items: asJsonItems(validatedItems),
           isActive: true
         }
@@ -892,7 +902,7 @@ export const getPanditBookingById = async (request: FastifyRequest, reply: Fasti
   // money already in the pandit's hand would be a lie). Founder 2026-07-22.
   const earnings = earningsFromStored(booking);
   if (earnings.storedPayoutMissing) {
-    console.warn(`[earnings] booking ${booking.id} has no stored panditPayout — fell back to computed ₹${earnings.totalToPandit}`);
+    console.warn(`[earnings] booking ${booking.id} has no stored platformTransfersToPandit — fell back to computed ₹${earnings.panditReceivesTotal}`);
   }
 
   let journeyTimestamps = {};
@@ -1364,12 +1374,12 @@ export const completeBooking = async (request: FastifyRequest, reply: FastifyRep
   // payout; a concurrent double-tap or a retry-after-lost-response flips 0 rows
   // and takes the idempotent path — returning SUCCESS (never a 409 that tells
   // the pandit his completed puja "failed" while he is already owed the money).
-  // The payout amount is the booking's STORED panditPayout (frozen at creation),
+  // The payout amount is the booking's STORED platformTransfersToPandit (frozen at creation),
   // never a recompute — completing an old 90/10 booking must create a payout for
   // what was actually owed, not the new 100%. Founder 2026-07-22 (money-loss case).
   const earnings = earningsFromStored(booking);
   if (earnings.storedPayoutMissing) {
-    console.warn(`[payout] booking ${booking.id} completing with no stored panditPayout — using fallback ₹${earnings.totalToPandit}`);
+    console.warn(`[payout] booking ${booking.id} completing with no stored platformTransfersToPandit — using fallback ₹${earnings.panditReceivesTotal}`);
   }
   const outcome = await prisma.$transaction(async (tx: any) => {
     const flip = await tx.booking.updateMany({
@@ -1379,7 +1389,7 @@ export const completeBooking = async (request: FastifyRequest, reply: FastifyRep
     if (flip.count === 0) return { won: false };
     // First and only winner — create the single payout inside the same tx.
     await tx.payout.create({
-      data: { bookingId: id, panditId: profile.id, amount: earnings.totalToPandit, status: "PENDING" },
+      data: { bookingId: id, panditId: profile.id, amount: earnings.panditReceivesTotal, status: "PENDING" },
     });
     return { won: true };
   });

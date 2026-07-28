@@ -26,8 +26,21 @@ interface BookingItem {
   eventDate: string;
   venueAddress: string;
   venueCity: string;
-  grandTotal: number;
+  // RULING B — THE PANDIT NEVER SEES THE CUSTOMER'S TOTAL.
+  // This card used to render `grandTotal`, which is dakshina + the customer's
+  // platform fee (₹5,610 for a ₹5,100 booking). He was shown ₹510 more than
+  // he will be paid, at the exact moment he decides whether to accept.
+  // He is owed `platformTransfersToPandit` — 100% of his dakshina plus pass-throughs, with
+  // the fee never deducted. `grandTotal` is deliberately NOT declared here so
+  // it cannot be reached for; panditTotals.test.ts fails the build if it is.
+  dakshinaAmount: number;
+  platformTransfersToPandit?: number;
   status: string;
+}
+
+/** What the pandit is actually owed for this booking. Never the customer total. */
+function panditEarns(b: { platformTransfersToPandit?: number; dakshinaAmount: number }): number {
+  return typeof b.platformTransfersToPandit === "number" && b.platformTransfersToPandit > 0 ? b.platformTransfersToPandit : b.dakshinaAmount;
 }
 
 // CANON frame 11 (बुकिंग सूची · List) is NOT a tab screen: it is one scroll
@@ -296,7 +309,7 @@ export default function BookingsPage() {
                       right={
                         <div className="text-right shrink-0">
                           <div style={{ fontSize: "18px", fontWeight: 900, color: "#155C34" }}>
-                            ₹{b.grandTotal ? b.grandTotal.toLocaleString("en-IN") : "0"}
+                            ₹{panditEarns(b).toLocaleString("en-IN")}
                           </div>
                           {/* LAW: canon sets this affordance at 12px; raised to 16px. */}
                           <div
@@ -345,7 +358,7 @@ export default function BookingsPage() {
                           className="shrink-0"
                           style={{ fontSize: "18px", fontWeight: 900, color: "#155C34" }}
                         >
-                          ₹{b.grandTotal ? b.grandTotal.toLocaleString("en-IN") : "0"}
+                          ₹{panditEarns(b).toLocaleString("en-IN")}
                         </span>
                       }
                     />

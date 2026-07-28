@@ -1,0 +1,26 @@
+{
+  "results": [
+    {
+      "name": "wizard advanced under automation",
+      "ok": false,
+      "detail": "0 step(s) advanced"
+    },
+    {
+      "name": "POST /bookings fired",
+      "ok": false,
+      "detail": "never reached submit"
+    },
+    {
+      "name": "no page errors",
+      "ok": true,
+      "detail": "clean"
+    }
+  ],
+  "calls": [
+    "GET /api/v1/auth/me",
+    "GET /api/v1/rituals",
+    "GET /api/v1/pandits?ritual=Satyanarayan+Katha&limit=10"
+  ],
+  "createOrderBody": null,
+  "reached": 0
+}

@@ -1088,7 +1088,7 @@ export default function BookClient() {
             error={payError}
             onPay={handlePay}
             onBack={() => setStep(2)}
-            customerName={user?.fullName ?? user?.phone ?? "Customer"}
+            customerName={user?.name ?? user?.phone ?? "Customer"}
             customerEmail={user?.email ?? undefined}
             customerPhone={user?.phone}
             accessToken={accessToken ?? ""}

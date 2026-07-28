@@ -10,6 +10,7 @@ import Link from "next/link";
 // can never disagree again. Guard-pinned in payment-money.test.ts §7.
 import { refundPercent, REFUND_TIERS, REFUND_PROCESSING_DAYS } from "../../../../../src/lib/refund-policy";
 import { useAuth } from "../../../../../src/context/auth-context";
+import { panditName } from "../../../../../lib/panditIdentity";
 
 // FOUND BROKEN (refund-closure audit, 2026-07-23): both fetches here used
 // `${NEXT_PUBLIC_API_URL}/api/bookings/…` — the deployed env already ends in
@@ -61,7 +62,7 @@ export default function CancellationRequestPage() {
                         eventDate: b.eventDate,
                         grandTotal: b.grandTotal,
                         platformFee: b.platformFee,
-                        panditName: b.pandit?.name || "Pandit Ji"
+                        panditName: panditName(b.pandit) || "Pandit Ji"
                     });
                 }
             } catch (err) {

@@ -1,6 +1,12 @@
 import assert from "node:assert";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+// Comments are stripped by the ONE shared implementation. See
+// packages/utils/src/code-only.ts for why this is a scanner and not a
+// regex, and for the single documented raw-source exception.
+// (the /code-only SUBPATH, not the barrel: the barrel re-exports
+//  auth-context.tsx, which requires React — unresolvable in bare node+tsx.)
+import { codeOnly } from "@hmarepanditji/utils/code-only";
 import {
   VERIFICATION_STATUSES,
   KYC_REVIEW_QUEUE_STATUSES,
@@ -36,14 +42,8 @@ const REPO = join(__dirname, "..", "..", "..", "..");
 
 // A guard that scans source must look at CODE, not at prose. Without this the
 // comment explaining a dead pattern trips the assertion forbidding it.
-const stripComments = (s: string) =>
-  s
-    .replace(/\/\*[\s\S]*?\*\//g, "") // block comments, incl. {/* JSX */}
-    .split("\n")
-    .filter((l) => !/^\s*(\/\/|\*)/.test(l)) // whole-line // comments
-    .join("\n");
 
-const read = (p: string) => stripComments(readFileSync(join(REPO, p), "utf8"));
+const read = (p: string) => codeOnly(readFileSync(join(REPO, p), "utf8"));
 
 const SCHEMA = read("packages/db/prisma/schema.prisma");
 const READINESS = read("services/api/src/controllers/readiness.controller.ts");
@@ -175,13 +175,18 @@ for (const dead of ["documentUrls", "kycVideoUrl", "aadhaarNumber"]) {
 
 // ── E. approval is one decision, written one way ──────────────
 const ADMIN_ROUTES = read("services/api/src/routes/admin.routes.ts");
+// These used to pin the LITERALS ("VERIFIED"/"REJECTED"). That was the weaker
+// assertion and, worse, it was the very shape the campaign is removing: it
+// would have gone RED the moment the site started importing the shared
+// constant — punishing the correct fix. Pin the CONSTANT REFERENCE instead;
+// its value is already pinned once, at its declaration in packages/types.
 assert.ok(
-  new RegExp(`verificationStatus: "${KYC_APPROVE_WRITE_STATUS}"`).test(ADMIN_ROUTES),
-  "the admin approve endpoint must write the single-source approved status",
+  /verificationStatus:\s*KYC_APPROVE_WRITE_STATUS\b/.test(ADMIN_ROUTES),
+  `the admin approve endpoint must write the shared constant KYC_APPROVE_WRITE_STATUS (= "${KYC_APPROVE_WRITE_STATUS}"), not a per-site literal`,
 );
 assert.ok(
-  new RegExp(`verificationStatus: "${KYC_REJECT_WRITE_STATUS}"`).test(ADMIN_ROUTES),
-  "the admin reject endpoint must write the single-source rejected status",
+  /verificationStatus:\s*KYC_REJECT_WRITE_STATUS\b/.test(ADMIN_ROUTES),
+  `the admin reject endpoint must write the shared constant KYC_REJECT_WRITE_STATUS (= "${KYC_REJECT_WRITE_STATUS}"), not a per-site literal`,
 );
 assert.ok(
   !/verificationStatus: "APPROVED"/.test(ADMIN_ROUTES),

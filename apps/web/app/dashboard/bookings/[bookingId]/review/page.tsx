@@ -4,6 +4,18 @@ import { useState, FormEvent, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Button, Input, Card, Badge, Toast } from "@hmarepanditji/ui";
 import { Star } from "lucide-react";
+import { CUSTOMER_TOKEN_KEY } from "@hmarepanditji/utils";
+import { resolveApiBase } from "@hmarepanditji/utils";
+import { panditName } from "../../../../../lib/panditIdentity";
+
+// NEXT_PUBLIC_API_URL is an ORIGIN; the client owns the /api/v1 prefix.
+// These calls used to hardcode `/api/customers/...`, which is wrong under
+// EVERY value committed in the repo — the routes live at /api/v1/customers.
+const API_BASE = resolveApiBase(
+  process.env.NEXT_PUBLIC_API_URL,
+  process.env.NODE_ENV === "development",
+).base;
+
 
 interface PanditSummary {
     id: string;
@@ -33,20 +45,29 @@ export default function ReviewSubmissionPage() {
     useEffect(() => {
         const fetchBookingDetails = async () => {
             try {
-                const token = localStorage.getItem("token");
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/bookings/${bookingId}`, {
+                const token = localStorage.getItem(CUSTOMER_TOKEN_KEY);
+                const res = await fetch(`${API_BASE}/bookings/${bookingId}`, {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }
                 });
                 if (!res.ok) throw new Error("Could not load booking");
                 const data = await res.json();
-                // Assume data.data.pandit is available
-                if (data.data && data.data.pandit) {
+                // GET /bookings/:id replies sendSuccess(res, { booking }) — the
+                // ONLY key under data is `booking`. This gated on
+                // `data.data.pandit`, which never exists, so setPandit was never
+                // called and the pandit card below (photo, name, "how was
+                // Pt. X") HAS NEVER RENDERED in production. The comment above
+                // said "Assume" and the assumption was wrong.
+                //
+                // The photo is a direct PanditProfile column — there is no
+                // nested `.panditProfile` under it either.
+                const booking = data.data?.booking ?? data.data;
+                if (booking?.pandit) {
                     setPandit({
-                        id: data.data.pandit.id,
-                        name: data.data.pandit.name || "Pandit Ji",
-                        photoUrl: data.data.pandit.panditProfile?.profilePhotoUrl
+                        id: booking.pandit.id,
+                        name: panditName(booking.pandit) || "Pandit Ji",
+                        photoUrl: booking.pandit.profilePhotoUrl ?? null,
                     });
                 }
             } catch (err) {
@@ -85,8 +106,8 @@ export default function ReviewSubmissionPage() {
                 isAnonymous,
             };
 
-            const token = localStorage.getItem("token");
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/reviews`, {
+            const token = localStorage.getItem(CUSTOMER_TOKEN_KEY);
+            const res = await fetch(`${API_BASE}/reviews`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

@@ -40,9 +40,9 @@ for (const c of CASES) {
   // CONSERVATION (unchanged in FORM): what the customer pays minus what the
   // pandit receives IS the platform's take.
   assert.strictEqual(
-    b.grandTotal - b.panditPayout,
+    b.grandTotal - b.platformTransfersToPandit,
     platformTake,
-    `conservation broken for ${JSON.stringify(c)}: collected−payout=${b.grandTotal - b.panditPayout}, platform take=${platformTake}`,
+    `conservation broken for ${JSON.stringify(c)}: collected−payout=${b.grandTotal - b.platformTransfersToPandit}, platform take=${platformTake}`,
   );
   // the customer charge is dakshina + the platform fee (ON TOP) + pass-throughs
   assert.strictEqual(
@@ -55,9 +55,85 @@ for (const c of CASES) {
   // the pandit receives the FULL dakshina (100%) + pass-throughs — fee NEVER
   // subtracted (the property that matters; also pinned in commission-consistency).
   assert.strictEqual(
-    b.panditPayout,
+    b.platformTransfersToPandit,
     b.dakshinaAmount + b.travelCost + b.foodAllowanceAmount + b.accommodationCost,
     `payout composition drifted for ${JSON.stringify(c)} — pandit must keep 100%`,
+  );
+}
+
+// ═════════════════════════════════════════════════════════════
+// 1a) MODEL-A REJECTION — the guard must be able to TELL THE MODELS APART.
+//
+// CONSERVATION IS NOT A MODEL CHECK. It is satisfied by ANY split of the
+// money, so it cannot distinguish the deducted model from the fee-on-top one:
+//     MODEL A (deducted, pre-22-July):  2100 = 1890 + 210   ✅ conserves
+//     MODEL B (Ruling #7, current):     2310 = 2100 + 210   ✅ conserves
+// A guard built only on conservation would pass both and report "money
+// verified" while the business model silently inverted.
+//
+// The two identities above DO distinguish them, but they had never been proven
+// able to REJECT anything. This section is that proof, and it uses the real
+// figures of the newest production booking rather than a convenient synthetic
+// case (standing law G2: prove the matcher against the REAL shape).
+//
+// HPJ-2026-19502 · 20 July 2026 · Razorpay order_TFefNl2TrhDM3E
+//   dakshina 2100 · platformFee 210 (10%) · grandTotal 2100 · payout 1890
+// That row is MODEL A. It is not a bug in today's code — it predates Ruling #7
+// (commit 3548679, 22 July) by two days, and the code of its own date produced
+// it correctly. It is preserved here as the canonical counter-example.
+// ═════════════════════════════════════════════════════════════
+const HPJ_19502_MODEL_A = {
+  dakshinaAmount: 2100,
+  platformFee: 210,
+  grandTotal: 2100, // fee NOT on top
+  platformTransfersToPandit: 1890, // dakshina MINUS fee
+  travelCost: 0,
+  foodAllowanceAmount: 0,
+  accommodationCost: 0,
+};
+
+/** Ruling-B identity 1: the customer is charged the fee ON TOP of dakshina. */
+const satisfiesFeeOnTop = (b: typeof HPJ_19502_MODEL_A) =>
+  b.grandTotal === b.dakshinaAmount + b.platformFee + b.travelCost + b.foodAllowanceAmount + b.accommodationCost;
+
+/** Ruling-B identity 2: the pandit receives 100% of dakshina, never minus the fee. */
+const satisfiesFullPayout = (b: typeof HPJ_19502_MODEL_A) =>
+  b.platformTransfersToPandit === b.dakshinaAmount + b.travelCost + b.foodAllowanceAmount + b.accommodationCost;
+
+/** Conservation — deliberately shown to be USELESS as a model check. */
+const conserves = (b: typeof HPJ_19502_MODEL_A) => b.grandTotal - b.platformTransfersToPandit === b.platformFee;
+
+assert.ok(
+  conserves(HPJ_19502_MODEL_A),
+  "precondition: the Model-A row DOES conserve — that is the whole point of this section",
+);
+assert.ok(
+  !satisfiesFeeOnTop(HPJ_19502_MODEL_A),
+  "the fee-on-top identity ACCEPTED a Model-A composition (grandTotal 2100 for a 2100 dakshina " +
+    "with a 210 fee). The guard cannot tell the two business models apart.",
+);
+assert.ok(
+  !satisfiesFullPayout(HPJ_19502_MODEL_A),
+  "the 100%-payout identity ACCEPTED a payout of 1890 on a 2100 dakshina — i.e. it accepted the " +
+    "fee being deducted from the pandit. The guard cannot tell the two business models apart.",
+);
+
+// …and the SAME inputs through the real call site must produce Ruling B.
+// This is the capability≠path check: the arguments are exactly those
+// booking.service.ts passes — (dakshina, travelCost ?? 0, foodAllowanceAmount, 0).
+{
+  const live = calculateBookingFinancials(2100, 0, 0, 0);
+  assert.strictEqual(
+    live.grandTotal,
+    2310,
+    `the live booking path charges ${live.grandTotal} for a ₹2100 dakshina; Ruling #7 requires ` +
+      `2310 (dakshina + 210 fee ON TOP). ${live.grandTotal === 2100 ? "This is MODEL A — the deducted model has returned." : ""}`,
+  );
+  assert.strictEqual(
+    live.platformTransfersToPandit,
+    2100,
+    `the live booking path pays the pandit ${live.platformTransfersToPandit} on a ₹2100 dakshina; ` +
+      `Ruling #7 requires the FULL 2100. ${live.platformTransfersToPandit === 1890 ? "This is MODEL A — the fee is being deducted again." : ""}`,
   );
 }
 
@@ -65,7 +141,7 @@ for (const c of CASES) {
 const viaDelegate = calculateBookingFinancials(5000, 800, 2000, 0);
 const viaSource = calculateGrandTotal({ dakshinaAmount: 5000, travelCost: 800, foodAllowanceAmount: 2000 });
 assert.strictEqual(viaDelegate.grandTotal, viaSource.grandTotal, "delegate grandTotal must equal pricing source");
-assert.strictEqual(viaDelegate.panditPayout, viaSource.panditPayout, "delegate panditPayout must equal pricing source");
+assert.strictEqual(viaDelegate.platformTransfersToPandit, viaSource.platformTransfersToPandit, "delegate platformTransfersToPandit must equal pricing source");
 
 const SRC = join(__dirname, "..");
 const read = (rel: string) => readFileSync(join(SRC, rel), "utf8");
@@ -74,11 +150,11 @@ const paymentSvc = read("services/payment.service.ts");
 const paymentRoutes = read("routes/payment.routes.ts");
 
 // 2) no caller-supplied financial overrides in createBooking
-for (const bad of ["input.grandTotal", "input.platformFee", "input.panditPayout", "input.travelServiceFee"]) {
+for (const bad of ["input.grandTotal", "input.platformFee", "input.platformTransfersToPandit", "input.travelServiceFee"]) {
   assert.ok(!bookingSvc.includes(bad), `${bad} must not exist — financials come only from the money source`);
 }
 assert.ok(/grandTotal:\s*fin\.grandTotal/.test(bookingSvc), "grandTotal column must be written from fin.grandTotal");
-assert.ok(/panditPayout:\s*fin\.panditPayout/.test(bookingSvc), "panditPayout column must be written from fin.panditPayout");
+assert.ok(/platformTransfersToPandit:\s*fin\.platformTransfersToPandit/.test(bookingSvc), "platformTransfersToPandit column must be written from fin.platformTransfersToPandit");
 
 // 3) the Razorpay charge comes from booking.grandTotal; the route takes only bookingId
 assert.ok(/booking\.grandTotal/.test(paymentSvc), "createRazorpayOrder must charge booking.grandTotal");

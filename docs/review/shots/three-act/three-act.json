@@ -1,0 +1,73 @@
+{
+  "booking": null,
+  "money": null,
+  "customerSeesAfterPay": "(self.__next_f=self.__next_f||[]).push([0]);self.__next_f.push([2,null])self.__next_f.push([1,\"1:HL[\\\"/_next/static/css/app/layout.css?v=1785230413491\\\",\\\"style\\\"]\\n0:D{\\\"name\\\":\\\"r5\\\",\\\"env\\\":\\\"Server\\\"}\\n\"])self.__next_f.push([1,\"2:I[\\\"(app-pages-browser)/../../node_modules/.pnpm/next@14.2.35_@babel+core@7.29.0_@opentelemetry+api@1.9.0_@playwright+test@1.58.2_react-dom@18_nondpm74arcuz4zvlltxv7rxmu/node_modules/next/dist/client/components/app-router.js\\\",[\\\"app-pages-internals\\\",\\\"static/chunks/app-pages-internals.js\\\"],\\\"\\\"]\\n4:I[\\\"(app-pages-browser)/../../node_modules/.pnpm/next@14.2.35_@babel+core@7.29.0_@opentelemetry+api@1.9.0_@playwright+test@1.58.2_react-dom@18_nondpm74arcuz4zvlltxv7rxmu/node_modules/next/dist/client/components/client-page.js\\\",[\\\"app-pages-internals\\\",\\\"static/chunks/app-pages-internals.js\\\"],\\\"ClientPageRoot\\\"]\\n5:I[\\\"(app-pages-browser)/./app/booking/new/page.tsx\\\",[\\\"app/booking/new/page\\\",\\\"static/chunks/app/booking/new/page.js\\\"],\\\"default\\\",1]\\n6:I[\\\"(app-pages-browser)/../../node_modules/.pnpm/next@14.2.35_@babel+core@7.29.0_@opentelemetry+api@1.9.0_@playwright+test@1.58.2_react-dom@18_nondpm74arcuz4zvlltxv7rxmu/node_modules/next/dist/client/components/layout-router.js\\\",[\\\"app-pages-internals\\\",\\\"static/chunks/app-pages-internals.js\\\"],\\\"\\\"]\\n7:I[\\\"(app-pages-browser)/../../node_modules/.pnpm/next@14.2.35_@babel+core@7.29.0_@opentelemetry+api@1.9.0_@playwright+test@1.58.2_react-dom@18_nondpm74arcuz4zvlltxv7rxmu/node_modules/next/dist/client",
+  "customerMentionsPanditName": false,
+  "customerHasTelLink": false,
+  "customerTelUndefined": false,
+  "customerMentionsAwaiting": false,
+  "muhuratShownAtCommit": true,
+  "panditHomeMentionsBooking": true,
+  "timeline": [
+    "09:20:39  T1 · instant after the customer pays",
+    "09:20:56  T2 · instant after the pandit accepts",
+    "09:21:06  T3 · after the ceremony, at payout time"
+  ],
+  "calls": [
+    "GET /api/v1/auth/me",
+    "GET /api/v1/rituals",
+    "GET /api/v1/pandits",
+    "GET /api/v1/pandit/bookings",
+    "GET /api/v1/pandit/earnings/summary",
+    "GET /api/v1/muhurat/pujas-for-date",
+    "GET /api/v1/pandit/stats",
+    "GET /api/v1/admin/dashboard-stats",
+    "GET /api/v1/admin/bookings"
+  ],
+  "notes": [
+    "muhurat endpoint called; fixture returned empty (prod seed unverifiable — credentials rotated)",
+    "muhurat endpoint called; fixture returned empty (prod seed unverifiable — credentials rotated)"
+  ],
+  "errors": {
+    "customer": [],
+    "pandit": [],
+    "admin": []
+  },
+  "results": [
+    {
+      "n": "ACT 1 · step 0 accepted the purpose-built fill",
+      "ok": true,
+      "d": "3 step(s) advanced"
+    },
+    {
+      "n": "ACT 1 · the booking was created",
+      "ok": false,
+      "d": "wizard never reached submit — THIS HOP IS DEAD, act stops here"
+    },
+    {
+      "n": "ACT 2 · नई विनती is visible on his bookings screen",
+      "ok": true,
+      "d": "arrived cold, no seeding"
+    },
+    {
+      "n": "ACT 2 · accept moved the booking to CONFIRMED",
+      "ok": false,
+      "d": "no booking"
+    },
+    {
+      "n": "ACT 2 · booking detail is REACHABLE (the traversal gap)",
+      "ok": false,
+      "d": "still unreachable"
+    },
+    {
+      "n": "ACT 3 · the booking appears in admin",
+      "ok": false,
+      "d": "ops list"
+    },
+    {
+      "n": "ACT 3 · ops sees both sides and the money",
+      "ok": false,
+      "d": "customer + pandit + figures"
+    }
+  ]
+}

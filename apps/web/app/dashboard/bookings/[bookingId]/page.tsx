@@ -10,6 +10,7 @@ import { MuhuratPatrika } from "../../components/MuhuratPatrika";
 import { PujaCompletionModal } from "../../components/PujaCompletionModal";
 import Link from "next/link";
 import { Phone, MessageCircle, MapPin } from "lucide-react";
+import { panditTitleName, panditInitial, canCall, telHref, whatsappHref } from "../../../../lib/panditIdentity";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1";
 
@@ -181,20 +182,28 @@ export default function BookingDetailPage() {
                                 <h3 className="font-bold text-gray-900 text-lg mb-4">Assigned Pandit</h3>
                                 <div className="flex items-center gap-4 mb-4">
                                     <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center text-orange-600 font-bold text-2xl border-2 border-orange-200">
-                                        {booking.pandit.name?.charAt(0) || "P"}
+                                        {panditInitial(booking.pandit) || "P"}
                                     </div>
                                     <div>
-                                        <h4 className="font-bold text-gray-900 text-lg">Pt. {booking.pandit.name}</h4>
+                                        {/* was: "Pt. {booking.pandit.name}" — PanditProfile has no
+                                            `name` column, so this rendered a bare honorific. */}
+                                        <h4 className="font-bold text-gray-900 text-lg">
+                                            {panditTitleName(booking.pandit) ?? "Pandit being assigned"}
+                                        </h4>
                                         <Link href={`/pandit/${booking.pandit.id}`} className="text-orange-600 text-sm font-medium hover:underline">View Profile →</Link>
                                     </div>
                                 </div>
 
-                                {showContact ? (
+                                {/* The controls RENDER ONLY when a number exists. They used to
+                                    always render, pointing at tel:undefined and a bare
+                                    https://wa.me/ — dead links that look live, tapped on the
+                                    day of the ceremony. */}
+                                {showContact && canCall(booking.pandit) ? (
                                     <div className="flex gap-3 mt-4">
-                                        <a href={`tel:${booking.pandit.phone}`} className="flex-1 flex justify-center items-center gap-2 bg-gray-50 border border-gray-200 text-gray-700 py-2.5 rounded-lg font-medium hover:bg-gray-100 transition-colors">
+                                        <a href={telHref(booking.pandit)!} className="flex-1 flex justify-center items-center gap-2 bg-gray-50 border border-gray-200 text-gray-700 py-2.5 rounded-lg font-medium hover:bg-gray-100 transition-colors">
                                             <Phone size={18} /> Call
                                         </a>
-                                        <a href={`https://wa.me/${booking.pandit.phone?.replace('+', '')}`} className="flex-1 flex justify-center items-center gap-2 bg-[#25D366]/10 text-[#25D366] border border-[#25D366]/20 py-2.5 rounded-lg font-bold hover:bg-[#25D366]/20 transition-colors">
+                                        <a href={whatsappHref(booking.pandit)!} className="flex-1 flex justify-center items-center gap-2 bg-[#25D366]/10 text-[#25D366] border border-[#25D366]/20 py-2.5 rounded-lg font-bold hover:bg-[#25D366]/20 transition-colors">
                                             <MessageCircle size={18} /> WhatsApp
                                         </a>
                                     </div>
@@ -208,7 +217,11 @@ export default function BookingDetailPage() {
                             <div className="bg-white border text-left border-gray-200 rounded-xl p-6 shadow-sm flex flex-col items-center justify-center py-10">
                                 <div className="text-4xl mb-3">🕒</div>
                                 <h3 className="font-bold text-gray-900 mb-1">Pandit Assignment Pending</h3>
-                                <p className="text-gray-500 text-center text-sm">We are matching you with the best pandit for your puja.</p>
+                                {/* "the best pandit" is a superlative and therefore
+                                    uncheckable — the design's trust rule is that
+                                    specificity beats superlatives. Say what is
+                                    actually happening instead. */}
+                                <p className="text-gray-500 text-center text-sm">आपकी पूजा के लिए पंडित जी खोजे जा रहे हैं।</p>
                             </div>
                         )}
                     </div>

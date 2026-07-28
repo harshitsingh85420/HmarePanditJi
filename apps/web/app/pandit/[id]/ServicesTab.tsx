@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { SamagriModal } from "../../../components/SamagriModal";
 import { LoginModal } from "../../../src/components/LoginModal";
+import { CUSTOMER_TOKEN_KEY } from "@hmarepanditji/utils";
 
 export function ServicesTab({
     panditId,
@@ -18,7 +19,7 @@ export function ServicesTab({
     const [isSamagriModalOpen, setIsSamagriModalOpen] = useState(false);
     const [selectedPujaService, setSelectedPujaService] = useState<string | null>(null);
     const router = useRouter();
-    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    const token = typeof window !== "undefined" ? localStorage.getItem(CUSTOMER_TOKEN_KEY) : null;
     const [loginModalOpen, setLoginModalOpen] = useState(false);
     const [redirectUrl, setRedirectUrl] = useState("");
 
@@ -38,7 +39,7 @@ export function ServicesTab({
                             (pkg) => pkg.pujaType === service.pujaType
                         ) || [];
                         const samagriStartPrice = relevantSamagri.length > 0
-                            ? Math.min(...relevantSamagri.map(p => p.fixedPrice))
+                            ? Math.min(...relevantSamagri.map(p => (p.fixedPrice ?? p.price)))
                             : 0;
 
                         return (

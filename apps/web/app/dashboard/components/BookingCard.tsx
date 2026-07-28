@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Badge } from "@hmarepanditji/ui";
+import { panditName, panditTitleName } from "../../../lib/panditIdentity";
 
 export function getEventIcon(eventType: string) {
     const type = eventType.toLowerCase();
@@ -48,8 +49,8 @@ export function BookingCard({ booking }: { booking: any }) {
                 <div className="flex-1">
                     <h3 className="font-bold text-gray-900 text-lg">{booking.eventType}</h3>
                     <p className="text-gray-600 text-sm mt-1">{formattedDate}</p>
-                    {booking.pandit?.name && (
-                        <p className="text-gray-800 font-medium text-sm mt-1">Pt. {booking.pandit.name}</p>
+                    {panditName(booking.pandit) && (
+                        <p className="text-gray-800 font-medium text-sm mt-1">{panditTitleName(booking.pandit)}</p>
                     )}
                     <p className="text-gray-500 text-sm mt-0.5">{booking.venueCity}</p>
                 </div>

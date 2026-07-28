@@ -6,12 +6,12 @@ import { earningsFromStored, computeEarnings } from "./earnings";
 // BUILD-FAILING GUARD — DISPLAY/PAYOUT READS STORED, NEVER RECOMPUTES.
 // Founder decision 2026-07-22 (follows CONFLICT_RULINGS #7): the numbers a
 // pandit or admin SEES, and the payout that gets CREATED, must come from the
-// booking's frozen columns (panditPayout/platformFee/grandTotal) — not a
+// booking's frozen columns (platformTransfersToPandit/platformFee/grandTotal) — not a
 // re-run of computeEarnings. Recomputing an old 90/10 booking would show/pay
 // 100% on money already settled — a lie about history, and (at the payout) a
 // real loss of the platform's historical fee. This guard fails the build if
 // computeEarnings leaks back into a controller/route (read path), and pins the
-// property that displayed payout === the stored panditPayout.
+// property that displayed payout === the stored platformTransfersToPandit.
 console.log("Running displayReadsStored guard…");
 
 const SRC = join(__dirname, "..");
@@ -44,35 +44,35 @@ assert.deepStrictEqual(
   `computeEarnings must not be used in a read/display path (recompute rewrites history) — found in: ${offenders.join(", ")}. Use earningsFromStored.`,
 );
 
-// 2. PROPERTY: displayed payout === the STORED panditPayout, for BOTH eras.
+// 2. PROPERTY: displayed payout === the STORED platformTransfersToPandit, for BOTH eras.
 //    Old 90/10 row (HPJ-2026-19502 real values): dakshina 2100, stored payout 1890.
 {
-  const old = earningsFromStored({ dakshinaAmount: 2100, platformFee: 210, panditPayout: 1890 });
-  assert.strictEqual(old.totalToPandit, 1890, "old booking must display its STORED payout (1890), not a recompute (2100)");
+  const old = earningsFromStored({ dakshinaAmount: 2100, platformFee: 210, platformTransfersToPandit: 1890 });
+  assert.strictEqual(old.panditReceivesTotal, 1890, "old booking must display its STORED payout (1890), not a recompute (2100)");
   assert.strictEqual(old.dakshinaNet, 1890, "old booking net dakshina = stored payout − pass-throughs");
   assert.strictEqual(old.platformFee, 210, "platformFee is the STORED historical fee");
   assert.strictEqual(old.storedPayoutMissing, false);
 }
 // New 100% row: dakshina 5000, stored payout 5000.
 {
-  const neu = earningsFromStored({ dakshinaAmount: 5000, platformFee: 500, panditPayout: 5000 });
-  assert.strictEqual(neu.totalToPandit, 5000, "new booking displays its stored 100% payout");
+  const neu = earningsFromStored({ dakshinaAmount: 5000, platformFee: 500, platformTransfersToPandit: 5000 });
+  assert.strictEqual(neu.panditReceivesTotal, 5000, "new booking displays its stored 100% payout");
   assert.strictEqual(neu.dakshinaNet, 5000);
 }
 // Pass-throughs are honored from stored columns.
 {
-  const withPass = earningsFromStored({ dakshinaAmount: 11000, travelCost: 1200, panditPayout: 12200, platformFee: 1100 });
-  assert.strictEqual(withPass.totalToPandit, 12200, "payout = stored (dakshina + travel)");
+  const withPass = earningsFromStored({ dakshinaAmount: 11000, travelCost: 1200, platformTransfersToPandit: 12200, platformFee: 1100 });
+  assert.strictEqual(withPass.panditReceivesTotal, 12200, "payout = stored (dakshina + travel)");
   assert.strictEqual(withPass.dakshinaNet, 11000, "net dakshina = payout − travel");
 }
 
 // 3. NULL/ZERO SAFETY: a missing stored payout falls back to the current model
 //    AND flags it (never silently recomputes to a wrong historical number).
 {
-  const missing = earningsFromStored({ dakshinaAmount: 5000, panditPayout: null });
+  const missing = earningsFromStored({ dakshinaAmount: 5000, platformTransfersToPandit: null });
   assert.strictEqual(missing.storedPayoutMissing, true, "null stored payout must be FLAGGED");
-  assert.strictEqual(missing.totalToPandit, 5000, "fallback = dakshina + pass-throughs (current model)");
-  const zero = earningsFromStored({ dakshinaAmount: 3000, panditPayout: 0 });
+  assert.strictEqual(missing.panditReceivesTotal, 5000, "fallback = dakshina + pass-throughs (current model)");
+  const zero = earningsFromStored({ dakshinaAmount: 3000, platformTransfersToPandit: 0 });
   assert.strictEqual(zero.storedPayoutMissing, true, "zero stored payout is treated as missing + flagged");
 }
 
@@ -80,4 +80,4 @@ assert.deepStrictEqual(
 // this guard only forbids it in read/display paths.
 assert.strictEqual(typeof computeEarnings, "function", "computeEarnings remains available for creation-time use");
 
-console.log("displayReadsStored guard: read/display paths use stored columns; displayed payout === stored panditPayout ✅");
+console.log("displayReadsStored guard: read/display paths use stored columns; displayed payout === stored platformTransfersToPandit ✅");

@@ -32,7 +32,7 @@ export interface PricingBreakdown {
   travelServiceFee: number;        // 5% of travelCost
   travelServiceFeeGst: number;     // 18% of travelServiceFee
   grandTotal: number;              // Sum of everything
-  panditPayout: number;            // What pandit actually receives
+  platformTransfersToPandit: number;            // What pandit actually receives
 }
 
 // ─── ENUMS (legacy string unions — kept for backward compat) ─────────────────
@@ -426,3 +426,6 @@ export * from './razorpay';
 
 // ─── Identity (KYC) status vocabulary — THE ONE SOURCE ─
 export * from './verification';
+
+// THE ONE notification vocabulary translator (written type -> render category).
+export * from "./notificationCategory";

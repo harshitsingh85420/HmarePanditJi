@@ -90,7 +90,7 @@ export function Header() {
                                     My Bookings
                                 </Link>
                                 <Link href="/dashboard/profile">
-                                    <Avatar name={user.name ?? user.fullName ?? "User"} size="sm" />
+                                    <Avatar name={user.name ?? user.name ?? "User"} size="sm" />
                                 </Link>
                             </div>
                         )}

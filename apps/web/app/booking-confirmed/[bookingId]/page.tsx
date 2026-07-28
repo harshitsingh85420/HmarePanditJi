@@ -7,6 +7,7 @@ import { Button } from "@hmarepanditji/ui";
 import { CheckCircle2, Copy, Share2, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Header } from "@hmarepanditji/ui";
+import { panditTitleName, panditInitial } from "../../../lib/panditIdentity";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1";
 
@@ -41,7 +42,7 @@ export default function BookingConfirmedPage() {
 
     const copyDetails = () => {
         if (!booking) return;
-        const txt = `🙏 Puja booked via HmarePanditJi!\nBooking ID: ${booking.bookingNumber}\nEvent: ${booking.eventType}\nDate: ${new Date(booking.eventDate).toLocaleDateString("hi-IN")}\nPandit: Pt. ${booking.pandit?.name || 'TBA'}`;
+        const txt = `🙏 Puja booked via HmarePanditJi!\nBooking ID: ${booking.bookingNumber}\nEvent: ${booking.eventType}\nDate: ${new Date(booking.eventDate).toLocaleDateString("hi-IN")}\nPandit: ${panditTitleName(booking.pandit) ?? 'TBA'}`;
         navigator?.clipboard?.writeText(txt).catch((err) => {
             console.warn('Failed to copy to clipboard:', err);
         });
@@ -50,7 +51,7 @@ export default function BookingConfirmedPage() {
 
     const shareWhatsApp = () => {
         if (!booking) return;
-        const txt = encodeURIComponent(`🙏 Puja booked via HmarePanditJi!\n\nEvent: ${booking.eventType} on ${new Date(booking.eventDate).toLocaleDateString("hi-IN")}\nPandit: Pt. ${booking.pandit?.name || "TBA"} (Verified)\nBooking: ${booking.bookingNumber}\n\nTrack booking: https://hmarepanditji.com`);
+        const txt = encodeURIComponent(`🙏 Puja booked via HmarePanditJi!\n\nEvent: ${booking.eventType} on ${new Date(booking.eventDate).toLocaleDateString("hi-IN")}\nPandit: ${panditTitleName(booking.pandit) ?? "TBA"} (Verified)\nBooking: ${booking.bookingNumber}\n\nTrack booking: https://hmarepanditji.com`);
         (globalThis as any).open?.(`https://wa.me/?text=${txt}`, "_blank");
     };
 
@@ -112,11 +113,11 @@ export default function BookingConfirmedPage() {
                                 </div>
                                 <div className="md:col-span-2 flex items-center gap-3">
                                     <div className="w-12 h-12 bg-white rounded-full border-2 border-orange-200 flex items-center justify-center font-bold text-orange-600 text-lg shadow-sm">
-                                        {booking.pandit?.name?.charAt(0) || "P"}
+                                        {panditInitial(booking.pandit) || "P"}
                                     </div>
                                     <div>
                                         <p className="text-sm text-gray-500 font-medium leading-tight">Assigned Pandit</p>
-                                        <p className="font-bold text-gray-900">Pt. {booking.pandit?.name || "Pending Assignment"}</p>
+                                        <p className="font-bold text-gray-900">{panditTitleName(booking.pandit) ?? "Pending Assignment"}</p>
                                     </div>
                                 </div>
                             </div>

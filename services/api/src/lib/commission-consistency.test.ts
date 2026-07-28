@@ -49,8 +49,8 @@ assert.ok(
 // 4. THE PROPERTY THAT MATTERS — the pandit payout is NEVER reduced by the fee.
 //    Pinned structurally: the payout expression must not subtract platformFee.
 assert.ok(
-  !/panditPayout\s*=\s*[^;]*-\s*\w*[Pp]latformFee/.test(pricing),
-  "REGRESSION: panditPayout subtracts the platform fee — the pandit must keep 100% (fee is customer-paid)",
+  !/platformTransfersToPandit\s*=\s*[^;]*-\s*\w*[Pp]latformFee/.test(pricing),
+  "REGRESSION: platformTransfersToPandit subtracts the platform fee — the pandit must keep 100% (fee is customer-paid)",
 );
 
 // 5. RUNTIME conservation — proven on real scenarios (each assertion can fail).
@@ -71,9 +71,9 @@ for (const s of SCENARIOS) {
 
   // pandit receives the FULL dakshina + pass-throughs — fee never subtracted
   assert.strictEqual(
-    b.panditPayout,
+    b.platformTransfersToPandit,
     s.dakshina + passThroughs,
-    `payout must be 100% dakshina + pass-throughs (got ${b.panditPayout}, dakshina ${s.dakshina})`,
+    `payout must be 100% dakshina + pass-throughs (got ${b.platformTransfersToPandit}, dakshina ${s.dakshina})`,
   );
   // customer pays the dakshina + the platform fee ON TOP + pass-throughs
   assert.strictEqual(
@@ -83,13 +83,13 @@ for (const s of SCENARIOS) {
   );
   // NEW CONSERVATION: what the customer pays minus what the pandit gets IS the fee
   assert.strictEqual(
-    b.grandTotal - b.panditPayout,
+    b.grandTotal - b.platformTransfersToPandit,
     fee,
-    `conservation broken: grandTotal − panditPayout (${b.grandTotal - b.panditPayout}) must equal the platform fee (${fee})`,
+    `conservation broken: grandTotal − platformTransfersToPandit (${b.grandTotal - b.platformTransfersToPandit}) must equal the platform fee (${fee})`,
   );
   // the pandit's dakshina is untouched by the fee
   assert.ok(
-    b.panditPayout >= s.dakshina,
+    b.platformTransfersToPandit >= s.dakshina,
     "the pandit must never receive less than the full dakshina",
   );
 }
@@ -97,7 +97,7 @@ for (const s of SCENARIOS) {
 // 6. earnings display: the pandit's dakshina is 100% — dakshinaNet is the FULL amount
 const e = computeEarnings({ dakshina: 5000 });
 assert.strictEqual(e.dakshinaNet, 5000, "computeEarnings.dakshinaNet must be the FULL dakshina (100%), not 90%");
-assert.strictEqual(e.totalToPandit, 5000, "computeEarnings.totalToPandit must not be reduced by the fee");
+assert.strictEqual(e.panditReceivesTotal, 5000, "computeEarnings.panditReceivesTotal must not be reduced by the fee");
 
 console.log(
   `commission-consistency guard: 100% to pandit, ${PLATFORM_FEE_PERCENT}% customer-side fee on top, conservation (customer = payout + fee) holds ✅`,

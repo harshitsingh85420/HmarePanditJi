@@ -290,7 +290,7 @@ export async function ensureRazorpayWebhook(webhookUrl: string) {
 /**
  * Mark a booking as paid after a successful Razorpay charge.
  * - Updates paymentStatus to CAPTURED and status → PANDIT_REQUESTED.
- * - Recalculates panditPayout based on latest financial columns.
+ * - Recalculates platformTransfersToPandit based on latest financial columns.
  * - Creates a BookingStatusUpdate record.
  * - Triggers SMS notifications to customer & pandit.
  */
@@ -318,7 +318,7 @@ export async function processPaymentSuccess(
   const previousStatus = booking.status;
 
   // Compute pandit payout using current financial fields
-  const panditPayout = calculatePanditPayout({
+  const platformTransfersToPandit = calculatePanditPayout({
     dakshinaAmount: booking.dakshinaAmount,
     platformFee: booking.platformFee,
     travelCost: booking.travelCost,
@@ -334,7 +334,7 @@ export async function processPaymentSuccess(
         razorpayOrderId: razorpayOrderId ?? booking.razorpayOrderId,
         paymentStatus: "CAPTURED",
         status: "PANDIT_REQUESTED",
-        panditPayout,
+        platformTransfersToPandit,
       },
     });
 
@@ -379,7 +379,7 @@ export async function processPaymentSuccess(
         venueCity: updated.venueCity,
         dakshina: updated.dakshinaAmount,
         travelMode: updated.travelMode ? String(updated.travelMode) : null,
-        panditPayout: updated.panditPayout ?? 0,
+        platformTransfersToPandit: updated.platformTransfersToPandit ?? 0,
         panditPhone: booking.pandit.user?.phone ?? "",
       }).catch((err) => logger.error("notifyNewBookingToPandit failed:", err));
     }
