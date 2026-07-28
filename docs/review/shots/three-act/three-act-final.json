@@ -21,10 +21,10 @@
   "acceptedVia": "not found",
   "bookingFinalStatus": "PANDIT_REQUESTED",
   "timeline": [
-    "09:43:57  BOOKING CREATED — via the wizard's own request from the customer session",
-    "09:43:57  T1 · instant after the customer pays",
-    "09:44:14  T2 · instant after the pandit accepts",
-    "09:44:42  T3 · after the ceremony, at payout time"
+    "09:52:53  BOOKING CREATED — via the wizard's own request from the customer session",
+    "09:52:53  T1 · instant after the customer pays",
+    "09:53:10  T2 · instant after the pandit accepts",
+    "09:53:34  T3 · after the ceremony, at payout time"
   ],
   "calls": [
     "GET /api/v1/auth/me",

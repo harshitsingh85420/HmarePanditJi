@@ -85,7 +85,23 @@ async function router(route) {
     if (BOOKING) { BOOKING.status = "CONFIRMED"; stamp("PANDIT ACCEPTED → CONFIRMED"); }
     return ok(route, { booking: BOOKING }, "Booking accepted");
   }
-  if (bare.includes("/pandit/bookings")) return ok(route, BOOKING ? [BOOKING] : []);
+  if (bare.includes("/pandit/bookings")) {
+    // THE FIXTURE'S OWN BUG, corrected: the real endpoint runs every row
+    // through withPanditView (auth.controller.ts:849), which maps the DB
+    // vocabulary to the pandit-UI vocabulary — PANDIT_REQUESTED -> REQUESTED,
+    // CONFIRMED -> ACCEPTED. Returning the RAW db status made the pandit's
+    // filters miss and produced a "dead hop" that was mine, not the product's.
+    const DB_TO_VIEW = {
+      CREATED: "REQUESTED", PANDIT_REQUESTED: "REQUESTED", REQUESTED: "REQUESTED",
+      CONFIRMED: "ACCEPTED", ACCEPTED: "ACCEPTED", TRAVEL_BOOKED: "ACCEPTED",
+      PANDIT_EN_ROUTE: "ACCEPTED", PANDIT_ARRIVED: "ACCEPTED",
+      PUJA_IN_PROGRESS: "IN_PROGRESS", IN_PROGRESS: "IN_PROGRESS",
+      COMPLETED: "COMPLETED", CANCELLATION_REQUESTED: "CANCELLED",
+      CANCELLED: "CANCELLED", REFUNDED: "CANCELLED", REJECTED: "REJECTED",
+    };
+    const view = BOOKING ? [{ ...BOOKING, status: DB_TO_VIEW[BOOKING.status] ?? BOOKING.status }] : [];
+    return ok(route, view);
+  }
   if (bare.includes("/pandit/stats")) return ok(route, { rating: null, completedBookings: 0, totalReviews: 0 });
   if (bare.includes("/pandit/earnings")) return ok(route, { thisMonth: BOOKING?.panditPayout ?? 0, pending: BOOKING?.panditPayout ?? 0, lifetime: 0 });
   if (bare.includes("/pandit/profile") || bare.includes("/readiness")) return ok(route, PANDIT_REC);
@@ -108,9 +124,15 @@ async function router(route) {
 
 // ── CONDITION C: each check defined once, run twice (no booking → booking) ──
 const CHECKS = {
+  // The list shows ritual + date + city + a money figure — NOT the customer's
+  // name or address. The earlier check demanded those and went red on a screen
+  // that was working: a false NEGATIVE, the twin of the empty-state false green.
   "ACT2 · a real booking row is on the pandit's list": (t) =>
-    /HPJ-QA-WALK-1|सत्यनारायण कथा/.test(t.panditList) && /क्यूए यजमान|कोथरूड|₹\s?5,?100/.test(t.panditList),
-  "ACT2 · his earning figure is visible": (t) => /5,?100/.test(t.panditList + t.panditHome),
+    /Satyanarayan Katha|सत्यनारायण/.test(t.panditList) && /नई विनती/.test(t.panditList),
+  "ACT2 · the new-request section is non-empty": (t) => /नई विनती\s*·\s*[1-9]/.test(t.panditList),
+  // 🔴 the pandit is shown grandTotal (the CUSTOMER total), not his payout
+  "ACT2 · the figure shown to the pandit is HIS payout, not the customer total": (t) =>
+    /5,?100/.test(t.panditList) && !/5,?610/.test(t.panditList),
   "ACT3 · the booking is in the ops list": (t) => /HPJ-QA-WALK-1/.test(t.adminList),
   "ACT3 · ops sees the customer": (t) => /क्यूए यजमान/.test(t.adminDetail),
   "ACT3 · ops sees the money": (t) => /5,?610/.test(t.adminDetail) && /5,?100/.test(t.adminDetail),
