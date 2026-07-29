@@ -3103,3 +3103,86 @@ trusts the other's half.
 **Cheapest possible check, and it would have caught all three:** open the cited
 file at the cited line before ruling on it. Every one of these claims carried a
 file and a line number; not one of them was opened.
+
+---
+
+# LAW — THE JUSTIFICATION AND THE REFUTATION WERE THE SAME FACT
+
+Isj named this precisely, and it is a **distinct shape** from the three earlier
+amplifications. Those were assertions made without verification. This one was
+different and worse:
+
+> **The ruling did not merely assert something unverified — it CITED THE
+> SURFACES AS THE REASON for the ruling, while having the surfaces backwards.**
+
+The ruling read: *"canonical wins — it is the one the app calls, the one the
+customer and admin surfaces render, and the one complete depends on."* Two of
+the three grounds were true. The middle one was the exact inverse: the customer
+and admin surfaces render the TRIO's statuses, and canonical's `IN_PROGRESS` has
+no case in that switch at all.
+
+So the fact offered as the justification was the same fact that refutes it.
+Checking the justification WAS checking the ruling. There was no separate
+verification step to skip — the reason and the disproof were one lookup apart.
+
+**That is why this shape is more dangerous than a bare unverified claim.** An
+unverified assertion invites "did you check?". A cited reason feels *already
+checked* — it is doing the work of evidence in the sentence. Nobody asks for the
+evidence for the evidence.
+
+## COROLLARY, NOW STANDING
+
+> **Any ruling that DELETES behaviour ships only behind a report-first gate.**
+
+Isj's own instruction — *"Before shipping, report in three lines… If a real row
+does, say so and stop"* — is what caught this. The gate cost one turn and
+prevented silently deleting *"🚗 Pandit is on the way!"*, *"🙏 Pandit has
+arrived!"*, the contact reveal and the entire tracking timeline from the
+customer app.
+
+The three lines a deletion must answer, generalised:
+
+1. **What exactly disappears** — named, not described.
+2. **Does anything render/consume it** — with a POSITIVE CONTROL proving the
+   search could have found it (see the EPIPE false-zero the same turn).
+3. **Does any real row carry it** — if yes, stop; it is a data question.
+
+**Additions may ship on judgement. Deletions may not.** An addition that is
+wrong is visible; a deletion that is wrong is an absence, and absences are the
+one class this campaign has repeatedly proven it cannot see.
+
+---
+
+# THE /health TWIN — the standing law had no hole, I had the wrong twin
+
+I reported that the API has no version route and that "not shipped until
+/version says so" had therefore been unverifiable all campaign. **Wrong.**
+
+- `app.ts:166` — `GET /health` returns `commit: process.env.RENDER_GIT_COMMIT`,
+  with a comment naming the deploy-verification rule it exists to serve.
+- `app.ts:173` — `GET /api/health` is a SECOND route with **no commit field**.
+
+I probed `/api/health` and `/api/v1/version`, found no SHA in either, and
+concluded about the resource from two of its twins. **Sixth sighting of the
+twin-route class**, and the first where it made me report that a standing law
+lacked an instrument it has always had.
+
+**THE STANDING METHOD, going forward — one line per surface:**
+
+| surface | verify with |
+|---|---|
+| api | `GET /health` → `.commit` (bare path, **not** `/api/health`) |
+| pandit · web · admin | `GET /version` → `.commit` |
+
+The behavioural proof used for this deploy (the plural pandit route must return
+`{name, phone}` and not the whole `User`) is kept as a **second** check, because
+a SHA proves what shipped and a behaviour proves what runs — the artifact-vs-
+source law says those are different questions.
+
+**Vercel SHA lag is not staleness.** `web` still reports `9a38c26` while api,
+pandit and admin report `902226c`. `git diff 9a38c26..HEAD -- apps/web/` is
+EMPTY, as are `packages/utils|types|db` — so Vercel correctly skipped a rebuild
+that would have changed nothing. The sufficient-SHA standard is met by
+`deployed SHA == HEAD` **OR** `diff(deployed..HEAD, <that app's tree>) == empty`.
+Admin's f0e7565 was the same case (zero commits touching `apps/admin/`), and it
+rebuilt to 902226c anyway.
