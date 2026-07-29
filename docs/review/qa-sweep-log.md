@@ -2848,3 +2848,99 @@ handlers, different privacy behaviour, both live:
 - The venue address (incl. lat/long) ships **pre-accept** via
   `/pandits/pending-requests` (`pandit.routes.ts:729-737`) as plain Booking
   scalars.
+
+---
+
+# 2026-07-29 (late) · THE SYMMETRIC CONTACT RULE + THE ROUTE INVENTORY
+
+Four rulings shipped, one enumeration delivered. Full records:
+`customer-identity-exposure-2026-07-29.md`, `route-inventory-2026-07-29.md`.
+
+## SHIPPED — the two live defects
+
+1. **`isAnonymous` is now applied.** `PUBLIC_REVIEW_SELECT` + `toPublicReview`
+   live in `review.service.ts` and BOTH review routes import them. The flag
+   itself is dropped from the payload — shipping
+   `{ reviewerName: "Anonymous", isAnonymous: true }` identifies the hidden
+   reviews by elimination on a pandit with few of them. `/reviews/pandit/:id`
+   stays deliberately public, now with that fact WRITTEN AT THE ROUTE, because
+   for as long as it read as an oversight it was one.
+2. **`status-history` has ownership.** It calls `getBookingById`, which carries
+   the already-audited predicate, rather than becoming the SIXTH hand-written
+   ownership check on that router — and the five existing ones are not all the
+   same check. Note the pandit test cannot be `panditId !== req.user.id`:
+   `Booking.panditId` is a PanditProfile id, so the naive form denies every
+   pandit.
+
+## SHIPPED — the symmetric rule (`lib/bookingIdentity.ts`)
+
+Each side sees the other's name and phone once CONFIRMED; neither before.
+Implemented as ONE mediator over ten call sites, for the same reason
+`bookingStatus.ts` exists: eight call sites each doing their own version of one
+rule is how a rule ends up with eight versions. Queries were narrowed too, not
+only responses — `customer: true` and `user: true` are gone, so even an
+unredacted path cannot leak a column nobody chose to expose.
+
+The customer half was UNDER-seeing: `listMyBookings` had no `user` join at all,
+so the customer could never see the pandit's number in any state. Added, gated.
+
+Venue narrowed pre-CONFIRMED to **city + pincode** — the schema has no
+area/landmark column, pincode IS the locality, and it is what a travel
+judgement actually needs.
+
+### LAW — A `default:` BRANCH THAT NAMES A REAL STATE MAKES EVERY UNHANDLED STATE A LIE
+
+Recorded earlier for `StatusChip`; it generalised. `redactBookingForRole`'s
+default branch is CUSTOMER, not "no redaction", so a fourth role fails CLOSED.
+
+### THE FIX PRODUCED TWO DEAD CONTROLS OF ITS OWN
+
+Withholding the phone made the detail screen render `href="tel:null"` — a green
+call button that dials nothing — and `geo:0,0?q=` with an empty query. Both are
+now conditional, with copy naming the fact and when it changes.
+
+> **A privacy narrowing creates dead controls wherever the withheld value fed an
+> affordance. Sweeping for them is part of the change, not a follow-up.**
+
+### GUARD: BEHAVIOURAL, NOT TEXTUAL
+
+`contactGate.test.ts` executes the real functions over all 15 statuses in both
+directions, sweeps the SERIALISED payload for every secret (a field-by-field
+check misses a nested copy), proves fail-closed on an unknown role, and pins
+that the visible-set means the same thing in BOTH status vocabularies — so
+redaction cannot depend on whether it ran before or after `withPanditView`.
+
+Also rewrote `publicPanditReads.test.ts`'s anonymity check from a regex to a
+CALL. The regex version passed for the entire period the other public reviews
+route was leaking: **it was watching the twin that was already correct.**
+
+## DELIVERED — `scripts/route-inventory.mjs`, the new audit surface
+
+`183 routes · 30 public · 153 guarded · 0 undecoded · 10 twin groups`, read from
+the registration table — including the routes registered DIRECTLY on the app
+(`app.ts:296-318`), which no plugin-shaped audit sees, and which is exactly
+where every `/pandit/*` twin lives.
+
+**Groups 4-7 still want a decision:** accept, decline, complete and
+earnings-summary each have TWO independent implementations. Group 4 matters
+most — the accept path the app calls got this campaign's
+`ACCEPTABLE_DB_STATUSES` fix; **its twin at `pandit.routes.ts:877` still carries
+its own copy of the pending-status logic, so a booking accepted through the twin
+does not pass the same guard.**
+
+**New, not identity:** `POST /voice/tts` and `/voice/stt` are public,
+schema-validated but NOT rate-limited, and call the paid Sarvam API — confirmed
+`200` live with no token. `/api/stt` and `/api/v1/stt` have no preHandler at all.
+Cost/abuse exposure on a paid key. Reported, not fixed.
+
+### THE TOOL PRODUCED THREE FALSE-POSITIVE CLASSES ABOUT ITSELF
+
+It claimed every admin route was public (inline-arrow `addHook`), then ~30
+`/pandits/*` routes public (an APP-level hook a per-route read cannot see), then
+`POST /upload` public (guard behind an identifier — it returns 401 live). **Two
+of the three would have put a fabricated security hole into a report.** It now
+fails safe: an undecodable preHandler is `UNKNOWN`, never `PUBLIC`.
+
+> **A tool written to stop a class of error is not exempt from that class.**
+> Every claim it makes still gets checked against source, and against production
+> where a probe is safe.
