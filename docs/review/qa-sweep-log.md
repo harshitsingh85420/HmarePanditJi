@@ -2790,3 +2790,61 @@ open. **SMS to the pandit on a new booking is enough for a pilot** — and it ri
 the **same DLT/MSG91 template chain already blocking OTP hardening**. That chain
 now has **two consumers**, which changes its priority: it is not an OTP task, it
 is the unlock for the product's only outbound transport.
+
+## 🔴 TWO LIVE IDENTITY DEFECTS (full trace: `customer-identity-exposure-2026-07-29.md`)
+
+The item-2 trace (13 agents, every claim re-verified by hand) inverted its own
+question. The pandit does not lack the customer's identity — it reaches him on
+ten routes, in every state, and **two routes do not require him to own the
+booking**:
+
+1. **`GET /api/v1/reviews/pandit/:panditId` is PUBLIC and ignores `isAnonymous`.**
+   `review.routes.ts:23` registers no `authenticate` hook; `:50` is declared `{}`.
+   `review.service.ts:117-121` selects `isAnonymous` **and** the reviewer's real
+   name + entire `customerProfile`, then returns rows raw. The twin
+   (`pandit.controller.ts:556`) honours the flag. Confirmed live: `200`, no token.
+   **Dormant only because production has 0 reviews.**
+2. **`GET /api/v1/bookings/:id/status-history` has no ownership check.**
+   `booking.routes.ts:476` — plugin `authenticate` applies, but the only predicate
+   is `where: { bookingId: req.params.id }`, and it includes `updatedBy.name`.
+   `payment.service.ts:341-348` guarantees a customer-authored row on every paid
+   booking. I did **not** attempt cross-tenant access; the source is unambiguous.
+
+### LAW — AN AUDIT OF A ROUTE LIST PROVES NOTHING ABOUT THE ROUTE THAT ISN'T ON IT
+
+The public-read audit enumerated `PUBLIC_PANDIT_READS` (`app.ts:275-278`) and
+cleared `/pandits/:id/reviews`. The leaking twin is `/reviews/pandit/:id`, under
+a different prefix (`app.ts:446`) — outside the list, so outside the audit. Same
+shape as the walk's errors: **a curated set was audited instead of what the
+router actually serves.** Enumerate from the registration table, not from a
+constant that names the routes someone already thought of.
+
+### CLASS — TWIN ROUTES WITH DIVERGENT PROJECTIONS (3rd sighting, now 2 wrong findings + 1 real leak)
+
+`pandit.routes.ts` is mounted at `/pandits` (`app.ts:442`) while `app.ts:309-317`
+registers `/pandit/*` handlers directly. Near-identical paths, different
+handlers, different privacy behaviour, both live:
+
+| pair | one | the other |
+|---|---|---|
+| `/pandit/bookings/:id` · `/pandits/bookings/:id` | omits customer | ships whole `User` |
+| `/pandits/:id/reviews` · `/reviews/pandit/:id` | honours `isAnonymous` | ignores it, **publicly** |
+
+### ALSO ESTABLISHED
+
+- **No pandit-facing handler reads `booking.status` before choosing fields.**
+  Every gate is an ownership gate; there is no state-dependent narrowing anywhere.
+  Isj's symmetric CONFIRMED-gated rule is a **narrowing** of today's behaviour,
+  not an addition — and the pandit client is already wired for it
+  (`bookings/[id]/page.tsx:196-197`).
+- **Nothing narrows a response after the query** — no `onSend`,
+  `preSerialization`, `setReplySerializer`, response `schema`, or Prisma
+  `$extends`/`$use`/`omit` anywhere in `services/api/src`. What the query selects
+  is what ships.
+- `Booking.customerName`/`customerPhone`/`eventAddress` are **write-dead**
+  (`@default("")`, no writer, no backfill). Reading those empty strings is what
+  produced the walk's wrong "he knows nothing" conclusion — every real exposure
+  flows through the `booking.customer` **relation**.
+- The venue address (incl. lat/long) ships **pre-accept** via
+  `/pandits/pending-requests` (`pandit.routes.ts:729-737`) as plain Booking
+  scalars.
