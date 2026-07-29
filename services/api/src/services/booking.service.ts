@@ -134,23 +134,27 @@ export async function createBooking(input: CreateBookingInput) {
 
   const panditProfileId = panditUser.pandit.id;
 
-  // सत्यापन GATE (server-enforced, ON THE CUSTOMER-CALLED CREATE PATH): the
-  // pandit must have an APPROVED PoojaVerification (its LATEST version) for this
-  // poojaType, or booking creation is rejected. Unverified pujas are not
-  // bookable — this IS the trust promise. A re-submit resets the latest version
-  // to PENDING, so it becomes unbookable again until re-approved.
-  const latestVerification = await prisma.poojaVerification.findFirst({
-    where: { panditProfileId, poojaType: input.eventType },
-    orderBy: { version: "desc" },
-    select: { status: true },
-  });
-  if (latestVerification?.status !== "APPROVED") {
-    throw new AppError(
-      "यह पूजा अभी प्रमाणित नहीं है — पंडित जी को पहले वीडियो सत्यापन पूरा करना होगा।",
-      400,
-      "POOJA_NOT_VERIFIED",
-    );
-  }
+  // ── सत्यापन IS INFORMATION, NOT A GATE (Isj ruling, 2026-07-29) ───────
+  //
+  // SUPERSEDES the gate that stood here. Ops DO review the video and
+  // "पूजा सत्यापित" IS a real platform claim — but a customer may KNOWINGLY
+  // choose an unverified pandit. Refusing the booking took the choice away
+  // from the person whose money it is.
+  //
+  // WHAT IT COST: production could not take a SINGLE booking. Six of six
+  // pandit-puja combinations returned POOJA_NOT_VERIFIED on 2026-07-29,
+  // because no seeded pandit had ever completed a video verification. The
+  // shop was shut by its own trust promise.
+  //
+  // WHAT REPLACES IT: the same fact, shown EARLIER and left to the customer.
+  // The projection still carries verifiedPoojaTypes and a per-service
+  // poojaVerified; the pandit detail screen still marks each puja
+  // "पूजा सत्यापित" or not. The badge stops disabling the CTA and starts
+  // informing the choice.
+  //
+  // HISTORY, NOT DELETED: services/api/src/lib/pooja-gate.test.ts and the
+  // three assertions in verificationNaming.test.ts that pinned this gate are
+  // marked SUPERSEDED with this date and reason rather than removed.
 
   // Check pandit availability: no CONFIRMED or CREATED booking on same calendar day
   const dayStart = new Date(input.eventDate);

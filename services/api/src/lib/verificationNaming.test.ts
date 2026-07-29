@@ -29,22 +29,27 @@ console.log("Running verification-naming guard...");
 const REPO = join(__dirname, "..", "..", "..", "..");
 const read = (p: string) => codeOnly(readFileSync(join(REPO, p), "utf8"));
 
-// ── 1. THE SERVER GATE IS UNCHANGED — assert first, so nothing below
-//      can be read as permission to weaken it. ──────────────────
+// ── 1. SUPERSEDED 2026-07-29 — सत्यापन INFORMS, IT DOES NOT GATE ──────
+//
+// This section asserted the OPPOSITE two turns ago: that createBooking must
+// keep requiring an APPROVED latest PoojaVerification, and that "moving the
+// refusal to the front NEVER means loosening the check". That was correct
+// under the ruling then in force.
+//
+// Isj superseded it: ops DO review the video and "पूजा सत्यापित" IS a real
+// platform claim, but it is INFORMATION, not permission — a customer may
+// knowingly choose an unverified pandit. The gate also shut the shop: six of
+// six pandit-puja combinations were unbookable on 2026-07-29 because no
+// pandit had ever completed a verification.
+//
+// The assertions are NOT deleted — they are inverted and kept, so the reason
+// is legible. The gate's absence is now pinned by pooja-gate.test.ts, which
+// also pins that the INFORMATION replacing it is still produced.
 const BOOKING = read("services/api/src/services/booking.service.ts");
 assert.ok(
-  /poojaVerification\.findFirst/.test(BOOKING),
-  "the booking gate must still look up the pandit's PoojaVerification",
-);
-assert.ok(
-  /latestVerification\?\.status !== "APPROVED"/.test(BOOKING),
-  "the booking gate must still require APPROVED. Moving the refusal to the front NEVER means " +
-    "loosening the check — the front-end is a courtesy, the server is the promise.",
-);
-assert.ok(
-  /orderBy:\s*\{\s*version:\s*"desc"\s*\}/.test(BOOKING),
-  "the gate must read the LATEST version — a re-submission drops back to PENDING and must " +
-    "make the puja unbookable again",
+  !/poojaVerification\.findFirst/.test(BOOKING),
+  "the सत्यापन booking GATE is back in createBooking. It is superseded: सत्यापन informs the " +
+    "customer, it does not decide for him.",
 );
 
 // ── 2. the customer-visible projection CARRIES the per-puja state ──
@@ -149,56 +154,23 @@ assert.ok(
   "the services list must branch on service.poojaVerified — an unverified puja must be marked " +
     "at the point of CHOICE, not refused at submit",
 );
-// `/disabled/` also matches `aria-disabled` and `data-was-disabled`, so
-// renaming the real attribute slipped through. Require the JSX BOOLEAN
-// attribute on its own, plus the affordance that tells a user it is off.
+// SUPERSEDED with section 1: this asserted the CTA must be DISABLED for an
+// unverified puja. Under the ruling of 2026-07-29 सत्यापन INFORMS and does not
+// block, so the control must WORK — the customer decides. Inverted and kept.
 assert.ok(
-  /(^|[\s{])disabled(\s|$)/m.test(TAB) && /cursor-not-allowed/.test(TAB),
-  "the Book CTA must be DISABLED for an unverified puja. A control that starts a journey ending " +
-    "in a 400 is a dead control wearing a live one's clothes.",
+  !/अभी बुक नहीं कर सकते/.test(TAB),
+  "the Book CTA still refuses an unverified puja. सत्यापन informs; it does not decide.",
 );
-
-// ── THE यजमान MUST BE NAMED — server-enforced at BOOKING ──────
-// Isj ruling 2026-07-29: a CLIENT COURTESY IS NOT A CONTRACT. login/page.tsx
-// asks for a name when user.isNewUser, but that is the UI choosing to ask —
-// verify-otp issues a token whether a name is supplied or not, and both QA
-// probes reached a valid session with name: null by skipping the browser.
-// A booking without its यजमान is a puja with no sponsor named.
+// …but the customer must still be TOLD, in words that trust him to choose.
 assert.ok(
-  /CUSTOMER_NAME_REQUIRED/.test(BOOKING),
-  "createBooking must refuse a customer with no name (CUSTOMER_NAME_REQUIRED)",
+  /!service\.poojaVerified && \(/.test(TAB),
+  "the unverified state renders nothing. Removing the gate was conditional on SHOWING the fact " +
+    "instead — otherwise the customer is neither blocked nor informed.",
 );
 assert.ok(
-  /customer\?\.name\?\.trim\(\)/.test(BOOKING),
-  "the check must reject whitespace-only names too — a space is not a यजमान",
-);
-// TOKEN ISSUANCE MUST STAY UNCHANGED. Guest browsing and the whole
-// pre-commitment journey must not break to enforce this.
-const AUTH = read("services/api/src/controllers/auth.controller.ts");
-const verifyRegion = AUTH.slice(AUTH.indexOf("isNewUser"), AUTH.indexOf("isNewUser") + 4000);
-assert.ok(
-  !/CUSTOMER_NAME_REQUIRED/.test(verifyRegion),
-  "the NAME requirement must NOT move into token issuance — guest mode and browsing depend on " +
-    "a token being obtainable before a name exists. The gate belongs at BOOKING.",
-);
-// THE CLIENT MUST ASK FIRST, so a real customer never meets the server refusal.
-const LOGIN = read("apps/web/app/login/page.tsx");
-assert.ok(
-  /user\.isNewUser/.test(LOGIN) && /setStep\("name"\)/.test(LOGIN),
-  "the login must still show the name step for a new user — the server refusal is a BACKSTOP, " +
-    "not the primary experience",
-);
-assert.ok(
-  /step.*===.*"name"/.test(LOGIN),
-  "login must honour ?step=name so an already-authenticated customer lands on the field instead " +
-    "of re-entering a phone and an OTP",
-);
-// AND THE REFUSAL MUST BE ROUTED, not printed.
-const WIZ = read("apps/web/app/booking/new/booking-wizard-client.tsx");
-assert.ok(
-  /CUSTOMER_NAME_REQUIRED/.test(WIZ) && /step=name/.test(WIZ),
-  "the wizard must route CUSTOMER_NAME_REQUIRED to the name step. Printing the raw message " +
-    "leaves the customer holding a sentence he cannot act on.",
+  /आप ख़ुद सुनकर तय कीजिए/.test(TAB),
+  "the unverified line must invite the customer to judge for himself, not warn him off — he is " +
+    "being trusted with the decision",
 );
 
 console.log(

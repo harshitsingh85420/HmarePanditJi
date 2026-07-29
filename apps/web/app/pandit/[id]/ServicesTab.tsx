@@ -92,42 +92,36 @@ export function ServicesTab({
                                         </div>
                                     </div>
                                 </div>
-                                {/* THE REFUSAL MOVED TO THE FRONT. The server gate is correct and
-                                    unchanged — an unverified puja is not bookable. What was wrong was
-                                    WHERE the customer met it: after a 7-step wizard with 9 required
-                                    fields, as a 400. A control that starts a journey it cannot finish
-                                    is a dead control. Disabled here, with the reason in plain words. */}
-                                {service.poojaVerified ? (
-                                    <button
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            const url = `/booking/new?panditId=${panditId}&pujaType=${encodeURIComponent(service.pujaType)}`;
-                                            if (!token) {
-                                                setRedirectUrl(url);
-                                                setLoginModalOpen(true);
-                                            } else {
-                                                router.push(url);
-                                            }
-                                        }}
-                                        className="w-full block text-center py-3 bg-white border-2 border-orange-600 text-orange-600 font-bold rounded-xl hover:bg-orange-50 transition"
-                                    >
-                                        Book This Puja →
-                                    </button>
-                                ) : (
-                                    <div>
-                                        <button
-                                            disabled
-                                            aria-disabled="true"
-                                            className="w-full block text-center py-3 bg-gray-100 border-2 border-gray-200 text-gray-400 font-bold rounded-xl cursor-not-allowed"
-                                        >
-                                            अभी बुक नहीं कर सकते
-                                        </button>
-                                        <p className="mt-2 text-xs text-gray-500 text-center leading-snug">
-                                            पंडित जी ने इस पूजा का वीडियो सत्यापन अभी पूरा नहीं किया है।
-                                            उनकी पहचान सत्यापित है — यह अलग है।
-                                        </p>
-                                    </div>
+                                {/* सत्यापन INFORMS, IT DOES NOT BLOCK (Isj ruling,
+                                    2026-07-29). This CTA was disabled for an unverified puja.
+                                    That took the choice away from the person whose money it is —
+                                    and it shut the shop: six of six combinations were unbookable
+                                    because no pandit had completed a verification.
+                                    The badge above still says which pujas ops have watched. The
+                                    customer decides. */}
+                                {!service.poojaVerified && (
+                                    <p className="mb-3 text-xs text-gray-600 leading-snug bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                                        इस पूजा का वीडियो अभी हमने नहीं देखा — आप ख़ुद सुनकर तय कीजिए।
+                                        <span className="block text-gray-500 mt-0.5">
+                                            पंडित जी की पहचान सत्यापित है — यह अलग बात है।
+                                        </span>
+                                    </p>
                                 )}
+                                <button
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        const url = `/booking/new?panditId=${panditId}&pujaType=${encodeURIComponent(service.pujaType)}`;
+                                        if (!token) {
+                                            setRedirectUrl(url);
+                                            setLoginModalOpen(true);
+                                        } else {
+                                            router.push(url);
+                                        }
+                                    }}
+                                    className="w-full block text-center py-3 bg-white border-2 border-orange-600 text-orange-600 font-bold rounded-xl hover:bg-orange-50 transition"
+                                >
+                                    Book This Puja →
+                                </button>
                             </div>
                         );
                     })
