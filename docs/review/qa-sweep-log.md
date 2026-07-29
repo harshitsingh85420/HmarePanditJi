@@ -1688,3 +1688,86 @@ symptom and prescribed the mechanism that caused it.
 `FeedbackUnanswered` and `ShishyaExchange` now exist. Telemetry that has been
 **silently dropping since 13 July** will write for the first time. First
 execution is where things break — both go on the traversal watch list.
+
+---
+
+## STANDING LAW — BUILD GREEN ≠ ARTIFACT LOADABLE
+
+Every signal we had measured **the source** — tsc, 49 guards, three typechecks,
+a pre-push gate — and **none measured whether what ships can start.** The build
+was green, every guard was green, and the artifact could not boot.
+`check-dist-runtime.mjs` is the **first guard in this repo that inspects the
+ARTIFACT rather than the source**, and that entire category was missing.
+
+**The trigger deserves its own line: the outage was caused by CORRECT work.**
+The single-source law — the right principle, applied properly — introduced the
+first *runtime value* import from a package that had only ever exported erasable
+types. `packages/types` shipped `main: ./src/index.ts` and nothing had ever
+required it at runtime, because every other consumer is Next.js and transpiles
+workspace packages. **A right principle exposed a latent packaging gap.** The
+lesson is not "be more careful with imports"; it is that a class of defect can
+be invisible until a correct change is the first to touch it.
+
+## LEDGER — EVIDENCE BEFORE THEORY, EVEN WHEN THE THEORY IS GOOD
+
+Both Isj and I diagnosed the outage from **mechanism** before the log existed:
+`|| true` cannot catch a hang, therefore `db push` hung the boot. It was a good
+theory, cleanly reasoned, and **wrong on both sides**. `db push` did not hang —
+it completed and applied all four migrations' DDL. The app then died on the
+`.ts` require. The evidence was three minutes away in the Render log and in a
+one-line local `require('./dist/index.js')`.
+
+We had just written CAPABILITY ≠ PATH and then reasoned about a mechanism's
+capability instead of tracing what it did. **Evidence before theory — the
+better the theory, the stronger the pull to skip the check.**
+
+## 2026-07-29 — TRAVERSAL WALK, post-merge batch (34 commits, 17 behavioural)
+
+**HOST TRUTH:** the custom domains resolve but serve **no HTTP**, so this walk
+ran against `*.vercel.app`. **A pass here is not a pass on the surface a pandit
+will use.** Screenshots were unavailable (pane not compositing), so **no visual
+claim is made** — this is a structural and functional walk via the accessibility
+tree, live network, and API round-trips.
+
+**PASSES**
+- pandit home renders under a live session; `/pandit/bookings` → `200 {"data":[]}`,
+  `/pandit/stats` → `200` with a real shape. The app round-trips against the new
+  schema (`platformFeePercent` + 5 FKs) with no error.
+- **DRIFT-A verified on the shipped bundle**: the homepage calls
+  `/api/v1/muhurat/dates`, `/api/v1/muhurat/upcoming`, `/api/v1/pandits…` —
+  **zero doubled prefixes, zero root-relative**.
+- **ShishyaExchange** read → `200`. **FeedbackUnanswered** write → `201`, twice,
+  including Devanagari. Both tables execute for the first time since 13 July.
+- public pandit projection leaks **none** of bankAccountNumber / bankIfsc /
+  aadhaarNumber / panNumber / upiId / bankAccountName.
+- all four admin endpoints `401`; admin cancel `401` not `400`.
+- **cold-reopen PASSES**: session survives, lands `/home`, greets the user, nav
+  intact, zero console errors.
+
+**🔴 THE ONE FAILURE — GET /pandits is auth-gated, and DRIFT-A was masking it**
+
+`app.ts:246` allow-lists exactly ONE public pandit read:
+`PUBLIC_PANDIT_READS = { /api/v1/pandits/:id }`. The blanket preHandler then
+applies `authenticate + roleGuard("PANDIT")` to everything else under
+`/pandits*`. So:
+
+| route | its own JSDoc | live |
+|---|---|---|
+| `GET /pandits` | *"Public list with search + filter"* | **401** |
+| `GET /pandits/:id/reviews` | *"Public list of reviews"* | **401** |
+| `GET /pandits/:id` | public | ✅ allow-listed |
+
+**A customer cannot see any pandit list — and neither can a logged-in customer,**
+because the guard demands the PANDIT role. Only a pandit can browse pandits.
+
+**Not caused by the merge.** `89d7eab` (20 July, *"scoped public read for GET
+/pandits/:id only"*) introduced it. DRIFT-A hid it for nine days: the URL 404'd,
+so nobody saw the 401 behind it. **Fixing the prefix moved the failure from
+"wrong URL" to "right URL, refused" — and the screen looks identical either
+way.** This is the unlocked-gate class exactly: closing one break exposes the
+next, and the empty-state copy ("No verified pandits yet / Run database seed")
+is equally convincing for both causes.
+
+**REPORT-ONLY** — auth/identity is Isj's ruling under the standing boundary, and
+the fix is a deliberate security decision (widen the allow-list to the list and
+reviews routes, or make the customer app authenticate), not a wiring repair.
