@@ -99,6 +99,28 @@ export function ServicesTab({
                                     because no pandit had completed a verification.
                                     The badge above still says which pujas ops have watched. The
                                     customer decides. */}
+                                {/* THE SAMPLE, LISTENABLE IN BOTH STATES.
+                                    Same button either way — the ASYMMETRY is who has
+                                    vouched, not whether it can be heard. A verified puja
+                                    means ops watched it; an unverified one means only the
+                                    pandit uploaded it. If the customer is trusted to
+                                    choose, he needs the thing to judge by.
+                                    UPLOAD-provider samples are not viewable yet — we do not
+                                    hand out a bare file URL. */}
+                                {service.sampleViewable ? (
+                                    <a
+                                        href={`https://www.youtube.com/watch?v=${service.sampleVideoId}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="mb-3 flex items-center gap-2 text-sm font-bold text-orange-700 hover:underline"
+                                    >
+                                        ▶ {service.poojaVerified
+                                            ? "सत्यापित वीडियो सुनिए"
+                                            : "पंडित जी का वीडियो ख़ुद सुनिए"}
+                                    </a>
+                                ) : (
+                                    <p className="mb-3 text-xs text-gray-400">वीडियो अभी उपलब्ध नहीं</p>
+                                )}
                                 {!service.poojaVerified && (
                                     <p className="mb-3 text-xs text-gray-600 leading-snug bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
                                         इस पूजा का वीडियो अभी हमने नहीं देखा — आप ख़ुद सुनकर तय कीजिए।

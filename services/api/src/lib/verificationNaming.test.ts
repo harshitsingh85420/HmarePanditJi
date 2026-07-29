@@ -54,11 +54,16 @@ assert.ok(
 
 // ── 2. the customer-visible projection CARRIES the per-puja state ──
 const CTRL = read("services/api/src/controllers/pandit.controller.ts");
+// SUPERSEDED with the gate: this required the join to be FILTERED to APPROVED.
+// Under the 2026-07-29 ruling an unverified sample must still be listenable, so
+// the join now returns every version (ordered desc) and APPROVED is derived.
+// What it must still do is SELECT the status, or the badge cannot be computed.
 assert.ok(
-  /poojaVerifications:\s*\{[\s\S]{0,120}status:\s*"APPROVED"/.test(CTRL),
-  "the public pandit projection must select APPROVED pooja verifications — it is not sensitive, " +
-    "it IS the trust claim, and without it the customer cannot be told before he commits",
+  /poojaVerifications:\s*\{[\s\S]{0,900}status:\s*true/.test(CTRL),
+  "the public projection must select the verification STATUS — without it neither the badge nor " +
+    "verifiedPoojaTypes can be derived, and the customer is neither blocked nor informed",
 );
+
 // The capture must span the WHOLE block. An earlier version used
 // `\{([\s\S]{0,200}?)\}` — non-greedy to the FIRST `}`, which closes the
 // inner `where:` and never reaches `select:`. Adding rejectionReason to the
@@ -68,41 +73,20 @@ assert.ok(
 // the two `: undefined` drops added below, whose windows contain no
 // APPROVED filter — the guard then failed on its own correct code. Sixth
 // instance of a matcher that cannot see its own subject.
-const approvedOnly = [...CTRL.matchAll(/poojaVerifications:\s*\{/g)].map((m) => [
-  m[0],
-  CTRL.slice(m.index ?? 0, (m.index ?? 0) + 260),
-]);
-assert.ok(approvedOnly.length >= 2, `expected the join on BOTH list and detail, found ${approvedOnly.length}`);
-for (const m of approvedOnly) {
+// SUPERSEDED with the gate. This looped every select block asserting it was
+// FILTERED to APPROVED — correct while सत्यापन was a gate, wrong now that an
+// unverified sample must remain listenable. What still matters is that the
+// block leaks no private review field, which the videoUrl/publicUrl checks
+// below now cover directly.
+const joinBlocks = [...CTRL.matchAll(/poojaVerifications:\s*\{/g)].map((m) =>
+  CTRL.slice(m.index ?? 0, (m.index ?? 0) + 900),
+);
+assert.ok(joinBlocks.length >= 2, `expected the join on BOTH list and detail, found ${joinBlocks.length}`);
+for (const b of joinBlocks) {
   assert.ok(
-    /status:\s*"APPROVED"/.test(m[1]),
-    "a pooja-verification select is not filtered to APPROVED — a PENDING or REJECTED row would " +
-      "be published as a verification claim",
-  );
-  assert.ok(
-    !/videoUrl|publicUrl|rejectionReason|reviewedById|consentAt/.test(m[1]),
-    "the public join must expose ONLY poojaType. A rejection reason or a raw video URL is not a " +
-      "trust claim, it is the pandit's private review record.",
-  );
-}
-// ── the RAW relation must never reach the wire ────────────────
-// Both responses are built with a spread (`...p` / `...pandit`), so the
-// selected relation lands in the payload unless it is explicitly dropped.
-// It is derived-only. This matters more than it looks: today NOTHING is
-// APPROVED, so a guest sees `poojaVerifications: []` — and an EMPTY ARRAY
-// CANNOT PROVE ITS ELEMENT SHAPE. A live wire check would have looked
-// clean while a widened `select` sat undetected behind it, ready to ship
-// rejectionReason to strangers the day the first puja is approved.
-// Dropping the array removes the question instead of guarding it.
-for (const spread of ["poojaVerifications: undefined"]) {
-  const hits = CTRL.split(spread).length - 1;
-  assert.strictEqual(
-    hits,
-    2,
-    `the raw poojaVerifications relation must be explicitly dropped from BOTH the list and 
-     the detail response (found ${hits} of 2). Both are built with a spread, so a selected 
-     relation ships by default — and an empty array on the wire proves nothing about what 
-     it will contain once a row exists.`,
+    !/rejectionReason|reviewedById|reviewedAt|consentAt/.test(b),
+    "the public join exposes a private review field. A rejection reason or a reviewer id is not a " +
+      "trust claim, it is the pandit's review record.",
   );
 }
 
@@ -171,6 +155,60 @@ assert.ok(
   /आप ख़ुद सुनकर तय कीजिए/.test(TAB),
   "the unverified line must invite the customer to judge for himself, not warn him off — he is " +
     "being trusted with the decision",
+);
+
+// ── THE SAMPLE VIDEO: what may reach a stranger ───────────────
+// Isj ruling 2026-07-29: expose YouTube videoId + thumbnailUrl so a customer
+// can judge for himself. NEVER videoUrl, NEVER publicUrl.
+//   · videoId is all an embed needs; the raw URL adds nothing but a leak.
+//   · publicUrl is a BARE FILE URL with no unlisting semantics — UPLOAD rows
+//     (the WhatsApp path) expose NO media identifier at all until storage is
+//     signed/expiring. They read as "sample not viewable yet".
+// NO ESCAPES. The previous check built its pattern with `new RegExp(f +
+// "\s*:\s*true")` — and inside a double-quoted JS string `\s` is just `s`,
+// so the pattern was `publicUrls*:s*true` and could NEVER match. Adding
+// publicUrl to the select did not trip it. Seventh instance of a matcher
+// unable to see its own subject, and on the leak check of all places.
+// Whitespace-strip and use plain substrings: nothing left to mis-escape.
+const ctrlTight = CTRL.replace(/\s+/g, "");
+for (const forbidden of ["videoUrl", "publicUrl"]) {
+  assert.ok(
+    !ctrlTight.includes(forbidden + ":true"),
+    `the customer-facing projection selects "${forbidden}". videoUrl leaks the raw link and ` +
+      `publicUrl is a bare file URL with no unlisting semantics — neither is needed to play a ` +
+      `sample, and neither can be un-shared once a stranger has it.`,
+  );
+}
+assert.ok(
+  /videoProvider === "YOUTUBE"/.test(CTRL),
+  "the sample must be gated on videoProvider === YOUTUBE — an UPLOAD row must expose no media " +
+    "identifier at all",
+);
+assert.ok(
+  /sampleVideoId: youtube \? /.test(CTRL) && /sampleViewable: youtube/.test(CTRL),
+  "the sample fields must be null for a non-YouTube provider, not merely unused by the client",
+);
+// listenable in BOTH states — the badge says who vouched, not whether it plays
+assert.ok(
+  !/status:\s*"APPROVED"/.test(CTRL.slice(CTRL.indexOf("poojaVerifications:"), CTRL.indexOf("poojaVerifications:") + 400)),
+  "the join filters to APPROVED again — an unverified sample must still be listenable, or the " +
+    "customer is asked to choose with nothing to judge by",
+);
+
+// ── CONSENT IS ONLY CONSENT IF HE KNOWS ───────────────────────
+// The pandit pastes an "unlisted" link and would reasonably assume only ops
+// watch it. Every visitor to his page now can. He must be told BEFORE he
+// submits, on the screen that asks — not in a policy page.
+const ADD = read("apps/pandit/src/app/(dashboard-group)/my-poojas/add/page.tsx");
+assert.ok(
+  /यह वीडियो आपके पन्ने पर यजमानों को दिखेगा/.test(ADD),
+  "the video-upload screen must state plainly that the sample is shown to यजमान on his page. " +
+    "He is consenting to publication, not just to review.",
+);
+assert.ok(
+  /सहमति/.test(ADD) && /यजमानों को दिखाने के लिए/.test(ADD),
+  "the consent CHECKBOX must name display-to-customers, not only सत्यापन. Consenting to a review " +
+    "is not consenting to publication.",
 );
 
 console.log(

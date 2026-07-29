@@ -553,6 +553,15 @@ function StepVideo({ d, set }: { d: Draft; set: (p: Partial<Draft>) => void }) {
 
       <Card className="bg-card flex flex-col gap-2.5">
         <span className="text-[18px] font-hindi text-softgrey font-bold">यूट्यूब लिंक (टाइप कीजिए — यह बोलकर नहीं भरा जाता)</span>
+              {/* CONSENT IS ONLY CONSENT IF HE KNOWS. He pastes an "unlisted"
+                  link and would reasonably assume only ops watch it. Under the
+                  2026-07-29 ruling सत्यापन INFORMS rather than gates, so the
+                  sample is shown to every visitor of his page — in BOTH states.
+                  He is told here, before he submits, not in a policy page. */}
+              <span className="text-[15px] font-hindi text-temple-700 leading-[1.45] bg-saffron-50 border border-saffron-200 rounded-[10px] px-3 py-2">
+                यह वीडियो आपके पन्ने पर यजमानों को दिखेगा — जाँच पूरी होने से पहले भी।
+                <span className="block text-softgrey mt-0.5">इसीलिए यूट्यूब पर इसे “unlisted” रखिए, “private” नहीं।</span>
+              </span>
         <input value={d.videoUrl} onChange={(e) => set({ videoUrl: e.target.value })} inputMode="url" placeholder="https://youtu.be/…"
           className="h-[56px] px-4 rounded-field border-2 border-saffron-200 text-[18px] font-hindi bg-card" />
       </Card>
@@ -591,7 +600,7 @@ function StepVideo({ d, set }: { d: Draft; set: (p: Partial<Draft>) => void }) {
       <button onClick={() => set({ consent: !d.consent })} aria-pressed={d.consent}
         className="w-full min-h-[56px] flex items-center gap-3 px-4 py-3 rounded-field border-2 border-saffron-200 bg-card active:scale-[0.99] transition-transform">
         <span className={`w-8 h-8 shrink-0 rounded-[10px] border-2 flex items-center justify-center text-[20px] ${d.consent ? "bg-leaf-500 border-leaf-500 text-white" : "border-saffron-200"}`}>{d.consent ? "✓" : ""}</span>
-        <span className="text-[18px] font-hindi font-semibold text-temple-700 text-left leading-[1.4]">यह वीडियो मेरा है, सत्यापन के लिए सहमति देता हूँ</span>
+        <span className="text-[18px] font-hindi font-semibold text-temple-700 text-left leading-[1.4]">यह वीडियो मेरा है — जाँच के लिए और अपने पन्ने पर यजमानों को दिखाने के लिए सहमति देता हूँ</span>
       </button>
     </>
   );

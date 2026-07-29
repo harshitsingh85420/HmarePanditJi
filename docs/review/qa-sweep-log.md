@@ -2629,3 +2629,71 @@ carry the same treatment, with the date and reason in place.
 **A superseded ruling that vanishes from the tree looks like a bug nobody
 reasoned about.** Same handling as `public-pandit-access` when the public-read
 scope was widened.
+
+---
+
+## 2026-07-29 — THE SAMPLE IS LISTENABLE, AND THE PANDIT IS TOLD
+
+**YouTube only.** The customer projection now carries `sampleVideoId` +
+`sampleThumbnailUrl`, derived from `videoId`/`thumbnailUrl` and **gated on
+`videoProvider === "YOUTUBE"`**. `videoUrl` and `publicUrl` are **never
+selected** — the videoId is all an embed needs, and the raw URL adds only a
+leak. **UPLOAD rows expose NO media identifier at all** and read as
+*"वीडियो अभी उपलब्ध नहीं"*; `publicUrl` is a bare file URL with no unlisting
+semantics, so it stays unexposed until storage is signed/expiring.
+
+**Listenable in BOTH states** — the join no longer filters to `APPROVED`. Same
+button, different label: *"सत्यापित वीडियो सुनिए"* vs *"पंडित जी का वीडियो ख़ुद
+सुनिए"*. **The asymmetry is who has vouched, not whether it can be heard.** If
+the customer is trusted to choose, he needs the thing to judge by.
+
+### CONSENT IS ONLY CONSENT IF HE KNOWS
+
+The pandit pastes an *unlisted* link and would reasonably assume only ops watch
+it. The old checkbox said *"सत्यापन के लिए सहमति देता हूँ"* — **consent to a
+REVIEW, not to publication.** Both now say what actually happens, on the screen
+that asks, before he submits:
+
+    यह वीडियो आपके पन्ने पर यजमानों को दिखेगा — जाँच पूरी होने से पहले भी।
+    इसीलिए यूट्यूब पर इसे "unlisted" रखिए, "private" नहीं।
+
+    ☑ यह वीडियो मेरा है — जाँच के लिए और अपने पन्ने पर यजमानों को दिखाने के लिए सहमति देता हूँ
+
+One surface asks for the video (`my-poojas/add`, step 4) and it already told him
+*"परिवार यही देखकर आपको चुनेंगे"* in the narration — the gap was that the
+CHECKBOX, the thing he legally agrees to, named only सत्यापन.
+
+### 🔴 SEVENTH MATCHER-BLINDNESS — and it was on the LEAK CHECK
+
+The first version built its pattern as `new RegExp(f + "\s*:\s*true")`. Inside
+a double-quoted JS string **`\s` is just `s`**, so the pattern was
+`publicUrls*:s*true` and **could never match**. Adding `publicUrl: true` to the
+public select did **not** trip the guard.
+
+Of all seven instances this is the worst placed: a leak check that cannot see a
+leak. Rebuilt with **no escapes at all** — whitespace-stripped source plus a
+plain substring — so there is nothing left to mis-escape. Both directions now
+proven.
+
+**The pattern across all seven is now unmistakable: every one was an escaping or
+windowing subtlety in a matcher, never a mistake about the rule.** The rules
+have been right; the instruments kept lying. That is why proof-to-fail is not
+optional — it is the only thing that has ever caught these.
+
+### ROW COUNT — cannot be read, and I will not guess
+
+**UPLOAD vs YOUTUBE counts require DB access I do not have**; the admin queue is
+401-gated. What the code says: `videoProvider` defaults to `YOUTUBE`, the
+WhatsApp fallback path submits `UPLOAD` with a `WHATSAPP_MARKER` placeholder
+instead of a URL, and every other submission is a YouTube link. **Given no pandit
+has ever completed a verification, the expected count is 0 and 0** — but that is
+inference, not a reading. Query to run:
+`SELECT "videoProvider", count(*) FROM "PoojaVerification" GROUP BY 1;`
+
+### PILOT-DAY FRAMING (Isj note)
+
+On day one **every** puja is unverified, so the unverified line is the **NORMAL
+STATE, not the exception.** It reads as *जाँच बाक़ी* — "the check is pending" —
+and never as a warning about the pandit: the identity badge sits separately and
+says his पहचान IS verified. The copy invites (*"आप ख़ुद सुनकर तय कीजिए"*), and
+now there is something to actually listen to.

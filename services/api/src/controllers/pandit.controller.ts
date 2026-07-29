@@ -24,9 +24,43 @@ interface PujaServiceFilter {
     dakshinaAmount?: { gte?: number; lte?: number };
 }
 
+/**
+ * The customer-safe view of a pooja sample.
+ *
+ * ONLY the latest version per poojaType counts (the join is ordered version
+ * desc). YOUTUBE exposes videoId — an embed needs nothing more, and the raw
+ * videoUrl would add nothing but a leak. UPLOAD exposes NOTHING: publicUrl is
+ * a bare file URL with no unlisting semantics, so those rows read as
+ * "sample not viewable yet" until the storage is signed/expiring.
+ */
+type SafeVerification = {
+  poojaType: string;
+  status: string;
+  videoProvider: string;
+  videoId: string | null;
+  thumbnailUrl: string | null;
+};
+function sampleFor(vs: SafeVerification[] | undefined, pujaType: string) {
+  const v = (vs ?? []).find((x) => x.poojaType === pujaType);
+  const youtube = v?.videoProvider === "YOUTUBE" && !!v.videoId;
+  return {
+    poojaVerified: v?.status === "APPROVED",
+    // Listenable in BOTH states — the badge says who vouched, not whether it
+    // can be heard.
+    sampleVideoId: youtube ? v!.videoId : null,
+    sampleThumbnailUrl: youtube ? v!.thumbnailUrl : null,
+    sampleViewable: youtube,
+  };
+}
+
 interface RawPandit {
     id: string;
-    user: { id: string; name: string | null; phone: string | null };
+    // PHANTOM REMOVED: the public list select deliberately OMITS phone
+    // ("a directory of every pandit's personal number is not something a
+    // search result should hand out"). Declaring it here made a read of a
+    // field the query never returns typecheck. tsc caught it the moment the
+    // select changed — which is why these are deleted, not fixed.
+    user: { id: string; name: string | null };
     location: string | null;
     rating: number;
     totalReviews: number;
@@ -45,7 +79,7 @@ interface RawPandit {
     completedBookings: number;
     // PER-PUJA सत्यापन — the OTHER verification, and the one the booking
     // gate actually reads (booking.service.ts:116-125).
-    poojaVerifications?: Array<{ poojaType: string }>;
+    poojaVerifications?: SafeVerification[];
     pujaServices: Array<{
         pujaType: string;
         dakshinaAmount: number | null;
@@ -208,8 +242,21 @@ export async function getPandits(request: FastifyRequest, reply: FastifyReply) {
                 // appeared on NO customer surface (cgrep over apps/web: 0 hits).
                 // Not sensitive — it IS the trust claim.
                 poojaVerifications: {
-                    where: { status: "APPROVED" },
-                    select: { poojaType: true },
+                    // NOT filtered to APPROVED any more: under the 2026-07-29 ruling
+                    // सत्यापन INFORMS, so an unverified sample is still listenable —
+                    // the difference is who has vouched, not whether it can be heard.
+                    // videoUrl and publicUrl are NEVER selected. For YOUTUBE the
+                    // videoId is all an embed needs; for UPLOAD, publicUrl is a bare
+                    // file URL with no unlisting semantics, so those rows expose NO
+                    // media identifier at all until it is signed/expiring.
+                    select: {
+                        poojaType: true,
+                        status: true,
+                        videoProvider: true,
+                        videoId: true,
+                        thumbnailUrl: true,
+                    },
+                    orderBy: { version: "desc" },
                 },
             },
             orderBy,
@@ -239,15 +286,15 @@ export async function getPandits(request: FastifyRequest, reply: FastifyReply) {
             // PROVEN its element shape on the wire anyway.
             poojaVerifications: undefined,
             identityVerified: p.verificationStatus === "VERIFIED",
-            verifiedPoojaTypes: (p.poojaVerifications ?? []).map((v: { poojaType: string }) => v.poojaType),
+            verifiedPoojaTypes: (p.poojaVerifications ?? [])
+                .filter((v: { status: string }) => v.status === "APPROVED")
+                .map((v: { poojaType: string }) => v.poojaType),
             isOnline: p.isOnline,
             // Each service carries its OWN verification, so a card can mark the
             // unbookable ones at the point of CHOICE instead of at submit.
             pujaServices: (p.pujaServices ?? []).map((s) => ({
                 ...s,
-                poojaVerified: (p.poojaVerifications ?? []).some(
-                    (v: { poojaType: string }) => v.poojaType === s.pujaType,
-                ),
+                ...sampleFor(p.poojaVerifications as any, s.pujaType),
             })),
         }));
 
@@ -371,8 +418,21 @@ export async function getPanditProfileById(request: FastifyRequest, reply: Fasti
                 // appeared on NO customer surface (cgrep over apps/web: 0 hits).
                 // Not sensitive — it IS the trust claim.
                 poojaVerifications: {
-                    where: { status: "APPROVED" },
-                    select: { poojaType: true },
+                    // NOT filtered to APPROVED any more: under the 2026-07-29 ruling
+                    // सत्यापन INFORMS, so an unverified sample is still listenable —
+                    // the difference is who has vouched, not whether it can be heard.
+                    // videoUrl and publicUrl are NEVER selected. For YOUTUBE the
+                    // videoId is all an embed needs; for UPLOAD, publicUrl is a bare
+                    // file URL with no unlisting semantics, so those rows expose NO
+                    // media identifier at all until it is signed/expiring.
+                    select: {
+                        poojaType: true,
+                        status: true,
+                        videoProvider: true,
+                        videoId: true,
+                        thumbnailUrl: true,
+                    },
+                    orderBy: { version: "desc" },
                 },
                 // Relations are allow-listed too. Left unnarrowed they return
                 // every scalar of their own model, so the "new column is
@@ -441,9 +501,9 @@ export async function getPanditProfileById(request: FastifyRequest, reply: Fasti
         // THE TWO VERIFICATIONS, NAMED (PAGE 16). `verificationStatus` is
         // IDENTITY; per-puja सत्यापन is what the booking gate reads. A surface
         // that renders one tick for both is the collapse the ruling forbids.
-        const verifiedPoojaTypes = (pandit.poojaVerifications ?? []).map(
-            (v: { poojaType: string }) => v.poojaType,
-        );
+        const verifiedPoojaTypes = (pandit.poojaVerifications ?? [])
+            .filter((v: { status: string }) => v.status === "APPROVED")
+            .map((v: { poojaType: string }) => v.poojaType);
         const responseData = {
             ...pandit,
             id: pandit.user.id,
@@ -457,7 +517,7 @@ export async function getPanditProfileById(request: FastifyRequest, reply: Fasti
             verifiedPoojaTypes,
             pujaServices: (pandit.pujaServices ?? []).map((s: { pujaType: string } & Record<string, unknown>) => ({
                 ...s,
-                poojaVerified: verifiedPoojaTypes.includes(s.pujaType),
+                ...sampleFor(pandit.poojaVerifications as any, s.pujaType),
             })),
             reviewSummary,
         };
