@@ -12,7 +12,7 @@ import { logger } from "@/utils/logger";
 // route produced https://<api-host>/pandits -> 404. The 308 shim rescues only
 // /auth/* /pandit/* /pandits/* /voice/* — not /bookings, /customers, /muhurat,
 // /reviews, and not bare /pandits. resolveApiBase owns the prefix.
-import { resolveApiBase } from "@hmarepanditji/utils";
+import { resolveApiBase, CUSTOMER_TOKEN_KEY } from "@hmarepanditji/utils";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -94,10 +94,49 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
+      // ── THE SESSION MUST SURVIVE A RELOAD (Isj ruling, 2026-07-29) ──────
+      //
+      // This used to bootstrap on an HttpOnly cookie:
+      //     fetch(`${API_BASE}/auth/me`, { credentials: "include" })
+      // and, when that succeeded, set the USER and never the TOKEN. Three
+      // things were wrong with it, each fatal on its own:
+      //
+      //   1. `setAccessToken` was called ONLY inside login(), so on any reload,
+      //      deep link or fresh navigation accessToken was null forever.
+      //   2. There was no cookie to send. The app is on vercel.app and the API
+      //      on onrender.com, so an API-set cookie is third-party and blocked.
+      //      `document.cookie` on the web origin was empty. Verified live.
+      //   3. The API does not read cookies anyway. Verified live:
+      //        /auth/me + credentials:"include" → 401 "Missing or invalid
+      //                                            Authorization header"
+      //        /auth/me + Authorization: Bearer  → 200
+      //      The comment described a mechanism the server never implemented.
+      //
+      // Every customer screen gates on `if (!accessToken) return;` — silent, no
+      // retry — so the whole authenticated app rendered its EMPTY STATE. The
+      // customer was told he had no bookings, in warm Hindi, while owning one.
+      //
+      // NOTHING ABOUT AUTH SEMANTICS CHANGES HERE. Same token the login already
+      // stores, same header the server already requires, read on boot instead
+      // of only inside login(). No new grant, no relaxed validation.
+      //
+      // CUSTOMER_TOKEN_KEY, not the literal "hpj_token": login/page.tsx:141
+      // hardcodes the string, which is how a writer and a reader drift apart
+      // without any guard noticing. One constant, imported by both.
       try {
-        // Browser automatically sends hpj_token HttpOnly cookie
+        const stored = localStorage.getItem(CUSTOMER_TOKEN_KEY);
+        if (!stored) {
+          setLoading(false);
+          return;
+        }
+
+        // Optimistic: the screens may render while /auth/me validates. A token
+        // that turns out to be bad is cleared below, which is strictly better
+        // than the previous behaviour of never having one at all.
+        setAccessToken(stored);
+
         const res = await fetch(`${API_BASE}/auth/me`, {
-          credentials: "include", // CRITICAL: sends cookies
+          headers: { Authorization: `Bearer ${stored}` },
           signal: AbortSignal.timeout(8000),
         });
 
@@ -107,9 +146,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           if (me) {
             setUserState(me);
           }
+        } else if (res.status === 401) {
+          // EXPIRED OR REVOKED — drop it, so the app shows a signed-out state
+          // rather than pretending to hold a session it cannot use.
+          localStorage.removeItem(CUSTOMER_TOKEN_KEY);
+          setAccessToken(null);
         }
+        // Any other status (5xx, timeout) leaves the token in place: a server
+        // wobble must not log the customer out.
       } catch (error) {
-        // User not logged in or network error
+        // Network error — keep the token, the screens will retry on their own.
         logger.debug("Auth bootstrap failed:", error);
       } finally {
         setLoading(false);
@@ -121,7 +167,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // ── Login ─────────────────────────────────────────────────────────────────
 
   const login = useCallback((_token: string, newUser: AuthUser) => {
-    // Backend sets HttpOnly cookie automatically
+    // PERSIST HERE, not only in the caller. The comment this replaces said
+    // "Backend sets HttpOnly cookie automatically" — it does not, and the
+    // consequence was that only login/page.tsx wrote the token, using a
+    // hardcoded "hpj_token" string. One module now owns both the write and the
+    // boot read, through one constant.
+    try {
+      localStorage.setItem(CUSTOMER_TOKEN_KEY, _token);
+    } catch {
+      // private mode / storage disabled — the in-memory session still works
+      // for this page-load, which is what the old code gave everyone always.
+    }
     setAccessToken(_token);
     setUserState(newUser);
   }, []);
@@ -138,6 +194,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       console.error("Logout failed:", error);
     } finally {
+      // Clear the STORED token too, or the next boot restores the session the
+      // customer just ended — the exact mirror of the bug this file fixes.
+      try {
+        localStorage.removeItem(CUSTOMER_TOKEN_KEY);
+      } catch {
+        /* storage disabled — in-memory clear below is still authoritative */
+      }
       setAccessToken(null);
       setUserState(null);
     }

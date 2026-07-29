@@ -7,7 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 // route produced https://<api-host>/pandits -> 404. The 308 shim rescues only
 // /auth/* /pandit/* /pandits/* /voice/* — not /bookings, /customers, /muhurat,
 // /reviews, and not bare /pandits. resolveApiBase owns the prefix.
-import { resolveApiBase } from "@hmarepanditji/utils";
+import { resolveApiBase , CUSTOMER_TOKEN_KEY } from "@hmarepanditji/utils";
 
 // Step types
 type Step = "phone" | "otp" | "name";
@@ -138,7 +138,10 @@ function LoginPageContent() {
       }
 
       const { token, user } = data.data;
-      localStorage.setItem("hpj_token", token);
+      // CUSTOMER_TOKEN_KEY, not a literal. This line hardcoded "hpj_token" while
+      // the auth context read a cookie — writer and reader disagreeing about
+      // the MECHANISM, which no key-string guard could see.
+      localStorage.setItem(CUSTOMER_TOKEN_KEY, token);
       localStorage.setItem("hpj_user", JSON.stringify(user));
 
       if (user.isNewUser) {

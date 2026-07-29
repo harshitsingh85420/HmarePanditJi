@@ -71,6 +71,23 @@ export default function MyBookingsPage() {
             <div className="mt-6 flex flex-col gap-4">
                 {loading ? (
                     <div className="text-center py-10 text-gray-500 animate-pulse">Loading bookings...</div>
+                ) : !accessToken ? (
+                    /* NO SESSION ≠ NO DATA (Isj ruling, 2026-07-29).
+                       `fetchBookings` returns early when accessToken is missing, so
+                       `bookings` stays [] and the branch below used to fire — telling a
+                       customer who owns a booking that he has none, in warm Hindi, with a
+                       diya. The two truths now render differently, and this branch names
+                       the real one. */
+                    <div className="text-center py-20 bg-white rounded-xl border border-gray-100 flex flex-col items-center">
+                        <div className="text-5xl mb-4">🔒</div>
+                        <h3 className="text-xl font-bold text-gray-800 mb-2">बुकिंग देखने के लिए लॉगिन कीजिए</h3>
+                        <p className="text-gray-500 mb-6 max-w-sm">
+                            आपका सेशन नहीं मिला — इसका मतलब यह नहीं कि आपकी कोई बुकिंग नहीं है।
+                        </p>
+                        <Link href="/login" className="bg-orange-600 text-white px-8 py-3 rounded-full font-medium inline-block hover:bg-orange-700 transition">
+                            लॉगिन कीजिए →
+                        </Link>
+                    </div>
                 ) : bookings.length > 0 ? (
                     bookings.map((b: any) => <BookingCard key={b.id} booking={b} />)
                 ) : (

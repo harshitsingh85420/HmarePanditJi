@@ -171,7 +171,13 @@ export {
 } from './validation';
 
 // Auth Context
-export * from './auth-context';
+// REMOVED 2026-07-29 — auth-context.tsx had ZERO importers across every app
+// (proven with a positive control: the only symbols any app imports from this
+// package are ADMIN_TOKEN_KEY, CUSTOMER_TOKEN_KEY and resolveApiBase). It was a
+// THIRD auth implementation, and its existence is what made this barrel require
+// React — the reason packages/utils/code-only.ts and api-base.ts exist as subpath
+// shims for bare node+tsx guards. Deleted rather than corrected: the
+// unreachability pattern, so nothing can import the wrong one by accident.
 
 // Token constants
 export * from './token-constants';

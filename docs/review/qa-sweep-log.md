@@ -3186,3 +3186,106 @@ that would have changed nothing. The sufficient-SHA standard is met by
 `deployed SHA == HEAD` **OR** `diff(deployed..HEAD, <that app's tree>) == empty`.
 Admin's f0e7565 was the same case (zero commits touching `apps/admin/`), and it
 rebuilt to 902226c anyway.
+
+---
+
+# 🔴 THE EMPTY-STATE LAW, IN ITS MOST EXPENSIVE FORM
+
+> **"You haven't made any bookings yet" is indistinguishable from "your session
+> did not load", and only one of them is true.**
+
+`apps/web`'s auth context bootstrapped on an HttpOnly cookie and, on success,
+set the USER and never the TOKEN. `setAccessToken` was called only inside
+`login()`. So after any reload, deep link or fresh navigation, `accessToken` was
+`null` — and every customer screen gates on `if (!accessToken) return;`. Silent.
+No error, no retry. `loading` goes false and the **empty state** renders.
+
+Three independent reasons it could never have worked, each fatal alone:
+1. the token was never restored on boot;
+2. there was no cookie — the app is on `vercel.app`, the API on `onrender.com`,
+   so an API-set cookie is third-party and blocked (`document.cookie` was empty);
+3. the API reads an Authorization **header** and does not accept cookies at all.
+   Verified live: `/auth/me` + `credentials:"include"` → **401 "Missing or
+   invalid Authorization header"**; the same call + Bearer → **200**.
+
+## THE SCOPE IS NOT ONE SCREEN
+
+**Every authenticated customer screen dies on reload** — bookings, profile,
+checkout, booking detail, cancel, track. Half the customer app has never worked
+past a page load. Nothing surfaced it in the whole campaign, because **the
+failure wears the empty state's face**: a warm Hindi sentence, a diya, and a
+cheerful "Explore Pandits →".
+
+Same family as the six born-broken screens, and the most expensive member of it.
+The distinguishing fact: **it was found by WALKING, not by any static sweep.**
+Every guard, every typecheck, every contract audit was green throughout — because
+each of them measures whether the code says what it means, and this code said
+exactly what it meant. It just meant something the server does not implement.
+
+## WHY THE EXISTING GUARD PASSED THROUGHOUT
+
+`storage-key.test.ts` asserts the writer and the reader use the same key STRING.
+Both said `'hpj_token'`. They disagreed about the **MECHANISM** — localStorage
+versus cookie — and a string comparison cannot see that. The new guard is
+behavioural, and its revert proof is the point: comment out the boot restore and
+it goes red.
+
+## THE THREE-CONTEXT TANGLE UNDERNEATH
+
+| module | mechanism | reality |
+|---|---|---|
+| `apps/web/app/login/page.tsx` | wrote `localStorage["hpj_token"]` **directly**, hardcoded | the only real writer |
+| `apps/web/src/context/auth-context.tsx` | cookie + `/auth/me` | the only live reader — of a cookie that does not exist |
+| `packages/utils/src/auth-context.tsx` | localStorage, correct | **zero importers.** Dead. |
+
+Isj's ruling named the third one as "what login writes". It is not — login wrote
+the key by hand, through no context at all. Reported before shipping under the
+deletion gate, and the ruling's intent (one mechanism, no importable duplicate)
+was delivered by fixing the live reader and deleting the genuinely dead module.
+
+## 🔴 I CLAIMED ZERO IMPORTERS AND WAS WRONG — tsc caught it
+
+I searched `from "@hmarepanditji/utils"` with **double quotes**.
+`apps/pandit/src/components/LogoutButton.tsx` imports it with **single quotes**.
+The build broke on the deletion.
+
+My positive control was too weak: it proved the search could see *a* file, not
+that it enumerated every *import form*. A positive control has to exercise the
+same dimension the claim depends on — here, quoting style, not file visibility.
+The second attempt controlled properly (a component known to be used returned
+19 importers; the dead one returned 0) and both dead modules are now gone.
+
+> **A positive control must vary the axis the claim rests on.** Proving a search
+> works at all is not proving it works for the shape you are counting.
+
+## THE GUARD I WROTE TO ENFORCE G2 VIOLATED G2
+
+The revert proof Isj ordered is what caught it. The headline assertion read
+`/setAccessToken\(/` — which also matches the `setAccessToken(null)` in the 401
+branch, a few lines below in the same boot body. **Commenting out the restore
+left the guard green: the call that CLEARS the token was being counted as
+evidence that the token is restored.**
+
+The prove-to-fail fixture did not catch it either, because that synthetic body
+happened to contain no setter call at all.
+
+> **A mock cannot prove a matcher fails. Only reverting the real file can.**
+> Prove-to-fail against a fixture tests the pattern against what you imagined;
+> reverting tests it against what exists.
+
+---
+
+# THE DOUBLE ORDER — one line, kept because it is a money fact
+
+Every wizard booking minted **TWO** Razorpay orders against one receipt:
+`POST /bookings` created one inline and returned it, then the wizard called
+`POST /payments/create-order` and minted another whose id overwrote the first on
+the row. The first stayed open at Razorpay forever — never paid, never cancelled,
+never reconciled. Closed by making `createRazorpayOrder` return the existing
+order when the booking has one.
+
+**Historical exposure: none, and the account was not touched to establish that.**
+The double-mint fires only on the wizard path, and production holds exactly ONE
+booking whose single order was minted by a direct `create-order` call. No
+wizard booking has ever completed in production — the customer-session P0 above
+is why. The defect was latent and is closed before it ever ran at scale.
