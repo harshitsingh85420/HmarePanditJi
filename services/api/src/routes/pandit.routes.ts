@@ -16,6 +16,16 @@ import {
   getPanditReviewsHandler,
   getPanditAvailabilityHandler
 } from "../controllers/pandit.controller";
+// THE CANONICAL STATE-TRANSITION HANDLERS. These are the implementations the
+// pandit app actually calls (registered at app.ts:311-318). The /pandits/*
+// routes below DELEGATE to them instead of carrying second copies — see
+// oneImplementation.test.ts.
+import {
+  acceptBooking,
+  rejectBooking,
+  completeBooking,
+  getPanditEarningsSummary,
+} from "../controllers/auth.controller";
 import { AppError } from "../middleware/errorHandler";
 import {
   redactBookingForPandit,
@@ -448,115 +458,23 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
    * GET /pandits/earnings/summary
    * Get earnings overview, chart data, and per-booking payout list
    */
+  /**
+   * GET /pandits/earnings/summary — DELEGATES to the canonical handler.
+   *
+   * ONE IMPLEMENTATION PER STATE TRANSITION (Isj, 2026-07-29). This route had a
+   * SECOND, independent implementation living here while the pandit app called
+   * the twin registered at app.ts. Both were live and both were reachable by any
+   * authenticated pandit.
+   *
+   * Two money projections over one question. The canonical handler is the one
+   * the pandit app actually reads.
+   *
+   * The param is `:id` because the canonical handler reads `request.params.id`.
+   * The URL shape is unchanged — Fastify param names are internal.
+   */
   fastify.get("/earnings/summary", {
     preHandler: [authenticate, roleGuard("PANDIT")],
-  }, async (request: any, reply: any) => {
-    try {
-      const req = request;
-      const res = reply;
-      const panditId = await getProfileId(req.user!.id);
-      const monthQuery = req.query.month as string;
-      let startOfMonth, endOfMonth;
-
-      const now = new Date();
-      const period = {
-        month: monthQuery ? monthQuery.split("-")[1] : (now.getMonth() + 1).toString(),
-        year: monthQuery ? monthQuery.split("-")[0] : now.getFullYear().toString(),
-        label: "All Time"
-      };
-
-      if (monthQuery && /^\\d{4}-\\d{2}$/.test(monthQuery)) {
-        const [y, m] = monthQuery.split("-").map(Number);
-        startOfMonth = new Date(y, m - 1, 1);
-        endOfMonth = new Date(y, m, 0, 23, 59, 59, 999);
-        const monthLabel = startOfMonth.toLocaleString('hi-IN', { month: 'short' });
-        period.label = `${monthLabel} ${y}`;
-      } else {
-        period.label = "कुल कमाई"; // default
-      }
-
-      const whereClause: any = { panditId, status: "COMPLETED" };
-      if (startOfMonth && endOfMonth) {
-        whereClause.eventDate = { gte: startOfMonth, lte: endOfMonth };
-      }
-
-      const completedBookings = await prisma.booking.findMany({
-        where: whereClause,
-        include: { customer: { select: { name: true } } },
-        orderBy: { eventDate: "desc" }
-      });
-
-      const panditProfile = await prisma.panditProfile.findUnique({
-        where: { userId: req.user!.id },
-        select: { bankName: true, bankAccountNumber: true }
-      });
-
-      const totalEarned = completedBookings.reduce((sum: number, b: { platformTransfersToPandit: number | null }) => sum + (b.platformTransfersToPandit || 0), 0);
-      const totalPaid = completedBookings.filter((b: { payoutStatus: string }) => b.payoutStatus === "COMPLETED").reduce((sum: number, b: { platformTransfersToPandit: number | null }) => sum + (b.platformTransfersToPandit || 0), 0);
-      const totalPending = completedBookings.filter((b: { payoutStatus: string }) => b.payoutStatus !== "COMPLETED").reduce((sum: number, b: { platformTransfersToPandit: number | null }) => sum + (b.platformTransfersToPandit || 0), 0);
-
-      const pendingPayouts = completedBookings.filter((b: { payoutStatus: string }) => b.payoutStatus !== "COMPLETED").map((b: { id: string; eventType: string; eventDate: Date; platformTransfersToPandit: number | null; payoutStatus: string | null }) => ({
-        bookingId: b.id,
-        bookingNumber: `HPJ-${b.id.substring(0, 8).toUpperCase()}`,
-        eventType: b.eventType,
-        eventDate: b.eventDate.toISOString(),
-        amount: b.platformTransfersToPandit || 0,
-        expectedDate: new Date(b.eventDate.getTime() + 24 * 60 * 60 * 1000).toISOString(),
-        status: b.payoutStatus || "PENDING"
-      }));
-
-      // Last 6 months for chart
-      const monthlyTotals = [];
-      for (let i = 5; i >= 0; i--) {
-        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-        const e = new Date(now.getFullYear(), now.getMonth() - i + 1, 0, 23, 59, 59, 999);
-
-        const sum = await prisma.booking.aggregate({
-          where: { panditId, status: "COMPLETED", eventDate: { gte: d, lte: e } },
-          _sum: { platformTransfersToPandit: true }
-        });
-        // short month names in hindi or english based. fallback to en-US since Node ICU may not have full hindi
-        // Let's explicitly hardcode short months in hindi for charting precision if requested.
-        const hiMonths = ["जन", "फर", "मार", "अप्र", "मई", "जून", "जुल", "अग", "सित", "अक्टू", "नवं", "दिसं"];
-        monthlyTotals.push({
-          month: hiMonths[d.getMonth()],
-          total: sum._sum.platformTransfersToPandit || 0
-        });
-      }
-
-      const maskedAcc = panditProfile?.bankAccountNumber ? `••••${panditProfile.bankAccountNumber.slice(-4)}` : "••••0000";
-
-      const data = {
-        period,
-        totalEarned,
-        totalPaid,
-        totalPending,
-        bookingsCount: completedBookings.length,
-        bankAccount: {
-          bankName: panditProfile?.bankName || "SBI", // Fallback to SBI as requested in UI mock
-          maskedAccountNumber: maskedAcc,
-          accountType: "बचत खाता"
-        },
-        monthlyTotals,
-        pendingPayouts,
-        bookingEarnings: completedBookings.map((b: { id: string; eventType: string; eventDate: Date; venueCity: string | null; platformTransfersToPandit: number | null; payoutStatus: string | null; grandTotal: number | null; payoutCompletedAt: Date | null }) => ({
-          bookingId: b.id,
-          bookingNumber: `HPJ-${b.id.substring(0, 8).toUpperCase()}`,
-          eventType: b.eventType,
-          eventDate: b.eventDate.toISOString(),
-          customerCity: b.venueCity || "N/A",
-          grossAmount: b.grandTotal || 0,
-          platformTransfersToPandit: b.platformTransfersToPandit || 0,
-          payoutStatus: b.payoutStatus || "PENDING",
-          payoutDate: b.payoutCompletedAt ? b.payoutCompletedAt.toISOString() : null
-        }))
-      };
-
-      sendSuccess(res, data);
-    } catch (err) {
-      throw err;
-    }
-  });
+  }, getPanditEarningsSummary);
 
   /**
    * GET /pandits/earnings/:bookingId
@@ -874,160 +792,72 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
   /**
    * POST /pandits/bookings/:bookingId/accept
    */
-  fastify.post("/bookings/:bookingId/accept", {
+  /**
+   * POST /pandits/bookings/:id/accept — DELEGATES to the canonical handler.
+   *
+   * ONE IMPLEMENTATION PER STATE TRANSITION (Isj, 2026-07-29). This route had a
+   * SECOND, independent implementation living here while the pandit app called
+   * the twin registered at app.ts. Both were live and both were reachable by any
+   * authenticated pandit.
+   *
+   * This twin hard-coded `status: "PANDIT_REQUESTED"` and so never saw
+   * ACCEPTABLE_DB_STATUSES — the derived set this campaign created precisely to
+   * stop two files disagreeing about which statuses are acceptable.
+   *
+   * The param is `:id` because the canonical handler reads `request.params.id`.
+   * The URL shape is unchanged — Fastify param names are internal.
+   */
+  fastify.post("/bookings/:id/accept", {
     preHandler: [authenticate, roleGuard("PANDIT")],
-  }, async (request: any, reply: any) => {
-    try {
-      const req = request;
-      const res = reply;
-      const panditId = await getProfileId(req.user!.id);
-      const booking = await prisma.booking.findUnique({ where: { id: req.params.bookingId } });
-      if (!booking || booking.panditId !== panditId) {
-        throw new AppError("Invalid booking request", 400);
-      }
-
-      // L1 EXACTLY-ONCE: the status transition IS the lock. Only the FIRST
-      // request whose where-clause still matches PANDIT_REQUESTED flips the
-      // row; concurrent double-taps and retries-after-lost-response update
-      // 0 rows and take the idempotent path — so the customer is never
-      // notified twice and a retry of an already-accepted booking returns
-      // success (not a confusing 400 that makes the pandit think he lost it).
-      const flipped = await prisma.booking.updateMany({
-        where: { id: booking.id, panditId, status: "PANDIT_REQUESTED" },
-        data: { status: "CONFIRMED" },
-      });
-      if (flipped.count === 0) {
-        const cur = await prisma.booking.findUnique({ where: { id: booking.id } });
-        if (cur && cur.panditId === panditId && cur.status === "CONFIRMED") {
-          sendSuccess(res, { success: true, idempotent: true });
-          return;
-        }
-        throw new AppError("Invalid booking request", 400);
-      }
-
-      await prisma.bookingStatusUpdate.create({
-        data: {
-          bookingId: booking.id,
-          fromStatus: "PANDIT_REQUESTED",
-          toStatus: "CONFIRMED",
-          updatedById: req.user!.id,
-          note: "Accepted by Pandit"
-        }
-      });
-
-      const t1 = getNotificationTemplate("BOOKING_CONFIRMED", { id: booking.id.substring(0, 8).toUpperCase(), panditName: "Aapke Pandit", pujaType: booking.eventType, date: booking.eventDate.toISOString().split('T')[0] });
-      await notificationService.notify({ userId: booking.customerId, type: "BOOKING_CONFIRMED", title: t1.title, message: t1.message, smsMessage: t1.smsMessage });
-
-      const t2 = getNotificationTemplate("BOOKING_CONFIRMED_ACK", { id: booking.id.substring(0, 8).toUpperCase(), date: booking.eventDate.toISOString().split('T')[0], city: booking.venueCity, pujaType: booking.eventType });
-      await notificationService.notify({ userId: req.user!.id, type: "BOOKING_CONFIRMED_ACK", title: t2.title, message: t2.message, smsMessage: t2.smsMessage });
-      sendSuccess(res, { success: true });
-    } catch (err) {
-      throw err;
-    }
-  });
+  }, acceptBooking);
 
   /**
    * POST /pandits/bookings/:bookingId/decline
    */
-  fastify.post("/bookings/:bookingId/decline", {
+  /**
+   * POST /pandits/bookings/:id/decline — DELEGATES to the canonical handler.
+   *
+   * ONE IMPLEMENTATION PER STATE TRANSITION (Isj, 2026-07-29). This route had a
+   * SECOND, independent implementation living here while the pandit app called
+   * the twin registered at app.ts. Both were live and both were reachable by any
+   * authenticated pandit.
+   *
+   * BEHAVIOUR CHANGE, DELIBERATE. This twin flipped to CANCELLATION_REQUESTED
+   * while the canonical handler flips to CANCELLED — two terminal states for one
+   * user action, and only the canonical one notifies the customer that the slot
+   * is free. Delegation adopts the canonical behaviour.
+   *
+   * The param is `:id` because the canonical handler reads `request.params.id`.
+   * The URL shape is unchanged — Fastify param names are internal.
+   */
+  fastify.post("/bookings/:id/decline", {
     preHandler: [authenticate, roleGuard("PANDIT")],
-  }, async (request: any, reply: any) => {
-    try {
-      const req = request;
-      const res = reply;
-      const { reason } = req.body;
-      const panditId = await getProfileId(req.user!.id);
-      const booking = await prisma.booking.findUnique({ where: { id: req.params.bookingId } });
-      if (!booking || booking.panditId !== panditId) {
-        throw new AppError("Invalid booking request", 400);
-      }
-
-      // L1 EXACTLY-ONCE: atomic conditional transition (same lock as accept).
-      const flipped = await prisma.booking.updateMany({
-        where: { id: booking.id, panditId, status: "PANDIT_REQUESTED" },
-        data: { status: "CANCELLATION_REQUESTED" },
-      });
-      if (flipped.count === 0) {
-        const cur = await prisma.booking.findUnique({ where: { id: booking.id } });
-        if (cur && cur.panditId === panditId && cur.status === "CANCELLATION_REQUESTED") {
-          sendSuccess(res, { success: true, idempotent: true });
-          return;
-        }
-        throw new AppError("Invalid booking request", 400);
-      }
-
-      await prisma.bookingStatusUpdate.create({
-        data: {
-          bookingId: booking.id,
-          fromStatus: "PANDIT_REQUESTED",
-          toStatus: "CANCELLATION_REQUESTED",
-          updatedById: req.user!.id,
-          note: `Declined by Pandit. Reason: ${reason}`
-        }
-      });
-
-      const t1 = getNotificationTemplate("CANCELLATION_REQUESTED", { id: booking.id.substring(0, 8).toUpperCase(), customerName: "Unknown", reason: reason });
-      console.log(t1.message); // Admin log
-      // We don't notify customer directly for admin cancellation requests in Phase 1
-      sendSuccess(res, { success: true });
-    } catch (err) {
-      throw err;
-    }
-  });
+  }, rejectBooking);
 
   /**
    * POST /pandits/bookings/:bookingId/complete
    */
-  fastify.post("/bookings/:bookingId/complete", {
+  /**
+   * POST /pandits/bookings/:id/complete — DELEGATES to the canonical handler.
+   *
+   * ONE IMPLEMENTATION PER STATE TRANSITION (Isj, 2026-07-29). This route had a
+   * SECOND, independent implementation living here while the pandit app called
+   * the twin registered at app.ts. Both were live and both were reachable by any
+   * authenticated pandit.
+   *
+   * MONEY PATH. This twin flipped the booking to COMPLETED and set payoutStatus
+   * PENDING but NEVER CREATED THE PAYOUT ROW — the only two payout writers in
+   * the API are auth.controller.ts:1408 and the admin panel. It also allowed
+   * completion straight from CONFIRMED with no journeyStep check, so a pandit
+   * could close a puja he never travelled to. The canonical handler requires
+   * journeyStep 3 and creates the single payout inside the same transaction.
+   *
+   * The param is `:id` because the canonical handler reads `request.params.id`.
+   * The URL shape is unchanged — Fastify param names are internal.
+   */
+  fastify.post("/bookings/:id/complete", {
     preHandler: [authenticate, roleGuard("PANDIT")],
-  }, async (request: any, reply: any) => {
-    try {
-      const req = request;
-      const res = reply;
-      const panditId = await getProfileId(req.user!.id);
-      const booking = await prisma.booking.findUnique({ where: { id: req.params.bookingId } });
-      if (!booking || booking.panditId !== panditId) {
-        throw new AppError("Invalid booking", 400);
-      }
-
-      // L1 EXACTLY-ONCE: atomic conditional transition from any completable
-      // state. A double-tap / retry that arrives after the first commit
-      // updates 0 rows → idempotent success (no duplicate PUJA_COMPLETED
-      // notification, no double payout row).
-      const flipped = await prisma.booking.updateMany({
-        where: { id: booking.id, panditId, status: { in: ["PANDIT_ARRIVED", "PUJA_IN_PROGRESS", "CONFIRMED"] } },
-        data: { status: "COMPLETED", payoutStatus: "PENDING", completedAt: new Date() },
-      });
-      if (flipped.count === 0) {
-        const cur = await prisma.booking.findUnique({ where: { id: booking.id } });
-        if (cur && cur.panditId === panditId && cur.status === "COMPLETED") {
-          sendSuccess(res, { success: true, idempotent: true });
-          return;
-        }
-        throw new AppError(`Cannot complete booking from status ${cur?.status}`, 400);
-      }
-
-      await prisma.bookingStatusUpdate.create({
-        data: {
-          bookingId: booking.id,
-          fromStatus: booking.status,
-          toStatus: "COMPLETED",
-          updatedById: req.user!.id,
-          note: "Completed by Pandit"
-        }
-      });
-
-      const t9 = getNotificationTemplate("PUJA_COMPLETED", { id: booking.id.substring(0, 8).toUpperCase() });
-      await notificationService.notify({ userId: booking.customerId, type: "PUJA_COMPLETED", title: t9.title, message: t9.message, smsMessage: t9.smsMessage });
-
-      const t10 = getNotificationTemplate("PUJA_COMPLETED_PANDIT", { id: booking.id.substring(0, 8).toUpperCase(), amount: booking.platformTransfersToPandit });
-      await notificationService.notify({ userId: req.user!.id, type: "PUJA_COMPLETED_PANDIT", title: t10.title, message: t10.message, smsMessage: t10.smsMessage });
-
-      sendSuccess(res, { success: true });
-    } catch (err) {
-      throw err;
-    }
-  });
+  }, completeBooking);
   /**
    * POST /pandits/bookings/:bookingId/start-journey
    */
@@ -1166,6 +996,10 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
         },
         select: {
           id: true, eventType: true, eventDate: true, muhuratTime: true, venueCity: true, status: true,
+          // acceptedAt is selected FOR THE GATE, never rendered: contactVisible
+          // reads it so a booking that was accepted and later cancelled keeps
+          // the yajman's name — he is exactly who the pandit needs to ring.
+          acceptedAt: true,
           customer: { select: { name: true } }
         }
       });
@@ -1211,7 +1045,7 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
       if (currentGroup) blockedDates.push({ ...currentGroup });
 
       sendSuccess(res, {
-        bookings: bookings.map((b: { id: string; eventType: string; eventDate: Date; muhuratTime: string | null; venueCity: string; status: string; customer: { name: string | null } | null }) => ({
+        bookings: bookings.map((b: { id: string; eventType: string; eventDate: Date; muhuratTime: string | null; venueCity: string; status: string; acceptedAt: Date | null; customer: { name: string | null } | null }) => ({
           id: b.id,
           eventType: b.eventType,
           eventDate: b.eventDate.toISOString(),
@@ -1223,7 +1057,7 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
           // showed the yajman's real name on every future booking regardless of
           // state, which is the same disclosure as the detail screen wearing a
           // different shape. City stays: it is what the calendar is FOR.
-          customerName: contactVisible(b.status) ? (b.customer?.name || "Customer") : "यजमान"
+          customerName: contactVisible(b) ? (b.customer?.name || "Customer") : "यजमान"
         })),
         blockedDates: blockedDates.map((b) => ({
           id: b.id,

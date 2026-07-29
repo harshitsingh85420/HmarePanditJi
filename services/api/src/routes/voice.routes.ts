@@ -82,6 +82,38 @@ const TRANSLATE_CACHE_TTL_SECONDS = 30 * 24 * 60 * 60; // 30 days
 
 // ── Routes ────────────────────────────────────────────────────────────────────
 
+// ─────────────────────────────────────────────────────────────
+// EVERY ROUTE THAT SPENDS THE SARVAM KEY IS METERED.
+//
+// /voice/tts and /voice/stt carried `preHandler: [validate(…)]` and nothing
+// else: no auth, no per-caller limit, on endpoints that call a PAID third
+// party. Confirmed live 2026-07-29 — `POST /voice/tts` returned 200 with no
+// token. That is not a disclosure risk, it is a bill, and a Sarvam key has
+// already leaked once on this project.
+//
+// THE SHAPE IS COPIED, NOT INVENTED. app.ts:419 already meters /api/stt this
+// exact way, with the reason written next to it: the परिचय entry flow
+// converses BEFORE login — शिष्य earns the mic on the परिचय screen and the
+// location question is answered by voice — so these MUST accept anonymous
+// callers. Requiring a token here would mute the app before a user can even
+// register.
+//
+// So the narrowest exception is not "no auth", it is OPTIONAL auth with the
+// meter keyed to whoever is calling: per-user once there is a user, per-IP
+// before that. An anonymous abuser gets 30/min from one address; a real
+// pandit mid-registration is unaffected.
+// ─────────────────────────────────────────────────────────────
+const sarvamRouteConfig = {
+    config: {
+        rateLimit: {
+            max: 30,
+            timeWindow: 60000,
+            keyGenerator: (request: FastifyRequest) =>
+                (request as any).user?.id || request.ip || "0.0.0.0",
+        },
+    },
+};
+
 export default async function voiceRoutes(fastify: FastifyInstance, _opts: any) {
     /**
      * GET /voice/prompt/:step
@@ -105,7 +137,7 @@ export default async function voiceRoutes(fastify: FastifyInstance, _opts: any) 
      * Convert arbitrary text to speech (for screen reader / voice button).
      * Master Rule #9: Every Pandit app screen has a voice button.
      */
-    fastify.post("/tts", { preHandler: [validate(ttsSchema)] }, async (request: FastifyRequest, reply: FastifyReply) => {
+    fastify.post("/tts", { ...sarvamRouteConfig, preHandler: [optionalAuth, validate(ttsSchema)] }, async (request: FastifyRequest, reply: FastifyReply) => {
         try {
             const req = request as any;
             const res = reply;
@@ -289,7 +321,7 @@ export default async function voiceRoutes(fastify: FastifyInstance, _opts: any) 
      * POST /voice/stt
      * Convert speech audio to text (Bhashini STT).
      */
-    fastify.post("/stt", { preHandler: [validate(voiceInputSchema)] }, async (request: FastifyRequest, reply: FastifyReply) => {
+    fastify.post("/stt", { ...sarvamRouteConfig, preHandler: [optionalAuth, validate(voiceInputSchema)] }, async (request: FastifyRequest, reply: FastifyReply) => {
         try {
             const req = request as any;
             const res = reply;

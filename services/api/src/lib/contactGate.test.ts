@@ -140,6 +140,44 @@ for (const status of ALL_DB) {
   assert.strictEqual(c.pandit.hourlyRate, 2100, `[${status}] the pandit's rate is public listing data, not identity`);
 }
 
+// ── 1b. ONCE VISIBLE, ALWAYS VISIBLE ─────────────────────────
+// Isj overruled my first reading, which made contact vanish the moment a
+// confirmed booking was cancelled:
+//
+//   "The pandit whose booking just cancelled is precisely the person who needs
+//    to call. Ops holding both numbers means Isj's phone rings instead — that
+//    is the runbook GROWING, not shrinking."
+//
+// `acceptedAt` is the durable record that the booking was once real. A
+// cancellation rewrites `status`; it cannot un-happen the acceptance.
+for (const terminal of ["CANCELLED", "CANCELLATION_REQUESTED", "REFUNDED", "REJECTED"]) {
+  const accepted = { ...fixture(terminal), acceptedAt: new Date("2026-07-29T10:00:00Z") };
+  assert.ok(
+    contactVisible(accepted),
+    `a booking that was ACCEPTED and is now ${terminal} lost its contact details. The pandit whose ` +
+      `booking just cancelled is exactly who needs to ring the yajman — withholding it routes that ` +
+      `call to ops instead, which grows the manual runbook rather than shrinking it.`,
+  );
+  const p = redactBookingForPandit(accepted);
+  assert.strictEqual(p.customer.name, "Ramesh Gupta", `[${terminal}+acceptedAt] name must survive`);
+  assert.strictEqual(p.customer.phone, "+919876500042", `[${terminal}+acceptedAt] phone must survive`);
+  assert.ok(p.venueAddress, `[${terminal}+acceptedAt] the address must survive too — he may be en route`);
+  const c = redactBookingForCustomer(accepted);
+  assert.strictEqual(
+    c.pandit.user.phone, "+919876543210",
+    `[${terminal}+acceptedAt] the MIRROR must hold: the customer keeps the pandit's number too`,
+  );
+}
+// …but a booking that was NEVER accepted and is now cancelled stays hidden —
+// the overrule widened one case, it did not delete the rule.
+const neverAccepted = { ...fixture("CANCELLED"), acceptedAt: null };
+assert.strictEqual(
+  redactBookingForPandit(neverAccepted).customer.phone,
+  null,
+  "a booking cancelled BEFORE it was ever accepted now leaks the phone — `acceptedAt` is the " +
+    "test, not the mere fact of being terminal.",
+);
+
 // ── 2. THE BOTH-VOCABULARIES INVARIANT ───────────────────────
 // redactBookingForPandit reads `status`, and withPanditView REWRITES it. If the
 // two ever run in the other order the gate must still be correct, so the
@@ -201,7 +239,7 @@ const SITES: Array<[string, RegExp, string]> = [
     "GET /pandits/bookings"],
   ["services/api/src/routes/pandit.routes.ts", /sendSuccess\(res, redactManyForPandit\(pendingRequests\)\)/,
     "GET /pandits/pending-requests — pre-CONFIRMED by definition"],
-  ["services/api/src/routes/pandit.routes.ts", /contactVisible\(b\.status\)/,
+  ["services/api/src/routes/pandit.routes.ts", /contactVisible\(b\)/,
     "GET /pandits/calendar — a hand-built literal, gated directly"],
   ["services/api/src/routes/booking.routes.ts", /redactManyForPandit\(bookings as any\[\]\)/,
     "GET /bookings/pandit/my — the bulk full-User path"],
@@ -253,8 +291,8 @@ const mustMatch: Array<[string, RegExp, string]> = [
     "      sendSuccess(res, redactBookingForPandit(booking));"],
   ["the role dispatch, as written", /redactBookingForRole\(booking as any, req\.user!\.role\)/,
     '      return sendSuccess(res, { booking: redactBookingForRole(booking as any, req.user!.role) }, "Booking detail");'],
-  ["the calendar gate, as written", /contactVisible\(b\.status\)/,
-    "          customerName: contactVisible(b.status) ? (b.customer?.name || \"Customer\") : \"यजमान\""],
+  ["the calendar gate, as written", /contactVisible\(b\)/,
+    "          customerName: contactVisible(b) ? (b.customer?.name || \"Customer\") : \"यजमान\""],
   ["the whole-User regression, verbatim", /include:\s*\{\s*customer:\s*true/,
     "        include: { customer: true },"],
   ["the customerProfile regression, verbatim", /customer:\s*\{\s*include:\s*\{\s*customerProfile:\s*true/,

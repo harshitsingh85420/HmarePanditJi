@@ -40,8 +40,10 @@ import { dbStatusesForView } from "./bookingStatus";
  * to the house. In pandit-view vocabulary that is ACCEPTED + IN_PROGRESS +
  * COMPLETED, which is exactly what these three lookups expand to.
  *
- * CANCELLED / REFUNDED / REJECTED are deliberately EXCLUDED — see the note on
- * contactVisible().
+ * CANCELLED / REFUNDED / REJECTED are absent from this SET — but that no longer
+ * means contact disappears when a booking is cancelled. `contactVisible()` also
+ * honours `acceptedAt`, so a booking that was ever accepted keeps contact
+ * through cancellation. Read that function, not this set, for the actual rule.
  */
 export const CONTACT_VISIBLE_DB_STATUSES: ReadonlySet<string> = new Set<string>([
   ...dbStatusesForView("ACCEPTED"),
@@ -50,19 +52,36 @@ export const CONTACT_VISIBLE_DB_STATUSES: ReadonlySet<string> = new Set<string>(
 ]);
 
 /**
- * May the two parties see each other's name and phone on a booking in this
- * state?
+ * May the two parties see each other's name and phone on this booking?
  *
- * JUDGEMENT CALL, FLAGGED FOR VETO: a booking that was CONFIRMED and is now
- * CANCELLED returns false here, so contact disappears. The argument for that is
- * that the relationship ended; the argument against is that the pandit may
- * still need to reach the yajman about a cancellation he is in the middle of.
- * I chose the narrower reading because ops holds both numbers and can connect
- * them, and because a contact detail that quietly survives a cancellation is
- * the harder thing to explain to whoever's number it is.
+ * ONCE VISIBLE, ALWAYS VISIBLE — Isj, 2026-07-29, overruling my narrower first
+ * reading. I had contact vanish the moment a confirmed booking was cancelled,
+ * on the reasoning that the relationship had ended and ops holds both numbers.
+ *
+ * That was wrong in the direction that costs a person something:
+ *
+ *   "The pandit whose booking just cancelled is precisely the person who needs
+ *    to call. Ops holding both numbers means Isj's phone rings instead — that
+ *    is the runbook GROWING, not shrinking."
+ *
+ * So the test is no longer "is it CONFIRMED now" but "was it EVER confirmed",
+ * and `acceptedAt` is the durable record of that: `acceptBooking` stamps it on
+ * the CREATED→CONFIRMED flip and nothing clears it. A cancellation changes
+ * `status`; it cannot un-happen the acceptance.
+ *
+ * Reading a second field also means the gate survives a status the set does not
+ * know: a row that reaches some future terminal state still keeps contact if it
+ * was accepted, instead of silently dropping it.
  */
-export function contactVisible(dbStatus: string | null | undefined): boolean {
-  return !!dbStatus && CONTACT_VISIBLE_DB_STATUSES.has(dbStatus);
+export function contactVisible(
+  booking: { status?: string | null; acceptedAt?: Date | string | null } | string | null | undefined,
+): boolean {
+  // String form kept for call sites that genuinely only have a status (and for
+  // the vocabulary-invariance proof in contactGate.test.ts).
+  if (typeof booking === "string") return CONTACT_VISIBLE_DB_STATUSES.has(booking);
+  if (!booking) return false;
+  if (booking.acceptedAt) return true;
+  return !!booking.status && CONTACT_VISIBLE_DB_STATUSES.has(booking.status);
 }
 
 /** What either side may ever learn about the other. Nothing outside this list. */
@@ -99,7 +118,7 @@ const HIDDEN: Contact = { name: null, phone: null };
  */
 export function redactBookingForPandit<T extends Record<string, any>>(booking: T): T {
   if (!booking || typeof booking !== "object") return booking;
-  const visible = contactVisible(booking.status);
+  const visible = contactVisible(booking);
   const out: Record<string, any> = { ...booking };
 
   // Contact — narrowed ALWAYS, hidden until CONFIRMED.
@@ -128,7 +147,7 @@ export function redactBookingForPandit<T extends Record<string, any>>(booking: T
  */
 export function redactBookingForCustomer<T extends Record<string, any>>(booking: T): T {
   if (!booking || typeof booking !== "object") return booking;
-  const visible = contactVisible(booking.status);
+  const visible = contactVisible(booking);
   const out: Record<string, any> = { ...booking };
 
   if (out.pandit && typeof out.pandit === "object") {

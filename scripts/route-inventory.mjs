@@ -165,13 +165,29 @@ for (const { ident, prefix } of plugins) {
 
 // ── 4. routes registered DIRECTLY on the app ─────────────────
 // These are the ones a plugin-shaped audit never sees: app.get(`${API_PREFIX}/pandit/bookings`, …)
-for (const m of APP.matchAll(/app\.(get|post|put|patch|delete)\(\s*[`"']([^`"']+)[`"']\s*(,\s*\{[\s\S]{0,300}?\}\s*)?,\s*(\w+)/g)) {
+// The options argument may be an inline object OR AN IDENTIFIER:
+//     app.post(`${API_PREFIX}/stt`, sttRouteConfig, handleSTT);
+// The first version of this only matched the inline-object form, so /api/stt and
+// /api/v1/stt were reported "public with no preHandler at all" — when
+// sttRouteConfig carries optionalAuth AND a per-user/per-IP 30/min limit. That
+// went into a report to Isj as a finding. FOURTH false-positive class from this
+// tool, and the second caused by a guard hiding behind a name.
+for (const m of APP.matchAll(
+  /app\.(get|post|put|patch|delete)\(\s*[`"']([^`"']+)[`"']\s*(?:,\s*(\{[\s\S]{0,300}?\}|[A-Za-z_$][\w$]*)\s*)?,\s*([A-Za-z_$][\w$]*)\s*\)/g,
+)) {
   const [, method, rawPath, opts, handler] = m;
   if (!/\$\{API_PREFIX\}|^\/api/.test(rawPath)) continue;
+  // An identifier in the opts slot is resolved against app.ts the same way a
+  // `preHandler: ident` is — expand it before deciding anything.
+  let optsBlob = opts ?? "";
+  if (opts && !opts.startsWith("{")) {
+    const decl = APP.match(new RegExp(`const\\s+${opts}\\s*=\\s*([\\s\\S]{0,600}?);`));
+    optsBlob = decl ? decl[1] : "";
+  }
   ROUTES.push({
     method: method.toUpperCase(),
     path: rawPath.replace(/\$\{API_PREFIX\}/, API_PREFIX),
-    auth: authOf(opts ?? "", null, APP),
+    auth: authOf(optsBlob, null, APP),
     source: "app.ts",
     line: APP.slice(0, m.index).split("\n").length,
     handler,
