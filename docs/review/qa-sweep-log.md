@@ -2453,3 +2453,68 @@ does not say whose puja it was. Truthful, but worth a founder's eye.
 **Two probe customers now exist in production**, both with `name: null`, no
 bookings: `+919876500042` (`cms5r7lsx…`) and `+919876500088`. The second was
 created solely to read `isNewUser` on a genuinely-new account.
+
+---
+
+## 2026-07-29 — LIVE VERIFICATION OF THE NEW CUSTOMER SURFACE
+
+**THE WIRE, as a guest, on both surfaces (post-drop):** none of 19 sensitive
+keys present — no `rejectionReason`, `videoUrl`, `publicUrl`, `videoId`,
+`thumbnailUrl`, `reviewedById`, `reviewedAt`, `consentAt`, `version`,
+`panditProfileId`, no bank/Aadhaar/PAN/UPI/phone, no `travelPreferences`, and
+**no raw `poojaVerifications` array at all.** What ships is
+`identityVerified: true`, `verifiedPoojaTypes: []`, and per service
+`{pujaType, dakshinaAmount, durationHours, poojaVerified: false}`.
+
+**THE SCREEN, as a guest** (storage cleared, no token) on the pandit detail:
+
+| check | result |
+|---|---|
+| identity badge present | ✅ |
+| services marked `पूजा सत्यापित` | **0** |
+| services marked `पूजा सत्यापन बाकी` | **3** |
+| Book CTAs, all `disabled: true` | **3 / 3** |
+| reason line renders | ✅ |
+| *"उनकी पहचान सत्यापित है — यह अलग है"* | ✅ |
+
+**No card renders as bookable.** That was the finding condition; it did not
+occur. The screen now refuses at the point of choice instead of after a 7-step
+wizard.
+
+## मुहूर्त पत्रिका AND THE MISSING NAME — report only, Isj rules
+
+The field is **कर्ता** — the one who performs/sponsors the rite. With a null
+name it renders:
+
+    कर्ता: यजमान          ("Sponsor: The Sponsor")
+    पुरोहित: ___          (when the pandit name is missing)
+
+**It is not a crash and not a lie — it is a tautology on a certificate.** The
+document names the puja, the date, the place and the priest, and where the
+family's name belongs it says the word for "family". A keepsake that cannot say
+whose puja it was.
+
+**Mitigating:** the patrika is **not downloadable, printable or shareable** —
+no `download`, `html2canvas`, `toPng`, `print` or `Blob` anywhere in it. It
+lives inside the app, so a blank never leaves as an artifact. That lowers the
+stakes; it does not remove them, because this is the screen a family is most
+likely to screenshot.
+
+**The three options, with costs:**
+
+1. **Require the name earlier** — it already is: `login/page.tsx:133` shows a
+   required name step when `user.isNewUser`. *Cost: nothing to build.* The gap
+   is only reachable by an account created outside the UI — as both my probes
+   were. **Strictly, today's null names are QA artifacts, not a product state.**
+2. **Suppress the certificate when the name is absent** — show the booking
+   detail without the patrika. *Cost: one condition. Loses a delight moment for
+   a case that may never occur in the UI.*
+3. **Leave `यजमान`** — *Cost: nothing, and it stays a tautology on the one
+   screen a family keeps.*
+
+**My reading: (1) is already true, so the honest action is to confirm no path
+creates a customer without a name, and only then decide between (2) and (3).**
+The API can: `POST /auth/verify-otp` returns a token whether or not a name is
+ever supplied — the name step is a CLIENT courtesy, not a server requirement.
+**That is the real question for the ruling: should the server require a name
+before a booking can be created, rather than trusting the client to ask?**
