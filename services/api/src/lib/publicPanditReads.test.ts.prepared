@@ -1,0 +1,116 @@
+import assert from "node:assert";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { codeOnly } from "@hmarepanditji/utils/code-only";
+
+// ─────────────────────────────────────────────────────────────
+// WHICH PANDIT ROUTES ARE PUBLIC — pinned in BOTH directions.
+//
+// ⚠️ PREPARED, NOT ACTIVE. This file ends in `.prepared` so the glob-discovered
+// runner ignores it. It asserts the POST-RULING state and fails today. Rename to
+// `.ts` in the same commit that widens PUBLIC_PANDIT_READS.
+//
+// WHAT HAPPENED. `89d7eab` (2026-07-20) scoped public reads down to exactly
+// `/pandits/:id`. Three sibling routes documented "Public" at their own
+// definition — the LIST, reviews, availability — fell under the blanket
+// `authenticate + roleGuard("PANDIT")` hook and began returning 401. Because
+// roleGuard demands the PANDIT role, a logged-in CUSTOMER was refused too:
+// nobody could browse pandits, which is the customer app's entire front door.
+//
+// It went unnoticed for NINE DAYS because DRIFT-A was 404ing those URLs before
+// they could 401, and the empty-state copy ("No verified pandits yet / Run
+// database seed") reads identically for both causes.
+//
+// TWO DIRECTIONS, and the second matters as much as the first:
+//   →  a route documented Public MUST be allow-listed  — the front door cannot
+//      be silently re-closed by the next scoping change;
+//   ←  an allow-listed route MUST be documented Public AND its projection must
+//      not name a sensitive field — the list cannot be silently widened, which
+//      is the mistake that costs more.
+// ─────────────────────────────────────────────────────────────
+
+console.log("Running public-pandit-reads boundary guard...");
+
+const REPO = join(__dirname, "..", "..", "..", "..");
+const read = (p: string) => codeOnly(readFileSync(join(REPO, p), "utf8"));
+const APP = read("services/api/src/app.ts");
+const ROUTES_RAW = readFileSync(join(REPO, "services/api/src/routes/pandit.routes.ts"), "utf8");
+const CONTROLLER = read("services/api/src/controllers/pandit.controller.ts");
+
+// ── the allow-list, as the server actually holds it ────────────
+const block = /PUBLIC_PANDIT_READS = new Set<string>\(\[([\s\S]*?)\]\)/.exec(APP);
+assert.ok(block, "PUBLIC_PANDIT_READS not found in app.ts — the reader has rotted");
+const allowed = new Set(
+  [...block[1].matchAll(/\$\{API_PREFIX\}([^`'"]*)/g)].map((m) => m[1].trim()).filter(Boolean),
+);
+assert.ok(allowed.size >= 1, "no routes parsed out of PUBLIC_PANDIT_READS");
+
+// ── routes DOCUMENTED public, read from the JSDoc above each registration ──
+// RAW source deliberately: the subject under test IS the comment (see
+// RAW_SOURCE_REQUIRED in packages/utils/src/code-only.ts).
+const documentedPublic = new Set<string>();
+const lines = ROUTES_RAW.split("\n");
+for (let i = 0; i < lines.length; i++) {
+  const m = /fastify\.get\(\s*["'`]([^"'`]+)["'`]/.exec(lines[i]);
+  if (!m) continue;
+  const doc = lines.slice(Math.max(0, i - 12), i).join("\n");
+  if (/\*\s*Public/i.test(doc)) {
+    const path = m[1] === "/" ? "/pandits" : `/pandits${m[1]}`;
+    documentedPublic.add(path);
+  }
+}
+assert.ok(documentedPublic.size >= 3, `only ${documentedPublic.size} documented-public routes parsed`);
+
+// ── DIRECTION 1: documented Public ⇒ allow-listed ──────────────
+const closed = [...documentedPublic].filter((r) => !allowed.has(r)).sort();
+assert.deepStrictEqual(
+  closed,
+  [],
+  `these routes are documented "Public" at their own definition but are NOT in\n` +
+    `PUBLIC_PANDIT_READS, so the blanket roleGuard("PANDIT") hook returns 401 to\n` +
+    `guests AND to logged-in customers:\n  ${closed.join("\n  ")}\n` +
+    `That is how the customer front door closed for nine days.`,
+);
+
+// ── DIRECTION 2: allow-listed ⇒ documented Public, and clean ───
+const SENSITIVE = [
+  "bankAccountNumber", "bankIfsc", "bankAccountName",
+  "aadhaarNumber", "aadhaarUrl", "panNumber", "upiId",
+];
+for (const route of allowed) {
+  assert.ok(
+    documentedPublic.has(route),
+    `"${route}" is in PUBLIC_PANDIT_READS but is not documented "Public" at its definition. ` +
+      `Admitting a route here is a security decision — document the intent where the route lives.`,
+  );
+}
+// The two projections that serve those routes must not name a sensitive field.
+for (const fn of ["getPandits", "getPanditReviewsHandler"]) {
+  const at = CONTROLLER.indexOf(`function ${fn}`);
+  assert.ok(at > -1, `${fn} not found — the projection reader has rotted`);
+  const body = CONTROLLER.slice(at, at + 4000);
+  for (const f of SENSITIVE) {
+    assert.ok(
+      !body.includes(f),
+      `${fn} names "${f}" and serves a PUBLIC route. The whole point of the allow-listed ` +
+        `select is that a new column is not public by default.`,
+    );
+  }
+}
+
+// ── anonymity is not optional on a public reviews route ────────
+const rev = CONTROLLER.slice(CONTROLLER.indexOf("function getPanditReviewsHandler"));
+assert.ok(
+  /isAnonymous\s*\?/.test(rev),
+  "the public reviews route must honour isAnonymous — publishing the name of a reviewer who " +
+    "chose anonymity is a privacy break, not a display bug",
+);
+assert.ok(
+  /reviewer:\s*\{\s*select:\s*\{\s*name:\s*true\s*\}\s*\}/.test(rev),
+  "the reviewer include must stay narrowed to { name } — never the whole User",
+);
+
+console.log(
+  `✓ public-pandit-reads guard passed (${allowed.size} public routes, all documented and clean; ` +
+    `${documentedPublic.size} documented-public routes, all reachable)`,
+);

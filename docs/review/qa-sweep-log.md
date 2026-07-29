@@ -1771,3 +1771,54 @@ is equally convincing for both causes.
 **REPORT-ONLY** — auth/identity is Isj's ruling under the standing boundary, and
 the fix is a deliberate security decision (widen the allow-list to the list and
 reviews routes, or make the customer app authenticate), not a wiring repair.
+
+---
+
+## STANDING LAW — RE-WALK WHAT A FIXED PATH NOW REACHES
+*Third sighting of R6 (closing a break opens one) — and the FIRST caught by a
+WALK rather than a guard.*
+
+DRIFT-A's 404 masked a 401 for **nine days**. The request never arrived, so the
+thing that would have refused it never got the chance. Fixing the prefix did not
+create the auth break; it **delivered the request to it**.
+
+**THE LAW.** After fixing any request-path bug — a prefix, a base URL, a route
+name, a method — **re-walk what the corrected path now actually reaches.**
+*A fix that makes a request arrive changes what can refuse it.* The repair is
+not complete at "the URL is right"; it is complete at "the response is right".
+
+**THE COROLLARY, which is the sharper half:**
+**an empty state that explains one cause convincingly will hide every other
+cause.** *"No verified pandits yet — run database seed"* was equally persuasive
+for a 404 and a 401, and it will be equally persuasive for the next thing. An
+empty state is a claim about WHY, and it is almost never re-checked once it
+reads plausibly. Prefer empty states that say what was attempted and what came
+back, or none at all.
+
+Why a guard could not have caught this one: both sides were internally correct.
+The route's JSDoc said Public, the allow-list said `:id` only, and neither file
+contradicted itself. Only *issuing the request as a guest* showed the 401. Some
+contracts are only visible from outside the system.
+
+## LEDGER — BYTES, NOT CHARACTERS, ON INDIC TEXT (second occurrence)
+
+The curl `Content-Length` miscount on a Devanagari body is the same family as
+the **Devanagari Idempotency-Key P0**:
+
+| | what was assumed | what is true |
+|---|---|---|
+| Idempotency-Key | a string can go in a header | headers are Latin-1; the request threw **pre-network** — no status, no server log, no network-tool entry |
+| traversal probe | `Content-Length` = `s.length` | `"क्यूए"` is 5 characters and **15 bytes** |
+
+Both looked like server bugs from the outside. The second was nearly filed as
+one, and was only caught because the ASCII control passed.
+
+**MADE A HELPER, NOT A DISCIPLINE** — `packages/utils/src/http-body.ts`:
+`byteLength()`, `jsonBody()` (Content-Length derived from bytes),
+`isHeaderSafe()`, `assertHeaderSafe()` (throws with a message naming the
+invisible pre-network failure, which the native error does not). Guarded by
+`http-body.test.ts`, which pins `5 chars = 15 bytes` and asserts that declaring
+`body.length` is rejected.
+
+*A rule you have to remember is a rule that gets forgotten on the second
+occurrence. This one already was.*

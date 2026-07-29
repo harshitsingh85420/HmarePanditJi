@@ -182,3 +182,8 @@ export * from './code-only';
 // NEXT_PUBLIC_API_URL — one contract for all three apps (the env var is an
 // ORIGIN; the client owns the /api/v1 prefix).
 export * from './api-base';
+
+// byteLength/jsonBody/assertHeaderSafe — byte-vs-character on Indic text has
+// cost this project twice (the Devanagari Idempotency-Key P0, and a probe that
+// miscounted Content-Length). A helper, not a discipline.
+export * from "./http-body";
