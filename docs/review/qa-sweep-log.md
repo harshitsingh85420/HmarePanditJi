@@ -2581,3 +2581,51 @@ than that class: there is nothing to click.**
 The pandit side is wired (`POST /pandit/pooja-verification` submit,
 `GET /pandit/pooja-verifications` list, consumed by `my-poojas/page.tsx:90`), so
 a pandit CAN submit. **Nobody can approve by clicking.**
+
+---
+
+# 2026-07-29 — 🎉 THE FIRST BOOKING. ACT 1 IS UNBLOCKED.
+
+**`HPJ-2026-19028`** — created against the *same* pandit and the *same*
+Satyanarayan Puja that returned `POOJA_NOT_VERIFIED` six times this morning.
+
+    dakshina    Rs 2100
+    platformFee Rs  210  (10%, snapshot frozen on the row)
+    grandTotal  Rs 2310  ← fee ON TOP        (Ruling B, live)
+    payout      Rs 2100  ← 100% of dakshina  (Ruling B, live)
+    status      CREATED
+
+**Ruling B is not a document any more — it is what production computed.**
+
+## WHAT THE RE-RUN PROVED, IN ORDER
+
+The booking did not sail through; it **hit the next gate and only the next
+gate**, which is exactly the shape a healthy stack should show:
+
+1. **सत्यापन gate — GONE.** The request passed straight through where six of
+   six had died.
+2. **`CUSTOMER_NAME_REQUIRED` — FIRED**, correctly. My probe had `name: null`
+   because I authenticate over HTTP and skip the UI's name step. *The backstop
+   shipped last turn caught exactly the path it was built for*, on its first
+   real execution.
+3. **`PATCH /auth/me`** — the same call `handleSubmitName` makes — set the name,
+   and the identical request then returned **201**.
+
+Two rulings, shipped a turn apart, verified together on the live path: one
+removed a refusal that should never have been a refusal, the other added one
+that should always have been there.
+
+## SUPERSESSION HANDLED, NOT ERASED
+
+`pooja-gate.test.ts` asserted the gate for weeks and was right under the ruling
+then in force. It is **inverted and kept**: the gate must stay gone, AND the
+information that replaced it must still be produced — projection fields, the
+per-service badge, and the copy. *Removing a gate is only safe while the fact it
+enforced is still shown; otherwise the customer is neither blocked nor told,
+which is worse than either.* The three assertions in `verificationNaming.test.ts`
+that pinned "moving the refusal to the front NEVER means loosening the check"
+carry the same treatment, with the date and reason in place.
+
+**A superseded ruling that vanishes from the tree looks like a bug nobody
+reasoned about.** Same handling as `public-pandit-access` when the public-read
+scope was widened.
