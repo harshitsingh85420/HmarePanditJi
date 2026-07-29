@@ -9,35 +9,27 @@ services:
     # ship built JS. packages/types shipped main=src/index.ts and took the API
     # down on boot. check-dist-runtime.mjs fails the build if that returns.
     buildCommand: npm i -g pnpm@9 && pnpm install --frozen-lockfile && pnpm --filter db exec prisma generate && pnpm --filter db build && pnpm --filter types build && pnpm --filter api build && node services/api/scripts/check-dist-runtime.mjs
-    # SCHEMA APPLICATION MOVED OUT OF startCommand (2026-07-28).
+    # SCHEMA APPLICATION RUNS AS MIGRATIONS, 2026-07-29.
     #
-    # It used to read:
-    #   (pnpm --filter db exec prisma db push --skip-generate || true) && start
-    #
-    # Three things were wrong with that, and all three bit:
-    #   1. `db push` applies schema.prisma's DDL and NEVER RUNS THE MIGRATION
-    #      SQL. The two-source fee backfill and the FK orphan pre-check were
+    # It used to be:
+    #   startCommand: (prisma db push --skip-generate || true) && start
+    # Three things were wrong and all three bit:
+    #   1. `db push` applies schema.prisma DDL and NEVER RUNS THE MIGRATION
+    #      SQL, so the two-source fee backfill and the FK orphan pre-check were
     #      bypassed entirely — harmless on an empty table, silent on a full one.
-    #   2. It writes NO row to _prisma_migrations, so production schema ran
-    #      ahead of its recorded history for twenty days (history stopped
-    #      2026-07-08 while code from 07-13 read tables it had silently created).
-    #   3. `|| true` swallows a non-zero exit but CANNOT catch a hang, and it
-    #      hid schema failures behind a healthy-looking boot either way.
+    #   2. It writes NO row to _prisma_migrations. Production schema ran ahead
+    #      of its recorded history for TWENTY DAYS (history stopped 2026-07-08
+    #      while code from 07-13 read tables db push had silently created).
+    #   3. `|| true` swallows a non-zero exit and hides schema failure behind a
+    #      healthy-looking boot.
+    # The history was reconciled by hand (4x `migrate resolve --applied`,
+    # 2026-07-29) and now reads 12 migrations, schema up to date.
     #
-    # preDeploy runs migrations as migrations, fails the deploy if they fail,
-    # and leaves startCommand to do one thing.
-    # ⚠️ STAGED CHANGE — DO NOT SWITCH THESE TWO LINES ON YET.
-    # The replacement is:
-    #     preDeployCommand: bash scripts/migrate-prod.sh
-    #     startCommand: pnpm --filter api start
-    # It cannot ship until `prisma migrate resolve --applied` has recorded the
-    # four migrations whose DDL `db push` already applied (schema is ahead,
-    # _prisma_migrations still says 8). Until then `migrate deploy` aborts on
-    # "already exists" and the deploy never reaches the app — which would keep
-    # the API down instead of bringing it back.
-    # ORDER: (1) this build fix deploys and the API boots  →  (2) Isj runs the
-    # four `migrate resolve` commands  →  (3) these two lines switch over.
-    startCommand: (pnpm --filter db exec prisma db push --skip-generate || true) && pnpm --filter api start
+    # preDeploy runs migrations AS migrations and FAILS THE DEPLOY if they
+    # fail; startCommand does one thing. scripts/migrate-prod.sh is
+    # `set -euo pipefail` and aborts on a missing DATABASE_URL.
+    preDeployCommand: bash scripts/migrate-prod.sh
+    startCommand: pnpm --filter api start
     healthCheckPath: /health
     envVars:
       # D4: TTS speaking pace (0.5–2.0; default 1.15). sync:false — set the

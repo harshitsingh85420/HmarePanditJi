@@ -127,8 +127,18 @@ export default function RazorpayCheckout({
     setState("loading");
     setErrorMsg("");
 
-    // Dev mode: simulate payment without real Razorpay
-    if (razorpayKey === "rzp_test_mock") {
+    // ── THE MOCK PATH IS COMPILED OUT OF PRODUCTION ──────────────────────
+    // It used to open on `razorpayKey === "rzp_test_mock"` alone — a MAGIC
+    // STRING, in a repo that carried four different values of one env var under
+    // two incompatible contracts. A bypass whose only lock is a string
+    // comparison is one env edit away from being unlocked.
+    //
+    // UNREACHABILITY, not "not taken": `process.env.NODE_ENV` is statically
+    // replaced at build time and the dead branch is ELIMINATED, so in a
+    // production bundle this code does not exist to be reached — setting the
+    // magic value in prod cannot revive it. razorpayMockGate.test.ts asserts
+    // the string is absent from the built output.
+    if (process.env.NODE_ENV !== "production" && razorpayKey === "rzp_test_mock") {
       // Small delay for UX realism
       await new Promise((r) => setTimeout(r, 600));
       await verify(`pay_mock_${Date.now()}`, orderId, "mock_signature_dev");
@@ -195,7 +205,7 @@ export default function RazorpayCheckout({
       <div className="flex flex-col items-center gap-3 py-8">
         <div className="w-14 h-14 border-4 border-primary border-t-transparent rounded-full animate-spin" />
         <p className="text-lg text-slate-500">
-          {razorpayKey === "rzp_test_mock" ? "Simulating payment…" : "Opening payment window…"}
+          {process.env.NODE_ENV !== "production" && razorpayKey === "rzp_test_mock" ? "Simulating payment…" : "Opening payment window…"}
         </p>
       </div>
     );

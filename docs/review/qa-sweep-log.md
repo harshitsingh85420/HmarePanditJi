@@ -2030,3 +2030,43 @@ imports the resolver and *also* reads the env raw slipped through. The leftover
 import excused the violation. Anchored on the **declaration** instead (a
 legitimate use passes the env as an argument, with no `=` before it). **Law G2,
 fourth instance** — and this one was caught only because the proof was run.
+
+---
+
+## 2026-07-29 — MIGRATIONS RECONCILED · THE DEPLOY PATH CHANGED
+
+Isj ran all four `migrate resolve --applied` from his own terminal.
+`migrate status` now reports **12 migrations found · Database schema is up to
+date**. The twenty-day gap between schema and recorded history is CLOSED.
+
+**PILOT-DAY CONDITION, not a bug.** Two of the four resolves failed first with
+**P1001** and succeeded on retry: **Neon scales compute to zero when idle and
+wakes slower than Prisma's connect timeout.** Stacked on Render's free-tier cold
+start, that is what a pandit meets on the first request of the day — a first tap
+that simply does not answer. Recorded as an operating condition of the pilot.
+It argues for a keep-warm ping or a paid tier before the pilot, and for the app
+never showing a bare failure on a first request.
+
+`render.yaml` flipped: `preDeployCommand: bash scripts/migrate-prod.sh`
+(`migrate deploy`, `set -euo pipefail`, aborts on a missing `DATABASE_URL`) and
+`startCommand: pnpm --filter api start` — **no `|| true` anywhere on the schema
+path.** A migration failure now fails the deploy instead of booting a healthy-
+looking API against an unmigrated database.
+
+## 2026-07-29 — THE RAZORPAY MOCK GATE, HARDENED
+
+**Was:** `if (razorpayKey === "rzp_test_mock")` — a magic string, in a repo this
+campaign proved carried four values of one env var under two incompatible
+contracts. A bypass whose only lock is a string comparison is one env edit from
+being unlocked, and nothing would fail.
+
+**Now:** `process.env.NODE_ENV !== "production" && razorpayKey === "…"`.
+`NODE_ENV` is statically substituted at build time, so the branch is **dead code
+the minifier removes**. In a production bundle the mock **does not exist to be
+reached** — setting the magic value in prod cannot revive it. That is the
+unreachability pattern applied to a bundle, not merely a false condition.
+
+`razorpayMockGate.test.ts` guards both directions and three failure modes,
+proven: the magic-string-only gate returning · the mock calling `onSuccess`
+directly instead of `verify()` · a `NODE_ENV` bypass appearing in the SERVER's
+verifier. It also scans a built bundle when one is present.
