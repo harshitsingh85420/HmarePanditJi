@@ -19,7 +19,7 @@ Pt. Ramesh Sharma, `+919876543210`, role PANDIT, KYC VERIFIED.
 | WhatsApp | no sender configured | **never** |
 | Email | no transport | **never** |
 | Socket / SSE | no connection opened | **never** |
-| Poll / revalidate | no interval, no `refetchInterval` | **never** |
+| Poll / revalidate | 🔴 **WRONG — see correction 3.** home polls every 30s | **while the app is open** |
 | **Opening the app** | 5 calls on mount | **the only one** |
 
 Cold open fires exactly five requests, all 200:
@@ -139,11 +139,65 @@ same subtraction — it cannot drift from the row.
 
 | item | finding |
 |---|---|
-| `FeedbackUnanswered` | **0 references in the API.** Table exists, nothing writes or reads it. |
-| `ShishyaExchange` | **0 references in the API.** Same. |
-| event-day name/phone pair | Pandit: **absent**. Ops: **detail page only**, blank in the list. |
+| `FeedbackUnanswered` | ✅ **written** — `feedback.routes.ts:33`. *(My first pass said "0 references" — wrong, see corrections.)* |
+| `ShishyaExchange` | ✅ **written and read** — `shishyaAgent.routes.ts:214,226`. *(Same error.)* |
+| event-day name/phone pair | 🔴 **Exposed, not absent** — see corrections. |
 | pandit-side earnings figure | ✅ **₹2,100** — `platformTransfersToPandit`, never `grandTotal`. |
 | repaired admin cancel | ✅ accepts `CREATED` — passes its first real test. |
+
+---
+
+## CORRECTIONS TO THIS DOCUMENT (2026-07-29, same day)
+
+Four claims above were wrong. Each is left in place with the correction beside
+it, because a walk record that quietly self-heals teaches nothing.
+
+**1. "There is no path by which the pandit could get the customer's phone."**
+FALSE, and it is the most important error here. `/pandit/bookings` (singular,
+`auth.controller.ts:813`) omits the customer — that is the endpoint the app
+calls, and what I observed. But `/pandits/bookings/:id` (**plural**,
+`pandit.routes.ts:781`) is a second live, role-gated endpoint that returns
+`customer: { include: { customerProfile: true } }` — the **entire User row**.
+Proven live against production with a pandit token:
+
+```
+GET /pandits/bookings/<id>
+→ customer: { name, phone: "+919876500042", email, id, role,
+              isActive, profileCompleted, language, customerProfile, … }
+```
+
+on an **unpaid `CREATED`** booking. So this is not a missing feature — it is an
+**unaudited exposure**, ungated by state and far wider than any screen needs.
+The ownership check is sound (`booking.panditId !== profile.id → 404`), so it is
+his own bookings only, not a mass leak. Flagged for Isj's ruling, not fixed:
+identity is REPORT-only.
+
+**2. "The admin list has no include, so the customer's name is blank."**
+FALSE. It uses `select:`, and already selects
+`customer: { select: { id, name, phone } }` (`admin.controller.ts`), and the
+client already renders `b.customer?.name` and the phone
+(`apps/admin/src/app/bookings/page.tsx:247-248`). I grepped for `include:`
+against code that says `select:`. **Ops sees the name in the list. No fix was
+needed and none was made.**
+
+**3. "No poll."** FALSE. `apps/pandit/.../home/page.tsx:132,169` polls
+`/pandit/bookings?status=REQUESTED` **every 30 seconds**. It does not reach a
+closed app, so the handoff verdict stands — but the transport table's "poll ·
+never" row was wrong. (It also means the split shipped today changes real
+behaviour: unpaid bookings no longer announce themselves through that poll.)
+
+**4. "FeedbackUnanswered / ShishyaExchange have 0 references in the API."**
+FALSE. Prisma's client accessor is **camelCase** (`prisma.feedbackUnanswered`)
+while the model name is PascalCase; I searched for the model name. The earlier
+ledger entry — that both were verified executing live, `200` and `201` — was
+correct and stands.
+
+**The common cause of 2, 3 and 4 is one thing: a matcher that could not see its
+own subject.** `include:` vs `select:`, a cold-open capture vs a 30-second
+interval, PascalCase vs camelCase. That is law G2, which this campaign wrote
+after seven instances in guard code — and all three of these were in *reporting*
+code, where nothing runs a prove-to-fail pass. **G2 binds prose as well as
+guards.**
 
 ---
 
@@ -152,7 +206,7 @@ same subtraction — it cannot drift from the row.
 | moment | what should carry the news | what actually carries it | lag | verdict |
 |---|---|---|---|---|
 | booking created → pandit | push / SMS | **nothing** — he must open the app | unbounded | 🔴 dead |
-| booking created → ops | dashboard | the list, on refresh | until refresh | 🟡 works, blank name |
+| booking created → ops | dashboard | the list, on refresh, **with name+phone** | until refresh | 🟢 works |
 | pandit accepts → customer | push / SMS | **cannot happen — accept 409s** | ∞ | 🔴 dead |
 | ops cancels → both parties | SMS | **nothing** | ∞ | 🔴 dead |
 | payment → status advance | webhook | wired, untested without live keys | — | ⚪ unproven |
@@ -172,14 +226,18 @@ same subtraction — it cannot drift from the row.
 Every gap below is a step a human must perform because no code performs it.
 
 1. **Watch for new bookings yourself.** Refresh `/admin/bookings`. Nothing alerts you.
-2. **Open the detail page to get the customer's name and phone.** The list shows neither.
-3. **Phone the pandit and tell him he has a booking.** The app will not.
+2. **Read the customer's name and phone off the list row.** *(Corrected: they are
+   already there — step originally said you had to open each row.)*
+3. **Phone the pandit and tell him he has a booking.** The app will not — and
+   while a 30-second poll exists, it only runs while he has the app open.
 4. **Read him the date, place, ceremony, and that he receives ₹2,100** (not ₹2,310 — that is
    what the customer pays).
 5. **Do not ask him to press स्वीकार करें on an unpaid booking — it returns an error.**
    Until payment lands, accept is unavailable and the button is a trap.
 6. **Confirm the booking verbally on both calls.** Nothing else confirms it.
-7. **Give each side the other's number by phone.** Neither app shares it.
+7. **Give each side the other's number by phone.** Neither app *shows* it — though
+   the API already hands the pandit the customer's full record on the plural
+   endpoint (correction 1). Until that is ruled on, the phone call is the path.
 8. **On the event day, phone both to confirm arrival.** No status advances by itself.
 9. **If the pandit has not arrived:** cancel in the panel (this works), then phone both
    parties yourself — the cancellation notifies no one.

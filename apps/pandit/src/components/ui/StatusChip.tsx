@@ -11,6 +11,7 @@ function cn(...inputs: (string | undefined | false | null)[]) {
 }
 
 export type BookingStatus =
+  | "AWAITING_PAYMENT"
   | "REQUESTED"
   | "ACCEPTED"
   | "IN_PROGRESS"
@@ -37,6 +38,13 @@ export function StatusChip({ status, className }: StatusChipProps) {
   let label: string = t("status.cancelled");
 
   switch (status) {
+    case "AWAITING_PAYMENT":
+      // Muted, NOT sindoor: sindoor is the app's colour for "you must answer
+      // this". Nothing is being asked of him here. temple-700 on the neutral
+      // field is the same AAA pair the muted states already use.
+      chipStyles = "bg-[#EFE8DC] text-temple-700";
+      label = t("status.awaitingPayment");
+      break;
     case "REQUESTED":
       // canon ink #B23A1A on this field is 5.1:1 — AA, not AAA. saffron-700
       // (#7A250E) is canon's own on-cream ink and clears AAA at 8.7:1.

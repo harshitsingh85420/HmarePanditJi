@@ -7,7 +7,20 @@ console.log("Running bookingStatus + accept/reject handler guards (BB1)...");
 
 // ── the mapping law (DB Machine-B <-> pandit-UI Machine-A) ────────────────────
 assert.strictEqual(panditView("PANDIT_REQUESTED"), "REQUESTED", "born status shows as REQUESTED");
-assert.strictEqual(panditView("CREATED"), "REQUESTED");
+// SUPERSEDED 2026-07-29 — this asserted panditView("CREATED") === "REQUESTED".
+// It was right when written: the point of BB1 was that the pandit's tabs were
+// empty because nothing mapped DB vocabulary to his. Mapping CREATED into the
+// same bucket made the rows appear.
+//
+// It also made an UNPAID booking appear as an actionable request, and
+// स्वीकार करें answered 409 — the accept handler can only transition from
+// PANDIT_REQUESTED, which only processPaymentSuccess produces. The first real
+// booking this product took (HPJ-2026-19028) hit exactly that.
+//
+// Inverted and kept, not deleted: the two states must stay separately
+// nameable. lib/deadControlState.test.ts pins the whole law.
+assert.strictEqual(panditView("CREATED"), "AWAITING_PAYMENT");
+assert.notStrictEqual(panditView("CREATED"), panditView("PANDIT_REQUESTED"));
 assert.strictEqual(panditView("CONFIRMED"), "ACCEPTED", "confirmed shows as ACCEPTED to the pandit");
 assert.strictEqual(panditView("PANDIT_EN_ROUTE"), "ACCEPTED");
 assert.strictEqual(panditView("PUJA_IN_PROGRESS"), "IN_PROGRESS");
@@ -21,7 +34,22 @@ assert.strictEqual(panditView("REQUESTED"), "REQUESTED");
 
 // The New-booking poll (?status=REQUESTED) MUST hit real PANDIT_REQUESTED rows.
 assert.ok(dbStatusesForView("REQUESTED").includes("PANDIT_REQUESTED"), "REQUESTED filter covers PANDIT_REQUESTED");
-assert.ok(dbStatusesForView("REQUESTED").includes("CREATED"), "REQUESTED filter covers CREATED");
+// SUPERSEDED 2026-07-29, same ruling as the panditView("CREATED") line above.
+// This asserted the New-booking poll (?status=REQUESTED, home/page.tsx runs it
+// every 30s) ALSO covered CREATED. That is precisely what must not happen: the
+// poll drives the "नई विनती" alert, so an unpaid booking announced itself as a
+// new request the pandit could answer — and answering it 409'd.
+// Inverted and kept; the unpaid rows are reachable under their own filter.
+assert.ok(
+  !dbStatusesForView("REQUESTED").includes("CREATED"),
+  "the REQUESTED filter covers CREATED again — the 30-second New-booking poll will announce " +
+    "unpaid bookings as answerable requests, and स्वीकार करें will 409 on them",
+);
+assert.ok(
+  dbStatusesForView("AWAITING_PAYMENT").includes("CREATED"),
+  "no filter reaches CREATED any more — the unpaid rows would be invisible rather than merely " +
+    "unactionable, and the pandit could not plan around a booking he already has",
+);
 assert.ok(dbStatusesForView("ACCEPTED").includes("CONFIRMED"), "ACCEPTED filter covers CONFIRMED");
 
 // withPanditView copies + maps without mutating the source.

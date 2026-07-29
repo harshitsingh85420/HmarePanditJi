@@ -838,6 +838,11 @@ export const hi = {
     unblockedVoice: "छुट्टी हट गई।",
   },
   status: {
+    // Without its own entry AWAITING_PAYMENT fell to the switch's `default:`,
+    // which is `cancelled` — the app would have told the pandit his booking was
+    // रद्द when it was merely unpaid. A default branch that means "cancelled"
+    // makes every unhandled state a lie.
+    awaitingPayment: "⏳ भुगतान बाकी",
     requested: "🔔 नई",
     accepted: "📅 स्वीकृत",
     inProgress: "🚗 चालू",

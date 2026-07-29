@@ -47,6 +47,10 @@ function panditEarns(b: { platformTransfersToPandit?: number; dakshinaAmount: nu
 // carrying three status SECTIONS, each headed by a 10px status dot + a bold
 // label with its live count. Section wording is canon's.
 const sectionLabels = {
+  // Isj's wording. Names the यजमान's outstanding step, never the pandit's —
+  // he has done nothing wrong and is not being asked to do anything.
+  awaitingPayment: "भुगतान का इंतज़ार",
+  awaitingHint: "यजमान ने अभी भुगतान नहीं किया — भुगतान आते ही आप स्वीकार कर सकेंगे।",
   new: "नई विनती",
   upcoming: "चालू",
   completed: "पूरी हुई",
@@ -61,6 +65,7 @@ export default function BookingsPage() {
   const [isBookingReady, setIsBookingReady] = useState(true);
   const [readinessStep, setReadinessStep] = useState(0);
   const listRef = useRef<HTMLElement | null>(null);
+  const awaitingRef = useRef<HTMLDivElement | null>(null);
   const newRef = useRef<HTMLDivElement | null>(null);
   const upcomingRef = useRef<HTMLDivElement | null>(null);
   const completedRef = useRef<HTMLDivElement | null>(null);
@@ -96,6 +101,13 @@ export default function BookingsPage() {
     return <DiyaLoader />;
   }
 
+  // THE DEAD-CONTROL LAW, APPLIED TO STATE (2026-07-29).
+  // AWAITING_PAYMENT is a booking the यजमान has not paid for yet. The server
+  // cannot accept it — स्वीकार करें returns 409 — so this screen must not offer
+  // the choice. It stays VISIBLE, because he still needs to plan his day around
+  // it; it simply carries no affordance that would fail. See
+  // services/api/src/lib/bookingStatus.ts (ACCEPTABLE_VIEW).
+  const awaitingItems = bookings.filter((b) => b.status === "AWAITING_PAYMENT");
   const newItems = bookings.filter((b) => b.status === "REQUESTED");
   const upcomingItems = bookings.filter(
     (b) => b.status === "ACCEPTED" || b.status === "IN_PROGRESS" || b.status === "PUJA_IN_PROGRESS",
@@ -108,6 +120,9 @@ export default function BookingsPage() {
       : `${t("bookingsList.intro")} ${t("bookingsSummary.counts").replace("{count}", String(newItems.length))}`;
 
   const handleCardClick = (b: BookingItem) => {
+    // Only REQUESTED opens the accept/decline screen. AWAITING_PAYMENT falls to
+    // the read-only detail — routing it to /request would put him in front of
+    // the very buttons that cannot work.
     if (b.status === "REQUESTED") {
       router.push(`/bookings/${b.id}/request`);
     } else {
@@ -132,12 +147,16 @@ export default function BookingsPage() {
   // CANON left rail colour per status. Canon draws a 6px sindoor rail on a new
   // request, leaf on an accepted one, pital on one already in flight, and no
   // rail at all on a finished row.
+  // AWAITING_PAYMENT gets a MUTED rail, deliberately not the sindoor of a live
+  // request: the row must not read as "act on me".
   const railFor = (status: string) =>
-    status === "REQUESTED"
-      ? "#B23A1A"
-      : status === "ACCEPTED"
-        ? "#1E7A46"
-        : "#E7B54A";
+    status === "AWAITING_PAYMENT"
+      ? "#C9B79A"
+      : status === "REQUESTED"
+        ? "#B23A1A"
+        : status === "ACCEPTED"
+          ? "#1E7A46"
+          : "#E7B54A";
 
   // CANON row shell. Live rows: #FFFDF8 on a 1.5px warm hairline + 6px rail,
   // 16px radius, 13px/15px padding. The whole row is one horizontal band —
@@ -284,7 +303,7 @@ export default function BookingsPage() {
               </Card>
             )}
           </>
-        ) : newItems.length + upcomingItems.length + completedItems.length === 0 ? (
+        ) : awaitingItems.length + newItems.length + upcomingItems.length + completedItems.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center gap-2">
             <span className="text-[64px]">🌤️</span>
             <span className="text-[20px] font-bold text-softgrey font-hindi">
@@ -317,6 +336,49 @@ export default function BookingsPage() {
                             style={{ fontSize: "16px", fontWeight: 800, color: "#B23A1A" }}
                           >
                             जवाब दीजिए ›
+                          </div>
+                        </div>
+                      }
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* भुगतान का इंतज़ार — VISIBLE, NEVER ACTIONABLE.
+                Placed below नई विनती on purpose: it is something to plan
+                around, not something to answer. The right-hand cell carries the
+                money (so he can plan) and NO chevron, NO "जवाब दीजिए" — the
+                affordance that would 409 is simply not drawn. */}
+            {awaitingItems.length > 0 && (
+              <div ref={awaitingRef}>
+                <SectionHead
+                  dot="#C9B79A"
+                  ink="#6B5B45"
+                  text={`${sectionLabels.awaitingPayment} · ${awaitingItems.length}`}
+                />
+                <p
+                  className="font-hindi"
+                  style={{ fontSize: "16px", color: "#6B5B45", margin: "-4px 0 9px" }}
+                >
+                  {sectionLabels.awaitingHint}
+                </p>
+                <div className="flex flex-col" style={{ gap: "10px" }}>
+                  {awaitingItems.map((b) => (
+                    <Row
+                      key={b.id}
+                      b={b}
+                      tone="live"
+                      right={
+                        <div className="text-right shrink-0">
+                          <div style={{ fontSize: "18px", fontWeight: 900, color: "#6B5B45" }}>
+                            ₹{panditEarns(b).toLocaleString("en-IN")}
+                          </div>
+                          <div
+                            className="font-hindi"
+                            style={{ fontSize: "16px", fontWeight: 700, color: "#8A7660" }}
+                          >
+                            प्रतीक्षा में
                           </div>
                         </div>
                       }

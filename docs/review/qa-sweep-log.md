@@ -2697,3 +2697,96 @@ STATE, not the exception.** It reads as *जाँच बाक़ी* — "the 
 and never as a warning about the pandit: the identity badge sits separately and
 says his पहचान IS verified. The copy invites (*"आप ख़ुद सुनकर तय कीजिए"*), and
 now there is something to actually listen to.
+
+---
+
+# 2026-07-29 · THE SPLIT, AND FOUR CORRECTIONS TO MY OWN WALK
+
+## 🔴 STANDING LAW — G2 BINDS PROSE, NOT JUST GUARDS
+
+Law G2 ("a matcher must be proven able to match the shape it hunts") was written
+after **seven** instances in guard code. This turn produced three more — **all
+of them in a REPORT**, where nothing runs a prove-to-fail pass:
+
+| I searched for | The code said | What I wrongly concluded |
+|---|---|---|
+| `include:` | `select:` | "the admin list has no customer name" |
+| the cold-open call set | a **30-second** `setInterval` | "no poll — nothing ever fires" |
+| `FeedbackUnanswered` (model name) | `prisma.feedbackUnanswered` (**client accessor**) | "0 references — a table with no writer" |
+
+A guard that cannot see its subject fails loudly on green code. **A REPORT that
+cannot see its subject fails silently — and gets ruled on.** Isj issued an order
+this turn (item 3, "pure wiring, ship it") whose entire premise was my `include:`
+error; the correct delivery was to ship nothing and say so.
+
+**Applied rule:** before reporting an ABSENCE, name the exact string searched and
+show one positive control — a search that *does* hit — proving the matcher can
+see that class of thing at all. Absence is the claim that cannot be checked by
+re-reading the output.
+
+## 🔴 CORRECTION — the ZERO-EXECUTION WATCH LIST entry stands; MY denial was wrong
+
+The 2026-07-28 entry (`FeedbackUnanswered` / `ShishyaExchange` "silently dropping
+since 13 July", then verified live at `200` / `201`) is **CORRECT and unchanged**.
+My 2026-07-29 walk claimed both had "0 references in the API". That was the
+camelCase error above. Writers: `feedback.routes.ts:33`,
+`shishyaAgent.routes.ts:214,226`. **The ledger did not need correcting; the walk
+did.** Both records now point at each other rather than silently disagreeing.
+
+## 🔴 THE PANDIT→CUSTOMER IDENTITY PATH IS AN EXPOSURE, NOT A GAP
+
+`/pandit/bookings/:id` (**singular**, `auth.controller.ts`) omits the customer —
+that is what the app calls, and what the walk observed. `/pandits/bookings/:id`
+(**plural**, `pandit.routes.ts:781`) is a second live, PANDIT-role-gated endpoint
+returning `customer: { include: { customerProfile: true } }` — the **whole User
+row**. Proven live: `phone`, `email`, `id`, `role`, `isActive`, timestamps, on an
+**unpaid `CREATED`** booking. Ownership is checked, so it is his own bookings
+only. **Not fixed — identity is REPORT-only. Awaiting Isj's ruling on the
+symmetric CONFIRMED-gated rule.**
+
+Third sighting of the singular/plural twin-route class. `pandit.routes.ts` is
+mounted at `/pandits` while `app.ts:309-317` registers `/pandit/*` directly on
+the app — so **near-identical handlers with different projections both serve.**
+
+## LAW — THE DEAD-CONTROL LAW, APPLIED TO STATE
+
+> **No state that cannot be accepted may render an accept control.**
+
+`CREATED` and `PANDIT_REQUESTED` both mapped to the view `REQUESTED`, so an
+unpaid booking showed as an actionable request and स्वीकार करें answered
+`409 invalid_state`. The accept handler hand-listed its own
+`["PANDIT_REQUESTED", "REQUESTED"]`; the view map decided separately. **Two
+lists, two files, disagreeing about one status — invisible because the view had
+collapsed the two states into one word.** The first real booking this product
+ever took hit it, on the pandit's first ever request.
+
+Shipped: `CREATED → AWAITING_PAYMENT`, visible but with no accept affordance;
+`ACCEPTABLE_DB_STATUSES` exported from `bookingStatus.ts` and consumed by the
+handler. Guard: `deadControlState.test.ts`, 9 matchers proven able to fail.
+
+### COROLLARY — TWO DERIVATIONS IS THE SAME DISEASE AS TWO LITERALS
+
+`CANCELLABLE_DB_STATUSES` was derived in `admin.routes.ts` **and derived again**,
+with its own copy of the expression, inside `adminStatusSets.test.ts`. The split
+updated the route and not the guard, so **the guard failed against correct code
+while its message accused ops of losing the ability to cancel.** Deriving twice
+looks like following the no-hand-listing law while breaking it. The set now has
+one definition, in `bookingStatus.ts`, imported by both.
+
+### COROLLARY — A `default:` BRANCH THAT NAMES A REAL STATE MAKES EVERY
+### UNHANDLED STATE A LIE
+
+`StatusChip`'s switch ends in `default: label = t("status.cancelled")` and the
+booking detail's `getStatusConfig` ends in "en route". A new status added to the
+API would have told the pandit his booking was **रद्द**, or that he was already
+travelling to it — silently, with no type error, because both take `string`.
+Caught only by walking the new state through every surface that renders it.
+
+## PILOT'S BIGGEST PRODUCT GAP — ONE TRANSPORT THAT ACTUALLY FIRES
+
+Not scheduled this turn; named here so it is not rediscovered. Six of seven
+transports are unwired; the seventh (a 30-second poll) only runs while the app is
+open. **SMS to the pandit on a new booking is enough for a pilot** — and it rides
+the **same DLT/MSG91 template chain already blocking OTP hardening**. That chain
+now has **two consumers**, which changes its priority: it is not an OTP task, it
+is the unlock for the product's only outbound transport.

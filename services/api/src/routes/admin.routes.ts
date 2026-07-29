@@ -10,7 +10,7 @@ import { initiateRefund } from "../services/payment.service";
 import { computeCustomerCancellationRefund } from "../lib/refund-policy";
 import { NotificationService } from "../services/notification.service";
 import { getNotificationTemplate } from "../services/notification-templates";
-import { dbStatusesForView } from "../lib/bookingStatus";
+import { dbStatusesForView, CANCELLABLE_DB_STATUSES } from "../lib/bookingStatus";
 // THE ONE KYC vocabulary — approve/reject write through the shared constants
 // so a fifth spelling cannot appear.
 import { KYC_APPROVE_WRITE_STATUS, KYC_REJECT_WRITE_STATUS } from "@hmarepanditji/types";
@@ -24,10 +24,12 @@ import { KYC_APPROVE_WRITE_STATUS, KYC_REJECT_WRITE_STATUS } from "@hmarepanditj
  * Hand-listing the DB values here would recreate the exact break this fixes —
  * a second copy of the state machine that drifts from the first.
  */
-const CANCELLABLE_DB_STATUSES = new Set<string>([
-  ...dbStatusesForView("REQUESTED"),
-  ...dbStatusesForView("ACCEPTED"),
-]);
+// MOVED to lib/bookingStatus.ts (2026-07-29) and imported below. It was derived
+// here and derived a SECOND time inside adminStatusSets.test.ts; splitting
+// CREATED out of "REQUESTED" updated this copy and not that one, so the guard
+// failed against correct code. Deriving in two places is the same disease as
+// hand-listing in two places. The set now has exactly one definition, in the
+// file that owns the state machine it is derived from.
 const notificationService = new NotificationService();
 import {
   getDashboardStats,

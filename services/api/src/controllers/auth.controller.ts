@@ -15,7 +15,12 @@ import { earningsFromStored } from "../lib/earnings";
 import { checkAndAwardMilestones } from "../lib/milestones";
 import { canRemovePooja, poojaBookingWhere } from "../lib/poojaRules";
 import { checkDakshinaFloor } from "../lib/dakshinaFloor";
-import { panditView, withPanditView, dbStatusesForView } from "../lib/bookingStatus";
+import {
+  panditView,
+  withPanditView,
+  dbStatusesForView,
+  ACCEPTABLE_DB_STATUSES,
+} from "../lib/bookingStatus";
 import { NotificationService } from "../services/notification.service";
 import { getNotificationTemplate } from "../services/notification-templates";
 
@@ -1097,7 +1102,12 @@ export const acceptBooking = async (request: FastifyRequest, reply: FastifyReply
   // update = L1 exactly-once ON THE PATH THE CLIENT REALLY CALLS: a double-tap,
   // a voice "स्वीकार" racing a tap, or a retry-after-lost-response all resolve
   // to ONE confirmation and ONE customer SMS.
-  const PENDING = ["PANDIT_REQUESTED", "REQUESTED"];
+  // DERIVED, never hand-listed. This was `["PANDIT_REQUESTED", "REQUESTED"]`
+  // written out by hand, while bookingStatus.ts independently decided which DB
+  // statuses the pandit sees as an actionable request. The two lists disagreed
+  // about CREATED, and the disagreement WAS the 409 the first real booking hit.
+  // One source now answers both questions.
+  const PENDING = [...ACCEPTABLE_DB_STATUSES];
   if (!PENDING.includes(booking.status)) {
     if (booking.status === "CONFIRMED") {
       return reply.send({ success: true, idempotent: true, data: { ...booking, status: panditView(booking.status) } });

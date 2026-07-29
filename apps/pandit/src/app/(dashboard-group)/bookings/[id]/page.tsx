@@ -182,6 +182,12 @@ export default function BookingDetailPage() {
   // which occurs anywhere in the canon; en-route now uses canon's goldpale
   // "awaiting" field with saffron-700 text.
   const getStatusConfig = (statusStr: string) => {
+    // AWAITING_PAYMENT must be handled BEFORE the fallthrough. The default
+    // branch below says "en route" — an unpaid booking would have claimed the
+    // pandit was already travelling to it.
+    if (statusStr === "AWAITING_PAYMENT") {
+      return { label: t("status.awaitingPayment"), bg: "bg-[#EFE8DC] text-temple-700" };
+    }
     if (statusStr === "ACCEPTED") {
       return { label: `✓ ${t("booking.statusAccepted")}`, bg: "bg-leaf-100 text-leaf-700" };
     }

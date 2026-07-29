@@ -7,7 +7,7 @@ import { join } from "node:path";
 //  auth-context.tsx, which requires React — unresolvable in bare node+tsx.)
 import { codeOnly } from "@hmarepanditji/utils/code-only";
 import { KYC_REVIEW_QUEUE_STATUSES } from "@hmarepanditji/types";
-import { dbStatusesForView } from "./bookingStatus";
+import { dbStatusesForView, CANCELLABLE_DB_STATUSES } from "./bookingStatus";
 
 // ─────────────────────────────────────────────────────────────
 // EVERY STATUS SET IN ADMIN, PINNED TO ITS SHARED SOURCE.
@@ -138,7 +138,14 @@ assert.ok(
 // ── 6. the cancellable set really covers what the product WRITES ──
 // A derived set is only worth having if it contains the statuses bookings are
 // actually born into. This is the CAPABILITY ≠ PATH check applied to a set.
-const CANCELLABLE = new Set([...dbStatusesForView("REQUESTED"), ...dbStatusesForView("ACCEPTED")]);
+// IMPORTED, not re-derived. This line used to build its own copy of the set:
+//   new Set([...dbStatusesForView("REQUESTED"), ...dbStatusesForView("ACCEPTED")])
+// which is the same derivation admin.routes.ts was doing — two copies of one
+// rule. When CREATED was split out of "REQUESTED" (2026-07-29) the route was
+// updated and this copy was not, so the guard failed on correct code while
+// reporting that ops had lost the ability to cancel. A guard that keeps its own
+// copy of the thing it is checking is checking itself.
+const CANCELLABLE = CANCELLABLE_DB_STATUSES;
 for (const born of ["CREATED", "PANDIT_REQUESTED", "CONFIRMED"]) {
   assert.ok(
     CANCELLABLE.has(born),
